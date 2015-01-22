@@ -3,7 +3,7 @@ __author__ = 'jeremy'
 
 import sys
 import numpy as np
-import cv2
+import cv2,cv
 import re
 import string
 import matplotlib
@@ -13,7 +13,6 @@ import matplotlib.cm as cm
 import urllib
 import os
 import classify
-import json
 
 # for console debugging:
 import pdb
@@ -32,7 +31,7 @@ WHITE = [255, 255, 255]   # sure FG
 def crop_image_to_BB(img, BB_coordinates_string_or_array):
 #    pdb.set_trace()
     if isinstance(BB_coordinates_string_or_array, basestring):
-        BB_array = json.loads(BB_coordinates_string_or_array)
+        BB_array = string.split(BB_coordinates_string_or_array)
         for i in range (0, len(BB_array)):
             BB_array[i] = int(BB_array[i])
     else:
@@ -62,22 +61,7 @@ def crop_image_to_BB(img, BB_coordinates_string_or_array):
 
     return roi #this is what fp(img) is expecting
 
-def fp(pathToImageFile_Or_cv2ImageArray, bb=None):
-    REMOTE_FILE = False
-    #if given a string, check if URL and download if necessary
-    if isinstance(pathToImageFile_Or_cv2ImageArray, str):
-        if "://" in pathToImageFile_Or_cv2ImageArray:
-            FILENAME = "temp.jpg"#pathToImageFile_Or_cv2ImageArray.split('/')[-1].split('#')[0].split('?')[0]
-            res = urllib.urlretrieve (pathToImageFile_Or_cv2ImageArray, FILENAME)
-            pathToImageFile_Or_cv2ImageArray = FILENAME
-            REMOTE_FILE = True
-        img = cv2.imread(pathToImageFile_Or_cv2ImageArray)
-        os.remove(pathToImageFile_Or_cv2ImageArray)
-    else: 
-        img = pathToImageFile_Or_cv2ImageArray
-
-    img = crop_image_to_BB(img, bb)
-    
+def fp(img):
     s=5   #crop out the outer 1/s of the image for color/texture-based features
     h=img.shape[1]
     w=img.shape[0]
@@ -291,6 +275,76 @@ def classify_and_fingerprint_with_classifier(path_to_image_file, classifier_xml)
     print('in fingerPrint2.py:classify_and_fingerprint:BB='+str(BB_coordinates))
     return classification_list, fingerprint, BB_coordinates
 
+
+
+#  classification_list, fingerprint, bounding_box_list = fp2.classify_and_fingerprint_with_classifier_and_human_bb(row.IMAGEURL, classifier_xml,boundin
+#takes classifier file path and human 'known good' bounding box
+def classify_and_fingerprint_with_classifier_and_human_bb(path_to_image_file, classifier_xml,human_bounding_box):
+    #pdb.set_trace()
+    print("in fingerPrint2:classify_and_fingerprint_with_classifier_and_human_bb:path_to_image_file=" + str(path_to_image_file))
+    REMOTE_FILE = False
+    item_found = False
+    fingerprint = ""
+    classification_dict = {}
+    #read arg from command line if none given to function
+    if path_to_image_file is not None:
+        PATH_TO_FILE = path_to_image_file
+    #else:
+        #wtf is supposed to happen here - who is calling this from command line??
+
+    #we want to be able to read URL as well as local file path
+    if "://" in path_to_image_file:
+        FILENAME = path_to_image_file.split('/')[-1].split('#')[0].split('?')[0]
+        res = urllib.urlretrieve(PATH_TO_FILE, FILENAME)
+        PATH_TO_FILE = FILENAME
+        REMOTE_FILE = True
+
+    #pdb.set_trace()
+    #main prog starts here
+    img = cv2.imread(PATH_TO_FILE)
+    roi = []
+    classification_dict = classify.classify_image_with_classifier(img, classifier_xml)
+    BB_coordinates = [ human_bounding_box ]
+    if len(BB_coordinates) > 0:
+        if BB_coordinates[0] is not None:
+            item_found = True
+            roi = crop_image_to_BB(img, BB_coordinates[0])
+        else:
+            roi=img  
+            BB_coordinates = [[0,0,0,0]]
+            print("in fingerPrint2:classify_and_fp_withClassifierAndHumanBB: len(BB_coordinates)>0 but BB[0] is None -- REALLY WEIRD:")
+            print(BB_coordinates)
+
+    else:
+#        roi = None  #if no BB was formed , don't return an answer!!!!
+        print("in fingerPrint2.py:classify_and_fp+withCLassifierAndHumanBB:bad roi (could not crop?)-using entire img - len(BB)!>0")
+	roi=img
+        BB_coordinates = [[0,0,0,0]]
+    if roi is not None:
+        fingerprint = fp(roi)
+    else:
+        print("in fingerPrint2.py:classify_and_fpWithClassifierAndHumanBB:bad roi (could not crop?) - using entire img")
+        fingerprint_length=56
+        fingerprint=[0 for x in range(fingerprint_length)]
+        fingerprint[0]=-1
+        print("in fingerPrint2.py:fp="+str(fingerprint))
+
+    if REMOTE_FILE:
+        os.remove(PATH_TO_FILE)
+
+    # right now, we're only doing shirts, so it's binary
+    # 0 - nothing found, 1 - at least one shirt found.
+    # even within this simplified case, still need to figure out
+    # how to deal with multiple shirts in an image
+    classification_list = []
+    if item_found:
+        classification_list.append(1)
+    else:
+        classification_list.append(0)
+
+    print('in fingerPrint2.py:classify_and_fingerprint_with_classifier_and_humanBB:fingerprint='+str(fingerprint))
+    print('in fingerPrint2.py:classify_and_fingerprint_with_classifier_and_humanBB:BB='+str(BB_coordinates))
+    return classification_list, fingerprint, BB_coordinates
 
 
 def classify_and_fingerprint_dresses(path_to_image_file):
