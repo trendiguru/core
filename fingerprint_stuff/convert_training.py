@@ -12,7 +12,7 @@ records = training_collection.find()
 for doc in records:
 	image_array=[]
 #	print('before:'+ json.loads(str(doc)) )
-#	print('before:'+ str(doc) )
+	print('before:'+ str(doc) )
 	training_collection.update({'_id':doc['_id']}, {'$unset':{'array_of_images':''}},upsert=True)
 	training_collection.update({'_id':doc['_id']}, {'$unset':{'images':''}},upsert=True)
 	for key in doc.keys():
@@ -25,11 +25,11 @@ for doc in records:
 				print('currently reservedkey')
 	training_collection.update({'_id':doc['_id']}, {'$set':{'images':image_array}},upsert=True)
 	#doc.update({'_id':mongo_id}, {"$set": post}, upsert=False)
-	
+    	print('id:'+str(doc['_id']))	
 	changedRecord = training_collection.find_one({'_id':doc['_id']})
 	print()
         print('after:'+str(changedRecord))
-#	a = raw_input()
+	a = raw_input()
 #remove the now-duplicate info later so i don't risk losing info
 #	doc.update({'images':images})
 
