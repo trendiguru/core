@@ -85,6 +85,8 @@ def lookfor_next_unbounded_image(queryobject,string):
     return(urlN)
 # maybe return(urlN,n) at some point
 
+
+#this is for the products collection, where there's only one images for each record
 def find_next_unbounding_boxed_item(query_result):
     db = pymongo.MongoClient().mydb
 #    product_collection= db.products
