@@ -72,11 +72,17 @@ def lookfor_next_unbounded_image(queryobject,string):
 	print('looking for string:'+str(strN)+' and bb '+str(bbN))
 	logging.debug('looking for string:'+str(strN)+' and bb '+str(bbN))	
 	if strN in queryobject: 
-		if not bbN in queryobject:  # got a pic without a bb
+		if not 'human_bb' in queryobject:  # got a pic without a bb
+			urlN=queryobject[strN]
+			got_unbounded_image = True
+			print('image from string:'+strN+' :is not bounded!!')
+		elif queryobject[humanbb] is None:
 			urlN=queryobject[strN]
 			got_unbounded_image = True
 			print('image from string:'+strN+' :is not bounded!!')
 		else:
+			urlN=None
+			got_unbounded_image = False
 			print('image from string:'+strN+' :is bounded :(')
 	else:
 		print('didn\'t find expected string in training db')
