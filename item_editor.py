@@ -9,7 +9,7 @@ BB_ALLOWANCE = 0.05
 
 
 def find(image_url):
-    post = db.posts.find_one({"image_url": image_url})
+    post = db.posts.find_one({"imageURL": image_url})
     if post == {}:
         fingerprint = fingerprint_core.fp(Utils.get_cv2_img_array(image_url))
         post = db.posts.find_one({"fingerprint": fingerprint})
@@ -33,7 +33,7 @@ def save(item_data):
     :return: success...
     """
     # get the post
-    post = find_or_create_post(item_data["image_url"])
+    post = find_or_create_post(item_data["imageURL"])
 
     # get items
     items = []
@@ -42,13 +42,14 @@ def save(item_data):
 
     # either create a new bb or change an existing one
     # check if its an existing one
-    query_bb = post["bb"]
+    query_bb = post["boundingBox"]
     bb_index = find_item_by_bb(query_bb, items)
     # if an item with this bb exists, replace it...
     if bb_index != -1:
         del items[bb_index]
     # delete image_url to prevent data duplication between doc and subdoc
-    del item_data["image_url"]
+    del item_data["imageURL"]
+    item_data["id"] = len(items)
     items.append(item_data)
 
     # add updated items array to post
