@@ -19,8 +19,6 @@ def onmouse(event,x,y,flags,param):
     print (str(x)+','+str(y)+' r:'+str(img[x,y,0])+' g:'+str(img[x,y,1])+' b:'+str(img[x,y,2])+' h:'+str(hsv[x,y,0])+' s:'+str(hsv[x,y,1])+' v:'+str(hsv[x,y,2]))
 
 
-
-
 class simpleapp_tk(Tkinter.Tk):
     def __init__(self,parent):
         Tkinter.Tk.__init__(self,parent)

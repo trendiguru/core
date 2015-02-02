@@ -14,7 +14,6 @@ DEFAULT_CLASSIFIERS = ["/home/www-data/web2py/applications/fingerPrint/modules/s
                        "/home/www-data/web2py/applications/fingerPrint/modules/dressClassifier.xml"]
 """
 
-
 def crop_image_to_bb(img, bb_coordinates_string_or_array):
     if isinstance(bb_coordinates_string_or_array, basestring):
         bb_array = [int(bb) for bb in string.split(bb_coordinates_string_or_array)]
