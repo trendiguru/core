@@ -36,13 +36,11 @@ def save(item_data):
     post = find_or_create_post(item_data["imageURL"])
 
     # get items
-    items = []
-    if "items" in post:
-        items = post["items"]
+    items = post.get("items", [])
 
     # either create a new bb or change an existing one
     # check if its an existing one
-    query_bb = post["boundingBox"]
+    query_bb = post.get("boundingBox", [])
     bb_index = find_item_by_bb(query_bb, items)
     # if an item with this bb exists, replace it...
     if bb_index != -1:
