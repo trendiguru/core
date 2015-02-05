@@ -34,7 +34,7 @@ def save(item_data):
     :return: success...
     """
 
-    logging.debug(item_data["imageURL"])
+    print item_data["imageURL"]
 
     # get the post
     post = find_or_create_post(item_data["imageURL"])
