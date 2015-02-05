@@ -52,6 +52,7 @@ def save(item_data):
         del items[item_index]
     # delete image_url to prevent data duplication between doc and subdoc
     del item_data["imageURL"]
+    # TODO: rethink deleting id always
     item_data["id"] = len(items)
     items.append(item_data)
 
