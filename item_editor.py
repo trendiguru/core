@@ -94,10 +94,10 @@ def find_or_create_post(url):
     :return: post
     """
     post = db.posts.find_one({"image_url": url})
-    if post == {}:
+    if post is None:
         fingerprint = fingerprint_core.fp(Utils.get_cv2_img_array(url))
         post = db.posts.find_one({"fingerprint": fingerprint})
-        if post == {}:
+        if post is None:
             result = db.posts.insert({"image_url": url, "fingerprint": fingerprint})
             if type(result) is ObjectId:
                 post = db.posts.find_one({"_id": result})
