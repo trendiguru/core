@@ -11,7 +11,7 @@ BB_ALLOWANCE = 0.05
 
 def find(image_url):
     post = db.posts.find_one({"imageURL": image_url})
-    if post == {}:
+    if not post:
         fingerprint = fingerprint_core.fp(Utils.get_cv2_img_array(image_url))
         post = db.posts.find_one({"fingerprint": fingerprint})
     return post
