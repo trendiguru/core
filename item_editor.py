@@ -4,6 +4,7 @@ from bson.objectid import ObjectId
 import fingerprint_core
 import Utils
 import pymongo
+import logging
 db = pymongo.MongoClient().mydb
 BB_ALLOWANCE = 0.05
 
@@ -32,6 +33,9 @@ def save(item_data):
     :param item_data: dictionary of data from the Match Editor
     :return: success...
     """
+
+    logging.debug(item_data["imageURL"])
+
     # get the post
     post = find_or_create_post(item_data["imageURL"])
 
@@ -40,19 +44,33 @@ def save(item_data):
 
     # either create a new bb or change an existing one
     # check if its an existing one
-    query_bb = post.get("boundingBox", [])
-    bb_index = find_item_by_bb(query_bb, items)
+
+    # query_bb = post.get("boundingBox", [])
+    # bb_index = find_item_by_bb(query_bb, items)
+    item_index = find_item_index(item_data, items)
+
     # if an item with this bb exists, replace it...
-    if bb_index != -1:
-        del items[bb_index]
+    if item_index != -1:
+        del items[item_index]
     # delete image_url to prevent data duplication between doc and subdoc
     del item_data["imageURL"]
     item_data["id"] = len(items)
     items.append(item_data)
 
     # add updated items array to post
-    db.posts.update({"_id": post["_id"]}, {"item": items})
+    db.posts.update({"_id": post["_id"]}, {"items": items})
 
+
+def find_item_index(item_data, items):
+    item_index = -1
+    if "id" in item_data:
+        for i in range(0, len(items)):
+            if items[i]["id"] == item_data["id"]:
+                item_index = i
+                break
+    else:
+        item_index = find_item_by_bb(item_data.get("boundingBox", []))
+    return item_index
 
 def find_item_by_bb(query_bb, items):
     index = -1
