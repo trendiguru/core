@@ -58,7 +58,7 @@ def save(item_data):
     items.append(item_data)
 
     # add updated items array to post
-    db.posts.update({"_id": post["_id"]}, {"items": items})
+    db.posts.update({"_id": post["_id"]}, {"$set":{"items": items}})
 
 
 def find_item_index(item_data, items):
