@@ -69,17 +69,19 @@ def find_item_index(item_data, items):
                 item_index = i
                 break
     else:
-        item_index = find_item_by_bb(item_data.get("boundingBox", []))
+        item_index = find_item_by_bb(item_data.get("boundingBox", []), items)
     return item_index
+
 
 def find_item_by_bb(query_bb, items):
     index = -1
-    for i in range(0, len(items)):
-        bb = items[i]["bb"]
-        if [is_within_allowance_of(query_bb[j], bb[j], BB_ALLOWANCE) for j in range(0, len(bb))].all():
-            # More or less same bb
-            index = i
-            break
+    if query_bb:
+        for i in range(0, len(items)):
+            bb = items[i]["bb"]
+            if [is_within_allowance_of(query_bb[j], bb[j], BB_ALLOWANCE) for j in range(0, len(bb))].all():
+                # More or less same bb
+                index = i
+                break
     return index
 
 
