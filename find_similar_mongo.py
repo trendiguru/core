@@ -29,7 +29,8 @@ def find_with_bb_and_keyword(imageURL, bb, category_id, number_of_results=10):
     # get all items in the subcategory/keyword
     query = product_collection.find({"$and": [{"categories": {"$elemMatch": {"id": {"$in": subcategory_id_list}}}},
                                              {"fingerprint": {"$exists": 1}}]},
-                                    {"_id": 0, "id": 1, "categories": 1, "fingerprint": 1, "image": 1, "clickUrl": 1})
+                                    {"_id": 0, "id": 1, "categories": 1, "fingerprint": 1, "image": 1,
+                                     "clickUrl": 1, "price": 1, "brand": 1})
         # {"$and": [
         #     {"categories": {"$elemMatch": {"id": {"$in": subcategory_id_list}}}},
         #     #{"categories": {"$elemMatch": {"name": keyword}}},
