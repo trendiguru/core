@@ -12,7 +12,7 @@ BB_ALLOWANCE = 0.05
 def find(image_url):
     post = db.posts.find_one({"imageURL": image_url})
     if not post:
-        fingerprint = fingerprint_core.fp(Utils.get_cv2_img_array(image_url))
+        fingerprint = fingerprint_core.fp(Utils.get_cv2_img_array(image_url)).tolist()
         post = db.posts.find_one({"fingerprint": fingerprint})
     return post
 
@@ -57,7 +57,7 @@ def save(item_data):
     items.append(item_data)
 
     # add updated items array to post
-    db.posts.update({"_id": post["_id"]}, {"$set":{"items": items}})
+    db.posts.update({"_id": post["_id"]}, {"$set": {"items": items}})
 
 
 def find_item_index(item_data, items):
