@@ -9,11 +9,13 @@ db = pymongo.MongoClient().mydb
 BB_ALLOWANCE = 0.05
 
 
-def find(image_url):
+def find(image_url, number_of_items=None):
     post = db.posts.find_one({"imageURL": image_url})
     if not post:
         fingerprint = fingerprint_core.fp(Utils.get_cv2_img_array(image_url)).tolist()
         post = db.posts.find_one({"fingerprint": fingerprint})
+    if number_of_items is not None:
+        post["items"] = post["items"][0:number_of_items]
     return post
 
 
