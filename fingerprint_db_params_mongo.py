@@ -51,13 +51,22 @@ def fingerprint_the_unfingerprinted():
     print('fingerprinting unfingerprinted items')
     query = db.products.find().batch_size(100) # batch_size required because cursor timed out without it
     total_items = query.count()
+    alpha = 0.01
     i = 1
     n_human_boxed = 0
     n_existing_boxes = 0
     n_unbounded_images = 0
+    previous_tick = time.time()
     start_time = time.time()
+    rate = 0
     for doc in query:
-        print "Starting {i} of {total}, time {dt} of {dt_expected}".format(i=i, total=total_items,dt=time.time()-start_time,dt_expected=(time.time()-start_time)*(total_items-i)/i)
+    	tick = time.time()
+    	dt = tick - previous_tick
+    	Dt = tick - start_time
+    	rate = 1.0/dt * alpha + (1.0-alpha)*rate
+    	Dt_expected=float(total_items-i)/rate
+    	previous_tick = tick
+        print "Starting %d of %d (%.5f percent), time %.3f of %.3f (%.5f percent)" % (i,total_items,100.0*float(i)/float(total_items),Dt,Dt_expected,100.0*float(Dt)/float(Dt_expected))
         image_url = doc["image"]["sizes"]["XLarge"]["url"]
         print "Image URL: {0}".format(image_url)
         # if there is a valid human BB, skip it
