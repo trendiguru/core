@@ -10,6 +10,7 @@ import numpy as np
 import urllib
 import os
 import cv2
+import time
 
 def get_all_subcategories(category_collection, category_id):
     subcategories = []
@@ -39,6 +40,7 @@ def get_size_from_url(url):
     img = cv2.imread(FILENAME)
     h = img.shape[0]
     w = img.shape[1]
+    os.remove(FILENAME)
     return(w,h)
 
 def fingerprint_the_unfingerprinted():
@@ -53,8 +55,9 @@ def fingerprint_the_unfingerprinted():
     n_human_boxed = 0
     n_existing_boxes = 0
     n_unbounded_images = 0
+    start_time = time.time()
     for doc in query:
-        print "Starting {i} of {total}...".format(i=i, total=total_items)
+        print "Starting {i} of {total}, time {dt} of {dt_expected}".format(i=i, total=total_items,dt=time.time()-start_time,dt_expected=(time.time()-start_time)*(total_items-i)/i)
         image_url = doc["image"]["sizes"]["XLarge"]["url"]
         print "Image URL: {0}".format(image_url)
         # if there is a valid human BB, skip it
