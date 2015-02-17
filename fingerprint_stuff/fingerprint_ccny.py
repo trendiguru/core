@@ -1,12 +1,14 @@
 from __future__ import division #make division floating point not integer
 # __author__ = 'liorsabag'
-
+import matplotlib as plt
 import numpy as np
 import cv2
 import string
 import logging
 import time
 from pylab import *
+
+
 
 def crop_image_to_bb(img, bb_coordinates_string_or_array):
     if isinstance(bb_coordinates_string_or_array, basestring):
@@ -47,8 +49,8 @@ def get_file():
     filename = askopenfilename() # show an "Open" dialog box and return the path to the selected file
     print(filename)
     img_array=cv2.imread(filename)
-    cv2.imshow('image',img_array)
-    cv2.waitKey(100)
+ #   cv2.imshow('image',img_array)
+ #   cv2.waitKey(100)
     return(img_array)
 
 #def unwrinkle(img_array,blur_kernelsize=(5,5),blur_sigma=5,edge_minval=100,edge_maxval=200,edge_aperture_size=3,use_accurate_gradient=True):
@@ -64,6 +66,7 @@ def unwrinkle(img_array,params):
 
 #    h, w = img_array.shape[:2]
 #maybe deal with grayscale input images.......tomorrow
+
     print('unwrinkling...')
   #  print locals().keys()
     blur_kernelsize=params[0]
@@ -74,37 +77,23 @@ def unwrinkle(img_array,params):
     use_accurate_gradient=params[5]
     erode_size=params[6]
 
- #   print('bk:'+str(blur_kernelsize))
-   # print locals().values()
+#convert to gray
     gray = cv2.cvtColor(img_array, cv2.COLOR_BGR2GRAY)
-    show_visual_output = False
-    if show_visual_output is True:
-        cv2.imshow('image',gray)
-        cv2.waitKey(100)
-  #      subplot(1,4,1), show(img_array)
-  #      subplot(1,4,2), show(gray)
 
+#blur (guassian) kernelsize has to be odd
     if blur_kernelsize%2 != 1 :
         blur_kernelsize=blur_kernelsize+1
     blurred=cv2.GaussianBlur(gray,(blur_kernelsize,blur_kernelsize),blur_sigma)
-    #gaussian smooth
-    if show_visual_output is True:
-        cv2.imshow('image',blurred)
-        cv2.waitKey(100)
-   #     subplot(1,4,3), show(blurred)
 
+#find edges - canny edge detector
 #    edges = cv2.Canny(blurred,minVal=edge_minval,maxVal=edge_maxval,aperture_size=edge_aperture_size,L2gradient=use_accurate_gradient)
     edges = cv2.Canny(blurred,edge_minval,edge_maxval)
-    if show_visual_output is True:
-        cv2.imshow('image',edges)
-        cv2.waitKey(0)
-#        subplot(1,4,4), show(edges)
 
+#erode
+    if erode_size<1:
+        erode_size=1
     element = cv2.getStructuringElement(cv2.MORPH_CROSS,(erode_size,erode_size))
     eroded = cv2.erode(edges,element)
-    if show_visual_output is True:
-        cv2.imshow('image',eroded)
-        cv2.waitKey(0)
 
     return(eroded)
 
@@ -337,11 +326,16 @@ def get_params(options):
     vals=[]
    # print(options)
     for item in options:
-     #   print(item)
+        print(item)
         for key in item:
-               # s = cv2.getTrackbarPos(switch,'image')
 
-            value = cv2.getTrackbarPos(key,'image')
+            if item[key] in ["Boolean","boolean","Bool","bool"]:
+                switch = '0 : OFF \n1 : ON'
+                value = cv2.getTrackbarPos(switch,'image')
+                print('varname:'+key+' val:'+str(value))
+
+            else:
+                value = cv2.getTrackbarPos(key,'image')
     #        print('varname:'+key+' val:'+str(value))
             vals.append(value)
     return(vals)
@@ -405,11 +399,21 @@ def fp_old(img, bounding_box=None):
 #################
 
 img_array=get_file()
-options=[{"blur_kernelsize":(0,100)},{"blur_sigma":(0,100)},{"edge_minval":(0,300)},{"edge_maxval":(0,300)},{"edge_aperture_size":(0,50)},{"use_accurate_gradient":"Boolean"}]
+print(str(img_array[10,1:]))
+#plt.figure()
+options=[{"blur_kernelsize":(0,100)},{"blur_sigma":(0,100)},{"edge_minval":(0,300)}, \
+         {"edge_maxval":(0,300)},{"edge_aperture_size":(0,50)},{"use_accurate_gradient":"Boolean"},\
+         {"erode_size":(1,100)}]
 make_sliders(options)
 params=get_params(options)
 print(params)
 
+#plt.figure('figure1')
+#imgplot = imshow(img_array)
+#imgplot.set_cmap('spectral')
+
+#plt.imshow(img_array)
+#plt.show()
 #unwrinkled=unwrinkle(img_array,blur_kernelsize=(3,3),blur_sigma=4,edge_minval=50,edge_maxval=200,edge_aperture_size=3,use_accurate_gradient=True)
 
 while(1):
@@ -425,7 +429,8 @@ while(1):
     k = cv2.waitKey(1) & 0xFF
     if k == 27:
         break
-    print('hello')
+    cv2.imshow('original',img_array)
+
 
 
 '''

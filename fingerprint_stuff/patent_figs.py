@@ -10,7 +10,7 @@ from pylab import *
 from mpl_toolkits.mplot3d import Axes3D
 from Tkinter import Tk
 from tkFileDialog import askopenfilename
-from matplotlib import style
+#from matplotlib import style
 
 def get_file():
 
@@ -60,5 +60,5 @@ ysout=[634,340,242,450,820]
 sizes=np.divide(ysout,2)
 print(sizes)
 ax.scatter([226,450,340,330,440],[583,540,270,960,240],xsout,s=sizes)
-style.use('dark_background)')
+#style.use('dark_background)')
 plt.show()
