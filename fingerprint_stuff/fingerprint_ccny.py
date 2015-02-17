@@ -6,6 +6,7 @@ import cv2
 import string
 import logging
 import time
+from pylab import *
 
 def crop_image_to_bb(img, bb_coordinates_string_or_array):
     if isinstance(bb_coordinates_string_or_array, basestring):
@@ -37,6 +38,172 @@ def crop_image_to_bb(img, bb_coordinates_string_or_array):
 
     return cropped_img
 
+from Tkinter import Tk
+from tkFileDialog import askopenfilename
+
+def get_file():
+
+    Tk().withdraw() # we don't want a full GUI, so keep the root window from appearing
+    filename = askopenfilename() # show an "Open" dialog box and return the path to the selected file
+    print(filename)
+    img_array=cv2.imread(filename)
+    cv2.imshow('image',img_array)
+    cv2.waitKey(100)
+    return(img_array)
+
+#def unwrinkle(img_array,blur_kernelsize=(5,5),blur_sigma=5,edge_minval=100,edge_maxval=200,edge_aperture_size=3,use_accurate_gradient=True):
+def unwrinkle(img_array,params):
+    """
+    :param img_array:
+    :return unwrinkled image:
+    """
+    #greyscale
+    #gaussian smooth
+    #canny edge
+    #morphology (dilate i guess) to remove small ad edges
+
+#    h, w = img_array.shape[:2]
+#maybe deal with grayscale input images.......tomorrow
+    print('unwrinkling...')
+  #  print locals().keys()
+    blur_kernelsize=params[0]
+    blur_sigma=params[1]
+    edge_minval=params[2]
+    edge_maxval=params[3]
+    edge_aperture_size=params[4]
+    use_accurate_gradient=params[5]
+ #   print('bk:'+str(blur_kernelsize))
+   # print locals().values()
+    gray = cv2.cvtColor(img_array, cv2.COLOR_BGR2GRAY)
+    show_visual_output = False
+    if show_visual_output is True:
+        cv2.imshow('image',gray)
+        cv2.waitKey(100)
+  #      subplot(1,4,1), show(img_array)
+  #      subplot(1,4,2), show(gray)
+
+    if blur_kernelsize%2 != 1 :
+        blur_kernelsize=blur_kernelsize+1
+    blurred=cv2.GaussianBlur(gray,(blur_kernelsize,blur_kernelsize),blur_sigma)
+    #gaussian smooth
+    if show_visual_output is True:
+        cv2.imshow('image',blurred)
+        cv2.waitKey(100)
+   #     subplot(1,4,3), show(blurred)
+
+#    edges = cv2.Canny(blurred,minVal=edge_minval,maxVal=edge_maxval,aperture_size=edge_aperture_size,L2gradient=use_accurate_gradient)
+    edges = cv2.Canny(blurred,edge_minval,edge_maxval)
+    if show_visual_output is True:
+        cv2.imshow('image',edges)
+        cv2.waitKey(0)
+#        subplot(1,4,4), show(edges)
+
+    element = cv2.getStructuringElement(cv2.MORPH_CROSS,(3,3))
+    eroded = cv2.erode(edges,element)
+    if show_visual_output is True:
+        cv2.imshow('image',eroded)
+        cv2.waitKey(0)
+
+    return(eroded)
+
+def find_color_percentages(img_array):
+    """
+    find colors using hue quantized into a few sectors, plus white , black, and grey
+
+    """
+
+
+    white_saturation_max = 36  # maximum S value for a white pixel14 from the gimp , 14*100/255
+    white_value_min = 214 #  minimum V value for a white pixel this is 84 * 100/255
+    black_value_max = 23 # maximum V value for a black pixel, 15*100/255
+    n_colors=10
+    color_limits=range(0,180+int(180/n_colors),int(180/n_colors))
+    #print(color_limits)
+
+    white_count=0
+    black_count=0
+    grey_count=0
+
+    mhue=0
+    mval=0
+    msat=0
+
+    t0=time.time()
+    h_arr=hsv[:,:,0]
+    s_arr=hsv[:,:,1]
+    v_arr=hsv[:,:,2]
+ #ways to count array elements fitting thresholds
+ #    np.sum(myarray >= thresh)
+#np.size(np.where(np.reshape(myarray,-1) >= thresh))
+#fast array way to do same calculation
+
+ #slow pixel by pixel way
+
+#    t0=time.time()
+#    for x in range(r[2]):
+#        for y in range(r[3]):
+#            mhue=hsv[x,y, 0]   #
+#            msat=hsv[x,y, 1]   #
+#            mval=hsv[x,y, 2]   #the hsv values of current pixel
+#     #       print('x,y:'+str(x)+','+str(y)+' hue:'+str(mhue)+' val:'+str(mval)+' sat:'+str(msat))
+#            if mval<black_value_max:
+#                black_count+=1
+#            elif msat<white_saturation_max:
+ #               if mval>white_value_min:
+ #                  white_count+=1
+ #              else:
+ #                   grey_count+=1
+ #  t1=time.time()
+ #  print('whitecount:'+str(white_count)+ 'greycount:'+str(grey_count)+' blackcount:'+str(black_count)+' dt:'+str(t1-t0)+' area'+str(area))#
+
+
+    black_count=np.sum(v_arr<black_value_max)
+    black_percentage=black_count/area
+    white_mask=(s_arr<white_saturation_max)*(v_arr>white_value_min)
+    white_count=np.sum(white_mask)
+    white_percentage=white_count/area
+    grey_count=np.sum((s_arr<white_saturation_max) *( v_arr<=white_value_min) *( v_arr>=black_value_max))
+    grey_percentage=grey_count/area
+    inv=np.invert(white_mask)
+    color_mask=(np.invert(white_mask))*(v_arr>=black_value_max)
+    colors_count=np.sum(color_mask)
+    print("tot color count:"+str(tot_colors))
+    color_counts=[]
+    for i in range(0,n_colors):
+        color_percentages.append(np.sum(  color_mask*(h_arr<color_limits[i+1])*(h_arr>=color_limits[i])))
+        if DEBUG:
+            print('color '+str(i)+' count ='+str(color_percentages[i]))
+            print('color percentages:'+str(color_percentages))
+        color_percentages[i]=color_percentages[i]/area  #turn pixel count into percentage
+    all_colors=np.zeros(3)
+    all_colors[0]=white_percentage
+    all_colors[1]=black_percentage
+    all_colors[2]=grey_percentage
+    all_colors=np.append(all_colors,color_counts)
+
+    #   all_colors=np.concatenate(all_colors,color_counts)
+    if DEBUG:
+        print('white black grey colors:'+str(all_colors))   #order is : white, black, grey, color_count[0]...color_count[n_colors]
+        print('sum:'+str(np.sum(all_colors)))
+ #   all_colors=color_counts
+ #   np.append(all_colors,white_count)
+ #   np.append(all_colors,black_count)
+ #   all_colors.append(grey_count)
+
+    #dominant_color_indices, dominant_colors = zip(*sorted(enumerate(all_colors), key=itemgetter(1), reverse=True))
+    #above is for array, now working with numpy aray
+
+# the order of dominant colors is what ccny guys used, if we just have vector in order of color i think its just as good
+#so for now the following 3 lines are not used
+    dominant_color_indices=np.argsort(all_colors, axis=-1, kind='quicksort', order=None)
+    dominant_color_indices = dominant_color_indices[::-1]
+    dominant_color_percentages=np.sort(all_colors, axis=-1, kind='quicksort', order=None)
+    dominant_color_percentages = dominant_color_percentages[::-1]
+
+    if DEBUG:
+        print('color percentages:'+str(dominant_color_percentages)+' indices:'+str(dominant_color_indices))
+    t1=time.time()
+    return(all_colors)
 
 def fp_ccny(img, bounding_box=None):
     """
@@ -49,9 +216,8 @@ def fp_ccny(img, bounding_box=None):
 
         """
 
-
-    """
-        DEBUG=True
+    global DEBUG
+    DEBUG=True
     show_visual_output=True
     if (bounding_box is not None) and (bounding_box != np.array([0, 0, 0, 0])).all():
         img = crop_image_to_bb(img, bounding_box)
@@ -76,93 +242,8 @@ def fp_ccny(img, bounding_box=None):
         cv2.waitKey(0)
         cv2.destroyAllWindows()
 
-    white_saturation_max = 36  # maximum S value for a white pixel14 from the gimp , 14*100/255
-    white_value_min = 214 #  minimum V value for a white pixel this is 84 * 100/255
-    black_value_max = 23 # maximum V value for a black pixel, 15*100/255
-    n_colors=10
-    color_limits=range(0,180+int(180/n_colors),int(180/n_colors))
-    #print(color_limits)
 
-    white_count=0
-    black_count=0
-    grey_count=0
-
-    mhue=0
-    mval=0
-    msat=0
-
- #slow pixel by pixel way
-
-#    t0=time.time()
-#    for x in range(r[2]):
-#        for y in range(r[3]):
-#            mhue=hsv[x,y, 0]   #
-#            msat=hsv[x,y, 1]   #
-#            mval=hsv[x,y, 2]   #the hsv values of current pixel
-#     #       print('x,y:'+str(x)+','+str(y)+' hue:'+str(mhue)+' val:'+str(mval)+' sat:'+str(msat))
-#            if mval<black_value_max:
-#                black_count+=1
-#            elif msat<white_saturation_max:
- #               if mval>white_value_min:
- #                  white_count+=1
- #              else:
- #                   grey_count+=1
- #  t1=time.time()
- #  print('whitecount:'+str(white_count)+ 'greycount:'+str(grey_count)+' blackcount:'+str(black_count)+' dt:'+str(t1-t0)+' area'+str(area))#
-    t0=time.time()
-    h_arr=hsv[:,:,0]
-    s_arr=hsv[:,:,1]
-    v_arr=hsv[:,:,2]
- #ways to count array elements fitting thresholds
- #    np.sum(myarray >= thresh)
-#np.size(np.where(np.reshape(myarray,-1) >= thresh))
-#fast array way to do same calculation
-
-    black_count=np.sum(v_arr<black_value_max)
-    black_percentage=black_count/area
-    white_mask=(s_arr<white_saturation_max)*(v_arr>white_value_min)
-    white_count=np.sum(white_mask)
-    white_percentage=white_count/area
-    grey_count=np.sum((s_arr<white_saturation_max) *( v_arr<=white_value_min) *( v_arr>=black_value_max))
-    grey_percentage=grey_count/area
-    inv=np.invert(white_mask)
-    color_mask=(np.invert(white_mask))*(v_arr>=black_value_max)
-    colors_count=np.sum(color_mask)
-    print("tot color count:"+str(tot_colors))
-    color_counts=[]
-    for i in range(0,n_colors):
-        color_counts.append(np.sum(  color_mask*(h_arr<color_limits[i+1])*(h_arr>=color_limits[i])))
-        if DEBUG:
-            print('color '+str(i)+' count ='+str(color_counts[i]))
-            print('color counts:'+str(color_counts))
-        color_counts[i]=color_counts[i]/area
-    all_colors=np.zeros(3)
-    all_colors[0]=white_percentage
-    all_colors[1]=black_percentage
-    all_colors[2]=grey_percentage
-    all_colors=np.append(all_colors,color_counts)
-
-    #   all_colors=np.concatenate(all_colors,color_counts)
-    if DEBUG:
-        print('white black grey colors:'+str(all_colors))   #order is : white, black, grey, color_count[0]...color_count[n_colors]
-        print('sum:'+str(np.sum(all_colors)))
- #   all_colors=color_counts
- #   np.append(all_colors,white_count)
- #   np.append(all_colors,black_count)
- #   all_colors.append(grey_count)
-
-    #dominant_color_indices, dominant_colors = zip(*sorted(enumerate(all_colors), key=itemgetter(1), reverse=True))
-    #above is for array, now working with numpy aray
-
-    dominant_color_indices=np.argsort(all_colors, axis=-1, kind='quicksort', order=None)
-    dominant_color_indices = dominant_color_indices[::-1]
-    dominant_color_percentages=np.sort(all_colors, axis=-1, kind='quicksort', order=None)
-    dominant_color_percentages = dominant_color_percentages[::-1]
-
-    if DEBUG:
-        print('color percentages:'+str(dominant_color_percentages)+' indices:'+str(dominant_color_indices))
-
-    t1=time.time()
+    color_percentages = find_color_percentages(hsv)
 #    print('whitecount:'+str(white_count)+ ' greycount:'+str(grey_count)+' blackcount:'+str(black_count)+' dt:'+str(t1-t0)+' area:'+str(area) %white_count)
     #OpenCV uses  H: 0 - 180, S: 0 - 255, V: 0 - 255
     #histograms
@@ -219,6 +300,51 @@ def fp_ccny(img, bounding_box=None):
 
     return result_vector
 
+
+def nothing(x):
+    pass
+
+def make_sliders(options):
+# Create a black image, a window
+
+    cv2.namedWindow('image')
+   # print(options)
+    # create trackbars for color change
+    for item in options:
+        print(item)
+        for key in item:
+            if item[key] in ["Boolean","boolean","Bool","bool"]:
+                range_min=0
+                range_max=1
+                switch = '0 : OFF \n1 : ON'
+                cv2.createTrackbar(switch, 'image',0,1,nothing)
+            else:
+                range_min=item[key][0]
+                range_max=item[key][1]
+                cv2.createTrackbar(key,'image',range_min,range_max,nothing)
+
+            print('varname:'+key+' min:'+str(range_min)+' max:'+str(range_max))
+
+    # create switch for ON/OFF functionality
+#    switch = '0 : OFF \n1 : ON'
+#    cv2.createTrackbar(switch, 'image',0,1,nothing)
+
+
+
+def get_params(options):
+    vals=[]
+   # print(options)
+    for item in options:
+     #   print(item)
+        for key in item:
+               # s = cv2.getTrackbarPos(switch,'image')
+
+            value = cv2.getTrackbarPos(key,'image')
+    #        print('varname:'+key+' val:'+str(value))
+            vals.append(value)
+    return(vals)
+
+
 def fp_old(img, bounding_box=None):
     if (bounding_box is not None) and (bounding_box != np.array([0, 0, 0, 0])).all():
         img = crop_image_to_bb(img, bounding_box)
@@ -258,6 +384,7 @@ def fp_old(img, bounding_box=None):
     int_uniformity = np.dot(hist_int, hist_int)
 
     #Entropy   t(6)=-sum(p. *(log2(p+ eps)));
+    #watch out! this eps choice affects the results!!!
     eps = 1e-15
     l_hue = np.log2(hist_hue + eps)
     hue_entropy = np.dot(hist_hue, l_hue)
@@ -271,7 +398,32 @@ def fp_old(img, bounding_box=None):
 
     return result_vector
 
+######################333
+#test the various functions
+#################
 
+img_array=get_file()
+options=[{"blur_kernelsize":(0,100)},{"blur_sigma":(0,100)},{"edge_minval":(0,300)},{"edge_maxval":(0,300)},{"edge_aperture_size":(0,50)},{"use_accurate_gradient":"Boolean"}]
+make_sliders(options)
+params=get_params(options)
+print(params)
+
+#unwrinkled=unwrinkle(img_array,blur_kernelsize=(3,3),blur_sigma=4,edge_minval=50,edge_maxval=200,edge_aperture_size=3,use_accurate_gradient=True)
+
+while(1):
+    params=get_params(options)
+#    blur_kernelsize=params["blur_kernelsize"]
+#    blur_sigma=params["blur_sigma"]
+#    edge_minval=params["edge_minval"]
+#    edge_maxval=params["edge_maxval"]
+#    edge_aperture_size=params["edge_aperture_size"]
+    print('params:'+str(params))
+    unwrinkled=unwrinkle(img_array,params)
+    cv2.imshow('image',unwrinkled)
+    k = cv2.waitKey(1) & 0xFF
+    if k == 27:
+        break
+    print('hello')
 
 
 '''
