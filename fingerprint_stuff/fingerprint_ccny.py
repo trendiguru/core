@@ -72,6 +72,8 @@ def unwrinkle(img_array,params):
     edge_maxval=params[3]
     edge_aperture_size=params[4]
     use_accurate_gradient=params[5]
+    erode_size=params[6]
+
  #   print('bk:'+str(blur_kernelsize))
    # print locals().values()
     gray = cv2.cvtColor(img_array, cv2.COLOR_BGR2GRAY)
@@ -98,7 +100,7 @@ def unwrinkle(img_array,params):
         cv2.waitKey(0)
 #        subplot(1,4,4), show(edges)
 
-    element = cv2.getStructuringElement(cv2.MORPH_CROSS,(3,3))
+    element = cv2.getStructuringElement(cv2.MORPH_CROSS,(erode_size,erode_size))
     eroded = cv2.erode(edges,element)
     if show_visual_output is True:
         cv2.imshow('image',eroded)
