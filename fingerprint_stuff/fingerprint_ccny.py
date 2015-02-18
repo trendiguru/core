@@ -253,63 +253,7 @@ def fp_ccny(img, bounding_box=None):
 def nothing(x):
     pass
 
-#def unwrinkle(img_array,blur_kernelsize=(5,5),blur_sigma=5,edge_minval=100,edge_maxval=200,edge_aperture_size=3,use_accurate_gradient=True):
-def unwrinkle(img_array,params):
-    """
-    :param img_array:
-    :return unwrinkled image:
-    """
-    #greyscale
-    #gaussian smooth
-    #canny edge
-    #morphology (dilate i guess) to remove small ad edges
-
-#    h, w = img_array.shape[:2]
-#maybe deal with grayscale input images.......tomorrow
-
-    print('unwrinkling...')
-  #  print locals().keys()
-    blur_kernelsize=params[0]
-    blur_sigma=params[1]
-    edge_minval=params[2]
-    edge_maxval=params[3]
-    edge_aperture_size=params[4]
-    use_accurate_gradient=params[5]
-    erode_size=params[6]
-
-#convert to gray
-    gray = cv2.cvtColor(img_array, cv2.COLOR_BGR2GRAY)
-
-#blur (guassian) kernelsize has to be odd
-    if blur_kernelsize%2 != 1 :
-        blur_kernelsize=blur_kernelsize+1
-    blurred=cv2.GaussianBlur(gray,(blur_kernelsize,blur_kernelsize),blur_sigma)
-
-#find edges - canny edge detector
-#    edges = cv2.Canny(blurred,minVal=edge_minval,maxVal=edge_maxval,aperture_size=edge_aperture_size,L2gradient=use_accurate_gradient)
-    #edge_map=
-    if edge_aperture_size is 0:
-        edge_aperture_size = 1
-#    if edge_minval is 0:
-#        edge_minval = 1
-#    if edge_maxval is 0:
-#        edge_maxval = 1
-
-   # edge_aperture_size=3
-    if use_accurate_gradient:
-        edges = cv2.Canny(image=blurred,threshold1=edge_minval,threshold2=edge_maxval,apertureSize=edge_aperture_size,L2gradient=True)
-    else:
-  #$      edges = cv2.Canny(image=blurred,threshold1=edge_minval,threshold2=edge_maxval,apertureSize=edge_aperture_size,L2gradient=False)
-        edges = cv2.Canny(image=blurred,threshold1=edge_minval,threshold2=edge_maxval,apertureSize=edge_aperture_size,L2gradient=False)
-#erod
-    if erode_size<1:
-        erode_size=1
-    element = cv2.getStructuringElement(cv2.MORPH_CROSS,(erode_size,erode_size))
-    eroded = cv2.erode(edges,element)
-
-    return(eroded)
-
-    def make_sliders(options):
+def make_sliders(options):
 # Create a black image, a window
 
     cv2.namedWindow('image')
@@ -327,7 +271,7 @@ def unwrinkle(img_array,params):
                 range_min=item[key][0]
                 range_max=item[key][1]
                 cv2.createTrackbar(key,'image',range_min,range_max,nothing)
-
+#                cv2.createTrackbar("H-Min", "Processed", processor.tmin1, 255, processor.min1)
             print('varname:'+key+' min:'+str(range_min)+' max:'+str(range_max))
 
     # create switch for ON/OFF functionality
@@ -408,19 +352,134 @@ def fp_old(img, bounding_box=None):
 
     return result_vector
 
-######################333
+def unwrinkle(img_array,params):
+    """
+    :param img_array:
+    :return unwrinkled image:
+    """
+    print('unwrinkling...')
+
+    #greyscale
+    #gaussian smooth
+    #canny edge
+    #morphology (dilate i guess) to remove small ad edges
+    #histogram equalization
+    #select circle centered on image
+    #radon xform
+    #rotate to 0
+    #haar wavelet
+    #co-occurence matrix for wavelet subimages
+    #six statistical features
+
+
+#    h, w = img_array.shape[:2]
+#maybe deal with grayscale input images.......tomorrow
+#defaults
+#    blur_kernelsize=1
+#    blur_sigma=9
+#    edge_minval=30
+#    edge_maxval=90
+#    edge_aperture_size=3
+#    use_accurate_gradient=1
+#    erode_size=1
+
+  #  print locals().keys()
+    blur_kernelsize=params[0]
+    blur_sigma=params[1]
+    edge_minval=params[2]
+    edge_maxval=params[3]
+    edge_aperture_size=params[4]
+    use_accurate_gradient=params[5]
+    erode_size=params[6]
+
+#convert to gray
+    gray = cv2.cvtColor(img_array, cv2.COLOR_BGR2GRAY)
+
+#blur (guassian) kernelsize has to be odd
+    if blur_kernelsize%2 != 1 :
+        blur_kernelsize=blur_kernelsize+1
+    blurred=cv2.GaussianBlur(gray,(blur_kernelsize,blur_kernelsize),blur_sigma)
+
+#find edges - canny edge detector
+#    edges = cv2.Canny(blurred,minVal=edge_minval,maxVal=edge_maxval,aperture_size=edge_aperture_size,L2gradient=use_accurate_gradient)
+    #edge_map=
+    if edge_aperture_size % 2 != 1:
+        edge_aperture_size=edge_aperture_size+1
+    if edge_aperture_size <3:
+        edge_aperture_size = 3    #edge_map=
+    if edge_aperture_size >7:
+        edge_aperture_size = 7
+
+    if edge_minval is 0:
+        edge_minval = 1
+    if edge_maxval is 0:
+        edge_maxval = 1
+  #  edge_minval=50
+ #   edge_maxval=100
+    if use_accurate_gradient:
+        edges = cv2.Canny(image=blurred,threshold1=edge_minval,threshold2=edge_maxval,apertureSize=edge_aperture_size,L2gradient=True)
+    else:
+  #$      edges = cv2.Canny(image=blurred,threshold1=edge_minval,threshold2=edge_maxval,apertureSize=edge_aperture_size,L2gradient=False)size
+        print('eap:'+str(edge_aperture_size))
+        edges = cv2.Canny(image=blurred,threshold1=edge_minval,threshold2=edge_maxval,apertureSize=edge_aperture_size,L2gradient=False)
+#erod
+    if erode_size<1:
+        erode_size=1
+#    element = cv2.getStructuringElement(cv2.MORPH_CROSS,(erode_size,erode_size))
+    element = cv2.getStructuringElement(cv2.MORPH_ELLIPSE,(erode_size,erode_size))
+    eroded = cv2.erode(edges,element)
+
+    return(eroded)
+
+import os
+def do_hardcoded():
+    blur_kernelsize=1
+    blur_sigma=9
+    edge_minval=30
+    edge_maxval=90
+    edge_aperture_size=3
+    use_accurate_gradient=1
+    erode_size=1
+
+    import os
+    path="testimages"
+        #os.path.join("/home","mypath","to_search")
+    for r,d,f in os.walk(path):
+        for files in f:
+           if files[-3:].lower()=='jpg' or files[-4:].lower() =="jpeg":
+                filename=os.path.join(r,files)
+                print "found: ",filename
+                img_array=cv2.imread(filename)
+                params=(1,9,30,90,3,1,1)
+                print(params)
+                unwrinkled=unwrinkle(img_array,params)
+#        cv2.namedWindow('image')
+#        cv2.namedWindow('orig')
+                cv2.imshow('unwrinkled',unwrinkled)
+                cv2.imshow('original',img_array)
+                k = cv2.waitKey(1000) & 0xFF
+                #cv2.destroyAllWindows()
+
+
+############### ########333
 #test the various functions
 #################
 
+do_hardcoded()
+
 img_array=get_file()
-print(str(img_array[10,1:]))
+#print(str(img_array[10,1:]))
 #plt.figure()
 options=[{"blur_kernelsize":(0,100)},{"blur_sigma":(0,100)},{"edge_minval":(0,300)}, \
-         {"edge_maxval":(0,300)},{"edge_aperture_size":(0,50)},{"use_accurate_gradient":"Boolean"},\
+         {"edge_maxval":(0,300)},{"edge_aperture_size":(3,7)},{"use_accurate_gradient":"Boolean"},\
          {"erode_size":(1,100)}]
+#cv2.namedWindow('image')
+# Show an image in the window
+#cv2.imshow('image',img_array)
 make_sliders(options)
 params=get_params(options)
-print(params)
+
+
 
 #plt.figure('figure1')
 #imgplot = imshow(img_array)
@@ -429,8 +488,12 @@ print(params)
 #plt.imshow(img_array)
 #plt.show()
 #unwrinkled=unwrinkle(img_array,blur_kernelsize=(3,3),blur_sigma=4,edge_minval=50,edge_maxval=200,edge_aperture_size=3,use_accurate_gradient=True)
+#def unwrinkle(img_array,blur_kernelsize=(5,5),blur_sigma=5,edge_minval=100,edge_maxval=200,edge_aperture_size=3,use_accurate_gradient=True):
 
-while(1):
+#    Python: cv2.setTrackbarPos(trackbarname, winname, pos) → None¶
+
+while(0):
+
     params=get_params(options)
 #    blur_kernelsize=params["blur_kernelsize"]
 #    blur_sigma=params["blur_sigma"]
