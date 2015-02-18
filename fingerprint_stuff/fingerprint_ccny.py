@@ -53,49 +53,7 @@ def get_file():
  #   cv2.waitKey(100)
     return(img_array)
 
-#def unwrinkle(img_array,blur_kernelsize=(5,5),blur_sigma=5,edge_minval=100,edge_maxval=200,edge_aperture_size=3,use_accurate_gradient=True):
-def unwrinkle(img_array,params):
-    """
-    :param img_array:
-    :return unwrinkled image:
-    """
-    #greyscale
-    #gaussian smooth
-    #canny edge
-    #morphology (dilate i guess) to remove small ad edges
 
-#    h, w = img_array.shape[:2]
-#maybe deal with grayscale input images.......tomorrow
-
-    print('unwrinkling...')
-  #  print locals().keys()
-    blur_kernelsize=params[0]
-    blur_sigma=params[1]
-    edge_minval=params[2]
-    edge_maxval=params[3]
-    edge_aperture_size=params[4]
-    use_accurate_gradient=params[5]
-    erode_size=params[6]
-
-#convert to gray
-    gray = cv2.cvtColor(img_array, cv2.COLOR_BGR2GRAY)
-
-#blur (guassian) kernelsize has to be odd
-    if blur_kernelsize%2 != 1 :
-        blur_kernelsize=blur_kernelsize+1
-    blurred=cv2.GaussianBlur(gray,(blur_kernelsize,blur_kernelsize),blur_sigma)
-
-#find edges - canny edge detector
-#    edges = cv2.Canny(blurred,minVal=edge_minval,maxVal=edge_maxval,aperture_size=edge_aperture_size,L2gradient=use_accurate_gradient)
-    edges = cv2.Canny(blurred,edge_minval,edge_maxval)
-
-#erode
-    if erode_size<1:
-        erode_size=1
-    element = cv2.getStructuringElement(cv2.MORPH_CROSS,(erode_size,erode_size))
-    eroded = cv2.erode(edges,element)
-
-    return(eroded)
 
 def find_color_percentages(img_array):
     """
@@ -295,7 +253,63 @@ def fp_ccny(img, bounding_box=None):
 def nothing(x):
     pass
 
-def make_sliders(options):
+#def unwrinkle(img_array,blur_kernelsize=(5,5),blur_sigma=5,edge_minval=100,edge_maxval=200,edge_aperture_size=3,use_accurate_gradient=True):
+def unwrinkle(img_array,params):
+    """
+    :param img_array:
+    :return unwrinkled image:
+    """
+    #greyscale
+    #gaussian smooth
+    #canny edge
+    #morphology (dilate i guess) to remove small ad edges
+
+#    h, w = img_array.shape[:2]
+#maybe deal with grayscale input images.......tomorrow
+
+    print('unwrinkling...')
+  #  print locals().keys()
+    blur_kernelsize=params[0]
+    blur_sigma=params[1]
+    edge_minval=params[2]
+    edge_maxval=params[3]
+    edge_aperture_size=params[4]
+    use_accurate_gradient=params[5]
+    erode_size=params[6]
+
+#convert to gray
+    gray = cv2.cvtColor(img_array, cv2.COLOR_BGR2GRAY)
+
+#blur (guassian) kernelsize has to be odd
+    if blur_kernelsize%2 != 1 :
+        blur_kernelsize=blur_kernelsize+1
+    blurred=cv2.GaussianBlur(gray,(blur_kernelsize,blur_kernelsize),blur_sigma)
+
+#find edges - canny edge detector
+#    edges = cv2.Canny(blurred,minVal=edge_minval,maxVal=edge_maxval,aperture_size=edge_aperture_size,L2gradient=use_accurate_gradient)
+    #edge_map=
+    if edge_aperture_size is 0:
+        edge_aperture_size = 1
+#    if edge_minval is 0:
+#        edge_minval = 1
+#    if edge_maxval is 0:
+#        edge_maxval = 1
+
+   # edge_aperture_size=3
+    if use_accurate_gradient:
+        edges = cv2.Canny(image=blurred,threshold1=edge_minval,threshold2=edge_maxval,apertureSize=edge_aperture_size,L2gradient=True)
+    else:
+  #$      edges = cv2.Canny(image=blurred,threshold1=edge_minval,threshold2=edge_maxval,apertureSize=edge_aperture_size,L2gradient=False)
+        edges = cv2.Canny(image=blurred,threshold1=edge_minval,threshold2=edge_maxval,apertureSize=edge_aperture_size,L2gradient=False)
+#erod
+    if erode_size<1:
+        erode_size=1
+    element = cv2.getStructuringElement(cv2.MORPH_CROSS,(erode_size,erode_size))
+    eroded = cv2.erode(edges,element)
+
+    return(eroded)
+
+    def make_sliders(options):
 # Create a black image, a window
 
     cv2.namedWindow('image')
