@@ -34,7 +34,10 @@ def get_size_from_url(url):
     #put images in local directory
     FILENAME = url.split('/')[-1].split('#')[0].split('?')[0]
     FILENAME = os.path.join(temp_dir,FILENAME)
-    res = urllib.urlretrieve(url, FILENAME)
+    try:
+	res = urllib.urlretrieve(url, FILENAME)
+    except:
+    	print('unexapected error:'+sys.exc_info()[0])
     #pdb.set_trace()
     #main prog starts here
     img = cv2.imread(FILENAME)
@@ -63,10 +66,11 @@ def fingerprint_the_unfingerprinted():
     	tick = time.time()
     	dt = tick - previous_tick
     	Dt = tick - start_time
-    	rate = 1.0/dt * alpha + (1.0-alpha)*rate
-    	Dt_expected=float(total_items-i)/rate
+    	rate = alpha/dt + (1.0-alpha)*rate
+    	Dt_expected=float(total_items)/rate
+    	remaining_time = float(total_items-i)/rate
     	previous_tick = tick
-        print "Starting %d of %d (%.5f percent), time %.3f of %.3f (%.5f percent)" % (i,total_items,100.0*float(i)/float(total_items),Dt,Dt_expected,100.0*float(Dt)/float(Dt_expected))
+        print "Starting %d of %d (%.5f percent), time %.3f of %.3f (%.5f percent), rate:%.3f images/s, dt:%6f" % (i,total_items,100.0*float(i)/float(total_items),Dt,Dt_expected,100.0*float(Dt)/float(Dt_expected),rate,dt)
         image_url = doc["image"]["sizes"]["XLarge"]["url"]
         print "Image URL: {0}".format(image_url)
         # if there is a valid human BB, skip it
