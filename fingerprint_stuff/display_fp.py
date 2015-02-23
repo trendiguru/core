@@ -35,7 +35,7 @@ def fp(img, bounding_box=None):
 
     #OpenCV uses  H: 0 - 180, S: 0 - 255, V: 0 - 255
     #histograms
-    bins = 10
+    bins = 50
     n_pixels = roi.shape[0] * roi.shape[1]
 
     hist_hue = cv2.calcHist([hsv], [0], None, [bins], [0, 180])
