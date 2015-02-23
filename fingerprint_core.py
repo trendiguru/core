@@ -44,7 +44,6 @@ def crop_image_to_bb(img, bb_coordinates_string_or_array):
 
     return cropped_img
 
-
 def fp(img, bounding_box=None):
     if (bounding_box is not None) and (bounding_box != np.array([0, 0, 0, 0])).all():
         img = crop_image_to_bb(img, bounding_box)
@@ -55,6 +54,7 @@ def fp(img, bounding_box=None):
     r = [h / s, w / s, h - 2 * h / s, w - 2 * w / s]
 
     roi = np.zeros((r[3], r[2], 3), np.uint8)
+    # should use imageop.crop here instead, its prob. faster
     for xx in range(r[2]):
         for yy in range(r[3]):
             roi[yy, xx, :] = img[yy + r[1], xx + r[0], :]
