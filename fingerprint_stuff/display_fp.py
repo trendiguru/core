@@ -35,7 +35,7 @@ def fp(img, bounding_box=None):
 
     #OpenCV uses  H: 0 - 180, S: 0 - 255, V: 0 - 255
     #histograms
-    bins = 25
+    bins = 10
     n_pixels = roi.shape[0] * roi.shape[1]
 
     hist_hue = cv2.calcHist([hsv], [0], None, [bins], [0, 180])
@@ -69,9 +69,15 @@ def fp(img, bounding_box=None):
     fig.subplots_adjust(left=0.2, wspace=0.6)
 
     ax1 = fig.add_subplot(311)
-    hist_max=180
-    bin_centers = range(hist_max/bins/2,hist_max-hist_max/bins/2,hist_max/bins)
+    hist_max=180.0
+    bins_start= int(hist_max/float(bins)/2)
+    bins_end = int(hist_max-hist_max/float(bins)/2)+1
+    print('bins start'+str(bins_start))
+    bin_edges = range(0,int(hist_max)+1,int(hist_max/bins))
+    print('bin edges'+str(bin_edges))
+    bin_centers = range(bins_start,bins_end,int(hist_max/float(bins)))
     print(bin_centers)
+    print(len(bin_centers))
     ax1.bar(bin_centers,hist_hue,width=5)
   #  n, bins, patches = plt.hist(hist_hue, num_bins, normed=1, facecolor='green', alpha=0.5)
 
