@@ -114,7 +114,6 @@ def main():
     to run on entire database and fingerprint anything not that doesnt already have a fingerprint, do:
     python fingerprint_db_params_mongo.py undone
     """
-    
 # logging.basicConfig(filename='fingerprint_db.log', level=logging.DEBUG)
     first_run = False
     print(sys.argv)
