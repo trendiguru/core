@@ -105,10 +105,21 @@ def find_color_percentages(img_array):
  #  t1=time.time()
  #  print('whitecount:'+str(white_count)+ 'greycount:'+str(grey_count)+' blackcount:'+str(black_count)+' dt:'+str(t1-t0)+' area'+str(area))#
 
+    mask[0] = image[0]==0
+    mask[1] = image[1]==0
+    mask[2] = image[2]==0
+
+    masksofi = mask[0] * mask[1] * mask[2]
 
     black_count=np.sum(v_arr<black_value_max)
     black_percentage=black_count/area
-    white_mask=(s_arr<white_saturation_max)*(v_arr>white_value_min)
+
+
+    white_mask=(s_arr<white_saturation_max) *(v_arr>white_value_min)
+
+
+
+
     white_count=np.sum(white_mask)
     white_percentage=white_count/area
     grey_count=np.sum((s_arr<white_saturation_max) *( v_arr<=white_value_min) *( v_arr>=black_value_max))
@@ -434,9 +445,17 @@ def unwrinkle(img_array,params):
 import os
 def my_hough_lines(img_array):
     gray = cv2.cvtColor(img_array,cv2.COLOR_BGR2GRAY)
-    edges = cv2.Canny(gray,50,150,apertureSize = 3)
+    edges = cv2.Canny(gray,50,150,apertureSize=3)
 
-    lines = cv2.HoughLinesWithAccumulator(edges,1,np.pi/180,200)
+    print('ok0')
+    rho=2
+    lines = cv2.HoughLines(edges,rho,np.pi/180,200)
+
+    print('ok1')
+    lines = cv2.HoughLinesWithAccumulator(edges,rho,np.pi/180,200)
+    print('ok2')
+    lines, arr = cv2.HoughLinesWithAccumulator(edges,rho,np.pi/180,200)
+    print('still ok')
     if lines is not None:
         for rho,theta in lines[0]:
             a = np.cos(theta)
@@ -451,7 +470,13 @@ def my_hough_lines(img_array):
         cv2.line(img_array,(x1,y1),(x2,y2),(0,0,255),2)
         cv2.imshow('lines',img_array)
         k = cv2.waitKey(0) & 0xFF
-#        a=raw_input('input')
+
+    print('still ok1')
+
+    if arr is not None:
+        cv2.imshow('arr',arr)
+        k = cv2.waitKey(0) & 0xFF
+
 
 def do_hardcoded():
     blur_kernelsize=1
