@@ -12,6 +12,7 @@ import pymongo
 import fingerprint_core as fp
 import Utils
 import NNSearch
+import numpy as np
 
 #    def tear_down(self):
 #        shutil.rmtree(self.temp_dir)
@@ -72,7 +73,7 @@ def compare_fingerprints(image_array1,image_array2):
     n = 0
     i = 0
     j = 0
-    use_visual_output = True
+    use_visual_output = False
     use_visual_output2 = False
     for entry1 in image_array1:
 	print('entry1:'+str(entry1))
@@ -112,32 +113,70 @@ def compare_fingerprints(image_array1,image_array2):
 
     avg_dist = float(tot_dist)/float(n)
     print('average distance:'+str(avg_dist)+',n='+str(n)+',tot='+str(tot_dist))
+    return(avg_dist)
 
+def normalize_matrix(matrix):
+	# the matrix should be square and is only populated in top triangle , including the diagonal
+	# so the number of elements is 1+2+...+N  for an  NxN array, which comes to N*(N+1)/2
+    n_elements =float(matrix.shape[0]*matrix.shape[0]+matrix.shape[0])/2.0   
+    sum = np.sum(matrix)
+    avg = sum / n_elements
+    normalized_matrix = np.divide(matrix,avg)
+    return(normalized_matrix)
 
 def cross_compare(image_sets):
+    confusion_matrix = np.zeros((len(image_sets),len(image_sets)))
+    print('confusion matrix size:'+str(len(image_sets))+' square')
     for i in range(0,len(image_sets)):
     	for j in range(i,len(image_sets)):
 		print('comparing group '+str(i)+' to group '+str(j))
-    		compare_fingerprints(image_sets[i],image_sets[j])
+		print('group 1:'+str(image_sets[i]))
+		print('group 2:'+str(image_sets[j]))
+    		avg_dist = compare_fingerprints(image_sets[i],image_sets[j])
+		confusion_matrix[i,j]=avg_dist
+		print('confusion matrix is currently:'+str(confusion_matrix))
+    normalized_matrix = normalize_matrix(confusion_matrix)
+    return(normalized_matrix)
 
-def lookfor_images():
+def mytrace(matrix):
+    sum=0
+    for i in range(0,matrix.shape[0]):
+    	sum=sum+matrix[i,i]
+    return(sum)
+
+def calculate_normalized_confusion_matrix():
     db=pymongo.MongoClient().mydb
     training_collection_cursor = db.training.find()   #The db with multiple figs of same item
     assert(training_collection_cursor)  #make sure training collection exists
     doc = next(training_collection_cursor, None)
     i=0
-    while doc is not None:
+    tot_answers=[]
+    while doc is not None and i<3:
 #        print('doc:'+str(doc))
-        tot_answers=[]
         if doc["images"] is not None:
             tot_answers.append(doc['images'])
 #    	    print('result:'+str(answers))
 	    i=i+1
     	doc = next(training_collection_cursor, None)
-    print('tot groups:'+str(i))
-    cross_compare(tot_answers)
+    print('tot number of groups:'+str(i)+'='+str(len(tot_answers)))
+    print('tot_answers:'+str(tot_answers))
+    confusion_matrix = cross_compare(tot_answers)
+    print('confusion matrix:'+str(confusion_matrix))
+    return(confusion_matrix) 
+
+def rate_fingerprint():
+    confusion_matrix = calculate_normalized_confusion_matrix()
+    #number of diagonal and offdiagonal elements for NxN array  is N and (N*N-1)/2
+    n_diagonal_elements = confusion_matrix.shape[0]
+    n_offdiagonal_elements = float(confusion_matrix.shape[0]*confusion_matrix.shape[0]-confusion_matrix.shape[0])/2.0
+    same_item_avg = mytrace(confusion_matrix)/n_diagonal_elements
+    different_item_avg = (float(np.sum(confusion_matrix))-float(mytrace(confusion_matrix))) / n_offdiagonal_elements
+    goodness = different_item_avg - same_item_avg
+    print('same item average:'+str(same_item_avg)+' different item average:'+str(different_item_avg)+' difference:'+str(goodness))
+    return(goodness)
+
 
 if __name__ == '__main__':
-    lookfor_images()
+    rate_fingerprint()
 
 
