@@ -63,25 +63,25 @@ def fingerprint_the_unfingerprinted():
     start_time = time.time()
     rate = 0
     for doc in query:
-    	tick = time.time()
-    	dt = tick - previous_tick
-    	Dt = tick - start_time
-    	rate = alpha/dt + (1.0-alpha)*rate
-    	Dt_expected=float(total_items)/rate
-    	remaining_time = float(total_items-i)/rate
-    	previous_tick = tick
+        tick = time.time()
+        dt = tick - previous_tick
+        Dt = tick - start_time
+        rate = alpha/dt + (1.0-alpha)*rate
+        Dt_expected = float(total_items)/rate
+        remaining_time = float(total_items-i)/rate
+        previous_tick = tick
         print "Starting %d of %d (%.5f percent), time %.3f of %.3f (%.5f percent), rate:%.3f images/s, dt:%6f" % (i,total_items,100.0*float(i)/float(total_items),Dt,Dt_expected,100.0*float(Dt)/float(Dt_expected),rate,dt)
         image_url = doc["image"]["sizes"]["XLarge"]["url"]
         print "Image URL: {0}".format(image_url)
         # if there is a valid human BB, skip it
         if "human_bb" in doc.keys() and doc["human_bb"] != [0, 0, 0, 0] and doc["human_bb"] is not None:
             chosen_bounding_box = doc["human_bb"]
-    	    print('human bounding_box:'+str(chosen_bounding_box))
+            print('human bounding_box:'+str(chosen_bounding_box))
             logging.debug("Human bb found: {bb} for item: {id}".format(bb=chosen_bounding_box, id=doc["id"]))
-    	    n_human_boxed += 1
+            n_human_boxed += 1
         #otherwise if there is a valid automatically generated bb skip it
         elif "bounding_box" in doc.keys() and doc["bounding_box"] != [0,0,0,0] and doc["bounding_box"] is not None:
-    	    chosen_bounding_box = doc["bounding_box"]
+            chosen_bounding_box = doc["bounding_box"]
 	    print('existing bounding_box:'+str(chosen_bounding_box))
             logging.debug("classifier bb found: {bb} for item: {id}".format(bb=chosen_bounding_box, id=doc["id"]))
     	    if chosen_bounding_box[0] == 0 and chosen_bounding_box[1] == 0:
