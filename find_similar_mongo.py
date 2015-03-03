@@ -22,7 +22,7 @@ def get_all_subcategories(category_collection, category_id):
 
 def find_with_bb_and_keyword(imageURL, bb, category_id, number_of_results=10):
     db = pymongo.MongoClient().mydb
-    product_collection= db.products
+    product_collection = db.products
 
     subcategory_id_list = get_all_subcategories(db.categories, category_id)
 
