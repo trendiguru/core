@@ -148,4 +148,5 @@ def my_gc(image, bounding_box=None):
             cv2.grabCut(image, mask, rect, bgdmodel, fgdmodel, 1, cv2.GC_INIT_WITH_RECT)
 
     mask2 = np.where((mask == 1) + (mask == 3), 255, 0).astype('uint8')
-    return mask2
+    output = cv2.bitwise_and(image, image, mask=mask2)
+    return mask2, output
