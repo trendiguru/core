@@ -12,6 +12,7 @@ import os
 import cv2
 import time
 
+
 def get_all_subcategories(category_collection, category_id):
     subcategories = []
 
@@ -26,25 +27,27 @@ def get_all_subcategories(category_collection, category_id):
     print(subcategories)
     return subcategories
 
+
 def get_size_from_url(url):
     item_found = False
     temp_dir = 'temp'
     if not os.path.isdir(temp_dir):
         os.makedirs(temp_dir)
-    #put images in local directory
+    # put images in local directory
     FILENAME = url.split('/')[-1].split('#')[0].split('?')[0]
     FILENAME = os.path.join(temp_dir,FILENAME)
     try:
-	res = urllib.urlretrieve(url, FILENAME)
+        res = urllib.urlretrieve(url, FILENAME)
     except:
-    	print('unexapected error:'+sys.exc_info()[0])
-    #pdb.set_trace()
-    #main prog starts here
+        print('unexapected error:'+sys.exc_info()[0])
+    # pdb.set_trace()
+    # main prog starts here
     img = cv2.imread(FILENAME)
     h = img.shape[0]
     w = img.shape[1]
     os.remove(FILENAME)
-    return(w,h)
+    return w, h
+
 
 def fingerprint_the_unfingerprinted():
     """
@@ -52,7 +55,7 @@ def fingerprint_the_unfingerprinted():
     """    
     db = pymongo.MongoClient().mydb
     print('fingerprinting unfingerprinted items')
-    query = db.products.find().batch_size(100) # batch_size required because cursor timed out without it
+    query = db.products.find().batch_size(100)  # batch_size required because cursor timed out without it
     total_items = query.count()
     alpha = 0.01
     i = 1
@@ -70,7 +73,7 @@ def fingerprint_the_unfingerprinted():
         Dt_expected = float(total_items)/rate
         remaining_time = float(total_items-i)/rate
         previous_tick = tick
-        print "Starting %d of %d (%.5f percent), time %.3f of %.3f (%.5f percent), rate:%.3f images/s, dt:%6f" % (i,total_items,100.0*float(i)/float(total_items),Dt,Dt_expected,100.0*float(Dt)/float(Dt_expected),rate,dt)
+        print "Starting %d of %d (%.5f percent), time %.3f of %.3f (%.5f percent), rate:%.3f images/s, dt:%6f" % (i, total_items, 100.0*float(i)/float(total_items),Dt,Dt_expected,100.0*float(Dt)/float(Dt_expected),rate,dt)
         image_url = doc["image"]["sizes"]["XLarge"]["url"]
         print "Image URL: {0}".format(image_url)
         # if there is a valid human BB, skip it
@@ -79,25 +82,24 @@ def fingerprint_the_unfingerprinted():
             print('human bounding_box:'+str(chosen_bounding_box))
             logging.debug("Human bb found: {bb} for item: {id}".format(bb=chosen_bounding_box, id=doc["id"]))
             n_human_boxed += 1
-        #otherwise if there is a valid automatically generated bb skip it
-        elif "bounding_box" in doc.keys() and doc["bounding_box"] != [0,0,0,0] and doc["bounding_box"] is not None:
+        # otherwise if there is a valid automatically generated bb skip it
+        elif "bounding_box" in doc.keys() and doc["bounding_box"] != [0, 0, 0, 0] and doc["bounding_box"] is not None:
             chosen_bounding_box = doc["bounding_box"]
-	    print('existing bounding_box:'+str(chosen_bounding_box))
-            logging.debug("classifier bb found: {bb} for item: {id}".format(bb=chosen_bounding_box, id=doc["id"]))
-    	    if chosen_bounding_box[0] == 0 and chosen_bounding_box[1] == 0:
-		n_unbounded_images += 1
-    	    else:
-    		n_existing_boxes += 1
+        print('existing bounding_box:'+str(chosen_bounding_box))
+        logging.debug("classifier bb found: {bb} for item: {id}".format(bb=chosen_bounding_box, id=doc["id"]))
+        if chosen_bounding_box[0] == 0 and chosen_bounding_box[1] == 0:
+            n_unbounded_images += 1
         else:
-    	    w,h = get_size_from_url(image_url)
-    	    chosen_bounding_box = [0,0,w,h]
-            try:
-            	fingerprint = fp.fp(get_cv2_img_array(image_url), chosen_bounding_box)
-            	db.products.update({"id": doc["id"]},
-                                      {"$set": {"fingerprint": fingerprint.tolist(),
-                                                "fp_date": datetime.datetime.now(),
-                                                "bounding_box": np.array(chosen_bounding_box).tolist()}
-                                      })
+            n_existing_boxes += 1
+            w, h = get_size_from_url(image_url)
+            chosen_bounding_box = [0, 0, w, h]
+        try:
+            fingerprint = fp.fp(get_cv2_img_array(image_url), chosen_bounding_box)
+            db.products.update({"id": doc["id"]},
+                               {"$set": {"fingerprint": fingerprint.tolist(),
+                                        "fp_date": datetime.datetime.now(),
+                                        "bounding_box": np.array(chosen_bounding_box).tolist()}
+                               })
  	   	print('full image bounding_box:'+str(chosen_bounding_box))
     		n_unbounded_images += 1
             except Exception as e:
@@ -106,7 +108,7 @@ def fingerprint_the_unfingerprinted():
     	print('auto-boxed images:'+str(n_existing_boxes)+' human-boxed images:'+str(n_human_boxed)+' unboxed images:'+str(n_unbounded_images))
 #    	s = raw_input('hit return for next')
 
-    return(n_existing_boxes,n_human_boxed,n_unbounded_images)
+        return(n_existing_boxes,n_human_boxed,n_unbounded_images)
 
 def main():
     """
