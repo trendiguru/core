@@ -92,8 +92,10 @@ def lookfor_next_unbounded_image(queryobject,string):
     return(urlN)
 # maybe return(urlN,n) at some point
 
+#i blv the below can be safely nuked
 def find_next_unbounding_boxed_item(query_result):
-    db = pymongo.MongoClient().mydb
+    pass
+q'''    db = pymongo.MongoClient().mydb
 #    product_collection= db.products
     training_collection= db.training
 
@@ -151,3 +153,4 @@ def find_next_unbounding_boxed_item(query_result):
 
     closest_matches = findNNs(target_dict, db_fingerprint_list, number_of_results)
     return fgpt.tolist(), closest_matches
+'''
