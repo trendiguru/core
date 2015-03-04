@@ -456,7 +456,7 @@ def my_hough_lines(img_array):
     print('ok2')
     lines, arr = cv2.HoughLinesWithAccumulator(edges,rho,np.pi/180,200)
 
-    print('shape:'+str(arr.shape)+' size:'+str(arr.size)+' dtype:'+str(arr.dsize))
+    print('shape:'+str(arr.shape)+' size:'+str(arr.size)+' dtype:'+str(arr.dtype))
     if lines is not None:
         for rho,theta in lines[0]:
             a = np.cos(theta)
@@ -475,7 +475,12 @@ def my_hough_lines(img_array):
     print('still ok1')
 
     if arr is not None:
-        cv2.imshow('arr',arr)
+        minVal,maxVal,minLoc,maxLoc = cv2.minMaxLoc(arr)
+        print('min:'+str(minVal)+' max:'+str(maxVal)+' minloc:'+str(minLoc)+'maxLoc:'+str(maxLoc))
+        res = arr*255.0/maxVal
+        res2 = np.uint8(res)
+        arr_equalized=cv2.equalizeHist(res2)
+        cv2.imshow('arr',arr_equalized)
         k = cv2.waitKey(0) & 0xFF
 
 
