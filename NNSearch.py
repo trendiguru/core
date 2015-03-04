@@ -8,12 +8,11 @@ import json  #needed to parse command line input as dict instead of string
 import pdb
 from operator import itemgetter#, attrgetter
 
-#>>> sorted(student_tuples, key=itemgetter(2))
-#[('dave', 'B', 10), ('jane', 'B', 12), ('john', 'A', 15)]
-#>>> sorted(student_objects, key=attrgetter('age'))
-#[('dave', 'B', 10), ('jane', 'B', 12), ('john', 'A', 15)]
+K = 1.5 # .5 is the same as Euclidean
+FP_KEY = "fingerPrintVector"
 
-def MinEuclideanDistance(testPoint, Points, nMatches):
+
+def min_euclidean_distance(testPoint, Points, nMatches):
     d = len(testPoint)
     d2 = len(Points[0])
     if d != d2:
@@ -22,7 +21,7 @@ def MinEuclideanDistance(testPoint, Points, nMatches):
   #  print('dimMatch:'+str(d)+' dimPoints:'+str(d2)+' nPoints:'+str(nPoints)+' nMatches:'+str(nMatches))
     if nMatches > nPoints:
         print('warning:nMatches>nPoints, returning nPoints instead')
-        return(MinEuclideanDistance(testPoint,Points,nPoints))
+        return(min_euclidean_distance(testPoint,Points,nPoints))
     if nPoints==0:
         exit('no dB points given!')
 
@@ -82,9 +81,84 @@ def MinEuclideanDistance(testPoint, Points, nMatches):
     return bestMatches, bestMatchValues
 
 
-#add use of bestmatchvalues to avoid repeatedly calculating euclidean distance
+def findNNs(targetDict, entries, nMatches):
+    return find_n_nearest_neighbors(targetDict, entries, nMatches, distance_1_k)
+
+    '''
+    #eliminate entries with wrong clothing class
+    nEntries = len(entries)
+    relevantEntries = []
+#    print('target class'+str(targetDict["clothingClass"]))
+    dbVectors = []
+    #####eliminate entries that don't have the right clothing class
+    j = 0 #this is the index for the original entries
+    trackingIndex = []
+#    print('target'+str(targetDict))
+
+    for i in range(0, nEntries):
+        #this is done ahead of time with the DB query
+        #if entries[i]["clothingClass"]==targetDict["clothingClass"]:
+        relevantEntries.append(entries[i])
+        trackingIndex.append(i)
+        j=j+1
+        dbVectors.append(entries[i]["fingerPrintVector"])
+
+    targetVector=targetDict["fingerPrintVector"]
+
+    indices, distances = min_euclidean_distance(targetVector, dbVectors, nMatches)
+    answerArray=[]
+    answerIndices=[]
+#   print('new order of indices:'+str(indices))
+    for i in range(0,len(indices)):
+        relevantEntries[i]['index'] = trackingIndex[indices[i]]
+        answerIndices.append(trackingIndex[indices[i]])
+        answerArray.append(relevantEntries[indices[i]])
+
+    closest_matches = []
+    for i in range(0, len(answerIndices)):
+#        pdb.set_trace()
+        match = entries[answerIndices[i]]
+        match["distance"] = distances[i]
+        closest_matches.append(entries[answerIndices[i]])
+
+    return closest_matches
+    #print('distances'+str(distances))
+    #print('indices'+str(indices))
+    '''
+
+def find_n_nearest_neighbors(target_vector, entries, number_of_matches, distance_function):
+    # list of tuples with (entry,distance). Initialize with first n distance values
+    nearest_n = [(entries[i], distance_function(entries[i][FP_KEY], target_vector))
+                 for i in range(0, number_of_matches)]
+    nearest_n.sort(key=lambda tup: tup[1])
+    # last item in the list (index -1 - go python!)
+    farthest_nearest = nearest_n[-1][1]
+
+    # Loop through remaining entries, if one of them is better, insert it in the correct location and remove last item
+    for i in range(number_of_matches, len(entries)):
+        d = distance_1_k(entries[i][FP_KEY], target_vector, 1.5)
+        if d < farthest_nearest:
+            insert_at = number_of_matches-2
+            while d < nearest_n[insert_at][1]:
+                insert_at -= 1
+                if insert_at == 0:
+                    break
+            nearest_n.insert(insert_at, (entries[i], d))
+            nearest_n.pop()
+            farthest_nearest = nearest_n[-1][1]
+    return nearest_n
+
+
+def distance_1_k(fp1, fp2, k=K):
+    """This calculates distance between to arrays. When k = .5 this is the same as Euclidean."""
+    f12 = np.abs(np.array(fp1) - np.array(fp2))
+    f12_p = np.power(f12, 1 / k)
+    return np.power(np.sum(f12_p), k)
+
+
 
 # bubble sort
+'''
 def mySort(indexList,Points,testPoint):
     if (len(indexList)==1):
         r=scipy.spatial.distance.pdist([Points[indexList[0]],testPoint], metric='euclidean')[0]
@@ -110,7 +184,9 @@ def mySort(indexList,Points,testPoint):
 #    print('sorted list')
 #    print(indexList)
     return(indexList,worst,worst_index)
+'''
 
+'''
 #not used
 def insert(newTuple,tupleList):
     i=0
@@ -120,7 +196,7 @@ def insert(newTuple,tupleList):
 		tupleList.insert(i,newTuple)
 		tupleList.pop()
 #		print('list after insert:'+str(tupleList))
-    		return(tupleList) 
+    		return(tupleList)
 	i=i+1
 #$   d=len(targetPoint)
  #   N=len(bestMatches)
@@ -137,108 +213,4 @@ def insert(newTuple,tupleList):
       #  mindist=
     # Y : ndarray
     #Returns a condensed distance matrix Y. For each i and j (where i<j<n), the metric dist(u=X[i], v=X[j]) is computed and stored in entry ij.
-
-def findNNs(targetDict, entries, nMatches):
-    #eliminate entries with wrong clothing class
-    nEntries = len(entries)
-    relevantEntries = []
-#    print('target class'+str(targetDict["clothingClass"]))
-    dbVectors = []
-    #####eliminate entries that don't have the right clothing class
-    j = 0 #this is the index for the original entries
-    trackingIndex = []
-#    print('target'+str(targetDict))
-
-    for i in range(0, nEntries):
-        #this is done ahead of time with the DB query
-        #if entries[i]["clothingClass"]==targetDict["clothingClass"]:
-        relevantEntries.append(entries[i])
-        trackingIndex.append(i)
-        j=j+1
-        dbVectors.append(entries[i]["fingerPrintVector"])
-
-    targetVector=targetDict["fingerPrintVector"]
-
-    indices, distances = MinEuclideanDistance(targetVector, dbVectors, nMatches)
-    answerArray=[]
-    answerIndices=[]
-#   print('new order of indices:'+str(indices))
-    for i in range(0,len(indices)):
-        relevantEntries[i]['index'] = trackingIndex[indices[i]]
-        answerIndices.append(trackingIndex[indices[i]])
-        answerArray.append(relevantEntries[indices[i]])
-
-    closest_matches = []
-    for i in range(0, len(answerIndices)):
-#        pdb.set_trace()
-        match = entries[answerIndices[i]]
-        match["distance"] = distances[i]
-        closest_matches.append(entries[answerIndices[i]])
-
-    return closest_matches
-    #print('distances'+str(distances))
-    #print('indices'+str(indices))
-
-
-
-
-# ###############################################################################################################################
-# ###############################################################################################################################
-# ###############################################################################################################################
-# #        NNSearch
-# ###############################################################################################################################
-# ###############################################################################################################################
-# #
-# # command line usage: python NNSearch.py '{"fingerPrintVector":[list of real],"clothingClass":[list of int]}' nMatches
-# #
-# #the clothingClass is a vector , currently length 1 but getting longer as our dict power grows and we become more excited about clothing recognition
-# #targetDict = {"clothingClass":list,"fingerPrintVector":list}   where the lists are arrays - integer for clothing class, real for fingerprint
-#
-# vectorLength=2  #length of the fingerprint vector - this only needs to be specified during testing when we have to fake
-#                 #both the target and the db entries
-#
-# #get target from command line
-# #usage: python NNSearch.py '{"fingerPrintVector":[0.1,0.2],"clothingClass":[1]}' 2
-#
-# nArgs=len(sys.argv)
-# if nArgs>1:
-#     targetDict = json.loads(sys.argv[1])
-#     if nArgs>2:
-#         nMatches=int(sys.argv[2])
-#     else:
-#         nMatches=1   #if command line used for dict but not nMatches assume one (best) match is desired
-# #    print('target:'+str(targetDict)+' nMatches:'+str(nMatches))
-# #unless there's no command line argument in which case make up a random target and make up nMatches
-# else:
-#     vector=[]
-#     nMatches=3  #look for top 3 matches
-#     for j in range(0,vectorLength):
-#         r=random.random()
-#         vector.append(r)
-#     clothingClass=random.randint(0,3)
-#     targetDict = {"clothingClass":[clothingClass],"fingerPrintVector":vector}
-#     #print(targetDict)
-#  #print(len(targetDict["fingerPrintVector"]))
-#
-# # and an array of  dicts of potential matches from comes from the dB
-# #this is a fake in lieu of real dictionary data
-# #Generate fake dictionary array
-# nEntries=20  #number of dictionary entries to generate
-# entries=[]
-# for i in range(0,nEntries):
-#     vector=[]
-#     for j in range(0,vectorLength):
-#         r=random.random()
-#         vector.append(r)
-#     clothingClass=[random.randint(0,3)]
-#     entryDict={"clothingClass":clothingClass,"fingerPrintVector":vector}
-#     entries.append(entryDict)
-# #print('initial entries:'+str(entries))
-# #print('target:'+str(targetDict))
-# #print('nMatches:'+str(nMatches))
-# answers,answerIndices=findNNs(targetDict,entries,nMatches)
-# #print('answer:'+str(answers))
-# #print('answer indices:'+str(answerIndices))
-# print(answerIndices)
-
-
+'''

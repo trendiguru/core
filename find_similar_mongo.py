@@ -22,7 +22,7 @@ def get_all_subcategories(category_collection, category_id):
 
 def find_with_bb_and_keyword(imageURL, bb, category_id, number_of_results=10):
     db = pymongo.MongoClient().mydb
-    product_collection= db.products
+    product_collection = db.products
 
     subcategory_id_list = get_all_subcategories(db.categories, category_id)
 
@@ -92,8 +92,10 @@ def lookfor_next_unbounded_image(queryobject,string):
     return(urlN)
 # maybe return(urlN,n) at some point
 
+#i blv the below can be safely nuked
 def find_next_unbounding_boxed_item(query_result):
-    db = pymongo.MongoClient().mydb
+    pass
+q'''    db = pymongo.MongoClient().mydb
 #    product_collection= db.products
     training_collection= db.training
 
@@ -151,3 +153,4 @@ def find_next_unbounding_boxed_item(query_result):
 
     closest_matches = findNNs(target_dict, db_fingerprint_list, number_of_results)
     return fgpt.tolist(), closest_matches
+'''
