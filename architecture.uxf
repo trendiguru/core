@@ -4,8 +4,8 @@
   <element>
     <id>UMLClass</id>
     <coordinates>
-      <x>280</x>
-      <y>24</y>
+      <x>584</x>
+      <y>704</y>
       <w>80</w>
       <h>24</h>
     </coordinates>
@@ -16,8 +16,8 @@
   <element>
     <id>UMLClass</id>
     <coordinates>
-      <x>512</x>
-      <y>112</y>
+      <x>816</x>
+      <y>792</y>
       <w>80</w>
       <h>24</h>
     </coordinates>
@@ -27,8 +27,8 @@
   <element>
     <id>UMLClass</id>
     <coordinates>
-      <x>288</x>
-      <y>96</y>
+      <x>592</x>
+      <y>776</y>
       <w>80</w>
       <h>24</h>
     </coordinates>
@@ -39,8 +39,8 @@
   <element>
     <id>UMLClass</id>
     <coordinates>
-      <x>280</x>
-      <y>48</y>
+      <x>584</x>
+      <y>728</y>
       <w>128</w>
       <h>24</h>
     </coordinates>
@@ -51,8 +51,8 @@
   <element>
     <id>UMLClass</id>
     <coordinates>
-      <x>528</x>
-      <y>0</y>
+      <x>832</x>
+      <y>680</y>
       <w>64</w>
       <h>24</h>
     </coordinates>
@@ -62,8 +62,8 @@
   <element>
     <id>UMLClass</id>
     <coordinates>
-      <x>520</x>
-      <y>56</y>
+      <x>824</x>
+      <y>736</y>
       <w>64</w>
       <h>24</h>
     </coordinates>
@@ -73,41 +73,41 @@
   <element>
     <id>Relation</id>
     <coordinates>
-      <x>344</x>
-      <y>8</y>
-      <w>200</w>
+      <x>664</x>
+      <y>688</y>
+      <w>184</w>
       <h>56</h>
     </coordinates>
     <panel_attributes/>
-    <additional_attributes>10.0;50.0;230.0;10.0</additional_attributes>
+    <additional_attributes>10.0;50.0;210.0;10.0</additional_attributes>
   </element>
   <element>
     <id>Relation</id>
     <coordinates>
-      <x>344</x>
-      <y>40</y>
-      <w>192</w>
+      <x>664</x>
+      <y>720</y>
+      <w>176</w>
       <h>40</h>
     </coordinates>
     <panel_attributes/>
-    <additional_attributes>220.0;30.0;10.0;10.0</additional_attributes>
+    <additional_attributes>200.0;30.0;10.0;10.0</additional_attributes>
   </element>
   <element>
     <id>Relation</id>
     <coordinates>
-      <x>344</x>
-      <y>40</y>
-      <w>184</w>
+      <x>664</x>
+      <y>720</y>
+      <w>168</w>
       <h>104</h>
     </coordinates>
     <panel_attributes/>
-    <additional_attributes>10.0;10.0;210.0;110.0</additional_attributes>
+    <additional_attributes>10.0;10.0;190.0;110.0</additional_attributes>
   </element>
   <element>
     <id>Relation</id>
     <coordinates>
-      <x>360</x>
-      <y>8</y>
+      <x>664</x>
+      <y>688</y>
       <w>184</w>
       <h>120</h>
     </coordinates>
@@ -117,8 +117,8 @@
   <element>
     <id>UMLClass</id>
     <coordinates>
-      <x>32</x>
-      <y>256</y>
+      <x>256</x>
+      <y>248</y>
       <w>64</w>
       <h>24</h>
     </coordinates>
@@ -128,8 +128,8 @@
   <element>
     <id>Relation</id>
     <coordinates>
-      <x>360</x>
-      <y>104</y>
+      <x>664</x>
+      <y>784</y>
       <w>168</w>
       <h>40</h>
     </coordinates>
@@ -139,19 +139,19 @@
   <element>
     <id>Relation</id>
     <coordinates>
-      <x>48</x>
-      <y>272</y>
-      <w>88</w>
-      <h>144</h>
+      <x>272</x>
+      <y>264</y>
+      <w>64</w>
+      <h>192</h>
     </coordinates>
     <panel_attributes/>
-    <additional_attributes>90.0;160.0;10.0;10.0</additional_attributes>
+    <additional_attributes>60.0;220.0;10.0;10.0</additional_attributes>
   </element>
   <element>
     <id>UMLClass</id>
     <coordinates>
-      <x>560</x>
-      <y>496</y>
+      <x>760</x>
+      <y>536</y>
       <w>64</w>
       <h>24</h>
     </coordinates>
@@ -161,8 +161,8 @@
   <element>
     <id>Relation</id>
     <coordinates>
-      <x>584</x>
-      <y>384</y>
+      <x>784</x>
+      <y>424</y>
       <w>192</w>
       <h>128</h>
     </coordinates>
@@ -172,8 +172,8 @@
   <element>
     <id>UMLActor</id>
     <coordinates>
-      <x>616</x>
-      <y>560</y>
+      <x>744</x>
+      <y>896</y>
       <w>48</w>
       <h>80</h>
     </coordinates>
@@ -183,8 +183,8 @@
   <element>
     <id>UMLInterface</id>
     <coordinates>
-      <x>464</x>
-      <y>488</y>
+      <x>664</x>
+      <y>528</y>
       <w>32</w>
       <h>64</h>
     </coordinates>
@@ -196,8 +196,8 @@
   <element>
     <id>Relation</id>
     <coordinates>
-      <x>256</x>
-      <y>304</y>
+      <x>456</x>
+      <y>344</y>
       <w>496</w>
       <h>144</h>
     </coordinates>
@@ -208,8 +208,8 @@
   <element>
     <id>UMLClass</id>
     <coordinates>
-      <x>120</x>
-      <y>344</y>
+      <x>320</x>
+      <y>384</y>
       <w>144</w>
       <h>104</h>
     </coordinates>
@@ -226,8 +226,8 @@ Background_removal.py
   <element>
     <id>UMLClass</id>
     <coordinates>
-      <x>560</x>
-      <y>640</y>
+      <x>688</x>
+      <y>976</y>
       <w>208</w>
       <h>32</h>
     </coordinates>
@@ -237,8 +237,8 @@ Background_removal.py
   <element>
     <id>UMLClass</id>
     <coordinates>
-      <x>328</x>
-      <y>336</y>
+      <x>528</x>
+      <y>376</y>
       <w>112</w>
       <h>104</h>
     </coordinates>
@@ -255,8 +255,8 @@ classify_core.py
   <element>
     <id>UMLClass</id>
     <coordinates>
-      <x>480</x>
-      <y>712</y>
+      <x>608</x>
+      <y>1048</y>
       <w>208</w>
       <h>56</h>
     </coordinates>
@@ -269,8 +269,8 @@ type , sleevelength</panel_attributes>
   <element>
     <id>UMLClass</id>
     <coordinates>
-      <x>528</x>
-      <y>688</y>
+      <x>656</x>
+      <y>1024</y>
       <w>112</w>
       <h>24</h>
     </coordinates>
@@ -280,8 +280,8 @@ type , sleevelength</panel_attributes>
   <element>
     <id>UMLClass</id>
     <coordinates>
-      <x>704</x>
-      <y>712</y>
+      <x>832</x>
+      <y>1048</y>
       <w>216</w>
       <h>48</h>
     </coordinates>
@@ -293,8 +293,8 @@ isFurry,hasRuffles</panel_attributes>
   <element>
     <id>UMLClass</id>
     <coordinates>
-      <x>736</x>
-      <y>320</y>
+      <x>936</x>
+      <y>360</y>
       <w>128</w>
       <h>72</h>
     </coordinates>
@@ -309,20 +309,20 @@ fingerprint_core.py
   <element>
     <id>Relation</id>
     <coordinates>
-      <x>88</x>
-      <y>216</y>
-      <w>240</w>
-      <h>72</h>
+      <x>312</x>
+      <y>248</y>
+      <w>216</w>
+      <h>40</h>
     </coordinates>
     <panel_attributes>
 </panel_attributes>
-    <additional_attributes>280.0;10.0;10.0;70.0</additional_attributes>
+    <additional_attributes>250.0;20.0;10.0;20.0</additional_attributes>
   </element>
   <element>
     <id>UMLClass</id>
     <coordinates>
-      <x>312</x>
-      <y>176</y>
+      <x>512</x>
+      <y>216</y>
       <w>112</w>
       <h>96</h>
     </coordinates>
@@ -338,8 +338,8 @@ fingerprint_core.py
   <element>
     <id>Relation</id>
     <coordinates>
-      <x>416</x>
-      <y>256</y>
+      <x>616</x>
+      <y>296</y>
       <w>192</w>
       <h>256</h>
     </coordinates>
@@ -349,8 +349,8 @@ fingerprint_core.py
   <element>
     <id>UMLClass</id>
     <coordinates>
-      <x>496</x>
-      <y>176</y>
+      <x>696</x>
+      <y>216</y>
       <w>144</w>
       <h>104</h>
     </coordinates>
@@ -367,8 +367,8 @@ Background_removal.py
   <element>
     <id>Relation</id>
     <coordinates>
-      <x>416</x>
-      <y>224</y>
+      <x>616</x>
+      <y>264</y>
       <w>96</w>
       <h>56</h>
     </coordinates>
@@ -378,8 +378,8 @@ Background_removal.py
   <element>
     <id>Relation</id>
     <coordinates>
-      <x>632</x>
-      <y>256</y>
+      <x>832</x>
+      <y>296</y>
       <w>120</w>
       <h>120</h>
     </coordinates>
@@ -389,8 +389,8 @@ Background_removal.py
   <element>
     <id>UMLClass</id>
     <coordinates>
-      <x>256</x>
-      <y>152</y>
+      <x>456</x>
+      <y>192</y>
       <w>448</w>
       <h>152</h>
     </coordinates>
@@ -400,8 +400,8 @@ Background_removal.py
   <element>
     <id>UMLClass</id>
     <coordinates>
-      <x>32</x>
-      <y>472</y>
+      <x>232</x>
+      <y>512</y>
       <w>216</w>
       <h>104</h>
     </coordinates>
@@ -417,8 +417,8 @@ get_masked_image</panel_attributes>
   <element>
     <id>UMLClass</id>
     <coordinates>
-      <x>32</x>
-      <y>584</y>
+      <x>232</x>
+      <y>624</y>
       <w>240</w>
       <h>112</h>
     </coordinates>
@@ -436,8 +436,8 @@ get_buttshine</panel_attributes>
   <element>
     <id>Relation</id>
     <coordinates>
-      <x>256</x>
-      <y>392</y>
+      <x>456</x>
+      <y>432</y>
       <w>88</w>
       <h>56</h>
     </coordinates>
@@ -448,8 +448,8 @@ get_buttshine</panel_attributes>
   <element>
     <id>Relation</id>
     <coordinates>
-      <x>432</x>
-      <y>352</y>
+      <x>632</x>
+      <y>392</y>
       <w>320</w>
       <h>88</h>
     </coordinates>
@@ -460,8 +460,8 @@ get_buttshine</panel_attributes>
   <element>
     <id>Relation</id>
     <coordinates>
-      <x>256</x>
-      <y>424</y>
+      <x>456</x>
+      <y>464</y>
       <w>352</w>
       <h>88</h>
     </coordinates>
@@ -471,8 +471,8 @@ get_buttshine</panel_attributes>
   <element>
     <id>Relation</id>
     <coordinates>
-      <x>432</x>
-      <y>416</y>
+      <x>632</x>
+      <y>456</y>
       <w>176</w>
       <h>96</h>
     </coordinates>
@@ -482,8 +482,8 @@ get_buttshine</panel_attributes>
   <element>
     <id>Relation</id>
     <coordinates>
-      <x>480</x>
-      <y>488</y>
+      <x>680</x>
+      <y>528</y>
       <w>96</w>
       <h>40</h>
     </coordinates>
@@ -494,8 +494,8 @@ get_buttshine</panel_attributes>
   <element>
     <id>UMLClass</id>
     <coordinates>
-      <x>32</x>
-      <y>712</y>
+      <x>232</x>
+      <y>752</y>
       <w>240</w>
       <h>80</h>
     </coordinates>
@@ -511,8 +511,8 @@ find_similar
   <element>
     <id>UMLClass</id>
     <coordinates>
-      <x>32</x>
-      <y>800</y>
+      <x>232</x>
+      <y>840</y>
       <w>240</w>
       <h>80</h>
     </coordinates>
