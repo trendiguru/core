@@ -1,10 +1,25 @@
 __author__ = 'liorsabag'
 
 import pymongo
-import fingerPrint2 as fp
+import fingerPrint as fp
 from NNSearch import findNNs
 #from fingerprint_db_params_mongo import get_all_subcategories
 import logging
+import background_removal
+import Utils
+import numpy as np
+import classify_core
+
+
+def get_classifiers():
+    default_classifiers = ["/home/www-data/web2py/applications/fingerPrint/modules/shirtClassifier.xml",
+                           "/home/www-data/web2py/applications/fingerPrint/modules/pantsClassifier.xml",
+                           "/home/www-data/web2py/applications/fingerPrint/modules/dressClassifier.xml"]
+    classifiers_dict = {'shirt': '/home/www-data/web2py/applications/fingerPrint/modules/shirtClassifier.xml',
+                        'pants': '/home/www-data/web2py/applications/fingerPrint/modules/pantsClassifier.xml',
+                        'dress': '/home/www-data/web2py/applications/fingerPrint/modules/dressClassifier.xml'}
+    return default_classifiers, classifiers_dict
+
 
 def get_all_subcategories(category_collection, category_id):
     subcategories = []
@@ -20,7 +35,12 @@ def get_all_subcategories(category_collection, category_id):
     return subcategories
 
 
-def find_with_bb_and_keyword(imageURL, bb, category_id, number_of_results=10):
+def find_top_n_results(imageURL, number_of_results=10, bb=None, category_id=None):
+    if (bb is None) or (bb == np.array([0, 0, 0, 0])).all():
+        raise NotImplementedError
+        # masked_image = background_removal.get_masked_image(small_image, fg_mask)    # returns small image after GC masking
+        # bb_dict = classify_core.classify_image_with_classifiers(masked_image,
+                                                           # get_classifiers()[0], get_classifiers()[1])
     db = pymongo.MongoClient().mydb
     product_collection = db.products
 
@@ -28,22 +48,9 @@ def find_with_bb_and_keyword(imageURL, bb, category_id, number_of_results=10):
 
     # get all items in the subcategory/keyword
     query = product_collection.find({"$and": [{"categories": {"$elemMatch": {"id": {"$in": subcategory_id_list}}}},
-                                             {"fingerprint": {"$exists": 1}}]},
+                                              {"fingerprint": {"$exists": 1}}]},
                                     {"_id": 0, "id": 1, "categories": 1, "fingerprint": 1, "image": 1,
                                      "clickUrl": 1, "price": 1, "brand": 1})
-        # {"$and": [
-        #     {"categories": {"$elemMatch": {"id": {"$in": subcategory_id_list}}}},
-        #     #{"categories": {"$elemMatch": {"name": keyword}}},
-        #     {"fingerprint": {"$exists": 1}}]},
-        # {  # What properties to select
-        #    "_id": 0,
-        #    "id": 1,
-        #    "categories": 1,
-        #    "fingerprint": 1,
-        #    "image": 1,
-        #    "clickUrl": 1
-        # })
-
     db_fingerprint_list = []
     for row in query:
         fp_dict = {}
@@ -54,14 +61,19 @@ def find_with_bb_and_keyword(imageURL, bb, category_id, number_of_results=10):
         fp_dict["buyURL"] = row["clickUrl"]
         db_fingerprint_list.append(fp_dict)
 
-    #Fingerprint the bounded area
-    fgpt = fp.fp(imageURL, bb)
-    target_dict = {"clothingClass": category_id, "fingerPrintVector": fgpt}
-
+    image = Utils.get_cv2_img_array(imageURL)                       # turn the URL into a cv2 image
+    small_image = background_removal.standard_resize(image, 400)    # shrink image for faster process
+    fg_mask = background_removal.get_fg_mask(small_image, bb)       # returns the grab-cut mask (if bb => PFG-PBG gc, if !bb => face gc)
+    combined_mask = fg_mask + background_removal.get_bb_mask(small_image, bb)   # for sending the right mask to the fp
+    color_fp = fp.fp(small_image, combined_mask)
+    # Fingerprint the bounded area
+    target_dict = {"clothingClass": category_id, "fingerPrintVector": color_fp}
     closest_matches = findNNs(target_dict, db_fingerprint_list, number_of_results)
-    return fgpt.tolist(), closest_matches
+    return color_fp.tolist(), closest_matches
 
-#this is for the training collection, where there's a set of images from different angles in each record
+# this is for the training collection, where there's a set of images from different angles in each record
+
+
 def lookfor_next_unbounded_image(queryobject,string):
     n=0
     got_unbounded_image = False
@@ -91,6 +103,7 @@ def lookfor_next_unbounded_image(queryobject,string):
 		break	
     return(urlN)
 # maybe return(urlN,n) at some point
+
 
 def find_next_unbounding_boxed_item(query_result):
     db = pymongo.MongoClient().mydb

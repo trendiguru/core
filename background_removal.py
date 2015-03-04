@@ -100,6 +100,8 @@ def face_mask(rectangles, image):
 def standard_resize(image, max_side):
     original_w = image.shape[1]
     original_h = image.shape[0]
+    if image.shape[0] < 400 and image.shape[1] < 400:
+        return image, 1
     resize_ratio = float(np.amax((original_w, original_h))) / np.min((original_h, original_w))
     if original_w >= original_h:
         new_w = max_side
@@ -120,11 +122,8 @@ def resize_back(image, resize_ratio):
     return resized_image
 
 
-def my_gc(image, bounding_box=None):
+def get_fg_mask(image, bounding_box=None):
     # image_counter = 0
-    # if big_image.shape[0] > 400 or big_image.shape[1] > 400:
-    #    [image, aspect_ratio] = standard_resize(big_image, 400)
-    # else:
     rect = (0, 0, image.shape[1]-1, image.shape[0]-1)
     bgdmodel = np.zeros((1, 65), np.float64)
     fgdmodel = np.zeros((1, 65), np.float64)
@@ -148,5 +147,25 @@ def my_gc(image, bounding_box=None):
             cv2.grabCut(image, mask, rect, bgdmodel, fgdmodel, 1, cv2.GC_INIT_WITH_RECT)
 
     mask2 = np.where((mask == 1) + (mask == 3), 255, 0).astype('uint8')
-    output = cv2.bitwise_and(image, image, mask=mask2)
-    return mask2, output
+    return mask2
+
+
+def get_masked_image(image, mask):
+    output = cv2.bitwise_and(image, image, mask=mask)
+    return output
+
+
+def combine_mask_and_bb(masked_image, bb):
+    x = bb[0]
+    y = bb[1]
+    w = bb[2]
+    h = bb[3]
+    combined_image = masked_image[y:y+h, x:x+w]
+    return combined_image
+
+
+def get_bb_mask(image, bb):
+    x, y, w, h = bb
+    bb_masked = np.zeros(image.shape[0], image.shape[1])
+    bb_masked[y:y+h, x:x+w] = 255
+    return bb_masked
