@@ -95,7 +95,7 @@ def lookfor_next_unbounded_image(queryobject,string):
 #i blv the below can be safely nuked
 def find_next_unbounding_boxed_item(query_result):
     pass
-q'''    db = pymongo.MongoClient().mydb
+'''    db = pymongo.MongoClient().mydb
 #    product_collection= db.products
     training_collection= db.training
 
