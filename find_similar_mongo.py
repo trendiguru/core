@@ -1,7 +1,7 @@
 __author__ = 'liorsabag'
 
 import pymongo
-import fingerPrint as fp
+import fingerprint as fp
 from NNSearch import findNNs
 import logging
 import background_removal
