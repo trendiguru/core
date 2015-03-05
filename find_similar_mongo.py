@@ -40,7 +40,7 @@ def find_top_n_results(imageURL, number_of_results=10, bb=None, category_id=None
         # masked_image = background_removal.get_masked_image(small_image, fg_mask)    # returns small image after GC masking
         # bb_dict = classify_core.classify_image_with_classifiers(masked_image,
                                                            # get_classifiers()[0], get_classifiers()[1])
-    bb = int(bb)
+    bb = [int(b) for b in bb]
     db = pymongo.MongoClient().mydb
     product_collection = db.products
 
