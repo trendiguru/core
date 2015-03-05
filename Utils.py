@@ -25,6 +25,39 @@ def get_cv2_img_array(url_or_path_to_image_file_or_cv2_image_array):
         logging.warning("Bad image - check url/path/array")
     return img_array
 
+# this is for the training collection, where there's a set of images from different angles in each record
+
+
+def lookfor_next_unbounded_image(queryobject,string):
+    n=0
+    got_unbounded_image = False
+    urlN=None   #if nothing eventually is found None is returned for url
+    while got_unbounded_image is False:
+    	n=n+1
+	strN=string+str(n)  #this is to build strings like 'Main Image URL angle 5' or 'Style Gallery Image 7'
+	bbN = strN+' bb' #this builds strings like 'Main Image URL angle 5 bb' or 'Style Gallery Image 7 bb'
+	print('looking for string:'+str(strN)+' and bb '+str(bbN))
+	logging.debug('looking for string:'+str(strN)+' and bb '+str(bbN))
+	if strN in queryobject:
+		if not 'human_bb' in queryobject:  # got a pic without a bb
+			urlN=queryobject[strN]
+ 			got_unbounded_image = True
+			print('image from string:'+strN+' :is not bounded!!')
+		elif queryobject[humanbb] is None:
+			urlN=queryobject[strN]
+			got_unbounded_image = True
+			print('image from string:'+strN+' :is not bounded!!')
+ 		else:
+			urlN=None
+			got_unbounded_image = False
+			print('image from string:'+strN+' :is bounded :(')
+	else:
+		print('didn\'t find expected string in training db')
+		logging.debug('didn\'t find expected string in training db')
+		break
+    return(urlN)
+# maybe return(urlN,n) at some point
+
 
 class GZipCSVReader:
     def __init__(self, filename):
