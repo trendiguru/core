@@ -1,0 +1,528 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<diagram program="umlet" version="13.2">
+  <zoom_level>8</zoom_level>
+  <element>
+    <id>UMLClass</id>
+    <coordinates>
+      <x>584</x>
+      <y>704</y>
+      <w>80</w>
+      <h>24</h>
+    </coordinates>
+    <panel_attributes>find_similar
+</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <id>UMLClass</id>
+    <coordinates>
+      <x>816</x>
+      <y>792</y>
+      <w>80</w>
+      <h>24</h>
+    </coordinates>
+    <panel_attributes>fp</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <id>UMLClass</id>
+    <coordinates>
+      <x>592</x>
+      <y>776</y>
+      <w>80</w>
+      <h>24</h>
+    </coordinates>
+    <panel_attributes>fingerprint_db
+</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <id>UMLClass</id>
+    <coordinates>
+      <x>584</x>
+      <y>728</y>
+      <w>128</w>
+      <h>24</h>
+    </coordinates>
+    <panel_attributes>find_similar_params
+</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <id>UMLClass</id>
+    <coordinates>
+      <x>832</x>
+      <y>680</y>
+      <w>64</w>
+      <h>24</h>
+    </coordinates>
+    <panel_attributes>classify</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <id>UMLClass</id>
+    <coordinates>
+      <x>824</x>
+      <y>736</y>
+      <w>64</w>
+      <h>24</h>
+    </coordinates>
+    <panel_attributes>NNSearch</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>664</x>
+      <y>688</y>
+      <w>184</w>
+      <h>56</h>
+    </coordinates>
+    <panel_attributes/>
+    <additional_attributes>10.0;50.0;210.0;10.0</additional_attributes>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>664</x>
+      <y>720</y>
+      <w>176</w>
+      <h>40</h>
+    </coordinates>
+    <panel_attributes/>
+    <additional_attributes>200.0;30.0;10.0;10.0</additional_attributes>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>664</x>
+      <y>720</y>
+      <w>168</w>
+      <h>104</h>
+    </coordinates>
+    <panel_attributes/>
+    <additional_attributes>10.0;10.0;190.0;110.0</additional_attributes>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>664</x>
+      <y>688</y>
+      <w>184</w>
+      <h>120</h>
+    </coordinates>
+    <panel_attributes/>
+    <additional_attributes>210.0;10.0;10.0;130.0</additional_attributes>
+  </element>
+  <element>
+    <id>UMLClass</id>
+    <coordinates>
+      <x>256</x>
+      <y>248</y>
+      <w>64</w>
+      <h>24</h>
+    </coordinates>
+    <panel_attributes>image</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>664</x>
+      <y>784</y>
+      <w>168</w>
+      <h>40</h>
+    </coordinates>
+    <panel_attributes/>
+    <additional_attributes>10.0;10.0;190.0;30.0</additional_attributes>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>272</x>
+      <y>264</y>
+      <w>64</w>
+      <h>192</h>
+    </coordinates>
+    <panel_attributes/>
+    <additional_attributes>60.0;220.0;10.0;10.0</additional_attributes>
+  </element>
+  <element>
+    <id>UMLClass</id>
+    <coordinates>
+      <x>760</x>
+      <y>536</y>
+      <w>64</w>
+      <h>24</h>
+    </coordinates>
+    <panel_attributes>NNSearch</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>784</x>
+      <y>424</y>
+      <w>192</w>
+      <h>128</h>
+    </coordinates>
+    <panel_attributes>[fingerprint]</panel_attributes>
+    <additional_attributes>10.0;140.0;220.0;10.0</additional_attributes>
+  </element>
+  <element>
+    <id>UMLActor</id>
+    <coordinates>
+      <x>744</x>
+      <y>896</y>
+      <w>48</w>
+      <h>80</h>
+    </coordinates>
+    <panel_attributes>kyle</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <id>UMLInterface</id>
+    <coordinates>
+      <x>664</x>
+      <y>528</y>
+      <w>32</w>
+      <h>64</h>
+    </coordinates>
+    <panel_attributes>DB
+--
+</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>456</x>
+      <y>344</y>
+      <w>496</w>
+      <h>144</h>
+    </coordinates>
+    <panel_attributes>mask
+</panel_attributes>
+    <additional_attributes>600.0;70.0;220.0;20.0;90.0;20.0;10.0;160.0</additional_attributes>
+  </element>
+  <element>
+    <id>UMLClass</id>
+    <coordinates>
+      <x>320</x>
+      <y>384</y>
+      <w>144</w>
+      <h>104</h>
+    </coordinates>
+    <panel_attributes>&lt;&lt;bg_remove&gt;&gt;
+Background_removal.py
+
+--
+-input: image
+
+--
+-output: mask</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <id>UMLClass</id>
+    <coordinates>
+      <x>688</x>
+      <y>976</y>
+      <w>208</w>
+      <h>32</h>
+    </coordinates>
+    <panel_attributes>classifiers should give probabilities</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <id>UMLClass</id>
+    <coordinates>
+      <x>528</x>
+      <y>376</y>
+      <w>112</w>
+      <h>104</h>
+    </coordinates>
+    <panel_attributes>&lt;&lt;classify&gt;&gt;
+classify_core.py
+
+--
+-input: image
+
+--
+-output: class,bb</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <id>UMLClass</id>
+    <coordinates>
+      <x>608</x>
+      <y>1048</y>
+      <w>208</w>
+      <h>56</h>
+    </coordinates>
+    <panel_attributes>catniss - 
+cut, shape, neck, 
+shoulder straps , 
+type , sleevelength</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <id>UMLClass</id>
+    <coordinates>
+      <x>656</x>
+      <y>1024</y>
+      <w>112</w>
+      <h>24</h>
+    </coordinates>
+    <panel_attributes>Pose estimation</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <id>UMLClass</id>
+    <coordinates>
+      <x>832</x>
+      <y>1048</y>
+      <w>216</w>
+      <h>48</h>
+    </coordinates>
+    <panel_attributes>buttshine
+hasbuttons,isShiny
+isFurry,hasRuffles</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <id>UMLClass</id>
+    <coordinates>
+      <x>936</x>
+      <y>360</y>
+      <w>128</w>
+      <h>72</h>
+    </coordinates>
+    <panel_attributes>&lt;&lt;fingerprint&gt;&gt;
+fingerprint_core.py
+--
+-input: image,mask
+--
+-output: fingerprint</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>312</x>
+      <y>248</y>
+      <w>216</w>
+      <h>40</h>
+    </coordinates>
+    <panel_attributes>
+</panel_attributes>
+    <additional_attributes>250.0;20.0;10.0;20.0</additional_attributes>
+  </element>
+  <element>
+    <id>UMLClass</id>
+    <coordinates>
+      <x>512</x>
+      <y>216</y>
+      <w>112</w>
+      <h>96</h>
+    </coordinates>
+    <panel_attributes>QC
+
+--
+-input: image
+
+--
+-output: class,bb</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>616</x>
+      <y>296</y>
+      <w>192</w>
+      <h>256</h>
+    </coordinates>
+    <panel_attributes>lt=&lt;.</panel_attributes>
+    <additional_attributes>220.0;300.0;10.0;10.0</additional_attributes>
+  </element>
+  <element>
+    <id>UMLClass</id>
+    <coordinates>
+      <x>696</x>
+      <y>216</y>
+      <w>144</w>
+      <h>104</h>
+    </coordinates>
+    <panel_attributes>&lt;&lt;bg_remove&gt;&gt;
+Background_removal.py
+
+--
+-input: image
+
+--
+-output: mask</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>616</x>
+      <y>264</y>
+      <w>96</w>
+      <h>56</h>
+    </coordinates>
+    <panel_attributes>lt=&lt;&lt;-</panel_attributes>
+    <additional_attributes>100.0;10.0;10.0;50.0</additional_attributes>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>832</x>
+      <y>296</y>
+      <w>120</w>
+      <h>120</h>
+    </coordinates>
+    <panel_attributes>lt=&lt;&lt;-</panel_attributes>
+    <additional_attributes>130.0;130.0;10.0;10.0</additional_attributes>
+  </element>
+  <element>
+    <id>UMLClass</id>
+    <coordinates>
+      <x>456</x>
+      <y>192</y>
+      <w>448</w>
+      <h>152</h>
+    </coordinates>
+    <panel_attributes>qc route</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <id>UMLClass</id>
+    <coordinates>
+      <x>232</x>
+      <y>512</y>
+      <w>216</w>
+      <h>104</h>
+    </coordinates>
+    <panel_attributes>&lt;&lt;bg_remove&gt;&gt;
+Background_removal.py
+--
+fg_mask
+-input:image, bb=None
+-output:mask
+get_masked_image</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <id>UMLClass</id>
+    <coordinates>
+      <x>232</x>
+      <y>624</y>
+      <w>240</w>
+      <h>112</h>
+    </coordinates>
+    <panel_attributes>&lt;&lt;fingerprint&gt;&gt;
+fingerprint_core.py
+--
+fp
+-input:image, bb=None
+-output:fingerprint
+get_color
+get_catniss
+get_buttshine</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>456</x>
+      <y>432</y>
+      <w>88</w>
+      <h>56</h>
+    </coordinates>
+    <panel_attributes>mask
+</panel_attributes>
+    <additional_attributes>90.0;10.0;10.0;50.0</additional_attributes>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>632</x>
+      <y>392</y>
+      <w>320</w>
+      <h>88</h>
+    </coordinates>
+    <panel_attributes>bb
+</panel_attributes>
+    <additional_attributes>380.0;10.0;10.0;90.0</additional_attributes>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>456</x>
+      <y>464</y>
+      <w>352</w>
+      <h>88</h>
+    </coordinates>
+    <panel_attributes>mask</panel_attributes>
+    <additional_attributes>420.0;90.0;10.0;10.0</additional_attributes>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>632</x>
+      <y>456</y>
+      <w>176</w>
+      <h>96</h>
+    </coordinates>
+    <panel_attributes>lt=&lt;.</panel_attributes>
+    <additional_attributes>200.0;100.0;10.0;10.0</additional_attributes>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>680</x>
+      <y>528</y>
+      <w>96</w>
+      <h>40</h>
+    </coordinates>
+    <panel_attributes>
+</panel_attributes>
+    <additional_attributes>100.0;20.0;10.0;20.0</additional_attributes>
+  </element>
+  <element>
+    <id>UMLClass</id>
+    <coordinates>
+      <x>232</x>
+      <y>752</y>
+      <w>240</w>
+      <h>80</h>
+    </coordinates>
+    <panel_attributes>&lt;&lt;find_similar&gt;&gt;
+find_similar.py
+--
+find_similar
+-input:image,category=None,bb=None
+-output:K potential results
+</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <id>UMLClass</id>
+    <coordinates>
+      <x>232</x>
+      <y>840</y>
+      <w>240</w>
+      <h>80</h>
+    </coordinates>
+    <panel_attributes>&lt;&lt;NN_Search&gt;&gt;
+NNSearch.py
+--
+NNSearch
+-input:K potential results,N
+-output:N closest results
+</panel_attributes>
+    <additional_attributes/>
+  </element>
+</diagram>
