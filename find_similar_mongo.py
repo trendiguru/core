@@ -60,10 +60,10 @@ def find_top_n_results(imageURL, number_of_results=10, bb=None, category_id=None
         fp_dict["buyURL"] = row["clickUrl"]
         db_fingerprint_list.append(fp_dict)
 
-    image = Utils.get_cv2_img_array(imageURL)                       # turn the URL into a cv2 image
-    small_image = background_removal.standard_resize(image, 400)    # shrink image for faster process
-    fg_mask = background_removal.get_fg_mask(small_image, bb)       # returns the grab-cut mask (if bb => PFG-PBG gc, if !bb => face gc)
-    combined_mask = fg_mask + background_removal.get_bb_mask(small_image, bb)   # for sending the right mask to the fp
+    image = Utils.get_cv2_img_array(imageURL)                                     # turn the URL into a cv2 image
+    small_image, resize_ratio = background_removal.standard_resize(image, 400)    # shrink image for faster process
+    fg_mask = background_removal.get_fg_mask(small_image, bb)                     # returns the grab-cut mask (if bb => PFG-PBG gc, if !bb => face gc)
+    combined_mask = fg_mask + background_removal.get_bb_mask(small_image, bb)     # for sending the right mask to the fp
     color_fp = fp.fp(small_image, combined_mask)
     # Fingerprint the bounded area
     target_dict = {"clothingClass": category_id, "fingerPrintVector": color_fp}
