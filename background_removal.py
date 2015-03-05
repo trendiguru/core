@@ -69,31 +69,11 @@ def bb_mask(image, bounding_box):
 
 
 def face_mask(rectangles, image):
+    GC_MASK_VALUES = {"BG": 0, "FG": 1, "PBG": 2, "PFG": 3}
     mask = np.zeros(image.shape[:2], dtype=np.uint8)
-    for rectangle in rectangles["BG"]:
-        x0 = rectangle[0]
-        x1 = rectangle[1]
-        y0 = rectangle[2]
-        y1 = rectangle[3]
-        mask[y0:y1, x0:x1] = 0
-    for rectangle in rectangles["FG"]:
-        x0 = rectangle[0]
-        x1 = rectangle[1]
-        y0 = rectangle[2]
-        y1 = rectangle[3]
-        mask[y0:y1, x0:x1] = 1
-    for rectangle in rectangles["PBG"]:
-        x0 = rectangle[0]
-        x1 = rectangle[1]
-        y0 = rectangle[2]
-        y1 = rectangle[3]
-        mask[y0:y1, x0:x1] = 2
-    for rectangle in rectangles["PFG"]:
-        x0 = rectangle[0]
-        x1 = rectangle[1]
-        y0 = rectangle[2]
-        y1 = rectangle[3]
-        mask[y0:y1, x0:x1] = 3
+    for key, rectangle in rectangles.iteritems():
+        x0, x1, y0, y1 = rectangle
+        mask[y0:y1, x0:x1] = GC_MASK_VALUES[key]
     return mask
 
 
