@@ -3,7 +3,7 @@ __author__ = 'liorsabag'
 import pymongo
 import fingerprint as fp
 from NNSearch import findNNs
-import logging
+import cv2
 import background_removal
 import Utils
 import numpy as np
@@ -64,7 +64,8 @@ def find_top_n_results(imageURL, number_of_results=10, bb=None, category_id=None
     image = Utils.get_cv2_img_array(imageURL)                                     # turn the URL into a cv2 image
     small_image, resize_ratio = background_removal.standard_resize(image, 400)    # shrink image for faster process
     fg_mask = background_removal.get_fg_mask(small_image, bb)                     # returns the grab-cut mask (if bb => PFG-PBG gc, if !bb => face gc)
-    combined_mask = fg_mask + background_removal.get_bb_mask(small_image, bb)     # for sending the right mask to the fp
+    bb_mask = background_removal.get_bb_mask(small_image, bb)                     # bounding box mask
+    combined_mask = cv2.bitwise_and(fg_mask, bb_mask)                             # for sending the right mask to the fp
     color_fp = fp.fp(small_image, combined_mask)
     # Fingerprint the bounded area
     target_dict = {"clothingClass": category_id, "fingerPrintVector": color_fp}

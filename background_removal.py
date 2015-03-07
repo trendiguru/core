@@ -155,17 +155,8 @@ def get_masked_image(image, mask):
     return output
 
 
-def combine_mask_and_bb(masked_image, bb):
-    x = bb[0]
-    y = bb[1]
-    w = bb[2]
-    h = bb[3]
-    combined_image = masked_image[y:y+h, x:x+w]
-    return combined_image
-
-
 def get_bb_mask(image, bb):
     x, y, w, h = bb
-    bb_masked = np.zeros(image.shape[0], image.shape[1])
+    bb_masked = np.zeros((image.shape[0], image.shape[1]), np.uint8)
     bb_masked[y:y+h, x:x+w] = 255
     return bb_masked
