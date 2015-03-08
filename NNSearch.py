@@ -126,12 +126,13 @@ def findNNs(targetDict, entries, nMatches):
     #print('indices'+str(indices))
     '''
 
+
 def find_n_nearest_neighbors(target_dict, entries, number_of_matches, distance_function):
     # list of tuples with (entry,distance). Initialize with first n distance values
     nearest_n = [(entries[i], distance_function(entries[i][FP_KEY], target_dict[FP_KEY]))
                  for i in range(0, number_of_matches)]
     nearest_n.sort(key=lambda tup: tup[1])
-    # last item in the list (index -1 - go python!)
+    # last item in the list (index -1, go python!)
     farthest_nearest = nearest_n[-1][1]
 
     # Loop through remaining entries, if one of them is better, insert it in the correct location and remove last item
