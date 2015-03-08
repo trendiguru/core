@@ -110,6 +110,7 @@ def fingerprint_the_unfingerprinted():
 
         return(n_existing_boxes,n_human_boxed,n_unbounded_images)
 
+
 def main():
     """
     example: python fingerprint_db_params_mongo.py mens-shirts shirtClassifier.xml true
