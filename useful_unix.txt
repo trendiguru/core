@@ -1,0 +1,1 @@
+sudo find  /home/www-data/web2py/applications/REST4/errors -mtime +5 -exec rm {} \;
