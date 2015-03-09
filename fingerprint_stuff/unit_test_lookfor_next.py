@@ -4,7 +4,7 @@ import pymongo
 import os
 import urlparse
 #import default
-import find_similar_mongo
+import Utils
 import unittest
 import imp
 import sys
@@ -34,7 +34,6 @@ class OutcomesTest(unittest.TestCase):
 
     def test_lookfor_next(self):
 	print('path='+str(sys.path))
-    	fs = find_similar_mongo  #yeah yeah use mongo
     
     #get image and bounding box if it exists
         print('reached GET function in default.py: vars are '+str(vars))
@@ -45,7 +44,7 @@ class OutcomesTest(unittest.TestCase):
         while doc is not None:
             print('doc:'+str(doc))
             for prefix in prefixes:
-                url = fs.lookfor_next_unbounded_image(doc, prefix)
+                url = Utils.lookfor_next_unbounded_image(doc, prefix)
                 if url:
                     resultDict["image url"] = url
                     resultDict["id"] = str(doc['_id'])
