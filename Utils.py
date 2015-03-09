@@ -46,19 +46,33 @@ def lookfor_next_unbounded_image(queryobject):
 #	if entry["old_name"] == strN:
 #		print('found old_name:'+entry["old_name"])
     	if not 'human_bb' in entry:  # got a pic without a bb
-	    urlN=queryobject[strN]
+	    urlN=entry['url']
  	    got_unbounded_image = True
-	    print('image from string:'+strN+' :is not bounded!!')
+	    print('image is not bounded!!')
+	    return(urlN)
 	elif entry["human_bb"] is None:
-	    urlN=queryobject[strN]
+	    urlN=entry['url']
 	    got_unbounded_image = True
-	    print('image from string:'+strN+' :is not bounded!!')
+	    print('image is not bounded!!')
+	    return(urlN)
+	elif not(legal_bounding_box(entry["human_bb"])):
+	    urlN=entry['url']
+	    got_unbounded_image = True
+	    print('bb is not legal (too small!!')
+	    return(urlN)
  	else:
 	    urlN=None
 	    got_unbounded_image = False
 	    print('image is bounded :(')
     return(urlN)
 # maybe return(urlN,n) at some point
+
+def legal_bounding_box(rect):
+    minimum_allowed_area = 50
+    if (rect[2]-rect[0])*(rect[3]-rect[1]) >= minimum_allowed_area:
+    	return True
+    else:
+	return False
 
 #test function for lookfor_next_unbounded_image
 import pymongo
