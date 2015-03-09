@@ -55,6 +55,50 @@ def lookfor_next_unbounded_image(queryobject):
 	    got_unbounded_image = True
 	    print('image is not bounded!!')
 	    return(urlN)
+    	elif not(isinstance(entry["human_bb"]),list):
+	    urlN=entry['url']
+	    got_unbounded_image = True
+	    print('illegal bb!! (not a list)')
+	    return(urlN)		    
+	elif not(legal_bounding_box(entry["human_bb"])):
+	    urlN=entry['url']
+	    got_unbounded_image = True
+	    print('bb is not legal (too small!!')
+	    return(urlN)
+ 	else:
+	    urlN=None
+	    got_unbounded_image = False
+	    print('image is bounded :(')
+    return(urlN)
+# maybe return(urlN,n) at some point
+
+def lookfor_next_unbounded_image_old(queryobject):
+    n=0
+    got_unbounded_image = False
+    urlN=None   #if nothing eventually is found None is returned for url
+    images = queryobject["images"]
+    print('images:'+str(images))
+    for entry in images:
+    	print('entry:'+str(entry))
+#    	n=n+1
+#	strN=string+str(n)  #this is to build strings like 'Main Image URL angle 5' or 'Style Gallery Image 7'
+#	bbN = strN+' bb' #this builds strings like 'Main Image URL angle 5 bb' or 'Style Gallery Image 7 bb'
+#	print('entry:'+str(entry))
+#	print('looking for string:'+str(strN)+' and bb '+str(bbN))
+#	logging.debug('looking for string:'+str(strN)+' and bb '+str(bbN))
+    	
+#	if entry["old_name"] == strN:
+#		print('found old_name:'+entry["old_name"])
+    	if not 'human_bb' in entry:  # got a pic without a bb
+	    urlN=entry['url']
+ 	    got_unbounded_image = True
+	    print('image is not bounded!!')
+	    return(urlN)
+	elif entry["human_bb"] is None:
+	    urlN=entry['url']
+	    got_unbounded_image = True
+	    print('image is not bounded!!')
+	    return(urlN)
 	elif not(legal_bounding_box(entry["human_bb"])):
 	    urlN=entry['url']
 	    got_unbounded_image = True
@@ -78,7 +122,7 @@ def legal_bounding_box(rect):
 import pymongo
 def test_lookfor_next():
     db=pymongo.MongoClient().mydb
-    training_collection_cursor = db.training.find()   #The db with multiple figs of same item
+    training_collection_cursor = db.good_training_set.find()   #The db with multiple figs of same item
 #products_collection_cursor = db.products.find()   #Regular db of one fig per item
 
 #    prefixes = ['Main Image URL angle ', 'Style Gallery Image ']
