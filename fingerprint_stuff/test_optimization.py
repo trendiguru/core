@@ -4,7 +4,7 @@ import scipy.optimize
 import math
 
 def test_optimize():
-    f = math.sin()
+    f = math.sin
     x_min = scipy.optimize.minimize(f,3)
     print('output of optimize:'+str(x_min))
     print('xvals:'+str(x_min.x))
@@ -28,7 +28,7 @@ def test_function_vectorinput(x_arr):
     print('input vector:'+str(x_vector))
     answer=[]
     for i in range(0,len(x_vector)):
-        x_max = 6.66
+        x_max = 6.66+i
         val = math.exp(-(x_vector[i]-x_max)**2)
         answer = np.append(answer,val)
     print('x values:'+str(x_vector)+' yvalues:'+str(answer))
@@ -59,4 +59,4 @@ def test2():
 
 
 
-opt_mult()
+#opt_mult()
