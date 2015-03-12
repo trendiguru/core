@@ -1,4 +1,5 @@
-__author__ = 'liorsabag'
+_author__ = 'liorsabag'
+import time
 import csv
 import gzip
 import json
@@ -6,7 +7,10 @@ import numpy
 import requests
 from cv2 import imread, imdecode
 import logging
+from bson import objectid
+import pymongo
 
+#logging.setLevel(logging.DEBUG)
 
 def get_cv2_img_array(url_or_path_to_image_file_or_cv2_image_array):
     # first check if we have a numpy array
@@ -29,6 +33,55 @@ def get_cv2_img_array(url_or_path_to_image_file_or_cv2_image_array):
 
 
 def lookfor_next_unbounded_image(queryobject):
+    n=0
+    got_unbounded_image = False
+    urlN=None   #if nothing eventually is found None is returned for url
+    images = queryobject["images"]
+    print('utils.py:images:'+str(images))
+    logging.debug('Utils.py(debug):images:'+str(images))
+    for entry in images:
+	if 'skip_image' in entry:
+	    if entry['skip_image'] == True:
+#started to add logic to check when an image was marked for skipping to prevent eternally skipping 
+#but maybe eternally skipping is ok, so leaving it out 
+#		if 'skip_time' in entry:
+#			dt = time.gmtime()-entry['skip_time']
+#			if dt < 10000
+	    	print('utils.py:image is marked to be skipped')
+		logging.debug('Utils.py(debug):image is marked to be skipped')
+	    	continue
+	    else:
+	    	print('utils.py:image is marked to NOT be skipped')
+		logging.debug('Utils.py(debug):image is marked to NOT be skipped')		
+   	if not 'human_bb' in entry:  # got a pic without a bb
+	    urlN=entry['url']
+ 	    got_unbounded_image = True
+	    print('utils.py:image is not bounded!!')
+	    return(urlN)
+	elif entry["human_bb"] is None:
+	    urlN=entry['url']
+	    got_unbounded_image = True
+	    print('utils.py:image is not bounded!!')
+	    return(urlN)
+    	elif not isinstance(entry["human_bb"],list):
+	    urlN=entry['url']
+	    got_unbounded_image = True
+	    print('utils.py:illegal bb!! (not a list)')
+	    return(urlN)		    
+	elif not(legal_bounding_box(entry["human_bb"])):
+	    urlN=entry['url']
+	    got_unbounded_image = True
+	    print('utils.py:bb is not legal (too small)!!:'+str(entry["human_bb"]))
+	    return(urlN)
+ 	else:
+	    urlN=None
+	    got_unbounded_image = False
+	    print('utils.py:image is bounded :(')
+            logging.debug('image is bounded.....')
+    return(urlN)
+# maybe return(urlN,n) at some point
+
+def lookfor_next_unbounded_image_old(queryobject):
     n=0
     got_unbounded_image = False
     urlN=None   #if nothing eventually is found None is returned for url
@@ -69,16 +122,15 @@ def lookfor_next_unbounded_image(queryobject):
 
 def legal_bounding_box(rect):
     minimum_allowed_area = 50
-    if (rect[2]-rect[0])*(rect[3]-rect[1]) >= minimum_allowed_area:
+    if rect[2]*rect[3] >= minimum_allowed_area:
     	return True
     else:
 	return False
 
 #test function for lookfor_next_unbounded_image
-import pymongo
 def test_lookfor_next():
     db=pymongo.MongoClient().mydb
-    training_collection_cursor = db.training.find()   #The db with multiple figs of same item
+    training_collection_cursor = db.good_training_set.find()   #The db with multiple figs of same item
 #products_collection_cursor = db.products.find()   #Regular db of one fig per item
 
 #    prefixes = ['Main Image URL angle ', 'Style Gallery Image ']
@@ -86,20 +138,40 @@ def test_lookfor_next():
     resultDict = {}
     while doc is not None:
             #training docs contains lots of different images (URLs) of the same clothing item
-    	logging.debug(str(doc))
-        print('doc:'+str(doc))
+    	#logging.debug(str(doc))
+        #print('doc:'+str(doc))
  #       for prefix in prefixes:
         url = lookfor_next_unbounded_image(doc)
         if url:
        	    resultDict["url"] = url
             resultDict["_id"] = str(doc['_id'])
-    	    print('resultDict:'+str(resultDict));
+    	    print('resultDict:'+str(resultDict))
             return resultDict
         else:
             print("no unbounded image found for string:" + str(prefix)+" in current doc")
             logging.debug("no unbounded image found for string:" + str(prefix)+ " in current doc")
     return resultDict
 
+
+
+def test_insert_bb(dict,bb):
+    db=pymongo.MongoClient().mydb
+    doc = db.good_training_set.find_one({ '_id': objectid.ObjectId(dict['_id']) }) 
+    imagelist = doc['images']
+    print('imagelist:'+str(imagelist))
+    for item in imagelist:
+    	print('item:'+str(item))
+        print('desired url:'+str(dict['url'])+'actual item url:'+str(item['url']))
+        if item['url'] == dict['url']:  #this is the right image
+        	print('MATCH')
+                item['human_bb'] = bb
+                print('imagelist after bb insertion:'+str(imagelist))
+    	 	db.good_training_set.update({"_id":objectid.ObjectId(dict["_id"])}, {'$set':{'images':imagelist}})
+    		return True
+
+def test_lookfor_and_insert():
+    dict = test_lookfor_next()
+    test_insert_bb(dict,[10,20,30,40])
 
 class GZipCSVReader:
     def __init__(self, filename):
