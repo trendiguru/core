@@ -85,7 +85,7 @@ def fp(img, bounding_box=None):
 
     #Entropy   t(6)=-sum(p. *(log2(p+ eps)));
     eps = 1e-15
-    max_log_value = log2(bins)  #this is same as sum of p log p 
+    max_log_value = np.log2(bins)  #this is same as sum of p log p
     l_hue = -np.log2(hist_hue + eps)/max_log_value
     hue_entropy = np.dot(hist_hue, l_hue)
     l_sat = -np.log2(hist_sat + eps)/max_log_value
