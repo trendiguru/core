@@ -1,4 +1,5 @@
-__author__ = 'liorsabag'
+_author__ = 'liorsabag'
+import time
 import csv
 import gzip
 import json
@@ -7,7 +8,9 @@ import requests
 from cv2 import imread, imdecode
 import logging
 from bson import objectid
+import pymongo
 
+#logging.setLevel(logging.DEBUG)
 
 def get_cv2_img_array(url_or_path_to_image_file_or_cv2_image_array):
     # first check if we have a numpy array
@@ -34,42 +37,47 @@ def lookfor_next_unbounded_image(queryobject):
     got_unbounded_image = False
     urlN=None   #if nothing eventually is found None is returned for url
     images = queryobject["images"]
-    #print('images:'+str(images))
+    print('utils.py:images:'+str(images))
+    logging.debug('Utils.py(debug):images:'+str(images))
     for entry in images:
-    #	print('entry:'+str(entry))
-#    	n=n+1
-#	strN=string+str(n)  #this is to build strings like 'Main Image URL angle 5' or 'Style Gallery Image 7'
-#	bbN = strN+' bb' #this builds strings like 'Main Image URL angle 5 bb' or 'Style Gallery Image 7 bb'
-#	print('entry:'+str(entry))
-#	print('looking for string:'+str(strN)+' and bb '+str(bbN))
-#	logging.debug('looking for string:'+str(strN)+' and bb '+str(bbN))
-    	
-#	if entry["old_name"] == strN:
-#		print('found old_name:'+entry["old_name"])
-    	if not 'human_bb' in entry:  # got a pic without a bb
+	if 'skip_image' in entry:
+	    if entry['skip_image'] == True:
+#started to add logic to check when an image was marked for skipping to prevent eternally skipping 
+#but maybe eternally skipping is ok, so leaving it out 
+#		if 'skip_time' in entry:
+#			dt = time.gmtime()-entry['skip_time']
+#			if dt < 10000
+	    	print('utils.py:image is marked to be skipped')
+		logging.debug('Utils.py(debug):image is marked to be skipped')
+	    	continue
+	    else:
+	    	print('utils.py:image is marked to NOT be skipped')
+		logging.debug('Utils.py(debug):image is marked to NOT be skipped')		
+   	if not 'human_bb' in entry:  # got a pic without a bb
 	    urlN=entry['url']
  	    got_unbounded_image = True
-	    print('image is not bounded!!')
+	    print('utils.py:image is not bounded!!')
 	    return(urlN)
 	elif entry["human_bb"] is None:
 	    urlN=entry['url']
 	    got_unbounded_image = True
-	    print('image is not bounded!!')
+	    print('utils.py:image is not bounded!!')
 	    return(urlN)
     	elif not isinstance(entry["human_bb"],list):
 	    urlN=entry['url']
 	    got_unbounded_image = True
-	    print('illegal bb!! (not a list)')
+	    print('utils.py:illegal bb!! (not a list)')
 	    return(urlN)		    
 	elif not(legal_bounding_box(entry["human_bb"])):
 	    urlN=entry['url']
 	    got_unbounded_image = True
-	    print('bb is not legal (too small!!')
+	    print('utils.py:bb is not legal (too small)!!:'+str(entry["human_bb"]))
 	    return(urlN)
  	else:
 	    urlN=None
 	    got_unbounded_image = False
-	    print('image is bounded :(')
+	    print('utils.py:image is bounded :(')
+            logging.debug('image is bounded.....')
     return(urlN)
 # maybe return(urlN,n) at some point
 
@@ -114,13 +122,12 @@ def lookfor_next_unbounded_image_old(queryobject):
 
 def legal_bounding_box(rect):
     minimum_allowed_area = 50
-    if (rect[2]-rect[0])*(rect[3]-rect[1]) >= minimum_allowed_area:
+    if rect[2]*rect[3] >= minimum_allowed_area:
     	return True
     else:
 	return False
 
 #test function for lookfor_next_unbounded_image
-import pymongo
 def test_lookfor_next():
     db=pymongo.MongoClient().mydb
     training_collection_cursor = db.good_training_set.find()   #The db with multiple figs of same item
