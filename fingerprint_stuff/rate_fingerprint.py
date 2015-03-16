@@ -51,11 +51,10 @@ def lookfor_image_group(queryobject,string):
 # maybe return(urlN,n) at some point
 
 
-def lookfor_next():
+def lookfor_next_imageset():
     print('path='+str(sys.path))
     resultDict = {}  #return empty dict if no results found
     prefixes = ['Main Image URL angle ', 'Style Gallery Image ']
-
     doc = next(training_collection_cursor, None)
     while doc is not None:
         print('doc:'+str(doc))
@@ -125,6 +124,9 @@ def normalize_matrix(matrix):
     return(normalized_matrix)
 
 def cross_compare(image_sets):
+    '''
+    compares image set i to image set j (including j=i)
+    '''
     confusion_matrix = np.zeros((len(image_sets),len(image_sets)))
     print('confusion matrix size:'+str(len(image_sets))+' square')
     for i in range(0,len(image_sets)):
@@ -135,6 +137,21 @@ def cross_compare(image_sets):
     		avg_dist = compare_fingerprints(image_sets[i],image_sets[j])
 		confusion_matrix[i,j]=avg_dist
 		print('confusion matrix is currently:'+str(confusion_matrix))
+    normalized_matrix = normalize_matrix(confusion_matrix)
+    return(normalized_matrix)
+
+def self_compare(image_sets):
+    '''
+    compares image set i to image set i
+    '''
+    confusion_matrix = np.zeros((len(image_sets),len(image_sets)))
+    print('confusion matrix size:'+str(len(image_sets))+' square')
+    for i in range(0,len(image_sets)):
+	print('comparing group '+str(i)+' to itself')
+	print('group i:'+str(image_sets[i]))
+    	avg_dist = compare_fingerprints(image_sets[i],image_sets[i])
+	confusion_matrix[i,i]=avg_dist
+	print('confusion matrix is currently:'+str(confusion_matrix))
     normalized_matrix = normalize_matrix(confusion_matrix)
     return(normalized_matrix)
 
@@ -163,6 +180,47 @@ def calculate_normalized_confusion_matrix():
     confusion_matrix = cross_compare(tot_answers)
     print('confusion matrix:'+str(confusion_matrix))
     return(confusion_matrix) 
+
+def how_many_bounded_images(images_dict):
+    '''
+    determine how many bounded images there are in set
+    '''
+    good_bb_count = 0
+    print('images:'+str(images_dict))
+    print('\n')
+    for image in images_dict:
+    	bb = Utils.good_bb(images_dict)
+	if (bb):
+	    good_bb_count = good_bb_count + 1
+    return(good_bb_count)
+
+def calculate_self_confusion_matrix():
+    minimum_number_of_images = 7   #don't look at sets with less than this number of images
+    db=pymongo.MongoClient().mydb
+    training_collection_cursor = db.good_training_set.find()
+    assert(training_collection_cursor)  #make sure training collection exists
+    doc = next(training_collection_cursor, None)
+    i = 0
+    tot_answers=[]
+    while doc is not None and i<3:
+#        print('doc:'+str(doc))
+        if doc["images"] is not None:
+		n_good = how_many_bounded_images(doc["images"])
+            	if n_good > minimum_number_of_images:
+			print('got '+str(n_good)+' bounded images, '+str(minimum_number_of_images)+' required');
+		        tot_answers.append(doc['images'])
+#    	    print('result:'+str(answers))
+		        i=i+1
+		else:
+			print('not enough bounded boxes (only '+str(n_good)+' of '+str(minimum_number_of_images)) 
+   	doc = next(training_collection_cursor, None)
+    print('tot number of groups:'+str(i)+'='+str(len(tot_answers)))
+    print('tot_answers:'+str(tot_answers))
+    confusion_matrix = cross_compare(tot_answers)
+    print('confusion matrix:'+str(confusion_matrix))
+    return(confusion_matrix) 
+
+###############
 
 def rate_fingerprint():
     confusion_matrix = calculate_normalized_confusion_matrix()
