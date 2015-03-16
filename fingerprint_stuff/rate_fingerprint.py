@@ -1,4 +1,5 @@
-from joblib import Parallel, delayed
+#from joblib import Parallel, delayed
+from multiprocessing import Pool
 import cv2
 import urllib
 import pymongo
@@ -90,6 +91,9 @@ def paralleled_section(entry1,image_array2):
 #to parallelize
 #[sqrt(i ** 2) for i in range(10)]
 #Parallel(n_jobs=2)(delayed(sqrt)(i ** 2) for i in range(10))
+#NO! use multiprocessing instead
+#multiprocessing is a package that supports spawning processes using an API similar to the threading module. The multiprocessing package offers both local and remote concurrency, effectively side-stepping the Global Interpreter Lock by using subprocesses instead of threads. Due to this, the multiprocessing module allows the programmer to fully leverage multiple processors on a given machine. It runs on both Unix and Windows.
+#https://docs.python.org/2/library/multiprocessing.html
                 for entry2 in image_array2:
                         print('image 2:'+str(entry2))
                         bb2 = entry2['human_bb']
