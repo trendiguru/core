@@ -1,3 +1,4 @@
+from joblib import Parallel, delayed
 import cv2
 import urllib
 import pymongo
@@ -72,6 +73,61 @@ def lookfor_next_imageset():
         print('result:'+str(tot_answers))
 
 
+def paralleled_section(entry1,image_array2):
+        print('image 1:'+str(entry1))
+        bb1 = entry1['human_bb']
+        url1 = entry1['url']
+        img_arr1 = Utils.get_cv2_img_array(url1)
+        if img_arr1 is not None:
+                fp1 = fp.fp(img_arr1,bb1)
+                print('fp1:'+str(fp1))
+                i = i +1
+                j = 0
+                if use_visual_output:
+                        cv2.rectangle(img_arr1, (bb1[0],bb1[1]), (bb1[0]+bb1[2], bb1[1]+bb1[3]), color = GREEN,thickness=2)
+                        cv2.imshow('im1',img_arr1)
+                        k=cv2.waitKey(50)& 0xFF
+#to parallelize
+#[sqrt(i ** 2) for i in range(10)]
+#Parallel(n_jobs=2)(delayed(sqrt)(i ** 2) for i in range(10))
+                for entry2 in image_array2:
+                        print('image 2:'+str(entry2))
+                        bb2 = entry2['human_bb']
+                        url2 = entry2['url']
+                        img_arr2 = Utils.get_cv2_img_array(url2)
+                        if img_arr2 is not None:
+                                if use_visual_output2:
+                                        cv2.rectangle(img_arr2, (bb2[0],bb2[1]), (bb2[0]+bb2[2], bb2[1]+bb2[3]), color=BLUE,thickness=2)
+                                        cv2.imshow('im2',img_arr2)
+                                        k=cv2.waitKey(50) & 0xFF
+                                j = j + 1
+                                fp2 = fp.fp(img_arr2,bb2)
+                                #print('fp2:'+str(fp2))
+                                dist = NNSearch.distance_1_k(fp1, fp2,power)
+                                tot_dist=tot_dist+dist
+                                print('distance:'+str(dist)+' totdist:'+str(tot_dist)+' comparing images '+str(i)+','+str(j))
+                                n=n+1
+                        else:
+                                print('bad img array 2')
+        else:
+                print('bad img array 1')
+
+def paralleled_subsection(fp1,entry2)
+    print('image 2:'+str(entry2))
+    bb2 = entry2['human_bb']
+    url2 = entry2['url']
+    img_arr2 = Utils.get_cv2_img_array(url2)
+    if img_arr2 is not None:
+    	if use_visual_output2:
+        	cv2.rectangle(img_arr2, (bb2[0],bb2[1]), (bb2[0]+bb2[2], bb2[1]+bb2[3]), color=BLUE,thickness=2)
+                cv2.imshow('im2',img_arr2)
+                k=cv2.waitKey(50) & 0xFF
+        fp2 = fp.fp(img_arr2,bb2)
+        #print('fp2:'+str(fp2))
+        dist = NNSearch.distance_1_k(fp1, fp2,power)
+	return(dist)
+
+
 def compare_fingerprints(image_array1,image_array2):
     good_results=[]
     power = 1.5
@@ -79,8 +135,8 @@ def compare_fingerprints(image_array1,image_array2):
     n = 0
     i = 0
     j = 0
-    use_visual_output = True
-    use_visual_output2 = True
+    use_visual_output = False
+    use_visual_output2 = False
     for entry1 in image_array1:
 	print('image 1:'+str(entry1))
     	bb1 = entry1['human_bb']
@@ -95,6 +151,9 @@ def compare_fingerprints(image_array1,image_array2):
 			cv2.rectangle(img_arr1, (bb1[0],bb1[1]), (bb1[0]+bb1[2], bb1[1]+bb1[3]), color = GREEN,thickness=2)
 			cv2.imshow('im1',img_arr1)
  			k=cv2.waitKey(50)& 0xFF
+#to parallelize
+#[sqrt(i ** 2) for i in range(10)]
+#Parallel(n_jobs=2)(delayed(sqrt)(i ** 2) for i in range(10))
     		for entry2 in image_array2:
 			print('image 2:'+str(entry2))
     			bb2 = entry2['human_bb']
@@ -153,6 +212,7 @@ def self_compare(image_sets):
     '''
     confusion_matrix = np.zeros((len(image_sets),len(image_sets)))
     print('confusion matrix size:'+str(len(image_sets))+' square')
+    report={}
     for i in range(0,len(image_sets)):
 	print('comparing group '+str(i)+' to itself')
 #	print('group '+str(i)+':'+str(image_sets[i]))
@@ -215,6 +275,7 @@ def calculate_self_confusion_matrix():
     doc = next(training_collection_cursor, None)
     i = 0
     tot_answers=[]
+    report = {'n_groups':0,'n_items':[],'confusion_matrix':[]}
     while doc is not None and i<3:
 #        print('doc:'+str(doc))
 	images = doc['images']
@@ -225,14 +286,17 @@ def calculate_self_confusion_matrix():
 			i = i + 1
 			print('got '+str(n_good)+' bounded images, '+str(min_images_per_doc)+' required, '+str(n_images)+' images tot');
 			tot_answers.append(get_images_from_doc(images))
+			report['n_items'][i-1]=n_good
 		else:
 			print('not enough bounded boxes (only '+str(n_good)+' found, of '+str(min_images_per_doc)+' required, '+str(n_images)+' images tot') 
    	doc = next(training_collection_cursor, None)
     print('tot number of groups:'+str(i)+'='+str(len(tot_answers)))
+    report['n_groups'] = i
     print('tot_answers:'+str(tot_answers))
     confusion_matrix = self_compare(tot_answers)
+    report['confusion_matrix'] = confusion_matrix
     print('confusion matrix:'+str(confusion_matrix))
-    return(confusion_matrix) 
+    return(confusion_matrix,report) 
 
 ###############
 
