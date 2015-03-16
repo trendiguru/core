@@ -14,6 +14,12 @@ import Utils
 import NNSearch
 import numpy as np
 
+BLUE = [255, 0, 0]        # rectangle color
+RED = [0, 0, 255]         # PR BG
+GREEN = [0, 255, 0]       # PR FG
+BLACK = [0, 0, 0]         # sure BG
+WHITE = [255, 255, 255]   # sure FG
+
 #    def tear_down(self):
 #        shutil.rmtree(self.temp_dir)
 
@@ -65,6 +71,7 @@ def lookfor_next_imageset():
                 tot_answers.append[answers]
         print('result:'+str(tot_answers))
 
+
 def compare_fingerprints(image_array1,image_array2):
     good_results=[]
     power = 1.5
@@ -72,13 +79,12 @@ def compare_fingerprints(image_array1,image_array2):
     n = 0
     i = 0
     j = 0
-    use_visual_output = False
-    use_visual_output2 = False
+    use_visual_output = True
+    use_visual_output2 = True
     for entry1 in image_array1:
-	print('entry1:'+str(entry1))
+	print('image 1:'+str(entry1))
     	bb1 = entry1['human_bb']
     	url1 = entry1['url']
-	print url1
    	img_arr1 = Utils.get_cv2_img_array(url1)
     	if img_arr1 is not None:
 		fp1 = fp.fp(img_arr1,bb1)
@@ -86,16 +92,17 @@ def compare_fingerprints(image_array1,image_array2):
   		i = i +1
  		j = 0
 		if use_visual_output:
+			cv2.rectangle(img_arr1, (bb1[0],bb1[1]), (bb1[0]+bb1[2], bb1[1]+bb1[3]), color = GREEN,thickness=2)
 			cv2.imshow('im1',img_arr1)
  			k=cv2.waitKey(50)& 0xFF
     		for entry2 in image_array2:
-			print('entry2:'+str(entry2))
+			print('image 2:'+str(entry2))
     			bb2 = entry2['human_bb']
     			url2 = entry2['url']
-			print url2
 	   		img_arr2 = Utils.get_cv2_img_array(url2)
 			if img_arr2 is not None:
 				if use_visual_output2:
+ 					cv2.rectangle(img_arr2, (bb2[0],bb2[1]), (bb2[0]+bb2[2], bb2[1]+bb2[3]), color=BLUE,thickness=2)
 					cv2.imshow('im2',img_arr2)
 		 			k=cv2.waitKey(50) & 0xFF
 				j = j + 1
@@ -148,7 +155,7 @@ def self_compare(image_sets):
     print('confusion matrix size:'+str(len(image_sets))+' square')
     for i in range(0,len(image_sets)):
 	print('comparing group '+str(i)+' to itself')
-	print('group i:'+str(image_sets[i]))
+#	print('group '+str(i)+':'+str(image_sets[i]))
     	avg_dist = compare_fingerprints(image_sets[i],image_sets[i])
 	confusion_matrix[i,i]=avg_dist
 	print('confusion matrix is currently:'+str(confusion_matrix))
@@ -181,42 +188,49 @@ def calculate_normalized_confusion_matrix():
     print('confusion matrix:'+str(confusion_matrix))
     return(confusion_matrix) 
 
-def how_many_bounded_images(images_dict):
+def get_images_from_doc(images):
     '''
-    determine how many bounded images there are in set
+    return the good (bounded) images from an images doc
     '''
-    good_bb_count = 0
-    print('images:'+str(images_dict))
-    print('\n')
-    for image in images_dict:
-    	bb = Utils.good_bb(images_dict)
-	if (bb):
-	    good_bb_count = good_bb_count + 1
-    return(good_bb_count)
+    pruned_images = []
+    for img in images:
+    	if Utils.good_bb(img):
+		pruned_images.append(img)
+#    print('pruned images:')
+#    nice_print(pruned_images)
+    return(pruned_images)
+
+def nice_print(images):
+    i=1
+    for img in images:
+	print('img '+str(i)+':'+str(img))
+	i=i+1
 
 def calculate_self_confusion_matrix():
-    minimum_number_of_images = 7   #don't look at sets with less than this number of images
+    #don't look at sets with less than this number of images
+    min_images_per_doc = 10
     db=pymongo.MongoClient().mydb
-    training_collection_cursor = db.good_training_set.find()
+    training_collection_cursor = db.training.find()
     assert(training_collection_cursor)  #make sure training collection exists
     doc = next(training_collection_cursor, None)
     i = 0
     tot_answers=[]
     while doc is not None and i<3:
 #        print('doc:'+str(doc))
-        if doc["images"] is not None:
-		n_good = how_many_bounded_images(doc["images"])
-            	if n_good > minimum_number_of_images:
-			print('got '+str(n_good)+' bounded images, '+str(minimum_number_of_images)+' required');
-		        tot_answers.append(doc['images'])
-#    	    print('result:'+str(answers))
-		        i=i+1
+	images = doc['images']
+        if images is not None:
+		n_images = len(images)
+		n_good = Utils.count_human_bbs_in_doc(images)
+            	if n_good > min_images_per_doc:
+			i = i + 1
+			print('got '+str(n_good)+' bounded images, '+str(min_images_per_doc)+' required, '+str(n_images)+' images tot');
+			tot_answers.append(get_images_from_doc(images))
 		else:
-			print('not enough bounded boxes (only '+str(n_good)+' of '+str(minimum_number_of_images)) 
+			print('not enough bounded boxes (only '+str(n_good)+' found, of '+str(min_images_per_doc)+' required, '+str(n_images)+' images tot') 
    	doc = next(training_collection_cursor, None)
     print('tot number of groups:'+str(i)+'='+str(len(tot_answers)))
     print('tot_answers:'+str(tot_answers))
-    confusion_matrix = cross_compare(tot_answers)
+    confusion_matrix = self_compare(tot_answers)
     print('confusion matrix:'+str(confusion_matrix))
     return(confusion_matrix) 
 

@@ -29,19 +29,17 @@ def get_cv2_img_array(url_or_path_to_image_file_or_cv2_image_array):
         logging.warning("Bad image - check url/path/array")
     return img_array
 
-def count_bbs_in_doc(doc):
+def count_human_bbs_in_doc(dict_of_images):
     n=0
-    images = queryobject["images"]
-    logging.debug('Utils.py(debug):images:'+str(images))
-    for entry in images:
+    for entry in dict_of_images:
 	if good_bb(entry):
 		n=n+1   #got a good bb
     return(n)
 
 
 def lookfor_next_unbounded_image(queryobject):
-    min_images_per_doc = 10
     n=0
+    min_images_per_doc = 10
     got_unbounded_image = False
     urlN=None   #if nothing eventually is found None is returned for url
     images = queryobject["images"]
@@ -92,17 +90,17 @@ def good_bb(dict):
     '''
     determine if dict has good human bb in it
     '''
-    if not 'human_bb' in dict:  # got a pic without a bb
-	print('no human_bb key in dict')
+    if not 'human_bb' in dict:  
+#	print('no human_bb key in dict')
 	return(False)
     elif dict["human_bb"] is None:
-	print('human_bb is None')
+#	print('human_bb is None')
 	return(False)
     elif not(legal_bounding_box(dict["human_bb"])):
-	print('human bb is not big enough')
+#	print('human bb is not big enough')
 	return(False)
     else:
-	print('human bb ok:'+str(dict['human_bb']))
+#	print('human bb ok:'+str(dict['human_bb']))
 	return(dict["human_bb"])
 
 def legal_bounding_box(rect):
@@ -155,12 +153,13 @@ def test_count_bbs():
     '''
 
     db=pymongo.MongoClient().mydb
-    training_collection_cursor = db.good_training_set.find()   #The db with multiple figs of same item
+    training_collection_cursor = db.training.find()   #The db with multiple figs of same item
     doc = next(training_collection_cursor, None)
     resultDict = {}
     while doc is not None:
-	count_bbs_in_doc(doc)
-	print('number of good bbs')
+	if 'images' in doc:
+		n = count_human_bbs_in_doc(doc['images'])
+		print('number of good bbs:'+str(n))
     	doc = next(training_collection_cursor, None)
 
 
