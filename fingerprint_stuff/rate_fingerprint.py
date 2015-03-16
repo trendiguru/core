@@ -127,7 +127,6 @@ def paralleled_subsection(fp1,entry2)
         dist = NNSearch.distance_1_k(fp1, fp2,power)
 	return(dist)
 
-
 def compare_fingerprints(image_array1,image_array2):
     good_results=[]
     power = 1.5
@@ -276,7 +275,7 @@ def calculate_self_confusion_matrix():
     i = 0
     tot_answers=[]
     report = {'n_groups':0,'n_items':[],'confusion_matrix':[]}
-    while doc is not None and i<3:
+    while doc is not None and i<20:
 #        print('doc:'+str(doc))
 	images = doc['images']
         if images is not None:
@@ -296,7 +295,11 @@ def calculate_self_confusion_matrix():
     confusion_matrix = self_compare(tot_answers)
     report['confusion_matrix'] = confusion_matrix
     print('confusion matrix:'+str(confusion_matrix))
+    save_report(report)
     return(confusion_matrix,report) 
+
+def save_report(report):
+    f = open('workfile', 'w')
 
 ###############
 
