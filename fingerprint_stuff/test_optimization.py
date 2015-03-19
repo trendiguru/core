@@ -3,24 +3,14 @@ import numpy as np
 import scipy.optimize
 import math
 
-def test_optimize():
-    f = math.sin
-    x_min = scipy.optimize.minimize(f,3)
-    print('output of optimize:'+str(x_min))
-    print('xvals:'+str(x_min.x))
-    print('f('+x_min.x+')='+f(x_min.x))
-
-def f_multiple(x1,x2):
-    print('xvals:'+str(x1)+','+str(x2))
-    f = math.sin(x1*x2)
-    print('f:'+str(f))
-    return f
-
+#########################
+#WORKING  - fmin works w multiple args, minimize less so
+####################3
 def opt_mult():
     f = test_function_vectorinput
 
-#    x_min = scipy.optimize.minimize(f,init_val,args=(6))
-    x_min = scipy.optimize.fmin(f,[2,3])
+    x_min = scipy.optimize.minimize(f,[2,3])
+#    x_min = scipy.optimize.fmin(f,[2,3])
     print('output of optimize:'+str(x_min))
 
 def test_function_vectorinput(x_arr):
@@ -35,6 +25,24 @@ def test_function_vectorinput(x_arr):
     final_answer = -np.prod(answer)
     print('final answer:'+str(final_answer))
     return(final_answer)
+
+##############################3
+#END OF WORKING
+###############################
+
+def test_optimize():
+    f = math.sin
+    x_min = scipy.optimize.minimize(f,3)
+    print('output of optimize:'+str(x_min))
+    print('xvals:'+str(x_min.x))
+    print('f('+x_min.x+')='+f(x_min.x))
+
+def f_multiple(x1,x2):
+    print('xvals:'+str(x1)+','+str(x2))
+    f = math.sin(x1*x2)
+    print('f:'+str(f))
+    return f
+
 
 def test_function_starinput(*input_vector):
     answer =np.array([])

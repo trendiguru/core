@@ -23,9 +23,34 @@ def get_cv2_img_array(url_or_path_to_image_file_or_cv2_image_array):
             img_url = url_or_path_to_image_file_or_cv2_image_array
 	    try:
 		response = requests.get(img_url)
+	        img_array = imdecode(numpy.asarray(bytearray(response.content)), 1)
 	    except ConnectionError:
+         	logging.warning("connection error - check url or connection")
 		return None
-            img_array = imdecode(numpy.asarray(bytearray(response.content)), 1)
+        else:
+            img_path = url_or_path_to_image_file_or_cv2_image_array
+            img_array = imread(img_path)
+    # After we're done with all the above, this should be true - final check that we're outputting a good array
+    if not (isinstance(img_array, numpy.ndarray) and isinstance(img_array[0][0], numpy.ndarray)):
+        logging.warning("Bad image - check url/path/array")
+    return img_array
+
+def get_cv2_img_array_locally_if_possible(url_or_path_to_image_file_or_cv2_image_array):
+    img_array = None  #attempt to deal with non-responding url
+    # first check if we have a numpy array
+    if isinstance(url_or_path_to_image_file_or_cv2_image_array, numpy.ndarray):
+        img_array = url_or_path_to_image_file_or_cv2_image_array
+    # otherwise it's probably a string, check what kind
+    elif isinstance(url_or_path_to_image_file_or_cv2_image_array, basestring):
+        if "://" in url_or_path_to_image_file_or_cv2_image_array:
+            img_url = url_or_path_to_image_file_or_cv2_image_array
+#first try getting file locally , if not a local file then try url
+	    try:
+		response = requests.get(img_url)
+	        img_array = imdecode(numpy.asarray(bytearray(response.content)), 1)
+	    except ConnectionError:
+         	logging.warning("connection error - check url or connection")
+		return None
         else:
             img_path = url_or_path_to_image_file_or_cv2_image_array
             img_array = imread(img_path)

@@ -19,6 +19,8 @@ import Utils
 import NNSearch
 import numpy as np
 import cProfile
+import StringIO
+import pstats
 
 BLUE = [255, 0, 0]        # rectangle color
 RED = [0, 0, 255]         # PR BG
@@ -187,6 +189,59 @@ def compare_fingerprints(image_array1,image_array2):
     print('average distance:'+str(avg_dist)+',n='+str(n)+',tot='+str(tot_dist))
     return(avg_dist)
 
+def compare_fingerprints_except_diagonal(image_array1,image_array2):
+#    assert(len(image_array1) == len(image_array2)) #maybe not require that these be the same set...
+    good_results=[]
+    power = 1.5
+    tot_dist = 0 
+    n = 0
+    i = 0
+    j = 0
+    use_visual_output = False
+    use_visual_output2 = False
+    for entry1 in image_array1:
+  	i = i +1
+	print('image 1:'+str(entry1))
+    	bb1 = entry1['human_bb']
+    	url1 = entry1['url']
+   	img_arr1 = Utils.get_cv2_img_array(url1)
+    	if img_arr1 is not None:
+		fp1 = fp.fp(img_arr1,bb1)
+		print('fp1:'+str(fp1))
+ 		j = 0
+		if use_visual_output:
+			cv2.rectangle(img_arr1, (bb1[0],bb1[1]), (bb1[0]+bb1[2], bb1[1]+bb1[3]), color = GREEN,thickness=2)
+			cv2.imshow('im1',img_arr1)
+ 			k=cv2.waitKey(50)& 0xFF
+#to parallelize
+#[sqrt(i ** 2) for i in range(10)]
+#Parallel(n_jobs=2)(delayed(sqrt)(i ** 2) for i in range(10))
+    		for entry2 in image_array2:
+			j = j + 1
+			print('image 2:'+str(entry2))
+    			bb2 = entry2['human_bb']
+    			url2 = entry2['url']
+	   		img_arr2 = Utils.get_cv2_img_array(url2)
+			if img_arr2 is not None:
+				if use_visual_output2:
+ 					cv2.rectangle(img_arr2, (bb2[0],bb2[1]), (bb2[0]+bb2[2], bb2[1]+bb2[3]), color=BLUE,thickness=2)
+					cv2.imshow('im2',img_arr2)
+		 			k=cv2.waitKey(50) & 0xFF
+    				fp2 = fp.fp(img_arr2,bb2)
+				#print('fp2:'+str(fp2))
+    				dist = NNSearch.distance_1_k(fp1, fp2,power)
+				tot_dist=tot_dist+dist
+				print('distance:'+str(dist)+' totdist:'+str(tot_dist)+' comparing images '+str(i)+','+str(j))
+				n=n+1
+			else:
+				print('bad img array 2')
+	else:
+		print('bad img array 1')
+    n_diagonal_elements = i
+    avg_dist = float(tot_dist)/float(n-i)  #this is the one part thats different between compare_fp_except_diagonal and compare_fp
+    print('average distance:'+str(avg_dist)+',n='+str(n)+',tot='+str(tot_dist)+' diag elements:'+str(i))
+    return(avg_dist)
+
 def normalize_matrix(matrix):
 	# the matrix should be square and is only populated in top triangle , including the diagonal
 	# so the number of elements is 1+2+...+N  for an  NxN array, which comes to N*(N+1)/2
@@ -207,7 +262,10 @@ def cross_compare(image_sets):
 		print('comparing group '+str(i)+' to group '+str(j))
 		print('group 1:'+str(image_sets[i]))
 		print('group 2:'+str(image_sets[j]))
-    		avg_dist = compare_fingerprints(image_sets[i],image_sets[j])
+		if (i==j):
+	    		avg_dist = compare_fingerprints_except_diagonal(image_sets[i],image_sets[j])
+		else:
+	    		avg_dist = compare_fingerprints(image_sets[i],image_sets[j])
 		confusion_matrix[i,j]=avg_dist
 		print('confusion matrix is currently:'+str(confusion_matrix))
 #    normalized_matrix = normalize_matrix(confusion_matrix)
@@ -218,15 +276,15 @@ def self_compare(image_sets):
     '''
     compares image set i to image set i
     '''
-    confusion_matrix = np.zeros((len(image_sets),len(image_sets)))
-    print('confusion matrix size:'+str(len(image_sets))+' square')
+    confusion_matrix = np.zeros((len(image_sets)))
+    print('confusion vector size:'+str(len(image_sets))+' long')
     report={}
     for i in range(0,len(image_sets)):
 	print('comparing group '+str(i)+' to itself')
 #	print('group '+str(i)+':'+str(image_sets[i]))
-    	avg_dist = compare_fingerprints(image_sets[i],image_sets[i])
-	confusion_matrix[i,i]=avg_dist
-	print('confusion matrix is currently:'+str(confusion_matrix))
+    	avg_dist = compare_fingerprints_except_diagonal(image_sets[i],image_sets[i])
+	confusion_matrix[i] = avg_dist
+	print('confusion vector is currently:'+str(confusion_matrix))
 #    normalized_matrix = normalize_matrix(confusion_matrix)
 #    return(normalized_matrix)
     return(confusion_matrix)
@@ -247,7 +305,7 @@ def calculate_confusion_matrix():
     doc = next(training_collection_cursor, None)
     i=0
     tot_answers=[]
-    while doc is not None and i<200:   #just take 1st N for testing
+    while doc is not None and i<2:   #just take 1st N for testing
 #        print('doc:'+str(doc))
         images = doc['images']
         n_images = len(images)
@@ -289,7 +347,7 @@ def nice_print(images):
 	print('img '+str(i)+':'+str(img))
 	i=i+1
 
-def calculate_self_confusion_matrix():
+def calculate_self_confusion_vector():
     #don't look at sets with less than this number of images
     min_images_per_doc = 10
     db=pymongo.MongoClient().mydb
@@ -316,14 +374,14 @@ def calculate_self_confusion_matrix():
     print('tot number of groups:'+str(i)+'='+str(len(tot_answers)))
     report['n_groups'] = i
     print('tot_answers:'+str(tot_answers))
-    confusion_matrix = self_compare(tot_answers)
-    report['confusion_matrix'] = confusion_matrix.tolist() #this is required for json dumping
-    print('confusion matrix:'+str(confusion_matrix))
+    confusion_vector = self_compare(tot_answers)
+    report['confusion_matrix'] = confusion_vector.tolist() #this is required for json dumping
+    print('confusion matrix:'+str(confusion_vector))
     report['fingerprint_function']='fp'
     report['distance_function'] = 'NNSearch.distance_1_k(fp1, fp2,power=1.5)'
     report['timestamp'] = datetime.datetime.now().strftime("%Y-%m-%d %H:%M")
     save_report(report)
-    return(confusion_matrix,report) 
+    return(confusion_vector) 
 
 def save_report(report):
     f = open('fp_ratings.txt', 'w+')
@@ -331,10 +389,10 @@ def save_report(report):
     f.close()
 ###############
 
-def rate_fingerprint():
+def cross_rate_fingerprint():
     global report
     report = {}
-    confusion_matrix = calculate_self_confusion_matrix()
+    confusion_matrix = calculate_confusion_matrix()
     print('confusion matrix final:'+str(confusion_matrix))
     normalized_confusion_matrix = normalize_matrix(confusion_matrix)
     #number of diagonal and offdiagonal elements for NxN array  is N and (N*N-1)/2
@@ -348,15 +406,25 @@ def rate_fingerprint():
     report['different_item_average']=different_item_avg
     report['goodness']=goodness
     save_report(report)
-
-
     return(goodness)
+
+def self_rate_fingerprint():
+    global report
+    report = {}
+    confusion_vector = calculate_self_confusion_vector()
+    print('confusion vector final:'+str(confusion_vector))
+    n_elements = len(confusion_vector)
+    same_item_avg = np.sum(confusion_vector)/n_elements
+    print('same item average:'+str(same_item_avg))
+    report['same_item_average']=same_item_avg
+    save_report(report)
+    return(same_item_avg)
 
 
 if __name__ == '__main__':
     pr = cProfile.Profile()
     pr.enable()
-    rate_fingerprint()
+    self_rate_fingerprint()
     pr.disable()
     s = StringIO.StringIO()
     sortby = 'cumulative'
