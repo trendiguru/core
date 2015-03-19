@@ -1,5 +1,8 @@
+#TODO: ConnectionError: HTTPConnectionPool(host='img.sheinside.com', port=80): Max retries exceeded with url: /images/lookbook/wearing/201428/04181405101082542276157.jpg (Caused by <class 'socket.error'>: [Errno 104] Connection reset by peer)
 #from joblib import Parallel, delayed
 from multiprocessing import Pool
+import datetime
+import json
 import cv2
 import urllib
 import pymongo
@@ -15,6 +18,7 @@ import fingerprint_core as fp
 import Utils
 import NNSearch
 import numpy as np
+import cProfile
 
 BLUE = [255, 0, 0]        # rectangle color
 RED = [0, 0, 255]         # PR BG
@@ -116,7 +120,7 @@ def paralleled_section(entry1,image_array2):
         else:
                 print('bad img array 1')
 
-def paralleled_subsection(fp1,entry2)
+def paralleled_subsection(fp1,entry2):
     print('image 2:'+str(entry2))
     bb2 = entry2['human_bb']
     url2 = entry2['url']
@@ -206,8 +210,9 @@ def cross_compare(image_sets):
     		avg_dist = compare_fingerprints(image_sets[i],image_sets[j])
 		confusion_matrix[i,j]=avg_dist
 		print('confusion matrix is currently:'+str(confusion_matrix))
-    normalized_matrix = normalize_matrix(confusion_matrix)
-    return(normalized_matrix)
+#    normalized_matrix = normalize_matrix(confusion_matrix)
+#    return(normalized_matrix)
+    return(confusion_matrix)
 
 def self_compare(image_sets):
     '''
@@ -222,8 +227,9 @@ def self_compare(image_sets):
     	avg_dist = compare_fingerprints(image_sets[i],image_sets[i])
 	confusion_matrix[i,i]=avg_dist
 	print('confusion matrix is currently:'+str(confusion_matrix))
-    normalized_matrix = normalize_matrix(confusion_matrix)
-    return(normalized_matrix)
+#    normalized_matrix = normalize_matrix(confusion_matrix)
+#    return(normalized_matrix)
+    return(confusion_matrix)
 
 def mytrace(matrix):
     sum=0
@@ -231,24 +237,38 @@ def mytrace(matrix):
     	sum=sum+matrix[i,i]
     return(sum)
 
-def calculate_normalized_confusion_matrix():
+def calculate_confusion_matrix():
+    global report
+    report = {'n_groups':0,'n_items':[],'confusion_matrix':[]}
+    min_images_per_doc = 10
     db=pymongo.MongoClient().mydb
     training_collection_cursor = db.training.find()   #The db with multiple figs of same item
     assert(training_collection_cursor)  #make sure training collection exists
     doc = next(training_collection_cursor, None)
     i=0
     tot_answers=[]
-    while doc is not None and i<3:
+    while doc is not None and i<200:   #just take 1st N for testing
 #        print('doc:'+str(doc))
-        if doc["images"] is not None:
-            tot_answers.append(doc['images'])
-#    	    print('result:'+str(answers))
-	    i=i+1
+        images = doc['images']
+        n_images = len(images)
+        n_good = Utils.count_human_bbs_in_doc(images)
+        if n_good > min_images_per_doc:
+        	i = i + 1
+                print('got '+str(n_good)+' bounded images, '+str(min_images_per_doc)+' required, '+str(n_images)+' images tot');
+                tot_answers.append(get_images_from_doc(images))
+                report['n_items'].append(n_good)
+        else:
+                print('not enough bounded boxes (only '+str(n_good)+' found, of '+str(min_images_per_doc)+' required, '+str(n_images)+' images tot')
     	doc = next(training_collection_cursor, None)
     print('tot number of groups:'+str(i)+'='+str(len(tot_answers)))
     print('tot_answers:'+str(tot_answers))
     confusion_matrix = cross_compare(tot_answers)
     print('confusion matrix:'+str(confusion_matrix))
+    report['confusion_matrix'] = confusion_matrix.tolist() #this is required for json dumping
+    report['fingerprint_function']='fp'
+    report['distance_function'] = 'NNSearch.distance_1_k(fp1, fp2,power=1.5)'
+    report['timestamp'] = datetime.datetime.now().strftime("%Y-%m-%d %H:%M")
+#    save_report(report)
     return(confusion_matrix) 
 
 def get_images_from_doc(images):
@@ -279,7 +299,7 @@ def calculate_self_confusion_matrix():
     i = 0
     tot_answers=[]
     report = {'n_groups':0,'n_items':[],'confusion_matrix':[]}
-    while doc is not None and i<20:
+    while doc is not None and i<50:
 #        print('doc:'+str(doc))
 	images = doc['images']
         if images is not None:
@@ -289,7 +309,7 @@ def calculate_self_confusion_matrix():
 			i = i + 1
 			print('got '+str(n_good)+' bounded images, '+str(min_images_per_doc)+' required, '+str(n_images)+' images tot');
 			tot_answers.append(get_images_from_doc(images))
-			report['n_items'][i-1]=n_good
+			report['n_items'].append(n_good)
 		else:
 			print('not enough bounded boxes (only '+str(n_good)+' found, of '+str(min_images_per_doc)+' required, '+str(n_images)+' images tot') 
    	doc = next(training_collection_cursor, None)
@@ -297,29 +317,51 @@ def calculate_self_confusion_matrix():
     report['n_groups'] = i
     print('tot_answers:'+str(tot_answers))
     confusion_matrix = self_compare(tot_answers)
-    report['confusion_matrix'] = confusion_matrix
+    report['confusion_matrix'] = confusion_matrix.tolist() #this is required for json dumping
     print('confusion matrix:'+str(confusion_matrix))
+    report['fingerprint_function']='fp'
+    report['distance_function'] = 'NNSearch.distance_1_k(fp1, fp2,power=1.5)'
+    report['timestamp'] = datetime.datetime.now().strftime("%Y-%m-%d %H:%M")
     save_report(report)
     return(confusion_matrix,report) 
 
 def save_report(report):
-    f = open('workfile', 'w')
-
+    f = open('fp_ratings.txt', 'w+')
+    json.dump(str(report),f,indent=4)
+    f.close()
 ###############
 
 def rate_fingerprint():
-    confusion_matrix = calculate_normalized_confusion_matrix()
+    global report
+    report = {}
+    confusion_matrix = calculate_self_confusion_matrix()
+    print('confusion matrix final:'+str(confusion_matrix))
+    normalized_confusion_matrix = normalize_matrix(confusion_matrix)
     #number of diagonal and offdiagonal elements for NxN array  is N and (N*N-1)/2
-    n_diagonal_elements = confusion_matrix.shape[0]
-    n_offdiagonal_elements = float(confusion_matrix.shape[0]*confusion_matrix.shape[0]-confusion_matrix.shape[0])/2.0
-    same_item_avg = mytrace(confusion_matrix)/n_diagonal_elements
-    different_item_avg = (float(np.sum(confusion_matrix))-float(mytrace(confusion_matrix))) / n_offdiagonal_elements
+    n_diagonal_elements = normalized_confusion_matrix.shape[0]
+    n_offdiagonal_elements = float(normalized_confusion_matrix.shape[0]*normalized_confusion_matrix.shape[0]-normalized_confusion_matrix.shape[0])/2.0
+    same_item_avg = mytrace(normalized_confusion_matrix)/n_diagonal_elements
+    different_item_avg = (float(np.sum(normalized_confusion_matrix))-float(mytrace(normalized_confusion_matrix))) / n_offdiagonal_elements
     goodness = different_item_avg - same_item_avg
     print('same item average:'+str(same_item_avg)+' different item average:'+str(different_item_avg)+' difference:'+str(goodness))
+    report['same_item_average']=same_item_avg
+    report['different_item_average']=different_item_avg
+    report['goodness']=goodness
+    save_report(report)
+
+
     return(goodness)
 
 
 if __name__ == '__main__':
+    pr = cProfile.Profile()
+    pr.enable()
     rate_fingerprint()
+    pr.disable()
+    s = StringIO.StringIO()
+    sortby = 'cumulative'
+    ps = pstats.Stats(pr, stream=s).sort_stats(sortby)
+    ps.print_stats()  
+    print s.getvalue()
 
 

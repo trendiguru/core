@@ -13,6 +13,7 @@ import pymongo
 #logging.setLevel(logging.DEBUG)
 
 def get_cv2_img_array(url_or_path_to_image_file_or_cv2_image_array):
+    img_array = None  #attempt to deal with non-responding url
     # first check if we have a numpy array
     if isinstance(url_or_path_to_image_file_or_cv2_image_array, numpy.ndarray):
         img_array = url_or_path_to_image_file_or_cv2_image_array
@@ -20,7 +21,11 @@ def get_cv2_img_array(url_or_path_to_image_file_or_cv2_image_array):
     elif isinstance(url_or_path_to_image_file_or_cv2_image_array, basestring):
         if "://" in url_or_path_to_image_file_or_cv2_image_array:
             img_url = url_or_path_to_image_file_or_cv2_image_array
-            img_array = imdecode(numpy.asarray(bytearray(requests.get(img_url).content)), 1)
+	    try:
+		response = requests.get(img_url)
+	    except ConnectionError:
+		return None
+            img_array = imdecode(numpy.asarray(bytearray(response.content)), 1)
         else:
             img_path = url_or_path_to_image_file_or_cv2_image_array
             img_array = imread(img_path)
