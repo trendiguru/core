@@ -17,7 +17,7 @@ def find_face(image):
         faces = face_cascades[i].detectMultiScale(
             gray,
             scaleFactor=1.1,
-            minNeighbors=5,
+            minNeighbors=3,
             minSize=(1, 1),
             flags = cv2.cv.CV_HAAR_SCALE_IMAGE
         )
