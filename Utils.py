@@ -31,13 +31,13 @@ def get_cv2_img_array(url_or_path_to_image_file_or_cv2_image_array, try_url_loca
 			pass
 		else:    #there's no 'normal' filename ending so add .jpg
 			FILENAME=FILENAME+'.jpg' 
-		print('trying to use filename:'+str(FILENAME)+' and calling myself')
+#		print('trying to use filename:'+str(FILENAME)+' and calling myself')
 		img_array = get_cv2_img_array(FILENAME,try_url_locally=False,download=download,download_directory=download_directory) 
 		if img_array is not None:
-			print('got ok array calling self locally')
+#			print('got ok array calling self locally')
 			return img_array
 		else:   #couldnt get locally so try remotely
-			print('trying again since using local filename didnt work, download='+str(download))
+#			print('trying again since using local filename didnt work, download='+str(download))
 			return (get_cv2_img_array(url_or_path_to_image_file_or_cv2_image_array,try_url_locally=False,download=download,download_directory=download_directory))
     	# put images in local directory
 	else:    
@@ -74,11 +74,9 @@ def get_cv2_img_array(url_or_path_to_image_file_or_cv2_image_array, try_url_loca
         		os.makedirs(download_directory)
 		if "://" in url_or_path_to_image_file_or_cv2_image_array:
 	  		FILENAME = url_or_path_to_image_file_or_cv2_image_array.split('/')[-1].split('#')[0].split('?')[-1].split(':')[-1]
- 			print('interim filename:'+str(FILENAME))
 			FILENAME = os.path.join(download_directory,FILENAME)
 		else:
  			FILENAME = os.path.join(download_directory,url_or_path_to_image_file_or_cv2_image_array)
-			print('no //')
 		if FILENAME.endswith('jpg')or FILENAME.endswith('jpeg') or FILENAME.endswith('.bmp') or FILENAME.endswith('tiff'):
 			pass
 		else:    #there's no 'normal' filename ending

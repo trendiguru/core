@@ -1,4 +1,5 @@
 #TODO: ConnectionError: HTTPConnectionPool(host='img.sheinside.com', port=80): Max retries exceeded with url: /images/lookbook/wearing/201428/04181405101082542276157.jpg (Caused by <class 'socket.error'>: [Errno 104] Connection reset by peer)
+#TODO make sure fp is correct when image is missing
 #from joblib import Parallel, delayed
 from multiprocessing import Pool
 import datetime
@@ -80,63 +81,6 @@ def lookfor_next_imageset():
         print('result:'+str(tot_answers))
 
 
-def paralleled_section(entry1,image_array2):
-        print('image 1:'+str(entry1))
-        bb1 = entry1['human_bb']
-        url1 = entry1['url']
-        img_arr1 = Utils.get_cv2_img_array(url1)
-        if img_arr1 is not None:
-                fp1 = fp.fp(img_arr1,bb1)
-                print('fp1:'+str(fp1))
-                i = i +1
-                j = 0
-                if use_visual_output:
-                        cv2.rectangle(img_arr1, (bb1[0],bb1[1]), (bb1[0]+bb1[2], bb1[1]+bb1[3]), color = GREEN,thickness=2)
-                        cv2.imshow('im1',img_arr1)
-                        k=cv2.waitKey(50)& 0xFF
-#to parallelize
-#[sqrt(i ** 2) for i in range(10)]
-#Parallel(n_jobs=2)(delayed(sqrt)(i ** 2) for i in range(10))
-#NO! use multiprocessing instead
-#multiprocessing is a package that supports spawning processes using an API similar to the threading module. The multiprocessing package offers both local and remote concurrency, effectively side-stepping the Global Interpreter Lock by using subprocesses instead of threads. Due to this, the multiprocessing module allows the programmer to fully leverage multiple processors on a given machine. It runs on both Unix and Windows.
-#https://docs.python.org/2/library/multiprocessing.html
-                for entry2 in image_array2:
-                        print('image 2:'+str(entry2))
-                        bb2 = entry2['human_bb']
-                        url2 = entry2['url']
-                        img_arr2 = Utils.get_cv2_img_array(url2)
-                        if img_arr2 is not None:
-                                if use_visual_output2:
-                                        cv2.rectangle(img_arr2, (bb2[0],bb2[1]), (bb2[0]+bb2[2], bb2[1]+bb2[3]), color=BLUE,thickness=2)
-                                        cv2.imshow('im2',img_arr2)
-                                        k=cv2.waitKey(50) & 0xFF
-                                j = j + 1
-                                fp2 = fp.fp(img_arr2,bb2)
-                                #print('fp2:'+str(fp2))
-                                dist = NNSearch.distance_1_k(fp1, fp2,power)
-                                tot_dist=tot_dist+dist
-                                print('distance:'+str(dist)+' totdist:'+str(tot_dist)+' comparing images '+str(i)+','+str(j))
-                                n=n+1
-                        else:
-                                print('bad img array 2')
-        else:
-                print('bad img array 1')
-
-def paralleled_subsection(fp1,entry2):
-    print('image 2:'+str(entry2))
-    bb2 = entry2['human_bb']
-    url2 = entry2['url']
-    img_arr2 = Utils.get_cv2_img_array(url2)
-    if img_arr2 is not None:
-    	if use_visual_output2:
-        	cv2.rectangle(img_arr2, (bb2[0],bb2[1]), (bb2[0]+bb2[2], bb2[1]+bb2[3]), color=BLUE,thickness=2)
-                cv2.imshow('im2',img_arr2)
-                k=cv2.waitKey(50) & 0xFF
-        fp2 = fp.fp(img_arr2,bb2)
-        #print('fp2:'+str(fp2))
-        dist = NNSearch.distance_1_k(fp1, fp2,power)
-	return(dist)
-
 def compare_fingerprints(image_array1,image_array2):
     good_results=[]
     power = 1.5
@@ -150,7 +94,7 @@ def compare_fingerprints(image_array1,image_array2):
 	print('image 1:'+str(entry1))
     	bb1 = entry1['human_bb']
     	url1 = entry1['url']
-   	img_arr1 = Utils.get_cv2_img_array(url1)
+   	img_arr1 = Utils.get_cv2_img_array(url1,try_url_locally=True,download=True)
     	if img_arr1 is not None:
 		fp1 = fp.fp(img_arr1,bb1)
 		print('fp1:'+str(fp1))
@@ -167,7 +111,7 @@ def compare_fingerprints(image_array1,image_array2):
 			print('image 2:'+str(entry2))
     			bb2 = entry2['human_bb']
     			url2 = entry2['url']
-	   		img_arr2 = Utils.get_cv2_img_array(url2)
+	   		img_arr2 = Utils.get_cv2_img_array(url2,try_url_locally=True,download=True)
 			if img_arr2 is not None:
 				if use_visual_output2:
  					cv2.rectangle(img_arr2, (bb2[0],bb2[1]), (bb2[0]+bb2[2], bb2[1]+bb2[3]), color=BLUE,thickness=2)
@@ -204,7 +148,7 @@ def compare_fingerprints_except_diagonal(image_array1,image_array2):
 	print('image 1:'+str(entry1))
     	bb1 = entry1['human_bb']
     	url1 = entry1['url']
-   	img_arr1 = Utils.get_cv2_img_array(url1)
+   	img_arr1 = Utils.get_cv2_img_array(url1,try_url_locally=True,download=True)
     	if img_arr1 is not None:
 		fp1 = fp.fp(img_arr1,bb1)
 		print('fp1:'+str(fp1))
@@ -221,7 +165,7 @@ def compare_fingerprints_except_diagonal(image_array1,image_array2):
 			print('image 2:'+str(entry2))
     			bb2 = entry2['human_bb']
     			url2 = entry2['url']
-	   		img_arr2 = Utils.get_cv2_img_array(url2)
+	   		img_arr2 = Utils.get_cv2_img_array(url2,try_url_locally=True,download=True)
 			if img_arr2 is not None:
 				if use_visual_output2:
  					cv2.rectangle(img_arr2, (bb2[0],bb2[1]), (bb2[0]+bb2[2], bb2[1]+bb2[3]), color=BLUE,thickness=2)
