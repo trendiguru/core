@@ -357,7 +357,7 @@ def calculate_self_confusion_vector():
     i = 0
     tot_answers=[]
     report = {'n_groups':0,'n_items':[],'confusion_matrix':[]}
-    while doc is not None and i<50:
+    while doc is not None and i<200:
 #        print('doc:'+str(doc))
 	images = doc['images']
         if images is not None:
