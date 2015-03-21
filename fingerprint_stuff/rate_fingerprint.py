@@ -22,6 +22,7 @@ import numpy as np
 import cProfile
 import StringIO
 import pstats
+import  background_removal
 
 BLUE = [255, 0, 0]        # rectangle color
 RED = [0, 0, 255]         # PR BG
@@ -150,6 +151,7 @@ def compare_fingerprints_except_diagonal(image_array1,image_array2):
     	url1 = entry1['url']
    	img_arr1 = Utils.get_cv2_img_array(url1,try_url_locally=True,download=True)
     	if img_arr1 is not None:
+  		#background_removal.standard_resize(image, 400) 
 		fp1 = fp.fp(img_arr1,bb1)
 		print('fp1:'+str(fp1))
  		j = 0

@@ -26,17 +26,7 @@ def crop_image_to_bb(img, bb_coordinates_string_or_array):
     h = bb_array[3]
     hh, ww, d = img.shape
     if (x + w <= ww) and (y + h <= hh):
-        #rectok=True
-        r = [x, y, w, h]
-        #allRects.append(r)
-        mask = np.zeros(img.shape[:2], np.uint8)
-        cropped_img = np.zeros((r[3], r[2], 3), np.uint8)
-        mask[r[0]:r[2], r[1]:r[3]] = 255
-
-        for xx in range(r[2]):
-            for yy in range(r[3]):
-                cropped_img[yy, xx, :] = img[yy + r[1], xx + r[0], :]
-
+	cropped_img = img[y:y+h,x:x+w]
     else:
         cropped_img = img
         logging.warning('Could not crop. Bad bounding box: imsize:' + str(ww) + ',' + str(hh) +
