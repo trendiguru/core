@@ -5,58 +5,92 @@ import gzip
 import json
 import numpy
 import requests
-from cv2 import imread, imdecode
+from cv2 import imread, imdecode, imwrite
 import logging
 from bson import objectid
 import pymongo
+import os
+#import urllib 
 
 #logging.setLevel(logging.DEBUG)
 
-def get_cv2_img_array(url_or_path_to_image_file_or_cv2_image_array):
+def get_cv2_img_array(url_or_path_to_image_file_or_cv2_image_array, try_url_locally = False, download = False, download_directory = 'images'):
+    got_locally = False
     img_array = None  #attempt to deal with non-responding url
-    # first check if we have a numpy array
+    # first check if we already have a numpy array
     if isinstance(url_or_path_to_image_file_or_cv2_image_array, numpy.ndarray):
         img_array = url_or_path_to_image_file_or_cv2_image_array
     # otherwise it's probably a string, check what kind
     elif isinstance(url_or_path_to_image_file_or_cv2_image_array, basestring):
-        if "://" in url_or_path_to_image_file_or_cv2_image_array:
-            img_url = url_or_path_to_image_file_or_cv2_image_array
-	    try:
-		response = requests.get(img_url)
-	        img_array = imdecode(numpy.asarray(bytearray(response.content)), 1)
-	    except ConnectionError:
-         	logging.warning("connection error - check url or connection")
-		return None
-        else:
-            img_path = url_or_path_to_image_file_or_cv2_image_array
-            img_array = imread(img_path)
-    # After we're done with all the above, this should be true - final check that we're outputting a good array
-    if not (isinstance(img_array, numpy.ndarray) and isinstance(img_array[0][0], numpy.ndarray)):
-        logging.warning("Bad image - check url/path/array")
-    return img_array
+	#try getting url locally by changing url to standard name
+	if try_url_locally: #turn url into local filename and try getting it again
+#   	 	FILENAME = url_or_path_to_image_file_or_cv2_image_array.split('/')[-1].split('#')[0].split('?')[0]
+   	 	FILENAME = url_or_path_to_image_file_or_cv2_image_array.split('/')[-1].split('#')[0].split('?')[-1].split(':')[-1]  #jeremy changed this sinc it didnt work with url https://encrypted-tbn1.gstatic.com/images?q=tbn:ANd9GcR2oSMcnwErH1eqf4k8fvn2bAxvSdDSbp6voC7ijYJStL2NfX6v
+    		FILENAME = os.path.join(download_directory,FILENAME)
+		if FILENAME.endswith('jpg')or FILENAME.endswith('jpeg') or FILENAME.endswith('.bmp') or FILENAME.endswith('tiff'):
+			pass
+		else:    #there's no 'normal' filename ending so add .jpg
+			FILENAME=FILENAME+'.jpg' 
+		print('trying to use filename:'+str(FILENAME)+' and calling myself')
+		img_array = get_cv2_img_array(FILENAME,try_url_locally=False,download=download,download_directory=download_directory) 
+		if img_array is not None:
+			print('got ok array calling self locally')
+			return img_array
+		else:   #couldnt get locally so try remotely
+			print('trying again since using local filename didnt work, download='+str(download))
+			return (get_cv2_img_array(url_or_path_to_image_file_or_cv2_image_array,try_url_locally=False,download=download,download_directory=download_directory))
+    	# put images in local directory
+	else:    
+#get remotely if its a url, get locally if not
+            if "://" in url_or_path_to_image_file_or_cv2_image_array:
+            	img_url = url_or_path_to_image_file_or_cv2_image_array
+	    	try:
+			response = requests.get(img_url)  #download 
+	        	img_array = imdecode(numpy.asarray(bytearray(response.content)), 1)
+	    	except ConnectionError:
+         		logging.warning("connection error - check url or connection")
+			return None
+		except:
+         		logging.warning("connection error - check url or connection")
+			return None
+			
+            else:   #get locally, since its not a url
+            	img_path = url_or_path_to_image_file_or_cv2_image_array
+		try:
+	            	img_array = imread(img_path)
+			got_locally = True
+		except:
+         		logging.warning("connection error - check url or connection")
+			return None
 
-def get_cv2_img_array_locally_if_possible(url_or_path_to_image_file_or_cv2_image_array):
-    img_array = None  #attempt to deal with non-responding url
-    # first check if we have a numpy array
-    if isinstance(url_or_path_to_image_file_or_cv2_image_array, numpy.ndarray):
-        img_array = url_or_path_to_image_file_or_cv2_image_array
-    # otherwise it's probably a string, check what kind
-    elif isinstance(url_or_path_to_image_file_or_cv2_image_array, basestring):
-        if "://" in url_or_path_to_image_file_or_cv2_image_array:
-            img_url = url_or_path_to_image_file_or_cv2_image_array
-#first try getting file locally , if not a local file then try url
-	    try:
-		response = requests.get(img_url)
-	        img_array = imdecode(numpy.asarray(bytearray(response.content)), 1)
-	    except ConnectionError:
-         	logging.warning("connection error - check url or connection")
-		return None
-        else:
-            img_path = url_or_path_to_image_file_or_cv2_image_array
-            img_array = imread(img_path)
     # After we're done with all the above, this should be true - final check that we're outputting a good array
     if not (isinstance(img_array, numpy.ndarray) and isinstance(img_array[0][0], numpy.ndarray)):
         logging.warning("Bad image - check url/path/array")
+	return(None)
+    #if we got good image and need to save locally :
+    if download:
+	if not got_locally:   #only download if we didn't get file locally
+    		if not os.path.isdir(download_directory):
+        		os.makedirs(download_directory)
+		if "://" in url_or_path_to_image_file_or_cv2_image_array:
+	  		FILENAME = url_or_path_to_image_file_or_cv2_image_array.split('/')[-1].split('#')[0].split('?')[-1].split(':')[-1]
+ 			print('interim filename:'+str(FILENAME))
+			FILENAME = os.path.join(download_directory,FILENAME)
+		else:
+ 			FILENAME = os.path.join(download_directory,url_or_path_to_image_file_or_cv2_image_array)
+			print('no //')
+		if FILENAME.endswith('jpg')or FILENAME.endswith('jpeg') or FILENAME.endswith('.bmp') or FILENAME.endswith('tiff'):
+			pass
+		else:    #there's no 'normal' filename ending
+			FILENAME=FILENAME+'.jpg' 
+   		try:
+			print('filename for local write:'+str(FILENAME))
+        		write_status = imwrite(FILENAME,img_array)
+    		except:
+        		print('unexapected error in Utils calling imwrite')
+#        		print('unexapected error in Utils calling urllib.urlretreive'+sys.exc_info()[0])
+	
+
     return img_array
 
 def count_human_bbs_in_doc(dict_of_images):
