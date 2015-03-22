@@ -17,7 +17,7 @@ def find_face(image):
         faces = face_cascades[i].detectMultiScale(
             gray,
             scaleFactor=1.1,
-            minNeighbors=5,
+            minNeighbors=3,
             minSize=(1, 1),
             flags = cv2.cv.CV_HAAR_SCALE_IMAGE
         )
@@ -33,17 +33,21 @@ def body_estimation(image, face):
             h = face[0][3]
             y_down = image.shape[0]-1
             x_back = np.max([x-2*w, 0])
+            x_back_near = np.max([x-w, 0])
             x_ahead = np.min([x+3*w, image.shape[1]-1])
+            x_ahead_near = np.min([x+2*w, image.shape[1]-1])
             rectangles = {"BG": [], "FG": [], "PFG": [], "PBG": []}
             rectangles["FG"].append([x, x+w, y, y+h])                   # face
-            rectangles["PFG"].append([x, x+w, y+h, y_down])             # body
+            rectangles["FG"].append([x, x+w, y+h, y_down])              # body
             rectangles["BG"].append([x, x+w, 0, y])                     # above face
             rectangles["BG"].append([x_back, x, 0, y+h])                # head left
             rectangles["BG"].append([x+w, x_ahead, 0, y+h])             # head right
-            rectangles["PFG"].append([x-w, x, y+h, y_down])             # left near
-            rectangles["PFG"].append([x+w, x+2*w, y+h, y_down])         # right near
-            rectangles["PBG"].append([x_back, x-w, y+h, y_down])        # left far
-            rectangles["PBG"].append([x+2*w, x_ahead, y+h, y_down])     # right far
+            rectangles["PFG"].append([x_back_near, x, y+h, y_down])     # left near
+            rectangles["PFG"].append([x+w, x_ahead_near, y+h, y_down])  # right near
+            if x_back_near > 0:
+                rectangles["PBG"].append([x_back, x_back_near, y+h, y_down])        # left far
+            if x_ahead_near < image.shape[1]-1:
+                rectangles["PBG"].append([x_ahead_near, x_ahead, y+h, y_down])     # right far
             return rectangles
 
 
@@ -100,7 +104,7 @@ def face_mask(rectangles, image):
 def standard_resize(image, max_side):
     original_w = image.shape[1]
     original_h = image.shape[0]
-    if image.shape[0] < 400 and image.shape[1] < 400:
+    if image.shape[0] < max_side and image.shape[1] < max_side:
         return image, 1
     resize_ratio = float(np.amax((original_w, original_h))) / np.min((original_h, original_w))
     if original_w >= original_h:
