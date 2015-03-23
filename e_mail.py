@@ -29,7 +29,7 @@ def send_image_mail(trendi_url, image_url):
     msg.attach(part1)
 
     s = smtplib.SMTP('localhost')
-    s.sendmail(sender, recipient, msg.as_string())
+    s.sendmail(sender, [recipient], msg.as_string())
     s.quit()
 
 
