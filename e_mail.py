@@ -27,8 +27,8 @@ kyle = 'kyle@trendiguru.com'
 jeremy = 'jeremy@trendiguru.com'
 sub = 'Yay! a new image is waiting for you!'
 dict = {"Subject": [sub], "From": [me], "To": [me, lior, kyle, jeremy]}
-msg['Subject'] = dict["Subject"]  # %s % textfile
-msg['From'] = dict["From"]
+msg['Subject'] = 'Subject'  # %s % textfile
+msg['From'] = me
 
 # Send the message via our own SMTP server, but don't include the
 # envelope header.
