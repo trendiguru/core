@@ -34,5 +34,5 @@ msg['From'] = dict["From"]
 # envelope header.
 s = smtplib.SMTP('localhost')
 #for to in dict["To"]:
-s.sendmail(me, dict["To"], msg.as_string())
+s.sendmail(me, [me], msg.as_string())
 s.quit()
