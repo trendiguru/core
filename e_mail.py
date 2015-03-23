@@ -12,8 +12,8 @@ def send_image_mail(trendi_url, image_url):
     lior = 'lior@trendiguru.com'
     kyle = 'kyle@trendiguru.com'
     jeremy = 'jeremy@trendiguru.com'
-    sender = me
-    recipient = [me, lior, jeremy, kyle]
+    sender = 'Notifier@trendiguru.com'
+    recipient = [me, lior]
     # Open a plain text file for reading.  For this example, assume that
     msg = MIMEMultipart('alternative')
     msg['Subject'] = 'A new image was uploaded!'
@@ -29,7 +29,7 @@ def send_image_mail(trendi_url, image_url):
     msg.attach(part1)
 
     s = smtplib.SMTP('localhost')
-    s.sendmail(sender, [recipient], msg.as_string())
+    s.sendmail(sender, [me, lior], msg.as_string())
     s.quit()
 
 
