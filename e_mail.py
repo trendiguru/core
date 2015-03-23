@@ -33,6 +33,6 @@ msg['From'] = dict["From"]
 # Send the message via our own SMTP server, but don't include the
 # envelope header.
 s = smtplib.SMTP('localhost')
-for to in dict["To"]:
-    s.sendmail(me, to, msg.as_string())
+#for to in dict["To"]:
+s.sendmail(me, dict["To"], msg.as_string())
 s.quit()
