@@ -6,7 +6,7 @@ from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
 
 
-def send_image_mail(url):
+def send_image_mail(trendi_url, image_url):
 
     me = 'nadav@trendiguru.com'
     lior = 'lior@trendiguru.com'
@@ -20,8 +20,8 @@ def send_image_mail(url):
     msg['To'] = me
     text = "Hello TG member!\n\n" \
            "There is a new image waiting to you.\n\n" \
-           "Here is the link you wanted: %s\n\n" \
-           "Thanks & Good luck!" % url
+           "Copy %s to %s, and pick the top 4\n\n" \
+           "Thanks & Good luck!" % (image_url, trendi_url)
     part1 = MIMEText(text, 'plain')
     msg.attach(part1)
 
@@ -30,5 +30,6 @@ def send_image_mail(url):
     s.quit()
 
 
-URL = 'http://extremeli.trendi.guru/demo/TrendiMatchEditor/matcheditor.html'
-send_image_mail(URL)
+trendi_url = 'http://extremeli.trendi.guru/demo/TrendiMatchEditor/matcheditor.html'
+image_url = 'http://image.gala.de/v1/cms/Mr/style-mandy-capristo-okt14-ge_7901219-ORIGINAL-imageGallery_standard.jpg?v=10333950'
+send_image_mail(trendi_url, image_url)
