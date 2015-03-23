@@ -13,7 +13,7 @@ def send_image_mail(trendi_url, image_url):
     kyle = 'kyle@trendiguru.com'
     jeremy = 'jeremy@trendiguru.com'
     sender = me
-    recipient = [me, me]
+    recipient = me, me
     # Open a plain text file for reading.  For this example, assume that
     msg = MIMEMultipart('alternative')
     msg['Subject'] = 'A new image was uploaded!'
