@@ -2,16 +2,10 @@ __author__ = 'Nadav Paz'
 
 # Import smtplib for the actual sending function
 import smtplib
-
-# Import the email modules we'll need
 from email.mime.text import MIMEText
-from email.parser import Parser
-"""headers = Parser().parsestr('From: <nadav@trendiguru.com>\n'
-                            'To: <someone_else@example.com>\n'
-                            'Subject: Test message\n'
-                            '\n'
-                            'Body would go here\n')
-"""
+# Import the email modules we'll need
+
+
 # Open a plain text file for reading.  For this example, assume that
 # the text file contains only ASCII characters.
 fp = open('textfile.txt', 'rb')
@@ -30,9 +24,14 @@ dict = {"Subject": [sub], "From": [me], "To": [me, lior, kyle, jeremy]}
 msg['Subject'] = 'Subject'  # %s % textfile
 msg['From'] = me
 
+text = "Hello TG member!\n" \
+       "There is a new image waiting to you.\n" \
+       "Here is the link you wanted: %s\n " \
+       "Thanks & Good luck!"
+part1 = MIMEText(text, 'plain')
 # Send the message via our own SMTP server, but don't include the
 # envelope header.
 s = smtplib.SMTP('localhost')
 #for to in dict["To"]:
-s.sendmail(me, [me, lior, jeremy, kyle], msg.as_string())
+s.sendmail(me, [me], msg.as_string())
 s.quit()
