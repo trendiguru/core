@@ -22,8 +22,8 @@ def send_image_mail(trendi_url, image_url):
     text = "Hello TG member!\n\n" \
            "There is a new image waiting to you.\n\n" \
            "Copy %s\n\n" \
-           "to %s\n\n" \
-           "and pick the top 4\n\n" \
+           "Go to %s\n\n" \
+           "Pick the top 4 and save.\n\n" \
            "Thanks & Good luck!" % (image_url, trendi_url)
     part1 = MIMEText(text, 'plain')
     msg.attach(part1)
