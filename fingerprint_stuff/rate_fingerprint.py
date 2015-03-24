@@ -290,7 +290,7 @@ def calculate_confusion_matrix():
     confusion_matrix = cross_compare(tot_answers)
     print('confusion matrix:'+str(confusion_matrix))
     report['confusion_matrix'] = confusion_matrix.tolist() #this is required for json dumping
-    report['fingerprint_function']='fp'
+#    report['fingerprint_function']='fp'
     report['distance_function'] = 'NNSearch.distance_1_k(fp1, fp2,power=1.5)'
     report['timestamp'] = datetime.datetime.now().strftime("%Y-%m-%d %H:%M")
 #    save_report(report)
@@ -324,7 +324,7 @@ def calculate_self_confusion_vector(fingerprint_function=fp_core.fp,weights=np.o
     doc = next(training_collection_cursor, None)
     i = 0
     tot_answers=[]
-    report = {'n_groups':0,'n_images':[],'confusion_matrix':[]}
+    report = {'n_groups':0,'n_images':[]}
     while doc is not None and i<max_items:
 #        print('doc:'+str(doc))
 	images = doc['images']
@@ -341,13 +341,13 @@ def calculate_self_confusion_vector(fingerprint_function=fp_core.fp,weights=np.o
    	doc = next(training_collection_cursor, None)
     confusion_vector,stdev_vector = self_compare(tot_answers,fingerprint_function=fingerprint_function,weights=weights,distance_function=distance_function,distance_power=distance_power)
     print('tot number of groups:'+str(i)+'='+str(len(tot_answers)))
-    print('confusion matrix:'+str(confusion_vector))
+    print('confusion vector:'+str(confusion_vector))
     report['n_groups'] = i
     report['confusion_vector'] = confusion_vector.tolist() #this is required for json dumping
-    report['stdev_vector'] = stdev_vector.tolist() #this is required for json dumping
-    report['fingerprint_function']=fingerprint_function
-    report['weights'] = weights
-    report['distance_function'] = distance_function
+    report['error_vector'] = stdev_vector.tolist() #this is required for json dumping
+ #   report['fingerprint_function']=fingerprint_function
+    report['weights'] = weights.tolist()
+    #report['distance_function'] = distance_function
     report['distance_power'] = distance_power
     report['timestamp'] = datetime.datetime.now().strftime("%Y-%m-%d %H:%M")
     #save_report(report)
@@ -362,15 +362,20 @@ def calculate_self_confusion_vector(fingerprint_function=fp_core.fp,weights=np.o
     weighted_average = weighted_average/tot_images
     cumulative_error = np.sqrt(cumulative_error)/tot_images 
     print('weighted_average:'+str(weighted_average))
-    report['weighted_average'] = weighted_average
+    report['average_weighted'] = weighted_average
     print('cumulative error:'+str(cumulative_error))
-    report['cumulative_error'] = cumulative_error
+    report['error_cumulative'] = cumulative_error
     return(confusion_vector) 
 
 def save_report(report):
-    f = open('fp_ratings.txt', 'a')  #ha!! mode 'w+' .... overwrites the file!!!
-    json.dump(str(report),f,indent=4)
-    f.close()
+    try:
+	f = open('fp_ratings.txt', 'a')  #ha!! mode 'w+' .... overwrites the file!!!
+    except IOError:
+        print ('cannot open fp_ratings.txt')
+    else:
+    	print('reporting...'+str(report))
+    	json.dump(report,f,indent=4,sort_keys=True,separators=(',',':'))
+    	f.close()
 ###############
 
 def cross_rate_fingerprint():
@@ -405,7 +410,8 @@ def self_rate_fingerprint(fingerprint_function=fp_core.fp,weights=np.ones(finger
     n_elements = len(confusion_vector)
     same_item_avg = np.sum(confusion_vector)/n_elements
     print('unweighted same item average:'+str(same_item_avg))
-    report['same_item_average']=same_item_avg
+    report['average_unweighted']=same_item_avg
+    print('report:'+str(report))
     save_report(report)
     return(same_item_avg)
 
