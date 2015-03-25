@@ -1,7 +1,17 @@
 __author__ = 'jeremy'
+
 import numpy as np
 import scipy.optimize
 import math
+import fingerprint_core
+import rate_fingerprint
+import NNSearch
+from multiprocessing import Pool
+import numpy as np
+import scipy.optimize
+import math
+
+fingerprint_length = 10
 
 #########################
 #WORKING  - fmin works w multiple args, minimize less so
@@ -12,6 +22,49 @@ def opt_mult():
     x_min = scipy.optimize.minimize(f,[2,3])
 #    x_min = scipy.optimize.fmin(f,[2,3])
     print('output of optimize:'+str(x_min))
+
+
+
+#########################
+#WORKING  - fmin works w multiple args, minimize less so
+####################3
+
+def rate_wrapper(weights,k):
+    print('initial weights:'+str(weights))
+    for i in range(0,len(weights)):
+        if weights[i] < 0:
+            weights[i]=0
+        i=i+1
+    sum = np.sum(weights)
+    print('sum before:'+str(sum))
+    target = len(weights)
+    weights=weights*float(target)/sum
+    sum = np.sum(weights)
+    print('corrected weights:'+str(weights))
+    print('sum after:'+str(sum)+ ' trarget:'+str(target))
+    rating=rate_fingerprint.self_rate_fingerprint(fingerprint_function=fingerprint_core.fp,weights=weights,distance_function=NNSearch.distance_1_k,distance_power=0.5)
+    return rating
+
+def optimize_weights(k):
+    if k is None:
+        k=0.5
+  ##    initial_weights=np.ones(fingerprint_length)
+#    initial_weights=np.random.random_integers(-2,2,fingerprint_length)
+    f = stub2
+
+#    x_min = scipy.optimize.minimize(f,initial_weights,args=(k),tol=0.1)
+    init=np.array(3)
+    x_min = scipy.optimize.minimize(f,init,args=(k,),tol=0.1)
+#    x_min = scipy.optimize.fmin(f,[2,3])
+    print('output of optimize:'+str(x_min))
+
+def stub2(x,y=3):
+    return x*y**2
+
+def stub(x):
+    return x**2
+
+
 
 def test_function_vectorinput(x_arr):
     x_vector = x_arr
@@ -68,3 +121,5 @@ def test2():
 
 
 #opt_mult()
+if __name__ == "__main__":
+    optimize_weights(2)
