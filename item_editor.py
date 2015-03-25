@@ -10,10 +10,20 @@ BB_ALLOWANCE = 0.05
 
 
 def find(image_url, number_of_items=None):
+    """
+    Find a post in the db given an image url.
+    Searches first by url, then by fingerprint (if not found)
+
+    :param image_url: string, url of the image
+    :param number_of_items: max number of items to return (I think this is a mistake)
+    :return: a dictionary containing all post info
+    """
     post = db.posts.find_one({"imageURL": image_url})
     if not post:
         fingerprint = fingerprint_core.fp(Utils.get_cv2_img_array(image_url)).tolist()
         post = db.posts.find_one({"fingerprint": fingerprint})
+    # TODO: check this if - on second look, doesn't really make sense
+    # (why trim num of items and not number of results)
     if post and "items" in post and number_of_items is not None:
         post["items"] = post["items"][0:number_of_items]
     return post
