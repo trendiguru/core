@@ -24,7 +24,6 @@ def get_all_subcategories(category_collection, category_id):
                 get_subcategories(childId)
 
     get_subcategories(category_id)
-    print(subcategories)
     return subcategories
 
 
@@ -100,15 +99,15 @@ def fingerprint_the_unfingerprinted():
                                         "fp_date": datetime.datetime.now(),
                                         "bounding_box": np.array(chosen_bounding_box).tolist()}
                                })
- 	   	print('full image bounding_box:'+str(chosen_bounding_box))
+ 	   	    print('full image bounding_box:'+str(chosen_bounding_box))
     		n_unbounded_images += 1
-            except Exception as e:
-            	logging.warning("Exception caught while fingerprinting, skipping: {0}".format(e))
-        i += 1
+        except Exception as e:
+            logging.warning("Exception caught while fingerprinting, skipping: {0}".format(e))
+            i += 1
     	print('auto-boxed images:'+str(n_existing_boxes)+' human-boxed images:'+str(n_human_boxed)+' unboxed images:'+str(n_unbounded_images))
-#    	s = raw_input('hit return for next')
+        # s = raw_input('hit return for next')
 
-        return(n_existing_boxes,n_human_boxed,n_unbounded_images)
+        return (n_existing_boxes,n_human_boxed,n_unbounded_images)
 
 
 def main():

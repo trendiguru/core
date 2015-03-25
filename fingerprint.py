@@ -11,7 +11,7 @@ def fp(img, mask):
     bins = 25
     n_pixels = cv2.countNonZero(mask)
     hist_hue = cv2.calcHist([hsv], [0], mask, [bins], [0, 180])
-    hist_hue = [item for sublist in hist_hue for item in sublist]  #flatten nested
+    hist_hue = [item for sublist in hist_hue for item in sublist]  # flatten nested
     hist_hue = np.divide(hist_hue, n_pixels)
 
     hist_sat = cv2.calcHist([hsv], [1], mask, [bins], [0, 255])
@@ -19,7 +19,7 @@ def fp(img, mask):
     hist_sat = np.divide(hist_sat, n_pixels)
 
     hist_int = cv2.calcHist([hsv], [2], mask, [bins], [0, 255])
-    hist_int = [item for sublist in hist_int for item in sublist]  #flatten nested list
+    hist_int = [item for sublist in hist_int for item in sublist]  # flatten nested list
     hist_int = np.divide(hist_int, n_pixels)
 
     # Uniformity  t(5)=sum(p.^ 2);
