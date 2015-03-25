@@ -83,6 +83,7 @@ GREEN = [0,255,0]       # PR FG
 BLACK = [0,0,0]         # sure BG
 WHITE = [255,255,255]   # sure FG
 
+
 def classify_image(pathToImageFile_Or_cv2ImageArray):
 
     #if we were given a path string, load image
@@ -138,7 +139,7 @@ def classify_image(pathToImageFile_Or_cv2ImageArray):
         Nmatches=len(detectedRects)
     #    print('targets:'+str(Nmatches))
         answers[xmlNames[i]] = detectedRects
-    return(answers)
+    return answers
 
 
 def classify_image_with_classifier(pathToImageFile_Or_cv2ImageArray, classifier_xml):

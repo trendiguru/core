@@ -4,7 +4,6 @@ import numpy as np
 import cv2
 import string
 import logging
-
 """
 import classify_core
 import Utils
@@ -34,7 +33,8 @@ def crop_image_to_bb(img, bb_coordinates_string_or_array):
 
     return cropped_img
 
-def fp(img, bounding_box=None):
+fingerprint_length = 56
+def fp(img, bounding_box=None, weights = np.ones(fingerprint_length)):
     if (bounding_box is not None) and (bounding_box != np.array([0, 0, 0, 0])).all():
         img = crop_image_to_bb(img, bounding_box)
     #crop out the outer 1/s of the image for color/texture-based features
@@ -86,6 +86,7 @@ def fp(img, bounding_box=None):
     result_vector = [hue_uniformity, sat_uniformity, int_uniformity, hue_entropy, sat_entropy, int_entropy]
     result_vector = np.concatenate((result_vector, hist_hue, hist_sat), axis=0)
 
+    result_vector = result_vector * weights
     return result_vector
 
 

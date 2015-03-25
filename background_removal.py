@@ -5,6 +5,8 @@ __author__ = 'Nadav Paz'
 import cv2
 import numpy as np
 import string
+from Tkinter import Tk
+from tkFileDialog import askopenfilename
 
 
 def find_face(image):
@@ -159,8 +161,33 @@ def get_masked_image(image, mask):
     return output
 
 
-def get_bb_mask(image, bb):
+def image_white_bckgnd(image, mask):
+    for i in range(0, np.shape(image)[0]):
+        for j in range(0, np.shape(image)[1]):
+            if mask[i][j] == 0:
+                image[i][j][0] = 255
+                image[i][j][1] = 255
+                image[i][j][2] = 255
+    return image
+
+
+def get_bb_mask(image, bb=None):
+    """
+    The function returns a ones mask within the bb regions, and an image-size ones matrix in case of None bb
+    :param image:
+    :param bb:
+    :return:
+    """
+    if (bb is None) or (bb == np.array([0, 0, 0, 0])).all():
+        return np.ones((image.shape[1], image.shape[0]))
     x, y, w, h = bb
     bb_masked = np.zeros((image.shape[0], image.shape[1]), np.uint8)
     bb_masked[y:y+h, x:x+w] = 255
     return bb_masked
+
+
+def get_image():
+    Tk().withdraw()
+    filename = askopenfilename()
+    big_image = cv2.imread(filename)
+    return big_image
