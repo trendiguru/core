@@ -30,7 +30,6 @@ import  background_removal
 import pdb 
 import logging
 
-fingerprint_length=56
 min_images_per_doc = 10
 max_items = 100
 
