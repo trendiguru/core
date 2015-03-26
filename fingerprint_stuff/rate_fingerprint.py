@@ -29,9 +29,11 @@ import pstats
 import  background_removal
 import pdb 
 import logging
+import constants
 
-min_images_per_doc = 10
-max_items = 100
+fingerprint_length = constants.fingerprint_length
+min_images_per_doc = constants.min_images_per_doc
+max_items = constants.max_items
 
 BLUE = [255, 0, 0]        # rectangle color
 RED = [0, 0, 255]         # PR BG

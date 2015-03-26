@@ -3,11 +3,12 @@ import numpy as np
 import scipy.optimize
 import math
 import fingerprint_core
-import hough_accumulator
+import rate_fingerprint
 import NNSearch
 from multiprocessing import Pool
+import constants
 
-fingerprint_length=fingerprint_core.fingerprint_length
+fingerprint_length=constants.fingerprint_length
 
 def rate_wrapper(weights,k):
     '''
