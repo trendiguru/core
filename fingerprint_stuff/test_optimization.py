@@ -13,23 +13,16 @@ import math
 
 fingerprint_length = 10
 
-#########################
-#WORKING  - fmin works w multiple args, minimize less so
-####################3
-def opt_mult():
-    f = test_function_vectorinput
 
-    x_min = scipy.optimize.minimize(f,[2,3])
-#    x_min = scipy.optimize.fmin(f,[2,3])
-    print('output of optimize:'+str(x_min))
-
-
-
-#########################
-#WORKING  - fmin works w multiple args, minimize less so
-####################3
 
 def rate_wrapper(weights,k):
+    '''
+    a wrapper to self_rate_fingerprint allowing external minimize function to call without dealing with extra args
+    this can possibly be avoided using  scipy.optimize.minimize(f,x0,args=())
+    :param weights: vector of weights to be optimized
+    :param k: distance function power (1/2-> euclidean distance)
+    :return:rating of current fingerprint
+    '''
     print('initial weights:'+str(weights))
     for i in range(0,len(weights)):
         if weights[i] < 0:
@@ -58,14 +51,6 @@ def optimize_weights(k):
 #    x_min = scipy.optimize.fmin(f,[2,3])
     print('output of optimize:'+str(x_min))
 
-def stub2(x,y=3):
-    return x*y**2
-
-def stub(x):
-    return x**2
-
-
-
 def test_function_vectorinput(x_arr):
     x_vector = x_arr
     print('input vector:'+str(x_vector))
@@ -78,10 +63,6 @@ def test_function_vectorinput(x_arr):
     final_answer = -np.prod(answer)
     print('final answer:'+str(final_answer))
     return(final_answer)
-
-##############################3
-#END OF WORKING
-###############################
 
 def test_optimize():
     f = math.sin
@@ -117,6 +98,12 @@ def test2():
     print('output of optimize:'+str(x_min))
     print('xvals:'+str(x_min.x))
     print('f('+x_min.x+')='+f(x_min.x))
+
+def opt_mult():
+    f = test_function_vectorinput
+    x_min = scipy.optimize.minimize(f,[2,3])
+#    x_min = scipy.optimize.fmin(f,[2,3])
+    print('output of optimize:'+str(x_min))
 
 
 
