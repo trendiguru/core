@@ -108,13 +108,14 @@ def standard_resize(image, max_side):
     original_h = image.shape[0]
     if image.shape[0] < max_side and image.shape[1] < max_side:
         return image, 1
-    resize_ratio = float(np.amax((original_w, original_h))) / np.min((original_h, original_w))
+    aspect_ratio = float(np.amax((original_w, original_h))/float(np.amin((original_h, original_w))))
+    resize_ratio = float(float(np.amax((original_w, original_h))) / max_side)
     if original_w >= original_h:
         new_w = max_side
-        new_h = max_side/resize_ratio
+        new_h = max_side/aspect_ratio
     else:
         new_h = max_side
-        new_w = max_side/resize_ratio
+        new_w = max_side/aspect_ratio
     resized_image = cv2.resize(image, (int(new_w), int(new_h)))
     return resized_image, resize_ratio
 
