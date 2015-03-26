@@ -40,7 +40,7 @@ def find_top_n_results(imageURL, number_of_results=10, bb=None, category_id=None
         # masked_image = background_removal.get_masked_image(small_image, fg_mask)    # returns small image after GC masking
         # bb_dict = classify_core.classify_image_with_classifiers(masked_image,
                                                            # get_classifiers()[0], get_classifiers()[1])
-    bb = [int(b) for b in bb]
+    # bb = [int(b) for b in bb]
     db = pymongo.MongoClient().mydb
     product_collection = db.products
 
@@ -63,6 +63,7 @@ def find_top_n_results(imageURL, number_of_results=10, bb=None, category_id=None
 
     image = Utils.get_cv2_img_array(imageURL)                                     # turn the URL into a cv2 image
     small_image, resize_ratio = background_removal.standard_resize(image, 400)    # shrink image for faster process
+    bb = [int(b) for b in (np.array(bb)/resize_ratio)]                            # shrink bb in the same ratio
     fg_mask = background_removal.get_fg_mask(small_image, bb)                     # returns the grab-cut mask (if bb => PFG-PBG gc, if !bb => face gc)
     bb_mask = background_removal.get_bb_mask(small_image, bb)                     # bounding box mask
     combined_mask = cv2.bitwise_and(fg_mask, bb_mask)                             # for sending the right mask to the fp
