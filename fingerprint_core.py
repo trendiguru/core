@@ -45,17 +45,15 @@ def fp(img, bounding_box=None, weights = np.ones(fingerprint_length) , histogram
     s = 5
     h = img.shape[1]
     w = img.shape[0]
-    n_pixels = roi.shape[0] * roi.shape[1]
-    if n_pixels == 0:
+
+    if h==0 or w==0:
         return None
 
     r = [h / s, w / s, h - 2 * h / s, w - 2 * w / s]
+#    roi = np.zeros((r[3], r[2], 3), np.uint8)
+    roi = crop_image_to_bb(img,r)
+    n_pixels = roi.shape[0] * roi.shape[1]
 
-    roi = np.zeros((r[3], r[2], 3), np.uint8)
-    # should use imageop.crop here instead, its prob. faster
-    for xx in range(r[2]):
-        for yy in range(r[3]):
-            roi[yy, xx, :] = img[yy + r[1], xx + r[0], :]
 
     hsv = cv2.cvtColor(roi, cv2.COLOR_BGR2HSV)
 

@@ -105,4 +105,5 @@ def test2():
     print('f('+x_min.x+')='+f(x_min.x))
 
 if __name__ == '__main__':
-    parallel_optimize()
+   # parallel_optimize()
+   optimize_weights()
