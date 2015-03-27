@@ -398,7 +398,9 @@ def cross_rate_fingerprint():
     save_report(report)
     return(goodness)
 
-def self_rate_fingerprint(fingerprint_function=fp_core.fp,weights=np.ones(fingerprint_length),distance_function=NNSearch.distance_1_k,distance_power=1.5):
+def self_rate_fingerprint(fingerprint_function=fp_core.fp,
+                          weights=np.ones(fingerprint_length), distance_function=NNSearch.distance_1_k, distance_power=1.5,
+                         **fingerprint_args):
     print('s.fp_func:'+str(fingerprint_function))
     print('s.weights:'+str(weights))
     print('s.distance_function:'+str(distance_function))
@@ -422,7 +424,7 @@ if __name__ == '__main__':
     pr = cProfile.Profile()
     pr.enable()
     weights=np.ones(fingerprint_length)/2
-    self_rate_fingerprint(fingerprint_function=fp_core.fp,weights=weights,distance_function=NNSearch.distance_1_k,distance_power=1.5)
+    self_rate_fingerprint(fingerprint_function=fp_core.fp,weights=weights,distance_function=NNSearch.distance_1_k,distance_power=0.5)
     pr.disable()
     s = StringIO.StringIO()
     sortby = 'cumulative'
