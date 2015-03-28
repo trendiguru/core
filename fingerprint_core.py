@@ -54,7 +54,6 @@ def fp(img, bounding_box=None, weights = np.ones(fingerprint_length) , histogram
     roi = crop_image_to_bb(img,r)
     n_pixels = roi.shape[0] * roi.shape[1]
 
-
     hsv = cv2.cvtColor(roi, cv2.COLOR_BGR2HSV)
 
     #OpenCV uses  H: 0 - 180, S: 0 - 255, V: 0 - 255

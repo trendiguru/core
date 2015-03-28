@@ -39,10 +39,12 @@ def optimize_weights(weights=np.ones(fingerprint_length),k=0.5):
     :param k: distance power - k=0.5 is for euclidean distance
     :return:optimal weights vector (or at least best found so far)
     '''
+    print('fp length:'+str(fingerprint_length))
+    print('weights:'+str(weights))
 
 #    x_min = scipy.optimize.minimize(f,initial_weights,args=(k),tol=0.1)
     f = rate_wrapper
-    init=np.array(3)
+    init=weights
     x_min = scipy.optimize.minimize(f,init,args=(k,),tol=0.1)
 #    x_min = scipy.optimize.fmin(f,[2,3])
     print('output of optimize:'+str(x_min))
