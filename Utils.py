@@ -127,7 +127,7 @@ def get_cv2_img_array(url_or_path_to_image_file_or_cv2_image_array, try_url_loca
 def count_human_bbs_in_doc(dict_of_images):
     n = 0
     for entry in dict_of_images:
-        if (entry):
+        if good_bb(entry):
             n = n + 1  #got a good bb
     return (n)
 

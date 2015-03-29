@@ -16,6 +16,84 @@ DEFAULT_CLASSIFIERS = ["/home/www-data/web2py/applications/fingerPrint/modules/s
 
 fingerprint_length = constants.fingerprint_length
 
+def find_color_percentages(img_array):
+    """
+
+    :param img_array:
+    :return:bins for each color including black, white, gray
+    """
+
+    white_saturation_max = 36  # maximum S value for a white pixel14 from the gimp , 14*100/255
+    white_value_min = 214 #  minimum V value for a white pixel this is 84 * 100/255
+    black_value_max = 23 # maximum V value for a black pixel, 15*100/255
+    n_colors=10
+    color_limits=range(0,180+int(180/n_colors),int(180/n_colors))  #edges of bins for histogram
+    #print(color_limits)
+
+    h_arr=hsv[:,:,0]
+    s_arr=hsv[:,:,1]
+    v_arr=hsv[:,:,2]
+
+   # mask[0] = image[0]==0
+   # mask[1] = image[1]==0
+   # mask[2] = image[2]==0
+    #masksofi = mask[0] * mask[1] * mask[2]
+
+    h, w, depth = img_array.shape
+    area = h*w
+
+    black_count=np.sum(v_arr<black_value_max)
+    black_percentage=black_count/area
+
+    #white is where saturation is less than sat_max and value>val_min
+    white_mask=(s_arr<white_saturation_max) *(v_arr>white_value_min)
+    white_count=np.sum(white_mask)
+    white_percentage=white_count/area
+
+    grey_count=np.sum((s_arr<white_saturation_max) *( v_arr<=white_value_min) *( v_arr>=black_value_max))
+    grey_percentage=grey_count/area
+
+    non_white=np.invert(white_mask)
+    color_mask=non_white*(v_arr>=black_value_max)   #colors are where value>black, but not white
+    colors_count=np.sum(color_mask)
+    print("tot color count:"+str(tot_colors))
+    color_counts=[]
+    for i in range(0,n_colors):
+        color_percentages.append(np.sum(  color_mask*(h_arr<color_limits[i+1])*(h_arr>=color_limits[i])))
+        if DEBUG:
+            print('color '+str(i)+' count ='+str(color_percentages[i]))
+            print('color percentages:'+str(color_percentages))
+        color_percentages[i]=color_percentages[i]/area  #turn pixel count into percentage
+    all_colors=np.zeros(3)
+    all_colors[0]=white_percentage
+    all_colors[1]=black_percentage
+    all_colors[2]=grey_percentage
+    all_colors=np.append(all_colors,color_counts)
+
+    #   all_colors=np.concatenate(all_colors,color_counts)
+    if DEBUG:
+        print('white black grey colors:'+str(all_colors))   #order is : white, black, grey, color_count[0]...color_count[n_colors]
+        print('sum:'+str(np.sum(all_colors)))
+ #   all_colors=color_counts
+ #   np.append(all_colors,white_count)
+ #   np.append(all_colors,black_count)
+ #   all_colors.append(grey_count)
+
+    #dominant_color_indices, dominant_colors = zip(*sorted(enumerate(all_colors), key=itemgetter(1), reverse=True))
+    #above is for array, now working with numpy aray
+
+# the order of dominant colors is what ccny guys used, if we just have vector in order of color i think its just as good
+#so for now the following 3 lines are not used
+    dominant_color_indices=np.argsort(all_colors, axis=-1, kind='quicksort', order=None)
+    dominant_color_indices = dominant_color_indices[::-1]
+    dominant_color_percentages=np.sort(all_colors, axis=-1, kind='quicksort', order=None)
+    dominant_color_percentages = dominant_color_percentages[::-1]
+
+    if DEBUG:
+        print('color percentages:'+str(dominant_color_percentages)+' indices:'+str(dominant_color_indices))
+    t1=time.time()
+    return(all_colors)
+
 def crop_image_to_bb(img, bb_coordinates_string_or_array):
     if isinstance(bb_coordinates_string_or_array, basestring):
         bb_array = [int(bb) for bb in string.split(bb_coordinates_string_or_array)]
