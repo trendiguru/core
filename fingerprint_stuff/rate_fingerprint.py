@@ -178,7 +178,7 @@ def compare_fingerprints_except_diagonal(image_array1, image_array2, fingerprint
         url1 = entry1['url']
         img_arr1 = Utils.get_cv2_img_array(url1, try_url_locally=True, download=True)
         if Utils.bounding_box_inside_image(img_arr1,bb1):
-            i = i + 1
+            i += 1
             j = 0
             #background_removal.standard_resize(image, 400)
             fp1 = fingerprint_function(img_arr1, bounding_box=bb1, weights=weights)
@@ -227,8 +227,7 @@ def compare_fingerprints_except_diagonal(image_array1, image_array2, fingerprint
             print('bad img array 1')
             logging.debug('bad image array 1 in rate_fingerprint.py:compare_fingreprints_except_diagonal')
     n_diagonal_elements = i
-    avg_dist = float(tot_dist) / float(
-        n - i)  #this is the one part thats different between compare_fp_except_diagonal and compare_fp
+    avg_dist = float(tot_dist) / float(n - i)  #this is the one part thats different between compare_fp_except_diagonal and compare_fp
     distances_np_array = np.array(distance_array)
     distances_stdev = np.std(distances_np_array)
     distances_mean = np.mean(distances_np_array)
