@@ -3,7 +3,7 @@ import time
 import csv
 import gzip
 import json
-import numpy
+import numpy as np
 import requests
 from cv2 import imread, imdecode, imwrite
 import logging
@@ -29,7 +29,7 @@ def get_cv2_img_array(url_or_path_to_image_file_or_cv2_image_array, try_url_loca
     got_locally = False
     img_array = None  # attempt to deal with non-responding url
     # first check if we already have a numpy array
-    if isinstance(url_or_path_to_image_file_or_cv2_image_array, numpy.ndarray):
+    if isinstance(url_or_path_to_image_file_or_cv2_image_array, np.ndarray):
         img_array = url_or_path_to_image_file_or_cv2_image_array
     # otherwise it's probably a string, check what kind
     elif isinstance(url_or_path_to_image_file_or_cv2_image_array, basestring):
@@ -40,8 +40,8 @@ def get_cv2_img_array(url_or_path_to_image_file_or_cv2_image_array, try_url_loca
                 url_or_path_to_image_file_or_cv2_image_array.split('/')[-1].split('#')[0].split('?')[-1].split(':')[
                     -1]  # jeremy changed this sinc it didnt work with url https://encrypted-tbn1.gstatic.com/images?q=tbn:ANd9GcR2oSMcnwErH1eqf4k8fvn2bAxvSdDSbp6voC7ijYJStL2NfX6v
             FILENAME = os.path.join(download_directory, FILENAME)
-            if FILENAME.endswith('jpg') or FILENAME.endswith('jpeg') or FILENAME.endswith('.bmp') or FILENAME.endswith(
-                    'tiff'):
+            if FILENAME.endswith('jpg') or FILENAME.endswith('jpeg') or FILENAME.endswith('.bmp') or \
+                    FILENAME.endswith('tiff'):
                 pass
             else:  # there's no 'normal' filename ending so add .jpg
                 FILENAME = FILENAME + '.jpg'
@@ -62,7 +62,7 @@ def get_cv2_img_array(url_or_path_to_image_file_or_cv2_image_array, try_url_loca
                 img_url = url_or_path_to_image_file_or_cv2_image_array
                 try:
                     response = requests.get(img_url)  # download
-                    img_array = imdecode(numpy.asarray(bytearray(response.content)), 1)
+                    img_array = imdecode(np.asarray(bytearray(response.content)), 1)
                 except ConnectionError:
                     logging.warning("connection error - check url or connection")
                     return None
@@ -78,10 +78,15 @@ def get_cv2_img_array(url_or_path_to_image_file_or_cv2_image_array, try_url_loca
                 except:
                     logging.warning("connection error - check url or connection")
                     return None
+    #input isn't a basestring nor a np.ndarray....so what is it?
+    else:
+        logging.warning("input is neither an ndarray nor a string, so I don't know what to do")
+        return None
 
     # After we're done with all the above, this should be true - final check that we're outputting a good array
-    if not (isinstance(img_array, numpy.ndarray) and isinstance(img_array[0][0], numpy.ndarray)):
-        logging.warning("Bad image - check url/path/array")
+    # TODO - for some reason we get here to the warning when doing download
+    if not (isinstance(img_array, np.ndarray) and isinstance(img_array[0][0], np.ndarray)):
+        logging.warning("Bad image - check url/path/array, name is:"+str(url_or_path_to_image_file_or_cv2_image_array))
         return (None)
     # if we got good image and need to save locally :
     if download:
@@ -102,8 +107,18 @@ def get_cv2_img_array(url_or_path_to_image_file_or_cv2_image_array, try_url_loca
             try:
                 print('filename for local write:' + str(FILENAME))
                 write_status = imwrite(FILENAME, img_array)
+                max_i = 50
+                #wait until file is readable before continuing
+                for i in xrange(max_i):
+                    try:
+                        with open(FILENAME, 'rb') as _:
+                            break
+                    except IOError:
+                        time.sleep(10)
+                else:
+                    raise IOError('Could not access {} after {} attempts'.format(FILENAME, str(max_i)))
             except:
-                print('unexapected error in Utils calling imwrite')
+                print('error in Utils calling imwrite')
             #        		print('unexapected error in Utils calling urllib.urlretreive'+sys.exc_info()[0])
 
     return img_array
@@ -112,7 +127,7 @@ def get_cv2_img_array(url_or_path_to_image_file_or_cv2_image_array, try_url_loca
 def count_human_bbs_in_doc(dict_of_images):
     n = 0
     for entry in dict_of_images:
-        if good_bb(entry):
+        if (entry):
             n = n + 1  #got a good bb
     return (n)
 
@@ -186,13 +201,32 @@ def good_bb(dict):
         return (dict["human_bb"])
 
 
+
 def legal_bounding_box(rect):
+    if rect is None:
+        return False
     minimum_allowed_area = 50
     if rect[2] * rect[3] >= minimum_allowed_area:
         return True
     else:
         return False
 
+def check_img_array(image_array):
+    if image_array is not None and isinstance(image_array, np.ndarray)  and isinstance(image_array[0][0], np.ndarray):
+        return True
+
+    else:
+        return False
+
+def bounding_box_inside_image(image_array,rect):
+    if check_img_array(image_array) and legal_bounding_box(rect):
+        height, width, depth = image_array.shape
+        if rect[2] <= width and rect[3] <= height:
+            return True   #bb fits into image
+        else:
+            return False
+    else:
+        return False
 
 #test function for lookfor_next_unbounded_image
 def test_lookfor_next():
@@ -282,8 +316,8 @@ class GZipCSVReader:
         return self.reader.__iter__()
 
 
-class NumpyAwareJSONEncoder(json.JSONEncoder):
+class npAwareJSONEncoder(json.JSONEncoder):
     def default(self, obj):
-        if isinstance(obj, numpy.ndarray) and obj.ndim == 1:
+        if isinstance(obj, np.ndarray) and obj.ndim == 1:
             return obj.tolist()
         return json.JSONEncoder.default(self, obj)
