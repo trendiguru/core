@@ -165,7 +165,59 @@ def lookfor_next_unbounded_image(queryobject):
     return (urlN)
 
 
-# maybe return(urlN,n) at some point
+def lookfor_next_bounded_image(queryobject):
+    """
+    finds next image that has bounding box
+    :param queryobject:
+    :return:url, skip (whether or not to skip)
+    """
+    n = 0
+    skip_image = False
+    got_unbounded_image = False
+    urlN = None  # if nothing eventually is found None is returned for url
+    if not 'images' in queryobject:
+        logging.debug('Utils.py(debug):no images in input:' + str(queryobject))
+        return None
+    images = queryobject["images"]
+    # print('utils.py:images:'+str(images))
+    logging.debug('Utils.py(debug):images:' + str(images))
+    if len(images) < min_images_per_doc:  # don't use docs with too few images
+        return None
+    print('# images:' + str(len(images)))
+    for entry in images:
+        if 'skip_image' in entry:
+            if entry['skip_image'] == True:
+                print('utils.py:image is marked to be skipped')
+                logging.debug('Utils.py(debug):image is marked to be skipped')
+                skip_image = True
+            else:
+                print('utils.py:image is NOT marked to be skipped')
+                logging.debug('Utils.py(debug):image is NOT marked to be skipped')
+                skip_image = False
+        if 'human_bb' in entry:  # got a pic without a bb
+            urlN = entry['url']
+            print('utils.py:there is a human bb entry for:' + str(entry))
+            if entry[human_bb] is None:
+                print('utils.py:human_bb is None for:' + str(entry))
+                return (urlN,[0,0,0,0],skip_image)
+            elif not isinstance(entry["human_bb"], list):
+                print('utils.py:illegal bb!! (not a list) for:' + str(entry))
+                return (urlN,[0,0,0,0],skip_image)
+            elif not (legal_bounding_box(entry["human_bb"])):
+                print('utils.py:bb is not legal (too small) for:' + str(entry))
+                return (urlN,[0,0,0,0],skip_image)
+            else:
+                print('utils.py:bb is legal for:' + str(entry))
+                img_array = get_cv2_img_array(urlN)
+                if not bounding_box_inside_image(img_array,entry['human_bb']):
+                    print('utils.py:bb is bigger than image')
+                    logging.debug('Utils.py(debug):bb is bigger than image')
+                return (urlN,entry['human_bb'],skip_image)
+        else:
+            print('utils.py:image is not bounded :(')
+            logging.debug('image is not bounded.....')
+            return (None,None,None)
+
 
 
 def good_bb(dict):
