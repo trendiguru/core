@@ -300,6 +300,15 @@ def legal_bounding_box(rect):
     else:
         return False
 
+def bounding_box_inside_image(image_array,rect):
+    if check_img_array(image_array) and legal_bounding_box(rect):
+        height, width, depth = image_array.shape
+        if rect[2] <= width and rect[3] <= height:
+            return True   #bb fits into image
+        else:
+            return False
+    else:
+        return False
 
 # test function for lookfor_next_unbounded_image
 def test_lookfor_next():
