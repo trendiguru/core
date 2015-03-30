@@ -3,7 +3,7 @@ import time
 import csv
 import gzip
 import json
-import numpy
+import numpy as np
 import requests
 from cv2 import imread, imdecode, imwrite
 import logging
@@ -32,7 +32,7 @@ def get_cv2_img_array(url_or_path_to_image_file_or_cv2_image_array, try_url_loca
     got_locally = False
     img_array = None  # attempt to deal with non-responding url
     # first check if we already have a numpy array
-    if isinstance(url_or_path_to_image_file_or_cv2_image_array, numpy.ndarray):
+    if isinstance(url_or_path_to_image_file_or_cv2_image_array, np.ndarray):
         img_array = url_or_path_to_image_file_or_cv2_image_array
     # otherwise it's probably a string, check what kind
     elif isinstance(url_or_path_to_image_file_or_cv2_image_array, basestring):
@@ -65,7 +65,7 @@ def get_cv2_img_array(url_or_path_to_image_file_or_cv2_image_array, try_url_loca
                 img_url = url_or_path_to_image_file_or_cv2_image_array
                 try:
                     response = requests.get(img_url)  # download
-                    img_array = imdecode(numpy.asarray(bytearray(response.content)), 1)
+                    img_array = imdecode(np.asarray(bytearray(response.content)), 1)
                 except ConnectionError:
                     logging.warning("connection error - check url or connection")
                     return None
@@ -83,7 +83,7 @@ def get_cv2_img_array(url_or_path_to_image_file_or_cv2_image_array, try_url_loca
                     return None
 
     # After we're done with all the above, this should be true - final check that we're outputting a good array
-    if not (isinstance(img_array, numpy.ndarray) and isinstance(img_array[0][0], numpy.ndarray)):
+    if not (isinstance(img_array, np.ndarray) and isinstance(img_array[0][0], np.ndarray)):
         logging.warning("Bad image - check url/path/array")
         return (None)
     # if we got good image and need to save locally :
@@ -185,11 +185,11 @@ def lookfor_next_bounded_image(queryobject):
     images = queryobject["images"]
     # print('utils.py:images:'+str(images))
     logging.debug('Utils.py(debug):images:' + str(images))
-#    check for suitable number of images in doc - removed since i wanna check all the bbs
-#    if len(images) < min_images_per_doc:  # don't use docs with too few images
-#        print('# images is too small:' + str(len(images)) + ' found and ' + str(min_images_per_doc) + ' are required')
-#        logging.debug('Utils.py(debug):image is marked to be skipped')
-#        return None
+    # check for suitable number of images in doc - removed since i wanna check all the bbs
+    # if len(images) < min_images_per_doc:  # don't use docs with too few images
+    #        print('# images is too small:' + str(len(images)) + ' found and ' + str(min_images_per_doc) + ' are required')
+    #        logging.debug('Utils.py(debug):image is marked to be skipped')
+    #        return None
     print('# images:' + str(len(images)))
     try:
         answers["_id"] = str(queryobject["_id"])
@@ -260,10 +260,10 @@ def lookfor_next_bounded_in_db():
 
     while doc is not None:
         print('doc:' + str(doc))
-        results = lookfor_next_bounded_image(doc)
-        if results is not None:
+        answers = lookfor_next_bounded_image(doc)
+        if answers is not None:
             try:
-                if answers["bb"] is not None: #got a good bb
+                if answers["bb"] is not None:  # got a good bb
                     return answers
             except KeyError, e:
                 print 'hi there was a keyerror on key "%s" which probably does not exist' % str(e)
@@ -300,20 +300,30 @@ def legal_bounding_box(rect):
     else:
         return False
 
-def bounding_box_inside_image(image_array,rect):
+
+def check_img_array(image_array):
+    if image_array is not None and isinstance(image_array, np.ndarray) and isinstance(image_array[0][0], np.ndarray):
+        return True
+
+    else:
+        return False
+
+
+def bounding_box_inside_image(image_array, rect):
     if check_img_array(image_array) and legal_bounding_box(rect):
         height, width, depth = image_array.shape
         if rect[2] <= width and rect[3] <= height:
-            return True   #bb fits into image
+            return True  # bb fits into image
         else:
             return False
     else:
         return False
 
+
 # test function for lookfor_next_unbounded_image
 def test_lookfor_next():
     db = pymongo.MongoClient().mydb
-    training_collection_cursor = db.training.find()  #The db with multiple figs of same item
+    training_collection_cursor = db.training.find()  # The db with multiple figs of same item
     doc = next(training_collection_cursor, None)
     resultDict = {}
     while doc is not None:
@@ -337,9 +347,9 @@ def test_lookfor_next():
     return resultDict
 
 
-#products_collection_cursor = db.products.find()   #Regular db of one fig per item
+# products_collection_cursor = db.products.find()   #Regular db of one fig per item
 
-#    prefixes = ['Main Image URL angle ', 'Style Gallery Image ']
+# prefixes = ['Main Image URL angle ', 'Style Gallery Image ']
 #training docs contains lots of different images (URLs) of the same clothing item
 #logging.debug(str(doc))
 #print('doc:'+str(doc))
@@ -400,6 +410,6 @@ class GZipCSVReader:
 
 class NumpyAwareJSONEncoder(json.JSONEncoder):
     def default(self, obj):
-        if isinstance(obj, numpy.ndarray) and obj.ndim == 1:
+        if isinstance(obj, np.ndarray) and obj.ndim == 1:
             return obj.tolist()
         return json.JSONEncoder.default(self, obj)
