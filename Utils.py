@@ -11,10 +11,13 @@ from bson import objectid
 import pymongo
 import os
 from requests import ConnectionError
+
+import constants
+
+min_images_per_doc = constants.min_images_per_doc
+
 # import urllib
-
 # logging.setLevel(logging.DEBUG)
-
 
 def get_cv2_img_array(url_or_path_to_image_file_or_cv2_image_array, try_url_locally=False, download=False,
                       download_directory='images'):
@@ -35,7 +38,7 @@ def get_cv2_img_array(url_or_path_to_image_file_or_cv2_image_array, try_url_loca
     elif isinstance(url_or_path_to_image_file_or_cv2_image_array, basestring):
         # try getting url locally by changing url to standard name
         if try_url_locally:  # turn url into local filename and try getting it again
-            #   	 	FILENAME = url_or_path_to_image_file_or_cv2_image_array.split('/')[-1].split('#')[0].split('?')[0]
+            # FILENAME = url_or_path_to_image_file_or_cv2_image_array.split('/')[-1].split('#')[0].split('?')[0]
             FILENAME = \
                 url_or_path_to_image_file_or_cv2_image_array.split('/')[-1].split('#')[0].split('?')[-1].split(':')[
                     -1]  # jeremy changed this sinc it didnt work with url https://encrypted-tbn1.gstatic.com/images?q=tbn:ANd9GcR2oSMcnwErH1eqf4k8fvn2bAxvSdDSbp6voC7ijYJStL2NfX6v
@@ -90,7 +93,8 @@ def get_cv2_img_array(url_or_path_to_image_file_or_cv2_image_array, try_url_loca
                 os.makedirs(download_directory)
             if "://" in url_or_path_to_image_file_or_cv2_image_array:
                 FILENAME = \
-                    url_or_path_to_image_file_or_cv2_image_array.split('/')[-1].split('#')[0].split('?')[-1].split(':')[-1]
+                    url_or_path_to_image_file_or_cv2_image_array.split('/')[-1].split('#')[0].split('?')[-1].split(':')[
+                        -1]
                 FILENAME = os.path.join(download_directory, FILENAME)
             else:
                 FILENAME = os.path.join(download_directory, url_or_path_to_image_file_or_cv2_image_array)
@@ -104,7 +108,7 @@ def get_cv2_img_array(url_or_path_to_image_file_or_cv2_image_array, try_url_loca
                 write_status = imwrite(FILENAME, img_array)
             except:
                 print('unexapected error in Utils calling imwrite')
-            #        		print('unexapected error in Utils calling urllib.urlretreive'+sys.exc_info()[0])
+                # print('unexapected error in Utils calling urllib.urlretreive'+sys.exc_info()[0])
 
     return img_array
 
@@ -113,13 +117,12 @@ def count_human_bbs_in_doc(dict_of_images):
     n = 0
     for entry in dict_of_images:
         if good_bb(entry):
-            n = n + 1  #got a good bb
+            n = n + 1  # got a good bb
     return (n)
 
 
 def lookfor_next_unbounded_image(queryobject):
     n = 0
-    min_images_per_doc = 10
     got_unbounded_image = False
     urlN = None  # if nothing eventually is found None is returned for url
     images = queryobject["images"]
@@ -168,9 +171,10 @@ def lookfor_next_unbounded_image(queryobject):
 def lookfor_next_bounded_image(queryobject):
     """
     finds next image that has bounding box
-    :param queryobject:
+    :param queryobject: this is a db entry
     :return:url, skip (whether or not to skip)
     """
+    answers = {}
     n = 0
     skip_image = False
     got_unbounded_image = False
@@ -181,43 +185,94 @@ def lookfor_next_bounded_image(queryobject):
     images = queryobject["images"]
     # print('utils.py:images:'+str(images))
     logging.debug('Utils.py(debug):images:' + str(images))
-    if len(images) < min_images_per_doc:  # don't use docs with too few images
-        return None
+#    check for suitable number of images in doc - removed since i wanna check all the bbs
+#    if len(images) < min_images_per_doc:  # don't use docs with too few images
+#        print('# images is too small:' + str(len(images)) + ' found and ' + str(min_images_per_doc) + ' are required')
+#        logging.debug('Utils.py(debug):image is marked to be skipped')
+#        return None
     print('# images:' + str(len(images)))
+    try:
+        answers["_id"] = str(queryobject["_id"])
+    except KeyError, e:
+        print 'hi there was a keyerror on key "%s" which probably does not exist' % str(e)
+    try:
+        answers["product_title"] = queryobject["Product Title"]
+    except KeyError, e:
+        print 'hi there was a keyerror on key "%s" which probably does not exist' % str(e)
+    try:
+        answers["product_url"] = queryobject["Product URL"]
+    except KeyError, e:
+        print 'hi there was a keyerror on key "%s" which probably does not exist' % str(e)
     for entry in images:
         if 'skip_image' in entry:
             if entry['skip_image'] == True:
                 print('utils.py:image is marked to be skipped')
                 logging.debug('Utils.py(debug):image is marked to be skipped')
                 skip_image = True
+                answers['skip_image'] = True
             else:
                 print('utils.py:image is NOT marked to be skipped')
                 logging.debug('Utils.py(debug):image is NOT marked to be skipped')
                 skip_image = False
-        if 'human_bb' in entry:  # got a pic without a bb
+                answers['skip_image'] = False
+
+        if 'human_bb' in entry:  # got a pic with a bb
             urlN = entry['url']
+            answers['url'] = entry['url']
             print('utils.py:there is a human bb entry for:' + str(entry))
-            if entry[human_bb] is None:
+            if entry['human_bb'] is None:
                 print('utils.py:human_bb is None for:' + str(entry))
-                return (urlN,[0,0,0,0],skip_image)
+                return answers
             elif not isinstance(entry["human_bb"], list):
                 print('utils.py:illegal bb!! (not a list) for:' + str(entry))
-                return (urlN,[0,0,0,0],skip_image)
+                return answers
             elif not (legal_bounding_box(entry["human_bb"])):
                 print('utils.py:bb is not legal (too small) for:' + str(entry))
-                return (urlN,[0,0,0,0],skip_image)
+                return answers
             else:
-                print('utils.py:bb is legal for:' + str(entry))
+                print('utils.py:bb exists for:' + str(entry))
                 img_array = get_cv2_img_array(urlN)
-                if not bounding_box_inside_image(img_array,entry['human_bb']):
+                if not bounding_box_inside_image(img_array, entry['human_bb']):
                     print('utils.py:bb is bigger than image')
                     logging.debug('Utils.py(debug):bb is bigger than image')
-                return (urlN,entry['human_bb'],skip_image)
-        else:
-            print('utils.py:image is not bounded :(')
-            logging.debug('image is not bounded.....')
-            return (None,None,None)
+                    return answers
+                else:
+                    print('utils.py:bb exists and is legal for:' + str(entry))
+                    answers['bb'] = entry['human_bb']
+                    return answers
+        else:  # no human_bb in this entry
+            pass
+    else:
+        print('utils.lookfor_next_bounded_image:no bounded image found in this doc:(')
+        logging.debug('utils.lookfor_next_bounded_image - no bounded image found in this doc')
+        return None
 
+
+def lookfor_next_bounded_in_db():
+    """
+    find next bounded image in db
+    :return:url,bb, and skip_it for next unbounded image
+    """
+    db = pymongo.MongoClient().mydb
+    # training docs contains lots of different images (URLs) of the same clothing item
+    training_collection_cursor = db.training.find()
+    doc = next(training_collection_cursor, None)
+
+    while doc is not None:
+        print('doc:' + str(doc))
+        results = lookfor_next_bounded_image(doc)
+        if results is not None:
+            try:
+                if answers["bb"] is not None: #got a good bb
+                    return answers
+            except KeyError, e:
+                print 'hi there was a keyerror on key "%s" which probably does not exist' % str(e)
+        else:
+            doc = next(training_collection_cursor, None)
+            logging.debug("no bounded image found in current doc, trying next")
+    print("no bounded image found in collection")
+    logging.debug("no bounded image found in collection")
+    return "No bounded bb found in db"
 
 
 def good_bb(dict):
@@ -225,16 +280,16 @@ def good_bb(dict):
     determine if dict has good human bb in it
     '''
     if not 'human_bb' in dict:
-        #	print('no human_bb key in dict')
+        # print('no human_bb key in dict')
         return (False)
     elif dict["human_bb"] is None:
-        #	print('human_bb is None')
+        # print('human_bb is None')
         return (False)
     elif not (legal_bounding_box(dict["human_bb"])):
-        #	print('human bb is not big enough')
+        # print('human bb is not big enough')
         return (False)
     else:
-        #	print('human bb ok:'+str(dict['human_bb']))
+        # print('human bb ok:'+str(dict['human_bb']))
         return (dict["human_bb"])
 
 
@@ -246,7 +301,7 @@ def legal_bounding_box(rect):
         return False
 
 
-#test function for lookfor_next_unbounded_image
+# test function for lookfor_next_unbounded_image
 def test_lookfor_next():
     db = pymongo.MongoClient().mydb
     training_collection_cursor = db.training.find()  #The db with multiple figs of same item
