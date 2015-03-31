@@ -107,8 +107,8 @@ def get_cv2_img_array(url_or_path_to_image_file_or_cv2_image_array, try_url_loca
                 print('filename for local write:' + str(FILENAME))
                 write_status = imwrite(FILENAME, img_array)
             except:
-                print('unexapected error in Utils calling imwrite')
-                # print('unexapected error in Utils calling urllib.urlretreive'+sys.exc_info()[0])
+                print('unexpected error in Utils calling imwrite')
+                # print('unexpected error in Utils calling urllib.urlretreive'+sys.exc_info()[0])
 
     return img_array
 
@@ -194,15 +194,24 @@ def lookfor_next_bounded_image(queryobject):
     try:
         answers["_id"] = str(queryobject["_id"])
     except KeyError, e:
-        print 'hi there was a keyerror on key "%s" which probably does not exist' % str(e)
+        print 'keyerror on key "%s" which probably does not exist' % str(e)
+        logging.debug('keyerror on key "%s" which probably does not exist' % str(e))
     try:
         answers["product_title"] = queryobject["Product Title"]
     except KeyError, e:
-        print 'hi there was a keyerror on key "%s" which probably does not exist' % str(e)
+        print 'keyerror on key "%s" which probably does not exist' % str(e)
+        logging.debug('keyerror on key "%s" which probably does not exist' % str(e))
     try:
         answers["product_url"] = queryobject["Product URL"]
     except KeyError, e:
-        print 'hi there was a keyerror on key "%s" which probably does not exist' % str(e)
+        print 'keyerror on key "%s" which probably does not exist' % str(e)
+        logging.debug('keyerror on key "%s" which probably does not exist' % str(e))
+    try:
+        id = queryobject['_id']
+    except KeyError, e:
+        print 'keyerror on key "%s" which probably does not exist' % str(e)
+        logging.debug('keyerror on key "%s" which probably does not exist' % str(e))
+    i = 0
     for entry in images:
         if 'skip_image' in entry:
             if entry['skip_image'] == True:
@@ -217,59 +226,49 @@ def lookfor_next_bounded_image(queryobject):
                 answers['skip_image'] = False
 
         if 'human_bb' in entry:  # got a pic with a bb
-            urlN = entry['url']
-            answers['url'] = entry['url']
             print('utils.py:there is a human bb entry for:' + str(entry))
-            if entry['human_bb'] is None:
-                print('utils.py:human_bb is None for:' + str(entry))
-                return answers
-            elif not isinstance(entry["human_bb"], list):
-                print('utils.py:illegal bb!! (not a list) for:' + str(entry))
-                return answers
-            elif not (legal_bounding_box(entry["human_bb"])):
-                print('utils.py:bb is not legal (too small) for:' + str(entry))
-                return answers
-            else:
-                print('utils.py:bb exists for:' + str(entry))
-                img_array = get_cv2_img_array(urlN)
-                if not bounding_box_inside_image(img_array, entry['human_bb']):
-                    print('utils.py:bb is bigger than image')
-                    logging.debug('Utils.py(debug):bb is bigger than image')
-                    return answers
-                else:
-                    print('utils.py:bb exists and is legal for:' + str(entry))
-                    answers['bb'] = entry['human_bb']
-                    return answers
+            answers['url'] = entry['url']
+            answers['bb'] = entry['human_bb']
+            answers['image_index'] = i
+            return answers
+
         else:  # no human_bb in this entry
-            pass
+            i = i + 1
+
     else:
         print('utils.lookfor_next_bounded_image:no bounded image found in this doc:(')
         logging.debug('utils.lookfor_next_bounded_image - no bounded image found in this doc')
         return None
 
 
-def lookfor_next_bounded_in_db():
+def lookfor_next_bounded_in_db(i=0):
     """
     find next bounded image in db
+    :input: i, the index of the current item
     :return:url,bb, and skip_it for next unbounded image
     """
     db = pymongo.MongoClient().mydb
     # training docs contains lots of different images (URLs) of the same clothing item
-    training_collection_cursor = db.training.find()
-    doc = next(training_collection_cursor, None)
-
+    training_collection_cursor = db.training.find()   #.sort _id
+#    doc = next(training_collection_cursor, None)
+    doc = training_collection_cursor[0]
+    i = 0
     while doc is not None:
         print('doc:' + str(doc))
         answers = lookfor_next_bounded_image(doc)
         if answers is not None:
             try:
                 if answers["bb"] is not None:  # got a good bb
-                    return answers
+                    id = doc['_id']
+#                    write_result = db.training.update({"_id": objectid.ObjectId(id)}, {"$set": {"images": doc['images']}} )
+#                    write_result = db.training.update({"_id": objectid.ObjectId(id)}, {"$set": {"images": doc['images']}} )
+                    return answers,i
             except KeyError, e:
                 print 'hi there was a keyerror on key "%s" which probably does not exist' % str(e)
-        else:
-            doc = next(training_collection_cursor, None)
-            logging.debug("no bounded image found in current doc, trying next")
+        i = i + 1
+        doc = training_collection_cursor[i]
+        logging.debug("no bounded image found in current doc, trying next")
+
     print("no bounded image found in collection")
     logging.debug("no bounded image found in collection")
     return "No bounded bb found in db"
