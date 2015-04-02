@@ -168,7 +168,7 @@ def lookfor_next_unbounded_image(queryobject):
     return (urlN)
 
 
-def lookfor_next_bounded_image(queryobject):
+def lookfor_next_bounded_image(queryobject,image_index=0):
     """
     finds next image that has bounding box
     :param queryobject: this is a db entry
@@ -212,23 +212,26 @@ def lookfor_next_bounded_image(queryobject):
         print 'keyerror on key "%s" which probably does not exist' % str(e)
         logging.debug('keyerror on key "%s" which probably does not exist' % str(e))
     i = 0
-    for entry in images:
+    answers['skip_image'] = False
+    if image_index>len(images):
+	image_index=0
+    for i in range(image_index,len(images)):
+	entry = images[i]
         if 'skip_image' in entry:
             if entry['skip_image'] == True:
                 print('utils.py:image is marked to be skipped')
                 logging.debug('Utils.py(debug):image is marked to be skipped')
                 skip_image = True
                 answers['skip_image'] = True
-            else:
-                print('utils.py:image is NOT marked to be skipped')
-                logging.debug('Utils.py(debug):image is NOT marked to be skipped')
-                skip_image = False
-                answers['skip_image'] = False
 
         if 'human_bb' in entry:  # got a pic with a bb
             print('utils.py:there is a human bb entry for:' + str(entry))
             answers['url'] = entry['url']
             answers['bb'] = entry['human_bb']
+            answers['x'] = entry['human_bb'][0]
+            answers['y'] = entry['human_bb'][1]
+            answers['w'] = entry['human_bb'][2]
+            answers['h'] = entry['human_bb'][3]
             answers['image_index'] = i
             return answers
 
@@ -241,7 +244,7 @@ def lookfor_next_bounded_image(queryobject):
         return None
 
 
-def lookfor_next_bounded_in_db(i=0):
+def lookfor_next_bounded_in_db(current_item=0,current_image=0,only_get_boxed_images=true):
     """
     find next bounded image in db
     :input: i, the index of the current item
@@ -251,28 +254,32 @@ def lookfor_next_bounded_in_db(i=0):
     # training docs contains lots of different images (URLs) of the same clothing item
     training_collection_cursor = db.training.find()   #.sort _id
 #    doc = next(training_collection_cursor, None)
-    doc = training_collection_cursor[0]
+    doc = training_collection_cursor[current_item]
     i = 0
     while doc is not None:
         print('doc:' + str(doc))
-        answers = lookfor_next_bounded_image(doc)
+        answers = lookfor_next_bounded_image(doc,image_index=current_image)
+        answers['id'] = str(doc['_id'])
+	answers['item_index'] = i
         if answers is not None:
-            try:
-                if answers["bb"] is not None:  # got a good bb
-                    id = doc['_id']
+	    if only_get_boxed_images:
+            	try:
+                	if answers["bb"] is not None:  # got a good bb
 #                    write_result = db.training.update({"_id": objectid.ObjectId(id)}, {"$set": {"images": doc['images']}} )
 #                    write_result = db.training.update({"_id": objectid.ObjectId(id)}, {"$set": {"images": doc['images']}} )
-                    return answers,i
-            except KeyError, e:
-                print 'hi there was a keyerror on key "%s" which probably does not exist' % str(e)
+#		    answers['itemMemory'] = i
+                    		return answers
+            	except KeyError, e:
+                	print 'hi there was a keyerror on key "%s" which probably does not exist' % str(e)
+	    else:
+            	return answers
         i = i + 1
         doc = training_collection_cursor[i]
         logging.debug("no bounded image found in current doc, trying next")
 
     print("no bounded image found in collection")
     logging.debug("no bounded image found in collection")
-    return "No bounded bb found in db"
-
+    return "No bounded bb found in db" 
 
 def good_bb(dict):
     '''
