@@ -167,13 +167,13 @@ def lookfor_next_unbounded_image(queryobject):
             logging.debug('image is bounded.....')
     return (urlN)
 
-
-def lookfor_next_bounded_image(queryobject,image_index=0):
+def lookfor_next_bounded_image(queryobject,image_index=0,only_get_boxed_images=True):
     """
     finds next image that has bounding box
     :param queryobject: this is a db entry
     :return:url, skip (whether or not to skip)
     """
+
     answers = {}
     n = 0
     skip_image = False
@@ -183,6 +183,9 @@ def lookfor_next_bounded_image(queryobject,image_index=0):
         logging.debug('Utils.py(debug):no images in input:' + str(queryobject))
         return None
     images = queryobject["images"]
+    if images is None:
+        logging.debug('Utils.py(debug):images is None!!')
+        return None
     # print('utils.py:images:'+str(images))
     logging.debug('Utils.py(debug):images:' + str(images))
     # check for suitable number of images in doc - removed since i wanna check all the bbs
@@ -191,6 +194,8 @@ def lookfor_next_bounded_image(queryobject,image_index=0):
     #        logging.debug('Utils.py(debug):image is marked to be skipped')
     #        return None
     print('# images:' + str(len(images)))
+    print('image_index:' + str(image_index)+' only boxed:'+str(only_get_boxed_images))
+
     try:
         answers["_id"] = str(queryobject["_id"])
     except KeyError, e:
@@ -206,73 +211,65 @@ def lookfor_next_bounded_image(queryobject,image_index=0):
     except KeyError, e:
         print 'keyerror on key "%s" which probably does not exist' % str(e)
         logging.debug('keyerror on key "%s" which probably does not exist' % str(e))
-    try:
-        id = queryobject['_id']
-    except KeyError, e:
-        print 'keyerror on key "%s" which probably does not exist' % str(e)
-        logging.debug('keyerror on key "%s" which probably does not exist' % str(e))
-    i = 0
+    i = image_index
     answers['skip_image'] = False
     if image_index>len(images):
-	image_index=0
+        image_index=0
     for i in range(image_index,len(images)):
-	entry = images[i]
+        entry = images[i]
+        answers['image_index'] = i
+        answers['url'] = entry['url']
         if 'skip_image' in entry:
-            if entry['skip_image'] == True:
-                print('utils.py:image is marked to be skipped')
-                logging.debug('Utils.py(debug):image is marked to be skipped')
-                skip_image = True
-                answers['skip_image'] = True
+            answers['skip_image'] = entry['skip_image']
 
         if 'human_bb' in entry:  # got a pic with a bb
             print('utils.py:there is a human bb entry for:' + str(entry))
-            answers['url'] = entry['url']
             answers['bb'] = entry['human_bb']
             answers['x'] = entry['human_bb'][0]
             answers['y'] = entry['human_bb'][1]
             answers['w'] = entry['human_bb'][2]
             answers['h'] = entry['human_bb'][3]
-            answers['image_index'] = i
             return answers
 
-        else:  # no human_bb in this entry
-            i = i + 1
+        elif only_get_boxed_images == False:  # no human_bb in this entry but its ok, return anyway
+            return answers
 
-    else:
-        print('utils.lookfor_next_bounded_image:no bounded image found in this doc:(')
-        logging.debug('utils.lookfor_next_bounded_image - no bounded image found in this doc')
-        return None
+        i = i + 1
+
+    print('utils.lookfor_next_bounded_image:no bounded image found in this doc:(')
+    logging.debug('utils.lookfor_next_bounded_image - no bounded image found in this doc')
+    return None
 
 
 def lookfor_next_bounded_in_db(current_item=0,current_image=0,only_get_boxed_images=True):
     """
     find next bounded image in db
+    :rtype : dictionary
     :input: i, the index of the current item
     :return:url,bb, and skip_it for next unbounded image
     """
+    print('entered lookfornext:current item:' + str(current_item)+' cur img:'+str(current_image)+' only get boxed:'+str(only_get_boxed_images))
     db = pymongo.MongoClient().mydb
     # training docs contains lots of different images (URLs) of the same clothing item
     training_collection_cursor = db.training.find()   #.sort _id
 #    doc = next(training_collection_cursor, None)
     doc = training_collection_cursor[current_item]
-    i = 0
+    i = current_item
     while doc is not None:
         print('doc:' + str(doc))
-        answers = lookfor_next_bounded_image(doc,image_index=current_image)
-        answers['id'] = str(doc['_id'])
-	answers['item_index'] = i
+        answers = lookfor_next_bounded_image(doc, image_index=current_image,only_get_boxed_images=only_get_boxed_images)
         if answers is not None:
-	    if only_get_boxed_images:
-            	try:
-                	if answers["bb"] is not None:  # got a good bb
-#                    write_result = db.training.update({"_id": objectid.ObjectId(id)}, {"$set": {"images": doc['images']}} )
-#                    write_result = db.training.update({"_id": objectid.ObjectId(id)}, {"$set": {"images": doc['images']}} )
-#		    answers['itemMemory'] = i
-                    		return answers
-            	except KeyError, e:
-                	print 'hi there was a keyerror on key "%s" which probably does not exist' % str(e)
-	    else:
-            	return answers
+            answers['id'] = str(doc['_id'])
+            answers['item_index'] = i
+            if only_get_boxed_images:
+                try:
+                    if answers["bb"] is not None:  # got a good bb
+                        return answers
+                except KeyError, e:
+                    print 'keyerror on key "%s" which probably does not exist' % str(e)
+                    #go to next doc since no bb was found in this one
+            else:
+                return answers
         i = i + 1
         doc = training_collection_cursor[i]
         logging.debug("no bounded image found in current doc, trying next")
