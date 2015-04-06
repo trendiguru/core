@@ -84,7 +84,7 @@ def get_cv2_img_array(url_or_path_to_image_file_or_cv2_image_array, try_url_loca
 
     # After we're done with all the above, this should be true - final check that we're outputting a good array
     if not (isinstance(img_array, np.ndarray) and isinstance(img_array[0][0], np.ndarray)):
-        logging.warning("Bad image - check url/path/array")
+        logging.warning("Bad image - check url/path/array:"+str(url_or_path_to_image_file_or_cv2_image_array)+'try locally'+str(try_url_locally)+' dl:'+str(download)+' dir:'+str(download_directory))
         return (None)
     # if we got good image and need to save locally :
     if download:
