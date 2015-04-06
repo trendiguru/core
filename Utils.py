@@ -247,7 +247,7 @@ def lookfor_next_bounded_in_db(current_item=0,current_image=0,only_get_boxed_ima
     :input: i, the index of the current item
     :return:url,bb, and skip_it for next unbounded image
     """
-#    print('entered lookfornext:current item:' + str(current_item)+' cur img:'+str(current_image)+' only get boxed:'+str(only_get_boxed_images))
+    print('entered lookfornext:current item:' + str(current_item)+' cur img:'+str(current_image)+' only get boxed:'+str(only_get_boxed_images))
     db = pymongo.MongoClient().mydb
     # training docs contains lots of different images (URLs) of the same clothing item
     training_collection_cursor = db.training.find()   #.sort _id
