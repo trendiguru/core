@@ -173,6 +173,7 @@ def lookfor_next_bounded_image(queryobject,image_index=0,only_get_boxed_images=T
     :param queryobject: this is a db entry
     :return:url, skip (whether or not to skip)
     """
+    logging.warning('Utils.lookfor_next_bounded, image_index:' + str(image_index)+' only_boxed:'+str(only_get_boxed_images))
 
     answers = {}
     n = 0
@@ -188,6 +189,7 @@ def lookfor_next_bounded_image(queryobject,image_index=0,only_get_boxed_images=T
         return None
     # print('utils.py:images:'+str(images))
     logging.debug('Utils.py(debug):images:' + str(images))
+    logging.warning('Utils.lookfor_next_bounded, image_index:' + str(image_index)+' only_boxed:'+str(only_get_boxed_images))
     # check for suitable number of images in doc - removed since i wanna check all the bbs
     # if len(images) < min_images_per_doc:  # don't use docs with too few images
     #        print('# images is too small:' + str(len(images)) + ' found and ' + str(min_images_per_doc) + ' are required')
@@ -247,7 +249,10 @@ def lookfor_next_bounded_in_db(current_item=0,current_image=0,only_get_boxed_ima
     :input: i, the index of the current item
     :return:url,bb, and skip_it for next unbounded image
     """
-    print('entered lookfornext:current item:' + str(current_item)+' cur img:'+str(current_image)+' only get boxed:'+str(only_get_boxed_images))
+    current_item = int(current_item)  # this is needed since js may be returning strings
+    current_image = int(current_image)
+    print('entered lookfornext_in_db:current item:' + str(current_item)+' cur img:'+str(current_image)+' only get boxed:'+str(only_get_boxed_images))
+    logging.warning('w_entered lookfornext_in_db:current item:' + str(current_item)+' cur img:'+str(current_image)+' only get boxed:'+str(only_get_boxed_images))
     db = pymongo.MongoClient().mydb
     # training docs contains lots of different images (URLs) of the same clothing item
     training_collection_cursor = db.training.find()   #.sort _id
@@ -256,6 +261,7 @@ def lookfor_next_bounded_in_db(current_item=0,current_image=0,only_get_boxed_ima
     i = current_item
     while doc is not None:
  #       print('doc:' + str(doc))
+	logging.warning('calling lookfor_next_bounded')
         answers = lookfor_next_bounded_image(doc, image_index=current_image,only_get_boxed_images=only_get_boxed_images)
         if answers is not None:
             answers['id'] = str(doc['_id'])
@@ -264,14 +270,16 @@ def lookfor_next_bounded_in_db(current_item=0,current_image=0,only_get_boxed_ima
                 try:
                     if answers["bb"] is not None:  # got a good bb
                         return answers
+			logging.warning('exiting lookfornext 1, answers:'+str(answers))
                 except KeyError, e:
                     print 'keyerror on key "%s" which probably does not exist' % str(e)
                     #go to next doc since no bb was found in this one
             else:
+		logging.warning('exiting lookfornext 2, answers:'+str(answers))
                 return answers
         i = i + 1
         doc = training_collection_cursor[i]
-        logging.debug("no bounded image found in current doc, trying next")
+        logging.warning("no bounded image found in current doc, trying next")
 
     print("no bounded image found in collection")
     logging.debug("no bounded image found in collection")
