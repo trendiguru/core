@@ -193,8 +193,7 @@ def lookfor_next_bounded_image(queryobject,image_index=0,only_get_boxed_images=T
     #        print('# images is too small:' + str(len(images)) + ' found and ' + str(min_images_per_doc) + ' are required')
     #        logging.debug('Utils.py(debug):image is marked to be skipped')
     #        return None
-    print('# images:' + str(len(images)))
-    print('image_index:' + str(image_index)+' only boxed:'+str(only_get_boxed_images))
+    print('# images:' + str(len(images))+'image_index:' + str(image_index)+' only boxed:'+str(only_get_boxed_images))
 
     try:
         answers["_id"] = str(queryobject["_id"])
@@ -248,7 +247,7 @@ def lookfor_next_bounded_in_db(current_item=0,current_image=0,only_get_boxed_ima
     :input: i, the index of the current item
     :return:url,bb, and skip_it for next unbounded image
     """
-    print('entered lookfornext:current item:' + str(current_item)+' cur img:'+str(current_image)+' only get boxed:'+str(only_get_boxed_images))
+#    print('entered lookfornext:current item:' + str(current_item)+' cur img:'+str(current_image)+' only get boxed:'+str(only_get_boxed_images))
     db = pymongo.MongoClient().mydb
     # training docs contains lots of different images (URLs) of the same clothing item
     training_collection_cursor = db.training.find()   #.sort _id
@@ -256,7 +255,7 @@ def lookfor_next_bounded_in_db(current_item=0,current_image=0,only_get_boxed_ima
     doc = training_collection_cursor[current_item]
     i = current_item
     while doc is not None:
-        print('doc:' + str(doc))
+ #       print('doc:' + str(doc))
         answers = lookfor_next_bounded_image(doc, image_index=current_image,only_get_boxed_images=only_get_boxed_images)
         if answers is not None:
             answers['id'] = str(doc['_id'])
