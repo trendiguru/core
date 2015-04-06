@@ -244,7 +244,7 @@ def lookfor_next_bounded_image(queryobject,image_index=0):
         return None
 
 
-def lookfor_next_bounded_in_db(current_item=0,current_image=0,only_get_boxed_images=true):
+def lookfor_next_bounded_in_db(current_item=0,current_image=0,only_get_boxed_images=True):
     """
     find next bounded image in db
     :input: i, the index of the current item
