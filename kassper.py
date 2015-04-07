@@ -2,19 +2,6 @@ __author__ = 'Nadav Paz'
 
 import numpy as np
 import cv2
-import os
-import subprocess
-
-
-def get_mask(image):
-    mask = np.zeros((image.shape[0], image.shape[1]), np.uint8)
-    for i in range(0, image.shape[0]):
-        for j in range(0, image.shape[1]):
-            if image[i][j][0] == 0 and image[i][j][1] == 0 and image[i][j][2] == 0:
-                mask[i][j] = 0
-            else:
-                mask[i][j] = 255
-    return mask
 
 
 def clutter_removal(image, thresh):     # non-recursive
@@ -65,6 +52,17 @@ def clutter_removal(image, thresh):     # non-recursive
     return mask
 
 
+def get_mask(image):
+    mask = np.zeros((image.shape[0], image.shape[1]), np.uint8)
+    for i in range(0, image.shape[0]):
+        for j in range(0, image.shape[1]):
+            if image[i][j][0] == 0 and image[i][j][1] == 0 and image[i][j][2] == 0:
+                mask[i][j] = 0
+            else:
+                mask[i][j] = 255
+    return mask
+
+
 def skin_removal(face_image, gc_image):
     without_skin = gc_image.copy()
     hsv = cv2.cvtColor(gc_image, cv2.COLOR_BGR2HSV)
@@ -84,13 +82,3 @@ def skin_removal(face_image, gc_image):
                 without_skin[i][j][1] = 0
                 without_skin[i][j][2] = 0
     return without_skin
-
-
-def mask2svg(mask, filename, address):
-    # returns path to svg, and creates svg.
-    # filename doesn't need svg extension.
-    # mask needs name of bmp img + extension.
-    # address - address in which we want to look for mask and save svg.
-    os.chdir(address)
-    subprocess.call('potrace -s ' + mask + ' -o ' + filename + '.svg' , shell=True)
-    return address + filename + '.svg'

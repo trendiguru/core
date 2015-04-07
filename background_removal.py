@@ -39,7 +39,7 @@ def body_estimation(image, face):
             x_ahead = np.min([x+3*w, image.shape[1]-1])
             x_ahead_near = np.min([x+2*w, image.shape[1]-1])
             rectangles = {"BG": [], "FG": [], "PFG": [], "PBG": []}
-            rectangles["BG"].append([x, x+w, y, y+h])                   # face
+            rectangles["FG"].append([x, x+w, y, y+h])                   # face
             rectangles["PFG"].append([x, x+w, y+h, y_down])              # body
             rectangles["BG"].append([x, x+w, 0, y])                     # above face
             rectangles["BG"].append([x_back, x, 0, y+h])                # head left

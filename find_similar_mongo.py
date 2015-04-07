@@ -7,7 +7,9 @@ import cv2
 import background_removal
 import Utils
 import numpy as np
-import classify_core
+import os
+import subprocess
+import kassper
 
 
 def get_classifiers():
@@ -34,15 +36,33 @@ def get_all_subcategories(category_collection, category_id):
     return subcategories
 
 
-def find_top_n_results(imageURL, number_of_results=10, bb=None, category_id=None):
-    # if (bb is None) or (bb == np.array([0, 0, 0, 0])).all():
-    #     raise NotImplementedError
-        # masked_image = background_removal.get_masked_image(small_image, fg_mask)    # returns small image after GC masking
-        # bb_dict = classify_core.classify_image_with_classifiers(masked_image,
-                                                           # get_classifiers()[0], get_classifiers()[1])
+def svg(image, gc_image, filename, address):
+    """
+    the function builds ths svg file
+    :param image: whole image (shrinked)
+    :param gc_image: grabcuted image
+    :param filename: item id
+    :param address: the place to save the svg file @ the server
+    :return: svg file
+    """
+    face_rect = background_removal.find_face(image)
+    if len(face_rect) > 0:
+        x, y, w, h = face_rect[0]
+        face_image = image[y:y+h, x:x+w, :]
+        without_skin = kassper.skin_removal(face_image, gc_image)
+        crawl_mask = kassper.clutter_removal(without_skin, 200)
+        without_clutter = background_removal.get_masked_image(without_skin, crawl_mask)
+        mask = kassper.get_mask(without_clutter)
+        os.chdir(address)
+        subprocess.call('potrace -s ' + mask + ' -o ' + filename + '.svg', shell=True)
+        return address + filename + '.svg'
+    else:
+        return None
+
+
+def find_top_n_results(image, mask, number_of_results=10, category_id=None):
     db = pymongo.MongoClient().mydb
     product_collection = db.products
-
     subcategory_id_list = get_all_subcategories(db.categories, category_id)
 
     # get all items in the subcategory/keyword
@@ -60,14 +80,20 @@ def find_top_n_results(imageURL, number_of_results=10, bb=None, category_id=None
         fp_dict["buyURL"] = row["clickUrl"]
         db_fingerprint_list.append(fp_dict)
 
-    image = Utils.get_cv2_img_array(imageURL)                                     # turn the URL into a cv2 image
+    color_fp = fp.fp(image, mask)
+    target_dict = {"clothingClass": category_id, "fingerPrintVector": color_fp}
+    closest_matches = findNNs(target_dict, db_fingerprint_list, number_of_results)
+    return color_fp.tolist(), closest_matches
+
+
+def got_bb(image_url, item_id, svg_folder, bb=None, number_of_results=10, category_id=None):
+    image = Utils.get_cv2_img_array(image_url)                                    # turn the URL into a cv2 image
     small_image, resize_ratio = background_removal.standard_resize(image, 400)    # shrink image for faster process
     bb = [int(b) for b in (np.array(bb)/resize_ratio)]                            # shrink bb in the same ratio
     fg_mask = background_removal.get_fg_mask(small_image, bb)                     # returns the grab-cut mask (if bb => PFG-PBG gc, if !bb => face gc)
     bb_mask = background_removal.get_bb_mask(small_image, bb)                     # bounding box mask
     combined_mask = cv2.bitwise_and(fg_mask, bb_mask)                             # for sending the right mask to the fp
-    color_fp = fp.fp(small_image, combined_mask)
-    # Fingerprint the bounded area
-    target_dict = {"clothingClass": category_id, "fingerPrintVector": color_fp}
-    closest_matches = findNNs(target_dict, db_fingerprint_list, number_of_results)
-    return color_fp.tolist(), closest_matches
+    gc_image = background_removal.get_masked_image(small_image, combined_mask)
+    fp_vector, closest_matches = find_top_n_results(small_image, combined_mask, number_of_results, category_id)
+    svg_address = svg(small_image, gc_image, item_id, svg_folder)
+    return fp_vector, closest_matches, svg_address
