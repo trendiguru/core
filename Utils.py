@@ -15,6 +15,7 @@ from requests import ConnectionError
 import constants
 
 min_images_per_doc = constants.min_images_per_doc
+max_image_val = constants.max_image_val
 
 # import urllib
 # logging.setLevel(logging.DEBUG)
@@ -212,10 +213,13 @@ def lookfor_next_bounded_image(queryobject,image_index=0,only_get_boxed_images=T
     except KeyError, e:
         print 'keyerror on key "%s" which probably does not exist' % str(e)
         logging.debug('keyerror on key "%s" which probably does not exist' % str(e))
-    i = image_index
     answers['skip_image'] = False
-    if image_index>len(images):
-        image_index=0
+    if image_index == max_image_val:  #max_image_val is a code meaning get the last image
+	image_index = len(images)-1
+    if image_index>=len(images):  #index starts at 0 
+        #image_index=0
+    	print('utils - past index, returning None')
+	return None #get the next item if we're past last image
     for i in range(image_index,len(images)):
         entry = images[i]
         answers['image_index'] = i
