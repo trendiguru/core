@@ -10,6 +10,7 @@ import numpy as np
 import os
 import subprocess
 import kassper
+import constants
 
 
 def get_classifiers():
@@ -36,28 +37,19 @@ def get_all_subcategories(category_collection, category_id):
     return subcategories
 
 
-def svg(image, gc_image, filename, address):
+def mask2svg(mask, filename, address):
     """
-    the function builds ths svg file
-    :param image: whole image (shrinked)
-    :param gc_image: grabcuted image
-    :param filename: item id
-    :param address: the place to save the svg file @ the server
-    :return: svg file
+    this function takes a binary mask and turns it into a svg file
+    :param mask: 0/255 binary 2D image
+    :param filename: item id string
+    :param address: address string
+    :return: the path of the svg file
     """
-    face_rect = background_removal.find_face(image)
-    if len(face_rect) > 0:
-        x, y, w, h = face_rect[0]
-        face_image = image[y:y+h, x:x+w, :]
-        without_skin = kassper.skin_removal(face_image, gc_image)
-        crawl_mask = kassper.clutter_removal(without_skin, 200)
-        without_clutter = background_removal.get_masked_image(without_skin, crawl_mask)
-        mask = kassper.get_mask(without_clutter)
-        os.chdir(address)
-        subprocess.call('potrace -s ' + mask + ' -o ' + filename + '.svg', shell=True)
-        return address + filename + '.svg'
-    else:
-        return None
+    os.chdir(address)
+    cv2.imwrite(filename + '.bmp', mask, 'CV_IMWRITE_PXM_BINARY')                                # save as a bmp image
+    subprocess.call('potrace -s ' + filename + '.bmp' + ' -o ' + filename + '.svg', shell=True)  # create the svg
+    os.remove(filename + '.bmp')                                                                 # remove the bmp mask
+    return filename + '.svg'
 
 
 def find_top_n_results(image, mask, number_of_results=10, category_id=None):
@@ -86,7 +78,8 @@ def find_top_n_results(image, mask, number_of_results=10, category_id=None):
     return color_fp.tolist(), closest_matches
 
 
-def got_bb(image_url, item_id, svg_folder, bb=None, number_of_results=10, category_id=None):
+def got_bb(image_url, post_id, bb=None, number_of_results=10, category_id=None):
+    svg_address = constants.svg_address
     image = Utils.get_cv2_img_array(image_url)                                    # turn the URL into a cv2 image
     small_image, resize_ratio = background_removal.standard_resize(image, 400)    # shrink image for faster process
     bb = [int(b) for b in (np.array(bb)/resize_ratio)]                            # shrink bb in the same ratio
@@ -95,5 +88,16 @@ def got_bb(image_url, item_id, svg_folder, bb=None, number_of_results=10, catego
     combined_mask = cv2.bitwise_and(fg_mask, bb_mask)                             # for sending the right mask to the fp
     gc_image = background_removal.get_masked_image(small_image, combined_mask)
     fp_vector, closest_matches = find_top_n_results(small_image, combined_mask, number_of_results, category_id)
-    svg_address = svg(small_image, gc_image, item_id, svg_folder)
-    return fp_vector, closest_matches, svg_address
+    face_rect = background_removal.find_face(image)
+    if len(face_rect) > 0:
+        x, y, w, h = face_rect[0]
+        face_image = image[y:y+h, x:x+w, :]
+        without_skin = kassper.skin_removal(face_image, gc_image)
+        crawl_mask = kassper.clutter_removal(without_skin, 200)
+        without_clutter = background_removal.get_masked_image(without_skin, crawl_mask)
+        mask = kassper.get_mask(without_clutter)
+        svg_filename = mask2svg(mask, post_id, svg_address)
+        svg_url = constants.svg_url_prefix + svg_filename
+    else:
+        svg_url = ''
+    return fp_vector, closest_matches, svg_url
