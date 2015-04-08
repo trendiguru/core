@@ -114,4 +114,4 @@ def find_or_create_post(url):
             result = db.posts.insert({"imageURL": url, "fingerprint": fingerprint})
             if type(result) is ObjectId:
                 post = db.posts.find_one({"_id": result})
-    return post
+    return post or {}
