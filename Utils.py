@@ -190,13 +190,12 @@ def lookfor_next_bounded_image(queryobject,image_index=0,only_get_boxed_images=T
         return None
     # print('utils.py:images:'+str(images))
     logging.debug('Utils.py(debug):images:' + str(images))
-    logging.warning('Utils.lookfor_next_bounded, image_index:' + str(image_index)+' only_boxed:'+str(only_get_boxed_images))
     # check for suitable number of images in doc - removed since i wanna check all the bbs
     # if len(images) < min_images_per_doc:  # don't use docs with too few images
     #        print('# images is too small:' + str(len(images)) + ' found and ' + str(min_images_per_doc) + ' are required')
     #        logging.debug('Utils.py(debug):image is marked to be skipped')
     #        return None
-    print('# images:' + str(len(images))+'image_index:' + str(image_index)+' only boxed:'+str(only_get_boxed_images))
+    print('# images:' + str(len(images))+' image_index:' + str(image_index)+' only boxed:'+str(only_get_boxed_images))
 
     try:
         answers["_id"] = str(queryobject["_id"])
@@ -227,19 +226,18 @@ def lookfor_next_bounded_image(queryobject,image_index=0,only_get_boxed_images=T
         if 'skip_image' in entry:
             answers['skip_image'] = entry['skip_image']
 
-        if 'human_bb' in entry:  # got a pic with a bb
-            print('utils.py:there is a human bb entry for:' + str(entry))
+        if 'human_bb' in entry and entry['human_bb'] is not None:  # got a pic with a bb
             answers['bb'] = entry['human_bb']
-            answers['x'] = entry['human_bb'][0]
-            answers['y'] = entry['human_bb'][1]
-            answers['w'] = entry['human_bb'][2]
-            answers['h'] = entry['human_bb'][3]
+#            answers['x'] = entry['human_bb'][0]
+#            answers['y'] = entry['human_bb'][1]
+#            answers['w'] = entry['human_bb'][2]
+#            answers['h'] = entry['human_bb'][3]
+            print('utils.py:about to return ....' + str(entry))
             return answers
 
         elif only_get_boxed_images == False:  # no human_bb in this entry but its ok, return anyway
             return answers
 
-        i = i + 1
 
     print('utils.lookfor_next_bounded_image:no bounded image found in this doc:(')
     logging.debug('utils.lookfor_next_bounded_image - no bounded image found in this doc')
@@ -261,20 +259,27 @@ def lookfor_next_bounded_in_db(current_item=0,current_image=0,only_get_boxed_ima
     # training docs contains lots of different images (URLs) of the same clothing item
     training_collection_cursor = db.training.find()   #.sort _id
 #    doc = next(training_collection_cursor, None)
-    doc = training_collection_cursor[current_item]
     i = current_item
+    doc = training_collection_cursor[i]
+    if doc is None:
+	i = 0 
+	doc = training_collection_cursor[0]
+    if doc is None: 
+	logging.warning('couldnt get any doc from db')
+	return None
     while doc is not None:
  #       print('doc:' + str(doc))
-	logging.warning('calling lookfor_next_bounded')
+	logging.warning('calling lookfor_next_bounded, index='+str(i)+' image='+str(current_image))
         answers = lookfor_next_bounded_image(doc, image_index=current_image,only_get_boxed_images=only_get_boxed_images)
+	logging.warning('returned from  lookfor_next_bounded')
         if answers is not None:
             answers['id'] = str(doc['_id'])
             answers['item_index'] = i
             if only_get_boxed_images:
                 try:
                     if answers["bb"] is not None:  # got a good bb
-                        return answers
 			logging.warning('exiting lookfornext 1, answers:'+str(answers))
+                        return answers
                 except KeyError, e:
                     print 'keyerror on key "%s" which probably does not exist' % str(e)
                     #go to next doc since no bb was found in this one
@@ -282,6 +287,7 @@ def lookfor_next_bounded_in_db(current_item=0,current_image=0,only_get_boxed_ima
 		logging.warning('exiting lookfornext 2, answers:'+str(answers))
                 return answers
         i = i + 1
+	current_image = 0
         doc = training_collection_cursor[i]
         logging.warning("no bounded image found in current doc, trying next")
 
