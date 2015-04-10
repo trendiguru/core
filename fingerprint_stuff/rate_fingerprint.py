@@ -154,7 +154,7 @@ def compare_fingerprints_except_diagonal(image_array1,image_array2,fingerprint_f
     n = 0
     i = 0
     j = 0
-    use_visual_output = False
+    use_visual_output = True
     use_visual_output2 = False
     distance_array=[]
     for entry1 in image_array1:
@@ -202,11 +202,11 @@ def compare_fingerprints_except_diagonal(image_array1,image_array2,fingerprint_f
             print('bad img array 1')
             logging.debug('bad image array 1 in rate_fingerprint.py:compare_fignreprints_ecept_diagonal')
     n_diagonal_elements = i
-    avg_dist = float(tot_dist)/float(n)  #this is the one part thats different between compare_fp_except_diagonal and compare_fp
+    avg_dist = float(tot_dist)/float(n)
     distances_np_array = np.array(distance_array)
     distances_stdev = np.std(distances_np_array)
     distances_mean = np.mean(distances_np_array)
-    print('average distance:'+str(avg_dist)+',stdev'+str(distances_stdev)+',n='+str(n)+',tot='+str(tot_dist)+' diag elements:'+str(i))
+    print('average distance:'+str(distances_mean)+'='+str(avg_dist)+',stdev'+str(distances_stdev)+',n='+str(n)+',tot='+str(tot_dist)+' diag elements:'+str(i))
 #    print('average distance numpy:'+str(distances_mean)+',stdev'+str(distances_stdev))
     return(avg_dist,distances_stdev)
 
