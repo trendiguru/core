@@ -303,7 +303,7 @@ def get_images_from_doc(images):
     '''
     pruned_images = []
     for img in images:
-    	if Utils.good_bb(img):
+    	if Utils.good_bb(img,skip_if_marked_to_skip=True):
 		pruned_images.append(img)
 #    print('pruned images:')
 #    nice_print(pruned_images)
@@ -328,18 +328,18 @@ def calculate_self_confusion_vector(fingerprint_function=fp_core.fp,weights=np.o
     report = {'n_groups':0,'n_images':[]}
     while doc is not None and i<max_items:
 #        print('doc:'+str(doc))
-	images = doc['images']
+        images = doc['images']
         if images is not None:
-		n_images = len(images)
-		n_good = Utils.count_human_bbs_in_doc(images)
-            	if n_good > min_images_per_doc:
-			i = i + 1
-			print('got '+str(n_good)+' bounded images, '+str(min_images_per_doc)+' required, '+str(n_images)+' images tot')
-			tot_answers.append(get_images_from_doc(images))
-			report['n_images'].append(n_good)
-		else:
-			print('not enough bounded boxes (only '+str(n_good)+' found, of '+str(min_images_per_doc)+' required, '+str(n_images)+' images tot',end='\r',sep='')
-   	doc = next(training_collection_cursor, None)
+            n_images = len(images)
+            n_good = Utils.count_human_bbs_in_doc(images,skip_if_marked_to_skip=True)
+            if n_good > min_images_per_doc:
+                i = i + 1
+                print('got '+str(n_good)+' bounded images, '+str(min_images_per_doc)+' required, '+str(n_images)+' images tot')
+                tot_answers.append(get_images_from_doc(images))
+                report['n_images'].append(n_good)
+            else:
+                print('not enough bounded boxes (only '+str(n_good)+' found, of '+str(min_images_per_doc)+' required, '+str(n_images)+' images tot)',end='\n',sep='')
+    doc = next(training_collection_cursor, None)
     confusion_vector,stdev_vector = self_compare(tot_answers,fingerprint_function=fingerprint_function,weights=weights,distance_function=distance_function,distance_power=distance_power)
     print('tot number of groups:'+str(i)+'='+str(len(tot_answers)))
     print('confusion vector:'+str(confusion_vector))
