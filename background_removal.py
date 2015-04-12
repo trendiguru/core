@@ -19,7 +19,7 @@ def find_face(image):
         faces = face_cascades[i].detectMultiScale(
             gray,
             scaleFactor=1.1,
-            minNeighbors=3,
+            minNeighbors=2,
             minSize=(1, 1),
             flags = cv2.cv.CV_HAAR_SCALE_IMAGE
         )
@@ -60,16 +60,14 @@ def bb_mask(image, bounding_box):
         bb_array = bounding_box
     image_w = image.shape[1]
     image_h = image.shape[0]
-    x = bb_array[0]
-    y = bb_array[1]
-    w = bb_array[2]
-    h = bb_array[3]
+    x, y, w, h = bb_array
+    y_down = np.min([image_h-1, y+1.2*h])
+    x_back = np.max([x-0.2*w, 0])
+    y_up = np.max([0, y-0.2*h])
+    x_ahead = np.min([image_w-1, x+1.2*w])
     rectangles = {"BG": [], "FG": [], "PFG": [], "PBG": []}
     rectangles["PFG"].append([x, x+w, y, y+h])
-    rectangles["PBG"].append([0, image_w-1, 0, y])
-    rectangles["PBG"].append([0, x, y, y+h])
-    rectangles["PBG"].append([x+h, image_w-1, y, y+h])
-    rectangles["PBG"].append([0, image_w-1, y+h, image_h-1])
+    rectangles["PBG"].append([x_back, x_ahead, y_up, y_down])
     mask = face_mask(rectangles, image)
     return mask
 
@@ -77,29 +75,17 @@ def bb_mask(image, bounding_box):
 def face_mask(rectangles, image):
     mask = np.zeros(image.shape[:2], dtype=np.uint8)
     for rectangle in rectangles["BG"]:
-        x0 = rectangle[0]
-        x1 = rectangle[1]
-        y0 = rectangle[2]
-        y1 = rectangle[3]
+        x0, x1, y0, y1 = rectangle
         mask[y0:y1, x0:x1] = 0
-    for rectangle in rectangles["FG"]:
-        x0 = rectangle[0]
-        x1 = rectangle[1]
-        y0 = rectangle[2]
-        y1 = rectangle[3]
-        mask[y0:y1, x0:x1] = 1
     for rectangle in rectangles["PBG"]:
-        x0 = rectangle[0]
-        x1 = rectangle[1]
-        y0 = rectangle[2]
-        y1 = rectangle[3]
+        x0, x1, y0, y1 = rectangle
         mask[y0:y1, x0:x1] = 2
     for rectangle in rectangles["PFG"]:
-        x0 = rectangle[0]
-        x1 = rectangle[1]
-        y0 = rectangle[2]
-        y1 = rectangle[3]
+        x0, x1, y0, y1 = rectangle
         mask[y0:y1, x0:x1] = 3
+    for rectangle in rectangles["FG"]:
+        x0, x1, y0, y1 = rectangle
+        mask[y0:y1, x0:x1] = 1
     return mask
 
 
