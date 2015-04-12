@@ -5,6 +5,8 @@ import cv2
 import string
 import logging
 import constants
+import matplotlib.pyplot as plt
+
 
 fingerprint_length = constants.fingerprint_length
 
@@ -80,6 +82,29 @@ def fp(img, bounding_box=None, weights = np.ones(fingerprint_length)):
 
     result_vector = result_vector * weights
     return result_vector
+
+
+def show_fp(img, bounding_box=None, weights = np.ones(fingerprint_length)):
+    fingerprint=fp(img, bounding_box=None, weights = np.ones(fingerprint_length))
+    fig, ax = plt.subplots()
+    ind = np.arange(N)  # the x locations for the groups
+    width = 0.35
+    rects1 = ax.bar(ind, menMeans, width, color='r', yerr=menStd)
+
+    womenMeans = (25, 32, 34, 20, 25)
+    womenStd =   (3, 5, 2, 3, 3)
+    rects2 = ax.bar(ind+width, womenMeans, width, color='y', yerr=womenStd)
+
+# add some text for labels, title and axes ticks
+    ax.set_ylabel('Scores')
+    ax.set_title('Scores by group and gender')
+    ax.set_xticks(ind+width)
+    ax.set_xticklabels( ('G1', 'G2', 'G3', 'G4', 'G5') )
+    ax.legend( (rects1[0], rects2[0]), ('Men', 'Women') )
+
+    plt.show()
+
+
 
 
 def my_range(start, stop, inc):
