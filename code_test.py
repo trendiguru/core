@@ -1,5 +1,5 @@
 __author__ = 'Nadav Paz'
-# soooo.. this is the first test code. You just need to import the wanna-test file and test
+
 import background_removal
 import cv2
 import numpy as np
@@ -23,6 +23,6 @@ def gc2mask_test(image, bb):
     combined_mask = cv2.bitwise_and(fg_mask, bb_mask)                             # for sending the right mask to the fp
     cv2.imshow('4', background_removal.get_masked_image(small_image, combined_mask))
     cv2.waitKey(0)
-
+    return
 
 gc2mask_test(background_removal.get_image(), [186, 200, 238, 475])
