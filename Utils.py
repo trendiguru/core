@@ -122,9 +122,12 @@ def count_human_bbs_in_doc(dict_of_images, skip_if_marked_to_skip=True):
         if good_bb(entry):
             if skip_if_marked_to_skip:
                 if 'skip_image' in entry:
-                    n = n + entry['skip_image'] == False  # only count image if skip_image is False
+                    if entry['skip_image'] == True:
+                        continue  #skip it if its marked to skip and we care about skip marking
+                    else:
+                        n = n + 1   #no 'skip_image' in entry
                 else:
-                    n = n + 1   #no 'skip_image' in entry
+                    n = n + 1
             else:
                 n = n + 1  # dont care if marked to be skipped
     return (n)
@@ -277,7 +280,7 @@ def lookfor_next_bounded_in_db(current_item=0, current_image=0, only_get_boxed_i
     doc = training_collection_cursor[0]
     if doc is None:
         logging.warning('couldnt get any doc from db')
-    return None
+        return None
     while doc is not None:
         #       print('doc:' + str(doc))
         #	logging.warning('calling lookfor_next_bounded, index='+str(i)+' image='+str(current_image))
@@ -290,14 +293,14 @@ def lookfor_next_bounded_in_db(current_item=0, current_image=0, only_get_boxed_i
             if only_get_boxed_images:
                 try:
                     if answers["bb"] is not None:  # got a good bb
-            logging.warning('exiting lookfornext 1, answers:' + str(answers))
-            return answers
-        except KeyError, e:
-        print 'keyerror on key "%s" which probably does not exist' % str(e)
+                        logging.debug('exiting lookfornext 1, answers:' + str(answers))
+                        return answers
+                except KeyError, e:
+                    print 'keyerror on key "%s" which probably does not exist' % str(e)
         #go to next doc since no bb was found in this one
-    else:
-        logging.warning('exiting lookfornext 2, answers:' + str(answers))
-        return answers
+            else:
+                logging.debug('exiting lookfornext 2, answers:' + str(answers))
+                return answers
         i = i + 1
         current_image = 0
         doc = training_collection_cursor[i]
@@ -439,50 +442,47 @@ def insert_bb_into_training_db(receivedData):
     current_item = receivedData["current_item"]
     id = receivedData["id"]
 
-
-if current_item is None or id is None:
-    return {"success": 0, "error": "wasnt given an id or current_iutem to work with"}
+    if current_item is None or id is None:
+        return {"success": 0, "error": "wasnt given an id or current_iutem to work with"}
 
     #        id = vars['_id']
-    print(
-        'default.py:bb:' + str(bb) + ' imageurl:' + str(image_url) + ' skip:' + str(skip_image) + ' current image:' + str(
+    print('default.py:bb:' + str(bb) + ' imageurl:' + str(image_url) + ' skip:' + str(skip_image) + ' current image:' + str(
             current_image) + ' current item:' + str(current_item))
-    logging.debug(
-        'bb:' + str(bb) + ' imageurl:' + str(image_url) + ' skip:' + str(skip_image) + ' current image:' + str(
+    logging.debug('bb:' + str(bb) + ' imageurl:' + str(image_url) + ' skip:' + str(skip_image) + ' current image:' + str(
             current_image) + ' current item:' + str(current_item))
     image_dict = {}
     result_dict = {}
     # find the document  - can do this either by id like thie
     db = pymongo.MongoClient().mydb
-if db is None:
-    return {"success": 0, "error": "could not get db"}
-trainingdb = db.training
-if trainingdb is None:
-    return {"success": 0, "error": "could not get trainingdb"}
+    if db is None:
+        return {"success": 0, "error": "could not get db"}
+    trainingdb = db.training
+    if trainingdb is None:
+        return {"success": 0, "error": "could not get trainingdb"}
     doc = trainingdb.find_one({'_id': objectid.ObjectId(id)})
     #or can do it by looking for item # lke this
     #training_collection_cursor = db.training.find()   #.sort _id
     #doc = training_collection_cursor[current_item]
-if not doc:
-    return {"success": 0, "error": "could not get doc with specified id" + str(id)}
-i = 0
-for image in doc["images"]:
-    if image["url"] == image_url:
-        image["human_bb"] = bb
-        image["skip_image"] = skip_image
-        print('default.py:new image:' + str(image))
-        # subtle error - if two images have same url, only one will get updated causing the other to get shown forever after
-        # therefore dont break here but rather continue adding bb for each image having same url
-        # save edited doc
-        # TODO: check error on updating
-        write_result = db.training.update({"_id": objectid.ObjectId(id)}, {"$set": {"images": doc['images']}})
-        if current_image != i:
-    print('inconsistency - item number ' + str(i) + '+doesnt match')
-    logging.warning('inconsistency - item number ' + str(i) + ' doesnt match')
-    print('write result:' + str(write_result))
-    return {"success": 1}
-i = i + 1
-return {"success": 0, "error": "could not find image w. url:" + str(url) + " in current doc:" + str(doc)}
+    if not doc:
+        return {"success": 0, "error": "could not get doc with specified id" + str(id)}
+    i = 0
+    for image in doc["images"]:
+        if image["url"] == image_url:
+            image["human_bb"] = bb
+            image["skip_image"] = skip_image
+            print('default.py:new image:' + str(image))
+            # subtle error - if two images have same url, only one will get updated causing the other to get shown forever after
+            # therefore dont break here but rather continue adding bb for each image having same url
+            # save edited doc
+            # TODO: check error on updating
+            write_result = db.training.update({"_id": objectid.ObjectId(id)}, {"$set": {"images": doc['images']}})
+            if current_image != i:
+                print('inconsistency - item number ' + str(i) + '+doesnt match')
+                logging.warning('inconsistency - item number ' + str(i) + ' doesnt match')
+            print('write result:' + str(write_result))
+            return {"success": 1}
+        i = i + 1
+    return {"success": 0, "error": "could not find image w. url:" + str(url) + " in current doc:" + str(doc)}
 
 
 class GZipCSVReader:

@@ -339,7 +339,7 @@ def calculate_self_confusion_vector(fingerprint_function=fp_core.fp,weights=np.o
                 report['n_images'].append(n_good)
             else:
                 print('not enough bounded boxes (only '+str(n_good)+' found, of '+str(min_images_per_doc)+' required, '+str(n_images)+' images tot)',end='\n',sep='')
-    doc = next(training_collection_cursor, None)
+        doc = next(training_collection_cursor, None)
     confusion_vector,stdev_vector = self_compare(tot_answers,fingerprint_function=fingerprint_function,weights=weights,distance_function=distance_function,distance_power=distance_power)
     print('tot number of groups:'+str(i)+'='+str(len(tot_answers)))
     print('confusion vector:'+str(confusion_vector))

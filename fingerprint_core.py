@@ -4,14 +4,9 @@ import numpy as np
 import cv2
 import string
 import logging
-"""
-import classify_core
-import Utils
+import constants
 
-DEFAULT_CLASSIFIERS = ["/home/www-data/web2py/applications/fingerPrint/modules/shirtClassifier.xml",
-                       "/home/www-data/web2py/applications/fingerPrint/modules/pantsClassifier.xml",
-                       "/home/www-data/web2py/applications/fingerPrint/modules/dressClassifier.xml"]
-"""
+fingerprint_length = constants.fingerprint_length
 
 def crop_image_to_bb(img, bb_coordinates_string_or_array):
     if isinstance(bb_coordinates_string_or_array, basestring):
@@ -19,21 +14,18 @@ def crop_image_to_bb(img, bb_coordinates_string_or_array):
     else:
         bb_array = bb_coordinates_string_or_array
 
-    x = bb_array[0]
-    y = bb_array[1]
-    w = bb_array[2]
-    h = bb_array[3]
-    hh, ww, d = img.shape
+    x,y,w,h = bb_array
+    hh, ww, d = img.shape   #i think this will fail on grayscale imgs
     if (x + w <= ww) and (y + h <= hh):
 	cropped_img = img[y:y+h,x:x+w]
     else:
         cropped_img = img
         logging.warning('Could not crop. Bad bounding box: imsize:' + str(ww) + ',' + str(hh) +
                         ' vs.:' + str(x + w) + ',' + str(y + h))
+        person = input('Enter your name: ')
 
     return cropped_img
 
-fingerprint_length = 56
 def fp(img, bounding_box=None, weights = np.ones(fingerprint_length)):
     if (bounding_box is not None) and (bounding_box != np.array([0, 0, 0, 0])).all():
         img = crop_image_to_bb(img, bounding_box)
