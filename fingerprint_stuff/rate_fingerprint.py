@@ -30,6 +30,7 @@ import  background_removal
 import pdb 
 import logging
 import constants
+import matplotlib
 
 fingerprint_length = constants.fingerprint_length
 min_images_per_doc = constants.min_images_per_doc
@@ -103,7 +104,7 @@ def compare_fingerprints(image_array1,image_array2,fingerprint_function=fp_core.
         bb1 = entry1['human_bb']
         url1 = entry1['url']
         img_arr1 = Utils.get_cv2_img_array(url1,try_url_locally=True,download=True)
-    	if img_arr1 is not None:
+        if img_arr1 is not None:
             fp1 = fp.fingerprint_function(img_arr1,bounding_box=bb1,weights=weights)
         #	print('fp1:'+str(fp1))
             i = i +1
@@ -113,6 +114,11 @@ def compare_fingerprints(image_array1,image_array2,fingerprint_function=fp_core.
                 cv2.rectangle(img_arr1, (bb1[0],bb1[1]), (bb1[0]+bb1[2], bb1[1]+bb1[3]), color = GREEN,thickness=2)
                 cv2.imshow('im1',img_arr1)
                 k=cv2.waitKey(50)& 0xFF
+                if(fig):
+                    fig = fp_core.show_fp(fp1,fig)
+                else:
+                    fig = fp_core.show_fp(fp1)
+
     #to parallelize
     #[sqrt(i ** 2) for i in range(10)]
     #Parallel(n_jobs=2)(delayed(sqrt)(i ** 2) for i in range(10))
@@ -136,8 +142,8 @@ def compare_fingerprints(image_array1,image_array2,fingerprint_function=fp_core.
                     n=n+1
                 else:
                     print('bad img array 2')
-	    else:
-		    print('bad img array 1')
+        else:
+            print('bad img array 1')
 
     avg_dist = float(tot_dist)/float(n)
     print('average distance:'+str(avg_dist)+',n='+str(n)+',tot='+str(tot_dist))
@@ -172,6 +178,7 @@ def compare_fingerprints_except_diagonal(image_array1,image_array2,fingerprint_f
                 cv2.rectangle(img_arr1, (bb1[0],bb1[1]), (bb1[0]+bb1[2], bb1[1]+bb1[3]), color = GREEN,thickness=2)
                 cv2.imshow('im1',img_arr1)
                 k=cv2.waitKey(50)& 0xFF
+                fig = fp_core.show_fp(fp1)
     #to parallelize
     #[sqrt(i ** 2) for i in range(10)]
     #Parallel(n_jobs=2)(delayed(sqrt)(i ** 2) for i in range(10))
@@ -211,8 +218,8 @@ def compare_fingerprints_except_diagonal(image_array1,image_array2,fingerprint_f
     return(avg_dist,distances_stdev)
 
 def normalize_matrix(matrix):
-	# the matrix should be square and is only populated in top triangle , including the diagonal
-	# so the number of elements is 1+2+...+N  for an  NxN array, which comes to N*(N+1)/2
+    # the matrix should be square and is only populated in top triangle , including the diagonal
+    # so the number of elements is 1+2+...+N  for an  NxN array, which comes to N*(N+1)/2
     n_elements =float(matrix.shape[0]*matrix.shape[0]+matrix.shape[0])/2.0   
     sum = np.sum(matrix)
     avg = sum / n_elements
@@ -226,21 +233,21 @@ def cross_compare(image_sets):
     confusion_matrix = np.zeros((len(image_sets),len(image_sets)))
     print('confusion matrix size:'+str(len(image_sets))+' square')
     for i in range(0,len(image_sets)):
-    	for j in range(i,len(image_sets)):
-		print('comparing group '+str(i)+' to group '+str(j))
-		print('group 1:'+str(image_sets[i]))
-		print('group 2:'+str(image_sets[j]))
-		if (i==j):
-	    		avg_dist = compare_fingerprints_except_diagonal(image_sets[i],image_sets[j])
-		else:
-	    		avg_dist = compare_fingerprints(image_sets[i],image_sets[j])
-		confusion_matrix[i,j]=avg_dist
-		print('confusion matrix is currently:'+str(confusion_matrix))
+        for j in range(i,len(image_sets)):
+            print('comparing group '+str(i)+' to group '+str(j))
+            print('group 1:'+str(image_sets[i]))
+            print('group 2:'+str(image_sets[j]))
+            if (i==j):
+                    avg_dist = compare_fingerprints_except_diagonal(image_sets[i],image_sets[j])
+            else:
+                    avg_dist = compare_fingerprints(image_sets[i],image_sets[j])
+            confusion_matrix[i,j]=avg_dist
+            print('confusion matrix is currently:'+str(confusion_matrix))
 #    normalized_matrix = normalize_matrix(confusion_matrix)
 #    return(normalized_matrix)
     return(confusion_matrix)
 
-def self_compare(image_sets,fingerprint_function=fp_core.fp,weights=np.ones(fingerprint_length),distance_function=NNSearch.distance_1_k,distance_power=1.5):
+def self_compare(image_sets,fingerprint_function=fp_core.fp,weights=np.ones(fingerprint_length),distance_function=NNSearch.distance_1_k,distance_power=0.5):
     '''
     compares image set i to image set i
     '''
@@ -248,11 +255,11 @@ def self_compare(image_sets,fingerprint_function=fp_core.fp,weights=np.ones(fing
     stdev_matrix = np.zeros((len(image_sets)))
 #    print('confusion vector size:'+str(len(image_sets))+' long')
     for i in range(0,len(image_sets)):
-	print('comparing group '+str(i)+' to itself')
-#	print('group '+str(i)+':'+str(image_sets[i]))
-    	avg_dist,stdev = compare_fingerprints_except_diagonal(image_sets[i],image_sets[i],fingerprint_function=fingerprint_function,weights=weights,distance_function=distance_function,distance_power=distance_power)
-	confusion_matrix[i] = avg_dist
-	stdev_matrix[i] = stdev
+        print('comparing group '+str(i)+' to itself')
+    #	print('group '+str(i)+':'+str(image_sets[i]))
+        avg_dist,stdev = compare_fingerprints_except_diagonal(image_sets[i],image_sets[i],fingerprint_function=fingerprint_function,weights=weights,distance_function=distance_function,distance_power=distance_power)
+        confusion_matrix[i] = avg_dist
+        stdev_matrix[i] = stdev
 #	print('confusion vector is currently:'+str(confusion_matrix))
 #    normalized_matrix = normalize_matrix(confusion_matrix)
 #    return(normalized_matrix)
@@ -261,7 +268,7 @@ def self_compare(image_sets,fingerprint_function=fp_core.fp,weights=np.ones(fing
 def mytrace(matrix):
     sum=0
     for i in range(0,matrix.shape[0]):
-    	sum=sum+matrix[i,i]
+        sum=sum+matrix[i,i]
     return(sum)
 
 def calculate_confusion_matrix():
@@ -280,13 +287,13 @@ def calculate_confusion_matrix():
         n_images = len(images)
         n_good = Utils.count_human_bbs_in_doc(images)
         if n_good > min_images_per_doc:
-        	i = i + 1
-                print('got '+str(n_good)+' bounded images, '+str(min_images_per_doc)+' required, '+str(n_images)+' images tot');
-                tot_answers.append(get_images_from_doc(images))
-                report['n_items'].append(n_good)
+            i = i + 1
+            print('got '+str(n_good)+' bounded images, '+str(min_images_per_doc)+' required, '+str(n_images)+' images tot');
+            tot_answers.append(get_images_from_doc(images))
+            report['n_items'].append(n_good)
         else:
                 print('not enough bounded boxes (only '+str(n_good)+' found, of '+str(min_images_per_doc)+' required, '+str(n_images)+' images tot',end='\r',sep='')
-    	doc = next(training_collection_cursor, None)
+        doc = next(training_collection_cursor, None)
     print('tot number of groups:'+str(i)+'='+str(len(tot_answers)))
     confusion_matrix = cross_compare(tot_answers)
     print('confusion matrix:'+str(confusion_matrix))
@@ -295,7 +302,7 @@ def calculate_confusion_matrix():
     report['distance_function'] = 'NNSearch.distance_1_k(fp1, fp2,power=1.5)'
     report['timestamp'] = datetime.datetime.now().strftime("%Y-%m-%d %H:%M")
 #    save_report(report)
-    return(confusion_matrix) 
+    return(confusion_matrix)
 
 def get_images_from_doc(images):
     '''
@@ -303,8 +310,8 @@ def get_images_from_doc(images):
     '''
     pruned_images = []
     for img in images:
-    	if Utils.good_bb(img):
-		pruned_images.append(img)
+        if Utils.good_bb(img,skip_if_marked_to_skip=True):
+            pruned_images.append(img)
 #    print('pruned images:')
 #    nice_print(pruned_images)
     return(pruned_images)
@@ -312,8 +319,8 @@ def get_images_from_doc(images):
 def nice_print(images):
     i=1
     for img in images:
-	print('img '+str(i)+':'+str(img))
-	i=i+1
+        print('img '+str(i)+':'+str(img))
+        i=i+1
 
 
 def calculate_self_confusion_vector(fingerprint_function=fp_core.fp,weights=np.ones(fingerprint_length),distance_function=NNSearch.distance_1_k,distance_power=1.5):
@@ -328,18 +335,18 @@ def calculate_self_confusion_vector(fingerprint_function=fp_core.fp,weights=np.o
     report = {'n_groups':0,'n_images':[]}
     while doc is not None and i<max_items:
 #        print('doc:'+str(doc))
-	images = doc['images']
+        images = doc['images']
         if images is not None:
-		n_images = len(images)
-		n_good = Utils.count_human_bbs_in_doc(images)
-            	if n_good > min_images_per_doc:
-			i = i + 1
-			print('got '+str(n_good)+' bounded images, '+str(min_images_per_doc)+' required, '+str(n_images)+' images tot')
-			tot_answers.append(get_images_from_doc(images))
-			report['n_images'].append(n_good)
-		else:
-			print('not enough bounded boxes (only '+str(n_good)+' found, of '+str(min_images_per_doc)+' required, '+str(n_images)+' images tot',end='\r',sep='')
-   	doc = next(training_collection_cursor, None)
+            n_images = len(images)
+            n_good = Utils.count_human_bbs_in_doc(images,skip_if_marked_to_skip=True)
+            if n_good > min_images_per_doc:
+                i = i + 1
+                print('got '+str(n_good)+' bounded images, '+str(min_images_per_doc)+' required, '+str(n_images)+' images tot')
+                tot_answers.append(get_images_from_doc(images))
+                report['n_images'].append(n_good)
+            else:
+                print('not enough bounded boxes (only '+str(n_good)+' found, of '+str(min_images_per_doc)+' required, '+str(n_images)+' images tot)',end='\n',sep='')
+        doc = next(training_collection_cursor, None)
     confusion_vector,stdev_vector = self_compare(tot_answers,fingerprint_function=fingerprint_function,weights=weights,distance_function=distance_function,distance_power=distance_power)
     print('tot number of groups:'+str(i)+'='+str(len(tot_answers)))
     print('confusion vector:'+str(confusion_vector))
@@ -356,12 +363,12 @@ def calculate_self_confusion_vector(fingerprint_function=fp_core.fp,weights=np.o
     tot_images = 0
     cumulative_error = 0
     for j in range(0,i):
-	weighted_average = weighted_average + report['n_images'][j]*confusion_vector[j]
-	tot_images = tot_images + report['n_images'][j]
-	cumulative_error = cumulative_error + (report['n_images'][j]*stdev_vector[j])*(report['n_images'][j]*stdev_vector[j]) #error adds in quadrature
-	print('error element:'+str((report['n_images'][j]*stdev_vector[j])*(report['n_images'][j]*stdev_vector[j])))
+        weighted_average = weighted_average + report['n_images'][j]*confusion_vector[j]
+        tot_images = tot_images + report['n_images'][j]
+        cumulative_error = cumulative_error + (report['n_images'][j]*stdev_vector[j])*(report['n_images'][j]*stdev_vector[j]) #error adds in quadrature
+        print('error element:'+str((report['n_images'][j]*stdev_vector[j])*(report['n_images'][j]*stdev_vector[j])))
     weighted_average = weighted_average/tot_images
-    cumulative_error = np.sqrt(cumulative_error)/tot_images 
+    cumulative_error = np.sqrt(cumulative_error)/tot_images
     print('weighted_average:'+str(weighted_average))
     report['average_weighted'] = weighted_average
     print('cumulative error:'+str(cumulative_error))
@@ -370,13 +377,13 @@ def calculate_self_confusion_vector(fingerprint_function=fp_core.fp,weights=np.o
 
 def save_report(report):
     try:
-	f = open('fp_ratings.txt', 'a')  #ha!! mode 'w+' .... overwrites the file!!!
+        f = open('fp_ratings.txt', 'a')  #ha!! mode 'w+' .... overwrites the file!!!
     except IOError:
         print ('cannot open fp_ratings.txt')
     else:
-    	print('reporting...'+str(report))
-    	json.dump(report,f,indent=4,sort_keys=True,separators=(',',':'))
-    	f.close()
+        print('reporting...'+str(report))
+        json.dump(report,f,indent=4,sort_keys=True,separators=(',',':'))
+        f.close()
 ###############
 
 def cross_rate_fingerprint():

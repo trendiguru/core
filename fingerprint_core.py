@@ -4,14 +4,11 @@ import numpy as np
 import cv2
 import string
 import logging
-"""
-import classify_core
-import Utils
+import constants
+import matplotlib.pyplot as plt
 
-DEFAULT_CLASSIFIERS = ["/home/www-data/web2py/applications/fingerPrint/modules/shirtClassifier.xml",
-                       "/home/www-data/web2py/applications/fingerPrint/modules/pantsClassifier.xml",
-                       "/home/www-data/web2py/applications/fingerPrint/modules/dressClassifier.xml"]
-"""
+
+fingerprint_length = constants.fingerprint_length
 
 def crop_image_to_bb(img, bb_coordinates_string_or_array):
     if isinstance(bb_coordinates_string_or_array, basestring):
@@ -19,21 +16,18 @@ def crop_image_to_bb(img, bb_coordinates_string_or_array):
     else:
         bb_array = bb_coordinates_string_or_array
 
-    x = bb_array[0]
-    y = bb_array[1]
-    w = bb_array[2]
-    h = bb_array[3]
-    hh, ww, d = img.shape
+    x,y,w,h = bb_array
+    hh, ww, d = img.shape   #i think this will fail on grayscale imgs
     if (x + w <= ww) and (y + h <= hh):
 	cropped_img = img[y:y+h,x:x+w]
     else:
         cropped_img = img
         logging.warning('Could not crop. Bad bounding box: imsize:' + str(ww) + ',' + str(hh) +
                         ' vs.:' + str(x + w) + ',' + str(y + h))
+        person = input('Enter your name: ')
 
     return cropped_img
 
-fingerprint_length = 56
 def fp(img, bounding_box=None, weights = np.ones(fingerprint_length)):
     if (bounding_box is not None) and (bounding_box != np.array([0, 0, 0, 0])).all():
         img = crop_image_to_bb(img, bounding_box)
@@ -88,6 +82,32 @@ def fp(img, bounding_box=None, weights = np.ones(fingerprint_length)):
 
     result_vector = result_vector * weights
     return result_vector
+
+
+def show_fp(fingerprint,fig=None):
+    if fig:
+        plt.close(fig)
+    plt.close('all')
+
+    fig, ax = plt.subplots()
+    ind = np.arange(fingerprint_length)  # the x locations for the groups
+    width = 0.35
+
+    energy_maxindex=8
+    hue_maxindex = energy_maxindex +25
+    sat_maxindex=    hue_maxindex+25
+    rects1 = ax.bar(ind[0:energy_maxindex], fingerprint[0:energy_maxindex], width, color='r')   #, yerr=menStd)
+    rects2 = ax.bar(ind[energy_maxindex+1: hue_maxindex], fingerprint[energy_maxindex+1: hue_maxindex], width, color='g')   #, yerr=menStd)
+    rects3 = ax.bar(ind[hue_maxindex+1: sat_maxindex], fingerprint[hue_maxindex+1: sat_maxindex], width, color='b')   #, yerr=menStd)
+
+# add some text for labels, title and axes tisatcks
+    ax.set_ylabel('y')
+    ax.set_title('fingerprint')
+    ax.set_xticks(ind+width)
+#    ax.set_xticklabels( ('G1', 'G2', 'G3', 'G4', 'G5') )
+   # ax.legend( (rects1[0]), ('Men', 'Women') )
+    plt.show(block=False)
+    return(fig)
 
 
 def my_range(start, stop, inc):
