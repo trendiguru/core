@@ -433,10 +433,14 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='rate ye olde fingerprinte')
  #   parser.add_argument('integers', metavar='N', type=int, nargs='+',
   #                     help='an integer for the accumulator')
-    parser.add_argument('--use_visual_output', default=True,
+    parser.add_argument('--use_visual_output', default=False,
                        help='show output once for each item')
+    parser.add_argument('--use_visual_output2', default=False,
+                       help='show output for each image')
     args = parser.parse_args()
-    print('use_visual_output:'+str(use_visual_output))
+    use_visual_output=args.use_visual_output
+    use_visual_output2=args.use_visual_output2
+    print('use_visual_output:'+str(use_visual_output)+' use_visual_output2:'+str(use_visual_output2))
 
     pr = cProfile.Profile()
     pr.enable()
