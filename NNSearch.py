@@ -1,3 +1,5 @@
+#TODO - write test functions for main functions here
+
 __author__ = 'jeremy'
 from scipy import spatial
 import scipy
@@ -6,9 +8,11 @@ import sys
 import random
 import json  #needed to parse command line input as dict instead of string
 import pdb
+import constants
 from operator import itemgetter#, attrgetter
+import logging
 
-K = 1.5 # .5 is the same as Euclidean
+K = constants.K # .5 is the same as Euclidean
 FP_KEY = "fingerPrintVector"
 
 
@@ -152,10 +156,14 @@ def find_n_nearest_neighbors(target_dict, entries, number_of_matches, distance_f
 
 def distance_1_k(fp1, fp2, k=K):
     """This calculates distance between to arrays. When k = .5 this is the same as Euclidean."""
-    f12 = np.abs(np.array(fp1) - np.array(fp2))
-    f12_p = np.power(f12, 1 / k)
-    return np.power(np.sum(f12_p), k)
-
+    if fp1 is not None and fp2 is not None:
+        f12 = np.abs(np.array(fp1) - np.array(fp2))
+        f12_p = np.power(f12, 1 / k)
+        return np.power(np.sum(f12_p), k)
+    else:
+        print("null fingerprint sent to distance_1_k ")
+        logging.warning("null fingerprint sent to distance_1_k ")
+        return(None)
 
 
 # bubble sort
