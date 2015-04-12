@@ -98,8 +98,7 @@ def compare_fingerprints(image_array1,image_array2,fingerprint_function=fp_core.
     n = 0
     i = 0
     j = 0
-    use_visual_output = True
-    use_visual_output2 = False
+
     for entry1 in image_array1:
         bb1 = entry1['human_bb']
         url1 = entry1['url']
@@ -424,6 +423,8 @@ def self_rate_fingerprint(fingerprint_function=fp_core.fp,weights=np.ones(finger
     return(same_item_avg)
 
 
+use_visual_output = False
+use_visual_output2 = False
 
 if __name__ == '__main__':
     pr = cProfile.Profile()
