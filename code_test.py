@@ -17,7 +17,7 @@ def gc2mask_test(image, bb):
     fg_mask = background_removal.get_fg_mask(small_image, bb)                     # returns the grab-cut mask (if bb => PFG-PBG gc, if !bb => face gc)
     cv2.imshow('2', background_removal.get_masked_image(small_image, fg_mask))
     cv2.waitKey(0)
-    bb_mask = background_removal.get_bb_mask(small_image, bb)                     # bounding box mask
+    bb_mask = background_removal.get_binary_bb_mask(small_image, bb)                     # bounding box mask
     cv2.imshow('3', background_removal.get_masked_image(small_image, bb_mask))
     cv2.waitKey(0)
     combined_mask = cv2.bitwise_and(fg_mask, bb_mask)                             # for sending the right mask to the fp

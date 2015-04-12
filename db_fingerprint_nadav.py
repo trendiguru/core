@@ -101,7 +101,7 @@ def main():
                                 "Document id: {0}, BB_list: {1}".format(doc["id"], str(bounding_box_list)))
                 mask = np.ones((np.shape(image)))
             else:
-                bb_mask = background_removal.get_bb_mask(image, chosen_bounding_box)
+                bb_mask = background_removal.get_binary_bb_mask(image, chosen_bounding_box)
                 mask = cv2.bitwise_and(mask, bb_mask)
         try:
             fingerprint = fp.fp(image, mask)

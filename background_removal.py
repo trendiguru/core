@@ -158,7 +158,7 @@ def image_white_bckgnd(image, mask):
     return image
 
 
-def get_bb_mask(image, bb=None):
+def get_binary_bb_mask(image, bb=None):
     """
     The function returns a ones mask within the bb regions, and an image-size ones matrix in case of None bb
     :param image:
