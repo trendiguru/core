@@ -2,9 +2,11 @@
 #compute stdev and add to report
 #done: fix ConnectionError: HTTPConnectionPool(host='img.sheinside.com', port=80): Max retries exceeded with url: /images/lookbook/wearing/201428/04181405101082542276157.jpg (Caused by <class 'socket.error'>: [Errno 104] Connection reset by peer)
 #TODO make sure fp is correct when image is missing/not available (make sure its not counted)
+
 #from joblib import Parallel, delayed
 #NOTE - cross-compare not yet implementing weights, fp_function,distance_function,distance_power
 from __future__ import print_function
+import fingerprint_core as fp_core
 from multiprocessing import Pool
 import datetime
 import json
@@ -19,7 +21,6 @@ import unittest
 import imp
 import sys
 import pymongo
-import fingerprint_core as fp_core
 import Utils
 import NNSearch
 import numpy as np
@@ -31,6 +32,8 @@ import pdb
 import logging
 import constants
 import matplotlib
+import argparse
+
 
 fingerprint_length = constants.fingerprint_length
 min_images_per_doc = constants.min_images_per_doc
@@ -427,6 +430,14 @@ use_visual_output = False
 use_visual_output2 = False
 
 if __name__ == '__main__':
+    parser = argparse.ArgumentParser(description='rate ye olde fingerprinte')
+ #   parser.add_argument('integers', metavar='N', type=int, nargs='+',
+  #                     help='an integer for the accumulator')
+    parser.add_argument('--use_visual_output', default=True,
+                       help='show output once for each item')
+    args = parser.parse_args()
+    print('use_visual_output:'+str(use_visual_output))
+
     pr = cProfile.Profile()
     pr.enable()
     weights=np.ones(fingerprint_length)

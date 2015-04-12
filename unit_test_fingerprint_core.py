@@ -8,6 +8,7 @@ import fingerprint_core
 import constants
 import cv2
 import numpy as np
+import math
 
 fingerprint_length = constants.fingerprint_length
 
@@ -33,6 +34,8 @@ class OutcomesTest(unittest.TestCase):
                 k=cv2.waitKey(50)& 0xFF
                 fingerprint = fingerprint_core.fp(img_arr, bounding_box=None, weights = np.ones(fingerprint_length))
                 return_val = fingerprint_core.show_fp(fingerprint)
+                for i in range(0,1000000):
+                    a=math.cos(math.sin(i))
                 self.assertTrue(return_val)
 
         else:
