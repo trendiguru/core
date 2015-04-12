@@ -1,14 +1,16 @@
 __author__ = 'liorsabag'
 
-import pymongo
-import fingerprint as fp
-from NNSearch import findNNs
-import cv2
-import background_removal
-import Utils
-import numpy as np
 import os
 import subprocess
+
+import pymongo
+import cv2
+import numpy as np
+
+import fingerprint as fp
+from NNSearch import findNNs
+import background_removal
+import Utils
 import kassper
 import constants
 
@@ -85,10 +87,10 @@ def got_bb(image_url, post_id, bb=None, number_of_results=10, category_id=None):
     small_image, resize_ratio = background_removal.standard_resize(image, 400)    # shrink image for faster process
     bb = [int(b) for b in (np.array(bb)/resize_ratio)]                            # shrink bb in the same ratio
     fg_mask = background_removal.get_fg_mask(small_image, bb)                     # returns the grab-cut mask (if bb => PFG-PBG gc, if !bb => face gc)
-    bb_mask = background_removal.get_binary_bb_mask(small_image, bb)                     # bounding box mask
-    combined_mask = cv2.bitwise_and(fg_mask, bb_mask)                             # for sending the right mask to the fp
-    gc_image = background_removal.get_masked_image(small_image, combined_mask)
-    fp_vector, closest_matches = find_top_n_results(small_image, combined_mask, number_of_results, category_id)
+    # bb_mask = background_removal.get_binary_bb_mask(small_image, bb)            # bounding box mask
+    # combined_mask = cv2.bitwise_and(fg_mask, bb_mask)                           # for sending the right mask to the fp
+    gc_image = background_removal.get_masked_image(small_image, fg_mask)
+    fp_vector, closest_matches = find_top_n_results(small_image, fg_mask, number_of_results, category_id)
     face_rect = background_removal.find_face(small_image)
     if len(face_rect) > 0:
         x, y, w, h = face_rect[0]
