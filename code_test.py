@@ -1,8 +1,11 @@
 __author__ = 'Nadav Paz'
 
-import background_removal
 import cv2
 import numpy as np
+from bson import json_util
+
+import background_removal
+import find_similar_mongo
 
 
 def gc2mask_test(image, bb):
@@ -25,4 +28,7 @@ def gc2mask_test(image, bb):
     cv2.waitKey(0)
     return
 
-gc2mask_test(background_removal.get_image(), [186, 200, 238, 475])
+
+inputs = json_util.loads(
+    '{"url":"http://msc.wcdn.co.il/w/w-635/1684386-5.jpg","bb":"[137.2972972972973,188.80597014925374,356.97297297297297,319.2537313432836]","keyword":"mens-outerwear","post_id":"552a79359e31f134f0f9c401"}')
+find_similar_mongo.got_bb(inputs["url"], inputs["post_id"], json_util.loads(inputs["bb"]), 10, inputs["keyword"])
