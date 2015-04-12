@@ -30,6 +30,7 @@ import  background_removal
 import pdb 
 import logging
 import constants
+import matplotlib
 
 fingerprint_length = constants.fingerprint_length
 min_images_per_doc = constants.min_images_per_doc
@@ -113,6 +114,11 @@ def compare_fingerprints(image_array1,image_array2,fingerprint_function=fp_core.
                 cv2.rectangle(img_arr1, (bb1[0],bb1[1]), (bb1[0]+bb1[2], bb1[1]+bb1[3]), color = GREEN,thickness=2)
                 cv2.imshow('im1',img_arr1)
                 k=cv2.waitKey(50)& 0xFF
+                if(fig):
+                    fig = fp_core.show_fp(fp1,fig)
+                else:
+                    fig = fp_core.show_fp(fp1)
+
     #to parallelize
     #[sqrt(i ** 2) for i in range(10)]
     #Parallel(n_jobs=2)(delayed(sqrt)(i ** 2) for i in range(10))
@@ -172,6 +178,7 @@ def compare_fingerprints_except_diagonal(image_array1,image_array2,fingerprint_f
                 cv2.rectangle(img_arr1, (bb1[0],bb1[1]), (bb1[0]+bb1[2], bb1[1]+bb1[3]), color = GREEN,thickness=2)
                 cv2.imshow('im1',img_arr1)
                 k=cv2.waitKey(50)& 0xFF
+                fig = fp_core.show_fp(fp1)
     #to parallelize
     #[sqrt(i ** 2) for i in range(10)]
     #Parallel(n_jobs=2)(delayed(sqrt)(i ** 2) for i in range(10))

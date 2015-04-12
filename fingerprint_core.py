@@ -84,27 +84,25 @@ def fp(img, bounding_box=None, weights = np.ones(fingerprint_length)):
     return result_vector
 
 
-def show_fp(img, bounding_box=None, weights = np.ones(fingerprint_length)):
-    fingerprint=fp(img, bounding_box=None, weights = np.ones(fingerprint_length))
-    fig, ax = plt.subplots()
-    ind = np.arange(N)  # the x locations for the groups
-    width = 0.35
-    rects1 = ax.bar(ind, menMeans, width, color='r', yerr=menStd)
+def show_fp(fingerprint,fig=None):
+    if fig:
+        plt.close(fig)
+    plt.close('all')
 
-    womenMeans = (25, 32, 34, 20, 25)
-    womenStd =   (3, 5, 2, 3, 3)
-    rects2 = ax.bar(ind+width, womenMeans, width, color='y', yerr=womenStd)
+    fig, ax = plt.subplots()
+    ind = np.arange(fingerprint_length)  # the x locations for the groups
+    width = 0.35
+
+    rects1 = ax.bar(ind, fingerprint, width, color='r')   #, yerr=menStd)
 
 # add some text for labels, title and axes ticks
-    ax.set_ylabel('Scores')
-    ax.set_title('Scores by group and gender')
+    ax.set_ylabel('y')
+    ax.set_title('fingerprint')
     ax.set_xticks(ind+width)
-    ax.set_xticklabels( ('G1', 'G2', 'G3', 'G4', 'G5') )
-    ax.legend( (rects1[0], rects2[0]), ('Men', 'Women') )
-
-    plt.show()
-
-
+#    ax.set_xticklabels( ('G1', 'G2', 'G3', 'G4', 'G5') )
+   # ax.legend( (rects1[0]), ('Men', 'Women') )
+    plt.show(block=False)
+    return(fig)
 
 
 def my_range(start, stop, inc):
