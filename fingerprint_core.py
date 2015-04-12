@@ -93,9 +93,14 @@ def show_fp(fingerprint,fig=None):
     ind = np.arange(fingerprint_length)  # the x locations for the groups
     width = 0.35
 
-    rects1 = ax.bar(ind, fingerprint, width, color='r')   #, yerr=menStd)
+    energy_maxindex=8
+    hue_maxindex = energy_maxindex +25
+    sat_maxindex=    hue_maxindex+25
+    rects1 = ax.bar(ind[0:energy_maxindex], fingerprint[0:energy_maxindex], width, color='r')   #, yerr=menStd)
+    rects2 = ax.bar(ind[energy_maxindex+1: hue_maxindex], fingerprint[energy_maxindex+1: hue_maxindex], width, color='g')   #, yerr=menStd)
+    rects3 = ax.bar(ind[hue_maxindex+1: sat_maxindex], fingerprint[hue_maxindex+1: sat_maxindex], width, color='b')   #, yerr=menStd)
 
-# add some text for labels, title and axes ticks
+# add some text for labels, title and axes tisatcks
     ax.set_ylabel('y')
     ax.set_title('fingerprint')
     ax.set_xticks(ind+width)
