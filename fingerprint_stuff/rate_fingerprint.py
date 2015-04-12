@@ -162,8 +162,6 @@ def compare_fingerprints_except_diagonal(image_array1,image_array2,fingerprint_f
     n = 0
     i = 0
     j = 0
-    use_visual_output = True
-    use_visual_output2 = False
     distance_array=[]
     for entry1 in image_array1:
         i = i +1
