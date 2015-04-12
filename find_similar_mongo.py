@@ -45,8 +45,9 @@ def mask2svg(mask, filename, address):
     :param address: address string
     :return: the path of the svg file
     """
+    mask = np.logical_not(mask)
     os.chdir(address)
-    cv2.imwrite(filename + '.bmp', mask, 'CV_IMWRITE_PXM_BINARY')                                # save as a bmp image
+    cv2.imwrite(filename + '.bmp', mask)                                # save as a bmp image
     subprocess.call('potrace -s ' + filename + '.bmp' + ' -o ' + filename + '.svg', shell=True)  # create the svg
     os.remove(filename + '.bmp')                                                                 # remove the bmp mask
     return filename + '.svg'
@@ -88,7 +89,7 @@ def got_bb(image_url, post_id, bb=None, number_of_results=10, category_id=None):
     combined_mask = cv2.bitwise_and(fg_mask, bb_mask)                             # for sending the right mask to the fp
     gc_image = background_removal.get_masked_image(small_image, combined_mask)
     fp_vector, closest_matches = find_top_n_results(small_image, combined_mask, number_of_results, category_id)
-    face_rect = background_removal.find_face(image)
+    face_rect = background_removal.find_face(small_image)
     if len(face_rect) > 0:
         x, y, w, h = face_rect[0]
         face_image = image[y:y+h, x:x+w, :]

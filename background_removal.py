@@ -7,14 +7,15 @@ import numpy as np
 import string
 from Tkinter import Tk
 from tkFileDialog import askopenfilename
+import constants
 
 
 def find_face(image):
     gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
-    face_cascades = [cv2.CascadeClassifier('haarcascade_frontalface_alt2.xml'),
-                     cv2.CascadeClassifier('haarcascade_frontalface_alt.xml'),
-                     cv2.CascadeClassifier('haarcascade_frontalface_alt_tree.xml'),
-                     cv2.CascadeClassifier('haarcascade_frontalface_default.xml')]
+    face_cascades = [cv2.CascadeClassifier(constants.classifiers_folder + 'haarcascade_frontalface_alt2.xml'),
+                     cv2.CascadeClassifier(constants.classifiers_folder + 'haarcascade_frontalface_alt.xml'),
+                     cv2.CascadeClassifier(constants.classifiers_folder + 'haarcascade_frontalface_alt_tree.xml'),
+                     cv2.CascadeClassifier(constants.classifiers_folder + 'haarcascade_frontalface_default.xml')]
     for i in range(0, 3, 1):
         faces = face_cascades[i].detectMultiScale(
             gray,
