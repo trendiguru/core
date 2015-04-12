@@ -2,9 +2,11 @@
 #compute stdev and add to report
 #done: fix ConnectionError: HTTPConnectionPool(host='img.sheinside.com', port=80): Max retries exceeded with url: /images/lookbook/wearing/201428/04181405101082542276157.jpg (Caused by <class 'socket.error'>: [Errno 104] Connection reset by peer)
 #TODO make sure fp is correct when image is missing/not available (make sure its not counted)
+
 #from joblib import Parallel, delayed
 #NOTE - cross-compare not yet implementing weights, fp_function,distance_function,distance_power
 from __future__ import print_function
+import fingerprint_core as fp_core
 from multiprocessing import Pool
 import datetime
 import json
@@ -19,7 +21,6 @@ import unittest
 import imp
 import sys
 import pymongo
-import fingerprint_core as fp_core
 import Utils
 import NNSearch
 import numpy as np
@@ -31,6 +32,8 @@ import pdb
 import logging
 import constants
 import matplotlib
+import argparse
+
 
 fingerprint_length = constants.fingerprint_length
 min_images_per_doc = constants.min_images_per_doc
@@ -98,8 +101,7 @@ def compare_fingerprints(image_array1,image_array2,fingerprint_function=fp_core.
     n = 0
     i = 0
     j = 0
-    use_visual_output = True
-    use_visual_output2 = False
+
     for entry1 in image_array1:
         bb1 = entry1['human_bb']
         url1 = entry1['url']
@@ -160,8 +162,6 @@ def compare_fingerprints_except_diagonal(image_array1,image_array2,fingerprint_f
     n = 0
     i = 0
     j = 0
-    use_visual_output = True
-    use_visual_output2 = False
     distance_array=[]
     for entry1 in image_array1:
         i = i +1
@@ -424,8 +424,22 @@ def self_rate_fingerprint(fingerprint_function=fp_core.fp,weights=np.ones(finger
     return(same_item_avg)
 
 
+use_visual_output = False
+use_visual_output2 = False
 
 if __name__ == '__main__':
+    parser = argparse.ArgumentParser(description='rate ye olde fingerprinte')
+ #   parser.add_argument('integers', metavar='N', type=int, nargs='+',
+  #                     help='an integer for the accumulator')
+    parser.add_argument('--use_visual_output', default=False,
+                       help='show output once for each item')
+    parser.add_argument('--use_visual_output2', default=False,
+                       help='show output for each image')
+    args = parser.parse_args()
+    use_visual_output=args.use_visual_output
+    use_visual_output2=args.use_visual_output2
+    print('use_visual_output:'+str(use_visual_output)+' use_visual_output2:'+str(use_visual_output2))
+
     pr = cProfile.Profile()
     pr.enable()
     weights=np.ones(fingerprint_length)
