@@ -5,7 +5,7 @@ fingerprint_length = 56
 
 # fp rating related constants
 min_images_per_doc = 10  # item has to have at least this number of pics
-max_items = 100  # max number of items to consider for rating fingerprint
+max_items = 10  # max number of items to consider for rating fingerprint
 
 # classifier to category relation
 classifier_to_category_dict = {"dressClassifier.xml": ["dresses", "bridal-mother-dresses", "bridal-bridesmaid-dresses",
