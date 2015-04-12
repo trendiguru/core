@@ -45,8 +45,9 @@ def mask2svg(mask, filename, address):
     :param address: address string
     :return: the path of the svg file
     """
+    mask = np.logical_not(mask)
     os.chdir(address)
-    cv2.imwrite(filename + '.bmp', mask, 'CV_IMWRITE_PXM_BINARY')                                # save as a bmp image
+    cv2.imwrite(filename + '.bmp', mask)                                # save as a bmp image
     subprocess.call('potrace -s ' + filename + '.bmp' + ' -o ' + filename + '.svg', shell=True)  # create the svg
     os.remove(filename + '.bmp')                                                                 # remove the bmp mask
     return filename + '.svg'
