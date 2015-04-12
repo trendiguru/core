@@ -43,6 +43,9 @@ max_image_val = 666
 svg_address = '/var/www/static/svgs/'
 
 svg_url_prefix = 'http://extremeli.trendi.guru/static/svgs/'
+
 #fp rating related constants
 min_images_per_doc = 10  #item has to have at least this number of pics
 max_items = 100  #max number of items to consider for rating fingerprint
+
+nadav = 'awesome'

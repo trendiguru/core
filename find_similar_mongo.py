@@ -49,7 +49,7 @@ def mask2svg(mask, filename, address):
     os.chdir(address)
     cv2.imwrite(filename + '.bmp', mask)                                # save as a bmp image
     subprocess.call('potrace -s ' + filename + '.bmp' + ' -o ' + filename + '.svg', shell=True)  # create the svg
-    os.remove(filename + '.bmp')                                                                 # remove the bmp mask
+    # os.remove(filename + '.bmp')                                                                 # remove the bmp mask
     return filename + '.svg'
 
 
@@ -97,8 +97,8 @@ def got_bb(image_url, post_id, bb=None, number_of_results=10, category_id=None):
         crawl_mask = kassper.clutter_removal(without_skin, 200)
         without_clutter = background_removal.get_masked_image(without_skin, crawl_mask)
         mask = kassper.get_mask(without_clutter)
-        svg_filename = mask2svg(mask, post_id, svg_address)
-        svg_url = constants.svg_url_prefix + svg_filename
     else:
-        svg_url = ''
+        mask = kassper.get_mask(gc_image)
+    svg_filename = mask2svg(mask, post_id, svg_address)
+    svg_url = constants.svg_url_prefix + svg_filename
     return fp_vector, closest_matches, svg_url
