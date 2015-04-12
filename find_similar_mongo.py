@@ -45,7 +45,7 @@ def mask2svg(mask, filename, address):
     :param address: address string
     :return: the path of the svg file
     """
-    mask = np.logical_not(mask)
+    mask = 255 - mask
     os.chdir(address)
     cv2.imwrite(filename + '.bmp', mask)                                # save as a bmp image
     subprocess.call('potrace -s ' + filename + '.bmp' + ' -o ' + filename + '.svg', shell=True)  # create the svg
