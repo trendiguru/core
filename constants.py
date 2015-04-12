@@ -7,6 +7,8 @@ fingerprint_length = 56
 min_images_per_doc = 10  # item has to have at least this number of pics
 max_items = 100  # max number of items to consider for rating fingerprint
 
+classifiers_folder = "/home/ubuntu/Dev/trendi_guru_modules/classifiers/"
+
 # classifier to category relation
 classifier_to_category_dict = {"dressClassifier.xml": ["dresses", "bridal-mother-dresses", "bridal-bridesmaid-dresses",
                                                        "maternity-dresses"],
