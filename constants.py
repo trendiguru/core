@@ -42,3 +42,5 @@ max_image_val = 666
 svg_address = '/var/www/static/svgs/'
 
 svg_url_prefix = 'http://extremeli.trendi.guru/static/svgs/'
+
+nadav = 'awesome'
