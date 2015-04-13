@@ -8,7 +8,7 @@ def fp(img, mask):
     hsv = cv2.cvtColor(img, cv2.COLOR_BGR2HSV)
     # OpenCV uses  H: 0 - 180, S: 0 - 255, V: 0 - 255
     # histograms
-    bins = 25
+    bins = 60
     n_pixels = cv2.countNonZero(mask)
     hist_hue = cv2.calcHist([hsv], [0], mask, [bins], [0, 180])
     hist_hue = [item for sublist in hist_hue for item in sublist]  # flatten nested
