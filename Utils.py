@@ -1,18 +1,20 @@
 __author__ = 'liorsabag'
-import time
 import csv
 import gzip
 import json
-import numpy as np
 import requests
 from cv2 import imread, imdecode, imwrite
 import logging
-from bson import objectid
-import pymongo
 import os
 from requests import ConnectionError
 import time
+
+import numpy as np
+from bson import objectid
+import pymongo
+
 import constants
+
 
 min_images_per_doc = constants.min_images_per_doc
 
@@ -95,7 +97,7 @@ def get_cv2_img_array(url_or_path_to_image_file_or_cv2_image_array, try_url_loca
     if not (isinstance(img_array, np.ndarray) and isinstance(img_array[0][0], np.ndarray)):
         logging.warning("Bad image - check url/path/array:" + str(
             url_or_path_to_image_file_or_cv2_image_array) + 'try locally' + str(try_url_locally) + ' dl:' + str(
-            download) + ' dir:' + str(download_directory)+ 'imgarray[0][0]='+str(img_array[0][0]))
+            download) + ' dir:' + str(download_directory))
         return (None)
     # if we got good image and need to save locally :
     if download:
@@ -227,7 +229,7 @@ def lookfor_next_bounded_image(queryobject):
         if 'human_bb' in entry:  # got a pic without a bb
             urlN = entry['url']
             print('utils.py:there is a human bb entry for:' + str(entry))
-            if entry[human_bb] is None:
+            if entry['human_bb'] is None:
                 print('utils.py:human_bb is None for:' + str(entry))
                 return (urlN,[0,0,0,0],skip_image)
             elif not isinstance(entry["human_bb"], list):
@@ -452,6 +454,7 @@ def test_lookfor_next():
     doc = next(training_collection_cursor, None)
     resultDict = {}
     while doc is not None:
+        url = None  # kill error
         if url:
             resultDict["url"] = url
             resultDict["_id"] = str(doc['_id'])
@@ -466,6 +469,7 @@ def test_lookfor_next():
                 print 'hi there was a keyerror on key "%s" which probably does not exist' % str(e)
             return resultDict
         else:
+            prefix = 'none'  # kill error
             print("no unbounded image found for string:" + str(prefix) + " in current doc")
             logging.debug("no unbounded image found for string:" + str(prefix) + " in current doc")
         doc = next(training_collection_cursor, None)
@@ -566,7 +570,7 @@ def insert_bb_into_training_db(receivedData):
             print('write result:' + str(write_result))
             return {"success": 1}
         i = i + 1
-    return {"success": 0, "error": "could not find image w. url:" + str(url) + " in current doc:" + str(doc)}
+    return {"success": 0, "error": "could not find image w. url:" + str(image_url) + " in current doc:" + str(doc)}
 
 
 class GZipCSVReader:
