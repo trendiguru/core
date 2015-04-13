@@ -100,7 +100,7 @@ def got_bb(image_url, post_id, bb=None, number_of_results=10, category_id=None):
         mask = kassper.get_mask(without_clutter)
     else:
         mask = kassper.get_mask(gc_image)
-    fp_vector, closest_matches = find_top_n_results(small_image, mask, number_of_results, category_id)
+    fp_vector, closest_matches = find_top_n_results(gc_image, mask, number_of_results, category_id)
     svg_filename = mask2svg(mask, post_id, svg_address)
     svg_url = constants.svg_url_prefix + svg_filename
     return fp_vector, closest_matches, svg_url
