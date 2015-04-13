@@ -110,6 +110,7 @@ def find_top_n_results_using_grabcut(image_url, post_id=None, bb=None, number_of
     image = Utils.get_cv2_img_array(image_url)  # turn the URL into a cv2 image
     small_image, resize_ratio = background_removal.standard_resize(image, 400)  # shrink image for faster process
     bb = [int(b) for b in (np.array(bb) / resize_ratio)]  # shrink bb in the same ratio
+
     fg_mask = background_removal.get_fg_mask(small_image,bb)  # returns the grab-cut mask (if bb => PFG-PBG gc, if !bb => face gc)
 #    bb_mask = background_removal.get_binary_bb_mask(small_image, bb)  # bounding box mask
 #    combined_mask = cv2.bitwise_and(fg_mask, bb_mask)  # for sending the right mask to the fp
