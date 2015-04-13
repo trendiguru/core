@@ -116,4 +116,4 @@ def find_top_n_results_using_grabcut(image_url, post_id, bb=None, number_of_resu
     combined_mask = cv2.bitwise_and(fg_mask, bb_mask)  # for sending the right mask to the fp
     gc_image = background_removal.get_masked_image(small_image, combined_mask)
     fp_vector, closest_matches = find_top_n_results(small_image, combined_mask, number_of_results, category_id)
-    return fp_vector, closest_matches        mask = kassper.get_mask(gc_image)
+    return fp_vector, closest_matches
