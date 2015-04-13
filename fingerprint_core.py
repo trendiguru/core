@@ -6,9 +6,88 @@ import string
 import logging
 import constants
 import matplotlib.pyplot as plt
-
+import classify_core
+import Utils
 
 fingerprint_length = constants.fingerprint_length
+
+def find_color_percentages(img_array):
+    """
+
+    :param img_array:
+    :return:bins for each color including black, white, gray
+    """
+
+    white_saturation_max = 36  # maximum S value for a white pixel14 from the gimp , 14*100/255
+    white_value_min = 214 #  minimum V value for a white pixel this is 84 * 100/255
+    black_value_max = 23 # maximum V value for a black pixel, 15*100/255
+    n_colors=10
+    color_limits=range(0,180+int(180/n_colors),int(180/n_colors))  #edges of bins for histogram
+    #print(color_limits)
+
+    h_arr=hsv[:,:,0]
+    s_arr=hsv[:,:,1]
+    v_arr=hsv[:,:,2]
+
+   # mask[0] = image[0]==0
+   # mask[1] = image[1]==0
+   # mask[2] = image[2]==0
+    #masksofi = mask[0] * mask[1] * mask[2]
+
+    h, w, depth = img_array.shape
+    area = h*w
+
+    black_count=np.sum(v_arr<black_value_max)
+    black_percentage=black_count/area
+
+    #white is where saturation is less than sat_max and value>val_min
+    white_mask=(s_arr<white_saturation_max) *(v_arr>white_value_min)
+    white_count=np.sum(white_mask)
+    white_percentage=white_count/area
+
+    grey_count=np.sum((s_arr<white_saturation_max) *( v_arr<=white_value_min) *( v_arr>=black_value_max))
+    grey_percentage=grey_count/area
+
+    non_white=np.invert(white_mask)
+    color_mask=non_white*(v_arr>=black_value_max)   #colors are where value>black, but not white
+    colors_count=np.sum(color_mask)
+    print("tot color count:"+str(tot_colors))
+    color_counts=[]
+    for i in range(0,n_colors):
+        color_percentages.append(np.sum(  color_mask*(h_arr<color_limits[i+1])*(h_arr>=color_limits[i])))
+        if DEBUG:
+            print('color '+str(i)+' count ='+str(color_percentages[i]))
+            print('color percentages:'+str(color_percentages))
+        color_percentages[i]=color_percentages[i]/area  #turn pixel count into percentage
+    all_colors=np.zeros(3)
+    all_colors[0]=white_percentage
+    all_colors[1]=black_percentage
+    all_colors[2]=grey_percentage
+    all_colors=np.append(all_colors,color_counts)
+
+    #   all_colors=np.concatenate(all_colors,color_counts)
+    if DEBUG:
+        print('white black grey colors:'+str(all_colors))   #order is : white, black, grey, color_count[0]...color_count[n_colors]
+        print('sum:'+str(np.sum(all_colors)))
+ #   all_colors=color_counts
+ #   np.append(all_colors,white_count)
+ #   np.append(all_colors,black_count)
+ #   all_colors.append(grey_count)
+
+    #dominant_color_indices, dominant_colors = zip(*sorted(enumerate(all_colors), key=itemgetter(1), reverse=True))
+    #above is for array, now working with numpy aray
+
+# the order of dominant colors is what ccny guys used, if we just have vector in order of color i think its just as good
+#so for now the following 3 lines are not used
+    dominant_color_indices=np.argsort(all_colors, axis=-1, kind='quicksort', order=None)
+    dominant_color_indices = dominant_color_indices[::-1]
+    dominant_color_percentages=np.sort(all_colors, axis=-1, kind='quicksort', order=None)
+    dominant_color_percentages = dominant_color_percentages[::-1]
+
+    if DEBUG:
+        print('color percentages:'+str(dominant_color_percentages)+' indices:'+str(dominant_color_indices))
+    t1=time.time()
+    return(all_colors)
 
 def crop_image_to_bb(img, bb_coordinates_string_or_array):
     if isinstance(bb_coordinates_string_or_array, basestring):
@@ -28,27 +107,30 @@ def crop_image_to_bb(img, bb_coordinates_string_or_array):
 
     return cropped_img
 
-def fp(img, bounding_box=None, weights = np.ones(fingerprint_length)):
+def fp(img, bounding_box=None, weights = np.ones(fingerprint_length) , histogram_length=25, use_intensity_histogram=False):
+
     if (bounding_box is not None) and (bounding_box != np.array([0, 0, 0, 0])).all():
         img = crop_image_to_bb(img, bounding_box)
     #crop out the outer 1/s of the image for color/texture-based features
+    if img is None:
+        return None
     s = 5
     h = img.shape[1]
     w = img.shape[0]
-    r = [h / s, w / s, h - 2 * h / s, w - 2 * w / s]
 
-    roi = np.zeros((r[3], r[2], 3), np.uint8)
-    # should use imageop.crop here instead, its prob. faster
-    for xx in range(r[2]):
-        for yy in range(r[3]):
-            roi[yy, xx, :] = img[yy + r[1], xx + r[0], :]
+    if h==0 or w==0:
+        return None
+
+    r = [h / s, w / s, h - 2 * h / s, w - 2 * w / s]
+#    roi = np.zeros((r[3], r[2], 3), np.uint8)
+    roi = crop_image_to_bb(img,r)
+    n_pixels = roi.shape[0] * roi.shape[1]
 
     hsv = cv2.cvtColor(roi, cv2.COLOR_BGR2HSV)
 
     #OpenCV uses  H: 0 - 180, S: 0 - 255, V: 0 - 255
     #histograms
-    bins = 25
-    n_pixels = roi.shape[0] * roi.shape[1]
+    bins = histogram_length
 
     hist_hue = cv2.calcHist([hsv], [0], None, [bins], [0, 180])
     hist_hue = [item for sublist in hist_hue for item in sublist]  #flatten nested
@@ -79,6 +161,8 @@ def fp(img, bounding_box=None, weights = np.ones(fingerprint_length)):
 
     result_vector = [hue_uniformity, sat_uniformity, int_uniformity, hue_entropy, sat_entropy, int_entropy]
     result_vector = np.concatenate((result_vector, hist_hue, hist_sat), axis=0)
+    if use_intensity_histogram:
+        result_vector = np.concatenate((result_vector,hist_int), axis=0)
 
     result_vector = result_vector * weights
     return result_vector
@@ -116,239 +200,3 @@ def my_range(start, stop, inc):
         yield r
         r += inc
 
-
-def gaussian1(x, x0, c, sigma):
-    return c * np.exp(-(x - x0) ** 2 / (2 * sigma ** 2))
-
-"""
-def classify_and_fingerprint(path_to_image_file):
-
-    img = Utils.get_cv2_img_array(path_to_image_file)
-    roi = []
-    classification_dict = classify_core.classify_image_with_classifiers(img, *DEFAULT_CLASSIFIERS)
-    bb_coordinates = classification_dict["/home/www-data/web2py/applications/fingerPrint/modules/shirtClassifier.xml"]
-    if len(bb_coordinates) > 0:
-        if bb_coordinates[0] is not None:
-            shirt_found = True
-            roi = crop_image_to_bb(img, bb_coordinates[0])
-        else:
-            roi = img
-            bb_coordinates = [[0, 0, 0, 0]]
-            logging.debug("in fingerprint_core.py: len(bb_coordinates)>0 but BB[0] is None -- REALLY WEIRD:")
-            print(bb_coordinates)
-
-    else:
-        #        roi = None  #if no BB was formed , don't return an answer!!!!
-        print("in fingerPrint2.py:bad roi (could not crop?)-using entire img - len(BB)!>0")
-        roi = img
-        bb_coordinates = [[0, 0, 0, 0]]
-    if roi is not None:
-        fingerprint = fp(roi)
-    else:
-        print("in fingerPrint2.py:bad roi (could not crop?) - using entire img (again)")
-        fingerprint_length = 56
-        fingerprint = [0 for x in range(fingerprint_length)]
-        fingerprint[0] = -1
-        print("in fingerPrint2.py:fp=" + str(fingerprint))
-
-
-    # right now, we're only doing shirts, so it's binary
-    # 0 - nothing found, 1 - at least one shirt found.
-    # even within this simplified case, still need to figure out
-    # how to deal with multiple shirts in an image
-    classification_list = [0]
-
-    logging.debug('in fingerPrint2.py:classify_and_fingerprint:fingerprint=' + str(fingerprint))
-    logging.debug('in fingerPrint2.py:classify_and_fingerprint:BB=' + str(bb_coordinates))
-    return classification_list, fingerprint, bb_coordinates
-
-
-#takes classifier file path
-def classify_and_fingerprint_with_classifier(path_to_image_file, classifier_xml):
-    #pdb.set_trace()
-    print("in fingerPrint2:classify_and_fingerprint:path_to_image_file: " + str(path_to_image_file))
-    REMOTE_FILE = False
-    item_found = False
-    fingerprint = ""
-    classification_dict = {}
-    #read arg from command line if none given to function
-    if path_to_image_file is not None:
-        PATH_TO_FILE = path_to_image_file
-        #else:
-        #wtf is supposed to happen here - who is calling this from command line??
-
-    #we want to be able to read URL as well as local file path
-    if "://" in path_to_image_file:
-        FILENAME = path_to_image_file.split('/')[-1].split('#')[0].split('?')[0]
-        res = urllib.urlretrieve(PATH_TO_FILE, FILENAME)
-        PATH_TO_FILE = FILENAME
-        REMOTE_FILE = True
-
-    #pdb.set_trace()
-    #main prog starts here
-    img = cv2.imread(PATH_TO_FILE)
-    roi = []
-    classification_dict = classify_core.classify_image_with_classifiers(img, classifier_xml)
-    BB_coordinates = classification_dict[classifier_xml]
-    if len(BB_coordinates) > 0:
-        if BB_coordinates[0] is not None:
-            item_found = True
-            roi = crop_image_to_bb(img, BB_coordinates[0])
-        else:
-            roi = img
-            BB_coordinates = [[0, 0, 0, 0]]
-            print("in fingerPrint2.py: len(BB_coordinates)>0 but BB[0] is None -- REALLY WEIRD:")
-            print(BB_coordinates)
-
-    else:
-        #        roi = None  #if no BB was formed , don't return an answer!!!!
-        print("in fingerPrint2.py:bad roi (could not crop?)-using entire img - len(BB)!>0")
-        roi = img
-        BB_coordinates = [[0, 0, 0, 0]]
-    if roi is not None:
-        fingerprint = fp(roi)
-    else:
-        print("in fingerPrint2.py:bad roi (could not crop?) - using entire img (again)")
-        fingerprint_length = 56
-        fingerprint = [0 for x in range(fingerprint_length)]
-        fingerprint[0] = -1
-        print("in fingerPrint2.py:fp=" + str(fingerprint))
-
-    if REMOTE_FILE:
-        os.remove(PATH_TO_FILE)
-
-    # right now, we're only doing shirts, so it's binary
-    # 0 - nothing found, 1 - at least one shirt found.
-    # even within this simplified case, still need to figure out
-    # how to deal with multiple shirts in an image
-    classification_list = []
-    if item_found:
-        classification_list.append(1)
-    else:
-        classification_list.append(0)
-
-    print('in fingerPrint2.py:classify_and_fingerprint:fingerprint=' + str(fingerprint))
-    print('in fingerPrint2.py:classify_and_fingerprint:BB=' + str(BB_coordinates))
-    return classification_list, fingerprint, BB_coordinates
-
-
-#  classification_list, fingerprint, bounding_box_list = fp2.classify_and_fingerprint_with_classifier_and_human_bb(row.IMAGEURL, classifier_xml,boundin
-#takes classifier file path and human 'known good' bounding box
-def classify_and_fingerprint_with_classifier_and_human_bb(path_to_image_file, classifier_xml, human_bounding_box):
-
-    img = Utils.get_cv2_img_array(path_to_image_file)
-    roi = []
-    classification_dict = classify_core.classify_image_with_classifiers(img, classifier_xml)
-    BB_coordinates = [human_bounding_box]
-    if len(BB_coordinates) > 0:
-        if BB_coordinates[0] is not None:
-            item_found = True
-            roi = crop_image_to_bb(img, BB_coordinates[0])
-        else:
-            roi = img
-            BB_coordinates = [[0, 0, 0, 0]]
-            print(
-                "in fingerPrint2:classify_and_fp_withClassifierAndHumanBB: len(BB_coordinates)>0 but BB[0] is None -- REALLY WEIRD:")
-            print(BB_coordinates)
-
-    else:
-        #        roi = None  #if no BB was formed , don't return an answer!!!!
-        print(
-            "in fingerPrint2.py:classify_and_fp+withCLassifierAndHumanBB:bad roi (could not crop?)-using entire img - len(BB)!>0")
-        roi = img
-        BB_coordinates = [[0, 0, 0, 0]]
-    if roi is not None:
-        fingerprint = fp(roi)
-    else:
-        print("in fingerPrint2.py:classify_and_fpWithClassifierAndHumanBB:bad roi (could not crop?) - using entire img")
-        fingerprint_length = 56
-        fingerprint = [0 for x in range(fingerprint_length)]
-        fingerprint[0] = -1
-        print("in fingerPrint2.py:fp=" + str(fingerprint))
-
-    if REMOTE_FILE:
-        os.remove(PATH_TO_FILE)
-
-    # right now, we're only doing shirts, so it's binary
-    # 0 - nothing found, 1 - at least one shirt found.
-    # even within this simplified case, still need to figure out
-    # how to deal with multiple shirts in an image
-    classification_list = []
-    if item_found:
-        classification_list.append(1)
-    else:
-        classification_list.append(0)
-
-    print('in fingerPrint2.py:classify_and_fingerprint_with_classifier_and_humanBB:fingerprint=' + str(fingerprint))
-    print('in fingerPrint2.py:classify_and_fingerprint_with_classifier_and_humanBB:BB=' + str(BB_coordinates))
-    return classification_list, fingerprint, BB_coordinates
-
-
-def classify_and_fingerprint_dresses(path_to_image_file):
-    #pdb.set_trace()
-    print("in fingerPrint2:classify_and_fingerprint_dresses:path_to_image_file: " + str(path_to_image_file))
-    REMOTE_FILE = False
-    item_found = False
-    fingerprint = ""
-    classification_dict = {}
-    #read arg from command line if none given to function
-    if path_to_image_file is not None:
-        PATH_TO_FILE = path_to_image_file
-        #else:
-        #wtf is supposed to happen here - who is calling this from command line??
-
-    #we want to be able to read URL as well as local file path
-    if "://" in path_to_image_file:
-        FILENAME = path_to_image_file.split('/')[-1].split('#')[0].split('?')[0]
-        res = urllib.urlretrieve(PATH_TO_FILE, FILENAME)
-        PATH_TO_FILE = FILENAME
-        REMOTE_FILE = True
-
-    #pdb.set_trace()
-    #main prog starts here
-    img = cv2.imread(PATH_TO_FILE)
-    roi = []
-    classification_dict = classify.classify_image(img)
-    BB_coordinates = classification_dict[
-        "/home/www-data/web2py/applications/fingerPrint/modules/dressClassifier001.xml"]
-    if len(BB_coordinates) > 0:
-        if BB_coordinates[0] is not None:
-            item_found = True
-            roi = crop_image_to_bb(img, BB_coordinates[0])
-        else:
-            roi = img
-            BB_coordinates = [[0, 0, 0, 0]]
-            print("in fingerPrint2.py: len(BB_coordinates)>0 but BB[0] is None -- REALLY WEIRD:")
-            print(BB_coordinates)
-
-    else:
-        #        roi = None  #if no BB was formed , don't return an answer!!!!
-        print("in fingerPrint2.py:bad roi (could not crop?)-using entire img - len(BB)!>0")
-        roi = img
-        BB_coordinates = [[0, 0, 0, 0]]
-    if roi is not None:
-        fingerprint = fp(roi)
-    else:
-        print("in fingerPrint2.py:bad roi (could not crop?) - using entire img (again)")
-        fingerprint_length = 56
-        fingerprint = [0 for x in range(fingerprint_length)]
-        fingerprint[0] = -1
-        print("in fingerPrint2.py:fp=" + str(fingerprint))
-
-    if REMOTE_FILE:
-        os.remove(PATH_TO_FILE)
-
-    # right now, we're only doing shirts, so it's binary
-    # 0 - nothing found, 1 - at least one shirt found.
-    # even within this simplified case, still need to figure out
-    # how to deal with multiple shirts in an image
-    classification_list = []
-    if item_found:
-        classification_list.append(2)
-    else:
-        classification_list.append(0)
-
-    print('in fingerPrint2.py:classify_and_fingerprint_dresses:fingerprint=' + str(fingerprint))
-    print('in fingerPrint2.py:classify_and_fingerprint_dresses:BB=' + str(BB_coordinates))
-    return classification_list, fingerprint, BB_coordinates
-"""
