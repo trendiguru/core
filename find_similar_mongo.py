@@ -8,7 +8,7 @@ import cv2
 import numpy as np
 
 import fingerprint as fp
-from NNSearch import findNNs
+import NNSearch
 import background_removal
 import Utils
 import kassper
@@ -103,7 +103,7 @@ def find_top_n_results(image, mask, number_of_results=10, category_id=None):
 
     color_fp = fp.fp(image, mask)
     target_dict = {"clothingClass": category_id, "fingerPrintVector": color_fp}
-    closest_matches = findNNs(target_dict, db_fingerprint_list, number_of_results)
+    closest_matches = NNSearch.findNNs(target_dict, db_fingerprint_list, number_of_results)
     return color_fp.tolist(), closest_matches
 
 
