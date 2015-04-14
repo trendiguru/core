@@ -325,8 +325,8 @@ def self_compare(image_sets, fingerprint_function=fp_core.fp, weights=np.ones(fi
         print('attempting to use ' + str(n_cpus) + ' cpus')
         p = Pool(n_cpus)
         answer_matrices = p.map(compare_wrapper, [image_sets[i] for i in range(0, len(image_sets))])
-        confusion_matrix = answer_matrices[0, :]
-        stdev_matrix = answer_matrices[1, :]
+        confusion_matrix = [a[0] for a in answer_matrices]
+        stdev_matrix = [a[1] for a in answer_matrices]
         print('conf matrix:' + str(confusion_matrix))
         print('stdev matrix:' + str(stdev_matrix))
         print('orig  matrix:' + str(answer_matrices))
