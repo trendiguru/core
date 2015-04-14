@@ -4,7 +4,8 @@ import numpy as np
 import cv2
 
 
-def fp(img, mask):
+def fp(img, mask=None):
+    mask = mask or np.ones((img.shape[0], img.shape[1]))
     hsv = cv2.cvtColor(img, cv2.COLOR_BGR2HSV)
     # OpenCV uses  H: 0 - 180, S: 0 - 255, V: 0 - 255
     # histograms
