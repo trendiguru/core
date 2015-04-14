@@ -13,7 +13,7 @@ import datetime
 import json
 import fingerprint_core as fp_core
 import cv2
-import utils.cpus as cpu_count
+import utils.cpu_count as cpu_count
 
 
 # import default
@@ -101,35 +101,39 @@ def lookfor_next_imageset():
 def compare_fingerprints(image_array1, image_array2, fingerprint_function=fp_core.fp,
                          weights=np.ones(fingerprint_length), distance_function=NNSearch.distance_1_k,
                          distance_power=1.5):
+    # assert(len(image_array1) == len(image_array2)) #maybe not require that these be the same set...
+    #    print('fp_func:'+str(fingerprint_function))
+    #    print('weights:'+str(weights))
+    #    print('distance_function:'+str(distance_function))
+    #    print('distance_power:'+str(distance_power))
     good_results = []
     tot_dist = 0
     n = 0
     i = 0
     j = 0
-
+    distance_array = []
     for entry1 in image_array1:
+        i = i + 1
+        # print('image 1:'+str(entry1))
         bb1 = entry1['human_bb']
         url1 = entry1['url']
         img_arr1 = Utils.get_cv2_img_array(url1, try_url_locally=True, download=True)
         if img_arr1 is not None:
-            fp1 = fp_core.fingerprint_function(img_arr1, bounding_box=bb1, weights=weights)
-            #	print('fp1:'+str(fp1))
-            i = i + 1
-            #		print('image '+str(i)+':'+str(entry1))
+            # background_removal.standard_resize(image, 400)
+            fp1 = fingerprint_function(img_arr1, bounding_box=bb1, weights=weights)
+            #		print('fp1:'+str(fp1))
             j = 0
             if use_visual_output:
                 cv2.rectangle(img_arr1, (bb1[0], bb1[1]), (bb1[0] + bb1[2], bb1[1] + bb1[3]), color=GREEN, thickness=2)
                 cv2.imshow('im1', img_arr1)
                 k = cv2.waitKey(50) & 0xFF
-                if (fig):
-                    fig = fp_core.show_fp(fp1, fig)
-                else:
-                    fig = fp_core.show_fp(fp1)
-
-                    #to parallelize
-                    #[sqrt(i ** 2) for i in range(10)]
-                    #Parallel(n_jobs=2)(delayed(sqrt)(i ** 2) for i in range(10))
+                fig = fp_core.show_fp(fp1)
+                # to parallelize
+                #[sqrt(i ** 2) for i in range(10)]
+                #Parallel(n_jobs=2)(delayed(sqrt)(i ** 2) for i in range(10))
             for entry2 in image_array2:
+                j = j + 1
+                # print('image 2:'+str(entry2))
                 bb2 = entry2['human_bb']
                 url2 = entry2['url']
                 img_arr2 = Utils.get_cv2_img_array(url2, try_url_locally=True, download=True)
@@ -139,24 +143,32 @@ def compare_fingerprints(image_array1, image_array2, fingerprint_function=fp_cor
                                       thickness=2)
                         cv2.imshow('im2', img_arr2)
                         k = cv2.waitKey(50) & 0xFF
-                    j = j + 1
-                    #				print('image '+str(j)+':'+str(entry2))
-                    fp2 = fp_core.fingerprint_function(img_arr2, bounding_box=bb2, weights=weights)
+                        # pdb.set_trace()
+                    fp2 = fingerprint_function(img_arr2, bounding_box=bb2, weights=weights)
                     #print('fp2:'+str(fp2))
-                    #pdb.set_trace()
-                    dist = NNSearch.distance_function(fp1, fp2, distance_power)
+                    dist = distance_function(fp1, fp2, k=distance_power)
+                    print('comparing image ' + str(i) + ' to ' + str(j) + ' gave distance:' + str(
+                        dist) + ' totdist:' + str(tot_dist) + '             ', end='\r', sep='')
+                    # if i != j:  #dont record comparison of image to itself
+                    distance_array.append(dist)
                     tot_dist = tot_dist + dist
-                    print('distance:' + str(dist) + ' totdist:' + str(tot_dist) + ' when comparing images ' + str(
-                        i) + ',' + str(j) + '       ', end='\r', sep='')
                     n = n + 1
                 else:
                     print('bad img array 2')
+                    logging.debug('bad image array 1 in rate_fingerprint.py:compare_fignreprints_ecept_diagonal')
         else:
             print('bad img array 1')
-
+            logging.debug('bad image array 1 in rate_fingerprint.py:compare_fignreprints_ecept_diagonal')
+    n_diagonal_elements = i
     avg_dist = float(tot_dist) / float(n)
-    print('average distance:' + str(avg_dist) + ',n=' + str(n) + ',tot=' + str(tot_dist))
-    return (avg_dist)
+    distances_np_array = np.array(distance_array)
+    distances_stdev = np.std(distances_np_array)
+    distances_mean = np.mean(distances_np_array)
+    print(
+        'average distance:' + str(distances_mean) + '=' + str(avg_dist) + ',stdev' + str(distances_stdev) + ',n=' + str(
+            n) + ',tot=' + str(tot_dist) + ' diag elements:' + str(i))
+    # print('average distance numpy:'+str(distances_mean)+',stdev'+str(distances_stdev))
+    return (avg_dist, distances_stdev)
 
 
 def compare_fingerprints_except_diagonal(image_array1, image_array2, fingerprint_function=fp_core.fp,
@@ -239,87 +251,7 @@ def check_img_array(image_array):
         return False
 
 
-def compare_fingerprints_except_diagonal(image_array1, image_array2, fingerprint_function=fp_core.fp,
-                                         weights=np.ones(fingerprint_length), distance_function=NNSearch.distance_1_k,
-                                         distance_power=1.5):
-    #    assert(len(image_array1) == len(image_array2)) #maybe not require that these be the same set...
-    #    print('fp_func:'+str(fingerprint_function))
-    #    print('weights:'+str(weights))
-    #    print('distance_function:'+str(distance_function))
-    #    print('distance_power:'+str(distance_power))
-    good_results = []
-    tot_dist = 0
-    n = 0
-    i = 0
-    j = 0
-    use_visual_output = False
-    use_visual_output2 = False
-    distance_array = []
-    for entry1 in image_array1:
-        #	print('image 1:'+str(entry1))
-        bb1 = entry1['human_bb']
-        url1 = entry1['url']
-        img_arr1 = Utils.get_cv2_img_array(url1, try_url_locally=True, download=True)
-        if Utils.bounding_box_inside_image(img_arr1, bb1):
-            i += 1
-            j = 0
-            #background_removal.standard_resize(image, 400)
-            fp1 = fingerprint_function(img_arr1, bounding_box=bb1, weights=weights)
-            #		print('fp1:'+str(fp1))
-            if fp1 is None:
-                logging.error('fp1 is none in rate_fingerprint')
-                print('fp1 is none in rate_fingerprint')
-            else:
-                if use_visual_output:
-                    cv2.rectangle(img_arr1, (bb1[0], bb1[1]), (bb1[0] + bb1[2], bb1[1] + bb1[3]), color=GREEN,
-                                  thickness=2)
-                    cv2.imshow('im1', img_arr1)
-                    k = cv2.waitKey(50) & 0xFF
-                #to parallelize
-                #[sqrt(i ** 2) for i in range(10)]1
-                #Parallel(n_jobs=2)(delayed(sqrt)(i ** 2) for i in range(10))
-                for entry2 in image_array2:
-                    #			print('image 2:'+str(entry2))
-                    bb2 = entry2['human_bb']
-                    url2 = entry2['url']
-                    img_arr2 = Utils.get_cv2_img_array(url2, try_url_locally=True, download=True)
-                    if Utils.bounding_box_inside_image(img_arr2, bb2):
-                        j = j + 1
-                        if use_visual_output2:
-                            cv2.rectangle(img_arr2, (bb2[0], bb2[1]), (bb2[0] + bb2[2], bb2[1] + bb2[3]), color=BLUE,
-                                          thickness=2)
-                            cv2.imshow('im2', img_arr2)
-                            k = cv2.waitKey(50) & 0xFF
-                        #pdb.set_trace()
-                        fp2 = fingerprint_function(img_arr2, bounding_box=bb2, weights=weights)
-                        if fp2 is not None:
-                            #print('fp2:'+str(fp2))
-                            dist = distance_function(fp1, fp2, k=distance_power)
-                            if i != j:
-                                distance_array.append(dist)
-                            tot_dist = tot_dist + dist
-                            print('distance:' + str(dist) + ' totdist:' + str(tot_dist) + ' comparing images ' +
-                                  str(i) + ',' + str(j) + '      ', end='\r', sep='')
-                            n = n + 1
-                        else:
-                            print('fp2 is None in rate_fingerprint')
-                            logging.error('fp2 is None in rate_fingerprint')
-                    else:
-                        print('bad img array 2')
-                        logging.debug('bad image array 1 in rate_fingerprint.py:compare_fingreprints_except_diagonal')
-        else:
-            print('bad img array 1')
-            logging.debug('bad image array 1 in rate_fingerprint.py:compare_fingreprints_except_diagonal')
-    n_diagonal_elements = i
-    avg_dist = float(tot_dist) / float(
-        n - i)  #this is the one part thats different between compare_fp_except_diagonal and compare_fp
-    distances_np_array = np.array(distance_array)
-    distances_stdev = np.std(distances_np_array)
-    distances_mean = np.mean(distances_np_array)
-    print('average distance:' + str(avg_dist) + ',stdev' + str(distances_stdev) + ',n=' + str(n) + ',tot=' + str(
-        tot_dist) + ' diag elements:' + str(i))
-    #    print('average distance numpy:'+str(distances_mean)+',stdev'+str(distances_stdev))
-    return (avg_dist, distances_stdev)
+
 
 
 def normalize_matrix(matrix):
@@ -352,6 +284,15 @@ def cross_compare(image_sets):
             #    normalized_matrix = normalize_matrix(confusion_matrix)
             #    return(normalized_matrix)
     return (confusion_matrix)
+
+
+def compare_wrapper(image_set, fingerprint_function=fp_core.fp, weights=np.ones(fingerprint_length),
+                    distance_function=NNSearch.distance_1_k, distance_power=0.5):
+    avg_dist, stdev = compare_fingerprints_except_diagonal(image_set, image_set, fingerprint_function, weights,
+                                                           distance_function, distance_power)
+    confusion_matrix = avg_dist
+    stdev_matrix = stdev
+    return ([confusion_matrix, stdev_matrix])
 
 
 def self_compare(image_sets, fingerprint_function=fp_core.fp, weights=np.ones(fingerprint_length),
