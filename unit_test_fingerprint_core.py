@@ -37,8 +37,9 @@ class OutcomesTest(unittest.TestCase):
         if img_arr is not None:
                 cv2.imshow('im1',img_arr)
                 k=cv2.waitKey(50)& 0xFF
-                mask = np.ones((img_arr.shape()))
+                mask = np.ones((img_arr.shape[0], img_arr.shape[1]), np.uint8)
                 fingerprint = fingerprint_core.fp(img_arr, mask)
+
                 return_val = fingerprint_core.show_fp(fingerprint)
                 for i in range(0,1000000):
                     a=math.cos(math.sin(i))
