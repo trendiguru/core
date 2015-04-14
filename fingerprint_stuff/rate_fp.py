@@ -482,10 +482,13 @@ def calculate_self_confusion_vector(fingerprint_function=fp_core.fp, weights=np.
     print('tot number of groups:' + str(i) + '=' + str(len(tot_answers)))
     print('confusion vector:' + str(confusion_vector))
     report['n_groups'] = i
-    report['confusion_vector'] = confusion_vector.tolist()  #this is required for json dumping
-    report['error_vector'] = stdev_vector.tolist()  #this is required for json dumping
+    if not isinstance(confusion_vector, list):
+        report['confusion_vector'] = confusion_vector.tolist()  # this is required for json dumping
+    if not isinstance(stdev_vector, list):
+        report['error_vector'] = stdev_vector.tolist()  #this is required for json dumping
     #   report['fingerprint_function']=fingerprint_function
-    report['weights'] = weights.tolist()
+    if not isinstance(weights, list):
+        report['weights'] = weights.tolist()
     #report['distance_function'] = distance_function
     report['distance_power'] = distance_power
     report['timestamp'] = datetime.datetime.now().strftime("%Y-%m-%d %H:%M")
