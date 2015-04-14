@@ -26,7 +26,7 @@ def find_color_percentages(img_array):
     color_limits=range(0,180+int(180/n_colors),int(180/n_colors))  #edges of bins for histogram
     #print(color_limits)
 
-    hsv = cv2.cvtColor(roi, cv2.COLOR_BGR2HSV)
+    hsv = cv2.cvtColor(None, cv2.COLOR_BGR2HSV)
     h_arr=hsv[:,:,0]
     s_arr=hsv[:,:,1]
     v_arr=hsv[:,:,2]
@@ -53,13 +53,13 @@ def find_color_percentages(img_array):
     non_white=np.invert(white_mask)
     color_mask=non_white*(v_arr>=black_value_max)   #colors are where value>black, but not white
     colors_count=np.sum(color_mask)
-    print("tot color count:"+str(tot_colors))
+    # print("tot color count:"+str(tot_colors))
     color_counts=[]
+    color_percentages = []
     for i in range(0,n_colors):
         color_percentages.append(np.sum(  color_mask*(h_arr<color_limits[i+1])*(h_arr>=color_limits[i])))
-        if DEBUG:
-            print('color '+str(i)+' count ='+str(color_percentages[i]))
-            print('color percentages:'+str(color_percentages))
+        print('color ' + str(i) + ' count =' + str(color_percentages[i]))
+        print('color percentages:' + str(color_percentages))
         color_percentages[i]=color_percentages[i]/area  #turn pixel count into percentage
     all_colors=np.zeros(3)
     all_colors[0]=white_percentage
@@ -68,9 +68,10 @@ def find_color_percentages(img_array):
     all_colors=np.append(all_colors,color_counts)
 
     #   all_colors=np.concatenate(all_colors,color_counts)
-    if DEBUG:
-        print('white black grey colors:'+str(all_colors))   #order is : white, black, grey, color_count[0]...color_count[n_colors]
-        print('sum:'+str(np.sum(all_colors)))
+
+    print('white black grey colors:' + str(
+        all_colors))  # order is : white, black, grey, color_count[0]...color_count[n_colors]
+    print('sum:' + str(np.sum(all_colors)))
  #   all_colors=color_counts
  #   np.append(all_colors,white_count)
  #   np.append(all_colors,black_count)
@@ -86,9 +87,7 @@ def find_color_percentages(img_array):
     dominant_color_percentages=np.sort(all_colors, axis=-1, kind='quicksort', order=None)
     dominant_color_percentages = dominant_color_percentages[::-1]
 
-    if DEBUG:
-        print('color percentages:'+str(dominant_color_percentages)+' indices:'+str(dominant_color_indices))
-    t1=time.time()
+    print('color percentages:' + str(dominant_color_percentages) + ' indices:' + str(dominant_color_indices))
     return(all_colors)
 
 def crop_image_to_bb(img, bb_coordinates_string_or_array):
