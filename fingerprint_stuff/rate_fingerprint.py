@@ -12,7 +12,9 @@ import json
 
 import cv2
 
-import fingerprint_core as fp_core
+import fp_core as fp_core
+
+
 
 
 
