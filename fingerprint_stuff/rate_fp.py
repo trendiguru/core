@@ -26,7 +26,7 @@ cmd_subfolder = os.path.realpath(
 if cmd_subfolder not in sys.path:
     sys.path.insert(0, cmd_subfolder)
 
-import utils.cpu_count as cpu_count
+import cpu_count as cpu_count
 
 
 
@@ -207,7 +207,7 @@ def compare_fingerprints_except_diagonal(image_array1, image_array2, fingerprint
         img_arr1 = Utils.get_cv2_img_array(url1, try_url_locally=True, download=True)
         if img_arr1 is not None:
             #background_removal.standard_resize(image, 400)
-            fp1 = fingerprint_function(img_arr1, bounding_box=bb1, weights=weights)
+            fp1 = fingerprint_function(img_arr1)
             #		print('fp1:'+str(fp1))
             j = 0
             if use_visual_output:
@@ -231,7 +231,7 @@ def compare_fingerprints_except_diagonal(image_array1, image_array2, fingerprint
                         cv2.imshow('im2', img_arr2)
                         k = cv2.waitKey(50) & 0xFF
                         #pdb.set_trace()
-                    fp2 = fingerprint_function(img_arr2, bounding_box=bb2, weights=weights)
+                    fp2 = fingerprint_function(img_arr2)
                     #print('fp2:'+str(fp2))
                     dist = distance_function(fp1, fp2, k=distance_power)
                     print('comparing image ' + str(i) + ' to ' + str(j) + ' gave distance:' + str(
