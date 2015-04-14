@@ -101,7 +101,7 @@ def crop_image_to_bb(img, bb_coordinates_string_or_array):
     x,y,w,h = bb_array
     hh, ww, d = img.shape   #i think this will fail on grayscale imgs
     if (x + w <= ww) and (y + h <= hh):
-	cropped_img = img[y:y+h,x:x+w]
+        cropped_img = img[y:y + h, x:x + w]
     else:
         cropped_img = img
         logging.warning('Could not crop. Bad bounding box: imsize:' + str(ww) + ',' + str(hh) +
