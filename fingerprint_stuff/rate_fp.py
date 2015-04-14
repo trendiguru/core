@@ -13,8 +13,7 @@ import datetime
 import json
 import fingerprint_core as fp_core
 import cv2
-import cpu_count as cpu_count
-import Utils
+import utils.moncpu_count as cpu_count
 
 
 
@@ -310,6 +309,7 @@ def self_compare(image_sets, fingerprint_function=fp_core.fp, weights=np.ones(fi
     parallelize = True
     if parallelize:
         n_cpus = cpu_count.available_cpu_count()
+        print('attempting to use ' + str(n_cpus) + ' cpus')
         p = Pool(n_cpus)
         answer_matrices = p.map(compare_wrapper, [image_sets[i] for i in range(0, len(image_sets))])
         confusion_matrix = answer_matrices[0, :]
