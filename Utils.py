@@ -77,7 +77,7 @@ def get_cv2_img_array(url_or_path_to_image_file_or_cv2_image_array, try_url_loca
                     logging.warning("connection error - check url or connection")
                     return None
                 except:
-                    logging.warning("connection error - check url or connection")
+                    logging.warning(" error other than connection error - check something other than connection")
                     return None
 
             else:  # get locally, since its not a url
@@ -86,7 +86,7 @@ def get_cv2_img_array(url_or_path_to_image_file_or_cv2_image_array, try_url_loca
                     img_array = imread(img_path)
                     got_locally = True
                 except:
-                    logging.warning("connection error - check url or connection")
+                    logging.warning("could not read locally")
                     return None
     #input isn't a basestring nor a np.ndarray....so what is it?
     else:
