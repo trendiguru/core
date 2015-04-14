@@ -2,11 +2,13 @@ __author__ = 'Nadav Paz'
 # Libraries import
 
 
-import cv2
-import numpy as np
 import string
 from Tkinter import Tk
 from tkFileDialog import askopenfilename
+
+import cv2
+import numpy as np
+
 import constants
 
 
@@ -30,10 +32,7 @@ def find_face(image):
 
 
 def body_estimation(image, face):
-            x = face[0][0]
-            y = face[0][1]
-            w = face[0][2]
-            h = face[0][3]
+    x, y, w, h = face[0]
             y_down = image.shape[0]-1
             x_back = np.max([x-2*w, 0])
             x_back_near = np.max([x-w, 0])
@@ -41,7 +40,7 @@ def body_estimation(image, face):
             x_ahead_near = np.min([x+2*w, image.shape[1]-1])
             rectangles = {"BG": [], "FG": [], "PFG": [], "PBG": []}
             rectangles["FG"].append([x, x+w, y, y+h])                   # face
-            rectangles["PFG"].append([x, x+w, y+h, y_down])              # body
+    rectangles["PFG"].append([x, x + w, y + h, y_down])  # body
             rectangles["BG"].append([x, x+w, 0, y])                     # above face
             rectangles["BG"].append([x_back, x, 0, y+h])                # head left
             rectangles["BG"].append([x+w, x_ahead, 0, y+h])             # head right
@@ -69,11 +68,11 @@ def bb_mask(image, bounding_box):
     rectangles = {"BG": [], "FG": [], "PFG": [], "PBG": []}
     rectangles["PFG"].append([x, x+w, y, y+h])
     rectangles["PBG"].append([x_back, x_ahead, y_up, y_down])
-    mask = face_mask(rectangles, image)
+    mask = create_mask(rectangles, image)
     return mask
 
 
-def face_mask(rectangles, image):
+def create_mask(rectangles, image):
     mask = np.zeros(image.shape[:2], dtype=np.uint8)
     for rectangle in rectangles["BG"]:
         x0, x1, y0, y1 = rectangle
@@ -132,7 +131,7 @@ def get_fg_mask(image, bounding_box=None):
         face = find_face(image)
         if len(face) > 0:                                # grabcut with mask
             rectangles = body_estimation(image, face)
-            mask = face_mask(rectangles, image)
+            mask = create_mask(rectangles, image)
             cv2.grabCut(image, mask, rect, bgdmodel, fgdmodel, 1, cv2.GC_INIT_WITH_MASK)
             # album.append(cv2.bitwise_and(image, image, mask=mask2))
             # image_counter += 1

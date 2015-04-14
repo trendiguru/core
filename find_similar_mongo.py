@@ -55,6 +55,32 @@ def mask2svg(mask, filename, address):
     return filename + '.svg'
 
 
+def got_bb(image_url, post_id, bb=None, number_of_results=10, category_id=None):
+    svg_address = constants.svg_address
+    image = Utils.get_cv2_img_array(image_url)                                    # turn the URL into a cv2 image
+    small_image, resize_ratio = background_removal.standard_resize(image, 400)    # shrink image for faster process
+    if bb is not None:
+        bb = [int(b) for b in (np.array(bb) / resize_ratio)]  # shrink bb in the same ratio
+    fg_mask = background_removal.get_fg_mask(small_image, bb)                     # returns the grab-cut mask (if bb => PFG-PBG gc, if !bb => face gc)
+    # bb_mask = background_removal.get_binary_bb_mask(small_image, bb)            # bounding box mask
+    # combined_mask = cv2.bitwise_and(fg_mask, bb_mask)                           # for sending the right mask to the fp
+    gc_image = background_removal.get_masked_image(small_image, fg_mask)
+    face_rect = background_removal.find_face(small_image)
+    if len(face_rect) > 0:
+        x, y, w, h = face_rect[0]
+        face_image = image[y:y+h, x:x+w, :]
+        without_skin = kassper.skin_removal(face_image, gc_image)
+        crawl_mask = kassper.clutter_removal(without_skin, 200)
+        without_clutter = background_removal.get_masked_image(without_skin, crawl_mask)
+        mask = kassper.get_mask(without_clutter)
+    else:
+        mask = fg_mask
+    fp_vector, closest_matches = find_top_n_results(small_image, mask, number_of_results, category_id)
+    svg_filename = mask2svg(mask, post_id, svg_address)
+    svg_url = constants.svg_url_prefix + svg_filename
+    return fp_vector, closest_matches, svg_url
+
+
 def find_top_n_results(image, mask, number_of_results=10, category_id=None):
     db = pymongo.MongoClient().mydb
     product_collection = db.products
@@ -81,39 +107,15 @@ def find_top_n_results(image, mask, number_of_results=10, category_id=None):
     return color_fp.tolist(), closest_matches
 
 
-def got_bb(image_url, post_id, bb=None, number_of_results=10, category_id=None):
-    svg_address = constants.svg_address
-    image = Utils.get_cv2_img_array(image_url)                                    # turn the URL into a cv2 image
-    small_image, resize_ratio = background_removal.standard_resize(image, 400)    # shrink image for faster process
-    bb = [int(b) for b in (np.array(bb)/resize_ratio)]                            # shrink bb in the same ratio
-    fg_mask = background_removal.get_fg_mask(small_image, bb)                     # returns the grab-cut mask (if bb => PFG-PBG gc, if !bb => face gc)
-    # bb_mask = background_removal.get_binary_bb_mask(small_image, bb)            # bounding box mask
-    # combined_mask = cv2.bitwise_and(fg_mask, bb_mask)                           # for sending the right mask to the fp
-    gc_image = background_removal.get_masked_image(small_image, fg_mask)
-    face_rect = background_removal.find_face(small_image)
-    if len(face_rect) > 0:
-        x, y, w, h = face_rect[0]
-        face_image = image[y:y+h, x:x+w, :]
-        without_skin = kassper.skin_removal(face_image, gc_image)
-        crawl_mask = kassper.clutter_removal(without_skin, 200)
-        without_clutter = background_removal.get_masked_image(without_skin, crawl_mask)
-        mask = kassper.get_mask(without_clutter)
-    else:
-        mask = kassper.get_mask(gc_image)
-    fp_vector, closest_matches = find_top_n_results(gc_image, mask, number_of_results, category_id)
-    svg_filename = mask2svg(mask, post_id, svg_address)
-    svg_url = constants.svg_url_prefix + svg_filename
-    return fp_vector, closest_matches, svg_url
-
-
 def find_top_n_results_using_grabcut(image_url, post_id=None, bb=None, number_of_results=10, category_id=None, do_svg = True):
     image = Utils.get_cv2_img_array(image_url)  # turn the URL into a cv2 image
     small_image, resize_ratio = background_removal.standard_resize(image, 400)  # shrink image for faster process
     bb = [int(b) for b in (np.array(bb) / resize_ratio)]  # shrink bb in the same ratio
 
-    fg_mask = background_removal.get_fg_mask(small_image,bb)  # returns the grab-cut mask (if bb => PFG-PBG gc, if !bb => face gc)
-#    bb_mask = background_removal.get_binary_bb_mask(small_image, bb)  # bounding box mask
-#    combined_mask = cv2.bitwise_and(fg_mask, bb_mask)  # for sending the right mask to the fp
+    fg_mask = background_removal.get_fg_mask(small_image,
+                                             bb)  # returns the grab-cut mask (if bb => PFG-PBG gc, if !bb => face gc)
+    # bb_mask = background_removal.get_binary_bb_mask(small_image, bb)  # bounding box mask
+    # combined_mask = cv2.bitwise_and(fg_mask, bb_mask)  # for sending the right mask to the fp
     gc_image = background_removal.get_masked_image(small_image, fg_mask)
     face_rect = background_removal.find_face(small_image)
     if len(face_rect) > 0:
@@ -128,14 +130,14 @@ def find_top_n_results_using_grabcut(image_url, post_id=None, bb=None, number_of
 
     fp_vector, closest_matches = find_top_n_results(gc_image, mask, number_of_results, category_id)
 
-    if do_svg:  
-	if post_id is None:
-	    print('error - svg wanted but no post_id given')
-	    return None
-    	svg_address = constants.svg_address
-	svg_filename = mask2svg(mask, post_id, svg_address)
-    	svg_url = constants.svg_url_prefix + svg_filename	
-	return fp_vector, closest_matches, svg_url
+    if do_svg:
+        if post_id is None:
+            print('error - svg wanted but no post_id given')
+            return None
+        svg_address = constants.svg_address
+        svg_filename = mask2svg(mask, post_id, svg_address)
+        svg_url = constants.svg_url_prefix + svg_filename
+        return fp_vector, closest_matches, svg_url
     else:
-	return fp_vector, closest_matches        
+        return fp_vector, closest_matches
 
