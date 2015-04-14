@@ -6,19 +6,18 @@
 #from joblib import Parallel, delayed
 #NOTE - cross-compare not yet implementing weights, fp_function,distance_function,distance_power
 from __future__ import print_function
-import fingerprint_core as fp_core
 from multiprocessing import Pool
 import datetime
 import json
+
 import cv2
-import urllib
-import pymongo
-import os
-import urlparse
+
+import fingerprint_core as fp_core
+
+
+
 #import default
 #import find_similar_mongo
-import unittest
-import imp
 import sys
 import pymongo
 import Utils
@@ -27,11 +26,8 @@ import numpy as np
 import cProfile
 import StringIO
 import pstats
-import background_removal
-import pdb
 import logging
 import constants
-import matplotlib
 import argparse
 
 
@@ -341,25 +337,42 @@ def cross_compare(image_sets):
     return(confusion_matrix)
 
 
-
 def self_compare(image_sets, fingerprint_function=fp_core.fp, weights=np.ones(fingerprint_length),
-                 distance_function=NNSearch.distance_1_k, distance_power=1.5):
+                 distance_function=NNSearch.distance_1_k, distance_power=0.5):
     '''
     compares image set i to image set i
     '''
+    global report
     confusion_matrix = np.zeros((len(image_sets)))
     stdev_matrix = np.zeros((len(image_sets)))
-#    print('confusion vector size:'+str(len(image_sets))+' long')
-    for i in range(0,len(image_sets)):
-        print('comparing group '+str(i)+' to itself')
-    #	print('group '+str(i)+':'+str(image_sets[i]))
-        avg_dist,stdev = compare_fingerprints_except_diagonal(image_sets[i],image_sets[i],fingerprint_function=fingerprint_function,weights=weights,distance_function=distance_function,distance_power=distance_power)
-        confusion_matrix[i] = avg_dist
-        stdev_matrix[i] = stdev
+
+    # attempt to parallelize
+    parallelize = True
+    if parallelize:
+        n_cpus = utils.cpus.available_cpu_count()
+        p = Pool(n_cpus)
+        answer_matrices = p.map(compare_wrapper, [image_sets[i] for i in range(0, len(image_sets))])
+        confusion_matrix = answer_matrices[0, :]
+        stdev_matrix = answer_matrices[1, :]
+        print('conf matrix:' + str(confusion_matrix))
+        print('stdev matrix:' + str(stdev_matrix))
+        print('orig  matrix:' + str(answer_matrices))
+    else:
+        for i in range(0, len(image_sets)):
+            print('comparing group ' + str(i) + ' to itself (doc index=' + str(report['doc_indices'][i]) + ')')
+            avg_dist, stdev = compare_fingerprints_except_diagonal(image_sets[i], image_sets[i],
+                                                                   fingerprint_function=fingerprint_function,
+                                                                   weights=weights, distance_function=distance_function,
+                                                                   distance_power=distance_power)
+            confusion_matrix[i] = avg_dist
+            stdev_matrix[i] = stdev
+
+
 #	print('confusion vector is currently:'+str(confusion_matrix))
 #    normalized_matrix = normalize_matrix(confusion_matrix)
 #    return(normalized_matrix)
     return(confusion_matrix,stdev_matrix)
+
 
 def mytrace(matrix):
     sum=0
