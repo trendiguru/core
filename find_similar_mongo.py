@@ -14,6 +14,8 @@ import Utils
 import kassper
 import constants
 
+# comment
+
 
 def get_classifiers():
     default_classifiers = ["/home/www-data/web2py/applications/fingerPrint/modules/shirtClassifier.xml",
