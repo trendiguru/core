@@ -103,11 +103,12 @@ def find_top_n_results(image, mask, number_of_results=10, category_id=None):
 
     color_fp = fp.fp(image, mask)
     target_dict = {"clothingClass": category_id, "fingerPrintVector": color_fp}
-    closest_matches = NNSearch.findNNs(target_dict, db_fingerprint_list, number_of_results)
+    closest_matches = NNSearch.find_n_nearest_neighbors(target_dict, db_fingerprint_list, number_of_results)
     return color_fp.tolist(), closest_matches
 
 
-def find_top_n_results_using_grabcut(image_url, post_id=None, bb=None, number_of_results=10, category_id=None, do_svg = True):
+def find_top_n_results_using_grabcut(image_url, post_id=None, bb=None, number_of_results=10, category_id=None,
+                                     do_svg=True):
     image = Utils.get_cv2_img_array(image_url)  # turn the URL into a cv2 image
     small_image, resize_ratio = background_removal.standard_resize(image, 400)  # shrink image for faster process
     bb = [int(b) for b in (np.array(bb) / resize_ratio)]  # shrink bb in the same ratio
