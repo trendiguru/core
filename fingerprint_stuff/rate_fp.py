@@ -13,7 +13,7 @@ import datetime
 import json
 import fingerprint_core as fp_core
 import cv2
-import utils.moncpu_count as cpu_count
+import utils.cpu_count as cpu_count
 
 
 
