@@ -7,12 +7,13 @@ import pymongo
 import cv2
 import numpy as np
 
-import fingerprint as fp
+import fingerprint_core as fp
 import NNSearch
 import background_removal
 import Utils
 import kassper
 import constants
+
 
 # comment
 
