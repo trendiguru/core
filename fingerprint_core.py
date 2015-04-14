@@ -111,11 +111,10 @@ def crop_image_to_bb(img, bb_coordinates_string_or_array):
     return cropped_img
 
 
-def fp(img, mask, weights=np.ones(fingerprint_length), histogram_length=25, use_intensity_histogram=False):
+def fp(img, mask=None, weights=np.ones(fingerprint_length), histogram_length=25, use_intensity_histogram=False):
+    mask = mask or np.ones((img.shape[0], img.shape[1]))
     n_pixels = cv2.countNonZero(mask)
-
     hsv = cv2.cvtColor(img, cv2.COLOR_BGR2HSV)
-
     # OpenCV uses  H: 0 - 180, S: 0 - 255, V: 0 - 255
     # histograms
     bins = histogram_length
