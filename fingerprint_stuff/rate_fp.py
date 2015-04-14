@@ -26,7 +26,7 @@ cmd_subfolder = os.path.realpath(
 if cmd_subfolder not in sys.path:
     sys.path.insert(0, cmd_subfolder)
 
-import utils.cpu_count as cpu_count
+import cpu_count as cpu_count
 
 
 
