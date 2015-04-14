@@ -1,13 +1,14 @@
 __author__ = 'liorsabag'
 
-import numpy as np
-import cv2
 import string
 import logging
-import constants
+
+import numpy as np
+import cv2
 import matplotlib.pyplot as plt
-import classify_core
-import Utils
+
+import constants
+
 
 fingerprint_length = constants.fingerprint_length
 
@@ -25,6 +26,7 @@ def find_color_percentages(img_array):
     color_limits=range(0,180+int(180/n_colors),int(180/n_colors))  #edges of bins for histogram
     #print(color_limits)
 
+    hsv = cv2.cvtColor(roi, cv2.COLOR_BGR2HSV)
     h_arr=hsv[:,:,0]
     s_arr=hsv[:,:,1]
     v_arr=hsv[:,:,2]
