@@ -1,5 +1,10 @@
 __author__ = 'jeremy'
 
+# TODO
+#add tests for:
+#make sure fingerprint of simlar images are more similar than fps of dvery different images
+#length is correct
+
 import unittest
 import math
 
