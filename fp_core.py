@@ -83,9 +83,9 @@ def find_color_percentages(img_array):
 
     # the order of dominant colors is what ccny guys used, if we just have vector in order of color i think its just as good
     #so for now the following 3 lines are not used
-    dominant_color_indices = np.argsort(all_colors, axis=-1, kind='quicksort', order=None)
+    dominant_color_indices = np.argsort(all_colors, axis=-1, kind='quicksort')
     dominant_color_indices = dominant_color_indices[::-1]
-    dominant_color_percentages = np.sort(all_colors, axis=-1, kind='quicksort', order=None)
+    dominant_color_percentages = np.sort(all_colors, axis=-1, kind='quicksort')
     dominant_color_percentages = dominant_color_percentages[::-1]
 
     print('color percentages:' + str(dominant_color_percentages) + ' indices:' + str(dominant_color_indices))
