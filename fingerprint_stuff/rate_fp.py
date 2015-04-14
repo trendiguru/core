@@ -13,7 +13,7 @@ import datetime
 import json
 import fingerprint_core as fp_core
 import cv2
-
+import constants
 import os, sys, inspect
 # realpath() will make your script run, even if you symlink it :)
 cmd_folder = os.path.realpath(os.path.abspath(os.path.split(inspect.getfile(inspect.currentframe()))[0]))
@@ -41,10 +41,9 @@ import cProfile
 import StringIO
 import pstats
 import logging
-import constants
 import argparse
 
-
+Reserve_cpus = constants.Reserve_cpus
 fingerprint_length = constants.fingerprint_length
 min_images_per_doc = constants.min_images_per_doc
 max_items = constants.max_items
@@ -321,7 +320,7 @@ def self_compare(image_sets, fingerprint_function=fp_core.fp, weights=np.ones(fi
     # attempt to parallelize
     parallelize = True
     if parallelize:
-        n_cpus = cpu_count.available_cpu_count()
+        n_cpus = cpu_count.available_cpu_count() - Reserve_cpus
         print('attempting to use ' + str(n_cpus) + ' cpus')
         p = Pool(n_cpus)
         answer_matrices = p.map(compare_wrapper, [image_sets[i] for i in range(0, len(image_sets))])

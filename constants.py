@@ -50,3 +50,5 @@ min_images_per_doc = 10  #item has to have at least this number of pics
 max_items = 100  #max number of items to consider for rating fingerprint
 
 nadav = 'awesome'
+
+Reserve_cpus = 2  # number of cpus to not use when doing stuff in parallel
