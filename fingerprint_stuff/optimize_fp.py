@@ -3,7 +3,7 @@ import numpy as np
 import scipy.optimize
 import math
 #import fingerprint_core
-import rate_fingerprint
+import rate_fp
 import NNSearch
 from multiprocessing import Pool
 import constants
@@ -23,14 +23,13 @@ def rate_wrapper(weights,k):
     for i in range(0,len(weights)):
         if weights[i] < 0:
             weights[i]=0
-        i=i+1
     sum = np.sum(weights)
     target = len(weights)
     weights=weights*float(target)/sum
     sum = np.sum(weights)
     print('constrained weights:'+str(weights))
     print('sum of weights after constraining:'+str(sum)+ ' target:'+str(target))
-    rating=rate_fingerprint.self_rate_fingerprint(fingerprint_function=fingerprint_core.fp,weights=weights,distance_function=NNSearch.distance_1_k,distance_power=0.5)
+    rating=rate_fp.self_rate_fingerprint(fingerprint_function=fingerprint_core.fp,weights=weights,distance_function=NNSearch.distance_1_k,distance_power=0.5)
     return rating
 
 def optimize_weights(weights=np.ones(fingerprint_length),k=0.5):
@@ -45,6 +44,7 @@ def optimize_weights(weights=np.ones(fingerprint_length),k=0.5):
 #    x_min = scipy.optimize.minimize(f,initial_weights,args=(k),tol=0.1)
     f = rate_wrapper
     init=weights
+# TO DO CONSTRAINED MINIMIZATION USE COBYLA  or SQLSQP - see docs - currentyly constraining 'by hand'
     x_min = scipy.optimize.minimize(f,init,args=(k,),tol=0.1)
 #    x_min = scipy.optimize.fmin(f,[2,3])
     print('output of optimize:'+str(x_min))
