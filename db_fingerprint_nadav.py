@@ -1,23 +1,19 @@
 __author__ = 'Nadav Paz'
 
 import logging
-
 import multiprocessing
 import argparse
-import pdb
-
 import pymongo
 import numpy as np
-
 import cv2
-
 import fingerprint_core as fp
-
 import background_removal
 import Utils
 import constants
+import time
 
 
+# globals
 CLASSIFIER_FOR_CATEGORY = {}
 TOTAL_PRODUCTS = 0
 CURRENT = Utils.ThreadSafeCounter()
@@ -26,6 +22,14 @@ FP_VERSION = 0
 
 
 def get_all_subcategories(category_collection, category_id):
+    """
+    create a list of all subcategories in category_id, including itself.
+    assumes category_collection is a mongodb Collection of category dictionaries
+    with keys "id" and "childrenIds"
+    :param category_collection: mongodb Collection
+    :param category_id: string
+    :return: list of all subcategories in category_id, including itself.
+    """
     subcategories = []
 
     def get_subcategories(c_id):
@@ -41,9 +45,10 @@ def get_all_subcategories(category_collection, category_id):
 
 def create_classifier_for_category_dict(db):
     """
-    Creates a dictionary of category_id: CascasdeClassifier
-    :param db:
-    :return:
+    Creates a dictionary with items: category_id: CascasdeClassifier
+    Requires cv2 and constants to be imported
+    :param db: connected pymongo.MongoClient().db object
+    :return: dictionary with items: category_id: CascasdeClassifier
     """
     result_dict = {}
     classifier_dict = {xml: cv2.CascadeClassifier(constants.classifiers_folder + xml)
@@ -58,11 +63,11 @@ def create_classifier_for_category_dict(db):
 def run_fp(doc):
     # pdb.set_trace()
     CURRENT.increment()
-    print "Starting {i} of {total}...".format(i=CURRENT.value, total=TOTAL_PRODUCTS)
+    print "Process {process} starting {i} of {total}...".format(process=multiprocessing.current_process(), i=CURRENT.value, total=TOTAL_PRODUCTS)
     image_url = doc["image"]["sizes"]["XLarge"]["url"]
     image = Utils.get_cv2_img_array(image_url)
     small_image, resize_ratio = background_removal.standard_resize(image, 400)
-    print "Image URL: {0}".format(image_url)
+    # print "Image URL: {0}".format(image_url)
     # if there is a valid human BB, use it
     if "human_bb" in doc.keys() and doc["human_bb"] != [0, 0, 0, 0] and doc["human_bb"] is not None:
         chosen_bounding_box = doc["human_bb"]
@@ -86,7 +91,7 @@ def run_fp(doc):
             try:
                 bounding_box_list = classifier.detectMultiScale(white_bckgnd_image)
             except KeyError:
-                logging.warning("Could not classify with {0}".format(classifier))
+                logging.info("Could not classify with {0}".format(classifier))
         max_bb_area = 0
         chosen_bounding_box = None
         # choosing the biggest bounding box
@@ -95,7 +100,7 @@ def run_fp(doc):
                 chosen_bounding_box = possible_bb
                 max_bb_area = possible_bb[2] * possible_bb[3]
         if chosen_bounding_box is None:
-            logging.warning("No Bounding Box found, using the whole image. "
+            logging.info("No Bounding Box found, using the whole image. "
                             "Document id: {0}, BB_list: {1}".format(doc.get("id"), str(bounding_box_list)))
         else:
             mask = background_removal.get_fg_mask(small_image, chosen_bounding_box)
@@ -108,7 +113,7 @@ def run_fp(doc):
                            })
 
     except Exception as e:
-        logging.warning("Exception caught while fingerprinting, skipping: {0}".format(e))
+        logging.warning("Exception caught while fingerprinting: {0}".format(e))
 
 
 def fingerprint_db(fp_version, category_id=None, num_processes=None):
@@ -141,14 +146,18 @@ def fingerprint_db(fp_version, category_id=None, num_processes=None):
     num_processes = num_processes or multiprocessing.cpu_count() - 2
     pool = multiprocessing.Pool(num_processes)
 
-    pdb.set_trace()
-    #for doc in product_cursor[0:10]:
-    #    run_fp(doc)
+    start_time = time.time()
     pool.map(run_fp, product_cursor)
+    stop_time = time.time()
+    total_time = stop_time - start_time
     pool.close()
     pool.join()
 
     print "All done!!"
+    print "Completed {total} fingerprints in {seconds} seconds " \
+          "with {procs} processes.".format(total=TOTAL_PRODUCTS, seconds=total_time, procs=num_processes)
+    print "Average time per fingerprint: {avg}".format(avg=total_time/TOTAL_PRODUCTS)
+    print "Average time per fingerprint per core: {avgc}".format(avgc=(total_time/TOTAL_PRODUCTS)*num_processes)
 
 
 if __name__ == "__main__":
