@@ -37,7 +37,7 @@ def get_classifier_xml_for_category(db):
     result_dict = {}
     for xml, cats in constants.classifier_to_category_dict.iteritems():
         for cat in cats:
-            for sub_cat in get_all_subcategories(db, cat):
+            for sub_cat in get_all_subcategories(db.categories, cat):
                 result_dict[sub_cat] = constants.classifiers_folder + xml
     return result_dict
 
