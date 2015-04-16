@@ -58,6 +58,7 @@ def run_fp(doc):
         logging.debug("Human bb found: {bb} for item: {id}".format(bb=chosen_bounding_box, id=doc["id"]))
     # otherwise use the largest of possibly many classifier bb's
     else:
+        classifier_xml = ""
         if "categories" in doc:
             classifier_xml = CLASSIFIER_XML_FOR_CATEGORY[doc["categories"][0]["id"]]
 
