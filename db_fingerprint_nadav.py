@@ -112,7 +112,7 @@ def fingerprint_db(fp_version, category_id=None, num_processes=None):
     :param category_id: category to be fingerprinted
     :return:
     """
-    global DB, TOTAL_PRODUCTS, CURRENT, CLASSIFIER_XML_FOR_CATEGORY
+    global DB, TOTAL_PRODUCTS, CURRENT, CLASSIFIER_FOR_CATEGORY
 
     DB = DB or pymongo.MongoClient().mydb
 
@@ -129,7 +129,7 @@ def fingerprint_db(fp_version, category_id=None, num_processes=None):
     # batch_size required because cursor timed out without it. Could use further investigation
     product_cursor = DB.products.find(query_doc, fields).batch_size(100)
     TOTAL_PRODUCTS = product_cursor.count()
-    CLASSIFIER_XML_FOR_CATEGORY = create_classifier_for_category_dict(DB)
+    CLASSIFIER_FOR_CATEGORY = create_classifier_for_category_dict(DB)
 
     num_processes = num_processes or multiprocessing.cpu_count() - 2
     pool = multiprocessing.Pool(num_processes)
