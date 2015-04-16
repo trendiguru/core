@@ -1,12 +1,12 @@
-# file containing constants for general tg use
+# file containing constants for general TG use
 
 # fingerprint related consts
 fingerprint_length = 56
-K = 0.5  #for euclidean distance
+K = 0.5                     # for euclidean distance
 
 # fp rating related constants
-min_images_per_doc = 10  # item has to have at least this number of pics
-max_items = 100  # max number of items to consider for rating fingerprint
+min_images_per_doc = 10     # item has to have at least this number of pics
+max_items = 100             # max number of items to consider for rating fingerprint
 
 classifiers_folder = "/home/ubuntu/Dev/trendi_guru_modules/classifiers/"
 
@@ -46,8 +46,8 @@ svg_address = '/var/www/static/svgs/'
 svg_url_prefix = 'http://extremeli.trendi.guru/static/svgs/'
 
 #fp rating related constants
-min_images_per_doc = 10  #item has to have at least this number of pics
-max_items = 100  #max number of items to consider for rating fingerprint
+min_images_per_doc = 10         # item has to have at least this number of pics
+max_items = 100                 # max number of items to consider for rating fingerprint
 
 nadav = 'awesome'
 

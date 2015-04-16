@@ -1,3 +1,5 @@
+import multiprocessing
+
 __author__ = 'liorsabag'
 import csv
 import gzip
@@ -8,17 +10,12 @@ import logging
 import os
 from requests import ConnectionError
 import time
-
 import numpy as np
 from bson import objectid
 import pymongo
-
 import constants
-
 
 min_images_per_doc = constants.min_images_per_doc
-
-import constants
 
 min_images_per_doc = constants.min_images_per_doc
 max_image_val = constants.max_image_val
@@ -418,6 +415,7 @@ def check_img_array(image_array):
     else:
         return False
 
+
 def bounding_box_inside_image(image_array,rect):
     if check_img_array(image_array) and legal_bounding_box(rect):
         height, width, depth = image_array.shape
@@ -593,3 +591,16 @@ class npAwareJSONEncoder(json.JSONEncoder):
         if isinstance(obj, np.ndarray) and obj.ndim == 1:
             return obj.tolist()
         return json.JSONEncoder.default(self, obj)
+
+
+class ThreadSafeCounter(object):
+    def __init__(self):
+        self.val = multiprocessing.Value('i', 0)
+
+    def increment(self, n=1):
+        with self.val.get_lock():
+            self.val.value += n
+
+    @property
+    def value(self):
+        return self.val.value

@@ -5,7 +5,8 @@ import logging
 
 import numpy as np
 import cv2
-import matplotlib.pyplot as plt
+# moving this into the show_fp function for now - LS
+# import matplotlib.pyplot as plt
 
 import constants
 
@@ -155,7 +156,9 @@ def fp(img, mask=None, weights=np.ones(fingerprint_length), histogram_length=25,
     return result_vector
 
 
-def show_fp(fingerprint,fig=None):
+def show_fp(fingerprint, fig=None):
+    import matplotlib.pyplot as plt
+
     if fig:
         plt.close(fig)
     plt.close('all')
