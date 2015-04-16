@@ -1,17 +1,20 @@
 __author__ = 'Nadav Paz'
 
 import logging
-import pymongo
-import numpy as np
-import fingerprint_core as fp
-import classify_core as classify
-import background_removal
-import Utils
-import constants
 import multiprocessing
 import argparse
 import pdb
+
+import pymongo
+import numpy as np
 import cv2
+
+import fingerprint_core as fp
+import background_removal
+import Utils
+
+import constants
+
 
 CLASSIFIER_FOR_CATEGORY = {}
 TOTAL_PRODUCTS = 0
@@ -126,7 +129,7 @@ def fingerprint_db(fp_version, category_id=None, num_processes=None):
     else:
         query_doc = {"$or": [{"fp_version": {"$lt": fp_version}}, {"fp_version": {"$exists": 0}}]}
 
-    fields = {"image": 1, "human_bb": 1, "fp_version": 1, "bounding_box": 1}
+    fields = {"image": 1, "human_bb": 1, "fp_version": 1, "bounding_box": 1, "categories": 1}
 
     # batch_size required because cursor timed out without it. Could use further investigation
     product_cursor = DB.products.find(query_doc, fields).batch_size(100)
