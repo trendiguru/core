@@ -10,6 +10,7 @@ import Utils
 import constants
 import multiprocessing
 import argparse
+import functools
 
 TOTAL_PRODUCTS = 0
 CURRENT = Utils.ThreadSafeCounter()
@@ -128,7 +129,7 @@ if __name__ == "__main__":
     parser.add_argument('-v', '--fp_version', help='current fp version', required=True)
     args = vars(parser.parse_args())
 
-    fingerprint_db(args['fp_version'], args['category_id'], args['num_processes'])
+    fingerprint_db(int(args['fp_version']), args['category_id'], int(args['num_processes']))
 
 
 
