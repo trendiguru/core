@@ -43,7 +43,7 @@ def get_classifier_xml_for_category(db):
 
 
 def run_fp(doc):
-    pdb.set_trace()
+    # pdb.set_trace()
     # CURRENT.increment()
     # print "Starting {i} of {total}...".format(i=CURRENT.value, total=TOTAL_PRODUCTS)
     image_url = doc["image"]["sizes"]["XLarge"]["url"]
