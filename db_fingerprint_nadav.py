@@ -79,7 +79,7 @@ def run_fp(doc):
             try:
                 bounding_box_list = classifier.detectMultiScale(white_bckgnd_image)
             except KeyError:
-                # logging.warning("Could not classify with {0}".format(classifier_xml))
+                logging.warning("Could not classify with {0}".format(classifier))
         max_bb_area = 0
         chosen_bounding_box = None
         # choosing the biggest bounding box
