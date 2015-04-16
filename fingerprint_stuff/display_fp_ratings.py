@@ -182,6 +182,5 @@ def midlabel(rect, value, text):
     if use_visual_output:
         plt.show()
 
-
 global fig
 global ax
