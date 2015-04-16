@@ -26,7 +26,7 @@ cmd_subfolder = os.path.realpath(
 if cmd_subfolder not in sys.path:
     sys.path.insert(0, cmd_subfolder)
 
-import cpu_count as cpu_count
+import utils.cpu_count as cpu_count
 
 
 
@@ -324,6 +324,7 @@ def self_compare(image_sets, fingerprint_function=fp_core.fp, weights=np.ones(fi
         print('attempting to use ' + str(n_cpus) + ' cpus')
         p = Pool(n_cpus)
         answer_matrices = p.map(compare_wrapper, [image_sets[i] for i in range(0, len(image_sets))])
+        p.wait()
         confusion_matrix = [a[0] for a in answer_matrices]
         stdev_matrix = [a[1] for a in answer_matrices]
         print('conf matrix:' + str(confusion_matrix))
