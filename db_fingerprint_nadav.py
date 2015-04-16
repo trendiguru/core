@@ -34,7 +34,7 @@ def get_all_subcategories(category_collection, category_id):
 
 def run_fp(doc):
     pdb.set_trace()
-    CURRENT.increment()
+    # CURRENT.increment()
     print "Starting {i} of {total}...".format(i=CURRENT.value, total=TOTAL_PRODUCTS)
     image_url = doc["image"]["sizes"]["XLarge"]["url"]
     image = Utils.get_cv2_img_array(image_url)
