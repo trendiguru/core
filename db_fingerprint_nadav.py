@@ -33,11 +33,11 @@ def get_all_subcategories(category_collection, category_id):
     return subcategories
 
 
-def get_classifier_xml_for_category():
+def get_classifier_xml_for_category(db):
     result_dict = {}
     for xml, cats in constants.classifier_to_category_dict.iteritems():
         for cat in cats:
-            for sub_cat in get_all_subcategories(cat):
+            for sub_cat in get_all_subcategories(db, cat):
                 result_dict[sub_cat] = constants.classifiers_folder + xml
     return result_dict
 
@@ -119,7 +119,7 @@ def fingerprint_db(fp_version, category_id=None, num_processes=None):
     # batch_size required because cursor timed out without it. Could use further investigation
     product_cursor = DB.products.find(query_doc, fields).batch_size(100)
     TOTAL_PRODUCTS = product_cursor.count()
-    CLASSIFIER_XML_FOR_CATEGORY = get_classifier_xml_for_category()
+    CLASSIFIER_XML_FOR_CATEGORY = get_classifier_xml_for_category(DB)
 
     num_processes = num_processes or multiprocessing.cpu_count() - 2
     pool = multiprocessing.Pool(num_processes)
