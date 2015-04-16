@@ -1,16 +1,19 @@
 __author__ = 'Nadav Paz'
 
 import logging
-import pymongo
-import numpy as np
-import fingerprint_core as fp
-import classify_core as classify
-import background_removal
-import Utils
-import constants
 import multiprocessing
 import argparse
 import pdb
+
+import pymongo
+import numpy as np
+import cv2
+
+import fingerprint_core as fp
+import background_removal
+import Utils
+import constants
+
 
 CLASSIFIER_XML_FOR_CATEGORY = {}
 TOTAL_PRODUCTS = 0
@@ -65,13 +68,15 @@ def run_fp(doc):
         # first try grabcut with no bb
         mask = background_removal.get_fg_mask(small_image)
         # then - try to classify the image (white backgrounded and get a more accurate bb
-        white_bckgnd_image = background_removal.image_white_bckgnd(small_image, mask)
-        try:
-            bounding_box_list = classify.classify_image_with_classifiers(white_bckgnd_image, classifier_xml)[
-                classifier_xml]
-        except KeyError:
-            logging.warning("Could not classify with {0}".format(classifier_xml))
-            bounding_box_list = []
+        bounding_box_list = []
+        if classifier_xml:
+            white_bckgnd_image = background_removal.image_white_bckgnd(small_image, mask)
+            try:
+                classifier = cv2.CascadeClassifier(classifier_xml)
+                bounding_box_list = classifier.detectMultiScale(white_bckgnd_image)
+            except KeyError:
+                logging.warning("Could not classify with {0}".format(classifier_xml))
+                bounding_box_list = []
         max_bb_area = 0
         chosen_bounding_box = None
         # choosing the biggest bounding box
