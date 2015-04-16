@@ -57,8 +57,8 @@ def create_classifier_for_category_dict(db):
 
 def run_fp(doc):
     # pdb.set_trace()
-    # CURRENT.increment()
-    # print "Starting {i} of {total}...".format(i=CURRENT.value, total=TOTAL_PRODUCTS)
+    CURRENT.increment()
+    print "Starting {i} of {total}...".format(i=CURRENT.value, total=TOTAL_PRODUCTS)
     image_url = doc["image"]["sizes"]["XLarge"]["url"]
     image = Utils.get_cv2_img_array(image_url)
     small_image, resize_ratio = background_removal.standard_resize(image, 400)
