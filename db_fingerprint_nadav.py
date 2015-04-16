@@ -124,7 +124,7 @@ def fingerprint_db(fp_version, category_id=None, num_processes=None):
     num_processes = num_processes or multiprocessing.cpu_count() - 2
     pool = multiprocessing.Pool(num_processes)
 
-    pool.map(run_fp, product_cursor[0])
+    pool.map(run_fp, product_cursor[0:10])
     pool.close()
     pool.join()
 
