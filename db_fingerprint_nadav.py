@@ -12,6 +12,7 @@ import multiprocessing
 import argparse
 import pdb
 
+CLASSIFIER_XML_FOR_CATEGORY = {}
 TOTAL_PRODUCTS = 0
 CURRENT = Utils.ThreadSafeCounter()
 DB = None
@@ -32,10 +33,19 @@ def get_all_subcategories(category_collection, category_id):
     return subcategories
 
 
+def get_classifier_xml_for_category():
+    result_dict = {}
+    for xml, cats in constants.classifier_to_category_dict.iteritems():
+        for cat in cats:
+            for sub_cat in get_all_subcategories(cat):
+                result_dict[sub_cat] = constants.classifiers_folder + xml
+    return result_dict
+
+
 def run_fp(doc):
     pdb.set_trace()
     # CURRENT.increment()
-    #print "Starting {i} of {total}...".format(i=CURRENT.value, total=TOTAL_PRODUCTS)
+    # print "Starting {i} of {total}...".format(i=CURRENT.value, total=TOTAL_PRODUCTS)
     image_url = doc["image"]["sizes"]["XLarge"]["url"]
     image = Utils.get_cv2_img_array(image_url)
     small_image, resize_ratio = background_removal.standard_resize(image, 400)
@@ -48,18 +58,15 @@ def run_fp(doc):
         logging.debug("Human bb found: {bb} for item: {id}".format(bb=chosen_bounding_box, id=doc["id"]))
     # otherwise use the largest of possibly many classifier bb's
     else:
-        # search the classifier_xml that fits that category
-        for key, value in constants.classifier_to_category_dict.iteritems():
-            value_subcategories = set(get_all_subcategories(DB.categories, value))
-            if not value_subcategories.isdisjoint(set(doc["categories"])):
-                classifier_xml = constants.classifiers_folder + key
-                break
+        classifier_xml = CLASSIFIER_XML_FOR_CATEGORY[doc["categories"][0]["id"]]
+
         # first try grabcut with no bb
         mask = background_removal.get_fg_mask(small_image)
         # then - try to classify the image (white backgrounded and get a more accurate bb
         white_bckgnd_image = background_removal.image_white_bckgnd(small_image, mask)
         try:
-            bounding_box_list = classify.classify_image_with_classifiers(white_bckgnd_image, classifier_xml)[classifier_xml]
+            bounding_box_list = classify.classify_image_with_classifiers(white_bckgnd_image, classifier_xml)[
+                classifier_xml]
         except KeyError:
             logging.warning("Could not classify with {0}".format(classifier_xml))
             bounding_box_list = []
@@ -95,7 +102,7 @@ def fingerprint_db(fp_version, category_id=None, num_processes=None):
     :param category_id: category to be fingerprinted
     :return:
     """
-    global DB, TOTAL_PRODUCTS, CURRENT
+    global DB, TOTAL_PRODUCTS, CURRENT, CLASSIFIER_XML_FOR_CATEGORY
 
     DB = DB or pymongo.MongoClient().mydb
 
@@ -112,8 +119,9 @@ def fingerprint_db(fp_version, category_id=None, num_processes=None):
     # batch_size required because cursor timed out without it. Could use further investigation
     product_cursor = DB.products.find(query_doc, fields).batch_size(100)
     TOTAL_PRODUCTS = product_cursor.count()
+    CLASSIFIER_XML_FOR_CATEGORY = get_classifier_xml_for_category()
 
-    num_processes = num_processes or multiprocessing.cpu_count()-2
+    num_processes = num_processes or multiprocessing.cpu_count() - 2
     pool = multiprocessing.Pool(num_processes)
 
     pool.map(run_fp, product_cursor[0])
