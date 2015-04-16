@@ -68,12 +68,14 @@ def run_fp(doc):
     else:
         if "categories" in doc:
             classifier = CLASSIFIER_FOR_CATEGORY.get(doc["categories"][0]["id"], "")
+        else:
+            classifier = None
 
         # first try grabcut with no bb
         mask = background_removal.get_fg_mask(small_image)
         bounding_box_list = []
 
-        if not classifier.empty():
+        if classifier and not classifier.empty():
             # then - try to classify the image (white backgrounded and get a more accurate bb
             white_bckgnd_image = background_removal.image_white_bckgnd(small_image, mask)
             try:
