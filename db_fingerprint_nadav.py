@@ -10,7 +10,7 @@ import Utils
 import constants
 import multiprocessing
 import argparse
-import functools
+import pdb
 
 TOTAL_PRODUCTS = 0
 CURRENT = Utils.ThreadSafeCounter()
@@ -33,6 +33,7 @@ def get_all_subcategories(category_collection, category_id):
 
 
 def run_fp(doc):
+    pdb.set_trace()
     CURRENT.increment()
     print "Starting {i} of {total}...".format(i=CURRENT.value, total=TOTAL_PRODUCTS)
     image_url = doc["image"]["sizes"]["XLarge"]["url"]
