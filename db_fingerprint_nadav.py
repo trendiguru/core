@@ -1,20 +1,16 @@
 __author__ = 'Nadav Paz'
 
 import logging
-import multiprocessing
-import argparse
-import pdb
-
 import pymongo
 import numpy as np
-import cv2
-
 import fingerprint_core as fp
 import background_removal
 import Utils
-
 import constants
-
+import multiprocessing
+import argparse
+import pdb
+import cv2
 
 CLASSIFIER_FOR_CATEGORY = {}
 TOTAL_PRODUCTS = 0
