@@ -6,6 +6,7 @@ import cv2
 
 def fp(img, mask=None):
     mask = mask or np.ones((img.shape[0], img.shape[1]))
+    # i checked this , it doesnt seem to do what we want , e.g. do a=np.array([0,1]) ; b=np.ones((2)); a or b and u get an error
     hsv = cv2.cvtColor(img, cv2.COLOR_BGR2HSV)
     # OpenCV uses  H: 0 - 180, S: 0 - 255, V: 0 - 255
     # histograms
