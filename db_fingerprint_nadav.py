@@ -11,8 +11,9 @@ import constants
 import multiprocessing
 import argparse
 import pdb
+import cv2
 
-CLASSIFIER_XML_FOR_CATEGORY = {}
+CLASSIFIER_FOR_CATEGORY = {}
 TOTAL_PRODUCTS = 0
 CURRENT = Utils.ThreadSafeCounter()
 DB = None
@@ -33,12 +34,19 @@ def get_all_subcategories(category_collection, category_id):
     return subcategories
 
 
-def get_classifier_xml_for_category(db):
+def create_classifier_for_category_dict(db):
+    """
+    Creates a dictionary of category_id: CascasdeClassifier
+    :param db:
+    :return:
+    """
     result_dict = {}
+    classifier_dict = {xml: cv2.CascadeClassifier(constants.classifiers_folder + xml)
+                       for xml in constants.classifier_to_category_dict.keys()}
     for xml, cats in constants.classifier_to_category_dict.iteritems():
         for cat in cats:
             for sub_cat in get_all_subcategories(db.categories, cat):
-                result_dict[sub_cat] = constants.classifiers_folder + xml
+                result_dict[sub_cat] = classifier_dict[xml]
     return result_dict
 
 
@@ -58,20 +66,20 @@ def run_fp(doc):
         logging.debug("Human bb found: {bb} for item: {id}".format(bb=chosen_bounding_box, id=doc["id"]))
     # otherwise use the largest of possibly many classifier bb's
     else:
-        classifier_xml = ""
         if "categories" in doc:
-            classifier_xml = CLASSIFIER_XML_FOR_CATEGORY[doc["categories"][0]["id"]]
+            classifier = CLASSIFIER_FOR_CATEGORY.get(doc["categories"][0]["id"], "")
 
         # first try grabcut with no bb
         mask = background_removal.get_fg_mask(small_image)
-        # then - try to classify the image (white backgrounded and get a more accurate bb
-        white_bckgnd_image = background_removal.image_white_bckgnd(small_image, mask)
-        try:
-            bounding_box_list = classify.classify_image_with_classifiers(white_bckgnd_image, classifier_xml)[
-                classifier_xml]
-        except KeyError:
-            logging.warning("Could not classify with {0}".format(classifier_xml))
-            bounding_box_list = []
+        bounding_box_list = []
+
+        if not classifier.empty():
+            # then - try to classify the image (white backgrounded and get a more accurate bb
+            white_bckgnd_image = background_removal.image_white_bckgnd(small_image, mask)
+            try:
+                bounding_box_list = classifier.detectMultiScale(white_bckgnd_image)
+            except KeyError:
+                logging.warning("Could not classify with {0}".format(classifier))
         max_bb_area = 0
         chosen_bounding_box = None
         # choosing the biggest bounding box
@@ -81,7 +89,7 @@ def run_fp(doc):
                 max_bb_area = possible_bb[2] * possible_bb[3]
         if chosen_bounding_box is None:
             logging.warning("No Bounding Box found, using the whole image. "
-                            "Document id: {0}, BB_list: {1}".format(doc["id"], str(bounding_box_list)))
+                            "Document id: {0}, BB_list: {1}".format(doc.get("id"), str(bounding_box_list)))
         else:
             mask = background_removal.get_fg_mask(small_image, chosen_bounding_box)
     try:
@@ -104,7 +112,7 @@ def fingerprint_db(fp_version, category_id=None, num_processes=None):
     :param category_id: category to be fingerprinted
     :return:
     """
-    global DB, TOTAL_PRODUCTS, CURRENT, CLASSIFIER_XML_FOR_CATEGORY
+    global DB, TOTAL_PRODUCTS, CURRENT, CLASSIFIER_FOR_CATEGORY
 
     DB = DB or pymongo.MongoClient().mydb
 
@@ -121,14 +129,17 @@ def fingerprint_db(fp_version, category_id=None, num_processes=None):
     # batch_size required because cursor timed out without it. Could use further investigation
     product_cursor = DB.products.find(query_doc, fields).batch_size(100)
     TOTAL_PRODUCTS = product_cursor.count()
-    CLASSIFIER_XML_FOR_CATEGORY = get_classifier_xml_for_category(DB)
+    CLASSIFIER_FOR_CATEGORY = create_classifier_for_category_dict(DB)
 
     num_processes = num_processes or multiprocessing.cpu_count() - 2
     pool = multiprocessing.Pool(num_processes)
 
-    pool.map(run_fp, product_cursor[0:10])
-    pool.close()
-    pool.join()
+    pdb.set_trace()
+    for doc in product_cursor[0:10]:
+        run_fp(doc)
+    # pool.map(run_fp, product_cursor[0:10])
+    # pool.close()
+    # pool.join()
 
     print "All done!!"
 
