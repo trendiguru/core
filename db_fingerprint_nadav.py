@@ -127,6 +127,7 @@ def fingerprint_db(fp_version, category_id=None, num_processes=None):
     global DB, TOTAL_PRODUCTS, CURRENT, CLASSIFIER_FOR_CATEGORY, FP_VERSION
 
     DB = DB or pymongo.MongoClient().mydb
+    num_processes = num_processes or multiprocessing.cpu_count() - 2
 
     if category_id is not None:
         query_doc = {"$and": [
@@ -139,13 +140,12 @@ def fingerprint_db(fp_version, category_id=None, num_processes=None):
     fields = {"image": 1, "human_bb": 1, "fp_version": 1, "bounding_box": 1, "categories": 1, "id": 1}
 
     # batch_size required because cursor timed out without it. Could use further investigation
-    product_cursor = DB.products.find(query_doc, fields) # .batch_size(100)
+    product_cursor = DB.products.find(query_doc, fields).batch_size(num_processes)
     TOTAL_PRODUCTS = product_cursor.count()
     CLASSIFIER_FOR_CATEGORY = create_classifier_for_category_dict(DB)
 
     FP_VERSION = fp_version
 
-    num_processes = num_processes or multiprocessing.cpu_count() - 2
     pool = multiprocessing.Pool(num_processes)
 
     start_time = time.time()
