@@ -139,7 +139,7 @@ def fingerprint_db(fp_version, category_id=None, num_processes=None):
     fields = {"image": 1, "human_bb": 1, "fp_version": 1, "bounding_box": 1, "categories": 1, "id": 1}
 
     # batch_size required because cursor timed out without it. Could use further investigation
-    product_cursor = DB.products.find(query_doc, fields).batch_size(100)
+    product_cursor = DB.products.find(query_doc, fields) # .batch_size(100)
     TOTAL_PRODUCTS = product_cursor.count()
     CLASSIFIER_FOR_CATEGORY = create_classifier_for_category_dict(DB)
 
