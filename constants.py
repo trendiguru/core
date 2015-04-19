@@ -41,7 +41,7 @@ classifier_to_category_dict = {"dressClassifier.xml": ["dresses", "bridal-mother
 # this is for going to the previous item, highest numbered image
 max_image_val = 666
 
-svg_address = '/var/www/static/svgs/'
+svg_folder = '/var/www/static/svgs/'
 
 svg_url_prefix = 'http://extremeli.trendi.guru/static/svgs/'
 

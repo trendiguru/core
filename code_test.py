@@ -66,7 +66,7 @@ def lomshane_test():
 
 
 def make_mask_test(image_url, bb=None):
-    svg_address = constants.svg_address
+    svg_address = constants.svg_folder
     image = Utils.get_cv2_img_array(image_url)  # turn the URL into a cv2 image
     small_image, resize_ratio = background_removal.standard_resize(image, 400)  # shrink image for faster process
     bb = [int(b) for b in (np.array(bb) / resize_ratio)]  # shrink bb in the same ratio

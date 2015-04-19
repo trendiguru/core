@@ -39,24 +39,25 @@ def get_all_subcategories(category_collection, category_id):
     return subcategories
 
 
-def mask2svg(mask, filename, address):
+def mask2svg(mask, filename, save_in_folder):
     """
     this function takes a binary mask and turns it into a svg file
     :param mask: 0/255 binary 2D image
     :param filename: item id string
-    :param address: address string
+    :param save_in_folder: address string
     :return: the path of the svg file
     """
     mask = 255 - mask
-    os.chdir(address)
+    os.chdir(save_in_folder)
     cv2.imwrite(filename + '.bmp', mask)                                # save as a bmp image
     subprocess.call('potrace -s ' + filename + '.bmp' + ' -o ' + filename + '.svg', shell=True)  # create the svg
     os.remove(filename + '.bmp')  # remove the bmp mask
     return filename + '.svg'
 
 
-def got_bb(image_url, post_id, bb=None, number_of_results=10, category_id=None):
-    svg_address = constants.svg_address
+def got_bb(image_url, post_id, item_id, bb=None, number_of_results=10, category_id=None):
+    svg_folder = constants.svg_folder
+    full_item_id = post_id + "_" + item_id
     image = Utils.get_cv2_img_array(image_url)                                    # turn the URL into a cv2 image
     small_image, resize_ratio = background_removal.standard_resize(image, 400)    # shrink image for faster process
     if bb is not None:
@@ -76,7 +77,7 @@ def got_bb(image_url, post_id, bb=None, number_of_results=10, category_id=None):
     else:
         mask = fg_mask
     fp_vector, closest_matches = find_top_n_results(small_image, mask, number_of_results, category_id)
-    svg_filename = mask2svg(mask, post_id, svg_address)
+    svg_filename = mask2svg(mask, full_item_id, svg_folder)
     svg_url = constants.svg_url_prefix + svg_filename
     return fp_vector, closest_matches, svg_url
 
@@ -135,7 +136,7 @@ def find_top_n_results_using_grabcut(image_url, post_id=None, bb=None, number_of
         if post_id is None:
             print('error - svg wanted but no post_id given')
             return None
-        svg_address = constants.svg_address
+        svg_address = constants.svg_folder
         svg_filename = mask2svg(mask, post_id, svg_address)
         svg_url = constants.svg_url_prefix + svg_filename
         return fp_vector, closest_matches, svg_url
