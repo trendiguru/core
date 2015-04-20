@@ -1,7 +1,10 @@
 __author__ = 'jeremy'
-import numpy as np
 import scipy.optimize
 import math
+
+import numpy as np
+
+
 #import fingerprint_core
 import rate_fp
 import NNSearch
@@ -29,7 +32,8 @@ def rate_wrapper(weights,k):
     sum = np.sum(weights)
     print('constrained weights:'+str(weights))
     print('sum of weights after constraining:'+str(sum)+ ' target:'+str(target))
-    rating=rate_fp.self_rate_fingerprint(fingerprint_function=fingerprint_core.fp,weights=weights,distance_function=NNSearch.distance_1_k,distance_power=0.5)
+    rating, report = rate_fp.analyze_fingerprint(fingerprint_function=fingerprint_core.fp, weights=weights,
+                                                 distance_function=NNSearch.distance_1_k, distance_power=0.5)
     return rating
 
 def optimize_weights(weights=np.ones(fingerprint_length),k=0.5):
@@ -97,6 +101,20 @@ def test_function_starinput(*input_vector):
     final_answer = np.prod(answer)
     print('final answer:'+str(final_answer))
     return(final_answer)
+
+
+def test_function(input_vector):
+    answer = np.array([])
+    x_vector = [x for x in input_vector]
+    print('input vector:' + str(x_vector))
+    for i in range(0, len(x_vector)):
+        x_max = 6.66
+        val = math.exp(-(x_vector[i] - x_max) ** 2)
+        answer = np.append(answer, val)
+    print('x values:' + str(x_vector) + ' yvalues:' + str(answer))
+    final_answer = np.prod(answer)
+    print('final answer:' + str(final_answer))
+    return (final_answer)
 
 def test2():
     f = test_function()

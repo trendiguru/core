@@ -31,7 +31,6 @@ cmd_subfolder = os.path.realpath(
 if cmd_subfolder not in sys.path:
     sys.path.insert(0, cmd_subfolder)
 
-import utils.cpu_count as cpu_count
 
 # import default
 # import find_similar_mongo
@@ -550,7 +549,7 @@ def calculate_self_confusion_vector(image_sets, fingerprint_function=fp_core.fp,
     parallelize = True
     if parallelize:
         results = []
-        n_cpus = cpu_count.available_cpu_count() - Reserve_cpus
+        # n_cpus = cpu_count.available_cpu_count() - Reserve_cpus
         n_cpus = multiprocessing.cpu_count() - Reserve_cpus or 1
         # n_cpus = 2
         print('attempting to use ' + str(n_cpus) + ' cpus')
