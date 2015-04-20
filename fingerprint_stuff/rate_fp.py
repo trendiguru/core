@@ -686,8 +686,8 @@ if __name__ == '__main__':
     parser.add_argument('--use_visual_output2', default=False,
                         help='show output for each image')
     args = parser.parse_args()
-    visual_output1 = args.visual_output
-    visual_output2 = args.visual_output2
+    visual_output1 = args.use_visual_output
+    visual_output2 = args.use_visual_output2
     print('use_visual_output:' + str(visual_output1) + ' visual_output2:' + str(visual_output2))
 
     pr = cProfile.Profile()
