@@ -206,7 +206,7 @@ def lookfor_image_group(queryobject, string):
     return (answer_url_list)
 # maybe return(urlN,n) at some point
 
-def lookfor_next_imageset():
+def lookfor_next_imageset():  # IS THIS EVER USED
     print('path=' + str(sys.path))
     resultDict = {}  #return empty dict if no results found
     prefixes = ['Main Image URL angle ', 'Style Gallery Image ']
@@ -221,9 +221,9 @@ def lookfor_next_imageset():
         for prefix in prefixes:
             answers = lookfor_image_group(doc, prefix)
             if answers is not None:
-                tot_answers.append[answers]
+                tot_answers.append(answers)
         print('result:' + str(tot_answers))
-
+    return tot_answers
 
 def check_img_array(image_array):
     if image_array is not None and isinstance(image_array, np.ndarray) and isinstance(image_array[0][0], np.ndarray):
@@ -282,12 +282,13 @@ def calculate_cross_confusion_matrix():
         if n_good > min_images_per_doc:
             i = i + 1
             print('got ' + str(n_good) + ' bounded images, ' + str(min_images_per_doc) + ' required, ' + str(
-                n_images) + ' images tot             ')
+                n_images) + ' images tot                         ')
             tot_answers.append(get_images_from_doc(images))
             cross_report['n_items'].append(n_good)
         else:
             print('not enough bounded boxes (only ' + str(n_good) + ' found, of ' + str(
-                min_images_per_doc) + ' required, ' + str(n_images) + ' images tot                  ', end='\r', sep='')
+                min_images_per_doc) + ' required, ' + str(n_images) + ' images tot                        ', end='\r',
+                  sep='')
         doc = next(training_collection_cursor, None)
     print('tot number of groups:' + str(i) + '=' + str(len(tot_answers)))
     confusion_matrix = cross_compare(tot_answers)
@@ -456,8 +457,8 @@ def partial_cross_compare_wrapper(image_sets, fingerprint_function=fp_core.fp, w
     # print ('process id:'+str( os.getpid()))
     image_set1 = image_sets[0]
     image_set2 = image_sets[1]
-    print('im1' + str(image_set1))
-    print('im2' + str(image_set2))
+    # print('im1' + str(image_set1))
+    #  print('im2' + str(image_set2))
     avg_dist, stdev = compare_fingerprints(image_set1, image_set2, fingerprint_function=fingerprint_function,
                                            weights=weights, distance_function=distance_function,
                                            distance_power=distance_power)
@@ -561,7 +562,7 @@ def calculate_self_confusion_vector(image_sets, fingerprint_function=fp_core.fp,
         # p.close()
         # p.join()
         # answer_matrices.wait()
-        print(str(answers))
+        #        print(str(answers))
         confusion_vector = [a[0] for a in answers]
         stdev_vector = [a[1] for a in answers]
         print('conf vector:' + str(confusion_vector))
