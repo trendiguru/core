@@ -14,8 +14,7 @@ import numpy as np
 from bson import objectid
 import pymongo
 import constants
-
-min_images_per_doc = constants.min_images_per_doc
+import math
 
 min_images_per_doc = constants.min_images_per_doc
 max_image_val = constants.max_image_val
@@ -245,7 +244,7 @@ def lookfor_next_bounded_image(queryobject):
         else:
             print('utils.py:image is not bounded :(')
             logging.debug('image is not bounded.....')
-            return (None,None,None)
+            return (None, None, None)  # why are there two of thesneed  #need to tak
 
 def lookfor_next_bounded_image(queryobject, image_index=0, only_get_boxed_images=True):
     """
@@ -322,7 +321,6 @@ def lookfor_next_bounded_image(queryobject, image_index=0, only_get_boxed_images
     logging.debug('utils.lookfor_next_bounded_image - no bounded image found in this doc')
     return None
 
-
 def lookfor_next_bounded_in_db(current_item=0, current_image=0, only_get_boxed_images=True):
     """
     find next bounded image in db
@@ -374,7 +372,6 @@ def lookfor_next_bounded_in_db(current_item=0, current_image=0, only_get_boxed_i
         logging.warning("no bounded image found in current doc, trying next")
     return {'error':0,'message':"No bounded bb found in db"}
 
-
 def good_bb(dict, skip_if_marked_to_skip=True):
     '''
     determine if dict has good human bb in it
@@ -396,8 +393,6 @@ def good_bb(dict, skip_if_marked_to_skip=True):
     else:
         # print('human bb ok:'+str(dict['human_bb']))
         return (dict["human_bb"])
-
-
 
 def legal_bounding_box(rect):
     if rect is None:
@@ -445,34 +440,6 @@ def bounding_box_inside_image(image_array, rect):
         return False
 
 
-# test function for lookfor_next_unbounded_image
-def test_lookfor_next():
-    db = pymongo.MongoClient().mydb
-    training_collection_cursor = db.training.find()  # The db with multiple figs of same item
-    doc = next(training_collection_cursor, None)
-    resultDict = {}
-    while doc is not None:
-        url = None  # kill error
-        if url:
-            resultDict["url"] = url
-            resultDict["_id"] = str(doc['_id'])
-            # a better way to deal with keys that may not exist;
-            try:
-                resultDict["product_title"] = doc["Product Title"]
-            except KeyError, e:
-                print 'hi there was a keyerror on key "%s" which probably does not exist' % str(e)
-            try:
-                resultDict["product_url"] = doc["Product URL"]
-            except KeyError, e:
-                print 'hi there was a keyerror on key "%s" which probably does not exist' % str(e)
-            return resultDict
-        else:
-            prefix = 'none'  # kill error
-            print("no unbounded image found for string:" + str(prefix) + " in current doc")
-            logging.debug("no unbounded image found for string:" + str(prefix) + " in current doc")
-        doc = next(training_collection_cursor, None)
-    return resultDict
-
 
 # products_collection_cursor = db.products.find()   #Regular db of one fig per item
 
@@ -482,42 +449,6 @@ def test_lookfor_next():
 #print('doc:'+str(doc))
 #       for prefix in prefixes:
 
-
-def test_count_bbs():
-    '''
-    test counting how many good bb;s in doc
-    '''
-
-    db = pymongo.MongoClient().mydb
-    training_collection_cursor = db.training.find()  # The db with multiple figs of same item
-    doc = next(training_collection_cursor, None)
-    resultDict = {}
-    while doc is not None:
-        if 'images' in doc:
-            n = count_human_bbs_in_doc(doc['images'])
-            print('number of good bbs:' + str(n))
-        doc = next(training_collection_cursor, None)
-
-
-def test_insert_bb(dict, bb):
-    db = pymongo.MongoClient().mydb
-    doc = db.good_training_set.find_one({'_id': objectid.ObjectId(dict['_id'])})
-    imagelist = doc['images']
-    print('imagelist:' + str(imagelist))
-    for item in imagelist:
-        print('item:' + str(item))
-        print('desired url:' + str(dict['url']) + 'actual item url:' + str(item['url']))
-        if item['url'] == dict['url']:  # this is the right image
-            print('MATCH')
-            item['human_bb'] = bb
-            print('imagelist after bb insertion:' + str(imagelist))
-            db.good_training_set.update({"_id": objectid.ObjectId(dict["_id"])}, {'$set': {'images': imagelist}})
-            return True
-
-
-def test_lookfor_and_insert():
-    dict = test_lookfor_next()
-    test_insert_bb(dict, [10, 20, 30, 40])
 
 
 def insert_bb_into_training_db(receivedData):
@@ -570,7 +501,6 @@ def insert_bb_into_training_db(receivedData):
         i = i + 1
     return {"success": 0, "error": "could not find image w. url:" + str(image_url) + " in current doc:" + str(doc)}
 
-
 class GZipCSVReader:
     def __init__(self, filename):
         self.gzfile = gzip.open(filename)
@@ -585,13 +515,11 @@ class GZipCSVReader:
     def __iter__(self):
         return self.reader.__iter__()
 
-
 class npAwareJSONEncoder(json.JSONEncoder):
     def default(self, obj):
         if isinstance(obj, np.ndarray) and obj.ndim == 1:
             return obj.tolist()
         return json.JSONEncoder.default(self, obj)
-
 
 class ThreadSafeCounter(object):
     def __init__(self):
@@ -604,3 +532,24 @@ class ThreadSafeCounter(object):
     @property
     def value(self):
         return self.val.value
+
+
+############################
+### math stuff
+############################
+
+def error_of_fraction(numerator, numerator_stdev, denominator, denominator_stdev):
+    '''
+    this gives the error on fraction numerator/denominator assuming no covariance
+    :param numerator:
+    :param numerator_stdev:
+    :param denominator:
+    :param denominator_stdev:
+    :return:
+    '''
+    n = float(numerator)
+    d = float(denominator)
+    n_e = float(numerator_stdev)
+    d_e = float(denominator_stdev)
+    fraction_error = abs(n / d) * math.sqrt((n_e / n) ** 2 + (d_e / d) ** 2)
+    return (fraction_error)
