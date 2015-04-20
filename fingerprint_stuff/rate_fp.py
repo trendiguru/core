@@ -7,6 +7,7 @@ __author__ = 'jeremy'
 # compute stdev and add to report
 # done: fix ConnectionError: HTTPConnectionPool(host='img.sheinside.com', port=80): Max retries exceeded with url: /images/lookbook/wearing/201428/04181405101082542276157.jpg (Caused by <class 'socket.error'>: [Errno 104] Connection reset by peer)
 # TODO make sure fp is correct when image is missing/not available (make sure its not counted)
+# TODO maybe add already-used image sets as input to avoid re-searching every time
 
 # from joblib import Parallel, delayed
 # NOTE - cross-compare not yet implementing weights, fp_function,distance_function,distance_power
@@ -281,7 +282,7 @@ def calculate_cross_confusion_matrix():
         if n_good > min_images_per_doc:
             i = i + 1
             print('got ' + str(n_good) + ' bounded images, ' + str(min_images_per_doc) + ' required, ' + str(
-                n_images) + ' images tot             ');
+                n_images) + ' images tot             ')
             tot_answers.append(get_images_from_doc(images))
             cross_report['n_items'].append(n_good)
         else:
@@ -447,7 +448,6 @@ def make_cross_comparison_sets(image_sets):
         answers.append([image_sets[i], image_sets[j]])
     return answers
 
-
 def partial_cross_compare_wrapper(image_sets, fingerprint_function=fp_core.fp, weights=np.ones(fingerprint_length),
                                   distance_function=NNSearch.distance_1_k, distance_power=0.5):
     # print ('module name:'+str( __name__))
@@ -494,7 +494,7 @@ def calculate_partial_cross_confusion_vector(image_sets, fingerprint_function=fp
     else:
         i = 0
         for imset1, imset2 in image_sets:
-            print('comparing group ' + str(imset1) + ' to group ' + str(imset2))
+            # print('comparing group ' + str(imset1) + ' to group ' + str(imset2))
             avg_dist, stdev = compare_fingerprints(imset1, imset2,
                                                    fingerprint_function=fingerprint_function,
                                                    weights=weights, distance_function=distance_function,
