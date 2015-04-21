@@ -527,7 +527,7 @@ def calculate_partial_cross_confusion_vector(image_sets, fingerprint_function=fp
     report['weights'] = weights
     report = find_stats(confusion_vector, stdev_vector, report)
 #    print('report:' + str(report))
-    report['comparisons'] = comparisons_to_make
+#    report['comparisons'] = comparisons_to_make
     return (report)
 
 
