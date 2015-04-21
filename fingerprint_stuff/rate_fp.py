@@ -391,7 +391,8 @@ def compare_fingerprints_except_diagonal(image_array1, image_array2, fingerprint
             i = i + 1
 #            print('comparing image ' + str(i) + ' to rest of same group')
             #background_removal.standard_resize(image, 400)
-            fp1 = fingerprint_function(img_arr1, weights=weights)
+            mask = Utils.bb_to_mask(bb1, img_arr1)
+            fp1 = fingerprint_function(img_arr1, mask=mask, weights=weights)
             #		print('fp1:'+str(fp1))
             j = 0
             if visual_output1:
@@ -412,7 +413,8 @@ def compare_fingerprints_except_diagonal(image_array1, image_array2, fingerprint
                         cv2.imshow('im2', img_arr2)
                         k = cv2.waitKey(50) & 0xFF
                         #pdb.set_trace()
-                    fp2 = fingerprint_function(img_arr2, weights=weights)  # bounding_box=bb2
+                    mask = Utils.bb_to_mask(bb2, img_arr2)
+                    fp2 = fingerprint_function(img_arr2, mask=mask, weights=weights)  # bounding_box=bb2
                     #print('fp2:'+str(fp2))
                     dist = distance_function(fp1, fp2, k=distance_power)
                     # print('comparing image ' + str(i) + ' to ' + str(j) + ' gave distance:' + str(

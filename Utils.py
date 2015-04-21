@@ -535,6 +535,16 @@ class ThreadSafeCounter(object):
         return self.val.value
 
 
+def bb_to_mask(bb, img_array):
+    '''
+    bb in form of x,y,w,h converted to np array the same size as img_array
+    :param bb:
+    :return:
+    '''
+    mask = np.zeros((img_array.shape[0], img_array.shape[1]), dtype=np.uint8)
+    mask[bb[0]:bb[0] + bb[2], bb[1]:bb[1] + bb[3]] = 1
+    return mask
+
 ############################
 ### math stuff
 ############################
@@ -554,3 +564,4 @@ def error_of_fraction(numerator, numerator_stdev, denominator, denominator_stdev
     d_e = float(denominator_stdev)
     fraction_error = abs(n / d) * math.sqrt((n_e / n) ** 2 + (d_e / d) ** 2)
     return (fraction_error)
+
