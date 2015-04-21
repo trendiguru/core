@@ -5,6 +5,10 @@ import math
 import numpy as np
 
 
+
+
+
+
 #import fingerprint_core
 import rate_fp
 import NNSearch
@@ -13,8 +17,10 @@ import constants
 import fingerprint_core
 
 fingerprint_length=constants.fingerprint_length
+n_docs = constants
 
-def rate_wrapper(weights,k):
+
+def rate_wrapper(weights, k=0.5, image_sets=None, self_report=None):
     '''
     a wrapper to call self_rate_fingerprint without worrying about extra arguments, and also constrain weights to sum to 1;
     maybe this wrapper is not necessary given that u can call scipy.optimize.minimize(f,x0,args=(a,b,c)) to deal with fixed args a,b,c. Note
@@ -33,7 +39,8 @@ def rate_wrapper(weights,k):
     print('constrained weights:'+str(weights))
     print('sum of weights after constraining:'+str(sum)+ ' target:'+str(target))
     rating, report = rate_fp.analyze_fingerprint(fingerprint_function=fingerprint_core.fp, weights=weights,
-                                                 distance_function=NNSearch.distance_1_k, distance_power=0.5)
+                                                 distance_function=NNSearch.distance_1_k, distance_power=k,
+                                                 image_sets=image_sets, self_report=self_report)
     return rating
 
 def optimize_weights(weights=np.ones(fingerprint_length),k=0.5):
@@ -49,7 +56,10 @@ def optimize_weights(weights=np.ones(fingerprint_length),k=0.5):
     f = rate_wrapper
     init=weights
 # TO DO CONSTRAINED MINIMIZATION USE COBYLA  or SQLSQP - see docs - currentyly constraining 'by hand'
-    x_min = scipy.optimize.minimize(f,init,args=(k,),tol=0.1)
+    # x_min = scipy.optimize.minimize(f,init,args=(k,),tol=0.1)   #in case u need only one optional argument this is how to do it
+    self_report, image_sets = rate_fp.get_docs(n_docs)
+
+    x_min = scipy.optimize.minimize(f, init, args=(k, image_sets, self_report), tol=0.1)
 #    x_min = scipy.optimize.fmin(f,[2,3])
     print('output of optimize:'+str(x_min))
     print('xvals:'+str(x_min.x))
@@ -65,7 +75,6 @@ def parallel_optimize():
 def test_function_vectorinput(x_vector):
     '''
     a test function whose optimal point should be at (6.66,7.66,8.66,...) for arbitrary length starting guess
-    :param x_arr:initial guess in arbitrary dimensions
     :return:minimum point
     '''
 
@@ -117,12 +126,12 @@ def test_function(input_vector):
     return (final_answer)
 
 def test2():
-    f = test_function()
-    print('f[10]='+str(test_function(3,4)))
-    x_min = scipy.optimize.minimize(test_function(),(3,4,5))
+    f = test_function([1, 2, 3])
+    print('f[10]=' + str(test_function([10])))
+    x_min = scipy.optimize.minimize(test_function([10]), (3, 4, 5))
     print('output of optimize:'+str(x_min))
     print('xvals:'+str(x_min.x))
-    print('f('+x_min.x+')='+f(x_min.x))
+    # print('f(' + x_min.x + ')=' + str(f(x_min.x)))
 
 if __name__ == '__main__':
    # parallel_optimize()

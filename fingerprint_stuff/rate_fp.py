@@ -20,6 +20,7 @@ import constants
 import os, sys, inspect
 import random
 import math
+from memory_profiler import profile
 
 # realpath() will make your script run, even if you symlink it :)
 cmd_folder = os.path.realpath(os.path.abspath(os.path.split(inspect.getfile(inspect.currentframe()))[0]))
@@ -108,6 +109,7 @@ def save_report(report):
         f.close()
 
 
+@profile
 def get_docs(n_items=max_items):
     db = pymongo.MongoClient().mydb
     training_collection_cursor = db.training.find()
@@ -214,6 +216,8 @@ def lookfor_next_imageset():  # IS THIS EVER USED
     training_collection_cursor = db.training.find()  #The db with multiple figs of same item
     assert (training_collection_cursor)  #make sure training collection exists
 
+    tot_answers = []
+
     doc = next(training_collection_cursor, None)
     while doc is not None:
         print('doc:' + str(doc))
@@ -301,6 +305,7 @@ def calculate_cross_confusion_matrix():
 
 
 ########
+@profile
 def compare_fingerprints(image_array1, image_array2, fingerprint_function=fp_core.fp,
                          weights=np.ones(fingerprint_length), distance_function=NNSearch.distance_1_k,
                          distance_power=0.5):
@@ -366,6 +371,8 @@ def compare_fingerprints(image_array1, image_array2, fingerprint_function=fp_cor
     # print('average distance numpy:'+str(distances_mean)+',stdev'+str(distances_stdev))
     return (avg_dist, distances_stdev)
 
+
+@profile
 def compare_fingerprints_except_diagonal(image_array1, image_array2, fingerprint_function=fp_core.fp,
                                          weights=np.ones(fingerprint_length), distance_function=NNSearch.distance_1_k,
                                          distance_power=0.5):
@@ -467,9 +474,10 @@ def partial_cross_compare_wrapper(image_sets, fingerprint_function=fp_core.fp, w
     return ([confusion_matrix, stdev_matrix])
 
 
+@profile
 def calculate_partial_cross_confusion_vector(image_sets, fingerprint_function=fp_core.fp,
                                              weights=np.ones(fingerprint_length),
-                                             distance_function=NNSearch.distance_1_k, distance_power=0.5, report={}):
+                                             distance_function=NNSearch.distance_1_k, distance_power=0.5, report=None):
     print('s.fp_func:' + str(fingerprint_function))
     print('s.weights:' + str(weights))
     print('s.distance_function:' + str(distance_function))
@@ -532,8 +540,9 @@ def self_compare_wrapper(image_set, fingerprint_function=fp_core.fp, weights=np.
     return ([confusion_matrix, stdev_matrix])
 
 
+@profile
 def calculate_self_confusion_vector(image_sets, fingerprint_function=fp_core.fp, weights=np.ones(fingerprint_length),
-                                    distance_function=NNSearch.distance_1_k, distance_power=0.5, report={}):
+                                    distance_function=NNSearch.distance_1_k, distance_power=0.5, report=None):
     '''
     compares image set i to image set i
     '''
@@ -618,19 +627,26 @@ def cross_rate_fingerprint():
     return (different_item_avg)
 
 
+@profile
 def analyze_fingerprint(fingerprint_function=fp_core.fp, weights=np.ones(fingerprint_length),
                         distance_function=NNSearch.distance_1_k,
-                        distance_power=0.5, n_docs=max_items, tot_report={}, use_visual_output1=False,
-                        use_visual_output2=False):
+                        distance_power=0.5, n_docs=max_items, use_visual_output1=False,
+                        use_visual_output2=False, image_sets=None, self_reporting=None):
     global visual_output1
     global visual_output2
 
     visual_output1 = use_visual_output1
     visual_output2 = use_visual_output2
 
-    self_report, image_sets = get_docs(n_docs)
-    cross_report = dict(
-        self_report)  # get the initial info , also we can use same image set for cross comparisons below
+    if image_sets is None:
+        # get the initial info , also we can use same image set for cross comparisons below
+        self_report, image_sets = get_docs(n_docs)
+    else:
+        # i am doing this retarded thing since if i call the parameter 'self_report' in the argument list
+        # i get a warning about 'shadowing'.
+        self_report = self_reporting
+
+    cross_report = dict(self_report)
 
     calculate_self_confusion_vector(image_sets, fingerprint_function=fingerprint_function,
                                     weights=weights, distance_function=distance_function,

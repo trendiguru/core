@@ -72,7 +72,7 @@ class rate_fingerprint_test(unittest.TestCase):
         goodness, tot_report = rate_fp.analyze_fingerprint(fingerprint_function=fingerprint_core.fp,
                                                            weights=np.ones(constants.fingerprint_length),
                                                            distance_function=NNSearch.distance_1_k,
-                                                           distance_power=0.5, n_docs=n_items, tot_report=tot_report)
+                                                           distance_power=0.5, n_docs=n_items)
         self.assertTrue(goodness > 0)
         print('after checking, report:' + str(tot_report))
 
