@@ -4,11 +4,6 @@ import math
 
 import numpy as np
 
-
-
-
-
-
 #import fingerprint_core
 import rate_fp
 import NNSearch
@@ -17,7 +12,7 @@ import constants
 import fingerprint_core
 
 fingerprint_length=constants.fingerprint_length
-n_docs = constants
+n_docs = constants.max_items
 
 
 def rate_wrapper(weights, k=0.5, image_sets=None, self_report=None):
@@ -40,7 +35,7 @@ def rate_wrapper(weights, k=0.5, image_sets=None, self_report=None):
     print('sum of weights after constraining:'+str(sum)+ ' target:'+str(target))
     rating, report = rate_fp.analyze_fingerprint(fingerprint_function=fingerprint_core.fp, weights=weights,
                                                  distance_function=NNSearch.distance_1_k, distance_power=k,
-                                                 image_sets=image_sets, self_report=self_report)
+                                                 image_sets=image_sets, self_reporting=self_report)
     return rating
 
 def optimize_weights(weights=np.ones(fingerprint_length),k=0.5):

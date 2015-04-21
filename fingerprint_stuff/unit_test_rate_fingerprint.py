@@ -1,14 +1,20 @@
 __author__ = 'jeremy'
 # import default
 import unittest
+import cProfile
+import StringIO
+import pstats
 
 import numpy as np
 
 import rate_fp
 import fingerprint_core
+
 import NNSearch
 import constants
 
+
+fingerprint_length = constants.fingerprint_length
 
 class rate_fingerprint_test(unittest.TestCase):
     #examples of things to return
@@ -69,12 +75,24 @@ class rate_fingerprint_test(unittest.TestCase):
         n_items = 3
         tot_report = {}
         print('test the self_rate_fingerprint fucntion in rate_fingerprint')
+
+        pr = cProfile.Profile()
+        pr.enable()
+        weights = np.ones(fingerprint_length)
+
+
         goodness, tot_report = rate_fp.analyze_fingerprint(fingerprint_function=fingerprint_core.fp,
                                                            weights=np.ones(constants.fingerprint_length),
                                                            distance_function=NNSearch.distance_1_k,
                                                            distance_power=0.5, n_docs=n_items)
+        pr.disable()
         self.assertTrue(goodness > 0)
         print('after checking, report:' + str(tot_report))
+        s = StringIO.StringIO()
+        sortby = 'cumulative'
+        ps = pstats.Stats(pr, stream=s).sort_stats(sortby)
+        ps.print_stats()
+        print(s.getvalue())
 
 
     def tearDown(self):

@@ -8,6 +8,7 @@ __author__ = 'jeremy'
 # done: fix ConnectionError: HTTPConnectionPool(host='img.sheinside.com', port=80): Max retries exceeded with url: /images/lookbook/wearing/201428/04181405101082542276157.jpg (Caused by <class 'socket.error'>: [Errno 104] Connection reset by peer)
 # TODO make sure fp is correct when image is missing/not available (make sure its not counted)
 # TODO maybe add already-used image sets as input to avoid re-searching every time
+# TODO load all images for a given set  and keep in memory
 
 # from joblib import Parallel, delayed
 # NOTE - cross-compare not yet implementing weights, fp_function,distance_function,distance_power
@@ -17,21 +18,20 @@ import json
 import fingerprint_core as fp_core
 import cv2
 import constants
-import os, sys, inspect
 import random
 import math
 from memory_profiler import profile
 
 # realpath() will make your script run, even if you symlink it :)
-cmd_folder = os.path.realpath(os.path.abspath(os.path.split(inspect.getfile(inspect.currentframe()))[0]))
-if cmd_folder not in sys.path:
-    sys.path.insert(0, cmd_folder)
+# cmd_folder = os.path.realpath(os.path.abspath(os.path.split(inspect.getfile(inspect.currentframe()))[0]))
+#if cmd_folder not in sys.path:
+#    sys.path.insert(0, cmd_folder)
 
 # use this if you want to include modules from a subfolder
-cmd_subfolder = os.path.realpath(
-    os.path.abspath(os.path.join(os.path.split(inspect.getfile(inspect.currentframe()))[0], "subfolder")))
-if cmd_subfolder not in sys.path:
-    sys.path.insert(0, cmd_subfolder)
+# cmd_subfolder = os.path.realpath(
+#    os.path.abspath(os.path.join(os.path.split(inspect.getfile(inspect.currentframe()))[0], "subfolder")))
+#if cmd_subfolder not in sys.path:
+#   sys.path.insert(0, cmd_subfolder)
 
 
 # import default
@@ -109,7 +109,6 @@ def save_report(report):
         f.close()
 
 
-@profile
 def get_docs(n_items=max_items):
     db = pymongo.MongoClient().mydb
     training_collection_cursor = db.training.find()
@@ -305,7 +304,6 @@ def calculate_cross_confusion_matrix():
 
 
 ########
-@profile
 def compare_fingerprints(image_array1, image_array2, fingerprint_function=fp_core.fp,
                          weights=np.ones(fingerprint_length), distance_function=NNSearch.distance_1_k,
                          distance_power=0.5):
@@ -371,8 +369,6 @@ def compare_fingerprints(image_array1, image_array2, fingerprint_function=fp_cor
     # print('average distance numpy:'+str(distances_mean)+',stdev'+str(distances_stdev))
     return (avg_dist, distances_stdev)
 
-
-@profile
 def compare_fingerprints_except_diagonal(image_array1, image_array2, fingerprint_function=fp_core.fp,
                                          weights=np.ones(fingerprint_length), distance_function=NNSearch.distance_1_k,
                                          distance_power=0.5):
@@ -474,7 +470,6 @@ def partial_cross_compare_wrapper(image_sets, fingerprint_function=fp_core.fp, w
     return ([confusion_matrix, stdev_matrix])
 
 
-@profile
 def calculate_partial_cross_confusion_vector(image_sets, fingerprint_function=fp_core.fp,
                                              weights=np.ones(fingerprint_length),
                                              distance_function=NNSearch.distance_1_k, distance_power=0.5, report=None):
@@ -540,7 +535,6 @@ def self_compare_wrapper(image_set, fingerprint_function=fp_core.fp, weights=np.
     return ([confusion_matrix, stdev_matrix])
 
 
-@profile
 def calculate_self_confusion_vector(image_sets, fingerprint_function=fp_core.fp, weights=np.ones(fingerprint_length),
                                     distance_function=NNSearch.distance_1_k, distance_power=0.5, report=None):
     '''

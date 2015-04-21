@@ -54,11 +54,12 @@ def get_cv2_img_array(url_or_path_to_image_file_or_cv2_image_array, try_url_loca
             # print('trying to use filename:'+str(FILENAME)+' and calling myself')
             img_array = get_cv2_img_array(FILENAME, try_url_locally=False, download=download,
                                           download_directory=download_directory)
+            #maybe return(get_cv2 etc) instead of img_array =
             if img_array is not None:
                 # print('got ok array calling self locally')
                 return img_array
             else:  # couldnt get locally so try remotely
-                # print('trying again since using local filename didnt work, download='+str(download))
+                print('trying again since using local filename didnt work, download=' + str(download))
                 return (get_cv2_img_array(url_or_path_to_image_file_or_cv2_image_array, try_url_locally=False,
                                           download=download, download_directory=download_directory))
         # put images in local directory
