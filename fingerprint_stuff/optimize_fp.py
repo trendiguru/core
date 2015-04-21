@@ -71,7 +71,7 @@ def optimize_weights(weights=np.ones(fingerprint_length),k=0.5):
     comparisons_to_make = rate_fp.make_cross_comparison_sets(image_sets)
 
     x_min = scipy.optimize.minimize(f, init, args=(k, image_sets, self_report, comparisons_to_make), tol=0.1,
-                                    options={'maxiter': 10, 'disp': True})
+                                    options={'maxiter': 50, 'disp': True})
 
     pr.disable()
     s = StringIO.StringIO()

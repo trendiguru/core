@@ -480,10 +480,10 @@ def calculate_partial_cross_confusion_vector(image_sets, fingerprint_function=fp
                                              weights=np.ones(fingerprint_length),
                                              distance_function=NNSearch.distance_1_k, distance_power=0.5, report=None,
                                              comparisons_to_make=None):
-    print('s.fp_func:' + str(fingerprint_function))
-    print('s.weights:' + str(weights))
-    print('s.distance_function:' + str(distance_function))
-    print('s.distance_power:' + str(distance_power))
+    # print('s.fp_func:' + str(fingerprint_function))
+    # print('s.weights:' + str(weights))
+    # print('s.distance_function:' + str(distance_function))
+    # print('s.distance_power:' + str(distance_power))
 
     confusion_vector = np.zeros((len(image_sets)))
     stdev_vector = np.zeros((len(image_sets)))
@@ -551,10 +551,10 @@ def calculate_self_confusion_vector(image_sets, fingerprint_function=fp_core.fp,
     '''
     global self_report
 
-    print('s.fp_func:' + str(fingerprint_function))
-    print('s.weights:' + str(weights))
-    print('s.distance_function:' + str(distance_function))
-    print('s.distance_power:' + str(distance_power))
+ #   print('s.fp_func:' + str(fingerprint_function))
+    # print('s.weights:' + str(weights))
+    # print('s.distance_function:' + str(distance_function))
+    # print('s.distance_power:' + str(distance_power))
     confusion_vector = np.zeros((len(image_sets)))
     stdev_vector = np.zeros((len(image_sets)))
 
@@ -678,20 +678,21 @@ def analyze_fingerprint(fingerprint_function=fp_core.fp, weights=np.ones(fingerp
 
     same_item_average = self_report['average_weighted']
     cross_item_average = cross_report['average_weighted']
-    print('savg:' + str(same_item_average) + ' cavg:' + str(cross_item_average))
-    print(self_report)
+#     print(self_report)
     same_item_error = self_report['error_cumulative']
     cross_item_error = cross_report['error_cumulative']
     numerator = cross_item_average - same_item_average
     denominator = cross_item_average
     goodness = numerator / denominator
-    print('n,d,n_e,d_e' + str(numerator), str(numerator), str(denominator), str(cross_item_error))
+#    print('n,d,n_e,d_e' + str(numerator), str(numerator), str(denominator), str(cross_item_error))
     numerator_error = math.sqrt(cross_item_error ** 2 + same_item_error ** 2)
     goodness_error = Utils.error_of_fraction(numerator, numerator_error, denominator, cross_item_error)
     tot_report = {'self_report': self_report, 'cross_report': cross_report, 'goodness': goodness,
                   'goodness_error': goodness_error}
     save_report(tot_report)
-    print('tot report:' + str(tot_report))
+#    print('tot report:' + str(tot_report))
+    print('goodness:' + str(goodness) + ' same item average:' + str(same_item_average) + ' cross item averag:' + str(
+        cross_item_average))
     return (goodness, tot_report)
 
 
