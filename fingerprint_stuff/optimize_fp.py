@@ -4,18 +4,24 @@ import math
 
 import numpy as np
 
+
+
 #import fingerprint_core
 import rate_fp
 import NNSearch
 from multiprocessing import Pool
 import constants
 import fingerprint_core
+import cProfile
+import StringIO
+import pstats
+
 
 fingerprint_length=constants.fingerprint_length
 n_docs = constants.max_items
 
 
-def rate_wrapper(weights, k=0.5, image_sets=None, self_report=None):
+def rate_wrapper(weights, k=0.5, image_sets=None, self_report=None, comparisons_to_make=None):
     '''
     a wrapper to call self_rate_fingerprint without worrying about extra arguments, and also constrain weights to sum to 1;
     maybe this wrapper is not necessary given that u can call scipy.optimize.minimize(f,x0,args=(a,b,c)) to deal with fixed args a,b,c. Note
@@ -31,11 +37,14 @@ def rate_wrapper(weights, k=0.5, image_sets=None, self_report=None):
     target = len(weights)
     weights=weights*float(target)/sum
     sum = np.sum(weights)
+    print(
+        'k:' + str(k) + 'imsets:' + str(image_sets) + 'selfrep:' + str(self_report) + 'ctm:' + str(comparisons_to_make))
     print('constrained weights:'+str(weights))
     print('sum of weights after constraining:'+str(sum)+ ' target:'+str(target))
     rating, report = rate_fp.analyze_fingerprint(fingerprint_function=fingerprint_core.fp, weights=weights,
                                                  distance_function=NNSearch.distance_1_k, distance_power=k,
-                                                 image_sets=image_sets, self_reporting=self_report)
+                                                 image_sets=image_sets, self_reporting=self_report,
+                                                 comparisons_to_make=comparisons_to_make)
     return rating
 
 def optimize_weights(weights=np.ones(fingerprint_length),k=0.5):
@@ -52,9 +61,26 @@ def optimize_weights(weights=np.ones(fingerprint_length),k=0.5):
     init=weights
 # TO DO CONSTRAINED MINIMIZATION USE COBYLA  or SQLSQP - see docs - currentyly constraining 'by hand'
     # x_min = scipy.optimize.minimize(f,init,args=(k,),tol=0.1)   #in case u need only one optional argument this is how to do it
-    self_report, image_sets = rate_fp.get_docs(n_docs)
 
-    x_min = scipy.optimize.minimize(f, init, args=(k, image_sets, self_report), tol=0.1)
+    pr = cProfile.Profile()
+    pr.enable()
+
+
+
+    self_report, image_sets = rate_fp.get_docs(n_docs)
+    comparisons_to_make = rate_fp.make_cross_comparison_sets(image_sets)
+
+    x_min = scipy.optimize.minimize(f, init, args=(k, image_sets, self_report, comparisons_to_make), tol=0.1,
+                                    options={'maxiter': 10, 'disp': True})
+
+    pr.disable()
+    s = StringIO.StringIO()
+    sortby = 'cumulative'
+    ps = pstats.Stats(pr, stream=s).sort_stats(sortby)
+    ps.print_stats()
+    print(s.getvalue())
+
+
 #    x_min = scipy.optimize.fmin(f,[2,3])
     print('output of optimize:'+str(x_min))
     print('xvals:'+str(x_min.x))
