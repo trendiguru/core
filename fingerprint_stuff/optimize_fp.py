@@ -14,6 +14,7 @@ import numpy as np
 
 
 
+
 #import fingerprint_core
 import rate_fp
 import NNSearch
@@ -46,8 +47,7 @@ def rate_wrapper(weights, k=0.5, image_sets=None, self_report=None, comparisons_
     weights=weights*float(target)/sum
     sum = np.sum(weights)
     print(
-        'k:' + str(k) + 'len imsets:' + str(len(image_sets)) + 'selfrep:' + str(self_report) + 'comparisons:' + str(
-            comparisons_to_make))
+        'k:' + str(k) + 'len imsets:' + str(len(image_sets)) + 'selfrep:' + str(self_report) )
     # print('constrained weights:'+str(weights))
     print('sum of weights after constraining:'+str(sum)+ ' target:'+str(target))
     rating, report = rate_fp.analyze_fingerprint(fingerprint_function=fingerprint_core.fp, weights=weights,
