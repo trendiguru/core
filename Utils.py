@@ -542,7 +542,7 @@ def bb_to_mask(bb, img_array):
     :return:
     '''
     mask = np.zeros((img_array.shape[0], img_array.shape[1]), dtype=np.uint8)
-    mask[bb[0]:bb[0] + bb[2], bb[1]:bb[1] + bb[3]] = 1
+    mask[bb[0]:(bb[0] + bb[2]), bb[1]:(bb[1] + bb[3])] = 1
     return mask
 
 ############################
