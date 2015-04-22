@@ -47,4 +47,4 @@ svg_url_prefix = 'http://extremeli.trendi.guru/static/svgs/'
 
 nadav = 'awesome'
 
-Reserve_cpus = 0  # number of cpus to not use when doing stuff in parallel
+Reserve_cpus = 1  # number of cpus to not use when doing stuff in parallel

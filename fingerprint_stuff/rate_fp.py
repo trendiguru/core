@@ -523,6 +523,7 @@ def calculate_partial_cross_confusion_vector(image_sets, fingerprint_function=fp
     # print('s.weights:' + str(weights))
     # print('s.distance_function:' + str(distance_function))
     # print('s.distance_power:' + str(distance_power))
+    print('cpccv Memory usage: %s (kb)' % resource.getrusage(resource.RUSAGE_SELF).ru_maxrss)
 
     confusion_vector = np.zeros((len(image_sets)))
     stdev_vector = np.zeros((len(image_sets)))
@@ -589,6 +590,7 @@ def calculate_self_confusion_vector(image_sets, fingerprint_function=fp_core.fp,
     compares image set i to image set i
     '''
     global self_report
+    print('cscv Memory usage: %s (kb)' % resource.getrusage(resource.RUSAGE_SELF).ru_maxrss)
 
  #   print('s.fp_func:' + str(fingerprint_function))
     # print('s.weights:' + str(weights))
@@ -676,8 +678,8 @@ def analyze_fingerprint(fingerprint_function=fp_core.fp, weights=np.ones(fingerp
                         use_visual_output2=False, image_sets=None, self_reporting=None, comparisons_to_make=None):
     global visual_output1
     global visual_output2
-    print
-    'Memory usage: %s (kb)' % resource.getrusage(resource.RUSAGE_SELF).ru_maxrss
+    print('hi')
+    print('Memory usage: %s (kb)' % resource.getrusage(resource.RUSAGE_SELF).ru_maxrss)
 
     visual_output1 = use_visual_output1
     visual_output2 = use_visual_output2
@@ -742,6 +744,9 @@ visual_output1 = True
 visual_output2 = False
 
 if __name__ == '__main__':
+    print('hi0')
+    print('Memory usage: %s (kb)' % resource.getrusage(resource.RUSAGE_SELF).ru_maxrss)
+
     parser = argparse.ArgumentParser(description='rate ye olde fingerprinte')
     #   parser.add_argument('integers', metavar='N', type=int, nargs='+',
     #                     help='an integer for the accumulator')
