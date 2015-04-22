@@ -4,17 +4,6 @@ import math
 
 import numpy as np
 
-
-
-
-
-
-
-
-
-
-
-
 #import fingerprint_core
 import rate_fp
 import NNSearch
@@ -24,6 +13,8 @@ import fingerprint_core
 import cProfile
 import StringIO
 import pstats
+import resource
+
 
 
 fingerprint_length=constants.fingerprint_length
@@ -39,6 +30,8 @@ def rate_wrapper(weights, k=0.5, image_sets=None, self_report=None, comparisons_
     :param k: distance power, k=1/2 gives euclidean distance
     :return:fingerprint rating as determined by self_rate_fingerprint
     '''
+    print 'Memory usage: %s (kb)' % resource.getrusage(resource.RUSAGE_SELF).ru_maxrss
+
     for i in range(0,len(weights)):
         if weights[i] < 0:
             weights[i]=0

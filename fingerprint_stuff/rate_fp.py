@@ -20,6 +20,7 @@ import constants
 import random
 import math
 from memory_profiler import profile
+import resource
 
 # realpath() will make your script run, even if you symlink it :)
 # cmd_folder = os.path.realpath(os.path.abspath(os.path.split(inspect.getfile(inspect.currentframe()))[0]))
@@ -675,6 +676,8 @@ def analyze_fingerprint(fingerprint_function=fp_core.fp, weights=np.ones(fingerp
                         use_visual_output2=False, image_sets=None, self_reporting=None, comparisons_to_make=None):
     global visual_output1
     global visual_output2
+    print
+    'Memory usage: %s (kb)' % resource.getrusage(resource.RUSAGE_SELF).ru_maxrss
 
     visual_output1 = use_visual_output1
     visual_output2 = use_visual_output2
