@@ -2,7 +2,7 @@ from __future__ import print_function
 
 __author__ = 'jeremy'
 # todo weight averages by number of pics
-# TODO add make instead oF BBDO
+# DONE add mask instead oF BB
 # TODO add fp to image and present in single frame, also dow both images being compared
 # compute stdev and add to report
 # done: fix ConnectionError: HTTPConnectionPool(host='img.sheinside.com', port=80): Max retries exceeded with url: /images/lookbook/wearing/201428/04181405101082542276157.jpg (Caused by <class 'socket.error'>: [Errno 104] Connection reset by peer)
@@ -15,7 +15,6 @@ __author__ = 'jeremy'
 import multiprocessing
 import datetime
 import json
-import fingerprint_core as fp_core
 import cv2
 import constants
 import random
@@ -27,12 +26,13 @@ from memory_profiler import profile
 #if cmd_folder not in sys.path:
 #    sys.path.insert(0, cmd_folder)
 
-# use this if you want to include modules from a subfolder
-# cmd_subfolder = os.path.realpath(
-#    os.path.abspath(os.path.join(os.path.split(inspect.getfile(inspect.currentframe()))[0], "subfolder")))
+# $ use this if you want to include modules from a subfolder
+##cmd_subfolder = os.path.realpath(
+# os.path.abspath(os.path.join(os.path.split(inspect.getfile(inspect.currentframe()))[0], "subfolder")))
 #if cmd_subfolder not in sys.path:
 #   sys.path.insert(0, cmd_subfolder)
 
+import fingerprint_core as fp_core
 
 # import default
 # import find_similar_mongo
@@ -95,10 +95,9 @@ def mytrace(matrix):
     return (sum)
 
 
-def save_report(report):
-    name = datetime.datetime.today().month
+def save_full_report(report):
+    name = 'fp_report.' + datetime.datetime.now().strftime("%Y-%m-%d-%H.%M")
     print(name)
-    report['date'] = name
     try:
         f = open('fp_ratings' + str(name) + '.txt', 'a')  # ha!! mode 'w+' .... overwrites the file!!!
     except IOError:
@@ -106,6 +105,41 @@ def save_report(report):
     else:
         print('reporting...' + str(report))
         json.dump(report, f, indent=4, sort_keys=True, separators=(',', ':'))
+        f.close()
+
+
+def save_short_report(report):
+    name = 'shortfp_report.' + datetime.datetime.now().strftime("%Y-%m-%d-%H.%M")
+    print(name)
+    short_report = {}
+    if 'goodness' in report:
+        short_report['goodness'] = report['goodness']
+        short_report['goodness_error'] = report['goodness_error']
+
+    rep = report['self_report']
+    short_report1 = {}
+    short_report1['distance_function'] = rep['distance_function']
+    short_report1['timestamp'] = rep['timestamp']
+    short_report1['average_weighted'] = rep['weighted_average']
+    short_report1['error_cumulative'] = rep['cumulative_error']
+    short_report1['average_unweighted'] = rep['same_item_avg']
+    self_report['self_report'] = short_report1
+
+    rep = report['cross_report']
+    short_report1['distance_function'] = rep['distance_function']
+    short_report1['timestamp'] = rep['timestamp']
+    short_report1['average_weighted'] = rep['weighted_average']
+    short_report1['error_cumulative'] = rep['cumulative_error']
+    short_report1['average_unweighted'] = rep['same_item_avg']
+    self_report['cross_report'] = short_report1
+
+    try:
+        f = open('fp_ratings' + str(name) + '.txt', 'a')  # ha!! mode 'w+' .... overwrites the file!!!
+    except IOError:
+        print('cannot open fp_ratings.txt')
+    else:
+        print('reporting...' + str(report))
+        json.dump(short_report, f, indent=4, sort_keys=True, separators=(',', ':'))
         f.close()
 
 
@@ -299,7 +333,7 @@ def calculate_cross_confusion_matrix():
     cross_report['confusion_matrix'] = confusion_matrix.tolist()  # this is required for json dumping
     # cross_report['fingerprint_function']='fp'
     cross_report['distance_function'] = 'NNSearch.distance_1_k(fp1, fp2,power=1.5)'
-    cross_report['timestamp'] = datetime.datetime.now().strftime("%Y-%m-%d %H:%M")
+    cross_report['timestamp'] = datetime.datetime.now().strftime("%Y-%m-%d-%H.%M")
     return (confusion_matrix)
 
 
@@ -323,7 +357,8 @@ def compare_fingerprints(image_array1, image_array2, fingerprint_function=fp_cor
             i = i + 1
             # print('comparing image ' + str(i) + ' to other group')
             # background_removal.standard_resize(image, 400)
-            fp1 = fingerprint_function(img_arr1, weights=weights)  # ADD MASK INSTEAD OF BB
+            mask = Utils.bb_to_mask(bb1, img_arr1)
+            fp1 = fingerprint_function(img_arr1, mask=mask, weights=weights)
             #		print('fp1:'+str(fp1))
             j = 0
             if visual_output1:
@@ -347,7 +382,8 @@ def compare_fingerprints(image_array1, image_array2, fingerprint_function=fp_cor
                         cv2.imshow('im2', img_arr2)
                         k = cv2.waitKey(50) & 0xFF
                         # pdb.set_trace()
-                    fp2 = fingerprint_function(img_arr2, weights=weights)  # bounding_box=bb2,
+                    mask = Utils.bb_to_mask(bb2, img_arr2)
+                    fp2 = fingerprint_function(img_arr1, mask=mask, weights=weights)
                     #print('fp2:'+str(fp2))
                     dist = distance_function(fp1, fp2, k=distance_power)
                     # print('comparing image ' + str(i) + ' to ' + str(j) + ' gave distance:' + str(
@@ -628,7 +664,7 @@ def cross_rate_fingerprint():
     cross_report['same_item_average'] = same_item_avg
     cross_report['different_item_average'] = different_item_avg
     cross_report['goodness'] = goodness
-    save_report(cross_report)
+    save_full_report(cross_report)
     return (different_item_avg)
 
 
@@ -691,8 +727,9 @@ def analyze_fingerprint(fingerprint_function=fp_core.fp, weights=np.ones(fingerp
     goodness_error = Utils.error_of_fraction(numerator, numerator_error, denominator, cross_item_error)
     tot_report = {'self_report': self_report, 'cross_report': cross_report, 'goodness': goodness,
                   'goodness_error': goodness_error}
-    save_report(tot_report)
-#    print('tot report:' + str(tot_report))
+    save_full_report(tot_report)
+    save_short_report(tot_report)
+    # print('tot report:' + str(tot_report))
     print('goodness:' + str(goodness) + ' same item average:' + str(same_item_average) + ' cross item averag:' + str(
         cross_item_average))
     return (goodness, tot_report)
