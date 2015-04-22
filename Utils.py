@@ -26,7 +26,8 @@ max_image_val = constants.max_image_val
 def get_cv2_img_array(url_or_path_to_image_file_or_cv2_image_array, try_url_locally=False, download=False,
                       download_directory='images'):
     """
-    This function takes an url path and turn it to an image array
+    Get a cv2 img array from a number of different possible inputs.
+
     :param url_or_path_to_image_file_or_cv2_image_array:
     :param try_url_locally:
     :param download:
@@ -35,25 +36,30 @@ def get_cv2_img_array(url_or_path_to_image_file_or_cv2_image_array, try_url_loca
     """
     got_locally = False
     img_array = None  # attempt to deal with non-responding url
+
     # first check if we already have a numpy array
     if isinstance(url_or_path_to_image_file_or_cv2_image_array, np.ndarray):
         img_array = url_or_path_to_image_file_or_cv2_image_array
+
     # otherwise it's probably a string, check what kind
     elif isinstance(url_or_path_to_image_file_or_cv2_image_array, basestring):
         # try getting url locally by changing url to standard name
         if try_url_locally:  # turn url into local filename and try getting it again
-            # FILENAME = url_or_path_to_image_file_or_cv2_image_array.split('/')[-1].split('#')[0].split('?')[0]
-            FILENAME = \
+            # filename = url_or_path_to_image_file_or_cv2_image_array.split('/')[-1].split('#')[0].split('?')[0]
+            # jeremy changed this since it didn't work with url -
+            # https://encrypted-tbn1.gstatic.com/images?q=tbn:ANd9GcR2oSMcnwErH1eqf4k8fvn2bAxvSdDSbp6voC7ijYJStL2NfX6v
+            #TODO: find a better way to create legal filename from url
+            filename = \
                 url_or_path_to_image_file_or_cv2_image_array.split('/')[-1].split('#')[0].split('?')[-1].split(':')[
-                    -1]  # jeremy changed this sinc it didnt work with url https://encrypted-tbn1.gstatic.com/images?q=tbn:ANd9GcR2oSMcnwErH1eqf4k8fvn2bAxvSdDSbp6voC7ijYJStL2NfX6v
-            FILENAME = os.path.join(download_directory, FILENAME)
-            if FILENAME.endswith('jpg') or FILENAME.endswith('jpeg') or FILENAME.endswith('.bmp') or \
-                    FILENAME.endswith('tiff'):
+                    -1]
+            filename = os.path.join(download_directory, filename)
+            if filename.endswith('jpg') or filename.endswith('jpeg') or filename.endswith('.bmp') or \
+                    filename.endswith('tiff'):
                 pass
             else:  # there's no 'normal' filename ending so add .jpg
-                FILENAME = FILENAME + '.jpg'
-            # print('trying to use filename:'+str(FILENAME)+' and calling myself')
-            img_array = get_cv2_img_array(FILENAME, try_url_locally=False, download=download,
+                filename = filename + '.jpg'
+            # print('trying to use filename:'+str(filename)+' and calling myself')
+            img_array = get_cv2_img_array(filename, try_url_locally=False, download=download,
                                           download_directory=download_directory)
             if img_array is not None:
                 # print('got ok array calling self locally')
@@ -85,7 +91,7 @@ def get_cv2_img_array(url_or_path_to_image_file_or_cv2_image_array, try_url_loca
                 except:
                     logging.warning("could not read locally")
                     return None
-    #input isn't a basestring nor a np.ndarray....so what is it?
+    # input isn't a basestring nor a np.ndarray....so what is it?
     else:
         logging.warning("input is neither an ndarray nor a string, so I don't know what to do")
         return None
@@ -101,31 +107,31 @@ def get_cv2_img_array(url_or_path_to_image_file_or_cv2_image_array, try_url_loca
         if not got_locally:  # only download if we didn't get file locally
             if not os.path.isdir(download_directory):
                 os.makedirs(download_directory)
-            if "://" in url_or_path_to_image_file_or_cv2_image_array:  #its a url, get the bifnocho
-                FILENAME = \
+            if "://" in url_or_path_to_image_file_or_cv2_image_array:  # its a url, get the bifnocho
+                filename = \
                     url_or_path_to_image_file_or_cv2_image_array.split('/')[-1].split('#')[0].split('?')[-1].split(':')[
                         -1]
-                FILENAME = os.path.join(download_directory, FILENAME)
-            else:                                                       #its not a url so use straight
-                FILENAME = os.path.join(download_directory, url_or_path_to_image_file_or_cv2_image_array)
-            if FILENAME.endswith('jpg') or FILENAME.endswith('jpeg') or FILENAME.endswith('.bmp') or FILENAME.endswith(
+                filename = os.path.join(download_directory, filename)
+            else:  # its not a url so use straight
+                filename = os.path.join(download_directory, url_or_path_to_image_file_or_cv2_image_array)
+            if filename.endswith('jpg') or filename.endswith('jpeg') or filename.endswith('.bmp') or filename.endswith(
                     'tiff'):
                 pass
             else:  # there's no 'normal' filename ending
-                FILENAME = FILENAME + '.jpg'
+                filename = filename + '.jpg'
             try:
-                print('filename for local write:' + str(FILENAME))
-                write_status = imwrite(FILENAME, img_array)
+                print('filename for local write:' + str(filename))
+                write_status = imwrite(filename, img_array)
                 max_i = 50
-                #wait until file is readable before continuing
+                # wait until file is readable before continuing
                 for i in xrange(max_i):
                     try:
-                        with open(FILENAME, 'rb') as _:
+                        with open(filename, 'rb') as _:
                             break
                     except IOError:
                         time.sleep(10)
                 else:
-                    raise IOError('Could not access {} after {} attempts'.format(FILENAME, str(max_i)))
+                    raise IOError('Could not access {} after {} attempts'.format(filename, str(max_i)))
             except:
                 print('unexpected error in Utils calling imwrite')
     return img_array
@@ -138,9 +144,9 @@ def count_human_bbs_in_doc(dict_of_images, skip_if_marked_to_skip=True):
             if skip_if_marked_to_skip:
                 if 'skip_image' in entry:
                     if entry['skip_image'] == True:
-                        continue  #skip it if its marked to skip and we care about skip marking
+                        continue  # skip it if its marked to skip and we care about skip marking
                     else:
-                        n = n + 1   #no 'skip_image' in entry
+                        n = n + 1  # no 'skip_image' in entry
                 else:
                     n = n + 1
             else:
@@ -194,6 +200,7 @@ def lookfor_next_unbounded_image(queryobject):
             logging.debug('image is bounded.....')
     return (urlN)
 
+
 def lookfor_next_bounded_image(queryobject):
     """
     finds next image that has bounding box
@@ -228,24 +235,25 @@ def lookfor_next_bounded_image(queryobject):
             print('utils.py:there is a human bb entry for:' + str(entry))
             if entry['human_bb'] is None:
                 print('utils.py:human_bb is None for:' + str(entry))
-                return (urlN,[0,0,0,0],skip_image)
+                return (urlN, [0, 0, 0, 0], skip_image)
             elif not isinstance(entry["human_bb"], list):
                 print('utils.py:illegal bb!! (not a list) for:' + str(entry))
-                return (urlN,[0,0,0,0],skip_image)
+                return (urlN, [0, 0, 0, 0], skip_image)
             elif not (legal_bounding_box(entry["human_bb"])):
                 print('utils.py:bb is not legal (too small) for:' + str(entry))
-                return (urlN,[0,0,0,0],skip_image)
+                return (urlN, [0, 0, 0, 0], skip_image)
             else:
                 print('utils.py:bb is legal for:' + str(entry))
                 img_array = get_cv2_img_array(urlN)
-                if not bounding_box_inside_image(img_array,entry['human_bb']):
+                if not bounding_box_inside_image(img_array, entry['human_bb']):
                     print('utils.py:bb is bigger than image')
                     logging.debug('Utils.py(debug):bb is bigger than image')
-                return (urlN,entry['human_bb'],skip_image)
+                return (urlN, entry['human_bb'], skip_image)
         else:
             print('utils.py:image is not bounded :(')
             logging.debug('image is not bounded.....')
-            return (None,None,None)
+            return (None, None, None)
+
 
 def lookfor_next_bounded_image(queryobject, image_index=0, only_get_boxed_images=True):
     """
@@ -273,10 +281,11 @@ def lookfor_next_bounded_image(queryobject, image_index=0, only_get_boxed_images
     # check for suitable number of images in doc - removed since i wanna check all the bbs
     # if len(images) < min_images_per_doc:  # don't use docs with too few images
     # print('# images is too small:' + str(len(images)) + ' found and ' + str(min_images_per_doc) + ' are required')
-    #        logging.debug('Utils.py(debug):image is marked to be skipped')
+    # logging.debug('Utils.py(debug):image is marked to be skipped')
     #        return None
     print(
-        '# images:' + str(len(images)) + ' image_index:' + str(image_index) + ' only boxed:' + str(only_get_boxed_images))
+        '# images:' + str(len(images)) + ' image_index:' + str(image_index) + ' only boxed:' + str(
+            only_get_boxed_images))
 
     try:
         answers["_id"] = str(queryobject["_id"])
@@ -349,7 +358,7 @@ def lookfor_next_bounded_in_db(current_item=0, current_image=0, only_get_boxed_i
         logging.warning('couldnt get any doc from db')
         return None
     while doc is not None:
-        #       print('doc:' + str(doc))
+        # print('doc:' + str(doc))
         #	logging.warning('calling lookfor_next_bounded, index='+str(i)+' image='+str(current_image))
         answers = lookfor_next_bounded_image(doc, image_index=current_image,
                                              only_get_boxed_images=only_get_boxed_images)
@@ -364,7 +373,7 @@ def lookfor_next_bounded_in_db(current_item=0, current_image=0, only_get_boxed_i
                         return answers
                 except KeyError, e:
                     print 'keyerror on key "%s" which probably does not exist' % str(e)
-        #go to next doc since no bb was found in this one
+                    #go to next doc since no bb was found in this one
             else:
                 logging.debug('exiting lookfornext 2, answers:' + str(answers))
                 return answers
@@ -372,7 +381,7 @@ def lookfor_next_bounded_in_db(current_item=0, current_image=0, only_get_boxed_i
         current_image = 0
         doc = training_collection_cursor[i]
         logging.warning("no bounded image found in current doc, trying next")
-    return {'error':0,'message':"No bounded bb found in db"}
+    return {'error': 0, 'message': "No bounded bb found in db"}
 
 
 def good_bb(dict, skip_if_marked_to_skip=True):
@@ -398,7 +407,6 @@ def good_bb(dict, skip_if_marked_to_skip=True):
         return (dict["human_bb"])
 
 
-
 def legal_bounding_box(rect):
     if rect is None:
         return False
@@ -408,23 +416,25 @@ def legal_bounding_box(rect):
     else:
         return False
 
+
 def check_img_array(image_array):
-    if image_array is not None and isinstance(image_array, np.ndarray)  and isinstance(image_array[0][0], np.ndarray):
+    if image_array is not None and isinstance(image_array, np.ndarray) and isinstance(image_array[0][0], np.ndarray):
         return True
 
     else:
         return False
 
 
-def bounding_box_inside_image(image_array,rect):
+def bounding_box_inside_image(image_array, rect):
     if check_img_array(image_array) and legal_bounding_box(rect):
         height, width, depth = image_array.shape
         if rect[2] <= width and rect[3] <= height:
-            return True   #bb fits into image
+            return True  # bb fits into image
         else:
             return False
     else:
         return False
+
 
 def check_img_array(image_array):
     if image_array is not None and isinstance(image_array, np.ndarray) and isinstance(image_array[0][0], np.ndarray):
@@ -478,7 +488,7 @@ def test_lookfor_next():
 
 # prefixes = ['Main Image URL angle ', 'Style Gallery Image ']
 # training docs contains lots of different images (URLs) of the same clothing item
-#logging.debug(str(doc))
+# logging.debug(str(doc))
 #print('doc:'+str(doc))
 #       for prefix in prefixes:
 
@@ -532,9 +542,11 @@ def insert_bb_into_training_db(receivedData):
         return {"success": 0, "error": "wasnt given an id or current_iutem to work with"}
 
     #        id = vars['_id']
-    print('default.py:bb:' + str(bb) + ' imageurl:' + str(image_url) + ' skip:' + str(skip_image) + ' current image:' + str(
+    print(
+        'default.py:bb:' + str(bb) + ' imageurl:' + str(image_url) + ' skip:' + str(skip_image) + ' current image:' + str(
             current_image) + ' current item:' + str(current_item))
-    logging.debug('bb:' + str(bb) + ' imageurl:' + str(image_url) + ' skip:' + str(skip_image) + ' current image:' + str(
+    logging.debug(
+        'bb:' + str(bb) + ' imageurl:' + str(image_url) + ' skip:' + str(skip_image) + ' current image:' + str(
             current_image) + ' current item:' + str(current_item))
     image_dict = {}
     result_dict = {}

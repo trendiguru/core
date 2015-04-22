@@ -67,6 +67,7 @@ def run_fp(doc):
     image_url = doc["image"]["sizes"]["XLarge"]["url"]
     image = Utils.get_cv2_img_array(image_url)
     small_image, resize_ratio = background_removal.standard_resize(image, 400)
+    del image
     # print "Image URL: {0}".format(image_url)
     # if there is a valid human BB, use it
     if "human_bb" in doc.keys() and doc["human_bb"] != [0, 0, 0, 0] and doc["human_bb"] is not None:
@@ -146,7 +147,7 @@ def fingerprint_db(fp_version, category_id=None, num_processes=None):
 
     FP_VERSION = fp_version
 
-    pool = multiprocessing.Pool(num_processes)
+    pool = multiprocessing.Pool(num_processes, maxtasksperchild=5)
 
     start_time = time.time()
     pool.map(run_fp, product_cursor)
