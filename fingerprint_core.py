@@ -7,6 +7,7 @@ import numpy as np
 import cv2
 
 
+
 # moving this into the show_fp function for now - LS
 # import matplotlib.pyplot as plt
 
@@ -116,6 +117,9 @@ def crop_image_to_bb(img, bb_coordinates_string_or_array):
 
 def fp(img, mask=None, weights=np.ones(fingerprint_length), histogram_length=25, use_intensity_histogram=False):
     if mask is None or cv2.countNonZero(mask) == 0:
+        mask = np.ones((img.shape[0], img.shape[1]), dtype=np.uint8)
+    if mask.shape[0] != img.shape[0] or mask.shape[1] != img.shape[1]:
+        print('trouble with mask size')
         mask = np.ones((img.shape[0], img.shape[1]), dtype=np.uint8)
     n_pixels = cv2.countNonZero(mask)
     hsv = cv2.cvtColor(img, cv2.COLOR_BGR2HSV)
