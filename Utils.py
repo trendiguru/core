@@ -14,8 +14,7 @@ import numpy as np
 from bson import objectid
 import pymongo
 import constants
-
-min_images_per_doc = constants.min_images_per_doc
+import math
 
 min_images_per_doc = constants.min_images_per_doc
 max_image_val = constants.max_image_val
@@ -36,7 +35,6 @@ def get_cv2_img_array(url_or_path_to_image_file_or_cv2_image_array, try_url_loca
     """
     got_locally = False
     img_array = None  # attempt to deal with non-responding url
-
     # first check if we already have a numpy array
     if isinstance(url_or_path_to_image_file_or_cv2_image_array, np.ndarray):
         img_array = url_or_path_to_image_file_or_cv2_image_array
@@ -61,11 +59,12 @@ def get_cv2_img_array(url_or_path_to_image_file_or_cv2_image_array, try_url_loca
             # print('trying to use filename:'+str(filename)+' and calling myself')
             img_array = get_cv2_img_array(filename, try_url_locally=False, download=download,
                                           download_directory=download_directory)
+            #maybe return(get_cv2 etc) instead of img_array =
             if img_array is not None:
                 # print('got ok array calling self locally')
                 return img_array
             else:  # couldnt get locally so try remotely
-                # print('trying again since using local filename didnt work, download='+str(download))
+                print('trying again since using local filename didnt work, download=' + str(download))
                 return (get_cv2_img_array(url_or_path_to_image_file_or_cv2_image_array, try_url_locally=False,
                                           download=download, download_directory=download_directory))
         # put images in local directory
@@ -455,34 +454,6 @@ def bounding_box_inside_image(image_array, rect):
         return False
 
 
-# test function for lookfor_next_unbounded_image
-def test_lookfor_next():
-    db = pymongo.MongoClient().mydb
-    training_collection_cursor = db.training.find()  # The db with multiple figs of same item
-    doc = next(training_collection_cursor, None)
-    resultDict = {}
-    while doc is not None:
-        url = None  # kill error
-        if url:
-            resultDict["url"] = url
-            resultDict["_id"] = str(doc['_id'])
-            # a better way to deal with keys that may not exist;
-            try:
-                resultDict["product_title"] = doc["Product Title"]
-            except KeyError, e:
-                print 'hi there was a keyerror on key "%s" which probably does not exist' % str(e)
-            try:
-                resultDict["product_url"] = doc["Product URL"]
-            except KeyError, e:
-                print 'hi there was a keyerror on key "%s" which probably does not exist' % str(e)
-            return resultDict
-        else:
-            prefix = 'none'  # kill error
-            print("no unbounded image found for string:" + str(prefix) + " in current doc")
-            logging.debug("no unbounded image found for string:" + str(prefix) + " in current doc")
-        doc = next(training_collection_cursor, None)
-    return resultDict
-
 
 # products_collection_cursor = db.products.find()   #Regular db of one fig per item
 
@@ -492,42 +463,6 @@ def test_lookfor_next():
 #print('doc:'+str(doc))
 #       for prefix in prefixes:
 
-
-def test_count_bbs():
-    '''
-    test counting how many good bb;s in doc
-    '''
-
-    db = pymongo.MongoClient().mydb
-    training_collection_cursor = db.training.find()  # The db with multiple figs of same item
-    doc = next(training_collection_cursor, None)
-    resultDict = {}
-    while doc is not None:
-        if 'images' in doc:
-            n = count_human_bbs_in_doc(doc['images'])
-            print('number of good bbs:' + str(n))
-        doc = next(training_collection_cursor, None)
-
-
-def test_insert_bb(dict, bb):
-    db = pymongo.MongoClient().mydb
-    doc = db.good_training_set.find_one({'_id': objectid.ObjectId(dict['_id'])})
-    imagelist = doc['images']
-    print('imagelist:' + str(imagelist))
-    for item in imagelist:
-        print('item:' + str(item))
-        print('desired url:' + str(dict['url']) + 'actual item url:' + str(item['url']))
-        if item['url'] == dict['url']:  # this is the right image
-            print('MATCH')
-            item['human_bb'] = bb
-            print('imagelist after bb insertion:' + str(imagelist))
-            db.good_training_set.update({"_id": objectid.ObjectId(dict["_id"])}, {'$set': {'images': imagelist}})
-            return True
-
-
-def test_lookfor_and_insert():
-    dict = test_lookfor_next()
-    test_insert_bb(dict, [10, 20, 30, 40])
 
 
 def insert_bb_into_training_db(receivedData):
@@ -582,7 +517,6 @@ def insert_bb_into_training_db(receivedData):
         i = i + 1
     return {"success": 0, "error": "could not find image w. url:" + str(image_url) + " in current doc:" + str(doc)}
 
-
 class GZipCSVReader:
     def __init__(self, filename):
         self.gzfile = gzip.open(filename)
@@ -597,13 +531,11 @@ class GZipCSVReader:
     def __iter__(self):
         return self.reader.__iter__()
 
-
 class npAwareJSONEncoder(json.JSONEncoder):
     def default(self, obj):
         if isinstance(obj, np.ndarray) and obj.ndim == 1:
             return obj.tolist()
         return json.JSONEncoder.default(self, obj)
-
 
 class ThreadSafeCounter(object):
     def __init__(self):
@@ -616,3 +548,35 @@ class ThreadSafeCounter(object):
     @property
     def value(self):
         return self.val.value
+
+
+def bb_to_mask(bb, img_array):
+    '''
+    bb in form of x,y,w,h converted to np array the same size as img_array
+    :param bb:
+    :return:
+    '''
+    mask = np.zeros((img_array.shape[0], img_array.shape[1]), dtype=np.uint8)
+    mask[bb[0]:(bb[0] + bb[2]), bb[1]:(bb[1] + bb[3])] = 1
+    return mask
+
+############################
+### math stuff
+############################
+
+def error_of_fraction(numerator, numerator_stdev, denominator, denominator_stdev):
+    '''
+    this gives the error on fraction numerator/denominator assuming no covariance
+    :param numerator:
+    :param numerator_stdev:
+    :param denominator:
+    :param denominator_stdev:
+    :return:
+    '''
+    n = float(numerator)
+    d = float(denominator)
+    n_e = float(numerator_stdev)
+    d_e = float(denominator_stdev)
+    fraction_error = abs(n / d) * math.sqrt((n_e / n) ** 2 + (d_e / d) ** 2)
+    return (fraction_error)
+

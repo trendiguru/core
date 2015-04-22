@@ -1,17 +1,27 @@
 __author__ = 'jeremy'
-import numpy as np
 import scipy.optimize
 import math
+
+import numpy as np
+
 #import fingerprint_core
 import rate_fp
 import NNSearch
 from multiprocessing import Pool
 import constants
 import fingerprint_core
+import cProfile
+import StringIO
+import pstats
+import resource
+
+
 
 fingerprint_length=constants.fingerprint_length
+n_docs = constants.max_items
 
-def rate_wrapper(weights,k):
+
+def rate_wrapper(weights, k=0.5, image_sets=None, self_report=None, comparisons_to_make=None):
     '''
     a wrapper to call self_rate_fingerprint without worrying about extra arguments, and also constrain weights to sum to 1;
     maybe this wrapper is not necessary given that u can call scipy.optimize.minimize(f,x0,args=(a,b,c)) to deal with fixed args a,b,c. Note
@@ -20,6 +30,8 @@ def rate_wrapper(weights,k):
     :param k: distance power, k=1/2 gives euclidean distance
     :return:fingerprint rating as determined by self_rate_fingerprint
     '''
+    print 'Memory usage: %s (kb)' % resource.getrusage(resource.RUSAGE_SELF).ru_maxrss
+
     for i in range(0,len(weights)):
         if weights[i] < 0:
             weights[i]=0
@@ -27,9 +39,14 @@ def rate_wrapper(weights,k):
     target = len(weights)
     weights=weights*float(target)/sum
     sum = np.sum(weights)
-    print('constrained weights:'+str(weights))
+    print(
+        'k:' + str(k) + 'len imsets:' + str(len(image_sets)) + 'selfrep:' + str(self_report) )
+    # print('constrained weights:'+str(weights))
     print('sum of weights after constraining:'+str(sum)+ ' target:'+str(target))
-    rating=rate_fp.self_rate_fingerprint(fingerprint_function=fingerprint_core.fp,weights=weights,distance_function=NNSearch.distance_1_k,distance_power=0.5)
+    rating, report = rate_fp.analyze_fingerprint(fingerprint_function=fingerprint_core.fp, weights=weights,
+                                                 distance_function=NNSearch.distance_1_k, distance_power=k,
+                                                 image_sets=image_sets, self_reporting=self_report,
+                                                 comparisons_to_make=comparisons_to_make)
     return rating
 
 def optimize_weights(weights=np.ones(fingerprint_length),k=0.5):
@@ -45,7 +62,27 @@ def optimize_weights(weights=np.ones(fingerprint_length),k=0.5):
     f = rate_wrapper
     init=weights
 # TO DO CONSTRAINED MINIMIZATION USE COBYLA  or SQLSQP - see docs - currentyly constraining 'by hand'
-    x_min = scipy.optimize.minimize(f,init,args=(k,),tol=0.1)
+    # x_min = scipy.optimize.minimize(f,init,args=(k,),tol=0.1)   #in case u need only one optional argument this is how to do it
+
+    pr = cProfile.Profile()
+    pr.enable()
+
+
+
+    self_report, image_sets = rate_fp.get_docs(n_docs)
+    comparisons_to_make = rate_fp.make_cross_comparison_sets(image_sets)
+
+    x_min = scipy.optimize.minimize(f, init, args=(k, image_sets, self_report, comparisons_to_make), tol=0.1,
+                                    options={'maxiter': 50, 'disp': True})
+
+    pr.disable()
+    s = StringIO.StringIO()
+    sortby = 'cumulative'
+    ps = pstats.Stats(pr, stream=s).sort_stats(sortby)
+    ps.print_stats()
+    print(s.getvalue())
+
+
 #    x_min = scipy.optimize.fmin(f,[2,3])
     print('output of optimize:'+str(x_min))
     print('xvals:'+str(x_min.x))
@@ -61,7 +98,6 @@ def parallel_optimize():
 def test_function_vectorinput(x_vector):
     '''
     a test function whose optimal point should be at (6.66,7.66,8.66,...) for arbitrary length starting guess
-    :param x_arr:initial guess in arbitrary dimensions
     :return:minimum point
     '''
 
@@ -98,13 +134,27 @@ def test_function_starinput(*input_vector):
     print('final answer:'+str(final_answer))
     return(final_answer)
 
+
+def test_function(input_vector):
+    answer = np.array([])
+    x_vector = [x for x in input_vector]
+    print('input vector:' + str(x_vector))
+    for i in range(0, len(x_vector)):
+        x_max = 6.66
+        val = math.exp(-(x_vector[i] - x_max) ** 2)
+        answer = np.append(answer, val)
+    print('x values:' + str(x_vector) + ' yvalues:' + str(answer))
+    final_answer = np.prod(answer)
+    print('final answer:' + str(final_answer))
+    return (final_answer)
+
 def test2():
-    f = test_function()
-    print('f[10]='+str(test_function(3,4)))
-    x_min = scipy.optimize.minimize(test_function(),(3,4,5))
+    f = test_function([1, 2, 3])
+    print('f[10]=' + str(test_function([10])))
+    x_min = scipy.optimize.minimize(test_function([10]), (3, 4, 5))
     print('output of optimize:'+str(x_min))
     print('xvals:'+str(x_min.x))
-    print('f('+x_min.x+')='+f(x_min.x))
+    # print('f(' + x_min.x + ')=' + str(f(x_min.x)))
 
 if __name__ == '__main__':
    # parallel_optimize()

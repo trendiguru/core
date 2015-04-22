@@ -1,22 +1,20 @@
 __author__ = 'jeremy'
-import cv2
-import urllib
-import pymongo
-import os
-import urlparse
 # import default
 import unittest
-import imp
-import sys
-import numpy as np
-import subprocess
+import cProfile
+import StringIO
+import pstats
 
-import rate_fingerprint
+import numpy as np
+
+import rate_fp
 import fingerprint_core
-import Utils
+
 import NNSearch
 import constants
 
+
+fingerprint_length = constants.fingerprint_length
 
 class rate_fingerprint_test(unittest.TestCase):
     #examples of things to return
@@ -33,19 +31,69 @@ class rate_fingerprint_test(unittest.TestCase):
        # subprocess.call('sudo /home/jeremy/mongoloid.sh')
         pass
 
-    def test_rate_fingerprint(self):
-        print('test the self_rate_fingerprint fucntion in rate_fingerprint')
-        rating = rate_fingerprint.self_rate_fingerprint(fingerprint_function=fingerprint_core.fp,
-                              weights=np.ones(constants.fingerprint_length), distance_function=NNSearch.distance_1_k,
-                              distance_power=0.5)
-        unittest.assertTrue(rating>0)
+
+    def test_get_docs(self):
+        n_items = 5
+        report, docs = rate_fp.get_docs(n_items=n_items)
+        l = len(docs)
+        print('n:' + str(l) + ' docs:' + str(docs))
+        print('report:' + str(report))
+        self.assertTrue(l == n_items)
+
+
+    def test_make_cross_comparison_sets(self):
+        n_items = 4
+        report, image_sets = rate_fp.get_docs(n_items=n_items)
+        sets = rate_fp.make_cross_comparison_sets(image_sets)
+        print(sets)
+        self.assertTrue(len(sets) == n_items)
+
+    def test_calculate_partial_cross_confusion_vector(self):
+        n_items = 5
+        report, image_sets = rate_fp.get_docs(n_items=n_items)
+        report = rate_fp.calculate_partial_cross_confusion_vector(image_sets, fingerprint_function=fingerprint_core.fp,
+                                                                  weights=np.ones(constants.fingerprint_length),
+                                                                  distance_function=NNSearch.distance_1_k,
+                                                                  distance_power=0.5, report=report)
+        avg = report['average_weighted']
+        print('cross item avg:' + str(avg))
+        self.assertTrue(avg > 0 and avg < 100)  # this 100 is arbirary...
 
     def test_calculate_self_confusion_vector(self):
-        confusion_vector = rate_fingerprint.calculate_self_confusion_vector(fingerprint_function=fingerprint_core.fp, weights=np.ones(constants.fingerprint_length),
+        n_items = 6
+        report, image_sets = rate_fp.get_docs(n_items=n_items)
+        report = rate_fp.calculate_self_confusion_vector(image_sets, fingerprint_function=fingerprint_core.fp,
+                                                         weights=np.ones(constants.fingerprint_length),
                                                            distance_function=NNSearch.distance_1_k,
-                                                           distance_power=0.5)
+                                                         distance_power=0.5, report=report, use_visual_output1=False,
+                                                         use_visual_output2=False)
+        avg = report['average_weighted']
+        print('self item avg:' + str(avg))
+        self.assertTrue(avg > 0 and avg < 100)  # this 100 is arbirary...
 
-        unittest.assertTrue(isinstance(confusion_vector,np.ndarray))
+    def test_analyze_fingerprint(self):
+        n_items = 3
+        tot_report = {}
+        print('test the self_rate_fingerprint fucntion in rate_fingerprint')
+
+        pr = cProfile.Profile()
+        pr.enable()
+        weights = np.ones(fingerprint_length)
+
+
+        goodness, tot_report = rate_fp.analyze_fingerprint(fingerprint_function=fingerprint_core.fp,
+                                                           weights=np.ones(constants.fingerprint_length),
+                                                           distance_function=NNSearch.distance_1_k,
+                                                           distance_power=0.5, n_docs=n_items)
+        pr.disable()
+        self.assertTrue(goodness > 0)
+        print('after checking, report:' + str(tot_report))
+        s = StringIO.StringIO()
+        sortby = 'cumulative'
+        ps = pstats.Stats(pr, stream=s).sort_stats(sortby)
+        ps.print_stats()
+        print(s.getvalue())
+
 
     def tearDown(self):
         pass
