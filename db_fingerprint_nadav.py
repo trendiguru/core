@@ -167,11 +167,15 @@ def fingerprint_db(fp_version, category_id=None, num_processes=None):
 
 
 if __name__ == "__main__":
-    parser = argparse.ArgumentParser(description='Fingerprint the DB or part of it')
-    parser.add_argument('-c', '--category_id', help='id of category to be fingerprinted', required=False)
-    parser.add_argument('-p', '--num_processes', help='number of parallel processes to spawn', required=False, type=int)
-    parser.add_argument('-v', '--fp_version', help='current fp version', required=True)
-    args = vars(parser.parse_args())
+    try:
+        parser = argparse.ArgumentParser(description='Fingerprint the DB or part of it')
+        parser.add_argument('-c', '--category_id', help='id of category to be fingerprinted', required=False)
+        parser.add_argument('-p', '--num_processes', help='number of parallel processes to spawn', required=False, type=int)
+        parser.add_argument('-v', '--fp_version', help='current fp version', required=True)
+        args = vars(parser.parse_args())
 
-    fingerprint_db(int(args['fp_version']), args['category_id'], args['num_processes'])
+        fingerprint_db(int(args['fp_version']), args['category_id'], args['num_processes'])
+    except Exception as e:
+        logging.warning("Exception!: {0}".format(e))
+
 
