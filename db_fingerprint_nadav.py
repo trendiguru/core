@@ -66,6 +66,9 @@ def run_fp(doc):
     print "Process {process} starting {i} of {total}...".format(process=multiprocessing.current_process(), i=CURRENT.value, total=TOTAL_PRODUCTS)
     image_url = doc["image"]["sizes"]["XLarge"]["url"]
     image = Utils.get_cv2_img_array(image_url)
+    if image is None:
+        logging.warning("image is None. url: {url}".format(url=image_url))
+        return
     small_image, resize_ratio = background_removal.standard_resize(image, 400)
     del image
     # print "Image URL: {0}".format(image_url)
