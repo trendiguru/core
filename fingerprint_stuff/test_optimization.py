@@ -1,15 +1,15 @@
 __author__ = 'jeremy'
 
-import numpy as np
+import scipy.optimize
 import scipy.optimize
 import math
+
+import numpy as np
+
 import fingerprint_core
-import rate_fingerprint
+import rate_fp
 import NNSearch
-from multiprocessing import Pool
-import numpy as np
-import scipy.optimize
-import math
+
 
 fingerprint_length = 10
 
@@ -35,7 +35,8 @@ def rate_wrapper(weights,k):
     sum = np.sum(weights)
     print('corrected weights:'+str(weights))
     print('sum after:'+str(sum)+ ' trarget:'+str(target))
-    rating=rate_fingerprint.self_rate_fingerprint(fingerprint_function=fingerprint_core.fp,weights=weights,distance_function=NNSearch.distance_1_k,distance_power=0.5)
+    rating = rate_fp.analyze_fingerprint(fingerprint_function=fingerprint_core.fp, weights=weights,
+                                         distance_function=NNSearch.distance_1_k, distance_power=0.5)
     return rating
 
 def optimize_weights(k):
@@ -43,7 +44,7 @@ def optimize_weights(k):
         k=0.5
   ##    initial_weights=np.ones(fingerprint_length)
 #    initial_weights=np.random.random_integers(-2,2,fingerprint_length)
-    f = stub2
+    f = math.sin
 
 #    x_min = scipy.optimize.minimize(f,initial_weights,args=(k),tol=0.1)
     init=np.array(3)
@@ -92,12 +93,12 @@ def test_function_starinput(*input_vector):
     return(final_answer)
 
 def test2():
-    f = test_function()
-    print('f[10]='+str(test_function(3,4)))
-    x_min = scipy.optimize.minimize(test_function(),(3,4,5))
+    f = test_function_starinput()
+    print('f[10]=' + str(test_function_starinput(3, 4)))
+    x_min = scipy.optimize.minimize(test_function_starinput(), (3, 4, 5))
     print('output of optimize:'+str(x_min))
     print('xvals:'+str(x_min.x))
-    print('f('+x_min.x+')='+f(x_min.x))
+    # print('f(' + x_min.x + ')=' + str(f(x_min.x)))
 
 def opt_mult():
     f = test_function_vectorinput

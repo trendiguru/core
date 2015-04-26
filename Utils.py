@@ -15,6 +15,7 @@ from bson import objectid
 import pymongo
 import constants
 import math
+import cv2
 
 min_images_per_doc = constants.min_images_per_doc
 max_image_val = constants.max_image_val
@@ -22,17 +23,19 @@ max_image_val = constants.max_image_val
 # import urllib
 # logging.setLevel(logging.DEBUG)
 
-def get_cv2_img_array(url_or_path_to_image_file_or_cv2_image_array, try_url_locally=False, download=False,
+def get_cv2_img_array(url_or_path_to_image_file_or_cv2_image_array, convert_url_to_local_filename=False, download=False,
                       download_directory='images'):
     """
     Get a cv2 img array from a number of different possible inputs.
 
     :param url_or_path_to_image_file_or_cv2_image_array:
-    :param try_url_locally:
+    :param convert_url_to_local_filename:
     :param download:
     :param download_directory:
     :return: img_array
     """
+    print('get:' + str(url_or_path_to_image_file_or_cv2_image_array) + ' try local' + str(
+        convert_url_to_local_filename) + ' download:' + str(download))
     got_locally = False
     img_array = None  # attempt to deal with non-responding url
     # first check if we already have a numpy array
@@ -42,7 +45,7 @@ def get_cv2_img_array(url_or_path_to_image_file_or_cv2_image_array, try_url_loca
     # otherwise it's probably a string, check what kind
     elif isinstance(url_or_path_to_image_file_or_cv2_image_array, basestring):
         # try getting url locally by changing url to standard name
-        if try_url_locally:  # turn url into local filename and try getting it again
+        if convert_url_to_local_filename:  # turn url into local filename and try getting it again
             # filename = url_or_path_to_image_file_or_cv2_image_array.split('/')[-1].split('#')[0].split('?')[0]
             # jeremy changed this since it didn't work with url -
             # https://encrypted-tbn1.gstatic.com/images?q=tbn:ANd9GcR2oSMcnwErH1eqf4k8fvn2bAxvSdDSbp6voC7ijYJStL2NfX6v
@@ -56,23 +59,27 @@ def get_cv2_img_array(url_or_path_to_image_file_or_cv2_image_array, try_url_loca
                 pass
             else:  # there's no 'normal' filename ending so add .jpg
                 filename = filename + '.jpg'
-            # print('trying to use filename:'+str(filename)+' and calling myself')
-            img_array = get_cv2_img_array(filename, try_url_locally=False, download=download,
+            print('trying again locally using filename:' + str(filename))
+            img_array = get_cv2_img_array(filename, convert_url_to_local_filename=False, download=download,
                                           download_directory=download_directory)
             #maybe return(get_cv2 etc) instead of img_array =
             if img_array is not None:
                 # print('got ok array calling self locally')
                 return img_array
             else:  # couldnt get locally so try remotely
-                print('trying again since using local filename didnt work, download=' + str(download))
-                return (get_cv2_img_array(url_or_path_to_image_file_or_cv2_image_array, try_url_locally=False,
-                                          download=download, download_directory=download_directory))
+                print('trying again remotely since using local filename didnt work, download=' + str(
+                    download) + ' fname:' + str(filename))
+                return (
+                    get_cv2_img_array(url_or_path_to_image_file_or_cv2_image_array, convert_url_to_local_filename=False,
+                                      download=download,
+                                      download_directory=download_directory))  # this used to be 'return'
         # put images in local directory
         else:
             # get remotely if its a url, get locally if not
             if "://" in url_or_path_to_image_file_or_cv2_image_array:
                 img_url = url_or_path_to_image_file_or_cv2_image_array
                 try:
+                    print("trying remotely (url) ")
                     response = requests.get(img_url)  # download
                     img_array = imdecode(np.asarray(bytearray(response.content)), 1)
                 except ConnectionError:
@@ -83,12 +90,19 @@ def get_cv2_img_array(url_or_path_to_image_file_or_cv2_image_array, try_url_loca
                     return None
 
             else:  # get locally, since its not a url
+                print("trying locally (not url)")
                 img_path = url_or_path_to_image_file_or_cv2_image_array
                 try:
                     img_array = imread(img_path)
-                    got_locally = True
+                    if img_array is not None:
+                        print("success trying locally (not url)")
+                        got_locally = True
+                    else:
+                        print('couldnt get locally (in not url branch)')
+                        return None
                 except:
-                    logging.warning("could not read locally")
+                    print("could not read locally, returning None")
+                    logging.warning("could not read locally, returning None")
                     return None
     # input isn't a basestring nor a np.ndarray....so what is it?
     else:
@@ -97,8 +111,13 @@ def get_cv2_img_array(url_or_path_to_image_file_or_cv2_image_array, try_url_loca
 
     # After we're done with all the above, this should be true - final check that we're outputting a good array
     if not (isinstance(img_array, np.ndarray) and isinstance(img_array[0][0], np.ndarray)):
+        print("Bad image - check url/path/array:" + str(
+            url_or_path_to_image_file_or_cv2_image_array) + 'try locally' + str(
+            convert_url_to_local_filename) + ' dl:' + str(
+            download) + ' dir:' + str(download_directory))
         logging.warning("Bad image - check url/path/array:" + str(
-            url_or_path_to_image_file_or_cv2_image_array) + 'try locally' + str(try_url_locally) + ' dl:' + str(
+            url_or_path_to_image_file_or_cv2_image_array) + 'try locally' + str(
+            convert_url_to_local_filename) + ' dl:' + str(
             download) + ' dir:' + str(download_directory))
         return (None)
     # if we got good image and need to save locally :
@@ -135,7 +154,6 @@ def get_cv2_img_array(url_or_path_to_image_file_or_cv2_image_array, try_url_loca
                 print('unexpected error in Utils calling imwrite')
     return img_array
 
-
 def count_human_bbs_in_doc(dict_of_images, skip_if_marked_to_skip=True):
     n = 0
     for entry in dict_of_images:
@@ -151,7 +169,6 @@ def count_human_bbs_in_doc(dict_of_images, skip_if_marked_to_skip=True):
             else:
                 n = n + 1  # dont care if marked to be skipped
     return (n)
-
 
 def lookfor_next_unbounded_image(queryobject):
     n = 0
@@ -198,9 +215,6 @@ def lookfor_next_unbounded_image(queryobject):
             print('utils.py:image is bounded :(')
             logging.debug('image is bounded.....')
     return (urlN)
-
-
-
 
 def lookfor_next_bounded_image(queryobject, image_index=0, only_get_boxed_images=True):
     """
@@ -277,7 +291,6 @@ def lookfor_next_bounded_image(queryobject, image_index=0, only_get_boxed_images
     logging.debug('utils.lookfor_next_bounded_image - no bounded image found in this doc')
     return None
 
-
 def lookfor_next_bounded_in_db(current_item=0, current_image=0, only_get_boxed_images=True):
     """
     find next bounded image in db
@@ -329,7 +342,6 @@ def lookfor_next_bounded_in_db(current_item=0, current_image=0, only_get_boxed_i
         logging.warning("no bounded image found in current doc, trying next")
     return {'error': 0, 'message': "No bounded bb found in db"}
 
-
 def good_bb(dict, skip_if_marked_to_skip=True):
     '''
     determine if dict has good human bb in it
@@ -352,7 +364,6 @@ def good_bb(dict, skip_if_marked_to_skip=True):
         # print('human bb ok:'+str(dict['human_bb']))
         return (dict["human_bb"])
 
-
 def legal_bounding_box(rect):
     if rect is None:
         return False
@@ -362,16 +373,17 @@ def legal_bounding_box(rect):
     else:
         return False
 
-
-
 def bounding_box_inside_image(image_array, rect):
-    if check_img_array(image_array) and legal_bounding_box(rect):
+    # if check_img_array(image_array) and legal_bounding_box(rect):
+    if legal_bounding_box(rect):
         height, width, depth = image_array.shape
-        if rect[2] <= width and rect[3] <= height:
+        if rect[0] < width and rect[0] + rect[2] <= width and rect[1] < height and rect[1] + rect[3] <= height:
             return True  # bb fits into image
         else:
+            print('warning - bb not inside image')
             return False
     else:
+        print('warning - bb not legal (either too small or None')
         return False
 
 def check_img_array(image_array):
@@ -382,10 +394,6 @@ def check_img_array(image_array):
         return False
 
 
-
-
-
-
 # products_collection_cursor = db.products.find()   #Regular db of one fig per item
 
 # prefixes = ['Main Image URL angle ', 'Style Gallery Image ']
@@ -394,7 +402,79 @@ def check_img_array(image_array):
 #print('doc:'+str(doc))
 #       for prefix in prefixes:
 
+def fix_all_bbs_in_db():
+    '''
+    fix all the bbs so they fit their respective image
+    :return:
+    '''
+    print('opening db')
+    db = pymongo.MongoClient().mydb
+    print('db open')
+    if db is None:
+        return {"success": 0, "error": "could not get db"}
+    training_collection_cursor = db.training.find()
+    print('returned cursor')
+    assert (training_collection_cursor)  # make sure training collection exists
+    doc = next(training_collection_cursor, None)
+    i = 0
+    while doc is not None:
+        print('doc:' + str(doc))
+        images = doc['images']
+        j = 0
+        for image in images:
+            image_url = image["url"]
+            if 'skip_image' in image:
+                if image['skip_image'] == True:
+                    print('marked for skip')
+                    continue
+            img_arr = get_cv2_img_array(image_url, convert_url_to_local_filename=True, download=True,
+                                        download_directory='images')
+            if img_arr is None:
+                raw_input('img is none')
 
+            if 'human_bb' in image:
+                height, width = img_arr.shape[0:2]
+                bb = image["human_bb"]
+                if bb is None:
+                    print('bb is None')
+                    continue
+
+                cv2.rectangle(img_arr, (bb[0], bb[1]), (bb[0] + bb[2], bb[1] + bb[3]), color=[0, 0, 255],
+                              thickness=2)
+                cv2.imshow('img', img_arr)
+                k = cv2.waitKey(50) & 0xFF
+                if not bounding_box_inside_image(img_arr, bb):
+                    print('bad bb caught,bb:' + str(bb) + ' img size:' + str(img_arr.shape) + ' imagedoc:' + str(
+                        image) + ' h,w:' + str(height) + ',' + str(width))
+                    print('h,w:' + str(height) + ',' + str(width))
+                    if not legal_bounding_box(bb):  # too small, make right and bottom at edge of  image
+                        print('not legal bounding box')
+                        raw_input('not legal...')
+                        bb[2] = width - bb[0]
+                        bb[3] = height - bb[1]
+                    bb[0] = max(0, bb[0])  # if less than zero
+                    bb[0] = min(bb[0], width - 1)  # if less than zero
+                    bb[2] = max(0, bb[2])
+                    bb[2] = min(bb[2], width - bb[0] - 1)  # the -1 is just to make sure, prob unneeded
+
+                    bb[1] = max(0, bb[1])  # if less than zero
+                    bb[1] = min(bb[1], height - 1)  # if less than zero
+                    bb[3] = max(0, bb[3])
+                    bb[3] = min(bb[3], height - bb[1] - 1)  # the -1 is just to make sure, prob unneeded
+                    print ('suggested replacement:' + str(bb))
+                    raw_input('got one')
+
+                    # TODO: check error on updating
+                    # write_result = db.training.update({"_id": objectid.ObjectId(id)}, {"$set": {"images": doc['images']}})
+                    # if current_image != i:
+                    # print('inconsistency - item number ' + str(i) + '+doesnt match')
+                    # logging.warning('inconsistency - item number ' + str(i) + ' doesnt match')
+                    # print('write result:' + str(write_result))
+                    #            return {"success": 1}
+        j = j + 1
+        doc = next(training_collection_cursor, None)
+
+    return {"success": 1}
 
 def insert_bb_into_training_db(receivedData):
     bb = receivedData['bb']
@@ -480,7 +560,6 @@ class ThreadSafeCounter(object):
     def value(self):
         return self.val.value
 
-
 def bb_to_mask(bb, img_array):
     '''
     bb in form of x,y,w,h converted to np array the same size as img_array
@@ -517,3 +596,7 @@ def error_of_fraction(numerator, numerator_stdev, denominator, denominator_stdev
     fraction_error = abs(n / d) * math.sqrt((n_e / n) ** 2 + (d_e / d) ** 2)
     return (fraction_error)
 
+
+if __name__ == '__main__':
+    print('starting')
+    fix_all_bbs_in_db()
