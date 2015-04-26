@@ -11,6 +11,7 @@ import background_removal
 import Utils
 import constants
 import time
+import signal
 
 
 # globals
@@ -166,7 +167,19 @@ def fingerprint_db(fp_version, category_id=None, num_processes=None):
     print "Average time per fingerprint per core: {avgc}".format(avgc=(total_time/TOTAL_PRODUCTS)*num_processes)
 
 
+def receive_signal(signum, stack):
+    if signum in [1,2,3,15]:
+        print 'Caught signal %s.' %(str(signum))
+
+
 if __name__ == "__main__":
+
+    uncatchable = ['SIG_DFL', 'SIGSTOP', 'SIGKILL']
+    for i in [x for x in dir(signal) if x.startswith("SIG")]:
+        if not i in uncatchable:
+            signum = getattr(signal, i)
+            signal.signal(signum, receive_signal)
+
     try:
         parser = argparse.ArgumentParser(description='Fingerprint the DB or part of it')
         parser.add_argument('-c', '--category_id', help='id of category to be fingerprinted', required=False)
