@@ -489,11 +489,13 @@ def bb_to_mask(bb, img_array):
     '''
     mask = np.zeros((img_array.shape[0], img_array.shape[1]), dtype=np.uint8)
     if bounding_box_inside_image(img_array, bb):
-
         mask[bb[0]:(bb[0] + bb[2]), bb[1]:(bb[1] + bb[3])] = 1
-        return mask
-    else:
+    elif bb[0] <= img_array.shape[0] and bb[1] <= img_array.shape[1]:  # left and top edges are ok
         mask[bb[0]:min(bb[0] + bb[2], img_array.shape[0]), bb[1]:min(bb[1] + bb[3], img_array.shape[1])] = 1
+    else:  # left or top edge not ok so use entire box
+        mask[0:min(bb[0] + bb[2], img_array.shape[0]), bb[1]:min(bb[1] + bb[3], img_array.shape[1])] = 1
+
+    return mask
 
 ############################
 ### math stuff

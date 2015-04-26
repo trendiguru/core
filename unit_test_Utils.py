@@ -1,9 +1,9 @@
 import unittest
 
 import pymongo
+import numpy as np
 
 import Utils
-
 
 class OutcomesTest(unittest.TestCase):
     # examples of things to return
@@ -56,10 +56,6 @@ class OutcomesTest(unittest.TestCase):
             doc = next(training_collection_cursor, None)
 
 
-    def test_lookfor_and_insert(self):
-        dict = Utils.test_lookfor_next()
-        Utils.test_insert_bb(dict, [10, 20, 30, 40])
-
     # test function for lookfor_next_unbounded_image
     def test_lookfor_next(self):
         db = pymongo.MongoClient().mydb
@@ -88,6 +84,21 @@ class OutcomesTest(unittest.TestCase):
             doc = next(training_collection_cursor, None)
         return resultDict
 
+
+    def test_bb_to_mask(self):
+        img_array = np.array([[2, 0, 0, 2], [50, 0, 0, 50], [0, 23, 0, 25], [50, 0, 0, 50], [0, 23, 0, 25]])
+        bb = [1, 0, 2, 2]
+        mask = Utils.bb_to_mask(bb, img_array)
+        print('img = ' + str(img_array))
+        print('bb = ' + str(bb))
+        print('mask = ' + str(mask))
+        self.assertTrue(mask.shape[0] == img_array.shape[0] and mask.shape[1] == img_array.shape[1])
+        bb = [1, 0, 5, 6]
+        mask = Utils.bb_to_mask(bb, img_array)
+        print('img = ' + str(img_array))
+        print('bb = ' + str(bb))
+        print('mask = ' + str(mask))
+        self.assertTrue(mask.shape[0] == img_array.shape[0] and mask.shape[1] == img_array.shape[1])
 
 
 if __name__ == '__main__':
