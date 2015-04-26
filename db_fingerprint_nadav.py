@@ -168,8 +168,8 @@ def fingerprint_db(fp_version, category_id=None, num_processes=None):
 
 
 def receive_signal(signum, stack):
-    if signum in [1,2,3,15]:
-        print 'Caught signal %s.' %(str(signum))
+    print 'Caught signal {0}.'.format(str(signum))
+    print str(stack)
 
 
 if __name__ == "__main__":

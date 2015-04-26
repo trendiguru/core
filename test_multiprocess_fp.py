@@ -23,7 +23,16 @@ def fake_fp(product):
 
 
 class FpWorker(multiprocessing.Process):
-    def __init__(self):
+    def __init__(self, q, work_func, *args):
+        super(multiprocessing.Process, self).__init__()
+        self._continue = True
+        self._func = work_func
+
+    def stop(self):
+        self._continue = False
+
+    def run(self):
+        if self._continue
 
 
 
