@@ -4,6 +4,10 @@ import math
 
 import numpy as np
 
+
+
+
+
 #import fingerprint_core
 import rate_fp
 import NNSearch
@@ -14,8 +18,6 @@ import cProfile
 import StringIO
 import pstats
 import resource
-
-
 
 fingerprint_length=constants.fingerprint_length
 n_docs = constants.max_items
