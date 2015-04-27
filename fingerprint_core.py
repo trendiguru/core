@@ -8,6 +8,11 @@ import cv2
 
 
 
+
+
+
+
+
 # moving this into the show_fp function for now - LS
 # import matplotlib.pyplot as plt
 
@@ -87,9 +92,11 @@ def find_color_percentages(img_array):
 
 # the order of dominant colors is what ccny guys used, if we just have vector in order of color i think its just as good
 #so for now the following 3 lines are not used
-    dominant_color_indices=np.argsort(all_colors, axis=-1, kind='quicksort', order=None)
+    dominant_color_indices = np.argsort(all_colors, axis=-1,
+                                        kind='quicksort')  # make sure this is ok   TODO - took out order=None argument
     dominant_color_indices = dominant_color_indices[::-1]
-    dominant_color_percentages=np.sort(all_colors, axis=-1, kind='quicksort', order=None)
+    dominant_color_percentages = np.sort(all_colors, axis=-1,
+                                         kind='quicksort')  # make sure this is ok   TODO - took out order=None argument
     dominant_color_percentages = dominant_color_percentages[::-1]
 
     print('color percentages:' + str(dominant_color_percentages) + ' indices:' + str(dominant_color_indices))
@@ -119,7 +126,7 @@ def fp(img, mask=None, weights=np.ones(fingerprint_length), histogram_length=25,
     if mask is None or cv2.countNonZero(mask) == 0:
         mask = np.ones((img.shape[0], img.shape[1]), dtype=np.uint8)
     if mask.shape[0] != img.shape[0] or mask.shape[1] != img.shape[1]:
-        print('trouble with mask size')
+        print('trouble with mask size, resetting to image size')
         mask = np.ones((img.shape[0], img.shape[1]), dtype=np.uint8)
     n_pixels = cv2.countNonZero(mask)
     hsv = cv2.cvtColor(img, cv2.COLOR_BGR2HSV)
