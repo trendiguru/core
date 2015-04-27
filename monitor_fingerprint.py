@@ -129,10 +129,15 @@ def print_header(procs_status, num_procs):
 
     # cpu usage
     percs = psutil.cpu_percent(interval=0, percpu=True)
+    i = 0
+    temp_line = ""
     for cpu_num, perc in enumerate(percs):
         dashes, empty_dashes = get_dashes(perc)
-        print_line(" CPU%-2s [%s%s] %5s%%" % (cpu_num, dashes, empty_dashes,
-                                              perc))
+        if i % 2 == 0:
+            temp_line = " CPU%-2s [%s%s] %5s%%" % (cpu_num, dashes, empty_dashes,perc)
+        else:
+            print_line(temp_line + "    " + " CPU%-2s [%s%s] %5s%%" % (cpu_num, dashes, empty_dashes, perc))
+        i += 1
     mem = psutil.virtual_memory()
     dashes, empty_dashes = get_dashes(mem.percent)
     used = mem.total - mem.available
