@@ -95,6 +95,9 @@ def run_fp(doc):
             classifier = None
 
         # first try grabcut with no bb
+        if small_image is None or small_image.shape[0] * small_image.shape[1] == 0:
+            logging.warning("small_image is Bad. {img}".format(img=small_image))
+            return
         mask = background_removal.get_fg_mask(small_image)
         bounding_box_list = []
 
