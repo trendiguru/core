@@ -287,8 +287,9 @@ def fingerprint_db_old(fp_version, category_id=None, num_processes=None):
 
 
 def receive_signal(signum, stack):
-    if signum == 17:
-        # creating child process, ignore
+    if signum == 17 or 28:
+        # 17 creating child process, ignore
+        # 28 SIGWINCH, ignore
         return
     if signum == 2 and mp.current_process().pid == MAIN_PID:
         print_stats(START_TIME)
