@@ -143,10 +143,10 @@ def do_work_on_q(some_func, q):
 
             some_func(popped_item)
     except BaseException as be:
-        print "Process {0}, exception in do_work:\n".format(str(current_pid))
+        print "Process {0}, exception reached do_work:\n".format(str(current_pid))
         traceback.print_exc()
-        CONTINUE.value = False
-        pdb.set_trace()
+        # get back to work
+        do_work_on_q(some_func, q)
     print "{0} all done...".format(str(current_pid))
     return "{0} returned".format(str(current_pid))
 
