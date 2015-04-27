@@ -382,7 +382,7 @@ def good_bb(dict, skip_if_marked_to_skip=True):
     if dict["human_bb"] is None:
         # print('human_bb is None')
         return (False)
-        bb = dict['human_bb']
+    bb = dict['human_bb']
     if not (legal_bounding_box(bb)):
         #   print('human bb is not big enough')
         return (False)
