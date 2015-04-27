@@ -95,7 +95,7 @@ def run_fp(doc):
             classifier = None
 
         # first try grabcut with no bb
-        if Utils.is_valid_image(small_image):
+        if not Utils.is_valid_image(small_image):
             logging.warning("small_image is Bad. {img}".format(img=small_image))
             return
         mask = background_removal.get_fg_mask(small_image)
