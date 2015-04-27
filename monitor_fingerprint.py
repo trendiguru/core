@@ -229,7 +229,7 @@ def main():
         while True:
             args = poll(interval)
             refresh_window(*args)
-            interval = 1
+            interval = 10
     except (KeyboardInterrupt, SystemExit):
         pass
 
