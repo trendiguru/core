@@ -683,7 +683,6 @@ def calculate_self_confusion_vector(image_sets, fingerprint_function=fp_core.fp,
     stdev_vector = np.zeros((len(image_sets)))
 
     # attempt to parallelize
-    parallelize = False
     if parallelize:
         results = []
         # n_cpus = cpu_count.available_cpu_count() - Reserve_cpus
