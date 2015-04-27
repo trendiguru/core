@@ -175,7 +175,9 @@ def fingerprint_db(fp_version, category_id=None, num_processes=None):
     :param category_id: category to be fingerprinted
     :return:
     """
-    global CURRENT, CLASSIFIER_FOR_CATEGORY, FP_VERSION, NUM_PROCESSES
+    global CURRENT, CLASSIFIER_FOR_CATEGORY, FP_VERSION, NUM_PROCESSES, DB
+
+    DB = DB or pymongo.MongoClient().mydb
 
     NUM_PROCESSES.value = num_processes or int(mp.cpu_count() * 0.75)
 
