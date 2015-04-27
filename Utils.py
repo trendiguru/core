@@ -184,7 +184,6 @@ def count_human_bbs_in_doc(dict_of_images, skip_if_marked_to_skip=True):
 
     return (n)
 
-
 def lookfor_next_unbounded_image(queryobject):
     n = 0
     got_unbounded_image = False
@@ -392,12 +391,6 @@ def good_bb(dict, skip_if_marked_to_skip=True):
             url))
         return (False)
     return (True)
-
-
-
-
-
-
 
 def legal_bounding_box(rect):
     if rect is None:
