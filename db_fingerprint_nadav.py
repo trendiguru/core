@@ -147,6 +147,7 @@ def do_work_on_q(some_func, q):
         traceback.print_exc()
         CONTINUE.value = False
         pdb.set_trace()
+    print "{0} all done...".format(str(current_pid))
     return "{0} returned".format(str(current_pid))
 
 
@@ -297,4 +298,4 @@ if __name__ == "__main__":
 
         fingerprint_db(int(args['fp_version']), args['category_id'], args['num_processes'])
     except Exception as e:
-        logging.warning("Exception!: {0}".format(e))
+        logging.warning("Exception reached main!: {0}".format(e))
