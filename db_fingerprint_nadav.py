@@ -1,7 +1,7 @@
 __author__ = 'Nadav Paz'
 
 import logging
-import multiprocessing
+import multiprocessing as mp
 import argparse
 import pymongo
 import numpy as np
@@ -12,14 +12,21 @@ import Utils
 import constants
 import time
 import signal
+import traceback
 
 
 # globals
 CLASSIFIER_FOR_CATEGORY = {}
-TOTAL_PRODUCTS = 0
+TOTAL_PRODUCTS = mp.Value("i",0)
 CURRENT = Utils.ThreadSafeCounter()
 DB = None
 FP_VERSION = 0
+
+CONTINUE = mp.Value("b", True)
+Q = mp.Queue(25)
+
+NUM_PROCESSES = mp.Value("i", 0)
+
 
 
 def get_all_subcategories(category_collection, category_id):
@@ -64,7 +71,8 @@ def create_classifier_for_category_dict(db):
 def run_fp(doc):
     # pdb.set_trace()
     CURRENT.increment()
-    print "Process {process} starting {i} of {total}...".format(process=multiprocessing.current_process(), i=CURRENT.value, total=TOTAL_PRODUCTS)
+    if CURRENT.value % 25 == 0:
+        print "Process {process} starting {i} of {total}...".format(process=multiprocessing.current_process(), i=CURRENT.value, total=TOTAL_PRODUCTS)
     image_url = doc["image"]["sizes"]["XLarge"]["url"]
     image = Utils.get_cv2_img_array(image_url)
     if image is None:
@@ -97,16 +105,16 @@ def run_fp(doc):
                 bounding_box_list = classifier.detectMultiScale(white_bckgnd_image)
             except KeyError:
                 logging.info("Could not classify with {0}".format(classifier))
+        # choosing the biggest bounding box if there are a few
         max_bb_area = 0
         chosen_bounding_box = None
-        # choosing the biggest bounding box
         for possible_bb in bounding_box_list:
             if possible_bb[2] * possible_bb[3] > max_bb_area:
                 chosen_bounding_box = possible_bb
                 max_bb_area = possible_bb[2] * possible_bb[3]
         if chosen_bounding_box is None:
-            logging.info("No Bounding Box found, using the whole image. "
-                            "Document id: {0}, BB_list: {1}".format(doc.get("id"), str(bounding_box_list)))
+            logging.info("No Bounding Box found, using the whole image. ""
+                         "Document id: {0}, BB_list: {1}".format(doc.get("id"), str(bounding_box_list)))
         else:
             mask = background_removal.get_fg_mask(small_image, chosen_bounding_box)
     try:
@@ -117,11 +125,99 @@ def run_fp(doc):
                                      "bounding_box": np.array(chosen_bounding_box).tolist()}
                            })
 
-    except Exception as e:
-        logging.warning("Exception caught while fingerprinting: {0}".format(e))
+    except Exception as ex:
+        logging.warning("Exception caught while fingerprinting: {0}".format(ex))
+
+
+def do_work_on_q(some_func, q):
+    print "Planning on doing some work..."
+    try:
+        while CONTINUE.value:
+            popped_item = q.get()
+            if popped_item is None:
+                print "Process {0} finished".format(str(mp.current_process().pid))
+                return
+
+            some_func(popped_item)
+    except BaseException as e:
+        print "Exception in do_work: {0}".format(e)
+    return "{0} returned".format(str(mp.current_process().pid))
+
+
+def connect_db_feed_q(q, query_doc, fields_doc):
+    """
+    Connects to the DB, queries, and fills q with results.
+    Also sets global TOTAL_PRODUCTS, DB
+    :param q:
+    :return:
+    """
+    global TOTAL_PRODUCTS, DB
+    DB = DB or pymongo.MongoClient().mydb
+    product_cursor = DB.products.find(query_doc, fields_doc)  #.batch_size(n)
+
+    TOTAL_PRODUCTS.value = product_cursor.count()
+    print "Total tasks: {0}".format(str(TOTAL_PRODUCTS.value))
+
+    for doc in product_cursor:
+        q.put(doc)
+
+    for p in range(0, NUM_PROCESSES.value):
+        q.put(None)
+
+    print "Done putting all docs in Q"
+    q.close()
 
 
 def fingerprint_db(fp_version, category_id=None, num_processes=None):
+    """
+    main function - fingerprints items in category_id and its subcategories.
+     If category_id is None, then fingerprints entire db. Also manages the multiprocessing
+    :param fp_version: integer to keep track of which items have been already fingerprinted with this version
+    :param category_id: category to be fingerprinted
+    :return:
+    """
+    global CURRENT, CLASSIFIER_FOR_CATEGORY, FP_VERSION, NUM_PROCESSES
+
+    NUM_PROCESSES.value = num_processes or int(mp.cpu_count() * 0.75)
+
+    if category_id is not None:
+        query_doc = {"$and": [
+            {"categories": {"$elemMatch": {"id": {"$in": get_all_subcategories(DB.categories, category_id)}}}},
+            {"$or": [{"fp_version": {"$lt": fp_version}}, {"fp_version": {"$exists": 0}}]}
+        ]}
+    else:
+        query_doc = {"$or": [{"fp_version": {"$lt": fp_version}}, {"fp_version": {"$exists": 0}}]}
+
+    fields = {"image": 1, "human_bb": 1, "fp_version": 1, "bounding_box": 1, "categories": 1, "id": 1}
+
+    CLASSIFIER_FOR_CATEGORY = create_classifier_for_category_dict(DB)
+    FP_VERSION = fp_version
+
+    feeder = mp.Process(target=connect_db_feed_q, name="Feeder", args=[Q, query_doc, fields])
+    worker_list = [mp.Process(target=do_work_on_q, name="Worker {0}".format(p), args=(run_fp, Q))
+                   for p in range(0, NUM_PROCESSES.value)]
+
+    start_time = time.time()
+    feeder.start()
+    for p in worker_list:
+        p.start()
+
+    for p in worker_list:
+        p.join()
+
+    feeder.join()
+
+    stop_time = time.time()
+    total_time = stop_time - start_time
+
+    print "All done!!"
+    print "Completed {total} fingerprints in {seconds} seconds " \
+          "with {procs} processes.".format(total=TOTAL_PRODUCTS, seconds=total_time, procs=num_processes)
+    print "Average time per fingerprint: {avg}".format(avg=total_time/TOTAL_PRODUCTS)
+    print "Average time per fingerprint per core: {avgc}".format(avgc=(total_time/TOTAL_PRODUCTS)*num_processes)
+
+
+def fingerprint_db_old(fp_version, category_id=None, num_processes=None):
     """
     main function - fingerprints items in category_id and its subcategories.
      If category_id is None, then fingerprints entire db.
@@ -132,7 +228,7 @@ def fingerprint_db(fp_version, category_id=None, num_processes=None):
     global DB, TOTAL_PRODUCTS, CURRENT, CLASSIFIER_FOR_CATEGORY, FP_VERSION
 
     DB = DB or pymongo.MongoClient().mydb
-    num_processes = num_processes or multiprocessing.cpu_count() - 2
+    num_processes = num_processes or mp.cpu_count() - 2
 
     if category_id is not None:
         query_doc = {"$and": [
@@ -151,7 +247,7 @@ def fingerprint_db(fp_version, category_id=None, num_processes=None):
 
     FP_VERSION = fp_version
 
-    pool = multiprocessing.Pool(num_processes, maxtasksperchild=5)
+    pool = mp.Pool(num_processes, maxtasksperchild=5)
 
     start_time = time.time()
     pool.map(run_fp, product_cursor)
@@ -169,7 +265,7 @@ def fingerprint_db(fp_version, category_id=None, num_processes=None):
 
 def receive_signal(signum, stack):
     print 'Caught signal {0}.'.format(str(signum))
-    print str(stack)
+    traceback.print_stack(stack)
 
 
 if __name__ == "__main__":
@@ -190,5 +286,3 @@ if __name__ == "__main__":
         fingerprint_db(int(args['fp_version']), args['category_id'], args['num_processes'])
     except Exception as e:
         logging.warning("Exception!: {0}".format(e))
-
-

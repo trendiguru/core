@@ -462,11 +462,13 @@ class GZipCSVReader:
     def __iter__(self):
         return self.reader.__iter__()
 
+
 class npAwareJSONEncoder(json.JSONEncoder):
     def default(self, obj):
         if isinstance(obj, np.ndarray) and obj.ndim == 1:
             return obj.tolist()
         return json.JSONEncoder.default(self, obj)
+
 
 class ThreadSafeCounter(object):
     def __init__(self):
