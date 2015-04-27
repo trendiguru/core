@@ -13,6 +13,7 @@ import constants
 import time
 import signal
 import traceback
+import pdb
 
 
 # globals
@@ -68,14 +69,13 @@ def create_classifier_for_category_dict(db):
 
 
 def run_fp(doc):
-    # pdb.set_trace()
     CURRENT.increment()
-    if CURRENT.value % 25 == 0:
+    if CURRENT.value % 100 == 0:
         print "Process {process} starting {i} of {total}...".format(process=mp.current_process(),
                                                                     i=CURRENT.value, total=TOTAL_PRODUCTS)
     image_url = doc["image"]["sizes"]["XLarge"]["url"]
     image = Utils.get_cv2_img_array(image_url)
-    if image is None:
+    if image is None or image.shape[0]*image.shape[1] == 0:
         logging.warning("image is None. url: {url}".format(url=image_url))
         return
     small_image, resize_ratio = background_removal.standard_resize(image, 400)
@@ -129,7 +129,7 @@ def run_fp(doc):
 
 
 def do_work_on_q(some_func, q):
-    print "Planning on doing some work..."
+    print "{0} Getting ready to do some work...".format(str(mp.current_process().pid))
     try:
         while CONTINUE.value:
             popped_item = q.get()
@@ -139,7 +139,9 @@ def do_work_on_q(some_func, q):
 
             some_func(popped_item)
     except BaseException as be:
-        print "Exception in do_work: {0}".format(be)
+        print "Exception in do_work:\n"
+        traceback.print_exc()
+        pdb.set_trace()
     return "{0} returned".format(str(mp.current_process().pid))
 
 
