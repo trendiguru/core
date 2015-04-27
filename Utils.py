@@ -615,21 +615,22 @@ def bb_to_mask(bb, img_array):
 ### math stuff
 ############################
 
+
 def error_of_fraction(numerator, numerator_stdev, denominator, denominator_stdev):
-    '''
+    """
     this gives the error on fraction numerator/denominator assuming no covariance
     :param numerator:
     :param numerator_stdev:
     :param denominator:
     :param denominator_stdev:
     :return:
-    '''
+    """
     n = float(numerator)
     d = float(denominator)
     n_e = float(numerator_stdev)
     d_e = float(denominator_stdev)
     fraction_error = abs(n / d) * math.sqrt((n_e / n) ** 2 + (d_e / d) ** 2)
-    return (fraction_error)
+    return fraction_error
 
 
 def isnumber(str):
