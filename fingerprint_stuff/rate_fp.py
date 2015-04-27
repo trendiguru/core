@@ -130,6 +130,8 @@ def save_short_report(report):
     short_report1['average_weighted'] = rep['average_weighted']
     short_report1['average_unweighted'] = rep['average_unweighted']
     short_report1['error_cumulative'] = rep['error_cumulative']
+    short_report1['n_groups'] = rep['n_groups']
+    short_report1['tot_images'] = rep['tot_images']
     short_report['self_report'] = short_report1
 
     rep = report['cross_report']
@@ -141,6 +143,8 @@ def save_short_report(report):
     short_report1['average_weighted'] = rep['average_unweighted']
     short_report1['average_unweighted'] = rep['average_unweighted']
     short_report1['error_cumulative'] = rep['error_cumulative']
+    short_report1['n_groups'] = rep['n_groups']
+    short_report1['tot_images'] = rep['tot_images']
     short_report['cross_report'] = short_report1
 
     try:
@@ -159,16 +163,18 @@ def get_docs(n_items=max_items):
     assert (training_collection_cursor)  # make sure training collection exists
     doc = next(training_collection_cursor, None)
     i = 0
+    tot_images = 0
     tot_answers = []
     report = {'n_groups': 0, 'n_images': []}
     while doc is not None and i < n_items:
         images = doc['images']
         id = doc['_id']
-        print('have:' + str(i) + ' good docs so far, checking id:' + str(id))
+        print('have:' + str(i) + ' good docs so far and ' + str(tot_images) + ' images, checking id:' + str(id))
         if images is not None:
             n_images = len(images)
             n_good = Utils.count_human_bbs_in_doc(images, skip_if_marked_to_skip=True)
             if n_good >= min_images_per_doc:
+                tot_images = tot_images + n_good
                 i = i + 1
                 print('got ' + str(n_good) + ' bounded images, ' + str(min_images_per_doc) + ' required, ' + str(
                     n_images) + ' images tot in doc #' + str(i) + ' id:' + str(id))
@@ -179,6 +185,8 @@ def get_docs(n_items=max_items):
                     min_images_per_doc) + ' required, ' + str(n_images) + ' images tot)          ', end='\r', sep='')
         doc = next(training_collection_cursor, None)
     report['n_groups'] = i
+    report['tot_images'] = tot_images
+    report['images_per_group'] = round(tot_images / i, 3)
     return (report, tot_answers)
 
 def get_images_from_doc(images):
@@ -842,7 +850,7 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='rate ye olde fingerprinte')
     #   parser.add_argument('integers', metavar='N', type=int, nargs='+',
     #                     help='an integer for the accumulator')
-    parser.add_argument('--use_visual_output', default=True,
+    parser.add_argument('--use_visual_output', default=False,
                         help='show output once for each item')
     parser.add_argument('--use_visual_output2', default=False,
                         help='show output for each image')

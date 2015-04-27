@@ -509,59 +509,64 @@ def fix_all_bbs_in_db():
 
     return {"success": 1}
 
-def insert_bb_into_training_db(receivedData):
-    bb = receivedData['bb']
-    image_url = receivedData["url"]
-    skip_image = receivedData["skip_image"]
-    current_image = receivedData["current_image"]
-    current_item = receivedData["current_item"]
-    id = receivedData["id"]
 
-    if current_item is None or id is None:
-        return {"success": 0, "error": "wasnt given an id or current_iutem to work with"}
-
-    #        id = vars['_id']
-    print(
-        'default.py:bb:' + str(bb) + ' imageurl:' + str(image_url) + ' skip:' + str(skip_image) + ' current image:' + str(
-            current_image) + ' current item:' + str(current_item))
-    logging.debug(
-        'bb:' + str(bb) + ' imageurl:' + str(image_url) + ' skip:' + str(skip_image) + ' current image:' + str(
-            current_image) + ' current item:' + str(current_item))
-    image_dict = {}
-    result_dict = {}
-    # find the document  - can do this either by id like thie
-    db = pymongo.MongoClient().mydb
-    if db is None:
-        return {"success": 0, "error": "could not get db"}
-    trainingdb = db.training
-    if trainingdb is None:
-        return {"success": 0, "error": "could not get trainingdb"}
-    doc = trainingdb.find_one({'_id': objectid.ObjectId(id)})
-    #or can do it by looking for item # lke this
-    #training_collection_cursor = db.training.find()   #.sort _id
-    #doc = training_collection_cursor[current_item]
-    if not doc:
-        return {"success": 0, "error": "could not get doc with specified id" + str(id)}
-    i = 0
-    for image in doc["images"]:
-        if image["url"] == image_url:
-            image["human_bb"] = bb
-            image["skip_image"] = skip_image
-            print('default.py:new image:' + str(image))
-            # subtle error - if two images have same url, only one will get updated causing the other to get shown forever after
-            # therefore dont break here but rather continue adding bb for each image having same url
-            # save edited doc
-            # TODO: check error on updating
-            write_result = db.training.update({"_id": objectid.ObjectId(id)}, {"$set": {"images": doc['images']}})
-            if current_image != i:
-                print('inconsistency - item number ' + str(i) + '+doesnt match')
-                logging.warning('inconsistency - item number ' + str(i) + ' doesnt match')
-            print('write result:' + str(write_result))
-            return {"success": 1}
-        i = i + 1
-    return {"success": 0, "error": "could not find image w. url:" + str(image_url) + " in current doc:" + str(doc)}
 
 class GZipCSVReader:
+    def insert_bb_into_training_db(receivedData):
+        bb = receivedData['bb']
+        image_url = receivedData["url"]
+        if 'skip_image' in receivedData:
+            skip_image = receivedData["skip_image"]
+        else:
+            skip_image = False
+        current_image = receivedData["current_image"]
+        current_item = receivedData["current_item"]
+        id = receivedData["id"]
+
+        if current_item is None or id is None:
+            return {"success": 0, "error": "wasnt given an id or current_iutem to work with"}
+
+        # id = vars['_id']
+        print(
+            'default.py:bb:' + str(bb) + ' imageurl:' + str(image_url) + ' skip:' + str(
+                skip_image) + ' current image:' + str(
+                current_image) + ' current item:' + str(current_item))
+        logging.debug(
+            'bb:' + str(bb) + ' imageurl:' + str(image_url) + ' skip:' + str(skip_image) + ' current image:' + str(
+                current_image) + ' current item:' + str(current_item))
+        image_dict = {}
+        result_dict = {}
+        # find the document  - can do this either by id like thie
+        db = pymongo.MongoClient().mydb
+        if db is None:
+            return {"success": 0, "error": "could not get db"}
+        trainingdb = db.training
+        if trainingdb is None:
+            return {"success": 0, "error": "could not get trainingdb"}
+        doc = trainingdb.find_one({'_id': objectid.ObjectId(id)})
+        #or can do it by looking for item # lke this
+        #training_collection_cursor = db.training.find()   #.sort _id
+        #doc = training_collection_cursor[current_item]
+        if not doc:
+            return {"success": 0, "error": "could not get doc with specified id" + str(id)}
+        i = 0
+        for image in doc["images"]:
+            if image["url"] == image_url:
+                image["human_bb"] = bb
+                image["skip_image"] = skip_image
+                print('default.py:new image:' + str(image))
+                # subtle error - if two images have same url, only one will get updated causing the other to get shown forever after
+                # therefore dont break here but rather continue adding bb for each image having same url
+                # save edited doc
+                # TODO: check error on updating
+                write_result = db.training.update({"_id": objectid.ObjectId(id)}, {"$set": {"images": doc['images']}})
+                if current_image != i:
+                    print('inconsistency - item number ' + str(i) + '+doesnt match')
+                    logging.warning('inconsistency - item number ' + str(i) + ' doesnt match')
+                print('write result:' + str(write_result))
+                return {"success": 1}
+            i = i + 1
+        return {"success": 0, "error": "could not find image w. url:" + str(image_url) + " in current doc:" + str(doc)}
     def __init__(self, filename):
         self.gzfile = gzip.open(filename)
         self.reader = csv.DictReader(self.gzfile)
