@@ -1,7 +1,7 @@
 __author__ = 'Nadav Paz'
 
 import logging
-import multiprocessing.dummy as mp
+import multiprocessing as mp
 import argparse
 import pymongo
 import numpy as np
@@ -208,11 +208,14 @@ def fingerprint_db(fp_version, category_id=None, num_processes=None):
 
     start_time = time.time()
     feeder.start()
+    """
     for p in worker_list:
         p.start()
 
     for p in worker_list:
         p.join()
+    """
+    do_work_on_q(run_fp, Q)
 
     feeder.join()
 
