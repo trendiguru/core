@@ -122,25 +122,25 @@ def save_short_report(report):
 
     rep = report['self_report']
     short_report1 = {}
-    report['fingerprint_function'] = rep['fingerprint_function']
+    short_report1['fingerprint_function'] = rep['fingerprint_function']
     short_report1['distance_function'] = rep['distance_function']
     short_report1['distance_power'] = rep['distance_power']
     short_report1['timestamp'] = rep['timestamp']
     short_report1['average_weighted'] = rep['average_weighted']
     short_report1['average_unweighted'] = rep['average_unweighted']
     short_report1['error_cumulative'] = rep['error_cumulative']
-    self_report['self_report'] = short_report1
+    short_report['self_report'] = short_report1
 
     rep = report['cross_report']
     short_report1 = {}
-    report['fingerprint_function'] = rep['fingerprint_function']
+    short_report1['fingerprint_function'] = rep['fingerprint_function']
     short_report1['distance_function'] = rep['distance_function']
     short_report1['distance_power'] = rep['distance_power']
     short_report1['timestamp'] = rep['timestamp']
     short_report1['average_weighted'] = rep['average_unweighted']
     short_report1['average_unweighted'] = rep['average_unweighted']
     short_report1['error_cumulative'] = rep['error_cumulative']
-    self_report['cross_report'] = short_report1
+    short_report['cross_report'] = short_report1
 
     try:
         f = open('fp_ratings' + str(name) + '.txt', 'a')  # ha!! mode 'w+' .... overwrites the file!!!
