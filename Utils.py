@@ -158,9 +158,9 @@ def get_cv2_img_array(url_or_path_to_image_file_or_cv2_image_array, convert_url_
 def count_human_bbs_in_doc(dict_of_images, skip_if_marked_to_skip=True):
     n = 0
     for entry in dict_of_images:
-        print('entry:' + str(entry) + ' n=' + str(n))
+        print('entry:' + str(entry) + ' n=' + str(n), end='\r')
         if good_bb(entry):
-            print('good bb in entry')
+            print('good bb in entry                ', end='\r')
             if skip_if_marked_to_skip:
                 if 'skip_image' in entry:
                     if entry['skip_image'] == True:
@@ -183,7 +183,6 @@ def count_human_bbs_in_doc(dict_of_images, skip_if_marked_to_skip=True):
                 n = n - 1
 
     return (n)
-
 
 def lookfor_next_unbounded_image(queryobject):
     n = 0
@@ -368,36 +367,30 @@ def good_bb(dict, skip_if_marked_to_skip=True):
                 return (False)
 
     if not 'url' in dict:
-        print('img is none')
+        # print('img is none')
         return (False)
 
     url = dict['url']
     img_arr = get_cv2_img_array(url, convert_url_to_local_filename=True, download=True,
                                 download_directory='images')
     if img_arr is None:
-        print('img is none')
+        # print('img is none')
         return (False)
     if not 'human_bb' in dict:
-        print('no human_bb key in dict')
+        # print('no human_bb key in dict')
         return (False)
     if dict["human_bb"] is None:
-        print('human_bb is None')
+        # print('human_bb is None')
         return (False)
     bb = dict['human_bb']
     if not (legal_bounding_box(bb)):
-        print('human bb is not big enough')
+        #   print('human bb is not big enough')
         return (False)
-    if not bounding_box_inside_image(img_arr, bb):
+    if not bounding_box_inside_image(img_arr, bb):  #
         print('bad bb caught,bb:' + str(bb) + ' img size:' + str(img_arr.shape) + ' imagedoc:' + str(
             url))
         return (False)
     return (True)
-
-
-
-
-
-
 
 def legal_bounding_box(rect):
     if rect is None:

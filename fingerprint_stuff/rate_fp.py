@@ -164,7 +164,7 @@ def get_docs(n_items=max_items):
     while doc is not None and i < n_items:
         images = doc['images']
         id = doc['_id']
-        print('checking doc#:' + str(i) + ' id:' + str(id))
+        print('have:' + str(i) + ' good docs so far, checking id:' + str(id))
         if images is not None:
             n_images = len(images)
             n_good = Utils.count_human_bbs_in_doc(images, skip_if_marked_to_skip=True)
@@ -683,7 +683,6 @@ def calculate_self_confusion_vector(image_sets, fingerprint_function=fp_core.fp,
     stdev_vector = np.zeros((len(image_sets)))
 
     # attempt to parallelize
-    parallelize = False
     if parallelize:
         results = []
         # n_cpus = cpu_count.available_cpu_count() - Reserve_cpus
