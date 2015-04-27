@@ -210,6 +210,60 @@ def good_img(dict):
         else:
             return True
 
+
+def show_fps_and_images(fp1, img1, fp2, img2, fig=None):
+    import matplotlib.pyplot as plt
+
+    extras_length = constants.extras_length
+    histograms_length = constants.histograms_length
+    if fig:
+        plt.close(fig)
+    plt.close('all')
+
+    fig, ax = plt.subplots()
+
+    fig.add_subplot(2, 2, 1)
+    plt.imshow(img1)
+
+    fig.add_subplot(2, 2, 2)
+    plt.imshow(img1)
+
+    # fingerprint 1 bargraph
+    fig.add_subplot(2, 2, 3)
+    ind = np.arange(fingerprint_length)  # the x locations for the groups
+    width = 0.35
+    fig.add_subplot(2, 2, 3)
+    energy_maxindex = extras_length
+    hue_maxindex = energy_maxindex + histograms_length
+    sat_maxindex = hue_maxindex + histograms_length
+    rects1 = ax.bar(ind[0:energy_maxindex], fp1[0:energy_maxindex], width, color='r')  # , yerr=menStd)
+    rects2 = ax.bar(ind[energy_maxindex + 1: hue_maxindex], fp1[energy_maxindex + 1: hue_maxindex], width,
+                    color='g')  # , yerr=menStd)
+    rects3 = ax.bar(ind[hue_maxindex + 1: sat_maxindex], fp1[hue_maxindex + 1: sat_maxindex], width,
+                    color='b')  # , yerr=menStd)
+    # add some text for labels, title and axes tisatcks
+    ax.set_ylabel('y')
+    ax.set_title('fingerprint')
+    ax.set_xticks(ind + width)
+    # ax.set_xticklabels( ('G1', 'G2', 'G3', 'G4', 'G5') )
+    # ax.legend( (rects1[0]), ('Men', 'Women') )
+
+    # fingerprint 2 bargraph
+    fig.add_subplot(2, 2, 4)
+    rects1 = ax.bar(ind[0:energy_maxindex], fp1[0:energy_maxindex], width, color='r')  # , yerr=menStd)
+    rects2 = ax.bar(ind[energy_maxindex + 1: hue_maxindex], fp1[energy_maxindex + 1: hue_maxindex], width,
+                    color='g')  # , yerr=menStd)
+    rects3 = ax.bar(ind[hue_maxindex + 1: sat_maxindex], fp1[hue_maxindex + 1: sat_maxindex], width,
+                    color='b')  # , yerr=menStd)
+    ax.set_ylabel('y')
+    ax.set_title('fingerprint')
+    ax.set_xticks(ind + width)
+    #
+
+    plt.show(block=False)
+
+    return (fig)
+
 def nice_print(images):
     i = 1
     for img in images:
@@ -681,6 +735,7 @@ def calculate_self_confusion_vector(image_sets, fingerprint_function=fp_core.fp,
 ###################3
 
 
+# maybe delete
 def cross_rate_fingerprint():
     global cross_report
     cross_report = {}
@@ -704,6 +759,7 @@ def cross_rate_fingerprint():
     return (different_item_avg)
 
 
+# in use
 @profile
 def analyze_fingerprint(fingerprint_function=fp_core.fp, weights=np.ones(fingerprint_length),
                         distance_function=NNSearch.distance_1_k,

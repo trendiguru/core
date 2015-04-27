@@ -39,6 +39,15 @@ class OutcomesTest(unittest.TestCase):
         print('answer from lookfor_next_bounded_in_db:'+str(answer))
         self.assertTrue(isinstance(answer, dict) or isinstance(answer, basestring))
 
+    def test_count_human_bbs_in_doc(self):
+        db = pymongo.MongoClient().mydb
+        training_collection_cursor = db.training.find()  # The db with multiple figs of same item
+        doc = next(training_collection_cursor, None)
+        dict_images = doc['images']
+        n = Utils.count_human_bbs_in_doc(dict_images, skip_if_marked_to_skip=True)
+        print('images:' + str(dict_images))
+        print('n:' + str(n) + ' len(dict_images):' + str(len(dict_images)))
+        self.assertTrue(n <= len(dict_images))
 
     def test_count_bbs(self):
         '''

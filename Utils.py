@@ -1,3 +1,5 @@
+from __future__ import print_function
+
 import multiprocessing
 
 __author__ = 'liorsabag'
@@ -34,8 +36,8 @@ def get_cv2_img_array(url_or_path_to_image_file_or_cv2_image_array, convert_url_
     :param download_directory:
     :return: img_array
     """
-    print('get:' + str(url_or_path_to_image_file_or_cv2_image_array) + ' try local' + str(
-        convert_url_to_local_filename) + ' download:' + str(download))
+    # print('get:' + str(url_or_path_to_image_file_or_cv2_image_array) + ' try local' + str(
+    # convert_url_to_local_filename) + ' download:' + str(download))
     got_locally = False
     img_array = None  # attempt to deal with non-responding url
     # first check if we already have a numpy array
@@ -59,7 +61,7 @@ def get_cv2_img_array(url_or_path_to_image_file_or_cv2_image_array, convert_url_
                 pass
             else:  # there's no 'normal' filename ending so add .jpg
                 filename = filename + '.jpg'
-            print('trying again locally using filename:' + str(filename))
+            # print('trying again locally using filename:' + str(filename))
             img_array = get_cv2_img_array(filename, convert_url_to_local_filename=False, download=download,
                                           download_directory=download_directory)
             #maybe return(get_cv2 etc) instead of img_array =
@@ -67,8 +69,7 @@ def get_cv2_img_array(url_or_path_to_image_file_or_cv2_image_array, convert_url_
                 # print('got ok array calling self locally')
                 return img_array
             else:  # couldnt get locally so try remotely
-                print('trying again remotely since using local filename didnt work, download=' + str(
-                    download) + ' fname:' + str(filename))
+                # print('trying again remotely since using local filename didnt work, download=' + str( download) + ' fname:' + str(filename))
                 return (
                     get_cv2_img_array(url_or_path_to_image_file_or_cv2_image_array, convert_url_to_local_filename=False,
                                       download=download,
@@ -79,7 +80,7 @@ def get_cv2_img_array(url_or_path_to_image_file_or_cv2_image_array, convert_url_
             if "://" in url_or_path_to_image_file_or_cv2_image_array:
                 img_url = url_or_path_to_image_file_or_cv2_image_array
                 try:
-                    print("trying remotely (url) ")
+                    # print("trying remotely (url) ")
                     response = requests.get(img_url)  # download
                     img_array = imdecode(np.asarray(bytearray(response.content)), 1)
                 except ConnectionError:
@@ -90,21 +91,20 @@ def get_cv2_img_array(url_or_path_to_image_file_or_cv2_image_array, convert_url_
                     return None
 
             else:  # get locally, since its not a url
-                print("trying locally (not url)")
+                # print("trying locally (not url)")
                 img_path = url_or_path_to_image_file_or_cv2_image_array
                 try:
                     img_array = imread(img_path)
                     if img_array is not None:
-                        print("success trying locally (not url)")
+                        # print("success trying locally (not url)")
                         got_locally = True
                     else:
-                        print('couldnt get locally (in not url branch)')
+                        # print('couldnt get locally (in not url branch)')
                         return None
                 except:
-                    print("could not read locally, returning None")
+                    # print("could not read locally, returning None")
                     logging.warning("could not read locally, returning None")
-                    return None
-    # input isn't a basestring nor a np.ndarray....so what is it?
+                    return None  # input isn't a basestring nor a np.ndarray....so what is it?
     else:
         logging.warning("input is neither an ndarray nor a string, so I don't know what to do")
         return None
@@ -138,18 +138,18 @@ def get_cv2_img_array(url_or_path_to_image_file_or_cv2_image_array, convert_url_
             else:  # there's no 'normal' filename ending
                 filename = filename + '.jpg'
             try:
-                print('filename for local write:' + str(filename))
+
+                # print('filename for local write:' + str(filename))
                 write_status = imwrite(filename, img_array)
-                max_i = 50
-                # wait until file is readable before continuing
+                max_i = 50  # wait until file is readable before continuing
                 for i in xrange(max_i):
                     try:
                         with open(filename, 'rb') as _:
                             break
                     except IOError:
                         time.sleep(10)
-                else:
-                    raise IOError('Could not access {} after {} attempts'.format(filename, str(max_i)))
+                    else:
+                        raise IOError('Could not access {} after {} attempts'.format(filename, str(max_i)))
             except:
                 print('unexpected error in Utils calling imwrite')
     return img_array
@@ -157,10 +157,13 @@ def get_cv2_img_array(url_or_path_to_image_file_or_cv2_image_array, convert_url_
 def count_human_bbs_in_doc(dict_of_images, skip_if_marked_to_skip=True):
     n = 0
     for entry in dict_of_images:
+        print('entry:' + str(entry) + ' n=' + str(n))
         if good_bb(entry):
+            print('good bb in entry')
             if skip_if_marked_to_skip:
                 if 'skip_image' in entry:
                     if entry['skip_image'] == True:
+                        print('marked for skip and we care')
                         continue  # skip it if its marked to skip and we care about skip marking
                     else:
                         n = n + 1  # no 'skip_image' in entry
@@ -168,7 +171,18 @@ def count_human_bbs_in_doc(dict_of_images, skip_if_marked_to_skip=True):
                     n = n + 1
             else:
                 n = n + 1  # dont care if marked to be skipped
+
+
+            # if image is bad dont count it
+            image_url = entry["url"]
+            img_arr = get_cv2_img_array(image_url, convert_url_to_local_filename=True, download=True,
+                                        download_directory='images')
+            if img_arr is None:
+                print('bad img_arr, subtracting')
+                n = n - 1
+
     return (n)
+
 
 def lookfor_next_unbounded_image(queryobject):
     n = 0
@@ -250,17 +264,17 @@ def lookfor_next_bounded_image(queryobject, image_index=0, only_get_boxed_images
     try:
         answers["_id"] = str(queryobject["_id"])
     except KeyError, e:
-        print 'keyerror on key "%s" which probably does not exist' % str(e)
+        print('keyerror on key "%s" which probably does not exist' % str(e))
         logging.debug('keyerror on key "%s" which probably does not exist' % str(e))
     try:
         answers["product_title"] = queryobject["Product Title"]
     except KeyError, e:
-        print 'keyerror on key "%s" which probably does not exist' % str(e)
+        print('keyerror on key "%s" which probably does not exist' % str(e))
         logging.debug('keyerror on key "%s" which probably does not exist' % str(e))
     try:
         answers["product_url"] = queryobject["Product URL"]
     except KeyError, e:
-        print 'keyerror on key "%s" which probably does not exist' % str(e)
+        print('keyerror on key "%s" which probably does not exist' % str(e))
         logging.debug('keyerror on key "%s" which probably does not exist' % str(e))
     answers['skip_image'] = False
     if image_index == max_image_val:  #max_image_val is a code meaning get the last image
@@ -331,7 +345,7 @@ def lookfor_next_bounded_in_db(current_item=0, current_image=0, only_get_boxed_i
                         logging.debug('exiting lookfornext 1, answers:' + str(answers))
                         return answers
                 except KeyError, e:
-                    print 'keyerror on key "%s" which probably does not exist' % str(e)
+                    print('keyerror on key "%s" which probably does not exist' % str(e))
                     #go to next doc since no bb was found in this one
             else:
                 logging.debug('exiting lookfornext 2, answers:' + str(answers))
@@ -417,22 +431,26 @@ def fix_all_bbs_in_db():
     assert (training_collection_cursor)  # make sure training collection exists
     doc = next(training_collection_cursor, None)
     i = 0
+    j = 0
     while doc is not None:
         print('doc:' + str(doc))
         images = doc['images']
-        j = 0
+        print('checking doc #' + str(j + 1))
+        i = 0
         for image in images:
             image_url = image["url"]
             if 'skip_image' in image:
                 if image['skip_image'] == True:
-                    print('marked for skip')
+                    print('marked for skip:' + str(i), end='\r')
                     continue
             img_arr = get_cv2_img_array(image_url, convert_url_to_local_filename=True, download=True,
                                         download_directory='images')
             if img_arr is None:
-                raw_input('img is none')
+                print('img is none')
+                continue
 
             if 'human_bb' in image:
+                i = i + 1
                 height, width = img_arr.shape[0:2]
                 bb = image["human_bb"]
                 if bb is None:
@@ -449,28 +467,29 @@ def fix_all_bbs_in_db():
                     print('h,w:' + str(height) + ',' + str(width))
                     if not legal_bounding_box(bb):  # too small, make right and bottom at edge of  image
                         print('not legal bounding box')
-                        raw_input('not legal...')
+                        raw_input('not a legal bb...')
                         bb[2] = width - bb[0]
                         bb[3] = height - bb[1]
                     bb[0] = max(0, bb[0])  # if less than zero
-                    bb[0] = min(bb[0], width - 1)  # if less than zero
-                    bb[2] = max(0, bb[2])
+                    bb[0] = min(bb[0], width - 1)  # if greater than width
+                    bb[2] = max(0, bb[2])  # if less than 0
                     bb[2] = min(bb[2], width - bb[0] - 1)  # the -1 is just to make sure, prob unneeded
 
                     bb[1] = max(0, bb[1])  # if less than zero
-                    bb[1] = min(bb[1], height - 1)  # if less than zero
-                    bb[3] = max(0, bb[3])
+                    bb[1] = min(bb[1], height - 1)  # if greater than height
+                    bb[3] = max(0, bb[3])  # if less than zero
                     bb[3] = min(bb[3], height - bb[1] - 1)  # the -1 is just to make sure, prob unneeded
                     print ('suggested replacement:' + str(bb))
                     raw_input('got one')
-
+                    image["human_bb"] = bb
+                    id = str(doc['_id'])
+                    write_result = db.training.update({"_id": objectid.ObjectId(id)},
+                                                      {"$set": {"images": doc['images']}})
                     # TODO: check error on updating
-                    # write_result = db.training.update({"_id": objectid.ObjectId(id)}, {"$set": {"images": doc['images']}})
-                    # if current_image != i:
-                    # print('inconsistency - item number ' + str(i) + '+doesnt match')
-                    # logging.warning('inconsistency - item number ' + str(i) + ' doesnt match')
-                    # print('write result:' + str(write_result))
-                    #            return {"success": 1}
+                else:
+                    print('not es tot', end='\r', sep='')
+                    print('got good bb, i=' + str(i), end='\r', sep='')
+
         j = j + 1
         doc = next(training_collection_cursor, None)
 
