@@ -18,6 +18,7 @@ import pymongo
 import constants
 import math
 import cv2
+import re
 
 min_images_per_doc = constants.min_images_per_doc
 max_image_val = constants.max_image_val
@@ -138,7 +139,6 @@ def get_cv2_img_array(url_or_path_to_image_file_or_cv2_image_array, convert_url_
             else:  # there's no 'normal' filename ending
                 filename = filename + '.jpg'
             try:
-
                 # print('filename for local write:' + str(filename))
                 write_status = imwrite(filename, img_array)
                 max_i = 50  # wait until file is readable before continuing
@@ -148,8 +148,8 @@ def get_cv2_img_array(url_or_path_to_image_file_or_cv2_image_array, convert_url_
                             break
                     except IOError:
                         time.sleep(10)
-                    else:
-                        raise IOError('Could not access {} after {} attempts'.format(filename, str(max_i)))
+
+                raise IOError('Could not access {} after {} attempts'.format(filename, str(max_i)))
             except:
                 print('unexpected error in Utils calling imwrite')
     return img_array
@@ -365,18 +365,38 @@ def good_bb(dict, skip_if_marked_to_skip=True):
         if "skip_image" in dict:
             if dict['skip_image'] == True:
                 return (False)
+
+    if not 'url' in dict:
+        print('img is none')
+        return (False)
+
+    url = dict['url']
+    img_arr = get_cv2_img_array(url, convert_url_to_local_filename=True, download=True,
+                                download_directory='images')
+    if img_arr is None:
+        print('img is none')
+        return (False)
     if not 'human_bb' in dict:
-        # print('no human_bb key in dict')
+        print('no human_bb key in dict')
         return (False)
-    elif dict["human_bb"] is None:
-        # print('human_bb is None')
+    if dict["human_bb"] is None:
+        print('human_bb is None')
         return (False)
-    elif not (legal_bounding_box(dict["human_bb"])):
-        # print('human bb is not big enough')
+    bb = dict['human_bb']
+    if not (legal_bounding_box(bb)):
+        print('human bb is not big enough')
         return (False)
-    else:
-        # print('human bb ok:'+str(dict['human_bb']))
-        return (dict["human_bb"])
+    if not bounding_box_inside_image(img_arr, bb):
+        print('bad bb caught,bb:' + str(bb) + ' img size:' + str(img_arr.shape) + ' imagedoc:' + str(
+            url))
+        return (False)
+    return (True)
+
+
+
+
+
+
 
 def legal_bounding_box(rect):
     if rect is None:
@@ -614,6 +634,15 @@ def error_of_fraction(numerator, numerator_stdev, denominator, denominator_stdev
     d_e = float(denominator_stdev)
     fraction_error = abs(n / d) * math.sqrt((n_e / n) ** 2 + (d_e / d) ** 2)
     return (fraction_error)
+
+
+def isnumber(str):
+    num_format = re.compile("^[1-9][0-9]*\.?[0-9]*")
+    isnumber = re.match(num_format, str)
+    if isnumber:
+        return True
+    else:
+        return False
 
 
 if __name__ == '__main__':

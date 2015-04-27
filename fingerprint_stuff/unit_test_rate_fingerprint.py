@@ -9,7 +9,6 @@ import numpy as np
 
 import rate_fp
 import fingerprint_core
-
 import NNSearch
 import constants
 
@@ -54,10 +53,18 @@ class rate_fingerprint_test(unittest.TestCase):
         report = rate_fp.calculate_partial_cross_confusion_vector(image_sets, fingerprint_function=fingerprint_core.fp,
                                                                   weights=np.ones(constants.fingerprint_length),
                                                                   distance_function=NNSearch.distance_1_k,
-                                                                  distance_power=0.5, report=report)
+                                                                  distance_power=0.5, report=report, parallelize=False)
         avg = report['average_weighted']
-        print('cross item avg:' + str(avg))
+        print('cross item avg without parallelization:' + str(avg))
         self.assertTrue(avg > 0 and avg < 100)  # this 100 is arbirary...
+        report = rate_fp.calculate_partial_cross_confusion_vector(image_sets, fingerprint_function=fingerprint_core.fp,
+                                                                  weights=np.ones(constants.fingerprint_length),
+                                                                  distance_function=NNSearch.distance_1_k,
+                                                                  distance_power=0.5, report=report)
+        avg2 = report['average_weighted']
+        print('cross item avg with parallelization:' + str(avg2))
+        self.assertTrue(avg > 0 and avg < 100)  # this 100 is arbirary...
+        self.assertTrue(avg == avg2)  # this 100 is arbirary...
 
     def test_calculate_self_confusion_vector(self):
         n_items = 6
@@ -65,11 +72,17 @@ class rate_fingerprint_test(unittest.TestCase):
         report = rate_fp.calculate_self_confusion_vector(image_sets, fingerprint_function=fingerprint_core.fp,
                                                          weights=np.ones(constants.fingerprint_length),
                                                            distance_function=NNSearch.distance_1_k,
-                                                         distance_power=0.5, report=report, use_visual_output1=False,
-                                                         use_visual_output2=False)
+                                                         distance_power=0.5, report=report, parallelize=False)
         avg = report['average_weighted']
-        print('self item avg:' + str(avg))
+        print('self item avg without parallelization:' + str(avg))
         self.assertTrue(avg > 0 and avg < 100)  # this 100 is arbirary...
+        report = rate_fp.calculate_self_confusion_vector(image_sets, fingerprint_function=fingerprint_core.fp,
+                                                         weights=np.ones(constants.fingerprint_length),
+                                                         distance_function=NNSearch.distance_1_k,
+                                                         distance_power=0.5, report=report, parallelize=True)
+        avg2 = report['average_weighted']
+        print('self item avg with parallelization:' + str(avg2))
+        self.assertTrue(avg == avg2)  # this 100 is arbirary...
 
     def test_analyze_fingerprint(self):
         n_items = 3
@@ -86,7 +99,7 @@ class rate_fingerprint_test(unittest.TestCase):
                                                            distance_function=NNSearch.distance_1_k,
                                                            distance_power=0.5, n_docs=n_items)
         pr.disable()
-        self.assertTrue(goodness > 0)
+        self.assertTrue(isinstance(goodness, float))
         print('after checking, report:' + str(tot_report))
         s = StringIO.StringIO()
         sortby = 'cumulative'

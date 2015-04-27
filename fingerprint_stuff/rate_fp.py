@@ -100,6 +100,7 @@ def mytrace(matrix):
 
 
 def save_full_report(report):
+    print('reporting...' + str(report))
     name = 'fp_report.' + datetime.datetime.now().strftime("%Y-%m-%d-%H.%M")
     print(name)
     try:
@@ -108,7 +109,7 @@ def save_full_report(report):
         print('cannot open fp_ratings.txt')
     else:
         print('reporting...' + str(report))
-        json.dump(report, f, indent=4, sort_keys=True, separators=(',', ':'))
+        json.dumps(report, f, indent=4, sort_keys=True, separators=(',', ':'))
         f.close()
 
 
@@ -147,8 +148,8 @@ def save_short_report(report):
     except IOError:
         print('cannot open fp_ratings.txt')
     else:
-        print('short reporting...' + str(report))
-        json.dump(short_report, f, indent=4, sort_keys=True, separators=(',', ':'))
+        print('short reporting...' + str(short_report))
+        json.dumps(short_report, f, indent=4, sort_keys=True, separators=(',', ':'))
         f.close()
 
 
@@ -589,7 +590,7 @@ def partial_cross_compare_wrapper(image_sets, fingerprint_function=fp_core.fp, w
 def calculate_partial_cross_confusion_vector(image_sets, fingerprint_function=fp_core.fp,
                                              weights=np.ones(fingerprint_length),
                                              distance_function=NNSearch.distance_1_k, distance_power=0.5, report=None,
-                                             comparisons_to_make=None):
+                                             comparisons_to_make=None, parallelize=True):
     # print('s.fp_func:' + str(fingerprint_function))
     # print('s.weights:' + str(weights))
     # print('s.distance_function:' + str(distance_function))
@@ -603,7 +604,6 @@ def calculate_partial_cross_confusion_vector(image_sets, fingerprint_function=fp
         comparisons_to_make = make_cross_comparison_sets(image_sets)
     # comparisons_dict = {'comparisons_to_make':comparisons_to_make,'image_sets':image_sets}
     # attempt to parallelize
-    parallelize = False
     if parallelize:
         results = []
         # n_cpus = cpu_count.available_cpu_count() - Reserve_cpus
@@ -626,8 +626,8 @@ def calculate_partial_cross_confusion_vector(image_sets, fingerprint_function=fp
                                                    fingerprint_function=fingerprint_function,
                                                    weights=weights, distance_function=distance_function,
                                                    distance_power=distance_power)
-            confusion_vector[i] = avg_dist
-            stdev_vector[i] = stdev
+            confusion_vector[i] = round(avg_dist, 3)
+            stdev_vector[i] = round(stdev, 3)
             i = i + 1
 
             # print('confusion vector is currently:'+str(confusion_matrix))
@@ -635,8 +635,8 @@ def calculate_partial_cross_confusion_vector(image_sets, fingerprint_function=fp
             #    return(normalized_matrix)
     print('conf vector:' + str(confusion_vector))
     print('stdev vector:' + str(stdev_vector))
-    report['confusion_vector'] = confusion_vector.tolist()
-    report['stdev_vector'] = stdev_vector.tolist()
+    report['confusion_vector'] = confusion_vector
+    report['stdev_vector'] = stdev_vector
     report['distance_power'] = distance_power
     report['distance_function'] = str(distance_function)
     report['timestamp'] = datetime.datetime.now().strftime("%Y-%m-%d %H:%M")
@@ -667,7 +667,8 @@ def self_compare_wrapper(image_set, fingerprint_function=fp_core.fp, weights=np.
 
 
 def calculate_self_confusion_vector(image_sets, fingerprint_function=fp_core.fp, weights=np.ones(fingerprint_length),
-                                    distance_function=NNSearch.distance_1_k, distance_power=0.5, report=None):
+                                    distance_function=NNSearch.distance_1_k, distance_power=0.5, report=None,
+                                    parallelize=True):
     '''
     compares image set i to image set i
     '''
@@ -711,15 +712,15 @@ def calculate_self_confusion_vector(image_sets, fingerprint_function=fp_core.fp,
                                                                    fingerprint_function=fingerprint_function,
                                                                    weights=weights, distance_function=distance_function,
                                                                    distance_power=distance_power)
-            confusion_vector[i] = avg_dist
-            stdev_vector[i] = stdev
+            confusion_vector[i] = round(avg_dist, 3)
+            stdev_vector[i] = round(stdev, 3)
 
 
             #	print('confusion vector is currently:'+str(confusion_matrix))
             #    normalized_matrix = normalize_matrix(confusion_matrix)
             #    return(normalized_matrix)
-    report['confusion_vector'] = confusion_vector.tolist()
-    report['stdev_vector'] = stdev_vector.tolist()
+    report['confusion_vector'] = confusion_vector
+    report['stdev_vector'] = stdev_vector
     report['distance_power'] = distance_power
     report['distance_function'] = str(distance_function)
     report['timestamp'] = datetime.datetime.now().strftime("%Y-%m-%d %H:%M")
@@ -791,6 +792,7 @@ def analyze_fingerprint(fingerprint_function=fp_core.fp, weights=np.ones(fingerp
         self_report['confusion_vector'] = self_report['confusion_vector'].tolist()  # this is required for json dumping
     if not isinstance(self_report['stdev_vector'], list):
         self_report['error_vector'] = self_report['stdev_vector'].tolist()  # this is required for json dumping
+        del (self_report['stdev_vector'])
     if not isinstance(self_report['weights'], list):
         self_report['weights'] = self_report['weights'].tolist()
 
@@ -805,6 +807,7 @@ def analyze_fingerprint(fingerprint_function=fp_core.fp, weights=np.ones(fingerp
             'confusion_vector'].tolist()  # this is required for json dumping
     if not isinstance(cross_report['stdev_vector'], list):
         cross_report['error_vector'] = cross_report['stdev_vector'].tolist()  # this is required for json dumping
+        del (cross_report['stdev_vector'])
     if not isinstance(cross_report['weights'], list):
         cross_report['weights'] = cross_report['weights'].tolist()
 
@@ -821,8 +824,8 @@ def analyze_fingerprint(fingerprint_function=fp_core.fp, weights=np.ones(fingerp
     goodness_error = Utils.error_of_fraction(numerator, numerator_error, denominator, cross_item_error)
     tot_report = {'self_report': self_report, 'cross_report': cross_report, 'goodness': goodness,
                   'goodness_error': goodness_error}
-    save_full_report(tot_report)
     save_short_report(tot_report)
+    save_full_report(tot_report)
     # print('tot report:' + str(tot_report))
     print('goodness:' + str(goodness) + ' same item average:' + str(same_item_average) + ' cross item averag:' + str(
         cross_item_average))
