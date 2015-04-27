@@ -141,6 +141,7 @@ def do_work_on_q(some_func, q):
     except BaseException as be:
         print "Exception in do_work:\n"
         traceback.print_exc()
+        CONTINUE.value = False
         pdb.set_trace()
     return "{0} returned".format(str(mp.current_process().pid))
 
