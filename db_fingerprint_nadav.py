@@ -267,6 +267,9 @@ def fingerprint_db_old(fp_version, category_id=None, num_processes=None):
 
 
 def receive_signal(signum, stack):
+    if signum == 17:
+        # creating child process, ignore
+        return
     print 'Caught signal {0}.'.format(str(signum))
     traceback.print_stack(stack)
 
