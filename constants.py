@@ -8,6 +8,7 @@ histograms_length = 25
 K = 0.5                     # for euclidean distance
 
 # fp rating related constants
+min_image_area = 400
 min_images_per_doc = 10     # item has to have at least this number of pics
 max_items = 100  # max number of items to consider for rating fingerprint
 

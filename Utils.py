@@ -648,6 +648,12 @@ def isnumber(str):
         return False
 
 
+def is_valid_image(img):
+    if img is not None and type(img) == np.ndarray and img.shape[0] * img.shape[1] >= constants.min_image_area:
+        return True
+    else:
+        return False
+
 if __name__ == '__main__':
     print('starting')
     fix_all_bbs_in_db()

@@ -8,7 +8,6 @@ from tkFileDialog import askopenfilename
 import cv2
 import numpy as np
 import constants
-import pdb
 
 
 def find_face(image):
@@ -136,7 +135,6 @@ def get_fg_mask(image, bounding_box=None):
             # image_counter += 1
         else:                                             # grabcut with rect
             mask = np.zeros(image.shape[:2], dtype=np.uint8)
-            pdb.set_trace()
             cv2.grabCut(image, mask, rect, bgdmodel, fgdmodel, 1, cv2.GC_INIT_WITH_RECT)
 
     mask2 = np.where((mask == 1) + (mask == 3), 255, 0).astype(np.uint8)

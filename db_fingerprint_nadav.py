@@ -13,7 +13,6 @@ import constants
 import time
 import signal
 import traceback
-import pdb
 
 
 # globals
@@ -75,10 +74,11 @@ def run_fp(doc):
                                                                     i=CURRENT.value, total=TOTAL_PRODUCTS.value)
     image_url = doc["image"]["sizes"]["XLarge"]["url"]
     image = Utils.get_cv2_img_array(image_url)
-    if image is None or image.shape[0]*image.shape[1] == 0:
+    if not Utils.is_valid_image(image):
         logging.warning("image is None. url: {url}".format(url=image_url))
         return
     small_image, resize_ratio = background_removal.standard_resize(image, 400)
+    # I think we can delete this... memory management FTW??
     del image
     # print "Image URL: {0}".format(image_url)
     # if there is a valid human BB, use it
@@ -95,7 +95,7 @@ def run_fp(doc):
             classifier = None
 
         # first try grabcut with no bb
-        if small_image is None or small_image.shape[0] * small_image.shape[1] == 0:
+        if Utils.is_valid_image(small_image):
             logging.warning("small_image is Bad. {img}".format(img=small_image))
             return
         mask = background_removal.get_fg_mask(small_image)
