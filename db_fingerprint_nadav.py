@@ -21,10 +21,10 @@ TOTAL_PRODUCTS = mp.Value("i", 0)
 CURRENT = Utils.ThreadSafeCounter()
 DB = None
 FP_VERSION = 0
-
+START_TIME = 0
 CONTINUE = mp.Value("b", True)
 Q = mp.Queue(1000)
-
+MAIN_PID = 0
 NUM_PROCESSES = mp.Value("i", 0)
 
 
@@ -175,6 +175,18 @@ def connect_db_feed_q(q, query_doc, fields_doc):
     q.close()
 
 
+def print_stats(start_time):
+    stop_time = time.time()
+    total_time = stop_time - start_time
+    print "Stats:\n " \
+          "Completed {total} fingerprints in {seconds} seconds with {procs} processes.\n " \
+          "Average time per fingerprint: {avg}\n " \
+          "Average time per fingerprint per core: {avgc}\n"\
+        .format(avg=total_time/CURRENT.value, total=CURRENT.value,
+                seconds=total_time, procs=NUM_PROCESSES.value,
+                avgc=(total_time/CURRENT.value)*NUM_PROCESSES.value)
+
+
 def fingerprint_db(fp_version, category_id=None, num_processes=None):
     """
     main function - fingerprints items in category_id and its subcategories.
@@ -183,12 +195,13 @@ def fingerprint_db(fp_version, category_id=None, num_processes=None):
     :param category_id: category to be fingerprinted
     :return:
     """
-    global CURRENT, CLASSIFIER_FOR_CATEGORY, FP_VERSION, NUM_PROCESSES, DB
+    global CURRENT, CLASSIFIER_FOR_CATEGORY, FP_VERSION, NUM_PROCESSES, DB, START_TIME, MAIN_PID
 
-    DB = DB or pymongo.MongoClient().mydb
+    MAIN_PID = mp.current_process().pid
 
     NUM_PROCESSES.value = num_processes or int(mp.cpu_count() * 0.75)
 
+    DB = DB or pymongo.MongoClient().mydb
     if category_id is not None:
         query_doc = {"$and": [
             {"categories": {"$elemMatch": {"id": {"$in": get_all_subcategories(DB.categories, category_id)}}}},
@@ -206,27 +219,25 @@ def fingerprint_db(fp_version, category_id=None, num_processes=None):
     worker_list = [mp.Process(target=do_work_on_q, name="Worker {0}".format(p), args=(run_fp, Q))
                    for p in range(0, NUM_PROCESSES.value)]
 
-    start_time = time.time()
+    START_TIME = time.time()
     feeder.start()
-    """
+
     for p in worker_list:
         p.start()
 
     for p in worker_list:
         p.join()
-    """
-    do_work_on_q(run_fp, Q)
 
     feeder.join()
 
     stop_time = time.time()
-    total_time = stop_time - start_time
+    total_time = stop_time - START_TIME
 
     print "All done!!"
     print "Completed {total} fingerprints in {seconds} seconds " \
-          "with {procs} processes.".format(total=TOTAL_PRODUCTS, seconds=total_time, procs=num_processes)
-    print "Average time per fingerprint: {avg}".format(avg=total_time/TOTAL_PRODUCTS)
-    print "Average time per fingerprint per core: {avgc}".format(avgc=(total_time/TOTAL_PRODUCTS)*num_processes)
+          "with {procs} processes.".format(total=TOTAL_PRODUCTS.value, seconds=total_time, procs=num_processes)
+    print "Average time per fingerprint: {avg}".format(avg=total_time/TOTAL_PRODUCTS.value)
+    print "Average time per fingerprint per core: {avgc}".format(avgc=(total_time/TOTAL_PRODUCTS.value)*num_processes)
 
 
 def fingerprint_db_old(fp_version, category_id=None, num_processes=None):
@@ -279,8 +290,11 @@ def receive_signal(signum, stack):
     if signum == 17:
         # creating child process, ignore
         return
+    if signum == 2 and mp.current_process().pid == MAIN_PID:
+        print_stats(START_TIME)
+        return
     print '{0} caught signal {1}.'.format(mp.current_process().pid, str(signum))
-    # traceback.print_stack(stack)
+    traceback.print_stack(stack)
 
 
 if __name__ == "__main__":
