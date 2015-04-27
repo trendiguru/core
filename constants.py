@@ -2,6 +2,9 @@
 
 # fingerprint related consts
 fingerprint_length = 56
+extras_length = 6
+histograms_length = 25
+
 K = 0.5                     # for euclidean distance
 
 # fp rating related constants
@@ -47,4 +50,4 @@ svg_url_prefix = 'http://extremeli.trendi.guru/static/svgs/'
 
 nadav = 'awesome'
 
-Reserve_cpus = 1  # number of cpus to not use when doing stuff in parallel
+Reserve_cpus = 0  # number of cpus to not use when doing stuff in parallel
