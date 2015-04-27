@@ -17,16 +17,15 @@ import traceback
 
 # globals
 CLASSIFIER_FOR_CATEGORY = {}
-TOTAL_PRODUCTS = mp.Value("i",0)
+TOTAL_PRODUCTS = mp.Value("i", 0)
 CURRENT = Utils.ThreadSafeCounter()
 DB = None
 FP_VERSION = 0
 
 CONTINUE = mp.Value("b", True)
-Q = mp.Queue(25)
+Q = mp.Queue(1000)
 
 NUM_PROCESSES = mp.Value("i", 0)
-
 
 
 def get_all_subcategories(category_collection, category_id):
@@ -72,7 +71,8 @@ def run_fp(doc):
     # pdb.set_trace()
     CURRENT.increment()
     if CURRENT.value % 25 == 0:
-        print "Process {process} starting {i} of {total}...".format(process=multiprocessing.current_process(), i=CURRENT.value, total=TOTAL_PRODUCTS)
+        print "Process {process} starting {i} of {total}...".format(process=mp.current_process(),
+                                                                    i=CURRENT.value, total=TOTAL_PRODUCTS)
     image_url = doc["image"]["sizes"]["XLarge"]["url"]
     image = Utils.get_cv2_img_array(image_url)
     if image is None:
@@ -113,7 +113,7 @@ def run_fp(doc):
                 chosen_bounding_box = possible_bb
                 max_bb_area = possible_bb[2] * possible_bb[3]
         if chosen_bounding_box is None:
-            logging.info("No Bounding Box found, using the whole image. ""
+            logging.info("No Bounding Box found, using the whole image. "
                          "Document id: {0}, BB_list: {1}".format(doc.get("id"), str(bounding_box_list)))
         else:
             mask = background_removal.get_fg_mask(small_image, chosen_bounding_box)
@@ -122,8 +122,7 @@ def run_fp(doc):
         DB.products.update({"id": doc["id"]},
                            {"$set": {"fingerprint": fingerprint.tolist(),
                                      "fp_version": FP_VERSION,
-                                     "bounding_box": np.array(chosen_bounding_box).tolist()}
-                           })
+                                     "bounding_box": np.array(chosen_bounding_box).tolist()}})
 
     except Exception as ex:
         logging.warning("Exception caught while fingerprinting: {0}".format(ex))
@@ -139,8 +138,8 @@ def do_work_on_q(some_func, q):
                 return
 
             some_func(popped_item)
-    except BaseException as e:
-        print "Exception in do_work: {0}".format(e)
+    except BaseException as be:
+        print "Exception in do_work: {0}".format(be)
     return "{0} returned".format(str(mp.current_process().pid))
 
 
@@ -153,7 +152,7 @@ def connect_db_feed_q(q, query_doc, fields_doc):
     """
     global TOTAL_PRODUCTS, DB
     DB = DB or pymongo.MongoClient().mydb
-    product_cursor = DB.products.find(query_doc, fields_doc)  #.batch_size(n)
+    product_cursor = DB.products.find(query_doc, fields_doc)  # .batch_size(n)
 
     TOTAL_PRODUCTS.value = product_cursor.count()
     print "Total tasks: {0}".format(str(TOTAL_PRODUCTS.value))
@@ -279,7 +278,8 @@ if __name__ == "__main__":
     try:
         parser = argparse.ArgumentParser(description='Fingerprint the DB or part of it')
         parser.add_argument('-c', '--category_id', help='id of category to be fingerprinted', required=False)
-        parser.add_argument('-p', '--num_processes', help='number of parallel processes to spawn', required=False, type=int)
+        parser.add_argument('-p', '--num_processes', help='number of parallel processes to spawn',
+                            required=False, type=int)
         parser.add_argument('-v', '--fp_version', help='current fp version', required=True)
         args = vars(parser.parse_args())
 
