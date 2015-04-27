@@ -1,7 +1,7 @@
 __author__ = 'Nadav Paz'
 
 import logging
-import multiprocessing as mp
+import multiprocessing.dummy as mp
 import argparse
 import pymongo
 import numpy as np
