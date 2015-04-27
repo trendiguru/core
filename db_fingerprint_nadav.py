@@ -71,8 +71,8 @@ def create_classifier_for_category_dict(db):
 def run_fp(doc):
     CURRENT.increment()
     if CURRENT.value % 100 == 0:
-        print "Process {process} starting {i} of {total}...".format(process=mp.current_process(),
-                                                                    i=CURRENT.value, total=TOTAL_PRODUCTS)
+        print "Process {process} starting {i} of {total}...".format(process=mp.current_process().name,
+                                                                    i=CURRENT.value, total=TOTAL_PRODUCTS.value)
     image_url = doc["image"]["sizes"]["XLarge"]["url"]
     image = Utils.get_cv2_img_array(image_url)
     if image is None or image.shape[0]*image.shape[1] == 0:
