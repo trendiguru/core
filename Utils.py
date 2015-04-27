@@ -148,9 +148,10 @@ def get_cv2_img_array(url_or_path_to_image_file_or_cv2_image_array, convert_url_
                             break
                     except IOError:
                         time.sleep(10)
-
-                raise IOError('Could not access {} after {} attempts'.format(filename, str(max_i)))
-            except:
+                    else:
+                        print('Could not access {} after {} attempts'.format(filename, str(max_i)))
+                        raise IOError('Could not access {} after {} attempts'.format(filename, str(max_i)))
+            except:  # this is prob unneeded given the 'else' above
                 print('unexpected error in Utils calling imwrite')
     return img_array
 
