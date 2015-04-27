@@ -164,7 +164,7 @@ def get_docs(n_items=max_items):
     while doc is not None and i < n_items:
         images = doc['images']
         id = doc['_id']
-        print('checking doc#:' + str(i) + ' id:' + str(id))
+        print('have:' + str(i) + ' good docs so far, checking id:' + str(id))
         if images is not None:
             n_images = len(images)
             n_good = Utils.count_human_bbs_in_doc(images, skip_if_marked_to_skip=True)
