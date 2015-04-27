@@ -129,21 +129,22 @@ def run_fp(doc):
 
 
 def do_work_on_q(some_func, q):
-    print "{0} Getting ready to do some work...".format(str(mp.current_process().pid))
+    current_pid = mp.current_process().pid
+    print "{0} Getting ready to do some work...".format(str(current_pid))
     try:
         while CONTINUE.value:
             popped_item = q.get()
             if popped_item is None:
-                print "Process {0} finished".format(str(mp.current_process().pid))
+                print "Process {0} finished".format(str(current_pid))
                 return
 
             some_func(popped_item)
     except BaseException as be:
-        print "Exception in do_work:\n"
+        print "Process {0}, exception in do_work:\n".format(str(current_pid))
         traceback.print_exc()
         CONTINUE.value = False
         pdb.set_trace()
-    return "{0} returned".format(str(mp.current_process().pid))
+    return "{0} returned".format(str(current_pid))
 
 
 def connect_db_feed_q(q, query_doc, fields_doc):
@@ -271,8 +272,8 @@ def receive_signal(signum, stack):
     if signum == 17:
         # creating child process, ignore
         return
-    print 'Caught signal {0}.'.format(str(signum))
-    traceback.print_stack(stack)
+    print '{0} caught signal {1}.'.format(mp.current_process().pid, str(signum))
+    # traceback.print_stack(stack)
 
 
 if __name__ == "__main__":
