@@ -159,29 +159,8 @@ def count_human_bbs_in_doc(dict_of_images, skip_if_marked_to_skip=True):
     n = 0
     for entry in dict_of_images:
         print('entry:' + str(entry) + ' n=' + str(n), end='\r')
-        if good_bb(entry):
-            print('good bb in entry                ', end='\r')
-            if skip_if_marked_to_skip:
-                if 'skip_image' in entry:
-                    if entry['skip_image'] == True:
-                        print('marked for skip and we care')
-                        continue  # skip it if its marked to skip and we care about skip marking
-                    else:
-                        n = n + 1  # no 'skip_image' in entry
-                else:
-                    n = n + 1
-            else:
-                n = n + 1  # dont care if marked to be skipped
-
-
-            # if image is bad dont count it
-            image_url = entry["url"]
-            img_arr = get_cv2_img_array(image_url, convert_url_to_local_filename=True, download=True,
-                                        download_directory='images')
-            if img_arr is None:
-                print('bad img_arr, subtracting')
-                n = n - 1
-
+        if good_bb(entry, skip_if_marked_to_skip=skip_if_marked_to_skip):
+            n = n + 1  # dont care if marked to be skipped
     return (n)
 
 def lookfor_next_unbounded_image(queryobject):
