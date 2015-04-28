@@ -180,7 +180,7 @@ def refresh_window(procs, procs_status):
     """Print results on screen by using curses."""
     curses.endwin()
     templ = "%-6s %-8s %4s %5s %5s %6s %4s %9s  %2s"
-    win.erase()
+    win.clear()
     header = templ % ("PID", "USER", "NI", "VIRT", "RES", "CPU%", "MEM%",
                       "TIME+", "NAME")
     print_header(procs_status, len(procs))
