@@ -61,6 +61,7 @@ def print_line(line, highlight=False):
     """A thin wrapper around curses's addstr()."""
     global lineno
     try:
+        highlight = False
         if highlight:
             line += " " * (win.getmaxyx()[1] - len(line))
             win.addstr(lineno, 0, line, curses.A_REVERSE)
@@ -184,7 +185,7 @@ def refresh_window(procs, procs_status):
     lineno = 0
     header = templ % ("PID", "USER", "NI", "VIRT", "RES", "CPU%", "MEM%",
                       "TIME+", "NAME")
-    print_header(procs_status, len(procs))
+    # print_header(procs_status, len(procs))
     print_line("")
     print_line(header, highlight=True)
     for p in procs:
@@ -230,7 +231,7 @@ def main():
         while True:
             args = poll(interval)
             refresh_window(*args)
-            interval = 10
+            interval = 3
     except (KeyboardInterrupt, SystemExit):
         pass
 
