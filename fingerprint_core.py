@@ -10,6 +10,10 @@ import background_removal
 import constants
 
 
+
+
+
+
 # moving this into the show_fp function for now - LS
 # import matplotlib.pyplot as plt
 
@@ -118,10 +122,6 @@ def crop_image_to_bb(img, bb_coordinates_string_or_array):
     return cropped_img
 
 
-def gc_and_fp(img, bounding_box=None, weights=np.ones(fingerprint_length)):
-    mask = background_removal.get_fg_mask(img, bounding_box=bounding_box)
-    fingerprint = fp(img, mask=None, weights=weights)
-    return fingerprint
 
 def fp(img, mask=None, weights=np.ones(fingerprint_length), histogram_length=25, use_intensity_histogram=False):
     if mask is None or cv2.countNonZero(mask) == 0:
@@ -170,6 +170,11 @@ def fp(img, mask=None, weights=np.ones(fingerprint_length), histogram_length=25,
     result_vector = np.multiply(result_vector, weights)
     return result_vector
 
+
+def gc_and_fp(img, bounding_box=None, weights=np.ones(fingerprint_length), fingerprint_function=fp):
+    mask = background_removal.get_fg_mask(img, bounding_box=bounding_box)
+    fingerprint = fingerprint_function(img, mask=None, weights=weights)
+    return fingerprint
 
 def show_fp(fingerprint, fig=None):
     import matplotlib.pyplot as plt

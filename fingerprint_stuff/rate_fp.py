@@ -172,7 +172,7 @@ def display_two_histograms(same_distances, different_distances, name=None):
     max1 = max(same_distances)
     max2 = max(different_distances)
     maxboth = max(max1, max2)
-    bins = np.linspace(0, maxboth, 25)
+    bins = np.linspace(0, maxboth, 50)
     plt.hist(same_distances, bins, alpha=0.5, label='sameItem')
     plt.hist(different_distances, bins, alpha=0.5, label='differentItem')
     plt.legend(loc='upper right')
