@@ -8,6 +8,7 @@ import numpy as np
 
 
 
+
 #import fingerprint_core
 import rate_fp
 import NNSearch
@@ -23,7 +24,7 @@ fingerprint_length=constants.fingerprint_length
 n_docs = constants.max_items
 
 
-def rate_wrapper(weights, k=0.5, image_sets=None, self_report=None, comparisons_to_make=None):
+def rate_wrapper(weights, k, image_sets, self_report, comparisons_to_make):
     '''
     a wrapper to call self_rate_fingerprint without worrying about extra arguments, and also constrain weights to sum to 1;
     maybe this wrapper is not necessary given that u can call scipy.optimize.minimize(f,x0,args=(a,b,c)) to deal with fixed args a,b,c. Note
@@ -41,6 +42,7 @@ def rate_wrapper(weights, k=0.5, image_sets=None, self_report=None, comparisons_
     target = len(weights)
     weights=weights*float(target)/sum
     sum = np.sum(weights)
+
     print(
         'k:' + str(k) + 'len imsets:' + str(len(image_sets)) + 'selfrep:' + str(self_report) )
     # print('constrained weights:'+str(weights))
@@ -73,6 +75,7 @@ def optimize_weights(weights=np.ones(fingerprint_length),k=0.5):
 
     self_report, image_sets = rate_fp.get_docs(n_docs)
     comparisons_to_make = rate_fp.make_cross_comparison_sets(image_sets)
+    print('k:' + str(k) + 'len imsets:' + str(len(image_sets)) + 'selfrep:' + str(self_report) )
 
     x_min = scipy.optimize.minimize(f, init, args=(k, image_sets, self_report, comparisons_to_make), tol=0.1,
                                     options={'maxiter': 50, 'disp': True})

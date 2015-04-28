@@ -101,8 +101,23 @@ class OutcomesTest(unittest.TestCase):
         print('img = ' + str(img_array))
         print('bb = ' + str(bb))
         print('mask = ' + str(mask))
+        print('')
         self.assertTrue(mask.shape[0] == img_array.shape[0] and mask.shape[1] == img_array.shape[1])
         bb = [1, 0, 5, 6]
+        mask = Utils.bb_to_mask(bb, img_array)
+        print('img = ' + str(img_array))
+        print('bb = ' + str(bb))
+        print('mask = ' + str(mask))
+        print('')
+        self.assertTrue(mask.shape[0] == img_array.shape[0] and mask.shape[1] == img_array.shape[1])
+        bb = [10, 20, 30, 40]
+        mask = Utils.bb_to_mask(bb, img_array)
+        print('img = ' + str(img_array))
+        print('bb = ' + str(bb))
+        print('mask = ' + str(mask))
+        print('')
+        self.assertTrue(mask.shape[0] == img_array.shape[0] and mask.shape[1] == img_array.shape[1])
+        bb = [-10, 20, -30, 40]
         mask = Utils.bb_to_mask(bb, img_array)
         print('img = ' + str(img_array))
         print('bb = ' + str(bb))

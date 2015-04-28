@@ -109,7 +109,7 @@ def save_full_report(report):
         print('cannot open fp_ratings.txt')
     else:
         print('reporting...' + str(report))
-        json.dumps(report, f, indent=4, sort_keys=True, separators=(',', ':'))
+        json.dump(report, f, indent=4, sort_keys=True, separators=(',', ':'))
         f.close()
 
 
@@ -120,7 +120,6 @@ def save_short_report(report):
     if 'goodness' in report:
         short_report['goodness'] = report['goodness']
         short_report['goodness_error'] = report['goodness_error']
-
     rep = report['self_report']
     short_report1 = {}
     short_report1['fingerprint_function'] = rep['fingerprint_function']
@@ -153,7 +152,7 @@ def save_short_report(report):
         print('cannot open fp_ratings.txt')
     else:
         print('short reporting...' + str(short_report))
-        json.dumps(short_report, f, indent=4, sort_keys=True, separators=(',', ':'))
+        json.dump(short_report, f, indent=4, sort_keys=True, separators=(',', ':'))
         f.close()
 
 
@@ -457,7 +456,7 @@ def compare_fingerprints(image_array1, image_array2, fingerprint_function=fp_cor
                         k = cv2.waitKey(50) & 0xFF
                         # pdb.set_trace()
                     mask = Utils.bb_to_mask(bb2, img_arr2)
-                    fp2 = fingerprint_function(img_arr1, mask=mask, weights=weights)
+                    fp2 = fingerprint_function(img_arr2, mask=mask, weights=weights)
                     #print('fp2:'+str(fp2))
                     dist = distance_function(fp1, fp2, k=distance_power)
                     # print('comparing image ' + str(i) + ' to ' + str(j) + ' gave distance:' + str(
@@ -629,7 +628,7 @@ def calculate_partial_cross_confusion_vector(image_sets, fingerprint_function=fp
         for i in range(0, len(image_sets)):
             imset1 = comparisons_to_make[i][0]
             imset2 = comparisons_to_make[i][1]
-            print('comparing group ' + str(imset1) + ' to group ' + str(imset2))
+            # print('comparing group ' + str(imset1) + ' to group ' + str(imset2))
             avg_dist, stdev = compare_fingerprints(imset1, imset2,
                                                    fingerprint_function=fingerprint_function,
                                                    weights=weights, distance_function=distance_function,
