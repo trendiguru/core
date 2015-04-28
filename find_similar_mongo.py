@@ -50,7 +50,9 @@ def mask2svg(mask, filename, save_in_folder):
     mask = 255 - mask
     os.chdir(save_in_folder)
     cv2.imwrite(filename + '.bmp', mask)                                # save as a bmp image
-    subprocess.call('potrace -s ' + filename + '.bmp' + ' -o ' + filename + '.svg', shell=True)  # create the svg
+    subprocess.call('potrace -s ' + filename + '.bmp'
+                    + ' -o ' + filename + '.svg'
+                    + ' -t 100', shell=True)  # create the svg
     os.remove(filename + '.bmp')  # remove the bmp mask
     return filename + '.svg'
 
