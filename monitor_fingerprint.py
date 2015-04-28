@@ -127,7 +127,7 @@ def print_header(procs_status, num_procs):
         empty_dashes = " " * (40 - len(dashes))
         return dashes, empty_dashes
 
-
+    """
     # cpu usage
     percs = psutil.cpu_percent(interval=0, percpu=True)
     temp_line = ""
@@ -137,7 +137,7 @@ def print_header(procs_status, num_procs):
             temp_line = " CPU%-2s [%s%s] %5s%%" % (cpu_num, dashes, empty_dashes, perc)
         else:
             print_line(temp_line + "    " + " CPU%-2s [%s%s] %5s%%" % (cpu_num, dashes, empty_dashes, perc))
-
+    """
 
     mem = psutil.virtual_memory()
     dashes, empty_dashes = get_dashes(mem.percent)
