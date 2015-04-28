@@ -109,7 +109,7 @@ def save_full_report(report):
         print('cannot open fp_ratings.txt')
     else:
         print('reporting...' + str(report))
-        json.dumps(report, f, indent=4, sort_keys=True, separators=(',', ':'))
+        json.dump(report, f, indent=4, sort_keys=True, separators=(',', ':'))
         f.close()
 
 
@@ -153,7 +153,7 @@ def save_short_report(report):
         print('cannot open fp_ratings.txt')
     else:
         print('short reporting...' + str(short_report))
-        json.dumps(short_report, f, indent=4, sort_keys=True, separators=(',', ':'))
+        json.dump(short_report, f, indent=4, sort_keys=True, separators=(',', ':'))
         f.close()
 
 
@@ -629,7 +629,7 @@ def calculate_partial_cross_confusion_vector(image_sets, fingerprint_function=fp
         for i in range(0, len(image_sets)):
             imset1 = comparisons_to_make[i][0]
             imset2 = comparisons_to_make[i][1]
-            print('comparing group ' + str(imset1) + ' to group ' + str(imset2))
+            # print('comparing group ' + str(imset1) + ' to group ' + str(imset2))
             avg_dist, stdev = compare_fingerprints(imset1, imset2,
                                                    fingerprint_function=fingerprint_function,
                                                    weights=weights, distance_function=distance_function,
