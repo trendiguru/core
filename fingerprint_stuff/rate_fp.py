@@ -120,7 +120,6 @@ def save_full_report(report, name=None):
         json.dump(report, f, indent=4, sort_keys=True, separators=(',', ':'))
         f.close()
 
-
 def save_short_report(report, name=None):
     if name == None:
         name = './longfp_report.' + datetime.datetime.now().strftime("%Y-%m-%d.%H%M")
@@ -168,6 +167,25 @@ def save_short_report(report, name=None):
         json.dump(short_report, f, indent=4, sort_keys=True, separators=(',', ':'))
         f.close()
 
+
+def display_two_histograms(same_distances, different_distances, name=None):
+    max1 = max(same_distances)
+    max2 = max(different_distances)
+    maxboth = max(max1, max2)
+    bins = np.linspace(0, maxboth, 25)
+    plt.hist(same_distances, bins, alpha=0.5, label='sameItem')
+    plt.hist(different_distances, bins, alpha=0.5, label='differentItem')
+    plt.legend(loc='upper right')
+    plt.show()
+
+    if name == None:
+        name = './histograms.' + datetime.datetime.now().strftime("%Y-%m-%d.%H%M.jpg")
+        name = os.path.join('fp_ratings', name)
+    dir = os.path.dirname(name)
+    if not os.path.exists(dir):
+        os.makedirs(dir)
+    print('writing histogram to ' + name)
+    plt.savefig(name)
 
 def get_docs(n_items=max_items):
     db = pymongo.MongoClient().mydb
@@ -849,6 +867,8 @@ def analyze_fingerprint(fingerprint_function=fp_core.fp, weights=np.ones(fingerp
                   'goodness_error': goodness_error}
     save_short_report(tot_report, filename)
     save_full_report(tot_report, filename)
+
+    display_two_histograms(self_report['confusion_vector'], cross_report['confusion_vector'])
 
     # print('tot report:' + str(tot_report))
     print('goodness:' + str(goodness) + ' same item average:' + str(same_item_average) + ' cross item averag:' + str(
