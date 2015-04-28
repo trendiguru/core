@@ -431,7 +431,8 @@ def compare_fingerprints(image_array1, image_array2, fingerprint_function=fp_cor
             # print('comparing image ' + str(i) + ' to other group')
             # background_removal.standard_resize(image, 400)
             mask = Utils.bb_to_mask(bb1, img_arr1)
-            fp1 = fingerprint_function(img_arr1, mask=mask, weights=weights)
+            fp1 = fp_core.gc_and_fp(img_arr1, bb1, weights)
+            # fp1 = fingerprint_function(img_arr1, mask=mask, weights=weights)
             #		print('fp1:'+str(fp1))
             j = 0
             if visual_output1:
@@ -456,7 +457,8 @@ def compare_fingerprints(image_array1, image_array2, fingerprint_function=fp_cor
                         k = cv2.waitKey(50) & 0xFF
                         # pdb.set_trace()
                     mask = Utils.bb_to_mask(bb2, img_arr2)
-                    fp2 = fingerprint_function(img_arr2, mask=mask, weights=weights)
+                    # fp2 = fingerprint_function(img_arr2, mask=mask, weights=weights)
+                    fp2 = fp_core.gc_and_fp(img_arr2, bb2, weights)
                     #print('fp2:'+str(fp2))
                     dist = distance_function(fp1, fp2, k=distance_power)
                     # print('comparing image ' + str(i) + ' to ' + str(j) + ' gave distance:' + str(
@@ -505,7 +507,8 @@ def compare_fingerprints_except_diagonal(image_array1, image_array2, fingerprint
 #            print('comparing image ' + str(i) + ' to rest of same group')
             #background_removal.standard_resize(image, 400)
             mask = Utils.bb_to_mask(bb1, img_arr1)
-            fp1 = fingerprint_function(img_arr1, mask=mask, weights=weights)
+#            fp1 = fingerprint_function(img_arr1, mask=mask, weights=weights)
+            fp1 = fp_core.gc_and_fp(img_arr1, bb1, weights)
             #		print('fp1:'+str(fp1))
             j = 0
             if visual_output1:
@@ -527,7 +530,8 @@ def compare_fingerprints_except_diagonal(image_array1, image_array2, fingerprint
                         k = cv2.waitKey(50) & 0xFF
                         #pdb.set_trace()
                     mask = Utils.bb_to_mask(bb2, img_arr2)
-                    fp2 = fingerprint_function(img_arr2, mask=mask, weights=weights)  # bounding_box=bb2
+                    # fp2 = fingerprint_function(img_arr2, mask=mask, weights=weights)  # bounding_box=bb2
+                    fp2 = fp_core.gc_and_fp(img_arr2, bb2, weights)
                     #print('fp2:'+str(fp2))
                     dist = distance_function(fp1, fp2, k=distance_power)
                     # print('comparing image ' + str(i) + ' to ' + str(j) + ' gave distance:' + str(

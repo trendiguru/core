@@ -5,10 +5,6 @@ import math
 import numpy as np
 
 
-
-
-
-
 #import fingerprint_core
 import rate_fp
 import NNSearch
