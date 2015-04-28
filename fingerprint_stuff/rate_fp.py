@@ -120,7 +120,6 @@ def save_short_report(report):
     if 'goodness' in report:
         short_report['goodness'] = report['goodness']
         short_report['goodness_error'] = report['goodness_error']
-
     rep = report['self_report']
     short_report1 = {}
     short_report1['fingerprint_function'] = rep['fingerprint_function']
