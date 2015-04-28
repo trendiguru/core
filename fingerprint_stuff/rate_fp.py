@@ -110,13 +110,13 @@ def save_full_report(report, name=None):
         os.makedirs(dir)
 
     print('writing to ' + name)
+    print('full report - ' + str(report))
 
     try:
         f = open(name, 'a')  # ha!! mode 'w+' .... overwrites the file!!!
     except IOError:
         print('cannot open fp_ratings.txt')
     else:
-        print('reporting...' + str(report))
         json.dump(report, f, indent=4, sort_keys=True, separators=(',', ':'))
         f.close()
 
@@ -158,12 +158,12 @@ def save_short_report(report, name=None):
     short_report1['tot_images'] = rep['tot_images']
     short_report['cross_report'] = short_report1
 
+    print('short reporting - ' + str(short_report))
     try:
         f = open(name, 'a')  # ha!! mode 'w+' .... overwrites the file!!!
     except IOError:
         print('cannot open fp_ratings.txt')
     else:
-        # print('short reporting...' + str(short_report))
         json.dump(short_report, f, indent=4, sort_keys=True, separators=(',', ':'))
         f.close()
 
@@ -176,10 +176,10 @@ def display_two_histograms(same_distances, different_distances, name=None):
     plt.hist(same_distances, bins, alpha=0.5, label='sameItem')
     plt.hist(different_distances, bins, alpha=0.5, label='differentItem')
     plt.legend(loc='upper right')
-    plt.show()
+    plt.show(block=False)
 
     if name == None:
-        name = 'histograms.' + datetime.datetime.now().strftime("%Y-%m-%d.%H%M.jpg")
+        name = 'histograms_' + datetime.datetime.now().strftime("%Y-%m-%d_%H%M.jpg")
         name = os.path.join('./fp_ratings', name)
     dir = os.path.dirname(name)
     if not os.path.exists(dir):
