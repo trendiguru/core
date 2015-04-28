@@ -5,6 +5,7 @@ import math
 import numpy as np
 
 
+
 #import fingerprint_core
 import rate_fp
 import NNSearch
@@ -73,7 +74,7 @@ def optimize_weights(weights=np.ones(fingerprint_length),k=0.5):
     comparisons_to_make = rate_fp.make_cross_comparison_sets(image_sets)
     print('k:' + str(k) + 'len imsets:' + str(len(image_sets)) + 'selfrep:' + str(self_report) )
 
-    x_min = scipy.optimize.minimize(f, init, args=(k, image_sets, self_report, comparisons_to_make), tol=0.1,
+    x_min = scipy.optimize.minimize(f, init, args=(k, image_sets, self_report, comparisons_to_make), tol=0.01,
                                     options={'maxiter': 50, 'disp': True})
 
     pr.disable()
