@@ -383,9 +383,6 @@ def good_bb(dict, skip_if_marked_to_skip=True):
         # print('human_bb is None')
         return (False)
     bb = dict['human_bb']
-    if not (legal_bounding_box(bb)):
-        #   print('human bb is not big enough')
-        return (False)
     if not bounding_box_inside_image(img_arr, bb):  #
         print('bad bb caught,bb:' + str(bb) + ' img size:' + str(img_arr.shape) + ' imagedoc:' + str(
             url))
@@ -395,16 +392,17 @@ def good_bb(dict, skip_if_marked_to_skip=True):
 def legal_bounding_box(rect):
     if rect is None:
         return False
-    minimum_allowed_area = 50
+    minimum_allowed_area = constants.min_image_area
     if rect[2] * rect[3] >= minimum_allowed_area:
         return True
     else:
+        print('area of ' + str(rect[2]) + 'x' + str(rect[3]) + ':' + str(rect[2] * rect[3]))
         return False
 
 def bounding_box_inside_image(image_array, rect):
     # if check_img_array(image_array) and legal_bounding_box(rect):
     if legal_bounding_box(rect):
-        height, width, depth = image_array.shape
+        height, width = image_array.shape[0:2]
         if rect[0] < width and rect[0] + rect[2] <= width and rect[1] < height and rect[1] + rect[3] <= height:
             return True  # bb fits into image
         else:
@@ -606,13 +604,17 @@ def bb_to_mask(bb, img_array):
     :param bb:
     :return:
     '''
+    h, w = img_array.shape[0:2]
     mask = np.zeros((img_array.shape[0], img_array.shape[1]), dtype=np.uint8)
     if bounding_box_inside_image(img_array, bb):
         mask[bb[0]:(bb[0] + bb[2]), bb[1]:(bb[1] + bb[3])] = 1
-    elif bb[0] <= img_array.shape[0] and bb[1] <= img_array.shape[1]:  # left and top edges are ok
-        mask[bb[0]:min(bb[0] + bb[2], img_array.shape[0]), bb[1]:min(bb[1] + bb[3], img_array.shape[1])] = 1
+    elif bb[0] + bb[2] <= w and bb[1] + bb[3] <= h:  # left and top edges are ok
+        mask[bb[0]:min(bb[0] + bb[2], w), bb[1]:min(bb[1] + bb[3], h)] = 1
     else:  # left or top edge not ok so use entire box
-        mask[0:min(bb[0] + bb[2], img_array.shape[0]), bb[1]:min(bb[1] + bb[3], img_array.shape[1])] = 1
+        mask = np.ones((h, w), dtype=np.uint8)
+    if mask.shape[0] != img_array.shape[0] or mask.shape[1] != img_array.shape[1]:
+        print('trouble with mask size in bb_to_mask, resetting to image size')
+        mask = np.ones((h, w), dtype=np.uint8)
 
     return mask
 
