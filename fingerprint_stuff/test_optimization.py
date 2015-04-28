@@ -79,6 +79,7 @@ def f_multiple(x1,x2):
     return f
 
 
+
 def test_function_starinput(*input_vector):
     answer =np.array([])
     x_vector = [x for x in input_vector]
@@ -91,6 +92,21 @@ def test_function_starinput(*input_vector):
     final_answer = np.prod(answer)
     print('final answer:'+str(final_answer))
     return(final_answer)
+
+
+def test_kwargs(positional1, **kwargs):
+    print('positional:' + str(positional1))
+    for arg in kwargs:
+        print('arg:' + str(arg) + ' value:' + str(kwargs[arg]))
+    passitalong('hello yourself', test1='again')
+
+    passitalong('hello yourself', **kwargs)
+
+
+def passitalong(positional, **kwargs):
+    print('positional:' + str(positional))
+    for arg in kwargs:
+        print('arg:' + str(arg) + ' value:' + str(kwargs[arg]))
 
 def test2():
     f = test_function_starinput()
@@ -106,8 +122,8 @@ def opt_mult():
 #    x_min = scipy.optimize.fmin(f,[2,3])
     print('output of optimize:'+str(x_min))
 
-
-
 #opt_mult()
 if __name__ == "__main__":
-    optimize_weights(2)
+    test_kwargs('hi', forbles='ee', snorbles=33)
+    test_kwargs('hi')
+    # optimize_weights(2)

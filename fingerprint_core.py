@@ -14,6 +14,8 @@ import constants
 
 
 
+
+
 # moving this into the show_fp function for now - LS
 # import matplotlib.pyplot as plt
 
@@ -122,8 +124,7 @@ def crop_image_to_bb(img, bb_coordinates_string_or_array):
     return cropped_img
 
 
-
-def fp(img, mask=None, weights=np.ones(fingerprint_length), histogram_length=25, use_intensity_histogram=False):
+def fp(img, mask=None, weights=np.ones(fingerprint_length), histogram_length=25):
     if mask is None or cv2.countNonZero(mask) == 0:
         mask = np.ones((img.shape[0], img.shape[1]), dtype=np.uint8)
     if mask.shape[0] != img.shape[0] or mask.shape[1] != img.shape[1]:
@@ -164,8 +165,6 @@ def fp(img, mask=None, weights=np.ones(fingerprint_length), histogram_length=25,
 
     result_vector = [hue_uniformity, sat_uniformity, int_uniformity, hue_entropy, sat_entropy, int_entropy]
     result_vector = np.concatenate((result_vector, hist_hue, hist_sat), axis=0)
-    if use_intensity_histogram:
-        result_vector = np.concatenate((result_vector, hist_int), axis=0)
 
     result_vector = np.multiply(result_vector, weights)
     return result_vector
@@ -175,6 +174,7 @@ def gc_and_fp(img, bounding_box=None, weights=np.ones(fingerprint_length), finge
     mask = background_removal.get_fg_mask(img, bounding_box=bounding_box)
     fingerprint = fingerprint_function(img, mask=None, weights=weights)
     return fingerprint
+
 
 def show_fp(fingerprint, fig=None):
     import matplotlib.pyplot as plt

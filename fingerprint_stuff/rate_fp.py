@@ -441,7 +441,7 @@ def calculate_cross_confusion_matrix():
 ######## in use
 def compare_fingerprints(image_array1, image_array2, fingerprint_function=fp_core.fp,
                          weights=np.ones(fingerprint_length), distance_function=NNSearch.distance_1_k,
-                         distance_power=0.5):
+                         distance_power=0.5, **fingerprint_arguments):
     global visual_output1
     global visual_output2
     tot_dist = 0
@@ -517,7 +517,7 @@ def compare_fingerprints(image_array1, image_array2, fingerprint_function=fp_cor
 ##in use
 def compare_fingerprints_except_diagonal(image_array1, image_array2, fingerprint_function=fp_core.fp,
                                          weights=np.ones(fingerprint_length), distance_function=NNSearch.distance_1_k,
-                                         distance_power=0.5):
+                                         distance_power=0.5, **fingerprint_arguments):
     global visual_output1
     global visual_output2
     tot_dist = 0
@@ -609,7 +609,7 @@ def make_cross_comparison_sets(image_sets):
     return answers
 
 def partial_cross_compare_wrapper(image_sets, fingerprint_function=fp_core.fp, weights=np.ones(fingerprint_length),
-                                  distance_function=NNSearch.distance_1_k, distance_power=0.5):
+                                  distance_function=NNSearch.distance_1_k, distance_power=0.5, **fingerprint_arguments):
     # print ('module name:'+str( __name__))
     # if hasattr(os, 'getppid'):  # only available on Unix
     # print ('parent process:'+str( os.getppid()))
@@ -622,7 +622,7 @@ def partial_cross_compare_wrapper(image_sets, fingerprint_function=fp_core.fp, w
     #  print('im2' + str(image_set2))
     avg_dist, stdev = compare_fingerprints(image_set1, image_set2, fingerprint_function=fingerprint_function,
                                            weights=weights, distance_function=distance_function,
-                                           distance_power=distance_power)
+                                           distance_power=distance_power, **fingerprint_arguments)
     confusion_matrix = avg_dist
     stdev_matrix = stdev
     return ([confusion_matrix, stdev_matrix])
@@ -631,7 +631,7 @@ def partial_cross_compare_wrapper(image_sets, fingerprint_function=fp_core.fp, w
 def calculate_partial_cross_confusion_vector(image_sets, fingerprint_function=fp_core.fp,
                                              weights=np.ones(fingerprint_length),
                                              distance_function=NNSearch.distance_1_k, distance_power=0.5, report=None,
-                                             comparisons_to_make=None, parallelize=True):
+                                             comparisons_to_make=None, parallelize=True, **fingerprint_arguments):
     # print('s.fp_func:' + str(fingerprint_function))
     # print('s.weights:' + str(weights))
     # print('s.distance_function:' + str(distance_function))
@@ -666,7 +666,7 @@ def calculate_partial_cross_confusion_vector(image_sets, fingerprint_function=fp
             avg_dist, stdev = compare_fingerprints(imset1, imset2,
                                                    fingerprint_function=fingerprint_function,
                                                    weights=weights, distance_function=distance_function,
-                                                   distance_power=distance_power)
+                                                   distance_power=distance_power, **fingerprint_arguments)
             confusion_vector[i] = round(avg_dist, 3)
             stdev_vector[i] = round(stdev, 3)
             i = i + 1
@@ -693,7 +693,7 @@ def calculate_partial_cross_confusion_vector(image_sets, fingerprint_function=fp
 
 
 def self_compare_wrapper(image_set, fingerprint_function=fp_core.fp, weights=np.ones(fingerprint_length),
-                         distance_function=NNSearch.distance_1_k, distance_power=0.5):
+                         distance_function=NNSearch.distance_1_k, distance_power=0.5, **fingerprint_arguments):
     # print ('module name:'+str( __name__))
     # if hasattr(os, 'getppid'):  # only available on Unix
     # print ('parent process:'+str( os.getppid()))
@@ -701,7 +701,7 @@ def self_compare_wrapper(image_set, fingerprint_function=fp_core.fp, weights=np.
     proc_name = multiprocessing.current_process().name
     print('proc_name:' + str(proc_name))
     avg_dist, stdev = compare_fingerprints_except_diagonal(image_set, image_set, fingerprint_function, weights,
-                                                           distance_function, distance_power)
+                                                           distance_function, distance_power, **fingerprint_arguments)
     confusion_matrix = avg_dist
     stdev_matrix = stdev
     return ([confusion_matrix, stdev_matrix])
@@ -709,7 +709,7 @@ def self_compare_wrapper(image_set, fingerprint_function=fp_core.fp, weights=np.
 
 def calculate_self_confusion_vector(image_sets, fingerprint_function=fp_core.fp, weights=np.ones(fingerprint_length),
                                     distance_function=NNSearch.distance_1_k, distance_power=0.5, report=None,
-                                    parallelize=True):
+                                    parallelize=True, **fingerprint_arguments):
     '''
     compares image set i to image set i
     '''
@@ -751,7 +751,8 @@ def calculate_self_confusion_vector(image_sets, fingerprint_function=fp_core.fp,
             avg_dist, stdev = compare_fingerprints_except_diagonal(image_sets[i], image_sets[i],
                                                                    fingerprint_function=fingerprint_function,
                                                                    weights=weights, distance_function=distance_function,
-                                                                   distance_power=distance_power)
+                                                                   distance_power=distance_power,
+                                                                   **fingerprint_arguments)
             confusion_vector[i] = round(avg_dist, 3)
             stdev_vector[i] = round(stdev, 3)
 
@@ -806,7 +807,7 @@ def analyze_fingerprint(fingerprint_function=fp_core.fp, weights=np.ones(fingerp
                         distance_function=NNSearch.distance_1_k,
                         distance_power=0.5, n_docs=max_items, use_visual_output1=False,
                         use_visual_output2=False, image_sets=None, self_reporting=None, comparisons_to_make=None,
-                        filename=None):
+                        filename=None, **fingerprint_arguments):
     global visual_output1
     global visual_output2
     print('hi')
@@ -827,7 +828,7 @@ def analyze_fingerprint(fingerprint_function=fp_core.fp, weights=np.ones(fingerp
 
     calculate_self_confusion_vector(image_sets, fingerprint_function=fingerprint_function,
                                     weights=weights, distance_function=distance_function,
-                                    distance_power=distance_power, report=self_report)
+                                    distance_power=distance_power, report=self_report, **fingerprint_arguments)
     print('self report:' + str(self_report))
     if not isinstance(self_report['confusion_vector'], list):
         self_report['confusion_vector'] = self_report['confusion_vector'].tolist()  # this is required for json dumping
@@ -840,7 +841,7 @@ def analyze_fingerprint(fingerprint_function=fp_core.fp, weights=np.ones(fingerp
     calculate_partial_cross_confusion_vector(image_sets, fingerprint_function=fingerprint_function, weights=weights,
                                              distance_function=distance_function,
                                              distance_power=distance_power, report=cross_report,
-                                             comparisons_to_make=comparisons_to_make)
+                                             comparisons_to_make=comparisons_to_make, **fingerprint_arguments)
 
     print('cross report:' + str(cross_report))
     if not isinstance(cross_report['confusion_vector'], list):
