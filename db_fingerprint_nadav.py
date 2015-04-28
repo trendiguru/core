@@ -4,6 +4,7 @@ import logging
 import multiprocessing as mp
 import argparse
 import pymongo
+import pymongo.errors
 import numpy as np
 import cv2
 import fingerprint_core as fp
@@ -151,7 +152,7 @@ def do_work_on_q(some_func, q):
     return "{0} returned".format(str(current_pid))
 
 
-def connect_db_feed_q(q, query_doc, fields_doc):
+def connect_db_feed_q(q, query_doc, fields_doc, retry_num=0):
     """
     Connects to the DB, queries, and fills q with results.
     Also sets global TOTAL_PRODUCTS, DB
@@ -165,8 +166,19 @@ def connect_db_feed_q(q, query_doc, fields_doc):
     TOTAL_PRODUCTS.value = product_cursor.count()
     print "Total tasks: {0}".format(str(TOTAL_PRODUCTS.value))
 
-    for doc in product_cursor:
-        q.put(doc)
+    try:
+        for doc in product_cursor:
+            q.put(doc)
+    except pymongo.errors.OperationFailure:
+        # I think this happens if cursor has been inactive too long
+        traceback.print_exception()
+        print "\n Trying reconnect in 5 seconds"
+        if retry_num <= 5:
+            time.sleep(5)
+            connect_db_feed_q(q, query_doc, fields_doc, retry_num + 1)
+        else:
+            print "Could not reconnect..."
+            CONTINUE.value = False
 
     for p in range(0, NUM_PROCESSES.value):
         q.put(None)
