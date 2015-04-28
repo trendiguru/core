@@ -24,6 +24,7 @@ import resource
 import os
 import inspect
 import sys
+import matplotlib.pyplot as plt
 
 # realpath() will make your script run, even if you symlink it :)
 cmd_folder = os.path.realpath(os.path.abspath(os.path.split(inspect.getfile(inspect.currentframe()))[0]))
@@ -82,12 +83,12 @@ def find_stats(confusion_vector, stdev_vector, report):
     print('weighted_average:' + str(weighted_average))
     print('cumulative error:' + str(cumulative_error))
     n_elements = len(confusion_vector)
-    same_item_avg = np.sum(confusion_vector) / n_elements
-    print('unweighted same item average:' + str(same_item_avg))
+    unweighted_avg = np.sum(confusion_vector) / n_elements
+    print('unweighted distance average:' + str(unweighted_avg))
 
     report['average_weighted'] = round(weighted_average, 3)
     report['error_cumulative'] = round(cumulative_error, 3)
-    report['average_unweighted'] = round(same_item_avg, 3)
+    report['average_unweighted'] = round(unweighted_avg, 3)
     # print('report:' + str(report))
     return (report)
 
@@ -102,8 +103,12 @@ def mytrace(matrix):
 def save_full_report(report, name=None):
     # print('reporting...' + str(report))
     if name == None:
-        name = 'longfp_report.' + datetime.datetime.now().strftime("%Y-%m-%d.%H%M")
+        name = './longfp_report.' + datetime.datetime.now().strftime("%Y-%m-%d.%H%M")
         name = os.path.join('fp_ratings', name)
+    dir = os.path.dirname(name)
+    if not os.path.exists(dir):
+        os.makedirs(dir)
+
     print('writing to ' + name)
 
     try:
@@ -118,8 +123,11 @@ def save_full_report(report, name=None):
 
 def save_short_report(report, name=None):
     if name == None:
-        name = 'shortfp_report.' + datetime.datetime.now().strftime("%Y-%m-%d.%H%M")
+        name = './longfp_report.' + datetime.datetime.now().strftime("%Y-%m-%d.%H%M")
         name = os.path.join('fp_ratings', name)
+    dir = os.path.dirname(name)
+    if not os.path.exists(dir):
+        os.makedirs(dir)
     print('writing to ' + name)
     short_report = {}
     if 'goodness' in report:
@@ -225,7 +233,6 @@ def good_img(dict):
 
 
 def show_fps_and_images(fp1, img1, fp2, img2, fig=None):
-    import matplotlib.pyplot as plt
 
     extras_length = constants.extras_length
     histograms_length = constants.histograms_length
@@ -579,7 +586,7 @@ def make_cross_comparison_sets(image_sets):
             # print('had to rechoose (i='+str(i)+'='+str(j)+'=j)')
             j = random.randint(0, len(image_sets) - 1)
         print('set1:' + str(i) + ', set2:' + str(j))
-        print('set1:' + str(image_sets[i]) + ', set2:' + str(image_sets[j]))
+        # print('set1:' + str(image_sets[i]) + ', set2:' + str(image_sets[j]))
         answers.append([image_sets[i], image_sets[j]])
     return answers
 
@@ -649,8 +656,8 @@ def calculate_partial_cross_confusion_vector(image_sets, fingerprint_function=fp
             # print('confusion vector is currently:'+str(confusion_matrix))
             #    normalized_matrix = normalize_matrix(confusion_matrix)
             #    return(normalized_matrix)
-    print('conf vector:' + str(confusion_vector))
-    print('stdev vector:' + str(stdev_vector))
+ #   print('conf vector:' + str(confusion_vector))
+            # print('stdev vector:' + str(stdev_vector))
     report['confusion_vector'] = confusion_vector
     report['stdev_vector'] = stdev_vector
     report['distance_power'] = distance_power
@@ -716,9 +723,9 @@ def calculate_self_confusion_vector(image_sets, fingerprint_function=fp_core.fp,
         #        print(str(answers))
         confusion_vector = [a[0] for a in answers]
         stdev_vector = [a[1] for a in answers]
-        print('conf vector:' + str(confusion_vector))
-        print('stdev vector:' + str(stdev_vector))
-        print('orig vector:' + str(answers))
+#        print('conf vector:' + str(confusion_vector))
+    # print('stdev vector:' + str(stdev_vector))
+    #        print('orig vector:' + str(answers))
     else:
         for i in range(0, len(image_sets)):
             print('comparing group ' + str(i) + ' to itself')
