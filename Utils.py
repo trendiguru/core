@@ -428,7 +428,7 @@ def check_img_array(image_array):
 #print('doc:'+str(doc))
 #       for prefix in prefixes:
 
-def fix_all_bbs_in_db():
+def fix_all_bbs_in_db(use_visual_output=False):
     '''
     fix all the bbs so they fit their respective image
     :return:
