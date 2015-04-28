@@ -457,7 +457,7 @@ def compare_fingerprints(image_array1, image_array2, fingerprint_function=fp_cor
                         k = cv2.waitKey(50) & 0xFF
                         # pdb.set_trace()
                     mask = Utils.bb_to_mask(bb2, img_arr2)
-                    fp2 = fingerprint_function(img_arr1, mask=mask, weights=weights)
+                    fp2 = fingerprint_function(img_arr2, mask=mask, weights=weights)
                     #print('fp2:'+str(fp2))
                     dist = distance_function(fp1, fp2, k=distance_power)
                     # print('comparing image ' + str(i) + ' to ' + str(j) + ' gave distance:' + str(
