@@ -70,7 +70,7 @@ def create_classifier_for_category_dict(db):
 
 def run_fp(doc):
     CURRENT.increment()
-    if CURRENT.value % 100 == 0:
+    if CURRENT.value % 50 == 0:
         print "Process {process} starting {i} of {total}...".format(process=mp.current_process().name,
                                                                     i=CURRENT.value, total=TOTAL_PRODUCTS.value)
     image_url = doc["image"]["sizes"]["XLarge"]["url"]
@@ -171,7 +171,7 @@ def connect_db_feed_q(q, query_doc, fields_doc, retry_num=0):
             q.put(doc)
     except pymongo.errors.OperationFailure:
         # I think this happens if cursor has been inactive too long
-        traceback.print_exception()
+        traceback.print_exc()
         print "\n Trying reconnect in 5 seconds"
         if retry_num <= 5:
             time.sleep(5)
