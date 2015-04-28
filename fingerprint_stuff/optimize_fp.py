@@ -1,10 +1,9 @@
 __author__ = 'jeremy'
 import scipy.optimize
 import math
+import datetime
 
 import numpy as np
-
-
 
 #import fingerprint_core
 import rate_fp
@@ -16,12 +15,13 @@ import cProfile
 import StringIO
 import pstats
 import resource
+import os
 
 fingerprint_length=constants.fingerprint_length
 n_docs = constants.max_items
 
 
-def rate_wrapper(weights, k, image_sets, self_report, comparisons_to_make):
+def rate_wrapper(weights, k, image_sets, self_report, comparisons_to_make, outfilename):
     '''
     a wrapper to call self_rate_fingerprint without worrying about extra arguments, and also constrain weights to sum to 1;
     maybe this wrapper is not necessary given that u can call scipy.optimize.minimize(f,x0,args=(a,b,c)) to deal with fixed args a,b,c. Note
@@ -47,7 +47,7 @@ def rate_wrapper(weights, k, image_sets, self_report, comparisons_to_make):
     rating, report = rate_fp.analyze_fingerprint(fingerprint_function=fingerprint_core.fp, weights=weights,
                                                  distance_function=NNSearch.distance_1_k, distance_power=k,
                                                  image_sets=image_sets, self_reporting=self_report,
-                                                 comparisons_to_make=comparisons_to_make)
+                                                 comparisons_to_make=comparisons_to_make, outfilename=outfilename)
     return rating
 
 def optimize_weights(weights=np.ones(fingerprint_length),k=0.5):
@@ -74,7 +74,12 @@ def optimize_weights(weights=np.ones(fingerprint_length),k=0.5):
     comparisons_to_make = rate_fp.make_cross_comparison_sets(image_sets)
     print('k:' + str(k) + 'len imsets:' + str(len(image_sets)) + 'selfrep:' + str(self_report) )
 
-    x_min = scipy.optimize.minimize(f, init, args=(k, image_sets, self_report, comparisons_to_make), tol=0.01,
+    name = 'report.' + datetime.datetime.now().strftime("%Y-%m-%d.%H%M")
+    outfilename = os.path.join('fp_ratings', name)
+    print(name)
+
+    x_min = scipy.optimize.minimize(f, init, args=(k, image_sets, self_report, comparisons_to_make, outfilename),
+                                    tol=0.01,
                                     options={'maxiter': 50, 'disp': True})
 
     pr.disable()

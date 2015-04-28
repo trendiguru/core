@@ -99,10 +99,13 @@ def mytrace(matrix):
     return (sum)
 
 
-def save_full_report(report):
-    print('reporting...' + str(report))
-    name = 'fp_report.' + datetime.datetime.now().strftime("%Y-%m-%d-%H.%M")
-    print(name)
+def save_full_report(report, name=None):
+    # print('reporting...' + str(report))
+    if name == None:
+        name = 'longfp_report.' + datetime.datetime.now().strftime("%Y-%m-%d.%H%M")
+        name = os.path.join('fp_ratings', name)
+    print('writing to ' + name)
+
     try:
         f = open('fp_ratings' + str(name) + '.txt', 'a')  # ha!! mode 'w+' .... overwrites the file!!!
     except IOError:
@@ -113,9 +116,11 @@ def save_full_report(report):
         f.close()
 
 
-def save_short_report(report):
-    name = 'shortfp_report.' + datetime.datetime.now().strftime("%Y-%m-%d-%H.%M")
-    print(name)
+def save_short_report(report, name=None):
+    if name == None:
+        name = 'shortfp_report.' + datetime.datetime.now().strftime("%Y-%m-%d.%H%M")
+        name = os.path.join('fp_ratings', name)
+    print('writing to ' + name)
     short_report = {}
     if 'goodness' in report:
         short_report['goodness'] = report['goodness']
@@ -151,7 +156,7 @@ def save_short_report(report):
     except IOError:
         print('cannot open fp_ratings.txt')
     else:
-        print('short reporting...' + str(short_report))
+        # print('short reporting...' + str(short_report))
         json.dump(short_report, f, indent=4, sort_keys=True, separators=(',', ':'))
         f.close()
 
@@ -775,7 +780,8 @@ def cross_rate_fingerprint():
 def analyze_fingerprint(fingerprint_function=fp_core.fp, weights=np.ones(fingerprint_length),
                         distance_function=NNSearch.distance_1_k,
                         distance_power=0.5, n_docs=max_items, use_visual_output1=False,
-                        use_visual_output2=False, image_sets=None, self_reporting=None, comparisons_to_make=None):
+                        use_visual_output2=False, image_sets=None, self_reporting=None, comparisons_to_make=None,
+                        filename=None):
     global visual_output1
     global visual_output2
     print('hi')
@@ -834,8 +840,9 @@ def analyze_fingerprint(fingerprint_function=fp_core.fp, weights=np.ones(fingerp
     goodness_error = Utils.error_of_fraction(numerator, numerator_error, denominator, cross_item_error)
     tot_report = {'self_report': self_report, 'cross_report': cross_report, 'goodness': goodness,
                   'goodness_error': goodness_error}
-    save_short_report(tot_report)
-    save_full_report(tot_report)
+    save_short_report(tot_report, filename)
+    save_full_report(tot_report, filename)
+
     # print('tot report:' + str(tot_report))
     print('goodness:' + str(goodness) + ' same item average:' + str(same_item_average) + ' cross item averag:' + str(
         cross_item_average))
