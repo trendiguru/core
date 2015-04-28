@@ -103,8 +103,8 @@ def mytrace(matrix):
 def save_full_report(report, name=None):
     # print('reporting...' + str(report))
     if name == None:
-        name = './longfp_report.' + datetime.datetime.now().strftime("%Y-%m-%d.%H%M")
-        name = os.path.join('fp_ratings', name)
+        name = 'longfp_report.' + datetime.datetime.now().strftime("%Y-%m-%d.%H%M.txt")
+        name = os.path.join('./fp_ratings', name)
     dir = os.path.dirname(name)
     if not os.path.exists(dir):
         os.makedirs(dir)
@@ -112,7 +112,7 @@ def save_full_report(report, name=None):
     print('writing to ' + name)
 
     try:
-        f = open('fp_ratings' + str(name) + '.txt', 'a')  # ha!! mode 'w+' .... overwrites the file!!!
+        f = open(name, 'a')  # ha!! mode 'w+' .... overwrites the file!!!
     except IOError:
         print('cannot open fp_ratings.txt')
     else:
@@ -122,8 +122,8 @@ def save_full_report(report, name=None):
 
 def save_short_report(report, name=None):
     if name == None:
-        name = './longfp_report.' + datetime.datetime.now().strftime("%Y-%m-%d.%H%M")
-        name = os.path.join('fp_ratings', name)
+        name = 'shortfp_report.' + datetime.datetime.now().strftime("%Y-%m-%d.%H%M.txt")
+        name = os.path.join('./fp_ratings', name)
     dir = os.path.dirname(name)
     if not os.path.exists(dir):
         os.makedirs(dir)
@@ -159,7 +159,7 @@ def save_short_report(report, name=None):
     short_report['cross_report'] = short_report1
 
     try:
-        f = open('fp_ratings' + str(name) + '.txt', 'a')  # ha!! mode 'w+' .... overwrites the file!!!
+        f = open(name, 'a')  # ha!! mode 'w+' .... overwrites the file!!!
     except IOError:
         print('cannot open fp_ratings.txt')
     else:
@@ -179,8 +179,8 @@ def display_two_histograms(same_distances, different_distances, name=None):
     plt.show()
 
     if name == None:
-        name = './histograms.' + datetime.datetime.now().strftime("%Y-%m-%d.%H%M.jpg")
-        name = os.path.join('fp_ratings', name)
+        name = 'histograms.' + datetime.datetime.now().strftime("%Y-%m-%d.%H%M.jpg")
+        name = os.path.join('./fp_ratings', name)
     dir = os.path.dirname(name)
     if not os.path.exists(dir):
         os.makedirs(dir)
