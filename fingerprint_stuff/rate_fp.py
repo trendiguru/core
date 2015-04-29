@@ -464,8 +464,8 @@ def compare_fingerprints(image_array1, image_array2, fingerprint_function=fp_cor
             # print('comparing image ' + str(i) + ' to other group')
             # background_removal.standard_resize(image, 400)
             mask = Utils.bb_to_mask(bb1, img_arr1)
-            fp1 = fp_core.gc_and_fp(img_arr1, bb1, weights)
-            # fp1 = fingerprint_function(img_arr1, mask=mask, weights=weights)
+            # fp1 = fp_core.gc_and_fp(img_arr1, bb1, weights,**fingerprint_arguments)
+            fp1 = fingerprint_function(img_arr1, bb1, weights=weights, **fingerprint_arguments)
             #		print('fp1:'+str(fp1))
             j = 0
             if visual_output1:
@@ -490,8 +490,8 @@ def compare_fingerprints(image_array1, image_array2, fingerprint_function=fp_cor
                         k = cv2.waitKey(50) & 0xFF
                         # pdb.set_trace()
                     mask = Utils.bb_to_mask(bb2, img_arr2)
-                    # fp2 = fingerprint_function(img_arr2, mask=mask, weights=weights)
-                    fp2 = fp_core.gc_and_fp(img_arr2, bb2, weights)
+                    fp2 = fingerprint_function(img_arr2, bb2, weights=weights, **fingerprint_arguments)
+                    # fp2 = fp_core.gc_and_fp(img_arr2, bb2, weights)
                     #print('fp2:'+str(fp2))
                     dist = distance_function(fp1, fp2, k=distance_power)
                     # print('comparing image ' + str(i) + ' to ' + str(j) + ' gave distance:' + str(
@@ -611,8 +611,9 @@ def make_cross_comparison_sets(image_sets):
         answers.append([image_sets[i], image_sets[j]])
     return answers
 
-def partial_cross_compare_wrapper(image_sets, fingerprint_function=fp_core.fp, weights=np.ones(fingerprint_length),
-                                  distance_function=NNSearch.distance_1_k, distance_power=0.5, **fingerprint_arguments):
+
+def partial_cross_compare_wrapper((image_sets, fingerprint_function, weights,
+                                  distance_function, distance_power, fingerprint_arguments)):
     # print ('module name:'+str( __name__))
     # if hasattr(os, 'getppid'):  # only available on Unix
     # print ('parent process:'+str( os.getppid()))
@@ -623,9 +624,9 @@ def partial_cross_compare_wrapper(image_sets, fingerprint_function=fp_core.fp, w
     print('proc_name:' + str(proc_name))
     # print('im1' + str(image_set1))
     #  print('im2' + str(image_set2))
-    avg_dist, stdev = compare_fingerprints(image_set1, image_set2, fingerprint_function=fingerprint_function,
-                                           weights=weights, distance_function=distance_function,
-                                           distance_power=distance_power, **fingerprint_arguments)
+    avg_dist, stdev = compare_fingerprints(image_set1, image_set2, fingerprint_function,
+                                           weights, distance_function,
+                                           distance_power, **fingerprint_arguments)
     confusion_matrix = avg_dist
     stdev_matrix = stdev
     return ([confusion_matrix, stdev_matrix])
@@ -655,7 +656,12 @@ def calculate_partial_cross_confusion_vector(image_sets, fingerprint_function=fp
         # n_cpus = 2
         print('attempting to use ' + str(n_cpus) + ' cpus')
         p = multiprocessing.Pool(processes=n_cpus)
-        answers = p.map(partial_cross_compare_wrapper, comparisons_to_make)
+        tupled_arguments = []
+        for image_set in image_sets:
+            tupled_arguments.append((image_set, fingerprint_function, weights,
+                                     distance_function, distance_power, fingerprint_arguments))
+        answers = p.map(self_compare_wrapper, tupled_arguments)
+        # answers = p.map(partial_cross_compare_wrapper, comparisons_to_make)
         p.close()
         p.join()
         confusion_vector = [a[0] for a in answers]
@@ -695,14 +701,35 @@ def calculate_partial_cross_confusion_vector(image_sets, fingerprint_function=fp
     return (report)
 
 
-def self_compare_wrapper(image_set, fingerprint_function=fp_core.fp, weights=np.ones(fingerprint_length),
-                         distance_function=NNSearch.distance_1_k, distance_power=0.5, **fingerprint_arguments):
+def self_compare_wrapper2(image_set, fingerprint_function=fp_core.fp, weights=np.ones(fingerprint_length),
+                          distance_function=NNSearch.distance_1_k, distance_power=0.5, **fingerprint_arguments):
     # print ('module name:'+str( __name__))
     # if hasattr(os, 'getppid'):  # only available on Unix
     # print ('parent process:'+str( os.getppid()))
     # print ('process id:'+str( os.getpid()))
     proc_name = multiprocessing.current_process().name
     print('proc_name:' + str(proc_name))
+    avg_dist, stdev = compare_fingerprints_except_diagonal(image_set, image_set, fingerprint_function, weights,
+                                                           distance_function, distance_power, **fingerprint_arguments)
+    confusion_matrix = avg_dist
+    stdev_matrix = stdev
+    return ([confusion_matrix, stdev_matrix])
+
+
+def self_compare_wrapper(( image_set, fingerprint_function, weights,
+                         distance_function, distance_power, fingerprint_arguments)):
+    # print ('module name:'+str( __name__))
+    # if hasattr(os, 'getppid'):  # only available on Unix
+    # print ('parent process:'+str( os.getppid()))
+    # print ('process id:'+str( os.getpid()))
+    proc_name = multiprocessing.current_process().name
+    print('proc_name:' + str(proc_name))
+    print('imset:' + str(image_set))
+    print('fp_func:' + str(fingerprint_function))
+    print('weights:' + str(weights))
+    print('d_func:' + str(distance_function))
+    print('d_pow:' + str(distance_power))
+    print('fp_args:' + str(fingerprint_arguments))
     avg_dist, stdev = compare_fingerprints_except_diagonal(image_set, image_set, fingerprint_function, weights,
                                                            distance_function, distance_power, **fingerprint_arguments)
     confusion_matrix = avg_dist
@@ -735,7 +762,13 @@ def calculate_self_confusion_vector(image_sets, fingerprint_function=fp_core.fp,
         print('attempting to use ' + str(n_cpus) + ' cpus')
         p = multiprocessing.Pool(processes=n_cpus)
         # answer_matrices = p.map_async(compare_wrapper, [image_sets[i] for i in range(0, len(image_sets))])
-        answers = p.map(self_compare_wrapper, image_sets)
+        tupled_arguments = []
+        for image_set in image_sets:
+            tupled_arguments.append((image_set, fingerprint_function, weights,
+                                     distance_function, distance_power, fingerprint_arguments))
+
+        answers = p.map(self_compare_wrapper, tupled_arguments)
+        # TODO pass all the arugments thru tothe wrapper!! including **kwargs!!!
         # for i in range(0,len(image_sets)):
         # p.apply_async(compare_wrapper,args=(image_sets[i],))
         p.close()
@@ -895,15 +928,19 @@ if __name__ == '__main__':
                         help='show output once for each item')
     parser.add_argument('--use_visual_output2', default=False,
                         help='show output for each image')
+
+    parser.add_argument('--fp_function', default=fp_core.regular_fp,
+                        help='what fingerprint function to use')
     args = parser.parse_args()
     visual_output1 = args.use_visual_output
     visual_output2 = args.use_visual_output2
+    fp_function = args.fp_function
     print('use_visual_output:' + str(visual_output1) + ' visual_output2:' + str(visual_output2))
-
+    print('fp function to use:' + str(fp_function))
     pr = cProfile.Profile()
     pr.enable()
     weights = np.ones(fingerprint_length)
-    report = analyze_fingerprint(fingerprint_function=fp_core.fp, weights=weights,
+    report = analyze_fingerprint(fingerprint_function=fp_function, weights=weights,
                                  distance_function=NNSearch.distance_1_k,
                                  distance_power=0.5, use_visual_output1=visual_output1,
                                  use_visual_output2=visual_output2)

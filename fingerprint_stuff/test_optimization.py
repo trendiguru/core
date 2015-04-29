@@ -3,6 +3,7 @@ __author__ = 'jeremy'
 import scipy.optimize
 import scipy.optimize
 import math
+import multiprocessing
 
 import numpy as np
 
@@ -94,6 +95,17 @@ def test_function_starinput(*input_vector):
     return(final_answer)
 
 
+def test_tuplearg((arg1, arg2)):
+    print('tuple argument test, arg1:' + str(arg1) + ' arg2:' + str(arg2))
+    for arg in arg2:
+        print('arg:' + str(arg) + ' value:' + str(arg2[arg]))
+    test_furtherpass(**arg2)
+
+
+def test_furtherpass(**kwarg):
+    for arg in kwarg:
+        print('furtherpass arg:' + str(arg) + ' value:' + str(kwarg[arg]))
+
 def test_kwargs(positional1, **kwargs):
     print('positional:' + str(positional1))
     for arg in kwargs:
@@ -102,6 +114,30 @@ def test_kwargs(positional1, **kwargs):
 
     passitalong('hello yourself', **kwargs)
 
+
+def multi_wrapper((first, second, third)):
+    print('first:' + str(first))
+    print('second:' + str(second))
+    print('third:' + str(third))
+
+
+def test_multi():
+    p = multiprocessing.Pool(processes=3)
+    tupled_arguments = []
+    varying_argument = [1, 2, 3, 4]
+    const_arg1 = 'hi'
+    const_arg2 = {'tth': 3}
+    for arg in varying_argument:
+        tupled_arguments.append((arg, const_arg1, const_arg2))
+
+    answers = p.map(multi_wrapper, tupled_arguments)
+    # TO
+
+
+def pass2(positional, kwargs=None):
+    print('positionalpass2:' + str(positional))
+    for arg in kwargs:
+        print('arg:' + str(arg) + ' value:' + str(kwargs[arg]))
 
 def passitalong(positional, **kwargs):
     print('positional:' + str(positional))
@@ -124,6 +160,13 @@ def opt_mult():
 
 #opt_mult()
 if __name__ == "__main__":
-    test_kwargs('hi', forbles='ee', snorbles=33)
-    test_kwargs('hi')
+    # test_kwargs('hi', forbles='ee', snorbles=33)
+    # test_kwargs('hi')
     # optimize_weights(2)
+    # test_tuplearg(('first',{'second':2}))
+    # test_multi()
+    passitalong('first', **{'second': 2, 'third': 3})
+    passitalong('first')
+    passitalong('first', foible=22, burble=33)
+    pass2('first', {'second': 2, 'third': 3})
+    # pass2('first')

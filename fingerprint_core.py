@@ -8,6 +8,10 @@ import cv2
 
 import background_removal
 import constants
+import Utils
+
+
+
 
 
 
@@ -170,11 +174,16 @@ def fp(img, mask=None, weights=np.ones(fingerprint_length), histogram_length=25)
     return result_vector
 
 
-def gc_and_fp(img, bounding_box=None, weights=np.ones(fingerprint_length), fingerprint_function=fp):
+def gc_and_fp(img, bounding_box=None, weights=np.ones(fingerprint_length), **kwargs):
     mask = background_removal.get_fg_mask(img, bounding_box=bounding_box)
-    fingerprint = fingerprint_function(img, mask=None, weights=weights)
+    fingerprint = fp(img, mask, weights=weights)
     return fingerprint
 
+
+def regular_fp(img, bounding_box=None, weights=np.ones(fingerprint_length), **kwargs):
+    mask = Utils.bb_to_mask(bounding_box, img)
+    fingerprint = fp(img, mask, weights=weights)
+    return fingerprint
 
 def show_fp(fingerprint, fig=None):
     import matplotlib.pyplot as plt
