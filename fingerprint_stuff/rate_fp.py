@@ -176,8 +176,7 @@ def display_two_histograms(same_distances, different_distances, name=None):
     plt.hist(same_distances, bins, alpha=0.5, label='sameItem')
     plt.hist(different_distances, bins, alpha=0.5, label='differentItem')
     plt.legend(loc='upper right')
-    plt.show(block=False)
-
+    plt.savefig(name)
     if name == None:
         name = 'histograms_' + datetime.datetime.now().strftime("%Y-%m-%d_%H%M.jpg")
         name = os.path.join('./fp_ratings', name)
@@ -185,7 +184,11 @@ def display_two_histograms(same_distances, different_distances, name=None):
     if not os.path.exists(dir):
         os.makedirs(dir)
     print('writing histogram to ' + name)
-    plt.savefig(name)
+
+    use_visual_output = False
+    if use_visual_output:
+        plt.show(block=False)
+
 
 def get_docs(n_items=max_items):
     db = pymongo.MongoClient().mydb
