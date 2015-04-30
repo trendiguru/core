@@ -89,9 +89,9 @@ def find_stats(confusion_vector, stdev_vector, report):
     unweighted_avg = np.sum(confusion_vector) / n_elements
     print('unweighted distance average:' + str(unweighted_avg))
 
-    report['average_weighted'] = round(weighted_average, 3)
-    report['error_cumulative'] = round(cumulative_error, 3)
-    report['average_unweighted'] = round(unweighted_avg, 3)
+    report['average_weighted'] = round(weighted_average, 5)
+    report['error_cumulative'] = round(cumulative_error, 5)
+    report['average_unweighted'] = round(unweighted_avg, 5)
     # print('report:' + str(report))
     return (report)
 
