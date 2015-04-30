@@ -24,6 +24,9 @@ import resource
 import os
 import inspect
 import sys
+import matplotlib
+
+matplotlib.use('Agg')  # prevents problems generating plots on server where no display is defined
 import matplotlib.pyplot as plt
 
 # realpath() will make your script run, even if you symlink it :)
