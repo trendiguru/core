@@ -771,8 +771,8 @@ def calculate_self_confusion_vector(image_sets, fingerprint_function=fp_core.fp,
         # TODO pass all the arugments thru tothe wrapper!! including **kwargs!!!
         # for i in range(0,len(image_sets)):
         # p.apply_async(compare_wrapper,args=(image_sets[i],))
-        p.close()
-        p.join()
+        # p.close()
+        #    p.join()
         # answer_matrices.wait()
         #        print(str(answers))
         confusion_vector = [a[0] for a in answers]
