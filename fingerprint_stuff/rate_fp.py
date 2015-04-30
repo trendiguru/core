@@ -899,7 +899,10 @@ def analyze_fingerprint(fingerprint_function=fp_core.fp, weights=np.ones(fingerp
     goodness = numerator / denominator
 #    print('n,d,n_e,d_e' + str(numerator), str(numerator), str(denominator), str(cross_item_error))
     numerator_error = math.sqrt(cross_item_error ** 2 + same_item_error ** 2)
-    goodness_error = Utils.error_of_fraction(numerator, numerator_error, denominator, cross_item_error)
+    if numerator == 0 or denominator == 0:
+        goodness_error = -1
+    else:
+        goodness_error = Utils.error_of_fraction(numerator, numerator_error, denominator, cross_item_error)
     tot_report = {'self_report': self_report, 'cross_report': cross_report, 'goodness': goodness,
                   'goodness_error': goodness_error}
     save_short_report(tot_report, filename)
