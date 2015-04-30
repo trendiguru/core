@@ -108,7 +108,7 @@ def save_full_report(report, name=None):
     # print('reporting...' + str(report))
     if name == None:
         name = 'longfp_report.' + datetime.datetime.now().strftime("%Y-%m-%d.%H%M.txt")
-        name = os.path.join('./fp_ratings', name)
+    name = os.path.join('./fp_ratings', name)
     dir = os.path.dirname(name)
     if not os.path.exists(dir):
         os.makedirs(dir)
@@ -127,7 +127,7 @@ def save_full_report(report, name=None):
 def save_short_report(report, name=None):
     if name == None:
         name = 'shortfp_report.' + datetime.datetime.now().strftime("%Y-%m-%d.%H%M.txt")
-        name = os.path.join('./fp_ratings', name)
+    name = os.path.join('./fp_ratings', name)
     dir = os.path.dirname(name)
     if not os.path.exists(dir):
         os.makedirs(dir)
@@ -193,6 +193,42 @@ def display_two_histograms(same_distances, different_distances, name=None):
     if use_visual_output:
         plt.show(block=False)
 
+
+def display_tons_of_histograms(same_distances_arrays, different_distances_arrays, name=None):
+    max1 = 0
+    for same_distances in same_distances_arrays:
+        max1l = max(same_distances)
+        max1 = max(max1, max1l)
+    max2 = 0
+    for different_distances in different_distances_arrays:
+        max2l = max(different_distances)
+        max2 = max(max2, max2l)
+
+    maxboth = max(max1, max2)
+    bins = np.linspace(0, maxboth, 50)
+
+    for same_distances in same_distances_arrays:
+        plt.hist(same_distances, bins, alpha=0.5, label='sameItem')
+
+    for different_distances in different_distances_arrays:
+        neg_different_distances = []
+        for val in different_distances:
+            neg_different_distances.append(-val)
+        plt.hist(neg_different_distances, bins, alpha=0.5, label='differentItem')
+
+    plt.legend(loc='upper right')
+    if name == None:
+        name = 'histograms_' + datetime.datetime.now().strftime("%Y-%m-%d_%H%M.jpg")
+        name = os.path.join('./fp_ratings', name)
+    dir = os.path.dirname(name)
+    if not os.path.exists(dir):
+        os.makedirs(dir)
+    print('writing histogram to ' + name)
+    plt.savefig(name)
+
+    use_visual_output = False
+    if use_visual_output:
+        plt.show(block=False)
 
 def get_docs(n_items=max_items):
     db = pymongo.MongoClient().mydb

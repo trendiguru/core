@@ -9,9 +9,9 @@ K = 0.5                     # for euclidean distance
 
 # fp rating related constants
 min_image_area = 400
-min_images_per_doc = 10  # item has to have at least this number of pics
-max_images_per_doc = 10  # item has to have less than this number of pics
-max_items = 50  # max number of items to consider for rating fingerprint
+min_images_per_doc = 2  # item has to have at least this number of pics
+max_images_per_doc = 20  # item has to have less than this number of pics
+max_items = 2  # max number of items to consider for rating fingerprint
 
 classifiers_folder = "/home/ubuntu/Dev/trendi_guru_modules/classifiers/"
 
