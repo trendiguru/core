@@ -58,6 +58,7 @@ import fingerprint_core as fp_core
 Reserve_cpus = constants.Reserve_cpus
 fingerprint_length = constants.fingerprint_length
 min_images_per_doc = constants.min_images_per_doc
+max_images_per_doc = constants.max_images_per_doc
 max_items = constants.max_items
 
 BLUE = [255, 0, 0]  # rectangle color
@@ -209,10 +210,11 @@ def get_docs(n_items=max_items):
         if images is not None:
             n_images = len(images)
             n_good = Utils.count_human_bbs_in_doc(images, skip_if_marked_to_skip=True)
-            if n_good >= min_images_per_doc:
+            if n_good >= min_images_per_doc and n_good <= max_images_per_doc:
                 tot_images = tot_images + n_good
                 i = i + 1
-                print('got ' + str(n_good) + ' bounded images, ' + str(min_images_per_doc) + ' required, ' + str(
+                print('got ' + str(n_good) + ' bounded images, ' + str(min_images_per_doc) + '<=n_images<=' + str(
+                    max_images_per_doc) + ' , ' + str(
                     n_images) + ' images tot in doc #' + str(i) + ' id:' + str(id))
                 tot_answers.append(get_images_from_doc(images))
                 report['n_images'].append(n_good)
