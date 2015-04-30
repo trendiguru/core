@@ -40,20 +40,20 @@ cmd_subfolder = os.path.realpath(
 if cmd_subfolder not in sys.path:
     sys.path.insert(0, cmd_subfolder)
 
-import fingerprint_core as fp_core
-
 # import default
 # import find_similar_mongo
 import sys
 import pymongo
-import Utils
-import NNSearch
 import numpy as np
 import cProfile
 import StringIO
 import pstats
 import logging
 import argparse
+
+import Utils
+import NNSearch
+import fingerprint_core as fp_core
 
 Reserve_cpus = constants.Reserve_cpus
 fingerprint_length = constants.fingerprint_length
@@ -179,7 +179,6 @@ def display_two_histograms(same_distances, different_distances, name=None):
     plt.hist(same_distances, bins, alpha=0.5, label='sameItem')
     plt.hist(different_distances, bins, alpha=0.5, label='differentItem')
     plt.legend(loc='upper right')
-    plt.savefig(name)
     if name == None:
         name = 'histograms_' + datetime.datetime.now().strftime("%Y-%m-%d_%H%M.jpg")
         name = os.path.join('./fp_ratings', name)
@@ -187,6 +186,7 @@ def display_two_histograms(same_distances, different_distances, name=None):
     if not os.path.exists(dir):
         os.makedirs(dir)
     print('writing histogram to ' + name)
+    plt.savefig(name)
 
     use_visual_output = False
     if use_visual_output:
@@ -621,6 +621,14 @@ def partial_cross_compare_wrapper((image_sets, fingerprint_function, weights,
     # if hasattr(os, 'getppid'):  # only available on Unix
     # print ('parent process:'+str( os.getppid()))
     # print ('process id:'+str( os.getpid()))
+
+    # print('imset:' + str(image_set))
+    print('fp_func:' + str(fingerprint_function))
+    #   print('weights:' + str(weights))
+    print('d_func:' + str(distance_function))
+    print('d_pow:' + str(distance_power))
+    print('fp_args:' + str(fingerprint_arguments))
+
     image_set1 = image_sets[0]
     image_set2 = image_sets[1]
     proc_name = multiprocessing.current_process().name
@@ -727,9 +735,9 @@ def self_compare_wrapper(( image_set, fingerprint_function, weights,
     # print ('process id:'+str( os.getpid()))
     proc_name = multiprocessing.current_process().name
     print('proc_name:' + str(proc_name))
-    print('imset:' + str(image_set))
+ #   print('imset:' + str(image_set))
     print('fp_func:' + str(fingerprint_function))
-    print('weights:' + str(weights))
+ #   print('weights:' + str(weights))
     print('d_func:' + str(distance_function))
     print('d_pow:' + str(distance_power))
     print('fp_args:' + str(fingerprint_arguments))
