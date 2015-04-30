@@ -615,6 +615,9 @@ def error_of_fraction(numerator, numerator_stdev, denominator, denominator_stdev
     d = float(denominator)
     n_e = float(numerator_stdev)
     d_e = float(denominator_stdev)
+    if n == 0 or d == 0:
+        print('caught div by zero in error_of_fraction, n=' + str(n) + ' d=' + str(d))
+        return (-1.0)
     fraction_error = abs(n / d) * math.sqrt((n_e / n) ** 2 + (d_e / d) ** 2)
     return fraction_error
 

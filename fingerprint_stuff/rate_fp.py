@@ -662,8 +662,8 @@ def calculate_partial_cross_confusion_vector(image_sets, fingerprint_function=fp
                                      distance_function, distance_power, fingerprint_arguments))
         answers = p.map(self_compare_wrapper, tupled_arguments)
         # answers = p.map(partial_cross_compare_wrapper, comparisons_to_make)
-        p.close()
         p.join()
+        p.close()
         confusion_vector = [a[0] for a in answers]
         stdev_vector = [a[1] for a in answers]
     else:
