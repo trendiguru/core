@@ -179,8 +179,36 @@ def display_two_histograms(same_distances, different_distances, name=None):
     maxboth = max(max1, max2)
     print('maxboth' + str(maxboth))
     bins = np.linspace(0, maxboth, 50)
-    plt.hist(same_distances, bins, alpha=0.5, label='sameItem', color='r')
-    plt.hist(different_distances, bins, alpha=0.5, label='differentItem', color='b', )
+    width = 0.3
+
+    hist, bins = np.histogram(same_distances, bins=20)
+    width = 0.7 * (bins[1] - bins[0])
+    center = (bins[:-1] + bins[1:]) / 2
+    plt.bar(center, hist, align='center', width=width, color='b')
+    hist2, bins = np.histogram(different_distances, bins=20)
+    neg_hist2 = []
+    for val in hist2:
+        neg_hist2.append(-val)
+    width = 0.7 * (bins[1] - bins[0])
+    center = (bins[:-1] + bins[1:]) / 2
+    plt.bar(center, neg_hist2, align='center', width=width, color='g')
+    plt.show()
+
+    # fig, ax = plt.subplots()
+    #    rects1 = ax.bar(bins, same_distances, width, color='g')  #, yerr=menStd)
+    #    rects2 = ax.bar(bins, neg_diff, width, color='b')  #, yerr=menStd)
+
+    #    ax.set_ylabel('Scores')
+    #    ax.set_title('Scores by group and gender')
+    #    ax.set_xticks(ind+width)
+    #    ax.set_xticklabels( ('G1', 'G2', 'G3', 'G4', 'G5') )
+
+    #    ax.legend( (rects1[0], rects2[0]), ('Men', 'Women') )
+
+
+
+    #    plt.hist(same_distances, bins, alpha=0.5, label='sameItem', color='r')
+    #    plt.hist(neg_diff, bins, alpha=0.5, label='differentItem', color='b', )
     plt.legend(loc='upper right')
     if name == None:
         name = 'histograms_' + datetime.datetime.now().strftime("%Y-%m-%d_%H%M.jpg")
