@@ -175,10 +175,12 @@ def save_short_report(report, name=None):
 def display_two_histograms(same_distances, different_distances, name=None):
     max1 = max(same_distances)
     max2 = max(different_distances)
+    print('maxb1' + str(max1) + str(max2))
     maxboth = max(max1, max2)
+    print('maxboth' + str(maxboth))
     bins = np.linspace(0, maxboth, 50)
-    plt.hist(same_distances, bins, alpha=0.5, label='sameItem')
-    plt.hist(different_distances, bins, alpha=0.5, label='differentItem')
+    plt.hist(same_distances, bins, alpha=0.5, label='sameItem', color='r')
+    plt.hist(different_distances, bins, alpha=0.5, label='differentItem', color='b', )
     plt.legend(loc='upper right')
     if name == None:
         name = 'histograms_' + datetime.datetime.now().strftime("%Y-%m-%d_%H%M.jpg")
@@ -189,9 +191,10 @@ def display_two_histograms(same_distances, different_distances, name=None):
     print('writing histogram to ' + name)
     plt.savefig(name)
 
-    use_visual_output = False
+    use_visual_output = True
     if use_visual_output:
-        plt.show(block=False)
+        # plt.show(block=False)
+        plt.show()
 
 
 def display_tons_of_histograms(same_distances_arrays, different_distances_arrays, name=None):
@@ -405,11 +408,6 @@ def lookfor_next_imageset():  # IS THIS EVER USED
         print('result:' + str(tot_answers))
     return tot_answers
 
-def check_img_array(image_array):
-    if image_array is not None and isinstance(image_array, np.ndarray) and isinstance(image_array[0][0], np.ndarray):
-        return True
-    else:
-        return False
 
 
 def normalize_matrix(matrix):

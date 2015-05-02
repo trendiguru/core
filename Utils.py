@@ -352,9 +352,9 @@ def good_bb(dict, skip_if_marked_to_skip=True):
     url = dict['url']
     img_arr = get_cv2_img_array(url, convert_url_to_local_filename=True, download=True,
                                 download_directory='images')
-    if img_arr is None:
-        # print('img is none')
-        return (False)
+    if not is_valid_image(img_arr):
+        print('bad image array discovered in is_valid_image')
+        return False
     if not 'human_bb' in dict:
         # print('no human_bb key in dict')
         return (False)
@@ -366,6 +366,7 @@ def good_bb(dict, skip_if_marked_to_skip=True):
         print('bad bb caught,bb:' + str(bb) + ' img size:' + str(img_arr.shape) + ' imagedoc:' + str(
             url))
         return (False)
+
     return (True)
 
 def legal_bounding_box(rect):
@@ -389,13 +390,6 @@ def bounding_box_inside_image(image_array, rect):
             return False
     else:
         print('warning - bb not legal (either too small or None')
-        return False
-
-def check_img_array(image_array):
-    if image_array is not None and isinstance(image_array, np.ndarray) and isinstance(image_array[0][0], np.ndarray):
-        return True
-
-    else:
         return False
 
 
@@ -632,10 +626,12 @@ def isnumber(str):
 
 
 def is_valid_image(img):
-    if img is not None and type(img) == np.ndarray and img.shape[0] * img.shape[1] >= constants.min_image_area:
+    if img is not None and type(img) == np.ndarray and isinstance(img[0][0], np.ndarray) and img.shape[0] * img.shape[
+        1] >= constants.min_image_area:
         return True
     else:
         return False
+
 
 if __name__ == '__main__':
     print('starting')

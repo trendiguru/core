@@ -4,7 +4,6 @@
 fingerprint_length = 56
 extras_length = 6
 histograms_length = 25
-
 K = 0.5                     # for euclidean distance
 
 # fp rating related constants
@@ -41,11 +40,9 @@ classifier_to_category_dict = {"dressClassifier.xml": ["dresses", "bridal-mother
                                                        "mens-big-and-tall-coats-and-jackets",
                                                        "mens-big-and-tall-blazers"]}
 
-
 # for web bounding box interface
 # this is for going to the previous item, highest numbered image
 max_image_val = 666
-
 svg_folder = '/var/www/static/svgs/'
 
 svg_url_prefix = 'http://extremeli.trendi.guru/static/svgs/'
