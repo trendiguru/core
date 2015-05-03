@@ -687,16 +687,16 @@ def partial_cross_compare_wrapper((image_sets, fingerprint_function, weights,
     # print ('process id:'+str( os.getpid()))
 
     # print('imset:' + str(image_set))
-    print('fp_func:' + str(fingerprint_function))
+    # print('fp_func:' + str(fingerprint_function))
     #   print('weights:' + str(weights))
-    print('d_func:' + str(distance_function))
-    print('d_pow:' + str(distance_power))
-    print('fp_args:' + str(fingerprint_arguments))
+ #   print('d_func:' + str(distance_function))
+    # print('d_pow:' + str(distance_power))
+    #  print('fp_args:' + str(fingerprint_arguments))
 
     image_set1 = image_sets[0]
     image_set2 = image_sets[1]
     proc_name = multiprocessing.current_process().name
-    print('proc_name:' + str(proc_name))
+   # print('proc_name:' + str(proc_name))
     # print('im1' + str(image_set1))
     #  print('im2' + str(image_set2))
     avg_dist, stdev = compare_fingerprints(image_set1, image_set2, fingerprint_function,
@@ -798,13 +798,13 @@ def self_compare_wrapper(( image_set, fingerprint_function, weights,
     # print ('parent process:'+str( os.getppid()))
     # print ('process id:'+str( os.getpid()))
     proc_name = multiprocessing.current_process().name
-    print('proc_name:' + str(proc_name))
- #   print('imset:' + str(image_set))
-    print('fp_func:' + str(fingerprint_function))
- #   print('weights:' + str(weights))
-    print('d_func:' + str(distance_function))
-    print('d_pow:' + str(distance_power))
-    print('fp_args:' + str(fingerprint_arguments))
+ #   print('proc_name:' + str(proc_name))
+    #   print('imset:' + str(image_set))
+  #  print('fp_func:' + str(fingerprint_function))
+    #   print('weights:' + str(weights))
+   # print('d_func:' + str(distance_function))
+    # print('d_pow:' + str(distance_power))
+    # print('fp_args:' + str(fingerprint_arguments))
     avg_dist, stdev = compare_fingerprints_except_diagonal(image_set, image_set, fingerprint_function, weights,
                                                            distance_function, distance_power, **fingerprint_arguments)
     confusion_matrix = avg_dist
