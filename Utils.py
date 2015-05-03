@@ -381,17 +381,6 @@ def legal_bounding_box(rect):
         return False
 
 
-# determine if the bb takes up almost all the image
-def all_inclusive_bounding_box(image_array, rect):
-    height, width = image_array.shape[0:2]
-    image_area = float(height * width)
-    bb_area = rect[2] * rect[3]
-    if bb_area > bb_same_as_image_threshold * image_area:
-        print('got a bb that takes nearly all image')
-        logging.warning('got a bb that takes nearly all image')
-        return True
-    else:
-        return False
 
 def bounding_box_inside_image(image_array, rect):
     # if check_img_array(image_array) and legal_bounding_box(rect):
