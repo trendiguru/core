@@ -9,7 +9,7 @@ import constants
 ################
 # started 30.4
 ####################
-max_items = 50
+max_items = 10
 fingerprint_length = constants.fingerprint_length
 
 rate_fp.analyze_fingerprint(fingerprint_function=fp_core.regular_fp, weights=np.ones(fingerprint_length),
