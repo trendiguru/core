@@ -10,7 +10,6 @@ import cv2
 import numpy as np
 
 import Utils
-
 import constants
 
 
@@ -125,8 +124,12 @@ def get_fg_mask(image, bounding_box=None):
 
     # bounding box was sent from a human - grabcut with bounding box mask
     if Utils.legal_bounding_box(bounding_box):
-        mask = bb_mask(image, bounding_box)
-        cv2.grabCut(image, mask, rect, bgdmodel, fgdmodel, 1, cv2.GC_INIT_WITH_MASK)
+        if Utils.all_inclusive_bounding_box(image, bounding_box):  # bb is nearly the whole image
+            mask = np.zeros(image.shape[:2], dtype=np.uint8)
+            cv2.grabCut(image, mask, rect, bgdmodel, fgdmodel, 1, cv2.GC_INIT_WITH_RECT)
+        else:
+            mask = bb_mask(image, bounding_box)
+            cv2.grabCut(image, mask, rect, bgdmodel, fgdmodel, 1, cv2.GC_INIT_WITH_MASK)
 
     # grabcut on the whole image, with/without face
     else:
