@@ -107,6 +107,19 @@ class rate_fingerprint_test(unittest.TestCase):
         ps.print_stats()
         print(s.getvalue())
 
+    def test_def_display_two_histograms(self):
+        a = []
+        b = []
+        print('yo')
+        for i in range(0, 300):
+            a.append(np.random.normal(loc=2.0, scale=1))
+            b.append(np.random.normal(loc=4.0, scale=0.5))
+        # print(a,b)
+        rate_fp.display_two_histograms(a, b)
+
+
+def display_two_histograms(same_distances, different_distances, name=None):
+
 
     def tearDown(self):
         pass

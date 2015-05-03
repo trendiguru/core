@@ -5,8 +5,11 @@ __author__ = 'Nadav Paz'
 import string
 from Tkinter import Tk
 from tkFileDialog import askopenfilename
+
 import cv2
 import numpy as np
+
+import Utils
 import constants
 
 
@@ -116,13 +119,17 @@ def resize_back(image, resize_ratio):
 def get_fg_mask(image, bounding_box=None):
     # image_counter = 0
     rect = (0, 0, image.shape[1]-1, image.shape[0]-1)
-    bgdmodel = np.zeros((1, 65), np.float64)
+    bgdmodel = np.zeros((1, 65), np.float64)  # what is this wierd size about? (jr)
     fgdmodel = np.zeros((1, 65), np.float64)
 
     # bounding box was sent from a human - grabcut with bounding box mask
-    if (bounding_box is not None) and (bounding_box != np.array([0, 0, 0, 0])).all():
-        mask = bb_mask(image, bounding_box)
-        cv2.grabCut(image, mask, rect, bgdmodel, fgdmodel, 1, cv2.GC_INIT_WITH_MASK)
+    if Utils.legal_bounding_box(bounding_box):
+        if Utils.all_inclusive_bounding_box(image, bounding_box):  # bb is nearly the whole image
+            mask = np.zeros(image.shape[:2], dtype=np.uint8)
+            cv2.grabCut(image, mask, rect, bgdmodel, fgdmodel, 1, cv2.GC_INIT_WITH_RECT)
+        else:
+            mask = bb_mask(image, bounding_box)
+            cv2.grabCut(image, mask, rect, bgdmodel, fgdmodel, 1, cv2.GC_INIT_WITH_MASK)
 
     # grabcut on the whole image, with/without face
     else:

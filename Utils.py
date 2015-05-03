@@ -22,6 +22,7 @@ import re
 
 min_images_per_doc = constants.min_images_per_doc
 max_image_val = constants.max_image_val
+bb_same_as_image_threshold = constants.bb_same_as_image_threshold
 
 # import urllib
 # logging.setLevel(logging.DEBUG)
@@ -352,9 +353,9 @@ def good_bb(dict, skip_if_marked_to_skip=True):
     url = dict['url']
     img_arr = get_cv2_img_array(url, convert_url_to_local_filename=True, download=True,
                                 download_directory='images')
-    if img_arr is None:
-        # print('img is none')
-        return (False)
+    if not is_valid_image(img_arr):
+        print('bad image array discovered in is_valid_image')
+        return False
     if not 'human_bb' in dict:
         # print('no human_bb key in dict')
         return (False)
@@ -366,6 +367,7 @@ def good_bb(dict, skip_if_marked_to_skip=True):
         print('bad bb caught,bb:' + str(bb) + ' img size:' + str(img_arr.shape) + ' imagedoc:' + str(
             url))
         return (False)
+
     return (True)
 
 def legal_bounding_box(rect):
@@ -378,24 +380,30 @@ def legal_bounding_box(rect):
         print('area of ' + str(rect[2]) + 'x' + str(rect[3]) + ':' + str(rect[2] * rect[3]))
         return False
 
+
+# determine if the bb takes up almost all the image
+def all_inclusive_bounding_box(image_array, rect):
+    height, width = image_array.shape[0:2]
+    image_area = float(height * width)
+    bb_area = rect[2] * rect[3]
+    if bb_area > bb_same_as_image_threshold * image_area:
+        print('got a bb that takes nearly all image')
+        logging.warning('got a bb that takes nearly all image')
+        return False
+    else:
+        return True
+
 def bounding_box_inside_image(image_array, rect):
     # if check_img_array(image_array) and legal_bounding_box(rect):
     if legal_bounding_box(rect):
         height, width = image_array.shape[0:2]
-        if rect[0] < width and rect[0] + rect[2] <= width and rect[1] < height and rect[1] + rect[3] <= height:
+        if rect[0] < width and rect[0] + rect[2] < width and rect[1] < height and rect[1] + rect[3] < height:
             return True  # bb fits into image
         else:
             print('warning - bb not inside image')
             return False
     else:
         print('warning - bb not legal (either too small or None')
-        return False
-
-def check_img_array(image_array):
-    if image_array is not None and isinstance(image_array, np.ndarray) and isinstance(image_array[0][0], np.ndarray):
-        return True
-
-    else:
         return False
 
 
@@ -597,6 +605,14 @@ def bb_to_mask(bb, img_array):
 
     return mask
 
+
+def is_valid_image(img):
+    if img is not None and type(img) == np.ndarray and isinstance(img[0][0], np.ndarray) and img.shape[0] * img.shape[
+        1] >= constants.min_image_area:
+        return True
+    else:
+        return False
+
 ############################
 ### math stuff
 ############################
@@ -615,6 +631,9 @@ def error_of_fraction(numerator, numerator_stdev, denominator, denominator_stdev
     d = float(denominator)
     n_e = float(numerator_stdev)
     d_e = float(denominator_stdev)
+    if n == 0 or d == 0:
+        print('caught div by zero in error_of_fraction, n=' + str(n) + ' d=' + str(d))
+        return (-1.0)
     fraction_error = abs(n / d) * math.sqrt((n_e / n) ** 2 + (d_e / d) ** 2)
     return fraction_error
 
@@ -628,11 +647,7 @@ def isnumber(str):
         return False
 
 
-def is_valid_image(img):
-    if img is not None and type(img) == np.ndarray and img.shape[0] * img.shape[1] >= constants.min_image_area:
-        return True
-    else:
-        return False
+
 
 if __name__ == '__main__':
     print('starting')

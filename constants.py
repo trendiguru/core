@@ -1,16 +1,19 @@
 # file containing constants for general TG use
 
 # fingerprint related consts
+
 fingerprint_length = 56
 extras_length = 6
 histograms_length = 25
-
 K = 0.5                     # for euclidean distance
+bb_same_as_image_threshold = 0.95  # if bb takes more than this fraction of image area then use  cv2.GC_INIT_WITH_RECT instead of init with mask
+
 
 # fp rating related constants
 min_image_area = 400
-min_images_per_doc = 10     # item has to have at least this number of pics
-max_items = 5  # max number of items to consider for rating fingerprint
+min_images_per_doc = 10  # item has to have at least this number of pics
+max_images_per_doc = 20  # item has to have less than this number of pics
+max_items = 50  # max number of items to consider for rating fingerprint
 
 classifiers_folder = "/home/ubuntu/Dev/trendi_guru_modules/classifiers/"
 
@@ -40,15 +43,13 @@ classifier_to_category_dict = {"dressClassifier.xml": ["dresses", "bridal-mother
                                                        "mens-big-and-tall-coats-and-jackets",
                                                        "mens-big-and-tall-blazers"]}
 
-
 # for web bounding box interface
 # this is for going to the previous item, highest numbered image
 max_image_val = 666
-
 svg_folder = '/var/www/static/svgs/'
 
 svg_url_prefix = 'http://extremeli.trendi.guru/static/svgs/'
 
 nadav = 'awesome'
 
-Reserve_cpus = 0  # number of cpus to not use when doing stuff in parallel
+Reserve_cpus = 2  # number of cpus to not use when doing stuff in parallel
