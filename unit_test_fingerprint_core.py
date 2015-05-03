@@ -39,7 +39,7 @@ class OutcomesTest(unittest.TestCase):
         img_arr = Utils.get_cv2_img_array(url)
         if img_arr is not None:
                 cv2.imshow('im1',img_arr)
-                k=cv2.waitKey(50)& 0xFF
+                k = cv2.waitKey(1000) & 0xFF
                 mask = np.ones((img_arr.shape[0], img_arr.shape[1]), np.uint8)
                 fingerprint = fingerprint_core.fp(img_arr, mask)
 
@@ -62,6 +62,8 @@ class OutcomesTest(unittest.TestCase):
             img_arr = Utils.get_cv2_img_array(url, download=True)
             fp = fingerprint_core.fp_with_bwg(img_arr)  # with black, white, gray
             fingerprint_core.show_fp(fp)
+            cv2.imshow('im1', img_arr)
+            k = cv2.waitKey(0)
 
 
 

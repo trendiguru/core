@@ -26,6 +26,7 @@ import os
 import inspect
 import sys
 import matplotlib
+import copy
 
 matplotlib.use('Agg')  # prevents problems generating plots on server where no display is defined
 import matplotlib.pyplot as plt
@@ -936,8 +937,8 @@ def analyze_fingerprint(fingerprint_function=fp_core.fp, weights=np.ones(fingerp
         # i get a warning about 'shadowing'.
         self_report = self_reporting
 
-    cross_report = dict(self_report)
-
+    # cross_report = dict(self_report)
+    cross_report = copy.deepcopy(self_report)
     calculate_self_confusion_vector(image_sets, fingerprint_function=fingerprint_function,
                                     weights=weights, distance_function=distance_function,
                                     distance_power=distance_power, report=self_report, **fingerprint_arguments)
