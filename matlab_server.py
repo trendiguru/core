@@ -2,6 +2,7 @@ __author__ = 'liorsabag'
 
 import rpyc
 import matlab.engine
+import numpy as np
 
 ENG = matlab.engine.start_matlab("-nodisplay")
 
@@ -24,6 +25,12 @@ class MyService(rpyc.Service):
 
     def get_question(self):  # while this method is not exposed
         return "what is the airspeed velocity of an unladen swallow?"
+
+
+    def isprime(self, n):
+        result = ENG.isprime(n)
+        return result
+
 
 
 if __name__ == "__main__":
