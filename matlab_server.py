@@ -27,7 +27,7 @@ class MyService(rpyc.Service):
         return "what is the airspeed velocity of an unladen swallow?"
 
 
-    def isprime(self, n):
+    def exposed_isprime(self, n):
         result = ENG.isprime(n)
         return result
 
