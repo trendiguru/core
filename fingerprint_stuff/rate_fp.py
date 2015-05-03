@@ -10,6 +10,7 @@ __author__ = 'jeremy'
 # TODO maybe add already-used image sets as input to avoid re-searching every time
 # TODO load all images for a given set  and keep in memory
 # TODO fix trendibb_editor, only first image is shown correctly
+# TODO check if
 # from joblib import Parallel, delayed
 # NOTE - cross-compare not yet implementing weights, fp_function,distance_function,distance_power
 import multiprocessing
