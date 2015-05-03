@@ -110,7 +110,7 @@ def save_full_report(report, name=None):
     # print('reporting...' + str(report))
     if name == None:
         name = 'longfp_report.' + datetime.datetime.now().strftime("%Y-%m-%d.%H%M.txt")
-    name = os.path.join('./fp_ratings', name)
+    name = os.path.join('./fp_ratings', name + '_long.txt')
     dir = os.path.dirname(name)
     if not os.path.exists(dir):
         os.makedirs(dir)
@@ -129,7 +129,7 @@ def save_full_report(report, name=None):
 def save_short_report(report, name=None):
     if name == None:
         name = 'shortfp_report.' + datetime.datetime.now().strftime("%Y-%m-%d.%H%M.txt")
-    name = os.path.join('./fp_ratings', name)
+    name = os.path.join('./fp_ratings', name + '_short.txt')
     dir = os.path.dirname(name)
     if not os.path.exists(dir):
         os.makedirs(dir)
@@ -213,8 +213,8 @@ def display_two_histograms(same_distances, different_distances, name=None):
     #    plt.hist(neg_diff, bins, alpha=0.5, label='differentItem', color='b', )
     plt.legend(loc='upper right')
     if name == None:
-        name = 'histograms_' + datetime.datetime.now().strftime("%Y-%m-%d_%H%M.jpg")
-        name = os.path.join('./fp_ratings', name)
+        name = 'histograms_' + datetime.datetime.now().strftime("%Y-%m-%d_%H%M")
+    name = os.path.join('./fp_ratings', name + '.jpg')
     dir = os.path.dirname(name)
     if not os.path.exists(dir):
         os.makedirs(dir)
@@ -984,8 +984,8 @@ def analyze_fingerprint(fingerprint_function=fp_core.fp, weights=np.ones(fingerp
         goodness_error = Utils.error_of_fraction(numerator, numerator_error, denominator, cross_item_error)
     tot_report = {'self_report': self_report, 'cross_report': cross_report, 'goodness': goodness,
                   'goodness_error': goodness_error}
-    save_short_report(tot_report, filename)
     save_full_report(tot_report, filename)
+    save_short_report(tot_report, filename)
 
     display_two_histograms(self_report['confusion_vector'], cross_report['confusion_vector'])
 
