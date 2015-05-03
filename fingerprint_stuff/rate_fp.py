@@ -526,7 +526,7 @@ def compare_fingerprints(image_array1, image_array2, fingerprint_function=fp_cor
         bb1 = entry1['human_bb']
         url1 = entry1['url']
         img_arr1 = Utils.get_cv2_img_array(url1, convert_url_to_local_filename=True, download=True)
-        if img_arr1 is not None:
+        if Utils.is_valid_image(img_arr1):
             i = i + 1
             # print('comparing image ' + str(i) + ' to other group')
             # background_removal.standard_resize(image, 400)
@@ -548,7 +548,7 @@ def compare_fingerprints(image_array1, image_array2, fingerprint_function=fp_cor
                 bb2 = entry2['human_bb']
                 url2 = entry2['url']
                 img_arr2 = Utils.get_cv2_img_array(url2, convert_url_to_local_filename=True, download=True)
-                if img_arr2 is not None:
+                if Utils.is_valid_image(img_arr2):
                     j = j + 1
                     if visual_output2:
                         cv2.rectangle(img_arr2, (bb2[0], bb2[1]), (bb2[0] + bb2[2], bb2[1] + bb2[3]), color=BLUE,
@@ -602,7 +602,7 @@ def compare_fingerprints_except_diagonal(image_array1, image_array2, fingerprint
         bb1 = entry1['human_bb']
         url1 = entry1['url']
         img_arr1 = Utils.get_cv2_img_array(url1, convert_url_to_local_filename=True, download=True)
-        if img_arr1 is not None:
+        if Utils.is_valid_image(img_arr1):
             i = i + 1
 #            print('comparing image ' + str(i) + ' to rest of same group')
             #background_removal.standard_resize(image, 400)
@@ -621,7 +621,7 @@ def compare_fingerprints_except_diagonal(image_array1, image_array2, fingerprint
                 bb2 = entry2['human_bb']
                 url2 = entry2['url']
                 img_arr2 = Utils.get_cv2_img_array(url2, convert_url_to_local_filename=True, download=True)
-                if img_arr2 is not None:
+                if Utils.is_valid_image(img_arr2):
                     j = j + 1
                     if visual_output2:
                         cv2.rectangle(img_arr2, (bb2[0], bb2[1]), (bb2[0] + bb2[2], bb2[1] + bb2[3]), color=BLUE,

@@ -591,6 +591,14 @@ def bb_to_mask(bb, img_array):
 
     return mask
 
+
+def is_valid_image(img):
+    if img is not None and type(img) == np.ndarray and isinstance(img[0][0], np.ndarray) and img.shape[0] * img.shape[
+        1] >= constants.min_image_area:
+        return True
+    else:
+        return False
+
 ############################
 ### math stuff
 ############################
@@ -625,12 +633,6 @@ def isnumber(str):
         return False
 
 
-def is_valid_image(img):
-    if img is not None and type(img) == np.ndarray and isinstance(img[0][0], np.ndarray) and img.shape[0] * img.shape[
-        1] >= constants.min_image_area:
-        return True
-    else:
-        return False
 
 
 if __name__ == '__main__':
