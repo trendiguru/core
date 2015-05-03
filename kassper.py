@@ -63,22 +63,12 @@ def get_mask(image):
     return mask
 
 
-def skin_removal(face_image, gc_image):
-    without_skin = gc_image.copy()
-    hsv = cv2.cvtColor(gc_image, cv2.COLOR_BGR2HSV)
-    face_hsv = cv2.cvtColor(face_image, cv2.COLOR_BGR2HSV)
-    bins = 180
-    n_pixels = face_image.shape[0] * face_image.shape[1]
-    hist_hue = cv2.calcHist([face_hsv], [0], None, [bins], [0, 180])
-    hist_hue = np.divide(hist_hue, n_pixels)
-    skin_hue_list = []
-    for l in range(0, 180):
-        if hist_hue[l] > 0.013:
-            skin_hue_list.append(l)
-    for i in range(0, gc_image.shape[0]):
-        for j in range(0, gc_image.shape[1]):
-            if hsv[i][j][0] in skin_hue_list:
-                without_skin[i][j][0] = 0
-                without_skin[i][j][1] = 0
-                without_skin[i][j][2] = 0
-    return without_skin
+def skin_removal(image):
+    YCrCb_image = cv2.cvtColor(image, cv2.COLOR_BGR2YCR_CB)
+    clothes_image = np.zeros((YCrCb_image.shape[0], YCrCb_image.shape[1], 3), np.uint8)
+    for i in range(0, YCrCb_image.shape[0]):
+        for j in range(0, YCrCb_image.shape[1]):
+            if not 133 < YCrCb_image[i][j][1] < 173 and 80 < YCrCb_image[i][j][2] < 120:
+                for k in range(0, 3):
+                    clothes_image[i][j][k] = image[i][j][k]
+    return clothes_image
