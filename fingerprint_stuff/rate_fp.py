@@ -26,7 +26,6 @@ import os
 import inspect
 import sys
 import matplotlib
-import copy
 
 matplotlib.use('Agg')  # prevents problems generating plots on server where no display is defined
 import matplotlib.pyplot as plt
@@ -699,8 +698,8 @@ def partial_cross_compare_wrapper((image_sets, fingerprint_function, weights,
     image_set2 = image_sets[1]
     proc_name = multiprocessing.current_process().name
    # print('proc_name:' + str(proc_name))
-    # print('im1' + str(image_set1))
-    #  print('im2' + str(image_set2))
+    print('im1' + str(image_set1))
+    print('im2' + str(image_set2))
     avg_dist, stdev = compare_fingerprints(image_set1, image_set2, fingerprint_function,
                                            weights, distance_function,
                                            distance_power, **fingerprint_arguments)
@@ -737,7 +736,7 @@ def calculate_partial_cross_confusion_vector(image_sets, fingerprint_function=fp
         for image_set in image_sets:
             tupled_arguments.append((image_set, fingerprint_function, weights,
                                      distance_function, distance_power, fingerprint_arguments))
-        answers = p.map(self_compare_wrapper, tupled_arguments)
+        answers = p.map(partial_cross_compare_wrapper, tupled_arguments)
         # answers = p.map(partial_cross_compare_wrapper, comparisons_to_make)
         # p.join()
         #        p.close()
@@ -938,7 +937,6 @@ def analyze_fingerprint(fingerprint_function=fp_core.fp, weights=np.ones(fingerp
         self_report = self_reporting
 
     # cross_report = dict(self_report)
-    cross_report = copy.deepcopy(self_report)
 
     self_report = calculate_self_confusion_vector(image_sets, fingerprint_function=fingerprint_function,
                                     weights=weights, distance_function=distance_function,
@@ -955,7 +953,7 @@ def analyze_fingerprint(fingerprint_function=fp_core.fp, weights=np.ones(fingerp
     cross_report = calculate_partial_cross_confusion_vector(image_sets, fingerprint_function=fingerprint_function,
                                                             weights=weights,
                                              distance_function=distance_function,
-                                             distance_power=distance_power, report=cross_report,
+                                                            distance_power=distance_power, report=None,
                                              comparisons_to_make=comparisons_to_make, **fingerprint_arguments)
 
     print('cross report:' + str(cross_report))
