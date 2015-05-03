@@ -383,7 +383,7 @@ def bounding_box_inside_image(image_array, rect):
     # if check_img_array(image_array) and legal_bounding_box(rect):
     if legal_bounding_box(rect):
         height, width = image_array.shape[0:2]
-        if rect[0] < width and rect[0] + rect[2] <= width and rect[1] < height and rect[1] + rect[3] <= height:
+        if rect[0] < width and rect[0] + rect[2] < width and rect[1] < height and rect[1] + rect[3] < height:
             return True  # bb fits into image
         else:
             print('warning - bb not inside image')
