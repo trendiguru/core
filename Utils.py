@@ -389,9 +389,9 @@ def all_inclusive_bounding_box(image_array, rect):
     if bb_area > bb_same_as_image_threshold * image_area:
         print('got a bb that takes nearly all image')
         logging.warning('got a bb that takes nearly all image')
-        return False
-    else:
         return True
+    else:
+        return False
 
 def bounding_box_inside_image(image_array, rect):
     # if check_img_array(image_array) and legal_bounding_box(rect):

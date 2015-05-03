@@ -939,7 +939,8 @@ def analyze_fingerprint(fingerprint_function=fp_core.fp, weights=np.ones(fingerp
 
     # cross_report = dict(self_report)
     cross_report = copy.deepcopy(self_report)
-    calculate_self_confusion_vector(image_sets, fingerprint_function=fingerprint_function,
+
+    self_report = calculate_self_confusion_vector(image_sets, fingerprint_function=fingerprint_function,
                                     weights=weights, distance_function=distance_function,
                                     distance_power=distance_power, report=self_report, **fingerprint_arguments)
     print('self report:' + str(self_report))
@@ -951,7 +952,8 @@ def analyze_fingerprint(fingerprint_function=fp_core.fp, weights=np.ones(fingerp
     if not isinstance(self_report['weights'], list):
         self_report['weights'] = self_report['weights'].tolist()
 
-    calculate_partial_cross_confusion_vector(image_sets, fingerprint_function=fingerprint_function, weights=weights,
+    cross_report = calculate_partial_cross_confusion_vector(image_sets, fingerprint_function=fingerprint_function,
+                                                            weights=weights,
                                              distance_function=distance_function,
                                              distance_power=distance_power, report=cross_report,
                                              comparisons_to_make=comparisons_to_make, **fingerprint_arguments)

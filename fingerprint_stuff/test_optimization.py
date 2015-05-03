@@ -158,6 +158,12 @@ def opt_mult():
 #    x_min = scipy.optimize.fmin(f,[2,3])
     print('output of optimize:'+str(x_min))
 
+
+def change_args(arg1):
+    for a in arg1:
+        print('arg:' + str(a))
+        arg1[a] = 7
+
 #opt_mult()
 if __name__ == "__main__":
     # test_kwargs('hi', forbles='ee', snorbles=33)
@@ -165,8 +171,13 @@ if __name__ == "__main__":
     # optimize_weights(2)
     # test_tuplearg(('first',{'second':2}))
     # test_multi()
-    passitalong('first', **{'second': 2, 'third': 3})
-    passitalong('first')
-    passitalong('first', foible=22, burble=33)
-    pass2('first', {'second': 2, 'third': 3})
+    # passitalong('first', **{'second': 2, 'third': 3})
+    # passitalong('first')
+    # passitalong('first', foible=22, burble=33)
+    # pass2('first', {'second': 2, 'third': 3})
     # pass2('first')
+
+    a = {'asd': 'sdfsdf', 'trew': 4}
+    print('a before:' + str(a))
+    change_args(a)
+    print('a after:' + str(a))
