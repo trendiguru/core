@@ -11,12 +11,12 @@ class MyService(rpyc.Service):
         # code that runs when a connection is created
         # (to init the serivce, if needed)
         ENG = ENG or matlab.engine.start_matlab("-nodisplay")
+        print ENG
         pass
 
     def on_disconnect(self):
         # code that runs when the connection has already closed
         # (to finalize the service, if needed)
-        ENG.quit()
         pass
 
     def exposed_get_answer(self): # this is an exposed method
@@ -30,4 +30,4 @@ if __name__ == "__main__":
     from rpyc.utils.server import ThreadedServer
     t = ThreadedServer(MyService, port=18861)
     t.start()
-    print "Started..."
+    print "Ended..."
