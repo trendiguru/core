@@ -13,20 +13,11 @@ import Utils
 
 
 
-
-
-
-
-
-
-
-
 # moving this into the show_fp function for now - LS
 # import matplotlib.pyplot as plt
 
-
-
 fingerprint_length = constants.fingerprint_length
+histograms_length = constants.histograms_length
 
 
 def find_color_percentages(img_array):
@@ -43,7 +34,7 @@ def find_color_percentages(img_array):
     color_limits=range(0,180+int(180/n_colors),int(180/n_colors))  #edges of bins for histogram
     #print(color_limits)
 
-    hsv = cv2.cvtColor(None, cv2.COLOR_BGR2HSV)
+    hsv = cv2.cvtColor(img_array, cv2.COLOR_BGR2HSV)
     h_arr=hsv[:,:,0]
     s_arr=hsv[:,:,1]
     v_arr=hsv[:,:,2]
@@ -57,15 +48,15 @@ def find_color_percentages(img_array):
     area = h*w
 
     black_count=np.sum(v_arr<black_value_max)
-    black_percentage=black_count/area
+    black_percentage = float(black_count) / area
 
     #white is where saturation is less than sat_max and value>val_min
     white_mask=(s_arr<white_saturation_max) *(v_arr>white_value_min)
     white_count=np.sum(white_mask)
-    white_percentage=white_count/area
+    white_percentage = float(white_count) / area
 
     grey_count=np.sum((s_arr<white_saturation_max) *( v_arr<=white_value_min) *( v_arr>=black_value_max))
-    grey_percentage=grey_count/area
+    grey_percentage = float(grey_count) / area
 
     non_white=np.invert(white_mask)
     color_mask=non_white*(v_arr>=black_value_max)   #colors are where value>black, but not white
@@ -75,14 +66,15 @@ def find_color_percentages(img_array):
     color_percentages = []
     for i in range(0,n_colors):
         color_percentages.append(np.sum(  color_mask*(h_arr<color_limits[i+1])*(h_arr>=color_limits[i])))
-        print('color ' + str(i) + ' count =' + str(color_percentages[i]))
-        print('color percentages:' + str(color_percentages))
-        color_percentages[i]=color_percentages[i]/area  #turn pixel count into percentage
+        # print('color ' + str(i) + ' count =' + str(color_percentages[i]))
+        color_percentages[i] = float(color_percentages[i]) / area  #turn pixel count into percentage
+        #       print('color percentages:' + str(color_percentages))
     all_colors=np.zeros(3)
     all_colors[0]=white_percentage
     all_colors[1]=black_percentage
     all_colors[2]=grey_percentage
-    all_colors=np.append(all_colors,color_counts)
+
+#    all_colors=np.append(all_colors,color_percentages)
 
     #   all_colors=np.concatenate(all_colors,color_counts)
 
@@ -106,7 +98,7 @@ def find_color_percentages(img_array):
                                          kind='quicksort')  # make sure this is ok   TODO - took out order=None argument
     dominant_color_percentages = dominant_color_percentages[::-1]
 
-    print('color percentages:' + str(dominant_color_percentages) + ' indices:' + str(dominant_color_indices))
+#    print('color percentages:' + str(dominant_color_percentages) + ' indices:' + str(dominant_color_indices))
     return(all_colors)
 
 
@@ -175,6 +167,55 @@ def fp(img, mask=None, weights=np.ones(fingerprint_length), histogram_length=25)
     return result_vector
 
 
+def fp_with_bwg(img, mask=None, histogram_length=25):  # with black, white, gray
+    if mask is None or cv2.countNonZero(mask) == 0:
+        mask = np.ones((img.shape[0], img.shape[1]), dtype=np.uint8)
+    if mask.shape[0] != img.shape[0] or mask.shape[1] != img.shape[1]:
+        print('trouble with mask size, resetting to image size')
+        mask = np.ones((img.shape[0], img.shape[1]), dtype=np.uint8)
+    n_pixels = cv2.countNonZero(mask)
+    hsv = cv2.cvtColor(img, cv2.COLOR_BGR2HSV)
+    # OpenCV uses  H: 0 - 180, S: 0 - 255, V: 0 - 255
+    # histograms
+    bins = histogram_length
+
+    hist_hue = cv2.calcHist([hsv], [0], mask, [bins], [0, 180])
+    hist_hue = [item for sublist in hist_hue for item in sublist]  # flatten nested
+    hist_hue = np.divide(hist_hue, n_pixels)
+
+    hist_sat = cv2.calcHist([hsv], [1], mask, [bins], [0, 255])
+    hist_sat = [item for sublist in hist_sat for item in sublist]
+    hist_sat = np.divide(hist_sat, n_pixels)
+
+    hist_int = cv2.calcHist([hsv], [2], mask, [bins], [0, 255])
+    hist_int = [item for sublist in hist_int for item in sublist]  # flatten nested list
+    hist_int = np.divide(hist_int, n_pixels)
+
+    # Uniformity  t(5)=sum(p.^ 2);
+    hue_uniformity = np.dot(hist_hue, hist_hue)
+    sat_uniformity = np.dot(hist_sat, hist_sat)
+    int_uniformity = np.dot(hist_int, hist_int)
+
+    # Entropy   t(6)=-sum(p. *(log2(p+ eps)));
+    eps = 1e-15
+    max_log_value = np.log2(bins)  # this is same as sum of p log p
+    l_hue = -np.log2(hist_hue + eps) / max_log_value
+    hue_entropy = np.dot(hist_hue, l_hue)
+    l_sat = -np.log2(hist_sat + eps) / max_log_value
+    sat_entropy = np.dot(hist_sat, l_sat)
+    l_int = -np.log2(hist_int + eps) / max_log_value
+    int_entropy = np.dot(hist_int, l_int)
+
+    result_vector = [hue_uniformity, sat_uniformity, int_uniformity, hue_entropy, sat_entropy, int_entropy]
+    result_vector = np.concatenate((result_vector, hist_hue, hist_sat), axis=0)
+
+    black_white_gray_percentages = find_color_percentages(img)
+    print('bwg:' + str(black_white_gray_percentages))
+    result_vector = np.concatenate((result_vector, black_white_gray_percentages))
+
+    return result_vector
+
+
 def gc_and_fp(img, bounding_box=None, weights=np.ones(fingerprint_length), **kwargs):
     if bounding_box == None:
         print('warning - bad bounding box caught in gc_and_fp')
@@ -183,6 +224,17 @@ def gc_and_fp(img, bounding_box=None, weights=np.ones(fingerprint_length), **kwa
     mask = background_removal.get_fg_mask(img, bounding_box=bounding_box)
     fingerprint = fp(img, mask, weights=weights)
     return fingerprint
+
+
+def gc_and_fp_bw(img, bounding_box=None, weights=np.ones(fingerprint_length), **kwargs):
+    if bounding_box == None:
+        print('warning - bad bounding box caught in gc_and_fp')
+        bounding_box = [0, 0, img.shape[1], img.shape[0]]
+
+    mask = background_removal.get_fg_mask(img, bounding_box=bounding_box)
+    fingerprint = fp_with_bwg(img, mask, weights=weights)
+    return fingerprint
+
 
 
 def regular_fp(img, bounding_box=None, weights=np.ones(fingerprint_length), **kwargs):
@@ -201,21 +253,30 @@ def show_fp(fingerprint, fig=None):
     plt.close('all')
 
     fig, ax = plt.subplots()
-    ind = np.arange(fingerprint_length)  # the x locations for the groups
+    ind = np.arange(len(fingerprint))  # the x locations for the groups
     width = 0.35
 
-    energy_maxindex=8
-    hue_maxindex = energy_maxindex +25
-    sat_maxindex=    hue_maxindex+25
+    energy_maxindex = constants.extras_length
+    hue_maxindex = energy_maxindex + histograms_length
+    sat_maxindex = hue_maxindex + histograms_length
     rects1 = ax.bar(ind[0:energy_maxindex], fingerprint[0:energy_maxindex], width, color='r')   #, yerr=menStd)
-    rects2 = ax.bar(ind[energy_maxindex+1: hue_maxindex], fingerprint[energy_maxindex+1: hue_maxindex], width, color='g')   #, yerr=menStd)
-    rects3 = ax.bar(ind[hue_maxindex+1: sat_maxindex], fingerprint[hue_maxindex+1: sat_maxindex], width, color='b')   #, yerr=menStd)
+    rects2 = ax.bar(ind[energy_maxindex: hue_maxindex], fingerprint[energy_maxindex: hue_maxindex], width,
+                    color='g')  # , yerr=menStd)
+    rects3 = ax.bar(ind[hue_maxindex: sat_maxindex], fingerprint[hue_maxindex: sat_maxindex], width,
+                    color='b')  # , yerr=menStd)
 
-# add some text for labels, title and axes tisatcks
+    print('len fp' + str(len(fingerprint)) + ' sat_index:' + str(sat_maxindex))
+    if len(fingerprint) > sat_maxindex:
+        # do whatever is left
+        extra = len(fingerprint) - sat_maxindex
+        rects4 = ax.bar(ind[sat_maxindex:], fingerprint[sat_maxindex:], width, color='y')  # , yerr=menStd)
+
+    # add some text for labels, title and axes tisatcks
     ax.set_ylabel('y')
     ax.set_title('fingerprint')
     ax.set_xticks(ind+width)
-#    ax.set_xticklabels( ('G1', 'G2', 'G3', 'G4', 'G5') )
+    #   ax.set_xticklabels(rotation=45)
+    #    ax.set_xticklabels( ('G1', 'G2', 'G3', 'G4', 'G5') )
    # ax.legend( (rects1[0]), ('Men', 'Women') )
     plt.show(block=False)
     return(fig)
