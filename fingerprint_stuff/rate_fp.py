@@ -732,8 +732,8 @@ def partial_cross_compare_wrapper((image_sets, fingerprint_function, weights,
     print('imset1 has ' + str(len(image_set1)) + ' images, imset2 has ' + str(len(image_set2)) + ' images')
     proc_name = multiprocessing.current_process().name
    # print('proc_name:' + str(proc_name))
-    print('im1' + str(image_set1))
-    print('im2' + str(image_set2))
+    # print('im1' + str(image_set1))
+    #    print('im2' + str(image_set2))
     avg_dist, stdev, all_distances = compare_fingerprints(image_set1, image_set2, fingerprint_function,
                                                           weights, distance_function,
                                                           distance_power, **fingerprint_arguments)
