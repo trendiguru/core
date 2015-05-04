@@ -81,3 +81,6 @@ rate_fp.analyze_fingerprint(fingerprint_function=fp_core.gc_and_fp_bw, weights=n
 
 ###################3
 
+n_groups = [20,40,50,60,70,80]
+goodnesses = [0,.121, .109 .127, .115, .1]
+g_error =  [0,.089,.0803,  .07, 067, .06]

@@ -123,7 +123,7 @@ def save_full_report(report, name=None):
     except IOError:
         print('cannot open fp_ratings.txt')
     else:
-        json.dumps(report, f, indent=4, sort_keys=True, separators=(',', ':'))
+        json.dump(report, f, indent=4, sort_keys=True, separators=(',', ':'))
         f.close()
 
 def save_short_report(report, name=None):
