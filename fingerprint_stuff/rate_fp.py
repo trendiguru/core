@@ -771,7 +771,7 @@ def calculate_partial_cross_confusion_vector(image_sets, fingerprint_function=fp
             #    return(normalized_matrix)
     print('conf vector:' + str(confusion_vector))
     print('stdev vector:' + str(stdev_vector))
-    print('alldistances vector:' + str(all_distances))
+    # print('alldistances vector:' + str(all_distances))
     report['confusion_vector'] = confusion_vector
     report['stdev_vector'] = stdev_vector
     report['distance_power'] = distance_power

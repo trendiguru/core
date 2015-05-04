@@ -9,15 +9,37 @@ import constants
 ################
 # started 30.4
 ####################
-max_items = 10
 fingerprint_length = constants.fingerprint_length
 
+max_items = 20
+rate_fp.analyze_fingerprint(fingerprint_function=fp_core.regular_fp, weights=np.ones(fingerprint_length),
+                            distance_function=NNSearch.distance_1_k,
+                            distance_power=0.5, n_docs=max_items, use_visual_output1=False,
+                            use_visual_output2=False, image_sets=None, self_reporting=None, comparisons_to_make=None,
+                            filename='fp_n20')
+
+max_items = 50
 rate_fp.analyze_fingerprint(fingerprint_function=fp_core.regular_fp, weights=np.ones(fingerprint_length),
                             distance_function=NNSearch.distance_1_k,
                             distance_power=0.5, n_docs=max_items, use_visual_output1=False,
                             use_visual_output2=False, image_sets=None, self_reporting=None, comparisons_to_make=None,
                             filename='fp_n50')
 
+max_items = 70
+rate_fp.analyze_fingerprint(fingerprint_function=fp_core.regular_fp, weights=np.ones(fingerprint_length),
+                            distance_function=NNSearch.distance_1_k,
+                            distance_power=0.5, n_docs=max_items, use_visual_output1=False,
+                            use_visual_output2=False, image_sets=None, self_reporting=None, comparisons_to_make=None,
+                            filename='fp_n70')
+
+max_items = 100
+rate_fp.analyze_fingerprint(fingerprint_function=fp_core.regular_fp, weights=np.ones(fingerprint_length),
+                            distance_function=NNSearch.distance_1_k,
+                            distance_power=0.5, n_docs=max_items, use_visual_output1=False,
+                            use_visual_output2=False, image_sets=None, self_reporting=None, comparisons_to_make=None,
+                            filename='fp_n100')
+
+max_items = 50
 rate_fp.analyze_fingerprint(fingerprint_function=fp_core.gc_and_fp, weights=np.ones(fingerprint_length),
                             distance_function=NNSearch.distance_1_k,
                             distance_power=0.5, n_docs=max_items, use_visual_output1=False,
