@@ -385,7 +385,8 @@ def good_bb(dict, skip_if_marked_to_skip=True):
         print('bad bb caught,bb:' + str(bb) + ' img size:' + str(img_arr.shape) + ' imagedoc:' + str(
             url))
         return (False)
-
+    if all_inclusive_bounding_box(img_arr, bb):
+        dict['human_bb'] = reduce_bounding_box(bb)  # attempting to avoid bbsize=imgsize
     return (True)
 
 def legal_bounding_box(rect):
@@ -583,6 +584,25 @@ def all_inclusive_bounding_box(image_array, bounding_box):
         return True
     else:
         return False
+
+
+def reduce_bounding_box(bounding_box):
+    """
+    determine if the bb takes up all or  almost all the image
+    :param bounding_box:
+    :return:smaller bb (again attempting to get around grabcut bug )
+    """
+    newx = bounding_box[0] + 1
+    new_width = bounding_box[2] - 1
+    newy = bounding_box[1] + 1
+    new_height = bounding_box[3] - 1
+    newbb = [newx, newy, new_width, new_height]
+    if legal_bounding_box(newbb):
+        return newbb
+    else:
+        logging.warning('cant decrease size of bb')
+        return bounding_box
+
 
 class GZipCSVReader:
     def insert_bb_into_training_db(receivedData):
