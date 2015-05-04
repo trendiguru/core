@@ -22,7 +22,6 @@ import re
 
 min_images_per_doc = constants.min_images_per_doc
 max_image_val = constants.max_image_val
-bb_same_as_image_threshold = constants.bb_same_as_image_threshold
 
 # import urllib
 # logging.setLevel(logging.DEBUG)
