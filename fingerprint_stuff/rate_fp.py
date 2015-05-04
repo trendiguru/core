@@ -127,7 +127,7 @@ def save_full_report(report, name=None):
         f.close()
 
 def save_short_report(report, name=None):
-    if name == None:
+    if name == None or name == '':
         name = 'shortfp_report.' + datetime.datetime.now().strftime("%Y-%m-%d.%H%M.txt")
     name = os.path.join('./fp_ratings', name + '_short.txt')
     dir = os.path.dirname(name)
@@ -186,6 +186,7 @@ def display_two_histograms(same_distances, different_distances, name=None):
     hist, bins = np.histogram(same_distances, bins=20)
     width = 0.7 * (bins[1] - bins[0])
     center = (bins[:-1] + bins[1:]) / 2
+    plt.clf()
     plt.bar(center, hist, align='center', width=width, color='b')
     hist2, bins = np.histogram(different_distances, bins=20)
     neg_hist2 = []
@@ -201,14 +202,14 @@ def display_two_histograms(same_distances, different_distances, name=None):
     #    rects2 = ax.bar(bins, neg_diff, width, color='b')  #, yerr=menStd)
 
     #    ax.set_ylabel('Scores')
-    #    ax.set_title('Scores by group and gender')
+    # ax.set_title('Scores by group and gender' )
     #    ax.set_xticks(ind+width)
     #    ax.set_xticklabels( ('G1', 'G2', 'G3', 'G4', 'G5') )
 
     #    ax.legend( (rects1[0], rects2[0]), ('Men', 'Women') )
 
 
-
+    #
     #    plt.hist(same_distances, bins, alpha=0.5, label='sameItem', color='r')
     #    plt.hist(neg_diff, bins, alpha=0.5, label='differentItem', color='b', )
     plt.legend(loc='upper right')
@@ -277,9 +278,9 @@ def display_tons_of_histograms(same_distances_arrays, different_distances_arrays
     plt.show()
 
     plt.legend(loc='upper right')
-    if name == None:
+    if name == None or name == '':
         name = 'allhistograms_' + datetime.datetime.now().strftime("%Y-%m-%d_%H%M.jpg")
-        name = os.path.join('./fp_ratings', name)
+    name = os.path.join('./fp_ratings', name)
     dir = os.path.dirname(name)
     if not os.path.exists(dir):
         os.makedirs(dir)
