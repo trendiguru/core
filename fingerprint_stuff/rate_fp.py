@@ -186,6 +186,7 @@ def display_two_histograms(same_distances, different_distances, name=None):
     hist, bins = np.histogram(same_distances, bins=20)
     width = 0.7 * (bins[1] - bins[0])
     center = (bins[:-1] + bins[1:]) / 2
+    plt.clf()
     plt.bar(center, hist, align='center', width=width, color='b')
     hist2, bins = np.histogram(different_distances, bins=20)
     neg_hist2 = []

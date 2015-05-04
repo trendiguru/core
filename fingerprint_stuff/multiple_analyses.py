@@ -25,6 +25,27 @@ rate_fp.analyze_fingerprint(fingerprint_function=fp_core.regular_fp, weights=np.
                             use_visual_output2=False, image_sets=None, self_reporting=None, comparisons_to_make=None,
                             filename='fp_n40')
 
+max_items = 50
+rate_fp.analyze_fingerprint(fingerprint_function=fp_core.regular_fp, weights=np.ones(fingerprint_length),
+                            distance_function=NNSearch.distance_1_k,
+                            distance_power=0.5, n_docs=max_items, use_visual_output1=False,
+                            use_visual_output2=False, image_sets=None, self_reporting=None, comparisons_to_make=None,
+                            filename='fp_n50')
+
+max_items = 50
+rate_fp.analyze_fingerprint(fingerprint_function=fp_core.regular_fp, weights=np.ones(fingerprint_length),
+                            distance_function=NNSearch.distance_1_k,
+                            distance_power=0.5, n_docs=max_items, use_visual_output1=False,
+                            use_visual_output2=False, image_sets=None, self_reporting=None, comparisons_to_make=None,
+                            filename='fp_n50')
+
+max_items = 50
+rate_fp.analyze_fingerprint(fingerprint_function=fp_core.regular_fp, weights=np.ones(fingerprint_length),
+                            distance_function=NNSearch.distance_1_k,
+                            distance_power=0.5, n_docs=max_items, use_visual_output1=False,
+                            use_visual_output2=False, image_sets=None, self_reporting=None, comparisons_to_make=None,
+                            filename='fp_n50')
+
 max_items = 60
 rate_fp.analyze_fingerprint(fingerprint_function=fp_core.regular_fp, weights=np.ones(fingerprint_length),
                             distance_function=NNSearch.distance_1_k,
@@ -82,5 +103,5 @@ rate_fp.analyze_fingerprint(fingerprint_function=fp_core.gc_and_fp_bw, weights=n
 ###################3
 
 n_groups = [20,40,50,60,70,80]
-goodnesses = [0,.121, .109 .127, .115, .1]
+goodnesses = [0, .121, .109, .127, .115, .1]
 g_error =  [0,.089,.0803,  .07, 067, .06]
