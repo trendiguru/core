@@ -3,7 +3,7 @@ __author__ = 'liorsabag'
 import rpyc
 
 
-class Client(object):
+class Engine(object):
     def __init__(self):
         self.conn = rpyc.connect("localhost", 18861)
 
