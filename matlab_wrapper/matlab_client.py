@@ -11,3 +11,6 @@ class Engine(object):
         def func(*args):
             return self.conn.root.call_matlab_function(name, *args)
         return func
+
+    def get_pose_boxes(self, path_to_image):
+        return self.conn.get_pose_boxes(path_to_image)
