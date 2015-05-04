@@ -549,7 +549,22 @@ def show_all_bbs_in_db(use_visual_output=True):
     return {"success": 1}
 
 
-1
+def all_inclusive_bounding_box(image_array, bounding_box):
+    """
+    determine if the bb takes up all or  almost all the image
+    :param image_array:
+    :param bounding_box:
+    :return:whether the bb takes up almost all image (True) or not (False)
+    """
+    height, width = image_array.shape[0:2]
+    image_area = float(height * width)
+    bb_area = bounding_box[2] * bounding_box[3]
+    if bb_area > constants.min_bb_to_image_area_ratio * image_area:
+        # print('got a bb that takes nearly all image')
+        logging.warning('got a bb that takes nearly all image')
+        return True
+    else:
+        return False
 
 class GZipCSVReader:
     def insert_bb_into_training_db(receivedData):

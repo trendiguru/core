@@ -6,7 +6,7 @@ fingerprint_length = 56
 extras_length = 6
 histograms_length = 25
 K = 0.5                     # for euclidean distance
-bb_same_as_image_threshold = 0.95  # if bb takes more than this fraction of image area then use  cv2.GC_INIT_WITH_RECT instead of init with mask
+min_bb_to_image_area_ratio = 0.95  # if bb takes more than this fraction of image area then use  cv2.GC_INIT_WITH_RECT instead of init with mask
 
 
 # fp rating related constants
