@@ -1043,8 +1043,8 @@ def analyze_fingerprint(fingerprint_function=fp_core.regular_fp, weights=np.ones
     save_full_report(tot_report, filename)
     save_short_report(tot_report, filename)
 
-    display_two_histograms(self_report['confusion_vector'], cross_report['confusion_vector'])
-    display_tons_of_histograms(all_self, all_cross)
+    display_two_histograms(self_report['confusion_vector'], cross_report['confusion_vector'], filename)
+    display_tons_of_histograms(all_self, all_cross, filename)
     # print('tot report:' + str(tot_report))
     print('goodness:' + str(goodness) + ' same item average:' + str(same_item_average) + ' cross item averag:' + str(
         cross_item_average))
