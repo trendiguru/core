@@ -65,10 +65,14 @@ def get_mask(image):
 
 def skin_removal(image):
     YCrCb_image = cv2.cvtColor(image, cv2.COLOR_BGR2YCR_CB)
+    skin_image = np.zeros((YCrCb_image.shape[0], YCrCb_image.shape[1], 3), np.uint8)
     clothes_image = np.zeros((YCrCb_image.shape[0], YCrCb_image.shape[1], 3), np.uint8)
     for i in range(0, YCrCb_image.shape[0]):
         for j in range(0, YCrCb_image.shape[1]):
-            if not 133 < YCrCb_image[i][j][1] < 173 and 80 < YCrCb_image[i][j][2] < 120:
+            if 133 < YCrCb_image[i][j][1] < 173 and 80 < YCrCb_image[i][j][2] < 120:
+                for k in range(0, 3):
+                    skin_image[i][j][k] = image[i][j][k]
+            else:
                 for k in range(0, 3):
                     clothes_image[i][j][k] = image[i][j][k]
     return clothes_image

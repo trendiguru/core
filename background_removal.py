@@ -9,8 +9,8 @@ from tkFileDialog import askopenfilename
 import cv2
 import numpy as np
 
-import Utils
 import constants
+import Utils
 
 
 def find_face(image):
