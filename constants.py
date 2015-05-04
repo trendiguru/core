@@ -12,7 +12,7 @@ bb_same_as_image_threshold = 0.95  # if bb takes more than this fraction of imag
 # fp rating related constants
 min_image_area = 400
 min_images_per_doc = 10  # item has to have at least this number of pics
-max_images_per_doc = 20  # item has to have less than this number of pics
+max_images_per_doc = 21  # item has to have less than this number of pics
 max_items = 50  # max number of items to consider for rating fingerprint
 
 classifiers_folder = "/home/ubuntu/Dev/trendi_guru_modules/classifiers/"
