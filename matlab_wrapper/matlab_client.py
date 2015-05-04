@@ -8,9 +8,10 @@ class Engine(object):
         self.conn = rpyc.connect("localhost", 18861)
 
     def __getattr__(self, name):
-        def func(*args):
-            return self.conn.root.call_matlab_function(name, *args)
-        return func
-
-    def get_pose_boxes_dict(self, path_to_image):
-        return self.conn.get_pose_boxes_dict(path_to_image)
+        try:
+            # first check if this is an explicitly defined attribute on the server
+            attr = getattr(self.conn.root, name)
+        except:
+            # otherwise pass it on to ml engine
+            attr = self.conn.root.exposed_get_matlab_function
+        return attr

@@ -37,8 +37,8 @@ class MatlabServerService(rpyc.Service):
         pose_dict = mat_2_py.translate_2_boxes(np_boxes)
         return pose_dict
 
-    def exposed_call_matlab_function(self, func_name, *args):
-        return getattr(ENG, func_name)(*args)
+    def exposed_get_matlab_function(self, func_name):
+        return getattr(ENG, func_name)
 
 
 if __name__ == "__main__":
