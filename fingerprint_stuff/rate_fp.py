@@ -127,7 +127,7 @@ def save_full_report(report, name=None):
         f.close()
 
 def save_short_report(report, name=None):
-    if name == None:
+    if name == None or name == '':
         name = 'shortfp_report.' + datetime.datetime.now().strftime("%Y-%m-%d.%H%M.txt")
     name = os.path.join('./fp_ratings', name + '_short.txt')
     dir = os.path.dirname(name)
@@ -278,7 +278,7 @@ def display_tons_of_histograms(same_distances_arrays, different_distances_arrays
     plt.show()
 
     plt.legend(loc='upper right')
-    if name == None:
+    if name == None or name == '':
         name = 'allhistograms_' + datetime.datetime.now().strftime("%Y-%m-%d_%H%M.jpg")
     name = os.path.join('./fp_ratings', name)
     dir = os.path.dirname(name)
