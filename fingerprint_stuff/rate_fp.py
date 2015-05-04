@@ -202,14 +202,14 @@ def display_two_histograms(same_distances, different_distances, name=None):
     #    rects2 = ax.bar(bins, neg_diff, width, color='b')  #, yerr=menStd)
 
     #    ax.set_ylabel('Scores')
-    #    ax.set_title('Scores by group and gender')
+    # ax.set_title('Scores by group and gender' )
     #    ax.set_xticks(ind+width)
     #    ax.set_xticklabels( ('G1', 'G2', 'G3', 'G4', 'G5') )
 
     #    ax.legend( (rects1[0], rects2[0]), ('Men', 'Women') )
 
 
-
+    #
     #    plt.hist(same_distances, bins, alpha=0.5, label='sameItem', color='r')
     #    plt.hist(neg_diff, bins, alpha=0.5, label='differentItem', color='b', )
     plt.legend(loc='upper right')
