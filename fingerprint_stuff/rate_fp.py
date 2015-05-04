@@ -229,29 +229,56 @@ def display_two_histograms(same_distances, different_distances, name=None):
 
 def display_tons_of_histograms(same_distances_arrays, different_distances_arrays, name=None):
     max1 = 0
+    totsame = []  # np.ndarray.flatten(same_distances_arrays)
+    totdiff = []  #np.ndarray.flatten(-different_distances_arrays)
     for same_distances in same_distances_arrays:
         max1l = max(same_distances)
         max1 = max(max1, max1l)
+        for val in same_distances:
+            totsame.append(val)
     max2 = 0
     for different_distances in different_distances_arrays:
         max2l = max(different_distances)
         max2 = max(max2, max2l)
-
+        for val in different_distances:
+            totdiff.append(val)
+    plt.clf()
     maxboth = max(max1, max2)
     bins = np.linspace(0, maxboth, 50)
 
-    for same_distances in same_distances_arrays:
-        plt.hist(same_distances, bins, alpha=0.5, label='sameItem')
+    # for same_distances in same_distances_arrays:
+    #       plt.hist(same_distances, bins, alpha=0.5, label='sameItem')
 
-    for different_distances in different_distances_arrays:
-        neg_different_distances = []
-        for val in different_distances:
-            neg_different_distances.append(-val)
-        plt.hist(neg_different_distances, bins, alpha=0.5, label='differentItem')
+
+    # for same_distances in same_distances_arrays:
+    #        hist, bins2 = np.histogram(same_distances, bins=20)
+    #        plt.bar(center, hist, align='center', width=width, color='b')
+    #    for different_distances in different_distances_arrays:
+    #        hist2, bins2 = np.histogram(different_distances, bins=20)
+    #        neg_hist2 = []
+    #        for val in hist2:
+    #            neg_hist2.append(-val)
+    #        plt.bar(center, neg_hist2, align='center', width=width, color='g')
+
+
+    hist, bins = np.histogram(totsame, bins=50)
+    width = 0.7 * (bins[1] - bins[0])
+    center = (bins[:-1] + bins[1:]) / 2
+    plt.bar(center, hist, align='center', width=width, color='g')
+    plt.show()
+
+    hist2, bins = np.histogram(totdiff, bins=50)
+    width = 0.7 * (bins[1] - bins[0])
+    center = (bins[:-1] + bins[1:]) / 2
+    neg_hist2 = []
+    for val in hist2:
+        neg_hist2.append(-val)
+    plt.bar(center, neg_hist2, align='center', width=width, color='r')
+    plt.show()
 
     plt.legend(loc='upper right')
     if name == None:
-        name = 'histograms_' + datetime.datetime.now().strftime("%Y-%m-%d_%H%M.jpg")
+        name = 'allhistograms_' + datetime.datetime.now().strftime("%Y-%m-%d_%H%M.jpg")
         name = os.path.join('./fp_ratings', name)
     dir = os.path.dirname(name)
     if not os.path.exists(dir):
@@ -1017,7 +1044,7 @@ def analyze_fingerprint(fingerprint_function=fp_core.regular_fp, weights=np.ones
     save_short_report(tot_report, filename)
 
     display_two_histograms(self_report['confusion_vector'], cross_report['confusion_vector'])
-
+    display_tons_of_histograms(all_self, all_cross)
     # print('tot report:' + str(tot_report))
     print('goodness:' + str(goodness) + ' same item average:' + str(same_item_average) + ' cross item averag:' + str(
         cross_item_average))
