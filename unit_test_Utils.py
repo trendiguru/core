@@ -71,7 +71,9 @@ class OutcomesTest(unittest.TestCase):
         training_collection_cursor = db.training.find()  # The db with multiple figs of same item
         doc = next(training_collection_cursor, None)
         resultDict = {}
+
         while doc is not None:
+            print doc
             url = None  # kill error
             if url:
                 resultDict["url"] = url
