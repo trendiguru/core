@@ -19,6 +19,7 @@ import constants
 import math
 import cv2
 import re
+import string
 
 min_images_per_doc = constants.min_images_per_doc
 max_image_val = constants.max_image_val
@@ -26,8 +27,25 @@ max_image_val = constants.max_image_val
 # import urllib
 # logging.setLevel(logging.DEBUG)
 
+
+def format_filename(s):
+    """Take a string and return a valid filename constructed from the string.
+Uses a whitelist approach: any characters not present in valid_chars are
+removed. Also spaces are replaced with underscores.
+
+Note: this method may produce invalid filenames such as ``, `.` or `..`
+When I use this method I prepend a date string like '2009_01_15_19_46_32_'
+and append a file extension like '.txt', so I avoid the potential of using
+an invalid filename.
+
+"""
+    valid_chars = "-_.() %s%s" % (string.ascii_letters, string.digits)
+    filename = ''.join(c for c in s if c in valid_chars)
+    filename = filename.replace(' ','_') # I don't like spaces in filenames.
+    return filename
+
 def get_cv2_img_array(url_or_path_to_image_file_or_cv2_image_array, convert_url_to_local_filename=False, download=False,
-                      download_directory='images'):
+                      download_directory='images', filename=False):
     """
     Get a cv2 img array from a number of different possible inputs.
 
@@ -41,6 +59,7 @@ def get_cv2_img_array(url_or_path_to_image_file_or_cv2_image_array, convert_url_
     # convert_url_to_local_filename) + ' download:' + str(download))
     got_locally = False
     img_array = None  # attempt to deal with non-responding url
+
     # first check if we already have a numpy array
     if isinstance(url_or_path_to_image_file_or_cv2_image_array, np.ndarray):
         img_array = url_or_path_to_image_file_or_cv2_image_array
