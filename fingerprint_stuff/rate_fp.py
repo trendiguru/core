@@ -280,7 +280,7 @@ def display_tons_of_histograms(same_distances_arrays, different_distances_arrays
     plt.legend(loc='upper right')
     if name == None:
         name = 'allhistograms_' + datetime.datetime.now().strftime("%Y-%m-%d_%H%M.jpg")
-        name = os.path.join('./fp_ratings', name)
+    name = os.path.join('./fp_ratings', name)
     dir = os.path.dirname(name)
     if not os.path.exists(dir):
         os.makedirs(dir)
