@@ -768,6 +768,7 @@ def calculate_partial_cross_confusion_vector(image_sets, fingerprint_function=fp
         # n_cpus = 2
         print('attempting to use ' + str(n_cpus) + ' cpus')
         p = multiprocessing.Pool(processes=n_cpus)
+        print('done calculating self comparisons')
         tupled_arguments = []
         for image_set in comparisons_to_make:
             tupled_arguments.append((image_set, fingerprint_function, weights,
@@ -841,7 +842,8 @@ def self_compare_wrapper(( image_set, fingerprint_function, weights,
     # print ('parent process:'+str( os.getppid()))
     # print ('process id:'+str( os.getpid()))
     proc_name = multiprocessing.current_process().name
- #   print('proc_name:' + str(proc_name))
+    print('imset has ' + str(len(image_set)) + ' images')
+    print('proc_name:' + str(proc_name))
     #   print('imset:' + str(image_set))
   #  print('fp_func:' + str(fingerprint_function))
     #   print('weights:' + str(weights))
@@ -885,6 +887,7 @@ def calculate_self_confusion_vector(image_sets, fingerprint_function=fp_core.fp,
         print('attempting to use ' + str(n_cpus) + ' cpus')
         p = multiprocessing.Pool(processes=n_cpus)
         # answer_matrices = p.map_async(compare_wrapper, [image_sets[i] for i in range(0, len(image_sets))])
+        print('done calculating self comparisons')
         tupled_arguments = []
         for image_set in image_sets:
             tupled_arguments.append((image_set, fingerprint_function, weights,
