@@ -9,8 +9,10 @@ def translate_2_boxes(boxes_list):
     :param boxes_list: np.array(uint16) of 1X106 float (0-103 are the boxes coordinates)
     :return:boxes dict: keys = body parts, values = boxes
     """
-
-    boxes_list = boxes_list[0]
+    if len(boxes_list):
+        boxes_list = boxes_list[0]
+    else:
+        return None
     # sometimes boxes start at negative x/y values
     boxes_list[boxes_list < 0] = 0
 
