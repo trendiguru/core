@@ -11,32 +11,7 @@ import constants
 ####################
 fingerprint_length = constants.fingerprint_length
 
-#####runs into bug. nope actually ok
-max_items = 80
-rate_fp.analyze_fingerprint(fingerprint_function=fp_core.regular_fp, weights=np.ones(fingerprint_length),
-                            distance_function=NNSearch.distance_1_k,
-                            distance_power=0.5, n_docs=max_items, use_visual_output1=False,
-                            use_visual_output2=False, image_sets=None, self_reporting=None, comparisons_to_make=None,
-                            filename='fp_n80')
 
-
-
-######started  5.5
-max_items = 50
-rate_fp.analyze_fingerprint(fingerprint_function=fp_core.gc_and_fp, weights=np.ones(fingerprint_length),
-                            distance_function=NNSearch.distance_1_k,
-                            distance_power=0.5, n_docs=max_items, use_visual_output1=False,
-                            use_visual_output2=False, image_sets=None, self_reporting=None, comparisons_to_make=None,
-                            filename='gcfp_n50')
-
-
-# this is the one that hits bug
-max_items = 70
-rate_fp.analyze_fingerprint(fingerprint_function=fp_core.gc_and_fp, weights=np.ones(fingerprint_length),
-                            distance_function=NNSearch.distance_1_k,
-                            distance_power=0.5, n_docs=max_items, use_visual_output1=False,
-                            use_visual_output2=False, image_sets=None, self_reporting=None, comparisons_to_make=None,
-                            filename='gcfp_n70')
 
 max_items = 50
 rate_fp.analyze_fingerprint(fingerprint_function=fp_core.gc_and_fp, weights=np.ones(fingerprint_length),
@@ -56,6 +31,17 @@ rate_fp.analyze_fingerprint(fingerprint_function=fp_core.gc_and_fp, weights=np.o
                             distance_power=1.3, n_docs=max_items, use_visual_output1=False,
                             use_visual_output2=False, image_sets=None, self_reporting=None, comparisons_to_make=None,
                             filename='gcfp.k1.3')
+
+
+
+# this is the one that hits bug
+max_items = 70
+rate_fp.analyze_fingerprint(fingerprint_function=fp_core.gc_and_fp, weights=np.ones(fingerprint_length),
+                            distance_function=NNSearch.distance_1_k,
+                            distance_power=0.5, n_docs=max_items, use_visual_output1=False,
+                            use_visual_output2=False, image_sets=None, self_reporting=None, comparisons_to_make=None,
+                            filename='gcfp_n70')
+
 
 ############ added 3.5.15
 rate_fp.analyze_fingerprint(fingerprint_function=fp_core.gc_and_fp_bw, weights=np.ones(fingerprint_length),
@@ -112,6 +98,26 @@ rate_fp.analyze_fingerprint(fingerprint_function=fp_core.regular_fp, weights=np.
                             distance_power=0.5, n_docs=max_items, use_visual_output1=False,
                             use_visual_output2=False, image_sets=None, self_reporting=None, comparisons_to_make=None,
                             filename='fp_n50')
+
+
+#####runs into bug. nope actually ok
+max_items = 80
+rate_fp.analyze_fingerprint(fingerprint_function=fp_core.regular_fp, weights=np.ones(fingerprint_length),
+                            distance_function=NNSearch.distance_1_k,
+                            distance_power=0.5, n_docs=max_items, use_visual_output1=False,
+                            use_visual_output2=False, image_sets=None, self_reporting=None, comparisons_to_make=None,
+                            filename='fp_n80')
+
+
+
+######started  5.5
+max_items = 50
+rate_fp.analyze_fingerprint(fingerprint_function=fp_core.gc_and_fp, weights=np.ones(fingerprint_length),
+                            distance_function=NNSearch.distance_1_k,
+                            distance_power=0.5, n_docs=max_items, use_visual_output1=False,
+                            use_visual_output2=False, image_sets=None, self_reporting=None, comparisons_to_make=None,
+                            filename='gcfp_n50')
+
 
 ###################3
 
