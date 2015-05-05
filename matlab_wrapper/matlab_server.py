@@ -5,6 +5,9 @@ import matlab.engine
 import matlab
 import numpy as np
 import mat_2_py
+import urllib
+import Utils
+import os
 
 from cv2 import imwrite
 
@@ -31,10 +34,16 @@ class MatlabServerService(rpyc.Service):
         # (to finalize the service, if needed)
         pass
 
-    def exposed_get_pose_boxes_dict(self, path_to_image):
-        mat_boxes = ENG.get_pose_boxes_raw(path_to_image)
+    def exposed_get_pose_boxes_dict(self, path_to_image_or_url):
+        if "://" in path_to_image_or_url:
+            filename = Utils.format_filename(path_to_image_or_url)
+            urllib.urlretrieve(path_to_image_or_url, "images/" + filename)
+        else:
+            filename = path_to_image_or_url
+        mat_boxes = ENG.get_pose_boxes_raw(path_to_image_or_url)
         np_boxes = np.array(mat_boxes, np.int16)
         pose_dict = mat_2_py.translate_2_boxes(np_boxes)
+        os.remove("images/" + filename)
         return pose_dict
 
     def exposed_get_matlab_function(self, func_name):
