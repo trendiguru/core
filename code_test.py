@@ -103,4 +103,18 @@ def hadasha_test():
     print d0, d1, d2
 
 
-hadasha_test()
+def skin_removal_test():
+    image, ratio = background_removal.standard_resize(background_removal.get_image(), 400)
+    fg_mask = background_removal.get_fg_mask(image)
+    gc_image = background_removal.get_masked_image(image, fg_mask)
+    face_rect = background_removal.find_face(image)
+    x, y, w, h = face_rect[0]
+    face_image = image[x:x + w, y:y + h, :]
+    without_skin = kassper.skin_removal(gc_image, face_image)
+    cv2.imshow('original', image)
+    cv2.imshow('gc', gc_image)
+    cv2.imshow('after skin', without_skin)
+    cv2.waitKey(0)
+
+
+skin_removal_test()
