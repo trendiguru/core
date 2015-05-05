@@ -11,7 +11,7 @@ import constants
 ####################
 fingerprint_length = constants.fingerprint_length
 
-#####runs into bug
+#####runs into bug. nope actually ok
 max_items = 80
 rate_fp.analyze_fingerprint(fingerprint_function=fp_core.regular_fp, weights=np.ones(fingerprint_length),
                             distance_function=NNSearch.distance_1_k,
@@ -29,6 +29,8 @@ rate_fp.analyze_fingerprint(fingerprint_function=fp_core.gc_and_fp, weights=np.o
                             use_visual_output2=False, image_sets=None, self_reporting=None, comparisons_to_make=None,
                             filename='gcfp_n50')
 
+
+# this is the one that hits bug
 max_items = 70
 rate_fp.analyze_fingerprint(fingerprint_function=fp_core.gc_and_fp, weights=np.ones(fingerprint_length),
                             distance_function=NNSearch.distance_1_k,
