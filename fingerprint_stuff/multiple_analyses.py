@@ -11,6 +11,14 @@ import constants
 ####################
 fingerprint_length = constants.fingerprint_length
 
+# this is the one that hits bug
+max_items = 70
+rate_fp.analyze_fingerprint(fingerprint_function=fp_core.gc_and_fp, weights=np.ones(fingerprint_length),
+                            distance_function=NNSearch.distance_1_k,
+                            distance_power=0.5, n_docs=max_items, use_visual_output1=False,
+                            use_visual_output2=False, image_sets=None, self_reporting=None, comparisons_to_make=None,
+                            filename='gcfp_n70')
+
 
 
 max_items = 50
@@ -34,13 +42,6 @@ rate_fp.analyze_fingerprint(fingerprint_function=fp_core.gc_and_fp, weights=np.o
 
 
 
-# this is the one that hits bug
-max_items = 70
-rate_fp.analyze_fingerprint(fingerprint_function=fp_core.gc_and_fp, weights=np.ones(fingerprint_length),
-                            distance_function=NNSearch.distance_1_k,
-                            distance_power=0.5, n_docs=max_items, use_visual_output1=False,
-                            use_visual_output2=False, image_sets=None, self_reporting=None, comparisons_to_make=None,
-                            filename='gcfp_n70')
 
 
 ############ added 3.5.15
