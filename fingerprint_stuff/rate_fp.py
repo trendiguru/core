@@ -10,7 +10,7 @@ __author__ = 'jeremy'
 # TODO maybe add already-used image sets as input to avoid re-searching every time
 # TODO load all images for a given set  and keep in memory
 # TODO fix trendibb_editor, only first image is shown correctly
-# TODO check if
+# TODO combine check fingerprint and check_fp_except_diag
 # from joblib import Parallel, delayed
 # NOTE - cross-compare not yet implementing weights, fp_function,distance_function,distance_power
 import multiprocessing
@@ -613,7 +613,7 @@ def compare_fingerprints(image_array1, image_array2, fingerprint_function=fp_cor
                         fp2 = fingerprint_function(img_arr2, bb2, weights=weights, **fingerprint_arguments)
                     except:
                         print('something bad happened, bb2=' + str(bb2) + ' and imsize2=' + str(img_arr2.shape))
-                        fp1 = np.ones(fingerprint_length)  #this is arbitrary but lets keep going instead of crashing
+                        fp2 = np.ones(fingerprint_length)  # this is arbitrary but lets keep going instead of crashing
                     # fp2 = fp_core.gc_and_fp(img_arr2, bb2, weights)
                     #print('fp2:'+str(fp2))
                     dist = distance_function(fp1, fp2, k=distance_power)
@@ -661,11 +661,19 @@ def compare_fingerprints_except_diagonal(image_array1, image_array2, fingerprint
         img_arr1 = Utils.get_cv2_img_array(url1, convert_url_to_local_filename=True, download=True)
         if Utils.is_valid_image(img_arr1):
             i = i + 1
-#            print('comparing image ' + str(i) + ' to rest of same group')
-            #background_removal.standard_resize(image, 400)
-            # mask = Utils.bb_to_mask(bb1, img_arr1)
-            fp1 = fingerprint_function(img_arr1, bounding_box=bb1, weights=weights)
-            # fp1 = fp_core.gc_and_fp(img_arr1, bb1, weights)
+            try:
+                if bb1[2] == 0 or bb1[3] == 0:
+                    print('aaaagggghh!! this is a zero-area bb in bb1!!! how did that happen??!?!? bb:' + str(bb2))
+                if img_arr1.shape[0] == 0 or img_arr1.shape[1] == 0:
+                    print('aaaagggghh!! this is a zero-area image1 !!! how did that happen??!?!? shape:' + str(
+                        img_arr1.shape))
+                if img_arr1.shape[0] == bb1[3] or img_arr1.shape[1] == bb1[2]:
+                    print('bb and img have same shape, bb:' + str(bb1) + ' im:' + str(img_arr1.shape))
+                print('bb:' + str(bb1) + ' im:' + str(img_arr1.shape))
+                fp1 = fingerprint_function(img_arr1, bb1, weights=weights, **fingerprint_arguments)
+            except:
+                print('something bad happened, bb1=' + str(bb1) + ' and imsize1=' + str(img_arr1.shape))
+                fp1 = np.ones(fingerprint_length)  # this is arbitrary but lets keep going instead of crashing
             #		print('fp1:'+str(fp1))
             j = 0
             if visual_output1:
@@ -687,9 +695,20 @@ def compare_fingerprints_except_diagonal(image_array1, image_array2, fingerprint
                         k = cv2.waitKey(50) & 0xFF
                         #pdb.set_trace()
                     mask = Utils.bb_to_mask(bb2, img_arr2)
-                    fp2 = fingerprint_function(img_arr2, bounding_box=bb2, weights=weights)  # bounding_box=bb2
-                    # fp2 = fp_core.gc_and_fp(img_arr2, bb2, weights)
-                    #print('fp2:'+str(fp2))
+                    try:
+                        if bb2[2] == 0 or bb2[3] == 0:
+                            print('aaaagggghh!! this is a zero-area bb in bb2!!! how did that happen??!?!? bb:' + str(
+                                bb2))
+                        if img_arr2.shape[0] == 0 or img_arr2.shape[1] == 0:
+                            print('aaaagggghh!! this is a zero-area image2 !!! how did that happen??!?!? area:' + str(
+                                img_arr2.shape))
+                        if img_arr2.shape[0] == bb2[3] or img_arr2.shape[1] == bb2[2]:
+                            print('bb and img have same shape, bb:' + str(bb2) + ' im:' + str(img_arr2.shape))
+                        print('bb:' + str(bb2) + ' im:' + str(img_arr2.shape))
+                        fp2 = fingerprint_function(img_arr2, bb2, weights=weights, **fingerprint_arguments)
+                    except:
+                        print('something bad happened, bb2=' + str(bb2) + ' and imsize2=' + str(img_arr2.shape))
+                        fp2 = np.ones(fingerprint_length)  # this is arbitrary but lets keep going instead of crashing
                     dist = distance_function(fp1, fp2, k=distance_power)
                     # print('comparing image ' + str(i) + ' to ' + str(j) + ' gave distance:' + str(
                     # dist) + ' totdist:' + str(tot_dist) + '             ', end='\r', sep='')
