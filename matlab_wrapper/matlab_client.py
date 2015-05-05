@@ -17,4 +17,5 @@ class Engine(object):
         return attr
 
     def get_pose_boxes_dict(self, path_to_image):
-        return dict(self.conn.root.get_pose_boxes_dict(path_to_image))
+        d = self.conn.root.get_pose_boxes_dict(path_to_image)
+        return dict(d) if d else None
