@@ -10,8 +10,8 @@ def translate_2_boxes(boxes_list):
     :return:boxes dict: keys = body parts, values = boxes
     """
 
-    for i in range(0, len(boxes_list)):
-        boxes_list[i] = abs(float(boxes_list[i]))
+    #for i in range(0, len(boxes_list)):
+    #    boxes_list[i] = abs(float(boxes_list[i]))
     # boxes_list = np.array(boxes_list)
     # boxes_list = boxes_list.astype(np.uint16)
     boxes_dict = {'head': [], 'torso': [], 'left_arm': [], 'left_leg': [], 'right_arm': [], 'right_leg': []}
