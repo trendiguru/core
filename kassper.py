@@ -3,6 +3,8 @@ __author__ = 'Nadav Paz'
 import numpy as np
 import cv2
 
+import background_removal
+
 
 def clutter_removal(image, thresh):     # non-recursive
     mask = get_mask(image)
@@ -63,16 +65,40 @@ def get_mask(image):
     return mask
 
 
-def skin_removal(image):
-    YCrCb_image = cv2.cvtColor(image, cv2.COLOR_BGR2YCR_CB)
-    skin_image = np.zeros((YCrCb_image.shape[0], YCrCb_image.shape[1], 3), np.uint8)
-    clothes_image = np.zeros((YCrCb_image.shape[0], YCrCb_image.shape[1], 3), np.uint8)
-    for i in range(0, YCrCb_image.shape[0]):
-        for j in range(0, YCrCb_image.shape[1]):
-            if 133 < YCrCb_image[i][j][1] < 173 and 80 < YCrCb_image[i][j][2] < 120:
-                for k in range(0, 3):
-                    skin_image[i][j][k] = image[i][j][k]
-            else:
-                for k in range(0, 3):
-                    clothes_image[i][j][k] = image[i][j][k]
+def skin_removal(gc_image, image):
+    ycrcb = cv2.cvtColor(gc_image, cv2.COLOR_BGR2YCR_CB)
+    skin_image = np.zeros(gc_image.shape, np.uint8)
+    clothes_image = np.zeros(gc_image.shape, np.uint8)
+    face_rect = background_removal.find_face(image)
+    if len(face_rect) > 0:
+        hsv = cv2.cvtColor(image, cv2.COLOR_BGR2HSV)
+        x, y, w, h = face_rect[0]
+        face_image = image[y:y + h, x:x + w, :]
+        face_hsv = cv2.cvtColor(face_image, cv2.COLOR_BGR2HSV)
+        bins = 180
+        n_pixels = face_image.shape[0] * face_image.shape[1]
+        hist_hue = cv2.calcHist([face_hsv], [0], None, [bins], [0, 180])
+        hist_hue = np.divide(hist_hue, n_pixels)
+        skin_hue_list = []
+        for l in range(0, 180):
+            if hist_hue[l] > 0.013:
+                skin_hue_list.append(l)
+        for i in range(0, gc_image.shape[0]):
+            for j in range(0, gc_image.shape[1]):
+                if hsv[i][j][0] in skin_hue_list and ycrcb[i][j][0] > 0 and 133 < ycrcb[i][j][1] < 173 and 80 < \
+                        ycrcb[i][j][2] < 120:
+                    for k in range(0, 3):
+                        skin_image[i][j][k] = gc_image[i][j][k]
+                else:
+                    for k in range(0, 3):
+                        clothes_image[i][j][k] = gc_image[i][j][k]
+    else:
+        for i in range(0, gc_image.shape[0]):
+            for j in range(0, gc_image.shape[1]):
+                if ycrcb[i][j][0] > 0 and 133 < ycrcb[i][j][1] < 173 and 80 < ycrcb[i][j][2] < 120:
+                    for k in range(0, 3):
+                        skin_image[i][j][k] = gc_image[i][j][k]
+                else:
+                    for k in range(0, 3):
+                        clothes_image[i][j][k] = gc_image[i][j][k]
     return clothes_image
