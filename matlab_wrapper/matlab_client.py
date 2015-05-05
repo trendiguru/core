@@ -13,5 +13,5 @@ class Engine(object):
             attr = getattr(self.conn.root, name)
         except:
             # otherwise pass it on to ml engine
-            attr = self.conn.root.exposed_get_matlab_function
+            attr = self.conn.root.exposed_get_matlab_function(name)
         return attr
