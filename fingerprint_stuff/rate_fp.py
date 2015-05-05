@@ -622,7 +622,7 @@ def compare_fingerprints(image_array1, image_array2, fingerprint_function=fp_cor
                     distance_array.append(dist)
                     tot_dist = tot_dist + dist
                     n = n + 1
-                    sys.stdout.write(str(n) + '.')
+                # sys.stdout.write(str(n) + '.')
                 else:
                     print('bad img array 2')
                     logging.debug('bad image array 2 in rate_fingerprint.py:compare_fignreprints_ecept_diagonal')
