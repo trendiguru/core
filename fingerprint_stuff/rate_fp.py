@@ -213,9 +213,9 @@ def display_two_histograms(same_distances, different_distances, name=None):
     #    plt.hist(same_distances, bins, alpha=0.5, label='sameItem', color='r')
     #    plt.hist(neg_diff, bins, alpha=0.5, label='differentItem', color='b', )
     plt.legend(loc='upper right')
-    if name == None:
-        name = 'histograms_' + datetime.datetime.now().strftime("%Y-%m-%d_%H%M")
-    name = os.path.join('./fp_ratings', name + '.jpg')
+    if name == None or name == '':
+        name = datetime.datetime.now().strftime("%Y-%m-%d_%H%M")
+    name = os.path.join('./fp_ratings', 'histograms_' + name + '.jpg')
     dir = os.path.dirname(name)
     if not os.path.exists(dir):
         os.makedirs(dir)
@@ -279,8 +279,8 @@ def display_tons_of_histograms(same_distances_arrays, different_distances_arrays
 
     plt.legend(loc='upper right')
     if name == None or name == '':
-        name = 'allhistograms_' + datetime.datetime.now().strftime("%Y-%m-%d_%H%M.jpg")
-    name = os.path.join('./fp_ratings', name)
+        name = datetime.datetime.now().strftime("%Y-%m-%d_%H%M")
+    name = os.path.join('./fp_ratings', 'allhistograms_' + name + '.jpg')
     dir = os.path.dirname(name)
     if not os.path.exists(dir):
         os.makedirs(dir)
