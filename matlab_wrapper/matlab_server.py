@@ -33,7 +33,7 @@ class MatlabServerService(rpyc.Service):
 
     def exposed_get_pose_boxes_dict(self, path_to_image):
         mat_boxes = ENG.get_pose_boxes_raw(path_to_image)
-        np_boxes = np.array(mat_boxes, np.uint16)
+        np_boxes = np.array(mat_boxes, np.int16)
         pose_dict = mat_2_py.translate_2_boxes(np_boxes)
         return pose_dict
 
