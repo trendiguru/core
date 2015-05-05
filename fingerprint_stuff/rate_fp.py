@@ -569,6 +569,8 @@ def compare_fingerprints(image_array1, image_array2, fingerprint_function=fp_cor
                 if img_arr1.shape[0] == 0 or img_arr1.shape[1] == 0:
                     print('aaaagggghh!! this is a zero-area image1 !!! how did that happen??!?!? shape:' + str(
                         img_arr1.shape))
+                if img_arr1.shape[0] == bb1[3] or img_arr1.shape[1] == bb1[2]:
+                    print('bb and img have same shape, bb:' + str(bb1) + ' im:' + str(img_arr1.shape))
                 fp1 = fingerprint_function(img_arr1, bb1, weights=weights, **fingerprint_arguments)
             except:
                 print('something bad happened, bb1=' + str(bb1) + ' and imsize1=' + str(img_arr1.shape))
@@ -604,6 +606,8 @@ def compare_fingerprints(image_array1, image_array2, fingerprint_function=fp_cor
                         if img_arr2.shape[0] == 0 or img_arr2.shape[1] == 0:
                             print('aaaagggghh!! this is a zero-area image2 !!! how did that happen??!?!? area:' + str(
                                 img_arr2.shape))
+                        if img_arr2.shape[0] == bb2[3] or img_arr2.shape[1] == bb2[2]:
+                            print('bb and img have same shape, bb:' + str(bb1) + ' im:' + str(img_arr2.shape))
                         fp2 = fingerprint_function(img_arr2, bb2, weights=weights, **fingerprint_arguments)
                     except:
                         print('something bad happened, bb2=' + str(bb2) + ' and imsize2=' + str(img_arr2.shape))
