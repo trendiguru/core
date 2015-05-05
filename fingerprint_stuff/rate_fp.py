@@ -563,7 +563,11 @@ def compare_fingerprints(image_array1, image_array2, fingerprint_function=fp_cor
             # background_removal.standard_resize(image, 400)
             mask = Utils.bb_to_mask(bb1, img_arr1)
             # fp1 = fp_core.gc_and_fp(img_arr1, bb1, weights,**fingerprint_arguments)
-            fp1 = fingerprint_function(img_arr1, bb1, weights=weights, **fingerprint_arguments)
+            try:
+                fp1 = fingerprint_function(img_arr1, bb1, weights=weights, **fingerprint_arguments)
+            except:
+                print('something bad happened, bb1=' + str(bb1) + ' and imsize1=' + str(img_arr1.shape))
+                fp1 = np.ones(fingerprint_length)  # this is arbitrary but lets keep going instead of crashing
             #		print('fp1:'+str(fp1))
             j = 0
             if visual_output1:
@@ -588,7 +592,11 @@ def compare_fingerprints(image_array1, image_array2, fingerprint_function=fp_cor
                         k = cv2.waitKey(50) & 0xFF
                         # pdb.set_trace()
                     mask = Utils.bb_to_mask(bb2, img_arr2)
-                    fp2 = fingerprint_function(img_arr2, bb2, weights=weights, **fingerprint_arguments)
+                    try:
+                        fp2 = fingerprint_function(img_arr2, bb2, weights=weights, **fingerprint_arguments)
+                    except:
+                        print('something bad happened, bb2=' + str(bb2) + ' and imsize2=' + str(img_arr2.shape))
+                        fp1 = np.ones(fingerprint_length)  #this is arbitrary but lets keep going instead of crashing
                     # fp2 = fp_core.gc_and_fp(img_arr2, bb2, weights)
                     #print('fp2:'+str(fp2))
                     dist = distance_function(fp1, fp2, k=distance_power)
