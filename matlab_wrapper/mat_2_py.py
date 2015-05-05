@@ -11,6 +11,8 @@ def translate_2_boxes(boxes_list):
     """
 
     boxes_list = boxes_list[0]
+    # sometimes boxes start at negative x/y values
+    boxes_list[boxes_list < 0] = 0
 
     #for i in range(0, len(boxes_list)):
     #    boxes_list[i] = abs(float(boxes_list[i]))
