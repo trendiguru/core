@@ -222,12 +222,12 @@ def legal_bounding_box(rect):
     if rect is None:
         return False
     minimum_allowed_area = constants.min_image_area
-    if rect[2] * rect[3] >= minimum_allowed_area:
-        return True
-    else:
+    if rect[2] * rect[3] < minimum_allowed_area:
         print('area of ' + str(rect[2]) + 'x' + str(rect[3]) + ':' + str(rect[2] * rect[3]))
         return False
-
+    if rect[0] < 0 or rect[1] < 0 or rect[2] < 0 or rect[3] < 0:
+        return False
+    return True
 
 
 def bounding_box_inside_image(image_array, rect):

@@ -1,8 +1,10 @@
+from __future__ import print_function
+
 __author__ = 'jeremy'
 
 # builtin
 import logging
-
+import cv2
 import pymongo
 from bson import objectid
 
@@ -300,3 +302,153 @@ def insert_bb_into_training_db(receivedData):
         i = i + 1
     return {"success": 0, "error": "could not find image w. url:" + str(image_url) + " in current doc:" + str(doc)}
 
+
+def fix_all_bbs_in_db(use_visual_output=False):
+    '''
+    fix all the bbs so they fit their respective image
+    :return:
+    '''
+    print('opening db')
+    db = pymongo.MongoClient().mydb
+    print('db open')
+    if db is None:
+        return {"success": 0, "error": "could not get db"}
+    training_collection_cursor = db.training.find()
+    print('returned cursor')
+    assert (training_collection_cursor)  # make sure training collection exists
+    doc = next(training_collection_cursor, None)
+    i = 0
+    j = 0
+    while doc is not None:
+        print('doc:' + str(doc))
+        images = doc['images']
+        print('checking doc #' + str(j + 1))
+        i = 0
+        for image in images:
+            image_url = image["url"]
+            if 'skip_image' in image:
+                if image['skip_image'] == True:
+                    print('marked for skip:' + str(i), end='\r')
+                    continue
+            img_arr = Utils.get_cv2_img_array(image_url, convert_url_to_local_filename=True, download=True,
+                                              download_directory='images')
+            if not Utils.is_valid_image(img_arr):
+                print('img is not valid (=None or too small')
+                continue
+
+            if 'human_bb' in image:
+                i = i + 1
+                height, width = img_arr.shape[0:2]
+                bb = image["human_bb"]
+                if bb is None:
+                    print('bb is None')
+                    continue
+
+                cv2.rectangle(img_arr, (bb[0], bb[1]), (bb[0] + bb[2], bb[1] + bb[3]), color=[0, 0, 255],
+                              thickness=2)
+                cv2.imshow('img', img_arr)
+                k = cv2.waitKey(50) & 0xFF
+                if not Utils.bounding_box_inside_image(img_arr, bb):
+                    print('bad bb caught,bb:' + str(bb) + ' img size:' + str(img_arr.shape) + ' imagedoc:' + str(
+                        image) + ' h,w:' + str(height) + ',' + str(width))
+                    print('h,w:' + str(height) + ',' + str(width))
+                    if not Utils.legal_bounding_box(bb):  # too small, make right and bottom at edge of  image
+                        print('not legal bounding box')
+                        raw_input('not a legal bb...')
+                        bb[2] = width - bb[0]
+                        bb[3] = height - bb[1]
+                    bb[0] = max(0, bb[0])  # if less than zero
+                    bb[0] = min(bb[0], width - 1)  # if greater than width
+                    bb[2] = max(0, bb[2])  # if less than 0
+                    bb[2] = min(bb[2], width - bb[0] - 1)  # the -1 is just to make sure, prob unneeded
+
+                    bb[1] = max(0, bb[1])  # if less than zero
+                    bb[1] = min(bb[1], height - 1)  # if greater than height
+                    bb[3] = max(0, bb[3])  # if less than zero
+                    bb[3] = min(bb[3], height - bb[1] - 1)  # the -1 is just to make sure, prob unneeded
+                    print('suggested replacement:' + str(bb))
+                    raw_input('got one')
+                    image["human_bb"] = bb
+                    id = str(doc['_id'])
+                    write_result = db.training.update({"_id": objectid.ObjectId(id)},
+                                                      {"$set": {"images": doc['images']}})
+                    # TODO: check error on updating
+                    print('write result:' + str(write_result))
+                else:
+                    print('got good bb, i=' + str(i), end='\r', sep='')
+
+            j = j + 1
+            doc = next(training_collection_cursor, None)
+
+        return {"success": 1}
+
+
+    def show_all_bbs_in_db(use_visual_output=True):
+        '''
+        fix all the bbs so they fit their respective image
+        :return:
+        '''
+        print('opening db')
+        db = pymongo.MongoClient().mydb
+        print('db open')
+        if db is None:
+            return {"success": 0, "error": "could not get db"}
+        training_collection_cursor = db.training.find()
+        print('returned cursor')
+        assert (training_collection_cursor)  # make sure training collection exists
+        doc = next(training_collection_cursor, None)
+        i = 0
+        j = 0
+        while doc is not None:
+            print('doc:' + str(doc))
+            images = doc['images']
+            print('checking doc #' + str(j + 1))
+            print(doc)
+            i = 0
+            for image in images:
+                image_url = image["url"]
+                if 'skip_image' in image:
+                    if image['skip_image'] == True:
+                        print('marked for skip:' + str(i), end='\r')
+                        continue
+                img_arr = Utils.get_cv2_img_array(image_url, convert_url_to_local_filename=True, download=True,
+                                                  download_directory='images')
+                if not Utils.is_valid_image(img_arr):
+                    print('img is not valid (=None or too small')
+                    continue
+
+                if 'human_bb' in image:
+                    i = i + 1
+                    height, width = img_arr.shape[0:2]
+                    bb = image["human_bb"]
+                    if bb is None:
+                        print('bb is None')
+                        continue
+
+                    if not Utils.bounding_box_inside_image(img_arr, bb):
+                        print('bad bb caught,bb:' + str(bb) + ' img size:' + str(img_arr.shape) + ' imagedoc:' + str(
+                            image) + ' h,w:' + str(height) + ',' + str(width))
+
+                        if use_visual_output:
+                            # cv2.rectangle(img_arr, (bb[0], bb[1]), (bb[0] + bb[2], bb[1] + bb[3]), color=[0,255,0], thickness=2)
+                            cv2.imshow('im1', img_arr)
+                            k = cv2.waitKey(0) & 0xFF
+                    else:
+                        print('got good bb, i=' + str(i), end='\r', sep='')
+
+                        if use_visual_output:
+                            cv2.rectangle(img_arr, (bb[0], bb[1]), (bb[0] + bb[2], bb[1] + bb[3]), color=[0, 255, 0],
+                                          thickness=2)
+                            cv2.imshow('im1', img_arr)
+                            k = cv2.waitKey(0) & 0xFF
+                            # raw_input('waiting for input')
+            j = j + 1
+            doc = next(training_collection_cursor, None)
+
+        return {"success": 1}
+
+
+    if __name__ == '__main__':
+        print('starting')
+        # show_all_bbs_in_db()
+        fix_all_bbs_in_db()
