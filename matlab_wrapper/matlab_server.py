@@ -43,6 +43,8 @@ class MatlabServerService(rpyc.Service):
 
 if __name__ == "__main__":
     from rpyc.utils.server import ThreadedServer
-    t = ThreadedServer(MatlabServerService, port=18861)
+    t = ThreadedServer(MatlabServerService, port=18861,
+                       protocol_config={"allow_public_attrs": True,
+                                        "allow_all_attrs": True})
     t.start()
     print "Ended..."
