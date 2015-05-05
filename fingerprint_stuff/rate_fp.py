@@ -565,9 +565,10 @@ def compare_fingerprints(image_array1, image_array2, fingerprint_function=fp_cor
             # fp1 = fp_core.gc_and_fp(img_arr1, bb1, weights,**fingerprint_arguments)
             try:
                 if bb1[2] == 0 or bb1[3] == 0:
-                    print('aaaagggghh!! this is a zero-area bb in bb1!!! how did that happen??!?!?')
+                    print('aaaagggghh!! this is a zero-area bb in bb1!!! how did that happen??!?!? bb:' + str(bb2))
                 if img_arr1.shape[0] == 0 or img_arr1.shape[1] == 0:
-                    print('aaaagggghh!! this is a zero-area image1 !!! how did that happen??!?!?')
+                    print('aaaagggghh!! this is a zero-area image1 !!! how did that happen??!?!? shape:' + str(
+                        img_arr1.shape))
                 fp1 = fingerprint_function(img_arr1, bb1, weights=weights, **fingerprint_arguments)
             except:
                 print('something bad happened, bb1=' + str(bb1) + ' and imsize1=' + str(img_arr1.shape))
@@ -598,9 +599,11 @@ def compare_fingerprints(image_array1, image_array2, fingerprint_function=fp_cor
                     mask = Utils.bb_to_mask(bb2, img_arr2)
                     try:
                         if bb2[2] == 0 or bb2[3] == 0:
-                            print('aaaagggghh!! this is a zero-area bb in bb2!!! how did that happen??!?!?')
+                            print('aaaagggghh!! this is a zero-area bb in bb2!!! how did that happen??!?!? bb:' + str(
+                                bb2))
                         if img_arr2.shape[0] == 0 or img_arr2.shape[1] == 0:
-                            print('aaaagggghh!! this is a zero-area image2 !!! how did that happen??!?!?')
+                            print('aaaagggghh!! this is a zero-area image2 !!! how did that happen??!?!? area:' + str(
+                                img_arr2.shape))
                         fp2 = fingerprint_function(img_arr2, bb2, weights=weights, **fingerprint_arguments)
                     except:
                         print('something bad happened, bb2=' + str(bb2) + ' and imsize2=' + str(img_arr2.shape))
