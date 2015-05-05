@@ -6,14 +6,14 @@ fingerprint_length = 56
 extras_length = 6
 histograms_length = 25
 K = 0.5                     # for euclidean distance
-bb_same_as_image_threshold = 0.95  # if bb takes more than this fraction of image area then use  cv2.GC_INIT_WITH_RECT instead of init with mask
+min_bb_to_image_area_ratio = 0.95  # if bb takes more than this fraction of image area then use  cv2.GC_INIT_WITH_RECT instead of init with mask
 
 
 # fp rating related constants
 min_image_area = 400
-min_images_per_doc = 5  # item has to have at least this number of pics
-max_images_per_doc = 20  # item has to have less than this number of pics
-max_items = 10  # max number of items to consider for rating fingerprint
+min_images_per_doc = 10  # item has to have at least this number of pics
+max_images_per_doc = 21  # item has to have less than this number of pics
+max_items = 50  # max number of items to consider for rating fingerprint
 
 classifiers_folder = "/home/ubuntu/Dev/trendi_guru_modules/classifiers/"
 

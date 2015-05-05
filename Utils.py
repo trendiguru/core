@@ -19,16 +19,33 @@ import constants
 import math
 import cv2
 import re
+import string
 
 min_images_per_doc = constants.min_images_per_doc
 max_image_val = constants.max_image_val
-bb_same_as_image_threshold = constants.bb_same_as_image_threshold
 
 # import urllib
 # logging.setLevel(logging.DEBUG)
 
+
+def format_filename(s):
+    """Take a string and return a valid filename constructed from the string.
+Uses a whitelist approach: any characters not present in valid_chars are
+removed. Also spaces are replaced with underscores.
+
+Note: this method may produce invalid filenames such as ``, `.` or `..`
+When I use this method I prepend a date string like '2009_01_15_19_46_32_'
+and append a file extension like '.txt', so I avoid the potential of using
+an invalid filename.
+
+"""
+    valid_chars = "-_.() %s%s" % (string.ascii_letters, string.digits)
+    filename = ''.join(c for c in s if c in valid_chars)
+    filename = filename.replace(' ','_') # I don't like spaces in filenames.
+    return filename
+
 def get_cv2_img_array(url_or_path_to_image_file_or_cv2_image_array, convert_url_to_local_filename=False, download=False,
-                      download_directory='images'):
+                      download_directory='images', filename=False):
     """
     Get a cv2 img array from a number of different possible inputs.
 
@@ -42,6 +59,7 @@ def get_cv2_img_array(url_or_path_to_image_file_or_cv2_image_array, convert_url_
     # convert_url_to_local_filename) + ' download:' + str(download))
     got_locally = False
     img_array = None  # attempt to deal with non-responding url
+
     # first check if we already have a numpy array
     if isinstance(url_or_path_to_image_file_or_cv2_image_array, np.ndarray):
         img_array = url_or_path_to_image_file_or_cv2_image_array
@@ -367,7 +385,8 @@ def good_bb(dict, skip_if_marked_to_skip=True):
         print('bad bb caught,bb:' + str(bb) + ' img size:' + str(img_arr.shape) + ' imagedoc:' + str(
             url))
         return (False)
-
+    if all_inclusive_bounding_box(img_arr, bb):
+        dict['human_bb'] = reduce_bounding_box(bb)  # attempting to avoid bbsize=imgsize
     return (True)
 
 def legal_bounding_box(rect):
@@ -549,7 +568,41 @@ def show_all_bbs_in_db(use_visual_output=True):
     return {"success": 1}
 
 
-1
+def all_inclusive_bounding_box(image_array, bounding_box):
+    """
+    determine if the bb takes up all or  almost all the image
+    :param image_array:
+    :param bounding_box:
+    :return:whether the bb takes up almost all image (True) or not (False)
+    """
+    height, width = image_array.shape[0:2]
+    image_area = float(height * width)
+    bb_area = bounding_box[2] * bounding_box[3]
+    if bb_area > constants.min_bb_to_image_area_ratio * image_area:
+        # print('got a bb that takes nearly all image')
+        logging.warning('got a bb that takes nearly all image')
+        return True
+    else:
+        return False
+
+
+def reduce_bounding_box(bounding_box):
+    """
+    determine if the bb takes up all or  almost all the image
+    :param bounding_box:
+    :return:smaller bb (again attempting to get around grabcut bug )
+    """
+    newx = bounding_box[0] + 1
+    new_width = bounding_box[2] - 1
+    newy = bounding_box[1] + 1
+    new_height = bounding_box[3] - 1
+    newbb = [newx, newy, new_width, new_height]
+    if legal_bounding_box(newbb):
+        return newbb
+    else:
+        logging.warning('cant decrease size of bb')
+        return bounding_box
+
 
 class GZipCSVReader:
     def insert_bb_into_training_db(receivedData):
