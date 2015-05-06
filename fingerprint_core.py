@@ -17,6 +17,7 @@ import Utils
 
 
 
+
 # moving this into the show_fp function for now - LS
 # import matplotlib.pyplot as plt
 
@@ -82,8 +83,7 @@ def find_color_percentages(img_array):
 
     #   all_colors=np.concatenate(all_colors,color_counts)
 
-    print('white black grey colors:' + str(
-        all_colors))  # order is : white, black, grey, color_count[0]...color_count[n_colors]
+    # print('white black grey colors:' + str(all_colors))  # order is : white, black, grey, color_count[0]...color_count[n_colors]
     print('sum:' + str(np.sum(all_colors)))
     #   all_colors=color_counts
     #   np.append(all_colors,white_count)
@@ -215,7 +215,7 @@ def fp_with_bwg(img, mask=None, weights=np.ones(fingerprint_length), histogram_l
     result_vector = np.concatenate((result_vector, hist_hue, hist_sat), axis=0)
 
     black_white_gray_percentages = find_color_percentages(img)
-    print('bwg:' + str(black_white_gray_percentages))
+    #print('bwg:' + str(black_white_gray_percentages))
     result_vector = np.concatenate((result_vector, black_white_gray_percentages))
 
     weights = np.ones(len(result_vector))
