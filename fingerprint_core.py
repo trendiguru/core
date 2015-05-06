@@ -15,6 +15,7 @@ import Utils
 
 
 
+
 # moving this into the show_fp function for now - LS
 # import matplotlib.pyplot as plt
 
@@ -215,6 +216,8 @@ def fp_with_bwg(img, mask=None, weights=np.ones(fingerprint_length), histogram_l
     black_white_gray_percentages = find_color_percentages(img)
     print('bwg:' + str(black_white_gray_percentages))
     result_vector = np.concatenate((result_vector, black_white_gray_percentages))
+
+    weights = np.ones(len(result_vector))
     result_vector = np.multiply(result_vector, weights)
     return result_vector
 
