@@ -18,6 +18,7 @@ import Utils
 
 
 
+
 # moving this into the show_fp function for now - LS
 # import matplotlib.pyplot as plt
 
@@ -84,7 +85,7 @@ def find_color_percentages(img_array):
     #   all_colors=np.concatenate(all_colors,color_counts)
 
     # print('white black grey colors:' + str(all_colors))  # order is : white, black, grey, color_count[0]...color_count[n_colors]
-    print('sum:' + str(np.sum(all_colors)))
+    # print('sum:' + str(np.sum(all_colors)))
     #   all_colors=color_counts
     #   np.append(all_colors,white_count)
     #   np.append(all_colors,black_count)
