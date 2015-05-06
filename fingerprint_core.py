@@ -13,6 +13,7 @@ import Utils
 
 
 
+
 # moving this into the show_fp function for now - LS
 # import matplotlib.pyplot as plt
 
@@ -163,11 +164,12 @@ def fp(img, mask=None, weights=np.ones(fingerprint_length), histogram_length=25)
     result_vector = [hue_uniformity, sat_uniformity, int_uniformity, hue_entropy, sat_entropy, int_entropy]
     result_vector = np.concatenate((result_vector, hist_hue, hist_sat), axis=0)
 
+    weights = np.ones(len(result_vector))  # THIS IS A KLUGE , FIX
     result_vector = np.multiply(result_vector, weights)
     return result_vector
 
 
-def fp_with_bwg(img, mask=None, histogram_length=25):  # with black, white, gray
+def fp_with_bwg(img, mask=None, weights=np.ones(fingerprint_length), histogram_length=25):  # with black, white, gray
     if mask is None or cv2.countNonZero(mask) == 0:
         mask = np.ones((img.shape[0], img.shape[1]), dtype=np.uint8)
     if mask.shape[0] != img.shape[0] or mask.shape[1] != img.shape[1]:
@@ -212,7 +214,7 @@ def fp_with_bwg(img, mask=None, histogram_length=25):  # with black, white, gray
     black_white_gray_percentages = find_color_percentages(img)
     print('bwg:' + str(black_white_gray_percentages))
     result_vector = np.concatenate((result_vector, black_white_gray_percentages))
-
+    result_vector = np.multiply(result_vector, weights)
     return result_vector
 
 

@@ -11,15 +11,24 @@ import constants
 ####################
 fingerprint_length = constants.fingerprint_length
 
-# this is the one that hits bug
+############ added 3.5.15
+max_items = 5
+rate_fp.analyze_fingerprint(fingerprint_function=fp_core.gc_and_fp_bw, weights=np.ones(fingerprint_length),
+                            distance_function=NNSearch.distance_1_k,
+                            distance_power=0.5, n_docs=max_items, use_visual_output1=False,
+                            use_visual_output2=False, image_sets=None, self_reporting=None, comparisons_to_make=None,
+                            filename='gcfpbw.k0.5')
+
+
+
+##################done
+# this was the one that hits bug
 max_items = 70
 rate_fp.analyze_fingerprint(fingerprint_function=fp_core.gc_and_fp, weights=np.ones(fingerprint_length),
                             distance_function=NNSearch.distance_1_k,
                             distance_power=0.5, n_docs=max_items, use_visual_output1=False,
                             use_visual_output2=False, image_sets=None, self_reporting=None, comparisons_to_make=None,
                             filename='gcfp_n70')
-
-
 
 max_items = 50
 rate_fp.analyze_fingerprint(fingerprint_function=fp_core.gc_and_fp, weights=np.ones(fingerprint_length),
@@ -40,23 +49,6 @@ rate_fp.analyze_fingerprint(fingerprint_function=fp_core.gc_and_fp, weights=np.o
                             use_visual_output2=False, image_sets=None, self_reporting=None, comparisons_to_make=None,
                             filename='gcfp.k1.3')
 
-
-
-
-
-############ added 3.5.15
-rate_fp.analyze_fingerprint(fingerprint_function=fp_core.gc_and_fp_bw, weights=np.ones(fingerprint_length),
-                            distance_function=NNSearch.distance_1_k,
-                            distance_power=0.5, n_docs=max_items, use_visual_output1=False,
-                            use_visual_output2=False, image_sets=None, self_reporting=None, comparisons_to_make=None,
-                            filename='gcfpbw.k0.5')
-
-
-
-
-
-
-##################done
 max_items = 60
 rate_fp.analyze_fingerprint(fingerprint_function=fp_core.regular_fp, weights=np.ones(fingerprint_length),
                             distance_function=NNSearch.distance_1_k,
