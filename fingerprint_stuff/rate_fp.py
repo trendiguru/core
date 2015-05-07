@@ -139,6 +139,10 @@ def save_short_report(report, name=None):
     if 'goodness' in report:
         short_report['goodness'] = report['goodness']
         short_report['goodness_error'] = report['goodness_error']
+    short_report['chi'] = report['chi']
+    short_report['self_var'] = report['self_var']
+    short_report['cross_var'] = report['cross_var']
+
     rep = report['self_report']
     short_report1 = {}
     short_report1['fingerprint_function'] = rep['fingerprint_function']
@@ -228,6 +232,14 @@ def display_two_histograms(same_distances, different_distances, name=None):
         # plt.show(block=False)
         plt.show()
 
+
+def calc_full_variance(distance_arrays):
+    tot_dists = []
+    for distances in distance_arrays:
+        for val in distances:
+            tot_dists.append(val)
+    var = np.std(tot_dists)
+    return var
 
 def display_tons_of_histograms(same_distances_arrays, different_distances_arrays, name=None):
     max1 = 0
@@ -1048,6 +1060,7 @@ def analyze_fingerprint(fingerprint_function=fp_core.regular_fp, weights=np.ones
                                                   **fingerprint_arguments)
 
     all_self = self_report['all_distances']
+    self_var = calc_full_variance(all_self)
     del self_report['all_distances']
 
     print('self report:' + str(self_report))
@@ -1077,6 +1090,7 @@ def analyze_fingerprint(fingerprint_function=fp_core.regular_fp, weights=np.ones
         cross_report['weights'] = cross_report['weights'].tolist()
 
     all_cross = cross_report['all_distances']
+    cross_var = calc_full_variance(all_cross)
     del cross_report['all_distances']
 
     same_item_average = self_report['average_weighted']
@@ -1093,8 +1107,10 @@ def analyze_fingerprint(fingerprint_function=fp_core.regular_fp, weights=np.ones
         goodness_error = -1
     else:
         goodness_error = Utils.error_of_fraction(numerator, numerator_error, denominator, cross_item_error)
+
+    chi = numerator / (np.sqrt(self_var ** 2 + cross_var ** 2))
     tot_report = {'self_report': self_report, 'cross_report': cross_report, 'goodness': goodness,
-                  'goodness_error': goodness_error}
+                  'goodness_error': goodness_error, 'chi': chi, 'self_var': self_var, 'cross_var': cross_var}
 
     save_full_report(tot_report, filename)
     save_short_report(tot_report, filename)
@@ -1104,7 +1120,7 @@ def analyze_fingerprint(fingerprint_function=fp_core.regular_fp, weights=np.ones
     # print('tot report:' + str(tot_report))
     print('goodness:' + str(goodness) + ' same item average:' + str(same_item_average) + ' cross item averag:' + str(
         cross_item_average))
-    return (goodness, tot_report)
+    return (chi, tot_report)
 
 
 global visual_output1
