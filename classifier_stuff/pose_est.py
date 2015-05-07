@@ -1,4 +1,5 @@
 import cv2
+import pymongo
 
 from matlab_wrapper import matlab_client
 import Utils
@@ -42,6 +43,27 @@ def x1y1x2y2_to_bb(x1y1x2y2):
     y2 = x1y1x2y2[3]
     bb = [x1, y1, x2 - x1, y2 - y1]
     return bb
+
+
+def get_checks_from_db():
+    DB = pymongo.MongoClient().mydb
+
+
+# query_doc = {"$or": [
+# {"categories": {"$elemMatch": {"id": {"$in": get_all_subcategories(DB.categories, category_id)}}}},
+#        {"categories": {"$elemMatch": {"id": {"$in": get_all_subcategories(DB.categories, category_id)}}}},
+
+#            {"$or": [{"fp_version": {"$lt": fp_version}}, {"fp_version": {"$exists": 0}}]}
+#   ]}
+#    else:
+#      query_doc = {"$or": [{"fp_version": {"$lt": fp_version}}, {"fp_version": {"$exists": 0}}]}
+
+#   fields = {"image": 1, "human_bb": 1, "fp_version": 1, "bounding_box": 1, "categories": 1, "id": 1}
+
+# batch_size required because cursor timed out without it. Could use further investigation
+#  product_cursor = DB.products.find(query_doc, fields).batch_size(num_processes)
+#  TOTAL_PRODUCTS = product_cursor.count()
+
 
 
 if __name__ == '__main__':

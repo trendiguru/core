@@ -243,5 +243,8 @@ res.append({
 })
 
 
-# description: classic neckline , round collar, crew neck, square neck, v-neck, clASsic neckline
+# description: classic neckline , round collar, round neck, crew neck, square neck, v-neck, clASsic neckline,round collar,crewneck,crew neck, scoopneck,square neck, bow collar, ribbed round neck,rollneck ,slash neck
+# cats:[{u'shortName': u'V-Necks', u'localizedId': u'v-neck-sweaters', u'id': u'v-neck-sweaters', u'name': u'V-Neck Sweaters'}]
+# cats:[{u'shortName': u'Turtlenecks', u'localizedId': u'turleneck-sweaters', u'id': u'turleneck-sweaters', u'name': u'Turtlenecks'}]
+# cats:[{u'shortName': u'Crewnecks & Scoopnecks', u'localizedId': u'crewneck-sweaters', u'id': u'crewneck-sweaters', u'name': u'Crewnecks & Scoopnecks'}]
 # categories:#            u'name': u'V-Neck Sweaters'}]
