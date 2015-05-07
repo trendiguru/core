@@ -241,3 +241,7 @@ res.append({
         "tot_images": 919
     }
 })
+
+
+# description: classic neckline , round collar, crew neck, square neck, v-neck, clASsic neckline
+# categories:#            u'name': u'V-Neck Sweaters'}]

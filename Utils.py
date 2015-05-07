@@ -22,7 +22,6 @@ import re
 import string
 
 
-
 # import urllib
 # logging.setLevel(logging.DEBUG)
 
@@ -294,8 +293,26 @@ def step_thru_db(use_visual_output=True, collection='products'):
                                   thickness=2)
             cv2.imshow('im1', img_arr)
             k = cv2.waitKey(50) & 0xFF
+        if 'categories' in doc:
+            try:
+                print('cats:' + str(doc['categories']))
+            except UnicodeEncodeError:
+                print('unicode encode error in description')
+                s = doc['categories']
+                print(s.encode('utf-8'))
+                # print(unicode(s.strip(codecs.BOM_UTF8), 'utf-8'))
+        if 'description' in doc:
+            try:
+                print('desc:' + str(doc['description']))
+            except UnicodeEncodeError:
+                print('unicode encode error in description')
+                s = doc['description']
+                print(s.encode('utf-8'))
+                # print(unicode(s.strip(codecs.BOM_UTF8), 'utf-8'))
+                # print(unicode(s.strip(codecs.BOM_UTF8), 'utf-8'))
         i = i + 1
         doc = next(cursor, None)
+        print('')
         raw_input('enter key for next doc')
     return {"success": 1}
 
@@ -581,5 +598,5 @@ def isnumber(str):
 if __name__ == '__main__':
     print('starting')
     #show_all_bbs_in_db()
-    # fix_all_bbs_in_db()
+    #fix_all_bbs_in_db()
     step_thru_db(use_visual_output=True)
