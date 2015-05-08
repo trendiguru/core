@@ -473,7 +473,7 @@ def all_inclusive_bounding_box(image_array, bounding_box):
     bb_area = bounding_box[2] * bounding_box[3]
     if bb_area > constants.min_bb_to_image_area_ratio * image_area:
         # print('got a bb that takes nearly all image')
-        logging.warning('got a bb that takes nearly all image')
+        # logging.warning('got a bb that takes nearly all image')
         return True
     else:
         return False
