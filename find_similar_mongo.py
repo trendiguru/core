@@ -92,7 +92,7 @@ def got_bb(image_url, post_id, item_id, bb=None, number_of_results=10, category_
         bb = [int(b) for b in (np.array(bb) / resize_ratio)]  # shrink bb in the same ratio
     fg_mask = background_removal.get_fg_mask(small_image, bb)                     # returns the grab-cut mask (if bb => PFG-PBG gc, if !bb => face gc)
     gc_image = background_removal.get_masked_image(small_image, fg_mask)
-    without_skin = kassper.skin_removal(gc_image)
+    without_skin = kassper.skin_removal(gc_image, small_image)
     crawl_mask = kassper.clutter_removal(without_skin, 200)
     without_clutter = background_removal.get_masked_image(without_skin, crawl_mask)
     fp_mask = kassper.get_mask(without_clutter)
