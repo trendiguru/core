@@ -171,9 +171,10 @@ if __name__ == "__main__":
     # optimize_weights(2)
     # test_tuplearg(('first',{'second':2}))
     # test_multi()
-    # passitalong('first', **{'second': 2, 'third': 3})
+    passitalong('first', **{'second': 2, 'third': 3})
+    # passitalong('first', {'second': 2, 'third': 3})  #this will crash
     # passitalong('first')
-    # passitalong('first', foible=22, burble=33)
+    passitalong('first', foible=22, burble=33)
     # pass2('first', {'second': 2, 'third': 3})
     # pass2('first')
 

@@ -568,6 +568,7 @@ def compare_fingerprints(image_array1, image_array2, fingerprint_function=fp_cor
     i = 0
     j = 0
     distance_array = []
+
     print(
         'comparing image group of size ' + str(len(image_array1)) + ' to other group of size ' + str(len(image_array2)))
     for entry1 in image_array1:
@@ -583,7 +584,7 @@ def compare_fingerprints(image_array1, image_array2, fingerprint_function=fp_cor
             # fp1 = fp_core.gc_and_fp(img_arr1, bb1, weights,**fingerprint_arguments)
             try:
                 if bb1[2] == 0 or bb1[3] == 0:
-                    print('aaaagggghh!! this is a zero-area bb in bb1!!! how did that happen??!?!? bb:' + str(bb2))
+                    print('aaaagggghh!! this is a zero-area bb in bb1!!! how did that happen??!?!? bb:' + str(bb1))
                 if img_arr1.shape[0] == 0 or img_arr1.shape[1] == 0:
                     print('aaaagggghh!! this is a zero-area image1 !!! how did that happen??!?!? shape:' + str(
                         img_arr1.shape))
@@ -681,7 +682,7 @@ def compare_fingerprints_except_diagonal(image_array1, image_array2, fingerprint
             i = i + 1
             try:
                 if bb1[2] == 0 or bb1[3] == 0:
-                    print('aaaagggghh!! this is a zero-area bb in bb1!!! how did that happen??!?!? bb:' + str(bb2))
+                    print('aaaagggghh!! this is a zero-area bb in bb1!!! how did that happen??!?!? bb:' + str(bb1))
                 if img_arr1.shape[0] == 0 or img_arr1.shape[1] == 0:
                     print('aaaagggghh!! this is a zero-area image1 !!! how did that happen??!?!? shape:' + str(
                         img_arr1.shape))
@@ -1133,7 +1134,7 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='rate ye olde fingerprinte')
     #   parser.add_argument('integers', metavar='N', type=int, nargs='+',
     #                     help='an integer for the accumulator')
-    parser.add_argument('--use_visual_output', default=False,
+    parser.add_argument('--use_visual_output', default=True,
                         help='show output once for each item')
     parser.add_argument('--use_visual_output2', default=False,
                         help='show output for each image')
