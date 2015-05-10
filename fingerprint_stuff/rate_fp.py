@@ -20,7 +20,6 @@ import cv2
 import constants
 import random
 import math
-from memory_profiler import profile
 import resource
 import os
 import inspect
@@ -591,7 +590,7 @@ def compare_fingerprints(image_array1, image_array2, fingerprint_function=fp_cor
                 if img_arr1.shape[0] == bb1[3] or img_arr1.shape[1] == bb1[2]:
                     print('bb and img have same shape, bb:' + str(bb1) + ' im:' + str(img_arr1.shape))
                 # print('bb:' + str(bb1) + ' im:' + str(img_arr1.shape))
-                fp1 = fingerprint_function(img_arr1, bb1, weights=weights, **fingerprint_arguments)
+                fp1 = fingerprint_function(img_arr1, bounding_box=bb1, weights=weights, **fingerprint_arguments)
             except:
                 print('something bad happened, bb1=' + str(bb1) + ' and imsize1=' + str(img_arr1.shape))
                 fp1 = np.ones(fingerprint_length)  # this is arbitrary but lets keep going instead of crashing
@@ -601,7 +600,7 @@ def compare_fingerprints(image_array1, image_array2, fingerprint_function=fp_cor
                 cv2.rectangle(img_arr1, (bb1[0], bb1[1]), (bb1[0] + bb1[2], bb1[1] + bb1[3]), color=GREEN, thickness=2)
                 cv2.imshow('im1', img_arr1)
                 k = cv2.waitKey(50) & 0xFF
-                fig = fp_core.show_fp(fp1)
+                fig = fp_core.show_fp(fp1, **fingerprint_arguments)
                 # to parallelize
                 #[sqrt(i ** 2) for i in range(10)]
                 #Parallel(n_jobs=2)(delayed(sqrt)(i ** 2) for i in range(10))
@@ -629,7 +628,7 @@ def compare_fingerprints(image_array1, image_array2, fingerprint_function=fp_cor
                         if img_arr2.shape[0] == bb2[3] or img_arr2.shape[1] == bb2[2]:
                             print('bb and img have same shape, bb:' + str(bb2) + ' im:' + str(img_arr2.shape))
                         #print('bb:' + str(bb2) + ' im:' + str(img_arr2.shape))
-                        fp2 = fingerprint_function(img_arr2, bb2, weights=weights, **fingerprint_arguments)
+                        fp2 = fingerprint_function(img_arr2, bounding_box=bb2, weights=weights, **fingerprint_arguments)
                     except:
                         print('something bad happened, bb2=' + str(bb2) + ' and imsize2=' + str(img_arr2.shape))
                         fp2 = np.ones(fingerprint_length)  # this is arbitrary but lets keep going instead of crashing
@@ -689,7 +688,7 @@ def compare_fingerprints_except_diagonal(image_array1, image_array2, fingerprint
                 if img_arr1.shape[0] == bb1[3] or img_arr1.shape[1] == bb1[2]:
                     print('bb and img have same shape, bb:' + str(bb1) + ' im:' + str(img_arr1.shape))
                 #print('bb:' + str(bb1) + ' im:' + str(img_arr1.shape))
-                fp1 = fingerprint_function(img_arr1, bb1, weights=weights, **fingerprint_arguments)
+                fp1 = fingerprint_function(img_arr1, bounding_box=bb1, weights=weights, **fingerprint_arguments)
             except:
                 print('something bad happened, bb1=' + str(bb1) + ' and imsize1=' + str(img_arr1.shape))
                 fp1 = np.ones(fingerprint_length)  # this is arbitrary but lets keep going instead of crashing
@@ -699,7 +698,7 @@ def compare_fingerprints_except_diagonal(image_array1, image_array2, fingerprint
                 cv2.rectangle(img_arr1, (bb1[0], bb1[1]), (bb1[0] + bb1[2], bb1[1] + bb1[3]), color=GREEN, thickness=2)
                 cv2.imshow('im1', img_arr1)
                 k = cv2.waitKey(50) & 0xFF
-                fig = fp_core.show_fp(fp1)
+                fig = fp_core.show_fp(fp1, **fingerprint_arguments)
             for entry2 in image_array2:
                 #			print('image 2:'+str(entry2))
                 bb2 = entry2['human_bb']
@@ -724,7 +723,7 @@ def compare_fingerprints_except_diagonal(image_array1, image_array2, fingerprint
                         if img_arr2.shape[0] == bb2[3] or img_arr2.shape[1] == bb2[2]:
                             print('bb and img have same shape, bb:' + str(bb2) + ' im:' + str(img_arr2.shape))
                         #print('bb:' + str(bb2) + ' im:' + str(img_arr2.shape))
-                        fp2 = fingerprint_function(img_arr2, bb2, weights=weights, **fingerprint_arguments)
+                        fp2 = fingerprint_function(img_arr2, bounding_box=bb2, weights=weights, **fingerprint_arguments)
                     except:
                         print('something bad happened, bb2=' + str(bb2) + ' and imsize2=' + str(img_arr2.shape))
                         fp2 = np.ones(fingerprint_length)  # this is arbitrary but lets keep going instead of crashing
@@ -1031,7 +1030,7 @@ def cross_rate_fingerprint():
 
 
 # in use
-@profile
+# @profile
 def analyze_fingerprint(fingerprint_function=fp_core.regular_fp, weights=np.ones(fingerprint_length),
                         distance_function=NNSearch.distance_1_k,
                         distance_power=0.5, n_docs=max_items, use_visual_output1=False,
@@ -1101,7 +1100,11 @@ def analyze_fingerprint(fingerprint_function=fp_core.regular_fp, weights=np.ones
     cross_item_error = cross_report['error_cumulative']
     numerator = cross_item_average - same_item_average
     denominator = cross_item_average
-    goodness = numerator / denominator
+    try:
+        goodness = numerator / denominator
+    except ZeroDivisionError:
+        print('DENOMINATOR for goodness=0')
+        goodness = 0
     #    print('n,d,n_e,d_e' + str(numerator), str(numerator), str(denominator), str(cross_item_error))
     numerator_error = math.sqrt(cross_item_error ** 2 + same_item_error ** 2)
     if numerator == 0 or denominator == 0:
@@ -1128,6 +1131,9 @@ global visual_output1
 global visual_output2
 
 if __name__ == '__main__':
+    report = analyze_fingerprint(fingerprint_function=fp_core.fp_with_kwargs, use_visual_output1=True,
+                                 histogram_length=30)
+
     print('hi0')
     print('Memory usage: %s (kb)' % resource.getrusage(resource.RUSAGE_SELF).ru_maxrss)
 

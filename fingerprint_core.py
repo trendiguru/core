@@ -14,14 +14,6 @@ import Utils
 
 
 
-
-
-
-
-
-
-
-
 # moving this into the show_fp function for now - LS
 # import matplotlib.pyplot as plt
 
@@ -176,12 +168,24 @@ def fp(img, mask=None, weights=np.ones(fingerprint_length), histogram_length=25)
     return result_vector
 
 
-def fp_with_kwargs(img, mask=None, weights=np.ones(fingerprint_length), histogram_length=25, **kwargs):
+def gc_and_fp_with_kwargs(img, bounding_box=None, weights=np.ones(fingerprint_length), **kwargs):
+    # for kw in kwargs:
+    # print('in fp_with_kwargs, kw:'+str(kw)+'='+str(kwargs[kw]))
+    if 'histogram_length' in kwargs:
+        histogram_length = kwargs['histogram_length']
+    else:
+        histogram_length = constants.histograms_length
+    if bounding_box == None:
+        print('warning - bad bounding box caught in gc_and_fp')
+        bounding_box = [0, 0, img.shape[1], img.shape[0]]
+
+    mask = background_removal.get_fg_mask(img, bounding_box=bounding_box)
     if mask is None or cv2.countNonZero(mask) == 0:
         mask = np.ones((img.shape[0], img.shape[1]), dtype=np.uint8)
     if mask.shape[0] != img.shape[0] or mask.shape[1] != img.shape[1]:
         print('trouble with mask size, resetting to image size')
         mask = np.ones((img.shape[0], img.shape[1]), dtype=np.uint8)
+
     n_pixels = cv2.countNonZero(mask)
     hsv = cv2.cvtColor(img, cv2.COLOR_BGR2HSV)
     # OpenCV uses  H: 0 - 180, S: 0 - 255, V: 0 - 255
@@ -302,20 +306,25 @@ def regular_fp(img, bounding_box=None, weights=np.ones(fingerprint_length), **kw
     return fingerprint
 
 
-def show_fp(fingerprint, fig=None):
+def show_fp(fingerprint, fig=None, **kwargs):
     import matplotlib.pyplot as plt
 
     if fig:
         plt.close(fig)
     plt.close('all')
 
+    energy_maxindex = constants.extras_length
+    if 'histogram_length' in kwargs:
+        histograms_length = kwargs['histogram_length']
+    else:
+        histograms_length = constants.histograms_length
+    hue_maxindex = energy_maxindex + histograms_length
+    sat_maxindex = hue_maxindex + histograms_length
+
     fig, ax = plt.subplots()
     ind = np.arange(len(fingerprint))  # the x locations for the groups
     width = 0.35
 
-    energy_maxindex = constants.extras_length
-    hue_maxindex = energy_maxindex + histograms_length
-    sat_maxindex = hue_maxindex + histograms_length
     rects1 = ax.bar(ind[0:energy_maxindex], fingerprint[0:energy_maxindex], width, color='r')  # , yerr=menStd)
     rects2 = ax.bar(ind[energy_maxindex: hue_maxindex], fingerprint[energy_maxindex: hue_maxindex], width,
                     color='g')  # , yerr=menStd)
@@ -335,7 +344,9 @@ def show_fp(fingerprint, fig=None):
     # ax.set_xticklabels(rotation=45)
     #    ax.set_xticklabels( ('G1', 'G2', 'G3', 'G4', 'G5') )
     # ax.legend( (rects1[0]), ('Men', 'Women') )
-    plt.show(block=False)
+    # raw_input('before')
+    plt.show(block=True)
+    # raw_input('after')
     return (fig)
 
 
