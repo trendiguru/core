@@ -470,6 +470,14 @@ def lookfor_next_unbounded_feature_from_db_category(db=None, category_id='v-neck
         print('didnt find any unbounded docs for category_id ' + str(category_id))
     return None
 
+
+# description: classic neckline , round collar, round neck, crew neck, square neck, v-neck, clASsic neckline,round collar,crewneck,crew neck, scoopneck,square neck, bow collar, ribbed round neck,rollneck ,slash neck
+# cats:[{u'shortName': u'V-Necks', u'localizedId': u'v-neck-sweaters', u'id': u'v-neck-sweaters', u'name': u'V-Neck Sweaters'}]
+# cats:[{u'shortName': u'Turtlenecks', u'localizedId': u'turleneck-sweaters', u'id': u'turleneck-sweaters', u'name': u'Turtlenecks'}]
+# cats:[{u'shortName': u'Crewnecks & Scoopnecks', u'localizedId': u'crewneck-sweaters', u'id': u'crewneck-sweaters', u'name': u'Crewnecks & Scoopnecks'}]
+# categories:#            u'name': u'V-Neck Sweaters'}]
+
+
 if __name__ == '__main__':
     print('starting')
     # show_all_bbs_in_db()
