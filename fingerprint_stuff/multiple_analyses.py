@@ -9,13 +9,6 @@ import constants
 fingerprint_length = constants.fingerprint_length
 
 max_items = 50
-rate_fp.analyze_fingerprint(fingerprint_function=fp_core.gc_and_fp_with_kwargs, weights=np.ones(fingerprint_length),
-                            distance_function=NNSearch.distance_1_k, distance_power=0.5, n_docs=max_items,
-                            filename='gcfp.h=10', fingerprint_length=10)
-
-rate_fp.analyze_fingerprint(fingerprint_function=fp_core.gc_and_fp_with_kwargs, weights=np.ones(fingerprint_length),
-                            distance_function=NNSearch.distance_1_k, distance_power=0.5, n_docs=max_items,
-                            filename='gcfp.h=20', fingerprint_length=20)
 
 rate_fp.analyze_fingerprint(fingerprint_function=fp_core.gc_and_fp_with_kwargs, weights=np.ones(fingerprint_length),
                             distance_function=NNSearch.distance_1_k, distance_power=0.5, n_docs=max_items,
@@ -28,9 +21,20 @@ rate_fp.analyze_fingerprint(fingerprint_function=fp_core.gc_and_fp_with_kwargs, 
 rate_fp.analyze_fingerprint(fingerprint_function=fp_core.gc_and_fp_with_kwargs, weights=np.ones(fingerprint_length),
                             distance_function=NNSearch.distance_1_k, distance_power=0.5, n_docs=max_items,
                             filename='gcfp.h=120', fingerprint_length=120)
-###
+#########
 # max_items = 50
+# DONE
+#########
 if (0):
+    rate_fp.analyze_fingerprint(fingerprint_function=fp_core.gc_and_fp_with_kwargs, weights=np.ones(fingerprint_length),
+                                distance_function=NNSearch.distance_1_k, distance_power=0.5, n_docs=max_items,
+                                filename='gcfp.h=10', fingerprint_length=10)
+
+    rate_fp.analyze_fingerprint(fingerprint_function=fp_core.gc_and_fp_with_kwargs, weights=np.ones(fingerprint_length),
+                                distance_function=NNSearch.distance_1_k, distance_power=0.5, n_docs=max_items,
+                                filename='gcfp.h=20', fingerprint_length=20)
+
+
     rate_fp.analyze_fingerprint(fingerprint_function=fp_core.gc_and_fp_bw, weights=np.ones(fingerprint_length),
                             distance_function=NNSearch.distance_1_k,
                             distance_power=0.5, n_docs=max_items, use_visual_output1=False,
@@ -316,8 +320,3 @@ res.append({
 })
 
 
-# description: classic neckline , round collar, round neck, crew neck, square neck, v-neck, clASsic neckline,round collar,crewneck,crew neck, scoopneck,square neck, bow collar, ribbed round neck,rollneck ,slash neck
-# cats:[{u'shortName': u'V-Necks', u'localizedId': u'v-neck-sweaters', u'id': u'v-neck-sweaters', u'name': u'V-Neck Sweaters'}]
-# cats:[{u'shortName': u'Turtlenecks', u'localizedId': u'turleneck-sweaters', u'id': u'turleneck-sweaters', u'name': u'Turtlenecks'}]
-# cats:[{u'shortName': u'Crewnecks & Scoopnecks', u'localizedId': u'crewneck-sweaters', u'id': u'crewneck-sweaters', u'name': u'Crewnecks & Scoopnecks'}]
-# categories:#            u'name': u'V-Neck Sweaters'}]

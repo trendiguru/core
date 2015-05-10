@@ -443,7 +443,36 @@ def show_all_bbs_in_db(use_visual_output=True):
     return {"success": 1}
 
 
+def lookfor_next_unbounded_feature_from_db_category(db=None, category_id='v-neck-sweaters'):
+    # {"id":"v-neck-sweaters"}  coats
+    if db is None:
+        db = pymongo.MongoClient().mydb
+    if db is None:
+        print('dbUtils.get_next_unbounded_feature_from_db - problem getting DB')
+        return None
+    num_processes = 100
+    # query_doc = {"categories": {"shortName":"V-Necks"}}
+    query_doc = {"categories": {"$elemMatch": {"id": category_id}}}
+    fields = {"categories": 1, "image": 1, "human_bb": 1, "fp_version": 1, "bounding_box": 1,
+              "categories": 1, "id": 1}
+    num_processes = 100
+    product_cursor = db.products.find(query_doc, fields).batch_size(num_processes)
+    if product_cursor is None:
+        print('got no docs in lookfor_next_unbounded_feature_from_db_category')
+        return None
+    TOTAL_PRODUCTS = product_cursor.count()
+    print('tot found:' + str(TOTAL_PRODUCTS))
+    for i in range(0, TOTAL_PRODUCTS):
+        doc = product_cursor[i]
+        # url = doc['image']['sizes']['XLarge']['url']
+        if not 'feature_bbs' in doc:
+            return doc
+        print('didnt find any unbounded docs for category_id ' + str(category_id))
+    return None
+
 if __name__ == '__main__':
     print('starting')
     # show_all_bbs_in_db()
-    fix_all_bbs_in_db()
+    # fix_all_bbs_in_db()
+    doc = lookfor_next_unbounded_feature_from_db_category()
+    print('doc:' + str(doc))
