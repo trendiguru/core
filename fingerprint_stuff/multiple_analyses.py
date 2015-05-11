@@ -8,7 +8,7 @@ import constants
 
 fingerprint_length = constants.fingerprint_length
 
-max_items = 5
+max_items = 50
 
 rate_fp.analyze_fingerprint(fingerprint_function=fp_core.gc_and_fp_histeq,
                             distance_function=NNSearch.distance_1_k, distance_power=0.5, n_docs=max_items,

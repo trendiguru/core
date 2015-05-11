@@ -16,6 +16,7 @@ import Utils
 
 
 
+
 # moving this into the show_fp function for now - LS
 # import matplotlib.pyplot as plt
 
@@ -301,9 +302,22 @@ def gc_and_fp_histeq(img, bounding_box=None, weights=np.ones(fingerprint_length)
         bounding_box = [0, 0, img.shape[1], img.shape[0]]
 
     mask = background_removal.get_fg_mask(img, bounding_box=bounding_box)
-    img_eq = cv2.equalizeHist(img)
-    fingerprint = fp(img_eq, mask, weights=weights, **kwargs)
+    # . YCbCr is preferred as it is designed for digital images. Perform HE of the intensity plane Y. Convert the image back to RGB.
+    equalized = eq_BGR(img)
+    fingerprint = fp(equalized, mask, weights=weights, **kwargs)
     return fingerprint
+
+
+def eq_BGR(img):
+    # img2[:, :, 0] = cv2.equalizeHist(img2[:, :, 0])
+
+    YCbCr = cv2.cvtColor(img, cv2.COLOR_BGR2YCR_CB)
+    Y_component = YCbCr[:, :, 0]
+    Y_eq = cv2.equalizeHist(Y_component)
+    YCbCr[:, :, 0] = Y_eq
+    bgr = cv2.cvtColor(YCbCr, cv2.COLOR_YCR_CB2BGR)
+    return (bgr)
+
 
 def gc_and_fp_bw(img, bounding_box=None, weights=np.ones(fingerprint_length), **kwargs):
     if bounding_box == None:

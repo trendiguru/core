@@ -10,6 +10,7 @@ import math
 
 import cv2
 import numpy as np
+from matplotlib import pyplot as plt
 
 import Utils
 import fingerprint_core
@@ -65,7 +66,25 @@ class OutcomesTest(unittest.TestCase):
             cv2.imshow('im1', img_arr)
             k = cv2.waitKey(0)
 
+    def test_eq_RGB(self):
+        urls = ['http://img.sheinside.com/images/sheinside.com/201403/1395131162147422866.jpg']
+        urls.append('http://cdn.iwastesomuchtime.com/1072012024419MsOiX.jpg')
+        urls.append('https://s-media-cache-ak0.pinimg.com/236x/04/08/b6/0408b6b4f14fa1ac31f3e649beeffbb0.jpg')
+        urls.append('http://www.polyvore.com/cgi/img-thing?.out=jpg&size=l&tid=17842198')
 
+        for url in urls:
+            img_arr = Utils.get_cv2_img_array(url, convert_url_to_local_filename=True, download=True)
+            cv2.imshow('im1', img_arr)
+            k = cv2.waitKey(50)
+            equalized = fingerprint_core.eq_BGR(img_arr)  # with black, white, gray
+            cv2.imshow('eq', equalized)
+            k = cv2.waitKey(50)
+            hist = cv2.calcHist([img_arr], [2], None, [256], [0, 256])
+            hist2 = cv2.calcHist([equalized], [2], None, [256], [0, 256])
+            plt.plot(hist, 'r')
+            plt.plot(hist2, 'g')
+            plt.show(block=True)
+            # raw_input('hit return for next')
 
 if __name__ == '__main__':
     unittest.main()
