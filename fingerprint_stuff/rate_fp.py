@@ -11,6 +11,8 @@ __author__ = 'jeremy'
 # TODO load all images for a given set  and keep in memory
 # TODO fix trendibb_editor, only first image is shown correctly
 # TODO combine check fingerprint and check_fp_except_diag
+# TODO do 2d histogram
+# TODO do histogram equalization
 # from joblib import Parallel, delayed
 # NOTE - cross-compare not yet implementing weights, fp_function,distance_function,distance_power
 import multiprocessing
