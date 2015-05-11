@@ -454,7 +454,7 @@ def lookfor_next_unbounded_feature_from_db_category(db=None, category_id='v-neck
     # query_doc = {"categories": {"shortName":"V-Necks"}}
     query_doc = {"categories": {"$elemMatch": {"id": category_id}}}
     fields = {"categories": 1, "image": 1, "human_bb": 1, "fp_version": 1, "bounding_box": 1,
-              "categories": 1, "id": 1}
+              "id": 1}
     num_processes = 100
     product_cursor = db.products.find(query_doc, fields).batch_size(num_processes)
     if product_cursor is None:

@@ -10,6 +10,7 @@ fingerprint_length = constants.fingerprint_length
 
 max_items = 50
 
+
 rate_fp.analyze_fingerprint(fingerprint_function=fp_core.gc_and_fp_with_kwargs, weights=np.ones(fingerprint_length),
                             distance_function=NNSearch.distance_1_k, distance_power=0.5, n_docs=max_items,
                             filename='gcfp.h=120', fingerprint_length=15)
@@ -22,19 +23,20 @@ rate_fp.analyze_fingerprint(fingerprint_function=fp_core.gc_and_fp_with_kwargs, 
                             distance_function=NNSearch.distance_1_k, distance_power=0.5, n_docs=max_items,
                             filename='gcfp.h=120', fingerprint_length=30)
 
-rate_fp.analyze_fingerprint(fingerprint_function=fp_core.gc_and_fp_with_kwargs, weights=np.ones(fingerprint_length),
-                            distance_function=NNSearch.distance_1_k, distance_power=0.5, n_docs=max_items,
-                            filename='gcfp.h=120', fingerprint_length=120)
 
-
-rate_fp.analyze_fingerprint(fingerprint_function=fp_core.gc_and_fp_with_kwargs, weights=np.ones(fingerprint_length),
-                            distance_function=NNSearch.distance_1_k, distance_power=0.5, n_docs=max_items,
-                            filename='gcfp.h=120', fingerprint_length=120)
 #########
 # max_items = 50
 # DONE
 #########
 if (0):
+    rate_fp.analyze_fingerprint(fingerprint_function=fp_core.gc_and_fp_with_kwargs, weights=np.ones(fingerprint_length),
+                            distance_function=NNSearch.distance_1_k, distance_power=0.5, n_docs=max_items,
+                            filename='gcfp.h=120', fingerprint_length=120)
+
+    rate_fp.analyze_fingerprint(fingerprint_function=fp_core.gc_and_fp_with_kwargs, weights=np.ones(fingerprint_length),
+                            distance_function=NNSearch.distance_1_k, distance_power=0.5, n_docs=max_items,
+                            filename='gcfp.h=120', fingerprint_length=120)
+
     rate_fp.analyze_fingerprint(fingerprint_function=fp_core.gc_and_fp_with_kwargs, weights=np.ones(fingerprint_length),
                                 distance_function=NNSearch.distance_1_k, distance_power=0.5, n_docs=max_items,
                                 filename='gcfp.h=40', fingerprint_length=40)

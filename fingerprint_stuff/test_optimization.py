@@ -164,12 +164,31 @@ def change_args(arg1):
         print('arg:' + str(a))
         arg1[a] = 7
 
+
+def f(positional_arg, optional_arg=' yo', **kwargs):
+    for keyword in kwargs:
+        print('got keyword arg, ' + str(keyword) + '=' + str(kwargs[keyword]))
+    if 'second_optional_argument' in kwargs:
+        second_option = kwargs['second_optional_argument']
+    else:
+        second_option = 'option not given:<'
+    answer = positional_arg + optional_arg + second_option
+    print('answer = ' + str(answer))
+
+
+def use_f():
+    f('first', optional_arg=' hi', **{'second_optional_argument': ' holy crap', 'third': 3})
+    # f('first', {'second': 2, 'third': 3})  #this will crash
+    f('first', foible=22, burble=33, second_optional_argument=' here it is')
+
+
 #opt_mult()
 if __name__ == "__main__":
     # test_kwargs('hi', forbles='ee', snorbles=33)
     # test_kwargs('hi')
     # optimize_weights(2)
     # test_tuplearg(('first',{'second':2}))
+
     # test_multi()
     passitalong('first', **{'second': 2, 'third': 3})
     # passitalong('first', {'second': 2, 'third': 3})  #this will crash
@@ -182,3 +201,5 @@ if __name__ == "__main__":
     print('a before:' + str(a))
     change_args(a)
     print('a after:' + str(a))
+
+    use_f()
