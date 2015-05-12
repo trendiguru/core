@@ -98,7 +98,7 @@ def lookfor_next_image_in_regular_db(current_item, only_get_boxed_images=False,
     while doc is not None:
         # print('doc:' + str(doc))
         # logging.warning('calling lookfor_next_bounded, index='+str(i)+' image='+str(current_image))
-        answers = lookfor_next_bounded_image(doc, image_index=current_image,
+        answers = lookfor_next_bounded_image(doc, image_index=current_item,
                                              only_get_boxed_images=only_get_boxed_images)
         # logging.warning('returned from  lookfor_next_bounded')
         if answers is not None:
@@ -443,31 +443,132 @@ def show_all_bbs_in_db(use_visual_output=True):
     return {"success": 1}
 
 
-def lookfor_next_unbounded_feature_from_db_category(db=None, category_id='v-neck-sweaters'):
+def step_thru_db(use_visual_output=True, collection='products'):
+    '''
+    fix all the bbs so they fit their respective image
+    :return:
+    '''
+    print('opening db')
+    db = pymongo.MongoClient().mydb
+    print('db open')
+    if db is None:
+        print('couldnt open db')
+        return {"success": 0, "error": "could not get db"}
+    dbstring = 'db.' + collection
+    # cursor = dbstring.find()   look in defaults.py how this is done
+    cursor = db.products.find()
+    print('returned cursor')
+    if cursor is None:  # make sure training collection exists
+        print('couldnt get cursor ' + str(collection))
+        return {"success": 0, "error": "could not get colelction"}
+    doc = next(cursor, None)
+    i = 0
+    while doc is not None:
+        print('checking doc #' + str(i + 1))
+        # print('doc:' + str(doc))
+        for topic in doc:
+            try:
+                print(str(topic) + ':' + str(doc[topic]))
+            except UnicodeEncodeError:
+                print('unicode encode error')
+
+        large_url = doc['image']['sizes']['Large']['url']
+        print('large img url:' + str(large_url))
+        if use_visual_output:
+            img_arr = Utils.get_cv2_img_array(large_url)
+            if 'bounding_box' in doc:
+                if Utils.legal_bounding_box(doc['bounding_box']):
+                    bb1 = doc['bounding_box']
+                    cv2.rectangle(img_arr, (bb1[0], bb1[1]), (bb1[0] + bb1[2], bb1[1] + bb1[3]), [255, 255, 0],
+                                  thickness=2)
+            cv2.imshow('im1', img_arr)
+            k = cv2.waitKey(50) & 0xFF
+        if 'categories' in doc:
+            try:
+                print('cats:' + str(doc['categories']))
+            except UnicodeEncodeError:
+                print('unicode encode error in description')
+                s = doc['categories']
+                print(s.encode('utf-8'))
+                # print(unicode(s.strip(codecs.BOM_UTF8), 'utf-8'))
+        if 'description' in doc:
+            try:
+                print('desc:' + str(doc['description']))
+            except UnicodeEncodeError:
+                print('unicode encode error in description')
+                s = doc['description']
+                print(s.encode('utf-8'))
+                # print(unicode(s.strip(codecs.BOM_UTF8), 'utf-8'))
+                # print(unicode(s.strip(codecs.BOM_UTF8), 'utf-8'))
+        i = i + 1
+        doc = next(cursor, None)
+        print('')
+        raw_input('enter key for next doc')
+    return {"success": 1}
+
+
+def lookfor_next_unbounded_feature_from_db_category(current_item=0, skip_if_marked_to_skip=True,
+                                                    which_to_show='showUnboxed', filter_type='byWordInDescription',
+                                                    category_id=None, word_in_description=None, db=None):
+
     # {"id":"v-neck-sweaters"}  coats
+    # query_doc = {"categories": {"shortName":"V-Necks"}}
+
     if db is None:
         db = pymongo.MongoClient().mydb
     if db is None:
         print('dbUtils.get_next_unbounded_feature_from_db - problem getting DB')
         return None
+    # make sure theres a known filter type
+    if not filter_type in ['byCategoryID', 'byWordInDescription']:
+        print('couldnt figure out filter type:' + str(filter_type))
+        logging.warning('couldnt figure out filter type:' + str(filter_type))
+        return {'success': 0, 'error': 'couldnt figure out filter type'}
+
+    # make sure theres a known which_to_show
+    if not which_to_show in ['onlyShowBoxed', 'onlyShowUnboxed', 'showAll']:
+        print('couldnt figure out which_to_show:' + str(which_to_show))
+        logging.warning('couldnt figure out filter type:' + str(filter_type))
+        return {'success': 0, 'error': 'couldnt figure out which to show'}
+
+    if filter_type == 'byCategoryID':
+        query = {"categories": {"$elemMatch": {"id": category_id}}}
+        fields = {"categories": 1, "image": 1, "human_bb": 1, "fp_version": 1, "bounding_box": 1,
+                  "id": 1, "feature_bbs": 1}
+
+    elif filter_type == 'byWordInDescription':
+        if word_in_description == None:
+            print('no word given to find in description so finding everything')
+            logging.warning('no word given to find in description so finding everything')
+            word_in_description = ''
+        myregex = ".*" + word_in_description + ".*"
+        query = {"description": {'$regex': myregex}}
+        fields = {"categories": 1, "image": 1, "human_bb": 1, "fp_version": 1, "bounding_box": 1,
+                  "id": 1, "description": 1, "feature_bbs": 1}
+
+    else:
+        print('couldnt figure out filter type:' + str(filter_type))
+        return {'success': 0, 'error': 'couldnt figure out filter type'}
     num_processes = 100
-    # query_doc = {"categories": {"shortName":"V-Necks"}}
-    query_doc = {"categories": {"$elemMatch": {"id": category_id}}}
-    fields = {"categories": 1, "image": 1, "human_bb": 1, "fp_version": 1, "bounding_box": 1,
-              "id": 1}
-    num_processes = 100
-    product_cursor = db.products.find(query_doc, fields).batch_size(num_processes)
+    product_cursor = db.products.find(query, fields).batch_size(num_processes)
     if product_cursor is None:
         print('got no docs in lookfor_next_unbounded_feature_from_db_category')
+        logging.debug('got no docs in lookfor_next_unbounded_feature_from_db_category')
         return None
     TOTAL_PRODUCTS = product_cursor.count()
-    print('tot found:' + str(TOTAL_PRODUCTS))
+
+    print('tot records found:' + str(TOTAL_PRODUCTS))
+
+
+def get_first_qualifying_record(cursor, which_to_show='showAll'):
+    TOTAL_PRODUCTS = cursor.count()
+    print('tot records found:' + str(TOTAL_PRODUCTS))
     for i in range(0, TOTAL_PRODUCTS):
-        doc = product_cursor[i]
+        doc = cursor[i]
         # url = doc['image']['sizes']['XLarge']['url']
         if not 'feature_bbs' in doc:
             return doc
-        print('didnt find any unbounded docs for category_id ' + str(category_id))
+        print('didnt find any unbounded docs ')
     return None
 
 
@@ -482,5 +583,6 @@ if __name__ == '__main__':
     print('starting')
     # show_all_bbs_in_db()
     # fix_all_bbs_in_db()
-    doc = lookfor_next_unbounded_feature_from_db_category()
-    print('doc:' + str(doc))
+    # doc = lookfor_next_unbounded_feature_from_db_category()
+    # print('doc:' + str(doc))
+    step_thru_db(use_visual_output=True, collection='products')

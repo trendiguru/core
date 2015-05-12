@@ -23,9 +23,15 @@ class OutcomesTest(unittest.TestCase):
         self.assertTrue(training_collection_cursor is not None)  #make sure training collection exists
 
 
-    def test_get_next_unbounded_feature_from_db_category(self):
+    def test_lookfor_next_unbounded_feature_from_db_category(self):
         category_id = 'v-neck-sweaters'
-        answer = dbUtils.lookfor_next_unbounded_feature_from_db_category(category_id=category_id)
+        word = 'neck'
+        ftype = 'byWordInDescription'
+        # answer = dbUtils.lookfor_next_unbounded_feature_from_db_category(current_item=0,skip_if_marked_to_skip=True,which_to_show='showUnboxed',filter_type='byWordInDescription',category_id=category_id,word_in_description=None,db=None)
+        answer = dbUtils.lookfor_next_unbounded_feature_from_db_category(current_item=0, skip_if_marked_to_skip=True,
+                                                                         which_to_show='showUnboxed', filter_type=ftype,
+                                                                         category_id=category_id,
+                                                                         word_in_description=word)
         print('answer from lookfor_next_bounded_in_db_no_args:' + str(answer))
         self.assertTrue(isinstance(answer, dict) or isinstance(answer, basestring))
         #

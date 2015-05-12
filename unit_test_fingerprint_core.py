@@ -83,6 +83,8 @@ class OutcomesTest(unittest.TestCase):
             hist2 = cv2.calcHist([equalized], [2], None, [256], [0, 256])
             plt.plot(hist, 'r')
             plt.plot(hist2, 'g')
+            # there's probably something more intelligent to check here....
+            self.assertTrue(len(hist2) == len(hist))
             plt.show(block=True)
             # raw_input('hit return for next')
 

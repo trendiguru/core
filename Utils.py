@@ -253,69 +253,6 @@ def bounding_box_inside_image(image_array, rect):
 #       for prefix in prefixes:
 
 
-def step_thru_db(use_visual_output=True, collection='products'):
-    '''
-    fix all the bbs so they fit their respective image
-    :return:
-    '''
-    print('opening db')
-    db = pymongo.MongoClient().mydb
-    print('db open')
-    if db is None:
-        print('couldnt open db')
-        return {"success": 0, "error": "could not get db"}
-    dbstring = 'db.' + collection
-    # cursor = dbstring.find()   look in defaults.py how this is done
-    cursor = db.products.find()
-    print('returned cursor')
-    if cursor is None:  # make sure training collection exists
-        print('couldnt get cursor ' + str(collection))
-        return {"success": 0, "error": "could not get colelction"}
-    doc = next(cursor, None)
-    i = 0
-    while doc is not None:
-        print('checking doc #' + str(i + 1))
-        # print('doc:' + str(doc))
-        for topic in doc:
-            try:
-                print(str(topic) + ':' + str(doc[topic]))
-            except UnicodeEncodeError:
-                print('unicode encode error')
-
-        large_url = doc['image']['sizes']['Large']['url']
-        print('large img url:' + str(large_url))
-        if use_visual_output:
-            img_arr = get_cv2_img_array(large_url)
-            if 'bounding_box' in doc:
-                if legal_bounding_box(doc['bounding_box']):
-                    bb1 = doc['bounding_box']
-                    cv2.rectangle(img_arr, (bb1[0], bb1[1]), (bb1[0] + bb1[2], bb1[1] + bb1[3]), [255, 255, 0],
-                                  thickness=2)
-            cv2.imshow('im1', img_arr)
-            k = cv2.waitKey(50) & 0xFF
-        if 'categories' in doc:
-            try:
-                print('cats:' + str(doc['categories']))
-            except UnicodeEncodeError:
-                print('unicode encode error in description')
-                s = doc['categories']
-                print(s.encode('utf-8'))
-                # print(unicode(s.strip(codecs.BOM_UTF8), 'utf-8'))
-        if 'description' in doc:
-            try:
-                print('desc:' + str(doc['description']))
-            except UnicodeEncodeError:
-                print('unicode encode error in description')
-                s = doc['description']
-                print(s.encode('utf-8'))
-                # print(unicode(s.strip(codecs.BOM_UTF8), 'utf-8'))
-                # print(unicode(s.strip(codecs.BOM_UTF8), 'utf-8'))
-        i = i + 1
-        doc = next(cursor, None)
-        print('')
-        raw_input('enter key for next doc')
-    return {"success": 1}
-
 def fix_all_bbs_in_db(use_visual_output=False):
     '''
     fix all the bbs so they fit their respective image
@@ -599,4 +536,4 @@ if __name__ == '__main__':
     print('starting')
     #show_all_bbs_in_db()
     #fix_all_bbs_in_db()
-    step_thru_db(use_visual_output=True)
+    # step_thru_db(use_visual_output=True)
