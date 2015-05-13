@@ -507,7 +507,7 @@ def step_thru_db(use_visual_output=True, collection='products'):
     return {"success": 1}
 
 
-def lookfor_next_unbounded_feature_from_db_category(current_item=0, skip_if_marked_to_skip=True,
+def lookfor_next_unbounded_feature_from_db_category(item_number=0, skip_if_marked_to_skip=True,
                                                     which_to_show='showUnboxed', filter_type='byWordInDescription',
                                                     category_id=None, word_in_description=None, db=None):
 
@@ -526,15 +526,16 @@ def lookfor_next_unbounded_feature_from_db_category(current_item=0, skip_if_mark
         return {'success': 0, 'error': 'couldnt figure out filter type'}
 
     # make sure theres a known which_to_show
-    if not which_to_show in ['onlyShowBoxed', 'onlyShowUnboxed', 'showAll']:
+    if not which_to_show in ['showBoxed', 'showUnboxed', 'showAll']:
         print('couldnt figure out which_to_show:' + str(which_to_show))
-        logging.warning('couldnt figure out filter type:' + str(filter_type))
+        logging.warning('couldnt figure out which to show:' + str(which_to_show))
         return {'success': 0, 'error': 'couldnt figure out which to show'}
 
     if filter_type == 'byCategoryID':
         query = {"categories": {"$elemMatch": {"id": category_id}}}
         fields = {"categories": 1, "image": 1, "human_bb": 1, "fp_version": 1, "bounding_box": 1,
                   "id": 1, "feature_bbs": 1}
+        filter = category_id
 
     elif filter_type == 'byWordInDescription':
         if word_in_description == None:
@@ -545,6 +546,7 @@ def lookfor_next_unbounded_feature_from_db_category(current_item=0, skip_if_mark
         query = {"description": {'$regex': myregex}}
         fields = {"categories": 1, "image": 1, "human_bb": 1, "fp_version": 1, "bounding_box": 1,
                   "id": 1, "description": 1, "feature_bbs": 1}
+        filter = word_in_description
 
     else:
         print('couldnt figure out filter type:' + str(filter_type))
@@ -555,22 +557,90 @@ def lookfor_next_unbounded_feature_from_db_category(current_item=0, skip_if_mark
         print('got no docs in lookfor_next_unbounded_feature_from_db_category')
         logging.debug('got no docs in lookfor_next_unbounded_feature_from_db_category')
         return None
-    TOTAL_PRODUCTS = product_cursor.count()
 
-    print('tot records found:' + str(TOTAL_PRODUCTS))
+    ans = get_first_qualifying_record(product_cursor, which_to_show=which_to_show, filter_type=filter_type,
+                                      filter=filter, item_number=item_number,
+                                      skip_if_marked_to_skip=skip_if_marked_to_skip)
+
+    print(str(ans))
+    return ans
 
 
-def get_first_qualifying_record(cursor, which_to_show='showAll'):
+# structure of 'feature_bbs':
+# feature_bbs:{'skip':True/False,'byCategoryId':{catID:[bb11,bb12,bb13],catID2:[bb21,bb22,],catID3:[bb3],...},'byWordInDescription':{word:[bb],word2:[b2],..}
+def get_first_qualifying_record(cursor, which_to_show='showAll', filter_type='byCategoryId', filter=None, item_number=0,
+                                skip_if_marked_to_skip=True):
     TOTAL_PRODUCTS = cursor.count()
     print('tot records found:' + str(TOTAL_PRODUCTS))
-    for i in range(0, TOTAL_PRODUCTS):
-        doc = cursor[i]
-        # url = doc['image']['sizes']['XLarge']['url']
-        if not 'feature_bbs' in doc:
-            return doc
-        print('didnt find any unbounded docs ')
-    return None
+    # make sure theres a known which_to_show
 
+    # ['onlyShowBoxed', 'onlyShowUnboxed', 'showAll']:
+
+    # if showAll, skip if necessary , otherwise return doc+bb if bb found, just doc otherwise
+    if which_to_show == 'showAll':
+        for i in range(item_number, TOTAL_PRODUCTS):
+            doc = cursor[i]
+            if 'feature_bbs' in doc:
+                bbs = doc['feature_bbs']
+                if skip_if_marked_to_skip:
+                    if 'skip' in bbs:
+                        if bbs['skip'] == True:
+                            continue
+                if filter_type in bbs:
+                    bbs_of_filter_type = bbs[filter_type]
+                    if filter in bbs_of_filter_type:
+                        bbs = bbs_of_filter_type[filter]
+                        if bbs is not None:
+                            return {'doc': doc, 'bbs': bbs}
+            return {'doc': doc}
+
+    # if showBoxed, skip if necessary , otherwise return doc+bb if bb found
+    elif which_to_show == 'showBoxed':
+        for i in range(item_number, TOTAL_PRODUCTS):
+            doc = cursor[i]
+            if 'feature_bbs' in doc:
+                bbs = doc['feature_bbs']
+                if skip_if_marked_to_skip:
+                    if 'skip' in bbs:
+                        if bbs['skip'] == True:
+                            continue
+                if filter_type in bbs:
+                    bbs_of_filter_type = bbs[filter_type]
+                    if filter in bbs_of_filter_type:
+                        bbs = bbs_of_filter_type[filter]
+                        if bbs is not None:
+                            return {'doc': doc, 'bbs': bbs}
+        print('didnt find any relevant bounded boxes ')
+        return None
+
+    # if showUnBoxed, skip if necessary , otherwise return doc if bb NOT found
+    elif which_to_show == 'showUnboxed':
+        for i in range(item_number, TOTAL_PRODUCTS):
+            doc = cursor[i]
+            if 'feature_bbs' in doc:
+                bbs = doc['feature_bbs']
+                if skip_if_marked_to_skip:
+                    if 'skip' in bbs:
+                        if bbs['skip'] == True:
+                            continue
+                if filter_type in bbs:
+                    bbs_of_filter_type = bbs[filter_type]
+                    if filter in bbs_of_filter_type:
+                        bbs = bbs_of_filter_type[filter]
+                        if bbs is not None:
+                            continue
+                    else:
+                        return {'doc': doc}
+                else:
+                    return {'doc': doc}
+            else:
+                return {'doc': doc}
+        print('didnt find any relevant unbounded docs ')
+        return None
+    else:
+        logging.warning(
+            'cant figure out what you want dude - niether showall,showBoxed, showUnboxed, you wanted:' + str(
+                which_to_show))
 
 # description: classic neckline , round collar, round neck, crew neck, square neck, v-neck, clASsic neckline,round collar,crewneck,crew neck, scoopneck,square neck, bow collar, ribbed round neck,rollneck ,slash neck
 # cats:[{u'shortName': u'V-Necks', u'localizedId': u'v-neck-sweaters', u'id': u'v-neck-sweaters', u'name': u'V-Neck Sweaters'}]
