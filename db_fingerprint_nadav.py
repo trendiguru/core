@@ -3,17 +3,21 @@ __author__ = 'Nadav Paz'
 import logging
 import multiprocessing as mp
 import argparse
+import time
+import signal
+import traceback
+
 import pymongo
 import pymongo.errors
 import numpy as np
 import cv2
+
 import fingerprint_core as fp
 import background_removal
 import Utils
 import constants
-import time
-import signal
-import traceback
+
+
 
 
 # globals
@@ -68,7 +72,7 @@ def create_classifier_for_category_dict(db):
     return result_dict
 
 
-def run_fp(doc):
+def run_fp_on_db_product(doc):
     CURRENT.increment()
     if CURRENT.value % 50 == 0:
         print "Process {process} starting {i} of {total}...".format(process=mp.current_process().name,
@@ -228,7 +232,7 @@ def fingerprint_db(fp_version, category_id=None, num_processes=None):
     FP_VERSION = fp_version
 
     feeder = mp.Process(target=connect_db_feed_q, name="Feeder", args=[Q, query_doc, fields])
-    worker_list = [mp.Process(target=do_work_on_q, name="Worker {0}".format(p), args=(run_fp, Q))
+    worker_list = [mp.Process(target=do_work_on_q, name="Worker {0}".format(p), args=(run_fp_on_db_product, Q))
                    for p in range(0, NUM_PROCESSES.value)]
 
     START_TIME = time.time()
@@ -285,7 +289,7 @@ def fingerprint_db_old(fp_version, category_id=None, num_processes=None):
     pool = mp.Pool(num_processes, maxtasksperchild=5)
 
     start_time = time.time()
-    pool.map(run_fp, product_cursor)
+    pool.map(run_fp_on_db_product, product_cursor)
     stop_time = time.time()
     total_time = stop_time - start_time
     pool.close()
