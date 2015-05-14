@@ -542,7 +542,7 @@ def show_db_record(use_visual_output=True, doc=None):
         return
 
     for topic in doc:
-        try:
+        try: 
             print(str(topic) + ':' + str(doc[topic]))
         except UnicodeEncodeError:
             print('unicode encode error')
