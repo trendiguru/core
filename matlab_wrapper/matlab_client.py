@@ -4,8 +4,9 @@ import rpyc
 
 
 class Engine(object):
-    def __init__(self):
+    def __init__(self, obtain_all=True):
         self.conn = rpyc.connect("localhost", 18861)
+        self.obtain_all = obtain_all
 
     def __getattr__(self, name):
         try:
@@ -14,8 +15,21 @@ class Engine(object):
         except:
             # otherwise pass it on to ml engine
             attr = self.conn.root.exposed_get_matlab_function(name)
-        return attr
+        return rpyc_obtain_wrapper(attr) if self.obtain_all else attr
 
     def get_pose_boxes_dict(self, path_to_image_or_url):
         d = self.conn.root.get_pose_boxes_dict(path_to_image_or_url)
-        return dict(d) if d else None
+        return rpyc.utils.classic.obtain(d) if d else None
+
+    def rpyc_obtain_wrapper(self, remote_func):
+        """
+        RPyC usually returns proxy object - this is safer but causes problems, especially with numpy.
+        Calling obtain fixes this. It makes a copy of the remote object (pickles and sends it over).
+        Object has to be picklable...
+        see: http://rpyc.readthedocs.org/en/latest/api/utils_classic.html
+        :param remote_func:
+        :return:
+        """
+        def wrapped_func(*args, **kwargs):
+            return rpyc.utils.classic.obtain(remote_func(*args, **kwargs))
+        return wrapped_func
