@@ -11,6 +11,8 @@ __author__ = 'jeremy'
 # TODO load all images for a given set  and keep in memory
 # TODO fix trendibb_editor, only first image is shown correctly
 # TODO combine check fingerprint and check_fp_except_diag
+# TODO do 2d histogram
+# TODO do histogram equalization
 # from joblib import Parallel, delayed
 # NOTE - cross-compare not yet implementing weights, fp_function,distance_function,distance_power
 import multiprocessing
@@ -20,7 +22,6 @@ import cv2
 import constants
 import random
 import math
-from memory_profiler import profile
 import resource
 import os
 import inspect
@@ -68,7 +69,7 @@ RED = [0, 0, 255]  # PR BG
 GREEN = [0, 255, 0]  # PR FG
 BLACK = [0, 0, 0]  # sure BG
 WHITE = [255, 255, 255]  # sure FG
-#    def tear_down(self):
+# def tear_down(self):
 #        shutil.rmtree(self.temp_dir)
 
 #this is for the training collection, where there's a set of images from different angles in each record
@@ -126,6 +127,7 @@ def save_full_report(report, name=None):
         json.dump(report, f, indent=4, sort_keys=True, separators=(',', ':'))
         f.close()
 
+
 def save_short_report(report, name=None):
     if name == None or name == '':
         name = 'shortfp_report.' + datetime.datetime.now().strftime("%Y-%m-%d.%H%M.txt")
@@ -138,6 +140,10 @@ def save_short_report(report, name=None):
     if 'goodness' in report:
         short_report['goodness'] = report['goodness']
         short_report['goodness_error'] = report['goodness_error']
+    short_report['chi'] = report['chi']
+    short_report['self_var'] = report['self_var']
+    short_report['cross_var'] = report['cross_var']
+
     rep = report['self_report']
     short_report1 = {}
     short_report1['fingerprint_function'] = rep['fingerprint_function']
@@ -228,6 +234,14 @@ def display_two_histograms(same_distances, different_distances, name=None):
         plt.show()
 
 
+def calc_full_variance(distance_arrays):
+    tot_dists = []
+    for distances in distance_arrays:
+        for val in distances:
+            tot_dists.append(val)
+    var = np.std(tot_dists)
+    return var
+
 def display_tons_of_histograms(same_distances_arrays, different_distances_arrays, name=None):
     max1 = 0
     totsame = []  # np.ndarray.flatten(same_distances_arrays)
@@ -291,6 +305,7 @@ def display_tons_of_histograms(same_distances_arrays, different_distances_arrays
     if use_visual_output:
         plt.show(block=False)
 
+
 def get_docs(n_items=max_items):
     db = pymongo.MongoClient().mydb
     training_collection_cursor = db.training.find()
@@ -325,6 +340,7 @@ def get_docs(n_items=max_items):
     report['images_per_group'] = round(tot_images / i, 3)
     return (report, tot_answers)
 
+
 def get_images_from_doc(images):
     '''
     return the good (bounded) images from an images doc
@@ -336,6 +352,7 @@ def get_images_from_doc(images):
             # print('pruned images:')
             # nice_print(pruned_images)
     return (pruned_images)
+
 
 def good_img(dict):
     '''
@@ -357,7 +374,6 @@ def good_img(dict):
 
 
 def show_fps_and_images(fp1, img1, fp2, img2, fig=None):
-
     extras_length = constants.extras_length
     histograms_length = constants.histograms_length
     if fig:
@@ -408,11 +424,13 @@ def show_fps_and_images(fp1, img1, fp2, img2, fig=None):
 
     return (fig)
 
+
 def nice_print(images):
     i = 1
     for img in images:
         print('img ' + str(i) + ':' + str(img))
         i = i + 1
+
 
 def lookfor_image_group(queryobject, string):
     n = 1
@@ -444,6 +462,8 @@ def lookfor_image_group(queryobject, string):
             print('didn\'t find expected string in training db')
             break
     return (answer_url_list)
+
+
 # maybe return(urlN,n) at some point
 
 def lookfor_next_imageset():  # IS THIS EVER USED
@@ -466,7 +486,6 @@ def lookfor_next_imageset():  # IS THIS EVER USED
                 tot_answers.append(answers)
         print('result:' + str(tot_answers))
     return tot_answers
-
 
 
 def normalize_matrix(matrix):
@@ -550,6 +569,7 @@ def compare_fingerprints(image_array1, image_array2, fingerprint_function=fp_cor
     i = 0
     j = 0
     distance_array = []
+
     print(
         'comparing image group of size ' + str(len(image_array1)) + ' to other group of size ' + str(len(image_array2)))
     for entry1 in image_array1:
@@ -565,14 +585,14 @@ def compare_fingerprints(image_array1, image_array2, fingerprint_function=fp_cor
             # fp1 = fp_core.gc_and_fp(img_arr1, bb1, weights,**fingerprint_arguments)
             try:
                 if bb1[2] == 0 or bb1[3] == 0:
-                    print('aaaagggghh!! this is a zero-area bb in bb1!!! how did that happen??!?!? bb:' + str(bb2))
+                    print('aaaagggghh!! this is a zero-area bb in bb1!!! how did that happen??!?!? bb:' + str(bb1))
                 if img_arr1.shape[0] == 0 or img_arr1.shape[1] == 0:
                     print('aaaagggghh!! this is a zero-area image1 !!! how did that happen??!?!? shape:' + str(
                         img_arr1.shape))
                 if img_arr1.shape[0] == bb1[3] or img_arr1.shape[1] == bb1[2]:
                     print('bb and img have same shape, bb:' + str(bb1) + ' im:' + str(img_arr1.shape))
-                print('bb:' + str(bb1) + ' im:' + str(img_arr1.shape))
-                fp1 = fingerprint_function(img_arr1, bb1, weights=weights, **fingerprint_arguments)
+                # print('bb:' + str(bb1) + ' im:' + str(img_arr1.shape))
+                fp1 = fingerprint_function(img_arr1, bounding_box=bb1, weights=weights, **fingerprint_arguments)
             except:
                 print('something bad happened, bb1=' + str(bb1) + ' and imsize1=' + str(img_arr1.shape))
                 fp1 = np.ones(fingerprint_length)  # this is arbitrary but lets keep going instead of crashing
@@ -582,7 +602,7 @@ def compare_fingerprints(image_array1, image_array2, fingerprint_function=fp_cor
                 cv2.rectangle(img_arr1, (bb1[0], bb1[1]), (bb1[0] + bb1[2], bb1[1] + bb1[3]), color=GREEN, thickness=2)
                 cv2.imshow('im1', img_arr1)
                 k = cv2.waitKey(50) & 0xFF
-                fig = fp_core.show_fp(fp1)
+                fig = fp_core.show_fp(fp1, **fingerprint_arguments)
                 # to parallelize
                 #[sqrt(i ** 2) for i in range(10)]
                 #Parallel(n_jobs=2)(delayed(sqrt)(i ** 2) for i in range(10))
@@ -609,8 +629,8 @@ def compare_fingerprints(image_array1, image_array2, fingerprint_function=fp_cor
                                 img_arr2.shape))
                         if img_arr2.shape[0] == bb2[3] or img_arr2.shape[1] == bb2[2]:
                             print('bb and img have same shape, bb:' + str(bb2) + ' im:' + str(img_arr2.shape))
-                        print('bb:' + str(bb2) + ' im:' + str(img_arr2.shape))
-                        fp2 = fingerprint_function(img_arr2, bb2, weights=weights, **fingerprint_arguments)
+                        #print('bb:' + str(bb2) + ' im:' + str(img_arr2.shape))
+                        fp2 = fingerprint_function(img_arr2, bounding_box=bb2, weights=weights, **fingerprint_arguments)
                     except:
                         print('something bad happened, bb2=' + str(bb2) + ' and imsize2=' + str(img_arr2.shape))
                         fp2 = np.ones(fingerprint_length)  # this is arbitrary but lets keep going instead of crashing
@@ -663,14 +683,14 @@ def compare_fingerprints_except_diagonal(image_array1, image_array2, fingerprint
             i = i + 1
             try:
                 if bb1[2] == 0 or bb1[3] == 0:
-                    print('aaaagggghh!! this is a zero-area bb in bb1!!! how did that happen??!?!? bb:' + str(bb2))
+                    print('aaaagggghh!! this is a zero-area bb in bb1!!! how did that happen??!?!? bb:' + str(bb1))
                 if img_arr1.shape[0] == 0 or img_arr1.shape[1] == 0:
                     print('aaaagggghh!! this is a zero-area image1 !!! how did that happen??!?!? shape:' + str(
                         img_arr1.shape))
                 if img_arr1.shape[0] == bb1[3] or img_arr1.shape[1] == bb1[2]:
                     print('bb and img have same shape, bb:' + str(bb1) + ' im:' + str(img_arr1.shape))
-                print('bb:' + str(bb1) + ' im:' + str(img_arr1.shape))
-                fp1 = fingerprint_function(img_arr1, bb1, weights=weights, **fingerprint_arguments)
+                #print('bb:' + str(bb1) + ' im:' + str(img_arr1.shape))
+                fp1 = fingerprint_function(img_arr1, bounding_box=bb1, weights=weights, **fingerprint_arguments)
             except:
                 print('something bad happened, bb1=' + str(bb1) + ' and imsize1=' + str(img_arr1.shape))
                 fp1 = np.ones(fingerprint_length)  # this is arbitrary but lets keep going instead of crashing
@@ -680,7 +700,7 @@ def compare_fingerprints_except_diagonal(image_array1, image_array2, fingerprint
                 cv2.rectangle(img_arr1, (bb1[0], bb1[1]), (bb1[0] + bb1[2], bb1[1] + bb1[3]), color=GREEN, thickness=2)
                 cv2.imshow('im1', img_arr1)
                 k = cv2.waitKey(50) & 0xFF
-                fig = fp_core.show_fp(fp1)
+                fig = fp_core.show_fp(fp1, **fingerprint_arguments)
             for entry2 in image_array2:
                 #			print('image 2:'+str(entry2))
                 bb2 = entry2['human_bb']
@@ -704,8 +724,8 @@ def compare_fingerprints_except_diagonal(image_array1, image_array2, fingerprint
                                 img_arr2.shape))
                         if img_arr2.shape[0] == bb2[3] or img_arr2.shape[1] == bb2[2]:
                             print('bb and img have same shape, bb:' + str(bb2) + ' im:' + str(img_arr2.shape))
-                        print('bb:' + str(bb2) + ' im:' + str(img_arr2.shape))
-                        fp2 = fingerprint_function(img_arr2, bb2, weights=weights, **fingerprint_arguments)
+                        #print('bb:' + str(bb2) + ' im:' + str(img_arr2.shape))
+                        fp2 = fingerprint_function(img_arr2, bounding_box=bb2, weights=weights, **fingerprint_arguments)
                     except:
                         print('something bad happened, bb2=' + str(bb2) + ' and imsize2=' + str(img_arr2.shape))
                         fp2 = np.ones(fingerprint_length)  # this is arbitrary but lets keep going instead of crashing
@@ -767,7 +787,7 @@ def partial_cross_compare_wrapper((image_sets, fingerprint_function, weights,
     # print('imset:' + str(image_set))
     # print('fp_func:' + str(fingerprint_function))
     #   print('weights:' + str(weights))
- #   print('d_func:' + str(distance_function))
+    #   print('d_func:' + str(distance_function))
     # print('d_pow:' + str(distance_power))
     #  print('fp_args:' + str(fingerprint_arguments))
 
@@ -775,7 +795,7 @@ def partial_cross_compare_wrapper((image_sets, fingerprint_function, weights,
     image_set2 = image_sets[1]
     print('imset1 has ' + str(len(image_set1)) + ' images, imset2 has ' + str(len(image_set2)) + ' images')
     proc_name = multiprocessing.current_process().name
-   # print('proc_name:' + str(proc_name))
+    # print('proc_name:' + str(proc_name))
     # print('im1' + str(image_set1))
     #    print('im2' + str(image_set2))
     avg_dist, stdev, all_distances = compare_fingerprints(image_set1, image_set2, fingerprint_function,
@@ -833,7 +853,7 @@ def calculate_partial_cross_confusion_vector(image_sets, fingerprint_function=fp
             avg_dist, stdev, all_dists = compare_fingerprints(imset1, imset2,
                                                               fingerprint_function=fingerprint_function,
                                                               weights=weights, distance_function=distance_function,
-                                                   distance_power=distance_power, **fingerprint_arguments)
+                                                              distance_power=distance_power, **fingerprint_arguments)
             confusion_vector[i] = round(avg_dist, 3)
             stdev_vector[i] = round(stdev, 3)
             all_distances.append(all_dists)
@@ -857,8 +877,8 @@ def calculate_partial_cross_confusion_vector(image_sets, fingerprint_function=fp
 
     # print('s.fp_func:' + str(fingerprint_fu
 
-#    print('report:' + str(report))
-#    report['comparisons'] = comparisons_to_make
+    #    print('report:' + str(report))
+    #    report['comparisons'] = comparisons_to_make
     return (report)
 
 
@@ -889,9 +909,9 @@ def self_compare_wrapper(( image_set, fingerprint_function, weights,
     print('imset has ' + str(len(image_set)) + ' images')
     print('proc_name:' + str(proc_name))
     #   print('imset:' + str(image_set))
-  #  print('fp_func:' + str(fingerprint_function))
+    #  print('fp_func:' + str(fingerprint_function))
     #   print('weights:' + str(weights))
-   # print('d_func:' + str(distance_function))
+    # print('d_func:' + str(distance_function))
     # print('d_pow:' + str(distance_power))
     # print('fp_args:' + str(fingerprint_arguments))
     avg_dist, stdev, all_distances = compare_fingerprints_except_diagonal(image_set, image_set, fingerprint_function,
@@ -912,7 +932,7 @@ def calculate_self_confusion_vector(image_sets, fingerprint_function=fp_core.fp,
     global self_report
     print('cscv Memory usage: %s (kb)' % resource.getrusage(resource.RUSAGE_SELF).ru_maxrss)
 
- #   print('s.fp_func:' + str(fingerprint_function))
+    #   print('s.fp_func:' + str(fingerprint_function))
     # print('s.weights:' + str(weights))
     # print('s.distance_function:' + str(distance_function))
     # print('s.distance_power:' + str(distance_power))
@@ -957,9 +977,10 @@ def calculate_self_confusion_vector(image_sets, fingerprint_function=fp_core.fp,
             print('imageset:' + str(image_sets[i]))
             avg_dist, stdev, all_dists = compare_fingerprints_except_diagonal(image_sets[i], image_sets[i],
                                                                               fingerprint_function=fingerprint_function,
-                                                                              weights=weights, distance_function=distance_function,
-                                                                   distance_power=distance_power,
-                                                                   **fingerprint_arguments)
+                                                                              weights=weights,
+                                                                              distance_function=distance_function,
+                                                                              distance_power=distance_power,
+                                                                              **fingerprint_arguments)
             confusion_vector[i] = round(avg_dist, 3)
             stdev_vector[i] = round(stdev, 3)
             all_distances[i] = round(all_dists, 3)
@@ -1011,7 +1032,7 @@ def cross_rate_fingerprint():
 
 
 # in use
-@profile
+# @profile
 def analyze_fingerprint(fingerprint_function=fp_core.regular_fp, weights=np.ones(fingerprint_length),
                         distance_function=NNSearch.distance_1_k,
                         distance_power=0.5, n_docs=max_items, use_visual_output1=False,
@@ -1036,10 +1057,12 @@ def analyze_fingerprint(fingerprint_function=fp_core.regular_fp, weights=np.ones
     cross_report = dict(self_report)
 
     self_report = calculate_self_confusion_vector(image_sets, fingerprint_function=fingerprint_function,
-                                    weights=weights, distance_function=distance_function,
-                                    distance_power=distance_power, report=self_report, **fingerprint_arguments)
+                                                  weights=weights, distance_function=distance_function,
+                                                  distance_power=distance_power, report=self_report,
+                                                  **fingerprint_arguments)
 
     all_self = self_report['all_distances']
+    self_var = calc_full_variance(all_self)
     del self_report['all_distances']
 
     print('self report:' + str(self_report))
@@ -1053,7 +1076,7 @@ def analyze_fingerprint(fingerprint_function=fp_core.regular_fp, weights=np.ones
 
     cross_report = calculate_partial_cross_confusion_vector(image_sets, fingerprint_function=fingerprint_function,
                                                             weights=weights,
-                                             distance_function=distance_function,
+                                                            distance_function=distance_function,
                                                             distance_power=distance_power, report=cross_report,
                                                             comparisons_to_make=comparisons_to_make,
                                                             **fingerprint_arguments)
@@ -1069,24 +1092,31 @@ def analyze_fingerprint(fingerprint_function=fp_core.regular_fp, weights=np.ones
         cross_report['weights'] = cross_report['weights'].tolist()
 
     all_cross = cross_report['all_distances']
+    cross_var = calc_full_variance(all_cross)
     del cross_report['all_distances']
 
     same_item_average = self_report['average_weighted']
     cross_item_average = cross_report['average_weighted']
-#     print(self_report)
+    #     print(self_report)
     same_item_error = self_report['error_cumulative']
     cross_item_error = cross_report['error_cumulative']
     numerator = cross_item_average - same_item_average
     denominator = cross_item_average
-    goodness = numerator / denominator
-#    print('n,d,n_e,d_e' + str(numerator), str(numerator), str(denominator), str(cross_item_error))
+    try:
+        goodness = numerator / denominator
+    except ZeroDivisionError:
+        print('DENOMINATOR for goodness=0')
+        goodness = 0
+    #    print('n,d,n_e,d_e' + str(numerator), str(numerator), str(denominator), str(cross_item_error))
     numerator_error = math.sqrt(cross_item_error ** 2 + same_item_error ** 2)
     if numerator == 0 or denominator == 0:
         goodness_error = -1
     else:
         goodness_error = Utils.error_of_fraction(numerator, numerator_error, denominator, cross_item_error)
+
+    chi = numerator / (np.sqrt(self_var ** 2 + cross_var ** 2))
     tot_report = {'self_report': self_report, 'cross_report': cross_report, 'goodness': goodness,
-                  'goodness_error': goodness_error}
+                  'goodness_error': goodness_error, 'chi': chi, 'self_var': self_var, 'cross_var': cross_var}
 
     save_full_report(tot_report, filename)
     save_short_report(tot_report, filename)
@@ -1096,21 +1126,23 @@ def analyze_fingerprint(fingerprint_function=fp_core.regular_fp, weights=np.ones
     # print('tot report:' + str(tot_report))
     print('goodness:' + str(goodness) + ' same item average:' + str(same_item_average) + ' cross item averag:' + str(
         cross_item_average))
-    return (goodness, tot_report)
+    return (chi, tot_report)
 
 
 global visual_output1
 global visual_output2
 
-
 if __name__ == '__main__':
+    report = analyze_fingerprint(fingerprint_function=fp_core.fp_with_kwargs, use_visual_output1=True,
+                                 histogram_length=30)
+
     print('hi0')
     print('Memory usage: %s (kb)' % resource.getrusage(resource.RUSAGE_SELF).ru_maxrss)
 
     parser = argparse.ArgumentParser(description='rate ye olde fingerprinte')
     #   parser.add_argument('integers', metavar='N', type=int, nargs='+',
     #                     help='an integer for the accumulator')
-    parser.add_argument('--use_visual_output', default=False,
+    parser.add_argument('--use_visual_output', default=True,
                         help='show output once for each item')
     parser.add_argument('--use_visual_output2', default=False,
                         help='show output for each image')

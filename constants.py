@@ -3,6 +3,7 @@
 # fingerprint related consts
 
 fingerprint_length = 56
+fingerprint_version = 1
 extras_length = 6
 histograms_length = 25
 K = 0.5                     # for euclidean distance
@@ -12,7 +13,7 @@ min_bb_to_image_area_ratio = 0.95  # if bb takes more than this fraction of imag
 # fp rating related constants
 min_image_area = 400
 min_images_per_doc = 10  # item has to have at least this number of pics
-max_images_per_doc = 21  # item has to have less than this number of pics
+max_images_per_doc = 18  # item has to have less than this number of pics
 max_items = 50  # max number of items to consider for rating fingerprint
 
 classifiers_folder = "/home/ubuntu/Dev/trendi_guru_modules/classifiers/"

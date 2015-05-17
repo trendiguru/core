@@ -5,6 +5,11 @@ import datetime
 
 import numpy as np
 
+
+
+
+
+
 #import fingerprint_core
 import rate_fp
 import NNSearch
@@ -44,10 +49,12 @@ def rate_wrapper(weights, k, image_sets, self_report, comparisons_to_make, outfi
         'k:' + str(k) + 'len imsets:' + str(len(image_sets)) + 'selfrep:' + str(self_report) )
     # print('constrained weights:'+str(weights))
     print('sum of weights after constraining:'+str(sum)+ ' target:'+str(target))
-    rating, report = rate_fp.analyze_fingerprint(fingerprint_function=fingerprint_core.fp, weights=weights,
+    rating, report = rate_fp.analyze_fingerprint(fingerprint_function=fingerprint_core.gc_and_fp, weights=weights,
                                                  distance_function=NNSearch.distance_1_k, distance_power=k,
                                                  image_sets=image_sets, self_reporting=self_report,
-                                                 comparisons_to_make=comparisons_to_make, outfilename=outfilename)
+                                                 comparisons_to_make=comparisons_to_make, outfilename=outfilename,
+                                                 **{'histogram_length': 25})
+    print('FINAL RATING:' + str(rating))
     return rating
 
 def optimize_weights(weights=np.ones(fingerprint_length),k=0.5):
@@ -79,7 +86,7 @@ def optimize_weights(weights=np.ones(fingerprint_length),k=0.5):
     print(name)
 
     x_min = scipy.optimize.minimize(f, init, args=(k, image_sets, self_report, comparisons_to_make, outfilename),
-                                    tol=0.01,
+                                    tol=0.05,
                                     options={'maxiter': 50, 'disp': True})
 
     pr.disable()

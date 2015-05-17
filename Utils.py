@@ -22,7 +22,6 @@ import re
 import string
 
 
-
 # import urllib
 # logging.setLevel(logging.DEBUG)
 
@@ -156,19 +155,20 @@ def get_cv2_img_array(url_or_path_to_image_file_or_cv2_image_array, convert_url_
                 pass
             else:  # there's no 'normal' filename ending
                 filename = filename + '.jpg'
-            try:
+            try:  # write file then open it
                 # print('filename for local write:' + str(filename))
                 write_status = imwrite(filename, img_array)
                 max_i = 50  # wait until file is readable before continuing
+                gotfile = False
                 for i in xrange(max_i):
                     try:
                         with open(filename, 'rb') as _:
-                            break
+                            gotfile = True
                     except IOError:
                         time.sleep(10)
-                    else:
-                        print('Could not access {} after {} attempts'.format(filename, str(max_i)))
-                        raise IOError('Could not access {} after {} attempts'.format(filename, str(max_i)))
+                if gotfile == False:
+                    print('Could not access {} after {} attempts'.format(filename, str(max_i)))
+                    raise IOError('Could not access {} after {} attempts'.format(filename, str(max_i)))
             except:  # this is prob unneeded given the 'else' above
                 print('unexpected error in Utils calling imwrite')
     return img_array
@@ -251,6 +251,7 @@ def bounding_box_inside_image(image_array, rect):
 # logging.debug(str(doc))
 #print('doc:'+str(doc))
 #       for prefix in prefixes:
+
 
 def fix_all_bbs_in_db(use_visual_output=False):
     '''
@@ -409,7 +410,7 @@ def all_inclusive_bounding_box(image_array, bounding_box):
     bb_area = bounding_box[2] * bounding_box[3]
     if bb_area > constants.min_bb_to_image_area_ratio * image_area:
         # print('got a bb that takes nearly all image')
-        logging.warning('got a bb that takes nearly all image')
+        # logging.warning('got a bb that takes nearly all image')
         return True
     else:
         return False
@@ -534,4 +535,5 @@ def isnumber(str):
 if __name__ == '__main__':
     print('starting')
     #show_all_bbs_in_db()
-    fix_all_bbs_in_db()
+    #fix_all_bbs_in_db()
+    # step_thru_db(use_visual_output=True)

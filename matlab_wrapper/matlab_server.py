@@ -1,13 +1,16 @@
 __author__ = 'liorsabag'
 
+import urllib
+import os
+
 import rpyc
+import numpy as np
+
 import matlab.engine
 import matlab
-import numpy as np
 import mat_2_py
-import urllib
 import Utils
-import os
+
 
 os.chdir("/home/ubuntu/Dev/pose_estimation/20121128-pose-release-ver1.3/code-basic")
 
@@ -43,7 +46,8 @@ class MatlabServerService(rpyc.Service):
         mat_boxes = ENG.get_pose_boxes_raw(path_to_image_or_url)
         np_boxes = np.array(mat_boxes, np.int16)
         pose_dict = mat_2_py.translate_2_boxes(np_boxes)
-        os.remove("./images/" + filename)
+        if "://" in path_to_image_or_url:
+            os.remove("./images/" + filename)
         return pose_dict
 
     def exposed_get_matlab_function(self, func_name):

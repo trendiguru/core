@@ -98,7 +98,7 @@ def lookfor_next_image_in_regular_db(current_item, only_get_boxed_images=False,
     while doc is not None:
         # print('doc:' + str(doc))
         # logging.warning('calling lookfor_next_bounded, index='+str(i)+' image='+str(current_image))
-        answers = lookfor_next_bounded_image(doc, image_index=current_image,
+        answers = lookfor_next_bounded_image(doc, image_index=current_item,
                                              only_get_boxed_images=only_get_boxed_images)
         # logging.warning('returned from  lookfor_next_bounded')
         if answers is not None:
@@ -302,6 +302,31 @@ def insert_bb_into_training_db(receivedData):
         i = i + 1
     return {"success": 0, "error": "could not find image w. url:" + str(image_url) + " in current doc:" + str(doc)}
 
+    db = pymongo.MongoClient().mydb
+    if db is None:
+        return {"success": 0, "error": "could not get db"}
+    trainingdb = db.training
+    if trainingdb is None:
+        return {"success": 0, "error": "could not get trainingdb"}
+
+
+def insert_feature_bb_into_db(new_feature_bb, itemID=id, db=None):
+    if db is None:
+        db = pymongo.MongoClient().mydb
+    if db is None:
+        return {"success": 0, "error": "could not get db"}
+    trainingdb = db.training
+    if trainingdb is None:
+        return {"success": 0, "error": "could not get trainingdb"}
+
+    doc = trainingdb.find_one({'_id': objectid.ObjectId(id)})
+
+    if not doc:
+        return {"success": 0, "error": "could not get doc with specified id" + str(id)}
+    i = 0
+    write_result = db.training.update({"_id": objectid.ObjectId(id)}, {"$set": {"images": doc['images']}})
+    return {"success": 1, 'message': "ok"}
+
 
 def fix_all_bbs_in_db(use_visual_output=True):
     '''
@@ -443,7 +468,245 @@ def show_all_bbs_in_db(use_visual_output=True):
     return {"success": 1}
 
 
+def step_thru_db(use_visual_output=True, collection='products'):
+    '''
+    fix all the bbs so they fit their respective image
+    :return:
+    '''
+    print('opening db')
+    db = pymongo.MongoClient().mydb
+    print('db open')
+    if db is None:
+        print('couldnt open db')
+        return {"success": 0, "error": "could not get db"}
+    dbstring = 'db.' + collection
+    # cursor = dbstring.find()   look in defaults.py how this is done
+    cursor = db.products.find()
+    print('returned cursor')
+    if cursor is None:  # make sure training collection exists
+        print('couldnt get cursor ' + str(collection))
+        return {"success": 0, "error": "could not get colelction"}
+    doc = next(cursor, None)
+    i = 0
+    while doc is not None:
+        print('checking doc #' + str(i + 1))
+        # print('doc:' + str(doc))
+        for topic in doc:
+            try:
+                print(str(topic) + ':' + str(doc[topic]))
+            except UnicodeEncodeError:
+                print('unicode encode error')
+
+        large_url = doc['image']['sizes']['Large']['url']
+        print('large img url:' + str(large_url))
+        if use_visual_output:
+            img_arr = Utils.get_cv2_img_array(large_url)
+            if 'bounding_box' in doc:
+                if Utils.legal_bounding_box(doc['bounding_box']):
+                    bb1 = doc['bounding_box']
+                    cv2.rectangle(img_arr, (bb1[0], bb1[1]), (bb1[0] + bb1[2], bb1[1] + bb1[3]), [255, 255, 0],
+                                  thickness=2)
+            cv2.imshow('im1', img_arr)
+            k = cv2.waitKey(50) & 0xFF
+        if 'categories' in doc:
+            try:
+                print('cats:' + str(doc['categories']))
+            except UnicodeEncodeError:
+                print('unicode encode error in description')
+                s = doc['categories']
+                print(s.encode('utf-8'))
+                # print(unicode(s.strip(codecs.BOM_UTF8), 'utf-8'))
+        if 'description' in doc:
+            try:
+                print('desc:' + str(doc['description']))
+            except UnicodeEncodeError:
+                print('unicode encode error in description')
+                s = doc['description']
+                print(s.encode('utf-8'))
+                # print(unicode(s.strip(codecs.BOM_UTF8), 'utf-8'))
+                # print(unicode(s.strip(codecs.BOM_UTF8), 'utf-8'))
+        i = i + 1
+        doc = next(cursor, None)
+        print('')
+        raw_input('enter key for next doc')
+    return {"success": 1}
+
+
+def show_db_record(use_visual_output=True, doc=None):
+    '''
+    fix all the bbs so they fit their respective image
+    :return:
+    '''
+    if doc is None:
+        print('no doc specified')
+        return
+
+    for topic in doc:
+        try: 
+            print(str(topic) + ':' + str(doc[topic]))
+        except UnicodeEncodeError:
+            print('unicode encode error')
+            print(topic.encode('utf-8') + ':' + doc[topic].encode('utf-8'))
+
+    xlarge_url = doc['image']['sizes']['XLarge']['url']
+    print('large img url:' + str(xlarge_url))
+    if use_visual_output:
+        img_arr = Utils.get_cv2_img_array(xlarge_url)
+        if 'bounding_box' in doc:
+            if Utils.legal_bounding_box(doc['bounding_box']):
+                bb1 = doc['bounding_box']
+                cv2.rectangle(img_arr, (bb1[0], bb1[1]), (bb1[0] + bb1[2], bb1[1] + bb1[3]), [255, 255, 0],
+                              thickness=2)
+        cv2.imshow('im1', img_arr)
+        k = cv2.waitKey(200) & 0xFF
+
+
+def lookfor_next_unbounded_feature_from_db_category(item_number=0, skip_if_marked_to_skip=True,
+                                                    which_to_show='showUnboxed', filter_type='byWordInDescription',
+                                                    category_id=None, word_in_description=None, db=None):
+
+    # {"id":"v-neck-sweaters"}  coats
+    # query_doc = {"categories": {"shortName":"V-Necks"}}
+
+    if db is None:
+        db = pymongo.MongoClient().mydb
+    if db is None:
+        print('dbUtils.get_next_unbounded_feature_from_db - problem getting DB')
+        return None
+    # make sure theres a known filter type
+    if not filter_type in ['byCategoryID', 'byWordInDescription']:
+        print('couldnt figure out filter type:' + str(filter_type))
+        logging.warning('couldnt figure out filter type:' + str(filter_type))
+        return {'success': 0, 'error': 'couldnt figure out filter type'}
+
+    # make sure theres a known which_to_show
+    if not which_to_show in ['showBoxed', 'showUnboxed', 'showAll']:
+        print('couldnt figure out which_to_show:' + str(which_to_show))
+        logging.warning('couldnt figure out which to show:' + str(which_to_show))
+        return {'success': 0, 'error': 'couldnt figure out which to show'}
+
+    if filter_type == 'byCategoryID':
+        query = {"categories": {"$elemMatch": {"id": category_id}}}
+        fields = {"categories": 1, "image": 1, "human_bb": 1, "fp_version": 1, "bounding_box": 1,
+                  "id": 1, "feature_bbs": 1}
+        filter = category_id
+
+    elif filter_type == 'byWordInDescription':
+        if word_in_description == None:
+            print('no word given to find in description so finding everything')
+            logging.warning('no word given to find in description so finding everything')
+            word_in_description = ''
+        myregex = ".*" + word_in_description + ".*"
+        query = {"description": {'$regex': myregex}}
+        fields = {"categories": 1, "image": 1, "human_bb": 1, "fp_version": 1, "bounding_box": 1,
+                  "id": 1, "description": 1, "feature_bbs": 1}
+        filter = word_in_description
+
+    else:
+        print('couldnt figure out filter type:' + str(filter_type))
+        return {'success': 0, 'error': 'couldnt figure out filter type'}
+    num_processes = 100
+    product_cursor = db.products.find(query, fields).batch_size(num_processes)
+    if product_cursor is None:
+        print('got no docs in lookfor_next_unbounded_feature_from_db_category')
+        logging.debug('got no docs in lookfor_next_unbounded_feature_from_db_category')
+        return None
+
+    ans = get_first_qualifying_record(product_cursor, which_to_show=which_to_show, filter_type=filter_type,
+                                      filter=filter, item_number=item_number,
+                                      skip_if_marked_to_skip=skip_if_marked_to_skip)
+
+    # print(str(ans))
+    return ans
+
+
+# structure of 'feature_bbs':
+# feature_bbs:{'skip':True/False,'byCategoryId':{catID:[bb11,bb12,bb13],catID2:[bb21,bb22,],catID3:[bb3],...},'byWordInDescription':{word:[bb],word2:[b2],..}
+def get_first_qualifying_record(cursor, which_to_show='showAll', filter_type='byCategoryId', filter=None, item_number=0,
+                                skip_if_marked_to_skip=True):
+    TOTAL_PRODUCTS = cursor.count()
+    print('tot records found:' + str(TOTAL_PRODUCTS))
+    # make sure theres a known which_to_show
+
+    # ['onlyShowBoxed', 'onlyShowUnboxed', 'showAll']:
+
+    # if showAll, skip if necessary , otherwise return doc+bb if bb found, just doc otherwise
+    if which_to_show == 'showAll':
+        for i in range(item_number, TOTAL_PRODUCTS):
+            doc = cursor[i]
+            if 'feature_bbs' in doc:
+                bbs = doc['feature_bbs']
+                if skip_if_marked_to_skip:
+                    if 'skip' in bbs:
+                        if bbs['skip'] == True:
+                            continue
+                if filter_type in bbs:
+                    bbs_of_filter_type = bbs[filter_type]
+                    if filter in bbs_of_filter_type:
+                        bbs = bbs_of_filter_type[filter]
+                        if bbs is not None:
+                            return {'doc': doc, 'bbs': bbs}
+            return {'doc': doc}
+
+    # if showBoxed, skip if necessary , otherwise return doc+bb if bb found
+    elif which_to_show == 'showBoxed':
+        for i in range(item_number, TOTAL_PRODUCTS):
+            doc = cursor[i]
+            if 'feature_bbs' in doc:
+                bbs = doc['feature_bbs']
+                if skip_if_marked_to_skip:
+                    if 'skip' in bbs:
+                        if bbs['skip'] == True:
+                            continue
+                if filter_type in bbs:
+                    bbs_of_filter_type = bbs[filter_type]
+                    if filter in bbs_of_filter_type:
+                        bbs = bbs_of_filter_type[filter]
+                        if bbs is not None:
+                            return {'doc': doc, 'bbs': bbs}
+        print('didnt find any relevant bounded boxes ')
+        return None
+
+    # if showUnBoxed, skip if necessary , otherwise return doc if bb NOT found
+    elif which_to_show == 'showUnboxed':
+        for i in range(item_number, TOTAL_PRODUCTS):
+            doc = cursor[i]
+            if 'feature_bbs' in doc:
+                bbs = doc['feature_bbs']
+                if skip_if_marked_to_skip:
+                    if 'skip' in bbs:
+                        if bbs['skip'] == True:
+                            continue
+                if filter_type in bbs:
+                    bbs_of_filter_type = bbs[filter_type]
+                    if filter in bbs_of_filter_type:
+                        bbs = bbs_of_filter_type[filter]
+                        if bbs is not None:
+                            continue
+                    else:
+                        return {'doc': doc}
+                else:
+                    return {'doc': doc}
+            else:
+                return {'doc': doc}
+        print('didnt find any relevant unbounded docs ')
+        return None
+    else:
+        logging.warning(
+            'cant figure out what you want dude - niether showall,showBoxed, showUnboxed, you wanted:' + str(
+                which_to_show))
+
+# description: classic neckline , round collar, round neck, crew neck, square neck, v-neck, clASsic neckline,round collar,crewneck,crew neck, scoopneck,square neck, bow collar, ribbed round neck,rollneck ,slash neck
+# cats:[{u'shortName': u'V-Necks', u'localizedId': u'v-neck-sweaters', u'id': u'v-neck-sweaters', u'name': u'V-Neck Sweaters'}]
+# cats:[{u'shortName': u'Turtlenecks', u'localizedId': u'turleneck-sweaters', u'id': u'turleneck-sweaters', u'name': u'Turtlenecks'}]
+# cats:[{u'shortName': u'Crewnecks & Scoopnecks', u'localizedId': u'crewneck-sweaters', u'id': u'crewneck-sweaters', u'name': u'Crewnecks & Scoopnecks'}]
+# categories:#            u'name': u'V-Neck Sweaters'}]
+
+
 if __name__ == '__main__':
     print('starting')
     # show_all_bbs_in_db()
-    fix_all_bbs_in_db()
+    # fix_all_bbs_in_db()
+    # doc = lookfor_next_unbounded_feature_from_db_category()
+    # print('doc:' + str(doc))
+    step_thru_db(use_visual_output=True, collection='products')
