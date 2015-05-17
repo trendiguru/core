@@ -1,4 +1,6 @@
 __author__ = 'liorsabag'
+# TODO  consider using histogram - match metrics from here
+# http://docs.opencv.org/doc/tutorials/imgproc/histograms/histogram_comparison/histogram_comparison.html#explanation
 
 import string
 import logging
@@ -9,12 +11,6 @@ import cv2
 import background_removal
 import constants
 import Utils
-
-
-
-
-
-
 
 
 # moving this into the show_fp function for now - LS
