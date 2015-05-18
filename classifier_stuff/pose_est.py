@@ -70,7 +70,7 @@ def get_pose_est_bbs(url="http://www.thebudgetbabe.com/uploads/2015/201504/celeb
     #    headbox = pose.pose_est_face(bbs, url)
     print('headboxes' + str(headboxes) + ' headbox' + str(headbox))
     #h = copy.deepcopy(headboxes)
-    cv2.rectangle(img_arr, (avg_x0, avg_y0, bb1[0] + bb1[2], bb1[1] + bb1[3]), [255, 255, 0],
+    cv2.rectangle(img_arr, (avg_x0, avg_y0), (avg_x0 + avg_w, avg_y0 + avg_h), [255, 255, 0],
                   thickness=2)
     cv2.imshow('im1', img_arr)
     k = cv2.waitKey(200)

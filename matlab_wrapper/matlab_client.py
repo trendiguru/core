@@ -15,7 +15,7 @@ class Engine(object):
         except:
             # otherwise pass it on to ml engine
             attr = self.conn.root.exposed_get_matlab_function(name)
-        return rpyc_obtain_wrapper(attr) if self.obtain_all else attr
+        return self.rpyc_obtain_wrapper(attr) if self.obtain_all else attr
 
     def get_pose_boxes_dict(self, path_to_image_or_url):
         d = self.conn.root.get_pose_boxes_dict(path_to_image_or_url)
