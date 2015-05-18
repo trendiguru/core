@@ -51,7 +51,10 @@ class MatlabServerService(rpyc.Service):
         return pose_dict
 
     def exposed_get_matlab_function(self, func_name):
-        return getattr(ENG, func_name)
+        def wrapper(*args, **kwargs):
+            retval = getattr(ENG, func_name)(*args, **kwargs)
+            retval = np.array(retval) if type(retval) is matlab.mlarray else retval
+        return wrapper
 
 
 if __name__ == "__main__":
