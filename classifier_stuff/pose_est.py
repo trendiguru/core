@@ -7,7 +7,8 @@ import background_removal
 
 # matlab = mateng.conn.root.modules
 # matlab = mateng.conn.root.matlab
-def get_pose_est_bbs(url="http://www.thebudgetbabe.com/uploads/2015/201504/celebsforever21coachella.jpg"):
+def get_pose_est_bbs(url="http://www.thebudgetbabe.com/uploads/2015/201504/celebsforever21coachella.jpg",
+                     description='description', n=0):
     mateng = matlab_client.Engine()
     print('got engine')
     # print('7701 is prime?' + str(mateng.isprime(7001)))
@@ -70,11 +71,12 @@ def get_pose_est_bbs(url="http://www.thebudgetbabe.com/uploads/2015/201504/celeb
     #    headbox = pose.pose_est_face(bbs, url)
     print('headboxes' + str(headboxes) + ' headbox' + str(headbox))
     #h = copy.deepcopy(headboxes)
+    img_arr = Utils.get_cv2_img_array(url, download=True, convert_url_to_local_filename=True)
     cv2.rectangle(img_arr, (avg_x0, avg_y0), (avg_x0 + avg_w, avg_y0 + avg_h), [255, 255, 0],
                   thickness=2)
     cv2.imshow('im1', img_arr)
     k = cv2.waitKey(200)
-    cv2.imwrite("image_" + str(i) + ".png", img_arr)
+    cv2.imwrite(description + "_" + str(n) + ".png", img_arr)
     #return headbox
 
 
@@ -92,23 +94,29 @@ if __name__ == '__main__':
     print('starting')
     # show_all_bbs_in_db()
     # get_pose_est_bbs()
+    descriptions = ['A-line', 'shift', 'sheath', 'tent', 'empire', 'strapless', 'halter', 'one-shoulder', 'apron',
+                    'jumper', 'sun', 'wrap', 'pouf', 'slip', 'qi pao', 'shirt dress', 'maxi', 'ball gown', 'midi',
+                    'mini']
+    # description = 'mermaid'
+    for description in descriptions:
+        for i in range(0, 200):
+            mdoc = dbUtils.lookfor_next_unbounded_feature_from_db_category(item_number=i, skip_if_marked_to_skip=True,
+                                                                           which_to_show='showAll',
+                                                                           filter_type='byWordInDescription',
+                                                                           category_id=None,
+                                                                           word_in_description=description,
+                                                                           db=None)
+            if doc in mdoc:
+                doc = mdoc['doc']
+                print doc
 
-    for i in range(0, 100):
-        mdoc = dbUtils.lookfor_next_unbounded_feature_from_db_category(item_number=i, skip_if_marked_to_skip=True,
-                                                                       which_to_show='showAll',
-                                                                       filter_type='byWordInDescription',
-                                                                       category_id=None, word_in_description='bodycon',
-                                                                       db=None)
-        doc = mdoc['doc']
-        print doc
-
-        xlarge_url = doc['image']['sizes']['XLarge']['url']
-        print('large img url:' + str(xlarge_url))
-        img_arr = Utils.get_cv2_img_array(xlarge_url)
-        face1 = background_removal.find_face(img_arr)
-        if face1 is not None and len(face1) != 0:
-            print('face1:' + str(face1))
-            bb1 = face1
-        else:
-            get_pose_est_bbs(xlarge_url)
+                xlarge_url = doc['image']['sizes']['XLarge']['url']
+                print('large img url:' + str(xlarge_url))
+                img_arr = Utils.get_cv2_img_array(xlarge_url)
+                face1 = background_removal.find_face(img_arr)
+                if face1 is not None and len(face1) != 0:
+                    print('face1:' + str(face1))
+                    bb1 = face1
+                else:
+                    get_pose_est_bbs(xlarge_url, description, n=i)
 

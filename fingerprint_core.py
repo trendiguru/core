@@ -13,6 +13,7 @@ import constants
 import Utils
 
 
+
 # moving this into the show_fp function for now - LS
 # import matplotlib.pyplot as plt
 
@@ -168,6 +169,71 @@ def fp(img, mask=None, weights=np.ones(fingerprint_length), histogram_length=25)
     return result_vector
 
 
+def fp_HSCrCb(img, mask=None, weights=np.ones(fingerprint_length), histogram_length=25):
+    if mask is None or cv2.countNonZero(mask) == 0:
+        mask = np.ones((img.shape[0], img.shape[1]), dtype=np.uint8)
+    if mask.shape[0] != img.shape[0] or mask.shape[1] != img.shape[1]:
+        print('trouble with mask size, resetting to image size')
+        mask = np.ones((img.shape[0], img.shape[1]), dtype=np.uint8)
+    n_pixels = cv2.countNonZero(mask)
+    hsv = cv2.cvtColor(img, cv2.COLOR_BGR2HSV)
+    YCrCb = cv2.cvtColor(img, cv2.COLOR_BGR2YCR_CB)
+
+    # OpenCV uses  H: 0 - 180, S: 0 - 255, V: 0 - 255
+    # histograms
+    bins = histogram_length
+
+    hist_Cr = cv2.calcHist([YCrCb], [1], mask, [bins], [0, 255])
+    hist_Cr = [item for sublist in hist_Cr for item in sublist]  # flatten nested
+    hist_Cr = np.divide(hist_Cr, n_pixels)
+
+    hist_Cb = cv2.calcHist([YCrCb], [2], mask, [bins], [0, 255])
+    hist_Cb = [item for sublist in hist_Cb for item in sublist]  # flatten nested
+    hist_Cb = np.divide(hist_Cb, n_pixels)
+
+    hist_hue = cv2.calcHist([hsv], [0], mask, [bins], [0, 180])
+    hist_hue = [item for sublist in hist_hue for item in sublist]  # flatten nested
+    hist_hue = np.divide(hist_hue, n_pixels)
+
+    hist_sat = cv2.calcHist([hsv], [1], mask, [bins], [0, 255])
+    hist_sat = [item for sublist in hist_sat for item in sublist]
+    hist_sat = np.divide(hist_sat, n_pixels)
+
+    hist_int = cv2.calcHist([hsv], [2], mask, [bins], [0, 255])
+    hist_int = [item for sublist in hist_int for item in sublist]  # flatten nested list
+    hist_int = np.divide(hist_int, n_pixels)
+
+    # Uniformity  t(5)=sum(p.^ 2);
+
+    Cr_uniformity = np.dot(hist_Cr, hist_Cr)
+    Cb_uniformity = np.dot(hist_Cb, hist_Cb)
+    hue_uniformity = np.dot(hist_hue, hist_hue)
+    sat_uniformity = np.dot(hist_sat, hist_sat)
+    int_uniformity = np.dot(hist_int, hist_int)
+
+    # Entropy   t(6)=-sum(p. *(log2(p+ eps)));
+    eps = 1e-15
+    max_log_value = np.log2(bins)  # this is same as sum of p log p
+    l_Cr = -np.log2(hist_Cr + eps) / max_log_value
+    Cr_entropy = np.dot(hist_Cr, l_Cr)
+    l_Cb = -np.log2(hist_Cb + eps) / max_log_value
+    Cb_entropy = np.dot(hist_Cb, l_Cb)
+    l_hue = -np.log2(hist_hue + eps) / max_log_value
+    hue_entropy = np.dot(hist_hue, l_hue)
+    l_sat = -np.log2(hist_sat + eps) / max_log_value
+    sat_entropy = np.dot(hist_sat, l_sat)
+    l_int = -np.log2(hist_int + eps) / max_log_value
+    int_entropy = np.dot(hist_int, l_int)
+
+    result_vector = [Cr_uniformity, Cb_uniformity, hue_uniformity, sat_uniformity, int_uniformity, Cr_entropy,
+                     Cr_entropy, hue_entropy, sat_entropy, int_entropy]
+    result_vector = np.concatenate((result_vector, hist_Cr, hist_Cb, hist_hue, hist_sat), axis=0)
+
+    # weights = np.ones(len(result_vector))  # THIS IS A KLUGE , FIX
+    result_vector = np.multiply(result_vector, weights)
+    return result_vector
+
+
 def gc_and_fp_with_kwargs(img, bounding_box=None, weights=np.ones(fingerprint_length), **kwargs):
     # for kw in kwargs:
     # print('in fp_with_kwargs, kw:'+str(kw)+'='+str(kwargs[kw]))
@@ -291,6 +357,15 @@ def gc_and_fp(img, bounding_box=None, weights=np.ones(fingerprint_length), histo
     fingerprint = fp(img, mask, weights=weights, **kwargs)
     return fingerprint
 
+
+def gc_and_fp_YCrCb(img, bounding_box=None, weights=np.ones(fingerprint_length), histogram_length=25, **kwargs):
+    if bounding_box == None:
+        print('warning - bad bounding box caught in gc_and_fp')
+        bounding_box = [0, 0, img.shape[1], img.shape[0]]
+
+    mask = background_removal.get_fg_mask(img, bounding_box=bounding_box)
+    fingerprint = fp_HSCrCb(img, mask, weights=weights, **kwargs)
+    return fingerprint
 
 def gc_and_fp_histeq(img, bounding_box=None, weights=np.ones(fingerprint_length), histogram_length=25, **kwargs):
     if bounding_box == None:

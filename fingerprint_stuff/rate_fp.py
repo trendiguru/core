@@ -1133,7 +1133,7 @@ global visual_output1
 global visual_output2
 
 if __name__ == '__main__':
-    report = analyze_fingerprint(fingerprint_function=fp_core.fp_with_kwargs, use_visual_output1=True,
+    report = analyze_fingerprint(fingerprint_function=fp_core.gc_and_fp_YCrCb, use_visual_output1=True,
                                  histogram_length=30)
 
     print('hi0')
