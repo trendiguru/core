@@ -28,7 +28,7 @@ class Engine(object):
             # first check if this is an explicitly defined attribute on the server
             attr = getattr(self.conn.root, name)
         except:
-            # otherwise pass it on to ml engine
+            # otherwise pass it on to ml  engine
             attr = self.conn.root.exposed_get_matlab_function(name)
         return self.rpyc_obtain_wrapper(attr) if self.obtain_all else attr
 
