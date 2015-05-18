@@ -14,6 +14,7 @@ import Utils
 
 
 
+
 # moving this into the show_fp function for now - LS
 # import matplotlib.pyplot as plt
 
@@ -230,7 +231,7 @@ def fp_HSCrCb(img, mask=None, weights=np.ones(fingerprint_length), histogram_len
     result_vector = np.concatenate((result_vector, hist_Cr, hist_Cb, hist_hue, hist_sat), axis=0)
 
     # weights = np.ones(len(result_vector))  # THIS IS A KLUGE , FIX
-    result_vector = np.multiply(result_vector, weights)
+    # result_vector = np.multiply(result_vector, weights)
     return result_vector
 
 

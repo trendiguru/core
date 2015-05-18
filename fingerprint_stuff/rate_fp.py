@@ -497,7 +497,6 @@ def normalize_matrix(matrix):
     normalized_matrix = np.divide(matrix, avg)
     return (normalized_matrix)
 
-
 # maybe delete
 def cross_compare(image_sets):
     '''
@@ -519,7 +518,6 @@ def cross_compare(image_sets):
             # normalized_matrix = normalize_matrix(confusion_matrix)
             # return(normalized_matrix)
     return (confusion_matrix)
-
 
 # maybe delete
 def calculate_cross_confusion_matrix():
@@ -556,7 +554,6 @@ def calculate_cross_confusion_matrix():
     cross_report['distance_function'] = 'NNSearch.distance_1_k(fp1, fp2,power=1.5)'
     cross_report['timestamp'] = datetime.datetime.now().strftime("%Y-%m-%d-%H.%M")
     return (confusion_matrix)
-
 
 ######## in use
 def compare_fingerprints(image_array1, image_array2, fingerprint_function=fp_core.fp,
@@ -659,7 +656,6 @@ def compare_fingerprints(image_array1, image_array2, fingerprint_function=fp_cor
             n) + ',tot=' + str(tot_dist) + ' diag elements:' + str(i))
     # print('average distance numpy:'+str(distances_mean)+',stdev'+str(distances_stdev))
     return (avg_dist, distances_stdev, distances_np_array)
-
 
 ##in use
 def compare_fingerprints_except_diagonal(image_array1, image_array2, fingerprint_function=fp_core.fp,
