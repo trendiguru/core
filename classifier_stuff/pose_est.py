@@ -74,9 +74,9 @@ def get_pose_est_bbs(url="http://www.thebudgetbabe.com/uploads/2015/201504/celeb
     print('headboxes' + str(headboxes) + ' headbox' + str(headbox))
     #h = copy.deepcopy(headboxes)
     img_arr = Utils.get_cv2_img_array(url, download=True, convert_url_to_local_filename=True)
+    cv2.rectangle(img_arr, (avg_x0, avg_y0), (avg_x0 + avg_w, avg_y0 + avg_h), [0, 0, 100],
+                  thickness=1)
     if show_visual_output == True:
-        cv2.rectangle(img_arr, (avg_x0, avg_y0), (avg_x0 + avg_w, avg_y0 + avg_h), [255, 255, 255],
-                      thickness=1)
         cv2.imshow('im1', img_arr)
         k = cv2.waitKey(200)
 
