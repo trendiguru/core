@@ -1,6 +1,6 @@
 __author__ = 'Nadav Paz'
 # Libraries import
-
+# TODO throw error in find_face if xml's aren't found - currently i think this happens silently
 
 import string
 from Tkinter import Tk
