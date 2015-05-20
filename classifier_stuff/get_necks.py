@@ -35,7 +35,7 @@ if __name__ == '__main__':
                 mask = background_removal.get_fg_mask(image, bounding_box=None)
                 masked = background_removal.get_masked_image(image, mask)
 
-                show_visual_output = True
+                show_visual_output = False
                 if show_visual_output:
                     cv2.imshow('im1', masked)
                     k = cv2.waitKey(500) & 0xFF
