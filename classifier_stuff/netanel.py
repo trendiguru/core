@@ -144,7 +144,7 @@ if __name__ == '__main__':
                 face1 = background_removal.find_face(img_arr)
                 if face1 is not None and len(face1) != 0:
                     print('face1:' + str(face1))
-                    bb1 = face1
+                    bb1 = face1[0]
                     get_pose_est_bbs(xlarge_url, description, n=i, bb=bb1)
 
                 else:
