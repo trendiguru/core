@@ -133,10 +133,11 @@ if __name__ == '__main__':
     print('starting')
     # show_all_bbs_in_db()
     # get_pose_est_bbs()
-    descriptions = ['A-line', 'shift', 'sheath', 'tent', 'empire', 'strapless', 'halter', 'one-shoulder',
-                    'apron',
+    descriptions = ['strapless', 'halter', 'one-shoulder', 'apron',
                     'jumper', 'sun', 'wrap', 'pouf', 'slip', 'qi pao', 'shirt dress', 'maxi', 'ball gown', 'midi',
                     'mini']
+    # 'A-line',
+    # 'shift', 'sheath', 'tent', 'empire',
     # description = 'mermaid'
  #   get_pose_est_bbs(url="http://www.thebudgetbabe.com/uploads/2015/201504/celebsforever21coachella.jpg",
     # description='description', n=0,add_head_rectangle=True)
