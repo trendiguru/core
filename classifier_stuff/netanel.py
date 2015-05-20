@@ -8,7 +8,7 @@ import background_removal
 # matlab = mateng.conn.root.modules
 # matlab = mateng.conn.root.matlab
 def get_pose_est_bbs(url="http://www.thebudgetbabe.com/uploads/2015/201504/celebsforever21coachella.jpg",
-                     description='description', n=0, add_head_rectangle=True, show_visual_output=False, bb=None):
+                     description='description', n=0, add_head_rectangle=True, show_visual_output=True, bb=None):
     mateng = matlab_client.Engine()
     print('got engine')
     # print('7701 is prime?' + str(mateng.isprime(7001)))
@@ -40,7 +40,7 @@ def get_pose_est_bbs(url="http://www.thebudgetbabe.com/uploads/2015/201504/celeb
         for bb1 in bodypart:
             bb1 = x1y1x2y2_to_bb(bb1)
             print('rect:' + str(bb1))
-            cv2.rectangle(img_arr, (bb1[0], bb1[1]), (bb1[0] + bb1[2], bb1[1] + bb1[3]), color=colors[i], thickness=1)
+            # cv2.rectangle(img_arr, (bb1[0], bb1[1]), (bb1[0] + bb1[2], bb1[1] + bb1[3]), color=colors[i], thickness=1)
             if show_visual_output:
                 cv2.imshow('im1', img_arr)
                 k = cv2.waitKey(50) & 0xFF
@@ -77,49 +77,28 @@ def get_pose_est_bbs(url="http://www.thebudgetbabe.com/uploads/2015/201504/celeb
         headbox = bb
 
     # h = copy.deepcopy(headboxes)
-    img_arr = Utils.get_cv2_img_array(url, download=True, convert_url_to_local_filename=True)
-    cv2.rectangle(img_arr, (avg_x0, avg_y0), (avg_x0 + avg_w, avg_y0 + avg_h), [0, 0, 100],
-                  thickness=1)
+ #   img_arr = Utils.get_cv2_img_array(url, download=True, convert_url_to_local_filename=True)
+        # cv2.rectangle(img_arr, (headbox[0], headbox[1]), (headbox[0] +headbox[2], headbox[1] + headbox[3]), [0, 0, 100],
+        #                thickness=1)
+
+    neck_offset = headbox[3] * 1
+    neck_extra_width = int(headbox[2] / 2)
+    neck_extra_height = int(headbox[3] / 2)
+    neckbox = [headbox[0] - neck_extra_width, headbox[1] + neck_offset - neck_extra_height,
+               headbox[2] + neck_extra_width * 2, headbox[3] + neck_extra_height * 2]
+    # cv2.rectangle(img_arr, (neckbox[0], neckbox[1]), (neckbox[0] +neckbox[2], neckbox[1] + neckbox[3]), [0, 200, 100],
+    # thickness=1)
     if show_visual_output == True:
         cv2.imshow('im1', img_arr)
         k = cv2.waitKey(200)
 
-    hitbottom = False
-    image_h = img_arr.shape[0]
-    image_w = img_arr.shape[1]
-    w = int(headbox[2])
-    h = int(headbox[3])
-    top = headbox[1]
-    while not hitbottom:
-        hitleft_or_right = False
-        top = int(top + h)
-        if top > image_h:
-            hitbottom = True
-            break
-        left = headbox[0]
-        right = headbox[0]
-        cv2.rectangle(img_arr, (int(left), int(top)), (int(left + w), int(top + h)), [255, 255, 255],
-                      thickness=1)
-        while not hitleft_or_right:
-            left = int(left - w)
-            right = int(right + w)
-            print('l {0} r {1} '.format(left, right))
-            mid = headbox[0]
-            leftbox = [left, top, w, h]
-            rightbox = [right, top, w, h]
-            if left < 0 or right + w > image_w:
-                hitleft_or_right = True
-                break
-            cv2.rectangle(img_arr, (int(left), int(top)), (int(left + w), int(top + h)), [0, 255, 0],
-                          thickness=1)
-            cv2.rectangle(img_arr, (right, top), (right + w, top + h), [0, 255, 255],
-                          thickness=1)
-            if show_visual_output == True:
-                cv2.imshow('im1', img_arr)
-                k = cv2.waitKey(200)
+    img2 = img_arr[neckbox[0]:neckbox[0] + neckbox[2], neckbox[0]:neckbox[0] + neckbox[2]]
 
-    cv2.imwrite('images/' + description + "_" + str(n) + ".png", img_arr)
-    #return headbox
+    new_description = description.replace(' ', '')
+    cv2.imwrite('images/necks/' + new_description + "_" + str(n) + ".png", img_arr)
+
+    cv2.imwrite('images/necks/' + new_description + "_" + str(n) + ".neck_only.png", img2)
+    # return headbox
 
 
 def x1y1x2y2_to_bb(x1y1x2y2):
@@ -135,9 +114,12 @@ if __name__ == '__main__':
     print('starting')
     # show_all_bbs_in_db()
     # get_pose_est_bbs()
-    descriptions = ['v-neck', 'round neck', 'one-shoulder', 'apron',
-                    'jumper', 'sun', 'wrap', 'pouf', 'slip', 'qi pao', 'shirt dress', 'maxi', 'ball gown', 'midi',
-                    'mini']
+    descriptions = ['v-neck', 'round neck', 'classic neckline', 'round collar', 'round neck', 'crew neck',
+                    'square neck', 'v-neck', 'classic neckline',
+                    'round collar', 'crewneck', 'crew neck', 'scoopneck', 'square neck', 'bow collar',
+                    'ribbed round neck', 'rollneck',
+                    'slash neck', 'V-Necks']
+
     # 'A-line',
     # 'shift', 'sheath', 'tent', 'empire',
     # description = 'mermaid'
