@@ -17,7 +17,7 @@ if __name__ == '__main__':
     #                   description='description', n=0,add_head_rectangle=True)
 
     for description in descriptions:
-        for i in range(0, 100):
+        for i in range(0, 500):
             mdoc = dbUtils.lookfor_next_unbounded_feature_from_db_category(item_number=i, skip_if_marked_to_skip=True,
                                                                            which_to_show='showAll',
                                                                            filter_type='byWordInDescription',
