@@ -84,6 +84,12 @@ def get_pose_est_bbs(url="http://www.thebudgetbabe.com/uploads/2015/201504/celeb
     neck_offset = headbox[3] * 1
     neck_extra_width = int(headbox[2] / 2)
     neck_extra_height = int(headbox[3] / 2)
+    image_w = img_arr.shape[1]
+    image_h = img_arr.shape[0]
+    neck_x = max(0, headbox[0] - neck_extra_width)
+    neck_y = max(0, headbox[1] + neck_offset - neck_extra_height)
+    neck_w = min(headbox[2] + neck_extra_width * 2, image_w - neck_x - 1)
+    neck_h = min(headbox[3] + neck_extra_height * 2, image_h - neck_y - 1)
     neckbox = [headbox[0] - neck_extra_width, headbox[1] + neck_offset - neck_extra_height,
                headbox[2] + neck_extra_width * 2, headbox[3] + neck_extra_height * 2]
     # cv2.rectangle(img_arr, (neckbox[0], neckbox[1]), (neckbox[0] +neckbox[2], neckbox[1] + neckbox[3]), [0, 200, 100],
