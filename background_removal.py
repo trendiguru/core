@@ -193,7 +193,7 @@ def image_is_relevant(image):
         1. no face detected
         2. face at the lower half of the image
         3. face's area is too big (checked with height relativity only)
-    :param small image: ndarray with maximum edge of 200
+    :param small image: ndarray with maximum edge of 400
     :return: True or False
     """
     faces = find_face(image)
