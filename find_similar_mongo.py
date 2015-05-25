@@ -93,7 +93,7 @@ def got_bb(image_url, post_id, item_id, bb=None, number_of_results=10, category_
     fg_mask = background_removal.get_fg_mask(small_image, bb)                     # returns the grab-cut mask (if bb => PFG-PBG gc, if !bb => face gc)
     gc_image = background_removal.get_masked_image(small_image, fg_mask)
     without_skin = kassper.skin_removal(gc_image, small_image)
-    crawl_mask = kassper.clutter_removal(without_skin, 200)
+    crawl_mask = kassper.clutter_removal(without_skin, 400)
     without_clutter = background_removal.get_masked_image(without_skin, crawl_mask)
     fp_mask = kassper.get_mask(without_clutter)
     fp_vector, closest_matches = find_top_n_results(small_image, fp_mask, number_of_results, category_id)
