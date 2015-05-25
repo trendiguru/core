@@ -152,7 +152,7 @@ def find_images(description):
             print('relevance:' + str(relevance))
             if not relevance:
                 print('image is not relevant')
-                return None
+                continue
             print('image is relevant')
             face1 = background_removal.find_face(img_arr)
             if face1 is not None and len(face1) != 0:
