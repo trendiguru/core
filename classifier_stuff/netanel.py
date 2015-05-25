@@ -8,7 +8,7 @@ import background_removal
 # matlab = mateng.conn.root.modules
 # matlab = mateng.conn.root.matlab
 def get_pose_est_bbs(url="http://www.thebudgetbabe.com/uploads/2015/201504/celebsforever21coachella.jpg",
-                     description='description', n=0, add_head_rectangle=True, show_visual_output=False, bb=None):
+                     description='description', n=0, add_head_rectangle=True, show_visual_output=True, bb=None):
     mateng = matlab_client.Engine()
     print('got engine')
     # print('7701 is prime?' + str(mateng.isprime(7001)))
@@ -40,8 +40,9 @@ def get_pose_est_bbs(url="http://www.thebudgetbabe.com/uploads/2015/201504/celeb
         for bb1 in bodypart:
             bb1 = x1y1x2y2_to_bb(bb1)
             print('rect:' + str(bb1))
-            # cv2.rectangle(img_arr, (bb1[0], bb1[1]), (bb1[0] + bb1[2], bb1[1] + bb1[3]), color=colors[i], thickness=1)
             if show_visual_output:
+                cv2.rectangle(img_arr, (bb1[0], bb1[1]), (bb1[0] + bb1[2], bb1[1] + bb1[3]), color=colors[i],
+                              thickness=1)
                 cv2.imshow('im1', img_arr)
                 k = cv2.waitKey(50) & 0xFF
             i = i + 1
@@ -77,7 +78,7 @@ def get_pose_est_bbs(url="http://www.thebudgetbabe.com/uploads/2015/201504/celeb
         headbox = bb
 
     # h = copy.deepcopy(headboxes)
- #   img_arr = Utils.get_cv2_img_array(url, download=True, convert_url_to_local_filename=True)
+    img_arr = Utils.get_cv2_img_array(url, download=True, convert_url_to_local_filename=True)
         # cv2.rectangle(img_arr, (headbox[0], headbox[1]), (headbox[0] +headbox[2], headbox[1] + headbox[3]), [0, 0, 100],
         #                thickness=1)
 
@@ -91,9 +92,10 @@ def get_pose_est_bbs(url="http://www.thebudgetbabe.com/uploads/2015/201504/celeb
     neck_w = min(headbox[2] + neck_extra_width * 2, image_w - neck_x - 1)
     neck_h = min(headbox[3] + neck_extra_height * 2, image_h - neck_y - 1)
     neckbox = [neck_x, neck_y, neck_w, neck_h]
-    # cv2.rectangle(img_arr, (neckbox[0], neckbox[1]), (neckbox[0] +neckbox[2], neckbox[1] + neckbox[3]), [0, 200, 100],
-    # thickness=1)
     if show_visual_output == True:
+        cv2.rectangle(img_arr, (neckbox[0], neckbox[1]), (neckbox[0] + neckbox[2], neckbox[1] + neckbox[3]),
+                      [0, 200, 100],
+                      thickness=1)
         cv2.imshow('im1', img_arr)
         k = cv2.waitKey(200)
 
@@ -132,7 +134,7 @@ if __name__ == '__main__':
     # description='description', n=0,add_head_rectangle=True)
 
     for description in descriptions:
-        for i in range(0, 100):
+        for i in range(0, 500):
             mdoc = dbUtils.lookfor_next_unbounded_feature_from_db_category(item_number=i, skip_if_marked_to_skip=True,
                                                                            which_to_show='showAll',
                                                                            filter_type='byWordInDescription',
