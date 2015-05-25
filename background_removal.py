@@ -197,7 +197,7 @@ def image_is_relevant(image):
     :return: True or False
     """
     faces = find_face(image)
-    if faces is not None:
+    if len(faces) > 0:
         # choosing the biggest face assuming it is the one that relevant
         chosen_face = [0, 0, 0, 0]
         for face in faces:
