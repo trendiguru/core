@@ -1,6 +1,7 @@
 __author__ = 'Nadav Paz'
 # Libraries import
 # TODO throw error in find_face if xml's aren't found - currently i think this happens silently
+# TODO - combine pose-estimation face detection as a backup to the cascades face detection
 
 import string
 from Tkinter import Tk
@@ -183,3 +184,28 @@ def get_image():
     filename = askopenfilename()
     big_image = cv2.imread(filename)
     return big_image
+
+
+def image_is_relevant(image):
+    """
+    this function takes an image and determine if it is relevant for TrendiGuru:
+    black list:
+        1. no face detected
+        2. face at the lower half of the image
+        3. face's area is too big (checked with height relativity only)
+    :param small image: ndarray with maximum edge of 200
+    :return: True or False
+    """
+    faces = find_face(image)
+    if faces is not None:
+        # choosing the biggest face assuming it is the one that relevant
+        chosen_face = [0, 0, 0, 0]
+        for face in faces:
+            if face[2] * face[3] > chosen_face[2] * chosen_face[3]:
+                chosen_face = face
+        x, y, w, h = chosen_face
+        # threshold = face + 4 faces down = 5 faces
+        if image.shape[0] > y + h * 5:
+            return True
+    return False
+

@@ -66,9 +66,11 @@ def get_mask(image):
 
 
 def skin_removal(gc_image, image):
+    rect = (0, 0, image.shape[1] - 1, image.shape[0] - 1)
+    bgdmodel = np.zeros((1, 65), np.float64)
+    fgdmodel = np.zeros((1, 65), np.float64)
     ycrcb = cv2.cvtColor(gc_image, cv2.COLOR_BGR2YCR_CB)
-    skin_image = np.zeros(gc_image.shape, np.uint8)
-    clothes_image = np.zeros(gc_image.shape, np.uint8)
+    mask = np.zeros(image.shape[:2], dtype=np.uint8)
     face_rect = background_removal.find_face(image)
     if len(face_rect) > 0:
         hsv = cv2.cvtColor(image, cv2.COLOR_BGR2HSV)
@@ -87,18 +89,17 @@ def skin_removal(gc_image, image):
             for j in range(0, gc_image.shape[1]):
                 if hsv[i][j][0] in skin_hue_list and ycrcb[i][j][0] > 0 and 133 < ycrcb[i][j][1] < 173 and 80 < \
                         ycrcb[i][j][2] < 120:
-                    for k in range(0, 3):
-                        skin_image[i][j][k] = gc_image[i][j][k]
+                    mask[i][j] = 2
                 else:
-                    for k in range(0, 3):
-                        clothes_image[i][j][k] = gc_image[i][j][k]
+                    mask[i][j] = 3
     else:
         for i in range(0, gc_image.shape[0]):
             for j in range(0, gc_image.shape[1]):
                 if ycrcb[i][j][0] > 0 and 133 < ycrcb[i][j][1] < 173 and 80 < ycrcb[i][j][2] < 120:
-                    for k in range(0, 3):
-                        skin_image[i][j][k] = gc_image[i][j][k]
+                    mask[i][j] = 2
                 else:
-                    for k in range(0, 3):
-                        clothes_image[i][j][k] = gc_image[i][j][k]
-    return clothes_image
+                    mask[i][j] = 3
+    cv2.grabCut(gc_image, mask, rect, bgdmodel, fgdmodel, 1, cv2.GC_INIT_WITH_MASK)
+    mask2 = np.where((mask == 1) + (mask == 3), 255, 0).astype('uint8')
+    without_skin = background_removal.get_masked_image(gc_image, mask2)
+    return without_skin
