@@ -302,12 +302,13 @@ def insert_bb_into_training_db(receivedData):
         i = i + 1
     return {"success": 0, "error": "could not find image w. url:" + str(image_url) + " in current doc:" + str(doc)}
 
-    db = pymongo.MongoClient().mydb
-    if db is None:
-        return {"success": 0, "error": "could not get db"}
-    trainingdb = db.training
-    if trainingdb is None:
-        return {"success": 0, "error": "could not get trainingdb"}
+
+# db = pymongo.MongoClient().mydb
+# if db is None:
+#        return {"success": 0, "error": "could not get db"}
+#    trainingdb = db.training
+#    if trainingdb is None:
+#        return {"success": 0, "error": "could not get trainingdb"}
 
 
 def insert_feature_bb_into_db(new_feature_bb, itemID=id, db=None):
@@ -561,7 +562,8 @@ def show_db_record(use_visual_output=True, doc=None):
         k = cv2.waitKey(200) & 0xFF
 
 
-def lookfor_next_unbounded_feature_from_db_category(item_number=0, skip_if_marked_to_skip=True,
+# lookfor_next_unbounded_feature_from_db_category got an unexpected keyword argument 'current_item'
+def lookfor_next_unbounded_feature_from_db_category(current_item=0, skip_if_marked_to_skip=True,
                                                     which_to_show='showUnboxed', filter_type='byWordInDescription',
                                                     category_id=None, word_in_description=None, db=None):
 
@@ -591,6 +593,7 @@ def lookfor_next_unbounded_feature_from_db_category(item_number=0, skip_if_marke
                   "id": 1, "feature_bbs": 1}
         filter = category_id
 
+
     elif filter_type == 'byWordInDescription':
         if word_in_description == None:
             print('no word given to find in description so finding everything')
@@ -613,7 +616,7 @@ def lookfor_next_unbounded_feature_from_db_category(item_number=0, skip_if_marke
         return None
 
     ans = get_first_qualifying_record(product_cursor, which_to_show=which_to_show, filter_type=filter_type,
-                                      filter=filter, item_number=item_number,
+                                      filter=filter, item_number=current_item,
                                       skip_if_marked_to_skip=skip_if_marked_to_skip)
 
     # print(str(ans))

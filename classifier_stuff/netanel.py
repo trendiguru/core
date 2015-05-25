@@ -1,9 +1,12 @@
+from multiprocessing import Pool
+
 import cv2
 
 from matlab_wrapper import matlab_client
 import Utils
 import dbUtils
 import background_removal
+
 
 # matlab = mateng.conn.root.modules
 # matlab = mateng.conn.root.matlab
@@ -12,7 +15,8 @@ def get_pose_est_bbs(url="http://www.thebudgetbabe.com/uploads/2015/201504/celeb
     mateng = matlab_client.Engine()
     print('got engine')
     # print('7701 is prime?' + str(mateng.isprime(7001)))
-    img_arr = Utils.get_cv2_img_array(url, download=True, convert_url_to_local_filename=True)
+    img_arr = Utils.get_cv2_img_array(url, download=True, convert_url_to_local_filename=True,
+                                      download_directory='images')
     if img_arr is None:
         return None
     if show_visual_output:
@@ -78,10 +82,13 @@ def get_pose_est_bbs(url="http://www.thebudgetbabe.com/uploads/2015/201504/celeb
         headbox = bb
 
     # h = copy.deepcopy(headboxes)
-    img_arr = Utils.get_cv2_img_array(url, download=True, convert_url_to_local_filename=True)
+    img_arr = Utils.get_cv2_img_array(url, download=True, convert_url_to_local_filename=True,
+                                      download_directory='images')
         # cv2.rectangle(img_arr, (headbox[0], headbox[1]), (headbox[0] +headbox[2], headbox[1] + headbox[3]), [0, 0, 100],
         #                thickness=1)
 
+    if img_arr is None:
+        return None
     neck_offset = headbox[3] * 1
     neck_extra_width = int(headbox[2] / 2)
     neck_extra_height = int(headbox[3] / 2)
@@ -117,6 +124,32 @@ def x1y1x2y2_to_bb(x1y1x2y2):
     return bb
 
 
+def find_images(description):
+    print('starting to find ' + str(description))
+    for i in range(0, 500):
+        mdoc = dbUtils.lookfor_next_unbounded_feature_from_db_category(current_item=i, skip_if_marked_to_skip=True,
+                                                                       which_to_show='showAll',
+                                                                       filter_type='byWordInDescription',
+                                                                       category_id=None,
+                                                                       word_in_description=description,
+                                                                       db=None)
+
+        if mdoc is not None and 'doc' in mdoc:
+            doc = mdoc['doc']
+            print doc
+
+            xlarge_url = doc['image']['sizes']['XLarge']['url']
+            print('large img url:' + str(xlarge_url))
+            img_arr = Utils.get_cv2_img_array(xlarge_url)
+            face1 = background_removal.find_face(img_arr)
+            if face1 is not None and len(face1) != 0:
+                print('face1:' + str(face1))
+                bb1 = face1[0]
+                get_pose_est_bbs(xlarge_url, description, n=i, bb=bb1)
+
+            else:
+                get_pose_est_bbs(xlarge_url, description, n=i)
+
 if __name__ == '__main__':
     print('starting')
     # show_all_bbs_in_db()
@@ -133,29 +166,11 @@ if __name__ == '__main__':
     # get_pose_est_bbs(url="http://www.thebudgetbabe.com/uploads/2015/201504/celebsforever21coachella.jpg",
     # description='description', n=0,add_head_rectangle=True)
 
-    for description in descriptions:
-        for i in range(0, 500):
-            mdoc = dbUtils.lookfor_next_unbounded_feature_from_db_category(item_number=i, skip_if_marked_to_skip=True,
-                                                                           which_to_show='showAll',
-                                                                           filter_type='byWordInDescription',
-                                                                           category_id=None,
-                                                                           word_in_description=description,
-                                                                           db=None, )
-            if 'doc' in mdoc:
-                doc = mdoc['doc']
-                print doc
 
-                xlarge_url = doc['image']['sizes']['XLarge']['url']
-                print('large img url:' + str(xlarge_url))
-                img_arr = Utils.get_cv2_img_array(xlarge_url)
-                face1 = background_removal.find_face(img_arr)
-                if face1 is not None and len(face1) != 0:
-                    print('face1:' + str(face1))
-                    bb1 = face1[0]
-                    get_pose_est_bbs(xlarge_url, description, n=i, bb=bb1)
+    p = Pool(len(descriptions))
+    print(p.map(find_images, descriptions))
 
-                else:
-                    get_pose_est_bbs(xlarge_url, description, n=i)
+
 
 
 # Vnecks round neck natanel
