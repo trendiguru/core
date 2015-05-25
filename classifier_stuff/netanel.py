@@ -1,5 +1,3 @@
-from multiprocessing import Pool
-
 import cv2
 
 from matlab_wrapper import matlab_client
@@ -141,6 +139,21 @@ def find_images(description):
             xlarge_url = doc['image']['sizes']['XLarge']['url']
             print('large img url:' + str(xlarge_url))
             img_arr = Utils.get_cv2_img_array(xlarge_url)
+            if img_arr is None:
+                return None
+            small_img = background_removal.standard_resize(img_arr, 400)[0]
+            show_visual_output = True
+            if show_visual_output == True:
+                cv2.imshow('im1', img_arr)
+                k = cv2.waitKey(200)
+                cv2.imshow('smallim1', small_img)
+                k = cv2.waitKey(200)
+            relevance = background_removal.image_is_relevant(small_img)
+            print('relevance:' + str(relevance))
+            if not relevance:
+                print('image is not relevant')
+                return None
+            print('image is relevant')
             face1 = background_removal.find_face(img_arr)
             if face1 is not None and len(face1) != 0:
                 print('face1:' + str(face1))
@@ -166,9 +179,10 @@ if __name__ == '__main__':
     # get_pose_est_bbs(url="http://www.thebudgetbabe.com/uploads/2015/201504/celebsforever21coachella.jpg",
     # description='description', n=0,add_head_rectangle=True)
 
-
-    p = Pool(len(descriptions))
-    print(p.map(find_images, descriptions))
+    for description in descriptions:
+        find_images(description)
+# p = Pool(len(descriptions))
+#    print(p.map(find_images, descriptions))
 
 
 
