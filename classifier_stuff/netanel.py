@@ -8,7 +8,7 @@ import background_removal
 # matlab = mateng.conn.root.modules
 # matlab = mateng.conn.root.matlab
 def get_pose_est_bbs(url="http://www.thebudgetbabe.com/uploads/2015/201504/celebsforever21coachella.jpg",
-                     description='description', n=0, add_head_rectangle=True, show_visual_output=True, bb=None):
+                     description='description', n=0, add_head_rectangle=True, show_visual_output=False, bb=None):
     mateng = matlab_client.Engine()
     print('got engine')
     # print('7701 is prime?' + str(mateng.isprime(7001)))
