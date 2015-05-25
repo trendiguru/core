@@ -142,7 +142,7 @@ def find_images(description):
             if img_arr is None:
                 return None
             small_img = background_removal.standard_resize(img_arr, 400)[0]
-            show_visual_output = True
+            show_visual_output = False
             if show_visual_output == True:
                 cv2.imshow('im1', img_arr)
                 k = cv2.waitKey(200)
