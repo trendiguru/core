@@ -25,12 +25,12 @@ class OutcomesTest(unittest.TestCase):
 
     def test_lookfor_next_unbounded_feature_from_db_category(self):
         skip_if_marked_to_skip = 'on'
-        currentItem = 0
+        current_item = 0
         whichToShow = 'showUnboxed'
         filterType = 'byWordInDescription'
         catID = 'polos'
         wordinDesc = 'classic neckline'
-        answer = dbUtils.lookfor_next_unbounded_feature_from_db_category(item_number=currentItem,
+        answer = dbUtils.lookfor_next_unbounded_feature_from_db_category(current_item=current_item,
                                                                          skip_if_marked_to_skip=skip_if_marked_to_skip,
                                                                          which_to_show=whichToShow,
                                                                          filter_type=filterType,
@@ -47,7 +47,7 @@ class OutcomesTest(unittest.TestCase):
         ftype = 'byWordInDescription'
         # answer = dbUtils.lookfor_next_unbounded_feature_from_db_category(current_item=0,skip_if_marked_to_skip=True,which_to_show='showUnboxed',filter_type='byWordInDescription',category_id=category_id,word_in_description=None,db=None)
         print('looking for word ' + str(word) + ' in db using lookfor_next_unbounded_feature_from_db:')
-        answer = dbUtils.lookfor_next_unbounded_feature_from_db_category(item_number=0, skip_if_marked_to_skip=True,
+        answer = dbUtils.lookfor_next_unbounded_feature_from_db_category(current_item=0, skip_if_marked_to_skip=True,
                                                                          which_to_show='showUnboxed', filter_type=ftype,
                                                                          category_id=category_id,
                                                                          word_in_description=word)
@@ -61,7 +61,7 @@ class OutcomesTest(unittest.TestCase):
         word = 'neck'
         ftype = 'byCategoryID'
         print('looking for category ' + str(category_id) + ' in db using lookfor_next_unbounded_feature_from_db:')
-        answer = dbUtils.lookfor_next_unbounded_feature_from_db_category(item_number=0, skip_if_marked_to_skip=True,
+        answer = dbUtils.lookfor_next_unbounded_feature_from_db_category(current_item=0, skip_if_marked_to_skip=True,
                                                                          which_to_show='showUnboxed', filter_type=ftype,
                                                                          category_id=category_id,
                                                                          word_in_description=word)
@@ -74,7 +74,7 @@ class OutcomesTest(unittest.TestCase):
         word = 'toe'
         ftype = 'byWordInDescription'
         print('looking for word ' + str(word) + ' in db using lookfor_next_unbounded_feature_from_db:')
-        answer = dbUtils.lookfor_next_unbounded_feature_from_db_category(item_number=0, skip_if_marked_to_skip=True,
+        answer = dbUtils.lookfor_next_unbounded_feature_from_db_category(current_item=0, skip_if_marked_to_skip=True,
                                                                          which_to_show='showUnboxed', filter_type=ftype,
                                                                          category_id=category_id,
                                                                          word_in_description=word)
