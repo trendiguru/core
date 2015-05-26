@@ -155,7 +155,7 @@ def find_images(description):
             if img_arr is None:
                 return None
             small_img = background_removal.standard_resize(img_arr, 400)[0]
-            show_visual_output = False
+            show_visual_output = True
             if show_visual_output == True:
                 cv2.imshow('im1', img_arr)
                 k = cv2.waitKey(200)
@@ -170,10 +170,10 @@ def find_images(description):
             if face1 is not None and len(face1) != 0:
                 print('face1:' + str(face1))
                 bb1 = face1[0]
-                get_pose_est_bbs(xlarge_url, description, n=i, bb=bb1)
+                get_pose_est_bbs(xlarge_url, description, n=i, show_visual_output=show_visual_output, bb=bb1)
 
             else:
-                get_pose_est_bbs(xlarge_url, description, n=i)
+                get_pose_est_bbs(xlarge_url, description, n=i, show_visual_output=show_visual_output)
 
 
 if __name__ == '__main__':
