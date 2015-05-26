@@ -533,40 +533,9 @@ def step_thru_db(use_visual_output=True, collection='products'):
     return {"success": 1}
 
 
-def show_db_record(use_visual_output=True, doc=None):
-    '''
-    fix all the bbs so they fit their respective image
-    :return:
-    '''
-    if doc is None:
-        print('no doc specified')
-        return
-
-    for topic in doc:
-        try: 
-            print(str(topic) + ':' + str(doc[topic]))
-        except UnicodeEncodeError:
-            print('unicode encode error')
-            print(topic.encode('utf-8') + ':' + doc[topic].encode('utf-8'))
-
-    xlarge_url = doc['image']['sizes']['XLarge']['url']
-    print('large img url:' + str(xlarge_url))
-    if use_visual_output:
-        img_arr = Utils.get_cv2_img_array(xlarge_url)
-        if 'bounding_box' in doc:
-            if Utils.legal_bounding_box(doc['bounding_box']):
-                bb1 = doc['bounding_box']
-                cv2.rectangle(img_arr, (bb1[0], bb1[1]), (bb1[0] + bb1[2], bb1[1] + bb1[3]), [255, 255, 0],
-                              thickness=2)
-        cv2.imshow('im1', img_arr)
-        k = cv2.waitKey(200) & 0xFF
-
-
-# lookfor_next_unbounded_feature_from_db_category got an unexpected keyword argument 'current_item'
 def lookfor_next_unbounded_feature_from_db_category(current_item=0, skip_if_marked_to_skip=True,
                                                     which_to_show='showUnboxed', filter_type='byWordInDescription',
                                                     category_id=None, word_in_description=None, db=None):
-
     # {"id":"v-neck-sweaters"}  coats
     # query_doc = {"categories": {"shortName":"V-Necks"}}
 
@@ -621,6 +590,45 @@ def lookfor_next_unbounded_feature_from_db_category(current_item=0, skip_if_mark
 
     # print(str(ans))
     return ans
+
+
+
+def show_db_record(use_visual_output=True, doc=None):
+    '''
+    fix all the bbs so they fit their respective image
+    :return:
+    '''
+    if doc is None:
+        print('no doc specified')
+        return
+
+    for topic in doc:
+        try: 
+            print(str(topic) + ':' + str(doc[topic]))
+        except UnicodeEncodeError:
+            print('unicode encode error')
+            print(topic.encode('utf-8') + ':' + doc[topic].encode('utf-8'))
+
+    xlarge_url = doc['image']['sizes']['XLarge']['url']
+    print('large img url:' + str(xlarge_url))
+    if use_visual_output:
+        img_arr = Utils.get_cv2_img_array(xlarge_url)
+        if 'bounding_box' in doc:
+            if Utils.legal_bounding_box(doc['bounding_box']):
+                bb1 = doc['bounding_box']
+                cv2.rectangle(img_arr, (bb1[0], bb1[1]), (bb1[0] + bb1[2], bb1[1] + bb1[3]), [255, 255, 0],
+                              thickness=2)
+        cv2.imshow('im1', img_arr)
+        k = cv2.waitKey(200) & 0xFF
+
+
+# lookfor_next_unbounded_feature_from_db_category got an unexpected keyword argument 'current_item'
+    # answers = lookfor_next_unbounded_feature_from_db_category(current_item=current_item,
+    #                                                                          skip_if_marked_to_skip=skip_if_marked_to_skip,
+    #                                                                          which_to_show=which_to_show,
+    #                                                                          filter_type=filter_type,
+    #                                                                          category_id=category_id,
+    #                                                                         word_in_description=word_in_description)
 
 
 # structure of 'feature_bbs':

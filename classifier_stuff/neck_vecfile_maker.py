@@ -1,10 +1,11 @@
+from  multiprocessing import Pool
+
 import cv2
 
 from matlab_wrapper import matlab_client
 import Utils
 import dbUtils
 import background_removal
-
 
 # matlab = mateng.conn.root.modules
 # matlab = mateng.conn.root.matlab
@@ -180,22 +181,26 @@ if __name__ == '__main__':
     print('starting')
     # show_all_bbs_in_db()
     # get_pose_est_bbs()
-    descriptions = ['round neck', 'classic neckline', 'round collar', 'round neck', 'crew neck',
+    descriptions = ['classic neckline', 'round collar', 'round neck', 'crew neck',
                     'square neck', 'v-neck', 'classic neckline',
                     'round collar', 'crewneck', 'crew neck', 'scoopneck', 'square neck', 'bow collar',
                     'ribbed round neck', 'rollneck',
-                    'slash neck', 'V-Necks', 'v-neck']
+                    'slash neck', 'V-Necks', 'v-neck', 'round neck']
 
     # 'A-line',
     # 'shift', 'sheath', 'tent', 'empire',
     # description = 'mermaid'
     # get_pose_est_bbs(url="http://www.thebudgetbabe.com/uploads/2015/201504/celebsforever21coachella.jpg",
     # description='description', n=0,add_head_rectangle=True)
+    parallel = True
+    if parallel:
+        p = Pool(len(descriptions))
+        print(p.map(find_images, descriptions))
+    else:
+        for description in descriptions:
+            find_images(description)
 
-    for description in descriptions:
-        find_images(description)
-# p = Pool(len(descriptions))
-# print(p.map(find_images, descriptions))
+
 
 
 
