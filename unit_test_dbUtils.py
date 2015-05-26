@@ -24,6 +24,24 @@ class OutcomesTest(unittest.TestCase):
 
 
     def test_lookfor_next_unbounded_feature_from_db_category(self):
+        skip_if_marked_to_skip = 'on'
+        currentItem = 0
+        whichToShow = 'showUnboxed'
+        filterType = 'byWordInDescription'
+        catID = 'polos'
+        wordinDesc = 'classic neckline'
+        answer = dbUtils.lookfor_next_unbounded_feature_from_db_category(item_number=currentItem,
+                                                                         skip_if_marked_to_skip=skip_if_marked_to_skip,
+                                                                         which_to_show=whichToShow,
+                                                                         filter_type=filterType,
+                                                                         category_id=catID,
+                                                                         word_in_description=wordinDesc)
+        print('answer:' + str(answer))
+        doc = answer['doc']
+        dbUtils.show_db_record(use_visual_output=True, doc=doc)
+        self.assertTrue(isinstance(answer, dict) or isinstance(answer, basestring))
+
+
         category_id = 'v-neck-sweaters'
         word = 'neck'
         ftype = 'byWordInDescription'
