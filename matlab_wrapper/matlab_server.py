@@ -47,7 +47,9 @@ class MatlabServerService(rpyc.Service):
         np_boxes = np.array(mat_boxes, np.int16)
         pose_dict = mat_2_py.translate_2_boxes(np_boxes)
         if "://" in path_to_image_or_url:
-            os.remove("./images/" + filename)
+            if os.path.exists("./images/" + filename):
+                os.remove(
+                    "./images/" + filename)  # this was crashing as file doesnt exists sometimes, i guess if url is bad or urlretrieve for some other reason fails
         return pose_dict
 
     def exposed_get_matlab_function(self, func_name):

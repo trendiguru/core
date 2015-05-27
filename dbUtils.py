@@ -695,7 +695,7 @@ def get_first_qualifying_record(cursor, which_to_show='showAll', filter_type='by
         return None
     else:
         logging.warning(
-            'cant figure out what you want dude - niether showall,showBoxed, showUnboxed, you wanted:' + str(
+            'cant figure out what you want dude - neither showall,showBoxed, showUnboxed, you wanted:' + str(
                 which_to_show))
 
 # description: classic neckline , round collar, round neck, crew neck, square neck, v-neck, clASsic neckline,round collar,crewneck,crew neck, scoopneck,square neck, bow collar, ribbed round neck,rollneck ,slash neck

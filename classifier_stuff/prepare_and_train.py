@@ -8,16 +8,10 @@ from os import listdir
 from os.path import isfile, join
 import numpy as np
 from time import sleep
-import sys,getopt
+import sys
 import cProfile, pstats, StringIO
 import argparse
 
-
-BLUE = [255,0,0]        # rectangle color
-RED = [0,0,255]         # PR BG
-GREEN = [0,255,0]       # PR FG
-BLACK = [0,0,0]         # sure BG
-WHITE = [255,255,255]   # sure FG
 
 # TODO
 #get number of positives, negatives and dont run trainer on more than that - DONE
@@ -89,7 +83,6 @@ def create_negatives(rootDir, trainDir):
         n_negatives[subdir1] = {'n_negatives': n_files}
         print(str(n_files) + ' negatives for directory ' + subdir1)
     return (n_negatives)
-
 
 def create_positives(rootDir, trainDir, infoDict,makeFrame):
     #CREATE POSITIVE EXAMPLE FILES
@@ -205,7 +198,6 @@ def create_positives(rootDir, trainDir, infoDict,makeFrame):
         resultsDict[subdir] = {'n_negatives': n_negs, 'n_positives': n_files, 'min_h': min_h, 'min_w': min_w}
     return resultsDict
 
-
 def permute(filename):
     f1 = open(filename)
     lines = f1.readlines()
@@ -221,7 +213,6 @@ def permute(filename):
     f1.flush()
     os.fsync(f1.fileno())  #this and f.flush were needed since after file close, file wasn't immediately available.
     f1.close()
-
 
 def create_vecfiles(rootDir, trainDir, infoDict):
     ##########
@@ -252,7 +243,6 @@ def create_vecfiles(rootDir, trainDir, infoDict):
         print(command_string)
         subprocess.call(command_string, shell=True)
         #    subprocess.call(command_string, shell=True)
-
 
 def train(trainDir, train_subdir, infoDict):
     ##########
@@ -306,23 +296,6 @@ def train(trainDir, train_subdir, infoDict):
 #    p=subprocess.Popen(['/bin/bash','nice','-n19'])
     subprocess.call(command_string, shell=True)
 
-
-#FEATURETYPE=HAAR
-#EXAMPLE_FILE="bbfile_shirts_020-029.txt"  #928 items
-
-#DIR=036;mkdir $DIR;WIDTH=20;HEIGHT=20;echo 'creating vecfile'
-#opencv_createsamples -info $EXAMPLE_FILE -w $WIDTH -h $HEIGHT  -vec $DIR/shirts_191014_vecfile.vec ; echo 'done creating vecfile ' $DIR ;echo 'starting training'
-#opencv_traincascade -data $DIR -vec $DIR/shirts_191014_vecfile.vec -bg shirtsNegatives.txt -featureType $FEATURETYPE -w $WIDTH -h $HEIGHT -numPos 950 -numNeg 2700 -numStages 20 -mode ALL -precalcValBufSize 30000 -precalcIdxBufSize 30000 -minHitRate 0.997 -maxFalseAlarmRate 0.5 > $DIR/trainout.txt 2>&1 &
-#echo 'done training' $DIR
-
-
-#DIR=020;mkdir $DIR;WIDTH=20;HEIGHT=40;echo 'creating vecfile'
-#opencv_createsamples -info $EXAMPLE_FILE -w $WIDTH -h $HEIGHT  -vec $DIR/dresses_111014_vecfile.vec -num 1716 ; echo 'done creating vecfile ' $DIR ;echo 'starting training'
-#opencv_traincascade -data $DIR -vec $DIR/dresses_111014_vecfile.vec -bg dressesNegatives.txt -featureType $FEATURETYPE -w $WIDTH -h $HEIGHT -numPos 1600 -numNeg 2100 -numStages 20 -mode ALL -precalcValBufSize 30000 -precalcIdxBufSize 30000 -minHitRate 0.997 -maxFalseAlarmRate 0.5 > $DIR/trainout.txt 2>&1 &
-#echo 'done training' $DIR; cp $DIR/cascade.xml '${DIR}/dressclassifier${DIR}.xml'
-
-#nice -n19 ionice -c 3 opencv_traincascade -data 002 -vec 002/pants/dressPantsvecfile.vec -bg shirtsOnly.txt -w 30 -h 30 -numPos 450 -numNeg 450 -numStages 20 -mode ALL -precalcValBufSize 500 -precalcIdxBufSize 500
-
 def memory():
     """
     Get node total memory and memory usage
@@ -341,29 +314,7 @@ def memory():
     return ret
 
 
-
-def main(argv):
-   print('start')
-   imagedir = '057'
-   outputdir = 'images/cjdb'
-   try:
-      opts, args = getopt.getopt(argv,"hi:o:",["ofile="])
-#      opts, args = getopt.getopt(argv,"hi:o:",["ifile=","ofile=:"])
-   except getopt.GetoptError:
-      print('prepare_and_train.py -i <imagedir> -o <outputdir>')
-#      print 'test.py -i <inputfile> -o <outputfile>'
-      sys.exit(2)
-   for opt, arg in opts:
-      if opt == '-h':
-         print ('test.py -i <inputdir> -o <outputdir>')
-         sys.exit()
-      elif opt in ("-i", "--ifile"):
-         imagedir = arg
-      elif opt in ("-o", "--ofile"):
-         outputdir = arg
-   print('Input dir is '+ imagedir)
-   print('output dir is '+outputdir)
-    #   print 'Output file is "', outputfile
+def wrapper(argv):
 
    pr = cProfile.Profile()
    pr.enable()
@@ -453,19 +404,25 @@ def main(argv):
 ##############################
 
 if __name__ == "__main__":
-    parser = argparse.ArgumentParser(description='Process some integers.')
-    parser.add_argument('integers', metavar='N', type=int, nargs='+',
-                        help='an integer for the accumulator')
-    parser.add_argument('--sum', dest='accumulate', action='store_const',
-                        const=sum, default=max,
-                        help='sum the integers (default: find the max)')
+    parser = argparse.ArgumentParser(description='train classifier')
+    parser.add_argument('--imagedir', type=basestring, help='directory w examples')
+    parser.add_argument('--outputdir', type=basestring, help='output file', default='output.txt')
 
     args = parser.parse_args()
-    print(args.accumulate(args.integers))
+    print(args)
+
+    print('start')
+    imagedir = '057'
+    outputdir = 'images/cjdb'
+
+    print('Input dir is ' + imagedir)
+    print('output dir is ' + outputdir)
+    # print 'Output file is "', outputfile
 
 
-    main(sys.argv[1:])
 
+
+    wrapper(sys.argv[1:])
 
 '''
 52
