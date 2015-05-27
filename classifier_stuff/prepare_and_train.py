@@ -419,9 +419,6 @@ if __name__ == "__main__":
     print('output dir is ' + outputdir)
     # print 'Output file is "', outputfile
 
-
-
-
     wrapper(sys.argv[1:])
 
 '''
