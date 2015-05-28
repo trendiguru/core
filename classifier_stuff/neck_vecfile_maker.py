@@ -186,10 +186,10 @@ if __name__ == '__main__':
     # show_all_bbs_in_db()
     # get_pose_est_bbs()
     descriptions = ['classic neckline', 'round collar', 'round neck', 'crew neck',
-                    'square neck', 'v-neck', 'classic neckline',
-                    'round collar', 'crewneck', 'crew neck', 'scoopneck', 'square neck', 'bow collar',
+                    'square neck', 'classic neckline',
+                    'round collar', 'crewneck', 'crew neck', 'scoopneck', 'bow collar',
                     'ribbed round neck', 'rollneck',
-                    'slash neck', 'V-Necks', 'v-neck', 'round neck']
+                    'slash neck', 'V-Necks', 'v-neck']
 
     # 'A-line',
     # 'shift', 'sheath', 'tent', 'empire',
