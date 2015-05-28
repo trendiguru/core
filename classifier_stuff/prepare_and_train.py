@@ -8,7 +8,6 @@ from os import listdir
 from os.path import isfile, join
 import numpy as np
 from time import sleep
-import sys
 import cProfile, pstats, StringIO
 import argparse
 
@@ -36,6 +35,7 @@ def create_negatives(rootDir, trainDir):
     #subprocess.call("pwd", shell=True)
     global top_subdirlist
     top_subdirlist=[]
+    abs_root_dir = rootDir
 
     subdirlist = [x[1] for x in os.walk(rootDir)]
     if len(subdirlist)==0:
@@ -93,6 +93,7 @@ def create_positives(rootDir, trainDir, infoDict,makeFrame):
 #    top_subdirlist = subdirlist[0]
     #print('--\nroot = ' + root)
     #splitpath=string.rsplit(root,'/',1)
+    abs_root_dir = rootDir
     resultsDict = {}
     print('makeframe:'+str(makeFrame))
     for subdir in top_subdirlist:
@@ -214,7 +215,12 @@ def permute(filename):
     os.fsync(f1.fileno())  #this and f.flush were needed since after file close, file wasn't immediately available.
     f1.close()
 
-def create_vecfiles(rootDir, trainDir, infoDict):
+
+def create_vecfiles(rootDir, trainDir, infoDict, inputdir, outputdir, train_width=20, train_height=20,
+                    num_negatives=4000, num_positives=2000,
+                    num_extra_positives=100, featureType='HAAR', mode='ALL',
+                    maxFalseAlarmRate=0.4, minHitRate=0.995, precalcIdxBufSize=6000, precalcValBufSize=6000,
+                    num_stages=20, delay_minutes=5):
     ##########
     # CREATESAMPLES
     ##########
@@ -244,7 +250,11 @@ def create_vecfiles(rootDir, trainDir, infoDict):
         subprocess.call(command_string, shell=True)
         #    subprocess.call(command_string, shell=True)
 
-def train(trainDir, train_subdir, infoDict):
+
+def train(trainDir, train_subdir, infoDict, inputdir, outputdir, train_width=20, train_height=20, num_negatives=4000,
+          num_positives=2000, num_extra_positives=100,
+          maxFalseAlarmRate=0.4, minHitRate=0.995, precalcIdxBufSize=6000, precalcValBufSize=6000, mode='ALL',
+          num_stages=20, featureType='HAAR', delay_minutes=5):
     ##########
     # TRAIN
     ##########
@@ -314,46 +324,38 @@ def memory():
     return ret
 
 
-def wrapper(argv):
+def train_wrapper(inputdir, outputdir, train_width=20, train_height=20, num_negatives=4000, num_positives=2000,
+                  num_extra_positives=100,
+                  maxFalseAlarmRate=0.4, minHitRate=0.995, precalcIdxBufSize=6000, precalcValBufSize=6000, mode='ALL',
+                  num_stages=20, featureType='HAAR', delay_minutes=5
+
+                  ):
 
    pr = cProfile.Profile()
    pr.enable()
-   global train_width
-   global train_height
-   global num_negatives
-   global num_positives
-   global num_extra_positives
-   global featureType
-   global num_stages
-   global mode
-   global precalcValBufSize
-   global precalcIdxBufSize
-   global minHitRate
-   global maxFalseAlarmRate
 
    global top_subdirlist
 
-   train_width = 20
-   train_height = 20
-   maxFalseAlarmRate = 0.4
-   minHitRate = 0.995
-   precalcIdxBufSize = 6000
-   precalcValBufSize = 6000
-   mode = 'ALL'
-   num_stages = 20
-   featureType = 'HAAR'
-   num_positives = 2000
-   num_extra_positives = int(0.1*num_positives)+100
-   num_negatives =4000
-   delay_minutes=5
+   # train_width = 20
+   # train_height = 20
+   # num_positives = 2000
+   # num_extra_positives = int(0.1 * num_positives) + 100
+   # num_negatives = 4000
+   # maxFalseAlarmRate = 0.4
+   # minHitRate = 0.995
+   # precalcIdxBufSize = 6000
+   # precalcValBufSize = 6000
+   # mode = 'ALL'
+   # num_stages = 20
+   # featureType = 'HAAR'
+   #delay_minutes = 5
 
 #   print('psutil')
 #   print(psutil.cpu_percent())
    #prepare_and_train()
    global use_visual_output
    use_visual_output = False
-   global abs_root_dir
-   abs_root_dir = '/home/www-data/web2py/applications/fingerPrint/modules/classifier_stuff/images/fashion-data/images'
+
    #abs_root_dir = '/home/jeremy/jeremy.rutman@gmail.com/TrendiGuru/techdev/Backend/code/classifier_stuff'
    global max_files
    max_files = 100000  #this numnber of files from each other directory, max
@@ -404,22 +406,21 @@ def wrapper(argv):
 ##############################
 
 if __name__ == "__main__":
+    print('start')
     parser = argparse.ArgumentParser(description='train classifier')
-    parser.add_argument('--imagedir', type=basestring, help='directory w examples')
-    parser.add_argument('--outputdir', type=basestring, help='output file', default='output.txt')
+    parser.add_argument('--imagedir', type=str, help='input images here',
+                        default='images')  # basestring instead of str would be better but doesnt work
+    parser.add_argument('--outputdir', type=str, help='output file here', default='output.txt')
 
     args = parser.parse_args()
     print(args)
-
-    print('start')
-    imagedir = '057'
-    outputdir = 'images/cjdb'
-
+    imagedir = args.imagedir
+    outputdir = args.outputdir
     print('Input dir is ' + imagedir)
     print('output dir is ' + outputdir)
     # print 'Output file is "', outputfile
 
-    wrapper(sys.argv[1:])
+    train_wrapper(imagedir, outputdir)
 
 '''
 52
@@ -559,7 +560,7 @@ if __name__ == "__main__":
    num_negatives =9000
    delay_minutes=5
 
-062 
+062
 
    train_width = 20
    train_height = 20
@@ -700,9 +701,9 @@ sudo python prepare_and_train.py -o 070 -i images/cjdb
    num_extra_positives = int(0.1*num_positives)
    num_negatives =8000
    delay_minutes=5
-didn't fnish training - took low memory and 4 days 
+didn't fnish training - took low memory and 4 days
 
-071 
+071
 sudo python prepare_and_train.py -o 071 -i images/imageNet/easy
 ['longDress', 'shirt', 'suit',]
 
@@ -742,3 +743,10 @@ sudo python prepare_and_train.py -o 072 -i images/imageNet/easy
 
 
 '''
+
+# 337 3139
+# 338 3145    15:10
+# 352 3145 15:12
+# 635 3151   16:12
+# 891 3151 17:27
+

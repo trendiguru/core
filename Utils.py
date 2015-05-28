@@ -496,6 +496,21 @@ def is_valid_image(img):
     else:
         return False
 
+
+###########################
+### OS stuff
+###########################
+def ensure_dir(f):
+    '''
+
+    :param f: file or directory name
+    :return: no return val, creates dir if it doesnt exist
+    '''
+    d = os.path.dirname(f)
+    if not os.path.exists(d):
+        os.makedirs(d)
+
+
 ############################
 ### math stuff
 ############################
