@@ -627,7 +627,7 @@ def show_db_record(use_visual_output=True, doc=None):
 def get_first_qualifying_record(cursor, which_to_show='showAll', filter_type='byCategoryId', filter=None, item_number=0,
                                 skip_if_marked_to_skip=True):
     TOTAL_PRODUCTS = cursor.count()
-    print('tot records found:' + str(TOTAL_PRODUCTS))
+    # print('tot records found:' + str(TOTAL_PRODUCTS))
     # make sure theres a known which_to_show
 
     # ['onlyShowBoxed', 'onlyShowUnboxed', 'showAll']:

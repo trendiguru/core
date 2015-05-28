@@ -19,7 +19,11 @@ import argparse
 #redo these to all different directories for positives, negatives -  DONE
 #redo this to scan all directories (and subdirs) not just numbers - DONE
 
-def create_negatives(rootDir, trainDir):
+def create_negatives(dirList):
+    '''
+        make a negatives file from a list of dirs
+    '''
+
     #def create_negatives(**kwargs):
     #if kwargs is not None:
     #    for key, value in kwargs.iteritems():
@@ -28,6 +32,7 @@ def create_negatives(rootDir, trainDir):
     #CREATE NEGATIVE EXAMPLE FILES - directories should be 'clean' i.e. contain only one item per image.
     #these can be used easily for both pos. and neg.  Images with two or more items can be used for negatives
     #with some more work
+    rootDir = ''
     print('creating negatives files from ' + rootDir)
     #subprocess.call("rm -f trainingfiles/negatives*.txt", shell=True)
     #subprocess.call("rm -f negatives*.txt", shell=True)

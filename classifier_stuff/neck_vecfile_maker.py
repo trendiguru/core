@@ -153,7 +153,7 @@ def find_images(description):
             # print doc
 
             xlarge_url = doc['image']['sizes']['XLarge']['url']
-            print('large img url:' + str(xlarge_url))
+            # print('large img url:' + str(xlarge_url))
             img_arr = Utils.get_cv2_img_array(xlarge_url)
             if img_arr is None:
                 return None
@@ -166,9 +166,9 @@ def find_images(description):
                 k = cv2.waitKey(200)
             relevance = background_removal.image_is_relevant(small_img)
             if not relevance:
-                print('image is not relevant')
+                print('image is not relevant:' + str(description))
                 continue
-            print('image is relevant')
+            print('image is relevant:' + str(description))
             face1 = background_removal.find_face(img_arr)
             if face1 is not None and len(face1) != 0:
                 print('face1:' + str(face1))
