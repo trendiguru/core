@@ -498,7 +498,7 @@ def is_valid_image(img):
 
 
 ###########################
-### OS stuff
+### OS stuff_
 ###########################
 def ensure_dir(f):
     '''
@@ -510,6 +510,19 @@ def ensure_dir(f):
     if not os.path.exists(d):
         os.makedirs(d)
 
+
+def immediate_subdirs(dir):
+    '''
+    returns paths of immediate subdirectories of dir (not recursive)
+    '''
+    return filter(os.path.isdir, [os.path.join(dir, f) for f in os.listdir(dir)])
+
+
+def immediate_files(dir):
+    '''
+    returns paths of files in directory (not recursive)
+    '''
+    return filter(os.path.isfile, [os.path.join(dir, f) for f in os.listdir(dir)])
 
 ############################
 ### math stuff
