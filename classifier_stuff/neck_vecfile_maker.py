@@ -108,13 +108,15 @@ def get_pose_est_bbs(url="http://www.thebudgetbabe.com/uploads/2015/201504/celeb
     img2 = img_arr[neckbox[0]:neckbox[0] + neckbox[2], neckbox[0]:neckbox[0] + neckbox[2]]
 
     new_description = description.replace(' ', '')
-    image_name = 'images/jr_necktrain/' + new_description + '/' + new_description + "_" + str(n) + ".png"
-    print('image name:' + str(image_name))
-    Utils.ensure_dir(image_name)
-    cv2.imwrite(image_name, img_arr)
+    dirname = 'images/jr_necktrain/' + new_description + '/'
+    filename = new_description + "_" + str(n) + ".png"
+    full_name = dirname + filename
+    print('image name:' + str(full_name))
+    Utils.ensure_dir(full_name)
+    cv2.imwrite(full_name, img_arr)
 
     # cv2.imwrite('images/jr_necktrain/' + new_description + "_" + str(n) + ".neck_only.png", img2)
-    write_vecfile(neckbox, image_name, datafilename='images/jr_necktrain/bboxes.txt')
+    write_vecfile(neckbox, full_name, datafilename=dirname + 'bboxes.txt')
     # return headbox
 
 
