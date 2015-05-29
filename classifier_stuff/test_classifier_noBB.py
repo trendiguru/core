@@ -60,7 +60,14 @@ def plot_confusion_matrix(m, image_dirs, classifier_names):
 
     for i in range(0, rows):
         for j in range(0, cols):
-            plt.text(j + 1.2, i + .2, str(m[i, j]), fontsize=6)
+            if type(m[0, 0]) is float:
+                txt = '{:.2}'.format(m[i, j])
+                plt.text(j + .2, i + .2, txt, fontsize=8)
+            else:
+                txt = '{:.2}'.format(m[i, j])
+                plt.text(j + .2, i + .2, txt, fontsize=8)
+            # plt.text(j + 1.2, i + .2, str(m[i, j]), fontsize=6)
+
             if i == j:  # detector x on pics of x
                 #                classifier_sum=classifier_sum+float(j)/float(den)
                 pass
