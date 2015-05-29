@@ -91,6 +91,7 @@ def create_mask_for_gc(rectangles, image):
     return mask
 
 
+# can we move this to Utils or the like
 def standard_resize(image, max_side):
     original_w = image.shape[1]
     original_h = image.shape[0]

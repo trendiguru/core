@@ -518,7 +518,7 @@ def immediate_subdirs(dir):
     return filter(os.path.isdir, [os.path.join(dir, f) for f in os.listdir(dir)])
 
 
-def immediate_files(dir):
+def files_in_directory(dir):
     '''
     returns paths of files in directory (not recursive)
     '''

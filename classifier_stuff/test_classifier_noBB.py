@@ -2,12 +2,14 @@ from __future__ import print_function
 #!/usr/bin/env python
 __author__ = 'jeremy'
 import cv2
-import time
 import json
 from pylab import *
 import os
 import numpy as np
 import argparse
+
+import Utils
+import background_removal
 
 cascades=[]
 classifierNames=[]
@@ -21,21 +23,15 @@ use_visual_output=False
 #@maxRows=1000  #cut off analysis after this number of rows
 
 BLUE = [255,0,0]        # rectangle color
-RED = [0,0,255]         # PR BG
-GREEN = [0,255,0]       # PR FG
-BLACK = [0,0,0]         # sure BG
-WHITE = [255,255,255]   # sure FG
-
 
 def show_positives_file(positives_file):
     pass
-
 
 def detect_no_bb(classifier, img_array, use_visual_output=True):
     bbs_computer = classifier.detectMultiScale(img_array)
     if bbs_computer is () or bbs_computer is None:
         n_bbs_computer=0
-        print('no computer BB')
+        # print('classifier found no match')
         return (0)
         #check why this is ()
     if use_visual_output is True:
@@ -44,62 +40,34 @@ def detect_no_bb(classifier, img_array, use_visual_output=True):
         cv2.imshow('input', img_array)
     #    cv2.waitKey(100)
         k = 0xFF & cv2.waitKey(10)
-        return (1)
+        return (len(bbs_computer))
 
-def plot_confusion_matrix(n_samples,m):
+
+def plot_confusion_matrix(m, image_dirs, classifier_names):
     #conf_arr = [[33,2,0,0,0,0,0,0,0,1,3], [3,31,0,0,0,0,0,0,0,0,0], [0,4,41,0,0,0,0,0,0,0,1], [0,1,0,30,0,6,0,0,0,0,1], [0,0,0,0,38,10,0,0,0,0,0], [0,0,0,3,1,39,0,0,0,0,4], [0,2,2,0,4,1,31,0,0,0,2], [0,1,0,0,0,0,0,36,0,2,0], [0,0,0,0,0,0,1,5,37,5,1], [3,0,0,0,0,0,0,0,0,39,0], [0,0,0,0,0,0,0,0,0,0,38] ]
-    conf_arr=m
-    norm_conf = []
-    classifier_goodness=[]
-    k=0
-    for i in conf_arr:
-        classifier_sum=0.0
-        a = 0
-        tmp_arr = []
-        n=0
-        a = sum(i,0)
-        for j in i:
-            den=float(n_samples[n])
-            if a==0:  #this is prob unneeded as long as n_samples[i] != 0
-                tmp_arr.append(0)
-                #no change to classifier sum
-            else:
-                print('den:'+str(den))
-                tmp_arr.append(float(j)/float(a))
-                if den>0:
-                    if n==k:  #detector x on pics of x
-                        classifier_sum=classifier_sum+float(j)/float(den)
-                    else: #detector x on pics of something else
-                        classifier_sum=classifier_sum-float(j)/float(den)
-                    l=float(j)/float(den)
-                    print('l:'+str(l))
-            print('detected:'+str(j)+' tot targets'+str(n_samples[n])+ ' value:'+str(tmp_arr[-1])+'sum:'+str(classifier_sum))
-            n=n+1
-        classifier_sum=(classifier_sum+n-2)/(n-1)
-        classifier_goodness.append(classifier_sum)
-        norm_conf.append(tmp_arr)
-        k=k+1
+
     fig = plt.figure()
 #    ax = fig.add_subplot(111)
-    res = plt.imshow(array(norm_conf), cmap=cm.jet, interpolation='nearest')
+    max = np.amax(m)
+    scaled_matrix = m * 255 / max
+    res = plt.imshow(array(m) * 256 / max, cmap=cm.jet, interpolation='nearest')
     plt.xticks(rotation=90)
-    plt.xticks(np.arange(0,len(n_samples)),imageDirectories)   #check if x is classifier or image category
-    plt.yticks(np.arange(0,len(n_samples)),classifierNames)   #check if y is classifiers or categories
-    m=0
-    n=0
-    for i, cas in enumerate(conf_arr):
-        classifier_goodsum=0
-        classifier_badsum=0
-        n=0
-        for j, c in enumerate(cas):
-           # if c>0:
-            plt.text(j-.2, i+.2, int(c), fontsize=10)
-            n=n+1
-        plt.text(j+1.2, i+.2, classifier_goodness[m], fontsize=6)
-        m=m+1
+    plt.xticks(np.arange(0, len(image_dirs)), image_dirs)  # check if x is classifier or image category
+    plt.yticks(np.arange(0, len(classifier_names)), classifier_names)  #check if y is classifiers or categories
     cb = fig.colorbar(res)
 
-    figName=os.path.join(resultsDir,'confusion.'+trainDir+'.png')
+    rows, cols = np.shape(m)
+
+    for i in range(0, rows):
+        for j in range(0, cols):
+            plt.text(j + 1.2, i + .2, str(m[i, j]), fontsize=6)
+            if i == j:  # detector x on pics of x
+                #                classifier_sum=classifier_sum+float(j)/float(den)
+                pass
+            else:  # detector x on pics of something else
+                #                classifier_sum=classifier_sum-float(j)/float(den)
+                pass
+    figName = 'classifier_results/confusion.png'
     savefig(figName, format="png")
     plt.show()
 #=======
@@ -157,44 +125,45 @@ def plot_confusion_matrix(n_samples,m):
 #    plt.show()
 #>>>>>>> 78605526ed1ae5ce2b7fe35564ddda8cb1f019a3
 
-def test_classifier(classifier, positivesDirectory, negativesDirectory, *args, **kwargs):
+def test_classifier(classifier, imagesDir, max_files_to_try=10000):
+    '''
+    run classifier on all images in dict - assume only one or no target items per image
+    :param classifier: the classifier xml
+    :param imagesDir: directory containing images
+    :return:
+    '''
     n_files=0
     i=0
     totTargets=0
-    totMatches=0
-    totFalseMatches=0
-    for dirName,subdirList,fileList in os.walk(imageDirectory,topdown=True):
-        for file in fileList:
-            full_name=os.path.join(dirName,file)
-    #		print('fullName:'+full_name)
-            img_array = cv2.imread(full_name)
-            if img_array is not None:
-                h, w, d = img_array.shape
-#				f.write(full_name + ' 1 1 1 '+ str(w-2) + ' ' + str(h-2)  + '\n')
-#				relative_filename=os.path.join(dirName3,file)`
-#				absolute_filename=os.path.join(abs_root_dir,file)
-                n_files=n_files+1
-                if use_visual_output is True:
-                    cv2.imshow('input', img_array)
-                    #    cv2.waitKey(100)
-                    k = 0xFF & cv2.waitKey(10)
-                bb = [1,1,w-2,h-2]
-                bbs = [bb]   #in case we ever need to deal with multiple items per image, this is a list
-                nTargets,nMatches,nFalseMatches=detect(classifier,img_array,bbs)
-                totTargets=totTargets+nTargets
-                totMatches=totMatches+nMatches
-                totFalseMatches=totFalseMatches+nFalseMatches
-                print('nTargets:'+str(nTargets)+' tot:'+str(totTargets)+' nMatches:'+str(nMatches)+' tot:'+str(totMatches)+' nFalse:'+str(nFalseMatches)+' tot:'+str(totFalseMatches)+' name:'+str(full_name))
-                #.filter(db.items.fingerprint.is_(None))
-            else:
-                print('file:' + full_name +' read error')  #
-            if n_files==max_files_to_try:
-                print('reached max of '+str(max_files_to_try)+' files to check')
-                break
+    totMatches = 0
+    totExtra = 0
+    files = Utils.files_in_directory(imagesDir)
+    print('testing ' + str(len(files)) + ' files in directory ' + str(imagesDir))
+    for file in files:
+        img_array = cv2.imread(file)
+        if img_array is None:
+            print('file:' + file + ' read error')  #
+            continue
+        img_array, ratio = background_removal.standard_resize(img_array, 400)
+        h, w, d = img_array.shape
+        n_files = n_files + 1
+        if use_visual_output is True:
+            cv2.imshow('input', img_array)
+            k = 0xFF & cv2.waitKey(10)
+        nMatches = detect_no_bb(classifier, img_array)
+        n_extra = 0
+        if nMatches:
+            n_extra = nMatches - 1  # any more than 1 match is assumed wrong here
+        totTargets = totTargets + 1
+        totMatches = totMatches + (nMatches > 0)
+        totExtra = totExtra + n_extra
+        print('totTargets:' + str(totTargets) + ' nMatches:' + str(nMatches) + ' totMatches:' + str(
+            totMatches) + ' nExtra:' + str(n_extra) + ' totextra:' + str(totExtra), end='\r')
+        #.filter(db.items.fingerprint.is_(None))
         if n_files==max_files_to_try:
-        #	print('reached max of '+str(max_files_to_try)+' files to check')
+            print('reached max of ' + str(max_files_to_try) + ' files to check')
             break
-    return(totTargets,totMatches,totFalseMatches)
+    return (totTargets, totMatches, totExtra)
 
 ###########
 # run using classifier we have on images from db
@@ -206,76 +175,58 @@ def test_classifiers(classifierDir='../classifiers/', imageDir='images', use_vis
     max_files_to_try = 1000
 
     #go thru image directories
-    subdirlist = Utils.immediate_subdirs(dir)
-    if len(subdirlist)==0:
-        print('empty image directory:'+str(rootDir)+str(subdirlist))
-        exit()
-    n_testcategories = len(top_subdirlist)
-    for subdir in subdirlist:
+    imagedirs = Utils.immediate_subdirs(imageDir)
+    if len(imagedirs) == 0:
+        print('empty image directory:' + str(imagedirs))
+        return None
+    for subdir in imagedirs:
         searchStrings.append('class:'+subdir)
         print('image directory:'+str(subdir))
+    n_categories = len(imagedirs)
 
     #go thru classifier directories
-    classifierlist = [x[1] for x in os.walk(trainDir)]
+    classifiers = Utils.files_in_directory(classifierDir)
 #	print(' subdirlist'+str(subdirlist))
-    if len(subdirlist)==0:
-        print('empty classifier directory:'+str(trainDir)+str(subdirlist))
+    if len(classifiers) == 0:
+        print('empty classifier directory:' + str(classifierDir))
         exit()
-    top_subdirlist=subdirlist[0]
-    print('top subdirlist'+str(top_subdirlist))
-
-    subdirlist = [x[0] for x in os.walk(classifier)]
-
-    n_classifiers=len(top_subdirlist)
-    for subdir in top_subdirlist:
-        classifier_name=os.path.join(trainDir,subdir)
-        classifier_name=os.path.join(classifier_name,'cascade.xml')
-    #	classifier_name=trainDir+'/'+subdir+'/cascade.xml'
-        print('classifierName:'+classifier_name)
-        classifierNames.append(classifier_name)
+    n_classifiers = len(classifiers)
 
     results_list=[]
     results_matrix=np.zeros([n_classifiers,n_categories])
+    matches_over_targets_matrix = np.zeros([n_classifiers, n_categories])
+    targets_matrix = np.zeros([n_classifiers, n_categories])
+    matches_matrix = np.zeros([n_classifiers, n_categories])
+    extras_matrix = np.zeros([n_classifiers, n_categories])
     samplesize=[]
-    results_matrixrow=[]
     gotSizesFlag=False
-    for i in range(0,n_classifiers):
+    totTargets = 0
+    for i in range(0, len(classifiers)):
+        classifier = classifiers[i]
         results_row=[]
-        results_matrixrow=[]
-        cascade=cv2.CascadeClassifier(classifierNames[i])
-        check_empty=cascade.empty()
-
-        for j in range(0,n_categories):
-            if check_empty:
-                print('in test_classifier.py:classify_image: classifier '+classifierNames[i]+' is empty!! ',str(check_empty))
-                totTargets,totMatches,totFalseMatches = [0,0,0]
-            else:
-                print('cascade:'+classifierNames[i]+' directory:'+imageDirectories[j]+' search string:'+searchStrings[j])
-                totTargets,totMatches,totFalseMatches = test_classifier(cascade,imageDirectories[j],searchStrings[j])
-
-            print('totTargets:'+str(totTargets)+' totMatches:'+str(totMatches)+' tot FalseMatches:'+str(totFalseMatches)+'               ')
-            results_dict={'classifier':classifierNames[i], 'directory':imageDirectories[j],'search string':searchStrings[j],'totTargets':totTargets,'totMatches':totMatches,'FalseMatches':totFalseMatches,'time':time.strftime('%c')}
-            results_row.append(results_dict)
-            results_list.append(results_row)
-            if i==j:
-                results_matrixrow.append(totMatches-totFalseMatches) #think about whether this is right for category i,j and for category i,i
-            else:
-                results_matrixrow.append(totMatches+totFalseMatches) #think about whether this is right for category i,j and for category i,i
-            print('col '+str(j)+' entry:'+str(results_matrixrow[-1]))
+        results_matrixrow = []
+        cascade_classifier = cv2.CascadeClassifier(classifier)
+        check_empty = cascade_classifier.empty()
+        if check_empty:
+            print('classifier ' + str(classifier) + ' is empty')
+            continue
+        for j in range(0, len(imagedirs)):
+            imagedir = imagedirs[j]
+            print('classifier:' + classifier + ' image directory:' + imagedir)
+            totTargets, totMatches, totExtraMatches = test_classifier(cascade_classifier, imagedir)
+            print('totTargets:' + str(totTargets) + ' totMatches:' + str(totMatches) + ' tot ExtraMatches:' + str(
+                totExtraMatches) + '           ')
+            matches_over_targets_matrix[i, j] = float(totMatches) / totTargets
+            targets_matrix[i, j] = totTargets
+            matches_matrix[i, j] = totMatches
+            extras_matrix[i, j] = totExtraMatches
+            results_dict = {'classifier': classifier, 'directory': imagedir, 'totTargets': totTargets,
+                            'totMatches': totMatches, 'FalseMatches': totExtraMatches}
 
             with open(results_filename, 'a') as outfile:
                 json.dump(results_list, outfile, indent=2)
-            if check_empty is False and gotSizesFlag is False:
-                samplesize.append(totTargets)
-        if check_empty is False and gotSizesFlag is False:
-            gotSizesFlag=True
-        results_matrix[i,:]=results_matrixrow
-        print('row '+str(i)+' = '+str(results_matrixrow))
-        print(results_matrix)
-        print(samplesize)
     #print json.dumps(d, indent = 2, separators=(',', ': '))
-    plot_confusion_matrix(samplesize,results_matrix)  #tottargets should prob be a vector of # of pics checked
-
+    plot_confusion_matrix(matches_over_targets_matrix, imagedirs, classifiers)
 
 
 if __name__ == "__main__":
@@ -283,9 +234,9 @@ if __name__ == "__main__":
 
     parser = argparse.ArgumentParser(description='rate classifier')
     # parser.add_argument('-i', dest='imageDir', default='/home/jeremy/jeremy.rutman@gmail.com/TrendiGuru/techdev/databaseImages/googImages/shirt/longSleeve/BUTTONSHIRT/',help='directory with the images')
-    parser.add_argument('-i', dest='imageDir',
-                        default='/home/jeremy/jeremy.rutman@gmail.com/TrendiGuru/techdev/databaseImages/googImages/shirt/',
-                        help='directory with the images')
+    dir = '/home/jeremy/jeremy.rutman@gmail.com/TrendiGuru/techdev/databaseImages/testdirs'
+    # dir = '/home/jeremy/jeremy.rutman@gmail.com/TrendiGuru/techdev/databaseImages/googImages/shirt/'
+    parser.add_argument('-i', dest='imageDir', default=dir, help='directory with the images')
     parser.add_argument('-v', dest='use_visual_output', default=True, help='whether to use vis output')
     parser.add_argument('-c', dest='classifierDir', default='../classifiers/',
                         help='sum the integers (default: find the max)')
