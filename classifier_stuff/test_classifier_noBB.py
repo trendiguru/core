@@ -7,10 +7,14 @@ from pylab import *
 import os
 import numpy as np
 import argparse
-
+from time import gmtime, strftime
+# import matplotlib as plt
 import Utils
 import background_removal
+import pylab as pl
 
+# TODO
+# add raw data to conf matrix graph - number of targets, # detected, # extra
 cascades=[]
 classifierNames=[]
 imageDirectories=[]
@@ -43,17 +47,126 @@ def detect_no_bb(classifier, img_array, use_visual_output=True):
         return (len(bbs_computer))
 
 
-def plot_confusion_matrix(m, image_dirs, classifier_names):
+def calc_precision_recall(tot_targets, tot_found, extras_found, classifier_names, image_dirs):
+    print('tot targets:' + str(tot_targets))
+    print('tot found:' + str(tot_found))
+    answers = []
+    for i in range(0, len(classifier_names)):
+        classifier_path = classifier_names[i]
+        head, classifier_name = os.path.split(classifier_path)
+
+        tot_targets_in_class = 0
+        tot_found_for_class = 0
+        for j in range(0, len(image_dirs)):
+            tot_found_for_class = tot_found_for_class + tot_found[i, j] + extras_found[i, j]
+        print('tot found for class ' + str(i) + ' ' + classifier_name + ' :' + str(
+            tot_found_for_class) + ' tot targets:' + str(tot_targets_in_class))
+        for j in range(0, len(image_dirs)):
+            image_path = image_dirs[j]
+            head, image_dir = os.path.split(image_path)
+            if tot_targets[i, j]:
+                recall = tot_found[i, j] / tot_targets[i, j]
+            else:
+                recall = 0
+            if tot_found_for_class:
+                precision = tot_found[i, j] / tot_found_for_class
+            else:
+                precision = 0
+            print('found:' + str(tot_found[i, j]) + ' tot_targets:' + str(
+                tot_targets[i, j]) + ' tot_found_for_class:' + str(tot_found_for_class))
+            pstr = 'precision of classifier ' + classifier_name + ' against ' + image_dir + ' :' + str(precision)
+            rstr = 'recall of classifier ' + classifier_name + ' against ' + image_dir + ' :' + str(recall)
+            print(pstr)
+            print(rstr)
+            answers.append(pstr)
+            answers.append(rstr)
+    return answers
+
+
+def write_classifier_html(html_name, date_string, results, targets_matrix, matches_matrix, extras_matrix):
+    f = open(html_name, 'a')
+    # write html file
+    f.write('<HTML><HEAD><TITLE>classifier results</TITLE>\n')
+    fig_name = 'confusion' + date_string + '.png'
+    f.write('<BODY text=#999999 vLink=#555588 aLink=#88ff88 link=#8888ff bgColor=#000000>\n ')
+    f.write('</HEAD>\n')
+    f.write('<IMG style=\"WIDTH: 600px;\"  src=' + fig_name + '>\n')
+    for result in results:
+        f.write('<br>' + str(result) + '\n')
+
+    f.write('<br>TARGETS\n')
+    f.write(str(targets_matrix))
+    f.write('<br>MATCHES\n')
+    f.write(str(matches_matrix))
+    f.write('<br>EXTRAS\n')
+    f.write(str(extras_matrix))
+
+    f.write('</html>\n')
+    f.close
+
+
+def plot_confusion_matrix2(cm, image_dirs, classifier_names, targets_matrix, matches_matrix, extras_matrix,
+                           title='Confusion matrix', cmap=plt.cm.GnBu, use_visual_output=False):
+    plt.imshow(cm, interpolation='nearest', cmap=cmap)
+    rows, cols = np.shape(cm)
+    for i in range(0, rows):
+        for j in range(0, cols):
+            # if type(cm[0, 0]) is float:
+            txt = '{:.2}'.format(cm[i, j])
+            plt.text(j - .2, i - .1, txt, fontsize=8)
+            txt = '({:.0f},{:.0f},{:.0f})'.format(matches_matrix[i, j], targets_matrix[i, j], extras_matrix[i, j])
+            plt.text(j - .2, i + .1, txt, fontsize=8)
+            # else:
+            # txt = '{:.2}'.format(cm[i, j])
+            #            plt.text(j , i + .2, txt, fontsize=8)
+
+    plt.title(title + '\nNmatches/Ntargets\n(Nmatches,Ntargets,Nextras)', fontsize=10)
+    plt.colorbar()
+    ylabels = classifier_names
+    xlabels = image_dirs
+    xtick_marks = np.arange(len(xlabels))
+    ytick_marks = np.arange(len(ylabels))
+    plt.xticks(xtick_marks, xlabels, rotation=90, fontsize=8)
+    plt.yticks(ytick_marks, ylabels, fontsize=8)
+    # plt.tight_layout()
+    plt.ylabel('classifier')
+    plt.xlabel('image_dir')
+    date_string = strftime("%d%m%Y_%H%M%S", gmtime())
+    figName = 'classifier_results/confusion' + date_string + '.png'
+    plt.subplots_adjust(left=.1, right=1, bottom=0.2, top=0.9)
+    savefig(figName, format="png")
+    if use_visual_output:
+        plt.show(block=True)
+    return date_string
+
+
+def plot_confusion_matrix(m, image_dirs, classifier_names, use_visual_output=False):
     #conf_arr = [[33,2,0,0,0,0,0,0,0,1,3], [3,31,0,0,0,0,0,0,0,0,0], [0,4,41,0,0,0,0,0,0,0,1], [0,1,0,30,0,6,0,0,0,0,1], [0,0,0,0,38,10,0,0,0,0,0], [0,0,0,3,1,39,0,0,0,0,4], [0,2,2,0,4,1,31,0,0,0,2], [0,1,0,0,0,0,0,36,0,2,0], [0,0,0,0,0,0,1,5,37,5,1], [3,0,0,0,0,0,0,0,0,39,0], [0,0,0,0,0,0,0,0,0,0,38] ]
 
+    ylabels = classifier_names
+    xlabels = image_dirs
+    # cm = confusion_matrix(y_test, pred, labels)
+    # print(cm)
     fig = plt.figure()
-#    ax = fig.add_subplot(111)
+    ax = fig.add_subplot(111)
+    cax = ax.matshow(m)
+    pl.title('Confusion matrix of classifiers')
+    fig.colorbar(cax)
+    ax.set_xticklabels([''] + xlabels)
+    ax.set_yticklabels([''] + ylabels)
+    pl.xlabel('Predicted')
+    pl.ylabel('True')
+    pl.show()
+
+    fig = plt.figure()
+    # ax = fig.add_subplot(111)
     max = np.amax(m)
     scaled_matrix = m * 255 / max
-    res = plt.imshow(array(m) * 256 / max, cmap=cm.jet, interpolation='nearest')
+    res = plt.imshow(array(m) * 256 / max, cmap=cm.jet, interpolation='nearest', vmin=0, vmax=max)
     plt.xticks(rotation=90)
-    plt.xticks(np.arange(0, len(image_dirs)), image_dirs)  # check if x is classifier or image category
-    plt.yticks(np.arange(0, len(classifier_names)), classifier_names)  #check if y is classifiers or categories
+    plt.xticks(np.arange(0, len(image_dirs)), image_dirs, fontsize=8)  # check if x is classifier or image category
+    plt.yticks(np.arange(0, len(classifier_names)), classifier_names,
+               fontsize=8)  # check if y is classifiers or categories
     cb = fig.colorbar(res)
 
     rows, cols = np.shape(m)
@@ -62,10 +175,10 @@ def plot_confusion_matrix(m, image_dirs, classifier_names):
         for j in range(0, cols):
             if type(m[0, 0]) is float:
                 txt = '{:.2}'.format(m[i, j])
-                plt.text(j + .2, i + .2, txt, fontsize=8)
+                plt.text(j, i + .2, txt, fontsize=8)
             else:
                 txt = '{:.2}'.format(m[i, j])
-                plt.text(j + .2, i + .2, txt, fontsize=8)
+                plt.text(j, i + .2, txt, fontsize=8)
             # plt.text(j + 1.2, i + .2, str(m[i, j]), fontsize=6)
 
             if i == j:  # detector x on pics of x
@@ -74,63 +187,15 @@ def plot_confusion_matrix(m, image_dirs, classifier_names):
             else:  # detector x on pics of something else
                 #                classifier_sum=classifier_sum-float(j)/float(den)
                 pass
-    figName = 'classifier_results/confusion.png'
-    savefig(figName, format="png")
-    plt.show()
-#=======
-#    #conf_arr = [[33,2,0,0,0,0,0,0,0,1,3], [3,31,0,0,0,0,0,0,0,0,0], [0,4,41,0,0,0,0,0,0,0,1], [0,1,0,30,0,6,0,0,0,0,1], [0,0,0,0,38,10,0,0,0,0,0], [0,0,0,3,1,39,0,0,0,0,4], [0,2,2,0,4,1,31,0,0,0,2], [0,1,0,0,0,0,0,36,0,2,0], [0,0,0,0,0,0,1,5,37,5,1], [3,0,0,0,0,0,0,0,0,39,0], [0,0,0,0,0,0,0,0,0,0,38] ]
-#    conf_arr=m
-#    norm_conf = []
-#    classifier_goodness=[]
-#    k=0
-#    for i in conf_arr:
-#        classifier_sum=0.0
-#        a = 0
-#        tmp_arr = []
-#        n=0
-#        a = sum(i,0)
-#        for j in i:
-#            den=float(n_samples[n])
-#            if a==0:  #this is prob unneeded as long as n_samples[i] != 0
-#                tmp_arr.append(0)
-#                #no change to classifier sum
-#            else:
-#                print('den:'+str(den))
-#                tmp_arr.append(float(j)/float(a))
-#                if den>0:
-#                    if n==k:  #detector x on pics of x
-#                        classifier_sum=classifier_sum+float(j)/float(den)
-#                    else: #detector x on pics of something else
-#                        classifier_sum=classifier_sum-float(j)/float(den)
-#                    l=float(j)/float(den)
-#                    print('l:'+str(l))
-#            print('detected:'+str(j)+' tot targets'+str(n_samples[n])+ ' value:'+str(tmp_arr[-1])+'sum:'+str(classifier_sum))
-#            n=n+1
-#        classifier_sum=(classifier_sum+n-2)/(n-1)
-#        classifier_goodness.append(classifier_sum)
-#        norm_conf.append(tmp_arr)
-#        k=k+1
-#    fig = plt.figure()
-#    ax = fig.add_subplot(111)
-#    res = ax.imshow(array(norm_conf), cmap=cm.jet, interpolation='nearest')
-#    m=0
-#    n=0
-#    for i, cas in enumerate(conf_arr):
-#        classifier_goodsum=0
-#        classifier_badsum=0
-#        n=0
-#        for j, c in enumerate(cas):
-#           # if c>0:
-#            plt.text(j-.2, i+.2, c, fontsize=14)
-#            n=n+1
-#        plt.text(j+1.2, i+.2, classifier_goodness[m], fontsize=14)
-#        m=m+1
-#    cb = fig.colorbar(res)
-#
-#    figName=os.path.join(resultsDir,'confusion.'+trainDir+'.png')
-#    savefig(figName, format="png")
-#    plt.show()
-#>>>>>>> 78605526ed1ae5ce2b7fe35564ddda8cb1f019a3
+
+    date_string = strftime("%d%m%Y_%H%M%S", gmtime())
+    figName = 'classifier_results/confusion' + date_string + '.png'
+    plt.subplots_adjust(left=-.2, right=1.2, bottom=-.2, top=1.0). \
+        savefig(figName, format="png")
+    if use_visual_output:
+        plt.show(block=True)
+    return (date_string)
+
 
 def test_classifier(classifier, imagesDir, max_files_to_try=10000):
     '''
@@ -223,7 +288,10 @@ def test_classifiers(classifierDir='../classifiers/', imageDir='images', use_vis
             totTargets, totMatches, totExtraMatches = test_classifier(cascade_classifier, imagedir)
             print('totTargets:' + str(totTargets) + ' totMatches:' + str(totMatches) + ' tot ExtraMatches:' + str(
                 totExtraMatches) + '           ')
-            matches_over_targets_matrix[i, j] = float(totMatches) / totTargets
+            if totTargets:
+                matches_over_targets_matrix[i, j] = float(totMatches) / totTargets
+            else:
+                matches_over_targets_matrix[i, j] = 0
             targets_matrix[i, j] = totTargets
             matches_matrix[i, j] = totMatches
             extras_matrix[i, j] = totExtraMatches
@@ -233,7 +301,11 @@ def test_classifiers(classifierDir='../classifiers/', imageDir='images', use_vis
             with open(results_filename, 'a') as outfile:
                 json.dump(results_list, outfile, indent=2)
     #print json.dumps(d, indent = 2, separators=(',', ': '))
-    plot_confusion_matrix(matches_over_targets_matrix, imagedirs, classifiers)
+
+    answers = calc_precision_recall(targets_matrix, matches_matrix, extras_matrix, classifiers, imagedirs)
+    fig_name = plot_confusion_matrix2(matches_over_targets_matrix, imagedirs, classifiers, targets_matrix,
+                                      matches_matrix, extras_matrix)
+    return (answers, fig_name, targets_matrix, matches_matrix, extras_matrix)
 
 
 if __name__ == "__main__":
@@ -244,8 +316,10 @@ if __name__ == "__main__":
     dir = '/home/jeremy/jeremy.rutman@gmail.com/TrendiGuru/techdev/databaseImages/testdirs'
     # dir = '/home/jeremy/jeremy.rutman@gmail.com/TrendiGuru/techdev/databaseImages/googImages/shirt/'
     parser.add_argument('-i', dest='imageDir', default=dir, help='directory with the images')
-    parser.add_argument('-v', dest='use_visual_output', default=True, help='whether to use vis output')
-    parser.add_argument('-c', dest='classifierDir', default='../classifiers/',
+    parser.add_argument('-v', dest='use_visual_output', default=False, help='whether to use vis output')
+    classifier_dir = '/home/jeremy/jeremy.rutman@gmail.com/TrendiGuru/techdev/trendi_guru_modules/classifier_stuff/classifiers_to_test/face'
+    # classifier_dir = 'classifiers_to_test'
+    parser.add_argument('-c', dest='classifierDir', default=classifier_dir,
                         help='sum the integers (default: find the max)')
 
     args = parser.parse_args()
@@ -257,5 +331,12 @@ if __name__ == "__main__":
     print('visual output ' + str(use_visual_output))
     # print 'Output file is "', outputfile
 
-    test_classifiers(classifierDir=classifierDir, imageDir=imageDir, use_visual_output=use_visual_output)
+    answers, date_string, targets_matrix, matches_matrix, extras_matrix = test_classifiers(classifierDir=classifierDir,
+                                                                                           imageDir=imageDir,
+                                                                                           use_visual_output=use_visual_output)
+    # head, classifier_name = os.path.split(classifier_path)
+
+    html_name = 'classifier_results/results_' + date_string + '.html'
+
+    write_classifier_html(html_name, date_string, answers, targets_matrix, matches_matrix, extras_matrix)
 
