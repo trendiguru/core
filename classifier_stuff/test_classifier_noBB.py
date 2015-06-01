@@ -15,6 +15,9 @@ import pylab as pl
 
 # TODO
 # add raw data to conf matrix graph - number of targets, # detected, # extra
+# make output as json
+# put precision annotation on graph instead of recall
+
 cascades=[]
 classifierNames=[]
 imageDirectories=[]
@@ -263,7 +266,7 @@ def test_classifiers(classifierDir='../classifiers/', imageDir='images', use_vis
         print('empty classifier directory:' + str(classifierDir))
         exit()
     n_classifiers = len(classifiers)
-
+    classifier_names = ''
     results_list=[]
     results_matrix=np.zeros([n_classifiers,n_categories])
     matches_over_targets_matrix = np.zeros([n_classifiers, n_categories])
@@ -275,6 +278,8 @@ def test_classifiers(classifierDir='../classifiers/', imageDir='images', use_vis
     totTargets = 0
     for i in range(0, len(classifiers)):
         classifier = classifiers[i]
+        head, tail = os.path.split("/tmp/d/a.dat")
+        classifier_names = classifier_names + tail + '_'
         results_row=[]
         results_matrixrow = []
         cascade_classifier = cv2.CascadeClassifier(classifier)
@@ -295,17 +300,23 @@ def test_classifiers(classifierDir='../classifiers/', imageDir='images', use_vis
             targets_matrix[i, j] = totTargets
             matches_matrix[i, j] = totMatches
             extras_matrix[i, j] = totExtraMatches
-            results_dict = {'classifier': classifier, 'directory': imagedir, 'totTargets': totTargets,
-                            'totMatches': totMatches, 'FalseMatches': totExtraMatches}
+    results_dict = {'classifiers': classifiers, 'imagedirectories': imagedirs, 'totTargets': str(targets_matrix),
+                    'totMatches': str(matches_matrix), 'ExtraMatches': str(extras_matrix)}
 
-            with open(results_filename, 'a') as outfile:
-                json.dump(results_list, outfile, indent=2)
+    with open(results_filename, 'a') as outfile:
+        json.dumps(results_dict, outfile, indent=2)
     #print json.dumps(d, indent = 2, separators=(',', ': '))
 
     answers = calc_precision_recall(targets_matrix, matches_matrix, extras_matrix, classifiers, imagedirs)
-    fig_name = plot_confusion_matrix2(matches_over_targets_matrix, imagedirs, classifiers, targets_matrix,
+    date_string = plot_confusion_matrix2(matches_over_targets_matrix, imagedirs, classifiers, targets_matrix,
                                       matches_matrix, extras_matrix)
-    return (answers, fig_name, targets_matrix, matches_matrix, extras_matrix)
+
+    # maybe add cliassifier names
+    html_name = 'classifier_results/results_' + '.' + date_string + '.html'
+
+    write_classifier_html(html_name, date_string, answers, targets_matrix, matches_matrix, extras_matrix)
+
+    return (answers, date_string, targets_matrix, matches_matrix, extras_matrix)
 
 
 if __name__ == "__main__":
@@ -336,7 +347,4 @@ if __name__ == "__main__":
                                                                                            use_visual_output=use_visual_output)
     # head, classifier_name = os.path.split(classifier_path)
 
-    html_name = 'classifier_results/results_' + date_string + '.html'
-
-    write_classifier_html(html_name, date_string, answers, targets_matrix, matches_matrix, extras_matrix)
 

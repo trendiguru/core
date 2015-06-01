@@ -469,8 +469,10 @@ def step_thru_db(use_visual_output=True, collection='products'):
         print('couldnt open db')
         return {"success": 0, "error": "could not get db"}
     dbstring = 'db.' + collection
-    # cursor = dbstring.find()   look in defaults.py how this is done
-    cursor = db.products.find()
+    print
+    cursor = dbstring.find()
+    # look in defaults.py  how this is done
+    # cursor = db.products.find()
     print('returned cursor')
     if cursor is None:  # make sure training collection exists
         print('couldnt get cursor ' + str(collection))
@@ -507,7 +509,7 @@ def step_thru_db(use_visual_output=True, collection='products'):
                 # print(unicode(s.strip(codecs.BOM_UTF8), 'utf-8'))
         if 'description' in doc:
             try:
-                print('desc:' + str(doc['descripti11111111111on']))
+                print('desc:' + str(doc['description']))
             except UnicodeEncodeError:
                 print('unicode encode error in description')
                 s = doc['description']
@@ -621,7 +623,6 @@ def show_db_record(use_visual_output=True, doc=None):
     #                                                                          category_id=category_id,
     #                                                                         word_in_description=word_in_description)
 
-
 # structure of 'feature_bbs':
 # feature_bbs:{'skip':True/False,'byCategoryId':{catID:[bb11,bb12,bb13],catID2:[bb21,bb22,],catID3:[bb3],...},'byWordInDescription':{word:[bb],word2:[b2],..}
 def get_first_qualifying_record(cursor, which_to_show='showAll', filter_type='byCategoryId', filter=None, item_number=0,
@@ -711,4 +712,5 @@ if __name__ == '__main__':
     # fix_all_bbs_in_db()
     # doc = lookfor_next_unbounded_feature_from_db_category()
     # print('doc:' + str(doc))
-    step_thru_db(use_visual_output=True, collection='products')
+    # step_thru_db(use_visual_output=True, collection='products')
+    step_thru_db(use_visual_output=True, collection='training')
