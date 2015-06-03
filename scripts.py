@@ -17,4 +17,4 @@ def dl_keyword_images(keyword, category_id):
     for dress in keyword_cursor:
         dress_image = Utils.get_cv2_img_array(dress['image']['sizes']['XLarge']['url'])
         if background_removal.image_is_relevant(background_removal.standard_resize(dress_image, 400)[0]):
-            urllib.urlretrieve(dress['image']['sizes']['XLarge']['url'], path + '/' + dress['id'])
+            urllib.urlretrieve(dress['image']['sizes']['XLarge']['url'], path + '/' + str(dress['id']))
