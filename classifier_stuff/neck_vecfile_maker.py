@@ -1,10 +1,11 @@
+from  multiprocessing import Pool
+
 import cv2
 
 from matlab_wrapper import matlab_client
 import Utils
 import dbUtils
 import background_removal
-
 
 # matlab = mateng.conn.root.modules
 # matlab = mateng.conn.root.matlab
@@ -82,8 +83,8 @@ def get_pose_est_bbs(url="http://www.thebudgetbabe.com/uploads/2015/201504/celeb
     # h = copy.deepcopy(headboxes)
     img_arr = Utils.get_cv2_img_array(url, download=True, convert_url_to_local_filename=True,
                                       download_directory='images')
-        # cv2.rectangle(img_arr, (headbox[0], headbox[1]), (headbox[0] +headbox[2], headbox[1] + headbox[3]), [0, 0, 100],
-        #                thickness=1)
+    # cv2.rectangle(img_arr, (headbox[0], headbox[1]), (headbox[0] +headbox[2], headbox[1] + headbox[3]), [0, 0, 100],
+    # thickness=1)
 
     if img_arr is None:
         return None
@@ -107,9 +108,15 @@ def get_pose_est_bbs(url="http://www.thebudgetbabe.com/uploads/2015/201504/celeb
     img2 = img_arr[neckbox[0]:neckbox[0] + neckbox[2], neckbox[0]:neckbox[0] + neckbox[2]]
 
     new_description = description.replace(' ', '')
-    cv2.imwrite('images/necks/' + new_description + "_" + str(n) + ".png", img_arr)
+    dirname = 'images/jr_necktrain/' + new_description + '/'
+    filename = new_description + "_" + str(n) + ".png"
+    full_name = dirname + filename
+    print('image name:' + str(full_name))
+    Utils.ensure_dir(full_name)
+    cv2.imwrite(full_name, img_arr)
 
-    cv2.imwrite('images/necks/' + new_description + "_" + str(n) + ".neck_only.png", img2)
+    # cv2.imwrite('images/jr_necktrain/' + new_description + "_" + str(n) + ".neck_only.png", img2)
+    write_vecfile(neckbox, full_name, datafilename=dirname + 'bboxes.txt')
     # return headbox
 
 
@@ -120,6 +127,17 @@ def x1y1x2y2_to_bb(x1y1x2y2):
     y2 = x1y1x2y2[3]
     bb = [x1, y1, x2 - x1, y2 - y1]
     return bb
+
+
+def write_vecfile(rect, image_name, datafilename='images/jr_necktrain/bboxes.txt'):
+    f = open(datafilename, 'a+')
+    n_rects = 1
+    strn = image_name + '  ' + str(n_rects) + '  '
+    strn = strn + str(rect[0]) + ' ' + str(rect[1]) + ' ' + str(rect[2]) + ' ' + str(rect[3]) + '   '
+    strn = strn + '\n'
+    f.write(strn)
+    f.close()  # you can omit in most cases as the destructor will call if
+    print(strn)
 
 
 def find_images(description):
@@ -134,10 +152,10 @@ def find_images(description):
 
         if mdoc is not None and 'doc' in mdoc:
             doc = mdoc['doc']
-            print doc
+            # print doc
 
             xlarge_url = doc['image']['sizes']['XLarge']['url']
-            print('large img url:' + str(xlarge_url))
+            # print('large img url:' + str(xlarge_url))
             img_arr = Utils.get_cv2_img_array(xlarge_url)
             if img_arr is None:
                 return None
@@ -149,27 +167,27 @@ def find_images(description):
                 cv2.imshow('smallim1', small_img)
                 k = cv2.waitKey(200)
             relevance = background_removal.image_is_relevant(small_img)
-            print('relevance:' + str(relevance))
             if not relevance:
-                print('image is not relevant')
+                print('image is not relevant:' + str(description))
                 continue
-            print('image is relevant')
+            print('image is relevant:' + str(description))
             face1 = background_removal.find_face(img_arr)
             if face1 is not None and len(face1) != 0:
                 print('face1:' + str(face1))
                 bb1 = face1[0]
-                get_pose_est_bbs(xlarge_url, description, n=i, bb=bb1)
+                get_pose_est_bbs(xlarge_url, description, n=i, show_visual_output=show_visual_output, bb=bb1)
 
             else:
-                get_pose_est_bbs(xlarge_url, description, n=i)
+                get_pose_est_bbs(xlarge_url, description, n=i, show_visual_output=show_visual_output)
+
 
 if __name__ == '__main__':
     print('starting')
     # show_all_bbs_in_db()
     # get_pose_est_bbs()
-    descriptions = ['round neck', 'classic neckline', 'round collar', 'round neck', 'crew neck',
-                    'square neck', 'v-neck', 'classic neckline',
-                    'round collar', 'crewneck', 'crew neck', 'scoopneck', 'square neck', 'bow collar',
+    descriptions = ['classic neckline', 'round collar', 'round neck', 'crew neck',
+                    'square neck', 'classic neckline',
+                    'round collar', 'crewneck', 'crew neck', 'scoopneck', 'bow collar',
                     'ribbed round neck', 'rollneck',
                     'slash neck', 'V-Necks', 'v-neck']
 
@@ -178,11 +196,15 @@ if __name__ == '__main__':
     # description = 'mermaid'
     # get_pose_est_bbs(url="http://www.thebudgetbabe.com/uploads/2015/201504/celebsforever21coachella.jpg",
     # description='description', n=0,add_head_rectangle=True)
+    parallel = True
+    if parallel:
+        p = Pool(len(descriptions))
+        print(p.map(find_images, descriptions))
+    else:
+        for description in descriptions:
+            find_images(description)
 
-    for description in descriptions:
-        find_images(description)
-# p = Pool(len(descriptions))
-#    print(p.map(find_images, descriptions))
+
 
 
 

@@ -47,7 +47,10 @@ class MatlabServerService(rpyc.Service):
         np_boxes = np.array(mat_boxes, np.int16)
         pose_dict = mat_2_py.translate_2_boxes(np_boxes)
         if "://" in path_to_image_or_url:
-            os.remove("./images/" + filename)
+            try:
+                os.remove("./images/" + filename)  # this was crashing , therefore try
+            except OSError:
+                pass
         return pose_dict
 
     def exposed_get_matlab_function(self, func_name):

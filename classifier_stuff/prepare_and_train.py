@@ -8,16 +8,9 @@ from os import listdir
 from os.path import isfile, join
 import numpy as np
 from time import sleep
-import sys,getopt
 import cProfile, pstats, StringIO
 import argparse
 
-
-BLUE = [255,0,0]        # rectangle color
-RED = [0,0,255]         # PR BG
-GREEN = [0,255,0]       # PR FG
-BLACK = [0,0,0]         # sure BG
-WHITE = [255,255,255]   # sure FG
 
 # TODO
 #get number of positives, negatives and dont run trainer on more than that - DONE
@@ -26,7 +19,11 @@ WHITE = [255,255,255]   # sure FG
 #redo these to all different directories for positives, negatives -  DONE
 #redo this to scan all directories (and subdirs) not just numbers - DONE
 
-def create_negatives(rootDir, trainDir):
+def create_negatives(dirList):
+    '''
+        make a negatives file from a list of dirs
+    '''
+
     #def create_negatives(**kwargs):
     #if kwargs is not None:
     #    for key, value in kwargs.iteritems():
@@ -35,6 +32,7 @@ def create_negatives(rootDir, trainDir):
     #CREATE NEGATIVE EXAMPLE FILES - directories should be 'clean' i.e. contain only one item per image.
     #these can be used easily for both pos. and neg.  Images with two or more items can be used for negatives
     #with some more work
+    rootDir = ''
     print('creating negatives files from ' + rootDir)
     #subprocess.call("rm -f trainingfiles/negatives*.txt", shell=True)
     #subprocess.call("rm -f negatives*.txt", shell=True)
@@ -42,6 +40,7 @@ def create_negatives(rootDir, trainDir):
     #subprocess.call("pwd", shell=True)
     global top_subdirlist
     top_subdirlist=[]
+    abs_root_dir = rootDir
 
     subdirlist = [x[1] for x in os.walk(rootDir)]
     if len(subdirlist)==0:
@@ -90,7 +89,6 @@ def create_negatives(rootDir, trainDir):
         print(str(n_files) + ' negatives for directory ' + subdir1)
     return (n_negatives)
 
-
 def create_positives(rootDir, trainDir, infoDict,makeFrame):
     #CREATE POSITIVE EXAMPLE FILES
     print('creating positive examples from ' + rootDir)
@@ -100,6 +98,7 @@ def create_positives(rootDir, trainDir, infoDict,makeFrame):
 #    top_subdirlist = subdirlist[0]
     #print('--\nroot = ' + root)
     #splitpath=string.rsplit(root,'/',1)
+    abs_root_dir = rootDir
     resultsDict = {}
     print('makeframe:'+str(makeFrame))
     for subdir in top_subdirlist:
@@ -205,7 +204,6 @@ def create_positives(rootDir, trainDir, infoDict,makeFrame):
         resultsDict[subdir] = {'n_negatives': n_negs, 'n_positives': n_files, 'min_h': min_h, 'min_w': min_w}
     return resultsDict
 
-
 def permute(filename):
     f1 = open(filename)
     lines = f1.readlines()
@@ -223,7 +221,11 @@ def permute(filename):
     f1.close()
 
 
-def create_vecfiles(rootDir, trainDir, infoDict):
+def create_vecfiles(rootDir, trainDir, infoDict, inputdir, outputdir, train_width=20, train_height=20,
+                    num_negatives=4000, num_positives=2000,
+                    num_extra_positives=100, featureType='HAAR', mode='ALL',
+                    maxFalseAlarmRate=0.4, minHitRate=0.995, precalcIdxBufSize=6000, precalcValBufSize=6000,
+                    num_stages=20, delay_minutes=5):
     ##########
     # CREATESAMPLES
     ##########
@@ -254,7 +256,10 @@ def create_vecfiles(rootDir, trainDir, infoDict):
         #    subprocess.call(command_string, shell=True)
 
 
-def train(trainDir, train_subdir, infoDict):
+def train(trainDir, train_subdir, infoDict, inputdir, outputdir, train_width=20, train_height=20, num_negatives=4000,
+          num_positives=2000, num_extra_positives=100,
+          maxFalseAlarmRate=0.4, minHitRate=0.995, precalcIdxBufSize=6000, precalcValBufSize=6000, mode='ALL',
+          num_stages=20, featureType='HAAR', delay_minutes=5):
     ##########
     # TRAIN
     ##########
@@ -306,23 +311,6 @@ def train(trainDir, train_subdir, infoDict):
 #    p=subprocess.Popen(['/bin/bash','nice','-n19'])
     subprocess.call(command_string, shell=True)
 
-
-#FEATURETYPE=HAAR
-#EXAMPLE_FILE="bbfile_shirts_020-029.txt"  #928 items
-
-#DIR=036;mkdir $DIR;WIDTH=20;HEIGHT=20;echo 'creating vecfile'
-#opencv_createsamples -info $EXAMPLE_FILE -w $WIDTH -h $HEIGHT  -vec $DIR/shirts_191014_vecfile.vec ; echo 'done creating vecfile ' $DIR ;echo 'starting training'
-#opencv_traincascade -data $DIR -vec $DIR/shirts_191014_vecfile.vec -bg shirtsNegatives.txt -featureType $FEATURETYPE -w $WIDTH -h $HEIGHT -numPos 950 -numNeg 2700 -numStages 20 -mode ALL -precalcValBufSize 30000 -precalcIdxBufSize 30000 -minHitRate 0.997 -maxFalseAlarmRate 0.5 > $DIR/trainout.txt 2>&1 &
-#echo 'done training' $DIR
-
-
-#DIR=020;mkdir $DIR;WIDTH=20;HEIGHT=40;echo 'creating vecfile'
-#opencv_createsamples -info $EXAMPLE_FILE -w $WIDTH -h $HEIGHT  -vec $DIR/dresses_111014_vecfile.vec -num 1716 ; echo 'done creating vecfile ' $DIR ;echo 'starting training'
-#opencv_traincascade -data $DIR -vec $DIR/dresses_111014_vecfile.vec -bg dressesNegatives.txt -featureType $FEATURETYPE -w $WIDTH -h $HEIGHT -numPos 1600 -numNeg 2100 -numStages 20 -mode ALL -precalcValBufSize 30000 -precalcIdxBufSize 30000 -minHitRate 0.997 -maxFalseAlarmRate 0.5 > $DIR/trainout.txt 2>&1 &
-#echo 'done training' $DIR; cp $DIR/cascade.xml '${DIR}/dressclassifier${DIR}.xml'
-
-#nice -n19 ionice -c 3 opencv_traincascade -data 002 -vec 002/pants/dressPantsvecfile.vec -bg shirtsOnly.txt -w 30 -h 30 -numPos 450 -numNeg 450 -numStages 20 -mode ALL -precalcValBufSize 500 -precalcIdxBufSize 500
-
 def memory():
     """
     Get node total memory and memory usage
@@ -341,68 +329,38 @@ def memory():
     return ret
 
 
+def train_wrapper(inputdir, outputdir, train_width=20, train_height=20, num_negatives=4000, num_positives=2000,
+                  num_extra_positives=100,
+                  maxFalseAlarmRate=0.4, minHitRate=0.995, precalcIdxBufSize=6000, precalcValBufSize=6000, mode='ALL',
+                  num_stages=20, featureType='HAAR', delay_minutes=5
 
-def main(argv):
-   print('start')
-   imagedir = '057'
-   outputdir = 'images/cjdb'
-   try:
-      opts, args = getopt.getopt(argv,"hi:o:",["ofile="])
-#      opts, args = getopt.getopt(argv,"hi:o:",["ifile=","ofile=:"])
-   except getopt.GetoptError:
-      print('prepare_and_train.py -i <imagedir> -o <outputdir>')
-#      print 'test.py -i <inputfile> -o <outputfile>'
-      sys.exit(2)
-   for opt, arg in opts:
-      if opt == '-h':
-         print ('test.py -i <inputdir> -o <outputdir>')
-         sys.exit()
-      elif opt in ("-i", "--ifile"):
-         imagedir = arg
-      elif opt in ("-o", "--ofile"):
-         outputdir = arg
-   print('Input dir is '+ imagedir)
-   print('output dir is '+outputdir)
-    #   print 'Output file is "', outputfile
+                  ):
 
    pr = cProfile.Profile()
    pr.enable()
-   global train_width
-   global train_height
-   global num_negatives
-   global num_positives
-   global num_extra_positives
-   global featureType
-   global num_stages
-   global mode
-   global precalcValBufSize
-   global precalcIdxBufSize
-   global minHitRate
-   global maxFalseAlarmRate
 
    global top_subdirlist
 
-   train_width = 20
-   train_height = 20
-   maxFalseAlarmRate = 0.4
-   minHitRate = 0.995
-   precalcIdxBufSize = 6000
-   precalcValBufSize = 6000
-   mode = 'ALL'
-   num_stages = 20
-   featureType = 'HAAR'
-   num_positives = 2000
-   num_extra_positives = int(0.1*num_positives)+100
-   num_negatives =4000
-   delay_minutes=5
+   # train_width = 20
+   # train_height = 20
+   # num_positives = 2000
+   # num_extra_positives = int(0.1 * num_positives) + 100
+   # num_negatives = 4000
+   # maxFalseAlarmRate = 0.4
+   # minHitRate = 0.995
+   # precalcIdxBufSize = 6000
+   # precalcValBufSize = 6000
+   # mode = 'ALL'
+   # num_stages = 20
+   # featureType = 'HAAR'
+   #delay_minutes = 5
 
 #   print('psutil')
 #   print(psutil.cpu_percent())
    #prepare_and_train()
    global use_visual_output
    use_visual_output = False
-   global abs_root_dir
-   abs_root_dir = '/home/www-data/web2py/applications/fingerPrint/modules/classifier_stuff/images/fashion-data/images'
+
    #abs_root_dir = '/home/jeremy/jeremy.rutman@gmail.com/TrendiGuru/techdev/Backend/code/classifier_stuff'
    global max_files
    max_files = 100000  #this numnber of files from each other directory, max
@@ -453,19 +411,21 @@ def main(argv):
 ##############################
 
 if __name__ == "__main__":
-    parser = argparse.ArgumentParser(description='Process some integers.')
-    parser.add_argument('integers', metavar='N', type=int, nargs='+',
-                        help='an integer for the accumulator')
-    parser.add_argument('--sum', dest='accumulate', action='store_const',
-                        const=sum, default=max,
-                        help='sum the integers (default: find the max)')
+    print('start')
+    parser = argparse.ArgumentParser(description='train classifier')
+    parser.add_argument('--imagedir', type=str, help='input images here',
+                        default='images')  # basestring instead of str would be better but doesnt work
+    parser.add_argument('--outputdir', type=str, help='output file here', default='output.txt')
 
     args = parser.parse_args()
-    print(args.accumulate(args.integers))
+    print(args)
+    imagedir = args.imagedir
+    outputdir = args.outputdir
+    print('Input dir is ' + imagedir)
+    print('output dir is ' + outputdir)
+    # print 'Output file is "', outputfile
 
-
-    main(sys.argv[1:])
-
+    train_wrapper(imagedir, outputdir)
 
 '''
 52
@@ -605,7 +565,7 @@ if __name__ == "__main__":
    num_negatives =9000
    delay_minutes=5
 
-062 
+062
 
    train_width = 20
    train_height = 20
@@ -746,9 +706,9 @@ sudo python prepare_and_train.py -o 070 -i images/cjdb
    num_extra_positives = int(0.1*num_positives)
    num_negatives =8000
    delay_minutes=5
-didn't fnish training - took low memory and 4 days 
+didn't fnish training - took low memory and 4 days
 
-071 
+071
 sudo python prepare_and_train.py -o 071 -i images/imageNet/easy
 ['longDress', 'shirt', 'suit',]
 
@@ -788,3 +748,10 @@ sudo python prepare_and_train.py -o 072 -i images/imageNet/easy
 
 
 '''
+
+# 337 3139
+# 338 3145    15:10
+# 352 3145 15:12
+# 635 3151   16:12
+# 891 3151 17:27
+

@@ -496,6 +496,34 @@ def is_valid_image(img):
     else:
         return False
 
+
+###########################
+### OS stuff_
+###########################
+def ensure_dir(f):
+    '''
+
+    :param f: file or directory name
+    :return: no return val, creates dir if it doesnt exist
+    '''
+    d = os.path.dirname(f)
+    if not os.path.exists(d):
+        os.makedirs(d)
+
+
+def immediate_subdirs(dir):
+    '''
+    returns paths of immediate subdirectories of dir (not recursive)
+    '''
+    return filter(os.path.isdir, [os.path.join(dir, f) for f in os.listdir(dir)])
+
+
+def files_in_directory(dir):
+    '''
+    returns paths of files in directory (not recursive)
+    '''
+    return filter(os.path.isfile, [os.path.join(dir, f) for f in os.listdir(dir)])
+
 ############################
 ### math stuff
 ############################
