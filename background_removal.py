@@ -210,3 +210,17 @@ def image_is_relevant(image):
             return True
     return False
 
+
+def face_skin_color_estimation(image, face_rect):
+    x, y, w, h = face_rect[0]
+    face_image = image[y:y + h, x:x + w, :]
+    face_hsv = cv2.cvtColor(face_image, cv2.COLOR_BGR2HSV)
+    bins = 180
+    n_pixels = face_image.shape[0] * face_image.shape[1]
+    hist_hue = cv2.calcHist([face_hsv], [0], None, [bins], [0, 180])
+    hist_hue = np.divide(hist_hue, n_pixels)
+    skin_hue_list = []
+    for l in range(0, 180):
+        if hist_hue[l] > 0.013:
+            skin_hue_list.append(l)
+    return skin_hue_list
