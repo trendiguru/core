@@ -20,6 +20,7 @@ import math
 import cv2
 import re
 import string
+import background_removal
 
 
 # import urllib
@@ -558,6 +559,16 @@ def isnumber(str):
         return False
 
 
+def get_images_list(dir_url):
+    paths_list = files_in_directory(dir_url)
+    images_list = []
+    # i=0
+    for url in paths_list:
+        images_list.append(background_removal.standard_resize(get_cv2_img_array(url), 400)[0])
+        # cv2.imshow('1', images_list[i])
+        # cv2.waitKey(0)
+        # i += 1
+    return images_list
 
 
 if __name__ == '__main__':
