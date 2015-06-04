@@ -18,7 +18,7 @@ def dl_keyword_images(category_id, keyword=None):
         keyword_cursor = db.products.find({'$and': [{"description": {'$regex': keyword}}, query]})
     else:
         path = '/home/ubuntu/Dev/' + keyword
-        keyword_cursor = db.products.find({query})
+        keyword_cursor = db.products.find(query)
     if not os.path.exists(path):
         os.makedirs(path)
     for dress in keyword_cursor:
