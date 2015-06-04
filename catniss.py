@@ -66,8 +66,8 @@ def item_length(image, gc_image):
 
 # dress length testing
 def item_length_test(dir):
-    images_list = Utils.get_images_list(dir)
     print dir
+    images_list = Utils.get_images_list(dir)
     legs_prop_list = []
     for image in images_list:
         fg_mask = background_removal.get_fg_mask(image)
