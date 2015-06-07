@@ -28,4 +28,4 @@ def dl_keyword_images(category_id, keyword=None, total=3000000):
         i += 1
         dress_image = Utils.get_cv2_img_array(item['image']['sizes']['XLarge']['url'])
         if background_removal.image_is_relevant(background_removal.standard_resize(dress_image, 400)[0]):
-            urllib.urlretrieve(item['image']['sizes']['XLarge']['url'], path + '/' + str(dress['id']) + '.jpg')
+            urllib.urlretrieve(item['image']['sizes']['XLarge']['url'], path + '/' + str(item['id']) + '.jpg')
