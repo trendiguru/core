@@ -10,7 +10,7 @@ import background_removal
 from find_similar_mongo import get_all_subcategories
 
 
-def dl_keyword_images(category_id, keyword=None, total=3000000):
+def dl_keyword_images(category_id, total=3000000, keyword=None):
     db = pymongo.MongoClient().mydb
     query = {"categories": {"$elemMatch": {"id": {"$in": get_all_subcategories(db.categories, category_id)}}}}
     if keyword is None:
