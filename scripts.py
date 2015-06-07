@@ -15,14 +15,14 @@ def dl_keyword_images(category_id, total=3000000, keyword=None):
     query = {"categories": {"$elemMatch": {"id": {"$in": get_all_subcategories(db.categories, category_id)}}}}
     if keyword is None:
         path = '/home/ubuntu/Dev/' + category_id
-        keyword_cursor = db.products.find({'$and': [{"description": {'$regex': keyword}}, query]})
+        cursor = db.products.find(query)
     else:
         path = '/home/ubuntu/Dev/' + keyword
-        keyword_cursor = db.products.find(query)
+        cursor = db.products.find({'$and': [{"description": {'$regex': keyword}}, query]})
     if not os.path.exists(path):
         os.makedirs(path)
     i = 0
-    for item in keyword_cursor:
+    for item in cursor:
         if i > total:
             break
         i += 1
