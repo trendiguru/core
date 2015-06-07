@@ -38,6 +38,8 @@ class OutcomesTest(unittest.TestCase):
         # url = 'http://lp.hm.com/hmprod?set=key[source],value[/model/2014/3PV%200235738%20001%2087%206181.jpg]&set=key[rotate],value[]&set=key[width],value[]&set=key[height],value[]&set=key[x],value[]&set=key[y],value[]&set=key[type],value[STILL_LIFE_FRONT]&hmver=4&call=url[file:/product/large]'
         url = 'http://img.sheinside.com/images/sheinside.com/201403/1395131162147422866.jpg'
         img_arr = Utils.get_cv2_img_array(url)
+        sh = img_arr.shape
+        print('shape is ' + str(sh))
         if img_arr is not None:
                 cv2.imshow('im1',img_arr)
                 k = cv2.waitKey(1000) & 0xFF

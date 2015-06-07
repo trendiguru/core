@@ -7,6 +7,9 @@ import logging
 import cv2
 import pymongo
 from bson import objectid
+import matplotlib.pyplot as plt
+import numpy as np
+
 # ours
 import constants
 
@@ -470,7 +473,8 @@ def step_thru_db(use_visual_output=True, collection='products'):
         return {"success": 0, "error": "could not get db"}
     dbstring = 'db.' + collection
     print
-    cursor = dbstring.find()
+    # cursor = dbstring.find()
+    cursor = db.training.find()
     # look in defaults.py  how this is done
     # cursor = db.products.find()
     print('returned cursor')
@@ -520,6 +524,159 @@ def step_thru_db(use_visual_output=True, collection='products'):
         doc = next(cursor, None)
         print('')
         raw_input('enter key for next doc')
+    return {"success": 1}
+
+
+def step_thru_training_db(use_visual_output=False):
+    '''
+    fix all the bbs so they fit their respective image
+    :return:
+    '''
+    print('opening db')
+    db = pymongo.MongoClient().mydb
+    print('db open')
+    if db is None:
+        print('couldnt open db')
+        return {"success": 0, "error": "could not get db"}
+    cursor = db.training.find()
+    if cursor is None:  # make sure training collection exists
+        print('couldnt get training cursor ')
+        return {"success": 0, "error": "could not get training collection"}
+    print('got cursor')
+    doc = next(cursor, None)
+    i = 0
+    while doc is not None:
+        print('checking doc #' + str(i + 1))
+        # print('doc:' + str(doc))
+        for topic in doc:
+            try:
+                print(str(topic) + ':' + str(doc[topic]))
+            except UnicodeEncodeError:
+                print('unicode encode error')
+
+        if use_visual_output:
+            images = doc['images']
+            n = len(images)
+            i = 0
+            fig = plt.figure()
+            all_images = np.zeros((100, 1, 3))
+            h, w, d = all_images.shape
+            print('allimages shape is {0},{1},{2}'.format(h, w, d))
+            urllist = []
+            for imagedict in images:
+                url = imagedict['url']
+                img_arr = Utils.get_cv2_img_array(url)
+                urllist.append(url)
+
+                if img_arr is not None:
+                    # a=fig.add_subplot(1,n,i)
+                    h, w, d = img_arr.shape
+                    print('shape is {0},{1},{2}'.format(h, w, d))
+                    scale = 100.0 / h
+                    resized = cv2.resize(img_arr, (int(w * scale), 100))
+                    h, w, d = resized.shape
+                    print('resized shape is {0},{1},{2}'.format(h, w, d))
+                    all_images = np.hstack((all_images, resized))
+
+                    # fig = plt.figure()
+                    cv2.imshow('im1', img_arr)
+                    cv2.imshow('im1', all_images)
+                    k = cv2.waitKey(50) & 0xFF
+                else:
+                    print('img arr not good')
+                if 'bounding_box' in doc:
+                    # if Utils.legal_bounding_box(doc['bounding_box']):
+                    # bb1 = doc['bounding_box']
+                    # cv2.rectangle(img_arr, (bb1[0], bb1[1]), (bb1[0] + bb1[2], bb1[1] + bb1[3]), [255, 255, 0],
+                    #                                 thickness=2)
+                    pass
+                i = i + 1
+            plt.show()
+        if 'categories' in doc:
+            try:
+                print('cats:' + str(doc['categories']))
+            except UnicodeEncodeError:
+                print('unicode encode error in description')
+                s = doc['categories']
+                print(s.encode('utf-8'))
+                # print(unicode(s.strip(codecs.BOM_UTF8), 'utf-8'))
+        if 'description' in doc:
+            try:
+                print('desc:' + str(doc['description']))
+            except UnicodeEncodeError:
+                print('unicode encode error in description')
+                s = doc['description']
+                print(s.encode('utf-8'))
+                # print(unicode(s.strip(codecs.BOM_UTF8), 'utf-8'))
+                # print(unicode(s.strip(codecs.BOM_UTF8), 'utf-8'))
+        i = i + 1
+        doc = next(cursor, None)
+        print('')
+        raw_input('enter key for next doc')
+    return {"success": 1}
+
+
+def prune_training_db(use_visual_output=False):
+    '''
+    fix all the bbs so they fit their respective image
+    :return:
+    '''
+    print('opening db')
+    db = pymongo.MongoClient().mydb
+    print('db open')
+    if db is None:
+        print('couldnt open db')
+        return {"success": 0, "error": "could not get db"}
+    cursor = db.training.find()
+    if cursor is None:  # make sure training collection exists
+        print('couldnt get training cursor ')
+        return {"success": 0, "error": "could not get training collection"}
+    print('got cursor')
+    doc = next(cursor, None)
+    i = 0
+    j = 0
+    skus = []
+    indices = []
+    ids = []
+    while doc is not None:
+        print('checking doc #' + str(i + 1))
+        # print('doc:' + str(doc))
+        # for topic in doc:
+        # try:
+        # print(str(topic) + ':' + str(doc[topic]))
+        #         except UnicodeEncodeError:
+        #            print('unicode encode error')
+        if '_id' in doc:
+            ids.append(doc['_id'])
+        if 'SKU ID' in doc:
+            sku_id = doc['SKU ID']
+            j = j + 1
+            skus.append(sku_id)
+            indices.append(j)
+        i = i + 1
+        doc = next(cursor, None)
+        print('')
+
+    # raw_input('enter key for next doc')
+
+    print('len skus:{0}, len indices:{1}, len ids:{2}', len(skus), len(indices), len(ids))
+    # now look for duplicate skus
+    n_duplicates = 0
+    for i in range(0, len(skus)):
+        for j in range(i + 1, len(skus)):
+            if skus[i] == skus[j]:
+                n_duplicates = n_duplicates + 1
+                print('two identical skus for indices {0},{1}'.format(i, j))
+                # print('ids={2},{3}'.format(ids[i],ids[j]))
+                # subcategory_id_list = get_all_subcategories(db.categories, category_id)
+
+                #curr_cat = category_collection.find_one({"id": c_id})
+                ith = db.training.find_one({'_id': ids[i]})
+                jth = db.training.find_one({'_id': ids[j]})
+                print('first:' + str(ith))
+                print('second:' + str(jth))
+                db.training.remove({'_id': ids[j]}, justOne=True)
+    print(str(n_duplicates) + ' duplicates found')
     return {"success": 1}
 
 
@@ -576,7 +733,6 @@ def lookfor_next_unbounded_feature_from_db_category(current_item=0, skip_if_mark
         print('got no docs in lookfor_next_unbounded_feature_from_db_category')
         logging.debug('got no docs in lookfor_next_unbounded_feature_from_db_category')
         return None
-
     ans = get_first_qualifying_record(product_cursor, which_to_show=which_to_show, filter_type=filter_type,
                                       filter=filter, item_number=current_item,
                                       skip_if_marked_to_skip=skip_if_marked_to_skip)
@@ -713,4 +869,4 @@ if __name__ == '__main__':
     # doc = lookfor_next_unbounded_feature_from_db_category()
     # print('doc:' + str(doc))
     # step_thru_db(use_visual_output=True, collection='products')
-    step_thru_db(use_visual_output=True, collection='training')
+    prune_training_db(use_visual_output=False)
