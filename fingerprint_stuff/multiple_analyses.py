@@ -8,35 +8,87 @@ import constants
 
 fingerprint_length = constants.fingerprint_length
 
-max_items = 50
+max_items = 30
 
-histogram_weights = np.ones(constants.histograms_length * 2)
+histogram_weights = 1.0 * np.ones(constants.histograms_length * 2)
 entropy_weights = np.ones(3)
 energy_weights = np.ones(3)
-bwg_weights = np.ones(3)
-weights = np.concatenate((energy_weights, entropy_weights, histogram_weights, bwg_weights))
-rate_fp.analyze_fingerprint(fingerprint_function=fp_core.gc_and_fp_bw, weights=weights,
+weights = np.concatenate((energy_weights, entropy_weights, histogram_weights))
+rate_fp.analyze_fingerprint(fingerprint_function=fp_core.regular_fp, weights=weights,
                             distance_function=NNSearch.distance_1_k, distance_power=0.5, n_docs=max_items,
-                            filename='gcfpbw.w_even')
+                            filename='001.fp.n=30')
 
-histogram_weights = 1.5 * np.ones(constants.histograms_length * 2)
+max_items = 40
+histogram_weights = 1.0 * np.ones(constants.histograms_length * 2)
+entropy_weights = np.ones(3)
+energy_weights = np.ones(3)
+weights = np.concatenate((energy_weights, entropy_weights, histogram_weights))
+rate_fp.analyze_fingerprint(fingerprint_function=fp_core.regular_fp, weights=weights,
+                            distance_function=NNSearch.distance_1_k, distance_power=0.5, n_docs=max_items,
+                            filename='002.fp.n=40')
+
+max_items = 50
+histogram_weights = 1.0 * np.ones(constants.histograms_length * 2)
+entropy_weights = np.ones(3)
+energy_weights = np.ones(3)
+weights = np.concatenate((energy_weights, entropy_weights, histogram_weights))
+rate_fp.analyze_fingerprint(fingerprint_function=fp_core.regular_fp, weights=weights,
+                            distance_function=NNSearch.distance_1_k, distance_power=0.5, n_docs=max_items,
+                            filename='003.fp.n=50')
+
+max_items = 60
+histogram_weights = 1.0 * np.ones(constants.histograms_length * 2)
+entropy_weights = np.ones(3)
+energy_weights = np.ones(3)
+weights = np.concatenate((energy_weights, entropy_weights, histogram_weights))
+rate_fp.analyze_fingerprint(fingerprint_function=fp_core.regular_fp, weights=weights,
+                            distance_function=NNSearch.distance_1_k, distance_power=0.5, n_docs=max_items,
+                            filename='004.fp.n=60')
+
+max_items = 50
+histogram_weights = 1.0 * np.ones(constants.histograms_length * 2)
 entropy_weights = np.ones(3)
 energy_weights = np.ones(3)
 weights = np.concatenate((energy_weights, entropy_weights, histogram_weights))
 rate_fp.analyze_fingerprint(fingerprint_function=fp_core.gc_and_fp, weights=weights,
                             distance_function=NNSearch.distance_1_k, distance_power=0.5, n_docs=max_items,
-                            filename='gcfp.w_entropy1.5')
-
-
-
-
-
+                            filename='005.gcfp')
 
 #########
 # max_items = 50
 # DONE
 #########
 if (0):
+    max_items = 50
+    rate_fp.analyze_fingerprint(fingerprint_function=fp_core.regular_fp, weights=weights,
+                                distance_function=NNSearch.distance_1_k, distance_power=0.5, n_docs=max_items,
+                                filename='002.fp.n=50')
+
+    max_items = 70
+    rate_fp.analyze_fingerprint(fingerprint_function=fp_core.regular_fp, weights=weights,
+                                distance_function=NNSearch.distance_1_k, distance_power=0.5, n_docs=max_items,
+                                filename='001.fp.n=70')
+
+    histogram_weights = np.ones(constants.histograms_length * 2)
+    entropy_weights = np.ones(3)
+    energy_weights = np.ones(3)
+    bwg_weights = np.ones(3)
+    weights = np.concatenate((energy_weights, entropy_weights, histogram_weights, bwg_weights))
+    rate_fp.analyze_fingerprint(fingerprint_function=fp_core.gc_and_fp_bw, weights=weights,
+                                distance_function=NNSearch.distance_1_k, distance_power=0.5, n_docs=max_items,
+                                filename='001.gcfpbw')
+
+    histogram_weights = 1.5 * np.ones(constants.histograms_length * 2)
+    entropy_weights = np.ones(3)
+    energy_weights = np.ones(3)
+    weights = np.concatenate((energy_weights, entropy_weights, histogram_weights))
+    rate_fp.analyze_fingerprint(fingerprint_function=fp_core.gc_and_fp, weights=weights,
+                                distance_function=NNSearch.distance_1_k, distance_power=0.5, n_docs=max_items,
+                                filename='002.gcfp')
+
+
+
+
     rate_fp.analyze_fingerprint(fingerprint_function=fp_core.gc_and_fp_histeq,
                                 distance_function=NNSearch.distance_1_k, distance_power=0.5, n_docs=max_items,
                                 filename='gcfp_histeq')

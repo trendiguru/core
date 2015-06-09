@@ -4,7 +4,9 @@ import unittest
 import cProfile
 import StringIO
 import pstats
+from scipy.spatial import distance as dist
 
+import cv2
 import numpy as np
 
 import rate_fp
@@ -116,6 +118,45 @@ class rate_fingerprint_test(unittest.TestCase):
             b.append(np.random.normal(loc=4.0, scale=0.5))
         # print(a,b)
         rate_fp.display_two_histograms(a, b)
+
+    def test_compare_histograms(self):
+        d1 = np.random.normal(loc=0.0, scale=1.0, size=20000)
+        d2 = np.random.normal(loc=5.0, scale=1.0, size=20000)
+
+        d1 = np.float32(d1)
+        d2 = np.float32(d2)
+
+        max1 = max(d1)
+        max2 = max(d2)
+        maxboth = max(max1, max2)
+        minboth = min(min(d1), min(d2))
+
+        hist1, binsout = np.histogram(d1, range=(minboth, maxboth), bins=40)
+        hist1 = np.float32(hist1)
+        hist1 = cv2.normalize(hist1).flatten()
+
+        hist2, binsout = np.histogram(d2, range=(minboth, maxboth), bins=40)
+        hist2 = np.float32(hist2)
+        hist2 = cv2.normalize(hist2).flatten()
+
+        rate_fp.display_two_histograms(hist1, hist2, binsout)
+
+        print('euclidean dist:' + str(dist.euclidean(hist1, hist2)))
+        print('cityblock dist:' + str(dist.cityblock(hist1, hist2)))
+        print('chebyshev dist:' + str(dist.chebyshev(hist1, hist2)))
+        print('correlation:' + str(
+            cv2.compareHist(hist1, hist2, cv2.cv.CV_COMP_CORREL)))
+        print('chisqr:' + str(
+            cv2.compareHist(hist1, hist2, cv2.cv.CV_COMP_CHISQR)))
+        print('intersection:' + str(
+            cv2.compareHist(hist1, hist2, cv2.cv.CV_COMP_INTERSECT)))
+        print('bhatta:' + str(
+            cv2.compareHist(hist1, hist2, cv2.cv.CV_COMP_BHATTACHARYYA)))
+
+        # results = { #"Correlation":cv2.compareHist(hist1,hist2,cv2.cv.CV_COMP_CORREL),
+        # "Chi-Squared":cv2.compareHist(hist1,hist2,cv2.cv.CV_COMP_CHISQR),
+        # "Intersection":cv2.compareHist(hist1,hist2,cv2.cv.CV_COMP_INTERSECT),
+        # "Bhattacharyya":cv2.compareHist(hist1,hist2, cv2.cv.CV_COMP_BHATTACHARYYA),
 
 
 def display_two_histograms(same_distances, different_distances, name=None):

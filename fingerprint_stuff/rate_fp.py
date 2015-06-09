@@ -21,12 +21,12 @@ import json
 import cv2
 import constants
 import random
-import math
 import resource
 import os
 import inspect
 import sys
 import matplotlib
+from scipy.spatial import distance as dist
 
 matplotlib.use('Agg')  # prevents problems generating plots on server where no display is defined
 import matplotlib.pyplot as plt
@@ -58,19 +58,14 @@ import NNSearch
 import fingerprint_core as fp_core
 
 
+GREEN = [0, 255, 0]
+BLUE = [255, 0, 0]
 Reserve_cpus = constants.Reserve_cpus
 fingerprint_length = constants.fingerprint_length
 min_images_per_doc = constants.min_images_per_doc
 max_images_per_doc = constants.max_images_per_doc
 max_items = constants.max_items
 
-BLUE = [255, 0, 0]  # rectangle color
-RED = [0, 0, 255]  # PR BG
-GREEN = [0, 255, 0]  # PR FG
-BLACK = [0, 0, 0]  # sure BG
-WHITE = [255, 255, 255]  # sure FG
-# def tear_down(self):
-#        shutil.rmtree(self.temp_dir)
 
 #this is for the training collection, where there's a set of images from different angles in each record
 def find_stats(confusion_vector, stdev_vector, report):
@@ -137,37 +132,36 @@ def save_short_report(report, name=None):
         os.makedirs(dir)
     print('writing to ' + name)
     short_report = {}
-    if 'goodness' in report:
-        short_report['goodness'] = report['goodness']
-        short_report['goodness_error'] = report['goodness_error']
-    short_report['chi'] = report['chi']
-    short_report['self_var'] = report['self_var']
-    short_report['cross_var'] = report['cross_var']
+
+    short_report['histogram_comparisons'] = report['histogram_comparisons']
 
     rep = report['self_report']
     short_report1 = {}
     short_report1['fingerprint_function'] = rep['fingerprint_function']
     short_report1['distance_function'] = rep['distance_function']
     short_report1['distance_power'] = rep['distance_power']
-    short_report1['timestamp'] = rep['timestamp']
     short_report1['average_weighted'] = rep['average_weighted']
-    short_report1['average_unweighted'] = rep['average_unweighted']
     short_report1['error_cumulative'] = rep['error_cumulative']
     short_report1['n_groups'] = rep['n_groups']
     short_report1['tot_images'] = rep['tot_images']
+    short_report1['self_var'] = report['self_var']
+
     short_report['self_report'] = short_report1
+
+    # 'histogram_comparisons':histogram_comparisons}
+
 
     rep = report['cross_report']
     short_report1 = {}
     short_report1['fingerprint_function'] = rep['fingerprint_function']
     short_report1['distance_function'] = rep['distance_function']
     short_report1['distance_power'] = rep['distance_power']
-    short_report1['timestamp'] = rep['timestamp']
-    short_report1['average_weighted'] = rep['average_unweighted']
-    short_report1['average_unweighted'] = rep['average_unweighted']
+    short_report1['average_weighted'] = rep['average_weighted']
     short_report1['error_cumulative'] = rep['error_cumulative']
     short_report1['n_groups'] = rep['n_groups']
     short_report1['tot_images'] = rep['tot_images']
+    short_report1['cross_var'] = report['cross_var']
+
     short_report['cross_report'] = short_report1
 
     print('short reporting - ' + str(short_report))
@@ -180,7 +174,7 @@ def save_short_report(report, name=None):
         f.close()
 
 
-def display_two_histograms(same_distances, different_distances, name=None):
+def calculate_and_display_two_histograms(same_distances, different_distances, name=None):
     max1 = max(same_distances)
     max2 = max(different_distances)
     print('maxb1' + str(max1) + str(max2))
@@ -189,12 +183,15 @@ def display_two_histograms(same_distances, different_distances, name=None):
     bins = np.linspace(0, maxboth, 50)
     width = 0.3
 
-    hist, bins = np.histogram(same_distances, bins=20)
+    # numpy.histogram(a, bins=10, range=None, normed=False, weights=None, density=None)
+
+    hist, bins = np.histogram(same_distances, range=(0, maxboth), bins=20)
     width = 0.7 * (bins[1] - bins[0])
     center = (bins[:-1] + bins[1:]) / 2
     plt.clf()
     plt.bar(center, hist, align='center', width=width, color='b')
-    hist2, bins = np.histogram(different_distances, bins=20)
+
+    hist2, bins = np.histogram(different_distances, range=(0, maxboth), bins=20)
     neg_hist2 = []
     for val in hist2:
         neg_hist2.append(-val)
@@ -233,6 +230,38 @@ def display_two_histograms(same_distances, different_distances, name=None):
         # plt.show(block=False)
         plt.show()
 
+
+def display_two_histograms(hist1, hist2, bins, name=None):
+    # bins = np.linspace(0, maxboth, 50)
+
+    width = 0.3
+
+    width = 0.7 * (bins[1] - bins[0])
+    center = (bins[:-1] + bins[1:]) / 2
+    plt.clf()
+    plt.bar(center, hist1, align='center', width=width, color='b')
+    neg_hist2 = []
+    for val in hist2:
+        neg_hist2.append(-val)
+    width = 0.7 * (bins[1] - bins[0])
+    center = (bins[:-1] + bins[1:]) / 2
+    plt.bar(center, neg_hist2, align='center', width=width, color='g')
+    plt.show()
+
+    plt.legend(loc='upper right')
+    if name == None or name == '':
+        name = datetime.datetime.now().strftime("%Y-%m-%d_%H%M")
+    name = os.path.join('./fp_ratings', 'histograms_' + name + '.jpg')
+    dir = os.path.dirname(name)
+    if not os.path.exists(dir):
+        os.makedirs(dir)
+    print('writing histogram to ' + name)
+    plt.savefig(name)
+
+    use_visual_output = True
+    if use_visual_output:
+        # plt.show(block=False)
+        plt.show(block=False)
 
 def calc_full_variance(distance_arrays):
     tot_dists = []
@@ -304,6 +333,56 @@ def display_tons_of_histograms(same_distances_arrays, different_distances_arrays
     use_visual_output = False
     if use_visual_output:
         plt.show(block=False)
+
+
+def calculate_histogram_overlap(same_distances_arrays, different_distances_arrays, bins=50):
+    '''
+    see http://www.pyimagesearch.com/2014/07/14/3-ways-compare-histograms-using-opencv-python/#comment-322678
+    :param same_distances_arrays: array of distance arrays for same items
+    :param different_distances_arrays: array of distance arrays for different items
+    :param bins: number of histogram bins
+    :return: dictionary of various distance measures. watch out, some increase w. similarity, others decrease
+    '''
+
+    totsame = []  # np.ndarray.flatten(same_distances_arrays)
+    totdiff = []  # np.ndarray.flatten(-different_distances_arrays)
+
+    # flatten the array of arrays. could prob. use flatten() for this
+    for same_distances in same_distances_arrays:
+        for val in same_distances:
+            totsame.append(val)
+    for different_distances in different_distances_arrays:
+        for val in different_distances:
+            totdiff.append(val)
+
+    hist1, binsout = np.histogram(totsame, bins=bins)
+    hist1 = np.float32(hist1)
+    hist1 = cv2.normalize(hist1).flatten()
+
+    hist2, binsout = np.histogram(totdiff, bins=bins)
+    hist2 = np.float32(hist2)
+    hist2 = cv2.normalize(hist2).flatten()
+
+    # print(self_report)
+    same_item_average = np.mean(totsame)
+    cross_item_average = np.mean(totdiff)
+    same_item_error = np.std(totsame)
+    cross_item_error = np.std(totdiff)
+    numerator = cross_item_average - same_item_average
+    mychi = numerator / (np.sqrt(same_item_error ** 2 + cross_item_error ** 2))
+
+    print('same avg {0} same var {1} '.format(same_item_average, same_item_error))
+    print('cross avg {0} cross var {1} '.format(cross_item_average, cross_item_error))
+
+    results = {"Correlation": float(cv2.compareHist(hist1, hist2, cv2.cv.CV_COMP_CORREL)),
+               "Chi-Squared": float(cv2.compareHist(hist1, hist2, cv2.cv.CV_COMP_CHISQR)),
+               "Intersection": float(cv2.compareHist(hist1, hist2, cv2.cv.CV_COMP_INTERSECT)),
+               "Bhattacharyya": float(cv2.compareHist(hist1, hist2, cv2.cv.CV_COMP_BHATTACHARYYA)),
+               "Euclidean": float(dist.euclidean(hist1, hist2)),
+               "Manhattan": float(dist.cityblock(hist1, hist2)),
+               "Chebysev": float(dist.chebyshev(hist1, hist2)),
+               "mychi": float(mychi)}
+    return results
 
 
 def get_docs(n_items=max_items):
@@ -1061,7 +1140,6 @@ def analyze_fingerprint(fingerprint_function=fp_core.regular_fp, weights=np.ones
     self_var = calc_full_variance(all_self)
     del self_report['all_distances']
 
-    print('self report:' + str(self_report))
     if not isinstance(self_report['confusion_vector'], list):
         self_report['confusion_vector'] = self_report['confusion_vector'].tolist()  # this is required for json dumping
     if not isinstance(self_report['stdev_vector'], list):
@@ -1077,7 +1155,6 @@ def analyze_fingerprint(fingerprint_function=fp_core.regular_fp, weights=np.ones
                                                             comparisons_to_make=comparisons_to_make,
                                                             **fingerprint_arguments)
 
-    print('cross report:' + str(cross_report))
     if not isinstance(cross_report['confusion_vector'], list):
         cross_report['confusion_vector'] = cross_report[
             'confusion_vector'].tolist()  # this is required for json dumping
@@ -1088,79 +1165,64 @@ def analyze_fingerprint(fingerprint_function=fp_core.regular_fp, weights=np.ones
         cross_report['weights'] = cross_report['weights'].tolist()
 
     all_cross = cross_report['all_distances']
-    cross_var = calc_full_variance(all_cross)
     del cross_report['all_distances']
+    cross_var = calc_full_variance(all_cross)
 
-    same_item_average = self_report['average_weighted']
-    cross_item_average = cross_report['average_weighted']
-    #     print(self_report)
-    same_item_error = self_report['error_cumulative']
-    cross_item_error = cross_report['error_cumulative']
-    numerator = cross_item_average - same_item_average
-    denominator = cross_item_average
-    try:
-        goodness = numerator / denominator
-    except ZeroDivisionError:
-        print('DENOMINATOR for goodness=0')
-        goodness = 0
-    #    print('n,d,n_e,d_e' + str(numerator), str(numerator), str(denominator), str(cross_item_error))
-    numerator_error = math.sqrt(cross_item_error ** 2 + same_item_error ** 2)
-    if numerator == 0 or denominator == 0:
-        goodness_error = -1
-    else:
-        goodness_error = Utils.error_of_fraction(numerator, numerator_error, denominator, cross_item_error)
+    calculate_and_display_two_histograms(self_report['confusion_vector'], cross_report['confusion_vector'], filename)
+    display_tons_of_histograms(all_self, all_cross, filename)
+    histogram_comparisons = calculate_histogram_overlap(all_self, all_cross, bins=50)
+    dist = histogram_comparisons['Euclidean']
 
-    chi = numerator / (np.sqrt(self_var ** 2 + cross_var ** 2))
-    tot_report = {'self_report': self_report, 'cross_report': cross_report, 'goodness': goodness,
-                  'goodness_error': goodness_error, 'chi': chi, 'self_var': self_var, 'cross_var': cross_var}
+    tot_report = {'self_report': self_report, 'cross_report': cross_report, 'self_var': self_var,
+                  'cross_var': cross_var,
+                  'histogram_comparisons': histogram_comparisons}
+
+    # print('tot report:' + str(tot_report))
+    print('self report:' + str(self_report))
+    print('cross report:' + str(cross_report))
 
     save_full_report(tot_report, filename)
     save_short_report(tot_report, filename)
 
-    display_two_histograms(self_report['confusion_vector'], cross_report['confusion_vector'], filename)
-    display_tons_of_histograms(all_self, all_cross, filename)
-    # print('tot report:' + str(tot_report))
-    print('goodness:' + str(goodness) + ' same item average:' + str(same_item_average) + ' cross item averag:' + str(
-        cross_item_average))
-    return (chi, tot_report)
+    return (dist, tot_report)
 
 
 global visual_output1
 global visual_output2
 
 if __name__ == '__main__':
-    report = analyze_fingerprint(fingerprint_function=fp_core.gc_and_fp_YCrCb, use_visual_output1=True,
-                                 histogram_length=30)
+    report = analyze_fingerprint(fingerprint_function=fp_core.regular_fp, use_visual_output1=True,
+                                 histogram_length=30, n_docs=6)
+    if (0):
+        print('hi.')
+        print('Memory usage: %s (kb)' % resource.getrusage(resource.RUSAGE_SELF).ru_maxrss)
 
-    print('hi0')
-    print('Memory usage: %s (kb)' % resource.getrusage(resource.RUSAGE_SELF).ru_maxrss)
+        parser = argparse.ArgumentParser(description='rate ye olde fingerprinte')
+        # parser.add_argument('integers', metavar='N', type=int, nargs='+',
+        # help='an integer for the accumulator')
+        parser.add_argument('--use_visual_output', default=True,
+                            help='show output once for each item')
+        parser.add_argument('--use_visual_output2', default=False,
+                            help='show output for each image')
 
-    parser = argparse.ArgumentParser(description='rate ye olde fingerprinte')
-    #   parser.add_argument('integers', metavar='N', type=int, nargs='+',
-    #                     help='an integer for the accumulator')
-    parser.add_argument('--use_visual_output', default=True,
-                        help='show output once for each item')
-    parser.add_argument('--use_visual_output2', default=False,
-                        help='show output for each image')
-
-    parser.add_argument('--fp_function', default=fp_core.regular_fp,
-                        help='what fingerprint function to use')
-    args = parser.parse_args()
-    visual_output1 = args.use_visual_output
-    visual_output2 = args.use_visual_output2
-    fp_function = args.fp_function
-    print('use_visual_output:' + str(visual_output1) + ' visual_output2:' + str(visual_output2))
-    print('fp function to use:' + str(fp_function))
-    pr = cProfile.Profile()
-    pr.enable()
-    weights = np.ones(fingerprint_length)
-    report = analyze_fingerprint(fingerprint_function=fp_function, weights=weights,
-                                 distance_function=NNSearch.distance_1_k,
-                                 distance_power=0.5, use_visual_output1=visual_output1,
-                                 use_visual_output2=visual_output2)
-    pr.disable()
-    s = StringIO.StringIO()
-    sortby = 'cumulative'
-    ps = pstats.Stats(pr, stream=s).sort_stats(sortby)
-    ps.print_stats()
-    print(s.getvalue())
+        parser.add_argument('--fp_function', default=fp_core.regular_fp,
+                            help='what fingerprint function to use')
+        args = parser.parse_args()
+        visual_output1 = args.use_visual_output
+        visual_output2 = args.use_visual_output2
+        fp_function = args.fp_function
+        print('use_visual_output:' + str(visual_output1) + ' visual_output2:' + str(visual_output2))
+        print('fp function to use:' + str(fp_function))
+        pr = cProfile.Profile()
+        pr.enable()
+        weights = np.ones(fingerprint_length)
+        report = analyze_fingerprint(fingerprint_function=fp_function, weights=weights,
+                                     distance_function=NNSearch.distance_1_k,
+                                     distance_power=0.5, use_visual_output1=visual_output1,
+                                     use_visual_output2=visual_output2, n_docs=10)
+        pr.disable()
+        s = StringIO.StringIO()
+        sortby = 'cumulative'
+        ps = pstats.Stats(pr, stream=s).sort_stats(sortby)
+        # ps.print_stats()
+        # print(s.getvalue())

@@ -12,7 +12,7 @@ import numpy as np
 
 # ours
 import constants
-
+from find_similar_mongo import get_all_subcategories
 import Utils
 
 min_images_per_doc = constants.min_images_per_doc
@@ -472,11 +472,10 @@ def step_thru_db(use_visual_output=True, collection='products'):
         print('couldnt open db')
         return {"success": 0, "error": "could not get db"}
     dbstring = 'db.' + collection
-    print
     # cursor = dbstring.find()
-    cursor = db.training.find()
+    # cursor = db.training.find()
     # look in defaults.py  how this is done
-    # cursor = db.products.find()
+    cursor = db.products.find()
     print('returned cursor')
     if cursor is None:  # make sure training collection exists
         print('couldnt get cursor ' + str(collection))
@@ -485,7 +484,7 @@ def step_thru_db(use_visual_output=True, collection='products'):
     i = 0
     while doc is not None:
         print('checking doc #' + str(i + 1))
-        # print('doc:' + str(doc))
+        print('doc:' + str(doc))
         for topic in doc:
             try:
                 print(str(topic) + ':' + str(doc[topic]))
@@ -855,6 +854,24 @@ def get_first_qualifying_record(cursor, which_to_show='showAll', filter_type='by
             'cant figure out what you want dude - neither showall,showBoxed, showUnboxed, you wanted:' + str(
                 which_to_show))
 
+
+def suits_for_kyle():
+    db = pymongo.MongoClient().mydb
+    query = {"categories": {"$elemMatch": {"id": {"$in": get_all_subcategories(db.categories, 'mens-suits')}}}}
+    keyword = 'Marcus'
+    cursor = db.products.find({'$and': [{"brandedName": {'$regex': keyword}}, query]})
+    N = cursor.count()
+    print('found ' + str(N) + ' items')
+    i = 0
+    total = 1000
+    for item in cursor:
+        if i > total:
+            break
+        i += 1
+        url = item['image']['sizes']['Best']['url']
+        print('url:' + url)
+        item_image = Utils.get_cv2_img_array(item['image']['sizes']['Best']['url'])
+
 # description: classic neckline , round collar, round neck, crew neck, square neck, v-neck, clASsic neckline,round collar,crewneck,crew neck, scoopneck,square neck, bow collar, ribbed round neck,rollneck ,slash neck
 # cats:[{u'shortName': u'V-Necks', u'localizedId': u'v-neck-sweaters', u'id': u'v-neck-sweaters', u'name': u'V-Neck Sweaters'}]
 # cats:[{u'shortName': u'Turtlenecks', u'localizedId': u'turleneck-sweaters', u'id': u'turleneck-sweaters', u'name': u'Turtlenecks'}]
@@ -868,5 +885,9 @@ if __name__ == '__main__':
     # fix_all_bbs_in_db()
     # doc = lookfor_next_unbounded_feature_from_db_category()
     # print('doc:' + str(doc))
+    suits_for_kyle()
     # step_thru_db(use_visual_output=True, collection='products')
-    prune_training_db(use_visual_output=False)
+    # prune_training_db(use_visual_output=False)
+    # lookfor_next_unbounded_feature_from_db_category(current_item=0, skip_if_marked_to_skip=False,
+    # which_to_show='showAll', filter_type='byWordInDescription',
+    # category_id=None, word_in_description=None, db=None)
