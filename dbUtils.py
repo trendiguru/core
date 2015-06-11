@@ -706,6 +706,7 @@ def lookfor_next_unbounded_feature_from_db_category(current_item=0, skip_if_mark
         return {'success': 0, 'error': 'couldnt figure out which to show' + str(which_to_show)}
 
     if filter_type == 'byCategoryID':
+        print('filtering by ID')
         query = {"categories": {"$elemMatch": {"id": category_id}}}
         fields = {"categories": 1, "image": 1, "human_bb": 1, "fp_version": 1, "bounding_box": 1,
                   "id": 1, "feature_bbs": 1}
@@ -713,6 +714,7 @@ def lookfor_next_unbounded_feature_from_db_category(current_item=0, skip_if_mark
 
 
     elif filter_type == 'byWordInDescription':
+        print('filtering by word in description')
         if word_in_description == None:
             print('no word given to find in description so finding everything')
             logging.warning('no word given to find in description so finding everything')
@@ -885,9 +887,9 @@ if __name__ == '__main__':
     # fix_all_bbs_in_db()
     # doc = lookfor_next_unbounded_feature_from_db_category()
     # print('doc:' + str(doc))
-    suits_for_kyle()
+    # suits_for_kyle()
     # step_thru_db(use_visual_output=True, collection='products')
     # prune_training_db(use_visual_output=False)
-    # lookfor_next_unbounded_feature_from_db_category(current_item=0, skip_if_marked_to_skip=False,
-    # which_to_show='showAll', filter_type='byWordInDescription',
-    # category_id=None, word_in_description=None, db=None)
+    lookfor_next_unbounded_feature_from_db_category(current_item=0, skip_if_marked_to_skip=False,
+                                                    which_to_show='showAll', filter_type='byCategoryID',
+                                                    category_id='dresses', word_in_description=None, db=None)

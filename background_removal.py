@@ -6,6 +6,7 @@ __author__ = 'Nadav Paz'
 import string
 from Tkinter import Tk
 from tkFileDialog import askopenfilename
+import os
 
 import cv2
 import numpy as np
@@ -16,10 +17,23 @@ import Utils
 
 def find_face(image):
     gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
-    face_cascades = [cv2.CascadeClassifier(constants.classifiers_folder + 'haarcascade_frontalface_alt2.xml'),
-                     cv2.CascadeClassifier(constants.classifiers_folder + 'haarcascade_frontalface_alt.xml'),
-                     cv2.CascadeClassifier(constants.classifiers_folder + 'haarcascade_frontalface_alt_tree.xml'),
-                     cv2.CascadeClassifier(constants.classifiers_folder + 'haarcascade_frontalface_default.xml')]
+    face_cascades = [
+        cv2.CascadeClassifier(os.path.join(constants.classifiers_folder, 'haarcascade_frontalface_alt2.xml')),
+        cv2.CascadeClassifier(os.path.join(constants.classifiers_folder, 'haarcascade_frontalface_alt.xml')),
+        cv2.CascadeClassifier(os.path.join(constants.classifiers_folder + 'haarcascade_frontalface_alt_tree.xml')),
+        cv2.CascadeClassifier(os.path.join(constants.classifiers_folder + 'haarcascade_frontalface_default.xml'))]
+
+    # check that at least one cascade is ok
+    cascade_ok = False
+    for cascade in face_cascades:
+        if not cascade.empty():
+            cascade_ok = True
+            break
+    if cascade_ok == False:
+        print('no good cascade found!!!')
+        return ([])
+    # TODO add a check if these classifiers are found or not, there is a cv2 function for that i think
+
     for i in range(0, 3, 1):
         faces = face_cascades[i].detectMultiScale(
             gray,
