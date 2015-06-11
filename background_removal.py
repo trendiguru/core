@@ -20,8 +20,8 @@ def find_face(image):
     face_cascades = [
         cv2.CascadeClassifier(os.path.join(constants.classifiers_folder, 'haarcascade_frontalface_alt2.xml')),
         cv2.CascadeClassifier(os.path.join(constants.classifiers_folder, 'haarcascade_frontalface_alt.xml')),
-        cv2.CascadeClassifier(os.path.join(constants.classifiers_folder + 'haarcascade_frontalface_alt_tree.xml')),
-        cv2.CascadeClassifier(os.path.join(constants.classifiers_folder + 'haarcascade_frontalface_default.xml'))]
+        cv2.CascadeClassifier(os.path.join(constants.classifiers_folder, 'haarcascade_frontalface_alt_tree.xml')),
+        cv2.CascadeClassifier(os.path.join(constants.classifiers_folder, 'haarcascade_frontalface_default.xml'))]
 
     # DONE (TODO add a check if these classifiers are found or not, there is a cv2 function for that i think)
     # check that at least one cascade is ok
