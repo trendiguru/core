@@ -23,6 +23,7 @@ def find_face(image):
         cv2.CascadeClassifier(os.path.join(constants.classifiers_folder + 'haarcascade_frontalface_alt_tree.xml')),
         cv2.CascadeClassifier(os.path.join(constants.classifiers_folder + 'haarcascade_frontalface_default.xml'))]
 
+    # DONE (TODO add a check if these classifiers are found or not, there is a cv2 function for that i think)
     # check that at least one cascade is ok
     cascade_ok = False
     for cascade in face_cascades:
@@ -32,7 +33,6 @@ def find_face(image):
     if cascade_ok == False:
         print('no good cascade found!!!')
         return ([])
-    # TODO add a check if these classifiers are found or not, there is a cv2 function for that i think
 
     for i in range(0, 3, 1):
         faces = face_cascades[i].detectMultiScale(

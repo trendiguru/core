@@ -1,27 +1,69 @@
 __author__ = 'jeremy'
 
-import os
-
 import numpy as np
 import cv2
-
-import background_removal
-import scripts
 
 
 GREEN = [0, 255, 0]
 
+__author__ = 'Nadav Paz'
+
+import os
+
+import pymongo
+
+import Utils
+import background_removal
+from find_similar_mongo import get_all_subcategories
+
+
+def dl_keyword_images(category_id, total=2000, keyword=None,
+                      dir='/home/jeremy/jeremy.rutman@gmail.com/TrendiGuru/techdev/trendi_guru_modules/images',
+                      show_visual_output=False):
+    db = pymongo.MongoClient().mydb
+    query = {"categories": {"$elemMatch": {"id": {"$in": get_all_subcategories(db.categories, category_id)}}}}
+    if keyword is None:
+        path = os.path.join(dir, category_id)
+        cursor = db.products.find(query)
+    else:
+        path = os.path.join(dir, category_id)
+        path = os.path.join(path, keyword)
+        cursor = db.products.find({'$and': [{"description": {'$regex': keyword}}, query]})
+    print('path:' + path)
+    if not os.path.exists(path):
+        print('creating dir')
+        os.makedirs(path)
+    i = 0
+    for item in cursor:
+        if i > total:
+            break
+        i += 1
+
+        item_image = Utils.get_cv2_img_array(item['image']['sizes']['XLarge']['url'])
+        if item_image is None:
+            return None
+        if show_visual_output == True:
+            cv2.imshow('im1', item_image)
+            k = cv2.waitKey(200)
+
+        if background_removal.image_is_relevant(background_removal.standard_resize(item_image, 400)[0]):
+            name = os.path.join(path, str(item['id']) + '.jpg')
+            try:
+                print('writing ' + name)
+                cv2.imwrite(name, item_image)
+            except:
+                print('couldnt write file:' + name)
 
 def get_items(categories, keywords):
-    max_items_per_category = 10000
+    max_items_per_category = 2000
     for cat in cats:
         if keywords is not None:
             for keyword in keywords:
                 print('getting cat ' + cat + ' w keyword ' + keyword)
-                scripts.dl_keyword_images(cat, total=max_items_per_category, keyword=keyword, show_visual_output=True)
+                dl_keyword_images(cat, total=max_items_per_category, keyword=keyword, show_visual_output=True)
         else:
             print('getting cat ' + cat + ' no keyword ')
-            scripts.dl_keyword_images(cat, total=max_items_per_category, show_visual_output=True)
+            dl_keyword_images(cat, total=max_items_per_category, show_visual_output=True)
 
 
 def box_images(parent_dir='/home/ubuntu/Dev/'):
