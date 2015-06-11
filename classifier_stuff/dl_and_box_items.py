@@ -19,7 +19,8 @@ from find_similar_mongo import get_all_subcategories
 
 def dl_keyword_images(category_id, total=2000, keyword=None,
                       # dir='/home/jeremy/jeremy.rutman@gmail.com/TrendiGuru/techdev/trendi_guru_modules/images',
-                      dir='/home/ubuntu/Dev/trendi_guru_modules/images',
+                      # dir='/home/ubuntu/Dev/trendi_guru_modules/images',
+                      dir='images',
                       show_visual_output=False):
     db = pymongo.MongoClient().mydb
     query = {"categories": {"$elemMatch": {"id": {"$in": get_all_subcategories(db.categories, category_id)}}}}
