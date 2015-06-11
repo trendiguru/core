@@ -61,10 +61,10 @@ def get_items(categories, keywords):
         if keywords is not None:
             for keyword in keywords:
                 print('getting cat ' + cat + ' w keyword ' + keyword)
-                dl_keyword_images(cat, total=max_items_per_category, keyword=keyword, show_visual_output=True)
+                dl_keyword_images(cat, total=max_items_per_category, keyword=keyword, show_visual_output=False)
         else:
             print('getting cat ' + cat + ' no keyword ')
-            dl_keyword_images(cat, total=max_items_per_category, show_visual_output=True)
+            dl_keyword_images(cat, total=max_items_per_category, show_visual_output=False)
 
 
 def box_images(parent_dir='/home/ubuntu/Dev/'):
