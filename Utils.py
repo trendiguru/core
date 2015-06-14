@@ -533,12 +533,12 @@ def intersectionOverUnion(r1, r2):
 
     # a if test else b
 
-    intersectionx = max(r1[0], r2[0])
-    intersectiony = max(r1[1], r2[1])
-    intersectionw = min(r1[0] + r1[2], r2[0] + r2[2]) - intersectionx
+    intersectionx = int(max(r1[0], r2[0]))
+    intersectiony = int(max(r1[1], r2[1]))
+    intersectionw = int(min(r1[0] + r1[2], r2[0] + r2[2])) - int(intersectionx)
     if intersectionw < 0:
         intersectionw = 0
-    intersectionh = min(r1[1] + r1[3], r2[1] + r2[3]) - intersectiony
+    intersectionh = int(min(r1[1] + r1[3], r2[1] + r2[3])) - int(intersectiony)
     if intersectionh < 0:
         intersectionh = 0
         # intersectionh -= intersectiony;
