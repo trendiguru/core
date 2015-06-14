@@ -542,7 +542,8 @@ def intersectionOverUnion(r1, r2):
     if intersectionh < 0:
         intersectionh = 0
         # intersectionh -= intersectiony;
-    print('x,y,w,h:' + str(intersectionx) + ',' + str(intersectiony) + ',' + str(intersectionw) + ',' + str(
+    print('r1:' + str(r1) + ' r2:' + str(r2) + ' x,y,w,h:' + str(intersectionx) + ',' + str(intersectiony) + ',' + str(
+        intersectionw) + ',' + str(
         intersectionh))
     totarea = r1[2] * r1[3] + r2[2] * r2[3]  # this includes overlap twice
     intersectionarea = intersectionw * intersectionh
