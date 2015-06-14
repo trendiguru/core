@@ -100,6 +100,7 @@ def read_and_show_bbfile(bbfilename, parent_dir):
                     print('bb=' + str(bb))
                     cv2.imshow('win', img_array)
                     k = cv2.waitKey(200)
+                    cv2.destroyAllWindows()
     except EnvironmentError:  # parent of IOError, OSError *and* WindowsError where available
         print 'oops'
 
@@ -170,7 +171,7 @@ def get_bb(img_array, use_visual_output=True, fname='filename'):
             cv2.rectangle(img_array, (dress_box[0], dress_box[1]),
                           (dress_box[0] + dress_box[2], dress_box[1] + dress_box[3]),
                           GREEN, thickness=1)
-            print('plotting')
+            print('plotting img, dims:' + str(orig_w) + ' x ' + str(orig_h))
             # im = plt.imshow(img_array)
             # plt.show(block=False)
 
@@ -178,6 +179,7 @@ def get_bb(img_array, use_visual_output=True, fname='filename'):
             cv2.imshow(fname, img_array)
             cv2.moveWindow('win', 100, 200)
             k = cv2.waitKey(200)
+            cv2.destroyAllWindows()
 
             if k in [27, ord('Q'), ord('q')]:  # exit on ESC
                 pass
