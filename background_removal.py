@@ -128,7 +128,7 @@ def combine_overlapping_rectangles(bb_list):
                 print('bblist before ' + str(bb_list))
                 bb_list = np.delete(bb_list, j, axis=0)
                 bb_list = np.delete(bb_list, i, axis=0)
-                bb_list = np.append(bb_new, axis=0)
+                bb_list = np.append(bb_list, bb_new, axis=0)
                 print('bblist after ' + str(bb_list))
 
                 return (combine_overlapping_rectangles(bb_list))

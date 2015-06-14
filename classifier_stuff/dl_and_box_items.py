@@ -151,7 +151,7 @@ def get_bb(img_array, use_visual_output=True):
     print('len before '+str(len(faces)))
     faces = background_removal.combine_overlapping_rectangles(faces)
     print('len after '+str(len(faces)))
-    dress_length = 9
+    dress_length = 12
     dress_width = 3.5
     if len(faces):
 
@@ -176,6 +176,7 @@ def get_bb(img_array, use_visual_output=True):
 
             raw_input('enter to continue')
             cv2.imshow('win', img_array)
+            cv2.moveWindow('win', 100, 200)
             k = cv2.waitKey(200)
 
             if k in [27, ord('Q'), ord('q')]:  # exit on ESC
