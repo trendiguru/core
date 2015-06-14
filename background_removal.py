@@ -8,6 +8,7 @@ from Tkinter import Tk
 from tkFileDialog import askopenfilename
 import collections
 import os
+import logging
 
 import cv2
 import numpy as np
@@ -25,10 +26,10 @@ def image_is_relevant(image):
                                                     1. isRelevant ('True'/'False')
                                                     2. faces list sorted by relevance (empty list if not relevant)
     Thus - the right use of this function is for example:
-    - "if image_is_relevant.isRelevant:"
-    - "for face in image_is_relevant.faces:"
+    - "if image_is_relevant.is_relevant:"
+    - "for face in image_is_relevant(image).faces:"
     """
-    Relevance = collections.namedtuple('Relevance', 'isRelevant faces')
+    Relevance = collections.namedtuple('relevance', 'is_relevant faces')
     faces = find_face(image)
     return Relevance(len(faces) > 0, faces)
 
@@ -46,7 +47,7 @@ def find_face(image, max_num_of_faces=1):
             cascade_ok = True
             break
     if cascade_ok is False:
-        print 'no good cascade found!!!'
+        logging.warning("no good cascade found!")
         return []
     for i in range(0, 3, 1):
         faces = face_cascades[i].detectMultiScale(
@@ -80,8 +81,8 @@ def choose_faces(image, faces_list, max_num_of_faces):
             dy = abs(face[1] + (face[3] / 2) - y_origin)
             position = 0.8 * np.power(np.power(0.3 * dx, 2) + np.power(0.7 * dy, 2), 0.5)
             size = 0.2 * (float(face[2]) - 0.1 * np.amax((h, w)))
-            face_relevancy = position + size
-            faces_list[index].append(face_relevancy)
+            face_relevance = position + size
+            faces_list[index].append(face_relevance)
         else:
             faces_list.pop(index)
     if len(faces_list) > 0:
