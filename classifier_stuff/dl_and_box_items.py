@@ -130,7 +130,7 @@ def box_images(parent_dir='images', use_visual_output=False):
                     #             continue
                 else:
                     print('succesfully got ' + full_filename)
-                    bb = get_bb(img_array, use_visual_output)
+                    bb = get_bb(img_array, use_visual_output, fname=fname)
                     print('bb=' + str(bb))
                     if bb is not None:
                         write_bbfile(fp, bb, fname)
@@ -146,7 +146,7 @@ def box_images(parent_dir='images', use_visual_output=False):
 # continue  # input isn't a basestring nor a np.ndarray....so what is it?
 
 
-def get_bb(img_array, use_visual_output=True):
+def get_bb(img_array, use_visual_output=True, fname='filename'):
     faces = background_removal.find_face(img_array)
     print('len before '+str(len(faces)))
     faces = background_removal.combine_overlapping_rectangles(faces)
