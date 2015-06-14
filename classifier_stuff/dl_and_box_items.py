@@ -175,10 +175,10 @@ def get_bb(img_array, use_visual_output=True, fname='filename'):
             # im = plt.imshow(img_array)
             # plt.show(block=False)
 
-            raw_input('enter to continue')
             cv2.imshow(fname, img_array)
             cv2.moveWindow('win', 100, 200)
             k = cv2.waitKey(200)
+            raw_input('enter to continue')
             cv2.destroyAllWindows()
 
             if k in [27, ord('Q'), ord('q')]:  # exit on ESC
