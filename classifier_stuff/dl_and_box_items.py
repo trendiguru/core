@@ -152,7 +152,7 @@ def get_bb(img_array, use_visual_output=True, fname='filename'):
     faces = background_removal.combine_overlapping_rectangles(faces)
     print('len after '+str(len(faces)))
     dress_length = 12
-    dress_width = 3.5
+    dress_width = 4
     if len(faces):
 
         orig_h, orig_w, d = img_array.shape
@@ -160,11 +160,11 @@ def get_bb(img_array, use_visual_output=True, fname='filename'):
         head_y0 = int(np.mean([face[1] for face in faces]))
         w = int(np.mean([face[2] for face in faces]))
         h = int(np.mean([face[3] for face in faces]))
-        dress_w = w * 3
+        dress_w = w * dress_width
         dress_y0 = head_y0+h
-        dress_h = min(h * 6, orig_h - dress_y0)
+        dress_h = min(h * dress_length, orig_h - dress_y0)
         dress_x0 = max(0, head_x0 + w / 2 - dress_w / 2)
-        dress_w = min(w * 3, orig_w - dress_x0)
+        dress_w = min(w * dress_width, orig_w - dress_x0)
         dress_box = [dress_x0, dress_y0, dress_w, dress_h]
         if use_visual_output == True:
             cv2.rectangle(img_array, (dress_box[0], dress_box[1]),
