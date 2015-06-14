@@ -7,9 +7,12 @@ import string
 from Tkinter import Tk
 from tkFileDialog import askopenfilename
 import collections
+import os
 
 import cv2
 import numpy as np
+
+import constants
 
 import Utils
 
@@ -32,14 +35,11 @@ def image_is_relevant(image):
 
 def find_face(image, max_num_of_faces=1):
     gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
-    face_cascades = [cv2.CascadeClassifier(
-        'C:\Users\Nadav Paz\TrendiGuru\opencv\sources\data\haarcascades\haarcascade_frontalface_alt2.xml'),
-                     cv2.CascadeClassifier(
-                         'C:\Users\Nadav Paz\TrendiGuru\opencv\sources\data\haarcascades\haarcascade_frontalface_alt.xml'),
-                     cv2.CascadeClassifier(
-                         'C:\Users\Nadav Paz\TrendiGuru\opencv\sources\data\haarcascades\haarcascade_frontalface_alt_tree.xml'),
-                     cv2.CascadeClassifier(
-                         'C:\Users\Nadav Paz\TrendiGuru\opencv\sources\data\haarcascades\haarcascade_frontalface_default.xml')]
+    face_cascades = [
+        cv2.CascadeClassifier(os.path.join(constants.classifiers_folder, 'haarcascade_frontalface_alt2.xml')),
+        cv2.CascadeClassifier(os.path.join(constants.classifiers_folder, 'haarcascade_frontalface_alt.xml')),
+        cv2.CascadeClassifier(os.path.join(constants.classifiers_folder, 'haarcascade_frontalface_alt_tree.xml')),
+        cv2.CascadeClassifier(os.path.join(constants.classifiers_folder, 'haarcascade_frontalface_default.xml'))]
     cascade_ok = False
     for cascade in face_cascades:
         if not cascade.empty():
