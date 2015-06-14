@@ -175,7 +175,7 @@ def get_bb(img_array, use_visual_output=True, fname='filename'):
             # plt.show(block=False)
 
             raw_input('enter to continue')
-            cv2.imshow('win', img_array)
+            cv2.imshow(fname, img_array)
             cv2.moveWindow('win', 100, 200)
             k = cv2.waitKey(200)
 
