@@ -7,7 +7,6 @@ import string
 from Tkinter import Tk
 from tkFileDialog import askopenfilename
 import collections
-
 import os
 import logging
 
@@ -63,39 +62,31 @@ def find_face(image, max_num_of_faces=1):
 
 
 def choose_faces(image, faces_list, max_num_of_faces):
-    """
-    This function takes a list of founded faces, checks who's relevant (position & size) and then sorts all the relevant
-    faces in descending order (sorted_list[0] = most relevant)
-    :param image: nXmX3 dim ndarray representing the standard resized image in BGR colormap
-    :param faces_list: list of lists, each face is a list of [x, y, w, h]
-    :param max_num_of_faces: optional, integer
-    :return: sorted_list of lists (faces)
-    """
     h, w, d = image.shape
     x_origin = int(w / 2)
     y_origin = int(0.125 * h)
     faces_list = faces_list.tolist()
-    for index, face in enumerate(faces_list):
+    relevant_faces = []
+    for face in faces_list:
         if face_is_relevant(image, face):
             dx = abs(face[0] + (face[2] / 2) - x_origin)
             dy = abs(face[1] + (face[3] / 2) - y_origin)
-            position = 0.8 * np.power(np.power(0.3 * dx, 2) + np.power(0.7 * dy, 2), 0.5)
-            size = 0.2 * (float(face[2]) - 0.1 * np.amax((h, w)))
+            position = 0.6 * np.power(np.power(0.4 * dx, 2) + np.power(0.6 * dy, 2), 0.5)
+            size = 0.4 * abs((float(face[2]) - 0.1 * np.amax((h, w))))
             face_relevance = position + size
-            faces_list[index].append(face_relevance)
-        else:
-            faces_list.pop(index)
-    if len(faces_list) > 0:
-        sorted_list = np.array(sorted(faces_list, key=lambda face: face[4]), dtype=np.uint16)
+            face.append(face_relevance)
+            relevant_faces.append(face)
+    if len(relevant_faces) > 0:
+        sorted_list = np.array(sorted(relevant_faces, key=lambda face: face[4]), dtype=np.uint16)
         return sorted_list[0:np.amax((max_num_of_faces, len(sorted_list))), 0:4]
     else:
-        return faces_list
+        return relevant_faces
 
 
 def face_is_relevant(image, face):
     x, y, w, h = face
     # threshold = face + 4 faces down = 5 faces
-    if w < 0.3 * image.shape[1] and y < image.shape[0] / 2 - h and image.shape[0] > y + h * 5:
+    if 0.1 * image.shape[1] < w < 0.3 * image.shape[1] and y < image.shape[0] / 2 - h and image.shape[0] > y + h * 5:
         return True
     else:
         return False
