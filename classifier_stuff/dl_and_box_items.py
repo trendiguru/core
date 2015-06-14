@@ -132,9 +132,9 @@ def box_images(parent_dir='images', use_visual_output=False):
                 else:
                     print('succesfully got ' + full_filename)
                     bb = get_bb(img_array, use_visual_output, fname=fname)
-                    print('bb=' + str(bb) + ' x1y1x2y2:' + str(bb[0]) + ',' + str(bb[1]) + ',' + str(
-                        bb[0] + bb[2]) + ',' + str(bb[1] + bb[3]))
                     if bb is not None:
+                        print('bb=' + str(bb) + ' x1y1x2y2:' + str(bb[0]) + ',' + str(bb[1]) + ',' + str(
+                            bb[0] + bb[2]) + ',' + str(bb[1] + bb[3]))
                         write_bbfile(fp, bb, fname)
                         # raw_input('hit enter')
                     else:
