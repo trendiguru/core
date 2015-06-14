@@ -528,6 +528,28 @@ def files_in_directory(dir):
 ############################
 ### math stuff
 ############################
+def intersectionOverUnion(r1, r2):
+    print(r1, r2)
+
+    # a if test else b
+
+    intersectionx = max(r1[0], r2[0])
+    intersectiony = max(r1[1], r2[1])
+    intersectionw = min(r1[0] + r1[2], r2[0] + r2[2]) - intersectionx
+    if intersectionw < 0:
+        intersectionw = 0
+    intersectionh = min(r1[1] + r1[3], r2[1] + r2[3]) - intersectiony
+    if intersectionh < 0:
+        intersectionh = 0
+        # intersectionh -= intersectiony;
+    print('x,y,w,h:' + str(intersectionx) + ',' + str(intersectiony) + ',' + str(intersectionw) + ',' + str(
+        intersectionh))
+    totarea = r1[2] * r1[3] + r2[2] * r2[3]  # this includes overlap twice
+    intersectionarea = intersectionw * intersectionh
+    totarea = totarea - intersectionarea  # now totarea includes overlap only once
+    iou = float(intersectionarea) / float(totarea)
+    print('totarea,intarea,iou:' + str(totarea) + ',' + str(intersectionarea) + ',' + str(iou))
+    return (iou)
 
 
 def error_of_fraction(numerator, numerator_stdev, denominator, denominator_stdev):

@@ -47,6 +47,35 @@ def find_face(image):
     return faces
 
 
+def average_bbs(bb1, bb2):
+    bb_x = int((bb1[0] + bb2[0]) / 2)
+    bb_y = int((bb1[1] + bb2[1]) / 2)
+    bb_w = int((bb1[2] + bb2[2]) / 2)  # this isnt necessarily width, it could be x2 if rect is [x1,y1,x2,y2]
+    bb_h = int((bb1[3] + bb2[3]) / 2)
+
+    bb_out = [bb_x, bb_y, bb_w, bb_h]
+    return bb_out
+    # bb_out = int(np.divide(bb1[:]+bb2[:],2))
+
+
+def combine_overlapping_rectangles(bb_list):
+    if len(bb_list) < 2:
+        return bb_list
+    iou_threshold = 0.8  # TOTALLY ARBITRARY THRESHOLD
+    for i in range(0, len(bb_list)):
+        for j in range(i + 1, len(bb_list)):
+            bb1 = bb_list[i]
+            bb2 = bb_list[j]
+            iou = Utils.intersectionOverUnion(bb1, bb2)
+            if iou > iou_threshold:
+                print('combining bbs')
+                bb_new = average_bbs(bb1, bb2)
+                bb_list.remove(bb1)
+                bb_list.remove(bb2)
+                bb_list.append(bb_new)
+                return (combine_overlapping_rectangles(bb_list))
+    return (bb_list)
+
 def body_estimation(image, face):
     x, y, w, h = face[0]
     y_down = image.shape[0] - 1

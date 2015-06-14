@@ -6,12 +6,12 @@ import cv2
 
 GREEN = [0, 255, 0]
 
-__author__ = 'Nadav Paz'
+__author__ = 'dr. juice-man'
 
 import os
 
 import pymongo
-
+import sys
 import Utils
 import background_removal
 from find_similar_mongo import get_all_subcategories
@@ -68,7 +68,7 @@ def get_items(categories, keywords):
             dl_keyword_images(cat, total=max_items_per_category, show_visual_output=False)
 
 
-def box_images(parent_dir='/home/ubuntu/Dev/'):
+def box_images(parent_dir='images', use_visual_output=False):
     for dir, subdir_list, file_list in os.walk(parent_dir):
         print('Found directory: %s' % dir)
         bbfilename = os.path.join(dir, 'bbs.txt')
@@ -78,34 +78,37 @@ def box_images(parent_dir='/home/ubuntu/Dev/'):
             full_filename = os.path.join(dir, fname)
             # fp.write
             try:
-                img_array = cv2.imread(fname)
+                img_array = cv2.imread(full_filename)
                 if img_array is None:
+                    print('no image gotten')
                     continue
                 else:
-                    # print('couldnt get locally (in not url branch)')
-                    bb = get_bb(img_array)
+                    print('succesfully got ' + full_filename)
+                    bb = get_bb(img_array, use_visual_output)
 
             except:
-                print("could not read locally, returning None")
+                e = sys.exc_info()[0]
+                print("could not read " + full_filename + " locally due to " + str(e) + ", returning None")
                 # logging.warning("could not read locally, returning None")
                 continue  # input isn't a basestring nor a np.ndarray....so what is it?
 
 
-def get_bb(img_array, show_visual_output=True):
+def get_bb(img_array, use_visual_output=True):
     faces = background_removal.find_face(img_array)
+    faces = background_removal.combine_overlapping_rectangles(faces)
     if len(faces):
-        head_x0 = int(np.mean(face[0] for face in faces))
-        head_y0 = int(np.mean(face[1] for face in faces))
-        head_x1 = int(np.mean(face[2] for face in faces))
-        head_y1 = int(np.mean(face[3] for face in faces))
-        w = head_x1 - head_x0
-        h = head_y1 - head_y0
+        orig_h, orig_w, d = img_array.shape
+        head_x0 = int(np.mean([face[0] for face in faces]))
+        head_y0 = int(np.mean([face[1] for face in faces]))
+        w = int(np.mean([face[2] for face in faces]))
+        h = int(np.mean([face[3] for face in faces]))
         dress_w = w * 3
-        dress_h = h * 6
-        dress_x0 = head_x0 + w / 2 - dress_w / 2
-        dress_y0 = head_y1
+        dress_y0 = head_y0
+        dress_h = min(h * 6, orig_h - dress_y0)
+        dress_x0 = max(0, head_x0 + w / 2 - dress_w / 2)
+        dress_w = min(w * 3, orig_w - dress_x0)
         dress_box = [dress_x0, dress_y0, dress_w, dress_h]
-        if show_visual_output == True:
+        if use_visual_output == True:
             cv2.rectangle(img_array, (dress_box[0], dress_box[1]),
                           (dress_box[0] + dress_box[2], dress_box[1] + dress_box[3]),
                           GREEN, thickness=1)
@@ -120,6 +123,11 @@ if __name__ == '__main__':
     print('starting')
     cats = ['cocktail-dresses', 'bridal-dresses', 'evening-dresses', 'day-dresses']
     keywords = ['mini', 'midi', 'maxi']
+
+    box_images(
+        '/home/jeremy/jeremy.rutman@gmail.com/TrendiGuru/techdev/trendi_guru_modules/classifier_stuff/images/dresses',
+        use_visual_output=True)
+    raw_input('hit enter')
     get_items(['dresses'], keywords)
     get_items(cats, None)
 
