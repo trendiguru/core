@@ -164,9 +164,9 @@ def get_bb(img_array, use_visual_output=True, fname='filename'):
         h = int(np.mean([face[3] for face in faces]))
         dress_w = w * dress_width
         dress_y0 = head_y0+h
-        dress_h = min(h * dress_length, orig_h - dress_y0)
+        dress_h = min(h * dress_length, orig_h - dress_y0 - 1)
         dress_x0 = max(0, head_x0 + w / 2 - dress_w / 2)
-        dress_w = min(w * dress_width, orig_w - dress_x0)
+        dress_w = min(w * dress_width, orig_w - dress_x0 - 1)
         dress_box = [dress_x0, dress_y0, dress_w, dress_h]
         if use_visual_output == True:
             cv2.rectangle(img_array, (dress_box[0], dress_box[1]),
