@@ -7,6 +7,7 @@ import string
 from Tkinter import Tk
 from tkFileDialog import askopenfilename
 import collections
+
 import os
 import logging
 
@@ -14,7 +15,6 @@ import cv2
 import numpy as np
 
 import constants
-
 import Utils
 
 
@@ -124,10 +124,21 @@ def combine_overlapping_rectangles(bb_list):
             if iou > iou_threshold:
                 print('combining bbs')
                 bb_new = average_bbs(bb1, bb2)
-                bb_list.remove(bb1)
-                bb_list.remove(bb2)
-                bb_list.append(bb_new)
+                # bb_list.remove(bb1)
+                print('bblist before ' + str(bb_list))
+                bb_list = np.delete(bb_list, j, axis=0)
+                bb_list = np.delete(bb_list, i, axis=0)
+                bb_list = np.append(bb_new, axis=0)
+                print('bblist after ' + str(bb_list))
+
                 return (combine_overlapping_rectangles(bb_list))
+            else:
+                print('iou too small, taking first bb')
+                print('bblist before ' + str(bb_list))
+                bb_list = np.delete(bb_list, j, axis=0)
+                print('bblist after ' + str(bb_list))
+                return (combine_overlapping_rectangles(bb_list))
+
     return (bb_list)
 
 def body_estimation(image, face):

@@ -1,17 +1,20 @@
-__author__ = 'jeremy'
+from __future__ import with_statement
+
+__author__ = 'dr. groovemaster'
+
 
 import numpy as np
 import cv2
 
-
 GREEN = [0, 255, 0]
+RED = [0, 0, 255]
+BLUE = [255, 0, 0]
 
 __author__ = 'dr. juice-man'
 
 import os
 
 import pymongo
-import sys
 import Utils
 import background_removal
 from find_similar_mongo import get_all_subcategories
@@ -68,42 +71,97 @@ def get_items(categories, keywords):
             dl_keyword_images(cat, total=max_items_per_category, show_visual_output=False)
 
 
+def write_bbfile(fp, bb, filename):
+    string = filename + ' 1 {0} {1} {2} {3} \n'.format(bb[0], bb[1], bb[2], bb[3])
+    print('writing ' + str(string))
+    fp.write(string)
+
+
+def read_and_show_bbfile(bbfilename, parent_dir):
+    try:
+        with open(bbfilename, 'r') as fp:
+            for line in fp:
+                values = line.split()
+                fname = values[0]
+                fname = os.path.join(parent_dir, fname)
+                bb = []
+                for value in values[2:]:
+                    bb.append(int(value))
+                print('fname:' + fname + ' bb:' + str(bb))
+                img_array = cv2.imread(fname)
+                if img_array is None:
+                    print('no image gotten, None returned')
+                    continue
+                else:
+                    print('succesfully got ' + fname)
+                    cv2.rectangle(img_array, (bb[0], bb[1]),
+                                  (bb[0] + bb[2], bb[1] + bb[3]),
+                                  GREEN, thickness=1)
+                    print('bb=' + str(bb))
+                    cv2.imshow('win', img_array)
+                    k = cv2.waitKey(200)
+    except EnvironmentError:  # parent of IOError, OSError *and* WindowsError where available
+        print 'oops'
+
+
+def read_bbs_in_subdirs(parent_dir='images'):
+    for dir, subdir_list, file_list in os.walk(parent_dir):
+        print('Found directory: %s' % dir)
+        bbfilename = os.path.join(dir, 'bbs.txt')
+        read_and_show_bbfile(bbfilename, dir)
+
+
 def box_images(parent_dir='images', use_visual_output=False):
     for dir, subdir_list, file_list in os.walk(parent_dir):
         print('Found directory: %s' % dir)
         bbfilename = os.path.join(dir, 'bbs.txt')
-        fp = open(bbfilename, 'a')
-        for fname in file_list:
-            print('\t%s' % fname)
-            full_filename = os.path.join(dir, fname)
-            # fp.write
-            try:
+        with open(bbfilename, 'w+') as fp:
+            for fname in file_list:
+                print('\t%s' % fname)
+                full_filename = os.path.join(dir, fname)
+                # fp.write
+
                 img_array = cv2.imread(full_filename)
                 if img_array is None:
-                    print('no image gotten')
+                    print('no image gotten, None returned')
                     continue
+                    # elif not isinstance(img_array[0][0], int):
+                    # print('no image gotten, not int')
+                    #             continue
                 else:
                     print('succesfully got ' + full_filename)
                     bb = get_bb(img_array, use_visual_output)
+                    print('bb=' + str(bb))
+                    if bb is not None:
+                        write_bbfile(fp, bb, fname)
+                        # raw_input('hit enter')
+                    else:
+                        print('no bb found')
+                        # except:
+                        # e = sys.exc_info()[0]
+                        #                print("could not read " + full_filename + " locally due to " + str(e) + ", returning None")
+                        # logging.warning("could not read locally, returning None")
 
-            except:
-                e = sys.exc_info()[0]
-                print("could not read " + full_filename + " locally due to " + str(e) + ", returning None")
-                # logging.warning("could not read locally, returning None")
-                continue  # input isn't a basestring nor a np.ndarray....so what is it?
+
+# continue  # input isn't a basestring nor a np.ndarray....so what is it?
 
 
 def get_bb(img_array, use_visual_output=True):
     faces = background_removal.find_face(img_array)
+    print('len before '+str(len(faces)))
     faces = background_removal.combine_overlapping_rectangles(faces)
+    print('len after '+str(len(faces)))
+    dress_length = 9
+    dress_width = 3.5
     if len(faces):
+
         orig_h, orig_w, d = img_array.shape
         head_x0 = int(np.mean([face[0] for face in faces]))
         head_y0 = int(np.mean([face[1] for face in faces]))
         w = int(np.mean([face[2] for face in faces]))
         h = int(np.mean([face[3] for face in faces]))
         dress_w = w * 3
-        dress_y0 = head_y0
+        dress_y0 = head_y0+h
         dress_h = min(h * 6, orig_h - dress_y0)
         dress_x0 = max(0, head_x0 + w / 2 - dress_w / 2)
         dress_w = min(w * 3, orig_w - dress_x0)
@@ -112,9 +170,18 @@ def get_bb(img_array, use_visual_output=True):
             cv2.rectangle(img_array, (dress_box[0], dress_box[1]),
                           (dress_box[0] + dress_box[2], dress_box[1] + dress_box[3]),
                           GREEN, thickness=1)
-            cv2.imshow('im1', img_array)
+            print('plotting')
+            # im = plt.imshow(img_array)
+            # plt.show(block=False)
+
+            raw_input('enter to continue')
+            cv2.imshow('win', img_array)
             k = cv2.waitKey(200)
 
+            if k in [27, ord('Q'), ord('q')]:  # exit on ESC
+                pass
+
+        return dress_box
     else:
         return None
 
@@ -124,12 +191,19 @@ if __name__ == '__main__':
     cats = ['cocktail-dresses', 'bridal-dresses', 'evening-dresses', 'day-dresses']
     keywords = ['mini', 'midi', 'maxi']
 
-    box_images(
-        '/home/jeremy/jeremy.rutman@gmail.com/TrendiGuru/techdev/trendi_guru_modules/classifier_stuff/images/dresses',
-        use_visual_output=True)
+    # from scipy import misc
+    # l = misc.lena()
+    # import matplotlib.pyplot as plt
+    # plt.imshow(l)
+    # plt.show()
+
+    dir = '/home/jeremy/jeremy.rutman@gmail.com/TrendiGuru/techdev/trendi_guru_modules/classifier_stuff/images/dresses'
+    dir = 'images/dresses'
+    box_images(dir, use_visual_output=True)
     raw_input('hit enter')
-    get_items(['dresses'], keywords)
-    get_items(cats, None)
+    read_bbs_in_subdirs(dir)
+ #    get_items(['dresses'], keywords)
+    # get_items(cats, None)
 
     # check what all the subcats are
     # db = pymongo.MongoClient().mydb
