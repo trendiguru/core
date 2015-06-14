@@ -6,45 +6,99 @@ __author__ = 'Nadav Paz'
 import string
 from Tkinter import Tk
 from tkFileDialog import askopenfilename
+import collections
 import os
+import logging
 
 import cv2
 import numpy as np
 
 import constants
+
 import Utils
 
 
-def find_face(image):
+def image_is_relevant(image):
+    """
+    main engine function of 'doorman'
+    :param image: nXmX3 dim ndarray representing the standard resized image in BGR colormap
+    :return: namedtuple 'Relevance': has 2 fields:
+                                                    1. isRelevant ('True'/'False')
+                                                    2. faces list sorted by relevance (empty list if not relevant)
+    Thus - the right use of this function is for example:
+    - "if image_is_relevant.is_relevant:"
+    - "for face in image_is_relevant(image).faces:"
+    """
+    Relevance = collections.namedtuple('relevance', 'is_relevant faces')
+    faces = find_face(image)
+    return Relevance(len(faces) > 0, faces)
+
+
+def find_face(image, max_num_of_faces=1):
     gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
     face_cascades = [
         cv2.CascadeClassifier(os.path.join(constants.classifiers_folder, 'haarcascade_frontalface_alt2.xml')),
         cv2.CascadeClassifier(os.path.join(constants.classifiers_folder, 'haarcascade_frontalface_alt.xml')),
         cv2.CascadeClassifier(os.path.join(constants.classifiers_folder, 'haarcascade_frontalface_alt_tree.xml')),
         cv2.CascadeClassifier(os.path.join(constants.classifiers_folder, 'haarcascade_frontalface_default.xml'))]
-
-    # DONE (TODO add a check if these classifiers are found or not, there is a cv2 function for that i think)
-    # check that at least one cascade is ok
     cascade_ok = False
     for cascade in face_cascades:
         if not cascade.empty():
             cascade_ok = True
             break
-    if cascade_ok == False:
-        print('no good cascade found!!!')
-        return ([])
-
+    if cascade_ok is False:
+        logging.warning("no good cascade found!")
+        return []
     for i in range(0, 3, 1):
         faces = face_cascades[i].detectMultiScale(
             gray,
             scaleFactor=1.1,
             minNeighbors=2,
-            minSize=(1, 1),
+            minSize=(5, 5),
             flags = cv2.cv.CV_HAAR_SCALE_IMAGE
         )
-        if len(faces) > 0:
-            break
-    return faces
+    if len(faces) == 0:
+        return faces
+    return choose_faces(image, faces, max_num_of_faces)
+
+
+def choose_faces(image, faces_list, max_num_of_faces):
+    """
+    This function takes a list of founded faces, checks who's relevant (position & size) and then sorts all the relevant
+    faces in descending order (sorted_list[0] = most relevant)
+    :param image: nXmX3 dim ndarray representing the standard resized image in BGR colormap
+    :param faces_list: list of lists, each face is a list of [x, y, w, h]
+    :param max_num_of_faces: optional, integer
+    :return: sorted_list of lists (faces)
+    """
+    h, w, d = image.shape
+    x_origin = int(w / 2)
+    y_origin = int(0.125 * h)
+    faces_list = faces_list.tolist()
+    for index, face in enumerate(faces_list):
+        if face_is_relevant(image, face):
+            dx = abs(face[0] + (face[2] / 2) - x_origin)
+            dy = abs(face[1] + (face[3] / 2) - y_origin)
+            position = 0.8 * np.power(np.power(0.3 * dx, 2) + np.power(0.7 * dy, 2), 0.5)
+            size = 0.2 * (float(face[2]) - 0.1 * np.amax((h, w)))
+            face_relevance = position + size
+            faces_list[index].append(face_relevance)
+        else:
+            faces_list.pop(index)
+    if len(faces_list) > 0:
+        sorted_list = np.array(sorted(faces_list, key=lambda face: face[4]), dtype=np.uint16)
+        return sorted_list[0:np.amax((max_num_of_faces, len(sorted_list))), 0:4]
+    else:
+        return faces_list
+
+
+def face_is_relevant(image, face):
+    x, y, w, h = face
+    # threshold = face + 4 faces down = 5 faces
+    if w < 0.3 * image.shape[1] and y < image.shape[0] / 2 - h and image.shape[0] > y + h * 5:
+        return True
+    else:
+        return False
 
 
 def average_bbs(bb1, bb2):
@@ -230,30 +284,6 @@ def get_image():
     return big_image
 
 
-def image_is_relevant(image):
-    """
-    this function takes an image and determine if it is relevant for TrendiGuru:
-    black list:
-        1. no face detected
-        2. face at the lower half of the image
-        3. face's area is too big (checked with height relativity only)
-    :param small image: ndarray with maximum edge of 400
-    :return: True or False
-    """
-    faces = find_face(image)
-    if len(faces) > 0:
-        # choosing the biggest face assuming it is the one that relevant
-        chosen_face = [0, 0, 0, 0]
-        for face in faces:
-            if face[2] * face[3] > chosen_face[2] * chosen_face[3]:
-                chosen_face = face
-        x, y, w, h = chosen_face
-        # threshold = face + 4 faces down = 5 faces
-        if image.shape[0] > y + h * 5:
-            return True
-    return False
-
-
 def face_skin_color_estimation(image, face_rect):
     x, y, w, h = face_rect[0]
     face_image = image[y:y + h, x:x + w, :]
@@ -267,3 +297,7 @@ def face_skin_color_estimation(image, face_rect):
         if hist_hue[l] > 0.013:
             skin_hue_list.append(l)
     return skin_hue_list
+
+
+if __name__ == '__main__':
+    print('starting')
