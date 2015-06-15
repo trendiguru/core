@@ -74,7 +74,7 @@ def get_items(categories, keywords=None, dir=None):
 if __name__ == '__main__':
     print('starting')
     cats = ['cocktail-dresses', 'bridal-dresses', 'evening-dresses', 'day-dresses']
-    cats = ['shirts']
+    cats = ['mens-shirts', 'womens-tops']
     keywords = ['mini', 'midi', 'maxi']
 
     # from scipy import misc
