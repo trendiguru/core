@@ -1,5 +1,5 @@
 from __future__ import print_function
-#!/usr/bin/env python
+# !/usr/bin/env python
 __author__ = 'jeremy'
 import cv2
 import subprocess
@@ -10,40 +10,249 @@ import numpy as np
 from time import sleep
 import cProfile, pstats, StringIO
 import argparse
+import logging
 
+import Utils
+import background_removal
+
+GREEN = [0, 255, 0]
+RED = [0, 0, 255]
+BLUE = [255, 0, 0]
 
 # TODO
-#get number of positives, negatives and dont run trainer on more than that - DONE
-#add backgrounds to positive test images, see if it makes difference
-#randomize order of test images (since subdirectories are ordered some way)
-#redo these to all different directories for positives, negatives -  DONE
-#redo this to scan all directories (and subdirs) not just numbers - DONE
+# implement single_negatives_file for create_negatives_recursive
+# get number of positives, negatives and dont run trainer on more than that - DONE
+# add backgrounds to positive test images, see if it makes difference
+# randomize order of test images (since subdirectories are ordered some way)
+# redo these to all different directories for positives, negatives -  DONE
+# redo this to scan all directories (and subdirs) not just numbers - DONE
 
-def create_negatives(dirList):
+def write_bbfile(fp, bb, filename, bbfilename=''):
+    string = filename + ' 1 {0} {1} {2} {3} \n'.format(bb[0], bb[1], bb[2], bb[3])
+    print('writing ' + str(string) + ' to ' + bbfilename)
+    fp.write(string)
+
+
+def read_bbfile_and_show_positives(bbfilename, parent_dir):
+    try:
+        with open(bbfilename, 'r') as fp:
+            for line in fp:
+                values = line.split()
+                fname = values[0]
+                fname = os.path.join(parent_dir, fname)
+                bb = []
+                for value in values[2:]:
+                    bb.append(int(value))
+                print('fname:' + fname + ' bb:' + str(bb))
+                img_array = cv2.imread(fname)
+                if img_array is None:
+                    print('no image gotten, None returned')
+                    continue
+                else:
+                    print('succesfully got ' + fname)
+                    cv2.rectangle(img_array, (bb[0], bb[1]),
+                                  (bb[0] + bb[2], bb[1] + bb[3]),
+                                  GREEN, thickness=1)
+                    print('bb=' + str(bb))
+                    cv2.imshow('win', img_array)
+                    k = cv2.waitKey(200)
+                    cv2.destroyAllWindows()
+    except EnvironmentError:  # parent of IOError, OSError *and* WindowsError where available
+        print('oops. an environment error. take cover')
+
+
+def read_bbfile_and_show_positives_in_subdirs(parent_dir='images'):
+    for dir, subdir_list, file_list in os.walk(parent_dir):
+        print('Found directory: %s' % dir)
+        bbfilename = os.path.join(dir, 'bbs.txt')
+        read_bbfile_and_show_positives(bbfilename, dir)
+
+
+def create_positives_using_faces_nonrecursive(bbfilename='bbs.txt', dir='images', item='dress', use_visual_output=False,
+                                              maxfiles=10000):
+    maxfiles = 10
+    filecounter = 0
+    try:
+        with open(bbfilename, 'w+') as fp:
+            file_list = Utils.files_in_directory(dir)
+            for file in file_list:
+                print('\t%s' % file)
+                img_array = cv2.imread(file)
+                if not Utils.is_valid_image(img_array):
+                    print('no image gotten, None returned for ' + file)
+                    continue
+                else:
+                    print('succesfully got ' + file)
+                    bb = get_bb(img_array, use_visual_output, fname=file, item=item)
+                    if bb is not None:
+                        print('bb=' + str(bb) + ' x1y1x2y2:' + str(bb[0]) + ',' + str(bb[1]) + ',' + str(
+                            bb[0] + bb[2]) + ',' + str(bb[1] + bb[3]))
+                        write_bbfile(fp, bb, file)
+                        filecounter = filecounter + 1
+                        if filecounter > maxfiles:
+                            print('filecounter exceeded 0}>{1}'.format(filecounter, maxfiles))
+                            break
+                            # raw_input('hit enter')
+                    else:
+                        print('no bb found')
+    except EnvironmentError:  # parent of IOError, OSError *and* WindowsError where available
+        print('oops. an environment error in nonrecursive positives generator. take cover')
+
+
+def create_positives_using_faces_recursive(bbfilename='bbs.txt', parent_dir='images', item='dress', single_bbfile=True,
+                                           use_visual_output=False, maxfiles=10000):
+    filecount = 0
+    print('searching %s' % parent_dir)
+    try:
+        for dir, subdir_list, file_list in os.walk(parent_dir):
+            print('Found directory: %s' % dir)
+            if not single_bbfile:  # make a bbfile for each subdir
+                bbfilename = os.path.join(dir, 'bbs.txt')
+            try:
+                with open(bbfilename, 'a+') as fp:
+                    for fname in file_list:
+                        print('found file %s' % fname)
+                        full_filename = os.path.join(dir, fname)
+                        # fp.write
+
+                        img_array = cv2.imread(full_filename)
+                        if not Utils.is_valid_image(img_array):
+                            print(fname + ' is not a valid image')
+                            continue
+                            # elif not isinstance(img_array[0][0], int):
+                            # print('no image gotten, not int')
+                            # continue
+                        else:
+                            print('succesfully got ' + full_filename)
+                            bb = get_bb(img_array, use_visual_output, fname=fname, item=item)
+                            if bb is not None:
+                                print('bb=' + str(bb) + ' x1y1x2y2:' + str(bb[0]) + ',' + str(bb[1]) + ',' + str(
+                                    bb[0] + bb[2]) + ',' + str(bb[1] + bb[3]))
+                                if single_bbfile:
+                                    write_bbfile(fp, bb, full_filename, bbfilename=bbfilename)
+                                else:
+                                    write_bbfile(fp, bb, fname, bbfilename=bbfilename)
+                                filecount = filecount + 1
+                                if filecount > maxfiles:
+                                    print('file count exceeded')
+                                    Utils.safely_close(fp)
+                                    return
+                                    # raw_input('hit enter')
+                            else:
+                                print('no bb found')
+                                # except:
+                                # e = sys.exc_info()[0]
+                                # print("could not read " + full_filename + " locally due to " + str(e) + ", returning None")
+                                # logging.warning("could not read locally, returning None")
+            except IOError:
+                logging.error('ioerror, cant find file or read data:' + bbfilename)
+    except OSError:
+        print('oserror, error walking directory ' + parent_dir)
+
+
+def get_bb(img_array, use_visual_output=True, fname='filename', item='dress'):
+    faces = background_removal.find_face(img_array, max_num_of_faces=1)
+    if faces is not None and faces is not [] and faces is not () and len(faces) == 1:
+
+        print('faces:' + str(faces))
+        face = faces[0]
+    else:
+        return None
+    if item == 'dress':
+        item_length = 12
+        item_width = 4
+        item_y_offset = 0
+    else:
+        item_length = 12
+        item_width = 4
+        item_y_offset = 0
+
+    orig_h, orig_w, d = img_array.shape
+    head_x0 = face[0]
+    head_y0 = face[1]
+    w = face[2]
+    h = face[3]
+    item_w = w * item_width
+    item_y0 = head_y0 + h + item_y_offset
+    item_h = min(h * item_length, orig_h - item_y0 - 1)
+    item_x0 = max(0, head_x0 + w / 2 - item_w / 2)
+    item_w = min(w * item_width, orig_w - item_x0 - 1)
+    item_box = [item_x0, item_y0, item_w, item_h]
+    if use_visual_output == True:
+        cv2.rectangle(img_array, (item_box[0], item_box[1]),
+                      (item_box[0] + item_box[2], item_box[1] + item_box[3]),
+                      GREEN, thickness=1)
+        print('plotting img, dims:' + str(orig_w) + ' x ' + str(orig_h))
+        # im = plt.imshow(img_array)
+        # plt.show(block=False)
+
+        cv2.imshow(fname, img_array)
+        cv2.moveWindow('win', 100, 200)
+        k = cv2.waitKey(50)
+        # raw_input('enter to continue')
+        cv2.destroyAllWindows()
+
+        if k in [27, ord('Q'), ord('q')]:  # exit on ESC
+            pass
+    assert (Utils.bounding_box_inside_image(img_array, item_box))
+    return item_box
+
+
+def create_negatives_nonrecursive(dir, negatives_filename='negatives' + str(dir) + '.txt', show_visual_output=True):
     '''
-        make a negatives file from a list of dirs
+        make a negatives file from a directory of images
+    '''
+    max_files = 10000
+    file_count = 0
+    print('creating negatives file from ' + dir)
+    file_list = Utils.files_in_directory(dir)
+    fh = open(negatives_filename, "a")  # be sure to erase file in calling function if necessary
+    for file in file_list:
+        print('trying file ' + file)
+        if Utils.is_valid_local_image_file(file):
+            if file_count > max_files:
+                break
+            else:
+                # absolute_filename = join(abs_root_dir, dirName3, file)
+                img_array = cv2.imread(file)
+                if img_array is not None:
+                    fh.write(file + '\n')
+                    file_count = file_count + 1
+                    print('wrote line ' + file + 'count=' + str(file_count))
+                    if show_visual_output:
+                        cv2.imshow(file, img_array)
+                        #cv2.moveWindow(file, 100, 200)
+                        k = cv2.waitKey(100)
+                        cv2.destroyAllWindows()
+                else:
+                    print('image array is None')
+        else:
+            print('file is not vald local image')
+
+    Utils.safely_close(fh)
+    permute(negatives_filename)
+    print(str(file_count) + ' negatives for directory ' + dir)
+    return (file_count)
+
+
+def create_negatives_recursive(dir, negatives_filename='negatives_recursive.txt', show_visual_output=True,
+                               single_negatives_file=True):
+    '''
+        make a negatives file recursively from a list of dirs
     '''
 
-    #def create_negatives(**kwargs):
-    #if kwargs is not None:
-    #    for key, value in kwargs.iteritems():
-    #        print "%s == %s" %(key,value)
-
-    #CREATE NEGATIVE EXAMPLE FILES - directories should be 'clean' i.e. contain only one item per image.
-    #these can be used easily for both pos. and neg.  Images with two or more items can be used for negatives
-    #with some more work
     rootDir = ''
     print('creating negatives files from ' + rootDir)
-    #subprocess.call("rm -f trainingfiles/negatives*.txt", shell=True)
+    # subprocess.call("rm -f trainingfiles/negatives*.txt", shell=True)
     #subprocess.call("rm -f negatives*.txt", shell=True)
     #subprocess.call("ls -l "+abs_root_dir, shell=True)
     #subprocess.call("pwd", shell=True)
     global top_subdirlist
-    top_subdirlist=[]
+    top_subdirlist = []
     abs_root_dir = rootDir
 
     subdirlist = [x[1] for x in os.walk(rootDir)]
-    if len(subdirlist)==0:
+    if len(subdirlist) == 0:
         print('no files in directory ' + rootDir)
     exit()
     print(subdirlist)
@@ -89,18 +298,24 @@ def create_negatives(dirList):
         print(str(n_files) + ' negatives for directory ' + subdir1)
     return (n_negatives)
 
-def create_positives(rootDir, trainDir, infoDict,makeFrame):
-    #CREATE POSITIVE EXAMPLE FILES
+
+def create_negatives_from_set_of_dirs(dirlist):
+    for dir in dirlist:
+        create_negatives_nonrecursive(dir, 'negatives.txt', show_visual_output=True)
+
+
+def create_positives(rootDir, trainDir, infoDict, makeFrame):
+    # CREATE POSITIVE EXAMPLE FILES
     print('creating positive examples from ' + rootDir)
     global top_subdirlist
-    print('top subdirs:'+str(top_subdirlist))
+    print('top subdirs:' + str(top_subdirlist))
     subdirlist = [x[1] for x in os.walk(rootDir)]
-#    top_subdirlist = subdirlist[0]
+    #    top_subdirlist = subdirlist[0]
     #print('--\nroot = ' + root)
     #splitpath=string.rsplit(root,'/',1)
     abs_root_dir = rootDir
     resultsDict = {}
-    print('makeframe:'+str(makeFrame))
+    print('makeframe:' + str(makeFrame))
     for subdir in top_subdirlist:
         #    bbfilename = rootDir+'/bbfile.' + subdir + '.txt'
         bbfilename = 'positives.' + subdir + '.txt'
@@ -121,8 +336,8 @@ def create_positives(rootDir, trainDir, infoDict,makeFrame):
             #		print('dir3:'+dirName3+' curdir:'+cur_dir+' subdir:'+subdir)
             #		print()
             if makeFrame:
-                newdir3= dirName3+'framed'
-                subprocess.call("mkdir "+newdir3, shell=True)
+                newdir3 = dirName3 + 'framed'
+                subprocess.call("mkdir " + newdir3, shell=True)
 
             for file in fileList3:
                 full_name = os.path.join(dirName3, file)
@@ -139,39 +354,40 @@ def create_positives(rootDir, trainDir, infoDict,makeFrame):
                         #					print('file:' + full_name + ' shape:' + str(w) +'X'+ str(h))  #            			with open(file_path, 'rb') as f:
                         #					print('writing string:'+string)
                     else:  #make a frame
-#                        absolute_filename = join(abs_root_dir, file)
+                        #                        absolute_filename = join(abs_root_dir, file)
 
-                        size=[2*w,2*h]
+                        size = [2 * w, 2 * h]
                         #depth=IPL_DEPTH_8U
-                        channels=3
-                        r=np.random.random_integers(low=0,high=254, size=(2*h,2*w,3))
-#                        biggerImg = biggerImg % 2**8                 #     // convert to unsigned 8-bit
+                        channels = 3
+                        r = np.random.random_integers(low=0, high=254, size=(2 * h, 2 * w, 3))
+                        #                        biggerImg = biggerImg % 2**8                 #     // convert to unsigned 8-bit
 
-                        biggerImg=np.ones((2*h,2*w,3),np.uint8)*255
-#                        biggerImg=(biggerImg+r)% 2**8
+                        biggerImg = np.ones((2 * h, 2 * w, 3), np.uint8) * 255
+                        #                        biggerImg=(biggerImg+r)% 2**8
                         #np.uint8)+np.rand
-#                        biggerImg=np.random.randn(biggerImg,128,30)
-                            #cv.CreateImage(size, depth, channels)
+                        #                        biggerImg=np.random.randn(biggerImg,128,30)
+                        #cv.CreateImage(size, depth, channels)
                         #biggerImg[yy  ,xx,:]=img_array[yy+r[1],xx+r[0],:]
                         #img_array.copyTo(biggerImg(Rect(w/2, h/2, img_array.cols, image_array.rows)));
-                        left=w/2
-                        top=h/2
-                        right=3*w/2
-                        bottom=3*h/2
+                        left = w / 2
+                        top = h / 2
+                        right = 3 * w / 2
+                        bottom = 3 * h / 2
                         #print('size:'+str(h)+'x'+str(w)+' newsize:'+str(h*2)+'x'+str(w*2)+' l,r:'+str(left)+'x'+str(right)+' t,b:'+str(top)+'x'+str(bottom))
-                        biggerImg[h/2:3*h/2, w/2:3*w/2,:] = img_array
+                        biggerImg[h / 2:3 * h / 2, w / 2:3 * w / 2, :] = img_array
                         #cv2.rectangle(biggerImg,(left,top),(left+w,top+h),GREEN,thickness=1)
 
                         relative_filename = join(newdir3, file)
-                        framedFileName=relative_filename+'.framed.jpg'
+                        framedFileName = relative_filename + '.framed.jpg'
                         #print('framedfile:'+framedFileName)
-                        retval=cv2.imwrite(framedFileName, biggerImg)
+                        retval = cv2.imwrite(framedFileName, biggerImg)
                         #print('retval:'+str(retval))
                         #    cv2.waitKey(100)
                         if use_visual_output is True:
                             cv2.imshow('bigger', biggerImg)
                             k = 0xFF & cv2.waitKey(1)
-                        string = (framedFileName + ' 1 '+str(left)+' '+str(top)+ ' ' + str(w) + ' ' + str(h) + '\n')
+                        string = (
+                            framedFileName + ' 1 ' + str(left) + ' ' + str(top) + ' ' + str(w) + ' ' + str(h) + '\n')
                         #					string=(absolute_filename + ' 1 1 1 '+ str(w-2) + ' ' + str(h-2)  + '\n')
                         f.write(string)
 
@@ -204,6 +420,7 @@ def create_positives(rootDir, trainDir, infoDict,makeFrame):
         resultsDict[subdir] = {'n_negatives': n_negs, 'n_positives': n_files, 'min_h': min_h, 'min_w': min_w}
     return resultsDict
 
+
 def permute(filename):
     f1 = open(filename)
     lines = f1.readlines()
@@ -211,7 +428,7 @@ def permute(filename):
     n = len(lines)
     print('shuffling file, ' + str(n) + ' lines')
     new_order = np.random.permutation(n)
-    #print(new_order)
+    # print(new_order)
     tempfilename = filename + '.tmp'
     f1 = open(filename, 'w')
     for i in range(0, n):
@@ -231,9 +448,9 @@ def create_vecfiles(rootDir, trainDir, infoDict, inputdir, outputdir, train_widt
     ##########
     print('creating vecfile (positives)')
     subdirlist = [x[1] for x in os.walk(rootDir)]
- #   top_subdirlist = subdirlist[0]
+    # top_subdirlist = subdirlist[0]
     global top_subdirlist
-    print('top subdirs:'+str(top_subdirlist))
+    print('top subdirs:' + str(top_subdirlist))
     for subdir in top_subdirlist:
         d = infoDict[subdir]
         n_pos = min(d['n_positives'], num_positives)
@@ -248,7 +465,8 @@ def create_vecfiles(rootDir, trainDir, infoDict, inputdir, outputdir, train_widt
         #    bbfilename = rootDir+'/bbfile.' + subdir + '.txt'
         #    bbfilename = os.path.join(rootDir,'bbfile.' + subdir + '.txt')
         #    bbfilename = 'trainingfiles/bbfile.' + subdir + '.txt'
-        command_string = "opencv_createsamples -info " + bbfilename + " -w " + str(train_width) + " -h " + str(train_height) + ' -num ' + str(n_pos) + ' -vec ' + vecfilename
+        command_string = "opencv_createsamples -info " + bbfilename + " -w " + str(train_width) + " -h " + str(
+            train_height) + ' -num ' + str(n_pos) + ' -vec ' + vecfilename
 
         #	command_string="opencv_createsamples -info " +bbfilename+ " -w "+str(train_width)+" -h "+str(train_height)+' -vec trainingfiles/vecfile.'+subdir+'.vec '+'-num '+str(num_positives)
         print(command_string)
@@ -263,7 +481,7 @@ def train(trainDir, train_subdir, infoDict, inputdir, outputdir, train_width=20,
     ##########
     # TRAIN
     ##########
-    #opencv_traincascade -data $DIR -vec $DIR/dresses_111014_vecfile.vec -bg dressesNegatives.txt -featureType $FEATURETYPE -w $WIDTH -h $HEIGHT -numPos 1600 -numNeg 2100 -numStages 20 -mode ALL -precalcValBufSize 30000 -precalcIdxBufSize 30000 -minHitRate 0.997 -maxFalseAlarmRate 0.5 > $DIR/trainout.txt 2>&1 &
+    # opencv_traincascade -data $DIR -vec $DIR/dresses_111014_vecfile.vec -bg dressesNegatives.txt -featureType $FEATURETYPE -w $WIDTH -h $HEIGHT -numPos 1600 -numNeg 2100 -numStages 20 -mode ALL -precalcValBufSize 30000 -precalcIdxBufSize 30000 -minHitRate 0.997 -maxFalseAlarmRate 0.5 > $DIR/trainout.txt 2>&1 &
     # -precalcValBufSize 30000 -precalcIdxBufSize 30000 -minHitRate 0.997 -maxFalseAlarmRate 0.5 > $DIR/trainout.txt 2>&1 &
     #command_string='opencv_traincascade -data trainingfiles -vec trainingfiles/vecfile.'+train_subdir+'.vec '+'-bg '+bbfilename+' -featureType '+featureType+' -w '+str(train_width)+' -h '+str(train_height)
 
@@ -294,22 +512,23 @@ def train(trainDir, train_subdir, infoDict, inputdir, outputdir, train_width=20,
 
     print('data dir:' + data_directory + ' outfile:' + outfile)
     command_string = 'nice -n19 ionice -c 3 '
-    command_string=''
+    command_string = ''
     command_string = command_string + 'opencv_traincascade -data ' + data_directory + ' -vec ' + vecfilename + ' -bg ' + negatives_filename
-    command_string = command_string +  ' -featureType ' + featureType + ' -w ' + str(train_w) + ' -h ' + str(train_h)
-    command_string = command_string  + ' -numPos ' + str(int(n_pos - num_extra_positives)) + ' -numNeg ' + str(
+    command_string = command_string + ' -featureType ' + featureType + ' -w ' + str(train_w) + ' -h ' + str(train_h)
+    command_string = command_string + ' -numPos ' + str(int(n_pos - num_extra_positives)) + ' -numNeg ' + str(
         n_neg) + ' -numStages ' + str(num_stages)
     command_string = command_string + ' -mode ' + mode + ' -precalcValBufSize ' + str(precalcValBufSize)
     command_string = command_string + ' -precalcIdxBufSize ' + str(precalcIdxBufSize) + ' -minHitRate ' + str(
         minHitRate)
-    command_string = command_string +  ' -maxFalseAlarmRate ' + str(maxFalseAlarmRate)
+    command_string = command_string + ' -maxFalseAlarmRate ' + str(maxFalseAlarmRate)
     command_string = command_string + ' > ' + outfile + ' 2>&1 &'
     print(command_string)
-#    subprocess.call('uptime', shell=True)
+    #    subprocess.call('uptime', shell=True)
 
-#    p=subprocess.Popen(['/bin/bash','nice','-n19'])
-#    p=subprocess.Popen(['/bin/bash','nice','-n19'])
+    #    p=subprocess.Popen(['/bin/bash','nice','-n19'])
+    #    p=subprocess.Popen(['/bin/bash','nice','-n19'])
     subprocess.call(command_string, shell=True)
+
 
 def memory():
     """
@@ -335,97 +554,110 @@ def train_wrapper(inputdir, outputdir, train_width=20, train_height=20, num_nega
                   num_stages=20, featureType='HAAR', delay_minutes=5
 
                   ):
+    pr = cProfile.Profile()
+    pr.enable()
 
-   pr = cProfile.Profile()
-   pr.enable()
+    global top_subdirlist
 
-   global top_subdirlist
+    # train_width = 20
+    # train_height = 20
+    # num_positives = 2000
+    # num_extra_positives = int(0.1 * num_positives) + 100
+    # num_negatives = 4000
+    # maxFalseAlarmRate = 0.4
+    # minHitRate = 0.995
+    # precalcIdxBufSize = 6000
+    # precalcValBufSize = 6000
+    # mode = 'ALL'
+    # num_stages = 20
+    # featureType = 'HAAR'
+    # delay_minutes = 5
 
-   # train_width = 20
-   # train_height = 20
-   # num_positives = 2000
-   # num_extra_positives = int(0.1 * num_positives) + 100
-   # num_negatives = 4000
-   # maxFalseAlarmRate = 0.4
-   # minHitRate = 0.995
-   # precalcIdxBufSize = 6000
-   # precalcValBufSize = 6000
-   # mode = 'ALL'
-   # num_stages = 20
-   # featureType = 'HAAR'
-   #delay_minutes = 5
+    #   print('psutil')
+    #   print(psutil.cpu_percent())
+    #prepare_and_train()
+    global use_visual_output
+    use_visual_output = False
 
-#   print('psutil')
-#   print(psutil.cpu_percent())
-   #prepare_and_train()
-   global use_visual_output
-   use_visual_output = False
+    #abs_root_dir = '/home/jeremy/jeremy.rutman@gmail.com/TrendiGuru/techdev/Backend/code/classifier_stuff'
+    global max_files
+    max_files = 100000  #this numnber of files from each other directory, max
 
-   #abs_root_dir = '/home/jeremy/jeremy.rutman@gmail.com/TrendiGuru/techdev/Backend/code/classifier_stuff'
-   global max_files
-   max_files = 100000  #this numnber of files from each other directory, max
+    trainDir = outputdir
+    #rootDir = 'images/fashion-data/small'
+    rootDir = 'images/fashion-data/images'
+    rootDir = imagedir
+    #	rootDir = '../../../databaseImages/temp'
 
-   trainDir = outputdir
-   #rootDir = 'images/fashion-data/small'
-   rootDir = 'images/fashion-data/images'
-   rootDir = imagedir
-   #	rootDir = '../../../databaseImages/temp'
+    if not os.path.isdir(trainDir):
+        os.makedirs(trainDir)
 
-   if not os.path.isdir(trainDir):
-       os.makedirs(trainDir)
+    #    permute('test.txt')
 
-   #    permute('test.txt')
+    n_negs = create_negatives_recursive(rootDir, negatives_filename='negatives_recursive.txt', show_visual_output=True,
+                                        single_negatives_file=True)
 
-   n_negs=create_negatives(rootDir,trainDir)
-   # n_negs=[100,100,100]
-   print(n_negs)
-   infoDict=create_positives(rootDir,trainDir,n_negs,makeFrame=True)
-   print(infoDict)
-   create_vecfiles(rootDir,trainDir,infoDict)
+    # n_negs=[100,100,100]
+    print(n_negs)
+    infoDict = create_positives(rootDir, trainDir, n_negs, makeFrame=True)
+    print(infoDict)
+    create_vecfiles(rootDir, trainDir, infoDict)
 
-   subdirlist=[x[1] for x in os.walk(rootDir)]
-#   top_subdirlist=subdirlist[0]
-   i=0
-   for subdir in top_subdirlist:
-       a=memory()
-       freemem=a['free']
-       print('free memory:'+str(freemem))
-       while freemem<(precalcIdxBufSize+precalcValBufSize)*1000+1000000:  #check if enough memory left
-           sleep(delay_minutes*60)
-           a=memory()
-           freemem=a['free']
-           print('free memory:'+str(freemem))
-       train(trainDir, subdir, infoDict)  ##############################
-       i=i+1
-       sleep(60*delay_minutes)
+    subdirlist = [x[1] for x in os.walk(rootDir)]
+    #   top_subdirlist=subdirlist[0]
+    i = 0
+    for subdir in top_subdirlist:
+        a = memory()
+        freemem = a['free']
+        print('free memory:' + str(freemem))
+        while freemem < (precalcIdxBufSize + precalcValBufSize) * 1000 + 1000000:  #check if enough memory left
+            sleep(delay_minutes * 60)
+            a = memory()
+            freemem = a['free']
+            print('free memory:' + str(freemem))
+        train(trainDir, subdir, infoDict)  ##############################
+        i = i + 1
+        sleep(60 * delay_minutes)
 
-   pr.disable()
-   s = StringIO.StringIO()
-   sortby = 'cumulative'
-   ps = pstats.Stats(pr, stream=s).sort_stats(sortby)
-   ps.print_stats()
-   print(s.getvalue())
+    pr.disable()
+    s = StringIO.StringIO()
+    sortby = 'cumulative'
+    ps = pstats.Stats(pr, stream=s).sort_stats(sortby)
+    ps.print_stats()
+    print(s.getvalue())
 
 ##############################
-#start from here
+# start from here
 ##############################
 
 if __name__ == "__main__":
-    print('start')
-    parser = argparse.ArgumentParser(description='train classifier')
-    parser.add_argument('--imagedir', type=str, help='input images here',
-                        default='images')  # basestring instead of str would be better but doesnt work
-    parser.add_argument('--outputdir', type=str, help='output file here', default='output.txt')
+    print('starting create_positive_and_negative_files')
+    dir = 'images/jess_good'
+    #    create_negatives_nonrecursive(dir,negatives_filename='negatives.txt',show_visual_output=True)
+    create_positives_using_faces_recursive(bbfilename='bbs.txt', parent_dir='images/dresses/evening-dresses',
+                                           item='dress', single_bbfile=True, use_visual_output=True, maxfiles=10)
 
-    args = parser.parse_args()
-    print(args)
-    imagedir = args.imagedir
-    outputdir = args.outputdir
-    print('Input dir is ' + imagedir)
-    print('output dir is ' + outputdir)
-    # print 'Output file is "', outputfile
+    #    box_images_and_write_bbfile_using_faces_recursive('images/dresses/bridal-dresses')
+    #    box_images_and_write_bbfile(dir, use_visual_output=True)
+    raw_input('hit enter')
+    #    read_bbs_in_subdirs(dir)
 
-    train_wrapper(imagedir, outputdir)
+    if (0):
+        print('start')
+        parser = argparse.ArgumentParser(description='train classifier')
+        parser.add_argument('--imagedir', type=str, help='input images here',
+                            default='images')  # basestring instead of str would be better but doesnt work
+        parser.add_argument('--outputdir', type=str, help='output file here', default='output.txt')
+
+        args = parser.parse_args()
+        print(args)
+        imagedir = args.imagedir
+        outputdir = args.outputdir
+        print('Input dir is ' + imagedir)
+        print('output dir is ' + outputdir)
+        # print 'Output file is "', outputfile
+
+        train_wrapper(imagedir, outputdir)
 
 '''
 52
@@ -598,7 +830,7 @@ if __name__ == "__main__":
    delay_minutes=5
 
 064 using cjdb
-sudo python prepare_and_train.py -i images/imageNet/easy -o 064   (longdress, shirt, suit)
+sudo python create_positive_and_negative_files.py -i images/imageNet/easy -o 064   (longdress, shirt, suit)
   train_width = 20
    train_height = 20
    maxFalseAlarmRate = 0.6
@@ -614,13 +846,13 @@ sudo python prepare_and_train.py -i images/imageNet/easy -o 064   (longdress, sh
    delay_minutes=5
 
 065
-sudo python prepare_and_train.py -i images/cjdb -o 065
+sudo python create_positive_and_negative_files.py -i images/cjdb -o 065
 coat  dress  hat  pants  shirt  shoe  shorts  suit  sweater
 same params as 064
 
 
 066
-sudo python prepare_and_train.py -i images/cjdb -o 066
+sudo python create_positive_and_negative_files.py -i images/cjdb -o 066
 coat  dress  hat  pants  shirt  shoe  shorts  suit
    train_width = 20
    train_height = 20
@@ -637,7 +869,7 @@ coat  dress  hat  pants  shirt  shoe  shorts  suit
    delay_minutes=5
 
 067
-sudo python prepare_and_train.py -i images/imageNet/easy -o 067
+sudo python create_positive_and_negative_files.py -i images/imageNet/easy -o 067
 longDress  shirt  suit
 
 
@@ -657,7 +889,7 @@ longDress  shirt  suit
 
 
 068
-sudo python prepare_and_train.py -i images/cjdb -o 068
+sudo python create_positive_and_negative_files.py -i images/cjdb -o 068
 'shorts', 'dress', 'suit', 'shirt', 'shoe', 'pants'
    train_width = 20
    train_height = 20
@@ -674,7 +906,7 @@ sudo python prepare_and_train.py -i images/cjdb -o 068
    delay_minutes=5
 
 069
-root@ip-172-31-37-253:/home/ubuntu/fpModules/classifier_stuff# sudo python prepare_and_train.py -o 069 -i images/cjdb
+root@ip-172-31-37-253:/home/ubuntu/fpModules/classifier_stuff# sudo python create_positive_and_negative_files.py -o 069 -i images/cjdb
 ['dress', 'shirt', 'shoe', 'pants']
    train_width = 20
    train_height = 20
@@ -691,7 +923,7 @@ root@ip-172-31-37-253:/home/ubuntu/fpModules/classifier_stuff# sudo python prepa
    delay_minutes=5
 
 070
-sudo python prepare_and_train.py -o 070 -i images/cjdb
+sudo python create_positive_and_negative_files.py -o 070 -i images/cjdb
 ['dress', 'shirt', 'shoe', 'pants']
    train_width = 20
    train_height = 20
@@ -709,7 +941,7 @@ sudo python prepare_and_train.py -o 070 -i images/cjdb
 didn't fnish training - took low memory and 4 days
 
 071
-sudo python prepare_and_train.py -o 071 -i images/imageNet/easy
+sudo python create_positive_and_negative_files.py -o 071 -i images/imageNet/easy
 ['longDress', 'shirt', 'suit',]
 
    train_width = 20
@@ -729,7 +961,7 @@ not enough positivies so adding 100 to num_extra_positives
 
 
 072
-sudo python prepare_and_train.py -o 072 -i images/imageNet/easy
+sudo python create_positive_and_negative_files.py -o 072 -i images/imageNet/easy
 ['longDress', 'shirt', 'suit',]
 
    train_width = 20

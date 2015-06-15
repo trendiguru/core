@@ -47,7 +47,7 @@ def find_face(image, max_num_of_faces=1):
             break
     if cascade_ok is False:
         logging.warning("no good cascade found!")
-        return []
+        return []  # can we return [] in both cases or () in both , currently its one and on
     for i in range(0, 3, 1):
         faces = face_cascades[i].detectMultiScale(
             gray,
@@ -57,7 +57,7 @@ def find_face(image, max_num_of_faces=1):
             flags = cv2.cv.CV_HAAR_SCALE_IMAGE
         )
     if len(faces) == 0:
-        return faces
+        return faces  # can we return [] in both cases or () in both , currently its one and one
     return choose_faces(image, faces, max_num_of_faces)
 
 

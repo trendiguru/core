@@ -490,17 +490,32 @@ def bb_to_mask(bb, img_array):
     return mask
 
 
-def is_valid_image(img):
-    if img is not None and type(img) == np.ndarray and img.shape[0] * img.shape[
+def is_valid_image(img_array):
+    if img_array is not None and type(img_array) == np.ndarray and img_array.shape[0] * img_array.shape[
         1] >= constants.min_image_area:
         return True
     else:
         return False
 
 
+def is_valid_local_image_file(img_filename):
+    img_array = cv2.imread(img_filename)
+    return is_valid_image(img_array)
+
+
+def is_valid_local_or_remote_image_file(img_filename):
+    img_array = get_cv2_img_array(img_filename)
+    return is_valid_image(img_array)
+
 ###########################
 ### OS stuff_
 ###########################
+
+def safely_close(fh):
+    fh.flush()
+    os.fsync(fh.fileno())  # this and f.flush were needed since after file close, file wasn't immediately available.
+    fh.close()
+
 def ensure_dir(f):
     '''
 
@@ -523,8 +538,11 @@ def files_in_directory(dir):
     '''
     returns paths of files in directory (not recursive)
     '''
-    return filter(os.path.isfile, [os.path.join(dir, f) for f in os.listdir(dir)])
-
+    try:
+        list = filter(os.path.isfile, [os.path.join(dir, f) for f in os.listdir(dir)])
+        return list
+    except OSError:
+        logging.error('no such directory ' + dir)
 ############################
 ### math stuff
 ############################
