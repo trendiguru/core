@@ -86,10 +86,25 @@ def choose_faces(image, faces_list, max_num_of_faces):
 def face_is_relevant(image, face):
     x, y, w, h = face
     # threshold = face + 4 faces down = 5 faces
-    if 0.1 * image.shape[1] < w < 0.3 * image.shape[1] and y < image.shape[0] / 2 - h and image.shape[0] > y + h * 5:
+    ycrcb = cv2.cvtColor(image, cv2.COLOR_BGR2YCR_CB)
+    face_ycrcb = ycrcb[y:y + h, x:x + w, :]
+    if 0.08 * image.shape[0] < h < 0.3 * image.shape[0] \
+            and y < image.shape[0] / 2 - h \
+            and image.shape[0] > y + h * 5 \
+            and is_skin_color(face_ycrcb):
         return True
     else:
         return False
+
+
+def is_skin_color(face_ycrcb):
+    h, w, d = face_ycrcb.shape
+    num_of_skin_pixels = 0
+    for i in range(0, h):
+        for j in range(0, w):
+            if face_ycrcb[i][j][0] > 0 and 133 < face_ycrcb[i][j][1] < 173 and 80 < face_ycrcb[i][j][2] < 120:
+                num_of_skin_pixels += 1
+    return num_of_skin_pixels / float(h * w) > 0.33
 
 
 def average_bbs(bb1, bb2):
@@ -131,6 +146,7 @@ def combine_overlapping_rectangles(bb_list):
                 return (combine_overlapping_rectangles(bb_list))
 
     return (bb_list)
+
 
 def body_estimation(image, face):
     x, y, w, h = face[0]
