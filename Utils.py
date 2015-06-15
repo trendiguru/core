@@ -44,7 +44,7 @@ an invalid filename.
     return filename
 
 def get_cv2_img_array(url_or_path_to_image_file_or_cv2_image_array, convert_url_to_local_filename=False, download=False,
-                      download_directory='images', filename=False):
+                      download_directory='images', filename=False, replace_https_with_http=True):
     """
     Get a cv2 img array from a number of different possible inputs.
 
@@ -97,6 +97,9 @@ def get_cv2_img_array(url_or_path_to_image_file_or_cv2_image_array, convert_url_
         else:
             # get remotely if its a url, get locally if not
             if "://" in url_or_path_to_image_file_or_cv2_image_array:
+                if replace_https_with_http:
+                    url_or_path_to_image_file_or_cv2_image_array = url_or_path_to_image_file_or_cv2_image_array.replace(
+                        "https", "http")
                 img_url = url_or_path_to_image_file_or_cv2_image_array
                 try:
                     # print("trying remotely (url) ")
@@ -145,6 +148,9 @@ def get_cv2_img_array(url_or_path_to_image_file_or_cv2_image_array, convert_url_
             if not os.path.isdir(download_directory):
                 os.makedirs(download_directory)
             if "://" in url_or_path_to_image_file_or_cv2_image_array:  # its a url, get the bifnocho
+                if replace_https_with_http:
+                    url_or_path_to_image_file_or_cv2_image_array = url_or_path_to_image_file_or_cv2_image_array.replace(
+                        "https", "http")
                 filename = \
                     url_or_path_to_image_file_or_cv2_image_array.split('/')[-1].split('#')[0].split('?')[-1].split(':')[
                         -1]

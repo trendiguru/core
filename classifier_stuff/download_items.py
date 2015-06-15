@@ -42,8 +42,9 @@ def dl_keyword_images(category_id, total=2000, keyword=None,
         if i > total:
             break
         i += 1
-
-        item_image = Utils.get_cv2_img_array(item['image']['sizes']['XLarge']['url'])
+        url = item['image']['sizes']['XLarge']['url']
+        print('url:' + url)
+        item_image = Utils.get_cv2_img_array(url)
         if item_image is None:
             return None
         if show_visual_output == True:
@@ -67,7 +68,7 @@ def get_items(categories, keywords=None, dir=None):
                 print('getting category ' + cat + ' w keyword ' + keyword)
                 dl_keyword_images(cat, total=max_items_per_category, keyword=keyword, show_visual_output=False, dir=dir)
         else:
-            print('getting cat ' + cat + ' no keyword ')
+            print('getting category ' + cat + ' no keyword ')
             dl_keyword_images(cat, total=max_items_per_category, show_visual_output=False)
 
 
