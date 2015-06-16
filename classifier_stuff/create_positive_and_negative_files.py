@@ -691,7 +691,7 @@ if __name__ == "__main__":
                                            overwrite=True)
 
     new_create_vecfiles(input_filename=bb_filename, output_filename='classifiers_to_test/vecfile.vec')
-    sleep(2)  # wait till vecfile write is done
+    sleep(10)  # wait till vecfile write is done
     num_pos = Utils.lines_in_file('bbs.txt')
     num_neg = Utils.lines_in_file('negatives.txt')
     print('avail pos {0} avail neg {1}'.format(num_pos, num_neg))
@@ -700,7 +700,7 @@ if __name__ == "__main__":
     minHitRate = 0.995  # 0.995^20 = 0.9
     new_train(vecfilename='classifiers_to_test/vecfile.vec', negatives_filename='negatives.txt',
               classifier_directory='classifiers_to_test', train_width=20,
-              train_height=20, num_negatives=300, num_positives=300, num_extra_positives=10,
+              train_height=20, num_negatives=num_neg - 50, num_positives=num_pos, num_extra_positives=num_pos / 10,
               maxFalseAlarmRate=maxFalseAlarmRate, minHitRate=minHitRate, precalcIdxBufSize=6000,
               precalcValBufSize=6000,
               mode='ALL', num_stages=20, featureType='HAAR')
