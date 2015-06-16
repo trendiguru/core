@@ -699,8 +699,8 @@ if __name__ == "__main__":
     maxFalseAlarmRate = 0.8  # .8^20 = 0.01
     minHitRate = 0.995  # 0.995^20 = 0.9
     new_train(vecfilename='classifiers_to_test/vecfile.vec', negatives_filename='negatives.txt',
-              classifier_directory='classifiers_to_test', train_width=20,
-              train_height=20, num_negatives=num_neg - 50, num_positives=num_pos, num_extra_positives=num_pos / 10,
+              classifier_directory='classifiers_to_test', train_width=15,
+              train_height=25, num_negatives=num_neg - 50, num_positives=num_pos, num_extra_positives=num_pos / 10,
               maxFalseAlarmRate=maxFalseAlarmRate, minHitRate=minHitRate, precalcIdxBufSize=6000,
               precalcValBufSize=6000,
               mode='ALL', num_stages=20, featureType='HAAR')
