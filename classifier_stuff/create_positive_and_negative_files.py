@@ -306,9 +306,13 @@ def create_negatives_recursive(dir, negatives_filename='negatives_recursive.txt'
     return (n_negatives)
 
 
-def create_negatives_from_set_of_dirs(dirlist):
+def create_negatives_from_set_of_dirs(dirlist=['images/mini', 'images/jess_good'],
+                                      negatives_filename='negatives.txt', show_visual_output=True,
+                                      maxfiles=20000, overwrite=False):
+
     for dir in dirlist:
-        create_negatives_nonrecursive(dir, 'negatives.txt', show_visual_output=True)
+        create_negatives_nonrecursive(dir, negatives_filename=negatives_filename,
+                                      show_visual_output=show_visual_output, maxfiles=maxfiles, overwrite=overwrite)
 
 
 def create_positives(rootDir, trainDir, infoDict, makeFrame, use_visual_output=False):
@@ -683,9 +687,16 @@ if __name__ == "__main__":
     negatives_dir = 'images/womens-tops'
     positives_dir = 'images/dresses'
     bb_filename = 'bbs.txt'
-    create_negatives_nonrecursive(negatives_dir, negatives_filename='negatives.txt', show_visual_output=True,
-                                  maxfiles=20000,
-                                  overwrite=True)
+
+    create_negatives_from_set_of_dirs(dirlist=['images/mini', 'images/jess_good'], negatives_filename='negatives.txt',
+                                      show_visual_output=True,
+                                      maxfiles=20000, overwrite=False)
+
+
+    # create_negatives_nonrecursive(negatives_dir, negatives_filename='negatives.txt', show_visual_output=True,
+    #                                 maxfiles=20000,
+    #                                 overwrite=True)
+
     create_positives_using_faces_recursive(bbfilename=bb_filename, parent_dir=positives_dir,
                                            item='dress', single_bbfile=True, use_visual_output=True, maxfiles=20000,
                                            overwrite=True)
