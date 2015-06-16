@@ -76,6 +76,7 @@ if __name__ == '__main__':
     print('starting')
     cats = ['cocktail-dresses', 'bridal-dresses', 'evening-dresses', 'day-dresses']
     cats = ['mens-shirts', 'womens-tops']
+    cats = ['skirts']
     keywords = ['mini', 'midi', 'maxi']
 
     # from scipy import misc
@@ -85,8 +86,8 @@ if __name__ == '__main__':
     # plt.show()
 
     dir = '/home/jeremy/jeremy.rutman@gmail.com/TrendiGuru/techdev/trendi_guru_modules/classifier_stuff/images/dresses'
-    dir = 'images/dresses'
-    get_items(cats, keywords=None, dir='images/shirts')
+    dir = 'images/skirts'
+    get_items(cats, keywords=None, dir=dir)
     # get_items(cats, None)
 
     # check what all the subcats are

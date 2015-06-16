@@ -597,6 +597,18 @@ def error_of_fraction(numerator, numerator_stdev, denominator, denominator_stdev
     return fraction_error
 
 
+def lines_in_file(filename):
+    line_count = 0
+    try:
+        with open(filename, 'r') as fp:
+            for line in fp:
+                line_count = line_count + 1
+    except EnvironmentError:  # parent of IOError, OSError *and* WindowsError where available
+        logging.error('oops. an environment error. take cover')
+        return line_count
+    return line_count
+
+
 def isnumber(str):
     num_format = re.compile("^[1-9][0-9]*\.?[0-9]*")
     isnumber = re.match(num_format, str)

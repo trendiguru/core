@@ -100,7 +100,7 @@ def create_positives_using_faces_nonrecursive(bbfilename='bbs.txt', dir='images'
 
 
 def create_positives_using_faces_recursive(bbfilename='bbs.txt', parent_dir='images', item='dress', single_bbfile=True,
-                                           use_visual_output=False, maxfiles=10000):
+                                           use_visual_output=False, maxfiles=10000, overwrite=False):
     filecount = 0
     print('searching %s' % parent_dir)
     try:
@@ -109,7 +109,11 @@ def create_positives_using_faces_recursive(bbfilename='bbs.txt', parent_dir='ima
             if not single_bbfile:  # make a bbfile for each subdir
                 bbfilename = os.path.join(dir, 'bbs.txt')
             try:
-                with open(bbfilename, 'a+') as fp:
+                if overwrite:
+                    mode = 'w+'
+                else:
+                    mode = 'a+'
+                with open(bbfilename, mode) as fp:
                     for fname in file_list:
                         print('found file %s' % fname)
                         full_filename = os.path.join(dir, fname)
@@ -198,20 +202,23 @@ def get_bb(img_array, use_visual_output=True, fname='filename', item='dress'):
     return item_box
 
 
-def create_negatives_nonrecursive(dir, negatives_filename='negatives' + str(dir) + '.txt', show_visual_output=True):
+def create_negatives_nonrecursive(dir, negatives_filename='negatives' + str(dir) + '.txt', show_visual_output=True,
+                                  maxfiles=10000, overwrite=False):
     '''
         make a negatives file from a directory of images
     '''
-    max_files = 10000
     file_count = 0
     print('creating negatives file from ' + dir)
     file_list = Utils.files_in_directory(dir)
-    fh = open(negatives_filename, "a")  # be sure to erase file in calling function if necessary
+    if overwrite:
+        fh = open(negatives_filename, "w+")  # overwrite
+    else:
+        fh = open(negatives_filename, "a+")  # append
     for file in file_list:
         print('trying file ' + file)
         if Utils.is_valid_local_image_file(file):
-            if file_count > max_files:
-                break
+            if file_count > maxfiles:
+                return (file_count)
             else:
                 # absolute_filename = join(abs_root_dir, dirName3, file)
                 img_array = cv2.imread(file)
@@ -236,7 +243,7 @@ def create_negatives_nonrecursive(dir, negatives_filename='negatives' + str(dir)
 
 
 def create_negatives_recursive(dir, negatives_filename='negatives_recursive.txt', show_visual_output=True,
-                               single_negatives_file=True):
+                               single_negatives_file=True, overwrite=False):
     '''
         make a negatives file recursively from a list of dirs
     '''
@@ -304,7 +311,7 @@ def create_negatives_from_set_of_dirs(dirlist):
         create_negatives_nonrecursive(dir, 'negatives.txt', show_visual_output=True)
 
 
-def create_positives(rootDir, trainDir, infoDict, makeFrame):
+def create_positives(rootDir, trainDir, infoDict, makeFrame, use_visual_output=False):
     # CREATE POSITIVE EXAMPLE FILES
     print('creating positive examples from ' + rootDir)
     global top_subdirlist
@@ -437,7 +444,6 @@ def permute(filename):
     os.fsync(f1.fileno())  #this and f.flush were needed since after file close, file wasn't immediately available.
     f1.close()
 
-
 def create_vecfiles(rootDir, trainDir, infoDict, inputdir, outputdir, train_width=20, train_height=20,
                     num_negatives=4000, num_positives=2000,
                     num_extra_positives=100, featureType='HAAR', mode='ALL',
@@ -460,13 +466,10 @@ def create_vecfiles(rootDir, trainDir, infoDict, inputdir, outputdir, train_widt
         vecfilename = join(trainDir, subdir)
         vecfilename = join(vecfilename, 'vecfile.' + subdir + '.vec')
         print('vecfilename:' + vecfilename)
-        #		bbfilename = join(trainDir,'bbfile.' + subdir + '.txt')
-        #		vecfilename= join(trainDir,'vecfile.' + subdir + '.txt')
-        #    bbfilename = rootDir+'/bbfile.' + subdir + '.txt'
-        #    bbfilename = os.path.join(rootDir,'bbfile.' + subdir + '.txt')
         #    bbfilename = 'trainingfiles/bbfile.' + subdir + '.txt'
         command_string = "opencv_createsamples -info " + bbfilename + " -w " + str(train_width) + " -h " + str(
-            train_height) + ' -num ' + str(n_pos) + ' -vec ' + vecfilename
+            train_height) + ' -num ' + str(n_pos) + ' -vec ' + vecfilename + ' -show'
+
 
         #	command_string="opencv_createsamples -info " +bbfilename+ " -w "+str(train_width)+" -h "+str(train_height)+' -vec trainingfiles/vecfile.'+subdir+'.vec '+'-num '+str(num_positives)
         print(command_string)
@@ -474,10 +477,45 @@ def create_vecfiles(rootDir, trainDir, infoDict, inputdir, outputdir, train_widt
         #    subprocess.call(command_string, shell=True)
 
 
+def new_create_vecfiles(input_filename='bbs.txt', output_filename='classifiers_to_test/vecfile.vec', train_width=20,
+                        train_height=20,
+                        num_negatives=4000, num_positives=2000,
+                        num_extra_positives=100, featureType='HAAR', mode='ALL',
+                        maxFalseAlarmRate=0.4, minHitRate=0.995, precalcIdxBufSize=6000, precalcValBufSize=6000,
+                        num_stages=20, delay_minutes=5, outputfile='classifiers_to_test/createsamples_output.txt'):
+    ##########
+    # CREATESAMPLES
+    ##########
+    print('creating vecfile (positives)')
+    vecfilename = output_filename
+    print('vecfilename:' + vecfilename)
+    n_positives = Utils.lines_in_file(input_filename)
+    print('{0} positives in {1}'.format(n_positives, input_filename))
+    # bbfilename = 'trainingfiles/bbfile.' + subdir +'.txt'
+
+    show_or_not = ' -show'
+    show_or_not = ''
+    command_string = "opencv_createsamples -info " + input_filename + " -w " + str(train_width) + " -h " + str(
+        train_height) + ' -num ' + str(
+        n_positives) + ' -vec ' + vecfilename + show_or_not + '  >> ' + outputfile + ' 2>&1 &'
+
+    # command_string="opencv_createsamples -info " +bbfilename+ " -w "+str(train_width)+" -h "+str(train_height)+' -vec trainingfiles/vecfile.'+subdir+'.vec '+'-num '+str(num_positives)
+    print(command_string)
+    subprocess.call(command_string, shell=True)
+    # subprocess.call(command_string, shell=True)
+
+
 def train(trainDir, train_subdir, infoDict, inputdir, outputdir, train_width=20, train_height=20, num_negatives=4000,
           num_positives=2000, num_extra_positives=100,
-          maxFalseAlarmRate=0.4, minHitRate=0.995, precalcIdxBufSize=6000, precalcValBufSize=6000, mode='ALL',
-          num_stages=20, featureType='HAAR', delay_minutes=5):
+          maxFalseAlarmRate=0.4, minHitRate=0.995, precalcIdxBufSize=6000, precalcValBufSize=6000, mode='ALL'):
+    pass
+
+
+def new_train(vecfilename='vecfile.vec', negatives_filename='negatives.txt', classifier_directory='classifiers_to_test',
+              train_width=20,
+              train_height=20, num_negatives=4000, num_positives=2000, num_extra_positives=100,
+              maxFalseAlarmRate=0.4, minHitRate=0.995, precalcIdxBufSize=6000, precalcValBufSize=6000,
+              mode='ALL', num_stages=20, featureType='HAAR'):
     ##########
     # TRAIN
     ##########
@@ -485,50 +523,35 @@ def train(trainDir, train_subdir, infoDict, inputdir, outputdir, train_width=20,
     # -precalcValBufSize 30000 -precalcIdxBufSize 30000 -minHitRate 0.997 -maxFalseAlarmRate 0.5 > $DIR/trainout.txt 2>&1 &
     #command_string='opencv_traincascade -data trainingfiles -vec trainingfiles/vecfile.'+train_subdir+'.vec '+'-bg '+bbfilename+' -featureType '+featureType+' -w '+str(train_width)+' -h '+str(train_height)
 
-    bbfilename = 'positives.' + train_subdir + '.txt'
-    #	bbfilename = join(trainDir,'bbfile.' + train_subdir + '.txt')
-    vecfilename = 'vecfile.' + train_subdir + '.vec '
-    vecfilename = join(trainDir, train_subdir)
-    vecfilename = join(vecfilename, 'vecfile.' + train_subdir + '.vec')
-    #	vecfilename = join(trainDir,'vecfile.'+train_subdir+'.vec ')
-    negatives_filename = "negatives." + train_subdir + ".txt"
-    #	negatives_filename=join(trainDir,"negatives."+train_subdir+".txt")
-    data_directory = join(trainDir, train_subdir)
-    data_directory = trainDir + '/' + train_subdir
-    outfile = join(data_directory, 'output.txt')
-    if not os.path.isdir(data_directory):
-        os.makedirs(data_directory)
+    outfile = join(classifier_directory, 'trainoutput.txt')
+    if not os.path.isdir(classifier_directory):
+        os.makedirs(classifier_directory)
 
-    train_w = train_width
-    train_h = train_height
-    n_pos = num_positives
-    d = infoDict[train_subdir]
-    n_neg = min(d['n_negatives'], num_negatives)
-    n_pos = min(d['n_positives'], num_positives)
-    train_w = min(d['min_w'], train_width)
-    train_h = min(d['min_h'], train_height)
-    print('dir ' + train_subdir + ' neg:' + str(n_neg) + ' pos:' + str(n_pos) + ' w:' + str(train_w) + ' h:' + str(
-        train_h))
-
-    print('data dir:' + data_directory + ' outfile:' + outfile)
+    print('postives dir ' + classifier_directory + ' neg:' + str(num_negatives) + ' pos:' + str(
+        num_positives) + ' w:' + str(train_width) + ' h:' + str(
+        train_height))
+    # max_pos = Utils.lines_in_file()
+    max_negatives = Utils.lines_in_file(negatives_filename)
+    if num_negatives > max_negatives:
+        logging.warning('too many negatives, {0} asked for and {1} available'.format(num_negatives, max_negatives))
     command_string = 'nice -n19 ionice -c 3 '
     command_string = ''
-    command_string = command_string + 'opencv_traincascade -data ' + data_directory + ' -vec ' + vecfilename + ' -bg ' + negatives_filename
-    command_string = command_string + ' -featureType ' + featureType + ' -w ' + str(train_w) + ' -h ' + str(train_h)
-    command_string = command_string + ' -numPos ' + str(int(n_pos - num_extra_positives)) + ' -numNeg ' + str(
-        n_neg) + ' -numStages ' + str(num_stages)
+    command_string = command_string + 'opencv_traincascade -data ' + classifier_directory + ' -vec ' + vecfilename + ' -bg ' + negatives_filename
+    command_string = command_string + ' -featureType ' + featureType + ' -w ' + str(train_width) + ' -h ' + str(
+        train_height)
+    command_string = command_string + ' -numPos ' + str(int(num_positives - num_extra_positives)) + ' -numNeg ' + str(
+        num_negatives) + ' -numStages ' + str(num_stages)
     command_string = command_string + ' -mode ' + mode + ' -precalcValBufSize ' + str(precalcValBufSize)
     command_string = command_string + ' -precalcIdxBufSize ' + str(precalcIdxBufSize) + ' -minHitRate ' + str(
         minHitRate)
     command_string = command_string + ' -maxFalseAlarmRate ' + str(maxFalseAlarmRate)
-    command_string = command_string + ' > ' + outfile + ' 2>&1 &'
+    command_string = command_string + ' >> ' + outfile + ' 2>&1 &'
     print(command_string)
     #    subprocess.call('uptime', shell=True)
 
     #    p=subprocess.Popen(['/bin/bash','nice','-n19'])
     #    p=subprocess.Popen(['/bin/bash','nice','-n19'])
     subprocess.call(command_string, shell=True)
-
 
 def memory():
     """
@@ -573,13 +596,6 @@ def train_wrapper(inputdir, outputdir, train_width=20, train_height=20, num_nega
     # featureType = 'HAAR'
     # delay_minutes = 5
 
-    #   print('psutil')
-    #   print(psutil.cpu_percent())
-    #prepare_and_train()
-    global use_visual_output
-    use_visual_output = False
-
-    #abs_root_dir = '/home/jeremy/jeremy.rutman@gmail.com/TrendiGuru/techdev/Backend/code/classifier_stuff'
     global max_files
     max_files = 100000  #this numnber of files from each other directory, max
 
@@ -626,6 +642,38 @@ def train_wrapper(inputdir, outputdir, train_width=20, train_height=20, num_nega
     ps.print_stats()
     print(s.getvalue())
 
+
+def train_wrapper(positives_file, negatives_file, output_dir='classifier_results', train_width=20, train_height=20,
+                  num_negatives=4000,
+                  num_positives=2000, num_extra_positives=100, maxFalseAlarmRate=0.4, minHitRate=0.995,
+                  precalcIdxBufSize=6000,
+                  precalcValBufSize=6000, mode='ALL', num_stages=20, featureType='HAAR', delay_minutes=5):
+    global max_files
+    max_files = 100000  # this numnber of files from each other directory, max
+
+    if not os.path.isdir(output_dir):
+        os.makedirs(output_dir)
+
+    create_vecfiles(output_dir, output_dir, 'hi')
+
+    a = memory()
+    freemem = a['free']
+    print('free memory:' + str(freemem))
+    while freemem < (precalcIdxBufSize + precalcValBufSize) * 1000 + 1000000:  # check if enough memory left
+        sleep(delay_minutes * 60)
+        a = memory()
+        freemem = a['free']
+        print('free memory:' + str(freemem))
+    train(output_dir, output_dir, 'hi')  ##############################
+
+    sleep(60 * delay_minutes)
+
+    # s = StringIO.StringIO()
+    #   sortby = 'cumulative'
+    #   ps = pstats.Stats(pr, stream=s).sort_stats(sortby)
+    #   ps.print_stats()
+    #   print(s.getvalue())
+
 ##############################
 # start from here
 ##############################
@@ -633,9 +681,26 @@ def train_wrapper(inputdir, outputdir, train_width=20, train_height=20, num_nega
 if __name__ == "__main__":
     print('starting create_positive_and_negative_files')
     dir = 'images/jess_good'
-    #    create_negatives_nonrecursive(dir,negatives_filename='negatives.txt',show_visual_output=True)
+    create_negatives_nonrecursive(dir, negatives_filename='negatives.txt', show_visual_output=True, maxfiles=10,
+                                  overwrite=False)
     create_positives_using_faces_recursive(bbfilename='bbs.txt', parent_dir='images/dresses/evening-dresses',
-                                           item='dress', single_bbfile=True, use_visual_output=True, maxfiles=10)
+                                           item='dress', single_bbfile=True, use_visual_output=True, maxfiles=10,
+                                           overwrite=False)
+
+    new_create_vecfiles(input_filename='bbs.txt', output_filename='classifiers_to_test/vecfile.vec')
+    sleep(2)  # wait till vecfile write is done
+    num_pos = Utils.lines_in_file('bbs.txt')
+    num_neg = Utils.lines_in_file('negatives.txt')
+    print('avail pos {0} avail neg {1}'.format(num_pos, num_neg))
+
+    maxFalseAlarmRate = 0.8  # .8^20 = 0.01
+    minHitRate = 0.995  # 0.995^20 = 0.9
+    new_train(vecfilename='classifiers_to_test/vecfile.vec', negatives_filename='negatives.txt',
+              classifier_directory='classifiers_to_test', train_width=20,
+              train_height=20, num_negatives=300, num_positives=300, num_extra_positives=10,
+              maxFalseAlarmRate=maxFalseAlarmRate, minHitRate=minHitRate, precalcIdxBufSize=6000,
+              precalcValBufSize=6000,
+              mode='ALL', num_stages=20, featureType='HAAR')
 
     #    box_images_and_write_bbfile_using_faces_recursive('images/dresses/bridal-dresses')
     #    box_images_and_write_bbfile(dir, use_visual_output=True)
@@ -660,6 +725,22 @@ if __name__ == "__main__":
         train_wrapper(imagedir, outputdir)
 
 '''
+    # train_width = 20
+    # train_height = 20
+    # num_positives = 2000
+    # num_extra_positives = int(0.1 * num_positives) + 100
+    # num_negatives = 4000
+    # maxFalseAlarmRate = 0.4
+    # minHitRate = 0.995
+    # precalcIdxBufSize = 6000
+    # precalcValBufSize = 6000
+    # mode = 'ALL'
+    # num_stages = 20
+    # featureType = 'HAAR'
+    # delay_minutes = 5
+
+
+
 52
     global train_width
     train_width=20
