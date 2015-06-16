@@ -685,10 +685,11 @@ def train_wrapper(positives_file, negatives_file, output_dir='classifier_results
 if __name__ == "__main__":
     print('starting create_positive_and_negative_files')
     negatives_dir = 'images/womens-tops'
+    negatives_dirs = ['images/womens-tops', 'images/mens-shirts']
     positives_dir = 'images/dresses'
     bb_filename = 'bbs.txt'
 
-    create_negatives_from_set_of_dirs(dirlist=['images/mini', 'images/jess_good'], negatives_filename='negatives.txt',
+    create_negatives_from_set_of_dirs(dirlist=negatives_dirs, negatives_filename='negatives.txt',
                                       show_visual_output=True,
                                       maxfiles=20000, overwrite=False)
 
