@@ -1,0 +1,256 @@
+Info file name: bbs.txt
+Img file name: (NULL)
+Vec file name: classifiers_to_test/vecfile.vec
+BG  file name: (NULL)
+Num: 11
+BG color: 0
+BG threshold: 80
+Invert: FALSE
+Max intensity deviation: 40
+Max x angle: 1.1
+Max y angle: 1.1
+Max z angle: 0.5
+Show samples: FALSE
+Width: 20
+Height: 20
+Create training samples from images collection...
+Done. Created 11 samples
+Info file name: bbs.txt
+Img file name: (NULL)
+Vec file name: classifiers_to_test/vecfile.vec
+BG  file name: (NULL)
+Num: 11
+BG color: 0
+BG threshold: 80
+Invert: FALSE
+Max intensity deviation: 40
+Max x angle: 1.1
+Max y angle: 1.1
+Max z angle: 0.5
+Show samples: FALSE
+Width: 20
+Height: 20
+Create training samples from images collection...
+Done. Created 11 samples
+Info file name: bbs.txt
+Img file name: (NULL)
+Vec file name: classifiers_to_test/vecfile.vec
+BG  file name: (NULL)
+Num: 112
+BG color: 0
+BG threshold: 80
+Invert: FALSE
+Max intensity deviation: 40
+Max x angle: 1.1
+Max y angle: 1.1
+Max z angle: 0.5
+Show samples: FALSE
+Width: 20
+Height: 20
+Create training samples from images collection...
+Done. Created 112 samples
+Info file name: bbs.txt
+Img file name: (NULL)
+Vec file name: classifiers_to_test/vecfile.vec
+BG  file name: (NULL)
+Num: 163
+BG color: 0
+BG threshold: 80
+Invert: FALSE
+Max intensity deviation: 40
+Max x angle: 1.1
+Max y angle: 1.1
+Max z angle: 0.5
+Show samples: FALSE
+Width: 20
+Height: 20
+Create training samples from images collection...
+Done. Created 163 samples
+Info file name: bbs.txt
+Img file name: (NULL)
+Vec file name: classifiers_to_test/vecfile.vec
+BG  file name: (NULL)
+Num: 214
+BG color: 0
+BG threshold: 80
+Invert: FALSE
+Max intensity deviation: 40
+Max x angle: 1.1
+Max y angle: 1.1
+Max z angle: 0.5
+Show samples: FALSE
+Width: 20
+Height: 20
+Create training samples from images collection...
+Done. Created 214 samples
+Info file name: bbs.txt
+Img file name: (NULL)
+Vec file name: classifiers_to_test/vecfile.vec
+BG  file name: (NULL)
+Num: 265
+BG color: 0
+BG threshold: 80
+Invert: FALSE
+Max intensity deviation: 40
+Max x angle: 1.1
+Max y angle: 1.1
+Max z angle: 0.5
+Show samples: FALSE
+Width: 20
+Height: 20
+Create training samples from images collection...
+Done. Created 265 samples
+Info file name: bbs.txt
+Img file name: (NULL)
+Vec file name: classifiers_to_test/vecfile.vec
+BG  file name: (NULL)
+Num: 316
+BG color: 0
+BG threshold: 80
+Invert: FALSE
+Max intensity deviation: 40
+Max x angle: 1.1
+Max y angle: 1.1
+Max z angle: 0.5
+Show samples: FALSE
+Width: 20
+Height: 20
+Create training samples from images collection...
+Done. Created 316 samples
+Info file name: bbs.txt
+Img file name: (NULL)
+Vec file name: classifiers_to_test/vecfile.vec
+BG  file name: (NULL)
+Num: 367
+BG color: 0
+BG threshold: 80
+Invert: FALSE
+Max intensity deviation: 40
+Max x angle: 1.1
+Max y angle: 1.1
+Max z angle: 0.5
+Show samples: FALSE
+Width: 20
+Height: 20
+Create training samples from images collection...
+Done. Created 367 samples
+Info file name: bbs.txt
+Img file name: (NULL)
+Vec file name: classifiers_to_test/vecfile.vec
+BG  file name: (NULL)
+Num: 418
+BG color: 0
+BG threshold: 80
+Invert: FALSE
+Max intensity deviation: 40
+Max x angle: 1.1
+Max y angle: 1.1
+Max z angle: 0.5
+Show samples: TRUE
+Scale: 4
+Width: 20
+Height: 20
+Create training samples from images collection...
+Done. Created 418 samples
+Info file name: bbs.txt
+Img file name: (NULL)
+Vec file name: classifiers_to_test/vecfile.vec
+BG  file name: (NULL)
+Num: 469
+BG color: 0
+BG threshold: 80
+Invert: FALSE
+Max intensity deviation: 40
+Max x angle: 1.1
+Max y angle: 1.1
+Max z angle: 0.5
+Show samples: FALSE
+Width: 20
+Height: 20
+Create training samples from images collection...
+Done. Created 469 samples
+Info file name: bbs.txt
+Img file name: (NULL)
+Vec file name: classifiers_to_test/vecfile.vec
+BG  file name: (NULL)
+Num: 480
+BG color: 0
+BG threshold: 80
+Invert: FALSE
+Max intensity deviation: 40
+Max x angle: 1.1
+Max y angle: 1.1
+Max z angle: 0.5
+Show samples: FALSE
+Width: 20
+Height: 20
+Create training samples from images collection...
+Done. Created 480 samples
+Info file name: bbs.txt
+Img file name: (NULL)
+Vec file name: classifiers_to_test/vecfile.vec
+BG  file name: (NULL)
+Num: 491
+BG color: 0
+BG threshold: 80
+Invert: FALSE
+Max intensity deviation: 40
+Max x angle: 1.1
+Max y angle: 1.1
+Max z angle: 0.5
+Show samples: FALSE
+Width: 20
+Height: 20
+Create training samples from images collection...
+Done. Created 491 samples
+Info file name: bbs.txt
+Img file name: (NULL)
+Vec file name: classifiers_to_test/vecfile.vec
+BG  file name: (NULL)
+Num: 502
+BG color: 0
+BG threshold: 80
+Invert: FALSE
+Max intensity deviation: 40
+Max x angle: 1.1
+Max y angle: 1.1
+Max z angle: 0.5
+Show samples: FALSE
+Width: 20
+Height: 20
+Create training samples from images collection...
+Done. Created 502 samples
+Info file name: bbs.txt
+Img file name: (NULL)
+Vec file name: classifiers_to_test/vecfile.vec
+BG  file name: (NULL)
+Num: 513
+BG color: 0
+BG threshold: 80
+Invert: FALSE
+Max intensity deviation: 40
+Max x angle: 1.1
+Max y angle: 1.1
+Max z angle: 0.5
+Show samples: FALSE
+Width: 20
+Height: 20
+Create training samples from images collection...
+Done. Created 513 samples
+Info file name: bbs.txt
+Img file name: (NULL)
+Vec file name: classifiers_to_test/vecfile.vec
+BG  file name: (NULL)
+Num: 524
+BG color: 0
+BG threshold: 80
+Invert: FALSE
+Max intensity deviation: 40
+Max x angle: 1.1
+Max y angle: 1.1
+Max z angle: 0.5
+Show samples: FALSE
+Width: 20
+Height: 20
+Create training samples from images collection...
+Done. Created 524 samples

@@ -680,14 +680,17 @@ def train_wrapper(positives_file, negatives_file, output_dir='classifier_results
 
 if __name__ == "__main__":
     print('starting create_positive_and_negative_files')
-    dir = 'images/jess_good'
-    create_negatives_nonrecursive(dir, negatives_filename='negatives.txt', show_visual_output=True, maxfiles=10,
-                                  overwrite=False)
-    create_positives_using_faces_recursive(bbfilename='bbs.txt', parent_dir='images/dresses/evening-dresses',
-                                           item='dress', single_bbfile=True, use_visual_output=True, maxfiles=10,
-                                           overwrite=False)
+    negatives_dir = 'images/womens-tops'
+    positives_dir = 'images/dresses'
+    bb_filename = 'bbs.txt'
+    create_negatives_nonrecursive(negatives_dir, negatives_filename='negatives.txt', show_visual_output=True,
+                                  maxfiles=20000,
+                                  overwrite=True)
+    create_positives_using_faces_recursive(bbfilename=bb_filename, parent_dir=positives_dir,
+                                           item='dress', single_bbfile=True, use_visual_output=True, maxfiles=20000,
+                                           overwrite=True)
 
-    new_create_vecfiles(input_filename='bbs.txt', output_filename='classifiers_to_test/vecfile.vec')
+    new_create_vecfiles(input_filename=bb_filename, output_filename='classifiers_to_test/vecfile.vec')
     sleep(2)  # wait till vecfile write is done
     num_pos = Utils.lines_in_file('bbs.txt')
     num_neg = Utils.lines_in_file('negatives.txt')
