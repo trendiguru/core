@@ -532,7 +532,6 @@ def ensure_dir(f):
     if not os.path.exists(d):
         os.makedirs(d)
 
-
 def immediate_subdirs(dir):
     '''
     returns paths of immediate subdirectories of dir (not recursive)
@@ -549,6 +548,13 @@ def files_in_directory(dir):
         return list
     except OSError:
         logging.error('no such directory ' + dir)
+
+
+def purge(dir, pattern):
+    for f in os.listdir(dir):
+        if re.search(pattern, f):
+            os.remove(os.path.join(dir, f))
+
 ############################
 ### math stuff
 ############################
