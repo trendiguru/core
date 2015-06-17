@@ -89,11 +89,11 @@ def create_positives_using_faces_nonrecursive(bbfilename='bbs.txt', dir='images'
                     print('no image gotten, None returned for ' + file)
                     continue
                 else:
-                    print('succesfully got ' + file)
+                    print('succesfully got ' + file + ', count=' + str(filecounter))
                     bb = get_bb(img_array, use_visual_output, fname=file, item=item)
                     if bb is not None:
-                        print('bb=' + str(bb) + ' x1y1x2y2:' + str(bb[0]) + ',' + str(bb[1]) + ',' + str(
-                            bb[0] + bb[2]) + ',' + str(bb[1] + bb[3]))
+                        # print('bb=' + str(bb) + ' x1y1x2y2:' + str(bb[0]) + ',' + str(bb[1]) + ',' + str(
+                        # bb[0] + bb[2]) + ',' + str(bb[1] + bb[3]))
                         write_bbfile(fp, bb, file)
                         filecounter = filecounter + 1
                         if filecounter > maxfiles:
@@ -105,7 +105,7 @@ def create_positives_using_faces_nonrecursive(bbfilename='bbs.txt', dir='images'
     except EnvironmentError:  # parent of IOError, OSError *and* WindowsError where available
         print('oops. an environment error in nonrecursive positives generator. take cover')
 
-
+#make sure that u dont wipe out dir with overwrite
 def create_positives_using_faces_recursive(bbfilename='bbs.txt', parent_dir='images', item='dress', single_bbfile=True,
                                            use_visual_output=False, maxfiles=10000, overwrite=False):
     filecount = 0
@@ -122,7 +122,7 @@ def create_positives_using_faces_recursive(bbfilename='bbs.txt', parent_dir='ima
                     mode = 'a'
                 with open(bbfilename, mode) as fp:
                     for fname in file_list:
-                        print('found file %s' % fname)
+                        #  print('found file %s' % fname)
                         full_filename = os.path.join(dir, fname)
                         # fp.write
 
@@ -697,8 +697,14 @@ def train_wrapper(positives_file, negatives_file, output_dir='classifier_results
 ##############################
 # start from here
 ##############################
+def prepare_and_train():
+    # -mode <BASIC (default) | CORE | ALL>
+    # -bt <{DAB, RAB, LB, GAB(default)}>
 
-if __name__ == "__main__":
+    # box_images_and_write_bbfile_using_faces_recursive('images/dresses/bridal-dresses')
+    #    box_images_and_write_bbfile(dir, use_visual_output=True)
+    #    read_bbs_in_subdirs(dir)
+
     print('starting create_positive_and_negative_files')
     negatives_dir = 'images/womens-tops'
     negatives_dirs = ['images/womens-tops', 'images/mens-shirts']
@@ -724,7 +730,7 @@ if __name__ == "__main__":
     # raw_input('enter to continue')
     create_positives_using_faces_recursive(bbfilename=bb_filename, parent_dir=positives_dir,
                                            item='dress', single_bbfile=True, use_visual_output=False, maxfiles=10000,
-                                           overwrite=True)
+                                           overwrite=False)
 
     train_width = 15
     train_height = 20
@@ -744,13 +750,10 @@ if __name__ == "__main__":
               precalcValBufSize=6000,
               mode='ALL', num_stages=20, featureType='HAAR', start_afresh=True)
 
-    # -mode <BASIC (default) | CORE | ALL>
-    #-bt <{DAB, RAB, LB, GAB(default)}>
 
-    #    box_images_and_write_bbfile_using_faces_recursive('images/dresses/bridal-dresses')
-    #    box_images_and_write_bbfile(dir, use_visual_output=True)
-    raw_input('hit enter')
-    #    read_bbs_in_subdirs(dir)
+if __name__ == "__main__":
+
+    prepare_and_train()
 
     if (0):
         print('start')
