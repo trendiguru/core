@@ -715,7 +715,7 @@ if __name__ == "__main__":
     create_samples_outputfile = classifier_dir + 'createsamplesoutput.txt'
     create_negatives_from_set_of_dirs(dirlist=negatives_dirs, negatives_filename=negatives_filename,
                                       use_visual_output=False,
-                                      maxfiles=100, overwrite=False)
+                                      maxfiles=10000, overwrite=True)
     # create_negatives_nonrecursive(negatives_dir, negatives_filename='negatives.txt', show_visual_output=True,
     #                                 maxfiles=20000,
     #                                 overwrite=True)
@@ -723,8 +723,8 @@ if __name__ == "__main__":
     print('finished making negatives')
     # raw_input('enter to continue')
     create_positives_using_faces_recursive(bbfilename=bb_filename, parent_dir=positives_dir,
-                                           item='dress', single_bbfile=True, use_visual_output=False, maxfiles=30,
-                                           overwrite=False)
+                                           item='dress', single_bbfile=True, use_visual_output=False, maxfiles=10000,
+                                           overwrite=True)
 
     train_width = 15
     train_height = 20
