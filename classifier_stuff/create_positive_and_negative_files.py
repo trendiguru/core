@@ -709,7 +709,7 @@ def prepare_and_train():
     negatives_dir = 'images/womens-tops'
     negatives_dirs = ['images/womens-tops', 'images/mens-shirts']
     positives_dir = 'images/dresses'
-    classifier_dir = 'classifiers_to_test/classifier101/'
+    classifier_dir = 'classifiers_to_test/classifier102/'
     print('classifier dir:' + classifier_dir)
     Utils.ensure_dir(classifier_dir)
     bb_filename = classifier_dir + 'bbs.txt'
@@ -735,21 +735,28 @@ def prepare_and_train():
 
     train_width = 15
     train_height = 20
+    maxFalseAlarmRate = 0.5  # .8^20 = 0.01
+    minHitRate = 0.995  # 0.995^20 = 0.9
+    precalcValBufSize = 6000
+    precalcIdxBufSize = 6000
+    mode = 'ALL'
+    num_stages = 20
+    featureType = 'HAAR'
+
     new_create_vecfiles(input_filename=bb_filename, outputfilename=create_samples_outputfile, vecfilename=vecfilename,
                         showinfo=False, train_width=train_width, train_height=train_height)
     sleep(10)  # wait till vecfile write is done
     num_pos = Utils.lines_in_file(bb_filename)
     num_neg = Utils.lines_in_file(negatives_filename)
     print('avail pos {0} avail neg {1}'.format(num_pos, num_neg))
-    maxFalseAlarmRate = 0.7  # .8^20 = 0.01
-    minHitRate = 0.995  # 0.995^20 = 0.9
+
     new_train(vecfilename=vecfilename, negatives_filename=negatives_filename,
               classifier_directory=classifier_dir, train_width=train_width,
               train_height=train_height, num_negatives=num_neg - 50, num_positives=num_pos,
               num_extra_positives=num_pos / 8 + 50,
-              maxFalseAlarmRate=maxFalseAlarmRate, minHitRate=minHitRate, precalcIdxBufSize=6000,
-              precalcValBufSize=6000,
-              mode='ALL', num_stages=20, featureType='HAAR', start_afresh=True)
+              maxFalseAlarmRate=maxFalseAlarmRate, minHitRate=minHitRate, precalcIdxBufSize=precalcIdxBufSize,
+              precalcValBufSize=precalcValBufSize,
+              mode=mode, num_stages=num_stages, featureType=featureType, start_afresh=True)
 
 
 if __name__ == "__main__":
@@ -1107,6 +1114,17 @@ sudo python create_positive_and_negative_files.py -o 072 -i images/imageNet/easy
    num_extra_positives = int(0.1*num_positives) +100
    num_negatives =4000
    delay_minutes=5
+
+101   dresses positive, mens-shirts  and womens-tops negatives
+    train_width = 15
+    train_height = 20
+    maxFalseAlarmRate = 0.7  # .8^20 = 0.01
+    minHitRate = 0.995  # 0.995^20 = 0.9
+    precalcValBufSize=6000
+    precalcIdxBufSize=6000
+    mode='ALL'
+    num_stages=20
+    featureType='HAAR'
 
 
 '''

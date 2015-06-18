@@ -1,6 +1,7 @@
 from __future__ import print_function
 #!/usr/bin/env python
 __author__ = 'jeremy'
+# theirs
 import cv2
 import json
 from pylab import *
@@ -9,11 +10,14 @@ import numpy as np
 import argparse
 from time import gmtime, strftime
 # import matplotlib as plt
-import Utils
+
+#ours
 import background_removal
+import Utils
 import pylab as pl
 
 # TODO
+#TODO allow specific directories, and alow recursive directory traverse for test_classifiers
 # add raw data to conf matrix graph - number of targets, # detected, # extra
 # make output as json
 # put precision annotation on graph instead of recall
@@ -244,6 +248,7 @@ def test_classifier(classifier, imagesDir, max_files_to_try=10000):
 # run using classifier we have on images from db
 ###########
 #classifierNames.append("dressClassifier013.xml")
+#TODO allow specific directories, and alow recursive directory traverse for test_classifiers
 def test_classifiers(classifierDir='../classifiers/', imageDir='images', use_visual_output=True):
     resultsDir='classifier_results'
     results_filename=os.path.join(resultsDir,'classifier_results_'+trainDir+'.txt')
