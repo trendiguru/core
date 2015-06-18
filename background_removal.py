@@ -89,8 +89,8 @@ def face_is_relevant(image, face):
     ycrcb = cv2.cvtColor(image, cv2.COLOR_BGR2YCR_CB)
     face_ycrcb = ycrcb[y:y + h, x:x + w, :]
     if 0.08 * image.shape[0] < h < 0.3 * image.shape[0] \
-            and y < image.shape[0] / 2 - h \
-            and image.shape[0] > y + h * 5 \
+            and y < (image.shape[0] / 2) - h \
+            and image.shape[0] > h * 5 \
             and is_skin_color(face_ycrcb):
         return True
     else:
