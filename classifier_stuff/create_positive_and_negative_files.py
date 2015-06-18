@@ -709,7 +709,17 @@ def prepare_and_train():
     negatives_dir = 'images/womens-tops'
     negatives_dirs = ['images/womens-tops', 'images/mens-shirts']
     positives_dir = 'images/dresses'
-    classifier_dir = 'classifiers_to_test/classifier102/'
+    classifier_dir = 'classifiers_to_test/classifier103/'
+    train_width = 15
+    train_height = 20
+    maxFalseAlarmRate = 0.3  # .8^20 = 0.01
+    minHitRate = 0.995  # 0.995^20 = 0.9
+    precalcValBufSize = 6000
+    precalcIdxBufSize = 6000
+    mode = 'ALL'
+    num_stages = 20
+    featureType = 'HAAR'
+
     print('classifier dir:' + classifier_dir)
     Utils.ensure_dir(classifier_dir)
     bb_filename = classifier_dir + 'bbs.txt'
@@ -733,15 +743,6 @@ def prepare_and_train():
     #item='dress', single_bbfile=True, use_visual_output=False, maxfiles=10000,
     # overwrite=False)
 
-    train_width = 15
-    train_height = 20
-    maxFalseAlarmRate = 0.5  # .8^20 = 0.01
-    minHitRate = 0.995  # 0.995^20 = 0.9
-    precalcValBufSize = 6000
-    precalcIdxBufSize = 6000
-    mode = 'ALL'
-    num_stages = 20
-    featureType = 'HAAR'
 
     new_create_vecfiles(input_filename=bb_filename, outputfilename=create_samples_outputfile, vecfilename=vecfilename,
                         showinfo=False, train_width=train_width, train_height=train_height)
@@ -1125,6 +1126,17 @@ sudo python create_positive_and_negative_files.py -o 072 -i images/imageNet/easy
     mode='ALL'
     num_stages=20
     featureType='HAAR'
+
+    classifier_dir = 'classifiers_to_test/classifier102/'
+    train_width = 15
+    train_height = 20
+    maxFalseAlarmRate = 0.5  # .8^20 = 0.01
+    minHitRate = 0.995  # 0.995^20 = 0.9
+    precalcValBufSize = 6000
+    precalcIdxBufSize = 6000
+    mode = 'ALL'
+    num_stages = 20
+    featureType = 'HAAR'
 
 
 '''
