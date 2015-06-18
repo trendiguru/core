@@ -663,7 +663,7 @@ def train_wrapper(inputdir, outputdir, train_width=20, train_height=20, num_nega
     print(s.getvalue())
 
 
-def train_wrapper(positives_file, negatives_file, output_dir='classifier_results', train_width=20, train_height=20,
+def train_wrapper2(positives_file, negatives_file, output_dir='classifier_results', train_width=20, train_height=20,
                   num_negatives=4000,
                   num_positives=2000, num_extra_positives=100, maxFalseAlarmRate=0.4, minHitRate=0.995,
                   precalcIdxBufSize=6000,
@@ -709,7 +709,7 @@ def prepare_and_train():
     negatives_dir = 'images/womens-tops'
     negatives_dirs = ['images/womens-tops', 'images/mens-shirts']
     positives_dir = 'images/dresses'
-    classifier_dir = 'classifiers_to_test/classifier100/'
+    classifier_dir = 'classifiers_to_test/classifier101/'
     print('classifier dir:' + classifier_dir)
     Utils.ensure_dir(classifier_dir)
     bb_filename = classifier_dir + 'bbs.txt'
@@ -719,7 +719,7 @@ def prepare_and_train():
     vecfilename = classifier_dir + 'vecfile.vec'
     # vecfilename ='vecfile.vec'
     create_samples_outputfile = classifier_dir + 'createsamplesoutput.txt'
-    create_negatives_from_set_of_dirs(dirlist=negatives_dirs, negatives_filename=negatives_filename,
+    # create_negatives_from_set_of_dirs(dirlist=negatives_dirs, negatives_filename=negatives_filename,
                                       use_visual_output=False,
                                       maxfiles=10000, overwrite=True)
     # create_negatives_nonrecursive(negatives_dir, negatives_filename='negatives.txt', show_visual_output=True,
@@ -728,8 +728,8 @@ def prepare_and_train():
 
     print('finished making negatives')
     # raw_input('enter to continue')
-    create_positives_using_faces_recursive(bbfilename=bb_filename, parent_dir=positives_dir,
-                                           item='dress', single_bbfile=True, use_visual_output=False, maxfiles=10000,
+#    create_positives_using_faces_recursive(bbfilename=bb_filename, parent_dir=positives_dir,
+    item='dress', single_bbfile=True, use_visual_output=False, maxfiles=10000,
                                            overwrite=False)
 
     train_width = 15
@@ -740,7 +740,7 @@ def prepare_and_train():
     num_pos = Utils.lines_in_file(bb_filename)
     num_neg = Utils.lines_in_file(negatives_filename)
     print('avail pos {0} avail neg {1}'.format(num_pos, num_neg))
-    maxFalseAlarmRate = 0.8  # .8^20 = 0.01
+    maxFalseAlarmRate = 0.7  # .8^20 = 0.01
     minHitRate = 0.995  # 0.995^20 = 0.9
     new_train(vecfilename=vecfilename, negatives_filename=negatives_filename,
               classifier_directory=classifier_dir, train_width=train_width,
