@@ -547,7 +547,7 @@ def new_train(vecfilename='vecfile.vec', negatives_filename='negatives.txt', cla
     if not os.path.isdir(classifier_directory):
         os.makedirs(classifier_directory)
 
-    print('postives dir ' + classifier_directory + ' neg:' + str(num_negatives) + ' pos:' + str(
+    print('positives dir ' + classifier_directory + ' neg:' + str(num_negatives) + ' pos:' + str(
         num_positives) + ' w:' + str(train_width) + ' h:' + str(
         train_height))
     # max_pos = Utils.lines_in_file()
@@ -749,12 +749,14 @@ def prepare_and_train():
     sleep(10)  # wait till vecfile write is done
     num_pos = Utils.lines_in_file(bb_filename)
     num_neg = Utils.lines_in_file(negatives_filename)
+    num_extra_positives = num_pos / 10 + 200
     print('avail pos {0} avail neg {1}'.format(num_pos, num_neg))
+
 
     new_train(vecfilename=vecfilename, negatives_filename=negatives_filename,
               classifier_directory=classifier_dir, train_width=train_width,
               train_height=train_height, num_negatives=num_neg - 50, num_positives=num_pos,
-              num_extra_positives=num_pos / 8 + 50,
+              num_extra_positives=num_extra_positives,
               maxFalseAlarmRate=maxFalseAlarmRate, minHitRate=minHitRate, precalcIdxBufSize=precalcIdxBufSize,
               precalcValBufSize=precalcValBufSize,
               mode=mode, num_stages=num_stages, featureType=featureType, start_afresh=True)
