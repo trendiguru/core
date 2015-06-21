@@ -555,7 +555,7 @@ def new_train(vecfilename='vecfile.vec', negatives_filename='negatives.txt', cla
     if num_negatives > max_negatives:
         logging.warning('too many negatives, {0} asked for and {1} available'.format(num_negatives, max_negatives))
     command_string = ''
-    command_string = 'nice -n -20 ionice -c 1 -n 0 '  # nice -n -20 has highest priorite, ionice -c 1 -n -0 has highest
+    command_string = 'sudo nice -n -20 ionice -c 1 -n 0 '  # nice -n -20 has highest priorite, ionice -c 1 -n -0 has highest
     command_string = command_string + 'opencv_traincascade -data ' + classifier_directory + ' -vec ' + vecfilename + ' -bg ' + negatives_filename
     command_string = command_string + ' -featureType ' + featureType + ' -w ' + str(train_width) + ' -h ' + str(
         train_height)
