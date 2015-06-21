@@ -709,11 +709,11 @@ def prepare_and_train():
     negatives_dir = 'images/womens-tops'
     negatives_dirs = ['images/womens-tops', 'images/mens-shirts']
     positives_dir = 'images/dresses'
-    classifier_dir = 'classifiers_to_test/classifier103/'
+    classifier_dir = 'classifiers_to_test/classifier104/'
     train_width = 15
     train_height = 20
     maxFalseAlarmRate = 0.3  # .8^20 = 0.01
-    minHitRate = 0.995  # 0.995^20 = 0.9
+    minHitRate = 0.99  # 0.995^20 = 0.9
     precalcValBufSize = 6000
     precalcIdxBufSize = 6000
     mode = 'ALL'
@@ -1127,7 +1127,8 @@ sudo python create_positive_and_negative_files.py -o 072 -i images/imageNet/easy
     num_stages=20
     featureType='HAAR'
 
-    classifier_dir = 'classifiers_to_test/classifier102/'
+102 had tons of false positives
+102   classifier_dir = 'classifiers_to_test/classifier102/'
     train_width = 15
     train_height = 20
     maxFalseAlarmRate = 0.5  # .8^20 = 0.01
@@ -1138,6 +1139,30 @@ sudo python create_positive_and_negative_files.py -o 072 -i images/imageNet/easy
     num_stages = 20
     featureType = 'HAAR'
 
+
+103 didnt finish training
+103    classifier_dir = 'classifiers_to_test/classifier103/'
+    train_width = 15
+    train_height = 20
+    maxFalseAlarmRate = 0.3  # .8^20 = 0.01
+    minHitRate = 0.995  # 0.995^20 = 0.9
+    precalcValBufSize = 6000
+    precalcIdxBufSize = 6000
+    mode = 'ALL'
+    num_stages = 20
+    featureType = 'HAAR'
+
+minhitrate 0.99 instead of 0.995
+104    classifier_dir = 'classifiers_to_test/classifier104/'
+    train_width = 15
+    train_height = 20
+    maxFalseAlarmRate = 0.3  # .8^20 = 0.01
+    minHitRate = 0.99  # 0.995^20 = 0.9
+    precalcValBufSize = 6000
+    precalcIdxBufSize = 6000
+    mode = 'ALL'
+    num_stages = 20
+    featureType = 'HAAR'
 
 '''
 
