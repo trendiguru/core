@@ -1,11 +1,16 @@
 __author__ = 'jeremy'
 # MD5 in java http://www.myersdaily.org/joseph/javascript/md5-speed-test-1.html?script=jkm-md5.js#calculations
 # after reading a bit i decided not to use named tuple for the image structure
-
+# theirs
 import logging
+import hashlib
 
 import pymongo
 
+
+
+# ours
+import Utils
 
 # similar_results structure - this an example of a similar results answer, with two items
 similar_results_dict = {'image_hash': 'md5hash of image, like 2403b296b6d0be5e5bb2e74463419b2a',
@@ -123,7 +128,19 @@ similar_results_dict = {'image_hash': 'md5hash of image, like 2403b296b6d0be5e5b
                                      ]}]}
 
 
-def get_similar_results(image_hash=None, image_url=None, page_url=None):
+def verify_hash_of_image(image_hash, image_url):
+    img_arr = Utils.get_cv2_img_array(image_url)
+    m = hashlib.md5()
+    m.update(img_arr)
+    url_hash = m.hexdigest()
+    print('url_image hash:' + url_hash + ' vs image_hash:' + image_hash)
+    if url_hash == image_hash:
+        return True
+    else:
+        return False
+
+
+def get_known_similar_results(image_hash=None, image_url=None, page_url=None):
     if image_hash == None and image_url == None and page_url == None:
         logging.warning('get_similar_results wasnt given an id or an image/page url')
         return None
@@ -136,23 +153,97 @@ def get_similar_results(image_hash=None, image_url=None, page_url=None):
     #   cursor = db.products.find({'$and': [{"description": {'$regex': keyword}}, query]})
 
     elif image_url is not None:  # search by image url
-        query = {'image_urls': {'$elemMatch': {'url': image_url}}}
-        cursor = db.products.find(query)
-
+        if image_hash is not None:
+            if verify_hash_of_image(image_hash, image_url):
+                # image has not changed, we can trust a url search
+                query = {'image_urls': {'$elemMatch': {'url': image_url}}}
+                cursor = db.products.find(query)
+            else:
+                # image has changed, so we can't trust url search
+                new_images(page_url, image_url)
     else:  # search by page url
         query = {'page_urls': {'$elemMatch': {'url': page_url}}}
     cursor = db.products.find(query)
 
     n = cursor.count()
     if n == 0:
+        # no results for this item were found
+        #code to find similar items (eg given image url) could go here
         return None
     elif n > 1:
         logging.warning(str(n) + ' results found')  # maybe only 0 or 1 match should ever be found
     return cursor
 
 
-def new_image(image_hash=None, image_url=None, page_url=None):
-    if image_hash == None and image_url == None and page_url == None:
-        logging.warning('get_similar_results wasnt given an id or an image/page url')
+def start_pipeline(image_url):
+    # the goods go here
+    similar_results = similar_results_dict  #THIS IS A FAKE PLACEHOLDER RESULT
+    return similar_results
+
+
+def find_similar_items(image_url):
+    similar_items = start_pipeline(image_url)  # this will be a list of regular db entries
+    # put these products db entries into the images db format
+    results_dict = {}
+    img_arr = Utils.get_cv2_img_array(image_url)
+    m = hashlib.md5()
+    m.update(img_arr)
+    url_hash = m.hexdigest()
+    for similar_item in similar_items:
+        results_dict = {}
+        #    {'image_hash': 'md5hash of image, like 2403b296b6d0be5e5bb2e74463419b2a',
+        #                        'image_urls': [{'image_url': 'image_url1_where_image_appears.jpg'},
+        #                                       {'image_url': 'image_url2_where_image_appears.jpg'},
+        #                                       {'image_url': 'image_url3_where_image_appears.jpg'}],
+        #                        'page_urls': [{'page_url': 'pageurl1_where_image_appears.html'},
+        #                                      {'page_url': 'pageurl2_where_image_appears.html'},
+        #                                      {'page_url': 'pageurl3_where_image_appears.html'}],
+        #                        # this lameness (dict instead of flat array) is apparently necessary to use $elemmatch
+        #                        'relevant': True,  #result of doorman * QC
+        #                        'results': [{'category': 'womens-shirt-skirts',
+        #                                    'svg': 'svg-url',
+        #                                    'similar_items': [{
+        #                                                          'seeMoreUrl': 'http://www.shopstyle.com/browse/womens-tech-accessories/Suunto?pid=uid900-25284470-95',
+        #                                                          'image':
+        pass
+    return similar_items
+
+
+def update_images_db(image_url, page_url, new_answer):
+    pass
+
+
+def new_images(page_url, list_of_image_urls):
+    if list_of_image_urls == None or page_url == None:
+        logging.warning('get_similar_results wasnt given list of image hashes and page url')
         return None
 
+    db = pymongo.MongoClient().images
+    i = 0
+    answers = []
+    for image_url in list_of_image_urls:
+        if image_url is None:
+            logging.warning('image url #' + str(i) + ' is None')
+            continue
+        query = {'image_url': image_url}
+        cursor = db.products.find(query)
+        if cursor.count() != 0:
+            answers.append(cursor)
+        else:
+            new_answer = find_similar_items(image_url)
+            answers.append(new_answer)
+            update_images_db(image_url, page_url, new_answer)
+        i = i + 1
+
+    cursor = db.products.find(query)
+
+    n = cursor.count()
+    if n != 0:
+        return cursor
+    else:
+        pass
+
+
+if __name__ == '__main__':
+    print('starting')
+    verify_hash_of_image('wefwfwefwe', 'http://resources.shopstyle.com/pim/c8/af/c8af6068982f408205491817fe4cad5d.jpg')
