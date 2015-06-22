@@ -749,7 +749,7 @@ def prepare_and_train():
     sleep(10)  # wait till vecfile write is done
     num_pos = Utils.lines_in_file(bb_filename)
     num_neg = Utils.lines_in_file(negatives_filename)
-    num_extra_positives = num_pos * num_stages / 100 + 100
+    num_extra_positives = num_pos * num_stages / 80 + 700
 
     # numpos 9693 : consumed 10873
 
@@ -764,6 +764,17 @@ def prepare_and_train():
     #    numpos 9568 : consumed 10348 stage 8
     #    numpos 9568 : consumed 10448  stage 9
     #    9568 : 10558 stage 10
+
+    # 8694 : 8694   stage 0
+    # 8694 : 8849   stage 1
+    # 8694 : 9030 stage2
+    # 8694 : 9206  3
+    # 8694 : 9389  stage 4
+    # 8694 : 9581 5
+    #  8694 : 9772  6
+    #8694 : 9962   7
+    #    8694 : 10163   8
+
 
     print('avail pos {0} avail neg {1}'.format(num_pos, num_neg))
 

@@ -888,8 +888,8 @@ if __name__ == '__main__':
     # doc = lookfor_next_unbounded_feature_from_db_category()
     # print('doc:' + str(doc))
     # suits_for_kyle()
-    # step_thru_db(use_visual_output=True, collection='products')
+    step_thru_db(use_visual_output=True, collection='products')
     # prune_training_db(use_visual_output=False)
-    lookfor_next_unbounded_feature_from_db_category(current_item=0, skip_if_marked_to_skip=False,
-                                                    which_to_show='showAll', filter_type='byCategoryID',
-                                                    category_id='dresses', word_in_description=None, db=None)
+    # lookfor_next_unbounded_feature_from_db_category(current_item=0, skip_if_marked_to_skip=False,
+    # which_to_show='showAll', filter_type='byCategoryID',
+    # category_id='dresses', word_in_description=None, db=None)
