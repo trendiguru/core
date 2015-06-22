@@ -9,9 +9,13 @@ import pymongo
 
 # similar_results structure - this an example of a similar results answer, with two items
 similar_results_dict = {'image_hash': 'md5hash of image, like 2403b296b6d0be5e5bb2e74463419b2a',
-                        'image_urls': [{'image_url': 'url1where_image_appears.jpg'},
-                                       {'image_url': 'url2_where_image_appears.jpg'},
+                        'image_urls': [{'image_url': 'image_url1_where_image_appears.jpg'},
+                                       {'image_url': 'image_url2_where_image_appears.jpg'},
                                        {'image_url': 'image_url3_where_image_appears.jpg'}],
+                        'page_urls': [{'page_url': 'pageurl1_where_image_appears.html'},
+                                      {'page_url': 'pageurl2_where_image_appears.html'},
+                                      {'page_url': 'pageurl3_where_image_appears.html'}],
+                        # this lameness (dict instead of flat array) is apparently necessary to use $elemmatch
                         'relevant': True,  #result of doorman * QC
                         'results': [{'category': 'womens-shirt-skirts',
                                      'svg': 'svg-url',
@@ -119,9 +123,9 @@ similar_results_dict = {'image_hash': 'md5hash of image, like 2403b296b6d0be5e5b
                                      ]}]}
 
 
-def get_similar_results(image_hash=None, image_url=None):
-    if image_hash == None and image_url == None:
-        logging.warning('get_similar_results wasnt given an id or a url')
+def get_similar_results(image_hash=None, image_url=None, page_url=None):
+    if image_hash == None and image_url == None and page_url == None:
+        logging.warning('get_similar_results wasnt given an id or an image/page url')
         return None
 
     db = pymongo.MongoClient().images
@@ -131,8 +135,24 @@ def get_similar_results(image_hash=None, image_url=None):
         cursor = db.products.find(query)
     #   cursor = db.products.find({'$and': [{"description": {'$regex': keyword}}, query]})
 
-    else:  #search by url
+    elif image_url is not None:  # search by image url
         query = {'image_urls': {'$elemMatch': {'url': image_url}}}
         cursor = db.products.find(query)
 
-        pass
+    else:  # search by page url
+        query = {'page_urls': {'$elemMatch': {'url': page_url}}}
+    cursor = db.products.find(query)
+
+    n = cursor.count()
+    if n == 0:
+        return None
+    elif n > 1:
+        logging.warning(str(n) + ' results found')  # maybe only 0 or 1 match should ever be found
+    return cursor
+
+
+def new_image(image_hash=None, image_url=None, page_url=None):
+    if image_hash == None and image_url == None and page_url == None:
+        logging.warning('get_similar_results wasnt given an id or an image/page url')
+        return None
+
