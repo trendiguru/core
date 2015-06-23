@@ -11,6 +11,7 @@ from time import sleep
 import cProfile, pstats, StringIO
 import argparse
 import logging
+import sys
 
 import Utils
 import background_removal
@@ -60,7 +61,7 @@ def read_bbfile_and_show_positives(bbfilename, parent_dir):
                     k = cv2.waitKey(200)
                     cv2.destroyAllWindows()
     except EnvironmentError:  # parent of IOError, OSError *and* WindowsError where available
-        print('oops. an environment error. take cover')
+        print('oops. an environment error. take cover:' + sys.exc_info()[0])
 
 
 def read_bbfile_and_show_positives_in_subdirs(parent_dir='images'):
@@ -567,6 +568,9 @@ def new_train(vecfilename='vecfile.vec', negatives_filename='negatives.txt', cla
     command_string = command_string + ' -maxFalseAlarmRate ' + str(maxFalseAlarmRate)
     command_string = command_string + ' >> ' + outfile + ' 2>&1 &'
     print(command_string)
+    f1 = open(outfile, 'a')
+    f1.write(command_string)
+    f1.close()
     #    subprocess.call('uptime', shell=True)
 
     #    p=subprocess.Popen(['/bin/bash','nice','-n19'])
@@ -996,7 +1000,7 @@ if __name__ == "__main__":
    delay_minutes=5
 
 064 using cjdb
-sudo python create_positive_and_negative_files.py -i images/imageNet/easy -o 064   (longdress, shirt, suit)
+sudo python train_classifier.py -i images/imageNet/easy -o 064   (longdress, shirt, suit)
   train_width = 20
    train_height = 20
    maxFalseAlarmRate = 0.6
@@ -1012,13 +1016,13 @@ sudo python create_positive_and_negative_files.py -i images/imageNet/easy -o 064
    delay_minutes=5
 
 065
-sudo python create_positive_and_negative_files.py -i images/cjdb -o 065
+sudo python train_classifier.py -i images/cjdb -o 065
 coat  dress  hat  pants  shirt  shoe  shorts  suit  sweater
 same params as 064
 
 
 066
-sudo python create_positive_and_negative_files.py -i images/cjdb -o 066
+sudo python train_classifier.py -i images/cjdb -o 066
 coat  dress  hat  pants  shirt  shoe  shorts  suit
    train_width = 20
    train_height = 20
@@ -1035,7 +1039,7 @@ coat  dress  hat  pants  shirt  shoe  shorts  suit
    delay_minutes=5
 
 067
-sudo python create_positive_and_negative_files.py -i images/imageNet/easy -o 067
+sudo python train_classifier.py -i images/imageNet/easy -o 067
 longDress  shirt  suit
 
 
@@ -1055,7 +1059,7 @@ longDress  shirt  suit
 
 
 068
-sudo python create_positive_and_negative_files.py -i images/cjdb -o 068
+sudo python train_classifier.py -i images/cjdb -o 068
 'shorts', 'dress', 'suit', 'shirt', 'shoe', 'pants'
    train_width = 20
    train_height = 20
@@ -1072,7 +1076,7 @@ sudo python create_positive_and_negative_files.py -i images/cjdb -o 068
    delay_minutes=5
 
 069
-root@ip-172-31-37-253:/home/ubuntu/fpModules/classifier_stuff# sudo python create_positive_and_negative_files.py -o 069 -i images/cjdb
+root@ip-172-31-37-253:/home/ubuntu/fpModules/classifier_stuff# sudo python train_classifier.py -o 069 -i images/cjdb
 ['dress', 'shirt', 'shoe', 'pants']
    train_width = 20
    train_height = 20
@@ -1089,7 +1093,7 @@ root@ip-172-31-37-253:/home/ubuntu/fpModules/classifier_stuff# sudo python creat
    delay_minutes=5
 
 070
-sudo python create_positive_and_negative_files.py -o 070 -i images/cjdb
+sudo python train_classifier.py -o 070 -i images/cjdb
 ['dress', 'shirt', 'shoe', 'pants']
    train_width = 20
    train_height = 20
@@ -1107,7 +1111,7 @@ sudo python create_positive_and_negative_files.py -o 070 -i images/cjdb
 didn't fnish training - took low memory and 4 days
 
 071
-sudo python create_positive_and_negative_files.py -o 071 -i images/imageNet/easy
+sudo python train_classifier.py -o 071 -i images/imageNet/easy
 ['longDress', 'shirt', 'suit',]
 
    train_width = 20
@@ -1127,7 +1131,7 @@ not enough positivies so adding 100 to num_extra_positives
 
 
 072
-sudo python create_positive_and_negative_files.py -o 072 -i images/imageNet/easy
+sudo python train_classifier.py -o 072 -i images/imageNet/easy
 ['longDress', 'shirt', 'suit',]
 
    train_width = 20

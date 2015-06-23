@@ -21,7 +21,7 @@ import cv2
 import re
 import string
 import background_removal
-
+import sys
 
 # import urllib
 # logging.setLevel(logging.DEBUG)
@@ -610,7 +610,7 @@ def lines_in_file(filename):
             for line in fp:
                 line_count = line_count + 1
     except EnvironmentError:  # parent of IOError, OSError *and* WindowsError where available
-        logging.error('oops. an environment error. take cover')
+        logging.error('oops. an environment error. take cover!!! ' + str(sys.exc_info()[0]))
         return line_count
     return line_count
 
