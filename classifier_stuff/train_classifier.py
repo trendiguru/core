@@ -722,7 +722,7 @@ def prepare_and_train():
     precalcIdxBufSize = 6000
     mode = 'ALL'
     num_stages = 20
-    featureType = 'HAAR'
+    featureType = 'LBP'
 
     print('classifier dir:' + classifier_dir)
     Utils.ensure_dir(classifier_dir)
