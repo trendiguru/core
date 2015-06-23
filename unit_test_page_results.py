@@ -24,7 +24,14 @@ class OutcomesTest(unittest.TestCase):
     def test_new_images(self):
         img_url = 'http://resources.shopstyle.com/xim/b7/ce/b7ce6784ec5e488fbe51bc939ce6e1a5.jpg'
         page_url = 'http://www.shopstyle.com/browse/womens-tech-accessories/Salvatore-Ferragamo?pid=uid900-25284470-95'
+        print('testing new images')
         ans = page_results.new_images(page_url, [img_url])
+        print('new images results:')
+        print ans
+
+    def test_results_for_page(self):
+        img_url = 'http://resources.shopstyle.com/xim/b7/ce/b7ce6784ec5e488fbe51bc939ce6e1a5.jpg'
+        page_url = 'http://www.shopstyle.com/browse/womens-tech-accessories/Salvatore-Ferragamo?pid=uid900-25284470-95'
 
         results_for_page = page_results.results_for_page(page_url)
         print('results for page:')
