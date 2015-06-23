@@ -750,7 +750,7 @@ def prepare_and_train():
 
     new_create_vecfiles(input_filename=bb_filename, outputfilename=create_samples_outputfile, vecfilename=vecfilename,
                         showinfo=False, train_width=train_width, train_height=train_height)
-    sleep(10)  # wait till vecfile write is done
+    sleep(30)  # wait till vecfile write is done
     num_pos = Utils.lines_in_file(bb_filename)
     num_neg = Utils.lines_in_file(negatives_filename)
     num_extra_positives = num_pos * num_stages / 80 + 700
