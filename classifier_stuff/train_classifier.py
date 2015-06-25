@@ -713,11 +713,11 @@ def prepare_and_train():
     negatives_dir = 'images/womens-tops'
     negatives_dirs = ['images/womens-tops', 'images/mens-shirts']
     positives_dir = 'images/dresses'
-    classifier_dir = 'classifiers_to_test/classifier107/'
+    classifier_dir = 'classifiers_to_test/classifier108/'
     train_width = 15
     train_height = 20
     maxFalseAlarmRate = 0.4  # .8^20 = 0.01
-    minHitRate = 0.96  # 0.995^20 = 0.9
+    minHitRate = 0.98  # 0.995^20 = 0.9
     precalcValBufSize = 6000
     precalcIdxBufSize = 6000
     mode = 'ALL'
@@ -1218,6 +1218,28 @@ minhitrate 0.98
     mode = 'ALL'
     num_stages = 20
     featureType = 'HAAR'
+
+107 minhit 0.96 FA 0.4 LBP
+    train_width = 15
+    train_height = 20
+    maxFalseAlarmRate = 0.4  # .8^20 = 0.01
+    minHitRate = 0.96  # 0.995^20 = 0.9
+    precalcValBufSize = 6000
+    precalcIdxBufSize = 6000
+    mode = 'ALL'
+    num_stages = 20
+    featureType = 'LBP'
+
+108 minhit 0.98 FA 0.4 LBP
+    train_width = 15
+    train_height = 20
+    maxFalseAlarmRate = 0.4  # .8^20 = 0.01
+    minHitRate = 0.96  # 0.995^20 = 0.9
+    precalcValBufSize = 6000
+    precalcIdxBufSize = 6000
+    mode = 'ALL'
+    num_stages = 20
+    featureType = 'LBP'
 
 '''
 
