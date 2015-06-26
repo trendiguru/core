@@ -367,35 +367,39 @@ def update_image_in_db(page_url, image_url, cursor):
 
 
 def results_for_page(page_url):
-    if page_url == None:
+    """
+
+    :param page_url:
+    :return:
+    """
+    if not page_url:
         logging.warning('results_for_page wasnt given a url')
         return None
-    print('looking for images that appear on page:' + page_url)
+    logging.debug('looking for images that appear on page:' + page_url)
     db = pymongo.MongoClient().mydb
-    query = {'page_urls': {'$elemMatch': {'page_url': page_url}}}
+    query = {"page_urls": page_url}
     cursor = db.images.find(query)
 
     n = cursor.count()
     if n == 0:
         # no results for this item were found. maybe return something more informative than 'None'
         return None
-    print('images found:')
-    for item in cursor:
-        print item
-    print('cursor as list:' + str(list(cursor)))
+    logging.debug('{0} images found.'.format(n))
+
     return list(cursor)
 
 
 def new_images(page_url, list_of_image_urls):
-    '''
+    """
     :type page_url: str   This is required in case an image isn;t found in images db
     Then it needs to be matched with similar items and put into db - and the db entry needs the page url
     :type list_of_image_urls: list of the images on a page
     :return:  nothing - just updates db with new images .
     maybe this should return the similar items for each image, tho that can be done by calling results_for_page()
-    '''
-    if list_of_image_urls == None or page_url == None:
-        logging.warning('get_similar_results wasnt given list of image urls and page url')
+    """
+
+    if list_of_image_urls is None or page_url is None:
+        logging.warning("get_similar_results wasnt given list of image urls and page url")
         return None
 
     db = pymongo.MongoClient().mydb
@@ -411,7 +415,7 @@ def new_images(page_url, list_of_image_urls):
         if cursor.count() != 0:
             # answers.append(cursor)
             print('image ' + image_url + ' was found in db ')
-            #hash gets checked in update_image_in_db(), alternatively it could be checked here
+            # hash gets checked in update_image_in_db(), alternatively it could be checked here
             update_image_in_db(page_url, image_url, cursor)
         else:
             new_answer = find_similar_items_and_put_into_db(image_url, page_url)
