@@ -723,8 +723,8 @@ def prepare_and_train():
     mode = 'ALL'
     num_stages = 20
     featureType = 'LBP'
-    num_pos = 2000
-    num_neg = 5000
+    # num_pos = 2000
+    #   num_neg = 5000
 
     print('classifier dir:' + classifier_dir)
     Utils.ensure_dir(classifier_dir)
@@ -756,8 +756,11 @@ def prepare_and_train():
     num_pos = Utils.lines_in_file(bb_filename)
     num_neg = Utils.lines_in_file(negatives_filename)
     num_extra_positives = num_pos * num_stages / 70 + 4800
+    num_extra_negatives = 50
 
     num_pos = 2000
+    num_extra_positives = 0
+    num_extra_negatives = 0
     num_neg = 5000
 
     print('avail pos {0} avail neg {1}'.format(num_pos, num_neg))
@@ -765,7 +768,7 @@ def prepare_and_train():
 
     new_train(vecfilename=vecfilename, negatives_filename=negatives_filename,
               classifier_directory=classifier_dir, train_width=train_width,
-              train_height=train_height, num_negatives=num_neg - 50, num_positives=num_pos,
+              train_height=train_height, num_negatives=num_neg - num_extra_negatives, num_positives=num_pos,
               num_extra_positives=num_extra_positives,
               maxFalseAlarmRate=maxFalseAlarmRate, minHitRate=minHitRate, precalcIdxBufSize=precalcIdxBufSize,
               precalcValBufSize=precalcValBufSize,
