@@ -1,3 +1,8 @@
+# 209
+# 2000 : 3013
+#NEG current samples: 1145
+
+
 from __future__ import print_function
 # !/usr/bin/env python
 __author__ = 'jeremy'

@@ -2,15 +2,16 @@ __author__ = 'jeremy'
 # MD5 in java http://www.myersdaily.org/joseph/javascript/md5-speed-test-1.html?script=jkm-md5.js#calculations
 # after reading a bit i decided not to use named tuple for the image structure
 # theirs
-import logging
+
 import hashlib
 import copy
+import logging
 
 from bson import objectid
 import pymongo
 from pymongo import Connection
 
-
+logging.basicConfig(format='%(levelname)s:%(message)s', level=logging.DEBUG)
 
 
 # ours
@@ -230,28 +231,41 @@ def start_pipeline(image_url):
     crosschecking, and returning top K results
     '''
     # the goods go here
-    # There may be multiple items in an image, so best if this returns something like this
-    # [{'category': 'womens-shirt-skirts',
-    # 'svg': 'svg-url',
-    # 'similar_items': [  { "$ref" : 'products', "$id" : <value1>, "$db" : 'mydb' },
-    # { "$ref" : 'products', "$id" : <value2>, "$db" : 'mydb' },
-    # { "$ref" : 'products', "$id" : <value3>, "$db" : 'mydb' } ],
-    # 'saved_date':'Jun 23, 1912'} ,
+    # There may be multiple items in an image, so this should return list of items
+    # each item having a list of similar results
 
-    # {'category': 'mens-purse',
-    # 'svg': 'svg-url',
-    # 'similar_items': [  { "$ref" : 'products', "$id" : <value1>, "$db" : 'mydb' },
-    # { "$ref" : 'products', "$id" : <value2>, "$db" : 'mydb' }
-    # { "$ref" : 'products', "$id" : <value3>, "$db" : 'mydb' } ],
-    # 'saved_date':'Jun 23, 1912'} ]
-
-
-    # THIS IS A FAKE PLACEHOLDER RESULT. normally should be an array of products db items
-    first_result = products_db_sample_entry['_id']
+    # FAKE RESULTS
+    logging.debug('starting pipeline')
     db = pymongo.MongoClient().mydb
-    second_result = db.products.find_one('_id', {'_id': 1})
+    q = db.products.find()
+    similar_1 = q.next()
+    similar_2 = q.next()
+    similar_3 = q.next()
+    similar_4 = q.next()
 
-    return [first_result, second_result]
+
+    # id_1 = objectid.ObjectId(similar_1['_id'])
+
+    id_1 = str(similar_1['_id'])
+    id_2 = str(similar_2['_id'])
+    id_3 = str(similar_3['_id'])
+    id_4 = str(similar_4['_id'])
+    result = [{'category': 'womens-shirt-skirts',
+               'svg': 'svg-url',
+               'saved_date': 'Jun 23, 1912',
+               'similar_items':
+                   [{"$ref": 'products', "$id": id_1, "$db": 'mydb'},
+                    {"$ref": 'products', "$id": id_2, "$db": 'mydb'}]},
+
+              {'category': 'mens-purse',
+               'svg': 'svg-url',
+               'saved_date': 'Jun 23, 1912',
+               'similar_items':
+                   [{"$ref": 'products', "$id": id_3, "$db": 'mydb'},
+                    {"$ref": 'products', "$id": id_4, "$db": 'mydb'}]}]
+    # THIS IS A FAKE PLACEHOLDER RESULT. normally should be an array of products db items
+
+    return result
 
 
 def qc_assessment_of_relevance(image_url):
@@ -268,7 +282,7 @@ def qc_assessment_of_relevance(image_url):
 def find_similar_items_and_put_into_db(image_url, page_url):
     '''
         This is for new images - gets the similar items and puts that info into an images db entry
-    :param image_url: url of image to find similar items for
+    :param image_url: url of image to find similar items for, page_url is page it appears on
     :return:  get all the similar items and put them into db if not already there
     uses start_pipeline which is where the actual action is. this just takes results from
     regular db and puts the right fields into the 'images' db
@@ -296,13 +310,31 @@ def find_similar_items_and_put_into_db(image_url, page_url):
     # print('relevance:' + str(actual_relevance))
     relevance = actual_relevance * qc_assessment_of_relevance(image_url)
     results_dict['relevant'] = relevance
-    results_dict['items'] = similar_items_from_products_db
-
+    # results_dict['items'] = similar_items_from_products_db
+    for item in similar_items_from_products_db:
+        similar_item = item
+        similar_item['similar_items'] = []
+    #`EDIT FROM HERE        for
     db = pymongo.MongoClient().mydb
     db.images.insert(results_dict)
     logging.debug('inserted into db:')
     logging.debug(results_dict)
     return results_dict
+
+
+images_entry = [{'category': 'womens-shirt-skirts',
+                 'svg': 'svg-url',
+                 'saved_date': 'Jun 23, 1912',
+                 'similar_items': [{"$ref": 'products', "$id": '<value1>', "$db": 'mydb'},
+                                   {"$ref": 'products', "$id": '< value2 >', "$db": 'mydb'},
+                                   {"$ref": 'products', "$id": '< value3 >', "$db": 'mydb'}]},
+
+                {'category': 'mens-purse',
+                 'svg': 'svg-url',
+                 'saved_date': 'Jun 23, 1912',
+                 'similar_items': [{"$ref": 'products', "$id": '< value1 >', "$db": 'mydb'},
+                                   {"$ref": 'products', "$id": '< value2 >', "$db": 'mydb'},
+                                   {"$ref": 'products', "$id": '< value3 >', "$db": 'mydb'}]}]
 
 
 def update_image_in_db(page_url, image_url, cursor):
@@ -360,6 +392,7 @@ def results_for_page(page_url):
     :type page_url: str
     :return: dictionary of similar results for each image at page
     '''
+    # logging.basicConfig(format='%(levelname)s:%(message)s', level=logging.DEBUG)
     if page_url == None:
         logging.warning('results_for_page wasnt given a url')
         return None
@@ -375,7 +408,7 @@ def results_for_page(page_url):
         logging.debug('no results for pageurl were found in results_for_page')
         return None
     logging.debug('some images were found in results_for_page search for page url:')
-    logging.debug('find results as list:' + str(list(cursor)))
+    logging.debug('the results as list:' + str(list(cursor)))
     results = []
     # these are the fields we want to get from the products db
     projection = {
@@ -429,7 +462,7 @@ def results_for_page(page_url):
         modified_doc = copy.deepcopy(doc)
         modified_doc['items'] = []
         for item in doc[
-            'items']:  #expand the info in the similar_items list since in the images db its stored just as a reference
+            'items']:  # expand the info in the similar_items list since in the images db its stored just as a reference
             expanded_item = copy.deepcopy(item)
             expanded_item['similar_items'] = []
             for similar_item in doc['similar_items']:
@@ -463,10 +496,11 @@ def new_images(page_url, list_of_image_urls):
     if list_of_image_urls == None or page_url == None:
         logging.warning('get_similar_results wasnt given list of image urls and page url')
         return None
-
     db = pymongo.MongoClient().mydb
     i = 0
     answers = []
+    number_found = 0
+    number_not_found = 0
     for image_url in list_of_image_urls:
         if image_url is None:
             logging.warning('image url #' + str(i) + ' is None')
@@ -476,16 +510,17 @@ def new_images(page_url, list_of_image_urls):
         query = {"image_urls": image_url}
         cursor = db.images.find(query)
         if cursor.count() != 0:
+            number_found = number_found + 1
             # answers.append(cursor)
             logging.debug('image ' + image_url + ' was found in db ')
             #hash gets checked in update_image_in_db(), alternatively it could be checked here
             update_image_in_db(page_url, image_url, cursor)
         else:
+            number_not_found = number_not_found + 1
             logging.debug('image ' + image_url + ' was NOT found in db, looking for similar items ')
             new_answer = find_similar_items_and_put_into_db(image_url, page_url)
         i = i + 1
-
-        # return answers
+        return number_found, number_not_found
 
 
 def kill_images_collection():
@@ -497,11 +532,13 @@ def kill_images_collection():
     print("images" in db.collection_names())  # Check if collection "posts"
     # exists in db (testdb1
     collection = db['images']
-    print('collection.count() == 0 ??')  #Check if collection named 'posts' is empty
-    print(collection.count() == 0)  #Check if collection named 'posts' is empty
-    #   collection.drop()
+    print('collection.count() == 0 ?' + str(collection.count() == 0))  # Check if collection named 'posts' is empty
+
+###DO THIS ONLY IF YOU KNOW WHAT YOU ARE DOING
+# collection.drop()
+###DO THIS TO KILL DB
 
 if __name__ == '__main__':
     print('starting')
-    #  kill_images_collection()
-    verify_hash_of_image('wefwfwefwe', 'http://resources.shopstyle.com/pim/c8/af/c8af6068982f408205491817fe4cad5d.jpg')
+    # kill_images_collection()
+    #verify_hash_of_image('wefwfwefwe', 'http://resources.shopstyle.com/pim/c8/af/c8af6068982f408205491817fe4cad5d.jpg')
