@@ -718,16 +718,20 @@ def prepare_and_train():
     negatives_dir = 'images/womens-tops'
     negatives_dirs = ['images/womens-tops', 'images/mens-shirts']
     positives_dir = 'images/dresses'
-    classifier_dir = 'classifiers_to_test/classifier109/'
+    classifier_dir = 'classifiers_to_test/classifier110/'
     train_width = 15
     train_height = 20
-    maxFalseAlarmRate = 0.4  # .8^20 = 0.01
+    maxFalseAlarmRate = 0.35  # .8^20 = 0.01
     minHitRate = 0.98  # 0.995^20 = 0.9
     precalcValBufSize = 6000
     precalcIdxBufSize = 6000
     mode = 'ALL'
     num_stages = 20
     featureType = 'LBP'
+    num_pos = 3000
+    num_extra_positives = 0
+    num_extra_negatives = 0
+    num_neg = 6000
     # num_pos = 2000
     #   num_neg = 5000
 
@@ -763,10 +767,10 @@ def prepare_and_train():
     num_extra_positives = num_pos * num_stages / 70 + 4800
     num_extra_negatives = 50
 
-    num_pos = 2000
+    num_pos = 3000
     num_extra_positives = 0
     num_extra_negatives = 0
-    num_neg = 5000
+    num_neg = 6000
 
     print('avail pos {0} avail neg {1}'.format(num_pos, num_neg))
 
@@ -1173,6 +1177,7 @@ sudo python train_classifier.py -o 072 -i images/imageNet/easy
 
 minhitrate 0.99 instead of 0.995
 104    classifier_dir = 'classifiers_to_test/classifier104/'
+RAN OUT OF POSITIVES
     train_width = 15
     train_height = 20
     maxFalseAlarmRate = 0.3  # .8^20 = 0.01
@@ -1242,6 +1247,22 @@ minhitrate 0.98
     featureType = 'LBP'
     num_pos = 2000
     num_neg = 5000
+
+110
+    classifier_dir = 'classifiers_to_test/classifier110/'
+    train_width = 15
+    train_height = 20
+    maxFalseAlarmRate = 0.35  # .8^20 = 0.01
+    minHitRate = 0.98  # 0.995^20 = 0.9
+    precalcValBufSize = 6000
+    precalcIdxBufSize = 6000
+    mode = 'ALL'
+    num_stages = 20
+    featureType = 'LBP'
+    num_pos = 3000
+    num_extra_positives = 0
+    num_extra_negatives = 0
+    num_neg = 6000
 
 
 '''
