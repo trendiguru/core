@@ -526,6 +526,53 @@ def step_thru_db(use_visual_output=True, collection='products'):
     return {"success": 1}
 
 
+def step_thru_images_db(use_visual_output=True, collection='images'):
+    '''
+    fix all the bbs so they fit their respective image
+    :return:
+    '''
+    print('opening db')
+    db = pymongo.MongoClient().mydb
+    print('db open')
+    if db is None:
+        print('couldnt open db')
+        return {"success": 0, "error": "could not get db"}
+    cursor = db.images.find()
+    print('returned cursor')
+    if cursor is None:  # make sure training collection exists
+        print('couldnt get cursor ' + str(collection))
+        return {"success": 0, "error": "could not get colelction"}
+    doc = next(cursor, None)
+    i = 0
+    while doc is not None:
+        print('checking doc #' + str(i + 1))
+        print('doc:' + str(doc))
+        for topic in doc:
+            try:
+                print(str(topic) + ':' + str(doc[topic]))
+            except UnicodeEncodeError:
+                print('unicode encode error')
+                print(str(topic).encode('utf-8'))
+
+                # large_url = doc['image']['sizes']['Large']['url']
+            #        print('large img url:' + str(large_url))
+            #        if use_visual_output:
+            #            img_arr = Utils.get_cv2_img_array(large_url)
+            #            if 'bounding_box' in doc:
+            #                if Utils.legal_bounding_box(doc['bounding_box']):
+            #                    bb1 = doc['bounding_box']
+            #                    cv2.rectangle(img_arr, (bb1[0], bb1[1]), (bb1[0] + bb1[2], bb1[1] + bb1[3]), [255, 255, 0],
+            #                                  thickness=2)
+            #            cv2.imshow('im1', img_arr)
+            #            k = cv2.waitKey(50) & 0xFF
+        i = i + 1
+        doc = next(cursor, None)
+        print('')
+        raw_input('enter key for next doc')
+    print('finished all docs')
+    return {"success": 1}
+
+
 def step_thru_training_db(use_visual_output=False):
     '''
     fix all the bbs so they fit their respective image
@@ -587,7 +634,7 @@ def step_thru_training_db(use_visual_output=False):
                     # if Utils.legal_bounding_box(doc['bounding_box']):
                     # bb1 = doc['bounding_box']
                     # cv2.rectangle(img_arr, (bb1[0], bb1[1]), (bb1[0] + bb1[2], bb1[1] + bb1[3]), [255, 255, 0],
-                    #                                 thickness=2)
+                    # thickness=2)
                     pass
                 i = i + 1
             plt.show()

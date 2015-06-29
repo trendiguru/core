@@ -8,14 +8,17 @@ import copy
 import logging
 
 from bson import objectid
+import bson
 import pymongo
 from pymongo import Connection
+
 
 logging.basicConfig(format='%(levelname)s:%(message)s', level=logging.DEBUG)
 
 
 # ours
 import Utils
+import dbUtils
 import background_removal
 
 # similar_results structure - this an example of a similar results answer, with two items
@@ -242,27 +245,25 @@ def start_pipeline(image_url):
     similar_2 = q.next()
     similar_3 = q.next()
     similar_4 = q.next()
-
-
     # id_1 = objectid.ObjectId(similar_1['_id'])
 
-    id_1 = str(similar_1['_id'])
-    id_2 = str(similar_2['_id'])
-    id_3 = str(similar_3['_id'])
-    id_4 = str(similar_4['_id'])
-    result = [{'category': 'womens-shirt-skirts',
-               'svg': 'svg-url',
-               'saved_date': 'Jun 23, 1912',
-               'similar_items':
-                   [{"$ref": 'products', "$id": id_1, "$db": 'mydb'},
-                    {"$ref": 'products', "$id": id_2, "$db": 'mydb'}]},
+    id_1 = objectid.ObjectId(similar_1['_id'])
+    id_2 = objectid.ObjectId(similar_2['_id'])
+    id_3 = objectid.ObjectId(similar_3['_id'])
+    id_4 = objectid.ObjectId(similar_4['_id'])
+    result = [{"category": "womens-shirt-skirts",
+               "svg": "svg-url",
+               "saved_date": "Jun 23, 1912",
+               "similar_items":
+                   [bson.dbref.DBRef("products", id_1, database="mydb"),
+                    bson.dbref.DBRef("products", id_1, database="mydb")]},
 
-              {'category': 'mens-purse',
-               'svg': 'svg-url',
-               'saved_date': 'Jun 23, 1912',
-               'similar_items':
-                   [{"$ref": 'products', "$id": id_3, "$db": 'mydb'},
-                    {"$ref": 'products', "$id": id_4, "$db": 'mydb'}]}]
+              {"category": "mens-purse",
+               "svg": "svg-url",
+               "saved_date": "Jun 23, 1912",
+               "similar_items":
+                   [bson.dbref.DBRef("products", id_1, database="mydb"),
+                    bson.dbref.DBRef("products", id_1, database="mydb")]}]
     # THIS IS A FAKE PLACEHOLDER RESULT. normally should be an array of products db items
 
     return result
@@ -281,7 +282,8 @@ def qc_assessment_of_relevance(image_url):
 # we wanted to do this as an object , with methods for putting in db
 def find_similar_items_and_put_into_db(image_url, page_url):
     '''
-        This is for new images - gets the similar items and puts that info into an images db entry
+        This is for new images - gets the similar items to a given image (at image_url) and puts that the similar item info
+        into an images db entry
     :param image_url: url of image to find similar items for, page_url is page it appears on
     :return:  get all the similar items and put them into db if not already there
     uses start_pipeline which is where the actual action is. this just takes results from
@@ -289,9 +291,8 @@ def find_similar_items_and_put_into_db(image_url, page_url):
     this does not check if the image already appears elsewhere - whoever called this function
     was supposed to take of that
     '''
-    similar_items_from_products_db = start_pipeline(
-        image_url)  # this will be a list of  db entries, described in start_pipeline
-    logging.debug('similar items:')
+    similar_items_from_products_db = start_pipeline(image_url)  # returns a list of items, each with similar_items
+    logging.debug('items returned from pipeline:')
     logging.debug(str(similar_items_from_products_db))
 
     results_dict = {}
@@ -302,39 +303,22 @@ def find_similar_items_and_put_into_db(image_url, page_url):
     m = hashlib.md5()
     m.update(img_arr)
     image_hash = m.hexdigest()
-    results_dict['image_hash'] = image_hash
-    results_dict['image_urls'] = [image_url]
-    results_dict['page_urls'] = [page_url]
+    results_dict["image_hash"] = image_hash
+    results_dict["image_urls"] = [image_url]
+    results_dict["page_urls"] = [page_url]
     relevance = background_removal.image_is_relevant(img_arr)
     actual_relevance = relevance.is_relevant
     # print('relevance:' + str(actual_relevance))
     relevance = actual_relevance * qc_assessment_of_relevance(image_url)
-    results_dict['relevant'] = relevance
-    # results_dict['items'] = similar_items_from_products_db
-    for item in similar_items_from_products_db:
-        similar_item = item
-        similar_item['similar_items'] = []
+    results_dict["relevant"] = relevance
+    results_dict["items"] = similar_items_from_products_db
+
     #`EDIT FROM HERE        for
+    logging.debug('inserting into db:')
+    logging.debug(str(results_dict))
     db = pymongo.MongoClient().mydb
     db.images.insert(results_dict)
-    logging.debug('inserted into db:')
-    logging.debug(results_dict)
     return results_dict
-
-
-images_entry = [{'category': 'womens-shirt-skirts',
-                 'svg': 'svg-url',
-                 'saved_date': 'Jun 23, 1912',
-                 'similar_items': [{"$ref": 'products', "$id": '<value1>', "$db": 'mydb'},
-                                   {"$ref": 'products', "$id": '< value2 >', "$db": 'mydb'},
-                                   {"$ref": 'products', "$id": '< value3 >', "$db": 'mydb'}]},
-
-                {'category': 'mens-purse',
-                 'svg': 'svg-url',
-                 'saved_date': 'Jun 23, 1912',
-                 'similar_items': [{"$ref": 'products', "$id": '< value1 >', "$db": 'mydb'},
-                                   {"$ref": 'products', "$id": '< value2 >', "$db": 'mydb'},
-                                   {"$ref": 'products', "$id": '< value3 >', "$db": 'mydb'}]}]
 
 
 def update_image_in_db(page_url, image_url, cursor):
@@ -391,6 +375,9 @@ def results_for_page(page_url):
     this returns all the known similar items for images appearing at page_url (that we know about - maybe images changed since last we checked)
     :type page_url: str
     :return: dictionary of similar results for each image at page
+    this should dereference the similar items dbreferences, and return full info except things the front end doesnt care about like fingerprint etc.
+    currently the projection operator isnt working for some reason
+    there was a bug in dbrefs using projections that was fixed in certain versions , see https://github.com/Automattic/mongoose/issues/1091
     '''
     # logging.basicConfig(format='%(levelname)s:%(message)s', level=logging.DEBUG)
     if page_url == None:
@@ -407,9 +394,15 @@ def results_for_page(page_url):
         # no results for this item were found. maybe return something more informative than 'None'
         logging.debug('no results for pageurl were found in results_for_page')
         return None
-    logging.debug('some images were found in results_for_page search for page url:')
-    logging.debug('the results as list:' + str(list(cursor)))
+    list_of_cursor = list(cursor)
+    logging.debug('some images were found in results_for_page search for page url:' + str(page_url))
+    logging.debug('the unmodified results as list:' + str(list_of_cursor))
+
     results = []
+
+    # The projection parameter takes a document of the following form:
+    #{ field1: <boolean>, field2: <boolean> ... }
+    #http://docs.mongodb.org/manual/reference/method/db.collection.find/
     # these are the fields we want to get from the products db
     projection = {
         'seeMoreUrl': 1,
@@ -442,44 +435,36 @@ def results_for_page(page_url):
         'pageUrl': 1,
         '_id': 0,
         'priceLabel': 1}
+
+    cursor.rewind()
     for doc in cursor:
-        # {'image_hash': '2403b296b6d0be5e5bb2e74463419b2a',   #ID IS FORCED TO BE IMAGE HASH
-        # 'image_urls': [ 'url1_of_image.jpg','url2_of_image.jpg','url3_of_image.jpg'],
-        # 'page_urls': ['page1_where_image_appears.html','page2_where_image_appears.html','page3_where_image_appears.html'],
-        # 'relevant': True,  # result of doorman * QC
-        # 'items': [{'category': 'womens-shirt-skirts',
-        # 'svg': 'svg-url',
-        # 'saved_date':'Jun 23, 1912'
-        # this is what we want
-        # 'similar_items': [ {'seeMoreUrl':'url.html'
-        # 'image':{'big_ass_dictionary of image info':'the_info'}
-        # 'LargeImage': 'www.largeimg_url.jpg'
-        # 'clickUrl':'theurl'
-        # vs what we have
-        #                'similar_items': [  { "$ref" : 'products', "$id" : <value1>, "$db" : 'mydb' },
-        #                                    { "$ref" : 'products', "$id" : <value2>, "$db" : 'mydb' },
-        #                                    { "$ref" : 'products', "$id" : <value3>, "$db" : 'mydb' } ]} ,
-        modified_doc = copy.deepcopy(doc)
+        modified_doc = copy.deepcopy(
+            doc)  # necessary since i am fooling with the fields, and the copy is a copy by reference
+        #        modified_doc =doc
         modified_doc['items'] = []
-        for item in doc[
-            'items']:  # expand the info in the similar_items list since in the images db its stored just as a reference
+        for item in doc['items']:  # expand the info in similar_items since in the images db its  just as a reference
             expanded_item = copy.deepcopy(item)
             expanded_item['similar_items'] = []
-            for similar_item in doc['similar_items']:
+            for similar_item in item['similar_items']:
                 try:
-                    products_db_entry = db.dereference(similar_item,
-                                                       projection)  #projection only returns specified fields
+                    # products_db_entry = db.dereference(similar_item, projection)  #runs into type error
+                    products_db_entry = db.dereference(similar_item)  #works
                 except TypeError:
-                    logging.warning('dbref is not an instance of DBRef')
+                    logging.error('dbref is not an instance of DBRef')
+                    return None
                 except ValueError:
-                    logging.warning('dbref has a db specified that is different from the current database')
+                    logging.error('dbref has a db specified that is different from the current database')
+                    return None
                 detailed_item = products_db_entry
-                large_image = detailed_item['image']['Large']['url']
+                large_image = detailed_item['image']['sizes']['Large']['url']
                 #add 'large image' so the poor web guy doesnt have too dig that much deeper than he already has to
                 detailed_item['LargeImage'] = large_image
                 expanded_item['similar_items'].append(detailed_item)
             modified_doc['items'].append(expanded_item)
         results.append(modified_doc)
+    logging.debug('the modified results as list:')
+    results = results[0]  # results are getting stuck in a list for some reason
+    logging.debug(str(results))
     return results
 
 
@@ -520,7 +505,7 @@ def new_images(page_url, list_of_image_urls):
             logging.debug('image ' + image_url + ' was NOT found in db, looking for similar items ')
             new_answer = find_similar_items_and_put_into_db(image_url, page_url)
         i = i + 1
-        return number_found, number_not_found
+    return number_found, number_not_found
 
 
 def kill_images_collection():
@@ -535,10 +520,12 @@ def kill_images_collection():
     print('collection.count() == 0 ?' + str(collection.count() == 0))  # Check if collection named 'posts' is empty
 
 ###DO THIS ONLY IF YOU KNOW WHAT YOU ARE DOING
-# collection.drop()
-###DO THIS TO KILL DB
+    collection.drop()
+
+###DO THIS TO KILL DB - ASK LIOR AND/OR JEREMY BEFORE DOING THIS
 
 if __name__ == '__main__':
     print('starting')
     # kill_images_collection()
     #verify_hash_of_image('wefwfwefwe', 'http://resources.shopstyle.com/pim/c8/af/c8af6068982f408205491817fe4cad5d.jpg')
+    dbUtils.step_thru_images_db(use_visual_output=False, collection='images')
