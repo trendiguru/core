@@ -1,3 +1,5 @@
+# TODO in     def test_get_all_data_for_page(self): - add multiple images for one page url and make sure both get returned
+
 __author__ = 'jeremy'
 import unittest
 
@@ -35,14 +37,50 @@ class OutcomesTest(unittest.TestCase):
         print('images found in db:' + str(n_found) + ' and images not found:' + str(n_not_found))
 
     # OK
-    def test_results_for_page(self):
+    def test_get_all_data_for_page(self):  # TODO - add multiple images for one page url and make sure both get returned
         print('starting test of results_for_page()')
         img_url = 'http://resources.shopstyle.com/xim/b7/ce/b7ce6784ec5e488fbe51bc939ce6e1a5.jpg'
         page_url = 'http://www.shopstyle.com/browse/womens-tech-accessories/Salvatore-Ferragamo?pid=uid900-25284470-95'
 
-        results_for_page = page_results.results_for_page(page_url)
+        results_for_page = page_results.get_all_data_for_page(page_url)
         print('results for page:')
         print results_for_page
+
+        page_url = 'http://ohwtflol.com/coolest-kid-ever/'
+        results_for_page = page_results.get_all_data_for_page(page_url)
+        print('results for page:')
+        print results_for_page
+
+    def test_get_data_for_specific_image(self):
+        print('starting test of get_data_for_specific image()')
+        img_url = 'http://ohwtflol.com/wp-content/uploads/2014/08/Coolest-kid-ever-Why-did-my-parents-not-think-of-dressing-me-like-this-when-I-was-young.jpg'
+        img_hash = 'b2cfe8cae069add119c4a61b05eb39d7'
+        results = page_results.get_data_for_specific_image(image_url=img_url, image_hash=None)
+        print('results for img url:')
+        print str(results)
+        self.assertTrue(len(results) > 0)
+        results = page_results.get_data_for_specific_image(image_url=None, image_hash=img_hash)
+        print('results for img hash:')
+        print str(results)
+        self.assertTrue(len(results) > 0)
+
+        img_hash = '6da2c32d55016564ab6f012da77ebcbc'
+        results = page_results.get_data_for_specific_image(image_url=None, image_hash=img_hash)
+        print('results for img hash:')
+        print str(results)
+        self.assertTrue(len(results) > 0)
+
+        img_hash = 'nonexistent_hash'
+        results = page_results.get_data_for_specific_image(image_url=None, image_hash=img_hash)
+        print('results for img hash:')
+        print str(results)
+        self.assertTrue(results is None)
+
+        img_url = 'nonexistent_url'
+        results = page_results.get_data_for_specific_image(image_url=img_url, image_hash=None)
+        print('results for img hash:')
+        print str(results)
+        self.assertTrue(results is None)
 
     #OK
     def test_start_pipeline(self):

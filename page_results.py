@@ -370,7 +370,7 @@ def update_image_in_db(page_url, image_url, cursor):
         logging.debug(doc)
 
 
-def results_for_page(page_url):
+def get_all_data_for_page(page_url):
     '''
     this returns all the known similar items for images appearing at page_url (that we know about - maybe images changed since last we checked)
     :type page_url: str
@@ -437,6 +437,7 @@ def results_for_page(page_url):
         'priceLabel': 1}
 
     cursor.rewind()
+    # This can all be replaced by a call to dereference_image_collection_entry
     for doc in cursor:
         modified_doc = copy.deepcopy(
             doc)  # necessary since i am fooling with the fields, and the copy is a copy by reference
@@ -449,6 +450,19 @@ def results_for_page(page_url):
                 try:
                     # products_db_entry = db.dereference(similar_item, projection)  #runs into type error
                     products_db_entry = db.dereference(similar_item)  #works
+                    del products_db_entry['colors']
+                    del products_db_entry['id']
+                    del products_db_entry['badges']
+                    del products_db_entry['extractDate']
+                    del products_db_entry['alternateImages']
+                    del products_db_entry['dl_version']
+                    del products_db_entry['preOwned']
+                    del products_db_entry['unbrandedName']
+                    del products_db_entry['fingerprint']
+                    del products_db_entry['rental']
+                    del products_db_entry['lastModified']
+                    if 'archive' in products_db_entry:
+                        del products_db_entry['archive']
                 except TypeError:
                     logging.error('dbref is not an instance of DBRef')
                     return None
@@ -463,9 +477,93 @@ def results_for_page(page_url):
             modified_doc['items'].append(expanded_item)
         results.append(modified_doc)
     logging.debug('the modified results as list:')
-    results = results[0]  # results are getting stuck in a list for some reason
     logging.debug(str(results))
     return results
+
+
+def dereference_image_collection_entry(doc=None):
+    if doc == None:
+        logging.warning(
+            'no image collection entry given for dereferencing (page_results.dereference_image_collection_entry)')
+    db = pymongo.MongoClient().mydb
+    results = []
+
+    # The projection parameter takes a document of the following form:
+    # { field1: <boolean>, field2: <boolean> ... }
+    #http://docs.mongodb.org/manual/reference/method/db.collection.find/
+    # these are the fields we want to get from the products db
+    projection = {
+        'seeMoreUrl': 1,
+        'locale': 1,
+        'image': 1,
+        'clickUrl': 1,
+        'retailer': 1,
+        'currency': 1,
+        'colors': 0,
+        'id': 0,
+        'badges': 0,
+        'extractDate': 0,
+        'alternateImages': 0,
+        'archive': 0,
+        'dl_version': 0,
+        'preOwned': 0,
+        'inStock': 1,
+        'brand': 1,
+        'description': 1,
+        'seeMoreLabel': 1,
+        'price': 1,
+        'unbrandedName': 1,
+        'fingerprint': 0,
+        'rental': 0,
+        'categories': 1,
+        'name': 1,
+        'sizes': 1,
+        'lastModified': 0,
+        'brandedName': 1,
+        'pageUrl': 1,
+        '_id': 0,
+        'priceLabel': 1}
+
+    modified_doc = copy.deepcopy(
+        doc)  # probably necessary since i am fooling with the fields, and the copy is a copy by reference
+    #modified_doc =doc  #actually i guess one could avoid the deepcopy somehow
+    modified_doc['items'] = []
+    for item in doc['items']:  # expand the info in similar_items since in the images db its  just as a reference
+        expanded_item = copy.deepcopy(item)
+        expanded_item['similar_items'] = []
+        for similar_item in item['similar_items']:
+            try:
+                # products_db_entry = db.dereference(similar_item, projection)  #runs into type error
+                products_db_entry = db.dereference(similar_item)  #works
+                del products_db_entry['colors']
+                del products_db_entry['id']
+                del products_db_entry['badges']
+                del products_db_entry['extractDate']
+                del products_db_entry['alternateImages']
+                del products_db_entry['dl_version']
+                del products_db_entry['preOwned']
+                del products_db_entry['unbrandedName']
+                del products_db_entry['fingerprint']
+                del products_db_entry['rental']
+                del products_db_entry['lastModified']
+                if 'archive' in products_db_entry:
+                    del products_db_entry['archive']
+
+            except TypeError:
+                logging.error('dbref is not an instance of DBRef')
+                return None
+            except ValueError:
+                logging.error('dbref has a db specified that is different from the current database')
+                return None
+            detailed_item = products_db_entry
+            large_image = detailed_item['image']['sizes']['Large']['url']
+            #add 'large image' so the poor web guy doesnt have too dig that much deeper than he already has to
+            detailed_item['LargeImage'] = large_image
+            expanded_item['similar_items'].append(detailed_item)
+        modified_doc['items'].append(expanded_item)
+    logging.debug('the modified results as list:')
+    logging.debug(str(modified_doc))
+    return modified_doc
 
 
 def new_images(page_url, list_of_image_urls):
@@ -507,6 +605,39 @@ def new_images(page_url, list_of_image_urls):
         i = i + 1
     return number_found, number_not_found
 
+
+def get_data_for_specific_image(image_url=None, image_hash=None):
+    '''
+    this just checks db for an image or hash. It doesn't start the pipeline or update the db
+    :param image_url: url of image to find
+    :param image_hash: hash (of image) to find
+    :return:
+    '''
+    if image_url == None and image_hash == None:
+        logging.warning('page_results.get_data_for_specific_image wasnt given one of image url or image hash')
+        return None
+    db = pymongo.MongoClient().mydb
+    i = 0
+    answers = []
+    number_found = 0
+    number_not_found = 0
+    if image_url is not None:
+        logging.debug('looking for image ' + image_url + ' in db ')
+        query = {"image_urls": image_url}
+    else:
+        logging.debug('looking for hash ' + image_hash + ' in db ')
+        query = {"image_hash": image_hash}
+    entry = db.images.find_one(query)
+    if entry is not None:
+        logging.debug('found image (or hash) in db ')
+        # hash gets checked in update_image_in_db(), alternatively it could be checked here
+        dereferenced_entry = dereference_image_collection_entry(entry)
+        logging.debug('dereferenced entry: ')
+        logging.debug(str(dereferenced_entry))
+        return dereferenced_entry
+    else:
+        logging.debug('image / hash  was NOT found in db')
+        return None
 
 def kill_images_collection():
     connection = Connection('localhost', 27017)  # Connect to mongodb
