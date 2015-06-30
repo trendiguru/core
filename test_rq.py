@@ -1,6 +1,7 @@
 __author__ = 'jeremy'
 
 import requests
+from subprocess import call
 
 from redis import Redis
 from rq import Queue
@@ -17,6 +18,10 @@ def wrap():
     result = q.enqueue(count_words_at_url, 'http://nvie.com')
 
     print(str(result) + ' words at ' + url)
+
+
+def enqueue():
+    call(["rqworker"])
 
 if __name__ == '__main__':
     print('starting')
