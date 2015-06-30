@@ -399,82 +399,10 @@ def get_all_data_for_page(page_url):
     logging.debug('the unmodified results as list:' + str(list_of_cursor))
 
     results = []
-
-    # The projection parameter takes a document of the following form:
-    #{ field1: <boolean>, field2: <boolean> ... }
-    #http://docs.mongodb.org/manual/reference/method/db.collection.find/
-    # these are the fields we want to get from the products db
-    projection = {
-        'seeMoreUrl': 1,
-        'locale': 1,
-        'image': 1,
-        'clickUrl': 1,
-        'retailer': 1,
-        'currency': 1,
-        'colors': 0,
-        'id': 0,
-        'badges': 0,
-        'extractDate': 0,
-        'alternateImages': 0,
-        'archive': 0,
-        'dl_version': 0,
-        'preOwned': 0,
-        'inStock': 1,
-        'brand': 1,
-        'description': 1,
-        'seeMoreLabel': 1,
-        'price': 1,
-        'unbrandedName': 1,
-        'fingerprint': 0,
-        'rental': 0,
-        'categories': 1,
-        'name': 1,
-        'sizes': 1,
-        'lastModified': 0,
-        'brandedName': 1,
-        'pageUrl': 1,
-        '_id': 0,
-        'priceLabel': 1}
-
     cursor.rewind()
     # This can all be replaced by a call to dereference_image_collection_entry
     for doc in cursor:
-        modified_doc = copy.deepcopy(
-            doc)  # necessary since i am fooling with the fields, and the copy is a copy by reference
-        #        modified_doc =doc
-        modified_doc['items'] = []
-        for item in doc['items']:  # expand the info in similar_items since in the images db its  just as a reference
-            expanded_item = copy.deepcopy(item)
-            expanded_item['similar_items'] = []
-            for similar_item in item['similar_items']:
-                try:
-                    # products_db_entry = db.dereference(similar_item, projection)  #runs into type error
-                    products_db_entry = db.dereference(similar_item)  #works
-                    del products_db_entry['colors']
-                    del products_db_entry['id']
-                    del products_db_entry['badges']
-                    del products_db_entry['extractDate']
-                    del products_db_entry['alternateImages']
-                    del products_db_entry['dl_version']
-                    del products_db_entry['preOwned']
-                    del products_db_entry['unbrandedName']
-                    del products_db_entry['fingerprint']
-                    del products_db_entry['rental']
-                    del products_db_entry['lastModified']
-                    if 'archive' in products_db_entry:
-                        del products_db_entry['archive']
-                except TypeError:
-                    logging.error('dbref is not an instance of DBRef')
-                    return None
-                except ValueError:
-                    logging.error('dbref has a db specified that is different from the current database')
-                    return None
-                detailed_item = products_db_entry
-                large_image = detailed_item['image']['sizes']['Large']['url']
-                #add 'large image' so the poor web guy doesnt have too dig that much deeper than he already has to
-                detailed_item['LargeImage'] = large_image
-                expanded_item['similar_items'].append(detailed_item)
-            modified_doc['items'].append(expanded_item)
+        modified_doc = dereference_image_collection_entry(doc)
         results.append(modified_doc)
     logging.debug('the modified results as list:')
     logging.debug(str(results))
