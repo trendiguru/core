@@ -23,7 +23,7 @@ import background_removal
 
 # similar_results structure - this an example of a similar results answer, with two items
 images_entry = \
-    {'image_hash': '2403b296b6d0be5e5bb2e74463419b2a',
+    {'hash': '2403b296b6d0be5e5bb2e74463419b2a',
      'image_urls': ['url1_of_image.jpg', 'url2_of_image.jpg', 'url3_of_image.jpg'],
      'page_urls': ['page1_where_image_appears.html', 'page2_where_image_appears.html',
                    'page3_where_image_appears.html'],
@@ -44,7 +44,7 @@ images_entry = \
 
 
 # format for results to return to javascript thru web2py . this an example of a similar results answer as returned to web2py
-results = {'image_hash': '2403b296b6d0be5e5bb2e74463419b2a',  # ID IS FORCED TO BE IMAGE HASH
+results = {'hash': '2403b296b6d0be5e5bb2e74463419b2a',  # ID IS FORCED TO BE IMAGE HASH
            'image_urls': ['url1_of_image.jpg', 'url2_of_image.jpg', 'url3_of_image.jpg'],
            'page_urls': ['page1_where_image_appears.html', 'page2_where_image_appears.html',
                          'page3_where_image_appears.html'],
@@ -303,7 +303,7 @@ def find_similar_items_and_put_into_db(image_url, page_url):
     m = hashlib.md5()
     m.update(img_arr)
     image_hash = m.hexdigest()
-    results_dict["image_hash"] = image_hash
+    results_dict["hash"] = image_hash
     results_dict["image_urls"] = [image_url]
     results_dict["page_urls"] = [page_url]
     relevance = background_removal.image_is_relevant(img_arr)
@@ -339,7 +339,7 @@ def update_image_in_db(page_url, image_url, cursor):
         i = i + 1
 
         # check if the image in the url is the same one as appears in the supposedly matching doc
-        image_hash = doc['image_hash']
+        image_hash = doc['hash']
         same_image = verify_hash_of_image(image_hash, image_url)
         if not same_image:
             logging.warning(
@@ -554,7 +554,7 @@ def get_data_for_specific_image(image_url=None, image_hash=None):
         query = {"image_urls": image_url}
     else:
         logging.debug('looking for hash ' + image_hash + ' in db ')
-        query = {"image_hash": image_hash}
+        query = {"hash": image_hash}
     entry = db.images.find_one(query)
     if entry is not None:
         logging.debug('found image (or hash) in db ')
