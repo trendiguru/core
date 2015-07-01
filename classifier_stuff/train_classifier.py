@@ -705,7 +705,7 @@ def prepare_and_train():
     negatives_dir = 'images/womens-tops'
     negatives_dirs = ['images/womens-tops', 'images/mens-shirts']
     positives_dir = 'images/dresses'
-    classifier_dir = 'classifiers_to_test/classifier111/'
+    classifier_dir = 'classifiers_to_test/classifier112/'
     train_width = 15
     train_height = 20
     maxFalseAlarmRate = 0.35  # .8^20 = 0.01
