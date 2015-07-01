@@ -705,7 +705,7 @@ def prepare_and_train():
     negatives_dir = 'images/womens-tops'
     negatives_dirs = ['images/womens-tops', 'images/mens-shirts']
     positives_dir = 'images/dresses'
-    classifier_dir = 'classifiers_to_test/classifier112/'
+    classifier_dir = 'classifiers_to_test/classifier113/'
     train_width = 15
     train_height = 20
     maxFalseAlarmRate = 0.35  # .8^20 = 0.01
@@ -715,10 +715,10 @@ def prepare_and_train():
     mode = 'ALL'
     num_stages = 18
     featureType = 'LBP'
-    num_pos = 500
+    num_pos = 1000
     num_extra_positives = 0
     num_extra_negatives = 0
-    num_neg = 1000
+    num_neg = 2000
 
     print('classifier dir:' + classifier_dir)
     Utils.ensure_dir(classifier_dir)
@@ -752,10 +752,10 @@ def prepare_and_train():
     num_extra_positives = num_pos * num_stages / 70 + 4800
     num_extra_negatives = 50
 
-    num_pos = 500
+    num_pos = 1000
     num_extra_positives = 0
     num_extra_negatives = 0
-    num_neg = 1000
+    num_neg = 2000
 
     print('avail pos {0} avail neg {1}'.format(num_pos, num_neg))
 
@@ -1280,6 +1280,23 @@ minhitrate 0.98
     num_extra_positives = 0
     num_extra_negatives = 0
     num_neg = 1000
+
+113   - 1000 pos, 2000neg, 18 stage
+    classifier_dir = 'classifiers_to_test/classifier111/'
+    train_width = 15
+    train_height = 20
+    maxFalseAlarmRate = 0.35  # .8^20 = 0.01
+    minHitRate = 0.98  # 0.995^20 = 0.9
+    precalcValBufSize = 6000
+    precalcIdxBufSize = 6000
+    mode = 'ALL'
+    num_stages = 18
+    featureType = 'LBP'
+    num_pos = 500
+    num_extra_positives = 0
+    num_extra_negatives = 0
+    num_neg = 1000
+
     '''
 
 # 337 3139
