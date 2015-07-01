@@ -713,7 +713,7 @@ def prepare_and_train():
     precalcValBufSize = 6000
     precalcIdxBufSize = 6000
     mode = 'ALL'
-    num_stages = 20
+    num_stages = 18
     featureType = 'LBP'
     num_pos = 500
     num_extra_positives = 0
@@ -1265,7 +1265,22 @@ minhitrate 0.98
     num_extra_negatives = 0
     num_neg = 1000
 
-'''
+112   - 500 pos, 1000neg, 18 stage
+    classifier_dir = 'classifiers_to_test/classifier111/'
+    train_width = 15
+    train_height = 20
+    maxFalseAlarmRate = 0.35  # .8^20 = 0.01
+    minHitRate = 0.98  # 0.995^20 = 0.9
+    precalcValBufSize = 6000
+    precalcIdxBufSize = 6000
+    mode = 'ALL'
+    num_stages = 18
+    featureType = 'LBP'
+    num_pos = 500
+    num_extra_positives = 0
+    num_extra_negatives = 0
+    num_neg = 1000
+    '''
 
 # 337 3139
 # 338 3145    15:10
