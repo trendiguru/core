@@ -18,6 +18,7 @@ import pylab as pl
 
 # TODO
 #TODO allow specific directories, and alow recursive directory traverse for test_classifiers
+# TODO print directory name being checked so you know whassup during test
 # add raw data to conf matrix graph - number of targets, # detected, # extra
 # make output as json
 # put precision annotation on graph instead of recall
