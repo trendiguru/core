@@ -53,7 +53,7 @@ def detect_no_bb(classifier, img_array, use_visual_output=False):
         cv2.imshow('input', img_array)
     #    cv2.waitKey(100)
         k = 0xFF & cv2.waitKey(10)
-        return (len(bbs_computer))
+    return (len(bbs_computer))
 
 
 def calc_precision_recall(tot_targets, tot_found, extras_found, classifier_names, image_dirs):
