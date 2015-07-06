@@ -6,7 +6,7 @@ import constants
 import find_similar_mongo
 
 
-def from_paperdoll_mask_to_results(image, mask):
+def from_paperdoll_mask_to_results(image, mask, filename):
     # TODO:
     # check mask with image resize
 
@@ -20,7 +20,7 @@ def from_paperdoll_mask_to_results(image, mask):
             # create svg for each item
             item_dict["svg"] = find_similar_mongo.mask2svg(
                 item_mask,
-                str(item) + "'s svg",
+                filename,
                 constants.svg_folder)
             # fingerprint & find similar results
             item_dict["fp"], item_dict["similar_items"] = find_similar_mongo.find_top_n_results(
