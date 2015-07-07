@@ -1,17 +1,15 @@
 __author__ = 'Nadav Paz'
 
 import numpy as np
+from scipy import io
 
 import Utils
 import constants
 import find_similar_mongo
 
 
-def from_image_url_to_svgs(image_url):
-    # TODO
-    # find the image & parsed mask from a folder
-    # decide what will be the svg's filename (id / url)
-
+def from_image_url_to_svgs(image_url, image_id):
+    mask = find_mask_with_image_url(image_url)
     image_dict = {'image_url': image_url}
     items = []
     items_types = np.unique(mask)
@@ -22,7 +20,7 @@ def from_image_url_to_svgs(image_url):
             # create svg for each item
             item_dict["svg"] = find_similar_mongo.mask2svg(
                 item_dict["mask"],
-                filename,
+                str(image_id) + '_' + constants.RELEVANT_ITEMS[str(item)],
                 constants.svg_folder)
             items.append(item_dict)
     image_dict["items"] = items
@@ -40,4 +38,14 @@ def from_svg_to_similar_results(svg, image_dict):
                                                                                                 current_item[
                                                                                                     'category'])
     return image_dict
+
+
+def find_mask_with_image_url(image_url):
+    folder = '/home/ubuntu/paperdoll/'
+    f = open(folder + 'urls.txt')
+    urls_list = f.read().splitlines()
+    for i in range(0, len(urls_list)):
+        if urls_list[i] == image_url:
+            mask = io.loadmat(folder + 'masks' + '/' + str(i + 1) + '.mat')['mask']
+    return mask
 
