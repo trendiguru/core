@@ -2,6 +2,7 @@ __author__ = 'Nadav Paz'
 
 import numpy as np
 from scipy import io
+import pymongo
 
 import Utils
 import constants
@@ -9,10 +10,8 @@ import find_similar_mongo
 
 
 def from_image_url_to_svgs(image_url, image_id):
-    if Utils.get_cv2_img_array(image_url) is None:
-        return None
     mask = find_mask_with_image_url(image_url)
-    image_dict = {'image_url': image_url}
+    image_dict = {}
     items = []
     items_types = np.unique(mask)
     for item in items_types:
@@ -29,16 +28,16 @@ def from_image_url_to_svgs(image_url, image_id):
     return image_dict
 
 
-def from_svg_to_similar_results(svg, image_dict):
+def from_svg_to_similar_results(svg_url, image_dict):
     if image_dict is None:
         return None
     for item in image_dict["items"]:
-        if item["svg"] is svg:
+        if item["svg"] is svg_url:
             current_item = item
     image = Utils.get_cv2_img_array(image_dict['image_url'])
     current_item['fp'], current_item['similar_results'] = find_similar_mongo.find_top_n_results(image,
                                                                                                 current_item["mask"],
-                                                                                                10,
+                                                                                                20,
                                                                                                 current_item[
                                                                                                     'category'])
     return image_dict
@@ -53,3 +52,19 @@ def find_mask_with_image_url(image_url):
             mask = io.loadmat(folder + 'masks' + '/' + str(i + 1) + '.mat')['mask']
     return mask
 
+
+def find_or_create_image(image_url):
+    """
+    Search in db.images for the image by image url, if not exists - create one and start the process.
+    :param image url - this is coming directly from the web interface so it's all we'll ever get.
+    :return: image dictionary with svgs
+    """
+    if Utils.get_cv2_img_array(image_url) is None:
+        return None
+    db = pymongo.MongoClient().mydb
+    image_dict = db.images.find_one({"image_url": image_url})
+    if image_dict is None:
+        image_id = db.images.insert({"image_url": image_url})
+        image_dict = from_image_url_to_svgs(image_url, image_id)
+        db.images.update_one({'_id': image_id}, {'$set': image_dict})
+    return image_dict
