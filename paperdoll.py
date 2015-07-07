@@ -19,10 +19,11 @@ def from_image_url_to_svgs(image_url, image_id):
             item_dict = {"category": constants.RELEVANT_ITEMS[str(item)],
                          "mask": np.zeros(np.shape(mask), np.uint8) + np.array(mask == item)}
             # create svg for each item
-            item_dict["svg"] = find_similar_mongo.mask2svg(
+            item_dict["svg_name"] = find_similar_mongo.mask2svg(
                 item_dict["mask"],
                 str(image_id) + '_' + constants.RELEVANT_ITEMS[str(item)],
                 constants.svg_folder)
+            item_dict["svg_url"] = constants.svg_url_prefix + item_dict["svg_name"]
             items.append(item_dict)
     image_dict["items"] = items
     return image_dict
