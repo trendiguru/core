@@ -9,6 +9,8 @@ import find_similar_mongo
 
 
 def from_image_url_to_svgs(image_url, image_id):
+    if Utils.get_cv2_img_array(image_url) is None:
+        return None
     mask = find_mask_with_image_url(image_url)
     image_dict = {'image_url': image_url}
     items = []
@@ -20,7 +22,7 @@ def from_image_url_to_svgs(image_url, image_id):
             # create svg for each item
             item_dict["svg"] = find_similar_mongo.mask2svg(
                 item_dict["mask"],
-                str(image_id) + '_' + constants.RELEVANT_ITEMS[str(item)],
+                constants.svg_url_prefix + '_' + str(image_id) + '_' + constants.RELEVANT_ITEMS[str(item)],
                 constants.svg_folder)
             items.append(item_dict)
     image_dict["items"] = items
@@ -28,6 +30,8 @@ def from_image_url_to_svgs(image_url, image_id):
 
 
 def from_svg_to_similar_results(svg, image_dict):
+    if image_dict is None:
+        return None
     for item in image_dict["items"]:
         if item["svg"] is svg:
             current_item = item
