@@ -21,7 +21,7 @@ def from_image_url_to_svgs(image_url, image_id):
             # create svg for each item
             item_dict["svg"] = find_similar_mongo.mask2svg(
                 item_dict["mask"],
-                constants.svg_url_prefix + '_' + str(image_id) + '_' + constants.RELEVANT_ITEMS[str(item)],
+                str(image_id) + '_' + constants.RELEVANT_ITEMS[str(item)],
                 constants.svg_folder)
             items.append(item_dict)
     image_dict["items"] = items
