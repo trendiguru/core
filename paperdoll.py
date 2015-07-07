@@ -33,7 +33,7 @@ def from_svg_to_similar_results(svg_url, image_dict):
     if image_dict is None:
         return None
     for item in image_dict["items"]:
-        if item["svg"] is svg_url:
+        if item["svg_url"] is svg_url:
             current_item = item
     image = Utils.get_cv2_img_array(image_dict['image_url'])
     current_item['fp'], current_item['similar_results'] = find_similar_mongo.find_top_n_results(image,
