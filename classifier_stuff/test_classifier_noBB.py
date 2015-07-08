@@ -18,6 +18,7 @@ import pylab as pl
 
 # TODO
 #TODO allow specific directories, and alow recursive directory traverse for test_classifiers
+# TODO print directory name being checked so you know whassup during test
 # add raw data to conf matrix graph - number of targets, # detected, # extra
 # make output as json
 # put precision annotation on graph instead of recall
@@ -38,7 +39,8 @@ BLUE = [255,0,0]        # rectangle color
 def show_positives_file(positives_file):
     pass
 
-def detect_no_bb(classifier, img_array, use_visual_output=True):
+
+def detect_no_bb(classifier, img_array, use_visual_output=False):
     bbs_computer = classifier.detectMultiScale(img_array)
     if bbs_computer is () or bbs_computer is None:
         n_bbs_computer=0
@@ -51,7 +53,7 @@ def detect_no_bb(classifier, img_array, use_visual_output=True):
         cv2.imshow('input', img_array)
     #    cv2.waitKey(100)
         k = 0xFF & cv2.waitKey(10)
-        return (len(bbs_computer))
+    return (len(bbs_computer))
 
 
 def calc_precision_recall(tot_targets, tot_found, extras_found, classifier_names, image_dirs):
@@ -204,7 +206,7 @@ def plot_confusion_matrix(m, image_dirs, classifier_names, use_visual_output=Fal
     return (date_string)
 
 
-def test_classifier(classifier, imagesDir, max_files_to_try=10000):
+def test_classifier(classifier, imagesDir, max_files_to_try=10000, use_visual_output=False):
     '''
     run classifier on all images in dict - assume only one or no target items per image
     :param classifier: the classifier xml
@@ -229,7 +231,8 @@ def test_classifier(classifier, imagesDir, max_files_to_try=10000):
         if use_visual_output is True:
             cv2.imshow('input', img_array)
             k = 0xFF & cv2.waitKey(10)
-        nMatches = detect_no_bb(classifier, img_array)
+
+        nMatches = detect_no_bb(classifier, img_array, use_visual_output=use_visual_output)
         n_extra = 0
         if nMatches:
             n_extra = nMatches - 1  # any more than 1 match is assumed wrong here
@@ -249,7 +252,9 @@ def test_classifier(classifier, imagesDir, max_files_to_try=10000):
 ###########
 #classifierNames.append("dressClassifier013.xml")
 #TODO allow specific directories, and alow recursive directory traverse for test_classifiers
-def test_classifiers(classifierDir='../classifiers/', imageDir='images', use_visual_output=True):
+
+
+def test_classifiers(classifierDir='../classifiers/', imageDir='images', use_visual_output=False):
     resultsDir='classifier_results'
     results_filename=os.path.join(resultsDir,'classifier_results_'+trainDir+'.txt')
     max_files_to_try = 1000
@@ -295,7 +300,8 @@ def test_classifiers(classifierDir='../classifiers/', imageDir='images', use_vis
         for j in range(0, len(imagedirs)):
             imagedir = imagedirs[j]
             print('classifier:' + classifier + ' image directory:' + imagedir)
-            totTargets, totMatches, totExtraMatches = test_classifier(cascade_classifier, imagedir)
+            totTargets, totMatches, totExtraMatches = test_classifier(cascade_classifier, imagedir,
+                                                                      use_visual_output=use_visual_output)
             print('totTargets:' + str(totTargets) + ' totMatches:' + str(totMatches) + ' tot ExtraMatches:' + str(
                 totExtraMatches) + '           ')
             if totTargets:

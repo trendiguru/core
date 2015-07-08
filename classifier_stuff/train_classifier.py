@@ -1,3 +1,8 @@
+# 209
+# 2000 : 3013
+#NEG current samples: 1145
+
+
 from __future__ import print_function
 # !/usr/bin/env python
 __author__ = 'jeremy'
@@ -606,19 +611,6 @@ def train_wrapper(inputdir, outputdir, train_width=20, train_height=20, num_nega
 
     global top_subdirlist
 
-    # train_width = 20
-    # train_height = 20
-    # num_positives = 2000
-    # num_extra_positives = int(0.1 * num_positives) + 100
-    # num_negatives = 4000
-    # maxFalseAlarmRate = 0.4
-    # minHitRate = 0.995
-    # precalcIdxBufSize = 6000
-    # precalcValBufSize = 6000
-    # mode = 'ALL'
-    # num_stages = 20
-    # featureType = 'HAAR'
-    # delay_minutes = 5
 
     global max_files
     max_files = 100000  #this numnber of files from each other directory, max
@@ -713,16 +705,20 @@ def prepare_and_train():
     negatives_dir = 'images/womens-tops'
     negatives_dirs = ['images/womens-tops', 'images/mens-shirts']
     positives_dir = 'images/dresses'
-    classifier_dir = 'classifiers_to_test/classifier107/'
+    classifier_dir = 'classifiers_to_test/classifier113/'
     train_width = 15
     train_height = 20
-    maxFalseAlarmRate = 0.4  # .8^20 = 0.01
-    minHitRate = 0.96  # 0.995^20 = 0.9
+    maxFalseAlarmRate = 0.35  # .8^20 = 0.01
+    minHitRate = 0.98  # 0.995^20 = 0.9
     precalcValBufSize = 6000
     precalcIdxBufSize = 6000
     mode = 'ALL'
-    num_stages = 20
+    num_stages = 18
     featureType = 'LBP'
+    num_pos = 1000
+    num_extra_positives = 0
+    num_extra_negatives = 0
+    num_neg = 2000
 
     print('classifier dir:' + classifier_dir)
     Utils.ensure_dir(classifier_dir)
@@ -753,39 +749,20 @@ def prepare_and_train():
     sleep(30)  # wait till vecfile write is done
     num_pos = Utils.lines_in_file(bb_filename)
     num_neg = Utils.lines_in_file(negatives_filename)
-    num_extra_positives = num_pos * num_stages / 70 + 1000
+    num_extra_positives = num_pos * num_stages / 70 + 4800
+    num_extra_negatives = 50
 
-    # numpos 9693 : consumed 10873
-
-
-    #stage 1 9568 : 9660
-    #stage 2 9568 : 9755
-    #stage 3  9568 : 9851
-    # stage 4  9568 : 9948
-    #stage 5 9568 : 10048
-    #stage 6 9568 : 10144
-    #stage 7 9568 : 10249
-    #    numpos 9568 : consumed 10348 stage 8
-    #    numpos 9568 : consumed 10448  stage 9
-    #    9568 : 10558 stage 10
-
-    # 8694 : 8694   stage 0
-    # 8694 : 8849   stage 1
-    # 8694 : 9030 stage2
-    # 8694 : 9206  3
-    # 8694 : 9389  stage 4
-    # 8694 : 9581 5
-    #  8694 : 9772  6
-    #8694 : 9962   7
-    #    8694 : 10163   8
-
+    num_pos = 1000
+    num_extra_positives = 0
+    num_extra_negatives = 0
+    num_neg = 2000
 
     print('avail pos {0} avail neg {1}'.format(num_pos, num_neg))
 
 
     new_train(vecfilename=vecfilename, negatives_filename=negatives_filename,
               classifier_directory=classifier_dir, train_width=train_width,
-              train_height=train_height, num_negatives=num_neg - 50, num_positives=num_pos,
+              train_height=train_height, num_negatives=num_neg - num_extra_negatives, num_positives=num_pos,
               num_extra_positives=num_extra_positives,
               maxFalseAlarmRate=maxFalseAlarmRate, minHitRate=minHitRate, precalcIdxBufSize=precalcIdxBufSize,
               precalcValBufSize=precalcValBufSize,
@@ -1185,6 +1162,7 @@ sudo python train_classifier.py -o 072 -i images/imageNet/easy
 
 minhitrate 0.99 instead of 0.995
 104    classifier_dir = 'classifiers_to_test/classifier104/'
+RAN OUT OF POSITIVES
     train_width = 15
     train_height = 20
     maxFalseAlarmRate = 0.3  # .8^20 = 0.01
@@ -1219,7 +1197,107 @@ minhitrate 0.98
     num_stages = 20
     featureType = 'HAAR'
 
-'''
+107 minhit 0.96 FA 0.4 LBP
+    train_width = 15
+    train_height = 20
+    maxFalseAlarmRate = 0.4  # .8^20 = 0.01
+    minHitRate = 0.96  # 0.995^20 = 0.9
+    precalcValBufSize = 6000
+    precalcIdxBufSize = 6000
+    mode = 'ALL'
+    num_stages = 20
+    featureType = 'LBP'
+
+108 minhit 0.98 FA 0.4 LBP
+    train_width = 15
+    train_height = 20
+    maxFalseAlarmRate = 0.4  # .8^20 = 0.01
+    minHitRate = 0.96  # 0.995^20 = 0.9
+    precalcValBufSize = 6000
+    precalcIdxBufSize = 6000
+    mode = 'ALL'
+    num_stages = 20
+    featureType = 'LBP'
+
+109   2000 pos and 5000 neg, 18 stages
+    classifier_dir = 'classifiers_to_test/classifier109/'
+    train_width = 15
+    train_height = 20
+    maxFalseAlarmRate = 0.4  # .8^20 = 0.01
+    minHitRate = 0.98  # 0.995^20 = 0.9
+    precalcValBufSize = 6000
+    precalcIdxBufSize = 6000
+    mode = 'ALL'
+    num_stages = 18
+    featureType = 'LBP'
+    num_pos = 2000
+    num_neg = 5000
+
+110
+    classifier_dir = 'classifiers_to_test/classifier110/'
+    train_width = 15
+    train_height = 20
+    maxFalseAlarmRate = 0.35  # .8^20 = 0.01
+    minHitRate = 0.98  # 0.995^20 = 0.9
+    precalcValBufSize = 6000
+    precalcIdxBufSize = 6000
+    mode = 'ALL'
+    num_stages = 20
+    featureType = 'LBP'
+    num_pos = 3000
+    num_extra_positives = 0
+    num_extra_negatives = 0
+    num_neg = 6000
+
+111   - 500 pos, 1000neg
+    classifier_dir = 'classifiers_to_test/classifier111/'
+    train_width = 15
+    train_height = 20
+    maxFalseAlarmRate = 0.35  # .8^20 = 0.01
+    minHitRate = 0.98  # 0.995^20 = 0.9
+    precalcValBufSize = 6000
+    precalcIdxBufSize = 6000
+    mode = 'ALL'
+    num_stages = 20
+    featureType = 'LBP'
+    num_pos = 500
+    num_extra_positives = 0
+    num_extra_negatives = 0
+    num_neg = 1000
+
+112   - 500 pos, 1000neg, 18 stage
+    classifier_dir = 'classifiers_to_test/classifier111/'
+    train_width = 15
+    train_height = 20
+    maxFalseAlarmRate = 0.35  # .8^20 = 0.01
+    minHitRate = 0.98  # 0.995^20 = 0.9
+    precalcValBufSize = 6000
+    precalcIdxBufSize = 6000
+    mode = 'ALL'
+    num_stages = 18
+    featureType = 'LBP'
+    num_pos = 500
+    num_extra_positives = 0
+    num_extra_negatives = 0
+    num_neg = 1000
+
+113   - 1000 pos, 2000neg, 18 stage
+    classifier_dir = 'classifiers_to_test/classifier111/'
+    train_width = 15
+    train_height = 20
+    maxFalseAlarmRate = 0.35  # .8^20 = 0.01
+    minHitRate = 0.98  # 0.995^20 = 0.9
+    precalcValBufSize = 6000
+    precalcIdxBufSize = 6000
+    mode = 'ALL'
+    num_stages = 18
+    featureType = 'LBP'
+    num_pos = 500
+    num_extra_positives = 0
+    num_extra_negatives = 0
+    num_neg = 1000
+
+    '''
 
 # 337 3139
 # 338 3145    15:10

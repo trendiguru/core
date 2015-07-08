@@ -44,6 +44,21 @@ classifier_to_category_dict = {"dressClassifier.xml": ["dresses", "bridal-mother
                                                        "mens-big-and-tall-coats-and-jackets",
                                                        "mens-big-and-tall-blazers"]}
 
+# paperdoll items' legends
+
+RELEVANT_ITEMS = {'2': 'leggings', '3': 'womens-shorts', '4': 'blazers', '5': 'tees-and-tshirts',
+                  '8': 'womens-outerwear', '9': 'skirts', '12': 'womens-tops', '13': 'jackets', '14': 'bras',
+                  '15': 'dresses', '16': 'womens-pants', '17': 'sweaters', '18': 'womens-tops', '19': 'jeans',
+                  '20': 'leggings', '23': 'womens-top', '24': 'cardigan-sweaters', '25': 'womens-accessories',
+                  '26': 'mens-vests', '29': 'socks', '31': 'womens-intimates', '32': 'stockings',
+                  '35': 'mens-cashmere-sweaters', '36': 'sweatshirts', '37': 'womens-suits', '43': 'mens-ties'}
+IRELEVANT_ITEMS = {'1': 'background', '6': 'bag', '7': 'shoes', '10': 'purse', '11': 'boots', '21': 'scarf',
+                   '22': 'hats', '27': 'sunglasses', '28': 'belts', '30': 'glasses', '33': 'necklace', '34': 'cape',
+                   '38': 'bracelet', '39': 'heels', '40': 'wedges', '41': 'rings',
+                   '42': 'flats', '44': 'romper', '45': 'sandals', '46': 'earrings', '47': 'gloves',
+                   '48': 'sneakers', '49': 'clogs', '50': 'watchs', '51': 'pumps', '52': 'wallets', '53': 'bodysuit',
+                   '54': 'loafers', '55': 'hair', '56': 'skin'}
+
 # for web bounding box interface
 # this is for going to the previous item, highest numbered image
 max_image_val = 666
