@@ -17,7 +17,7 @@ def from_image_url_to_svgs(image_url, image_id):
     for item in items_types:
         if str(item) in constants.RELEVANT_ITEMS.keys():
             item_dict = {"category": constants.RELEVANT_ITEMS[str(item)],
-                         "mask": np.zeros(np.shape(mask), np.uint8) + np.array(mask == item)}
+                         "mask": 255 * (np.zeros(np.shape(mask), np.uint8) + np.array(mask == item))}
             # create svg for each item
             item_dict["svg_name"] = find_similar_mongo.mask2svg(
                 item_dict["mask"],
