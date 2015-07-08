@@ -72,6 +72,6 @@ def find_or_create_image(image_url):
     if image_dict is None or 'items' not in image_dict.keys():
         image_id = db.images.insert({"image_url": image_url})
         image_dict = from_image_url_to_svgs(image_url, image_id)
-        for key, value in image_dict.iteritems():
-            db.images.update({'_id': image_id}, {'$set': {image_dict.key: image_dict.value}})
+        # for key, value in image_dict.iteritems():
+        db.images.update({'_id': image_id}, {'$set': image_dict})
     return image_dict
