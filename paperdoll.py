@@ -8,6 +8,8 @@ import Utils
 import constants
 import find_similar_mongo
 
+db = pymongo.MongoClient().mydb
+
 
 def from_image_url_to_svgs(image_url, image_id):
     mask = find_mask_with_image_url(image_url)
@@ -29,9 +31,10 @@ def from_image_url_to_svgs(image_url, image_id):
     return image_dict
 
 
-def from_svg_to_similar_results(svg_url, image_dict):
-    if image_dict is None:
+def from_svg_to_similar_results(svg_url, image_url):
+    if svg_url is None or image_url is None:
         return None
+    image_dict = db.images.find_one({'image_url': image_url})
     for item in image_dict["items"]:
         if item["svg_url"] == svg_url:
             current_item = item
@@ -67,7 +70,6 @@ def find_or_create_image(image_url):
     """
     if Utils.get_cv2_img_array(image_url) is None:
         return None
-    db = pymongo.MongoClient().mydb
     image_dict = db.images.find_one({"image_url": image_url})
     if image_dict is None or 'items' not in image_dict.keys():
         image_id = db.images.insert({"image_url": image_url})
