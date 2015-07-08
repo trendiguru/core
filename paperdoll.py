@@ -16,15 +16,14 @@ def from_image_url_to_svgs(image_url, image_id):
     items_types = np.unique(mask)
     for item in items_types:
         if str(item) in constants.RELEVANT_ITEMS.keys():
-            item_dict = {"category": constants.RELEVANT_ITEMS[str(item)],
-                         "mask": 255 * (np.zeros(np.shape(mask), np.uint8) + np.array(mask == item))}
+            item_dict = {"category": constants.RELEVANT_ITEMS[str(item)]}
+            item_mask = 255 * (np.zeros(np.shape(mask), np.uint8) + np.array(mask == item))
             # create svg for each item
             item_dict["svg_name"] = find_similar_mongo.mask2svg(
-                item_dict["mask"],
+                item_mask,
                 str(image_id) + '_' + constants.RELEVANT_ITEMS[str(item)],
                 constants.svg_folder)
             item_dict["svg_url"] = constants.svg_url_prefix + item_dict["svg_name"]
-            item_dict["mask"] = item_dict["mask"].tolist()
             items.append(item_dict)
     image_dict["items"] = items
     return image_dict
@@ -36,10 +35,14 @@ def from_svg_to_similar_results(svg_url, image_dict):
     for item in image_dict["items"]:
         if item["svg_url"] is svg_url:
             current_item = item
+    for key, value in constants.RELEVANT_ITEMS.iteritems():
+        if value == current_item['category']:
+            item_num = key
+    mask = find_mask_with_image_url(image_dict['image_url'])
+    item_mask = 255 * (np.zeros(np.shape(mask), np.uint8) + np.array(mask == item_num))
     image = Utils.get_cv2_img_array(image_dict['image_url'])
     current_item['fp'], current_item['similar_results'] = find_similar_mongo.find_top_n_results(image,
-                                                                                                np.array(current_item[
-                                                                                                    "mask"]),
+                                                                                                item_mask,
                                                                                                 20,
                                                                                                 current_item[
                                                                                                     'category'])
