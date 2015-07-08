@@ -33,7 +33,7 @@ def from_svg_to_similar_results(svg_url, image_dict):
     if image_dict is None:
         return None
     for item in image_dict["items"]:
-        if item["svg_url"] is svg_url:
+        if item["svg_url"] == svg_url:
             current_item = item
     for key, value in constants.RELEVANT_ITEMS.iteritems():
         if value == current_item['category']:
