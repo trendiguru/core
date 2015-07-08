@@ -72,5 +72,6 @@ def find_or_create_image(image_url):
     if image_dict is None or 'items' not in image_dict.keys():
         image_id = db.images.insert({"image_url": image_url})
         image_dict = from_image_url_to_svgs(image_url, image_id)
-        db.images.update({'_id': image_id}, {'$set': image_dict})
-    return image_dict
+        updated_document = db.images.find_one_and_update({'_id': image_id}, {'$set': image_dict},
+                                                         return_document=pymongo.ReturnDocument.AFTER)
+    return updated_document
