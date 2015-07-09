@@ -8,6 +8,7 @@ import Utils
 import constants
 import find_similar_mongo
 
+
 db = pymongo.MongoClient().mydb
 
 
@@ -42,7 +43,7 @@ def from_svg_to_similar_results(svg_url, image_url):
         if value == current_item['category']:
             item_num = key
     mask = find_mask_with_image_url(image_dict['image_url'])
-    item_mask = 255 * (np.zeros(np.shape(mask), np.uint8) + np.array(mask == item_num))
+    item_mask = 255 * (np.zeros(np.shape(mask), np.uint8) + np.array(mask == int(item_num)))
     image = Utils.get_cv2_img_array(image_dict['image_url'])
     current_item['fp'], current_item['similar_results'] = find_similar_mongo.find_top_n_results(image,
                                                                                                 item_mask,

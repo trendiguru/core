@@ -75,9 +75,12 @@ def item_length_test(dir):
         legs_prop, prop_left, prop_right = item_length(image, gc_image)
         if legs_prop != -1:
             legs_prop_list.append(legs_prop)
-        plt.hist(legs_prop_list)
-        plt.title("proportion Histogram")
-        plt.xlabel("Value")
-        plt.ylabel("Frequency")
-        plt.show()
+        if len(images_list) > 100:
+            break
+    fig = plt.hist(legs_prop_list)
+    plt.title("proportion Histogram")
+    plt.xlabel("Value")
+    plt.ylabel("Frequency")
+    fig.show()
+    fig.close()
     return
