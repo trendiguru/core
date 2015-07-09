@@ -47,7 +47,7 @@ def from_svg_to_similar_results(svg_url, image_url):
     image = Utils.get_cv2_img_array(image_dict['image_url'])
     current_item['fp'], current_item['similar_results'] = find_similar_mongo.find_top_n_results(image,
                                                                                                 item_mask,
-                                                                                                20,
+                                                                                                50,
                                                                                                 current_item[
                                                                                                     'category'])
     return image_dict
