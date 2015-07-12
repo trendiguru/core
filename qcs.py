@@ -11,7 +11,7 @@ import Utils
 def from_image_url_to_task1(image_url):
     db = pymongo.MongoClient().mydb
     images = db.images
-    image = background_removal.standard_resize(Utils.get_cv2_img_array(image_url), 400)
+    image = background_removal.standard_resize(Utils.get_cv2_img_array(image_url), 400)[0]
     if image is None:
         logging.warning("There's no image in the url!")
         return None
@@ -20,7 +20,7 @@ def from_image_url_to_task1(image_url):
         # image_dict = db.images.find_one({"image_url": image_url})
         # if image_dict['relevant'] and (image_dict is None or image_dict["faces"] is None):
         # do something
-    image_id = db.images.insert({'image_url': image_url,
-                                 'relevant': background_removal.image_is_relevant(image).is_relevant,
-                                 'faces': background_removal.image_is_relevant(image).faces})
+    image_id = images.insert({'image_url': image_url,
+                              'relevant': background_removal.image_is_relevant(image).is_relevant,
+                              'faces': background_removal.image_is_relevant(image).faces})
     return db.images.find_one({'_id': image_id})
