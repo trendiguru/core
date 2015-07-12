@@ -26,7 +26,6 @@ def from_image_url_to_task1(image_url):
                                'relevant': relevance.is_relevant,
                                'faces': relevance.faces.tolist()})
     for idx, face in enumerate(image_obj['faces']):
-        # put a copy of the image with a face rectangle on queue
         x, y, w, h = face
         copy = image.copy()
         cv2.rectangle(copy, (x, y), (x + w, y + h), [0, 255, 0], 2)
