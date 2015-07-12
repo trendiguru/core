@@ -1,8 +1,10 @@
 __author__ = 'Nadav Paz'
 
 import logging
+import os
 
 import pymongo
+import cv2
 
 import background_removal
 import Utils
@@ -21,7 +23,13 @@ def from_image_url_to_task1(image_url):
         # if image_dict['relevant'] and (image_dict is None or image_dict["faces"] is None):
         # do something
     relevance = background_removal.image_is_relevant(image)
-    image_id = images.insert({'image_url': image_url,
-                              'relevant': relevance.is_relevant,
-                              'faces': relevance.faces.tolist()})
-    return db.images.find_one({'_id': image_id})
+    image_obj = images.insert({'image_url': image_url,
+                               'relevant': relevance.is_relevant,
+                               'faces': relevance.faces.tolist()})
+    for idx, face in enumerate(image_obj['faces']):
+        # put a copy of the image with a face rectangle on queue
+        x, y, w, h = face
+        copy = image.copy()
+        cv2.rectangle(copy, (x, y), (x + w, y + h), [0, 255, 0], 2)
+        cv2.imwrite(os.getcwd() + idx, copy)
+    return image_obj
