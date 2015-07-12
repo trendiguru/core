@@ -1,7 +1,6 @@
 __author__ = 'Nadav Paz'
 
 import logging
-import os
 
 import pymongo
 import cv2
@@ -31,5 +30,5 @@ def from_image_url_to_task1(image_url):
         x, y, w, h = face
         copy = image.copy()
         cv2.rectangle(copy, (x, y), (x + w, y + h), [0, 255, 0], 2)
-        cv2.imwrite(os.getcwd() + idx, copy)
+        cv2.imwrite('/home/ubuntu/Dev/qcs' + '/' + idx, copy)
     return image_obj
