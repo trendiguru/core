@@ -11,7 +11,7 @@ import Utils
 def from_image_url_to_task1(image_url):
     db = pymongo.MongoClient().mydb
     images = db.images
-    image = Utils.get_cv2_img_array(image_url)
+    image = background_removal.standard_resize(Utils.get_cv2_img_array(image_url), 400)
     if image is None:
         logging.warning("There's no image in the url!")
         return None
