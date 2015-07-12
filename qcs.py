@@ -3,6 +3,7 @@ __author__ = 'Nadav Paz'
 import logging
 
 import pymongo
+import numpy as np
 
 import background_removal
 import Utils
@@ -20,7 +21,8 @@ def from_image_url_to_task1(image_url):
         # image_dict = db.images.find_one({"image_url": image_url})
         # if image_dict['relevant'] and (image_dict is None or image_dict["faces"] is None):
         # do something
+    relevance = background_removal.image_is_relevant(image)
     image_id = images.insert({'image_url': image_url,
-                              'relevant': background_removal.image_is_relevant(image).is_relevant,
-                              'faces': background_removal.image_is_relevant(image).faces})
+                              'relevant': relevance.is_relevant,
+                              'faces': np.array(relevance.faces)})
     return db.images.find_one({'_id': image_id})
