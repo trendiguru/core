@@ -29,7 +29,7 @@ def image_is_relevant(image):
     - "for face in image_is_relevant(image).faces:"
     """
     Relevance = collections.namedtuple('relevance', 'is_relevant faces')
-    faces = find_face(image)
+    faces = find_face(image, 10)
     return Relevance(len(faces) > 0, faces)
 
 
