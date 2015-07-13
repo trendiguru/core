@@ -30,5 +30,5 @@ def from_image_url_to_task1(image_url):
         x, y, w, h = face
         copy = image.copy()
         cv2.rectangle(copy, (x, y), (x + w, y + h), [0, 255, 0], 2)
-        cv2.imwrite('/home/ubuntu/Dev/qcs' + '/' + str(idx), copy)
+        cv2.imwrite('/home/ubuntu/Dev/qcs' + '/' + str(idx) + '.png', copy)
     return image_dict
