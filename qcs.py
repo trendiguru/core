@@ -25,9 +25,10 @@ def from_image_url_to_task1(image_url):
     image_obj = images.insert({'image_url': image_url,
                                'relevant': relevance.is_relevant,
                                'faces': relevance.faces.tolist()})
-    for idx, face in enumerate(image_obj['faces']):
+    image_dict = images.find_one({'_id': image_obj})
+    for idx, face in enumerate(image_dict['faces']):
         x, y, w, h = face
         copy = image.copy()
         cv2.rectangle(copy, (x, y), (x + w, y + h), [0, 255, 0], 2)
         cv2.imwrite('/home/ubuntu/Dev/qcs' + '/' + str(idx), copy)
-    return image_obj
+    return image_dict
