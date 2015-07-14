@@ -1,12 +1,15 @@
 __author__ = 'Nadav Paz'
 
 import logging
+import os
+import binascii
 
 import pymongo
 import cv2
 
 import background_removal
 import Utils
+
 
 db = pymongo.MongoClient().mydb
 
@@ -29,19 +32,16 @@ def from_image_url_to_task1(image_url):
     image_dict = images.find_one({'_id': image_obj_id})
     for idx, face in enumerate(relevance.faces):
         x, y, w, h = face
-        image_dict['people'].append({'face': face.tolist()})
+        image_dict['people'].append({'face': face.tolist(), 'person_hash': binascii.hexlify(os.urandom(32))})
         copy = image.copy()
         cv2.rectangle(copy, (x, y), (x + w, y + h), [0, 255, 0], 2)
         cv2.imwrite('/home/ubuntu/Dev/qcs' + '/' + str(idx) + '.jpg', copy)
     return image_dict
 
 
-def validate_cats_and_send_to_bb(cats, obj_id):
-    for cat in cats:
-        if cat is None:
-            logging.warning("category is None, check the strings coming back from the QCs")
-            # cat = recall to the task1 process
-        if cat not in db.categories:
-            logging.warning("category isn't in our categories")
-            # cat = recall to the task1 process
+def validate_cats_and_send_to_bb(category, person_hash):
+    if category is None or category not in db.categories:
+        logging.warning("category is inValid, check the strings coming back from the QCs")
+        # category = recall to the task1 process
+
     return
