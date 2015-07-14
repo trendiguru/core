@@ -37,7 +37,7 @@ def from_image_url_to_task1(image_url):
     else:
         if not image_dict['relevant']:
             logging.warning("image already exists and not relevant!")
-            return
+            return image_dict
 
 
 
