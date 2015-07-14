@@ -3,7 +3,7 @@ __author__ = 'Nadav Paz'
 import logging
 import os
 import binascii
-
+import boto3
 import pymongo
 import cv2
 
@@ -55,3 +55,9 @@ def validate_cats_and_send_to_bb(category, image_id, person_id):
         current_person['items'] = []
     current_person['items'].append({'category': category})
     return image
+
+
+def upload_image(image, name, bucket_name=IMAGE_BUCKET):
+    s3 = boto3.resource('s3')
+    bucket = s3.Bucket(name=bucket_name)
+    bucket.put_object(Key=name, Body=image)
