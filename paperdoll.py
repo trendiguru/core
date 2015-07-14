@@ -9,6 +9,9 @@ import constants
 import find_similar_mongo
 
 
+db = pymongo.MongoClient().mydb
+
+
 def from_image_url_to_svgs(image_url, image_id):
     mask = find_mask_with_image_url(image_url)
     image_dict = {}
@@ -29,9 +32,10 @@ def from_image_url_to_svgs(image_url, image_id):
     return image_dict
 
 
-def from_svg_to_similar_results(svg_url, image_dict):
-    if image_dict is None:
+def from_svg_to_similar_results(svg_url, image_url):
+    if svg_url is None or image_url is None:
         return None
+    image_dict = db.images.find_one({'image_url': image_url})
     for item in image_dict["items"]:
         if item["svg_url"] == svg_url:
             current_item = item
@@ -39,11 +43,11 @@ def from_svg_to_similar_results(svg_url, image_dict):
         if value == current_item['category']:
             item_num = key
     mask = find_mask_with_image_url(image_dict['image_url'])
-    item_mask = 255 * (np.zeros(np.shape(mask), np.uint8) + np.array(mask == item_num))
+    item_mask = 255 * (np.zeros(np.shape(mask), np.uint8) + np.array(mask == int(item_num)))
     image = Utils.get_cv2_img_array(image_dict['image_url'])
     current_item['fp'], current_item['similar_results'] = find_similar_mongo.find_top_n_results(image,
                                                                                                 item_mask,
-                                                                                                20,
+                                                                                                50,
                                                                                                 current_item[
                                                                                                     'category'])
     return image_dict
@@ -67,11 +71,10 @@ def find_or_create_image(image_url):
     """
     if Utils.get_cv2_img_array(image_url) is None:
         return None
-    db = pymongo.MongoClient().mydb
     image_dict = db.images.find_one({"image_url": image_url})
     if image_dict is None or 'items' not in image_dict.keys():
         image_id = db.images.insert({"image_url": image_url})
-        image_dict = from_image_url_to_svgs(image_url, image_id)
-        # for key, value in image_dict.iteritems():
-        db.images.update({'_id': image_id}, {'$set': image_dict})
+        image_temp_dict = from_image_url_to_svgs(image_url, image_id)
+        image_dict = db.images.find_one_and_update({'_id': image_id}, {'$set': image_temp_dict},
+                                                   return_document=pymongo.ReturnDocument.AFTER)
     return image_dict

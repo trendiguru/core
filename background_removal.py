@@ -29,7 +29,7 @@ def image_is_relevant(image):
     - "for face in image_is_relevant(image).faces:"
     """
     Relevance = collections.namedtuple('relevance', 'is_relevant faces')
-    faces = find_face(image)
+    faces = find_face(image, 10)
     return Relevance(len(faces) > 0, faces)
 
 
@@ -315,6 +315,17 @@ def face_skin_color_estimation(image, face_rect):
         if hist_hue[l] > 0.013:
             skin_hue_list.append(l)
     return skin_hue_list
+
+
+def simple_mask_grabcut(image, mask):
+    rect = (0, 0, image.shape[1] - 1, image.shape[0] - 1)
+    bgdmodel = np.zeros((1, 65), np.float64)
+    fgdmodel = np.zeros((1, 65), np.float64)
+    cv2.grabCut(image, mask, rect, bgdmodel, fgdmodel, 1, cv2.GC_INIT_WITH_MASK)
+    mask2 = np.where((mask == 1) + (mask == 3), 255, 0).astype('uint8')
+    detected_image = get_masked_image(image, mask2)
+    return detected_image
+
 
 
 if __name__ == '__main__':
