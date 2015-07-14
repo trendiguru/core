@@ -35,7 +35,7 @@ def from_image_url_to_task1(image_url):
                 person = {'face': face, 'person_id': binascii.hexlify(os.urandom(32))}
                 copy = image.copy()
                 cv2.rectangle(copy, (x, y), (x + w, y + h), [0, 255, 0], 2)
-                image_s3_url = push_to_bucket(person['person_id'], copy)
+                image_s3_url = upload_image(copy, person['person_id'])
                 person['url'] = image_s3_url
                 image_dict['people'].append(person)
                 q.enqueue(send_task1, image_s3_url, image_dict)
@@ -66,7 +66,10 @@ def validate_cats_and_send_to_bb(category, image_id, person_id):
     return image
 
 
-def upload_image(image, name, bucket_name=IMAGE_BUCKET):
+def upload_image(image, name, bucket_name=None):
+    image_string = cv2.imencode(".jpg", image)[1].tostring()
+    bucket_name = bucket_name or "boxed_faces"
     s3 = boto3.resource('s3')
     bucket = s3.Bucket(name=bucket_name)
-    bucket.put_object(Key=name, Body=image)
+    bucket.put_object(Key=name, Body=image_string, ACL='public-read', ContentType="image/jpg")
+    return "{0}/{1}/{2}".format("https://s3.eu-central-1.amazonaws.com", bucket_name, name)
