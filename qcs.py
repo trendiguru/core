@@ -68,7 +68,7 @@ def validate_cats_and_send_to_bb(category, image_id, person_id):
 
 def upload_image(image, name, bucket_name=None):
     image_string = cv2.imencode(".jpg", image)[1].tostring()
-    bucket_name = bucket_name or "boxed_faces"
+    bucket_name = bucket_name or "tg-boxed-faces"
     s3 = boto3.resource('s3')
     bucket = s3.Bucket(name=bucket_name)
     bucket.put_object(Key=name, Body=image_string, ACL='public-read', ContentType="image/jpg")
