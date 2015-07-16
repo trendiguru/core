@@ -19,26 +19,6 @@ r = redis.Redis()
 q = Queue(connection=r)
 
 
-class Image(object):
-    image_url = ""
-    relevant = ""
-    people = []
-
-
-class Person(object):
-    face = []
-    id = binascii.hexlify(os.urandom(32))
-    items = []
-
-
-class Item(object):
-    id = binascii.hexlify(os.urandom(32))
-    bb = []
-    category = ""
-    fingerprint = []
-    similar_items = {}
-
-
 def from_image_url_to_task1(image_url):
     image_obj = images.find_one({"image_url": image_url})
     if not image_obj:
@@ -49,8 +29,8 @@ def from_image_url_to_task1(image_url):
         relevance = background_removal.image_is_relevant(image)
         if relevance.is_relevant:
             image_obj = {'image_url': image_url,
-                          'relevant': relevance.is_relevant,
-                          'people': []}
+                         'relevant': relevance.is_relevant,
+                         'people': []}
             for face in relevance.faces:
                 x, y, w, h = face
                 person = {'face': face, 'person_id': binascii.hexlify(os.urandom(32))}
@@ -59,7 +39,7 @@ def from_image_url_to_task1(image_url):
                 image_s3_url = upload_image(copy, person['person_id'])
                 person['url'] = image_s3_url
                 image_obj['people'].append(person)
-                q.enqueue(send_task1, image_s3_url, image_obj)
+                # q.enqueue(send_task1, image_s3_url, image_obj)
             image_obj_id = images.insert(image_obj)
             image_obj = images.find_one({'_id': image_obj_id})
             return image_obj
@@ -92,11 +72,3 @@ def upload_image(image, name, bucket_name=None):
     bucket = s3.Bucket(name=bucket_name)
     bucket.put_object(Key=name, Body=image_string, ACL='public-read', ContentType="image/jpg")
     return "{0}/{1}/{2}.jpg".format("https://s3.eu-central-1.amazonaws.com", bucket_name, name)
-
-
-def from_obj_to_dict(obj):
-    dict = obj.__dict__
-    for key, value in dict.iteritems():
-        if type(key) is Person or type(key) is Item:
-            from_obj_to_dict(key)
-    return
