@@ -39,7 +39,7 @@ def from_image_url_to_task1(image_url):
                 image_s3_url = upload_image(copy, person['person_id'])
                 person['url'] = image_s3_url
                 image_obj['people'].append(person)
-                q.enqueue(send_task1, image_s3_url, image_obj)
+                # q.enqueue(send_task1, image_s3_url, image_obj)
             image_obj_id = images.insert(image_obj)
             image_obj = images.find_one({'_id': image_obj_id})
             return image_obj
