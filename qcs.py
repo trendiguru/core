@@ -29,8 +29,8 @@ def from_image_url_to_task1(image_url):
         relevance = background_removal.image_is_relevant(image)
         if relevance.is_relevant:
             image_obj = {'image_url': image_url,
-                          'relevant': relevance.is_relevant,
-                          'people': []}
+                         'relevant': relevance.is_relevant,
+                         'people': []}
             for face in relevance.faces:
                 x, y, w, h = face
                 person = {'face': face, 'person_id': binascii.hexlify(os.urandom(32))}
