@@ -71,5 +71,5 @@ def upload_image(image, name, bucket_name=None):
     bucket_name = bucket_name or "tg-boxed-faces"
     s3 = boto3.resource('s3')
     bucket = s3.Bucket(name=bucket_name)
-    bucket.put_object(Key=name, Body=image_string, ACL='public-read', ContentType="image/jpg")
-    return "{0}/{1}/{2}.jpg".format("https://s3.eu-central-1.amazonaws.com", bucket_name, name)
+    bucket.put_object(Key=name + {0}.__format__('.jpg'), Body=image_string, ACL='public-read', ContentType="image/jpg")
+    return "{0}/{1}/{2}".format("https://s3.eu-central-1.amazonaws.com", bucket_name, name)
