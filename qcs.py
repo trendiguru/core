@@ -9,6 +9,8 @@ import cv2
 import redis
 from rq import Queue
 
+import boto3
+
 import background_removal
 import Utils
 
