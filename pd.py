@@ -11,6 +11,7 @@ import matlab.engine
 def get_parse_mask(image_filename):
     eng = matlab.engine.start_matlab()
     result = eng.pd(image_filename)
+    return result
 
 
 if __name__ == "__main__":
