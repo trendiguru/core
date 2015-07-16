@@ -34,7 +34,7 @@ def from_image_url_to_task1(image_url):
                          'people': []}
             for face in relevance.faces:
                 x, y, w, h = face
-                person = {'face': face, 'person_id': binascii.hexlify(os.urandom(32))}
+                person = {'face': face.tolist(), 'person_id': binascii.hexlify(os.urandom(32))}
                 copy = image.copy()
                 cv2.rectangle(copy, (x, y), (x + w, y + h), [0, 255, 0], 2)
                 image_s3_url = upload_image(copy, person['person_id'])
