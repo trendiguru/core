@@ -25,4 +25,4 @@ def enqueue():
     print job.result  # => 889
 
 
-enqueue()
+    # enqueue()
