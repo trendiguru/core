@@ -47,10 +47,9 @@ def from_image_url_to_task1(image_url):
             logging.warning("There's no image in the url!")
             return None
         relevance = background_removal.image_is_relevant(image)
+        image_dict = {'image_url': image_url, 'relevant': relevance.is_relevant}
         if relevance.is_relevant:
-            image_dict = {'image_url': image_url,
-                          'relevant': relevance.is_relevant,
-                          'people': []}
+            image_dict['people'] = []
             for face in relevance.faces:
                 x, y, w, h = face
                 person = {'face': face.tolist(), 'person_id': binascii.hexlify(os.urandom(32))}
@@ -59,27 +58,25 @@ def from_image_url_to_task1(image_url):
                 image_s3_url = upload_image(copy, person['person_id'])
                 person['url'] = image_s3_url
                 image_dict['people'].append(person)
-                # q2.enqueue(send_image_to_qc_categorization, image_s3_url, image_dict, copy)
-            image_obj_id = images.insert(image_dict)
-            image_obj = images.find_one({'_id': image_obj_id})
-            return image_obj
+                # q2.enqueue(send_image_to_qc_categorization, image_s3_url, image_dict)
         else:
-            # store_in_db_as_irrelevant(image_url) - NADAV PAZ
             logging.warning('image is not relevant, but stored anyway..')
-            return image_obj
+        image_obj_id = images.insert(image_dict)
+        image_obj = images.find_one({'_id': image_obj_id})
+        return image_obj
     else:
         # understand which details are already strored and react accordingly
         return image_obj
         # END OF FUNCTION 1
 
 
+# q2
+
+# FUNCTION 2
+# def send_image_to_qc_categorization(copy):
+
+# END OF FUNCTION 2
 """
-            # q2
-
-            # FUNCTION 2
-            send_image_to_qc_categorization(copy)
-            # END OF FUNCTION 2
-
             # q3
 
             # FUNCTION 3
