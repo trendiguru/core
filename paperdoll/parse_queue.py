@@ -21,7 +21,7 @@ def enqueue():
     print job.result  # => None
 
 # Now, wait a while, until the worker is finished
-    time.sleep(2)
+    time.sleep(5)
     print job.result  # => 889
 
 
