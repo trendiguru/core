@@ -63,9 +63,12 @@ def from_image_url_to_task1(image_url):
             image_obj_id = images.insert(image_dict)
             image_obj = images.find_one({'_id': image_obj_id})
             return image_obj
+        else:
+            # store_in_db_as_irrelevant(image_url) - NADAV PAZ
+            logging.warning('image is not relevant, but stored anyway..')
+            return image_obj
     else:
-        # store_in_db_as_irrelevant(image_url) - NADAV PAZ
-        logging.warning('image is not relevant, but stored anyway..')
+        # understand which details are already strored and react accordingly
         return image_obj
         # END OF FUNCTION 1
 
