@@ -8,6 +8,9 @@ import matlab.engine
 def get_parse_mask(image_filename):
     eng = matlab.engine.start_matlab()
     result = eng.pd(image_filename)
+    # scp -o UserKnownHostsFile=/dev/null -o CheckHostIP=no -o StrictHostKeyChecking=no -i .ssh/google_compute_engine jeremy@mightili.trendi.guru:/home/jeremy/img.jpg .
+    # scp -i ~/first_aws.pem  img.jpg ubuntu@extremeli.trendi.guru:.
+
     return result
 
 
