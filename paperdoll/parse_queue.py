@@ -15,7 +15,7 @@ def count_words_at_url(url):
 # Tell RQ what Redis connection to use
 def enqueue():
     redis_conn = Redis()
-    q = Queue('jeremyTest', connection=redis_conn)  # no args implies the default queue
+    q = Queue('jeremyTest', connection=redis_conn, async=False)  # no args implies the default queue
     # q = Queue(connection=redis_conn)  # no args implies the default queue
 
 # Delay execution of count_words_at_url('http://nvie.com')
