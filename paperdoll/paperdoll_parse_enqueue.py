@@ -3,6 +3,7 @@ import requests
 from rq import Queue
 from redis import Redis
 import cv2
+import numpy as np
 
 import pd
 
@@ -33,8 +34,14 @@ def show_parse(filename=None, img_array=None):
     if filename is not None:
         img_array = cv2.imread(filename)
     if img_array is not None:
-        cv2.imshow('img', img_array)
+        minVal, maxVal, minLoc, maxLoc = cv2.minMaxLoc(img_array)
+        scaled = np.multiply(img_array, int(255 / maxVal))
+        dest = cv2.applyColorMap(scaled, cv2.COLORMAP_RAINBOW)
+        cv2.imshow("dest", dest)
         cv2.waitKey(0)
+
+        # cv2.imshow('img', img_array)
+        #        cv2.waitKey(0)
 
         # stripped_name=image_url.split('//')[1]
         #    modified_name=stripped_name.replace('/','_')
