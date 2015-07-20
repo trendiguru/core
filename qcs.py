@@ -62,7 +62,7 @@ def from_image_url_to_task1(image_url):
         else:
             logging.warning('image is not relevant, but stored anyway..')
         image_obj_id = images.insert(image_dict)
-        image_obj = images.find_one({'_id': image_obj_id})
+        image_obj = images.find_one({'image_url': image_url})
         return image_obj
     else:
         # understand which details are already strored and react accordingly
