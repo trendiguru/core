@@ -1,9 +1,10 @@
 __author__ = 'Nadav Paz'
 
 import numpy as np
+import cv2
 
 
-def translate_2_boxes(boxes_list):
+def translate_2_boxes(boxes_list, show_results=False, image=None):
     """
     the function translates the boxes list to a boxes dictionary
     :param boxes_list: list of 1X106 float (0-103 are the boxes coordinates)
@@ -33,32 +34,34 @@ def translate_2_boxes(boxes_list):
         elif i in [22, 23, 24, 25]:
             boxes_dict["right_leg"].append(
                 [boxes_list[4 * i], boxes_list[4 * i + 1], boxes_list[4 * i + 2], boxes_list[4 * i + 3]])
-    # image_head = image.copy()
-    # image_left_arm = image.copy()
-    # image_torso = image.copy()
-    # image_left_leg = image.copy()
-    # image_right_arm = image.copy()
-    # image_right_leg = image.copy()
-    #
-    # for box in boxes_dict["head"]:
-    # cv2.rectangle(image_head, (box[0], box[1]), (box[2], box[3]), [0, 255, 0], 2)
-    # for box in boxes_dict["left_arm"]:
-    # cv2.rectangle(image_left_arm, (box[0], box[1]), (box[2], box[3]), [190, 180, 255], 2)
-    # for box in boxes_dict["torso"]:
-    #     cv2.rectangle(image_torso, (box[0], box[1]), (box[2], box[3]), [0, 255, 255], 2)
-    # for box in boxes_dict["left_leg"]:
-    #     cv2.rectangle(image_left_leg, (box[0], box[1]), (box[2], box[3]), [0, 0, 255], 2)
-    # for box in boxes_dict["right_arm"]:
-    #     cv2.rectangle(image_right_arm, (box[0], box[1]), (box[2], box[3]), [255, 255, 0], 2)
-    # for box in boxes_dict["right_leg"]:
-    #     cv2.rectangle(image_right_leg, (box[0], box[1]), (box[2], box[3]), [255, 0, 0], 2)
-    # cv2.imshow('head', image_head)
-    # cv2.imshow('left arm', image_left_arm)
-    # cv2.imshow('torso', image_torso)
-    # cv2.imshow('left leg', image_left_leg)
-    # cv2.imshow('right arm', image_right_arm)
-    # cv2.imshow('right leg', image_right_leg)
-    # cv2.waitKey(0)
+    if show_results:
+        if image is not None:
+            image_head = image.copy()
+            image_left_arm = image.copy()
+            image_torso = image.copy()
+            image_left_leg = image.copy()
+            image_right_arm = image.copy()
+            image_right_leg = image.copy()
+
+            for box in boxes_dict["head"]:
+                cv2.rectangle(image_head, (box[0], box[1]), (box[2], box[3]), [0, 255, 0], 2)
+            for box in boxes_dict["left_arm"]:
+                cv2.rectangle(image_left_arm, (box[0], box[1]), (box[2], box[3]), [190, 180, 255], 2)
+            for box in boxes_dict["torso"]:
+                cv2.rectangle(image_torso, (box[0], box[1]), (box[2], box[3]), [0, 255, 255], 2)
+            for box in boxes_dict["left_leg"]:
+                cv2.rectangle(image_left_leg, (box[0], box[1]), (box[2], box[3]), [0, 0, 255], 2)
+            for box in boxes_dict["right_arm"]:
+                cv2.rectangle(image_right_arm, (box[0], box[1]), (box[2], box[3]), [255, 255, 0], 2)
+            for box in boxes_dict["right_leg"]:
+                cv2.rectangle(image_right_leg, (box[0], box[1]), (box[2], box[3]), [255, 0, 0], 2)
+                cv2.imshow('head', image_head)
+                cv2.imshow('left arm', image_left_arm)
+                cv2.imshow('torso', image_torso)
+                cv2.imshow('left leg', image_left_leg)
+                cv2.imshow('right arm', image_right_arm)
+                cv2.imshow('right leg', image_right_leg)
+            cv2.waitKey(0)
     return boxes_dict
 
 

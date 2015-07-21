@@ -37,6 +37,7 @@ class OutcomesTest(unittest.TestCase):
         # answer should be a dictionary of info about bb or an error string if no bb found
         # url = 'http://lp.hm.com/hmprod?set=key[source],value[/model/2014/3PV%200235738%20001%2087%206181.jpg]&set=key[rotate],value[]&set=key[width],value[]&set=key[height],value[]&set=key[x],value[]&set=key[y],value[]&set=key[type],value[STILL_LIFE_FRONT]&hmver=4&call=url[file:/product/large]'
         url = 'http://img.sheinside.com/images/sheinside.com/201403/1395131162147422866.jpg'
+        url = 'http://i.dailymail.co.uk/i/pix/2014/08/16/article-2726891-2094C69B00000578-330_634x947.jpg'
         img_arr = Utils.get_cv2_img_array(url)
         sh = img_arr.shape
         print('shape is ' + str(sh))
