@@ -6,12 +6,10 @@ __author__ = 'jeremy'
 
 
 import subprocess
-
-import matlab.engine
-
-# import cv2
 import shutil
 import requests
+
+import matlab.engine
 
 
 def get_parse_from_matlab(image_filename):
@@ -54,4 +52,3 @@ def get_parse_mask(image_url):
     #        cv2.imwrite(img_array,stripped_name)
     result = get_parse_from_matlab(modified_name)
     return result
-
