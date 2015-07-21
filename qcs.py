@@ -4,6 +4,8 @@ import logging
 import os
 import binascii
 
+import requests
+
 import pymongo
 import cv2
 import redis
@@ -14,6 +16,7 @@ import background_removal
 import Utils
 
 
+QC_URL = 'http://www.clickworkers.com'
 db = pymongo.MongoClient().mydb
 images = pymongo.MongoClient().mydb.images
 r = redis.Redis()
@@ -36,7 +39,9 @@ def upload_image(image, name, bucket_name=None):
     return "{0}/{1}/{2}.jpg".format("https://s3.eu-central-1.amazonaws.com", bucket_name, name)
 
 
-# q1 - images queue
+# ---------------------------------------------------------------------------------------------------------------------
+# q1 - images queue - Web2Py
+
 
 # FUNCTION 1
 def from_image_url_to_task1(image_url):
@@ -58,33 +63,47 @@ def from_image_url_to_task1(image_url):
                 image_s3_url = upload_image(copy, person['person_id'])
                 person['url'] = image_s3_url
                 image_dict['people'].append(person)
-                # q2.enqueue(send_image_to_qc_categorization, image_s3_url, image_dict)
+                q2.enqueue(send_image_to_qc_categorization, image_s3_url, image_dict)
         else:
             logging.warning('image is not relevant, but stored anyway..')
-        image_obj_id = images.insert(image_dict)
+        images.insert(image_dict)
         image_obj = images.find_one({'image_url': image_url})
         return image_obj
     else:
-        # understand which details are already strored and react accordingly
+        # TODO - understand which details are already stored and react accordingly
         return image_obj
         # END OF FUNCTION 1
 
 
 # q2
-
 # FUNCTION 2
-# def send_image_to_qc_categorization(copy):
-
+def send_image_to_qc_categorization(image_s3_url):
+    payload = {'image_url': image_s3_url}
+    req = requests.post(QC_URL, data=payload)
+    return req.ok
 # END OF FUNCTION 2
+
+# q3 - Web2Py
+
+# FUNCTION 3
+def get_categorization_from_qc(items_list, person_id):
+    person = db.images.find_one({'people.person_id': person_id})
+    if person is None:
+        logging.warning("Person wasn't found in DataBase!")
+        return None
+    if len(items_list) == 0:
+        logging.warning("No items in items' list!")
+        q2.enqueue(send_image_to_qc_categorization, QC_URL, person['url'])
+        return None
+    items = determine_final_categories(items_list)
+    for item in items:
+        item_dict = {'category': item, 'item_id': binascii.hexlify(os.urandom(32))}
+        person.append(item_dict)
+
+        # END OF FUNCTION 3
+
+
 """
-            # q3
-
-            # FUNCTION 3
-            items = get_categorization_from_qc()
-            determine_final_categories(items)
-            for item in items:
-                # END OF FUNCTION 3
-
                 # q4
 
                 # FUNCTION 4
