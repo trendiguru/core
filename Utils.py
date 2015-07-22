@@ -230,7 +230,7 @@ def legal_bounding_box(rect):
         return False
     minimum_allowed_area = constants.min_image_area
     if rect[2] * rect[3] < minimum_allowed_area:
-        print('area of ' + str(rect[2]) + 'x' + str(rect[3]) + ':' + str(rect[2] * rect[3]))
+        logging.warning('bb too small : area = ' + str(rect[2]) + 'x' + str(rect[3]) + ':' + str(rect[2] * rect[3]))
         return False
     if rect[0] < 0 or rect[1] < 0 or rect[2] < 0 or rect[3] < 0:
         return False
@@ -559,7 +559,7 @@ def purge(dir, pattern):
 ### math stuff
 ############################
 def intersectionOverUnion(r1, r2):
-    print(r1, r2)
+    # print(r1, r2)
 
     # a if test else b
 
@@ -572,9 +572,9 @@ def intersectionOverUnion(r1, r2):
     if intersectionh < 0:
         intersectionh = 0
         # intersectionh -= intersectiony;
-    print('r1:' + str(r1) + ' r2:' + str(r2) + ' x,y,w,h:' + str(intersectionx) + ',' + str(intersectiony) + ',' + str(
-        intersectionw) + ',' + str(
-        intersectionh))
+        # print('r1:' + str(r1) + ' r2:' + str(r2) + ' x,y,w,h:' + str(intersectionx) + ',' + str(intersectiony) + ',' + str(
+        # intersectionw) + ',' + str(
+        # intersectionh))
     totarea = r1[2] * r1[3] + r2[2] * r2[3]  # this includes overlap twice
     intersectionarea = intersectionw * intersectionh
     totarea = totarea - intersectionarea  # now totarea includes overlap only once
