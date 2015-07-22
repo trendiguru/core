@@ -1,14 +1,12 @@
 __author__ = 'Nadav Paz'
 
 import logging
-import os
-import binascii
 
-import requests
 import pymongo
 import cv2
 import redis
 from rq import Queue
+import bson
 
 import boto3
 import background_removal
@@ -41,9 +39,8 @@ def upload_image(image, name, bucket_name=None):
 # ---------------------------------------------------------------------------------------------------------------------
 # q1 - images queue - Web2Py
 
-
 # FUNCTION 1
-def from_image_url_to_task1(image_url):
+def from_image_url_categorization_task(image_url):
     image_obj = images.find_one({"image_url": image_url})
     if not image_obj:  # new image
         image = background_removal.standard_resize(Utils.get_cv2_img_array(image_url), 400)[0]
@@ -51,66 +48,58 @@ def from_image_url_to_task1(image_url):
             logging.warning("There's no image in the url!")
             return None
         relevance = background_removal.image_is_relevant(image)
-        image_dict = {'image_url': image_url, 'relevant': relevance.is_relevant}
+        image_dict = {'image_url': image_url, 'relevant': relevance.is_relevant, '_id': bson.ObjectId()}
         if relevance.is_relevant:
             image_dict['people'] = []
             for face in relevance.faces:
                 x, y, w, h = face
-                person = {'face': face.tolist(), 'person_id': binascii.hexlify(os.urandom(32))}
+                person = {'face': face.tolist(), 'person_id': bson.ObjectId()}
                 copy = image.copy()
                 cv2.rectangle(copy, (x, y), (x + w, y + h), [0, 255, 0], 2)
-                image_s3_url = upload_image(copy, person['person_id'])
-                person['url'] = image_s3_url
+                person['url'] = upload_image(copy, str(person['person_id']))
                 image_dict['people'].append(person)
-                q2.enqueue(send_image_to_qc_categorization, image_s3_url, image_dict)
+                q2.enqueue(send_image_to_qc_categorization, person['url'], str(image_dict['_id']), str(person['id']))
         else:
             logging.warning('image is not relevant, but stored anyway..')
         images.insert(image_dict)
-        image_obj = images.find_one({'image_url': image_url})
-        return image_obj
+        return
     else:
         # TODO - understand which details are already stored and react accordingly
         return image_obj
-        # END OF FUNCTION 1
 
+
+# END OF FUNCTION 1
 
 # q2
-# FUNCTION 2
-def send_image_to_qc_categorization(image_s3_url):
-    payload = {'image_url': image_s3_url}
-    req = requests.post(QC_URL, data=payload)
-    return req.ok
 
-
-# END OF FUNCTION 2
+# FUNCTION 2 - Web2py send_image_to_qc_categorization
 
 # q3 - Web2Py
 
+
 # FUNCTION 3
-def get_categorization_from_qc(items_list, person_id):
-    person = db.images.find_one({'people.person_id': person_id})
-    if person is None:
-        logging.warning("Person wasn't found in DataBase!")
-        return None
+def from_categories_to_bb_task(person_url, items_list, image_id, person_id):
     if len(items_list) == 0:
         logging.warning("No items in items' list!")
-        q2.enqueue(send_image_to_qc_categorization, QC_URL, person['url'])
         return None
     items = determine_final_categories(items_list)
+    items_list = []
     for item in items:
-        item_dict = {'category': item, 'item_id': binascii.hexlify(os.urandom(32))}
-        person.append(item_dict)
+        item_dict = {'category': item, 'item_id': bson.ObjectId()}
+        items_list.append(item_dict)
+        q4.enqueue(send_item_to_qc_bb, person_url, image_id, person_id, item_dict)
+    images.update_one({'people.person_id': person_id}, {'$set': {'people.$.items': items_list}}, upsert=True)
+    return
 
-        # END OF FUNCTION 3
+# END OF FUNCTION 3
 
+# q4
+
+# FUNCTION 4
+# send_bb_task_to_qc(copy, item.category)
+# END
 
 """
-                # q4
-
-                # FUNCTION 4
-                send_bb_task_to_qc(copy, item.category)
-                # END
-
                 # q5
 
                 # FUNCTION 5
