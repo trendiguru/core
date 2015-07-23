@@ -47,10 +47,12 @@ def get_person_by_id(person_id):
 def get_item_by_id(item_id):
     image = images.find_one({'people.items.item_id': item_id})
     for person in image['people']:
-        if person['items'] is not None:
+        try:
             for item in person['items']:
-                if item['item_is'] == item_id:
+                if item['item_id'] == item_id:
                     return item
+        except:
+            logging.warning("No items to this person, continuing..")
 
 
 # ---------------------------------------------------------------------------------------------------------------------
