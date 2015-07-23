@@ -41,7 +41,7 @@ def get_person_by_id(person_id):
     image = images.find_one({'people.person_id': person_id})
     for person in image['people']:
         if person['person_id'] == person_id:
-            return person
+            return image, person
 
 
 def get_item_by_id(item_id):
@@ -50,7 +50,8 @@ def get_item_by_id(item_id):
         try:
             for item in person['items']:
                 if item['item_id'] == item_id:
-                    return item
+                    return image, {'person': person, 'person_idx': image['people'].index(person)}, \
+                           {'item': item, 'item_idx': person['items'].index(item)}
         except:
             logging.warning("No items to this person, continuing..")
 
@@ -126,15 +127,20 @@ def from_categories_to_bb_task(person_url, items_list, image_id, person_id):
 
 
 # FUNCTION 6
-def from_bb_to_sorting_task(bb_list, image_id, person_id, item_id):
+def from_bb_to_sorting_task(bb_list, person_id, item_id):
     if len(bb_list) == 0:
         logging.warning("No bbs in bb_list!")
         return None
     bb = determine_final_bb(bb_list)  # Yonti's function
-    image = images.find_one({'people.items.item_id': item_id}, {})
-    category = get_item_by_id(item_id)['category']
-    fp, results, svg = find_similar_mongo.got_bb(image['image_url'], person_id, item_id, bb, 100, category)
-
+    image, person, item = get_item_by_id(item_id)
+    fp, results, svg = find_similar_mongo.got_bb(image['image_url'], person_id, item_id, bb, 100, item['category'])
+    item['similar_results'] = results
+    item['fingerprint'] = fp
+    item['svg_url'] = svg
+    q6.enqueue(send_initiate_results_to_sorting, results, item_id)
+    image['people'][person['person_idx']]['items'][item['item_idx']] = item
+    images.replace_one({'people.person': person_id}, image)
+    return
 # END
 
 
