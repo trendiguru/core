@@ -8,6 +8,7 @@ import redis
 from rq import Queue
 import bson
 
+import find_similar_mongo
 import boto3
 import background_removal
 import Utils
@@ -34,6 +35,21 @@ def upload_image(image, name, bucket_name=None):
     bucket = s3.Bucket(name=bucket_name)
     bucket.put_object(Key="{0}.jpg".format(name), Body=image_string, ACL='public-read', ContentType="image/jpg")
     return "{0}/{1}/{2}.jpg".format("https://s3.eu-central-1.amazonaws.com", bucket_name, name)
+
+
+def get_person_by_id(person_id):
+    image = images.find_one({'people.person_id': person_id})
+    for person in image['people']:
+        if person['person_id'] == person_id:
+            return person
+
+
+def get_item_by_id(item_id):
+    image = images.find_one({'people.items.item_id': item_id})
+    for person in image['people']:
+        for item in person['items']:
+            if item['item_is'] == item_id:
+                return item
 
 
 # ---------------------------------------------------------------------------------------------------------------------
@@ -96,40 +112,52 @@ def from_categories_to_bb_task(person_url, items_list, image_id, person_id):
 # q4
 
 # FUNCTION 4
-# send_bb_task_to_qc(copy, item.category)
+# Web2Py - send_item_to_qc_bb(person_url, image_id, person_id, item_dict)
 # END
 
+# q5 - Web2Py
+
+# FUNCTION 5
+# Web2Py - bb_list = get_bb_list_from_qc()
+# END
+
+
+# FUNCTION 6
+def from_bb_to_sorting_task(bb_list, image_id, person_id, item_id):
+    if len(bb_list) == 0:
+        logging.warning("No bbs in bb_list!")
+        return None
+    bb = determine_final_bb(bb_list)  # Yonti's function
+    image = images.find_one({'people.items.item_id': item_id}, {})
+    category = get_item_by_id(item_id)['category']
+    fp, results, svg = find_similar_mongo.got_bb(image['image_url'], person_id, item_id, bb, 100, category)
+
+# END
+
+
 """
-                # q5
+# q6
 
-                # FUNCTION 5
-                bb_list = get_bb_list_from_qc()
-                bb = determine_final_bb(bb_list)
-                fp, results, svg = find_similar_mongo.got_bb(image_url, image_id, item_id, bb, 100, item.category)
-                # END
+# FUNCTION 6
+send_100_results_to_qc_in_20s(copy, results)
+# END
 
-                # q6
+# q7
 
-                # FUNCTION 6
-                send_100_results_to_qc_in_20s(copy, results)
-                # END
+# FUNCTION 7
+sorted_results = get_sorted_results_from_qc()
+final_20_results = rearrange_results(sorted_results)
+# END
 
-                # q7
+# q8
 
-                # FUNCTION 7
-                sorted_results = get_sorted_results_from_qc()
-                final_20_results = rearrange_results(sorted_results)
-                # END
+# FUNCTION 8
+send_final_20_results_to_qc_in_10s(copy, final_20_results)
+# END
 
-                # q8
+# q9
 
-                # FUNCTION 8
-                send_final_20_results_to_qc_in_10s(copy, final_20_results)
-                # END
-
-                # q9
-
-                # FUNCTION 9
-                final_results = get_final_results_from_qc()
-                insert_final_results(item.id, final_results)
+# FUNCTION 9
+final_results = get_final_results_from_qc()
+insert_final_results(item.id, final_results)
 """
