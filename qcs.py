@@ -1,10 +1,6 @@
 __author__ = 'Nadav Paz'
 
 import logging
-import os
-import binascii
-
-import requests
 
 import pymongo
 import cv2
