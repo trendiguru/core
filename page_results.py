@@ -10,8 +10,6 @@ import logging
 from bson import objectid
 import bson
 import pymongo
-from pymongo import Connection
-
 
 logging.basicConfig(format='%(levelname)s:%(message)s', level=logging.DEBUG)
 

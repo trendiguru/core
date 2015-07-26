@@ -636,8 +636,22 @@ def get_images_list(dir_url):
     return images_list
 
 
+def show_parse(filename=None, img_array=None):
+    if filename is not None:
+        img_array = cv2.imread(filename)
+    if img_array is not None:
+        # minVal, maxVal, minLoc, maxLoc = cv2.minMaxLoc(img_array)
+        maxVal = np.amax(img_array)
+        scaled = np.multiply(img_array, int(255 / maxVal))
+        dest = cv2.applyColorMap(scaled, cv2.COLORMAP_RAINBOW)
+        cv2.imshow("dest", dest)
+        cv2.waitKey(0)
+
 if __name__ == '__main__':
     print('starting')
     #show_all_bbs_in_db()
     #fix_all_bbs_in_db()
     # step_thru_db(use_visual_output=True)
+    # http://glamradar.com/wp-content/uploads/2013/01/Chiffon-Maxi-Skirts-celebs-500x500.jpg
+    show_parse(
+        '/home/jeremy/jeremy.rutman@gmail.com/TrendiGuru/techdev/trendi_guru_modules/paperdoll/glamradar.com_wp-content_uploads_2013_01_Chiffon-Maxi-Skirts-celebs-500x500.png')
