@@ -84,7 +84,7 @@ def from_image_url_categorization_task(image_url):
         images.insert(image_dict)
         return
     else:
-        # TODO - understand which details are already stored and react accordingly
+        logging.warning("image is already in our DB..")
         return image_obj
 
 
