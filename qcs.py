@@ -197,7 +197,41 @@ def average_bbs(bblist):
 # q7 - receive_20s_results
 # FUNCTION 7
 # assumption
-def get_20s_results(chunk_of_results, ratings, item_id):
+def set_voting_stage(N_stage, item_id):
+    '''
+    this can be replaced by a different persistent storage scheme than storing
+    in the image db
+    :param N_stage:
+    :param item_id:
+    :return:
+    '''
+    # db_image = images.find_one({'people.items.item_id': item_id})
+    write_result = images.update({"people.items.item_id": item_id},
+                                 {"$set": {"people.items.voting_stage": N_stage}})
+
+
+def get_voting_stage(item_id):
+    image = images.find_one({'people.items.item_id': item_id})
+    if 'voting_stage' in image['people']['items']:
+        return image['people']['items']['voting_stage']
+    else:  # no voting stage set yet,. so set to 0
+        set_voting_stage(0, item_id)
+        return 0
+
+
+def receive_votes(similar_items, voting_results):
+    got_all_votes, combined_votes = combine_results(similar_items, voting_results)
+    if got_all_votes:
+        ordered_results = order_results(combined_votes)
+        set_voting_stage(get_voting_stage() + 1)
+
+
+# if persistent_voting_stage == final_stage:
+# return top_N (or do whatever else needs to be done when voting is over)
+#        otherwise:
+#           dole_out_work(top_N,voting_stage=persistent_voting_stage)
+
+def combine_results(similar_items, voting_results):
     final_20_results = None
     image = images.find_one({'people.items.item_id': item_id})
     for person in image['people']:
@@ -213,8 +247,26 @@ def get_20s_results(chunk_of_results, ratings, item_id):
                 # SOMEONE PLS REVIEW THE LINE BELOW - i've never used the mongodot notation before
                 write_result = images.update({"people.items.item_id": item_id},
                                              {"$set": {"people.items.votes": item['votes']}})
-    return final_20_results
+    return got_all_votes
 
+
+def persistently_store_votes(votes):
+    '''
+    a list of persistently stored dictionaries
+    we need a list (i think) since results have to be stored for more than one input image at a time
+    an alternate way to do this is to store in the image database
+    :param list:
+    :return:
+    '''
+    pass
+
+
+# def combine_results(similar_items, voting_results):
+# for similar_item in similar_items:
+#        if similar_item in persistent_votes:
+#            persistent_votes[similar_item].append(ith voting result)
+#        if there are enough votes in persistent_votes
+#            persistent_votes[similar_item] = combine_votes(persistent_votes[similar_item])
 
 def rearrange_results(votes):
     '''
