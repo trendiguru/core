@@ -2,7 +2,7 @@ __author__ = 'yonatanlevin'
 
 """
 this function gets three bounding boxes of the same object
-which where selected by the SA workers and returns the best
+which where selected by the click workers and returns the best
 input : BBlist - a list which contains three lists with the BB coordinates
 output: BBB - a list with the best coordinates
               if there is no match - None is returned
@@ -19,10 +19,10 @@ import background_removal
 
 def selectBest(bblist, imgurl):
     # TODO : read img from url
-    largeimg = cv2.imread(imgurl)
-    img, ratio = background_removal.standard_resize(largeimg, 400)
-    height, width, ch = img.shape
-    imgsize = height * width
+    large_img = cv2.imread(imgurl)
+    img, ratio = background_removal.standard_resize(large_img, 400)
+    height, width = img.shape[0:2]
+    img_size = height * width
 
     # calcuale center of mass per selection
     COM = []
@@ -30,7 +30,7 @@ def selectBest(bblist, imgurl):
         COM.append((i[0] + i[2] / 2, i[1] + i[3] / 2))
 
     weights = [0, 0, 0]
-    newpoints = []
+    new_points = []
     total_weight = 0
     simcount = 0
 
@@ -72,32 +72,23 @@ def selectBest(bblist, imgurl):
 
         return 0
 
-    for f in range(0, 3, 1):
-        if f == 0:
-            num1 = 0
-            num2 = 1
-        elif f == 1:
-            num1 = 0
-            num2 = 2
-        else:
-            num1 = 1
-            num2 = 2
-
-        x = [bblist[num1][0], bblist[num2][0]]
-        y = [bblist[num1][1], bblist[num2][1]]
-        wid = [bblist[num1][2], bblist[num2][2]]
-        hig = [bblist[num1][3], bblist[num2][3]]
+    couples = [(0, 1), (0, 2), (1, 2)]
+    for idx, pair in enumerate(couples):
+        x = [bblist[pair[0]][0], bblist[pair[1]][0]]
+        y = [bblist[pair[0]][1], bblist[pair[1]][1]]
+        wid = [bblist[pair[0]][2], bblist[pair[1]][2]]
+        hig = [bblist[pair[0]][3], bblist[pair[1]][3]]
 
         # size threshold check - selection bigger than 1% of original img size
-        if min(wid[0] * hig[0], wid[1] * hig[1]) > 0.01 * imgsize:
-            weights[f] = is_similar(COM[num1], COM[num2], x, y, wid, hig)
-            if weights[f] > 0.2:
+        if min(wid[0] * hig[0], wid[1] * hig[1]) > 0.01 * img_size:
+            weights[idx] = is_similar(COM[pair[0]], COM[pair[1]], x, y, wid, hig)
+            if weights[idx] > 0.2:
                 simcount += 1
-                total_weight += weights[f]
+                total_weight += weights[idx]
             else:
-                weights[f] = 0
+                weights[idx] = 0
 
-        newpoints.append(minmax(x, y, wid, hig))
+        new_points.append(minmax(x, y, wid, hig))
 
     if simcount == 0:
         print 'WARNING : three different entries'
@@ -112,17 +103,11 @@ def selectBest(bblist, imgurl):
     if simcount == 3:
         print 'three similar'
 
-    newx = int(math.floor(weights[0] / total_weight * newpoints[0][0] +
-                          weights[1] / total_weight * newpoints[1][0] +
-                          weights[2] / total_weight * newpoints[2][0]))
-    newy = int(math.floor(weights[0] / total_weight * newpoints[0][1] +
-                          weights[1] / total_weight * newpoints[1][1] +
-                          weights[2] / total_weight * newpoints[2][1]))
-    neww = int(math.floor(weights[0] / total_weight * newpoints[0][2] +
-                          weights[1] / total_weight * newpoints[1][2] +
-                          weights[2] / total_weight * newpoints[2][2]))
-    newh = int(math.floor(weights[0] / total_weight * newpoints[0][3] +
-                          weights[1] / total_weight * newpoints[1][3] +
-                          weights[2] / total_weight * newpoints[2][3]))
+    para = []
+    for p in range(4):
+        para.append(int(math.floor(weights[0] / total_weight * new_points[0][p] +
+                                   weights[1] / total_weight * new_points[1][p] +
+                                   weights[2] / total_weight * new_points[2][p])))
 
-    return [newx, newy, neww, newh]
+    # para = [x,y,w,h]
+    return para
