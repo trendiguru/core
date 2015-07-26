@@ -83,7 +83,6 @@ def choose_faces(image, faces_list, max_num_of_faces):
     else:
         return relevant_faces
 
-
 def face_is_relevant(image, face):
     x, y, w, h = face
     # threshold = face + 4 faces down = 5 faces
