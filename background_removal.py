@@ -79,7 +79,7 @@ def choose_faces(image, faces_list, max_num_of_faces):
             relevant_faces.append(face)
     if len(relevant_faces) > 0:
         sorted_list = np.array(sorted(relevant_faces, key=lambda face: face[4]), dtype=np.uint16)
-        return sorted_list[0:np.amax((max_num_of_faces, len(sorted_list))), 0:4]
+        return sorted_list[0:min((max_num_of_faces, len(sorted_list))), 0:4]
     else:
         return relevant_faces
 
