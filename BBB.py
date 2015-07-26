@@ -11,15 +11,14 @@ printouts: the number of matches is printed to log
 
 import math
 
-import cv2
 import numpy as np
 
+import Utils
 import background_removal
 
 
 def selectBest(bblist, imgurl):
-    # TODO : read img from url
-    large_img = cv2.imread(imgurl)
+    large_img = Utils.get_cv2_img_array(imgurl)
     img, ratio = background_removal.standard_resize(large_img, 400)
     height, width = img.shape[0:2]
     img_size = height * width
