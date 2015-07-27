@@ -61,14 +61,15 @@ def get_item_by_id(item_id):
 
 # FUNCTION 1
 def from_image_url_categorization_task(image_url):
-    image_obj = images.find_one({"image_url": image_url})
+    image_obj = images.find_one({"image_urls": {'$elemMatch': {image_url}}})
     if not image_obj:  # new image
         image = background_removal.standard_resize(Utils.get_cv2_img_array(image_url), 400)[0]
         if image is None:
             logging.warning("There's no image in the url!")
             return None
         relevance = background_removal.image_is_relevant(image)
-        image_dict = {'image_url': image_url, 'relevant': relevance.is_relevant, '_id': bson.ObjectId()}
+        image_dict = {'image_urls': [], 'relevant': relevance.is_relevant, '_id': bson.ObjectId()}
+        image_dict['image_urls'].append(image_url)
         if relevance.is_relevant:
             image_dict['people'] = []
             for face in relevance.faces:
@@ -84,7 +85,12 @@ def from_image_url_categorization_task(image_url):
         images.insert(image_dict)
         return
     else:
-        logging.warning("image is already in our DB..")
+        if image_url not in image_obj['image_urls']:
+            image_obj['image_urls'].append(image_url)
+        if image_obj['relevant']:
+            logging.warning("Image is in the DB and relevant!")
+        else:
+            logging.warning("Image is in the DB and not relevant!")
         return image_obj
 
 
@@ -102,9 +108,9 @@ def from_categories_to_bb_task(person_url, items_list, image_id, person_id):
     if len(items_list) == 0:
         logging.warning("No items in items' list!")
         return None
-    items = determine_final_categories(items_list)
+    # items = determine_final_categories(items_list)
     items_list = []
-    for item in items:
+    for item in items_list:
         item_dict = {'category': item, 'item_id': bson.ObjectId()}
         items_list.append(item_dict)
         q4.enqueue(send_item_to_qc_bb, person_url, image_id, person_id, item_dict)
@@ -127,11 +133,11 @@ def from_categories_to_bb_task(person_url, items_list, image_id, person_id):
 
 
 # FUNCTION 6
-def from_bb_to_sorting_task(bb_list, person_id, item_id):
-    if len(bb_list) == 0:
-        logging.warning("No bbs in bb_list!")
+def from_bb_to_sorting_task(bb, person_id, item_id):
+    if len(bb) == 0:
+        logging.warning("No bb found")
         return None
-    bb = determine_final_bb(bb_list)  # Yonti's function
+    # bb = determine_final_bb(bb_list)  # Yonti's function
     image, person, item = get_item_by_id(item_id)
     fp, results, svg = find_similar_mongo.got_bb(image['image_url'], person_id, item_id, bb, 100, item['category'])
     item['similar_results'] = results
