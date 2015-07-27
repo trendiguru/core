@@ -61,7 +61,7 @@ def get_item_by_id(item_id):
 
 # FUNCTION 1
 def from_image_url_categorization_task(image_url):
-    image_obj = images.find_one({"image_urls": {'$in': image_url}})
+    image_obj = images.find_one({"image_urls": image_url})
     if not image_obj:  # new image
         image = background_removal.standard_resize(Utils.get_cv2_img_array(image_url), 400)[0]
         if image is None:
@@ -139,7 +139,7 @@ def from_bb_to_sorting_task(bb, person_id, item_id):
         return None
     # bb = determine_final_bb(bb_list)  # Yonti's function
     image, person, item = get_item_by_id(item_id)
-    fp, results, svg = find_similar_mongo.got_bb(image['image_url'], person_id, item_id, bb, 100, item['category'])
+    fp, results, svg = find_similar_mongo.got_bb(image['image_urls'][0], person_id, item_id, bb, 100, item['category'])
     item['similar_results'] = results
     item['fingerprint'] = fp
     item['svg_url'] = svg
