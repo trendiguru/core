@@ -1,3 +1,5 @@
+import cv2
+
 # file containing constants for general TG use
 
 # fingerprint related consts
@@ -83,3 +85,8 @@ N_bb_votes_required = 2
 N_category_votes_required = 2
 
 bb_iou_threshold = 0.5  #how much overlap there must be between bbs
+
+if cv2.__version__ == '3.0.0':
+    scale_flag = cv2.CASCADE_SCALE_IMAGE
+else:
+    scale_flag = cv2.cv.CV_HAAR_SCALE_IMAGE

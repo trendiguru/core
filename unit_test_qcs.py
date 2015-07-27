@@ -22,6 +22,12 @@ class OutcomesTest(unittest.TestCase):
         images_entry = db.images.find_one()  # The db with multiple figs of same item
         self.assertTrue(images_entry is not None)  # make sure images collection exists
 
+    def test_from_image_URL_to_task1(self):
+        # url = 'http://static1.1.sqspcdn.com/static/f/163930/1599100/1211882974117/justinpolkey2.jpg'
+        url = 'http://i.huffpost.com/gen/1321037/thumbs/o-KATE-LANPHEAR-570.jpg'
+        retval = qcs.from_image_url_to_task1(url)
+        print(retval)
+
     def test_determine_final_bb(self):
         bb1 = [10, 20, 100, 100]
         bb2 = [10, 20, 1, 2]

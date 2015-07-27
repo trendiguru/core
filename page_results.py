@@ -22,7 +22,7 @@ import background_removal
 
 # similar_results structure - this an example of a similar results answer, with two items
 images_entry = \
-    {'hash': '2403b296b6d0be5e5bb2e74463419b2a',
+    {'image_hash': '2403b296b6d0be5e5bb2e74463419b2a',
      'image_urls': ['url1_of_image.jpg', 'url2_of_image.jpg', 'url3_of_image.jpg'],
      'page_urls': ['page1_where_image_appears.html', 'page2_where_image_appears.html',
                    'page3_where_image_appears.html'],
@@ -381,14 +381,14 @@ def start_pipeline(image_url):
     id_2 = objectid.ObjectId(similar_2['_id'])
     id_3 = objectid.ObjectId(similar_3['_id'])
     id_4 = objectid.ObjectId(similar_4['_id'])
-    result = [{"category": "womens-shirt-skirts",
+    result = [{"category": "womens-skirts",
                "svg": "svg-url",
                "saved_date": "Jun 23, 1912",
                "similar_items":
                    [bson.dbref.DBRef("products", id_1, database="mydb"),
                     bson.dbref.DBRef("products", id_1, database="mydb")]},
 
-              {"category": "mens-purse",
+              {"category": "handbag",
                "svg": "svg-url",
                "saved_date": "Jun 23, 1912",
                "similar_items":
@@ -433,7 +433,7 @@ def find_similar_items_and_put_into_db(image_url, page_url):
     m = hashlib.md5()
     m.update(img_arr)
     image_hash = m.hexdigest()
-    results_dict["hash"] = image_hash
+    results_dict["image_hash"] = image_hash
     results_dict["image_urls"] = [image_url]
     results_dict["page_urls"] = [page_url]
     relevance = background_removal.image_is_relevant(img_arr)
@@ -441,6 +441,15 @@ def find_similar_items_and_put_into_db(image_url, page_url):
     # print('relevance:' + str(actual_relevance))
     relevance = actual_relevance * qc_assessment_of_relevance(image_url)
     results_dict["relevant"] = relevance
+    face1 = [311, 47, 44, 44]
+    face2 = [399, 30, 45, 45]
+    face3 = [116, 15, 47, 47]
+    results_dict["people"] = []
+
+    person1 = {'face': face1, 'person_id': bson.ObjectId(), 'items': similar_items_from_products_db}
+    person2 = {'face': face2, 'person_id': bson.ObjectId(), 'items': similar_items_from_products_db}
+    results_dict["people"].append(person1)
+
     results_dict["items"] = similar_items_from_products_db
 
     #`EDIT FROM HERE        for
@@ -453,7 +462,8 @@ def find_similar_items_and_put_into_db(image_url, page_url):
 
 def update_image_in_db(page_url, image_url, cursor):
     '''
-    check each doc in cursor. This is a cursor of docs matching the image at image_url. if page_url is there then do nothing, otherwise add page_url to the list page_urls
+    check each doc in cursor. This is a cursor of docs matching the image at image_url.
+    if page_url is there then do nothing, otherwise add page_url to the list page_urls
     :param page_url:
     :param image_url:
     :param cursor:
@@ -469,7 +479,7 @@ def update_image_in_db(page_url, image_url, cursor):
         i = i + 1
 
         # check if the image in the url is the same one as appears in the supposedly matching doc
-        image_hash = doc['hash']
+        image_hash = doc['image_hash']
         same_image = verify_hash_of_image(image_hash, image_url)
         if not same_image:
             logging.warning(
@@ -684,7 +694,7 @@ def get_data_for_specific_image(image_url=None, image_hash=None):
         query = {"image_urls": image_url}
     else:
         logging.debug('looking for hash ' + image_hash + ' in db ')
-        query = {"hash": image_hash}
+        query = {"image_hash": image_hash}
     entry = db.images.find_one(query)
     if entry is not None:
         logging.debug('found image (or hash) in db ')
@@ -698,23 +708,24 @@ def get_data_for_specific_image(image_url=None, image_hash=None):
         return None
 
 def kill_images_collection():
-    connection = Connection('localhost', 27017)  # Connect to mongodb
-    print(connection.database_names())  # Return a list of db, equal to: > show dbs
-    db = connection['mydb']  # equal to: > use testdb1
+    # connection = Connection('localhost', 27017)  # Connect to mongodb
+    #    print(connection.database_names())  # Return a list of db, equal to: > show dbs
+    #    db = connection['mydb']  # equal to: > use testdb1
+    db = pymongo.MongoClient().mydb
     print(db.collection_names())  # Return a list of collections in 'testdb1'
     print("images exists in db.collection_names()?")  # Check if collection "posts"
     print("images" in db.collection_names())  # Check if collection "posts"
     # exists in db (testdb1
     collection = db['images']
-    print('collection.count() == 0 ?' + str(collection.count() == 0))  # Check if collection named 'posts' is empty
+    print('collection.count() = ' + str(collection.count()))  # Check if collection named 'posts' is empty
 
 ###DO THIS ONLY IF YOU KNOW WHAT YOU ARE DOING
-    collection.drop()
+  #  collection.drop()
 
 ###DO THIS TO KILL DB - ASK LIOR AND/OR JEREMY BEFORE DOING THIS
 
 if __name__ == '__main__':
     print('starting')
-    # kill_images_collection()
+    kill_images_collection()
     #verify_hash_of_image('wefwfwefwe', 'http://resources.shopstyle.com/pim/c8/af/c8af6068982f408205491817fe4cad5d.jpg')
     dbUtils.step_thru_images_db(use_visual_output=False, collection='images')
