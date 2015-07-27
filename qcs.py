@@ -61,7 +61,7 @@ def get_item_by_id(item_id):
 
 # FUNCTION 1
 def from_image_url_categorization_task(image_url):
-    image_obj = images.find_one({"$elemMatch": {'image_urls': image_url}})
+    image_obj = images.find_one({"image_urls": {'$in': image_url}})
     if not image_obj:  # new image
         image = background_removal.standard_resize(Utils.get_cv2_img_array(image_url), 400)[0]
         if image is None:
