@@ -7,8 +7,8 @@ import cv2
 import redis
 from rq import Queue
 import bson
-
 import boto3
+
 import find_similar_mongo
 import background_removal
 import Utils
