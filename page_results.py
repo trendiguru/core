@@ -449,8 +449,8 @@ def find_similar_items_and_put_into_db(image_url, page_url):
     person1 = {'face': face1, 'person_id': bson.ObjectId(), 'items': similar_items_from_products_db}
     person2 = {'face': face2, 'person_id': bson.ObjectId(), 'items': similar_items_from_products_db}
     results_dict["people"].append(person1)
-
-    results_dict["items"] = similar_items_from_products_db
+    results_dict["people"].append(person2)
+    # results_dict["items"] = similar_items_from_products_db
 
     #`EDIT FROM HERE        for
     logging.debug('inserting into db:')
@@ -478,6 +478,10 @@ def update_image_in_db(page_url, image_url, cursor):
         #acutally thats not nec. true, maybe th hash matched. so forget theassert or assert an 'or'
         i = i + 1
 
+        logging.debug('doc:' + str(doc))
+        logging.debug('updating db, doc#' + str(i) + ': looking for page :' + str(page_url) + ' in url list:' + str(
+            doc['page_urls']))
+
         # check if the image in the url is the same one as appears in the supposedly matching doc
         image_hash = doc['image_hash']
         same_image = verify_hash_of_image(image_hash, image_url)
@@ -486,8 +490,6 @@ def update_image_in_db(page_url, image_url, cursor):
                 'image hash doesnt match the stored hash, maybe the image at ' + str(image_url) + ' changed!')
             continue
 
-        logging.debug('updating db, doc#' + str(i) + ': looking for page :' + str(page_url) + ' in url list:' + str(
-            doc['page_urls']))
         flag = False
         if page_url in doc['page_urls']:
             logging.debug('found url, no need to update, going to next doc')
@@ -591,44 +593,52 @@ def dereference_image_collection_entry(doc=None):
         'pageUrl': 1,
         '_id': 0,
         'priceLabel': 1}
+    # probably necessary since i am fooling with the fields, and the copy is a copy by reference
+    modified_doc = copy.deepcopy(doc)
+    # modified_doc =doc
+    logging.debug('trying to dereference ' + str(modified_doc))
+    if not 'people' in modified_doc:
+        logging.debug('no people found in record while trying to dereference ' + str(modified_doc))
+        return None
+    for person in modified_doc['people']:
+        # person['items'] = []
+        # orig_items = doc
+        new_items = []
+        for item in person['items']:  # expand the info in similar_items since in the images db its  just as a reference
+            expanded_item = copy.deepcopy(item)
+            expanded_item['similar_items'] = []
+            for similar_item in item['similar_items']:
+                try:
+                    # products_db_entry = db.dereference(similar_item, projection)  #runs into type error
+                    products_db_entry = db.dereference(similar_item)  # works
+                    # below are all the feilds we don't care about and so dont pass on - we have to do this since i can't get the dereference to work
+                    del products_db_entry['colors']
+                    del products_db_entry['id']
+                    del products_db_entry['badges']
+                    del products_db_entry['extractDate']
+                    del products_db_entry['alternateImages']
+                    del products_db_entry['dl_version']
+                    del products_db_entry['preOwned']
+                    del products_db_entry['unbrandedName']
+                    del products_db_entry['fingerprint']
+                    del products_db_entry['rental']
+                    del products_db_entry['lastModified']
+                    if 'archive' in products_db_entry:
+                        del products_db_entry['archive']
 
-    modified_doc = copy.deepcopy(
-        doc)  # probably necessary since i am fooling with the fields, and the copy is a copy by reference
-    #modified_doc =doc  #actually i guess one could avoid the deepcopy somehow
-    modified_doc['items'] = []
-    for item in doc['items']:  # expand the info in similar_items since in the images db its  just as a reference
-        expanded_item = copy.deepcopy(item)
-        expanded_item['similar_items'] = []
-        for similar_item in item['similar_items']:
-            try:
-                # products_db_entry = db.dereference(similar_item, projection)  #runs into type error
-                products_db_entry = db.dereference(similar_item)  #works
-                del products_db_entry['colors']
-                del products_db_entry['id']
-                del products_db_entry['badges']
-                del products_db_entry['extractDate']
-                del products_db_entry['alternateImages']
-                del products_db_entry['dl_version']
-                del products_db_entry['preOwned']
-                del products_db_entry['unbrandedName']
-                del products_db_entry['fingerprint']
-                del products_db_entry['rental']
-                del products_db_entry['lastModified']
-                if 'archive' in products_db_entry:
-                    del products_db_entry['archive']
-
-            except TypeError:
-                logging.error('dbref is not an instance of DBRef')
-                return None
-            except ValueError:
-                logging.error('dbref has a db specified that is different from the current database')
-                return None
-            detailed_item = products_db_entry
-            large_image = detailed_item['image']['sizes']['Large']['url']
-            #add 'large image' so the poor web guy doesnt have too dig that much deeper than he already has to
-            detailed_item['LargeImage'] = large_image
-            expanded_item['similar_items'].append(detailed_item)
-        modified_doc['items'].append(expanded_item)
+                except TypeError:
+                    logging.error('dbref is not an instance of DBRef')
+                    return None
+                except ValueError:
+                    logging.error('dbref has a db specified that is different from the current database')
+                    return None
+                detailed_item = products_db_entry
+                large_image = detailed_item['image']['sizes']['Large']['url']
+                # add 'large image' so the poor web guy doesnt have too dig that much deeper than he already has to
+                detailed_item['LargeImage'] = large_image
+                expanded_item['similar_items'].append(detailed_item)
+            new_items.append(expanded_item)
+        person['items'] = new_items
     logging.debug('the modified results as list:')
     logging.debug(str(modified_doc))
     return modified_doc
@@ -707,6 +717,12 @@ def get_data_for_specific_image(image_url=None, image_hash=None):
         logging.debug('image / hash  was NOT found in db')
         return None
 
+
+def remove_one(id):
+    db = pymongo.MongoClient().mydb
+    db.images.remove({"_id": bson.ObjectId(id)})
+
+
 def kill_images_collection():
     # connection = Connection('localhost', 27017)  # Connect to mongodb
     #    print(connection.database_names())  # Return a list of db, equal to: > show dbs
@@ -726,6 +742,7 @@ def kill_images_collection():
 
 if __name__ == '__main__':
     print('starting')
-    kill_images_collection()
+    # kill_images_collection()
+    # remove_one('55b614301f8c8255e7557046')
     #verify_hash_of_image('wefwfwefwe', 'http://resources.shopstyle.com/pim/c8/af/c8af6068982f408205491817fe4cad5d.jpg')
     dbUtils.step_thru_images_db(use_visual_output=False, collection='images')

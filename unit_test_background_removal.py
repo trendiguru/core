@@ -29,8 +29,8 @@ class OutcomesTest(unittest.TestCase):
         url = 'http://img07.deviantart.net/ee95/i/2011/058/8/4/many_faces_of_david_tennant_2_by_pfeifhuhn-d3ag5g6.jpg'
         url = 'http://face-negotiationtheory.weebly.com/uploads/4/2/1/6/4216257/1771161.jpg'
         url = 'http://www.travelmarketing.fr/wp-content/uploads/2014/04/multiple-faces-e1401642770899.jpg'
-        url = 'http://www.joancanto.com/blog/wp-content/uploads/2008/07/unai-jvcanto.jpg'
-        url = 'http://p1cdn02.thewrap.com/images/2015/01/e-fashion-police-joan-rivers-premiere.jpg'
+        # url = 'http://www.joancanto.com/blog/wp-content/uploads/2008/07/unai-jvcanto.jpg'
+        # url = 'http://p1cdn02.thewrap.com/images/2015/01/e-fashion-police-joan-rivers-premiere.jpg'
         file = os.path.join('images', url.split('/')[-1])
 
         print('file:' + file)
