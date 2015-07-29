@@ -2,6 +2,7 @@ __author__ = 'Nadav Paz'
 
 import logging
 
+import requests
 import pymongo
 import cv2
 import redis
@@ -15,17 +16,16 @@ import Utils
 
 
 QC_URL = 'http://www.clickworkers.com'
+callback_url = "https://extremeli.trendi.guru/api/nadav/index"
 db = pymongo.MongoClient().mydb
 images = pymongo.MongoClient().mydb.images
 r = redis.Redis()
+q1 = Queue('images_queue', connection=r)
 q2 = Queue('send_to_categorize', connection=r)
-q3 = Queue('receive_categories', connection=r)
-q4 = Queue('send_to_bb', connection=r)
-q5 = Queue('receive_bb', connection=r)
-q6 = Queue('send_20s_results', connection=r)
-q7 = Queue('receive_20s_results', connection=r)
-q8 = Queue('send_last_20', connection=r)
-q9 = Queue('receive_final_results', connection=r)
+q3 = Queue('send_to_bb', connection=r)
+q4 = Queue('send_20s_results', connection=r)
+q5 = Queue('send_last_20', connection=r)
+q6 = Queue('receive_data_from_qc', connection=r)
 
 
 def upload_image(image, name, bucket_name=None):
@@ -56,11 +56,33 @@ def get_item_by_id(item_id):
             logging.warning("No items to this person, continuing..")
 
 
-# ---------------------------------------------------------------------------------------------------------------------
-# q1 - images queue - Web2Py
+def decode_task(args, vars, data):  # args(list) = person_id, vars(dict) = task, data(dict) = QC results
+    if vars["task_id"] is 'categorization':
+        from_categories_to_bb_task(data['items'], args[0])
+    elif vars["task_id"] is 'bb':
+        from_bb_to_sorting_task(data['bb'], args[0], args[1])
+        # elif vars["task_id"] is 'first_sorting':
+        # dole_out_work()
+        # else:
+        # finish_work()
+    return
 
-# FUNCTION 1
-def from_image_url_categorization_task(image_url):
+
+# ---------------------------------------------------------------------------------------------------------------------
+# optional data arrangements:
+# 1.  only by url: callback url -
+# "https://extremeli.trendi.guru/api/nadav/index/image_id/person_id/item_id?task_id=bounding_boxing"
+#     in this case we know how many args we have because of the type of the task (e.g item bounding_boxing => 3 args).
+# 1.1 maybe more efficient way is: "https://extremeli.trendi.guru/api/nadav/index/item_id?task_id=bounding_boxing"
+#     and by task_id we would know that it is an item which we activated by.
+# 2.  by task_id: create and send task_id in each kind of task. when we get a post back we search the task id in a tasks
+#     table that we built. from the task document we understand what to do with the info we got.
+# we will go with 1.1 for now !
+
+# q1 - images queue -  from Web2Py
+
+
+def from_image_url_to_categorization_task(image_url):
     image_obj = images.find_one({"image_urls": image_url})
     if not image_obj:  # new image
         image = background_removal.standard_resize(Utils.get_cv2_img_array(image_url), 400)[0]
@@ -79,7 +101,7 @@ def from_image_url_categorization_task(image_url):
                 cv2.rectangle(copy, (x, y), (x + w, y + h), [0, 255, 0], 2)
                 person['url'] = upload_image(copy, str(person['person_id']))
                 image_dict['people'].append(person)
-                q2.enqueue(send_image_to_qc_categorization, person['url'], str(image_dict['_id']), str(person['id']))
+                q2.enqueue(send_image_to_qc_categorization, person['url'], str(person['id']))
         else:
             logging.warning('image is not relevant, but stored anyway..')
         images.insert(image_dict)
@@ -94,45 +116,41 @@ def from_image_url_categorization_task(image_url):
         return image_obj
 
 
-# END OF FUNCTION 1
-
-# q2
-
-# FUNCTION 2 - Web2py send_image_to_qc_categorization
-
-# q3 - Web2Py
+def send_image_to_qc_categorization(person_url, person_id):
+    data = {"callback_url": callback_url + '/' + person_id + '?task=categorization',
+            "person_url": person_url}
+    req = requests.post(QC_URL, data)
+    return req.status_code
 
 
-# FUNCTION 3
-def from_categories_to_bb_task(person_url, items_list, image_id, person_id):
+# q6 - decode_task, from Web2Py
+
+
+def from_categories_to_bb_task(items_list, person_id):
     if len(items_list) == 0:
         logging.warning("No items in items' list!")
         return None
-    # items = determine_final_categories(items_list)
-    items_list = []
+    # items = category_tree.CatNode.determine_final_categories(items_list) # sergey's function
+    image, person = get_person_by_id(person_id)
+    person_url = person['url']
     for item in items_list:
         item_dict = {'category': item, 'item_id': bson.ObjectId()}
         items_list.append(item_dict)
-        q4.enqueue(send_item_to_qc_bb, person_url, image_id, person_id, item_dict)
+        q3.enqueue(send_item_to_qc_bb, person_url, person_id, item)
     images.update_one({'people.person_id': person_id}, {'$set': {'people.$.items': items_list}}, upsert=True)
     return
 
-# END OF FUNCTION 3
 
-# q4
-
-# FUNCTION 4
-# Web2Py - send_item_to_qc_bb(person_url, image_id, person_id, item_dict)
-# END
-
-# q5 - Web2Py
-
-# FUNCTION 5
-# Web2Py - bb_list = get_bb_list_from_qc()
-# END
+def send_item_to_qc_bb(person_url, person_id, item_dict):
+    data = {"callback_url": callback_url + '/' + person_id + '/' + item_dict['item_id'] + '?task=bb',
+            "person_url": person_url}
+    req = requests.post(QC_URL, data)
+    return req.status_code
 
 
-# FUNCTION 6
+# q6 - decode_task, from Web2Py
+
+
 def from_bb_to_sorting_task(bb, person_id, item_id):
     if len(bb) == 0:
         logging.warning("No bb found")
@@ -143,36 +161,30 @@ def from_bb_to_sorting_task(bb, person_id, item_id):
     item['similar_results'] = results
     item['fingerprint'] = fp
     item['svg_url'] = svg
-    q6.enqueue(send_initiate_results_to_sorting, results, item_id)
+    q4.enqueue(send_initiate_results_to_sorting, results, person_id, item_id)
     image['people'][person['person_idx']]['items'][item['item_idx']] = item
     images.replace_one({'people.person': person_id}, image)
     return
-# END
 
 
 """
-# q6
-
 # FUNCTION 6
 send_100_results_to_qc_in_20s(copy, results)
 # END
 
-# q7
+# q6 - decode_task, from Web2Py
 
 # FUNCTION 7
-sorted_results = get_sorted_results_from_qc()
-final_20_results = rearrange_results(sorted_results)
+from 20's to 5's(results, item_id)
+q5.enqueue(send_final_20_20_results_to_qc_in_10s, copy, final_20_results)
 # END
-
-# q8
 
 # FUNCTION 8
 send_final_20_results_to_qc_in_10s(copy, final_20_results)
 # END
 
-# q9
+# q6 - decode_task, from Web2Py
 
 # FUNCTION 9
-final_results = get_final_results_from_qc()
-insert_final_results(item.id, final_results)
+update result for the last time
 """
