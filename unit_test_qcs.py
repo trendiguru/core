@@ -89,11 +89,16 @@ class OutcomesTest(unittest.TestCase):
         print('item:' + str(item))
 
     def test_set_voting_stage(self):
-        qcs.set_voting_stage(3, bson.ObjectId('55b8a8b61f8c825656f14b40'))
+        stage = 13
+        qcs.set_voting_stage(stage, bson.ObjectId('55b8a8b61f8c825656f14b40'))
+        actual_stage = qcs.get_voting_stage(bson.ObjectId('55b8a8b61f8c825656f14b40'))
+        print('voting_stage=' + str(actual_stage))
+        self.assertTrue(stage == actual_stage)
 
     def test_get_voting_stage(self):
-        qcs.get_voting_stage(bson.ObjectId('55b8a8b61f8c825656f14b40'))
-
+        stage = qcs.get_voting_stage(bson.ObjectId('55b8a8b61f8c825656f14b40'))
+        print('voting_stage=' + str(stage))
+        self.assertTrue(isinstance(stage, int))
 
 
 if __name__ == '__main__':
