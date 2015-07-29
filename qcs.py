@@ -2,6 +2,7 @@ __author__ = 'Nadav Paz'
 
 # theirs
 import logging
+import requests
 
 import pymongo
 import cv2
@@ -9,9 +10,7 @@ import redis
 from rq import Queue
 import bson
 import boto3
-import numpy as np
 
-import find_similar_mongo
 import background_removal
 import Utils
 import constants
@@ -55,6 +54,19 @@ def get_item_by_id(item_id):
                 return item
 
 
+def get_item_and_index_by_id(item_id):
+    image = images.find_one({'people.items.item_id': item_id})
+    # image = images.find_one({'people.items.item_id':{$exists:true} })
+    if image is None:
+        logging.debug('no record found with item_id=' + str(item_id))
+        return None, None
+    print('searching for itemid:' + str(item_id))
+    for person in image['people']:
+        for i in range(len(person['items'])):
+            print('i:' + str(i) + ' itemid:' + str(person['items'][i]['item_id']))
+            if person['items'][i]['item_id'] == item_id:
+                return person['items'][i], i
+    return None, None
 # ---------------------------------------------------------------------------------------------------------------------
 # q1 - images queue - Web2Py
 
@@ -143,7 +155,7 @@ def determine_final_bb(bb_list):
     if len(good_bblist) == 0:
         logging.warning('no good bbs in list')
         return None
-    avg_bb = average_bbs(good_bblist)
+    avg_bb = Utils.average_bbs(good_bblist)
     # print('avg bb:'+str(avg_bb))
     # check if any of the boxes are way out
     good_intersection_bblist = []
@@ -151,52 +163,53 @@ def determine_final_bb(bb_list):
         if Utils.intersectionOverUnion(bb, avg_bb) >= constants.bb_iou_threshold:
             good_intersection_bblist.append(bb)
     if good_intersection_bblist != []:  # got at least one good bb
-        improved_result = average_bbs(good_intersection_bblist)
+        improved_result = Utils.average_bbs(good_intersection_bblist)
         return improved_result
     else:
         logging.warning('no good intersections found')
         return None
-    bb = determine_final_bb(bb_list)  # Yonti's function
-    image = images.find_one({'people.items.item_id': item_id}, {})
-    category = get_item_by_id(item_id)['category']
-    fp, results, svg = find_similar_mongo.got_bb(image['image_url'], person_id, item_id, bb, N_top_results_to_show,
-                                                 category)
+#    bb = determine_final_bb(bb_list)  # Yonti's function
+    # image = images.find_one({'people.items.item_id': item_id}, {})
+    #    category = get_item_by_id(item_id)['category']
+    #    fp, results, svg = find_similar_mongo.got_bb(image['image_url'], person_id, item_id, bb, N_top_results_to_show,
+    #category)
 
-# q6 - send_20s_resuqlts
+
+# q6 - send_20s_(actually N) results
 # FUNCTION 6
-def send_100_results_to_qc_in_20s(original_image_url, results):
-    for i in range(0, constants.N_workers[0]):  #divide results into chunks for N workers
-        final_image_index = min(i + constants.N_pics_per_worker - 1,
-                                len(results) - 1)  # the min deals with case where there's fewer images for last worker
-        chunk_of_results = results[i:final_image_index]
-        q6.enqueue(send_many_results_to_qcs, original_image_url, chunk_of_results)
+def dole_out_work(original_image, similar_items, voting_stage):
+    '''
+    dole out images. Im assuming that i should dole out all the similar items instead of
+    doling out constants.N_top_results_to_show
+    :param original_image_url:
+    :param similar_items:
+    :param voting_stage:
+    :return:
+    '''
+
+    # make sure theres at least 1 worker per image
+    assert (constants.N_workers[voting_stage] * constants.N_pics_per_worker[voting_stage] /
+            len(similar_items) > 1)  #len similar_items instead of constants.N_top_results_to_show
+    for i in range(0, constants.N_workers[voting_stage]):  #divide results into chunks for N workers
+        first_image_index = i * constants.N_pics_per_worker
+        last_image_index = (i + 1) * constants.N_pics_per_worker
+        # the min below deals with case where there's fewer images for last worker
+        last_image_index = min(last_image_index, len(similar_items))
+        chunk_of_results = similar_items[first_image_index:last_image_index]
+        q6.enqueue(send_similar_items_to_qc, original_image, chunk_of_results)
+
 
 # QUEUE FUNC FOR FUNCTION 6
-def send_many_results_to_qcs(original_image, chunk_of_results):
+def send_similar_items_to_qc(original_image, chunk_of_results):
     payload = {'original_image': original_image, 'results_to_sort': chunk_of_results}
     req = requests.post(QC_URL, data=payload)
     return req.ok
-
 # END OF QUEUE FUNC FOR FUNCTION 6
 # END  FUNCTION 6
-
-def average_bbs(bblist):
-    avg_box = [0, 0, 0, 0]
-    n = 0
-    for bb in bblist:
-        # print('avg'+str(avg_box))
-        # print('bb'+str(bb))
-        avg_box = np.add(avg_box, bb)
-        # print('avg after'+str(avg_box))
-        n = n + 1
-    avg_box = np.int(np.divide(avg_box, n))
-    return avg_box
-
 
 # q7
 # q7 - receive_20s_results
 # FUNCTION 7
-# assumption
 def set_voting_stage(N_stage, item_id):
     '''
     this can be replaced by a different persistent storage scheme than storing
@@ -206,18 +219,21 @@ def set_voting_stage(N_stage, item_id):
     :return:
     '''
     # db_image = images.find_one({'people.items.item_id': item_id})
+    item, index = get_item_and_index_by_id(item_id)
+    image = images.find_one({'people.items.item_id': item_id})
+
+    item['voting_stage'] = N_stage
     write_result = images.update({"people.items.item_id": item_id},
-                                 {"$set": {"people.items.voting_stage": N_stage}})
+                                 {"$set": {"people.items.index": item}})
 
 
 def get_voting_stage(item_id):
-    image = images.find_one({'people.items.item_id': item_id})
-    if 'voting_stage' in image['people']['items']:
-        return image['people']['items']['voting_stage']
+    item = get_item_by_id(item_id)
+    if 'voting_stage' in item:
+        return item['voting_stage']
     else:  # no voting stage set yet,. so set to 0
         set_voting_stage(0, item_id)
         return 0
-
 
 def receive_votes(similar_items, voting_results):
     got_all_votes, combined_votes = combine_results(similar_items, voting_results)
@@ -260,7 +276,6 @@ def persistently_store_votes(votes):
     '''
     pass
 
-
 # def combine_results(similar_items, voting_results):
 # for similar_item in similar_items:
 #        if similar_item in persistent_votes:
@@ -270,7 +285,7 @@ def persistently_store_votes(votes):
 
 def rearrange_results(votes):
     '''
-    Take a bunch of votes. CHeck for duplicate votes (two or more dudes voting on same item).
+    Take a bunch of votes. Check for duplicate votes (two or more dudes voting on same item).
     Tote up all the results and send back in order
     :param votes:
     :return:

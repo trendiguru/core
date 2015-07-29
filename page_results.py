@@ -67,6 +67,7 @@ results = {
             "person_id": "bson.ObjectId()",
             "items": [
                 {
+                    "item_id": '55b89f151f8c82501d18e12f',
                     "category": "womens-shirt-skirts",
                     "svg": "svg-url",
                     "saved_date": "Jun 23, 1912",
@@ -106,6 +107,7 @@ results = {
                     ]
                 },
                 {
+                    "item_id": '55b89f151f8c82501d18e12e',
                     "category": "awesome_watches",
                     "svg": "svg-url",
                     "saved_date": "Jun 23, 1912",
@@ -156,6 +158,7 @@ results = {
             "person_id": "bson.ObjectId()",
             "items": [
                 {
+                    "item_id": '55b89f151f8c82501d18e12c',
                     "category": "womens-shirt-skirts",
                     "svg": "svg-url",
                     "saved_date": "Jun 23, 1912",
@@ -195,6 +198,8 @@ results = {
                     ]
                 },
                 {
+                    "item_id": '55b89f151f8c82501d18e12fa',
+
                     "category": "awesome_watches",
                     "svg": "svg-url",
                     "saved_date": "Jun 23, 1912",
@@ -366,7 +371,6 @@ def start_pipeline(image_url):
     # the goods go here
     # There may be multiple items in an image, so this should return list of items
     # each item having a list of similar results
-
     # FAKE RESULTS
     logging.debug('starting pipeline')
     db = pymongo.MongoClient().mydb
@@ -381,14 +385,16 @@ def start_pipeline(image_url):
     id_2 = objectid.ObjectId(similar_2['_id'])
     id_3 = objectid.ObjectId(similar_3['_id'])
     id_4 = objectid.ObjectId(similar_4['_id'])
-    result = [{"category": "womens-skirts",
+    result = [{"item_id": bson.ObjectId(),
+               "category": "womens-skirts",
                "svg": "svg-url",
                "saved_date": "Jun 23, 1912",
                "similar_items":
                    [bson.dbref.DBRef("products", id_1, database="mydb"),
                     bson.dbref.DBRef("products", id_1, database="mydb")]},
 
-              {"category": "handbag",
+              {"item_id": bson.ObjectId(),
+               "category": "handbag",
                "svg": "svg-url",
                "saved_date": "Jun 23, 1912",
                "similar_items":

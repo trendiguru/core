@@ -2,6 +2,7 @@ __author__ = 'jeremy'
 import unittest
 
 import pymongo
+import bson
 
 import qcs
 import constants
@@ -77,6 +78,21 @@ class OutcomesTest(unittest.TestCase):
                 print('no items in person ' + str(first_person))
         else:
             print('no people in images_entry ' + str(images_entry))
+
+    def test_get_item_by_id(self):
+        print('testing get_item_by_id')
+        item = qcs.get_item_by_id(bson.ObjectId('55b8a8b61f8c825656f14b40'))
+        print('item:' + str(item))
+
+    def test_get_item_and_index_by_id(self):
+        item, index = qcs.get_item_and_index_by_id(bson.ObjectId('55b8a8b61f8c825656f14b40'))
+        print('item:' + str(item))
+
+    def test_set_voting_stage(self):
+        qcs.set_voting_stage(3, bson.ObjectId('55b8a8b61f8c825656f14b40'))
+
+    def test_get_voting_stage(self):
+        qcs.get_voting_stage(bson.ObjectId('55b8a8b61f8c825656f14b40'))
 
 
 

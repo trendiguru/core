@@ -189,6 +189,18 @@ def count_human_bbs_in_doc(dict_of_images, skip_if_marked_to_skip=True):
     return (n)
 
 
+def average_bbs(bblist):
+    avg_box = [0, 0, 0, 0]
+    n = 0
+    for bb in bblist:
+        # print('avg'+str(avg_box))
+        # print('bb'+str(bb))
+        avg_box = np.add(avg_box, bb)
+        # print('avg after'+str(avg_box))
+        n = n + 1
+    avg_box = np.int(np.divide(avg_box, n))
+    return avg_box
+
 
 def good_bb(dict, skip_if_marked_to_skip=True):
     '''

@@ -932,15 +932,21 @@ def suits_for_kyle():
 # cats:[{u'shortName': u'Crewnecks & Scoopnecks', u'localizedId': u'crewneck-sweaters', u'id': u'crewneck-sweaters', u'name': u'Crewnecks & Scoopnecks'}]
 # categories:#            u'name': u'V-Neck Sweaters'}]
 
+def generate_id():
+    id = objectid.ObjectId()
+    return id
 
 if __name__ == '__main__':
     print('starting')
+    id = generate_id()
+    print('id:' + str(id))
     # show_all_bbs_in_db()
     # fix_all_bbs_in_db()
     # doc = lookfor_next_unbounded_feature_from_db_category()
     # print('doc:' + str(doc))
     # suits_for_kyle()
-    step_thru_images_db(use_visual_output=True, collection='products')
+
+    # step_thru_images_db(use_visual_output=True, collection='products')
 
     # step_thru_db(use_visual_output=True, collection='products')
     # prune_training_db(use_visual_output=False)

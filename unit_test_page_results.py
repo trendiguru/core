@@ -112,15 +112,12 @@ class OutcomesTest(unittest.TestCase):
         print('results from start_pipeline():')
         print(str(db_results))
 
-
     #OK
     def test_find_similar_items_and_put_into_db(self):
         img_url = 'http://resources.shopstyle.com/xim/b7/ce/b7ce6784ec5e488fbe51bc939ce6e1a5.jpg'
         page_url = 'http://www.shopstyle.com/browse/womens-tech-accessories/Salvatore-Ferragamo?pid=uid900-25284470-95'
-
         img_url = 'http://p1cdn02.thewrap.com/images/2015/01/e-fashion-police-joan-rivers-premiere.jpg'
         page_url = 'http://www.thewrap.com/es-fashion-police-fiasco-what-went-wrong-what-happens-next/'
-
         page_results.find_similar_items_and_put_into_db(img_url, page_url)
 
     # OK
