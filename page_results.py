@@ -11,6 +11,7 @@ from bson import objectid
 import bson
 import pymongo
 
+
 logging.basicConfig(format='%(levelname)s:%(message)s', level=logging.DEBUG)
 
 
@@ -42,69 +43,200 @@ images_entry = \
 
 
 # format for results to return to javascript thru web2py . this an example of a similar results answer as returned to web2py
-results = {'hash': '2403b296b6d0be5e5bb2e74463419b2a',  # ID IS FORCED TO BE IMAGE HASH
-           'image_urls': ['url1_of_image.jpg', 'url2_of_image.jpg', 'url3_of_image.jpg'],
-           'page_urls': ['page1_where_image_appears.html', 'page2_where_image_appears.html',
-                         'page3_where_image_appears.html'],
-           # this lameness (dict instead of flat array) is apparently necessary to use $elemmatch, afaict
-           'relevant': True,  # result of doorman * QC
-           'items': [{'category': 'womens-shirt-skirts',
-                      'svg': 'svg-url',
-                      'saved_date': 'Jun 23, 1912',
-                      'similar_items': [{'seeMoreUrl': 'url.html',
-                                         'image': {'big_ass_dictionary of image info': 'the_info'},
-                                         'LargeImage': 'www.largeimg_url.jpg',
-                                         'clickUrl': 'theurl',
-                                         'currency': 'the_currency',
-                                         'description': 'thedescription',
-                                         'price': 10.99,
-                                         'categories': 'dict of cats',
-                                         'pageUrl': 'pageUrl',
-                                         'locale': 'US',
-                                         'name': 'itemName',
-                                         'unbrandedName': 'superNameunbranded'},
-                                        {'seeMoreUrl': 'url2.html',
-                                         'image': {'big_ass_dictionary of image info': 'the_info'},
-                                         'LargeImage': 'www.largeimg_url.jpg',
-                                         'clickUrl': 'theurl',
-                                         'currency': 'the_currency',
-                                         'description': 'thedescription',
-                                         'price': 10.99,
-                                         'categories': 'dict of cats',
-                                         'pageUrl': 'pageUrl',
-                                         'locale': 'US',
-                                         'name': 'itemName',
-                                         'unbrandedName': 'superNameunbranded'}]},
-
-                     {'category': 'awesome_watches',
-                      'svg': 'svg-url',
-                      'saved_date': 'Jun 23, 1912',
-                      'similar_items': [{'seeMoreUrl': 'url.html',
-                                         'image': {'big_ass_dictionary of image info': 'the_info'},
-                                         'LargeImage': 'www.largeimg_url.jpg',
-                                         'clickUrl': 'theurl',
-                                         'currency': 'the_currency',
-                                         'description': 'thedescription',
-                                         'price': 10.99,
-                                         'categories': 'dict of cats',
-                                         'pageUrl': 'pageUrl',
-                                         'locale': 'US',
-                                         'name': 'itemName',
-                                         'unbrandedName': 'superNameunbranded'},
-                                        {'seeMoreUrl': 'url2.html',
-                                         'image': {'big_ass_dictionary of image info': 'the_info'},
-                                         'LargeImage': 'www.largeimg_url.jpg',
-                                         'clickUrl': 'theurl',
-                                         'currency': 'the_currency',
-                                         'description': 'thedescription',
-                                         'price': 10.99,
-                                         'categories': 'dict of cats',
-                                         'pageUrl': 'pageUrl',
-                                         'locale': 'US',
-                                         'name': 'itemName',
-                                         'unbrandedName': 'superNameunbranded'}]}]}
-
-
+results = {
+    "image_hash": "2403b296b6d0be5e5bb2e74463419b2a",
+    "image_urls": [
+        "url1_of_image.jpg",
+        "url2_of_image.jpg",
+        "url3_of_image.jpg"
+    ],
+    "page_urls": [
+        "page1_where_image_appears.html",
+        "page2_where_image_appears.html",
+        "page3_where_image_appears.html"
+    ],
+    "relevant": "True",
+    "people": [
+        {
+            "face": [
+                10,
+                20,
+                300,
+                400
+            ],
+            "person_id": "bson.ObjectId()",
+            "items": [
+                {
+                    "category": "womens-shirt-skirts",
+                    "svg": "svg-url",
+                    "saved_date": "Jun 23, 1912",
+                    "similar_items": [
+                        {
+                            "seeMoreUrl": "url1.html",
+                            "image": {
+                                "big_ass_dictionary of image info": "the_info"
+                            },
+                            "LargeImage": "www.largeimg_url1.jpg",
+                            "clickUrl": "theurl",
+                            "currency": "the_currency",
+                            "description": "thedescription",
+                            "price": 10.99,
+                            "categories": "dict of cats",
+                            "pageUrl": "pageUrl",
+                            "locale": "US",
+                            "name": "itemName",
+                            "unbrandedName": "superNameunbranded"
+                        },
+                        {
+                            "seeMoreUrl": "url2.html",
+                            "image": {
+                                "big_ass_dictionary of image info": "the_info"
+                            },
+                            "LargeImage": "www.largeimg_url2.jpg",
+                            "clickUrl": "theurl",
+                            "currency": "the_currency",
+                            "description": "thedescription",
+                            "price": 10.99,
+                            "categories": "dict of cats",
+                            "pageUrl": "pageUrl",
+                            "locale": "US",
+                            "name": "itemName",
+                            "unbrandedName": "superNameunbranded"
+                        }
+                    ]
+                },
+                {
+                    "category": "awesome_watches",
+                    "svg": "svg-url",
+                    "saved_date": "Jun 23, 1912",
+                    "similar_items": [
+                        {
+                            "seeMoreUrl": "url.html",
+                            "image": {
+                                "big_ass_dictionary of image info": "the_info"
+                            },
+                            "LargeImage": "www.largeimg_url.jpg",
+                            "clickUrl": "theurl",
+                            "currency": "the_currency",
+                            "description": "thedescription",
+                            "price": 10.99,
+                            "categories": "dict of cats",
+                            "pageUrl": "pageUrl",
+                            "locale": "US",
+                            "name": "itemName",
+                            "unbrandedName": "superNameunbranded"
+                        },
+                        {
+                            "seeMoreUrl": "url2.html",
+                            "image": {
+                                "big_ass_dictionary of image info": "the_info"
+                            },
+                            "LargeImage": "www.largeimg_url.jpg",
+                            "clickUrl": "theurl",
+                            "currency": "the_currency",
+                            "description": "thedescription",
+                            "price": 10.99,
+                            "categories": "dict of cats",
+                            "pageUrl": "pageUrl",
+                            "locale": "US",
+                            "name": "itemName",
+                            "unbrandedName": "superNameunbranded"
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "face": [
+                10,
+                20,
+                300,
+                400
+            ],
+            "person_id": "bson.ObjectId()",
+            "items": [
+                {
+                    "category": "womens-shirt-skirts",
+                    "svg": "svg-url",
+                    "saved_date": "Jun 23, 1912",
+                    "similar_items": [
+                        {
+                            "seeMoreUrl": "url1.html",
+                            "image": {
+                                "big_ass_dictionary of image info": "the_info"
+                            },
+                            "LargeImage": "www.largeimg_url1.jpg",
+                            "clickUrl": "theurl",
+                            "currency": "the_currency",
+                            "description": "thedescription",
+                            "price": 10.99,
+                            "categories": "dict of cats",
+                            "pageUrl": "pageUrl",
+                            "locale": "US",
+                            "name": "itemName",
+                            "unbrandedName": "superNameunbranded"
+                        },
+                        {
+                            "seeMoreUrl": "url2.html",
+                            "image": {
+                                "big_ass_dictionary of image info": "the_info"
+                            },
+                            "LargeImage": "www.largeimg_url2.jpg",
+                            "clickUrl": "theurl",
+                            "currency": "the_currency",
+                            "description": "thedescription",
+                            "price": 10.99,
+                            "categories": "dict of cats",
+                            "pageUrl": "pageUrl",
+                            "locale": "US",
+                            "name": "itemName",
+                            "unbrandedName": "superNameunbranded"
+                        }
+                    ]
+                },
+                {
+                    "category": "awesome_watches",
+                    "svg": "svg-url",
+                    "saved_date": "Jun 23, 1912",
+                    "similar_items": [
+                        {
+                            "seeMoreUrl": "url.html",
+                            "image": {
+                                "big_ass_dictionary of image info": "the_info"
+                            },
+                            "LargeImage": "www.largeimg_url.jpg",
+                            "clickUrl": "theurl",
+                            "currency": "the_currency",
+                            "description": "thedescription",
+                            "price": 10.99,
+                            "categories": "dict of cats",
+                            "pageUrl": "pageUrl",
+                            "locale": "US",
+                            "name": "itemName",
+                            "unbrandedName": "superNameunbranded"
+                        },
+                        {
+                            "seeMoreUrl": "url2.html",
+                            "image": {
+                                "big_ass_dictionary of image info": "the_info"
+                            },
+                            "LargeImage": "www.largeimg_url.jpg",
+                            "clickUrl": "theurl",
+                            "currency": "the_currency",
+                            "description": "thedescription",
+                            "price": 10.99,
+                            "categories": "dict of cats",
+                            "pageUrl": "pageUrl",
+                            "locale": "US",
+                            "name": "itemName",
+                            "unbrandedName": "superNameunbranded"
+                        }
+                    ]
+                }
+            ]
+        }
+    ]
+}
 
 products_db_sample_entry = {
     u'seeMoreUrl': u'http://www.shopstyle.com/browse/womens-tech-accessories/Samsung?pid=uid900-25284470-95',

@@ -76,3 +76,17 @@ svg_url_prefix = 'http://extremeli.trendi.guru/static/svgs/'
 nadav = 'awesome'
 
 Reserve_cpus = 2  # number of cpus to not use when doing stuff in parallel
+
+
+# QC worker voting params
+
+# N_top_results - a list of N1, N2 etc where N1 items are shown to first wave of voters,
+# then top N2 of those are shown to second wave of voters, etc
+#the length of this list is the number of voting stages
+N_top_results_to_show = [100, 20]
+N_pics_per_worker = [20, 20]
+N_workers = [10, 2]
+N_bb_votes_required = 2
+N_category_votes_required = 2
+
+bb_iou_threshold = 0.5  #how much overlap there must be between bbs

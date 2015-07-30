@@ -1,18 +1,17 @@
 __author__ = 'Nadav Paz'
 
 import logging
-
 import requests
 import pymongo
 import cv2
 import redis
 from rq import Queue
-import bson
-
 import boto3
+import numpy as np
 import find_similar_mongo
 import background_removal
 import Utils
+import constants
 
 
 QC_URL = 'http://www.clickworkers.com'
@@ -167,24 +166,153 @@ def from_bb_to_sorting_task(bb, person_id, item_id):
     return
 
 
-"""
-# FUNCTION 6
-send_100_results_to_qc_in_20s(copy, results)
-# END
+def send_100_results_to_qc_in_20s(original_image_url, results):
+    for i in range(0, constants.N_workers[0]):  #divide results into chunks for N workers
+        final_image_index = min(i + constants.N_pics_per_worker - 1,
+                                len(results) - 1)  # the min deals with case where there's fewer images for last worker
+        chunk_of_results = results[i:final_image_index]
+        q6.enqueue(send_many_results_to_qcs, original_image_url, chunk_of_results)
 
-# q6 - decode_task, from Web2Py
 
+# QUEUE FUNC FOR FUNCTION 6
+def send_many_results_to_qcs(original_image, chunk_of_results):
+    payload = {'original_image': original_image, 'results_to_sort': chunk_of_results}
+    req = requests.post(QC_URL, data=payload)
+    return req.ok
+
+# END OF QUEUE FUNC FOR FUNCTION 6
+# END  FUNCTION 6
+
+
+def average_bbs(bblist):
+    avg_box = [0, 0, 0, 0]
+    n = 0
+    for bb in bblist:
+        # print('avg'+str(avg_box))
+        # print('bb'+str(bb))
+        avg_box = np.add(avg_box, bb)
+        # print('avg after'+str(avg_box))
+        n = n + 1
+    avg_box = np.int(np.divide(avg_box, n))
+    return avg_box
+
+
+# q7
+# q7 - receive_20s_results
 # FUNCTION 7
-from 20's to 5's(results, item_id)
-q5.enqueue(send_final_20_20_results_to_qc_in_10s, copy, final_20_results)
+# assumption
+def set_voting_stage(N_stage, item_id):
+    '''
+    this can be replaced by a different persistent storage scheme than storing
+    in the image db
+    :param N_stage:
+    :param item_id:
+    :return:
+    '''
+    # db_image = images.find_one({'people.items.item_id': item_id})
+    write_result = images.update({"people.items.item_id": item_id},
+                                 {"$set": {"people.items.voting_stage": N_stage}})
+
+
+def get_voting_stage(item_id):
+    image = images.find_one({'people.items.item_id': item_id})
+    if 'voting_stage' in image['people']['items']:
+        return image['people']['items']['voting_stage']
+    else:  # no voting stage set yet,. so set to 0
+        set_voting_stage(0, item_id)
+        return 0
+
+
+def receive_votes(similar_items, voting_results):
+    got_all_votes, combined_votes = combine_results(similar_items, voting_results)
+    if got_all_votes:
+        ordered_results = order_results(combined_votes)
+        set_voting_stage(get_voting_stage() + 1)
+
+
+# if persistent_voting_stage == final_stage:
+# return top_N (or do whatever else needs to be done when voting is over)
+#        otherwise:
+#           dole_out_work(top_N,voting_stage=persistent_voting_stage)
+
+def combine_results(similar_items, voting_results):
+    final_20_results = None
+    image = images.find_one({'people.items.item_id': item_id})
+    for person in image['people']:
+        for item in person['items']:
+            if item['item_id'] == item_id:
+                if 'votes' in item:
+                    item['votes'].append([chunk_of_results, ratings])
+                    n_votes_so_far = len(item['votes']) / 2
+                    if n_votes_so_far >= constants.N_workers[0]:  # enough votes rec'd
+                        final_20_results = rearrange_results(item['votes'])
+                else:
+                    item['votes'] = [[chunk_of_results, ratings]]
+                # SOMEONE PLS REVIEW THE LINE BELOW - i've never used the mongodot notation before
+                write_result = images.update({"people.items.item_id": item_id},
+                                             {"$set": {"people.items.votes": item['votes']}})
+    return got_all_votes
+
+
+def persistently_store_votes(votes):
+    '''
+    a list of persistently stored dictionaries
+    we need a list (i think) since results have to be stored for more than one input image at a time
+    an alternate way to do this is to store in the image database
+    :param list:
+    :return:
+    '''
+    pass
+
+
+# def combine_results(similar_items, voting_results):
+# for similar_item in similar_items:
+#        if similar_item in persistent_votes:
+#            persistent_votes[similar_item].append(ith voting result)
+#        if there are enough votes in persistent_votes
+#            persistent_votes[similar_item] = combine_votes(persistent_votes[similar_item])
+
+def rearrange_results(votes):
+    '''
+    Take a bunch of votes. CHeck for duplicate votes (two or more dudes voting on same item).
+    Tote up all the results and send back in order
+    :param votes:
+    :return:
+    '''
+    all_results = []
+    all_ratings = []
+    for results, ratings in votes:
+        all_results = all_results.append(results)
+        all_ratings = all_ratings.append(ratings)
+
+    # combine multiple votes on same item
+    combined_results = [all_results[0]]
+    combined_ratings = [all_ratings[0]]
+    for i in range(0, len(all_results)):
+        for j in range(i + 1, all_results):
+            if all_results[i] != all_results[j]:  # different results being voted on by 2 dudes
+                combined_results = combined_results.append(all_results[j])
+                combined_ratings = combined_ratings.append(all_ratings[j])
+            else:  # same result being voted on by 2 dudes
+                combined_ratings[i] = combined_ratings[j]
+
+def send_many_results_to_qcs(original_image, chunk_of_results):
+    payload = {'original_image': original_image, 'results_to_sort': chunk_of_results}
+    req = requests.post(QC_URL, data=payload)
+    return req.ok
+
 # END
+
+"""
+# q8 - send_last_20
 
 # FUNCTION 8
 send_final_20_results_to_qc_in_10s(copy, final_20_results)
 # END
 
-# q6 - decode_task, from Web2Py
+# q9 - receive_final_results
 
 # FUNCTION 9
-update result for the last time
+final_results = get_final_results_from_qc()
+insert_final_results(item.id, final_results)
 """
