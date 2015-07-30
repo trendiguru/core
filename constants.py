@@ -58,13 +58,6 @@ IRELEVANT_ITEMS = {'1': 'background', '6': 'bag', '7': 'shoes', '10': 'purse', '
                    '48': 'sneakers', '49': 'clogs', '50': 'watchs', '51': 'pumps', '52': 'wallets', '53': 'bodysuit',
                    '54': 'loafers', '55': 'hair', '56': 'skin'}
 
-# paperdoll items' legends
-
-PAPERDOLL_LABELS = {'1': 'null', '2': 'skin', '3': 'hair', '4': 'accessories', '5': 'bag', '6': 'belt', '7': 'blouse',
-                    '8': 'boots', '9': 'bracelet', '10': 'cardigan', '11': 'dress', '12': 'earrings', '13': 'flats',
-                    '14': 'glasses', '15': 'hat', '16': 'jacket', '17': 'jeans', '18': 'necklace', '19': 'pants',
-                    '20': 'scarf', '21': 'shirt', '22': 'shoes', '23': 'shorts', '24': 'skirt', '25': 'sunglasses',
-                    '26': 'sweater', '27': 't-shirt', '28': 'tie', '29': 'tights', '30': 'top', '31': 'vest'}
 # for web bounding box interface
 # this is for going to the previous item, highest numbered image
 max_image_val = 666
