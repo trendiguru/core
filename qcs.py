@@ -1,6 +1,7 @@
 __author__ = 'Nadav Paz'
 
 import logging
+import random
 
 import requests
 import pymongo
@@ -170,10 +171,18 @@ def from_bb_to_sorting_task(bb, person_id, item_id):
 
 
 def send_100_results_to_qc_in_20s(original_image_url, results):
-    for i in range(0, constants.N_workers[0]):  # divide results into chunks for N workers
-        final_image_index = min(i + constants.N_pics_per_worker[0] - 1,
+    results_indexer = []
+    for i in range(0, constants.N_pics_per_worker):
+        results_indexer.append(
+            np.linspace(i * constants.N_workers, (i + 1) * constants.N_workers - 1, constants.N_workers,
+                        dtype=np.uint8))
+    for i in range(0, constants.N_workers):  # divide results into chunks for N workers
+        final_image_index = min(i + constants.N_pics_per_worker - 1,
                                 len(results) - 1)  # the min deals with case where there's fewer images for last worker
-        chunk_of_results = results[i:final_image_index]
+        indices_filter = []
+        for group in results_indexer:
+            indices_filter.append(group.pop(random.randint(0, len(group))))
+        chunk_of_results = [results[j] for j in indices_filter]
         q6.enqueue(send_many_results_to_qcs, original_image_url, chunk_of_results)
 
 
@@ -186,20 +195,6 @@ def send_many_results_to_qcs(original_image, chunk_of_results):
 
 # END OF QUEUE FUNC FOR FUNCTION 6
 # END  FUNCTION 6
-
-
-def average_bbs(bblist):
-    avg_box = [0, 0, 0, 0]
-    n = 0
-    for bb in bblist:
-        # print('avg'+str(avg_box))
-        # print('bb'+str(bb))
-        avg_box = np.add(avg_box, bb)
-        # print('avg after'+str(avg_box))
-        n = n + 1
-    avg_box = np.int(np.divide(avg_box, n))
-    return avg_box
-
 
 # q7
 # q7 - receive_20s_results
