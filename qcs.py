@@ -3,6 +3,7 @@ __author__ = 'Nadav Paz'
 # theirs
 import logging
 import requests
+import copy
 
 import pymongo
 import cv2
@@ -245,6 +246,7 @@ def get_voting_stage(item_id):
 ### the same length as the similar_items
 def from_qc_get_votes(item_id, chunk_of_similar_items, chunk_of_votes):
     image, person_dict, item_dict = get_item_by_id(item_id)
+    print('image before:' + str(image))
     person_idx = person_dict['person_idx']
     item_idx = item_dict['item_idx']
     item = image['people'][person_idx]['items'][item_idx]
@@ -252,13 +254,18 @@ def from_qc_get_votes(item_id, chunk_of_similar_items, chunk_of_votes):
         extant_votes = item['votes']
         extant_similar_items = item['similar_items']
     else:
-        extant_votes = None
-        extant_similar_items = None
+        extant_votes = []
+        extant_similar_items = []
     tot_votes, combined_similar_items, combined_votes = \
         add_results(extant_similar_items, extant_votes, chunk_of_similar_items, chunk_of_votes)
 
+    logging.debug('tot votes:' + str(tot_votes))
+    logging.debug('comb.sim.items:' + str(combined_similar_items))
+    logging.debug('comb.votes:' + str(combined_votes))
     # enough votes done already to take results and move to next stage?
     voting_stage = get_voting_stage(item_id)
+    print('votingStage:' + str(voting_stage))
+    logging.debug('votingStage:' + str(voting_stage))
     enough_votes = constants.N_pics_per_worker[voting_stage] * constants.N_workers[voting_stage]
     if tot_votes >= enough_votes:
         combined_similar_items, combined_votes = order_results(combined_similar_items, combined_votes)
@@ -271,7 +278,7 @@ def from_qc_get_votes(item_id, chunk_of_similar_items, chunk_of_votes):
     image['people'][person_idx]['items'][item_idx]['similar_items'] = item[
         'similar_items']  # maybe unecessary since item['votes'] prob writes into image
     write_result = images.update({"people.items.item_id": item_id}, image)
-
+    print('image written:' + str(image))
 
 # if persistent_voting_stage == final_stage:
 # return top_N (or do whatever else needs to be done when voting is over)
@@ -291,23 +298,29 @@ def add_results(extant_similar_items, extant_votes, new_similar_items, new_votes
     assert (len(extant_similar_items) == len(extant_votes))
     assert (len(new_similar_items) == len(new_votes))
     # check if votes are on same items
+    modified_extant_similar_items = copy.copy(extant_similar_items)
+    modified_extant_votes = copy.copy(extant_votes)
+
     for i in range(0, len(new_similar_items)):
+        match_flag = False
         for j in range(0, len(extant_similar_items)):
             if new_similar_items[i] == extant_similar_items[j]:  # got a vote for already-voted-on item
-                extant_votes[j].append(new_votes[i])
-            else:  # got a vote on a new item
-                extant_similar_items.append(new_similar_items[i])
-                extant_votes[j].append(new_votes[i])
-    # count votes
-    assert (len(extant_similar_items) == len(extant_votes))
+                modified_extant_votes[j].append(new_votes[i])
+                match_flag = True
+                break
+        if match_flag == False:
+            # got a vote on a new item
+            modified_extant_similar_items.append(new_similar_items[i])
+            modified_extant_votes.append([new_votes[i]])
+
+    assert (len(modified_extant_similar_items) == len(modified_extant_votes))
     tot_votes = 0
     for j in range(0, len(extant_votes)):
         tot_votes = tot_votes + len(extant_votes[j])
 
-    return tot_votes, extant_similar_items, extant_votes
+    return tot_votes, modified_extant_similar_items, modified_extant_votes
 
 
-# STILL NOT DONE 29.7
 def order_results(combined_similar_items, combined_votes):
     '''
     smush multiple votes into a single combined vote
@@ -322,7 +335,6 @@ def order_results(combined_similar_items, combined_votes):
     sorted_items = [item for (vote, item) in sorted(zip(combined_votes, combined_similar_items))]
     return sorted_items, sorted_votes
 
-# STILL NOT DONE 29.7
 def combine_votes(combined_votes):
     '''
     take multiple votes and smush into one
@@ -380,29 +392,6 @@ def persistently_store_votes(votes):
 #        if there are enough votes in persistent_votes
 #            persistent_votes[similar_item] = combine_votes(persistent_votes[similar_item])
 
-def rearrange_results(votes):
-    '''
-    Take a bunch of votes. Check for duplicate votes (two or more dudes voting on same item).
-    Tote up all the results and send back in order
-    :param votes:
-    :return:
-    '''
-    all_results = []
-    all_ratings = []
-    for results, ratings in votes:
-        all_results = all_results.append(results)
-        all_ratings = all_ratings.append(ratings)
-
-    # combine multiple votes on same item
-    combined_results = [all_results[0]]
-    combined_ratings = [all_ratings[0]]
-    for i in range(0, len(all_results)):
-        for j in range(i + 1, all_results):
-            if all_results[i] != all_results[j]:  # different results being voted on by 2 dudes
-                combined_results = combined_results.append(all_results[j])
-                combined_ratings = combined_ratings.append(all_ratings[j])
-            else:  # same result being voted on by 2 dudes
-                combined_ratings[i] = combined_ratings[j]
 
 def send_many_results_to_qcs(original_image, chunk_of_results):
     payload = {'original_image': original_image, 'results_to_sort': chunk_of_results}
