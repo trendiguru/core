@@ -1,13 +1,16 @@
 __author__ = 'Nadav Paz'
 
 import logging
+
 import requests
 import pymongo
 import cv2
 import redis
 from rq import Queue
-import boto3
+import bson
 import numpy as np
+
+import boto3
 import find_similar_mongo
 import background_removal
 import Utils
@@ -160,15 +163,15 @@ def from_bb_to_sorting_task(bb, person_id, item_id):
     item['similar_results'] = results
     item['fingerprint'] = fp
     item['svg_url'] = svg
-    q4.enqueue(send_initiate_results_to_sorting, results, person_id, item_id)
+    q4.enqueue(send_100_results_to_qc_in_20s, results, person_id, item_id)
     image['people'][person['person_idx']]['items'][item['item_idx']] = item
     images.replace_one({'people.person': person_id}, image)
     return
 
 
 def send_100_results_to_qc_in_20s(original_image_url, results):
-    for i in range(0, constants.N_workers[0]):  #divide results into chunks for N workers
-        final_image_index = min(i + constants.N_pics_per_worker - 1,
+    for i in range(0, constants.N_workers[0]):  # divide results into chunks for N workers
+        final_image_index = min(i + constants.N_pics_per_worker[0] - 1,
                                 len(results) - 1)  # the min deals with case where there's fewer images for last worker
         chunk_of_results = results[i:final_image_index]
         q6.enqueue(send_many_results_to_qcs, original_image_url, chunk_of_results)
@@ -179,6 +182,7 @@ def send_many_results_to_qcs(original_image, chunk_of_results):
     payload = {'original_image': original_image, 'results_to_sort': chunk_of_results}
     req = requests.post(QC_URL, data=payload)
     return req.ok
+
 
 # END OF QUEUE FUNC FOR FUNCTION 6
 # END  FUNCTION 6
@@ -232,8 +236,8 @@ def receive_votes(similar_items, voting_results):
 
 # if persistent_voting_stage == final_stage:
 # return top_N (or do whatever else needs to be done when voting is over)
-#        otherwise:
-#           dole_out_work(top_N,voting_stage=persistent_voting_stage)
+# otherwise:
+# dole_out_work(top_N,voting_stage=persistent_voting_stage)
 
 def combine_results(similar_items, voting_results):
     final_20_results = None
@@ -295,6 +299,7 @@ def rearrange_results(votes):
                 combined_ratings = combined_ratings.append(all_ratings[j])
             else:  # same result being voted on by 2 dudes
                 combined_ratings[i] = combined_ratings[j]
+
 
 def send_many_results_to_qcs(original_image, chunk_of_results):
     payload = {'original_image': original_image, 'results_to_sort': chunk_of_results}
