@@ -290,6 +290,7 @@ def add_results(extant_similar_items, extant_votes, new_similar_items, new_votes
     '''
     assert (len(extant_similar_items) == len(extant_votes))
     assert (len(new_similar_items) == len(new_votes))
+    # check if votes are on same items
     for i in range(0, len(new_similar_items)):
         for j in range(0, len(extant_similar_items)):
             if new_similar_items[i] == extant_similar_items[j]:  # got a vote for already-voted-on item
@@ -308,18 +309,29 @@ def add_results(extant_similar_items, extant_votes, new_similar_items, new_votes
 
 # STILL NOT DONE 29.7
 def order_results(combined_similar_items, combined_votes):
+    '''
+    smush multiple votes into a single combined vote
+    :param combined_similar_items:
+    :param combined_votes:
+    :return:
+    '''
     for j in range(0, len(combined_similar_items)):
-        pass
-
+        combined_votes[j] = combine_votes(combined_votes[j])
+    sorted_votes = sorted(combined_votes)
+    # the following works but is dangerous since it sorts by tuples of [vote,item]
+    sorted_items = [item for (vote, item) in sorted(zip(combined_votes, combined_similar_items))]
+    return sorted_items, sorted_votes
 
 # STILL NOT DONE 29.7
-def combine_votes():
+def combine_votes(combined_votes):
+    '''
+    take multiple votes and smush into one
+    :return:
+    '''
     # if all are numbers:
     #        return average
     #    if all are 'not relevant'
-    return 'not relevant'
-
-
+    #    return 'not relevant'
 # if some are numbers and some are 'not relevant':
 #    if the majority voted not relevant:
 #        return not relevant
@@ -327,7 +339,29 @@ def combine_votes():
 #    return average
 #    vote,
 #    with not relevant guys counted as 0 or -1 or something like that
-
+    not_relevant_score = -1
+    n = 0
+    sum = 0
+    non_int_flag = False
+    int_flag = False
+    if len(combined_votes) == 0:
+        logging.debug('no votes to combine')
+        return None
+    for vote in combined_votes:
+        if type(vote) is int or type(vote) is float:
+            n = n + 1
+            sum = sum + vote
+            int_flag = True
+        else:
+            n = n + 1
+            sum = sum + not_relevant_score
+            non_int_flag = True
+    if not int_flag:  # all non-int/float
+        return 'not relevant'
+    if not non_int_flag:  # all int/float
+        return float(sum) / n
+    return float(
+        sum) / n  #some int/float and some not-relevant - above 3 lines can be combined, but ths is clearer to me
 
 def persistently_store_votes(votes):
     '''

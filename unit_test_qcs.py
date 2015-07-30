@@ -100,8 +100,22 @@ class OutcomesTest(unittest.TestCase):
         print('voting_stage=' + str(stage))
         self.assertTrue(isinstance(stage, int))
 
+    def test_combine_votes(self):
+        votes_list = [[4, 5, 6], [2, 10], ['not relevant', 'not relevant'], ['not relevant', 3, 10]]
+        for votes in votes_list:
+            res = qcs.combine_votes(votes)
+            print('votes:' + str(votes) + ' res:' + str(res))
 
-if __name__ == '__main__':
-    unittest.main()
+    def test_combine_votes(self):
+        items = ['trump', 'clinton', 'libertarian guy', 'wildcard']
+        votes_list = [[4, 5, 6], [2, 10], ['not relevant', 'not relevant'], ['not relevant', 3, 10]]
+        sorted_items, sorted_votes = qcs.order_results(items, votes_list)
+        print('votes:' + str(votes_list))
+        print('items:' + str(items))
+        print('sorted items:' + str(sorted_items))
+        print('sorted votes:' + str(sorted_votes))
+        self.assertTrue(sorted_votes == [4, 5, 6, 'not relevant'])
+        self.assertTrue(sorted_items == ['wildcard', 'trump', 'clinton', 'libertarian guy'])
 
-
+    if __name__ == '__main__':
+        unittest.main()
