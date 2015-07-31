@@ -6,6 +6,7 @@ import pymongo
 import qcs
 import constants
 
+
 class OutcomesTest(unittest.TestCase):
     # examples of things to return
     # def testPass(self):
@@ -71,7 +72,6 @@ class OutcomesTest(unittest.TestCase):
                 print('no items in person ' + str(first_person))
         else:
             print('no people in images_entry ' + str(images_entry))
-
 
 
 if __name__ == '__main__':

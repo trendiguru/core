@@ -164,13 +164,13 @@ def from_bb_to_sorting_task(bb, person_id, item_id):
     item['similar_results'] = results
     item['fingerprint'] = fp
     item['svg_url'] = svg
-    q4.enqueue(send_100_results_to_qc_in_20s, results, person_id, item_id)
+    create_n_results_chunks(results, person_id, item_id)
     image['people'][person['person_idx']]['items'][item['item_idx']] = item
     images.replace_one({'people.person': person_id}, image)
     return
 
 
-def send_100_results_to_qc_in_20s(original_image_url, results):
+def create_n_results_chunks(results, person_id, item_id):
     results_indexer = []
     for i in range(0, constants.N_pics_per_worker):
         results_indexer.append(
@@ -181,14 +181,15 @@ def send_100_results_to_qc_in_20s(original_image_url, results):
                                 len(results) - 1)  # the min deals with case where there's fewer images for last worker
         indices_filter = []
         for group in results_indexer:
-            indices_filter.append(group.pop(random.randint(0, len(group))))
+            indices_filter.append(group.tolist().pop(random.randint(0, len(group))))
         chunk_of_results = [results[j] for j in indices_filter]
-        q6.enqueue(send_many_results_to_qcs, original_image_url, chunk_of_results)
+        q6.enqueue(send_many_results_to_qcs, person_id, item_id, chunk_of_results)
 
 
 # QUEUE FUNC FOR FUNCTION 6
-def send_many_results_to_qcs(original_image, chunk_of_results):
-    payload = {'original_image': original_image, 'results_to_sort': chunk_of_results}
+def send_many_results_to_qcs(person_id, item_id, chunk_of_results):
+    data = {"callback_url": callback_url + '/' + person_id + '/' + item_id + '?task=sorting',
+            "person_url": person_url}
     req = requests.post(QC_URL, data=payload)
     return req.ok
 
