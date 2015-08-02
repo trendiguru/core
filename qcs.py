@@ -67,10 +67,7 @@ def decode_task(args, vars, data):  # args(list) = person_id, vars(dict) = task,
     elif vars["task_id"] is 'bb':
         from_bb_to_sorting_task(data['bb'], args[0], args[1])
     elif vars["task_id"] is 'sorting':
-        # dole_out_work()
-        # else:
-        # finish_work()
-    return
+        from_qc_get_votes(args[1], data['results'], data['votes'], vars['voting_stage'])
 
 
 def set_voting_stage(n_stage, item_id):
