@@ -7,6 +7,7 @@ import bson
 import qcs
 import constants
 
+
 class OutcomesTest(unittest.TestCase):
     # examples of things to return
     # def testPass(self):

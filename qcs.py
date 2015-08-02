@@ -2,6 +2,7 @@ __author__ = 'Nadav Paz'
 
 # theirs
 import logging
+import random
 import requests
 import copy
 
@@ -10,8 +11,10 @@ import cv2
 import redis
 from rq import Queue
 import bson
+import numpy as np
 import boto3
 
+import find_similar_mongo
 import background_removal
 import Utils
 import constants
@@ -60,9 +63,31 @@ def get_item_by_id(item_id):
             return None, None
 
 
+def decode_task(args, vars, data):  # args(list) = person_id, vars(dict) = task, data(dict) = QC results
+    if vars["task_id"] is 'categorization':
+        from_categories_to_bb_task(data['items'], args[0])
+    elif vars["task_id"] is 'bb':
+        from_bb_to_sorting_task(data['bb'], args[0], args[1])
+        # elif vars["task_id"] is 'first_sorting':
+        # dole_out_work()
+        # else:
+        # finish_work()
+    return
+
 
 # ---------------------------------------------------------------------------------------------------------------------
-# q1 - images queue - Web2Py
+# optional data arrangements:
+# 1.  only by url: callback url -
+# "https://extremeli.trendi.guru/api/nadav/index/image_id/person_id/item_id?task_id=bounding_boxing"
+# in this case we know how many args we have because of the type of the task (e.g item bounding_boxing => 3 args).
+# 1.1 maybe more efficient way is: "https://extremeli.trendi.guru/api/nadav/index/item_id?task_id=bounding_boxing"
+# and by task_id we would know that it is an item which we activated by.
+# 2.  by task_id: create and send task_id in each kind of task. when we get a post back we search the task id in a tasks
+# table that we built. from the task document we understand what to do with the info we got.
+# we will go with 1.1 for now !
+
+# q1 - images queue -  from Web2Py
+
 
 
 # FUNCTION 1 - determine if relevant, send to categorize (q2)
@@ -74,7 +99,8 @@ def from_image_url_to_task1(image_url):
             logging.warning("There's no image in the url!")
             return None
         relevance = background_removal.image_is_relevant(image)
-        image_dict = {'image_url': image_url, 'relevant': relevance.is_relevant, '_id': bson.ObjectId()}
+        image_dict = {'image_urls': [], 'relevant': relevance.is_relevant, '_id': bson.ObjectId()}
+        image_dict['image_urls'].append(image_url)
         if relevance.is_relevant:
             image_dict['people'] = []
             for face in relevance.faces:
@@ -84,13 +110,19 @@ def from_image_url_to_task1(image_url):
                 cv2.rectangle(copy, (x, y), (x + w, y + h), [0, 255, 0], 2)
                 person['url'] = upload_image(copy, str(person['person_id']))
                 image_dict['people'].append(person)
-                q2.enqueue(send_image_to_qc_categorization, person['url'], str(image_dict['_id']), str(person['id']))
+                q2.enqueue(send_image_to_qc_categorization, person['url'], str(person['id']))
         else:
             logging.warning('image is not relevant, but stored anyway..')
         images.insert(image_dict)
         return
     else:
-        # TODO - understand which details are already stored and react accordingly
+        logging.warning("image is already in our DB..")
+        if image_url not in image_obj['image_urls']:
+            image_obj['image_urls'].append(image_url)
+        if image_obj['relevant']:
+            logging.warning("Image is in the DB and relevant!")
+        else:
+            logging.warning("Image is in the DB and not relevant!")
         return image_obj
 
 
@@ -113,13 +145,18 @@ def from_categories_to_bb_task(person_url, items_list, image_id, person_id):
     for item in items:
         item_dict = {'category': item, 'item_id': bson.ObjectId()}
         items_list.append(item_dict)
-        q4.enqueue(send_item_to_qc_bb, person_url, image_id, person_id, item_dict)
+        q3.enqueue(send_item_to_qc_bb, person_url, person_id, item)
     images.update_one({'people.person_id': person_id}, {'$set': {'people.$.items': items_list}}, upsert=True)
     return
 
 # END OF FUNCTION 3
 
-# q4
+def send_item_to_qc_bb(person_url, person_id, item_dict):
+    data = {"callback_url": callback_url + '/' + person_id + '/' + item_dict['item_id'] + '?task=bb',
+            "person_url": person_url}
+    req = requests.post(QC_URL, data)
+    return req.status_code
+
 
 # FUNCTION 4
 # Web2Py - send_item_to_qc_bb(person_url, image_id, person_id, item_dict)
@@ -132,45 +169,6 @@ def from_categories_to_bb_task(person_url, items_list, image_id, person_id):
 # END
 
 
-def determine_final_bb(bb_list):
-    '''
-    kick out illegal bbs (too small, maybe beyond img frame later on).
-    take average of all remaining. kick out anything with iou < threshold
-    :param bb_list:
-    :return:
-    '''
-
-    good_bblist = []
-    for bb in bb_list:
-        if Utils.legal_bounding_box(bb):
-            good_bblist.append(bb)
-    if len(good_bblist) == 1:  # if thees only one bb, return it
-        return good_bblist[0]
-    if len(good_bblist) == 0:
-        logging.warning('no good bbs in list')
-        return None
-    avg_bb = Utils.average_bbs(good_bblist)
-    # print('avg bb:'+str(avg_bb))
-    # check if any of the boxes are way out
-    good_intersection_bblist = []
-    for bb in good_bblist:
-        if Utils.intersectionOverUnion(bb, avg_bb) >= constants.bb_iou_threshold:
-            good_intersection_bblist.append(bb)
-    if good_intersection_bblist != []:  # got at least one good bb
-        improved_result = Utils.average_bbs(good_intersection_bblist)
-        return improved_result
-    else:
-        logging.warning('no good intersections found')
-        return None
-#    bb = determine_final_bb(bb_list)  # Yonti's function
-    # image = images.find_one({'people.items.item_id': item_id}, {})
-    #    category = get_item_by_id(item_id)['category']
-    #    fp, results, svg = find_similar_mongo.got_bb(image['image_url'], person_id, item_id, bb, N_top_results_to_show,
-    #category)
-
-
-# q6 - send_20s_(actually N) results
-# FUNCTION 6
 def dole_out_work(item_id):
     '''
     dole out images. Im assuming that i should dole out all the similar items instead of
@@ -211,8 +209,47 @@ def send_similar_items_to_qc(item_id, chunk_of_similar_items):
     payload = {'item_id': item_id, 'results_to_sort': chunk_of_similar_items}
     req = requests.post(QC_URL, data=payload)
     return req.ok
-# END OF QUEUE FUNC FOR FUNCTION 6
-# END  FUNCTION 6
+
+
+def from_bb_to_sorting_task(bb, person_id, item_id):
+    if len(bb) == 0:
+        logging.warning("No bb found")
+        return None
+    # bb = determine_final_bb(bb_list)  # Yonti's function
+    image, person, item = get_item_by_id(item_id)
+    fp, results, svg = find_similar_mongo.got_bb(image['image_urls'][0], person_id, item_id, bb, 100, item['category'])
+    item['similar_results'] = results
+    item['fingerprint'] = fp
+    item['svg_url'] = svg
+    create_n_results_chunks(results, person_id, item_id)
+    image['people'][person['person_idx']]['items'][item['item_idx']] = item
+    images.replace_one({'people.person': person_id}, image)
+    return
+
+
+def create_n_results_chunks(results, person_id, item_id):
+    results_indexer = []
+    for i in range(0, constants.N_pics_per_worker):
+        results_indexer.append(
+            np.linspace(i * constants.N_workers, (i + 1) * constants.N_workers - 1, constants.N_workers,
+                        dtype=np.uint8))
+    for i in range(0, constants.N_workers):  # divide results into chunks for N workers
+        final_image_index = min(i + constants.N_pics_per_worker - 1,
+                                len(results) - 1)  # the min deals with case where there's fewer images for last worker
+        indices_filter = []
+        for group in results_indexer:
+            indices_filter.append(group.tolist().pop(random.randint(0, len(group))))
+        chunk_of_results = [results[j] for j in indices_filter]
+        q6.enqueue(send_many_results_to_qcs, person_id, item_id, chunk_of_results)
+
+
+# QUEUE FUNC FOR FUNCTION 6
+def send_many_results_to_qcs(person_id, item_id, chunk_of_results):
+    data = {"callback_url": callback_url + '/' + person_id + '/' + item_id + '?task=sorting',
+            "person_url": person_url}
+    req = requests.post(QC_URL, data=payload)
+    return req.ok
+
 
 def set_voting_stage(N_stage, item_id):
     '''
@@ -391,6 +428,30 @@ def persistently_store_votes(votes):
 #            persistent_votes[similar_item].append(ith voting result)
 #        if there are enough votes in persistent_votes
 #            persistent_votes[similar_item] = combine_votes(persistent_votes[similar_item])
+
+def rearrange_results(votes):
+    '''
+    Take a bunch of votes. CHeck for duplicate votes (two or more dudes voting on same item).
+    Tote up all the results and send back in order
+    :param votes:
+    :return:
+    '''
+    all_results = []
+    all_ratings = []
+    for results, ratings in votes:
+        all_results = all_results.append(results)
+        all_ratings = all_ratings.append(ratings)
+
+    # combine multiple votes on same item
+    combined_results = [all_results[0]]
+    combined_ratings = [all_ratings[0]]
+    for i in range(0, len(all_results)):
+        for j in range(i + 1, all_results):
+            if all_results[i] != all_results[j]:  # different results being voted on by 2 dudes
+                combined_results = combined_results.append(all_results[j])
+                combined_ratings = combined_ratings.append(all_ratings[j])
+            else:  # same result being voted on by 2 dudes
+                combined_ratings[i] = combined_ratings[j]
 
 
 def send_many_results_to_qcs(original_image, chunk_of_results):

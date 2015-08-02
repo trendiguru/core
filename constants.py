@@ -46,7 +46,7 @@ classifier_to_category_dict = {"dressClassifier.xml": ["dresses", "bridal-mother
                                                        "mens-big-and-tall-coats-and-jackets",
                                                        "mens-big-and-tall-blazers"]}
 
-# paperdoll items' legends
+# clothes parsing items' legends
 
 RELEVANT_ITEMS = {'2': 'leggings', '3': 'shorts', '4': 'blazers', '5': 'tees-and-tshirts',
                   '8': 'womens-outerwear', '9': 'skirts', '12': 'womens-tops', '13': 'jackets', '14': 'bras',
@@ -77,7 +77,10 @@ Reserve_cpus = 2  # number of cpus to not use when doing stuff in parallel
 
 # N_top_results - a list of N1, N2 etc where N1 items are shown to first wave of voters,
 # then top N2 of those are shown to second wave of voters, etc
+
 #the length of this list is the number of voting stages
+
+
 N_top_results_to_show = [100, 20]
 N_pics_per_worker = [20, 20]
 N_workers = [10, 2]
@@ -90,3 +93,6 @@ if cv2.__version__ == '3.0.0':
     scale_flag = cv2.CASCADE_SCALE_IMAGE
 else:
     scale_flag = cv2.cv.CV_HAAR_SCALE_IMAGE
+
+scale_flag = cv2.cv.CV_HAAR_SCALE_IMAGEbb_iou_threshold = 0.5  # how much overlap there must be between bbs
+
