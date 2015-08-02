@@ -1,19 +1,18 @@
 __author__ = 'Nadav Paz'
 
-# theirs
 import logging
 import random
-import requests
 import copy
 
+import requests
 import pymongo
 import cv2
 import redis
 from rq import Queue
 import bson
 import numpy as np
-import boto3
 
+import boto3
 import find_similar_mongo
 import background_removal
 import Utils
@@ -67,7 +66,7 @@ def decode_task(args, vars, data):  # args(list) = person_id, vars(dict) = task,
         from_categories_to_bb_task(data['items'], args[0])
     elif vars["task_id"] is 'bb':
         from_bb_to_sorting_task(data['bb'], args[0], args[1])
-        # elif vars["task_id"] is 'first_sorting':
+    elif vars["task_id"] is 'first_sorting':
         # dole_out_work()
         # else:
         # finish_work()
@@ -80,9 +79,9 @@ def decode_task(args, vars, data):  # args(list) = person_id, vars(dict) = task,
 # "https://extremeli.trendi.guru/api/nadav/index/image_id/person_id/item_id?task_id=bounding_boxing"
 # in this case we know how many args we have because of the type of the task (e.g item bounding_boxing => 3 args).
 # 1.1 maybe more efficient way is: "https://extremeli.trendi.guru/api/nadav/index/item_id?task_id=bounding_boxing"
-# and by task_id we would know that it is an item which we activated by.
+#     and by task_id we would know that it is an item which we activated by.
 # 2.  by task_id: create and send task_id in each kind of task. when we get a post back we search the task id in a tasks
-# table that we built. from the task document we understand what to do with the info we got.
+#     table that we built. from the task document we understand what to do with the info we got.
 # we will go with 1.1 for now !
 
 # q1 - images queue -  from Web2Py
@@ -153,12 +152,24 @@ def send_item_to_qc_bb(person_url, person_id, item_dict):
     req = requests.post(QC_URL, data)
     return req.status_code
 
+
 # q6 - decode_task, from Web2Py
 
 
 def from_bb_to_sorting_task(bb, person_id, item_id):
     if len(bb) == 0:
         logging.warning("No bb found")
+    # bb = determine_final_bb(bb_list)  # Yonti's function
+    image, person, item = get_item_by_id(item_id)
+    fp, results, svg = find_similar_mongo.got_bb(image['image_urls'][0], person_id, item_id, bb, 100, item['category'])
+    item['similar_results'] = results
+    item['fingerprint'] = fp
+    item['svg_url'] = svg
+    create_n_results_chunks(results, person['url'], person_id, item_id)
+    image['people'][person['person_idx']]['items'][item['item_idx']] = item
+    images.replace_one({'people.person': person_id}, image)
+    return
+
 
 def dole_out_work(item_id):
     '''
@@ -172,63 +183,24 @@ def dole_out_work(item_id):
     image, person_dict, item_dict = get_item_by_id(item_id)
     person_idx = person_dict['person_idx']
     item_idx = item_dict['item_idx']
-    item = image['people'][person_idx]['items'][item_idx]
-    similar_items = item['similar_items']
-
+    similar_items = image['people'][person_idx]['items'][item_idx]['similar_items']
     assert (constants.N_workers[voting_stage] * constants.N_pics_per_worker[voting_stage] /
             len(similar_items) > 1)  #len similar_items instead of constants.N_top_results_to_show
 
-    image, person_dict, item_dict = get_item_by_id(item_id)
-    person_idx = person_dict['person_idx']
-    item_idx = item_dict['item_idx']
-    similar_items = image['people'][person_idx]['items'][item_idx]['similar_items']
     if similar_items is None:
         logging.warning('oh man no similar items found')
         return None
-    # bb = determine_final_bb(bb_list)  # Yonti's function
-    image, person, item = get_item_by_id(item_id)
-    fp, results, svg = find_similar_mongo.got_bb(image['image_urls'][0], person_id, item_id, bb, 100, item['category'])
-    item['similar_results'] = results
-    item['fingerprint'] = fp
-    item['svg_url'] = svg
-    create_n_results_chunks(results, person_id, item_id)
-    image['people'][person['person_idx']]['items'][item['item_idx']] = item
-    images.replace_one({'people.person': person_id}, image)
-    return
-    for i in range(0, constants.N_workers[voting_stage]):  #divide results into chunks for N workers
+
+    for i in range(0, constants.N_workers[voting_stage]):  # divide results into chunks for N workers
         first_image_index = i * constants.N_pics_per_worker
         last_image_index = (i + 1) * constants.N_pics_per_worker
         # the min below deals with case where there's fewer images for last worker
         last_image_index = min(last_image_index, len(similar_items))
         chunk_of_similar_items = similar_items[first_image_index:last_image_index]
-        ######CHECK WITH NADAV THAT THIS QUEUEUE IS RIGHT
         q4.enqueue(send_similar_items_to_qc, item_id, chunk_of_similar_items)
 
 
-# QUEUE FUNC FOR FUNCTION 6
-def send_similar_items_to_qc(item_id, chunk_of_similar_items):
-    payload = {'item_id': item_id, 'results_to_sort': chunk_of_similar_items}
-    req = requests.post(QC_URL, data=payload)
-    return req.ok
-
-
-def from_bb_to_sorting_task(bb, person_id, item_id):
-    if len(bb) == 0:
-        logging.warning("No bb found")
-        return None
-    # bb = determine_final_bb(bb_list)  # Yonti's function
-    image, person, item = get_item_by_id(item_id)
-    fp, results, svg = find_similar_mongo.got_bb(image['image_urls'][0], person_id, item_id, bb, 100, item['category'])
-    item['similar_results'] = results
-    item['fingerprint'] = fp
-    item['svg_url'] = svg
-    create_n_results_chunks(results, person_id, item_id)
-    image['people'][person['person_idx']]['items'][item['item_idx']] = item
-    images.replace_one({'people.person': person_id}, image)
-    return
-
-
-def create_n_results_chunks(results, person_id, item_id):
+def create_n_results_chunks(results, person_url, person_id, item_id):
     results_indexer = []
     for i in range(0, constants.N_pics_per_worker):
         results_indexer.append(
@@ -241,15 +213,7 @@ def create_n_results_chunks(results, person_id, item_id):
         for group in results_indexer:
             indices_filter.append(group.tolist().pop(random.randint(0, len(group))))
         chunk_of_results = [results[j] for j in indices_filter]
-        q6.enqueue(send_many_results_to_qcs, person_id, item_id, chunk_of_results)
-
-
-# QUEUE FUNC FOR FUNCTION 6
-def send_many_results_to_qcs(person_id, item_id, chunk_of_results):
-    data = {"callback_url": callback_url + '/' + person_id + '/' + item_id + '?task=sorting',
-            "person_url": person_url}
-    req = requests.post(QC_URL, data)
-    return req.ok
+        q4.enqueue(send_many_results_to_qcs, person_url, person_id, item_id, chunk_of_results)
 
 
 def set_voting_stage(N_stage, item_id):
@@ -276,11 +240,9 @@ def get_voting_stage(item_id):
     else:  # no voting stage set yet,. so set to 0
         set_voting_stage(0, item_id)
         return 0
-        # image, {'person': person, 'person_idx': image['people'].index(person)}, \
-        # {'item': item, 'item_idx': person['items'].index(item)}
 
 
-###Here i am assuming I get votes in the form of a list of numbers or 'not relevant',
+### Here i am assuming I get votes in the form of a list of numbers or 'not relevant',
 ### the same length as the similar_items
 def from_qc_get_votes(item_id, chunk_of_similar_items, chunk_of_votes):
     image, person_dict, item_dict = get_item_by_id(item_id)
@@ -318,10 +280,6 @@ def from_qc_get_votes(item_id, chunk_of_similar_items, chunk_of_votes):
     write_result = images.update({"people.items.item_id": item_id}, image)
     print('image written:' + str(image))
 
-# if persistent_voting_stage == final_stage:
-# return top_N (or do whatever else needs to be done when voting is over)
-#        otherwise:
-#           dole_out_work(top_N,voting_stage=persistent_voting_stage)
 
 def add_results(extant_similar_items, extant_votes, new_similar_items, new_votes):
     '''
@@ -373,6 +331,7 @@ def order_results(combined_similar_items, combined_votes):
     sorted_items = [item for (vote, item) in sorted(zip(combined_votes, combined_similar_items))]
     return sorted_items, sorted_votes
 
+
 def combine_votes(combined_votes):
     '''
     take multiple votes and smush into one
@@ -413,3 +372,12 @@ def combine_votes(combined_votes):
     return float(
         sum) / n  #some int/float and some not-relevant - above 3 lines can be combined, but ths is clearer to me
 
+    # combine multiple votes on same item
+    combined_results = [all_results[0]]
+    for i in range(0, len(all_results)):
+        for j in range(i + 1, all_results):
+            if all_results[i] != all_results[j]:  # different results being voted on by 2 dudes
+                combined_results = combined_results.append(all_results[j])
+                combined_ratings = combined_ratings.append(all_ratings[j])
+            else:  # same result being voted on by 2 dudes
+                combined_ratings[i] = combined_ratings[j]
