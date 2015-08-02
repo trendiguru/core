@@ -4,6 +4,14 @@ import cv2
 
 from sklearn.naive_bayes import GaussianNB
 
+gnb = GaussianNB()
+gnb.fit(data, target)
+# Skin detection can be performed converting the input image [Figure 9 (c)] to the L* a* b*
+#color space, and then reshaping and slicing in the same way as the training image. The
+#predict method of GaussianNB performs the classification. The resulting classification
+
+from sklearn.naive_bayes import GaussianNB
+
 
 gnb = GaussianNB()
 gnb.fit(data, target)
