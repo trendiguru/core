@@ -78,22 +78,20 @@ Reserve_cpus = 2  # number of cpus to not use when doing stuff in parallel
 # N_top_results - a list of N1, N2 etc where N1 items are shown to first wave of voters,
 # then top N2 of those are shown to second wave of voters, etc
 
-#the length of this list is the number of voting stages
+# the length of this list is the number of voting stages
 
 
 N_top_results_to_show = [100, 20]
-N_pics_per_worker = [20, 20]
-N_workers = [10, 2]
+N_pics_per_worker = [5, 5]
+N_workers = [N_top_results_to_show[0] / N_pics_per_worker[0], N_top_results_to_show[1] / N_pics_per_worker[1]]
 N_bb_votes_required = 2
 N_category_votes_required = 2
 
-bb_iou_threshold = 0.5  #how much overlap there must be between bbs
+scale_flag = cv2.cv.CV_HAAR_SCALE_IMAGE
+bb_iou_threshold = 0.5  # how much overlap there must be between bbs
 
 if cv2.__version__ == '3.0.0':
     scale_flag = cv2.CASCADE_SCALE_IMAGE
 else:
     scale_flag = cv2.cv.CV_HAAR_SCALE_IMAGE
 
-scale_flag = cv2.cv.CV_HAAR_SCALE_IMAGEbb_iou_threshold = 0.5  # how much overlap there must be between bbs
-
-bb_iou_threshold = 0.5  # how much overlap there must be between bbs
