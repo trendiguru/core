@@ -130,7 +130,7 @@ def from_image_url_to_categorization_task(image_url):
         else:
             logging.warning('image is not relevant, but stored anyway..')
         images.insert(image_dict)
-        return images.find_one({'image_url': image_url})
+        return images.find_one({'image_urls': image_url})
     else:
         if image_url not in image_obj['image_urls']:
             image_obj['image_urls'].append(image_url)
