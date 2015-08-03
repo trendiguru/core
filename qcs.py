@@ -224,7 +224,7 @@ def dole_out_work(item_id):
         indices_filter = []
         for group in results_indexer:
             indices_filter.append(group.tolist().pop(random.randint(0, len(group))))
-        chunk_of_results = [results[j] for j in indices_filter]  # TODO - get image urls from results
+        chunk_of_results = [results[j]['image']['sizes']['XLarge']['url'] for j in indices_filter]
         q4.enqueue(send_results_chunk_to_qc, person['url'], person['person_id'], item['item_id'], chunk_of_results,
                    voting_stage)
 
