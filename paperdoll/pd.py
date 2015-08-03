@@ -1,6 +1,18 @@
 __author__ = 'jeremy'
+<<<<<<< HEAD
+
+#NOTE - THIS VERSION WHICH IS ON EXTREMELY IS NOT ACTUALLY USED
+# the real pd.py is   on mightili , and this one is here only so that I can enqueue the right function name
+
+# paperdoll run from matlab
+# this needs to run on server that
+# has matlab running w. opencv3
+#which is currently 'mightili.trendi.guru'
+
+=======
 # paperdoll run from matlab - this needs to run on server that
 # has matlab running w. opencv3 , which is currently 'mightili.trendi.guru'
+>>>>>>> e67c0a652e611e74b58200af4df9de2708be4f8e
 
 import subprocess
 import shutil
@@ -20,8 +32,28 @@ def get_parse_from_matlab(image_filename):
                      shell=True, stdout=subprocess.PIPE).stdout.read()
     subprocess.Popen("cp output.png " + outfilename, shell=True, stdout=subprocess.PIPE).stdout.read()
     subprocess.Popen("cp inputimg.jpg " + outfilename, shell=True, stdout=subprocess.PIPE).stdout.read()
+<<<<<<< HEAD
+    #scp -i ~/first_aws.pem  img.jpg ubuntu@extremeli.trendi.guru:.
+    return result
+
+
+def get_parse_mask(image_url=None,image_filename=None):
+    # try:
+    # print("trying remotely (url) ")
+    #       testfile = urllib.URLopener()
+    #    except:
+    #        print("error in urlopener"+str(sys.exc_info()[0]))
+    #        return None
+    #   try:#
+    ##      infilename='/home/jeremy/infile.jpg'
+    #        print("url:"+str(image_url)+" infile:"+str(infilename))#
+    #       testfile.retrieve(image_url,infilename)
+    #   except:
+    #       print('err in retreive'+str(sys.exc_info()[0]))
+=======
     return mask, label_names, pose
 
+>>>>>>> e67c0a652e611e74b58200af4df9de2708be4f8e
 
 def get_parse_mask(image_url=None, image_filename=None):
     if image_filename is not None:  # copy file to 'inputimg.jpg'
