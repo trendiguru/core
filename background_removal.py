@@ -49,14 +49,16 @@ def find_face(image, max_num_of_faces=1):
         logging.warning("no good cascade found!")
         return []  # can we return [] in both cases or () in both , currently its one and on
 
-    for i in range(0, 3, 1):
-        faces = face_cascades[i].detectMultiScale(
+    for cascade in face_cascades:
+        faces = cascade.detectMultiScale(
             gray,
             scaleFactor=1.1,
             minNeighbors=2,
             minSize=(5, 5),
             flags=constants.scale_flag
         )
+        if len(faces) > 0:
+            break
     if len(faces) == 0:
         return faces  # can we return [] in both cases or () in both , currently its one and one
     return choose_faces(image, faces, max_num_of_faces)
