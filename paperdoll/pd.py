@@ -1,4 +1,8 @@
 __author__ = 'jeremy'
+
+#NOTE - THIS VERSION WHICH IS ON EXTREMELY IS NOT ACTUALLY USED
+# the real pd.py is   on mightili , and this one is here only so that I can enqueue the right function name
+
 # paperdoll run from matlab
 # this needs to run on server that
 # has matlab running w. opencv3
@@ -25,7 +29,7 @@ def get_parse_from_matlab(image_filename):
     return result
 
 
-def get_parse_mask(image_url):
+def get_parse_mask(image_url=None,image_filename=None):
     # try:
     # print("trying remotely (url) ")
     #       testfile = urllib.URLopener()
