@@ -11,6 +11,7 @@ from bson import objectid
 import bson
 import pymongo
 
+
 logging.basicConfig(format='%(levelname)s:%(message)s', level=logging.DEBUG)
 
 
@@ -21,7 +22,7 @@ import background_removal
 
 # similar_results structure - this an example of a similar results answer, with two items
 images_entry = \
-    {'hash': '2403b296b6d0be5e5bb2e74463419b2a',
+    {'image_hash': '2403b296b6d0be5e5bb2e74463419b2a',
      'image_urls': ['url1_of_image.jpg', 'url2_of_image.jpg', 'url3_of_image.jpg'],
      'page_urls': ['page1_where_image_appears.html', 'page2_where_image_appears.html',
                    'page3_where_image_appears.html'],
@@ -42,69 +43,205 @@ images_entry = \
 
 
 # format for results to return to javascript thru web2py . this an example of a similar results answer as returned to web2py
-results = {'hash': '2403b296b6d0be5e5bb2e74463419b2a',  # ID IS FORCED TO BE IMAGE HASH
-           'image_urls': ['url1_of_image.jpg', 'url2_of_image.jpg', 'url3_of_image.jpg'],
-           'page_urls': ['page1_where_image_appears.html', 'page2_where_image_appears.html',
-                         'page3_where_image_appears.html'],
-           # this lameness (dict instead of flat array) is apparently necessary to use $elemmatch, afaict
-           'relevant': True,  # result of doorman * QC
-           'items': [{'category': 'womens-shirt-skirts',
-                      'svg': 'svg-url',
-                      'saved_date': 'Jun 23, 1912',
-                      'similar_items': [{'seeMoreUrl': 'url.html',
-                                         'image': {'big_ass_dictionary of image info': 'the_info'},
-                                         'LargeImage': 'www.largeimg_url.jpg',
-                                         'clickUrl': 'theurl',
-                                         'currency': 'the_currency',
-                                         'description': 'thedescription',
-                                         'price': 10.99,
-                                         'categories': 'dict of cats',
-                                         'pageUrl': 'pageUrl',
-                                         'locale': 'US',
-                                         'name': 'itemName',
-                                         'unbrandedName': 'superNameunbranded'},
-                                        {'seeMoreUrl': 'url2.html',
-                                         'image': {'big_ass_dictionary of image info': 'the_info'},
-                                         'LargeImage': 'www.largeimg_url.jpg',
-                                         'clickUrl': 'theurl',
-                                         'currency': 'the_currency',
-                                         'description': 'thedescription',
-                                         'price': 10.99,
-                                         'categories': 'dict of cats',
-                                         'pageUrl': 'pageUrl',
-                                         'locale': 'US',
-                                         'name': 'itemName',
-                                         'unbrandedName': 'superNameunbranded'}]},
+results = {
+    "image_hash": "2403b296b6d0be5e5bb2e74463419b2a",
+    "image_urls": [
+        "url1_of_image.jpg",
+        "url2_of_image.jpg",
+        "url3_of_image.jpg"
+    ],
+    "page_urls": [
+        "page1_where_image_appears.html",
+        "page2_where_image_appears.html",
+        "page3_where_image_appears.html"
+    ],
+    "relevant": "True",
+    "people": [
+        {
+            "face": [
+                10,
+                20,
+                300,
+                400
+            ],
+            "person_id": "bson.ObjectId()",
+            "items": [
+                {
+                    "item_id": '55b89f151f8c82501d18e12f',
+                    "category": "womens-shirt-skirts",
+                    "svg": "svg-url",
+                    "saved_date": "Jun 23, 1912",
+                    "similar_items": [
+                        {
+                            "seeMoreUrl": "url1.html",
+                            "image": {
+                                "big_ass_dictionary of image info": "the_info"
+                            },
+                            "LargeImage": "www.largeimg_url1.jpg",
+                            "clickUrl": "theurl",
+                            "currency": "the_currency",
+                            "description": "thedescription",
+                            "price": 10.99,
+                            "categories": "dict of cats",
+                            "pageUrl": "pageUrl",
+                            "locale": "US",
+                            "name": "itemName",
+                            "unbrandedName": "superNameunbranded"
+                        },
+                        {
+                            "seeMoreUrl": "url2.html",
+                            "image": {
+                                "big_ass_dictionary of image info": "the_info"
+                            },
+                            "LargeImage": "www.largeimg_url2.jpg",
+                            "clickUrl": "theurl",
+                            "currency": "the_currency",
+                            "description": "thedescription",
+                            "price": 10.99,
+                            "categories": "dict of cats",
+                            "pageUrl": "pageUrl",
+                            "locale": "US",
+                            "name": "itemName",
+                            "unbrandedName": "superNameunbranded"
+                        }
+                    ]
+                },
+                {
+                    "item_id": '55b89f151f8c82501d18e12e',
+                    "category": "awesome_watches",
+                    "svg": "svg-url",
+                    "saved_date": "Jun 23, 1912",
+                    "similar_items": [
+                        {
+                            "seeMoreUrl": "url.html",
+                            "image": {
+                                "big_ass_dictionary of image info": "the_info"
+                            },
+                            "LargeImage": "www.largeimg_url.jpg",
+                            "clickUrl": "theurl",
+                            "currency": "the_currency",
+                            "description": "thedescription",
+                            "price": 10.99,
+                            "categories": "dict of cats",
+                            "pageUrl": "pageUrl",
+                            "locale": "US",
+                            "name": "itemName",
+                            "unbrandedName": "superNameunbranded"
+                        },
+                        {
+                            "seeMoreUrl": "url2.html",
+                            "image": {
+                                "big_ass_dictionary of image info": "the_info"
+                            },
+                            "LargeImage": "www.largeimg_url.jpg",
+                            "clickUrl": "theurl",
+                            "currency": "the_currency",
+                            "description": "thedescription",
+                            "price": 10.99,
+                            "categories": "dict of cats",
+                            "pageUrl": "pageUrl",
+                            "locale": "US",
+                            "name": "itemName",
+                            "unbrandedName": "superNameunbranded"
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "face": [
+                10,
+                20,
+                300,
+                400
+            ],
+            "person_id": "bson.ObjectId()",
+            "items": [
+                {
+                    "item_id": '55b89f151f8c82501d18e12c',
+                    "category": "womens-shirt-skirts",
+                    "svg": "svg-url",
+                    "saved_date": "Jun 23, 1912",
+                    "similar_items": [
+                        {
+                            "seeMoreUrl": "url1.html",
+                            "image": {
+                                "big_ass_dictionary of image info": "the_info"
+                            },
+                            "LargeImage": "www.largeimg_url1.jpg",
+                            "clickUrl": "theurl",
+                            "currency": "the_currency",
+                            "description": "thedescription",
+                            "price": 10.99,
+                            "categories": "dict of cats",
+                            "pageUrl": "pageUrl",
+                            "locale": "US",
+                            "name": "itemName",
+                            "unbrandedName": "superNameunbranded"
+                        },
+                        {
+                            "seeMoreUrl": "url2.html",
+                            "image": {
+                                "big_ass_dictionary of image info": "the_info"
+                            },
+                            "LargeImage": "www.largeimg_url2.jpg",
+                            "clickUrl": "theurl",
+                            "currency": "the_currency",
+                            "description": "thedescription",
+                            "price": 10.99,
+                            "categories": "dict of cats",
+                            "pageUrl": "pageUrl",
+                            "locale": "US",
+                            "name": "itemName",
+                            "unbrandedName": "superNameunbranded"
+                        }
+                    ]
+                },
+                {
+                    "item_id": '55b89f151f8c82501d18e12fa',
 
-                     {'category': 'awesome_watches',
-                      'svg': 'svg-url',
-                      'saved_date': 'Jun 23, 1912',
-                      'similar_items': [{'seeMoreUrl': 'url.html',
-                                         'image': {'big_ass_dictionary of image info': 'the_info'},
-                                         'LargeImage': 'www.largeimg_url.jpg',
-                                         'clickUrl': 'theurl',
-                                         'currency': 'the_currency',
-                                         'description': 'thedescription',
-                                         'price': 10.99,
-                                         'categories': 'dict of cats',
-                                         'pageUrl': 'pageUrl',
-                                         'locale': 'US',
-                                         'name': 'itemName',
-                                         'unbrandedName': 'superNameunbranded'},
-                                        {'seeMoreUrl': 'url2.html',
-                                         'image': {'big_ass_dictionary of image info': 'the_info'},
-                                         'LargeImage': 'www.largeimg_url.jpg',
-                                         'clickUrl': 'theurl',
-                                         'currency': 'the_currency',
-                                         'description': 'thedescription',
-                                         'price': 10.99,
-                                         'categories': 'dict of cats',
-                                         'pageUrl': 'pageUrl',
-                                         'locale': 'US',
-                                         'name': 'itemName',
-                                         'unbrandedName': 'superNameunbranded'}]}]}
-
-
+                    "category": "awesome_watches",
+                    "svg": "svg-url",
+                    "saved_date": "Jun 23, 1912",
+                    "similar_items": [
+                        {
+                            "seeMoreUrl": "url.html",
+                            "image": {
+                                "big_ass_dictionary of image info": "the_info"
+                            },
+                            "LargeImage": "www.largeimg_url.jpg",
+                            "clickUrl": "theurl",
+                            "currency": "the_currency",
+                            "description": "thedescription",
+                            "price": 10.99,
+                            "categories": "dict of cats",
+                            "pageUrl": "pageUrl",
+                            "locale": "US",
+                            "name": "itemName",
+                            "unbrandedName": "superNameunbranded"
+                        },
+                        {
+                            "seeMoreUrl": "url2.html",
+                            "image": {
+                                "big_ass_dictionary of image info": "the_info"
+                            },
+                            "LargeImage": "www.largeimg_url.jpg",
+                            "clickUrl": "theurl",
+                            "currency": "the_currency",
+                            "description": "thedescription",
+                            "price": 10.99,
+                            "categories": "dict of cats",
+                            "pageUrl": "pageUrl",
+                            "locale": "US",
+                            "name": "itemName",
+                            "unbrandedName": "superNameunbranded"
+                        }
+                    ]
+                }
+            ]
+        }
+    ]
+}
 
 products_db_sample_entry = {
     u'seeMoreUrl': u'http://www.shopstyle.com/browse/womens-tech-accessories/Samsung?pid=uid900-25284470-95',
@@ -234,7 +371,6 @@ def start_pipeline(image_url):
     # the goods go here
     # There may be multiple items in an image, so this should return list of items
     # each item having a list of similar results
-
     # FAKE RESULTS
     logging.debug('starting pipeline')
     db = pymongo.MongoClient().mydb
@@ -249,14 +385,16 @@ def start_pipeline(image_url):
     id_2 = objectid.ObjectId(similar_2['_id'])
     id_3 = objectid.ObjectId(similar_3['_id'])
     id_4 = objectid.ObjectId(similar_4['_id'])
-    result = [{"category": "womens-shirt-skirts",
+    result = [{"item_id": bson.ObjectId(),
+               "category": "womens-skirts",
                "svg": "svg-url",
                "saved_date": "Jun 23, 1912",
                "similar_items":
                    [bson.dbref.DBRef("products", id_1, database="mydb"),
                     bson.dbref.DBRef("products", id_1, database="mydb")]},
 
-              {"category": "mens-purse",
+              {"item_id": bson.ObjectId(),
+               "category": "handbag",
                "svg": "svg-url",
                "saved_date": "Jun 23, 1912",
                "similar_items":
@@ -301,7 +439,7 @@ def find_similar_items_and_put_into_db(image_url, page_url):
     m = hashlib.md5()
     m.update(img_arr)
     image_hash = m.hexdigest()
-    results_dict["hash"] = image_hash
+    results_dict["image_hash"] = image_hash
     results_dict["image_urls"] = [image_url]
     results_dict["page_urls"] = [page_url]
     relevance = background_removal.image_is_relevant(img_arr)
@@ -309,7 +447,16 @@ def find_similar_items_and_put_into_db(image_url, page_url):
     # print('relevance:' + str(actual_relevance))
     relevance = actual_relevance * qc_assessment_of_relevance(image_url)
     results_dict["relevant"] = relevance
-    results_dict["items"] = similar_items_from_products_db
+    face1 = [311, 47, 44, 44]
+    face2 = [399, 30, 45, 45]
+    face3 = [116, 15, 47, 47]
+    results_dict["people"] = []
+
+    person1 = {'face': face1, 'person_id': bson.ObjectId(), 'items': similar_items_from_products_db}
+    person2 = {'face': face2, 'person_id': bson.ObjectId(), 'items': similar_items_from_products_db}
+    results_dict["people"].append(person1)
+    results_dict["people"].append(person2)
+    # results_dict["items"] = similar_items_from_products_db
 
     #`EDIT FROM HERE        for
     logging.debug('inserting into db:')
@@ -321,7 +468,8 @@ def find_similar_items_and_put_into_db(image_url, page_url):
 
 def update_image_in_db(page_url, image_url, cursor):
     '''
-    check each doc in cursor. This is a cursor of docs matching the image at image_url. if page_url is there then do nothing, otherwise add page_url to the list page_urls
+    check each doc in cursor. This is a cursor of docs matching the image at image_url.
+    if page_url is there then do nothing, otherwise add page_url to the list page_urls
     :param page_url:
     :param image_url:
     :param cursor:
@@ -336,16 +484,18 @@ def update_image_in_db(page_url, image_url, cursor):
         #acutally thats not nec. true, maybe th hash matched. so forget theassert or assert an 'or'
         i = i + 1
 
+        logging.debug('doc:' + str(doc))
+        logging.debug('updating db, doc#' + str(i) + ': looking for page :' + str(page_url) + ' in url list:' + str(
+            doc['page_urls']))
+
         # check if the image in the url is the same one as appears in the supposedly matching doc
-        image_hash = doc['hash']
+        image_hash = doc['image_hash']
         same_image = verify_hash_of_image(image_hash, image_url)
         if not same_image:
             logging.warning(
                 'image hash doesnt match the stored hash, maybe the image at ' + str(image_url) + ' changed!')
             continue
 
-        logging.debug('updating db, doc#' + str(i) + ': looking for page :' + str(page_url) + ' in url list:' + str(
-            doc['page_urls']))
         flag = False
         if page_url in doc['page_urls']:
             logging.debug('found url, no need to update, going to next doc')
@@ -449,44 +599,52 @@ def dereference_image_collection_entry(doc=None):
         'pageUrl': 1,
         '_id': 0,
         'priceLabel': 1}
+    # probably necessary since i am fooling with the fields, and the copy is a copy by reference
+    modified_doc = copy.deepcopy(doc)
+    # modified_doc =doc
+    logging.debug('trying to dereference ' + str(modified_doc))
+    if not 'people' in modified_doc:
+        logging.debug('no people found in record while trying to dereference ' + str(modified_doc))
+        return None
+    for person in modified_doc['people']:
+        # person['items'] = []
+        # orig_items = doc
+        new_items = []
+        for item in person['items']:  # expand the info in similar_items since in the images db its  just as a reference
+            expanded_item = copy.deepcopy(item)
+            expanded_item['similar_items'] = []
+            for similar_item in item['similar_items']:
+                try:
+                    # products_db_entry = db.dereference(similar_item, projection)  #runs into type error
+                    products_db_entry = db.dereference(similar_item)  # works
+                    # below are all the feilds we don't care about and so dont pass on - we have to do this since i can't get the dereference to work
+                    del products_db_entry['colors']
+                    del products_db_entry['id']
+                    del products_db_entry['badges']
+                    del products_db_entry['extractDate']
+                    del products_db_entry['alternateImages']
+                    del products_db_entry['dl_version']
+                    del products_db_entry['preOwned']
+                    del products_db_entry['unbrandedName']
+                    del products_db_entry['fingerprint']
+                    del products_db_entry['rental']
+                    del products_db_entry['lastModified']
+                    if 'archive' in products_db_entry:
+                        del products_db_entry['archive']
 
-    modified_doc = copy.deepcopy(
-        doc)  # probably necessary since i am fooling with the fields, and the copy is a copy by reference
-    #modified_doc =doc  #actually i guess one could avoid the deepcopy somehow
-    modified_doc['items'] = []
-    for item in doc['items']:  # expand the info in similar_items since in the images db its  just as a reference
-        expanded_item = copy.deepcopy(item)
-        expanded_item['similar_items'] = []
-        for similar_item in item['similar_items']:
-            try:
-                # products_db_entry = db.dereference(similar_item, projection)  #runs into type error
-                products_db_entry = db.dereference(similar_item)  #works
-                del products_db_entry['colors']
-                del products_db_entry['id']
-                del products_db_entry['badges']
-                del products_db_entry['extractDate']
-                del products_db_entry['alternateImages']
-                del products_db_entry['dl_version']
-                del products_db_entry['preOwned']
-                del products_db_entry['unbrandedName']
-                del products_db_entry['fingerprint']
-                del products_db_entry['rental']
-                del products_db_entry['lastModified']
-                if 'archive' in products_db_entry:
-                    del products_db_entry['archive']
-
-            except TypeError:
-                logging.error('dbref is not an instance of DBRef')
-                return None
-            except ValueError:
-                logging.error('dbref has a db specified that is different from the current database')
-                return None
-            detailed_item = products_db_entry
-            large_image = detailed_item['image']['sizes']['Large']['url']
-            #add 'large image' so the poor web guy doesnt have too dig that much deeper than he already has to
-            detailed_item['LargeImage'] = large_image
-            expanded_item['similar_items'].append(detailed_item)
-        modified_doc['items'].append(expanded_item)
+                except TypeError:
+                    logging.error('dbref is not an instance of DBRef')
+                    return None
+                except ValueError:
+                    logging.error('dbref has a db specified that is different from the current database')
+                    return None
+                detailed_item = products_db_entry
+                large_image = detailed_item['image']['sizes']['Large']['url']
+                # add 'large image' so the poor web guy doesnt have too dig that much deeper than he already has to
+                detailed_item['LargeImage'] = large_image
+                expanded_item['similar_items'].append(detailed_item)
+            new_items.append(expanded_item)
+        person['items'] = new_items
     logging.debug('the modified results as list:')
     logging.debug(str(modified_doc))
     return modified_doc
@@ -552,7 +710,7 @@ def get_data_for_specific_image(image_url=None, image_hash=None):
         query = {"image_urls": image_url}
     else:
         logging.debug('looking for hash ' + image_hash + ' in db ')
-        query = {"hash": image_hash}
+        query = {"image_hash": image_hash}
     entry = db.images.find_one(query)
     if entry is not None:
         logging.debug('found image (or hash) in db ')
@@ -565,24 +723,32 @@ def get_data_for_specific_image(image_url=None, image_hash=None):
         logging.debug('image / hash  was NOT found in db')
         return None
 
+
+def remove_one(id):
+    db = pymongo.MongoClient().mydb
+    db.images.remove({"_id": bson.ObjectId(id)})
+
+
 def kill_images_collection():
-    connection = Connection('localhost', 27017)  # Connect to mongodb
-    print(connection.database_names())  # Return a list of db, equal to: > show dbs
-    db = connection['mydb']  # equal to: > use testdb1
+    # connection = Connection('localhost', 27017)  # Connect to mongodb
+    #    print(connection.database_names())  # Return a list of db, equal to: > show dbs
+    #    db = connection['mydb']  # equal to: > use testdb1
+    db = pymongo.MongoClient().mydb
     print(db.collection_names())  # Return a list of collections in 'testdb1'
     print("images exists in db.collection_names()?")  # Check if collection "posts"
     print("images" in db.collection_names())  # Check if collection "posts"
     # exists in db (testdb1
     collection = db['images']
-    print('collection.count() == 0 ?' + str(collection.count() == 0))  # Check if collection named 'posts' is empty
+    print('collection.count() = ' + str(collection.count()))  # Check if collection named 'posts' is empty
 
 ###DO THIS ONLY IF YOU KNOW WHAT YOU ARE DOING
-    collection.drop()
+  #  collection.drop()
 
 ###DO THIS TO KILL DB - ASK LIOR AND/OR JEREMY BEFORE DOING THIS
 
 if __name__ == '__main__':
     print('starting')
     # kill_images_collection()
+    # remove_one('55b614301f8c8255e7557046')
     #verify_hash_of_image('wefwfwefwe', 'http://resources.shopstyle.com/pim/c8/af/c8af6068982f408205491817fe4cad5d.jpg')
     dbUtils.step_thru_images_db(use_visual_output=False, collection='images')

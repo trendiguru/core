@@ -1,0 +1,89 @@
+DDD detailed design doc
+for jr's functions in qcs.py
+
+We need to take voting results on similar results
+(and I suppose also on bounding boxes, and on categories),
+and combine them.
+For the case of bounding boxes and cateogries,
+I think we aren't dealing with multiple stage voting
+so I deal here only with similar-results voting
+
+we want to have a variable number of stages
+with some number of voters at each stage, some number of images at
+each stage, and each voter voting  on some number of images at each stage
+
+the votes after each stage get combined somehow and sent to the next stage.
+One way to keep track of how many voters, images etc is in arrays, e.g. for two-stage voting
+one could have
+
+N_top_results_to_show = [100, 20]
+N_pics_per_worker = [25, 10]
+N_workers = [8, 2]
+
+which would mean 100 results are considered in the first stage,
+those are doled out to 8 workers who get 25 images each.
+Then the top 20 images are determined for the next round, and they're sent
+to two workers who get 10 each.
+The number of total votes in a stage is N_workers*N_pics_per_worker,
+so the number of votes per image is
+
+n_votes_per_image = N_workers*N_pics_per_worker/N_top_results_to_show
+
+I should check that n_votes_per_image>1 but i guess its not necessarily integer,
+and deal with that (e.g. the last qc guy in line gets fewer images to check)
+
+A function that takes results and doles them out to qcs :
+
+def dole_out_work(simlar_items,voting_stage)
+    for i in range(0,N_workers[voting_stage]):
+        send N_pics_per_worker[voting_stage] to worker i (in order, wrapping around when you hit the end)
+
+we can use persistent storage ! e.g. in a variable called persistent_votes
+which can be a dictionary of similar items and a list of votes for each similar item, like
+{item1:[vote1,vote2], item2:[vote3,vote4]}
+the votes are acutally numbers or 'not relevant' so it would be like
+{item1:[4,3], item2:[1,'not relevant']}
+
+def combine_votes:
+if all are numbers:
+    return average
+if all are 'not relevant'
+    return 'not relevant'
+if some are numbers and some are 'not relevant':
+    if the majority voted not relevant:
+        return not relevant
+    otherwise:
+        return average vote , with not relevant guys counted as 0 or -1 or something like that
+
+to combine results we gotta throw results into some persistent store and
+check if there's enough votes, if so combine them
+
+def combine_results(similar_items, voting_results):
+    for similar_item in similar_items:
+        if similar_item in persistent_votes:
+            persistent_votes[similar_item].append(ith voting result)
+        if there are enough votes in persistent_votes
+            persistent_votes[similar_item] = combine_votes(persistent_votes[similar_item])
+
+now each item has a single combined vote for each item
+to take the top N items , we need abnother function along the lines of
+
+def take_top_N_results(N, persistent_votes):
+    sort persistent_votes by value
+    return first N
+
+
+to do multi stage voting:
+
+sending part -
+dole_out_work(similar_items,voting_stage=0)
+
+receiving part -
+combine_results(similar_items,voting_results)
+if combine_results got all the required votes:
+    top_N = take_top_N_results(persistent_votes)
+    persistent_voting_stage=persistent_voting_stage+1
+    if persistent_voting_stage = final_stage:
+        return top_N
+    otherwise:
+        dole_out_work(top_N,voting_stage=persistent_voting_stage)

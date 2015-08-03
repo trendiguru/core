@@ -236,7 +236,6 @@ def plot_confusion_matrix(n_samples, m):
 #    figName=os.path.join(resultsDir,'confusion.'+trainDir+'.png')
 #    savefig(figName, format="png")
 #    plt.show()
-#>>>>>>> 78605526ed1ae5ce2b7fe35564ddda8cb1f019a3
 
 def test_classifier(classifier, imageDirectory, itemDescriptionString, *args, **kwargs):
     n_files = 0

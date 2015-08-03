@@ -1,3 +1,5 @@
+import cv2
+
 # file containing constants for general TG use
 
 # fingerprint related consts
@@ -44,7 +46,7 @@ classifier_to_category_dict = {"dressClassifier.xml": ["dresses", "bridal-mother
                                                        "mens-big-and-tall-coats-and-jackets",
                                                        "mens-big-and-tall-blazers"]}
 
-# clothes parsing items' legends
+# paperdoll items' legends
 
 RELEVANT_ITEMS = {'2': 'leggings', '3': 'shorts', '4': 'blazers', '5': 'tees-and-tshirts',
                   '8': 'womens-outerwear', '9': 'skirts', '12': 'womens-tops', '13': 'jackets', '14': 'bras',
@@ -59,13 +61,6 @@ IRELEVANT_ITEMS = {'1': 'background', '6': 'bag', '7': 'shoes', '10': 'purse', '
                    '48': 'sneakers', '49': 'clogs', '50': 'watchs', '51': 'pumps', '52': 'wallets', '53': 'bodysuit',
                    '54': 'loafers', '55': 'hair', '56': 'skin'}
 
-# paperdoll items' legends
-
-PAPERDOLL_LABELS = {'1': 'null', '2': 'skin', '3': 'hair', '4': 'accessories', '5': 'bag', '6': 'belt', '7': 'blouse',
-                    '8': 'boots', '9': 'bracelet', '10': 'cardigan', '11': 'dress', '12': 'earrings', '13': 'flats',
-                    '14': 'glasses', '15': 'hat', '16': 'jacket', '17': 'jeans', '18': 'necklace', '19': 'pants',
-                    '20': 'scarf', '21': 'shirt', '22': 'shoes', '23': 'shorts', '24': 'skirt', '25': 'sunglasses',
-                    '26': 'sweater', '27': 't-shirt', '28': 'tie', '29': 'tights', '30': 'top', '31': 'vest'}
 # for web bounding box interface
 # this is for going to the previous item, highest numbered image
 max_image_val = 666
@@ -76,3 +71,26 @@ svg_url_prefix = 'http://extremeli.trendi.guru/static/svgs/'
 nadav = 'awesome'
 
 Reserve_cpus = 2  # number of cpus to not use when doing stuff in parallel
+
+
+# QC worker voting params
+
+# N_top_results - a list of N1, N2 etc where N1 items are shown to first wave of voters,
+# then top N2 of those are shown to second wave of voters, etc
+
+# the length of this list is the number of voting stages
+
+
+N_top_results_to_show = [100, 20]
+N_pics_per_worker = [5, 5]
+N_workers = [N_top_results_to_show[0] / N_pics_per_worker[0], N_top_results_to_show[1] / N_pics_per_worker[1]]
+N_bb_votes_required = 2
+N_category_votes_required = 2
+
+bb_iou_threshold = 0.5  # how much overlap there must be between bbs
+
+if cv2.__version__ == '3.0.0':
+    scale_flag = cv2.CASCADE_SCALE_IMAGE
+else:
+    scale_flag = cv2.cv.CV_HAAR_SCALE_IMAGE
+
