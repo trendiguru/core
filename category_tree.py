@@ -564,6 +564,7 @@ class CatNode(object):
             res_mat = []
             # remove nodes if their tree branch doesn't contain "head node"
             for ans_list in ans_mat:
+
                 for id in reversed(ans_list):
                     if CatNode.head(id) is None:
                         ans_list.remove(id)
