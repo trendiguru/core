@@ -5,7 +5,7 @@ from rq import Queue
 from redis import Redis
 import cv2
 import numpy as np
-import time
+
 import pd
 
 
@@ -15,11 +15,8 @@ def count_words_at_url(url):
 
 
 # Tell RQ what Redis connection to use
-<<<<<<< HEAD
-def paperdoll_enqueue(img_url,async=True):
-=======
+
 def paperdoll_enqueue(img_url, async=True):
->>>>>>> e67c0a652e611e74b58200af4df9de2708be4f8e
     redis_conn = Redis()
     q = Queue('jeremyTest', connection=redis_conn)
     # q = Queue('jeremyTest', connection=redis_conn, async=False)  # not async
@@ -29,13 +26,8 @@ def paperdoll_enqueue(img_url, async=True):
     job = q.enqueue(pd.get_parse_mask, image_url=img_url)
     # job = q.enqueue(count_words_at_url, 'http://nvie.com')
     if not async:
-<<<<<<< HEAD
-	while job.result is None:
-	    time.sleep(0.5)
-=======
         while job.result is None:
             time.sleep(0.5)
->>>>>>> e67c0a652e611e74b58200af4df9de2708be4f8e
     return job.result
 
 

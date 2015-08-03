@@ -101,6 +101,7 @@ class OutcomesTest(unittest.TestCase):
         print('voting_stage=' + str(stage))
         self.assertTrue(isinstance(stage, int))
 
+        # vote count is currently wrong
     def test_combine_votes(self):
         votes_list = [[4, 5, 6], [2, 10], ['not relevant', 'not relevant'], ['not relevant', 3, 10]]
         for votes in votes_list:

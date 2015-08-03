@@ -87,7 +87,6 @@ N_workers = [N_top_results_to_show[0] / N_pics_per_worker[0], N_top_results_to_s
 N_bb_votes_required = 2
 N_category_votes_required = 2
 
-scale_flag = cv2.cv.CV_HAAR_SCALE_IMAGE
 bb_iou_threshold = 0.5  # how much overlap there must be between bbs
 
 if cv2.__version__ == '3.0.0':
