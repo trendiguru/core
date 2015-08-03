@@ -1,20 +1,24 @@
-from __builtin__ import staticmethod
-
 __author__ = 'sergey, Lior'
 import json
+import pprint
 import logging
-import cv2
 import os
 import urllib
 import warnings
 import collections
+
+import cv2
 import pymongo
+
+
+
+
+
 
 # Bucket is a structure for answers classification ("key" - group id, "content" -
 # all answers that relate to this group).
-Bucket = collections.namedtuple("Bucket", ["key", "content"])
-# TODO: raise an error if input is not suitable (do for each function)
-# example : if isinstance(x, number_types) and isinstance(y, number_types): raise error
+Bucket = collections.namedtuple("Bucket", 'key' 'content')
+
 
 class CatNode(object):
     """
@@ -45,6 +49,7 @@ class CatNode(object):
     (the paths of CatNode tree) will be classified to different groups by theirs node with head == true
     attribute...
     """
+    # TODO: Create a function to chech if from each leaf to root exists a single Head CatNode!!!!
     id = 0
     cat_tree = None
 
@@ -123,7 +128,6 @@ class CatNode(object):
         print "children: " + str(self.children)
         print "attributes: " + str(self.attributes)
         print "is head: " + str(self.head)
-        print "is primary: " + str(self.is_primary)
 
     @staticmethod
     def dict_is_suitable(dictionary):
@@ -176,13 +180,11 @@ class CatNode(object):
         TEMPORARY FUNCTION!!!
         The main purpose of the function is to check work of __init__ function after updating.
         The function counts number of nodes which belong to primary tree.
-        is_primary attribute gives us an opportunity to know a status of each CatNode
-        after an implementation of the complicate function.
         :return:
         """
         children = self.children
         is_prim = 0
-        if self.is_primary is True:
+        if self.is_primary == True:
             is_prim = 1
         return is_prim + sum((child.count_amount_of_primary_nodes() for child in self.children))
 
@@ -191,13 +193,11 @@ class CatNode(object):
         TEMPORARY FUNCTION!!!
         The main purpose of the function is to check work of __init__ function after updating.
         The function counts number of nodes which do not belong to primary tree.
-        is_primary attribute gives us an opportunity to know a status of each CatNode
-        after an implementation of the complicate function.
         :return:
         """
         children = self.children
         is_attr = 1
-        if self.is_primary is True:
+        if self.is_primary == True:
             is_attr = 0
         return is_attr + sum((child.count_amount_of_attr_nodes() for child in self.children))
 
@@ -230,7 +230,7 @@ class CatNode(object):
         #  while current node is not leaf:
         for child in self.children:
             child.connect_to_leafs(children)
-        # Current node is leaf therefore we add to it the obtainable children
+            #  Current node is leaf therefore we add to it the obtainable children
         # Add children only to node which has not got any child
         if not self.children:
             for child in children:
@@ -244,18 +244,13 @@ class CatNode(object):
     def connect_sub_trees(self, attributes):
         """
         The function connect the obtainable subtrees to current node (multiplies them).
-        BE CAREFUL: connect_sub_trees function does not connect roots of the obtainable
-        subtrees (connects a subtree but without its root)!!! that is because the main algorithm "expand an attribute tree
-        to a complicated tree" ignore roots of a attribute trees.
-        WARNING: input must be formed from different trees if the function will obtain some tree more
-        than one time it will cause to an infinity recursion.
         :param attributes: list of subtrees
         :return:
         """
         # If list of sub trees is not empty - do:
         if attributes:
             children = attributes.pop(0).children
-            self.connect_to_leafs(children)
+            self.connect_to_leafs(children)  # clone chldren!!!
             self.connect_sub_trees(attributes)
 
     def complicate(self):
@@ -263,7 +258,7 @@ class CatNode(object):
         This function obtains tree.
         For each node in the tree:
             if node contains attributes list => add
-            all of the subtrees in an attribute list to tree (subtree without root).
+            all of the subtrees in an attribute list to tree.
         after complicate function implementation all nodes of obtainable
         tree do not contain any attributes.
         all of the tree's attributes are a part of the tree now.
@@ -313,26 +308,20 @@ class CatNode(object):
                 self.add_attributes(new_attribute.copy(attribute, self.level + 1))
         return self
 
-    @staticmethod
-    def from_str(json_string):
+    @classmethod
+    def from_str(cls, json_string):
         """
         The function obtains dictionary with "specific structure" (like CatNode structure),
         and returns tree builded from the obtainable dictionary (List of sub category trees).
-        :param json_string:
-        :return list of CatNode trees:
         """
         main_structure = json.loads(json_string)
         # Do not forget: to change from "main_structure[0]" to "main_structure",
         #  because tis function obtains only class tat_trees!
         list_of_categories = []
-        if main_structure.get("categories"):
-            cat_dict = main_structure["categories"]
-            # Build tree for all category:
-            for category in cat_dict:
-                list_of_categories.append(CatNode(**category))
-        else:
-            cat_dict = main_structure
-            list_of_categories.append(CatNode(**cat_dict))
+        cat_dict = main_structure["categories"]
+        # Build tree for all category:
+        for category in cat_dict:
+            list_of_categories.append(cls(**category))
         return list_of_categories
 
     def to_struct(self, tree_dict):
@@ -360,12 +349,6 @@ class CatNode(object):
             for child in children:
                 new_dict = {}
                 tree_dict["children"].append(child.to_struct(new_dict))
-        if self.attributes:  # 02.08.15
-            tree_dict["attributes"] = []
-            attributes = self.attributes
-            for attribute in attributes:
-                new_dict2 = {}
-                tree_dict["attributes"].append(attribute.to_struct(new_dict2))
         return tree_dict
 
     def to_js(self):
@@ -375,25 +358,9 @@ class CatNode(object):
         """
         dict_tree = dict()
         py_struct = self.to_struct(dict_tree)
-        return str(json.dumps(py_struct))
-
-    @staticmethod
-    def full_tree_to_js(root):
-        """
-        This function converts the obtainable tree to json tree.
-        :param root:
-        :return: list of subtrees.
-        """
-        root_dict = {}
-        root_dict["categories"] = []
-        for sub_root in root:
-            dict_tree = dict()
-            py_struct = sub_root.to_struct(dict_tree)
-            root_dict["categories"].append(py_struct)
         # only for test:
-        # pprint.pprint(root_dict)
-        # return str(json.dumps(root_dict))
-        return json.dumps(root_dict)
+        pprint.pprint(py_struct)
+        return str(json.dumps(py_struct))
 
     def correct_levels(self):
         """
@@ -405,64 +372,19 @@ class CatNode(object):
             child.level = self.level + 1
             child.correct_levels()
 
-            #  -----------------------------------Block_of _change_urls_in_tree-------------------------------------
+    # -----------------------------------Block_of _change_urls_in_tree-------------------------------------
 
-    def apply_to_all_nodes(self, func, *arg):
+    def apply_to_all_node(self, func, *arg):
         """
         This function gives an opportunity to correct the attributes of CatNodes of the tree.
         :param dict_attr:
         :return:
         """
-        func(self, *arg)
+        func(self, *arg)  # ???????=>*<=
         children = self.children
         if children:
             for child in children:
-                child.apply_to_all_nodes(func, *arg)
-
-    @staticmethod
-    def is_only_name(str_url):
-        """
-        the function checks if the obtainable string is only an image name or full url.
-        :param str_url:
-        :return: boolean value
-        """
-        if "/" in str_url:
-            return False
-        return True
-
-    @staticmethod
-    def download_image(dir_url, destination_dir):
-        """
-        The function saves image from dir-url, in case if the url does not exists
-        function will return false otherwise function will return True
-        :param dir_url: urs from which the function will take the image
-        :param destination_dir: directory where to save the image
-        :return: boolean value
-        """
-        name = dir_url.split("/")[-1]
-        try:
-            status = urllib.urlretrieve(dir_url, name)
-            # TODO: Use status variable to check the state of downloaded image
-            img = cv2.imread(name, 0)
-            # Resizing of an image:
-            img = cv2.resize(img, (60, 60))
-            cv2.imwrite(destination_dir + "\\" + name, img)
-            try:
-                os.remove(name)
-            except:
-                pass
-        except:
-            return False
-        return True
-
-    @staticmethod
-    def get_name(str_url):
-        """
-        The function obtains url of the image, and returns only its number
-        :param str_url:
-        :return: name string
-        """
-        return str(str_url).split('/')[-1]
+                child.apply_to_all_node(func, *arg)
 
     @staticmethod
     def update_url(node, url_str, empty_image_values):
@@ -473,55 +395,86 @@ class CatNode(object):
         :param empty_image_values: (if image is empty it has got a value by default)  list of strings.
         :return: None
         """
+
+        def is_only_name(str_url):
+            """
+            the function checks if the obtainable string is only an image name or full url.
+            :param str_url:
+            :return: boolean value
+            """
+            if "/" in str_url:
+                return False
+            return True
+
+        def download_image(dir_url, destination_dir):
+            """
+                The function saves image from dir-url, in case if the url does not exists
+                function will return false otherwise function will return True
+                :param dir_url: urs from which the function will take the image
+                :param destination_dir: directory where to save the image
+                :return: boolean value
+                """
+            name = dir_url.split("/")[-1]
+            try:
+                status = urllib.urlretrieve(dir_url, name)
+                # TODO: Use status variable to check the state of downloaded image
+                img = cv2.imread(name, 0)
+                # Resizing of an image:
+                img = cv2.resize(img, (60, 60))
+                cv2.imwrite(destination_dir + "\\" + name, img)
+                try:
+                    os.remove(name)
+                except:
+                    pass
+            except:
+                return False
+            return True
+
+        def get_name(str_url):
+            """
+            The function obtains url of the image, and returns only its number
+            :param str_url:
+            :return: name string
+            """
+            return str(str_url).split('/')[-1]
+
         current_url = node.image
         # Current url does not exist:
         if current_url in empty_image_values:
             logging.warning("error 00001: Image does not exist!!!")
         else:
 
-            name = CatNode.get_name(current_url)
-            if CatNode.is_only_name(current_url):
+            name = get_name(current_url)
+            if is_only_name(current_url):
                 node.image = url_str + name
             else:
-                if CatNode.download_image(current_url, "C:\Users\sergey\Desktop\\tree_images\images"):
+                if download_image(current_url, "C:\Users\sergey\Desktop\\tree_images\images"):
                     node.image = url_str + name
                 else:
                     # Mark that current url isn't valid:
                     node.image = "???????????????????????"
 
-    # ---Block_of_upload_new_tree------------------------------------------------#
-    @staticmethod
-    def push_url(node, url, stack):
-        if url != node.image[:-len(url)]:
-            stack.append(node.image)
+    # ------------image_resize-------------------
 
     @staticmethod
-    def upload_new_tree(json_url, right_url):
-
-        # Check if json tree exists:
-        try:
-            urllib.urlretrieve(json_url, "input_json.txt")
-            with open("input_json.txt", "r") as f:
-                # Check if a json tree is valid (valid javaScript structure):
-                try:
-                    json_tree = f.read()
-                    py_tree = json.loads(json_tree)
-                except:
-                    raise Exception("S: json is not valid!!!")
-                f.close()
-        except:
-            raise Exception("S: Json file was not found!!!")
-        # Check if each branch from root to leafs in the json tree has got a head node:
-        cat_tree = CatNode.from_str(json_tree)
-        for subtree in cat_tree:
-            if not subtree.check_tree():
-                raise Exception("S: Exists branch without 'head' node!!!")
-        new_urls_list = []
-        cat_tree.apply_to_all_nodes(CatNode.push_url, right_url, new_urls_list)
-        if len(new_urls_list) > 0:
-            for url in new_urls_list:
-                print ""
-                # CatNode.download_image(url,destination_dir=????????)
+    def resize_all_from_folder(dir, width, height):
+        """
+        The function obtains directory to folder with image and resizes all the images in this folder.
+        :param dir: the directory to folder.
+        :param height: the height you want set.
+        :param width: the width you want set.
+        :return: None.
+        """
+        list_of_img = os.listdir(dir)
+        for img_name in list_of_img:
+            try:
+                # TODO: Use status variable to check the state of downloaded image
+                img = cv2.imread(dir + "\\" + img_name, 0)
+                # Resizing of an image:
+                img = cv2.resize(img, (width, height))
+                cv2.imwrite(dir + img_name, img)
+            except:
+                raise warnings.warn("s: FAILURE of image resizing.")
 
     # ------------------ block_of_find_right_answer_functions ---------------------------
     @staticmethod
@@ -564,7 +517,6 @@ class CatNode(object):
             res_mat = []
             # remove nodes if their tree branch doesn't contain "head node"
             for ans_list in ans_mat:
-
                 for id in reversed(ans_list):
                     if CatNode.head(id) is None:
                         ans_list.remove(id)
@@ -737,7 +689,6 @@ class CatNode(object):
             node is presented in the "current" tree function will save it into the obtainable variable: res_node
             :param current: CatNode
             :param f_str: the attribute that function searches in the "current" tree.
-            :param res_node: the variable into which function will save the result.
             """
             # if we found the suitable node => stop search in the tree:
             if str(current.id) == str(f_str):
@@ -758,7 +709,6 @@ class CatNode(object):
             node is presented in the "current" tree function will save it into the obtainable variable: res_node
             :param current: CatNode
             :param f_str: the attribute that function searches in the "current" tree.
-            :param res_node: the variable into which function will save the result.
             """
             # if we found the suitable node => save in result_list:
             if str(current.id) in f_str:
@@ -810,20 +760,20 @@ class CatNode(object):
         and returns it.
         :return: CatNode tree.
         """
-        if CatNode.cat_tree is None:
-            db = pymongo.MongoClient().mydb
-            tree_dict = db.globals.find_one({"_id": "tg_globals"})["category_tree_dict"]
-            # build root:
-            c_tree = CatNode()
-            c_tree.name = "categories"  # or will it be better call "root"?
-            c_tree.level = 0
-            # connect root to subtrees:
-            for sub_dict_tree in tree_dict['categories']:
-                c_tree.children.append(CatNode(**sub_dict_tree))
-            for child in c_tree.children:
-                child.parent = c_tree
-            cls.cat_tree = c_tree
-        return cls.cat_tree
+        db = pymongo.MongoClient().mydb
+        tree_dict = db.globals.find_one({"_id": "tg_globals"})["category_tree_dict"]
+        pprint.pprint(tree_dict)
+        # build root:
+        c_tree = CatNode()
+        c_tree.name = "categories"  # or will it be better call "root"?
+        c_tree.level = 0
+        # connect root to subtrees:
+        for sub_dict_tree in tree_dict['categories']:
+            c_tree.children.append(CatNode(**sub_dict_tree))
+        for child in c_tree.children:
+            child.parent = c_tree
+        cls.cat_tree = c_tree
+        return c_tree
 
     def check_tree(self):
         """
@@ -843,17 +793,22 @@ class CatNode(object):
 
         leafs = []
         __scan_for_head__(self, leafs)
-        print "-----------------------------"
-        print leafs
-        print [CatNode.head(node.id) for node in leafs]
         for node in leafs:
             if CatNode.head(node.id) is None:
-                print "here"
-                print node.name
                 return False
         return True
 
+# if __name__ == "__main__":
 
-if __name__ == "__main__":
-    # TODO: check if computer is connected to a server, if not raise an error!!!
-    tree = CatNode.get_tree()
+tree = CatNode.get_tree()
+tree_dict = {}
+tree.to_struct(tree_dict)
+print tree.size()
+pprint.pprint(tree_dict)
+print CatNode.head(4)
+print "answer:"
+print CatNode.determine_final_categories(
+    [[178, 251, 217, 252, 138, 1, 67, 257, 34, 56, 212, 56, 34, 45, 23, 45, 67, 89, 90, 45],
+     [12, 179, 216, 138, 252, 251, 345, 34, 256, 211, 26, 23, 45, 56, 18, 23],
+     [2, 180, 138, 215, 3, 4, 251, 252, 56, 212, 78, 258, 9, 87, 45, 6, 7, 8, 35]])
+print tree.check_tree()
