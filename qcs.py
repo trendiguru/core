@@ -62,12 +62,15 @@ def get_item_by_id(item_id):
 
 
 def decode_task(args, vars, data):  # args(list) = person_id, vars(dict) = task, data(dict) = QC results
-    if vars["task_id"] is 'categorization':
-        from_categories_to_bb_task(data['items'], args[0])
-    elif vars["task_id"] is 'bb':
-        from_bb_to_sorting_task(data['bb'], args[0], args[1])
-    elif vars["task_id"] is 'sorting':
-        from_qc_get_votes(args[1], data['results'], data['votes'], vars['voting_stage'])
+    try:
+        if vars["task_id"] is 'categorization':
+            from_categories_to_bb_task(data['items'], args[0])
+        elif vars["task_id"] is 'bb':
+            from_bb_to_sorting_task(data['bb'], args[0], args[1])
+        elif vars["task_id"] is 'sorting':
+            from_qc_get_votes(args[1], data['results'], data['votes'], vars['voting_stage'])
+    except:
+        logging.warning("callback_url is invalid")
 
 
 def set_voting_stage(n_stage, item_id):
@@ -221,7 +224,7 @@ def dole_out_work(item_id):
         indices_filter = []
         for group in results_indexer:
             indices_filter.append(group.tolist().pop(random.randint(0, len(group))))
-        chunk_of_results = [results[j] for j in indices_filter]
+        chunk_of_results = [results[j] for j in indices_filter]  # TODO - get image urls from results
         q4.enqueue(send_results_chunk_to_qc, person['url'], person['person_id'], item['item_id'], chunk_of_results,
                    voting_stage)
 
