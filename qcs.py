@@ -3,8 +3,8 @@ __author__ = 'Nadav Paz'
 import logging
 import random
 import copy
-
 import requests
+
 import pymongo
 import cv2
 import redis
@@ -13,11 +13,11 @@ import bson
 import numpy as np
 
 import boto3
+
 import find_similar_mongo
 import background_removal
 import Utils
 import constants
-
 
 QC_URL = 'http://www.clickworkers.com'
 callback_url = "https://extremeli.trendi.guru/api/nadav/index"
@@ -238,9 +238,14 @@ def send_results_chunk_to_qc(person_url, person_id, item_id, chunk, voting_stage
 
 # Here i am assuming I get votes in the form of a list of numbers or 'not relevant',
 # the same length as the similar_items
-def from_qc_get_votes(item_id, chunk_of_similar_items, chunk_of_votes, voting_stage):
+# OK so assuming I can get any info I want from 'data' in send_results_chunk_to_qc,
+# the below is ok , but chunk_of_similar_similar_items will be urls
+def from_qc_get_votes(item_id, chunk_of_similar_item_urls, chunk_of_votes, voting_stage):
+    # LAZY FIX FOR BAבKWARDS COMPATIBILITY
+    chunk_of_similar_items = urls_to_items(chunk_of_similar_item_urls, item_id)
+
     image, person_dict, item_dict = get_item_by_id(item_id)
-    print('image before:' + str(image))
+    #    print('image before:' + str(image))
     person_idx = person_dict['person_idx']
     item_idx = item_dict['item_idx']
     item = image['people'][person_idx]['items'][item_idx]
@@ -274,6 +279,26 @@ def from_qc_get_votes(item_id, chunk_of_similar_items, chunk_of_votes, voting_st
     print('image written: ' + str(image))
 
     # next voting stage instructions
+
+
+def urls_to_items(chunk_of_similar_item_urls, item_id):
+    similar_items = []
+    image, person_dict, item_dict = get_item_by_id(item_id)
+    person_idx = person_dict['person_idx']
+    item_idx = item_dict['item_idx']
+    item = image['people'][person_idx]['items'][item_idx]
+    original_similar_items = item['similar_items']
+    # yes this is retarded
+    for item_url in chunk_of_similar_item_urls:
+        foundit = False
+        for similar in original_similar_items:
+            if similar['seeMoreUrl'] == item_url:  # make sure the 'seeMoreUrl' is the one the QCs are seeing
+                similar_items.append(similar)
+                foundit = True
+                break
+        if foundit == False:
+            logging.debug('couldnt find the similar item with URL ' + str(item_url))
+    return similar_items
 
 
 def add_results(extant_similar_items, extant_votes, new_similar_items, new_votes):
