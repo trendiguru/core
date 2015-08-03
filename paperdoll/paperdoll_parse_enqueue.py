@@ -1,4 +1,5 @@
 import requests
+import time
 
 from rq import Queue
 from redis import Redis
@@ -14,7 +15,11 @@ def count_words_at_url(url):
 
 
 # Tell RQ what Redis connection to use
+<<<<<<< HEAD
 def paperdoll_enqueue(img_url,async=True):
+=======
+def paperdoll_enqueue(img_url, async=True):
+>>>>>>> e67c0a652e611e74b58200af4df9de2708be4f8e
     redis_conn = Redis()
     q = Queue('jeremyTest', connection=redis_conn)
     # q = Queue('jeremyTest', connection=redis_conn, async=False)  # not async
@@ -24,8 +29,13 @@ def paperdoll_enqueue(img_url,async=True):
     job = q.enqueue(pd.get_parse_mask, image_url=img_url)
     # job = q.enqueue(count_words_at_url, 'http://nvie.com')
     if not async:
+<<<<<<< HEAD
 	while job.result is None:
 	    time.sleep(0.5)
+=======
+        while job.result is None:
+            time.sleep(0.5)
+>>>>>>> e67c0a652e611e74b58200af4df9de2708be4f8e
     return job.result
 
 
@@ -39,10 +49,12 @@ def show_parse(filename=None, img_array=None):
         img_array = cv2.imread(filename)
     if img_array is not None:
         minVal, maxVal, minLoc, maxLoc = cv2.minMaxLoc(img_array)
+        maxVal = 31  # 31 categories in paperdoll
         scaled = np.multiply(img_array, int(255 / maxVal))
         dest = cv2.applyColorMap(scaled, cv2.COLORMAP_RAINBOW)
         cv2.imshow("dest", dest)
         cv2.waitKey(0)
+
 
         # cv2.imshow('img', img_array)
         #        cv2.waitKey(0)

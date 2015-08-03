@@ -2,6 +2,7 @@ __author__ = 'jeremy'
 import unittest
 
 import pymongo
+import bson
 
 import qcs
 import constants
@@ -22,6 +23,12 @@ class OutcomesTest(unittest.TestCase):
 
         images_entry = db.images.find_one()  # The db with multiple figs of same item
         self.assertTrue(images_entry is not None)  # make sure images collection exists
+
+    def test_from_image_URL_to_task1(self):
+        # url = 'http://static1.1.sqspcdn.com/static/f/163930/1599100/1211882974117/justinpolkey2.jpg'
+        url = 'http://i.huffpost.com/gen/1321037/thumbs/o-KATE-LANPHEAR-570.jpg'
+        retval = qcs.from_image_url_to_task1(url)
+        print(retval)
 
     def test_determine_final_bb(self):
         bb1 = [10, 20, 100, 100]
@@ -73,8 +80,68 @@ class OutcomesTest(unittest.TestCase):
         else:
             print('no people in images_entry ' + str(images_entry))
 
+    def test_get_item_by_id(self):
+        print('testing get_item_by_id')
+        item = qcs.get_item_by_id(bson.ObjectId('55b8a8b61f8c825656f14b40'))
+        print('item:' + str(item))
 
-if __name__ == '__main__':
-    unittest.main()
+    def test_get_item_and_index_by_id(self):
+        item, index = qcs.get_item_and_index_by_id(bson.ObjectId('55b8a8b61f8c825656f14b40'))
+        print('item:' + str(item))
+
+    def test_set_voting_stage(self):
+        stage = 0
+        qcs.set_voting_stage(stage, bson.ObjectId('55b8a8b61f8c825656f14b40'))
+        actual_stage = qcs.get_voting_stage(bson.ObjectId('55b8a8b61f8c825656f14b40'))
+        print('voting_stage=' + str(actual_stage))
+        self.assertTrue(stage == actual_stage)
+
+    def test_get_voting_stage(self):
+        stage = qcs.get_voting_stage(bson.ObjectId('55b8a8b61f8c825656f14b40'))
+        print('voting_stage=' + str(stage))
+        self.assertTrue(isinstance(stage, int))
+
+    def test_combine_votes(self):
+        votes_list = [[4, 5, 6], [2, 10], ['not relevant', 'not relevant'], ['not relevant', 3, 10]]
+        for votes in votes_list:
+            res = qcs.combine_votes(votes)
+            print('votes:' + str(votes) + ' res:' + str(res))
 
 
+    def test_add_results(self):
+        extant_items = ['trump', 'clinton', 'libertarian guy', 'wildcard']
+        extant_votes = [[4, 5, 6], [2, 10], ['not relevant', 'not relevant'], ['not relevant', 3, 10]]
+        new_items = ['trump', 'libertarian guy', 'clinton', 'al gore', 'wierd al yankovic']
+        new_votes = [7, 1, 'not relevant', 3, 6]
+
+        print('extant_items:' + str(extant_items))
+        print('extant_votes:' + str(extant_votes))
+        print('new items:' + str(new_items))
+        print('new votes:' + str(new_votes))
+        tot_votes, combined_items, combined_votes = qcs.add_results(extant_items, extant_votes, new_items, new_votes)
+        print('tot_votes:' + str(tot_votes))
+        print('combined items:' + str(combined_items))
+        print('combined votes:' + str(combined_votes))
+
+    # TODO add asserts here for right answers
+
+    def test_order_results(self):
+        items = ['trump', 'clinton', 'libertarian guy', 'wildcard']
+        votes = [[4, 5, 6], [2, 10], ['not relevant', 'not relevant'], ['not relevant', 3, 10]]
+        print('initial items:' + str(items))
+        print('initial votes:' + str(votes))
+        sorted_items, sorted_votes = qcs.order_results(items, votes)
+        print('ordered items:' + str(sorted_items))
+        print('ordered votes:' + str(sorted_votes))
+        self.assertTrue(sorted_items == ['wildcard', 'trump', 'clinton', 'libertarian guy'])
+        self.assertTrue(sorted_votes == [4.0, 5.0, 6.0, 'not relevant'])
+
+
+    def test_from_qc_get_votes(self):
+        item_id = bson.ObjectId('55b8a8b61f8c825656f14b40')
+        similar_items = ['a', 'b']
+        votes = [4, 3]
+        qcs.from_qc_get_votes(item_id, similar_items, votes)
+
+    if __name__ == '__main__':
+        unittest.main()

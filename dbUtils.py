@@ -539,6 +539,8 @@ def step_thru_images_db(use_visual_output=True, collection='images'):
         return {"success": 0, "error": "could not get db"}
     cursor = db.images.find()
     print('returned cursor')
+    print('n_items:' + str(cursor.count()))
+
     if cursor is None:  # make sure training collection exists
         print('couldnt get cursor ' + str(collection))
         return {"success": 0, "error": "could not get colelction"}
@@ -568,7 +570,7 @@ def step_thru_images_db(use_visual_output=True, collection='images'):
         i = i + 1
         doc = next(cursor, None)
         print('')
-        raw_input('enter key for next doc')
+        # raw_input('enter key for next doc')
     print('finished all docs')
     return {"success": 1}
 
@@ -589,6 +591,9 @@ def step_thru_training_db(use_visual_output=False):
         print('couldnt get training cursor ')
         return {"success": 0, "error": "could not get training collection"}
     print('got cursor')
+    print('n_items:' + str(cursor.count()))
+
+
     doc = next(cursor, None)
     i = 0
     while doc is not None:
@@ -927,15 +932,21 @@ def suits_for_kyle():
 # cats:[{u'shortName': u'Crewnecks & Scoopnecks', u'localizedId': u'crewneck-sweaters', u'id': u'crewneck-sweaters', u'name': u'Crewnecks & Scoopnecks'}]
 # categories:#            u'name': u'V-Neck Sweaters'}]
 
+def generate_id():
+    id = objectid.ObjectId()
+    return id
 
 if __name__ == '__main__':
     print('starting')
+    id = generate_id()
+    print('id:' + str(id))
     # show_all_bbs_in_db()
     # fix_all_bbs_in_db()
     # doc = lookfor_next_unbounded_feature_from_db_category()
     # print('doc:' + str(doc))
     # suits_for_kyle()
-    step_thru_images_db(use_visual_output=True, collection='products')
+
+    # step_thru_images_db(use_visual_output=True, collection='products')
 
     # step_thru_db(use_visual_output=True, collection='products')
     # prune_training_db(use_visual_output=False)

@@ -2,6 +2,7 @@ __author__ = 'Nadav Paz'
 
 import logging
 import random
+import copy
 
 import requests
 import pymongo
@@ -57,25 +58,46 @@ def get_item_by_id(item_id):
                            {'item': item, 'item_idx': person['items'].index(item)}
         except:
             logging.warning("No items to this person, continuing..")
+            return None, None
 
 
 def decode_task(args, vars, data):  # args(list) = person_id, vars(dict) = task, data(dict) = QC results
-    if vars["task_id"] is 'categorization':
-        from_categories_to_bb_task(data['items'], args[0])
-    elif vars["task_id"] is 'bb':
-        from_bb_to_sorting_task(data['bb'], args[0], args[1])
-        # elif vars["task_id"] is 'first_sorting':
-        # dole_out_work()
-        # else:
-        # finish_work()
-    return
+    try:
+        if vars["task_id"] is 'categorization':
+            from_categories_to_bb_task(data['items'], args[0])
+        elif vars["task_id"] is 'bb':
+            from_bb_to_sorting_task(data['bb'], args[0], args[1])
+        elif vars["task_id"] is 'sorting':
+            from_qc_get_votes(args[1], data['results'], data['votes'], vars['voting_stage'])
+    except:
+        logging.warning("callback_url is invalid")
+
+
+def set_voting_stage(n_stage, item_id):
+    image, person_dict, item_dict = get_item_by_id(item_id)
+    person_idx = person_dict['person_idx']
+    item_idx = item_dict['item_idx']
+    image['people'][person_idx]['items'][item_idx]['voting_stage'] = n_stage
+    images.replace_one({"people.items.item_id": item_id}, image)
+
+
+def get_voting_stage(item_id):
+    image, person_dict, item_dict = get_item_by_id(item_id)
+    person_idx = person_dict['person_idx']
+    item_idx = item_dict['item_idx']
+    item = image['people'][person_idx]['items'][item_idx]
+    if 'voting_stage' in item:
+        return item['voting_stage']
+    else:  # no voting stage set yet,. so set to 0
+        set_voting_stage(0, item_id)
+        return 0
 
 
 # ---------------------------------------------------------------------------------------------------------------------
 # optional data arrangements:
 # 1.  only by url: callback url -
 # "https://extremeli.trendi.guru/api/nadav/index/image_id/person_id/item_id?task_id=bounding_boxing"
-#     in this case we know how many args we have because of the type of the task (e.g item bounding_boxing => 3 args).
+# in this case we know how many args we have because of the type of the task (e.g item bounding_boxing => 3 args).
 # 1.1 maybe more efficient way is: "https://extremeli.trendi.guru/api/nadav/index/item_id?task_id=bounding_boxing"
 #     and by task_id we would know that it is an item which we activated by.
 # 2.  by task_id: create and send task_id in each kind of task. when we get a post back we search the task id in a tasks
@@ -100,15 +122,15 @@ def from_image_url_to_categorization_task(image_url):
             for face in relevance.faces:
                 x, y, w, h = face
                 person = {'face': face.tolist(), 'person_id': bson.ObjectId()}
-                copy = image.copy()
-                cv2.rectangle(copy, (x, y), (x + w, y + h), [0, 255, 0], 2)
-                person['url'] = upload_image(copy, str(person['person_id']))
+                image_copy = image.copy()
+                cv2.rectangle(image_copy, (x, y), (x + w, y + h), [0, 255, 0], 2)
+                person['url'] = upload_image(image_copy, str(person['person_id']))
                 image_dict['people'].append(person)
-                q2.enqueue(send_image_to_qc_categorization, person['url'], str(person['id']))
+                # q2.enqueue(send_image_to_qc_categorization, person['url'], str(person['id']))
         else:
             logging.warning('image is not relevant, but stored anyway..')
         images.insert(image_dict)
-        return
+        return images.find_one({'image_url': image_url})
     else:
         if image_url not in image_obj['image_urls']:
             image_obj['image_urls'].append(image_url)
@@ -157,163 +179,200 @@ def send_item_to_qc_bb(person_url, person_id, item_dict):
 def from_bb_to_sorting_task(bb, person_id, item_id):
     if len(bb) == 0:
         logging.warning("No bb found")
-        return None
     # bb = determine_final_bb(bb_list)  # Yonti's function
     image, person, item = get_item_by_id(item_id)
     fp, results, svg = find_similar_mongo.got_bb(image['image_urls'][0], person_id, item_id, bb, 100, item['category'])
     item['similar_results'] = results
     item['fingerprint'] = fp
     item['svg_url'] = svg
-    create_n_results_chunks(results, person_id, item_id)
+    dole_out_work(item_id)
     image['people'][person['person_idx']]['items'][item['item_idx']] = item
     images.replace_one({'people.person': person_id}, image)
     return
 
 
-def create_n_results_chunks(results, person_id, item_id):
+def dole_out_work(item_id):
+    """
+    dole out images. this function is the engine of the sorting process.
+    :param item_id:
+    :return:
+    """
+    voting_stage = get_voting_stage(item_id)
+    # make sure theres at least 1 worker per image
+    image, person_dict, item_dict = get_item_by_id(item_id)
+    person = person_dict['person']
+    person_idx = person_dict['person_idx']
+    item = item_dict['item']
+    item_idx = item_dict['item_idx']
+    results = image['people'][person_idx]['items'][item_idx]['similar_items']
+    assert (constants.N_workers[voting_stage] * constants.N_pics_per_worker[voting_stage] /
+            len(results) > 1)  # len similar_items instead of constants.N_top_results_to_show
+
+    if results is None:
+        logging.warning('oh man no similar items found')
+        return None
+
     results_indexer = []
-    for i in range(0, constants.N_pics_per_worker):
-        results_indexer.append(
-            np.linspace(i * constants.N_workers, (i + 1) * constants.N_workers - 1, constants.N_workers,
-                        dtype=np.uint8))
-    for i in range(0, constants.N_workers):  # divide results into chunks for N workers
-        final_image_index = min(i + constants.N_pics_per_worker - 1,
+    for i in range(0, constants.N_pics_per_worker[voting_stage]):
+        results_indexer.append(np.linspace(i * constants.N_workers[voting_stage],
+                                           (i + 1) * constants.N_workers[voting_stage] - 1,
+                                           constants.N_workers[voting_stage], dtype=np.uint8))
+    for i in range(0, constants.N_workers[voting_stage]):  # divide results into chunks for N workers
+        # I don't know what to do with this stage, seems like it is unnecessary:
+        final_image_index = min(i + constants.N_pics_per_worker[voting_stage] - 1,
                                 len(results) - 1)  # the min deals with case where there's fewer images for last worker
         indices_filter = []
         for group in results_indexer:
             indices_filter.append(group.tolist().pop(random.randint(0, len(group))))
-        chunk_of_results = [results[j] for j in indices_filter]
-        q6.enqueue(send_many_results_to_qcs, person_id, item_id, chunk_of_results)
+        chunk_of_results = [results[j]['image']['sizes']['XLarge']['url'] for j in indices_filter]
+        q4.enqueue(send_results_chunk_to_qc, person['url'], person['person_id'], item['item_id'], chunk_of_results,
+                   voting_stage)
 
 
-# QUEUE FUNC FOR FUNCTION 6
-def send_many_results_to_qcs(person_id, item_id, chunk_of_results):
-    data = {"callback_url": callback_url + '/' + person_id + '/' + item_id + '?task=sorting',
-            "person_url": person_url}
-    req = requests.post(QC_URL, data=payload)
-    return req.ok
+def send_results_chunk_to_qc(person_url, person_id, item_id, chunk, voting_stage):
+    data = {"callback_url": callback_url + '/' + person_id + '/' + item_id + '?task=sorting?&stage=' + voting_stage,
+            "person_url": person_url, 'results': chunk}
+    req = requests.post(QC_URL, data)
+    return req.status_code
 
 
-# END OF QUEUE FUNC FOR FUNCTION 6
-# END  FUNCTION 6
+# Here i am assuming I get votes in the form of a list of numbers or 'not relevant',
+# the same length as the similar_items
+def from_qc_get_votes(item_id, chunk_of_similar_items, chunk_of_votes, voting_stage):
+    image, person_dict, item_dict = get_item_by_id(item_id)
+    print('image before:' + str(image))
+    person_idx = person_dict['person_idx']
+    item_idx = item_dict['item_idx']
+    item = image['people'][person_idx]['items'][item_idx]
+    if 'votes' in item:
+        extant_votes = item['votes']
+        extant_similar_items = item['similar_items']
+    else:
+        extant_votes = []
+        extant_similar_items = []
+    tot_votes, combined_similar_items, combined_votes = \
+        add_results(extant_similar_items, extant_votes, chunk_of_similar_items, chunk_of_votes)
 
-# q7
-# q7 - receive_20s_results
-# FUNCTION 7
-# assumption
-def set_voting_stage(N_stage, item_id):
-    '''
-    this can be replaced by a different persistent storage scheme than storing
-    in the image db
-    :param N_stage:
-    :param item_id:
+    logging.debug('tot votes: ' + str(tot_votes))
+    logging.debug('comb.sim.items: ' + str(combined_similar_items))
+    logging.debug('comb.votes: ' + str(combined_votes))
+    # enough votes done already to take results and move to next stage?
+    print('votingStage: ' + str(voting_stage))
+    logging.debug('votingStage: ' + str(voting_stage))
+    enough_votes = constants.N_pics_per_worker[voting_stage] * constants.N_workers[voting_stage]
+    if tot_votes >= enough_votes:
+        combined_similar_items, combined_votes = order_results(combined_similar_items, combined_votes)
+        set_voting_stage(voting_stage + 1, item_id)
+
+    item['votes'] = combined_votes
+    item['similar_items'] = combined_similar_items
+    image['people'][person_idx]['items'][item_idx]['votes'] = item[
+        'votes']  # maybe unnecessary since item['votes'] prob writes into image
+    image['people'][person_idx]['items'][item_idx]['similar_items'] = item[
+        'similar_items']  # maybe unnecessary since item['votes'] prob writes into image
+    images.replace_one({"people.items.item_id": item_id}, image)
+    print('image written: ' + str(image))
+
+    # next voting stage instructions
+
+
+def add_results(extant_similar_items, extant_votes, new_similar_items, new_votes):
+    """
+    add in new votes to current votes, making sure to check if new votes are on things
+    already voted for, if so tack onto end of vote list
+    :param extant_similar_items: list of items like [itemA,itemB]
+    :param extant_votes:  list of vote lists like [[voteA1,voteA2],[voteB1,voteB2]]
+    :param new_similar_items:  like previous list
+    :param new_votes: flat list of votes like [voteA3,voteC3]
+    :return: new extant_votes list and similar_items list
+    """
+    assert (len(extant_similar_items) == len(extant_votes))
+    assert (len(new_similar_items) == len(new_votes))
+    # check if votes are on same items
+    modified_extant_similar_items = copy.copy(extant_similar_items)
+    modified_extant_votes = copy.copy(extant_votes)
+
+    for i in range(0, len(new_similar_items)):
+        match_flag = False
+        for j in range(0, len(extant_similar_items)):
+            if new_similar_items[i] == extant_similar_items[j]:  # got a vote for already-voted-on item
+                modified_extant_votes[j].append(new_votes[i])
+                match_flag = True
+                break
+        if match_flag is False:
+            # got a vote on a new item
+            modified_extant_similar_items.append(new_similar_items[i])
+            modified_extant_votes.append([new_votes[i]])
+
+    assert (len(modified_extant_similar_items) == len(modified_extant_votes))
+    tot_votes = 0
+    for j in range(0, len(extant_votes)):
+        tot_votes += len(extant_votes[j])
+
+    return tot_votes, modified_extant_similar_items, modified_extant_votes
+
+
+def order_results(combined_similar_items, combined_votes):
+    """
+    smush multiple votes into a single combined vote
+    :param combined_similar_items:
+    :param combined_votes:
     :return:
-    '''
-    # db_image = images.find_one({'people.items.item_id': item_id})
-    write_result = images.update({"people.items.item_id": item_id},
-                                 {"$set": {"people.items.voting_stage": N_stage}})
+    """
+    for j in range(0, len(combined_similar_items)):
+        combined_votes[j] = combine_votes(combined_votes[j])
+    sorted_votes = sorted(combined_votes)
+    # the following works but is dangerous since it sorts by tuples of [vote,item]
+    sorted_items = [item for (vote, item) in sorted(zip(combined_votes, combined_similar_items))]
+    return sorted_items, sorted_votes
 
 
-def get_voting_stage(item_id):
-    image = images.find_one({'people.items.item_id': item_id})
-    if 'voting_stage' in image['people']['items']:
-        return image['people']['items']['voting_stage']
-    else:  # no voting stage set yet,. so set to 0
-        set_voting_stage(0, item_id)
-        return 0
-
-
-def receive_votes(similar_items, voting_results):
-    got_all_votes, combined_votes = combine_results(similar_items, voting_results)
-    if got_all_votes:
-        ordered_results = order_results(combined_votes)
-        set_voting_stage(get_voting_stage() + 1)
-
-
-# if persistent_voting_stage == final_stage:
-# return top_N (or do whatever else needs to be done when voting is over)
-# otherwise:
-# dole_out_work(top_N,voting_stage=persistent_voting_stage)
-
-def combine_results(similar_items, voting_results):
-    final_20_results = None
-    image = images.find_one({'people.items.item_id': item_id})
-    for person in image['people']:
-        for item in person['items']:
-            if item['item_id'] == item_id:
-                if 'votes' in item:
-                    item['votes'].append([chunk_of_results, ratings])
-                    n_votes_so_far = len(item['votes']) / 2
-                    if n_votes_so_far >= constants.N_workers[0]:  # enough votes rec'd
-                        final_20_results = rearrange_results(item['votes'])
-                else:
-                    item['votes'] = [[chunk_of_results, ratings]]
-                # SOMEONE PLS REVIEW THE LINE BELOW - i've never used the mongodot notation before
-                write_result = images.update({"people.items.item_id": item_id},
-                                             {"$set": {"people.items.votes": item['votes']}})
-    return got_all_votes
-
-
-def persistently_store_votes(votes):
-    '''
-    a list of persistently stored dictionaries
-    we need a list (i think) since results have to be stored for more than one input image at a time
-    an alternate way to do this is to store in the image database
-    :param list:
+def combine_votes(combined_votes):
+    """
+    take multiple votes and smush into one
     :return:
-    '''
-    pass
+    """
+    # if all are numbers:
+    #        return average
+    #    if all are 'not relevant'
+    #    return 'not relevant'
+# if some are numbers and some are 'not relevant':
+#    if the majority voted not relevant:
+#        return not relevant
+#    otherwise:
+#    return average
+#    vote,
+#    with not relevant guys counted as 0 or -1 or something like that
+    not_relevant_score = -1
+    n = 0
+    sum = 0
+    non_int_flag = False
+    int_flag = False
+    if len(combined_votes) == 0:
+        logging.debug('no votes to combine')
+        return None
+    for vote in combined_votes:
+        if type(vote) is int or type(vote) is float:
+            n += 1
+            sum += vote
+            int_flag = True
+        else:
+            n += 1
+            sum += not_relevant_score
+            non_int_flag = True
+    if not int_flag:  # all non-int/float
+        return 'not relevant'
+    if not non_int_flag:  # all int/float
+        return float(sum) / n
+    return float(
+        sum) / n  # some int/float and some not-relevant, above 3 lines can be combined, but ths is clearer to me
 
-
-# def combine_results(similar_items, voting_results):
-# for similar_item in similar_items:
-#        if similar_item in persistent_votes:
-#            persistent_votes[similar_item].append(ith voting result)
-#        if there are enough votes in persistent_votes
-#            persistent_votes[similar_item] = combine_votes(persistent_votes[similar_item])
-
-def rearrange_results(votes):
-    '''
-    Take a bunch of votes. CHeck for duplicate votes (two or more dudes voting on same item).
-    Tote up all the results and send back in order
-    :param votes:
-    :return:
-    '''
-    all_results = []
-    all_ratings = []
-    for results, ratings in votes:
-        all_results = all_results.append(results)
-        all_ratings = all_ratings.append(ratings)
-
-    # combine multiple votes on same item
-    combined_results = [all_results[0]]
-    combined_ratings = [all_ratings[0]]
-    for i in range(0, len(all_results)):
-        for j in range(i + 1, all_results):
-            if all_results[i] != all_results[j]:  # different results being voted on by 2 dudes
-                combined_results = combined_results.append(all_results[j])
-                combined_ratings = combined_ratings.append(all_ratings[j])
-            else:  # same result being voted on by 2 dudes
-                combined_ratings[i] = combined_ratings[j]
-
-
-def send_many_results_to_qcs(original_image, chunk_of_results):
-    payload = {'original_image': original_image, 'results_to_sort': chunk_of_results}
-    req = requests.post(QC_URL, data=payload)
-    return req.ok
-
-# END
-
-"""
-# q8 - send_last_20
-
-# FUNCTION 8
-send_final_20_results_to_qc_in_10s(copy, final_20_results)
-# END
-
-# q9 - receive_final_results
-
-# FUNCTION 9
-final_results = get_final_results_from_qc()
-insert_final_results(item.id, final_results)
-"""
+    # # combine multiple votes on same item
+    # combined_results = [all_results[0]]
+    # for i in range(0, len(all_results)):
+    # for j in range(i + 1, all_results):
+    #         if all_results[i] != all_results[j]:  # different results being voted on by 2 dudes
+    #             combined_results = combined_results.append(all_results[j])
+    #             combined_ratings = combined_ratings.append(all_ratings[j])
+    #         else:  # same result being voted on by 2 dudes
+    #             combined_ratings[i] = combined_ratings[j]
