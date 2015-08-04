@@ -121,7 +121,7 @@ def from_image_url_to_categorization_task(image_url):
             image_dict['people'] = []
             for face in relevance.faces:
                 x, y, w, h = face
-                person = {'face': face.tolist(), 'person_id': bson.ObjectId()}
+                person = {'face': face.tolist(), 'person_id': str(bson.ObjectId())}
                 image_copy = image.copy()
                 cv2.rectangle(image_copy, (x, y), (x + w, y + h), [0, 255, 0], 2)
                 person['url'] = upload_image(image_copy, str(person['person_id']))
@@ -142,7 +142,7 @@ def from_image_url_to_categorization_task(image_url):
 
 
 def send_image_to_qc_categorization(person_url, person_id):
-    data = {"callback_url": callback_url + '/' + person_id + '?task=categorization',
+    data = {"callback_url": callback_url + '/' + person_id + '?task_id=categorization',
             "person_url": person_url}
     req = requests.post(QC_URL, data)
     return req.status_code
@@ -159,7 +159,7 @@ def from_categories_to_bb_task(items_list, person_id):
     image, person = get_person_by_id(person_id)
     person_url = person['url']
     for item in items_list:
-        item_dict = {'category': item, 'item_id': bson.ObjectId()}
+        item_dict = {'category': item, 'item_id': str(bson.ObjectId())}
         items_list.append(item_dict)
         q3.enqueue(send_item_to_qc_bb, person_url, person_id, item)
     images.update_one({'people.person_id': person_id}, {'$set': {'people.$.items': items_list}}, upsert=True)
@@ -167,7 +167,7 @@ def from_categories_to_bb_task(items_list, person_id):
 
 
 def send_item_to_qc_bb(person_url, person_id, item_dict):
-    data = {"callback_url": callback_url + '/' + person_id + '/' + item_dict['item_id'] + '?task=bb',
+    data = {"callback_url": callback_url + '/' + person_id + '/' + item_dict['item_id'] + '?task_id=bb',
             "person_url": person_url}
     req = requests.post(QC_URL, data)
     return req.status_code
@@ -230,7 +230,7 @@ def dole_out_work(item_id):
 
 
 def send_results_chunk_to_qc(person_url, person_id, item_id, chunk, voting_stage):
-    data = {"callback_url": callback_url + '/' + person_id + '/' + item_id + '?task=sorting?&stage=' + voting_stage,
+    data = {"callback_url": callback_url + '/' + person_id + '/' + item_id + '?task_id=sorting?&stage=' + voting_stage,
             "person_url": person_url, 'results': chunk}
     req = requests.post(QC_URL, data)
     return req.status_code
