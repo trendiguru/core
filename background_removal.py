@@ -104,7 +104,7 @@ def is_skin_color(face_ycrcb):
     num_of_skin_pixels = 0
     for i in range(0, h):
         for j in range(0, w):
-            if face_ycrcb[i][j][0] > 0 and 133 < face_ycrcb[i][j][1] < 173 and 80 < face_ycrcb[i][j][2] < 120:
+            if face_ycrcb[i][j][0] > 0 and 131 < face_ycrcb[i][j][1] < 180 and 80 < face_ycrcb[i][j][2] < 130:
                 num_of_skin_pixels += 1
     return num_of_skin_pixels / float(h * w) > 0.33
 
