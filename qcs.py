@@ -19,7 +19,7 @@ import Utils
 import constants
 
 
-QC_URL = 'http://www.clickworkers.com'
+QC_URL = 'https://extremeli.trendi.guru/api/fake_qc/index'
 callback_url = "https://extremeli.trendi.guru/api/nadav/index"
 db = pymongo.MongoClient().mydb
 images = pymongo.MongoClient().mydb.images
