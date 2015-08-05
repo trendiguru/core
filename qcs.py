@@ -63,6 +63,7 @@ def get_item_by_id(item_id):
 
 
 def decode_task(args, vars, data):  # args(list) = person_id, vars(dict) = task, data(dict) = QC results
+    print "Arrived to decode_task successfully!"
     try:
         if vars["task_id"] is 'categorization':
             # from_categories_to_bb_task(data['items'], args[0])
