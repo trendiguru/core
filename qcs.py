@@ -147,7 +147,7 @@ def send_image_to_qc_categorization(person_url, person_id):
     data = {"callback_url": callback_url + '/' + person_id + '?task_id=categorization',
             "person_url": person_url}
     print data
-    req = requests.post(QC_URL, json_util.loads(data))
+    req = requests.post(QC_URL, json_util.dumps(data))
     return req.status_code
 
 
@@ -172,7 +172,7 @@ def from_categories_to_bb_task(items_list, person_id):
 def send_item_to_qc_bb(person_url, person_id, item_dict):
     data = {"callback_url": callback_url + '/' + person_id + '/' + item_dict['item_id'] + '?task_id=bb',
             "person_url": person_url}
-    req = requests.post(QC_URL, json_util.loads(data))
+    req = requests.post(QC_URL, json_util.dumps(data))
     return req.status_code
 
 
