@@ -145,7 +145,8 @@ def from_image_url_to_categorization_task(image_url):
 def send_image_to_qc_categorization(person_url, person_id):
     payload = {"callback_url": callback_url + '/' + person_id + '?task_id=categorization',
                "person_url": person_url}
-    print requests.post(QC_URL, data=json_util.dumps(payload))
+    address = QC_URL + '/' + person_id + '?task_id=categorization'
+    requests.post(address, data=json_util.dumps(payload))
 
 
 # q6 - decode_task, from Web2Py
@@ -169,7 +170,8 @@ def from_categories_to_bb_task(items_list, person_id):
 def send_item_to_qc_bb(person_url, person_id, item_dict):
     payload = {"callback_url": callback_url + '/' + person_id + '/' + item_dict['item_id'] + '?task_id=bb',
                "person_url": person_url}
-    requests.post(QC_URL, data=json_util.dumps(payload))
+    address = QC_URL + '/' + person_id + '/' + item_dict['item_id'] + '?task_id=bb'
+    requests.post(address, data=json_util.dumps(payload))
 
 
 # q6 - decode_task, from Web2Py
