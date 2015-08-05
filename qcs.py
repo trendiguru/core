@@ -124,7 +124,7 @@ def from_image_url_to_categorization_task(image_url):
                 cv2.rectangle(image_copy, (x, y), (x + w, y + h), [0, 255, 0], 2)
                 person['url'] = upload_image(image_copy, str(person['person_id']))
                 image_dict['people'].append(person)
-                q2.enqueue(send_image_to_qc_categorization, person['url'], str(person['id']))
+                q2.enqueue(send_image_to_qc_categorization, person['url'], person['id'])
         else:
             logging.warning('image is not relevant, but stored anyway..')
         images.insert(image_dict)
@@ -158,9 +158,8 @@ def from_categories_to_bb_task(items_list, person_id):
     for item in items_list:
         item_dict = {'category': item, 'item_id': str(bson.ObjectId())}
         items_list.append(item_dict)
-        q3.enqueue(send_item_to_qc_bb, person_url, person_id, item)
+        # q3.enqueue(send_item_to_qc_bb, person_url, person_id, item)
     images.update_one({'people.person_id': person_id}, {'$set': {'people.$.items': items_list}}, upsert=True)
-    return
 
 
 def send_item_to_qc_bb(person_url, person_id, item_dict):
