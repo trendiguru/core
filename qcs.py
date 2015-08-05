@@ -64,8 +64,6 @@ def get_item_by_id(item_id):
 
 def decode_task(args, vars, data):  # args(list) = person_id, vars(dict) = task, data(dict) = QC results
     if vars["task_id"] == 'categorization':
-        print args[0]
-        print data["items"]
         from_categories_to_bb_task(data['items'], args[0])
     elif vars["task_id"] == 'bb':
         from_bb_to_sorting_task(data['bb'], args[0], args[1])
