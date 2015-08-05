@@ -173,6 +173,7 @@ def send_item_to_qc_bb(person_url, person_id, item_dict):
 
 
 def from_bb_to_sorting_task(bb, person_id, item_id):
+    print "Arrived to from_bb"
     if len(bb) == 0:
         logging.warning("No bb found")
     # bb = determine_final_bb(bb_list)  # Yonti's function
