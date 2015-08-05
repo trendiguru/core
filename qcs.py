@@ -3,23 +3,24 @@ __author__ = 'Nadav Paz'
 import logging
 import random
 import copy
-import requests
 
+import requests
 import pymongo
 import cv2
 import redis
 from rq import Queue
 import bson
 import numpy as np
+from bson import json_util
 
 import boto3
-
 import find_similar_mongo
 import background_removal
 import Utils
 import constants
 
-QC_URL = 'http://www.clickworkers.com'
+
+QC_URL = 'https://extremeli.trendi.guru/api/fake_qc/index'
 callback_url = "https://extremeli.trendi.guru/api/nadav/index"
 db = pymongo.MongoClient().mydb
 images = pymongo.MongoClient().mydb.images
@@ -64,7 +65,8 @@ def get_item_by_id(item_id):
 def decode_task(args, vars, data):  # args(list) = person_id, vars(dict) = task, data(dict) = QC results
     try:
         if vars["task_id"] is 'categorization':
-            from_categories_to_bb_task(data['items'], args[0])
+            # from_categories_to_bb_task(data['items'], args[0])
+            print 'Arrived to decode_task with {0}'.format(data)
         elif vars["task_id"] is 'bb':
             from_bb_to_sorting_task(data['bb'], args[0], args[1])
         elif vars["task_id"] is 'sorting':
@@ -121,16 +123,15 @@ def from_image_url_to_categorization_task(image_url):
             image_dict['people'] = []
             for face in relevance.faces:
                 x, y, w, h = face
-                person = {'face': face.tolist(), 'person_id': bson.ObjectId()}
+                person = {'face': face.tolist(), 'person_id': str(bson.ObjectId())}
                 image_copy = image.copy()
                 cv2.rectangle(image_copy, (x, y), (x + w, y + h), [0, 255, 0], 2)
                 person['url'] = upload_image(image_copy, str(person['person_id']))
                 image_dict['people'].append(person)
-                # q2.enqueue(send_image_to_qc_categorization, person['url'], str(person['id']))
+                q2.enqueue(send_image_to_qc_categorization, person['url'], str(person['id']))
         else:
             logging.warning('image is not relevant, but stored anyway..')
         images.insert(image_dict)
-        return images.find_one({'image_urls': image_url})
     else:
         if image_url not in image_obj['image_urls']:
             image_obj['image_urls'].append(image_url)
@@ -142,10 +143,10 @@ def from_image_url_to_categorization_task(image_url):
 
 
 def send_image_to_qc_categorization(person_url, person_id):
-    data = {"callback_url": callback_url + '/' + person_id + '?task=categorization',
-            "person_url": person_url}
-    req = requests.post(QC_URL, data)
-    return req.status_code
+    payload = {"callback_url": callback_url + '/' + person_id + '?task_id=categorization',
+               "person_url": person_url}
+    print payload
+    requests.post(QC_URL, data=json_util.dumps(payload))
 
 
 # q6 - decode_task, from Web2Py
@@ -159,7 +160,7 @@ def from_categories_to_bb_task(items_list, person_id):
     image, person = get_person_by_id(person_id)
     person_url = person['url']
     for item in items_list:
-        item_dict = {'category': item, 'item_id': bson.ObjectId()}
+        item_dict = {'category': item, 'item_id': str(bson.ObjectId())}
         items_list.append(item_dict)
         q3.enqueue(send_item_to_qc_bb, person_url, person_id, item)
     images.update_one({'people.person_id': person_id}, {'$set': {'people.$.items': items_list}}, upsert=True)
@@ -167,10 +168,9 @@ def from_categories_to_bb_task(items_list, person_id):
 
 
 def send_item_to_qc_bb(person_url, person_id, item_dict):
-    data = {"callback_url": callback_url + '/' + person_id + '/' + item_dict['item_id'] + '?task=bb',
-            "person_url": person_url}
-    req = requests.post(QC_URL, data)
-    return req.status_code
+    payload = {"callback_url": callback_url + '/' + person_id + '/' + item_dict['item_id'] + '?task_id=bb',
+               "person_url": person_url}
+    requests.post(QC_URL, data=json_util.dumps(payload))
 
 
 # q6 - decode_task, from Web2Py
@@ -230,7 +230,7 @@ def dole_out_work(item_id):
 
 
 def send_results_chunk_to_qc(person_url, person_id, item_id, chunk, voting_stage):
-    data = {"callback_url": callback_url + '/' + person_id + '/' + item_id + '?task=sorting?&stage=' + voting_stage,
+    data = {"callback_url": callback_url + '/' + person_id + '/' + item_id + '?task_id=sorting?&stage=' + voting_stage,
             "person_url": person_url, 'results': chunk}
     req = requests.post(QC_URL, data)
     return req.status_code
@@ -238,14 +238,9 @@ def send_results_chunk_to_qc(person_url, person_id, item_id, chunk, voting_stage
 
 # Here i am assuming I get votes in the form of a list of numbers or 'not relevant',
 # the same length as the similar_items
-# OK so assuming I can get any info I want from 'data' in send_results_chunk_to_qc,
-# the below is ok , but chunk_of_similar_similar_items will be urls
-def from_qc_get_votes(item_id, chunk_of_similar_item_urls, chunk_of_votes, voting_stage):
-    # LAZY FIX FOR BAבKWARDS COMPATIBILITY
-    chunk_of_similar_items = urls_to_items(chunk_of_similar_item_urls, item_id)
-
+def from_qc_get_votes(item_id, chunk_of_similar_items, chunk_of_votes, voting_stage):
     image, person_dict, item_dict = get_item_by_id(item_id)
-    #    print('image before:' + str(image))
+    print('image before:' + str(image))
     person_idx = person_dict['person_idx']
     item_idx = item_dict['item_idx']
     item = image['people'][person_idx]['items'][item_idx]
@@ -279,26 +274,6 @@ def from_qc_get_votes(item_id, chunk_of_similar_item_urls, chunk_of_votes, votin
     print('image written: ' + str(image))
 
     # next voting stage instructions
-
-
-def urls_to_items(chunk_of_similar_item_urls, item_id):
-    similar_items = []
-    image, person_dict, item_dict = get_item_by_id(item_id)
-    person_idx = person_dict['person_idx']
-    item_idx = item_dict['item_idx']
-    item = image['people'][person_idx]['items'][item_idx]
-    original_similar_items = item['similar_items']
-    # yes this is retarded
-    for item_url in chunk_of_similar_item_urls:
-        foundit = False
-        for similar in original_similar_items:
-            if similar['seeMoreUrl'] == item_url:  # make sure the 'seeMoreUrl' is the one the QCs are seeing
-                similar_items.append(similar)
-                foundit = True
-                break
-        if foundit == False:
-            logging.debug('couldnt find the similar item with URL ' + str(item_url))
-    return similar_items
 
 
 def add_results(extant_similar_items, extant_votes, new_similar_items, new_votes):
