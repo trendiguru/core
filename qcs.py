@@ -128,11 +128,10 @@ def from_image_url_to_categorization_task(image_url):
                 cv2.rectangle(image_copy, (x, y), (x + w, y + h), [0, 255, 0], 2)
                 person['url'] = upload_image(image_copy, str(person['person_id']))
                 image_dict['people'].append(person)
-                # q2.enqueue(send_image_to_qc_categorization, person['url'], str(person['id']))
+                q2.enqueue(send_image_to_qc_categorization, person['url'], str(person['id']))
         else:
             logging.warning('image is not relevant, but stored anyway..')
         images.insert(image_dict)
-        return images.find_one({'image_urls': image_url})
     else:
         if image_url not in image_obj['image_urls']:
             image_obj['image_urls'].append(image_url)
@@ -144,11 +143,10 @@ def from_image_url_to_categorization_task(image_url):
 
 
 def send_image_to_qc_categorization(person_url, person_id):
-    data = {"callback_url": callback_url + '/' + person_id + '?task_id=categorization',
-            "person_url": person_url}
-    print data
-    req = requests.post(QC_URL, json_util.dumps(data))
-    return req.status_code
+    payload = {"callback_url": callback_url + '/' + person_id + '?task_id=categorization',
+               "person_url": person_url}
+    print payload
+    requests.post(QC_URL, data=json_util.dumps(payload))
 
 
 # q6 - decode_task, from Web2Py
@@ -170,10 +168,9 @@ def from_categories_to_bb_task(items_list, person_id):
 
 
 def send_item_to_qc_bb(person_url, person_id, item_dict):
-    data = {"callback_url": callback_url + '/' + person_id + '/' + item_dict['item_id'] + '?task_id=bb',
-            "person_url": person_url}
-    req = requests.post(QC_URL, json_util.dumps(data))
-    return req.status_code
+    payload = {"callback_url": callback_url + '/' + person_id + '/' + item_dict['item_id'] + '?task_id=bb',
+               "person_url": person_url}
+    requests.post(QC_URL, data=json_util.dumps(payload))
 
 
 # q6 - decode_task, from Web2Py
