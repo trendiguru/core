@@ -156,11 +156,12 @@ def from_categories_to_bb_task(items_list, person_id):
     # items = category_tree.CatNode.determine_final_categories(items_list) # sergey's function
     image, person = get_person_by_id(person_id)
     person_url = person['url']
+    items = []
     for item in items_list:
         item_dict = {'category': item, 'item_id': str(bson.ObjectId())}
-        items_list.append(item_dict)
+        items.append(item_dict)
         # q3.enqueue(send_item_to_qc_bb, person_url, person_id, item)
-    images.update_one({'people.person_id': person_id}, {'$set': {'people.$.items': items_list}}, upsert=True)
+    images.update_one({'people.person_id': person_id}, {'$set': {'people.$.items': items}}, upsert=True)
 
 
 def send_item_to_qc_bb(person_url, person_id, item_dict):
