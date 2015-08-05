@@ -97,9 +97,6 @@ def get_voting_stage(item_id):
         return 0
 
 
-def stam():
-    print "stam"
-
 # ---------------------------------------------------------------------------------------------------------------------
 # optional data arrangements:
 # 1.  only by url: callback url -
