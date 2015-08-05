@@ -145,8 +145,7 @@ def from_image_url_to_categorization_task(image_url):
 def send_image_to_qc_categorization(person_url, person_id):
     payload = {"callback_url": callback_url + '/' + person_id + '?task_id=categorization',
                "person_url": person_url}
-    print payload
-    requests.post(QC_URL, data=json_util.dumps(payload))
+    print requests.post(QC_URL, data=json_util.dumps(payload))
 
 
 # q6 - decode_task, from Web2Py
