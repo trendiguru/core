@@ -63,16 +63,12 @@ def get_item_by_id(item_id):
 
 
 def decode_task(args, vars, data):  # args(list) = person_id, vars(dict) = task, data(dict) = QC results
-    try:
-        if vars["task_id"] is 'categorization':
-            # from_categories_to_bb_task(data['items'], args[0])
-            print 'Arrived to decode_task with {0}'.format(data)
-        elif vars["task_id"] is 'bb':
-            from_bb_to_sorting_task(data['bb'], args[0], args[1])
-        elif vars["task_id"] is 'sorting':
-            from_qc_get_votes(args[1], data['results'], data['votes'], vars['voting_stage'])
-    except:
-        logging.warning("callback_url is invalid")
+    if vars["task_id"] == 'categorization':
+        from_categories_to_bb_task(data['items'], args[0])
+    elif vars["task_id"] == 'bb':
+        from_bb_to_sorting_task(data['bb'], args[0], args[1])
+    elif vars["task_id"] == 'sorting':
+        from_qc_get_votes(args[1], data['results'], data['votes'], vars['voting_stage'])
 
 
 def set_voting_stage(n_stage, item_id):
@@ -128,7 +124,7 @@ def from_image_url_to_categorization_task(image_url):
                 cv2.rectangle(image_copy, (x, y), (x + w, y + h), [0, 255, 0], 2)
                 person['url'] = upload_image(image_copy, str(person['person_id']))
                 image_dict['people'].append(person)
-                q2.enqueue(send_image_to_qc_categorization, person['url'], str(person['id']))
+                q2.enqueue(send_image_to_qc_categorization, person['url'], person['person_id'])
         else:
             logging.warning('image is not relevant, but stored anyway..')
         images.insert(image_dict)
@@ -145,38 +141,41 @@ def from_image_url_to_categorization_task(image_url):
 def send_image_to_qc_categorization(person_url, person_id):
     payload = {"callback_url": callback_url + '/' + person_id + '?task_id=categorization',
                "person_url": person_url}
-    print payload
-    requests.post(QC_URL, data=json_util.dumps(payload))
+    address = QC_URL + '/' + person_id + '?task_id=categorization'
+    requests.post(address, data=json_util.dumps(payload))
 
 
 # q6 - decode_task, from Web2Py
 
 
 def from_categories_to_bb_task(items_list, person_id):
+    print "Arrived to 'from_categories'"
     if len(items_list) == 0:
         logging.warning("No items in items' list!")
         return None
     # items = category_tree.CatNode.determine_final_categories(items_list) # sergey's function
     image, person = get_person_by_id(person_id)
     person_url = person['url']
+    items = []
     for item in items_list:
         item_dict = {'category': item, 'item_id': str(bson.ObjectId())}
-        items_list.append(item_dict)
-        q3.enqueue(send_item_to_qc_bb, person_url, person_id, item)
-    images.update_one({'people.person_id': person_id}, {'$set': {'people.$.items': items_list}}, upsert=True)
-    return
+        items.append(item_dict)
+        q3.enqueue(send_item_to_qc_bb, person_url, person_id, item_dict)
+    images.update_one({'people.person_id': person_id}, {'$set': {'people.$.items': items}}, upsert=True)
 
 
 def send_item_to_qc_bb(person_url, person_id, item_dict):
     payload = {"callback_url": callback_url + '/' + person_id + '/' + item_dict['item_id'] + '?task_id=bb',
-               "person_url": person_url}
-    requests.post(QC_URL, data=json_util.dumps(payload))
+               "category": item_dict['category'], "person_url": person_url}
+    address = QC_URL + '/' + person_id + '/' + item_dict['item_id'] + '?task_id=bb'
+    requests.post(address, data=json_util.dumps(payload))
 
 
 # q6 - decode_task, from Web2Py
 
 
 def from_bb_to_sorting_task(bb, person_id, item_id):
+    print "Arrived to 'from_bb' successfully! :) "
     if len(bb) == 0:
         logging.warning("No bb found")
     # bb = determine_final_bb(bb_list)  # Yonti's function
@@ -185,10 +184,10 @@ def from_bb_to_sorting_task(bb, person_id, item_id):
     item['similar_results'] = results
     item['fingerprint'] = fp
     item['svg_url'] = svg
-    dole_out_work(item_id)
+    # dole_out_work(item_id)
     image['people'][person['person_idx']]['items'][item['item_idx']] = item
     images.replace_one({'people.person': person_id}, image)
-    return
+    print "Done!"
 
 
 def dole_out_work(item_id):
