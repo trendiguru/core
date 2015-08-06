@@ -9,8 +9,10 @@ import urllib
 import warnings
 import collections
 import pymongo
+from qcs import upload_image
 
-
+# image is a structure for upload new tree function:
+Image = collections.namedtuple("image", ["location", "url"])
 # Bucket is a structure for answers classification ("key" - group id, "content" -
 # all answers that relate to this group).
 Bucket = collections.namedtuple("Bucket", ["key", "content"])
@@ -443,11 +445,11 @@ class CatNode(object):
         name = dir_url.split("/")[-1]
         try:
             status = urllib.urlretrieve(dir_url, name)
-            # TODO: Use status variable to check the state of downloaded image
             img = cv2.imread(name, 0)
             # Resizing of an image:
             img = cv2.resize(img, (60, 60))
-            cv2.imwrite(destination_dir + "\\" + name, img)
+            # cv2.imwrite(destination_dir + "\\" + name, img)
+            upload_image(img, name, destination_dir)
             try:
                 os.remove(name)
             except:
@@ -494,11 +496,19 @@ class CatNode(object):
     @staticmethod
     def push_url(node, url, stack):
         if url != node.image[:-len(url)]:
-            stack.append(node.image)
+            stack.append(Image(location=node, url=node.image))
 
     @staticmethod
-    def upload_new_tree(json_url, right_url):
-
+    def upload_new_tree(json_url, right_url, download_function, destination):
+        """ The function obtains url to json tree, downloads it, checks it correctness,
+        if the obtainable tree is correct update it.
+        :param json_url: link to the json tree
+        :param right_url: linc to the place where all tree's images must be located.
+        :param download_function: The problem is that the download functions are not ideal, not
+                universal to all cases. Therefore i decided to receive a download function as parameter.
+        :param destination: url, the place where new images will be saved.
+        :return: new, updated tree.
+        """
         # Check if json tree exists:
         try:
             urllib.urlretrieve(json_url, "input_json.txt")
@@ -515,14 +525,23 @@ class CatNode(object):
         # Check if each branch from root to leafs in the json tree has got a head node:
         cat_tree = CatNode.from_str(json_tree)
         for subtree in cat_tree:
+            CatNode.cat_tree = subtree
             if not subtree.check_tree():
                 raise Exception("S: Exists branch without 'head' node!!!")
         new_urls_list = []
-        cat_tree.apply_to_all_nodes(CatNode.push_url, right_url, new_urls_list)
-        if len(new_urls_list) > 0:
-            for url in new_urls_list:
-                print ""
-                # CatNode.download_image(url,destination_dir=????????)
+        for subtree in cat_tree:
+            # CatNode.cat_tree = subtree
+            subtree.apply_to_all_nodes(CatNode.push_url, right_url, new_urls_list)
+            if len(new_urls_list) > 0:
+                for img_tup in new_urls_list:
+                    # if node.image is only name => this image is already placed in bucket,
+                    # that means we will not download it.
+                    if not CatNode.is_only_name(img_tup.url):
+                        if download_function(img_tup.url, destination):
+                            img_tup.location.image = right_url + CatNode.get_name(img_tup.url)
+                        else:
+                            logging.warning("S: The image " + img_tup.url + " was not downloaded")
+        return cat_tree
 
     #  ------------------ block_of_find_right_answer_functions ---------------------------
     @staticmethod
@@ -806,6 +825,7 @@ class CatNode(object):
         and returns it.
         :return: CatNode tree.
         """
+        # if cat_tree is not created:
         if CatNode.cat_tree is None:
             db = pymongo.MongoClient().mydb
             tree_dict = db.globals.find_one({"_id": "tg_globals"})["category_tree_dict"]
@@ -837,7 +857,6 @@ class CatNode(object):
                     __scan_for_head__(child, leafs)
         leafs = []
         __scan_for_head__(self, leafs)
-        print "-----------------------------"
         print leafs
         print [CatNode.head(node.id) for node in leafs]
         for node in leafs:
