@@ -165,6 +165,7 @@ def from_categories_to_bb_task(items_list, person_id):
 
 
 def send_item_to_qc_bb(person_url, person_id, item_dict):
+    print "Arrived to send_item!"
     payload = {"callback_url": callback_url + '/' + person_id + '/' + item_dict['item_id'] + '?task_id=bb',
                "category": item_dict['category'], "person_url": person_url}
     address = QC_URL + '/' + person_id + '/' + item_dict['item_id'] + '?task_id=bb'
