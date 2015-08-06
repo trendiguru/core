@@ -32,8 +32,6 @@ def get_parse_from_matlab(image_filename):
     return mask, label_names, pose
 
 
-
-
 def get_parse_mask(image_url=None, image_filename=None):
     if image_filename is not None:  # copy file to 'inputimg.jpg'
         subprocess.Popen("cp " + image_filename + " inputimg.jpg", shell=True, stdout=subprocess.PIPE).stdout.read()
