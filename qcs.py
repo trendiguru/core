@@ -166,7 +166,7 @@ def from_categories_to_bb_task(items_list, person_id):
 
 def send_item_to_qc_bb(person_url, person_id, item_dict):
     payload = {"callback_url": callback_url + '/' + person_id + '/' + item_dict['item_id'] + '?task_id=bb',
-               "person_url": person_url}
+               "category": item_dict['category'], "person_url": person_url}
     address = QC_URL + '/' + person_id + '/' + item_dict['item_id'] + '?task_id=bb'
     requests.post(address, data=json_util.dumps(payload))
 
@@ -187,6 +187,7 @@ def from_bb_to_sorting_task(bb, person_id, item_id):
     # dole_out_work(item_id)
     image['people'][person['person_idx']]['items'][item['item_idx']] = item
     images.replace_one({'people.person': person_id}, image)
+    print "Done!"
 
 
 def dole_out_work(item_id):
