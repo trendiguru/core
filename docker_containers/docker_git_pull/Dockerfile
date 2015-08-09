@@ -21,8 +21,8 @@ RUN adduser testuser
 
 ENV HOME /home/testuser
 # add custom ssh config / keys to the root user
+#ADD ssh/ /root/.ssh/
 ADD ssh/ /home/testuser/.ssh/
-ADD ssh/ /root/.ssh/
 
 #turn off asking 'are you sure' on first ssh connect
 #this is supposed to be taken care of by the keyscan but isn't , perhaps because this
@@ -30,21 +30,19 @@ ADD ssh/ /root/.ssh/
 ADD ssh/ssh_config /etc/ssh/ssh_config
 
 # Fixes permission if needed
+#RUN chmod 600 /root/.ssh/*
 RUN chmod 600 /home/testuser/.ssh/*
-RUN chmod 600 /root/.ssh/*
 
 # Avoid first connection host confirmation
 #changed port since i don't think bitbucket supports it
 #RUN ssh-keyscan -p2200 bitbucket.com > /root/.ssh/known_hosts
 #To improve security, the ssh-keyscan should be run outside the container to fix the known_hosts file once for all.
 #RUN ssh-keyscan  -p2200 bitbucket.com > /home/testuser/.ssh/known_hosts
+#RUN ssh-keyscan  bitbucket.com > /root/.ssh/known_hosts
 RUN ssh-keyscan  bitbucket.com > /home/testuser/.ssh/known_hosts
-RUN ssh-keyscan  bitbucket.com > /root/.ssh/known_hosts
 
 RUN mkdir /home/testuser/tg
 RUN mkdir /home/testuser/tg/Dev
-WORKDIR /root
-RUN ls .ssh
 WORKDIR /home/testuser/tg/Dev
 
 
