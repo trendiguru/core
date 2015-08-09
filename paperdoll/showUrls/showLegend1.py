@@ -7,13 +7,10 @@ import matplotlib.pyplot as plt
 
 img_array = cv2.imread('talkingmakeup.com_pics_news3_miller4.png')
 
-s_mat=numpy.full(( img_array.shape[0],  img_array.shape[1]), 200)
+s_mat=numpy.float64(numpy.full(( img_array.shape[0],  img_array.shape[1]), 200))
 v_mat=s_mat
-h_mat= img_array[:,:,0]
-h_mat=h_mat*180/h_mat.max()
-h_mat=numpy.float64(h_mat)
-s_mat=numpy.float64(s_mat)
-v_mat=numpy.float64(v_mat)
+h_mat= numpy.float64(img_array[:,:,0])
+h_mat=h_mat*180./h_mat.max()
 
 hsv_mat=cv2.merge((h_mat,s_mat,v_mat))
 hsv_mat=numpy.uint8(hsv_mat)
@@ -26,7 +23,7 @@ flat_hue=img_array[:,:,0].ravel()
 for i in set(flat_hue):
     pix=numpy.uint8(numpy.asarray([[[i*180/flat_hue.max(),200,200]]]))	
     bgr_color = cv2.cvtColor(pix, cv2.COLOR_HSV2BGR)
-    bgr_color=bgr_color/200.
+    bgr_color=bgr_color/255.
     bgr_color=bgr_color[0][0]
     plt.plot(0,0, color=bgr_color, label=labels.keys()[labels.values().index(i)], linewidth=4) #labels.values()
 
