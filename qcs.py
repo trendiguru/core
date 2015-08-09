@@ -183,6 +183,7 @@ def from_bb_to_sorting_task(bb, person_id, item_id):
     # bb = determine_final_bb(bb_list)  # Yonti's function
     image, person, item = get_item_by_id(item_id)
     fp, results, svg = find_similar_mongo.got_bb(image['image_urls'][0], person_id, item_id, bb, 100, item['category'])
+    item['bb'] = bb
     item['similar_results'] = results
     item['fingerprint'] = fp
     item['svg_url'] = svg
