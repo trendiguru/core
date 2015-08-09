@@ -14,6 +14,7 @@ import subprocess
 import shutil
 import requests
 import time
+import numpy as np
 
 import matlab.engine
 
@@ -55,6 +56,13 @@ def get_parse_mask(image_url=None, image_filename=None):
     return mask, label_dict, pose
 
 
+def show_max(parsed_img, labels):
+    maxpixval = np.ma.max
+    print('max pix val:' + str(maxpixval))
+    maxlabelval = len(labels)
+    print('max label val:' + str(maxlabelval))
+
+
 def test_scp():
     subprocess.Popen("scp -i ~/first_aws.pem  img.jpg ubuntu@extremeli.trendi.guru:img777.jpg", shell=True,
                      stdout=subprocess.PIPE).stdout.read()
@@ -62,8 +70,9 @@ def test_scp():
 # os.system("scp -i ~/first_aws.pem  img.jpg ubuntu@extremeli.trendi.guru:.")
 
 if __name__ == "__main__":
-    get_parse_mask('img.jpg')
-
+    img, labels, pose = get_parse_mask('img.jpg')
+    show_max(img, labels)
+    show_parse(img_array=img)
 
 # import matlab.engine
 # eng = matlab.engine.start_matlab("nodisplay")
