@@ -32,6 +32,4 @@ for i in set(flat_hue):
 
 plt.imshow(bgr_image)
 plt.legend(bbox_to_anchor=(1.5, 1), borderaxespad=0.)
-plt.show()	
-
-
+plt.show()
