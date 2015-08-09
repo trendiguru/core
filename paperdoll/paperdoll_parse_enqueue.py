@@ -1,10 +1,10 @@
 import requests
 import time
+import numpy as np
 
 from rq import Queue
 from redis import Redis
 import cv2
-import numpy as np
 
 import pd
 
@@ -55,3 +55,16 @@ def show_parse(filename=None, img_array=None):
         #    modified_name=stripped_name.replace('/','_')
 
         # enqueue()
+
+
+def show_max(parsed_img, labels):
+    maxpixval = np.ma.max
+    print('max pix val:' + str(maxpixval))
+    maxlabelval = len(labels)
+    print('max label val:' + str(maxlabelval))
+
+
+if __name__ == "__main__":
+    img, labels, pose = paperdoll_enqueue('image.jpg', async=False)
+    show_max(img, labels)
+    show_parse(img_array=img)

@@ -24,24 +24,20 @@ class OutcomesTest(unittest.TestCase):
         images_entry = db.images.find_one()  # The db with multiple figs of same item
         self.assertTrue(images_entry is not None)  # make sure images collection exists
 
-    def test_from_image_URL_to_task1(self):
-        # url = 'http://static1.1.sqspcdn.com/static/f/163930/1599100/1211882974117/justinpolkey2.jpg'
-        url = 'http://i.huffpost.com/gen/1321037/thumbs/o-KATE-LANPHEAR-570.jpg'
-        retval = qcs.from_image_url_to_task1(url)
-        print(retval)
 
-    def test_determine_final_bb(self):
-        bb1 = [10, 20, 100, 100]
-        bb2 = [10, 20, 1, 2]
-        bb3 = [10, 20, 102, 104]
-        bb4 = [10, 20, 20, 30]
-        bb_list = [bb1, bb2, bb3, bb4]
-        final_bb = qcs.determine_final_bb(bb_list)
-        print('final bb:' + str(final_bb))
-        self.assertTrue(final_bb[0] == 10)
-        self.assertTrue(final_bb[1] == 20)
-        self.assertTrue(final_bb[2] == 101)
-        self.assertTrue(final_bb[3] == 102)
+    # TODO  - change to test other code that's doing this
+    # def test_determine_final_bb(self):
+    # bb1 = [10, 20, 100, 100]
+    # bb2 = [10, 20, 1, 2]
+    # bb3 = [10, 20, 102, 104]
+    #        bb4 = [10, 20, 20, 30]
+    #        bb_list = [bb1, bb2, bb3, bb4]
+    #        final_bb = qcs.determine_final_bb(bb_list)
+    #        print('final bb:' + str(final_bb))
+    #        self.assertTrue(final_bb[0] == 10)
+    #        self.assertTrue(final_bb[1] == 20)
+    #        self.assertTrue(final_bb[2] == 101)
+    #        self.assertTrue(final_bb[3] == 102)
 
     def test_at_least_one_vote_per_image(self):
         # N_bb_votes_required = 2
@@ -55,7 +51,7 @@ class OutcomesTest(unittest.TestCase):
             n_votes = constants.N_workers[i] * constants.N_pics_per_worker[i]
             n_votes_per_picture = n_votes / constants.N_top_results_to_show[i]
             print('n_votes:' + str(n_votes) + ', votes per picture:' + str(n_votes_per_picture) + '\n')
-            self.assertTrue(n_votes_per_picture > 1)
+            self.assertTrue(n_votes_per_picture >= 1)
 
     def test_get_voting_stage(self):
         db = pymongo.MongoClient().mydb
@@ -82,12 +78,11 @@ class OutcomesTest(unittest.TestCase):
 
     def test_get_item_by_id(self):
         print('testing get_item_by_id')
-        item = qcs.get_item_by_id(bson.ObjectId('55b8a8b61f8c825656f14b40'))
+        image, item, person = qcs.get_item_by_id(bson.ObjectId('55b8a8b61f8c825656f14b40'))
         print('item:' + str(item))
+        print('image:' + str(item))
+        print('person:' + str(item))
 
-    def test_get_item_and_index_by_id(self):
-        item, index = qcs.get_item_and_index_by_id(bson.ObjectId('55b8a8b61f8c825656f14b40'))
-        print('item:' + str(item))
 
     def test_set_voting_stage(self):
         stage = 0
@@ -142,7 +137,9 @@ class OutcomesTest(unittest.TestCase):
         item_id = bson.ObjectId('55b8a8b61f8c825656f14b40')
         similar_items = ['a', 'b']
         votes = [4, 3]
-        qcs.from_qc_get_votes(item_id, similar_items, votes)
+        voting_stage = 1
+        qcs.from_qc_get_votes(item_id, similar_items, votes, voting_stage)
 
     if __name__ == '__main__':
         unittest.main()
+
