@@ -55,8 +55,9 @@ def get_item_by_id(item_id):
         try:
             for item in person['items']:
                 if item['item_id'] == item_id:
-                    return image, {'person': person, 'person_idx': image['people'].index(person)}, \
-                           {'item': item, 'item_idx': person['items'].index(item)}
+                    person["person_idx"] = image['people'].index(person)
+                    item["item_idx"] = person['items'].index(item)
+                    return image, person, item
         except:
             logging.warning("No items to this person, continuing..")
             return None, None
