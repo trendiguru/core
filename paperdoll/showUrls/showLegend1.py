@@ -5,7 +5,8 @@ import numpy
 import pickle
 import matplotlib.pyplot as plt
 
-img_array = cv2.imread('talkingmakeup.com_pics_news3_miller4.png')
+
+img_array = cv2.imread('static.gofugyourself.com_uploads_2014_08_halle-berry-emmys-2014-454167512.png')
 
 s_mat=numpy.float64(numpy.full(( img_array.shape[0],  img_array.shape[1]), 200))
 v_mat=s_mat
@@ -16,7 +17,7 @@ hsv_mat=cv2.merge((h_mat,s_mat,v_mat))
 hsv_mat=numpy.uint8(hsv_mat)
 bgr_image = cv2.cvtColor(hsv_mat, cv2.COLOR_HSV2BGR)
 
-labels=pickle.load( open( "talkingmakeup.com_pics_news3_miller4.lbls", "rb" ) )
+labels=pickle.load( open( "static.gofugyourself.com_uploads_2014_08_halle-berry-emmys-2014-454167512.lbls", "rb" ) )
 
 flat_hue=img_array[:,:,0].ravel()
 
@@ -29,6 +30,6 @@ for i in set(flat_hue):
 
 plt.imshow(bgr_image)
 plt.legend(bbox_to_anchor=(1.5, 1), borderaxespad=0.)
-plt.show()	
+plt.show()
 
 
