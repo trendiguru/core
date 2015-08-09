@@ -189,7 +189,8 @@ def from_bb_to_sorting_task(bb, person_id, item_id):
     item['svg_url'] = svg
     # dole_out_work(item_id)
     image['people'][person['person_idx']]['items'][item['item_idx']] = item
-    images.replace_one({'people.person': person_id}, image)
+    image.pop('_id')
+    images.replace_one({'image_urls': {'$in': image['image_urls']}}, image)
     print "Done!"
 
 
