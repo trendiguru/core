@@ -55,8 +55,8 @@ def get_parse_mask(image_url=None, image_filename=None):
     mask, label_names, pose = get_parse_from_matlab(modified_name)
     print('labels:' + str(label_names))
     label_dict = dict(zip(label_names, range(0, len(label_names))))
-    mask_np = np.array(mask)
-    pose_np = np.array(pose)
+    mask_np = np.array(mask, dtype=np.uint8)
+    pose_np = np.array(pose, dtype=np.uint8)
     return mask_np, label_dict, pose_np
 
 
