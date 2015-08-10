@@ -77,6 +77,7 @@ def set_voting_stage(n_stage, item_id):
     person_idx = person_dict['person_idx']
     item_idx = item_dict['item_idx']
     image['people'][person_idx]['items'][item_idx]['voting_stage'] = n_stage
+    image.pop('_id')
     images.replace_one({"people.items.item_id": item_id}, image)
 
 
@@ -278,8 +279,8 @@ def from_qc_get_votes(item_id, chunk_of_similar_items, chunk_of_votes, voting_st
     #    images.replace_one({'image_urls': {'$in': image['image_urls']}}, image)
 
     image.pop('_id')
-    #    images.replace_one({"people.items.item_id": item_id}, image)
-    images.replace_one({'image_urls': {'$in': image['image_urls']}}, image)
+    images.replace_one({"people.items.item_id": item_id}, image)
+    # images.replace_one({'image_urls': {'$in': image['image_urls']}}, image)
 
     print('image written: ' + str(image))
 
