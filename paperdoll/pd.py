@@ -74,7 +74,7 @@ def test_scp():
 if __name__ == "__main__":
     img, labels, pose = get_parse_mask('img.jpg')
     show_max(img, labels)
-    show_parse(img_array=img)
+    #show_parse(img_array=img)
 
 # import matlab.engine
 # eng = matlab.engine.start_matlab("nodisplay")
