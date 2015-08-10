@@ -3,17 +3,17 @@ __author__ = 'Nadav Paz'
 import logging
 import random
 import copy
-
 import requests
+import numpy as np
+
 import pymongo
 import cv2
 import redis
 from rq import Queue
 import bson
-import numpy as np
 from bson import json_util
-
 import boto3
+
 import find_similar_mongo
 import background_removal
 import Utils
@@ -273,10 +273,17 @@ def from_qc_get_votes(item_id, chunk_of_similar_items, chunk_of_votes, voting_st
         'votes']  # maybe unnecessary since item['votes'] prob writes into image
     image['people'][person_idx]['items'][item_idx]['similar_items'] = item[
         'similar_items']  # maybe unnecessary since item['votes'] prob writes into image
-    images.replace_one({"people.items.item_id": item_id}, image)
+
+    # image.pop('_id')
+    #    images.replace_one({'image_urls': {'$in': image['image_urls']}}, image)
+
+    image.pop('_id')
+    #    images.replace_one({"people.items.item_id": item_id}, image)
+    images.replace_one({'image_urls': {'$in': image['image_urls']}}, image)
+
     print('image written: ' + str(image))
 
-    # next voting stage instructions
+    # next oting stage instructions
 
 
 def add_results(extant_similar_items, extant_votes, new_similar_items, new_votes):

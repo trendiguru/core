@@ -140,6 +140,7 @@ class OutcomesTest(unittest.TestCase):
         voting_stage = 1
         qcs.from_qc_get_votes(item_id, similar_items, votes, voting_stage)
 
-    if __name__ == '__main__':
-        unittest.main()
+
+if __name__ == '__main__':
+    unittest.main()
 
