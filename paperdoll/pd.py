@@ -36,7 +36,7 @@ def get_parse_from_matlab(image_filename):
 def get_parse_mask(image_url=None, image_filename=None):
     if image_filename is not None:  # copy file to 'inputimg.jpg'
         subprocess.Popen("cp " + image_filename + " inputimg.jpg", shell=True, stdout=subprocess.PIPE).stdout.read()
-        time.sleep(50)  # give some time for file to write
+        time.sleep(0.05)  # give some time for file to write
         get_parse_from_matlab(image_filename)
         return
     response = requests.get(image_url, stream=True)
