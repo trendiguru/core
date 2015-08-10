@@ -108,9 +108,9 @@ def show_parse(filename, img_array=None):
 #        scaled = numpy.multiply(img_array, int(1000/ maxVal))
 #        dest = cv2.applyColorMap(scaled, cv2.COLORMAP_RAINBOW)
 #        cv2.imshow("dest", dest)
-        dest = showLegend(filename)
-        Col_name='Col'+filename
-        cv2.imwrite(Col_name, dest)
+        showLegend(filename)
+#        Col_name='Col'+filename
+#        cv2.imwrite(Col_name, dest)
 #       cv2.imshow('pd' ,dest)
 #        cv2.waitKey(100)
     else:
@@ -133,6 +133,8 @@ def showLegend(filename, img_array=None):
 
     flat_hue=img_array[:,:,0].ravel()
 
+
+
     for i in set(flat_hue):
         pix=numpy.uint8(numpy.asarray([[[i*180/flat_hue.max(),200,200]]]))
         bgr_color = cv2.cvtColor(pix, cv2.COLOR_HSV2BGR)
@@ -142,7 +144,10 @@ def showLegend(filename, img_array=None):
 
     plt.imshow(bgr_image)
     plt.legend(bbox_to_anchor=(1.5, 1), borderaxespad=0.)
-
+ #   p = plt.figure()
+  #  plt.savefig(p, format='png')
+    Col_name='Col'+filename
+    plt.savefig(Col_name)
     return
 
 if __name__ == '__main__':
