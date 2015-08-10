@@ -13,6 +13,7 @@ __author__ = 'jeremy'
 import subprocess
 import shutil
 import time
+
 import numpy as np
 
 import requests
@@ -54,8 +55,9 @@ def get_parse_mask(image_url=None, image_filename=None):
     mask, label_names, pose = get_parse_from_matlab(modified_name)
     print('labels:' + str(label_names))
     label_dict = dict(zip(label_names, range(0, len(label_names))))
-
-    return mask, label_dict, pose
+    mask_np = np.array(mask)
+    pose_np = np.array(pose)
+    return mask_np, label_dict, pose_np
 
 
 def show_max(parsed_img, labels):
