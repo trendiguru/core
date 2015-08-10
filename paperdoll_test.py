@@ -12,7 +12,8 @@ import background_removal
 
 def color_paperdoll_mask(paperdoll_mask):
     items_list = np.unique(paperdoll_mask)
-    color_mask = np.zeros(np.shape(paperdoll_mask), np.uint8)
+    shape = tuple(list(np.shape(paperdoll_mask)).append(3))
+    color_mask = np.zeros(shape, np.uint8)
     for item in items_list:
         for k in range(0, 3):
             color_mask[:, :, k] = color_mask[:, :, k] + random.randint(0, 255) * np.array(
