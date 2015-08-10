@@ -13,9 +13,7 @@ __author__ = 'jeremy'
 import subprocess
 import shutil
 import time
-
 import numpy as np
-
 import requests
 
 import matlab.engine
@@ -38,14 +36,14 @@ def get_parse_from_matlab(image_filename):
 def get_parse_mask(image_url=None, image_filename=None):
     if image_filename is not None:  # copy file to 'inputimg.jpg'
         subprocess.Popen("cp " + image_filename + " inputimg.jpg", shell=True, stdout=subprocess.PIPE).stdout.read()
-        time.sleep(50)  # give some time for file to write
+        time.sleep(0.05)  # give some time for file to write
         get_parse_from_matlab(image_filename)
         return
     response = requests.get(image_url, stream=True)
     with open('inputimg.jpg', 'wb') as out_file:
         shutil.copyfileobj(response.raw, out_file)
     del response
-    time.sleep(50)  # give some time for file to write
+    time.sleep(0.1)  # give some time for file to write
     # img_array = imdecode(np.asarray(bytearray(response.content)), 1)
     stripped_name = image_url.split('//')[1]
     modified_name = stripped_name.replace('/', '_')
@@ -76,7 +74,7 @@ def test_scp():
 if __name__ == "__main__":
     img, labels, pose = get_parse_mask('img.jpg')
     show_max(img, labels)
-    show_parse(img_array=img)
+    #show_parse(img_array=img)
 
 # import matlab.engine
 # eng = matlab.engine.start_matlab("nodisplay")
