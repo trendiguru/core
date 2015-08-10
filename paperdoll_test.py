@@ -23,6 +23,8 @@ def color_paperdoll_mask(paperdoll_mask):
 def pd_test(image_url):
     image = Utils.get_cv2_img_array(image_url)
     mask, labels, pose = paperdoll.paperdoll_parse_enqueue.paperdoll_enqueue(image_url, async=False)
+    cv2.imshow('image', image)
+    cv2.imshow('color_mask', color_paperdoll_mask(mask))
     label_list = []
     for num in np.unique(mask):
         # convert numbers to labels
@@ -30,9 +32,8 @@ def pd_test(image_url):
         label_list.append(category)
         # item_mask = 2*np.ones(np.shape(mask)[:2], np.uint8) - 1*np.array(mask[:, :, 0] == item, dtype=np.uint8)
         # item_image = background_removal.simple_mask_grabcut(image, item_mask)
-        item_mask = np.zeros(np.shape(mask)[:2], np.uint8) + np.array(mask[:, :, 0] == num, dtype=np.uint8)
+        item_mask = np.zeros(np.shape(mask), np.uint8) + np.array(mask == num, dtype=np.uint8)
         item_image = background_removal.get_masked_image(image, item_mask)
-        cv2.imshow('image', image)
         cv2.imshow(category + "'s image", item_image)
         cv2.imshow(category + "'s mask", 255 * item_mask / num)
         cv2.waitKey(0)
