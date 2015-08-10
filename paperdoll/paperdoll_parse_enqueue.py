@@ -1,10 +1,10 @@
-import time
-
 import requests
+import time
+import numpy as np
+
 from rq import Queue
 from redis import Redis
 import cv2
-import numpy as np
 
 
 def count_words_at_url(url):
@@ -21,7 +21,7 @@ def paperdoll_enqueue(img_url, async=True):
     # q = Queue(connection=redis_conn)  # no args implies the default queue
 
 # Delay execution of count_words_at_url('http://nvie.com')
-    job = q.enqueue("pd.get_parse_mask", image_url=img_url)
+    job = q.enqueue('pd.get_parse_mask', image_url=img_url)
     # job = q.enqueue(count_words_at_url, 'http://nvie.com')
     if not async:
         while job.result is None:
@@ -53,3 +53,17 @@ def show_parse(filename=None, img_array=None):
         #    modified_name=stripped_name.replace('/','_')
 
         # enqueue()
+
+
+def show_max(parsed_img, labels):
+    maxpixval = np.ma.max
+    print('max pix val:' + str(maxpixval))
+    maxlabelval = len(labels)
+    print('max label val:' + str(maxlabelval))
+
+
+if __name__ == "__main__":
+    url = 'http://i.imgur.com/ahFOgkm.jpg'
+    img, labels, pose = paperdoll_enqueue(url, async=False)
+    show_max(img, labels)
+    show_parse(img_array=img)
