@@ -39,4 +39,4 @@ def pd_test(image_url):
         cv2.imshow(category + "'s image", item_image)
         cv2.imshow(category + "'s mask", 255 * item_mask / num)
         cv2.waitKey(0)
-    cv2.destroyAllWindows()
+        cv2.destroyAllWindows()
