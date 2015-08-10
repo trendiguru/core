@@ -12,8 +12,9 @@ __author__ = 'jeremy'
 
 import subprocess
 import shutil
-import requests
 import time
+
+import requests
 
 import matlab.engine
 
@@ -52,6 +53,7 @@ def get_parse_mask(image_url=None, image_filename=None):
     mask, label_names, pose = get_parse_from_matlab(modified_name)
     print('labels:' + str(label_names))
     label_dict = dict(zip(label_names, range(0, len(label_names))))
+
     return mask, label_dict, pose
 
 
