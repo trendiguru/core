@@ -27,7 +27,6 @@ def pd_test(image_url):
     mask, labels, pose = paperdoll.paperdoll_parse_enqueue.paperdoll_enqueue(image_url, async=False)
     cv2.imshow('image', image)
     cv2.imshow('color_mask', color_paperdoll_mask(mask))
-    cv2.waitKey(0)
     label_list = []
     for num in np.unique(mask):
         # convert numbers to labels
@@ -40,5 +39,4 @@ def pd_test(image_url):
         cv2.imshow(category + "'s image", item_image)
         cv2.imshow(category + "'s mask", 255 * item_mask / num)
         cv2.waitKey(0)
-        cv2.destroyAllWindows()
-
+    cv2.destroyAllWindows()
