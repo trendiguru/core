@@ -2,6 +2,12 @@ __author__ = 'sergey'
 import unittest
 import json
 from collections import Counter
+import os
+import shutil
+import pprint
+
+import requests
+import cv2
 
 from category_tree import CatNode
 
@@ -11,12 +17,13 @@ List of functions that not necessary to check:
 - print_c_node
 - dict_is_suitable
 - __repr__
+- upload_new_tree
 """
 # -----------
 """
 List of untested unctions:
 - download_image
-- upload_new_tree
+- push_url
 """
 
 
@@ -1071,6 +1078,67 @@ class TddCatNode(unittest.TestCase):
         }
     ]
 }"""
+        self.json_str4 = """ {
+    "categories": [
+        {
+            "name": "Men",
+            "description": "Men's clothing and accessories",
+            "image": "https://d336s8nt4p00c3.cloudfront.net/tags/de/res/60/10210.1.png",
+            "children": [
+                {
+                    "name": "Men's clothing",
+                    "description": "All men's clothing",
+                    "image": "https://s3.eu-central-1.amazonaws.com/fashion-category-images/name",
+                    "children": [
+                        {
+                            "name": "tops",
+                            "image": "https://d336s8nt4p00c3.cloudfront.net/tags/de/res/60/10493.1.png",
+                            "tg_cat": "mens-sweaters",
+                            "children": [
+                                {
+                                    "name": "sweaters",
+                                    "description": "knitted garment worn on upper body",
+                                    "image": "https://s3.eu-central-1.amazonaws.com/fashion-category-images/name",
+                                    "children": [
+                                        {
+                                            "description": "knitted garment worn on upper body",
+                                            "image": "https://d336s8nt4p00c3.cloudfront.net/tags/de/res/60/10430.1.png",
+                                            "name": "style/opening",
+                                            "children": [
+                                                {
+                                                    "name": "cardigan",
+                                                    "description": "front opening",
+                                                    "image": "https://d336s8nt4p00c3.cloudfront.net/tags/de/res/60/10488.1.png"
+                                                },
+                                                {
+                                                    "name": "pullover",
+                                                    "description": "no front opening",
+                                                    "image": "https://s3.eu-central-1.amazonaws.com/fashion-category-images/name"
+                                                }
+                                            ]
+                                        },
+                                        {
+                                            "name": "neckline",
+                                            "image": "https://s3.eu-central-1.amazonaws.com/fashion-category-images/name",
+                                            "description": "shape of the sweater at the neck/chest",
+                                            "children": [
+                                                {
+                                                    "name": "turtle",
+                                                    "description": "covered neck",
+                                                    "image": "https://s3.eu-central-1.amazonaws.com/fashion-category-images/name"
+                                                }
+                                            ]
+                                        }
+                                    ]
+                                }
+                            ]
+                        }
+                    ]
+                }
+            ]
+        }
+    ]
+} """
 
     # ---Block_of_tests_to_standard_CatNode_functions--- #
 
@@ -1314,30 +1382,6 @@ class TddCatNode(unittest.TestCase):
         self.assertFalse(CatNode.cat_tree.check_tree())
 
     def test_upload_new_tree(self):
-        # def dwl_image(dir_url, destination):
-        #     """
-        #     THIS IS A TEMPORARY FUNCTION!!!!!!!:
-        #     The function saves image from dir-url, in case if the url does not exists
-        #     function will return false otherwise function will return True
-        #     :param dir_url: urs from which the function will take the image
-        #     :param destination_dir: directory where to save the image
-        #     :return: boolean value
-        #     """
-        #     name = dir_url.split("/")[-1]
-        #     try:
-        #         status = urllib2.urlretrieve(dir_url, name)
-        #         img = CatNode.cv2.imread(name, 0)
-        #         # Resizing of an image:
-        #         img = CatNode.cv2.resize(img, (60, 60))
-        #         CatNode.cv2.imwrite(destination+"/"+name, img)
-        #         print "downloaded"
-        #         try:
-        #             CatNode.os.remove(name)
-        #         except: pass
-        #     except: return False
-        #     return True
-        import requests
-        import os
 
         def name_from_url(url):
             return os.path.basename(url.split('?')[0])
@@ -1354,20 +1398,49 @@ class TddCatNode(unittest.TestCase):
                         for chunk in result.iter_content():
                             f.write(chunk)
                     f.close()
-                    # img = CatNode.cv2.imread(name, 0)
-                    # CatNode.cv2.imwrite(destination_dir, img)
-                    print "downloaded"
-
+                    img = cv2.imread(name, cv2.CV_LOAD_IMAGE_COLOR)
+                    cv2.imwrite(destination_dir + "//" + name, img)
+                    os.remove(name)
             except:
                 return False
             return True
 
         if not os.path.exists("temp_folder"):
             os.makedirs("temp_folder")
-        CatNode.upload_new_tree("https://s3.eu-central-1.amazonaws.com/fashion-category-images/input.json",
-                                "https://s3.eu-central-1.amazonaws.com/fashion-category-images/", _download_image,
-                                "C:\Users\sergey\PycharmProjects\\bitbucket_projects\core\\temp_folder")
-        # CatNode.os.remove("temp_folder")
+        js_tree = self.json_str4
+        CatNode.__upload_new_tree__(js_tree,
+                                    "https://s3.eu-central-1.amazonaws.com/fashion-category-images/", _download_image,
+                                    "C:\Users\sergey\PycharmProjects\\bitbucket_projects\core\\temp_folder")
+        self.assertEqual(len(os.listdir("temp_folder")), 4)
+        shutil.rmtree("temp_folder")
+
+    def test_determine_final_categories(self):
+        CatNode.reset_id()
+        CatNode.cat_tree = None
+        tree = CatNode.get_tree()
+        print type(tree)
+        tree_dict = {}
+        tree.to_struct(tree_dict)
+        pprint.pprint(tree_dict)
+        print "run"
+        print CatNode.cat_tree.id
+        print CatNode.id
+        print "the answer is :"
+        print CatNode.determine_final_categories([[178, 251, 217, 139, 138, 252, 1, 67, 257, 34, 56, 212, 56, 34, 45,
+                                                   23, 45, 67, 89, 90, 45],
+                                                  [12, 179, 216, 138, 252, 251, 345, 34, 256, 211, 26, 23, 45, 56, 18,
+                                                   23],
+                                                  [2, 180, 138, 215, 3, 4, 251, 252, 56, 212, 78, 258, 9, 87,
+                                                   45, 6, 7, 8, 35]])
+        print CatNode.head(138)
+        print CatNode.head(139)
+        print CatNode.head(140)
+        print "the answer is:"
+        """ Here is a problem in find by id functtion!!!"""
+        print CatNode.cat_tree.find_by_id(140)
+        print CatNode.cat_tree.find_by_id(139)
+        print CatNode.cat_tree.find_by_id(140)
+
 
 # ---Block_of_upload_new_tree------------------------------------------------#
 

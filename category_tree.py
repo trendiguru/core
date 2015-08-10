@@ -112,6 +112,10 @@ class CatNode(object):
         cls.id += 1
         return cls.id
 
+    @classmethod
+    def reset_id(cls):
+        cls.id = 0
+
     def print_c_node(self):
         """
         The function prints all the attributes of the current tree.
@@ -350,10 +354,10 @@ class CatNode(object):
         tree_dict["name"] = str(self.name)
         tree_dict["description"] = str(self.description)
         tree_dict["level"] = self.level
-        tree_dict["id"] = self.id + 10000
+        tree_dict["id"] = self.id  # + 10000
         tree_dict["head"] = self.head
         if self.parent:
-            tree_dict["parent"] = self.parent.id + 10000
+            tree_dict["parent"] = self.parent.id  # + 10000
         else:
             tree_dict["parent"] = 0
         tree_dict["image"] = str(self.image)
@@ -492,10 +496,10 @@ class CatNode(object):
                     # Mark that current url isn't valid:
                     node.image = "???????????????????????"
 
-    # ---Block_of_upload_new_tree------------------------------------------------#
+    # ---Block_of_upload/edit_new_tree------------------------------------------------#
     @staticmethod
     def push_url(node, url, stack):
-        if url != node.image[:-len(url)]:
+        if url != node.image[:len(url)]:
             stack.append(Image(location=node, url=node.image))
 
     @staticmethod
@@ -513,15 +517,19 @@ class CatNode(object):
         try:
             urllib.urlretrieve(json_url, "input_json.txt")
             with open("input_json.txt", "r") as f:
-                # Check if a json tree is valid (valid javaScript structure):
-                try:
-                    json_tree = f.read()
-                    py_tree = json.loads(json_tree)
-                except:
-                    raise Exception("S: json is not valid!!!")
+                json_tree = f.read()
+                return CatNode.__upload_new_tree__(json_tree, right_url, download_function, destination)
                 f.close()
         except:
             raise Exception("S: Json file was not found!!!")
+
+    @staticmethod
+    def __upload_new_tree__(json_tree, right_url, download_function, destination):
+        # Check if a json tree is valid (valid javaScript structure):
+        try:
+            py_tree = json.loads(json_tree)
+        except:
+            raise Exception("S: json is not valid!!!")
         # Check if each branch from root to leafs in the json tree has got a head node:
         cat_tree = CatNode.from_str(json_tree)
         for subtree in cat_tree:
@@ -530,7 +538,6 @@ class CatNode(object):
                 raise Exception("S: Exists branch without 'head' node!!!")
         new_urls_list = []
         for subtree in cat_tree:
-            # CatNode.cat_tree = subtree
             subtree.apply_to_all_nodes(CatNode.push_url, right_url, new_urls_list)
             if len(new_urls_list) > 0:
                 for img_tup in new_urls_list:
@@ -620,8 +627,9 @@ class CatNode(object):
             for id in ans_list:
                 if CatNode.head(id) == buck.key:
                     buck.content.append(id)
-        print ans_mat
+
         ans_mat = check_ans(ans_mat)
+        print "ans_matrix:" + str(ans_mat)
         # find the longest answer-list:
         # TODO: check if matrix is not empty!!!
         max_list = min(ans_mat, key=lambda ans_list: len(ans_list))
@@ -640,8 +648,9 @@ class CatNode(object):
         right_ans_list = []
         for bucket in bucket_list:
             if len(bucket.content) > 2:
-                print bucket
+                print "bucket" + str(bucket)
                 right_ans_list.append(CatNode.cat_tree.find_ans(bucket.content))
+        print "right answers list: " + str(right_ans_list)
         return right_ans_list
 
     def find_ans(self, nodes_list):
@@ -829,6 +838,7 @@ class CatNode(object):
         if CatNode.cat_tree is None:
             db = pymongo.MongoClient().mydb
             tree_dict = db.globals.find_one({"_id": "tg_globals"})["category_tree_dict"]
+            # pprint.pprint(tree_dict)
             # build root:
             c_tree = CatNode()
             c_tree.name = "categories"  # or will it be better call "root"?
@@ -857,8 +867,8 @@ class CatNode(object):
                     __scan_for_head__(child, leafs)
         leafs = []
         __scan_for_head__(self, leafs)
-        print leafs
-        print [CatNode.head(node.id) for node in leafs]
+        # print leafs
+        #print [CatNode.head(node.id) for node in leafs]
         for node in leafs:
             if CatNode.head(node.id) is None:
                 print "here"
