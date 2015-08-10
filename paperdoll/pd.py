@@ -13,9 +13,7 @@ __author__ = 'jeremy'
 import subprocess
 import shutil
 import time
-
 import numpy as np
-
 import requests
 
 import matlab.engine
@@ -45,7 +43,7 @@ def get_parse_mask(image_url=None, image_filename=None):
     with open('inputimg.jpg', 'wb') as out_file:
         shutil.copyfileobj(response.raw, out_file)
     del response
-    time.sleep(50)  # give some time for file to write
+    time.sleep(0.1)  # give some time for file to write
     # img_array = imdecode(np.asarray(bytearray(response.content)), 1)
     stripped_name = image_url.split('//')[1]
     modified_name = stripped_name.replace('/', '_')
