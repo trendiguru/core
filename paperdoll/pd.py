@@ -10,6 +10,8 @@ __author__ = 'jeremy'
 # paperdoll run from matlab - this needs to run on server that
 # has matlab running w. opencv3 , which is currently 'mightili.trendi.guru'
 
+# testing a change
+
 import subprocess
 import shutil
 import time
