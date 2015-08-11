@@ -30,7 +30,7 @@ def pd_test(image_url):
     label_list = []
     for num in np.unique(mask):
         # convert numbers to labels
-        category = list(labels.keys())[list(labels.values()).index(num)]
+        category = list(labels.keys())[list(labels.values()).index(num) - 1]
         label_list.append(category)
         # item_mask = 2*np.ones(np.shape(mask)[:2], np.uint8) - 1*np.array(mask[:, :, 0] == item, dtype=np.uint8)
         # item_image = background_removal.simple_mask_grabcut(image, item_mask)
