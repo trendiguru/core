@@ -135,6 +135,8 @@ def find_images(description):
                                                                        word_in_description=description,
                                                                        db=db)
 
+        no_face_count = 0
+        face_count = 0
         if mdoc is not None and 'doc' in mdoc:
             print('not none')
             doc = mdoc['doc']
@@ -155,16 +157,18 @@ def find_images(description):
             print('relevance:' + str(relevance))
             rel = relevance.is_relevant
             if rel == False:
+                no_face_count += 1
                 print('relevant')
                 fname = os.path.join('netanel', description)
                 fname = os.path.join(fname, 'noface')
                 Utils.ensure_dir(fname)
-                fname = os.path.join(fname, str(i) + '.jpg')
+                fname = os.path.join(fname, str(no_face_count) + '.jpg')
             else:
+                face_count += 1
                 print('not relevant')
                 fname = os.path.join('netanel', description)
                 Utils.ensure_dir(fname)
-                fname = os.path.join(description, str(i) + '.jpg')
+                fname = os.path.join(description, str(face_count) + '.jpg')
             print('writing ' + str(fname))
             cv2.imwrite(fname, img_arr)
 
