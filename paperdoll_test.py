@@ -41,6 +41,6 @@ def pd_test(image_url):
             cv2.imshow(category + "'s gc image", item_image_gc)
             # cv2.imshow(category + "'s mask", 255 * item_mask / num)
             cv2.waitKey(0)
-            cv2.destroyWindow(category + "'s image")
+            cv2.destroyWindow(category + "'s image (" + str(num) + ')')
             cv2.destroyWindow(category + "'s gc image")
     cv2.destroyAllWindows()
