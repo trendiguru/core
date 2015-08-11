@@ -330,6 +330,5 @@ def simple_mask_grabcut(image, mask):
     return detected_image
 
 
-
 if __name__ == '__main__':
     print('starting')
