@@ -17,13 +17,13 @@ List of functions that not necessary to check:
 - print_c_node
 - dict_is_suitable
 - __repr__
-- upload_new_tree
 """
 # -----------
 """
 List of untested unctions:
 - download_image
 - push_url
+- upload_new_tree
 """
 
 
@@ -1375,6 +1375,7 @@ class TddCatNode(unittest.TestCase):
             self.assertEqual(child["image"][:-len(CatNode.get_name(child["image"]))],
                              "https://s3.eu-central-1.amazonaws.com/fashion-category-images/")
 
+    # ------------------ block_of_find_right_answer_functions ---------------------------
     def test_head(self):
         CatNode.cat_tree = CatNode(**self.tree_dict6)
         self.assertTrue(CatNode.cat_tree.check_tree())
@@ -1414,63 +1415,76 @@ class TddCatNode(unittest.TestCase):
         self.assertEqual(len(os.listdir("temp_folder")), 4)
         shutil.rmtree("temp_folder")
 
+    def test_find_ans(self):
+        CatNode.reset_id()
+        tree = CatNode(**self.tree_dict6)
+        print type(tree.find_ans([34, 35]).id)
+        self.assertEqual(tree.find_ans([34, 35]).id, 33)
+        self.assertEqual(tree.find_ans([]).id, 1)
+        self.assertEqual(tree.find_ans([29, 29]).id, 29)
+        self.assertEqual(tree.find_ans([72, 70]).id, 57)
+        self.assertEqual(tree.find_ans([75, 74, 70, 71]).id, 57)
+        self.assertEqual(tree.find_ans([69, 69, 69]).id, 69)
+        self.assertEqual(tree.find_ans([36, 35, 43, 42, 72, 74, 69]).id, 2)
+        self.assertEqual(tree.find_ans([35]).id, 1)
+        self.assertEqual(tree.find_ans([72, 72, 72, 72, 43, 43, 43, 43]).id, 1)
+        self.assertEqual(tree.find_ans([75, 75, 75]).id, 75)
+        self.assertEqual(tree.find_ans([72, 75, 74, 70, 71]).id, 72)
+
+    def test_build_bucket(self):
+        CatNode.reset_id()
+        tree = CatNode(**self.tree_dict6)
+        CatNode.cat_tree = tree
+        self.assertEqual(CatNode.build_bucket(69).key, 69)
+        self.assertEqual(CatNode.build_bucket(71).key, 69)
+        self.assertEqual(CatNode.build_bucket(51), None)
+        self.assertEqual(CatNode.build_bucket(59).key, 58)
+        self.assertEqual(CatNode.build_bucket(40).key, 39)
+        self.assertEqual(CatNode.build_bucket(1), None)
+
+    def test_check_ans(self):
+        CatNode.reset_id()
+        tree = CatNode(**self.tree_dict6)
+        CatNode.cat_tree = tree
+        res_mat = CatNode.check_ans([[70, 71, 19999, "as", 57], [63, 62, -8], [59, 58, 60, 40, 39]])
+        self.assertEqual(res_mat[0][0], 71)
+        self.assertEqual(res_mat[1][0], 63)
+        self.assertEqual(res_mat[2][0], 60)
+        self.assertEqual(res_mat[2][1], 39)
+
+    def test_push_to_bucket(self):
+        CatNode.reset_id()
+        tree = CatNode(**self.tree_dict6)
+        CatNode.cat_tree = tree
+        b = CatNode.build_bucket(33)
+        CatNode.push_to_bucket(b, [34, 35, 36])
+        self.assertEqual(b.content, [33, 34, 35, 36])
+        CatNode.push_to_bucket(b, [-234, 74])
+        self.assertEqual(b.content, [33, 34, 35, 36])
+
     def test_determine_final_categories(self):
         CatNode.reset_id()
-        CatNode.cat_tree = None
-        tree = CatNode.get_tree()
-        print type(tree)
+        tree = CatNode(**self.tree_dict6)
+        CatNode.cat_tree = tree
+        self.assertEqual(CatNode.determine_final_categories([[1, 73, 70, 59, 60, -5, 39],
+                                                             [1, 74, 71, 59, 60, -3, 39],
+                                                             [1, 75, 71, 60, 60, "be", 39]]), ['60', '71', '39'])
+
+    def test_root(self):
+        tree = CatNode(**self.tree_dict6)
+        self.assertEqual(tree.root().name, "Men")
+
+    def test_common_root(self):
+        CatNode.reset_id()
+        tree = CatNode(**self.tree_dict6)
+        CatNode.cat_tree = tree
         tree_dict = {}
         tree.to_struct(tree_dict)
         pprint.pprint(tree_dict)
-        print "run"
-        print CatNode.cat_tree.id
-        print CatNode.id
-        print "the answer is :"
-        print CatNode.determine_final_categories([[178, 251, 217, 139, 138, 252, 1, 67, 257, 34, 56, 212, 56, 34, 45,
-                                                   23, 45, 67, 89, 90, 45],
-                                                  [12, 179, 216, 138, 252, 251, 345, 34, 256, 211, 26, 23, 45, 56, 18,
-                                                   23],
-                                                  [2, 180, 138, 215, 3, 4, 251, 252, 56, 212, 78, 258, 9, 87,
-                                                   45, 6, 7, 8, 35]])
-        print CatNode.head(138)
-        print CatNode.head(139)
-        print CatNode.head(140)
-        print "the answer is:"
-        """ Here is a problem in find by id functtion!!!"""
-        print CatNode.cat_tree.find_by_id(140)
-        print CatNode.cat_tree.find_by_id(139)
-        print CatNode.cat_tree.find_by_id(140)
-
+        print tree.common_root([])
 
 # ---Block_of_upload_new_tree------------------------------------------------#
 
 if __name__ == '__main__':
     CatNode.get_tree()
     unittest.main()
-    #
-    # for subtree in root:
-    #     subtree.complicate()
-    #     subtree.apply_to_all_node(CatNode.update_url, "https://s3.eu-central-1.amazonaws.com/fashion-category-images/", ["www","wwww","wwwww"])
-    # print len(root)
-    # pprint.pprint(CatNode.full_tree_to_js(root))
-    # f = open("C:\Users\sergey\Desktop\work\js.txt", "w")
-    # f.write(CatNode.full_tree_to_js(root))
-    # f.close()
-
-
-
-
-
-    # print "here0000000000"
-    # print CatNode.head(5441)
-    # tree_dict = {}
-    # tree.to_struct(tree_dict)
-    # print tree.size()
-    # pprint.pprint(tree_dict)
-    # print CatNode.head(4)
-    # print "answer:"
-    # print CatNode.determine_final_categories([[178, 251, 217, 252, 138, 1, 67, 257, 34, 56, 212, 56, 34, 45, 23, 45, 67, 89, 90, 45],
-    #                                       [12, 179, 216, 138, 252, 251, 345, 34, 256, 211, 26, 23, 45, 56, 18, 23],
-    #                                       [2,180, 138, 215, 3, 4, 251, 252, 56, 212, 78, 258, 9, 87, 45, 6, 7, 8, 35]])
-    # print tree.check_tree()
-    # print CatNode.cat_tree

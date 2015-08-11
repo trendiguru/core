@@ -525,6 +525,15 @@ class CatNode(object):
 
     @staticmethod
     def __upload_new_tree__(json_tree, right_url, download_function, destination):
+        """
+        This function is a second part of upload_new_tree function. All description about its works
+        is placed in upload_new_tree function's description.
+        :param json_tree: tree_structured json string.
+        :param right_url:
+        :param download_function:
+        :param destination:
+        :return:
+        """
         # Check if a json tree is valid (valid javaScript structure):
         try:
             py_tree = json.loads(json_tree)
@@ -556,7 +565,7 @@ class CatNode(object):
         """
         The function obtains a node id, and searches for name of "head node"
         :param id: CatNode id (string)
-        :return: name of "head node" (string)
+        :return: id of "head node" (string)
         """
         current = CatNode.cat_tree.find_by_id(id)
         # find a head node:
@@ -565,7 +574,60 @@ class CatNode(object):
         # If id wasn't suitable:
         if not current:
             return None
-        return current.name
+        return current.id
+
+    @staticmethod
+    def check_ans(ans_mat):
+        """
+        The function obtains list of answer-lists ("answers-matrix") and checks each answer.
+        If some answer is not completed or duplicated (only in list) => function will clear it from ans_mat.
+        :param ans_mat: matrix of strings (CatNode id-s).
+        :return: None
+        """
+        res_mat = []
+        # remove nodes if their tree branch doesn't contain "head node"
+        for ans_list in ans_mat:
+            for id in reversed(ans_list):
+                if CatNode.head(id) is None:
+                    ans_list.remove(id)
+        # to leave only one id per one head:
+        for ans_list in ans_mat:
+            right_nodes_dict = {}
+            for id in ans_list:
+                right_nodes_dict[CatNode.head(id)] = id
+            res_mat.append(right_nodes_dict.values())
+            #  res_mat.append({head(id), id for id in ans_list}.values())
+        return res_mat
+
+    @staticmethod
+    def build_bucket(id):
+        """
+        The function obtains answer (CatNode id) and builds bucket:
+        bucket(key = "head" of the "branch" to which relates CatNode, CatNode)
+        We can create bucket from id only if in a tree branch to which id belong presents only one CatNode that
+        has got an attribute head == True.
+        :param id: CatNode id.
+        :return: bucket.
+        """
+        key = CatNode.head(id)
+        if key is not None:
+            buck = Bucket(key=key, content=[id])
+            return buck
+        logging.warning("error S: a bucket was not created!!!")
+        return None
+
+    @staticmethod
+    def push_to_bucket(buck, ans_list):
+        """
+        The function obtains bucket, ans_list of CatNode id-s and pops from an answers
+        list only a suitable id-s to the bucket.
+        :param buck: bucket.
+        :param ans_list: ans_list.
+        :return: None.
+        """
+        for id in ans_list:
+            if CatNode.head(id) == buck.key:
+                buck.content.append(id)
 
     @staticmethod
     def determine_final_categories(ans_mat):
@@ -580,76 +642,28 @@ class CatNode(object):
         :param ans_mat: matrix of strings (CatNode id-s).
         :return:list of strings (CatNode id-s).
         """
-        def check_ans(ans_mat):
-            """
-            The function obtains list of answer-lists ("answers-matrix") and checks each answer.
-            If some answer is not completed or duplicated (only in list) => function will clear it from ans_mat.
-            :param ans_mat: matrix of strings (CatNode id-s).
-            :return: None
-            """
-            res_mat = []
-            # remove nodes if their tree branch doesn't contain "head node"
-            for ans_list in ans_mat:
-                for id in reversed(ans_list):
-                    if CatNode.head(id) is None:
-                        ans_list.remove(id)
-            # to leave only one id per one head:
-            for ans_list in ans_mat:
-                right_nodes_dict = {}
-                for id in ans_list:
-                    right_nodes_dict[CatNode.head(id)] = id
-                res_mat.append(right_nodes_dict.values())
-                #res_mat.append({head(id), id for id in ans_list}.values())
-            return res_mat
-
-        def build_bucket(id):
-            """
-            The function obtains answer (CatNode id) and builds bucket:
-            bucket(key = "head" of the "branch" to which relates CatNode, CatNode)
-            We can create bucket from id only if in a tree branch to which id belong present only one CatNode that
-            has got an attribute head == True.
-            :param id: CatNode id.
-            :return: bucket.
-            """
-            key = CatNode.head(id)
-            buck = Bucket(key=key, content=[id])  #  TODO: CHECK IT OUT only when i
-            # define out from the class a single variable of Bucket class and name
-            return buck
-
-        def pop_to_bucket(buck, ans_list):
-            """
-            The function obtains bucket, ans_list of CatNode id-s and pops from an answers
-            list only a suitable id-s to the bucket.
-            :param buck: bucket.
-            :param ans_list: ans_list.
-            :return: None.
-            """
-            for id in ans_list:
-                if CatNode.head(id) == buck.key:
-                    buck.content.append(id)
-
-        ans_mat = check_ans(ans_mat)
+        ans_mat = CatNode.check_ans(ans_mat)
         print "ans_matrix:" + str(ans_mat)
         # find the longest answer-list:
         # TODO: check if matrix is not empty!!!
         max_list = min(ans_mat, key=lambda ans_list: len(ans_list))
-        bucket_list = [build_bucket(node) for node in max_list]
+        bucket_list = [CatNode.build_bucket(node) for node in max_list]
         # Remove the processed list:
         ans_mat.remove(max_list)
         for ans_list in ans_mat:
             for bucket in bucket_list:
-                pop_to_bucket(bucket, ans_list)
+                CatNode.push_to_bucket(bucket, ans_list)
             # if after separation of ans_list elements ans_list is not empty
             # that means that we have not created all buckets! therefore create another buckets:
             if ans_list:
                 for node in ans_list:
-                    bucket_list.append(build_bucket(node))
+                    bucket_list.append(CatNode.build_bucket(node))
         # for each suitable bucket find answer:
         right_ans_list = []
         for bucket in bucket_list:
             if len(bucket.content) > 2:
                 print "bucket" + str(bucket)
-                right_ans_list.append(CatNode.cat_tree.find_ans(bucket.content))
+                right_ans_list.append(str(CatNode.cat_tree.find_ans(bucket.content)))
         print "right answers list: " + str(right_ans_list)
         return right_ans_list
 
