@@ -97,6 +97,23 @@ def htmlRes():
         outfile.write('</table>')
         outfile.close()
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 def show_parse(filename, img_array=None):
 
     if filename is not None:
@@ -117,6 +134,7 @@ def show_parse(filename, img_array=None):
 	print('oops, file '+filename+' not found')
 
 def showLegend(filename, img_array=None):
+
     img_array = cv2.imread(filename)
 
     s_mat=numpy.float64(numpy.full(( img_array.shape[0], img_array.shape[1]), 200))
@@ -146,8 +164,10 @@ def showLegend(filename, img_array=None):
     plt.legend(bbox_to_anchor=(1.5, 1), borderaxespad=0.)
  #   p = plt.figure()
   #  plt.savefig(p, format='png')
-    Col_name='Col'+filename ##
-    plt.savefig(Col_name)
+
+    Leg_name='Leg'+filename
+    print type(Leg_name)
+    plt.savefig(Leg_name)
     return
 
 if __name__ == '__main__':
