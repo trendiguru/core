@@ -37,7 +37,7 @@ def pd_test(image_url):
             item_image = background_removal.get_masked_image(image, item_mask)
             item_mask_gc = 2 * np.ones(np.shape(mask), np.uint8) - 1 * np.array(mask == num, dtype=np.uint8)
             item_image_gc = background_removal.simple_mask_grabcut(image, item_mask_gc)
-            cv2.imshow(category + "'s image (" + num + ')', item_image)
+            cv2.imshow(category + "'s image (" + str(num) + ')', item_image)
             cv2.imshow(category + "'s gc image", item_image_gc)
             # cv2.imshow(category + "'s mask", 255 * item_mask / num)
             cv2.waitKey(0)
