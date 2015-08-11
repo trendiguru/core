@@ -127,6 +127,8 @@ def x1y1x2y2_to_bb(x1y1x2y2):
 def find_images(description):
     print('starting to find ' + str(description))
     db = pymongo.MongoClient().mydb
+    no_face_count = 0
+    face_count = 0
     for i in range(0, 10500):
         mdoc = dbUtils.lookfor_next_unbounded_feature_from_db_category(current_item=i, skip_if_marked_to_skip=True,
                                                                        which_to_show='showAll',
@@ -135,8 +137,6 @@ def find_images(description):
                                                                        word_in_description=description,
                                                                        db=db)
 
-        no_face_count = 0
-        face_count = 0
         if mdoc is not None and 'doc' in mdoc:
             print('not none')
             doc = mdoc['doc']
