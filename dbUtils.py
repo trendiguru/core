@@ -738,7 +738,7 @@ def lookfor_next_unbounded_feature_from_db_category(current_item=0, skip_if_mark
                                                     category_id=None, word_in_description=None, db=None):
     # {"id":"v-neck-sweaters"}  coats
     # query_doc = {"categories": {"shortName":"V-Necks"}}
-
+    print('looking, ftype=' + str(filter_type))
     if db is None:
         db = pymongo.MongoClient().mydb
     if db is None:

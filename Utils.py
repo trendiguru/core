@@ -540,9 +540,12 @@ def ensure_dir(f):
     :param f: file or directory name
     :return: no return val, creates dir if it doesnt exist
     '''
-    d = os.path.dirname(f)
-    if not os.path.exists(d):
-        os.makedirs(d)
+    print('f:' + f)
+    # d = os.path.dirname(f)
+    if not os.path.exists(f):
+        #        print('d:'+str(d))
+
+        os.makedirs(f)
 
 def immediate_subdirs(dir):
     '''
