@@ -146,7 +146,7 @@ def showLegend(filename, img_array=None):
     plt.legend(bbox_to_anchor=(1.5, 1), borderaxespad=0.)
  #   p = plt.figure()
   #  plt.savefig(p, format='png')
-    Col_name='Col'+filename
+    Col_name='Col'+filename #
     plt.savefig(Col_name)
     return
 
