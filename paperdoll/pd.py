@@ -10,11 +10,13 @@ __author__ = 'jeremy'
 # paperdoll run from matlab - this needs to run on server that
 # has matlab running w. opencv3 , which is currently 'mightili.trendi.guru'
 
+# testing a change #2
+
 import subprocess
 import shutil
-import requests
 import time
 import numpy as np
+import requests
 
 import matlab.engine
 
@@ -36,14 +38,14 @@ def get_parse_from_matlab(image_filename):
 def get_parse_mask(image_url=None, image_filename=None):
     if image_filename is not None:  # copy file to 'inputimg.jpg'
         subprocess.Popen("cp " + image_filename + " inputimg.jpg", shell=True, stdout=subprocess.PIPE).stdout.read()
-        time.sleep(50)  # give some time for file to write
+        time.sleep(0.05)  # give some time for file to write
         get_parse_from_matlab(image_filename)
         return
     response = requests.get(image_url, stream=True)
     with open('inputimg.jpg', 'wb') as out_file:
         shutil.copyfileobj(response.raw, out_file)
     del response
-    time.sleep(50)  # give some time for file to write
+    time.sleep(0.1)  # give some time for file to write
     # img_array = imdecode(np.asarray(bytearray(response.content)), 1)
     stripped_name = image_url.split('//')[1]
     modified_name = stripped_name.replace('/', '_')
@@ -53,7 +55,9 @@ def get_parse_mask(image_url=None, image_filename=None):
     mask, label_names, pose = get_parse_from_matlab(modified_name)
     print('labels:' + str(label_names))
     label_dict = dict(zip(label_names, range(0, len(label_names))))
-    return mask, label_dict, pose
+    mask_np = np.array(mask, dtype=np.uint8)
+    pose_np = np.array(pose, dtype=np.uint8)
+    return mask_np, label_dict, pose_np
 
 
 def show_max(parsed_img, labels):
@@ -72,7 +76,7 @@ def test_scp():
 if __name__ == "__main__":
     img, labels, pose = get_parse_mask('img.jpg')
     show_max(img, labels)
-    show_parse(img_array=img)
+    #show_parse(img_array=img)
 
 # import matlab.engine
 # eng = matlab.engine.start_matlab("nodisplay")

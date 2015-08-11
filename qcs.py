@@ -3,17 +3,17 @@ __author__ = 'Nadav Paz'
 import logging
 import random
 import copy
-
 import requests
+import numpy as np
+
 import pymongo
 import cv2
 import redis
 from rq import Queue
 import bson
-import numpy as np
 from bson import json_util
-
 import boto3
+
 import find_similar_mongo
 import background_removal
 import Utils
@@ -77,6 +77,7 @@ def set_voting_stage(n_stage, item_id):
     person_idx = person_dict['person_idx']
     item_idx = item_dict['item_idx']
     image['people'][person_idx]['items'][item_idx]['voting_stage'] = n_stage
+    image.pop('_id')
     images.replace_one({"people.items.item_id": item_id}, image)
 
 
@@ -150,7 +151,6 @@ def send_image_to_qc_categorization(person_url, person_id):
 
 
 def from_categories_to_bb_task(items_list, person_id):
-    print "Arrived to 'from_categories'"
     if len(items_list) == 0:
         logging.warning("No items in items' list!")
         return None
@@ -166,7 +166,6 @@ def from_categories_to_bb_task(items_list, person_id):
 
 
 def send_item_to_qc_bb(person_url, person_id, item_dict):
-    print "Arrived to send_item!"
     payload = {"callback_url": callback_url + '/' + person_id + '/' + item_dict['item_id'] + '?task_id=bb',
                "category": item_dict['category'], "person_url": person_url}
     address = QC_URL + '/' + person_id + '/' + item_dict['item_id'] + '?task_id=bb'
@@ -177,7 +176,6 @@ def send_item_to_qc_bb(person_url, person_id, item_dict):
 
 
 def from_bb_to_sorting_task(bb, person_id, item_id):
-    print "Arrived to 'from_bb' successfully! :) "
     if len(bb) == 0:
         logging.warning("No bb found")
     # bb = determine_final_bb(bb_list)  # Yonti's function
@@ -187,11 +185,10 @@ def from_bb_to_sorting_task(bb, person_id, item_id):
     item['similar_results'] = results
     item['fingerprint'] = fp
     item['svg_url'] = svg
-    # dole_out_work(item_id)
+    dole_out_work(item_id)
     image['people'][person['person_idx']]['items'][item['item_idx']] = item
     image.pop('_id')
     images.replace_one({'image_urls': {'$in': image['image_urls']}}, image)
-    print "Done!"
 
 
 def dole_out_work(item_id):
@@ -273,10 +270,17 @@ def from_qc_get_votes(item_id, chunk_of_similar_items, chunk_of_votes, voting_st
         'votes']  # maybe unnecessary since item['votes'] prob writes into image
     image['people'][person_idx]['items'][item_idx]['similar_items'] = item[
         'similar_items']  # maybe unnecessary since item['votes'] prob writes into image
+
+    # image.pop('_id')
+    #    images.replace_one({'image_urls': {'$in': image['image_urls']}}, image)
+
+    image.pop('_id')
     images.replace_one({"people.items.item_id": item_id}, image)
+    # images.replace_one({'image_urls': {'$in': image['image_urls']}}, image)
+
     print('image written: ' + str(image))
 
-    # next voting stage instructions
+    # next oting stage instructions
 
 
 def add_results(extant_similar_items, extant_votes, new_similar_items, new_votes):

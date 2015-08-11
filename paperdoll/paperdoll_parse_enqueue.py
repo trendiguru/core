@@ -6,8 +6,6 @@ from rq import Queue
 from redis import Redis
 import cv2
 
-import pd
-
 
 def count_words_at_url(url):
     resp = requests.get(url)
@@ -23,7 +21,7 @@ def paperdoll_enqueue(img_url, async=True):
     # q = Queue(connection=redis_conn)  # no args implies the default queue
 
 # Delay execution of count_words_at_url('http://nvie.com')
-    job = q.enqueue(pd.get_parse_mask, image_url=img_url)
+    job = q.enqueue('pd.get_parse_mask', image_url=img_url)
     # job = q.enqueue(count_words_at_url, 'http://nvie.com')
     if not async:
         while job.result is None:
@@ -65,6 +63,7 @@ def show_max(parsed_img, labels):
 
 
 if __name__ == "__main__":
-    img, labels, pose = paperdoll_enqueue('image.jpg', async=False)
+    url = 'http://i.imgur.com/ahFOgkm.jpg'
+    img, labels, pose = paperdoll_enqueue(url, async=False)
     show_max(img, labels)
     show_parse(img_array=img)
