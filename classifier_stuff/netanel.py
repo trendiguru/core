@@ -1,10 +1,12 @@
+import os
+
 import cv2
+import pymongo
 
 from matlab_wrapper import matlab_client
 import Utils
 import dbUtils
 import background_removal
-
 
 # matlab = mateng.conn.root.modules
 # matlab = mateng.conn.root.matlab
@@ -124,18 +126,21 @@ def x1y1x2y2_to_bb(x1y1x2y2):
 
 def find_images(description):
     print('starting to find ' + str(description))
-    for i in range(0, 500):
+    db = pymongo.MongoClient().mydb
+    no_face_count = 0
+    face_count = 0
+    for i in range(0, 10500):
         mdoc = dbUtils.lookfor_next_unbounded_feature_from_db_category(current_item=i, skip_if_marked_to_skip=True,
                                                                        which_to_show='showAll',
                                                                        filter_type='byWordInDescription',
                                                                        category_id=None,
                                                                        word_in_description=description,
-                                                                       db=None)
+                                                                       db=db)
 
         if mdoc is not None and 'doc' in mdoc:
+            print('not none')
             doc = mdoc['doc']
             print doc
-
             xlarge_url = doc['image']['sizes']['XLarge']['url']
             print('large img url:' + str(xlarge_url))
             img_arr = Utils.get_cv2_img_array(xlarge_url)
@@ -150,18 +155,35 @@ def find_images(description):
                 k = cv2.waitKey(200)
             relevance = background_removal.image_is_relevant(small_img)
             print('relevance:' + str(relevance))
-            if not relevance:
-                print('image is not relevant')
-                continue
-            print('image is relevant')
-            face1 = background_removal.find_face(img_arr)
-            if face1 is not None and len(face1) != 0:
-                print('face1:' + str(face1))
-                bb1 = face1[0]
-                get_pose_est_bbs(xlarge_url, description, n=i, bb=bb1)
-
+            rel = relevance.is_relevant
+            if rel == False:
+                no_face_count += 1
+                print('relevant')
+                fname = os.path.join('netanel', description)
+                fname = os.path.join(fname, 'noface')
+                Utils.ensure_dir(fname)
+                fname = os.path.join(fname, str(no_face_count) + '.jpg')
             else:
-                get_pose_est_bbs(xlarge_url, description, n=i)
+                face_count += 1
+                print('not relevant')
+                fname = os.path.join('netanel', description)
+                Utils.ensure_dir(fname)
+                fname = os.path.join(description, str(face_count) + '.jpg')
+            print('writing ' + str(fname))
+            cv2.imwrite(fname, img_arr)
+
+            # if not relevance:
+        #                print('image is not relevant')
+        #                continue
+        #            print('image is relevant')
+        #          face1 = background_removal.find_face(img_arr)
+        #          if face1 is not None and len(face1) != 0:
+        #              print('face1:' + str(face1))
+        #              bb1 = face1[0]
+        #              get_pose_est_bbs(xlarge_url, description, n=i, bb=bb1)
+        #
+        #           else:
+        #              get_pose_est_bbs(xlarge_url, description, n=i)
 
 if __name__ == '__main__':
     print('starting')
@@ -171,7 +193,14 @@ if __name__ == '__main__':
                     'square neck', 'v-neck', 'classic neckline',
                     'round collar', 'crewneck', 'crew neck', 'scoopneck', 'square neck', 'bow collar',
                     'ribbed round neck', 'rollneck',
-                    'slash neck', 'V-Necks', 'v-neck']
+                    'slash neck', 'V-Necks', 'v-neck', 'neck']
+
+    # description: classic neckline , round collar, round neck, crew neck, square neck, v-neck, clASsic neckline,round collar,crewneck,crew neck, scoopneck,square neck, bow collar, ribbed round neck,rollneck ,slash neck
+    # cats:[{u'shortName': u'V-Necks', u'localizedId': u'v-neck-sweaters', u'id': u'v-neck-sweaters', u'name': u'V-Neck Sweaters'}]
+    # cats:[{u'shortName': u'Turtlenecks', u'localizedId': u'turleneck-sweaters', u'id': u'turleneck-sweaters', u'name': u'Turtlenecks'}]
+    # cats:[{u'shortName': u'Crewnecks & Scoopnecks', u'localizedId': u'crewneck-sweaters', u'id': u'crewneck-sweaters', u'name': u'Crewnecks & Scoopnecks'}]
+    # categories:#            u'name': u'V-Neck Sweaters'}]
+
 
     # 'A-line',
     # 'shift', 'sheath', 'tent', 'empire',
