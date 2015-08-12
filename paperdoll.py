@@ -121,8 +121,8 @@ def start_process(image_url):
             for face in relevance.faces:
                 x, y, w, h = face
                 person = {'face': face.tolist(), 'person_id': str(bson.ObjectId())}
-                image_copy = image.copy()
-                cv2.rectangle(image_copy, (x, y), (x + w, y + h), [0, 255, 0], 2)
+                image_copy = person
+                isolation(image, face)
                 person['url'] = upload_image(image_copy, str(person['person_id']))
                 image_dict['people'].append(person)
                 q2.enqueue(get_paperdoll_data, person['url'], person['person_id'])
@@ -139,19 +139,22 @@ def start_process(image_url):
         return image_obj
 
 
-def from_categories_to_bb_task(items_list, person_id):
-    if len(items_list) == 0:
-        logging.warning("No items in items' list!")
-        return None
-    # items = category_tree.CatNode.determine_final_categories(items_list) # sergey's function
-    image, person = get_person_by_id(person_id)
-    person_url = person['url']
-    items = []
-    for item in items_list:
-        item_dict = {'category': item, 'item_id': str(bson.ObjectId())}
-        items.append(item_dict)
-        q3.enqueue(send_item_to_qc_bb, person_url, person_id, item_dict)
-    images.update_one({'people.person_id': person_id}, {'$set': {'people.$.items': items}}, upsert=True)
+def after_paperdoll_work_conclusions(mask, labels):
+    bla
+    bla
+    for item in final_items:
+        bli
+        blo
+
+
+def db_update_to_sorting_task(item_id.
+
+    .):
+oh
+behave!
+yeah
+baby
+yeah!
 
 
 def from_bb_to_sorting_task(bb, person_id, item_id):
