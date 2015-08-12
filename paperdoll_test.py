@@ -22,6 +22,14 @@ def color_paperdoll_mask(paperdoll_mask):
     return color_mask
 
 
+# TEST/SHOWCASE:
+# input: image_url from the web
+# displays the source image and paperdoll mask
+# then - loops over items in the mask and display each items on image by paperdoll and by grabcut
+# the grabcut's input is the item's mask and it expends and tries to grt to full accurate shape
+# in addition, the label is written as the window's name
+
+
 def pd_test(image_url):
     image = Utils.get_cv2_img_array(image_url)
     mask, labels, pose = paperdoll.paperdoll_parse_enqueue.paperdoll_enqueue(image_url, async=False)
@@ -33,7 +41,7 @@ def pd_test(image_url):
         category = list(labels.keys())[list(labels.values()).index(num - 1)]
         label_list.append(category)
         item_mask = np.zeros(np.shape(mask), np.uint8) + np.array(mask == num, dtype=np.uint8)
-        if cv2.countNonZero(item_mask) > 400:
+        if cv2.countNonZero(item_mask) > 1000:
             item_image = background_removal.get_masked_image(image, item_mask)
             item_mask_gc = 2 * np.ones(np.shape(mask), np.uint8) - 1 * np.array(mask == num, dtype=np.uint8)
             item_image_gc = background_removal.simple_mask_grabcut(image, item_mask_gc)
