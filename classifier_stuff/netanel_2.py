@@ -15,7 +15,7 @@ def find_images(feature_name, search_string, category_id, max_images):
     logging.debug('starting to find ' + feature_name)
 
     #TODO: search in subcategories as well
-    query = {"description": {'$text': search_string},
+    query = {"description": {"$text": {"$search":search_string}},
              "categories": {"$elemMatch": {"id": {"$in": get_all_subcategories(db.categories, category_id)}}}}
     fields = {"categories": 1, "image": 1, "human_bb": 1, "fp_version": 1, "bounding_box": 1,
               "id": 1, "description": 1, "feature_bbs": 1}
