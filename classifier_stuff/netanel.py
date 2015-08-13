@@ -138,6 +138,7 @@ def find_images(description):
                                                                        db=db)
 
         if mdoc is not None and 'doc' in mdoc:
+            i = i + 1
             print('not none')
             doc = mdoc['doc']
             print doc
@@ -171,7 +172,8 @@ def find_images(description):
                 fname = os.path.join(description, str(face_count) + '.jpg')
             print('writing ' + str(fname))
             cv2.imwrite(fname, img_arr)
-
+        else:
+            break
             # if not relevance:
         #                print('image is not relevant')
         #                continue
@@ -189,11 +191,11 @@ if __name__ == '__main__':
     print('starting')
     # show_all_bbs_in_db()
     # get_pose_est_bbs()
-    descriptions = ['round neck', 'classic neckline', 'round collar', 'round neck', 'crew neck',
+    descriptions = ['classic neckline', 'round collar', 'round neck', 'crew neck',
                     'square neck', 'v-neck', 'classic neckline',
                     'round collar', 'crewneck', 'crew neck', 'scoopneck', 'square neck', 'bow collar',
                     'ribbed round neck', 'rollneck',
-                    'slash neck', 'V-Necks', 'v-neck', 'neck']
+                    'slash neck', 'V-Necks', 'v-neck', 'neck', 'round neck']
 
     # description: classic neckline , round collar, round neck, crew neck, square neck, v-neck, clASsic neckline,round collar,crewneck,crew neck, scoopneck,square neck, bow collar, ribbed round neck,rollneck ,slash neck
     # cats:[{u'shortName': u'V-Necks', u'localizedId': u'v-neck-sweaters', u'id': u'v-neck-sweaters', u'name': u'V-Neck Sweaters'}]
