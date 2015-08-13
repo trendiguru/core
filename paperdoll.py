@@ -11,8 +11,8 @@ import cv2
 import redis
 from rq import Queue
 import bson
-from bson import json_util
 
+from paperdoll import paperdoll_parse_enqueue
 import boto3
 import find_similar_mongo
 import background_removal
@@ -26,8 +26,7 @@ db = pymongo.MongoClient().mydb
 images = pymongo.MongoClient().mydb.images
 r = redis.Redis()
 q1 = Queue('images_queue', connection=r)
-q2 = Queue('send_to_categorize', connection=r)
-q3 = Queue('send_to_bb', connection=r)
+q2 = Queue('paperdoll', connection=r)
 q4 = Queue('send_20s_results', connection=r)
 q5 = Queue('send_last_20', connection=r)
 q6 = Queue('receive_data_from_qc', connection=r)
@@ -65,10 +64,6 @@ def get_item_by_id(item_id):
 
 def decode_task(args, vars, data):  # args(list) = person_id, vars(dict) = task, data(dict) = QC results
     if vars["task_id"] == 'categorization':
-        from_categories_to_bb_task(data['items'], args[0])
-    elif vars["task_id"] == 'bb':
-        from_bb_to_sorting_task(data['bb'], args[0], args[1])
-    elif vars["task_id"] == 'sorting':
         from_qc_get_votes(args[1], data['results'], data['votes'], vars['voting_stage'])
 
 
@@ -93,21 +88,29 @@ def get_voting_stage(item_id):
         return 0
 
 
+def get_paperdoll_data(image_url):
+    image = background_removal.standard_resize(Utils.get_cv2_img_array(image_url), 400)
+    if image is None:
+        logging.warning("There's no image in the url!")
+        return None
+    mask, labels, pose = paperdoll_parse_enqueue.paperdoll_enqueue(image_url, async=False)
+    after_paperdoll_work_conclusions(mask, labels)
+
+
+def person_isolation(image, face):
+    x, y, w, h = face
+    x_back = np.max([x - 2 * w, 0])
+    x_ahead = np.min([x + 3 * w, image.shape[1] - 2])
+    back_mat = np.zeros((image.shape[0], x_back, 3), dtype=np.uint8)
+    ahead_mat = np.zeros((image.shape[0], image.shape[1] - x_ahead, 3), dtype=np.uint8)
+    image_copy = np.concatenate((back_mat, image[:, x_back:x_ahead, :], ahead_mat), 1)
+    return image_copy
+
+
 # ---------------------------------------------------------------------------------------------------------------------
-# optional data arrangements:
-# 1.  only by url: callback url -
-# "https://extremeli.trendi.guru/api/nadav/index/image_id/person_id/item_id?task_id=bounding_boxing"
-# in this case we know how many args we have because of the type of the task (e.g item bounding_boxing => 3 args).
-# 1.1 maybe more efficient way is: "https://extremeli.trendi.guru/api/nadav/index/item_id?task_id=bounding_boxing"
-#     and by task_id we would know that it is an item which we activated by.
-# 2.  by task_id: create and send task_id in each kind of task. when we get a post back we search the task id in a tasks
-#     table that we built. from the task document we understand what to do with the info we got.
-# we will go with 1.1 for now !
-
-# q1 - images queue -  from Web2Py
 
 
-def from_image_url_to_categorization_task(image_url):
+def start_process(image_url):
     image_obj = images.find_one({"image_urls": image_url})
     if not image_obj:  # new image
         image = background_removal.standard_resize(Utils.get_cv2_img_array(image_url), 400)[0]
@@ -120,13 +123,11 @@ def from_image_url_to_categorization_task(image_url):
         if relevance.is_relevant:
             image_dict['people'] = []
             for face in relevance.faces:
-                x, y, w, h = face
                 person = {'face': face.tolist(), 'person_id': str(bson.ObjectId())}
-                image_copy = image.copy()
-                cv2.rectangle(image_copy, (x, y), (x + w, y + h), [0, 255, 0], 2)
+                image_copy = person_isolation(image, face)
                 person['url'] = upload_image(image_copy, str(person['person_id']))
                 image_dict['people'].append(person)
-                q2.enqueue(send_image_to_qc_categorization, person['url'], person['person_id'])
+                # q2.enqueue(get_paperdoll_data, person['url'], person['person_id'])
         else:
             logging.warning('image is not relevant, but stored anyway..')
         images.insert(image_dict)
@@ -140,56 +141,24 @@ def from_image_url_to_categorization_task(image_url):
         return image_obj
 
 
-def send_image_to_qc_categorization(person_url, person_id):
-    payload = {"callback_url": callback_url + '/' + person_id + '?task_id=categorization',
-               "person_url": person_url}
-    address = QC_URL + '/' + person_id + '?task_id=categorization'
-    requests.post(address, data=json_util.dumps(payload))
+def after_paperdoll_work_conclusions(mask, labels):
+    bla
+    bla
+    for item in final_items:
+        bli
+        blo
 
 
-# q6 - decode_task, from Web2Py
-
-
-def from_categories_to_bb_task(items_list, person_id):
-    if len(items_list) == 0:
-        logging.warning("No items in items' list!")
-        return None
-    # items = category_tree.CatNode.determine_final_categories(items_list) # sergey's function
-    image, person = get_person_by_id(person_id)
-    person_url = person['url']
-    items = []
-    for item in items_list:
-        item_dict = {'category': item, 'item_id': str(bson.ObjectId())}
-        items.append(item_dict)
-        q3.enqueue(send_item_to_qc_bb, person_url, person_id, item_dict)
-    images.update_one({'people.person_id': person_id}, {'$set': {'people.$.items': items}}, upsert=True)
-
-
-def send_item_to_qc_bb(person_url, person_id, item_dict):
-    payload = {"callback_url": callback_url + '/' + person_id + '/' + item_dict['item_id'] + '?task_id=bb',
-               "category": item_dict['category'], "person_url": person_url}
-    address = QC_URL + '/' + person_id + '/' + item_dict['item_id'] + '?task_id=bb'
-    requests.post(address, data=json_util.dumps(payload))
-
-
-# q6 - decode_task, from Web2Py
-
-
-def from_bb_to_sorting_task(bb, person_id, item_id):
-    if len(bb) == 0:
-        logging.warning("No bb found")
-        return None
-    # bb = determine_final_bb(bb_list)  # Yonti's function
+def db_update_to_sorting_task(item_id):
     image, person, item = get_item_by_id(item_id)
     fp, results, svg = find_similar_mongo.got_bb(image['image_urls'][0], person_id, item_id, bb, 100, item['category'])
-    item['bb'] = bb
     item['similar_results'] = results
     item['fingerprint'] = fp
     item['svg_url'] = svg
-    dole_out_work(item_id)
     image['people'][person['person_idx']]['items'][item['item_idx']] = item
     image.pop('_id')
     images.replace_one({'image_urls': {'$in': image['image_urls']}}, image)
+    dole_out_work(item_id)
 
 
 def dole_out_work(item_id):
@@ -271,17 +240,9 @@ def from_qc_get_votes(item_id, chunk_of_similar_items, chunk_of_votes, voting_st
         'votes']  # maybe unnecessary since item['votes'] prob writes into image
     image['people'][person_idx]['items'][item_idx]['similar_items'] = item[
         'similar_items']  # maybe unnecessary since item['votes'] prob writes into image
-
-    # image.pop('_id')
-    #    images.replace_one({'image_urls': {'$in': image['image_urls']}}, image)
-
     image.pop('_id')
     images.replace_one({"people.items.item_id": item_id}, image)
-    # images.replace_one({'image_urls': {'$in': image['image_urls']}}, image)
-
     print('image written: ' + str(image))
-
-    # next oting stage instructions
 
 
 def add_results(extant_similar_items, extant_votes, new_similar_items, new_votes):
@@ -341,16 +302,16 @@ def combine_votes(combined_votes):
     :return:
     """
     # if all are numbers:
-    #        return average
+    # return average
     #    if all are 'not relevant'
     #    return 'not relevant'
-# if some are numbers and some are 'not relevant':
-#    if the majority voted not relevant:
-#        return not relevant
-#    otherwise:
-#    return average
-#    vote,
-#    with not relevant guys counted as 0 or -1 or something like that
+    # if some are numbers and some are 'not relevant':
+    #    if the majority voted not relevant:
+    #        return not relevant
+    #    otherwise:
+    #    return average
+    #    vote,
+    #    with not relevant guys counted as 0 or -1 or something like that
     not_relevant_score = -1
     n = 0
     sum = 0
@@ -384,3 +345,7 @@ def combine_votes(combined_votes):
     #             combined_ratings = combined_ratings.append(all_ratings[j])
     #         else:  # same result being voted on by 2 dudes
     #             combined_ratings[i] = combined_ratings[j]
+
+
+
+
