@@ -4,7 +4,6 @@ import json
 from collections import Counter
 import os
 import shutil
-import pprint
 
 import requests
 import cv2
@@ -18,9 +17,10 @@ List of functions that not necessary to check:
 - dict_is_suitable
 - __repr__
 """
-# -----------
 """
+---------------------------------
 List of untested unctions:
+- get_tree
 - download_image
 - push_url
 - upload_new_tree
@@ -1474,14 +1474,54 @@ class TddCatNode(unittest.TestCase):
         tree = CatNode(**self.tree_dict6)
         self.assertEqual(tree.root().name, "Men")
 
+    def test___is_common__(self):
+        CatNode.reset_id()
+        tree = CatNode(**self.tree_dict6)
+        CatNode.cat_tree = tree
+        self.assertTrue(CatNode.__is_common__(tree.find_by_id(57), [tree.find_by_id(id) for id in [75, 74, 72,
+                                                                                                   69, 70, 71]]))
+        self.assertTrue(CatNode.__is_common__(tree.find_by_id(2), [tree.find_by_id(id) for id in [41, 42]]))
+        self.assertFalse(CatNode.__is_common__(tree.find_by_id(57), [tree.find_by_id(id) for id in [75, 74, 72,
+                                                                                                    69, 70, 71, 1, 2]]))
+        self.assertFalse(CatNode.__is_common__(tree.find_by_id(33), [tree.find_by_id(id) for id in [32]]))
+        self.assertTrue(CatNode.__is_common__(tree.find_by_id(1), [tree.find_by_id(id) for id in [75, 36, 42]]))
+
     def test_common_root(self):
         CatNode.reset_id()
         tree = CatNode(**self.tree_dict6)
         CatNode.cat_tree = tree
-        tree_dict = {}
-        tree.to_struct(tree_dict)
-        pprint.pprint(tree_dict)
-        print tree.common_root([])
+        self.assertEqual(tree.common_root([tree.find_by_id(id) for id in [75, 42]]).id, 1)
+        self.assertEqual(tree.common_root([tree.find_by_id(id) for id in [36, 35]]).id, 33)
+        self.assertEqual(tree.common_root([tree.find_by_id(id) for id in [75, 74]]).id, 72)
+        self.assertEqual(tree.common_root([tree.find_by_id(id) for id in [36, 37, 41]]).id, 2)
+        self.assertEqual(tree.common_root([tree.find_by_id(id) for id in [41, 42, 74]]).id, 1)
+
+    def test___fbi__(self):
+        CatNode.reset_id()
+        tree = CatNode(**self.tree_dict6)
+        CatNode.cat_tree = tree
+        # find a single node by its id:
+        self.assertTrue(tree.find_by_id(32).id == 32 and type(tree.find_by_id(32)) is CatNode)
+        self.assertTrue(tree.find_by_id(69).id == 69 and type(tree.find_by_id(69)) is CatNode)
+        self.assertTrue(tree.find_by_id(1).id == 1 and type(tree.find_by_id(1)) is CatNode)
+        self.assertTrue(tree.find_by_id(2).id == 2 and type(tree.find_by_id(2)) is CatNode)
+        self.assertTrue(tree.find_by_id(74).id == 74 and type(tree.find_by_id(74)) is CatNode)
+        print type(tree.find_by_id(74, True))
+        self.assertTrue(tree.find_by_id(74, True) == '74' and type(tree.find_by_id(74, True)) is str)
+        self.assertTrue(tree.find_by_id(-32) is None)
+        # find a list of nodes by their id:
+        self.assertTrue(tree.find_by_id([75, 42, 37], True) == ['37', '42', '75'])
+        self.assertTrue([node.id for node in tree.find_by_id([75, 42, 37])] == [37, 42, 75])
+        self.assertTrue([node.id for node in tree.find_by_id([75, 74, 70, 71])] == [70, 71, 74, 75])
+        self.assertTrue([node.id for node in tree.find_by_id([2, 42, 41, 57])] == [2, 41, 42, 57])
+        self.assertTrue([node.id for node in tree.find_by_id([69, 41, -1])] == [41, 69])
+
+    def test_build_path(self):
+        CatNode.reset_id()
+        tree = CatNode(**self.tree_dict6)
+        CatNode.cat_tree = tree
+        self.assertEqual([node.id for node in CatNode.build_path(tree.find_by_id(75))], [1, 57, 72, 75])
+        self.assertEqual([node.id for node in CatNode.build_path(tree.find_by_id(37))], [1, 2, 32, 37])
 
 # ---Block_of_upload_new_tree------------------------------------------------#
 

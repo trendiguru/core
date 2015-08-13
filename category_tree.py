@@ -645,7 +645,6 @@ class CatNode(object):
         ans_mat = CatNode.check_ans(ans_mat)
         print "ans_matrix:" + str(ans_mat)
         # find the longest answer-list:
-        # TODO: check if matrix is not empty!!!
         max_list = min(ans_mat, key=lambda ans_list: len(ans_list))
         bucket_list = [CatNode.build_bucket(node) for node in max_list]
         # Remove the processed list:
@@ -713,6 +712,20 @@ class CatNode(object):
         return current
 
     @staticmethod
+    def __is_common__(node, nodes_list):
+        """
+        The function checks if a node's subtree contains all nodes from nodes_list.
+        :param node:
+        :param nodes_list:
+        :return: Boolean (True if a node's subtree contains all nodes from nodes_list, otherwise False)
+        """
+        for each_node in nodes_list:
+            # if one of list nodes doesn't relate to node subtree:
+            if not node.find_by_id(each_node.id):
+                return False
+        return True
+
+    @staticmethod
     def common_root(nodes_list):
         """
         The function obtains list of nodes from a common tree and searches
@@ -723,19 +736,6 @@ class CatNode(object):
         :param nodes_list: list of nodes.
         :return: CatNode.
         """
-        def __is_common__(node, nodes_list):
-            """
-            The function checks if a node's subtree contains all nodes from nodes_list.
-            :param node:
-            :param nodes_list:
-            :return: Boolean (True if a node's subtree contains all nodes from nodes_list, otherwise False)
-            """
-            for each_node in nodes_list:
-                # if one of list nodes doesn't relate to node subtree:
-                if not node.find_by_id(each_node.id):
-                    return False
-            return True
-
         # If all the obtainable nodes relate to the same tree do, otherwise return None with warning.
         first_node = nodes_list[0]
         for node in nodes_list[1:]:
@@ -744,7 +744,7 @@ class CatNode(object):
                 return None
         # find the highest node (node with min level)
         current = min(nodes_list, key=lambda v: v.level)
-        while not __is_common__(current, nodes_list):
+        while not CatNode.__is_common__(current, nodes_list):
             if current.parent:
                 current = current.parent
             else:
@@ -753,8 +753,6 @@ class CatNode(object):
         return current
 
     def find_by_id(self, f_str, flag=None):
-        # TODO: Globalise: at the time function checks only by id attribute. The next variation of the
-        # TODO: function must work with all attributes!!!
         """
         if type of f_str variable is list:
         The function scans all tree till it will find each CatNode
@@ -762,7 +760,7 @@ class CatNode(object):
         that equals to the string from f_str list.
         In case if function hadn't found any CatNode-s it will return an empty list.
         :param f_str: list of id-s by which the function will find a suitable CatNode-s
-        :return:list of CatNode-s
+        :return: list of CatNode-s
         if type of f_str variable is string:
         The function scans all tree till it will find CatNode with id that equals to the obtainable string (f_str).
         In case if such a node was not found function will return None value.
@@ -812,6 +810,8 @@ class CatNode(object):
         # if type of the obtainable f_str variable is str => find a single node
         if type(f_str) is str or type(f_str) is int:
             node = __fbi__(self, f_str)
+            if flag:
+                return str(node.id)
             return node
         # if type of the obtainable f_str variable is list => find each node related
         # to id in te list (return list of nodes).
@@ -823,13 +823,13 @@ class CatNode(object):
             __fbi_list__(self, temp_list, result_list)
             # if flag is not None instead of return list nodes function will return list of their id-s:
             if flag:
-                result_list = [node.id for node in result_list]
+                result_list = [str(node.id) for node in result_list]
             return result_list
 
     def build_path(self):
         """
         The function calculates the hole path from the tree root to the current node
-        (include root and current nodes)
+        (include root and current node)
         :return: list of nodes which "describes" (builds) the path.
         """
         path_l = []
@@ -852,7 +852,6 @@ class CatNode(object):
         if CatNode.cat_tree is None:
             db = pymongo.MongoClient().mydb
             tree_dict = db.globals.find_one({"_id": "tg_globals"})["category_tree_dict"]
-            # pprint.pprint(tree_dict)
             # build root:
             c_tree = CatNode()
             c_tree.name = "categories"  # or will it be better call "root"?
@@ -881,8 +880,6 @@ class CatNode(object):
                     __scan_for_head__(child, leafs)
         leafs = []
         __scan_for_head__(self, leafs)
-        # print leafs
-        #print [CatNode.head(node.id) for node in leafs]
         for node in leafs:
             if CatNode.head(node.id) is None:
                 print "here"
