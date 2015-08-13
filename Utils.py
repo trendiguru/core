@@ -540,7 +540,7 @@ def ensure_dir(f):
     :param f: file or directory name
     :return: no return val, creates dir if it doesnt exist
     '''
-    print('f:' + f)
+    logging.debug('f:' + f)
     # d = os.path.dirname(f)
     if not os.path.exists(f):
         #        print('d:'+str(d))
