@@ -6,6 +6,8 @@ import Utils
 import background_removal
 from find_similar_mongo import get_all_subcategories
 
+logging.basicConfig(level=logging.DEBUG)
+
 db = pymongo.MongoClient().mydb
 
 MAX_IMAGES = 10000
