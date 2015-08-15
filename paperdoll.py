@@ -64,10 +64,6 @@ def get_item_by_id(item_id):
 
 def decode_task(args, vars, data):  # args(list) = person_id, vars(dict) = task, data(dict) = QC results
     if vars["task_id"] == 'categorization':
-        from_categories_to_bb_task(data['items'], args[0])
-    elif vars["task_id"] == 'bb':
-        from_bb_to_sorting_task(data['bb'], args[0], args[1])
-    elif vars["task_id"] == 'sorting':
         from_qc_get_votes(args[1], data['results'], data['votes'], vars['voting_stage'])
 
 
@@ -98,9 +94,17 @@ def get_paperdoll_data(image_url):
         logging.warning("There's no image in the url!")
         return None
     mask, labels, pose = paperdoll_parse_enqueue.paperdoll_enqueue(image_url, async=False)
-    for key, value in labels.iteritems():
-        labels[key] += 1
-    return mask, labels, pose
+    after_paperdoll_work_conclusions(mask, labels)
+
+
+def person_isolation(image, face):
+    x, y, w, h = face
+    x_back = np.max([x - 2 * w, 0])
+    x_ahead = np.min([x + 3 * w, image.shape[1] - 2])
+    back_mat = np.zeros((image.shape[0], x_back, 3), dtype=np.uint8)
+    ahead_mat = np.zeros((image.shape[0], image.shape[1] - x_ahead, 3), dtype=np.uint8)
+    image_copy = np.concatenate((back_mat, image[:, x_back:x_ahead, :], ahead_mat), 1)
+    return image_copy
 
 
 # ---------------------------------------------------------------------------------------------------------------------
@@ -119,13 +123,11 @@ def start_process(image_url):
         if relevance.is_relevant:
             image_dict['people'] = []
             for face in relevance.faces:
-                x, y, w, h = face
                 person = {'face': face.tolist(), 'person_id': str(bson.ObjectId())}
-                image_copy = person
-                isolation(image, face)
+                image_copy = person_isolation(image, face)
                 person['url'] = upload_image(image_copy, str(person['person_id']))
                 image_dict['people'].append(person)
-                q2.enqueue(get_paperdoll_data, person['url'], person['person_id'])
+                # q2.enqueue(get_paperdoll_data, person['url'], person['person_id'])
         else:
             logging.warning('image is not relevant, but stored anyway..')
         images.insert(image_dict)
@@ -147,31 +149,16 @@ def after_paperdoll_work_conclusions(mask, labels):
         blo
 
 
-def db_update_to_sorting_task(item_id.
-
-    .):
-oh
-behave!
-yeah
-baby
-yeah!
-
-
-def from_bb_to_sorting_task(bb, person_id, item_id):
-    if len(bb) == 0:
-        logging.warning("No bb found")
-        return None
-    # bb = determine_final_bb(bb_list)  # Yonti's function
+def db_update_to_sorting_task(item_id):
     image, person, item = get_item_by_id(item_id)
     fp, results, svg = find_similar_mongo.got_bb(image['image_urls'][0], person_id, item_id, bb, 100, item['category'])
-    item['bb'] = bb
     item['similar_results'] = results
     item['fingerprint'] = fp
     item['svg_url'] = svg
-    dole_out_work(item_id)
     image['people'][person['person_idx']]['items'][item['item_idx']] = item
     image.pop('_id')
     images.replace_one({'image_urls': {'$in': image['image_urls']}}, image)
+    dole_out_work(item_id)
 
 
 def dole_out_work(item_id):
@@ -253,17 +240,9 @@ def from_qc_get_votes(item_id, chunk_of_similar_items, chunk_of_votes, voting_st
         'votes']  # maybe unnecessary since item['votes'] prob writes into image
     image['people'][person_idx]['items'][item_idx]['similar_items'] = item[
         'similar_items']  # maybe unnecessary since item['votes'] prob writes into image
-
-    # image.pop('_id')
-    # images.replace_one({'image_urls': {'$in': image['image_urls']}}, image)
-
     image.pop('_id')
     images.replace_one({"people.items.item_id": item_id}, image)
-    # images.replace_one({'image_urls': {'$in': image['image_urls']}}, image)
-
     print('image written: ' + str(image))
-
-    # next oting stage instructions
 
 
 def add_results(extant_similar_items, extant_votes, new_similar_items, new_votes):
