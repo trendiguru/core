@@ -83,8 +83,7 @@ def download_image(prod, feature_name, category_id, max_images):
                 # TODO: Count number of irrelevant images (for statistics)
                 return 0
 
-
-if __name__ == '__main__':
+def run():
     logging.info('Starting...')
 
     # Leftovers:
@@ -101,3 +100,7 @@ if __name__ == '__main__':
 
     for name, search_string in descriptions_dict.iteritems():
         find_and_download_images(name, search_string, "dresses", MAX_IMAGES)
+
+
+if __name__ == '__main__':
+    run()
