@@ -40,12 +40,12 @@ def find_and_download_images(feature_name, search_string, category_id, max_image
 
     cursor = db.products.find(query, fields).batch_size(10)
     logging.info("Found {count} products in {category} with {feature}".format(count=cursor.count(),
-                                                                               category=category_id,
-                                                                               feature=feature_name))
-
-    job_results = [download_images_q.enqueue(download_image, prod, feature_name,
-                                             category_id, max_images)
-                   for prod in cursor]
+                                                                              category=category_id,
+                                                                              feature=feature_name))
+    job_results = []
+    for prod in cursor:
+        job_results.append(download_images_q.enqueue(download_image, prod,
+                                                     feature_name, category_id, max_images))
 
     while True:
         time.sleep(3)
@@ -74,8 +74,8 @@ def download_image(prod, feature_name, category_id, max_images):
                 filepath = os.path.join(directory, filename)
                 Utils.ensure_dir(directory)
                 logging.info("Attempting to save to {0}...".format(filepath))
-                sucess = cv2.imwrite(filepath, img_arr)
-                if not sucess:
+                success = cv2.imwrite(filepath, img_arr)
+                if not success:
                     logging.warning("Could not save image")
                     return 0
                 # downloaded_images += 1
