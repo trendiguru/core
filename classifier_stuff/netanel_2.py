@@ -7,13 +7,12 @@ import background_removal
 from find_similar_mongo import get_all_subcategories
 from rq import Queue
 from redis import Redis
+import time
 
 # Tell RQ what Redis connection to use
 redis_conn = Redis()
 download_images_q = Queue('download_images', connection=redis_conn)  # no args implies the default queue
 save_relevant_q = Queue('save_relevant', connection=redis_conn)  # no args implies the default queue
-
-job_results = []
 
 
 logging.basicConfig(level=logging.INFO)
@@ -48,6 +47,10 @@ def find_and_download_images(feature_name, search_string, category_id, max_image
                                              category_id, max_images)
                    for prod in cursor]
 
+    while True:
+        time.sleep(3)
+        logging.info("Downloaded {0} images...".format(sum((done for done in job_results if done))))
+
 def download_image(prod, feature_name, category_id, max_images):
     downloaded_images = 0
     directory = os.path.join(category_id, feature_name)
@@ -79,9 +82,6 @@ def download_image(prod, feature_name, category_id, max_images):
             else:
                 # TODO: Count number of irrelevant images (for statistics)
                 return 0
-
-def check_downloaded_images():
-    return sum((done for done in job_results if done))
 
 
 if __name__ == '__main__':
