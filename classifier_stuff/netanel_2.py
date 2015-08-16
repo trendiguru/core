@@ -12,7 +12,7 @@ import time
 # Tell RQ what Redis connection to use
 redis_conn = Redis()
 download_images_q = Queue('download_images', connection=redis_conn)  # no args implies the default queue
-save_relevant_q = Queue('save_relevant', connection=redis_conn)  # no args implies the default queue
+# save_relevant_q = Queue('save_relevant', connection=redis_conn)  # no args implies the default queue
 
 
 logging.basicConfig(level=logging.INFO)
@@ -74,7 +74,10 @@ def download_image(prod, feature_name, category_id, max_images):
                 filepath = os.path.join(directory, filename)
                 Utils.ensure_dir(directory)
                 logging.info("Attempting to save to {0}...".format(filepath))
-                cv2.imwrite(filepath, img_arr)
+                sucess = cv2.imwrite(filepath, img_arr)
+                if not sucess:
+                    logging.warning("Could not save image")
+                    return 0
                 # downloaded_images += 1
                 logging.info("Saved... Downloaded approx. {0} images in this category/feature combination"
                              .format(downloaded_images))
