@@ -49,7 +49,7 @@ def find_and_download_images(feature_name, search_string, category_id, max_image
 
     while True:
         time.sleep(3)
-        logging.info("Downloaded {0} images...".format(sum((done.result for done in job_results if done))))
+        logging.info("Downloaded {0} images...".format(sum((done.result for done in job_results if done.result))))
 
 def download_image(prod, feature_name, category_id, max_images):
     downloaded_images = 0
