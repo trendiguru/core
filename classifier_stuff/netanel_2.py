@@ -5,22 +5,31 @@ import pymongo
 import Utils
 import background_removal
 from find_similar_mongo import get_all_subcategories
+from rq import Queue
+from redis import Redis
 
-logging.basicConfig(level=logging.DEBUG)
+# Tell RQ what Redis connection to use
+redis_conn = Redis()
+download_images_q = Queue('download_images', connection=redis_conn)  # no args implies the default queue
+save_relevant_q = Queue('save_relevant', connection=redis_conn)  # no args implies the default queue
+
+job_results = []
+
+
+logging.basicConfig(level=logging.INFO)
 
 db = pymongo.MongoClient().mydb
 
 MAX_IMAGES = 10000
 
-def find_images(feature_name, search_string, category_id, max_images):
+def find_and_download_images(feature_name, search_string, category_id, max_images):
 
-    logging.debug('starting to find ' + feature_name)
+    logging.info('****** Starting to find {0} *****'.format(feature_name))
 
-    #TODO: search in subcategories as well
-    query = {"$and": [{"$text": {"$search":search_string}},
+    query = {"$and": [{"$text": {"$search": search_string}},
                       {"categories":
                            {"$elemMatch":
-                                {"id": {"$in":get_all_subcategories(db.categories, category_id)}
+                                {"id": {"$in": get_all_subcategories(db.categories, category_id)}
                                  }
                             }
                        }]
@@ -30,39 +39,47 @@ def find_images(feature_name, search_string, category_id, max_images):
 
     downloaded_images = 0
 
-    cursor = db.products.find(query, fields)
-    logging.debug("Found {count} products in {category} with {feature}".format(count=cursor.count(),
+    cursor = db.products.find(query, fields).batch_size(10)
+    logging.info("Found {count} products in {category} with {feature}".format(count=cursor.count(),
                                                                                category=category_id,
                                                                                feature=feature_name))
 
-    for prod in cursor:
-        if downloaded_images < max_images:
+    job_results = [download_images_q.enqueue(download_image, prod, feature_name,
+                                             category_id, check_downloaded_images(), max_images)
+                   for prod in cursor]
+
+def download_image(prod, feature_name, category_id, downloaded_images, max_images):
+    if downloaded_images < max_images:
             xlarge_url = prod['image']['sizes']['XLarge']['url']
 
             img_arr = Utils.get_cv2_img_array(xlarge_url)
             if img_arr is None:
-                return None
+                logging.warning("Could not download image at url: {0}".format(xlarge_url))
+                return
 
             relevance = background_removal.image_is_relevant(img_arr)
-
             if relevance.is_relevant:
-
-                filename = os.path.join('{0}{1}'.format(feature_name, category_id), feature_name)
-                Utils.ensure_dir(filename)
-                filename = os.path.join(feature_name, str(prod["id"]) + '.jpg')
-
-                cv2.imwrite(filename, img_arr)
-                downloaded_images += 1
-                logging.debug("Downloaded {0}".format(downloaded_images))
+                logging.info("Image is relevant...")
+                directory = os.path.join(category_id, feature_name)
+                filename = "{0}_{1}.jpg".format(feature_name, prod["id"])
+                filepath = os.path.join(directory, filename)
+                Utils.ensure_dir(directory)
+                logging.info("Attempting to save to {0}...".format(filepath))
+                cv2.imwrite(filepath, img_arr)
+                # downloaded_images += 1
+                logging.info("Saved... Downloaded approx. {0} images in this category/feature combination"
+                             .format(downloaded_images))
+                return 1
             else:
                 # TODO: Count number of irrelevant images (for statistics)
-                pass
+                return 0
 
-
+def check_downloaded_images():
+    return sum((done for done in job_results if done))
 
 
 if __name__ == '__main__':
-    print('Starting...')
+    logging.info('Starting...')
 
     # Leftovers:
     descriptions = ['round collar', 'bow collar',
@@ -77,4 +94,4 @@ if __name__ == '__main__':
                          'v-neck': "\"v-neck\" \"v-neckline\"  \"v neckline\" vneck"}
 
     for name, search_string in descriptions_dict.iteritems():
-        find_images(name, search_string, "dresses", MAX_IMAGES)
+        find_and_download_images(name, search_string, "dresses", MAX_IMAGES)
