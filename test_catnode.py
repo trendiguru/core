@@ -1331,6 +1331,7 @@ class TddCatNode(unittest.TestCase):
         def temp_func(c_node):
             c_node.name = "little Billy"
 
+        # gdhsdgfhgsdfhsrgsdfkjbsdkfgskdjfdshfgsdfgsdkfhgkfhgsd
         new_tree = CatNode(**self.tree_dict)
         new_tree.apply_to_all_nodes(temp_func)
         for child in new_tree.children:

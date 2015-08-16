@@ -9,7 +9,6 @@ import urllib
 import warnings
 import collections
 import pymongo
-from qcs import upload_image
 
 # image is a structure for upload new tree function:
 Image = collections.namedtuple("image", ["location", "url"])
@@ -452,12 +451,12 @@ class CatNode(object):
             img = cv2.imread(name, 0)
             # Resizing of an image:
             img = cv2.resize(img, (60, 60))
-            # cv2.imwrite(destination_dir + "\\" + name, img)
-            upload_image(img, name, destination_dir)
+            cv2.imwrite(destination_dir + "\\" + name, img)
+            # upload_image(img, name, destination_dir)
             try:
                 os.remove(name)
             except:
-                pass
+                logging.warning("S: Image hadn't been deleted!!!")
         except:
             return False
         return True
@@ -526,7 +525,7 @@ class CatNode(object):
     @staticmethod
     def __upload_new_tree__(json_tree, right_url, download_function, destination):
         """
-        This function is a second part of upload_new_tree function. All description about its works
+        This function is a second part of upload_new_tree function. All description about its work
         is placed in upload_new_tree function's description.
         :param json_tree: tree_structured json string.
         :param right_url:
@@ -850,19 +849,36 @@ class CatNode(object):
         """
         # if cat_tree is not created:
         if CatNode.cat_tree is None:
-            db = pymongo.MongoClient().mydb
-            tree_dict = db.globals.find_one({"_id": "tg_globals"})["category_tree_dict"]
-            # build root:
-            c_tree = CatNode()
-            c_tree.name = "categories"  # or will it be better call "root"?
-            c_tree.level = 0
-            # connect root to subtrees:
-            for sub_dict_tree in tree_dict['categories']:
-                c_tree.children.append(CatNode(**sub_dict_tree))
-            for child in c_tree.children:
-                child.parent = c_tree
-            cls.cat_tree = c_tree
-        return cls.cat_tree
+            try:
+                db = pymongo.MongoClient().mydb
+                tree_dict = db.globals.find_one({"_id": "tg_globals"})["category_tree_dict"]
+            except pymongo.errors.ServerSelectionTimeoutError:
+                raise Exception("s: connection with server is failed ")
+                return None
+            return CatNode.__to_full_tree__(tree_dict)
+        return None
+
+    @staticmethod
+    def __to_full_tree__(tree_dict):
+        """
+        the function converts the obtainable dictionary
+        to CatNode tree.
+        :param tree_dict: tree dictionary is dictionary that presences
+               CatNode tree but in which root is not structured as CatNode
+               (without any of CatNode attributes).
+        :return:
+        """
+        # build root:
+        c_tree = CatNode()
+        c_tree.name = "categories"  # or will it be better to call "root"?
+        c_tree.level = 0
+        # connect root to subtrees:
+        for sub_dict_tree in tree_dict['categories']:
+            c_tree.children.append(CatNode(**sub_dict_tree))
+        for child in c_tree.children:
+            child.parent = c_tree
+        CatNode.cat_tree = c_tree
+        return CatNode.cat_tree
 
     def check_tree(self):
         """
@@ -887,7 +903,5 @@ class CatNode(object):
                 return False
         return True
 
-
 if __name__ == "__main__":
-    # TODO: check if computer is connected to a server, if not raise an error!!!
     tree = CatNode.get_tree()
