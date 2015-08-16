@@ -451,8 +451,8 @@ class CatNode(object):
             img = cv2.imread(name, 0)
             # Resizing of an image:
             img = cv2.resize(img, (60, 60))
-            cv2.imwrite(destination_dir + "\\" + name, img)
-            # upload_image(img, name, destination_dir)
+            # cv2.imwrite(destination_dir + "\\" + name, img)
+            upload_image(img, name, destination_dir)
             try:
                 os.remove(name)
             except:

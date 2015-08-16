@@ -16,13 +16,7 @@ List of functions that not necessary to check:
 - print_c_node
 - dict_is_suitable
 - __repr__
-"""
-"""
----------------------------------
-List of untested unctions:
-- get_tree
-- download_image
-- push_url
+- reset_id
 - upload_new_tree
 """
 
@@ -1326,12 +1320,18 @@ class TddCatNode(unittest.TestCase):
         self.assertEqual(json_size1, json_size2)
 
     # ---Block_of_tests_to_"change_urls_in_tree"_functions--- #
+    # def test_download_image(self):
+    #     if not os.path.exists("temp_folder1"):
+    #         os.makedirs("temp_folder1")
+    #     CatNode.download_image("https://s3.eu-central-1.amazonaws.com/fashion-category-images/10309.1.png",
+    #                            "temp_folder1")
+    #     self.assertEqual(len(os.listdir("temp_folder1")), 1)
+    #     shutil.rmtree("temp_folder1")
 
     def test_apply_to_all_nodes(self):
         def temp_func(c_node):
             c_node.name = "little Billy"
 
-        # gdhsdgfhgsdfhsrgsdfkjbsdkfgskdjfdshfgsdfgsdkfhgkfhgsd
         new_tree = CatNode(**self.tree_dict)
         new_tree.apply_to_all_nodes(temp_func)
         for child in new_tree.children:
@@ -1376,14 +1376,14 @@ class TddCatNode(unittest.TestCase):
             self.assertEqual(child["image"][:-len(CatNode.get_name(child["image"]))],
                              "https://s3.eu-central-1.amazonaws.com/fashion-category-images/")
 
-    # ------------------ block_of_find_right_answer_functions ---------------------------
+    # ------------------ block_of_tests_to_find_right_answer_functions ---------------------------
     def test_head(self):
         CatNode.cat_tree = CatNode(**self.tree_dict6)
         self.assertTrue(CatNode.cat_tree.check_tree())
         CatNode.cat_tree = CatNode(**self.tree_dict7)
         self.assertFalse(CatNode.cat_tree.check_tree())
 
-    def test_upload_new_tree(self):
+    def test___upload_new_tree__(self):
 
         def name_from_url(url):
             return os.path.basename(url.split('?')[0])
@@ -1416,10 +1416,17 @@ class TddCatNode(unittest.TestCase):
         self.assertEqual(len(os.listdir("temp_folder")), 4)
         shutil.rmtree("temp_folder")
 
+    def test_push_url(self):
+        tree = CatNode.from_str(self.json_str4)
+        new_tree = tree[0]
+        urls = []
+        CatNode.push_url(new_tree, "https://s3.eu-central-1.amazonaws.com/fashion-category-images/", urls)
+        CatNode.push_url(new_tree.children[0], "https://s3.eu-central-1.amazonaws.com/fashion-category-images/", urls)
+        self.assertEqual(len(urls), 1)
+
     def test_find_ans(self):
         CatNode.reset_id()
         tree = CatNode(**self.tree_dict6)
-        print type(tree.find_ans([34, 35]).id)
         self.assertEqual(tree.find_ans([34, 35]).id, 33)
         self.assertEqual(tree.find_ans([]).id, 1)
         self.assertEqual(tree.find_ans([29, 29]).id, 29)
@@ -1507,7 +1514,6 @@ class TddCatNode(unittest.TestCase):
         self.assertTrue(tree.find_by_id(1).id == 1 and type(tree.find_by_id(1)) is CatNode)
         self.assertTrue(tree.find_by_id(2).id == 2 and type(tree.find_by_id(2)) is CatNode)
         self.assertTrue(tree.find_by_id(74).id == 74 and type(tree.find_by_id(74)) is CatNode)
-        print type(tree.find_by_id(74, True))
         self.assertTrue(tree.find_by_id(74, True) == '74' and type(tree.find_by_id(74, True)) is str)
         self.assertTrue(tree.find_by_id(-32) is None)
         # find a list of nodes by their id:
@@ -1524,7 +1530,16 @@ class TddCatNode(unittest.TestCase):
         self.assertEqual([node.id for node in CatNode.build_path(tree.find_by_id(75))], [1, 57, 72, 75])
         self.assertEqual([node.id for node in CatNode.build_path(tree.find_by_id(37))], [1, 2, 32, 37])
 
-# ---Block_of_upload_new_tree------------------------------------------------#
+    def test___to_full_tree__(self):
+        dict_tree = json.loads(self.json_str2)
+        new_tree = CatNode.__to_full_tree__(dict_tree)
+        self.assertEqual(new_tree.size(), 41)
+
+    def test_get_tree(self):
+        # WARNING: this function will reload the cat_tree!!!
+        CatNode.cat_tree = None
+        CatNode.get_tree()
+        self.assertTrue(CatNode.cat_tree.size() > 0 and type(CatNode.cat_tree) is CatNode)
 
 if __name__ == '__main__':
     CatNode.get_tree()
