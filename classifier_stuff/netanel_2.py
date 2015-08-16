@@ -45,10 +45,16 @@ def find_and_download_images(feature_name, search_string, category_id, max_image
                                                                                feature=feature_name))
 
     job_results = [download_images_q.enqueue(download_image, prod, feature_name,
-                                             category_id, check_downloaded_images(), max_images)
+                                             category_id, max_images)
                    for prod in cursor]
 
-def download_image(prod, feature_name, category_id, downloaded_images, max_images):
+def download_image(prod, feature_name, category_id, max_images):
+    downloaded_images = 0
+    directory = os.path.join(category_id, feature_name)
+    try:
+        downloaded_images = len([name for name in os.listdir(directory) if os.path.isfile(name)])
+    except:
+        pass
     if downloaded_images < max_images:
             xlarge_url = prod['image']['sizes']['XLarge']['url']
 
@@ -60,7 +66,7 @@ def download_image(prod, feature_name, category_id, downloaded_images, max_image
             relevance = background_removal.image_is_relevant(img_arr)
             if relevance.is_relevant:
                 logging.info("Image is relevant...")
-                directory = os.path.join(category_id, feature_name)
+
                 filename = "{0}_{1}.jpg".format(feature_name, prod["id"])
                 filepath = os.path.join(directory, filename)
                 Utils.ensure_dir(directory)
