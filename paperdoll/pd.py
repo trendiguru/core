@@ -17,7 +17,7 @@ import numpy as np
 import requests
 
 import matlab.engine
-
+import imghdr
 
 def get_parse_from_matlab(image_filename):
     eng = matlab.engine.start_matlab('-nodesktop')
@@ -38,13 +38,17 @@ def get_parse_mask(image_url=None, image_filename=None):
         subprocess.Popen("cp " + image_filename + " inputimg.jpg", shell=True, stdout=subprocess.PIPE).stdout.read()
         time.sleep(0.05)  # give some time for file to write
         get_parse_from_matlab(image_filename)
-        return
-    response = requests.get(image_url, stream=True)
+        return [[],[],[]]
+    if image_url is not None:
+        response = requests.get(image_url, stream=True)
+
     with open('inputimg.jpg', 'wb') as out_file:
         shutil.copyfileobj(response.raw, out_file)
     del response
     time.sleep(0.1)  # give some time for file to write
     # img_array = imdecode(np.asarray(bytearray(response.content)), 1)
+    if 'jpeg' != imghdr.what('inputimg.jpg'):
+        return
     stripped_name = image_url.split('//')[1]
     modified_name = stripped_name.replace('/', '_')
     print('stripped name:' + stripped_name)
@@ -53,6 +57,7 @@ def get_parse_mask(image_url=None, image_filename=None):
     mask, label_names, pose = get_parse_from_matlab(modified_name)
     print('labels:' + str(label_names))
     label_dict = dict(zip(label_names, range(0, len(label_names))))
+    print('label dict'+str(label_dict))
     mask_np = np.array(mask, dtype=np.uint8)
     pose_np = np.array(pose, dtype=np.uint8)
     return mask_np, label_dict, pose_np
@@ -72,8 +77,11 @@ def test_scp():
 # os.system("scp -i ~/first_aws.pem  img.jpg ubuntu@extremeli.trendi.guru:.")
 
 if __name__ == "__main__":
-    img, labels, pose = get_parse_mask('img.jpg')
+    url =  'http://aelida.com/wp-content/uploads/2012/06/love-this-style.jpg'
+    url = 'http://assets.yandycdn.com/HiRez/ES-4749-B-AMPM2012-2.jpg'
+    img, labels, pose = get_parse_mask(image_url = url)
     show_max(img, labels)
+    print('labels:'+str(labels))
     #show_parse(img_array=img)
 
 # import matlab.engine

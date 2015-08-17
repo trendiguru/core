@@ -12,6 +12,7 @@ config{1}.model.thresh = -2;
 result = feature_calculator.apply(config, input_sample)
 
 mask = imdecode(result.final_labeling, 'png');
+mask = mask - 1;
 label_names = result.refined_labels;
 pose = result.pose;
 
