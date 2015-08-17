@@ -1,8 +1,9 @@
 #cheatsheet https://github.com/yaronr/docker-cheat-sheet
 #to access ports use -P option to port forward ports thru container wall, like
 #docker run -d -P training/webapp python app.py
+#docker run -d -p 8000:8000  --link pg:database -t django_app
 
-#to use 'regular' file in a docker container use -v:
+#to use local filesystem file in a docker container use -v:
 #docker run -d --name newguest3 -P -v /var/www/html/index.html:/var/www/html/index.html:ro mymod/httpd:v2
 #ro is read only - see http://docs.oracle.com/cd/E52668_01/E54669/html/section_vtr_p2z_fp.html
 

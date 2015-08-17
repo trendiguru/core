@@ -30,4 +30,3 @@ return
 %              pose: [1x106 double]
 %    refined_labels: {31x1 cell}
 %    final_labeling: [1x2231 uint8]
-

@@ -3,17 +3,17 @@ __author__ = 'Nadav Paz'
 import logging
 import random
 import copy
+
 import requests
 import numpy as np
-
 import pymongo
 import cv2
 import redis
 from rq import Queue
 import bson
 from bson import json_util
-import boto3
 
+import boto3
 import find_similar_mongo
 import background_removal
 import Utils
@@ -60,7 +60,7 @@ def get_item_by_id(item_id):
                     return image, person, item
         except:
             logging.warning("No items to this person, continuing..")
-            return None, None
+            return None, None, None
 
 
 def decode_task(args, vars, data):  # args(list) = person_id, vars(dict) = task, data(dict) = QC results
@@ -178,6 +178,7 @@ def send_item_to_qc_bb(person_url, person_id, item_dict):
 def from_bb_to_sorting_task(bb, person_id, item_id):
     if len(bb) == 0:
         logging.warning("No bb found")
+        return None
     # bb = determine_final_bb(bb_list)  # Yonti's function
     image, person, item = get_item_by_id(item_id)
     fp, results, svg = find_similar_mongo.got_bb(image['image_urls'][0], person_id, item_id, bb, 100, item['category'])
