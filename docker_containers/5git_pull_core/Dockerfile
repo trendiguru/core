@@ -1,3 +1,6 @@
+FROM tg3
+#FROM ubuntu:14.04
+
 #cheatsheet https://github.com/yaronr/docker-cheat-sheet
 #to access ports use -P option to port forward ports thru container wall, like
 #docker run -d -P training/webapp python app.py
@@ -11,7 +14,8 @@
 #docker run -d -p 8000:8000  --link pg:database -t django_app
 
 # for docker pycharm integration -  https://plugins.jetbrains.com/plugin/7724?pr=
-FROM test:latest
+
+
 
 RUN  echo 'helloworld' > test.txt
 
@@ -21,8 +25,13 @@ RUN  echo 'helloworld' > test.txt
 # i am currently trying ssh-keygen without passphrase
 #http://slash-dev-blog.me/docker-git.html
 #http://stackoverflow.com/questions/29929534/docker-error-unable-to-locate-package-git
+#docker run
 
-RUN apt-get update && apt-get install -y ca-certificates git-core ssh
+RUN apt-get update
+RUN apt-get install -y ca-certificates
+#RUN apt-get install -y git-core
+RUN apt-get install -y --force-yes git
+RUN apt-get install -y ssh
 
 #see https://confluence.atlassian.com/pages/viewpage.action?pageId=270827678
 #to generate default ssh keys
@@ -42,8 +51,11 @@ ADD ssh/ /home/testuser/.ssh/
 ADD ssh/ssh_config /etc/ssh/ssh_config
 
 # Fixes permission if needed
-#RUN chmod 600 /root/.ssh/*
+RUN chmod 600 /.ssh/*
 RUN chmod 600 /home/testuser/.ssh/*
+RUN chown testuser:testuser /home/testuser/
+ADD ssh/first_aws.pem /home/testuser/.ssh/first_aws.pem
+RUN chown testuser:testuser /home/testuser/.ssh/*
 
 # Avoid first connection host confirmation
 #changed port since i don't think bitbucket supports it
@@ -54,8 +66,14 @@ RUN chmod 600 /home/testuser/.ssh/*
 RUN ssh-keyscan  bitbucket.com > /home/testuser/.ssh/known_hosts
 
 RUN mkdir /home/testuser/tg
+RUN chown testuser:testuser /home/testuser/tg
 RUN mkdir /home/testuser/tg/Dev
+RUN chown testuser:testuser /home/testuser/tg/Dev
 WORKDIR /home/testuser/tg/Dev
 
+RUN apt-get -y --force-yes  install nano
 
+#USER testuser
+RUN whoami
 RUN git clone --verbose git@bitbucket.org:trendiGuru/core.git
+
