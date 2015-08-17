@@ -612,7 +612,7 @@ class CatNode(object):
         if key is not None:
             buck = Bucket(key=key, content=[id])
             return buck
-        logging.warning("error S: a bucket was not created!!!")
+        logging.warning("error s: a bucket was not created!!!")
         return None
 
     @staticmethod

@@ -32,6 +32,8 @@ class TddCatNode(unittest.TestCase):
         The function allows us to put things in place before each test case.
         :return:None
         """
+        # A variable of test___upload_new_tree__ function:
+        # self.upoad_new_tree_directory = "C:\Users\sergey\PycharmProjects\\bitbucket_projects\core\\temp_folder"
         self.main_tree = CatNode.get_tree()
         self.tree_dict = {"name": "root", "children": [
             {"name": "1", "children": [{"name": "1.1", "children": [], "attributes": []},
@@ -1412,7 +1414,7 @@ class TddCatNode(unittest.TestCase):
         js_tree = self.json_str4
         CatNode.__upload_new_tree__(js_tree,
                                     "https://s3.eu-central-1.amazonaws.com/fashion-category-images/", _download_image,
-                                    "C:\Users\sergey\PycharmProjects\\bitbucket_projects\core\\temp_folder")
+                                    "temp_folder")
         self.assertEqual(len(os.listdir("temp_folder")), 4)
         shutil.rmtree("temp_folder")
 
