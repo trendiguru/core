@@ -1,13 +1,16 @@
 import os
 import logging
+
 import cv2
 import pymongo
+from rq import Queue
+from redis import Redis
+
 import Utils
 import background_removal
 from find_similar_mongo import get_all_subcategories
-from rq import Queue
-from redis import Redis
-import time
+
+
 
 # Tell RQ what Redis connection to use
 redis_conn = Redis()
@@ -44,12 +47,10 @@ def find_and_download_images(feature_name, search_string, category_id, max_image
                                                                               feature=feature_name))
     job_results = []
     for prod in cursor:
-        job_results.append(download_images_q.enqueue(download_image, prod,
-                                                     feature_name, category_id, max_images))
-
-    while True:
-        time.sleep(3)
-        logging.info("Downloaded {0} images...".format(sum((done.result for done in job_results if done.result))))
+        res = download_images_q.enqueue(download_image, prod, feature_name, category_id, max_images)
+        job_results.append(res.results)
+        print('results are:' + str(res.results))
+    return job_results
 
 def download_image(prod, feature_name, category_id, max_images):
     downloaded_images = 0
@@ -101,8 +102,16 @@ def run():
                          'squareneck': "\"square neck\" \"square neckline\" squareneck",
                          'v-neck': "\"v-neck\" \"v-neckline\"  \"v neckline\" vneck"}
 
+    job_results_dict = dict.fromkeys(descriptions_dict)
+
     for name, search_string in descriptions_dict.iteritems():
-        find_and_download_images(name, search_string, "dresses", MAX_IMAGES)
+        job_results = find_and_download_images(name, search_string, "dresses", MAX_IMAGES)
+        job_results_list["name"] = job_results
+
+    while True:
+        for name, jrs in job_results_dict.iteritems():
+            logging.info(
+                "{0}: Downloaded {1} images...".format(name, sum((done.result for done in jrs if done.result))))
 
 
 if __name__ == '__main__':

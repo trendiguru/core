@@ -5,10 +5,10 @@ __author__ = 'jeremy'
 
 # paperdoll run from matlab
 # this needs to run on server that
-# has matlab running w. opencv3
+# has matlab running w. 2opencv3
 #which is currently 'mightili.trendi.guru'
 # paperdoll run from matlab - this needs to run on server that
-# has matlab running w. opencv3 , which is currently 'mightili.trendi.guru'
+# has matlab running w. 2opencv3 , which is currently 'mightili.trendi.guru'
 
 # testing a change #2
 
@@ -17,9 +17,10 @@ import shutil
 import time
 import numpy as np
 import requests
+import imghdr
 
 import matlab.engine
-import imghdr
+
 
 def get_parse_from_matlab(image_filename):
     eng = matlab.engine.start_matlab('-nodesktop')
