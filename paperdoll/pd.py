@@ -46,7 +46,7 @@ def get_parse_from_matlab(image_filename):
 def get_parse_mask(img_url_or_cv2_array):
 
     img = Utils.get_cv2_img_array(img_url_or_cv2_array)
-    if img and cv2.imwrite('inputimg.jpg', img):
+    if img is not None and cv2.imwrite('inputimg.jpg', img):
         if 'jpeg' != imghdr.what('inputimg.jpg'):
             return [[], [], []]
         stripped_name = img_url_or_cv2_array.split('//')[1]
