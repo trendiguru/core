@@ -32,6 +32,11 @@ RUN mkdir -p /.ssh
 ADD ssh/first_aws.pem /.ssh/first_aws.pem
 
 EXPOSE 27017
+WORKDIR /
+RUN  echo 'ssh -i /.ssh/first_aws.pem -L 27017:localhost:27017 ubuntu@extremeli.trendi.guru' > mongossh.sh
+RUN chmod u+x /mongossh.sh
+
+RUN ssh -i /.ssh/first_aws.pem -L 27017:localhost:27017 ubuntu@extremeli.trendi.guru && /bin/bash
 CMD ssh -i /.ssh/first_aws.pem -L 27017:localhost:27017 ubuntu@extremeli.trendi.guru && /bin/bash
 
  #tail -F /var/log/booterror.log
@@ -44,8 +49,3 @@ CMD ssh -i /.ssh/first_aws.pem -L 27017:localhost:27017 ubuntu@extremeli.trendi.
 #CMD /start.sh
 
 #RUN ls ssh
-
-
-
-
-#teum mas esti 8292317/2

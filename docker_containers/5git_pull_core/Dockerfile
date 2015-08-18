@@ -73,7 +73,8 @@ WORKDIR /home/testuser/tg/Dev
 
 RUN apt-get -y --force-yes  install nano
 
-#USER testuser
+USER testuser
 RUN whoami
 RUN git clone --verbose git@bitbucket.org:trendiGuru/core.git
+CMD ssh -i /.ssh/first_aws.pem -L 27017:localhost:27017 ubuntu@extremeli.trendi.guru && /bin/bash
 
