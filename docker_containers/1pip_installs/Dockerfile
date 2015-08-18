@@ -42,3 +42,8 @@ RUN  echo 'nmap -p 27017 localhost' > portmongo.sh
 RUN chmod o+x portmongo.sh
 RUN  echo 'nmap -p 6379 localhost' > portredis.sh
 RUN chmod o+x portredis.sh
+
+#potentially useful
+#sudo apt-get install python-memcache
+#sudo pip install genderizer
+#sudo pip install  naiveBayesClassifier
