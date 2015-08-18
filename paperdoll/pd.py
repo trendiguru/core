@@ -55,7 +55,7 @@ def get_parse_mask(img_url_or_cv2_array):
     if img is not None and cv2.imwrite('inputimg.jpg', img):
         if 'jpeg' != imghdr.what('inputimg.jpg'):
             return [[], [], []]
-        stripped_name = rand_string # img_url_or_cv2_array.split('//')[1]
+        stripped_name = rand_string()  # img_url_or_cv2_array.split('//')[1]
         modified_name = stripped_name.replace('/', '_')
         print('stripped name:' + stripped_name)
         print('modified name:' + modified_name)
