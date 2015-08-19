@@ -108,7 +108,7 @@ def run(category_id, search_string_dict=None, async=True):
 
     for name, search_string_list in search_string_dict.iteritems():
         for search_string in search_string_list:
-            cursor = find_products_by_description(search_string, "dresses", name)
+            cursor = find_products_by_description(search_string, category_id, name)
             job_results_dict[name] = enqueue_for_download(download_images_q, cursor, name, category_id, MAX_IMAGES)
 
     while True:
