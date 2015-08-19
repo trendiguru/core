@@ -6,9 +6,9 @@ import pymongo
 from rq import Queue
 from redis import Redis
 
-import Utils
-import background_removal
-from find_similar_mongo import get_all_subcategories
+from .. import Utils
+from .. import background_removal
+from ..find_similar_mongo import get_all_subcategories
 
 
 
@@ -18,7 +18,7 @@ download_images_q = Queue('download_images', connection=redis_conn)  # no args i
 # save_relevant_q = Queue('save_relevant', connection=redis_conn)  # no args implies the default queue
 
 
-logging.basicConfig(level=logging.INFO)
+# logging.basicConfig(level=logging.INFO)
 
 db = pymongo.MongoClient().mydb
 
@@ -48,8 +48,8 @@ def find_and_download_images(feature_name, search_string, category_id, max_image
     job_results = []
     for prod in cursor:
         res = download_images_q.enqueue(download_image, prod, feature_name, category_id, max_images)
-        job_results.append(res.results)
-        print('results are:' + str(res.results))
+        job_results.append(res.result)
+        print('results are:' + str(res.result))
     return job_results
 
 def download_image(prod, feature_name, category_id, max_images):
@@ -106,13 +106,19 @@ def run():
 
     for name, search_string in descriptions_dict.iteritems():
         job_results = find_and_download_images(name, search_string, "dresses", MAX_IMAGES)
-        job_results_list["name"] = job_results
+        job_results_dict[name] = job_results
 
     while True:
         for name, jrs in job_results_dict.iteritems():
             logging.info(
-                "{0}: Downloaded {1} images...".format(name, sum((done.result for done in jrs if done.result))))
+                "{0}: Downloaded {1} images...".format(name,
+                                                       sum((done.result for done in jrs if done and done.result))))
 
+def print_logging_info(msg):
+    print msg
+
+# hackety hack
+logging.info = print_logging_info
 
 if __name__ == '__main__':
     run()
