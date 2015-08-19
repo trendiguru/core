@@ -50,7 +50,7 @@ def find_products_by_description(search_string, category_id, feature_name=None):
 def enqueue_for_download(iterable, feature_name, category_id, max_images=MAX_IMAGES):
     job_results = []
     for prod in iterable:
-        res = download_images_q.enqueue(download_image, prod, feature_name, category_id, max_images)
+        res = download_images_q.enqueue(download_image, prod, feature_name, category_id, max_images, async=async)
         job_results.append(res.result)
     return job_results
 
@@ -79,7 +79,7 @@ def download_image(prod, feature_name, category_id, max_images):
                 logging.info("Attempting to save to {0}...".format(filepath))
                 success = cv2.imwrite(filepath, img_arr)
                 if not success:
-                    logging.warning("Could not save image")
+                    logging.info("!!!!!COULD NOT SAVE IMAGE!!!!!")
                     return 0
                 # downloaded_images += 1
                 logging.info("Saved... Downloaded approx. {0} images in this category/feature combination"
@@ -89,7 +89,7 @@ def download_image(prod, feature_name, category_id, max_images):
                 # TODO: Count number of irrelevant images (for statistics)
                 return 0
 
-def run():
+def run(async=True):
     logging.info('Starting...')
 
     # Leftovers:
@@ -111,7 +111,7 @@ def run():
     for name, search_string_list in descriptions_dict.iteritems():
         for search_string in search_string_list:
             cursor = find_products_by_description(search_string, "dresses", name)
-            job_results_dict[name] = enqueue_for_download(cursor, name, "dresess", MAX_IMAGES)
+            job_results_dict[name] = enqueue_for_download(cursor, name, "dresess", MAX_IMAGES, async=async)
 
     while True:
         time.sleep(10)
