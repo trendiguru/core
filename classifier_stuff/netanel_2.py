@@ -98,18 +98,21 @@ def run():
                     'ribbed round neck', 'rollneck',
                     'slash neck']
 
-    descriptions_dict = {'bowcollar': "\"bow collar\" bowcollar",
-                         'crewneck': "\"crew neck\" \"crew neckline\" crewneck \"classic neckline\"",
-                         'roundneck': "\"round neck\" \"round neckline\" roundneck",
-                         'scoopneck': "\"scoopneck\" \"scoop neckline\" scoopneck",
-                         'squareneck': "\"square neck\" \"square neckline\" squareneck",
-                         'v-neck': "\"v-neck\" \"v-neckline\"  \"v neckline\" vneck"}
+    # LESSONS: CANNOT PUT MULTIPLE PHRASES IN $text
+    # v-neck is a superset of v-neckline
+    descriptions_dict = {'bowcollar': ["\"bow collar\"", "bowcollar"],
+                         'crewneck': ["\"crew neck\"", "crewneck", "\"classic neckline\""],
+                         'roundneck': ["\"round neck\"", "roundneck"],
+                         'scoopneck': ["\"scoop neck\"", "scoopneck"],
+                         'squareneck': ["\"square neck\"", "squareneck"],
+                         'v-neck': ["\"v-neck\"", "\"v neck\"", "vneck"]}
 
     job_results_dict = dict.fromkeys(descriptions_dict)
 
-    for name, search_string in descriptions_dict.iteritems():
-        cursor = find_products_by_description(search_string, "dresses", name)
-        job_results_dict[name] = enqueue_for_download(cursor, name, "dresess", MAX_IMAGES)
+    for name, search_string_list in descriptions_dict.iteritems():
+        for search_string in search_string_list:
+            cursor = find_products_by_description(search_string, "dresses", name)
+            job_results_dict[name] = enqueue_for_download(cursor, name, "dresess", MAX_IMAGES)
 
     while True:
         time.sleep(10)
