@@ -111,7 +111,8 @@ def run():
     while True:
         for name, jrs in job_results_dict.iteritems():
             logging.info(
-                "{0}: Downloaded {1} images...".format(name, sum((done.result for done in jrs if done.result))))
+                "{0}: Downloaded {1} images...".format(name,
+                                                       sum((done.result for done in jrs if done and done.result))))
 
 def print_logging_info(msg):
     print msg
