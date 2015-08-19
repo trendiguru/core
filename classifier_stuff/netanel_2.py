@@ -18,7 +18,7 @@ download_images_q = Queue('download_images', connection=redis_conn)  # no args i
 # save_relevant_q = Queue('save_relevant', connection=redis_conn)  # no args implies the default queue
 
 
-logging.basicConfig(level=logging.INFO)
+# logging.basicConfig(level=logging.INFO)
 
 db = pymongo.MongoClient().mydb
 
@@ -106,13 +106,18 @@ def run():
 
     for name, search_string in descriptions_dict.iteritems():
         job_results = find_and_download_images(name, search_string, "dresses", MAX_IMAGES)
-        job_results_list["name"] = job_results
+        job_results_dict[name] = job_results
 
     while True:
         for name, jrs in job_results_dict.iteritems():
             logging.info(
                 "{0}: Downloaded {1} images...".format(name, sum((done.result for done in jrs if done.result))))
 
+def print_logging_info(msg):
+    print msg
+
+# hackety hack
+logging.info = print_logging_info
 
 if __name__ == '__main__':
     run()
