@@ -1,5 +1,6 @@
 import os
 import logging
+import time
 
 import cv2
 import pymongo
@@ -17,14 +18,13 @@ redis_conn = Redis()
 download_images_q = Queue('download_images', connection=redis_conn)  # no args implies the default queue
 # save_relevant_q = Queue('save_relevant', connection=redis_conn)  # no args implies the default queue
 
-
-# logging.basicConfig(level=logging.INFO)
+logging.basicConfig(level=logging.WARNING)
 
 db = pymongo.MongoClient().mydb
 
 MAX_IMAGES = 10000
 
-def find_and_download_images(feature_name, search_string, category_id, max_images):
+def find_products_by_description(search_string, category_id, feature_name=None):
 
     logging.info('****** Starting to find {0} *****'.format(feature_name))
 
@@ -45,8 +45,11 @@ def find_and_download_images(feature_name, search_string, category_id, max_image
     logging.info("Found {count} products in {category} with {feature}".format(count=cursor.count(),
                                                                               category=category_id,
                                                                               feature=feature_name))
+    return cursor
+
+def enqueue_for_download(iterable, feature_name, category_id, max_images=MAX_IMAGES):
     job_results = []
-    for prod in cursor:
+    for prod in iterable:
         res = download_images_q.enqueue(download_image, prod, feature_name, category_id, max_images)
         job_results.append(res.result)
         print('results are:' + str(res.result))
@@ -105,14 +108,15 @@ def run():
     job_results_dict = dict.fromkeys(descriptions_dict)
 
     for name, search_string in descriptions_dict.iteritems():
-        job_results = find_and_download_images(name, search_string, "dresses", MAX_IMAGES)
-        job_results_dict[name] = job_results
+        cursor = find_products_by_description(search_string, "dresses", name)
+        job_results_dict[name] = enqueue_for_download(cursor, name, "dresess", MAX_IMAGES)
 
     while True:
+        time.sleep(10)
         for name, jrs in job_results_dict.iteritems():
             logging.info(
                 "{0}: Downloaded {1} images...".format(name,
-                                                       sum((done.result for done in jrs if done and done.result))))
+                                                       sum((job.result for job in jrs if job and job.result))))
 
 def print_logging_info(msg):
     print msg

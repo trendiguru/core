@@ -53,6 +53,7 @@ def determine_gender_from_wiki(firstname, lastname=None):
                 #        print('text from wiki:'+text_from_wikipedia)
             return Genderizer.detect(firstName=firstname, text=text_from_wikipedia)
         except wikipedia.exceptions.DisambiguationError as e:
+            # this 2nd exception is because sometimes wiki thinks the query is ambiguous even i fyou choose the first option
             return Genderizer.detect(firstName=firstname)
 
 
@@ -63,6 +64,7 @@ if __name__ == '__main__':
     cdir = os.getcwd()
     dir = os.path.join(cdir, 'classifier_stuff/male-female/lfw-deepfunneled')
     dir = '/home/jeremy/jeremy.rutman@gmail.com/TrendiGuru/techdev/trendi_guru_modules/classifier_stuff/male-female/lfw-deepfunneled'
+    pdir = '/home/jeremy/jeremy.rutman@gmail.com/TrendiGuru/techdev/trendi_guru_modules/classifier_stuff/male-female/'
     subdirs = Utils.immediate_subdirs(dir)
     for subdir in subdirs:
         dirname = subdir.split('/')[-1]
@@ -76,18 +78,26 @@ if __name__ == '__main__':
             gender = 'None'
         print(firstname + ' ' + restofname + ' is ' + gender)
         if gender is 'male':
-            dst = os.path.join(dir, 'male')
+            dst = os.path.join(pdir, 'male')
             dst = os.path.join(dst, dirname)
             shutil.move(subdir, dst)
         elif gender is 'female':
-            dst = os.path.join(dir, 'female')
+            dst = os.path.join(pdir, 'female')
             dst = os.path.join(dst, dirname)
             shutil.move(subdir, dst)
         else:
-            dst = os.path.join(dir, 'unknown')
+            dst = os.path.join(pdir, 'unknown')
             dst = os.path.join(dst, dirname)
             shutil.move(subdir, dst)
             #raw_input('enter to continue')
+
+            # make a file with entries like:
+            # /path/to/image.ext;0
+            #for male and
+            #/path/to/image.ext;1
+
+
+
 
 
             '''
@@ -118,4 +128,7 @@ if __name__ == '__main__':
 
             else:
                 return None
-                            '''
+
+
+#genderizer screwed up on:
+                            anne_oneil '''
