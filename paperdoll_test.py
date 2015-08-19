@@ -44,13 +44,19 @@ def pd_test(image_url):
             bgnd_mask = 255 - item_mask
         if cv2.countNonZero(item_mask) > 2000:
             item_image = background_removal.get_masked_image(image, item_mask)
-            item_mask_gc = 2 * np.ones(np.shape(mask), np.uint8) - 1 * np.array(mask == num, dtype=np.uint8)
-            after_gc = background_removal.simple_mask_grabcut(image, item_mask_gc)
-            final_mask = np.bitwise_and(bgnd_mask, after_gc)
+            after_gc = create_gc_mask(image, item_mask, bgnd_mask)
             cv2.imshow(category + "'s image (" + str(num) + ')', item_image)
-            cv2.imshow(category + "'s gc image", background_removal.get_masked_image(image, final_mask))
+            cv2.imshow(category + "'s gc image",
+                       background_removal.get_masked_image(image, background_removal.get_masked_image(image, after_gc)))
             # cv2.imshow(category + "'s mask", 255 * item_mask / num)
             cv2.waitKey(0)
             cv2.destroyWindow(category + "'s image (" + str(num) + ')')
             cv2.destroyWindow(category + "'s gc image")
     cv2.destroyAllWindows()
+
+
+def create_gc_mask(image, pd_mask, bgnd_mask):
+    item_gc_mask = np.where(pd_mask == 255, 3, 2).astype('uint8')  # (2, 3) mask
+    after_gc_mask = background_removal.simple_mask_grabcut(image, item_gc_mask)  # (255, 0) mask
+    final_mask = cv2.bitwise_and(bgnd_mask, after_gc_mask)
+    return final_mask  # (255, 0) mask
