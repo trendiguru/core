@@ -37,11 +37,11 @@ def pd_test(image_url):
     cv2.imshow('color_mask', color_paperdoll_mask(mask))
     bgnd_mask = []
     for num in np.unique(mask):
-        # convert numbers to labels
+        # convert numbers to labelsC
         category = list(labels.keys())[list(labels.values()).index(num)]
         item_mask = 255 * np.array(mask == num, dtype=np.uint8)
         if category == 'null':
-            bgnd_mask = item_mask
+            bgnd_mask = 255 - item_mask
         if cv2.countNonZero(item_mask) > 2000:
             item_image = background_removal.get_masked_image(image, item_mask)
             item_mask_gc = 2 * np.ones(np.shape(mask), np.uint8) - 1 * np.array(mask == num, dtype=np.uint8)
