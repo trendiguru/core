@@ -56,7 +56,7 @@ def pd_test(image_url):
 
 
 def create_gc_mask(image, pd_mask, bgnd_mask):
-    item_gc_mask = np.where(pd_mask == 255, 3, 2).astype('uint8')  # (2, 3) mask
+    item_gc_mask = np.where(pd_mask == 255, 1, 2).astype('uint8')  # (2, 3) mask
     after_gc_mask = background_removal.simple_mask_grabcut(image, item_gc_mask)  # (255, 0) mask
     final_mask = cv2.bitwise_and(bgnd_mask, after_gc_mask)
     return final_mask  # (255, 0) mask
