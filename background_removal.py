@@ -326,8 +326,7 @@ def simple_mask_grabcut(image, mask):
     fgdmodel = np.zeros((1, 65), np.float64)
     cv2.grabCut(image, mask, rect, bgdmodel, fgdmodel, 1, cv2.GC_INIT_WITH_MASK)
     mask2 = np.where((mask == 1) + (mask == 3), 255, 0).astype('uint8')
-    detected_image = get_masked_image(image, mask2)
-    return detected_image
+    return mask2
 
 
 if __name__ == '__main__':
