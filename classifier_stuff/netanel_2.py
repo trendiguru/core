@@ -6,9 +6,9 @@ import pymongo
 from rq import Queue
 from redis import Redis
 
-import Utils
-import background_removal
-from find_similar_mongo import get_all_subcategories
+from .. import Utils
+from .. import background_removal
+from ..find_similar_mongo import get_all_subcategories
 
 
 
@@ -48,8 +48,8 @@ def find_and_download_images(feature_name, search_string, category_id, max_image
     job_results = []
     for prod in cursor:
         res = download_images_q.enqueue(download_image, prod, feature_name, category_id, max_images)
-        job_results.append(res.results)
-        print('results are:' + str(res.results))
+        job_results.append(res.result)
+        print('results are:' + str(res.result))
     return job_results
 
 def download_image(prod, feature_name, category_id, max_images):
