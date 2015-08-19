@@ -52,7 +52,6 @@ def enqueue_for_download(iterable, feature_name, category_id, max_images=MAX_IMA
     for prod in iterable:
         res = download_images_q.enqueue(download_image, prod, feature_name, category_id, max_images)
         job_results.append(res.result)
-        print('results are:' + str(res.result))
     return job_results
 
 def download_image(prod, feature_name, category_id, max_images):
