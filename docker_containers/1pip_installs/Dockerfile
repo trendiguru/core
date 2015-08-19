@@ -1,3 +1,7 @@
+#apache+config, etc
+#nginx+config, etc
+#web2py + our code (maintain this)
+
 FROM ubuntu:14.04
 
 RUN apt-get update
