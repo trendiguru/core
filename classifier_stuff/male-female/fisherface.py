@@ -136,6 +136,11 @@ class FaceRecognizer():
         self.int_labels = [self.labels_dict[key] for key in labels]
         self.train_labels = labels
         labels = np.array(self.int_labels)
+        print('labelsdict:' + str(self.labels_dict))
+        print('labelsdictrev:' + str(self.labels_dict_rev))
+        print('intlabels:' + str(self.int_labels))
+        print('trainlabels:' + str(self.train_labels))
+        print('labels:' + str(labels))
         self.train_imgs = images
         cv2imgs = [cv2.cvtColor(img, cv2.CV_BGR2GRAY) for img in images]
 
