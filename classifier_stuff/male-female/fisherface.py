@@ -100,7 +100,11 @@ class FaceRecognizer():
             filereader = csv.reader(f, delimiter=delimiter)
             for row in filereader:
                 # images.append(Image(row[0]))
-                images.append(cv2.imread(row[0]))
+                print('reading {0} : {1}'.format(row[0], row[1])
+                img_arr = cv2.imread(row[0])
+                if img_arr is None:
+                    continue
+                images.append(img_arr)
                 labels.append(row[1])
 
         if isinstance(labels, type(None)):
