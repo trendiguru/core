@@ -11,18 +11,28 @@ from .. import Utils
 from .. import background_removal
 from ..find_similar_mongo import get_all_subcategories
 
-
-
 # Tell RQ what Redis connection to use
 redis_conn = Redis()
-download_images_q = Queue('download_images', connection=redis_conn)  # no args implies the default queue
-# save_relevant_q = Queue('save_relevant', connection=redis_conn)  # no args implies the default queue
-
+# download_images_q = Queue('download_images', connection=redis_conn)  # no args implies the default queue
 logging.basicConfig(level=logging.WARNING)
-
 db = pymongo.MongoClient().mydb
 
 MAX_IMAGES = 10000
+
+# Leftovers:
+descriptions = ['round collar', 'bow collar',
+                'ribbed round neck', 'rollneck',
+                'slash neck']
+
+# LESSONS: CANNOT PUT MULTIPLE PHRASES IN $text
+# v-neck is a superset of v-neckline
+descriptions_dict = {'bowcollar': ["\"bow collar\"", "bowcollar"],
+                     'crewneck': ["\"crew neck\"", "crewneck", "\"classic neckline\""],
+                     'roundneck': ["\"round neck\"", "roundneck"],
+                     'scoopneck': ["\"scoop neck\"", "scoopneck"],
+                     'squareneck': ["\"square neck\"", "squareneck"],
+                     'v-neck': ["\"v-neck\"", "\"v neck\"", "vneck"]}
+
 
 def find_products_by_description(search_string, category_id, feature_name=None):
 
@@ -47,12 +57,11 @@ def find_products_by_description(search_string, category_id, feature_name=None):
                                                                               feature=feature_name))
     return cursor
 
-def enqueue_for_download(iterable, feature_name, category_id, max_images=MAX_IMAGES):
+def enqueue_for_download(q, iterable, feature_name, category_id, max_images=MAX_IMAGES):
     job_results = []
     for prod in iterable:
-        res = download_images_q.enqueue(download_image, prod, feature_name, category_id, max_images)
+        res = q.enqueue(download_image, prod, feature_name, category_id, max_images)
         job_results.append(res.result)
-        print('results are:' + str(res.result))
     return job_results
 
 def download_image(prod, feature_name, category_id, max_images):
@@ -80,7 +89,7 @@ def download_image(prod, feature_name, category_id, max_images):
                 logging.info("Attempting to save to {0}...".format(filepath))
                 success = cv2.imwrite(filepath, img_arr)
                 if not success:
-                    logging.warning("Could not save image")
+                    logging.info("!!!!!COULD NOT SAVE IMAGE!!!!!")
                     return 0
                 # downloaded_images += 1
                 logging.info("Saved... Downloaded approx. {0} images in this category/feature combination"
@@ -90,26 +99,17 @@ def download_image(prod, feature_name, category_id, max_images):
                 # TODO: Count number of irrelevant images (for statistics)
                 return 0
 
-def run():
+def run(category_id, search_string_dict=None, async=True):
     logging.info('Starting...')
-
-    # Leftovers:
-    descriptions = ['round collar', 'bow collar',
-                    'ribbed round neck', 'rollneck',
-                    'slash neck']
-
-    descriptions_dict = {'bowcollar': "\"bow collar\" bowcollar",
-                         'crewneck': "\"crew neck\" \"crew neckline\" crewneck \"classic neckline\"",
-                         'roundneck': "\"round neck\" \"round neckline\" roundneck",
-                         'scoopneck': "\"scoopneck\" \"scoop neckline\" scoopneck",
-                         'squareneck': "\"square neck\" \"square neckline\" squareneck",
-                         'v-neck': "\"v-neck\" \"v-neckline\"  \"v neckline\" vneck"}
+    download_images_q = Queue('download_images', connection=redis_conn, async=async)
+    search_string_dict = search_string_dict or descriptions_dict
 
     job_results_dict = dict.fromkeys(descriptions_dict)
 
-    for name, search_string in descriptions_dict.iteritems():
-        cursor = find_products_by_description(search_string, "dresses", name)
-        job_results_dict[name] = enqueue_for_download(cursor, name, "dresess", MAX_IMAGES)
+    for name, search_string_list in search_string_dict.iteritems():
+        for search_string in search_string_list:
+            cursor = find_products_by_description(search_string, category_id, name)
+            job_results_dict[name] = enqueue_for_download(download_images_q, cursor, name, category_id, MAX_IMAGES)
 
     while True:
         time.sleep(10)

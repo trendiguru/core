@@ -61,6 +61,11 @@ if __name__ == '__main__':
     print 'starting'
     #gender = determine_gender_from_wiki('Aaron','Swartz')
     #print gender
+    gender = determine_gender_from_wiki('Jeremy', lastname='Lastname')
+    print('gender:' + str(gender))
+    gender = determine_gender_from_wiki('Sergiy', lastname='Sabag')
+    print('gender:' + str(gender))
+
     cdir = os.getcwd()
     dir = os.path.join(cdir, 'classifier_stuff/male-female/lfw-deepfunneled')
     dir = '/home/jeremy/jeremy.rutman@gmail.com/TrendiGuru/techdev/trendi_guru_modules/classifier_stuff/male-female/lfw-deepfunneled'
