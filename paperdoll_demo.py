@@ -37,6 +37,7 @@ def from_svg_to_similar_results(svg_url, image_url):
         return None
     image_dict = db.images.find_one({'image_urls': image_url})
     # find relevant item
+    current_item = {}
     for item in image_dict["items"]:
         if item["svg_url"] == svg_url:
             current_item = item
