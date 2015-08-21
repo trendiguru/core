@@ -100,9 +100,15 @@ class FaceRecognizer():
             filereader = csv.reader(f, delimiter=delimiter)
             for row in filereader:
                 # images.append(Image(row[0]))
-                images.append(cv2.imread(row[0]))
+                print('reading {0} class {1}'.format(row[0], row[1]))
+                img_arr = cv2.imread(row[0])
+                if img_arr is None:
+                    print('unsuccesful read of ' + str(row[0]))
+                    continue
+                images.append(img_arr)
                 labels.append(row[1])
 
+        print('labels:' + str(labels))
         if isinstance(labels, type(None)):
             warnings.warn("Labels not provided. Training not inititated.")
             return None
@@ -114,6 +120,8 @@ class FaceRecognizer():
             self.labels_dict_rev.update({i: label})
             i += 1
 
+        print('labelsdict:' + str(self.labels_dict))
+        print('labelsdictrev:' + str(self.labels_dict_rev))
         if len(self.labels_set) < 2:
             warnings.warn("At least two classes/labels are required"
                           "for training. Training not inititated.")
@@ -130,8 +138,11 @@ class FaceRecognizer():
                   else cv2.resize(img, (w, h)) for img in images]
 
         self.int_labels = [self.labels_dict[key] for key in labels]
+        print('intlabels:' + str(self.int_labels))
         self.train_labels = labels
+        print('trainlabels:' + str(self.train_labels))
         labels = np.array(self.int_labels)
+        print('labels:' + str(labels))
         self.train_imgs = images
         cv2imgs = [cv2.cvtColor(img, cv2.CV_BGR2GRAY) for img in images]
 
