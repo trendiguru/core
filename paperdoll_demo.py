@@ -82,9 +82,9 @@ def find_or_create_image(image_url):
     """
     if Utils.get_cv2_img_array(image_url) is None:
         return None
-    image_dict = db.images.find_one({"image_url": image_url})
+    image_dict = db.images.find_one({"image_urls": image_url})
     if image_dict is None or 'items' not in image_dict.keys():
-        image_id = db.images.insert({"image_url": image_url})
+        image_id = db.images.insert({"image_urls": [image_url]})
         image_temp_dict = from_image_url_to_svgs(image_url, image_id)
         image_dict = db.images.find_one_and_update({'_id': image_id}, {'$set': image_temp_dict},
                                                    return_document=pymongo.ReturnDocument.AFTER)
