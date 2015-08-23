@@ -88,12 +88,9 @@ def get_voting_stage(item_id):
         return 0
 
 
-def get_paperdoll_data(image_url):
-    image = background_removal.standard_resize(Utils.get_cv2_img_array(image_url), 400)
-    if image is None:
-        logging.warning("There's no image in the url!")
-        return None
-    mask, labels, pose = paperdoll_parse_enqueue.paperdoll_enqueue(image_url, async=False)
+def get_paperdoll_data(image):
+    image = background_removal.standard_resize(image, 400)
+    mask, labels, pose = paperdoll_parse_enqueue.paperdoll_enqueue(image, async=False)
     after_paperdoll_work_conclusions(mask, labels)
 
 
@@ -106,6 +103,22 @@ def person_isolation(image, face):
     image_copy = np.concatenate((back_mat, image[:, x_back:x_ahead, :], ahead_mat), 1)
     return image_copy
 
+
+def create_gc_mask(image, pd_mask, bgnd_mask):
+    item_bb = bb_from_mask(pd_mask)
+    item_gc_mask = background_removal.paperdoll_item_mask(pd_mask, item_bb)
+    after_gc_mask = background_removal.simple_mask_grabcut(image, item_gc_mask)  # (255, 0) mask
+    final_mask = cv2.bitwise_and(bgnd_mask, after_gc_mask)
+    return final_mask  # (255, 0) mask
+
+
+def bb_from_mask(mask):
+    r, c = mask.nonzero()
+    x = min(c)
+    y = min(r)
+    w = max(c) - x + 1
+    h = max(r) - y + 1
+    return x, y, w, h
 
 # ---------------------------------------------------------------------------------------------------------------------
 
@@ -127,7 +140,7 @@ def start_process(image_url):
                 image_copy = person_isolation(image, face)
                 person['url'] = upload_image(image_copy, str(person['person_id']))
                 image_dict['people'].append(person)
-                # q2.enqueue(get_paperdoll_data, person['url'], person['person_id'])
+                q2.enqueue(get_paperdoll_data, person['url'], person['person_id'])
         else:
             logging.warning('image is not relevant, but stored anyway..')
         images.insert(image_dict)

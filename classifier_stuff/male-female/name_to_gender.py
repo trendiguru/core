@@ -1,7 +1,7 @@
 __author__ = 'jeremy'
 # sudo pip install generdizer
 #sudo pip install  naiveBayesClassifier
-#sudo pip install memchache
+# apt-get install memchached
 #import request#from lxml import html
 #cont = requests.get("https://en.wikipedia.org/wiki/Muhammad_Ali").content
 #list_of_strings_in_p = html.fromstring(cont).xpath('//p/text()')

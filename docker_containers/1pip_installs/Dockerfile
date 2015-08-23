@@ -41,6 +41,11 @@ RUN pip install pyparsing
 RUN pip install pytz
 RUN pip install matplotlib
 
+
+#genderizer, bayes is for text analysis - helper func to generate training files
+RUN pip install genderizer
+RUN pip install  naiveBayesClassifier
+
 #so you can check port forwarding with a single command
 RUN  echo 'nmap -p 27017 localhost' > portmongo.sh
 RUN chmod o+x portmongo.sh
