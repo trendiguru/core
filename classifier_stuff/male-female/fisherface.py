@@ -433,6 +433,7 @@ if __name__ == "__main__":
             sumone += 1
         else:
             print('apparently there is a third category')
+    print(' male tests: {0} male {1} female').format(sumzero, sumone)
     imgs = ImageSet("test/female")
     predictions = f.predict(imgs)
     print predictions
@@ -446,3 +447,4 @@ if __name__ == "__main__":
             sumone += 1
         else:
             print('apparently there is a third category')
+    print(' male tests: {0} male {1} female').format(sumzero, sumone)
