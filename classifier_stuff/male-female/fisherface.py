@@ -420,5 +420,7 @@ if __name__ == "__main__":
     f = FaceRecognizer()
     csvfile = 'genders_small.csv'
     f.train(csvfile=csvfile, delimiter=";")
-    imgs = ImageSet("test")
+    imgs = ImageSet("test/male")
+    print f.predict(imgs)
+    imgs = ImageSet("test/female")
     print f.predict(imgs)
