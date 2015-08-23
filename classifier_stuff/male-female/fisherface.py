@@ -429,7 +429,7 @@ if __name__ == "__main__":
         a = p[0]
         if a == '0':
             sumzero += 1
-        if a == '1':
+        elif a == '1':
             sumone += 1
         else:
             print('apparently there is a third category')
@@ -442,7 +442,7 @@ if __name__ == "__main__":
         a = p[0]
         if a == '0':
             sumzero += 1
-        if a == '1':
+        elif a == '1':
             sumone += 1
         else:
             print('apparently there is a third category')
