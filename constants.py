@@ -1,4 +1,5 @@
 import cv2
+import os
 
 # file containing constants for general TG use
 
@@ -18,7 +19,9 @@ min_images_per_doc = 10  # item has to have at least this number of pics
 max_images_per_doc = 18  # item has to have less than this number of pics
 max_items = 50  # max number of items to consider for rating fingerprint
 
-classifiers_folder = "/home/ubuntu/Dev/trendi_guru_modules/classifiers/"
+
+project_dir = os.path.dirname(__file__)
+classifiers_folder = os.path.join(project_dir, 'classifiers')
 
 # classifier to category relation
 classifier_to_category_dict = {"dressClassifier.xml": ["dresses", "bridal-mother-dresses", "bridal-bridesmaid-dresses",
