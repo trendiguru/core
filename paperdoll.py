@@ -104,6 +104,22 @@ def person_isolation(image, face):
     return image_copy
 
 
+def create_gc_mask(image, pd_mask, bgnd_mask):
+    item_bb = bb_from_mask(pd_mask)
+    item_gc_mask = background_removal.paperdoll_item_mask(pd_mask, item_bb)
+    after_gc_mask = background_removal.simple_mask_grabcut(image, item_gc_mask)  # (255, 0) mask
+    final_mask = cv2.bitwise_and(bgnd_mask, after_gc_mask)
+    return final_mask  # (255, 0) mask
+
+
+def bb_from_mask(mask):
+    r, c = mask.nonzero()
+    x = min(c)
+    y = min(r)
+    w = max(c) - x + 1
+    h = max(r) - y + 1
+    return x, y, w, h
+
 # ---------------------------------------------------------------------------------------------------------------------
 
 
