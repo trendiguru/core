@@ -88,12 +88,9 @@ def get_voting_stage(item_id):
         return 0
 
 
-def get_paperdoll_data(image_url):
-    image = background_removal.standard_resize(Utils.get_cv2_img_array(image_url), 400)
-    if image is None:
-        logging.warning("There's no image in the url!")
-        return None
-    mask, labels, pose = paperdoll_parse_enqueue.paperdoll_enqueue(image_url, async=False)
+def get_paperdoll_data(image):
+    image = background_removal.standard_resize(image, 400)
+    mask, labels, pose = paperdoll_parse_enqueue.paperdoll_enqueue(image, async=False)
     after_paperdoll_work_conclusions(mask, labels)
 
 
@@ -127,7 +124,7 @@ def start_process(image_url):
                 image_copy = person_isolation(image, face)
                 person['url'] = upload_image(image_copy, str(person['person_id']))
                 image_dict['people'].append(person)
-                # q2.enqueue(get_paperdoll_data, person['url'], person['person_id'])
+                q2.enqueue(get_paperdoll_data, person['url'], person['person_id'])
         else:
             logging.warning('image is not relevant, but stored anyway..')
         images.insert(image_dict)
