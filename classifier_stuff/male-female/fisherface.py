@@ -425,7 +425,8 @@ if __name__ == "__main__":
     print predictions
     sumzero = 0
     sumone = 0
-    for a, b in predictions:
+    for p in predictions:
+        a = p[0]
         if a == '0':
             sumzero += 1
         if a == '1':
@@ -437,7 +438,8 @@ if __name__ == "__main__":
     print predictions
     sumzero = 0
     sumone = 0
-    for a, b in predictions:
+    for p in predictions:
+        a = p[0]
         if a == '0':
             sumzero += 1
         if a == '1':
