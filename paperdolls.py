@@ -156,17 +156,28 @@ def start_process(image_url):
 
 def from_paperdoll_to_similar_results(person_id, mask, labels):
     image, person = get_person_by_id(person_id)
-    bgnd_mask = []
     items = []
+    bgnd_mask = []
     for num in np.unique(mask):
         # convert numbers to labels
         category = list(labels.keys())[list(labels.values()).index(num)]
         item_mask = 255 * np.array(mask == num, dtype=np.uint8)
         if category == 'null':
-            bgnd_mask = 255 - item_mask
-        if cv2.countNonZero(item_mask) > 2000:
-            item_image = background_removal.get_masked_image(image, item_mask)
-            after_gc = create_gc_mask(image, item_mask, bgnd_mask)
+            bgnd_mask = 255 - item_mask  # (255, 0) masks list
+        if cv2.countNonZero(item_mask) > 2000 and category in constants.paperdoll_shopstyle_converter.keys():
+            item_gc_mask = create_gc_mask(image, item_mask, bgnd_mask)  # (255, 0) mask
+            item_dict = {"category": constants.paperdoll_shopstyle_converter[category]}
+            mask_name = folder + str(image_id) + '_' + item_dict['category'] + '.png'
+            item_dict['mask_name'] = mask_name
+            cv2.imwrite(mask_name, item_gc_mask)
+            # create svg for each item
+            item_dict["svg_name"] = find_similar_mongo.mask2svg(
+                item_gc_mask,
+                str(image_id) + '_' + item_dict['category'],
+                constants.svg_folder)
+            item_dict["svg_url"] = constants.svg_url_prefix + item_dict["svg_name"]
+            items.append(item_dict)
+    image_dict = {"items": items}
 
 
 def db_update_to_sorting_task(item_id):
