@@ -421,6 +421,26 @@ if __name__ == "__main__":
     csvfile = 'genders_small.csv'
     f.train(csvfile=csvfile, delimiter=";")
     imgs = ImageSet("test/male")
-    print f.predict(imgs)
+    predictions = f.predict(imgs)
+    print predictions
+    sumzero = 0
+    sumone = 0
+    for a, b in predictions:
+        if a == '0':
+            sumzero += 1
+        if a == '1':
+            sumone += 1
+        else:
+            print('apparently there is a third category')
     imgs = ImageSet("test/female")
-    print f.predict(imgs)
+    predictions = f.predict(imgs)
+    print predictions
+    sumzero = 0
+    sumone = 0
+    for a, b in predictions:
+        if a == '0':
+            sumzero += 1
+        if a == '1':
+            sumone += 1
+        else:
+            print('apparently there is a third category')
