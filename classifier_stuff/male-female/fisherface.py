@@ -4,6 +4,7 @@ import warnings
 import os
 import collections
 import numpy as np
+import re
 
 import cv2
 
@@ -144,7 +145,8 @@ class FaceRecognizer():
         labels = np.array(self.int_labels)
         print('labels:' + str(labels))
         self.train_imgs = images
-        cv2imgs = [cv2.cvtColor(img, cv2.CV_BGR2GRAY) for img in images]
+        # cv2imgs = [cv2.cvtColor(img, cv2.cv.CV_BGR2GRAY) for img in images]
+        cv2imgs = [cv2.cvtColor(img, cv2.COLOR_BGR2GRAY) for img in images]
 
         self.model.train(cv2imgs, labels)
         # Not yet supported
