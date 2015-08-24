@@ -101,7 +101,7 @@ N_category_votes_required = 2
 
 bb_iou_threshold = 0.5  # how much overlap there must be between bbs
 
-if cv2.__version__ == '3.0.0':
+if cv2.__version__ == '3.0.0' or cv2.__version__ == '3.0.0-dev':
     scale_flag = cv2.CASCADE_SCALE_IMAGE
 else:
     scale_flag = cv2.cv.CV_HAAR_SCALE_IMAGE
