@@ -16,6 +16,7 @@ from ...find_similar_mongo import get_all_subcategories
 
 
 
+
 # Tell RQ what Redis connection to use
 redis_conn = Redis()
 # download_images_q = Queue('download_images', connection=redis_conn)  # no args implies the default queue
@@ -35,6 +36,12 @@ descriptions_dict = {'womens': ["women", "female", "womens"],
 
 
 def find_products_by_description(search_string, category_id, feature_name=None):
+    if category_id is None:
+        logging.warning('no category given')
+        return
+    if db.categories is None:
+        logging.warning('no db categories')
+        return
     logging.info('****** Starting to find {0} *****'.format(feature_name))
 
     query = {"$and": [{"$text": {"$search": search_string}},
