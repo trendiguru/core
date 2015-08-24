@@ -20,6 +20,7 @@ from ...find_similar_mongo import get_all_subcategories
 
 
 
+
 # Tell RQ what Redis connection to use
 redis_conn = Redis()
 # download_images_q = Queue('download_images', connection=redis_conn)  # no args implies the default queue
@@ -145,5 +146,5 @@ def print_logging_info(msg):
 logging.info = print_logging_info
 
 if __name__ == '__main__':
-    category_id = 'Boots'
+    category_id = 'mens-clothing'
     run(category_id)
