@@ -24,6 +24,7 @@ QC_URL = 'https://extremeli.trendi.guru/api/fake_qc/index'
 callback_url = "https://extremeli.trendi.guru/api/nadav/index"
 db = pymongo.MongoClient().mydb
 images = pymongo.MongoClient().mydb.images
+iip = pymongo.MongoClient().mydb.iip
 r = redis.Redis()
 q1 = Queue('images_queue', connection=r)
 q2 = Queue('send_to_categorize', connection=r)
