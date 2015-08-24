@@ -10,6 +10,7 @@ def show_files():
     BASE_PATH = os.path.join(BASE_PATH, 'female')
     print('basepath:' + BASE_PATH)
     for dirname, dirnames, filenames in os.walk(BASE_PATH):
+        dirnames.sort()
         for subdirname in dirnames:
             subject_path = os.path.join(dirname, subdirname)
             for filename in os.listdir(subject_path):
@@ -29,6 +30,8 @@ if __name__ == "__main__":
     #        sys.exit(1)
 
     #    BASE_PATH=sys.argv[1]
+    if (1):
+        show_files()
 
     csv_filename = 'genders.csv'
     SEPARATOR = ";"
