@@ -21,6 +21,7 @@ from ...find_similar_mongo import get_all_subcategories
 
 
 
+
 # Tell RQ what Redis connection to use
 redis_conn = Redis()
 # download_images_q = Queue('download_images', connection=redis_conn)  # no args implies the default queue
@@ -77,6 +78,9 @@ def find_products_by_description(search_string, category_id, feature_name=None):
 
 def enqueue_for_download(q, iterable, feature_name, category_id, max_images=MAX_IMAGES):
     job_results = []
+    if iterable is None:
+        logging.warning('iterable in enq for dl is None')
+        return
     for prod in iterable:
         res = q.enqueue(download_image, prod, feature_name, category_id, max_images)
         job_results.append(res.result)
