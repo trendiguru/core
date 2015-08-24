@@ -88,16 +88,16 @@ def get_voting_stage(item_id):
         return 0
 
 
-def get_paperdoll_data(image):
-    image = background_removal.standard_resize(image, 400)
+def get_paperdoll_data(image, person_id):
+    # TODO - I would be glad if a few workers could work on this queue
     mask, labels, pose = paperdoll_parse_enqueue.paperdoll_enqueue(image, async=False)
-    after_paperdoll_work_conclusions(mask, labels)
+    from_paperdoll_to_similar_results(person_id, mask, labels)
 
 
 def person_isolation(image, face):
     x, y, w, h = face
-    x_back = np.max([x - 2 * w, 0])
-    x_ahead = np.min([x + 3 * w, image.shape[1] - 2])
+    x_back = np.max([x - 1.5 * w, 0])
+    x_ahead = np.min([x + 2.5 * w, image.shape[1] - 2])
     back_mat = np.zeros((image.shape[0], x_back, 3), dtype=np.uint8)
     ahead_mat = np.zeros((image.shape[0], image.shape[1] - x_ahead, 3), dtype=np.uint8)
     image_copy = np.concatenate((back_mat, image[:, x_back:x_ahead, :], ahead_mat), 1)
@@ -154,12 +154,30 @@ def start_process(image_url):
         return image_obj
 
 
-def after_paperdoll_work_conclusions(mask, labels):
-    bla
-    bla
-    for item in final_items:
-        bli
-        blo
+def from_paperdoll_to_similar_results(person_id, mask, labels):
+    image, person = get_person_by_id(person_id)
+    items = []
+    bgnd_mask = []
+    for num in np.unique(mask):
+        # convert numbers to labels
+        category = list(labels.keys())[list(labels.values()).index(num)]
+        item_mask = 255 * np.array(mask == num, dtype=np.uint8)
+        if category == 'null':
+            bgnd_mask = 255 - item_mask  # (255, 0) masks list
+        if cv2.countNonZero(item_mask) > 2000 and category in constants.paperdoll_shopstyle_converter.keys():
+            item_gc_mask = create_gc_mask(image, item_mask, bgnd_mask)  # (255, 0) mask
+            item_dict = {"category": constants.paperdoll_shopstyle_converter[category]}
+            mask_name = folder + str(image_id) + '_' + item_dict['category'] + '.png'
+            item_dict['mask_name'] = mask_name
+            cv2.imwrite(mask_name, item_gc_mask)
+            # create svg for each item
+            item_dict["svg_name"] = find_similar_mongo.mask2svg(
+                item_gc_mask,
+                str(image_id) + '_' + item_dict['category'],
+                constants.svg_folder)
+            item_dict["svg_url"] = constants.svg_url_prefix + item_dict["svg_name"]
+            items.append(item_dict)
+    image_dict = {"items": items}
 
 
 def db_update_to_sorting_task(item_id):

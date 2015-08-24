@@ -1,5 +1,7 @@
-import cv2
 import os
+
+import cv2
+
 
 # file containing constants for general TG use
 
@@ -64,6 +66,13 @@ IRELEVANT_ITEMS = {'1': 'background', '6': 'bag', '7': 'shoes', '10': 'purse', '
                    '48': 'sneakers', '49': 'clogs', '50': 'watchs', '51': 'pumps', '52': 'wallets', '53': 'bodysuit',
                    '54': 'loafers', '55': 'hair', '56': 'skin'}
 
+paperdoll_shopstyle_converter = {'top': 'womens-tops', 'pants': 'womens-pants', 'shorts': 'shorts', 'jeans': 'jeans',
+                                 'jacket': 'jackets', 'blazer': 'blazers', 'shirt': 'womens-tops', 'skirt': 'skirts',
+                                 'blouse': 'womens-tops', 'dress': 'dresses', 'sweater': 'sweaters',
+                                 't-shirt': 'tees-and-tshirts', 'cardigan': 'cardigan-sweaters', 'coat': 'coats',
+                                 'suit': 'womens-suits', 'vest': 'vests', 'sweatshirt': 'sweatshirts',
+                                 'jumper': 'v-neck-sweaters', 'bodysuit': 'shapewear', 'leggings': 'leggings',
+                                 'stockings': 'hosiery', 'tights': 'leggings'}
 # for web bounding box interface
 # this is for going to the previous item, highest numbered image
 max_image_val = 666
