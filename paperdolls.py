@@ -145,7 +145,7 @@ def start_process(page_url, image_url):
                 relevant_faces = relevance.faces.tolist()
                 idx = 0
                 for face in relevant_faces:
-                    person = {'face': face.tolist(), 'person_id': str(bson.ObjectId()), 'person_idx': idx, 'items': []}
+                    person = {'face': face, 'person_id': str(bson.ObjectId()), 'person_idx': idx, 'items': []}
                     image_copy = person_isolation(image, face)
                     person['url'] = upload_image(image_copy, str(person['person_id']))
                     image_dict['people'].append(person)
