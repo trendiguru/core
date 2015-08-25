@@ -143,14 +143,15 @@ def start_process(page_url, image_url):
             if relevance.is_relevant:
                 image_dict['people'] = []
                 relevant_faces = relevance.faces.tolist()
+                idx = 0
                 for face in relevant_faces:
-                    person = {'face': face.tolist(), 'person_id': str(bson.ObjectId()),
-                              'person_idx': relevance.faces.tolist().index(face), 'items': []}
+                    person = {'face': face.tolist(), 'person_id': str(bson.ObjectId()), 'person_idx': idx, 'items': []}
                     image_copy = person_isolation(image, face)
                     person['url'] = upload_image(image_copy, str(person['person_id']))
                     image_dict['people'].append(person)
                     get_paperdoll_data(person['url'], person['person_id'])
                     # q2.enqueue(get_paperdoll_data, person['url'], person['person_id'])
+                    idx += 1
                 iip.insert(image_dict)
             else:  # if not relevant
                 logging.warning('image is not relevant, but stored anyway..')
@@ -179,7 +180,6 @@ def from_paperdoll_to_similar_results(person_id, mask, labels):
         if category == 'null':
             bgnd_mask = 255 - item_mask  # (255, 0) masks list
         if cv2.countNonZero(item_mask) > 2000 and category in constants.paperdoll_shopstyle_converter.keys():
-            idx += 1
             item_gc_mask = create_gc_mask(image, item_mask, bgnd_mask)  # (255, 0) mask
             item_dict = {"category": constants.paperdoll_shopstyle_converter[category],
                          'item_id': str(bson.ObjectId()), 'item_idx': idx, 'saved_date': datetime.datetime.now()}
@@ -197,6 +197,7 @@ def from_paperdoll_to_similar_results(person_id, mask, labels):
             item_dict['similar_results'] = [bson.dbref.DBRef("products", doc['_id'], database="mydb") for doc in
                                             similar_results]
             items.append(item_dict)
+            idx += 1
     image_obj = iip.find_one_and_update({'people.person_id': person_id}, {'$set': {'people.$.items': items}},
                                         return_document=pymongo.ReturnDocument.AFTER)
     images.insert(image_obj)
