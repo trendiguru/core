@@ -3,6 +3,7 @@ __author__ = 'Nadav Paz'
 import logging
 import random
 import copy
+import datetime
 
 import requests
 import numpy as np
@@ -92,7 +93,6 @@ def get_voting_stage(item_id):
 
 
 def get_paperdoll_data(image, person_id):
-    # TODO - I would be glad if a few workers could work on this queue
     mask, labels, pose = paperdoll_parse_enqueue.paperdoll_enqueue(image, async=False)
     from_paperdoll_to_similar_results(person_id, mask, labels)
 
@@ -139,16 +139,17 @@ def start_process(page_url, image_url):
                 return None
             relevance = background_removal.image_is_relevant(image)
             image_dict = {'image_urls': [image_url], 'relevant': relevance.is_relevant,
-                          'image_hash': image_hash, 'page_url': page_url}
+                          'image_hash': image_hash, 'page_urls': [page_url]}
             if relevance.is_relevant:
                 image_dict['people'] = []
                 for face in relevance.faces:
                     person = {'face': face.tolist(), 'person_id': str(bson.ObjectId()),
-                              'person_idx': relevance.faces.index(face)}
+                              'person_idx': relevance.faces.index(face), 'items': []}
                     image_copy = person_isolation(image, face)
                     person['url'] = upload_image(image_copy, str(person['person_id']))
                     image_dict['people'].append(person)
-                    q2.enqueue(get_paperdoll_data, person['url'], person['person_id'])
+                    get_paperdoll_data(person['url'], person['person_id'])
+                    # q2.enqueue(get_paperdoll_data, person['url'], person['person_id'])
                 iip.insert(image_dict)
             else:  # if not relevant
                 logging.warning('image is not relevant, but stored anyway..')
@@ -168,6 +169,7 @@ def start_process(page_url, image_url):
 def from_paperdoll_to_similar_results(person_id, mask, labels):
     image, person = get_person_by_id(person_id, iip)
     items = []
+    idx = 0
     bgnd_mask = []
     for num in np.unique(mask):
         # convert numbers to labels
@@ -176,19 +178,28 @@ def from_paperdoll_to_similar_results(person_id, mask, labels):
         if category == 'null':
             bgnd_mask = 255 - item_mask  # (255, 0) masks list
         if cv2.countNonZero(item_mask) > 2000 and category in constants.paperdoll_shopstyle_converter.keys():
+            idx += 1
             item_gc_mask = create_gc_mask(image, item_mask, bgnd_mask)  # (255, 0) mask
-            item_dict = {"category": constants.paperdoll_shopstyle_converter[category]}
+            item_dict = {"category": constants.paperdoll_shopstyle_converter[category],
+                         'item_id': str(bson.ObjectId()), 'item_idx': idx, 'saved_date': datetime.datetime.now()}
             mask_name = folder + str(image['_id']) + '_' + item_dict['category'] + '.png'
             item_dict['mask_name'] = mask_name
             cv2.imwrite(mask_name, item_gc_mask)
             # create svg for each item
-            item_dict["svg_name"] = find_similar_mongo.mask2svg(
+            svg_name = find_similar_mongo.mask2svg(
                 item_gc_mask,
                 str(image['_id']) + '_' + item_dict['category'],
                 constants.svg_folder)
-            item_dict["svg_url"] = constants.svg_url_prefix + item_dict["svg_name"]
+            item_dict["svg_url"] = constants.svg_url_prefix + svg_name
+            item_dict['fp'], similar_results = find_similar_mongo.find_top_n_results(image, item_gc_mask, 100,
+                                                                                     item_dict['category'])
+            item_dict['similar_results'] = [bson.dbref.DBRef("products", doc['_id'], database="mydb") for doc in
+                                            similar_results]
             items.append(item_dict)
-    images.update_one({'people.person_id': person_id}, {'$set': {'people.$.items': items}}, upsert=True)
+    image_obj = iip.find_one_and_update({'people.person_id': person_id}, {'$set': {'people.$.items': items}},
+                                        return_document=pymongo.ReturnDocument.AFTER)
+    images.insert(image_obj)
+    logging.warning("Done! image was successfully inserted to the DB images!")
 
 
 def dole_out_work(item_id):
@@ -198,7 +209,7 @@ def dole_out_work(item_id):
     :return:
     """
     voting_stage = get_voting_stage(item_id)
-    # make sure theres at least 1 worker per image
+    # make sure there's at least 1 worker per image
     image, person_dict, item_dict = get_item_by_id(item_id)
     person = person_dict['person']
     person_idx = person_dict['person_idx']
