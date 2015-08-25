@@ -142,7 +142,8 @@ def start_process(page_url, image_url):
                           'image_hash': image_hash, 'page_urls': [page_url]}
             if relevance.is_relevant:
                 image_dict['people'] = []
-                for face in relevance.faces:
+                relevant_faces = relevance.faces.tolist()
+                for face in relevant_faces:
                     person = {'face': face.tolist(), 'person_id': str(bson.ObjectId()),
                               'person_idx': relevance.faces.tolist().index(face), 'items': []}
                     image_copy = person_isolation(image, face)
