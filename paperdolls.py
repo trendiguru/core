@@ -169,7 +169,8 @@ def start_process(page_url, image_url):
 
 
 def from_paperdoll_to_similar_results(person_id, mask, labels):
-    image, person = get_person_by_id(person_id, iip)
+    image_obj, person = get_person_by_id(person_id, iip)
+    image = Utils.get_cv2_img_array(person['url'])
     items = []
     idx = 0
     bgnd_mask = []
@@ -183,16 +184,16 @@ def from_paperdoll_to_similar_results(person_id, mask, labels):
             item_gc_mask = create_gc_mask(image, item_mask, bgnd_mask)  # (255, 0) mask
             item_dict = {"category": constants.paperdoll_shopstyle_converter[category],
                          'item_id': str(bson.ObjectId()), 'item_idx': idx, 'saved_date': datetime.datetime.now()}
-            mask_name = folder + str(image['_id']) + '_' + item_dict['category'] + '.png'
+            mask_name = folder + str(image_obj['_id']) + '_' + item_dict['category'] + '.png'
             item_dict['mask_name'] = mask_name
             cv2.imwrite(mask_name, item_gc_mask)
             # create svg for each item
             svg_name = find_similar_mongo.mask2svg(
                 item_gc_mask,
-                str(image['_id']) + '_' + item_dict['category'],
+                str(image_obj['_id']) + '_' + item_dict['category'],
                 constants.svg_folder)
             item_dict["svg_url"] = constants.svg_url_prefix + svg_name
-            item_dict['fp'], similar_results = find_similar_mongo.find_top_n_results(image, item_gc_mask, 100,
+            item_dict['fp'], similar_results = find_similar_mongo.find_top_n_results(image_obj, item_gc_mask, 100,
                                                                                      item_dict['category'])
             item_dict['similar_results'] = [bson.dbref.DBRef("products", doc['_id'], database="mydb") for doc in
                                             similar_results]
