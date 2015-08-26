@@ -6,8 +6,12 @@ import collections
 import numpy as np
 import re
 import time
+import logging
 
 import cv2
+
+import constants
+import Utils
 
 
 CASCADE = "face.xml"
@@ -155,6 +159,7 @@ class FaceRecognizer():
         # self.eigenVectors = self.model.getMat("eigenVectors")
         # self.mean = self.model.getMat("mean")
 
+
     def predict(self, imgs):
         """
         **SUMMARY**
@@ -209,7 +214,8 @@ class FaceRecognizer():
 
         retVal = []
         for image in images:
-            cv2img = cv2.cvtColor(image, cv2.cv.CV_BGR2GRAY)
+
+            cv2img = cv2.cvtColor(image, constants.BGR2GRAYCONST)
             label, confidence = self.model.predict(cv2img)
             retLabel = self.labels_dict_rev.get(label)
             if not retLabel:
@@ -286,6 +292,77 @@ class FaceRecognizer():
             h = tsize / w
         self.imageSize = (w, h)
 
+
+def get_random_subset(filename, n_lines_to_get=0, equal_men_women=True):
+    if equal_men_women:
+        try:
+            f1 = open('men' + filename)
+            lines = f1.readlines()
+            f1.close()
+            n = len(lines)
+            if n < n_lines_to_get:
+                n_lines_to_get = n
+                logging.warning('Achtung: asked for ' + str(n_lines_to_get) + ' from file having ' + str(
+                    n) + ' lines, streng verboten')
+            print('shuffling file, ' + str(n) + ' lines')
+            new_order = np.random.permutation(n)
+            # print(new_order)
+            tempfilename = filename + '.tmp'
+            permuted_filename = 'permuted_' + filename
+            f1 = open(permuted_filename, 'w')
+            for i in range(0, n_lines_to_get):
+                f1.write(lines[new_order[i]])
+            f1.flush()
+            os.fsync(
+                f1.fileno())  # this and f.flush were needed since after file close, file wasn't immediately available.
+            f1.close()
+            f1 = open('women' + filename)
+            lines = f1.readlines()
+            f1.close()
+            n = len(lines)
+            if n < n_lines_to_get:
+                n_lines_to_get = n
+                logging.warning('Achtung: asked for ' + str(n_lines_to_get) + ' from file having ' + str(
+                    n) + ' lines, streng verboten')
+            print('shuffling file, ' + str(n) + ' lines')
+            new_order = np.random.permutation(n)
+            # print(new_order)
+            tempfilename = filename + '.tmp'
+            permuted_filename = 'permuted_' + filename
+            f1 = open(permuted_filename, 'a')
+            for i in range(0, n_lines_to_get):
+                f1.write(lines[new_order[i]])
+            f1.flush()
+            os.fsync(
+                f1.fileno())  # this and f.flush were needed since after file close, file wasn't immediately available.
+            f1.close()
+            return permuted_filename
+        except:
+            print('trouble opening file:' + str(filename))
+            return None
+    try:
+        f1 = open(filename)
+        lines = f1.readlines()
+        f1.close()
+        n = len(lines)
+        if n < n_lines_to_get:
+            n_lines_to_get = n
+            logging.warning(
+                'Achtung: asked for ' + str(n_lines_to_get) + ' from file having ' + str(n) + ' lines, streng verboten')
+        print('shuffling file, ' + str(n) + ' lines')
+        new_order = np.random.permutation(n)
+        # print(new_order)
+        tempfilename = filename + '.tmp'
+        permuted_filename = 'permuted_' + filename
+        f1 = open(permuted_filename, 'w')
+        for i in range(0, n_lines_to_get):
+            f1.write(lines[new_order[i]])
+        f1.flush()
+        os.fsync(f1.fileno())  # this and f.flush were needed since after file close, file wasn't immediately available.
+        f1.close()
+        return permuted_filename
+    except:
+        print('trouble opening file:' + str(filename))
 
 class ImageSet(list):
     """
@@ -435,89 +512,76 @@ def plot_training_results():
 
 if __name__ == "__main__":
     # %Use CSV files for training
+    n_samples = 750
     f = FaceRecognizer()
-    csvfile = 'genders_small.csv'
-    f.train(csvfile=csvfile, delimiter=";")
-    fname = '{:.0f}'.format(time.clock())
+    csvfile = 'genders.csv'
+    permuted_filename = get_random_subset(csvfile, n_lines_to_get=n_samples)
+    f.train(csvfile=permuted_filename, delimiter=";")
+
+    fname = time.strftime('%Y%M%d.%H%M')
     f.save("faces" + fname + ".xml")
+
+    thresh = 0.1
+    mult = 1.15
+    thresholds = []
+    for i in range(0, 70):
+        thresholds.append(thresh)
+        thresh = thresh * mult
+
     imgs = ImageSet("test/male")
-    predictions = f.predict(imgs)
-    print predictions
+    male_predictions = f.predict(imgs)
+    imgs = ImageSet("test/female")
+    female_predictions = f.predict(imgs)
+    print male_predictions
+    print female_predictions
     sumzero = 0
     sumone = 0
     unclassified = 0
-    thresh = 0.1
-    thresholds = []
-    for i in range(0, 50):
-        thresholds.append(thresh)
-        thresh = thresh * 1.1
-
     for thresh in thresholds:
-        for p in predictions:
+        true_pos = 0
+        true_neg = 0
+        false_pos = 0
+        false_neg = 0
+        man_as_man = 0
+        man_as_woman = 0
+        man_unident = 0
+        woman_as_man = 0
+        woman_as_woman = 0
+        woman_unident = 0
+
+        for p in male_predictions:
             a = p[0]
             confidence = p[1]
             if a == '0' and confidence > thresh:
-                sumzero += 1
+                man_as_man += 1
+                true_pos += 1
             elif a == '1' and confidence > thresh:
-                sumone += 1
+                man_as_woman += 1
+                false_pos += 1
             else:
-                print('nobody beyond threshhold')
-                unclassified += 1
-        print(' male tests: {0} male {1} female {2} unclassified').format(sumzero, sumone, unclassified)
-        imgs = ImageSet("test/female")
-        predictions = f.predict(imgs)
-        print predictions
-        sumzero = 0
-        sumone = 0
-        unclassified = 0
-        for p in predictions:
+                man_unident += 1
+                false_neg += 1
+        print('after male tests: {0} tp  {1} fn  {2} fp').format(true_pos, false_neg, false_pos)
+
+        for p in female_predictions:
             a = p[0]
             confidence = p[1]
             if a == '0' and confidence > thresh:
-                sumzero += 1
+                woman_as_man += 1
+                false_pos = false_pos + 1
             elif a == '1' and confidence > thresh:
-                sumone += 1
+                woman_as_woman += 1
+                true_pos = true_pos + 1
             else:
-                print('nobody beyond threshhold')
-                unclassified += 1
-        print(' female tests: {0} male {1} female {2} unclassified').format(sumzero, sumone, unclassified)
-
-'''
-100 male 100 female training
- male tests: 30 male 20 female
- male tests: 17 male 33 female
-
- 200 male 200 femaleq
-  male tests: 33 male 17 female
- male tests: 14 male 36 female
-
-300,300
- male tests: 60 male 30 female
- female tests: 19 male 67 female
+                woman_unident += 1
+                false_neg = false_neg + 1
+        print(' female tests: {0} tp  {1} fn  {2} fp').format(true_pos, false_neg, false_pos)
+        recall = Utils.recall(true_pos=true_pos, false_neg=false_neg)
+        precision = Utils.precision(true_pos=true_pos, false_pos=false_pos)
+        print('precision ' + str(precision) + ' recall:' + str(recall) + ' thresh:' + str(thresh))
+        print('mm:{0} mw:{1} mu:{2} ww:{3} wm:{4} wu:{5}').format(man_as_man, man_as_woman, man_unident, woman_as_woman,
+                                                                  woman_as_man, woman_unident)
 
 
 
-400 ,400
- male tests: 37 male 13 female
- female tests: 11 male 39 female
 
-500,500
- male tests: 64 male 26 female
- female tests: 23 male 63 female
-
-
-600,600\
- male tests: 34 male 16 female
- male tests: 11 male 39 female
-
- male tests: 61 male 29 female
- female tests: 20 male 66 female
-
-
-800,800
-e tests: 29 male 21 female
- male tests: 10 male 40 female
-
-
-
-'''''
