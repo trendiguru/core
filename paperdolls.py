@@ -199,8 +199,9 @@ def from_paperdoll_to_similar_results(person_id, mask, labels):
             idx += 1
     image_obj = iip.find_one_and_update({'people.person_id': person_id}, {'$set': {'people.$.items': items}},
                                         return_document=pymongo.ReturnDocument.AFTER)
-    images.insert(image_obj)
-    logging.warning("Done! image was successfully inserted to the DB images!")
+    if person['person_idx'] == len(image_obj['people']) - 1:
+        images.insert(image_obj)
+        logging.warning("Done! image was successfully inserted to the DB images!")
 
 
 def dole_out_work(item_id):
