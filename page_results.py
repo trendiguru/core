@@ -12,7 +12,8 @@ import bson
 import pymongo
 
 
-logging.basicConfig(format='%(levelname)s:%(message)s', level=logging.DEBUG)
+
+# logging.basicConfig(format='%(levelname)s:%(message)s', level=logging.DEBUG)
 
 
 # ours
