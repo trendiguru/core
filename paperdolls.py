@@ -14,7 +14,7 @@ from rq import Queue
 import bson
 
 import page_results
-from paperdoll import paperdoll_parse_enqueue
+from .paperdoll import paperdoll_parse_enqueue
 import boto3
 import find_similar_mongo
 import background_removal
