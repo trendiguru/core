@@ -179,9 +179,9 @@ def from_paperdoll_to_similar_results(person_id, mask, labels):
         item_mask = 255 * np.array(mask == num, dtype=np.uint8)
         if category == 'null':
             bgnd_mask = 255 - item_mask  # (255, 0) masks list
-        if cv2.countNonZero(item_mask) > 2000 and category in constants.paperdoll_shopstyle_converter.keys():
+        if cv2.countNonZero(item_mask) > 2000 and category in constants.paperdoll_shopstyle_women.keys():
             item_gc_mask = create_gc_mask(image, item_mask, bgnd_mask)  # (255, 0) mask
-            item_dict = {"category": constants.paperdoll_shopstyle_converter[category],
+            item_dict = {"category": constants.paperdoll_shopstyle_women[category],
                          'item_id': str(bson.ObjectId()), 'item_idx': idx, 'saved_date': datetime.datetime.now()}
             mask_name = folder + str(image_obj['_id']) + '_' + item_dict['category'] + '.png'
             item_dict['mask_name'] = mask_name
