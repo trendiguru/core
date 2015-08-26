@@ -3,6 +3,7 @@ __author__ = 'Nadav Paz'
 import logging
 import random
 import copy
+import datetime
 
 import requests
 import numpy as np
@@ -12,7 +13,8 @@ import redis
 from rq import Queue
 import bson
 
-from paperdoll import paperdoll_parse_enqueue
+import page_results
+from .paperdoll import paperdoll_parse_enqueue
 import boto3
 import find_similar_mongo
 import background_removal
@@ -20,10 +22,12 @@ import Utils
 import constants
 
 
+folder = '/home/ubuntu/paperdoll/masks/'
 QC_URL = 'https://extremeli.trendi.guru/api/fake_qc/index'
 callback_url = "https://extremeli.trendi.guru/api/nadav/index"
 db = pymongo.MongoClient().mydb
 images = pymongo.MongoClient().mydb.images
+iip = pymongo.MongoClient().mydb.iip
 r = redis.Redis()
 q1 = Queue('images_queue', connection=r)
 q2 = Queue('paperdoll', connection=r)
@@ -41,15 +45,15 @@ def upload_image(image, name, bucket_name=None):
     return "{0}/{1}/{2}.jpg".format("https://s3.eu-central-1.amazonaws.com", bucket_name, name)
 
 
-def get_person_by_id(person_id):
-    image = images.find_one({'people.person_id': person_id})
+def get_person_by_id(person_id, collection=iip):
+    image = collection.find_one({'people.person_id': person_id})
     for person in image['people']:
         if person['person_id'] == person_id:
             return image, person
 
 
-def get_item_by_id(item_id):
-    image = images.find_one({'people.items.item_id': item_id})
+def get_item_by_id(item_id, collection=iip):
+    image = collection.find_one({'people.items.item_id': item_id})
     for person in image['people']:
         try:
             for item in person['items']:
@@ -68,16 +72,16 @@ def decode_task(args, vars, data):  # args(list) = person_id, vars(dict) = task,
 
 
 def set_voting_stage(n_stage, item_id):
-    image, person_dict, item_dict = get_item_by_id(item_id)
+    image, person_dict, item_dict = get_item_by_id(item_id, iip)
     person_idx = person_dict['person_idx']
     item_idx = item_dict['item_idx']
     image['people'][person_idx]['items'][item_idx]['voting_stage'] = n_stage
     image.pop('_id')
-    images.replace_one({"people.items.item_id": item_id}, image)
+    iip.replace_one({"people.items.item_id": item_id}, image)
 
 
 def get_voting_stage(item_id):
-    image, person_dict, item_dict = get_item_by_id(item_id)
+    image, person_dict, item_dict = get_item_by_id(item_id, iip)
     person_idx = person_dict['person_idx']
     item_idx = item_dict['item_idx']
     item = image['people'][person_idx]['items'][item_idx]
@@ -89,7 +93,6 @@ def get_voting_stage(item_id):
 
 
 def get_paperdoll_data(image, person_id):
-    # TODO - I would be glad if a few workers could work on this queue
     mask, labels, pose = paperdoll_parse_enqueue.paperdoll_enqueue(image, async=False)
     from_paperdoll_to_similar_results(person_id, mask, labels)
 
@@ -123,30 +126,40 @@ def bb_from_mask(mask):
 # ---------------------------------------------------------------------------------------------------------------------
 
 
-def start_process(image_url):
+def start_process(page_url, image_url):
     image_obj = images.find_one({"image_urls": image_url})
-    if not image_obj:  # new image
-        image = background_removal.standard_resize(Utils.get_cv2_img_array(image_url), 400)[0]
-        if image is None:
-            logging.warning("There's no image in the url!")
-            return None
-        relevance = background_removal.image_is_relevant(image)
-        image_dict = {'image_urls': [], 'relevant': relevance.is_relevant, '_id': bson.ObjectId()}
-        image_dict['image_urls'].append(image_url)
-        if relevance.is_relevant:
-            image_dict['people'] = []
-            for face in relevance.faces:
-                person = {'face': face.tolist(), 'person_id': str(bson.ObjectId())}
-                image_copy = person_isolation(image, face)
-                person['url'] = upload_image(image_copy, str(person['person_id']))
-                image_dict['people'].append(person)
-                q2.enqueue(get_paperdoll_data, person['url'], person['person_id'])
-        else:
-            logging.warning('image is not relevant, but stored anyway..')
-        images.insert(image_dict)
-    else:
-        if image_url not in image_obj['image_urls']:
-            image_obj['image_urls'].append(image_url)
+    if not image_obj:  # new image_url
+        image_hash = page_results.get_hash_of_image_from_url(image_url)
+        image_obj = images.find_one_and_update({'image_hash': image_hash}, {'$push': {"image_urls": image_url}},
+                                               return_document=pymongo.ReturnDocument.AFTER)
+        if not image_obj:  # doesn't exists with another url
+            image = background_removal.standard_resize(Utils.get_cv2_img_array(image_url), 400)[0]
+            if image is None:
+                logging.warning("There's no image in the url!")
+                return None
+            relevance = background_removal.image_is_relevant(image)
+            image_dict = {'image_urls': [image_url], 'relevant': relevance.is_relevant,
+                          'image_hash': image_hash, 'page_urls': [page_url]}
+            if relevance.is_relevant:
+                image_dict['people'] = []
+                relevant_faces = relevance.faces.tolist()
+                idx = 0
+                for face in relevant_faces:
+                    person = {'face': face, 'person_id': str(bson.ObjectId()), 'person_idx': idx, 'items': []}
+                    image_copy = person_isolation(image, face)
+                    person['url'] = upload_image(image_copy, str(person['person_id']))
+                    image_dict['people'].append(person)
+                    # get_paperdoll_data(person['url'], person['person_id'])
+                    q2.enqueue(get_paperdoll_data, person['url'], person['person_id'])
+                    idx += 1
+            else:  # if not relevant
+                logging.warning('image is not relevant, but stored anyway..')
+            iip.insert(image_dict)
+        else:  # if the exact same image was found under other urls
+            logging.warning("image_hash was found in other urls:")
+            logging.warning("{0}".format(image_obj['image_urls']))
+            return image_obj
+    else:  # if image is in the DB
         if image_obj['relevant']:
             logging.warning("Image is in the DB and relevant!")
         else:
@@ -155,8 +168,10 @@ def start_process(image_url):
 
 
 def from_paperdoll_to_similar_results(person_id, mask, labels):
-    image, person = get_person_by_id(person_id)
+    image_obj, person = get_person_by_id(person_id, iip)
+    image = Utils.get_cv2_img_array(person['url'])
     items = []
+    idx = 0
     bgnd_mask = []
     for num in np.unique(mask):
         # convert numbers to labels
@@ -164,32 +179,28 @@ def from_paperdoll_to_similar_results(person_id, mask, labels):
         item_mask = 255 * np.array(mask == num, dtype=np.uint8)
         if category == 'null':
             bgnd_mask = 255 - item_mask  # (255, 0) masks list
-        if cv2.countNonZero(item_mask) > 2000 and category in constants.paperdoll_shopstyle_converter.keys():
+        if cv2.countNonZero(item_mask) > 2000 and category in constants.paperdoll_shopstyle_women.keys():
             item_gc_mask = create_gc_mask(image, item_mask, bgnd_mask)  # (255, 0) mask
-            item_dict = {"category": constants.paperdoll_shopstyle_converter[category]}
-            mask_name = folder + str(image_id) + '_' + item_dict['category'] + '.png'
-            item_dict['mask_name'] = mask_name
-            cv2.imwrite(mask_name, item_gc_mask)
-            # create svg for each item
-            item_dict["svg_name"] = find_similar_mongo.mask2svg(
+            item_dict = {"category": constants.paperdoll_shopstyle_women[category],
+                         'item_id': str(bson.ObjectId()), 'item_idx': idx, 'saved_date': datetime.datetime.now()}
+            # mask_name = folder + str(image_obj['_id']) + '_' + item_dict['category'] + '.png'
+            # item_dict['mask_name'] = mask_name
+            # cv2.imwrite(mask_name, item_gc_mask)
+            svg_name = find_similar_mongo.mask2svg(
                 item_gc_mask,
-                str(image_id) + '_' + item_dict['category'],
+                str(image_obj['_id']) + '_' + item_dict['category'],
                 constants.svg_folder)
-            item_dict["svg_url"] = constants.svg_url_prefix + item_dict["svg_name"]
+            item_dict["svg_url"] = constants.svg_url_prefix + svg_name
+            item_dict['fp'], item_dict['similar_results'] = find_similar_mongo.find_top_n_results(image, item_gc_mask,
+                                                                                                  100,
+                                                                                                  item_dict['category'])
             items.append(item_dict)
-    image_dict = {"items": items}
-
-
-def db_update_to_sorting_task(item_id):
-    image, person, item = get_item_by_id(item_id)
-    fp, results, svg = find_similar_mongo.got_bb(image['image_urls'][0], person_id, item_id, bb, 100, item['category'])
-    item['similar_results'] = results
-    item['fingerprint'] = fp
-    item['svg_url'] = svg
-    image['people'][person['person_idx']]['items'][item['item_idx']] = item
-    image.pop('_id')
-    images.replace_one({'image_urls': {'$in': image['image_urls']}}, image)
-    dole_out_work(item_id)
+            idx += 1
+    image_obj = iip.find_one_and_update({'people.person_id': person_id}, {'$set': {'people.$.items': items}},
+                                        return_document=pymongo.ReturnDocument.AFTER)
+    if person['person_idx'] == len(image_obj['people']) - 1:
+        images.insert(image_obj)
+        logging.warning("Done! image was successfully inserted to the DB images!")
 
 
 def dole_out_work(item_id):
@@ -199,7 +210,7 @@ def dole_out_work(item_id):
     :return:
     """
     voting_stage = get_voting_stage(item_id)
-    # make sure theres at least 1 worker per image
+    # make sure there's at least 1 worker per image
     image, person_dict, item_dict = get_item_by_id(item_id)
     person = person_dict['person']
     person_idx = person_dict['person_idx']

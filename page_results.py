@@ -12,7 +12,8 @@ import bson
 import pymongo
 
 
-logging.basicConfig(format='%(levelname)s:%(message)s', level=logging.DEBUG)
+
+# logging.basicConfig(format='%(levelname)s:%(message)s', level=logging.DEBUG)
 
 
 # ours
@@ -321,7 +322,7 @@ def get_hash_of_image_from_url(image_url):
     m.update(img_arr)
     url_hash = m.hexdigest()
     logging.debug('url_image hash:' + url_hash + ' for ' + image_url)
-    return (url_hash)
+    return url_hash
 
 # probably unecesary function, was thinking it would be useful to take different kinds of arguments for some reason
 def get_known_similar_results(image_hash=None, image_url=None, page_url=None):
