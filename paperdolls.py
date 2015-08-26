@@ -149,8 +149,8 @@ def start_process(page_url, image_url):
                     image_copy = person_isolation(image, face)
                     person['url'] = upload_image(image_copy, str(person['person_id']))
                     image_dict['people'].append(person)
-                    get_paperdoll_data(person['url'], person['person_id'])
-                    # q2.enqueue(get_paperdoll_data, person['url'], person['person_id'])
+                    # get_paperdoll_data(person['url'], person['person_id'])
+                    q2.enqueue(get_paperdoll_data, person['url'], person['person_id'])
                     idx += 1
                 iip.insert(image_dict)
             else:  # if not relevant
