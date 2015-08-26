@@ -193,10 +193,9 @@ def from_paperdoll_to_similar_results(person_id, mask, labels):
                 str(image_obj['_id']) + '_' + item_dict['category'],
                 constants.svg_folder)
             item_dict["svg_url"] = constants.svg_url_prefix + svg_name
-            item_dict['fp'], similar_results = find_similar_mongo.find_top_n_results(image, item_gc_mask, 100,
-                                                                                     item_dict['category'])
-            item_dict['similar_results'] = [bson.dbref.DBRef("products", doc['_id'], database="mydb") for doc in
-                                            similar_results]
+            item_dict['fp'], item_dict['similar_results'] = find_similar_mongo.find_top_n_results(image, item_gc_mask,
+                                                                                                  100,
+                                                                                                  item_dict['category'])
             items.append(item_dict)
             idx += 1
     image_obj = iip.find_one_and_update({'people.person_id': person_id}, {'$set': {'people.$.items': items}},
