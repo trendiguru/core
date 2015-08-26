@@ -155,7 +155,7 @@ def start_process(page_url, image_url):
                 iip.insert(image_dict)
             else:  # if not relevant
                 logging.warning('image is not relevant, but stored anyway..')
-            images.insert(image_dict)
+            iip.insert(image_dict)
         else:  # if the exact same image was found under other urls
             logging.warning("image_hash was found in other urls:")
             logging.warning("{0}".format(image_obj['image_urls']))
