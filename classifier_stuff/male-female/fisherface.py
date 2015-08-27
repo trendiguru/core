@@ -10,10 +10,7 @@ import logging
 
 import cv2
 
-import
-
-...
-constants
+from ... import constants
 import Utils
 
 
