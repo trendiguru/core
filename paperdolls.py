@@ -123,6 +123,15 @@ def bb_from_mask(mask):
     h = max(r) - y + 1
     return x, y, w, h
 
+
+def search_existing_images(page_url):
+    ex_list = []
+    query = images.find({'page_urls': page_url}, {'relevant': 1, 'image_urls': 1})
+    for doc in query:
+        ex_list.append(doc)
+    return ex_list
+
+
 # ---------------------------------------------------------------------------------------------------------------------
 
 
