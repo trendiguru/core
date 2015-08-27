@@ -10,6 +10,9 @@ import logging
 
 import cv2
 
+import trendi_guru_modules.constants as constants
+import trendi_guru_modules.Utils as Utils
+
 
 CASCADE = "face.xml"
 SAMPLES_DIREC = "samples"
