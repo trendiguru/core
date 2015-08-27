@@ -9,8 +9,7 @@ import time
 import logging
 
 import cv2
-
-from ...import constants
+import trendi_guru_modules.constants
 import Utils
 
 
