@@ -13,6 +13,7 @@ import cv2
 import trendi_guru_modules.constants as constants
 import trendi_guru_modules.Utils as Utils
 
+# what is going on why is the server thinking this change didnt happen oh git me
 
 CASCADE = "face.xml"
 SAMPLES_DIREC = "samples"
