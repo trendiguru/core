@@ -108,5 +108,5 @@ if cv2.__version__ == '3.0.0' or cv2.__version__ == '3.0.0-dev':
 
 else:
     scale_flag = cv2.cv.CV_HAAR_SCALE_IMAGE
-    BGR2GRAYCONST = cv2.cv.CV_COLOR_BGR2GRAY
+    BGR2GRAYCONST = cv2.cv.CV_BGR2GRAY
 
