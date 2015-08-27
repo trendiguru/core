@@ -1,6 +1,6 @@
 # sshd, matlab, dcmdump (via dcmtk)
 
-FROM ubuntu:12.04
+FROM ubuntu:14.04
 
 ADD matlab.txt /mcr-install/matlab.txt
 ADD id_rsa.pub /root/.ssh/authorized_keys
