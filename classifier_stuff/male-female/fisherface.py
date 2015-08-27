@@ -13,6 +13,7 @@ import cv2
 import trendi_guru_modules.constants as constants
 import trendi_guru_modules.Utils as Utils
 
+
 # what is going on why is the server thinking this change didnt happen oh git me
 
 CASCADE = "face.xml"
@@ -514,7 +515,7 @@ def plot_training_results():
 
 if __name__ == "__main__":
     # %Use CSV files for training
-    n_samples = 5000
+    n_samples = 2500
     f = FaceRecognizer()
     csvfile = 'genders.csv'
     permuted_filename = get_random_subset(csvfile, n_lines_to_get=n_samples)
