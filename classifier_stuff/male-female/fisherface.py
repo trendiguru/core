@@ -9,8 +9,6 @@ import time
 import logging
 
 import cv2
-import trendi_guru_modules.constants
-import Utils
 
 
 CASCADE = "face.xml"
