@@ -1,3 +1,4 @@
+#check this for gui https://hub.docker.com/r/sinclab/webdemo-base-matlab/
 # sshd, matlab, dcmdump (via dcmtk)
 
 FROM ubuntu:14.04
