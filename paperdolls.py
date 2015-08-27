@@ -201,6 +201,7 @@ def from_paperdoll_to_similar_results(person_id, mask, labels):
     if person['person_idx'] == len(image_obj['people']) - 1:
         images.insert(image_obj)
         logging.warning("Done! image was successfully inserted to the DB images!")
+        return image_obj
 
 
 def dole_out_work(item_id):
