@@ -512,7 +512,7 @@ def plot_training_results():
 
 if __name__ == "__main__":
     # %Use CSV files for training
-    n_samples = 750
+    n_samples = 5000
     f = FaceRecognizer()
     csvfile = 'genders.csv'
     permuted_filename = get_random_subset(csvfile, n_lines_to_get=n_samples)
