@@ -63,23 +63,25 @@ def find_top_n_results(image, mask, number_of_results=10, category_id=None):
     subcategory_id_list = get_all_subcategories(db.categories, category_id)
 
     # get all items in the subcategory/keyword
-    query = product_collection.find({"$and": [{"categories": {"$elemMatch": {"id": {"$in": subcategory_id_list}}}},
-                                              {"fingerprint": {"$exists": 1}}]},
-                                    {"_id": 0, "id": 1, "categories": 1, "fingerprint": 1, "image": 1,
-                                     "clickUrl": 1, "price": 1, "brand": 1})
-    db_fingerprint_list = []
-    for row in query:
-        fp_dict = {}
-        fp_dict["id"] = row["id"]
-        fp_dict["clothingClass"] = category_id
-        fp_dict["fingerPrintVector"] = row["fingerprint"]
-        fp_dict["imageURL"] = row["image"]["sizes"]["Large"]["url"]
-        fp_dict["buyURL"] = row["clickUrl"]
-        db_fingerprint_list.append(fp_dict)
+    potential_matches_cursor = product_collection.find(
+        {"$and": [{"categories": {"$elemMatch": {"id": {"$in": subcategory_id_list}}}},
+                  {"fingerprint": {"$exists": 1}}]},
+        {"_id": 1, "id": 1, "fingerprint": 1})
+
+    # db_fingerprint_list = []
+    # for row in potential_matches_cursor:
+    #     fp_dict = {}
+    #     fp_dict["id"] = row["id"]
+    #     fp_dict["clothingClass"] = category_id
+    #     fp_dict["fingerPrintVector"] = row["fingerprint"]
+    #     fp_dict["imageURL"] = row["image"]["sizes"]["Large"]["url"]
+    #     fp_dict["buyURL"] = row["clickUrl"]
+    #     db_fingerprint_list.append(fp_dict)
 
     color_fp = fp.fp(image, mask)
-    target_dict = {"clothingClass": category_id, "fingerPrintVector": color_fp}
-    closest_matches = NNSearch.find_n_nearest_neighbors(target_dict, db_fingerprint_list, number_of_results)
+    target_dict = {"clothingClass": category_id, "fingerprint": color_fp}
+    closest_matches = NNSearch.find_n_nearest_neighbors(target_dict, potential_matches_cursor, number_of_results,
+                                                        fp_key="fingerprint")
     return color_fp.tolist(), closest_matches
 
 

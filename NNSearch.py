@@ -2,9 +2,7 @@
 
 __author__ = 'jeremy'
 import logging
-
 import numpy as np
-
 import constants
 
 
@@ -24,9 +22,9 @@ def distance_1_k(fp1, fp2, k=K):
         return None
 
 
-def find_n_nearest_neighbors(target_dict, entries, number_of_matches, distance_function=distance_1_k):
+def find_n_nearest_neighbors(target_dict, entries, number_of_matches, distance_function=distance_1_k, fp_key=FP_KEY):
     # list of tuples with (entry,distance). Initialize with first n distance values
-    nearest_n = [(entries[i], distance_function(entries[i][FP_KEY], target_dict[FP_KEY]))
+    nearest_n = [(entries[i], distance_function(entries[i][fp_key], target_dict[fp_key]))
                  for i in range(0, number_of_matches)]
     # sort by distance
     nearest_n.sort(key=lambda tup: tup[1])
@@ -35,7 +33,7 @@ def find_n_nearest_neighbors(target_dict, entries, number_of_matches, distance_f
 
     # Loop through remaining entries, if one of them is better, insert it in the correct location and remove last item
     for i in range(number_of_matches, len(entries)):
-        d = distance_function(entries[i][FP_KEY], target_dict[FP_KEY], K)
+        d = distance_function(entries[i][fp_key], target_dict[fp_key], K)
         if d < farthest_nearest:
             insert_at = number_of_matches-2
             while d < nearest_n[insert_at][1]:
