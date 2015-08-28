@@ -82,6 +82,9 @@ def find_top_n_results(image, mask, number_of_results=10, category_id=None):
     target_dict = {"clothingClass": category_id, "fingerprint": color_fp}
     closest_matches = NNSearch.find_n_nearest_neighbors(target_dict, potential_matches_cursor, number_of_results,
                                                         fp_key="fingerprint")
+    # get only the object itself, not the distance
+    closest_matches = [match_tuple[0] for match_tuple in closest_matches]
+
     return color_fp.tolist(), closest_matches
 
 
