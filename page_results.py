@@ -6,20 +6,16 @@ __author__ = 'jeremy'
 import hashlib
 import copy
 import logging
-
 from bson import objectid
 import bson
 import pymongo
-
-
-
-# logging.basicConfig(format='%(levelname)s:%(message)s', level=logging.DEBUG)
-
-
 # ours
 import Utils
 import dbUtils
 import background_removal
+
+# logging.basicConfig(format='%(levelname)s:%(message)s', level=logging.DEBUG)
+db = pymongo.MongoClient().mydb
 
 # similar_results structure - this an example of a similar results answer, with two items
 images_entry = \
@@ -330,7 +326,6 @@ def get_known_similar_results(image_hash=None, image_url=None, page_url=None):
         logging.warning('get_similar_results wasnt given an id or an image/page url')
         return None
 
-    db = pymongo.MongoClient().mydb
     if image_hash is not None:  #search by imagehash
         query = {'_id': image_hash}
         #query = {"categories": {"$elemMatch": {"image_hash": image_hash}}}
@@ -374,7 +369,6 @@ def start_pipeline(image_url):
     # each item having a list of similar results
     # FAKE RESULTS
     logging.debug('starting pipeline')
-    db = pymongo.MongoClient().mydb
     q = db.products.find()
     similar_1 = q.next()
     similar_2 = q.next()
@@ -462,7 +456,6 @@ def find_similar_items_and_put_into_db(image_url, page_url):
     #`EDIT FROM HERE        for
     logging.debug('inserting into db:')
     logging.debug(str(results_dict))
-    db = pymongo.MongoClient().mydb
     db.images.insert(results_dict)
     return results_dict
 
@@ -476,7 +469,6 @@ def update_image_in_db(page_url, image_url, cursor):
     :param cursor:
     :return:
     '''
-    db = pymongo.MongoClient().mydb
     i = 0
     for doc in cursor:
         # why is there possible more than one doc like this to be updated?  cuz the image
@@ -533,7 +525,7 @@ def get_all_data_for_page(page_url):
         logging.warning('results_for_page wasnt given a url')
         return None
     logging.debug('looking for images that appear on page:' + page_url)
-    db = pymongo.MongoClient().mydb
+
     # query = {'page_urls': {'$elemMatch': {'page_url': page_url}}}
     query = {'page_urls': page_url}
     cursor = db.images.find(query)
@@ -559,10 +551,10 @@ def get_all_data_for_page(page_url):
 
 
 def dereference_image_collection_entry(doc=None):
-    if doc == None:
+    if doc is None:
         logging.warning(
             'no image collection entry given for dereferencing (page_results.dereference_image_collection_entry)')
-    db = pymongo.MongoClient().mydb
+
     results = []
 
     # The projection parameter takes a document of the following form:
@@ -650,9 +642,14 @@ def dereference_image_collection_entry(doc=None):
     logging.debug(str(modified_doc))
     return modified_doc
 
+def fill_up_doc(sparse):
+    for person in sparse["people"]:
+        for item in person["items"]:
+            item["similar_results"] = [db.products.find_one({"_id": result["_id"]}) for result in item["similar_results"]]
+    return sparse
 
 def new_images(page_url, list_of_image_urls):
-    '''
+    """
     this is for checking a bunch of images on a given page - are they all listed in the images db?
     if not, look for images' similar items and add to images db
     :type page_url: str   This is required in case an image isn;t found in images db
@@ -660,11 +657,15 @@ def new_images(page_url, list_of_image_urls):
     :type list_of_image_urls: list of the images on a page
     :return:  nothing - just updates db with new images .
     maybe this should return the similar items for each image, tho that can be done by calling results_for_page()
-    '''
-    if list_of_image_urls == None or page_url == None:
+    :param page_url:
+    :param list_of_image_urls:
+    :return:
+    """
+
+    if list_of_image_urls is None or page_url is None:
         logging.warning('get_similar_results wasnt given list of image urls and page url')
         return None
-    db = pymongo.MongoClient().mydb
+
     i = 0
     answers = []
     number_found = 0
@@ -692,20 +693,15 @@ def new_images(page_url, list_of_image_urls):
 
 
 def get_data_for_specific_image(image_url=None, image_hash=None):
-    '''
+    """
     this just checks db for an image or hash. It doesn't start the pipeline or update the db
     :param image_url: url of image to find
     :param image_hash: hash (of image) to find
     :return:
-    '''
-    if image_url == None and image_hash == None:
+    """
+    if image_url is None and image_hash is None:
         logging.warning('page_results.get_data_for_specific_image wasnt given one of image url or image hash')
         return None
-    db = pymongo.MongoClient().mydb
-    i = 0
-    answers = []
-    number_found = 0
-    number_not_found = 0
     if image_url is not None:
         logging.debug('looking for image ' + image_url + ' in db ')
         query = {"image_urls": image_url}
@@ -717,7 +713,7 @@ def get_data_for_specific_image(image_url=None, image_hash=None):
     if entry is not None:
         logging.debug('found image (or hash) in db ')
         # hash gets checked in update_image_in_db(), alternatively it could be checked here
-        dereferenced_entry = dereference_image_collection_entry(entry)
+        dereferenced_entry = fill_up_doc(entry)
         logging.debug('dereferenced entry: ')
         logging.debug(str(dereferenced_entry))
         return dereferenced_entry
@@ -726,16 +722,15 @@ def get_data_for_specific_image(image_url=None, image_hash=None):
         return None
 
 
-def remove_one(id):
-    db = pymongo.MongoClient().mydb
-    db.images.remove({"_id": bson.ObjectId(id)})
+def remove_one(id_string):
+    db.images.delete_one({"_id": bson.ObjectId(id_string)})
 
 
 def kill_images_collection():
     # connection = Connection('localhost', 27017)  # Connect to mongodb
     #    print(connection.database_names())  # Return a list of db, equal to: > show dbs
     #    db = connection['mydb']  # equal to: > use testdb1
-    db = pymongo.MongoClient().mydb
+
     print(db.collection_names())  # Return a list of collections in 'testdb1'
     print("images exists in db.collection_names()?")  # Check if collection "posts"
     print("images" in db.collection_names())  # Check if collection "posts"
