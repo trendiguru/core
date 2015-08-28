@@ -32,15 +32,15 @@ def find_n_nearest_neighbors(target_dict, entries, number_of_matches, distance_f
     farthest_nearest = nearest_n[-1][1]
 
     # Loop through remaining entries, if one of them is better, insert it in the correct location and remove last item
-    for i in range(number_of_matches, len(entries)):
-        d = distance_function(entries[i][fp_key], target_dict[fp_key], K)
+    for entry in entries[number_of_matches:]:
+        d = distance_function(entry[fp_key], target_dict[fp_key], K)
         if d < farthest_nearest:
             insert_at = number_of_matches-2
             while d < nearest_n[insert_at][1]:
                 insert_at -= 1
                 if insert_at == -1:
                     break
-            nearest_n.insert(insert_at + 1, (entries[i], d))
+            nearest_n.insert(insert_at + 1, (entry, d))
             nearest_n.pop()
             farthest_nearest = nearest_n[-1][1]
     return nearest_n

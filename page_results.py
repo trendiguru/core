@@ -600,11 +600,11 @@ def dereference_image_collection_entry(doc=None):
         'pageUrl': 1,
         '_id': 0,
         'priceLabel': 1}
+
     # probably necessary since i am fooling with the fields, and the copy is a copy by reference
-    modified_doc = copy.deepcopy(doc)
-    # modified_doc =doc
+    modified_doc = doc # copy.deepcopy(doc)
     logging.debug('trying to dereference ' + str(modified_doc))
-    if not 'people' in modified_doc:
+    if 'people' not in modified_doc:
         logging.debug('no people found in record while trying to dereference ' + str(modified_doc))
         return None
     for person in modified_doc['people']:
@@ -712,6 +712,7 @@ def get_data_for_specific_image(image_url=None, image_hash=None):
     else:
         logging.debug('looking for hash ' + image_hash + ' in db ')
         query = {"image_hash": image_hash}
+
     entry = db.images.find_one(query)
     if entry is not None:
         logging.debug('found image (or hash) in db ')
