@@ -400,10 +400,10 @@ def new_images(page_url, list_of_image_urls):
 
 
 
-def load_similar_results(sparse, projection_dict):
+def load_similar_results(sparse, projection_dict, limit=20):
     for person in sparse["people"]:
         for item in person["items"]:
-            item["similar_results"] = [db.products.find_one({"_id": result["_id"]}, projection_dict)
+            item["similar_results"] = [db.products.find_one({"_id": result["_id"]}, projection_dict).limit(limit)
                                        for result in item["similar_results"]]
     return sparse
 
@@ -445,7 +445,8 @@ def get_data_for_specific_image(image_url=None, image_hash=None, projection_dict
         logging.debug('found image (or hash) in db ')
         # hash gets checked in update_image_in_db(), alternatively it could be checked here
         full_image_dict = load_similar_results(sparse_image_dict, projection_dict)
-        return full_image_dict
+        reduced_dict = reduce_image_doc(full_image_dict)
+        return reduced_dict
     else:
         logging.debug('image / hash  was NOT found in db')
         return None
