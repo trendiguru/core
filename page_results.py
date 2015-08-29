@@ -400,21 +400,37 @@ def new_images(page_url, list_of_image_urls):
 
 
 
-def load_similar_results(sparse, projection_dict, limit=20):
+def load_similar_results(sparse, projection_dict):
     for person in sparse["people"]:
         for item in person["items"]:
             item["similar_results"] = [db.products.find_one({"_id": result["_id"]}, projection_dict)
-                                       for result in item["similar_results"][:limit]]
+                                       for result in item["similar_results"]]
     return sparse
 
-def get_data_for_specific_image(image_url=None, image_hash=None, projection_dict=None):
+
+def get_data_for_specific_image(image_url=None, image_hash=None, image_projection=None, product_projection=None,
+                                max_results=20):
     """
     this just checks db for an image or hash. It doesn't start the pipeline or update the db
     :param image_url: url of image to find
     :param image_hash: hash (of image) to find
     :return:
     """
-    projection_dict = projection_dict or {
+    image_projection = image_projection or {
+        '_id': 1,
+        'image_hash': 1,
+        'image_urls': 1,
+        'page_urls': 1,
+        'people.items.category': 1,
+        'people.items.item_id': 1,
+        'people.items.item_idx': 1,
+        'people.items.similar_results': {'$slice': max_results},
+        'people.items.similar_results._id': 1,
+        'people.items.similar_results.id': 1,
+        'people.items.svg_url': 1,
+        'relevant': 1}
+
+    product_projection = product_projection or {
         'seeMoreUrl': 1,
         'image': 1,
         'clickUrl': 1,
@@ -440,22 +456,23 @@ def get_data_for_specific_image(image_url=None, image_hash=None, projection_dict
         logging.debug('looking for hash ' + image_hash + ' in db ')
         query = {"image_hash": image_hash}
 
-    sparse_image_dict = db.images.find_one(query)
+    sparse_image_dict = db.images.find_one(query, image_projection)
     if sparse_image_dict is not None:
         logging.debug('found image (or hash) in db ')
         # hash gets checked in update_image_in_db(), alternatively it could be checked here
-        full_image_dict = load_similar_results(sparse_image_dict, projection_dict)
-        reduced_dict = reduce_image_doc(full_image_dict)
-        return reduced_dict
+        full_image_dict = load_similar_results(sparse_image_dict, product_projection)
+        merged_dict = merge_items(full_image_dict)
+        return merged_dict
     else:
         logging.debug('image / hash  was NOT found in db')
         return None
 
-def reduce_image_doc(doc):
-    doc['items'] = [reduce_item(item) for person in doc['people'] for item in person["items"]]
+def merge_items(doc):
+    doc['items'] = [item for person in doc['people'] for item in person["items"]]
     del doc["people"]
     return doc
 
+# No longer, necessary, used fancy image_projection instead
 def reduce_item(item, desired_keys=None):
     desired_keys = desired_keys or [u'category',
                                     u'similar_results',
