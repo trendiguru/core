@@ -458,7 +458,6 @@ def reduce_image_doc(doc):
 
 def reduce_item(item, desired_keys=None):
     desired_keys = desired_keys or [u'category',
-                                    u'fp',
                                     u'similar_results',
                                     u'item_id',
                                     u'svg_url']
