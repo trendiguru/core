@@ -14,6 +14,8 @@ import trendi_guru_modules.constants as constants
 import trendi_guru_modules.Utils as Utils
 
 
+
+
 # what is going on why is the server thinking this change didnt happen oh git me
 
 CASCADE = "face.xml"
@@ -518,7 +520,7 @@ if __name__ == "__main__":
     n_samples = 2500
     f = FaceRecognizer()
     csvfile = 'genders.csv'
-    permuted_filename = get_random_subset(csvfile, n_lines_to_get=n_samples)
+    permuted_filename = get_random_subset(csvfile, n_lines_to_get=n_samples, equal_men_women=True)
     f.train(csvfile=permuted_filename, delimiter=";")
 
     fname = time.strftime('%Y%M%d.%H%M')
