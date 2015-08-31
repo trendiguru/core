@@ -1,305 +1,20 @@
 __author__ = 'jeremy'
-# MD5 in java http://www.myersdaily.org/joseph/javascript/md5-speed-test-1.html?script=jkm-md5.js#calculations
+# MD5 in javascript http://www.myersdaily.org/joseph/javascript/md5-speed-test-1.html?script=jkm-md5.js#calculations
 # after reading a bit i decided not to use named tuple for the image structure
 # theirs
 
 import hashlib
 import copy
 import logging
-
 from bson import objectid
 import bson
 import pymongo
-
-
-
-# logging.basicConfig(format='%(levelname)s:%(message)s', level=logging.DEBUG)
-
-
 # ours
 import Utils
-import dbUtils
 import background_removal
 
-# similar_results structure - this an example of a similar results answer, with two items
-images_entry = \
-    {'image_hash': '2403b296b6d0be5e5bb2e74463419b2a',
-     'image_urls': ['url1_of_image.jpg', 'url2_of_image.jpg', 'url3_of_image.jpg'],
-     'page_urls': ['page1_where_image_appears.html', 'page2_where_image_appears.html',
-                   'page3_where_image_appears.html'],
-     'relevant': True,  # result of doorman * QC
-     'items': [{'category': 'womens-shirt-skirts',
-                'svg': 'svg-url',
-                'saved_date': 'Jun 23, 1912',
-                'similar_items': [{"$ref": 'products', "$id": '<value1>', "$db": 'mydb'},
-                                  {"$ref": 'products', "$id": '< value2 >', "$db": 'mydb'},
-                                  {"$ref": 'products', "$id": '< value3 >', "$db": 'mydb'}]},
-
-               {'category': 'mens-purse',
-                'svg': 'svg-url',
-                'saved_date': 'Jun 23, 1912',
-                'similar_items': [{"$ref": 'products', "$id": '< value1 >', "$db": 'mydb'},
-                                  {"$ref": 'products', "$id": '< value2 >', "$db": 'mydb'},
-                                  {"$ref": 'products', "$id": '< value3 >', "$db": 'mydb'}]}]}
-
-
-# format for results to return to javascript thru web2py . this an example of a similar results answer as returned to web2py
-results = {
-    "image_hash": "2403b296b6d0be5e5bb2e74463419b2a",
-    "image_urls": [
-        "url1_of_image.jpg",
-        "url2_of_image.jpg",
-        "url3_of_image.jpg"
-    ],
-    "page_urls": [
-        "page1_where_image_appears.html",
-        "page2_where_image_appears.html",
-        "page3_where_image_appears.html"
-    ],
-    "relevant": "True",
-    "people": [
-        {
-            "face": [
-                10,
-                20,
-                300,
-                400
-            ],
-            "person_id": "bson.ObjectId()",
-            "items": [
-                {
-                    "item_id": '55b89f151f8c82501d18e12f',
-                    "category": "womens-shirt-skirts",
-                    "svg": "svg-url",
-                    "saved_date": "Jun 23, 1912",
-                    "similar_items": [
-                        {
-                            "seeMoreUrl": "url1.html",
-                            "image": {
-                                "big_ass_dictionary of image info": "the_info"
-                            },
-                            "LargeImage": "www.largeimg_url1.jpg",
-                            "clickUrl": "theurl",
-                            "currency": "the_currency",
-                            "description": "thedescription",
-                            "price": 10.99,
-                            "categories": "dict of cats",
-                            "pageUrl": "pageUrl",
-                            "locale": "US",
-                            "name": "itemName",
-                            "unbrandedName": "superNameunbranded"
-                        },
-                        {
-                            "seeMoreUrl": "url2.html",
-                            "image": {
-                                "big_ass_dictionary of image info": "the_info"
-                            },
-                            "LargeImage": "www.largeimg_url2.jpg",
-                            "clickUrl": "theurl",
-                            "currency": "the_currency",
-                            "description": "thedescription",
-                            "price": 10.99,
-                            "categories": "dict of cats",
-                            "pageUrl": "pageUrl",
-                            "locale": "US",
-                            "name": "itemName",
-                            "unbrandedName": "superNameunbranded"
-                        }
-                    ]
-                },
-                {
-                    "item_id": '55b89f151f8c82501d18e12e',
-                    "category": "awesome_watches",
-                    "svg": "svg-url",
-                    "saved_date": "Jun 23, 1912",
-                    "similar_items": [
-                        {
-                            "seeMoreUrl": "url.html",
-                            "image": {
-                                "big_ass_dictionary of image info": "the_info"
-                            },
-                            "LargeImage": "www.largeimg_url.jpg",
-                            "clickUrl": "theurl",
-                            "currency": "the_currency",
-                            "description": "thedescription",
-                            "price": 10.99,
-                            "categories": "dict of cats",
-                            "pageUrl": "pageUrl",
-                            "locale": "US",
-                            "name": "itemName",
-                            "unbrandedName": "superNameunbranded"
-                        },
-                        {
-                            "seeMoreUrl": "url2.html",
-                            "image": {
-                                "big_ass_dictionary of image info": "the_info"
-                            },
-                            "LargeImage": "www.largeimg_url.jpg",
-                            "clickUrl": "theurl",
-                            "currency": "the_currency",
-                            "description": "thedescription",
-                            "price": 10.99,
-                            "categories": "dict of cats",
-                            "pageUrl": "pageUrl",
-                            "locale": "US",
-                            "name": "itemName",
-                            "unbrandedName": "superNameunbranded"
-                        }
-                    ]
-                }
-            ]
-        },
-        {
-            "face": [
-                10,
-                20,
-                300,
-                400
-            ],
-            "person_id": "bson.ObjectId()",
-            "items": [
-                {
-                    "item_id": '55b89f151f8c82501d18e12c',
-                    "category": "womens-shirt-skirts",
-                    "svg": "svg-url",
-                    "saved_date": "Jun 23, 1912",
-                    "similar_items": [
-                        {
-                            "seeMoreUrl": "url1.html",
-                            "image": {
-                                "big_ass_dictionary of image info": "the_info"
-                            },
-                            "LargeImage": "www.largeimg_url1.jpg",
-                            "clickUrl": "theurl",
-                            "currency": "the_currency",
-                            "description": "thedescription",
-                            "price": 10.99,
-                            "categories": "dict of cats",
-                            "pageUrl": "pageUrl",
-                            "locale": "US",
-                            "name": "itemName",
-                            "unbrandedName": "superNameunbranded"
-                        },
-                        {
-                            "seeMoreUrl": "url2.html",
-                            "image": {
-                                "big_ass_dictionary of image info": "the_info"
-                            },
-                            "LargeImage": "www.largeimg_url2.jpg",
-                            "clickUrl": "theurl",
-                            "currency": "the_currency",
-                            "description": "thedescription",
-                            "price": 10.99,
-                            "categories": "dict of cats",
-                            "pageUrl": "pageUrl",
-                            "locale": "US",
-                            "name": "itemName",
-                            "unbrandedName": "superNameunbranded"
-                        }
-                    ]
-                },
-                {
-                    "item_id": '55b89f151f8c82501d18e12fa',
-
-                    "category": "awesome_watches",
-                    "svg": "svg-url",
-                    "saved_date": "Jun 23, 1912",
-                    "similar_items": [
-                        {
-                            "seeMoreUrl": "url.html",
-                            "image": {
-                                "big_ass_dictionary of image info": "the_info"
-                            },
-                            "LargeImage": "www.largeimg_url.jpg",
-                            "clickUrl": "theurl",
-                            "currency": "the_currency",
-                            "description": "thedescription",
-                            "price": 10.99,
-                            "categories": "dict of cats",
-                            "pageUrl": "pageUrl",
-                            "locale": "US",
-                            "name": "itemName",
-                            "unbrandedName": "superNameunbranded"
-                        },
-                        {
-                            "seeMoreUrl": "url2.html",
-                            "image": {
-                                "big_ass_dictionary of image info": "the_info"
-                            },
-                            "LargeImage": "www.largeimg_url.jpg",
-                            "clickUrl": "theurl",
-                            "currency": "the_currency",
-                            "description": "thedescription",
-                            "price": 10.99,
-                            "categories": "dict of cats",
-                            "pageUrl": "pageUrl",
-                            "locale": "US",
-                            "name": "itemName",
-                            "unbrandedName": "superNameunbranded"
-                        }
-                    ]
-                }
-            ]
-        }
-    ]
-}
-
-products_db_sample_entry = {
-    u'seeMoreUrl': u'http://www.shopstyle.com/browse/womens-tech-accessories/Samsung?pid=uid900-25284470-95',
-    u'locale': u'en_US',
-    u'image': {u'id': u'4a34ef7c850e64c2435fc3f0a2e0427c', u'sizes': {
-        u'XLarge': {u'url': u'https://resources.shopstyle.com/xim/4a/34/4a34ef7c850e64c2435fc3f0a2e0427c.jpg',
-                    u'width': 328,
-                    u'sizeName': u'XLarge', u'height': 410},
-        u'IPhoneSmall': {
-        u'url': u'https://resources.shopstyle.com/mim/4a/34/4a34ef7c850e64c2435fc3f0a2e0427c_small.jpg',
-        u'width': 100, u'sizeName': u'IPhoneSmall', u'height': 125},
-        u'Large': {u'url': u'https://resources.shopstyle.com/pim/4a/34/4a34ef7c850e64c2435fc3f0a2e0427c.jpg',
-                   u'width': 164,
-                   u'sizeName': u'Large', u'height': 205},
-        u'Medium': {u'url': u'https://resources.shopstyle.com/pim/4a/34/4a34ef7c850e64c2435fc3f0a2e0427c_medium.jpg',
-                    u'width': 112, u'sizeName': u'Medium', u'height': 140},
-        u'IPhone': {u'url': u'https://resources.shopstyle.com/mim/4a/34/4a34ef7c850e64c2435fc3f0a2e0427c.jpg',
-                    u'width': 288,
-                    u'sizeName': u'IPhone', u'height': 360},
-        u'Small': {u'url': u'https://resources.shopstyle.com/pim/4a/34/4a34ef7c850e64c2435fc3f0a2e0427c_small.jpg',
-                   u'width': 32, u'sizeName': u'Small', u'height': 40},
-        u'Original': {u'url': u'http://bim.shopstyle.com/pim/4a/34/4a34ef7c850e64c2435fc3f0a2e0427c_best.jpg',
-                      u'sizeName': u'Original'},
-        u'Best': {u'url': u'http://bim.shopstyle.com/pim/4a/34/4a34ef7c850e64c2435fc3f0a2e0427c_best.jpg',
-                  u'width': 720,
-                  u'sizeName': u'Best', u'height': 900}}},
-    u'clickUrl': u'http://api.shopstyle.com/action/apiVisitRetailer?id=468065536&pid=uid900-25284470-95',
-    u'retailer': {u'id': u'849', u'name': u'Amazon.com'},
-    u'currency': u'USD',
-    u'colors': [],
-    u'id': 468065536,
-    u'badges': [],
-    u'extractDate': u'2015-01-12',
-    u'alternateImages': [],
-    u'archive': True,
-    u'dl_version': 0,
-    u'preOwned': False,
-    u'inStock': True,
-    u'brand': {u'id': u'1951', u'name': u'Samsung'},
-    u'description': u"Please note: 1> Towallmark is a fashion brand based in China and registered trademark,the only authorized seller of Towallmark branded products.A full line of accessories for all kinds of electronic products,beauty,phone accessories items,clothing,toys,games,home,kitchen and so on. 2> Towallmark provide various kinds of great products at the lowest possible prices to you, welcome to our store and get what you want !!! 3> Towallmark highly appreciate and accept all customers' opinions to improve the selling ,also if anything you unsatisfied, please contact our customer service department for the best solution with any issue.",
-    u'seeMoreLabel': u'Samsung Tech Accessories',
-    u'price': 5.08,
-    u'unbrandedName': u'Towallmark(TM)Flip Leather Case Cover+Bag Straps for Galaxy S4 i9500 Black',
-    u'fingerprint': [0.201101154088974, 0.13319680094718933],
-    u'rental': False,
-    u'categories': [
-        {u'shortName': u'Tech', u'localizedId': u'womens-tech-accessories', u'id': u'womens-tech-accessories',
-         u'name': u'Tech Accessories'}],
-    u'name': u'Towallmark(TM)Flip Leather Case Cover+Bag Straps for Samsung Galaxy S4 i9500 Black',
-    u'sizes': [],
-    u'lastModified': u'2015-05-21',
-    u'brandedName': u'Samsung Towallmark(TM)Flip Leather Case Cover+Bag Straps for Galaxy S4 i9500 Black',
-    u'pageUrl': u'http://www.shopstyle.com/p/samsung-towallmark-tm-flip-leather-case-cover-bag-straps-for-galaxy-s4-i9500-black/468065536?pid=uid900-25284470-95',
-    u'_id': '557a0a069e31f14ce3901821',
-    u'priceLabel': u'$5.08'}
-
-
+# logging.basicConfig(format='%(levelname)s:%(message)s', level=logging.DEBUG)
+db = pymongo.MongoClient().mydb
 
 def verify_hash_of_image(image_hash, image_url):
     img_arr = Utils.get_cv2_img_array(image_url)
@@ -311,7 +26,6 @@ def verify_hash_of_image(image_hash, image_url):
         return True
     else:
         return False
-
 
 def get_hash_of_image_from_url(image_url):
     img_arr = Utils.get_cv2_img_array(image_url)
@@ -330,7 +44,6 @@ def get_known_similar_results(image_hash=None, image_url=None, page_url=None):
         logging.warning('get_similar_results wasnt given an id or an image/page url')
         return None
 
-    db = pymongo.MongoClient().mydb
     if image_hash is not None:  #search by imagehash
         query = {'_id': image_hash}
         #query = {"categories": {"$elemMatch": {"image_hash": image_hash}}}
@@ -360,7 +73,6 @@ def get_known_similar_results(image_hash=None, image_url=None, page_url=None):
         logging.warning(str(n) + ' results found')  # maybe only 0 or 1 match should ever be found
     return cursor
 
-
 def start_pipeline(image_url):
     '''
 
@@ -374,7 +86,6 @@ def start_pipeline(image_url):
     # each item having a list of similar results
     # FAKE RESULTS
     logging.debug('starting pipeline')
-    db = pymongo.MongoClient().mydb
     q = db.products.find()
     similar_1 = q.next()
     similar_2 = q.next()
@@ -405,7 +116,6 @@ def start_pipeline(image_url):
 
     return result
 
-
 def qc_assessment_of_relevance(image_url):
     '''
 
@@ -414,7 +124,6 @@ def qc_assessment_of_relevance(image_url):
     '''
     # something useful goes here...
     return True
-
 
 # we wanted to do this as an object , with methods for putting in db
 def find_similar_items_and_put_into_db(image_url, page_url):
@@ -462,10 +171,8 @@ def find_similar_items_and_put_into_db(image_url, page_url):
     #`EDIT FROM HERE        for
     logging.debug('inserting into db:')
     logging.debug(str(results_dict))
-    db = pymongo.MongoClient().mydb
     db.images.insert(results_dict)
     return results_dict
-
 
 def update_image_in_db(page_url, image_url, cursor):
     '''
@@ -476,7 +183,6 @@ def update_image_in_db(page_url, image_url, cursor):
     :param cursor:
     :return:
     '''
-    db = pymongo.MongoClient().mydb
     i = 0
     for doc in cursor:
         # why is there possible more than one doc like this to be updated?  cuz the image
@@ -518,7 +224,6 @@ def update_image_in_db(page_url, image_url, cursor):
         logging.debug('re-found doc:')
         logging.debug(doc)
 
-
 def get_all_data_for_page(page_url):
     '''
     this returns all the known similar items for images appearing at page_url (that we know about - maybe images changed since last we checked)
@@ -533,7 +238,7 @@ def get_all_data_for_page(page_url):
         logging.warning('results_for_page wasnt given a url')
         return None
     logging.debug('looking for images that appear on page:' + page_url)
-    db = pymongo.MongoClient().mydb
+
     # query = {'page_urls': {'$elemMatch': {'page_url': page_url}}}
     query = {'page_urls': page_url}
     cursor = db.images.find(query)
@@ -557,12 +262,11 @@ def get_all_data_for_page(page_url):
     logging.debug(str(results))
     return results
 
-
 def dereference_image_collection_entry(doc=None):
-    if doc == None:
+    if doc is None:
         logging.warning(
             'no image collection entry given for dereferencing (page_results.dereference_image_collection_entry)')
-    db = pymongo.MongoClient().mydb
+
     results = []
 
     # The projection parameter takes a document of the following form:
@@ -600,11 +304,11 @@ def dereference_image_collection_entry(doc=None):
         'pageUrl': 1,
         '_id': 0,
         'priceLabel': 1}
+
     # probably necessary since i am fooling with the fields, and the copy is a copy by reference
-    modified_doc = copy.deepcopy(doc)
-    # modified_doc =doc
+    modified_doc = doc # copy.deepcopy(doc)
     logging.debug('trying to dereference ' + str(modified_doc))
-    if not 'people' in modified_doc:
+    if 'people' not in modified_doc:
         logging.debug('no people found in record while trying to dereference ' + str(modified_doc))
         return None
     for person in modified_doc['people']:
@@ -650,9 +354,8 @@ def dereference_image_collection_entry(doc=None):
     logging.debug(str(modified_doc))
     return modified_doc
 
-
 def new_images(page_url, list_of_image_urls):
-    '''
+    """
     this is for checking a bunch of images on a given page - are they all listed in the images db?
     if not, look for images' similar items and add to images db
     :type page_url: str   This is required in case an image isn;t found in images db
@@ -660,11 +363,15 @@ def new_images(page_url, list_of_image_urls):
     :type list_of_image_urls: list of the images on a page
     :return:  nothing - just updates db with new images .
     maybe this should return the similar items for each image, tho that can be done by calling results_for_page()
-    '''
-    if list_of_image_urls == None or page_url == None:
+    :param page_url:
+    :param list_of_image_urls:
+    :return:
+    """
+
+    if list_of_image_urls is None or page_url is None:
         logging.warning('get_similar_results wasnt given list of image urls and page url')
         return None
-    db = pymongo.MongoClient().mydb
+
     i = 0
     answers = []
     number_found = 0
@@ -691,65 +398,99 @@ def new_images(page_url, list_of_image_urls):
     return number_found, number_not_found
 
 
-def get_data_for_specific_image(image_url=None, image_hash=None):
-    '''
+
+
+def load_similar_results(sparse, projection_dict):
+    for person in sparse["people"]:
+        for item in person["items"]:
+            item["similar_results"] = [db.products.find_one({"_id": result["_id"]}, projection_dict)
+                                       for result in item["similar_results"]]
+    return sparse
+
+
+def get_data_for_specific_image(image_url=None, image_hash=None, image_projection=None, product_projection=None,
+                                max_results=20):
+    """
     this just checks db for an image or hash. It doesn't start the pipeline or update the db
     :param image_url: url of image to find
     :param image_hash: hash (of image) to find
     :return:
-    '''
-    if image_url == None and image_hash == None:
-        logging.warning('page_results.get_data_for_specific_image wasnt given one of image url or image hash')
+    """
+    image_projection = image_projection or {
+        '_id': 1,
+        'image_hash': 1,
+        'image_urls': 1,
+        'page_urls': 1,
+        'people.items.category': 1,
+        'people.items.item_id': 1,
+        'people.items.item_idx': 1,
+        'people.items.similar_results': {'$slice': max_results},
+        'people.items.similar_results._id': 1,
+        'people.items.similar_results.id': 1,
+        'people.items.svg_url': 1,
+        'relevant': 1}
+
+    product_projection = product_projection or {
+        'seeMoreUrl': 1,
+        'image': 1,
+        'clickUrl': 1,
+        'retailer': 1,
+        'currency': 1,
+        'brand': 1,
+        'description': 1,
+        'price': 1,
+        'categories': 1,
+        'name': 1,
+        'sizes': 1,
+        'pageUrl': 1,
+        '_id': 0,
+        'priceLabel': 1}
+
+    if image_url is None and image_hash is None:
+        logging.warning("page_results.get_data_for_specific_image wasn't given one of image url or image hash")
         return None
-    db = pymongo.MongoClient().mydb
-    i = 0
-    answers = []
-    number_found = 0
-    number_not_found = 0
     if image_url is not None:
         logging.debug('looking for image ' + image_url + ' in db ')
         query = {"image_urls": image_url}
     else:
         logging.debug('looking for hash ' + image_hash + ' in db ')
         query = {"image_hash": image_hash}
-    entry = db.images.find_one(query)
-    if entry is not None:
+
+    sparse_image_dict = db.images.find_one(query, image_projection)
+    if sparse_image_dict is not None:
         logging.debug('found image (or hash) in db ')
         # hash gets checked in update_image_in_db(), alternatively it could be checked here
-        dereferenced_entry = dereference_image_collection_entry(entry)
-        logging.debug('dereferenced entry: ')
-        logging.debug(str(dereferenced_entry))
-        return dereferenced_entry
+        full_image_dict = load_similar_results(sparse_image_dict, product_projection)
+        merged_dict = merge_items(full_image_dict)
+        return merged_dict
     else:
         logging.debug('image / hash  was NOT found in db')
         return None
 
+def image_exists(image_url):
+    image_dict = db.images.find_one({"image_urls": image_url}, {"_id": 1})
+    if image_dict is None:
+        im_hash = get_hash_of_image_from_url(image_url)
+        if im_hash:
+            image_dict = db.images.find_one({"image_hash": im_hash}, {"_id": 1})
+    return bool(image_dict)
 
-def remove_one(id):
-    db = pymongo.MongoClient().mydb
-    db.images.remove({"_id": bson.ObjectId(id)})
+def merge_items(doc):
+    doc['items'] = [item for person in doc['people'] for item in person["items"]]
+    del doc["people"]
+    return doc
+
+# No longer, necessary, used fancy image_projection instead
+def reduce_item(item, desired_keys=None):
+    desired_keys = desired_keys or [u'category',
+                                    u'similar_results',
+                                    u'item_id',
+                                    u'svg_url']
+
+    unwanted = set(desired_keys) - set(item)
+    for unwanted_key in unwanted:
+        del item[unwanted_key]
+
+    return item
 
 
-def kill_images_collection():
-    # connection = Connection('localhost', 27017)  # Connect to mongodb
-    #    print(connection.database_names())  # Return a list of db, equal to: > show dbs
-    #    db = connection['mydb']  # equal to: > use testdb1
-    db = pymongo.MongoClient().mydb
-    print(db.collection_names())  # Return a list of collections in 'testdb1'
-    print("images exists in db.collection_names()?")  # Check if collection "posts"
-    print("images" in db.collection_names())  # Check if collection "posts"
-    # exists in db (testdb1
-    collection = db['images']
-    print('collection.count() = ' + str(collection.count()))  # Check if collection named 'posts' is empty
-
-###DO THIS ONLY IF YOU KNOW WHAT YOU ARE DOING
-  #  collection.drop()
-
-###DO THIS TO KILL DB - ASK LIOR AND/OR JEREMY BEFORE DOING THIS
-
-if __name__ == '__main__':
-    print('starting')
-    # kill_images_collection()
-    # remove_one('55b614301f8c8255e7557046')
-    #verify_hash_of_image('wefwfwefwe', 'http://resources.shopstyle.com/pim/c8/af/c8af6068982f408205491817fe4cad5d.jpg')
-    dbUtils.step_thru_images_db(use_visual_output=False, collection='images')
