@@ -4,6 +4,7 @@ import logging
 import random
 import copy
 import datetime
+import time
 
 import requests
 import numpy as np
@@ -135,7 +136,7 @@ def search_existing_images(page_url):
 # ---------------------------------------------------------------------------------------------------------------------
 
 
-def start_process(page_url, image_url):
+def start_process(page_url, image_url, async=False):
     image_obj = images.find_one({"image_urls": image_url})
     if not image_obj:  # new image_url
         image_hash = page_results.get_hash_of_image_from_url(image_url)
@@ -164,16 +165,20 @@ def start_process(page_url, image_url):
             else:  # if not relevant
                 logging.warning('image is not relevant, but stored anyway..')
             iip.insert(image_dict)
+            if not async:
+                while images.find_one({'image_urls': image_url}) is None:
+                    time.sleep(0.5)
+                return page_results.merge_items(images.find_one({'image_urls': image_url}))
         else:  # if the exact same image was found under other urls
             logging.warning("image_hash was found in other urls:")
             logging.warning("{0}".format(image_obj['image_urls']))
-            return image_obj
+            return page_results.merge_items(image_obj)
     else:  # if image is in the DB
         if image_obj['relevant']:
             logging.warning("Image is in the DB and relevant!")
         else:
             logging.warning("Image is in the DB and not relevant!")
-        return image_obj
+        return page_results.merge_items(image_obj)
 
 
 def from_paperdoll_to_similar_results(person_id, mask, labels):
