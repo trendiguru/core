@@ -6,11 +6,9 @@ __author__ = 'jeremy'
 import hashlib
 import copy
 import logging
-
 from bson import objectid
 import bson
 import pymongo
-
 # ours
 import Utils
 import background_removal
@@ -467,6 +465,15 @@ def get_data_for_specific_image(image_url=None, image_hash=None, image_projectio
     else:
         logging.debug('image / hash  was NOT found in db')
         return None
+
+
+def image_exists(image_url):
+    image_dict = db.images.find_one({"image_urls": image_url}, {"_id": 1})
+    if image_dict is None:
+        im_hash = get_hash_of_image_from_url(image_url)
+        if im_hash:
+            image_dict = db.images.find_one({"image_hash": im_hash}, {"_id": 1})
+    return bool(image_dict)
 
 
 def merge_items(doc):
