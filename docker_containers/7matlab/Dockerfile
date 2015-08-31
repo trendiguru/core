@@ -1,32 +1,32 @@
-#check this for gui https://hub.docker.com/r/sinclab/webdemo-base-matlab/
-# sshd, matlab, dcmdump (via dcmtk)
 
+#to run gui app (giving up since i can't seem to install license manager - product not given as an option in install....)
 FROM ubuntu:14.04
 
-ADD matlab.txt /mcr-install/matlab.txt
-ADD id_rsa.pub /root/.ssh/authorized_keys
-ADD assets /root/assets
+RUN apt-get update && apt-get install -y firefox
+
+# Replace 1000 with your user / group id
+RUN export uid=1000 gid=1000 && \
+    mkdir -p /home/developer && \
+    echo "developer:x:${uid}:${gid}:Developer,,,:/home/developer:/bin/bash" >> /etc/passwd && \
+    echo "developer:x:${uid}:" >> /etc/group && \
+    echo "developer ALL=(ALL) NOPASSWD: ALL" > /etc/sudoers.d/developer && \
+    chmod 0440 /etc/sudoers.d/developer && \
+    chown ${uid}:${gid} -R /home/developer
 
 
-RUN \
-   apt-get update && \
-   apt-get install -y curl wget xorg unzip openssh-server dcmtk && \
-   mkdir /var/run/sshd
+#matlab install needs java
+RUN apt-get install -y default-jre
 
-RUN \
-   cd /mcr-install && \
 
-#this dockerfile originally got the installer with a wget
-#   wget -nv http://www.mathworks.de/supportfiles/downloads/R2013b/deployment_files/R2013b/installers/glnxa64/MCR_R2013b_glnxa64_installer.zip && \
-#but since i can't find the actual remote file I add it locally - requiring the docker user to download it :<<
+USER developer
+ENV HOME /home/developer
+CMD /usr/bin/firefox
 
-ADD matlab_R2015a_glnxa64.zip /home/jeremy/Downloads/matlab_R2015a_glnxa64.zip
 
-RUN unzip matlab_R2015a_glnxa64.zip
-RUN mkdir /opt/mcr && \
-RUN   ./install -inputFile matlab.txt
-RUN   cd /
-RUN   rm -rf mcr-install
+#somethign to try - just link -v to matlab files and run install
 
-EXPOSE 22
-CMD ["/usr/sbin/sshd", "-D"]
+#to run this:
+#docker build -t firefox . it and run the container with:
+
+#
+#docker run -e DISPLAY -v /tmp/.X11-unix:/tmp/.X11-unix -v $HOME/.Xauthority:/home/developer/.Xauthority --net=host firefox

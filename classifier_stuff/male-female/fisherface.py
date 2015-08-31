@@ -10,9 +10,11 @@ import logging
 
 import cv2
 
-import trendi_guru_modules.constants as constants
-import trendi_guru_modules.Utils as Utils
 
+# import trendi_guru_modules.constants as constants
+#import trendi_guru_modules.Utils as Utils
+import constants
+import Utils
 
 
 
@@ -498,33 +500,25 @@ def concatenate(*args):
     return retVal
 
 
-def plot_training_results():
-    ''' male tests: 30 male 20 female
-     male tests: 17 male 33 female
-
-     200 male 200 female
-      male tests: 33 male 17 female
-     male tests: 14 male 36 female
-
-    400 ,400
-     male tests: 37 male 13 female
-     female tests: 11 male 39 female
-    '''
-    results = [{'n': 100, 'male': [30, 20], 'female': [17, 33]},
-               {'n': 200, 'male': [33, 17], 'female': [14, 36]},
-               {'n': 200, 'male': [37, 13], 'female': [11, 39]}]
-
-
 if __name__ == "__main__":
-    # %Use CSV files for training
-    n_samples = 2500
-    f = FaceRecognizer()
-    csvfile = 'genders.csv'
-    permuted_filename = get_random_subset(csvfile, n_lines_to_get=n_samples, equal_men_women=True)
-    f.train(csvfile=permuted_filename, delimiter=";")
 
-    fname = time.strftime('%Y%M%d.%H%M')
-    f.save("faces" + fname + ".xml")
+    #load trained xml
+
+    if (1):
+        f = FaceRecognizer()
+        # f.load("faces20151328.1613.xml") 5000
+        f.load("faces20155727.2157.xml")  #2500 faces
+
+    # %Use CSV files for training
+    else:
+        n_samples = 2500
+        f = FaceRecognizer()
+        csvfile = 'genders.csv'
+        permuted_filename = get_random_subset(csvfile, n_lines_to_get=n_samples, equal_men_women=True)
+        f.train(csvfile=permuted_filename, delimiter=";")
+
+        fname = time.strftime('%Y%M%d.%H%M')
+        f.save("faces" + fname + ".xml")
 
     thresh = 0.1
     mult = 1.15
@@ -557,10 +551,10 @@ if __name__ == "__main__":
         for p in male_predictions:
             a = p[0]
             confidence = p[1]
-            if a == '0' and confidence > thresh:
+            if (a == '0' or a == 0) and confidence > thresh:
                 man_as_man += 1
                 true_pos += 1
-            elif a == '1' and confidence > thresh:
+            elif (a == '1' or a == 1) and confidence > thresh:
                 man_as_woman += 1
                 false_pos += 1
             else:
@@ -571,10 +565,10 @@ if __name__ == "__main__":
         for p in female_predictions:
             a = p[0]
             confidence = p[1]
-            if a == '0' and confidence > thresh:
+            if (a == '0' or a == 0) and confidence > thresh:
                 woman_as_man += 1
                 false_pos = false_pos + 1
-            elif a == '1' and confidence > thresh:
+            elif (a == '1' or a == 1) and confidence > thresh:
                 woman_as_woman += 1
                 true_pos = true_pos + 1
             else:

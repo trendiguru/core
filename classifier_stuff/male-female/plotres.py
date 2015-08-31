@@ -38,14 +38,17 @@ def plotres():
                {'n': 500, 'male': [421, 165], 'female': [50, 174]},
                {'n': 500, 'male': [485, 86], 'female': [83, 135]},
                {'n': 750, 'male': [439, 157], 'female': [48, 180]},
+               {'n': 1000, 'male': [86, 26], 'female': [26, 80]},
+               {'n': 2500, 'male': [406, 183], 'female': [38, 186]},  # 183 mw:406 mu:8 ww:38 wm:186 wu:4},
+               {'n': 5000, 'male': [468, 122], 'female': [64, 160]}]  # mm:122 mw:468 mu:7 ww:64 wm:160 wu:4}
 
-               {'n': 1000, 'male': [86, 26], 'female': [26, 80]}]
+
 
     # 100 ;mm:516 mw:67 mu:14 ww:78 wm:147 wu:3
     # 500: mm:421 mw:165 mu:11 ww:174 wm:50 wu:4
     # 500 : mm:485 mw:86 mu:26 ww:135 wm:83 wu:10
     # 750 mm:439 mw:157 mu:1 ww:180 wm:48 wu:0
-
+#2000: mm:183 mw:406 mu:8 ww:38 wm:186 wu:4
 
     ns = [result['n'] for result in results]
     mens = [float(result['male'][0]) / (result['male'][0] + result['male'][1]) for result in results]
