@@ -164,16 +164,17 @@ def start_process(page_url, image_url):
             else:  # if not relevant
                 logging.warning('image is not relevant, but stored anyway..')
             iip.insert(image_dict)
+            return "New image was inserted to DB! :)"
         else:  # if the exact same image was found under other urls
             logging.warning("image_hash was found in other urls:")
             logging.warning("{0}".format(image_obj['image_urls']))
-            return image_obj
+            return page_results.merge_items(image_obj)
     else:  # if image is in the DB
         if image_obj['relevant']:
             logging.warning("Image is in the DB and relevant!")
         else:
             logging.warning("Image is in the DB and not relevant!")
-        return image_obj
+        return page_results.merge_items(image_obj)
 
 
 def from_paperdoll_to_similar_results(person_id, mask, labels):

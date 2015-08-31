@@ -6,9 +6,11 @@ __author__ = 'jeremy'
 import hashlib
 import copy
 import logging
+
 from bson import objectid
 import bson
 import pymongo
+
 # ours
 import Utils
 import background_removal
@@ -354,6 +356,7 @@ def dereference_image_collection_entry(doc=None):
     logging.debug(str(modified_doc))
     return modified_doc
 
+
 def new_images(page_url, list_of_image_urls):
     """
     this is for checking a bunch of images on a given page - are they all listed in the images db?
@@ -396,8 +399,6 @@ def new_images(page_url, list_of_image_urls):
             new_answer = find_similar_items_and_put_into_db(image_url, page_url)
         i = i + 1
     return number_found, number_not_found
-
-
 
 
 def load_similar_results(sparse, projection_dict):
@@ -467,10 +468,12 @@ def get_data_for_specific_image(image_url=None, image_hash=None, image_projectio
         logging.debug('image / hash  was NOT found in db')
         return None
 
+
 def merge_items(doc):
     doc['items'] = [item for person in doc['people'] for item in person["items"]]
     del doc["people"]
     return doc
+
 
 # No longer, necessary, used fancy image_projection instead
 def reduce_item(item, desired_keys=None):
