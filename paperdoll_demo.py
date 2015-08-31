@@ -35,21 +35,32 @@ def from_image_url_to_svgs(image_url, image_id):
 def from_svg_to_similar_results(svg_url, image_url):
     if svg_url is None or image_url is None:
         return None
-    image_dict = db.images.find_one({'image_url': image_url})
+    image_dict = db.images.find_one({'image_urls': image_url})
+    # find relevant item
+    current_item = {}
     for item in image_dict["items"]:
         if item["svg_url"] == svg_url:
             current_item = item
-    for key, value in constants.RELEVANT_ITEMS.iteritems():
-        if value == current_item['category']:
-            item_num = key
-    mask = find_mask_with_image_url(image_dict['image_url'])
-    item_mask = 255 * (np.zeros(np.shape(mask), np.uint8) + np.array(mask == int(item_num)))
-    image = Utils.get_cv2_img_array(image_dict['image_url'])
-    current_item['fp'], current_item['similar_results'] = find_similar_mongo.find_top_n_results(image,
-                                                                                                item_mask,
-                                                                                                50,
-                                                                                                current_item[
-                                                                                                    'category'])
+            break
+    # if the item already has similar results, return them
+    if "similar_results" in current_item and len(current_item["similar_results"]) > 10:
+        return image_dict
+
+    # otherwise, go find similar items
+    # get the paperdoll item number
+    for item_num, category in constants.RELEVANT_ITEMS.iteritems():
+        if category == current_item['category']:
+            current_item_num = item_num
+            break
+    paperdoll_mask = find_mask_with_image_url(image_url)
+    item_mask = 255 * (np.zeros(np.shape(paperdoll_mask), np.uint8) + np.array(paperdoll_mask == int(current_item_num)))
+    image = Utils.get_cv2_img_array(image_url)
+    current_item['fp'], current_item['similar_results'] = \
+        find_similar_mongo.find_top_n_results(image, item_mask, 50, current_item['category'])
+
+    # Cache similar items for later
+    db.images.update_one({"_id": image_dict["_id"]}, {"$set": image_dict})
+
     return image_dict
 
 
@@ -71,9 +82,9 @@ def find_or_create_image(image_url):
     """
     if Utils.get_cv2_img_array(image_url) is None:
         return None
-    image_dict = db.images.find_one({"image_url": image_url})
+    image_dict = db.images.find_one({"image_urls": image_url})
     if image_dict is None or 'items' not in image_dict.keys():
-        image_id = db.images.insert({"image_url": image_url})
+        image_id = db.images.insert({"image_urls": [image_url]})
         image_temp_dict = from_image_url_to_svgs(image_url, image_id)
         image_dict = db.images.find_one_and_update({'_id': image_id}, {'$set': image_temp_dict},
                                                    return_document=pymongo.ReturnDocument.AFTER)

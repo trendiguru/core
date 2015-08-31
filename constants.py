@@ -1,4 +1,7 @@
+import os
+
 import cv2
+
 
 # file containing constants for general TG use
 
@@ -18,7 +21,9 @@ min_images_per_doc = 10  # item has to have at least this number of pics
 max_images_per_doc = 18  # item has to have less than this number of pics
 max_items = 50  # max number of items to consider for rating fingerprint
 
-classifiers_folder = "/home/ubuntu/Dev/trendi_guru_modules/classifiers/"
+
+project_dir = os.path.dirname(__file__)
+classifiers_folder = os.path.join(project_dir, 'classifiers')
 
 # classifier to category relation
 classifier_to_category_dict = {"dressClassifier.xml": ["dresses", "bridal-mother-dresses", "bridal-bridesmaid-dresses",
@@ -61,6 +66,29 @@ IRELEVANT_ITEMS = {'1': 'background', '6': 'bag', '7': 'shoes', '10': 'purse', '
                    '48': 'sneakers', '49': 'clogs', '50': 'watchs', '51': 'pumps', '52': 'wallets', '53': 'bodysuit',
                    '54': 'loafers', '55': 'hair', '56': 'skin'}
 
+paperdoll_shopstyle_women = {'top': 'womens-tops', 'pants': 'womens-pants', 'shorts': 'shorts', 'jeans': 'jeans',
+                             'jacket': 'jackets', 'blazer': 'blazers', 'shirt': 'womens-tops', 'skirt': 'skirts',
+                             'blouse': 'womens-tops', 'dress': 'dresses', 'sweater': 'sweaters',
+                             't-shirt': 'tees-and-tshirts', 'cardigan': 'cardigan-sweaters', 'coat': 'coats',
+                             'suit': 'womens-suits', 'vest': 'vests', 'sweatshirt': 'sweatshirts',
+                             'jumper': 'v-neck-sweaters', 'bodysuit': 'shapewear', 'leggings': 'leggings',
+                             'stockings': 'hosiery', 'tights': 'leggings'}
+
+papersoll_whole_body = ['bodysuit', 'dress', 'jumper', 'suit', 'romper', 'intimate']
+paperdoll_upper = ['blazer', 'cape', 'jacket', 't-shirt', 'blouse', 'cardigan', 'shirt', 'coat', 'top', 'bra',
+                   'sweater',
+                   'vest', 'sweatshirt']
+paperdoll_lower = ['pants', 'stockings', 'jeans', 'tights', 'leggings', 'shorts', 'skirt']
+paperdoll_shoes = ['pumps', 'wedges', 'flats', 'clogs', 'shoes', 'boots', 'heels', 'loafers', 'sandals', 'sneakers']
+paperdoll_accessories = ['tie', 'purse', 'hat', 'sunglasses', 'bag', 'belt']
+
+nonlogic_clothing = [{'pants': ['jeans', 'stockings', 'jumper', 'suit', 'tights', 'leggings', 'shorts', 'romper',
+                                'skirt', 'intimate']},
+                     {'skirt': ['pants', 'jeans', 'shorts', 'romper', 'jumper']},
+                     {'dress': ['t-shirt', 'blouse', 'jeans', 'shirt', 'bodysuit', 'jumper', 'suit',
+                                'romper', 'shorts', 'top', 'skirt']},
+                     {'jacket': ['blazer', 'cape', 'cardigan', 'sweater', 'sweatshirt', 'vest']}]
+
 # for web bounding box interface
 # this is for going to the previous item, highest numbered image
 max_image_val = 666
@@ -89,8 +117,12 @@ N_category_votes_required = 2
 
 bb_iou_threshold = 0.5  # how much overlap there must be between bbs
 
-if cv2.__version__ == '3.0.0':
+if cv2.__version__ == '3.0.0' or cv2.__version__ == '3.0.0-dev':
     scale_flag = cv2.CASCADE_SCALE_IMAGE
+    FACECONST = cv2.face
+
 else:
     scale_flag = cv2.cv.CV_HAAR_SCALE_IMAGE
+    BGR2GRAYCONST = cv2.cv.CV_BGR2GRAY
+    FACECONST = cv2
 

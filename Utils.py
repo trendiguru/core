@@ -573,6 +573,22 @@ def purge(dir, pattern):
 ############################
 ### math stuff
 ############################
+
+def precision(true_pos=0, false_pos=0):
+    if true_pos + false_pos:
+        precision = float(true_pos) / (true_pos + false_pos)
+    else:
+        precision = 0
+    return precision
+
+
+def recall(true_pos=0, false_neg=0):
+    if true_pos + false_neg:
+        recall = float(true_pos) / (true_pos + false_neg)
+    else:
+        recall = 0
+    return recall
+
 def intersectionOverUnion(r1, r2):
     # print(r1, r2)
 

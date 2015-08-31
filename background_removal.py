@@ -192,6 +192,19 @@ def bb_mask(image, bounding_box):
     return mask
 
 
+def paperdoll_item_mask(item_mask, bb):
+    x, y, w, h = bb
+    mask_h, mask_w = item_mask.shape
+    mask = np.zeros(item_mask.shape, dtype=np.uint8)
+    y_down = np.min([mask_h - 1, y + 1.2 * h])
+    x_back = np.max([x - 0.2 * w, 0])
+    y_up = np.max([0, y - 0.2 * h])
+    x_ahead = np.min([mask_w - 1, x + 1.2 * w])
+    mask[y_up:y_down, x_back:x_ahead] = 2
+    mask = np.where(item_mask != 0, 1, mask)
+    return mask
+
+
 def create_mask_for_gc(rectangles, image):
     mask = np.zeros(image.shape[:2], dtype=np.uint8)
     for rectangle in rectangles["BG"]:
@@ -326,8 +339,7 @@ def simple_mask_grabcut(image, mask):
     fgdmodel = np.zeros((1, 65), np.float64)
     cv2.grabCut(image, mask, rect, bgdmodel, fgdmodel, 1, cv2.GC_INIT_WITH_MASK)
     mask2 = np.where((mask == 1) + (mask == 3), 255, 0).astype('uint8')
-    detected_image = get_masked_image(image, mask2)
-    return detected_image
+    return mask2
 
 
 if __name__ == '__main__':

@@ -451,9 +451,8 @@ class CatNode(object):
             img = cv2.imread(name, 0)
             # Resizing of an image:
             img = cv2.resize(img, (60, 60))
-            cv2.imwrite(destination_dir + "\\" + name, img)
-            # upload_image(img, name, destination_dir)
-            #cv2.imwrite(destination_dir + "//" + name, img)
+            # cv2.imwrite(destination_dir + "\\" + name, img)
+            upload_image(img, name, destination_dir)
             try:
                 os.remove(name)
             except:
@@ -613,7 +612,7 @@ class CatNode(object):
         if key is not None:
             buck = Bucket(key=key, content=[id])
             return buck
-        logging.warning("error S: a bucket was not created!!!")
+        logging.warning("error s: a bucket was not created!!!")
         return None
 
     @staticmethod
