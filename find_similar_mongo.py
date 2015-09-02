@@ -4,6 +4,7 @@ import os
 import subprocess
 
 import pymongo
+
 import cv2
 
 import numpy as np
@@ -95,7 +96,7 @@ def find_top_n_results(image, mask, number_of_results=10, category_id=None, coll
     #     fp_dict["buyURL"] = row["clickUrl"]
     #     db_fingerprint_list.append(fp_dict)
 
-    color_fp = fp.fp(image, mask)
+    color_fp = fp.fp(image, bins, fp_len, mask)
     target_dict = {"clothingClass": category_id, "fingerprint": color_fp}
     closest_matches = NNSearch.find_n_nearest_neighbors(target_dict, potential_matches_cursor, number_of_results,
                                                         fp_weights, bins, fp_category, distance_function)
