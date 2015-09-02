@@ -51,7 +51,7 @@ def gender(url_or_path_or_array, threshold=0):
         return ('man', confidence)
 
 
-def cropFace(img_arr, face_cascade=None, eye_cascade=None):
+def cropFace(img_arr, face_cascade=None, eye_cascade=None, x_size=250, y_size=250):
     if not face_cascade:
         face_cascade = cv2.CascadeClassifier('haarcascade_frontalface_default.xml')
     if not eye_cascade:
@@ -75,22 +75,6 @@ def cropFace(img_arr, face_cascade=None, eye_cascade=None):
             roi_color = img_arr[y:y + h, x:x + w]
             eyes = eye_cascade.detectMultiScale(roi_gray)
 
-            original_eye_positions =
-            if w < 250:
-                wscale = 250 - w
-                x = int(x - (250.0 - w) / 2)
-                w = 250
-            if y < 250:
-                hscale = 250 - y
-                y = int(y - (250.0 - h) / 2)
-                h = 250
-            roi_gray = gray[y:y + h, x:x + w]
-
-            # try to normalize eyes to
-            #leftmean[ 20.71270718  30.99309392  28.78453039  28.78453039]
-            #rtmean[ 62.77348066  30.18922652  28.28314917  28.28314917]
-
-
             if len(eyes) == 2:
                 left = eyes[0]
                 right = eyes[1]
@@ -98,7 +82,14 @@ def cropFace(img_arr, face_cascade=None, eye_cascade=None):
                     temp = left
                     left = right
                     right = temp
-                line_up_eyes(roi_gray, left, right)
+                original_left = [left[0] + x, left[1] + y, left[2], left[3]]
+                original_right = [right[0] + x, right[1] + y, right[2], right[3]]
+                lined_up = line_up_eyes(gray, original_left, original_right)
+                lined_up_roi = lined_up[0:y_size, 0:x_size]
+                cv2.imshow('cropped_lined', lined_up_roi)
+                cv2.waitKey(0)
+                cv2.destroyAllWindows()
+                return lined_up_roi
             if i == 0:
                 cropped = img_arr[y:y + h, x:x + w]
                 first_eyes = eyes
@@ -110,6 +101,7 @@ def cropFace(img_arr, face_cascade=None, eye_cascade=None):
         cv2.imshow('orig', img_arr)
         cv2.waitKey(100)
         cv2.destroyAllWindows()
+
         return cropped
 
         # obs = faces2
@@ -124,20 +116,31 @@ def cropFace(img_arr, face_cascade=None, eye_cascade=None):
         return None, None
 
 
-def line_up_eyes(img_arr, left_eye, right_eye, expected_left=[20, 30, 28, 28], expected_right=[62, 30, 28, 28]):
+# [100 115  150 115]
+
+def line_up_eyes(img_arr, left_eye_box, right_eye_box, expected_left_eye_center=[100, 115],
+                 expected_right_eye_center=[150, 115]):
+    center_left = [left_eye_box[0] + int(float(left_eye_box[2]) / 2.0),
+                   left_eye_box[1] + int(float(left_eye_box[3]) / 2.0)]
+    center_right = [right_eye_box[0] + int(float(right_eye_box[2]) / 2.0),
+                    right_eye_box[1] + int(float(right_eye_box[3]) / 2.0)]
+
+
     # translation of left eye
-    print('l.eye:' + str(left_eye))
-    print('r.eye:' + str(right_eye))
-    cv2.rectangle(img_arr, (left_eye[0], left_eye[1]), (left_eye[0] + left_eye[2], left_eye[1] + left_eye[3]),
+    print('l.eye:' + str(left_eye_box) + ' center:' + str(center_left))
+    print('r.eye:' + str(right_eye_box) + ' center:' + str(center_right))
+    cv2.rectangle(img_arr, (left_eye_box[0], left_eye_box[1]),
+                  (left_eye_box[0] + left_eye_box[2], left_eye_box[1] + left_eye_box[3]),
                   (0, 255, 0), 2)
-    cv2.rectangle(img_arr, (right_eye[0], right_eye[1]), (right_eye[0] + right_eye[2], right_eye[1] + right_eye[3]),
+    cv2.rectangle(img_arr, (right_eye_box[0], right_eye_box[1]),
+                  (right_eye_box[0] + right_eye_box[2], right_eye_box[1] + right_eye_box[3]),
                   (0, 255, 0), 2)
 
-    Dx = expected_left[0] - left_eye[0]
-    Dy = expected_left[1] - left_eye[1]
+    Dx = expected_left_eye_center[0] - center_left[0]
+    Dy = expected_left_eye_center[1] - center_left[1]
     M = np.array([[1, 0, Dx], [0, 1, Dy]], dtype=np.float32)
     rows, cols = img_arr.shape[:2]
-    print('M:' + str(M) + ' cxr:' + str(cols) + ',' + str(rows))
+    print('M:' + str(M) + ' colsXrows:' + str(cols) + ',' + str(rows))
     xlated = cv2.warpAffine(img_arr, M, (cols, rows))
 
     cv2.imshow('orig', img_arr)
@@ -145,21 +148,31 @@ def line_up_eyes(img_arr, left_eye, right_eye, expected_left=[20, 30, 28, 28], e
     cv2.waitKey(0)
     cv2.destroyAllWindows()
 
-    dx = right_eye[0] - left_eye[0]
-    dy = right_eye[1] - left_eye[1]
+    dx = center_right[0] - center_left[0]
+    dy = center_right[1] - center_left[1]
     print('dx,dy:' + str(dx) + ',' + str(dy))
-    theta = np.arctan(dy / dx)
+    theta = np.arctan((float(dy) / dx))
     theta_degrees = theta * 180.0 / 3.1415
+    # M = np.array(
+    #        [[np.cos(theta_degrees), -np.sin(theta_degrees), Dx], [np.sin(theta_degrees), np.cos(theta_degrees), Dy]],
+    #        dtype=np.float32)
     M = np.array(
-        [[np.cos(theta_degrees), -np.sin(theta_degrees), 0], [np.sin(theta_degrees), np.cos(theta_degrees), 0]],
-        dtype=np.float32)
-    print('theta:' + str(theta) + ' deg:' + str(theta_degrees))
+        [[np.cos(theta), -np.sin(theta), Dy], [np.sin(theta), np.cos(theta), Dx]], dtype=np.float32)
+    # M = cv2.getRotationMatrix2D(center, angle, scale)
+    scale = float(expected_right_eye_center[0] - expected_left_eye_center[0]) / (center_right[0] - center_left[0])
+    angle = theta_degrees
+    center = (expected_left_eye_center[0], expected_left_eye_center[1])
+    M = cv2.getRotationMatrix2D(center, angle, scale)
+    print('center ' + str(center))
+    print('scale ' + str(scale))
+    print('theta:' + str(theta) + ' deg:' + str(theta_degrees) + ' M:' + str(M))
+
     rotated = cv2.warpAffine(xlated, M, (cols, rows))
     cv2.imshow('rot', rotated)
     cv2.waitKey(0)
     cv2.destroyAllWindows()
 
-    scale_factor = right_eye
+    return rotated
 
 
 if __name__ == "__main__":
@@ -176,8 +189,17 @@ if __name__ == "__main__":
     '''
 some output from lfw db to get a sense of where the eyes are
 
-leftmean[ 20.71270718  30.99309392  28.78453039  28.78453039]
-rtmean[ 62.77348066  30.18922652  28.28314917  28.28314917]
+in LFW , eye centers at:
+100 115    143 113
+98 116    150 116
+105 115   146 114
+102 114   147 115
+102 113  144 112
+101 114   148 113
+[100 115  150 115]
+
+1leftmean[ 20.71270718  30.99309392  28.78453039  28.78453039]
+tmean[ 62.77348066  30.18922652  28.28314917  28.28314917]
 
 
 left:[21 34 29 29] right:[64 33 28 28]
