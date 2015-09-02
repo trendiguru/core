@@ -11,7 +11,7 @@ import Utils
 import constants
 
 
-def gender(url_or_path_or_array, threshold=0):
+def gender(url_or_path_or_array, threshold=0 ):
     f = fisherface.FaceRecognizer()
     f.load("faces20155727.2157.xml")  # 2500 faces
 
