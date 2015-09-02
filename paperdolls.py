@@ -199,7 +199,7 @@ def from_paperdoll_to_similar_results(person_id, mask, labels):
                          'item_id': str(bson.ObjectId()), 'item_idx': idx, 'saved_date': datetime.datetime.now()}
             svg_name = find_similar_mongo.mask2svg(
                 item_gc_mask,
-                str(image_obj['_id']) + '_' + item_dict['category'],
+                str(image_obj['_id']) + '_' + person['person_id'] + '_' + item_dict['category'],
                 constants.svg_folder)
             item_dict["svg_url"] = constants.svg_url_prefix + svg_name
             item_dict['fp'], item_dict['similar_results'] = find_similar_mongo.find_top_n_results(image, item_gc_mask,
