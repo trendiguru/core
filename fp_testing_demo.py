@@ -78,6 +78,7 @@ def from_svg_to_similar_results(svg_url, image_url, fp_length=fingerprint_length
     projection_dict = {
         'image': 1,
         'clickUrl': 1,
+        'svg_url': 1
     }
     if svg_url is None or image_url is None:
         logging.warning("Bad urls!")
