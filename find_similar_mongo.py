@@ -66,7 +66,7 @@ def find_top_n_results(image, mask, number_of_results=10, category_id=None):
     potential_matches_cursor = product_collection.find(
         {"$and": [{"categories": {"$elemMatch": {"id": {"$in": subcategory_id_list}}}},
                   {"fingerprint": {"$exists": 1}}]},
-        {"_id": 1, "id": 1, "fingerprint": 1, "image.sizes.XLarge.url": 1})
+        {"_id": 1, "id": 1, "fingerprint": 1, "image.sizes.XLarge.url": 1, "clickUrl": 1})
 
     # db_fingerprint_list = []
     # for row in potential_matches_cursor:
