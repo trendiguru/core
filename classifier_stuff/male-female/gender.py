@@ -70,7 +70,9 @@ def cropFace(img_arr, face_cascade=None, eye_cascade=None, x_size=250, y_size=25
     first_eyes = None
     if faces is not None:
         for (x, y, w, h) in faces:
-            cv2.rectangle(img_arr, (x, y), (x + w, y + h), (255, 0, 0), 2)
+            center = [x + w / 2, y + h / 2]
+            new_rect = [center[0] - x_size / 2, center[1] - y_size / 2, x_size, y_size]
+            cv2.rectangle(img_arr, (new_rect[0], new_rect[1]), (new_rect[2], new_rect[3]), (255, 0, 0), 2)
             roi_gray = gray[y:y + h, x:x + w]
             roi_color = img_arr[y:y + h, x:x + w]
             eyes = eye_cascade.detectMultiScale(roi_gray)
