@@ -99,8 +99,7 @@ def from_svg_to_similar_results(svg_url, image_url, fp_length=fingerprint_length
                                             for result in curr_item["similar_results"]]
             return db.fp_testing.find_one_and_update({'items.svg_url': curr_item["svg_url"]},
                                                      {'$set': {'items.$': curr_item}},
-                                                     return_document=pymongo.ReturnDocument.AFTER,
-                                                     upsert=True)
+                                                     return_document=pymongo.ReturnDocument.AFTER)
 
 def create_gc_mask(image, pd_mask, bgnd_mask):
     item_bb = bb_from_mask(pd_mask)
