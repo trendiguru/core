@@ -95,7 +95,19 @@ def get_voting_stage(item_id):
 
 def get_paperdoll_data(image, person_id):
     mask, labels, pose = paperdoll_parse_enqueue.paperdoll_enqueue(image, async=False)
-    from_paperdoll_to_similar_results(person_id, mask, labels)
+    final_mask = after_pd_conclusions(mask, labels)
+    from_paperdoll_to_similar_results(person_id, final_mask, labels)
+
+
+def after_pd_conclusions(mask, labels):
+    """
+    1. if there's a full-body clothing:
+        1.1 add to its' mask - all the rest lower body items' masks.
+        1.2 add other upper cover items if they pass the pixel-amount condition/
+    2. else -
+        2.1 lower-body: decide whether it's a pants, jeans.. or a skirt, and share masks
+        2.2 upper-body: decide whether it's a one-part or under & cover
+    """
 
 
 def person_isolation(image, face):
