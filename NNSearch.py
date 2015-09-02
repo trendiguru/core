@@ -62,7 +62,8 @@ def find_n_nearest_neighbors(target_dict, entries, number_of_matches, fp_weights
                              hist_length, fp_key, distance_function=None):
     distance_function = distance_function or distance_Bhattacharyya
     # list of tuples with (entry,distance). Initialize with first n distance values
-    nearest_n = [(entries[i], distance_function(entries[i][fp_key], target_dict[fp_key], fp_weights, hist_length))
+    nearest_n = [
+        (entries[i], distance_function(entries[i][fp_key], target_dict["fingerprint"], fp_weights, hist_length))
                  for i in range(0, number_of_matches)]
     # sort by distance
     nearest_n.sort(key=lambda tup: tup[1])
