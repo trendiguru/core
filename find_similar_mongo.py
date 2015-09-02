@@ -4,9 +4,7 @@ import os
 import subprocess
 
 import pymongo
-
 import cv2
-
 import numpy as np
 
 import fingerprint_core as fp
@@ -18,7 +16,7 @@ import constants
 
 fingerprint_length = constants.fingerprint_length
 histograms_length = constants.histograms_length
-fp_weights = constants.fingerprint_weights
+# fp_weights = constants.fingerprint_weights
 FP_KEY = "fingerprint"
 
 def get_classifiers():
@@ -74,6 +72,7 @@ def find_top_n_results(image, mask, number_of_results=10, category_id=None, coll
       is correct by entering the correct fp_len
     if a distance_function other than Bhattacharyya is used then call the function with that distance function's name
     '''
+    fp_weights = constants.fingerprint_weights
 
     db = pymongo.MongoClient().mydb
     collection = db[collection_name]
