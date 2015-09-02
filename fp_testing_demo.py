@@ -79,7 +79,6 @@ def from_svg_to_similar_results(svg_url, image_url, fp_length=fingerprint_length
         'image': 1,
         'clickUrl': 1,
         'svg_url': 1,
-        'length': 1,
     }
     if svg_url is None or image_url is None:
         logging.warning("Bad urls!")
@@ -101,7 +100,7 @@ def from_svg_to_similar_results(svg_url, image_url, fp_length=fingerprint_length
             # return db.fp_testing.find_one_and_update({'items.svg_url': curr_item["svg_url"]},
             #                                          {'$set': {'items.$': curr_item}},
             #                                          return_document=pymongo.ReturnDocument.AFTER)
-            return curr_item
+            return curr_item[:]
 
 def create_gc_mask(image, pd_mask, bgnd_mask):
     item_bb = bb_from_mask(pd_mask)
