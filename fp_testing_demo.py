@@ -75,6 +75,10 @@ def from_svg_to_similar_results(svg_url, image_url, fp_length=fingerprint_length
                                 collection_name="products",
                                 fp_category="fingerprint",
                                 distance_func=None):
+    projection_dict = {
+        'image': 1,
+        'clickUrl': 1,
+    }
     if svg_url is None or image_url is None:
         logging.warning("Bad urls!")
         return None
@@ -90,8 +94,9 @@ def from_svg_to_similar_results(svg_url, image_url, fp_length=fingerprint_length
             curr_item['fp'], curr_item['similar_results'] = \
                 find_similar_mongo.find_top_n_results(image, item_mask, 30, curr_item['category'], collection_name,
                                                       fp_category, fp_length, distance_func, bins)
-
-            return db.images.find_one_and_update({'items.svg_url': curr_item["svg_url"]},
+            curr_item['similar_results'] = [db.products.find_one({"_id": result["_id"]}, projection_dict)
+                                            for result in curr_item["similar_results"]]
+            return db.fp_testing.find_one_and_update({'items.svg_url': curr_item["svg_url"]},
                                                  {'$set': {'items.$': curr_item}},
                                                  return_document=pymongo.ReturnDocument.AFTER)
 
