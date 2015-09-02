@@ -72,7 +72,7 @@ def find_n_nearest_neighbors(target_dict, entries, number_of_matches, fp_weights
 
     # Loop through remaining entries, if one of them is better, insert it in the correct location and remove last item
     for entry in entries[number_of_matches:]:
-        d = distance_function(entry[fp_key], target_dict["fingerprint"], K)
+        d = distance_function(entry[fp_key], target_dict["fingerprint"], fp_weights, hist_length)
         if d < farthest_nearest:
             insert_at = number_of_matches-2
             while d < nearest_n[insert_at][1]:
