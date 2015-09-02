@@ -1,8 +1,5 @@
 __author__ = 'yonti'
-'''
-all the old fingerprint testing functions were moved
-to old_fingerprint_stuff
-'''
+
 import numpy as np
 import cv2
 

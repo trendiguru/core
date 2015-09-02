@@ -1,5 +1,3 @@
-import os
-
 import cv2
 
 
@@ -7,10 +5,11 @@ import cv2
 
 # fingerprint related consts
 
-fingerprint_length = 56
+fingerprint_length = 696
 fingerprint_version = 1
 extras_length = 6
-histograms_length = 25
+histograms_length = [180, 255, 255]
+fingerprint_weights = [0.05, 0.5, 0.225, 0.225]
 K = 0.5                     # for euclidean distance
 min_bb_to_image_area_ratio = 0.95  # if bb takes more than this fraction of image area then use  cv2.GC_INIT_WITH_RECT instead of init with mask
 
@@ -22,8 +21,9 @@ max_images_per_doc = 18  # item has to have less than this number of pics
 max_items = 50  # max number of items to consider for rating fingerprint
 
 
-project_dir = os.path.dirname(__file__)
-classifiers_folder = os.path.join(project_dir, 'classifiers')
+# project_dir = os.path.dirname(__file__)
+# classifiers_folder = os.path.join(project_dir, 'classifiers')
+classifiers_folder = "/home/ubuntu/Dev/trendi_guru_modules/classifiers/"
 
 # classifier to category relation
 classifier_to_category_dict = {"dressClassifier.xml": ["dresses", "bridal-mother-dresses", "bridal-bridesmaid-dresses",
@@ -59,6 +59,7 @@ RELEVANT_ITEMS = {'2': 'leggings', '3': 'shorts', '4': 'blazers', '5': 'tees-and
                   '20': 'leggings', '23': 'womens-top', '24': 'cardigan-sweaters', '25': 'womens-accessories',
                   '26': 'mens-vests', '29': 'socks', '31': 'womens-intimates', '32': 'stockings',
                   '35': 'cashmere-sweaters', '36': 'sweatshirts', '37': 'womens-suits', '43': 'mens-ties'}
+
 IRELEVANT_ITEMS = {'1': 'background', '6': 'bag', '7': 'shoes', '10': 'purse', '11': 'boots', '21': 'scarf',
                    '22': 'hats', '27': 'sunglasses', '28': 'belts', '30': 'glasses', '33': 'necklace', '34': 'cape',
                    '38': 'bracelet', '39': 'heels', '40': 'wedges', '41': 'rings',

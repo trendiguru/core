@@ -1,16 +1,15 @@
-import requests
 import time
-import numpy as np
 
+import numpy as np
 from rq import Queue
 from redis import Redis
 import cv2
-
 
 redis_conn = Redis()
 q = Queue('pd', connection=redis_conn)
 
 # Tell RQ what Redis connection to use
+
 
 def paperdoll_enqueue(img_url_or_cv2_array, async=True):
     job = q.enqueue('pd.get_parse_mask', img_url_or_cv2_array=img_url_or_cv2_array)
@@ -18,6 +17,7 @@ def paperdoll_enqueue(img_url_or_cv2_array, async=True):
         while job.result is None:
             time.sleep(0.5)
     return job.result
+
 
 def show_parse(filename=None, img_array=None):
     if filename is not None:
