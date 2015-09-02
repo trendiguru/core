@@ -22,7 +22,7 @@ def distance_1_k(fp1, fp2, k=K):
         return None
 
 
-def distance_Bhattacharyya(fp1, fp2, weights=constants.fingerprint_weights, hist_length=constants.histograms_length):
+def distance_Bhattacharyya(fp1, fp2, weights, hist_length=constants.histograms_length):
     """
     This calculates distance between to arrays.
     the first 6 elements are calculated using euclidean distance (When k = .5 this is the same as Euclidean)
