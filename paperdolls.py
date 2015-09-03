@@ -95,8 +95,8 @@ def get_voting_stage(item_id):
 
 def get_paperdoll_data(image, person_id):
     mask, labels, pose = paperdoll_parse_enqueue.paperdoll_enqueue(image, async=False)
-    final_mask = after_pd_conclusions(mask, labels)
-    from_paperdoll_to_similar_results(person_id, final_mask, labels)
+    # final_mask = after_pd_conclusions(mask, labels)
+    from_paperdoll_to_similar_results(person_id, mask, labels)
 
 
 def after_pd_conclusions(mask, labels):
@@ -107,6 +107,7 @@ def after_pd_conclusions(mask, labels):
     2. else -
         2.1 lower-body: decide whether it's a pants, jeans.. or a skirt, and share masks
         2.2 upper-body: decide whether it's a one-part or under & cover
+    3. return new mask
     """
 
 
