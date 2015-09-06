@@ -92,8 +92,8 @@ def from_svg_to_similar_results(svg_url, image_url, fp_length=fingerprint_length
             curr_item = item
             item_mask = cv2.imread(curr_item['mask_name'])[:, :, 0]
             image = background_removal.standard_resize(Utils.get_cv2_img_array(image_dict['image_urls'][0]), 400)[0]
-            top_matches = []
-            curr_item['fp'], top_matches['top30'] = \
+
+            curr_item['fp'], top_matches = \
                 find_similar_mongo.find_top_n_results(image, item_mask, 30, curr_item['category'], collection_name,
                                                       fp_category, fp_length, distance_func, bins)
 
