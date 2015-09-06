@@ -111,7 +111,7 @@ def from_svg_to_similar_results(svg_url, image_url, fp_length=fingerprint_length
             top_matches = [db.products.find_one({"_id": result["_id"]})
                            for result in curr_item['similar_results']]
 
-            return db.images.find_one_and_update({'items.svg_url': curr_item["svg_url"]},
+            return db.products.find_one_and_update({'items.svg_url': curr_item["svg_url"]},
                                                  {'$set': {'items.$': top_matches}},
                                                  return_document=pymongo.ReturnDocument.AFTER)
 
