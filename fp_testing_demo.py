@@ -76,9 +76,20 @@ def from_svg_to_similar_results(svg_url, image_url, fp_length=fingerprint_length
                                 fp_category="fingerprint",
                                 distance_func=None):
     projection_dict = {
+        'seeMoreUrl': 1,
         'image': 1,
         'clickUrl': 1,
-        'svg_url': 1,
+        'retailer': 1,
+        'currency': 1,
+        'brand': 1,
+        'description': 1,
+        'price': 1,
+        'categories': 1,
+        'name': 1,
+        'sizes': 1,
+        'pageUrl': 1,
+        '_id': 0,
+        'priceLabel': 1
     }
     if svg_url is None or image_url is None:
         logging.warning("Bad urls!")
@@ -99,6 +110,7 @@ def from_svg_to_similar_results(svg_url, image_url, fp_length=fingerprint_length
 
             top_matches = [db.products.find_one({"_id": result["_id"]}, projection_dict)
                            for result in top_matches]
+
             return top_matches
             # return db.images.find_one_and_update({'items.svg_url': curr_item["svg_url"]},
             #                                      {'$set': {'items.$': curr_item}},
