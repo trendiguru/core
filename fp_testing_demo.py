@@ -96,10 +96,10 @@ def from_svg_to_similar_results(svg_url, image_url, fp_length=fingerprint_length
                 find_similar_mongo.find_top_n_results(image, item_mask, 30, curr_item['category'], collection_name,
                                                       fp_category, fp_length, distance_func, bins)
 
-            top_matches = [db.products.find_one({"_id": result["_id"]}, projection_dict)
-                           for result in curr_item["similar_results"]]
-            return top_matches
-
+            # top_matches = [db.products.find_one({"_id": result["_id"]}, projection_dict)
+            #                for result in curr_item["similar_results"]]
+            # return top_matches
+            return curr_item['similar_results']
 
 def create_gc_mask(image, pd_mask, bgnd_mask):
     item_bb = bb_from_mask(pd_mask)
