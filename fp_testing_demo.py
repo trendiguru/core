@@ -111,7 +111,7 @@ def from_svg_to_similar_results(svg_url, image_url, fp_length=fingerprint_length
             top_matches = [db.fp_testing.find_one({"_id": result["_id"]}, projection_dict)
                            for result in top_matches]
 
-            return top_matches
+            return curr_item
             # return db.images.find_one_and_update({'items.svg_url': curr_item["svg_url"]},
             #                                      {'$set': {'items.$': curr_item}},
             #                                      return_document=pymongo.ReturnDocument.AFTER)
