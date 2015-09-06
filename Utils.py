@@ -43,6 +43,7 @@ an invalid filename.
     filename = filename.replace(' ','_') # I don't like spaces in filenames.
     return filename
 
+
 def get_cv2_img_array(url_or_path_to_image_file_or_cv2_image_array, convert_url_to_local_filename=False, download=False,
                       download_directory='images', filename=False, replace_https_with_http=True):
     """
