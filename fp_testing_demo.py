@@ -97,8 +97,8 @@ def from_svg_to_similar_results(svg_url, image_url, fp_length=fingerprint_length
                 find_similar_mongo.find_top_n_results(image, item_mask, 30, curr_item['category'], collection_name,
                                                       fp_category, fp_length, distance_func, bins)
 
-            # top_matches = [db.products.find_one({"_id": result["_id"]}, projection_dict)
-            #                for result in curr_item["similar_results"]]
+            top_matches = [db.products.find_one({"_id": result["_id"]}, projection_dict)
+                           for result in top_matches]
             return top_matches
             # return db.images.find_one_and_update({'items.svg_url': curr_item["svg_url"]},
             #                                      {'$set': {'items.$': curr_item}},
