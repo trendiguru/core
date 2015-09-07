@@ -213,6 +213,8 @@ def start_process(page_url, image_url, async=False):
                     idx += 1
             else:  # if not relevant
                 logging.warning('image is not relevant, but stored anyway..')
+                images.insert(image_dict)
+                return
             iip.insert(image_dict)
             if not async:
                 while images.find_one({'image_urls': image_url}) is None:
