@@ -109,6 +109,43 @@ def after_pd_conclusions(mask, labels):
         2.2 upper-body: decide whether it's a one-part or under & cover
     3. return new mask
     """
+    # TODO - relations between head-size and masks sizes
+    final_mask = mask.copy()
+    mask_sizes = {"upper_cover": [], "upper_under": [], "lower_cover": [], "lower_under": [], "whole_body": []}
+    for num in np.unique(mask):
+        item_mask = 255 * np.array(mask == num, dtype=np.uint8)
+        category = list(labels.keys())[list(labels.values()).index(num)]
+        for key, item in constants.paperdoll_categories.iteritems():
+            if category in item:
+                mask_sizes[key].append({num: cv2.countNonZero(item_mask)})
+    # 1
+    for item in mask_sizes["whole_body"]:
+        if cv2.countNonZero(item.values()[0]) > 3000:
+            item_num = item.keys()[0]
+            for num in np.unique(mask):
+                cat = list(labels.keys())[list(labels.values()).index(num)]
+                # 1.1, 1.2
+                if cat in constants.paperdoll_categories["lower_cover"] or \
+                                cat in constants.paperdoll_categories["lower_under"] or \
+                                cat in constants.paperdoll_categories["upper_under"]:
+                    final_mask = np.where(mask == num, item_num, final_mask)
+            return final_mask
+    # 2, 2.1
+    max_item_count = 0
+    lower_num = 9
+    for item in mask_sizes["lower_cover"]:
+        if item.values[0] > max_item_count:
+            max_item_count = item.values[0]
+            lower_num = item.keys[0]
+    # share masks
+    for num in np.unique(mask):
+        cat = list(labels.keys())[list(labels.values()).index(num)]
+        # 1.1, 1.2
+        if cat in constants.paperdoll_categories["lower_cover"]:
+            final_mask = np.where(mask == num, lower_num, final_mask)
+    # without 2.2
+    return final_mask
+
 
 
 def person_isolation(image, face):

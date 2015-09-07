@@ -74,10 +74,12 @@ paperdoll_shopstyle_women = {'top': 'womens-tops', 'pants': 'womens-pants', 'sho
                              'jumper': 'v-neck-sweaters', 'bodysuit': 'shapewear', 'leggings': 'leggings',
                              'stockings': 'hosiery', 'tights': 'leggings'}
 
-paperdoll_whole_body = ['bodysuit', 'dress', 'jumper', 'suit', 'romper']
-paperdoll_upper_cover = ['blazer', 'cape', 'jacket', 'cardigan', 'coat', 'vest', 'sweatshirt']
-paperdoll_upper_under = ['t-shirt', 'blouse', 'shirt', 'top', 'sweater', 'sweatshirt']
-paperdoll_lower = ['pants', 'stockings', 'jeans', 'tights', 'leggings', 'shorts', 'skirt']
+paperdoll_categories = {"whole_body": ['bodysuit', 'dress', 'jumper', 'suit', 'romper'],
+                        "upper_cover": ['blazer', 'cape', 'jacket', 'cardigan', 'coat', 'vest', 'sweatshirt'],
+                        "upper_under": ['t-shirt', 'blouse', 'shirt', 'top', 'sweater', 'sweatshirt'],
+                        "lower_cover": ['shorts', 'skirt'],
+                        "lower_under": ['pants', 'stockings', 'jeans', 'tights', 'leggings']}
+
 paperdoll_shoes = ['pumps', 'wedges', 'flats', 'clogs', 'shoes', 'boots', 'heels', 'loafers', 'sandals', 'sneakers']
 paperdoll_accessories = ['tie', 'purse', 'hat', 'sunglasses', 'bag', 'belt']
 
