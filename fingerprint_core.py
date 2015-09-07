@@ -124,10 +124,10 @@ def generate_mask_and_insert(image_url=None, doc=None, save_to_db=False, mask_on
 
     fingerprint = fp(small_image, mask=mask)
 
-    fp_as_list = fingerprint.tolist()
+    # fp_as_list = fingerprint.tolist()
 
     if save_to_db:
         db[collection].update_one({"_id": doc["_id"]},
-                                  {"$set": {"fingerprint": fp_as_list,
+                                  {"$set": {"fingerprint": fingerprint,
                                             "fp_version": constants.fingerprint_version}})
-    return fp_as_list
+    return fingerprint
