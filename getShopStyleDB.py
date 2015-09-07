@@ -225,7 +225,7 @@ class ShopStyleDownloader():
         prod["_id"] = self.collection.insert_one(prod).inserted_id
         if do_fingerprint:
             print "enqueuing for fingerprinting...,",
-            q.enqueue(generate_mask_and_insert, image_url=None, db_doc=prod, save_to_db=True)
+            q.enqueue(generate_mask_and_insert, image_url=None, doc=prod, save_to_db=True)
             # prod_fp = super_fp(image_url=None, db_doc=prod, )
             # prod["fingerprint"] = prod_fp
             # prod["fp_version"] = constants.fingerprint_version
