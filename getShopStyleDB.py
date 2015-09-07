@@ -21,7 +21,7 @@ TG_FIELDS = ["fp_version", "fingerprint", "fp_date", "human_bb", "bounding_box"]
 # removed "Category" for now because its results  are not disjoint (sum of subsets > set)
 FILTERS = ["Brand", "Retailer", "Price", "Color", "Size", "Discount"]
 MAX_RESULTS_PER_PAGE = 50
-MAX_OFFSET = 5000
+MAX_OFFSET = 1000
 MAX_SET_SIZE = MAX_OFFSET + MAX_RESULTS_PER_PAGE
 db = constants.db_name
 collection = constants.update_collection
