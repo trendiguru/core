@@ -122,7 +122,7 @@ def generate_mask_and_insert(image_url=None, doc=None, save_to_db=False, mask_on
     if mask_only:
         return mask
 
-    fingerprint = fp(small_image, mask)
+    fingerprint = fp(small_image, mask=mask)
 
     fp_as_list = fingerprint.tolist()
 
