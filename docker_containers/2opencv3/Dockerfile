@@ -1,4 +1,4 @@
-FROM tg1
+FROM pip
 #FROM ubuntu:14.04
 #alternatively, ubuntu:latest
 
