@@ -375,3 +375,8 @@ class UrlParams(collections.MutableMapping):
 
     def encoded(self):
         return self.__class__.encode_params(self)
+
+
+if __name__ == "__main__":
+    update_db = ShopStyleDownloader()
+    update_db.run_by_category()
