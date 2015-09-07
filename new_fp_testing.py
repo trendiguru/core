@@ -8,7 +8,7 @@ these are the steps required for testing a new fingerprint:
 4. create a new collection for the testing
     - use the create_new_collection function
     - run on the server from the main directory and not from the branch
-    'python -m [branchname].new_fp_testing.py'
+    'python -m [branchname].new_fp_testing'
     - each item in the new collection will have 2 fingerprints - the old('fingerprint) and the new('new_fp')
     - this should take about 40 minutes
 5. use the testing_demo to display the results
