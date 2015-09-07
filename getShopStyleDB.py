@@ -53,7 +53,7 @@ class ShopStyleDownloader():
         cats_to_dl = root_id_list or [anc["id"] for anc in ancestors]
         for cat in cats_to_dl:
             self.download_category(cat)
-            
+
         db.dl_cache.remove()
         print "DONE!!!!!"
 
@@ -228,7 +228,7 @@ class ShopStyleDownloader():
         prod["_id"] = self.collection.insert_one(prod).inserted_id
         if do_fingerprint:
             print "enqueuing for fingerprinting...,",
-            q.enqueue(generate_mask_and_insert, image_url=None, doc=prod, save_to_db=False, mask_only=True)
+            q.enqueue(generate_mask_and_insert, image_url=None, doc=prod, save_to_db=True, mask_only=False)
             # prod_fp = super_fp(image_url=None, db_doc=prod, )
             # prod["fingerprint"] = prod_fp
             # prod["fp_version"] = constants.fingerprint_version
