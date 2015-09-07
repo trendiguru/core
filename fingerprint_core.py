@@ -3,14 +3,21 @@ __author__ = 'yonti'
 all the old fingerprint testing functions were moved
 to old_fingerprint_stuff
 '''
-import numpy as np
+import logging
+
 import cv2
 
+import numpy as np
+
+import background_removal
+import Utils
 import constants
 
 fingerprint_length = constants.fingerprint_length
 histograms_length = constants.histograms_length
 
+db = constants.db_name
+collection = constants.update_collection
 
 def fp(img, bins=histograms_length, fp_length=fingerprint_length, mask=None):
     if mask is None or cv2.countNonZero(mask) == 0:
@@ -53,3 +60,74 @@ def fp(img, bins=histograms_length, fp_length=fingerprint_length, mask=None):
     result_vector = np.concatenate((result_vector, hist_hue, hist_sat, hist_int), axis=0)
 
     return result_vector[:fp_length]
+
+
+def generate_mask_and_insert(image_url=None, doc=None, save_to_db=False, mask_only=False):
+    """
+    Takes an image + whatever else you give it, and handles all the logic (using/finding/creating a bb, then a mask)
+    Work in progress...
+    :param image_url:
+    :param doc: ShopStyle DB doc
+    :return:
+    """
+    image_url = image_url or doc["image"]["sizes"]["XLarge"]["url"]
+
+    image = Utils.get_cv2_img_array(image_url)
+    if not Utils.is_valid_image(image):
+        logging.warning("image is None. url: {url}".format(url=image_url))
+        return
+    small_image, resize_ratio = background_removal.standard_resize(image, 400)
+    # I think we can delete the image... memory management FTW??
+    del image
+    # print "Image URL: {0}".format(image_url)
+
+    CLASSIFIER_FOR_CATEGORY = {}
+
+    if "bounding_box" in doc.keys() and doc["bounding_box"] != [0, 0, 0, 0] and doc["bounding_box"] is not None:
+        chosen_bounding_box = doc["bounding_box"]
+        chosen_bounding_box = [int(b) for b in (np.array(chosen_bounding_box) / resize_ratio)]
+        mask = background_removal.get_fg_mask(small_image, chosen_bounding_box)
+        logging.debug("Human bb found: {bb} for item: {id}".format(bb=chosen_bounding_box, id=doc["id"]))
+    # otherwise use the largest of possibly many classifier bb's
+    else:
+        if "categories" in doc:
+            classifier = CLASSIFIER_FOR_CATEGORY.get(doc["categories"][0]["id"], "")
+        else:
+            classifier = None
+        if not Utils.is_valid_image(small_image):
+            logging.warning("small_image is Bad. {img}".format(img=small_image))
+            return
+        mask = background_removal.get_fg_mask(small_image)
+        bounding_box_list = []
+        if classifier and not classifier.empty():
+            # then - try to classify the image (white backgrounded and get a more accurate bb
+            white_bckgnd_image = background_removal.image_white_bckgnd(small_image, mask)
+            try:
+                bounding_box_list = classifier.detectMultiScale(white_bckgnd_image)
+            except KeyError:
+                logging.info("Could not classify with {0}".format(classifier))
+        # choosing the biggest bounding box if there are a few
+        max_bb_area = 0
+        chosen_bounding_box = None
+        for possible_bb in bounding_box_list:
+            if possible_bb[2] * possible_bb[3] > max_bb_area:
+                chosen_bounding_box = possible_bb
+                max_bb_area = possible_bb[2] * possible_bb[3]
+        if chosen_bounding_box is None:
+            logging.info("No Bounding Box found, using the whole image. "
+                         "Document id: {0}, BB_list: {1}".format(doc.get("id"), str(bounding_box_list)))
+        else:
+            mask = background_removal.get_fg_mask(small_image, chosen_bounding_box)
+
+    if mask_only:
+        return mask
+
+    fingerprint = fp(small_image, mask)
+
+    fp_as_list = fingerprint.tolist()
+
+    if save_to_db:
+        db[collection].update_one({"_id": doc["_id"]},
+                                  {"$set": {"fingerprint": fp_as_list,
+                                            "fp_version": constants.fingerprint_version}})
+    return fp_as_list
