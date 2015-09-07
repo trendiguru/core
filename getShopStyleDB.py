@@ -227,7 +227,6 @@ class ShopStyleDownloader():
         prod["_id"] = self.collection.insert_one(prod).inserted_id
         if do_fingerprint:
             print "enqueuing for fingerprinting...,",
-            # q.enqueue(generate_mask_and_insert, image_url=None, doc=prod, save_to_db=True)
             q.enqueue(generate_mask_and_insert, image_url=None, doc=prod, save_to_db=False, mask_only=True)
             # prod_fp = super_fp(image_url=None, db_doc=prod, )
             # prod["fingerprint"] = prod_fp
@@ -247,23 +246,24 @@ class ShopStyleDownloader():
 
         if prod_in_products is None:
             print "Product not in db.products, searching in archive. ",
+            self.insert_and_fingerprint(prod)
             # case 1.1: try finding this product in the archive
-            prod_in_archive = self.db.archive.find_one({'id': prod["id"]})
-            if prod_in_archive is None:
-                print "New product,",
-                self.insert_and_fingerprint(prod)
-            else:  # means the item is in the archive
-                # No matter what, we're moving this out of the archive...
-                prod_in_archive["archive"] = False
-                print "Prod in archive, checking fingerprint version...",
-                if prod_in_archive.get("fp_version") == constants.fingerprint_version:
-                    print "fp_version good, moving from db.archive to db.products",
-                    prod_in_archive.update(prod)
-                    self.collection.insert_one(prod_in_archive)
-                else:
-                    print "old fp_version,",
-                    self.insert_and_fingerprint(prod)
-                self.db.archive.delete_one({'id': prod["id"]})
+            # prod_in_archive = noneself.db.archive.find_one({'id': prod["id"]})
+            # if prod_in_archive is None:
+            #     print "New product,",
+            #     self.insert_and_fingerprint(prod)
+            # else:  # means the item is in the archive
+            #     # No matter what, we're moving this out of the archive...
+            #     prod_in_archive["archive"] = False
+            #     print "Prod in archive, checking fingerprint version...",
+            #     if prod_in_archive.get("fp_version") == constants.fingerprint_version:
+            #         print "fp_version good, moving from db.archive to db.products",
+            #         prod_in_archive.update(prod)
+            #         self.collection.insert_one(prod_in_archive)
+            #     else:
+            #         print "old fp_version,",
+            #         self.insert_and_fingerprint(prod)
+            #     self.db.archive.delete_one({'id': prod["id"]})
         else:
             # case 2: the product was found in our db, and maybe should be modified
             print "Found existing prod in db,",
