@@ -14,6 +14,7 @@ K = 0.5                     # for euclidean distance
 min_bb_to_image_area_ratio = 0.95  # if bb takes more than this fraction of image area then use  cv2.GC_INIT_WITH_RECT instead of init with mask
 db_name = pymongo.MongoClient().mydb
 update_collection = 'products_new_fp'
+download_version = 792015  # DayMonthYear
 
 # fp rating related constants
 min_image_area = 400

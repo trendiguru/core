@@ -32,7 +32,7 @@ class ShopStyleDownloader():
         # connect to db
         self.db = db
         self.collection = self.db[collection]
-        self.current_dl_version = constants.dl_version
+        self.current_dl_version = constants.download_version
         self.last_request_time = time.time()
         self.do_fingerprint = True
 
