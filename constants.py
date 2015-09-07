@@ -6,7 +6,7 @@ import pymongo
 # fingerprint related consts
 
 fingerprint_length = 696
-fingerprint_version = 2
+fingerprint_version = 3
 extras_length = 6
 histograms_length = [180, 255, 255]
 fingerprint_weights = [0.05, 0.5, 0.225, 0.225]

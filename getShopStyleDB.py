@@ -53,7 +53,8 @@ class ShopStyleDownloader():
         cats_to_dl = root_id_list or [anc["id"] for anc in ancestors]
         for cat in cats_to_dl:
             self.download_category(cat)
-
+            
+        db.dl_cache.remove()
         print "DONE!!!!!"
 
     def build_category_tree(self):
