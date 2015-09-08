@@ -64,7 +64,8 @@ def crop_and_center_face(img_arr, face_cascade=None, eye_cascade=None, x_size=25
     if not eye_cascade:
         logging.warning('cant get eye cascade in cropface in gender.py')
 
-    faces = face_cascade.detectMultiScale(img_arr, 1.3, 5)
+#    faces = face_cascade.detectMultiScale(img_arr, 1.3, 5)
+    faces = trendi_guru_modules.background_removal.find_face(img_array, max_num_of_faces=1)
     # faces2 = face_cascade.detectMultiScale(gray, scaleFactor=1.1, minNeighbors=3, minSize=(10, 10))
 
     i = 0

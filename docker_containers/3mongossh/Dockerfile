@@ -7,7 +7,7 @@
 #run this (assuming image is built to name mongotest) by:
 #docker run -v /home/jeremy/.ssh:/ssh -it mongotest /bin/bash
 
-FROM tg2
+FROM cv
 RUN apt-get update
 #not sure if build-essential is essential
 RUN apt-get install -y build-essential
