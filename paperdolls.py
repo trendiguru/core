@@ -134,9 +134,9 @@ def after_pd_conclusions(mask, labels):
     max_item_count = 0
     lower_num = 9
     for item in mask_sizes["lower_cover"]:
-        if item.values[0] > max_item_count:
-            max_item_count = item.values[0]
-            lower_num = item.keys[0]
+        if item.values()[0] > max_item_count:
+            max_item_count = item.values()[0]
+            lower_num = item.keys()[0]
     # share masks
     for num in np.unique(mask):
         cat = list(labels.keys())[list(labels.values()).index(num)]
