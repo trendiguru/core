@@ -206,7 +206,7 @@ RUN apt-get install -y ssh
 #see https://confluence.atlassian.com/pages/viewpage.action?pageId=270827678
 #to generate default ssh keys
 
-RUN adduser developer
+#RUN adduser developer
 #USER testuser
 #RUN whoami
 
@@ -221,9 +221,9 @@ ADD ssh/ /home/developer/.ssh/
 ADD ssh/ssh_config /etc/ssh/ssh_config
 
 # Fixes permission if needed
-RUN chmod 600 /.ssh/*
+#RUN chmod 600 /.ssh/*
 RUN chmod 600 /home/developer/.ssh/*
-RUN chown developer:testuser /home/developer/
+RUN chown developer:developer /home/developer/
 ADD ssh/first_aws.pem /home/developer/.ssh/first_aws.pem
 RUN chown developer:developer /home/developer/.ssh/*
 
