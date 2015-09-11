@@ -139,7 +139,7 @@ def after_pd_conclusions(mask, labels):
             if item.values()[0] > max_item_count:
                 max_item_count = item.values()[0]
                 max_cat = item.keys()[0]
-        # share masks
+        # share masks - test!!
         if max_item_count > 0:
             for num in np.unique(mask):
                 cat = list(labels.keys())[list(labels.values()).index(num)]
