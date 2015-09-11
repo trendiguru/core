@@ -43,3 +43,5 @@ if __name__ == "__main__":
     img, labels, pose = paperdoll_enqueue(url, async=False)
     show_max(img, labels)
     show_parse(img_array=img)
+
+

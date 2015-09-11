@@ -16,7 +16,7 @@ import subprocess
 import numpy as np
 import imghdr
 import cv2
-import matlab.engine
+
 from contextlib import contextmanager
 import random
 import string

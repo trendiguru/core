@@ -1,3 +1,4 @@
+#try copying /etc/apt/sources.list into the docker to get the installs to work
 FROM pip
 #FROM ubuntu:14.04
 #alternatively, ubuntu:latest
@@ -34,8 +35,46 @@ MAINTAINER Jeremy Rutman <jeremy@trendiguru.com>
 #OPENCV OPENCV OPENCV
 #install opencv3.0
 #RUN apt-get install -y libgtk2.0-dev
+#RUN apt-get -qq install -y libopencv-dev
+RUN apt-get -qq install -y build-essential
+RUN apt-get -qq install -y checkinstall
+RUN apt-get -qq install -y cmake
+RUN apt-get -qq install -y pkg-config
+RUN apt-get -qq install -y yasm
+#RUN apt-get -qq install -y libjpeg-dev
+RUN apt-get -qq install -y libpng12-dev
+#RUN apt-get -qq install -y libjasper-dev
+#RUN apt-get -qq install -y libavcodec-dev
+#RUN apt-get -qq install -y libavformat-dev
+#RUN apt-get -qq install -y libswscale-dev
+#RUN apt-get -qq install -y libdc1394-22
+#RUN apt-get -qq install -y libdc1394-22-dev
+#RUN apt-get -qq install -y libxine-dev
+#RUN apt-get -qq install -y libgstreamer0.10-dev
+#RUN apt-get -qq install -y libgstreamer-plugins-base0.10-dev
+#RUN apt-get -qq install -y libv4l-dev
+RUN apt-get -qq install -y python-dev
+RUN apt-get -qq install -y python-numpy
+#RUN apt-get -qq install -y libtbb-dev
+RUN apt-get -qq install -y libqt4-dev
+RUN apt-get -qq install -y libgtk2.0-dev
+RUN apt-get -qq install -y libfaac-dev
+RUN apt-get -qq install -y libmp3lame-dev
+RUN apt-get -qq install -y libopencore-amrnb-dev
+RUN apt-get -qq install -y libopencore-amrwb-dev
+RUN apt-get -qq install -y libtheora-dev
+RUN apt-get -qq install -y libvorbis-dev
+RUN apt-get -qq install -y libxvidcore-dev
+RUN apt-get -qq install -y x264
+RUN apt-get -qq install -y v4l-utils
+RUN apt-get -qq install -y ffmpeg
 
-RUN apt-get install -y qt-latest
+# libtiff4-dev libjasper-dev libavcodec-dev libavformat-dev libswscale-dev libxine-dev libgstreamer0.10-dev
+#libgstreamer-plugins-base0.10-dev libv4l-dev libtbb-dev libqt4-dev libfaac-dev libmp3lame-dev libopencore-amrnb-dev libopencore-amrwb-dev libtheora-dev libvorbis-dev libxvidcore-dev x264 v4l-utils unzip
+
+
+#install opengl
+RUN apt-get install -y freeglut3-dev
 RUN  mkdir -p /opt/OpenCV
 RUN  cd /opt/OpenCV
 RUN pwd
