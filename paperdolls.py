@@ -139,13 +139,13 @@ def after_pd_conclusions(mask, labels):
             if item.values()[0] > max_item_count:
                 max_item_count = item.values()[0]
                 max_cat = item.keys()[0]
-        # share masks - test!!
+        # share masks
         if max_item_count > 0:
-            for num in mask_sizes[section]:
-                cat = list(labels.keys())[list(labels.values()).index(num)]
+            for item in mask_sizes[section]:
+                cat = list(labels.keys())[list(labels.values()).index(item.keys()[0])]
                 # 1.1, 1.2
                 if cat in constants.paperdoll_categories[section]:
-                    final_mask = np.where(mask == num, max_cat, final_mask)
+                    final_mask = np.where(mask == item.keys()[0], max_cat, final_mask)
             max_item_count = 0
     return final_mask
 
