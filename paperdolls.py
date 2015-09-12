@@ -98,6 +98,7 @@ def get_voting_stage(item_id):
 def get_paperdoll_data(image_url, person_id):
     print "W2P: got into get_pd_data LIOR!"
     mask, labels, pose = paperdoll_parse_enqueue.paperdoll_enqueue(image_url, async=False)
+    print "W2P: got paperdoll's results"
     final_mask = after_pd_conclusions(mask, labels)
     from_paperdoll_to_similar_results(person_id, final_mask, labels)
 
@@ -119,6 +120,7 @@ def after_pd_conclusions(mask, labels):
     for num in np.unique(mask):
         item_mask = 255 * np.array(mask == num, dtype=np.uint8)
         category = list(labels.keys())[list(labels.values()).index(num)]
+        print "W2P: checking {0}".format(category)
         for key, item in constants.paperdoll_categories.iteritems():
             if category in item:
                 mask_sizes[key].append({num: cv2.countNonZero(item_mask)})
@@ -133,6 +135,7 @@ def after_pd_conclusions(mask, labels):
                 if cat in constants.paperdoll_categories["lower_cover"] or \
                                 cat in constants.paperdoll_categories["lower_under"] or \
                                 cat in constants.paperdoll_categories["upper_under"]:
+                    print "W2P: adding {0}'s mask to dress' mask".format(cat)
                     final_mask = np.where(mask == num, item_num, final_mask)
             return final_mask
     # 2, 2.1
@@ -218,8 +221,9 @@ def start_process(page_url, image_url, async=False):
                     image_copy = person_isolation(image, face)
                     person['url'] = upload_image(image_copy, str(person['person_id']))
                     image_dict['people'].append(person)
-                    get_paperdoll_data(person['url'], person['person_id'])
-                    # q2.enqueue(get_paperdoll_data, person['url'], person['person_id'])
+                    # get_paperdoll_data(person['url'], person['person_id'])
+                    print "W2P: sending to paperdoll's queue"
+                    q2.enqueue(get_paperdoll_data, person['url'], person['person_id'])
                     idx += 1
             else:  # if not relevant
                 logging.warning('image is not relevant, but stored anyway..')
