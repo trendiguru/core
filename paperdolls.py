@@ -96,6 +96,7 @@ def get_voting_stage(item_id):
 
 
 def get_paperdoll_data(image, person_id):
+    print "W2P: got into get_pd_data!"
     mask, labels, pose = paperdoll_parse_enqueue.paperdoll_enqueue(image, async=False)
     final_mask = after_pd_conclusions(mask, labels)
     from_paperdoll_to_similar_results(person_id, final_mask, labels)
