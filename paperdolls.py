@@ -194,6 +194,7 @@ def search_existing_images(page_url):
 
 
 def start_process(page_url, image_url, async=False):
+    print "W2P: koos valley!!"
     image_obj = images.find_one({"image_urls": image_url})
     if not image_obj:  # new image_url
         image_hash = page_results.get_hash_of_image_from_url(image_url)
@@ -240,6 +241,7 @@ def start_process(page_url, image_url, async=False):
 
 
 def from_paperdoll_to_similar_results(person_id, mask, labels):
+    print "W2P: E-shoe Rabak!!"
     image_obj, person = get_person_by_id(person_id, iip)
     image = Utils.get_cv2_img_array(person['url'])
     items = []
