@@ -5,6 +5,7 @@ import random
 import copy
 import datetime
 import time
+import sys
 
 import requests
 import numpy as np
@@ -35,6 +36,7 @@ q2 = Queue('paperdoll', connection=r)
 q4 = Queue('send_20s_results', connection=r)
 q5 = Queue('send_last_20', connection=r)
 q6 = Queue('receive_data_from_qc', connection=r)
+sys.stdout = sys.stderr
 
 
 def upload_image(image, name, bucket_name=None):
@@ -110,6 +112,7 @@ def after_pd_conclusions(mask, labels):
     3. return new mask
     """
     # TODO - relations between head-size and masks sizes
+    print "W2P: got into after_pd_conclusions!"
     final_mask = mask.copy()
     mask_sizes = {"upper_cover": [], "upper_under": [], "lower_cover": [], "lower_under": [], "whole_body": []}
     for num in np.unique(mask):
@@ -120,7 +123,8 @@ def after_pd_conclusions(mask, labels):
                 mask_sizes[key].append({num: cv2.countNonZero(item_mask)})
     # 1
     for item in mask_sizes["whole_body"]:
-        if item.values()[0] > 15000:
+        if item.values()[0] > 30000:
+            print "W2P: That's a {0)".format(list(labels.keys())[list(labels.values()).index((item.keys()[0]))])
             item_num = item.keys()[0]
             for num in np.unique(mask):
                 cat = list(labels.keys())[list(labels.values()).index(num)]
@@ -134,6 +138,7 @@ def after_pd_conclusions(mask, labels):
     sections = ["upper_cover", "upper_under", "lower_cover", "lower_under"]
     max_item_count = 0
     max_cat = 9
+    print "W2P: That's a 2-part clothing item!"
     for section in sections:
         for item in mask_sizes[section]:
             if item.values()[0] > max_item_count:
@@ -143,7 +148,7 @@ def after_pd_conclusions(mask, labels):
         if max_item_count > 0:
             for item in mask_sizes[section]:
                 cat = list(labels.keys())[list(labels.values()).index(item.keys()[0])]
-                # 1.1, 1.2
+                # 2.1, 2.2
                 if cat in constants.paperdoll_categories[section]:
                     final_mask = np.where(mask == item.keys()[0], max_cat, final_mask)
             max_item_count = 0
@@ -211,7 +216,6 @@ def start_process(page_url, image_url, async=False):
                     image_copy = person_isolation(image, face)
                     person['url'] = upload_image(image_copy, str(person['person_id']))
                     image_dict['people'].append(person)
-                    # get_paperdoll_data(person['url'], person['person_id'])
                     q2.enqueue(get_paperdoll_data, person['url'], person['person_id'])
                     idx += 1
             else:  # if not relevant
