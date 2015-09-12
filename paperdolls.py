@@ -95,9 +95,9 @@ def get_voting_stage(item_id):
         return 0
 
 
-def get_paperdoll_data(image, person_id):
+def get_paperdoll_data(image_url, person_id):
     print "W2P: got into get_pd_data LIOR!"
-    mask, labels, pose = paperdoll_parse_enqueue.paperdoll_enqueue(image, async=False)
+    mask, labels, pose = paperdoll_parse_enqueue.paperdoll_enqueue(image_url, async=False)
     final_mask = after_pd_conclusions(mask, labels)
     from_paperdoll_to_similar_results(person_id, final_mask, labels)
 
@@ -218,6 +218,7 @@ def start_process(page_url, image_url, async=False):
                     image_copy = person_isolation(image, face)
                     person['url'] = upload_image(image_copy, str(person['person_id']))
                     image_dict['people'].append(person)
+                    # get_paperdoll_data()
                     q2.enqueue(get_paperdoll_data, person['url'], person['person_id'])
                     idx += 1
             else:  # if not relevant
