@@ -240,12 +240,9 @@ def from_paperdoll_to_similar_results(person_id, mask, labels):
     image = Utils.get_cv2_img_array(person['url'])
     items = []
     idx = 0
-    bgnd_mask = []
     for num in np.unique(mask):
         # convert numbers to labels
         category = list(labels.keys())[list(labels.values()).index(num)]
-        # if category == 'null':
-        # bgnd_mask = 255 - item_mask  # (255, 0) masks list
         if category in constants.paperdoll_shopstyle_women.keys():
             item_mask = 255 * np.array(mask == num, dtype=np.uint8)
             # item_gc_mask = create_gc_mask(image, item_mask, bgnd_mask)  # (255, 0) mask
