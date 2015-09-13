@@ -419,7 +419,7 @@ def get_data_for_specific_image(image_url=None, image_hash=None, image_projectio
         '_id': 1,
         'image_hash': 1,
         'image_urls': 1,
-        'page_urls': 1,
+        #'page_urls': 1,
         'people.items.category': 1,
         'people.items.item_id': 1,
         'people.items.item_idx': 1,
