@@ -1,4 +1,4 @@
 __author__ = 'liorsabag'
 
 
-num = 18
+num = 27
