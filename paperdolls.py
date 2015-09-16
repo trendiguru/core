@@ -50,9 +50,12 @@ def upload_image(image, name, bucket_name=None):
 
 def get_person_by_id(person_id, collection=iip):
     image = collection.find_one({'people.person_id': person_id})
-    for person in image['people']:
-        if person['person_id'] == person_id:
-            return image, person
+    if image:
+        for person in image['people']:
+            if person['person_id'] == person_id:
+                return image, person
+    else:
+        return None, None
 
 
 def get_item_by_id(item_id, collection=iip):
