@@ -39,6 +39,12 @@ RUN chmod u+x /mongossh.sh
 RUN ssh -i /.ssh/first_aws.pem -L 27017:localhost:27017 ubuntu@extremeli.trendi.guru && /bin/bash
 CMD ssh -i /.ssh/first_aws.pem -L 27017:localhost:27017 ubuntu@extremeli.trendi.guru && /bin/bash
 
+#JEREMY TRY THIS
+#FROM centos:6
+#RUN yum install -y openssh-clients
+#COPY id_rsa /tmp/id_rsa
+#CMD ssh  -i /tmp/id_rsa -L 8000:localhost:8000 -N vagrant@192.168.33.10 -o StrictHostKeyChecking=no
+
  #tail -F /var/log/booterror.log
 
 
