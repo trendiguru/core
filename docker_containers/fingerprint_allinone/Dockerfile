@@ -36,7 +36,7 @@ RUN apt-get install -y python-tk
 RUN apt-get install -y screen
 #cmap is  for debugging port forwarding
 RUN apt-get install -y nmap
-RUN apt-get install -y checkinstall
+#RUN apt-get install -y checkinstall
 RUN apt-get install -y cmake
 RUN apt-get install -y unzip
 

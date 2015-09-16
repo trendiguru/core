@@ -12,7 +12,7 @@ MAINTAINER Jeremy Rutman <jeremy@trendiguru.com>
 #RUN apt-get install -y libgtk2.0-dev
 #RUN apt-get -qq install -y libopencv-dev
 RUN apt-get -qq install -y build-essential
-RUN apt-get -qq install -y checkinstall
+#RUN apt-get -qq install -y checkinstall
 RUN apt-get -qq install -y cmake
 RUN apt-get -qq install -y pkg-config
 RUN apt-get -qq install -y yasm
@@ -116,7 +116,7 @@ RUN export uid=1000 gid=1000 && \
 
 
 
-RUN apt-get -qq install -y libgtk2.0-dev
+#RUN apt-get -qq install -y libgtk2.0-dev
 
 
 ## TG GIT CLONE ##
