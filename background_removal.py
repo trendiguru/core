@@ -342,5 +342,37 @@ def simple_mask_grabcut(image, mask):
     return mask2
 
 
+def get_item_percentage(image_url, mask, labels):
+    image = Utils.get_cv2_img_array(image_url)
+    if not image:
+        logging.warning("image url is bad!")
+        return None
+    image = standard_resize(image, 400)[0]
+    relevance = image_is_relevant(image)
+    if not relevance.is_relevant:
+        logging.warning("no face was found!")
+        return None
+    x, y, w, h = relevance.faces[0]
+    face_size = w * h
+    num_of_dress = labels.values()[labels.keys().index('dress')]
+    dress_mask = np.where(mask == num_of_dress, 255, 0)
+    num_dress_pix = cv2.countNonZero(dress_mask)
+    return float(num_dress_pix) / face_size
+
+
+images_urls = [
+    'http://cdn.shopify.com/s/files/1/0115/5832/products/DIS043-AWholeNewWorld-RacerSkaterDress-6-WEB_large.jpg?v=1404964871',
+    'http://cdn.shopify.com/s/files/1/0363/6989/products/PRI-UnEarthlyDelights-PlayDress-2-WEB_1024x1024.jpeg?v=1412221140',
+    'http://cdn.shopify.com/s/files/1/0115/5832/products/ShatteredCrystalRevStrapSkaterDress-1-WEB_1024x1024.png?v=1391635312',
+    'http://g-ecx.images-amazon.com/images/G/01/Shopbop/p/pcs/products/loves/loves2002213149/loves2002213149_q1_1-0_336x596.jpg',
+    'http://www.maykool.com/media/catalog/product/m/u/multi-scoop-neck-frozen-print-casual-mini-dress-016280.jpg',
+    'http://www.dylanqueen.co.uk/media/catalog/product/cache/1/image/9df78eab33525d08d6e5fb8d27136e95/w/d/wdnbn00524.jpg',
+    'http://www.kissydress.co.uk/images/product/beaded-chiffon-a-line-sweetheart-long-prom-dress-3183-6.jpg',
+    'http://www.1dress.co.uk/media/catalog/product/cache/1/small_image/225x300/9df78eab33525d08d6e5fb8d27136e95/u/k/uk021581-2012-style-a-line-halter-beading-sleeveless-floor-length-chiffon-prom-dresses-evening-dresses-30627.jpg',
+    'http://img.dressfirm.co/cdnimgs/dressfirm/other/ed15281-small-69%201.jpg',
+    'http://demandware.edgesuite.net/sits_pod24/dw/image/v2/AAQB_PRD/on/demandware.static/-/Sites-whistles-master-catalog/default/dw9c47a5ed/images/00502074101/whistles-jersey-flippy-textured-dress-black_02.jpg?sw=319&sh=486&sm=fit&cx=750&cy=0&cw=980&ch=1494',
+    'http://s7d5.scene7.com/is/image/Guess/W51GDGMP103-TWHM?$2014_G_large$',
+    'http://img.davidsbridal.com/is/image/DavidsBridalInc/F17019_BM_PROD4_0227_FRONT_H_GUAVA?wid=346&qlt=100&resMode=sharp2&op_sharpen=1&bgc=255,255,255']
+
 if __name__ == '__main__':
     print('starting')
