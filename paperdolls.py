@@ -260,10 +260,10 @@ def from_paperdoll_to_similar_results(person_id, mask, labels):
         # convert numbers to labels
         category = list(labels.keys())[list(labels.values()).index(num)]
         if category == 'null':
-            bgnd_mask = np.where(mask == num, 0, 255)
+            bgnd_mask = 255 * np.array(mask == num, dtype=np.uint8)
         if category in constants.paperdoll_shopstyle_women.keys():
             item_mask = 255 * np.array(mask == num, dtype=np.uint8)
-            item_gc_mask = create_gc_mask(image, item_mask, bgnd_mask)  # (255, 0) mask
+            item_gc_mask = create_gc_mask(image, item_mask, 255 - bgnd_mask)  # (255, 0) mask
             item_dict = {"category": constants.paperdoll_shopstyle_women[category],
                          'item_id': str(bson.ObjectId()), 'item_idx': idx, 'saved_date': datetime.datetime.now()}
             svg_name = find_similar_mongo.mask2svg(
