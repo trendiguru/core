@@ -126,7 +126,7 @@ def after_pd_conclusions(mask, labels):
                 mask_sizes[key].append({num: cv2.countNonZero(item_mask)})
     # 1
     for item in mask_sizes["whole_body"]:
-        if item.values()[0] > 30000:
+        if item.values()[0] > 10000:
             print "W2P: That's a {0}".format(list(labels.keys())[list(labels.values()).index((item.keys()[0]))])
             item_num = item.keys()[0]
             for num in np.unique(mask):
