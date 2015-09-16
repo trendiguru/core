@@ -354,6 +354,9 @@ def get_item_percentage(image_url, mask, labels):
         return None
     x, y, w, h = relevance.faces[0]
     face_size = w * h
+    if 'dress' not in labels.keys():
+        logging.warning("No dress was detected, good boy PD!")
+        return None
     num_of_dress = labels.values()[labels.keys().index('dress')]
     dress_mask = np.where(mask == num_of_dress, 255, 0)
     num_dress_pix = cv2.countNonZero(dress_mask)
