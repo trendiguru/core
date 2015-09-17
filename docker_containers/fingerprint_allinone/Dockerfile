@@ -75,11 +75,6 @@ RUN chmod o+x portredis.sh
 #sudo pip install  naiveBayesClassifier
 
 
-
-
-
-FROM fp
-
 ### OPENCV 3.0 ###
 ### OPENCV 3.0 ###
 ### OPENCV 3.0 ###
