@@ -32,6 +32,23 @@ class OutcomesTest(unittest.TestCase):
     #        raise RuntimeError('Test error!')
 
 
+    def test_fp(self):
+
+        # answer should be a dictionary of info about bb or an error string if no bb found
+        # url = 'http://lp.hm.com/hmprod?set=key[source],value[/model/2014/3PV%200235738%20001%2087%206181.jpg]&set=key[rotate],value[]&set=key[width],value[]&set=key[height],value[]&set=key[x],value[]&set=key[y],value[]&set=key[type],value[STILL_LIFE_FRONT]&hmver=4&call=url[file:/product/large]'
+        filename = 'images/img.jpg'
+        img_arr = Utils.get_cv2_img_array(filename)
+        sh = img_arr.shape
+        print('shape is ' + str(sh))
+        if img_arr is not None:
+                mask = np.ones((img_arr.shape[0], img_arr.shape[1]), np.uint8)
+                fingerprint = fingerprint_core.fp(img_arr)
+                self.assert(len(fingerprint) > 0)
+
+        else:
+            print('couldnt get image:'+str(url))
+
+
     def test_show_fp(self):
 
         # answer should be a dictionary of info about bb or an error string if no bb found
