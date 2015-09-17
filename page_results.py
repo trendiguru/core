@@ -409,7 +409,7 @@ def load_similar_results(sparse, projection_dict):
 def is_image_relevant(image_url):
     if image_url is not None:
         query = {"image_urls": image_url}
-        return db.images.find_one(query, {'relevant': 1})["relevant"]
+        return bool(db.images.find_one(query, {'relevant': 1}).get("relevant"))
     else:
         return False
 
