@@ -406,6 +406,12 @@ def load_similar_results(sparse, projection_dict):
                                        for result in item["similar_results"]]
     return sparse
 
+def is_image_relevant(image_url):
+    if image_url is not None:
+        query = {"image_urls": image_url}
+        return db.images.find_one(query, {'relevant': 1})["relevant"]
+    else:
+        return False
 
 def get_data_for_specific_image(image_url=None, image_hash=None, image_projection=None, product_projection=None,
                                 max_results=20):
