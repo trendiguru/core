@@ -43,7 +43,7 @@ class OutcomesTest(unittest.TestCase):
         if img_arr is not None:
                 mask = np.ones((img_arr.shape[0], img_arr.shape[1]), np.uint8)
                 fingerprint = fingerprint_core.fp(img_arr)
-                self.assert(len(fingerprint) > 0)
+                self.assertTrue(len(fingerprint) > 0)
 
         else:
             print('couldnt get image:'+str(url))
