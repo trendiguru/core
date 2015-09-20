@@ -233,7 +233,7 @@ def start_process(page_url, image_url, async=False):
                     image_dict['people'].append(person)
                     # get_paperdoll_data(person['url'], person['person_id'])
                     print "W2P: sending to paperdoll's queue"
-                    q2.enqueue(get_paperdoll_data, person['url'], person['person_id'])
+                    q2.enqueue(get_paperdoll_data, person['url'], person['person_id'], person['face'])
                     idx += 1
             else:  # if not relevant
                 logging.warning('image is not relevant, but stored anyway..')
