@@ -99,7 +99,7 @@ def get_voting_stage(item_id):
 
 
 def get_paperdoll_data(image_url, person_id):
-    person = get_person_by_id(person_id)
+    person = get_person_by_id(person_id)[1]
     print "W2P: got into get_pd_data LIOR!"
     mask, labels, pose = paperdoll_parse_enqueue.paperdoll_enqueue(image_url, async=False)
     print "W2P: got paperdoll's results"
