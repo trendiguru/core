@@ -99,15 +99,15 @@ def get_voting_stage(item_id):
 
 
 def get_paperdoll_data(image_url, person_id):
-    person = get_person_by_id(person_id)[1]
+    image, person = get_person_by_id(person_id)
     print "W2P: got into get_pd_data LIOR!"
     mask, labels, pose = paperdoll_parse_enqueue.paperdoll_enqueue(image_url, async=False)
     print "W2P: got paperdoll's results"
-    final_mask = after_pd_conclusions(mask, labels)
+    final_mask = after_pd_conclusions(mask, labels, person['face'])
     from_paperdoll_to_similar_results(person_id, final_mask, labels)
 
 
-def after_pd_conclusions(mask, labels):
+def after_pd_conclusions(mask, labels, face):
     """
     1. if there's a full-body clothing:
         1.1 add to its' mask - all the rest lower body items' masks.
@@ -132,7 +132,7 @@ def after_pd_conclusions(mask, labels):
                 mask_sizes[key].append({num: cv2.countNonZero(item_mask)})
     # 1
     for item in mask_sizes["whole_body"]:
-        if float(item.values()[0]) / 1600 > 8:
+        if float(item.values()[0]) / face[2] * face[3] > 8:
             print "W2P: That's a {0}".format(list(labels.keys())[list(labels.values()).index((item.keys()[0]))])
             item_num = item.keys()[0]
             for num in np.unique(mask):
