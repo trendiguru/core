@@ -205,7 +205,12 @@ def search_existing_images(page_url):
 
 def start_process(page_url, image_url, async=False):
     print "W2P: koos valley!!"
-    image_obj = images.find_one({"image_urls": image_url}) or iip.find_one({"image_urls": image_url})
+
+    # if the image is in process, exit
+    if iip.find_one({"image_urls": image_url}):
+        return None
+
+    image_obj = images.find_one({"image_urls": image_url})
     if not image_obj:  # new image_url
         image_hash = page_results.get_hash_of_image_from_url(image_url)
         image_obj = images.find_one_and_update({'image_hash': image_hash}, {'$push': {"image_urls": image_url}},
@@ -247,9 +252,10 @@ def start_process(page_url, image_url, async=False):
     else:  # if image is in the DB
         if image_obj['relevant']:
             logging.warning("Image is in the DB and relevant!")
+            return page_results.merge_items(image_obj)
         else:
             logging.warning("Image is in the DB and not relevant!")
-        return page_results.merge_items(image_obj)
+            return image_obj
 
 
 def from_paperdoll_to_similar_results(person_id, mask, labels):
