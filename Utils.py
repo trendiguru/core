@@ -678,6 +678,15 @@ def show_parse(filename=None, img_array=None):
         cv2.imshow("dest", dest)
         cv2.waitKey(0)
 
+
+def init_nadav(image_url):
+    import pymongo
+    import background_removal
+
+    db = pymongo.MongoClient().mydb
+    return background_removal.standard_resize(get_cv2_img_array(image_url), 400)[0]
+
+
 if __name__ == '__main__':
     print('starting')
     #show_all_bbs_in_db()

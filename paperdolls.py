@@ -144,15 +144,16 @@ def after_pd_conclusions(mask, labels, face):
                     final_mask = np.where(mask == num, item_num, final_mask)
             return final_mask
     # 2, 2.1
-    sections = ["upper_cover", "upper_under", "lower_cover", "lower_under"]
+    sections = {"upper_cover": '', "upper_under": '', "lower_cover": '', "lower_under": ''}
     max_item_count = 0
     max_cat = 9
     print "W2P: That's a 2-part clothing item!"
-    for section in sections:
+    for section in sections.keys():
         for item in mask_sizes[section]:
             if item.values()[0] > max_item_count:
                 max_item_count = item.values()[0]
                 max_cat = item.keys()[0]
+                sections[section] = max_cat
         # share masks
         if max_item_count > 0:
             for item in mask_sizes[section]:
@@ -161,8 +162,17 @@ def after_pd_conclusions(mask, labels, face):
                 if cat in constants.paperdoll_categories[section]:
                     final_mask = np.where(mask == item.keys()[0], max_cat, final_mask)
             max_item_count = 0
-    # for item in mask_sizes['whole_body']:
-
+    y_split = face[1] + 3 * face[3]
+    for item in mask_sizes['whole_body']:
+        for i in range(0, mask.shape[0]):
+            if i <= y_split:
+                for j in range(0, mask.shape[1]):
+                    if mask[i][j] == item.keys()[0]:
+                        final_mask[i][j] = sections["upper_under"]
+            else:
+                for j in range(0, mask.shape[1]):
+                    if mask[i][j] == item.keys()[0]:
+                        final_mask[i][j] = sections["lower_cover"]
     return final_mask
 
 
