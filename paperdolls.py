@@ -161,6 +161,8 @@ def after_pd_conclusions(mask, labels, face):
                 if cat in constants.paperdoll_categories[section]:
                     final_mask = np.where(mask == item.keys()[0], max_cat, final_mask)
             max_item_count = 0
+    # for item in mask_sizes['whole_body']:
+
     return final_mask
 
 
@@ -204,12 +206,12 @@ def search_existing_images(page_url):
 
 def start_process(page_url, image_url, async=False):
     print "W2P: koos valley!!"
-
-    # if the image is in process, exit
-    if iip.find_one({"image_urls": image_url}):
-        return None
-
     image_obj = images.find_one({"image_urls": image_url})
+    # if the image is in process, exit
+    if iip.find_one({"image_urls": image_url}) and images.find_one({"image_urls": image_url}):
+        return page_results.merge_items(image_obj)
+    elif iip.find_one({"image_urls": image_url}):
+        return None
     if not image_obj:  # new image_url
         image_hash = page_results.get_hash_of_image_from_url(image_url)
         image_obj = images.find_one_and_update({'image_hash': image_hash}, {'$push': {"image_urls": image_url}},
