@@ -687,6 +687,14 @@ def init_nadav(image_url):
     return background_removal.standard_resize(get_cv2_img_array(image_url), 400)[0]
 
 
+def shorten_url(long_url):
+    url = "https://www.googleapis.com/urlshortener/v1/url"
+    querystring = {"key": "AIzaSyCYaOjTMgUKoopLBe3109V3fXIZtOJ8uec"}
+    payload = "{\"longUrl\": \"{0}\"}".format(long_url)
+    headers = {'content-type': 'application/json'}
+    response = requests.request("POST", url, data=payload, headers=headers, params=querystring)
+    return response.json.get("id") or long_url
+
 if __name__ == '__main__':
     print('starting')
     #show_all_bbs_in_db()
