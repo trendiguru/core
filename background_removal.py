@@ -200,7 +200,7 @@ def paperdoll_item_mask(item_mask, bb):
     x_back = np.max([x - 0.1 * w, 0])
     y_up = np.max([0, y - 0.1 * h])
     x_ahead = np.min([mask_w - 1, x + 1.1 * w])
-    mask[y_up:y_down, x_back:x_ahead] = 2
+    mask[y_up:y_down, x_back:x_ahead] = 3
     mask = np.where(item_mask != 0, 1, mask)
     return mask
 
@@ -340,55 +340,6 @@ def simple_mask_grabcut(image, mask):
     cv2.grabCut(image, mask, rect, bgdmodel, fgdmodel, 1, cv2.GC_INIT_WITH_MASK)
     mask2 = np.where((mask == 1) + (mask == 3), 255, 0).astype('uint8')
     return mask2
-
-
-def get_item_percentage(image_url, mask, labels):
-    image = Utils.get_cv2_img_array(image_url)
-    if image is None:
-        logging.warning("image url is bad!")
-        return None
-    image = standard_resize(image, 400)[0]
-    relevance = image_is_relevant(image)
-    if not relevance.is_relevant:
-        logging.warning("no face was found!")
-        return None
-    x, y, w, h = relevance.faces[0]
-    face_size = w * h
-    if 'dress' not in labels.keys():
-        logging.warning("No dress was detected, good boy PD!")
-        return None
-    num_of_dress = labels.values()[labels.keys().index('dress')]
-    dress_mask = np.where(mask == num_of_dress, 255, 0)
-    num_dress_pix = cv2.countNonZero(dress_mask)
-    return float(num_dress_pix) / face_size
-
-
-images_urls = [
-    'http://cdn.shopify.com/s/files/1/0115/5832/products/DIS043-AWholeNewWorld-RacerSkaterDress-6-WEB_large.jpg?v=1404964871',
-    'http://cdn.shopify.com/s/files/1/0363/6989/products/PRI-UnEarthlyDelights-PlayDress-2-WEB_1024x1024.jpeg?v=1412221140',
-    'http://cdn.shopify.com/s/files/1/0115/5832/products/ShatteredCrystalRevStrapSkaterDress-1-WEB_1024x1024.png?v=1391635312',
-    'http://g-ecx.images-amazon.com/images/G/01/Shopbop/p/pcs/products/loves/loves2002213149/loves2002213149_q1_1-0_336x596.jpg',
-    'http://www.maykool.com/media/catalog/product/m/u/multi-scoop-neck-frozen-print-casual-mini-dress-016280.jpg',
-    'http://www.dylanqueen.co.uk/media/catalog/product/cache/1/image/9df78eab33525d08d6e5fb8d27136e95/w/d/wdnbn00524.jpg',
-    'http://www.kissydress.co.uk/images/product/beaded-chiffon-a-line-sweetheart-long-prom-dress-3183-6.jpg',
-    'http://www.1dress.co.uk/media/catalog/product/cache/1/small_image/225x300/9df78eab33525d08d6e5fb8d27136e95/u/k/uk021581-2012-style-a-line-halter-beading-sleeveless-floor-length-chiffon-prom-dresses-evening-dresses-30627.jpg',
-    'http://img.dressfirm.co/cdnimgs/dressfirm/other/ed15281-small-69%201.jpg',
-    'http://demandware.edgesuite.net/sits_pod24/dw/image/v2/AAQB_PRD/on/demandware.static/-/Sites-whistles-master-catalog/default/dw9c47a5ed/images/00502074101/whistles-jersey-flippy-textured-dress-black_02.jpg?sw=319&sh=486&sm=fit&cx=750&cy=0&cw=980&ch=1494',
-    'http://s7d5.scene7.com/is/image/Guess/W51GDGMP103-TWHM?$2014_G_large$',
-    'http://img.davidsbridal.com/is/image/DavidsBridalInc/F17019_BM_PROD4_0227_FRONT_H_GUAVA?wid=346&qlt=100&resMode=sharp2&op_sharpen=1&bgc=255,255,255']
-
-not_dress_urls = [
-    'https://s-media-cache-ak0.pinimg.com/736x/38/0f/30/380f30b1340b9f4730bf8f8c62d9cdc8.jpg',
-    'https://cdn.lookastic.com/looks/jacket-dress-shirt-capri-pants-heeled-sandals-sunglasses-large-9647.jpg',
-    'https://cdn.lookastic.com/looks/crew-neck-t-shirt-dress-pants-pumps-sunglasses-bracelet-large-7655.jpg',
-    'http://www.fashionistix.com/wp-content/uploads/2013/05/black-pants-white-shirt-for-women.jpg',
-    'http://staff-jeans.com/wp-content/uploads/2015/03/01-7_i.jpg',
-    'https://s-media-cache-ak0.pinimg.com/736x/59/e4/e7/59e4e732dfecb70eee3001325e0ea0e1.jpg',
-    'https://s-media-cache-ak0.pinimg.com/736x/e8/ee/47/e8ee47fc34bfcd50e4b9b0e2422ebac9.jpg',
-    'http://aelida.com/wp-content/uploads/2012/12/boho-maxi-skirt.jpg',
-    'http://images-ff.asos-media.com/shmotterstorage/147711/large_a47d06df-0893-4347-b760-1e9511e5f393.jpeg',
-    'https://i.imgur.com/U1LS5Kw.jpg',
-    'http://www.sheplanet.com/wp-content/uploads/2012/05/Silver-Womens-Pencil-Skirt-520x780.jpg']
 
 
 if __name__ == '__main__':
