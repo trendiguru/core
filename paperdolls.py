@@ -114,7 +114,7 @@ def after_pd_conclusions(mask, labels, face):
                     final_mask = np.where(mask == num, item_num, final_mask)
             return final_mask
     # 2, 2.1
-    sections = {"upper_cover": '', "upper_under": '', "lower_cover": '', "lower_under": ''}
+    sections = {"upper_cover": 0, "upper_under": 0, "lower_cover": 0, "lower_under": 0}
     max_item_count = 0
     max_cat = 9
     print "W2P: That's a 2-part clothing item!"
@@ -138,21 +138,11 @@ def after_pd_conclusions(mask, labels, face):
             if i <= y_split:
                 for j in range(0, mask.shape[1]):
                     if mask[i][j] == item.keys()[0]:
-                        if len(sections["upper_under"]) > 0:
-                            final_mask[i][j] = int(sections["upper_under"])
-                        elif len(sections["upper_cover"]) > 0:
-                            final_mask[i][j] = int(sections["upper_under"])
-                        else:
-                            final_mask[i][j] = 0
+                        final_mask[i][j] = sections["upper_under"] or sections["upper_under"] or 0
             else:
                 for j in range(0, mask.shape[1]):
                     if mask[i][j] == item.keys()[0]:
-                        if len(sections["lower_cover"]) > 0:
-                            final_mask[i][j] = int(sections["lower_cover"])
-                        elif len(sections["lower_under"]) > 0:
-                            final_mask[i][j] = int(sections["lower_under"])
-                        else:
-                            final_mask[i][j] = 0
+                        final_mask[i][j] = sections["lower_cover"] or sections["lower_under"] or 0
     return final_mask
 
 
