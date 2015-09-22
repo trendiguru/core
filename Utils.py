@@ -679,14 +679,6 @@ def show_parse(filename=None, img_array=None):
         cv2.waitKey(0)
 
 
-def init_nadav(image_url):
-    import pymongo
-    import background_removal
-
-    db = pymongo.MongoClient().mydb
-    return background_removal.standard_resize(get_cv2_img_array(image_url), 400)[0]
-
-
 def shorten_url(long_url):
     url = "https://www.googleapis.com/urlshortener/v1/url"
     querystring = {"key": "AIzaSyCYaOjTMgUKoopLBe3109V3fXIZtOJ8uec"}
