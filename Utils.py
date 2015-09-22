@@ -693,7 +693,7 @@ def shorten_url(long_url):
     payload = json.dumps({"longUrl": long_url})
     headers = {'content-type': 'application/json'}
     response = requests.request("POST", url, data=payload, headers=headers, params=querystring)
-    return response.json.get("id") or long_url
+    return response.json().get("id") or long_url
 
 if __name__ == '__main__':
     print('starting')
