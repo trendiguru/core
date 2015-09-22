@@ -690,7 +690,7 @@ def init_nadav(image_url):
 def shorten_url(long_url):
     url = "https://www.googleapis.com/urlshortener/v1/url"
     querystring = {"key": "AIzaSyCYaOjTMgUKoopLBe3109V3fXIZtOJ8uec"}
-    payload = "{\"longUrl\": \"{0}\"}".format(long_url)
+    payload = json.dumps({"longUrl": long_url})
     headers = {'content-type': 'application/json'}
     response = requests.request("POST", url, data=payload, headers=headers, params=querystring)
     return response.json.get("id") or long_url
