@@ -138,11 +138,21 @@ def after_pd_conclusions(mask, labels, face):
             if i <= y_split:
                 for j in range(0, mask.shape[1]):
                     if mask[i][j] == item.keys()[0]:
-                        final_mask[i][j] = sections["upper_under"]
+                        if len(sections["upper_under"]) > 0:
+                            final_mask[i][j] = int(sections["upper_under"])
+                        elif len(sections["upper_cover"]) > 0:
+                            final_mask[i][j] = int(sections["upper_under"])
+                        else:
+                            final_mask[i][j] = 0
             else:
                 for j in range(0, mask.shape[1]):
                     if mask[i][j] == item.keys()[0]:
-                        final_mask[i][j] = sections["lower_cover"]
+                        if len(sections["lower_cover"]) > 0:
+                            final_mask[i][j] = int(sections["lower_cover"])
+                        elif len(sections["lower_under"]) > 0:
+                            final_mask[i][j] = int(sections["lower_under"])
+                        else:
+                            final_mask[i][j] = 0
     return final_mask
 
 
