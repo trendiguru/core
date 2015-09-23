@@ -679,13 +679,23 @@ def show_parse(filename=None, img_array=None):
         cv2.waitKey(0)
 
 
-def shorten_url(long_url):
+def shorten_url_googl(long_url):
     url = "https://www.googleapis.com/urlshortener/v1/url"
     querystring = {"key": "AIzaSyCYaOjTMgUKoopLBe3109V3fXIZtOJ8uec"}
     payload = json.dumps({"longUrl": long_url})
     headers = {'content-type': 'application/json'}
     response = requests.request("POST", url, data=payload, headers=headers, params=querystring)
     return response.json().get("id") or long_url
+
+def shorten_url_bitly(long_url):
+    url = "https://api-ssl.bitly.com/v3/shorten"
+    querystring = {"access_token": "1b131dcc7af91f1fa7f481ab7c20da0f658acff9",
+                   "longUrl": long_url,
+                   "format": "txt"}
+    response = requests.request("GET", url, params=querystring)
+    return response.text.rstrip()
+
+
 
 if __name__ == '__main__':
     print('starting')
