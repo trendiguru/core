@@ -138,7 +138,7 @@ def after_pd_conclusions(mask, labels, face):
             if i <= y_split:
                 for j in range(0, mask.shape[1]):
                     if mask[i][j] == item.keys()[0]:
-                        final_mask[i][j] = sections["upper_under"] or sections["upper_under"] or 0
+                        final_mask[i][j] = sections["upper_under"] or sections["upper_cover"] or 0
             else:
                 for j in range(0, mask.shape[1]):
                     if mask[i][j] == item.keys()[0]:
