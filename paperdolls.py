@@ -36,6 +36,9 @@ q6 = Queue('receive_data_from_qc', connection=r)
 sys.stdout = sys.stderr
 
 
+# ----------------------------------------------CO-FUNCTIONS------------------------------------------------------------
+
+
 def upload_image(image, name, bucket_name=None):
     image_string = cv2.imencode(".jpg", image)[1].tostring()
     bucket_name = bucket_name or "tg-boxed-faces"
@@ -175,7 +178,7 @@ def search_existing_images(page_url):
     return ex_list
 
 
-# ---------------------------------------------------------------------------------------------------------------------
+# ----------------------------------------------MAIN-FUNCTIONS----------------------------------------------------------
 
 
 def start_process(page_url, image_url, async=False):
