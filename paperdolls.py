@@ -87,9 +87,6 @@ def after_pd_conclusions(mask, labels, face):
         2.2 upper-body: decide whether it's a one-part or under & cover
     3. return new mask
     """
-    # TODO - add relations between head-size and masks sizes
-    # TODO - deal with dividing dress mask to the others - V (not checked yet)
-    print "W2P: got into after_pd_conclusions!"
     final_mask = mask.copy()
     mask_sizes = {"upper_cover": [], "upper_under": [], "lower_cover": [], "lower_under": [], "whole_body": []}
     for num in np.unique(mask):
@@ -110,7 +107,6 @@ def after_pd_conclusions(mask, labels, face):
                 if cat in constants.paperdoll_categories["lower_cover"] or \
                                 cat in constants.paperdoll_categories["lower_under"] or \
                                 cat in constants.paperdoll_categories["upper_under"]:
-                    print "W2P: adding {0}'s mask to dress' mask".format(cat)
                     final_mask = np.where(mask == num, item_num, final_mask)
             return final_mask
     # 2, 2.1
@@ -185,7 +181,6 @@ def search_existing_images(page_url):
 
 
 def start_process(page_url, image_url, async=False):
-    print "W2P: koos valley!!"
     image_obj = images.find_one({"image_urls": image_url})
     # if the image is in process, exit
     if iip.find_one({"image_urls": image_url}) and images.find_one({"image_urls": image_url}):
@@ -240,8 +235,6 @@ def start_process(page_url, image_url, async=False):
 
 
 def from_paperdoll_to_similar_results(person_id, mask, labels):
-    # TODO - change grab-cut mask to an inner-outer boxes
-    print "W2P: E-shoe Rabak!!"
     image_obj, person = get_person_by_id(person_id, iip)
     image = Utils.get_cv2_img_array(person['url'])
     items = []
