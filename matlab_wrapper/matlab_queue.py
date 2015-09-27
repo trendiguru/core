@@ -27,11 +27,6 @@ def my_enqueue(a,b):
     eng = None
     engines=matlab.engine.find_matlab()	#Find shared MATLAB sessions to connect to MATLAB Engine for Python
     print('engine names:'+str(engines))
-    if engines[0] is not None:
-        print('connecting to engine:'+str(engines[0]))
-        eng = matlab.engine.connect_matlab(engines[0])
-        test = eng.factorial(6)
-        print('matlab thinks 6!='+str(test))
 
     if(0):
         print('attempting to queue')
@@ -58,17 +53,39 @@ def my_enqueue(a,b):
     q = Queue(connection=redis_conn)
 #    job = q.enqueue('self.matlab_engine.factorial',a,b)
     print('enqueuing function')
-    job = q.enqueue(my_function,a,b,eng)
-    print('after enqueuing function')
+    tryagain = True
+    n=0
+    print('len:'+str(len(engines)))
+    while(tryagain is True and n<len(engines)):
+        try:
+            print('connecting to engine:'+str(engines[n]))
+            eng = matlab.engine.connect_matlab(engines[n])
+            test = eng.factorial(6)
+            print('matlab thinks 6!='+str(test))
+            job = q.enqueue(my_function,a,b)
+            tryagain=False
+#        except MatlabExecutionError:
+#            print('ML execution error after enqueuing function')
+#            tryagain = False
+#        except EngineError:
+        except:
+            print('caught exception')
+            n=n+1
+            eng = matlab.engine.connect_matlab(engines[n])
+            tryagain=True
+
     print('result:'+str(job.result))
     return job.result
 
-def my_function(a=2,b=3,eng=None):
-    if eng is None:
-        print('got no engine so starting on my own')
-        eng = matlab.engine.start_matlab('-nodesktop')
+def my_function(a=2,b=3):
+    print('starting queue function')
+
+#    if eng is None:
+#        print('got no engine so starting on my own')
+#        eng = matlab.engine.start_matlab('-nodesktop')
     print('running function')
-    return eng.factorial(a+b)
+    return('hi')
+#    return eng.factorial(a+b)
 
 if __name__ == '__main__':
     # Tell rq what Redis connection to use
