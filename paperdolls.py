@@ -153,11 +153,12 @@ def person_isolation(image, face):
     return image_copy
 
 
-def create_gc_mask(image, pd_mask, bgnd_mask):
+def create_gc_mask(image, pd_mask, bgnd_mask, skin_mask):
     item_bb = bb_from_mask(pd_mask)
     item_gc_mask = background_removal.paperdoll_item_mask(pd_mask, item_bb)
     after_gc_mask = background_removal.simple_mask_grabcut(image, item_gc_mask)  # (255, 0) mask
     final_mask = cv2.bitwise_and(bgnd_mask, after_gc_mask)
+    final_mask = cv2.bitwise_and(skin_mask, final_mask)
     return final_mask  # (255, 0) mask
 
 
@@ -241,14 +242,17 @@ def from_paperdoll_to_similar_results(person_id, mask, labels):
     items = []
     idx = 0
     bgnd_mask = np.zeros(mask.shape, dtype=np.uint8)
+    skin_mask = np.zeros(mask.shape, dtype=np.uint8)
     for num in np.unique(mask):
         # convert numbers to labels
         category = list(labels.keys())[list(labels.values()).index(num)]
         if category == 'null':
             bgnd_mask = 255 * np.array(mask == num, dtype=np.uint8)
+        elif category == 'skin':
+            skin_mask = 255 * np.array(mask == num, dtype=np.uint8)
         if category in constants.paperdoll_shopstyle_women.keys():
             item_mask = 255 * np.array(mask == num, dtype=np.uint8)
-            item_gc_mask = create_gc_mask(image, item_mask, 255 - bgnd_mask)  # (255, 0) mask
+            item_gc_mask = create_gc_mask(image, item_mask, 255 - bgnd_mask, 255 - skin_mask)  # (255, 0) mask
             item_dict = {"category": constants.paperdoll_shopstyle_women[category],
                          'item_id': str(bson.ObjectId()), 'item_idx': idx, 'saved_date': datetime.datetime.now()}
             svg_name = find_similar_mongo.mask2svg(
