@@ -178,7 +178,9 @@ class Worker(object):
         import matlab
         import matlab.engine
 #	    eng = matlab.engine.start_matlab("-nodisplay")
-        eng = matlab.engine.start_matlab("-nodesktop")
+#        eng = matlab.engine.start_matlab(options_string)
+
+        eng = matlab.engine.start_matlab('-nodesktop')
 #            ENG = matlab.engine.start_matlab("-nodisplay")
         r.incr('n_matlab_engines')
 #	if hasattr(self, 'ml_engine'):

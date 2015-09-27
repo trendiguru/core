@@ -5,6 +5,7 @@ from redis import Redis
 #                        unicode_literals)
 from rq import Connection, Queue, Worker
 import sys
+import matlab.engine
 #redis_conn = Redis()
 #q = Queue('pd', connection=redis_conn)
 
@@ -14,12 +15,14 @@ def my_enqueue(a,b):
     print sys.path
     redis_conn = Redis()
     q = Queue(connection=redis_conn)
-    job = q.enqueue(my_function,a,b)
+    job = q.enqueue('self.matlab_engine.factorial',a,b)
+#    job = q.enqueue(my_function,a,b)
     return job.result
 
 def my_function(a=2,b=3):
+    eng = matlab.engine.start_matlab('-nodesktop')
     print('running function')
-    return a+b
+    return eng.factorial(a+b)
 
 if __name__ == '__main__':
     # Tell rq what Redis connection to use
