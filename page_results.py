@@ -414,7 +414,7 @@ def is_image_relevant(image_url):
     if image_url is not None:
         query = {"image_urls": image_url}
         image_dict = db.images.find_one(query, {'relevant': 1})
-        return bool(image_dict and image_dict.get("relevant"))
+        return bool(image_dict and image_dict.get("relevant") and image_dict.get("items")>0)
     else:
         return False
 

@@ -7,10 +7,6 @@ __author__ = 'jeremy'
 # this needs to run on server that
 # has matlab running w. 2opencv3
 #which is currently 'mightili.trendi.guru'
-# paperdoll run from matlab - this needs to run on server that
-# has matlab running w. 2opencv3 , which is currently 'mightili.trendi.guru'
-
-# testing a change #2
 
 import subprocess
 import numpy as np
