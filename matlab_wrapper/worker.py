@@ -140,7 +140,6 @@ class Worker(object):
                              for queue in queues.split(',')]
         return worker
 
-#modify this to start a ml engine
     def __init__(self, queues, name=None,
                  default_result_ttl=None, connection=None, exc_handler=None,
                  exception_handlers=None, default_worker_ttl=None, job_class=None):  # noqa
@@ -148,42 +147,49 @@ class Worker(object):
             connection = get_current_connection()
         self.connection = connection
 
+##########################33
 #begin jeremy hack to get engines running  8.9.15
-# not add try / except for this:
-#RejectedExecutionError
-	# max_matlab_)engines should go in contsatns.py for instance but i am not looking for trouble right now
- 	r = redis.StrictRedis(host='localhost', port=6379, db=0)
-	max_matlab_engines = 5
-	print('getting n_engines')
-	try:
-	    n_running_engines = r.get('n_matlab_engines')
-	    if n_running_engines is None:
-	        r.set('n_matlab_engines',0)
-	        n_running_engines = 0
+###############################3
 
-	except:
-	    r.set('n_matlab_engines',0)
-	    n_running_engines = 0
-	print('n_engines='+str(n_running_engines))
-	logging.debug('n_engines='+str(n_running_engines))
-	n_max_engines = r.get('n_max_matlab_engines')
-	if n_max_engines is None:
-	    r.set('n_max_matlab_engines',max_matlab_engines)
-	if n_running_engines<n_max_engines:
+
+    r = redis.StrictRedis(host='localhost', port=6379, db=0)
+    max_matlab_engines = 5
+    print('getting n_engines')
+    try:
+        n_running_engines = r.get('n_matlab_engines')
+        if n_running_engines is None:
+            r.set('n_matlab_engines',0)
+            n_running_engines = 0
+
+    except:
+        r.set('n_matlab_engines',0)
+        n_running_engines = 0
+    print('n_engines='+str(n_running_engines))
+    logging.debug('n_engines='+str(n_running_engines))
+    n_max_engines = r.get('n_max_matlab_engines')
+    if n_max_engines is None:
+        r.set('n_max_matlab_engines',max_matlab_engines)
+    if n_running_engines<n_max_engines:
 #	    print('import')
 #	    import matlab.engine
 #	    print('eng')
 #	    eng = matlab.engine.start_matlab()
-	    print('nodesktop')
-	    import matlab
-	    import matlab.engine
+        print('nodesktop')
+        import matlab
+        import matlab.engine
 #	    eng = matlab.engine.start_matlab("-nodisplay")
-	    eng = matlab.engine.start_matlab("-nodesktop")
+        eng = matlab.engine.start_matlab("-nodesktop")
 #            ENG = matlab.engine.start_matlab("-nodisplay")
-	    r.incr('n_matlab_engines')	
+        r.incr('n_matlab_engines')
 #	if hasattr(self, 'ml_engine'):
 
-	queues = [self.queue_class(name=q) if isinstance(q, text_type) else q
+
+#######################
+#END JEREMY HACK
+########################3
+
+
+    queues = [self.queue_class(name=q) if isinstance(q, text_type) else q
                   for q in ensure_list(queues)]
         self._name = name
         self.queues = queues
