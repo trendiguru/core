@@ -99,7 +99,7 @@ def after_pd_conclusions(mask, labels, face):
                 mask_sizes[key].append({num: cv2.countNonZero(item_mask)})
     # 1
     for item in mask_sizes["whole_body"]:
-        if float(item.values()[0]) / (face[2] * face[3]) > 8:
+        if float(item.values()[0]) / (face[2] * face[3]) > 4:
             print "W2P: That's a {0}".format(list(labels.keys())[list(labels.values()).index((item.keys()[0]))])
             item_num = item.keys()[0]
             for num in np.unique(mask):
