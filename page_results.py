@@ -421,6 +421,7 @@ def is_image_relevant(image_url):
 
 def has_items(image_dict):
     res = False
+    # Easier to ask forgiveness than permission
     # http://stackoverflow.com/questions/1835756/using-try-vs-if-in-python
     try:
         res = len(image_dict["people"][0]["items"]) > 0
