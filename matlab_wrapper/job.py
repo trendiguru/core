@@ -496,13 +496,13 @@ class Job(object):
 ######jeremys hacks###########3
 #	    logger = logging.getLogger(__name__)#
 #	    logger.warning("testing log")
-	    print('ml engine in job.perform:'+str(matlab_engine))
+	    print('ml engine in job.perform:'+str(self.matlab_engine))
 	    print('args:'+str(self.args))
 	    print('kwargs:'+str(self.kwargs))
 	    print('func:'+str(self.func))
-	    print('mle:'+str(matlab_engine))
-	    print('test mle: 6! = '+str(matlab_engine.factorial(6)))
-	    new_args = self.args+(matlab_engine,)
+	  #  print('mle:'+str(matlab_engine))
+	    print('test mle: 6! = '+str(self.matlab_engine.factorial(6)))
+	    new_args = self.args+(self.matlab_engine,)
 	    print('new damn args:'+str(new_args))
             self._result = self.func(*new_args, **self.kwargs)
 ##############################

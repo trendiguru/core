@@ -17,9 +17,6 @@ from datetime import timedelta
 from rq.compat import as_text, string_types, text_type
 
 from .connections import get_current_connection
-#from .defaults import DEFAULT_RESULT_TTL, DEFAULT_WORKER_TTL
-DEFAULT_RESULT_TTL = 500
-DEFAULT_WORKER_TTL = 5000
 from .exceptions import DequeueTimeout
 from .job import Job, JobStatus
 from .logutils import setup_loghandlers
@@ -31,14 +28,6 @@ from .utils import (ensure_list, enum, import_attribute, make_colorizer,
                     utcformat, utcnow, utcparse)
 from .version import VERSION
 
-#jeremy's imports
-import matlab.engine
-import redis
-import logging
-my_logger = logging.getLogger('MyLogger')
-my_logger.setLevel(logging.DEBUG)
-
-
 try:
     from procname import setprocname
 except ImportError:
@@ -49,7 +38,8 @@ green = make_colorizer('darkgreen')
 yellow = make_colorizer('darkyellow')
 blue = make_colorizer('darkblue')
 
-
+DEFAULT_WORKER_TTL = 420
+DEFAULT_RESULT_TTL = 500
 logger = logging.getLogger(__name__)
 
 
@@ -131,65 +121,14 @@ class Worker(object):
                              for queue in queues.split(',')]
         return worker
 
-#modify this to start a ml engine
     def __init__(self, queues, name=None,
-                 default_result_ttl=None, connection=None, exc_handler=None,
-                 exception_handlers=None, default_worker_ttl=None, job_class=None):  # noqa
-        logger.info('entering __init__')
+                 default_result_ttl=None, connection=None,
+                 exc_handler=None, default_worker_ttl=None, job_class=None):  # noqa
         if connection is None:
             connection = get_current_connection()
         self.connection = connection
 
-############################################################
-#begin jeremy hack to get engines running  8.9.15
-# not add try / except for this:
-#RejectedExecutionError
-################################################################
-	# max_matlab_)engines should go in contsatns.py for instance but i am not looking for trouble right now
- 	#r = redis.StrictRedis(host='localhost', port=6379, db=0)
-	#max_matlab_engines = 6   #need a way to accurately count running engines
-	#try:
-	#    n_running_engines = int(r.get('n_matlab_engines'))  #for some reason this is coming out as a string leading to the interesting behavior that '5'>7
-	   # n_running_engines = 0
-	#    if n_running_engines is None:
-        #        logger.info('no running engines found')
-	#        r.set('n_matlab_engines',0)
-	#        n_running_engines = 0
-	#    else:
-       # 	logger.info('{0} running engines found'.format(n_running_engines))
-	#except:
-        ##    logger.info('exception trying to get number_engines')
-	#    r.set('n_matlab_engines',0)
-	#    n_running_engines = 0
-        #logger.info('{0} max engines, {1} running'.format(max_matlab_engines,n_running_engines))
-	#if n_running_engines<max_matlab_engines:
-        logger.info('attempting to start engine')
-#	    eng = matlab.engine.start_matlab("-nodisplay")
-	 #   mystr = "-nodesktop"
-#	    eng = matlab.engine.start_matlab(mystr)
-	eng = matlab.engine.start_matlab()
-        engine_name = eng.engineName
-        logger.info('new engine name:'+str(engine_name)+' and string:'+str(eng))
-   	#    eng.shareEngine
-	#    engine_name = eng.engineName
-        #    logger.info('shared engine name:'+str(engine_name))
-#http://www.mathworks.com/help/matlab/ref/matlab.engine.sharengine.html
-	    #eng.shareEngine('eng')
-	self.matlab_engine = eng
-	a=eng.factorial(5)
-	logger.info('test using engine:5! ='+str(a))
-#	    r.set('matlab_engine_number_'+str(n_running_engines+1),eng)
-#	    r.set('matlab_engine',eng)#
-#	    n_running_engines=int(n_running_engines)+1
- #           logger.info('got engine '+str(eng)+' ,there are now '+str(n_running_engines))
-#	    r.set('n_matlab_engines',n_running_engines)	
-#	if hasattr(self, 'ml_engine'):
-###########################################################################
-#end jeremy hack
-##########################################################################3
-
-        logger.info('finished attempt to start engine')
-	queues = [self.queue_class(name=q) if isinstance(q, text_type) else q
+        queues = [self.queue_class(name=q) if isinstance(q, text_type) else q
                   for q in ensure_list(queues)]
         self._name = name
         self.queues = queues
@@ -214,25 +153,24 @@ class Worker(object):
 
         # By default, push the "move-to-failed-queue" exception handler onto
         # the stack
-        if exception_handlers is None:
-            self.push_exc_handler(self.move_to_failed_queue)
-            if exc_handler is not None:
-                self.push_exc_handler(exc_handler)
-                warnings.warn(
-                    "use of exc_handler is deprecated, pass a list to exception_handlers instead.",
-                    DeprecationWarning
-                )
-        elif isinstance(exception_handlers, list):
-            for h in exception_handlers:
-                self.push_exc_handler(h)
-        elif exception_handlers is not None:
-            self.push_exc_handler(exception_handlers)
+        self.push_exc_handler(self.move_to_failed_queue)
+        if exc_handler is not None:
+            self.push_exc_handler(exc_handler)
 
         if job_class is not None:
             if isinstance(job_class, string_types):
                 job_class = import_attribute(job_class)
             self.job_class = job_class
-        logger.info('exiting __init__')
+	
+	#JR
+	import matlab.engine
+	logger.info('attempting to start engine')
+        eng = matlab.engine.start_matlab()
+        engine_name = eng.engineName
+        logger.info('new engine name:'+str(engine_name))
+        a=eng.factorial(5)
+        logger.info('test using engine:5! ='+str(a))
+	self.matlab_engine = eng
 
     def validate_queues(self):
         """Sanity check for the given queues."""
@@ -553,25 +491,15 @@ class Worker(object):
         within the given timeout bounds, or will end the work horse with
         SIGALRM.
         """
-#############
-#more of jeremys madness
-##############
-#        child_pid = os.fork()
-
-#        new_args = args+(self.matlab_engine,)
-#        print('new args from worker:'+str(new_args))
-#1111111        return self.perform_job(*args, **kwargs)
-
-	child_pid = 0  #force child (horse) to ride then do parent
+        #child_pid = os.fork()
+	child_pid = 0
         if child_pid == 0:
             self.main_work_horse(job)
 	if 0:
 	    pass
- 	else:
+        else:
             self._horse_pid = child_pid
             self.procline('Forked {0} at {0}'.format(child_pid, time.time()))
-#            self.log.info('Job result = {0!r}'.format(yellow(text_type(job._result))))
-            print('Job result in parent = {0!r}'.format(yellow(text_type(job._result))))
             while True:
                 try:
                     self.set_state('busy')
@@ -639,9 +567,9 @@ class Worker(object):
             started_job_registry = StartedJobRegistry(job.origin, self.connection)
 
             try:
+		job.matlab_engine = self.matlab_engine
                 with self.death_penalty_class(job.timeout or self.queue_class.DEFAULT_TIMEOUT):
-                    rv = job.perform(self.matlab_engine)
-                    #rv = job.perform()
+                    rv = job.perform()
 
                 # Pickle the result in the same try-except block since we need
                 # to use the same exc handling when pickling fails
@@ -666,16 +594,12 @@ class Worker(object):
             except Exception:
                 job.set_status(JobStatus.FAILED, pipeline=pipeline)
                 started_job_registry.remove(job, pipeline=pipeline)
-                try:
-                    pipeline.execute()
-                except Exception:
-                    # Ensure that custom exception handlers are called
-                    # even if Redis is down
-                    pass
+                pipeline.execute()
                 self.handle_exception(job, *sys.exc_info())
                 return False
 
-        if rv is None:            self.log.info('Job OK')
+        if rv is None:
+            self.log.info('Job OK')
         else:
             self.log.info('Job OK, result = {0!r}'.format(yellow(text_type(rv))))
 
@@ -757,6 +681,4 @@ class SimpleWorker(Worker):
 
     def execute_job(self, *args, **kwargs):
         """Execute job in same thread/process, do not fork()"""
-        logger.info('executing job in simpleworker')
-        print('executing job in simpleworker')
-	return self.perform_job(*args, **kwargs)
+        return self.perform_job(*args, **kwargs)
