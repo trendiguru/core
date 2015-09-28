@@ -179,6 +179,8 @@ def search_existing_images(page_url):
     return ex_list
 
 
+# TODO: 1. swimwear, gender
+
 # ----------------------------------------------MAIN-FUNCTIONS----------------------------------------------------------
 
 
