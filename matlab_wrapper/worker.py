@@ -146,43 +146,43 @@ class Worker(object):
 #RejectedExecutionError
 ################################################################
 	# max_matlab_)engines should go in contsatns.py for instance but i am not looking for trouble right now
- 	r = redis.StrictRedis(host='localhost', port=6379, db=0)
-	max_matlab_engines = 6   #need a way to accurately count running engines
-	try:
-	    n_running_engines = int(r.get('n_matlab_engines'))  #for some reason this is coming out as a string leading to the interesting behavior that '5'>7
+ 	#r = redis.StrictRedis(host='localhost', port=6379, db=0)
+	#max_matlab_engines = 6   #need a way to accurately count running engines
+	#try:
+	#    n_running_engines = int(r.get('n_matlab_engines'))  #for some reason this is coming out as a string leading to the interesting behavior that '5'>7
 	   # n_running_engines = 0
-	    if n_running_engines is None:
-                logger.info('no running engines found')
-	        r.set('n_matlab_engines',0)
-	        n_running_engines = 0
-	    else:
-        	logger.info('{0} running engines found'.format(n_running_engines))
-	except:
-            logger.info('exception trying to get number_engines')
-	    r.set('n_matlab_engines',0)
-	    n_running_engines = 0
-        logger.info('{0} max engines, {1} running'.format(max_matlab_engines,n_running_engines))
-	if n_running_engines<max_matlab_engines:
-            logger.info('attempting to start engine')
+	#    if n_running_engines is None:
+        #        logger.info('no running engines found')
+	#        r.set('n_matlab_engines',0)
+	#        n_running_engines = 0
+	#    else:
+       # 	logger.info('{0} running engines found'.format(n_running_engines))
+	#except:
+        ##    logger.info('exception trying to get number_engines')
+	#    r.set('n_matlab_engines',0)
+	#    n_running_engines = 0
+        #logger.info('{0} max engines, {1} running'.format(max_matlab_engines,n_running_engines))
+	#if n_running_engines<max_matlab_engines:
+        logger.info('attempting to start engine')
 #	    eng = matlab.engine.start_matlab("-nodisplay")
-	    mystr = "-nodesktop"
+	 #   mystr = "-nodesktop"
 #	    eng = matlab.engine.start_matlab(mystr)
-	    eng = matlab.engine.start_matlab()
-	    engine_name = eng.engineName
-            logger.info('new engine name:'+str(engine_name)+' and string:'+str(eng))
-   	    eng.shareEngine
-	    engine_name = eng.engineName
-            logger.info('shared engine name:'+str(engine_name))
+	eng = matlab.engine.start_matlab()
+        engine_name = eng.engineName
+        logger.info('new engine name:'+str(engine_name)+' and string:'+str(eng))
+   	#    eng.shareEngine
+	#    engine_name = eng.engineName
+        #    logger.info('shared engine name:'+str(engine_name))
 #http://www.mathworks.com/help/matlab/ref/matlab.engine.sharengine.html
 	    #eng.shareEngine('eng')
-	    self.matlab_engine = eng
-	    a=eng.factorial(5)
-	    logger.info('test using engine:5! ='+str(a))
+	self.matlab_engine = eng
+	a=eng.factorial(5)
+	logger.info('test using engine:5! ='+str(a))
 #	    r.set('matlab_engine_number_'+str(n_running_engines+1),eng)
-	    r.set('matlab_engine',eng)
-	    n_running_engines=int(n_running_engines)+1
-            logger.info('got engine '+str(eng)+' ,there are now '+str(n_running_engines))
-	    r.set('n_matlab_engines',n_running_engines)	
+#	    r.set('matlab_engine',eng)#
+#	    n_running_engines=int(n_running_engines)+1
+ #           logger.info('got engine '+str(eng)+' ,there are now '+str(n_running_engines))
+#	    r.set('n_matlab_engines',n_running_engines)	
 #	if hasattr(self, 'ml_engine'):
 ###########################################################################
 #end jeremy hack
@@ -557,6 +557,11 @@ class Worker(object):
 #more of jeremys madness
 ##############
 #        child_pid = os.fork()
+
+#        new_args = args+(self.matlab_engine,)
+#        print('new args from worker:'+str(new_args))
+#1111111        return self.perform_job(*args, **kwargs)
+
 	child_pid = 0  #force child (horse) to ride then do parent
         if child_pid == 0:
             self.main_work_horse(job)
@@ -670,8 +675,7 @@ class Worker(object):
                 self.handle_exception(job, *sys.exc_info())
                 return False
 
-        if rv is None:
-            self.log.info('Job OK')
+        if rv is None:            self.log.info('Job OK')
         else:
             self.log.info('Job OK, result = {0!r}'.format(yellow(text_type(rv))))
 
@@ -753,4 +757,6 @@ class SimpleWorker(Worker):
 
     def execute_job(self, *args, **kwargs):
         """Execute job in same thread/process, do not fork()"""
-        return self.perform_job(*args, **kwargs)
+        logger.info('executing job in simpleworker')
+        print('executing job in simpleworker')
+	return self.perform_job(*args, **kwargs)

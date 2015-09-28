@@ -1,10 +1,10 @@
 import redis
-from rq import Connection, Queue, Worker
+from rq import Connection, Queue, Worker, SimpleWorker
 import sys
 import matlab.engine
 import redis
 from redis import Redis
-
+import time
 #redis_conn = Redis()
 #q = Queue('pd', connection=redis_conn)
 # Tell RQ what Redis connection to use
@@ -26,7 +26,7 @@ def my_enqueue(a,b):
 #matlab.engine.isEngineShared
     eng = None
     engines=matlab.engine.find_matlab()	#Find shared MATLAB sessions to connect to MATLAB Engine for Python
-    print('engine names:'+str(engines))
+#    print('engine names:'+str(engines))
 
     if(0):
         print('attempting to queue')
@@ -64,7 +64,7 @@ def my_enqueue(a,b):
             print('matlab thinks 6!='+str(test))
             job = q.enqueue(my_function,a,b)
             tryagain=False
-#        except MatlabExecutionError:
+#        except MatlanxecutionError:
 #            print('ML execution error after enqueuing function')
 #            tryagain = False
 #        except EngineError:
@@ -74,17 +74,26 @@ def my_enqueue(a,b):
             eng = matlab.engine.connect_matlab(engines[n])
             tryagain=True
 
+#    queue = Queue(connection=Redis())
+#    queue.enqueue(my_long_running_job)
+#    worker = Worker
+#    sworker = SimpleWorker
+#    sworker.work
     job = q.enqueue(my_function,a,b)
     print('job result:'+str(job.result))
+    while job.result is None:
+        time.sleep(1)
+        print('job result:'+str(job.result))
+
     return job.result
 
-def my_function(a=2,b=3, eng=None):
+def my_function(a,b, eng):
     print('starting queue function')
 
 #    if eng is None:
-#        print('got no engine so starting on my own')
+#        print('got no engine so  on my own')
 #        eng = matlab.engine.start_matlab('-nodesktop')
-    print('running function')
+    print('running  with eng '+str(eng))
 #    return('hi')
     return eng.factorial(a+b)
 
