@@ -492,15 +492,19 @@ class Worker(object):
         SIGALRM.
         """
         #child_pid = os.fork()
-	child_pid = 0
-        if child_pid == 0:
-            self.main_work_horse(job)
-	if 0:
-	    pass
+        self.main_work_horse(job)
+        child_pid = os.fork()
+	if child_pid == 0:
+	    print('fake function')
         else:
+	    #jeremy in
+#	    child_pid = os.getpid
+#	    child_pid = 0
+	    #jeremy out
             self._horse_pid = child_pid
             self.procline('Forked {0} at {0}'.format(child_pid, time.time()))
             while True:
+    	        print('parent function')
                 try:
                     self.set_state('busy')
                     os.waitpid(child_pid, 0)
@@ -537,8 +541,10 @@ class Worker(object):
 
         # os._exit() is the way to exit from childs after a fork(), in
         # constrast to the regular sys.exit()
-        os._exit(int(not success))
 
+#jeremy takes out exit
+#        os._exit(int(not success))
+#jeremy
     def prepare_job_execution(self, job):
         """Performs misc bookkeeping like updating states prior to
         job execution.
