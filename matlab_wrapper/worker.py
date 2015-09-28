@@ -135,6 +135,7 @@ class Worker(object):
     def __init__(self, queues, name=None,
                  default_result_ttl=None, connection=None, exc_handler=None,
                  exception_handlers=None, default_worker_ttl=None, job_class=None):  # noqa
+        logger.info('entering __init__')
         if connection is None:
             connection = get_current_connection()
         self.connection = connection
@@ -146,9 +147,10 @@ class Worker(object):
 ################################################################
 	# max_matlab_)engines should go in contsatns.py for instance but i am not looking for trouble right now
  	r = redis.StrictRedis(host='localhost', port=6379, db=0)
-	max_matlab_engines = 5   #need a way to accurately count running engines
+	max_matlab_engines = 6   #need a way to accurately count running engines
 	try:
 	    n_running_engines = int(r.get('n_matlab_engines'))  #for some reason this is coming out as a string leading to the interesting behavior that '5'>7
+	   # n_running_engines = 0
 	    if n_running_engines is None:
                 logger.info('no running engines found')
 	        r.set('n_matlab_engines',0)
@@ -160,7 +162,7 @@ class Worker(object):
 	    r.set('n_matlab_engines',0)
 	    n_running_engines = 0
         logger.info('{0} max engines, {1} running'.format(max_matlab_engines,n_running_engines))
-	while n_running_engines<max_matlab_engines:
+	if n_running_engines<max_matlab_engines:
             logger.info('attempting to start engine')
 #	    eng = matlab.engine.start_matlab("-nodisplay")
 	    mystr = "-nodesktop"
@@ -174,6 +176,8 @@ class Worker(object):
 #http://www.mathworks.com/help/matlab/ref/matlab.engine.sharengine.html
 	    #eng.shareEngine('eng')
 	    self.matlab_engine = eng
+	    a=eng.factorial(5)
+	    logger.info('test using engine:5! ='+str(a))
 #	    r.set('matlab_engine_number_'+str(n_running_engines+1),eng)
 	    r.set('matlab_engine',eng)
 	    n_running_engines=int(n_running_engines)+1
@@ -184,6 +188,7 @@ class Worker(object):
 #end jeremy hack
 ##########################################################################3
 
+        logger.info('finished attempt to start engine')
 	queues = [self.queue_class(name=q) if isinstance(q, text_type) else q
                   for q in ensure_list(queues)]
         self._name = name
@@ -227,6 +232,7 @@ class Worker(object):
             if isinstance(job_class, string_types):
                 job_class = import_attribute(job_class)
             self.job_class = job_class
+        logger.info('exiting __init__')
 
     def validate_queues(self):
         """Sanity check for the given queues."""
@@ -547,12 +553,20 @@ class Worker(object):
         within the given timeout bounds, or will end the work horse with
         SIGALRM.
         """
-        child_pid = os.fork()
+#############
+#more of jeremys madness
+##############
+#        child_pid = os.fork()
+	child_pid = 0  #force child (horse) to ride then do parent
         if child_pid == 0:
             self.main_work_horse(job)
-        else:
+	if 0:
+	    pass
+ 	else:
             self._horse_pid = child_pid
             self.procline('Forked {0} at {0}'.format(child_pid, time.time()))
+#            self.log.info('Job result = {0!r}'.format(yellow(text_type(job._result))))
+            print('Job result in parent = {0!r}'.format(yellow(text_type(job._result))))
             while True:
                 try:
                     self.set_state('busy')
@@ -621,7 +635,8 @@ class Worker(object):
 
             try:
                 with self.death_penalty_class(job.timeout or self.queue_class.DEFAULT_TIMEOUT):
-                    rv = job.perform()
+                    rv = job.perform(self.matlab_engine)
+                    #rv = job.perform()
 
                 # Pickle the result in the same try-except block since we need
                 # to use the same exc handling when pickling fails

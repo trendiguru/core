@@ -487,7 +487,7 @@ class Job(object):
         connection.delete(self.key)
 
     # Job execution
-    def perform(self,matlab_engine):  # noqa
+    def perform(self,matlab_engine=None):  # noqa
         """Invokes the job function with the job arguments."""
         self.connection.persist(self.key)
         self.ttl = -1
@@ -497,8 +497,16 @@ class Job(object):
 #	    logger = logging.getLogger(__name__)#
 #	    logger.warning("testing log")
 	    print('ml engine in job.perform:'+str(matlab_engine))
+	    print('args:'+str(self.args))
+	    print('kwargs:'+str(self.kwargs))
+	    print('func:'+str(self.func))
+	    print('mle:'+str(matlab_engine))
+	    print('test mle: 6! = '+str(matlab_engine.factorial(6)))
+	    new_args = self.args+(matlab_engine,)
+	    print('new args:'+str(new_args))
+            self._result = self.func(*new_args, **self.kwargs)
 ##############################
-            self._result = self.func(*self.args, **self.kwargs)
+#           self._result = self.func(*self.args, **self.kwargs)
         finally:
             assert self.id == _job_stack.pop()
         return self._result

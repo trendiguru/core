@@ -56,7 +56,7 @@ def my_enqueue(a,b):
     tryagain = True
     n=0
     print('len:'+str(len(engines)))
-    while(tryagain is True and n<len(engines)):
+    while(tryagain is True and n<len(engines) and 0):
         try:
             print('connecting to engine:'+str(engines[n]))
             eng = matlab.engine.connect_matlab(engines[n])
@@ -74,18 +74,19 @@ def my_enqueue(a,b):
             eng = matlab.engine.connect_matlab(engines[n])
             tryagain=True
 
-    print('result:'+str(job.result))
+    job = q.enqueue(my_function,a,b)
+    print('job result:'+str(job.result))
     return job.result
 
-def my_function(a=2,b=3):
+def my_function(a=2,b=3, eng=None):
     print('starting queue function')
 
 #    if eng is None:
 #        print('got no engine so starting on my own')
 #        eng = matlab.engine.start_matlab('-nodesktop')
     print('running function')
-    return('hi')
-#    return eng.factorial(a+b)
+#    return('hi')
+    return eng.factorial(a+b)
 
 if __name__ == '__main__':
     # Tell rq what Redis connection to use
