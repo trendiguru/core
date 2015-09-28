@@ -413,10 +413,22 @@ def load_similar_results(sparse, projection_dict):
 def is_image_relevant(image_url):
     if image_url is not None:
         query = {"image_urls": image_url}
-        image_dict = db.images.find_one(query, {'relevant': 1})
-        return bool(image_dict and image_dict.get("relevant") and image_dict.get("items")>0)
+        image_dict = db.images.find_one(query, {'relevant': 1, 'people.items.similar_results': 1})
+        return has_items(image_dict)
     else:
         return False
+
+
+def has_items(image_dict):
+    res = False
+    # Easier to ask forgiveness than permission
+    # http://stackoverflow.com/questions/1835756/using-try-vs-if-in-python
+    try:
+        res = len(image_dict["people"][0]["items"]) > 0
+    except:
+        pass
+    return res
+
 
 def get_data_for_specific_image(image_url=None, image_hash=None, image_projection=None, product_projection=None,
                                 max_results=20):

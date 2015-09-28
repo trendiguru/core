@@ -32,7 +32,7 @@ from .utils import (ensure_list, enum, import_attribute, make_colorizer,
 from .version import VERSION
 
 #jeremy's imports
-#import matlab.engine
+import matlab.engine
 import redis
 import logging
 my_logger = logging.getLogger('MyLogger')
@@ -131,7 +131,7 @@ class Worker(object):
                              for queue in queues.split(',')]
         return worker
 
-    #modify this to start a ml engine
+#modify this to start a ml engine
     def __init__(self, queues, name=None,
                  default_result_ttl=None, connection=None, exc_handler=None,
                  exception_handlers=None, default_worker_ttl=None, job_class=None):  # noqa
@@ -139,56 +139,52 @@ class Worker(object):
             connection = get_current_connection()
         self.connection = connection
 
-        ############################################################
-        #begin jeremy hack to get engines running  8.9.15
-        # not add try / except for this:
-        #RejectedExecutionError
-        ################################################################
-        # max_matlab_)engines should go in contsatns.py for instance but i am not looking for trouble right now
-        r = redis.StrictRedis(host='localhost', port=6379, db=0)
-        max_matlab_engines = 7   #need a way to accurately count running engines
-        logger.info('max_engines={0}'.format(max_matlab_engines))
-        try:
-            n_running_engines = int(r.get('n_matlab_engines'))  #for some reason this is coming out as a string leading to the interesting behavior that '5'>7
-            if n_running_engines is None:
+############################################################
+#begin jeremy hack to get engines running  8.9.15
+# not add try / except for this:
+#RejectedExecutionError
+################################################################
+	# max_matlab_)engines should go in contsatns.py for instance but i am not looking for trouble right now
+ 	r = redis.StrictRedis(host='localhost', port=6379, db=0)
+	max_matlab_engines = 5   #need a way to accurately count running engines
+	try:
+	    n_running_engines = int(r.get('n_matlab_engines'))  #for some reason this is coming out as a string leading to the interesting behavior that '5'>7
+	    if n_running_engines is None:
                 logger.info('no running engines found')
-                r.set('n_matlab_engines',0)
-                n_running_engines = 0
-            else:
-                logger.info('{0} running engines found'.format(n_running_engines))
-        except:
+	        r.set('n_matlab_engines',0)
+	        n_running_engines = 0
+	    else:
+        	logger.info('{0} running engines found'.format(n_running_engines))
+	except:
             logger.info('exception trying to get number_engines')
-            r.set('n_matlab_engines',0)
-            n_running_engines = 0
-        logger.info('{0} running engines found'.format(n_running_engines))
-        n_max_engines = r.get('n_max_matlab_engines')
-        if n_max_engines is None:
-            logger.info('exception trying to get n_max_engines')
-            r.set('n_max_matlab_engines',max_matlab_engines)
-        else:
-            logger.info('there is an engine out there:'+str(r.get('matlab_engine')))
-
+	    r.set('n_matlab_engines',0)
+	    n_running_engines = 0
         logger.info('{0} max engines, {1} running'.format(max_matlab_engines,n_running_engines))
-        logger.info('{0} <? {1} {2} '.format(n_running_engines,max_matlab_engines,n_running_engines<max_matlab_engines))
-        while n_running_engines<max_matlab_engines:
+	while n_running_engines<max_matlab_engines:
             logger.info('attempting to start engine')
-            import matlab.engine
-            #	    eng = matlab.engine.start_matlab("-nodisplay")
-            mystr = "-nodesktop"
-            #	    eng = matlab.engine.start_matlab(mystr)
-            eng = matlab.engine.start_matlab()
-            self.matlab_engine = eng
-            #	    r.set('matlab_engine_number_'+str(n_running_engines+1),eng)
-            r.set('matlab_engine',eng)
-            logger.info('got engine '+str(eng))
-            n_running_engines=int(n_running_engines)+1
-            r.set('n_matlab_engines',n_running_engines)
-        #	if hasattr(self, 'ml_engine'):
-        ###########################################################################
-        #end jeremy hack
-        ##########################################################################3
+#	    eng = matlab.engine.start_matlab("-nodisplay")
+	    mystr = "-nodesktop"
+#	    eng = matlab.engine.start_matlab(mystr)
+	    eng = matlab.engine.start_matlab()
+	    engine_name = eng.engineName
+            logger.info('new engine name:'+str(engine_name)+' and string:'+str(eng))
+   	    eng.shareEngine
+	    engine_name = eng.engineName
+            logger.info('shared engine name:'+str(engine_name))
+#http://www.mathworks.com/help/matlab/ref/matlab.engine.sharengine.html
+	    #eng.shareEngine('eng')
+	    self.matlab_engine = eng
+#	    r.set('matlab_engine_number_'+str(n_running_engines+1),eng)
+	    r.set('matlab_engine',eng)
+	    n_running_engines=int(n_running_engines)+1
+            logger.info('got engine '+str(eng)+' ,there are now '+str(n_running_engines))
+	    r.set('n_matlab_engines',n_running_engines)	
+#	if hasattr(self, 'ml_engine'):
+###########################################################################
+#end jeremy hack
+##########################################################################3
 
-        queues = [self.queue_class(name=q) if isinstance(q, text_type) else q
+	queues = [self.queue_class(name=q) if isinstance(q, text_type) else q
                   for q in ensure_list(queues)]
         self._name = name
         self.queues = queues
@@ -682,7 +678,7 @@ class Worker(object):
             'arguments': job.args,
             'kwargs': job.kwargs,
             'queue': job.origin,
-            })
+        })
 
         for handler in reversed(self._exc_handlers):
             self.log.debug('Invoking exception handler {0}'.format(handler))

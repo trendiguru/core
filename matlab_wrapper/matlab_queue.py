@@ -11,38 +11,81 @@ from redis import Redis
 
 
 
-def my_enqueue(a,b):
-    print('attempting to queue')
+def zero_engines():
     r = redis.StrictRedis(host='localhost', port=6379, db=0)
-    try:
-        n_running_engines = r.get('n_matlab_engines')
-        if n_running_engines is None:
-            print('got no # engines')
+    r.set('n_matlab_engines',0)
+
+
+def my_enqueue(a,b):
+    #names = matlab.engine.find_matlabmatlab.engine.shareEngine('Engine_1');
+#    matlab.engine.start_matlab	Start MATLAB Engine for Python
+#    x=matlab.engine.connect_matlab()
+#    print('x:'+str(x))
+#matlab.engine.shareEngine	Convert running MATLAB session to shared session
+#matlab.engine.engineName	Return name of shared MATLAB session
+#matlab.engine.isEngineShared
+    eng = None
+    engines=matlab.engine.find_matlab()	#Find shared MATLAB sessions to connect to MATLAB Engine for Python
+    print('engine names:'+str(engines))
+
+    if(0):
+        print('attempting to queue')
+        r = redis.StrictRedis(host='localhost', port=6379, db=0)
+        try:
+            n_running_engines = r.get('n_matlab_engines')
+            if n_running_engines is None:
+                print('got no # engines')
+                r.set('n_matlab_engines',0)
+                n_running_engines = 0
+
+            else:
+                print('got '+str(n_running_engines)+' engines')
+
+        except:
             r.set('n_matlab_engines',0)
             n_running_engines = 0
 
-        else:
-            print('got '+str(n_running_engines)+' engines')
+        if(n_running_engines>0):
+            eng = r.get('matlab_engine')
+            print('got engine '+str(eng))
 
-    except:
-        r.set('n_matlab_engines',0)
-        n_running_engines = 0
-
-    if(n_running_engines>0):
-        eng = r.get('matlab_engine')
-        print('got engine '+str(eng))
     redis_conn = Redis()
     q = Queue(connection=redis_conn)
 #    job = q.enqueue('self.matlab_engine.factorial',a,b)
-    job = q.enqueue(my_function,a,b,eng)
+    print('enqueuing function')
+    tryagain = True
+    n=0
+    print('len:'+str(len(engines)))
+    while(tryagain is True and n<len(engines)):
+        try:
+            print('connecting to engine:'+str(engines[n]))
+            eng = matlab.engine.connect_matlab(engines[n])
+            test = eng.factorial(6)
+            print('matlab thinks 6!='+str(test))
+            job = q.enqueue(my_function,a,b)
+            tryagain=False
+#        except MatlabExecutionError:
+#            print('ML execution error after enqueuing function')
+#            tryagain = False
+#        except EngineError:
+        except:
+            print('caught exception')
+            n=n+1
+            eng = matlab.engine.connect_matlab(engines[n])
+            tryagain=True
+
+    print('result:'+str(job.result))
     return job.result
 
-def my_function(a=2,b=3,eng=None):
-    if eng is None:
-        print('got no engine so starting on my own')
-        eng = matlab.engine.start_matlab('-nodesktop')
+def my_function(a=2,b=3):
+    print('starting queue function')
+
+#    if eng is None:
+#        print('got no engine so starting on my own')
+#        eng = matlab.engine.start_matlab('-nodesktop')
     print('running function')
-    return eng.factorial(a+b)
+    return('hi')
+#    return eng.factorial(a+b)
 
 if __name__ == '__main__':
     # Tell rq what Redis connection to use
