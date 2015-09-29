@@ -30,29 +30,31 @@ from .version import VERSION
 
 from .worker import Worker
 
+import matlab.engine
+
 
 green = make_colorizer('darkgreen')
 yellow = make_colorizer('darkyellow')
 blue = make_colorizer('darkblue')
 
 
-class TgWorker2(Worker):
+class TgWorker(Worker):
     def dont_do__init__(self, queues, name=None,
                  default_result_ttl=None, connection=None,
                  exc_handler=None, default_worker_ttl=None, job_class=None):
-	
-##jr in
-	print('this overrides but doesnt work')
 
-	DEFAULT_WORKER_TTL = 420
-	DEFAULT_RESULT_TTL = 500
-	logger = logging.getLogger(__name__)
+##jr in
+    print('this overrides but doesnt work')
+
+    DEFAULT_WORKER_TTL = 420
+    DEFAULT_RESULT_TTL = 500
+    logger = logging.getLogger(__name__)
 #jr out
         if connection is None:
             connection = get_current_connection()
         self.connection = connection
 
-	print('debug1')
+    print('debug1')
 
         queues = [self.queue_class(name=q) if isinstance(q, text_type) else q
                   for q in ensure_list(queues)]
@@ -60,7 +62,7 @@ class TgWorker2(Worker):
         self.queues = queues
         self.validate_queues()
         self._exc_handlers = []
-	print('debug2')
+    print('debug2')
 
         if default_result_ttl is None:
             default_result_ttl = DEFAULT_RESULT_TTL
@@ -69,7 +71,7 @@ class TgWorker2(Worker):
         if default_worker_ttl is None:
             default_worker_ttl = DEFAULT_WORKER_TTL
         self.default_worker_ttl = default_worker_ttl
-	print('debug3')
+    print('debug3')
 
         self._state = 'starting'
         self._is_horse = False
@@ -80,34 +82,34 @@ class TgWorker2(Worker):
         self.last_cleaned_at = None
         # By default, push the "move-to-failed-queue" exception handler onto
         # the stack
-	print('debug4')
+    print('debug4')
 
-        self.push_exc_handler(self.move_to_failed_queue)
-        if exc_handler is not None:
-            self.push_exc_handler(exc_handler)
+    self.push_exc_handler(self.move_to_failed_queue)
+    if exc_handler is not None:
+        self.push_exc_handler(exc_handler)
 
-        if job_class is not None:
-            if isinstance(job_class, string_types):
-                job_class = import_attribute(job_class)
-            self.job_class = job_class
-	print('debug5')
+    if job_class is not None:
+        if isinstance(job_class, string_types):
+            job_class = import_attribute(job_class)
+        self.job_class = job_class
+    print('debug5')
 
         #JR in
-	print('debug6')
-        import matlab.engine
-        logger.info('attempting to start engine')
-        eng = matlab.engine.start_matlab()
-        engine_name = eng.engineName
-        logger.info('new engine name:'+str(engine_name))
-        a=eng.factorial(5)
-	print('debug7')
+    print('debug6')
+    import matlab.engine
+    logger.info('attempting to start engine')
+    eng = matlab.engine.start_matlab()
+    engine_name = eng.engineName
+    logger.info('new engine name:'+str(engine_name))
+    a=eng.factorial(5)
+    print('debug7')
 
-        logger.info('test using engine:5! ='+str(a))
-        self.matlab_engine = eng
-	print('debug8')
+    logger.info('test using engine:5! ='+str(a))
+    self.matlab_engine = eng
+    print('debug8')
 
-	#JR out
-	
+    #JR out
+
 
 
 
@@ -115,21 +117,20 @@ class TgWorker2(Worker):
         raise NotImplementedError("Test worker does not implement this method")
 
     def execute_job(self, *args, **kwargs):
-	print('executing from tgworker2')
+    print('executing from tgworker2')
         """Execute job in same thread/process, do not fork()"""
-        import matlab.engine
-	DEFAULT_WORKER_TTL = 420
-	DEFAULT_RESULT_TTL = 500
-	logger = logging.getLogger(__name__)
+    DEFAULT_WORKER_TTL = 420
+    DEFAULT_RESULT_TTL = 500
+    logger = logging.getLogger(__name__)
         logger.info('attempting to start engine in ej')
-	if not hasattr(self,'matlab_engine'):
+    if not hasattr(self,'matlab_engine'):
             eng = matlab.engine.start_matlab()
             engine_name = eng.engineName
             logger.info('new engine name:'+str(engine_name))
             a=eng.factorial(8)
             logger.info('test using engine:8! ='+str(a))
             self.matlab_engine = eng
-	print('ej engine:'+str(self.matlab_engine))
+    print('ej engine:'+str(self.matlab_engine))
         return self.perform_job(*args, **kwargs)
 
 
@@ -143,13 +144,13 @@ class TgWorker2(Worker):
             started_job_registry = StartedJobRegistry(job.origin, self.connection)
 
             try:
-		print('perform_job in sw')
-		job.matlab_engine = self.matlab_engine
-		print('pj engine:'+str(self.matlab_engine))
-		print('pj args,kwargs:'+str(job._args)+','+str(job._kwargs))
-        	new_args = job._args+(self.matlab_engine,)
-	        print('pj  new args:'+str(new_args))
-		job._args = new_args
+        print('perform_job in sw')
+        job.matlab_engine = self.matlab_engine
+        print('pj engine:'+str(self.matlab_engine))
+        print('pj args,kwargs:'+str(job._args)+','+str(job._kwargs))
+            new_args = job._args+(self.matlab_engine,)
+            print('pj  new args:'+str(new_args))
+        job._args = new_args
 
                 with self.death_penalty_class(job.timeout or self.queue_class.DEFAULT_TIMEOUT):
                     rv = job.perform()
