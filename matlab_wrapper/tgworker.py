@@ -36,7 +36,7 @@ yellow = make_colorizer('darkyellow')
 blue = make_colorizer('darkblue')
 
 
-class TgWorker2(Worker):
+class TgWorker(Worker):
     def dont_do__init__(self, queues, name=None,
                  default_result_ttl=None, connection=None,
                  exc_handler=None, default_worker_ttl=None, job_class=None):
