@@ -428,6 +428,8 @@ class Worker(object):
                     break
 
                 job, queue = result
+	        self.log.info("worker.work args {0} kwargs{1}".format(str(job._args),str(job._kwargs)))
+#		print('in worker.work, job args and kwargs are:'+str(job._args)+','+str(job._kwargs))
                 self.execute_job(job)
                 self.heartbeat()
 
@@ -686,5 +688,77 @@ class SimpleWorker(Worker):
         raise NotImplementedError("Test worker does not implement this method")
 
     def execute_job(self, *args, **kwargs):
-        """Execute job in same thread/process, do not fork()"""
         return self.perform_job(*args, **kwargs)
+
+
+class TgWorker(Worker):
+    def main_work_horse(self, *args, **kwargs):
+        raise NotImplementedError("Test worker does not implement this method")
+
+    def execute_job(self, *args, **kwargs):
+	print('executing from simpleworker')
+        """Execute job in same thread/process, do not fork()"""
+	print('sw engine in simpleworker:'+str(self.matlab_engine))
+        return self.perform_job(*args, **kwargs)
+
+
+    def perform_job(self, job):
+        """Performs the actual work of a job.  Will/should only be called
+        inside the work horse's process.
+        """
+        self.prepare_job_execution(job)
+
+        with self.connection._pipeline() as pipeline:
+            started_job_registry = StartedJobRegistry(job.origin, self.connection)
+
+            try:
+		print('perform_job in sw')
+		job.matlab_engine = self.matlab_engine
+		print('pj engine:'+str(self.matlab_engine))
+		print('pj args,kwargs:'+str(job._args)+','+str(job._kwargs))
+        	new_args = job._args+(self.matlab_engine,)
+	        print('pj  new args:'+str(new_args))
+		job._args = new_args
+
+                with self.death_penalty_class(job.timeout or self.queue_class.DEFAULT_TIMEOUT):
+                    rv = job.perform()
+                # Pickle the result in the same try-except block since we need
+                # to use the same exc handling when pickling fails
+                job._result = rv
+
+                self.set_current_job_id(None, pipeline=pipeline)
+
+                result_ttl = job.get_result_ttl(self.default_result_ttl)
+                if result_ttl != 0:
+                    job.ended_at = utcnow()
+                    job._status = JobStatus.FINISHED
+                    job.save(pipeline=pipeline)
+
+                    finished_job_registry = FinishedJobRegistry(job.origin, self.connection)
+                    finished_job_registry.add(job, result_ttl, pipeline)
+
+                job.cleanup(result_ttl, pipeline=pipeline)
+                started_job_registry.remove(job, pipeline=pipeline)
+
+                pipeline.execute()
+
+            except Exception:
+                job.set_status(JobStatus.FAILED, pipeline=pipeline)
+                started_job_registry.remove(job, pipeline=pipeline)
+                pipeline.execute()
+                self.handle_exception(job, *sys.exc_info())
+                return False
+
+        if rv is None:
+            self.log.info('Job OK')
+        else:
+            self.log.info('Job OK, result = {0!r}'.format(yellow(text_type(rv))))
+
+        if result_ttl == 0:
+            self.log.info('Result discarded immediately')
+        elif result_ttl > 0:
+            self.log.info('Result is kept for {0} seconds'.format(result_ttl))
+        else:
+            self.log.warning('Result will never expire, clean up result key manually')
+
+        return True

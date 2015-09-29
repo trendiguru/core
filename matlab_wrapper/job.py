@@ -19,7 +19,6 @@ try:
 except ImportError:  # noqa
     import pickle
 
-import logging
 # Serialize pickle dumps using the highest pickle protocol (binary, default
 # uses ascii)
 dumps = partial(pickle.dumps, protocol=pickle.HIGHEST_PROTOCOL)
@@ -487,26 +486,13 @@ class Job(object):
         connection.delete(self.key)
 
     # Job execution
-    def perform(self,matlab_engine=None):  # noqa
+    def perform(self):  # noqa
         """Invokes the job function with the job arguments."""
         self.connection.persist(self.key)
         self.ttl = -1
         _job_stack.push(self.id)
         try:
-######jeremys hacks###########3
-#	    logger = logging.getLogger(__name__)#
-#	    logger.warning("testing log")
-	    print('ml engine in job.perform:'+str(self.matlab_engine))
-	    print('args:'+str(self.args))
-	    print('kwargs:'+str(self.kwargs))
-	    print('func:'+str(self.func))
-	  #  print('mle:'+str(matlab_engine))
-	    print('test mle: 6! = '+str(self.matlab_engine.factorial(6)))
-	    new_args = self.args+(self.matlab_engine,)
-	    print('new damn args:'+str(new_args))
-            self._result = self.func(*new_args, **self.kwargs)
-##############################
-     #       self._result = self.func(*self.args, **self.kwargs)
+            self._result = self.func(*self.args, **self.kwargs)
         finally:
             assert self.id == _job_stack.pop()
         return self._result
