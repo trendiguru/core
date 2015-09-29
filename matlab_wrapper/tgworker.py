@@ -107,11 +107,7 @@ class TgWorker(Worker):
         logger.info('test using engine:5! ='+str(a))
         self.matlab_engine = eng
         print('debug8')
-
     #JR out
-
-
-
 
     def main_work_horse(self, *args, **kwargs):
         raise NotImplementedError("Test worker does not implement this method")
@@ -147,9 +143,14 @@ class TgWorker(Worker):
                 job.matlab_engine = self.matlab_engine
                 print('pj engine:'+str(self.matlab_engine))
                 print('pj args,kwargs:'+str(job._args)+','+str(job._kwargs))
-                new_args = job._args+(self.matlab_engine,)
-                print('pj  new args:'+str(new_args))
-                job._args = new_args
+                if len(job._args) > 0:
+                    new_args = job._args+(self.matlab_engine,)
+                    print('pj  new args:'+str(new_args))
+                    job._args = new_args
+                else if len(job._kwargs) > 0:
+                    new_kwargs = job._kwargs+(self.matlab_engine,)
+                    print('pj  new kwargs:'+str(new_args))
+                    job._kwargs = new_args
 
                 with self.death_penalty_class(job.timeout or self.queue_class.DEFAULT_TIMEOUT):
                     rv = job.perform()
