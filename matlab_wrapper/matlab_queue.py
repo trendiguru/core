@@ -1,3 +1,6 @@
+#THIS IS A TEST THIS IS ONLY A TEST
+#to check whether modifications of rq are working
+
 import redis
 from rq import Connection, Queue, Worker, SimpleWorker
 import sys
@@ -8,6 +11,7 @@ import time
 #redis_conn = Redis()
 #q = Queue('pd', connection=redis_conn)
 # Tell RQ what Redis connection to use
+
 
 
 
