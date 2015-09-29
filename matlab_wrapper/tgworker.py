@@ -117,8 +117,8 @@ class TgWorker(Worker):
         raise NotImplementedError("Test worker does not implement this method")
 
     def execute_job(self, *args, **kwargs):
-        print('executing from tgworker2')
-            """Execute job in same thread/process, do not fork()"""
+        """Execute job in same thread/process, do not fork()"""
+        print('executing from tgworker')
         DEFAULT_WORKER_TTL = 420
         DEFAULT_RESULT_TTL = 500
         logger = logging.getLogger(__name__)
