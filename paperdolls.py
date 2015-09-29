@@ -196,10 +196,11 @@ def start_process(page_url, image_url, async=False):
         image_obj = images.find_one_and_update({'image_hash': image_hash}, {'$push': {"image_urls": image_url}},
                                                return_document=pymongo.ReturnDocument.AFTER)
         if not image_obj:  # doesn't exists with another url
-            image = background_removal.standard_resize(Utils.get_cv2_img_array(image_url), 400)[0]
-            if image is None:
-                logging.warning("There's no image in the url!")
+            image = Utils.get_cv2_img_array(image_url)
+            if not image:
+                logging.warning("Bad image URL !!")
                 return None
+            image = background_removal.standard_resize(image, 400)[0]
             relevance = background_removal.image_is_relevant(image)
             image_dict = {'image_urls': [image_url], 'relevant': relevance.is_relevant,
                           'image_hash': image_hash, 'page_urls': [page_url]}
