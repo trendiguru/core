@@ -11,6 +11,7 @@ __author__ = 'jeremy'
 # has matlab running w. 2opencv3
 #which is currently 'mightili.trendi.guru'
 
+import matlab.engine
 import subprocess
 import numpy as np
 import imghdr
