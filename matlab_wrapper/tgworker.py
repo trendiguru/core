@@ -117,79 +117,82 @@ class TgWorker(Worker):
         raise NotImplementedError("Test worker does not implement this method")
 
     def execute_job(self, *args, **kwargs):
-    print('executing from tgworker2')
-        """Execute job in same thread/process, do not fork()"""
-    DEFAULT_WORKER_TTL = 420
-    DEFAULT_RESULT_TTL = 500
-    logger = logging.getLogger(__name__)
-    logger.info('attempting to start engine in ej')
-    if not hasattr(self,'matlab_engine'):
-        eng = matlab.engine.start_matlab()
-        engine_name = eng.engineName
-        logger.info('new engine name:'+str(engine_name))
-        a=eng.factorial(8)
-        logger.info('test using engine:8! ='+str(a))
-        self.matlab_engine = eng
-        print('ej engine:'+str(self.matlab_engine))
-        return self.perform_job(*args, **kwargs)
+        print('executing from tgworker2')
+            """Execute job in same thread/process, do not fork()"""
+        DEFAULT_WORKER_TTL = 420
+        DEFAULT_RESULT_TTL = 500
+        logger = logging.getLogger(__name__)
+        logger.info('attempting to start engine in ej')
+        if not hasattr(self,'matlab_engine'):
+            eng = matlab.engine.start_matlab()
+            engine_name = eng.engineName
+            logger.info('new engine name:'+str(engine_name))
+            a=eng.factorial(8)
+            logger.info('test using engine:8! ='+str(a))
+            self.matlab_engine = eng
+            print('ej engine:'+str(self.matlab_engine))
+            return self.perform_job(*args, **kwargs)
 
-    def perform_job(self, job):
-        """Performs the actual work of a job.  Will/should only be called
-        inside the work horse's process.
-        """
-        self.prepare_job_execution(job)
+        def perform_job(self, job):
+            """Performs the actual work of a job.  Will/should only be called
+            inside the work horse's process.
+            """
+            self.prepare_job_execution(job)
 
-        with self.connection._pipeline() as pipeline:
-            started_job_registry = StartedJobRegistry(job.origin, self.connection)
+            with self.connection._pipeline() as pipeline:
+                started_job_registry = StartedJobRegistry(job.origin, self.connection)
 
-            try:
-                print('perform_job in sw')
-                job.matlab_engine = self.matlab_engine
-                print('pj engine:'+str(self.matlab_engine))
-                print('pj args,kwargs:'+str(job._args)+','+str(job._kwargs))
-                new_args = job._args+(self.matlab_engine,)
-                print('pj  new args:'+str(new_args))
-                job._args = new_args
+                try:
+                    print('perform_job in sw')
+                    job.matlab_engine = self.matlab_engine
+                    print('pj engine:'+str(self.matlab_engine))
+                    print('pj args,kwargs:'+str(job._args)+','+str(job._kwargs))
+                    new_args = job._args+(self.matlab_engine,)
+                    print('pj  new args:'+str(new_args))
+                    job._args = new_args
 
-                with self.death_penalty_class(job.timeout or self.queue_class.DEFAULT_TIMEOUT):
-                    rv = job.perform()
-        # Pickle the result in the same try-except block since we need
-        # to use the same exc handling when pickling fails
-                job._result = rv
+                    with self.death_penalty_class(job.timeout or self.queue_class.DEFAULT_TIMEOUT):
+                        rv = job.perform()
+            # Pickle the result in the same try-except block since we need
+            # to use the same exc handling when pickling fails
+                    job._result = rv
 
-                self.set_current_job_id(None, pipeline=pipeline)
+                    self.set_current_job_id(None, pipeline=pipeline)
 
-                result_ttl = job.get_result_ttl(self.default_result_ttl)
-                if result_ttl != 0:
-                    job.ended_at = utcnow()
-                    job._status = JobStatus.FINISHED
-                    job.save(pipeline=pipeline)
+                    result_ttl = job.get_result_ttl(self.default_result_ttl)
+                    if result_ttl != 0:
+                        job.ended_at = utcnow()
+                        job._status = JobStatus.FINISHED
+                        job.save(pipeline=pipeline)
 
-                    finished_job_registry = FinishedJobRegistry(job.origin, self.connection)
-                    finished_job_registry.add(job, result_ttl, pipeline)
+                        finished_job_registry = FinishedJobRegistry(job.origin, self.connection)
+                        finished_job_registry.add(job, result_ttl, pipeline)
 
-                job.cleanup(result_ttl, pipeline=pipeline)
-                started_job_registry.remove(job, pipeline=pipeline)
+                    job.cleanup(result_ttl, pipeline=pipeline)
+                    started_job_registry.remove(job, pipeline=pipeline)
 
-                pipeline.execute()
+                    pipeline.execute()
 
-            except Exception:
-                job.set_status(JobStatus.FAILED, pipeline=pipeline)
-                started_job_registry.remove(job, pipeline=pipeline)
-                pipeline.execute()
-                self.handle_exception(job, *sys.exc_info())
-                return False
+                except Exception:
+                    job.set_status(JobStatus.FAILED, pipeline=pipeline)
+                    started_job_registry.remove(job, pipeline=pipeline)
+                    try:
+                        pipeline.execute()
+                    except Exception:
+                        pass
+                    self.handle_exception(job, *sys.exc_info())
+                    return False
 
-        if rv is None:
-            self.log.info('Job OK')
-        else:
-            self.log.info('Job OK, result = {0!r}'.format(yellow(text_type(rv))))
+            if rv is None:
+                self.log.info('Job OK')
+            else:
+                self.log.info('Job OK, result = {0!r}'.format(yellow(text_type(rv))))
 
-        if result_ttl == 0:
-            self.log.info('Result discarded immediately')
-        elif result_ttl > 0:
-            self.log.info('Result is kept for {0} seconds'.format(result_ttl))
-        else:
-            self.log.warning('Result will never expire, clean up result key manually')
+            if result_ttl == 0:
+                self.log.info('Result discarded immediately')
+            elif result_ttl > 0:
+                self.log.info('Result is kept for {0} seconds'.format(result_ttl))
+            else:
+                self.log.warning('Result will never expire, clean up result key manually')
 
-        return True
+            return True
