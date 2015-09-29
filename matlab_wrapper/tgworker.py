@@ -128,7 +128,7 @@ class TgWorker(Worker):
             print('test using engine:8! ='+str(a))
             self.matlab_engine = eng
             print('ej engine:'+str(self.matlab_engine))
-            return self.perform_job(*args, **kwargs)
+        return self.perform_job(*args, **kwargs)
 
     def perform_job(self, job):
         """Performs the actual work of a job.  Will/should only be called
