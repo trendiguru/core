@@ -197,7 +197,7 @@ def start_process(page_url, image_url, async=False):
                                                return_document=pymongo.ReturnDocument.AFTER)
         if not image_obj:  # doesn't exists with another url
             image = Utils.get_cv2_img_array(image_url)
-            if not image:
+            if image is None:
                 logging.warning("Bad image URL !!")
                 return None
             image = background_removal.standard_resize(image, 400)[0]
