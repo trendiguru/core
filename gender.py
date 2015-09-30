@@ -1,9 +1,9 @@
 __author__ = 'jeremy'
 
-import numpy as np
 import logging
 import copy
 
+import numpy as np
 import cv2
 
 import fisherface
@@ -47,11 +47,11 @@ def gender(url_or_path_or_array, threshold=0 ):
     logging.debug(label)
 
     if (label == '0' or label == 0) and confidence > threshold:
-        return ('woman', confidence)
+        return 'woman', confidence
     elif (label == '1' or label == 1) and confidence > threshold:
-        return ('man', confidence)
+        return 'man', confidence
     else:
-        return ('unknown', confidence)
+        return 'unknown', confidence
 
 
 def crop_and_center_face(img_arr, face_cascade=None, eye_cascade=None, x_size=250, y_size=250):
@@ -65,7 +65,7 @@ def crop_and_center_face(img_arr, face_cascade=None, eye_cascade=None, x_size=25
         logging.warning('cant get eye cascade in cropface in gender.py')
 
 #    faces = face_cascade.detectMultiScale(img_arr, 1.3, 5)
-    faces = trendi_guru_modules.background_removal.find_face(img_array, max_num_of_faces=1)
+    faces = trendi_guru_modules.background_removal.find_face(img_arr, max_num_of_faces=1)
     # faces2 = face_cascade.detectMultiScale(gray, scaleFactor=1.1, minNeighbors=3, minSize=(10, 10))
 
     i = 0
@@ -90,23 +90,21 @@ def crop_and_center_face(img_arr, face_cascade=None, eye_cascade=None, x_size=25
                 original_right = [right[0] + x, right[1] + y, right[2], right[3]]
                 lined_up = line_up_eyes(img_arr, original_left, original_right)
                 lined_up_roi = lined_up[0:y_size, 0:x_size]
-       #         cv2.imshow('cropped_lined', lined_up_roi)
+                # cv2.imshow('cropped_lined', lined_up_roi)
                 # cv2.waitKey(0)
-                #         cv2.destroyAllWindows()
-                dst = copy.copy(lined_up_roi)  #   rotated.copy.deepcopy()
+                # cv2.destroyAllWindows()
+                dst = copy.copy(lined_up_roi)  # rotated.copy.deepcopy()
                 return dst
             if i == 0:
                 cropped = img_arr[y:y + h, x:x + w]
                 first_eyes = eyes
-
-  #          for (ex, ey, ew, eh) in eyes:
+                # for (ex, ey, ew, eh) in eyes:
                 # cv2.rectangle(roi_color, (ex, ey), (ex + ew, ey + eh), (0, 255, 0), 2)
             i += 1
 
-        #no set of two eyes found so just return as is
+        # no set of two eyes found so just return as is
         dst = copy.copy(cropped)  # rotated.copy.deepcopy()
         return dst
-
 
     else:
         return img_arr
@@ -120,7 +118,6 @@ def line_up_eyes(img_arr, left_eye_box, right_eye_box, expected_left_eye_center=
                    left_eye_box[1] + int(float(left_eye_box[3]) / 2.0)]
     center_right = [right_eye_box[0] + int(float(right_eye_box[2]) / 2.0),
                     right_eye_box[1] + int(float(right_eye_box[3]) / 2.0)]
-
 
     # translation of left eye
     logging.debug('l.eye:' + str(left_eye_box) + ' center:' + str(center_left))
@@ -139,8 +136,8 @@ def line_up_eyes(img_arr, left_eye_box, right_eye_box, expected_left_eye_center=
     logging.debug('M:' + str(M) + ' colsXrows:' + str(cols) + ',' + str(rows))
     xlated = cv2.warpAffine(img_arr, M, (cols, rows))
 
-  #  cv2.imshow('orig', img_arr)
-  #  cv2.imshow('xlated', xlated)
+    # cv2.imshow('orig', img_arr)
+    # cv2.imshow('xlated', xlated)
     # cv2.waitKey(0)
     #  cv2.destroyAllWindows()
 
@@ -158,11 +155,11 @@ def line_up_eyes(img_arr, left_eye_box, right_eye_box, expected_left_eye_center=
     logging.debug('theta:' + str(theta) + ' deg:' + str(theta_degrees) + ' M:' + str(M))
 
     rotated = cv2.warpAffine(xlated, M, (cols, rows))
-   # cv2.imshow('rot', rotated)
-   # cv2.waitKey(0)
+    # cv2.imshow('rot', rotated)
+    # cv2.waitKey(0)
     # cv2.destroyAllWindows()
 
-    #   if ( not rotated.isContinuous() ):
+    # if ( not rotated.isContinuous() ):
     return rotated
 
 #    dst = copy.deep  copy(rotated)#   rotated.copy.deepcopy()

@@ -3,22 +3,16 @@ __author__ = 'jeremy'
 import warnings
 import os
 import collections
-import numpy as np
 import re
 import time
 import logging
 
+import numpy as np
 import cv2
 
-
-# import trendi_guru_modules.constants as constants
-#import trendi_guru_modules.Utils as Utils
 import constants
 import Utils
 
-
-
-# what is going on why is the server thinking this change didnt happen oh git me
 
 CASCADE = "face.xml"
 SAMPLES_DIREC = "samples"
