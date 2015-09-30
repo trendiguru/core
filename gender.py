@@ -45,9 +45,9 @@ def gender(url_or_path_or_array, threshold=0 ):
 
 def crop_and_center_face(img_arr, face_cascade=None, eye_cascade=None, x_size=250, y_size=250):
     if not face_cascade:
-        face_cascade = cv2.CascadeClassifier('haarcascade_frontalface_default.xml')
+        face_cascade = cv2.CascadeClassifier(constants.classifiers_folder + '/haarcascade_frontalface_default.xml')
     if not eye_cascade:
-        eye_cascade = cv2.CascadeClassifier('haarcascade_eye.xml')
+        eye_cascade = cv2.CascadeClassifier(constants.classifiers_folder + '/haarcascade_eye.xml')
     if not face_cascade:
         logging.warning('cant get face cascade in cropface in gender.py')
     if not eye_cascade:
