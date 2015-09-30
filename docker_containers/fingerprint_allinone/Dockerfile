@@ -1,3 +1,8 @@
+#TODO
+#it would be nice to look for our git files and link to them if they exist, the point being to
+#allow for recent updates of our code - the code in the docker container may be stale
+#actually i guess this can be simply remedied by a git pull from the container
+
 #fingerprint_allinone - single dockerfile for:
 #pip , ipython, numpy
 #opencv3
@@ -246,5 +251,7 @@ RUN apt-get -y --force-yes  install nano
 USER developer
 RUN whoami
 RUN git clone --verbose git@bitbucket.org:trendiGuru/core.git
+
+#mongobd port forward
 CMD ssh -i /.ssh/first_aws.pem -L 27017:localhost:27017 ubuntu@extremeli.trendi.guru && /bin/bash
 
