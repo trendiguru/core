@@ -10,16 +10,9 @@ import logging
 import numpy as np
 import cv2
 
+import constants
+import Utils
 
-
-# import trendi_guru_modules.constants as constants
-#import trendi_guru_modules.Utils as Utils
-from trendi_guru_modules import constants
-from trendi_guru_modules import Utils
-
-
-
-# what is going on why is the server thinking this change didnt happen oh git me
 
 CASCADE = "face.xml"
 SAMPLES_DIREC = "samples"
