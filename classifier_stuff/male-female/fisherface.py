@@ -3,18 +3,19 @@ __author__ = 'jeremy'
 import warnings
 import os
 import collections
-import numpy as np
 import re
 import time
 import logging
 
+import numpy as np
 import cv2
+
 
 
 # import trendi_guru_modules.constants as constants
 #import trendi_guru_modules.Utils as Utils
-import constants
-import Utils
+from trendi_guru_modules import constants
+from trendi_guru_modules import Utils
 
 
 
