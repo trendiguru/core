@@ -17,35 +17,23 @@ def gender(url_or_path_or_array, threshold=0 ):
     f.load("faces20155727.2157.xml")  # 2500 faces
 
     img_arr = Utils.get_cv2_img_array(url_or_path_or_array)
-    img_arr = cv2.cvtColor(img_arr, constants.BGR2GRAYCONST)
+    gray = cv2.cvtColor(img_arr, constants.BGR2GRAYCONST)
     if img_arr is None:
         logging.warning('no img found in gender.py')
         return None
-        # cv2.imshow('orig', img_arr)
-    #    cv2.waitKey(0)
-    #    cv2.destroyAllWindows()
+
     cropped = crop_and_center_face(img_arr)
     if cropped is None:
         logging.warning('no img returned from crop_and_center')
-        cropped = img_arr
-    # cv2.imshow('cropped', cropped)
-    #   cv2.waitKey(0)
-    #   cv2.destroyAllWindows()
+        cropped = gray
 
     if not (cropped.shape[0] == f.imageSize[0] and cropped.shape[1] == f.imageSize[1]):
         logging.debug('resizing ' + str(cropped.shape[:2]) + ' to expected imagesize' + str(f.imageSize))
         w = f.imageSize[0]
         h = f.imageSize[1]
         cropped = cv2.resize(cropped, (w, h))
-    # cv2img = cv2.cvtColor(cropped, constants.BGR2GRAYCONST)
     logging.debug('cropped final size ' + str(cropped.shape))
     label, confidence = f.model.predict(cropped)
-    retLabel = f.labels_dict_rev.get(label)
-    if not retLabel:
-        retLabel = label
-
-        #   predictions = f.predict(imgs)
-    logging.debug(label)
 
     if (label == '0' or label == 0) and confidence > threshold:
         return 'woman', confidence
@@ -65,19 +53,13 @@ def crop_and_center_face(img_arr, face_cascade=None, eye_cascade=None, x_size=25
     if not eye_cascade:
         logging.warning('cant get eye cascade in cropface in gender.py')
 
-#    faces = face_cascade.detectMultiScale(img_arr, 1.3, 5)
     faces = background_removal.find_face(img_arr, max_num_of_faces=1)
-    # faces2 = face_cascade.detectMultiScale(gray, scaleFactor=1.1, minNeighbors=3, minSize=(10, 10))
-
+    gray = cv2.cvtColor(img_arr, constants.BGR2GRAYCONST)
     i = 0
     cropped = None
-    first_eyes = None
     if faces is not None:
         for (x, y, w, h) in faces:
-            center = [x + w / 2, y + h / 2]
-            new_rect = [center[0] - x_size / 2, center[1] - y_size / 2, x_size, y_size]
-            # cv2.rectangle(img_arr, (new_rect[0], new_rect[1]), (new_rect[2], new_rect[3]), (255, 0, 0), 2)
-            roi_gray = img_arr[y:y + h, x:x + w]
+            roi_gray = gray[y:y + h, x:x + w]
             eyes = eye_cascade.detectMultiScale(roi_gray)
 
             if len(eyes) == 2:
@@ -91,16 +73,10 @@ def crop_and_center_face(img_arr, face_cascade=None, eye_cascade=None, x_size=25
                 original_right = [right[0] + x, right[1] + y, right[2], right[3]]
                 lined_up = line_up_eyes(img_arr, original_left, original_right)
                 lined_up_roi = lined_up[0:y_size, 0:x_size]
-                # cv2.imshow('cropped_lined', lined_up_roi)
-                # cv2.waitKey(0)
-                # cv2.destroyAllWindows()
                 dst = copy.copy(lined_up_roi)  # rotated.copy.deepcopy()
                 return dst
             if i == 0:
                 cropped = img_arr[y:y + h, x:x + w]
-                first_eyes = eyes
-                # for (ex, ey, ew, eh) in eyes:
-                # cv2.rectangle(roi_color, (ex, ey), (ex + ew, ey + eh), (0, 255, 0), 2)
             i += 1
 
         # no set of two eyes found so just return as is
@@ -110,8 +86,6 @@ def crop_and_center_face(img_arr, face_cascade=None, eye_cascade=None, x_size=25
     else:
         return img_arr
 
-
-# [100 115  150 115]
 
 def line_up_eyes(img_arr, left_eye_box, right_eye_box, expected_left_eye_center=[100, 115],
                  expected_right_eye_center=[150, 115]):
@@ -123,12 +97,6 @@ def line_up_eyes(img_arr, left_eye_box, right_eye_box, expected_left_eye_center=
     # translation of left eye
     logging.debug('l.eye:' + str(left_eye_box) + ' center:' + str(center_left))
     logging.debug('r.eye:' + str(right_eye_box) + ' center:' + str(center_right))
-    # cv2.rectangle(img_arr, (left_eye_box[0], left_eye_box[1]),
-    #                  (left_eye_box[0] + left_eye_box[2], left_eye_box[1] + left_eye_box[3]),
-    #                  (0, 255, 0), 2)
-    #   cv2.rectangle(img_arr, (right_eye_box[0], right_eye_box[1]),
-    #                 (right_eye_box[0] + right_eye_box[2], right_eye_box[1] + right_eye_box[3]),
-    #                 (0, 255, 0), 2)
 
     Dx = expected_left_eye_center[0] - center_left[0]
     Dy = expected_left_eye_center[1] - center_left[1]
@@ -136,11 +104,6 @@ def line_up_eyes(img_arr, left_eye_box, right_eye_box, expected_left_eye_center=
     rows, cols = img_arr.shape[:2]
     logging.debug('M:' + str(M) + ' colsXrows:' + str(cols) + ',' + str(rows))
     xlated = cv2.warpAffine(img_arr, M, (cols, rows))
-
-    # cv2.imshow('orig', img_arr)
-    # cv2.imshow('xlated', xlated)
-    # cv2.waitKey(0)
-    #  cv2.destroyAllWindows()
 
     dx = center_right[0] - center_left[0]
     dy = center_right[1] - center_left[1]
@@ -156,16 +119,8 @@ def line_up_eyes(img_arr, left_eye_box, right_eye_box, expected_left_eye_center=
     logging.debug('theta:' + str(theta) + ' deg:' + str(theta_degrees) + ' M:' + str(M))
 
     rotated = cv2.warpAffine(xlated, M, (cols, rows))
-    # cv2.imshow('rot', rotated)
-    # cv2.waitKey(0)
-    # cv2.destroyAllWindows()
 
-    # if ( not rotated.isContinuous() ):
     return rotated
-
-#    dst = copy.deep  copy(rotated)#   rotated.copy.deepcopy()
-
-# return dst
 
 
 if __name__ == "__main__":
