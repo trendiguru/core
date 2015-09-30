@@ -107,11 +107,7 @@ class TgWorker(Worker):
         logger.info('test using engine:5! ='+str(a))
         self.matlab_engine = eng
         print('debug8')
-
     #JR out
-
-
-
 
     def main_work_horse(self, *args, **kwargs):
         raise NotImplementedError("Test worker does not implement this method")
@@ -123,15 +119,16 @@ class TgWorker(Worker):
         DEFAULT_RESULT_TTL = 500
         logger = logging.getLogger(__name__)
         logger.info('attempting to start engine in ej')
+        print('attempting to start engine in ej')
         if not hasattr(self,'matlab_engine'):
             eng = matlab.engine.start_matlab()
             engine_name = eng.engineName
-            logger.info('new engine name:'+str(engine_name))
+            print('new engine name:'+str(engine_name))
             a=eng.factorial(8)
-            logger.info('test using engine:8! ='+str(a))
+            print('test using engine:8! ='+str(a))
             self.matlab_engine = eng
             print('ej engine:'+str(self.matlab_engine))
-            return self.perform_job(*args, **kwargs)
+        return self.perform_job(*args, **kwargs)
 
     def perform_job(self, job):
         """Performs the actual work of a job.  Will/should only be called
@@ -147,10 +144,13 @@ class TgWorker(Worker):
                 job.matlab_engine = self.matlab_engine
                 print('pj engine:'+str(self.matlab_engine))
                 print('pj args,kwargs:'+str(job._args)+','+str(job._kwargs))
-                new_args = job._args+(self.matlab_engine,)
-                print('pj  new args:'+str(new_args))
-                job._args = new_args
-
+                if len(job._args) > 0:
+                    new_args = job._args+(self.matlab_engine,)
+                    print('tg pj  new args:'+str(new_args))
+                    job._args = new_args
+                elif len(job._kwargs) > 0:
+                    job._kwargs['matlab_engine']=self.matlab_engine
+                    print('tg pj new kwargs:'+str(new_args))
                 with self.death_penalty_class(job.timeout or self.queue_class.DEFAULT_TIMEOUT):
                     rv = job.perform()
         # Pickle the result in the same try-except block since we need
