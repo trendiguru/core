@@ -4,9 +4,7 @@ __author__ = 'jeremy'
 
 __author__ = 'jeremy'
 import unittest
-
-import pymongo
-
+import trendi_guru_modules.gender
 
 # ours
 #import page_results
@@ -23,7 +21,15 @@ class OutcomesTest(unittest.TestCase):
     # raise RuntimeError('Test error!')
 
     def test_gender(self):
-        pass
+        img_name = 'test/uncentered/female1.jpg'
+        g = gender(img_name)
+        print(g)
+        img_name = 'test/uncentered/male1.jpg'
+        g = gender(img_name)
+        print(g)
+        img_name = 'test/uncentered/male2.jpg'
+        g = gender(img_name)
+        print(g)
     #WIP
 
 if __name__ == '__main__':

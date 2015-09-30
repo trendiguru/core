@@ -39,11 +39,11 @@ class FaceRecognizer():
 
         if not hasattr(constants.FACECONST, 'createFisherFaceRecognizer'):
             self.supported = False
-            warnings.warn("Returning None. OpenCV >= 2.4.4 required.")
+            warnings.warn("Returning None. OpenCV >= 2.4.4 required:hassattr("+str(constants.FACECONST)+"createFisherFaceRecognizer="+str(hasattr(constants.FACECONST,"createFisherFaceRecognizer")))
             return
         self.model = constants.FACECONST.createFisherFaceRecognizer()
 
-        # Not yet supported
+        # Not yet supported1
         # self.eigenValues = None
         # self.eigenVectors = None
         # self.mean = None
