@@ -1,9 +1,9 @@
 __author__ = 'jeremy'
 
-import numpy as np
 import logging
 import copy
 
+import numpy as np
 import cv2
 
 import fisherface
@@ -47,11 +47,11 @@ def gender(url_or_path_or_array, threshold=0 ):
     logging.debug(label)
 
     if (label == '0' or label == 0) and confidence > threshold:
-        return ('woman', confidence)
+        return 'woman', confidence
     elif (label == '1' or label == 1) and confidence > threshold:
-        return ('man', confidence)
+        return 'man', confidence
     else:
-        return ('unknown', confidence)
+        return 'unknown', confidence
 
 
 def crop_and_center_face(img_arr, face_cascade=None, eye_cascade=None, x_size=250, y_size=250):
