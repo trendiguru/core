@@ -164,7 +164,8 @@ RUN  cd $OPENCV_HOME/opencv-3.0.0/build
 RUN pwd
 WORKDIR /opt/OpenCV/opencv-3.0.0/build
 RUN pwd
-RUN ls -ltr ../../opencv_contrib-3.0.0/modules
+RUN ls -ltr ../../opencv_contrib-3.0.0/modules | tee lsout.txt
+RUN ls -ltr /opt/OpenCV/opencv_contrib-3.0.0/modules | tee lsout.txt
 
 #from https://github.com/itseez/opencv_contrib  :
 #$ cd <opencv_build_directory>
@@ -174,7 +175,7 @@ RUN ls -ltr ../../opencv_contrib-3.0.0/modules
 #for fisherfaces: -DOPENCV_EXTRA_MODULES_PATH=<opencv_contrib>/modules <opencv_source_directory>
 RUN  cmake -D CMAKE_BUILD_TYPE=RELEASE -D CMAKE_INSTALL_PREFIX=$(python -c "import sys; print(sys.prefix)") \
  -D PYTHON_EXECUTABLE=$(which python) -D BUILD_EXAMPLES=OFF -D INSTALL_C_EXAMPLES=ON -D INSTALL_PYTHON_EXAMPLES=OFF -D INSTALL_TESTS=OFF -D BUILD_opencv_java=OFF \
- -D WITH_IPP=OFF -DOPENCV_EXTRA_MODULES_PATH=../../opencv_contrib-3.0.0/modules -D BUILD_NEW_PYTHON_SUPPORT=ON  -D WITH_QT=OFF .. | tee cmakeout.txt
+ -D WITH_IPP=OFF -DOPENCV_EXTRA_MODULES_PATH=/opt/OpenCV/opencv_contrib-3.0.0/modules -D BUILD_NEW_PYTHON_SUPPORT=ON  -D WITH_QT=OFF .. | tee cmakeout.txt
 
 #RUN  cmake -D CMAKE_BUILD_TYPE=RELEASE -D CMAKE_INSTALL_PREFIX=/usr/local -D WITH_TBB=ON -D BUILD_NEW_PYTHON_SUPPORT=ON \
 # -D WITH_V4L=ON -D INSTALL_C_EXAMPLES=ON -D INSTALL_PYTHON_EXAMPLES=ON -D BUILD_EXAMPLES=ON -D WITH_QT=OFF -D WITH_OPENGL=ON -D BUILD_opencv_nonfree=ON ..
