@@ -99,7 +99,7 @@ def after_pd_conclusions(mask, labels, face):
                 mask_sizes[key].append({num: cv2.countNonZero(item_mask)})
     # 1
     for item in mask_sizes["whole_body"]:
-        if float(item.values()[0]) / (face[2] * face[3]) > 2 or \
+        if (float(item.values()[0]) / (face[2] * face[3]) > 2) or \
                 (len(mask_sizes["upper_cover"]) == 0 and len(mask_sizes["upper_under"]) == 0) or \
                 (len(mask_sizes["lower_cover"]) == 0 and len(mask_sizes["lower_under"]) == 0):
             print "W2P: That's a {0}".format(list(labels.keys())[list(labels.values()).index((item.keys()[0]))])
