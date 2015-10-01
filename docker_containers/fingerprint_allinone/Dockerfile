@@ -150,7 +150,6 @@ RUN  mkdir -p /opt/OpenCV
 RUN  cd /opt/OpenCV
 RUN pwd
 WORKDIR /opt/OpenCV
-RUN pwd
 RUN  wget -O OpenCV3.0.zip https://codeload.github.com/Itseez/opencv/zip/3.0.0
 RUN  unzip OpenCV3.0.zip
 #compiling contrib opencv stuff requires dl of a further repo at https://github.com/Itseez/opencv_contrib.git
@@ -165,6 +164,7 @@ RUN  cd $OPENCV_HOME/opencv-3.0.0/build
 RUN pwd
 WORKDIR /opt/OpenCV/opencv-3.0.0/build
 RUN pwd
+RUN ls -ltr ../../opencv_contrib-3.0.0/modules
 
 #from https://github.com/itseez/opencv_contrib  :
 #$ cd <opencv_build_directory>
