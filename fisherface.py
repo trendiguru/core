@@ -200,6 +200,7 @@ class FaceRecognizer():
             warnings.warn("Fisher Recognizer is supported by OpenCV >= 2.4.4")
             return None
         h, w = self.imageSize
+        print('img size:'+str(h)+' x '+str(w))
         images = [img if img.shape[:2] == self.imageSize
                   else cv2.resize(img, (w, h)) for img in imgs]
 
