@@ -12,6 +12,7 @@ def send_image_mail(trendi_url, image_url):
     lior = 'lior@trendiguru.com'
     kyle = 'kyle@trendiguru.com'
     jeremy = 'jeremy@trendiguru.com'
+    yonti = 'yonti@trendiguru.com'
     sender = 'Notifier@trendiguru.com'
     recipient = 'members@trendiguru.com'
     # Open a plain text file for reading.  For this example, assume that
@@ -29,7 +30,7 @@ def send_image_mail(trendi_url, image_url):
     msg.attach(part1)
 
     s = smtplib.SMTP('localhost')
-    s.sendmail(sender, [me, lior, jeremy, kyle], msg.as_string())
+    s.sendmail(sender, [me], msg.as_string())
     s.quit()
 
 
