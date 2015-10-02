@@ -229,11 +229,6 @@ RUN chown developer:developer /home/developer/.ssh/*
 #RUN ssh-keyscan  bitbucket.com > /root/.ssh/known_hosts
 RUN ssh-keyscan  bitbucket.com > /home/developer/.ssh/known_hosts
 
-RUN mkdir /home/developer/tg
-RUN chown developer:developer /home/developer/tg
-RUN mkdir /home/developer/tg/Dev
-RUN chown developer:developer /home/developer/tg/Dev
-WORKDIR /home/developer/tg/Dev
 
 RUN apt-get -y --force-yes  install nano
 
@@ -257,6 +252,12 @@ RUN chmod o+x portmongo.sh
 RUN  echo 'nmap -p 6379 localhost' > portredis.sh
 RUN chmod o+x portredis.sh
 
+
+RUN mkdir /home/developer/tg
+RUN chown developer:developer /home/developer/tg
+RUN mkdir /home/developer/tg/Dev
+RUN chown developer:developer /home/developer/tg/Dev
+WORKDIR /home/developer/tg/Dev
 USER developer
 RUN whoami
 RUN git clone --verbose git@bitbucket.org:trendiGuru/core.git
