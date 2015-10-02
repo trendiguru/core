@@ -211,6 +211,11 @@ ADD ssh/ /home/developer/.ssh/
 
 RUN apt-get -y --force-yes  install nano
 
+
+
+#####################
+# redis and rq
+#####################
 # see http://redis.io/download
 RUN wget http://download.redis.io/releases/redis-3.0.4.tar.gz
 RUN tar xzf redis-3.0.4.tar.gz
@@ -219,6 +224,8 @@ RUN ls -ltr
 RUN make
 
 RUN pip install rq
+
+
 
 #####################
 # ssh port forwarding
@@ -247,7 +254,7 @@ RUN ssh-keyscan  bitbucket.com > /home/developer/.ssh/known_hosts
 
 #mongobd port forward
 #CMD ssh -i /.ssh/first_aws.pem -L 27017:localhost:27017 ubuntu@extremeli.trendi.guru && /bin/bash
-CMD ssh -N -i /.ssh/first_aws.pem -L 6379:localhost:6379 ubuntu@extremeli.trendi.guru &
+CMD ssh -N -L 6379:localhost:6379 ubuntu@extremeli.trendi.guru &
 
 
 #these scripts are to check port forwarding with a single command

@@ -10,6 +10,7 @@ import background_removal
 import fisherface
 import Utils
 import constants
+from redis import Redis
 
 logging.basicConfig(level=logging.DEBUG)
 
@@ -32,7 +33,6 @@ def genderfunc(url_or_path_or_array, threshold=0 ):
     if img_arr is None:
         logging.warning('no img found in gender.py')
         return None
-
 
     cropped = crop_and_center_face(img_arr)
     if cropped is None:
