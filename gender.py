@@ -10,6 +10,7 @@ import background_removal
 import fisherface
 import Utils
 import constants
+from rq import Queue
 from redis import Redis
 
 logging.basicConfig(level=logging.DEBUG)
