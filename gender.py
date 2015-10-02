@@ -13,7 +13,18 @@ import constants
 
 logging.basicConfig(level=logging.DEBUG)
 
-def gender(url_or_path_or_array, threshold=0 ):
+
+redis_conn = Redis()
+q = Queue('gender', connection=redis_conn)
+
+
+def gender(url_or_path_or_array, threshold=0):
+    job = q.enqueue(genderfunc, url_or_path_or_array=url_or_path_or_array,threshold=threshold)
+    return job.result
+
+
+
+def genderfunc(url_or_path_or_array, threshold=0 ):
     f = fisherface.FaceRecognizer()
     f.load("faces20155727.2157.xml")  # 2500 faces
 
@@ -29,6 +40,8 @@ def gender(url_or_path_or_array, threshold=0 ):
         cropped = img_arr
 
     cropped = cv2.cvtColor(cropped, constants.BGR2GRAYCONST)
+    cv2.imshow('cropped',cropped)
+    cv2.waitKey(0)
     if not (cropped.shape[0] == f.imageSize[0] and cropped.shape[1] == f.imageSize[1]):
         logging.debug('resizing ' + str(cropped.shape[:2]) + ' to expected imagesize' + str(f.imageSize))
         w = f.imageSize[0]
@@ -129,8 +142,8 @@ def line_up_eyes(img_arr, left_eye_box, right_eye_box, expected_left_eye_center=
 if __name__ == "__main__":
     img_name = 'images/female1.jpg'
     img_arr = cv2.imread(img_name)
-    cv2.imshow('original',img_arr)
-    cv2.waitKey(0)
+#    cv2.imshow('original',img_arr)
+#    cv2.waitKey(0)
     g = gender(img_name)
     print(img_name+' seems to be '+ str(g))
     img_name = 'images/male1.jpg'
