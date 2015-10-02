@@ -247,9 +247,9 @@ RUN make
 RUN pip install rq
 
 
+RUN git clone --verbose git@bitbucket.org:trendiGuru/core.git
 USER developer
 RUN whoami
-RUN git clone --verbose git@bitbucket.org:trendiGuru/core.git
 
 #mongobd port forward
 #CMD ssh -i /.ssh/first_aws.pem -L 27017:localhost:27017 ubuntu@extremeli.trendi.guru && /bin/bash
