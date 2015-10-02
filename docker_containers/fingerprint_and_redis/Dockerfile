@@ -242,8 +242,8 @@ RUN whoami
 RUN git clone --verbose git@bitbucket.org:trendiGuru/core.git
 
 #mongobd port forward
-CMD ssh -i /.ssh/first_aws.pem -L 27017:localhost:27017 ubuntu@extremeli.trendi.guru && /bin/bash
-
+#CMD ssh -i /.ssh/first_aws.pem -L 27017:localhost:27017 ubuntu@extremeli.trendi.guru && /bin/bash
+CMD ssh -i /.ssh/first_aws.pem -L 6379:localhost:6379 ubuntu@extremeli.trendi.guru && /bin/bash
 
 # see http://redis.io/download
 RUN wget http://download.redis.io/releases/redis-3.0.4.tar.gz
@@ -251,6 +251,8 @@ RUN tar xzf redis-3.0.4.tar.gz
 WORKDIR redis-3.0.4
 RUN ls -ltr
 RUN make
+
+RUN pip install rq
 
 #these scripts are to check port forwarding with a single command
 RUN  echo 'nmap -p 27017 localhost' > portmongo.sh
