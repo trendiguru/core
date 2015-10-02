@@ -209,27 +209,6 @@ ENV HOME /home/developer
 #ADD ssh/ /root/.ssh/
 ADD ssh/ /home/developer/.ssh/
 
-#turn off asking 'are you sure' on first ssh connect
-#this is supposed to be taken care of by the keyscan but isn't , perhaps because this
-# is not our own repo running on a port like in the example
-ADD ssh/ssh_config /etc/ssh/ssh_config
-
-# Fixes permission if needed
-#RUN chmod 600 /.ssh/*
-RUN chmod 600 /home/developer/.ssh/*
-RUN chown developer:developer /home/developer/
-ADD ssh/first_aws.pem /home/developer/.ssh/first_aws.pem
-RUN chown developer:developer /home/developer/.ssh/*
-
-# Avoid first connection host confirmation
-#changed port since i don't think bitbucket supports it
-#RUN ssh-keyscan -p2200 bitbucket.com > /root/.ssh/known_hosts
-#To improve security, the ssh-keyscan should be run outside the container to fix the known_hosts file once for all.
-#RUN ssh-keyscan  -p2200 bitbucket.com > /home/testuser/.ssh/known_hosts
-#RUN ssh-keyscan  bitbucket.com > /root/.ssh/known_hosts
-RUN ssh-keyscan  bitbucket.com > /home/developer/.ssh/known_hosts
-
-
 RUN apt-get -y --force-yes  install nano
 
 # see http://redis.io/download
@@ -241,9 +220,34 @@ RUN make
 
 RUN pip install rq
 
+#####################
+# ssh port forwarding
+#####################
+#turn off asking 'are you sure' on first ssh connect
+#this is supposed to be taken care of by the keyscan but isn't , perhaps because this
+# is not our own repo running on a port like in the example
+ADD ssh/ssh_config /etc/ssh/ssh_config
+
+# Fixes permission if needed
+#RUN chmod 600 /.ssh/*
+RUN chmod 600 /home/developer/.ssh/*
+RUN chown developer:developer /home/developer/
+ADD ssh/first_aws.pem /home/developer/.ssh/first_aws.pem
+RUN chown developer:developer /home/developer/.ssh/*
+RUN chmod 400 /home/developer/.ssh/*
+
+# Avoid first connection host confirmation
+#changed port since i don't think bitbucket supports it
+#RUN ssh-keyscan -p2200 bitbucket.com > /root/.ssh/known_hosts
+#To improve security, the ssh-keyscan should be run outside the container to fix the known_hosts file once for all.
+#RUN ssh-keyscan  -p2200 bitbucket.com > /home/testuser/.ssh/known_hosts
+#RUN ssh-keyscan  bitbucket.com > /root/.ssh/known_hosts
+RUN ssh-keyscan  bitbucket.com > /home/developer/.ssh/known_hosts
+
+
 #mongobd port forward
 #CMD ssh -i /.ssh/first_aws.pem -L 27017:localhost:27017 ubuntu@extremeli.trendi.guru && /bin/bash
-CMD ssh -i /.ssh/first_aws.pem -L 6379:localhost:6379 ubuntu@extremeli.trendi.guru && /bin/bash
+CMD ssh -N -i /.ssh/first_aws.pem -L 6379:localhost:6379 ubuntu@extremeli.trendi.guru &
 
 
 #these scripts are to check port forwarding with a single command
@@ -252,7 +256,9 @@ RUN chmod o+x portmongo.sh
 RUN  echo 'nmap -p 6379 localhost' > portredis.sh
 RUN chmod o+x portredis.sh
 
-
+################################
+# git clone the tg repo
+################################
 RUN mkdir /home/developer/tg
 RUN chown developer:developer /home/developer/tg
 RUN mkdir /home/developer/tg/Dev
