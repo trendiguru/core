@@ -237,14 +237,6 @@ WORKDIR /home/developer/tg/Dev
 
 RUN apt-get -y --force-yes  install nano
 
-USER developer
-RUN whoami
-RUN git clone --verbose git@bitbucket.org:trendiGuru/core.git
-
-#mongobd port forward
-#CMD ssh -i /.ssh/first_aws.pem -L 27017:localhost:27017 ubuntu@extremeli.trendi.guru && /bin/bash
-CMD ssh -i /.ssh/first_aws.pem -L 6379:localhost:6379 ubuntu@extremeli.trendi.guru && /bin/bash
-
 # see http://redis.io/download
 RUN wget http://download.redis.io/releases/redis-3.0.4.tar.gz
 RUN tar xzf redis-3.0.4.tar.gz
@@ -254,11 +246,19 @@ RUN make
 
 RUN pip install rq
 
+
+USER developer
+RUN whoami
+RUN git clone --verbose git@bitbucket.org:trendiGuru/core.git
+
+#mongobd port forward
+#CMD ssh -i /.ssh/first_aws.pem -L 27017:localhost:27017 ubuntu@extremeli.trendi.guru && /bin/bash
+CMD ssh -i /.ssh/first_aws.pem -L 6379:localhost:6379 ubuntu@extremeli.trendi.guru && /bin/bash
+
+
+
 #these scripts are to check port forwarding with a single command
 RUN  echo 'nmap -p 27017 localhost' > portmongo.sh
 RUN chmod o+x portmongo.sh
 RUN  echo 'nmap -p 6379 localhost' > portredis.sh
 RUN chmod o+x portredis.sh
-
-
-

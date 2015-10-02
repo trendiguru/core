@@ -1,10 +1,7 @@
 import os
-
 import cv2
 
-
 # file containing constants for general TG use
-
 # fingerprint related consts
 
 fingerprint_length = 56
