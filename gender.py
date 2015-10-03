@@ -20,8 +20,11 @@ redis_conn = Redis()
 q = Queue('gender', connection=redis_conn)
 
 
-def gender(url_or_path_or_array, threshold=0):
+def gender(url_or_path_or_array, threshold=0, async=False):
     job = q.enqueue(genderfunc, url_or_path_or_array=url_or_path_or_array,threshold=threshold)
+    if not async:
+        while job.result is None:
+            time.sleep(0.1)
     return job.result
 
 
