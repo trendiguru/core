@@ -99,7 +99,7 @@ nadav = 'awesome'
 Reserve_cpus = 2  # number of cpus to not use when doing stuff in parallel
 
 # for gender id
-gender_ttl = 10   #10 seconds ttl , answer should be nearly immediate
+gender_ttl = 5   #10 seconds ttl , answer should be nearly immediate
 
 
 
