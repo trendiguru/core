@@ -41,7 +41,7 @@ class FaceRecognizer():
             self.supported = False
             warnings.warn("Returning None. OpenCV >= 2.4.4 required:hassattr("+str(constants.FACECONST)+"createFisherFaceRecognizer="+str(hasattr(constants.FACECONST,"createFisherFaceRecognizer")))
             return
-        self.model = constants.FACECONST.createFisherFaceRecognizer()
+        self.model = cv2.face.createFisherFaceRecognizer()
 
         # Not yet supported1
         # self.eigenValues = None
