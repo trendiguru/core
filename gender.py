@@ -23,9 +23,12 @@ q = Queue('gender', connection=redis_conn)
 
 def gender(url_or_path_or_array, threshold=0, async=False):
     job = q.enqueue(genderfunc, url_or_path_or_array=url_or_path_or_array,threshold=threshold)
+    start_time = time.time
+    elapsed_time = 0
     if not async:
-        while job.result is None:
+        while job.result is None and elapsed_time<constants.gender_ttl:
             time.sleep(0.1)
+            elapsed_time = time.time()-start_time
     return job.result
 
 
