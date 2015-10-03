@@ -41,8 +41,8 @@ def genderfunc(url_or_path_or_array, threshold=0 ):
         cropped = img_arr
 
     cropped = cv2.cvtColor(cropped, constants.BGR2GRAYCONST)
-    cv2.imshow('cropped',cropped)
-    cv2.waitKey(0)
+#    cv2.imshow('cropped',cropped)
+#    cv2.waitKey(0)
     if not (cropped.shape[0] == f.imageSize[0] and cropped.shape[1] == f.imageSize[1]):
         logging.debug('resizing ' + str(cropped.shape[:2]) + ' to expected imagesize' + str(f.imageSize))
         w = f.imageSize[0]
