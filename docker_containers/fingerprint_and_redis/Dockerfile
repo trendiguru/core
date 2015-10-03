@@ -252,7 +252,7 @@ RUN ssh-keyscan  bitbucket.com > /home/developer/.ssh/known_hosts
 
 #mongobd port forward
 #CMD ssh -i /.ssh/first_aws.pem -L 27017:localhost:27017 ubuntu@extremeli.trendi.guru && /bin/bash
-CMD ssh -N -L 6379:localhost:6379 ubuntu@extremeli.trendi.guru &
+RUN ssh -N -L 6379:localhost:6379 ubuntu@extremeli.trendi.guru &
 
 #these scripts are to check port forwarding with a single command
 RUN  echo 'nmap -p 27017 localhost' > portmongo.sh
@@ -271,3 +271,8 @@ WORKDIR /home/developer/tg/Dev
 USER developer
 RUN whoami
 RUN git clone --verbose git@bitbucket.org:trendiGuru/core.git
+#maybe ssh is per user so do this as developer
+
+WORKDIR /home/developer/tg/Dev/core
+RUN ssh -N -L 6379:localhost:6379 ubuntu@extremeli.trendi.guru &
+RUN rqworker gender &
