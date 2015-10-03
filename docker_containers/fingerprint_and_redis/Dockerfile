@@ -211,8 +211,6 @@ ADD ssh/ /home/developer/.ssh/
 
 RUN apt-get -y --force-yes  install nano
 
-
-
 #####################
 # redis and rq
 #####################
@@ -255,7 +253,6 @@ RUN ssh-keyscan  bitbucket.com > /home/developer/.ssh/known_hosts
 #mongobd port forward
 #CMD ssh -i /.ssh/first_aws.pem -L 27017:localhost:27017 ubuntu@extremeli.trendi.guru && /bin/bash
 CMD ssh -N -L 6379:localhost:6379 ubuntu@extremeli.trendi.guru &
-
 
 #these scripts are to check port forwarding with a single command
 RUN  echo 'nmap -p 27017 localhost' > portmongo.sh

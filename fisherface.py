@@ -37,7 +37,7 @@ class FaceRecognizer():
         self.int_labels = []
         self.labels_dict_rev = {}
 
-        if not hasattr(constants.FACECONST, 'createFisherFaceRecognizer'):
+        if not hasattr(cv2.face, 'createFisherFaceRecognizer'):
             self.supported = False
             warnings.warn("Returning None. OpenCV >= 2.4.4 required:hassattr("+str(constants.FACECONST)+"createFisherFaceRecognizer="+str(hasattr(constants.FACECONST,"createFisherFaceRecognizer")))
             return
