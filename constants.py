@@ -73,7 +73,7 @@ paperdoll_shopstyle_women = {'top': 'womens-tops', 'pants': 'womens-pants', 'sho
                              'jumper': 'v-neck-sweaters', 'bodysuit': 'shapewear', 'leggings': 'leggings',
                              'stockings': 'hosiery', 'tights': 'leggings'}
 
-paperdoll_shopstyle_men = {'top': 'mens-shirts', 'pants': 'womens-pants', 'shorts': 'mens-shorts',
+paperdoll_shopstyle_men = {'top': 'mens-shirts', 'pants': 'mens-pants', 'shorts': 'mens-shorts',
                            'jeans': 'mens-jeans', 'jacket': 'mens-outerwear', 'blazer': 'mens-outerwear',
                            'shirt': 'mens-shirts', 'skirt': 'mens-shorts', 'blouse': 'mens-shirts',
                            'dress': 'mens-suits', 'sweater': 'mens-sweaters', 't-shirt': 'mens-tees-and-tshirts',
