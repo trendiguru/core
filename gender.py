@@ -44,6 +44,7 @@ def genderfunc(url_or_path_or_array, threshold=0 ):
 
     cropped = crop_and_center_face(img_arr)
     if cropped is None:
+        #TODO return readable error if no face is found
         logging.warning('no img returned from crop_and_center')
         cropped = img_arr
 
