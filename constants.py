@@ -1,5 +1,7 @@
 import os
+
 import cv2
+
 
 # file containing constants for general TG use
 # fingerprint related consts
@@ -70,6 +72,14 @@ paperdoll_shopstyle_women = {'top': 'womens-tops', 'pants': 'womens-pants', 'sho
                              'suit': 'womens-suits', 'vest': 'vests', 'sweatshirt': 'sweatshirts',
                              'jumper': 'v-neck-sweaters', 'bodysuit': 'shapewear', 'leggings': 'leggings',
                              'stockings': 'hosiery', 'tights': 'leggings'}
+
+paperdoll_shopstyle_men = {'top': 'mens-shirts', 'pants': 'womens-pants', 'shorts': 'mens-shorts',
+                           'jeans': 'mens-jeans', 'jacket': 'mens-outerwear', 'blazer': 'mens-outerwear',
+                           'shirt': 'mens-shirts', 'skirt': 'mens-shorts', 'blouse': 'mens-shirts',
+                           'dress': 'mens-suits', 'sweater': 'mens-sweaters', 't-shirt': 'mens-tees-and-tshirts',
+                           'cardigan': 'mens-cardigan-sweaters', 'coat': 'mens-overcoats-and-trenchcoats',
+                           'suit': 'mens-suits', 'vest': 'vests', 'sweatshirt': 'mens-sweatshirts',
+                           'leggings': 'mens-pants', 'stockings': 'mens-pants', 'tights': 'mens-pants'}
 
 paperdoll_categories = {"whole_body": ['bodysuit', 'dress', 'jumper', 'suit', 'romper'],
                         "upper_cover": ['blazer', 'cape', 'jacket', 'cardigan', 'coat', 'vest', 'sweatshirt'],
