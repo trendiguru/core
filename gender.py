@@ -40,7 +40,7 @@ def genderfunc(url_or_path_or_array, threshold=0 ):
     img_arr = Utils.get_cv2_img_array(url_or_path_or_array)
     if img_arr is None:
         logging.warning('no img found in gender.py')
-        return None
+        return {'error':'no image found matching '+str(url_or_path_or_array)}
 
     cropped = crop_and_center_face(img_arr)
     if cropped is None:
