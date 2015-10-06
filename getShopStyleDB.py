@@ -12,7 +12,6 @@ import constants
 import find_similar_mongo
 
 redis_conn = Redis()
-
 q = Queue('fingerprint', connection=redis_conn)
 
 BASE_URL = "http://api.shopstyle.com/api/v2/"
@@ -26,7 +25,7 @@ MAX_RESULTS_PER_PAGE = 50
 MAX_OFFSET = 5000
 MAX_SET_SIZE = MAX_OFFSET + MAX_RESULTS_PER_PAGE
 db = constants.db_name
-collection = constants.update_collection
+collection = constants.update_collection_name
 
 
 class ShopStyleDownloader():
@@ -46,13 +45,16 @@ class ShopStyleDownloader():
     def run_by_category(self, root_id_list=None, do_fingerprint=True):
         self.do_fingerprint = do_fingerprint
         root_category, ancestors = self.build_category_tree()
+        # sorting the archive in ascending order
+        self.db.archive.create_index("id")
 
         if isinstance(root_id_list, basestring):
             root_id_list = [root_id_list]
         # if root_id_list not given, special case when we want to DL everything, because the root_category doesn't exit.
         cats_to_dl = root_id_list or [anc["id"] for anc in ancestors]
         for cat in cats_to_dl:
-            self.download_category(cat)
+            if cat in constants.RELEVANT_ITEMS:  # yonti 30.9
+                self.download_category(cat)
 
         db.dl_cache.remove()
         print "DONE!!!!!"
@@ -229,6 +231,7 @@ class ShopStyleDownloader():
         if do_fingerprint:
             print "enqueuing for fingerprinting...,",
             q.enqueue(generate_mask_and_insert, image_url=None, doc=prod, save_to_db=True, mask_only=False)
+            # db_catagory=)
             # prod_fp = super_fp(image_url=None, db_doc=prod, )
             # prod["fingerprint"] = prod_fp
             # prod["fp_version"] = constants.fingerprint_version
@@ -249,22 +252,22 @@ class ShopStyleDownloader():
             print "Product not in db.products, searching in archive. ",
             self.insert_and_fingerprint(prod)
             # case 1.1: try finding this product in the archive
-            # prod_in_archive = noneself.db.archive.find_one({'id': prod["id"]})
-            # if prod_in_archive is None:
-            #     print "New product,",
-            #     self.insert_and_fingerprint(prod)
-            # else:  # means the item is in the archive
-            #     # No matter what, we're moving this out of the archive...
-            #     prod_in_archive["archive"] = False
-            #     print "Prod in archive, checking fingerprint version...",
-            #     if prod_in_archive.get("fp_version") == constants.fingerprint_version:
-            #         print "fp_version good, moving from db.archive to db.products",
-            #         prod_in_archive.update(prod)
-            #         self.collection.insert_one(prod_in_archive)
-            #     else:
-            #         print "old fp_version,",
-            #         self.insert_and_fingerprint(prod)
-            #     self.db.archive.delete_one({'id': prod["id"]})
+            prod_in_archive = self.db.archive.find_one({'id': prod["id"]})
+            if prod_in_archive is None:
+                print "New product,",
+                self.insert_and_fingerprint(prod)
+            else:  # means the item is in the archive
+                # No matter what, we're moving this out of the archive...
+                prod_in_archive["archive"] = False
+                print "Prod in archive, checking fingerprint version...",
+                if prod_in_archive.get("fp_version") == constants.fingerprint_version:
+                    print "fp_version good, moving from db.archive to db.products",
+                    prod_in_archive.update(prod)
+                    self.collection.insert_one(prod_in_archive)
+                else:
+                    print "old fp_version, updating fp",
+                    self.insert_and_fingerprint(prod)
+                self.db.archive.delete_one({'id': prod["id"]})
         else:
             # case 2: the product was found in our db, and maybe should be modified
             print "Found existing prod in db,",

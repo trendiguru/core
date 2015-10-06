@@ -6,7 +6,6 @@ to old_fingerprint_stuff
 import logging
 
 import cv2
-
 import numpy as np
 
 import background_removal
@@ -15,9 +14,9 @@ import constants
 
 fingerprint_length = constants.fingerprint_length
 histograms_length = constants.histograms_length
-
 db = constants.db_name
-collection = constants.update_collection
+collection = constants.update_collection_name
+
 
 def fp(img, bins=histograms_length, fp_length=fingerprint_length, mask=None):
     if mask is None or cv2.countNonZero(mask) == 0:
@@ -62,7 +61,7 @@ def fp(img, bins=histograms_length, fp_length=fingerprint_length, mask=None):
     return result_vector[:fp_length]
 
 
-def generate_mask_and_insert(image_url=None, doc=None, save_to_db=False, mask_only=False):
+def generate_mask_and_insert(image_url=None, doc=None, save_to_db=False, mask_only=False, db_catagory=None):
     """
     Takes an image + whatever else you give it, and handles all the logic (using/finding/creating a bb, then a mask)
     Work in progress...
@@ -77,9 +76,7 @@ def generate_mask_and_insert(image_url=None, doc=None, save_to_db=False, mask_on
         logging.warning("image is None. url: {url}".format(url=image_url))
         return
     small_image, resize_ratio = background_removal.standard_resize(image, 400)
-    # I think we can delete the image... memory management FTW??
     del image
-    # print "Image URL: {0}".format(image_url)
 
     CLASSIFIER_FOR_CATEGORY = {}
 
@@ -90,22 +87,11 @@ def generate_mask_and_insert(image_url=None, doc=None, save_to_db=False, mask_on
         logging.debug("Human bb found: {bb} for item: {id}".format(bb=chosen_bounding_box, id=doc["id"]))
     # otherwise use the largest of possibly many classifier bb's
     else:
-        if "categories" in doc:
-            classifier = CLASSIFIER_FOR_CATEGORY.get(doc["categories"][0]["id"], "")
-        else:
-            classifier = None
         if not Utils.is_valid_image(small_image):
             logging.warning("small_image is Bad. {img}".format(img=small_image))
             return
         mask = background_removal.get_fg_mask(small_image)
         bounding_box_list = []
-        if classifier and not classifier.empty():
-            # then - try to classify the image (white backgrounded and get a more accurate bb
-            white_bckgnd_image = background_removal.image_white_bckgnd(small_image, mask)
-            try:
-                bounding_box_list = classifier.detectMultiScale(white_bckgnd_image)
-            except KeyError:
-                logging.info("Could not classify with {0}".format(classifier))
         # choosing the biggest bounding box if there are a few
         max_bb_area = 0
         chosen_bounding_box = None
