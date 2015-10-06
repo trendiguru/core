@@ -1,6 +1,8 @@
 import os
+
 import cv2
 import pymongo
+
 
 
 # file containing constants for general TG use
@@ -91,7 +93,6 @@ paperdoll_categories = {"whole_body": ['bodysuit', 'dress', 'jumper', 'suit', 'r
                         "lower_cover": ['shorts', 'skirt', 'jeans', 'pants'],
                         "lower_under": ['stockings', 'tights', 'leggings']}
 
-<<<<<<< Temporary merge branch 1
 papersoll_whole_body = ['bodysuit', 'dress', 'jumper', 'suit', 'romper', 'intimate']
 paperdoll_upper = ['blazer', 'cape', 'jacket', 't-shirt', 'blouse', 'cardigan', 'shirt', 'coat', 'top', 'bra',
                    'sweater',
@@ -134,8 +135,6 @@ Reserve_cpus = 2  # number of cpus to not use when doing stuff in parallel
 
 # for gender id
 gender_ttl = 5  #10 seconds ttl , answer should be nearly immediate
-=======
-gender_ttl = 5   #10 seconds ttl , answer should be nearly immediate
 
 # QC worker voting params
 
