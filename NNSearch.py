@@ -63,26 +63,28 @@ def find_n_nearest_neighbors(target_dict, entries, number_of_matches, fp_weights
     distance_function = distance_function or distance_Bhattacharyya
     # list of tuples with (entry,distance). Initialize with first n distance values
     nearest_n = []
-    for entry in entries[0:number_of_matches]:
-        ent = entry[fp_key]
-        tar = target_dict["fingerprint"]
-        d = distance_function(ent, tar, fp_weights, hist_length)
-        nearest_n.append((entry, d))
-    # sort by distance
-    nearest_n.sort(key=lambda tup: tup[1])
-    # last item in the list (index -1, go python!)
-    farthest_nearest = nearest_n[-1][1]
+    for i, entry in enumerate(entries):
+        if i < number_of_matches:
+            ent = entry[fp_key]
+            tar = target_dict["fingerprint"]
+            d = distance_function(ent, tar, fp_weights, hist_length)
+            nearest_n.append((entry, d))
+        else:
+            if i == number_of_matches:
+                # sort by distance
+                nearest_n.sort(key=lambda tup: tup[1])
+                # last item in the list (index -1, go python!)
+                farthest_nearest = nearest_n[-1][1]
 
-    # Loop through remaining entries, if one of them is better, insert it in the correct location and remove last item
-    for entry in entries[number_of_matches:]:
-        d = distance_function(entry[fp_key], target_dict["fingerprint"], fp_weights, hist_length)
-        if d < farthest_nearest:
-            insert_at = number_of_matches-2
-            while d < nearest_n[insert_at][1]:
-                insert_at -= 1
-                if insert_at == -1:
-                    break
-            nearest_n.insert(insert_at + 1, (entry, d))
-            nearest_n.pop()
-            farthest_nearest = nearest_n[-1][1]
+            # Loop through remaining entries, if one of them is better, insert it in the correct location and remove last item
+            d = distance_function(entry[fp_key], target_dict["fingerprint"], fp_weights, hist_length)
+            if d < farthest_nearest:
+                insert_at = number_of_matches-2
+                while d < nearest_n[insert_at][1]:
+                    insert_at -= 1
+                    if insert_at == -1:
+                        break
+                nearest_n.insert(insert_at + 1, (entry, d))
+                nearest_n.pop()
+                farthest_nearest = nearest_n[-1][1]
     return nearest_n
