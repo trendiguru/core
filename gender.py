@@ -152,7 +152,7 @@ if __name__ == "__main__":
 
     img_name = 'images/female1.jpg'
     g = gender(img_name)
-    print(img_name+' seems to be '+ str(g))
+    print('trying gender queue:' + img_name+' seems to be '+ str(g))
     img_name = 'images/male1.jpg'
     g = gender(img_name)
     print('trying gender queue:' + img_name+' seems to be '+ str(g))

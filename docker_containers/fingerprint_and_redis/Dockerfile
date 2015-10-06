@@ -214,13 +214,7 @@ RUN apt-get -y --force-yes  install nano
 #####################
 # redis and rq
 #####################
-# see http://redis.io/download
-RUN wget http://download.redis.io/releases/redis-3.0.4.tar.gz
-RUN tar xzf redis-3.0.4.tar.gz
-WORKDIR redis-3.0.4
-RUN ls -ltr
-RUN make
-
+RUN pip install redis
 RUN pip install rq
 
 
@@ -252,7 +246,6 @@ RUN ssh-keyscan  bitbucket.com > /home/developer/.ssh/known_hosts
 
 #mongobd port forward
 #CMD ssh -i /.ssh/first_aws.pem -L 27017:localhost:27017 ubuntu@extremeli.trendi.guru && /bin/bash
-RUN ssh -N -L 6379:localhost:6379 ubuntu@extremeli.trendi.guru &
 
 #these scripts are to check port forwarding with a single command
 RUN  echo 'nmap -p 27017 localhost' > portmongo.sh
@@ -274,5 +267,12 @@ RUN git clone --verbose git@bitbucket.org:trendiGuru/core.git
 #maybe ssh is per user so do this as developer
 
 WORKDIR /home/developer/tg/Dev/core
-RUN ssh -N -L 6379:localhost:6379 ubuntu@extremeli.trendi.guru &
+
+##rqworker portforward
+#advice from docker forum guy
+#RUN yum install -y openssh-clients
+#COPY id_rsa /tmp/id_rsa
+#CMD ssh  -i /tmp/id_rsa -L 8000:localhost:8000 -N vagrant@192.168.33.10 -o StrictHostKeyChecking=no
+
+RUN ssh  -L 6379:localhost:6379 -N  -o StrictHostKeyChecking=no -f ubuntu@extremeli.trendi.guru &
 RUN rqworker gender &
