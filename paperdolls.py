@@ -12,7 +12,6 @@ import redis
 from rq import Queue
 import bson
 
-import gender
 import page_results
 from .paperdoll import paperdoll_parse_enqueue
 import boto3
@@ -212,8 +211,8 @@ def start_process(page_url, image_url, async=False):
                 relevant_faces = relevance.faces.tolist()
                 idx = 0
                 for face in relevant_faces:
-                    gen = gender.gender(image_url, 0, False)[0]
-                    person = {'gender': gen, 'face': face, 'person_id': str(bson.ObjectId()), 'person_idx': idx,
+                    # gen = gender.gender(image_url, 0, False)[0]
+                    person = {'face': face, 'person_id': str(bson.ObjectId()), 'person_idx': idx,
                               'items': []}
                     image_copy = person_isolation(image, face)
                     person['url'] = upload_image(image_copy, str(person['person_id']))
@@ -249,8 +248,8 @@ def from_paperdoll_to_similar_results(person_id, mask, labels, num_of_matches=10
     image = Utils.get_cv2_img_array(person['url'])
     items = []
     idx = 0
-    bgnd_mask = np.zeros(mask.shape, dtype=np.uint8)
-    skin_mask = np.zeros(mask.shape, dtype=np.uint8)
+    # bgnd_mask = np.zeros(mask.shape, dtype=np.uint8)
+    # skin_mask = np.zeros(mask.shape, dtype=np.uint8)
     for num in np.unique(mask):
         # convert numbers to labels
         category = list(labels.keys())[list(labels.values()).index(num)]
@@ -261,10 +260,11 @@ def from_paperdoll_to_similar_results(person_id, mask, labels, num_of_matches=10
         if category in constants.paperdoll_shopstyle_women.keys():
             item_mask = 255 * np.array(mask == num, dtype=np.uint8)
             # item_gc_mask = create_gc_mask(image, item_mask, 255 - bgnd_mask, 255 - skin_mask)  # (255, 0) mask
-            if person['gender'] == 'man':
-                shopstyle_cat = constants.paperdoll_shopstyle_men[category]
-            else:
-                shopstyle_cat = constants.paperdoll_shopstyle_women[category]
+            # if person['gender'] == 'man':
+            # shopstyle_cat = constants.paperdoll_shopstyle_men[category]
+            # else:
+            #     shopstyle_cat = constants.paperdoll_shopstyle_women[category]
+            shopstyle_cat = constants.paperdoll_shopstyle_women[category]
             item_dict = {"category": shopstyle_cat, 'item_id': str(bson.ObjectId()), 'item_idx': idx,
                          'saved_date': datetime.datetime.now()}
             svg_name = find_similar_mongo.mask2svg(
