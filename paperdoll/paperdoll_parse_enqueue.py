@@ -1,11 +1,9 @@
-import requests
+
 import time
 import numpy as np
-
 from rq import Queue
 from redis import Redis
 import cv2
-
 
 redis_conn = Redis()
 q = Queue('pd', connection=redis_conn)
@@ -19,13 +17,6 @@ def paperdoll_enqueue(img_url_or_cv2_array, async=True):
             time.sleep(0.5)
     return job.result
 
-def paperdoll_enqueue_parallel(img_url_or_cv2_array,async=True):
-    qp = Queue('pd_parallel', connection=redis_conn)
-    job = qp.enqueue('pd.get_parse_mask_parallel', img_url_or_cv2_array)
-    if not async:
-        while job.result is None:
-            time.sleep(0.5)
-    return job.result
 
 def show_parse(filename=None, img_array=None):
     if filename is not None:
@@ -51,5 +42,3 @@ if __name__ == "__main__":
     img, labels, pose = paperdoll_enqueue(url, async=False)
     show_max(img, labels)
     show_parse(img_array=img)
-
-

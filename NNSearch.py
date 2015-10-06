@@ -2,13 +2,13 @@
 
 __author__ = 'jeremy'
 import logging
+
 import numpy as np
+import cv2
+
 import constants
 
-
 K = constants.K  # .5 is the same as Euclidean
-FP_KEY = "fingerPrintVector"
-
 
 def distance_1_k(fp1, fp2, k=K):
     """This calculates distance between to arrays. When k = .5 this is the same as Euclidean."""
@@ -22,9 +22,48 @@ def distance_1_k(fp1, fp2, k=K):
         return None
 
 
-def find_n_nearest_neighbors(target_dict, entries, number_of_matches, distance_function=distance_1_k, fp_key=FP_KEY):
+def distance_Bhattacharyya(fp1, fp2, weights, hist_length):
+    """
+    This calculates distance between to arrays.
+    the first 6 elements are calculated using euclidean distance (When k = .5 this is the same as Euclidean)
+    the next elements are the hue, saturation and value histograms - their distances are measured separately
+    using the Bhattacharyya distance.
+    later all the 4 components are combined with different weights:
+    - the first 6 elements get 5%
+    - the hue histogram gets 50%
+    - the saturation and value histograms share the other 45% equally
+    """
+    Bhattacharyya = 3
+    fp_division = [6, 6 + hist_length[0], 6 + hist_length[0] + hist_length[1],
+                   6 + hist_length[0] + hist_length[1] + hist_length[2]]
+
+    if fp1 is not None and fp2 is not None:
+        first6 = np.abs(np.array(fp1[:fp_division[0]]) - np.array(fp2[:fp_division[0]]))
+        first6 = np.power(np.sum(np.power(first6, 1 / 0.5)), 0.5)
+        hue_hist1 = np.float32(fp1[fp_division[0]:fp_division[1]])
+        hue_hist2 = np.float32(fp2[fp_division[0]:fp_division[1]])
+        hue = float(cv2.compareHist(hue_hist1, hue_hist2, Bhattacharyya))
+        sat_hist1 = np.float32(fp1[fp_division[1]:fp_division[2]])
+        sat_hist2 = np.float32(fp2[fp_division[1]:fp_division[2]])
+        sat = float(cv2.compareHist(sat_hist1, sat_hist2, Bhattacharyya))
+        val_hist1 = np.float32(fp1[fp_division[2]:])
+        val_hist2 = np.float32(fp2[fp_division[2]:])
+        val = float(cv2.compareHist(val_hist1, val_hist2, Bhattacharyya))
+        score = weights[0] * first6 + weights[1] * hue + weights[2] * sat + weights[3] * val
+        return score
+
+    else:
+        print("null fingerprint sent to Bhattacharyya ")
+        logging.warning("null fingerprint sent to Bhattacharyya ")
+        return None
+
+
+def find_n_nearest_neighbors(target_dict, entries, number_of_matches, fp_weights,
+                             hist_length, fp_key, distance_function=None):
+    distance_function = distance_function or distance_Bhattacharyya
     # list of tuples with (entry,distance). Initialize with first n distance values
-    nearest_n = [(entries[i], distance_function(entries[i][fp_key], target_dict[fp_key]))
+    nearest_n = [
+        (entries[i], distance_function(entries[i][fp_key], target_dict["fingerprint"], fp_weights, hist_length))
                  for i in range(0, number_of_matches)]
     # sort by distance
     nearest_n.sort(key=lambda tup: tup[1])
@@ -33,7 +72,7 @@ def find_n_nearest_neighbors(target_dict, entries, number_of_matches, distance_f
 
     # Loop through remaining entries, if one of them is better, insert it in the correct location and remove last item
     for entry in entries[number_of_matches:]:
-        d = distance_function(entry[fp_key], target_dict[fp_key], K)
+        d = distance_function(entry[fp_key], target_dict["fingerprint"], fp_weights, hist_length)
         if d < farthest_nearest:
             insert_at = number_of_matches-2
             while d < nearest_n[insert_at][1]:

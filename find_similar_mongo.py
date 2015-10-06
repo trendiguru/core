@@ -4,7 +4,9 @@ import os
 import subprocess
 
 import pymongo
+
 import cv2
+
 import numpy as np
 
 import fingerprint_core as fp
@@ -14,6 +16,10 @@ import Utils
 import kassper
 import constants
 
+fingerprint_length = constants.fingerprint_length
+histograms_length = constants.histograms_length
+# fp_weights = constants.fingerprint_weights
+FP_KEY = "fingerprint"
 
 def get_classifiers():
     default_classifiers = ["/home/www-data/web2py/applications/fingerPrint/modules/shirtClassifier.xml",
@@ -57,16 +63,29 @@ def mask2svg(mask, filename, save_in_folder):
     return filename + '.svg'
 
 
-def find_top_n_results(image, mask, number_of_results=10, category_id=None):
+def find_top_n_results(image, mask, number_of_results=10, category_id=None, collection_name="products",
+                       fp_category=FP_KEY, fp_len=fingerprint_length, distance_function=None,
+                       bins=histograms_length):
+    '''
+    for comparing 2 fp call the function twice, both times with collection_name ='fp_testing' :
+      - for the control group leave fp_category as is
+      - fot the test group call the function with fp_category="new_fp"
+    if the new fingerprint has a new length then make sure that the color_fp length
+      is correct by entering the correct fp_len
+    if a distance_function other than Bhattacharyya is used then call the function with that distance function's name
+    '''
+    fp_weights = constants.fingerprint_weights
+
     db = pymongo.MongoClient().mydb
-    product_collection = db.products
+    collection = db[collection_name]
+
     subcategory_id_list = get_all_subcategories(db.categories, category_id)
 
     # get all items in the subcategory/keyword
-    potential_matches_cursor = product_collection.find(
+    potential_matches_cursor = collection.find(
         {"$and": [{"categories": {"$elemMatch": {"id": {"$in": subcategory_id_list}}}},
                   {"fingerprint": {"$exists": 1}}]},
-        {"_id": 1, "id": 1, "fingerprint": 1, "image.sizes.XLarge.url": 1, "clickUrl": 1})
+        {"_id": 1, "id": 1, "fingerprint": 1, "image.sizes.XLarge.url": 1, "clickUrl": 1, "new_fp": 1})
 
     # db_fingerprint_list = []
     # for row in potential_matches_cursor:
@@ -78,10 +97,10 @@ def find_top_n_results(image, mask, number_of_results=10, category_id=None):
     #     fp_dict["buyURL"] = row["clickUrl"]
     #     db_fingerprint_list.append(fp_dict)
 
-    color_fp = fp.fp(image, mask)
+    color_fp = fp.fp(image, bins, fp_len, mask)
     target_dict = {"clothingClass": category_id, "fingerprint": color_fp}
     closest_matches = NNSearch.find_n_nearest_neighbors(target_dict, potential_matches_cursor, number_of_results,
-                                                        fp_key="fingerprint")
+                                                        fp_weights, bins, fp_category, distance_function)
     # get only the object itself, not the distance
     closest_matches = [match_tuple[0] for match_tuple in closest_matches]
 
