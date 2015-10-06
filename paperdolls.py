@@ -244,7 +244,7 @@ def start_process(page_url, image_url, async=False):
             return image_obj
 
 
-def from_paperdoll_to_similar_results(person_id, mask, labels):
+def from_paperdoll_to_similar_results(person_id, mask, labels, num_of_matches=100):
     image_obj, person = get_person_by_id(person_id, iip)
     image = Utils.get_cv2_img_array(person['url'])
     items = []
@@ -273,7 +273,7 @@ def from_paperdoll_to_similar_results(person_id, mask, labels):
                 constants.svg_folder)
             item_dict["svg_url"] = constants.svg_url_prefix + svg_name
             item_dict['fp'], item_dict['similar_results'] = find_similar_mongo.find_top_n_results(image, item_mask,
-                                                                                                  100,
+                                                                                                  num_of_matches,
                                                                                                   item_dict['category'])
             items.append(item_dict)
             idx += 1
