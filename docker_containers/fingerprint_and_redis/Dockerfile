@@ -214,13 +214,7 @@ RUN apt-get -y --force-yes  install nano
 #####################
 # redis and rq
 #####################
-# see http://redis.io/download
-RUN wget http://download.redis.io/releases/redis-3.0.4.tar.gz
-RUN tar xzf redis-3.0.4.tar.gz
-WORKDIR redis-3.0.4
-RUN ls -ltr
-RUN make
-
+RUN pip install redis
 RUN pip install rq
 
 
@@ -274,5 +268,6 @@ RUN git clone --verbose git@bitbucket.org:trendiGuru/core.git
 #maybe ssh is per user so do this as developer
 
 WORKDIR /home/developer/tg/Dev/core
+##rqworker portforward
 RUN ssh -N -L 6379:localhost:6379 ubuntu@extremeli.trendi.guru &
 RUN rqworker gender &
