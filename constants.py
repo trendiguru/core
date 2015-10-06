@@ -5,7 +5,6 @@ import pymongo
 
 
 # file containing constants for general TG use
-
 # fingerprint related consts
 
 fingerprint_length = 696
@@ -98,6 +97,20 @@ paperdoll_upper = ['blazer', 'cape', 'jacket', 't-shirt', 'blouse', 'cardigan', 
                    'sweater',
                    'vest', 'sweatshirt']
 paperdoll_lower = ['pants', 'stockings', 'jeans', 'tights', 'leggings', 'shorts', 'skirt']
+paperdoll_shopstyle_men = {'top': 'mens-shirts', 'pants': 'mens-pants', 'shorts': 'mens-shorts',
+                           'jeans': 'mens-jeans', 'jacket': 'mens-outerwear', 'blazer': 'mens-outerwear',
+                           'shirt': 'mens-shirts', 'skirt': 'mens-shorts', 'blouse': 'mens-shirts',
+                           'dress': 'mens-suits', 'sweater': 'mens-sweaters', 't-shirt': 'mens-tees-and-tshirts',
+                           'cardigan': 'mens-cardigan-sweaters', 'coat': 'mens-overcoats-and-trenchcoats',
+                           'suit': 'mens-suits', 'vest': 'vests', 'sweatshirt': 'mens-sweatshirts',
+                           'leggings': 'mens-pants', 'stockings': 'mens-pants', 'tights': 'mens-pants'}
+
+paperdoll_categories = {"whole_body": ['bodysuit', 'dress', 'jumper', 'suit', 'romper'],
+                        "upper_cover": ['blazer', 'cape', 'jacket', 'cardigan', 'coat', 'vest', 'sweatshirt'],
+                        "upper_under": ['t-shirt', 'blouse', 'shirt', 'top', 'sweater', 'sweatshirt'],
+                        "lower_cover": ['shorts', 'skirt', 'jeans', 'pants'],
+                        "lower_under": ['stockings', 'tights', 'leggings']}
+
 paperdoll_shoes = ['pumps', 'wedges', 'flats', 'clogs', 'shoes', 'boots', 'heels', 'loafers', 'sandals', 'sneakers']
 paperdoll_accessories = ['tie', 'purse', 'hat', 'sunglasses', 'bag', 'belt']
 
@@ -122,6 +135,12 @@ Reserve_cpus = 2  # number of cpus to not use when doing stuff in parallel
 # for gender id
 gender_ttl = 5  #10 seconds ttl , answer should be nearly immediate
 
+# for gender id
+gender_ttl = 5   #10 seconds ttl , answer should be nearly immediate
+
+
+
+
 
 # QC worker voting params
 
@@ -142,7 +161,9 @@ bb_iou_threshold = 0.5  # how much overlap there must be between bbs
 if cv2.__version__ == '3.0.0' or cv2.__version__ == '3.0.0-dev':
     scale_flag = cv2.CASCADE_SCALE_IMAGE
     BGR2GRAYCONST = cv2.COLOR_BGR2GRAY
-    FACECONST = cv2.face
+#    FACECONST = cv2.face
+    FACECONST = cv2  #i am not sure what this fixes but it breaks fisherface
+                    #now i understand, if you havent installed contrib then even if you have cv2 v3 then cv2.face does not exist
     HAARCONST = cv2.CASCADE_SCALE_IMAGE
 
 

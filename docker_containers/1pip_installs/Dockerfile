@@ -11,8 +11,8 @@ RUN apt-get install -y build-essential
 RUN apt-get install -y pkg-config
 RUN apt-get install -y yasm
 RUN apt-get install -y wget
-RUN apt-get install -y  libpng-dev
-RUN apt-get install -y  zlib1g-dev
+RUN apt-get install -y libpng-dev
+RUN apt-get install -y zlib1g-dev
 RUN apt-get install -y freetype*
 RUN apt-get install -y python-tk
 RUN apt-get install -y screen

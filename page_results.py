@@ -402,9 +402,32 @@ def new_images(page_url, list_of_image_urls):
 def load_similar_results(sparse, projection_dict):
     for person in sparse["people"]:
         for item in person["items"]:
-            item["similar_results"] = [db.products.find_one({"_id": result["_id"]}, projection_dict)
-                                       for result in item["similar_results"]]
+            similar_results = []
+            for result in item["similar_results"]:
+                full_result = db.products.find_one({"_id": result["_id"]}, projection_dict)
+                full_result["clickUrl"] = Utils.shorten_url_bitly(full_result["clickUrl"])
+                similar_results.append(full_result)
+            item["similar_results"] = similar_results
     return sparse
+
+def is_image_relevant(image_url):
+    if image_url is not None:
+        query = {"image_urls": image_url}
+        image_dict = db.images.find_one(query, {'relevant': 1, 'people.items.similar_results': 1})
+        return has_items(image_dict)
+    else:
+        return False
+
+
+def has_items(image_dict):
+    res = False
+    # Easier to ask forgiveness than permission
+    # http://stackoverflow.com/questions/1835756/using-try-vs-if-in-python
+    try:
+        res = len(image_dict["people"][0]["items"]) > 0
+    except:
+        pass
+    return res
 
 
 def get_data_for_specific_image(image_url=None, image_hash=None, image_projection=None, product_projection=None,
@@ -426,22 +449,26 @@ def get_data_for_specific_image(image_url=None, image_hash=None, image_projectio
         'people.items.similar_results': {'$slice': max_results},
         'people.items.similar_results._id': 1,
         'people.items.similar_results.id': 1,
+        'people.items.similar_results.image.sizes.XLarge.url': 1,
+        'people.items.similar_results.clickUrl': 1,
+        'people.items.similar_results.brand.name': 1,
+        'people.items.similar_results.priceLabel': 1,
         'people.items.svg_url': 1,
         'relevant': 1}
 
     product_projection = product_projection or {
-        'seeMoreUrl': 1,
-        'image': 1,
+        #'seeMoreUrl': 1,
+        'image.sizes.XLarge.url': 1,
         'clickUrl': 1,
-        'retailer': 1,
-        'currency': 1,
-        'brand': 1,
-        'description': 1,
+        #'retailer': 1,
+        #'currency': 1,
+        'brand.name': 1,
+        #'description': 1,
         'price': 1,
-        'categories': 1,
+        #'categories': 1,
         'name': 1,
-        'sizes': 1,
-        'pageUrl': 1,
+        #'sizes': 1,
+        #'pageUrl': 1,
         '_id': 0,
         'priceLabel': 1}
 

@@ -118,6 +118,7 @@ def create_positives_using_faces_recursive(bbfilename='bbs.txt', parent_dir='ima
     print('searching %s' % parent_dir)
     try:
         for dir, subdir_list, file_list in os.walk(parent_dir):
+
             print('Found directory: %s' % dir)
             if not single_bbfile:  # make a bbfile for each subdir
                 bbfilename = os.path.join(dir, 'bbs.txt')

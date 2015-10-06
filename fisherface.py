@@ -3,22 +3,16 @@ __author__ = 'jeremy'
 import warnings
 import os
 import collections
-import numpy as np
 import re
 import time
 import logging
 
+import numpy as np
 import cv2
 
-
-# import trendi_guru_modules.constants as constants
-#import trendi_guru_modules.Utils as Utils
 import constants
 import Utils
 
-
-
-# what is going on why is the server thinking this change didnt happen oh git me
 
 CASCADE = "face.xml"
 SAMPLES_DIREC = "samples"
@@ -43,13 +37,13 @@ class FaceRecognizer():
         self.int_labels = []
         self.labels_dict_rev = {}
 
-        if not hasattr(constants.FACECONST, 'createFisherFaceRecognizer'):
+        if not hasattr(cv2.face, 'createFisherFaceRecognizer'):
             self.supported = False
-            warnings.warn("Returning None. OpenCV >= 2.4.4 required.")
+            warnings.warn("Returning None. OpenCV >= 2.4.4 required:hassattr("+str(constants.FACECONST)+"createFisherFaceRecognizer="+str(hasattr(constants.FACECONST,"createFisherFaceRecognizer")))
             return
-        self.model = constants.FACECONST.createFisherFaceRecognizer()
+        self.model = cv2.face.createFisherFaceRecognizer()
 
-        # Not yet supported
+        # Not yet supported1
         # self.eigenValues = None
         # self.eigenVectors = None
         # self.mean = None
@@ -206,6 +200,7 @@ class FaceRecognizer():
             warnings.warn("Fisher Recognizer is supported by OpenCV >= 2.4.4")
             return None
         h, w = self.imageSize
+        print('img size:'+str(h)+' x '+str(w))
         images = [img if img.shape[:2] == self.imageSize
                   else cv2.resize(img, (w, h)) for img in imgs]
 

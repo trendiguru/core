@@ -1,22 +1,22 @@
 __author__ = 'jeremy'
 
-#NOTE - THIS VERSION WHICH IS ON EXTREMELY IS NOT ACTUALLY USED
+#NOTE - THE VERSION WHICH IS ON EXTREMELY IS NOT ACTUALLY USED
 # the real pd.py is   on mightili , and this one is here only so that I can enqueue the right function name
+# the mightili version should be pulled from our repo using git pull , so actually the files are identical.
+# but don't expect changes to pd.py on extremeli to hchange anything until you do a git pull on mightili
+# (or wherever pd.py is actually running)
 
 # paperdoll run from matlab
 # this needs to run on server that
 # has matlab running w. 2opencv3
 #which is currently 'mightili.trendi.guru'
-# paperdoll run from matlab - this needs to run on server that
-# has matlab running w. 2opencv3 , which is currently 'mightili.trendi.guru'
 
-# testing a change #2
-
+import matlab.engine
 import subprocess
 import numpy as np
 import imghdr
 import cv2
-import matlab.engine
+
 from contextlib import contextmanager
 import random
 import string
@@ -50,7 +50,6 @@ def rand_string():
 
 
 def get_parse_mask(img_url_or_cv2_array):
-
     img = Utils.get_cv2_img_array(img_url_or_cv2_array)
     if img is not None and cv2.imwrite('inputimg.jpg', img):
         if 'jpeg' != imghdr.what('inputimg.jpg'):
@@ -61,6 +60,27 @@ def get_parse_mask(img_url_or_cv2_array):
         print('modified name:' + modified_name)
 
         mask, label_dict, pose = get_parse_from_matlab(modified_name)
+        print('labels:' + str(label_dict))
+        mask_np = np.array(mask, dtype=np.uint8)
+        pose_np = np.array(pose, dtype=np.uint8)
+        return mask_np, label_dict, pose_np
+
+
+def get_parse_from_matlab_parallel(image_filename,matlab_engine):
+    mask, label_names, pose = matlab_engine.pd("inputimg.jpg", nargout=3)
+    label_dict = dict(zip(label_names, range(0, len(label_names))))
+    return mask, label_dict, pose
+
+def get_parse_mask_parallel(img_url_or_cv2_array,matlab_engine):
+    img = Utils.get_cv2_img_array(img_url_or_cv2_array)
+    if img is not None and cv2.imwrite('inputimg.jpg', img):
+        if 'jpeg' != imghdr.what('inputimg.jpg'):
+            return [[], [], []]
+        stripped_name = rand_string()  # img_url_or_cv2_array.split('//')[1]
+        modified_name = stripped_name.replace('/', '_')
+        print('stripped name:' + stripped_name)
+        print('modified name:' + modified_name)
+        mask, label_dict, pose = get_parse_from_matlab_parallel(modified_name,matlab_engine)
         print('labels:' + str(label_dict))
         mask_np = np.array(mask, dtype=np.uint8)
         pose_np = np.array(pose, dtype=np.uint8)
