@@ -195,8 +195,7 @@ def start_process(page_url, image_url, async=False):
         return None
     if not image_obj:  # new image_url
         image_hash = page_results.get_hash_of_image_from_url(image_url)
-        image_obj = images.find_one_and_update({'image_hash': image_hash}, {'$push': {"image_urls": image_url}},
-                                               return_document=pymongo.ReturnDocument.AFTER)
+        image_obj = images.find_one({"image_hash": image_hash}) or iip.find_one({"image_hash": image_hash})
         if not image_obj:  # doesn't exists with another url
             image = Utils.get_cv2_img_array(image_url)
             if image is None:
@@ -230,11 +229,16 @@ def start_process(page_url, image_url, async=False):
                 while images.find_one({'image_urls': image_url}) is None:
                     time.sleep(0.5)
                 return page_results.merge_items(images.find_one({'image_urls': image_url}))
-        else:  # if the exact same image was found under other urls
-            logging.warning("image_hash was found in other urls:")
-            logging.warning("{0}".format(image_obj['image_urls']))
-            return page_results.merge_items(image_obj)
-    else:  # if image is in the DB
+        else:  # the exact same image was found under other urls
+            if image_obj['relevant']:
+                while images.find_one({'image_hash': image_hash}) is None:
+                    time.sleep(0.5)
+                image_obj = images.find_one_and_update({'image_hash': image_hash}, {'$push': {"image_urls": image_url}},
+                                                       return_document=pymongo.ReturnDocument.AFTER)
+                return page_results.merge_items(image_obj)
+            else:
+                return None
+    else:  # if image is in the DB by url
         if image_obj['relevant']:
             logging.warning("Image is in the DB and relevant!")
             return page_results.merge_items(image_obj)
