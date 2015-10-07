@@ -307,21 +307,38 @@ RUN apt-get install python-dev
 #RUN apt-get install libatlas-base-dev
 
 #Boost >= 1.55
-RUN wget http://sourceforge.net/projects/boost/files/boost/1.59.0/boost_1_59_0.tar.gz
-RUN tar --bzip2 -xf /path/to/boost_1_59_0.tar.bz2
+#RUN wget http://sourceforge.net/projects/boost/files/boost/1.59.0/boost_1_59_0.tar.gz
+#RUN tar --bzip2 -xf /path/to/boost_1_59_0.tar.bz2
 #OpenCV >= 2.4 in
 
 #after downloading caffe
-RUN for req in $(cat requirements.txt); do pip install $req; done
+#RUN for req in $(cat requirements.txt); do pip install $req; done
 
 #remaining dependencies
-sudo apt-get install libgflags-dev libgoogle-glog-dev liblmdb-dev
+#sudo apt-get install libgflags-dev libgoogle-glog-dev liblmdb-dev
 
-RUN cd caffe
-RUN cp Makefile.config.example Makefile.config
+#RUN cd caffe
+#RUN cp Makefile.config.example Makefile.config
 #and change setting in Makefile.config
-RUN mkdir build
-WORKDIR build
-RUN cmake ..
+#RUN mkdir build
+#WORKDIR build
+#RUN cmake ..
 #./configure (??not sure??)
+#RUN make all
+
+
+
+RUN apt-get install libprotobuf-dev libleveldb-dev libsnappy-dev libopencv-dev libhdf5-serial-dev protobuf-compiler
+RUN apt-get install --no-install-recommends libboost-all-dev
+RUN apt-get install python-dev
+RUN apt-get install libatlas-base-dev
+RUN wget http://sourceforge.net/projects/boost/files/boost/1.59.0/boost_1_59_0.tar.gz
+RUN tar --bzip2 -xf /path/to/boost_1_59_0.tar.bz2
+RUN sudo apt-get install libgflags-dev libgoogle-glog-dev liblmdb-dev
+RUN wget https://github.com/BVLC/caffe/archive/master.zip
+RUN unzip master.zip   ; cd caffe
+RUN cp Makefile.config.example Makefile.config
+RUN mkdir build
+RUN cd build
+RUN cmake ..
 RUN make all
