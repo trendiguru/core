@@ -6,8 +6,7 @@ def classification_rating(goldenset_classes,testset_classes,weights_dictionary):
     :param goldenset_classes: list of clothing classes name (strings)
     :param testset_classes: list of clothing classes name (strings)
     :return: a double, ranging from 0 to 1, rating the classification accuracy.
-​
-    Steps:
+    steps:
     1. check that the two variables are lists of classes (words / strings / numeric, etc.). flag error if needed.
     2. check length of each. flag error if needed.
     3. detect which of 'goldenset_classes' classes exist in 'testset_classes' (positive classification - PC)
