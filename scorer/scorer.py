@@ -1,3 +1,5 @@
+# -*- coding: utf-8 -*-
+#
 __author__ = 'netanel'
 
 def classification_rating(goldenset_classes,testset_classes,weights_dictionary):
