@@ -5,7 +5,7 @@ from redis import Redis
 import cv2
 
 redis_conn = Redis()
-q = Queue('pd', connection=redis_conn)
+q = Queue('paperdoll', connection=redis_conn)
 
 # Tell RQ what Redis connection to use
 
