@@ -2,6 +2,15 @@
 #
 __author__ = 'netanel'
 
+from trendi_guru_modules import background_removal
+from trendi_guru_modules import Utils
+from trendi_guru_modules import paperdolls
+from trendi_guru_modules import constants
+
+from trendi_guru_modules.paperdoll import paperdoll_parse_enqueue
+
+
+
 def classification_rating(goldenset_classes,testset_classes,weights_dictionary):
     '''
     calculates the rating of the classes set of the test in comparison to the 'golden' (master) set of classes
@@ -212,12 +221,6 @@ print results_rating(goldenset_images,testset_images)
 #
 # from trendi_guru_modules..
 #
-import background_removal
-import Utils
-import paperdolls
-import constants
-
-from trendi_guru_modules.paperdoll import paperdoll_parse_enqueue
 
 # resize image:
 image = background_removal.standard_resize(image, 400)[0]
