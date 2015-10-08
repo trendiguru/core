@@ -6,15 +6,18 @@ __author__ = 'jeremy'
 import hashlib
 import copy
 import logging
+
 from bson import objectid
 import bson
 import pymongo
+
 # ours
 import Utils
 import background_removal
 
 # logging.basicConfig(format='%(levelname)s:%(message)s', level=logging.DEBUG)
 db = pymongo.MongoClient().mydb
+
 
 def verify_hash_of_image(image_hash, image_url):
     img_arr = Utils.get_cv2_img_array(image_url)
@@ -27,7 +30,11 @@ def verify_hash_of_image(image_hash, image_url):
     else:
         return False
 
+
 def get_hash_of_image_from_url(image_url):
+    if image_url is None:
+        logging.warning("Bad image url!")
+        return None
     img_arr = Utils.get_cv2_img_array(image_url)
     if img_arr is None:
         logging.warning('couldnt get img_arr from url:' + image_url + ' in get_hash_of_image')
@@ -38,15 +45,16 @@ def get_hash_of_image_from_url(image_url):
     logging.debug('url_image hash:' + url_hash + ' for ' + image_url)
     return url_hash
 
-# probably unecesary function, was thinking it would be useful to take different kinds of arguments for some reason
+
+# probably unneccesary function, was thinking it would be useful to take different kinds of arguments for some reason
 def get_known_similar_results(image_hash=None, image_url=None, page_url=None):
-    if image_hash == None and image_url == None and page_url == None:
+    if image_hash is None and image_url is None and page_url is None:
         logging.warning('get_similar_results wasnt given an id or an image/page url')
         return None
 
-    if image_hash is not None:  #search by imagehash
+    if image_hash is not None:  # search by imagehash
         query = {'_id': image_hash}
-        #query = {"categories": {"$elemMatch": {"image_hash": image_hash}}}
+        # query = {"categories": {"$elemMatch": {"image_hash": image_hash}}}
         cursor = db.images.find(query)
     #   cursor = db.products.find({'$and': [{"description": {'$regex': keyword}}, query]})
 
