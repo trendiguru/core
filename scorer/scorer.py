@@ -1,42 +1,4 @@
 
-
-'''
-Tgfunctions:
-
-from trendi_guru_modules..
-
-import background_removal
-import Utils
-import paperdolls
-import constants
-
-from trendi_guru_modules.paperdoll import paperdoll_parse_enqueue
-
-# resize image
-image = background_removal.standard_resize(image, 400)[0]
-
-# activate paperdoll on image
-mask, labels, pose = paperdoll_parse_enqueue.paperdoll_enqueue(image, False)
-
-# task 1: get categories from image
-
-# face:
-relevance = background_removal.image_is_relevant(image)
-face = relevance.faces[0]
-
-final_mask = paperdolls.after_pd_conclusions(mask, labels, face)
-
-for num in np.unique(final_mask):
-	category = list(labels.keys())[list(labels.values()).index(num)]
-	if category in constants.paperdoll_shopstyle_women.keys():
-	# do things
-
-# task 2: get similar results
-
-
-'''
-
-
 def classification_rating(goldenset_classes,testset_classes,weights_dictionary):
     '''
     calculates the rating of the classes set of the test in comparison to the 'golden' (master) set of classes
@@ -61,15 +23,15 @@ def classification_rating(goldenset_classes,testset_classes,weights_dictionary):
 
 
     # initial check (1):
-    for golden_class in goldenset_classes:
-        if not isinstance(golden_class,str):
-            print "goldenset_classes must be strings in all list type!"
-            return
-
-    for test_class in testset_classes:
-        if not isinstance(test_class,str):
-            print "testset_classes must be strings in all list type!"
-            return
+    # for golden_class in goldenset_classes:
+    #     if not isinstance(golden_class,str):
+    #         print "goldenset_classes must be strings in all list type!"
+    #         return
+    #
+    # for test_class in testset_classes:
+    #     if not isinstance(test_class,str):
+    #         print "testset_classes must be strings in all list type!"
+    #         return
 
 
     # initial check (2):
@@ -91,7 +53,7 @@ def classification_rating(goldenset_classes,testset_classes,weights_dictionary):
     # summing the weights of the matched classes in testset (3.1, 3.2):
     sum_weights_of_test_matches = 0
     for class_match in set_of_class_matches:
-        sum_weights_of_test_matches = sum_weights_of_test_matches + weights_dictionary.get(class_match)
+        sum_weights_of_test_matches = sum_weights_of_test_matches + weights_dictionary[class_match]
     PC = sum_weights_of_test_matches
 
 
@@ -106,16 +68,17 @@ def classification_rating(goldenset_classes,testset_classes,weights_dictionary):
     # summing the weights of the weights for goldenset classes (6):
     sum_weights_of_goldenset_matches = 0
     for class_match in goldenset_classes:
-        sum_weights_of_goldenset_matches = sum_weights_of_goldenset_matches + weights_dictionary.get(class_match)
+        sum_weights_of_goldenset_matches = sum_weights_of_goldenset_matches + weights_dictionary[class_match]
     NWgolden = sum_weights_of_goldenset_matches
 
 
     # classes rating calculation (7):
     class_rating = float(PC)/NWgolden - float(NC)/NWgolden * float(PWC)/len(testset_classes)
-    # if class_rating < 0.0:
-    #     class_rating = 0.0
+    if class_rating < 0.0:
+        class_rating = 0.0
 
     return class_rating
+
 
 def results_rating(goldenset_images,testset_images):
     '''
@@ -144,15 +107,15 @@ def results_rating(goldenset_images,testset_images):
 
 
     # initial check (1):
-    for golden_class in goldenset_images:
-        if not isinstance(golden_class,str):
-            print "goldenset_images must be strings in all list type!"
-            return
-
-    for test_class in testset_images:
-        if not isinstance(test_class,str):
-            print "testset_images must be strings in all list type!"
-            return
+    # for golden_class in goldenset_images:
+    #     if not isinstance(golden_class,str):
+    #         print "goldenset_images must be strings in all list type!"
+    #         return
+    #
+    # for test_class in testset_images:
+    #     if not isinstance(test_class,str):
+    #         print "testset_images must be strings in all list type!"
+    #         return
 
 
     # initial check (2):
@@ -220,11 +183,10 @@ def results_rating(goldenset_images,testset_images):
     # classes rating calculation (6):
     images_rating = float(Nco)/len(goldenset_images) + 0.5*float(Nnco)/len(goldenset_images) - \
                     float(Nne)/len(goldenset_images)
-    # if images_rating < 0.0:
-    #     images_rating = 0.0
+    if images_rating < 0.0:
+        images_rating = 0.0
 
     return images_rating
-
 
 
 def scorer(goldenset_classes,testset_classes,weights_dictionary,goldenset_images,testset_images):
@@ -258,9 +220,54 @@ print results_rating(goldenset_images,testset_images)
 '''
 
 
+# Tgfunctions:
+#
+# from trendi_guru_modules..
+#
+import background_removal
+import Utils
+import paperdolls
+import constants
+
+from trendi_guru_modules.paperdoll import paperdoll_parse_enqueue
+
+# resize image:
+image = background_removal.standard_resize(image, 400)[0]
+
+# activate paperdoll on image:
+mask, labels, pose = paperdoll_parse_enqueue.paperdoll_enqueue(image, False)
+
+# task 1: get categories from image
+
+# face:
+relevance = background_removal.image_is_relevant(image)
+face = relevance.faces[0]
+
+final_mask = paperdolls.after_pd_conclusions(mask, labels, face)
+
+#---------------------
+goldenset_classes = []
+#---------------------
+
+testset_classes = []
+weights_dictionary = {}
+for num in np.unique(final_mask):
+	category = list(labels.keys())[list(labels.values()).index(num)]
+	if category in constants.paperdoll_shopstyle_women.keys():
+        testset_classes.append(category)
+        # only because of this being a test, and weights (for category) dictionary is not set yet:
+        weights_dictionary[category] = 1
+
+print classification_rating(goldenset_classes,testset_classes,weights_dictionary)
 
 
+# task 2: get similar results
 
+'''
+
+'''
+	# scoring:
+    # test_classes_score, test_results_score = scorer(goldenset_classes,testset_classes,weights_dictionary,goldenset_images,testset_images)
 
 
 
