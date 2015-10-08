@@ -8,7 +8,7 @@ from trendi_guru_modules import paperdolls
 from trendi_guru_modules import constants
 
 from trendi_guru_modules.paperdoll import paperdoll_parse_enqueue
-
+import cv2
 
 
 def classification_rating(goldenset_classes,testset_classes,weights_dictionary):
@@ -223,6 +223,7 @@ print results_rating(goldenset_images,testset_images)
 #
 
 # resize image:
+image = cv2.imread('images/female1.jpg')
 image = background_removal.standard_resize(image, 400)[0]
 
 # activate paperdoll on image:
