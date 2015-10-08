@@ -278,6 +278,9 @@ RUN ssh  -L 6379:localhost:6379 -N  -o StrictHostKeyChecking=no -f ubuntu@extrem
 RUN rqworker gender &
 
 
+###################
+#CAFFE
+###################
 #caffe reqs:
 #anaconda
 
@@ -285,17 +288,15 @@ RUN  apt-get install libprotobuf-dev libleveldb-dev libsnappy-dev libopencv-dev 
 RUN apt-get install --no-install-recommends libboost-all-dev
 RUN apt-get install python-dev
 
-
 #BLAS via ATLAS(requires fortran), MKL(for pay), or OpenBLAS(requires turning off cpu throttling).
 #maybe blas is not required if numpy is installed since num,py requires blas....
+
 #openblas: apparently requires fortran
 #Set BLAS := open in Makefile.config
-RUN wget https://github.com/xianyi/OpenBLAS/zipball/master
-RUN gunzip master
-RUN  apt-get install gfortran
-RUN make
-
-
+#RUN wget https://github.com/xianyi/OpenBLAS/zipball/master
+#RUN gunzip master
+#RUN  apt-get install gfortran
+#RUN make
 
 #blas from atlas:  apparently requires turning off cpu throttling, see http://www.servernoobs.com/avoiding-cpu-speed-scaling-in-modern-linux-distributions-running-cpu-at-full-speed-tips/
 #RUN wget https://sourceforge.net/project/showfiles.php?group_id=23725
@@ -306,13 +307,38 @@ RUN make
 #RUN apt-get install libatlas-base-dev
 
 #Boost >= 1.55
-RUN wget http://sourceforge.net/projects/boost/files/boost/1.59.0/boost_1_59_0.tar.gz
-RUN tar --bzip2 -xf /path/to/boost_1_59_0.tar.bz2
+#RUN wget http://sourceforge.net/projects/boost/files/boost/1.59.0/boost_1_59_0.tar.gz
+#RUN tar --bzip2 -xf /path/to/boost_1_59_0.tar.bz2
 #OpenCV >= 2.4 in
 
-
 #after downloading caffe
-RUN for req in $(cat requirements.txt); do pip install $req; done
+#RUN for req in $(cat requirements.txt); do pip install $req; done
 
 #remaining dependencies
-sudo apt-get install libgflags-dev libgoogle-glog-dev liblmdb-dev
+#sudo apt-get install libgflags-dev libgoogle-glog-dev liblmdb-dev
+
+#RUN cd caffe
+#RUN cp Makefile.config.example Makefile.config
+#and change setting in Makefile.config
+#RUN mkdir build
+#WORKDIR build
+#RUN cmake ..
+#./configure (??not sure??)
+#RUN make all
+
+
+
+RUN apt-get install libprotobuf-dev libleveldb-dev libsnappy-dev libopencv-dev libhdf5-serial-dev protobuf-compiler
+RUN apt-get install --no-install-recommends libboost-all-dev
+RUN apt-get install python-dev
+RUN apt-get install libatlas-base-dev
+RUN wget http://sourceforge.net/projects/boost/files/boost/1.59.0/boost_1_59_0.tar.gz
+RUN tar --bzip2 -xf /path/to/boost_1_59_0.tar.bz2
+RUN sudo apt-get install libgflags-dev libgoogle-glog-dev liblmdb-dev
+RUN wget https://github.com/BVLC/caffe/archive/master.zip
+RUN unzip master.zip   ; cd caffe
+RUN cp Makefile.config.example Makefile.config
+RUN mkdir build
+RUN cd build
+RUN cmake ..
+RUN make all
