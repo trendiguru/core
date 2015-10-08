@@ -9,7 +9,7 @@ from trendi_guru_modules import constants
 
 from trendi_guru_modules.paperdoll import paperdoll_parse_enqueue
 import cv2
-
+import numpy as np
 
 def classification_rating(goldenset_classes,testset_classes,weights_dictionary):
     '''
