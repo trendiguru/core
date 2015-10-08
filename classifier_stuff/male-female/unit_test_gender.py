@@ -20,16 +20,41 @@ class OutcomesTest(unittest.TestCase):
     # def testError(self):
     # raise RuntimeError('Test error!')
 
-    def test_gender(self):
-        img_name = 'test/uncentered/female1.jpg'
+    def test_gender_func(self):
+        img_name = 'images/female1.jpg'
+        g = genderfunc(img_name)
+        print('trying genderfunc:'+ img_name+' seems to be '+ str(g))
+
+        img_name = 'images/male1.jpg'
+        g = genderfunc(img_name)
+        print('trying genderfunc:' + img_name+' seems to be '+ str(g))
+
+        img_name = 'images/male2.jpg'
+        g = genderfunc(img_name)
+        print('trying genderfunc:' + img_name+' seems to be '+ str(g))
+
+        img_name = 'images/male3.jpg'
+        g = genderfunc(img_name)
+        print('trying genderfunc:' + img_name+' seems to be '+ str(g))
+
+    def test_gender_queue(self):
+        img_name = 'images/female1.jpg'
         g = gender(img_name)
-        print(g)
-        img_name = 'test/uncentered/male1.jpg'
+        print(img_name+' seems to be '+ str(g))
+
+        img_name = 'images/male1.jpg'
         g = gender(img_name)
-        print(g)
-        img_name = 'test/uncentered/male2.jpg'
+        print('trying gender queue:' + img_name+' seems to be '+ str(g))
+
+        img_name = 'images/male2.jpg'
         g = gender(img_name)
-        print(g)
+        print('trying gender queue:' + img_name+' seems to be '+ str(g))
+
+        img_name = 'images/male3.jpg'
+        g = gender(img_name)
+        print('trying gender queue:' + img_name+' seems to be '+ str(g))
+
+
     #WIP
 
 if __name__ == '__main__':

@@ -37,11 +37,11 @@ class FaceRecognizer():
         self.int_labels = []
         self.labels_dict_rev = {}
 
-        if not hasattr(constants.FACECONST, 'createFisherFaceRecognizer'):
+        if not hasattr(cv2.face, 'createFisherFaceRecognizer'):
             self.supported = False
             warnings.warn("Returning None. OpenCV >= 2.4.4 required:hassattr("+str(constants.FACECONST)+"createFisherFaceRecognizer="+str(hasattr(constants.FACECONST,"createFisherFaceRecognizer")))
             return
-        self.model = constants.FACECONST.createFisherFaceRecognizer()
+        self.model = cv2.face.createFisherFaceRecognizer()
 
         # Not yet supported1
         # self.eigenValues = None
@@ -200,6 +200,7 @@ class FaceRecognizer():
             warnings.warn("Fisher Recognizer is supported by OpenCV >= 2.4.4")
             return None
         h, w = self.imageSize
+        print('img size:'+str(h)+' x '+str(w))
         images = [img if img.shape[:2] == self.imageSize
                   else cv2.resize(img, (w, h)) for img in imgs]
 

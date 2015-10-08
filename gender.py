@@ -10,29 +10,54 @@ import background_removal
 import fisherface
 import Utils
 import constants
+from rq import Queue
+from redis import Redis
+import time
+
+logging.basicConfig(level=logging.DEBUG)
 
 
-def gender(url_or_path_or_array, threshold=0 ):
+redis_conn = Redis()
+q = Queue('gender', connection=redis_conn)
+
+
+def gender(url_or_path_or_array, threshold=0, async=False):
+    job = q.enqueue('gender.genderfunc', url_or_path_or_array=url_or_path_or_array,threshold=threshold)
+    start_time = time.time()
+    elapsed_time = 0
+    if not async:
+        while job.result is None and elapsed_time<constants.gender_ttl:
+            time.sleep(0.1)
+            elapsed_time = time.time()-start_time
+    return job.result
+
+
+
+def genderfunc(url_or_path_or_array, threshold=0 ):
     f = fisherface.FaceRecognizer()
     f.load("faces20155727.2157.xml")  # 2500 faces
 
     img_arr = Utils.get_cv2_img_array(url_or_path_or_array)
-    gray = cv2.cvtColor(img_arr, constants.BGR2GRAYCONST)
     if img_arr is None:
         logging.warning('no img found in gender.py')
-        return None
+        return {'error':'no image found matching '+str(url_or_path_or_array)}
 
     cropped = crop_and_center_face(img_arr)
     if cropped is None:
+        #TODO return readable error if no face is found
         logging.warning('no img returned from crop_and_center')
-        cropped = gray
+        cropped = img_arr
 
+    cropped = cv2.cvtColor(cropped, constants.BGR2GRAYCONST)
+#    cv2.imshow('cropped',cropped)
+#    cv2.waitKey(0)
     if not (cropped.shape[0] == f.imageSize[0] and cropped.shape[1] == f.imageSize[1]):
         logging.debug('resizing ' + str(cropped.shape[:2]) + ' to expected imagesize' + str(f.imageSize))
         w = f.imageSize[0]
         h = f.imageSize[1]
         cropped = cv2.resize(cropped, (w, h))
     logging.debug('cropped final size ' + str(cropped.shape))
+    print('cropped final size ' + str(cropped.shape))
     label, confidence = f.model.predict(cropped)
 
     if (label == '0' or label == 0) and confidence > threshold:
@@ -124,15 +149,27 @@ def line_up_eyes(img_arr, left_eye_box, right_eye_box, expected_left_eye_center=
 
 
 if __name__ == "__main__":
-    img_name = 'test/uncentered/female1.jpg'
+
+    img_name = 'images/female1.jpg'
     g = gender(img_name)
-    print(g)
-    img_name = 'test/uncentered/male1.jpg'
+    print('trying gender queue:' + img_name+' seems to be '+ str(g))
+    img_name = 'images/male1.jpg'
     g = gender(img_name)
-    print(g)
-    img_name = 'test/uncentered/male2.jpg'
+    print('trying gender queue:' + img_name+' seems to be '+ str(g))
+    img_name = 'images/male2.jpg'
     g = gender(img_name)
-    print(g)
+    print('trying gender queue:' + img_name+' seems to be '+ str(g))
+    img_name = 'images/male3.jpg'
+    g = gender(img_name)
+    print('trying gender queue:' + img_name+' seems to be '+ str(g))
+
+
+#    img_name = 'images/female1.jpg'
+#    img_arr = cv2.imread(img_name)
+#    g = genderfunc(img_name)
+#    print('trying genderfunc:' + img_name+' seems to be '+ str(g))
+#    cv2.imshow('original',img_arr)
+#    cv2.waitKey(0)
 
     '''
 some output from lfw db to get a sense of where the eyes are

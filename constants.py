@@ -1,19 +1,23 @@
 import os
 
 import cv2
+import pymongo
+
 
 
 # file containing constants for general TG use
-
 # fingerprint related consts
 
-fingerprint_length = 56
-fingerprint_version = 1
+fingerprint_length = 696
+fingerprint_version = 4
 extras_length = 6
-histograms_length = 25
+histograms_length = [180, 255, 255]
+fingerprint_weights = [0.05, 0.5, 0.225, 0.225]
 K = 0.5                     # for euclidean distance
 min_bb_to_image_area_ratio = 0.95  # if bb takes more than this fraction of image area then use  cv2.GC_INIT_WITH_RECT instead of init with mask
-
+db_name = pymongo.MongoClient().mydb
+update_collection_name = 'products_new_fp'
+download_version = 792015  # DayMonthYear
 
 # fp rating related constants
 min_image_area = 400
@@ -21,9 +25,9 @@ min_images_per_doc = 10  # item has to have at least this number of pics
 max_images_per_doc = 18  # item has to have less than this number of pics
 max_items = 50  # max number of items to consider for rating fingerprint
 
-
 project_dir = os.path.dirname(__file__)
 classifiers_folder = os.path.join(project_dir, 'classifiers')
+# classifiers_folder = "/home/ubuntu/Dev/trendi_guru_modules/classifiers/"
 
 # classifier to category relation
 classifier_to_category_dict = {"dressClassifier.xml": ["dresses", "bridal-mother-dresses", "bridal-bridesmaid-dresses",
@@ -59,6 +63,7 @@ RELEVANT_ITEMS = {'2': 'leggings', '3': 'shorts', '4': 'blazers', '5': 'tees-and
                   '20': 'leggings', '23': 'womens-top', '24': 'cardigan-sweaters', '25': 'womens-accessories',
                   '26': 'mens-vests', '29': 'socks', '31': 'womens-intimates', '32': 'stockings',
                   '35': 'cashmere-sweaters', '36': 'sweatshirts', '37': 'womens-suits', '43': 'mens-ties'}
+
 IRELEVANT_ITEMS = {'1': 'background', '6': 'bag', '7': 'shoes', '10': 'purse', '11': 'boots', '21': 'scarf',
                    '22': 'hats', '27': 'sunglasses', '28': 'belts', '30': 'glasses', '33': 'necklace', '34': 'cape',
                    '38': 'bracelet', '39': 'heels', '40': 'wedges', '41': 'rings',
@@ -73,6 +78,33 @@ paperdoll_shopstyle_women = {'top': 'womens-tops', 'pants': 'womens-pants', 'sho
                              'suit': 'womens-suits', 'vest': 'vests', 'sweatshirt': 'sweatshirts',
                              'jumper': 'v-neck-sweaters', 'bodysuit': 'shapewear', 'leggings': 'leggings',
                              'stockings': 'hosiery', 'tights': 'leggings'}
+
+paperdoll_shopstyle_men = {'top': 'mens-shirts', 'pants': 'mens-pants', 'shorts': 'mens-shorts',
+                           'jeans': 'mens-jeans', 'jacket': 'mens-outerwear', 'blazer': 'mens-outerwear',
+                           'shirt': 'mens-shirts', 'skirt': 'mens-shorts', 'blouse': 'mens-shirts',
+                           'dress': 'mens-suits', 'sweater': 'mens-sweaters', 't-shirt': 'mens-tees-and-tshirts',
+                           'cardigan': 'mens-cardigan-sweaters', 'coat': 'mens-overcoats-and-trenchcoats',
+                           'suit': 'mens-suits', 'vest': 'vests', 'sweatshirt': 'mens-sweatshirts',
+                           'leggings': 'mens-pants', 'stockings': 'mens-pants', 'tights': 'mens-pants'}
+
+paperdoll_categories = {"whole_body": ['bodysuit', 'dress', 'jumper', 'suit', 'romper'],
+                        "upper_cover": ['blazer', 'cape', 'jacket', 'cardigan', 'coat', 'vest', 'sweatshirt'],
+                        "upper_under": ['t-shirt', 'blouse', 'shirt', 'top', 'sweater', 'sweatshirt'],
+                        "lower_cover": ['shorts', 'skirt', 'jeans', 'pants'],
+                        "lower_under": ['stockings', 'tights', 'leggings']}
+
+papersoll_whole_body = ['bodysuit', 'dress', 'jumper', 'suit', 'romper', 'intimate']
+paperdoll_upper = ['blazer', 'cape', 'jacket', 't-shirt', 'blouse', 'cardigan', 'shirt', 'coat', 'top', 'bra',
+                   'sweater',
+                   'vest', 'sweatshirt']
+paperdoll_lower = ['pants', 'stockings', 'jeans', 'tights', 'leggings', 'shorts', 'skirt']
+paperdoll_shopstyle_men = {'top': 'mens-shirts', 'pants': 'mens-pants', 'shorts': 'mens-shorts',
+                           'jeans': 'mens-jeans', 'jacket': 'mens-outerwear', 'blazer': 'mens-outerwear',
+                           'shirt': 'mens-shirts', 'skirt': 'mens-shorts', 'blouse': 'mens-shirts',
+                           'dress': 'mens-suits', 'sweater': 'mens-sweaters', 't-shirt': 'mens-tees-and-tshirts',
+                           'cardigan': 'mens-cardigan-sweaters', 'coat': 'mens-overcoats-and-trenchcoats',
+                           'suit': 'mens-suits', 'vest': 'vests', 'sweatshirt': 'mens-sweatshirts',
+                           'leggings': 'mens-pants', 'stockings': 'mens-pants', 'tights': 'mens-pants'}
 
 paperdoll_categories = {"whole_body": ['bodysuit', 'dress', 'jumper', 'suit', 'romper'],
                         "upper_cover": ['blazer', 'cape', 'jacket', 'cardigan', 'coat', 'vest', 'sweatshirt'],
@@ -101,6 +133,8 @@ nadav = 'awesome'
 
 Reserve_cpus = 2  # number of cpus to not use when doing stuff in parallel
 
+# for gender id
+gender_ttl = 5  #10 seconds ttl , answer should be nearly immediate
 
 # QC worker voting params
 
@@ -122,7 +156,8 @@ if cv2.__version__ == '3.0.0' or cv2.__version__ == '3.0.0-dev':
     scale_flag = cv2.CASCADE_SCALE_IMAGE
     BGR2GRAYCONST = cv2.COLOR_BGR2GRAY
 #    FACECONST = cv2.face
-    FACECONST = cv2  #i am not sure what this fixes but it break fisherface
+    FACECONST = cv2  #i am not sure what this fixes but it breaks fisherface
+                    #now i understand, if you havent installed contrib then even if you have cv2 v3 then cv2.face does not exist
     HAARCONST = cv2.CASCADE_SCALE_IMAGE
 
 

@@ -1,26 +1,3 @@
-#TODO
-#it would be nice to look for our git files and link to them if they exist, the point being to
-#allow for recent updates of our code - the code in the docker container may be stale
-#actually i guess this can be simply remedied by a git pull from the container
-
-#fingerprint_allinone - single dockerfile for:
-#pip , ipython, numpy
-#opencv3
-#git clone our repo
-
-#NOTE I have seen the docker build command break due to momentary internet hiccups.
-#you can just run the docker build again and it will try again from where it left off
-#to access ports use -P option to port forward ports thru container wall, like
-#docker run -d -P training/webapp python app.py
-#docker run -d -p 8000:8000  --link pg:database -t django_app
-
-#to use local filesystem file in a docker container use -v:
-#docker run -d --name newguest3 -P -v /var/www/html/index.html:/var/www/html/index.html:ro mymod/httpd:v2
-#ro is read only - see http://docs.oracle.com/cd/E52668_01/E54669/html/section_vtr_p2z_fp.html
-
-#linking containers
-#docker run -d -p 8000:8000  --link pg:database -t django_app
-
 FROM ubuntu:14.04
 
 #increase the available sources for installs
@@ -232,6 +209,19 @@ ENV HOME /home/developer
 #ADD ssh/ /root/.ssh/
 ADD ssh/ /home/developer/.ssh/
 
+RUN apt-get -y --force-yes  install nano
+
+#####################
+# redis and rq
+#####################
+RUN pip install redis
+RUN pip install rq
+
+
+
+#####################
+# ssh port forwarding
+#####################
 #turn off asking 'are you sure' on first ssh connect
 #this is supposed to be taken care of by the keyscan but isn't , perhaps because this
 # is not our own repo running on a port like in the example
@@ -243,6 +233,7 @@ RUN chmod 600 /home/developer/.ssh/*
 RUN chown developer:developer /home/developer/
 ADD ssh/first_aws.pem /home/developer/.ssh/first_aws.pem
 RUN chown developer:developer /home/developer/.ssh/*
+RUN chmod 400 /home/developer/.ssh/*
 
 # Avoid first connection host confirmation
 #changed port since i don't think bitbucket supports it
@@ -252,18 +243,76 @@ RUN chown developer:developer /home/developer/.ssh/*
 #RUN ssh-keyscan  bitbucket.com > /root/.ssh/known_hosts
 RUN ssh-keyscan  bitbucket.com > /home/developer/.ssh/known_hosts
 
+
+#mongobd port forward
+#CMD ssh -i /.ssh/first_aws.pem -L 27017:localhost:27017 ubuntu@extremeli.trendi.guru && /bin/bash
+
+#these scripts are to check port forwarding with a single command
+RUN  echo 'nmap -p 27017 localhost' > portmongo.sh
+RUN chmod o+x portmongo.sh
+RUN  echo 'nmap -p 6379 localhost' > portredis.sh
+RUN chmod o+x portredis.sh
+
+################################
+# git clone the tg repo
+################################
 RUN mkdir /home/developer/tg
 RUN chown developer:developer /home/developer/tg
 RUN mkdir /home/developer/tg/Dev
 RUN chown developer:developer /home/developer/tg/Dev
 WORKDIR /home/developer/tg/Dev
-
-RUN apt-get -y --force-yes  install nano
-
 USER developer
 RUN whoami
 RUN git clone --verbose git@bitbucket.org:trendiGuru/core.git
+#maybe ssh is per user so do this as developer
 
-#mongobd port forward
-CMD ssh -i /.ssh/first_aws.pem -L 27017:localhost:27017 ubuntu@extremeli.trendi.guru && /bin/bash
+WORKDIR /home/developer/tg/Dev/core
 
+##rqworker portforward
+#advice from docker forum guy
+#RUN yum install -y openssh-clients
+#COPY id_rsa /tmp/id_rsa
+#CMD ssh  -i /tmp/id_rsa -L 8000:localhost:8000 -N vagrant@192.168.33.10 -o StrictHostKeyChecking=no
+
+RUN ssh  -L 6379:localhost:6379 -N  -o StrictHostKeyChecking=no -f ubuntu@extremeli.trendi.guru &
+RUN rqworker gender &
+
+
+#caffe reqs:
+#anaconda
+
+RUN  apt-get install libprotobuf-dev libleveldb-dev libsnappy-dev libopencv-dev libhdf5-serial-dev protobuf-compiler
+RUN apt-get install --no-install-recommends libboost-all-dev
+RUN apt-get install python-dev
+
+
+#BLAS via ATLAS(requires fortran), MKL(for pay), or OpenBLAS(requires turning off cpu throttling).
+#maybe blas is not required if numpy is installed since num,py requires blas....
+#openblas: apparently requires fortran
+#Set BLAS := open in Makefile.config
+RUN wget https://github.com/xianyi/OpenBLAS/zipball/master
+RUN gunzip master
+RUN  apt-get install gfortran
+RUN make
+
+
+
+#blas from atlas:  apparently requires turning off cpu throttling, see http://www.servernoobs.com/avoiding-cpu-speed-scaling-in-modern-linux-distributions-running-cpu-at-full-speed-tips/
+#RUN wget https://sourceforge.net/project/showfiles.php?group_id=23725
+#RUN wget http://sourceforge.net/projects/math-atlas/files/latest/atlas3.10.2.tar.bz2
+#RUN bunzip2 -c atlas3.10.2.tar.bz2 | tar xfm -
+#RUN mv ATLAS/ ATLAS3.10.2
+#or as specified by caffe:
+#RUN apt-get install libatlas-base-dev
+
+#Boost >= 1.55
+RUN wget http://sourceforge.net/projects/boost/files/boost/1.59.0/boost_1_59_0.tar.gz
+RUN tar --bzip2 -xf /path/to/boost_1_59_0.tar.bz2
+#OpenCV >= 2.4 in
+
+
+#after downloading caffe
+RUN for req in $(cat requirements.txt); do pip install $req; done
+
+#remaining dependencies
+sudo apt-get install libgflags-dev libgoogle-glog-dev liblmdb-dev

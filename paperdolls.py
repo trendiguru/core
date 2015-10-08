@@ -99,7 +99,7 @@ def after_pd_conclusions(mask, labels, face):
                 mask_sizes[key].append({num: cv2.countNonZero(item_mask)})
     # 1
     for item in mask_sizes["whole_body"]:
-        if float(item.values()[0]) / (face[2] * face[3]) > 2 or \
+        if (float(item.values()[0]) / (face[2] * face[3]) > 2) or \
                 (len(mask_sizes["upper_cover"]) == 0 and len(mask_sizes["upper_under"]) == 0) or \
                 (len(mask_sizes["lower_cover"]) == 0 and len(mask_sizes["lower_under"]) == 0):
             print "W2P: That's a {0}".format(list(labels.keys())[list(labels.values()).index((item.keys()[0]))])
@@ -195,8 +195,7 @@ def start_process(page_url, image_url, async=False):
         return None
     if not image_obj:  # new image_url
         image_hash = page_results.get_hash_of_image_from_url(image_url)
-        image_obj = images.find_one_and_update({'image_hash': image_hash}, {'$push': {"image_urls": image_url}},
-                                               return_document=pymongo.ReturnDocument.AFTER)
+        image_obj = images.find_one({"image_hash": image_hash}) or iip.find_one({"image_hash": image_hash})
         if not image_obj:  # doesn't exists with another url
             image = Utils.get_cv2_img_array(image_url)
             if image is None:
@@ -211,7 +210,9 @@ def start_process(page_url, image_url, async=False):
                 relevant_faces = relevance.faces.tolist()
                 idx = 0
                 for face in relevant_faces:
-                    person = {'face': face, 'person_id': str(bson.ObjectId()), 'person_idx': idx, 'items': []}
+                    # gen = gender.gender(image_url, 0, False)[0]
+                    person = {'face': face, 'person_id': str(bson.ObjectId()), 'person_idx': idx,
+                              'items': []}
                     image_copy = person_isolation(image, face)
                     person['url'] = upload_image(image_copy, str(person['person_id']))
                     image_dict['people'].append(person)
@@ -228,11 +229,16 @@ def start_process(page_url, image_url, async=False):
                 while images.find_one({'image_urls': image_url}) is None:
                     time.sleep(0.5)
                 return page_results.merge_items(images.find_one({'image_urls': image_url}))
-        else:  # if the exact same image was found under other urls
-            logging.warning("image_hash was found in other urls:")
-            logging.warning("{0}".format(image_obj['image_urls']))
-            return page_results.merge_items(image_obj)
-    else:  # if image is in the DB
+        else:  # the exact same image was found under other urls
+            if image_obj['relevant']:
+                while images.find_one({'image_hash': image_hash}) is None:
+                    time.sleep(0.5)
+                image_obj = images.find_one_and_update({'image_hash': image_hash}, {'$push': {"image_urls": image_url}},
+                                                       return_document=pymongo.ReturnDocument.AFTER)
+                return page_results.merge_items(image_obj)
+            else:
+                return None
+    else:  # if image is in the DB by url
         if image_obj['relevant']:
             logging.warning("Image is in the DB and relevant!")
             return page_results.merge_items(image_obj)
@@ -241,13 +247,13 @@ def start_process(page_url, image_url, async=False):
             return image_obj
 
 
-def from_paperdoll_to_similar_results(person_id, mask, labels):
+def from_paperdoll_to_similar_results(person_id, mask, labels, num_of_matches=100):
     image_obj, person = get_person_by_id(person_id, iip)
     image = Utils.get_cv2_img_array(person['url'])
     items = []
     idx = 0
-    bgnd_mask = np.zeros(mask.shape, dtype=np.uint8)
-    skin_mask = np.zeros(mask.shape, dtype=np.uint8)
+    # bgnd_mask = np.zeros(mask.shape, dtype=np.uint8)
+    # skin_mask = np.zeros(mask.shape, dtype=np.uint8)
     for num in np.unique(mask):
         # convert numbers to labels
         category = list(labels.keys())[list(labels.values()).index(num)]
@@ -258,15 +264,20 @@ def from_paperdoll_to_similar_results(person_id, mask, labels):
         if category in constants.paperdoll_shopstyle_women.keys():
             item_mask = 255 * np.array(mask == num, dtype=np.uint8)
             # item_gc_mask = create_gc_mask(image, item_mask, 255 - bgnd_mask, 255 - skin_mask)  # (255, 0) mask
-            item_dict = {"category": constants.paperdoll_shopstyle_women[category],
-                         'item_id': str(bson.ObjectId()), 'item_idx': idx, 'saved_date': datetime.datetime.now()}
+            # if person['gender'] == 'man':
+            # shopstyle_cat = constants.paperdoll_shopstyle_men[category]
+            # else:
+            #     shopstyle_cat = constants.paperdoll_shopstyle_women[category]
+            shopstyle_cat = constants.paperdoll_shopstyle_women[category]
+            item_dict = {"category": shopstyle_cat, 'item_id': str(bson.ObjectId()), 'item_idx': idx,
+                         'saved_date': datetime.datetime.now()}
             svg_name = find_similar_mongo.mask2svg(
                 item_mask,
                 str(image_obj['_id']) + '_' + person['person_id'] + '_' + item_dict['category'],
                 constants.svg_folder)
             item_dict["svg_url"] = constants.svg_url_prefix + svg_name
             item_dict['fp'], item_dict['similar_results'] = find_similar_mongo.find_top_n_results(image, item_mask,
-                                                                                                  100,
+                                                                                                  num_of_matches,
                                                                                                   item_dict['category'])
             items.append(item_dict)
             idx += 1
