@@ -44,7 +44,6 @@ def show_max(parsed_img, labels):
     maxlabelval = len(labels)
     print('max label val:' + str(maxlabelval))
 
-
 if __name__ == "__main__":
     urls = ['http://i.imgur.com/ahFOgkm.jpg',\
             'http://www.wantdresses.com/wp-content/uploads/2015/09/sexy-plus-sized-prom-dresses-at-peaches-boutique-peaches-awesome-prom-dresses.jpg',\
