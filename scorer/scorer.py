@@ -1,5 +1,4 @@
-<<<<<<< HEAD
-=======
+
 # -*- coding: utf-8 -*-
 #
 __author__ = 'netanel'
@@ -12,7 +11,7 @@ from trendi_guru_modules import constants
 from trendi_guru_modules.paperdoll import paperdoll_parse_enqueue
 import cv2
 import numpy as np
->>>>>>> c3eda7fff8e4d414b5723aec143cee54b75baa7a
+
 
 def classification_rating(goldenset_classes,testset_classes,weights_dictionary):
     '''
@@ -25,7 +24,6 @@ def classification_rating(goldenset_classes,testset_classes,weights_dictionary):
     Steps:
 =======
     steps:
->>>>>>> c3eda7fff8e4d414b5723aec143cee54b75baa7a
     1. check that the two variables are lists of classes (words / strings / numeric, etc.). flag error if needed.
     2. check length of each. flag error if needed.
     3. detect which of 'goldenset_classes' classes exist in 'testset_classes' (positive classification - PC)
@@ -39,11 +37,6 @@ def classification_rating(goldenset_classes,testset_classes,weights_dictionary):
     7. perform the rating calculation as follows, and return value:
         return_value = {(3.2) - (4) - (5)}/(6); if return_value < 0 -> return_value = 0
     '''
-
-<<<<<<< HEAD
-
-=======
->>>>>>> c3eda7fff8e4d414b5723aec143cee54b75baa7a
     # initial check (1):
     # for golden_class in goldenset_classes:
     #     if not isinstance(golden_class,str):
@@ -55,42 +48,29 @@ def classification_rating(goldenset_classes,testset_classes,weights_dictionary):
     #         print "testset_classes must be strings in all list type!"
     #         return
 
-<<<<<<< HEAD
 
-=======
->>>>>>> c3eda7fff8e4d414b5723aec143cee54b75baa7a
     # initial check (2):
     if len(goldenset_classes)==0:
             print "goldenset_classes must not be empty!"
             return
-<<<<<<< HEAD
 
-=======
->>>>>>> c3eda7fff8e4d414b5723aec143cee54b75baa7a
     if len(testset_classes)==0:
             print "testset_classes must not be empty!"
             return
 
-<<<<<<< HEAD
 
-=======
->>>>>>> c3eda7fff8e4d414b5723aec143cee54b75baa7a
     # finding matches to the goldenset (3):
     goldenset_classes = set(goldenset_classes)
     testset_classes = set(testset_classes)
     set_of_class_matches = goldenset_classes.intersection(testset_classes)
 
-<<<<<<< HEAD
 
-=======
->>>>>>> c3eda7fff8e4d414b5723aec143cee54b75baa7a
     # summing the weights of the matched classes in testset (3.1, 3.2):
     sum_weights_of_test_matches = 0
     for class_match in set_of_class_matches:
         sum_weights_of_test_matches = sum_weights_of_test_matches + weights_dictionary[class_match]
     PC = sum_weights_of_test_matches
 
-<<<<<<< HEAD
 
     # how many of the goldenset are not included in the testset (4):
     NC = len(goldenset_classes) - len(set_of_class_matches)
@@ -100,24 +80,19 @@ def classification_rating(goldenset_classes,testset_classes,weights_dictionary):
     PWC = len(testset_classes) - len(set_of_class_matches)
 
 
-=======
     # how many of the goldenset are not included in the testset (4):
     NC = len(goldenset_classes) - len(set_of_class_matches)
 
     # how many of the testset are not included in the goldenset (5):
     PWC = len(testset_classes) - len(set_of_class_matches)
 
->>>>>>> c3eda7fff8e4d414b5723aec143cee54b75baa7a
     # summing the weights of the weights for goldenset classes (6):
     sum_weights_of_goldenset_matches = 0
     for class_match in goldenset_classes:
         sum_weights_of_goldenset_matches = sum_weights_of_goldenset_matches + weights_dictionary[class_match]
     NWgolden = sum_weights_of_goldenset_matches
 
-<<<<<<< HEAD
 
-=======
->>>>>>> c3eda7fff8e4d414b5723aec143cee54b75baa7a
     # classes rating calculation (7):
     class_rating = float(PC)/NWgolden - float(NC)/NWgolden * float(PWC)/len(testset_classes)
     if class_rating < 0.0:
@@ -125,10 +100,7 @@ def classification_rating(goldenset_classes,testset_classes,weights_dictionary):
 
     return class_rating
 
-<<<<<<< HEAD
 
-=======
->>>>>>> c3eda7fff8e4d414b5723aec143cee54b75baa7a
 def results_rating(goldenset_images,testset_images):
     '''
     calculates the rating of the ordered images set of the test in comparison to the
@@ -140,7 +112,6 @@ def results_rating(goldenset_images,testset_images):
 
 =======
 ​
->>>>>>> c3eda7fff8e4d414b5723aec143cee54b75baa7a
     Steps:
     1. check that the two variables are file names (words / strings / numeric, etc.). flag error if needed.
     2. check length of each. flag error if needed.
@@ -158,10 +129,7 @@ def results_rating(goldenset_images,testset_images):
     6. return_value = {Ngolden - Nco - Nnco - Nne}/Ngolden; if return_value < 0 -> return_value = 0
     '''
 
-<<<<<<< HEAD
 
-=======
->>>>>>> c3eda7fff8e4d414b5723aec143cee54b75baa7a
     # initial check (1):
     # for golden_class in goldenset_images:
     #     if not isinstance(golden_class,str):
@@ -173,10 +141,7 @@ def results_rating(goldenset_images,testset_images):
     #         print "testset_images must be strings in all list type!"
     #         return
 
-<<<<<<< HEAD
 
-=======
->>>>>>> c3eda7fff8e4d414b5723aec143cee54b75baa7a
     # initial check (2):
     if len(goldenset_images)==0:
             print "goldenset_images must not be empty!"
@@ -186,10 +151,7 @@ def results_rating(goldenset_images,testset_images):
             print "testset_images must not be empty!"
             return
 
-<<<<<<< HEAD
 
-=======
->>>>>>> c3eda7fff8e4d414b5723aec143cee54b75baa7a
     # find matching image names of golden and test, and find order of them (3):
     # we assume each image is listed only once in each list.
     index_of_ordered_at_goldenset = []
@@ -210,10 +172,7 @@ def results_rating(goldenset_images,testset_images):
         X.append(index_of_ordered_at_testset[i] - index_of_ordered_at_goldenset[i])
     Nco = sum(X)
 
-<<<<<<< HEAD
 
-=======
->>>>>>> c3eda7fff8e4d414b5723aec143cee54b75baa7a
     # find matching image names of golden and test, and find un-order of them (4):
     index_of_unordered_at_goldenset = []
     index_of_unordered_at_testset = []
@@ -227,11 +186,7 @@ def results_rating(goldenset_images,testset_images):
                 index_of_unordered_at_testset.append(testset_images.index(golden_image_name))
                 unordered_images.append(golden_image_name)
 
-<<<<<<< HEAD
-                # finding the weighted distance from the last ordered image:
-=======
-             # finding the weighted distance from the last ordered image:
->>>>>>> c3eda7fff8e4d414b5723aec143cee54b75baa7a
+
                 for index in index_of_ordered_at_goldenset:
                     if (index - index_of_unordered_at_goldenset[-1]) > 0:
                         last_ordered_distance.append(index-1)
@@ -305,20 +260,10 @@ print results_rating(goldenset_images,testset_images)
 #
 # from trendi_guru_modules..
 #
-<<<<<<< HEAD
-import background_removal
-import Utils
-import paperdolls
-import constants
 
-from trendi_guru_modules.paperdoll import paperdoll_parse_enqueue
-
-# resize image:
-=======
 
 # resize image:
 image = cv2.imread('../images/female1.jpg')
->>>>>>> c3eda7fff8e4d414b5723aec143cee54b75baa7a
 image = background_removal.standard_resize(image, 400)[0]
 
 # activate paperdoll on image:
@@ -339,14 +284,10 @@ goldenset_classes = []
 testset_classes = []
 weights_dictionary = {}
 for num in np.unique(final_mask):
-<<<<<<< HEAD
-	category = list(labels.keys())[list(labels.values()).index(num)]
-	if category in constants.paperdoll_shopstyle_women.keys():
-=======
     category = list(labels.keys())[list(labels.values()).index(num)]
     if category in constants.paperdoll_shopstyle_women.keys():
->>>>>>> c3eda7fff8e4d414b5723aec143cee54b75baa7a
         testset_classes.append(category)
+
         # only because of this being a test, and weights (for category) dictionary is not set yet:
         weights_dictionary[category] = 1
 
@@ -355,19 +296,7 @@ print classification_rating(goldenset_classes,testset_classes,weights_dictionary
 
 # task 2: get similar results
 
-'''
-<<<<<<< HEAD
 
-'''
 	# scoring:
     # test_classes_score, test_results_score = scorer(goldenset_classes,testset_classes,weights_dictionary,goldenset_images,testset_images)
 
-
-
-
-=======
-​
-'''
-    # scoring:
-    # test_classes_score, test_results_score = scorer(goldenset_classes,testset_classes,weights_dictionary,goldenset_images,testset_images)
->>>>>>> c3eda7fff8e4d414b5723aec143cee54b75baa7a
