@@ -64,7 +64,9 @@ def get_parse_mask(img_url_or_cv2_array):
         mask_np = np.array(mask, dtype=np.uint8)
         pose_np = np.array(pose, dtype=np.uint8)
         return mask_np, label_dict, pose_np
-
+    else:
+        print('either image is empty or problem writing')
+        return [[], [], []]
 
 def get_parse_from_matlab_parallel(image_filename,matlab_engine):
     mask, label_names, pose = matlab_engine.pd("inputimg.jpg", nargout=3)
@@ -85,6 +87,9 @@ def get_parse_mask_parallel(img_url_or_cv2_array,matlab_engine):
         mask_np = np.array(mask, dtype=np.uint8)
         pose_np = np.array(pose, dtype=np.uint8)
         return mask_np, label_dict, pose_np
+    else:
+        print('either image is empty or problem writing')
+        return [[], [], []]
 
 
 def show_max(parsed_img, labels):

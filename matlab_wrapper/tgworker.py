@@ -118,8 +118,8 @@ class TgWorker(Worker):
         DEFAULT_WORKER_TTL = 420
         DEFAULT_RESULT_TTL = 500
         logger = logging.getLogger(__name__)
-        logger.info('attempting to start engine in ej')
-        print('attempting to start engine in ej')
+        logger.info('checking engine in ej')
+        print('checking to start engine in ej')
         if not hasattr(self,'matlab_engine'):
             eng = matlab.engine.start_matlab()
             engine_name = eng.engineName
@@ -128,6 +128,10 @@ class TgWorker(Worker):
             print('test using engine:8! ='+str(a))
             self.matlab_engine = eng
             print('ej engine:'+str(self.matlab_engine))
+        else:
+            logger.info('found engine in ej')
+            print('found engine in ej')
+
         return self.perform_job(*args, **kwargs)
 
     def perform_job(self, job):
