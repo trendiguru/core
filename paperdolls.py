@@ -4,6 +4,7 @@ import logging
 import datetime
 import time
 import sys
+import copy
 
 import numpy as np
 import pymongo
@@ -19,7 +20,6 @@ import find_similar_mongo
 import background_removal
 import Utils
 import constants
-
 
 folder = '/home/ubuntu/paperdoll/masks/'
 QC_URL = 'https://extremeli.trendi.guru/api/fake_qc/index'
@@ -88,7 +88,11 @@ def after_pd_conclusions(mask, labels, face):
         2.2 upper-body: decide whether it's a one-part or under & cover
     3. return new mask
     """
-    final_mask = mask.copy()
+#jermy in
+#    final_mask = mask.copy()
+    final_mask = copy.copy(mask)
+#jeremy out
+
     mask_sizes = {"upper_cover": [], "upper_under": [], "lower_cover": [], "lower_under": [], "whole_body": []}
     for num in np.unique(mask):
         item_mask = 255 * np.array(mask == num, dtype=np.uint8)
