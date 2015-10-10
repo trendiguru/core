@@ -7,7 +7,7 @@ import cv2
 from trendi_guru_modules import constants
 
 redis_conn = Redis()
-q = Queue('paperdoll', connection=redis_conn)
+q = Queue('paperdoll_test', connection=redis_conn)
 
 # Tell RQ what Redis connection to use
 
@@ -68,12 +68,16 @@ if __name__ == "__main__":
             'http://www.wantdresses.com/wp-content/uploads/2015/09/group-of-vsledky-obrzk-google-pro-httpwwwoblectesecz-awesome-prom-dresses.jpg',\
             'http://www.wantdresses.com/wp-content/uploads/2015/09/gowns-blue-picture-more-detailed-picture-about-awesome-strapless-awesome-prom-dresses.jpg']
     i = 0
+    start_time = time.time()
     for url in urls:
         i+=1
         print('url #'+str(i)+' '+url)
         img, labels, pose = paperdoll_enqueue(url, async = False)
         print('labels:'+str(labels))
         print('')
+    elapsed_time = time.time() - start_time
+    print('tot elapsed:'+str(elapsed_time)+',per image:'+str(float(elapsed_time)/len(urls)))
+
         #        show_max(img, labels)
 #        show_parse(img_array=img)
 
