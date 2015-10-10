@@ -4,26 +4,38 @@ from rq import Queue
 from redis import Redis
 import cv2
 
+from trendi_guru_modules import constants
+
 redis_conn = Redis()
-q = Queue('paperdoll_test', connection=redis_conn)
+q = Queue('paperdoll', connection=redis_conn)
 
 # Tell RQ what Redis connection to use
 
 
 def paperdoll_enqueue(img_url_or_cv2_array, async=True):
     job = q.enqueue('pd.get_parse_mask', img_url_or_cv2_array=img_url_or_cv2_array)
+    start = time.time()
     if not async:
         while job.result is None:
             time.sleep(0.5)
+            elapsed_time = time.time()-start
+            if elapsed_time>constants.paperdoll_ttl:
+                print('timeout waiting for pd.get_parse_mask')
+                return [[],[],[]]
     return job.result
 
 
 def paperdoll_enqueue_parallel(img_url_or_cv2_array,async=True):
     qp = Queue('pd_parallel', connection=redis_conn)
     job = qp.enqueue('pd.get_parse_mask_parallel', img_url_or_cv2_array)
+    start = time.time()
     if not async:
         while job.result is None:
             time.sleep(0.5)
+            elapsed_time = time.time()-start
+            if elapsed_time>constants.paperdoll_ttl:
+                print('timeout waiting for pd.get_parse_mask')
+                return [[],[],[]]
     return job.result
 
 def show_parse(filename=None, img_array=None):
