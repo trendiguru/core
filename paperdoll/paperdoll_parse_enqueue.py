@@ -14,6 +14,7 @@ redis_conn = Redis()
 def paperdoll_enqueue(img_url_or_cv2_array, async=True,queue=None):
     if queue is None:
         queue = Queue('paperdoll', connection=redis_conn)
+    print('starting pd job on queue:'+str(queue))
     job = queue.enqueue('pd.get_parse_mask', img_url_or_cv2_array=img_url_or_cv2_array)
     start = time.time()
     if not async:
@@ -28,6 +29,7 @@ def paperdoll_enqueue(img_url_or_cv2_array, async=True,queue=None):
 
 def paperdoll_enqueue_parallel(img_url_or_cv2_array,async=True):
     qp = Queue('pd_parallel', connection=redis_conn)
+    print('starting pd job on parallel queue:'+str(qp))
     job = qp.enqueue('pd.get_parse_mask_parallel', img_url_or_cv2_array)
     start = time.time()
     if not async:
