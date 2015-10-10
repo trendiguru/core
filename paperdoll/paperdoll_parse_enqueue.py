@@ -7,13 +7,14 @@ import cv2
 from trendi_guru_modules import constants
 
 redis_conn = Redis()
-q = Queue('paperdoll_test', connection=redis_conn)
 
 # Tell RQ what Redis connection to use
 
 
-def paperdoll_enqueue(img_url_or_cv2_array, async=True):
-    job = q.enqueue('pd.get_parse_mask', img_url_or_cv2_array=img_url_or_cv2_array)
+def paperdoll_enqueue(img_url_or_cv2_array, async=True,queue=None):
+    if queue is None:
+        queue = Queue('paperdoll', connection=redis_conn)
+    job = queue.enqueue('pd.get_parse_mask', img_url_or_cv2_array=img_url_or_cv2_array)
     start = time.time()
     if not async:
         while job.result is None:
@@ -69,10 +70,12 @@ if __name__ == "__main__":
             'http://www.wantdresses.com/wp-content/uploads/2015/09/gowns-blue-picture-more-detailed-picture-about-awesome-strapless-awesome-prom-dresses.jpg']
     i = 0
     start_time = time.time()
+    queue = Queue('paperdoll_test', connection=redis_conn)
+
     for url in urls:
         i+=1
         print('url #'+str(i)+' '+url)
-        img, labels, pose = paperdoll_enqueue(url, async = False)
+        img, labels, pose = paperdoll_enqueue(url, async = False,queue=queue)
         print('labels:'+str(labels))
         print('')
     elapsed_time = time.time() - start_time
