@@ -42,7 +42,8 @@ def paperdoll_enqueue_parallel(img_url_or_cv2_array,async=True):
             if elapsed_time>constants.paperdoll_ttl:
                 print('timeout waiting for pd.get_parse_mask')
                 return [[],[],[]]
-    return job.result
+    #the caller expects three results...
+    return [job.result,job.result,job.result]
 
 def show_parse(filename=None, img_array=None):
     if filename is not None:
