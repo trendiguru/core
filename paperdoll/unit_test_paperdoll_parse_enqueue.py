@@ -31,6 +31,8 @@ class OutcomesTest(unittest.TestCase):
         img, labels, pose = paperdoll_parse_enqueue.paperdoll_enqueue_parallel(url, async = False)
         print('labels:'+str(labels))
         print('')
+
+        print('testing bad url:'+url)
         img, labels, pose = paperdoll_parse_enqueue.paperdoll_enqueue_parallel(url, async = True)
         print('labels:'+str(labels))
         print('')
