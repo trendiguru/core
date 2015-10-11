@@ -184,11 +184,11 @@ def search_existing_images(page_url):
 
 
 def clear_collection(collection):
-    print "before: " + collection.count() + " docs"
+    print "before: " + str(collection.count()) + " docs"
     for doc in collection.find():
         if doc['relevant'] is True and len(doc['people'][0]['items']) == 0:
             collection.delete_one({'_id': doc['_id']})
-    print "after: " + collection.count() + " docs"
+    print "after: " + str(collection.count()) + " docs"
 
 # ----------------------------------------------MAIN-FUNCTIONS----------------------------------------------------------
 
