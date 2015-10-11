@@ -4,7 +4,7 @@ from trendi_guru_modules import find_similar_mongo
 from trendi_guru_modules import background_removal
 from trendi_guru_modules import constants
 from trendi_guru_modules import Utils
-from trendi_guru_module.paperdoll import paperdoll_parse_enqueue
+from trendi_guru_modules.paperdoll import paperdoll_parse_enqueue
 from trendi_guru_modules import paperdolls
 
 
