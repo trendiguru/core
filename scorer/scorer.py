@@ -220,7 +220,7 @@ def scorer(goldenset_classes,testset_classes,weights_dictionary,goldenset_images
 
 
 '''
-#  ##################################################################################
+# ##################################################################################
 #   LAB LAB LAB LAB LAB LAB LAB LAB LAB LAB LAB LAB LAB LAB LAB LAB LAB LAB LAB LAB
 ###################################################################################
 <<<<<<< HEAD
