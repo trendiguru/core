@@ -1,11 +1,12 @@
 import numpy as np
-import find_similar_mongo
-import background_removal
-import constants
-import Utils
-from .paperdoll import paperdoll_parse_enqueue
-import paperdolls
 import cv2
+from trendi_guru_modules import find_similar_mongo
+from trendi_guru_modules import background_removal
+from trendi_guru_modules import constants
+from trendi_guru_modules import Utils
+from trendi_guru_module.paperdoll import paperdoll_parse_enqueue
+from trendi_guru_modules import paperdolls
+
 
 def classification_rating(goldenset_classes,testset_classes,weights_dictionary):
     '''
@@ -200,12 +201,33 @@ def results_rating(goldenset_images,testset_images):
     return images_rating
 
 def score(goldenset_classes,testset_classes,weights_dictionary,goldenset_images,testset_images):
+    '''
+    calculates the rating of the ordered images set of the test in comparison to the
+    'golden' (master) set order of images.
+    :param test_case_image_path: a path designating test image's location (string)
+    :param goldenset_classes: list of classes / category's names (strings)
+    :param goldenset_images: list of images file names (strings)
+    :param testset_classes: list of classes / category's names which were found to exist in the image, by paperdoll (strings)
+    :param testset_images: list of images file names which were found to match the test image, by paperdoll (strings)
+    :param weights_dictionary: a dictionary in which the 'key's are all available classes / categories, and the values
+            are float type numeric in the range of 0 to 1
+    :return: a double, ranging from 0 to 1, rating the results (images set) accuracy and the category list accuracy.
+    '''
     test_classes_score = classification_rating(goldenset_classes,testset_classes,weights_dictionary)
     test_results_score = results_rating(goldenset_images,testset_images)
     return test_classes_score, test_results_score
 
 def run_scorer(test_case_image_path,goldenset_classes,goldenset_images,weights_dictionary):
-
+    '''
+    calculates the rating of the ordered images set of the test in comparison to the
+    'golden' (master) set order of images.
+    :param test_case_image_path: a path designating test image's location (string)
+    :param goldenset_classes: list of classes / category's names (strings)
+    :param goldenset_images: list of images file names (strings)
+    :param weights_dictionary: a dictionary in which the 'key's are all available classes / categories, and the values
+            are float type numeric in the range of 0 to 1
+    :return: a double, ranging from 0 to 1, rating the results (images set) accuracy and the category list accuracy.
+    '''
 
 
     num_of_matches = 20 # of similar_results
@@ -233,14 +255,20 @@ def run_scorer(test_case_image_path,goldenset_classes,goldenset_images,weights_d
         item_mask = 255 * np.array(mask == num, dtype=np.uint8)
         shopstyle_cat = constants.paperdoll_shopstyle_women[category]
         similar_results = find_similar_mongo.find_top_n_results(image,item_mask,num_of_matches,shopstyle_cat)[1]
+        testset_images = similar_results
 
-
+    # scoring:
+    test_classes_score, test_results_score = scorer(goldenset_classes,testset_classes,weights_dictionary,
+                                                    goldenset_images,testset_images)
 
     print weights_dictionary
     print testset_classes
-    print classification_rating(goldenset_classes,testset_classes,weights_dictionary)
+    print test_classes_score
+    print test_results_score
+
+    return test_classes_score, test_results_score
 
 
-
-        # scoring:
-        # test_classes_score, test_results_score = scorer(goldenset_classes,testset_classes,weights_dictionary,goldenset_images,testset_images)
+# def lab()
+#     weights_dictionary = {'vest': 1, 'jeans': 1, 'sweatshirt': 1, 'skirt': 1, 'blouse': 1, 'cardigan': 1, 'shirt': 1, 'dress': 1, 'top': 1, 'suit': 1, 'pants': 1, 'shorts': 1, 't-shirt': 1, 'leggings': 1, 'blazer': 1, 'tights': 1, 'bodysuit': 1, 'jacket': 1, 'coat': 1, 'stockings': 1, 'jumper': 1, 'sweater': 1}
+#     goldenset_images = '../images/img.jpg'
