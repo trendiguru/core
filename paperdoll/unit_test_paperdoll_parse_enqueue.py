@@ -16,15 +16,12 @@ class OutcomesTest(unittest.TestCase):
     # examples of things to return
     #    def testPass(self):
     #        return
-
     #    def testFail(self):
     #        self.failIf(True)
-
     #    def testError(self):
     #        raise RuntimeError('Test error!')
-
     #run a timing test
-    def test_bad_url():
+    def test_bad_url(self):
         url = 'http://notanimage.jpg'
         queue = Queue('paperdoll', connection=redis_conn)
 
@@ -41,7 +38,7 @@ class OutcomesTest(unittest.TestCase):
 
 
     #run a timing test
-    def test_time():
+    def test_time(self):
         urls = ['http://i.imgur.com/ahFOgkm.jpg',\
                 'http://www.wantdresses.com/wp-content/uploads/2015/09/sexy-plus-sized-prom-dresses-at-peaches-boutique-peaches-awesome-prom-dresses.jpg',\
                 'http://www.wantdresses.com/wp-content/uploads/2015/07/skvdfw-l.jpg',\
