@@ -244,7 +244,7 @@ def lab():
 
 
     # resize image:
-    image = cv2.imread('../images/female1.jpg')
+    image = cv2.imread('../images/img.jpg')
     image = background_removal.standard_resize(image, 400)[0]
 
     # activate paperdoll on image:
