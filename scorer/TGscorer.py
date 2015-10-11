@@ -263,8 +263,8 @@ def run_scorer(test_case_image_path,goldenset_classes,goldenset_images,weights_d
             for element in str2img:
                 print element['_id']
                 #print len(element)
-            similar_results.append(str2img)
-        testset_images = similar_results
+                similar_results.append(element['_id'])
+    testset_images = similar_results
 
     # scoring:
     test_classes_score, test_results_score = score(goldenset_classes,testset_classes,weights_dictionary,
