@@ -265,7 +265,7 @@ print results_rating(goldenset_images,testset_images)
 # resize image:
 image = cv2.imread('../images/img.jpg')
 image = background_removal.standard_resize(image, 400)[0]
-
+goldenset_classes = []
 # activate paperdoll on image:
 mask, labels, pose = paperdoll_parse_enqueue.paperdoll_enqueue(image, False)
 
@@ -287,7 +287,7 @@ for num in np.unique(final_mask):
     category = list(labels.keys())[list(labels.values()).index(num)]
     if category in constants.paperdoll_shopstyle_women.keys():
         testset_classes.append(category)
-
+        print category
         # only because of this being a test, and weights (for category) dictionary is not set yet:
         weights_dictionary[category] = 1
 
