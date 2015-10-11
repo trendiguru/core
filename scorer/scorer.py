@@ -259,7 +259,7 @@ def lab():
     final_mask = paperdolls.after_pd_conclusions(mask, labels, face)
 
     #---------------------
-    goldenset_classes = ['dress']
+    goldenset_classes = ['1','2','3']
     #---------------------
 
     testset_classes = []
@@ -267,12 +267,12 @@ def lab():
     print constants.paperdoll_shopstyle_women.keys()
     for num in np.unique(final_mask):
         category = list(labels.keys())[list(labels.values()).index(num)]
-        # print category
-        if category in constants.paperdoll_shopstyle_women.keys():
-            testset_classes.append(category)
-            print category
+        print category
+        if label in constants.paperdoll_shopstyle_women.keys():
+            testset_classes.append(label)
+            print label
             # only because of this being a test, and weights (for category) dictionary is not set yet:
-            weights_dictionary[category] = 1
+            weights_dictionary[label] = 1
 
     print classification_rating(goldenset_classes,testset_classes,weights_dictionary)
 
