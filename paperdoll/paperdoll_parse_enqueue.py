@@ -36,8 +36,10 @@ def paperdoll_enqueue_parallel(img_url_or_cv2_array,async=True):
     job = qp.enqueue('pd.get_parse_mask_parallel', img_url_or_cv2_array)
     start = time.time()
     if not async:
+        print('running async'),
         while job.result is None:
             time.sleep(0.5)
+            print('.'),
             elapsed_time = time.time()-start
             if elapsed_time>constants.paperdoll_ttl:
                 print('timeout waiting for pd.get_parse_mask')
