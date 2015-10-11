@@ -25,40 +25,46 @@ class OutcomesTest(unittest.TestCase):
         url = 'http://notanimage.jpg'
         queue = Queue('paperdoll', connection=redis_conn)
 
-        print('testing bad url:'+url)
-    #    img, labels, pose = paperdoll_enqueue(url, async = True,queue=queue)
-         #n = paperdoll_enqueue(url, async = True,queue=queue)
-        img, labels, pose = paperdoll_parse_enqueue.paperdoll_enqueue(url, async = False)
+        print('testing bad url (async False, tg_worker true):'+url)
+        img, labels, pose = paperdoll_parse_enqueue.paperdoll_enqueue(url, async = False,use_tg_worker=True)
         print('labels:'+str(labels))
         print('')
 
-        print('testing bad url:'+url)
-        img, labels, pose = paperdoll_parse_enqueue.paperdoll_enqueue(url, async = True)
+        print('testing bad url:(async true, tg_worker true)'+url)
+        img, labels, pose = paperdoll_parse_enqueue.paperdoll_enqueue(url, async = True,use_tg_worker=True)
+        print('labels:'+str(labels))
+        print('')
+
+        print('testing bad url (async False, tg_worker False):'+url)
+        img, labels, pose = paperdoll_parse_enqueue.paperdoll_enqueue(url, async = False,use_tg_worker=False)
+        print('labels:'+str(labels))
+        print('')
+
+        print('testing bad url:(async true, tg_worker False)'+url)
+        img, labels, pose = paperdoll_parse_enqueue.paperdoll_enqueue(url, async = True,use_tg_worker=False)
         print('labels:'+str(labels))
         print('')
 
     def test_tg_and_regular_worker(self):
-        url = 'http://notanimage.jpg'
-        queue = Queue('paperdoll', connection=redis_conn)
-
-        print('testing tg worker on:'+url)
-        img, labels, pose = paperdoll_parse_enqueue.paperdoll_enqueue(url, async = False,use_tg_worker=True)
-        print('labels:'+str(labels))
-        print('')
-
-        print('testing regular redis worker on:'+url)
-        img, labels, pose = paperdoll_parse_enqueue.paperdoll_enqueue(url, async = False,use_tg_worker=False)
-        print('labels:'+str(labels))
-        print('')
 
         url = 'http://i.imgur.com/ahFOgkm.jpg'
-        print('testing tg worker on:'+url)
+        print('testing tg worker on (async False, tg_worker True):'+url)
         img, labels, pose = paperdoll_parse_enqueue.paperdoll_enqueue(url, async = False,use_tg_worker=True)
         print('labels:'+str(labels))
         print('')
 
-        print('testing regular redis worker on:'+url)
+        print('testing regular redis worker (async False, tg_worker False):'+url)
         img, labels, pose = paperdoll_parse_enqueue.paperdoll_enqueue(url, async = False,use_tg_worker=False)
+        print('labels:'+str(labels))
+        print('')
+
+        print('testing tg worker (async True, tg_worker True)'+url)
+        img, labels, pose = paperdoll_parse_enqueue.paperdoll_enqueue(url, async = True,use_tg_worker=True)
+        print('labels:'+str(labels))
+        print('')
+
+        print('testing regular redis worker  (async True, tg_worker False):'+url)
+        img, labels, pose = paperdoll_parse_enqueue.paperdoll_enqueue(url, async = True,use_tg_worker=False)
         print('labels:'+str(labels))
         print('')
 
@@ -75,13 +81,25 @@ class OutcomesTest(unittest.TestCase):
                 'http://www.wantdresses.com/wp-content/uploads/2015/09/group-of-vsledky-obrzk-google-pro-httpwwwoblectesecz-awesome-prom-dresses.jpg',\
                 'http://www.wantdresses.com/wp-content/uploads/2015/09/gowns-blue-picture-more-detailed-picture-about-awesome-strapless-awesome-prom-dresses.jpg']
         i = 0
-        start_time = time.time()
         queue = Queue('paperdoll_test', connection=redis_conn)
 
+        #test async
         for url in urls:
             i+=1
             print('url #'+str(i)+' '+url)
             img, labels, pose = paperdoll_parse_enqueue.paperdoll_enqueue(url, async = False,use_tg_worker=True)
+    #        n = paperdoll_parse_enqueue.paperdoll_enqueue(url, async = True,queue=queue)
+           # img, labels, pose = paperdoll_enqueue_parallel(url, async = True)
+            print('labels:'+str(labels))
+            print('')
+        print('tot elapsed:'+str(elapsed_time)+',per image:'+str(float(elapsed_time)/len(urls)))
+
+        #test sync
+        start_time = time.time()
+        for url in urls:
+            i+=1
+            print('url #'+str(i)+' '+url)
+            img, labels, pose = paperdoll_parse_enqueue.paperdoll_enqueue(url, async = True,use_tg_worker=True)
     #        n = paperdoll_parse_enqueue.paperdoll_enqueue(url, async = True,queue=queue)
            # img, labels, pose = paperdoll_enqueue_parallel(url, async = True)
             print('labels:'+str(labels))

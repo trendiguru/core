@@ -1,3 +1,12 @@
+import numpy as np
+import cv2
+from trendi_guru_modules import find_similar_mongo
+from trendi_guru_modules import background_removal
+from trendi_guru_modules import constants
+from trendi_guru_modules import Utils
+from trendi_guru_module.paperdoll import paperdoll_parse_enqueue
+from trendi_guru_modules import paperdolls
+
 
 def classification_rating(goldenset_classes,testset_classes,weights_dictionary):
     '''
@@ -191,77 +200,75 @@ def results_rating(goldenset_images,testset_images):
 
     return images_rating
 
-def scorer(goldenset_classes,testset_classes,weights_dictionary,goldenset_images,testset_images):
+def score(goldenset_classes,testset_classes,weights_dictionary,goldenset_images,testset_images):
+    '''
+    calculates the rating of the ordered images set of the test in comparison to the
+    'golden' (master) set order of images.
+    :param test_case_image_path: a path designating test image's location (string)
+    :param goldenset_classes: list of classes / category's names (strings)
+    :param goldenset_images: list of images file names (strings)
+    :param testset_classes: list of classes / category's names which were found to exist in the image, by paperdoll (strings)
+    :param testset_images: list of images file names which were found to match the test image, by paperdoll (strings)
+    :param weights_dictionary: a dictionary in which the 'key's are all available classes / categories, and the values
+            are float type numeric in the range of 0 to 1
+    :return: a double, ranging from 0 to 1, rating the results (images set) accuracy and the category list accuracy.
+    '''
     test_classes_score = classification_rating(goldenset_classes,testset_classes,weights_dictionary)
     test_results_score = results_rating(goldenset_images,testset_images)
     return test_classes_score, test_results_score
 
-def lab():
+def run_scorer(test_case_image_path,goldenset_classes,goldenset_images,weights_dictionary):
     '''
-    # ##################################################################################
-    #   LAB LAB LAB LAB LAB LAB LAB LAB LAB LAB LAB LAB LAB LAB LAB LAB LAB LAB LAB LAB
-    ###################################################################################
-
-    # testing: classification_rating(goldenset_classes,testset_classes,weights_dictionary)
-    print "\n testing: classification_rating(goldenset_classes,testset_classes,weights_dictionary)\n"
-    goldenset_classes = ["a","b","c","d","e","f","g","h","i"]
-    testset_classes = ["a","b","i","f","c","k","o","g"]
-    weights_dictionary = {"a":0.1,"b":0.5,"c":0.8,"d":0.7,"e":0.9,"f":1,"g":0.4,"h":0.6,"i":0.7,\
-                          "j":1,"k":1,"l":0.1,"m":0.2,"n":0.3,"o":0.4,"p":0.5}
-    print classification_rating(goldenset_classes,testset_classes,weights_dictionary)
-
-    # testing: results_rating(goldenset_images,testset_images)
-    print "\n testing: results_rating(goldenset_images,testset_images)\n"
-    goldenset_images = ["a","b","c","d","e","f","g","h","i"]
-    testset_images = ["a","f","c","k","o","g"]
-    print results_rating(goldenset_images,testset_images)
-
-    ###################################################################################
-    #   LAB LAB LAB LAB LAB LAB LAB LAB LAB LAB LAB LAB LAB LAB LAB LAB LAB LAB LAB LAB
-    ###################################################################################
+    calculates the rating of the ordered images set of the test in comparison to the
+    'golden' (master) set order of images.
+    :param test_case_image_path: a path designating test image's location (string)
+    :param goldenset_classes: list of classes / category's names (strings)
+    :param goldenset_images: list of images file names (strings)
+    :param weights_dictionary: a dictionary in which the 'key's are all available classes / categories, and the values
+            are float type numeric in the range of 0 to 1
+    :return: a double, ranging from 0 to 1, rating the results (images set) accuracy and the category list accuracy.
     '''
 
 
-    # Tgfunctions:
-    #
-    # from trendi_guru_modules..
-    #
-
-
+    num_of_matches = 20 # of similar_results
     # resize image:
-    image = cv2.imread('../images/img.jpg')
+    image = test_case_image_path
+    image = cv2.imread(image)
     image = background_removal.standard_resize(image, 400)[0]
 
     # activate paperdoll on image:
     mask, labels, pose = paperdoll_parse_enqueue.paperdoll_enqueue(image, False)
 
-    # task 1: get categories from image
-
+    # task 1: get categories from image:
     # face:
     relevance = background_removal.image_is_relevant(image)
     face = relevance.faces[0]
-
     final_mask = paperdolls.after_pd_conclusions(mask, labels, face)
-
-    #---------------------
-    goldenset_classes = ['vest','jeans','sweatshirt','dress','blouse','cardigan','shirt','skirt']
-    #---------------------
-
-    weights_dictionary = {}
-    testset_classes =  constants.paperdoll_shopstyle_women.keys()#
-    for category in testset_classes:
-        #category = list(labels.keys())[list(labels.values()).index(num)]
-        print category
+    testset_classes = []
+    for num in np.unique(final_mask):
+        # for categories score:
+        category = list(labels.keys())[list(labels.values()).index(num)]
         if category in constants.paperdoll_shopstyle_women.keys():
-            # only because of this being a test, and weights (for category) dictionary is not set yet:
-            weights_dictionary[category] = 1
+            testset_classes.append(category)
 
-    testset_classes = testset_classes[3:]
+    # task 2: get similar results:
+        item_mask = 255 * np.array(mask == num, dtype=np.uint8)
+        shopstyle_cat = constants.paperdoll_shopstyle_women[category]
+        similar_results = find_similar_mongo.find_top_n_results(image,item_mask,num_of_matches,shopstyle_cat)[1]
+        testset_images = similar_results
+
+    # scoring:
+    test_classes_score, test_results_score = score(goldenset_classes,testset_classes,weights_dictionary,
+                                                    goldenset_images,testset_images)
+
     print weights_dictionary
     print testset_classes
-    print classification_rating(goldenset_classes,testset_classes,weights_dictionary)
+    print test_classes_score
+    print test_results_score
 
-    # task 2: get similar results
+    return test_classes_score, test_results_score
 
-        # scoring:
-        # test_classes_score, test_results_score = scorer(goldenset_classes,testset_classes,weights_dictionary,goldenset_images,testset_images)
+
+# def lab( )
+#     weights_dictionary = {'vest': 1, 'jeans': 1, 'sweatshirt': 1, 'skirt': 1, 'blouse': 1, 'cardigan': 1, 'shirt': 1, 'dress': 1, 'top': 1, 'suit': 1, 'pants': 1, 'shorts': 1, 't-shirt': 1, 'leggings': 1, 'blazer': 1, 'tights': 1, 'bodysuit': 1, 'jacket': 1, 'coat': 1, 'stockings': 1, 'jumper': 1, 'sweater': 1}
+#     goldenset_images = '../images/img.jpg'

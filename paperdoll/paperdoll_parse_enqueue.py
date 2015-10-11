@@ -11,22 +11,25 @@ redis_conn = Redis()
 # Tell RQ what Redis connection to use
 
 
-def paperdoll_enqueue(img_url_or_cv2_array, async=True,queue=None,use_tg_worker=False):
+def paperdoll_enqueue(img_url_or_cv2_array, async=True,queue=None,use_tg_worker=True):
     if(use_tg_worker):
         return paperdoll_enqueue_parallel(img_url_or_cv2_array=img_url_or_cv2_array,async=async)
     else:
         if queue is None:
-            queue = Queue('pd', connection=redis_conn)
+            queue = Queue('pd_nonparallel', connection=redis_conn)
         print('starting pd job on queue:'+str(queue))
         job = queue.enqueue('pd.get_parse_mask', img_url_or_cv2_array=img_url_or_cv2_array)
         start = time.time()
         if not async:
+            print('running synchronously (regular redis worker)'),
             while job.result is None:
                 time.sleep(0.5)
+                print('.'),
                 elapsed_time = time.time()-start
                 if elapsed_time>constants.paperdoll_ttl:
                     print('timeout waiting for pd.get_parse_mask')
                     return [[],[],[]]
+            print('')
             return job.result
         return [job.result,None,None]
 
@@ -37,7 +40,7 @@ def paperdoll_enqueue_parallel(img_url_or_cv2_array,async=True):
     job = qp.enqueue('pd.get_parse_mask_parallel', img_url_or_cv2_array)
     start = time.time()
     if not async:
-        print('running async'),
+        print('running synchronously (w tgworker'),
         while job.result is None:
             time.sleep(0.5)
             print('.'),
@@ -45,6 +48,7 @@ def paperdoll_enqueue_parallel(img_url_or_cv2_array,async=True):
             if elapsed_time>constants.paperdoll_ttl:
                 print('timeout waiting for pd.get_parse_mask')
                 return [[],[],[]]
+        print('')
         return job.result
     #the caller expects three results...
     return [job.result,None,None]
@@ -68,15 +72,10 @@ def show_max(parsed_img, labels):
     print('max label val:' + str(maxlabelval))
 
 
-#run a timing test
+#run a parallelization test
 if __name__ == "__main__":
     urls = ['http://i.imgur.com/ahFOgkm.jpg',\
-            'http://www.wantdresses.com/wp-content/uploads/2015/09/sexy-plus-sized-prom-dresses-at-peaches-boutique-peaches-awesome-prom-dresses.jpg',\
-            'http://www.wantdresses.com/wp-content/uploads/2015/07/skvdfw-l.jpg',\
-            'http://www.wantdresses.com/wp-content/uploads/2015/09/xoxo-prom-dresses-awesome-prom-dresses.jpg',\
-            'http://www.wantdresses.com/wp-content/uploads/2015/09/prom-dresses-on-pinterest-orange-prom-dresses-pink-prom-dresses-awesome-prom-dresses.jpg',\
-            'http://www.wantdresses.com/wp-content/uploads/2015/09/fun-prom-dresses-2013-look-awesome-in-ombre-blog-at-the-prom-awesome-prom-dresses.jpg',\
-            'http://www.wantdresses.com/wp-content/uploads/2015/09/dress-jewellery-picture-more-detailed-picture-about-hot-sale-awesome-prom-dresses.jpg',\
+           'http://www.wantdresses.com/wp-content/uploads/2015/09/group-of-vsledky-obrzk-google-pro-httpwwwoblectesecz-awesome-prom-dresses.jpg',\
             'http://www.wantdresses.com/wp-content/uploads/2015/07/rs_634x926-140402114112-634-8Prom-Dress-ls.4214.jpg',\
             'http://www.wantdresses.com/wp-content/uploads/2015/09/group-of-vsledky-obrzk-google-pro-httpwwwoblectesecz-awesome-prom-dresses.jpg',\
             'http://www.wantdresses.com/wp-content/uploads/2015/09/gowns-blue-picture-more-detailed-picture-about-awesome-strapless-awesome-prom-dresses.jpg']
@@ -88,8 +87,8 @@ if __name__ == "__main__":
         i+=1
         print('url #'+str(i)+' '+url)
     #    img, labels, pose = paperdoll_enqueue(url, async = True,queue=queue)
-        n = paperdoll_enqueue(url, async = True,queue=queue)
-       # img, labels, pose = paperdoll_enqueue_parallel(url, async = True)
+       # n = paperdoll_enqueue(url, async = True,queue=queue)
+        img, labels, pose = paperdoll_enqueue(url, async = True,use_tg_worker=True)
 #        print('labels:'+str(labels))
 #        print('')
     elapsed_time = time.time() - start_time

@@ -697,6 +697,16 @@ def shorten_url_bitly(long_url):
     return response.text.rstrip()
 
 
+def git_pull_mightili(**kwargs):
+    import subprocess
+    try:
+        result = subprocess.check_output('git -C {dir} pull'.format(dir="/home/jeremy/python-packages/trendi_guru_modules"), shell=True)
+    except subprocess.CalledProcessError, e:
+        logging.warning("git auto pull failed with exception: {0}".format(e))
+    return
+
+
+
 
 if __name__ == '__main__':
     print('starting')
