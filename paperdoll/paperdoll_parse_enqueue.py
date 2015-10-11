@@ -32,7 +32,7 @@ def paperdoll_enqueue(img_url_or_cv2_array, async=True,queue=None,use_tg_worker=
 
 
 def paperdoll_enqueue_parallel(img_url_or_cv2_array,async=True):
-    qp = Queue('pd_parallel', connection=redis_conn)
+    qp = Queue('pd', connection=redis_conn)
     print('starting pd job on parallel queue:'+str(qp))
     job = qp.enqueue('pd.get_parse_mask_parallel', img_url_or_cv2_array)
     start = time.time()
