@@ -264,16 +264,14 @@ def lab():
 
     weights_dictionary = {}
     testset_classes =  constants.paperdoll_shopstyle_women.keys()#
-    print testset_classes
     for category in testset_classes:
         #category = list(labels.keys())[list(labels.values()).index(num)]
         print category
         if category in constants.paperdoll_shopstyle_women.keys():
-            # testset_classes.append(category)
-            print '1'
             # only because of this being a test, and weights (for category) dictionary is not set yet:
             weights_dictionary[category] = 1
 
+    print weights_dictionary
     print classification_rating(goldenset_classes,testset_classes,weights_dictionary)
 
     # task 2: get similar results
