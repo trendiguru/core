@@ -25,16 +25,12 @@ class OutcomesTest(unittest.TestCase):
         url = 'http://notanimage.jpg'
         queue = Queue('paperdoll', connection=redis_conn)
 
-        for url in urls:
-            i+=1
-            print('url #'+str(i)+' '+url)
+        print('url #'+str(i)+' '+url)
         #    img, labels, pose = paperdoll_enqueue(url, async = True,queue=queue)
             n = paperdoll_enqueue(url, async = True,queue=queue)
            # img, labels, pose = paperdoll_enqueue_parallel(url, async = True)
     #        print('labels:'+str(labels))
     #        print('')
-        elapsed_time = time.time() - start_time
-        print('tot elapsed:'+str(elapsed_time)+',per image:'+str(float(elapsed_time)/len(urls)))
 
 
     #run a timing test
