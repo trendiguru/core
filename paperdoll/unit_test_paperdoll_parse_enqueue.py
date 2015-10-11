@@ -25,40 +25,46 @@ class OutcomesTest(unittest.TestCase):
         url = 'http://notanimage.jpg'
         queue = Queue('paperdoll', connection=redis_conn)
 
-        print('testing bad url:'+url)
-    #    img, labels, pose = paperdoll_enqueue(url, async = True,queue=queue)
-         #n = paperdoll_enqueue(url, async = True,queue=queue)
-        img, labels, pose = paperdoll_parse_enqueue.paperdoll_enqueue(url, async = False)
+        print('testing bad url (async False, tg_worker true):'+url)
+        img, labels, pose = paperdoll_parse_enqueue.paperdoll_enqueue(url, async = False,use_tg_worker=True)
         print('labels:'+str(labels))
         print('')
 
-        print('testing bad url:'+url)
-        img, labels, pose = paperdoll_parse_enqueue.paperdoll_enqueue(url, async = True)
+        print('testing bad url:(async true, tg_worker true)'+url)
+        img, labels, pose = paperdoll_parse_enqueue.paperdoll_enqueue(url, async = True,use_tg_worker=True)
+        print('labels:'+str(labels))
+        print('')
+
+        print('testing bad url (async False, tg_worker False):'+url)
+        img, labels, pose = paperdoll_parse_enqueue.paperdoll_enqueue(url, async = False,use_tg_worker=False)
+        print('labels:'+str(labels))
+        print('')
+
+        print('testing bad url:(async true, tg_worker False)'+url)
+        img, labels, pose = paperdoll_parse_enqueue.paperdoll_enqueue(url, async = True,use_tg_worker=False)
         print('labels:'+str(labels))
         print('')
 
     def test_tg_and_regular_worker(self):
-        url = 'http://notanimage.jpg'
-        queue = Queue('paperdoll', connection=redis_conn)
-
-        print('testing tg worker on:'+url)
-        img, labels, pose = paperdoll_parse_enqueue.paperdoll_enqueue(url, async = False,use_tg_worker=True)
-        print('labels:'+str(labels))
-        print('')
-
-        print('testing regular redis worker on:'+url)
-        img, labels, pose = paperdoll_parse_enqueue.paperdoll_enqueue(url, async = False,use_tg_worker=False)
-        print('labels:'+str(labels))
-        print('')
 
         url = 'http://i.imgur.com/ahFOgkm.jpg'
-        print('testing tg worker on:'+url)
+        print('testing tg worker on (async False, tg_worker True):'+url)
         img, labels, pose = paperdoll_parse_enqueue.paperdoll_enqueue(url, async = False,use_tg_worker=True)
         print('labels:'+str(labels))
         print('')
 
-        print('testing regular redis worker on:'+url)
+        print('testing regular redis worker (async False, tg_worker False):'+url)
         img, labels, pose = paperdoll_parse_enqueue.paperdoll_enqueue(url, async = False,use_tg_worker=False)
+        print('labels:'+str(labels))
+        print('')
+
+        print('testing tg worker (async True, tg_worker True)'+url)
+        img, labels, pose = paperdoll_parse_enqueue.paperdoll_enqueue(url, async = True,use_tg_worker=True)
+        print('labels:'+str(labels))
+        print('')
+
+        print('testing regular redis worker  (async True, tg_worker False):'+url)
+        img, labels, pose = paperdoll_parse_enqueue.paperdoll_enqueue(url, async = True,use_tg_worker=False)
         print('labels:'+str(labels))
         print('')
 

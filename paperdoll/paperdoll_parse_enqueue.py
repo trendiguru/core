@@ -16,17 +16,20 @@ def paperdoll_enqueue(img_url_or_cv2_array, async=True,queue=None,use_tg_worker=
         return paperdoll_enqueue_parallel(img_url_or_cv2_array=img_url_or_cv2_array,async=async)
     else:
         if queue is None:
-            queue = Queue('pd', connection=redis_conn)
+            queue = Queue('pd_nonparallel', connection=redis_conn)
         print('starting pd job on queue:'+str(queue))
         job = queue.enqueue('pd.get_parse_mask', img_url_or_cv2_array=img_url_or_cv2_array)
         start = time.time()
         if not async:
+            print('running synchronously (regular redis worker)'),
             while job.result is None:
                 time.sleep(0.5)
+                print('.'),
                 elapsed_time = time.time()-start
                 if elapsed_time>constants.paperdoll_ttl:
                     print('timeout waiting for pd.get_parse_mask')
                     return [[],[],[]]
+            print('')
             return job.result
         return [job.result,None,None]
 
@@ -37,7 +40,7 @@ def paperdoll_enqueue_parallel(img_url_or_cv2_array,async=True):
     job = qp.enqueue('pd.get_parse_mask_parallel', img_url_or_cv2_array)
     start = time.time()
     if not async:
-        print('running async'),
+        print('running synchronously (w tgworker'),
         while job.result is None:
             time.sleep(0.5)
             print('.'),
@@ -45,6 +48,7 @@ def paperdoll_enqueue_parallel(img_url_or_cv2_array,async=True):
             if elapsed_time>constants.paperdoll_ttl:
                 print('timeout waiting for pd.get_parse_mask')
                 return [[],[],[]]
+        print('')
         return job.result
     #the caller expects three results...
     return [job.result,None,None]
