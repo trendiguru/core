@@ -31,7 +31,9 @@ class OutcomesTest(unittest.TestCase):
          img, labels, pose = paperdoll_enqueue_parallel(url, async = False)
          print('labels:'+str(labels))
          print('')
-
+         img, labels, pose = paperdoll_enqueue_parallel(url, async = True)
+         print('labels:'+str(labels))
+         print('')
 
     #run a timing test
     def test_time(self):
