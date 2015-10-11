@@ -102,8 +102,8 @@ def results_rating(goldenset_images,testset_images):
     :param goldenset_images: list of images file names (strings)
     :param testset_images: list of images file names (strings)
     :return: a double, ranging from 0 to 1, rating the results (images set) accuracy.
-​
-    Steps:
+
+    steps
     1. check that the two variables are file names (words / strings / numeric, etc.). flag error if needed.
     2. check length of each. flag error if needed.
     3. calculate: Nco = sum(if testset_images[i-y] is after testset_images[i-x] and,
