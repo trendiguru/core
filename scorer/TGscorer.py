@@ -1,3 +1,11 @@
+import numpy as np
+import find_similar_mongo
+import background_removal
+import constants
+import Utils
+from .paperdoll import paperdoll_parse_enqueue
+import paperdolls
+import cv2
 
 def classification_rating(goldenset_classes,testset_classes,weights_dictionary):
     '''
@@ -191,77 +199,48 @@ def results_rating(goldenset_images,testset_images):
 
     return images_rating
 
-def scorer(goldenset_classes,testset_classes,weights_dictionary,goldenset_images,testset_images):
+def score(goldenset_classes,testset_classes,weights_dictionary,goldenset_images,testset_images):
     test_classes_score = classification_rating(goldenset_classes,testset_classes,weights_dictionary)
     test_results_score = results_rating(goldenset_images,testset_images)
     return test_classes_score, test_results_score
 
-def lab():
-    '''
-    # ##################################################################################
-    #   LAB LAB LAB LAB LAB LAB LAB LAB LAB LAB LAB LAB LAB LAB LAB LAB LAB LAB LAB LAB
-    ###################################################################################
-
-    # testing: classification_rating(goldenset_classes,testset_classes,weights_dictionary)
-    print "\n testing: classification_rating(goldenset_classes,testset_classes,weights_dictionary)\n"
-    goldenset_classes = ["a","b","c","d","e","f","g","h","i"]
-    testset_classes = ["a","b","i","f","c","k","o","g"]
-    weights_dictionary = {"a":0.1,"b":0.5,"c":0.8,"d":0.7,"e":0.9,"f":1,"g":0.4,"h":0.6,"i":0.7,\
-                          "j":1,"k":1,"l":0.1,"m":0.2,"n":0.3,"o":0.4,"p":0.5}
-    print classification_rating(goldenset_classes,testset_classes,weights_dictionary)
-
-    # testing: results_rating(goldenset_images,testset_images)
-    print "\n testing: results_rating(goldenset_images,testset_images)\n"
-    goldenset_images = ["a","b","c","d","e","f","g","h","i"]
-    testset_images = ["a","f","c","k","o","g"]
-    print results_rating(goldenset_images,testset_images)
-
-    ###################################################################################
-    #   LAB LAB LAB LAB LAB LAB LAB LAB LAB LAB LAB LAB LAB LAB LAB LAB LAB LAB LAB LAB
-    ###################################################################################
-    '''
+def run_scorer(test_case_image_path,goldenset_classes,goldenset_images,weights_dictionary):
 
 
-    # Tgfunctions:
-    #
-    # from trendi_guru_modules..
-    #
 
-
+    num_of_matches = 20 # of similar_results
     # resize image:
-    image = cv2.imread('../images/img.jpg')
+    image = test_case_image_path
+    image = cv2.imread(image)
     image = background_removal.standard_resize(image, 400)[0]
 
     # activate paperdoll on image:
     mask, labels, pose = paperdoll_parse_enqueue.paperdoll_enqueue(image, False)
 
-    # task 1: get categories from image
-
+    # task 1: get categories from image:
     # face:
     relevance = background_removal.image_is_relevant(image)
     face = relevance.faces[0]
-
     final_mask = paperdolls.after_pd_conclusions(mask, labels, face)
-
-    #---------------------
-    goldenset_classes = ['vest','jeans','sweatshirt','dress','blouse','cardigan','shirt','skirt']
-    #---------------------
-
-    weights_dictionary = {}
-    testset_classes =  constants.paperdoll_shopstyle_women.keys()#
-    for category in testset_classes:
-        #category = list(labels.keys())[list(labels.values()).index(num)]
-        print category
+    testset_classes = []
+    for num in np.unique(final_mask):
+        # for categories score:
+        category = list(labels.keys())[list(labels.values()).index(num)]
         if category in constants.paperdoll_shopstyle_women.keys():
-            # only because of this being a test, and weights (for category) dictionary is not set yet:
-            weights_dictionary[category] = 1
+            testset_classes.append(category)
 
-    testset_classes = testset_classes[3:]
+    # task 2: get similar results:
+        item_mask = 255 * np.array(mask == num, dtype=np.uint8)
+        shopstyle_cat = constants.paperdoll_shopstyle_women[category]
+        similar_results = find_similar_mongo.find_top_n_results(image,item_mask,num_of_matches,shopstyle_cat)[1]
+
+
+
     print weights_dictionary
     print testset_classes
     print classification_rating(goldenset_classes,testset_classes,weights_dictionary)
 
-    # task 2: get similar results
+
 
         # scoring:
         # test_classes_score, test_results_score = scorer(goldenset_classes,testset_classes,weights_dictionary,goldenset_images,testset_images)
