@@ -237,7 +237,7 @@ def run_scorer(test_case_image_path,goldenset_classes,goldenset_images,weights_d
     image = background_removal.standard_resize(image, 400)[0]
 
     # activate paperdoll on image:
-    mask, labels, pose = paperdoll_parse_enqueue.paperdoll_enqueue(image, False)
+    mask, labels, pose = paperdoll_parse_enqueue.paperdoll_enqueue(image)
 
     # task 1: get categories from image:
     # face:
