@@ -204,6 +204,13 @@ def results_rating(goldenset_images,testset_images):
     return images_rating
 
 
+
+
+def scorer(goldenset_classes,testset_classes,weights_dictionary,goldenset_images,testset_images):
+    test_classes_score = classification_rating(goldenset_classes,testset_classes,weights_dictionary)
+    test_results_score = results_rating(goldenset_images,testset_images)
+    return test_classes_score, test_results_score
+
 def lab():
     '''
     # ##################################################################################
@@ -274,10 +281,3 @@ def lab():
 
         # scoring:
         # test_classes_score, test_results_score = scorer(goldenset_classes,testset_classes,weights_dictionary,goldenset_images,testset_images)
-
-
-def scorer(goldenset_classes,testset_classes,weights_dictionary,goldenset_images,testset_images):
-    test_classes_score = classification_rating(goldenset_classes,testset_classes,weights_dictionary)
-    test_results_score = results_rating(goldenset_images,testset_images)
-    return test_classes_score, test_results_score
-
