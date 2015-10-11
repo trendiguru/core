@@ -262,10 +262,10 @@ def lab():
     goldenset_classes = ['0','1','2','3']
     #---------------------
 
-    testset_classes = []
     weights_dictionary = {}
-    print constants.paperdoll_shopstyle_women.keys()
-    for num in np.unique(final_mask):
+    testset_classes = np.unique(final_mask) #constants.paperdoll_shopstyle_women.keys()
+    print testset_classes
+    for num in
         category = list(labels.keys())[list(labels.values()).index(num)]
         print category
         if category in constants.paperdoll_shopstyle_women.keys():
