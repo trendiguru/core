@@ -265,8 +265,8 @@ def lab():
     weights_dictionary = {}
     testset_classes =  constants.paperdoll_shopstyle_women.keys()#
     print testset_classes
-    for num in np.unique(final_mask)
-        category = list(labels.keys())[list(labels.values()).index(num)]
+    for category in testset_classes:
+        #category = list(labels.keys())[list(labels.values()).index(num)]
         print category
         if category in constants.paperdoll_shopstyle_women.keys():
             # testset_classes.append(category)
