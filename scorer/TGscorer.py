@@ -251,11 +251,11 @@ def run_scorer(test_case_image_path,goldenset_classes,goldenset_images,weights_d
         if category in constants.paperdoll_shopstyle_women.keys():
             testset_classes.append(category)
 
-    # task 2: get similar results:
-        item_mask = 255 * np.array(mask == num, dtype=np.uint8)
-        shopstyle_cat = constants.paperdoll_shopstyle_women[category]
-        similar_results = find_similar_mongo.find_top_n_results(image,item_mask,num_of_matches,shopstyle_cat)[1]
-        testset_images = similar_results
+        # task 2: get similar results:
+            item_mask = 255 * np.array(mask == num, dtype=np.uint8)
+            shopstyle_cat = constants.paperdoll_shopstyle_women[category]
+            similar_results = find_similar_mongo.find_top_n_results(image,item_mask,num_of_matches,shopstyle_cat)[1]
+            testset_images = similar_results
 
     # scoring:
     test_classes_score, test_results_score = score(goldenset_classes,testset_classes,weights_dictionary,
