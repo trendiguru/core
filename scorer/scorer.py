@@ -264,6 +264,7 @@ def lab():
 
     testset_classes = []
     weights_dictionary = {}
+    print constants.paperdoll_shopstyle_women.keys()
     for num in np.unique(final_mask):
         category = list(labels.keys())[list(labels.values()).index(num)]
         # print category
@@ -275,9 +276,7 @@ def lab():
 
     print classification_rating(goldenset_classes,testset_classes,weights_dictionary)
 
-
     # task 2: get similar results
-
 
         # scoring:
         # test_classes_score, test_results_score = scorer(goldenset_classes,testset_classes,weights_dictionary,goldenset_images,testset_images)
