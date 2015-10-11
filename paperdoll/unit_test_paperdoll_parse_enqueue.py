@@ -37,6 +37,31 @@ class OutcomesTest(unittest.TestCase):
         print('labels:'+str(labels))
         print('')
 
+    def test_tg_and_regular_worker(self):
+        url = 'http://notanimage.jpg'
+        queue = Queue('paperdoll', connection=redis_conn)
+
+        print('testing tg worker on:'+url)
+        img, labels, pose = paperdoll_parse_enqueue.paperdoll_enqueue_parallel(url, async = False,use_tg_worker=True)
+        print('labels:'+str(labels))
+        print('')
+
+        print('testing regular redis worker on:'+url)
+        img, labels, pose = paperdoll_parse_enqueue.paperdoll_enqueue_parallel(url, async = False,use_tg_worker=False)
+        print('labels:'+str(labels))
+        print('')
+
+        url = 'http://i.imgur.com/ahFOgkm.jpg'
+        print('testing tg worker on:'+url)
+        img, labels, pose = paperdoll_parse_enqueue.paperdoll_enqueue_parallel(url, async = False,use_tg_worker=True)
+        print('labels:'+str(labels))
+        print('')
+
+        print('testing regular redis worker on:'+url)
+        img, labels, pose = paperdoll_parse_enqueue.paperdoll_enqueue_parallel(url, async = False,use_tg_worker=False)
+        print('labels:'+str(labels))
+        print('')
+
     #run a timing test
     def test_time(self):
         urls = ['http://i.imgur.com/ahFOgkm.jpg',\
