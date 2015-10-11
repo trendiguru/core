@@ -28,12 +28,12 @@ class OutcomesTest(unittest.TestCase):
         print('testing bad url:'+url)
     #    img, labels, pose = paperdoll_enqueue(url, async = True,queue=queue)
          #n = paperdoll_enqueue(url, async = True,queue=queue)
-        img, labels, pose = paperdoll_parse_enqueue.paperdoll_enqueue_parallel(url, async = False)
+        img, labels, pose = paperdoll_parse_enqueue.paperdoll_enqueue(url, async = False)
         print('labels:'+str(labels))
         print('')
 
         print('testing bad url:'+url)
-        img, labels, pose = paperdoll_parse_enqueue.paperdoll_enqueue_parallel(url, async = True)
+        img, labels, pose = paperdoll_parse_enqueue.paperdoll_enqueue(url, async = True)
         print('labels:'+str(labels))
         print('')
 
@@ -42,23 +42,23 @@ class OutcomesTest(unittest.TestCase):
         queue = Queue('paperdoll', connection=redis_conn)
 
         print('testing tg worker on:'+url)
-        img, labels, pose = paperdoll_parse_enqueue.paperdoll_enqueue_parallel(url, async = False,use_tg_worker=True)
+        img, labels, pose = paperdoll_parse_enqueue.paperdoll_enqueue(url, async = False,use_tg_worker=True)
         print('labels:'+str(labels))
         print('')
 
         print('testing regular redis worker on:'+url)
-        img, labels, pose = paperdoll_parse_enqueue.paperdoll_enqueue_parallel(url, async = False,use_tg_worker=False)
+        img, labels, pose = paperdoll_parse_enqueue.paperdoll_enqueue(url, async = False,use_tg_worker=False)
         print('labels:'+str(labels))
         print('')
 
         url = 'http://i.imgur.com/ahFOgkm.jpg'
         print('testing tg worker on:'+url)
-        img, labels, pose = paperdoll_parse_enqueue.paperdoll_enqueue_parallel(url, async = False,use_tg_worker=True)
+        img, labels, pose = paperdoll_parse_enqueue.paperdoll_enqueue(url, async = False,use_tg_worker=True)
         print('labels:'+str(labels))
         print('')
 
         print('testing regular redis worker on:'+url)
-        img, labels, pose = paperdoll_parse_enqueue.paperdoll_enqueue_parallel(url, async = False,use_tg_worker=False)
+        img, labels, pose = paperdoll_parse_enqueue.paperdoll_enqueue(url, async = False,use_tg_worker=False)
         print('labels:'+str(labels))
         print('')
 
