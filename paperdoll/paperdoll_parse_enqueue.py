@@ -88,8 +88,8 @@ if __name__ == "__main__":
         i+=1
         print('url #'+str(i)+' '+url)
     #    img, labels, pose = paperdoll_enqueue(url, async = True,queue=queue)
-        n = paperdoll_enqueue(url, async = True,queue=queue)
-       # img, labels, pose = paperdoll_enqueue_parallel(url, async = True)
+       # n = paperdoll_enqueue(url, async = True,queue=queue)
+        img, labels, pose = paperdoll_enqueue(url, async = False)
 #        print('labels:'+str(labels))
 #        print('')
     elapsed_time = time.time() - start_time
