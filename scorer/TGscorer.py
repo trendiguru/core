@@ -258,7 +258,7 @@ def run_scorer(test_case_image_path,goldenset_classes,goldenset_images,weights_d
         testset_images = similar_results
 
     # scoring:
-    test_classes_score, test_results_score = scorer(goldenset_classes,testset_classes,weights_dictionary,
+    test_classes_score, test_results_score = score(goldenset_classes,testset_classes,weights_dictionary,
                                                     goldenset_images,testset_images)
 
     print weights_dictionary
