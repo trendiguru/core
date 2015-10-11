@@ -263,13 +263,13 @@ def lab():
     #---------------------
 
     weights_dictionary = {}
-    testset_classes =  constants.paperdoll_shopstyle_women.keys()#np.unique(final_mask)
+    testset_classes =  constants.paperdoll_shopstyle_women.keys()#
     print testset_classes
-    for num in testset_classes
+    for num in np.unique(final_mask)
         category = list(labels.keys())[list(labels.values()).index(num)]
         print category
         if category in constants.paperdoll_shopstyle_women.keys():
-            testset_classes.append(category)
+            # testset_classes.append(category)
             print '1'
             # only because of this being a test, and weights (for category) dictionary is not set yet:
             weights_dictionary[category] = 1
