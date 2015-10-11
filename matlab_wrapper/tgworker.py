@@ -153,8 +153,9 @@ class TgWorker(Worker):
                     print('tg pj  new args:'+str(new_args))
                     job._args = new_args
                 elif len(job._kwargs) > 0:
-                    job._kwargs['matlab_engine']=self.matlab_engine
-                    print('tg pj new kwargs:'+str(new_args))
+                    new_args = job._kwargs+(self.matlab_engine,)
+                    print('tg pj  new kwargs:'+str(new_args))
+                    job._kwargs['matlab_engine']=new_args
                 with self.death_penalty_class(job.timeout or self.queue_class.DEFAULT_TIMEOUT):
                     rv = job.perform()
         # Pickle the result in the same try-except block since we need
