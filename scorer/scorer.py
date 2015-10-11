@@ -1,7 +1,4 @@
 
-# -*- coding: utf-8 -*-
-#
-__author__ = 'netanel'
 
 from trendi_guru_modules import background_removal
 from trendi_guru_modules import Utils
@@ -19,10 +16,7 @@ def classification_rating(goldenset_classes,testset_classes,weights_dictionary):
     :param goldenset_classes: list of clothing classes name (strings)
     :param testset_classes: list of clothing classes name (strings)
     :return: a double, ranging from 0 to 1, rating the classification accuracy.
-<<<<<<< HEAD
 
-    Steps:
-=======
     steps:
     1. check that the two variables are lists of classes (words / strings / numeric, etc.). flag error if needed.
     2. check length of each. flag error if needed.
@@ -108,9 +102,6 @@ def results_rating(goldenset_images,testset_images):
     :param goldenset_images: list of images file names (strings)
     :param testset_images: list of images file names (strings)
     :return: a double, ranging from 0 to 1, rating the results (images set) accuracy.
-<<<<<<< HEAD
-
-=======
 ​
     Steps:
     1. check that the two variables are file names (words / strings / numeric, etc.). flag error if needed.
@@ -219,84 +210,74 @@ def scorer(goldenset_classes,testset_classes,weights_dictionary,goldenset_images
     return test_classes_score, test_results_score
 
 
-'''
-# ##################################################################################
-#   LAB LAB LAB LAB LAB LAB LAB LAB LAB LAB LAB LAB LAB LAB LAB LAB LAB LAB LAB LAB
-###################################################################################
-<<<<<<< HEAD
+def lab():
+    '''
+    # ##################################################################################
+    #   LAB LAB LAB LAB LAB LAB LAB LAB LAB LAB LAB LAB LAB LAB LAB LAB LAB LAB LAB LAB
+    ###################################################################################
 
-=======
-​
->>>>>>> c3eda7fff8e4d414b5723aec143cee54b75baa7a
-# testing: classification_rating(goldenset_classes,testset_classes,weights_dictionary)
-print "\n testing: classification_rating(goldenset_classes,testset_classes,weights_dictionary)\n"
-goldenset_classes = ["a","b","c","d","e","f","g","h","i"]
-testset_classes = ["a","b","i","f","c","k","o","g"]
-weights_dictionary = {"a":0.1,"b":0.5,"c":0.8,"d":0.7,"e":0.9,"f":1,"g":0.4,"h":0.6,"i":0.7,\
-                      "j":1,"k":1,"l":0.1,"m":0.2,"n":0.3,"o":0.4,"p":0.5}
-print classification_rating(goldenset_classes,testset_classes,weights_dictionary)
-<<<<<<< HEAD
+    # testing: classification_rating(goldenset_classes,testset_classes,weights_dictionary)
+    print "\n testing: classification_rating(goldenset_classes,testset_classes,weights_dictionary)\n"
+    goldenset_classes = ["a","b","c","d","e","f","g","h","i"]
+    testset_classes = ["a","b","i","f","c","k","o","g"]
+    weights_dictionary = {"a":0.1,"b":0.5,"c":0.8,"d":0.7,"e":0.9,"f":1,"g":0.4,"h":0.6,"i":0.7,\
+                          "j":1,"k":1,"l":0.1,"m":0.2,"n":0.3,"o":0.4,"p":0.5}
+    print classification_rating(goldenset_classes,testset_classes,weights_dictionary)
 
-=======
-​
->>>>>>> c3eda7fff8e4d414b5723aec143cee54b75baa7a
-# testing: results_rating(goldenset_images,testset_images)
-print "\n testing: results_rating(goldenset_images,testset_images)\n"
-goldenset_images = ["a","b","c","d","e","f","g","h","i"]
-testset_images = ["a","f","c","k","o","g"]
-print results_rating(goldenset_images,testset_images)
-<<<<<<< HEAD
+    # testing: results_rating(goldenset_images,testset_images)
+    print "\n testing: results_rating(goldenset_images,testset_images)\n"
+    goldenset_images = ["a","b","c","d","e","f","g","h","i"]
+    testset_images = ["a","f","c","k","o","g"]
+    print results_rating(goldenset_images,testset_images)
 
-=======
-​
->>>>>>> c3eda7fff8e4d414b5723aec143cee54b75baa7a
-###################################################################################
-#   LAB LAB LAB LAB LAB LAB LAB LAB LAB LAB LAB LAB LAB LAB LAB LAB LAB LAB LAB LAB
-###################################################################################
-'''
+    ###################################################################################
+    #   LAB LAB LAB LAB LAB LAB LAB LAB LAB LAB LAB LAB LAB LAB LAB LAB LAB LAB LAB LAB
+    ###################################################################################
+    '''
 
 
-# Tgfunctions:
-#
-# from trendi_guru_modules..
-#
+    # Tgfunctions:
+    #
+    # from trendi_guru_modules..
+    #
 
 
-# resize image:
-image = cv2.imread('../images/img.jpg')
-image = background_removal.standard_resize(image, 400)[0]
+    # resize image:
+    image = cv2.imread('../images/img.jpg')
+    image = background_removal.standard_resize(image, 400)[0]
 
-# activate paperdoll on image:
-mask, labels, pose = paperdoll_parse_enqueue.paperdoll_enqueue(image, False)
+    # activate paperdoll on image:
+    mask, labels, pose = paperdoll_parse_enqueue.paperdoll_enqueue(image, False)
 
-# task 1: get categories from image
+    # task 1: get categories from image
 
-# face:
-relevance = background_removal.image_is_relevant(image)
-face = relevance.faces[0]
+    # face:
+    relevance = background_removal.image_is_relevant(image)
+    face = relevance.faces[0]
 
-final_mask = paperdolls.after_pd_conclusions(mask, labels, face)
+    final_mask = paperdolls.after_pd_conclusions(mask, labels, face)
 
-#---------------------
-goldenset_classes = []
-#---------------------
+    #---------------------
+    goldenset_classes = []
+    #---------------------
 
-testset_classes = []
-weights_dictionary = {}
-for num in np.unique(final_mask):
-    category = list(labels.keys())[list(labels.values()).index(num)]
-    if category in constants.paperdoll_shopstyle_women.keys():
-        testset_classes.append(category)
-        print category
-        # only because of this being a test, and weights (for category) dictionary is not set yet:
-        weights_dictionary[category] = 1
+    testset_classes = []
+    weights_dictionary = {}
+    for num in np.unique(final_mask):
+        category = list(labels.keys())[list(labels.values()).index(num)]
+        # print category
+        if category in constants.paperdoll_shopstyle_women.keys():
+            testset_classes.append(category)
+            print category
+            # only because of this being a test, and weights (for category) dictionary is not set yet:
+            weights_dictionary[category] = 1
 
-print classification_rating(goldenset_classes,testset_classes,weights_dictionary)
-
-
-# task 2: get similar results
+    print classification_rating(goldenset_classes,testset_classes,weights_dictionary)
 
 
-	# scoring:
-    # test_classes_score, test_results_score = scorer(goldenset_classes,testset_classes,weights_dictionary,goldenset_images,testset_images)
+    # task 2: get similar results
+
+
+        # scoring:
+        # test_classes_score, test_results_score = scorer(goldenset_classes,testset_classes,weights_dictionary,goldenset_images,testset_images)
 
