@@ -271,6 +271,7 @@ def lab():
             # only because of this being a test, and weights (for category) dictionary is not set yet:
             weights_dictionary[category] = 1
 
+    testset_classes = testset_classes[3:]
     print weights_dictionary
     print classification_rating(goldenset_classes,testset_classes,weights_dictionary)
 
