@@ -244,7 +244,7 @@ def lab():
 
 
     # resize image:
-    image = cv2.imread('../images/img.jpg')
+    image = cv2.imread('../images/female1.jpg')
     image = background_removal.standard_resize(image, 400)[0]
 
     # activate paperdoll on image:
@@ -259,7 +259,7 @@ def lab():
     final_mask = paperdolls.after_pd_conclusions(mask, labels, face)
 
     #---------------------
-    goldenset_classes = []
+    goldenset_classes = ['dress']
     #---------------------
 
     testset_classes = []
