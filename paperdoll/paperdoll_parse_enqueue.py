@@ -21,7 +21,7 @@ def paperdoll_enqueue(img_url_or_cv2_array, async=True,queue=None,use_tg_worker=
         job = queue.enqueue('pd.get_parse_mask', img_url_or_cv2_array=img_url_or_cv2_array)
         start = time.time()
         if not async:
-        print('running synchronously'),
+            print('running synchronously (regular redis worker)'),
             while job.result is None:
                 time.sleep(0.5)
                 print('.'),
