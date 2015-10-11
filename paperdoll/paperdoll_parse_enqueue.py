@@ -11,12 +11,12 @@ redis_conn = Redis()
 # Tell RQ what Redis connection to use
 
 
-def paperdoll_enqueue(img_url_or_cv2_array, async=True,queue=None,use_tg_worker=True):
+def paperdoll_enqueue(img_url_or_cv2_array, async=True,queue=None,use_tg_worker=False):
     if(use_tg_worker):
         return paperdoll_enqueue_parallel(img_url_or_cv2_array=img_url_or_cv2_array,async=async)
     else:
         if queue is None:
-            queue = Queue('paperdoll', connection=redis_conn)
+            queue = Queue('pd', connection=redis_conn)
         print('starting pd job on queue:'+str(queue))
         job = queue.enqueue('pd.get_parse_mask', img_url_or_cv2_array=img_url_or_cv2_array)
         start = time.time()
