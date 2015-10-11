@@ -193,7 +193,7 @@ def clear_collection(collection):
 # ----------------------------------------------MAIN-FUNCTIONS----------------------------------------------------------
 
 
-def start_process(page_url, image_url, async=False):
+def start_process(page_url, image_url, async=True):
     image_obj = images.find_one({"image_urls": image_url})
     # if the image is in process, exit
     if iip.find_one({"image_urls": image_url}) and images.find_one({"image_urls": image_url}):
