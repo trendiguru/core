@@ -188,7 +188,7 @@ def results_rating(goldenset_images,testset_images):
     Nnco = sum(Y)
 
     # finds how many of the goldenset are not included in the testset (5):
-    Nne = len(set(goldenset_images).difference(testset_images))
+    Nne = len(list(set(goldenset_images).difference(testset_images)))
     print [len(goldenset_images),Nco,Nnco,Nne]
 
 
