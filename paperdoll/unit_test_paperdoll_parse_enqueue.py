@@ -25,13 +25,13 @@ class OutcomesTest(unittest.TestCase):
         url = 'http://notanimage.jpg'
         queue = Queue('paperdoll', connection=redis_conn)
 
-        print('url #'+str(i)+' '+url)
+        print('testing bad url:'+url)
     #    img, labels, pose = paperdoll_enqueue(url, async = True,queue=queue)
          #n = paperdoll_enqueue(url, async = True,queue=queue)
-        img, labels, pose = paperdoll_enqueue_parallel(url, async = False)
+        img, labels, pose = paperdoll_parse_enqueue.paperdoll_enqueue_parallel(url, async = False)
         print('labels:'+str(labels))
         print('')
-        img, labels, pose = paperdoll_enqueue_parallel(url, async = True)
+        img, labels, pose = paperdoll_parse_enqueue.paperdoll_enqueue_parallel(url, async = True)
         print('labels:'+str(labels))
         print('')
 
@@ -55,7 +55,7 @@ class OutcomesTest(unittest.TestCase):
             i+=1
             print('url #'+str(i)+' '+url)
         #    img, labels, pose = paperdoll_enqueue(url, async = True,queue=queue)
-            n = paperdoll_enqueue(url, async = True,queue=queue)
+            n = paperdoll_parse_enqueue.paperdoll_enqueue(url, async = True,queue=queue)
            # img, labels, pose = paperdoll_enqueue_parallel(url, async = True)
     #        print('labels:'+str(labels))
     #        print('')
