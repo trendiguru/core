@@ -27,7 +27,7 @@ def paperdoll_enqueue(img_url_or_cv2_array, async=True,queue=None,use_tg_worker=
                 elapsed_time = time.time()-start
                 if elapsed_time>constants.paperdoll_ttl:
                     print('timeout waiting for pd.get_parse_mask')
-                    return [[],[],[]]
+                    return
             print('')
             return job.result
         return [job.result,None,None]
@@ -46,7 +46,7 @@ def paperdoll_enqueue_parallel(img_url_or_cv2_array,async=True):
             elapsed_time = time.time()-start
             if elapsed_time>constants.paperdoll_ttl:
                 print('timeout waiting for pd.get_parse_mask')
-                return [[],[],[]]
+                return
         print('')
         return job.result
     #the caller expects three results...
