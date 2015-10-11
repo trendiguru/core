@@ -245,6 +245,7 @@ def run_scorer(test_case_image_path,goldenset_classes,goldenset_images,weights_d
     face = relevance.faces[0]
     final_mask = paperdolls.after_pd_conclusions(mask, labels, face)
     testset_classes = []
+    similar_results = []
     for num in np.unique(final_mask):
         # for categories score:
         category = list(labels.keys())[list(labels.values()).index(num)]
@@ -254,7 +255,7 @@ def run_scorer(test_case_image_path,goldenset_classes,goldenset_images,weights_d
         # task 2: get similar results:
             item_mask = 255 * np.array(mask == num, dtype=np.uint8)
             shopstyle_cat = constants.paperdoll_shopstyle_women[category]
-            similar_results = find_similar_mongo.find_top_n_results(image,item_mask,num_of_matches,shopstyle_cat)[1]
+            similar_results.append(find_similar_mongo.find_top_n_results(image,item_mask,num_of_matches,shopstyle_cat)[1])
         testset_images = similar_results
 
     # scoring:
