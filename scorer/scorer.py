@@ -259,7 +259,7 @@ def lab():
     final_mask = paperdolls.after_pd_conclusions(mask, labels, face)
 
     #---------------------
-    goldenset_classes = ['0','1','2','3']
+    goldenset_classes = ['vest','jeans','sweatshirt','dress','blouse','cardigan','shirt','skirt']
     #---------------------
 
     weights_dictionary = {}
