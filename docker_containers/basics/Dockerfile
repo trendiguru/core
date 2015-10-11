@@ -130,4 +130,5 @@ RUN rqworker gender &
 #COPY id_rsa /tmp/id_rsa
 #CMD ssh  -i /tmp/id_rsa -L 8000:localhost:8000 -N vagrant@192.168.33.10 -o StrictHostKeyChecking=no
 
+#try adding -f instead of &
 CMD ssh  -L 6379:localhost:6379 -N  -o StrictHostKeyChecking=no -f ubuntu@extremeli.trendi.guru &

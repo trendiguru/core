@@ -134,8 +134,8 @@ nadav = 'awesome'
 Reserve_cpus = 2  # number of cpus to not use when doing stuff in parallel
 
 # for gender id
-gender_ttl = 5  #10 seconds ttl , answer should be nearly immediate
-paperdoll_ttl = 45  #seconds to wait for paperdoll result
+gender_ttl = 5  # 10 seconds ttl , answer should be nearly immediate
+paperdoll_ttl = 9045  # seconds to wait for paperdoll result
 
 # QC worker voting params
 
@@ -157,8 +157,8 @@ if cv2.__version__ == '3.0.0' or cv2.__version__ == '3.0.0-dev':
     scale_flag = cv2.CASCADE_SCALE_IMAGE
     BGR2GRAYCONST = cv2.COLOR_BGR2GRAY
 #    FACECONST = cv2.face
-    FACECONST = cv2  #i am not sure what this fixes but it breaks fisherface
-                    #now i understand, if you havent installed contrib then even if you have cv2 v3 then cv2.face does not exist
+    FACECONST = cv2  # i am not sure what this fixes but it breaks fisherface
+    # now i understand, if you havent installed contrib then even if you have cv2 v3 then cv2.face does not exist
     HAARCONST = cv2.CASCADE_SCALE_IMAGE
 
 

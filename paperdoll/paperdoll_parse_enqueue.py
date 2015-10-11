@@ -11,12 +11,12 @@ redis_conn = Redis()
 # Tell RQ what Redis connection to use
 
 
-def paperdoll_enqueue(img_url_or_cv2_array, async=True,queue=None):
-    if(1):
-        paperdoll_enqueue_parallel(img_url_or_cv2_array=img_url_or_cv2_array,async=async)
+def paperdoll_enqueue(img_url_or_cv2_array, async=True,queue=None,use_tg_worker=False):
+    if(use_tg_worker):
+        return paperdoll_enqueue_parallel(img_url_or_cv2_array=img_url_or_cv2_array,async=async)
     else:
         if queue is None:
-            queue = Queue('paperdoll', connection=redis_conn)
+            queue = Queue('pd', connection=redis_conn)
         print('starting pd job on queue:'+str(queue))
         job = queue.enqueue('pd.get_parse_mask', img_url_or_cv2_array=img_url_or_cv2_array)
         start = time.time()
@@ -27,23 +27,27 @@ def paperdoll_enqueue(img_url_or_cv2_array, async=True,queue=None):
                 if elapsed_time>constants.paperdoll_ttl:
                     print('timeout waiting for pd.get_parse_mask')
                     return [[],[],[]]
-        return job.result
+            return job.result
+        return [job.result,None,None]
 
 
 def paperdoll_enqueue_parallel(img_url_or_cv2_array,async=True):
-    qp = Queue('pd_parallel', connection=redis_conn)
+    qp = Queue('pd', connection=redis_conn)
     print('starting pd job on parallel queue:'+str(qp))
     job = qp.enqueue('pd.get_parse_mask_parallel', img_url_or_cv2_array)
     start = time.time()
     if not async:
+        print('running async'),
         while job.result is None:
             time.sleep(0.5)
+            print('.'),
             elapsed_time = time.time()-start
             if elapsed_time>constants.paperdoll_ttl:
                 print('timeout waiting for pd.get_parse_mask')
                 return [[],[],[]]
+        return job.result
     #the caller expects three results...
-    return job.result
+    return [job.result,None,None]
 
 def show_parse(filename=None, img_array=None):
     if filename is not None:
@@ -63,6 +67,8 @@ def show_max(parsed_img, labels):
     maxlabelval = len(labels)
     print('max label val:' + str(maxlabelval))
 
+
+#run a timing test
 if __name__ == "__main__":
     urls = ['http://i.imgur.com/ahFOgkm.jpg',\
             'http://www.wantdresses.com/wp-content/uploads/2015/09/sexy-plus-sized-prom-dresses-at-peaches-boutique-peaches-awesome-prom-dresses.jpg',\
