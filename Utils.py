@@ -705,6 +705,9 @@ def git_pull_mightili(**kwargs):
         logging.warning("git auto pull failed with exception: {0}".format(e))
     return
 
+def test_if_git_pull_works_on_mightili():
+    pass
+
 
 if __name__ == '__main__':
     print('starting')
