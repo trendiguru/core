@@ -260,9 +260,9 @@ def run_scorer(test_case_image_path,goldenset_classes,goldenset_images,weights_d
             item_mask = 255 * np.array(mask == num, dtype=np.uint8)
             shopstyle_cat = constants.paperdoll_shopstyle_women[category]
             str2img = find_similar_mongo.find_top_n_results(image,item_mask,num_of_matches,shopstyle_cat)[1]
-            for element in str2img
-            print type(element)
-            #print len(element)
+            for element in str2img:
+                print type(element)
+                #print len(element)
             similar_results.append(str2img)
         testset_images = similar_results
 
