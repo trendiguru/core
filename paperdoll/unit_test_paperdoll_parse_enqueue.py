@@ -1,28 +1,13 @@
 __author__ = 'jeremy'
 
-# TODO
-#add tests for:
-#make sure fingerprint of simlar images are more similar than fps of dvery different images
-#length is correct
+
 
 import unittest
-import math
-
-import cv2
-import numpy as np
-from matplotlib import pyplot as plt
-
-import Utils
-import fingerprint_core
-import constants
-
 import time
-import numpy as np
 from rq import Queue
 from redis import Redis
-import cv2
 
-from trendi_guru_modules import constants
+from trendi_guru_modules.paperdoll import paperdoll_parse_enqueue
 
 redis_conn = Redis()
 
@@ -41,7 +26,7 @@ class OutcomesTest(unittest.TestCase):
     #run a timing test
     def test_bad_url():
         url = 'http://notanimage.jpg'
-        queue = Queue('paperdoll_test', connection=redis_conn)
+        queue = Queue('paperdoll', connection=redis_conn)
 
         for url in urls:
             i+=1
