@@ -188,7 +188,7 @@ def results_rating(goldenset_images,testset_images):
     Nnco = sum(Y)
 
     # finds how many of the goldenset are not included in the testset (5):
-    Nne = len(list(set(goldenset_images).difference(testset_images)))
+    Nne = len(set(goldenset_images).difference(testset_images))
     print [len(goldenset_images),Nco,Nnco,Nne]
 
 
@@ -259,7 +259,9 @@ def run_scorer(test_case_image_path,goldenset_classes,goldenset_images,weights_d
         # task 2: get similar results:
             item_mask = 255 * np.array(mask == num, dtype=np.uint8)
             shopstyle_cat = constants.paperdoll_shopstyle_women[category]
-            similar_results.append(find_similar_mongo.find_top_n_results(image,item_mask,num_of_matches,shopstyle_cat)[1])
+            str2img = find_similar_mongo.find_top_n_results(image,item_mask,num_of_matches,shopstyle_cat)[1]
+            print str2img
+            similar_results.append(str2img)
         testset_images = similar_results
 
     # scoring:
