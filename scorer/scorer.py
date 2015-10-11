@@ -88,7 +88,7 @@ def classification_rating(goldenset_classes,testset_classes,weights_dictionary):
 
 
     # classes rating calculation (7):
-    class_rating = float(PC)/NWgolden - float(NC)/NWgolden * float(PWC)/len(testset_classes)
+    class_rating = float(PC)/NWgolden - float(NC)/NWgolden - float(PWC)/len(testset_classes)
     if class_rating < 0.0:
         class_rating = 0.0
 
@@ -259,21 +259,21 @@ def lab():
     final_mask = paperdolls.after_pd_conclusions(mask, labels, face)
 
     #---------------------
-    goldenset_classes = []
+    goldenset_classes = ['vest','jeans','sweatshirt','dress','blouse','cardigan','shirt','skirt']
     #---------------------
 
-    testset_classes = []
     weights_dictionary = {}
-    print constants.paperdoll_shopstyle_women.keys()
-    for num in np.unique(final_mask):
-        category = list(labels.keys())[list(labels.values()).index(num)]
-        # print category
+    testset_classes =  constants.paperdoll_shopstyle_women.keys()#
+    for category in testset_classes:
+        #category = list(labels.keys())[list(labels.values()).index(num)]
+        print category
         if category in constants.paperdoll_shopstyle_women.keys():
-            testset_classes.append(category)
-            print category
             # only because of this being a test, and weights (for category) dictionary is not set yet:
             weights_dictionary[category] = 1
 
+    testset_classes = testset_classes[3:]
+    print weights_dictionary
+    print testset_classes
     print classification_rating(goldenset_classes,testset_classes,weights_dictionary)
 
     # task 2: get similar results
