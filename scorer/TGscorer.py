@@ -215,9 +215,9 @@ def score(goldenset_classes,testset_classes,weights_dictionary,goldenset_images,
     '''
     test_classes_score = classification_rating(goldenset_classes,testset_classes,weights_dictionary)
     test_results_score = results_rating(goldenset_images,testset_images)
-    if test_classes_score == None
+    if test_classes_score == None:
         test_classes_score = 0.0
-    if test_results_score == None
+    if test_results_score == None:
         test_results_score = 0.0
     return test_classes_score, test_results_score
 
