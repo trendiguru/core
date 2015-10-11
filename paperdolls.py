@@ -183,9 +183,10 @@ def search_existing_images(page_url):
     return ex_list
 
 
-# def clear_collection(collection):
-# for doc in db.iip.find():
-#          if doc['relevant'] == True and len(doc['people'][0]['items']) == 0:
+def clear_collection(collection):
+    for doc in db.collection.find():
+        if doc['relevant'] is True and len(doc['people'][0]['items']) == 0:
+            db.collection.delete_one({'_id': doc['_id']})
 
 # ----------------------------------------------MAIN-FUNCTIONS----------------------------------------------------------
 
