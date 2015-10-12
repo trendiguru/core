@@ -8,6 +8,7 @@ from rq import Queue
 from redis import Redis
 
 from trendi_guru_modules.paperdoll import paperdoll_parse_enqueue
+import paperdolls
 
 redis_conn = Redis()
 
@@ -25,7 +26,7 @@ class OutcomesTest(unittest.TestCase):
     def test_callback(self):
         url = 'http://i.imgur.com/ahFOgkm.jpg'
         print('testing callback')
-        paperdoll_parse_enqueue.paperdoll_enqueue(url,async=True,queue='jrtestcallback',use_tg_worker=False,callback_function='pd.test_function',args=(100,101),kwargs={'a':3,'b':4})
+        paperdoll_parse_enqueue.paperdoll_enqueue(url,async=True,queue='jrtestcallback',use_tg_worker=False,callback_function=paperdolls.callback_example,args=(100,101),kwargs={'a':3,'b':4})
 
 
     def test_bad_url(self):
