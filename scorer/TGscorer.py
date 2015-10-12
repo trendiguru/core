@@ -82,7 +82,7 @@ def classification_rating(goldenset_classes,testset_classes,weights_dictionary):
     print PWC
     class_rating = float(PC)/NWgolden - float(NC)/NWgolden * float(PWC)/len(testset_classes)
     if class_rating < 0.0:
-        class_rating = 0.0
+        class_rating = 0.0 #
 
     return class_rating
 
