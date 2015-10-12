@@ -39,8 +39,8 @@ class OutcomesTest(unittest.TestCase):
         print('')
 
         print('testing bad url:(async true, tg_worker true)'+url)
-        img, labels, pose = paperdoll_parse_enqueue.paperdoll_enqueue(url, async = True,use_tg_worker=True)
-        print('labels:'+str(labels))
+        retval = paperdoll_parse_enqueue.paperdoll_enqueue(url, async = True,use_tg_worker=True)
+        print('retval:'+str(retval))
         print('')
 
         print('testing bad url (async False, tg_worker False):'+url)
@@ -67,8 +67,8 @@ class OutcomesTest(unittest.TestCase):
         print('')
 
         print('testing tg worker (async True, tg_worker True)'+url)
-        img, labels, pose = paperdoll_parse_enqueue.paperdoll_enqueue(url, async = True,use_tg_worker=True)
-        print('labels:'+str(labels))
+        retval=paperdoll_parse_enqueue.paperdoll_enqueue(url, async = True,use_tg_worker=True)
+        print('retval:'+str(retval))
         print('')
 
         print('testing regular redis worker  (async True, tg_worker False):'+url)
@@ -95,7 +95,8 @@ class OutcomesTest(unittest.TestCase):
         for url in urls:
             i+=1
             print('url #'+str(i)+' '+url)
-            img, labels, pose = paperdoll_parse_enqueue.paperdoll_enqueue(url, async = True,use_tg_worker=True)
+            retval = paperdoll_parse_enqueue.paperdoll_enqueue(url, async = True,use_tg_worker=True)
+            print('retval:'+str(retval))
     #        n = paperdoll_parse_enqueue.paperdoll_enqueue(url, async = True,queue=queue)
            # img, labels, pose = paperdoll_enqueue_parallel(url, async = True)
             print('labels:'+str(labels))
