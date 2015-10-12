@@ -8,7 +8,7 @@ from rq import Queue
 from redis import Redis
 
 from trendi_guru_modules.paperdoll import paperdoll_parse_enqueue
-import paperdolls
+from  trendi_guru_modules import paperdolls
 
 redis_conn = Redis()
 
