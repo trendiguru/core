@@ -200,7 +200,7 @@ def results_rating(goldenset_images,testset_images):
 
     return images_rating
 
-def score(goldenset_classes,testset_classes,weights_dictionary,goldenset_images,testset_images):
+def scorer(goldenset_classes,testset_classes,weights_dictionary,goldenset_images,testset_images):
     '''
     calculates the rating of the ordered images set of the test in comparison to the
     'golden' (master) set order of images.
@@ -220,6 +220,51 @@ def score(goldenset_classes,testset_classes,weights_dictionary,goldenset_images,
     if test_results_score == None:
         test_results_score = 0.0
     return test_classes_score, test_results_score
+
+def run_category_scorer(test_case_image_path,goldenset_classes,weights_dictionary):
+    '''
+    calculates the rating of the ordered images set of the test in comparison to the
+    'golden' (master) set order of images.
+    :param test_case_image_path: a path designating test image's location (string)
+    :param goldenset_classes: list of classes / category's names (strings)
+    :param goldenset_images: list of images file names (strings)
+    :param weights_dictionary: a dictionary in which the 'key's are all available classes / categories, and the values
+            are float type numeric in the range of 0 to 1
+    :return: a double, ranging from 0 to 1, rating the results (images set) accuracy and the category list accuracy.
+    '''
+
+
+    num_of_matches = 20 # of similar_results
+    # resize image:
+    image = test_case_image_path
+    image = cv2.imread(image)
+    image = background_removal.standard_resize(image, 400)[0]
+
+    # activate paperdoll on image:
+    mask, labels, pose = paperdoll_parse_enqueue.paperdoll_enqueue(image, async=False, use_tg_worker=True)
+
+    # face:
+    relevance = background_removal.image_is_relevant(image)
+    face = relevance.faces[0]
+    final_mask = paperdolls.after_pd_conclusions(mask, labels, face)
+    testset_classes = []
+    for num in np.unique(final_mask):
+        # for categories score:
+        category = list(labels.keys())[list(labels.values()).index(num)]
+        if category in constants.paperdoll_shopstyle_women.keys():
+            # task 1: get categories from image:
+            testset_classes.append(category)
+
+    # scoring:
+    test_classes_score = classification_rating(goldenset_classes,testset_classes,weights_dictionary)
+
+    print weights_dictionary
+    print testset_classes
+    print test_classes_score
+    print test_results_score
+
+    return test_classes_score
+
 
 def run_scorer(test_case_image_path,goldenset_classes,goldenset_images,weights_dictionary):
     '''
@@ -243,7 +288,6 @@ def run_scorer(test_case_image_path,goldenset_classes,goldenset_images,weights_d
     # activate paperdoll on image:
     mask, labels, pose = paperdoll_parse_enqueue.paperdoll_enqueue(image, async=False, use_tg_worker=True)
 
-    # task 1: get categories from image:
     # face:
     relevance = background_removal.image_is_relevant(image)
     face = relevance.faces[0]
@@ -254,20 +298,19 @@ def run_scorer(test_case_image_path,goldenset_classes,goldenset_images,weights_d
         # for categories score:
         category = list(labels.keys())[list(labels.values()).index(num)]
         if category in constants.paperdoll_shopstyle_women.keys():
+            # task 1: get categories from image:
             testset_classes.append(category)
-
-        # task 2: get similar results:
+            # task 2: get similar results:
             item_mask = 255 * np.array(mask == num, dtype=np.uint8)
             shopstyle_cat = constants.paperdoll_shopstyle_women[category]
             str2img = find_similar_mongo.find_top_n_results(image,item_mask,num_of_matches,shopstyle_cat)[1]
             for element in str2img:
                 print element['_id']
-                #print len(element)
                 similar_results.append(element['_id'])
     testset_images = similar_results
 
     # scoring:
-    test_classes_score, test_results_score = score(goldenset_classes,testset_classes,weights_dictionary,
+    test_classes_score, test_results_score = scorer(goldenset_classes,testset_classes,weights_dictionary,
                                                     goldenset_images,testset_images)
 
     print weights_dictionary
@@ -282,8 +325,8 @@ def lab():
     weights_dictionary = {'vest': 1, 'jeans': 1, 'sweatshirt': 1, 'skirt': 1, 'blouse': 1, 'cardigan': 1, 'shirt': 1, 'dress': 1, 'top': 1, 'suit': 1, 'pants': 1, 'shorts': 1, 't-shirt': 1, 'leggings': 1, 'blazer': 1, 'tights': 1, 'bodysuit': 1, 'jacket': 1, 'coat': 1, 'stockings': 1, 'jumper': 1, 'sweater': 1}
     goldenset_classes = ['cardigan','shirt','skirt','top','suit','jumper','shorts','t-shirt','leggings','blazer','tights','bodysuit']
     goldenset_images = '../images/female1.jpg'
-    goldenset_images = goldenset_images
-    run_scorer(goldenset_images,goldenset_classes,goldenset_images,weights_dictionary)
+
+    print run_category_scorer(test_case_image_path,goldenset_classes,weights_dictionary)
 
 
 
