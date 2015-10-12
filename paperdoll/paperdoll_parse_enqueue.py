@@ -27,7 +27,7 @@ def paperdoll_enqueue(img_url_or_cv2_array, async=True,queue=None,use_tg_worker=
             time.sleep(0.5)
             print('.'),
             elapsed_time = time.time()-start
-            if elapsed_time>constants.paperdoll_ttl:
+            if elapsed_time>constants.paperdoll_ttl :
                 print('timeout waiting for pd.get_parse_mask')
                 return
         print('')
