@@ -297,5 +297,8 @@ def from_paperdoll_to_similar_results(person_id, mask, labels, num_of_matches=10
 
 def callback_example():
     print('this is the callback calling')
+    logging.warning('this is the callback calling')
+    f = open('callbackout.txt', 'a')
+    f.write('hi\n')
     return 567
 
