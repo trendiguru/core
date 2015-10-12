@@ -34,7 +34,7 @@ def paperdoll_enqueue(img_url_or_cv2_array, async=True,queue=None,use_tg_worker=
     if callback_function is not None:
         job2 = queue.enqueue(callback_function,depends_on=job1)
  #   job2 = queue.enqueue(callback_function,args=args,kwargs=kwargs,depends_on=job1)
-    return job.result
+    return job1.result
 
 
 def show_parse(filename=None, img_array=None):
