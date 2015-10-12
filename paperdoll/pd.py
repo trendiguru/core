@@ -54,7 +54,7 @@ def test_function():
     return(6*7)
 
 
-def get_parse_mask(img_url_or_cv2_array,callback_function=None,*args,**kwargs):
+def get_parse_mask(img_url_or_cv2_array,callback_pack=None):
     img = Utils.get_cv2_img_array(img_url_or_cv2_array)
     if img is not None and cv2.imwrite('inputimg.jpg', img):
         if 'jpeg' != imghdr.what('inputimg.jpg'):
@@ -81,7 +81,7 @@ def get_parse_from_matlab_parallel(image_filename,matlab_engine):
     label_dict = dict(zip(label_names, range(0, len(label_names))))
     return mask, label_dict, pose
 
-def get_parse_mask_parallel(img_url_or_cv2_array,matlab_engine,callback_function=None,*args,**kwargs):
+def get_parse_mask_parallel(matlab_engine,img_url_or_cv2_array,callback_pack=None):
     img = Utils.get_cv2_img_array(img_url_or_cv2_array)
     if img is not None and cv2.imwrite('inputimg.jpg', img):
         if 'jpeg' != imghdr.what('inputimg.jpg'):

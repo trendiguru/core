@@ -149,7 +149,7 @@ class TgWorker(Worker):
                 print('pj engine:'+str(self.matlab_engine))
                 print('pj args,kwargs:'+str(job._args)+','+str(job._kwargs))
                 if len(job._args) > 0:
-                    new_args = job._args+(self.matlab_engine,)
+                    new_args = (self.matlab_engine,)+job._args
                     print('tg pj  new args:'+str(new_args))
                     job._args = new_args
                 elif len(job._kwargs) > 0:
