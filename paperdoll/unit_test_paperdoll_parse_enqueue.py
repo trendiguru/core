@@ -25,8 +25,13 @@ class OutcomesTest(unittest.TestCase):
 
     def test_callback(self):
         url = 'http://i.imgur.com/ahFOgkm.jpg'
-        print('testing callback')
-        paperdoll_parse_enqueue.paperdoll_enqueue(url,async=True,queue='jrtestcallback',use_tg_worker=False,callback_function=paperdolls.callback_example,args=(100,101),kwargs={'a':3,'b':4})
+        print('testing callback async')
+        retval = paperdoll_parse_enqueue.paperdoll_enqueue(url,async=True,use_tg_worker=False,callback_function=paperdolls.callback_example,args=(100,101),kwargs={'a':3,'b':4})
+        print('retval:'+str(retval))
+
+        print('testing callback sync')
+        img,labels,pose = paperdoll_parse_enqueue.paperdoll_enqueue(url,async=False,use_tg_worker=False,callback_function=paperdolls.callback_example,args=(100,101),kwargs={'a':3,'b':4})
+        print('labels:'+str(labels))
 
 
     def test_bad_url(self):
@@ -49,8 +54,8 @@ class OutcomesTest(unittest.TestCase):
         print('')
 
         print('testing bad url:(async true, tg_worker False)'+url)
-        img, labels, pose = paperdoll_parse_enqueue.paperdoll_enqueue(url, async = True,use_tg_worker=False)
-        print('labels:'+str(labels))
+        retval = paperdoll_parse_enqueue.paperdoll_enqueue(url, async = True,use_tg_worker=False)
+        print('retval:'+str(retval))
         print('')
 
     def test_tg_and_regular_worker(self):
@@ -72,8 +77,8 @@ class OutcomesTest(unittest.TestCase):
         print('')
 
         print('testing regular redis worker  (async True, tg_worker False):'+url)
-        img, labels, pose = paperdoll_parse_enqueue.paperdoll_enqueue(url, async = True,use_tg_worker=False)
-        print('labels:'+str(labels))
+        retval = paperdoll_parse_enqueue.paperdoll_enqueue(url, async = True,use_tg_worker=False)
+        print('retval:'+str(retval))
         print('')
 
     #run a timing test
@@ -99,7 +104,6 @@ class OutcomesTest(unittest.TestCase):
             print('retval:'+str(retval))
     #        n = paperdoll_parse_enqueue.paperdoll_enqueue(url, async = True,queue=queue)
            # img, labels, pose = paperdoll_enqueue_parallel(url, async = True)
-            print('labels:'+str(labels))
             print('')
 
         #test sync
