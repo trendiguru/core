@@ -10,20 +10,22 @@ redis_conn = Redis()
 
 # Tell RQ what Redis connection to use
 
-def paperdoll_enqueue(img_url_or_cv2_array, async=True,queue=None,use_tg_worker=True,callback_function_and_args=None):
+def paperdoll_enqueue(img_url_or_cv2_array, async=True,queue=None,use_tg_worker=True,callback_function=None,args=None,kwargs=None):
     if queue is None:
         if use_tg_worker:   #this is the one that has persistent matlab engines, requires get_parse_mask_parallel and workers on that queue that have been started
                             # using: rqworker pd -w rq.tgworker.TgWorker
             queue = Queue('pd', connection=redis_conn)
-            job = queue.enqueue('pd.get_parse_mask_parallel', img_url_or_cv2_array,callback_function_and_args)
+            job1 = queue.enqueue('pd.get_parse_mask_parallel', img_url_or_cv2_array)
+            job2 = queue.enqueue(callback_function_and_args,depends_on=job1)
         else:
             queue = Queue('pd_nonparallel', connection=redis_conn)
-            job = queue.enqueue('pd.get_parse_mask',img_url_or_cv2_array,callback_function_and_args)
+            job1 = queue.enqueue('pd.get_parse_mask',img_url_or_cv2_array)
+            job2 = queue.enqueue(callback_function,args=args,kwargs=kwargs,depends_on=job1)
     print('started pd job on queue:'+str(queue))
     start = time.time()
     if not async:
         print('running synchronously'),
-        while job.result is None:
+        while job1.result is None:
             time.sleep(0.5)
             print('.'),
             elapsed_time = time.time()-start
