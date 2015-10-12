@@ -215,6 +215,10 @@ def score(goldenset_classes,testset_classes,weights_dictionary,goldenset_images,
     '''
     test_classes_score = classification_rating(goldenset_classes,testset_classes,weights_dictionary)
     test_results_score = results_rating(goldenset_images,testset_images)
+    if test_classes_score == None:
+        test_classes_score = 0.0
+    if test_results_score == None:
+        test_results_score = 0.0
     return test_classes_score, test_results_score
 
 def run_scorer(test_case_image_path,goldenset_classes,goldenset_images,weights_dictionary):
@@ -245,6 +249,7 @@ def run_scorer(test_case_image_path,goldenset_classes,goldenset_images,weights_d
     face = relevance.faces[0]
     final_mask = paperdolls.after_pd_conclusions(mask, labels, face)
     testset_classes = []
+    similar_results = []
     for num in np.unique(final_mask):
         # for categories score:
         category = list(labels.keys())[list(labels.values()).index(num)]
@@ -254,8 +259,12 @@ def run_scorer(test_case_image_path,goldenset_classes,goldenset_images,weights_d
         # task 2: get similar results:
             item_mask = 255 * np.array(mask == num, dtype=np.uint8)
             shopstyle_cat = constants.paperdoll_shopstyle_women[category]
-            similar_results = find_similar_mongo.find_top_n_results(image,item_mask,num_of_matches,shopstyle_cat)[1]
-            testset_images = similar_results
+            str2img = find_similar_mongo.find_top_n_results(image,item_mask,num_of_matches,shopstyle_cat)[1]
+            for element in str2img:
+                print element['_id']
+                #print len(element)
+                similar_results.append(element['_id'])
+    testset_images = similar_results
 
     # scoring:
     test_classes_score, test_results_score = score(goldenset_classes,testset_classes,weights_dictionary,
@@ -272,7 +281,7 @@ def run_scorer(test_case_image_path,goldenset_classes,goldenset_images,weights_d
 def lab():
     weights_dictionary = {'vest': 1, 'jeans': 1, 'sweatshirt': 1, 'skirt': 1, 'blouse': 1, 'cardigan': 1, 'shirt': 1, 'dress': 1, 'top': 1, 'suit': 1, 'pants': 1, 'shorts': 1, 't-shirt': 1, 'leggings': 1, 'blazer': 1, 'tights': 1, 'bodysuit': 1, 'jacket': 1, 'coat': 1, 'stockings': 1, 'jumper': 1, 'sweater': 1}
     goldenset_classes = ['cardigan','shirt','skirt','top','suit','jumper','shorts','t-shirt','leggings','blazer','tights','bodysuit']
-    goldenset_images = '../images/img.jpg'
+    goldenset_images = '../images/female1.jpg'
     goldenset_images = goldenset_images
     run_scorer(goldenset_images,goldenset_classes,goldenset_images,weights_dictionary)
 
