@@ -21,6 +21,12 @@ class OutcomesTest(unittest.TestCase):
     #    def testError(self):
     #        raise RuntimeError('Test error!')
     #run a timing test
+
+    def test_callback(selff):
+        url = 'http://i.imgur.com/ahFOgkm.jpg'
+        paperdoll_parse_enqueue.paperdoll_enqueue(url,async=True,queue='jrtestcallback',use_tg_worker=False,callback_function=test_function,*args=(100,101),**kwargs={'a':3,'b':4)
+
+
     def test_bad_url(self):
         url = 'http://notanimage.jpg'
         queue = Queue('paperdoll', connection=redis_conn)
