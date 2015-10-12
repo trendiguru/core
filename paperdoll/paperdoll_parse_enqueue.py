@@ -10,36 +10,19 @@ redis_conn = Redis()
 
 # Tell RQ what Redis connection to use
 
-
-def paperdoll_enqueue(img_url_or_cv2_array, async=True,queue=None,use_tg_worker=True):
-    if(use_tg_worker):
-        return paperdoll_enqueue_parallel(img_url_or_cv2_array=img_url_or_cv2_array,async=async)
-    else:
-        queue = Queue('pd_nonparallel', connection=redis_conn)
-        print('starting pd job on queue:'+str(queue))
-        job = queue.enqueue('pd.get_parse_mask', img_url_or_cv2_array=img_url_or_cv2_array)
-        start = time.time()
-        if not async:
-            print('running synchronously (regular redis worker)'),
-            while job.result is None:
-                time.sleep(0.5)
-                print('.'),
-                elapsed_time = time.time()-start
-                if elapsed_time>constants.paperdoll_ttl:
-                    print('timeout waiting for pd.get_parse_mask')
-                    return
-            print('')
-            return job.result
-        return [job.result,None,None]
-
-
-def paperdoll_enqueue_parallel(img_url_or_cv2_array,async=True):
-    qp = Queue('pd', connection=redis_conn)
-    print('starting pd job on parallel queue:'+str(qp))
-    job = qp.enqueue('pd.get_parse_mask_parallel', img_url_or_cv2_array)
+def paperdoll_enqueue(img_url_or_cv2_array, async=True,queue=None,use_tg_worker=True,callback_function='testfunc'):
+    if queue is None:
+        if use_tg_worker:   #this is the one that has persistent matlab engines, requires get_parse_mask_parallel and worker started
+                            # with: rqworker pd -w rq.tgworker.TgWorker
+            queue = Queue('pd', connection=redis_conn)
+            job = queue.enqueue('pd.get_parse_mask_parallel', img_url_or_cv2_array,callback_function)
+        else:
+            queue = Queue('pd_nonparallel', connection=redis_conn)
+            job = queue.enqueue('pd.get_parse_mask', img_url_or_cv2_array=img_url_or_cv2_array,callback_function=callback_function)
+    print('started pd job on queue:'+str(queue))
     start = time.time()
     if not async:
-        print('running synchronously (w tgworker'),
+        print('running synchronously'),
         while job.result is None:
             time.sleep(0.5)
             print('.'),
@@ -49,8 +32,8 @@ def paperdoll_enqueue_parallel(img_url_or_cv2_array,async=True):
                 return
         print('')
         return job.result
-    #the caller expects three results...
     return [job.result,None,None]
+
 
 def show_parse(filename=None, img_array=None):
     if filename is not None:
