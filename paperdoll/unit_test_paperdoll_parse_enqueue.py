@@ -87,19 +87,18 @@ class OutcomesTest(unittest.TestCase):
         for url in urls:
             i+=1
             print('url #'+str(i)+' '+url)
-            img, labels, pose = paperdoll_parse_enqueue.paperdoll_enqueue(url, async = False,use_tg_worker=True)
+            img, labels, pose = paperdoll_parse_enqueue.paperdoll_enqueue(url, async = True,use_tg_worker=True)
     #        n = paperdoll_parse_enqueue.paperdoll_enqueue(url, async = True,queue=queue)
            # img, labels, pose = paperdoll_enqueue_parallel(url, async = True)
             print('labels:'+str(labels))
             print('')
-        print('tot elapsed:'+str(elapsed_time)+',per image:'+str(float(elapsed_time)/len(urls)))
 
         #test sync
         start_time = time.time()
         for url in urls:
             i+=1
             print('url #'+str(i)+' '+url)
-            img, labels, pose = paperdoll_parse_enqueue.paperdoll_enqueue(url, async = True,use_tg_worker=True)
+            img, labels, pose = paperdoll_parse_enqueue.paperdoll_enqueue(url, async = False,use_tg_worker=True)
     #        n = paperdoll_parse_enqueue.paperdoll_enqueue(url, async = True,queue=queue)
            # img, labels, pose = paperdoll_enqueue_parallel(url, async = True)
             print('labels:'+str(labels))
