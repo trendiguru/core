@@ -68,8 +68,8 @@ def get_parse_mask(img_url_or_cv2_array,callback_pack=None):
         print('labels:' + str(label_dict))
         mask_np = np.array(mask, dtype=np.uint8)
         pose_np = np.array(pose, dtype=np.uint8)
-        if callback_function is not None:
-            a=callback_function()
+        if callback_pack is not None:
+            a=callback_pack[0]
             print('callback function returned:'+str(a))
         return mask_np, label_dict, pose_np
     else:
@@ -94,8 +94,8 @@ def get_parse_mask_parallel(matlab_engine,img_url_or_cv2_array,callback_pack=Non
         print('labels:' + str(label_dict))
         mask_np = np.array(mask, dtype=np.uint8)
         pose_np = np.array(pose, dtype=np.uint8)
-        if callback_function is not None:
-            a=callback_function()
+        if callback_pack is not None:
+            a=callback_pack[0]
             print('callback function returned:'+str(a))
         return mask_np, label_dict, pose_np
     else:
