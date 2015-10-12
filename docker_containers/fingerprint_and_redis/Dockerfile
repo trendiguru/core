@@ -275,7 +275,12 @@ WORKDIR /home/developer/tg/Dev/core
 #CMD ssh  -i /tmp/id_rsa -L 8000:localhost:8000 -N vagrant@192.168.33.10 -o StrictHostKeyChecking=no
 
 #RUN ssh  -L 6379:localhost:6379 -N  -o StrictHostKeyChecking=no -f ubuntu@extremeli.trendi.guru &
-RUN rqworker -u redis://redis1-redis-1-vm:6379 default
-#RUN rqworker gender &
-
+RUN rqworker -u redis://redis1-redis-1-vm:6379 fingerprint &
+RUN rqworker -u redis://redis1-redis-1-vm:6379 fingerprint &
+RUN rqworker -u redis://redis1-redis-1-vm:6379 fingerprint &
+RUN rqworker -u redis://redis1-redis-1-vm:6379 fingerprint &
+RUN rqworker -u redis://redis1-redis-1-vm:6379 fingerprint &
+RUN rqworker -u redis://redis1-redis-1-vm:6379 fingerprint &
+RUN rqworker -u redis://redis1-redis-1-vm:6379 fingerprint &
+RUN rqworker -u redis://redis1-redis-1-vm:6379 fingerprint &
 
