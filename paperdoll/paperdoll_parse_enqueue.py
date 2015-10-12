@@ -34,7 +34,7 @@ def paperdoll_enqueue(img_url_or_cv2_array, async=True,queue=None,use_tg_worker=
     if callback_function is not None:
         if queue2 is None:
             queue2 = Queue('paperdoll', connection=redis_conn)
-        job2 = queue2.enqueue(callback_function,depends_on=job1)
+        job2 = queue2.enqueue(callback_function,depends_on=job1,async=False)
  #   job2 = queue.enqueue(callback_function,args=args,kwargs=kwargs,depends_on=job1)
     return job1.result
 
