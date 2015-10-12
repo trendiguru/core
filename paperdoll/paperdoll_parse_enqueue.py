@@ -10,7 +10,7 @@ redis_conn = Redis()
 
 # Tell RQ what Redis connection to use
 
-def paperdoll_enqueue(img_url_or_cv2_array, async=True,queue=None,use_tg_worker=True,callback_function_and_args=None:
+def paperdoll_enqueue(img_url_or_cv2_array, async=True,queue=None,use_tg_worker=True,callback_function_and_args=None):
     if queue is None:
         if use_tg_worker:   #this is the one that has persistent matlab engines, requires get_parse_mask_parallel and workers on that queue that have been started
                             # using: rqworker pd -w rq.tgworker.TgWorker
