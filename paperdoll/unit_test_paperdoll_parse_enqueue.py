@@ -24,7 +24,7 @@ class OutcomesTest(unittest.TestCase):
 
     def test_callback(self):
         url = 'http://i.imgur.com/ahFOgkm.jpg'
-        paperdoll_parse_enqueue.paperdoll_enqueue(url,async=True,queue='jrtestcallback',use_tg_worker=False,callback_function=test_function,args=(100,101),kwargs={'a':3,'b':4)
+        paperdoll_parse_enqueue.paperdoll_enqueue(url,async=True,queue='jrtestcallback',use_tg_worker=False,callback_function=test_function,args=(100,101),kwargs={'a':3,'b':4}
 
 
     def test_bad_url(self):
