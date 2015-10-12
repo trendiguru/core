@@ -49,7 +49,11 @@ def rand_string():
     return ''.join([random.choice(string.ascii_letters + string.digits) for n in xrange(32)])
 
 
-def get_parse_mask(img_url_or_cv2_array):
+def test_function():
+    print("this is a totally awesome test function")
+    return(6*7)
+
+def get_parse_mask(img_url_or_cv2_array,callback_function=None):
     img = Utils.get_cv2_img_array(img_url_or_cv2_array)
     if img is not None and cv2.imwrite('inputimg.jpg', img):
         if 'jpeg' != imghdr.what('inputimg.jpg'):
@@ -63,6 +67,9 @@ def get_parse_mask(img_url_or_cv2_array):
         print('labels:' + str(label_dict))
         mask_np = np.array(mask, dtype=np.uint8)
         pose_np = np.array(pose, dtype=np.uint8)
+        if callback_function is not None:
+            a=callback_function()
+            print('callback function returned:'+str(a))
         return mask_np, label_dict, pose_np
     else:
         print('either image is empty or problem writing')
@@ -73,7 +80,7 @@ def get_parse_from_matlab_parallel(image_filename,matlab_engine):
     label_dict = dict(zip(label_names, range(0, len(label_names))))
     return mask, label_dict, pose
 
-def get_parse_mask_parallel(img_url_or_cv2_array,matlab_engine):
+def get_parse_mask_parallel(img_url_or_cv2_array,matlab_engine,callback_function):
     img = Utils.get_cv2_img_array(img_url_or_cv2_array)
     if img is not None and cv2.imwrite('inputimg.jpg', img):
         if 'jpeg' != imghdr.what('inputimg.jpg'):
@@ -86,6 +93,9 @@ def get_parse_mask_parallel(img_url_or_cv2_array,matlab_engine):
         print('labels:' + str(label_dict))
         mask_np = np.array(mask, dtype=np.uint8)
         pose_np = np.array(pose, dtype=np.uint8)
+        if callback_function is not None:
+            a=callback_function()
+            print('callback function returned:'+str(a))
         return mask_np, label_dict, pose_np
     else:
         print('either image is empty or problem writing')

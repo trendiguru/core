@@ -18,7 +18,7 @@ def paperdoll_enqueue(img_url_or_cv2_array, async=True,queue=None,use_tg_worker=
             job = queue.enqueue('pd.get_parse_mask_parallel', img_url_or_cv2_array,callback_function)
         else:
             queue = Queue('pd_nonparallel', connection=redis_conn)
-            job = queue.enqueue('pd.get_parse_mask', img_url_or_cv2_array=img_url_or_cv2_array,callback_function=callback_function)
+            job = queue.enqueue('pd.get_parse_mask',img_url_or_cv2_array,callback_function=callback_function)
     print('started pd job on queue:'+str(queue))
     start = time.time()
     if not async:
