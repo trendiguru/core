@@ -63,15 +63,6 @@ def classification_rating(goldenset_classes,testset_classes,weights_dictionary):
         sum_weights_of_test_matches = sum_weights_of_test_matches + weights_dictionary[class_match]
     PC = sum_weights_of_test_matches
 
-
-    # how many of the goldenset are not included in the testset (4):
-    NC = len(goldenset_classes) - len(set_of_class_matches)
-
-
-    # how many of the testset are not included in the goldenset (5):
-    PWC = len(testset_classes) - len(set_of_class_matches)
-
-
     # how many of the goldenset are not included in the testset (4):
     NC = len(goldenset_classes) - len(set_of_class_matches)
 
@@ -89,7 +80,7 @@ def classification_rating(goldenset_classes,testset_classes,weights_dictionary):
     print PC
     print NC
     print PWC
-    class_rating = float(PC)/NWgolden - float(NC)/NWgolden - float(PWC)/len(testset_classes)
+    class_rating = float(PC/NWgolden) - float(NC/NWgolden) - float(PWC/len(testset_classes))
     if class_rating < 0.0:
         class_rating = 0.0
 
