@@ -22,7 +22,7 @@ class OutcomesTest(unittest.TestCase):
     #        raise RuntimeError('Test error!')
     #run a timing test
 
-    def test_callback(selff):
+    def test_callback(self):
         url = 'http://i.imgur.com/ahFOgkm.jpg'
         paperdoll_parse_enqueue.paperdoll_enqueue(url,async=True,queue='jrtestcallback',use_tg_worker=False,callback_function=test_function,*args=(100,101),**kwargs={'a':3,'b':4)
 
