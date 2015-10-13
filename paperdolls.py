@@ -298,6 +298,7 @@ import time
 def callback_example(queue,previous_id):
     print('this is the callback calling')
     logging.warning('this is the callback calling')
+    cls = getattr(queue)
     first = queue.fetch_job(previous_id)
     print('prev result:')
     print first.result
