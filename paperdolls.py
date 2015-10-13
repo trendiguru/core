@@ -302,6 +302,6 @@ def callback_example(*args,**kwargs):
     print('kwargs:'+str(kwargs))
     f = open('callbackout.txt', 'a')
     f.write('hi\n')
-    time.sleep(10)
+    time.sleep(5)
     return 567
 
