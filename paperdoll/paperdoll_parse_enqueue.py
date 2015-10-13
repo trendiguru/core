@@ -54,7 +54,7 @@ def paperdoll_enqueue(img_url_or_cv2_array, async=True,queue=None,use_tg_worker=
     if callback_function is not None:
         if callback_queue is None:
             callback_queue = Queue('paperdoll', connection=redis_conn)
-        print('starting callback (asynchronously) on queue:'+str(callback_queue))
+        print('starting callback on queue:'+str(callback_queue))
         job2 = callback_queue.enqueue(callback_function,depends_on=job1,previous_job_result=job1.result,*args,**kwargs)
         start = time.time()
         do_job2_synchronously = True
