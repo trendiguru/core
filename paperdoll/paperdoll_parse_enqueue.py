@@ -17,7 +17,8 @@ def paperdoll_enqueue(img_url_or_cv2_array, async=True,queue=None,use_tg_worker=
     The callback function is a function to call upon completion of the paperdoll parse.
     The callback queue is what queue to run the callback function on.
     args and kwargs are arguments for the callback function  in the form of args=(100,'hi')
-    and kwargs={'jeremy':'awesome', 'humidity':99.9}. For example:
+    and kwargs={'jeremy':'awesome', 'humidity':99.9}.
+    For example:
     img,labels,pose = paperdoll_parse_enqueue.paperdoll_enqueue(url,async=False,use_tg_worker=False,callback_function=paperdolls.callback_example,args=(100,101),kwargs={'a':3,'b':4})
 
     :param img_url_or_cv2_array: the image/url
@@ -28,7 +29,7 @@ def paperdoll_enqueue(img_url_or_cv2_array, async=True,queue=None,use_tg_worker=
     :param callback_queue: queue on which to call callback function
     :param args:args for callback
     :param kwargs:kwargs for callback
-    :return:
+    :return: mask, label_dict, pose
     '''
     if queue is None:
         if use_tg_worker:   #this is the one that has persistent matlab engines, requires get_parse_mask_parallel and workers on that queue that have been started
