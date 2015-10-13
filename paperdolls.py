@@ -295,20 +295,23 @@ def from_paperdoll_to_similar_results(person_id, mask, labels, num_of_matches=10
         logging.warning("Done! image was successfully inserted to the DB images!")
 
 import time
-def callback_example(*args,**kwargs):
+def callback_example(previous_id):
     print('this is the callback calling')
     logging.warning('this is the callback calling')
-    paperdoll_job = kwargs['previous_job_result']
-    print('pd job'+str(paperdoll_job))
-    paperdoll_answers = paperdoll_job.result
-    print('pd answers'+str(paperdoll_answers))
-    mask = paperdoll_answers(0)
-    labels = paperdoll_answers(1)
-    pose = paperdoll_answers(2)
-    print('args:'+str(args))
-    print('kwargs:'+str(kwargs))
-    f = open('callbackout.txt', 'a')
-    f.write('hi\n')
-    time.sleep(1)
+    first = queue.fetch_job(previous_id)
+    print('prev result:')
+    print first.result
+##    paperdoll_job = kwargs['previous_job_result']
+ #   print('pd job'+str(paperdoll_job))
+ #   paperdoll_answers = paperdoll_job.result
+ #   print('pd answers'+str(paperdoll_answers))
+#    mask = paperdoll_answers(0)
+#   labels = paperdoll_answers(1)
+#    pose = paperdoll_answers(2)
+#    print('args:'+str(args))
+#    print('kwargs:'+str(kwargs))
+#    f = open('callbackout.txt', 'a')
+#    f.write('hi\n')
+#    time.sleep(1)
     return (567,args,kwargs,mask,labels,pose)
 
