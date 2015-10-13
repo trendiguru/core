@@ -295,7 +295,7 @@ def from_paperdoll_to_similar_results(person_id, mask, labels, num_of_matches=10
         logging.warning("Done! image was successfully inserted to the DB images!")
 
 import time
-def callback_example():
+def callback_example(*args,**kwargs):
     print('this is the callback calling')
     logging.warning('this is the callback calling')
     f = open('callbackout.txt', 'a')
