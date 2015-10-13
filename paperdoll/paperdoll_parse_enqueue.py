@@ -34,7 +34,17 @@ def paperdoll_enqueue(img_url_or_cv2_array, async=True,queue=None,use_tg_worker=
     if callback_function is not None:
         if queue2 is None:
             queue2 = Queue('paperdoll', connection=redis_conn)
+        print('starting callback (synchronously) on queue:'+str(queue))
         job2 = queue2.enqueue(callback_function,depends_on=job1,*args,**kwargs)
+        start = time.time()
+        while job2.result is None:
+            time.sleep(0.5)
+            print('.'),
+            elapsed_time = time.time()-start
+            if elapsed_time>constants.paperdoll_ttl :
+                print('timeout waiting for pd.get_parse_mask')
+                return
+        print('job returned from callback')
  #   job2 = queue.enqueue(callback_function,args=args,kwargs=kwargs,depends_on=job1)
     return job1.result
 

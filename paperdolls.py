@@ -298,6 +298,8 @@ import time
 def callback_example(*args,**kwargs):
     print('this is the callback calling')
     logging.warning('this is the callback calling')
+    print('args:'+str(args))
+    print('kwargs:'+str(kwargs))
     f = open('callbackout.txt', 'a')
     f.write('hi\n')
     time.sleep(10)
