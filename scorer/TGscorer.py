@@ -388,29 +388,16 @@ def run_scorer(test_case_image_path,goldenset_classes,goldenset_images,filtered_
 
 def lab(filtered_paperdoll=True):
     goldenset_classes = []
-    # goldenset_classes[0] = ['dresses','shoes','bracelet']
-    # goldenset_classes[1] = ['dresses','shoes','bracelet']
-    # goldenset_classes[2] = ['skirts','belt','top','shoes']
-    # goldenset_classes[3] = ['shoes','socks','dress','necklace']
-    # goldenset_classes[4] = ['dresses','heels']
-    # goldenset_classes[5] = ['dresses','heels','bag']
-    # goldenset_classes[6] = ['sneakers','dress','sunglasses','scarf']
-    # goldenset_classes[7] = ['dresses','heels']
-    # goldenset_classes[8] = ['dresses','heels']
-    # goldenset_classes[9] = ['dresses','heels']
-    # goldenset_classes[10] = ['shoes','heels']
-    # goldenset_classes[11] = ['sandalds','dress','bracelet']
-    # goldenset_classes[12] = ['shoes','dress','leggings']
-    goldenset_classes.append(['dresses','shoes','bracelet'])
-    goldenset_classes.append(['dresses','shoes','bracelet'])
-    goldenset_classes.append(['skirts','belt','top','shoes'])
+    goldenset_classes.append(['dress','shoes','bracelet'])
+    goldenset_classes.append(['dress','shoes','bracelet'])
+    goldenset_classes.append(['skirt','belt','top','shoes'])
     goldenset_classes.append(['shoes','socks','dress','necklace'])
-    goldenset_classes.append(['dresses','heels'])
-    goldenset_classes.append(['dresses','heels','bag'])
+    goldenset_classes.append(['dress','heels'])
+    goldenset_classes.append(['dress','heels','bag'])
     goldenset_classes.append(['sneakers','dress','sunglasses','scarf'])
-    goldenset_classes.append(['dresses','heels'])
-    goldenset_classes.append(['dresses','heels'])
-    goldenset_classes.append(['dresses','heels'])
+    goldenset_classes.append(['dress','heels'])
+    goldenset_classes.append(['dress','heels'])
+    goldenset_classes.append(['dress','heels'])
     goldenset_classes.append(['shoes','heels'])
     goldenset_classes.append(['sandalds','dress','bracelet'])
     goldenset_classes.append(['shoes','dress','leggings'])
