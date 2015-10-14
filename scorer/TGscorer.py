@@ -330,6 +330,7 @@ def run_scorer(test_case_image_path,goldenset_classes,goldenset_images,filtered_
     # resize image:
     image = test_case_image_path
     image = cv2.imread(image)
+    cv2.imshow(image)
     image = background_removal.standard_resize(image, 400)[0]
 
     # activate paperdoll on image:
