@@ -216,73 +216,75 @@ def results_rating(goldenset_images,testset_images):
     #         return
 
 
-    # initial check (2):
-    if len(goldenset_images)==0:
-            print "goldenset_images must not be empty!"
-            return
+    # # initial check (2):
+    # if len(goldenset_images)==0:
+    #         print "goldenset_images must not be empty!"
+    #         return
+    #
+    # if len(testset_images)==0:
+    #         print "testset_images must not be empty!"
+    #         return
 
-    if len(testset_images)==0:
-            print "testset_images must not be empty!"
-            return
+    images_rating = 0.0
 
+    if goldenset_images:
+        # find matching image names of golden and test, and find order of them (3):
+        # we assume each image is listed only once in each list.
+        index_of_ordered_at_goldenset = []
+        index_of_ordered_at_testset = []
+        ordered_images = []
+        testset_images_tag = testset_images
+        for golden_image_name in goldenset_images:
+            for testset_image_name in testset_images_tag:
+                if golden_image_name == testset_image_name:
+                   index_of_ordered_at_goldenset.append(goldenset_images.index(golden_image_name))
+                   index_of_ordered_at_testset.append(testset_images.index(golden_image_name))
+                   ordered_images.append(golden_image_name)
+                   testset_images_tag = testset_images[index_of_ordered_at_testset[-1]:]
+                   break
 
-    # find matching image names of golden and test, and find order of them (3):
-    # we assume each image is listed only once in each list.
-    index_of_ordered_at_goldenset = []
-    index_of_ordered_at_testset = []
-    ordered_images = []
-    testset_images_tag = testset_images
-    for golden_image_name in goldenset_images:
-        for testset_image_name in testset_images_tag:
-            if golden_image_name == testset_image_name:
-               index_of_ordered_at_goldenset.append(goldenset_images.index(golden_image_name))
-               index_of_ordered_at_testset.append(testset_images.index(golden_image_name))
-               ordered_images.append(golden_image_name)
-               testset_images_tag = testset_images[index_of_ordered_at_testset[-1]:]
-               break
-
-    X = []
-    for i in range(len(index_of_ordered_at_goldenset)):
-        X.append(index_of_ordered_at_testset[i] - index_of_ordered_at_goldenset[i])
-    Nco = sum(X)
-
-
-    # find matching image names of golden and test, and find un-order of them (4):
-    index_of_unordered_at_goldenset = []
-    index_of_unordered_at_testset = []
-    unordered_images = []
-    last_ordered_distance = []
-    weighted_unordered_distances = []
-    for golden_image_name in goldenset_images:
-        for testset_image_name in testset_images:
-            if golden_image_name == testset_image_name and golden_image_name not in ordered_images:
-                index_of_unordered_at_goldenset.append(goldenset_images.index(golden_image_name))
-                index_of_unordered_at_testset.append(testset_images.index(golden_image_name))
-                unordered_images.append(golden_image_name)
+        X = []
+        for i in range(len(index_of_ordered_at_goldenset)):
+            X.append(index_of_ordered_at_testset[i] - index_of_ordered_at_goldenset[i])
+        Nco = sum(X)
 
 
-                for index in index_of_ordered_at_goldenset:
-                    if (index - index_of_unordered_at_goldenset[-1]) > 0:
-                        last_ordered_distance.append(index-1)
-                        # break
-                weighted_unordered_distances.append(last_ordered_distance[-1] - index_of_unordered_at_testset[-1])
-
-    Y = []
-    for i in range(len(index_of_unordered_at_goldenset)):
-        Y.append(float((index_of_unordered_at_goldenset[i] - index_of_unordered_at_testset[i]) * \
-               weighted_unordered_distances[i]))
-    Nnco = sum(Y)
-
-    # finds how many of the goldenset are not included in the testset (5):
-    Nne = len(set(goldenset_images).difference(testset_images))
-    print [len(goldenset_images),Nco,Nnco,Nne]
+        # find matching image names of golden and test, and find un-order of them (4):
+        index_of_unordered_at_goldenset = []
+        index_of_unordered_at_testset = []
+        unordered_images = []
+        last_ordered_distance = []
+        weighted_unordered_distances = []
+        for golden_image_name in goldenset_images:
+            for testset_image_name in testset_images:
+                if golden_image_name == testset_image_name and golden_image_name not in ordered_images:
+                    index_of_unordered_at_goldenset.append(goldenset_images.index(golden_image_name))
+                    index_of_unordered_at_testset.append(testset_images.index(golden_image_name))
+                    unordered_images.append(golden_image_name)
 
 
-    # classes rating calculation (6):
-    images_rating = float(Nco)/len(goldenset_images) + 0.5*float(Nnco)/len(goldenset_images) - \
-                    float(Nne)/len(goldenset_images)
-    if images_rating < 0.0:
-        images_rating = 0.0
+                    for index in index_of_ordered_at_goldenset:
+                        if (index - index_of_unordered_at_goldenset[-1]) > 0:
+                            last_ordered_distance.append(index-1)
+                            # break
+                    weighted_unordered_distances.append(last_ordered_distance[-1] - index_of_unordered_at_testset[-1])
+
+        Y = []
+        for i in range(len(index_of_unordered_at_goldenset)):
+            Y.append(float((index_of_unordered_at_goldenset[i] - index_of_unordered_at_testset[i]) * \
+                   weighted_unordered_distances[i]))
+        Nnco = sum(Y)
+
+        # finds how many of the goldenset are not included in the testset (5):
+        Nne = len(set(goldenset_images).difference(testset_images))
+        print [len(goldenset_images),Nco,Nnco,Nne]
+
+
+        # classes rating calculation (6):
+        images_rating = float(Nco)/len(goldenset_images) + 0.5*float(Nnco)/len(goldenset_images) - \
+                        float(Nne)/len(goldenset_images)
+        if images_rating < 0.0:
+            images_rating = 0.0
 
     return images_rating
 
@@ -413,9 +415,9 @@ def lab(filtered_paperdoll=True):
     goldenset_classes.append(['sandalds','dress','bracelet'])
     goldenset_classes.append(['shoes','dress','leggings'])
     i = 1
-    for goldenset_classes_of_mage in goldenset_classes:
+    for goldenset_classes_of_image in goldenset_classes:
         test_case_image_path = str(i)+'.jpg'
-        print run_scorer(test_case_image_path,goldenset_classes_of_mage,[],filtered_paperdoll)
+        print run_scorer(test_case_image_path,goldenset_classes_of_image,[],filtered_paperdoll)
         i += 1
 
 
