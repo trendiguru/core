@@ -236,7 +236,7 @@ def run_category_scorer(test_case_image_path,goldenset_classes,weights_dictionar
 
     # activate paperdoll on image:
     job = paperdoll_parse_enqueue.paperdoll_enqueue(image, async=False, use_tg_worker=True)
-    mask, labels, pose = job.results
+    mask, labels, pose = job.result
 
     # face:
     relevance = background_removal.image_is_relevant(image)
