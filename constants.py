@@ -15,7 +15,15 @@ histograms_length = [180, 255, 255]
 fingerprint_weights = [0.05, 0.5, 0.225, 0.225]
 K = 0.5                     # for euclidean distance
 min_bb_to_image_area_ratio = 0.95  # if bb takes more than this fraction of image area then use  cv2.GC_INIT_WITH_RECT instead of init with mask
+
+
+#########
+#DB stuff
+#########
 db_name = pymongo.MongoClient().mydb
+from redis import Redis
+redis_conn = Redis()
+
 update_collection_name = 'products_new_fp'
 download_version = 792015  # DayMonthYear
 
