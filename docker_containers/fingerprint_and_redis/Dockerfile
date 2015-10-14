@@ -268,19 +268,18 @@ RUN git clone --verbose git@bitbucket.org:trendiGuru/core.git
 
 WORKDIR /home/developer/tg/Dev/core
 
-##rqworker portforward
-#advice from docker forum guy
-#RUN yum install -y openssh-clients
-#COPY id_rsa /tmp/id_rsa
-#CMD ssh  -i /tmp/id_rsa -L 8000:localhost:8000 -N vagrant@192.168.33.10 -o StrictHostKeyChecking=no
+################################
+#supervisor
+################################
+#setuptools
+RUN wget https://bootstrap.pypa.io/ez_setup.py -O - | python
+RUN easy_install supervisor
+RUN  echo_supervisord_conf>/etc/supervisord.conf
 
+#######################
+##rqworker
+############################
+#portforward
 #RUN ssh  -L 6379:localhost:6379 -N  -o StrictHostKeyChecking=no -f ubuntu@extremeli.trendi.guru &
-RUN rqworker -u redis://redis1-redis-1-vm:6379 fingerprint &
-RUN rqworker -u redis://redis1-redis-1-vm:6379 fingerprint &
-RUN rqworker -u redis://redis1-redis-1-vm:6379 fingerprint &
-RUN rqworker -u redis://redis1-redis-1-vm:6379 fingerprint &
-RUN rqworker -u redis://redis1-redis-1-vm:6379 fingerprint &
-RUN rqworker -u redis://redis1-redis-1-vm:6379 fingerprint &
-RUN rqworker -u redis://redis1-redis-1-vm:6379 fingerprint &
-RUN rqworker -u redis://redis1-redis-1-vm:6379 fingerprint &
+CMD rqworker -u redis://redis1-redis-1-vm:6379 fingerprint &
 
