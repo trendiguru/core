@@ -42,11 +42,12 @@ class ShopStyleDownloader():
         initial_filter_params = UrlParams(params_dict={"pid": PID, "cat": "womens-suits", "Sort": "Recency"})
         self.divide_and_conquer(initial_filter_params, 0)
 
-    def run_by_category(self, do_fingerprint=True):
+    def run_by_category(self, do_fingerprint=True, type="DAILY"):
         self.do_fingerprint = do_fingerprint  # check if relevent
         root_category, ancestors = self.build_category_tree()
         if self.db.download_data.find().count() < 1 or \
-                        self.db.download_data.find()[0]["current_dl"] != self.current_dl:
+                        self.db.download_data.find()[0]["current_dl"] != self.current_dl or \
+                        type == "FULL":
             self.db.download_data.delete_many({})
             self.db.download_data.insert_one({"criteria": "main",
                                               "current_dl": self.current_dl,
@@ -407,4 +408,4 @@ class UrlParams(collections.MutableMapping):
 
 if __name__ == "__main__":
     update_db = ShopStyleDownloader()
-    update_db.run_by_category()
+    update_db.run_by_category("FULL")

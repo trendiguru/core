@@ -70,14 +70,14 @@ def generate_mask_and_insert(image_url=None, doc=None, save_to_db=False, mask_on
     :return:
     """
     image_url = image_url or doc["image"]["sizes"]["XLarge"]["url"]
-    fp_date = db_catagory
+
     image = Utils.get_cv2_img_array(image_url)
     if not Utils.is_valid_image(image):
         logging.warning("image is None. url: {url}".format(url=image_url))
         return
     small_image, resize_ratio = background_removal.standard_resize(image, 400)
     del image
-
+    fp_date = db_catagory
     CLASSIFIER_FOR_CATEGORY = {}
 
     if "bounding_box" in doc.keys() and doc["bounding_box"] != [0, 0, 0, 0] and doc["bounding_box"] is not None:
