@@ -4,9 +4,7 @@ import os
 import subprocess
 
 import pymongo
-
 import cv2
-
 import numpy as np
 
 import fingerprint_core as fp
