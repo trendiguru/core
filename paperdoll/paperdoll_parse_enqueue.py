@@ -117,3 +117,24 @@ if __name__ == "__main__":
 #        show_parse(img_array=img)
 
 
+import time
+def callback_example(queue_name,previous_job_id,*args,**kwargs):
+    print('this is the callback calling')
+    if previous_job_id is None:
+        logging.debug('got no previous job id')
+        return
+    connection = constants.redis_conn
+    if connection is None:
+        logging.debug('got no redis conn')
+        return
+    queue = Queue(queue_name, connection=connection)
+    if queue is None:
+        logging.debug('got no queue')
+        return
+    job1_answers = queue.fetch_job(previous_job_id)
+    print('prev result:')
+    print job1_answers
+
+    logging.warning('this is the callback calling')
+    return (567,job1_answers)
+
