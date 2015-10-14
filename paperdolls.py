@@ -295,13 +295,31 @@ def from_paperdoll_to_similar_results(person_id, mask, labels, num_of_matches=10
         logging.warning("Done! image was successfully inserted to the DB images!")
 
 import time
-def callback_example(queue,previous_id):
+def callback_example(queue_name,previous_job_id):
     print('this is the callback calling')
-    logging.warning('this is the callback calling')
-    cls = getattr(queue)
-    first = queue.fetch_job(previous_id)
+    if previous_job_id is None:
+        logging.debug('got no previous job id')
+        return
+    connection = constants.redis_conn
+    if connection is None:
+        logging.debug('got no redis conn')
+        return
+    #dependent = self.job_class.fetch(job_id, connection=self.connection)
+#    registry = DeferredJobRegistry(dependent.origin, self.connection)
+#    with self.connection._pipeline() as pipeline:
+  #      registry.remove(dependent, pipeline=pipeline)
+##        if dependent.origin == self.name:
+ #           self.enqueue_job(dependent, pipeline=pipeline)
+ #       else:
+    queue = Queue(queue_name, connection=connection)
+    if queue is None:
+        logging.debug('got no queue')
+        return
+    job1_answers = queue.fetch_job(previous_job_id)
     print('prev result:')
-    print first.result
+    print job1_answers
+
+    logging.warning('this is the callback calling')
 ##    paperdoll_job = kwargs['previous_job_result']
  #   print('pd job'+str(paperdoll_job))
  #   paperdoll_answers = paperdoll_job.result
@@ -314,5 +332,5 @@ def callback_example(queue,previous_id):
 #    f = open('callbackout.txt', 'a')
 #    f.write('hi\n')
 #    time.sleep(1)
-    return (567,args,kwargs,mask,labels,pose)
+    return (567,job1_answers)
 
