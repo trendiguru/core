@@ -65,7 +65,7 @@ original_paperdoll_weights_dictionary = {'background':1,
 'wallet':1}
 
 # RELEVANT_ITEMS = {'2': 'leggings', '3': 'shorts', '4': 'blazers', '5': 'tees-and-tshirts',
-#                   '8': 'womens-outerwear', '9': 'skirts', '12': 'womens-tops', '13': 'jackets', '14': 'bras',
+#                   '8': 'womens-outerwear', '9': 'skirts', '12': 'womens-tops', '13': 'jackets', '14': 'bras ',
 #                   '15': 'dresses', '16': 'womens-pants', '17': 'sweaters', '18': 'womens-tops', '19': 'jeans',
 #                   '20': 'leggings', '23': 'womens-top', '24': 'cardigan-sweaters', '25': 'womens-accessories',
 #                   '26': 'mens-vests', '29': 'socks', '31': 'womens-intimates', '32': 'stockings',
