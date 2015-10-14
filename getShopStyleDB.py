@@ -61,7 +61,7 @@ class ShopStyleDownloader():
                                               "total_dl_time": "still in process"})
         # sorting the archive in ascending order
         if type == "FULL":
-            self.db.dl_cache.delete_many()
+            self.db.dl_cache.delete_many({})
         self.db.archive.create_index("id")
 
         cats_to_dl = [anc["id"] for anc in ancestors]
