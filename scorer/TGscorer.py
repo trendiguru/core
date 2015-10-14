@@ -329,6 +329,7 @@ def run_scorer(test_case_image_path,goldenset_classes,goldenset_images,filtered_
     num_of_matches = 20 # of similar_results
     # resize image:
     image = test_case_image_path
+    print image
     image = cv2.imread(image)
     cv2.imshow(image)
     image = background_removal.standard_resize(image, 400)[0]
