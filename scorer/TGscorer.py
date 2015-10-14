@@ -329,7 +329,6 @@ def run_scorer(test_case_image_path,goldenset_classes,goldenset_images,filtered_
     num_of_matches = 20 # of similar_results
     # resize image:
     image = test_case_image_path
-    print image
     image = cv2.imread(image)
     image = background_removal.standard_resize(image, 400)[0]
 
@@ -359,7 +358,7 @@ def run_scorer(test_case_image_path,goldenset_classes,goldenset_images,filtered_
                         print element['_id']
                         similar_results.append(element['_id'])
     else:
-        for num in np.unique(final_mask):
+        for num in np.unique(mask):
             # for categories score:
             category = list(labels.keys())[list(labels.values()).index(num)]
             if category in constants.paperdoll_shopstyle_women.keys():# final mask is the PD output without the 'paperdolls.after_pd_conclusions' filtering !!!
