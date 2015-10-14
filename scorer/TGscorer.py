@@ -84,7 +84,7 @@ def classification_rating(goldenset_classes,testset_classes,weights_dictionary):
     if class_rating < 0.0:
         class_rating = 0.0
 
-    return class_rating
+    return class_rating#
 
 def results_rating(goldenset_images,testset_images):
     '''
