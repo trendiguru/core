@@ -406,7 +406,7 @@ def lab(filtered_paperdoll=True):
     goldenset_classes.append(['dress','heels']) #9
     goldenset_classes.append(['dress','heels']) #10
     goldenset_classes.append(['sandals','dress','bracelet']) #11
-    goldenset_classes.append(['shoes','dress','legging']) #12
+    goldenset_classes.append(['shoes','dress','leggings']) #12
     goldenset_classes.append(['boots','top','leggings']) #13
 
     i = 1
