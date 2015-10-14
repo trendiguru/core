@@ -170,7 +170,7 @@ def classification_rating(goldenset_classes,testset_classes,weights_dictionary):
     NWgolden = sum_weights_of_goldenset_matches
 
 
-    # classes rating calculation (7):
+    # classes rating calculation (7) :
     print PC
     print NC
     print PWC
