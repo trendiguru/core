@@ -172,7 +172,7 @@ def classification_rating(goldenset_classes,testset_classes,weights_dictionary):
     print PC
     print NC
     print PWC
-    class_rating = float(PC)/NWgolden - float(NC)/NWgolden - float(PWC)/len(testset_classes)
+    class_rating = np.arctanh((float(PC)/NWgolden) / (float(PWC)/len(testset_classes))) #- float(NC)/NWgolden
     if class_rating < 0.0:
         class_rating = 0.0
 
