@@ -26,7 +26,7 @@ parallel_matlab_queuename = 'pd'
 nonparallel_matlab_queuename = 'pd_nonparallel'
 db = pymongo.MongoClient(host='mongodb1-instance-1').mydb
 redis_conn = Redis(host='redis1-redis-1-vm')
-redis_conn_old = Redis
+redis_conn_old = Redis()
 update_collection_name = 'products'
 download_version = 792015  # DayMonthYear
 
