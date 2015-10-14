@@ -65,7 +65,7 @@ original_paperdoll_weights_dictionary = {'background':1,
 'wallet':1}
 
 # RELEVANT_ITEMS = {'2': 'leggings', '3': 'shorts', '4': 'blazers', '5': 'tees-and-tshirts',
-#                   '8': 'womens-outerwear', '9': 'skirts', '12': 'womens-tops', '13': 'jackets', '14': 'bras ',
+#                   '8': 'womens-outerwear', '9': 'skirts', '12': 'womens-tops', '13': 'jackets', '14': 'bras',
 #                   '15': 'dresses', '16': 'womens-pants', '17': 'sweaters', '18': 'womens-tops', '19': 'jeans',
 #                   '20': 'leggings', '23': 'womens-top', '24': 'cardigan-sweaters', '25': 'womens-accessories',
 #                   '26': 'mens-vests', '29': 'socks', '31': 'womens-intimates', '32': 'stockings',
@@ -395,19 +395,20 @@ def run_scorer(test_case_image_path,goldenset_classes,goldenset_images,filtered_
 
 def lab(filtered_paperdoll=True):
     goldenset_classes = []
-    goldenset_classes.append(['dress','shoes','bracelet'])
-    goldenset_classes.append(['dress','shoes','bracelet'])
-    goldenset_classes.append(['skirt','belt','top','shoes'])
-    goldenset_classes.append(['shoes','socks','dress','necklace'])
-    goldenset_classes.append(['dress','heels'])
-    goldenset_classes.append(['dress','heels','bag'])
-    goldenset_classes.append(['sneakers','dress','sunglasses','scarf'])
-    goldenset_classes.append(['dress','heels'])
-    goldenset_classes.append(['dress','heels'])
-    goldenset_classes.append(['dress','heels'])
-    goldenset_classes.append(['shoes','heels'])
-    goldenset_classes.append(['sandals','dress','bracelet'])
-    goldenset_classes.append(['shoes','dress','leggings'])
+    goldenset_classes.append(['dress','shoes','bracelet']) #1
+    goldenset_classes.append(['dress','shoes','bracelet']) #2
+    goldenset_classes.append(['skirt','belt','top','shoes']) #3
+    goldenset_classes.append(['shoes','socks','dress','necklace']) #4
+    goldenset_classes.append(['dress','heels']) #5
+    goldenset_classes.append(['dress','heels','bag']) #6
+    goldenset_classes.append(['sneakers','dress','sunglasses','scarf']) #7
+    goldenset_classes.append(['dress','heels']) #8
+    goldenset_classes.append(['dress','heels']) #9
+    goldenset_classes.append(['dress','heels']) #10
+    goldenset_classes.append(['sandals','dress','bracelet']) #11
+    goldenset_classes.append(['shoes','dress','leggings']) #12
+    goldenset_classes.append(['boots','top','leggings']) #13
+
     i = 1
     for goldenset_classes_of_image in goldenset_classes:
         test_case_image_path = str(i)+'.jpg'
