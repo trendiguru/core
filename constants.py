@@ -1,7 +1,9 @@
 import os
 
+import redis
 import cv2
 import pymongo
+
 
 
 
@@ -177,3 +179,5 @@ else:
     BGR2GRAYCONST = cv2.cv.CV_BGR2GRAY
     FACECONST = cv2
     HAARCONST = cv2.cv.CV_HAAR_SCALE_IMAGE
+
+redis_conn = redis.Redis()
