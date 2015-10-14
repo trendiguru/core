@@ -182,7 +182,7 @@ def clear_collection(collection):
 
 
 def job_result_from_id(job_id, job_class=Job, conn=None):
-    conn = conn or constants.redis_conn
+    conn = conn or constants.redis_conn_old
     job = job_class.fetch(job_id, connection=conn)
     return job.result
 
