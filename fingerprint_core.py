@@ -61,8 +61,7 @@ def fp(img, bins=histograms_length, fp_length=fingerprint_length, mask=None):
     return result_vector[:fp_length]
 
 
-def generate_mask_and_insert(image_url=None, doc=None, save_to_db=False, mask_only=False, db_catagory=None,
-                             fp_date=None):
+def generate_mask_and_insert(image_url=None, doc=None, save_to_db=False, mask_only=False, db_catagory=None):
     """
     Takes an image + whatever else you give it, and handles all the logic (using/finding/creating a bb, then a mask)
     Work in progress...
@@ -71,7 +70,7 @@ def generate_mask_and_insert(image_url=None, doc=None, save_to_db=False, mask_on
     :return:
     """
     image_url = image_url or doc["image"]["sizes"]["XLarge"]["url"]
-
+    fp_date = db_catagory
     image = Utils.get_cv2_img_array(image_url)
     if not Utils.is_valid_image(image):
         logging.warning("image is None. url: {url}".format(url=image_url))

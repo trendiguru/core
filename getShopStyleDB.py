@@ -242,7 +242,7 @@ class ShopStyleDownloader():
         if do_fingerprint:
             print "enqueuing for fingerprinting...,",
             q.enqueue(generate_mask_and_insert, image_url=None, doc=prod, save_to_db=True, mask_only=False,
-                      fp_date=self.current_dl)
+                      db_category=self.current_dl)
             # db_catagory=)
             # prod_fp = super_fp(image_url=None, db_doc=prod, )
             # prod["fingerprint"] = prod_fp
