@@ -61,7 +61,7 @@ def fp(img, bins=histograms_length, fp_length=fingerprint_length, mask=None):
     return result_vector[:fp_length]
 
 
-def generate_mask_and_insert(image_url=None, doc=None, save_to_db=False, mask_only=False, db_catagory=None):
+def generate_mask_and_insert(image_url=None, doc=None, save_to_db=False, mask_only=False, fp_date=None):
     """
     Takes an image + whatever else you give it, and handles all the logic (using/finding/creating a bb, then a mask)
     Work in progress...
@@ -77,7 +77,6 @@ def generate_mask_and_insert(image_url=None, doc=None, save_to_db=False, mask_on
         return
     small_image, resize_ratio = background_removal.standard_resize(image, 400)
     del image
-    fp_date = db_catagory
     CLASSIFIER_FOR_CATEGORY = {}
 
     if "bounding_box" in doc.keys() and doc["bounding_box"] != [0, 0, 0, 0] and doc["bounding_box"] is not None:
