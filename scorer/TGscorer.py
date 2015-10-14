@@ -290,6 +290,7 @@ def results_rating(goldenset_images,testset_images):
 
 def scorer(goldenset_classes,testset_classes,weights_dictionary,goldenset_images,testset_images):
     '''
+
     calculates the rating of the ordered images set of the test in comparison to the
     'golden' (master) set order of images.
     :param test_case_image_path: a path designating test image's location (string)
