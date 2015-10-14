@@ -11,7 +11,7 @@ from fingerprint_core import generate_mask_and_insert
 import constants
 import find_similar_mongo
 
-q = Queue('fingerprint', connection=constants.redis_conn)
+q = Queue('fingerprint_new', connection=constants.redis_conn)
 
 BASE_URL = "http://api.shopstyle.com/api/v2/"
 BASE_URL_PRODUCTS = BASE_URL + "products/"
