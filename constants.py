@@ -66,6 +66,21 @@ classifier_to_category_dict = {"dressClassifier.xml": ["dresses", "bridal-mother
                                                        "mens-big-and-tall-coats-and-jackets",
                                                        "mens-big-and-tall-blazers"]}
 
+db_relevent_items = ['women', 'womens-clothes', 'womens-suits', 'shorts', 'petites', 'blazers', 'tees-and-tshirts',
+                     'jeans', 'bootcut-jeans', 'classic-jeans', 'cropped-jeans', 'distressed-jeans',
+                     'flare-jeans', 'relaxed-jeans', 'skinny-jeans', 'straight-leg-jeans', 'stretch-jeans',
+                     'womens-tops', 'button-front-tops', 'camisole-tops', 'cashmere-tops', 'halter-tops',
+                     'longsleeve-tops', 'shortsleeve-tops', 'sleeveless-tops', 'tank-tops', 'tunic-tops', 'polo-tops',
+                     'skirts', 'mini-skirts', 'mid-length-skirts', 'long-skirts',
+                     'sweaters', 'sweatshirts', 'cashmere-sweaters', 'cardigan-sweaters', 'crewneck-sweaters',
+                     'turleneck-sweaters', 'v-neck-sweaters',
+                     'womens-pants', 'wide-leg-pants', 'skinny-pants', 'dress-pants', 'cropped-pants', 'casual-pants',
+                     'dresses', 'cocktail-dresses', 'day-dresses', 'evening-dresses',
+                     'jackets', 'casual-jackets', 'leather-jackets', 'vests',
+                     'coats', 'womens-outerwear', 'fur-and-shearling-coats', 'leather-and-suede-coats',
+                     'puffer-coats', 'raincoats-and-trenchcoats', 'wool-coats',
+                     'leggings']
+
 # paperdoll items' legends
 
 paperdoll_shopstyle_women = {'top': 'womens-tops', 'pants': 'womens-pants', 'shorts': 'shorts', 'jeans': 'jeans',
