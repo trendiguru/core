@@ -11,7 +11,7 @@ from fingerprint_core import generate_mask_and_insert
 import constants
 import find_similar_mongo
 
-q = Queue('fingerprint', connection=constants.redis_conn)
+q = Queue('fingerprint_new', connection=constants.redis_conn)
 
 BASE_URL = "http://api.shopstyle.com/api/v2/"
 BASE_URL_PRODUCTS = BASE_URL + "products/"
@@ -60,6 +60,8 @@ class ShopStyleDownloader():
                                               "end_time": "still in process",
                                               "total_dl_time": "still in process"})
         # sorting the archive in ascending order
+        if type == "FULL":
+            self.db.dl_cache.delete_many({})
         self.db.archive.create_index("id")
 
         cats_to_dl = [anc["id"] for anc in ancestors]
@@ -243,7 +245,7 @@ class ShopStyleDownloader():
         if do_fingerprint:
             print "enqueuing for fingerprinting...,",
             q.enqueue(generate_mask_and_insert, image_url=None, doc=prod, save_to_db=True, mask_only=False,
-                      db_category=self.current_dl)
+                      fp_date=self.current_dl)
             # db_catagory=)
             # prod_fp = super_fp(image_url=None, db_doc=prod, )
             # prod["fingerprint"] = prod_fp

@@ -21,13 +21,13 @@ min_bb_to_image_area_ratio = 0.95  # if bb takes more than this fraction of imag
 #########
 #DB stuff
 #########
-db = pymongo.MongoClient().mydb
 from redis import Redis
-redis_conn = Redis()
 parallel_matlab_queuename = 'pd'
 nonparallel_matlab_queuename = 'pd_nonparallel'
-
-update_collection_name = 'products_new_fp'
+db = pymongo.MongoClient(host='mongodb1-instance-1').mydb
+redis_conn = Redis(host='redis1-redis-1-vm')
+redis_conn_old = Redis()
+update_collection_name = 'products'
 download_version = 792015  # DayMonthYear
 
 # fp rating related constants
@@ -65,6 +65,21 @@ classifier_to_category_dict = {"dressClassifier.xml": ["dresses", "bridal-mother
                                                        "mens-big-and-tall-shirts", "mens-big-and-tall-sweaters",
                                                        "mens-big-and-tall-coats-and-jackets",
                                                        "mens-big-and-tall-blazers"]}
+
+db_relevent_items = ['women', 'womens-clothes', 'womens-suits', 'shorts', 'petites', 'blazers', 'tees-and-tshirts',
+                     'jeans', 'bootcut-jeans', 'classic-jeans', 'cropped-jeans', 'distressed-jeans',
+                     'flare-jeans', 'relaxed-jeans', 'skinny-jeans', 'straight-leg-jeans', 'stretch-jeans',
+                     'womens-tops', 'button-front-tops', 'camisole-tops', 'cashmere-tops', 'halter-tops',
+                     'longsleeve-tops', 'shortsleeve-tops', 'sleeveless-tops', 'tank-tops', 'tunic-tops', 'polo-tops',
+                     'skirts', 'mini-skirts', 'mid-length-skirts', 'long-skirts',
+                     'sweaters', 'sweatshirts', 'cashmere-sweaters', 'cardigan-sweaters', 'crewneck-sweaters',
+                     'turleneck-sweaters', 'v-neck-sweaters',
+                     'womens-pants', 'wide-leg-pants', 'skinny-pants', 'dress-pants', 'cropped-pants', 'casual-pants',
+                     'dresses', 'cocktail-dresses', 'day-dresses', 'evening-dresses',
+                     'jackets', 'casual-jackets', 'leather-jackets', 'vests',
+                     'coats', 'womens-outerwear', 'fur-and-shearling-coats', 'leather-and-suede-coats',
+                     'puffer-coats', 'raincoats-and-trenchcoats', 'wool-coats',
+                     'leggings']
 
 # paperdoll items' legends
 
