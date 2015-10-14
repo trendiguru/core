@@ -417,7 +417,7 @@ def lab(filtered_paperdoll=True):
     i = 1
     for goldenset_classes_of_image in goldenset_classes:
         test_case_image_path = str(i)+'.jpg'
-        cv2.imshow(test_case_image_path)
+        cv2.imshow(cv2.imread(test_case_image_path,0))
         cv2.waitKey(0)
         print test_case_image_path
         print run_scorer(test_case_image_path,goldenset_classes_of_image,[],filtered_paperdoll)
