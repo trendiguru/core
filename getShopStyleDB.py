@@ -2,17 +2,16 @@ import collections
 import time
 import json
 import urllib
+import datetime
 
 import requests
-from redis import Redis
 from rq import Queue
 
 from fingerprint_core import generate_mask_and_insert
 import constants
 import find_similar_mongo
 
-redis_conn = Redis()
-q = Queue('fingerprint', connection=redis_conn)
+q = Queue('fingerprint', connection=constants.redis_conn)
 
 BASE_URL = "http://api.shopstyle.com/api/v2/"
 BASE_URL_PRODUCTS = BASE_URL + "products/"
@@ -24,8 +23,9 @@ FILTERS = ["Brand", "Retailer", "Price", "Color", "Size", "Discount"]
 MAX_RESULTS_PER_PAGE = 50
 MAX_OFFSET = 5000
 MAX_SET_SIZE = MAX_OFFSET + MAX_RESULTS_PER_PAGE
-db = constants.db_name
+db = constants.db
 collection = constants.update_collection_name
+relevant = constants.db_relevent_items
 
 
 class ShopStyleDownloader():
@@ -33,7 +33,7 @@ class ShopStyleDownloader():
         # connect to db
         self.db = db
         self.collection = self.db[collection]
-        self.current_dl_version = constants.download_version
+        self.current_dl = str(datetime.datetime.date(datetime.datetime.now()))
         self.last_request_time = time.time()
         self.do_fingerprint = True
 
@@ -42,22 +42,40 @@ class ShopStyleDownloader():
         initial_filter_params = UrlParams(params_dict={"pid": PID, "cat": "womens-suits", "Sort": "Recency"})
         self.divide_and_conquer(initial_filter_params, 0)
 
-    def run_by_category(self, root_id_list=None, do_fingerprint=True):
-        self.do_fingerprint = do_fingerprint
+    def run_by_category(self, do_fingerprint=True, type="DAILY"):
+        self.do_fingerprint = do_fingerprint  # check if relevent
         root_category, ancestors = self.build_category_tree()
+        if self.db.download_data.find().count() < 1 or \
+                        self.db.download_data.find()[0]["current_dl"] != self.current_dl or \
+                        type == "FULL":
+            self.db.download_data.delete_many({})
+            self.db.download_data.insert_one({"criteria": "main",
+                                              "current_dl": self.current_dl,
+                                              "start_time": datetime.datetime.now(),
+                                              "items_downloaded": 0,
+                                              "new_items": 0,
+                                              "returned_from_archive": 0,
+                                              "sent_to_archive": 0,
+                                              "existing_items": 0,
+                                              "end_time": "still in process",
+                                              "total_dl_time": "still in process"})
         # sorting the archive in ascending order
         self.db.archive.create_index("id")
 
-        if isinstance(root_id_list, basestring):
-            root_id_list = [root_id_list]
-        # if root_id_list not given, special case when we want to DL everything, because the root_category doesn't exit.
-        cats_to_dl = root_id_list or [anc["id"] for anc in ancestors]
+        cats_to_dl = [anc["id"] for anc in ancestors]
         for cat in cats_to_dl:
-            if cat in constants.RELEVANT_ITEMS:  # yonti 30.9
-                self.download_category(cat)
+            self.download_category(cat)
 
-        db.dl_cache.remove()
-        print "DONE!!!!!"
+        self.db.download_data.find_one_and_update({"criteria": "main"}, {'$set': {"end_time": datetime.datetime.now()}})
+        tmp = self.db.download_data.find()[0]
+        total_time = abs(tmp["end_time"] - tmp["start_time"])
+        self.db.download_data.find_one_and_update({"criteria": "main"}, {'$set': {"total_dl_time": total_time}})
+        print "FULL DOWNLOAD DONE!!!!!"
+
+    def get_time(self):
+        return str(datetime.date.today()) + '_' + \
+               str(datetime.datetime.time(datetime.datetime.now()))[0:2] + '_' + \
+               str(datetime.datetime.time(datetime.datetime.now()))[3:5]
 
     def build_category_tree(self):
         # download all categories
@@ -74,7 +92,7 @@ class ShopStyleDownloader():
         ancestors = []
         for c in self.db.categories.find({"parentId": root_category}):
             ancestors.append(c)
-        # let's get some numbers in there - get a histogram for each ancestor
+            # let's get some numbers in there - get a histogram for each ancestor
         for anc in ancestors:
             response = self.delayed_requests_get(BASE_URL_PRODUCTS + "histogram",
                                                  {"pid": PID, "filters": "Category", "cat": anc["id"]})
@@ -85,6 +103,8 @@ class ShopStyleDownloader():
         return root_category, ancestors
 
     def download_category(self, category_id):
+        if category_id not in relevant:
+            return
         category = self.db.categories.find_one({"id": category_id})
         if "count" in category and category["count"] <= MAX_SET_SIZE:
             print("Attempting to download: {0} products".format(category["count"]))
@@ -98,7 +118,8 @@ class ShopStyleDownloader():
         else:
             initial_filter_params = UrlParams(params_dict={"pid": PID, "cat": category["id"]})
             self.divide_and_conquer(initial_filter_params, 0)
-        self.archive_products(category_id)
+
+        self.archive_products(category_id)  # need to count how many where sent to archive
 
     def divide_and_conquer(self, filter_params, filter_index):
         """Keep branching until we find disjoint subsets which have less then MAX_SET_SIZE items"""
@@ -135,9 +156,6 @@ class ShopStyleDownloader():
                     _key = "fl"
                 subset_filter_params[_key] = filter_prefix + subset["id"]
                 if subset["count"] < MAX_SET_SIZE:
-                    # print("Attempting to download: %i products" % subset["count"])
-                    # print("Params: " + str(subset_filter_params.items()))
-                    # pdb.set_trace()
                     self.download_products(subset_filter_params)
                 else:
                     print "Splitting: {0} products".format(subset["count"])
@@ -145,16 +163,10 @@ class ShopStyleDownloader():
                     self.divide_and_conquer(subset_filter_params, filter_index + 1)
 
     def download_products(self, filter_params, total=MAX_SET_SIZE):
-        """
-        Download with paging...
-        :param filter_params:
-        :param total:
-        """
-
         if not isinstance(filter_params, UrlParams):
             filter_params = UrlParams(params_dict=filter_params)
 
-        dl_query = {"dl_version": self.current_dl_version,
+        dl_query = {"download_data": {"last_update": self.current_dl},
                     "filter_params": filter_params.encoded()}
 
         if self.db.dl_cache.find_one(dl_query):
@@ -184,7 +196,7 @@ class ShopStyleDownloader():
         print "archiving old products"
         # this process iterate our whole DB (after daily download) and shifts unwanted items to the archive collection
         query_doc = {'$and': [
-            {'dl_version': {'$exists': 1, '$lt': self.current_dl_version}},
+            {'download_data': {'last_update': {'$exists': 1, '$lt': self.current_dl}}},
             {'$or': [
                 {'archive': {'$exists': 0}},
                 {'archive': False}
@@ -193,9 +205,9 @@ class ShopStyleDownloader():
         if category_id:
             query_doc["$and"].append(
                 {"categories":
-                     {"$elemMatch": {
-                         "id": {"$in": find_similar_mongo.get_all_subcategories(self.db.categories, category_id)}}}
-                 })
+                    {"$elemMatch": {
+                        "id": {"$in": find_similar_mongo.get_all_subcategories(self.db.categories, category_id)}}}
+                })
 
         update_result = self.collection.update_many(query_doc, {"$set": {"archive": True}})
         # for prod in old_prods:
@@ -230,7 +242,8 @@ class ShopStyleDownloader():
         prod["_id"] = self.collection.insert_one(prod).inserted_id
         if do_fingerprint:
             print "enqueuing for fingerprinting...,",
-            q.enqueue(generate_mask_and_insert, image_url=None, doc=prod, save_to_db=True, mask_only=False)
+            q.enqueue(generate_mask_and_insert, image_url=None, doc=prod, save_to_db=True, mask_only=False,
+                      db_category=self.current_dl)
             # db_catagory=)
             # prod_fp = super_fp(image_url=None, db_doc=prod, )
             # prod["fingerprint"] = prod_fp
@@ -240,17 +253,21 @@ class ShopStyleDownloader():
     def db_update(self, prod):
         print ""
         print "Updating product {0}. ".format(prod["id"]),
-
+        self.db.download_data.find_one_and_update({"criteria": "main"},
+                                                  {'$inc': {"items_downloaded": 1}})
         # requests package can't handle https - temp fix
         prod["image"] = json.loads(json.dumps(prod["image"]).replace("https://", "http://"))
-        prod["dl_version"] = self.current_dl_version
+
+        prod["download_data"] = {"last_update": self.current_dl}
 
         # case 1: new product - try to update, if does not exists, insert a new product and add our fields
         prod_in_products = self.collection.find_one({"id": prod["id"]})
-
+        category = prod['categories'][0]['id']
+        print category
         if prod_in_products is None:
+            self.db.download_data.find_one_and_update({"criteria": "main"},
+                                                      {'$inc': {"new_items": 1}})
             print "Product not in db.products, searching in archive. ",
-            self.insert_and_fingerprint(prod)
             # case 1.1: try finding this product in the archive
             prod_in_archive = self.db.archive.find_one({'id': prod["id"]})
             if prod_in_archive is None:
@@ -268,15 +285,20 @@ class ShopStyleDownloader():
                     print "old fp_version, updating fp",
                     self.insert_and_fingerprint(prod)
                 self.db.archive.delete_one({'id': prod["id"]})
+                self.db.download_data.find_one_and_update({"criteria": "main"},
+                                                          {'$inc': {"returned_from_archive": 1}})
         else:
             # case 2: the product was found in our db, and maybe should be modified
             print "Found existing prod in db,",
             # Thus - update only shopstyle's fields
+            self.db.download_data.find_one_and_update({"criteria": "main"},
+                                                      {'$inc': {"existing_items": 1}})
             if prod_in_products.get("lastModified", None) != prod.get("lastModified",
                                                                       None):  # assuming shopstyle update it correctly
                 print "lastModifieds are different, updating SS fields",
                 self.shopstyle_fields_update(prod)
-                self.collection.update({'id': prod["id"]}, {'$set': {'dl_version': self.current_dl_version}})
+                self.collection.update({'id': prod["id"]},
+                                       {'$set': {'download_data': {'last_update': self.current_dl}}})
                 # This is now done at the beginning (by setting dl_version in prod ahead of time)
                 # self.db.products.update({'id': prod["id"]}, {'$set': {'dl_version': self.current_dl_version}})
 
@@ -386,4 +408,4 @@ class UrlParams(collections.MutableMapping):
 
 if __name__ == "__main__":
     update_db = ShopStyleDownloader()
-    update_db.run_by_category()
+    update_db.run_by_category(type="FULL")

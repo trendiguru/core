@@ -226,7 +226,7 @@ def start_process(page_url, image_url):
             image_copy = person_isolation(image, face)
             person['url'] = upload_image(image_copy, str(person['person_id']))
             image_dict['people'].append(person)
-            paper_job = paperdoll_parse_enqueue.paperdoll_enqueue(image_url)
+            paper_job = paperdoll_parse_enqueue.paperdoll_enqueue(person['url'])
             q1.enqueue(from_paperdoll_to_similar_results, person['person_id'], paper_job.id, depends_on=paper_job)
             idx += 1
     else:  # if not relevant

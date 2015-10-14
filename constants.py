@@ -21,11 +21,11 @@ min_bb_to_image_area_ratio = 0.95  # if bb takes more than this fraction of imag
 #########
 #DB stuff
 #########
-db_name = pymongo.MongoClient().mydb
-parallel_matlab_queuename = 'pd'
-nonparallel_matlab_queuename = 'pd_nonparallel'
+db = pymongo.MongoClient().mydb
 from redis import Redis
 redis_conn = Redis()
+parallel_matlab_queuename = 'pd'
+nonparallel_matlab_queuename = 'pd_nonparallel'
 
 update_collection_name = 'products_new_fp'
 download_version = 792015  # DayMonthYear

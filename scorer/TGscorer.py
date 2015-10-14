@@ -3,11 +3,11 @@ import cv2
 from trendi_guru_modules import find_similar_mongo
 from trendi_guru_modules import background_removal
 from trendi_guru_modules import constants
-from trendi_guru_modules import Utils
 from trendi_guru_modules.paperdoll import paperdoll_parse_enqueue
 from trendi_guru_modules import paperdolls
 
-weights_dictionary = {'background':1,
+
+original_paperdoll_weights_dictionary = {'background':1,
 'blazer':1,
 'cape':1,
 'flats':1,
@@ -64,6 +64,43 @@ weights_dictionary = {'background':1,
 'sweatshirt':1,
 'wallet':1}
 
+# RELEVANT_ITEMS = {'2': 'leggings', '3': 'shorts', '4': 'blazers', '5': 'tees-and-tshirts',
+#                   '8': 'womens-outerwear', '9': 'skirts', '12': 'womens-tops', '13': 'jackets', '14': 'bras',
+#                   '15': 'dresses', '16': 'womens-pants', '17': 'sweaters', '18': 'womens-tops', '19': 'jeans',
+#                   '20': 'leggings', '23': 'womens-top', '24': 'cardigan-sweaters', '25': 'womens-accessories',
+#                   '26': 'mens-vests', '29': 'socks', '31': 'womens-intimates', '32': 'stockings',
+#                   '35': 'cashmere-sweaters', '36': 'sweatshirts', '37': 'womens-suits', '43': 'mens-ties'}
+
+# IRELEVANT_ITEMS = {'1': 'background', '6': 'bag', '7': 'shoes', '10': 'purse', '11': 'boots', '21': 'scarf',
+#                    '22': 'hats', '27': 'sunglasses', '28': 'belts', '30': 'glasses', '33': 'necklace', '34': 'cape',
+#                    '38': 'bracelet', '39': 'heels', '40': 'wedges', '41': 'rings',
+#                    '42': 'flats', '44': 'romper', '45': 'sandals', '46': 'earrings', '47': 'gloves',
+#                    '48': 'sneakers', '49': 'clogs', '50': 'watchs', '51': 'pumps', '52': 'wallets', '53': 'bodysuit',
+#                    '54': 'loafers', '55': 'hair', '56': 'skin'}
+
+
+filtered_paperdoll_weights_dictionary = {'womens-tops':1,
+'womens-pants':1,
+'shorts':1,
+'jeans':1,
+'jackets':1,
+'blazers':1,
+'skirts':1,
+'dresses':1,
+'sweaters':1,
+'tees-and-tshirts':1,
+'cardigan-sweaters':1,
+'coats':1,
+'womens-suits':1,
+'vests':1,
+'sweatshirts':1,
+'v-neck-sweaters':1,
+'shapewear':1,
+'hosiery':1,
+'leggings':1}
+
+def sigmoid(input_value):
+    return 2*(float(1)/(1+np.exp(-input_value)) - 0.5)
 
 def classification_rating(goldenset_classes,testset_classes,weights_dictionary):
     '''
@@ -137,9 +174,14 @@ def classification_rating(goldenset_classes,testset_classes,weights_dictionary):
     print PC
     print NC
     print PWC
-    class_rating = float(PC)/NWgolden - float(NC)/NWgolden - float(PWC)/len(testset_classes)
-    if class_rating < 0.0:
+    if testset_classes == 0:
         class_rating = 0.0
+    elif (float(PWC)/len(testset_classes) + float(NC)/NWgolden) == 0:
+        class_rating = 1.0
+    else:
+        class_rating = sigmoid((float(PC)/NWgolden) / (float(PWC)/len(testset_classes) + float(NC)/NWgolden))
+        if class_rating < 0.0:
+            class_rating = 0.0
 
     return class_rating
 
@@ -181,73 +223,75 @@ def results_rating(goldenset_images,testset_images):
     #         return
 
 
-    # initial check (2):
-    if len(goldenset_images)==0:
-            print "goldenset_images must not be empty!"
-            return
+    # # initial check (2):
+    # if len(goldenset_images)==0:
+    #         print "goldenset_images must not be empty!"
+    #         return
+    #
+    # if len(testset_images)==0:
+    #         print "testset_images must not be empty!"
+    #         return
 
-    if len(testset_images)==0:
-            print "testset_images must not be empty!"
-            return
+    images_rating = 0.0
 
+    if goldenset_images:
+        # find matching image names of golden and test, and find order of them (3):
+        # we assume each image is listed only once in each list.
+        index_of_ordered_at_goldenset = []
+        index_of_ordered_at_testset = []
+        ordered_images = []
+        testset_images_tag = testset_images
+        for golden_image_name in goldenset_images:
+            for testset_image_name in testset_images_tag:
+                if golden_image_name == testset_image_name:
+                   index_of_ordered_at_goldenset.append(goldenset_images.index(golden_image_name))
+                   index_of_ordered_at_testset.append(testset_images.index(golden_image_name))
+                   ordered_images.append(golden_image_name)
+                   testset_images_tag = testset_images[index_of_ordered_at_testset[-1]:]
+                   break
 
-    # find matching image names of golden and test, and find order of them (3):
-    # we assume each image is listed only once in each list.
-    index_of_ordered_at_goldenset = []
-    index_of_ordered_at_testset = []
-    ordered_images = []
-    testset_images_tag = testset_images
-    for golden_image_name in goldenset_images:
-        for testset_image_name in testset_images_tag:
-            if golden_image_name == testset_image_name:
-               index_of_ordered_at_goldenset.append(goldenset_images.index(golden_image_name))
-               index_of_ordered_at_testset.append(testset_images.index(golden_image_name))
-               ordered_images.append(golden_image_name)
-               testset_images_tag = testset_images[index_of_ordered_at_testset[-1]:]
-               break
-
-    X = []
-    for i in range(len(index_of_ordered_at_goldenset)):
-        X.append(index_of_ordered_at_testset[i] - index_of_ordered_at_goldenset[i])
-    Nco = sum(X)
-
-
-    # find matching image names of golden and test, and find un-order of them (4):
-    index_of_unordered_at_goldenset = []
-    index_of_unordered_at_testset = []
-    unordered_images = []
-    last_ordered_distance = []
-    weighted_unordered_distances = []
-    for golden_image_name in goldenset_images:
-        for testset_image_name in testset_images:
-            if golden_image_name == testset_image_name and golden_image_name not in ordered_images:
-                index_of_unordered_at_goldenset.append(goldenset_images.index(golden_image_name))
-                index_of_unordered_at_testset.append(testset_images.index(golden_image_name))
-                unordered_images.append(golden_image_name)
+        X = []
+        for i in range(len(index_of_ordered_at_goldenset)):
+            X.append(index_of_ordered_at_testset[i] - index_of_ordered_at_goldenset[i])
+        Nco = sum(X)
 
 
-                for index in index_of_ordered_at_goldenset:
-                    if (index - index_of_unordered_at_goldenset[-1]) > 0:
-                        last_ordered_distance.append(index-1)
-                        # break
-                weighted_unordered_distances.append(last_ordered_distance[-1] - index_of_unordered_at_testset[-1])
-
-    Y = []
-    for i in range(len(index_of_unordered_at_goldenset)):
-        Y.append(float((index_of_unordered_at_goldenset[i] - index_of_unordered_at_testset[i]) * \
-               weighted_unordered_distances[i]))
-    Nnco = sum(Y)
-
-    # finds how many of the goldenset are not included in the testset (5):
-    Nne = len(set(goldenset_images).difference(testset_images))
-    print [len(goldenset_images),Nco,Nnco,Nne]
+        # find matching image names of golden and test, and find un-order of them (4):
+        index_of_unordered_at_goldenset = []
+        index_of_unordered_at_testset = []
+        unordered_images = []
+        last_ordered_distance = []
+        weighted_unordered_distances = []
+        for golden_image_name in goldenset_images:
+            for testset_image_name in testset_images:
+                if golden_image_name == testset_image_name and golden_image_name not in ordered_images:
+                    index_of_unordered_at_goldenset.append(goldenset_images.index(golden_image_name))
+                    index_of_unordered_at_testset.append(testset_images.index(golden_image_name))
+                    unordered_images.append(golden_image_name)
 
 
-    # classes rating calculation (6):
-    images_rating = float(Nco)/len(goldenset_images) + 0.5*float(Nnco)/len(goldenset_images) - \
-                    float(Nne)/len(goldenset_images)
-    if images_rating < 0.0:
-        images_rating = 0.0
+                    for index in index_of_ordered_at_goldenset:
+                        if (index - index_of_unordered_at_goldenset[-1]) > 0:
+                            last_ordered_distance.append(index-1)
+                            # break
+                    weighted_unordered_distances.append(last_ordered_distance[-1] - index_of_unordered_at_testset[-1])
+
+        Y = []
+        for i in range(len(index_of_unordered_at_goldenset)):
+            Y.append(float((index_of_unordered_at_goldenset[i] - index_of_unordered_at_testset[i]) * \
+                   weighted_unordered_distances[i]))
+        Nnco = sum(Y)
+
+        # finds how many of the goldenset are not included in the testset (5):
+        Nne = len(set(goldenset_images).difference(testset_images))
+        print [len(goldenset_images),Nco,Nnco,Nne]
+
+
+        # classes rating calculation (6):
+        images_rating = float(Nco)/len(goldenset_images) + 0.5*float(Nnco)/len(goldenset_images) - \
+                        float(Nne)/len(goldenset_images)
+        if images_rating < 0.0:
+            images_rating = 0.0
 
     return images_rating
 
@@ -272,7 +316,7 @@ def scorer(goldenset_classes,testset_classes,weights_dictionary,goldenset_images
         test_results_score = 0.0
     return test_classes_score, test_results_score
 
-def run_category_scorer(test_case_image_path,goldenset_classes,weights_dictionary):
+def run_scorer(test_case_image_path,goldenset_classes,goldenset_images,filtered_paperdoll=True):
     '''
     calculates the rating of the ordered images set of the test in comparison to the
     'golden' (master) set order of images.
@@ -284,6 +328,10 @@ def run_category_scorer(test_case_image_path,goldenset_classes,weights_dictionar
     :return: a double, ranging from 0 to 1, rating the results (images set) accuracy and the category list accuracy.
     '''
 
+    if filtered_paperdoll:
+        weights_dictionary = filtered_paperdoll_weights_dictionary
+    else:
+        weights_dictionary = original_paperdoll_weights_dictionary
 
     num_of_matches = 20 # of similar_results
     # resize image:
@@ -294,92 +342,86 @@ def run_category_scorer(test_case_image_path,goldenset_classes,weights_dictionar
     # activate paperdoll on image:
     job = paperdoll_parse_enqueue.paperdoll_enqueue(image, async=False, use_tg_worker=True)
     mask, labels, pose = job.result
-
     # face:
     relevance = background_removal.image_is_relevant(image)
     face = relevance.faces[0]
-    final_mask = paperdolls.after_pd_conclusions(mask, labels, face)
-    testset_classes = []
-    for num in np.unique(final_mask):
-        # for categories score:
-        category = list(labels.keys())[list(labels.values()).index(num)]
-        if category in constants.paperdoll_shopstyle_women.keys():
-            # task 1: get categories from image:
-            testset_classes.append(category)
-
-    # scoring:
-    test_classes_score = classification_rating(goldenset_classes,testset_classes,weights_dictionary)
-
-    print weights_dictionary
-    print testset_classes
-    print test_classes_score
-
-    return test_classes_score
-
-
-def run_scorer(test_case_image_path,goldenset_classes,goldenset_images,weights_dictionary):
-    '''
-    calculates the rating of the ordered images set of the test in comparison to the
-    'golden' (master) set order of images.
-    :param test_case_image_path: a path designating test image's location (string)
-    :param goldenset_classes: list of classes / category's names (strings)
-    :param goldenset_images: list of images file names (strings)
-    :param weights_dictionary: a dictionary in which the 'key's are all available classes / categories, and the values
-            are float type numeric in the range of 0 to 1
-    :return: a double, ranging from 0 to 1, rating the results (images set) accuracy and the category list accuracy.
-    '''
-
-
-    num_of_matches = 20 # of similar_results
-    # resize image:
-    image = test_case_image_path
-    image = cv2.imread(image)
-    image = background_removal.standard_resize(image, 400)[0]
-
-    # activate paperdoll on image:
-    mask, labels, pose = paperdoll_parse_enqueue.paperdoll_enqueue(image, async=False, use_tg_worker=True)
-
-    # face:
-    relevance = background_removal.image_is_relevant(image)
-    face = relevance.faces[0]
-    final_mask = paperdolls.after_pd_conclusions(mask, labels, face)
     testset_classes = []
     similar_results = []
-    for num in np.unique(final_mask):
-        # for categories score:
-        category = list(labels.keys())[list(labels.values()).index(num)]
-        if category in constants.paperdoll_shopstyle_women.keys():
-            # task 1: get categories from image:
-            testset_classes.append(category)
-            # task 2: get similar results:
-            item_mask = 255 * np.array(mask == num, dtype=np.uint8)
-            shopstyle_cat = constants.paperdoll_shopstyle_women[category]
-            str2img = find_similar_mongo.find_top_n_results(image,item_mask,num_of_matches,shopstyle_cat)[1]
-            for element in str2img:
-                print element['_id']
-                similar_results.append(element['_id'])
+
+    if filtered_paperdoll: # filtered / unfiltered paperdoll
+        final_mask = paperdolls.after_pd_conclusions(mask, labels, face)
+        for num in np.unique(final_mask):
+            # for categories score:
+            category = list(labels.keys())[list(labels.values()).index(num)]
+            if category in constants.paperdoll_shopstyle_women.keys():# final mask is the PD output without the 'paperdolls.after_pd_conclusions' filtering !!!
+                # task 1: get categories from image:
+                testset_classes.append(category)
+                item_mask = 255 * np.array(mask == num, dtype=np.uint8)
+                shopstyle_cat = constants.paperdoll_shopstyle_women[category]
+                # task 2: get similar results:
+                if goldenset_images: # in case of only category scoring
+                    str2img = find_similar_mongo.find_top_n_results(image,item_mask,num_of_matches,shopstyle_cat)[1]
+                    for element in str2img:
+                        print element['_id']
+                        similar_results.append(element['_id'])
+    else:
+        for num in np.unique(mask):
+            # for categories score:
+            category = list(labels.keys())[list(labels.values()).index(num)]
+            if category in constants.paperdoll_shopstyle_women.keys():# final mask is the PD output without the 'paperdolls.after_pd_conclusions' filtering !!!
+                # task 1: get categories from image:
+                testset_classes.append(category)
+                item_mask = 255 * np.array(mask == num, dtype=np.uint8)
+                # task 2: get similar results:
+                if goldenset_images: # in case of only category scoring
+                    str2img = find_similar_mongo.find_top_n_results(image,item_mask,num_of_matches,category)[1]
+                    for element in str2img:
+                        print element['_id']
+                        similar_results.append(element['_id'])
+
     testset_images = similar_results
 
     # scoring:
     test_classes_score, test_results_score = scorer(goldenset_classes,testset_classes,weights_dictionary,
                                                     goldenset_images,testset_images)
 
-    print weights_dictionary
+    # print weights_dictionary
     print testset_classes
-    print test_classes_score
-    print test_results_score
+    # print test_classes_score
+    # print test_results_score
 
     return test_classes_score, test_results_score
 
 
-def lab():
-    goldenset_classes = ['dress', 'sweatshirt', 'jacket']
-    test_case_image_path = '../images/female1.jpg'
+def lab(filtered_paperdoll=True):
+    goldenset_classes = []
+    goldenset_classes.append(['dress','shoes','bracelet']) #1
+    goldenset_classes.append(['dress','shoes','bracelet']) #2
+    goldenset_classes.append(['skirt','belt','top','shoes']) #3
+    goldenset_classes.append(['shoes','socks','dress','necklace']) #4
+    goldenset_classes.append(['dress','heels']) #5
+    goldenset_classes.append(['dress','heels','bag']) #6
+    goldenset_classes.append(['sneakers','dress','sunglasses','scarf']) #7
+    goldenset_classes.append(['dress','heels']) #8
+    goldenset_classes.append(['dress','heels']) #9
+    goldenset_classes.append(['dress','heels']) #10
+    goldenset_classes.append(['sandals','dress','bracelet']) #11
+    goldenset_classes.append(['shoes','dress','leggings']) #12
+    goldenset_classes.append(['boots','top','leggings']) #13
 
-    print run_category_scorer(test_case_image_path,goldenset_classes,weights_dictionary)
+    i = 1
+    for goldenset_classes_of_image in goldenset_classes:
+        test_case_image_path = str(i)+'.jpg'
+        print test_case_image_path
+        print goldenset_classes_of_image
+        print run_scorer(test_case_image_path,goldenset_classes_of_image,[],filtered_paperdoll)
+        i += 1
 
 
-                                                                                8
+
+
+
+
 
 
 

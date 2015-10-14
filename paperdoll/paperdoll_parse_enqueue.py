@@ -10,8 +10,8 @@ redis_conn = Redis()
 
 # Tell RQ what Redis connection to use
 
-def paperdoll_enqueue(img_url_or_cv2_array, async=True,queue=None,use_tg_worker=True,callback_function=None,callback_queue=None,args=None,kwargs=None):
-    '''
+def paperdoll_enqueue(img_url_or_cv2_array, async=True, queue=None, use_tg_worker=True, callback_function=None, callback_queue=None, ags=None, kwargs=None):
+    """
     The 'parallel matlab queue' which starts engines and keeps them warm is 'pd'.  This worker should be running somewhere (ideally in a screen like pd1).
     The use_tg_worker argument forces  use/nonuse of the tgworker than knows how to keep the engines warm.
     The callback function is a function to call upon completion of the paperdoll parse.
@@ -30,7 +30,7 @@ def paperdoll_enqueue(img_url_or_cv2_array, async=True,queue=None,use_tg_worker=
     :param args:args for callback
     :param kwargs:kwargs for callback
     :return: mask, label_dict, pose
-    '''
+    """
     if queue is None:
         if use_tg_worker:   #this is the one that has persistent matlab engines, requires get_parse_mask_parallel and workers on that queue that have been started
                             # using: rqworker pd -w rq.tgworker.TgWorker

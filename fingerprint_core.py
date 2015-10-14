@@ -14,7 +14,7 @@ import constants
 
 fingerprint_length = constants.fingerprint_length
 histograms_length = constants.histograms_length
-db = constants.db_name
+db = constants.db
 collection = constants.update_collection_name
 
 
@@ -77,7 +77,7 @@ def generate_mask_and_insert(image_url=None, doc=None, save_to_db=False, mask_on
         return
     small_image, resize_ratio = background_removal.standard_resize(image, 400)
     del image
-
+    fp_date = db_catagory
     CLASSIFIER_FOR_CATEGORY = {}
 
     if "bounding_box" in doc.keys() and doc["bounding_box"] != [0, 0, 0, 0] and doc["bounding_box"] is not None:
@@ -111,9 +111,8 @@ def generate_mask_and_insert(image_url=None, doc=None, save_to_db=False, mask_on
     fingerprint = fp(small_image, mask=mask)
 
     fp_as_list = fingerprint.tolist()
-
     if save_to_db:
         db[collection].update_one({"_id": doc["_id"]},
                                   {"$set": {"fingerprint": fp_as_list,
-                                            "fp_version": constants.fingerprint_version}})
+                                            "download_data": {"fp_date": fp_date}}})
     return fp_as_list
