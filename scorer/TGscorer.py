@@ -65,7 +65,7 @@ original_paperdoll_weights_dictionary = {'background':1,
 'wallet':1}
 
 # RELEVANT_ITEMS = {'2': 'leggings', '3': 'shorts', '4': 'blazers', '5': 'tees-and-tshirts',
-#                   '8': 'womens-outerwear', '9': 'skirts', '12': 'womens-tops', '13': 'jackets', '14': 'bras',
+#                   '8': 'womens-outerwear', '9': 'skirts', '12': 'womens-tops', '13': 'jackets', '14': 'bras ',
 #                   '15': 'dresses', '16': 'womens-pants', '17': 'sweaters', '18': 'womens-tops', '19': 'jeans',
 #                   '20': 'leggings', '23': 'womens-top', '24': 'cardigan-sweaters', '25': 'womens-accessories',
 #                   '26': 'mens-vests', '29': 'socks', '31': 'womens-intimates', '32': 'stockings',
@@ -100,7 +100,7 @@ filtered_paperdoll_weights_dictionary = {'womens-tops':1,
 'leggings':1}
 
 def sigmoid(input_value):
-    return float(1)/(1+np.exp(-input_value)) - 0.5
+    return 2*(float(1)/(1+np.exp(-input_value)) - 0.5)
 
 def classification_rating(goldenset_classes,testset_classes,weights_dictionary):
     '''
@@ -176,10 +176,10 @@ def classification_rating(goldenset_classes,testset_classes,weights_dictionary):
     print PWC
     if testset_classes == 0:
         class_rating = 0.0
-    elif PWC == 0:
+    elif (float(PWC)/len(testset_classes) + float(NC)/NWgolden) == 0:
         class_rating = 1.0
     else:
-        class_rating = sigmoid((float(PC)/NWgolden) / (float(PWC)/len(testset_classes))) #- float(NC)/NWgolden
+        class_rating = sigmoid((float(PC)/NWgolden) / (float(PWC)/len(testset_classes) + float(NC)/NWgolden))
         if class_rating < 0.0:
             class_rating = 0.0
 
