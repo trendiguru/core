@@ -408,4 +408,4 @@ class UrlParams(collections.MutableMapping):
 
 if __name__ == "__main__":
     update_db = ShopStyleDownloader()
-    update_db.run_by_category("FULL")
+    update_db.run_by_category(type="FULL")
