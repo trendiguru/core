@@ -34,10 +34,12 @@ def paperdoll_enqueue(img_url_or_cv2_array, async=True,queue=None,use_tg_worker=
     if queue is None:
         if use_tg_worker:   #this is the one that has persistent matlab engines, requires get_parse_mask_parallel and workers on that queue that have been started
                             # using: rqworker pd -w rq.tgworker.TgWorker
-            queue = Queue('pd', connection=redis_conn)
+            queue_name = constants.parallel_matlab_queuename
+            queue = Queue(queue_name, connection=redis_conn)
             job1 = queue.enqueue('pd.get_parse_mask_parallel', img_url_or_cv2_array)
         else:
-            queue = Queue('pd_nonparallel', connection=redis_conn)
+            queue_name = constants.nonparallel_matlab_queuename
+            queue = Queue(queue_name, connection=redis_conn)
             job1 = queue.enqueue('pd.get_parse_mask',img_url_or_cv2_array)
     print('started pd job on queue:'+str(queue))
     start = time.time()
@@ -55,7 +57,7 @@ def paperdoll_enqueue(img_url_or_cv2_array, async=True,queue=None,use_tg_worker=
         if callback_queue is None:
             callback_queue = Queue('paperdoll', connection=redis_conn)
         print('starting callback on queue:'+str(callback_queue))
-        job2 = callback_queue.enqueue(callback_function,'pd',job1.id,depends_on=job1)
+        job2 = callback_queue.enqueue(callback_function,queue_name,job1.id,depends_on=job1)
         start = time.time()
         do_job2_synchronously = False
         while job2.result is None and do_job2_synchronously:
