@@ -290,7 +290,6 @@ def results_rating(goldenset_images,testset_images):
 
 def scorer(goldenset_classes,testset_classes,weights_dictionary,goldenset_images,testset_images):
     '''
-
     calculates the rating of the ordered images set of the test in comparison to the
     'golden' (master) set order of images.
     :param test_case_image_path: a path designating test image's location (string)
@@ -418,6 +417,7 @@ def lab(filtered_paperdoll=True):
     i = 1
     for goldenset_classes_of_image in goldenset_classes:
         test_case_image_path = str(i)+'.jpg'
+        print test_case_image_path
         print run_scorer(test_case_image_path,goldenset_classes_of_image,[],filtered_paperdoll)
         i += 1
 
