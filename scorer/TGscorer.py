@@ -176,7 +176,7 @@ def classification_rating(goldenset_classes,testset_classes,weights_dictionary):
     print PWC
     if testset_classes == 0:
         class_rating = 0.0
-    elif PWC == 0:
+    elif (float(PWC)/len(testset_classes) + float(NC)/NWgolden) == 0:
         class_rating = 1.0
     else:
         class_rating = sigmoid((float(PC)/NWgolden) / (float(PWC)/len(testset_classes) + float(NC)/NWgolden))
