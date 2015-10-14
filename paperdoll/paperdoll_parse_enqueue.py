@@ -36,11 +36,11 @@ def paperdoll_enqueue(img_url_or_cv2_array, async=True, queue=None, use_tg_worke
                             # using: rqworker pd -w rq.tgworker.TgWorker
             queue_name = constants.parallel_matlab_queuename
             queue = Queue(queue_name, connection=redis_conn)
-            job1 = queue.enqueue('trendi_guru_modules.pd.get_parse_mask_parallel', img_url_or_cv2_array)
+            job1 = queue.enqueue('trendi_guru_modules.paperdoll.pd.get_parse_mask_parallel', img_url_or_cv2_array)
         else:
             queue_name = constants.nonparallel_matlab_queuename
             queue = Queue(queue_name, connection=redis_conn)
-            job1 = queue.enqueue('trendi_guru_modules.pd.get_parse_mask',img_url_or_cv2_array)
+            job1 = queue.enqueue('trendi_guru_modules.paperdoll.pd.get_parse_mask',img_url_or_cv2_array)
     print('started pd job on queue:'+str(queue))
     start = time.time()
     if not async:
