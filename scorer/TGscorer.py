@@ -416,7 +416,9 @@ def lab(filtered_paperdoll=True):
     goldenset_classes.append(['shoes','dress','leggings'])
     i = 1
     for goldenset_classes_of_image in goldenset_classes:
-        test_case_image_path = str(i+1)+'.jpg'
+        test_case_image_path = str(i)+'.jpg'
+        cv2.imshow(test_case_image_path)
+        cv2.waitKey(0)
         print test_case_image_path
         print run_scorer(test_case_image_path,goldenset_classes_of_image,[],filtered_paperdoll)
         i += 1
