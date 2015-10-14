@@ -317,7 +317,7 @@ def run_scorer(test_case_image_path,goldenset_classes,goldenset_images,weights_d
 
 def lab():
     weights_dictionary = {'vest': 1, 'jeans': 1, 'sweatshirt': 1, 'skirt': 1, 'blouse': 1, 'cardigan': 1, 'shirt': 1, 'dress': 1, 'top': 1, 'suit': 1, 'pants': 1, 'shorts': 1, 't-shirt': 1, 'leggings': 1, 'blazer': 1, 'tights': 1, 'bodysuit': 1, 'jacket': 1, 'coat': 1, 'stockings': 1, 'jumper': 1, 'sweater': 1}
-    goldenset_classes = ['jeans', 'sweatshirt', 'vest']#['dress', 'sweatshirt', 'jacket']
+    goldenset_classes = ['dress', 'sweatshirt', 'jacket']
     test_case_image_path = '../images/female1.jpg'
 
     print run_category_scorer(test_case_image_path,goldenset_classes,weights_dictionary)
