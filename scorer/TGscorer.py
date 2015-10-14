@@ -407,7 +407,7 @@ def lab(filtered_paperdoll=True):
     goldenset_classes.append(['dress','heels']) #10
     goldenset_classes.append(['sandals','dress','bracelet']) #11
     goldenset_classes.append(['shoes','dress','legging']) #12
-    goldenset_classes.append(['boots','top','leggings']) #13
+    goldenset_classes.append(['boots','top','leggings']) #1 3
 
     i = 1
     for goldenset_classes_of_image in goldenset_classes:
