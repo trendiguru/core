@@ -1,6 +1,5 @@
 import os
 
-import redis
 import cv2
 import pymongo
 
@@ -69,20 +68,6 @@ classifier_to_category_dict = {"dressClassifier.xml": ["dresses", "bridal-mother
 
 # paperdoll items' legends
 
-RELEVANT_ITEMS = {'2': 'leggings', '3': 'shorts', '4': 'blazers', '5': 'tees-and-tshirts',
-                  '8': 'womens-outerwear', '9': 'skirts', '12': 'womens-tops', '13': 'jackets', '14': 'bras',
-                  '15': 'dresses', '16': 'womens-pants', '17': 'sweaters', '18': 'womens-tops', '19': 'jeans',
-                  '20': 'leggings', '23': 'womens-top', '24': 'cardigan-sweaters', '25': 'womens-accessories',
-                  '26': 'mens-vests', '29': 'socks', '31': 'womens-intimates', '32': 'stockings',
-                  '35': 'cashmere-sweaters', '36': 'sweatshirts', '37': 'womens-suits', '43': 'mens-ties'}
-
-IRELEVANT_ITEMS = {'1': 'background', '6': 'bag', '7': 'shoes', '10': 'purse', '11': 'boots', '21': 'scarf',
-                   '22': 'hats', '27': 'sunglasses', '28': 'belts', '30': 'glasses', '33': 'necklace', '34': 'cape',
-                   '38': 'bracelet', '39': 'heels', '40': 'wedges', '41': 'rings',
-                   '42': 'flats', '44': 'romper', '45': 'sandals', '46': 'earrings', '47': 'gloves',
-                   '48': 'sneakers', '49': 'clogs', '50': 'watchs', '51': 'pumps', '52': 'wallets', '53': 'bodysuit',
-                   '54': 'loafers', '55': 'hair', '56': 'skin'}
-
 paperdoll_shopstyle_women = {'top': 'womens-tops', 'pants': 'womens-pants', 'shorts': 'shorts', 'jeans': 'jeans',
                              'jacket': 'jackets', 'blazer': 'blazers', 'shirt': 'womens-tops', 'skirt': 'skirts',
                              'blouse': 'womens-tops', 'dress': 'dresses', 'sweater': 'sweaters',
@@ -107,23 +92,8 @@ paperdoll_categories = {"whole_body": ['bodysuit', 'dress', 'jumper', 'suit', 'r
 
 papersoll_whole_body = ['bodysuit', 'dress', 'jumper', 'suit', 'romper', 'intimate']
 paperdoll_upper = ['blazer', 'cape', 'jacket', 't-shirt', 'blouse', 'cardigan', 'shirt', 'coat', 'top', 'bra',
-                   'sweater',
-                   'vest', 'sweatshirt']
+                   'sweater', 'vest', 'sweatshirt']
 paperdoll_lower = ['pants', 'stockings', 'jeans', 'tights', 'leggings', 'shorts', 'skirt']
-paperdoll_shopstyle_men = {'top': 'mens-shirts', 'pants': 'mens-pants', 'shorts': 'mens-shorts',
-                           'jeans': 'mens-jeans', 'jacket': 'mens-outerwear', 'blazer': 'mens-outerwear',
-                           'shirt': 'mens-shirts', 'skirt': 'mens-shorts', 'blouse': 'mens-shirts',
-                           'dress': 'mens-suits', 'sweater': 'mens-sweaters', 't-shirt': 'mens-tees-and-tshirts',
-                           'cardigan': 'mens-cardigan-sweaters', 'coat': 'mens-overcoats-and-trenchcoats',
-                           'suit': 'mens-suits', 'vest': 'vests', 'sweatshirt': 'mens-sweatshirts',
-                           'leggings': 'mens-pants', 'stockings': 'mens-pants', 'tights': 'mens-pants'}
-
-paperdoll_categories = {"whole_body": ['bodysuit', 'dress', 'jumper', 'suit', 'romper'],
-                        "upper_cover": ['blazer', 'cape', 'jacket', 'cardigan', 'coat', 'vest', 'sweatshirt'],
-                        "upper_under": ['t-shirt', 'blouse', 'shirt', 'top', 'sweater', 'sweatshirt'],
-                        "lower_cover": ['shorts', 'skirt', 'jeans', 'pants'],
-                        "lower_under": ['stockings', 'tights', 'leggings']}
-
 paperdoll_shoes = ['pumps', 'wedges', 'flats', 'clogs', 'shoes', 'boots', 'heels', 'loafers', 'sandals', 'sneakers']
 paperdoll_accessories = ['tie', 'purse', 'hat', 'sunglasses', 'bag', 'belt']
 
@@ -179,5 +149,3 @@ else:
     BGR2GRAYCONST = cv2.cv.CV_BGR2GRAY
     FACECONST = cv2
     HAARCONST = cv2.cv.CV_HAAR_SCALE_IMAGE
-
-redis_conn = redis.Redis()
