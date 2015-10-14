@@ -378,10 +378,10 @@ def run_scorer(test_case_image_path,goldenset_classes,goldenset_images,filtered_
     test_classes_score, test_results_score = scorer(goldenset_classes,testset_classes,weights_dictionary,
                                                     goldenset_images,testset_images)
 
-    print weights_dictionary
+    # print weights_dictionary
     print testset_classes
-    print test_classes_score
-    print test_results_score
+    # print test_classes_score
+    # print test_results_score
 
     return test_classes_score, test_results_score
 
@@ -399,7 +399,7 @@ def lab(filtered_paperdoll=True):
     goldenset_classes.append(['dress','heels'])
     goldenset_classes.append(['dress','heels'])
     goldenset_classes.append(['shoes','heels'])
-    goldenset_classes.append(['sandalds','dress','bracelet'])
+    goldenset_classes.append(['sandals','dress','bracelet'])
     goldenset_classes.append(['shoes','dress','leggings'])
     i = 1
     for goldenset_classes_of_image in goldenset_classes:
