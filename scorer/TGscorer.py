@@ -7,6 +7,63 @@ from trendi_guru_modules import Utils
 from trendi_guru_modules.paperdoll import paperdoll_parse_enqueue
 from trendi_guru_modules import paperdolls
 
+weights_dictionary = {'background':1,
+'blazer':1,
+'cape':1,
+'flats':1,
+'jacket':1,
+'pants':1,
+'scarf':1,
+'socks':1,
+'t-shirt':1,
+'watch':1,
+'skin':1,
+'blouse':1,
+'cardigan':1,
+'glasses':1,
+'jeans':1,
+'pumps':1,
+'shirt':1,
+'stockings':1,
+'tie':1,
+'wedges':1,
+'hair':1,
+'bodysuit':1,
+'clogs':1,
+'gloves':1,
+'jumper':1,
+'purse':1,
+'shoes':1,
+'suit':1,
+'tights':1,
+'accessories':1,
+'boots':1,
+'coat':1,
+'hat':1,
+'leggings':1,
+'ring':1,
+'shorts':1,
+'sunglasses':1,
+'top':1,
+'bag':1,
+'bra':1,
+'dress':1,
+'heels':1,
+'loafers':1,
+'romper':1,
+'skirt':1,
+'sweater':1,
+'vest':1,
+'belt':1,
+'bracelet':1,
+'earrings':1,
+'intimate':1,
+'necklace':1,
+'sandals':1,
+'sneakers':1,
+'sweatshirt':1,
+'wallet':1}
+
 
 def classification_rating(goldenset_classes,testset_classes,weights_dictionary):
     '''
@@ -84,7 +141,7 @@ def classification_rating(goldenset_classes,testset_classes,weights_dictionary):
     if class_rating < 0.0:
         class_rating = 0.0
 
-    return class_rating#
+    return class_rating
 
 def results_rating(goldenset_images,testset_images):
     '''
@@ -316,18 +373,13 @@ def run_scorer(test_case_image_path,goldenset_classes,goldenset_images,weights_d
 
 
 def lab():
-    weights_dictionary = {'vest': 1, 'jeans': 1, 'sweatshirt': 1, 'skirt': 1, 'blouse': 1, 'cardigan': 1, 'shirt': 1, 'dress': 1, 'top': 1, 'suit': 1, 'pants': 1, 'shorts': 1, 't-shirt': 1, 'leggings': 1, 'blazer': 1, 'tights': 1, 'bodysuit': 1, 'jacket': 1, 'coat': 1, 'stockings': 1, 'jumper': 1, 'sweater': 1}
     goldenset_classes = ['dress', 'sweatshirt', 'jacket']
     test_case_image_path = '../images/female1.jpg'
 
     print run_category_scorer(test_case_image_path,goldenset_classes,weights_dictionary)
 
 
-
-
-
-
-
+                                                                                8
 
 
 
