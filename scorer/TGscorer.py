@@ -100,7 +100,7 @@ filtered_paperdoll_weights_dictionary = {'womens-tops':1,
 'leggings':1}
 
 def sigmoid(input_value):
-    return float(1)/(1+np.exp(-input_value)) - 0.5
+    return 2*(float(1)/(1+np.exp(-input_value)) - 0.5)
 
 def classification_rating(goldenset_classes,testset_classes,weights_dictionary):
     '''
@@ -179,7 +179,7 @@ def classification_rating(goldenset_classes,testset_classes,weights_dictionary):
     elif PWC == 0:
         class_rating = 1.0
     else:
-        class_rating = sigmoid((float(PC)/NWgolden) / (float(PWC)/len(testset_classes))) #- float(NC)/NWgolden
+        class_rating = sigmoid((float(PC)/NWgolden) / (float(PWC)/len(testset_classes) + float(NC)/NWgolden))
         if class_rating < 0.0:
             class_rating = 0.0
 
