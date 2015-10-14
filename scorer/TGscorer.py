@@ -405,6 +405,7 @@ def lab(filtered_paperdoll=True):
     for goldenset_classes_of_image in goldenset_classes:
         test_case_image_path = str(i)+'.jpg'
         print test_case_image_path
+        print goldenset_classes_of_image
         print run_scorer(test_case_image_path,goldenset_classes_of_image,[],filtered_paperdoll)
         i += 1
 
