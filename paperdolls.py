@@ -2,7 +2,6 @@ __author__ = 'Nadav Paz'
 
 import logging
 import datetime
-import time
 import sys
 
 import numpy as np
@@ -11,6 +10,7 @@ import cv2
 import redis
 from rq import Queue
 import bson
+from rq.job import Job
 
 import page_results
 from .paperdoll import paperdoll_parse_enqueue
@@ -28,11 +28,7 @@ db = pymongo.MongoClient().mydb
 images = pymongo.MongoClient().mydb.images
 iip = pymongo.MongoClient().mydb.iip
 r = redis.Redis()
-q1 = Queue('images_queue', connection=r)
-q2 = Queue('paperdoll', connection=r)
-q4 = Queue('send_20s_results', connection=r)
-q5 = Queue('send_last_20', connection=r)
-q6 = Queue('receive_data_from_qc', connection=r)
+q1 = Queue('find_similar', connection=r)
 sys.stdout = sys.stderr
 
 
@@ -70,12 +66,6 @@ def get_item_by_id(item_id, collection=iip):
         except:
             logging.warning("No items to this person, continuing..")
             return None, None, None
-
-
-def get_paperdoll_data(image_url, person_id, face):
-    mask, labels, pose = paperdoll_parse_enqueue.paperdoll_enqueue(image_url, async=False)
-    final_mask = after_pd_conclusions(mask, labels, face)
-    from_paperdoll_to_similar_results(person_id, final_mask, labels)
 
 
 def after_pd_conclusions(mask, labels, face):
@@ -190,91 +180,75 @@ def clear_collection(collection):
             collection.delete_one({'_id': doc['_id']})
     print "after: " + str(collection.count()) + " docs"
 
+
+def job_result_from_id(job_id, job_class=Job, conn=None):
+    conn = conn or constants.redis_conn
+    job = job_class.fetch(job_id, connection=conn)
+    return job.result
+
+
 # ----------------------------------------------MAIN-FUNCTIONS----------------------------------------------------------
 
+def start_process(page_url, image_url):
+    # IF URL HAS NO IMAGE IN IT
+    image = Utils.get_cv2_img_array(image_url)
+    if image is None:
+        return
 
-def start_process(page_url, image_url, async=True):
-    image_obj = images.find_one({"image_urls": image_url})
-    # if the image is in process, exit
-    if iip.find_one({"image_urls": image_url}) and images.find_one({"image_urls": image_url}):
-        return page_results.merge_items(image_obj)
-    elif iip.find_one({"image_urls": image_url}):
-        return None
-    if not image_obj:  # new image_url
-        image_hash = page_results.get_hash_of_image_from_url(image_url)
-        image_obj = images.find_one({"image_hash": image_hash}) or iip.find_one({"image_hash": image_hash})
-        if not image_obj:  # doesn't exists with another url
-            image = Utils.get_cv2_img_array(image_url)
-            if image is None:
-                logging.warning("Bad image URL !!")
-                return None
-            image = background_removal.standard_resize(image, 400)[0]
-            relevance = background_removal.image_is_relevant(image)
-            image_dict = {'image_urls': [image_url], 'relevant': relevance.is_relevant,
-                          'image_hash': image_hash, 'page_urls': [page_url]}
-            if relevance.is_relevant:
-                image_dict['people'] = []
-                relevant_faces = relevance.faces.tolist()
-                idx = 0
-                for face in relevant_faces:
-                    # gen = gender.gender(image_url, 0, False)[0]
-                    person = {'face': face, 'person_id': str(bson.ObjectId()), 'person_idx': idx,
-                              'items': []}
-                    image_copy = person_isolation(image, face)
-                    person['url'] = upload_image(image_copy, str(person['person_id']))
-                    image_dict['people'].append(person)
-                    # get_paperdoll_data(person['url'], person['person_id'])
-                    print "W2P: sending to paperdoll's queue"
-                    q2.enqueue(get_paperdoll_data, person['url'], person['person_id'], person['face'])
-                    idx += 1
-            else:  # if not relevant
-                logging.warning('image is not relevant, but stored anyway..')
-                images.insert(image_dict)
-                return
-            iip.insert(image_dict)
-            if not async:
-                while images.find_one({'image_urls': image_url}) is None:
-                    time.sleep(0.5)
-                return page_results.merge_items(images.find_one({'image_urls': image_url}))
-        else:  # the exact same image was found under other urls
-            if image_obj['relevant']:
-                while images.find_one({'image_hash': image_hash}) is None:
-                    time.sleep(0.5)
-                image_obj = images.find_one_and_update({'image_hash': image_hash}, {'$push': {"image_urls": image_url}},
-                                                       return_document=pymongo.ReturnDocument.AFTER)
-                return page_results.merge_items(image_obj)
-            else:
-                return None
-    else:  # if image is in the DB by url
-        if image_obj['relevant']:
-            logging.warning("Image is in the DB and relevant!")
-            return page_results.merge_items(image_obj)
-        else:
-            logging.warning("Image is in the DB and not relevant!")
-            return image_obj
+    # IF IMAGE EXISTS IN IMAGES BY URL
+    images_obj_url = images.find_one({"image_urls": image_url})
+    if images_obj_url:
+        return
+
+    # IF IMAGE EXISTS IN IMAGES BY HASH (WITH ANOTHER URL)
+    image_hash = page_results.get_hash_of_image_from_url(image_url)
+    images_obj_hash = images.find_one_and_update({"image_hash": image_hash}, {'$push': {'image_urls': image_url}})
+    if images_obj_hash:
+        return
+
+    # IF IMAGE IN PROCESS BY URL/HASH
+    iip_obj = iip.find_one({"image_urls": image_url}) or iip.find_one({"image_hash": image_hash})
+    if iip_obj:
+        return
+
+    # NEW_IMAGE !!
+    image = background_removal.standard_resize(image, 400)[0]
+    relevance = background_removal.image_is_relevant(image)
+    image_dict = {'image_urls': [image_url], 'relevant': relevance.is_relevant,
+                  'image_hash': image_hash, 'page_urls': [page_url]}
+    if relevance.is_relevant:
+        image_dict['people'] = []
+        relevant_faces = relevance.faces.tolist()
+        idx = 0
+        for face in relevant_faces:
+            person = {'face': face, 'person_id': str(bson.ObjectId()), 'person_idx': idx,
+                      'items': []}
+            image_copy = person_isolation(image, face)
+            person['url'] = upload_image(image_copy, str(person['person_id']))
+            image_dict['people'].append(person)
+            paper_job = paperdoll_parse_enqueue.paperdoll_enqueue(image_url)
+            q1.enqueue(from_paperdoll_to_similar_results, person['person_id'], paper_job.id, depends_on=paper_job)
+            idx += 1
+    else:  # if not relevant
+        logging.warning('image is not relevant, but stored anyway..')
+        images.insert(image_dict)
+        return
+    iip.insert(image_dict)
 
 
-def from_paperdoll_to_similar_results(person_id, mask, labels, num_of_matches=100):
+def from_paperdoll_to_similar_results(person_id, paper_job_id, num_of_matches=100):
+    paper_job_results = job_result_from_id(paper_job_id)
+    mask, labels = paper_job_results[:2]
     image_obj, person = get_person_by_id(person_id, iip)
+    final_mask = after_pd_conclusions(mask, labels, person['face'])
     image = Utils.get_cv2_img_array(person['url'])
     items = []
     idx = 0
-    # bgnd_mask = np.zeros(mask.shape, dtype=np.uint8)
-    # skin_mask = np.zeros(mask.shape, dtype=np.uint8)
-    for num in np.unique(mask):
+    for num in np.unique(final_mask):
         # convert numbers to labels
         category = list(labels.keys())[list(labels.values()).index(num)]
-        # if category == 'null':
-        # bgnd_mask = 255 * np.array(mask == num, dtype=np.uint8)
-        # elif category == 'skin':
-        #     skin_mask = 255 * np.array(mask == num, dtype=np.uint8)
         if category in constants.paperdoll_shopstyle_women.keys():
             item_mask = 255 * np.array(mask == num, dtype=np.uint8)
-            # item_gc_mask = create_gc_mask(image, item_mask, 255 - bgnd_mask, 255 - skin_mask)  # (255, 0) mask
-            # if person['gender'] == 'man':
-            # shopstyle_cat = constants.paperdoll_shopstyle_men[category]
-            # else:
-            #     shopstyle_cat = constants.paperdoll_shopstyle_women[category]
             shopstyle_cat = constants.paperdoll_shopstyle_women[category]
             item_dict = {"category": shopstyle_cat, 'item_id': str(bson.ObjectId()), 'item_idx': idx,
                          'saved_date': datetime.datetime.now()}
@@ -293,44 +267,4 @@ def from_paperdoll_to_similar_results(person_id, mask, labels, num_of_matches=10
     if person['person_idx'] == len(image_obj['people']) - 1:
         images.insert(image_obj)
         logging.warning("Done! image was successfully inserted to the DB images!")
-
-import time
-def callback_example(queue_name,previous_job_id):
-    print('this is the callback calling')
-    if previous_job_id is None:
-        logging.debug('got no previous job id')
-        return
-    connection = constants.redis_conn
-    if connection is None:
-        logging.debug('got no redis conn')
-        return
-    #dependent = self.job_class.fetch(job_id, connection=self.connection)
-#    registry = DeferredJobRegistry(dependent.origin, self.connection)
-#    with self.connection._pipeline() as pipeline:
-  #      registry.remove(dependent, pipeline=pipeline)
-##        if dependent.origin == self.name:
- #           self.enqueue_job(dependent, pipeline=pipeline)
- #       else:
-    queue = Queue(queue_name, connection=connection)
-    if queue is None:
-        logging.debug('got no queue')
-        return
-    job1_answers = queue.fetch_job(previous_job_id)
-    print('prev result:')
-    print job1_answers
-
-    logging.warning('this is the callback calling')
-##    paperdoll_job = kwargs['previous_job_result']
- #   print('pd job'+str(paperdoll_job))
- #   paperdoll_answers = paperdoll_job.result
- #   print('pd answers'+str(paperdoll_answers))
-#    mask = paperdoll_answers(0)
-#   labels = paperdoll_answers(1)
-#    pose = paperdoll_answers(2)
-#    print('args:'+str(args))
-#    print('kwargs:'+str(kwargs))
-#    f = open('callbackout.txt', 'a')
-#    f.write('hi\n')
-#    time.sleep(1)
-    return (567,job1_answers)
 
