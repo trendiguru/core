@@ -21,13 +21,12 @@ min_bb_to_image_area_ratio = 0.95  # if bb takes more than this fraction of imag
 #########
 #DB stuff
 #########
-db = pymongo.MongoClient().mydb
 from redis import Redis
-redis_conn = Redis()
 parallel_matlab_queuename = 'pd'
 nonparallel_matlab_queuename = 'pd_nonparallel'
-
-update_collection_name = 'products_new_fp'
+db = pymongo.MongoClient(host='mongodb1-instance-1').mydb
+redis_conn = Redis(host='redis1-redis-1-vm')
+update_collection_name = 'products'
 download_version = 792015  # DayMonthYear
 
 # fp rating related constants
