@@ -705,7 +705,13 @@ def git_pull_mightili(**kwargs):
         logging.warning("git auto pull failed with exception: {0}".format(e))
     return
 
-
+def git_pull_dev(**kwargs):
+    import subprocess
+    try:
+        result = subprocess.check_output('git -C {dir} pull'.format(dir="/home/developer/python-packages/trendi_guru_modules"), shell=True)
+    except subprocess.CalledProcessError, e:
+        logging.warning("git auto pull failed with exception: {0}".format(e))
+    return
 
 
 if __name__ == '__main__':
