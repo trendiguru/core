@@ -1,8 +1,7 @@
 import os
 
 import cv2
-import pymongo
-
+from ..constants import db
 from matlab_wrapper import matlab_client
 import Utils
 import dbUtils
@@ -126,7 +125,6 @@ def x1y1x2y2_to_bb(x1y1x2y2):
 
 def find_images(description):
     print('starting to find ' + str(description))
-    db = pymongo.MongoClient().mydb
     no_face_count = 0
     face_count = 0
     for i in range(0, 10500):

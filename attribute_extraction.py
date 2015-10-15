@@ -7,11 +7,11 @@ import os
 import itertools
 
 import html2text
-import pymongo
+import constants
 
 from nlpcm13 import NLPCmatrix as nlpcm
 
-
+db = constants.db
 
 # The first step is to build the input structures:
 #  1. list of description_tuples (description id, description content).
@@ -59,7 +59,7 @@ def get_all_dresses_data():
     This function finds only data of dresses.
     :return: cursor to data of dresses (only id, categories and description)
     """
-    db = pymongo.MongoClient().mydb
+
     category_id = "dresses"
     query = {"categories": {"$elemMatch": {"id": {"$in": \
                                                       get_all_subcategories(db.categories, category_id)}}}}

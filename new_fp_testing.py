@@ -19,13 +19,13 @@ import time
 
 from rq import Queue
 from redis import Redis
-import pymongo
+from .constants import db
 
 from fp_testing_workers import add_new_fp
 
 
 def create_new_collection():
-    db = pymongo.MongoClient().mydb
+
     collection = db.products
 
     category_stack = collection.find({"categories": {"$elemMatch": {"id": "day-dresses"}}})

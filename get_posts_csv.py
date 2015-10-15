@@ -1,8 +1,8 @@
 __author__ = 'liorsabag'
 
-import pymongo
 from bson import json_util
 import csv
+from .constants import db
 
 
 def find_image_url_by_id(item_id, search_results):
@@ -14,7 +14,6 @@ def find_image_url_by_id(item_id, search_results):
 
 
 def main():
-    db = pymongo.MongoClient().mydb
     all_posts_cursor = db.posts.find()
     flattened_posts = []
     for post in all_posts_cursor:

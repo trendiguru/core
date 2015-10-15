@@ -2,7 +2,6 @@
 
 import collections
 import time
-import pymongo
 import requests
 import json
 import urllib
@@ -31,7 +30,7 @@ MAX_SET_SIZE = MAX_OFFSET + MAX_RESULTS_PER_PAGE
 class ShopStyleDownloader():
     def __init__(self):
         # connect to db
-        self.db = pymongo.MongoClient().mydb
+        self.db = constants.db
         self.current_dl_version = constants.dl_version
         self.last_request_time = time.time()
         self.do_fingerprint = True

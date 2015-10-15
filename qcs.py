@@ -6,7 +6,6 @@ import copy
 
 import requests
 import numpy as np
-import pymongo
 import cv2
 import redis
 from rq import Queue
@@ -18,13 +17,14 @@ import find_similar_mongo
 import background_removal
 import Utils
 import constants
+from .constants import db
 
 
 QC_URL = 'https://extremeli.trendi.guru/api/fake_qc/index'
 callback_url = "https://extremeli.trendi.guru/api/nadav/index"
-db = pymongo.MongoClient().mydb
-images = pymongo.MongoClient().mydb.images
-iip = pymongo.MongoClient().mydb.iip
+db = constants.db
+images = db.images
+iip = db.iip
 r = redis.Redis()
 q1 = Queue('images_queue', connection=r)
 q2 = Queue('send_to_categorize', connection=r)

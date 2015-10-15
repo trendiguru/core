@@ -3,7 +3,7 @@ import logging
 import time
 
 import cv2
-import pymongo
+from ..constants import db
 from rq import Queue
 from redis import Redis
 
@@ -15,7 +15,6 @@ from ..find_similar_mongo import get_all_subcategories
 redis_conn = Redis()
 # download_images_q = Queue('download_images', connection=redis_conn)  # no args implies the default queue
 logging.basicConfig(level=logging.WARNING)
-db = pymongo.MongoClient().mydb
 
 MAX_IMAGES = 10000
 

@@ -1,10 +1,10 @@
 __author__ = 'liorsabag'
 
 import multiprocessing as mp
-import pymongo
 import time
 import random
 from Utils import ThreadSafeCounter
+from .constants import db
 # import signal
 
 CONTINUE = mp.Value("b", True)
@@ -42,7 +42,6 @@ def do_work_on_q(some_func, q):
 
 def feed_q(q):
     global TOTAL_TASKS, NUM_PROCESSES
-    db = pymongo.MongoClient().mydb
     mini_skirt_cursor = db.products.find({"categories": {"$elemMatch": {"id": "mini-skirts"}}},
                                          {"id": 1, "images": 1}).batch_size(12000)[0:100]
 

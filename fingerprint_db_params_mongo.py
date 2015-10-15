@@ -5,12 +5,12 @@ import fingerprint_core as fp
 import classify_core as classify
 from bson import datetime
 import logging
-import pymongo
 import numpy as np
 import urllib
 import os
 import cv2
 import time
+from .constants import db
 
 
 def get_all_subcategories(category_collection, category_id):
@@ -52,7 +52,7 @@ def fingerprint_the_unfingerprinted():
     """
     fingerprint everything in db - should not overwrite currently-written stuff
     """    
-    db = pymongo.MongoClient().mydb
+
     print('fingerprinting unfingerprinted items')
     query = db.products.find().batch_size(100)  # batch_size required because cursor timed out without it
     total_items = query.count()
@@ -134,7 +134,6 @@ def main():
         print("Missing parameters. Example use: python fingerprint_db_params_mongo.py mens-shirts shirtClassifier.xml true")
     	return({'error':'missing parameters'})	
 
-    db = pymongo.MongoClient().mydb
     query_doc = {}
     #during first run we should record date
     if first_run is True:
