@@ -281,5 +281,8 @@ RUN  echo_supervisord_conf>/etc/supervisord.conf
 ############################
 #portforward
 #RUN ssh  -L 6379:localhost:6379 -N  -o StrictHostKeyChecking=no -f ubuntu@extremeli.trendi.guru &
-CMD rqworker -u redis://redis1-redis-1-vm:6379 fingerprint &
+#RUN ssh -4 -i ~/.ssh/id_rsa -L 6379:localhost:6379 ubuntu@extremeli.trendi.guru -f -N
+#RUN rqworker -w rq.tgworker.TgWorker  pd
+#CMD rqworker -u redis://redis1-redis-1-vm:6379 fingerprint &
+CMD rqworker -u redis://redis1-redis-1-vm:6379  -w rq.tgworker.TgWorker  pd
 

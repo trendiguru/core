@@ -30,6 +30,7 @@ redis_conn_old = Redis()
 update_collection_name = 'products'
 download_version = 792015  # DayMonthYear
 
+
 # fp rating related constants
 min_image_area = 400
 min_images_per_doc = 10  # item has to have at least this number of pics
