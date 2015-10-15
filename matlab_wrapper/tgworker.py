@@ -13,6 +13,7 @@ import time
 import traceback
 import warnings
 from datetime import timedelta
+import os
 
 from rq.compat import as_text, string_types, text_type
 
@@ -97,7 +98,7 @@ class TgWorker(Worker):
             #JR in
         print('debug6')
         import matlab.engine
-        logger.info('attempting to start engine')
+        logger.info('attempting to start engine as user '+os.getegid())
         eng = matlab.engine.start_matlab()
         engine_name = eng.engineName
         logger.info('new engine name:'+str(engine_name))
