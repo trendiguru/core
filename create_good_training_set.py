@@ -1,9 +1,8 @@
 __author__ = 'liorsabag'
 
-import pymongo
 import sys
 
-db = pymongo.MongoClient().mydb
+from .constants import db
 
 
 def main(min_num_images, collection_name):

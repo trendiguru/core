@@ -1,8 +1,7 @@
 __author__ = 'jeremy'
 import unittest
 
-import pymongo
-
+from .constants import db
 import dbUtils
 
 class OutcomesTest(unittest.TestCase):
@@ -15,7 +14,6 @@ class OutcomesTest(unittest.TestCase):
     # raise RuntimeError('Test error!')
 
     def setUp(self):
-        db = pymongo.MongoClient().mydb
         training_collection_cursor = db.training.find()  #The db with multiple figs of same item
         self.assertTrue(training_collection_cursor is not None)  #make sure training collection exists
 

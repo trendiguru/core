@@ -19,16 +19,16 @@ import find_similar_mongo
 import background_removal
 import Utils
 import constants
+from .constants import db
+from .constants import redis_conn
 
 
 folder = '/home/ubuntu/paperdoll/masks/'
 QC_URL = 'https://extremeli.trendi.guru/api/fake_qc/index'
 callback_url = "https://extremeli.trendi.guru/api/nadav/index"
-db = pymongo.MongoClient().mydb
-images = pymongo.MongoClient().mydb.images
-iip = pymongo.MongoClient().mydb.iip
-r = redis.Redis()
-q1 = Queue('find_similar', connection=r)
+images = db.images
+iip = db.iip
+q1 = Queue('find_similar', connection=redis_conn)
 sys.stdout = sys.stderr
 
 

@@ -2,13 +2,12 @@ __author__ = 'Nadav Paz'
 
 import unittest
 
-import pymongo
 import numpy as np
 
 import Utils
+from .constants import db
 
 
-db = pymongo.MongoClient().mydb
 # UNIT TESTS - tests for every function
 
 image_url = 'http://image.gala.de/v1/cms/JV/style-charlotte-casiraghi-4ge_9054537-ORIGINAL-imageGallery_standard.jpg?v=11800914'

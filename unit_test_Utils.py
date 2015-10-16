@@ -1,6 +1,6 @@
 import unittest
 
-import pymongo
+from .constants import db
 import numpy as np
 
 import Utils
@@ -17,7 +17,6 @@ class OutcomesTest(unittest.TestCase):
     #        raise RuntimeError('Test error!')
 
     def setUp(self):
-        db = pymongo.MongoClient().mydb
         training_collection_cursor = db.training.find()  #The db with multiple figs of same item
         self.assertTrue(training_collection_cursor is not None)  #make sure training collection exists
 
@@ -40,7 +39,6 @@ class OutcomesTest(unittest.TestCase):
         self.assertTrue(isinstance(answer, dict) or isinstance(answer, basestring))
 
     def test_count_human_bbs_in_doc(self):
-        db = pymongo.MongoClient().mydb
         training_collection_cursor = db.training.find()  # The db with multiple figs of same item
         doc = next(training_collection_cursor, None)
         dict_images = doc['images']
@@ -54,7 +52,6 @@ class OutcomesTest(unittest.TestCase):
         test counting how many good bb;s in doc
         '''
 
-        db = pymongo.MongoClient().mydb
         training_collection_cursor = db.training.find()  # The db with multiple figs of same item
         doc = next(training_collection_cursor, None)
         resultDict = {}
@@ -67,7 +64,6 @@ class OutcomesTest(unittest.TestCase):
 
     # test function for lookfor_next_unbounded_image
     def test_lookfor_next(self):
-        db = pymongo.MongoClient().mydb
         training_collection_cursor = db.training.find()  # The db with multiple figs of same item
         doc = next(training_collection_cursor, None)
         resultDict = {}

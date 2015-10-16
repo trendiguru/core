@@ -1,10 +1,9 @@
 import time
 import numpy as np
 from rq import Queue
-from redis import Redis
 import cv2
 
-from trendi_guru_modules import constants
+from .. import constants
 
 redis_conn = constants.redis_conn
 

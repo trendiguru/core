@@ -3,15 +3,12 @@ import unittest
 import sys
 
 import Utils
-
+from .constants import db
 
 class OutcomesTest(unittest.TestCase):
 
 
     def setUp(self):
-        import pymongo
-
-        db = pymongo.MongoClient().mydb
         self.training_collection_cursor = db.training.find()  # The db with multiple figs of same item
         assert (self.training_collection_cursor)  # make sure training collection exists
 

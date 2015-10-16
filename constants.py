@@ -1,10 +1,7 @@
 import os
-
 import cv2
 import pymongo
-
-
-
+from redis import Redis
 
 # file containing constants for general TG use
 # fingerprint related consts
@@ -21,11 +18,13 @@ min_bb_to_image_area_ratio = 0.95  # if bb takes more than this fraction of imag
 #########
 #DB stuff
 #########
-from redis import Redis
+
 parallel_matlab_queuename = 'pd'
 nonparallel_matlab_queuename = 'pd_nonparallel'
-db = pymongo.MongoClient(host='mongodb1-instance-1').mydb
-redis_conn = Redis(host='redis1-redis-1-vm')
+# db = pymongo.MongoClient(host=os.environ["MONGO_HOST"], port=int(os.environ["MONGO_PORT"])).mydb
+# redis_conn = Redis(host=os.environ["REDIS_HOST"], port=int(os.environ["REDIS_PORT"]))
+db = pymongo.MongoClient(host="mongodb1-instance-1").mydb
+redis_conn = Redis(host="redis1-redis-1-vm")
 redis_conn_old = Redis()
 update_collection_name = 'products'
 download_version = 792015  # DayMonthYear

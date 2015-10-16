@@ -3,7 +3,6 @@ __author__ = 'liorsabag'
 import os
 import subprocess
 
-import pymongo
 import cv2
 import numpy as np
 
@@ -18,6 +17,7 @@ fingerprint_length = constants.fingerprint_length
 histograms_length = constants.histograms_length
 # fp_weights = constants.fingerprint_weights
 FP_KEY = "fingerprint"
+db = constants.db
 
 def get_classifiers():
     default_classifiers = ["/home/www-data/web2py/applications/fingerPrint/modules/shirtClassifier.xml",
@@ -73,8 +73,6 @@ def find_top_n_results(image, mask, number_of_results=10, category_id=None, coll
     if a distance_function other than Bhattacharyya is used then call the function with that distance function's name
     '''
     fp_weights = constants.fingerprint_weights
-
-    db = pymongo.MongoClient().mydb
     collection = db[collection_name]
 
     subcategory_id_list = get_all_subcategories(db.categories, category_id)

@@ -1,7 +1,7 @@
 __author__ = 'jeremy'
 import unittest
 
-import pymongo
+from .constants import db
 import bson
 
 import qcs
@@ -19,7 +19,6 @@ class OutcomesTest(unittest.TestCase):
 
 
     def setUp(self):
-        db = pymongo.MongoClient().mydb
 
         images_entry = db.images.find_one()  # The db with multiple figs of same item
         self.assertTrue(images_entry is not None)  # make sure images collection exists
@@ -54,7 +53,6 @@ class OutcomesTest(unittest.TestCase):
             self.assertTrue(n_votes_per_picture >= 1)
 
     def test_get_voting_stage(self):
-        db = pymongo.MongoClient().mydb
         images_entry = db.images.find_one()  # The db with multiple figs of same item
 
         if 'people' in images_entry:

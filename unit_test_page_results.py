@@ -3,12 +3,12 @@
 __author__ = 'jeremy'
 import unittest
 
-import pymongo
 
 
 # ours
 import page_results
 import dbUtils
+from .constants import db
 
 class OutcomesTest(unittest.TestCase):
     # examples of things to return
@@ -23,7 +23,7 @@ class OutcomesTest(unittest.TestCase):
         # self.connection = Connection('localhost', 27017)  # Connect to mongodb
         #print(self.connection.database_names())  # Return a list of db, equal to: > show dbs
         #self.db = self.connection['mydb']  # equal to: > use testdb1
-        self.db = pymongo.MongoClient().mydb
+        self.db = db
         print(self.db.collection_names())  # Return a list of collections in 'testdb1'
         print("images exists in db.collection_names()?")  # Check if collection "posts"
         print("images" in self.db.collection_names())  # Check if collection "posts"

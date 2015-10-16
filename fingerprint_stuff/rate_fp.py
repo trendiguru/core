@@ -27,6 +27,7 @@ import inspect
 import sys
 import matplotlib
 from scipy.spatial import distance as dist
+from ..constants import db
 
 matplotlib.use('Agg')  # prevents problems generating plots on server where no display is defined
 import matplotlib.pyplot as plt
@@ -45,7 +46,6 @@ if cmd_subfolder not in sys.path:
 # import default
 # import find_similar_mongo
 import sys
-import pymongo
 import numpy as np
 import cProfile
 import StringIO
@@ -386,7 +386,6 @@ def calculate_histogram_overlap(same_distances_arrays, different_distances_array
 
 
 def get_docs(n_items=max_items):
-    db = pymongo.MongoClient().mydb
     training_collection_cursor = db.training.find()
     assert (training_collection_cursor)  # make sure training collection exists
     doc = next(training_collection_cursor, None)
@@ -549,7 +548,6 @@ def lookfor_next_imageset():  # IS THIS EVER USED
     print('path=' + str(sys.path))
     resultDict = {}  #return empty dict if no results found
     prefixes = ['Main Image URL angle ', 'Style Gallery Image ']
-    db = pymongo.MongoClient().mydb
     training_collection_cursor = db.training.find()  #The db with multiple figs of same item
     assert (training_collection_cursor)  #make sure training collection exists
 
@@ -603,7 +601,6 @@ def calculate_cross_confusion_matrix():
     global cross_report
     cross_report = {'n_groups': 0, 'n_items': [], 'confusion_matrix': []}
     min_images_per_doc = 5
-    db = pymongo.MongoClient().mydb
     training_collection_cursor = db.training.find()  # The db with multiple figs of same item
     assert (training_collection_cursor)  # make sure training collection exists
     doc = next(training_collection_cursor, None)
