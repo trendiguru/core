@@ -1,13 +1,11 @@
 #THIS IS A TEST THIS IS ONLY A TEST
 #to check whether modifications of rq are working
 
-import redis
 from rq import Connection, Queue, Worker, SimpleWorker
 import sys
 import matlab.engine
-import redis
-from redis import Redis
 import time
+from ..constants import redis_conn
 #redis_conn = Redis()
 #q = Queue('pd', connection=redis_conn)
 # Tell RQ what Redis connection to use
@@ -16,7 +14,7 @@ import time
 
 
 def zero_engines():
-    r = redis.StrictRedis(host='localhost', port=6379, db=0)
+    r = redis_conn #redis.StrictRedis(host='localhost', port=6379, db=0)
     r.set('n_matlab_engines',0)
 
 
@@ -34,7 +32,7 @@ def my_enqueue(a,b):
 
     if(0):
         print('attempting to queue')
-        r = redis.StrictRedis(host='localhost', port=6379, db=0)
+        r = redis_conn #redis.StrictRedis(host='localhost', port=6379, db=0)
         try:
             n_running_engines = r.get('n_matlab_engines')
             if n_running_engines is None:
@@ -53,7 +51,6 @@ def my_enqueue(a,b):
             eng = r.get('matlab_engine')
             print('got engine '+str(eng))
 
-    redis_conn = Redis()
     q = Queue(connection=redis_conn)
 #    job = q.enqueue('self.matlab_engine.factorial',a,b)
     print('enqueuing function')

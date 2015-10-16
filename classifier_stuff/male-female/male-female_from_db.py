@@ -4,15 +4,14 @@ import time
 
 import cv2
 from rq import Queue
-from redis import Redis
 
 from ... import Utils
 from ... import background_removal
 from ...find_similar_mongo import get_all_subcategories
 from ...constants import db
+from ...constants import redis_conn
 
-# Tell RQ what Redis connection to use
-redis_conn = Redis()
+
 # download_images_q = Queue('download_images', connection=redis_conn)  # no args implies the default queue
 logging.basicConfig(level=logging.WARNING)
 

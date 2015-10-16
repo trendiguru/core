@@ -18,9 +18,8 @@ these are the steps required for testing a new fingerprint:
 import time
 
 from rq import Queue
-from redis import Redis
 from .constants import db
-
+from .constants import redis_conn
 from fp_testing_workers import add_new_fp
 
 
@@ -32,7 +31,6 @@ def create_new_collection():
     stack_length = category_stack.count()
     db.fp_testing.remove()
     # Tell RQ what Redis connection to use
-    redis_conn = Redis()
 
     q = Queue('fingerprint', connection=redis_conn)  # no args implies the default queue)
     jobs = []

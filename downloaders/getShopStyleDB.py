@@ -5,10 +5,10 @@ import time
 import requests
 import json
 import urllib
-from redis import Redis
+from ..constants import redis_conn
 from rq import Queue
 
-q = Queue('fingerprint', connection=Redis())
+q = Queue('fingerprint', connection=redis_conn)
 
 from .. import super_fp
 from .. import constants

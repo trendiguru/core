@@ -20,6 +20,7 @@ import background_removal
 import Utils
 import constants
 from .constants import db
+from .constants import redis_conn
 
 
 folder = '/home/ubuntu/paperdoll/masks/'
@@ -27,8 +28,7 @@ QC_URL = 'https://extremeli.trendi.guru/api/fake_qc/index'
 callback_url = "https://extremeli.trendi.guru/api/nadav/index"
 images = db.images
 iip = db.iip
-r = redis.Redis()
-q1 = Queue('find_similar', connection=r)
+q1 = Queue('find_similar', connection=redis_conn)
 sys.stdout = sys.stderr
 
 

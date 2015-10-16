@@ -11,13 +11,11 @@ import fisherface
 import Utils
 import constants
 from rq import Queue
-from redis import Redis
+from .constants import redis_conn
 import time
 
 logging.basicConfig(level=logging.DEBUG)
 
-
-redis_conn = Redis()
 q = Queue('gender', connection=redis_conn)
 
 
