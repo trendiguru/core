@@ -70,14 +70,9 @@ class ShopStyleDownloader():
 
         self.db.download_data.find_one_and_update({"criteria": "main"}, {'$set': {"end_time": datetime.datetime.now()}})
         tmp = self.db.download_data.find()[0]
-        total_time = abs(tmp["end_time"] - tmp["start_time"])
-        self.db.download_data.find_one_and_update({"criteria": "main"}, {'$set': {"total_dl_time": total_time}})
+        # total_time = abs(tmp["end_time"] - tmp["start_time"])
+        # self.db.download_data.find_one_and_update({"criteria": "main"}, {'$set': {"total_dl_time": total_time}})
         print "FULL DOWNLOAD DONE!!!!!"
-
-    def get_time(self):
-        return str(datetime.date.today()) + '_' + \
-               str(datetime.datetime.time(datetime.datetime.now()))[0:2] + '_' + \
-               str(datetime.datetime.time(datetime.datetime.now()))[3:5]
 
     def build_category_tree(self):
         # download all categories
@@ -267,18 +262,20 @@ class ShopStyleDownloader():
         category = prod['categories'][0]['id']
         print category
         if prod_in_products is None:
-            self.db.download_data.find_one_and_update({"criteria": "main"},
-                                                      {'$inc': {"new_items": 1}})
             print "Product not in db.products, searching in archive. ",
             # case 1.1: try finding this product in the archive
             prod_in_archive = self.db.archive.find_one({'id': prod["id"]})
             if prod_in_archive is None:
                 print "New product,",
+                self.db.download_data.find_one_and_update({"criteria": "main"},
+                                                          {'$inc': {"new_items": 1}})
                 self.insert_and_fingerprint(prod)
             else:  # means the item is in the archive
                 # No matter what, we're moving this out of the archive...
                 prod_in_archive["archive"] = False
                 print "Prod in archive, checking fingerprint version...",
+                self.db.download_data.find_one_and_update({"criteria": "main"},
+                                                          {'$inc': {"returned_from_archive": 1}})
                 if prod_in_archive.get("fp_version") == constants.fingerprint_version:
                     print "fp_version good, moving from db.archive to db.products",
                     prod_in_archive.update(prod)
@@ -292,15 +289,26 @@ class ShopStyleDownloader():
         else:
             # case 2: the product was found in our db, and maybe should be modified
             print "Found existing prod in db,",
-            # Thus - update only shopstyle's fields
-            self.db.download_data.find_one_and_update({"criteria": "main"},
+            if "fingerprint" in prod_in_products:
+                if len(prod_in_products) is 696:
+                    # Thus - update only shopstyle's fields
+                    self.db.download_data.find_one_and_update({"criteria": "main"},
                                                       {'$inc': {"existing_items": 1}})
-            if prod_in_products.get("lastModified", None) != prod.get("lastModified",
-                                                                      None):  # assuming shopstyle update it correctly
-                print "lastModifieds are different, updating SS fields",
-                self.shopstyle_fields_update(prod)
-                self.collection.update({'id': prod["id"]},
+                    # if prod_in_products.get("lastModified", None) != prod.get("lastModified",
+                    #                                                           None):  # assuming shopstyle update it correctly
+                    #     print "lastModifieds are different, updating SS fields",
+                    #     self.shopstyle_fields_update(prod)
+                    self.collection.update({'id': prod["id"]},
                                        {'$set': {'download_data': {'last_update': self.current_dl}}})
+                else:
+                    self.collection.delete_one({'id': prod['id']})
+                    self.insert_and_fingerprint(prod)
+                    print "product with an old fp was refingerprinted"
+            else:
+                self.collection.delete_one({'id': prod['id']})
+                self.insert_and_fingerprint(prod)
+                print "product with no fp was fingerprinted"
+
                 # This is now done at the beginning (by setting dl_version in prod ahead of time)
                 # self.db.products.update({'id': prod["id"]}, {'$set': {'dl_version': self.current_dl_version}})
 
