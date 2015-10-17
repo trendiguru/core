@@ -1,34 +1,23 @@
 import time
 import numpy as np
 from rq import Queue
-from redis import Redis
 import cv2
 
-from trendi_guru_modules import constants
+from .. import constants
 
-redis_conn = Redis()
+redis_conn = constants.redis_conn
 
 # Tell RQ what Redis connection to use
 
-def paperdoll_enqueue(img_url_or_cv2_array, async=True, queue=None, use_tg_worker=True, callback_function=None, callback_queue=None, ags=None, kwargs=None):
+def paperdoll_enqueue(img_url_or_cv2_array, async=True, queue=None, use_tg_worker=True):
     """
     The 'parallel matlab queue' which starts engines and keeps them warm is 'pd'.  This worker should be running somewhere (ideally in a screen like pd1).
-    The use_tg_worker argument forces  use/nonuse of the tgworker than knows how to keep the engines warm.
-    The callback function is a function to call upon completion of the paperdoll parse.
-    The callback queue is what queue to run the callback function on.
-    args and kwargs are arguments for the callback function  in the form of args=(100,'hi')
-    and kwargs={'jeremy':'awesome', 'humidity':99.9}.
-    For example:
-    img,labels,pose = paperdoll_parse_enqueue.paperdoll_enqueue(url,async=False,use_tg_worker=False,callback_function=paperdolls.callback_example,args=(100,101),kwargs={'a':3,'b':4})
-
+    The use_tg_worker argument forces  use/nonuse of the tgworker than knows how to keep the engines warm and can be started along the lines of:
+        rqworker -u redis://redis1-redis-1-vm:6379  -w rq.tgworker.TgWorker  pd
     :param img_url_or_cv2_array: the image/url
     :param async: whether to run async or sync
     :param queue: queue name on which to run paperdoll
     :param use_tg_worker: whether or not to use special tg worker, if so queue needs to have been started with -t tgworker
-    :param callback_function: function to call after paperdoll
-    :param callback_queue: queue on which to call callback function
-    :param args:args for callback
-    :param kwargs:kwargs for callback
     :return: mask, label_dict, pose
     """
     if queue is None:
@@ -36,15 +25,15 @@ def paperdoll_enqueue(img_url_or_cv2_array, async=True, queue=None, use_tg_worke
                             # using: rqworker pd -w rq.tgworker.TgWorker
             queue_name = constants.parallel_matlab_queuename
             queue = Queue(queue_name, connection=redis_conn)
-            job1 = queue.enqueue('pd.get_parse_mask_parallel', img_url_or_cv2_array)
+            job1 = queue.enqueue('trendi_guru_modules.paperdoll.pd.get_parse_mask_parallel', img_url_or_cv2_array)
         else:
             queue_name = constants.nonparallel_matlab_queuename
             queue = Queue(queue_name, connection=redis_conn)
-            job1 = queue.enqueue('pd.get_parse_mask',img_url_or_cv2_array)
+            job1 = queue.enqueue('trendi_guru_modules.paperdoll.pd.get_parse_mask',img_url_or_cv2_array)
     print('started pd job on queue:'+str(queue))
     start = time.time()
     if not async:
-        print('running synchronously'),
+        print('running synchronously (waiting for result)'),
         while job1.result is None:
             time.sleep(0.5)
             print('.'),
@@ -53,22 +42,8 @@ def paperdoll_enqueue(img_url_or_cv2_array, async=True, queue=None, use_tg_worke
                 print('timeout waiting for pd.get_parse_mask')
                 return
         print('')
-    if callback_function is not None:
-        if callback_queue is None:
-            callback_queue = Queue('paperdoll', connection=redis_conn)
-        print('starting callback on queue:'+str(callback_queue))
-        job2 = callback_queue.enqueue(callback_function,queue_name,job1.id,depends_on=job1)
-        start = time.time()
-        do_job2_synchronously = True
-        while job2.result is None and do_job2_synchronously:
-            time.sleep(0.5)
-            print('.'),
-            elapsed_time = time.time()-start
-            if elapsed_time>constants.paperdoll_ttl :
-                print('timeout waiting for pd.get_parse_mask')
-                return
-        if job2.result is not None:
-            print('job returned from callback, result:'+str(job2.result))
+    else:
+        print('running asynchronously (not waiting for result)')
     return job1
 
 
@@ -116,4 +91,25 @@ if __name__ == "__main__":
         #        show_max(img, labels)
 #        show_parse(img_array=img)
 
+
+import time
+def callback_example(queue_name,previous_job_id,*args,**kwargs):
+    print('this is the callback calling')
+    if previous_job_id is None:
+        logging.debug('got no previous job id')
+        return
+    connection = constants.redis_conn
+    if connection is None:
+        logging.debug('got no redis conn')
+        return
+    queue = Queue(queue_name, connection=connection)
+    if queue is None:
+        logging.debug('got no queue')
+        return
+    job1_answers = queue.fetch_job(previous_job_id)
+    print('prev result:')
+    print job1_answers
+
+    logging.warning('this is the callback calling')
+    return (567,job1_answers)
 

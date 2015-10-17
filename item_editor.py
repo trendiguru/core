@@ -3,9 +3,9 @@ __author__ = 'liorsabag'
 from bson.objectid import ObjectId
 import fingerprint_core
 import Utils
-import pymongo
 import logging
-db = pymongo.MongoClient().mydb
+from .constants import db
+
 BB_ALLOWANCE = 0.05
 
 

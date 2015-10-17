@@ -5,12 +5,11 @@ __author__ = 'jeremy'
 import unittest
 import time
 from rq import Queue
-from redis import Redis
 
-from trendi_guru_modules.paperdoll import paperdoll_parse_enqueue
-from  trendi_guru_modules import paperdolls
+from ..paperdoll import paperdoll_parse_enqueue
+from .. import paperdolls
+from ..constants import redis_conn
 
-redis_conn = Redis()
 
 
 class OutcomesTest(unittest.TestCase):

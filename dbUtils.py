@@ -7,7 +7,6 @@ __author__ = 'jeremy'
 # builtin
 import logging
 import cv2
-import pymongo
 from bson import objectid
 import matplotlib.pyplot as plt
 import numpy as np
@@ -16,6 +15,7 @@ import numpy as np
 import constants
 from find_similar_mongo import get_all_subcategories
 import Utils
+from .constants import db
 
 min_images_per_doc = constants.min_images_per_doc
 max_image_val = constants.max_image_val
@@ -33,7 +33,7 @@ def lookfor_next_bounded_in_db(current_item=0, current_image=0, only_get_boxed_i
         current_image) + ' only get boxed:' + str(only_get_boxed_images))
     logging.warning('w_entered lookfornext_in_db:current item:' + str(current_item) + ' cur img:' + str(
         current_image) + ' only get boxed:' + str(only_get_boxed_images))
-    db = pymongo.MongoClient().mydb
+
     # training docs contains lots of different images (URLs) of the same clothing item
     training_collection_cursor = db.training.find()  # .sort _id
     # doc = next(training_collection_cursor, None)
@@ -84,7 +84,7 @@ def lookfor_next_image_in_regular_db(current_item, only_get_boxed_images=False,
     'entered lookfornext_in_db:current item:' + str(current_item) + ' only get boxed:' + str(only_get_boxed_images))
     logging.warning('w_entered lookfornext_in_db:current item:' + str(current_item) + ' only get boxed:' + str(
         only_get_boxed_images))
-    db = pymongo.MongoClient().mydb
+
     # training docs contains lots of different images (URLs) of the same clothing item
     training_collection_cursor = db.training.find()  # .sort _id
     # doc = next(training_collection_cursor, None)
@@ -269,7 +269,7 @@ def insert_bb_into_training_db(receivedData):
     image_dict = {}
     result_dict = {}
     # find the document  - can do this either by id like thie
-    db = pymongo.MongoClient().mydb
+
     if db is None:
         return {"success": 0, "error": "could not get db"}
     trainingdb = db.training
@@ -309,8 +309,6 @@ def insert_bb_into_training_db(receivedData):
 
 def insert_feature_bb_into_db(new_feature_bb, itemID=id, db=None):
     if db is None:
-        db = pymongo.MongoClient().mydb
-    if db is None:
         return {"success": 0, "error": "could not get db"}
     trainingdb = db.training
     if trainingdb is None:
@@ -329,9 +327,7 @@ def fix_all_bbs_in_db(use_visual_output=True):
     fix all the bbs so they fit their respective image
     :return:
     '''
-    print('opening db')
-    db = pymongo.MongoClient().mydb
-    print('db open')
+
     if db is None:
         return {"success": 0, "error": "could not get db"}
     training_collection_cursor = db.training.find()
@@ -403,9 +399,7 @@ def show_all_bbs_in_db(use_visual_output=True):
     fix all the bbs so they fit their respective image
     :return:
     '''
-    print('opening db')
-    db = pymongo.MongoClient().mydb
-    print('db open')
+
     if db is None:
         return {"success": 0, "error": "could not get db"}
     training_collection_cursor = db.training.find()
@@ -467,9 +461,7 @@ def step_thru_db(use_visual_output=True, collection='products'):
     fix all the bbs so they fit their respective image
     :return:
     '''
-    print('opening db')
-    db = pymongo.MongoClient().mydb
-    print('db open')
+
     if db is None:
         print('couldnt open db')
         return {"success": 0, "error": "could not get db"}
@@ -533,9 +525,7 @@ def step_thru_images_db(use_visual_output=True, collection='images'):
     fix all the bbs so they fit their respective image
     :return:
     '''
-    print('opening db')
-    db = pymongo.MongoClient().mydb
-    print('db open')
+
     if db is None:
         print('couldnt open db')
         return {"success": 0, "error": "could not get db"}
@@ -582,9 +572,7 @@ def step_thru_training_db(use_visual_output=False):
     fix all the bbs so they fit their respective image
     :return:
     '''
-    print('opening db')
-    db = pymongo.MongoClient().mydb
-    print('db open')
+
     if db is None:
         print('couldnt open db')
         return {"success": 0, "error": "could not get db"}
@@ -674,9 +662,7 @@ def prune_training_db(use_visual_output=False):
     fix all the bbs so they fit their respective image
     :return:
     '''
-    print('opening db')
-    db = pymongo.MongoClient().mydb
-    print('db open')
+
     if db is None:
         print('couldnt open db')
         return {"success": 0, "error": "could not get db"}
@@ -741,8 +727,7 @@ def lookfor_next_unbounded_feature_from_db_category(current_item=0, skip_if_mark
     # {"id":"v-neck-sweaters"}  coats
     # query_doc = {"categories": {"shortName":"V-Necks"}}
     print('looking, ftype=' + str(filter_type))
-    if db is None:
-        db = pymongo.MongoClient().mydb
+
     if db is None:
         # print('dbUtils.get_next_unbounded_feature_from_db - problem getting DB')
         logging.warning('dbUtils.get_next_unbounded_feature_from_db - problem getting DB')
@@ -912,7 +897,6 @@ def get_first_qualifying_record(cursor, which_to_show='showAll', filter_type='by
 
 
 def suits_for_kyle():
-    db = pymongo.MongoClient().mydb
     query = {"categories": {"$elemMatch": {"id": {"$in": get_all_subcategories(db.categories, 'mens-suits')}}}}
     keyword = 'Marcus'
     cursor = db.products.find({'$and': [{"brandedName": {'$regex': keyword}}, query]})

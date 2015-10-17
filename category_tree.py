@@ -8,7 +8,7 @@ import os
 import urllib
 import warnings
 import collections
-import pymongo
+from .constants import db
 
 # image is a structure for upload new tree function:
 Image = collections.namedtuple("image", ["location", "url"])
@@ -850,7 +850,6 @@ class CatNode(object):
         # if cat_tree is not created:
         if CatNode.cat_tree is None:
             try:
-                db = pymongo.MongoClient().mydb
                 tree_dict = db.globals.find_one({"_id": "tg_globals"})["category_tree_dict"]
             except pymongo.errors.ServerSelectionTimeoutError:
                 raise Exception("s: connection with server is failed ")

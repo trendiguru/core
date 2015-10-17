@@ -14,7 +14,6 @@ from requests import ConnectionError
 import time
 import numpy as np
 from bson import objectid
-import pymongo
 import constants
 import math
 import cv2
@@ -26,6 +25,7 @@ import sys
 # import urllib
 # logging.setLevel(logging.DEBUG)
 
+db = constants.db
 
 def format_filename(s):
     """Take a string and return a valid filename constructed from the string.
@@ -278,9 +278,7 @@ def fix_all_bbs_in_db(use_visual_output=False):
     fix all the bbs so they fit their respective image
     :return:
     '''
-    print('opening db')
-    db = pymongo.MongoClient().mydb
-    print('db open')
+
     if db is None:
         return {"success": 0, "error": "could not get db"}
     training_collection_cursor = db.training.find()
@@ -358,9 +356,7 @@ def show_all_bbs_in_db(use_visual_output=True):
     fix all the bbs so they fit their respective image
     :return:
     '''
-    print('opening db')
-    db = pymongo.MongoClient().mydb
-    print('db open')
+
     if db is None:
         return {"success": 0, "error": "could not get db"}
     training_collection_cursor = db.training.find()
@@ -705,7 +701,13 @@ def git_pull_mightili(**kwargs):
         logging.warning("git auto pull failed with exception: {0}".format(e))
     return
 
-
+def git_pull_dev(**kwargs):
+    import subprocess
+    try:
+        result = subprocess.check_output('git -C {dir} pull'.format(dir="/home/developer/python-packages/trendi_guru_modules"), shell=True)
+    except subprocess.CalledProcessError, e:
+        logging.warning("git auto pull failed with exception: {0}".format(e))
+    return
 
 
 if __name__ == '__main__':

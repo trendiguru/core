@@ -1,9 +1,8 @@
 __author__ = 'jr'
-import pymongo
-import logging	
+import logging
 import json
+from ..constants import db
 
-db = pymongo.MongoClient().mydb
 #    product_collection= db.products
 training_collection= db.training
 

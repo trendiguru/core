@@ -4,13 +4,13 @@ __author__ = 'sergey'
 
 import os
 import shutil
-import pymongo
 import html2text
 import nltk
 import collections
 from nltk.collocations import *
 import pickle
 from copy import deepcopy
+from .constants import db
 
 # -------SmartCounter structure-------
 # Attributes:
@@ -317,7 +317,6 @@ class NLPCmatrix(object):
         This function finds only data of dresses.
         :return: cursor to data of dresses (only id, categories and description)
         """
-        db = pymongo.MongoClient().mydb
         category_id = "dresses"
         query = {"categories": {"$elemMatch": {"id": {"$in": \
                                                           NLPCmatrix.get_all_subcategories(db.categories,
@@ -332,7 +331,6 @@ class NLPCmatrix(object):
         This function finds only data of dresses.
         :return: cursor to data of dresses (only id, categories and description)
         """
-        db = pymongo.MongoClient().mydb
         category_id = "skirts"
         query = {"categories": {"$elemMatch": {"id": {"$in": \
                                                           NLPCmatrix.get_all_subcategories(db.categories,
@@ -347,7 +345,6 @@ class NLPCmatrix(object):
         This function finds only data of dresses.
         :return: cursor to all data
         """
-        db = pymongo.MongoClient().mydb
         return db.products.find()
 
     @staticmethod

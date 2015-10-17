@@ -11,12 +11,12 @@ BLUE = [255, 0, 0]
 __author__ = 'dr. juice-man'
 # theirs
 import os
-import pymongo
 
 # ours
 import Utils
 import background_removal
 from find_similar_mongo import get_all_subcategories
+from ..constants import db
 
 
 def dl_keyword_images(category_id, total=2000, keyword=None,
@@ -24,7 +24,6 @@ def dl_keyword_images(category_id, total=2000, keyword=None,
                       # dir='/home/ubuntu/Dev/trendi_guru_modules/images',
                       dir='images',
                       show_visual_output=False):
-    db = pymongo.MongoClient().mydb
     query = {"categories": {"$elemMatch": {"id": {"$in": get_all_subcategories(db.categories, category_id)}}}}
     if keyword is None:
         path = os.path.join(dir, category_id)

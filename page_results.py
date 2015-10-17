@@ -9,14 +9,14 @@ import logging
 
 from bson import objectid
 import bson
-import pymongo
 
 # ours
 import Utils
 import background_removal
+import constants
 
 # logging.basicConfig(format='%(levelname)s:%(message)s', level=logging.DEBUG)
-db = pymongo.MongoClient().mydb
+db = constants.db
 
 
 def verify_hash_of_image(image_hash, image_url):

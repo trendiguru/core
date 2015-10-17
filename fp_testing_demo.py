@@ -14,11 +14,12 @@ from paperdoll import paperdoll_parse_enqueue
 import Utils
 import constants
 import find_similar_mongo
+from .constants import db
 
 fingerprint_length = constants.fingerprint_length
 histograms_length = constants.histograms_length
 folder = '/home/ubuntu/paperdoll/masks/'
-db = pymongo.MongoClient().mydb
+
 
 
 def find_or_create_image(image_url):

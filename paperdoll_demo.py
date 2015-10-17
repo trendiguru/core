@@ -9,7 +9,7 @@ import constants
 import find_similar_mongo
 
 
-db = pymongo.MongoClient().mydb
+db = constants.db
 
 
 def from_image_url_to_svgs(image_url, image_id):

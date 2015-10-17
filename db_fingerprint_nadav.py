@@ -7,7 +7,6 @@ import time
 import signal
 import traceback
 
-import pymongo
 import pymongo.errors
 import numpy as np
 import cv2
@@ -16,9 +15,7 @@ import fingerprint_core as fp
 import background_removal
 import Utils
 import constants
-
-
-
+from .constants import db
 
 # globals
 CLASSIFIER_FOR_CATEGORY = {}
@@ -164,7 +161,7 @@ def connect_db_feed_q(q, query_doc, fields_doc, retry_num=0):
     :return:
     """
     global TOTAL_PRODUCTS, DB
-    DB = DB or pymongo.MongoClient().mydb
+    DB = DB or db
     product_cursor = DB.products.find(query_doc, fields_doc)  # .batch_size(n)
 
     TOTAL_PRODUCTS.value = product_cursor.count()
@@ -217,7 +214,7 @@ def fingerprint_db(fp_version, category_id=None, num_processes=None):
 
     NUM_PROCESSES.value = num_processes or int(mp.cpu_count() * 0.75)
 
-    DB = DB or pymongo.MongoClient().mydb
+    DB = DB or db
     if category_id is not None:
         query_doc = {"$and": [
             {"categories": {"$elemMatch": {"id": {"$in": get_all_subcategories(DB.categories, category_id)}}}},
@@ -266,7 +263,7 @@ def fingerprint_db_old(fp_version, category_id=None, num_processes=None):
     """
     global DB, TOTAL_PRODUCTS, CURRENT, CLASSIFIER_FOR_CATEGORY, FP_VERSION
 
-    DB = DB or pymongo.MongoClient().mydb
+    DB = DB or db
     num_processes = num_processes or mp.cpu_count() - 2
 
     if category_id is not None:
