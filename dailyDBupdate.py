@@ -34,18 +34,18 @@ def email(stats):
     txt1 = "Hello TG member!\n\n" \
            "This is your daily DB update - so get ready to be amazed...\n\n"
     txt2 = 'date:\t' + str(stats['date']) + \
-           '\nitems downloaded:     \t' + str(stats['items_downloaded']) + \
-           '\nexisting items:       \t' + str(stats['existing_items']) + \
-           '\nnew items:            \t' + str(stats['new_items']) + \
-           '\nitems from archive:   \t' + str(stats['items_from_archive']) + \
-           '\nitems sent to archive:\t' + str(stats['items_sent_to_archive']) + \
-           '\ndl duration(hours):   \t' + str(stats['dl_duration(hours)'])[:5] + \
+           '\nitems downloaded:       ' + str(stats['items_downloaded']) + \
+           '\nexisting items:         ' + str(stats['existing_items']) + \
+           '\nnew items:              ' + str(stats['new_items']) + \
+           '\nitems from archive:     ' + str(stats['items_from_archive']) + \
+           '\nitems sent to archive:  ' + str(stats['items_sent_to_archive']) + \
+           '\ndl duration(hours):     ' + str(stats['dl_duration(hours)'])[:5] + \
            '\n\nitems by category:\n'
     for i in constants.db_relevant_items:
         if i == 'women' or i == 'women-clothes':
             continue
-        space = ""
-        for j in range(15 - len(i)):
+        space = ''
+        for j in range(27 - len(i)):
             space = space + ' '
         txt2 = txt2 + i + ':' + space + str(stats['items_by_category'][i]) + '\n'
 
