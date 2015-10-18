@@ -45,7 +45,7 @@ def email(stats):
         if i == 'women' or i == 'women-clothes':
             continue
         space = ""
-        for j in 15 - len(i):
+        for j in range(15 - len(i)):
             space = space + ' '
         txt2 = txt2 + i + ':' + space + str(stats['items_by_category'][i]) + '\n'
 
