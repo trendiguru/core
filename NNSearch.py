@@ -64,7 +64,7 @@ def find_n_nearest_neighbors(target_dict, entries, number_of_matches, fp_weights
     # list of tuples with (entry,distance). Initialize with first n distance values
     nearest_n = []
     print "counting..."
-    num_entries =  entries.count()
+    num_entries = entries.count()
     print "done counting..."
     for i, entry in enumerate(entries):
         if i%1000 == 0:
