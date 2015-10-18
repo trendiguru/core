@@ -45,10 +45,14 @@ def email(stats):
 
     server = smtplib.SMTP('smtp.gmail.com', 587)
     server.starttls()
-    server.login('yonti0@gmail.com', "Hub,hKuhi1")
+    # server.login('yonti0@gmail.com', "Hub,hKuhi1")
     server.set_debuglevel(True)  # show communication with the server
     try:
+        server.login('yonti0@gmail.com', "Hub,hKuhi1")
         server.sendmail(sender, yonti, msg.as_string())
+        print "sent"
+    except:
+        print "error"
     finally:
         server.quit()
         # s.starttls()
