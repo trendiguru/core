@@ -413,7 +413,7 @@ def load_similar_results(sparse, projection_dict):
             similar_results = []
             for result in item["similar_results"]:
                 full_result = db.products.find_one({"_id": result["_id"]}, projection_dict)
-                full_result["clickUrl"] = Utils.shorten_url_bitly(full_result["clickUrl"])
+                # full_result["clickUrl"] = Utils.shorten_url_bitly(full_result["clickUrl"])
                 similar_results.append(full_result)
             item["similar_results"] = similar_results
     return sparse

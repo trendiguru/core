@@ -63,8 +63,12 @@ def find_n_nearest_neighbors(target_dict, entries, number_of_matches, fp_weights
     distance_function = distance_function or distance_Bhattacharyya
     # list of tuples with (entry,distance). Initialize with first n distance values
     nearest_n = []
+    print "counting..."
+    num_entries = entries.count()
+    print "done counting..."
     for i, entry in enumerate(entries):
-        print "inside-loop {0)".format(i)
+        if i%1000 == 0:
+            print "inside-loop {0} of {1}".format(i, num_entries)
         if i < number_of_matches:
             ent = entry[fp_key]
             tar = target_dict["fingerprint"]
