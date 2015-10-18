@@ -33,36 +33,35 @@ def email(stats):
     msg['To'] = yonti
     txt1 = "Hello TG member!\n\n" \
            "This is your daily DB update - so get ready to be amazed...\n\n"
-    txt2 = 'date:\t\t' + str(stats['date']) + \
-           '\nitems downloaded:\t\t' + str(stats['items_downloaded']) + \
-           '\nexisting items:\t\t' + str(stats['existing_items']) + \
-           '\nnew items:\t\t' + str(stats['new_items']) + \
-           '\nitems from archive:\t\t' + str(stats['items_from_archive']) + \
-           '\nitems sent to archive:\t\t' + str(stats['items_sent_to_archive']) + \
-           '\ndl duration(hours):\t\t' + str(stats['dl_duration(hours)'])[:5] + \
+    txt2 = 'date:\t' + str(stats['date']) + \
+           '\nitems downloaded:     \t' + str(stats['items_downloaded']) + \
+           '\nexisting items:       \t' + str(stats['existing_items']) + \
+           '\nnew items:            \t' + str(stats['new_items']) + \
+           '\nitems from archive:   \t' + str(stats['items_from_archive']) + \
+           '\nitems sent to archive:\t' + str(stats['items_sent_to_archive']) + \
+           '\ndl duration(hours):   \t' + str(stats['dl_duration(hours)'])[:5] + \
            '\n\nitems by category:\n'
     for i in constants.db_relevant_items:
         if i == 'women' or i == 'women-clothes':
             continue
-        txt2 = txt2 + i + ':\t\t\t\t' + str(stats['items_by_category'][i]) + '\n'
-    #        "Copy %s\n\n" \
-    #        "Go to %s\n\n" \
-    #        "Pick the top 4 and save.\n\n" \
-    #        "Thanks & Good luck!" % (image_url, trendi_url)
-    # txt =
+        space = ""
+        for j in 15 - len(i):
+            space = space + ' '
+        txt2 = txt2 + i + ':' + space + str(stats['items_by_category'][i]) + '\n'
+
     part1 = MIMEText(txt1 + txt2, 'plain')
-    html = """\
-    <html>
-      <head></head>
-      <body>
-        <p>Hi!<br>
-           How are you?<br>
-           Here is the <a href="https://www.python.org">link</a> you wanted.
-        </p>
-      </body>
-    </html>
-    """
-    part2 = MIMEText(html, 'html')
+    # html = """\
+    # <html>
+    #   <head></head>
+    #   <body>
+    #     <p>Hi!<br>
+    #        How are you?<br>
+    #        Here is the <a href="https://www.python.org">link</a> you wanted.
+    #     </p>
+    #   </body>
+    # </html>
+    # """
+    # part2 = MIMEText(html, 'html')
     msg.attach(part1)
     # msg.attach(part2)
     server = smtplib.SMTP('smtp.gmail.com', 587)
