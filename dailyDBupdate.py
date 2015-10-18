@@ -31,17 +31,24 @@ def email(stats):
     msg['Subject'] = 'Daily DB download&update!'
     msg['From'] = sender
     msg['To'] = yonti
-    txt = "Hello TG member!\n\n" \
-          "This is your daily DB update\n" \
-          "so get ready to be amazed..\n\n"
-    for i in stats.keys():
-        txt = txt + i + ' = ' + str(stats[i]) + '\n'
+    txt1 = "Hello TG member!\n\n" \
+           "This is your daily DB update - so get ready to be amazed...\n\n"
+    txt2 = 'date: ' + str(stats['date']) + \
+           '\nitems_downloaded: ' + str(stats['items_downloaded']) + \
+           '\nexisting_items: ' + str(stats['existing_items']) + \
+           '\nnew_items:' + str(stats['new_items']) + \
+           '\nitems_from_archive:' + str(stats['returned_from_archive']) + \
+           '\nitems_sent_to_archive:' + str(stats['sent_to_archive']) + \
+           '\ndl_duration(hours):' + str(stats['total_dl_time(hours)']) + \
+           '\n\nitems_by_category:\n'
+    for i in constants.db_relevant_items:
+        txt2 = txt2 + i + ': ' + str(stats[i]) + '\n'
     #        "Copy %s\n\n" \
     #        "Go to %s\n\n" \
     #        "Pick the top 4 and save.\n\n" \
     #        "Thanks & Good luck!" % (image_url, trendi_url)
     # txt =
-    msg = MIMEText(txt, 'plain')
+    msg = MIMEText(txt1 + txt2, 'plain')
 
     server = smtplib.SMTP('smtp.gmail.com', 587)
     server.starttls()
