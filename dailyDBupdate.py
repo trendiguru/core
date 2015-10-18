@@ -43,7 +43,7 @@ def email(stats):
     # txt =
     msg = MIMEText(txt, 'plain')
 
-    server = smtplib.SMTP('mail')
+    server = smtplib.SMTP('smtp.gmail.com', 587)
     server.starttls()
     server.login('yonti0@gmail.com', "Hub,hKuhi1")
     server.set_debuglevel(True)  # show communication with the server
