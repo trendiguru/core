@@ -7,11 +7,47 @@ __author__ = 'yonatan'
 """
 
 import json
+import smtplib
+
+from email.mime.text import MIMEText
+from email.mime.multipart import MIMEMultipart
 
 import constants
 
 db = constants.db
 
+
+def email(stats):
+    # me = 'nadav@trendiguru.com'
+    # lior = 'lior@trendiguru.com'
+    # kyle = 'kyle@trendiguru.com'
+    # jeremy = 'jeremy@trendiguru.com'
+    yonti = 'yonti@trendiguru.com'
+    sender = 'Notifier@trendiguru.com'
+    # recipient = 'members@trendiguru.com'
+
+    # Open a plain text file for reading.  For this example, assume that
+    msg = MIMEMultipart('alternative')
+    msg['Subject'] = 'Daily DB download&update!'
+    msg['From'] = sender
+    msg['To'] = yonti
+    # text = "Hello TG member!\n\n" \
+    #        "There is a new image waiting to you.\n\n" \
+    #        "Copy %s\n\n" \
+    #        "Go to %s\n\n" \
+    #        "Pick the top 4 and save.\n\n" \
+    #        "Thanks & Good luck!" % (image_url, trendi_url)
+    part1 = MIMEText(stats, 'plain')
+    msg.attach(part1)
+
+    s = smtplib.SMTP('localhost')
+    s.sendmail(sender, yonti, msg.as_string())
+    s.quit()
+
+
+# trendi_url = 'http://extremeli.trendi.guru/demo/TrendiMatchEditor/matcheditor.html'
+# image_url = 'http://image.gala.de/v1/cms/Mr/style-mandy-capristo-okt14-ge_7901219-ORIGINAL-imageGallery_standard.jpg?v=10333950'
+# send_image_mail(trendi_url, image_url)
 
 def download_stats():
     dl_data = db.download_data.find()[0]
@@ -30,10 +66,10 @@ def download_stats():
         stats['items_by_category'][i] = {'total': db.products.find({'categories.id': i}).count(),
                                          'new': db.products.find({'$and': [{'categories.id': i},
                                                                            {'download_data.first_dl': date}]}).count()}
+    email(stats)
     with open(date + '.txt', 'w') as outfile:
         json.dump(stats, outfile)
 
-    print stats
 
 
 if __name__ == "__main__":
