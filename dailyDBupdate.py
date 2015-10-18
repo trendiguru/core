@@ -41,11 +41,12 @@ def email(stats):
     #        "Pick the top 4 and save.\n\n" \
     #        "Thanks & Good luck!" % (image_url, trendi_url)
     # txt =
-    part1 = MIMEText(txt, 'plain')
-    msg.attach(part1)
+    msg = MIMEText(txt, 'plain')
 
-    s = smtplib.SMTP('localhost')
-    s.sendmail(sender, yonti, msg.as_string())
+    s = smtplib.SMTP('smtp.gmail.com:587')
+    s.starttls()
+    s.login('yonti0@gmail.com', "Hub,hKuhi1")
+    s.sendmail(sender, yonti, msg)
     s.quit()
 
 
