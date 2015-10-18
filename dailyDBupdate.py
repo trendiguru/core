@@ -34,13 +34,13 @@ def email(stats):
     txt1 = "Hello TG member!\n\n" \
            "This is your daily DB update - so get ready to be amazed...\n\n"
     txt2 = 'date: ' + str(stats['date']) + \
-           '\nitems_downloaded: ' + str(stats['items_downloaded']) + \
-           '\nexisting_items: ' + str(stats['existing_items']) + \
-           '\nnew_items:' + str(stats['new_items']) + \
-           '\nitems_from_archive:' + str(stats['returned_from_archive']) + \
-           '\nitems_sent_to_archive:' + str(stats['sent_to_archive']) + \
-           '\ndl_duration(hours):' + str(stats['total_dl_time(hours)']) + \
-           '\n\nitems_by_category:\n'
+           '\nitems downloaded: ' + str(stats['items_downloaded']) + \
+           '\nexisting items: ' + str(stats['existing_items']) + \
+           '\nnew items:' + str(stats['new_items']) + \
+           '\nitems from archive:' + str(stats['items_from_archive']) + \
+           '\nitems sent to archive:' + str(stats['items_sent_to_archive']) + \
+           '\ndl duration(hours):' + str(stats['dl_duration(hours)']) + \
+           '\n\nitems by category:\n'
     for i in constants.db_relevant_items:
         txt2 = txt2 + i + ': ' + str(stats[i]) + '\n'
     #        "Copy %s\n\n" \
