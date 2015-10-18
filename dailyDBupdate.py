@@ -45,7 +45,7 @@ def email(stats):
     for i in constants.db_relevant_items:
         if i == 'women' or i == 'women-clothes':
             continue
-        txt2 = txt2 + i + ':\t' + space + str(stats['items_by_category'][i]) + '\n'
+        txt2 = txt2 + i + ':\t' + str(stats['items_by_category'][i]) + '\n'
 
     part1 = MIMEText(txt1 + txt2, 'plain')
     # html = """\
