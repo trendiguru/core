@@ -42,7 +42,9 @@ def email(stats):
            '\ndl duration(hours):' + str(stats['dl_duration(hours)']) + \
            '\n\nitems by category:\n'
     for i in constants.db_relevant_items:
-        txt2 = txt2 + i + ': ' + str(stats[i]) + '\n'
+        if i == 'women' or i == 'women-clothes':
+            continue
+        txt2 = txt2 + i + ': ' + str(stats['items_by_category'][i]) + '\n'
     #        "Copy %s\n\n" \
     #        "Go to %s\n\n" \
     #        "Pick the top 4 and save.\n\n" \
