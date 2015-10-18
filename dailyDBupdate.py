@@ -13,7 +13,7 @@ import constants
 db = constants.db
 
 
-def download_stats(db):
+def download_stats():
     dl_data = db.download_data.find()[0]
     date = dl_data['current_dl']
     stats = {'date': date,
