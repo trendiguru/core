@@ -31,13 +31,17 @@ def email(stats):
     msg['Subject'] = 'Daily DB download&update!'
     msg['From'] = sender
     msg['To'] = yonti
-    # text = "Hello TG member!\n\n" \
-    #        "There is a new image waiting to you.\n\n" \
+    txt = "Hello TG member!\n\n" \
+          "This is your daily DB update\n" \
+          "so get ready to be amazed..\n\n"
+    for i in stats.keys():
+        txt = txt + i + ' = ' + str(stats[i]) + '\n'
     #        "Copy %s\n\n" \
     #        "Go to %s\n\n" \
     #        "Pick the top 4 and save.\n\n" \
     #        "Thanks & Good luck!" % (image_url, trendi_url)
-    part1 = MIMEText(stats, 'plain')
+    # txt =
+    part1 = MIMEText(txt, 'plain')
     msg.attach(part1)
 
     s = smtplib.SMTP('localhost')
