@@ -64,6 +64,7 @@ def find_n_nearest_neighbors(target_dict, entries, number_of_matches, fp_weights
     # list of tuples with (entry,distance). Initialize with first n distance values
     nearest_n = []
     for i, entry in enumerate(entries):
+        print "inside-loop {0)".format(i)
         if i < number_of_matches:
             ent = entry[fp_key]
             tar = target_dict["fingerprint"]
