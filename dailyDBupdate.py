@@ -43,11 +43,16 @@ def email(stats):
     # txt =
     msg = MIMEText(txt, 'plain')
 
-    s = smtplib.SMTP('smtp.gmail.com:587')
-    s.starttls()
-    s.login('yonti0@gmail.com', "Hub,hKuhi1")
-    s.sendmail(sender, yonti, msg)
-    s.quit()
+    server = smtplib.SMTP('mail')
+    server.set_debuglevel(True)  # show communication with the server
+    try:
+        server.sendmail(sender, yonti, msg.as_string())
+    finally:
+        server.quit()
+        # s.starttls()
+        # s.login('yonti0@gmail.com', "Hub,hKuhi1")
+        # server.sendmail(sender, yonti, msg)
+        # server.quit()
 
 
 # trendi_url = 'http://extremeli.trendi.guru/demo/TrendiMatchEditor/matcheditor.html'
