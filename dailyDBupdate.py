@@ -64,7 +64,7 @@ def email(stats):
     """
     part2 = MIMEText(html, 'html')
     msg.attach(part1)
-    msg.attach(part2)
+    # msg.attach(part2)
     server = smtplib.SMTP('smtp.gmail.com', 587)
     server.starttls()
     # server.set_debuglevel(True)  # show communication with the server
