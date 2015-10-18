@@ -22,7 +22,7 @@ def email(stats):
     # lior = 'lior@trendiguru.com'
     # kyle = 'kyle@trendiguru.com'
     # jeremy = 'jeremy@trendiguru.com'
-    yonti = 'yonti@trendiguru.com'
+    yonti = 'yontilevin@gmail.com'
     sender = 'Notifier@trendiguru.com'
     # recipient = 'members@trendiguru.com'
 
@@ -45,8 +45,7 @@ def email(stats):
 
     server = smtplib.SMTP('smtp.gmail.com', 587)
     server.starttls()
-    # server.login('yonti0@gmail.com', "Hub,hKuhi1")
-    server.set_debuglevel(True)  # show communication with the server
+    # server.set_debuglevel(True)  # show communication with the server
     try:
         server.login('yonti0@gmail.com', "Hub,hKuhiPryh")
         server.sendmail(sender, yonti, msg.as_string())
@@ -55,10 +54,6 @@ def email(stats):
         print "error"
     finally:
         server.quit()
-        # s.starttls()
-        # s.login('yonti0@gmail.com', "Hub,hKuhi1")
-        # server.sendmail(sender, yonti, msg)
-        # server.quit()
 
 
 # trendi_url = 'http://extremeli.trendi.guru/demo/TrendiMatchEditor/matcheditor.html'
