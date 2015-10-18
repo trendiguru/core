@@ -1,19 +1,20 @@
 import os
+
 import cv2
 import pymongo
 from redis import Redis
+
 
 # file containing constants for general TG use
 # fingerprint related consts
 
 fingerprint_length = 696
-fingerprint_version = 4
+fingerprint_version = 792015  # DayMonthYear
 extras_length = 6
 histograms_length = [180, 255, 255]
 fingerprint_weights = [0.05, 0.5, 0.225, 0.225]
 K = 0.5                     # for euclidean distance
 min_bb_to_image_area_ratio = 0.95  # if bb takes more than this fraction of image area then use  cv2.GC_INIT_WITH_RECT instead of init with mask
-
 
 #########
 #DB stuff
@@ -66,7 +67,7 @@ classifier_to_category_dict = {"dressClassifier.xml": ["dresses", "bridal-mother
                                                        "mens-big-and-tall-coats-and-jackets",
                                                        "mens-big-and-tall-blazers"]}
 
-db_relevent_items = ['women', 'womens-clothes', 'womens-suits', 'shorts', 'petites', 'blazers', 'tees-and-tshirts',
+db_relevant_items = ['women', 'womens-clothes', 'womens-suits', 'shorts', 'petites', 'blazers', 'tees-and-tshirts',
                      'jeans', 'bootcut-jeans', 'classic-jeans', 'cropped-jeans', 'distressed-jeans',
                      'flare-jeans', 'relaxed-jeans', 'skinny-jeans', 'straight-leg-jeans', 'stretch-jeans',
                      'womens-tops', 'button-front-tops', 'camisole-tops', 'cashmere-tops', 'halter-tops',

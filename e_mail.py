@@ -2,6 +2,7 @@ __author__ = 'Nadav Paz'
 
 # Import smtplib for the actual sending function
 import smtplib
+
 from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
 
