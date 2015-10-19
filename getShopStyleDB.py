@@ -165,7 +165,7 @@ class ShopStyleDownloader():
         if not isinstance(filter_params, UrlParams):
             filter_params = UrlParams(params_dict=filter_params)
 
-        dl_query = {"download_data": {"dl_version": self.current_dl},
+        dl_query = {"download_data": {"dl_version": self.current_dl_date},
                     "filter_params": filter_params.encoded()}
 
         if self.db.dl_cache.find_one(dl_query):
