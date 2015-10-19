@@ -247,7 +247,9 @@ def from_paperdoll_to_similar_results(person_id, paper_job_id, num_of_matches=10
         # convert numbers to labels
         category = list(labels.keys())[list(labels.values()).index(num)]
         if category in constants.paperdoll_shopstyle_women.keys():
-            item_mask = 255 * np.array(mask == num, dtype=np.uint8)
+            item_mask = 255 * np.array(final_mask == num, dtype=np.uint8)
+            print "item_mask shape in paperdolls.find_similar: " + str(item_mask.shape)
+            print "sliced image shape in paperdolls.find_similar: " + str(image.shape)
             shopstyle_cat = constants.paperdoll_shopstyle_women[category]
             item_dict = {"category": shopstyle_cat, 'item_id': str(bson.ObjectId()), 'item_idx': idx,
                          'saved_date': datetime.datetime.now()}
@@ -313,7 +315,7 @@ def get_results_now(page_url, image_url):
                 # convert numbers to labels
                 category = list(labels.keys())[list(labels.values()).index(num)]
                 if category in constants.paperdoll_shopstyle_women.keys():
-                    item_mask = 255 * np.array(mask == num, dtype=np.uint8)
+                    item_mask = 255 * np.array(final_mask == num, dtype=np.uint8)
                     shopstyle_cat = constants.paperdoll_shopstyle_women[category]
                     item_dict = {"category": shopstyle_cat, 'item_id': str(bson.ObjectId()), 'item_idx': item_idx,
                                  'saved_date': datetime.datetime.now()}
