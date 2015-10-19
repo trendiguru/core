@@ -11,16 +11,16 @@ __author__ = 'jeremy'
 # has matlab running w. 2opencv3
 #which is currently 'mightili.trendi.guru'
 
-import matlab.engine
 import subprocess
-import numpy as np
 import imghdr
-import cv2
-
 from contextlib import contextmanager
 import random
 import string
 
+import numpy as np
+import cv2
+
+import matlab.engine
 from trendi_guru_modules import Utils
 
 
@@ -76,27 +76,26 @@ def get_parse_mask(img_url_or_cv2_array):
         print('either image is empty or problem writing')
         return [[], [], []]
 
-def get_parse_from_matlab_parallel(image_filename,matlab_engine):
-    mask, label_names, pose = matlab_engine.pd("inputimg.jpg", nargout=3)
+
+def get_parse_from_matlab_parallel(image_filename, matlab_engine):
+    mask, label_names, pose = matlab_engine.pd(image_filename, nargout=3)
     label_dict = dict(zip(label_names, range(0, len(label_names))))
     return mask, label_dict, pose
 
-def get_parse_mask_parallel(matlab_engine,img_url_or_cv2_array):
+
+def get_parse_mask_parallel(matlab_engine, img_url_or_cv2_array):
     img = Utils.get_cv2_img_array(img_url_or_cv2_array)
-    if img is not None and cv2.imwrite('inputimg.jpg', img):
-        if 'jpeg' != imghdr.what('inputimg.jpg'):
+    stripped_name = rand_string() + ".jpg"  # img_url_or_cv2_array.split('//')[1]
+    modified_name = stripped_name.replace('/', '_')
+    print('stripped name:' + stripped_name)
+    print('modified name:' + modified_name)
+    if img is not None and cv2.imwrite(modified_name, img):
+        if 'jpeg' != imghdr.what(modified_name):
             return [[], [], []]
-        stripped_name = rand_string()  # img_url_or_cv2_array.split('//')[1]
-        modified_name = stripped_name.replace('/', '_')
-        print('stripped name:' + stripped_name)
-        print('modified name:' + modified_name)
-        mask, label_dict, pose = get_parse_from_matlab_parallel(modified_name,matlab_engine)
+        mask, label_dict, pose = get_parse_from_matlab_parallel(modified_name, matlab_engine)
         print('labels:' + str(label_dict))
         mask_np = np.array(mask, dtype=np.uint8)
         pose_np = np.array(pose, dtype=np.uint8)
- ##       if callback_pack is not None:
-  #          a=callback_pack[0]
-  #          print('callback function returned:'+str(a))
         return mask_np, label_dict, pose_np
     else:
         print('either image is empty or problem writing')

@@ -22,6 +22,9 @@ def fp(img, bins=histograms_length, fp_length=fingerprint_length, mask=None):
     if mask is None or cv2.countNonZero(mask) == 0:
         mask = np.ones((img.shape[0], img.shape[1]), dtype=np.uint8)
     if mask.shape[0] != img.shape[0] or mask.shape[1] != img.shape[1]:
+        print "mask shape: " + str(mask.shape)
+        print "image shape: " + str(img.shape)
+        print str(mask.shape[0] / float(mask.shape[1])) + ',' + str(img.shape[0] / float(img.shape[1]))
         print('trouble with mask size, resetting to image size')
         mask = np.ones((img.shape[0], img.shape[1]), dtype=np.uint8)
     n_pixels = cv2.countNonZero(mask)

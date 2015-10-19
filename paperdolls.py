@@ -7,7 +7,6 @@ import sys
 import numpy as np
 import pymongo
 import cv2
-import redis
 from rq import Queue
 import bson
 from rq.job import Job
@@ -78,9 +77,7 @@ def after_pd_conclusions(mask, labels, face):
         2.2 upper-body: decide whether it's a one-part or under & cover
     3. return new mask
     """
-    if type(mask) is list:
-        mask = np.array(mask)
-    final_mask = mask.copy()
+    final_mask = mask[:, :]
     mask_sizes = {"upper_cover": [], "upper_under": [], "lower_cover": [], "lower_under": [], "whole_body": []}
     for num in np.unique(mask):
         item_mask = 255 * np.array(mask == num, dtype=np.uint8)
@@ -139,11 +136,10 @@ def after_pd_conclusions(mask, labels, face):
 
 def person_isolation(image, face):
     x, y, w, h = face
+    image_copy = np.zeros(image.shape, dtype=np.uint8)
     x_back = np.max([x - 1.5 * w, 0])
     x_ahead = np.min([x + 2.5 * w, image.shape[1] - 2])
-    back_mat = np.zeros((image.shape[0], x_back, 3), dtype=np.uint8)
-    ahead_mat = np.zeros((image.shape[0], image.shape[1] - x_ahead, 3), dtype=np.uint8)
-    image_copy = np.concatenate((back_mat, image[:, x_back:x_ahead, :], ahead_mat), 1)
+    image_copy[:, int(x_back):int(x_ahead), :] = image[:, int(x_back):int(x_ahead), :]
     return image_copy
 
 
@@ -191,7 +187,7 @@ def job_result_from_id(job_id, job_class=Job, conn=None):
 
 def start_process(page_url, image_url):
     # IF URL HAS NO IMAGE IN IT
-    image = Utils.get_cv2_img_array(image_url)
+    image = background_removal.standard_resize(Utils.get_cv2_img_array(image_url), 400)[0]
     if image is None:
         return
 
@@ -205,6 +201,92 @@ def start_process(page_url, image_url):
     images_obj_hash = images.find_one_and_update({"image_hash": image_hash}, {'$push': {'image_urls': image_url}})
     if images_obj_hash:
         return
+
+    # IF IMAGE IN PROCESS BY URL/HASH
+    iip_obj = iip.find_one({"image_urls": image_url}) or iip.find_one({"image_hash": image_hash})
+    if iip_obj:
+        return
+
+    # NEW_IMAGE !!
+    print "start process image shape: " + str(image.shape)
+    relevance = background_removal.image_is_relevant(image)
+    image_dict = {'image_urls': [image_url], 'relevant': relevance.is_relevant,
+                  'image_hash': image_hash, 'page_urls': [page_url]}
+    if relevance.is_relevant:
+        image_dict['people'] = []
+        relevant_faces = relevance.faces.tolist()
+        idx = 0
+        for face in relevant_faces:
+            person = {'face': face, 'person_id': str(bson.ObjectId()), 'person_idx': idx, 'items': []}
+            image_copy = person_isolation(image, face)
+            print "start process image-copy shape: " + str(image_copy.shape)
+            # person['url'] = upload_image(image_copy, str(person['person_id']))
+            image_dict['people'].append(person)
+            paper_job = paperdoll_parse_enqueue.paperdoll_enqueue(image_copy)
+            q1.enqueue(from_paperdoll_to_similar_results, person['person_id'], paper_job.id, depends_on=paper_job)
+            idx += 1
+    else:  # if not relevant
+        logging.warning('image is not relevant, but stored anyway..')
+        images.insert(image_dict)
+        return
+    iip.insert(image_dict)
+
+
+def from_paperdoll_to_similar_results(person_id, paper_job_id, num_of_matches=100):
+    paper_job_results = job_result_from_id(paper_job_id)
+    mask, labels = paper_job_results[:2]
+    image_obj, person = get_person_by_id(person_id, iip)
+    print "mask shape in paperdolls.find_similar: " + str(mask.shape)
+    final_mask = after_pd_conclusions(mask, labels, person['face'])
+    print "final_mask shape in paperdolls.find_similar: " + str(final_mask.shape)
+    image = Utils.get_cv2_img_array(image_obj['image_urls'])
+    image = background_removal.standard_resize(image, 400)[0]
+    items = []
+    idx = 0
+    for num in np.unique(final_mask):
+        # convert numbers to labels
+        category = list(labels.keys())[list(labels.values()).index(num)]
+        if category in constants.paperdoll_shopstyle_women.keys():
+            item_mask = 255 * np.array(final_mask == num, dtype=np.uint8)
+            print "item_mask shape in paperdolls.find_similar: " + str(item_mask.shape)
+            print "sliced image shape in paperdolls.find_similar: " + str(image.shape)
+            shopstyle_cat = constants.paperdoll_shopstyle_women[category]
+            item_dict = {"category": shopstyle_cat, 'item_id': str(bson.ObjectId()), 'item_idx': idx,
+                         'saved_date': datetime.datetime.now()}
+            svg_name = find_similar_mongo.mask2svg(
+                item_mask,
+                str(image_obj['_id']) + '_' + person['person_id'] + '_' + item_dict['category'],
+                constants.svg_folder)
+            item_dict["svg_url"] = constants.svg_url_prefix + svg_name
+            item_dict['fp'], item_dict['similar_results'] = find_similar_mongo.find_top_n_results(image, item_mask,
+                                                                                                  num_of_matches,
+                                                                                                  item_dict['category'])
+            items.append(item_dict)
+            idx += 1
+    image_obj = iip.find_one_and_update({'people.person_id': person_id}, {'$set': {'people.$.items': items}},
+                                        return_document=pymongo.ReturnDocument.AFTER)
+    if person['person_idx'] == len(image_obj['people']) - 1:
+        images.insert(image_obj)
+        iip.delete_one({'_id': image_obj['_id']})
+        logging.warning("Done! image was successfully inserted to the DB images!")
+
+
+def get_results_now(page_url, image_url):
+    # IF URL HAS NO IMAGE IN IT
+    image = Utils.get_cv2_img_array(image_url)
+    if image is None:
+        return
+
+    # IF IMAGE EXISTS IN IMAGES BY URL
+    images_obj_url = images.find_one({"image_urls": image_url})
+    if images_obj_url:
+        return page_results.merge_items(images_obj_url)
+
+    # IF IMAGE EXISTS IN IMAGES BY HASH (WITH ANOTHER URL)
+    image_hash = page_results.get_hash_of_image_from_url(image_url)
+    images_obj_hash = images.find_one_and_update({"image_hash": image_hash}, {'$push': {'image_urls': image_url}})
+    if images_obj_hash:
+        return page_results.merge_items(images_obj_hash)
 
     # IF IMAGE IN PROCESS BY URL/HASH
     iip_obj = iip.find_one({"image_urls": image_url}) or iip.find_one({"image_hash": image_hash})
@@ -226,45 +308,35 @@ def start_process(page_url, image_url):
             image_copy = person_isolation(image, face)
             person['url'] = upload_image(image_copy, str(person['person_id']))
             image_dict['people'].append(person)
-            paper_job = paperdoll_parse_enqueue.paperdoll_enqueue(person['url'])
-            q1.enqueue(from_paperdoll_to_similar_results, person['person_id'], paper_job.id, depends_on=paper_job)
+            mask, labels, pose = paperdoll_parse_enqueue.paperdoll_enqueue(person['url'], async=False).result
+            final_mask = after_pd_conclusions(mask, labels, person['face'])
+            item_idx = 0
+            for num in np.unique(final_mask):
+                # convert numbers to labels
+                category = list(labels.keys())[list(labels.values()).index(num)]
+                if category in constants.paperdoll_shopstyle_women.keys():
+                    item_mask = 255 * np.array(final_mask == num, dtype=np.uint8)
+                    shopstyle_cat = constants.paperdoll_shopstyle_women[category]
+                    item_dict = {"category": shopstyle_cat, 'item_id': str(bson.ObjectId()), 'item_idx': item_idx,
+                                 'saved_date': datetime.datetime.now()}
+                    svg_name = find_similar_mongo.mask2svg(
+                        item_mask,
+                        str(image_dict['image_hash']) + '_' + person['person_id'] + '_' + item_dict['category'],
+                        constants.svg_folder)
+                    item_dict["svg_url"] = constants.svg_url_prefix + svg_name
+                    item_dict['fp'], item_dict['similar_results'] = find_similar_mongo.find_top_n_results(image,
+                                                                                                          item_mask,
+                                                                                                          100,
+                                                                                                          item_dict[
+                                                                                                              'category'])
+                    person['items'].append(item_dict)
+                    item_idx += 1
             idx += 1
+            image_dict['people'].append(person)
+        images.insert(image_dict)
+        logging.warning("Done! image was successfully inserted to the DB images!")
+        return page_results.merge_items(image_dict)
     else:  # if not relevant
         logging.warning('image is not relevant, but stored anyway..')
         images.insert(image_dict)
         return
-    iip.insert(image_dict)
-
-
-def from_paperdoll_to_similar_results(person_id, paper_job_id, num_of_matches=100):
-    paper_job_results = job_result_from_id(paper_job_id)
-    mask, labels = paper_job_results[:2]
-    image_obj, person = get_person_by_id(person_id, iip)
-    final_mask = after_pd_conclusions(mask, labels, person['face'])
-    image = Utils.get_cv2_img_array(person['url'])
-    items = []
-    idx = 0
-    for num in np.unique(final_mask):
-        # convert numbers to labels
-        category = list(labels.keys())[list(labels.values()).index(num)]
-        if category in constants.paperdoll_shopstyle_women.keys():
-            item_mask = 255 * np.array(mask == num, dtype=np.uint8)
-            shopstyle_cat = constants.paperdoll_shopstyle_women[category]
-            item_dict = {"category": shopstyle_cat, 'item_id': str(bson.ObjectId()), 'item_idx': idx,
-                         'saved_date': datetime.datetime.now()}
-            svg_name = find_similar_mongo.mask2svg(
-                item_mask,
-                str(image_obj['_id']) + '_' + person['person_id'] + '_' + item_dict['category'],
-                constants.svg_folder)
-            item_dict["svg_url"] = constants.svg_url_prefix + svg_name
-            item_dict['fp'], item_dict['similar_results'] = find_similar_mongo.find_top_n_results(image, item_mask,
-                                                                                                  num_of_matches,
-                                                                                                  item_dict['category'])
-            items.append(item_dict)
-            idx += 1
-    image_obj = iip.find_one_and_update({'people.person_id': person_id}, {'$set': {'people.$.items': items}},
-                                        return_document=pymongo.ReturnDocument.AFTER)
-    if person['person_idx'] == len(image_obj['people']) - 1:
-        images.insert(image_obj)
-        logging.warning("Done! image was successfully inserted to the DB images!")
-
