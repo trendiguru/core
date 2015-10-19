@@ -187,10 +187,10 @@ def job_result_from_id(job_id, job_class=Job, conn=None):
 
 def start_process(page_url, image_url):
     # IF URL HAS NO IMAGE IN IT
-    image = background_removal.standard_resize(Utils.get_cv2_img_array(image_url), 400)[0]
+    image = Utils.get_cv2_img_array(image_url)
     if image is None:
         return
-
+    image = background_removal.standard_resize(image, 400)[0]
     # IF IMAGE EXISTS IN IMAGES BY URL
     images_obj_url = images.find_one({"image_urls": image_url})
     if images_obj_url:
