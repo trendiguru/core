@@ -138,11 +138,10 @@ def after_pd_conclusions(mask, labels, face):
 
 def person_isolation(image, face):
     x, y, w, h = face
+    image_copy = np.zeros(image.shape, dtype=np.uint8)
     x_back = np.max([x - 1.5 * w, 0])
     x_ahead = np.min([x + 2.5 * w, image.shape[1] - 2])
-    back_mat = np.zeros((image.shape[0], x_back, 3), dtype=np.uint8)
-    ahead_mat = np.zeros((image.shape[0], image.shape[1] - x_ahead, 3), dtype=np.uint8)
-    image_copy = np.concatenate((back_mat, image[:, x_back:x_ahead, :], ahead_mat), 1)
+    image_copy[:, int(x_back):int(x_ahead), :] = image[:, int(x_back):int(x_ahead), :]
     return image_copy
 
 
