@@ -278,13 +278,13 @@ def get_results_now(page_url, image_url):
     # IF IMAGE EXISTS IN IMAGES BY URL
     images_obj_url = images.find_one({"image_urls": image_url})
     if images_obj_url:
-        return images_obj_url
+        return page_results.merge_items(images_obj_url)
 
     # IF IMAGE EXISTS IN IMAGES BY HASH (WITH ANOTHER URL)
     image_hash = page_results.get_hash_of_image_from_url(image_url)
     images_obj_hash = images.find_one_and_update({"image_hash": image_hash}, {'$push': {'image_urls': image_url}})
     if images_obj_hash:
-        return images_obj_hash
+        return page_results.merge_items(images_obj_hash)
 
     # IF IMAGE IN PROCESS BY URL/HASH
     iip_obj = iip.find_one({"image_urls": image_url}) or iip.find_one({"image_hash": image_hash})
@@ -333,7 +333,7 @@ def get_results_now(page_url, image_url):
             image_dict['people'].append(person)
         images.insert(image_dict)
         logging.warning("Done! image was successfully inserted to the DB images!")
-        return image_dict
+        return page_results.merge_items(image_dict)
     else:  # if not relevant
         logging.warning('image is not relevant, but stored anyway..')
         images.insert(image_dict)
