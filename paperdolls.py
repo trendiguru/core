@@ -212,6 +212,7 @@ def start_process(page_url, image_url):
 
     # NEW_IMAGE !!
     image = background_removal.standard_resize(image, 400)[0]
+    print "start process image shape: " + str(image.shape)
     relevance = background_removal.image_is_relevant(image)
     image_dict = {'image_urls': [image_url], 'relevant': relevance.is_relevant,
                   'image_hash': image_hash, 'page_urls': [page_url]}
@@ -223,6 +224,7 @@ def start_process(page_url, image_url):
             person = {'face': face, 'person_id': str(bson.ObjectId()), 'person_idx': idx,
                       'items': []}
             image_copy = person_isolation(image, face)
+            print "start process image-copy shape: " + str(image_copy.shape)
             person['url'] = upload_image(image_copy, str(person['person_id']))
             image_dict['people'].append(person)
             paper_job = paperdoll_parse_enqueue.paperdoll_enqueue(person['url'])
@@ -239,7 +241,9 @@ def from_paperdoll_to_similar_results(person_id, paper_job_id, num_of_matches=10
     paper_job_results = job_result_from_id(paper_job_id)
     mask, labels = paper_job_results[:2]
     image_obj, person = get_person_by_id(person_id, iip)
+    print "mask shape in paperdolls.find_similar: " + str(mask.shape)
     final_mask = after_pd_conclusions(mask, labels, person['face'])
+    print "final_mask shape in paperdolls.find_similar: " + str(final_mask.shape)
     image = Utils.get_cv2_img_array(person['url'])
     items = []
     idx = 0
