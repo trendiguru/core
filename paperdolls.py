@@ -239,7 +239,7 @@ def from_paperdoll_to_similar_results(person_id, paper_job_id, num_of_matches=10
     print "mask shape in paperdolls.find_similar: " + str(mask.shape)
     final_mask = after_pd_conclusions(mask, labels, person['face'])
     print "final_mask shape in paperdolls.find_similar: " + str(final_mask.shape)
-    image = Utils.get_cv2_img_array(image_obj['image_urls'])
+    image = Utils.get_cv2_img_array(image_obj['image_urls'][0])
     image = background_removal.standard_resize(image, 400)[0]
     items = []
     idx = 0
