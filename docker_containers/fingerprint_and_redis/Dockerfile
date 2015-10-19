@@ -159,7 +159,7 @@ RUN  cmake -DOPENCV_EXTRA_MODULES_PATH=/opt/OpenCV/opencv_contrib-3.0.0/modules 
 #RUN  cmake -D CMAKE_BUILD_TYPE=RELEASE -D CMAKE_INSTALL_PREFIX=/usr/local -D WITH_TBB=ON -D BUILD_NEW_PYTHON_SUPPORT=ON \
 # -D WITH_V4L=ON -D INSTALL_C_EXAMPLES=ON -D INSTALL_PYTHON_EXAMPLES=ON -D BUILD_EXAMPLES=ON -D WITH_QT=OFF -D WITH_OPENGL=ON -D BUILD_opencv_nonfree=ON ..
 
-RUN  make -j2 | tee makeout.txt
+RUN  make -j32 | tee makeout.txt
 RUN  make install | tee installout.txt
 RUN  make clean
 
@@ -254,21 +254,6 @@ RUN  echo 'nmap -p 6379 localhost' > portredis.sh
 RUN chmod o+x portredis.sh
 
 ################################
-# git clone the tg repo
-################################
-RUN mkdir /home/developer/tg
-RUN chown developer:developer /home/developer/tg
-RUN mkdir /home/developer/tg/Dev
-RUN chown developer:developer /home/developer/tg/Dev
-WORKDIR /home/developer/tg/Dev
-USER developer
-RUN whoami
-RUN git clone --verbose git@bitbucket.org:trendiGuru/core.git
-#maybe ssh is per user so do this as developer
-
-WORKDIR /home/developer/tg/Dev/core
-
-################################
 #supervisor
 ################################
 #setuptools
@@ -285,4 +270,20 @@ RUN  echo_supervisord_conf>/etc/supervisord.conf
 #RUN rqworker -w rq.tgworker.TgWorker  pd
 #CMD rqworker -u redis://redis1-redis-1-vm:6379 fingerprint &
 CMD rqworker -u redis://redis1-redis-1-vm:6379  -w rq.tgworker.TgWorker  pd
+
+
+################################
+# git clone the tg repo
+################################
+RUN mkdir /home/developer/tg
+RUN chown developer:developer /home/developer/tg
+RUN mkdir /home/developer/tg/Dev
+RUN chown developer:developer /home/developer/tg/Dev
+WORKDIR /home/developer/tg/Dev
+USER developer
+RUN whoami
+RUN git clone --verbose git@bitbucket.org:trendiGuru/core.git
+#maybe ssh is per user so do this as developer
+
+WORKDIR /home/developer/tg/Dev/core
 
