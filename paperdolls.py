@@ -7,7 +7,6 @@ import sys
 import numpy as np
 import pymongo
 import cv2
-import redis
 from rq import Queue
 import bson
 from rq.job import Job
@@ -266,5 +265,6 @@ def from_paperdoll_to_similar_results(person_id, paper_job_id, num_of_matches=10
                                         return_document=pymongo.ReturnDocument.AFTER)
     if person['person_idx'] == len(image_obj['people']) - 1:
         images.insert(image_obj)
+        iip.delete_one({'_id': image_obj['_id']})
         logging.warning("Done! image was successfully inserted to the DB images!")
 
