@@ -77,9 +77,7 @@ def after_pd_conclusions(mask, labels, face):
         2.2 upper-body: decide whether it's a one-part or under & cover
     3. return new mask
     """
-    if type(mask) is list:
-        mask = np.array(mask)
-    final_mask = mask.copy()
+    final_mask = mask[:, :]
     mask_sizes = {"upper_cover": [], "upper_under": [], "lower_cover": [], "lower_under": [], "whole_body": []}
     for num in np.unique(mask):
         item_mask = 255 * np.array(mask == num, dtype=np.uint8)
@@ -189,7 +187,7 @@ def job_result_from_id(job_id, job_class=Job, conn=None):
 
 def start_process(page_url, image_url):
     # IF URL HAS NO IMAGE IN IT
-    image = Utils.get_cv2_img_array(image_url)
+    image = background_removal.standard_resize(Utils.get_cv2_img_array(image_url), 400)[0]
     if image is None:
         return
 
@@ -210,7 +208,6 @@ def start_process(page_url, image_url):
         return
 
     # NEW_IMAGE !!
-    image = background_removal.standard_resize(image, 400)[0]
     print "start process image shape: " + str(image.shape)
     relevance = background_removal.image_is_relevant(image)
     image_dict = {'image_urls': [image_url], 'relevant': relevance.is_relevant,
@@ -220,8 +217,7 @@ def start_process(page_url, image_url):
         relevant_faces = relevance.faces.tolist()
         idx = 0
         for face in relevant_faces:
-            person = {'face': face, 'person_id': str(bson.ObjectId()), 'person_idx': idx,
-                      'items': []}
+            person = {'face': face, 'person_id': str(bson.ObjectId()), 'person_idx': idx, 'items': []}
             image_copy = person_isolation(image, face)
             print "start process image-copy shape: " + str(image_copy.shape)
             # person['url'] = upload_image(image_copy, str(person['person_id']))
