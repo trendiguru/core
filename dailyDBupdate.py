@@ -8,10 +8,12 @@ __author__ = 'yonatan'
 
 import json
 import smtplib
+import time
 
 from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
 
+import getShopStyleDB
 import constants
 
 db = constants.db
@@ -103,7 +105,8 @@ def download_stats():
 
 
 if __name__ == "__main__":
-    # update_db = getShopStyleDB.ShopStyleDownloader()
-    # update_db.run_by_category(type="DAILY")
+    update_db = getShopStyleDB.ShopStyleDownloader()
+    update_db.run_by_category(type="DAILY")
+    time.sleep(14440)
     download_stats()
-    # e_mail
+    print "Daily Download Finished!!!"
