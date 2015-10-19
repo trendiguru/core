@@ -22,7 +22,7 @@ def email(stats):
     # lior = 'lior@trendiguru.com'
     # kyle = 'kyle@trendiguru.com'
     # jeremy = 'jeremy@trendiguru.com'
-    yonti = 'yonti@trendiguru.com'
+    yonti = 'yontilevin@gmail.com'
     sender = 'Notifier@trendiguru.com'
     # recipient = 'members@trendiguru.com'
 
@@ -31,23 +31,48 @@ def email(stats):
     msg['Subject'] = 'Daily DB download&update!'
     msg['From'] = sender
     msg['To'] = yonti
-    txt = "Hello TG member!\n\n" \
-          "This is your daily DB update\n" \
-          "so get ready to be amazed..\n\n"
-    for i in stats.keys():
-        txt = txt + i + ' = ' + str(stats[i]) + '\n'
-    #        "Copy %s\n\n" \
-    #        "Go to %s\n\n" \
-    #        "Pick the top 4 and save.\n\n" \
-    #        "Thanks & Good luck!" % (image_url, trendi_url)
-    # txt =
-    msg = MIMEText(txt, 'plain')
+    txt1 = "Hello TG member!\n\n" \
+           "This is your daily DB update - so get ready to be amazed...\n\n"
+    txt2 = 'date:\t' + str(stats['date']) + \
+           '\nitems downloaded:\t' + str(stats['items_downloaded']) + \
+           '\nexisting items:\t' + str(stats['existing_items']) + \
+           '\nnew items:\t' + str(stats['new_items']) + \
+           '\nitems from archive:\t' + str(stats['items_from_archive']) + \
+           '\nitems sent to archive:\t' + str(stats['items_sent_to_archive']) + \
+           '\ndl duration(hours):\t' + str(stats['dl_duration(hours)'])[:5] + \
+           '\n\nitems by category:\n'
 
-    s = smtplib.SMTP('smtp.gmail.com:587')
-    s.starttls()
-    s.login('yonti0@gmail.com', "Hub,hKuhi1")
-    s.sendmail(sender, yonti, msg)
-    s.quit()
+    for i in constants.db_relevant_items:
+        if i == 'women' or i == 'women-clothes':
+            continue
+        txt2 = txt2 + i + ':\t' + str(stats['items_by_category'][i]) + '\n'
+
+    part1 = MIMEText(txt1 + txt2, 'plain')
+    # html = """\
+    # <html>
+    #   <head></head>
+    #   <body>
+    #     <p>Hi!<br>
+    #        How are you?<br>
+    #        Here is the <a href="https://www.python.org">link</a> you wanted.
+    #     </p>
+    #   </body>
+    # </html>
+    # """
+    # part2 = MIMEText(html, 'html')
+    msg.attach(part1)
+    # msg.attach(part2)
+    server = smtplib.SMTP('smtp.gmail.com', 587)
+    server.starttls()
+    # server.set_debuglevel(True)  # show communication with the server
+    try:
+        server.login('yonti0@gmail.com', "Hub,hKuhiPryh")
+        server.sendmail(sender, [yonti], msg.as_string())
+        print "sent"
+    except:
+        print "error"
+    finally:
+        server.quit()
 
 
 # trendi_url = 'http://extremeli.trendi.guru/demo/TrendiMatchEditor/matcheditor.html'
