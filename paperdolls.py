@@ -224,9 +224,9 @@ def start_process(page_url, image_url):
                       'items': []}
             image_copy = person_isolation(image, face)
             print "start process image-copy shape: " + str(image_copy.shape)
-            person['url'] = upload_image(image_copy, str(person['person_id']))
+            # person['url'] = upload_image(image_copy, str(person['person_id']))
             image_dict['people'].append(person)
-            paper_job = paperdoll_parse_enqueue.paperdoll_enqueue(person['url'])
+            paper_job = paperdoll_parse_enqueue.paperdoll_enqueue(image_copy)
             q1.enqueue(from_paperdoll_to_similar_results, person['person_id'], paper_job.id, depends_on=paper_job)
             idx += 1
     else:  # if not relevant
@@ -243,7 +243,7 @@ def from_paperdoll_to_similar_results(person_id, paper_job_id, num_of_matches=10
     print "mask shape in paperdolls.find_similar: " + str(mask.shape)
     final_mask = after_pd_conclusions(mask, labels, person['face'])
     print "final_mask shape in paperdolls.find_similar: " + str(final_mask.shape)
-    image = Utils.get_cv2_img_array(person['url'])
+    image = background_removal.standard_resize(Utils.get_cv2_img_array(image_obj['image_urls'][0]), 400)[0]
     items = []
     idx = 0
     for num in np.unique(final_mask):
