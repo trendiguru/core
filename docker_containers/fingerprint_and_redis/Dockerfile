@@ -254,21 +254,6 @@ RUN  echo 'nmap -p 6379 localhost' > portredis.sh
 RUN chmod o+x portredis.sh
 
 ################################
-# git clone the tg repo
-################################
-RUN mkdir /home/developer/tg
-RUN chown developer:developer /home/developer/tg
-RUN mkdir /home/developer/tg/Dev
-RUN chown developer:developer /home/developer/tg/Dev
-WORKDIR /home/developer/tg/Dev
-USER developer
-RUN whoami
-RUN git clone --verbose git@bitbucket.org:trendiGuru/core.git
-#maybe ssh is per user so do this as developer
-
-WORKDIR /home/developer/tg/Dev/core
-
-################################
 #supervisor
 ################################
 #setuptools
@@ -285,4 +270,20 @@ RUN  echo_supervisord_conf>/etc/supervisord.conf
 #RUN rqworker -w rq.tgworker.TgWorker  pd
 #CMD rqworker -u redis://redis1-redis-1-vm:6379 fingerprint &
 CMD rqworker -u redis://redis1-redis-1-vm:6379  -w rq.tgworker.TgWorker  pd
+
+
+################################
+# git clone the tg repo
+################################
+RUN mkdir /home/developer/tg
+RUN chown developer:developer /home/developer/tg
+RUN mkdir /home/developer/tg/Dev
+RUN chown developer:developer /home/developer/tg/Dev
+WORKDIR /home/developer/tg/Dev
+USER developer
+RUN whoami
+RUN git clone --verbose git@bitbucket.org:trendiGuru/core.git
+#maybe ssh is per user so do this as developer
+
+WORKDIR /home/developer/tg/Dev/core
 
