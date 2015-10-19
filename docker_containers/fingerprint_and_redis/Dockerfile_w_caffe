@@ -329,8 +329,17 @@ RUN apt-get install python-dev
 #RUN cmake ..
 #./configure (??not sure??)
 #RUN make all
-
-
+#dl boost zip
+#unzip
+#goto tools/build/v2 , run bootsrap to generate bjam
+#sudo apt-get install cl-launch
+#test version w. bjam --version
+#install cl
+#sudo apt-get install cl-launch
+#in /boost_1_59_0/libs/python/example/quickstart: bjam toolset=gcc --verbose-test test
+#pip install protobuf, glog
+#// not necessary in light of subsequent line -  git clone https://github.com:gflags/gflags.git
+#sudo apt-get install libgflags2 libgflags-dev
 
 RUN apt-get install libprotobuf-dev libleveldb-dev libsnappy-dev libopencv-dev libhdf5-serial-dev protobuf-compiler
 RUN apt-get install --no-install-recommends libboost-all-dev
