@@ -261,6 +261,9 @@ def from_paperdoll_to_similar_results(person_id, paper_job_id, num_of_matches=10
             item_dict['fp'], item_dict['similar_results'] = find_similar_mongo.find_top_n_results(image, item_mask,
                                                                                                   num_of_matches,
                                                                                                   item_dict['category'])
+            if not item_dict['fp']:
+                logging.warning("image and mask shape difference")
+                return
             items.append(item_dict)
             idx += 1
     image_obj = iip.find_one_and_update({'people.person_id': person_id}, {'$set': {'people.$.items': items}},

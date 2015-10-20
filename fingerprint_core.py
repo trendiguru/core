@@ -26,7 +26,7 @@ def fp(img, bins=histograms_length, fp_length=fingerprint_length, mask=None):
         print "image shape: " + str(img.shape)
         print str(mask.shape[0] / float(mask.shape[1])) + ',' + str(img.shape[0] / float(img.shape[1]))
         print('trouble with mask size, resetting to image size')
-        mask = np.ones((img.shape[0], img.shape[1]), dtype=np.uint8)
+        return None
     n_pixels = cv2.countNonZero(mask)
     hsv = cv2.cvtColor(img, cv2.COLOR_BGR2HSV)
     # OpenCV uses  H: 0 - 180, S: 0 - 255, V: 0 - 255
