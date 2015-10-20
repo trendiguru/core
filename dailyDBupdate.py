@@ -26,7 +26,8 @@ def email(stats):
     # jeremy = 'jeremy@trendiguru.com'
     yonti = 'yontilevin@gmail.com'
     sender = 'Notifier@trendiguru.com'
-    # recipient = 'members@trendiguru.com'
+    #
+    recipient = 'members@trendiguru.com'
 
     # Open a plain text file for reading.  For this example, assume that
     msg = MIMEMultipart('alternative')
@@ -86,7 +87,7 @@ def email(stats):
     # server.set_debuglevel(True)  # show communication with the server
     try:
         server.login('yonti0@gmail.com', "Hub,hKuhiPryh")
-        server.sendmail(sender, [yonti], msg.as_string())
+        server.sendmail(sender, [recipient, yonti], msg.as_string())
         print "sent"
     except:
         print "error"
