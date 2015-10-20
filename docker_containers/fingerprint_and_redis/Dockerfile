@@ -187,30 +187,6 @@ RUN export uid=1000 gid=1000 && \
 #RUN apt-get -qq install -y libgtk2.0-dev
 
 
-## TG GIT CLONE ##
-## TG GIT CLONE ##
-## TG GIT CLONE ##
-
-RUN apt-get update
-RUN apt-get install -y ca-certificates
-#RUN apt-get install -y git-core
-RUN apt-get install -y --force-yes git
-RUN apt-get install -y ssh
-
-#see https://confluence.atlassian.com/pages/viewpage.action?pageId=270827678
-#to generate default ssh keys
-
-#RUN adduser developer
-#USER testuser
-#RUN whoami
-
-ENV HOME /home/developer
-# add custom ssh config / keys to the root user
-#ADD ssh/ /root/.ssh/
-ADD ssh/ /home/developer/.ssh/
-
-RUN apt-get -y --force-yes  install nano
-
 #####################
 # redis and rq
 #####################
@@ -261,20 +237,27 @@ RUN wget https://bootstrap.pypa.io/ez_setup.py -O - | python
 RUN easy_install supervisor
 RUN  echo_supervisord_conf>/etc/supervisord.conf
 
-#######################
-##rqworker
-############################
-#portforward
-#RUN ssh  -L 6379:localhost:6379 -N  -o StrictHostKeyChecking=no -f ubuntu@extremeli.trendi.guru &
-#RUN ssh -4 -i ~/.ssh/id_rsa -L 6379:localhost:6379 ubuntu@extremeli.trendi.guru -f -N
-#RUN rqworker -w rq.tgworker.TgWorker  pd
-#CMD rqworker -u redis://redis1-redis-1-vm:6379 fingerprint &
-CMD rqworker -u redis://redis1-redis-1-vm:6379  -w rq.tgworker.TgWorker  pd
-
 
 ################################
 # git clone the tg repo
 ################################
+
+RUN apt-get update
+RUN apt-get install -y ca-certificates
+#RUN apt-get install -y git-core
+RUN apt-get install -y --force-yes git
+RUN apt-get install -y ssh
+
+#see https://confluence.atlassian.com/pages/viewpage.action?pageId=270827678
+#to generate default ssh keys
+
+ENV HOME /home/developer
+# add custom ssh config / keys to the root user
+#ADD ssh/ /root/.ssh/
+ADD ssh/ /home/developer/.ssh/
+
+RUN apt-get -y --force-yes  install nano
+
 RUN mkdir /home/developer/tg
 RUN chown developer:developer /home/developer/tg
 RUN mkdir /home/developer/tg/Dev
@@ -286,4 +269,15 @@ RUN git clone --verbose git@bitbucket.org:trendiGuru/core.git
 #maybe ssh is per user so do this as developer
 
 WORKDIR /home/developer/tg/Dev/core
+
+
+#######################
+##rqworker
+############################
+#portforward
+#RUN ssh  -L 6379:localhost:6379 -N  -o StrictHostKeyChecking=no -f ubuntu@extremeli.trendi.guru &
+#RUN ssh -4 -i ~/.ssh/id_rsa -L 6379:localhost:6379 ubuntu@extremeli.trendi.guru -f -N
+#RUN rqworker -w rq.tgworker.TgWorker  pd
+#CMD rqworker -u redis://redis1-redis-1-vm:6379  -w rq.tgworker.TgWorker  pd
+CMD rqworker -u redis://redis1-redis-1-vm:6379 fingerprint &
 
