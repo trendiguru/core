@@ -8,10 +8,12 @@ __author__ = 'yonatan'
 
 import json
 import smtplib
+import time
 
 from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
 
+import getShopStyleDB
 import constants
 
 db = constants.db
@@ -37,9 +39,10 @@ def email(stats):
            'existing items:\t' + str(stats['existing_items']) + '</h3>\n<h3>' + \
            'new items:\t' + str(stats['new_items']) + '</h3>\n<h3>' + \
            'items from archive:\t' + str(stats['items_from_archive']) + '</h3>\n<h3>' + \
-           'items sent to archive:\t' + str(stats['items_sent_to_archive']) + '</h3>\n<h3></h3>\n<h3>' + \
-           'items by category:</h3>\n'
-    # '\ndl duration(hours):\t' + str(stats['dl_duration(hours)'])[:5] + \
+           'items sent to archive:\t' + str(stats['items_sent_to_archive']) + '</h3>\n<h3>' + \
+           'insert errors:\t' + str(stats['errors']) + '</h3>\n<h3>' + \
+           'dl duration(hours):\t' + str(stats['dl_duration(hours)'])[:5] + '</h3>\n<h3>' + \
+           +'</h3>\n<h3>' + '</h3>\n<h3>' + 'items by category:</h3>\n' + '</h3>\n<h3>'
 
     categories = ""
     for i in constants.db_relevant_items:
@@ -92,16 +95,34 @@ def email(stats):
         server.quit()
 
 
-def download_stats():
+def wait_for(dl_data):
+    total_items = db.products.find().count()
+    downloaded_items = dl_data["items_downloaded"]
+    new_items = dl_data["new_items"]
+    errors = dl_data["errors"]
+    sub = downloaded_items - errors
+    if total_items > sub:
+        time.sleep(new_items)
+    else:
+        while sub > total_items:
+            time.sleep(600)
+            total_items = db.products.find().count()
+            errors = dl_data["errors"]
+            sub = downloaded_items - errors
+
+
+def stats_and_mail():
     dl_data = db.download_data.find()[0]
     date = dl_data['current_dl']
+    wait_for(dl_data)
     stats = {'date': date,
              'items_downloaded': dl_data['items_downloaded'],
              'existing_items': dl_data['existing_items'],
              'new_items': dl_data['new_items'],
              'items_from_archive': dl_data['returned_from_archive'],
              'items_sent_to_archive': dl_data['sent_to_archive'],
-             # 'dl_duration(hours)': dl_data['total_dl_time(hours)'],
+             'dl_duration(hours)': dl_data['total_dl_time(hours)'],
+             'errors': dl_data['errors'],
              'items_by_category': {}}
     for i in constants.db_relevant_items:
         if i == 'women' or i == 'women-cloth':
@@ -115,8 +136,7 @@ def download_stats():
 
 
 if __name__ == "__main__":
-    # update_db = getShopStyleDB.ShopStyleDownloader()
-    # update_db.run_by_category(type="FULL")
-    # time.sleep(14440)
-    download_stats()
+    update_db = getShopStyleDB.ShopStyleDownloader()
+    update_db.run_by_category(type="FULL")
+    stats_and_mail()
     print "Daily Download Finished!!!"

@@ -10,6 +10,7 @@ import logging
 from bson import objectid
 import bson
 
+
 # ours
 import Utils
 import background_removal
@@ -294,7 +295,7 @@ def dereference_image_collection_entry(doc=None):
         'extractDate': 0,
         'alternateImages': 0,
         'archive': 0,
-        'dl_version': 0,
+        'download_data.dl_version': 0,
         'preOwned': 0,
         'inStock': 1,
         'brand': 1,
@@ -336,7 +337,7 @@ def dereference_image_collection_entry(doc=None):
                     del products_db_entry['badges']
                     del products_db_entry['extractDate']
                     del products_db_entry['alternateImages']
-                    del products_db_entry['dl_version']
+                    del products_db_entry['download_data.dl_version']
                     del products_db_entry['preOwned']
                     del products_db_entry['unbrandedName']
                     del products_db_entry['fingerprint']

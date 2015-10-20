@@ -101,9 +101,9 @@ def skin_removal(gc_image, image):
                     mask[i][j] = 3
     cv2.grabCut(gc_image, mask, rect, bgdmodel, fgdmodel, 1, cv2.GC_INIT_WITH_MASK)
     mask2 = np.where((mask == 1) + (mask == 3), 255, 0).astype('uint8')
-    without_skin = background_removal.get_masked_image(gc_image, mask2)
-    return without_skin
-
+    # without_skin = background_removal.get_masked_image(gc_image, mask2)
+    # return without_skin
+    return mask2
 
 def skin_detection_with_grabcut(gc_image, image, skin_or_clothes='clothes'):
     rect = (0, 0, gc_image.shape[1] - 1, gc_image.shape[0] - 1)

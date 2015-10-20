@@ -9,7 +9,6 @@ from rq import Queue
 
 from fingerprint_core import generate_mask_and_insert
 import constants
-import find_similar_mongo
 
 q = Queue('fingerprint_new', connection=constants.redis_conn)
 
@@ -25,15 +24,15 @@ MAX_OFFSET = 5000
 MAX_SET_SIZE = MAX_OFFSET + MAX_RESULTS_PER_PAGE
 db = constants.db
 collection = constants.update_collection_name
-relevant = constants.db_relevent_items
-
+relevant = constants.db_relevant_items
+fp_version = constants.fingerprint_version
 
 class ShopStyleDownloader():
     def __init__(self):
         # connect to db
         self.db = db
         self.collection = self.db[collection]
-        self.current_dl = str(datetime.datetime.date(datetime.datetime.now()))
+        self.current_dl_date = str(datetime.datetime.date(datetime.datetime.now()))
         self.last_request_time = time.time()
         self.do_fingerprint = True
 
@@ -46,23 +45,24 @@ class ShopStyleDownloader():
         self.do_fingerprint = do_fingerprint  # check if relevent
         root_category, ancestors = self.build_category_tree()
         if self.db.download_data.find().count() < 1 or \
-                        self.db.download_data.find()[0]["current_dl"] != self.current_dl or \
-                        type == "FULL":
+                        self.db.download_data.find()[0]["current_dl"] != self.current_dl_date or \
+                type == "FULL":
             self.db.download_data.delete_many({})
             self.db.download_data.insert_one({"criteria": "main",
-                                              "current_dl": self.current_dl,
+                                              "current_dl": self.current_dl_date,
                                               "start_time": datetime.datetime.now(),
                                               "items_downloaded": 0,
                                               "new_items": 0,
                                               "returned_from_archive": 0,
                                               "sent_to_archive": 0,
                                               "existing_items": 0,
+                                              "existing_but_renewed": 0,
+                                              "errors": 0,
                                               "end_time": "still in process",
                                               "total_dl_time": "still in process"})
-        # sorting the archive in ascending order
-        if type == "FULL":
             self.db.dl_cache.delete_many({})
-        self.db.archive.create_index("id")
+
+        # self.db.archive.create_index("id")
 
         cats_to_dl = [anc["id"] for anc in ancestors]
         for cat in cats_to_dl:
@@ -70,9 +70,12 @@ class ShopStyleDownloader():
 
         self.db.download_data.find_one_and_update({"criteria": "main"}, {'$set': {"end_time": datetime.datetime.now()}})
         tmp = self.db.download_data.find()[0]
-        # total_time = abs(tmp["end_time"] - tmp["start_time"])
-        # self.db.download_data.find_one_and_update({"criteria": "main"}, {'$set': {"total_dl_time": total_time}})
-        print "FULL DOWNLOAD DONE!!!!!"
+        total_time = abs(tmp["end_time"] - tmp["start_time"]).total_seconds()
+        self.db.download_data.find_one_and_update({"criteria": "main"},
+                                                  {'$set': {"total_dl_time(hours)": total_time / 3600}})
+        del_items = self.collection.delete_many({'fingerprint': {"$exists": False}})
+        print str(del_items.deleted_count) + ' items without fingerprint were deleted!\n'
+        print type + " DOWNLOAD DONE!!!!!"
 
     def build_category_tree(self):
         # download all categories
@@ -116,7 +119,7 @@ class ShopStyleDownloader():
             initial_filter_params = UrlParams(params_dict={"pid": PID, "cat": category["id"]})
             self.divide_and_conquer(initial_filter_params, 0)
 
-        self.archive_products(category_id)  # need to count how many where sent to archive
+            # self.archive_products(category_id)  # need to count how many where sent to archive
 
     def divide_and_conquer(self, filter_params, filter_index):
         """Keep branching until we find disjoint subsets which have less then MAX_SET_SIZE items"""
@@ -163,7 +166,7 @@ class ShopStyleDownloader():
         if not isinstance(filter_params, UrlParams):
             filter_params = UrlParams(params_dict=filter_params)
 
-        dl_query = {"download_data": {"last_update": self.current_dl},
+        dl_query = {"download_data": {"dl_version": self.current_dl_date},
                     "filter_params": filter_params.encoded()}
 
         if self.db.dl_cache.find_one(dl_query):
@@ -192,26 +195,27 @@ class ShopStyleDownloader():
     def archive_products(self, category_id=None):
         print "archiving old products"
         # this process iterate our whole DB (after daily download) and shifts unwanted items to the archive collection
-        query_doc = {'$and': [
-            {'download_data': {'last_update': {'$exists': 1, '$lt': self.current_dl}}},
-            {'$or': [
-                {'archive': {'$exists': 0}},
-                {'archive': False}
-            ]}]}
-
-        if category_id:
-            query_doc["$and"].append(
-                {"categories":
-                    {"$elemMatch": {
-                        "id": {"$in": find_similar_mongo.get_all_subcategories(self.db.categories, category_id)}}}
-                })
-
-        update_result = self.collection.update_many(query_doc, {"$set": {"archive": True}})
-        # for prod in old_prods:
-        #     self.db.archive.insert(prod)
-        #     self.db.products.delete_one({"id": prod["id"]})
-        print "Marked {0} of {1} products for archival".format(update_result.modified_count,
-                                                               update_result.matched_count)
+        old_items = self.collection.find({'download_data.dl_version': {'$not': self.current_dl_date}})
+        """
+        needs to write again
+        """
+        # query_doc = {'$and': [
+        #     {'download_data': {'dl_version': {'$exists': 1, '$lt': self.current_dl}}},
+        #     {'$or': [
+        #         {'archive': {'$exists': 0}},
+        #         {'archive': False}
+        #     ]}]}
+        #
+        # if category_id:
+        #     query_doc["$and"].append(
+        #         {"categories":
+        #             {"$elemMatch": {
+        #                 "id": {"$in": find_similar_mongo.get_all_subcategories(self.db.categories, category_id)}}}
+        #         })
+        #
+        # update_result = self.collection.update_many(query_doc, {"$set": {"archive": True}})
+        # print "Marked {0} of {1} products for archival".format(update_result.modified_count,
+        #                                                        update_result.matched_count)
 
     def delayed_requests_get(self, url, _params):
         sleep_time = max(0, 0.1 - (time.time() - self.last_request_time))
@@ -236,16 +240,11 @@ class ShopStyleDownloader():
         if do_fingerprint is None:
             do_fingerprint = self.do_fingerprint
 
-        prod["_id"] = self.collection.insert_one(prod).inserted_id
+        # prod["_id"] = self.collection.insert_one(prod).inserted_id
         if do_fingerprint:
-            print "enqueuing for fingerprinting...,",
-            q.enqueue(generate_mask_and_insert, image_url=None, doc=prod, save_to_db=True, mask_only=False,
-                      fp_date=self.current_dl)
-            # db_catagory=)
-            # prod_fp = super_fp(image_url=None, db_doc=prod, )
-            # prod["fingerprint"] = prod_fp
-            # prod["fp_version"] = constants.fingerprint_version
-        print "inserting,",
+            print "enqueuing for fingerprint & insert,",
+            q.enqueue(generate_mask_and_insert, doc=prod, image_url=None, mask_only=False,
+                      fp_date=self.current_dl_date)
 
     def db_update(self, prod):
         print ""
@@ -255,7 +254,7 @@ class ShopStyleDownloader():
         # requests package can't handle https - temp fix
         prod["image"] = json.loads(json.dumps(prod["image"]).replace("https://", "http://"))
 
-        prod["download_data"] = {"last_update": self.current_dl}
+        prod["download_data"] = {"dl_version": self.current_dl_date}
 
         # case 1: new product - try to update, if does not exists, insert a new product and add our fields
         prod_in_products = self.collection.find_one({"id": prod["id"]})
@@ -274,9 +273,7 @@ class ShopStyleDownloader():
                 # No matter what, we're moving this out of the archive...
                 prod_in_archive["archive"] = False
                 print "Prod in archive, checking fingerprint version...",
-                self.db.download_data.find_one_and_update({"criteria": "main"},
-                                                          {'$inc': {"returned_from_archive": 1}})
-                if prod_in_archive.get("fp_version") == constants.fingerprint_version:
+                if prod_in_archive.get("download_data")["fp_version"] == constants.fingerprint_version:
                     print "fp_version good, moving from db.archive to db.products",
                     prod_in_archive.update(prod)
                     self.collection.insert_one(prod_in_archive)
@@ -289,28 +286,18 @@ class ShopStyleDownloader():
         else:
             # case 2: the product was found in our db, and maybe should be modified
             print "Found existing prod in db,",
-            if "fingerprint" in prod_in_products:
-                if len(prod_in_products) is 696:
-                    # Thus - update only shopstyle's fields
-                    self.db.download_data.find_one_and_update({"criteria": "main"},
-                                                      {'$inc': {"existing_items": 1}})
-                    # if prod_in_products.get("lastModified", None) != prod.get("lastModified",
-                    #                                                           None):  # assuming shopstyle update it correctly
-                    #     print "lastModifieds are different, updating SS fields",
-                    #     self.shopstyle_fields_update(prod)
-                    self.collection.update({'id': prod["id"]},
-                                       {'$set': {'download_data': {'last_update': self.current_dl}}})
-                else:
-                    self.collection.delete_one({'id': prod['id']})
-                    self.insert_and_fingerprint(prod)
-                    print "product with an old fp was refingerprinted"
+            if prod_in_products.get("download_data")["fp_version"] == fp_version:
+                # Thus - update only shopstyle's fields
+                self.db.download_data.find_one_and_update({"criteria": "main"},
+                                                          {'$inc': {"existing_items": 1}})
+                self.collection.update_one({'id': prod["id"]},
+                                           {'$set': {'download_data.dl_version': self.current_dl_date}})
             else:
+                self.db.download_data.find_one_and_update({"criteria": "main"},
+                                                          {'$inc': {"existing_but_renewed": 1}})
                 self.collection.delete_one({'id': prod['id']})
                 self.insert_and_fingerprint(prod)
-                print "product with no fp was fingerprinted"
-
-                # This is now done at the beginning (by setting dl_version in prod ahead of time)
-                # self.db.products.update({'id': prod["id"]}, {'$set': {'dl_version': self.current_dl_version}})
+                print "product with an old fp was refingerprinted"
 
 
 class UrlParams(collections.MutableMapping):

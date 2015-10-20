@@ -222,6 +222,16 @@ def create_mask_for_gc(rectangles, image):
     return mask
 
 
+def create_arbitrary(image):
+    h, w = image.shape[:2]
+    mask = np.zeros([h, w], dtype=np.uint8)
+    sub_h = h / 20
+    sub_w = w / 10
+    mask[2 * sub_h:18 * sub_h, 2 * sub_w:8 * sub_w] = 2
+    mask[4 * sub_h:16 * sub_h, 3 * sub_w:7 * sub_w] = 3
+    mask[7 * sub_h:13 * sub_h, 4 * sub_w:6 * sub_w] = 1
+    return mask
+
 # can we move this to Utils or the like
 def standard_resize(image, max_side):
     original_w = image.shape[1]
@@ -273,8 +283,8 @@ def get_fg_mask(image, bounding_box=None):
             cv2.grabCut(image, mask, rect, bgdmodel, fgdmodel, 1, cv2.GC_INIT_WITH_MASK)
             # album.append(cv2.bitwise_and(image, image, mask=mask2))
             # image_counter += 1
-        else:                                             # grabcut with rect
-            mask = np.zeros(image.shape[:2], dtype=np.uint8)
+        else:  # grabcut with arbitrary rect
+            mask = create_arbitrary(image)
             cv2.grabCut(image, mask, rect, bgdmodel, fgdmodel, 1, cv2.GC_INIT_WITH_RECT)
 
     mask2 = np.where((mask == 1) + (mask == 3), 255, 0).astype(np.uint8)

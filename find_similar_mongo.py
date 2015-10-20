@@ -94,6 +94,8 @@ def find_top_n_results(image, mask, number_of_results=10, category_id=None, coll
     #     db_fingerprint_list.append(fp_dict)
 
     color_fp = fp.fp(image, bins, fp_len, mask)
+    if not fp:
+        return None, None
     target_dict = {"clothingClass": category_id, "fingerprint": color_fp}
     print "calling find_n_nearest.."
     closest_matches = NNSearch.find_n_nearest_neighbors(target_dict, potential_matches_cursor, number_of_results,
