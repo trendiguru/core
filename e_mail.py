@@ -1,132 +1,118 @@
-__author__ = 'Nadav Paz'
-'''
-# # Import smtplib for the actual sending function
-# import smtplib
-#
-# from email.mime.text import MIMEText
-# from email.mime.multipart import MIMEMultipart
-#
-#
-# def send_image_mail(trendi_url, image_url):
-#
-#     # me = 'nadav@trendiguru.com'
-#     # lior = 'lior@trendiguru.com'
-#     # kyle = 'kyle@trendiguru.com'
-#     # jeremy = 'jeremy@trendiguru.com'
-#     sender= 'yonti0@gmail.com'
-#     yonti = 'yontilevin@gmail.com'
-#     # recipient = 'members@trendiguru.com'
-#     # Open a plain text file for reading.  For this example, assume that
-#     msg = MIMEMultipart('alternative')
-#     msg['Subject'] = 'A new image was uploaded!'
-#     msg['From'] = sender
-#     msg['To'] = yonti #recipient
-#     text = "Hello TG member!\n\n" \
-#            "There is a new image waiting to you.\n\n" \
-#            "Copy %s\n\n" \
-#            "Go to %s\n\n" \
-#            "Pick the top 4 and save.\n\n" \
-#            "Thanks & Good luck!" % (image_url, trendi_url)
-#
-#     part1 = MIMEText(txt1 + txt2, 'plain')
-#     # html = """\
-#     # <html>
-#     #   <head></head>
-#     #   <body>
-#     #     <p>Hi!<br>
-#     #        How are you?<br>
-#     #        Here is the <a href="https://www.python.org">link</a> you wanted.
-#     #     </p>
-#     #   </body>
-#     # </html>
-#     # """
-#     # part2 = MIMEText(html, 'html')
-#     msg.attach(part1)
-#     msg.attach(part2)
-#     server = smtplib.SMTP('smtp.gmail.com', 587)
-#     server.starttls()
-#     # server.set_debuglevel(True)  # show communication with the server
-#     try:
-#         server.login('yonti0@gmail.com', "Hub,hKuhiPryh")
-#         server.sendmail(sender, [yonti], msg.as_string())
-#         print "sent"
-#     except:
-#         print "error"
-#     finally:
-#         server.quit()
-#
-#     # part1 = MIMEText(text, 'plain')
-#     # msg.attach(part1)
-#     #
-#     # s = smtplib.SMTP('localhost')
-#     # s.sendmail(sender, [me, yonti], msg.as_string())
-#     # s.quit()
-#
-#
-# trendi_url = 'http://extremeli.trendi.guru/demo/TrendiMatchEditor/matcheditor.html'
-# image_url = 'http://image.gala.de/v1/cms/Mr/style-mandy-capristo-okt14-ge_7901219-ORIGINAL-imageGallery_standard.jpg?v=10333950'
-# send_image_mail(trendi_url, image_url)
-'''
+__author__ = 'yonatan'
+
+"""
+1. run getShopStyleDB.py
+2. do stats
+3. mail the output to relevent
+"""
+
+import json
+import smtplib
+
 from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
 
+import constants
 
-if __name__ == "__main__":
-    # test the class here
-    import smtplib
+db = constants.db
 
-    sender = "yonti0@gmail.com"
+
+def email(stats):
+    # me = 'nadav@trendiguru.com'
+    # lior = 'lior@trendiguru.com'
+    # kyle = 'kyle@trendiguru.com'
+    # jeremy = 'jeremy@trendiguru.com'
+    yonti = 'yontilevin@gmail.com'
+    sender = 'Notifier@trendiguru.com'
+    # recipient = 'members@trendiguru.com'
+
+    # Open a plain text file for reading.  For this example, assume that
     msg = MIMEMultipart('alternative')
-    msg["Subject"] = "email test"
-    msg["From"] = "yonti <" + sender + ">"
-    msg["To"] = "yontilevin@gmail.com"
-    server = smtplib.SMTP('smtp.gmail.com', 587)
-    server.starttls()
-    # server.set_debuglevel(True)  # show communication with the server
-    # Create the body of the message (a plain-text and an HTML version).
-    text = "Hi!\nHow are you?\nHere is the link you wanted:\nhttp://www.python.org"
+    msg['Subject'] = 'Daily DB download&update!'
+    msg['From'] = sender
+    msg['To'] = yonti
+    txt1 = "Hello TG member!\n\n" \
+           "This is your daily DB update - so get ready to be amazed...\n\n"
+    txt2 = '<h3>date:\t' + str(stats['date']) + \
+           '\nitems downloaded:\t' + str(stats['items_downloaded']) + \
+           '\nexisting items:\t' + str(stats['existing_items']) + \
+           '\nnew items:\t' + str(stats['new_items']) + \
+           '\nitems from archive:\t' + str(stats['items_from_archive']) + \
+           '\nitems sent to archive:\t' + str(stats['items_sent_to_archive']) + \
+           '\ndl duration(hours):\t' + str(stats['dl_duration(hours)'])[:5] + \
+           '\n\nitems by category:<h3>'
+    categories = ""
+    for i in constants.db_relevant_items:
+        if i == 'women' or i == 'women-clothes':
+            continue
+        total = str(stats['items_by_category'][i][1])
+        new = str(stats['items_by_category'][i][0])
+        line = "<tr>\n\t<th>" + i + "</th>\n\t<th>" + total + "</th>\n\t<th>" + new + "</th>\n</tr>\n"
+        categories = categories + line
+
     html = """\
-    <!DOCTYPE html>
     <html>
+    <head>
+    <style>
+    table, th, td {
+        border: 1px solid black;
+        border-collapse: collapse;
+    }
+    th, td {
+        padding: 5px;
+    }
+    </style>
+    </head>
     <body>
 
-    <table border="1" style="width:100%">
-      <tr>
-        <td>Jill</td>
-        <td>Smith</td>
-        <td>50</td>
-      </tr>
-      <tr>
-        <td>Eve</td>
-        <td>Jackson</td>
-        <td>94</td>
-      </tr>
-      <tr>
-        <td>John</td>
-        <td>Doe</td>
-        <td>80</td>
-      </tr>
+    <table style="width:100%">
+    """
+    html = html + categories + """
     </table>
 
     </body>
     </html>
     """
-
-    # Record the MIME types of both parts - text/plain and text/html.
-    part1 = MIMEText(text, 'plain')
-    part2 = MIMEText(html, 'html')
-
-    # Attach parts into message container.
-    # According to RFC 2046, the last part of a multipart message, in this case
-    # the HTML message, is best and preferred.
+    part1 = MIMEText(html, 'html')
     msg.attach(part1)
-    msg.attach(part2)
-
+    server = smtplib.SMTP('smtp.gmail.com', 587)
+    server.starttls()
+    # server.set_debuglevel(True)  # show communication with the server
     try:
         server.login('yonti0@gmail.com', "Hub,hKuhiPryh")
-        server.sendmail(sender, msg["To"], msg.as_string())
-        print "mail sent"
+        server.sendmail(sender, [yonti], msg.as_string())
+        print "sent"
     except:
         print "error"
     finally:
         server.quit()
+
+
+def download_stats():
+    dl_data = db.download_data.find()[0]
+    date = dl_data['current_dl']
+    stats = {'date': date,
+             'items_downloaded': dl_data['items_downloaded'],
+             'existing_items': dl_data['existing_items'],
+             'new_items': dl_data['new_items'],
+             'items_from_archive': dl_data['returned_from_archive'],
+             'items_sent_to_archive': dl_data['sent_to_archive'],
+             'dl_duration(hours)': dl_data['total_dl_time(hours)'],
+             'items_by_category': {}}
+    for i in constants.db_relevant_items:
+        if i == 'women' or i == 'women-cloth':
+            continue
+        stats['items_by_category'][i] = {'total': db.products.find({'categories.id': i}).count(),
+                                         'new': db.products.find({'$and': [{'categories.id': i},
+                                                                           {'download_data.first_dl': date}]}).count()}
+    email(stats)
+    with open(date + '.txt', 'w') as outfile:
+        json.dump(stats, outfile)
+
+
+if __name__ == "__main__":
+    # update_db = getShopStyleDB.ShopStyleDownloader()
+    # update_db.run_by_category(type="FULL")
+    # time.sleep(14440)
+    download_stats()
+    print "Daily Download Finished!!!"
