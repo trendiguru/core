@@ -19,7 +19,7 @@ def ccv_facedetect(filename):
     #subprocess.check_output([command,arg1,arg2])
 #    output = subprocess.Popen(fcommand, stdout=subprocess.PIPE).communicate()[0]
     retvals = commands.getstatusoutput(fcommand)
-#    print retvals
+    print retvals
     rects = []
     for rectstr in retvals[1:]:
         newrect = [int(s) for s in rectstr.split() if s.isdigit()]
@@ -56,7 +56,7 @@ def check_lfw(use_visual_output=False):
     true_pos_rate = float(true_positives)/n_images
     false_neg_rate = float(n_images-true_positives)/n_images
     print('n_images:'+str(n_images)+' n_extra:'+str(n_extra)+' n_detections:'+str(n_single_detections))
-    print('true pos:'+str(true_positives)+' false_neg:'+str(false_neg_rate))
+    print('true pos:'+str(true_pos_rate)+' false_neg:'+str(false_neg_rate))
 
     BASE_PATH = os.getcwd()
     BASE_PATH2 = os.path.join(BASE_PATH, 'male-female/male')
@@ -86,7 +86,7 @@ def check_lfw(use_visual_output=False):
     true_pos_rate = float(true_positives)/n_images
     false_neg_rate = float(n_images-true_positives)/n_images
     print('n_images:'+str(n_images)+' n_extra:'+str(n_extra)+' n_detections:'+str(n_single_detections))
-    print('true pos:'+str(true_positives)+' false_neg:'+str(false_neg_rate))
+    print('true pos:'+str(true_pos_rate)+' false_neg:'+str(false_neg_rate))
 
 def show_rects(abs_path,faces):
     img_arr = cv2.imread(abs_path)

@@ -97,8 +97,9 @@ class TgWorker(Worker):
 
             #JR in
         print('debug6')
-        import matlab.engine
         logger.info('attempting to start engine as user '+os.getegid())
+
+        import matlab.engine
         eng = matlab.engine.start_matlab()
         engine_name = eng.engineName
         logger.info('new engine name:'+str(engine_name))
