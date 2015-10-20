@@ -96,9 +96,9 @@ def generate_mask_and_insert(doc, image_url=None, mask_only=False, fp_date=None)
     try:
         db[collection].insert_one(doc)
         print "prod inserted successfully"
-    except ValueError:
+    except:
         db.download_data.find_one_and_update({"criteria": "main"},
-                                             {'$inc': {"new_items": -1, "errors": 1}})
+                                             {'$inc': {"errors": 1}})
         print "error inserting"
 
     return fp_as_list

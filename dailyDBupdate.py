@@ -104,7 +104,12 @@ def wait_for(dl_data):
     if total_items > sub:
         time.sleep(new_items)
     else:
+        check = 0
         while sub > total_items:
+            print "\ncheck number " + str(check)
+            print "\nfp workers didn't finish yet\nWaiting 10 min before checking again\n"
+            check += 1
+            print "check number" + str(check)
             time.sleep(600)
             total_items = db.products.find().count()
             errors = dl_data["errors"]
@@ -136,7 +141,24 @@ def stats_and_mail():
 
 
 if __name__ == "__main__":
-    update_db = getShopStyleDB.ShopStyleDownloader()
-    update_db.run_by_category(type="FULL")
+
+    print "@@@ The Daily DB Updater @@@\n"
+
+    while True:
+        try:
+            x = raw_input("Download or Statistics? (D/S)")
+            break
+        except ValueError:
+            print "Oops! wrong input."
+            y = raw_input("Try again?(Y/N)")
+            if y is "Y" or y is "y":
+                continue
+            else:
+                exit()
+
+    if x is "D":
+        update_db = getShopStyleDB.ShopStyleDownloader()
+        update_db.run_by_category()
     stats_and_mail()
-    print "Daily Download Finished!!!"
+
+    print "Daily Update Finished!!!"

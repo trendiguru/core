@@ -42,6 +42,9 @@ class ShopStyleDownloader():
         self.divide_and_conquer(initial_filter_params, 0)
 
     def run_by_category(self, do_fingerprint=True, type="DAILY"):
+        x = raw_input("choose your update type - Daily or Full? (D/F)")
+        if x is "f" or x is "F":
+            type = "Full"
         self.do_fingerprint = do_fingerprint  # check if relevent
         root_category, ancestors = self.build_category_tree()
         if self.db.download_data.find().count() < 1 or \
@@ -60,8 +63,10 @@ class ShopStyleDownloader():
                                               "errors": 0,
                                               "end_time": "still in process",
                                               "total_dl_time": "still in process"})
+            self.db.fp_in_process.insert_one({})
+            self.db.fp_in_process.create_index("id")
             self.db.dl_cache.delete_many({})
-
+            self.db.dl_cache.create_index("filter_params")
         # self.db.archive.create_index("id")
 
         cats_to_dl = [anc["id"] for anc in ancestors]
@@ -75,7 +80,8 @@ class ShopStyleDownloader():
                                                   {'$set': {"total_dl_time(hours)": total_time / 3600}})
         del_items = self.collection.delete_many({'fingerprint': {"$exists": False}})
         print str(del_items.deleted_count) + ' items without fingerprint were deleted!\n'
-        print type + " DOWNLOAD DONE!!!!!"
+        self.db.drop_collection("fp_in_process")
+        print type + " DOWNLOAD DONE!!!!!\n"
 
     def build_category_tree(self):
         # download all categories
@@ -166,8 +172,7 @@ class ShopStyleDownloader():
         if not isinstance(filter_params, UrlParams):
             filter_params = UrlParams(params_dict=filter_params)
 
-        dl_query = {"download_data": {"dl_version": self.current_dl_date},
-                    "filter_params": filter_params.encoded()}
+        dl_query = {"filter_params": filter_params.encoded()}
 
         if self.db.dl_cache.find_one(dl_query):
             print "We've done this batch already, let's not repeat work"
@@ -240,7 +245,6 @@ class ShopStyleDownloader():
         if do_fingerprint is None:
             do_fingerprint = self.do_fingerprint
 
-        # prod["_id"] = self.collection.insert_one(prod).inserted_id
         if do_fingerprint:
             print "enqueuing for fingerprint & insert,",
             q.enqueue(generate_mask_and_insert, doc=prod, image_url=None, mask_only=False,
@@ -249,13 +253,15 @@ class ShopStyleDownloader():
     def db_update(self, prod):
         print ""
         print "Updating product {0}. ".format(prod["id"]),
-        self.db.download_data.find_one_and_update({"criteria": "main"},
-                                                  {'$inc': {"items_downloaded": 1}})
+
         # requests package can't handle https - temp fix
         prod["image"] = json.loads(json.dumps(prod["image"]).replace("https://", "http://"))
-
+        prod_in_que = self.fp_in_process.find_one({"id": prod["id"]})
+        if prod_in_que is not None:
+            return
+        self.db.download_data.find_one_and_update({"criteria": "main"},
+                                                  {'$inc': {"items_downloaded": 1}})
         prod["download_data"] = {"dl_version": self.current_dl_date}
-
         # case 1: new product - try to update, if does not exists, insert a new product and add our fields
         prod_in_products = self.collection.find_one({"id": prod["id"]})
         category = prod['categories'][0]['id']
@@ -268,6 +274,7 @@ class ShopStyleDownloader():
                 print "New product,",
                 self.db.download_data.find_one_and_update({"criteria": "main"},
                                                           {'$inc': {"new_items": 1}})
+                self.fp_in_process.insert_one({"id": prod["id"]})
                 self.insert_and_fingerprint(prod)
             else:  # means the item is in the archive
                 # No matter what, we're moving this out of the archive...
@@ -405,4 +412,4 @@ class UrlParams(collections.MutableMapping):
 
 if __name__ == "__main__":
     update_db = ShopStyleDownloader()
-    update_db.run_by_category(type="FULL")
+    update_db.run_by_category()
