@@ -152,7 +152,8 @@ if __name__ == "__main__":
     # test the class here
     import smtplib
 
-    hm = HtmlMail("http://www.egirl.ro/newsletter/december2005_2/")
+    hm = HtmlMail(
+        "http://image.gala.de/v1/cms/Mr/style-mandy-capristo-okt14-ge_7901219-ORIGINAL-imageGallery_standard.jpg?v=10333950")
     msg = hm.get_msg()
     sender = "yonti0@gmail.com"
     msg["Subject"] = "email test"
