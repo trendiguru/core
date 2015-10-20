@@ -118,7 +118,7 @@ def wait_for(dl_data):
 def stats_and_mail():
     dl_data = db.download_data.find()[0]
     date = dl_data['current_dl']
-    wait_for(dl_data)
+    # wait_for(dl_data)
     stats = {'date': date,
              'items_downloaded': dl_data['items_downloaded'],
              'existing_items': dl_data['existing_items'],
