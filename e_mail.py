@@ -38,9 +38,9 @@ def email(stats):
            '\nexisting items:\t' + str(stats['existing_items']) + \
            '\nnew items:\t' + str(stats['new_items']) + \
            '\nitems from archive:\t' + str(stats['items_from_archive']) + \
-           '\nitems sent to archive:\t' + str(stats['items_sent_to_archive']) + \
-           '\ndl duration(hours):\t' + str(stats['dl_duration(hours)'])[:5] + \
-           '\n\nitems by category:<h3>'
+           '\nitems sent to archive:\t' + str(stats['items_sent_to_archive']) + '\n\nitems by category:<h3>'
+    # '\ndl duration(hours):\t' + str(stats['dl_duration(hours)'])[:5] + \
+
     categories = ""
     for i in constants.db_relevant_items:
         if i == 'women' or i == 'women-clothes':
@@ -97,7 +97,7 @@ def download_stats():
              'new_items': dl_data['new_items'],
              'items_from_archive': dl_data['returned_from_archive'],
              'items_sent_to_archive': dl_data['sent_to_archive'],
-             'dl_duration(hours)': dl_data['total_dl_time(hours)'],
+             # 'dl_duration(hours)': dl_data['total_dl_time(hours)'],
              'items_by_category': {}}
     for i in constants.db_relevant_items:
         if i == 'women' or i == 'women-cloth':
