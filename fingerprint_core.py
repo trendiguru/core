@@ -121,6 +121,6 @@ def generate_mask_and_insert(doc, image_url=None, mask_only=False, fp_date=None)
     doc["download_data"]["first_dl"] = fp_date
     doc["download_data"]["dl_version"] = fp_date
     doc["download_data"]["fp_version"] = constants.fingerprint_version
-    collection.insert_one(doc)
+    db[collection].insert_one(doc)
     print "prod inserted successfully"
     return fp_as_list
