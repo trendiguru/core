@@ -1,15 +1,17 @@
 import time
+
 import numpy as np
 from rq import Queue
 import cv2
 
 from .. import constants
 
+
 redis_conn = constants.redis_conn
 
 # Tell RQ what Redis connection to use
 
-def paperdoll_enqueue(img_url_or_cv2_array, async=True, queue=None, use_tg_worker=True):
+def paperdoll_enqueue(img_url_or_cv2_array, filename=None, async=True, queue=None, use_tg_worker=True):
     """
     The 'parallel matlab queue' which starts engines and keeps them warm is 'pd'.  This worker should be running somewhere (ideally in a screen like pd1).
     The use_tg_worker argument forces  use/nonuse of the tgworker than knows how to keep the engines warm and can be started along the lines of:
@@ -25,7 +27,8 @@ def paperdoll_enqueue(img_url_or_cv2_array, async=True, queue=None, use_tg_worke
                             # using: rqworker pd -w rq.tgworker.TgWorker
             queue_name = constants.parallel_matlab_queuename
             queue = Queue(queue_name, connection=redis_conn)
-            job1 = queue.enqueue('trendi_guru_modules.paperdoll.pd.get_parse_mask_parallel', img_url_or_cv2_array)
+                            job1 = queue.enqueue('trendi_guru_modules.paperdoll.pd.get_parse_mask_parallel',
+                                                 img_url_or_cv2_array, filename=filename)
         else:
             queue_name = constants.nonparallel_matlab_queuename
             queue = Queue(queue_name, connection=redis_conn)

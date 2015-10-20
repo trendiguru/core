@@ -16,6 +16,7 @@ import imghdr
 from contextlib import contextmanager
 import random
 import string
+import os
 
 import numpy as np
 import cv2
@@ -80,26 +81,24 @@ def get_parse_mask(img_url_or_cv2_array):
 def get_parse_from_matlab_parallel(image_filename, matlab_engine):
     print('get_parse_from_ml_parallel is using name:' + image_filename)
     mask, label_names, pose = matlab_engine.pd(image_filename, nargout=3)
+    os.remove(image_filename)
     label_dict = dict(zip(label_names, range(0, len(label_names))))
     return mask, label_dict, pose
 
 
-def get_parse_mask_parallel(matlab_engine, img_url_or_cv2_array):
+def get_parse_mask_parallel(matlab_engine, img_url_or_cv2_array, filename=None):
     img = Utils.get_cv2_img_array(img_url_or_cv2_array)
-    stripped_name = rand_string() + ".jpg"  # img_url_or_cv2_array.split('//')[1]
-    modified_name = stripped_name.replace('/', '_')
-    print('modified name in get_parsemask_parallel:' + modified_name)
-    if img is not None and cv2.imwrite(modified_name, img):
-        if 'jpeg' != imghdr.what(modified_name):
+    filename = filename or rand_string()
+    if img is not None and cv2.imwrite(filename, img):
+        if 'jpeg' != imghdr.what(filename):
             return [[], [], []]
-        mask, label_dict, pose = get_parse_from_matlab_parallel(modified_name, matlab_engine)
+        mask, label_dict, pose = get_parse_from_matlab_parallel(filename, matlab_engine)
         print('labels:' + str(label_dict))
         mask_np = np.array(mask, dtype=np.uint8)
         pose_np = np.array(pose, dtype=np.uint8)
-        return mask_np, label_dict, pose_np
+        return mask_np, label_dict, pose_np, filename
     else:
-        print('either image is empty or problem writing')
-        return [[], [], []]
+        raise ValueError("either image is empty or problem writing")
 
 
 def show_max(parsed_img, labels):

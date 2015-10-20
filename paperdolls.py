@@ -220,9 +220,8 @@ def start_process(page_url, image_url):
             person = {'face': face, 'person_id': str(bson.ObjectId()), 'person_idx': idx, 'items': []}
             image_copy = person_isolation(image, face)
             print "start process image-copy shape: " + str(image_copy.shape)
-            # person['url'] = upload_image(image_copy, str(person['person_id']))
             image_dict['people'].append(person)
-            paper_job = paperdoll_parse_enqueue.paperdoll_enqueue(image_copy)
+            paper_job = paperdoll_parse_enqueue.paperdoll_enqueue(image_copy, person['person_id'])
             q1.enqueue(from_paperdoll_to_similar_results, person['person_id'], paper_job.id, depends_on=paper_job)
             idx += 1
     else:  # if not relevant
@@ -234,6 +233,10 @@ def start_process(page_url, image_url):
 
 def from_paperdoll_to_similar_results(person_id, paper_job_id, num_of_matches=100):
     paper_job_results = job_result_from_id(paper_job_id)
+    if paper_job_results[3] != person_id:
+        print
+        raise ValueError("paper job refers to another image!!! oy vey !!! filename: {0} & person_id: {1}".format(
+            paper_job_results[3], person_id))
     mask, labels = paper_job_results[:2]
     image_obj, person = get_person_by_id(person_id, iip)
     print "mask shape in paperdolls.find_similar: " + str(mask.shape)
