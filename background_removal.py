@@ -15,7 +15,7 @@ import numpy as np
 
 import constants
 import Utils
-
+import classifier_stuff.ccv_facedetector as ccv
 
 def image_is_relevant(image):
     """
@@ -33,8 +33,24 @@ def image_is_relevant(image):
     return Relevance(len(faces) > 0, faces)
 
 
-def find_face(image, max_num_of_faces=1):
+def find_face(image, max_num_of_faces=1,method='ccv'):
     gray = cv2.cvtColor(image, constants.BGR2GRAYCONST)
+    if method == 'cascade':
+        faces = find_face_cascade(image, max_num_of_faces=1)
+        return faces
+    else:
+        stripped_name = rand_string()+'.jpg'  # img_url_or_cv2_array.split('//')[1]
+        modified_name = stripped_name.replace('/', '_')
+        cv2.imwrite(modified_name, img)
+        faces = ccv.ccv_facedetect(modified_name)
+        return faces
+
+def rand_string():
+    return ''.join([random.choice(string.ascii_letters + string.digits) for n in xrange(32)])
+
+
+
+def find_face_cascade(image, max_num_of_faces=1,method='ccv'):
     face_cascades = [
         cv2.CascadeClassifier(os.path.join(constants.classifiers_folder, 'haarcascade_frontalface_alt2.xml')),
         cv2.CascadeClassifier(os.path.join(constants.classifiers_folder, 'haarcascade_frontalface_alt.xml')),
@@ -354,3 +370,9 @@ def simple_mask_grabcut(image, mask):
 
 if __name__ == '__main__':
     print('starting')
+    img = 'images/female1.jpg'
+    img_arr=cv2.imread(img)
+    r1 = find_face(img_arr, max_num_of_faces=1,method='ccv')
+    print('ccv result:'+str(r1))
+    r2 = find_face(img_arr, max_num_of_faces=1,method='cascade')
+    print('cascade result:'+str(r2))
