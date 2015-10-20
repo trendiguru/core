@@ -37,7 +37,7 @@ def email(stats):
            'existing items:\t' + str(stats['existing_items']) + '</h3>\n<h3>' + \
            'new items:\t' + str(stats['new_items']) + '</h3>\n<h3>' + \
            'items from archive:\t' + str(stats['items_from_archive']) + '</h3>\n<h3>' + \
-           'items sent to archive:\t' + str(stats['items_sent_to_archive']) + '</h3>\n\n<h3>' + \
+           'items sent to archive:\t' + str(stats['items_sent_to_archive']) + '</h3>\n<h3></h3>\n<h3>' + \
            'items by category:</h3>\n'
     # '\ndl duration(hours):\t' + str(stats['dl_duration(hours)'])[:5] + \
 
