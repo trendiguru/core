@@ -23,7 +23,7 @@ import cv2
 
 import matlab.engine
 from trendi_guru_modules import Utils
-
+import os
 
 def get_parse_from_matlab(image_filename):
     with run_matlab_engine() as eng:
