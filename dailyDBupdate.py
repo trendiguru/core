@@ -33,37 +33,55 @@ def email(stats):
     msg['Subject'] = 'Daily DB download&update!'
     msg['From'] = sender
     msg['To'] = yonti
-    txt1 = "Hello TG member!\n\n" \
-           "This is your daily DB update - so get ready to be amazed...\n\n"
-    txt2 = 'date:\t' + str(stats['date']) + \
-           '\nitems downloaded:\t' + str(stats['items_downloaded']) + \
-           '\nexisting items:\t' + str(stats['existing_items']) + \
-           '\nnew items:\t' + str(stats['new_items']) + \
-           '\nitems from archive:\t' + str(stats['items_from_archive']) + \
-           '\nitems sent to archive:\t' + str(stats['items_sent_to_archive']) + \
-           '\ndl duration(hours):\t' + str(stats['dl_duration(hours)'])[:5] + \
-           '\n\nitems by category:\n'
 
+    txt2 = '<h3> date:\t' + str(stats['date']) + '</h3>\n<h3>' + \
+           'items downloaded:\t' + str(stats['items_downloaded']) + '</h3>\n<h3>' + \
+           'existing items:\t' + str(stats['existing_items']) + '</h3>\n<h3>' + \
+           'new items:\t' + str(stats['new_items']) + '</h3>\n<h3>' + \
+           'items from archive:\t' + str(stats['items_from_archive']) + '</h3>\n<h3>' + \
+           'items sent to archive:\t' + str(stats['items_sent_to_archive']) + '</h3>\n<h3>' + \
+           'insert errors:\t' + str(stats['errors']) + '</h3>\n<h3>' + \
+           'dl duration(hours):\t' + str(stats['dl_duration(hours)'])[:5] + '</h3>\n<h3>' + \
+           +'</h3>\n<h3>' + '</h3>\n<h3>' + 'items by category:</h3>\n' + '</h3>\n<h3>'
+
+    categories = ""
     for i in constants.db_relevant_items:
         if i == 'women' or i == 'women-clothes':
             continue
-        txt2 = txt2 + i + ':\t' + str(stats['items_by_category'][i]) + '\n'
+        total = str(stats['items_by_category'][i]["total"])
+        new = str(stats['items_by_category'][i]["new"])
+        line = "<tr>\n\t<th>" + i + "</th>\n\t<th>" + total + "</th>\n\t<th>" + new + "</th>\n</tr>\n"
+        categories = categories + line
 
-    part1 = MIMEText(txt1 + txt2, 'plain')
-    # html = """\
-    # <html>
-    #   <head></head>
-    #   <body>
-    #     <p>Hi!<br>
-    #        How are you?<br>
-    #        Here is the <a href="https://www.python.org">link</a> you wanted.
-    #     </p>
-    #   </body>
-    # </html>
-    # """
-    # part2 = MIMEText(html, 'html')
+    html = """\
+    <html>
+    <head>
+    <style>
+    table, th, td {
+        border: 1px solid black;
+        border-collapse: collapse;
+    }
+    th, td {
+        padding: 5px;
+    }
+    </style>
+    </head>
+    <body>"""
+    html = html + txt2 + """
+    <table style="width:40%">
+      <tr>
+        <th>Category</th>
+        <th>total items</th>
+        <th>new items</th>
+      </tr>    """
+    html = html + categories + """
+    </table>
+
+    </body>
+    </html>
+    """
+    part1 = MIMEText(html, 'html')
     msg.attach(part1)
-    # msg.attach(part2)
     server = smtplib.SMTP('smtp.gmail.com', 587)
     server.starttls()
     # server.set_debuglevel(True)  # show communication with the server
@@ -77,13 +95,26 @@ def email(stats):
         server.quit()
 
 
-# trendi_url = 'http://extremeli.trendi.guru/demo/TrendiMatchEditor/matcheditor.html'
-# image_url = 'http://image.gala.de/v1/cms/Mr/style-mandy-capristo-okt14-ge_7901219-ORIGINAL-imageGallery_standard.jpg?v=10333950'
-# send_image_mail(trendi_url, image_url)
+def wait_for(dl_data):
+    total_items = db.products.find().count()
+    downloaded_items = dl_data["items_downloaded"]
+    new_items = dl_data["new_items"]
+    errors = dl_data["errors"]
+    sub = downloaded_items - errors
+    if total_items > sub:
+        time.sleep(new_items)
+    else:
+        while sub > total_items:
+            time.sleep(600)
+            total_items = db.products.find().count()
+            errors = dl_data["errors"]
+            sub = downloaded_items - errors
 
-def download_stats():
+
+def stats_and_mail():
     dl_data = db.download_data.find()[0]
     date = dl_data['current_dl']
+    wait_for(dl_data)
     stats = {'date': date,
              'items_downloaded': dl_data['items_downloaded'],
              'existing_items': dl_data['existing_items'],
@@ -91,6 +122,7 @@ def download_stats():
              'items_from_archive': dl_data['returned_from_archive'],
              'items_sent_to_archive': dl_data['sent_to_archive'],
              'dl_duration(hours)': dl_data['total_dl_time(hours)'],
+             'errors': dl_data['errors'],
              'items_by_category': {}}
     for i in constants.db_relevant_items:
         if i == 'women' or i == 'women-cloth':
@@ -103,10 +135,8 @@ def download_stats():
         json.dump(stats, outfile)
 
 
-
 if __name__ == "__main__":
     update_db = getShopStyleDB.ShopStyleDownloader()
     update_db.run_by_category(type="FULL")
-    time.sleep(14440)
-    download_stats()
+    stats_and_mail()
     print "Daily Download Finished!!!"

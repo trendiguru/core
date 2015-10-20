@@ -57,6 +57,7 @@ class ShopStyleDownloader():
                                               "sent_to_archive": 0,
                                               "existing_items": 0,
                                               "existing_but_renewed": 0,
+                                              "errors": 0,
                                               "end_time": "still in process",
                                               "total_dl_time": "still in process"})
             self.db.dl_cache.delete_many({})

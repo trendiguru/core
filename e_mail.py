@@ -65,7 +65,7 @@ def email(stats):
     </head>
     <body>"""
     html = html + txt2 + """
-    <table style="width:50%">
+    <table style="width:40%">
       <tr>
         <th>Category</th>
         <th>total items</th>
