@@ -25,7 +25,7 @@ MAX_SET_SIZE = MAX_OFFSET + MAX_RESULTS_PER_PAGE
 db = constants.db
 collection = constants.update_collection_name
 relevant = constants.db_relevant_items
-
+fp_version = constants.fingerprint_version
 
 class ShopStyleDownloader():
     def __init__(self):
@@ -272,7 +272,7 @@ class ShopStyleDownloader():
                 # No matter what, we're moving this out of the archive...
                 prod_in_archive["archive"] = False
                 print "Prod in archive, checking fingerprint version...",
-                if prod_in_archive.get("download_data.fp_version") == constants.fingerprint_version:
+                if prod_in_archive.get("download_data")["fp_version"] == constants.fingerprint_version:
                     print "fp_version good, moving from db.archive to db.products",
                     prod_in_archive.update(prod)
                     self.collection.insert_one(prod_in_archive)
@@ -285,7 +285,7 @@ class ShopStyleDownloader():
         else:
             # case 2: the product was found in our db, and maybe should be modified
             print "Found existing prod in db,",
-            if prod_in_products.get("download_data.fp_version") == constants.fingerprint_version:
+            if prod_in_products.get("download_data")["fp_version"] == fp_version:
                 # Thus - update only shopstyle's fields
                 self.db.download_data.find_one_and_update({"criteria": "main"},
                                                           {'$inc': {"existing_items": 1}})
