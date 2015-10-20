@@ -78,6 +78,7 @@ def get_parse_mask(img_url_or_cv2_array):
 
 
 def get_parse_from_matlab_parallel(image_filename, matlab_engine):
+    print('get_parse_from_ml_parallel is using name:' + image_filename)
     mask, label_names, pose = matlab_engine.pd(image_filename, nargout=3)
     label_dict = dict(zip(label_names, range(0, len(label_names))))
     return mask, label_dict, pose
@@ -87,8 +88,7 @@ def get_parse_mask_parallel(matlab_engine, img_url_or_cv2_array):
     img = Utils.get_cv2_img_array(img_url_or_cv2_array)
     stripped_name = rand_string() + ".jpg"  # img_url_or_cv2_array.split('//')[1]
     modified_name = stripped_name.replace('/', '_')
-    print('stripped name:' + stripped_name)
-    print('modified name:' + modified_name)
+    print('modified name in get_parsemask_parallel:' + modified_name)
     if img is not None and cv2.imwrite(modified_name, img):
         if 'jpeg' != imghdr.what(modified_name):
             return [[], [], []]
