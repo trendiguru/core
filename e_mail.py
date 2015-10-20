@@ -31,14 +31,13 @@ def email(stats):
     msg['Subject'] = 'Daily DB download&update!'
     msg['From'] = sender
     msg['To'] = yonti
-    txt1 = "Hello TG member!\n\n" \
-           "This is your daily DB update - so get ready to be amazed...\n\n"
-    txt2 = '<h3>date:\t' + str(stats['date']) + \
+
+    txt2 = '<h3> date:\t' + str(stats['date']) + \
            '\nitems downloaded:\t' + str(stats['items_downloaded']) + \
            '\nexisting items:\t' + str(stats['existing_items']) + \
            '\nnew items:\t' + str(stats['new_items']) + \
            '\nitems from archive:\t' + str(stats['items_from_archive']) + \
-           '\nitems sent to archive:\t' + str(stats['items_sent_to_archive']) + '\n\nitems by category:<h3>'
+           '\nitems sent to archive:\t' + str(stats['items_sent_to_archive']) + '\n\nitems by category:</h3>'
     # '\ndl duration(hours):\t' + str(stats['dl_duration(hours)'])[:5] + \
 
     categories = ""
