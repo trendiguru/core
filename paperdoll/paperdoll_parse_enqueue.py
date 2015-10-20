@@ -23,12 +23,13 @@ def paperdoll_enqueue(img_url_or_cv2_array, filename=None, async=True, queue=Non
     :return: mask, label_dict, pose
     """
     if queue is None:
-        if use_tg_worker:   #this is the one that has persistent matlab engines, requires get_parse_mask_parallel and workers on that queue that have been started
-                            # using: rqworker pd -w rq.tgworker.TgWorker
+        # this is the one that has persistent matlab engines, requires get_parse_mask_parallel and workers on that queue that have been started
+        # using: rqworker pd -w rq.tgworker.TgWorker
+        if use_tg_worker:
             queue_name = constants.parallel_matlab_queuename
             queue = Queue(queue_name, connection=redis_conn)
-                            job1 = queue.enqueue('trendi_guru_modules.paperdoll.pd.get_parse_mask_parallel',
-                                                 img_url_or_cv2_array, filename=filename)
+            job1 = queue.enqueue('trendi_guru_modules.paperdoll.pd.get_parse_mask_parallel', img_url_or_cv2_array,
+                                 filename=filename)
         else:
             queue_name = constants.nonparallel_matlab_queuename
             queue = Queue(queue_name, connection=redis_conn)
