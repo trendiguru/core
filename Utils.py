@@ -701,7 +701,7 @@ def git_pull(**kwargs):
     try:
         result = subprocess.check_output('git -C {dir} pull'.format(dir=module_directory), shell=True)
     except subprocess.CalledProcessError, e:
-        logging.warning("git auto pull failed with exception: {0}\ngit output:{1}".format(e))
+        logging.warning("git_pull failed with exception: {0}\ngit output:{1}".format(e))
     return
 
 
