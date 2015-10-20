@@ -141,9 +141,7 @@ def stats_and_mail():
 
 
 if __name__ == "__main__":
-
     print "@@@ The Daily DB Updater @@@\n"
-
     while True:
         try:
             x = raw_input("Download or Statistics? (D/S)")
