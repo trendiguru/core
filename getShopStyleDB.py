@@ -243,7 +243,7 @@ class ShopStyleDownloader():
         if do_fingerprint:
             print "enqueuing for fingerprint & insert,",
             q.enqueue(generate_mask_and_insert, doc=prod, image_url=None, mask_only=False,
-                      fp_date=self.current_dl)
+                      fp_date=self.current_dl_date)
 
     def db_update(self, prod):
         print ""
@@ -253,7 +253,7 @@ class ShopStyleDownloader():
         # requests package can't handle https - temp fix
         prod["image"] = json.loads(json.dumps(prod["image"]).replace("https://", "http://"))
 
-        prod["download_data"] = {"dl_version": self.current_dl}
+        prod["download_data"] = {"dl_version": self.current_dl_date}
 
         # case 1: new product - try to update, if does not exists, insert a new product and add our fields
         prod_in_products = self.collection.find_one({"id": prod["id"]})
@@ -290,7 +290,7 @@ class ShopStyleDownloader():
                 self.db.download_data.find_one_and_update({"criteria": "main"},
                                                           {'$inc': {"existing_items": 1}})
                 self.collection.update_one({'id': prod["id"]},
-                                           {'$set': {'download_data.dl_version': self.current_dl}})
+                                           {'$set': {'download_data.dl_version': self.current_dl_date}})
             else:
                 self.db.download_data.find_one_and_update({"criteria": "main"},
                                                           {'$inc': {"existing_but_renewed": 1}})
