@@ -1,7 +1,7 @@
 function [mask,label_names,pose] = pd(image_filename)
 %todo - check if path already ok,
 % check if data already loaded
-disp('the image sent to pd in matlab is:)
+disp('the image sent to pd in matlab is:')
 disp(image_filename)
 %todo - check if we cant load this once only (when engine is created)
 load data/paperdoll_pipeline.mat config;
