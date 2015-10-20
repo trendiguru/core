@@ -40,10 +40,9 @@ def email(stats):
            'new items:\t' + str(stats['new_items']) + '</h3>\n<h3>' + \
            'items from archive:\t' + str(stats['items_from_archive']) + '</h3>\n<h3>' + \
            'items sent to archive:\t' + str(stats['items_sent_to_archive']) + '</h3>\n<h3>' + \
-           'insert errors:\t' + str(stats['errors']) + '</h3>\n<h3>' + \
-           'dl duration(hours):\t' + str(stats['dl_duration(hours)'])[:5] + '</h3>\n<h3>' + \
-           +'</h3>\n<h3>' + '</h3>\n<h3>' + 'items by category:</h3>\n' + '</h3>\n<h3>'
-
+           '</h3>\n<h3>' + '</h3>\n<h3>' + 'items by category:</h3>\n' + '</h3>\n<h3>'
+    # 'insert errors:\t' + str(stats['errors']) + '</h3>\n<h3>' + \
+    # 'dl duration(hours):\t' + str(stats['dl_duration(hours)'])[:5] + '</h3>\n<h3>' + \
     categories = ""
     for i in constants.db_relevant_items:
         if i == 'women' or i == 'women-clothes':
@@ -126,8 +125,8 @@ def stats_and_mail():
              'new_items': dl_data['new_items'],
              'items_from_archive': dl_data['returned_from_archive'],
              'items_sent_to_archive': dl_data['sent_to_archive'],
-             'dl_duration(hours)': dl_data['total_dl_time(hours)'],
-             'errors': dl_data['errors'],
+             # 'dl_duration(hours)': dl_data['total_dl_time(hours)'],
+             # 'errors': dl_data['errors'],
              'items_by_category': {}}
     for i in constants.db_relevant_items:
         if i == 'women' or i == 'women-cloth':
