@@ -697,7 +697,7 @@ def git_pull(**kwargs):
     import subprocess
     path = os.path.abspath(__file__)
     module_directory = os.path.dirname(path)
-
+    print(module_directory)
     try:
         result = subprocess.check_output('git -C {dir} pull'.format(dir=module_directory), shell=True)
     except subprocess.CalledProcessError, e:
