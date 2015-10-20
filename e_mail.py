@@ -64,7 +64,7 @@ def email(stats):
     </style>
     </head>
     <body>"""
-    html + txt2 + """
+    html = html + txt2 + """
     <table style="width:100%">
     """
     html = html + categories + """
