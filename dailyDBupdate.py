@@ -106,7 +106,7 @@ def download_stats():
 
 if __name__ == "__main__":
     update_db = getShopStyleDB.ShopStyleDownloader()
-    update_db.run_by_category(type="DAILY")
+    update_db.run_by_category(type="FULL")
     time.sleep(14440)
     download_stats()
     print "Daily Download Finished!!!"
