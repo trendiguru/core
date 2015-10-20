@@ -214,7 +214,7 @@ RUN apt-get -y --force-yes  install nano
 #####################
 # redis and rq
 #####################
-RUN pip install redis
+#RUN pip install redis
 RUN pip install rq
 
 
@@ -315,6 +315,15 @@ RUN apt-get install python-dev
 #RUN tar --bzip2 -xf /path/to/boost_1_59_0.tar.bz2
 #OpenCV >= 2.4 in
 
+#wget ftp.hdfgroup.org/HDF5/current/src/hdf5-1.8.15-patch1.tar.bz2
+#tar xjvf hdf5-1.8.15-patch1.tar.bz2
+#cd  hdf5-1.8.15-patch1
+#./configure --prefix=/usr/local/hdf5
+
+#pip install leveldb
+#pip install snappy
+
+
 #after downloading caffe
 #RUN for req in $(cat requirements.txt); do pip install $req; done
 
@@ -329,8 +338,17 @@ RUN apt-get install python-dev
 #RUN cmake ..
 #./configure (??not sure??)
 #RUN make all
-
-
+#dl boost zip
+#unzip
+#goto tools/build/v2 , run bootsrap to generate bjam
+#sudo apt-get install cl-launch
+#test version w. bjam --version
+#install cl
+#sudo apt-get install cl-launch
+#in /boost_1_59_0/libs/python/example/quickstart: bjam toolset=gcc --verbose-test test
+#pip install protobuf, glog
+#// not necessary in light of subsequent line -  git clone https://github.com:gflags/gflags.git
+#sudo apt-get install libgflags2 libgflags-dev
 
 RUN apt-get install libprotobuf-dev libleveldb-dev libsnappy-dev libopencv-dev libhdf5-serial-dev protobuf-compiler
 RUN apt-get install --no-install-recommends libboost-all-dev
