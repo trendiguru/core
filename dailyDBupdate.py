@@ -105,6 +105,8 @@ def wait_for(dl_data):
     else:
         check = 0
         while sub > total_items:
+            if check > 60:
+                break
             print "\ncheck number " + str(check)
             print "\nfp workers didn't finish yet\nWaiting 10 min before checking again\n"
             check += 1
@@ -125,7 +127,7 @@ def stats_and_mail():
              'new_items': dl_data['new_items'],
              'items_from_archive': dl_data['returned_from_archive'],
              'items_sent_to_archive': dl_data['sent_to_archive'],
-             # 'dl_duration(hours)': dl_data['total_dl_time(hours)'],
+             'dl_duration(hours)': dl_data['total_dl_time(hours)'],
              # 'errors': dl_data['errors'],
              'items_by_category': {}}
     for i in constants.db_relevant_items:
@@ -140,7 +142,7 @@ def stats_and_mail():
 
 
 if __name__ == "__main__":
-    print "@@@ The Daily DB Updater @@@\n"
+    print "\n@@@ The Daily DB Updater @@@"
     while True:
         try:
             x = raw_input("Download or Statistics? (D/S)")
