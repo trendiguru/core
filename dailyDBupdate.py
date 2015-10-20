@@ -98,8 +98,8 @@ def wait_for(dl_data):
     total_items = db.products.find().count()
     downloaded_items = dl_data["items_downloaded"]
     new_items = dl_data["new_items"]
-    errors = 0  # dl_data["errors"]
-    sub = downloaded_items - errors
+    insert_errors = 0  # dl_data["errors"]
+    sub = downloaded_items - insert_errors
     if total_items > sub:
         time.sleep(new_items)
     else:
@@ -111,8 +111,8 @@ def wait_for(dl_data):
             print "check number" + str(check)
             time.sleep(600)
             total_items = db.products.find().count()
-            errors = 0  #dl_data["errors"]
-            sub = downloaded_items - errors
+            insert_errors = 0  # dl_data["errors"]
+            sub = downloaded_items - insert_errors
 
 
 def stats_and_mail():
