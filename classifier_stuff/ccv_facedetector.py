@@ -48,6 +48,8 @@ def check_lfw():
                     n_extras = n_extra + 1
                 if len(faces)==1:
                     n_single_detections = n_single_detections + 1
+                show_rects(abs_path,faces)
+                print('n_images:'+str(n_images)+'n_images:'+str(n_images)+'n_detections:'+str(n_single_detections))
     print('n_images:'+str(n_images))
     print('n_extras:'+str(n_extra))
     print('n_detections:'+str(n_single_detections))
