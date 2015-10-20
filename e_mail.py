@@ -63,8 +63,8 @@ def email(stats):
     }
     </style>
     </head>
-    <body>
-
+    <body>"""
+    html + txt2 + """
     <table style="width:100%">
     """
     html = html + categories + """
@@ -73,7 +73,7 @@ def email(stats):
     </body>
     </html>
     """
-    part1 = MIMEText(html, 'html')
+    part1 = MIMEText(txt1 + html, 'html')
     msg.attach(part1)
     server = smtplib.SMTP('smtp.gmail.com', 587)
     server.starttls()
