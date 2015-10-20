@@ -45,8 +45,8 @@ def email(stats):
     for i in constants.db_relevant_items:
         if i == 'women' or i == 'women-clothes':
             continue
-        total = str(stats['items_by_category'][i][1])
-        new = str(stats['items_by_category'][i][0])
+        total = str(stats['items_by_category'][i]["total"])
+        new = str(stats['items_by_category'][i]["new"])
         line = "<tr>\n\t<th>" + i + "</th>\n\t<th>" + total + "</th>\n\t<th>" + new + "</th>\n</tr>\n"
         categories = categories + line
 
