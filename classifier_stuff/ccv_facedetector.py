@@ -183,7 +183,6 @@ if __name__ == "__main__":
     print('n:{0} single:{1} multiple:{2}'.format(n,singles,multiples))
     raw_input('enter to contiunue')
 
-
     n,singles,multiples = run_classifier_recursively('/home/developer/python-packages/trendi_guru_modules/classifier_stuff/images/llamas')
     print('n:{0} single:{1} multiple:{2}'.format(n,singles,multiples))
     raw_input('enter to contiunue')
@@ -195,7 +194,6 @@ if __name__ == "__main__":
     n,singles,multiples = run_classifier_recursively('/home/developer/python-packages/trendi_guru_modules/classifier_stuff/images/male_faces')
     print('n:{0} single:{1} multiple:{2}'.format(n,singles,multiples))
     raw_input('enter to contiunue')
-
 
     filename = "../images/male1.jpg"
     faces = ccv_facedetect(filename)
