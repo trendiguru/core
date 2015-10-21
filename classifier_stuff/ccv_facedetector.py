@@ -183,9 +183,10 @@ def show_rects(abs_path,faces):
 if __name__ == "__main__":
 
 #    direct('.')
-    pos,neg = run_classifier_on_dir_of_dirs('/home/developer/python_packages/trendi_guru_modules/classifier_stuff/images/llamas/')
+#    pos,neg = run_classifier_on_dir_of_dirs('/home/jeremy/jeremy.rutman@gmail.com/TrendiGuru/techdev/trendi_guru_modules/classifier_stuff/images/llamas')
+    pos,neg = run_classifier_on_dir_of_dirs('/home/developer/python-packages/trendi_guru_modules/classifier_stuff/images/llamas')
     print('pos:{0} neg:{1}'.format(pos,neg))
-    pos,neg = run_classifier_on_dir_of_dirs('/home/developer/python_packages/trendi_guru_modules/classifier_stuff/images/monkeys')
+    pos,neg = run_classifier_on_dir_of_dirs('/home/developer/python-packages/trendi_guru_modules/classifier_stuff/images/monkeys')
     print('pos:{0} neg:{1}'.format(pos,neg))
 
     filename = "../images/male1.jpg"
