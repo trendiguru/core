@@ -85,34 +85,6 @@ def generate_mask_and_insert(doc, image_url=None, mask_only=False, fp_date=None)
         return
 
     mask = background_removal.get_fg_mask(small_image)
-    # if "bounding_box" in doc.keys() and doc["bounding_box"] != [0, 0, 0, 0] and doc["bounding_box"] is not None:
-    #     chosen_bounding_box = doc["bounding_box"]
-    #     chosen_bounding_box = [int(b) for b in (np.array(chosen_bounding_box) / resize_ratio)]
-    #     mask = background_removal.get_fg_mask(small_image, chosen_bounding_box)
-    #     logging.debug("Human bb found: {bb} for item: {id}".format(bb=chosen_bounding_box, id=doc["id"]))
-    # # otherwise use the largest of possibly many classifier bb's
-    # else:
-    #     if not Utils.is_valid_image(small_image):
-    #         logging.warning("small_image is Bad. {img}".format(img=small_image))
-    #         return
-    #     mask = background_removal.get_fg_mask(small_image)
-    #     bounding_box_list = []
-    #     # choosing the biggest bounding box if there are a few
-    #     max_bb_area = 0
-    #     chosen_bounding_box = None
-    #     for possible_bb in bounding_box_list:
-    #         if possible_bb[2] * possible_bb[3] > max_bb_area:
-    #             chosen_bounding_box = possible_bb
-    #             max_bb_area = possible_bb[2] * possible_bb[3]
-    #     if chosen_bounding_box is None:
-    #         logging.info("No Bounding Box found, using the whole image. "
-    #                      "Document id: {0}, BB_list: {1}".format(doc.get("id"), str(bounding_box_list)))
-    #     else:
-    #         mask = background_removal.get_fg_mask(small_image, chosen_bounding_box)
-    #
-    # if mask_only:
-    #     return mask
-
     fingerprint = fp(small_image, mask=mask)
 
     fp_as_list = fingerprint.tolist()
@@ -120,6 +92,12 @@ def generate_mask_and_insert(doc, image_url=None, mask_only=False, fp_date=None)
     doc["download_data"]["first_dl"] = fp_date
     doc["download_data"]["dl_version"] = fp_date
     doc["download_data"]["fp_version"] = constants.fingerprint_version
-    db[collection].insert_one(doc)
-    print "prod inserted successfully"
+    try:
+        db[collection].insert_one(doc)
+        print "prod inserted successfully"
+    except:
+        db.download_data.find_one_and_update({"criteria": "main"},
+                                             {'$inc': {"errors": 1}})
+        print "error inserting"
+
     return fp_as_list

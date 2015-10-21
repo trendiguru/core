@@ -1,40 +1,122 @@
-__author__ = 'Nadav Paz'
+__author__ = 'yonatan'
 
-# Import smtplib for the actual sending function
+"""
+1. run getShopStyleDB.py
+2. do stats
+3. mail the output to relevent
+"""
+
+import json
 import smtplib
 
 from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
 
+import constants
 
-def send_image_mail(trendi_url, image_url):
+db = constants.db
 
-    me = 'nadav@trendiguru.com'
-    lior = 'lior@trendiguru.com'
-    kyle = 'kyle@trendiguru.com'
-    jeremy = 'jeremy@trendiguru.com'
-    yonti = 'yonti@trendiguru.com'
+
+def email(stats):
+    # me = 'nadav@trendiguru.com'
+    # lior = 'lior@trendiguru.com'
+    # kyle = 'kyle@trendiguru.com'
+    # jeremy = 'jeremy@trendiguru.com'
+    yonti = 'yontilevin@gmail.com'
     sender = 'Notifier@trendiguru.com'
-    recipient = 'members@trendiguru.com'
+    # recipient = 'members@trendiguru.com'
+
     # Open a plain text file for reading.  For this example, assume that
     msg = MIMEMultipart('alternative')
-    msg['Subject'] = 'A new image was uploaded!'
+    msg['Subject'] = 'Daily DB download&update!'
     msg['From'] = sender
-    msg['To'] = recipient
-    text = "Hello TG member!\n\n" \
-           "There is a new image waiting to you.\n\n" \
-           "Copy %s\n\n" \
-           "Go to %s\n\n" \
-           "Pick the top 4 and save.\n\n" \
-           "Thanks & Good luck!" % (image_url, trendi_url)
-    part1 = MIMEText(text, 'plain')
+    msg['To'] = yonti
+
+    txt2 = '<h3> date:\t' + str(stats['date']) + '</h3>\n<h3>' + \
+           'items downloaded:\t' + str(stats['items_downloaded']) + '</h3>\n<h3>' + \
+           'existing items:\t' + str(stats['existing_items']) + '</h3>\n<h3>' + \
+           'new items:\t' + str(stats['new_items']) + '</h3>\n<h3>' + \
+           'items from archive:\t' + str(stats['items_from_archive']) + '</h3>\n<h3>' + \
+           'items sent to archive:\t' + str(stats['items_sent_to_archive']) + '</h3>\n<h3></h3>\n<h3>' + \
+           'items by category:</h3>\n'
+    # '\ndl duration(hours):\t' + str(stats['dl_duration(hours)'])[:5] + \
+
+    categories = ""
+    for i in constants.db_relevant_items:
+        if i == 'women' or i == 'women-clothes':
+            continue
+        total = str(stats['items_by_category'][i]["total"])
+        new = str(stats['items_by_category'][i]["new"])
+        line = "<tr>\n\t<th>" + i + "</th>\n\t<th>" + total + "</th>\n\t<th>" + new + "</th>\n</tr>\n"
+        categories = categories + line
+
+    html = """\
+    <html>
+    <head>
+    <style>
+    table, th, td {
+        border: 1px solid black;
+        border-collapse: collapse;
+    }
+    th, td {
+        padding: 5px;
+    }
+    </style>
+    </head>
+    <body>"""
+    html = html + txt2 + """
+    <table style="width:40%">
+      <tr>
+        <th>Category</th>
+        <th>total items</th>
+        <th>new items</th>
+      </tr>    """
+    html = html + categories + """
+    </table>
+
+    </body>
+    </html>
+    """
+    part1 = MIMEText(html, 'html')
     msg.attach(part1)
+    server = smtplib.SMTP('smtp.gmail.com', 587)
+    server.starttls()
+    # server.set_debuglevel(True)  # show communication with the server
+    try:
+        server.login('yonti0@gmail.com', "Hub,hKuhiPryh")
+        server.sendmail(sender, [yonti], msg.as_string())
+        print "sent"
+    except:
+        print "error"
+    finally:
+        server.quit()
 
-    s = smtplib.SMTP('localhost')
-    s.sendmail(sender, [me, yonti], msg.as_string())
-    s.quit()
+
+def download_stats():
+    dl_data = db.download_data.find()[0]
+    date = dl_data['current_dl']
+    stats = {'date': date,
+             'items_downloaded': dl_data['items_downloaded'],
+             'existing_items': dl_data['existing_items'],
+             'new_items': dl_data['new_items'],
+             'items_from_archive': dl_data['returned_from_archive'],
+             'items_sent_to_archive': dl_data['sent_to_archive'],
+             # 'dl_duration(hours)': dl_data['total_dl_time(hours)'],
+             'items_by_category': {}}
+    for i in constants.db_relevant_items:
+        if i == 'women' or i == 'women-cloth':
+            continue
+        stats['items_by_category'][i] = {'total': db.products.find({'categories.id': i}).count(),
+                                         'new': db.products.find({'$and': [{'categories.id': i},
+                                                                           {'download_data.first_dl': date}]}).count()}
+    email(stats)
+    with open(date + '.txt', 'w') as outfile:
+        json.dump(stats, outfile)
 
 
-trendi_url = 'http://extremeli.trendi.guru/demo/TrendiMatchEditor/matcheditor.html'
-image_url = 'http://image.gala.de/v1/cms/Mr/style-mandy-capristo-okt14-ge_7901219-ORIGINAL-imageGallery_standard.jpg?v=10333950'
-send_image_mail(trendi_url, image_url)
+if __name__ == "__main__":
+    # update_db = getShopStyleDB.ShopStyleDownloader()
+    # update_db.run_by_category(type="FULL")
+    # time.sleep(14440)
+    download_stats()
+    print "Daily Download Finished!!!"
