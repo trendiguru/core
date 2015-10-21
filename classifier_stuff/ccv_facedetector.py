@@ -115,7 +115,8 @@ def run_classifier_recursively(path=None,use_visual_output=False,classifier=ccv_
             if files:
                 for ele1 in files:
                     print('---------' * (count), ele1)
-                    faces = classifier(ele1)
+                    full_name = os.path.join(path,ele1)
+                    faces = classifier(full_name)
                     n_images = n_images + 1
                     print('faces:'+str(faces)+' images:'+str(n_images), end="\n")
                     if len(faces)>1:
