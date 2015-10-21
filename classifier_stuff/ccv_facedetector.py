@@ -109,7 +109,7 @@ def run_classifier_on_dir_of_dirs(BASE_PATH=None,use_visual_output=False,classif
     for dirname, dirnames, filenames in os.walk(BASE_PATH):
         for filename in filenames:
             abs_path = "%s/%s" % (dirname, filename)
-#            print('path:' + abs_path)
+            print('path:' + abs_path)
             faces = classifier(abs_path)
             print('path:' + abs_path+' faces:'+str(faces), end="\r")
             n_images = n_images + 1
