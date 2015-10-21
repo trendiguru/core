@@ -38,14 +38,14 @@ def find_face(image, max_num_of_faces=1,method='ccv'):
     if method == 'cascade':
         faces = find_face_cascade(image, max_num_of_faces=max_num_of_faces)
         return faces
-    else:
+    else:  #do ccv
         stripped_name = rand_string()+'.jpg'  # img_url_or_cv2_array.split('//')[1]
         modified_name = stripped_name.replace('/', '_')
         cv2.imwrite(modified_name, image)
         faces = ccv.ccv_facedetect(modified_name)
-        if len(faces) == 0:
+        if len(faces) == 0 or len(faces)==1:
             return faces  # can we return [] in both cases or () in both , currently its one and one
-        return choose_faces(image, faces, max_num_of_faces)
+        return choose_faces(image, faces, max_num_of_faces)  #this will probably break
 
 def rand_string():
     return ''.join([random.choice(string.ascii_letters + string.digits) for n in xrange(32)])
