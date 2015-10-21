@@ -103,7 +103,7 @@ def run_classifier_recursively(path=None,use_visual_output=False,classifier=ccv_
     if path is None:
         path = os.getcwd()
     print('basepath:' + path)
-
+    raw_input('enter to continue')
 
     donePaths = []
     for paths,dirs,files in os.walk(path):
