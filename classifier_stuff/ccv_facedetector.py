@@ -26,7 +26,7 @@ def ccv_facedetect(filename):
     if d == 0:
         fcommand = 'classifier_stuff/ccvface '+str(filename)+' classifier_stuff/ccvface.sqlite3'
     elif d == 1:
-        fcommand = 'ccvface '+str(filename)+' ccvface.sqlite3'
+        fcommand = './ccvface '+str(filename)+' ./ccvface.sqlite3'
     print('command:'+fcommand)
     retvals = commands.getstatusoutput(fcommand)
     print(str(retvals),end="\n")
