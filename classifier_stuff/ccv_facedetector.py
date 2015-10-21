@@ -129,7 +129,7 @@ def run_classifier_recursively(path=None,use_visual_output=False,classifier=ccv_
                         print('---------' * (count), ele2)
                         absPath = os.path.join(paths,ele2)
           # recursively calling the direct function on each directory
-                        run_classifier_recursively(path=absPath,use_visual_output=use_visual_output,classifier=classifier,n_images=n_images,n_single_detections=n_single_detections,n_extra_detections=n_extra_detections)
+                        n_images,n_single_detections,n_extra_detections = run_classifier_recursively(path=absPath,use_visual_output=use_visual_output,classifier=classifier,n_images=n_images,n_single_detections=n_single_detections,n_extra_detections=n_extra_detections)
                # adding the paths to the list that got traversed
                         donePaths.append(absPath)
 
@@ -139,10 +139,10 @@ def run_classifier_recursively(path=None,use_visual_output=False,classifier=ccv_
         neg_rate = float(n_images-positives)/n_images
         print('n_images:'+str(n_images)+' n_extra:'+str(n_extra_detections)+' n_detections:'+str(n_single_detections))
         print('pos rate:'+str(pos_rate)+' neg rate:'+str(neg_rate))
-        return pos_rate,neg_rate
+        return n_images,n_single_detections,n_extra_detections
 
     else:
-        return 0,0
+        return 0,0,0
 
  #!/usr/bin/python
      # Creating an empty list that will contain the already traversed paths
