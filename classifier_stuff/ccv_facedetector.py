@@ -12,7 +12,7 @@ import sys
 import os.path
 import logging
 
-import trendi_guru_modules.Utils as Utils
+import Utils
 
 def ccv_facedetect(filename):
  #   Utils.get_cv2_img_array(url_or_path_to_image_file_or_cv2_image_array, download=True,)
