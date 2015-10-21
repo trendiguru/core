@@ -10,10 +10,16 @@ import  cv2
 import os
 import sys
 import os.path
+import logging
 
 def ccv_facedetect(filename):
  #   Utils.get_cv2_img_array(url_or_path_to_image_file_or_cv2_image_array, download=True,)
+    if not os.path.isfile(filename):
+        logging.warning('file passed to ccv_facedetect doesnt exist)')
+        return 1
     fcommand = 'pwd'
+    retvals = commands.getstatusoutput(fcommand)
+    print(str(retvals),end="\n")
 
     fcommand = 'classifier_stuff/ccvface '+str(filename)+' classifier_stuff/ccvface.sqlite3'
     retvals = commands.getstatusoutput(fcommand)
