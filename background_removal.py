@@ -36,19 +36,19 @@ def image_is_relevant(image):
 def find_face(image, max_num_of_faces=1,method='ccv'):
     gray = cv2.cvtColor(image, constants.BGR2GRAYCONST)
     if method == 'cascade':
-        faces = find_face_cascade(image, max_num_of_faces=1)
+        faces = find_face_cascade(image, max_num_of_faces=max_num_of_faces)
         return faces
     else:
         stripped_name = rand_string()+'.jpg'  # img_url_or_cv2_array.split('//')[1]
         modified_name = stripped_name.replace('/', '_')
         cv2.imwrite(modified_name, img)
         faces = ccv.ccv_facedetect(modified_name)
-        return faces
+        if len(faces) == 0:
+            return faces  # can we return [] in both cases or () in both , currently its one and one
+        return choose_faces(image, faces, max_num_of_faces)
 
 def rand_string():
     return ''.join([random.choice(string.ascii_letters + string.digits) for n in xrange(32)])
-
-
 
 def find_face_cascade(image, max_num_of_faces=1,method='ccv'):
     face_cascades = [
@@ -376,3 +376,4 @@ if __name__ == '__main__':
     print('ccv result:'+str(r1))
     r2 = find_face(img_arr, max_num_of_faces=1,method='cascade')
     print('cascade result:'+str(r2))
+    raw_input('return to continue')
