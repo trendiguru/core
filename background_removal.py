@@ -43,8 +43,8 @@ def find_face(image, max_num_of_faces=1,method='ccv'):
         modified_name = stripped_name.replace('/', '_')
         cv2.imwrite(modified_name, image)
         faces = ccv.ccv_facedetect(modified_name)
-        print(faces)
-        print('len:'+str(len(faces)))
+ #       print(faces)
+ #       print('len:'+str(len(faces)))
         if len(faces) == 0 or len(faces)==1:
             return faces  # can we return [] in both cases or () in both , currently its one and one
         return choose_faces(image, faces, max_num_of_faces)  #this will probably break
@@ -373,6 +373,15 @@ def simple_mask_grabcut(image, mask):
 
 if __name__ == '__main__':
     print('starting')
+
+    path = os.path.abspath(__file__)
+    print('path:'+str(path))
+    p2 = path.split('classifier_stuff')
+    print('p2:'+str(p2))
+    raw_input('k')
+
+
+
     img = 'images/female1.jpg'
     img_arr=cv2.imread(img)
     r1 = find_face(img_arr, max_num_of_faces=1,method='cascade')
