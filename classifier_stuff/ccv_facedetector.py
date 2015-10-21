@@ -134,10 +134,10 @@ def run_classifier_recursively(path=None,use_visual_output=False,classifier=ccv_
                         donePaths.append(absPath)
 
     if n_images:
-        positives = n_single_detections + n_extra
+        positives = n_single_detections + n_extra_detections
         pos_rate = float(positives)/n_images
         neg_rate = float(n_images-positives)/n_images
-        print('n_images:'+str(n_images)+' n_extra:'+str(n_extra)+' n_detections:'+str(n_single_detections))
+        print('n_images:'+str(n_images)+' n_extra:'+str(n_extra_detections)+' n_detections:'+str(n_single_detections))
         print('pos rate:'+str(pos_rate)+' neg rate:'+str(neg_rate))
         return pos_rate,neg_rate
 
