@@ -99,7 +99,7 @@ def check_lfw(use_visual_output=False):
     print('n_images:'+str(n_images)+' n_extra:'+str(n_extra)+' n_detections:'+str(n_single_detections))
     print('true pos:'+str(true_pos_rate)+' false_neg:'+str(false_neg_rate))
 
-def run_classifier_recursively(path=None,use_visual_output=False,classifier=ccv_facedetect,n_images=0,n_single=0,n_extra_detections=0):
+def run_classifier_recursively(path=None,use_visual_output=False,classifier=ccv_facedetect,n_images=0,n_single_detections=0,n_extra_detections=0):
     if path is None:
         path = os.getcwd()
     print('basepath:' + path)
@@ -117,19 +117,19 @@ def run_classifier_recursively(path=None,use_visual_output=False,classifier=ccv_
                     n_images = n_images + 1
  #                   print('faces:'+str(faces)+' images:'+str(n_images)+ ' file:'+str(ele1), end="\n")
                     if len(faces)>1:
-                        n_extra = n_extra + 1
+                        n_extra_detections = n_extra_detections + 1
                     if len(faces)==1:
                         n_single_detections = n_single_detections + 1
                     if use_visual_output:
                         show_rects(abs_path,faces)
-                    print('n_images:'+str(n_images)+' n_extra:'+str(n_extra)+' n_detections:'+str(n_single_detections)+' file:'+str(ele1), end="\n")
+                    print('n_images:'+str(n_images)+' n_extra:'+str(n_extra_detections)+' n_detections:'+str(n_single_detections)+' file:'+str(ele1), end="\n")
 
                 if dirs:
                     for ele2 in dirs:
                         print('---------' * (count), ele2)
                         absPath = os.path.join(paths,ele2)
           # recursively calling the direct function on each directory
-                        run_classifier_recursively(path=absPath,use_visual_output=use_visual_output,classifier=classifier)
+                        run_classifier_recursively(path=absPath,use_visual_output=use_visual_output,classifier=classifier,n_images=n_images,n_single_detections=n_single_detections,n_extra_detections=n_extra_detections)
                # adding the paths to the list that got traversed
                         donePaths.append(absPath)
 
