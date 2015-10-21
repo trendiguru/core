@@ -118,7 +118,7 @@ def run_classifier_recursively(path=None,use_visual_output=False,classifier=ccv_
                     full_name = os.path.join(path,ele1)
                     faces = classifier(full_name)
                     n_images = n_images + 1
-                    print('faces:'+str(faces)+' images:'+str(n_images), end="\n")
+                    print('faces:'+str(faces)+' images:'+str(n_images)+ ' file:'+str(ele1), end="\n")
                     if len(faces)>1:
                         n_extra = n_extra + 1
                     if len(faces)==1:
@@ -137,10 +137,10 @@ def run_classifier_recursively(path=None,use_visual_output=False,classifier=ccv_
 
     if n_images:
         positives = n_single_detections + n_extra
-        pos_rate = float(true_positives)/n_images
-        neg_rate = float(n_images-true_positives)/n_images
+        pos_rate = float(positives)/n_images
+        neg_rate = float(n_images-positives)/n_images
         print('n_images:'+str(n_images)+' n_extra:'+str(n_extra)+' n_detections:'+str(n_single_detections))
-        print('true pos:'+str(pos_rate)+' false_neg:'+str(neg_rate))
+        print('pos rate:'+str(pos_rate)+' neg rate:'+str(neg_rate))
         return pos_rate,neg_rate
 
     else:

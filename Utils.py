@@ -573,15 +573,15 @@ def depth_of_subdir_of_calling_function():
     :return:
     '''
     path = os.getcwd()
-    print('path:'+str(path))
+ #   print('path:'+str(path))
     p2 = path.split('trendi_guru_modules')
-    print('path split on trendigurumodules:'+str(p2))
+  #  print('path split on trendigurumodules:'+str(p2))
     if len(p2) < 2:
         print('not in trendi_guru_modules')
     secondhalf = p2[1]
-    print('secondhalf:'+str(secondhalf))
+ #   print('secondhalf:'+str(secondhalf))
     cur = secondhalf.split('/')
-    print('cur:'+str(cur))
+ #   print('cur:'+str(cur))
     if len(cur) > 1:
         in_subdir_of_trendi_guru_modules = True
     return len(cur)-1
