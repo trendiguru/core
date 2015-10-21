@@ -99,7 +99,7 @@ def check_lfw(use_visual_output=False):
     print('n_images:'+str(n_images)+' n_extra:'+str(n_extra)+' n_detections:'+str(n_single_detections))
     print('true pos:'+str(true_pos_rate)+' false_neg:'+str(false_neg_rate))
 
-def run_classifier_recursively(BASE_PATH=None,use_visual_output=False,classifier=ccv_facedetect):
+def run_classifier_recursively(path=None,use_visual_output=False,classifier=ccv_facedetect):
     if BASE_PATH is None:
         BASE_PATH = os.getcwd()
     print('basepath:' + BASE_PATH)
@@ -130,7 +130,7 @@ def run_classifier_recursively(BASE_PATH=None,use_visual_output=False,classifier
                         print('---------' * (count), ele2)
                         absPath = os.path.join(paths,ele2)
           # recursively calling the direct function on each directory
-                        run_classifier_recursively(BASE_PATH=absPath,use_visual_output=use_visual_output,classifier=classifier)
+                        run_classifier_recursively(path=absPath,use_visual_output=use_visual_output,classifier=classifier)
                # adding the paths to the list that got traversed
                         donePaths.append(absPath)
 
