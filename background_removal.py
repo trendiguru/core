@@ -42,7 +42,7 @@ def find_face(image, max_num_of_faces=1,method='ccv'):
     else:
         stripped_name = rand_string()+'.jpg'  # img_url_or_cv2_array.split('//')[1]
         modified_name = stripped_name.replace('/', '_')
-        cv2.imwrite(modified_name, img)
+        cv2.imwrite(modified_name, image)
         faces = ccv.ccv_facedetect(modified_name)
         if len(faces) == 0:
             return faces  # can we return [] in both cases or () in both , currently its one and one
