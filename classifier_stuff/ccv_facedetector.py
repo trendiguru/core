@@ -100,8 +100,8 @@ def check_lfw(use_visual_output=False):
     print('true pos:'+str(true_pos_rate)+' false_neg:'+str(false_neg_rate))
 
 def run_classifier_recursively(path=None,use_visual_output=False,classifier=ccv_facedetect):
-    if BASE_PATH is None:
-        BASE_PATH = os.getcwd()
+    if path is None:
+        path = os.getcwd()
     print('basepath:' + BASE_PATH)
     n_images = 0
     n_extra = 0
