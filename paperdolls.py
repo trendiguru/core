@@ -271,6 +271,8 @@ def from_paperdoll_to_similar_results(person_id, paper_job_id, num_of_matches=10
             idx += 1
     image_obj = iip.find_one_and_update({'people.person_id': person_id}, {'$set': {'people.$.items': items}},
                                         return_document=pymongo.ReturnDocument.AFTER)
+    print "person_idx: " + str(person['person_idx'])
+    print "len(image_obj['people']) - 1: " + str(len(image_obj['people']) - 1)
     if person['person_idx'] == len(image_obj['people']) - 1:
         images.insert(image_obj)
         iip.delete_one({'_id': image_obj['_id']})
