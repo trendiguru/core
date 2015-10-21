@@ -5,7 +5,6 @@ import datetime
 import sys
 
 import numpy as np
-import pymongo
 import cv2
 from rq import Queue
 import bson
@@ -251,8 +250,6 @@ def from_paperdoll_to_similar_results(person_id, paper_job_id, num_of_matches=10
         category = list(labels.keys())[list(labels.values()).index(num)]
         if category in constants.paperdoll_shopstyle_women.keys():
             item_mask = 255 * np.array(final_mask == num, dtype=np.uint8)
-            print "item_mask shape in paperdolls.find_similar: " + str(item_mask.shape)
-            print "sliced image shape in paperdolls.find_similar: " + str(image.shape)
             shopstyle_cat = constants.paperdoll_shopstyle_women[category]
             item_dict = {"category": shopstyle_cat, 'item_id': str(bson.ObjectId()), 'item_idx': idx,
                          'saved_date': datetime.datetime.now()}
@@ -267,11 +264,11 @@ def from_paperdoll_to_similar_results(person_id, paper_job_id, num_of_matches=10
             items.append(item_dict)
             idx += 1
     if image_obj:
-        print "before update: image_obj is OK"
-    image_obj = iip.find_one_and_update({'people.person_id': person_id}, {'$set': {'people.$.items': items}},
-                                        return_document=pymongo.ReturnDocument.AFTER)
+        print "image_obj is OK"
+    iip.find_one_and_update({'people.person_id': person_id}, {'$set': {'people.$.items': items}})
+    image_obj = iip.find_one({'people.person_id': person_id})
     if not image_obj:
-        print "after update: image_obj is None!!"
+        print "image_obj is None!!!"
     if person['person_idx'] == len(image_obj['people']) - 1:
         images.insert(image_obj)
         iip.delete_one({'_id': image_obj['_id']})
