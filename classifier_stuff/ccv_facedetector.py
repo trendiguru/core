@@ -99,45 +99,40 @@ def check_lfw(use_visual_output=False):
     print('n_images:'+str(n_images)+' n_extra:'+str(n_extra)+' n_detections:'+str(n_single_detections))
     print('true pos:'+str(true_pos_rate)+' false_neg:'+str(false_neg_rate))
 
-def run_classifier_on_dir_of_dirs(BASE_PATH=None,use_visual_output=False,classifier=ccv_facedetect):
+def run_classifier_recursively(BASE_PATH=None,use_visual_output=False,classifier=ccv_facedetect):
     if BASE_PATH is None:
         BASE_PATH = os.getcwd()
     print('basepath:' + BASE_PATH)
     n_images = 0
     n_extra = 0
     n_single_detections = 0
-    for dirname, dirnames, filenames in os.walk(BASE_PATH):
-        for filename in filenames:
-            abs_path = "%s/%s" % (dirname, filename)
-            print('path:' + abs_path)
-            faces = classifier(abs_path)
-            print('path:' + abs_path+' faces:'+str(faces), end="\r")
-            n_images = n_images + 1
-            if len(faces)>1:
-                n_extra = n_extra + 1
-            if len(faces)==1:
-                n_single_detections = n_single_detections + 1
-            if use_visual_output:
-                show_rects(abs_path,faces)
-            print('n_images:'+str(n_images)+' n_extra:'+str(n_extra)+' n_detections:'+str(n_single_detections), end="\r")
 
-        raw_input('waiting')
-        dirnames.sort()
-        for subdirname in dirnames:
-            subject_path = os.path.join(dirname, subdirname)
-            for filename in os.listdir(subject_path):
-                abs_path = "%s/%s" % (subject_path, filename)
-                print('path:' + abs_path)
-                faces = classifier(abs_path)
-                print('path:' + abs_path+' faces:'+str(faces), end="\r")
-                n_images = n_images + 1
-                if len(faces)>1:
-                    n_extra = n_extra + 1
-                if len(faces)==1:
-                    n_single_detections = n_single_detections + 1
-                if use_visual_output:
-                    show_rects(abs_path,faces)
-                print('n_images:'+str(n_images)+' n_extra:'+str(n_extra)+' n_detections:'+str(n_single_detections), end="\r")
+
+    donePaths = []
+    for paths,dirs,files in os.walk(path):
+        if paths not in donePaths:
+            count = paths.count('/')
+            if files:
+                for ele1 in files:
+                    print('---------' * (count), ele1)
+                    faces = classifier(abs_path)
+                    n_images = n_images + 1
+                    print('faces:'+str(faces)+' images:'+str(n_images), end="\n")
+                    if len(faces)>1:
+                        n_extra = n_extra + 1
+                    if len(faces)==1:
+                        n_single_detections = n_single_detections + 1
+                    if use_visual_output:
+                        show_rects(abs_path,faces)
+                    print('n_images:'+str(n_images)+' n_extra:'+str(n_extra)+' n_detections:'+str(n_single_detections), end="\n")
+                if dirs:
+                    for ele2 in dirs:
+                        print('---------' * (count), ele2)
+                        absPath = os.path.join(paths,ele2)
+          # recursively calling the direct function on each directory
+                        run_classifier_recursively(BASE_PATH=absPath,use_visual_output=use_visual_output,classifier=classifier)
+               # adding the paths to the list that got traversed
+                        donePaths.append(absPath)
 
     if n_images:
         positives = n_single_detections + n_extra
