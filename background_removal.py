@@ -380,3 +380,27 @@ if __name__ == '__main__':
     r2 = find_face(img_arr, max_num_of_faces=1,method='ccv')
     print('cascade result:'+str(r2))
     raw_input('return to continue')
+
+    img = 'images/male1.jpg'
+    img_arr=cv2.imread(img)
+    r1 = find_face(img_arr, max_num_of_faces=1,method='cascade')
+    print('ccv result:'+str(r1))
+    r2 = find_face(img_arr, max_num_of_faces=1,method='ccv')
+    print('cascade result:'+str(r2))
+    raw_input('return to continue')
+
+    img = 'images/male2.jpg'
+    img_arr=cv2.imread(img)
+    r1 = find_face(img_arr, max_num_of_faces=1,method='cascade')
+    print('ccv result:'+str(r1))
+    r2 = find_face(img_arr, max_num_of_faces=1,method='ccv')
+    print('cascade result:'+str(r2))
+    raw_input('return to continue')
+
+    img = 'images/male3.jpg'
+    img_arr=cv2.imread(img)
+    r1 = find_face(img_arr, max_num_of_faces=1,method='cascade')
+    print('ccv result:'+str(r1))
+    r2 = find_face(img_arr, max_num_of_faces=1,method='ccv')
+    print('cascade result:'+str(r2))
+    raw_input('return to continue')
