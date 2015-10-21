@@ -11,7 +11,7 @@ import os
 
 def ccv_facedetect(filename):
  #   Utils.get_cv2_img_array(url_or_path_to_image_file_or_cv2_image_array, download=True,)
-    fcommand = './ccvface '+str(filename)+' ccvface.sqlite3'
+    fcommand = 'classifier_stuff/ccvface '+str(filename)+' classifier_stuff/ccvface.sqlite3'
     command = './ccvface '
               #+str(filename)+' ccvface.sqlite3'
     arg1 = str(filename)
