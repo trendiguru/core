@@ -114,18 +114,18 @@ def run_classifier_recursively(path=None,use_visual_output=False,classifier=ccv_
             count = paths.count('/')
             if files:
                 for ele1 in files:
-                    print('---------' * (count), ele1)
+#                  print('---------' * (count), ele1)
                     full_name = os.path.join(path,ele1)
                     faces = classifier(full_name)
                     n_images = n_images + 1
-                    print('faces:'+str(faces)+' images:'+str(n_images)+ ' file:'+str(ele1), end="\n")
+ #                   print('faces:'+str(faces)+' images:'+str(n_images)+ ' file:'+str(ele1), end="\n")
                     if len(faces)>1:
                         n_extra = n_extra + 1
                     if len(faces)==1:
                         n_single_detections = n_single_detections + 1
                     if use_visual_output:
                         show_rects(abs_path,faces)
-                    print('n_images:'+str(n_images)+' n_extra:'+str(n_extra)+' n_detections:'+str(n_single_detections), end="\n")
+                    print('n_images:'+str(n_images)+' n_extra:'+str(n_extra)+' n_detections:'+str(n_single_detections)+' file:'+str(ele1), end="\n")
                 if dirs:
                     for ele2 in dirs:
                         print('---------' * (count), ele2)
