@@ -99,13 +99,10 @@ def check_lfw(use_visual_output=False):
     print('n_images:'+str(n_images)+' n_extra:'+str(n_extra)+' n_detections:'+str(n_single_detections))
     print('true pos:'+str(true_pos_rate)+' false_neg:'+str(false_neg_rate))
 
-def run_classifier_recursively(path=None,use_visual_output=False,classifier=ccv_facedetect):
+def run_classifier_recursively(path=None,use_visual_output=False,classifier=ccv_facedetect,n_images=0,n_single=0,n_extra_detections=0):
     if path is None:
         path = os.getcwd()
     print('basepath:' + path)
-    n_images = 0
-    n_extra = 0
-    n_single_detections = 0
 
 
     donePaths = []
@@ -126,6 +123,7 @@ def run_classifier_recursively(path=None,use_visual_output=False,classifier=ccv_
                     if use_visual_output:
                         show_rects(abs_path,faces)
                     print('n_images:'+str(n_images)+' n_extra:'+str(n_extra)+' n_detections:'+str(n_single_detections)+' file:'+str(ele1), end="\n")
+
                 if dirs:
                     for ele2 in dirs:
                         print('---------' * (count), ele2)
