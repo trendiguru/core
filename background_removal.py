@@ -373,8 +373,8 @@ if __name__ == '__main__':
     print('starting')
     img = 'images/female1.jpg'
     img_arr=cv2.imread(img)
-    r1 = find_face(img_arr, max_num_of_faces=1,method='ccv')
+    r1 = find_face(img_arr, max_num_of_faces=1,method='cascade')
     print('ccv result:'+str(r1))
-    r2 = find_face(img_arr, max_num_of_faces=1,method='cascade')
+    r2 = find_face(img_arr, max_num_of_faces=1,method='ccv')
     print('cascade result:'+str(r2))
     raw_input('return to continue')
