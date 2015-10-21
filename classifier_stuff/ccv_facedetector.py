@@ -11,6 +11,7 @@ import os
 import sys
 import os.path
 import logging
+import Utils
 
 def ccv_facedetect(filename):
  #   Utils.get_cv2_img_array(url_or_path_to_image_file_or_cv2_image_array, download=True,)
@@ -20,21 +21,13 @@ def ccv_facedetect(filename):
     fcommand = 'pwd'
     retvals = commands.getstatusoutput(fcommand)
     print(str(retvals),end="\n")
-    d=depth_of_subdir_in_trendi_guru_modules_of_calling_function()
+    d=Utils.depth_of_subdir_of_calling_function()
     print('depth of subdir:'+str(d))
+    if d == 0:
+        fcommand = 'classifier_stuff/ccvface '+str(filename)+' classifier_stuff/ccvface.sqlite3'
+    elif d == 1:
+        fcommand = 'ccvface '+str(filename)+' ccvface.sqlite3'
 
-    fcommand = 'classifier_stuff/ccvface '+str(filename)+' classifier_stuff/ccvface.sqlite3'
-    retvals = commands.getstatusoutput(fcommand)
-    print(str(retvals),end="\n")
-
-#    command = './ccvface '
-              #+str(filename)+' ccvface.sqlite3'
-    arg1 = str(filename)
-    arg2 = "ccvface.sqlite3"
-#    retval = subprocess.call([fcommand],shell=True)
-#    subprocess.check_call([fcommand], stdout=subprocess.STDOUT, stderr=subprocess.STDOUT)
-    #subprocess.check_output([command,arg1,arg2])
-#    output = subprocess.Popen(fcommand, stdout=subprocess.PIPE).communicate()[0]
     retvals = commands.getstatusoutput(fcommand)
     print(str(retvals),end="\n")
     rects = []
@@ -148,28 +141,12 @@ def show_rects(abs_path,faces):
     cv2.waitKey(10)
 
 
-def depth_of_subdir_in_trendi_guru_modules_of_calling_function():
-    path = os.getcwd()
-    print('path:'+str(path))
-    p2 = path.split('trendi_guru_modules/')
-    print('path split on trendigurumodules:'+str(p2))
-    if len(p2) < 2:
-        print('not in trendi_guru_modules')
-    secondhalf = p2[1]
-    print('secondhalf:'+str(secondhalf))
-    cur = secondhalf.split('/')
-    print('cur:'+str(cur))
-    if len(cur) > 1:
-        in_subdir_of_trendi_guru_modules = True
-    return len(cur)-1
 
 if __name__ == "__main__":
 
-    a=depth_of_subdir_in_trendi_guru_modules_of_calling_function()
-    print('depth = '+str(a))
-    raw_input('k')
-
-    pos,neg = run_classifier_on_dir_recursively('images/male_faces')
+    pos,neg = run_classifier_on_dir_recursively('images/llamas')
+    print('pos:{0} neg:{1}'.format(pos,neg))
+    pos,neg = run_classifier_on_dir_recursively('images/monkeys')
     print('pos:{0} neg:{1}'.format(pos,neg))
 
     filename = "../images/male1.jpg"
