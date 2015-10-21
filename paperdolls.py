@@ -270,10 +270,10 @@ def from_paperdoll_to_similar_results(person_id, paper_job_id, num_of_matches=10
                                             return_document=pymongo.ReturnDocument.AFTER)
     total_time = 0
     while not new_image_obj:
-        if total_time < 10:
-            print "image_obj after update is None!.. waiting for it.."
-            time.sleep(1)
-            total_time += 1
+        if total_time < 30:
+            print "image_obj after update is None!.. waiting for it.. total time is {0}".format(total_time)
+            time.sleep(2)
+            total_time += 2
             new_image_obj = iip.find_one_and_update({'people.person_id': person_id},
                                                     {'$set': {'people.$.items': items}},
                                                     return_document=pymongo.ReturnDocument.AFTER)
