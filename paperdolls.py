@@ -264,17 +264,14 @@ def from_paperdoll_to_similar_results(person_id, paper_job_id, num_of_matches=10
             item_dict['fp'], item_dict['similar_results'] = find_similar_mongo.find_top_n_results(image, item_mask,
                                                                                                   num_of_matches,
                                                                                                   item_dict['category'])
-            if not item_dict['fp']:
-                logging.warning("image and mask shape difference")
-                return
             items.append(item_dict)
             idx += 1
+    if image_obj:
+        print "before update: image_obj is OK"
     image_obj = iip.find_one_and_update({'people.person_id': person_id}, {'$set': {'people.$.items': items}},
                                         return_document=pymongo.ReturnDocument.AFTER)
-    if not person:
-        print "person is None"
     if not image_obj:
-        print "image_obj is None, but person is: {0}".format(person)
+        print "after update: image_obj is None!!"
     if person['person_idx'] == len(image_obj['people']) - 1:
         images.insert(image_obj)
         iip.delete_one({'_id': image_obj['_id']})
