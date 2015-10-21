@@ -277,7 +277,9 @@ def from_paperdoll_to_similar_results(person_id, paper_job_id, num_of_matches=10
             new_image_obj = iip.find_one_and_update({'people.person_id': person_id},
                                                     {'$set': {'people.$.items': items}},
                                                     return_document=pymongo.ReturnDocument.AFTER)
-
+        else:
+            print "exceeded.."
+            break
     else:
         image_obj = new_image_obj
     if person['person_idx'] == len(image_obj['people']) - 1:
