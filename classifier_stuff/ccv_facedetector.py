@@ -8,11 +8,18 @@ import subprocess
 import commands
 import  cv2
 import os
+import sys
+import os.path
 
 def ccv_facedetect(filename):
  #   Utils.get_cv2_img_array(url_or_path_to_image_file_or_cv2_image_array, download=True,)
+    fcommand = 'pwd'
+
     fcommand = 'classifier_stuff/ccvface '+str(filename)+' classifier_stuff/ccvface.sqlite3'
-    command = './ccvface '
+    retvals = commands.getstatusoutput(fcommand)
+    print(str(retvals),end="\n")
+
+#    command = './ccvface '
               #+str(filename)+' ccvface.sqlite3'
     arg1 = str(filename)
     arg2 = "ccvface.sqlite3"
@@ -133,17 +140,25 @@ def show_rects(abs_path,faces):
     cv2.waitKey(10)
 
 
-if __name__ == "__main__":
-    import sys
-    import os.path
-    p = os.path.split(__name__)
-    print('path:'+str(p))
-    p = sys.path
-    print('path:'+str(p))
+def depth_of_subdir_in_trendi_guru_modules_of_calling_function():
     path = os.path.abspath(__file__)
     print('path:'+str(path))
-    p2 = path.split('classifier_stuff')
-    print('p2:'+str(p2))
+    p2 = path.split('trendi_guru_modules/')
+    print('path split on trendigurumodules:'+str(p2))
+    if len(p2) < 2:
+        print('not in trendi_guru_modules')
+    secondhalf = p2[1]
+    print('secondhalf:'+str(secondhalf))
+    cur = secondhalf.split('/')
+    print('cur:'+str(cur))
+    if len(cur) > 1:
+        in_subdir_of_trendi_guru_modules = True
+    return len(cur)-1
+
+if __name__ == "__main__":
+
+    a=depth_of_subdir_in_trendi_guru_modules_of_calling_function()
+    print('depth = '+str(a))
     raw_input('k')
 
     pos,neg = run_classifier_on_dir_recursively('images/male_faces')
