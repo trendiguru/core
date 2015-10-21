@@ -182,7 +182,16 @@ if __name__ == "__main__":
 #    pos,neg = run_classifier_on_dir_of_dirs('/home/jeremy/jeremy.rutman@gmail.com/TrendiGuru/techdev/trendi_guru_modules/classifier_stuff/images/llamas')
     pos,neg = run_classifier_recursively('/home/developer/python-packages/trendi_guru_modules/classifier_stuff/images/llamas')
     print('pos:{0} neg:{1}'.format(pos,neg))
+    raw_input('enter to contiunue')
     pos,neg = run_classifier_recursively('/home/developer/python-packages/trendi_guru_modules/classifier_stuff/images/monkeys')
+    print('pos:{0} neg:{1}'.format(pos,neg))
+
+    raw_input('enter to contiunue')
+    pos,neg = run_classifier_recursively('/home/developer/python-packages/trendi_guru_modules/classifier_stuff/images/male_faces')
+    print('pos:{0} neg:{1}'.format(pos,neg))
+
+    raw_input('enter to contiunue')
+    pos,neg = run_classifier_recursively('/home/developer/python-packages/trendi_guru_modules/classifier_stuff/images/female_faces')
     print('pos:{0} neg:{1}'.format(pos,neg))
 
     filename = "../images/male1.jpg"
