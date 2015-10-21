@@ -3,8 +3,11 @@ __author__ = 'Nadav Paz'
 import logging
 import datetime
 import sys
+import time
 
 import numpy as np
+
+import pymongo
 import cv2
 from rq import Queue
 import bson
@@ -263,12 +266,20 @@ def from_paperdoll_to_similar_results(person_id, paper_job_id, num_of_matches=10
                                                                                                   item_dict['category'])
             items.append(item_dict)
             idx += 1
-    if image_obj:
-        print "image_obj is OK"
-    iip.find_one_and_update({'people.person_id': person_id}, {'$set': {'people.$.items': items}})
-    image_obj = iip.find_one({'people.person_id': person_id})
-    if not image_obj:
-        print "image_obj is None!!!"
+    new_image_obj = iip.find_one_and_update({'people.person_id': person_id}, {'$set': {'people.$.items': items}},
+                                            return_document=pymongo.ReturnDocument.AFTER)
+    total_time = 0
+    while not new_image_obj:
+        if total_time < 10:
+            print "image_obj after update is None!.. waiting for it.."
+            time.sleep(1)
+            total_time += 1
+            new_image_obj = iip.find_one_and_update({'people.person_id': person_id},
+                                                    {'$set': {'people.$.items': items}},
+                                                    return_document=pymongo.ReturnDocument.AFTER)
+
+    else:
+        image_obj = new_image_obj
     if person['person_idx'] == len(image_obj['people']) - 1:
         images.insert(image_obj)
         iip.delete_one({'_id': image_obj['_id']})
