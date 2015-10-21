@@ -20,6 +20,8 @@ def ccv_facedetect(filename):
     fcommand = 'pwd'
     retvals = commands.getstatusoutput(fcommand)
     print(str(retvals),end="\n")
+    d=depth_of_subdir_in_trendi_guru_modules_of_calling_function()
+    print('depth of subdir:'+str(d))
 
     fcommand = 'classifier_stuff/ccvface '+str(filename)+' classifier_stuff/ccvface.sqlite3'
     retvals = commands.getstatusoutput(fcommand)
