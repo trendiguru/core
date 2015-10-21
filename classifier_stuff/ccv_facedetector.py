@@ -12,7 +12,7 @@ import sys
 import os.path
 import logging
 
-import trendi_guru_modules.Utils
+import trendi_guru_modules.Utils as Utils
 
 def ccv_facedetect(filename):
  #   Utils.get_cv2_img_array(url_or_path_to_image_file_or_cv2_image_array, download=True,)
@@ -99,7 +99,7 @@ def check_lfw(use_visual_output=False):
     print('n_images:'+str(n_images)+' n_extra:'+str(n_extra)+' n_detections:'+str(n_single_detections))
     print('true pos:'+str(true_pos_rate)+' false_neg:'+str(false_neg_rate))
 
-def run_classifier_on_dir_recursively(BASE_PATH=None,use_visual_output=False,classifier=ccv_facedetect):
+def run_classifier_on_dir_of_dirs(BASE_PATH=None,use_visual_output=False,classifier=ccv_facedetect):
     if BASE_PATH is None:
         BASE_PATH = os.getcwd()
     print('basepath:' + BASE_PATH)
@@ -107,11 +107,27 @@ def run_classifier_on_dir_recursively(BASE_PATH=None,use_visual_output=False,cla
     n_extra = 0
     n_single_detections = 0
     for dirname, dirnames, filenames in os.walk(BASE_PATH):
+        for filename in filenames:
+            abs_path = "%s/%s" % (dirname, filename)
+#            print('path:' + abs_path)
+            faces = classifier(abs_path)
+            print('path:' + abs_path+' faces:'+str(faces), end="\r")
+            n_images = n_images + 1
+            if len(faces)>1:
+                n_extra = n_extra + 1
+            if len(faces)==1:
+                n_single_detections = n_single_detections + 1
+            if use_visual_output:
+                show_rects(abs_path,faces)
+            print('n_images:'+str(n_images)+' n_extra:'+str(n_extra)+' n_detections:'+str(n_single_detections), end="\r")
+
+        raw_input('waiting')
         dirnames.sort()
         for subdirname in dirnames:
             subject_path = os.path.join(dirname, subdirname)
             for filename in os.listdir(subject_path):
                 abs_path = "%s/%s" % (subject_path, filename)
+                print('path:' + abs_path)
                 faces = classifier(abs_path)
                 print('path:' + abs_path+' faces:'+str(faces), end="\r")
                 n_images = n_images + 1
@@ -131,6 +147,29 @@ def run_classifier_on_dir_recursively(BASE_PATH=None,use_visual_output=False,cla
         print('true pos:'+str(pos_rate)+' false_neg:'+str(neg_rate))
         return pos_rate,neg_rate
 
+    else:
+        return 0,0
+
+ #!/usr/bin/python
+     # Creating an empty list that will contain the already traversed paths
+def direct(path):
+    donePaths = []
+    for paths,dirs,files in os.walk(path):
+        if paths not in donePaths:
+            count = paths.count('/')
+            if files:
+                for ele1 in files:
+                    print('---------' * (count), ele1)
+                if dirs:
+                    for ele2 in dirs:
+                        print('---------' * (count), ele2)
+                        absPath = os.path.join(paths,ele2)
+          # recursively calling the direct function on each directory
+                        direct(absPath)
+               # adding the paths to the list that got traversed
+                        donePaths.append(absPath)
+
+
 def show_rects(abs_path,faces):
     img_arr = cv2.imread(abs_path)
     if len(faces):
@@ -141,13 +180,12 @@ def show_rects(abs_path,faces):
     cv2.imshow('candidate',img_arr)
     cv2.waitKey(10)
 
-
-
 if __name__ == "__main__":
 
-    pos,neg = run_classifier_on_dir_recursively('images/llamas')
+#    direct('.')
+    pos,neg = run_classifier_on_dir_of_dirs('images/llamas')
     print('pos:{0} neg:{1}'.format(pos,neg))
-    pos,neg = run_classifier_on_dir_recursively('images/monkeys')
+    pos,neg = run_classifier_on_dir_of_dirs('images/monkeys')
     print('pos:{0} neg:{1}'.format(pos,neg))
 
     filename = "../images/male1.jpg"
