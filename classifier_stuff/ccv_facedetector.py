@@ -102,7 +102,7 @@ def check_lfw(use_visual_output=False):
 def run_classifier_recursively(path=None,use_visual_output=False,classifier=ccv_facedetect):
     if path is None:
         path = os.getcwd()
-    print('basepath:' + BASE_PATH)
+    print('basepath:' + path)
     n_images = 0
     n_extra = 0
     n_single_detections = 0
