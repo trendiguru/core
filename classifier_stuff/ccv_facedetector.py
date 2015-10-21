@@ -149,7 +149,7 @@ def show_rects(abs_path,faces):
 
 
 def depth_of_subdir_in_trendi_guru_modules_of_calling_function():
-    path = os.path.abspath(__file__)
+    path = os.getcwd()
     print('path:'+str(path))
     p2 = path.split('trendi_guru_modules/')
     print('path split on trendigurumodules:'+str(p2))
