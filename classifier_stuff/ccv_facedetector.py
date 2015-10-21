@@ -1,3 +1,5 @@
+from __future__ import print_function
+
 __author__ = 'jeremy'
 
 #import Utils
@@ -19,7 +21,7 @@ def ccv_facedetect(filename):
     #subprocess.check_output([command,arg1,arg2])
 #    output = subprocess.Popen(fcommand, stdout=subprocess.PIPE).communicate()[0]
     retvals = commands.getstatusoutput(fcommand)
-    print retvals
+    print(str(retvals),end="\r")
     rects = []
     for rectstr in retvals[1:]:
         newrect = [int(s) for s in rectstr.split() if s.isdigit()]
@@ -40,9 +42,9 @@ def check_lfw(use_visual_output=False):
             subject_path = os.path.join(dirname, subdirname)
             for filename in os.listdir(subject_path):
                 abs_path = "%s/%s" % (subject_path, filename)
-                print('path:' + abs_path)
+
                 faces = ccv_facedetect(abs_path)
-                print('faces:'+str(faces))
+                print('path:' + abs_path+' faces:'+str(faces), end="\r")
                 n_images = n_images + 1
                 if len(faces)>1:
                     n_extra = n_extra + 1
@@ -50,7 +52,7 @@ def check_lfw(use_visual_output=False):
                     n_single_detections = n_single_detections + 1
                 if use_visual_output:
                     show_rects(abs_path,faces)
-                print('n_images:'+str(n_images)+' n_extra:'+str(n_extra)+' n_detections:'+str(n_single_detections))
+                print('n_images:'+str(n_images)+' n_extra:'+str(n_extra)+' n_detections:'+str(n_single_detections), end="\r")
 
     true_positives = n_single_detections + n_extra
     true_pos_rate = float(true_positives)/n_images
@@ -70,9 +72,9 @@ def check_lfw(use_visual_output=False):
             subject_path = os.path.join(dirname, subdirname)
             for filename in os.listdir(subject_path):
                 abs_path = "%s/%s" % (subject_path, filename)
-                print('path:' + abs_path)
+
                 faces = ccv_facedetect(abs_path)
-                print('faces:'+str(faces))
+                print('path:' + abs_path+' faces:'+str(faces), end="\r")
                 n_images = n_images + 1
                 if len(faces)>1:
                     n_extra = n_extra + 1
@@ -80,7 +82,7 @@ def check_lfw(use_visual_output=False):
                     n_single_detections = n_single_detections + 1
                 if use_visual_output:
                     show_rects(abs_path,faces)
-                print('n_images:'+str(n_images)+' n_extra:'+str(n_extra)+' n_detections:'+str(n_single_detections))
+                print('n_images:'+str(n_images)+' n_extra:'+str(n_extra)+' n_detections:'+str(n_single_detections), end="\r")
 
     true_positives = n_single_detections + n_extra
     true_pos_rate = float(true_positives)/n_images

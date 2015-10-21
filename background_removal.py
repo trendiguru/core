@@ -29,11 +29,11 @@ def image_is_relevant(image):
     - "for face in image_is_relevant(image).faces:"
     """
     Relevance = collections.namedtuple('relevance', 'is_relevant faces')
-    faces = find_face(image, 10)
+    faces = find_face(image)
     return Relevance(len(faces) > 0, faces)
 
 
-def find_face(image, max_num_of_faces=1):
+def find_face(image, max_num_of_faces=10):
     gray = cv2.cvtColor(image, constants.BGR2GRAYCONST)
     face_cascades = [
         cv2.CascadeClassifier(os.path.join(constants.classifiers_folder, 'haarcascade_frontalface_alt2.xml')),
