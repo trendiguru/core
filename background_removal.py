@@ -16,7 +16,7 @@ import random
 
 import constants
 import Utils
-import classifier_stuff.ccv_facedetector as ccv
+import trendi_guru_modules.classifier_stuff.ccv_facedetector as ccv
 
 def image_is_relevant(image):
     """
