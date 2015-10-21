@@ -181,19 +181,19 @@ if __name__ == "__main__":
 #    pos,neg = run_classifier_on_dir_of_dirs('/home/jeremy/jeremy.rutman@gmail.com/TrendiGuru/techdev/trendi_guru_modules/classifier_stuff/images/llamas')
     n,singles,multiples = run_classifier_recursively('/home/developer/python-packages/trendi_guru_modules/classifier_stuff/images/female_faces')
     print('n:{0} single:{1} multiple:{2}'.format(n,singles,multiples))
-    raw_input('enter to contiunue')
+    raw_input('enter to continue')
 
     n,singles,multiples = run_classifier_recursively('/home/developer/python-packages/trendi_guru_modules/classifier_stuff/images/llamas')
     print('n:{0} single:{1} multiple:{2}'.format(n,singles,multiples))
-    raw_input('enter to contiunue')
+    raw_input('enter to continue')
 
     n,singles,multiples = run_classifier_recursively('/home/developer/python-packages/trendi_guru_modules/classifier_stuff/images/monkeys')
     print('n:{0} single:{1} multiple:{2}'.format(n,singles,multiples))
-    raw_input('enter to contiunue')
+    raw_input('enter to continue')
 
     n,singles,multiples = run_classifier_recursively('/home/developer/python-packages/trendi_guru_modules/classifier_stuff/images/male_faces')
     print('n:{0} single:{1} multiple:{2}'.format(n,singles,multiples))
-    raw_input('enter to contiunue')
+    raw_input('enter to continue')
 
     filename = "../images/male1.jpg"
     faces = ccv_facedetect(filename)
