@@ -32,11 +32,20 @@ def ccv_facedetect(filename):
     retvals = commands.getstatusoutput(fcommand)
     print(str(retvals),end="\n")
     rects = []
-    for rectstr in retvals[1:]:
-        newrect = [int(s) for s in rectstr.split() if s.isdigit()]
-        if len(newrect) == 4:
-            rects.append(newrect)
-    return rects
+    if isinstance(retvals[1],basestring):
+	strings = retvals[1].split('\n')
+#	print('strings:'+str(strings))
+	for rectstr in strings:
+        	newrect = [int(s) for s in rectstr.split() if s.isdigit()]
+        	if len(newrect) == 4:
+            		rects.append(newrect)
+		else:
+		    logging.debug('got weird string from ccv:'+str(rectstr))
+ #   	print('rects found:'+str(rects))
+    	return rects
+    else:
+	logging.debug('no answer string recd from ccv')
+	return None
 
 def check_lfw(use_visual_output=False):
     BASE_PATH = os.getcwd()
@@ -115,7 +124,7 @@ def run_classifier_recursively(path=None,use_visual_output=False,classifier=ccv_
                     full_name = os.path.join(path,ele1)
                     faces = classifier(full_name)
                     n_images = n_images + 1
- #                   print('faces:'+str(faces)+' images:'+str(n_images)+ ' file:'+str(ele1), end="\n")
+                    print('faces:'+str(faces)+' images:'+str(n_images)+ ' file:'+str(ele1), end="\n")
                     if isinstance(faces,list):
                         if len(faces)>1:
                             n_extra_detections = n_extra_detections + 1
@@ -124,7 +133,7 @@ def run_classifier_recursively(path=None,use_visual_output=False,classifier=ccv_
                         if use_visual_output:
                             show_rects(abs_path,faces)
                         print('n_images:'+str(n_images)+' n_extra:'+str(n_extra_detections)+' n_detections:'+str(n_single_detections)+' file:'+str(ele1), end="\n")
-
+			print('')
                 if dirs:
                     for ele2 in dirs:
                         print('---------' * (count), ele2)
@@ -179,7 +188,11 @@ if __name__ == "__main__":
 
 #    direct('.')
 #    pos,neg = run_classifier_on_dir_of_dirs('/home/jeremy/jeremy.rutman@gmail.com/TrendiGuru/techdev/trendi_guru_modules/classifier_stuff/images/llamas')
-    n,singles,multiples = run_classifier_recursively('/home/developer/python-packages/trendi_guru_modules/classifier_stuff/images/female_faces')
+    n,singles,multiples = run_classifier_recursively('/home/developer/python-packages/trendi_guru_modules/images/many_faces')
+    print('n:{0} single:{1} multiple:{2}'.format(n,singles,multiples))
+    raw_input('enter to continue')
+
+    n,singles,multiples = run_classifier_recursively('/home/developer/python-packages/trendi_guru_modules/images/female_faces')
     print('n:{0} single:{1} multiple:{2}'.format(n,singles,multiples))
     raw_input('enter to continue')
 
