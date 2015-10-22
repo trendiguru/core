@@ -100,7 +100,7 @@ filtered_paperdoll_weights_dictionary = {'womens-tops':1,
 'leggings':1}
 
 def sigmoid(input_value):
-    return 2*(float(1)/(1+np.exp(-input_value)) - 0.5)
+    return 2*(float(1)/(1+np.exp(-input_value/0.167)) - 0.5)
 
 def classification_rating(goldenset_classes,testset_classes,weights_dictionary):
     '''
@@ -391,7 +391,6 @@ def run_scorer(test_case_image_path,goldenset_classes,goldenset_images,filtered_
     # print test_results_score
 
     return test_classes_score, test_results_score
-
 
 def lab(filtered_paperdoll=True):
     goldenset_classes = []
