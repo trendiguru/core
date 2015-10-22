@@ -1,6 +1,6 @@
 __author__ = 'jeremy'
 
-#NOTE - THE VERSION WHICH IS ON EXTREMELY IS NOT ACTUALLY USED
+# NOTE - THE VERSION WHICH IS ON EXTREMELY IS NOT ACTUALLY USED
 # the real pd.py is   on mightili , and this one is here only so that I can enqueue the right function name
 # the mightili version should be pulled from our repo using git pull , so actually the files are identical.
 # but don't expect changes to pd.py on extremeli to hchange anything until you do a git pull on mightili
@@ -9,7 +9,7 @@ __author__ = 'jeremy'
 # paperdoll run from matlab
 # this needs to run on server that
 # has matlab running w. 2opencv3
-#which is currently 'mightili.trendi.guru'
+# which is currently 'mightili.trendi.guru'
 
 import subprocess
 import imghdr
@@ -22,8 +22,9 @@ import numpy as np
 import cv2
 
 import matlab.engine
-from trendi_guru_modules import Utils
+from .. import Utils
 import os
+
 
 def get_parse_from_matlab(image_filename):
     with run_matlab_engine() as eng:
@@ -42,7 +43,7 @@ def get_parse_from_matlab(image_filename):
         # subprocess.Popen("cp inputimg.jpg " + outfilename, shell=True, stdout=subprocess.PIPE).stdout.read()
         # subprocess.Popen("cp savedlabels.p " + savedlabels, shell=True, stdout=subprocess.PIPE).stdout.read()
         # subprocess.Popen("cp savedpose.p " + savedpose, shell=True, stdout=subprocess.PIPE).stdout.read()
-     
+
         return mask, label_dict, pose
 
 
@@ -52,7 +53,7 @@ def rand_string():
 
 def test_function():
     print("this is a totally awesome test function")
-    return(6*7)
+    return (6 * 7)
 
 
 def get_parse_mask(img_url_or_cv2_array):
@@ -69,9 +70,9 @@ def get_parse_mask(img_url_or_cv2_array):
         print('labels:' + str(label_dict))
         mask_np = np.array(mask, dtype=np.uint8)
         pose_np = np.array(pose, dtype=np.uint8)
-#        if callback_pack is not None:
-#            a=callback_pack[0]
-#            print('callback function returned:'+str(a))
+        #        if callback_pack is not None:
+        #            a=callback_pack[0]
+        #            print('callback function returned:'+str(a))
         return mask_np, label_dict, pose_np
     else:
         print('either image is empty or problem writing')
@@ -116,10 +117,8 @@ def run_test():
     url = 'http://assets.yandycdn.com/HiRez/ES-4749-B-AMPM2012-2.jpg'
     img, labels, pose = get_parse_mask(img_url_or_cv2_array=url)
     show_max(img, labels)
-    print('labels:'+str(labels))
-    #show_parse(img_array=img)
-
-
+    print('labels:' + str(labels))
+    # show_parse(img_array=img)
 
 
 @contextmanager
@@ -127,6 +126,7 @@ def run_matlab_engine(options_string='-nodesktop'):
     eng = matlab.engine.start_matlab(options_string)
     yield eng
     eng.quit()
+
 
 if __name__ == "__main__":
     run_test()
