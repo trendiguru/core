@@ -6,7 +6,6 @@ import sys
 import time
 
 import numpy as np
-
 import pymongo
 import cv2
 from rq import Queue
@@ -427,8 +426,8 @@ def get_results_now(page_url, image_url):
         return
 
     # NEW_IMAGE !!
-    image = background_removal.standard_resize(image, 400)[0]
-    clean_image = background_removal.standard_resize(image, 400)[0]
+    image, resize_ratio = background_removal.standard_resize(image, 400)
+    clean_image = image.copy
     relevance = background_removal.image_is_relevant(image)
     image_dict = {'image_urls': [image_url], 'relevant': relevance.is_relevant,
                   'image_hash': image_hash, 'page_urls': [page_url], 'people': [], }
@@ -465,7 +464,7 @@ def get_results_now(page_url, image_url):
                     item_idx += 1
             idx += 1
             image_dict['people'].append(person)
-        final_image_url = upload_image(image, str(image_dict['_id']))
+        final_image_url = upload_image(cv2.resize(image, resize_ratio), str(image_dict['_id']))
         image_dict['final_image_url'] = final_image_url
         db.demo.insert(image_dict)
         return page_results.merge_items(image_dict)
