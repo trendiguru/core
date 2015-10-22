@@ -4,6 +4,7 @@ import logging
 import datetime
 import sys
 import time
+import copy
 
 import numpy as np
 import pymongo
@@ -21,6 +22,7 @@ import Utils
 import constants
 from .constants import db
 from .constants import redis_conn
+
 
 folder = '/home/ubuntu/paperdoll/masks/'
 QC_URL = 'https://extremeli.trendi.guru/api/fake_qc/index'
@@ -425,7 +427,7 @@ def get_results_now(page_url, image_url):
 
     # NEW_IMAGE !!
     image, resize_ratio = background_removal.standard_resize(image, 400)
-    clean_image = image.copy
+    clean_image = copy.copy(image)
     relevance = background_removal.image_is_relevant(image)
     image_dict = {'image_urls': [image_url], 'relevant': relevance.is_relevant,
                   'image_hash': image_hash, 'page_urls': [page_url], 'people': [], }
