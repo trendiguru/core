@@ -63,6 +63,7 @@ class ShopStyleDownloader():
                                               "errors": 0,
                                               "end_time": "still in process",
                                               "total_dl_time": "still in process"})
+            self.db.drop_collection("fp_in_process")
             self.db.fp_in_process.insert_one({})
             self.db.fp_in_process.create_index("id")
             self.db.dl_cache.delete_many({})
@@ -274,7 +275,7 @@ class ShopStyleDownloader():
                 print "New product,",
                 self.db.download_data.find_one_and_update({"criteria": "main"},
                                                           {'$inc': {"new_items": 1}})
-                self.fp_in_process.insert_one({"id": prod["id"]})
+                self.db.fp_in_process.insert_one({"id": prod["id"]})
                 self.insert_and_fingerprint(prod)
             else:  # means the item is in the archive
                 # No matter what, we're moving this out of the archive...
