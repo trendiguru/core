@@ -63,6 +63,7 @@ class ShopStyleDownloader():
                                               "errors": 0,
                                               "end_time": "still in process",
                                               "total_dl_time": "still in process"})
+            self.db.drop_collection("fp_in_process")
             self.db.fp_in_process.insert_one({})
             self.db.fp_in_process.create_index("id")
             self.db.dl_cache.delete_many({})
