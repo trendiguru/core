@@ -11,7 +11,7 @@ import os
 import sys
 import os.path
 import logging
-from .. import background_removal
+#from .. import background_removal
 import Utils
 
 def ccv_facedetect(filename):
