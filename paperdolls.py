@@ -253,7 +253,54 @@ def job_result_from_id(job_id, job_class=Job, conn=None):
     return job.result
 
 
+def draw_pose_boxes(boxes_array, image):
+    """
+    the function translates the boxes array to a boxes dictionary
+    :param boxes_array: array of 1X106 float (0-103 are the boxes coordinates)
+    :return: image with drawn boxes
+    """
+    boxes_list = list(boxes_array)
+    for i in range(0, len(boxes_list)):
+        boxes_list[i] = abs(float(boxes_list[i]))
+    boxes_list = np.array(boxes_list)
+    boxes_list = boxes_list.astype(np.uint16)
+    boxes_dict = {'head': [], 'torso': [], 'left_arm': [], 'left_leg': [], 'right_arm': [], 'right_leg': []}
+    for i in range(0, len(boxes_list) / 4):
+        if i in [0, 1]:
+            boxes_dict["head"].append(
+                [boxes_list[4 * i], boxes_list[4 * i + 1], boxes_list[4 * i + 2], boxes_list[4 * i + 3]])
+        elif i in [2, 7, 8, 9, 14, 19, 20, 21]:
+            boxes_dict["torso"].append(
+                [boxes_list[4 * i], boxes_list[4 * i + 1], boxes_list[4 * i + 2], boxes_list[4 * i + 3]])
+        elif i in [3, 4, 5, 6]:
+            boxes_dict["left_arm"].append(
+                [boxes_list[4 * i], boxes_list[4 * i + 1], boxes_list[4 * i + 2], boxes_list[4 * i + 3]])
+        elif i in [10, 11, 12, 13]:
+            boxes_dict["left_leg"].append(
+                [boxes_list[4 * i], boxes_list[4 * i + 1], boxes_list[4 * i + 2], boxes_list[4 * i + 3]])
+        elif i in [15, 16, 17, 18]:
+            boxes_dict["right_arm"].append(
+                [boxes_list[4 * i], boxes_list[4 * i + 1], boxes_list[4 * i + 2], boxes_list[4 * i + 3]])
+        elif i in [22, 23, 24, 25]:
+            boxes_dict["right_leg"].append(
+                [boxes_list[4 * i], boxes_list[4 * i + 1], boxes_list[4 * i + 2], boxes_list[4 * i + 3]])
+
+    for box in boxes_dict["head"]:
+        cv2.rectangle(image, (box[0], box[1]), (box[2], box[3]), [0, 255, 0], 2)
+    for box in boxes_dict["left_arm"]:
+        cv2.rectangle(image, (box[0], box[1]), (box[2], box[3]), [190, 180, 255], 2)
+    for box in boxes_dict["torso"]:
+        cv2.rectangle(image, (box[0], box[1]), (box[2], box[3]), [0, 255, 255], 2)
+    for box in boxes_dict["left_leg"]:
+        cv2.rectangle(image, (box[0], box[1]), (box[2], box[3]), [0, 0, 255], 2)
+    for box in boxes_dict["right_arm"]:
+        cv2.rectangle(image, (box[0], box[1]), (box[2], box[3]), [255, 255, 0], 2)
+    for box in boxes_dict["right_leg"]:
+        cv2.rectangle(image, (box[0], box[1]), (box[2], box[3]), [255, 0, 0], 2)
+
+    return image
 # ----------------------------------------------MAIN-FUNCTIONS----------------------------------------------------------
+
 
 def start_process(page_url, image_url):
     # IF URL HAS NO IMAGE IN IT
@@ -364,7 +411,7 @@ def get_results_now(page_url, image_url):
         return
 
     # IF IMAGE EXISTS IN IMAGES BY URL
-    images_obj_url = images.find_one({"image_urls": image_url})
+    images_obj_url = images.find_one({"image_urls": image_url}) or db.demo.find_one({"image_urls": image_url})
     if images_obj_url:
         return page_results.merge_items(images_obj_url)
 
@@ -381,19 +428,20 @@ def get_results_now(page_url, image_url):
 
     # NEW_IMAGE !!
     image = background_removal.standard_resize(image, 400)[0]
+    clean_image = background_removal.standard_resize(image, 400)[0]
     relevance = background_removal.image_is_relevant(image)
     image_dict = {'image_urls': [image_url], 'relevant': relevance.is_relevant,
-                  'image_hash': image_hash, 'page_urls': [page_url], 'people': []}
+                  'image_hash': image_hash, 'page_urls': [page_url], 'people': [], }
     if relevance.is_relevant:
         idx = 0
         for face in relevance.faces.tolist():
             person = {'face': face, 'person_id': str(bson.ObjectId()), 'person_idx': idx,
                       'items': []}
             image_copy = person_isolation(image, face)
-            person['url'] = upload_image(image_copy, str(person['person_id']))
             image_dict['people'].append(person)
-            mask, labels = paperdoll_parse_enqueue.paperdoll_enqueue(person['url'], async=False).result[:2]
-            final_mask = after_pd_conclusions_loose(mask, labels, person['face'])
+            mask, labels, pose = paperdoll_parse_enqueue.paperdoll_enqueue(image_copy, async=False).result[:3]
+            final_mask = after_pd_conclusions(mask, labels, person['face'])
+            image = draw_pose_boxes(pose, image)
             item_idx = 0
             for num in np.unique(final_mask):
                 # convert numbers to labels
@@ -408,7 +456,7 @@ def get_results_now(page_url, image_url):
                         str(image_dict['image_hash']) + '_' + person['person_id'] + '_' + item_dict['category'],
                         constants.svg_folder)
                     item_dict["svg_url"] = constants.svg_url_prefix + svg_name
-                    item_dict['fp'], item_dict['similar_results'] = find_similar_mongo.find_top_n_results(image,
+                    item_dict['fp'], item_dict['similar_results'] = find_similar_mongo.find_top_n_results(clean_image,
                                                                                                           item_mask,
                                                                                                           100,
                                                                                                           item_dict[
@@ -417,6 +465,9 @@ def get_results_now(page_url, image_url):
                     item_idx += 1
             idx += 1
             image_dict['people'].append(person)
+        final_image_url = upload_image(image, str(image_dict['_id']))
+        image_dict['final_image_url'] = final_image_url
+        db.demo.insert(image_dict)
         return page_results.merge_items(image_dict)
     else:  # if not relevant
         return
