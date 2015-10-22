@@ -22,7 +22,6 @@ import constants
 from .constants import db
 from .constants import redis_conn
 
-
 folder = '/home/ubuntu/paperdoll/masks/'
 QC_URL = 'https://extremeli.trendi.guru/api/fake_qc/index'
 callback_url = "https://extremeli.trendi.guru/api/nadav/index"
@@ -200,7 +199,6 @@ def after_pd_conclusions_loose(mask, labels, face):
                     if mask[i][j] == item.keys()[0]:
                         final_mask[i][j] = sections["lower_cover"] or sections["lower_under"] or 0
     return final_mask
-
 
 
 def person_isolation(image, face):

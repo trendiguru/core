@@ -4,7 +4,6 @@ __author__ = 'jeremy'
 
 __author__ = 'jeremy'
 import unittest
-import trendi_guru_modules.gender
 
 # ours
 #import page_results
