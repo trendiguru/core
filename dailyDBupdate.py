@@ -1,9 +1,7 @@
 __author__ = 'yonatan'
 
 """
-1. run getShopStyleDB.py
-2. do stats
-3. mail the output to relevent
+add description
 """
 
 import json
@@ -25,9 +23,9 @@ def email(stats):
     # kyle = 'kyle@trendiguru.com'
     # jeremy = 'jeremy@trendiguru.com'
     yonti = 'yontilevin@gmail.com'
-    sender = 'Notifier@trendiguru.com'
+    sender = 'yonti0@gmail.com'
     #
-    recipient = 'members@trendiguru.com'
+    recipient = 'team@trendiguru.com'
 
     # Open a plain text file for reading.  For this example, assume that
     msg = MIMEMultipart('alternative')
