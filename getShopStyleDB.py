@@ -256,7 +256,7 @@ class ShopStyleDownloader():
 
         # requests package can't handle https - temp fix
         prod["image"] = json.loads(json.dumps(prod["image"]).replace("https://", "http://"))
-        prod_in_que = self.fp_in_process.find_one({"id": prod["id"]})
+        prod_in_que = self.db.fp_in_process.find_one({"id": prod["id"]})
         if prod_in_que is not None:
             return
         self.db.download_data.find_one_and_update({"criteria": "main"},
