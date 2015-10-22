@@ -218,7 +218,6 @@ class ShopStyleDownloader():
         #             {"$elemMatch": {
         #                 "id": {"$in": find_similar_mongo.get_all_subcategories(self.db.categories, category_id)}}}
         #         })
-
         # update_result = self.collection.update_many(query_doc, {"$set": {"archive": True}})
         # print "Marked {0} of {1} products for archival".format(update_result.modified_count,
         #                                                        update_result.matched_count)
