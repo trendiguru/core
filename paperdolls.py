@@ -464,7 +464,7 @@ def get_results_now(page_url, image_url):
                     item_idx += 1
             idx += 1
             image_dict['people'].append(person)
-        final_image_url = upload_image(cv2.resize(image, resize_ratio), str(image_dict['_id']))
+        final_image_url = upload_image(cv2.resize(image, resize_ratio), image_url)
         image_dict['final_image_url'] = final_image_url
         db.demo.insert(image_dict)
         return page_results.merge_items(image_dict)
