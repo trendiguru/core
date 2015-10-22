@@ -256,7 +256,7 @@ def draw_pose_boxes(boxes_array, image):
     :param boxes_array: array of 1X106 float (0-103 are the boxes coordinates)
     :return: image with drawn boxes
     """
-    boxes_list = boxes_array[0]
+    boxes_list = list(boxes_array[0])
     for i in range(0, len(boxes_list)):
         boxes_list[i] = abs(float(boxes_list[i]))
     boxes_list = np.array(boxes_list)
