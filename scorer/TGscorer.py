@@ -1,10 +1,10 @@
 import numpy as np
 import cv2
-from trendi_guru_modules import find_similar_mongo
-from trendi_guru_modules import background_removal
-from trendi_guru_modules import constants
-from trendi_guru_modules.paperdoll import paperdoll_parse_enqueue
-from trendi_guru_modules import paperdolls
+from .. import find_similar_mongo
+from .. import background_removal
+from .. import constants
+from ..paperdoll import paperdoll_parse_enqueue
+from .. import paperdolls
 
 
 original_paperdoll_weights_dictionary = {'background':1,
