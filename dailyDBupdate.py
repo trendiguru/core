@@ -155,7 +155,7 @@ if __name__ == "__main__":
             else:
                 exit()
 
-    if x is "D":
+    if x is "D" or x is "d":
         update_db = getShopStyleDB.ShopStyleDownloader()
         update_db.run_by_category()
     stats_and_mail()

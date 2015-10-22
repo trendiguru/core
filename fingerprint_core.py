@@ -95,6 +95,7 @@ def generate_mask_and_insert(doc, image_url=None, mask_only=False, fp_date=None)
     try:
         db[collection].insert_one(doc)
         print "prod inserted successfully"
+        db.fp_in_process.delete_one({"id": doc["id"]})
     except:
         db.download_data.find_one_and_update({"criteria": "main"},
                                              {'$inc': {"errors": 1}})

@@ -204,6 +204,7 @@ class ShopStyleDownloader():
         old_items = self.collection.find({'download_data.dl_version': {'$not': self.current_dl_date}})
         """
         needs to write again
+
         """
         # query_doc = {'$and': [
         #     {'download_data': {'dl_version': {'$exists': 1, '$lt': self.current_dl}}},
@@ -218,6 +219,7 @@ class ShopStyleDownloader():
         #             {"$elemMatch": {
         #                 "id": {"$in": find_similar_mongo.get_all_subcategories(self.db.categories, category_id)}}}
         #         })
+
         # update_result = self.collection.update_many(query_doc, {"$set": {"archive": True}})
         # print "Marked {0} of {1} products for archival".format(update_result.modified_count,
         #                                                        update_result.matched_count)
