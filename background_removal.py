@@ -34,7 +34,7 @@ def image_is_relevant(image):
     return Relevance(len(faces) > 0, faces)
 
 
-def find_face(image, max_num_of_faces=1,method='ccv'):
+def find_face(image, max_num_of_faces=10,method='ccv'):
     if method == 'cascade':
         faces = find_face_cascade(image, max_num_of_faces=max_num_of_faces)
         return faces
@@ -52,7 +52,7 @@ def find_face(image, max_num_of_faces=1,method='ccv'):
 def rand_string():
     return ''.join([random.choice(string.ascii_letters + string.digits) for n in xrange(32)])
 
-def find_face_cascade(image, max_num_of_faces=1,method='ccv'):
+def find_face_cascade(image, max_num_of_faces=10):
     gray = cv2.cvtColor(image, constants.BGR2GRAYCONST)
     face_cascades = [
         cv2.CascadeClassifier(os.path.join(constants.classifiers_folder, 'haarcascade_frontalface_alt2.xml')),

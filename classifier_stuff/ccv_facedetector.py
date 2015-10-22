@@ -6,12 +6,12 @@ __author__ = 'jeremy'
 import subprocess
 
 import commands
-import  cv2
+import cv2
 import os
 import sys
 import os.path
 import logging
-
+from .. import background_removal
 import Utils
 
 def ccv_facedetect(filename):
@@ -24,6 +24,7 @@ def ccv_facedetect(filename):
 #    print(str(retvals),end="\n")
     d=Utils.depth_of_subdir_of_calling_function()
 #    print('depth of subdir:'+str(d))
+#    d = 1
     if d == 0:
         fcommand = 'classifier_stuff/ccvface '+str(filename)+' classifier_stuff/ccvface.sqlite3'
     elif d == 1:
@@ -33,23 +34,23 @@ def ccv_facedetect(filename):
     print(str(retvals),end="\n")
     rects = []
     if isinstance(retvals[1],basestring):
-	strings = retvals[1].split('\n')
-#	print('strings:'+str(strings))
-	for rectstr in strings:
-        	newrect = [int(s) for s in rectstr.split() if s.isdigit()]
-        	if len(newrect) == 4:
-            		rects.append(newrect)
-		else:
-		    logging.debug('got weird string from ccv:'+str(rectstr))
- #   	print('rects found:'+str(rects))
-    	return rects
+        strings = retvals[1].split('\n')
+    #	print('strings:'+str(strings))
+        for rectstr in strings:
+            newrect = [int(s) for s in rectstr.split() if s.isdigit()]
+            if len(newrect) == 4:
+                rects.append(newrect)
+            else:
+                logging.debug('got weird string from ccv:'+str(rectstr))
+     #   	print('rects found:'+str(rects))
+            return rects
     else:
-	logging.debug('no answer string recd from ccv')
-	return None
+        logging.debug('no answer string recd from ccv')
+        return None
 
 def check_lfw(use_visual_output=False):
     BASE_PATH = os.getcwd()
-    BASE_PATH2 = os.path.join(BASE_PATH, 'male-female/female')
+    BASE_PATH2 = os.path.join(BASE_PATH, 'many_faces')
     print('basepath:' + BASE_PATH2)
     n_images = 0
     n_extra = 0
@@ -62,6 +63,9 @@ def check_lfw(use_visual_output=False):
                 abs_path = "%s/%s" % (subject_path, filename)
 
                 faces = ccv_facedetect(abs_path)
+#                faces = background_removal.find_face()
+
+
                 print('path:' + abs_path+' faces:'+str(faces), end="\r")
                 n_images = n_images + 1
                 if len(faces)>1:
@@ -120,6 +124,7 @@ def run_classifier_recursively(path=None,use_visual_output=False,classifier=ccv_
             count = paths.count('/')
             if files:
                 for ele1 in files:
+                    raw_input('enter to continue')
 #                  print('---------' * (count), ele1)
                     full_name = os.path.join(path,ele1)
                     faces = classifier(full_name)
@@ -127,11 +132,11 @@ def run_classifier_recursively(path=None,use_visual_output=False,classifier=ccv_
                     print('faces:'+str(faces)+' images:'+str(n_images)+ ' file:'+str(ele1), end="\n")
                     if isinstance(faces,list):
                         if len(faces)>1:
-                            n_extra_detections = n_extra_detections + 1
+                            n_extra_detections = n_extra_detections + len(faces) - 1
                         if len(faces)==1:
                             n_single_detections = n_single_detections + 1
                         if use_visual_output:
-                            show_rects(abs_path,faces)
+                            show_rects(full_name,faces)
                         print('n_images:'+str(n_images)+' n_extra:'+str(n_extra_detections)+' n_detections:'+str(n_single_detections)+' file:'+str(ele1), end="\n")
 			print('')
                 if dirs:
@@ -174,21 +179,28 @@ def direct(path):
                         donePaths.append(absPath)
 
 
-def show_rects(abs_path,faces):
+def show_rects(abs_path,faces,save_figs=True):
     img_arr = cv2.imread(abs_path)
     if len(faces):
         for rect in faces:
             print('rect:'+str(rect))
-            cv2.rectangle(img_arr,(rect[0],rect[1]),(rect[0]+rect[2],rect[1]+rect[3]),[255,255,255],5)
-            cv2.rectangle(img_arr,(rect[0],rect[1]),(rect[0]+rect[2],rect[1]+rect[3]),[255,255,255],5)
+            cv2.rectangle(img_arr,(rect[0],rect[1]),(rect[0]+rect[2],rect[1]+rect[3]),[0,0,250],2)
     cv2.imshow('candidate',img_arr)
+    newname  = abs_path.replace('.jpg','.cascaderects.jpg')
+    cv2.imwrite(newname,img_arr)
     cv2.waitKey(10)
 
 if __name__ == "__main__":
 
 #    direct('.')
 #    pos,neg = run_classifier_on_dir_of_dirs('/home/jeremy/jeremy.rutman@gmail.com/TrendiGuru/techdev/trendi_guru_modules/classifier_stuff/images/llamas')
-    n,singles,multiples = run_classifier_recursively('/home/developer/python-packages/trendi_guru_modules/images/many_faces')
+
+    n,singles,multiples = run_classifier_recursively('images/many_faces',use_visual_output=True,classifier=background_removal.find_face_cascade)
+#    n,singles,multiples = run_classifier_recursively('images/many_faces',use_visual_output=True)
+    print('n:{0} single:{1} multiple:{2}'.format(n,singles,multiples))
+    raw_input('enter to continue')
+
+    n,singles,multiples = run_classifier_recursively('images/many_faces',use_visual_output=True)
     print('n:{0} single:{1} multiple:{2}'.format(n,singles,multiples))
     raw_input('enter to continue')
 
