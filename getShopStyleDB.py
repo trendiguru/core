@@ -249,6 +249,7 @@ class ShopStyleDownloader():
             print "enqueuing for fingerprint & insert,",
             q.enqueue(generate_mask_and_insert, doc=prod, image_url=None, mask_only=False,
                       fp_date=self.current_dl_date)
+
     def db_update(self, prod):
         print ""
         print "Updating product {0}. ".format(prod["id"]),
