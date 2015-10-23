@@ -101,7 +101,7 @@ def wait_for(dl_data):
     insert_errors = dl_data["errors"]
     sub = downloaded_items - insert_errors
     if total_items > sub:
-        time.sleep(new_items)
+        time.sleep(new_items / 100)
     else:
         check = 0
         while sub > total_items:
@@ -155,7 +155,7 @@ if __name__ == "__main__":
             else:
                 exit()
 
-    if x is "D":
+    if x is "D" or x is "d":
         update_db = getShopStyleDB.ShopStyleDownloader()
         update_db.run_by_category()
     stats_and_mail()

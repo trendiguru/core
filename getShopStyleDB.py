@@ -44,7 +44,7 @@ class ShopStyleDownloader():
     def run_by_category(self, do_fingerprint=True, type="DAILY"):
         x = raw_input("choose your update type - Daily or Full? (D/F)")
         if x is "f" or x is "F":
-            type = "Full"
+            type = "FULL"
         self.do_fingerprint = do_fingerprint  # check if relevent
         root_category, ancestors = self.build_category_tree()
         if self.db.download_data.find().count() < 1 or \
@@ -204,6 +204,7 @@ class ShopStyleDownloader():
         old_items = self.collection.find({'download_data.dl_version': {'$not': self.current_dl_date}})
         """
         needs to write again
+
         """
         # query_doc = {'$and': [
         #     {'download_data': {'dl_version': {'$exists': 1, '$lt': self.current_dl}}},
