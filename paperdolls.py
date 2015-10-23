@@ -467,7 +467,8 @@ def get_results_now(page_url, image_url):
             idx += 1
             image_dict['people'].append(person)
         print "image shape before resize: {0}".format(image.shape)
-        big_image = cv2.resize(image, (round(resize_ratio * image.shape[1]), round(resize_ratio * image.shape[0])))
+        big_image = cv2.resize(image,
+                               (int(round(resize_ratio * image.shape[1])), int(round(resize_ratio * image.shape[0]))))
         print "image shape after resize: {0}".format(big_image.shape)
         final_image_url = upload_image(big_image, image_url)
         image_dict['final_image_url'] = final_image_url
