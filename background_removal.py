@@ -35,7 +35,7 @@ def image_is_relevant(image):
 
 
 def find_face(image_arr, max_num_of_faces=10,method='ccv'):
-    if not isinstance(image_arr,np.array):
+    if not isinstance(image_arr, np.ndarray)  :
         logging.debug('find_face got a non-image')
         return None
     if method == 'cascade':
