@@ -285,19 +285,21 @@ def draw_pose_boxes(boxes_array, image):
                 [boxes_list[4 * i], boxes_list[4 * i + 1], boxes_list[4 * i + 2], boxes_list[4 * i + 3]])
 
     for box in boxes_dict["head"]:
-        cv2.rectangle(image, (box[0], box[1]), (box[2], box[3]), [0, 255, 0], 2)
+        cv2.rectangle(image, (box[0], box[1]), (box[2], box[3]), [0, 255, 0], 1)
     for box in boxes_dict["left_arm"]:
-        cv2.rectangle(image, (box[0], box[1]), (box[2], box[3]), [190, 180, 255], 2)
+        cv2.rectangle(image, (box[0], box[1]), (box[2], box[3]), [190, 180, 255], 1)
     for box in boxes_dict["torso"]:
-        cv2.rectangle(image, (box[0], box[1]), (box[2], box[3]), [0, 255, 255], 2)
+        cv2.rectangle(image, (box[0], box[1]), (box[2], box[3]), [0, 255, 255], 1)
     for box in boxes_dict["left_leg"]:
-        cv2.rectangle(image, (box[0], box[1]), (box[2], box[3]), [0, 0, 255], 2)
+        cv2.rectangle(image, (box[0], box[1]), (box[2], box[3]), [0, 0, 255], 1)
     for box in boxes_dict["right_arm"]:
-        cv2.rectangle(image, (box[0], box[1]), (box[2], box[3]), [255, 255, 0], 2)
+        cv2.rectangle(image, (box[0], box[1]), (box[2], box[3]), [255, 255, 0], 1)
     for box in boxes_dict["right_leg"]:
-        cv2.rectangle(image, (box[0], box[1]), (box[2], box[3]), [255, 0, 0], 2)
+        cv2.rectangle(image, (box[0], box[1]), (box[2], box[3]), [255, 0, 0], 1)
 
     return image
+
+
 # ----------------------------------------------MAIN-FUNCTIONS----------------------------------------------------------
 
 
@@ -464,8 +466,11 @@ def get_results_now(page_url, image_url):
                     item_idx += 1
             idx += 1
             image_dict['people'].append(person)
-        # big_image = cv2.resize(image, resize_ratio)
-        final_image_url = upload_image(image, image_url)
+        print "image shape before resize: {0}".format(image.shape)
+        big_image = cv2.resize(image,
+                               (int(round(resize_ratio * image.shape[1])), int(round(resize_ratio * image.shape[0]))))
+        print "image shape after resize: {0}".format(big_image.shape)
+        final_image_url = upload_image(big_image, image_url)
         image_dict['final_image_url'] = final_image_url
         db.demo.insert(image_dict)
         return page_results.merge_items(image_dict)
