@@ -112,7 +112,7 @@ def check_lfw(use_visual_output=False):
     print('n_images:'+str(n_images)+' n_extra:'+str(n_extra)+' n_detections:'+str(n_single_detections))
     print('true pos:'+str(true_pos_rate)+' false_neg:'+str(false_neg_rate))
 
-def run_classifier_recursively(path=None,use_visual_output=False,classifier=ccv_facedetect,n_images=0,n_single_detections=0,n_extra_detections=0,*args,**kwargs):
+def run_classifier_recursively(path=None,use_visual_output=False,classifier=ccv_facedetect,n_images=0,n_single_detections=0,n_extra_detections=0,classifier_arg=None):
     if path is None:
         path = os.getcwd()
     print('basepath:' + path)
@@ -128,7 +128,9 @@ def run_classifier_recursively(path=None,use_visual_output=False,classifier=ccv_
 #                  print('---------' * (count), ele1)
                     full_name = os.path.join(path,ele1)
                     print('kwargs:'+str(kwargs))
-                    faces = classifier(full_name,kwargs)
+                    arg = 'classifier='classifier_arg
+                    print('arg to classifier:'+str(arg))
+                    faces = classifier(full_name,arg)
                     n_images = n_images + 1
                     print('faces:'+str(faces)+' images:'+str(n_images)+ ' file:'+str(ele1), end="\n")
                     if isinstance(faces,list):
