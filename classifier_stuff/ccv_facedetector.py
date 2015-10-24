@@ -12,18 +12,18 @@ import sys
 import os.path
 import logging
 #from .. import background_removal
-import Utils
+#import Utils
 
 def ccv_facedetect(filename):
  #   Utils.get_cv2_img_array(url_or_path_to_image_file_or_cv2_image_array, download=True,)
     if not os.path.isfile(filename):
         logging.warning('file passed to ccv_facedetect doesnt exist)')
         return 1
-    fcommand = 'pwd'
-    retvals = commands.getstatusoutput(fcommand)
+#    fcommand = 'pwd'
+#    retvals = commands.getstatusoutput(fcommand)
 #    print(str(retvals),end="\n")
-    d=Utils.depth_of_subdir_of_calling_function()
-#    print('depth of subdir:'+str(d))
+    d=depth_of_subdir_of_calling_function()
+    print('depth of subdir:'+str(d))
 #    d = 1
     if d == 0:
         fcommand = 'classifier_stuff/ccvface '+str(filename)+' classifier_stuff/ccvface.sqlite3'
@@ -190,15 +190,34 @@ def show_rects(abs_path,faces,save_figs=True):
     cv2.imwrite(newname,img_arr)
     cv2.waitKey(10)
 
+def depth_of_subdir_of_calling_function():
+    '''
+    this finds the depth of subdirectory in which the caller resides
+    :return:
+    '''
+    path = os.getcwd()
+ #   print('path:'+str(path))
+    p2 = path.split('trendi_guru_modules')
+  #  print('path split on trendigurumodules:'+str(p2))
+    if len(p2) < 2:
+        print('not in trendi_guru_modules')
+    secondhalf = p2[1]
+ #   print('secondhalf:'+str(secondhalf))
+    cur = secondhalf.split('/')
+ #   print('cur:'+str(cur))
+    if len(cur) > 1:
+        in_subdir_of_trendi_guru_modules = True
+    return len(cur)-1
+
 if __name__ == "__main__":
 
 #    direct('.')
 #    pos,neg = run_classifier_on_dir_of_dirs('/home/jeremy/jeremy.rutman@gmail.com/TrendiGuru/techdev/trendi_guru_modules/classifier_stuff/images/llamas')
 
-    n,singles,multiples = run_classifier_recursively('images/many_faces',use_visual_output=True,classifier=background_removal.find_face_cascade)
+#    n,singles,multiples = run_classifier_recursively('images/many_faces',use_visual_output=True,classifier=background_removal.find_face_cascade)
 #    n,singles,multiples = run_classifier_recursively('images/many_faces',use_visual_output=True)
-    print('n:{0} single:{1} multiple:{2}'.format(n,singles,multiples))
-    raw_input('enter to continue')
+#    print('n:{0} single:{1} multiple:{2}'.format(n,singles,multiples))
+#    raw_input('enter to continue')
 
     n,singles,multiples = run_classifier_recursively('images/many_faces',use_visual_output=True)
     print('n:{0} single:{1} multiple:{2}'.format(n,singles,multiples))

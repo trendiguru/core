@@ -43,7 +43,7 @@ def find_face(image, max_num_of_faces=10,method='ccv'):
         modified_name = stripped_name.replace('/', '_')
         cv2.imwrite(modified_name, image)
         faces = ccv.ccv_facedetect(modified_name)
- #       print(faces)
+        print('faces in find_face:'+str(faces))
  #       print('len:'+str(len(faces)))
         if len(faces) == 0 or len(faces)==1:
             return faces  # can we return [] in both cases or () in both , currently its one and one
@@ -386,6 +386,8 @@ if __name__ == '__main__':
     img_arr=cv2.imread(img)
     r1 = find_face(img_arr, max_num_of_faces=1,method='cascade')
     print('ccv result:'+str(r1))
+
+    print('')
     r2 = find_face(img_arr, max_num_of_faces=1,method='ccv')
     print('cascade result:'+str(r2))
     raw_input('return to continue')
@@ -394,6 +396,8 @@ if __name__ == '__main__':
     img_arr=cv2.imread(img)
     r1 = find_face(img_arr, max_num_of_faces=1,method='cascade')
     print('ccv result:'+str(r1))
+
+    print('')
     r2 = find_face(img_arr, max_num_of_faces=1,method='ccv')
     print('cascade result:'+str(r2))
     raw_input('return to continue')
@@ -402,6 +406,8 @@ if __name__ == '__main__':
     img_arr=cv2.imread(img)
     r1 = find_face(img_arr, max_num_of_faces=1,method='cascade')
     print('ccv result:'+str(r1))
+
+    print('')
     r2 = find_face(img_arr, max_num_of_faces=1,method='ccv')
     print('cascade result:'+str(r2))
     raw_input('return to continue')
@@ -410,6 +416,8 @@ if __name__ == '__main__':
     img_arr=cv2.imread(img)
     r1 = find_face(img_arr, max_num_of_faces=1,method='cascade')
     print('ccv result:'+str(r1))
+
+    print('')
     r2 = find_face(img_arr, max_num_of_faces=1,method='ccv')
     print('cascade result:'+str(r2))
     raw_input('return to continue')
