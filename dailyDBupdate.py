@@ -16,7 +16,6 @@ import constants
 
 db = constants.db
 
-
 def email(stats):
     # me = 'nadav@trendiguru.com'
     # lior = 'lior@trendiguru.com'
