@@ -43,7 +43,7 @@ def find_face(image, max_num_of_faces=10,method='ccv'):
         modified_name = stripped_name.replace('/', '_')
         cv2.imwrite(modified_name, image)
         faces = ccv.ccv_facedetect(modified_name)
-        print('faces in find_face:'+str(faces))
+      #  print('faces in find_face:'+str(faces))
  #       print('len:'+str(len(faces)))
         if len(faces) == 0 or len(faces)==1:
             return faces  # can we return [] in both cases or () in both , currently its one and one
@@ -425,7 +425,7 @@ if __name__ == '__main__':
     print('cascade result:'+str(r2))
     raw_input('return to continue')
 
-    n,singles,multiples = ccv.run_classifier_recursively('images/many_faces',use_visual_output=False,classifier=find_face_cascade)
+    n,singles,multiples = ccv.run_classifier_recursively('images/many_faces',use_visual_output=False,classifier=find_face_cascade,kwargs={'method':'ccv'})
     print('n:{0} single:{1} multiple:{2}'.format(n,singles,multiples))
     raw_input('enter to continue')
 
