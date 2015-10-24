@@ -46,6 +46,7 @@ def ccv_facedetect(filename):
             else:
                 logging.debug('got weird string from ccv:'+str(rectstr))
         	print('rects found:'+str(rects))
+        print('rects'+str(rects))
         return rects
     else:
         logging.debug('no answer string recd from ccv')
