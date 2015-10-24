@@ -384,40 +384,51 @@ if __name__ == '__main__':
 
     img = 'images/female1.jpg'
     img_arr=cv2.imread(img)
-    r1 = find_face(img_arr, max_num_of_faces=1,method='cascade')
+    r1 = find_face(img_arr, max_num_of_faces=1,method='ccv')
     print('ccv result:'+str(r1))
 
     print('')
-    r2 = find_face(img_arr, max_num_of_faces=1,method='ccv')
+    r2 = find_face(img_arr, max_num_of_faces=1,method='cascade')
     print('cascade result:'+str(r2))
     raw_input('return to continue')
 
+    print('')
     img = 'images/male1.jpg'
     img_arr=cv2.imread(img)
-    r1 = find_face(img_arr, max_num_of_faces=1,method='cascade')
+    r1 = find_face(img_arr, max_num_of_faces=1,method='ccv')
     print('ccv result:'+str(r1))
 
     print('')
-    r2 = find_face(img_arr, max_num_of_faces=1,method='ccv')
+    r2 = find_face(img_arr, max_num_of_faces=1,method='cascade')
     print('cascade result:'+str(r2))
     raw_input('return to continue')
 
+    print('')
     img = 'images/male2.jpg'
     img_arr=cv2.imread(img)
-    r1 = find_face(img_arr, max_num_of_faces=1,method='cascade')
+    r1 = find_face(img_arr, max_num_of_faces=1,method='ccv')
     print('ccv result:'+str(r1))
 
     print('')
-    r2 = find_face(img_arr, max_num_of_faces=1,method='ccv')
+    r2 = find_face(img_arr, max_num_of_faces=1,method='cascade')
     print('cascade result:'+str(r2))
     raw_input('return to continue')
 
+    print('')
     img = 'images/male3.jpg'
     img_arr=cv2.imread(img)
-    r1 = find_face(img_arr, max_num_of_faces=1,method='cascade')
+    r1 = find_face(img_arr, max_num_of_faces=1,method='ccv')
     print('ccv result:'+str(r1))
 
     print('')
-    r2 = find_face(img_arr, max_num_of_faces=1,method='ccv')
+    r2 = find_face(img_arr, max_num_of_faces=1,method='cascade')
     print('cascade result:'+str(r2))
     raw_input('return to continue')
+
+    n,singles,multiples = run_classifier_recursively('images/many_faces',use_visual_output=True)
+    print('n:{0} single:{1} multiple:{2}'.format(n,singles,multiples))
+    raw_input('enter to continue')
+
+    n,singles,multiples = run_classifier_recursively('images/female_faces')
+    print('n:{0} single:{1} multiple:{2}'.format(n,singles,multiples))
+    raw_input('enter to continue')
