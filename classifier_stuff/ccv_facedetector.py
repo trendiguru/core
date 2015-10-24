@@ -23,7 +23,7 @@ def ccv_facedetect(filename):
 #    retvals = commands.getstatusoutput(fcommand)
 #    print(str(retvals),end="\n")
     d=depth_of_subdir_of_calling_function()
-    print('depth of subdir:'+str(d))
+#    print('depth of subdir:'+str(d))
 #    d = 1
     if d == 0:
         fcommand = 'classifier_stuff/ccvface '+str(filename)+' classifier_stuff/ccvface.sqlite3'
@@ -31,7 +31,7 @@ def ccv_facedetect(filename):
         fcommand = './ccvface '+str(filename)+' ./ccvface.sqlite3'
 #    print('command:'+fcommand)
     retvals = commands.getstatusoutput(fcommand)
-    print(str(retvals),end="\n")
+    print('return from command '+str(fcommand)+':'+str(retvals),end="\n")
     rects = []
     if isinstance(retvals[1],basestring):
         strings = retvals[1].split('\n')
