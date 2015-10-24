@@ -34,14 +34,17 @@ def image_is_relevant(image):
     return Relevance(len(faces) > 0, faces)
 
 
-def find_face(image, max_num_of_faces=10,method='ccv'):
+def find_face(image_arr, max_num_of_faces=10,method='ccv'):
+    if not isinstance(image_arr,np.array):
+        logging.debug('find_face got a non-image')
+        return None
     if method == 'cascade':
-        faces = find_face_cascade(image, max_num_of_faces=max_num_of_faces)
+        faces = find_face_cascade(image_arr, max_num_of_faces=max_num_of_faces)
         return faces
     else:  #do ccv
         stripped_name = rand_string()+'.jpg'  # img_url_or_cv2_array.split('//')[1]
         modified_name = stripped_name.replace('/', '_')
-        cv2.imwrite(modified_name, image)
+        cv2.imwrite(modified_name, image_arr)
         faces = ccv.ccv_facedetect(modified_name)
       #  print('faces in find_face:'+str(faces))
  #       print('len:'+str(len(faces)))
