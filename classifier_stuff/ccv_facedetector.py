@@ -38,15 +38,15 @@ def ccv_facedetect(filename):
     rects = []
     if isinstance(retvals[1],basestring):
         strings = retvals[1].split('\n')
-        print('strings:'+str(strings))
+        logging.debug('strings:'+str(strings))
         for rectstr in strings:
             newrect = [int(s) for s in rectstr.split() if s.isdigit()]
             if len(newrect) == 4:
                 rects.append(newrect)
+                #logging.debug('rects found:'+str(rects))
             else:
-                logging.debug('got weird string from ccv:'+str(rectstr))
-                print('rects found:'+str(rects))
-        print('rects'+str(rects))
+                logging.warning('got weird string from ccv:'+str(rectstr))
+        logging.debug('rects'+str(rects))
         return rects
     else:
         logging.debug('no answer string recd from ccv')
@@ -150,7 +150,7 @@ def run_classifier_recursively(path=None,use_visual_output=False,classifier=ccv_
                         print('---------' * (count), ele2)
                         absPath = os.path.join(paths,ele2)
           # recursively calling the direct function on each directory
-                        n_images,n_single_detections,n_extra_detections = run_classifier_recursively(path=absPath,use_visual_output=use_visual_output,classifier=classifier,n_images=n_images,n_single_detections=n_single_detections,n_extra_detections=n_extra_detections)
+                        n_images,n_single_detections,n_extra_detections = run_classifier_recursively(path=absPath,use_visual_output=use_visual_output,classifier=classifier,n_images=n_images,n_single_detections=n_single_detections,n_extra_detections=n_extra_detections,classifier_arg=classifier_arg)
                # adding the paths to the list that got traversed
                         donePaths.append(absPath)
 

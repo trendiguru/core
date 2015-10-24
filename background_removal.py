@@ -34,7 +34,7 @@ def image_is_relevant(image):
     return Relevance(len(faces) > 0, faces)
 
 
-def find_face(image_arr, max_num_of_faces=10,method='ccv'):
+def find_face(image_arr, max_num_of_faces=100,method='ccv'):
     if not isinstance(image_arr, np.ndarray)  :
         logging.debug('find_face got a non-image')
         return None
@@ -50,9 +50,10 @@ def find_face(image_arr, max_num_of_faces=10,method='ccv'):
         faces = ccv.ccv_facedetect(modified_name)
       #  print('faces in find_face:'+str(faces))
  #       print('len:'+str(len(faces)))
-        if len(faces) == 0 or len(faces)==1:
+        if len(faces)>max_num_of_faces:
+            return choose_faces(image_arr, faces, max_num_of_faces)  #this will probably break
+        else:
             return faces  # can we return [] in both cases or () in both , currently its one and one
-        return choose_faces(image_arr, faces, max_num_of_faces)  #this will probably break
 
 def rand_string():
     return ''.join([random.choice(string.ascii_letters + string.digits) for n in xrange(32)])
