@@ -128,7 +128,7 @@ def run_classifier_recursively(path=None,use_visual_output=False,classifier=ccv_
 #                  print('---------' * (count), ele1)
                     full_name = os.path.join(path,ele1)
                     print('kwargs:'+str(kwargs))
-                    arg = 'classifier='classifier_arg
+                    arg = 'classifier='+classifier_arg
                     print('arg to classifier:'+str(arg))
                     faces = classifier(full_name,arg)
                     n_images = n_images + 1
