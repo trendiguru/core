@@ -92,7 +92,8 @@ def choose_faces(image, faces_list, max_num_of_faces):
     h, w, d = image.shape
     x_origin = int(w / 2)
     y_origin = int(0.125 * h)
-    faces_list = faces_list.tolist()
+    if not isinstance(faces_list,list):
+        faces_list = faces_list.tolist()
     relevant_faces = []
     for face in faces_list:
         if face_is_relevant(image, face):

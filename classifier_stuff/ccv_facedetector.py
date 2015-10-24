@@ -38,14 +38,14 @@ def ccv_facedetect(filename):
     rects = []
     if isinstance(retvals[1],basestring):
         strings = retvals[1].split('\n')
-    	print('strings:'+str(strings))
+        print('strings:'+str(strings))
         for rectstr in strings:
             newrect = [int(s) for s in rectstr.split() if s.isdigit()]
             if len(newrect) == 4:
                 rects.append(newrect)
             else:
                 logging.debug('got weird string from ccv:'+str(rectstr))
-        	print('rects found:'+str(rects))
+                print('rects found:'+str(rects))
         print('rects'+str(rects))
         return rects
     else:
