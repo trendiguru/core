@@ -59,7 +59,7 @@ def download_products(filter_params, total=MAX_SET_SIZE):
         filter_params["offset"] += MAX_RESULTS_PER_PAGE
 
     # Write down that we did this
-    db.dl_cache.insert(dl_query)
+    # db.dl_cache.insert(dl_query)
 
     print "Batch Done. Total Product count: {0}".format(db.products.count())
 
