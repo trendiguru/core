@@ -138,7 +138,7 @@ def run_classifier_recursively(path=None,use_visual_output=False,classifier=ccv_
                         n_extra_detections = n_extra_detections + len(faces) - 1
                     if len(faces)==1:
                         n_single_detections = n_single_detections + 1
-                    write_rects(path,faces,version=classifier_arg)
+                    write_rects(full_name,faces,version=classifier_arg)
                     if use_visual_output:
                         show_rects(full_name,faces)
                     print('n_images:'+str(n_images)+' n_extra:'+str(n_extra_detections)+' n_detections:'+str(n_single_detections)+' file:'+str(ele1), end="\n")
