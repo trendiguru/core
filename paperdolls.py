@@ -434,7 +434,7 @@ def get_results_now(page_url, image_url):
                   'image_hash': image_hash, 'page_urls': [page_url], 'people': []}
     if relevance.is_relevant:
         idx = 0
-        for face in relevance.faces.tolist():
+        for face in relevance.faces:
             person = {'face': face, 'person_id': str(bson.ObjectId()), 'person_idx': idx,
                       'items': []}
             image_copy = person_isolation(image, face)
