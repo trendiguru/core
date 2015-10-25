@@ -45,12 +45,12 @@ class ShopStyleDownloader():
         x = raw_input("choose your update type - Daily or Full? (D/F)")
         if x is "f" or x is "F":
             type = "FULL"
+        self.db.DBD.delete_many({})
         self.db.DBD.insert_one({"criteria": "main",
                                 "last_request": self.last_request_time,
                                 "items_downloaded": 0})
         self.do_fingerprint = do_fingerprint  # check if relevent
         root_category, ancestors = self.build_category_tree()
-        self.db.DBD.delete_many({})
         cats_to_dl = [anc["id"] for anc in ancestors]
         for cat in cats_to_dl:
             self.download_category(cat)
