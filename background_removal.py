@@ -432,11 +432,11 @@ if __name__ == '__main__':
     print('cascade result:'+str(r2))
     raw_input('return to continue')
 
-    n,singles,multiples = ccv.run_classifier_recursively('images/many_faces',use_visual_output=False,classifier=find_face,classifier_arg='classifier=ccv')
+    n,singles,multiples = ccv.run_classifier_recursively('images/many_faces',use_visual_output=False,classifier=find_face,classifier_arg='ccv')
     print('n:{0} single:{1} multiple:{2}'.format(n,singles,multiples))
     raw_input('enter to continue')
 
     #defulat is ccv
-    n,singles,multiples = ccv.run_classifier_recursively('images/many_faces',use_visual_output=False,classifier=find_face,classifier_arg='classifier=cascade')
+    n,singles,multiples = ccv.run_classifier_recursively('images/many_faces',use_visual_output=False,classifier=find_face,classifier_arg='cascade')
     print('n:{0} single:{1} multiple:{2}'.format(n,singles,multiples))
     raw_input('enter to continue')

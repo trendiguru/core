@@ -133,7 +133,7 @@ def run_classifier_recursively(path=None,use_visual_output=False,classifier=ccv_
                     full_name = os.path.join(path,ele1)
                     print('arg to classifier:'+str(classifier_arg))
                     img_arr = cv2.imread(full_name)
-                    faces = classifier(img_arr,classifier_arg)
+                    faces = classifier(img_arr,classifier=classifier_arg)
                     n_images = n_images + 1
                     print('faces:'+str(faces)+' images:'+str(n_images)+ ' file:'+str(ele1), end="\n")
                     if isinstance(faces,list):
