@@ -35,14 +35,14 @@ fp_version = constants.fingerprint_version
 
 
 def download_products(filter_params, total=MAX_SET_SIZE):
-    if not isinstance(filter_params, UrlParams):
-        filter_params = UrlParams(params_dict=filter_params)
-
-    dl_query = {"filter_params": filter_params.encoded()}
-
-    if db.dl_cache.find_one(dl_query):
-        print "We've done this batch already, let's not repeat work"
-        return
+    # if not isinstance(filter_params, UrlParams):
+    #     filter_params = UrlParams(params_dict=filter_params)
+    #
+    # dl_query = {"filter_params": filter_params.encoded()}
+    #
+    # if db.dl_cache.find_one(dl_query):
+    #     print "We've done this batch already, let's not repeat work"
+    #     return
 
     if "filters" in filter_params:
         del filter_params["filters"]
