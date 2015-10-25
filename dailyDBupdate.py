@@ -6,7 +6,6 @@ add description
 
 import json
 import smtplib
-import time
 
 from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
@@ -122,36 +121,10 @@ def email(stats):
         server.quit()
 
 
-def wait_for(dl_data):
-    x = raw_input("waitfor enabled? (Y/N)")
-    if x == "n" or x == "N":
-        return
-    total_items = db.products.find().count()
-    downloaded_items = dl_data["items_downloaded"]
-    new_items = dl_data["new_items"]
-    insert_errors = dl_data["errors"]
-    sub = downloaded_items - insert_errors
-    if total_items > sub:
-        time.sleep(new_items / 100)
-    else:
-        check = 0
-        while sub > total_items:
-            if check > 60:
-                break
-            print "\ncheck number " + str(check)
-            print "\nfp workers didn't finish yet\nWaiting 10 min before checking again\n"
-            check += 1
-            print "check number" + str(check)
-            time.sleep(600)
-            total_items = db.products.find().count()
-            insert_errors = dl_data["errors"]
-            sub = downloaded_items - insert_errors
-
 
 def stats_and_mail():
     dl_data = db.download_data.find()[0]
     date = dl_data['current_dl']
-    wait_for(dl_data)
     stats = {'date': date,
              'items_downloaded': dl_data['items_downloaded'],
              'existing_items': dl_data['existing_items'],
