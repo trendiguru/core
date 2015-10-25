@@ -586,6 +586,59 @@ def depth_of_subdir_of_calling_function():
         in_subdir_of_trendi_guru_modules = True
     return len(cur)-1
 
+def get_images_list(dir_url):
+    paths_list = files_in_directory(dir_url)
+    images_list = []
+    # i=0
+    for url in paths_list:
+        images_list.append(background_removal.standard_resize(get_cv2_img_array(url), 400)[0])
+        # cv2.imshow('1', images_list[i])
+        # cv2.waitKey(0)
+        # i += 1
+    return images_list
+
+
+def show_parse(filename=None, img_array=None):
+    if filename is not None:
+        img_array = cv2.imread(filename)
+    if img_array is not None:
+        # minVal, maxVal, minLoc, maxLoc = cv2.minMaxLoc(img_array)
+        maxVal = np.amax(img_array)
+        scaled = np.multiply(img_array, int(255 / maxVal))
+        dest = cv2.applyColorMap(scaled, cv2.COLORMAP_RAINBOW)
+        cv2.imshow("dest", dest)
+        cv2.waitKey(0)
+
+
+def shorten_url_googl(long_url):
+    url = "https://www.googleapis.com/urlshortener/v1/url"
+    querystring = {"key": "AIzaSyCYaOjTMgUKoopLBe3109V3fXIZtOJ8uec"}
+    payload = json.dumps({"longUrl": long_url})
+    headers = {'content-type': 'application/json'}
+    response = requests.request("POST", url, data=payload, headers=headers, params=querystring)
+    return response.json().get("id") or long_url
+
+def shorten_url_bitly(long_url):
+    url = "https://api-ssl.bitly.com/v3/shorten"
+    querystring = {"access_token": "1b131dcc7af91f1fa7f481ab7c20da0f658acff9",
+                   "longUrl": long_url,
+                   "format": "txt"}
+    response = requests.request("GET", url, params=querystring)
+    return response.text.rstrip()
+
+
+def git_pull(**kwargs):
+    import subprocess
+    path = os.path.abspath(__file__)
+    module_directory = os.path.dirname(path)
+    print("Git_pull pulling to: " + module_directory)
+    try:
+        result = subprocess.check_output('git -C {dir} pull'.format(dir=module_directory), shell=True)
+    except subprocess.CalledProcessError, e:
+#        logging.warning("git_pull failed with exception: {0}\ngit output:{1}".format(e))   #needs the second field
+        logging.warning("git_pull failed with exception: {0}".format(e))
+    return
+
 ############################
 ### math stuff
 ############################
@@ -671,57 +724,6 @@ def isnumber(str):
         return False
 
 
-def get_images_list(dir_url):
-    paths_list = files_in_directory(dir_url)
-    images_list = []
-    # i=0
-    for url in paths_list:
-        images_list.append(background_removal.standard_resize(get_cv2_img_array(url), 400)[0])
-        # cv2.imshow('1', images_list[i])
-        # cv2.waitKey(0)
-        # i += 1
-    return images_list
-
-
-def show_parse(filename=None, img_array=None):
-    if filename is not None:
-        img_array = cv2.imread(filename)
-    if img_array is not None:
-        # minVal, maxVal, minLoc, maxLoc = cv2.minMaxLoc(img_array)
-        maxVal = np.amax(img_array)
-        scaled = np.multiply(img_array, int(255 / maxVal))
-        dest = cv2.applyColorMap(scaled, cv2.COLORMAP_RAINBOW)
-        cv2.imshow("dest", dest)
-        cv2.waitKey(0)
-
-
-def shorten_url_googl(long_url):
-    url = "https://www.googleapis.com/urlshortener/v1/url"
-    querystring = {"key": "AIzaSyCYaOjTMgUKoopLBe3109V3fXIZtOJ8uec"}
-    payload = json.dumps({"longUrl": long_url})
-    headers = {'content-type': 'application/json'}
-    response = requests.request("POST", url, data=payload, headers=headers, params=querystring)
-    return response.json().get("id") or long_url
-
-def shorten_url_bitly(long_url):
-    url = "https://api-ssl.bitly.com/v3/shorten"
-    querystring = {"access_token": "1b131dcc7af91f1fa7f481ab7c20da0f658acff9",
-                   "longUrl": long_url,
-                   "format": "txt"}
-    response = requests.request("GET", url, params=querystring)
-    return response.text.rstrip()
-
-
-def git_pull(**kwargs):
-    import subprocess
-    path = os.path.abspath(__file__)
-    module_directory = os.path.dirname(path)
-    print("Git_pull pulling to: " + module_directory)
-    try:
-        result = subprocess.check_output('git -C {dir} pull'.format(dir=module_directory), shell=True)
-    except subprocess.CalledProcessError, e:
-        logging.warning("git_pull failed with exception: {0}\ngit output:{1}".format(e))
-    return
 
 
 if __name__ == '__main__':
