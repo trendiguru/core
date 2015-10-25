@@ -597,7 +597,6 @@ def get_images_list(dir_url):
         # i += 1
     return images_list
 
-
 def show_parse(filename=None, img_array=None):
     if filename is not None:
         img_array = cv2.imread(filename)
@@ -626,7 +625,7 @@ def shorten_url_bitly(long_url):
     response = requests.request("GET", url, params=querystring)
     return response.text.rstrip()
 
-
+#testing git pull on pp2
 def git_pull(**kwargs):
     import subprocess
     path = os.path.abspath(__file__)
