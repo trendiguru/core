@@ -18,6 +18,7 @@ import constants
 import Utils
 import classifier_stuff.ccv_facedetector as ccv
 
+
 def image_is_relevant(image):
     """
     main engine function of 'doorman'
@@ -44,20 +45,21 @@ def find_face(image_arr, max_num_of_faces=100,method='ccv'):
         return faces
     else:  #do ccv
         logging.debug('doing ccv facedetect')
-        stripped_name = rand_string()+'.jpg'  # img_url_or_cv2_array.split('//')[1]
+        stripped_name = rand_string()+'.jpg'
         modified_name = stripped_name.replace('/', '_')
-        modified_name = os.path.join('images',modified_name)
+        modified_name = os.path.join('images', modified_name)
         cv2.imwrite(modified_name, image_arr)
         faces = ccv.ccv_facedetect(modified_name)
-      #  print('faces in find_face:'+str(faces))
- #       print('len:'+str(len(faces)))
+        os.remove(modified_name)
         if len(faces)>max_num_of_faces:
-            return choose_faces(image_arr, faces, max_num_of_faces)  #this will probably break
+            return choose_faces(image_arr, faces, max_num_of_faces)
         else:
-            return faces  # can we return [] in both cases or () in both , currently its one and one
+            return faces
+
 
 def rand_string():
     return ''.join([random.choice(string.ascii_letters + string.digits) for n in xrange(32)])
+
 
 def find_face_cascade(image, max_num_of_faces=10):
     gray = cv2.cvtColor(image, constants.BGR2GRAYCONST)

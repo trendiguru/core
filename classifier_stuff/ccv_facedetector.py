@@ -2,13 +2,10 @@ from __future__ import print_function
 
 __author__ = 'jeremy'
 
-#import Utils
-import subprocess
 
 import commands
 import cv2
 import os
-import sys
 import os.path
 import logging
 import numpy as np
@@ -16,11 +13,9 @@ import Utils
 
 logging.basicConfig(filename='logging.log',level=logging.DEBUG)
 
-#from .. import background_removal
-#import Utils
+
 
 def ccv_facedetect(filename):
- #   Utils.get_cv2_img_array(url_or_path_to_image_file_or_cv2_image_array, download=True,)
     if not os.path.isfile(filename):
         logging.warning('file passed to ccv_facedetect doesnt exist)')
         return 1
