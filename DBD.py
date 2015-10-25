@@ -42,9 +42,9 @@ class ShopStyleDownloader():
         self.do_fingerprint = True
 
     def run_by_category(self, do_fingerprint=True, type="DAILY"):
-        x = raw_input("choose your update type - Daily or Full? (D/F)")
-        if x is "f" or x is "F":
-            type = "FULL"
+        # x = raw_input("choose your update type - Daily or Full? (D/F)")
+        # if x is "f" or x is "F":
+        #     type = "FULL"
         self.db.DBD.delete_many({})
         self.db.DBD.insert_one({"criteria": "main",
                                 "last_request": self.last_request_time,
@@ -89,7 +89,7 @@ class ShopStyleDownloader():
         if "count" in category and category["count"] <= MAX_SET_SIZE:
             print("Attempting to download: {0} products".format(category["count"]))
             print("Category: " + category_id)
-            print "enqueuing for download",
+            # print "enqueuing for download",
             q.enqueue(download_products, filter_params={"pid": PID, "cat": category_id})
         elif "childrenIds" in category.keys():
             print("Splitting {0} products".format(category["count"]))
@@ -125,7 +125,7 @@ class ShopStyleDownloader():
             print "Could not get histogram for filter_params: {0}".format(filter_params.encoded())
             print "Attempting to downloading first 5000"
             # TODO: Better solution for this
-            print "enqueuing for download",
+            # print "enqueuing for download",
             q.enqueue(download_products, filter_params=filter_params)
         else:
             hist_key = FILTERS[filter_index].lower() + "Histogram"
@@ -138,7 +138,7 @@ class ShopStyleDownloader():
                     _key = "fl"
                 subset_filter_params[_key] = filter_prefix + subset["id"]
                 if subset["count"] < MAX_SET_SIZE:
-                    print "enqueuing for download",
+                    # print "enqueuing for download",
                     q.enqueue(download_products, filter_params=subset_filter_params)
                 else:
                     print "Splitting: {0} products".format(subset["count"])
