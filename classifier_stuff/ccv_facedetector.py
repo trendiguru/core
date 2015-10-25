@@ -203,7 +203,7 @@ def write_rects(abs_path,faces,version=None):
 #    cv2.imshow('candidate',img_arr)
     if version is not None:
         abs_path  = abs_path.replace('.jpg',version+'.jpg')
-    newname  = abs_path.replace('.jpg','.cascaderects.jpg')
+    newname  = abs_path.replace('.jpg','.rects.jpg')
     print('newname:'+str(newname))
     cv2.imwrite(newname,img_arr)
 
