@@ -4,7 +4,7 @@ import numpy as np
 from rq import Queue
 import cv2
 
-from .. import constants
+from trendi_guru_modules import constants
 
 
 redis_conn = constants.redis_conn
