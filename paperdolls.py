@@ -303,7 +303,7 @@ def draw_pose_boxes(boxes_array, image):
 def define_hog():
     hog = cv2.HOGDescriptor()
     hog.setSVMDetector(cv2.HOGDescriptor_getDefaultPeopleDetector())
-    return
+    return hog
 
 # ----------------------------------------------MAIN-FUNCTIONS----------------------------------------------------------
 
