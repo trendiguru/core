@@ -31,71 +31,10 @@ relevant = constants.db_relevant_items
 fp_version = constants.fingerprint_version
 
 
-def download_category(category_id):
-    if category_id not in relevant:
-        return
-    category = db.categories.find_one({"id": category_id})
-    if "count" in category and category["count"] <= MAX_SET_SIZE:
-        print("Attempting to download: {0} products".format(category["count"]))
-        print("Category: " + category_id)
-        download_products({"pid": PID, "cat": category_id})
-    elif "childrenIds" in category.keys():
-        print("Splitting {0} products".format(category["count"]))
-        print("Category: " + category_id)
-        for child_id in category["childrenIds"]:
-            download_category(child_id)
-    else:
-        initial_filter_params = UrlParams(params_dict={"pid": PID, "cat": category["id"]})
-        divide_and_conquer(initial_filter_params, 0)
-
-        # self.archive_products(category_id)  # need to count how many where sent to archive
-
-
-def divide_and_conquer(filter_params, filter_index):
-    """Keep branching until we find disjoint subsets which have less then MAX_SET_SIZE items"""
-    if filter_index >= len(FILTERS):
-        # TODO: determine appropriate behavior in this case
-        print "ran out of FILTERS"
-        return
-    filter_params["filters"] = FILTERS[filter_index]
-
-    histogram_response = delayed_requests_get(BASE_URL_PRODUCTS + "histogram", filter_params)
-    # TODO: check the request worked here
-    try:
-        histogram_results = histogram_response.json()
-        # for some reason Category doesn't come with a prefix...
-
-        filter_prefix = histogram_results["metadata"].get("histograms")[0].get("prefix")
-
-        hist_key = FILTERS[filter_index].lower() + "Histogram"
-        if hist_key not in histogram_results:
-            raise RuntimeError("No hist_key {0} in histogram: \n{1}".format(hist_key, histogram_results))
-    except:
-        print "Could not get histogram for filter_params: {0}".format(filter_params.encoded())
-        print "Attempting to downloading first 5000"
-        # TODO: Better solution for this
-        download_products(filter_params)
-    else:
-        hist_key = FILTERS[filter_index].lower() + "Histogram"
-        for subset in histogram_results[hist_key]:
-            subset_filter_params = filter_params.copy()
-            if FILTERS[filter_index] == "Category":
-                _key = "cat"
-                filter_prefix = ""
-            else:
-                _key = "fl"
-            subset_filter_params[_key] = filter_prefix + subset["id"]
-            if subset["count"] < MAX_SET_SIZE:
-                download_products(subset_filter_params)
-            else:
-                print "Splitting: {0} products".format(subset["count"])
-                print "Params: {0}".format(subset_filter_params.encoded())
-                divide_and_conquer(subset_filter_params, filter_index + 1)
-
-
 def download_products(filter_params, total=MAX_SET_SIZE):
-    if not isinstance(filter_params, UrlParams):
-        filter_params = UrlParams(params_dict=filter_params)
+    # if not isinstance(filter_params, UrlParams):
+    #     print "error 1"
+    #     filter_params = UrlParams(params_dict=filter_params)
 
     # dl_query = {"filter_params": filter_params.encoded()}
     #
@@ -124,7 +63,7 @@ def download_products(filter_params, total=MAX_SET_SIZE):
 
 
 def delayed_requests_get(url, _params):
-    sleep_time = max(0, 0.1 - (time.time() - db.DBD.find()[0]["last_request_time"]))
+    sleep_time = max(0, 0.1 - (time.time() - db.DBD.find()[0]["last_request"]))
     time.sleep(sleep_time)
     db.DBD.find_one_and_update({"criteria": "main"},
                                {'$set': {"last_request": time.time()}})
