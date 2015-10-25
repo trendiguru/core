@@ -142,6 +142,7 @@ def run_classifier_recursively(path=None,use_visual_output=False,classifier=ccv_
                         n_extra_detections = n_extra_detections + len(faces) - 1
                     if len(faces)==1:
                         n_single_detections = n_single_detections + 1
+                    write_rects(path,faces,version=classifier_arg)
                     if use_visual_output:
                         show_rects(full_name,faces)
                     print('n_images:'+str(n_images)+' n_extra:'+str(n_extra_detections)+' n_detections:'+str(n_single_detections)+' file:'+str(ele1), end="\n")
@@ -196,6 +197,19 @@ def show_rects(abs_path,faces,save_figs=True):
     newname  = abs_path.replace('.jpg','.cascaderects.jpg')
     cv2.imwrite(newname,img_arr)
     cv2.waitKey(10)
+
+def write_rects(abs_path,faces,version=None):
+    img_arr = cv2.imread(abs_path)
+    if len(faces):
+        for rect in faces:
+            print('rect:'+str(rect))
+            cv2.rectangle(img_arr,(rect[0],rect[1]),(rect[0]+rect[2],rect[1]+rect[3]),[0,0,250],2)
+#    cv2.imshow('candidate',img_arr)
+    if version is not None:
+        abs_path  = abs_path.replace('.jpg',version+'.jpg')
+    newname  = abs_path.replace('.jpg','.cascaderects.jpg')
+    print('newname:'+str(newname))
+    cv2.imwrite(newname,img_arr)
 
 def depth_of_subdir_of_calling_function():
     '''
