@@ -52,9 +52,31 @@ def email(stats):
         line = "<tr>\n\t<th>" + i + "</th>\n\t<th>" + total + "</th>\n\t<th>" + new + "</th>\n</tr>\n"
         categories = categories + line
 
-    html = """\
-    <html>
-    <head>
+    # html = """\
+    # <html>
+    # <head>
+    # <style>
+    # table, th, td {
+    #     border: 1px solid black;
+    #     border-collapse: collapse;
+    # }
+    # th, td {
+    #     padding: 5px;
+    # }
+    # </style>
+    # </head>
+    # <body>"""
+    #
+    html = """
+    <!DOCTYPE html>
+<html lang="en">
+<head>
+  <title>Bootstrap Example</title>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="stylesheet" href="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css">
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
+  <script src="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/js/bootstrap.min.js"></script>
     <style>
     table, th, td {
         border: 1px solid black;
@@ -64,18 +86,24 @@ def email(stats):
         padding: 5px;
     }
     </style>
-    </head>
-    <body>"""
+</head>
+<body>
+<div class="container">"""
     html = html + txt2 + """
-    <table style="width:40%">
+    <table  style="width:40%">
+    <thead>
       <tr>
         <th>Category</th>
         <th>total items</th>
         <th>new items</th>
-      </tr>    """
+      </tr>
+    </thead>
+    <tbody>
+    """
     html = html + categories + """
+    </tbody>
     </table>
-
+    </div>
     </body>
     </html>
     """
@@ -86,7 +114,7 @@ def email(stats):
     # server.set_debuglevel(True)  # show communication with the server
     try:
         server.login('yonti0@gmail.com', "Hub,hKuhiPryh")
-        server.sendmail(sender, [recipient, yonti], msg.as_string())
+        server.sendmail(sender, [yonti], msg.as_string())  # [recipient, yonti], msg.as_string())
         print "sent"
     except:
         print "error"
@@ -95,6 +123,9 @@ def email(stats):
 
 
 def wait_for(dl_data):
+    x = raw_input("waitfor enabled? (Y/N)")
+    if x == "n" or x == "N":
+        return
     total_items = db.products.find().count()
     downloaded_items = dl_data["items_downloaded"]
     new_items = dl_data["new_items"]

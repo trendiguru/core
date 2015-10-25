@@ -29,7 +29,6 @@ redis_conn = Redis(host="redis1-redis-1-vm")
 # new worker : rqworker -u redis://redis1-redis-1-vm:6379 [name] &
 redis_conn_old = Redis()
 update_collection_name = 'products'
-download_version = 792015  # DayMonthYear
 
 
 # fp rating related constants

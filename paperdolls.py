@@ -428,11 +428,10 @@ def get_results_now(page_url, image_url):
         return
 
     # NEW_IMAGE !!
-    image, resize_ratio = background_removal.standard_resize(image, 400)
     clean_image = copy.copy(image)
     relevance = background_removal.image_is_relevant(image)
     image_dict = {'image_urls': [image_url], 'relevant': relevance.is_relevant,
-                  'image_hash': image_hash, 'page_urls': [page_url], 'people': [], }
+                  'image_hash': image_hash, 'page_urls': [page_url], 'people': []}
     if relevance.is_relevant:
         idx = 0
         for face in relevance.faces.tolist():
@@ -466,11 +465,7 @@ def get_results_now(page_url, image_url):
                     item_idx += 1
             idx += 1
             image_dict['people'].append(person)
-        print "image shape before resize: {0}".format(image.shape)
-        big_image = cv2.resize(image,
-                               (int(round(resize_ratio * image.shape[1])), int(round(resize_ratio * image.shape[0]))))
-        print "image shape after resize: {0}".format(big_image.shape)
-        final_image_url = upload_image(big_image, image_url)
+        final_image_url = upload_image(image, image_url)
         image_dict['final_image_url'] = final_image_url
         db.demo.insert(image_dict)
         return page_results.merge_items(image_dict)
