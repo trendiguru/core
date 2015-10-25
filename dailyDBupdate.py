@@ -113,6 +113,9 @@ def email(stats):
 
 
 def wait_for(dl_data):
+    x = raw_input("waitfor enabled? (Y/N)")
+    if x == "n" or x == "N":
+        return
     total_items = db.products.find().count()
     downloaded_items = dl_data["items_downloaded"]
     new_items = dl_data["new_items"]
