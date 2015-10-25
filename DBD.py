@@ -97,7 +97,8 @@ class ShopStyleDownloader():
             for child_id in category["childrenIds"]:
                 self.download_category(child_id)
         else:
-            initial_filter_params = UrlParams(params_dict={"pid": PID, "cat": category["id"]})
+            initial_filter_params = {"pid": PID, "cat": category[
+                "id"]}  # UrlParams(params_dict={"pid": PID, "cat": category["id"]})
             self.divide_and_conquer(initial_filter_params, 0)
 
             # self.archive_products(category_id)  # need to count how many where sent to archive

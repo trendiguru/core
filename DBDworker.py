@@ -32,8 +32,9 @@ fp_version = constants.fingerprint_version
 
 
 def download_products(filter_params, total=MAX_SET_SIZE):
-    if not isinstance(filter_params, UrlParams):
-        filter_params = UrlParams(params_dict=filter_params)
+    # if not isinstance(filter_params, UrlParams):
+    #     print "error 1"
+    #     filter_params = UrlParams(params_dict=filter_params)
 
     # dl_query = {"filter_params": filter_params.encoded()}
     #
