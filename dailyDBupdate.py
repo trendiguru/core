@@ -81,7 +81,7 @@ def email(stats):
 <body>
 <div class="container">"""
     html = html + txt2 + """
-    <table class="table table-bordered" style="width:40%">
+    <table  style="width:40%">
     <thead>
       <tr>
         <th>Category</th>
@@ -89,7 +89,8 @@ def email(stats):
         <th>new items</th>
       </tr>
     </thead>
-    <tbody> """
+    <tbody>
+    """
     html = html + categories + """
     </tbody>
     </table>
