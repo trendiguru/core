@@ -144,15 +144,15 @@ def run_classifier_recursively(path=None,use_visual_output=False,classifier=ccv_
                     if use_visual_output:
                         show_rects(full_name,faces)
                     print('n_images:'+str(n_images)+' n_extra:'+str(n_extra_detections)+' n_detections:'+str(n_single_detections)+' file:'+str(ele1), end="\n")
-			print('')
-                if dirs:
-                    for ele2 in dirs:
-                        print('---------' * (count), ele2)
-                        absPath = os.path.join(paths,ele2)
-          # recursively calling the direct function on each directory
-                        n_images,n_single_detections,n_extra_detections = run_classifier_recursively(path=absPath,use_visual_output=use_visual_output,classifier=classifier,n_images=n_images,n_single_detections=n_single_detections,n_extra_detections=n_extra_detections,classifier_arg=classifier_arg)
-               # adding the paths to the list that got traversed
-                        donePaths.append(absPath)
+                    print('')
+            if dirs:
+                for ele2 in dirs:
+                    print('---------' * (count), ele2)
+                    absPath = os.path.join(paths,ele2)
+      # recursively calling the direct function on each directory
+                    n_images,n_single_detections,n_extra_detections = run_classifier_recursively(path=absPath,use_visual_output=use_visual_output,classifier=classifier,n_images=n_images,n_single_detections=n_single_detections,n_extra_detections=n_extra_detections,classifier_arg=classifier_arg)
+           # adding the paths to the list that got traversed
+                    donePaths.append(absPath)
 
     if n_images:
         positives = n_single_detections + n_extra_detections
