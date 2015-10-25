@@ -45,6 +45,10 @@ RUN pip install matplotlib
 #RUN pip install genderizer
 #RUN pip install  naiveBayesClassifier
 
+#for ccv
+RUN apt-get install -y libatlas-base-dev
+
+
 #these scripts are to check port forwarding with a single command
 RUN  echo 'nmap -p 27017 localhost' > portmongo.sh
 RUN chmod o+x portmongo.sh
