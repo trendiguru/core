@@ -9,7 +9,6 @@ import os
 import os.path
 import logging
 import numpy as np
-import Utils
 
 logging.basicConfig(filename='logging.log',level=logging.DEBUG)
 
@@ -22,7 +21,7 @@ def ccv_facedetect(filename):
 #    fcommand = 'pwd'
 #    retvals = commands.getstatusoutput(fcommand)
 #    print(str(retvals),end="\n")
-    d=Utils.depth_of_subdir_of_calling_function()
+    d=depth_of_subdir_of_calling_function()
 #    print('depth of subdir:'+str(d))
 #    d = 1
     if d == 0:
@@ -206,6 +205,27 @@ def write_rects(abs_path,faces,version=None):
     newname  = abs_path.replace('.jpg','.rects.jpg')
     print('newname:'+str(newname))
     cv2.imwrite(newname,img_arr)
+
+
+
+def depth_of_subdir_of_calling_function():
+    '''
+    this finds the depth of subdirectory in which the caller resides
+    :return:
+    '''
+    path = os.getcwd()
+ #   print('path:'+str(path))
+    p2 = path.split('trendi_guru_modules')
+  #  print('path split on trendigurumodules:'+str(p2))
+    if len(p2) < 2:
+        print('not in trendi_guru_modules')
+    secondhalf = p2[1]
+ #   print('secondhalf:'+str(secondhalf))
+    cur = secondhalf.split('/')
+ #   print('cur:'+str(cur))
+    if len(cur) > 1:
+        in_subdir_of_trendi_guru_modules = True
+    return len(cur)-1
 
 
 if __name__ == "__main__":
