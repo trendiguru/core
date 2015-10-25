@@ -46,7 +46,8 @@ def ccv_facedetect(filename):
                 #logging.debug('rects found:'+str(rects))
             else:
                 logging.warning('got weird string from ccv:'+str(rectstr))
-        logging.debug('rects'+str(rects))
+        arr = np.asarray(rects,dtype='uint16')
+        logging.debug('rects'+str(arr))
         return rects
     else:
         logging.debug('no answer string recd from ccv')
