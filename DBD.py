@@ -42,15 +42,15 @@ class ShopStyleDownloader():
         self.do_fingerprint = True
 
     def run_by_category(self, do_fingerprint=True, type="DAILY"):
-        x = raw_input("choose your update type - Daily or Full? (D/F)")
-        if x is "f" or x is "F":
-            type = "FULL"
+        # x = raw_input("choose your update type - Daily or Full? (D/F)")
+        # if x is "f" or x is "F":
+        #     type = "FULL"
+        self.db.DBD.delete_many({})
         self.db.DBD.insert_one({"criteria": "main",
                                 "last_request": self.last_request_time,
                                 "items_downloaded": 0})
         self.do_fingerprint = do_fingerprint  # check if relevent
         root_category, ancestors = self.build_category_tree()
-        self.db.DBD.delete_many({})
         cats_to_dl = [anc["id"] for anc in ancestors]
         for cat in cats_to_dl:
             self.download_category(cat)
@@ -89,7 +89,7 @@ class ShopStyleDownloader():
         if "count" in category and category["count"] <= MAX_SET_SIZE:
             print("Attempting to download: {0} products".format(category["count"]))
             print("Category: " + category_id)
-            print "enqueuing for download",
+            # print "enqueuing for download",
             q.enqueue(download_products, filter_params={"pid": PID, "cat": category_id})
         elif "childrenIds" in category.keys():
             print("Splitting {0} products".format(category["count"]))
@@ -97,7 +97,8 @@ class ShopStyleDownloader():
             for child_id in category["childrenIds"]:
                 self.download_category(child_id)
         else:
-            initial_filter_params = UrlParams(params_dict={"pid": PID, "cat": category["id"]})
+            initial_filter_params = {"pid": PID, "cat": category[
+                "id"]}  # UrlParams(params_dict={"pid": PID, "cat": category["id"]})
             self.divide_and_conquer(initial_filter_params, 0)
 
             # self.archive_products(category_id)  # need to count how many where sent to archive
@@ -125,7 +126,7 @@ class ShopStyleDownloader():
             print "Could not get histogram for filter_params: {0}".format(filter_params.encoded())
             print "Attempting to downloading first 5000"
             # TODO: Better solution for this
-            print "enqueuing for download",
+            # print "enqueuing for download",
             q.enqueue(download_products, filter_params=filter_params)
         else:
             hist_key = FILTERS[filter_index].lower() + "Histogram"
@@ -138,7 +139,7 @@ class ShopStyleDownloader():
                     _key = "fl"
                 subset_filter_params[_key] = filter_prefix + subset["id"]
                 if subset["count"] < MAX_SET_SIZE:
-                    print "enqueuing for download",
+                    # print "enqueuing for download",
                     q.enqueue(download_products, filter_params=subset_filter_params)
                 else:
                     print "Splitting: {0} products".format(subset["count"])
