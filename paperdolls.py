@@ -300,6 +300,11 @@ def draw_pose_boxes(boxes_array, image):
     return image
 
 
+def define_hog():
+    hog = cv2.HOGDescriptor()
+    hog.setSVMDetector(cv2.HOGDescriptor_getDefaultPeopleDetector())
+    return
+
 # ----------------------------------------------MAIN-FUNCTIONS----------------------------------------------------------
 
 
@@ -471,9 +476,3 @@ def get_results_now(page_url, image_url):
         return page_results.merge_items(image_dict)
     else:  # if not relevant
         return
-
-
-def define_hog():
-    hog = cv2.HOGDescriptor()
-    hog.setSVMDetector(cv2.HOGDescriptor_getDefaultPeopleDetector())
-    return
