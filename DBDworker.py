@@ -124,7 +124,7 @@ def download_products(filter_params, total=MAX_SET_SIZE):
 
 
 def delayed_requests_get(url, _params):
-    sleep_time = max(0, 0.1 - (time.time() - db.DBD.find()[0]["last_request_time"]))
+    sleep_time = max(0, 0.1 - (time.time() - db.DBD.find()[0]["last_request"]))
     time.sleep(sleep_time)
     db.DBD.find_one_and_update({"criteria": "main"},
                                {'$set': {"last_request": time.time()}})

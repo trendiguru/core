@@ -83,7 +83,7 @@ class ShopStyleDownloader():
         return root_category, ancestors
 
     def delayed_requests_get(self, url, _params):
-        sleep_time = max(0, 0.1 - (time.time() - self.db.DBD.find()[0]["last_request_time"]))
+        sleep_time = max(0, 0.1 - (time.time() - self.db.DBD.find()[0]["last_request"]))
         time.sleep(sleep_time)
         self.db.DBD.find_one_and_update({"criteria": "main"},
                                         {'$set': {"last_request": time.time()}})
