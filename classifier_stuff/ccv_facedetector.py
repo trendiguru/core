@@ -137,16 +137,13 @@ def run_classifier_recursively(path=None,use_visual_output=False,classifier=ccv_
                     faces = classifier(img_arr,method=classifier_arg)
                     n_images = n_images + 1
                     print('faces:'+str(faces)+' images:'+str(n_images)+ ' file:'+str(ele1), end="\n")
-                    if isinstance(faces,list):
-                        if len(faces)>1:
-                            n_extra_detections = n_extra_detections + len(faces) - 1
-                        if len(faces)==1:
-                            n_single_detections = n_single_detections + 1
-                        if use_visual_output:
-                            show_rects(full_name,faces)
-                        print('n_images:'+str(n_images)+' n_extra:'+str(n_extra_detections)+' n_detections:'+str(n_single_detections)+' file:'+str(ele1), end="\n")
-                    else:
-                        logging.debug('didnt get list of faces in run_classifier_recursively')
+                    if len(faces)>1:
+                        n_extra_detections = n_extra_detections + len(faces) - 1
+                    if len(faces)==1:
+                        n_single_detections = n_single_detections + 1
+                    if use_visual_output:
+                        show_rects(full_name,faces)
+                    print('n_images:'+str(n_images)+' n_extra:'+str(n_extra_detections)+' n_detections:'+str(n_single_detections)+' file:'+str(ele1), end="\n")
 			print('')
                 if dirs:
                     for ele2 in dirs:
