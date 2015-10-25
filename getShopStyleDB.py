@@ -1,5 +1,6 @@
 import time
 import datetime
+import collections
 
 import requests
 from rq import Queue
@@ -195,6 +196,108 @@ class ShopStyleDownloader():
                                                   {'$set': {"last_request": time.time()}})
         return requests.get(url, params=_params)
 
+
+class UrlParams(collections.MutableMapping):
+    """This is current designed specifically for the ShopStyle API where there can be multiple "fl" parameters,
+    although it could easily be made more modular, where a list of keys which can have multiple values is predefined,
+    or the option (bool multivalue) is supplied on new entry creation...
+    """
+
+    def __init__(self, params_dict={}, _fl_list=[]):
+        self.p_dict = dict(params_dict)
+        self.fl_list = list(_fl_list)
+
+    def __iter__(self):
+        for key in self.p_dict:
+            yield key
+        for i in range(0, len(self.fl_list)):
+            yield ("fl", i)
+
+    def __getitem__(self, key):
+        if isinstance(key, tuple):
+            return self.fl_list[key[1]]
+        elif key == "fl":
+            return self.fl_list
+        else:
+            return self.p_dict[key]
+
+    def __setitem__(self, key, value):
+        if key == "fl":
+            self.fl_list.append(value)
+        else:
+            self.p_dict[key] = value
+
+    def __delitem__(self, key):
+        del self.p_dict[key]
+
+    def __len__(self):
+        return len(self.p_dict) + len(self.fl_list)
+
+    def iteritems(self):
+        for k, v in self.p_dict.iteritems():
+            yield k, v
+        for item in self.fl_list:
+            yield 'fl', item
+
+    def items(self):
+        return [(k, v) for k, v in self.iteritems()]
+
+    def copy(self):
+        return UrlParams(self.p_dict, self.fl_list)
+
+    @staticmethod
+    def encode_params(data):
+        """Encode parameters in a piece of data.
+        Will successfully encode parameters when passed as a dict or a list of
+        2-tuples. Order is retained if data is a list of 2-tuples but arbitrary
+        if parameters are supplied as a dict.
+
+        Taken from requests package:
+        https://github.com/kennethreitz/requests/blob/8b5e457b756b2ab4c02473f7a42c2e0201ecc7e9/requests/models.py
+        """
+
+        def to_key_val_list(value):
+            """Take an object and test to see if it can be represented as a
+            dictionary. If it can be, return a list of tuples, e.g.,
+            ::
+                >>> to_key_val_list([('key', 'val')])
+                [('key', 'val')]
+                >>> to_key_val_list({'key': 'val'})
+                [('key', 'val')]
+                >>> to_key_val_list('string')
+                ValueError: cannot encode objects that are not 2-tuples.
+            """
+            if value is None:
+                return None
+
+            if isinstance(value, (str, bytes, bool, int)):
+                raise ValueError('cannot encode objects that are not 2-tuples')
+
+            if isinstance(value, collections.Mapping):
+                value = value.items()
+
+            return list(value)
+
+        if isinstance(data, (str, bytes)):
+            return data
+        elif hasattr(data, 'read'):
+            return data
+        elif hasattr(data, '__iter__'):
+            result = []
+            for k, vs in to_key_val_list(data):
+                if isinstance(vs, basestring) or not hasattr(vs, '__iter__'):
+                    vs = [vs]
+                for v in vs:
+                    if v is not None:
+                        result.append(
+                            (k.encode('utf-8') if isinstance(k, str) else k,
+                             v.encode('utf-8') if isinstance(v, str) else v))
+            return urllib.urlencode(result, doseq=True)
+        else:
+            return data
+
+    def encoded(self):
+        return self.__class__.encode_params(self)
 
 if __name__ == "__main__":
     update_db = ShopStyleDownloader()
