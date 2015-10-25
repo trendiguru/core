@@ -81,7 +81,7 @@ def email(stats):
 <body>
 <div class="container">"""
     html = html + txt2 + """
-    <table class="table table-striped" style="width:40%">
+    <table class="table table-bordered" style="width:40%">
     <thead>
       <tr>
         <th>Category</th>
