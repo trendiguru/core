@@ -12,9 +12,11 @@ import logging
 
 import cv2
 import numpy as np
+import random
 
 import constants
 import Utils
+import classifier_stuff.ccv_facedetector as ccv
 
 
 def image_is_relevant(image):
@@ -29,11 +31,37 @@ def image_is_relevant(image):
     - "for face in image_is_relevant(image).faces:"
     """
     Relevance = collections.namedtuple('relevance', 'is_relevant faces')
-    faces = find_face(image)
+    faces = find_face(image, 10)
     return Relevance(len(faces) > 0, faces)
 
 
-def find_face(image, max_num_of_faces=10):
+def find_face(image_arr, max_num_of_faces=100,method='ccv'):
+    if not isinstance(image_arr, np.ndarray)  :
+        logging.debug('find_face got a non-image')
+        return None
+    if method == 'cascade':
+        logging.debug('doing cascade facedetect')
+        faces = find_face_cascade(image_arr, max_num_of_faces=max_num_of_faces)
+        return faces
+    else:  #do ccv
+        logging.debug('doing ccv facedetect')
+        stripped_name = rand_string()+'.jpg'
+        modified_name = stripped_name.replace('/', '_')
+        modified_name = os.path.join('images', modified_name)
+        cv2.imwrite(modified_name, image_arr)
+        faces = ccv.ccv_facedetect(modified_name)
+        os.remove(modified_name)
+        if len(faces)>max_num_of_faces:
+            return choose_faces(image_arr, faces, max_num_of_faces)
+        else:
+            return faces
+
+
+def rand_string():
+    return ''.join([random.choice(string.ascii_letters + string.digits) for n in xrange(32)])
+
+
+def find_face_cascade(image, max_num_of_faces=10):
     gray = cv2.cvtColor(image, constants.BGR2GRAYCONST)
     face_cascades = [
         cv2.CascadeClassifier(os.path.join(constants.classifiers_folder, 'haarcascade_frontalface_alt2.xml')),
@@ -68,7 +96,8 @@ def choose_faces(image, faces_list, max_num_of_faces):
     h, w, d = image.shape
     x_origin = int(w / 2)
     y_origin = int(0.125 * h)
-    faces_list = faces_list.tolist()
+    if not isinstance(faces_list,list):
+        faces_list = faces_list.tolist()
     relevant_faces = []
     for face in faces_list:
         if face_is_relevant(image, face):
@@ -354,3 +383,63 @@ def simple_mask_grabcut(image, mask):
 
 if __name__ == '__main__':
     print('starting')
+
+    path = os.path.abspath(__file__)
+    print('path:'+str(path))
+    p2 = path.split('classifier_stuff')
+    print('p2:'+str(p2))
+    raw_input('k')
+
+
+
+    img = 'images/female1.jpg'
+    img_arr=cv2.imread(img)
+    r1 = find_face(img_arr, max_num_of_faces=1,method='ccv')
+    print('ccv result:'+str(r1))
+
+    print('')
+    r2 = find_face(img_arr, max_num_of_faces=1,method='cascade')
+    print('cascade result:'+str(r2))
+    raw_input('return to continue')
+
+    print('')
+    img = 'images/male1.jpg'
+    img_arr=cv2.imread(img)
+    r1 = find_face(img_arr, max_num_of_faces=1,method='ccv')
+    print('ccv result:'+str(r1))
+
+    print('')
+    r2 = find_face(img_arr, max_num_of_faces=1,method='cascade')
+    print('cascade result:'+str(r2))
+    raw_input('return to continue')
+
+    print('')
+    img = 'images/male2.jpg'
+    img_arr=cv2.imread(img)
+    r1 = find_face(img_arr, max_num_of_faces=1,method='ccv')
+    print('ccv result:'+str(r1))
+
+    print('')
+    r2 = find_face(img_arr, max_num_of_faces=1,method='cascade')
+    print('cascade result:'+str(r2))
+    raw_input('return to continue')
+
+    print('')
+    img = 'images/male3.jpg'
+    img_arr=cv2.imread(img)
+    r1 = find_face(img_arr, max_num_of_faces=1,method='ccv')
+    print('ccv result:'+str(r1))
+
+    print('')
+    r2 = find_face(img_arr, max_num_of_faces=1,method='cascade')
+    print('cascade result:'+str(r2))
+    raw_input('return to continue')
+
+    n,singles,multiples = ccv.run_classifier_recursively('images/many_faces',use_visual_output=False,classifier=find_face,classifier_arg='ccv')
+    print('n:{0} single:{1} multiple:{2}'.format(n,singles,multiples))
+    raw_input('enter to continue')
+
+    #defulat is ccv
+    n,singles,multiples = ccv.run_classifier_recursively('images/many_faces',use_visual_output=False,classifier=find_face,classifier_arg='cascade')
+    print('n:{0} single:{1} multiple:{2}'.format(n,singles,multiples))
+    raw_input('enter to continue')
