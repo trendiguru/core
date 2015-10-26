@@ -27,6 +27,7 @@ import sys
 
 db = constants.db
 
+
 def format_filename(s):
     """Take a string and return a valid filename constructed from the string.
 Uses a whitelist approach: any characters not present in valid_chars are
@@ -40,7 +41,7 @@ an invalid filename.
 """
     valid_chars = "-_.() %s%s" % (string.ascii_letters, string.digits)
     filename = ''.join(c for c in s if c in valid_chars)
-    filename = filename.replace(' ','_') # I don't like spaces in filenames.
+    filename = filename.replace(' ', '_')  # I don't like spaces in filenames.
     return filename
 
 
@@ -71,7 +72,7 @@ def get_cv2_img_array(url_or_path_to_image_file_or_cv2_image_array, convert_url_
             # filename = url_or_path_to_image_file_or_cv2_image_array.split('/')[-1].split('#')[0].split('?')[0]
             # jeremy changed this since it didn't work with url -
             # https://encrypted-tbn1.gstatic.com/images?q=tbn:ANd9GcR2oSMcnwErH1eqf4k8fvn2bAxvSdDSbp6voC7ijYJStL2NfX6v
-            #TODO: find a better way to create legal filename from url
+            # TODO: find a better way to create legal filename from url
             filename = \
                 url_or_path_to_image_file_or_cv2_image_array.split('/')[-1].split('#')[0].split('?')[-1].split(':')[
                     -1]
@@ -84,7 +85,7 @@ def get_cv2_img_array(url_or_path_to_image_file_or_cv2_image_array, convert_url_
             # print('trying again locally using filename:' + str(filename))
             img_array = get_cv2_img_array(filename, convert_url_to_local_filename=False, download=download,
                                           download_directory=download_directory)
-            #maybe return(get_cv2 etc) instead of img_array =
+            # maybe return(get_cv2 etc) instead of img_array =
             if img_array is not None:
                 # print('got ok array calling self locally')
                 return img_array
@@ -181,6 +182,7 @@ def get_cv2_img_array(url_or_path_to_image_file_or_cv2_image_array, convert_url_
                 print('unexpected error in Utils calling imwrite')
     return img_array
 
+
 def count_human_bbs_in_doc(dict_of_images, skip_if_marked_to_skip=True):
     n = 0
     for entry in dict_of_images:
@@ -238,6 +240,7 @@ def good_bb(dict, skip_if_marked_to_skip=True):
         dict['human_bb'] = reduce_bounding_box(bb)  # attempting to avoid bbsize=imgsize
     return (True)
 
+
 def legal_bounding_box(rect):
     if rect is None:
         return False
@@ -269,7 +272,7 @@ def bounding_box_inside_image(image_array, rect):
 # prefixes = ['Main Image URL angle ', 'Style Gallery Image ']
 # training docs contains lots of different images (URLs) of the same clothing item
 # logging.debug(str(doc))
-#print('doc:'+str(doc))
+# print('doc:'+str(doc))
 #       for prefix in prefixes:
 
 
@@ -334,7 +337,7 @@ def fix_all_bbs_in_db(use_visual_output=False):
                     bb[1] = min(bb[1], height - 1)  # if greater than height
                     bb[3] = max(0, bb[3])  # if less than zero
                     bb[3] = min(bb[3], height - bb[1] - 1)  # the -1 is just to make sure, prob unneeded
-                    print ('suggested replacement:' + str(bb))
+                    print('suggested replacement:' + str(bb))
                     raw_input('got one')
                     image["human_bb"] = bb
                     id = str(doc['_id'])
@@ -484,6 +487,7 @@ class ThreadSafeCounter(object):
     def value(self):
         return self.val.value
 
+
 def bb_to_mask(bb, img_array):
     '''
     bb in form of x,y,w,h converted to np array the same size as img_array
@@ -522,6 +526,7 @@ def is_valid_local_or_remote_image_file(img_filename):
     img_array = get_cv2_img_array(img_filename)
     return is_valid_image(img_array)
 
+
 ###########################
 ### OS stuff_
 ###########################
@@ -530,6 +535,7 @@ def safely_close(fh):
     fh.flush()
     os.fsync(fh.fileno())  # this and f.flush were needed since after file close, file wasn't immediately available.
     fh.close()
+
 
 def ensure_dir(f):
     '''
@@ -543,6 +549,7 @@ def ensure_dir(f):
         #        print('d:'+str(d))
 
         os.makedirs(f)
+
 
 def immediate_subdirs(dir):
     '''
@@ -567,24 +574,26 @@ def purge(dir, pattern):
         if re.search(pattern, f):
             os.remove(os.path.join(dir, f))
 
+
 def depth_of_subdir_of_calling_function():
     '''
     this finds the depth of subdirectory in which the caller resides
     :return:
     '''
     path = os.getcwd()
- #   print('path:'+str(path))
+    #   print('path:'+str(path))
     p2 = path.split('trendi_guru_modules')
-  #  print('path split on trendigurumodules:'+str(p2))
+    #  print('path split on trendigurumodules:'+str(p2))
     if len(p2) < 2:
         print('not in trendi_guru_modules')
     secondhalf = p2[1]
- #   print('secondhalf:'+str(secondhalf))
+    #   print('secondhalf:'+str(secondhalf))
     cur = secondhalf.split('/')
- #   print('cur:'+str(cur))
+    #   print('cur:'+str(cur))
     if len(cur) > 1:
         in_subdir_of_trendi_guru_modules = True
-    return len(cur)-1
+    return len(cur) - 1
+
 
 def get_images_list(dir_url):
     paths_list = files_in_directory(dir_url)
@@ -596,6 +605,7 @@ def get_images_list(dir_url):
         # cv2.waitKey(0)
         # i += 1
     return images_list
+
 
 def show_parse(filename=None, img_array=None):
     if filename is not None:
@@ -617,6 +627,7 @@ def shorten_url_googl(long_url):
     response = requests.request("POST", url, data=payload, headers=headers, params=querystring)
     return response.json().get("id") or long_url
 
+
 def shorten_url_bitly(long_url):
     url = "https://api-ssl.bitly.com/v3/shorten"
     querystring = {"access_token": "1b131dcc7af91f1fa7f481ab7c20da0f658acff9",
@@ -625,7 +636,8 @@ def shorten_url_bitly(long_url):
     response = requests.request("GET", url, params=querystring)
     return response.text.rstrip()
 
-#testing git pull on pp2
+
+# testing git pull on pp2
 def git_pull(**kwargs):
     import subprocess
     path = os.path.abspath(__file__)
@@ -634,9 +646,10 @@ def git_pull(**kwargs):
     try:
         result = subprocess.check_output('git -C {dir} pull'.format(dir=module_directory), shell=True)
     except subprocess.CalledProcessError, e:
-#        logging.warning("git_pull failed with exception: {0}\ngit output:{1}".format(e))   #needs the second field
+        #        logging.warning("git_pull failed with exception: {0}\ngit output:{1}".format(e))   #needs the second field
         logging.warning("git_pull failed with exception: {0}".format(e))
     return
+
 
 ############################
 ### math stuff
@@ -656,6 +669,7 @@ def recall(true_pos=0, false_neg=0):
     else:
         recall = 0
     return recall
+
 
 def intersectionOverUnion(r1, r2):
     # print(r1, r2)
@@ -723,12 +737,10 @@ def isnumber(str):
         return False
 
 
-
-
 if __name__ == '__main__':
     print('starting')
-    #show_all_bbs_in_db()
-    #fix_all_bbs_in_db()
+    # show_all_bbs_in_db()
+    # fix_all_bbs_in_db()
     # step_thru_db(use_visual_output=True)
     # http://glamradar.com/wp-content/uploads/2013/01/Chiffon-Maxi-Skirts-celebs-500x500.jpg
     show_parse(
