@@ -16,7 +16,7 @@ import numpy as np
 
 import constants
 import Utils
-import classifier_stuff.ccv_facedetector as ccv
+import ccv_facedetector as ccv
 
 
 def image_is_relevant(image):

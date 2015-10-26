@@ -10,44 +10,34 @@ import os.path
 import logging
 import numpy as np
 
-logging.basicConfig(filename='logging.log',level=logging.DEBUG)
-
+logging.basicConfig(filename='logging.log', level=logging.DEBUG)
 
 
 def ccv_facedetect(filename):
     if not os.path.isfile(filename):
         logging.warning('file passed to ccv_facedetect doesnt exist)')
         return 1
-#    fcommand = 'pwd'
-#    retvals = commands.getstatusoutput(fcommand)
-#    print(str(retvals),end="\n")
-    d=depth_of_subdir_of_calling_function()
-#    print('depth of subdir:'+str(d))
-#    d = 1
-    if d == 0:
-        fcommand = 'classifier_stuff/ccvface '+str(filename)+' classifier_stuff/ccvface.sqlite3'
-    elif d == 1:
-        fcommand = './ccvface '+str(filename)+' ./ccvface.sqlite3'
-#    print('command:'+fcommand)
+    fcommand = 'classifier_stuff/ccvface ' + str(filename) + ' classifier_stuff/ccvface.sqlite3'
     retvals = commands.getstatusoutput(fcommand)
-    print('return from command '+str(fcommand)+':'+str(retvals),end="\n")
+    print('return from command ' + str(fcommand) + ':' + str(retvals), end="\n")
     rects = []
-    if isinstance(retvals[1],basestring):
+    if isinstance(retvals[1], basestring):
         strings = retvals[1].split('\n')
         logging.debug('strings:'+str(strings))
         for rectstr in strings:
             newrect = [int(s) for s in rectstr.split() if s.isdigit()]
             if len(newrect) == 4:
                 rects.append(newrect)
-                #logging.debug('rects found:'+str(rects))
+                # logging.debug('rects found:'+str(rects))
             else:
                 logging.warning('got weird string from ccv:'+str(rectstr))
-        arr = np.asarray(rects,dtype='uint16')
+        arr = np.asarray(rects, dtype='uint16')
         logging.debug('rects'+str(arr))
         return rects
     else:
         logging.debug('no answer string recd from ccv')
         return None
+
 
 def check_lfw(use_visual_output=False):
     BASE_PATH = os.getcwd()
