@@ -10,8 +10,6 @@ import os.path
 import logging
 import numpy as np
 
-logging.basicConfig(filename='logging.log', level=logging.DEBUG)
-
 
 def ccv_facedetect(filename):
     if not os.path.isfile(filename):
