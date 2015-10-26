@@ -8,20 +8,20 @@ import copy
 
 import numpy as np
 import pymongo
-import cv2
-from rq import Queue
 import bson
+import cv2
+import boto3
+from rq import Queue
 from rq.job import Job
 
 import page_results
-from paperdoll import paperdoll_parse_enqueue
-import boto3
-import find_similar_mongo
-import background_removal
-import Utils
-import constants
-from constants import db
-from constants import redis_conn
+from .paperdoll import paperdoll_parse_enqueue
+from . import find_similar_mongo
+from . import background_removal
+from . import Utils
+from . import constants
+from .constants import db
+from .constants import redis_conn
 
 
 folder = '/home/ubuntu/paperdoll/masks/'
@@ -335,7 +335,9 @@ def start_process(page_url, image_url):
     image_dict = {'image_urls': [image_url], 'relevant': relevance.is_relevant,
                   'image_hash': image_hash, 'page_urls': [page_url], 'people': []}
     if relevance.is_relevant:
-        relevant_faces = relevance.faces.tolist()
+        if not isinstance(relevance.faces, list):
+            relevance.faces = relevance.faces.tolist()
+        relevant_faces = relevance.faces
         idx = 0
         start = time.time()
         for face in relevant_faces:
