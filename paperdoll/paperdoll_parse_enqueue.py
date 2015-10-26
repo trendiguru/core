@@ -4,8 +4,7 @@ import numpy as np
 from rq import Queue
 import cv2
 
-from . import constants
-
+from .. import constants
 
 redis_conn = constants.redis_conn
 
