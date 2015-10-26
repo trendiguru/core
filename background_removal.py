@@ -47,7 +47,7 @@ def find_face(image_arr, max_num_of_faces=100, method='ccv'):
         logging.debug('doing ccv facedetect')
         stripped_name = rand_string()+'.jpg'
         modified_name = stripped_name.replace('/', '_')
-        modified_name = os.path.join('/home/www-data/images', modified_name)
+        modified_name = os.path.join('images', modified_name)
         cv2.imwrite(modified_name, image_arr)
         faces = ccv.ccv_facedetect(modified_name)
         os.remove(modified_name)
