@@ -330,7 +330,7 @@ def start_process(page_url, image_url):
         return
 
     # NEW_IMAGE !!
-    print "start process image shape: " + str(image.shape)
+    print "Start process image shape: " + str(image.shape)
     relevance = background_removal.image_is_relevant(image)
     image_dict = {'image_urls': [image_url], 'relevant': relevance.is_relevant,
                   'image_hash': image_hash, 'page_urls': [page_url], 'people': []}
