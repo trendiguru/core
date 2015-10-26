@@ -45,7 +45,7 @@ def find_face(image_arr, max_num_of_faces=100, method='ccv'):
         return faces
     else:  # do ccv
         logging.debug('doing ccv facedetect')
-        modified_name = os.getcwd() + '/' + rand_string() + '.jpg'
+        modified_name = os.getcwd() + '/images/' + rand_string() + '.jpg'
         cv2.imwrite(modified_name, image_arr)
         faces = ccv.ccv_facedetect(modified_name)
         os.remove(modified_name)
