@@ -54,7 +54,7 @@ def find_face(image_arr, max_num_of_faces=100, method='ccv'):
             else:
                 return faces
         else:
-            throw IOError("IMWRITE FAILED!!!!")
+            raise IOError("IMWRITE FAILED!!!!")
 
 
 def rand_string():
