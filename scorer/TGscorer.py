@@ -100,7 +100,7 @@ filtered_paperdoll_weights_dictionary = {'womens-tops': 1,
 
 
 def sigmoid(input_value):
-    return 2 * (float(1) / (1 + np.exp(-input_value)) - 0.5)
+    return (float(2) / (1 + np.exp(-input_value)/0.167) - 1)
 
 
 def classification_rating(goldenset_classes, testset_classes, weights_dictionary):
