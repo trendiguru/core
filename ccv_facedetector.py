@@ -19,7 +19,7 @@ def ccv_facedetect(filename):
     retvals = commands.getstatusoutput(fcommand)
     print('return from command ' + str(fcommand) + ':' + str(retvals), end="\n")
     rects = []
-    if isinstance(retvals[1], basestring):
+    if isinstance(retvals[1], basestring) and retvals[1] != '':
         strings = retvals[1].split('\n')
         logging.debug('strings:'+str(strings))
         for rectstr in strings:
