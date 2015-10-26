@@ -50,8 +50,6 @@ def find_face(image_arr, max_num_of_faces=100, method='ccv'):
         modified_name = os.path.join('images', modified_name)
         cv2.imwrite(modified_name, image_arr)
         faces = ccv.ccv_facedetect(modified_name)
-        while not cv2.imread(modified_name):
-            pass
         os.remove(modified_name)
         if len(faces) > max_num_of_faces:
             return choose_faces(image_arr, faces, max_num_of_faces)
