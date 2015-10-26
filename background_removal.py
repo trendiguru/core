@@ -10,7 +10,6 @@ import collections
 import os
 import logging
 import random
-import time
 
 import cv2
 import numpy as np
@@ -46,11 +45,8 @@ def find_face(image_arr, max_num_of_faces=100, method='ccv'):
         return faces
     else:  # do ccv
         logging.debug('doing ccv facedetect')
-        stripped_name = rand_string()+'.jpg'
-        modified_name = stripped_name.replace('/', '_')
-        modified_name = os.path.join('images', modified_name)
+        modified_name = os.getcwd() + '/' + rand_string() + '.jpg'
         cv2.imwrite(modified_name, image_arr)
-        time.sleep(0.3)
         faces = ccv.ccv_facedetect(modified_name)
         os.remove(modified_name)
         if len(faces) > max_num_of_faces:
