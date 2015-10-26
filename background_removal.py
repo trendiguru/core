@@ -46,13 +46,15 @@ def find_face(image_arr, max_num_of_faces=100, method='ccv'):
     else:  # do ccv
         logging.debug('doing ccv facedetect')
         modified_name = '/var/www/temp_images/' + rand_string() + '.jpg'
-        cv2.imwrite(modified_name, image_arr)
-        faces = ccv.ccv_facedetect(modified_name)
-        # os.remove(modified_name)
-        if len(faces) > max_num_of_faces:
-            return choose_faces(image_arr, faces, max_num_of_faces)
+        if(cv2.imwrite(modified_name, image_arr)):
+            faces = ccv.ccv_facedetect(modified_name)
+            # os.remove(modified_name)
+            if len(faces) > max_num_of_faces:
+                return choose_faces(image_arr, faces, max_num_of_faces)
+            else:
+                return faces
         else:
-            return faces
+            raise IOError("IMWRITE FAILED!!!!")
 
 
 def rand_string():
