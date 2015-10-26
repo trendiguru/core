@@ -14,14 +14,14 @@ import bson
 from rq.job import Job
 
 import page_results
-from .paperdoll import paperdoll_parse_enqueue
+from paperdoll import paperdoll_parse_enqueue
 import boto3
 import find_similar_mongo
 import background_removal
 import Utils
 import constants
-from .constants import db
-from .constants import redis_conn
+from constants import db
+from constants import redis_conn
 
 
 folder = '/home/ubuntu/paperdoll/masks/'
