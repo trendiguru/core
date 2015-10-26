@@ -9,10 +9,10 @@ from tkFileDialog import askopenfilename
 import collections
 import os
 import logging
+import random
 
 import cv2
 import numpy as np
-import random
 
 import constants
 import Utils
@@ -43,15 +43,15 @@ def find_face(image_arr, max_num_of_faces=100,method='ccv'):
         logging.debug('doing cascade facedetect')
         faces = find_face_cascade(image_arr, max_num_of_faces=max_num_of_faces)
         return faces
-    else:  #do ccv
+    else:  # do ccv
         logging.debug('doing ccv facedetect')
         stripped_name = rand_string()+'.jpg'
         modified_name = stripped_name.replace('/', '_')
-        modified_name = os.path.join('images', modified_name)
+        modified_name = os.path.join('/home/www-data/images', modified_name)
         cv2.imwrite(modified_name, image_arr)
         faces = ccv.ccv_facedetect(modified_name)
         os.remove(modified_name)
-        if len(faces)>max_num_of_faces:
+        if len(faces) > max_num_of_faces:
             return choose_faces(image_arr, faces, max_num_of_faces)
         else:
             return faces
