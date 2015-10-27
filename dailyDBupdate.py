@@ -123,7 +123,7 @@ def email(stats):
 
 
 def stats_and_mail(collection):
-    dl_data = db.download_data.find_one({"criteria": collection})
+    dl_data = db.download_data.find({"criteria": collection})[0]
     date = dl_data['current_dl']
     stats = {'date': date,
              'items_downloaded': dl_data['items_downloaded'],

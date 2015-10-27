@@ -80,7 +80,7 @@ class ShopStyleDownloader():
         self.wait_for(60, collection)
         self.db.download_data.find_one_and_update({"criteria": collection},
                                                   {'$set': {"end_time": datetime.datetime.now()}})
-        tmp = self.db.download_data.find_one({"criteria": collection})
+        tmp = self.db.download_data.find({"criteria": collection})[0]
         total_time = abs(tmp["end_time"] - tmp["start_time"]).total_seconds()
         self.db.download_data.find_one_and_update({"criteria": collection},
                                                   {'$set': {"total_dl_time(hours)": str(total_time / 3600)[:5]}})
@@ -94,7 +94,7 @@ class ShopStyleDownloader():
         if x == "n" or x == "N":
             return
         time.sleep(approx * 60)  # wait for the cralwer to download the data
-        dl_data = self.db.download_data.find_one({"criteria": collection})
+        dl_data = self.db.download_data.find({"criteria": collection})[0]
         total_items = self.db[collection].count()
         downloaded_items = dl_data["items_downloaded"]
         new_items = dl_data["new_items"]
