@@ -104,3 +104,4 @@ def generate_mask_and_insert(doc, image_url=None, fp_date=None, coll="products")
         print "error inserting"
 
     return fp_as_list
+

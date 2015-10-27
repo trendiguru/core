@@ -7,10 +7,12 @@ the download worker
 import json
 import collections
 import urllib
+import time
+
+import requests
 
 from rq import Queue
 
-from getShopStyleDB import delayed_requests_get
 from fingerprint_core import generate_mask_and_insert
 import constants
 
@@ -128,6 +130,14 @@ def db_update(prod, collection):
             db[collection].delete_one({'id': prod['id']})
             insert_and_fingerprint(prod, collection)
             print "product with an old fp was refingerprinted"
+
+
+def delayed_requests_get(url, _params, collection):
+    dl_data = db.download_data.find({"criteria": collection})[0]
+    sleep_time = max(0, 0.1 - (time.time() - dl_data["last_request"]))
+    time.sleep(sleep_time)
+    db.download_data.find_one_and_update({"criteria": collection}, {'$set': {"last_request": time.time()}})
+    return requests.get(url, params=_params)
 
 
 class UrlParams(collections.MutableMapping):
