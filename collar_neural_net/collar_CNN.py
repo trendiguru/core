@@ -59,7 +59,6 @@ Y_train = output_vector
 
 
 
-
 batch_size = 32
 epoches_number = 100
 overwrite_weights = True
