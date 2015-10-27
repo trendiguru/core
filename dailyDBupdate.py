@@ -122,9 +122,8 @@ def email(stats):
         server.quit()
 
 
-
-def stats_and_mail():
-    dl_data = db.download_data.find()[0]
+def stats_and_mail(collection):
+    dl_data = db.download_data.find_one({"criteria": collection})
     date = dl_data['current_dl']
     stats = {'date': date,
              'items_downloaded': dl_data['items_downloaded'],
@@ -138,8 +137,8 @@ def stats_and_mail():
     for i in constants.db_relevant_items:
         if i == 'women' or i == 'women-cloth':
             continue
-        stats['items_by_category'][i] = {'total': db.products.find({'categories.id': i}).count(),
-                                         'new': db.products.find({'$and': [{'categories.id': i},
+        stats['items_by_category'][i] = {'total': db[collection].find({'categories.id': i}).count(),
+                                         'new': db[collection].find({'$and': [{'categories.id': i},
                                                                            {'download_data.first_dl': date}]}).count()}
     email(stats)
     with open(date + '.txt', 'w') as outfile:
@@ -167,6 +166,6 @@ if __name__ == "__main__":
     if x is "D" or x is "d":
         update_db = getShopStyleDB.ShopStyleDownloader()
         update_db.db_download(collection)
-    stats_and_mail()
+    stats_and_mail(collection)
 
     print "Daily Update Finished!!!"

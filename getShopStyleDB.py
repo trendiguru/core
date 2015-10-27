@@ -48,7 +48,7 @@ class ShopStyleDownloader():
         dd_exists = False
         if self.db.download_data.find({"criteria": collection}).count > 0:
             dd_exists = True
-            if self.db.download_data.find_one({"criteria": collection})[0]["current_dl"] != self.current_dl_date:
+            if self.db.download_data.find_one({"criteria": collection})["current_dl"] != self.current_dl_date:
                 dd_refresh = True
         if self.db.download_data.find().count() == 0 or dd_refresh is True or type == "FULL":
             if dd_exists is True:
@@ -79,7 +79,7 @@ class ShopStyleDownloader():
         self.wait_for(60, collection)
         self.db.download_data.find_one_and_update({"criteria": collection},
                                                   {'$set': {"end_time": datetime.datetime.now()}})
-        tmp = self.db.download_data.find_one({"criteria": collection})[0]
+        tmp = self.db.download_data.find_one({"criteria": collection})
         total_time = abs(tmp["end_time"] - tmp["start_time"]).total_seconds()
         self.db.download_data.find_one_and_update({"criteria": collection},
                                                   {'$set': {"total_dl_time(hours)": str(total_time / 3600)[:5]}})
@@ -93,7 +93,7 @@ class ShopStyleDownloader():
         if x == "n" or x == "N":
             return
         time.sleep(approx * 60)  # wait for the cralwer to download the data
-        dl_data = self.db.download_data.find_one({"criteria": collection})[0]
+        dl_data = self.db.download_data.find_one({"criteria": collection})
         total_items = self.collection.count()
         downloaded_items = dl_data["items_downloaded"]
         new_items = dl_data["new_items"]

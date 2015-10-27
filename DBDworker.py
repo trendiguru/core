@@ -133,7 +133,7 @@ def db_update(prod, collection):
 
 
 def delayed_requests_get(url, _params, collection):
-    dl_data = db.download_data.find({"criteria": collection})[0]
+    dl_data = db.download_data.find({"criteria": collection})
     sleep_time = max(0, 0.1 - (time.time() - dl_data["last_request"]))
     time.sleep(sleep_time)
     db.download_data.find_one_and_update({"criteria": collection}, {'$set': {"last_request": time.time()}})
