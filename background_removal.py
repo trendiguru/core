@@ -37,28 +37,19 @@ def image_is_relevant(image):
 
 def find_face(image_arr, max_num_of_faces=100, method='ccv'):
     if not isinstance(image_arr, np.ndarray):
-        logging.debug('find_face got a non-image')
-        return None
+        raise IOError('find_face got a bad input: not np.ndarray')
     if method == 'cascade':
         logging.debug('doing cascade facedetect')
         faces = find_face_cascade(image_arr, max_num_of_faces=max_num_of_faces)
         return faces
     else:  # do ccv
         logging.debug('doing ccv facedetect')
-        modified_name = '/var/www/temp_images/' + rand_string() + '.jpg'
-        if cv2.imwrite(modified_name, image_arr):
-            faces = ccv.ccv_facedetect(modified_name)
-            # os.remove(modified_name)
-            if faces is None or len(faces) == 0:
-                return []
-            else:
-                return choose_faces(image_arr, faces, max_num_of_faces)
+        faces = ccv.ccv_facedetect(image_arr)
+
+        if faces is None or len(faces) == 0:
+            return []
         else:
-            raise IOError("IMWRITE FAILED!!!!")
-
-
-def rand_string():
-    return ''.join([random.choice(string.ascii_letters + string.digits) for n in xrange(32)])
+            return choose_faces(image_arr, faces, max_num_of_faces)
 
 
 def find_face_cascade(image, max_num_of_faces=10):
