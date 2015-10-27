@@ -29,6 +29,7 @@ db = constants.db
 relevant = constants.db_relevant_items
 fp_version = constants.fingerprint_version
 
+
 class ShopStyleDownloader():
     def __init__(self):
         # connect to db
@@ -43,7 +44,7 @@ class ShopStyleDownloader():
         else:
             type = "DAILY"
 
-        self.collection = self.db[collection]
+        # self.collection = self.db[collection]
         dd_refresh = False
         dd_exists = False
         if self.db.download_data.find({"criteria": collection}).count() > 0:
@@ -72,7 +73,7 @@ class ShopStyleDownloader():
             self.db.dl_cache.delete_many({})
             self.db.dl_cache.create_index("filter_params")
         # self.db.archive.create_index("id")
-        root_category, ancestors = self.build_category_tree()
+        root_category, ancestors = self.build_category_tree(collection)
         cats_to_dl = [anc["id"] for anc in ancestors]
         for cat in cats_to_dl:
             self.download_category(cat, collection)
@@ -83,7 +84,7 @@ class ShopStyleDownloader():
         total_time = abs(tmp["end_time"] - tmp["start_time"]).total_seconds()
         self.db.download_data.find_one_and_update({"criteria": collection},
                                                   {'$set': {"total_dl_time(hours)": str(total_time / 3600)[:5]}})
-        del_items = self.collection.delete_many({'fingerprint': {"$exists": False}})
+        del_items = self.db[collection].delete_many({'fingerprint': {"$exists": False}})
         print str(del_items.deleted_count) + ' items without fingerprint were deleted!\n'
         self.db.drop_collection("fp_in_process")
         print collection + " " + type + " DOWNLOAD DONE!!!!!\n"
@@ -94,7 +95,7 @@ class ShopStyleDownloader():
             return
         time.sleep(approx * 60)  # wait for the cralwer to download the data
         dl_data = self.db.download_data.find_one({"criteria": collection})
-        total_items = self.collection.count()
+        total_items = self.db[collection].count()
         downloaded_items = dl_data["items_downloaded"]
         new_items = dl_data["new_items"]
         insert_errors = dl_data["errors"]
@@ -111,11 +112,11 @@ class ShopStyleDownloader():
                 check += 1
                 print "check number" + str(check)
                 time.sleep(300)
-                total_items = self.collection.count()
+                total_items = self.db[collection].count()
                 insert_errors = dl_data["errors"]
                 sub = downloaded_items - insert_errors
 
-    def build_category_tree(self):
+    def build_category_tree(self, collection):
         # download all categories
         category_list_response = requests.get(BASE_URL + "categories", params={"pid": PID})
         category_list_response_json = category_list_response.json()
