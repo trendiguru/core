@@ -14,11 +14,13 @@ path_to_ccvface_db = '/' + project_dir + '/classifier_stuff/ccvface.sqlite3'
 
 
 def ccv_facedetect(filename=None, image_array=None):
+    delete_when_done = False
     if not os.path.isfile(filename):
         if image_array is not None:
             filename = '/var/tmp/' + rand_string() + '.jpg'
             if not cv2.imwrite(filename, image_array):
                 raise IOError("Could not save temp image")
+            delete_when_done = True
         else:
             raise IOError("Bad parameters passed -- no file and no array.")
 
@@ -27,6 +29,13 @@ def ccv_facedetect(filename=None, image_array=None):
 
     retvals = commands.getstatusoutput(detect_command)
     logging.debug('return from command ' + detect_command + ':' + str(retvals), end="\n")
+
+    if delete_when_done:
+        try:
+            os.remove(filename)
+        except Exception as e:
+            logging.warning("ccv_facedetect could not delete file {0} because of exception: \n{1}".format(filename, e))
+
     rects = []
     if isinstance(retvals[1], basestring) and retvals[1] != '':
         rectangle_strings = retvals[1].split('\n')
