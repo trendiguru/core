@@ -106,7 +106,7 @@ paperdoll_categories = {"whole_body": ['bodysuit', 'dress', 'jumper', 'suit', 'r
                         "lower_cover": ['shorts', 'skirt', 'jeans', 'pants'],
                         "lower_under": ['stockings', 'tights', 'leggings']}
 
-papersoll_whole_body = ['bodysuit', 'dress', 'jumper', 'suit', 'romper', 'intimate']
+paperdoll_whole_body = ['bodysuit', 'dress', 'jumper', 'suit', 'romper', 'intimate']
 paperdoll_upper = ['blazer', 'cape', 'jacket', 't-shirt', 'blouse', 'cardigan', 'shirt', 'coat', 'top', 'bra',
                    'sweater', 'vest', 'sweatshirt']
 paperdoll_lower = ['pants', 'stockings', 'jeans', 'tights', 'leggings', 'shorts', 'skirt']
@@ -133,7 +133,7 @@ Reserve_cpus = 2  # number of cpus to not use when doing stuff in parallel
 
 # for gender id
 gender_ttl = 5  # 10 seconds ttl , answer should be nearly immediate
-paperdoll_ttl = 9045  # seconds to wait for paperdoll result
+paperdoll_ttl = 90  # seconds to wait for paperdoll result
 
 # QC worker voting params
 

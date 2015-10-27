@@ -8,18 +8,18 @@ import copy
 
 import numpy as np
 import pymongo
-import cv2
-from rq import Queue
 import bson
+import cv2
+import boto3
+from rq import Queue
 from rq.job import Job
 
 import page_results
 from .paperdoll import paperdoll_parse_enqueue
-import boto3
-import find_similar_mongo
-import background_removal
-import Utils
-import constants
+from . import find_similar_mongo
+from . import background_removal
+from . import Utils
+from . import constants
 from .constants import db
 from .constants import redis_conn
 
@@ -302,7 +302,7 @@ def draw_pose_boxes(boxes_array, image):
 
 def define_hog():
     hog = cv2.HOGDescriptor()
-    hog.setSVMDetector(cv2.HOGDescriptor_getDaimlerPeopleDetector())
+    hog.setSVMDetector(cv2.HOGDescriptor_getDefaultPeopleDetector())
     return hog
 
 # ----------------------------------------------MAIN-FUNCTIONS----------------------------------------------------------
@@ -313,7 +313,6 @@ def start_process(page_url, image_url):
     image = Utils.get_cv2_img_array(image_url)
     if image is None:
         return
-    image = background_removal.standard_resize(image, 400)[0]
     # IF IMAGE EXISTS IN IMAGES BY URL
     images_obj_url = images.find_one({"image_urls": image_url})
     if images_obj_url:
@@ -331,12 +330,14 @@ def start_process(page_url, image_url):
         return
 
     # NEW_IMAGE !!
-    print "start process image shape: " + str(image.shape)
+    print "Start process image shape: " + str(image.shape)
     relevance = background_removal.image_is_relevant(image)
     image_dict = {'image_urls': [image_url], 'relevant': relevance.is_relevant,
                   'image_hash': image_hash, 'page_urls': [page_url], 'people': []}
     if relevance.is_relevant:
-        relevant_faces = relevance.faces.tolist()
+        if not isinstance(relevance.faces, list):
+            relevance.faces = relevance.faces.tolist()
+        relevant_faces = relevance.faces
         idx = 0
         start = time.time()
         for face in relevant_faces:
@@ -367,7 +368,6 @@ def from_paperdoll_to_similar_results(person_id, paper_job_id, num_of_matches=10
     final_mask = after_pd_conclusions(mask, labels, person['face'])
     print "final_mask shape in paperdolls.find_similar: " + str(final_mask.shape)
     image = Utils.get_cv2_img_array(image_obj['image_urls'][0])
-    image = background_removal.standard_resize(image, 400)[0]
     items = []
     idx = 0
     for num in np.unique(final_mask):

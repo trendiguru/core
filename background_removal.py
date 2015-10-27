@@ -9,14 +9,14 @@ from tkFileDialog import askopenfilename
 import collections
 import os
 import logging
+import random
 
 import cv2
 import numpy as np
-import random
 
 import constants
 import Utils
-import classifier_stuff.ccv_facedetector as ccv
+import ccv_facedetector as ccv
 
 
 def image_is_relevant(image):
@@ -35,26 +35,26 @@ def image_is_relevant(image):
     return Relevance(len(faces) > 0, faces)
 
 
-def find_face(image_arr, max_num_of_faces=100,method='ccv'):
-    if not isinstance(image_arr, np.ndarray)  :
+def find_face(image_arr, max_num_of_faces=100, method='ccv'):
+    if not isinstance(image_arr, np.ndarray):
         logging.debug('find_face got a non-image')
         return None
     if method == 'cascade':
         logging.debug('doing cascade facedetect')
         faces = find_face_cascade(image_arr, max_num_of_faces=max_num_of_faces)
         return faces
-    else:  #do ccv
+    else:  # do ccv
         logging.debug('doing ccv facedetect')
-        stripped_name = rand_string()+'.jpg'
-        modified_name = stripped_name.replace('/', '_')
-        modified_name = os.path.join('images', modified_name)
-        cv2.imwrite(modified_name, image_arr)
-        faces = ccv.ccv_facedetect(modified_name)
-        os.remove(modified_name)
-        if len(faces)>max_num_of_faces:
-            return choose_faces(image_arr, faces, max_num_of_faces)
+        modified_name = '/var/www/temp_images/' + rand_string() + '.jpg'
+        if cv2.imwrite(modified_name, image_arr):
+            faces = ccv.ccv_facedetect(modified_name)
+            # os.remove(modified_name)
+            if len(faces) > 0:
+                return choose_faces(image_arr, faces, max_num_of_faces)
+            else:
+                return faces
         else:
-            return faces
+            raise IOError("IMWRITE FAILED!!!!")
 
 
 def rand_string():
