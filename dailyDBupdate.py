@@ -6,6 +6,7 @@ add description
 
 import json
 import smtplib
+import sys
 
 from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
@@ -113,7 +114,7 @@ def email(stats):
     # server.set_debuglevel(True)  # show communication with the server
     try:
         server.login('yonti0@gmail.com', "Hub,hKuhiPryh")
-        server.sendmail(sender, [yonti], msg.as_string())  # [recipient, yonti], msg.as_string())
+        server.sendmail(sender, [recipient, yonti], msg.as_string())  # [recipient, yonti], msg.as_string())
         print "sent"
     except:
         print "error"
@@ -121,9 +122,8 @@ def email(stats):
         server.quit()
 
 
-
-def stats_and_mail():
-    dl_data = db.download_data.find()[0]
+def stats_and_mail(collection):
+    dl_data = db.download_data.find_one({"criteria": collection})
     date = dl_data['current_dl']
     stats = {'date': date,
              'items_downloaded': dl_data['items_downloaded'],
@@ -137,8 +137,8 @@ def stats_and_mail():
     for i in constants.db_relevant_items:
         if i == 'women' or i == 'women-cloth':
             continue
-        stats['items_by_category'][i] = {'total': db.products.find({'categories.id': i}).count(),
-                                         'new': db.products.find({'$and': [{'categories.id': i},
+        stats['items_by_category'][i] = {'total': db[collection].find({'categories.id': i}).count(),
+                                         'new': db[collection].find({'$and': [{'categories.id': i},
                                                                            {'download_data.first_dl': date}]}).count()}
     email(stats)
     with open(date + '.txt', 'w') as outfile:
@@ -146,7 +146,11 @@ def stats_and_mail():
 
 
 if __name__ == "__main__":
-    print "\n@@@ The Daily DB Updater @@@"
+    if len(sys.argv) == 1:
+        collection = "products"
+    else:
+        collection = sys.argv[1]
+    print "\n@@@ The Daily DB Updater @@@\n you choose to update the " + collection + " collection"
     while True:
         try:
             x = raw_input("Download or Statistics? (D/S)")
@@ -161,7 +165,7 @@ if __name__ == "__main__":
 
     if x is "D" or x is "d":
         update_db = getShopStyleDB.ShopStyleDownloader()
-        update_db.run_by_category()
-    stats_and_mail()
+        update_db.db_download(collection)
+    stats_and_mail(collection)
 
     print "Daily Update Finished!!!"

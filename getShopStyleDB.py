@@ -2,9 +2,12 @@ import time
 import datetime
 import collections
 import urllib
+import sys
 
 import requests
 from rq import Queue
+
+from DBDworker import delayed_requests_get
 
 from DBDworker import download_products
 import constants
@@ -22,27 +25,36 @@ MAX_RESULTS_PER_PAGE = 50
 MAX_OFFSET = 5000
 MAX_SET_SIZE = MAX_OFFSET + MAX_RESULTS_PER_PAGE
 db = constants.db
-collection = constants.update_collection_name
+# collection = constants.update_collection_name
 relevant = constants.db_relevant_items
 fp_version = constants.fingerprint_version
+
 
 class ShopStyleDownloader():
     def __init__(self):
         # connect to db
         self.db = db
-        self.collection = self.db[collection]
+        # self.collection = self.db[collection]
         self.current_dl_date = str(datetime.datetime.date(datetime.datetime.now()))
-        self.do_fingerprint = True
 
-    def run_by_category(self, do_fingerprint=True, type="DAILY"):
+    def db_download(self, collection):
         x = raw_input("choose your update type - Daily or Full? (D/F)")
         if x is "f" or x is "F":
             type = "FULL"
-        if self.db.download_data.find().count() < 1 or \
-                        self.db.download_data.find()[0]["current_dl"] != self.current_dl_date or \
-                type == "FULL":
-            self.db.download_data.delete_many({})
-            self.db.download_data.insert_one({"criteria": "main",
+        else:
+            type = "DAILY"
+
+        # self.collection = self.db[collection]
+        dd_refresh = False
+        dd_exists = False
+        if self.db.download_data.find({"criteria": collection}).count() > 0:
+            dd_exists = True
+            if self.db.download_data.find_one({"criteria": collection})["current_dl"] != self.current_dl_date:
+                dd_refresh = True
+        if self.db.download_data.find().count() == 0 or dd_refresh is True or type == "FULL":
+            if dd_exists is True:
+                self.db.download_data.delete_one({"criteria": collection})
+            self.db.download_data.insert_one({"criteria": collection,
                                               "current_dl": self.current_dl_date,
                                               "start_time": datetime.datetime.now(),
                                               "items_downloaded": 0,
@@ -61,29 +73,29 @@ class ShopStyleDownloader():
             self.db.dl_cache.delete_many({})
             self.db.dl_cache.create_index("filter_params")
         # self.db.archive.create_index("id")
-        self.do_fingerprint = do_fingerprint  # check if relevent
-        root_category, ancestors = self.build_category_tree()
+        root_category, ancestors = self.build_category_tree(collection)
         cats_to_dl = [anc["id"] for anc in ancestors]
         for cat in cats_to_dl:
-            self.download_category(cat)
-        self.wait_for(30)
-        self.db.download_data.find_one_and_update({"criteria": "main"}, {'$set': {"end_time": datetime.datetime.now()}})
-        tmp = self.db.download_data.find()[0]
+            self.download_category(cat, collection)
+        self.wait_for(60, collection)
+        self.db.download_data.find_one_and_update({"criteria": collection},
+                                                  {'$set': {"end_time": datetime.datetime.now()}})
+        tmp = self.db.download_data.find_one({"criteria": collection})
         total_time = abs(tmp["end_time"] - tmp["start_time"]).total_seconds()
-        self.db.download_data.find_one_and_update({"criteria": "main"},
+        self.db.download_data.find_one_and_update({"criteria": collection},
                                                   {'$set': {"total_dl_time(hours)": str(total_time / 3600)[:5]}})
-        del_items = self.collection.delete_many({'fingerprint': {"$exists": False}})
+        del_items = self.db[collection].delete_many({'fingerprint': {"$exists": False}})
         print str(del_items.deleted_count) + ' items without fingerprint were deleted!\n'
         self.db.drop_collection("fp_in_process")
-        print type + " DOWNLOAD DONE!!!!!\n"
+        print collection + " " + type + " DOWNLOAD DONE!!!!!\n"
 
-    def wait_for(self, approx):
+    def wait_for(self, approx, collection):
         x = raw_input("waitfor enabled? (Y/N)")
         if x == "n" or x == "N":
             return
-        time.sleep(approx * 60)  # wait for the crolwer to download the data
-        dl_data = self.db.download_data.find()[0]
-        total_items = self.db.products.count()
+        time.sleep(approx * 60)  # wait for the cralwer to download the data
+        dl_data = self.db.download_data.find_one({"criteria": collection})
+        total_items = self.db[collection].count()
         downloaded_items = dl_data["items_downloaded"]
         new_items = dl_data["new_items"]
         insert_errors = dl_data["errors"]
@@ -100,11 +112,11 @@ class ShopStyleDownloader():
                 check += 1
                 print "check number" + str(check)
                 time.sleep(300)
-                total_items = db.products.count()
+                total_items = self.db[collection].count()
                 insert_errors = dl_data["errors"]
                 sub = downloaded_items - insert_errors
 
-    def build_category_tree(self):
+    def build_category_tree(self, collection):
         # download all categories
         category_list_response = requests.get(BASE_URL + "categories", params={"pid": PID})
         category_list_response_json = category_list_response.json()
@@ -121,35 +133,35 @@ class ShopStyleDownloader():
             ancestors.append(c)
             # let's get some numbers in there - get a histogram for each ancestor
         for anc in ancestors:
-            response = self.delayed_requests_get(BASE_URL_PRODUCTS + "histogram",
-                                                 {"pid": PID, "filters": "Category", "cat": anc["id"]})
+            response = delayed_requests_get(BASE_URL_PRODUCTS + "histogram",
+                                            {"pid": PID, "filters": "Category", "cat": anc["id"]}, collection)
             hist = response.json()["categoryHistogram"]
             # save count for each category
             for cat in hist:
                 self.db.categories.update({"id": cat["id"]}, {"$set": {"count": cat["count"]}})
         return root_category, ancestors
 
-    def download_category(self, category_id):
+    def download_category(self, category_id, collection):
         if category_id not in relevant:
             return
         category = self.db.categories.find_one({"id": category_id})
         if "count" in category and category["count"] <= MAX_SET_SIZE:
             print("Attempting to download: {0} products".format(category["count"]))
             print("Category: " + category_id)
-            q.enqueue(download_products, filter_params={"pid": PID, "cat": category_id})
+            q.enqueue(download_products, filter_params={"pid": PID, "cat": category_id}, coll=collection)
 
         elif "childrenIds" in category.keys():
             print("Splitting {0} products".format(category["count"]))
             print("Category: " + category_id)
             for child_id in category["childrenIds"]:
-                self.download_category(child_id)
+                self.download_category(child_id, collection)
         else:
             initial_filter_params = {"pid": PID, "cat": category[
                 "id"]}  # UrlParams(params_dict={"pid": PID, "cat": category["id"]})
-            self.divide_and_conquer(initial_filter_params, 0)
+            self.divide_and_conquer(initial_filter_params, 0, collection)
             # self.archive_products(category_id)  # need to count how many where sent to archive
 
-    def divide_and_conquer(self, filter_params, filter_index):
+    def divide_and_conquer(self, filter_params, filter_index, collection):
         """Keep branching until we find disjoint subsets which have less then MAX_SET_SIZE items"""
         if filter_index >= len(FILTERS):
             # TODO: determine appropriate behavior in this case
@@ -157,7 +169,7 @@ class ShopStyleDownloader():
             return
         filter_params["filters"] = FILTERS[filter_index]
 
-        histogram_response = self.delayed_requests_get(BASE_URL_PRODUCTS + "histogram", filter_params)
+        histogram_response = delayed_requests_get(BASE_URL_PRODUCTS + "histogram", filter_params, collection)
         # TODO: check the request worked here
         try:
             histogram_results = histogram_response.json()
@@ -172,7 +184,7 @@ class ShopStyleDownloader():
             print "Could not get histogram for filter_params: {0}".format(filter_params.encoded())
             print "Attempting to downloading first 5000"
             # TODO: Better solution for this
-            q.enqueue(download_products, filter_params=filter_params)
+            q.enqueue(download_products, filter_params=filter_params, coll=collection)
         else:
             hist_key = FILTERS[filter_index].lower() + "Histogram"
             for subset in histogram_results[hist_key]:
@@ -184,19 +196,11 @@ class ShopStyleDownloader():
                     _key = "fl"
                 subset_filter_params[_key] = filter_prefix + subset["id"]
                 if subset["count"] < MAX_SET_SIZE:
-                    q.enqueue(download_products, filter_params=subset_filter_params)
+                    q.enqueue(download_products, filter_params=subset_filter_params, coll=collection)
                 else:
                     print "Splitting: {0} products".format(subset["count"])
                     print "Params: {0}".format(subset_filter_params.encoded())
-                    self.divide_and_conquer(subset_filter_params, filter_index + 1)
-
-    def delayed_requests_get(self, url, _params):
-        dl_data = self.db.download_data.find()[0]
-        sleep_time = max(0, 0.1 - (time.time() - dl_data["last_request"]))
-        time.sleep(sleep_time)
-        self.db.download_data.find_one_and_update({"criteria": "main"},
-                                                  {'$set': {"last_request": time.time()}})
-        return requests.get(url, params=_params)
+                    self.divide_and_conquer(subset_filter_params, filter_index + 1, collection)
 
 
 class UrlParams(collections.MutableMapping):
@@ -302,8 +306,13 @@ class UrlParams(collections.MutableMapping):
         return self.__class__.encode_params(self)
 
 if __name__ == "__main__":
+    if len(sys.argv) == 1:
+        collection = "products"
+    else:
+        collection = sys.argv[1]
     update_db = ShopStyleDownloader()
-    update_db.run_by_category()
+    update_db.db_download(collection)
+
 
 # import collections
 # import time

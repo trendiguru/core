@@ -15,7 +15,9 @@ import constants
 fingerprint_length = constants.fingerprint_length
 histograms_length = constants.histograms_length
 db = constants.db
-collection = constants.update_collection_name
+
+
+# collection = constants.update_collection_name
 
 
 def fp(img, bins=histograms_length, fp_length=fingerprint_length, mask=None):
@@ -63,7 +65,7 @@ def fp(img, bins=histograms_length, fp_length=fingerprint_length, mask=None):
     return result_vector[:fp_length]
 
 
-def generate_mask_and_insert(doc, image_url=None, mask_only=False, fp_date=None):
+def generate_mask_and_insert(doc, image_url=None, fp_date=None, coll="products"):
     """
     Takes an image + whatever else you give it, and handles all the logic (using/finding/creating a bb, then a mask)
     Work in progress...
@@ -72,7 +74,7 @@ def generate_mask_and_insert(doc, image_url=None, mask_only=False, fp_date=None)
     :return:
     """
     image_url = image_url or doc["image"]["sizes"]["XLarge"]["url"]
-
+    collection = coll
     image = Utils.get_cv2_img_array(image_url)
     if not Utils.is_valid_image(image):
         logging.warning("image is None. url: {url}".format(url=image_url))
@@ -97,8 +99,9 @@ def generate_mask_and_insert(doc, image_url=None, mask_only=False, fp_date=None)
         print "prod inserted successfully"
         db.fp_in_process.delete_one({"id": doc["id"]})
     except:
-        db.download_data.find_one_and_update({"criteria": "main"},
+        db.download_data.find_one_and_update({"criteria": collection},
                                              {'$inc': {"errors": 1}})
         print "error inserting"
 
     return fp_as_list
+
