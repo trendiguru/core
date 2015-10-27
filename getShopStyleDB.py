@@ -44,12 +44,15 @@ class ShopStyleDownloader():
             type = "DAILY"
 
         self.collection = self.db[collection]
-
-        if self.db.download_data.find().count() == 0 or \
-                        self.db.download_data.find_one({"criteria": collection})[0][
-                            "current_dl"] != self.current_dl_date or \
-                        type == "FULL":
-            self.db.download_data.delete_one({"criteria": collection})
+        dd_refresh = False
+        dd_exists = False
+        if self.db.download_data.find({"criteria": collection}).count > 0:
+            dd_exists = True
+            if self.db.download_data.find_one({"criteria": collection})[0]["current_dl"] != self.current_dl_date:
+                dd_refresh = True
+        if self.db.download_data.find().count() == 0 or dd_refresh is True or type == "FULL":
+            if dd_exists is True:
+                self.db.download_data.delete_one({"criteria": collection})
             self.db.download_data.insert_one({"criteria": collection,
                                               "current_dl": self.current_dl_date,
                                               "start_time": datetime.datetime.now(),
