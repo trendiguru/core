@@ -44,7 +44,7 @@ def find_face(image_arr, max_num_of_faces=100, method='ccv'):
         return faces
     else:  # do ccv
         logging.debug('doing ccv facedetect')
-        faces = ccv.ccv_facedetect(image_arr)
+        faces = ccv.ccv_facedetect(image_array=image_arr)
 
         if faces is None or len(faces) == 0:
             return []
