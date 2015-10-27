@@ -72,7 +72,7 @@ def insert_and_fingerprint(prod, collection):
     :return: Nothing, void function
     """
     print "enqueuing for fingerprint & insert,",
-    q.enqueue(generate_mask_and_insert, doc=prod, image_url=None, mask_only=False,
+    q.enqueue(generate_mask_and_insert, doc=prod, image_url=None,
               fp_date=current_date, coll=collection)
 
 
