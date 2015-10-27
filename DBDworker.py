@@ -51,7 +51,7 @@ def download_products(filter_params, total=MAX_SET_SIZE, coll="products"):
     filter_params["offset"] = 0
     while filter_params["offset"] < MAX_OFFSET and \
                     (filter_params["offset"] + MAX_RESULTS_PER_PAGE) <= total:
-        product_response = delayed_requests_get(BASE_URL_PRODUCTS, filter_params)
+        product_response = delayed_requests_get(BASE_URL_PRODUCTS, filter_params, coll)
         product_results = product_response.json()
         total = product_results["metadata"]["total"]
         products = product_results["products"]
