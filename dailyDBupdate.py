@@ -6,6 +6,7 @@ add description
 
 import json
 import smtplib
+import sys
 
 from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
@@ -146,7 +147,11 @@ def stats_and_mail():
 
 
 if __name__ == "__main__":
-    print "\n@@@ The Daily DB Updater @@@"
+    if len(sys.argv) == 1:
+        collection = "products"
+    else:
+        collection = sys.argv[1]
+    print "\n@@@ The Daily DB Updater @@@\n you choose to update the " + collection + " collection"
     while True:
         try:
             x = raw_input("Download or Statistics? (D/S)")
@@ -161,7 +166,7 @@ if __name__ == "__main__":
 
     if x is "D" or x is "d":
         update_db = getShopStyleDB.ShopStyleDownloader()
-        update_db.run_by_category()
+        update_db.db_download(collection)
     stats_and_mail()
 
     print "Daily Update Finished!!!"

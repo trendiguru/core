@@ -4,14 +4,13 @@ __author__ = 'yonatan'
 the download worker
 """
 
-import time
 import json
 import collections
 import urllib
 
-import requests
 from rq import Queue
 
+from getShopStyleDB import delayed_requests_get
 from fingerprint_core import generate_mask_and_insert
 import constants
 
@@ -34,7 +33,7 @@ relevant = constants.db_relevant_items
 fp_version = constants.fingerprint_version
 
 
-def download_products(filter_params, total=MAX_SET_SIZE):
+def download_products(filter_params, total=MAX_SET_SIZE, coll="products"):
     # if not isinstance(filter_params, UrlParams):
     #     filter_params = UrlParams(params_dict=filter_params)
     #
@@ -43,7 +42,7 @@ def download_products(filter_params, total=MAX_SET_SIZE):
     # if db.dl_cache.find_one(dl_query):
     #     print "We've done this batch already, let's not repeat work"
     #     return
-
+    collection = coll
     if "filters" in filter_params:
         del filter_params["filters"]
     filter_params["limit"] = MAX_RESULTS_PER_PAGE
@@ -55,24 +54,16 @@ def download_products(filter_params, total=MAX_SET_SIZE):
         total = product_results["metadata"]["total"]
         products = product_results["products"]
         for prod in products:
-            db_update(prod)
+            db_update(prod, collection)
         filter_params["offset"] += MAX_RESULTS_PER_PAGE
 
     # Write down that we did this
     # db.dl_cache.insert(dl_query)
 
-    print "Batch Done. Total Product count: {0}".format(db.products.count())
+    print "Batch Done. Total Product count: {0}".format(db[collection].count())
 
 
-def delayed_requests_get(url, _params):
-    sleep_time = max(0, 0.1 - (time.time() - db.download_data.find()[0]["last_request"]))
-    time.sleep(sleep_time)
-    db.download_data.find_one_and_update({"criteria": "main"},
-                               {'$set': {"last_request": time.time()}})
-    return requests.get(url, params=_params)
-
-
-def insert_and_fingerprint(prod):
+def insert_and_fingerprint(prod, collection):
     """
     this func. inserts a new product to our DB and runs TG fingerprint on it
     :param prod: dictionary of shopstyle product
@@ -80,10 +71,10 @@ def insert_and_fingerprint(prod):
     """
     print "enqueuing for fingerprint & insert,",
     q.enqueue(generate_mask_and_insert, doc=prod, image_url=None, mask_only=False,
-              fp_date=current_date)
+              fp_date=current_date, coll=collection)
 
 
-def db_update(prod):
+def db_update(prod, collection):
     print " Updating product {0}. ".format(prod["id"]),
 
     # requests package can't handle https - temp fix
@@ -91,23 +82,23 @@ def db_update(prod):
     prod_in_que = db.fp_in_process.find_one({"id": prod["id"]})
     if prod_in_que is not None:
         return
-    db.download_data.find_one_and_update({"criteria": "main"},
+    db.download_data.find_one_and_update({"criteria": collection},
                                          {'$inc': {"items_downloaded": 1}})
     prod["download_data"] = {"dl_version": current_date}
     # case 1: new product - try to update, if does not exists, insert a new product and add our fields
-    prod_in_products = db.products.find_one({"id": prod["id"]})
+    prod_in_coll = db[collection].find_one({"id": prod["id"]})
     category = prod['categories'][0]['id']
     print category
-    if prod_in_products is None:
+    if prod_in_coll is None:
         print "Product not in db.products, searching in archive. ",
         # case 1.1: try finding this product in the archive
         prod_in_archive = db.archive.find_one({'id': prod["id"]})
         if prod_in_archive is None:
             print "New product,",
-            db.download_data.find_one_and_update({"criteria": "main"},
+            db.download_data.find_one_and_update({"criteria": collection},
                                                  {'$inc': {"new_items": 1}})
             db.fp_in_process.insert_one({"id": prod["id"]})
-            insert_and_fingerprint(prod)
+            insert_and_fingerprint(prod, collection)
         else:  # means the item is in the archive
             # No matter what, we're moving this out of the archive...
             prod_in_archive["archive"] = False
@@ -115,27 +106,27 @@ def db_update(prod):
             if prod_in_archive.get("download_data")["fp_version"] == constants.fingerprint_version:
                 print "fp_version good, moving from db.archive to db.products",
                 prod_in_archive.update(prod)
-                db.products.insert_one(prod_in_archive)
+                db[collection].insert_one(prod_in_archive)
             else:
                 print "old fp_version, updating fp",
-                insert_and_fingerprint(prod)
+                insert_and_fingerprint(prod, collection)
             db.archive.delete_one({'id': prod["id"]})
-            db.download_data.find_one_and_update({"criteria": "main"},
+            db.download_data.find_one_and_update({"criteria": collection},
                                                  {'$inc': {"returned_from_archive": 1}})
     else:
         # case 2: the product was found in our db, and maybe should be modified
         print "Found existing prod in db,",
-        if prod_in_products.get("download_data")["fp_version"] == fp_version:
+        if prod_in_coll.get("download_data")["fp_version"] == fp_version:
             # Thus - update only shopstyle's fields
-            db.download_data.find_one_and_update({"criteria": "main"},
+            db.download_data.find_one_and_update({"criteria": collection},
                                                  {'$inc': {"existing_items": 1}})
-            db.products.update_one({'id': prod["id"]},
+            db[collection].update_one({'id': prod["id"]},
                                    {'$set': {'download_data.dl_version': current_date}})
         else:
-            db.download_data.find_one_and_update({"criteria": "main"},
+            db.download_data.find_one_and_update({"criteria": collection},
                                                  {'$inc': {"existing_but_renewed": 1}})
-            db.products.delete_one({'id': prod['id']})
-            insert_and_fingerprint(prod)
+            db[collection].delete_one({'id': prod['id']})
+            insert_and_fingerprint(prod, collection)
             print "product with an old fp was refingerprinted"
 
 
