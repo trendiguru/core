@@ -35,7 +35,7 @@ def ccv_facedetect(filename):
         return rects
     else:
         logging.debug('no answer string recd from ccv')
-        return None
+        return []
 
 
 def check_lfw(use_visual_output=False):
