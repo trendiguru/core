@@ -49,10 +49,10 @@ def find_face(image_arr, max_num_of_faces=100, method='ccv'):
         if cv2.imwrite(modified_name, image_arr):
             faces = ccv.ccv_facedetect(modified_name)
             # os.remove(modified_name)
-            if len(faces) > 0:
-                return choose_faces(image_arr, faces, max_num_of_faces)
+            if faces is None or len(faces) == 0:
+                return []
             else:
-                return faces
+                return choose_faces(image_arr, faces, max_num_of_faces)
         else:
             raise IOError("IMWRITE FAILED!!!!")
 
