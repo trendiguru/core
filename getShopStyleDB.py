@@ -46,7 +46,7 @@ class ShopStyleDownloader():
         self.collection = self.db[collection]
         dd_refresh = False
         dd_exists = False
-        if self.db.download_data.find({"criteria": collection}).count > 0:
+        if self.db.download_data.find({"criteria": collection}).count() > 0:
             dd_exists = True
             if self.db.download_data.find_one({"criteria": collection})["current_dl"] != self.current_dl_date:
                 dd_refresh = True
