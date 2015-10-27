@@ -15,7 +15,7 @@ path_to_ccvface_db = '/' + project_dir + '/classifier_stuff/ccvface.sqlite3'
 
 def ccv_facedetect(filename=None, image_array=None):
     delete_when_done = False
-    if not os.path.isfile(filename):
+    if not filename or not os.path.isfile(filename):
         if image_array is not None:
             filename = '/var/tmp/' + rand_string() + '.jpg'
             if not cv2.imwrite(filename, image_array):
