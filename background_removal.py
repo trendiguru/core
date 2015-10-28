@@ -9,7 +9,6 @@ from tkFileDialog import askopenfilename
 import collections
 import os
 import logging
-import random
 
 import cv2
 import numpy as np
@@ -252,7 +251,7 @@ def create_arbitrary(image):
     mask[7 * sub_h:13 * sub_h, 4 * sub_w:6 * sub_w] = 1
     return mask
 
-# can we move this to Utils or the like
+
 def standard_resize(image, max_side):
     original_w = image.shape[1]
     original_h = image.shape[0]
@@ -372,65 +371,30 @@ def simple_mask_grabcut(image, mask):
     return mask2
 
 
+def define_hog():
+    hog = cv2.HOGDescriptor()
+    hog.setSVMDetector(cv2.HOGDescriptor_getDefaultPeopleDetector())
+    return hog
+
+
+def check_people_claasifier():
+    tp, fn, tn, fp = 0, 0, 0, 0
+    hog = define_hog()
+    for image in Utils.get_images_list('/home/nadav/images/with_people'):
+        if len(list(hog.HOGDetectMultiScale(image, win_stride=(8, 8), padding=(32, 32), scale=1.05,
+                                            group_threshold=2))) > 0:
+            tp += 1
+        else:
+            fn += 1
+    for image in Utils.get_images_list('/home/nadav/images/without_people'):
+        if len(list(hog.HOGDetectMultiScale(image, win_stride=(8, 8), padding=(32, 32), scale=1.05,
+                                            group_threshold=2))) > 0:
+            fp += 1
+        else:
+            tn += 1
+    print "True positive: {0}\nFalse negative: {1}".format(tp, fn)
+    return
+
+
 if __name__ == '__main__':
     print('starting')
-
-    path = os.path.abspath(__file__)
-    print('path:'+str(path))
-    p2 = path.split('classifier_stuff')
-    print('p2:'+str(p2))
-    raw_input('k')
-
-
-
-    img = 'images/female1.jpg'
-    img_arr=cv2.imread(img)
-    r1 = find_face(img_arr, max_num_of_faces=1,method='ccv')
-    print('ccv result:'+str(r1))
-
-    print('')
-    r2 = find_face(img_arr, max_num_of_faces=1,method='cascade')
-    print('cascade result:'+str(r2))
-    raw_input('return to continue')
-
-    print('')
-    img = 'images/male1.jpg'
-    img_arr=cv2.imread(img)
-    r1 = find_face(img_arr, max_num_of_faces=1,method='ccv')
-    print('ccv result:'+str(r1))
-
-    print('')
-    r2 = find_face(img_arr, max_num_of_faces=1,method='cascade')
-    print('cascade result:'+str(r2))
-    raw_input('return to continue')
-
-    print('')
-    img = 'images/male2.jpg'
-    img_arr=cv2.imread(img)
-    r1 = find_face(img_arr, max_num_of_faces=1,method='ccv')
-    print('ccv result:'+str(r1))
-
-    print('')
-    r2 = find_face(img_arr, max_num_of_faces=1,method='cascade')
-    print('cascade result:'+str(r2))
-    raw_input('return to continue')
-
-    print('')
-    img = 'images/male3.jpg'
-    img_arr=cv2.imread(img)
-    r1 = find_face(img_arr, max_num_of_faces=1,method='ccv')
-    print('ccv result:'+str(r1))
-
-    print('')
-    r2 = find_face(img_arr, max_num_of_faces=1,method='cascade')
-    print('cascade result:'+str(r2))
-    raw_input('return to continue')
-
-    n,singles,multiples = ccv.run_classifier_recursively('images/many_faces',use_visual_output=False,classifier=find_face,classifier_arg='ccv')
-    print('n:{0} single:{1} multiple:{2}'.format(n,singles,multiples))
-    raw_input('enter to continue')
-
-    #defulat is ccv
-    n,singles,multiples = ccv.run_classifier_recursively('images/many_faces',use_visual_output=False,classifier=find_face,classifier_arg='cascade')
-    print('n:{0} single:{1} multiple:{2}'.format(n,singles,multiples))
-    raw_input('enter to continue')
