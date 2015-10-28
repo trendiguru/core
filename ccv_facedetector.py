@@ -26,7 +26,7 @@ def ccv_facedetect(filename=None, image_array=None):
             matrix.set_buf(image_array.tostring(), mode, image_array.shape[0], image_array.shape[1], ccv.PY_CCV_IO_GRAY)
 #            matrix.set_file('/home/jeremy/tg1/images/female1.jpg', ccv.PY_CCV_IO_GRAY)
             cascade = ccv.ClassifierCascade()
-            cascade.read('/home/jeremy/sw/ccv/samples/face/')
+            cascade.read('classifier_stuff/face/')
             d = ccv.detect_objects(matrix, cascade, 1)
             print(d)
         else:
