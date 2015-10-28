@@ -19,16 +19,18 @@ def ccv_facedetect(filename=None, image_array=None):
     if not filename or not os.path.isfile(filename):
         if image_array is not None:
 
-#            from PIL import Image
-#            img = Image.open(sys.argv[1])
+        #from C example / test.py example
             matrix = ccv.DenseMatrix()
             mode = "RGB"
             matrix.set_buf(image_array.tostring(), mode, image_array.shape[0], image_array.shape[1], ccv.PY_CCV_IO_GRAY)
 #            matrix.set_file('/home/jeremy/tg1/images/female1.jpg', ccv.PY_CCV_IO_GRAY)
             cascade = ccv.ClassifierCascade()
-            cascade.read('classifier_stuff/face/')
+            cascade.read('classifier_stuff/ccvface.sqlite3')
+ #           cascade.read('classifier_stuff/face/')
             d = ccv.detect_objects(matrix, cascade, 1)
             print(d)
+
+
         else:
             raise IOError("Bad parameters passed -- no file and no array.")
 
