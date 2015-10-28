@@ -391,7 +391,10 @@ def check_people_claasifier():
             fp += 1
         else:
             tn += 1
-    print "True positive: {0}\nFalse negative: {1}".format(tp, fn)
+    print "True positive: {0}/{2}\nFalse negative: {1}/{2}".format(tp, fn, len(
+        Utils.get_images_list('/home/nadav/images/with_people')))
+    print "False positive: {0}/{2}\nFalse negative: {1}/{2}".format(fp, tn, len(
+        Utils.get_images_list('/home/nadav/images/without_people')))
     return
 
 
