@@ -393,7 +393,7 @@ def get_results_now(page_url, image_url):
             image_dict['people'].append(person)
             mask, labels, pose = paperdoll_parse_enqueue.paperdoll_enqueue(image_copy, async=False).result[:3]
             final_mask = after_pd_conclusions(mask, labels, person['face'])
-            image = draw_pose_boxes(pose, image)
+            # image = draw_pose_boxes(pose, image)
             item_idx = 0
             for num in np.unique(final_mask):
                 # convert numbers to labels
