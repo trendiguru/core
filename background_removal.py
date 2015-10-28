@@ -381,14 +381,13 @@ def check_people_claasifier():
     tp, fn, tn, fp = 0, 0, 0, 0
     hog = define_hog()
     for image in Utils.get_images_list('/home/nadav/images/with_people'):
-        if len(list(hog.detectMultiScale(image, win_stride=(8, 8), padding=(32, 32), scale=1.05,
-                                         group_threshold=2))) > 0:
+
+        if len(list(hog.detectMultiScale(image, winStride=(8, 8), padding=(32, 32), scale=1.05))) > 0:
             tp += 1
         else:
             fn += 1
     for image in Utils.get_images_list('/home/nadav/images/without_people'):
-        if len(list(hog.detectMultiScale(image, win_stride=(8, 8), padding=(32, 32), scale=1.05,
-                                         group_threshold=2))) > 0:
+        if len(list(hog.detectMultiScale(image, winStride=(8, 8), padding=(32, 32), scale=1.05))) > 0:
             fp += 1
         else:
             tn += 1
