@@ -269,7 +269,7 @@ if __name__ == "__main__":
 #    print('n:{0} single:{1} multiple:{2}'.format(n,singles,multiples))
 #    raw_input('enter to continue')
 
-    filename = "../images/male1.jpg"
+    filename = "images/male1.jpg"
     img_arr = cv2.imread(filename)
     faces = ccv_facedetect(image_array=img_arr)
     print('faces:' + str(faces))
