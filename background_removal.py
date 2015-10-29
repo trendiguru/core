@@ -13,6 +13,8 @@ import logging
 import cv2
 import numpy as np
 
+import geometry
+
 import constants
 import Utils
 import ccv_facedetector as ccv
@@ -399,5 +401,8 @@ def check_people_claasifier(win_stride, padding, scale, group):
     return
 
 
-if __name__ == '__main__':
-    print('starting')
+def check_LOD(dir):
+    images = Utils.get_images_list(dir)
+    for image in images:
+        geometry.item_length(image)
+
