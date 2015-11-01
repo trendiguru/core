@@ -403,7 +403,7 @@ def check_people_claasifier(win_stride, padding, scale, group):
 def check_pedestrians_classifier(scl_fctr, min_nbrs, min_sz):
     tp, fn, tn, fp = 0, 0, 0, 0
     cascade = cv2.CascadeClassifier(os.path.join(constants.classifiers_folder,
-                                                 'haarcascade_pedestrians.xml'))
+                                                 'hogcascade_pedestrians.xml'))
     for image in Utils.get_images_list('/home/nadav/images/with_people'):
         gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
         if len(cascade.detectMultiScale(
