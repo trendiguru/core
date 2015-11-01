@@ -14,7 +14,6 @@ import cv2
 import numpy as np
 
 import geometry
-
 import constants
 import Utils
 import ccv_facedetector as ccv
@@ -400,6 +399,17 @@ def check_people_claasifier(win_stride, padding, scale, group):
         Utils.get_images_list('/home/nadav/images/without_people')))
     return
 
+
+def check_full_body_classifier(image, scl_fctr, min_nbrs, min_sz):
+    gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
+    cascade = 'classifiers/haarcascade_fullbody.xml'
+    found = cascade.detectMultiScale(
+        gray,
+        scaleFactor=scl_fctr,
+        minNeighbors=min_nbrs,
+        minSize=min_sz,
+        flags=constants.scale_flag)
+    return found
 
 def check_LOD(dir):
     images = Utils.get_images_list(dir)
