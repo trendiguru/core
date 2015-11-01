@@ -378,18 +378,16 @@ def define_hog():
     return hog
 
 
-def check_people_claasifier(win_stride, padding, scale, group):
+def check_people_claasifier():
     tp, fn, tn, fp = 0, 0, 0, 0
     hog = define_hog()
     for image in Utils.get_images_list('/home/nadav/images/with_people'):
-        if len(hog.detectMultiScale(image, winStride=win_stride, padding=padding, scale=scale, finalThreshold=group)[
-            0]) > 0:
+        if len(hog.detectMultiScale(image)) > 0:
             tp += 1
         else:
             fn += 1
     for image in Utils.get_images_list('/home/nadav/images/without_people'):
-        if len(hog.detectMultiScale(image, winStride=win_stride, padding=padding, scale=scale, finalThreshold=group)[
-            0]) > 0:
+        if len(hog.detectMultiScale(image)) > 0:
             fp += 1
         else:
             tn += 1
