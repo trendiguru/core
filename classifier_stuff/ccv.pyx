@@ -75,6 +75,11 @@ cdef class DenseMatrix(object):
         return a
 #        print('first pixel:'+str(a))
 
+    def nth_pixel(self,int row,int col, int channel):
+        cdef int a = 0
+        a = ccv_get_dense_matrix_cell_value(self._matrix, row, col, channel)
+        return a
+
     def set_buf(self, char[:] buf, mode, int rows, int cols, int convert=0):
         cdef int type = convert
         cdef int components = 0
