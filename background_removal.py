@@ -410,7 +410,8 @@ def check_pedestrians_classifier(scl_fctr, min_nbrs, min_sz):
                 gray,
                 scaleFactor=scl_fctr,
                 minNeighbors=min_nbrs,
-                minSize=min_sz)) > 0:
+                minSize=min_sz,
+                flags=constants.scale_flag)) > 0:
             tp += 1
         else:
             fn += 1
@@ -420,7 +421,8 @@ def check_pedestrians_classifier(scl_fctr, min_nbrs, min_sz):
                 gray,
                 scaleFactor=scl_fctr,
                 minNeighbors=min_nbrs,
-                minSize=min_sz)) > 0:
+                minSize=min_sz,
+                flags=constants.scale_flag)) > 0:
             fp += 1
         else:
             tn += 1
