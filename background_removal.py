@@ -400,17 +400,37 @@ def check_people_claasifier(win_stride, padding, scale, group):
     return
 
 
-def check_full_body_classifier(image, scl_fctr, min_nbrs, min_sz):
-    gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
+def check_full_body_classifier(scl_fctr, min_nbrs, min_sz):
+    tp, fn, tn, fp = 0, 0, 0, 0
     cascade = cv2.CascadeClassifier(os.path.join(constants.classifiers_folder,
                                                  'haarcascade_fullbody.xml'))
-    found = cascade.detectMultiScale(
-        image,
-        scaleFactor=scl_fctr,
-        minNeighbors=min_nbrs,
-        minSize=min_sz,
-        flags=constants.scale_flag)
-    return found
+    for image in Utils.get_images_list('/home/nadav/images/with_people'):
+        gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
+        if len(cascade.detectMultiScale(
+                gray,
+                scaleFactor=scl_fctr,
+                minNeighbors=min_nbrs,
+                minSize=min_sz,
+                flags=constants.scale_flag)) > 0:
+            tp += 1
+        else:
+            fn += 1
+    for image in Utils.get_images_list('/home/nadav/images/without_people'):
+        gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
+        if len(cascade.detectMultiScale(
+                gray,
+                scaleFactor=scl_fctr,
+                minNeighbors=min_nbrs,
+                minSize=min_sz,
+                flags=constants.scale_flag)) > 0:
+            fp += 1
+        else:
+            tn += 1
+    print "True positive: {0}/{2}\nFalse negative: {1}/{2}".format(tp, fn, len(
+        Utils.get_images_list('/home/nadav/images/with_people')))
+    print "False positive: {0}/{2}\nTrue negative: {1}/{2}".format(fp, tn, len(
+        Utils.get_images_list('/home/nadav/images/without_people')))
+    return
 
 
 def check_LOD(dir):
