@@ -405,7 +405,7 @@ def check_full_body_classifier(image, scl_fctr, min_nbrs, min_sz):
     cascade = cv2.CascadeClassifier(os.path.join(constants.classifiers_folder,
                                                  'haarcascade_fullbody.xml'))
     found = cascade.detectMultiScale(
-        gray,
+        image,
         scaleFactor=scl_fctr,
         minNeighbors=min_nbrs,
         minSize=min_sz,
