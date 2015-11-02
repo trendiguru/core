@@ -97,6 +97,21 @@ RUN  echo 'nmap -p 6379 localhost' > portredis.sh
 RUN chmod o+x portredis.sh
 
 
+
+################
+#numpy scipy
+###############
+RUN sudo apt-get install -y \
+    python-numpy
+    python-scipy
+    python-matplotlib
+    ipython
+    ipython-notebook
+    python-pandas
+    python-sympy
+    python-nose
+
+
 ###################
 #CAFFE
 ###################
