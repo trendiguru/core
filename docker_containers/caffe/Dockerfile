@@ -96,52 +96,6 @@ RUN chmod o+x portmongo.sh
 RUN  echo 'nmap -p 6379 localhost' > portredis.sh
 RUN chmod o+x portredis.sh
 
-################################
-# git clone the tg repo
-################################
-
-## TG GIT CLONE ##
-## TG GIT CLONE ##
-## TG GIT CLONE ##
-
-RUN apt-get update
-RUN apt-get install -y ca-certificates
-#RUN apt-get install -y git-core
-RUN apt-get install -y --force-yes git
-RUN apt-get install -y ssh
-
-ENV HOME /home/developer
-ADD ssh/ /home/developer/.ssh/
-
-ADD ssh/ssh_config /etc/ssh/ssh_config
-
-# Fixes permission if needed
-#RUN chmod 600 /.ssh/*
-RUN chmod 600 /home/developer/.ssh/*
-RUN chown developer:developer /home/developer/
-ADD ssh/first_aws.pem /home/developer/.ssh/first_aws.pem
-RUN chown developer:developer /home/developer/.ssh/*
-
-RUN ssh-keyscan  bitbucket.com > /home/developer/.ssh/known_hosts
-
-RUN mkdir /home/developer/tg
-RUN chown developer:developer /home/developer/tg
-RUN mkdir /home/developer/tg/Dev
-RUN chown developer:developer /home/developer/tg/Dev
-WORKDIR /home/developer/tg/Dev
-
-RUN apt-get -y --force-yes  install nano
-
-USER developer
-RUN whoami
-RUN git clone --verbose git@bitbucket.org:trendiGuru/core.git
-
-#mongobd port forward
-CMD ssh -i /.ssh/first_aws.pem -L 27017:localhost:27017 ubuntu@extremeli.trendi.guru && /bin/bash
-
-
-RUN rqworker -u redis://redis1-redis-1-vm:6379 fingerprint &
-#RUN rqworker gender &
 
 ###################
 #CAFFE
@@ -265,3 +219,51 @@ RUN cd /opt/caffe && make test && make runtest
 
 #jeremy@jrr:~/sw/caffe_cmake$ ./build/examples/cpp_classification/classification.bin ./models/bvlc_reference_caffenet/deploy.prototxt ./models/bvlc_reference_caffenet/bvlc_reference_caffenet
 .caffemodel ./data/ilsvrc12/imagenet_mean.binaryproto ./data/ilsvrc12/synset_words.txt ./examples/images/cat.jpg
+
+
+################################
+# git clone the tg repo , run this last since it requires nonsudo user
+################################
+
+## TG GIT CLONE ##
+## TG GIT CLONE ##
+## TG GIT CLONE ##
+
+RUN apt-get update
+RUN apt-get install -y ca-certificates
+#RUN apt-get install -y git-core
+RUN apt-get install -y --force-yes git
+RUN apt-get install -y ssh
+
+ENV HOME /home/developer
+ADD ssh/ /home/developer/.ssh/
+
+ADD ssh/ssh_config /etc/ssh/ssh_config
+
+# Fixes permission if needed
+#RUN chmod 600 /.ssh/*
+RUN chmod 600 /home/developer/.ssh/*
+RUN chown developer:developer /home/developer/
+ADD ssh/first_aws.pem /home/developer/.ssh/first_aws.pem
+RUN chown developer:developer /home/developer/.ssh/*
+
+RUN ssh-keyscan  bitbucket.com > /home/developer/.ssh/known_hosts
+
+RUN mkdir /home/developer/tg
+RUN chown developer:developer /home/developer/tg
+RUN mkdir /home/developer/tg/Dev
+RUN chown developer:developer /home/developer/tg/Dev
+WORKDIR /home/developer/tg/Dev
+
+RUN apt-get -y --force-yes  install nano
+
+USER developer
+RUN whoami
+RUN git clone --verbose git@bitbucket.org:trendiGuru/core.git
+
+#mongobd port forward
+CMD ssh -i /.ssh/first_aws.pem -L 27017:localhost:27017 ubuntu@extremeli.trendi.guru && /bin/bash
+
+
+RUN rqworker -u redis://redis1-redis-1-vm:6379 fingerprint &
+#RUN rqworker gender &
