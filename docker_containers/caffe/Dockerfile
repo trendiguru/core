@@ -18,8 +18,10 @@ RUN wget https://bootstrap.pypa.io/get-pip.py
 RUN python get-pip.py
 RUN pip install pymongo
 RUN pip install ipython
-RUN easy_install numpy
-#RUN pip install numpy
+RUN apt-get install -y python-dev
+#RUN apt-get install -y python-numpy
+#RUN easy_install numpy
+RUN pip install numpy
 RUN pip install python-dateutil
 RUN pip install pyparsing
 RUN pip install pytz
