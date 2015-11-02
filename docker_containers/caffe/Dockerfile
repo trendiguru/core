@@ -1,0 +1,259 @@
+FROM ubuntu:14.04
+
+#increase the available sources for installs
+#RUN sed -i 's/# \(.*multiverse$\)/\1/g' /etc/apt/sources.list
+RUN apt-get update
+RUN apt-get -y upgrade
+RUN apt-key update
+
+RUN apt-get install -y wget
+RUN apt-get install -y screen
+#cmap is  for debugging port forwarding
+RUN apt-get install -y nmap
+RUN apt-get install -y cmake
+RUN apt-get install -y unzip
+
+#PYTHON NUMPY
+RUN wget https://bootstrap.pypa.io/get-pip.py
+RUN python get-pip.py
+RUN pip install pymongo
+RUN pip install ipython
+RUN pip install numpy
+RUN pip install python-dateutil
+RUN pip install pyparsing
+RUN pip install pytz
+RUN pip install matplotlib
+
+
+#these scripts are to check port forwarding with a single command
+RUN  echo 'nmap -p 27017 localhost' > portmongo.sh
+RUN chmod o+x portmongo.sh
+RUN  echo 'nmap -p 6379 localhost' > portredis.sh
+RUN chmod o+x portredis.sh
+
+##############################
+#OPENCV
+##############################
+RUN  mkdir -p /opt/OpenCV
+RUN  cd /opt/OpenCV
+WORKDIR /opt/OpenCV
+RUN  wget -O OpenCV3.0.zip https://codeload.github.com/Itseez/opencv/zip/3.0.0
+RUN  unzip OpenCV3.0.zip
+#RUN  wget -O opencv_contrib.zip https://codeload.github.com/Itseez/opencv_contrib/zip/3.0.0
+#RUN  unzip opencv_contrib.zip
+ENV OPENCV_HOME /opt/OpenCV
+RUN  mkdir -p $OPENCV_HOME/opencv-3.0.0/build
+RUN  cd $OPENCV_HOME/opencv-3.0.0/build
+RUN pwd
+WORKDIR /opt/OpenCV/opencv-3.0.0/build
+RUN pwd
+RUN ls -ltr ../../opencv_contrib-3.0.0/modules | tee lsout.txt
+RUN ls -ltr /opt/OpenCV/opencv_contrib-3.0.0/modules | tee lsout.txt
+RUN  cmake -DOPENCV_EXTRA_MODULES_PATH=/opt/OpenCV/opencv_contrib-3.0.0/modules  .. | tee cmakeout.txt
+RUN  make -j2 | tee makeout.txt
+RUN  make install | tee installout.txt
+RUN  make clean
+RUN  sh -c 'echo "/usr/local/lib" > /etc/ld.so.conf.d/opencv.conf'
+RUN  ldconfig
+RUN  echo "OpenCV 3.0.0 is ready to be used"
+
+
+
+RUN export PYTHONPATH=/usr/local/lib/python2.7/site-packages:$PYTHONPATH
+RUN export uid=1000 gid=1000 && \
+    mkdir -p /home/developer && \
+    echo "developer:x:${uid}:${gid}:Developer,,,:/home/developer:/bin/bash" >> /etc/passwd && \
+    echo "developer:x:${uid}:" >> /etc/group && \
+    echo "developer ALL=(ALL) NOPASSWD: ALL" > /etc/sudoers.d/developer && \
+    chmod 0440 /etc/sudoers.d/developer && \
+    chown ${uid}:${gid} -R /home/developer
+
+
+#####################
+# redis and rq
+#####################
+#RUN pip install redis
+RUN pip install rq
+
+#####################
+# ssh port forwarding
+#####################
+#turn off asking 'are you sure' on first ssh connect
+#this is supposed to be taken care of by the keyscan but isn't , perhaps because this
+# is not our own repo running on a port like in the example
+ADD ssh/ssh_config /etc/ssh/ssh_config
+
+# Fixes permission if needed
+#RUN chmod 600 /.ssh/*
+RUN chmod 600 /home/developer/.ssh/*
+RUN chown developer:developer /home/developer/
+ADD ssh/first_aws.pem /home/developer/.ssh/first_aws.pem
+RUN chown developer:developer /home/developer/.ssh/*
+RUN chmod 400 /home/developer/.ssh/*
+
+# Avoid first connection host confirmation
+#changed port since i don't think bitbucket supports it
+#RUN ssh-keyscan -p2200 bitbucket.com > /root/.ssh/known_hosts
+#To improve security, the ssh-keyscan should be run outside the container to fix the known_hosts file once for all.
+#RUN ssh-keyscan  -p2200 bitbucket.com > /home/testuser/.ssh/known_hosts
+#RUN ssh-keyscan  bitbucket.com > /root/.ssh/known_hosts
+RUN ssh-keyscan  bitbucket.com > /home/developer/.ssh/known_hosts
+
+
+#mongobd port forward
+#CMD ssh -i /.ssh/first_aws.pem -L 27017:localhost:27017 ubuntu@extremeli.trendi.guru && /bin/bash
+
+#these scripts are to check port forwarding with a single command
+RUN  echo 'nmap -p 27017 localhost' > portmongo.sh
+RUN chmod o+x portmongo.sh
+RUN  echo 'nmap -p 6379 localhost' > portredis.sh
+RUN chmod o+x portredis.sh
+
+################################
+# git clone the tg repo
+################################
+RUN apt-get update
+RUN apt-get install -y ca-certificates
+RUN apt-get install -y --force-yes git
+RUN apt-get install -y ssh
+ENV HOME /home/developer
+ADD ssh/ /home/developer/.ssh/
+RUN apt-get -y --force-yes  install nano
+
+RUN mkdir /home/developer/tg
+RUN chown developer:developer /home/developer/tg
+RUN mkdir /home/developer/tg/Dev
+RUN chown developer:developer /home/developer/tg/Dev
+WORKDIR /home/developer/tg/Dev
+USER developer
+RUN whoami
+RUN git clone --verbose git@bitbucket.org:trendiGuru/core.git
+#maybe ssh is per user so do this as developer
+
+WORKDIR /home/developer/tg/Dev/core
+
+##rqworker portforward
+#advice from docker forum guy
+#RUN yum install -y openssh-clients
+#COPY id_rsa /tmp/id_rsa
+#CMD ssh  -i /tmp/id_rsa -L 8000:localhost:8000 -N vagrant@192.168.33.10 -o StrictHostKeyChecking=no
+
+#RUN ssh  -L 6379:localhost:6379 -N  -o StrictHostKeyChecking=no -f ubuntu@extremeli.trendi.guru &
+RUN rqworker -u redis://redis1-redis-1-vm:6379 fingerprint &
+RUN rqworker -u redis://redis1-redis-1-vm:6379 fingerprint &
+RUN rqworker -u redis://redis1-redis-1-vm:6379 fingerprint &
+RUN rqworker -u redis://redis1-redis-1-vm:6379 fingerprint &
+RUN rqworker -u redis://redis1-redis-1-vm:6379 fingerprint &
+#RUN rqworker gender &
+
+###################
+#CAFFE
+###################
+#caffe reqs:
+#anaconda
+
+RUN sudo apt-get install libgflags-dev
+
+
+ENV PYTHONPATH /opt/caffe/python
+# Add caffe binaries to path
+ENV PATH $PATH:/opt/caffe/.build_release/tools
+
+# Get dependencies
+RUN apt-get update && apt-get install -y \
+  bc \
+  cmake \
+  curl \
+  gcc-4.6 \
+  g++-4.6 \
+  gcc-4.6-multilib \
+  g++-4.6-multilib \
+  gfortran \
+  git \
+  libprotobuf-dev \
+  libleveldb-dev \
+  libsnappy-dev \
+  libopencv-dev \
+  libboost-all-dev \
+  libhdf5-serial-dev \
+  liblmdb-dev \
+  libjpeg62 \
+  libfreeimage-dev \
+  libatlas-base-dev \
+  pkgconf \
+  protobuf-compiler \
+  python-dev \
+  python-pip \
+  unzip \
+  wget
+
+# Use gcc 4.6
+RUN update-alternatives --install /usr/bin/cc cc /usr/bin/gcc-4.6 30 && \
+  update-alternatives --install /usr/bin/c++ c++ /usr/bin/g++-4.6 30 && \
+  update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-4.6 30 && \
+  update-alternatives --install /usr/bin/g++ g++ /usr/bin/g++-4.6 30
+
+
+
+# Clone the Caffe repo
+RUN cd /opt && git clone https://github.com/BVLC/caffe.git
+
+
+# Glog
+RUN cd /opt && wget https://google-glog.googlecode.com/files/glog-0.3.3.tar.gz && \
+  tar zxvf glog-0.3.3.tar.gz && \
+  cd /opt/glog-0.3.3 && \
+  ./configure && \
+  make && \
+  make install
+
+# Workaround for error loading libglog:
+#   error while loading shared libraries: libglog.so.0: cannot open shared object file
+# The system already has /usr/local/lib listed in /etc/ld.so.conf.d/libc.conf, so
+# running `ldconfig` fixes the problem (which is simpler than using $LD_LIBRARY_PATH)
+# TODO: looks like this needs to be run _every_ time a new docker instance is run,
+#       so maybe LD_LIBRARY_PATh is a better approach (or add call to ldconfig in ~/.bashrc)
+RUN ldconfig
+
+# Gflags
+RUN cd /opt && \
+  wget https://github.com/schuhschuh/gflags/archive/master.zip && \
+  unzip master.zip && \
+  cd /opt/gflags-master && \
+  mkdir build && \
+  cd /opt/gflags-master/build && \
+  export CXXFLAGS="-fPIC" && \
+  cmake .. && \
+  make VERBOSE=1 && \
+  make && \
+  make install
+
+# Build Caffe core
+RUN cd /opt/caffe && \
+  cp Makefile.config.example Makefile.config && \
+   echo "CPU_ONLY := 1" >> Makefile.config && \
+  echo "CXX := /usr/bin/g++-4.6" >> Makefile.config && \
+  sed -i 's/CXX :=/CXX ?=/' Makefile && \
+  make all
+
+# Add ld-so.conf so it can find libcaffe.so
+ADD caffe-ld-so.conf /etc/ld.so.conf.d/
+
+# Run ldconfig again (not sure if needed)
+RUN ldconfig
+
+# Install python deps
+RUN cd /opt/caffe && \
+  (pip install -r python/requirements.txt; easy_install numpy; pip install -r python/requirements.txt) && \
+  easy_install pillow
+
+# Numpy include path hack - github.com/BVLC/caffe/wiki/Setting-up-Caffe-on-Ubuntu-14.04
+RUN NUMPY_EGG=`ls /usr/local/lib/python2.7/dist-packages | grep -i numpy` && \
+  ln -s /usr/local/lib/python2.7/dist-packages/$NUMPY_EGG/numpy/core/include/numpy /usr/include/python2.7/numpy
+
+# Build Caffe python bindings
+RUN cd /opt/caffe && make pycaffe
+
+
+# Make + run tests
+RUN cd /opt/caffe && make test && make runtest
