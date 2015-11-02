@@ -86,22 +86,6 @@ RUN pip install rq
 # is not our own repo running on a port like in the example
 #ADD ssh/ssh_config /etc/ssh/ssh_config
 
-# Fixes permission if needed
-#RUN chmod 600 /.ssh/*
-#RUN chmod 600 /home/developer/.ssh/*
-#RUN chown developer:developer /home/developer/
-#ADD ssh/first_aws.pem /home/developer/.ssh/first_aws.pem
-#RUN chown developer:developer /home/developer/.ssh/*
-#RUN chmod 400 /home/developer/.ssh/*
-
-# Avoid first connection host confirmation
-#changed port since i don't think bitbucket supports it
-#RUN ssh-keyscan -p2200 bitbucket.com > /root/.ssh/known_hosts
-#To improve security, the ssh-keyscan should be run outside the container to fix the known_hosts file once for all.
-#RUN ssh-keyscan  -p2200 bitbucket.com > /home/testuser/.ssh/known_hosts
-#RUN ssh-keyscan  bitbucket.com > /root/.ssh/known_hosts
-#RUN ssh-keyscan  bitbucket.com > /home/developer/.ssh/known_hosts
-
 
 #mongobd port forward
 #CMD ssh -i /.ssh/first_aws.pem -L 27017:localhost:27017 ubuntu@extremeli.trendi.guru && /bin/bash
@@ -115,37 +99,47 @@ RUN chmod o+x portredis.sh
 ################################
 # git clone the tg repo
 ################################
+
+## TG GIT CLONE ##
+## TG GIT CLONE ##
+## TG GIT CLONE ##
+
 RUN apt-get update
 RUN apt-get install -y ca-certificates
+#RUN apt-get install -y git-core
 RUN apt-get install -y --force-yes git
 RUN apt-get install -y ssh
+
 ENV HOME /home/developer
 ADD ssh/ /home/developer/.ssh/
-RUN apt-get -y --force-yes  install nano
+
+ADD ssh/ssh_config /etc/ssh/ssh_config
+
+# Fixes permission if needed
+#RUN chmod 600 /.ssh/*
+RUN chmod 600 /home/developer/.ssh/*
+RUN chown developer:developer /home/developer/
+ADD ssh/first_aws.pem /home/developer/.ssh/first_aws.pem
+RUN chown developer:developer /home/developer/.ssh/*
+
+RUN ssh-keyscan  bitbucket.com > /home/developer/.ssh/known_hosts
 
 RUN mkdir /home/developer/tg
 RUN chown developer:developer /home/developer/tg
 RUN mkdir /home/developer/tg/Dev
 RUN chown developer:developer /home/developer/tg/Dev
 WORKDIR /home/developer/tg/Dev
+
+RUN apt-get -y --force-yes  install nano
+
 USER developer
 RUN whoami
 RUN git clone --verbose git@bitbucket.org:trendiGuru/core.git
-#maybe ssh is per user so do this as developer
 
-WORKDIR /home/developer/tg/Dev/core
+#mongobd port forward
+CMD ssh -i /.ssh/first_aws.pem -L 27017:localhost:27017 ubuntu@extremeli.trendi.guru && /bin/bash
 
-##rqworker portforward
-#advice from docker forum guy
-#RUN yum install -y openssh-clients
-#COPY id_rsa /tmp/id_rsa
-#CMD ssh  -i /tmp/id_rsa -L 8000:localhost:8000 -N vagrant@192.168.33.10 -o StrictHostKeyChecking=no
 
-#RUN ssh  -L 6379:localhost:6379 -N  -o StrictHostKeyChecking=no -f ubuntu@extremeli.trendi.guru &
-RUN rqworker -u redis://redis1-redis-1-vm:6379 fingerprint &
-RUN rqworker -u redis://redis1-redis-1-vm:6379 fingerprint &
-RUN rqworker -u redis://redis1-redis-1-vm:6379 fingerprint &
-RUN rqworker -u redis://redis1-redis-1-vm:6379 fingerprint &
 RUN rqworker -u redis://redis1-redis-1-vm:6379 fingerprint &
 #RUN rqworker gender &
 
