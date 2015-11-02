@@ -55,7 +55,7 @@ RUN ls -ltr /opt/OpenCV/opencv_contrib-3.0.0/modules | tee lsout.txt
 RUN  cmake -DOPENCV_EXTRA_MODULES_PATH=/opt/OpenCV/opencv_contrib-3.0.0/modules  .. | tee cmakeout.txt
 RUN  make -j2 | tee makeout.txt
 RUN  make install | tee installout.txt
-RUN  make clean
+#RUN  make clean
 RUN  sh -c 'echo "/usr/local/lib" > /etc/ld.so.conf.d/opencv.conf'
 RUN  ldconfig
 RUN  echo "OpenCV 3.0.0 is ready to be used"
