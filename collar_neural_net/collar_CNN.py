@@ -40,7 +40,6 @@ def get_data(my_path):#my_path=os.path.dirname(os.path.abspath(__file__))):
     images_vector_shape = output_image.shape
     output_image = np.reshape(output_image, (images_vector_shape[0], images_vector_shape[3],
                                              images_vector_shape[1], images_vector_shape[2]))
-    # output_vector = np.reshape(output_vector)
 
     return output_image, output_vector
 
@@ -59,44 +58,44 @@ Y_train = output_vector
 
 
 
-batch_size = 10
+size_batch = 10
 epoches_number = 1000
 overwrite_weights = True
 
 model = Sequential()
 # input: 100x100 images with 3 channels -> (3, 100, 100) tensors.
 # this applies 32 convolution filters of size 3x3 each.
-model.add(Convolution2D(20, 5, 5, border_mode='valid', input_shape=(3, 32, 32)))
-model.add(Activation('relu'))
-model.add(MaxPooling2D(pool_size=(2, 2)))
-model.add(Convolution2D(20, 5, 5, border_mode='valid'))
-model.add(Activation('relu'))
-model.add(MaxPooling2D(pool_size=(2, 2)))
-model.add(Dropout(0.25))
-
-model.add(Convolution2D(20, 3, 3, border_mode='valid'))
-model.add(Activation('relu'))
-model.add(MaxPooling2D(pool_size=(2, 2)))
-# model.add(Convolution2D(64, 3, 3))
-# model.add(Activation('relu', border_mode='valid'))
+model.add(Convolution2D(9, 3, 3, border_mode='valid', input_shape=(3, 32, 32)))
+model.add(Activation('hard_sigmoid'))
 # model.add(MaxPooling2D(pool_size=(2, 2)))
-model.add(Dropout(0.25))
+model.add(Convolution2D(9, 3, 3, border_mode='valid'))
+model.add(Activation('hard_sigmoid'))
+model.add(MaxPooling2D(pool_size=(2, 2)))
+# model.add(Dropout(0.25))
+
+model.add(Convolution2D(9, 3, 3, border_mode='valid'))
+model.add(Activation('hard_sigmoid'))
+# model.add(MaxPooling2D(pool_size=(2, 2)))
+model.add(Convolution2D(9, 3, 3))
+model.add(Activation('hard_sigmoid'))
+model.add(MaxPooling2D(pool_size=(2, 2)))
+# model.add(Dropout(0.25))
 
 model.add(Flatten())
 # Note: Keras does automatic shape inference.
-model.add(Dense(300))
-model.add(Activation('relu'))
-model.add(Dropout(0.5))
+model.add(Dense(256))
+model.add(Activation('hard_sigmoid'))
+# model.add(Dropout(0.5))
 
 model.add(Dense(3))
 model.add(Activation('softmax'))
 
-optimizer_method = SGD(lr=0.000001, decay=1e-6, momentum=0.9, nesterov=True)#Adagrad()#Adadelta()#RMSprop()#Adam()
+optimizer_method = Adadelta()#SGD(lr=0.00000001, decay=1e-6, momentum=0.9, nesterov=True)#Adagrad()#Adadelta()#RMSprop()#Adam()
 model.compile(loss='categorical_crossentropy', optimizer=optimizer_method)
 
 EarlyStopping(monitor='val_loss', patience=0, verbose=0)
 # checkpointer = ModelCheckpoint(os.path.abspath(__file__) + 'weights.hdf5', verbose=1, save_best_only=True)
 
-model.fit(X_train, Y_train, batch_size=batch_size, nb_epoch=epoches_number)#, callbacks=[checkpointer])
+model.fit(X_train, Y_train, batch_size=size_batch, nb_epoch=epoches_number)#, callbacks=[checkpointer])
 model.save_weights('model_weight.hdf5', overwrite_weights)
 
