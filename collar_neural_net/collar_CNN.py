@@ -7,7 +7,7 @@ from keras.callbacks import ModelCheckpoint, EarlyStopping, Callback
 from keras.models import Sequential
 from keras.layers.core import Dense, Dropout, Activation, Flatten
 from keras.layers.convolutional import Convolution2D, MaxPooling2D
-from keras.optimizers import SGD
+from keras.optimizers import SGD, Adagrad, Adadelta, RMSprop, Adam
 
 def get_data(my_path):#my_path=os.path.dirname(os.path.abspath(__file__))):
     '''
@@ -59,38 +59,40 @@ Y_train = output_vector
 
 
 
-batch_size = 32
-epoches_number = 100
+batch_size = 10
+epoches_number = 1000
 overwrite_weights = True
 
 model = Sequential()
 # input: 100x100 images with 3 channels -> (3, 100, 100) tensors.
 # this applies 32 convolution filters of size 3x3 each.
-model.add(Convolution2D(32, 3, 3, border_mode='full', input_shape=(3, 32, 32)))
+model.add(Convolution2D(20, 5, 5, border_mode='valid', input_shape=(3, 32, 32)))
 model.add(Activation('relu'))
-# model.add(Convolution2D(32, 3, 3))
-# model.add(Activation('relu'))
+model.add(MaxPooling2D(pool_size=(2, 2)))
+model.add(Convolution2D(20, 5, 5, border_mode='valid'))
+model.add(Activation('relu'))
 model.add(MaxPooling2D(pool_size=(2, 2)))
 model.add(Dropout(0.25))
 
-# model.add(Convolution2D(64, 3, 3, border_mode='valid'))
-# model.add(Activation('relu'))
-# model.add(Convolution2D(64, 3, 3))
-# model.add(Activation('relu'))
+model.add(Convolution2D(20, 3, 3, border_mode='valid'))
+model.add(Activation('relu'))
 model.add(MaxPooling2D(pool_size=(2, 2)))
+# model.add(Convolution2D(64, 3, 3))
+# model.add(Activation('relu', border_mode='valid'))
+# model.add(MaxPooling2D(pool_size=(2, 2)))
 model.add(Dropout(0.25))
 
 model.add(Flatten())
 # Note: Keras does automatic shape inference.
-model.add(Dense(10))
+model.add(Dense(300))
 model.add(Activation('relu'))
 model.add(Dropout(0.5))
 
 model.add(Dense(3))
 model.add(Activation('softmax'))
 
-sgd = SGD(lr=0.1, decay=1e-6, momentum=0.9, nesterov=True)
-model.compile(loss='categorical_crossentropy', optimizer=sgd)
+optimizer_method = SGD(lr=0.000001, decay=1e-6, momentum=0.9, nesterov=True)#Adagrad()#Adadelta()#RMSprop()#Adam()
+model.compile(loss='categorical_crossentropy', optimizer=optimizer_method)
 
 EarlyStopping(monitor='val_loss', patience=0, verbose=0)
 # checkpointer = ModelCheckpoint(os.path.abspath(__file__) + 'weights.hdf5', verbose=1, save_best_only=True)
