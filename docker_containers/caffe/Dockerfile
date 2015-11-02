@@ -118,7 +118,10 @@ RUN sudo apt-get install -y \
 #caffe reqs:
 #anaconda
 
-RUN sudo apt-get install -y libgflags-dev
+ #libgflags.a, libgflags_nothreads.a,
+
+
+#RUN sudo apt-get install -y libgflags-dev
 
 
 ENV PYTHONPATH /opt/caffe/python
@@ -230,10 +233,10 @@ RUN cd /opt/caffe && make test && make runtest
 #make runtest
 #alexnet - get model
 
-#./scripts/download_model_binary.py models/bvlc_reference_caffenet
-#./data/ilsvrc12/get_ilsvrc_aux.sh
+RUN /opt/caffe/scripts/download_model_binary.py models/bvlc_reference_caffenet
+RUN /opt/caffe/data/ilsvrc12/get_ilsvrc_aux.sh
 
-#jeremy@jrr:~/sw/caffe_cmake$ ./build/examples/cpp_classification/classification.bin ./models/bvlc_reference_caffenet/deploy.prototxt ./models/bvlc_reference_caffenet/bvlc_reference_caffenet
+RUN ./build/examples/cpp_classification/classification.bin ./models/bvlc_reference_caffenet/deploy.prototxt ./models/bvlc_reference_caffenet/bvlc_reference_caffenet
 .caffemodel ./data/ilsvrc12/imagenet_mean.binaryproto ./data/ilsvrc12/synset_words.txt ./examples/images/cat.jpg
 
 
