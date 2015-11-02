@@ -25,7 +25,7 @@ RUN pip install numpy
 RUN pip install python-dateutil
 RUN pip install pyparsing
 RUN pip install pytz
-RUN pip install matplotlib
+#RUN pip install matplotlib
 
 
 #these scripts are to check port forwarding with a single command
