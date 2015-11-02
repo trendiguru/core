@@ -84,15 +84,15 @@ RUN pip install rq
 #turn off asking 'are you sure' on first ssh connect
 #this is supposed to be taken care of by the keyscan but isn't , perhaps because this
 # is not our own repo running on a port like in the example
-ADD ssh/ssh_config /etc/ssh/ssh_config
+#ADD ssh/ssh_config /etc/ssh/ssh_config
 
 # Fixes permission if needed
 #RUN chmod 600 /.ssh/*
-RUN chmod 600 /home/developer/.ssh/*
-RUN chown developer:developer /home/developer/
-ADD ssh/first_aws.pem /home/developer/.ssh/first_aws.pem
-RUN chown developer:developer /home/developer/.ssh/*
-RUN chmod 400 /home/developer/.ssh/*
+#RUN chmod 600 /home/developer/.ssh/*
+#RUN chown developer:developer /home/developer/
+#ADD ssh/first_aws.pem /home/developer/.ssh/first_aws.pem
+#RUN chown developer:developer /home/developer/.ssh/*
+#RUN chmod 400 /home/developer/.ssh/*
 
 # Avoid first connection host confirmation
 #changed port since i don't think bitbucket supports it
@@ -100,7 +100,7 @@ RUN chmod 400 /home/developer/.ssh/*
 #To improve security, the ssh-keyscan should be run outside the container to fix the known_hosts file once for all.
 #RUN ssh-keyscan  -p2200 bitbucket.com > /home/testuser/.ssh/known_hosts
 #RUN ssh-keyscan  bitbucket.com > /root/.ssh/known_hosts
-RUN ssh-keyscan  bitbucket.com > /home/developer/.ssh/known_hosts
+#RUN ssh-keyscan  bitbucket.com > /home/developer/.ssh/known_hosts
 
 
 #mongobd port forward
