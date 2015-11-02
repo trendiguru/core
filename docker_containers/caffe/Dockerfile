@@ -149,7 +149,7 @@ RUN rqworker -u redis://redis1-redis-1-vm:6379 fingerprint &
 #caffe reqs:
 #anaconda
 
-RUN sudo apt-get install libgflags-dev
+RUN sudo apt-get install -y libgflags-dev
 
 
 ENV PYTHONPATH /opt/caffe/python
