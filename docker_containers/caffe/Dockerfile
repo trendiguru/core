@@ -233,8 +233,10 @@ RUN cd /opt/caffe && make test && make runtest
 #make runtest
 #alexnet - get model
 
-RUN /opt/caffe/scripts/download_model_binary.py models/bvlc_reference_caffenet
-RUN /opt/caffe/data/ilsvrc12/get_ilsvrc_aux.sh
+WORKDIR /opt/caffe
+
+RUN ./scripts/download_model_binary.py ./models/bvlc_reference_caffenet
+RUN ./data/ilsvrc12/get_ilsvrc_aux.sh
 
 #RUN /opt/caffe/build/examples/cpp_classification/classification.bin /opt/caffe/models/bvlc_reference_caffenet/deploy.prototxt /opt/caffe/models/bvlc_reference_caffenet/bvlc_reference_caffenet.caffemodel /opt/caffe/data/ilsvrc12/imagenet_mean.binaryproto /opt/caffe/data/ilsvrc12/synset_words.txt /opt/caffe/examples/images/cat.jpg
 
