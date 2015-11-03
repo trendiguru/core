@@ -43,6 +43,6 @@ def length_of_lower_body_part_field(image, face):
         print 'Problem with the grabcut'
         return -1, -1
     only_skin_mask = kassper.clutter_removal(only_skin_down, 100)
-    legs_up_cnt = legs_upper_line_cnt(only_skin_mask) + int(y_split)
+    legs_up_cnt = legs_upper_line_cnt(255 * only_skin_mask) + int(y_split)
     return legs_up_cnt
 
