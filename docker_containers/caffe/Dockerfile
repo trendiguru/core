@@ -285,5 +285,5 @@ RUN git clone --verbose git@bitbucket.org:trendiGuru/core.git
 CMD ssh -i /.ssh/first_aws.pem -L 27017:localhost:27017 ubuntu@extremeli.trendi.guru && /bin/bash
 
 
-RUN rqworker -u redis://redis1-redis-1-vm:6379 fingerprint &
+RUN rqworker -u redis://redis1-redis-1-vm:6379 caffe_general &
 #RUN rqworker gender &
