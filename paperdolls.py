@@ -10,10 +10,10 @@ import numpy as np
 import pymongo
 import bson
 import cv2
-import boto3
 from rq import Queue
 from rq.job import Job
 
+import boto3
 import page_results
 from .paperdoll import paperdoll_parse_enqueue
 from . import find_similar_mongo
@@ -252,59 +252,6 @@ def job_result_from_id(job_id, job_class=Job, conn=None):
     return job.result
 
 
-def draw_pose_boxes(boxes_array, image):
-    """
-    the function translates the boxes array to a boxes dictionary
-    :param boxes_array: array of 1X106 float (0-103 are the boxes coordinates)
-    :return: image with drawn boxes
-    """
-    boxes_list = list(boxes_array[0])
-    for i in range(0, len(boxes_list)):
-        boxes_list[i] = abs(float(boxes_list[i]))
-    boxes_list = np.array(boxes_list)
-    boxes_list = boxes_list.astype(np.uint16)
-    boxes_dict = {'head': [], 'torso': [], 'left_arm': [], 'left_leg': [], 'right_arm': [], 'right_leg': []}
-    for i in range(0, len(boxes_list) / 4):
-        if i in [0, 1]:
-            boxes_dict["head"].append(
-                [boxes_list[4 * i], boxes_list[4 * i + 1], boxes_list[4 * i + 2], boxes_list[4 * i + 3]])
-        elif i in [2, 7, 8, 9, 14, 19, 20, 21]:
-            boxes_dict["torso"].append(
-                [boxes_list[4 * i], boxes_list[4 * i + 1], boxes_list[4 * i + 2], boxes_list[4 * i + 3]])
-        elif i in [3, 4, 5, 6]:
-            boxes_dict["left_arm"].append(
-                [boxes_list[4 * i], boxes_list[4 * i + 1], boxes_list[4 * i + 2], boxes_list[4 * i + 3]])
-        elif i in [10, 11, 12, 13]:
-            boxes_dict["left_leg"].append(
-                [boxes_list[4 * i], boxes_list[4 * i + 1], boxes_list[4 * i + 2], boxes_list[4 * i + 3]])
-        elif i in [15, 16, 17, 18]:
-            boxes_dict["right_arm"].append(
-                [boxes_list[4 * i], boxes_list[4 * i + 1], boxes_list[4 * i + 2], boxes_list[4 * i + 3]])
-        elif i in [22, 23, 24, 25]:
-            boxes_dict["right_leg"].append(
-                [boxes_list[4 * i], boxes_list[4 * i + 1], boxes_list[4 * i + 2], boxes_list[4 * i + 3]])
-
-    for box in boxes_dict["head"]:
-        cv2.rectangle(image, (box[0], box[1]), (box[2], box[3]), [0, 255, 0], 1)
-    for box in boxes_dict["left_arm"]:
-        cv2.rectangle(image, (box[0], box[1]), (box[2], box[3]), [190, 180, 255], 1)
-    for box in boxes_dict["torso"]:
-        cv2.rectangle(image, (box[0], box[1]), (box[2], box[3]), [0, 255, 255], 1)
-    for box in boxes_dict["left_leg"]:
-        cv2.rectangle(image, (box[0], box[1]), (box[2], box[3]), [0, 0, 255], 1)
-    for box in boxes_dict["right_arm"]:
-        cv2.rectangle(image, (box[0], box[1]), (box[2], box[3]), [255, 255, 0], 1)
-    for box in boxes_dict["right_leg"]:
-        cv2.rectangle(image, (box[0], box[1]), (box[2], box[3]), [255, 0, 0], 1)
-
-    return image
-
-
-def define_hog():
-    hog = cv2.HOGDescriptor()
-    hog.setSVMDetector(cv2.HOGDescriptor_getDefaultPeopleDetector())
-    return hog
-
 # ----------------------------------------------MAIN-FUNCTIONS----------------------------------------------------------
 
 
@@ -336,8 +283,9 @@ def start_process(page_url, image_url):
                   'image_hash': image_hash, 'page_urls': [page_url], 'people': []}
     if relevance.is_relevant:
         if not isinstance(relevance.faces, list):
-            relevance.faces = relevance.faces.tolist()
-        relevant_faces = relevance.faces
+            relevant_faces = relevance.faces.tolist()
+        else:
+            relevant_faces = relevance.faces
         idx = 0
         start = time.time()
         for face in relevant_faces:
@@ -446,7 +394,7 @@ def get_results_now(page_url, image_url):
             image_dict['people'].append(person)
             mask, labels, pose = paperdoll_parse_enqueue.paperdoll_enqueue(image_copy, async=False).result[:3]
             final_mask = after_pd_conclusions(mask, labels, person['face'])
-            image = draw_pose_boxes(pose, image)
+            # image = draw_pose_boxes(pose, image)
             item_idx = 0
             for num in np.unique(final_mask):
                 # convert numbers to labels

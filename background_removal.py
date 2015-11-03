@@ -9,11 +9,11 @@ from tkFileDialog import askopenfilename
 import collections
 import os
 import logging
-import random
 
 import cv2
 import numpy as np
 
+import geometry
 import constants
 import Utils
 import ccv_facedetector as ccv
@@ -37,28 +37,19 @@ def image_is_relevant(image):
 
 def find_face(image_arr, max_num_of_faces=100, method='ccv'):
     if not isinstance(image_arr, np.ndarray):
-        logging.debug('find_face got a non-image')
-        return None
+        raise IOError('find_face got a bad input: not np.ndarray')
     if method == 'cascade':
         logging.debug('doing cascade facedetect')
         faces = find_face_cascade(image_arr, max_num_of_faces=max_num_of_faces)
         return faces
     else:  # do ccv
         logging.debug('doing ccv facedetect')
-        modified_name = '/var/www/temp_images/' + rand_string() + '.jpg'
-        if cv2.imwrite(modified_name, image_arr):
-            faces = ccv.ccv_facedetect(modified_name)
-            # os.remove(modified_name)
-            if faces is None or len(faces) == 0:
-                return []
-            else:
-                return choose_faces(image_arr, faces, max_num_of_faces)
+        faces = ccv.ccv_facedetect(image_array=image_arr)
+
+        if faces is None or len(faces) == 0:
+            return []
         else:
-            raise IOError("IMWRITE FAILED!!!!")
-
-
-def rand_string():
-    return ''.join([random.choice(string.ascii_letters + string.digits) for n in xrange(32)])
+            return choose_faces(image_arr, faces, max_num_of_faces)
 
 
 def find_face_cascade(image, max_num_of_faces=10):
@@ -261,7 +252,7 @@ def create_arbitrary(image):
     mask[7 * sub_h:13 * sub_h, 4 * sub_w:6 * sub_w] = 1
     return mask
 
-# can we move this to Utils or the like
+
 def standard_resize(image, max_side):
     original_w = image.shape[1]
     original_h = image.shape[0]
@@ -381,65 +372,67 @@ def simple_mask_grabcut(image, mask):
     return mask2
 
 
-if __name__ == '__main__':
-    print('starting')
-
-    path = os.path.abspath(__file__)
-    print('path:'+str(path))
-    p2 = path.split('classifier_stuff')
-    print('p2:'+str(p2))
-    raw_input('k')
+def define_hog():
+    hog = cv2.HOGDescriptor()
+    hog.setSVMDetector(cv2.HOGDescriptor_getDefaultPeopleDetector())
+    return hog
 
 
+def check_people_claasifier():
+    tp, fn, tn, fp = 0, 0, 0, 0
+    hog = define_hog()
+    for image in Utils.get_images_list('/home/nadav/images/with_people'):
+        if len(hog.detectMultiScale(image)) > 0:
+            tp += 1
+        else:
+            fn += 1
+    for image in Utils.get_images_list('/home/nadav/images/without_people'):
+        if len(hog.detectMultiScale(image)) > 0:
+            fp += 1
+        else:
+            tn += 1
+    print "True positive: {0}/{2}\nFalse negative: {1}/{2}".format(tp, fn, len(
+        Utils.get_images_list('/home/nadav/images/with_people')))
+    print "False positive: {0}/{2}\nTrue negative: {1}/{2}".format(fp, tn, len(
+        Utils.get_images_list('/home/nadav/images/without_people')))
+    return
 
-    img = 'images/female1.jpg'
-    img_arr=cv2.imread(img)
-    r1 = find_face(img_arr, max_num_of_faces=1,method='ccv')
-    print('ccv result:'+str(r1))
 
-    print('')
-    r2 = find_face(img_arr, max_num_of_faces=1,method='cascade')
-    print('cascade result:'+str(r2))
-    raw_input('return to continue')
+def check_pedestrians_classifier(scl_fctr, min_nbrs, min_sz):
+    tp, fn, tn, fp = 0, 0, 0, 0
+    cascade = cv2.CascadeClassifier(os.path.join(constants.classifiers_folder,
+                                                 'hogcascade_pedestrians.xml'))
+    for image in Utils.get_images_list('/home/nadav/images/with_people'):
+        gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
+        if len(cascade.detectMultiScale(
+                gray,
+                scaleFactor=scl_fctr,
+                minNeighbors=min_nbrs,
+                minSize=min_sz,
+                flags=constants.scale_flag)) > 0:
+            tp += 1
+        else:
+            fn += 1
+    for image in Utils.get_images_list('/home/nadav/images/without_people'):
+        gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
+        if len(cascade.detectMultiScale(
+                gray,
+                scaleFactor=scl_fctr,
+                minNeighbors=min_nbrs,
+                minSize=min_sz,
+                flags=constants.scale_flag)) > 0:
+            fp += 1
+        else:
+            tn += 1
+    print "True positive: {0}/{2}\nFalse negative: {1}/{2}".format(tp, fn, len(
+        Utils.get_images_list('/home/nadav/images/with_people')))
+    print "False positive: {0}/{2}\nTrue negative: {1}/{2}".format(fp, tn, len(
+        Utils.get_images_list('/home/nadav/images/without_people')))
+    return
 
-    print('')
-    img = 'images/male1.jpg'
-    img_arr=cv2.imread(img)
-    r1 = find_face(img_arr, max_num_of_faces=1,method='ccv')
-    print('ccv result:'+str(r1))
 
-    print('')
-    r2 = find_face(img_arr, max_num_of_faces=1,method='cascade')
-    print('cascade result:'+str(r2))
-    raw_input('return to continue')
+def check_LOD(dir):
+    images = Utils.get_images_list(dir)
+    for image in images:
+        geometry.item_length(image)
 
-    print('')
-    img = 'images/male2.jpg'
-    img_arr=cv2.imread(img)
-    r1 = find_face(img_arr, max_num_of_faces=1,method='ccv')
-    print('ccv result:'+str(r1))
-
-    print('')
-    r2 = find_face(img_arr, max_num_of_faces=1,method='cascade')
-    print('cascade result:'+str(r2))
-    raw_input('return to continue')
-
-    print('')
-    img = 'images/male3.jpg'
-    img_arr=cv2.imread(img)
-    r1 = find_face(img_arr, max_num_of_faces=1,method='ccv')
-    print('ccv result:'+str(r1))
-
-    print('')
-    r2 = find_face(img_arr, max_num_of_faces=1,method='cascade')
-    print('cascade result:'+str(r2))
-    raw_input('return to continue')
-
-    n,singles,multiples = ccv.run_classifier_recursively('images/many_faces',use_visual_output=False,classifier=find_face,classifier_arg='ccv')
-    print('n:{0} single:{1} multiple:{2}'.format(n,singles,multiples))
-    raw_input('enter to continue')
-
-    #defulat is ccv
-    n,singles,multiples = ccv.run_classifier_recursively('images/many_faces',use_visual_output=False,classifier=find_face,classifier_arg='cascade')
-    print('n:{0} single:{1} multiple:{2}'.format(n,singles,multiples))
-    raw_input('enter to continue')

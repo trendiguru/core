@@ -1,41 +1,61 @@
 from __future__ import print_function
-
-__author__ = 'jeremy'
-
 import commands
 import cv2
 import os
 import os.path
 import logging
+import random
+import string
 import numpy as np
 from .constants import project_dir
 
+path_to_ccvface = '/' + project_dir + '/classifier_stuff/ccvface'
+path_to_ccvface_db = '/' + project_dir + '/classifier_stuff/ccvface.sqlite3'
 
-def ccv_facedetect(filename):
-    if not os.path.isfile(filename):
-        logging.warning('file passed to ccv_facedetect doesnt exist)')
-        return 1
-    fcommand = project_dir + '/classifier_stuff/ccvface ' + str(
-        filename) + ' /' + project_dir + '/classifier_stuff/ccvface.sqlite3'
-    retvals = commands.getstatusoutput(fcommand)
-    print('return from command ' + str(fcommand) + ':' + str(retvals), end="\n")
+
+def ccv_facedetect(filename=None, image_array=None):
+    delete_when_done = False
+    if not filename or not os.path.isfile(filename):
+        if image_array is not None:
+            filename = '/var/tmp/' + rand_string() + '.jpg'
+            if not cv2.imwrite(filename, image_array):
+                raise IOError("Could not save temp image")
+            delete_when_done = True
+        else:
+            raise IOError("Bad parameters passed -- no file and no array.")
+
+    detect_command = "{path_to_ccvface} {filename} {path_to_ccvface_db}" \
+        .format(path_to_ccvface=path_to_ccvface, filename=filename, path_to_ccvface_db=path_to_ccvface_db)
+
+    retvals = commands.getstatusoutput(detect_command)
+    logging.debug('return from command ' + detect_command + ':' + str(retvals), end="\n")
+
+    if delete_when_done:
+        try:
+            os.remove(filename)
+        except Exception as e:
+            logging.warning("ccv_facedetect could not delete file {0} because of exception: \n{1}".format(filename, e))
+
     rects = []
     if isinstance(retvals[1], basestring) and retvals[1] != '':
-        strings = retvals[1].split('\n')
-        logging.debug('strings:' + str(strings))
-        for rectstr in strings:
-            newrect = [int(s) for s in rectstr.split() if s.isdigit()]
-            if len(newrect) == 4:
-                rects.append(newrect)
-                # logging.debug('rects found:'+str(rects))
+        rectangle_strings = retvals[1].split('\n')
+        logging.debug('rectangle_strings:' + str(rectangle_strings))
+        for rectangle_string in rectangle_strings:
+            new_rect = [int(s) for s in rectangle_string.split() if s.isdigit()]
+            if len(new_rect) == 4:
+                rects.append(new_rect)
             else:
-                logging.warning('got weird string from ccv:' + str(rectstr))
+                logging.warning('Got weird string from ccv:' + rectangle_string)
         arr = np.asarray(rects, dtype='uint16')
-        logging.debug('rects' + str(arr))
+        logging.debug('rects: ' + str(arr))
         return rects
     else:
-        logging.debug('no answer string recd from ccv')
+        logging.debug('No answer string recd from ccv')
         return []
+
+
+def rand_string(length=32):
+    return ''.join((random.choice(string.ascii_letters + string.digits) for i in xrange(length)))
 
 
 def check_lfw(use_visual_output=False):
@@ -203,7 +223,7 @@ def write_rects(abs_path, faces, version=None):
         for rect in faces:
             print('rect:' + str(rect))
             cv2.rectangle(img_arr, (rect[0], rect[1]), (rect[0] + rect[2], rect[1] + rect[3]), [0, 0, 250], 2)
-        #    cv2.imshow('candidate',img_arr)
+            #    cv2.imshow('candidate',img_arr)
     if version is not None:
         abs_path = abs_path.replace('.jpg', version + '.jpg')
     newname = abs_path.replace('.jpg', '.rects.jpg')
