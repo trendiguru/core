@@ -8,7 +8,6 @@ import requests
 from rq import Queue
 
 from DBDworker import delayed_requests_get
-
 from DBDworker import download_products
 import constants
 
@@ -117,6 +116,10 @@ class ShopStyleDownloader():
                 sub = downloaded_items - insert_errors
 
     def build_category_tree(self, collection):
+        parameters = {"pid": PID, "filters": "Category"}
+        if collection != "products":
+            parameters["site"] = "www.shopstyle.co.jp"
+
         # download all categories
         category_list_response = requests.get(BASE_URL + "categories", params={"pid": PID})
         category_list_response_json = category_list_response.json()
@@ -133,8 +136,8 @@ class ShopStyleDownloader():
             ancestors.append(c)
             # let's get some numbers in there - get a histogram for each ancestor
         for anc in ancestors:
-            response = delayed_requests_get(BASE_URL_PRODUCTS + "histogram",
-                                            {"pid": PID, "filters": "Category", "cat": anc["id"]}, collection)
+            parameters["cat"] = anc["id"]
+            response = delayed_requests_get(BASE_URL_PRODUCTS + "histogram", parameters, collection)
             hist = response.json()["categoryHistogram"]
             # save count for each category
             for cat in hist:
@@ -144,6 +147,7 @@ class ShopStyleDownloader():
     def download_category(self, category_id, collection):
         if category_id not in relevant:
             return
+
         category = self.db.categories.find_one({"id": category_id})
         if "count" in category and category["count"] <= MAX_SET_SIZE:
             print("Attempting to download: {0} products".format(category["count"]))
@@ -307,11 +311,11 @@ class UrlParams(collections.MutableMapping):
 
 if __name__ == "__main__":
     if len(sys.argv) == 1:
-        collection = "products"
+        coll = "products"
     else:
-        collection = sys.argv[1]
+        coll = sys.argv[1]
     update_db = ShopStyleDownloader()
-    update_db.db_download(collection)
+    update_db.db_download(coll)
 
 
 # import collections

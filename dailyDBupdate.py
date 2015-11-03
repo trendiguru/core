@@ -113,7 +113,7 @@ def email(stats):
     server.starttls()
     # server.set_debuglevel(True)  # show communication with the server
     try:
-        server.login('yonti0@gmail.com', "Hub,hKuhiPryh")
+        server.login('yontiforall@gmail.com', "Hub,hKuhiZck")
         server.sendmail(sender, [recipient, yonti], msg.as_string())  # [recipient, yonti], msg.as_string())
         print "sent"
     except:
