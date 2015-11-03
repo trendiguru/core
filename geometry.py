@@ -20,7 +20,7 @@ def length_of_lower_body_part_field(image, face):
 
     def legs_upper_line_cnt(mask):
         ret, thresh = cv2.threshold(mask, 127, 255, cv2.THRESH_BINARY, 0)
-        contours, hierarchy = cv2.findContours(thresh, 1, 2)
+        contours = cv2.findContours(thresh, mode=cv2.RETR_EXTERNAL, method=cv2.CHAIN_APPROX_NONE)[1]
         y_up = mask.shape[0]
         topmost_list = []
         for contour in contours:
