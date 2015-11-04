@@ -14,6 +14,14 @@ MAINTAINER Jeremy Rutman <jeremy@trendiguru.com>
 
 #OPENCV OPENCV OPENCV
 #install opencv3.0
+
+# Use gcc 4.6
+RUN update-alternatives --install /usr/bin/cc cc /usr/bin/gcc-4.6 30 && \
+  update-alternatives --install /usr/bin/c++ c++ /usr/bin/g++-4.6 30 && \
+  update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-4.6 30 && \
+  update-alternatives --install /usr/bin/g++ g++ /usr/bin/g++-4.6 30
+
+
 #RUN apt-get install -y libgtk2.0-dev
 #RUN apt-get -qq install -y libopencv-dev
 RUN apt-get -qq install -y build-essential
