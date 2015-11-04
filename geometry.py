@@ -1,9 +1,10 @@
 __author__ = 'Nadav Paz'
 
+import os
+
 import cv2
 import numpy as np
 
-import statistics
 import kassper
 import background_removal
 import Utils
@@ -50,7 +51,7 @@ def length_of_lower_body_part_field(image, face):
 
 
 def collect_distances(dir):
-    images = Utils.get_images_list(dir)
+    images = Utils.get_images_list(dir)[:10]
     print "Total {0} images".format(len(images))
     dist = []
     for image in images:
@@ -61,9 +62,11 @@ def collect_distances(dir):
             pass
         else:
             line = length_of_lower_body_part_field(image, faces[0])
+            cv2.line(image, (0, line), (image.shape[1], line), [0, 170, 170], 2)
+            cv2.imwrite(os.getcwd() + images.tolist().index(image) + '.jpg', image)
             dist.append((line - faces[0][1]) / float(faces[0][3]))
-            print (line - faces[0][1]) / float(faces[0][3])
-    avrg = sum(dist) / float(len(dist))
-    stdev = statistics.stdev(dist)
-    print "Average is {0}, stdev is {1}".format(avrg, stdev)
-    return
+            # print (line - faces[0][1]) / float(faces[0][3])
+    # avrg = sum(dist) / float(len(dist))
+    # stdev = statistics.stdev(dist)
+    # print "Average is {0}, stdev is {1}".format(avrg, stdev)
+    return dist
