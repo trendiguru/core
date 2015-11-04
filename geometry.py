@@ -6,7 +6,6 @@ import numpy as np
 import statistics
 import kassper
 import background_removal
-import geometry
 import Utils
 
 
@@ -61,7 +60,7 @@ def collect_distances(dir):
         elif len(faces) == 0:
             pass
         else:
-            len = geometry.length_of_lower_body_part_field(image, faces[0])
+            len = length_of_lower_body_part_field(image, faces[0])
             dist.append(len - faces[0][1])
     avrg = sum(dist) / float(len(dist))
     stdev = statistics.stdev(dist)
