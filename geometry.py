@@ -54,6 +54,7 @@ def collect_distances(dir, i):
     images = Utils.get_images_list(dir)[i * 10:10 * (i + 1)]
     print "Total {0} images".format(len(images))
     dist = []
+    i = 0
     for image in images:
         faces = background_removal.find_face_cascade(image)
         if faces is None:
@@ -63,8 +64,9 @@ def collect_distances(dir, i):
         else:
             line = length_of_lower_body_part_field(image, faces[0])
             cv2.line(image, (0, line), (image.shape[1], line), [0, 170, 170], 2)
-            cv2.imwrite(os.getcwd() + '/' + str(images.index(image)) + '.jpg', image)
+            cv2.imwrite(os.getcwd() + '/' + str(i) + '.jpg', image)
             dist.append((line - faces[0][1]) / float(faces[0][3]))
+        i += 1
             # print (line - faces[0][1]) / float(faces[0][3])
     # avrg = sum(dist) / float(len(dist))
     # stdev = statistics.stdev(dist)
