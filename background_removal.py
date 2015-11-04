@@ -372,65 +372,6 @@ def simple_mask_grabcut(image, mask):
     return mask2
 
 
-def define_hog():
-    hog = cv2.HOGDescriptor()
-    hog.setSVMDetector(cv2.HOGDescriptor_getDefaultPeopleDetector())
-    return hog
-
-
-def check_people_claasifier():
-    tp, fn, tn, fp = 0, 0, 0, 0
-    hog = define_hog()
-    for image in Utils.get_images_list('/home/nadav/images/with_people'):
-        if len(hog.detectMultiScale(image)) > 0:
-            tp += 1
-        else:
-            fn += 1
-    for image in Utils.get_images_list('/home/nadav/images/without_people'):
-        if len(hog.detectMultiScale(image)) > 0:
-            fp += 1
-        else:
-            tn += 1
-    print "True positive: {0}/{2}\nFalse negative: {1}/{2}".format(tp, fn, len(
-        Utils.get_images_list('/home/nadav/images/with_people')))
-    print "False positive: {0}/{2}\nTrue negative: {1}/{2}".format(fp, tn, len(
-        Utils.get_images_list('/home/nadav/images/without_people')))
-    return
-
-
-def check_pedestrians_classifier(scl_fctr, min_nbrs, min_sz):
-    tp, fn, tn, fp = 0, 0, 0, 0
-    cascade = cv2.CascadeClassifier(os.path.join(constants.classifiers_folder,
-                                                 'hogcascade_pedestrians.xml'))
-    for image in Utils.get_images_list('/home/nadav/images/with_people'):
-        gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
-        if len(cascade.detectMultiScale(
-                gray,
-                scaleFactor=scl_fctr,
-                minNeighbors=min_nbrs,
-                minSize=min_sz,
-                flags=constants.scale_flag)) > 0:
-            tp += 1
-        else:
-            fn += 1
-    for image in Utils.get_images_list('/home/nadav/images/without_people'):
-        gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
-        if len(cascade.detectMultiScale(
-                gray,
-                scaleFactor=scl_fctr,
-                minNeighbors=min_nbrs,
-                minSize=min_sz,
-                flags=constants.scale_flag)) > 0:
-            fp += 1
-        else:
-            tn += 1
-    print "True positive: {0}/{2}\nFalse negative: {1}/{2}".format(tp, fn, len(
-        Utils.get_images_list('/home/nadav/images/with_people')))
-    print "False positive: {0}/{2}\nTrue negative: {1}/{2}".format(fp, tn, len(
-        Utils.get_images_list('/home/nadav/images/without_people')))
-    return
-
-
 def check_LOD(dir):
     images = Utils.get_images_list(dir)
     for image in images:

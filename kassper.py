@@ -105,6 +105,7 @@ def skin_removal(gc_image, image):
     # return without_skin
     return mask2
 
+
 def skin_detection_with_grabcut(gc_image, image, skin_or_clothes='clothes'):
     rect = (0, 0, gc_image.shape[1] - 1, gc_image.shape[0] - 1)
     bgdmodel = np.zeros((1, 65), np.float64)
