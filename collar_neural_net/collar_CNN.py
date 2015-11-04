@@ -9,9 +9,12 @@ from keras.layers.core import Dense, Dropout, Activation, Flatten
 from keras.layers.convolutional import Convolution2D, MaxPooling2D
 from keras.optimizers import SGD, Adagrad, Adadelta, RMSprop, Adam
 
-def get_data(my_path):#my_path=os.path.dirname(os.path.abspath(__file__))):
+def get_data(my_path):#, testing_amount=0.2):#my_path=os.path.dirname(os.path.abspath(__file__))):
     '''
     '''
+    # if testing_amount > 1.0 or testing_amount < 0.0:
+    #     print 'testing_amount should be between 0 and 1 (float)!'
+    #     return
     image_file_types = ['.jpg','.png','.bmp','.gif']
     only_files = [f for f in os.listdir(my_path) if os.path.isfile(os.path.join(my_path, f))]
     output_tag = []
@@ -26,12 +29,13 @@ def get_data(my_path):#my_path=os.path.dirname(os.path.abspath(__file__))):
                 output_image.append(image)
                 output_tag.append(int(file_name[-5]))
 
-
     output_vector_size = max(output_tag)
     output_vector = []
+    # amount_of_each_tag = np.zeros(output_vector_size)
     for tag in output_tag:
         zero_output_vector = np.zeros(output_vector_size, dtype=np.uint8)
         zero_output_vector[tag-1] = 1
+        # amount_of_each_tag[tag-1] += 1
         output_vector.append(zero_output_vector)
 
     output_image = np.array(output_image)
@@ -40,27 +44,43 @@ def get_data(my_path):#my_path=os.path.dirname(os.path.abspath(__file__))):
     images_vector_shape = output_image.shape
     output_image = np.reshape(output_image, (images_vector_shape[0], images_vector_shape[3],
                                              images_vector_shape[1], images_vector_shape[2]))
-
+    # print amount_of_each_tag
+    # testing_input = []
+    # testing_output = []
+    # training_input = []
+    # training_output = []
+    # for type in range(output_vector_size):
+    #     amount_of_tag = int(amount_of_each_tag[type] * testing_amount)
+    #     testing_input = testing_input.append(output_image[0:amount_of_tag, :, :, :])
+    #     testing_output = testing_output.append(output_vector[0:amount_of_tag, :])
+    #     training_input = training_input.append(output_image[amount_of_tag:, :, :, :])
+    #     training_output = training_output.append(output_vector[amount_of_tag:, :])
+    #
+    # return testing_input, testing_output, training_input, training_output
     return output_image, output_vector
 
-
 path = os.path.dirname(os.path.abspath(__file__)) + '/dataset/'
+# testing_input, testing_output, training_input, training_output = get_data(path)
+#
+# print testing_input.shape, testing_output.shape
+# print training_input.shape, training_output.shape
+#
+# X_train = training_input
+# Y_train = training_output
+# X_test = testing_input
+# Y_test = testing_output
+
 output_image, output_vector = get_data(path)
-
-print output_image.shape
-print output_vector.shape
-
 X_train = output_image
 Y_train = output_vector
 
 
 
 
-
-
 size_batch = 10
-epoches_number = 1000
+epoches_number = 100
 overwrite_weights = True
+testing_amount = 0.2
 
 model = Sequential()
 # input: 100x100 images with 3 channels -> (3, 100, 100) tensors.
@@ -96,6 +116,7 @@ model.compile(loss='categorical_crossentropy', optimizer=optimizer_method)
 EarlyStopping(monitor='val_loss', patience=0, verbose=0)
 # checkpointer = ModelCheckpoint(os.path.abspath(__file__) + 'weights.hdf5', verbose=1, save_best_only=True)
 
-model.fit(X_train, Y_train, batch_size=size_batch, nb_epoch=epoches_number)#, callbacks=[checkpointer])
+model.fit(X_train, Y_train, batch_size=size_batch, nb_epoch=epoches_number, validation_split=testing_amount, show_accuracy=True)#, callbacks=[checkpointer])
+# score = model.evaluate(X_test, y_test, batch_size=16)
 model.save_weights('model_weight.hdf5', overwrite_weights)
 
