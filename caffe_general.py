@@ -4,14 +4,11 @@ import time
 from rq import Queue
 import cv2
 import logging
-from . import constants
+import constants
 import Utils
 import os
 
-# redis_conn = constants.redis_conn
-from redis import Redis
-
-redis_conn = Redis()
+redis_conn = constants.redis_conn
 
 # Tell RQ what Redis connection to use
 
