@@ -37,6 +37,15 @@ RUN chmod o+x portredis.sh
 ##############################
 #OPENCV
 ##############################
+
+##RUN apt-get -qq install -y build-essential
+#RUN apt-get -qq install -y pkg-config
+#RUN apt-get -qq install -y libjpeg-dev
+#RUN apt-get -qq install -y libpng12-dev
+#RUN apt-get -qq install -y python-dev
+#RUN apt-get -qq install -y python-numpy
+
+
 RUN  mkdir -p /opt/OpenCV
 RUN  cd /opt/OpenCV
 WORKDIR /opt/OpenCV
@@ -48,19 +57,16 @@ ENV OPENCV_HOME /opt/OpenCV
 RUN  mkdir -p $OPENCV_HOME/opencv-3.0.0/build
 RUN  cd $OPENCV_HOME/opencv-3.0.0/build
 RUN pwd
-WORKDIR /opt/OpenCV/opencv-3.0.0/build
+WORKDIR $OPENCV_HOME/opencv-3.0.0/build
 RUN pwd
-RUN ls -ltr ../../opencv_contrib-3.0.0/modules | tee lsout.txt
-RUN ls -ltr /opt/OpenCV/opencv_contrib-3.0.0/modules | tee lsout.txt
-RUN  cmake -DOPENCV_EXTRA_MODULES_PATH=/opt/OpenCV/opencv_contrib-3.0.0/modules  .. | tee cmakeout.txt
-RUN  make -j2 | tee makeout.txt
+#RUN  cmake -DOPENCV_EXTRA_MODULES_PATH=/opt/OpenCV/opencv_contrib-3.0.0/modules  .. | tee cmakeout.txt
+RUN  cmake   .. | tee cmakeout.txt
+RUN  make -j8 | tee makeout.txt
 RUN  make install | tee installout.txt
 #RUN  make clean
 RUN  sh -c 'echo "/usr/local/lib" > /etc/ld.so.conf.d/opencv.conf'
 RUN  ldconfig
 RUN  echo "OpenCV 3.0.0 is ready to be used"
-
-
 
 RUN export PYTHONPATH=/usr/local/lib/python2.7/site-packages:$PYTHONPATH
 RUN export uid=1000 gid=1000 && \
@@ -70,7 +76,6 @@ RUN export uid=1000 gid=1000 && \
     echo "developer ALL=(ALL) NOPASSWD: ALL" > /etc/sudoers.d/developer && \
     chmod 0440 /etc/sudoers.d/developer && \
     chown ${uid}:${gid} -R /home/developer
-
 
 #####################
 # redis and rq
