@@ -16,7 +16,7 @@ import constants
 db = constants.db
 
 
-def email(stats):
+def email(stats, coll):
     # me = 'nadav@trendiguru.com'
     # lior = 'lior@trendiguru.com'
     # kyle = 'kyle@trendiguru.com'
@@ -28,11 +28,12 @@ def email(stats):
 
     # Open a plain text file for reading.  For this example, assume that
     msg = MIMEMultipart('alternative')
-    msg['Subject'] = 'Daily DB download&update!'
+    msg['Subject'] = 'Daily DB download&update! - ' + coll
     msg['From'] = sender
     msg['To'] = yonti
 
-    txt2 = '<h3> date:\t' + str(stats['date']) + '</h3>\n<h3>' + \
+    txt2 = '<h1><mark>' + coll + '</mark></h1><br>' \
+                                 '<h3> date:\t' + str(stats['date']) + '</h3>\n<h3>' + \
            'items downloaded:\t' + str(stats['items_downloaded']) + '</h3>\n<h3>' + \
            'existing items:\t' + str(stats['existing_items']) + '</h3>\n<h3>' + \
            'new items:\t' + str(stats['new_items']) + '</h3>\n<h3>' + \
@@ -139,7 +140,7 @@ def stats_and_mail(collection):
         stats['items_by_category'][i] = {'total': db[collection].find({'categories.id': i}).count(),
                                          'new': db[collection].find({'$and': [{'categories.id': i},
                                                                            {'download_data.first_dl': date}]}).count()}
-    email(stats)
+    email(stats, collection)
     # with open(date + '.txt', 'w') as outfile:
     #     json.dump(stats, outfile)
 
