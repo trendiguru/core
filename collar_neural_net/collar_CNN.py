@@ -54,7 +54,7 @@ def get_data(my_path):#, testing_amount=0.2):#my_path=os.path.dirname(os.path.ab
     #     testing_input = testing_input.append(output_image[0:amount_of_tag, :, :, :])
     #     testing_output = testing_output.append(output_vector[0:amount_of_tag, :])
     #     training_input = training_input.append(output_image[amount_of_tag:, :, :, :])
-    #     training_output = training_output.append(output_vector[amount_of_tag:, :])
+    #     training_output = training_output.append(output_vector[amount_of_tag:, :] )
     #
     # return testing_input, testing_output, training_input, training_output
     return output_image, output_vector
