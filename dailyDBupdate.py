@@ -114,7 +114,7 @@ def email(stats, coll):
     # server.set_debuglevel(True)  # show communication with the server
     try:
         server.login('yontiforall@gmail.com', "Hub,hKuhiZck")
-        server.sendmail(sender, yonti, msg.as_string())  # [recipient, yonti], msg.as_string())
+        server.sendmail(sender, recipient, msg.as_string())  # [recipient, yonti], msg.as_string())
         print "sent"
     except:
         print "error"
