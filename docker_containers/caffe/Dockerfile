@@ -38,12 +38,21 @@ RUN chmod o+x portredis.sh
 #OPENCV
 ##############################
 
-##RUN apt-get -qq install -y build-essential
-#RUN apt-get -qq install -y pkg-config
-#RUN apt-get -qq install -y libjpeg-dev
-#RUN apt-get -qq install -y libpng12-dev
-#RUN apt-get -qq install -y python-dev
-#RUN apt-get -qq install -y python-numpy
+#build-essential is needed as it fixes gcc as default compiler
+RUN apt-get update
+RUN apt-get upgrade
+RUN apt-get -qq install -y build-essential
+RUN apt-get install -y libjpeg8-dev
+RUN apt-get install -y libtiff4-dev
+RUN apt-get install -y libjasper-dev
+RUN apt-get install -y libpng12-dev
+
+RUN apt-get -qq install -y cmake
+RUN apt-get -qq install -y pkg-config
+RUN apt-get -qq install -y yasm
+
+RUN apt-get -qq install -y python-dev
+RUN apt-get -qq install -y python-numpy
 
 
 RUN  mkdir -p /opt/OpenCV
