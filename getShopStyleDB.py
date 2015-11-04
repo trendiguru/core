@@ -64,7 +64,7 @@ class ShopStyleDownloader():
                                               "existing_but_renewed": 0,
                                               "errors": 0,
                                               "end_time": "still in process",
-                                              "total_dl_time": "still in process",
+                                              "total_dl_time(hours)": "still in process",
                                               "last_request": time.time()})
             self.db.drop_collection("fp_in_process")
             self.db.fp_in_process.insert_one({})
@@ -76,7 +76,7 @@ class ShopStyleDownloader():
         cats_to_dl = [anc["id"] for anc in ancestors]
         for cat in cats_to_dl:
             self.download_category(cat, collection)
-        self.wait_for(60, collection)
+        self.wait_for(90, collection)
         self.db.download_data.find_one_and_update({"criteria": collection},
                                                   {'$set': {"end_time": datetime.datetime.now()}})
         tmp = self.db.download_data.find({"criteria": collection})[0]
