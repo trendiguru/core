@@ -3,8 +3,11 @@ __author__ = 'Nadav Paz'
 import cv2
 import numpy as np
 
+import statistics
 import kassper
 import background_removal
+import geometry
+import Utils
 
 
 def higher_lower_body_split_line(face):
@@ -46,3 +49,21 @@ def length_of_lower_body_part_field(image, face):
     legs_up_cnt = legs_upper_line_cnt(255 * only_skin_mask) + int(y_split)
     return legs_up_cnt
 
+
+def collect_distances(dir):
+    images = Utils.get_images_list(dir)
+    print "Total {0} images".format(len(images))
+    dist = []
+    for image in images:
+        faces = background_removal.find_face_cascade(image)
+        if faces is None:
+            pass
+        elif len(faces) == 0:
+            pass
+        else:
+            len = geometry.length_of_lower_body_part_field(image, faces[0])
+            dist.append(len - faces[0][1])
+    avrg = sum(dist) / float(len(dist))
+    stdev = statistics.stdev(dist)
+    print "Average is {0}, stdev is {1}".format(avrg, stdev)
+    return
