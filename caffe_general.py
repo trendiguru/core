@@ -61,7 +61,7 @@ def caffe_general(url_or_img_array, async=True,filename=None):
 
 def ask_caffe(filename):
     caffe_path = constants.caffe_path_in_container
-    bin_path = os.path.join(caffe_path,'build/examples/cpp_classification/classification.bin'
+    bin_path = os.path.join(caffe_path,'build/examples/cpp_classification/classification.bin')
     prototxt = os.path.join(caffe_path,'models/bvlc_reference_caffenet/deploy.prototxt')
     caffemodel = os.path.join(caffe_path,'models/bvlc_reference_caffenet/bvlc_reference_caffenet.caffemodel')
     binproto = os.path.join(caffe_path,'/data/ilsvrc12/imagenet_mean.binaryproto')
