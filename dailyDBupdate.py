@@ -4,7 +4,6 @@ __author__ = 'yonatan'
 add description
 """
 
-import json
 import smtplib
 import sys
 
@@ -141,8 +140,8 @@ def stats_and_mail(collection):
                                          'new': db[collection].find({'$and': [{'categories.id': i},
                                                                            {'download_data.first_dl': date}]}).count()}
     email(stats)
-    with open(date + '.txt', 'w') as outfile:
-        json.dump(stats, outfile)
+    # with open(date + '.txt', 'w') as outfile:
+    #     json.dump(stats, outfile)
 
 
 if __name__ == "__main__":
