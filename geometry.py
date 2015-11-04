@@ -50,8 +50,8 @@ def length_of_lower_body_part_field(image, face):
     return legs_up_cnt
 
 
-def collect_distances(dir):
-    images = Utils.get_images_list(dir)[:10]
+def collect_distances(dir, i):
+    images = Utils.get_images_list(dir)[i * 10:10 * (i + 1)]
     print "Total {0} images".format(len(images))
     dist = []
     for image in images:
