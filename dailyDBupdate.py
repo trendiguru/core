@@ -23,7 +23,7 @@ def email(stats):
     # kyle = 'kyle@trendiguru.com'
     # jeremy = 'jeremy@trendiguru.com'
     yonti = 'yontilevin@gmail.com'
-    sender = 'yonti0@gmail.com'
+    sender = 'yontiforall@gmail.com'
     #
     recipient = 'team@trendiguru.com'
 
@@ -114,7 +114,7 @@ def email(stats):
     # server.set_debuglevel(True)  # show communication with the server
     try:
         server.login('yontiforall@gmail.com', "Hub,hKuhiZck")
-        server.sendmail(sender, [recipient, yonti], msg.as_string())  # [recipient, yonti], msg.as_string())
+        server.sendmail(sender, yonti, msg.as_string())  # [recipient, yonti], msg.as_string())
         print "sent"
     except:
         print "error"

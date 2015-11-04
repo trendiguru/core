@@ -64,7 +64,7 @@ class ShopStyleDownloader():
                                               "existing_but_renewed": 0,
                                               "errors": 0,
                                               "end_time": "still in process",
-                                              "total_dl_time": "still in process",
+                                              "total_dl_time(hours)": "still in process",
                                               "last_request": time.time()})
             self.db.drop_collection("fp_in_process")
             self.db.fp_in_process.insert_one({})
