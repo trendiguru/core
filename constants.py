@@ -22,6 +22,7 @@ min_bb_to_image_area_ratio = 0.95  # if bb takes more than this fraction of imag
 
 parallel_matlab_queuename = 'pd'
 nonparallel_matlab_queuename = 'pd_nonparallel'
+caffe_path_in_container = '/opt/caffe'
 # db = pymongo.MongoClient(host=os.environ["MONGO_HOST"], port=int(os.environ["MONGO_PORT"])).mydb
 # redis_conn = Redis(host=os.environ["REDIS_HOST"], port=int(os.environ["REDIS_PORT"]))
 db = pymongo.MongoClient(host="mongodb1-instance-1").mydb
@@ -134,6 +135,7 @@ Reserve_cpus = 2  # number of cpus to not use when doing stuff in parallel
 # for gender id
 gender_ttl = 5  # 10 seconds ttl , answer should be nearly immediate
 paperdoll_ttl = 90  # seconds to wait for paperdoll result
+caffe_general_ttl = 30  # seconds to wait for paperdoll result
 
 # QC worker voting params
 
