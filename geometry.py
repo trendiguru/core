@@ -60,8 +60,8 @@ def collect_distances(dir):
         elif len(faces) == 0:
             pass
         else:
-            len = length_of_lower_body_part_field(image, faces[0])
-            dist.append(len - faces[0][1])
+            line = length_of_lower_body_part_field(image, faces[0])
+            dist.append(line - faces[0][1])
     avrg = sum(dist) / float(len(dist))
     stdev = statistics.stdev(dist)
     print "Average is {0}, stdev is {1}".format(avrg, stdev)
