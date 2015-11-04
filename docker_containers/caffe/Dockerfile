@@ -40,7 +40,8 @@ RUN chmod o+x portredis.sh
 
 #build-essential is needed as it fixes gcc as default compiler
 RUN apt-get update
-RUN apt-get upgrade
+#avoid upgrade accoring to this http://docs.docker.com/engine/articles/dockerfile_best-practices/
+#RUN apt-get upgrade
 RUN apt-get -qq install -y build-essential
 RUN apt-get install -y libjpeg8-dev
 RUN apt-get install -y libtiff4-dev
@@ -54,12 +55,16 @@ RUN apt-get -qq install -y yasm
 RUN apt-get -qq install -y python-dev
 RUN apt-get -qq install -y python-numpy
 
+RUN sudo apt-get install libgtk2.0-dev
+RUN sudo apt-get install libavcodec-dev libavformat-dev libswscale-dev libv4l-dev
+RUN sudo apt-get install libatlas-base-dev gfortran
 
 RUN  mkdir -p /opt/OpenCV
 RUN  cd /opt/OpenCV
 WORKDIR /opt/OpenCV
 RUN  wget -O OpenCV3.0.zip https://codeload.github.com/Itseez/opencv/zip/3.0.0
 RUN  unzip OpenCV3.0.zip
+#contrib stuff includes fisherfaces which we no longer use
 #RUN  wget -O opencv_contrib.zip https://codeload.github.com/Itseez/opencv_contrib/zip/3.0.0
 #RUN  unzip opencv_contrib.zip
 ENV OPENCV_HOME /opt/OpenCV
@@ -70,7 +75,13 @@ WORKDIR $OPENCV_HOME/opencv-3.0.0/build
 RUN pwd
 #RUN  cmake -DOPENCV_EXTRA_MODULES_PATH=/opt/OpenCV/opencv_contrib-3.0.0/modules  .. | tee cmakeout.txt
 RUN  cmake   .. | tee cmakeout.txt
-RUN  make clean
+
+RUN cmake -D CMAKE_BUILD_TYPE=RELEASE \
+	-D INSTALL_C_EXAMPLES=OFF \
+	-D INSTALL_PYTHON_EXAMPLES=OFF \
+#	-D OPENCV_EXTRA_MODULES_PATH=~/opencv_contrib/modules \
+	-D BUILD_EXAMPLES=OFF .. | tee cmake_output.txt
+
 RUN  make -j8 | tee makeout.txt
 RUN  make install | tee installout.txt
 RUN  sh -c 'echo "/usr/local/lib" > /etc/ld.so.conf.d/opencv.conf'
@@ -199,25 +210,25 @@ RUN cd /opt && wget https://google-glog.googlecode.com/files/glog-0.3.3.tar.gz &
 RUN ldconfig
 
 # Gflags
-RUN cd /opt && \
-  wget https://github.com/schuhschuh/gflags/archive/master.zip && \
-  unzip master.zip && \
-  cd /opt/gflags-master && \
-  mkdir build && \
-  cd /opt/gflags-master/build && \
-  export CXXFLAGS="-fPIC" && \
-  cmake .. && \
-  make VERBOSE=1 && \
-  make && \
-  make install
+RUN cd /opt
+RUN  wget https://github.com/schuhschuh/gflags/archive/master.zip
+RUN  unzip master.zip 1
+RUN  cd /opt/gflags-master
+RUN  mkdir build
+RUN  cd /opt/gflags-master/build
+RUN  export CXXFLAGS="-fPIC"
+RUN  cmake ..
+RUN  make VERBOSE=1
+RUN  make
+RUN  make install
 
 # Build Caffe core
-RUN cd /opt/caffe && \
-  cp Makefile.config.example Makefile.config && \
-   echo "CPU_ONLY := 1" >> Makefile.config && \
-  echo "CXX := /usr/bin/g++-4.6" >> Makefile.config && \
-  sed -i 's/CXX :=/CXX ?=/' Makefile && \
-  make all
+RUN cd /opt/caffe
+RUN   cp Makefile.config.example Makefile.config
+RUN   echo "CPU_ONLY := 1" >> Makefile.config
+RUN  echo "CXX := /usr/bin/g++-4.6" >> Makefile.config
+RUN  sed -i 's/CXX :=/CXX ?=/' Makefile
+RUN  make all
 
 # Add ld-so.conf so it can find libcaffe.so
 ADD caffe-ld-so.conf /etc/ld.so.conf.d/
