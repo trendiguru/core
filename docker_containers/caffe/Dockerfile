@@ -55,9 +55,12 @@ RUN apt-get -qq install -y yasm
 RUN apt-get -qq install -y python-dev
 RUN apt-get -qq install -y python-numpy
 
-RUN sudo apt-get install libgtk2.0-dev
-RUN sudo apt-get install libavcodec-dev libavformat-dev libswscale-dev libv4l-dev
-RUN sudo apt-get install libatlas-base-dev gfortran
+RUN apt-get install -y libgtk2.0-dev
+RUN apt-get install -y libavcodec-dev
+RUN apt-get install -y libavformat-dev
+RUN apt-get install -y libswscale-dev
+RUN apt-get install -y libv4l-dev
+RUN apt-get install -y libatlas-base-dev gfortran
 
 RUN  mkdir -p /opt/OpenCV
 RUN  cd /opt/OpenCV
