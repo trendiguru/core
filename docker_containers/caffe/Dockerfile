@@ -215,7 +215,7 @@ RUN ldconfig
 # Gflags
 RUN cd /opt
 RUN  wget https://github.com/schuhschuh/gflags/archive/master.zip
-RUN  unzip master.zip 1
+RUN  unzip master.zip
 RUN  cd /opt/gflags-master
 RUN  mkdir build
 RUN  cd /opt/gflags-master/build
