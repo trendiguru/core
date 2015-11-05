@@ -218,12 +218,6 @@ RUN update-alternatives --install /usr/bin/cc cc /usr/bin/gcc-4.6 30 && \
   update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-4.6 30 && \
   update-alternatives --install /usr/bin/g++ g++ /usr/bin/g++-4.6 30
 
-
-
-# Clone the Caffe repo
-RUN cd /opt && git clone https://github.com/BVLC/caffe.git
-
-
 # Glog
 RUN cd /opt && wget https://google-glog.googlecode.com/files/glog-0.3.3.tar.gz && \
   tar zxvf glog-0.3.3.tar.gz && \
@@ -252,6 +246,10 @@ RUN  cmake ..
 RUN  make VERBOSE=1
 RUN  make
 RUN  make install
+
+
+# Clone the Caffe repo
+RUN cd /opt && git clone https://github.com/BVLC/caffe.git
 
 # Build Caffe core
 RUN cd /opt/caffe
@@ -284,7 +282,7 @@ RUN cd /opt/caffe && make pycaffe
 # Make + run tests
 RUN cd /opt/caffe && make test && make runtest
 
-###### get alexnet 0
+###### get alexnet
 #make all test#
 #make runtest
 #alexnet - get model
