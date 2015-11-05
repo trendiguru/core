@@ -68,12 +68,14 @@ RUN cd /opt && wget https://google-glog.googlecode.com/files/glog-0.3.3.tar.gz &
 RUN ldconfig
 
 # Gflags
-RUN cd /opt
+RUN WORKDIR /opt
 RUN  wget https://github.com/schuhschuh/gflags/archive/master.zip
 RUN  unzip master.zip
-RUN  cd gflags-master
+RUN  WORKDIR gflags-master
+RUN  pwd>cwd1.txt
 RUN  mkdir build
-RUN  cd build
+RUN  WORKDIR build
+RUN  pwd>cwd2.txt
 RUN  export CXXFLAGS="-fPIC"
 RUN  cmake ..
 RUN  make VERBOSE=1
@@ -109,11 +111,13 @@ RUN cd /opt/caffe && \
 #  ln -s /usr/local/lib/python2.7/dist-packages/$NUMPY_EGG/numpy/core/include/numpy /usr/include/python2.7/numpy
 
 # Build Caffe python bindings
-RUN cd /opt/caffe && make pycaffe
+RUN WORKDIR /opt/caffe
+RUN make pycaffe
 
 
 # Make + run tests
-RUN cd /opt/caffe && make test && make runtest
+RUN WORKDIR /opt/caffe
+RUN make test && make runtest
 
 ###### get alexnet
 #make all test#
