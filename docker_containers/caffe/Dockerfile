@@ -159,7 +159,7 @@ RUN chmod o+x portredis.sh
 RUN sudo apt-get install -y python-numpy
 RUN apt-get update
 RUN sudo apt-get install -y python-scipy
-RUN sudo apt-get install -y scipy
+#RUN sudo apt-get install -y scipy
 RUN sudo apt-get install -y python-matplotlib
 RUN sudo apt-get install -y ipython
 RUN sudo apt-get install -y ipython-notebook
