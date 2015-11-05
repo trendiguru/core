@@ -1,7 +1,7 @@
 FROM ubuntu:14.04
 
 #increase the available sources for installs
-#RUN sed -i 's/# \(.*multiverse$\)/\1/g' /etc/apt/sources.list
+RUN sed -i 's/# \(.*multiverse$\)/\1/g' /etc/apt/sources.list
 RUN apt-get update
 RUN apt-get -y upgrade
 RUN apt-key update
