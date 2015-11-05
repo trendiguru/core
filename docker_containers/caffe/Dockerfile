@@ -244,9 +244,9 @@ RUN ldconfig
 RUN cd /opt
 RUN  wget https://github.com/schuhschuh/gflags/archive/master.zip
 RUN  unzip master.zip
-RUN  cd /opt/gflags-master
+RUN  cd gflags-master
 RUN  mkdir build
-RUN  cd /opt/gflags-master/build
+RUN  cd build
 RUN  export CXXFLAGS="-fPIC"
 RUN  cmake ..
 RUN  make VERBOSE=1
