@@ -68,7 +68,7 @@ RUN cd /opt && wget https://google-glog.googlecode.com/files/glog-0.3.3.tar.gz &
 RUN ldconfig
 
 # Gflags
-RUN WORKDIR /opt
+WORKDIR /opt
 RUN  wget https://github.com/schuhschuh/gflags/archive/master.zip
 RUN  unzip master.zip
 WORKDIR gflags-master
