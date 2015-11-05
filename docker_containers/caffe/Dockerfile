@@ -164,7 +164,7 @@ RUN sudo apt-get install -y \
     ipython-notebook    \
     python-pandas     \
     python-sympy     \
-    python-nose
+#    python-nose
 
 
 ###################
