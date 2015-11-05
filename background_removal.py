@@ -13,6 +13,7 @@ import logging
 import cv2
 import numpy as np
 
+import geometry
 import constants
 import Utils
 import ccv_facedetector as ccv
@@ -371,31 +372,8 @@ def simple_mask_grabcut(image, mask):
     return mask2
 
 
-def define_hog():
-    hog = cv2.HOGDescriptor()
-    hog.setSVMDetector(cv2.HOGDescriptor_getDefaultPeopleDetector())
-    return hog
+def check_LOD(dir):
+    images = Utils.get_images_list(dir)
+    for image in images:
+        geometry.item_length(image)
 
-
-def check_people_claasifier(win_stride, padding, scale):
-    tp, fn, tn, fp = 0, 0, 0, 0
-    hog = define_hog()
-    for image in Utils.get_images_list('/home/nadav/images/with_people'):
-        if len(hog.detectMultiScale(image, winStride=win_stride, padding=padding, scale=scale)[0]) > 0:
-            tp += 1
-        else:
-            fn += 1
-    for image in Utils.get_images_list('/home/nadav/images/without_people'):
-        if len(hog.detectMultiScale(image, winStride=win_stride, padding=padding, scale=scale)[0]) > 0:
-            fp += 1
-        else:
-            tn += 1
-    print "True positive: {0}/{2}\nFalse negative: {1}/{2}".format(tp, fn, len(
-        Utils.get_images_list('/home/nadav/images/with_people')))
-    print "False positive: {0}/{2}\nTrue negative: {1}/{2}".format(fp, tn, len(
-        Utils.get_images_list('/home/nadav/images/without_people')))
-    return
-
-
-if __name__ == '__main__':
-    print('starting')

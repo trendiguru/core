@@ -283,8 +283,9 @@ def start_process(page_url, image_url):
                   'image_hash': image_hash, 'page_urls': [page_url], 'people': []}
     if relevance.is_relevant:
         if not isinstance(relevance.faces, list):
-            relevance.faces = relevance.faces.tolist()
-        relevant_faces = relevance.faces
+            relevant_faces = relevance.faces.tolist()
+        else:
+            relevant_faces = relevance.faces
         idx = 0
         start = time.time()
         for face in relevant_faces:
