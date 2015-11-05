@@ -111,12 +111,12 @@ RUN cd /opt/caffe && \
 #  ln -s /usr/local/lib/python2.7/dist-packages/$NUMPY_EGG/numpy/core/include/numpy /usr/include/python2.7/numpy
 
 # Build Caffe python bindings
-RUN WORKDIR /opt/caffe
+WORKDIR /opt/caffe
 RUN make pycaffe
 
 
 # Make + run tests
-RUN WORKDIR /opt/caffe
+WORKDIR /opt/caffe
 RUN make test && make runtest
 
 ###### get alexnet
