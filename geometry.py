@@ -34,7 +34,8 @@ def length_of_lower_body_part_field(image, face):
             y_up = np.amin(topmost_list)
         return int(y_up)
 
-    # TODO - check if there are enough faces down the images..
+    # TODO - 1. check if there are enough faces down the images..
+    # 2.
     image, rr = background_removal.standard_resize(image, 400)
     face = np.array([int(num) for num in face / rr])
     gc_image = background_removal.get_masked_image(image, background_removal.get_fg_mask(image))
@@ -48,6 +49,20 @@ def length_of_lower_body_part_field(image, face):
     only_skin_mask = kassper.clutter_removal(only_skin_down, 100)
     legs_up_cnt = legs_upper_line_cnt(255 * only_skin_mask) + int(y_split)
     return legs_up_cnt
+
+
+def length_of_lower_body_db_dresses(image):
+    """
+    hello, this function will estimate and grade the length of the dress.
+    dresses in the DB appear:
+        1. with a woman inside - face clear
+        2. with a woman inside - no face/ with face that wasn't found
+        3. without woman inside
+    for each one I have to find a solution that will satisfy them all equally.
+
+    :param image: 3d ndarray
+    :return:
+    """
 
 
 def collect_distances(dir, i):
@@ -71,8 +86,4 @@ def collect_distances(dir, i):
             except:
                 print "Problem with the length.."
         i += 1
-            # print (line - faces[0][1]) / float(faces[0][3])
-    # avrg = sum(dist) / float(len(dist))
-    # stdev = statistics.stdev(dist)
-    # print "Average is {0}, stdev is {1}".format(avrg, stdev)
     return dist
