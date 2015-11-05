@@ -92,6 +92,7 @@ class ShopStyleDownloader():
         x = raw_input("waitfor enabled? (Y/N)")
         if x == "n" or x == "N":
             return
+
         print "Waiting for 15 min before first check"
         total_items_before = self.db[collection].count()
         time.sleep(900)
