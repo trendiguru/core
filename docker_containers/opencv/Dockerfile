@@ -16,6 +16,8 @@ MAINTAINER Jeremy Rutman <jeremy@trendiguru.com>
 #install opencv3.0
 
 # Use gcc 4.6
+RUN apt-get install dpkg
+
 RUN update-alternatives --install /usr/bin/cc cc /usr/bin/gcc-4.6 30 && \
   update-alternatives --install /usr/bin/c++ c++ /usr/bin/g++-4.6 30 && \
   update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-4.6 30 && \
