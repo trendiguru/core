@@ -3,8 +3,8 @@ FROM ubuntu:14.04
 #increase the available sources for installs
 RUN sed -i 's/# \(.*multiverse$\)/\1/g' /etc/apt/sources.list
 RUN apt-get update
-RUN apt-get -y upgrade
-RUN apt-key update
+#RUN apt-get -y upgrade
+#RUN apt-key update
 
 RUN apt-get install -y wget
 RUN apt-get install -y screen
@@ -157,7 +157,8 @@ RUN chmod o+x portredis.sh
 #numpy scipy
 ###############
 RUN sudo apt-get install -y python-numpy
-#RUN sudo apt-get install -y python-scipy
+RUN apt-get update
+RUN sudo apt-get install -y python-scipy
 RUN sudo apt-get install -y scipy
 RUN sudo apt-get install -y python-matplotlib
 RUN sudo apt-get install -y ipython
