@@ -71,10 +71,10 @@ RUN ldconfig
 RUN WORKDIR /opt
 RUN  wget https://github.com/schuhschuh/gflags/archive/master.zip
 RUN  unzip master.zip
-RUN  WORKDIR gflags-master
+WORKDIR gflags-master
 RUN  pwd>cwd1.txt
 RUN  mkdir build
-RUN  WORKDIR build
+WORKDIR build
 RUN  pwd>cwd2.txt
 RUN  export CXXFLAGS="-fPIC"
 RUN  cmake ..
