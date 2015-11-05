@@ -3,6 +3,8 @@ function [mask,label_names,pose] = pd(image_filename)
 % check if data already loaded
 disp(['the image sent to pd in matlab is:' image_filename])
 %todo - check if we cant load this once only (when engine is created)
+profile on
+
 load data/paperdoll_pipeline.mat config;
 addpath(genpath('.'))
 input_image = imread(image_filename);
@@ -24,6 +26,10 @@ save('names.mat','label_names')
 save('pose.mat','pose')
 %show_parsing(result.image, result.final_labeling, result.refined_labels);
 save('output.mat','result')
+
+profile off
+profsave(profile('info'),'myprofile_results')
+
 return
 
 
