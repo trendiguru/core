@@ -37,23 +37,11 @@ RUN wget https://bootstrap.pypa.io/get-pip.py
 RUN python get-pip.py
 RUN pip install pymongo
 RUN pip install ipython
-
 RUN pip install numpy
 RUN pip install python-dateutil
 RUN pip install pyparsing
 RUN pip install pytz
 RUN pip install matplotlib
-
-#genderizer, bayes is for text analysis - helper func to generate training files
-#at this point not necessary
-#RUN pip install genderizer
-#RUN pip install  naiveBayesClassifier
-
-#these scripts are to check port forwarding with a single command
-RUN  echo 'nmap -p 27017 localhost' > portmongo.sh
-RUN chmod o+x portmongo.sh
-RUN  echo 'nmap -p 6379 localhost' > portredis.sh
-RUN chmod o+x portredis.sh
 
 RUN apt-get -qq install -y build-essential
 RUN apt-get -qq install -y cmake
@@ -62,7 +50,6 @@ RUN apt-get -qq install -y yasm
 RUN apt-get -qq install -y libpng12-dev
 RUN apt-get -qq install -y python-dev
 RUN apt-get -qq install -y python-numpy
-
 
 RUN  mkdir -p /opt/OpenCV
 RUN  cd /opt/OpenCV
@@ -91,6 +78,4 @@ RUN  make install | tee installout.txt
 
 RUN  sh -c 'echo "/usr/local/lib" > /etc/ld.so.conf.d/opencv.conf'
 RUN  ldconfig
-RUN  echo "OpenCV 3.0.0 is ready to be used"
-
-
+RUN  echo "OpenCV 3.0.0 is ready to be used (maybe, check python->import cv2"
