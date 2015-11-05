@@ -156,14 +156,13 @@ RUN chmod o+x portredis.sh
 ################
 #numpy scipy
 ###############
-RUN sudo apt-get install -y \
-    python-numpy  \
-    python-scipy  \
-    python-matplotlib   \
-    ipython   \
-    ipython-notebook    \
-    python-pandas     \
-    python-sympy
+RUN sudo apt-get install -y python-numpy
+RUN sudo apt-get install -y python-scipy
+RUN sudo apt-get install -y python-matplotlib
+RUN sudo apt-get install -y ipython
+RUN sudo apt-get install -y ipython-notebook
+RUN sudo apt-get install -y python-pandas
+RUN sudo apt-get install -y python-sympy
 #    python-nose
 
 
