@@ -76,7 +76,7 @@ class ShopStyleDownloader():
         cats_to_dl = [anc["id"] for anc in ancestors]
         for cat in cats_to_dl:
             self.download_category(cat, collection)
-        self.wait_for(90, collection)
+        self.wait_for(collection)
         self.db.download_data.find_one_and_update({"criteria": collection},
                                                   {'$set': {"end_time": datetime.datetime.now()}})
         tmp = self.db.download_data.find({"criteria": collection})[0]
@@ -88,32 +88,24 @@ class ShopStyleDownloader():
         self.db.drop_collection("fp_in_process")
         print collection + " " + type + " DOWNLOAD DONE!!!!!\n"
 
-    def wait_for(self, approx, collection):
+    def wait_for(self, collection):
         x = raw_input("waitfor enabled? (Y/N)")
         if x == "n" or x == "N":
             return
-        time.sleep(approx * 60)  # wait for the cralwer to download the data
-        dl_data = self.db.download_data.find({"criteria": collection})[0]
-        total_items = self.db[collection].count()
-        downloaded_items = dl_data["items_downloaded"]
-        new_items = dl_data["new_items"]
-        insert_errors = dl_data["errors"]
-        sub = downloaded_items - insert_errors
-        if total_items > sub:
-            time.sleep(new_items / 100)
-        else:
-            check = 0
-            while sub > total_items:
-                if check > 24:
-                    break
-                print "\ncheck number " + str(check)
-                print "\nfp workers didn't finish yet\nWaiting 5 min before checking again\n"
-                check += 1
-                print "check number" + str(check)
-                time.sleep(300)
-                total_items = self.db[collection].count()
-                insert_errors = dl_data["errors"]
-                sub = downloaded_items - insert_errors
+        print "Waiting for 15 min before first check"
+        total_items_before = self.db[collection].count()
+        time.sleep(900)
+        total_items_after = self.db[collection].count()
+        check = 0
+        while total_items_before != total_items_after:
+            if check > 36:
+                break
+            print "\ncheck number " + str(check)
+            print "\nfp workers didn't finish yet\nWaiting 5 min before checking again\n"
+            check += 1
+            time.sleep(300)
+            total_items_before = total_items_after
+            total_items_after = self.db[collection].count()
 
     def build_category_tree(self, collection):
         parameters = {"pid": PID, "filters": "Category"}
