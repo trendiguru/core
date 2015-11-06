@@ -14,25 +14,18 @@ RUN apt-get install -y cmake
 RUN apt-get install -y unzip
 
 #PYTHON NUMPY
-RUN wget https://bootstrap.pypa.io/get-pip.py
-RUN python get-pip.py
-RUN pip install pymongo
+#RUN wget https://bootstrap.pypa.io/get-pip.py
+#RUN python get-pip.py
+RUN apt-get install -y python-pip
 RUN pip install ipython
 RUN apt-get install -y python-dev
 #RUN apt-get install -y python-numpy
 #RUN easy_install numpy
 RUN pip install numpy
-RUN pip install python-dateutil
-RUN pip install pyparsing
-RUN pip install pytz
+#RUN pip install python-dateutil
+#RUN pip install pyparsing
+#RUN pip install pytz
 #RUN pip install matplotlib
-
-
-#these scripts are to check port forwarding with a single command
-RUN  echo 'nmap -p 27017 localhost' > portmongo.sh
-RUN chmod o+x portmongo.sh
-RUN  echo 'nmap -p 6379 localhost' > portredis.sh
-RUN chmod o+x portredis.sh
 
 ##############################
 #OPENCV
@@ -49,13 +42,13 @@ RUN apt-get install -y build-essential
 RUN apt-get install -y pkg-config
 RUN apt-get install -y yasm
 RUN apt-get install -y wget
-RUN apt-get install -y libpng-dev
-RUN apt-get install -y zlib1g-dev
-RUN apt-get install -y freetype*
-RUN apt-get install -y python-tk
-RUN apt-get install -y screen
+#RUN apt-get install -y libpng-dev
+#RUN apt-get install -y zlib1g-dev
+#RUN apt-get install -y freetype*
+#RUN apt-get install -y python-tk
+#RUN apt-get install -y screen
 #cmap is  for debugging port forwarding
-RUN apt-get install -y nmap
+#RUN apt-get install -y nmap
 #RUN apt-get install -y checkinstall
 RUN apt-get install -y cmake
 RUN apt-get install -y unzip
@@ -67,9 +60,9 @@ RUN apt-get install -y python-dev
 RUN apt-get install -y python-numpy
 RUN apt-get autoclean
 RUN rm -rf /var/lib/apt/lists/*
-RUN wget https://bootstrap.pypa.io/get-pip.py
-RUN python get-pip.py
-RUN pip install pymongo
+#RUN wget https://bootstrap.pypa.io/get-pip.py
+#RUN python get-pip.py
+RUN apt-get install python-pip
 RUN pip install ipython
 RUN pip install numpy
 RUN pip install python-dateutil
@@ -86,8 +79,6 @@ RUN apt-get -qq install -y python-dev
 RUN apt-get -qq install -y python-numpy
 
 RUN  mkdir -p /opt/OpenCV
-RUN  cd /opt/OpenCV
-RUN pwd
 WORKDIR /opt/OpenCV
 RUN  wget -O OpenCV3.0.zip https://codeload.github.com/Itseez/opencv/zip/3.0.0
 RUN  unzip OpenCV3.0.zip
@@ -110,8 +101,8 @@ RUN  cmake  .. | tee cmakeout.txt
 RUN  make -j8 | tee makeout.txt
 RUN  make install | tee installout.txt
 
-RUN  sh -c 'echo "/usr/local/lib" > /etc/ld.so.conf.d/opencv.conf'
-RUN  ldconfig
+#RUN  sh -c 'echo "/usr/local/lib" > /etc/ld.so.conf.d/opencv.conf'
+#RUN  ldconfig
 RUN  echo "OpenCV 3.0.0 is ready to be used (maybe, check python->import cv2"
 
 
@@ -162,9 +153,9 @@ RUN sudo apt-get install -y python-scipy
 #RUN sudo apt-get install -y scipy
 RUN sudo apt-get install -y python-matplotlib
 RUN sudo apt-get install -y ipython
-RUN sudo apt-get install -y ipython-notebook
-RUN sudo apt-get install -y python-pandas
-RUN sudo apt-get install -y python-sympy
+#RUN sudo apt-get install -y ipython-notebook
+#RUN sudo apt-get install -y python-pandas
+#RUN sudo apt-get install -y python-sympy
 #    python-nose
 
 
