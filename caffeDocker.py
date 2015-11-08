@@ -27,5 +27,5 @@ def isImgRelevant(url):
     intersection = [i for i in catID if i in relevantCaffeLabels]
     if intersection is None:
         return False
-    results = db.caffeResults.delete_one({"url": url})
+    db.caffeResults.delete_one({"url": url})
     return True
