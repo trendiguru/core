@@ -25,7 +25,7 @@ MAX_SET_SIZE = MAX_OFFSET + MAX_RESULTS_PER_PAGE
 class ShopStyleDownloader():
     def __init__(self):
         # connect to db
-        self.db = pymongo.MongoClient().mydb
+        self.db = pymongo.MongoClient('mongodb1-instance-1').mydb
 
     def run_by_filter(self):
         # Let's try an initial category ("womens-suits")
