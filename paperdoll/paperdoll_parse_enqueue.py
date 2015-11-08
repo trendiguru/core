@@ -50,6 +50,7 @@ def paperdoll_enqueue(img_url_or_cv2_array, filename=None, async=True, queue=Non
     return job1
 
 
+
 def show_parse(filename=None, img_array=None):
     if filename is not None:
         img_array = cv2.imread(filename)
@@ -58,6 +59,8 @@ def show_parse(filename=None, img_array=None):
         maxVal = 31  # 31 categories in paperdoll
         scaled = np.multiply(img_array, int(255 / maxVal))
         dest = cv2.applyColorMap(scaled, cv2.COLORMAP_RAINBOW)
+        print('writing parse_img.jpg',img_array)
+        cv2.imwrite('parse_img.jpg',img_array)
         cv2.imshow("dest", dest)
         cv2.waitKey(0)
 
@@ -116,3 +119,6 @@ def callback_example(queue_name,previous_job_id,*args,**kwargs):
     logging.warning('this is the callback calling')
     return (567,job1_answers)
 
+if __name__=="__main__"
+    img,labels,pose=paperdoll_enqueue('http://clothingparsing.com/sessions/ff57f475a232acfc1979d9aa2ad161afe6b9c91b/image.jpg',async=False)
+    show_parse(img_array=img)

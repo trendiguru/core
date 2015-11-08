@@ -69,20 +69,22 @@ classifier_to_category_dict = {"dressClassifier.xml": ["dresses", "bridal-mother
                                                        "mens-big-and-tall-coats-and-jackets",
                                                        "mens-big-and-tall-blazers"]}
 
-db_relevant_items = ['women', 'womens-clothes', 'womens-suits', 'shorts', 'petites', 'blazers', 'tees-and-tshirts',
-                     'jeans', 'bootcut-jeans', 'classic-jeans', 'cropped-jeans', 'distressed-jeans',
-                     'flare-jeans', 'relaxed-jeans', 'skinny-jeans', 'straight-leg-jeans', 'stretch-jeans',
-                     'womens-tops', 'button-front-tops', 'camisole-tops', 'cashmere-tops', 'halter-tops',
-                     'longsleeve-tops', 'shortsleeve-tops', 'sleeveless-tops', 'tank-tops', 'tunic-tops', 'polo-tops',
-                     'skirts', 'mini-skirts', 'mid-length-skirts', 'long-skirts',
-                     'sweaters', 'sweatshirts', 'cashmere-sweaters', 'cardigan-sweaters', 'crewneck-sweaters',
-                     'turleneck-sweaters', 'v-neck-sweaters',
-                     'womens-pants', 'wide-leg-pants', 'skinny-pants', 'dress-pants', 'cropped-pants', 'casual-pants',
-                     'dresses', 'cocktail-dresses', 'day-dresses', 'evening-dresses',
-                     'jackets', 'casual-jackets', 'leather-jackets', 'vests',
-                     'coats', 'womens-outerwear', 'fur-and-shearling-coats', 'leather-and-suede-coats',
-                     'puffer-coats', 'raincoats-and-trenchcoats', 'wool-coats',
-                     'leggings']
+# db_relevant_items = ['women', 'womens-clothes', 'womens-suits', 'shorts', 'petites', 'blazers', 'tees-and-tshirts',
+# 'jeans', 'bootcut-jeans', 'classic-jeans', 'cropped-jeans', 'distressed-jeans',
+#                      'flare-jeans', 'relaxed-jeans', 'skinny-jeans', 'straight-leg-jeans', 'stretch-jeans',
+#                      'womens-tops', 'button-front-tops', 'camisole-tops', 'cashmere-tops', 'halter-tops',
+#                      'longsleeve-tops', 'shortsleeve-tops', 'sleeveless-tops', 'tank-tops', 'tunic-tops', 'polo-tops',
+#                      'skirts', 'mini-skirts', 'mid-length-skirts', 'long-skirts',
+#                      'sweaters', 'sweatshirts', 'cashmere-sweaters', 'cardigan-sweaters', 'crewneck-sweaters',
+#                      'turleneck-sweaters', 'v-neck-sweaters',
+#                      'womens-pants', 'wide-leg-pants', 'skinny-pants', 'dress-pants', 'cropped-pants', 'casual-pants',
+#                      'dresses', 'cocktail-dresses', 'day-dresses', 'evening-dresses',
+#                      'jackets', 'casual-jackets', 'leather-jackets', 'vests',
+#                      'coats', 'womens-outerwear', 'fur-and-shearling-coats', 'leather-and-suede-coats',
+#                      'puffer-coats', 'raincoats-and-trenchcoats', 'wool-coats',
+#                      'leggings']
+
+db_relevant_items = ['womens-shoes', 'mens-shoes', 'women', 'men']
 
 # paperdoll items' legends
 
@@ -121,6 +123,10 @@ nonlogic_clothing = [{'pants': ['jeans', 'stockings', 'jumper', 'suit', 'tights'
                      {'dress': ['t-shirt', 'blouse', 'jeans', 'shirt', 'bodysuit', 'jumper', 'suit',
                                 'romper', 'shorts', 'top', 'skirt']},
                      {'jacket': ['blazer', 'cape', 'cardigan', 'sweater', 'sweatshirt', 'vest']}]
+
+caffe_relevant = ['hoopskirt', 'jean', 'blue_jean', 'denim', 'jersey', 'T-shirt', 'tee shirt', 'kimono', 'lab coat',
+                  'tank suit', 'maillot', 'miniskirt', 'mini', 'overskirt', 'pajama', 'pyjama', "pj's", 'jammies',
+                  'poncho', 'sarong', 'suit', 'suit of clothes', 'sweatshirt']
 
 # for web bounding box interface
 # this is for going to the previous item, highest numbered image
