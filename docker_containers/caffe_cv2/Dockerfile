@@ -232,8 +232,12 @@ RUN  unzip master.zip
 RUN  cd gflags-master
 RUN  mkdir build
 RUN  cd build
+#this export is not enough to force -fPIC
 RUN  export CXXFLAGS="-fPIC"
 RUN  cmake ..
+#this seems to suffice to force -fPIC (needed since otherwise the .a generated is no good for caffe)
+RUN  sed -i 's/CMAKE_CXX_FLAGS:STRING=/CMAKE_CXX_FLAGS:STRING=-fPIC/' CMakeCache.txt
+RUN  sed -i 's/CXX :=/CXX ?=/' Makefile
 RUN  make VERBOSE=1
 RUN  make
 RUN  make install
