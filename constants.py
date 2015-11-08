@@ -82,7 +82,7 @@ classifier_to_category_dict = {"dressClassifier.xml": ["dresses", "bridal-mother
 #                      'puffer-coats', 'raincoats-and-trenchcoats', 'wool-coats',
 #                      'leggings']
 
-db_relevant_items = ['womens-shoes', 'mens-shoes']
+db_relevant_items = ['womens-shoes', 'mens-shoes', 'women', 'men']
 
 # paperdoll items' legends
 
