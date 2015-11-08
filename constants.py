@@ -31,6 +31,8 @@ redis_conn = Redis(host="redis1-redis-1-vm")
 redis_conn_old = Redis()
 update_collection_name = 'products'
 
+# caffe stuff
+caffeRelevantLabels = [48, 43]
 
 # fp rating related constants
 min_image_area = 400
