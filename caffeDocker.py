@@ -16,7 +16,7 @@ def isImgRelevant(url):
     '''
     db.caffeQ.insert_one({"url": url})
 
-    while (db.caffeResults.find({"url": url}).count() == 0)
+    while (db.caffeResults.find({"url": url}).count() == 0):
         time.sleep(1)
 
     results = db.caffeResults.find_one({"url": url})
