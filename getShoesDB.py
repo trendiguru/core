@@ -136,15 +136,15 @@ class ShopStyleDownloader():
             for prod in products:
                 self.db_update(prod)
             filter_params["offset"] += MAX_RESULTS_PER_PAGE
-        print("Done. Total Product count: %i" % self.db.products.count())
+        print("Done. Total Product count: %i" % self.db.shoes.count())
 
     def archive_products(self):
         # this process iterate our whole DB (after daily download) and shifts unwanted items to the archive collection
         current_version = self.db.globals.find_one({'dl_version': {'$exists': 1}})['dl_version']
-        for prod in self.db.products.find():
+        for prod in self.db.shoes.find():
             if prod['dl_version'] is not current_version:
                 self.db.archive.insert(prod)
-                self.db.products.remove({'id': prod['id']})
+                self.db.shoes.remove({'id': prod['id']})
         self.db.globals.update({'dl_version': {'$exists': 1}}, {"$inc": {"dl_version": 1}})
 
     def delayed_requests_get(self, url, _params):
@@ -160,7 +160,7 @@ class ShopStyleDownloader():
         ss_fields_dict = {}
         for field in prod:
             ss_fields_dict[field] = prod[field]
-        self.db.products.update({'id': prod['id']}, {'$set': ss_fields_dict})
+        self.db.shoes.update({'id': prod['id']}, {'$set': ss_fields_dict})
 
     def insert_and_fingerprint(self, prod):
         """
@@ -169,12 +169,12 @@ class ShopStyleDownloader():
         :return: Nothing, void function
         """
         db_fingerprint_nadav.run_fp_on_db_product(prod)  # TODO: understand witch function does that
-        self.db.products.insert(prod)  # maybe try-except
+        self.db.shoes.insert(prod)  # maybe try-except
 
     def db_update(self, prod):
         current_dl_version = self.db.globals.find_one({'dl_version': {'$exists': 1}})['dl_version']
         # case 1: new product - try to update, if does not exists, insert a new product and add our fields
-        prod_in_products = self.db.products.find_one({"id": prod["id"]})
+        prod_in_products = self.db.shoes.find_one({"id": prod["id"]})
         if prod_in_products is None:
             # case 1.1: try finding this product in the archive
             prod_in_archive = self.db.archive.find_one({'id': prod["id"]})
@@ -182,7 +182,7 @@ class ShopStyleDownloader():
                 self.insert_and_fingerprint(prod)
             else:  # means the item is in the archive
                 if prod_in_archive["fp_version"] is constants.fingerprint_version:
-                    self.db.products.insert(prod_in_archive)
+                    self.db.shoes.insert(prod_in_archive)
                     self.shopstyle_fields_update(prod)
                 else:
                     self.insert_and_fingerprint(prod)
@@ -192,7 +192,7 @@ class ShopStyleDownloader():
             # Thus - update only shopstyle's fields
             if prod_in_products["lastModified"] != prod["lastModified"]:  # assuming shopstyle update it correctly
                 self.shopstyle_fields_update(prod)
-        self.db.products.update({'id': prod["id"]}, {'$set': {'dl_version': current_dl_version}})
+        self.db.shoes.update({'id': prod["id"]}, {'$set': {'dl_version': current_dl_version}})
 
 
 class UrlParams(collections.MutableMapping):
