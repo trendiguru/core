@@ -108,18 +108,16 @@ if __name__ == "__main__":
             'http://www.wantdresses.com/wp-content/uploads/2015/09/gowns-blue-picture-more-detailed-picture-about-awesome-strapless-awesome-prom-dresses.jpg']
     i = 0
     start_time = time.time()
-    queue = Queue('paperdoll_test', connection=redis_conn)
 
     for url in urls:
         i+=1
         print('url #'+str(i)+' '+url)
-    #    img, labels, pose = paperdoll_enqueue(url, async = True,queue=queue)
-       # n = paperdoll_enqueue(url, async = True,queue=queue)
         img, labels, pose = paperdoll_enqueue(url, async = True,use_tg_worker=True)
 #        print('labels:'+str(labels))
 #        print('')
     elapsed_time = time.time() - start_time
-    print('tot elapsed:'+str(elapsed_time)+',per image:'+str(float(elapsed_time)/len(urls)))
+#for timing test see unit test
+#    print('tot elapsed:'+str(elapsed_time)+',per image:'+str(float(elapsed_time)/len(urls)))
 
         #        show_max(img, labels)
 #        show_parse(img_array=img)
