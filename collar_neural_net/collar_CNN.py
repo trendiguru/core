@@ -126,6 +126,6 @@ for layer_weight, layer in zip(layer_weights, model.layers):
 score = model.evaluate(X_train, Y_train, batch_size=16)
 # model.save_weights('model_weight.hdf5', overwrite_weights)
 
-# layer_weights = [layer.get_weights() for layer in model.layers]
-# with open('model_weights_pickled', 'w') as weights_file:
-#     pickle.dump(layer_weights, weights_file)
+layer_weights = [layer.get_weights() for layer in model.layers]
+with open('model_weights_pickled', 'w') as weights_file:
+    pickle.dump(layer_weights, weights_file)

@@ -9,7 +9,7 @@ from keras.layers.convolutional import Convolution2D, MaxPooling2D
 from keras.optimizers import SGD, Adagrad, Adadelta, RMSprop, Adam
 
 current_directory_name = os.getcwd()
-weights_file_path = current_directory_name + '/weight.hdf5'
+weights_file_path = current_directory_name + '/saved_weight.hdf5'
 
 
 def collar_set_creator(image):
