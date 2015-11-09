@@ -77,7 +77,7 @@ Y_train = output_vector
 
 
 
-size_batch = 10
+size_batch = 32
 epoches_number = 1000
 overwrite_weights = True
 testing_amount = 0.2
@@ -85,25 +85,25 @@ testing_amount = 0.2
 model = Sequential()
 # input: 100x100 images with 3 channels -> (3, 100, 100) tensors.
 # this applies 32 convolution filters of size 3x3 each.
-model.add(Convolution2D(9, 3, 3, border_mode='valid', input_shape=(3, 32, 32)))
+model.add(Convolution2D(8, 3, 3, border_mode='valid', input_shape=(3, 32, 32)))
 model.add(Activation('hard_sigmoid'))
 # model.add(MaxPooling2D(pool_size=(2, 2)))
-model.add(Convolution2D(9, 3, 3, border_mode='valid'))
+model.add(Convolution2D(8, 3, 3, border_mode='valid'))
 model.add(Activation('hard_sigmoid'))
 model.add(MaxPooling2D(pool_size=(2, 2)))
 # model.add(Dropout(0.25))
 
-model.add(Convolution2D(9, 3, 3, border_mode='valid'))
+model.add(Convolution2D(8, 3, 3, border_mode='valid'))
 model.add(Activation('hard_sigmoid'))
 # model.add(MaxPooling2D(pool_size=(2, 2)))
-model.add(Convolution2D(9, 3, 3))
+model.add(Convolution2D(8, 3, 3))
 model.add(Activation('hard_sigmoid'))
 model.add(MaxPooling2D(pool_size=(2, 2)))
 # model.add(Dropout(0.25))
 
 model.add(Flatten())
 # Note: Keras does automatic shape inference.
-model.add(Dense(256))
+model.add(Dense(64))
 model.add(Activation('hard_sigmoid'))
 # model.add(Dropout(0.5))
 
@@ -114,9 +114,9 @@ optimizer_method = Adadelta()#SGD(lr=0.00000001, decay=1e-6, momentum=0.9, neste
 model.compile(loss='categorical_crossentropy', optimizer=optimizer_method)
 
 EarlyStopping(monitor='val_loss', patience=0, verbose=0)
-# checkpointer = ModelCheckpoint(os.path.abspath(__file__) + 'weights.hdf5', verbose=1, save_best_only=True)
+checkpointer = ModelCheckpoint(os.path.abspath(__file__) + 'weights.hdf5', verbose=1, save_best_only=True)
 
-model.fit(X_train, Y_train, batch_size=size_batch, nb_epoch=epoches_number, validation_split=testing_amount, show_accuracy=True)#, callbacks=[checkpointer])
+model.fit(X_train, Y_train, batch_size=size_batch, nb_epoch=epoches_number, validation_split=testing_amount, show_accuracy=True, callbacks=[checkpointer])
 # score = model.evaluate(X_test, y_test, batch_size=16)
 model.save_weights('model_weight.hdf5', overwrite_weights)
 
