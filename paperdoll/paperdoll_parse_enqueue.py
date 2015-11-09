@@ -72,30 +72,6 @@ def show_max(parsed_img, labels):
     print('max label val:' + str(maxlabelval))
 
 
-#run a parallelization test
-if __name__ == "__main__":
-    urls = ['http://i.imgur.com/ahFOgkm.jpg',\
-           'http://www.wantdresses.com/wp-content/uploads/2015/09/group-of-vsledky-obrzk-google-pro-httpwwwoblectesecz-awesome-prom-dresses.jpg',\
-            'http://www.wantdresses.com/wp-content/uploads/2015/07/rs_634x926-140402114112-634-8Prom-Dress-ls.4214.jpg',\
-            'http://www.wantdresses.com/wp-content/uploads/2015/09/group-of-vsledky-obrzk-google-pro-httpwwwoblectesecz-awesome-prom-dresses.jpg',\
-            'http://www.wantdresses.com/wp-content/uploads/2015/09/gowns-blue-picture-more-detailed-picture-about-awesome-strapless-awesome-prom-dresses.jpg']
-    i = 0
-    start_time = time.time()
-    queue = Queue('paperdoll_test', connection=redis_conn)
-
-    for url in urls:
-        i+=1
-        print('url #'+str(i)+' '+url)
-    #    img, labels, pose = paperdoll_enqueue(url, async = True,queue=queue)
-       # n = paperdoll_enqueue(url, async = True,queue=queue)
-        img, labels, pose = paperdoll_enqueue(url, async = True,use_tg_worker=True)
-#        print('labels:'+str(labels))
-#        print('')
-    elapsed_time = time.time() - start_time
-    print('tot elapsed:'+str(elapsed_time)+',per image:'+str(float(elapsed_time)/len(urls)))
-
-        #        show_max(img, labels)
-#        show_parse(img_array=img)
 
 
 import time
@@ -119,7 +95,29 @@ def callback_example(queue_name,previous_job_id,*args,**kwargs):
     logging.warning('this is the callback calling')
     return (567,job1_answers)
 
-
+    #run a parallelization test
 if __name__ == "__main__":
+
     img,labels,pose=paperdoll_enqueue('http://clothingparsing.com/sessions/ff57f475a232acfc1979d9aa2ad161afe6b9c91b/image.jpg',async=False)
     show_parse(img_array=img)
+
+    urls = ['http://i.imgur.com/ahFOgkm.jpg',\
+           'http://www.wantdresses.com/wp-content/uploads/2015/09/group-of-vsledky-obrzk-google-pro-httpwwwoblectesecz-awesome-prom-dresses.jpg',\
+            'http://www.wantdresses.com/wp-content/uploads/2015/07/rs_634x926-140402114112-634-8Prom-Dress-ls.4214.jpg',\
+            'http://www.wantdresses.com/wp-content/uploads/2015/09/group-of-vsledky-obrzk-google-pro-httpwwwoblectesecz-awesome-prom-dresses.jpg',\
+            'http://www.wantdresses.com/wp-content/uploads/2015/09/gowns-blue-picture-more-detailed-picture-about-awesome-strapless-awesome-prom-dresses.jpg']
+    i = 0
+    start_time = time.time()
+
+    for url in urls:
+        i+=1
+        print('url #'+str(i)+' '+url)
+        img, labels, pose = paperdoll_enqueue(url, async = True,use_tg_worker=True)
+#        print('labels:'+str(labels))
+#        print('')
+    elapsed_time = time.time() - start_time
+#for timing test see unit test
+#    print('tot elapsed:'+str(elapsed_time)+',per image:'+str(float(elapsed_time)/len(urls)))
+
+        #        show_max(img, labels)
+#        show_parse(img_array=img)
