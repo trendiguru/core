@@ -13,13 +13,14 @@ import logging
 import cv2
 import numpy as np
 
+import caffeDocker
 import geometry
 import constants
 import Utils
 import ccv_facedetector as ccv
 
 
-def image_is_relevant(image):
+def image_is_relevant(image, image_url):
     """
     main engine function of 'doorman'
     :param image: nXmX3 dim ndarray representing the standard resized image in BGR colormap
@@ -32,7 +33,10 @@ def image_is_relevant(image):
     """
     Relevance = collections.namedtuple('relevance', 'is_relevant faces')
     faces = find_face(image, 10)
-    return Relevance(len(faces) > 0, faces)
+    if len(faces) == 0:
+        return Relevance(caffeDocker.relevant_caffe_labels(image_url), [])
+    else:
+        return Relevance(True, faces)
 
 
 def find_face(image_arr, max_num_of_faces=100, method='ccv'):

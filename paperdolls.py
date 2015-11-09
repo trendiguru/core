@@ -278,7 +278,7 @@ def start_process(page_url, image_url):
 
     # NEW_IMAGE !!
     print "Start process image shape: " + str(image.shape)
-    relevance = background_removal.image_is_relevant(image)
+    relevance = background_removal.image_is_relevant(image, image_url)
     image_dict = {'image_urls': [image_url], 'relevant': relevance.is_relevant,
                   'image_hash': image_hash, 'page_urls': [page_url], 'people': []}
     if relevance.is_relevant:
@@ -382,7 +382,7 @@ def get_results_now(page_url, image_url):
 
     # NEW_IMAGE !!
     clean_image = copy.copy(image)
-    relevance = background_removal.image_is_relevant(image)
+    relevance = background_removal.image_is_relevant(image, image_url)
     image_dict = {'image_urls': [image_url], 'relevant': relevance.is_relevant,
                   'image_hash': image_hash, 'page_urls': [page_url], 'people': []}
     if relevance.is_relevant:
