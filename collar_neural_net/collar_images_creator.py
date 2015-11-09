@@ -2,7 +2,7 @@ import cv2
 import numpy as np
 # import scipy as sp
 import os
-face_cascade = cv2.CascadeClassifier('/home/nate/core/classifiers/haarcascade_frontalface_default.xml')
+face_cascade = cv2.CascadeClassifier('/home/nate/Desktop/TrendiGuru/core/classifier_stuff/classifiers_to_test/face/haarcascade_frontalface_default.xml')
 # eye_cascade = cv2.CascadeClassifier('haarcascade_eye.xml')
 # current_directory = os.path.abspath()
 
@@ -35,7 +35,7 @@ print offset_range
 a = (a-1)/2
 image_number = 0
 for image_file_name in only_image_files:
-    image = cv2.imread(image_file_name,1)
+    image = cv2.imread(image_file_name, 1)
     face = face_cascade.detectMultiScale(image, 1.3, 5)#[0]
     print image_file_name
 
