@@ -286,22 +286,27 @@ def start_process(page_url, image_url):
             relevant_faces = relevance.faces.tolist()
         else:
             relevant_faces = relevance.faces
-        idx = 0
-        start = time.time()
-        for face in relevant_faces:
-            person = {'face': face, 'person_id': str(bson.ObjectId()), 'person_idx': idx, 'items': []}
-            image_copy = person_isolation(image, face)
-            print "start process image-copy shape: " + str(image_copy.shape)
+        if len(relevant_faces) > 0:
+            # There are faces
+            idx = 0
+            for face in relevant_faces:
+                person = {'face': face, 'person_id': str(bson.ObjectId()), 'person_idx': idx, 'items': []}
+                image_copy = person_isolation(image, face)
+                image_dict['people'].append(person)
+                paper_job = paperdoll_parse_enqueue.paperdoll_enqueue(image_copy, person['person_id'])
+                q1.enqueue(from_paperdoll_to_similar_results, person['person_id'], paper_job.id, depends_on=paper_job)
+                idx += 1
+        else:
+            # no faces, only general positive human detection
+            person = {'face': [], 'person_id': str(bson.ObjectId()), 'person_idx': 0, 'items': []}
             image_dict['people'].append(person)
-            paper_job = paperdoll_parse_enqueue.paperdoll_enqueue(image_copy, person['person_id'])
+            paper_job = paperdoll_parse_enqueue.paperdoll_enqueue(image, person['person_id'])
             q1.enqueue(from_paperdoll_to_similar_results, person['person_id'], paper_job.id, depends_on=paper_job)
-            idx += 1
     else:  # if not relevant
         logging.warning('image is not relevant, but stored anyway..')
         images.insert(image_dict)
         return
     iip.insert(image_dict)
-    print "Total time to iip.insert = {0}".format(time.time() - start)
 
 
 def from_paperdoll_to_similar_results(person_id, paper_job_id, num_of_matches=100):
