@@ -128,7 +128,7 @@ caffe_relevant_strings = ['hoopskirt', 'jean', 'blue_jean', 'denim', 'jersey', '
                           'lab coat', 'tank suit', 'maillot', 'miniskirt', 'mini', 'overskirt', 'pajama', 'pyjama',
                           "pj's", 'jammies', 'poncho', 'sarong', 'suit', 'suit of clothes', 'sweatshirt']
 
-caffe_relevant_numbers = [602, 609, 611, 615, 618, 639, 640, 656, 690, 698, 736, 776, 835, 842]
+caffe_relevant_numbers = [601, 608, 610, 614, 617, 638, 639, 655, 689, 697, 735, 775, 834, 841]
 
 # for web bounding box interface
 # this is for going to the previous item, highest numbered image
