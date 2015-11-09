@@ -124,9 +124,11 @@ nonlogic_clothing = [{'pants': ['jeans', 'stockings', 'jumper', 'suit', 'tights'
                                 'romper', 'shorts', 'top', 'skirt']},
                      {'jacket': ['blazer', 'cape', 'cardigan', 'sweater', 'sweatshirt', 'vest']}]
 
-caffe_relevant = ['hoopskirt', 'jean', 'blue_jean', 'denim', 'jersey', 'T-shirt', 'tee shirt', 'kimono', 'lab coat',
-                  'tank suit', 'maillot', 'miniskirt', 'mini', 'overskirt', 'pajama', 'pyjama', "pj's", 'jammies',
-                  'poncho', 'sarong', 'suit', 'suit of clothes', 'sweatshirt']
+caffe_relevant_strings = ['hoopskirt', 'jean', 'blue_jean', 'denim', 'jersey', 'T-shirt', 'tee shirt', 'kimono',
+                          'lab coat', 'tank suit', 'maillot', 'miniskirt', 'mini', 'overskirt', 'pajama', 'pyjama',
+                          "pj's", 'jammies', 'poncho', 'sarong', 'suit', 'suit of clothes', 'sweatshirt']
+
+caffe_relevant_numbers = [601, 608, 610, 614, 617, 638, 639, 655, 689, 697, 735, 775, 834, 841]
 
 # for web bounding box interface
 # this is for going to the previous item, highest numbered image

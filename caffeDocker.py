@@ -5,7 +5,7 @@ import time
 import constants
 
 db = constants.db
-relevant_caffe_labels = constants.caffe_relevant
+relevant_caffe_labels = constants.caffe_relevant_numbers
 
 
 def is_person_in_img(url):
