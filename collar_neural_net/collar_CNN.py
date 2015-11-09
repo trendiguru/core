@@ -86,25 +86,25 @@ testing_amount = 0.2
 model = Sequential()
 # input: 100x100 images with 3 channels -> (3, 100, 100) tensors.
 # this applies 32 convolution filters of size 3x3 each.
-model.add(Convolution2D(9, 3, 3, border_mode='valid', input_shape=(3, 32, 32)))
+model.add(Convolution2D(8, 3, 3, border_mode='valid', input_shape=(3, 32, 32)))
 model.add(Activation('hard_sigmoid'))
 # model.add(MaxPooling2D(pool_size=(2, 2)))
-model.add(Convolution2D(9, 3, 3, border_mode='valid'))
+model.add(Convolution2D(8, 3, 3, border_mode='valid'))
 model.add(Activation('hard_sigmoid'))
 model.add(MaxPooling2D(pool_size=(2, 2)))
 # model.add(Dropout(0.25))
 
-model.add(Convolution2D(9, 3, 3, border_mode='valid'))
+model.add(Convolution2D(8, 3, 3, border_mode='valid'))
 model.add(Activation('hard_sigmoid'))
 # model.add(MaxPooling2D(pool_size=(2, 2)))
-model.add(Convolution2D(9, 3, 3))
+model.add(Convolution2D(8, 3, 3))
 model.add(Activation('hard_sigmoid'))
 model.add(MaxPooling2D(pool_size=(2, 2)))
 # model.add(Dropout(0.25))
 
 model.add(Flatten())
 # Note: Keras does automatic shape inference.
-model.add(Dense(256))
+model.add(Dense(64))
 model.add(Activation('hard_sigmoid'))
 # model.add(Dropout(0.5))
 
