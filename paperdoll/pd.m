@@ -31,6 +31,7 @@ save('pose.mat','pose')
 save('output.mat','result')
 
 profile off
+profile('info')
 profsave(profile('info'),'myprofile_results')
 
 return
