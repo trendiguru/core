@@ -119,6 +119,7 @@ def callback_example(queue_name,previous_job_id,*args,**kwargs):
     logging.warning('this is the callback calling')
     return (567,job1_answers)
 
-if __name__=="__main__"
+
+if __name__ == "__main__":
     img,labels,pose=paperdoll_enqueue('http://clothingparsing.com/sessions/ff57f475a232acfc1979d9aa2ad161afe6b9c91b/image.jpg',async=False)
     show_parse(img_array=img)
