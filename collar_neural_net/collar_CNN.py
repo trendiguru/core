@@ -114,7 +114,7 @@ optimizer_method = Adadelta()#SGD(lr=0.00000001, decay=1e-6, momentum=0.9, neste
 model.compile(loss='categorical_crossentropy', optimizer=optimizer_method)
 
 EarlyStopping(monitor='val_loss', patience=0, verbose=0)
-# checkpointer = ModelCheckpoint(os.path.abspath(__file__) + 'weights.hdf5', verbose=1, save_best_only=True)
+checkpointer = ModelCheckpoint(os.path.abspath(__file__) + 'weights.hdf5', verbose=1, save_best_only=True)
 
 model.fit(X_train, Y_train, batch_size=size_batch, nb_epoch=epoches_number, validation_split=testing_amount, show_accuracy=True)#, callbacks=[checkpointer])
 # score = model.evaluate(X_test, y_test, batch_size=16)
