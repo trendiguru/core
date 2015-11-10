@@ -80,7 +80,7 @@ def get_parse_mask(img_url_or_cv2_array):
 
 
 def get_parse_from_matlab_parallel(image_filename, matlab_engine,use_parfor=False):
-    print('get_parse_from_ml_parallel is using name:' + image_filename+' and parfor='+str(parfor))
+    print('get_parse_from_ml_parallel is using name:' + image_filename+' and use_parfor='+str(use_parfor))
     if use_parfor:
         mask, label_names, pose = matlab_engine.pd_parfor(image_filename, nargout=3)
     else:
