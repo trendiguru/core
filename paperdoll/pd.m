@@ -4,8 +4,8 @@ function [mask,label_names,pose] = pd(image_filename)
 disp(['the image sent to pd in matlab is:' image_filename])
 %todo - check if we cant load this once only (when engine is created)
 
-N = maxNumCompThreads
-disp(['maxcompthreads:' image_filename])
+N = maxNumCompThreads;
+disp(['maxcompthreads:' N])
 profile on
 
 load data/paperdoll_pipeline.mat config;

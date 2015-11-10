@@ -101,7 +101,12 @@ def images_batch_collar_classification(images_batch, weights_file_path):
 
     optimizer_method = Adadelta()#SGD(lr=0.00000001, decay=1e-6, momentum=0.9, nesterov=True)#Adagrad()#Adadelta()#RMSprop()#Adam()
     model.compile(loss='categorical_crossentropy', optimizer=optimizer_method)
+    # with open('model_weights_pickled', 'r') as weights_file:
+    #     layer_weights = pickle.load(weights_file)
+    # for layer_weight, layer in zip(layer_weights, model.layers):
+    #     layer.set_weights(layer_weight)
     model.load_weights(weights_file_path)
+
 
 
     # for image in images_batch:
