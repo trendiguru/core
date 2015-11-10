@@ -81,7 +81,7 @@ Y_train = output_vector
 size_batch = 32
 epoches_number = 1000
 overwrite_weights = True
-testing_amount = 0.2
+testing_amount = 0.15
 
 model = Sequential()
 # input: 100x100 images with 3 channels -> (3, 100, 100) tensors.
@@ -120,9 +120,10 @@ checkpointer = ModelCheckpoint(os.path.abspath(__file__) + 'weights.hdf5', verbo
 
 
 model.fit(X_train, Y_train, batch_size=size_batch, nb_epoch=epoches_number, validation_split=testing_amount, show_accuracy=True, callbacks=[checkpointer])
-score = model.evaluate(X_train, Y_train, batch_size=16)
+score = model.evaluate(X_train, Y_train, batch_size=size_batch)
 model.save_weights('model_weight.hdf5', overwrite_weights)
 
 layer_weights = [layer.get_weights() for layer in model.layers]
 with open('model_weights_pickled', 'w') as weights_file:
     pickle.dump(layer_weights, weights_file)
+
