@@ -3,7 +3,7 @@ import time
 import numpy as np
 from rq import Queue
 import cv2
-
+import logging
 from .. import constants
 
 redis_conn = constants.redis_conn
@@ -41,7 +41,8 @@ def paperdoll_enqueue(img_url_or_cv2_array, filename=None, async=True, queue_nam
                 print('timeout waiting for pd.get_parse_mask')
                 return
         print('')
-        print('total paperdoll elapsed time:'+str(elapsed_time))
+        print('elapsed time in paperdoll_enqueue:'+str(elapsed_time))
+        #todo - see if I can return the parse, pose etc here without breaking anything (aysnc version gets job1 back so there may be expectation of getting a job instead of tuple
     else:
         print('running asynchronously (not waiting for result)')
     return job1

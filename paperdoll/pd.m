@@ -1,6 +1,8 @@
 function [mask,label_names,pose] = pd(image_filename)
 %todo - check if path already ok,
 % check if data already loaded
+disp('pd.m start')
+disp(datestr(now))
 disp(['the image sent to pd in matlab is:' image_filename])
 %todo - check if we cant load this once only (when engine is created)
 
@@ -17,6 +19,9 @@ config{1}.model.thresh = -2;
 
 result = feature_calculator.apply(config, input_sample)
 
+disp('after feature_calculator:')
+disp(datestr(now))
+
 mask = imdecode(result.final_labeling, 'png');
 mask = mask - 1;
 label_names = result.refined_labels;
@@ -30,9 +35,20 @@ save('pose.mat','pose')
 %show_parsing(result.image, result.final_labeling, result.refined_labels);
 save('output.mat','result')
 
+disp('before profile off')
+disp(datestr(now))
+
 profile off
+
+disp('after profile off')
+disp(datestr(now))
+
 profile('info')
+
 profsave(profile('info'),'myprofile_results')
+
+disp('after profsave')
+disp(datestr(now))
 
 return
 

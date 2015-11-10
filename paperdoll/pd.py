@@ -17,7 +17,7 @@ from contextlib import contextmanager
 import random
 import string
 import os
-
+import time
 import numpy as np
 import cv2
 
@@ -88,6 +88,7 @@ def get_parse_from_matlab_parallel(image_filename, matlab_engine):
 
 
 def get_parse_mask_parallel(matlab_engine, img_url_or_cv2_array, filename=None):
+    start_time=time.time()
     img = Utils.get_cv2_img_array(img_url_or_cv2_array)
     filename = filename or rand_string()
     if img is not None and cv2.imwrite(filename + '.jpg', img):
@@ -95,6 +96,8 @@ def get_parse_mask_parallel(matlab_engine, img_url_or_cv2_array, filename=None):
         print('labels:' + str(label_dict))
         mask_np = np.array(mask, dtype=np.uint8)
         pose_np = np.array(pose, dtype=np.uint8)
+        finish_time=time.time()
+        print('elapsed time in get_parse_mask_parallel:'+str(finish_time-start_time))
         return mask_np, label_dict, pose_np, filename
     else:
         raise ValueError("either image is empty or problem writing")
