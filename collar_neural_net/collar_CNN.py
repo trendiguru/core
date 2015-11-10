@@ -115,16 +115,13 @@ optimizer_method = Adadelta()#SGD(lr=0.00000001, decay=1e-6, momentum=0.9, neste
 model.compile(loss='categorical_crossentropy', optimizer=optimizer_method)
 
 EarlyStopping(monitor='val_loss', patience=0, verbose=0)
-# checkpointer = ModelCheckpoint(os.path.abspath(__file__) + 'weights.hdf5', verbose=1, save_best_only=True)
+checkpointer = ModelCheckpoint(os.path.abspath(__file__) + 'weights.hdf5', verbose=1, save_best_only=True)
 
-with open('model_weights_pickled', 'r') as weights_file:
-    layer_weights = pickle.load(weights_file)
-for layer_weight, layer in zip(layer_weights, model.layers):
-    layer.set_weights(layer_weight)
 
-# model.fit(X_train, Y_train, batch_size=size_batch, nb_epoch=epoches_number, validation_split=testing_amount, show_accuracy=True)#, callbacks=[checkpointer])
+
+model.fit(X_train, Y_train, batch_size=size_batch, nb_epoch=epoches_number, validation_split=testing_amount, show_accuracy=True, callbacks=[checkpointer])
 score = model.evaluate(X_train, Y_train, batch_size=16)
-# model.save_weights('model_weight.hdf5', overwrite_weights)
+model.save_weights('model_weight.hdf5', overwrite_weights)
 
 layer_weights = [layer.get_weights() for layer in model.layers]
 with open('model_weights_pickled', 'w') as weights_file:
