@@ -1,8 +1,8 @@
 function [mask,label_names,pose] = pd(image_filename)
 %todo - check if path already ok,
 % check if data already loaded
-start_time = cputime;
-disp('pd.m start time:')
+start_time = cputime
+disp('pd_parfor.m start time:')
 disp(datestr(now))
 disp(['the image sent to pd in matlab is:' image_filename])
 
