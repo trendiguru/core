@@ -1,14 +1,14 @@
 function [mask,label_names,pose] = pd(image_filename)
 %todo - check if path already ok,
 % check if data already loaded
-disp('pd.m start')
+disp('pd.m start time:')
 disp(datestr(now))
 disp(['the image sent to pd in matlab is:' image_filename])
 %todo - check if we cant load this once only (when engine is created)
 
 N = maxNumCompThreads;
 disp(['maxcompthreads:' N])
-profile on
+%profile on
 
 load data/paperdoll_pipeline.mat config;
 addpath(genpath('.'))
@@ -18,9 +18,6 @@ config{1}.scale = 200;
 config{1}.model.thresh = -2;
 
 result = feature_calculator.apply(config, input_sample)
-
-disp('after feature_calculator:')
-disp(datestr(now))
 
 mask = imdecode(result.final_labeling, 'png');
 mask = mask - 1;
@@ -35,21 +32,14 @@ save('pose.mat','pose')
 %show_parsing(result.image, result.final_labeling, result.refined_labels);
 save('output.mat','result')
 
-disp('before profile off')
+
+%profile off
+%profile('info')
+%note - the profsave takes 40s !!
+%profsave(profile('info'),'myprofile_results')
+
+disp('pd.m end time:')
 disp(datestr(now))
-
-profile off
-
-disp('after profile off')
-disp(datestr(now))
-
-profile('info')
-
-profsave(profile('info'),'myprofile_results')
-
-disp('after profsave')
-disp(datestr(now))
-
 return
 
 
