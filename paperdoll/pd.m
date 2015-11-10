@@ -1,9 +1,11 @@
 function [mask,label_names,pose] = pd(image_filename)
 %todo - check if path already ok,
 % check if data already loaded
+start_time = cputime;
 disp('pd.m start time:')
 disp(datestr(now))
 disp(['the image sent to pd in matlab is:' image_filename])
+
 %todo - check if we cant load this once only (when engine is created)
 
 N = maxNumCompThreads;
@@ -40,6 +42,9 @@ save('output.mat','result')
 
 disp('pd.m end time:')
 disp(datestr(now))
+end_time = cputime-start_time
+disp('pd.m elapsed time:')
+disp(end_time-start_time)
 return
 
 
