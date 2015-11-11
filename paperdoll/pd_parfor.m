@@ -6,6 +6,13 @@ disp('pd_parfor.m start time:')
 disp(datestr(now))
 disp(['the image sent to pd in matlab is:' image_filename])
 
+poolobj = gcp('nocreate'); % If no pool, do not create new one.
+if isempty(poolobj)
+    poolsize = 0
+else
+    poolsize = poolobj.NumWorkers
+end
+
 %todo - check if we cant load this once only (when engine is created)
 
 %profile on
