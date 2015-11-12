@@ -17,7 +17,7 @@ K = 0.5                     # for euclidean distance
 min_bb_to_image_area_ratio = 0.95  # if bb takes more than this fraction of image area then use  cv2.GC_INIT_WITH_RECT instead of init with mask
 
 #########
-#DB stuff
+# DB stuff
 #########
 
 parallel_matlab_queuename = 'pd'
@@ -84,8 +84,6 @@ db_relevant_items = ['women', 'womens-clothes', 'womens-suits', 'shorts', 'petit
                      'puffer-coats', 'raincoats-and-trenchcoats', 'wool-coats',
                      'leggings', 'womens-shoes', 'shoes-athletic', 'boots', 'evening-shoes', 'flats', 'pumps',
                      'womens-sneakers', 'wedges', 'mules-and-clogs', 'sandles']
-
-
 
 # paperdoll items' legends
 
