@@ -16,14 +16,14 @@ import imghdr
 from contextlib import contextmanager
 import random
 import string
-import os
 import time
+import os
+
 import numpy as np
 import cv2
 
 import matlab.engine
 from .. import Utils
-import os
 
 
 def get_parse_from_matlab(image_filename):
@@ -79,7 +79,7 @@ def get_parse_mask(img_url_or_cv2_array):
         return [[], [], []]
 
 
-def get_parse_from_matlab_parallel(image_filename, matlab_engine,use_parfor=False):
+def get_parse_from_matlab_parallel(image_filename, matlab_engine, use_parfor=False):
     print('get_parse_from_ml_parallel is using name:' + image_filename+' and use_parfor='+str(use_parfor))
     if use_parfor:
         mask, label_names, pose = matlab_engine.pd_parfor(image_filename, nargout=3)
@@ -90,12 +90,12 @@ def get_parse_from_matlab_parallel(image_filename, matlab_engine,use_parfor=Fals
     return mask, label_dict, pose
 
 
-def get_parse_mask_parallel(matlab_engine, img_url_or_cv2_array, filename=None,use_parfor=False):
+def get_parse_mask_parallel(matlab_engine, img_url_or_cv2_array, filename=None, use_parfor=False):
     start_time=time.time()
     img = Utils.get_cv2_img_array(img_url_or_cv2_array)
     filename = filename or rand_string()
     if img is not None and cv2.imwrite(filename + '.jpg', img):
-        mask, label_dict, pose = get_parse_from_matlab_parallel(filename + '.jpg', matlab_engine,use_parfor=use_parfor)
+        mask, label_dict, pose = get_parse_from_matlab_parallel(filename + '.jpg', matlab_engine, use_parfor=use_parfor)
         print('labels:' + str(label_dict))
         mask_np = np.array(mask, dtype=np.uint8)
         pose_np = np.array(pose, dtype=np.uint8)
