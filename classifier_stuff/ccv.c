@@ -1,4 +1,7 @@
 //facedetect from http://libccv.org/tutorial/
+//if you want to change this you'll have to compile it to an executable called ccvface
+//instructions (more or less) at site above, i wound up using the 'clang' line iirc
+
 #include <ccv.h>
 
 int main(int argc, char** argv)
