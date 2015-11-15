@@ -218,8 +218,6 @@ RUN  make install
 WORKDIR /opt
 RUN git clone https://github.com/BVLC/caffe.git
 
-stall
-
 # Build Caffe core
 WORKDIR /opt/caffe
 
