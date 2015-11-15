@@ -207,7 +207,7 @@ RUN  wget https://github.com/schuhschuh/gflags/archive/master.zip
 RUN  unzip master.zip
 RUN  cd gflags-master
 RUN  mkdir build
-RUN  cd build
+WORKDIR  /opt/build
 #this export is not enough to force -fPIC
 RUN  export CXXFLAGS="-fPIC"
 RUN  cmake ..
