@@ -84,12 +84,12 @@ RUN  make install
 
 
 # Clone the Caffe repo
-RUN cd /opt
+WORKDIR /opt
 RUN echo $(pwd)
 RUN git clone https://github.com/BVLC/caffe.git
 
 # Build Caffe core
-RUN cd /opt/caffe
+WORKDIR /opt/caffe
 RUN   cp Makefile.config.example Makefile.config
 RUN   echo "CPU_ONLY := 1" >> Makefile.config
 RUN  echo "CXX := /usr/bin/g++-4.6" >> Makefile.config
