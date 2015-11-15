@@ -1,10 +1,17 @@
 function [mask,label_names,pose] = pd(image_filename)
 %todo - check if path already ok,
 % check if data already loaded
-start_time = cputime;
-disp('pd.m start time:')
+start_time = cputime
+disp('pd_parfor.m start time:')
 disp(datestr(now))
 disp(['the image sent to pd in matlab is:' image_filename])
+
+poolobj = gcp('nocreate'); % If no pool, do not create new one.
+if isempty(poolobj)
+    poolsize = 0
+else
+    poolsize = poolobj.NumWorkers
+end
 
 %todo - check if we cant load this once only (when engine is created)
 

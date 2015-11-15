@@ -3,14 +3,14 @@ import time
 import numpy as np
 from rq import Queue
 import cv2
-
+import logging
 from .. import constants
 
 redis_conn = constants.redis_conn
 
 # Tell RQ what Redis connection to use
 
-def paperdoll_enqueue(img_url_or_cv2_array, filename=None, async=True, queue_name=None, use_tg_worker=True):
+def paperdoll_enqueue(img_url_or_cv2_array, filename=None, async=True, queue_name=None, use_tg_worker=True,use_parfor=False):
     """
     The 'parallel matlab queue' which starts engines and keeps them warm is 'pd'.  This worker should be running somewhere (ideally in a screen like pd1).
     The use_tg_worker argument forces  use/nonuse of the tgworker than knows how to keep the engines warm and can be started along the lines of:
@@ -28,7 +28,7 @@ def paperdoll_enqueue(img_url_or_cv2_array, filename=None, async=True, queue_nam
             queue_name = constants.nonparallel_matlab_queuename
     queue = Queue(queue_name, connection=redis_conn)
     job1 = queue.enqueue('trendi_guru_modules.paperdoll.pd.get_parse_mask_parallel', img_url_or_cv2_array,
-                                 filename=filename)
+                                 filename=filename,use_parfor=use_parfor)
     print('started pd job on queue:'+str(queue))
     start = time.time()
     if not async:
@@ -41,7 +41,8 @@ def paperdoll_enqueue(img_url_or_cv2_array, filename=None, async=True, queue_nam
                 print('timeout waiting for pd.get_parse_mask')
                 return
         print('')
-        print('total paperdoll elapsed time:'+str(elapsed_time))
+        print('elapsed time in paperdoll_enqueue:'+str(elapsed_time))
+        #todo - see if I can return the parse, pose etc here without breaking anything (aysnc version gets job1 back so there may be expectation of getting a job instead of tuple
     else:
         print('running asynchronously (not waiting for result)')
     return job1

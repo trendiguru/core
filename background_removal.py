@@ -13,13 +13,14 @@ import logging
 import cv2
 import numpy as np
 
+import caffeDocker
 import geometry
 import constants
 import Utils
 import ccv_facedetector as ccv
 
 
-def image_is_relevant(image, image_url):
+def image_is_relevant(image, use_caffe=False, image_url=None):
     """
     main engine function of 'doorman'
     :param image: nXmX3 dim ndarray representing the standard resized image in BGR colormap
@@ -27,16 +28,18 @@ def image_is_relevant(image, image_url):
                                                     1. isRelevant ('True'/'False')
                                                     2. faces list sorted by relevance (empty list if not relevant)
     Thus - the right use of this function is for example:
-    - "if image_is_relevant.is_relevant:"
+    - "if image_is_relevant(image).is_relevant:"
     - "for face in image_is_relevant(image).faces:"
     """
     Relevance = collections.namedtuple('relevance', 'is_relevant faces')
     faces = find_face(image, 10)
-    # if len(faces) == 0:
-    # return Relevance(caffeDocker.relevant_caffe_labels(image_url), [])
-    # else:
-    #     return Relevance(True, faces)
-    return Relevance(len(faces) > 0, faces)
+    if use_caffe:
+        if len(faces) == 0:
+            return Relevance(caffeDocker.relevant_caffe_labels(image_url), [])
+        else:
+            return Relevance(True, faces)
+    else:
+        return Relevance(len(faces) > 0, faces)
 
 
 def find_face(image_arr, max_num_of_faces=100, method='ccv'):
