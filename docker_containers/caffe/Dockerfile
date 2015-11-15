@@ -84,7 +84,8 @@ RUN  make install
 
 
 # Clone the Caffe repo
-RUN cd /opt && git clone https://github.com/BVLC/caffe.git
+RUN cd /opt
+RUN git clone https://github.com/BVLC/caffe.git
 
 # Build Caffe core
 RUN cd /opt/caffe
@@ -174,7 +175,6 @@ RUN git clone --verbose git@bitbucket.org:trendiGuru/core.git
 
 #mongobd port forward
 CMD ssh -i /.ssh/first_aws.pem -L 27017:localhost:27017 ubuntu@extremeli.trendi.guru && /bin/bash
-
 
 RUN rqworker -u redis://redis1-redis-1-vm:6379 caffe_general &
 #RUN rqworker gender &
