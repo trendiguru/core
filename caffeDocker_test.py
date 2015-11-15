@@ -3,6 +3,7 @@ __author__ = 'yonatan'
 import time
 
 import cv2
+import numpy as np
 
 import constants
 
@@ -21,7 +22,8 @@ def is_person_in_img(method, src):
     if method == "url":
         db.caffeQ.insert_one({"method": method, "src": src})
     else:
-        src = cv2.imread(src)
+        src = np.array(cv2.imread(src))
+        src = src.astype(float) / 255
         src = src.tolist()
         db.caffeQ.insert_one({"method": method, "src": src})
     while db.caffeResults.find({"src": src}).count() == 0:
@@ -31,7 +33,8 @@ def is_person_in_img(method, src):
     results = db.caffeResults.find_one({"src": src})
     catID = results["results"]
     intersection = [i for i in catID if i in relevant_caffe_labels]
+    db.caffeResults.delete_one({"src": src})
     if len(intersection) == 0:
         return False
-    db.caffeResults.delete_one({"src": src})
     return True
+

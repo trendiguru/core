@@ -2,14 +2,14 @@ import cv2
 import numpy as np
 # import scipy as sp
 import os
-face_cascade = cv2.CascadeClassifier('/home/nate/Desktop/TrendiGuru/core/classifier_stuff/classifiers_to_test/face/haarcascade_frontalface_default.xml')
+face_cascade = cv2.CascadeClassifier('/home/nate/Desktop/core/classifier_stuff/classifiers_to_test/face/haarcascade_frontalface_default.xml')
 # eye_cascade = cv2.CascadeClassifier('haarcascade_eye.xml')
 # current_directory = os.path.abspath()
 
 image_file_types = ['.jpg','.png','.bmp','.gif']
 a = 1.25 # scalar for increasing collar box in relation to face box (1==100%)
 max_angle = 5 # tilt angle of the image for diversification
-angle_offset = 5 # tilt angle of the image for diversification
+angle_offset = max_angle # tilt angle of the image for diversification
 max_offset = 0.01 # maximum horizontal movement (% (out of box X) of the collar box for diversification
 delta_offset = max_offset # horizontal movement increments (%)
 output_images_size = (32, 32) # pixels^2
@@ -48,7 +48,6 @@ for image_file_name in only_image_files:
 
     # no flip along vertical axis:
     collar_image_center_point = (face[0]+0.5*face[2], face[1]+1.5*face[3])
-    image = np.fliplr(image)
     flipped_collar_image_center_point = (col - face[0]+0.5*face[2], face[1]+1.5*face[3])
     for offset1 in offset_range:
         offsetted_face[0] = face[0] + offset1 * face[2]
@@ -91,6 +90,7 @@ for image_file_name in only_image_files:
                 # cv2.waitKey(500)
 
             # flip along vertical axis:
+            image = np.fliplr(image)
             for angle in range(-max_angle, max_angle+1, angle_offset):
                 image_number += 1
                 rotated_image_matrix = cv2.getRotationMatrix2D(flipped_collar_image_center_point, angle, 1.0)
