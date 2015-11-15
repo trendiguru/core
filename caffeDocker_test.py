@@ -2,7 +2,10 @@ __author__ = 'yonatan'
 
 import time
 
-from PIL import Image, ImageMath
+import cv2
+import numpy as np
+
+import background_removal
 
 import constants
 
@@ -21,8 +24,9 @@ def is_person_in_img(method, src):
     if method == "url":
         db.caffeQ.insert_one({"method": method, "src": src})
     else:
-        src = Image.open(src)
-        src = ImageMath.imagemath_float(src)
+        src = np.array(cv2.imread(src))
+        src = background_removal.standard_resize(src, 227)
+        src = src.astype(float) / 255
         src = src.tolist()
         db.caffeQ.insert_one({"method": method, "src": src})
     while db.caffeResults.find({"src": src}).count() == 0:
