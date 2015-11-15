@@ -31,7 +31,7 @@ redis_conn_old = Redis()
 update_collection_name = 'products'
 
 # caffe stuff
-caffeRelevantLabels = [601, 608, 610, 614, 617, 638, 639, 655, 689, 697, 735, 775, 834, 841, 264, 399, 400]
+caffeRelevantLabels = [601, 608, 610, 614, 617, 638, 639, 655, 689, 697, 735, 775, 834, 841, 264, 401, 400]
 
 # fp rating related constants
 min_image_area = 400
