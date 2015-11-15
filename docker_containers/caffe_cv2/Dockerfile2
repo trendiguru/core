@@ -139,7 +139,7 @@ RUN sudo apt-get install -y \
  #libgflags.a, libgflags_nothreads.a,
 
 
-#RUN sudo apt-get install -y libgflags-dev
+RUN sudo apt-get install -y libgflags-dev
 
 
 ENV PYTHONPATH /opt/caffe/python
@@ -181,9 +181,8 @@ RUN update-alternatives --install /usr/bin/cc cc /usr/bin/gcc-4.6 30 && \
   update-alternatives --install /usr/bin/g++ g++ /usr/bin/g++-4.6 30
 
 
-
-
 RUN  export CXXFLAGS="-fPIC"
+
 
 # Glog
 WORKDIR /opt
@@ -213,11 +212,11 @@ RUN  export CXXFLAGS="-fPIC"
 RUN  cmake ..
 RUN  make VERBOSE=1
 RUN  make
-RUN  make install
-
-# Clone the Caffe repo
+RUN  make in# Clone the Caffe repo
 WORKDIR /opt
 RUN git clone https://github.com/BVLC/caffe.git
+
+stall
 
 # Build Caffe core
 WORKDIR /opt/caffe
