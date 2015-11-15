@@ -2,7 +2,7 @@ __author__ = 'yonatan'
 
 import time
 
-import cv2
+from PIL import Image, ImageMath
 
 import constants
 
@@ -21,8 +21,8 @@ def is_person_in_img(method, src):
     if method == "url":
         db.caffeQ.insert_one({"method": method, "src": src})
     else:
-        src = cv2.imread(src)
-        src = float(src)
+        src = Image.open(src)
+        src = ImageMath.imagemath_float(src)
         src = src.tolist()
         db.caffeQ.insert_one({"method": method, "src": src})
     while db.caffeResults.find({"src": src}).count() == 0:
