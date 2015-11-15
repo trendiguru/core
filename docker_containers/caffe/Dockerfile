@@ -85,6 +85,7 @@ RUN  make install
 
 # Clone the Caffe repo
 RUN cd /opt
+RUN echo $(pwd)
 RUN git clone https://github.com/BVLC/caffe.git
 
 # Build Caffe core
