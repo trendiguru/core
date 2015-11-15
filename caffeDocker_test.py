@@ -22,7 +22,7 @@ def is_person_in_img(method, src):
         db.caffeQ.insert_one({"method": method, "src": src})
     else:
         src = cv2.imread(src)
-        db.caffeQ.insert_one({"method": method, "src": src})
+        db.caffeQ.insert_one({"method": method, "src": src.tolist()})
     while db.caffeResults.find({"src": src}).count() == 0:
         time.sleep(0.25)
     toc = time.time()
