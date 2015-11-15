@@ -210,7 +210,8 @@ RUN update-alternatives --install /usr/bin/cc cc /usr/bin/gcc-4.6 30 && \
   update-alternatives --install /usr/bin/g++ g++ /usr/bin/g++-4.6 30
 
 # Glog
-RUN cd /opt && wget https://google-glog.googlecode.com/files/glog-0.3.3.tar.gz && \
+WORKDIR /opt
+RUN wget https://google-glog.googlecode.com/files/glog-0.3.3.tar.gz && \
   tar zxvf glog-0.3.3.tar.gz && \
   cd /opt/glog-0.3.3 && \
   ./configure && \
@@ -226,7 +227,7 @@ RUN cd /opt && wget https://google-glog.googlecode.com/files/glog-0.3.3.tar.gz &
 RUN ldconfig
 
 # Gflags
-RUN cd /opt
+WORKDIR /opt
 RUN  wget https://github.com/schuhschuh/gflags/archive/master.zip
 RUN  unzip master.zip
 RUN  cd gflags-master
@@ -244,10 +245,11 @@ RUN  make install
 
 
 # Clone the Caffe repo
-RUN cd /opt && git clone https://github.com/BVLC/caffe.git
+WORKDIR /opt
+RUN git clone https://github.com/BVLC/caffe.git
 
 # Build Caffe core
-RUN cd /opt/caffe
+WORKDIR /opt/caffe
 RUN   cp Makefile.config.example Makefile.config
 RUN   echo "CPU_ONLY := 1" >> Makefile.config
 RUN  echo "CXX := /usr/bin/g++-4.6" >> Makefile.config
@@ -261,8 +263,8 @@ ADD caffe-ld-so.conf /etc/ld.so.conf.d/
 RUN ldconfig
 
 # Install python deps
-RUN cd /opt/caffe && \
-  (pip install -r python/requirements.txt; easy_install numpy; pip install -r python/requirements.txt) && \
+WORKDIR /opt/caffe
+RUN   (pip install -r python/requirements.txt; easy_install numpy; pip install -r python/requirements.txt) && \
   easy_install pillow
 
 #apparently not necessary after numpy install above
@@ -271,11 +273,13 @@ RUN cd /opt/caffe && \
 #  ln -s /usr/local/lib/python2.7/dist-packages/$NUMPY_EGG/numpy/core/include/numpy /usr/include/python2.7/numpy
 
 # Build Caffe python bindings
-RUN cd /opt/caffe && make pycaffe
+WORKDIR /opt/caffe
+RUN make pycaffe
 
 
 # Make + run tests
-RUN cd /opt/caffe && make test && make runtest
+WORKDIR /opt/caffe
+RUN make test && make runtest
 
 ###### get alexnet
 #make all test#
