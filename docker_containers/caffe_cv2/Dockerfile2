@@ -53,8 +53,6 @@ RUN apt-get -qq install -y python-numpy
 #install opengl
 #RUN apt-get install -y freeglut3-dev
 RUN  mkdir -p /opt/OpenCV
-RUN  cd /opt/OpenCV
-RUN pwd
 WORKDIR /opt/OpenCV
 RUN  wget -O OpenCV3.0.zip https://codeload.github.com/Itseez/opencv/zip/3.0.0
 RUN  unzip OpenCV3.0.zip
@@ -185,16 +183,18 @@ RUN update-alternatives --install /usr/bin/cc cc /usr/bin/gcc-4.6 30 && \
 
 
 # Clone the Caffe repo
-RUN cd /opt && git clone https://github.com/BVLC/caffe.git
+WORKDIR /opt
+RUN git clone https://github.com/BVLC/caffe.git
 
 
 # Glog
-RUN cd /opt && wget https://google-glog.googlecode.com/files/glog-0.3.3.tar.gz && \
-  tar zxvf glog-0.3.3.tar.gz && \
-  cd /opt/glog-0.3.3 && \
-  ./configure && \
-  make && \
-  make install
+WORKDIR /opt
+RUN wget https://google-glog.googlecode.com/files/glog-0.3.3.tar.gz
+RUN tar zxvf glog-0.3.3.tar.gz
+WORKDIR /opt/glog-0.3.3
+RUN  ./configure
+RUN  make
+RUN  make install
 
 # Workaround for error loading libglog:
 #   error while loading shared libraries: libglog.so.0: cannot open shared object file
@@ -243,7 +243,8 @@ WORKDIR /opt/caffe && \
 #  ln -s /usr/local/lib/python2.7/dist-packages/$NUMPY_EGG/numpy/core/include/numpy /usr/include/python2.7/numpy
 
 # Build Caffe python bindings
-RUN cd /opt/caffe && make pycaffe
+WORKDIR /opt/caffe
+RUN make pycaffe
 
 
 # Make + run tests
