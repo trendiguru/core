@@ -5,8 +5,6 @@ import time
 import cv2
 import numpy as np
 
-import background_removal
-
 import constants
 
 db = constants.db
@@ -25,7 +23,6 @@ def is_person_in_img(method, src):
         db.caffeQ.insert_one({"method": method, "src": src})
     else:
         src = np.array(cv2.imread(src))
-        src = background_removal.standard_resize(src, 227)
         src = src.astype(float) / 255
         src = src.tolist()
         db.caffeQ.insert_one({"method": method, "src": src})
