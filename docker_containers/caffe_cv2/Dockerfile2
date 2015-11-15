@@ -182,10 +182,8 @@ RUN update-alternatives --install /usr/bin/cc cc /usr/bin/gcc-4.6 30 && \
 
 
 
-# Clone the Caffe repo
-WORKDIR /opt
-RUN git clone https://github.com/BVLC/caffe.git
 
+RUN  export CXXFLAGS="-fPIC"
 
 # Glog
 WORKDIR /opt
@@ -216,6 +214,10 @@ RUN  cmake ..
 RUN  make VERBOSE=1
 RUN  make
 RUN  make install
+
+# Clone the Caffe repo
+WORKDIR /opt
+RUN git clone https://github.com/BVLC/caffe.git
 
 # Build Caffe core
 WORKDIR /opt/caffe
