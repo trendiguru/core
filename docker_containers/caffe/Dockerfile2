@@ -317,12 +317,12 @@ RUN cd /opt && wget https://google-glog.googlecode.com/files/glog-0.3.3.tar.gz &
 RUN ldconfig
 
 # Gflags
-WORKDIR /opt
+RUN cd /opt
 RUN  wget https://github.com/schuhschuh/gflags/archive/master.zip
 RUN  unzip master.zip
-WORKDIR /opt/gflags-master
+RUN  cd /opt/gflags-master
 RUN  mkdir build
-WORKDIR /opt/gflags-master/build
+RUN  cd /opt/gflags-master/build
 RUN  export CXXFLAGS="-fPIC"
 RUN  cmake ..
 RUN  make VERBOSE=1
@@ -344,7 +344,7 @@ ADD caffe-ld-so.conf /etc/ld.so.conf.d/
 RUN ldconfig
 
 # Install python deps
-WORKDIR /opt/caffe && \
+RUN cd /opt/caffe && \
   (pip install -r python/requirements.txt; easy_install numpy; pip install -r python/requirements.txt) && \
   easy_install pillow
 
