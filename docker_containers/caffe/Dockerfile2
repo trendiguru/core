@@ -132,7 +132,7 @@ RUN update-alternatives --install /usr/bin/cc cc /usr/bin/gcc-4.6 30 && \
 # Glog
 WORKDIR /opt
 RUN wget https://google-glog.googlecode.com/files/glog-0.3.3.tar.gz
-RUN   tar zxvf glog-0.3.3.tar.gz && \
+RUN   tar zxvf glog-0.3.3.tar.gz
 WORKDIR /opt/glog-0.3.3
 RUN  ./configure
 RUN make
