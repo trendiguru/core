@@ -209,6 +209,10 @@ WORKDIR /opt/gflags-master
 RUN  mkdir build
 WORKDIR /opt/gflags-master/build
 RUN  export CXXFLAGS="-fPIC"
+#this seems to suffice to force -fPIC (needed since otherwise the .a generated is no good for caffe)
+RUN  sed -i 's/CMAKE_CXX_FLAGS:STRING=/CMAKE_CXX_FLAGS:STRING=-fPIC/' CMakeCache.txt
+RUN  sed -i 's/CXX :=/CXX ?=/' Makefile
+
 RUN  cmake ..
 RUN  make VERBOSE=1
 RUN  make
