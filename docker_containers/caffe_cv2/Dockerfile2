@@ -358,7 +358,9 @@ RUN cd /opt/caffe && make pycaffe
 
 
 # Make + run tests
-RUN cd /opt/caffe && make test && make runtest
+WORKDIR /opt/caffe
+RUN make test && make runtest
+
 
 ###### get alexnet 0
 #make all test#
