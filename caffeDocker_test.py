@@ -14,6 +14,7 @@ relevant_caffe_labels = constants.caffeRelevantLabels
 
 def is_person_in_img(method, path, k=10):
     '''
+
     :param type: what is the input type -path or url
             src: the exctual path/urlin string format!!!
             k: number of results
@@ -21,7 +22,6 @@ def is_person_in_img(method, path, k=10):
     '''
 
     CaffeAnswer = collections.namedtuple('caffe_answer', 'is_person categories')
-    tic = time.time()
     if method == "url":
         src = path
     elif method == "img":
@@ -30,19 +30,23 @@ def is_person_in_img(method, path, k=10):
         src = src.tolist()
     else:
         raise IOError("bad input was inserted to caffe!")
-
-    db.caffeQ.insert_one({"method": method, "src": src, "k": k})
-    while db.caffeResults.find({"src": src}).count() == 0:
+    tic = time.time()
+    ans = db.caffeQ.insert_one({"method": method, "src": src, "k": k})
+    id = ans.inserted_id
+    itr = 0
+    while db.caffeResults.find({"id": str(id)}).count() == 0:
+        itr += 1
         time.sleep(0.25)
-        if db.caffeQ.find({"src": src}).count() == 0:
+        if itr > 20:
             break
+
     toc = time.time()
     print "Total time of caffe: {0}".format(toc - tic)
     try:
-        results = db.caffeResults.find_one({"src": src})
+        results = db.caffeResults.find_one({"id": str(id)})
         catID = results["results"]
         intersection = [i for i in catID if i in relevant_caffe_labels]
-        db.caffeResults.delete_one({"src": src})
+        db.caffeResults.delete_one({"id": str(id)})
 
         if len(intersection) == 0:
             return CaffeAnswer(False, catID)
