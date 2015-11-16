@@ -233,7 +233,7 @@ RUN sed -i 's/LIBRARIES += opencv_core opencv_highgui opencv_imgproc/LIBRARIES +
 RUN mkdir build
 WORKDIR build
 RUN cmake ..
-RUN ./configure
+#RUN ./configure
 RUN make all
 RUN make all
 
