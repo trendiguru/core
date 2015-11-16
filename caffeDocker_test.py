@@ -14,6 +14,7 @@ relevant_caffe_labels = constants.caffeRelevantLabels
 
 def is_person_in_img(method, path, k=10):
     '''
+
     :param type: what is the input type -path or url
             src: the exctual path/urlin string format!!!
             k: number of results
@@ -26,12 +27,20 @@ def is_person_in_img(method, path, k=10):
         src = path
     elif method == "img":
         src = np.array(cv2.imread(path))
+        toc = time.time()
+        print (toc - tic)
         src = src.astype(float) / 255
+        toc = time.time()
+        print (toc - tic)
         src = src.tolist()
+        toc = time.time()
+        print (toc - tic)
     else:
         raise IOError("bad input was inserted to caffe!")
 
     db.caffeQ.insert_one({"method": method, "src": src, "k": k})
+    toc = time.time()
+    print (toc - tic)
     while db.caffeResults.find({"src": src}).count() == 0:
         time.sleep(0.25)
         if db.caffeQ.find({"src": src}).count() == 0:
