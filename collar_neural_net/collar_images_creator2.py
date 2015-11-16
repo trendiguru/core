@@ -2,16 +2,16 @@ import cv2
 import numpy as np
 # import scipy as sp
 import os
-face_cascade = cv2.CascadeClassifier('/home/nate/Desktop/core/classifier_stuff/classifiers_to_test/face/haarcascade_frontalface_default.xml')
+face_cascade = cv2.CascadeClassifier('/home/developer/python-packages/trendi/classifier_stuff/classifiers_to_test/face/haarcascade_frontalface_default.xml')
 # eye_cascade = cv2.CascadeClassifier('haarcascade_eye.xml')
 # current_directory = os.path.abspath()
 
 image_file_types = ['.jpg','.png','.bmp','.gif']
 a = 1.25 # scalar for increasing collar box in relation to face box (1==100%)
-max_angle = 180 # tilt angle of the image for diversification
+max_angle = 20 # tilt angle of the image for diversification
 angle_offset = 10 # tilt angle of the image for diversification
 # max_offset = 0.01 # maximum horizontal movement (% (out of box X) of the collar box for diversification
-# delta_offset = max_offset # horizontal movement increments (%)
+# delta_offset = max_offset # horizontal movement increments(%)
 output_images_size = (32, 32) # pixels^2
 dataset_directory_name = 'dataset'
 
