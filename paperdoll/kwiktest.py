@@ -1,5 +1,5 @@
 __author__ = 'jeremy'
-from trendi import paperdoll_parse_enqueue
+from trendi.paperdoll import paperdoll_parse_enqueue
 import time
 import numpy as np
 urls=[]
