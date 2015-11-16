@@ -262,7 +262,7 @@ RUN make pycaffe
 # Make + run tests
 WORKDIR /opt/caffe
 RUN make test
-RNU make runtest
+RUN make runtest
 
 
 ###### get alexnet 0
