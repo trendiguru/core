@@ -11,12 +11,12 @@ db = constants.db
 relevant_caffe_labels = constants.caffeRelevantLabels
 
 
-def is_person_in_img(method, path, k):
+def is_person_in_img(method, path, k=10):
     '''
 
     :param type: what is the input type -path or url
             src: the exctual path/urlin string format!!!
-            k: numner of results
+            k: number of results
     :return: True if relevant / False o.w
     '''
     tic = time.time()
