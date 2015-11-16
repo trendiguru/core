@@ -48,7 +48,9 @@ def is_person_in_img(method, path, k=10):
     toc = time.time()
     print "Total time of caffe: {0}".format(toc - tic)
     try:
+        print 0
         results = db.caffeResults.find_one({"id": str(id)})
+        print 1
         catID = results["results"]
         print catID
         intersection = [i for i in catID if i in relevant_caffe_labels]
