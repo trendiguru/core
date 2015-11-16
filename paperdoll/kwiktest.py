@@ -3,7 +3,7 @@ from trendi.paperdoll import paperdoll_parse_enqueue
 import time
 import numpy as np
 urls=[]
-dt=[]
+dts=[]
 urls.append('http://i.imgur.com/ahFOgkm.jpg')
 urls.append('https://img1.etsystatic.com/019/1/5682424/il_570xN.555916317_ebv0.jpg')
 for url in urls:
