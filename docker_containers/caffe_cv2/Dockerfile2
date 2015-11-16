@@ -262,6 +262,7 @@ RUN make pycaffe
 # Make + run tests
 WORKDIR /opt/caffe
 RUN make test
+RUN echo $(ls -la)
 RUN make runtest
 
 
