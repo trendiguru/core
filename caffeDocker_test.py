@@ -38,7 +38,8 @@ def is_person_in_img(method, path, k=10):
     else:
         raise IOError("bad input was inserted to caffe!")
 
-    id = db.caffeQ.insert_one({"method": method, "src": src, "k": k})
+    ans = db.caffeQ.insert_one({"method": method, "src": src, "k": k})
+    id = ans.id
     print id
     toc = time.time()
     print (toc - tic)
