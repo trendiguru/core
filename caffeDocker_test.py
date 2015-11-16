@@ -50,6 +50,7 @@ def is_person_in_img(method, path, k=10):
     try:
         results = db.caffeResults.find_one({"id": str(id)})
         catID = results["results"]
+        print catID
         intersection = [i for i in catID if i in relevant_caffe_labels]
         db.caffeResults.delete_one({"id": str(id)})
 
