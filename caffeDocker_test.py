@@ -38,20 +38,20 @@ def is_person_in_img(method, path, k=10):
     else:
         raise IOError("bad input was inserted to caffe!")
 
-    db.caffeQ.insert_one({"method": method, "src": src, "k": k})
+    id = db.caffeQ.insert_one({"method": method, "src": src, "k": k})
     toc = time.time()
     print (toc - tic)
-    while db.caffeResults.find({"src": src}).count() == 0:
+    while db.caffeResults.find_one({"_id": str(id)}).count() == 0:
         time.sleep(0.25)
-        if db.caffeQ.find({"src": src}).count() == 0:
+        if db.caffeQ.find({"_id": str(id)}).count() == 0:
             break
     toc = time.time()
     print "Total time of caffe: {0}".format(toc - tic)
     try:
-        results = db.caffeResults.find_one({"src": src})
+        results = db.caffeResults.find_one({"_id": str(id)})
         catID = results["results"]
         intersection = [i for i in catID if i in relevant_caffe_labels]
-        db.caffeResults.delete_one({"src": src})
+        db.caffeResults.delete_one({"_id": str(id)})
 
         if len(intersection) == 0:
             return CaffeAnswer(False, catID)
