@@ -365,15 +365,16 @@ def from_paperdoll_to_similar_results(person_id, paper_job_id, num_of_matches=10
 
 
 def get_results_now(page_url, image_url):
-    # IF URL HAS NO IMAGE IN IT
-    image = Utils.get_cv2_img_array(image_url)
-    if image is None:
-        return
 
     # IF IMAGE EXISTS IN IMAGES BY URL
     images_obj_url = images.find_one({"image_urls": image_url}) or db.demo.find_one({"image_urls": image_url})
     if images_obj_url:
         return page_results.merge_items(images_obj_url)
+
+    # IF URL HAS NO IMAGE IN IT
+    image = Utils.get_cv2_img_array(image_url)
+    if image is None:
+        return
 
     # IF IMAGE EXISTS IN IMAGES BY HASH (WITH ANOTHER URL)
     image_hash = page_results.get_hash_of_image_from_url(image_url)
