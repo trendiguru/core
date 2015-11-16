@@ -26,6 +26,8 @@ def paperdoll_enqueue(img_url_or_cv2_array, filename=None, async=True, queue_nam
             queue_name = constants.parallel_matlab_queuename
         else:
             queue_name = constants.nonparallel_matlab_queuename
+    if use_parfor:
+        queue_name = 'pd_parfor'
     queue = Queue(queue_name, connection=redis_conn)
     job1 = queue.enqueue('trendi_guru_modules.paperdoll.pd.get_parse_mask_parallel', img_url_or_cv2_array,
                                  filename=filename,use_parfor=use_parfor)
