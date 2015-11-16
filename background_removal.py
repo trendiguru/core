@@ -32,10 +32,10 @@ def image_is_relevant(image, use_caffe=False, image_url=None):
     - "for face in image_is_relevant(image).faces:"
     """
     Relevance = collections.namedtuple('relevance', 'is_relevant faces')
-    faces = find_face(image, 10) or find_face_cascade(image, 10)
+    faces = find_face_cascade(image, 10) or find_face(image, 10)
     if use_caffe:
         if len(faces) == 0:
-            return Relevance(caffeDocker.relevant_caffe_labels(image_url), [])
+            return Relevance(caffeDocker.is_person_in_img(image_url), [])
         else:
             return Relevance(True, faces)
     else:
