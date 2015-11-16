@@ -49,8 +49,6 @@ def paperdoll_enqueue(img_url_or_cv2_array, filename=None, async=True, queue_nam
         print('running asynchronously (not waiting for result)')
     return job1
 
-
-
 def show_parse(filename=None, img_array=None):
     if filename is not None:
         img_array = cv2.imread(filename)
