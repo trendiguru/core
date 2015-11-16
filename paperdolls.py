@@ -392,9 +392,13 @@ def get_results_now(page_url, image_url):
     image_dict = {'image_urls': [image_url], 'relevant': relevance.is_relevant,
                   'image_hash': image_hash, 'page_urls': [page_url], 'people': []}
     if relevance.is_relevant:
+        if not isinstance(relevance.faces, list):
+            relevant_faces = relevance.faces.tolist()
+        else:
+            relevant_faces = relevance.faces
         idx = 0
-        for face in relevance.faces:
-            person = {'face': face.tolist(), 'person_id': str(bson.ObjectId()), 'person_idx': idx,
+        for face in relevant_faces:
+            person = {'face': face, 'person_id': str(bson.ObjectId()), 'person_idx': idx,
                       'items': []}
             image_copy = person_isolation(image, face)
             image_dict['people'].append(person)
