@@ -394,7 +394,7 @@ def get_results_now(page_url, image_url):
     if relevance.is_relevant:
         idx = 0
         for face in relevance.faces:
-            person = {'face': face, 'person_id': str(bson.ObjectId()), 'person_idx': idx,
+            person = {'face': face.tolist(), 'person_id': str(bson.ObjectId()), 'person_idx': idx,
                       'items': []}
             image_copy = person_isolation(image, face)
             image_dict['people'].append(person)
