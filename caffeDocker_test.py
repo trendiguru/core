@@ -33,16 +33,22 @@ def is_person_in_img(method, path, k):
     db.caffeQ.insert_one({"method": method, "src": src, "k": k})
     while db.caffeResults.find({"src": src}).count() == 0:
         time.sleep(0.25)
+        if db.caffeQ.find({"src": src}).count() == 0:
+            break
     toc = time.time()
     print "Total time of caffe: {0}".format(toc - tic)
-    results = db.caffeResults.find_one({"src": src})
-    catID = results["results"]
-    intersection = [i for i in catID if i in relevant_caffe_labels]
-    db.caffeResults.delete_one({"src": src})
+    try:
+        results = db.caffeResults.find_one({"src": src})
+        catID = results["results"]
+        intersection = [i for i in catID if i in relevant_caffe_labels]
+        db.caffeResults.delete_one({"src": src})
 
-    if len(intersection) == 0:
-        retTuple = (False, catID)
-    else:
-        retTuple = (True, catID)
+        if len(intersection) == 0:
+            retTuple = (False, catID)
+        else:
+            retTuple = (True, catID)
+    except:
+        print "no results"
+        retTuple = (False, [])
 
     return retTuple
