@@ -1,6 +1,7 @@
 __author__ = 'yonatan'
 
 import time
+import collections
 
 import cv2
 import numpy as np
@@ -13,12 +14,13 @@ relevant_caffe_labels = constants.caffeRelevantLabels
 
 def is_person_in_img(method, path, k=10):
     '''
-
     :param type: what is the input type -path or url
             src: the exctual path/urlin string format!!!
             k: number of results
-    :return: True if relevant / False o.w
+    :return: namedTuple CaffeAnswer with 2 fields: binary is_person and list of detected categories
     '''
+
+    CaffeAnswer = collections.namedtuple('caffe_answer', 'is_person categories')
     tic = time.time()
     if method == "url":
         src = path
@@ -27,8 +29,7 @@ def is_person_in_img(method, path, k=10):
         src = src.astype(float) / 255
         src = src.tolist()
     else:
-        print "bad input"
-        return ("bad input", [])
+        raise IOError("bad input was inserted to caffe!")
 
     db.caffeQ.insert_one({"method": method, "src": src, "k": k})
     while db.caffeResults.find({"src": src}).count() == 0:
@@ -44,11 +45,8 @@ def is_person_in_img(method, path, k=10):
         db.caffeResults.delete_one({"src": src})
 
         if len(intersection) == 0:
-            retTuple = (False, catID)
+            return CaffeAnswer(False, catID)
         else:
-            retTuple = (True, catID)
+            return CaffeAnswer(True, catID)
     except:
-        print "no results"
-        retTuple = (False, [])
-
-    return retTuple
+        return CaffeAnswer(False, [])

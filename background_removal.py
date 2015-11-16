@@ -13,7 +13,7 @@ import logging
 import cv2
 import numpy as np
 
-import caffeDocker
+import caffeDocker_test
 import geometry
 import constants
 import Utils
@@ -32,10 +32,10 @@ def image_is_relevant(image, use_caffe=False, image_url=None):
     - "for face in image_is_relevant(image).faces:"
     """
     Relevance = collections.namedtuple('relevance', 'is_relevant faces')
-    faces = find_face_cascade(image, 10).tolist() or find_face(image, 10).tolist()
+    faces = find_face_cascade(image, 10) or find_face(image, 10)
     if use_caffe:
         if len(faces) == 0:
-            return Relevance(caffeDocker.is_person_in_img(image_url), [])
+            return Relevance(caffeDocker_test.is_person_in_img('url', image_url).is_person, [])
         else:
             return Relevance(True, faces)
     else:
