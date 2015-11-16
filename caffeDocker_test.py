@@ -41,7 +41,7 @@ def is_person_in_img(method, path, k=10):
     id = db.caffeQ.insert_one({"method": method, "src": src, "k": k})
     toc = time.time()
     print (toc - tic)
-    while db.caffeResults.find_one({"_id": str(id)}).count() == 0:
+    while db.caffeResults.find({"_id": str(id)}).count() == 0:
         time.sleep(0.25)
         if db.caffeQ.find({"_id": str(id)}).count() == 0:
             break
