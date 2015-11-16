@@ -8,7 +8,7 @@ face_cascade = cv2.CascadeClassifier('/home/nate/Desktop/core/classifier_stuff/c
 
 image_file_types = ['.jpg','.png','.bmp','.gif']
 a = 1.25 # scalar for increasing collar box in relation to face box (1==100%)
-max_angle = 180 # tilt angle of the image for diversification
+max_angle = 20 # tilt angle of the image for diversification
 angle_offset = 10 # tilt angle of the image for diversification
 # max_offset = 0.01 # maximum horizontal movement (% (out of box X) of the collar box for diversification
 # delta_offset = max_offset # horizontal movement increments (%)
