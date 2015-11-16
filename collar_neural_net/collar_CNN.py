@@ -77,51 +77,54 @@ Y_train = output_vector
 
 
 
-
-size_batch = 32
+model_description = 'whatever'#'32k5x5CV1_2x2MP1_32k3x3CV2_32k3x3CV3_32k3x3CV4_2x2MP2_64dFC1_3dFC2'
+size_batch = 16
 epoches_number = 1000
 overwrite_weights = True
 testing_amount = 0.15
 
 model = Sequential()
-# input: 100x100 images with 3 channels -> (3, 100, 100) tensors.
-# this applies 32 convolution filters of size 3x3 each.
-model.add(Convolution2D(8, 3, 3, border_mode='valid', input_shape=(3, 32, 32)))
-model.add(Activation('hard_sigmoid'))
-# model.add(MaxPooling2D(pool_size=(2, 2)))
-model.add(Convolution2D(8, 3, 3, border_mode='valid'))
-model.add(Activation('hard_sigmoid'))
+model.add(Convolution2D(16, 5, 5, border_mode='valid', input_shape=(3, 32, 32)))
+model.add(Activation('sigmoid'))
+model.add(MaxPooling2D(pool_size=(2, 2)))
+model.add(Convolution2D(16, 3, 3, border_mode='valid'))
+model.add(Activation('sigmoid'))
 model.add(MaxPooling2D(pool_size=(2, 2)))
 # model.add(Dropout(0.25))
 
-model.add(Convolution2D(8, 3, 3, border_mode='valid'))
-model.add(Activation('hard_sigmoid'))
+model.add(Convolution2D(16, 3, 3, border_mode='valid'))
+model.add(Activation('sigmoid'))
 # model.add(MaxPooling2D(pool_size=(2, 2)))
-model.add(Convolution2D(8, 3, 3))
-model.add(Activation('hard_sigmoid'))
-model.add(MaxPooling2D(pool_size=(2, 2)))
+model.add(Convolution2D(16, 3, 3, border_mode='valid'))
+model.add(Activation('sigmoid'))
+# model.add(MaxPooling2D(pool_size=(2, 2)))
 # model.add(Dropout(0.25))
 
 model.add(Flatten())
-# Note: Keras does automatic shape inference.
+model.add(Dense(128))
+model.add(Activation('sigmoid'))
 model.add(Dense(64))
-model.add(Activation('hard_sigmoid'))
+model.add(Activation('sigmoid'))
 # model.add(Dropout(0.5))
 
 model.add(Dense(3))
 model.add(Activation('softmax'))
 
-optimizer_method = Adadelta()#SGD(lr=0.00000001, decay=1e-6, momentum=0.9, nesterov=True)#Adagrad()#Adadelta()#RMSprop()#Adam()
+optimizer_method = Adadelta()#SGD(lr=0.000001, decay=1e-6, momentum=0.9, nesterov=True)#Adagrad()#Adadelta()#RMSprop()#Adam()
 model.compile(loss='categorical_crossentropy', optimizer=optimizer_method)
 
 EarlyStopping(monitor='val_loss', patience=0, verbose=0)
-checkpointer = ModelCheckpoint(os.path.abspath(__file__) + 'weights.hdf5', verbose=1, save_best_only=True)
+checkpointer = ModelCheckpoint(os.path.abspath(__file__) + 'model_weights_' + model_description + '.hdf5', verbose=1, save_best_only=True)
 
 
 
 model.fit(X_train, Y_train, batch_size=size_batch, nb_epoch=epoches_number, validation_split=testing_amount, show_accuracy=True, callbacks=[checkpointer])
 score = model.evaluate(X_train, Y_train, batch_size=size_batch)
-model.save_weights('model_weight.hdf5', overwrite_weights)
+
+
+json_string = model.to_json()
+open('model_architecture_' + model_description + '.json', 'w').write(json_string)
+model.save_weights('model_weights_' + model_description + '.hdf5', overwrite_weights)
 
 layer_weights = [layer.get_weights() for layer in model.layers]
 with open('model_weights_pickled', 'w') as weights_file:
