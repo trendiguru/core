@@ -237,13 +237,6 @@ RUN cmake ..
 RUN make all
 RUN make all
 
-change Makefile:
-LIBRARIES += glog gflags protobuf leveldb snappy \
-lmdb boost_system hdf5_hl hdf5 m \
-opencv_core opencv_highgui opencv_imgproc
-add :opencv_imgcodecs solve my problem
-
-
 # Add ld-so.conf so it can find libcaffe.so
 ADD caffe-ld-so.conf /etc/ld.so.conf.d/
 
