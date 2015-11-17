@@ -314,7 +314,7 @@ def start_process(page_url, image_url, lang="eng"):
 
 
 def from_paperdoll_to_similar_results(person_id, paper_job_id, num_of_matches=100, products_collection=None):
-    collection = products_collection or 'db.products'
+    collection = products_collection or 'products'
     paper_job_results = job_result_from_id(paper_job_id)
     if paper_job_results[3] != person_id:
         print
