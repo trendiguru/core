@@ -495,6 +495,7 @@ def get_data_for_specific_image(image_url=None, image_hash=None, image_projectio
         query = {"image_hash": image_hash}
 
     sparse_image_dict = image_collection.find_one(query, image_projection)
+    print "##### FOUND IMAGE: " + sparse_image_dict["image_urls"] + " #####"
     if sparse_image_dict is not None:
         logging.debug('found image (or hash) in db ')
         # hash gets checked in update_image_in_db(), alternatively it could be checked here
