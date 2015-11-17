@@ -11,7 +11,7 @@ import logging
 import Utils
 import constants
 
-# logging.basicConfig(format='%(levelname)s:%(message)s', level=logging.DEBUG)
+logging.basicConfig(format='%(levelname)s:%(message)s', level=logging.DEBUG)
 db = constants.db
 lang = ""
 image_coll_name = "images"
@@ -448,6 +448,8 @@ def get_data_for_specific_image(image_url=None, image_hash=None, image_projectio
         set_lang(lang)
     image_collection = db[image_coll_name]
 
+    print "##### image_coll_name: " + image_coll_name + " #####"
+
     image_projection = image_projection or {
         '_id': 1,
         'image_hash': 1,
@@ -493,6 +495,7 @@ def get_data_for_specific_image(image_url=None, image_hash=None, image_projectio
         query = {"image_hash": image_hash}
 
     sparse_image_dict = image_collection.find_one(query, image_projection)
+    print "##### FOUND IMAGE: " + sparse_image_dict["image_urls"] + " #####"
     if sparse_image_dict is not None:
         logging.debug('found image (or hash) in db ')
         # hash gets checked in update_image_in_db(), alternatively it could be checked here
