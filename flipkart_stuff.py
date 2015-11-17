@@ -61,7 +61,7 @@ if __name__ == "__main__":
     db.download_data.find_one_and_update({"criteria": flipkart},
                                          {'$set': {"total_dl_time(min)": str(total_time / 60)[:5]}})
     r2zip = zipfile.ZipFile(StringIO.StringIO(r2.content))
-    csv_file = r2zip.open(r2zip.infolist()[0].filename, 'rb')
+    csv_file = open(r2zip.infolist()[0].filename, 'rb')
     time.sleep(120)
     DB = csv.reader(csv_file)
     time.sleep(120)
