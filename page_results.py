@@ -14,7 +14,7 @@ import constants
 # logging.basicConfig(format='%(levelname)s:%(message)s', level=logging.DEBUG)
 db = constants.db
 lang = ""
-image_coll_name = "products"
+image_coll_name = "images"
 
 '''
 
