@@ -136,73 +136,6 @@ def after_pd_conclusions(mask, labels, face):
     return final_mask
 
 
-def after_pd_conclusions_loose(mask, labels, face):
-    """
-    1. if there's a full-body clothing:
-        1.1 add to its' mask - all the rest lower body items' masks.
-        1.2 add other upper cover items if they pass the pixel-amount condition/
-    2. else -
-        2.1 lower-body: decide whether it's a pants, jeans.. or a skirt, and share masks
-        2.2 upper-body: decide whether it's a one-part or under & cover
-    3. return new mask
-    """
-    final_mask = mask[:, :]
-    mask_sizes = {"upper_cover": [], "upper_under": [], "lower_cover": [], "lower_under": [], "whole_body": []}
-    for num in np.unique(mask):
-        item_mask = 255 * np.array(mask == num, dtype=np.uint8)
-        category = list(labels.keys())[list(labels.values()).index(num)]
-        print "W2P: checking {0}".format(category)
-        for key, item in constants.paperdoll_categories.iteritems():
-            if category in item:
-                mask_sizes[key].append({num: cv2.countNonZero(item_mask)})
-    # 1
-    for item in mask_sizes["whole_body"]:
-        if (float(item.values()[0]) / (face[2] * face[3]) > 2) or \
-                (len(mask_sizes["upper_cover"]) == 0 and len(mask_sizes["upper_under"]) == 0) or \
-                (len(mask_sizes["lower_cover"]) == 0 and len(mask_sizes["lower_under"]) == 0):
-            print "W2P: That's a {0}".format(list(labels.keys())[list(labels.values()).index((item.keys()[0]))])
-            item_num = item.keys()[0]
-            for num in np.unique(mask):
-                cat = list(labels.keys())[list(labels.values()).index(num)]
-                # 1.1, 1.2
-                if cat in constants.paperdoll_categories["lower_cover"] or \
-                                cat in constants.paperdoll_categories["lower_under"] or \
-                                cat in constants.paperdoll_categories["upper_under"]:
-                    final_mask = np.where(mask == num, item_num, final_mask)
-            return final_mask
-    # 2, 2.1
-    sections = {"upper_cover": 0, "upper_under": 0, "lower_cover": 0, "lower_under": 0}
-    max_item_count = 0
-    max_cat = 9
-    print "W2P: That's a 2-part clothing item!"
-    for section in sections.keys():
-        for item in mask_sizes[section]:
-            if item.values()[0] > max_item_count:
-                max_item_count = item.values()[0]
-                max_cat = item.keys()[0]
-                sections[section] = max_cat
-        # share masks
-        if max_item_count > 0:
-            for item in mask_sizes[section]:
-                cat = list(labels.keys())[list(labels.values()).index(item.keys()[0])]
-                # 2.1, 2.2
-                if cat in constants.paperdoll_categories[section]:
-                    final_mask = np.where(mask == item.keys()[0], max_cat, final_mask)
-            max_item_count = 0
-    y_split = face[1] + 3 * face[3]
-    for item in mask_sizes['whole_body']:
-        for i in range(0, mask.shape[0]):
-            if i <= y_split:
-                for j in range(0, mask.shape[1]):
-                    if mask[i][j] == item.keys()[0]:
-                        final_mask[i][j] = sections["upper_under"] or sections["upper_cover"] or 0
-            else:
-                for j in range(0, mask.shape[1]):
-                    if mask[i][j] == item.keys()[0]:
-                        final_mask[i][j] = sections["lower_cover"] or sections["lower_under"] or 0
-    return final_mask
-
-
 def person_isolation(image, face):
     x, y, w, h = face
     image_copy = np.zeros(image.shape, dtype=np.uint8)
@@ -255,19 +188,29 @@ def job_result_from_id(job_id, job_class=Job, conn=None):
 # ----------------------------------------------MAIN-FUNCTIONS----------------------------------------------------------
 
 
-def start_process(page_url, image_url):
+def start_process(page_url, image_url, lang=None):
+    if not lang:
+        products_collection = 'products'
+        coll_name = 'images'
+        images_collection = db[coll_name]
+    else:
+        products_collection = 'products_' + lang
+        coll_name = 'images_' + lang
+        images_collection = db[coll_name]
+
     # IF URL HAS NO IMAGE IN IT
     image = Utils.get_cv2_img_array(image_url)
     if image is None:
         return
     # IF IMAGE EXISTS IN IMAGES BY URL
-    images_obj_url = images.find_one({"image_urls": image_url})
+    images_obj_url = images_collection.find_one({"image_urls": image_url})
     if images_obj_url:
         return
 
     # IF IMAGE EXISTS IN IMAGES BY HASH (WITH ANOTHER URL)
     image_hash = page_results.get_hash_of_image_from_url(image_url)
-    images_obj_hash = images.find_one_and_update({"image_hash": image_hash}, {'$push': {'image_urls': image_url}})
+    images_obj_hash = images_collection.find_one_and_update({"image_hash": image_hash},
+                                                            {'$push': {'image_urls': image_url}})
     if images_obj_hash:
         return
 
@@ -294,22 +237,27 @@ def start_process(page_url, image_url):
                 image_copy = person_isolation(image, face)
                 image_dict['people'].append(person)
                 paper_job = paperdoll_parse_enqueue.paperdoll_enqueue(image_copy, person['person_id'])
-                q1.enqueue(from_paperdoll_to_similar_results, person['person_id'], paper_job.id, depends_on=paper_job)
+                q1.enqueue(from_paperdoll_to_similar_results, person['person_id'], paper_job.id,
+                           products_collection=products_collection, images_collection=coll_name, depends_on=paper_job)
                 idx += 1
         else:
             # no faces, only general positive human detection
             person = {'face': [], 'person_id': str(bson.ObjectId()), 'person_idx': 0, 'items': []}
             image_dict['people'].append(person)
             paper_job = paperdoll_parse_enqueue.paperdoll_enqueue(image, person['person_id'])
-            q1.enqueue(from_paperdoll_to_similar_results, person['person_id'], paper_job.id, depends_on=paper_job)
+            q1.enqueue(from_paperdoll_to_similar_results, person['person_id'], paper_job.id,
+                       products_collection=products_collection, images_collection=coll_name, depends_on=paper_job)
     else:  # if not relevant
         logging.warning('image is not relevant, but stored anyway..')
-        images.insert(image_dict)
+        images_collection.insert(image_dict)
         return
     iip.insert(image_dict)
 
 
-def from_paperdoll_to_similar_results(person_id, paper_job_id, num_of_matches=100):
+def from_paperdoll_to_similar_results(person_id, paper_job_id, num_of_matches=100, products_collection=None,
+                                      images_collection='images'):
+    products_collection = products_collection
+    images_collection = db[images_collection]
     paper_job_results = job_result_from_id(paper_job_id)
     if paper_job_results[3] != person_id:
         print
@@ -339,7 +287,8 @@ def from_paperdoll_to_similar_results(person_id, paper_job_id, num_of_matches=10
             item_dict["svg_url"] = constants.svg_url_prefix + svg_name
             item_dict['fp'], item_dict['similar_results'] = find_similar_mongo.find_top_n_results(image, item_mask,
                                                                                                   num_of_matches,
-                                                                                                  item_dict['category'])
+                                                                                                  item_dict['category'],
+                                                                                                  collection=products_collection)
             items.append(item_dict)
             idx += 1
     new_image_obj = iip.find_one_and_update({'people.person_id': person_id}, {'$set': {'people.$.items': items}},
@@ -359,12 +308,12 @@ def from_paperdoll_to_similar_results(person_id, paper_job_id, num_of_matches=10
     else:
         image_obj = new_image_obj
     if person['person_idx'] == len(image_obj['people']) - 1:
-        images.insert(image_obj)
+        images_collection.insert(image_obj)
         iip.delete_one({'_id': image_obj['_id']})
         logging.warning("Done! image was successfully inserted to the DB images!")
 
 
-def get_results_now(page_url, image_url):
+def get_results_now(page_url, image_url, collection='products'):
 
     # IF IMAGE EXISTS IN IMAGES BY URL
     images_obj_url = images.find_one({"image_urls": image_url}) or db.demo.find_one({"image_urls": image_url})
@@ -424,7 +373,8 @@ def get_results_now(page_url, image_url):
                                                                                                           item_mask,
                                                                                                           100,
                                                                                                           item_dict[
-                                                                                                              'category'])
+                                                                                                              'category'],
+                                                                                                          collection=collection)
                     person['items'].append(item_dict)
                     item_idx += 1
             idx += 1

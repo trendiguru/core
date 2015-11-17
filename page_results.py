@@ -7,18 +7,16 @@ import hashlib
 import copy
 import logging
 
-from bson import objectid
-import bson
-
-
 # ours
 import Utils
-import background_removal
 import constants
 
 # logging.basicConfig(format='%(levelname)s:%(message)s', level=logging.DEBUG)
 db = constants.db
+lang = ""
+image_coll_name = "images"
 
+'''
 
 def verify_hash_of_image(image_hash, image_url):
     img_arr = Utils.get_cv2_img_array(image_url)
@@ -30,21 +28,6 @@ def verify_hash_of_image(image_hash, image_url):
         return True
     else:
         return False
-
-
-def get_hash_of_image_from_url(image_url):
-    if image_url is None:
-        logging.warning("Bad image url!")
-        return None
-    img_arr = Utils.get_cv2_img_array(image_url)
-    if img_arr is None:
-        logging.warning('couldnt get img_arr from url:' + image_url + ' in get_hash_of_image')
-        return None
-    m = hashlib.md5()
-    m.update(img_arr)
-    url_hash = m.hexdigest()
-    logging.debug('url_image hash:' + url_hash + ' for ' + image_url)
-    return url_hash
 
 
 # probably unneccesary function, was thinking it would be useful to take different kinds of arguments for some reason
@@ -83,13 +66,13 @@ def get_known_similar_results(image_hash=None, image_url=None, page_url=None):
     return cursor
 
 def start_pipeline(image_url):
-    '''
+    """
 
     :param image_url:
     :return: an array of db entries , hopefully the most similar ones to the given image.
     this will require classification (thru qcs ) , fingerprinting, vetting top N items using qc, maybe
     crosschecking, and returning top K results
-    '''
+    """
     # the goods go here
     # There may be multiple items in an image, so this should return list of items
     # each item having a list of similar results
@@ -126,17 +109,17 @@ def start_pipeline(image_url):
     return result
 
 def qc_assessment_of_relevance(image_url):
-    '''
+    """
 
     :param image_url:
     :return:  should return a human opinion as to whether the image is relevant for us or not
-    '''
+    """
     # something useful goes here...
     return True
 
 # we wanted to do this as an object , with methods for putting in db
 def find_similar_items_and_put_into_db(image_url, page_url):
-    '''
+    """
         This is for new images - gets the similar items to a given image (at image_url) and puts that the similar item info
         into an images db entry
     :param image_url: url of image to find similar items for, page_url is page it appears on
@@ -145,7 +128,7 @@ def find_similar_items_and_put_into_db(image_url, page_url):
     regular db and puts the right fields into the 'images' db
     this does not check if the image already appears elsewhere - whoever called this function
     was supposed to take of that
-    '''
+    """
     similar_items_from_products_db = start_pipeline(image_url)  # returns a list of items, each with similar_items
     logging.debug('items returned from pipeline:')
     logging.debug(str(similar_items_from_products_db))
@@ -184,14 +167,14 @@ def find_similar_items_and_put_into_db(image_url, page_url):
     return results_dict
 
 def update_image_in_db(page_url, image_url, cursor):
-    '''
+    """
     check each doc in cursor. This is a cursor of docs matching the image at image_url.
     if page_url is there then do nothing, otherwise add page_url to the list page_urls
     :param page_url:
     :param image_url:
     :param cursor:
     :return:
-    '''
+    """
     i = 0
     for doc in cursor:
         # why is there possible more than one doc like this to be updated?  cuz the image
@@ -234,14 +217,14 @@ def update_image_in_db(page_url, image_url, cursor):
         logging.debug(doc)
 
 def get_all_data_for_page(page_url):
-    '''
+    """
     this returns all the known similar items for images appearing at page_url (that we know about - maybe images changed since last we checked)
     :type page_url: str
     :return: dictionary of similar results for each image at page
     this should dereference the similar items dbreferences, and return full info except things the front end doesnt care about like fingerprint etc.
     currently the projection operator isnt working for some reason
     there was a bug in dbrefs using projections that was fixed in certain versions , see https://github.com/Automattic/mongoose/issues/1091
-    '''
+    """
     # logging.basicConfig(format='%(levelname)s:%(message)s', level=logging.DEBUG)
     if page_url == None:
         logging.warning('results_for_page wasnt given a url')
@@ -406,23 +389,37 @@ def new_images(page_url, list_of_image_urls):
             new_answer = find_similar_items_and_put_into_db(image_url, page_url)
         i = i + 1
     return number_found, number_not_found
+'''
 
 
-def load_similar_results(sparse, projection_dict):
+def set_lang(new_lang):
+    global lang
+    global image_coll_name
+
+    lang = new_lang
+    images_suffix = "_" + new_lang
+    image_coll_name = "images{0}".format(images_suffix)
+
+
+def load_similar_results(sparse, projection_dict, collection_name=None):
+    collection_name = collection_name or image_coll_name
+    collection = db[collection_name]
     for person in sparse["people"]:
         for item in person["items"]:
             similar_results = []
             for result in item["similar_results"]:
-                full_result = db.products.find_one({"_id": result["_id"]}, projection_dict)
+                full_result = collection.find_one({"_id": result["_id"]}, projection_dict)
                 # full_result["clickUrl"] = Utils.shorten_url_bitly(full_result["clickUrl"])
                 similar_results.append(full_result)
             item["similar_results"] = similar_results
     return sparse
 
-def is_image_relevant(image_url):
+
+def is_image_relevant(image_url, collection_name=None):
+    collection_name = collection_name or image_coll_name
     if image_url is not None:
         query = {"image_urls": image_url}
-        image_dict = db.images.find_one(query, {'relevant': 1, 'people.items.similar_results': 1})
+        image_dict = db[collection_name].find_one(query, {'relevant': 1, 'people.items.similar_results': 1})
         return has_items(image_dict)
     else:
         return False
@@ -440,13 +437,17 @@ def has_items(image_dict):
 
 
 def get_data_for_specific_image(image_url=None, image_hash=None, image_projection=None, product_projection=None,
-                                max_results=20):
+                                max_results=20, lang=None):
     """
     this just checks db for an image or hash. It doesn't start the pipeline or update the db
     :param image_url: url of image to find
     :param image_hash: hash (of image) to find
     :return:
     """
+    if lang:
+        set_lang(lang)
+    image_collection = db[image_coll_name]
+
     image_projection = image_projection or {
         '_id': 1,
         'image_hash': 1,
@@ -491,7 +492,7 @@ def get_data_for_specific_image(image_url=None, image_hash=None, image_projectio
         logging.debug('looking for hash ' + image_hash + ' in db ')
         query = {"image_hash": image_hash}
 
-    sparse_image_dict = db.images.find_one(query, image_projection)
+    sparse_image_dict = image_collection.find_one(query, image_projection)
     if sparse_image_dict is not None:
         logging.debug('found image (or hash) in db ')
         # hash gets checked in update_image_in_db(), alternatively it could be checked here
@@ -503,12 +504,14 @@ def get_data_for_specific_image(image_url=None, image_hash=None, image_projectio
         return None
 
 
-def image_exists(image_url):
-    image_dict = db.images.find_one({"image_urls": image_url}, {"_id": 1})
+def image_exists(image_url, collection_name=None):
+    collection_name = collection_name or image_coll_name
+    image_collection = db[collection_name]
+    image_dict = image_collection.find_one({"image_urls": image_url}, {"_id": 1})
     if image_dict is None:
         im_hash = get_hash_of_image_from_url(image_url)
         if im_hash:
-            image_dict = db.images.find_one({"image_hash": im_hash}, {"_id": 1})
+            image_dict = image_collection.find_one({"image_hash": im_hash}, {"_id": 1})
     return bool(image_dict)
 
 
@@ -517,18 +520,31 @@ def merge_items(doc):
     del doc["people"]
     return doc
 
+def get_hash_of_image_from_url(image_url):
+    if image_url is None:
+        logging.warning("Bad image url!")
+        return None
+    img_arr = Utils.get_cv2_img_array(image_url)
+    if img_arr is None:
+        logging.warning('couldnt get img_arr from url:' + image_url + ' in get_hash_of_image')
+        return None
+    m = hashlib.md5()
+    m.update(img_arr)
+    url_hash = m.hexdigest()
+    logging.debug('url_image hash:' + url_hash + ' for ' + image_url)
+    return url_hash
 
 # No longer, necessary, used fancy image_projection instead
-def reduce_item(item, desired_keys=None):
-    desired_keys = desired_keys or [u'category',
-                                    u'similar_results',
-                                    u'item_id',
-                                    u'svg_url']
-
-    unwanted = set(desired_keys) - set(item)
-    for unwanted_key in unwanted:
-        del item[unwanted_key]
-
-    return item
+# def reduce_item(item, desired_keys=None):
+#     desired_keys = desired_keys or [u'category',
+#                                     u'similar_results',
+#                                     u'item_id',
+#                                     u'svg_url']
+#
+#     unwanted = set(desired_keys) - set(item)
+#     for unwanted_key in unwanted:
+#         del item[unwanted_key]
+#
+#     return item
 
 

@@ -62,7 +62,7 @@ def mask2svg(mask, filename, save_in_folder):
     return filename + '.svg'
 
 
-def find_top_n_results(image, mask, number_of_results=10, category_id=None, collection_name="products",
+def find_top_n_results(image, mask, number_of_results=10, category_id=None, collection="products",
                        fp_category=FP_KEY, fp_len=fingerprint_length, distance_function=None,
                        bins=histograms_length):
     '''
@@ -74,20 +74,23 @@ def find_top_n_results(image, mask, number_of_results=10, category_id=None, coll
     if a distance_function other than Bhattacharyya is used then call the function with that distance function's name
     '''
     fp_weights = constants.fingerprint_weights
-    collection = db[collection_name]
+    collection = db[collection]
 
     subcategory_id_list = get_all_subcategories(db.categories, category_id)
 
     # get all items in the subcategory/keyword
     potential_matches_cursor = collection.find(
         {"categories": {"$elemMatch": {"id": {"$in": subcategory_id_list}}}},
-        {"_id": 1, "id": 1, "fingerprint": 1, "image.sizes.XLarge.url": 1, "clickUrl": 1, "new_fp": 1}).batch_size(100)
+        {"_id": 1, "id": 1, "fingerprint": 1, "image.sizes.XLarge.url": 1, "clickUrl": 1}).batch_size(100)
 
+    print "amount of docs in cursor: {0}".format(potential_matches_cursor.count())
+    print potential_matches_cursor.count()
     color_fp = fp.fp(image, bins, fp_len, mask)
     target_dict = {"clothingClass": category_id, "fingerprint": color_fp}
     print "calling find_n_nearest.."
     closest_matches = NNSearch.find_n_nearest_neighbors(target_dict, potential_matches_cursor, number_of_results,
                                                         fp_weights, bins, fp_category, distance_function)
+    print closest_matches[0]
     print "done with find_n_nearest.."
     # get only the object itself, not the distance
     closest_matches = [match_tuple[0] for match_tuple in closest_matches]
