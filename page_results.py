@@ -397,7 +397,8 @@ def set_lang(new_lang):
     global image_coll_name
 
     lang = new_lang
-    image_coll_name = "images{0}".format("" if not lang else "_{0}".format(lang))
+    images_suffix = "_" + new_lang
+    image_coll_name = "images{0}".format(images_suffix)
 
 
 def load_similar_results(sparse, projection_dict, collection_name=None):
