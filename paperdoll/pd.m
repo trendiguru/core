@@ -1,6 +1,7 @@
 function [mask,label_names,pose] = pd(image_filename)
 %todo - check if path already ok,
 % check if data already loaded
+tic
 disp(['the image sent to pd in matlab is:' image_filename])
 %todo - check if we cant load this once only (when engine is created)
 load data/paperdoll_pipeline.mat config;
@@ -24,6 +25,7 @@ save('names.mat','label_names')
 save('pose.mat','pose')
 %show_parsing(result.image, result.final_labeling, result.refined_labels);
 save('output.mat','result')
+toc
 return
 
 
