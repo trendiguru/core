@@ -14,6 +14,10 @@ RUN apt-get install -y cmake   #have below
 RUN apt-get install -y unzip
 
 #PYTHON NUMPY
+RUN add-apt-repository ppa:fkrull/deadsnakes
+RUN apt-get update
+RUN apt-get install -y python2.7
+
 RUN wget https://bootstrap.pypa.io/get-pip.py
 RUN python get-pip.py
 #RUN pip install pymongo
