@@ -7,32 +7,32 @@ RUN apt-get -y upgrade
 RUN apt-key update
 
 RUN apt-get install -y wget
-RUN apt-get install -y screen
+#RUN apt-get install -y screen
 #cmap is  for debugging port forwarding
-RUN apt-get install -y nmap
-RUN apt-get install -y cmake
+#RUN apt-get install -y nmap
+#RUN apt-get install -y cmake   #have below
 RUN apt-get install -y unzip
 
 #PYTHON NUMPY
 RUN wget https://bootstrap.pypa.io/get-pip.py
 RUN python get-pip.py
-RUN pip install pymongo
+#RUN pip install pymongo
 RUN pip install ipython
 RUN apt-get install -y python-dev
 #RUN apt-get install -y python-numpy
 #RUN easy_install numpy
 RUN pip install numpy
-RUN pip install python-dateutil
+#RUN pip install python-dateutil
 RUN pip install pyparsing
 RUN pip install pytz
 #RUN pip install matplotlib
 
 
 #these scripts are to check port forwarding with a single command
-RUN  echo 'nmap -p 27017 localhost' > portmongo.sh
-RUN chmod o+x portmongo.sh
-RUN  echo 'nmap -p 6379 localhost' > portredis.sh
-RUN chmod o+x portredis.sh
+#RUN  echo 'nmap -p 27017 localhost' > portmongo.sh
+#RUN chmod o+x portmongo.sh
+#RUN  echo 'nmap -p 6379 localhost' > portredis.sh
+#RUN chmod o+x portredis.sh
 
 ##############################
 #OPENCV 3.0
@@ -47,8 +47,8 @@ RUN apt-get -qq install -y cmake
 RUN apt-get -qq install -y pkg-config
 RUN apt-get -qq install -y yasm
 RUN apt-get -qq install -y libpng12-dev
-RUN apt-get -qq install -y python-dev
-RUN apt-get -qq install -y python-numpy
+#RUN apt-get -qq install -y python-dev    #have below
+RUN apt-get -qq install -y python-numpy  #have below
 
 #install opengl
 #RUN apt-get install -y freeglut3-dev
@@ -109,10 +109,10 @@ RUN pip install rq
 #CMD ssh -i /.ssh/first_aws.pem -L 27017:localhost:27017 ubuntu@extremeli.trendi.guru && /bin/bash
 
 #these scripts are to check port forwarding with a single command
-RUN  echo 'nmap -p 27017 localhost' > portmongo.sh
-RUN chmod o+x portmongo.sh
-RUN  echo 'nmap -p 6379 localhost' > portredis.sh
-RUN chmod o+x portredis.sh
+#RUN  echo 'nmap -p 27017 localhost' > portmongo.sh
+#RUN chmod o+x portmongo.sh
+#RUN  echo 'nmap -p 6379 localhost' > portredis.sh
+#UN chmod o+x portredis.sh
 
 
 
@@ -282,11 +282,11 @@ WORKDIR /opt/caffe && \
 
 #WORKDIR /opt/caffe
 
-#RUN ./scripts/download_model_binary.py ./models/bvlc_reference_caffenet
-#RUN ./data/ilsvrc12/get_ilsvrc_aux.sh
+RUN ./scripts/download_model_binary.py ./models/bvlc_reference_caffenet
+RUN ./data/ilsvrc12/get_ilsvrc_aux.sh
 
 #the classification.bin isnt there for some reason
-#RUN ./build/examples/cpp_classification/classification.bin ./models/bvlc_reference_caffenet/deploy.prototxt ./models/bvlc_reference_caffenet/bvlc_reference_caffenet.caffemodel ./data/ilsvrc12/imagenet_mean.binaryproto ./data/ilsvrc12/synset_words.txt ./examples/images/cat.jpg
+RUN ./build/examples/cpp_classification/classification.bin ./models/bvlc_reference_caffenet/deploy.prototxt ./models/bvlc_reference_caffenet/bvlc_reference_caffenet.caffemodel ./data/ilsvrc12/imagenet_mean.binaryproto ./data/ilsvrc12/synset_words.txt ./examples/images/cat.jpg
 
 
 ################################
