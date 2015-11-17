@@ -7,16 +7,14 @@ import hashlib
 import copy
 import logging
 
-from bson import objectid
-import bson
-
 # ours
 import Utils
-import background_removal
 import constants
 
 # logging.basicConfig(format='%(levelname)s:%(message)s', level=logging.DEBUG)
 db = constants.db
+lang = ""
+image_coll_name = "products"
 
 '''
 
@@ -393,6 +391,15 @@ def new_images(page_url, list_of_image_urls):
     return number_found, number_not_found
 '''
 
+
+def set_lang(new_lang):
+    global lang
+    global image_coll_name
+
+    lang = new_lang
+    image_coll_name = "images{0}".format("" if not lang else "_{0}".format(lang))
+
+
 def load_similar_results(sparse, projection_dict, collection_name='products'):
     collection = db[collection_name]
     for person in sparse["people"]:
@@ -405,7 +412,9 @@ def load_similar_results(sparse, projection_dict, collection_name='products'):
             item["similar_results"] = similar_results
     return sparse
 
-def is_image_relevant(image_url, collection_name='products'):
+
+def is_image_relevant(image_url, collection_name=None):
+    collection_name = collection_name or image_coll_name
     if image_url is not None:
         query = {"image_urls": image_url}
         image_dict = db[collection_name].find_one(query, {'relevant': 1, 'people.items.similar_results': 1})
@@ -433,7 +442,8 @@ def get_data_for_specific_image(image_url=None, image_hash=None, image_projectio
     :param image_hash: hash (of image) to find
     :return:
     """
-    image_coll_name = "images{0}".format("" if not lang else "_{0}".format(lang))
+    if lang:
+        set_lang(lang)
     image_collection = db[image_coll_name]
 
     image_projection = image_projection or {
@@ -492,7 +502,8 @@ def get_data_for_specific_image(image_url=None, image_hash=None, image_projectio
         return None
 
 
-def image_exists(image_url, collection_name="products"):
+def image_exists(image_url, collection_name=None):
+    collection_name = collection_name or image_coll_name
     image_collection = db[collection_name]
     image_dict = image_collection.find_one({"image_urls": image_url}, {"_id": 1})
     if image_dict is None:
