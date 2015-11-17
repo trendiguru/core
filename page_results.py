@@ -11,7 +11,7 @@ import logging
 import Utils
 import constants
 
-logging.basicConfig(format='%(levelname)s:%(message)s', level=logging.DEBUG)
+# logging.basicConfig(format='%(levelname)s:%(message)s', level=logging.DEBUG)
 db = constants.db
 lang = ""
 image_coll_name = "images"
@@ -485,13 +485,13 @@ def get_data_for_specific_image(image_url=None, image_hash=None, image_projectio
         'priceLabel': 1}
 
     if image_url is None and image_hash is None:
-        logging.warning("page_results.get_data_for_specific_image wasn't given one of image url or image hash")
+        print "page_results.get_data_for_specific_image wasn't given one of image url or image hash"
         return None
     if image_url is not None:
-        logging.debug('looking for image ' + image_url + ' in db ')
+        print 'looking for image ' + image_url + ' in db '
         query = {"image_urls": image_url}
     else:
-        logging.debug('looking for hash ' + image_hash + ' in db ')
+        print 'looking for hash ' + image_hash + ' in db '
         query = {"image_hash": image_hash}
 
     sparse_image_dict = image_collection.find_one(query, image_projection)
