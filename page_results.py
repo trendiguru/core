@@ -15,6 +15,7 @@ import constants
 db = constants.db
 lang = ""
 image_coll_name = "images"
+prod_coll_name = "products"
 
 '''
 
@@ -395,15 +396,18 @@ def new_images(page_url, list_of_image_urls):
 def set_lang(new_lang):
     global lang
     global image_coll_name
+    global prod_coll_name
 
     lang = new_lang
-    images_suffix = "_" + new_lang
-    image_coll_name = "images{0}".format(images_suffix)
+    lang_suffix = "_" + new_lang
+    image_coll_name = "images{0}".format(lang_suffix)
+    prod_coll_name = "products{0}".format(lang_suffix)
 
 
-def load_similar_results(sparse, projection_dict, collection_name=None):
-    collection_name = collection_name or image_coll_name
-    collection = db[collection_name]
+def load_similar_results(sparse, projection_dict, product_collection_name=None):
+    product_collection_name = product_collection_name or prod_coll_name
+    collection = db[product_collection_name]
+    print "Will load similar results from collection: " + str(collection)
     for person in sparse["people"]:
         for item in person["items"]:
             similar_results = []
@@ -495,7 +499,7 @@ def get_data_for_specific_image(image_url=None, image_hash=None, image_projectio
         query = {"image_hash": image_hash}
 
     sparse_image_dict = image_collection.find_one(query, image_projection)
-    print "##### FOUND IMAGE: " + sparse_image_dict["image_urls"] + " #####"
+    print "##### FOUND IMAGE: " + str(sparse_image_dict["image_urls"]) + " #####"
     if sparse_image_dict is not None:
         logging.debug('found image (or hash) in db ')
         # hash gets checked in update_image_in_db(), alternatively it could be checked here
