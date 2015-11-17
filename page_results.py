@@ -404,6 +404,7 @@ def set_lang(new_lang):
 def load_similar_results(sparse, projection_dict, collection_name=None):
     collection_name = collection_name or image_coll_name
     collection = db[collection_name]
+    print "Will load similar results from collection: " + str(collection)
     for person in sparse["people"]:
         for item in person["items"]:
             similar_results = []
