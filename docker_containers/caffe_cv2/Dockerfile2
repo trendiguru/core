@@ -6,7 +6,7 @@ RUN apt-get update
 #RUN apt-get -y upgrade
 #RUN apt-key update && apt-get update
 
-RUN apt-get install -y wget
+RUN apt-get install -y python wget
 #RUN apt-get install -y screen
 #cmap is  for debugging port forwarding
 #RUN apt-get install -y nmap
