@@ -28,6 +28,7 @@ def is_person_in_img(method, path, k=10):
             src = np.array(cv2.imread(path))
             src = src.astype(float) / 255
             src = src.tolist()
+            method = 'img'
         else:
             src = path
     elif method == "img":
