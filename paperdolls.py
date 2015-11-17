@@ -256,7 +256,7 @@ def job_result_from_id(job_id, job_class=Job, conn=None):
 
 
 def start_process(page_url, image_url, lang="eng"):
-    products_collection = db.products
+    products_collection = 'products'
     if lang == "jp":
         products_collection = 'products_JP'
 
