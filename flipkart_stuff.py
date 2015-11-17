@@ -61,8 +61,7 @@ if __name__ == "__main__":
     db.download_data.find_one_and_update({"criteria": flipkart},
                                          {'$set': {"total_dl_time(min)": str(total_time / 60)[:5]}})
     r2zip = zipfile.ZipFile(StringIO.StringIO(r2.content))
-    r2zip.extractall()
-    csv_file = open(r2zip.infolist()[0].filename, 'rb')
+    csv_file = r2zip.open(r2zip.infolist()[0].filename, 'rb')
     time.sleep(120)
     DB = csv.reader(csv_file)
     time.sleep(120)
@@ -80,6 +79,8 @@ if __name__ == "__main__":
             tmp_prod["categories"] = inter2paperdole(inter)
             tmp_prod["clickUrl"] = row[6] + affiliate_data
             imgUrl = re.split(';', row[3])
+            if len(imgUrl) < 13:
+                continue
             tmp_prod["images"] = {'Original': imgUrl[3],
                                   'Best': imgUrl[5],
                                   'IPhone': imgUrl[9],
@@ -113,7 +114,7 @@ if __name__ == "__main__":
                     db.download_data.find_one_and_update({"criteria": flipkart},
                                                          {'$inc': {"errors": 1}})
                     print "error inserting"
-                print ("row #" + str(x))
+        print ("row #" + str(x))
 
     print ("sending mail")
     dailyDBupdate.stats_and_mail(flipkart)
