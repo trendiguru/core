@@ -11,7 +11,7 @@ import logging
 import Utils
 import constants
 
-# logging.basicConfig(format='%(levelname)s:%(message)s', level=logging.DEBUG)
+logging.basicConfig(format='%(levelname)s:%(message)s', level=logging.DEBUG)
 db = constants.db
 lang = ""
 image_coll_name = "images"
