@@ -370,7 +370,7 @@ def from_paperdoll_to_similar_results(person_id, paper_job_id, num_of_matches=10
         logging.warning("Done! image was successfully inserted to the DB images!")
 
 
-def get_results_now(page_url, image_url):
+def get_results_now(page_url, image_url, collection='products'):
 
     # IF IMAGE EXISTS IN IMAGES BY URL
     images_obj_url = images.find_one({"image_urls": image_url}) or db.demo.find_one({"image_urls": image_url})
@@ -430,7 +430,8 @@ def get_results_now(page_url, image_url):
                                                                                                           item_mask,
                                                                                                           100,
                                                                                                           item_dict[
-                                                                                                              'category'])
+                                                                                                              'category'],
+                                                                                                          collection=collection)
                     person['items'].append(item_dict)
                     item_idx += 1
             idx += 1
