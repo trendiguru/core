@@ -8,6 +8,7 @@ import numpy as np
 
 import constants
 
+
 db = constants.db
 relevant_caffe_labels = constants.caffeRelevantLabels
 
@@ -23,7 +24,12 @@ def is_person_in_img(method, path, k=10):
 
     CaffeAnswer = collections.namedtuple('caffe_answer', 'is_person categories')
     if method == "url":
-        src = path
+        if path[-4:] == 'webp':
+            src = np.array(cv2.imread(path))
+            src = src.astype(float) / 255
+            src = src.tolist()
+        else:
+            src = path
     elif method == "img":
         src = np.array(cv2.imread(path))
         src = src.astype(float) / 255
