@@ -338,7 +338,7 @@ def get_results_now(page_url, image_url, collection='products'):
 
     # NEW_IMAGE !!
     clean_image = copy.copy(image)
-    relevance = background_removal.image_is_relevant(image, image_url)
+    relevance = background_removal.image_is_relevant(image, use_caffe=page_url, image_url=image_url)
     image_dict = {'image_urls': [image_url], 'relevant': relevance.is_relevant,
                   'image_hash': image_hash, 'page_urls': [page_url], 'people': []}
     if relevance.is_relevant:
