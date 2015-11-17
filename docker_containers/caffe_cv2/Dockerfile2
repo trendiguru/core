@@ -263,8 +263,8 @@ ADD caffe-ld-so.conf /etc/ld.so.conf.d/
 RUN ldconfig
 
 # Install python deps
-WORKDIR /opt/caffe && \
-  (pip install -r python/requirements.txt; easy_install numpy; pip install -r python/requirements.txt) && \
+WORKDIR /opt/caffe
+RUN (pip install -r python/requirements.txt; easy_install numpy; pip install -r python/requirements.txt) && \
   easy_install pillow
 
 
