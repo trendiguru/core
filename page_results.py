@@ -448,6 +448,8 @@ def get_data_for_specific_image(image_url=None, image_hash=None, image_projectio
         set_lang(lang)
     image_collection = db[image_coll_name]
 
+    print "##### image_coll_name: " + image_coll_name + " #####"
+
     image_projection = image_projection or {
         '_id': 1,
         'image_hash': 1,
