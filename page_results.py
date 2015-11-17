@@ -11,6 +11,8 @@ from bson import objectid
 import bson
 
 
+
+
 # ours
 import Utils
 import background_removal
@@ -408,12 +410,13 @@ def new_images(page_url, list_of_image_urls):
     return number_found, number_not_found
 
 
-def load_similar_results(sparse, projection_dict):
+def load_similar_results(sparse, projection_dict, collection='products'):
+    collection = db[collection]
     for person in sparse["people"]:
         for item in person["items"]:
             similar_results = []
             for result in item["similar_results"]:
-                full_result = db.products.find_one({"_id": result["_id"]}, projection_dict)
+                full_result = collection.find_one({"_id": result["_id"]}, projection_dict)
                 # full_result["clickUrl"] = Utils.shorten_url_bitly(full_result["clickUrl"])
                 similar_results.append(full_result)
             item["similar_results"] = similar_results
