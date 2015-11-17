@@ -400,7 +400,8 @@ def set_lang(new_lang):
     image_coll_name = "images{0}".format("" if not lang else "_{0}".format(lang))
 
 
-def load_similar_results(sparse, projection_dict, collection_name='products'):
+def load_similar_results(sparse, projection_dict, collection_name=None):
+    collection_name = collection_name or image_coll_name
     collection = db[collection_name]
     for person in sparse["people"]:
         for item in person["items"]:
