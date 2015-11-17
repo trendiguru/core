@@ -4,7 +4,6 @@ import time
 import collections
 
 import Utils
-
 import constants
 
 
@@ -25,6 +24,10 @@ def is_person_in_img(method, path, k=10):
     if method == "url":
         if path[-4:] == 'webp':
             src = Utils.get_cv2_img_array(path)
+            try:
+                print src.shape
+            except:
+                print "src is None!"
             src = src.astype(float) / 255
             src = src.tolist()
             method = 'img'
@@ -59,4 +62,5 @@ def is_person_in_img(method, path, k=10):
         else:
             return CaffeAnswer(True, catID)
     except:
+        db.caffeResults.delete_many({})
         return CaffeAnswer(False, [])
