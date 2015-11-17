@@ -162,6 +162,7 @@ RUN apt-get update && apt-get install -y \
   libsnappy-dev \
   libopencv-dev \
   libboost-all-dev \
+#sudo apt-get install --no-install-recommends libboost-all-dev   #maybe this instead
   libhdf5-serial-dev \
   liblmdb-dev \
   libjpeg62 \
@@ -218,6 +219,14 @@ RUN  sed -i 's/CXX :=/CXX ?=/' Makefile
 RUN  make VERBOSE=1
 RUN  make
 RUN  make install
+
+#LMDB
+WORKDIR /opt
+RUN git clone https://github.com/LMDB/lmdb
+RUN WORKDIR /opt/lmdb/libraries/liblmdb
+RUN make
+RUN make install
+
 
 # Clone the Caffe repo
 WORKDIR /opt
