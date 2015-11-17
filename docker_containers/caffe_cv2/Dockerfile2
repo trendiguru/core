@@ -270,8 +270,8 @@ WORKDIR /opt/caffe && \
 #  ln -s /usr/local/lib/python2.7/dist-packages/$NUMPY_EGG/numpy/core/include/numpy /usr/include/python2.7/numpy
 
 # Build Caffe python bindings
-WORKDIR /opt/caffe
-RUN make pycaffe
+#WORKDIR /opt/caffe
+#RUN make pycaffe
 
 
 
@@ -280,12 +280,13 @@ RUN make pycaffe
 #make runtest
 #alexnet - get model
 
-WORKDIR /opt/caffe
+#WORKDIR /opt/caffe
 
-RUN ./scripts/download_model_binary.py ./models/bvlc_reference_caffenet
-RUN ./data/ilsvrc12/get_ilsvrc_aux.sh
+#RUN ./scripts/download_model_binary.py ./models/bvlc_reference_caffenet
+#RUN ./data/ilsvrc12/get_ilsvrc_aux.sh
 
-RUN ./build/examples/cpp_classification/classification.bin ./models/bvlc_reference_caffenet/deploy.prototxt ./models/bvlc_reference_caffenet/bvlc_reference_caffenet.caffemodel ./data/ilsvrc12/imagenet_mean.binaryproto ./data/ilsvrc12/synset_words.txt ./examples/images/cat.jpg
+#the classification.bin isnt there for some reason
+#RUN ./build/examples/cpp_classification/classification.bin ./models/bvlc_reference_caffenet/deploy.prototxt ./models/bvlc_reference_caffenet/bvlc_reference_caffenet.caffemodel ./data/ilsvrc12/imagenet_mean.binaryproto ./data/ilsvrc12/synset_words.txt ./examples/images/cat.jpg
 
 
 ################################
