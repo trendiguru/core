@@ -22,29 +22,24 @@ def is_person_in_img(method, path, k=10):
     '''
 
     CaffeAnswer = collections.namedtuple('caffe_answer', 'is_person categories')
-    tic = time.time()
     if method == "url":
         src = path
     elif method == "img":
         src = np.array(cv2.imread(path))
-        toc = time.time()
-        print (toc - tic)
         src = src.astype(float) / 255
-        toc = time.time()
-        print (toc - tic)
         src = src.tolist()
-        toc = time.time()
-        print (toc - tic)
     else:
         raise IOError("bad input was inserted to caffe!")
-
-    id = db.caffeQ.insert_one({"method": method, "src": src, "k": k})
-    toc = time.time()
-    print (toc - tic)
-    while db.caffeResults.find({"_id": str(id)}).count() == 0:
+    tic = time.time()
+    ans = db.caffeQ.insert_one({"method": method, "src": src, "k": k})
+    id = ans.inserted_id
+    itr = 0
+    while db.caffeResults.find({"id": str(id)}).count() == 0:
+        itr += 1
         time.sleep(0.25)
-        if db.caffeQ.find({"_id": str(id)}).count() == 0:
+        if itr > 20:
             break
+
     toc = time.time()
     print "Total time of caffe: {0}".format(toc - tic)
     try:

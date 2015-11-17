@@ -255,7 +255,11 @@ def job_result_from_id(job_id, job_class=Job, conn=None):
 # ----------------------------------------------MAIN-FUNCTIONS----------------------------------------------------------
 
 
-def start_process(page_url, image_url):
+def start_process(page_url, image_url, lang="eng"):
+    products_collection = db.products
+    if lang == "jp":
+        products_collection = db.products_JP
+
     # IF URL HAS NO IMAGE IN IT
     image = Utils.get_cv2_img_array(image_url)
     if image is None:
@@ -294,14 +298,14 @@ def start_process(page_url, image_url):
                 image_copy = person_isolation(image, face)
                 image_dict['people'].append(person)
                 paper_job = paperdoll_parse_enqueue.paperdoll_enqueue(image_copy, person['person_id'])
-                q1.enqueue(from_paperdoll_to_similar_results, person['person_id'], paper_job.id, depends_on=paper_job)
+                q1.enqueue(from_paperdoll_to_similar_results, person['person_id'], paper_job.id, products_collection=products_collection, depends_on=paper_job)
                 idx += 1
         else:
             # no faces, only general positive human detection
             person = {'face': [], 'person_id': str(bson.ObjectId()), 'person_idx': 0, 'items': []}
             image_dict['people'].append(person)
             paper_job = paperdoll_parse_enqueue.paperdoll_enqueue(image, person['person_id'])
-            q1.enqueue(from_paperdoll_to_similar_results, person['person_id'], paper_job.id, depends_on=paper_job)
+            q1.enqueue(from_paperdoll_to_similar_results, person['person_id'], paper_job.id, products_collection=products_collection, depends_on=paper_job)
     else:  # if not relevant
         logging.warning('image is not relevant, but stored anyway..')
         images.insert(image_dict)
@@ -309,7 +313,8 @@ def start_process(page_url, image_url):
     iip.insert(image_dict)
 
 
-def from_paperdoll_to_similar_results(person_id, paper_job_id, num_of_matches=100):
+def from_paperdoll_to_similar_results(person_id, paper_job_id, num_of_matches=100, products_collection=None):
+    products_collection = products_collection or db.products
     paper_job_results = job_result_from_id(paper_job_id)
     if paper_job_results[3] != person_id:
         print
@@ -339,7 +344,8 @@ def from_paperdoll_to_similar_results(person_id, paper_job_id, num_of_matches=10
             item_dict["svg_url"] = constants.svg_url_prefix + svg_name
             item_dict['fp'], item_dict['similar_results'] = find_similar_mongo.find_top_n_results(image, item_mask,
                                                                                                   num_of_matches,
-                                                                                                  item_dict['category'])
+                                                                                                  item_dict['category'],
+                                                                                                  collection=collection)
             items.append(item_dict)
             idx += 1
     new_image_obj = iip.find_one_and_update({'people.person_id': person_id}, {'$set': {'people.$.items': items}},
