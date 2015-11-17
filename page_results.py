@@ -10,9 +10,6 @@ import logging
 from bson import objectid
 import bson
 
-
-
-
 # ours
 import Utils
 import background_removal
@@ -21,6 +18,7 @@ import constants
 # logging.basicConfig(format='%(levelname)s:%(message)s', level=logging.DEBUG)
 db = constants.db
 
+"""
 
 def verify_hash_of_image(image_hash, image_url):
     img_arr = Utils.get_cv2_img_array(image_url)
@@ -32,21 +30,6 @@ def verify_hash_of_image(image_hash, image_url):
         return True
     else:
         return False
-
-
-def get_hash_of_image_from_url(image_url):
-    if image_url is None:
-        logging.warning("Bad image url!")
-        return None
-    img_arr = Utils.get_cv2_img_array(image_url)
-    if img_arr is None:
-        logging.warning('couldnt get img_arr from url:' + image_url + ' in get_hash_of_image')
-        return None
-    m = hashlib.md5()
-    m.update(img_arr)
-    url_hash = m.hexdigest()
-    logging.debug('url_image hash:' + url_hash + ' for ' + image_url)
-    return url_hash
 
 
 # probably unneccesary function, was thinking it would be useful to take different kinds of arguments for some reason
@@ -408,10 +391,10 @@ def new_images(page_url, list_of_image_urls):
             new_answer = find_similar_items_and_put_into_db(image_url, page_url)
         i = i + 1
     return number_found, number_not_found
+"""
 
-
-def load_similar_results(sparse, projection_dict, collection='products'):
-    collection = db[collection]
+def load_similar_results(sparse, projection_dict, collection_name='products'):
+    collection = db[collection_name]
     for person in sparse["people"]:
         for item in person["items"]:
             similar_results = []
@@ -422,10 +405,10 @@ def load_similar_results(sparse, projection_dict, collection='products'):
             item["similar_results"] = similar_results
     return sparse
 
-def is_image_relevant(image_url):
+def is_image_relevant(image_url, collection_name='products'):
     if image_url is not None:
         query = {"image_urls": image_url}
-        image_dict = db.images.find_one(query, {'relevant': 1, 'people.items.similar_results': 1})
+        image_dict = db[collection_name].find_one(query, {'relevant': 1, 'people.items.similar_results': 1})
         return has_items(image_dict)
     else:
         return False
@@ -443,13 +426,16 @@ def has_items(image_dict):
 
 
 def get_data_for_specific_image(image_url=None, image_hash=None, image_projection=None, product_projection=None,
-                                max_results=20):
+                                max_results=20, lang=None):
     """
     this just checks db for an image or hash. It doesn't start the pipeline or update the db
     :param image_url: url of image to find
     :param image_hash: hash (of image) to find
     :return:
     """
+    image_coll_name = "images{0}".format("" if not lang else "_{0}".format(lang))
+    image_collection = db[image_coll_name]
+
     image_projection = image_projection or {
         '_id': 1,
         'image_hash': 1,
@@ -494,7 +480,7 @@ def get_data_for_specific_image(image_url=None, image_hash=None, image_projectio
         logging.debug('looking for hash ' + image_hash + ' in db ')
         query = {"image_hash": image_hash}
 
-    sparse_image_dict = db.images.find_one(query, image_projection)
+    sparse_image_dict = image_collection.find_one(query, image_projection)
     if sparse_image_dict is not None:
         logging.debug('found image (or hash) in db ')
         # hash gets checked in update_image_in_db(), alternatively it could be checked here
@@ -506,12 +492,13 @@ def get_data_for_specific_image(image_url=None, image_hash=None, image_projectio
         return None
 
 
-def image_exists(image_url):
-    image_dict = db.images.find_one({"image_urls": image_url}, {"_id": 1})
+def image_exists(image_url, collection_name="products"):
+    image_collection = db[collection_name]
+    image_dict = image_collection.find_one({"image_urls": image_url}, {"_id": 1})
     if image_dict is None:
         im_hash = get_hash_of_image_from_url(image_url)
         if im_hash:
-            image_dict = db.images.find_one({"image_hash": im_hash}, {"_id": 1})
+            image_dict = image_collection.find_one({"image_hash": im_hash}, {"_id": 1})
     return bool(image_dict)
 
 
@@ -520,18 +507,31 @@ def merge_items(doc):
     del doc["people"]
     return doc
 
+def get_hash_of_image_from_url(image_url):
+    if image_url is None:
+        logging.warning("Bad image url!")
+        return None
+    img_arr = Utils.get_cv2_img_array(image_url)
+    if img_arr is None:
+        logging.warning('couldnt get img_arr from url:' + image_url + ' in get_hash_of_image')
+        return None
+    m = hashlib.md5()
+    m.update(img_arr)
+    url_hash = m.hexdigest()
+    logging.debug('url_image hash:' + url_hash + ' for ' + image_url)
+    return url_hash
 
 # No longer, necessary, used fancy image_projection instead
-def reduce_item(item, desired_keys=None):
-    desired_keys = desired_keys or [u'category',
-                                    u'similar_results',
-                                    u'item_id',
-                                    u'svg_url']
-
-    unwanted = set(desired_keys) - set(item)
-    for unwanted_key in unwanted:
-        del item[unwanted_key]
-
-    return item
+# def reduce_item(item, desired_keys=None):
+#     desired_keys = desired_keys or [u'category',
+#                                     u'similar_results',
+#                                     u'item_id',
+#                                     u'svg_url']
+#
+#     unwanted = set(desired_keys) - set(item)
+#     for unwanted_key in unwanted:
+#         del item[unwanted_key]
+#
+#     return item
 
 
