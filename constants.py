@@ -127,7 +127,36 @@ caffe_relevant_strings = ['hoopskirt', 'jean', 'blue_jean', 'denim', 'jersey', '
                           'lab coat', 'tank suit', 'maillot', 'miniskirt', 'mini', 'overskirt', 'pajama', 'pyjama',
                           "pj's", 'jammies', 'poncho', 'sarong', 'suit', 'suit of clothes', 'sweatshirt']
 
+flipkart_relevant_categories = ['Shirts', 'Skirts', 'Pants', 'Kurtas', 'Jackets', 'Dresses', 'Trousers', 'Kurtis',
+                                'Leggings', 'Tunics', 'Tops', 'Coats', 'Shorts', 'Jumpsuits', 'Blazers', 'Cardigans',
+                                'Sweaters', 'Sweatshirts', 'Jeans', 'Blouses', 'Salwars', 'Shrugs', 'Stockings']
+# 'Shirt','Skirt','Pant','Jacket','Dress','Trouser',
+# 'Legging','Tunic','Top','Coat','Short','Jumpsuit','Blazer','Cardigan',
+# 'Sweater','Sweatshirt', 'Blouse']
 
+flipkart_paperdoll_women = {'Tops': 'top', 'Top': 'top',
+                            'Pants': 'pants', 'Pant': 'pants', 'Trousers': 'pants',
+                            'Shorts': 'shorts', 'Short': 'shorts',
+                            'Jeans': 'jeans',
+                            'Jackets': 'jacket', 'Jacket': 'jacket',
+                            'Blazers': 'blazer', 'Blazer': 'blazer',
+                            'Shirts': 'shirt', 'Shirt': 'shirt',
+                            'Skirts': 'skirt', 'Skirt': 'skirt',
+                            'Tunics': 'blouse', 'Tunic': 'blouse', 'Blouses': 'blouse', 'Blouse': 'blouse',
+                            'Dresses': 'dress', 'Dress': 'dress', 'Kurtis': 'dress', 'Kurtas': 'dress',
+                            'Salwars': 'dress',
+                            'Sweaters': 'sweater', 'Sweater': 'sweater',
+                            'T-Shirts': 't-shirt', 'T-Shirt': 't-shirt',
+                            'Cardigans': 'cardigan', 'Cardigan': 'cardigan', 'Shrugs': 'cardigan',
+                            'Coats': 'coat', 'Coat': 'coat',
+                            'Suits': 'suit', 'Jumpsuits': 'suit',
+                            'Leggings': 'tights', 'Tights': 'tights',
+                            'Sweatshirts': 'sweatshirt',
+                            'Stockings': 'stockings'}
+
+paperdoll_relevant_categories = {'top', 'pants', 'shorts', 'jeans', 'jacket', 'blazer', 'shirt', 'skirt', 'blouse',
+                                 'dress',
+                                 'sweater', 't-shirt', 'cardigan', 'coat', 'suit', 'tights', 'sweatshirt', 'stockings'}
 # for web bounding box interface
 # this is for going to the previous item, highest numbered image
 max_image_val = 666
