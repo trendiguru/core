@@ -24,7 +24,7 @@ def email(stats, coll):
     yonti = 'yontilevin@gmail.com'
     sender = 'yontiforall@gmail.com'
     #
-    recipient = 'team@trendiguru.com'
+    recipient = 'yontilevin@gmail.com'  # 'team@trendiguru.com'
 
     # Open a plain text file for reading.  For this example, assume that
     msg = MIMEMultipart('alternative')
@@ -35,12 +35,9 @@ def email(stats, coll):
     txt2 = '<h1><mark>' + coll + '</mark></h1><br>' \
                                  '<h3> date:\t' + str(stats['date']) + '</h3>\n<h3>' + \
            'items downloaded:\t' + str(stats['items_downloaded']) + '</h3>\n<h3>' + \
-           'existing items:\t' + str(stats['existing_items']) + '</h3>\n<h3>' + \
            'new items:\t' + str(stats['new_items']) + '</h3>\n<h3>' + \
-           'items from archive:\t' + str(stats['items_from_archive']) + '</h3>\n<h3>' + \
-           'items sent to archive:\t' + str(stats['items_sent_to_archive']) + '</h3>\n<h3>' + \
            'insert errors:\t' + str(stats['errors']) + '</h3>\n<h3>' + \
-           'dl duration(hours):\t' + str(stats['dl_duration(hours)'])[:5] + '</h3>\n<h3>' + \
+           'dl duration(min):\t' + str(stats['dl_duration(min)'])[:5] + '</h3>\n<h3>' + \
            '</h3>\n<h3>' + '</h3>\n<h3>' + 'items by category:</h3>\n' + '</h3>\n<h3>'
 
     categories = ""
@@ -127,18 +124,19 @@ def stats_and_mail(collection):
     date = dl_data['current_dl']
     stats = {'date': date,
              'items_downloaded': dl_data['items_downloaded'],
-             'existing_items': dl_data['existing_items'],
              'new_items': dl_data['new_items'],
-             'items_from_archive': dl_data['returned_from_archive'],
-             'items_sent_to_archive': dl_data['sent_to_archive'],
-             'dl_duration(hours)': dl_data['total_dl_time(hours)'],
+             'dl_duration(min)': dl_data['total_dl_time(min)'],
              'errors': dl_data['errors'],
              'items_by_category': {}}
-    for i in constants.db_relevant_items:
-        if i == 'women' or i == 'women-cloth':
-            continue
-        stats['items_by_category'][i] = {'total': db[collection].find({'categories.id': i}).count(),
-                                         'new': db[collection].find({'$and': [{'categories.id': i},
+    # for i in constants.db_relevant_items:
+    #     if i == 'women' or i == 'women-cloth':
+    #         continue
+    #     stats['items_by_category'][i] = {'total': db[collection].find({'categories.id': i}).count(),
+    #                                      'new': db[collection].find({'$and': [{'categories.id': i},
+    #                                                                        {'download_data.first_dl': date}]}).count()}
+    for i in constants.paperdoll_relevant_categories:
+        stats['items_by_category'][i] = {'total': db[collection].find({'categories': i}).count(),
+                                         'new': db[collection].find({'$and': [{'categories': i},
                                                                            {'download_data.first_dl': date}]}).count()}
     email(stats, collection)
     # with open(date + '.txt', 'w') as outfile:
