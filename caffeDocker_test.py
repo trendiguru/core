@@ -3,10 +3,9 @@ __author__ = 'yonatan'
 import time
 import collections
 
-import cv2
-import numpy as np
-
+import Utils
 import constants
+
 
 db = constants.db
 relevant_caffe_labels = constants.caffeRelevantLabels
@@ -23,9 +22,19 @@ def is_person_in_img(method, path, k=10):
 
     CaffeAnswer = collections.namedtuple('caffe_answer', 'is_person categories')
     if method == "url":
-        src = path
+        if path[-4:] == 'webp':
+            src = Utils.get_cv2_img_array(path)
+            try:
+                print src.shape
+            except:
+                print "src is None!"
+            src = src.astype(float) / 255
+            src = src.tolist()
+            method = 'img'
+        else:
+            src = path
     elif method == "img":
-        src = np.array(cv2.imread(path))
+        src = Utils.get_cv2_img_array(path)
         src = src.astype(float) / 255
         src = src.tolist()
     else:
@@ -53,4 +62,5 @@ def is_person_in_img(method, path, k=10):
         else:
             return CaffeAnswer(True, catID)
     except:
+        db.caffeResults.delete_many({})
         return CaffeAnswer(False, [])
