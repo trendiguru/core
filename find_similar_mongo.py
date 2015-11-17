@@ -83,6 +83,7 @@ def find_top_n_results(image, mask, number_of_results=10, category_id=None, coll
         {"categories": {"$elemMatch": {"id": {"$in": subcategory_id_list}}}},
         {"_id": 1, "id": 1, "fingerprint": 1, "image.sizes.XLarge.url": 1, "clickUrl": 1}).batch_size(100)
 
+    print "amount of docs in cursor: {0}".format(potential_matches_cursor.count())
     print potential_matches_cursor.count()
     color_fp = fp.fp(image, bins, fp_len, mask)
     target_dict = {"clothingClass": category_id, "fingerprint": color_fp}
