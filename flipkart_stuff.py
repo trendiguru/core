@@ -55,7 +55,7 @@ if __name__ == "__main__":
 
     r2 = requests.get(url=url2, headers=headers)
     db.download_data.find_one_and_update({"criteria": flipkart},
-                                         {'$set': {"start_time": datetime.datetime.now()}})
+                                         {'$set': {"end_time": datetime.datetime.now()}})
     total = db.download_data.find({"criteria": flipkart})[0]
     total_time = abs(total["end_time"] - total["start_time"]).total_seconds()
     db.download_data.find_one_and_update({"criteria": flipkart},
