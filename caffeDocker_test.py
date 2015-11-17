@@ -62,4 +62,5 @@ def is_person_in_img(method, path, k=10):
         else:
             return CaffeAnswer(True, catID)
     except:
+        db.caffeResults.delete_many({})
         return CaffeAnswer(False, [])
