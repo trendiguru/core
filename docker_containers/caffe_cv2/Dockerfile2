@@ -4,7 +4,7 @@ FROM ubuntu:14.04
 RUN sed -i 's/# \(.*multiverse$\)/\1/g' /etc/apt/sources.list
 RUN apt-get update
 RUN apt-get -y upgrade
-RUN apt-key update
+RUN apt-key update && apt-get update
 
 RUN apt-get install -y wget
 #RUN apt-get install -y screen
