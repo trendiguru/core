@@ -62,7 +62,7 @@ def mask2svg(mask, filename, save_in_folder):
     return filename + '.svg'
 
 
-def find_top_n_results(image, mask, number_of_results=10, category_id=None, collection_name="products",
+def find_top_n_results(image, mask, number_of_results=10, category_id=None, collection="products",
                        fp_category=FP_KEY, fp_len=fingerprint_length, distance_function=None,
                        bins=histograms_length):
     '''
@@ -74,7 +74,7 @@ def find_top_n_results(image, mask, number_of_results=10, category_id=None, coll
     if a distance_function other than Bhattacharyya is used then call the function with that distance function's name
     '''
     fp_weights = constants.fingerprint_weights
-    collection = db[collection_name]
+    collection = db[collection]
 
     subcategory_id_list = get_all_subcategories(db.categories, category_id)
 

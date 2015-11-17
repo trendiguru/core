@@ -258,7 +258,7 @@ def job_result_from_id(job_id, job_class=Job, conn=None):
 def start_process(page_url, image_url, lang="eng"):
     products_collection = db.products
     if lang == "jp":
-        products_collection = db.products_JP
+        products_collection = 'products_JP'
 
     # IF URL HAS NO IMAGE IN IT
     image = Utils.get_cv2_img_array(image_url)
@@ -314,7 +314,7 @@ def start_process(page_url, image_url, lang="eng"):
 
 
 def from_paperdoll_to_similar_results(person_id, paper_job_id, num_of_matches=100, products_collection=None):
-    products_collection = products_collection or db.products
+    collection = products_collection or 'db.products'
     paper_job_results = job_result_from_id(paper_job_id)
     if paper_job_results[3] != person_id:
         print
