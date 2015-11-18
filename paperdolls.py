@@ -278,8 +278,9 @@ def from_paperdoll_to_similar_results(person_id, paper_job_id, num_of_matches=10
         if category in constants.paperdoll_shopstyle_women.keys():
             item_mask = 255 * np.array(final_mask == num, dtype=np.uint8)
             shopstyle_cat = constants.paperdoll_shopstyle_women[category]
+            shopstyle_cat_local = constants.paperdoll_shopstyle_women_jp_categories[category]
             item_dict = {"category": shopstyle_cat, 'item_id': str(bson.ObjectId()), 'item_idx': idx,
-                         'saved_date': datetime.datetime.now()}
+                         'saved_date': datetime.datetime.now(), 'category_name': shopstyle_cat_local}
             svg_name = find_similar_mongo.mask2svg(
                 item_mask,
                 str(image_obj['_id']) + '_' + person['person_id'] + '_' + item_dict['category'],
