@@ -410,6 +410,9 @@ def get_results_now(page_url, image_url, collection='products_jp'):
                                                                                                           item_dict[
                                                                                                               'category'],
                                                                                                           collection=collection)
+                    person['items'].append(item_dict)
+                    item_idx += 1
+            image_dict['people'].append(person)
         db.demo.insert(image_dict)
         return page_results.merge_items(image_dict)
     else:  # if not relevant
