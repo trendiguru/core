@@ -404,21 +404,6 @@ def set_lang(new_lang):
     prod_coll_name = "products{0}".format(lang_suffix)
 
 
-def load_similar_results(sparse, projection_dict, product_collection_name=None):
-    product_collection_name = product_collection_name or prod_coll_name
-    collection = db[product_collection_name]
-    print "Will load similar results from collection: " + str(collection)
-    for person in sparse["people"]:
-        for item in person["items"]:
-            similar_results = []
-            for result in item["similar_results"]:
-                full_result = collection.find_one({"_id": result["_id"]}, projection_dict)
-                # full_result["clickUrl"] = Utils.shorten_url_bitly(full_result["clickUrl"])
-                similar_results.append(full_result)
-            item["similar_results"] = similar_results
-    return sparse
-
-
 def is_image_relevant(image_url, collection_name=None):
     collection_name = collection_name or image_coll_name
     if image_url is not None:
@@ -454,21 +439,18 @@ def get_data_for_specific_image(image_url=None, image_hash=None, image_projectio
 
     print "##### image_coll_name: " + image_coll_name + " #####"
 
+    # REMEMBER, image_obj is sparse, similar_results have very few fields.
     image_projection = image_projection or {
         '_id': 1,
         'image_hash': 1,
         'image_urls': 1,
         'page_urls': 1,
         'people.items.category': 1,
+        'people.items.category_name': 1,
         'people.items.item_id': 1,
         'people.items.item_idx': 1,
         'people.items.similar_results': {'$slice': max_results},
         'people.items.similar_results._id': 1,
-        'people.items.similar_results.id': 1,
-        'people.items.similar_results.image.sizes.XLarge.url': 1,
-        'people.items.similar_results.clickUrl': 1,
-        'people.items.similar_results.brand.name': 1,
-        'people.items.similar_results.priceLabel': 1,
         'people.items.svg_url': 1,
         'relevant': 1}
 
@@ -479,6 +461,7 @@ def get_data_for_specific_image(image_url=None, image_hash=None, image_projectio
         #'retailer': 1,
         #'currency': 1,
         'brand.name': 1,
+        'brand.localizedName': 1,
         #'description': 1,
         'price': 1,
         #'categories': 1,
@@ -486,7 +469,9 @@ def get_data_for_specific_image(image_url=None, image_hash=None, image_projectio
         #'sizes': 1,
         #'pageUrl': 1,
         '_id': 0,
-        'priceLabel': 1}
+        'id': 1,
+        'priceLabel': 1,
+    }
 
     if image_url is None and image_hash is None:
         print "page_results.get_data_for_specific_image wasn't given one of image url or image hash"
@@ -499,7 +484,6 @@ def get_data_for_specific_image(image_url=None, image_hash=None, image_projectio
         query = {"image_hash": image_hash}
 
     sparse_image_dict = image_collection.find_one(query, image_projection)
-    print "##### FOUND IMAGE: " + str(sparse_image_dict["image_urls"]) + " #####"
     if sparse_image_dict is not None:
         logging.debug('found image (or hash) in db ')
         # hash gets checked in update_image_in_db(), alternatively it could be checked here
@@ -509,6 +493,21 @@ def get_data_for_specific_image(image_url=None, image_hash=None, image_projectio
     else:
         logging.debug('image / hash  was NOT found in db')
         return None
+
+
+def load_similar_results(sparse, projection_dict, product_collection_name=None):
+    product_collection_name = product_collection_name or prod_coll_name
+    collection = db[product_collection_name]
+    print "Will load similar results from collection: " + str(collection)
+    for person in sparse["people"]:
+        for item in person["items"]:
+            similar_results = []
+            for result in item["similar_results"]:
+                full_result = collection.find_one({"_id": result["_id"]}, projection_dict)
+                # full_result["clickUrl"] = Utils.shorten_url_bitly(full_result["clickUrl"])
+                similar_results.append(full_result)
+            item["similar_results"] = similar_results
+    return sparse
 
 
 def image_exists(image_url, collection_name=None):
