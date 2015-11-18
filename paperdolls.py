@@ -69,7 +69,7 @@ def get_item_by_id(item_id, collection=iip):
             return None, None, None
 
 
-def after_pd_conclusions(mask, labels, face):
+def after_pd_conclusions(mask, labels, face=None):
     """
     1. if there's a full-body clothing:
         1.1 add to its' mask - all the rest lower body items' masks.
@@ -79,6 +79,10 @@ def after_pd_conclusions(mask, labels, face):
         2.2 upper-body: decide whether it's a one-part or under & cover
     3. return new mask
     """
+    if face:
+        ref_area = face[2] * face[3]
+    else:
+        ref_area = np.mean((mask.shape[0], mask.shape[1])) / 10
     final_mask = mask[:, :]
     mask_sizes = {"upper_cover": [], "upper_under": [], "lower_cover": [], "lower_under": [], "whole_body": []}
     for num in np.unique(mask):
@@ -90,7 +94,7 @@ def after_pd_conclusions(mask, labels, face):
                 mask_sizes[key].append({num: cv2.countNonZero(item_mask)})
     # 1
     for item in mask_sizes["whole_body"]:
-        if (float(item.values()[0]) / (face[2] * face[3]) > 2) or \
+        if (float(item.values()[0]) / (ref_area) > 2) or \
                 (len(mask_sizes["upper_cover"]) == 0 and len(mask_sizes["upper_under"]) == 0) or \
                 (len(mask_sizes["lower_cover"]) == 0 and len(mask_sizes["lower_under"]) == 0):
             print "W2P: That's a {0}".format(list(labels.keys())[list(labels.values()).index((item.keys()[0]))])
@@ -391,12 +395,13 @@ def get_results_now(page_url, image_url, collection='products_jp'):
             person = {'face': [], 'person_id': str(bson.ObjectId()), 'person_idx': 0, 'items': []}
             image_dict['people'].append(person)
             mask, labels, pose = paperdoll_parse_enqueue.paperdoll_enqueue(image, async=False).result[:3]
+            final_mask = after_pd_conclusions(mask, labels)
             item_idx = 0
-            for num in np.unique(mask):
+            for num in np.unique(final_mask):
                 # convert numbers to labels
                 category = list(labels.keys())[list(labels.values()).index(num)]
                 if category in constants.paperdoll_shopstyle_women.keys():
-                    item_mask = 255 * np.array(mask == num, dtype=np.uint8)
+                    item_mask = 255 * np.array(final_mask == num, dtype=np.uint8)
                     shopstyle_cat = constants.paperdoll_shopstyle_women[category]
                     item_dict = {"category": shopstyle_cat, 'item_id': str(bson.ObjectId()), 'item_idx': item_idx,
                                  'saved_date': datetime.datetime.now()}
