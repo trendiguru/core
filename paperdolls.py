@@ -346,12 +346,12 @@ def get_results_now(page_url, image_url, collection='products_jp'):
     image_dict = {'image_urls': [image_url], 'relevant': relevance.is_relevant,
                   'image_hash': image_hash, 'page_urls': [page_url], 'people': []}
     if relevance.is_relevant:
-        if not isinstance(relevance.faces, list):
-            relevant_faces = relevance.faces.tolist()
-        else:
-            relevant_faces = relevance.faces
         idx = 0
-        if len(relevant_faces):
+        if len(relevance.faces):
+            if not isinstance(relevance.faces, list):
+                relevant_faces = relevance.faces.tolist()
+            else:
+                relevant_faces = relevance.faces
             for face in relevant_faces:
                 image_copy = person_isolation(image, face)
                 person = {'face': face, 'person_id': str(bson.ObjectId()), 'person_idx': idx,
