@@ -225,7 +225,7 @@ def start_process(page_url, image_url, lang=None):
 
     # NEW_IMAGE !!
     print "Start process image shape: " + str(image.shape)
-    relevance = background_removal.image_is_relevant(image, image_url=image_url)
+    relevance = background_removal.image_is_relevant(image, use_caffe=True, image_url=image_url)
     image_dict = {'image_urls': [image_url], 'relevant': relevance.is_relevant,
                   'image_hash': image_hash, 'page_urls': [page_url], 'people': []}
     if relevance.is_relevant:
@@ -272,7 +272,7 @@ def from_paperdoll_to_similar_results(person_id, paper_job_id, num_of_matches=10
     if len(person['face']) > 0:
         final_mask = after_pd_conclusions(mask, labels, person['face'])
     else:
-        final_mask = mask
+        final_mask = after_pd_conclusions(mask, labels)
     image = Utils.get_cv2_img_array(image_obj['image_urls'][0])
     items = []
     idx = 0
