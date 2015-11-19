@@ -170,10 +170,10 @@ caffe_relevant_strings = ['hoopskirt', 'jean', 'blue_jean', 'denim', 'jersey', '
 
 flipkart_relevant_categories = ['Shirts', 'Skirts', 'Pants', 'Kurtas', 'Jackets', 'Dresses', 'Trousers', 'Kurtis',
                                 'Leggings', 'Tunics', 'Tops', 'Coats', 'Shorts', 'Jumpsuits', 'Blazers', 'Cardigans',
-                                'Sweaters', 'Sweatshirts', 'Jeans', 'Blouses', 'Salwars', 'Shrugs', 'Stockings']
-# 'Shirt','Skirt','Pant','Jacket','Dress','Trouser',
-# 'Legging','Tunic','Top','Coat','Short','Jumpsuit','Blazer','Cardigan',
-# 'Sweater','Sweatshirt', 'Blouse']
+                                'Sweaters', 'Sweatshirts', 'Jeans', 'Blouses', 'Salwars', 'Shrugs', 'Stockings',
+                                'Shirt', 'Skirt', 'Pant', 'Jacket', 'Dress', 'Trouser',
+                                'Legging', 'Tunic', 'Top', 'Coat', 'Short', 'Jumpsuit', 'Blazer', 'Cardigan',
+                                'Sweater', 'Sweatshirt', 'Blouse']
 
 flipkart_paperdoll_women = {'Tops': 'top', 'Top': 'top',
                             'Pants': 'pants', 'Pant': 'pants', 'Trousers': 'pants',

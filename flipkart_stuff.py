@@ -80,14 +80,14 @@ if __name__ == "__main__":
             imgUrl = re.split(';', row[3])
             if len(imgUrl) < 13:
                 continue
-            tmp_prod["images"] = {'Original': imgUrl[3],
-                                  'Best': imgUrl[5],
-                                  'IPhone': imgUrl[9],
-                                  'IPhoneSmall': imgUrl[8],
-                                  'Large': imgUrl[12],
-                                  'Medium': imgUrl[11],
-                                  'Small': imgUrl[7],
-                                  'XLarge': imgUrl[10]}
+            tmp_prod["images"] = {'Original': [l for l in imgUrl if 'original' in l][0],
+                                  'Best': [l for l in imgUrl if '275x340' in l][0],
+                                  'IPhone': [l for l in imgUrl if '125x167' in l][0],
+                                  'IPhoneSmall': [l for l in imgUrl if '100x100' in l][0],
+                                  'Large': [l for l in imgUrl if '400x400' in l][0],
+                                  'Medium': [l for l in imgUrl if '100x100' in l][0],
+                                  'Small': [l for l in imgUrl if '40x40' in l][0],
+                                  'XLarge': [l for l in imgUrl if '700x700' in l][0]}
             tmp_prod["instock"] = row[10]
             tmp_prod["shortDescription"] = row[1]
             tmp_prod["longDescription"] = row[2]
