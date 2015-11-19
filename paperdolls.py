@@ -69,7 +69,7 @@ def get_item_by_id(item_id, collection=iip):
             return None, None, None
 
 
-def after_pd_conclusions(mask, labels, face):
+def after_pd_conclusions(mask, labels, face=None):
     """
     1. if there's a full-body clothing:
         1.1 add to its' mask - all the rest lower body items' masks.
@@ -79,6 +79,10 @@ def after_pd_conclusions(mask, labels, face):
         2.2 upper-body: decide whether it's a one-part or under & cover
     3. return new mask
     """
+    if face:
+        ref_area = face[2] * face[3]
+    else:
+        ref_area = np.mean((mask.shape[0], mask.shape[1])) / 10
     final_mask = mask[:, :]
     mask_sizes = {"upper_cover": [], "upper_under": [], "lower_cover": [], "lower_under": [], "whole_body": []}
     for num in np.unique(mask):
@@ -90,7 +94,7 @@ def after_pd_conclusions(mask, labels, face):
                 mask_sizes[key].append({num: cv2.countNonZero(item_mask)})
     # 1
     for item in mask_sizes["whole_body"]:
-        if (float(item.values()[0]) / (face[2] * face[3]) > 2) or \
+        if (float(item.values()[0]) / (ref_area) > 2) or \
                 (len(mask_sizes["upper_cover"]) == 0 and len(mask_sizes["upper_under"]) == 0) or \
                 (len(mask_sizes["lower_cover"]) == 0 and len(mask_sizes["lower_under"]) == 0):
             print "W2P: That's a {0}".format(list(labels.keys())[list(labels.values()).index((item.keys()[0]))])
@@ -278,8 +282,9 @@ def from_paperdoll_to_similar_results(person_id, paper_job_id, num_of_matches=10
         if category in constants.paperdoll_shopstyle_women.keys():
             item_mask = 255 * np.array(final_mask == num, dtype=np.uint8)
             shopstyle_cat = constants.paperdoll_shopstyle_women[category]
+            shopstyle_cat_local_name = constants.paperdoll_shopstyle_women_jp_categories[category]['name']
             item_dict = {"category": shopstyle_cat, 'item_id': str(bson.ObjectId()), 'item_idx': idx,
-                         'saved_date': datetime.datetime.now()}
+                         'saved_date': datetime.datetime.now(), 'category_name': shopstyle_cat_local_name}
             svg_name = find_similar_mongo.mask2svg(
                 item_mask,
                 str(image_obj['_id']) + '_' + person['person_id'] + '_' + item_dict['category'],
@@ -313,10 +318,14 @@ def from_paperdoll_to_similar_results(person_id, paper_job_id, num_of_matches=10
         logging.warning("Done! image was successfully inserted to the DB images!")
 
 
-def get_results_now(page_url, image_url, collection='products'):
+def get_results_now(page_url, image_url, collection='products_jp'):
+    # IF IMAGE EXISTS IN DEMO BY URL
+    images_obj_url = db.demo.find_one({"image_urls": image_url})
+    if images_obj_url:
+        return page_results.merge_items(images_obj_url)
 
     # IF IMAGE EXISTS IN IMAGES BY URL
-    images_obj_url = images.find_one({"image_urls": image_url}) or db.demo.find_one({"image_urls": image_url})
+    images_obj_url = images.find_one({"image_urls": image_url})
     if images_obj_url:
         return page_results.merge_items(images_obj_url)
 
@@ -338,23 +347,55 @@ def get_results_now(page_url, image_url, collection='products'):
 
     # NEW_IMAGE !!
     clean_image = copy.copy(image)
-    relevance = background_removal.image_is_relevant(image, page_url, image_url)
+    relevance = background_removal.image_is_relevant(image, True, image_url)
     image_dict = {'image_urls': [image_url], 'relevant': relevance.is_relevant,
                   'image_hash': image_hash, 'page_urls': [page_url], 'people': []}
     if relevance.is_relevant:
-        if not isinstance(relevance.faces, list):
-            relevant_faces = relevance.faces.tolist()
-        else:
-            relevant_faces = relevance.faces
         idx = 0
-        for face in relevant_faces:
-            person = {'face': face, 'person_id': str(bson.ObjectId()), 'person_idx': idx,
-                      'items': []}
-            image_copy = person_isolation(image, face)
+        if len(relevance.faces):
+            if not isinstance(relevance.faces, list):
+                relevant_faces = relevance.faces.tolist()
+            else:
+                relevant_faces = relevance.faces
+            for face in relevant_faces:
+                image_copy = person_isolation(image, face)
+                person = {'face': face, 'person_id': str(bson.ObjectId()), 'person_idx': idx,
+                          'items': []}
+                image_dict['people'].append(person)
+                mask, labels, pose = paperdoll_parse_enqueue.paperdoll_enqueue(image_copy, async=False).result[:3]
+                final_mask = after_pd_conclusions(mask, labels, person['face'])
+                # image = draw_pose_boxes(pose, image)
+                item_idx = 0
+                for num in np.unique(final_mask):
+                    # convert numbers to labels
+                    category = list(labels.keys())[list(labels.values()).index(num)]
+                    if category in constants.paperdoll_shopstyle_women.keys():
+                        item_mask = 255 * np.array(final_mask == num, dtype=np.uint8)
+                        shopstyle_cat = constants.paperdoll_shopstyle_women[category]
+                        item_dict = {"category": shopstyle_cat, 'item_id': str(bson.ObjectId()), 'item_idx': item_idx,
+                                     'saved_date': datetime.datetime.now()}
+                        svg_name = find_similar_mongo.mask2svg(
+                            item_mask,
+                            str(image_dict['image_hash']) + '_' + person['person_id'] + '_' + item_dict['category'],
+                            constants.svg_folder)
+                        item_dict["svg_url"] = constants.svg_url_prefix + svg_name
+                        item_dict['fp'], item_dict['similar_results'] = find_similar_mongo.find_top_n_results(
+                            clean_image,
+                            item_mask,
+                            100,
+                            item_dict[
+                                'category'],
+                            collection=collection)
+                        person['items'].append(item_dict)
+                        item_idx += 1
+                idx += 1
+                image_dict['people'].append(person)
+        else:
+            # no faces, only general positive human detection
+            person = {'face': [], 'person_id': str(bson.ObjectId()), 'person_idx': 0, 'items': []}
             image_dict['people'].append(person)
-            mask, labels, pose = paperdoll_parse_enqueue.paperdoll_enqueue(image_copy, async=False).result[:3]
-            final_mask = after_pd_conclusions(mask, labels, person['face'])
-            # image = draw_pose_boxes(pose, image)
+            mask, labels, pose = paperdoll_parse_enqueue.paperdoll_enqueue(image, async=False).result[:3]
+            final_mask = after_pd_conclusions(mask, labels)
             item_idx = 0
             for num in np.unique(final_mask):
                 # convert numbers to labels
@@ -377,10 +418,7 @@ def get_results_now(page_url, image_url, collection='products'):
                                                                                                           collection=collection)
                     person['items'].append(item_dict)
                     item_idx += 1
-            idx += 1
             image_dict['people'].append(person)
-        final_image_url = upload_image(image, image_url)
-        image_dict['final_image_url'] = final_image_url
         db.demo.insert(image_dict)
         return page_results.merge_items(image_dict)
     else:  # if not relevant

@@ -95,6 +95,47 @@ paperdoll_shopstyle_women = {'top': 'womens-tops', 'pants': 'womens-pants', 'sho
                              'jumper': 'v-neck-sweaters', 'bodysuit': 'shapewear', 'leggings': 'leggings',
                              'stockings': 'hosiery', 'tights': 'leggings'}
 
+paperdoll_shopstyle_women_jp_categories = {
+    'blazer': {'id': u'\u30c6\u30fc\u30e9\u30fc\u30c9\u30b8\u30e3\u30b1\u30c3\u30c8',
+               'name': u'\u30c6\u30fc\u30e9\u30fc\u30c9\u30b8\u30e3\u30b1\u30c3\u30c8'},
+    'blouse': {'id': u'\u30d1\u30fc\u30c6\u30a3\u30c9\u30ec\u30b9',
+               'name': u'\u30d1\u30fc\u30c6\u30a3\u30c9\u30ec\u30b9'},
+    'bodysuit': {'id': u'\u30ec\u30ae\u30f3\u30b9',
+                 'name': u'\u30ec\u30ae\u30f3\u30b9'},
+    'cardigan': {'id': u'\u30ab\u30fc\u30c7\u30a3\u30ac\u30f3',
+                 'name': u'\u30ab\u30fc\u30c7\u30a3\u30ac\u30f3'},
+    'coat': {'id': u'\u30b3\u30fc\u30c8', 'name': u'\u30b3\u30fc\u30c8'},
+    'dress': {'id': u'\u5927\u304d\u3044\u30b5\u30a4\u30ba-\u30b7\u30e7\u30fc\u30c8\u30d1\u30f3\u30c4',
+              'name': u'\u5927\u304d\u3044\u30b5\u30a4\u30ba \u30b7\u30e7\u30fc\u30c8\u30d1\u30f3\u30c4'},
+    'jacket': {'id': u'\u30b3\u30fc\u30c8', 'name': u'\u30b3\u30fc\u30c8'},
+    'jeans': {'id': u'\u30ef\u30f3\u30d4\u30fc\u30b9',
+              'name': u'\u30ef\u30f3\u30d4\u30fc\u30b9'},
+    'jumper': {'id': u'v\u30cd\u30c3\u30af', 'name': u'V\u30cd\u30c3\u30af'},
+    'leggings': {'id': u'\u30af\u30e9\u30b7\u30c3\u30af\u30c7\u30cb\u30e0',
+                 'name': u'\u30af\u30e9\u30b7\u30c3\u30af\u30c7\u30cb\u30e0'},
+    'pants': {'id': u'\u30af\u30e9\u30b7\u30c3\u30af\u30c7\u30cb\u30e0',
+              'name': u'\u30af\u30e9\u30b7\u30c3\u30af\u30c7\u30cb\u30e0'},
+    'shirt': {'id': u'\u30d1\u30fc\u30c6\u30a3\u30c9\u30ec\u30b9',
+              'name': u'\u30d1\u30fc\u30c6\u30a3\u30c9\u30ec\u30b9'},
+    'shorts': {'id': u'\u30d5\u30ec\u30a2\u30c7\u30cb\u30e0',
+               'name': u'\u30d5\u30ec\u30a2\u30c7\u30cb\u30e0'},
+    'skirt': {'id': u'\u30d5\u30ec\u30a2\u30c7\u30cb\u30e0',
+              'name': u'\u30d5\u30ec\u30a2\u30c7\u30cb\u30e0'},
+    'stockings': {'id': u'\u30af\u30e9\u30b7\u30c3\u30af\u30c7\u30cb\u30e0',
+                  'name': u'\u30af\u30e9\u30b7\u30c3\u30af\u30c7\u30cb\u30e0'},
+    'suit': {'id': u'\u30d1\u30fc\u30c6\u30a3\u30c9\u30ec\u30b9',
+             'name': u'\u30d1\u30fc\u30c6\u30a3\u30c9\u30ec\u30b9'},
+    'sweater': {'id': u'\u30ef\u30f3\u30d4\u30fc\u30b9',
+                'name': u'\u30ef\u30f3\u30d4\u30fc\u30b9'},
+    'sweatshirt': {'id': u'\u5927\u304d\u3044\u30b5\u30a4\u30ba-\u30c7\u30cb\u30e0',
+                   'name': u'\u5927\u304d\u3044\u30b5\u30a4\u30ba \u30c7\u30cb\u30e0'},
+    't-shirt': {'id': u't\u30b7\u30e3\u30c4', 'name': u'T\u30b7\u30e3\u30c4'},
+    'tights': {'id': u'\u30af\u30e9\u30b7\u30c3\u30af\u30c7\u30cb\u30e0',
+               'name': u'\u30af\u30e9\u30b7\u30c3\u30af\u30c7\u30cb\u30e0'},
+    'top': {'id': u'\u30d1\u30fc\u30c6\u30a3\u30c9\u30ec\u30b9',
+            'name': u'\u30d1\u30fc\u30c6\u30a3\u30c9\u30ec\u30b9'},
+    'vest': {'id': u'\u30d9\u30b9\u30c8', 'name': u'\u30d9\u30b9\u30c8'}}
+
 paperdoll_shopstyle_men = {'top': 'mens-shirts', 'pants': 'mens-pants', 'shorts': 'mens-shorts',
                            'jeans': 'mens-jeans', 'jacket': 'mens-outerwear', 'blazer': 'mens-outerwear',
                            'shirt': 'mens-shirts', 'skirt': 'mens-shorts', 'blouse': 'mens-shirts',
@@ -202,3 +243,17 @@ else:
     BGR2GRAYCONST = cv2.cv.CV_BGR2GRAY
     FACECONST = cv2
     HAARCONST = cv2.cv.CV_HAAR_SCALE_IMAGE
+
+
+def jp_categories():
+    jp = db.products_fp
+    cat_dict = constants.paperdoll_shopstyle_women;
+    jp_dict = {}
+    for key, value in cat_dict.iteritems():
+        a = db.products_jp.find_one({'categories.id': value})
+        if a:
+            one_dict = {'id': a['categories'][0]['localizedId'], 'name': a['categories'][0]['name']}
+            jp_dict[key] = one_dict
+        else:
+            jp_dict[key] = {}
+    return jp_dict
