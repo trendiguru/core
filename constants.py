@@ -173,10 +173,10 @@ flipkart_relevant_categories = ['Shirts', 'Skirts', 'Pants', 'Kurtas', 'Jackets'
                                 'Sweaters', 'Sweatshirts', 'Jeans', 'Blouses', 'Salwars', 'Shrugs', 'Stockings',
                                 'Shirt', 'Skirt', 'Pant', 'Jacket', 'Dress', 'Trouser',
                                 'Legging', 'Tunic', 'Top', 'Coat', 'Short', 'Jumpsuit', 'Blazer', 'Cardigan',
-                                'Sweater', 'Sweatshirt', 'Blouse']
+                                'Sweater', 'Sweatshirt', 'Blouse', 'Suits', 'Tights', 'T-Shirt', 'T-Shirts']
 
 flipkart_paperdoll_women = {'Tops': 'top', 'Top': 'top',
-                            'Pants': 'pants', 'Pant': 'pants', 'Trousers': 'pants',
+                            'Pants': 'pants', 'Pant': 'pants', 'Trousers': 'pants', 'Trouser': 'pants',
                             'Shorts': 'shorts', 'Short': 'shorts',
                             'Jeans': 'jeans',
                             'Jackets': 'jacket', 'Jacket': 'jacket',
@@ -190,8 +190,8 @@ flipkart_paperdoll_women = {'Tops': 'top', 'Top': 'top',
                             'T-Shirts': 't-shirt', 'T-Shirt': 't-shirt',
                             'Cardigans': 'cardigan', 'Cardigan': 'cardigan', 'Shrugs': 'cardigan',
                             'Coats': 'coat', 'Coat': 'coat',
-                            'Suits': 'suit', 'Jumpsuits': 'suit',
-                            'Leggings': 'tights', 'Tights': 'tights',
+                            'Suits': 'suit', 'Jumpsuits': 'suit', 'Jumpsuit': 'suit',
+                            'Leggings': 'tights', 'Tights': 'tights', 'Legging': 'tights',
                             'Sweatshirts': 'sweatshirt', 'Sweatshirt': 'sweater',
                             'Stockings': 'stockings'}
 
