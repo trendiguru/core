@@ -1,13 +1,10 @@
 __author__ = 'yonatan'
 
 import csv
-import StringIO
-import zipfile
 import time
 import re
 import datetime
 
-import requests
 from rq import Queue
 
 from constants import db, flipkart_relevant_categories, flipkart_paperdoll_women, redis_conn
@@ -47,24 +44,26 @@ if __name__ == "__main__":
     db.fp_in_process.insert_one({})
     db.fp_in_process.create_index("id")
 
-    r1 = requests.get(url=url, headers=headers)
+    # r1 = requests.get(url=url, headers=headers)
+    #
+    # r1 = r1.json()
+    #
+    # url2 = r1["apiGroups"]["affiliate"]["rawDownloadListings"]["womens_clothing"]["availableVariants"]["v0.1.0"]["get"]
+    #
+    # r2 = requests.get(url=url2, headers=headers)
+    # db.download_data.find_one_and_update({"criteria": flipkart},
+    #                                      {'$set': {"end_time": datetime.datetime.now()}})
+    # total = db.download_data.find({"criteria": flipkart})[0]
+    # total_time = abs(total["end_time"] - total["start_time"]).total_seconds()
+    # db.download_data.find_one_and_update({"criteria": flipkart},
+    #                                      {'$set': {"total_dl_time(min)": str(total_time / 60)[:5]}})
+    # r2zip = zipfile.ZipFile(StringIO.StringIO(r2.content))
+    # csv_file = open(r2zip.infolist()[0].filename, 'rb')
+    csv_file = open('2oq-c1r.csv', 'rb')
 
-    r1 = r1.json()
-
-    url2 = r1["apiGroups"]["affiliate"]["rawDownloadListings"]["womens_clothing"]["availableVariants"]["v0.1.0"]["get"]
-
-    r2 = requests.get(url=url2, headers=headers)
-    db.download_data.find_one_and_update({"criteria": flipkart},
-                                         {'$set': {"end_time": datetime.datetime.now()}})
-    total = db.download_data.find({"criteria": flipkart})[0]
-    total_time = abs(total["end_time"] - total["start_time"]).total_seconds()
-    db.download_data.find_one_and_update({"criteria": flipkart},
-                                         {'$set': {"total_dl_time(min)": str(total_time / 60)[:5]}})
-    r2zip = zipfile.ZipFile(StringIO.StringIO(r2.content))
-    csv_file = open(r2zip.infolist()[0].filename, 'rb')
-    time.sleep(120)
+    time.sleep(60)
     DB = csv.reader(csv_file)
-    time.sleep(120)
+    time.sleep(60)
 
     for x, row in enumerate(DB):
         tmp_prod = {}
@@ -95,6 +94,7 @@ if __name__ == "__main__":
             tmp_prod["price"] = {'price': row[5],
                                  'currency': 'INR'}
             tmp_prod["brand"] = row[8]
+            tmp_prod["download_data"] = {"dl_version": None, "first_dl": None, "fp_version": None}
             prev = db.flipkart.find_one({'id': tmp_prod["id"]})
             if prev is None:
                 q.enqueue(generate_mask_and_insert, doc=tmp_prod, image_url=imgUrl[1],
@@ -104,7 +104,7 @@ if __name__ == "__main__":
             else:
                 tmp_prod["fingerprint"] = prev["fingerprint"]
                 tmp_prod["download_data"] = prev["download_data"]
-                tmp_prod["download_data"]['dl_version'] = today_date
+                tmp_prod["download_data"]["dl_version"] = today_date
                 try:
                     db.flipkart.insert_one(tmp_prod)
                     print "prod inserted successfully"
