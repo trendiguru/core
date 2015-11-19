@@ -192,7 +192,7 @@ flipkart_paperdoll_women = {'Tops': 'top', 'Top': 'top',
                             'Coats': 'coat', 'Coat': 'coat',
                             'Suits': 'suit', 'Jumpsuits': 'suit',
                             'Leggings': 'tights', 'Tights': 'tights',
-                            'Sweatshirts': 'sweatshirt',
+                            'Sweatshirts': 'sweatshirt', 'Sweatshirt': 'sweater',
                             'Stockings': 'stockings'}
 
 paperdoll_relevant_categories = {'top', 'pants', 'shorts', 'jeans', 'jacket', 'blazer', 'shirt', 'skirt', 'blouse',

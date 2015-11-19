@@ -4,6 +4,10 @@ import csv
 import time
 import re
 import datetime
+import zipfile
+import StringIO
+
+import requests
 
 from rq import Queue
 
@@ -44,32 +48,35 @@ if __name__ == "__main__":
     db.fp_in_process.insert_one({})
     db.fp_in_process.create_index("id")
 
-    # r1 = requests.get(url=url, headers=headers)
-    #
-    # r1 = r1.json()
-    #
-    # url2 = r1["apiGroups"]["affiliate"]["rawDownloadListings"]["womens_clothing"]["availableVariants"]["v0.1.0"]["get"]
-    #
-    # r2 = requests.get(url=url2, headers=headers)
-    # db.download_data.find_one_and_update({"criteria": flipkart},
-    #                                      {'$set': {"end_time": datetime.datetime.now()}})
-    # total = db.download_data.find({"criteria": flipkart})[0]
-    # total_time = abs(total["end_time"] - total["start_time"]).total_seconds()
-    # db.download_data.find_one_and_update({"criteria": flipkart},
-    #                                      {'$set': {"total_dl_time(min)": str(total_time / 60)[:5]}})
-    # r2zip = zipfile.ZipFile(StringIO.StringIO(r2.content))
-    # csv_file = open(r2zip.infolist()[0].filename, 'rb')
-    csv_file = open('2oq-c1r.csv', 'rb')
+    r1 = requests.get(url=url, headers=headers)
+
+    r1 = r1.json()
+
+    url2 = r1["apiGroups"]["affiliate"]["rawDownloadListings"]["womens_clothing"]["availableVariants"]["v0.1.0"]["get"]
+
+    r2 = requests.get(url=url2, headers=headers)
+    db.download_data.find_one_and_update({"criteria": flipkart},
+                                         {'$set': {"end_time": datetime.datetime.now()}})
+    total = db.download_data.find({"criteria": flipkart})[0]
+    total_time = abs(total["end_time"] - total["start_time"]).total_seconds()
+    db.download_data.find_one_and_update({"criteria": flipkart},
+                                         {'$set': {"total_dl_time(min)": str(total_time / 60)[:5]}})
+    r2zip = zipfile.ZipFile(StringIO.StringIO(r2.content))
+    csv_file = open(r2zip.infolist()[0].filename, 'rb')
+    # csv_file = open('2oq-c1r.csv', 'rb')
 
     time.sleep(60)
     DB = csv.reader(csv_file)
     time.sleep(60)
 
     for x, row in enumerate(DB):
+        print ("row #" + str(x))
         tmp_prod = {}
         tmp = row[1]
         catgoriz = re.split(" ", tmp)
         inter = [i for i in catgoriz if i in flipkart_relevant_categories]
+        if 'Shapeware' in inter:
+            continue
         if len(inter) > 0:
             tmp_prod["id"] = row[0]
             db.fp_in_process.insert_one({"id": tmp_prod["id"]})
@@ -114,7 +121,7 @@ if __name__ == "__main__":
                     db.download_data.find_one_and_update({"criteria": flipkart},
                                                          {'$inc': {"errors": 1}})
                     print "error inserting"
-        print ("row #" + str(x))
+
 
     print ("sending mail")
     dailyDBupdate.stats_and_mail(flipkart)
