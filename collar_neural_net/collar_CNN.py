@@ -35,9 +35,12 @@ def get_data(my_path):#, testing_amount=0.2):#my_path=os.path.dirname(os.path.ab
     # amount_of_each_tag = np.zeros(output_vector_size)
     for tag in output_tag:
         zero_output_vector = np.zeros(output_vector_size, dtype=np.uint8)
-        zero_output_vector[tag-1] = 1
-        # amount_of_each_tag[tag-1] += 1
-        output_vector.append(zero_output_vector)
+        if tag == 0:
+           output_vector.append(zero_output_vector)
+        else:
+            zero_output_vector[tag-1] = 1
+            # amount_of_each_tag[tag-1] += 1
+            output_vector.append(zero_output_vector)
 
     output_image = np.array(output_image)
     output_vector = np.array(output_vector)
@@ -79,7 +82,7 @@ Y_train = output_vector
 
 model_description = 'whatever'#'32k5x5CV1_2x2MP1_32k3x3CV2_32k3x3CV3_32k3x3CV4_2x2MP2_64dFC1_3dFC2'
 size_batch = 16
-epoches_number = 1000
+epoches_number = 10000
 overwrite_weights = True
 testing_amount = 0.15
 
