@@ -43,7 +43,7 @@ def get_data(my_path):#, testing_amount=0.2):#my_path=os.path.dirname(os.path.ab
             output_vector.append(zero_output_vector)
 
     output_image = np.array(output_image)
-    output_vector = np.array(output_vector)
+    output_vector = np.array(output_vector) #
 
     images_vector_shape = output_image.shape
     output_image = np.reshape(output_image, (images_vector_shape[0], images_vector_shape[3],
