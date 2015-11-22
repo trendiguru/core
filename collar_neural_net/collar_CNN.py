@@ -39,7 +39,7 @@ def get_data(my_path):#, testing_amount=0.2):#my_path=os.path.dirname(os.path.ab
            output_vector.append(zero_output_vector)
         else:
             zero_output_vector[tag-1] = 1
-            # amount_of_each_tag[tag-1 ] += 1
+            # amount_of_each_tag[tag-1] += 1
             output_vector.append(zero_output_vector)
 
     output_image = np.array(output_image)
