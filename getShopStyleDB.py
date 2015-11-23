@@ -8,7 +8,6 @@ import requests
 from rq import Queue
 
 from DBDworker import delayed_requests_get
-
 from DBDworker import download_products
 import constants
 
@@ -65,7 +64,7 @@ class ShopStyleDownloader():
                                               "existing_but_renewed": 0,
                                               "errors": 0,
                                               "end_time": "still in process",
-                                              "total_dl_time": "still in process",
+                                              "total_dl_time(hours)": "still in process",
                                               "last_request": time.time()})
             self.db.drop_collection("fp_in_process")
             self.db.fp_in_process.insert_one({})
@@ -77,7 +76,7 @@ class ShopStyleDownloader():
         cats_to_dl = [anc["id"] for anc in ancestors]
         for cat in cats_to_dl:
             self.download_category(cat, collection)
-        self.wait_for(60, collection)
+        self.wait_for(collection)
         self.db.download_data.find_one_and_update({"criteria": collection},
                                                   {'$set': {"end_time": datetime.datetime.now()}})
         tmp = self.db.download_data.find({"criteria": collection})[0]
@@ -89,34 +88,31 @@ class ShopStyleDownloader():
         self.db.drop_collection("fp_in_process")
         print collection + " " + type + " DOWNLOAD DONE!!!!!\n"
 
-    def wait_for(self, approx, collection):
+    def wait_for(self, collection):
         x = raw_input("waitfor enabled? (Y/N)")
         if x == "n" or x == "N":
             return
-        time.sleep(approx * 60)  # wait for the cralwer to download the data
-        dl_data = self.db.download_data.find({"criteria": collection})[0]
-        total_items = self.db[collection].count()
-        downloaded_items = dl_data["items_downloaded"]
-        new_items = dl_data["new_items"]
-        insert_errors = dl_data["errors"]
-        sub = downloaded_items - insert_errors
-        if total_items > sub:
-            time.sleep(new_items / 100)
-        else:
-            check = 0
-            while sub > total_items:
-                if check > 24:
-                    break
-                print "\ncheck number " + str(check)
-                print "\nfp workers didn't finish yet\nWaiting 5 min before checking again\n"
-                check += 1
-                print "check number" + str(check)
-                time.sleep(300)
-                total_items = self.db[collection].count()
-                insert_errors = dl_data["errors"]
-                sub = downloaded_items - insert_errors
+
+        print "Waiting for 15 min before first check"
+        total_items_before = self.db[collection].count()
+        time.sleep(900)
+        total_items_after = self.db[collection].count()
+        check = 0
+        while total_items_before != total_items_after:
+            if check > 36:
+                break
+            print "\ncheck number " + str(check)
+            print "\nfp workers didn't finish yet\nWaiting 5 min before checking again\n"
+            check += 1
+            time.sleep(300)
+            total_items_before = total_items_after
+            total_items_after = self.db[collection].count()
 
     def build_category_tree(self, collection):
+        parameters = {"pid": PID, "filters": "Category"}
+        if collection != "products":
+            parameters["site"] = "www.shopstyle.co.jp"
+
         # download all categories
         category_list_response = requests.get(BASE_URL + "categories", params={"pid": PID})
         category_list_response_json = category_list_response.json()
@@ -133,8 +129,8 @@ class ShopStyleDownloader():
             ancestors.append(c)
             # let's get some numbers in there - get a histogram for each ancestor
         for anc in ancestors:
-            response = delayed_requests_get(BASE_URL_PRODUCTS + "histogram",
-                                            {"pid": PID, "filters": "Category", "cat": anc["id"]}, collection)
+            parameters["cat"] = anc["id"]
+            response = delayed_requests_get(BASE_URL_PRODUCTS + "histogram", parameters, collection)
             hist = response.json()["categoryHistogram"]
             # save count for each category
             for cat in hist:
@@ -144,6 +140,7 @@ class ShopStyleDownloader():
     def download_category(self, category_id, collection):
         if category_id not in relevant:
             return
+
         category = self.db.categories.find_one({"id": category_id})
         if "count" in category and category["count"] <= MAX_SET_SIZE:
             print("Attempting to download: {0} products".format(category["count"]))
@@ -307,11 +304,11 @@ class UrlParams(collections.MutableMapping):
 
 if __name__ == "__main__":
     if len(sys.argv) == 1:
-        collection = "products"
+        coll = "products"
     else:
-        collection = sys.argv[1]
+        coll = sys.argv[1]
     update_db = ShopStyleDownloader()
-    update_db.db_download(collection)
+    update_db.db_download(coll)
 
 
 # import collections

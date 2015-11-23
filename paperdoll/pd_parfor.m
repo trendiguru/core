@@ -1,7 +1,18 @@
 function [mask,label_names,pose] = pd(image_filename)
 %todo - check if path already ok,
 % check if data already loaded
+start_time = cputime
+disp('pd_parfor.m start time:')
+disp(datestr(now))
 disp(['the image sent to pd in matlab is:' image_filename])
+
+poolobj = gcp('nocreate'); % If no pool, do not create new one.
+if isempty(poolobj)
+    poolsize = 0
+else
+    poolsize = poolobj.NumWorkers
+end
+
 %todo - check if we cant load this once only (when engine is created)
 
 %profile on
@@ -27,6 +38,18 @@ save('names.mat','label_names')
 save('pose.mat','pose')
 %show_parsing(result.image, result.final_labeling, result.refined_labels);
 save('output.mat','result')
+
+
+%profile off
+%profile('info')
+%note - the profsave takes 40s !!
+%profsave(profile('info'),'myprofile_results')
+
+disp('pd.m end time:')
+disp(datestr(now))
+end_time = cputime-start_time
+disp('pd.m elapsed time:')
+disp(end_time-start_time)
 return
 
 

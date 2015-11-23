@@ -3,14 +3,14 @@ import time
 import numpy as np
 from rq import Queue
 import cv2
-
+import logging
 from .. import constants
 
 redis_conn = constants.redis_conn
 
 # Tell RQ what Redis connection to use
 
-def paperdoll_enqueue(img_url_or_cv2_array, filename=None, async=True, queue=None, use_tg_worker=True):
+def paperdoll_enqueue(img_url_or_cv2_array, filename=None, async=True, queue_name=None, use_tg_worker=True,use_parfor=False):
     """
     The 'parallel matlab queue' which starts engines and keeps them warm is 'pd'.  This worker should be running somewhere (ideally in a screen like pd1).
     The use_tg_worker argument forces  use/nonuse of the tgworker than knows how to keep the engines warm and can be started along the lines of:
@@ -21,18 +21,16 @@ def paperdoll_enqueue(img_url_or_cv2_array, filename=None, async=True, queue=Non
     :param use_tg_worker: whether or not to use special tg worker, if so queue needs to have been started with -t tgworker
     :return: mask, label_dict, pose
     """
-    if queue is None:
-        # this is the one that has persistent matlab engines, requires get_parse_mask_parallel and workers on that queue that have been started
-        # using: rqworker pd -w rq.tgworker.TgWorker
+    if queue_name is None:
         if use_tg_worker:
             queue_name = constants.parallel_matlab_queuename
-            queue = Queue(queue_name, connection=redis_conn)
-            job1 = queue.enqueue('trendi_guru_modules.paperdoll.pd.get_parse_mask_parallel', img_url_or_cv2_array,
-                                 filename=filename)
         else:
             queue_name = constants.nonparallel_matlab_queuename
-            queue = Queue(queue_name, connection=redis_conn)
-            job1 = queue.enqueue('trendi_guru_modules.paperdoll.pd.get_parse_mask',img_url_or_cv2_array)
+    if use_parfor:
+        queue_name = 'pd_parfor'
+    queue = Queue(queue_name,connection=redis_conn)
+    job1 = queue.enqueue('trendi_guru_modules.paperdoll.pd.get_parse_mask_parallel', img_url_or_cv2_array,
+                                 filename=filename,use_parfor=use_parfor)
     print('started pd job on queue:'+str(queue))
     start = time.time()
     if not async:
@@ -45,12 +43,13 @@ def paperdoll_enqueue(img_url_or_cv2_array, filename=None, async=True, queue=Non
                 print('timeout waiting for pd.get_parse_mask')
                 return
         print('')
+        print('elapsed time in paperdoll_enqueue:'+str(elapsed_time))
+        #todo - see if I can return the parse, pose etc here without breaking anything (aysnc version gets job1 back so there may be expectation of getting a job instead of tuple
     else:
         print('running asynchronously (not waiting for result)')
     return job1
 
-
-def show_parse(filename=None, img_array=None):
+def show_parse(filename=None, img_array = None):
     if filename is not None:
         img_array = cv2.imread(filename)
     if img_array is not None:
@@ -58,6 +57,8 @@ def show_parse(filename=None, img_array=None):
         maxVal = 31  # 31 categories in paperdoll
         scaled = np.multiply(img_array, int(255 / maxVal))
         dest = cv2.applyColorMap(scaled, cv2.COLORMAP_RAINBOW)
+        print('writing parse_img.jpg',img_array)
+        cv2.imwrite('parse_img.jpg',img_array)
         cv2.imshow("dest", dest)
         cv2.waitKey(0)
 
@@ -69,30 +70,6 @@ def show_max(parsed_img, labels):
     print('max label val:' + str(maxlabelval))
 
 
-#run a parallelization test
-if __name__ == "__main__":
-    urls = ['http://i.imgur.com/ahFOgkm.jpg',\
-           'http://www.wantdresses.com/wp-content/uploads/2015/09/group-of-vsledky-obrzk-google-pro-httpwwwoblectesecz-awesome-prom-dresses.jpg',\
-            'http://www.wantdresses.com/wp-content/uploads/2015/07/rs_634x926-140402114112-634-8Prom-Dress-ls.4214.jpg',\
-            'http://www.wantdresses.com/wp-content/uploads/2015/09/group-of-vsledky-obrzk-google-pro-httpwwwoblectesecz-awesome-prom-dresses.jpg',\
-            'http://www.wantdresses.com/wp-content/uploads/2015/09/gowns-blue-picture-more-detailed-picture-about-awesome-strapless-awesome-prom-dresses.jpg']
-    i = 0
-    start_time = time.time()
-    queue = Queue('paperdoll_test', connection=redis_conn)
-
-    for url in urls:
-        i+=1
-        print('url #'+str(i)+' '+url)
-    #    img, labels, pose = paperdoll_enqueue(url, async = True,queue=queue)
-       # n = paperdoll_enqueue(url, async = True,queue=queue)
-        img, labels, pose = paperdoll_enqueue(url, async = True,use_tg_worker=True)
-#        print('labels:'+str(labels))
-#        print('')
-    elapsed_time = time.time() - start_time
-    print('tot elapsed:'+str(elapsed_time)+',per image:'+str(float(elapsed_time)/len(urls)))
-
-        #        show_max(img, labels)
-#        show_parse(img_array=img)
 
 
 import time
@@ -116,3 +93,29 @@ def callback_example(queue_name,previous_job_id,*args,**kwargs):
     logging.warning('this is the callback calling')
     return (567,job1_answers)
 
+    #run a parallelization test
+if __name__ == "__main__":
+
+    img,labels,pose=paperdoll_enqueue('http://clothingparsing.com/sessions/ff57f475a232acfc1979d9aa2ad161afe6b9c91b/image.jpg',async=False)
+    show_parse(img_array=img)
+
+    urls = ['http://i.imgur.com/ahFOgkm.jpg',\
+           'http://www.wantdresses.com/wp-content/uploads/2015/09/group-of-vsledky-obrzk-google-pro-httpwwwoblectesecz-awesome-prom-dresses.jpg',\
+            'http://www.wantdresses.com/wp-content/uploads/2015/07/rs_634x926-140402114112-634-8Prom-Dress-ls.4214.jpg',\
+            'http://www.wantdresses.com/wp-content/uploads/2015/09/group-of-vsledky-obrzk-google-pro-httpwwwoblectesecz-awesome-prom-dresses.jpg',\
+            'http://www.wantdresses.com/wp-content/uploads/2015/09/gowns-blue-picture-more-detailed-picture-about-awesome-strapless-awesome-prom-dresses.jpg']
+    i = 0
+    start_time = time.time()
+
+    for url in urls:
+        i+=1
+        print('url #'+str(i)+' '+url)
+        img, labels, pose = paperdoll_enqueue(url, async = True,use_tg_worker=True)
+#        print('labels:'+str(labels))
+#        print('')
+    elapsed_time = time.time() - start_time
+#for timing test see unit test
+#    print('tot elapsed:'+str(elapsed_time)+',per image:'+str(float(elapsed_time)/len(urls)))
+
+        #        show_max(img, labels)
+#        show_parse(img_array=img)

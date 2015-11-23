@@ -83,16 +83,6 @@ def find_top_n_results(image, mask, number_of_results=10, category_id=None, coll
         {"categories": {"$elemMatch": {"id": {"$in": subcategory_id_list}}}},
         {"_id": 1, "id": 1, "fingerprint": 1, "image.sizes.XLarge.url": 1, "clickUrl": 1, "new_fp": 1}).batch_size(100)
 
-    # db_fingerprint_list = []
-    # for row in potential_matches_cursor:
-    #     fp_dict = {}
-    #     fp_dict["id"] = row["id"]
-    #     fp_dict["clothingClass"] = category_id
-    #     fp_dict["fingerPrintVector"] = row["fingerprint"]
-    #     fp_dict["imageURL"] = row["image"]["sizes"]["Large"]["url"]
-    #     fp_dict["buyURL"] = row["clickUrl"]
-    #     db_fingerprint_list.append(fp_dict)
-
     color_fp = fp.fp(image, bins, fp_len, mask)
     target_dict = {"clothingClass": category_id, "fingerprint": color_fp}
     print "calling find_n_nearest.."

@@ -6,9 +6,9 @@ import unittest
 import time
 from rq import Queue
 
-from ..paperdoll import paperdoll_parse_enqueue
-from .. import paperdolls
-from ..constants import redis_conn
+import paperdoll_parse_enqueue
+import paperdolls
+import redis_conn
 
 
 

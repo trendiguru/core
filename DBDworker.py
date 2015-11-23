@@ -10,7 +10,6 @@ import urllib
 import time
 
 import requests
-
 from rq import Queue
 
 from fingerprint_core import generate_mask_and_insert
@@ -45,6 +44,8 @@ def download_products(filter_params, total=MAX_SET_SIZE, coll="products"):
     #     print "We've done this batch already, let's not repeat work"
     #     return
     collection = coll
+    if collection != "products":
+        filter_params["site"] = "www.shopstyle.co.jp"
     if "filters" in filter_params:
         del filter_params["filters"]
     filter_params["limit"] = MAX_RESULTS_PER_PAGE
@@ -92,8 +93,19 @@ def db_update(prod, collection):
     category = prod['categories'][0]['id']
     print category
     if prod_in_coll is None:
-        print "Product not in db.products, searching in archive. ",
-        # case 1.1: try finding this product in the archive
+        print "Product not in db." + collection
+        # case 1.1: try finding this product in the products
+        if collection != "products":
+            prod_in_prod = db.products.find_one({"id": prod["id"]})
+            if prod_in_prod is not None:
+                print "but new product is already in db.products"
+                prod["fingerprint"] = prod_in_prod["fingerprint"]
+                prod["download_data"] = prod_in_prod["download_data"]
+                db[collection].insert_one(prod)
+                print "prod inserted successfully to " + collection
+                return
+        # case 1.2: try finding this product in the products
+        print ", searching in archive. "
         prod_in_archive = db.archive.find_one({'id': prod["id"]})
         if prod_in_archive is None:
             print "New product,",

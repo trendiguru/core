@@ -278,29 +278,35 @@ def start_process(page_url, image_url):
 
     # NEW_IMAGE !!
     print "Start process image shape: " + str(image.shape)
-    relevance = background_removal.image_is_relevant(image)
+    relevance = background_removal.image_is_relevant(image, image_url=image_url)
     image_dict = {'image_urls': [image_url], 'relevant': relevance.is_relevant,
                   'image_hash': image_hash, 'page_urls': [page_url], 'people': []}
     if relevance.is_relevant:
         if not isinstance(relevance.faces, list):
-            relevance.faces = relevance.faces.tolist()
-        relevant_faces = relevance.faces
-        idx = 0
-        start = time.time()
-        for face in relevant_faces:
-            person = {'face': face, 'person_id': str(bson.ObjectId()), 'person_idx': idx, 'items': []}
-            image_copy = person_isolation(image, face)
-            print "start process image-copy shape: " + str(image_copy.shape)
+            relevant_faces = relevance.faces.tolist()
+        else:
+            relevant_faces = relevance.faces
+        if len(relevant_faces) > 0:
+            # There are faces
+            idx = 0
+            for face in relevant_faces:
+                person = {'face': face, 'person_id': str(bson.ObjectId()), 'person_idx': idx, 'items': []}
+                image_copy = person_isolation(image, face)
+                image_dict['people'].append(person)
+                paper_job = paperdoll_parse_enqueue.paperdoll_enqueue(image_copy, person['person_id'])
+                q1.enqueue(from_paperdoll_to_similar_results, person['person_id'], paper_job.id, depends_on=paper_job)
+                idx += 1
+        else:
+            # no faces, only general positive human detection
+            person = {'face': [], 'person_id': str(bson.ObjectId()), 'person_idx': 0, 'items': []}
             image_dict['people'].append(person)
-            paper_job = paperdoll_parse_enqueue.paperdoll_enqueue(image_copy, person['person_id'])
+            paper_job = paperdoll_parse_enqueue.paperdoll_enqueue(image, person['person_id'])
             q1.enqueue(from_paperdoll_to_similar_results, person['person_id'], paper_job.id, depends_on=paper_job)
-            idx += 1
     else:  # if not relevant
         logging.warning('image is not relevant, but stored anyway..')
         images.insert(image_dict)
         return
     iip.insert(image_dict)
-    print "Total time to iip.insert = {0}".format(time.time() - start)
 
 
 def from_paperdoll_to_similar_results(person_id, paper_job_id, num_of_matches=100):
@@ -311,9 +317,10 @@ def from_paperdoll_to_similar_results(person_id, paper_job_id, num_of_matches=10
             paper_job_results[3], person_id))
     mask, labels = paper_job_results[:2]
     image_obj, person = get_person_by_id(person_id, iip)
-    print "mask shape in paperdolls.find_similar: " + str(mask.shape)
-    final_mask = after_pd_conclusions(mask, labels, person['face'])
-    print "final_mask shape in paperdolls.find_similar: " + str(final_mask.shape)
+    if len(person['face']) > 0:
+        final_mask = after_pd_conclusions(mask, labels, person['face'])
+    else:
+        final_mask = mask
     image = Utils.get_cv2_img_array(image_obj['image_urls'][0])
     items = []
     idx = 0
@@ -358,15 +365,16 @@ def from_paperdoll_to_similar_results(person_id, paper_job_id, num_of_matches=10
 
 
 def get_results_now(page_url, image_url):
-    # IF URL HAS NO IMAGE IN IT
-    image = Utils.get_cv2_img_array(image_url)
-    if image is None:
-        return
 
     # IF IMAGE EXISTS IN IMAGES BY URL
     images_obj_url = images.find_one({"image_urls": image_url}) or db.demo.find_one({"image_urls": image_url})
     if images_obj_url:
         return page_results.merge_items(images_obj_url)
+
+    # IF URL HAS NO IMAGE IN IT
+    image = Utils.get_cv2_img_array(image_url)
+    if image is None:
+        return
 
     # IF IMAGE EXISTS IN IMAGES BY HASH (WITH ANOTHER URL)
     image_hash = page_results.get_hash_of_image_from_url(image_url)
@@ -381,12 +389,16 @@ def get_results_now(page_url, image_url):
 
     # NEW_IMAGE !!
     clean_image = copy.copy(image)
-    relevance = background_removal.image_is_relevant(image)
+    relevance = background_removal.image_is_relevant(image, image_url)
     image_dict = {'image_urls': [image_url], 'relevant': relevance.is_relevant,
                   'image_hash': image_hash, 'page_urls': [page_url], 'people': []}
     if relevance.is_relevant:
+        if not isinstance(relevance.faces, list):
+            relevant_faces = relevance.faces.tolist()
+        else:
+            relevant_faces = relevance.faces
         idx = 0
-        for face in relevance.faces:
+        for face in relevant_faces:
             person = {'face': face, 'person_id': str(bson.ObjectId()), 'person_idx': idx,
                       'items': []}
             image_copy = person_isolation(image, face)

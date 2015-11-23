@@ -17,7 +17,7 @@ K = 0.5                     # for euclidean distance
 min_bb_to_image_area_ratio = 0.95  # if bb takes more than this fraction of image area then use  cv2.GC_INIT_WITH_RECT instead of init with mask
 
 #########
-#DB stuff
+# DB stuff
 #########
 
 parallel_matlab_queuename = 'pd'
@@ -32,7 +32,7 @@ redis_conn_old = Redis()
 update_collection_name = 'products'
 
 # caffe stuff
-caffeRelevantLabels = [48, 43, 999]
+caffeRelevantLabels = [601, 608, 610, 614, 617, 638, 639, 655, 689, 697, 735, 775, 834, 841, 264, 401, 400]
 
 # fp rating related constants
 min_image_area = 400
@@ -83,7 +83,8 @@ db_relevant_items = ['women', 'womens-clothes', 'womens-suits', 'shorts', 'petit
                      'jackets', 'casual-jackets', 'leather-jackets', 'vests',
                      'coats', 'womens-outerwear', 'fur-and-shearling-coats', 'leather-and-suede-coats',
                      'puffer-coats', 'raincoats-and-trenchcoats', 'wool-coats',
-                     'leggings']
+                     'leggings', 'womens-shoes', 'shoes-athletic', 'boots', 'evening-shoes', 'flats', 'pumps',
+                     'womens-sneakers', 'wedges', 'mules-and-clogs', 'sandles']
 
 # paperdoll items' legends
 
@@ -122,6 +123,11 @@ nonlogic_clothing = [{'pants': ['jeans', 'stockings', 'jumper', 'suit', 'tights'
                      {'dress': ['t-shirt', 'blouse', 'jeans', 'shirt', 'bodysuit', 'jumper', 'suit',
                                 'romper', 'shorts', 'top', 'skirt']},
                      {'jacket': ['blazer', 'cape', 'cardigan', 'sweater', 'sweatshirt', 'vest']}]
+
+caffe_relevant_strings = ['hoopskirt', 'jean', 'blue_jean', 'denim', 'jersey', 'T-shirt', 'tee shirt', 'kimono',
+                          'lab coat', 'tank suit', 'maillot', 'miniskirt', 'mini', 'overskirt', 'pajama', 'pyjama',
+                          "pj's", 'jammies', 'poncho', 'sarong', 'suit', 'suit of clothes', 'sweatshirt']
+
 
 # for web bounding box interface
 # this is for going to the previous item, highest numbered image
