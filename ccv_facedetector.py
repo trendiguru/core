@@ -7,7 +7,7 @@ import logging
 import random
 import string
 import numpy as np
-from constants import project_dir
+from .constants import project_dir
 import ccv
 
 path_to_ccvface = '/' + project_dir + '/classifier_stuff/ccvface'
@@ -18,19 +18,10 @@ def ccv_facedetect(filename=None, image_array=None):
     delete_when_done = False
     if not filename or not os.path.isfile(filename):
         if image_array is not None:
-
-        #from C example / test.py example
-            matrix = ccv.DenseMatrix()
-            mode = "RGB"
-            matrix.set_buf(image_array.tostring(), mode, image_array.shape[0], image_array.shape[1], ccv.PY_CCV_IO_GRAY)
-#            matrix.set_file('/home/jeremy/tg1/images/female1.jpg', ccv.PY_CCV_IO_GRAY)
-            cascade = ccv.ClassifierCascade()
-            cascade.read('classifier_stuff/ccvface.sqlite3')
- #           cascade.read('classifier_stuff/face/')
-            d = ccv.detect_objects(matrix, cascade, 1)
-            print(d)
-
-
+            filename = '/var/tmp/' + rand_string() + '.jpg'
+            if not cv2.imwrite(filename, image_array):
+            raise IOError("Could not save temp image")
+            delete_when_done = True
         else:
             raise IOError("Bad parameters passed -- no file and no array.")
 

@@ -87,8 +87,8 @@ def find_face_cascade(image, max_num_of_faces=10):
             break
     if len(faces) == 0:
         return faces  # can we return [] in both cases or () in both , currently its one and one
-    return faces
-#    return choose_faces(image, faces, max_num_of_faces)
+#    return faces
+    return choose_faces(image, faces, max_num_of_faces)
 
 
 def choose_faces(image, faces_list, max_num_of_faces):

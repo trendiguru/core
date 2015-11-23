@@ -27,6 +27,11 @@ save('names.mat','label_names')
 save('pose.mat','pose')
 %show_parsing(result.image, result.final_labeling, result.refined_labels);
 save('output.mat','result')
+
+%profile off
+%profile('info')
+%profsave(profile('info'),'myprofile_results')
+
 return
 
 
