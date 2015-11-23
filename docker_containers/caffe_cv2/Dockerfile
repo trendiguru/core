@@ -254,12 +254,16 @@ RUN   cp Makefile.config.example Makefile.config
 RUN   echo "CPU_ONLY := 1" >> Makefile.config
 RUN  echo "CXX := /usr/bin/g++-4.6" >> Makefile.config
 RUN  sed -i 's/CXX :=/CXX ?=/' Makefile
-RUN  make all
-
 # Add ld-so.conf so it can find libcaffe.so
 ADD caffe-ld-so.conf /etc/ld.so.conf.d/
 
-# Run ldconfig again (not sure if needed)
+RUN  make all
+# Make + run tests
+RUN make test
+RUN make runtest
+
+
+# Run ldconfig again (not sure if needed) - maybe this needs to come before make
 RUN ldconfig
 
 # Install python deps
@@ -269,7 +273,7 @@ RUN   (pip install -r python/requirements.txt; easy_install numpy; pip install -
 
 #apparently not necessary after numpy install above
 # Numpy include path hack - github.com/BVLC/caffe/wiki/Setting-up-Caffe-on-Ubuntu-14.04
-#RUN NUMPY_EGG=`ls /usr/local/lib/python2.7/dist-packages | grep -i numpy` && \
+#RUN NUMPY_EGG=`ls /usr/local/lib/python2.7/dist-ngs we'd packages | grep -i numpy` && \
 #  ln -s /usr/local/lib/python2.7/dist-packages/$NUMPY_EGG/numpy/core/include/numpy /usr/include/python2.7/numpy
 
 # Build Caffe python bindings
@@ -277,9 +281,6 @@ WORKDIR /opt/caffe
 RUN make pycaffe
 
 
-# Make + run tests
-WORKDIR /opt/caffe
-RUN make test && make runtest
 
 ###### get alexnet
 #make all test#
