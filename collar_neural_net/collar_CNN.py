@@ -17,7 +17,7 @@ def get_data(my_path):#, testing_amount=0.2):#my_path=os.path.dirname(os.path.ab
     #     print 'testing_amount should be between 0 and 1 (float)!'
     #     return
     image_file_types = ['.jpg','.png','.bmp','.gif']
-    only_files = [f for f in os.listdir(my_path) if os.path.isfile(os.path.join(my_path, f))]
+    only_files = [f for f in os.listdir(my_path) if os.path.isfile(os.path.join(my_path,f))]
     output_tag = []
     output_image = []
 
