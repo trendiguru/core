@@ -111,11 +111,10 @@ def convert_and_save_results(mask, label_names, pose,filename,img):
     new_mask=np.ones(mask.shape)*255  # anything left with 255 wasn't dealt with
     success = True #assume innocence until proven guilty
     print('attempting convert and save')
-    for i in range(0,len(label_names)): # need these in order
-        label=label_names[i]
+    for label in label_names: # need these in order
         if label in fashionista_ordered_categories:
             fashionista_index = fashionista_ordered_categories.index[label]
-            print('old index:'+str(i)+' new index:'+str(fashionista_index))
+            print('old index:'+str(label_names[label])+' new index:'+str(fashionista_index))
             new_mask[mask==i] = fashionista_index
         else:
             print('label '+str(label)+' not found in regular cats')
