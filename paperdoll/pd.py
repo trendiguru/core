@@ -101,7 +101,6 @@ def get_parse_mask_parallel(matlab_engine, img_url_or_cv2_array, filename=None, 
         finish_time=time.time()
         print('elapsed time in get_parse_mask_parallel:'+str(finish_time-start_time))
         print('attempting convert and save')
-        convert_and_save_results(mask_np,label_dict,pose_np,filename,img)
         return mask_np, label_dict, pose_np, filename
     else:
         raise ValueError("either image is empty or problem writing")
@@ -113,7 +112,7 @@ def convert_and_save_results(mask, label_names, pose,filename,img):
     print('attempting convert and save')
     for label in label_names: # need these in order
         if label in fashionista_ordered_categories:
-            fashionista_index = fashionista_ordered_categories.index[label]
+            fashionista_index = fashionista_ordered_categories.index(label)
             print('old index:'+str(label_names[label])+' new index:'+str(fashionista_index))
             new_mask[mask==i] = fashionista_index
         else:
