@@ -62,7 +62,6 @@ if __name__ == "__main__":
                                          {'$set': {"total_dl_time(min)": str(total_time / 60)[:5]}})
     r2zip = zipfile.ZipFile(StringIO.StringIO(r2.content))
     csv_file = r2zip.open(r2zip.namelist()[0])
-    # csv_file = open('2oq-c1r.csv', 'rb')
 
     time.sleep(60)
     DB = csv.reader(csv_file)
@@ -84,8 +83,8 @@ if __name__ == "__main__":
             tmp_prod["categories"] = inter2paperdole(inter)
             tmp_prod["clickUrl"] = row[6] + affiliate_data
             imgUrl = re.split(';', row[3])
-            if len(imgUrl) < 13:
-                continue
+            # if len(imgUrl) < 13:
+            #     continue
             tmp_prod["images"] = {'Original': [l for l in imgUrl if 'original' in l][0],
                                   'Best': [l for l in imgUrl if '275x340' in l][0],
                                   'IPhone': [l for l in imgUrl if '125x167' in l][0],
@@ -94,7 +93,10 @@ if __name__ == "__main__":
                                   'Medium': [l for l in imgUrl if '100x100' in l][0],
                                   'Small': [l for l in imgUrl if '40x40' in l][0],
                                   'XLarge': [l for l in imgUrl if '700x700' in l][0]}
-            tmp_prod["instock"] = row[10]
+            if row[10] == 'true':
+                tmp_prod["instock"] = True
+            else:
+                tmp_prod["instock"] = False
             tmp_prod["shortDescription"] = row[1]
             tmp_prod["longDescription"] = row[2]
             tmp_prod["price"] = {'price': row[5],
@@ -112,6 +114,7 @@ if __name__ == "__main__":
                 tmp_prod["download_data"] = prev["download_data"]
                 tmp_prod["download_data"]["dl_version"] = today_date
                 try:
+                    db.flipkart.delete_one({'id': tmp_prod['id']})
                     db.flipkart.insert_one(tmp_prod)
                     print "prod inserted successfully"
                     db.fp_in_process.delete_one({"id": tmp_prod["id"]})

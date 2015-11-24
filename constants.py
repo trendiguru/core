@@ -70,7 +70,7 @@ classifier_to_category_dict = {"dressClassifier.xml": ["dresses", "bridal-mother
                                                        "mens-big-and-tall-coats-and-jackets",
                                                        "mens-big-and-tall-blazers"]}
 
-db_relevant_items = ['women', 'womens-clothes', 'womens-suits', 'shorts', 'petites', 'blazers', 'tees-and-tshirts',
+db_relevant_items = ['women', 'womens-clothes', 'womens-suits', 'shorts', 'blazers', 'tees-and-tshirts',
                      'jeans', 'bootcut-jeans', 'classic-jeans', 'cropped-jeans', 'distressed-jeans',
                      'flare-jeans', 'relaxed-jeans', 'skinny-jeans', 'straight-leg-jeans', 'stretch-jeans',
                      'womens-tops', 'button-front-tops', 'camisole-tops', 'cashmere-tops', 'halter-tops',
@@ -83,8 +83,7 @@ db_relevant_items = ['women', 'womens-clothes', 'womens-suits', 'shorts', 'petit
                      'jackets', 'casual-jackets', 'leather-jackets', 'vests',
                      'coats', 'womens-outerwear', 'fur-and-shearling-coats', 'leather-and-suede-coats',
                      'puffer-coats', 'raincoats-and-trenchcoats', 'wool-coats',
-                     'leggings', 'womens-shoes', 'shoes-athletic', 'boots', 'evening-shoes', 'flats', 'pumps',
-                     'womens-sneakers', 'wedges', 'mules-and-clogs', 'sandles']
+                     'leggings']
 
 # paperdoll items' legends
 
@@ -249,7 +248,7 @@ else:
 
 def jp_categories():
     jp = db.products_fp
-    cat_dict = constants.paperdoll_shopstyle_women;
+    cat_dict = paperdoll_shopstyle_women
     jp_dict = {}
     for key, value in cat_dict.iteritems():
         a = db.products_jp.find_one({'categories.id': value})
@@ -259,3 +258,63 @@ def jp_categories():
         else:
             jp_dict[key] = {}
     return jp_dict
+
+
+shopstyle_paperdoll_women = {'bootcut-jeans': 'jeans',
+                             'classic-jeans': 'jeans',
+                             'cropped-jeans': 'jeans',
+                             'distressed-jeans': 'jeans',
+                             'flare-jeans': 'jeans',
+                             'relaxed-jeans': 'jeans',
+                             'skinny-jeans': 'jeans',
+                             'straight-leg-jeans': 'jeans',
+                             'stretch-jeans': 'jeans',
+                             'jeans': 'jeans',
+                             'womens-suits': 'suit',
+                             'shorts': 'shorts',
+                             'blazers': 'blazer',
+                             'tees-and-tshirts': 't-shirt',
+                             'womens-tops': 'top',
+                             'button-front-tops': 'top',
+                             'camisole-tops': 'top',
+                             'cashmere-tops': 'top',
+                             'halter-tops': 'top',
+                             'longsleeve-tops': 'top',
+                             'shortsleeve-tops': 'shirt',
+                             'sleeveless-tops': 'top',
+                             'tank-tops': 'top',
+                             'tunic-tops': 'blouse',
+                             'polo-tops': 'top',
+                             'skirts': 'skirt',
+                             'mini-skirts': 'skirt',
+                             'mid-length-skirts': 'skirt',
+                             'long-skirts': 'skirt',
+                             'sweaters': 'sweater',
+                             'sweatshirts': 'sweatshirt',
+                             'cashmere-sweaters': 'sweater',
+                             'cardigan-sweaters': 'cardigan',
+                             'crewneck-sweaters': 'sweater',
+                             'turleneck-sweaters': 'sweater',
+                             'v-neck-sweaters': 'sweater',
+                             'womens-pants': 'pants',
+                             'wide-leg-pants': 'pants',
+                             'skinny-pants': 'pants',
+                             'dress-pants': 'pants',
+                             'cropped-pants': 'pants',
+                             'casual-pants': 'pants',
+                             'dresses': 'dress',
+                             'cocktail-dresses': 'dress',
+                             'day-dresses': 'dress',
+                             'evening-dresses': 'dress',
+                             'jackets': 'jacket',
+                             'casual-jackets': 'jacket',
+                             'leather-jackets': 'jacket',
+                             'vests': 'cardigan',
+                             'coats': 'coat',
+                             'womens-outerwear': 'coat',
+                             'fur-and-shearling-coats': 'coat',
+                             'leather-and-suede-coats': 'coat',
+                             'puffer-coats': 'coat',
+                             'raincoats-and-trenchcoats': 'coat',
+                             'wool-coats': 'coat',
+                             'leggings': 'tights'}
