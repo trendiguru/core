@@ -124,25 +124,28 @@ def convert_and_save_results(mask, label_names, pose,filename,img):
         print('didnt fully convert mask')
         success = False
     if success:
-        dir = constants.pd_output_savedir
-        full_name = os.path.join(dir,filename)
-        full_name = filename
-        bmp_name = full_name.strip('.jpg') + ('.bmp')
-        print('writing output bmp to '+str(bmp_name))
-        cv2.imwrite(full_name,img)
-        cv2.imwrite(bmp_name,new_mask)
-        pose_name = full_name.strip('.jpg')+'.pose'
-        print('orig pose '+str(pose))
-        afile = open(pose_name, 'wb')
-        pickle.dump(pose, afile)
-        afile.close()
+        try:
+            dir = constants.pd_output_savedir
+            full_name = os.path.join(dir,filename)
+            full_name = filename
+            bmp_name = full_name.strip('.jpg') + ('.bmp')
+            print('writing output bmp to '+str(bmp_name))
+            cv2.imwrite(full_name,img)
+            cv2.imwrite(bmp_name,new_mask)
+            pose_name = full_name.strip('.jpg')+'.pose'
+            print('orig pose '+str(pose))
+            afile = open(pose_name, 'wb')
+            pickle.dump(pose, afile)
+            afile.close()
 
-        #reload object from file
-        file2 = open(pose_name, 'rb')
-        read_pose = pickle.load(file2)
-        file2.close()
-        print('read pose '+str(read_pose))
-
+            #reload object from file
+            file2 = open(pose_name, 'rb')
+            read_pose = pickle.load(file2)
+            file2.close()
+            print('read pose '+str(read_pose))
+        except:
+            print('fail dude')
+            return
 def show_max(parsed_img, labels):
     maxpixval = np.ma.max
     print('max pix val:' + str(maxpixval))
