@@ -125,8 +125,8 @@ def convert_and_save_results(mask, label_names, pose,filename,img):
         success = False
     if success:
         dir = constants.pd_output_savedir
-        dir = '.'
         full_name = os.path.join(dir,filename)
+        full_name = filename
         bmp_name = full_name.strip('.jpg') + ('.bmp')
         print('writing output bmp to '+str(bmp_name))
         cv2.imwrite(full_name,img)
