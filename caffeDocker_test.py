@@ -3,9 +3,10 @@ __author__ = 'yonatan'
 import time
 import collections
 
+import cv2
+
 import Utils
 import constants
-
 
 db = constants.db
 relevant_caffe_labels = constants.caffeRelevantLabels
@@ -28,6 +29,7 @@ def is_person_in_img(method, path, k=10):
                 print src.shape
             except:
                 print "src is None!"
+            src = cv2.resize(src, (227, 227))
             src = src.astype(float) / 255
             src = src.tolist()
             method = 'img'
@@ -35,6 +37,7 @@ def is_person_in_img(method, path, k=10):
             src = path
     elif method == "img":
         src = Utils.get_cv2_img_array(path)
+        src = cv2.resize(src, (227, 227))
         src = src.astype(float) / 255
         src = src.tolist()
     else:
