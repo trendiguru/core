@@ -129,8 +129,9 @@ def convert_and_save_results(mask, label_names, pose,filename,img):
             full_name = os.path.join(dir,filename)
             full_name = filename
             bmp_name = full_name.strip('.jpg') + ('.bmp')
-            print('writing output bmp to '+str(bmp_name))
+            print('writing output img to '+str(full_name))
             cv2.imwrite(full_name,img)
+            print('writing output bmp to '+str(bmp_name))
             cv2.imwrite(bmp_name,new_mask)
             pose_name = full_name.strip('.jpg')+'.pose'
             print('orig pose '+str(pose))
