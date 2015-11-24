@@ -81,8 +81,10 @@ def after_pd_conclusions(mask, labels, face=None):
     """
     if face:
         ref_area = face[2] * face[3]
+        y_split = face[1] + 3 * face[3]
     else:
         ref_area = np.mean((mask.shape[0], mask.shape[1])) / 10
+        y_split = np.round(0.4 * mask.shape[0])
     final_mask = mask[:, :]
     mask_sizes = {"upper_cover": [], "upper_under": [], "lower_cover": [], "lower_under": [], "whole_body": []}
     for num in np.unique(mask):
@@ -126,7 +128,7 @@ def after_pd_conclusions(mask, labels, face=None):
                 if cat in constants.paperdoll_categories[section]:
                     final_mask = np.where(mask == item.keys()[0], max_cat, final_mask)
             max_item_count = 0
-    y_split = face[1] + 3 * face[3]
+
     for item in mask_sizes['whole_body']:
         for i in range(0, mask.shape[0]):
             if i <= y_split:
@@ -225,7 +227,7 @@ def start_process(page_url, image_url, lang=None):
 
     # NEW_IMAGE !!
     print "Start process image shape: " + str(image.shape)
-    relevance = background_removal.image_is_relevant(image, image_url=image_url)
+    relevance = background_removal.image_is_relevant(image, use_caffe=True, image_url=image_url)
     image_dict = {'image_urls': [image_url], 'relevant': relevance.is_relevant,
                   'image_hash': image_hash, 'page_urls': [page_url], 'people': []}
     if relevance.is_relevant:
@@ -272,7 +274,7 @@ def from_paperdoll_to_similar_results(person_id, paper_job_id, num_of_matches=10
     if len(person['face']) > 0:
         final_mask = after_pd_conclusions(mask, labels, person['face'])
     else:
-        final_mask = mask
+        final_mask = after_pd_conclusions(mask, labels)
     image = Utils.get_cv2_img_array(image_obj['image_urls'][0])
     items = []
     idx = 0
