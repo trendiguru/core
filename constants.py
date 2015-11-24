@@ -200,7 +200,7 @@ paperdoll_relevant_categories = {'top', 'pants', 'shorts', 'jeans', 'jacket', 'b
                                  'dress',
                                  'sweater', 't-shirt', 'cardigan', 'coat', 'suit', 'tights', 'sweatshirt', 'stockings'}
 
-# these are the fashionista db cats in order , e.g. the mask will have 0 for null (unknown) and 56 for skin
+# these are the fashionista db cats in order , e.g. the mask will have 1 for null (unknown) and 56 for skin
 fashionista_categories = ['null','tights','shorts','blazer','t-shirt','bag','shoes','coat','skirt','purse','boots',
                           'blouse','jacket','bra','dress','pants','sweater','shirt','jeans','leggings','scarf','hat',
                           'top','cardigan','accessories','vest','sunglasses','belt','socks','glasses','intimate',
