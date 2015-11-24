@@ -199,6 +199,16 @@ flipkart_paperdoll_women = {'Tops': 'top', 'Top': 'top',
 paperdoll_relevant_categories = {'top', 'pants', 'shorts', 'jeans', 'jacket', 'blazer', 'shirt', 'skirt', 'blouse',
                                  'dress',
                                  'sweater', 't-shirt', 'cardigan', 'coat', 'suit', 'tights', 'sweatshirt', 'stockings'}
+
+# these are the fashionista db cats in order , e.g. the mask will have 0 for null (unknown) and 56 for skin
+fashionista_categories = ['null','tights','shorts','blazer','t-shirt','bag','shoes','coat','skirt','purse','boots',
+                          'blouse','jacket','bra','dress','pants','sweater','shirt','jeans','leggings','scarf','hat',
+                          'top','cardigan','accessories','vest','sunglasses','belt','socks','glasses','intimate',
+                          'stockings','necklace','cape','jumper','sweatshirt','suit','bracelet','heels','wedges','ring',
+                          'flats','tie','romper','sandals','earrings','gloves','sneakers','clogs','watch','pumps','wallet',
+                          'bodysuit','loafers','hair','skin']
+
+pd_output_savedir = '/home/jeremy/pd_output'
 # for web bounding box interface
 # this is for going to the previous item, highest numbered image
 max_image_val = 666

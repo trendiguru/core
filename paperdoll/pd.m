@@ -5,7 +5,7 @@ disp(['the image sent to pd in matlab is:' image_filename])
 %todo - check if we cant load this once only (when engine is created)
 
 %profile on
-
+tic
 load data/paperdoll_pipeline.mat config;
 addpath(genpath('.'))
 input_image = imread(image_filename);
@@ -31,7 +31,7 @@ save('output.mat','result')
 %profile off
 %profile('info')
 %profsave(profile('info'),'myprofile_results')
-
+toc
 return
 
 
