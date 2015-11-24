@@ -120,7 +120,7 @@ def convert_and_save_results(mask, label_names, pose,filename,img):
         else:
             print('label '+str(label)+' not found in regular cats')
             success=False
-    if 255 in new_mask
+    if 255 in new_mask:
         print('didnt fully convert mask')
         success = False
     if success:
