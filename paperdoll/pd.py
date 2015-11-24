@@ -115,7 +115,7 @@ def convert_and_save_results(mask, label_names, pose,filename,img):
         if label in fashionista_ordered_categories:
             fashionista_index = fashionista_ordered_categories.index(label) + 1  # start w. 1=null,56=skin
             pd_index = label_names[label]
-            print('old index:'+str(pd_index)+' for '+str(label)+': gets new index:'+str(fashionista_index))
+            print('old index '+str(pd_index)+' for '+str(label)+': gets new index:'+str(fashionista_index))
             new_mask[mask==pd_index] = fashionista_index
         else:
             print('label '+str(label)+' not found in regular cats')
@@ -128,8 +128,8 @@ def convert_and_save_results(mask, label_names, pose,filename,img):
         full_name = os.path.join(dir,filename)
         bmp_name = full_name.strip('.jpg') + ('.bmp')
         print('writing output bmp to '+str(bmp_name))
-        cv2.imwrite(bmp_name,new_mask)
         cv2.imwrite(full_name,img)
+        cv2.imwrite(bmp_name,new_mask)
         pose_name = full_name.strip('.jpg')+'.pose'
         print('orig pose '+str(pose))
         afile = open(pose_name, 'wb')
