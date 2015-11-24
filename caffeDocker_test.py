@@ -2,7 +2,6 @@ __author__ = 'yonatan'
 
 import time
 import collections
-import base64
 
 import cv2
 
@@ -32,7 +31,8 @@ def is_person_in_img(method, path, k=10):
                 print "src is None!"
             src = cv2.resize(src, (227, 227))
             src = src.astype(float) / 255
-            src = base64.b64encode(src)
+            # src = base64.b64encode(src)
+            src = src.tolist()
             method = 'img'
         else:
             src = path
@@ -40,7 +40,8 @@ def is_person_in_img(method, path, k=10):
         src = Utils.get_cv2_img_array(path)
         src = cv2.resize(src, (227, 227))
         src = src.astype(float) / 255
-        src = base64.b64encode(src)
+        src = src.tolist()
+        # src = base64.b64encode(src)
     else:
         raise IOError("bad input was inserted to caffe!")
     tic = time.time()
