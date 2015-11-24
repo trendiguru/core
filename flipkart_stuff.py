@@ -8,7 +8,6 @@ import zipfile
 import StringIO
 
 import requests
-
 from rq import Queue
 
 from constants import db, flipkart_relevant_categories, flipkart_paperdoll_women, redis_conn
@@ -62,7 +61,7 @@ if __name__ == "__main__":
     db.download_data.find_one_and_update({"criteria": flipkart},
                                          {'$set': {"total_dl_time(min)": str(total_time / 60)[:5]}})
     r2zip = zipfile.ZipFile(StringIO.StringIO(r2.content))
-    csv_file = open(r2zip.infolist()[0].filename, 'rb')
+    csv_file = r2zip.open(r2zip.namelist()[0])
     # csv_file = open('2oq-c1r.csv', 'rb')
 
     time.sleep(60)
