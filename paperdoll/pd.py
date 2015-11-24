@@ -114,8 +114,9 @@ def convert_and_save_results(mask, label_names, pose,filename,img):
     for label in label_names: # need these in order
         if label in fashionista_ordered_categories:
             fashionista_index = fashionista_ordered_categories.index(label)
-            print('old index:'+str(label_names[label])+' for '+str(label)+': gets new index:'+str(fashionista_index))
-            new_mask[mask==i] = fashionista_index
+            pd_index = label_names[label]
+            print('old index:'+str(pd_index)+' for '+str(label)+': gets new index:'+str(fashionista_index))
+            new_mask[mask==pd_index] = fashionista_index
         else:
             print('label '+str(label)+' not found in regular cats')
             success=False
