@@ -1,14 +1,16 @@
 from __future__ import print_function
 import commands
-import cv2
 import os
 import os.path
 import logging
 import random
 import string
+
+import cv2
 import numpy as np
+
 from .constants import project_dir
-import ccv
+
 
 path_to_ccvface = '/' + project_dir + '/classifier_stuff/ccvface'
 path_to_ccvface_db = '/' + project_dir + '/classifier_stuff/ccvface.sqlite3'
@@ -20,7 +22,7 @@ def ccv_facedetect(filename=None, image_array=None):
         if image_array is not None:
             filename = '/var/tmp/' + rand_string() + '.jpg'
             if not cv2.imwrite(filename, image_array):
-            raise IOError("Could not save temp image")
+                raise IOError("Could not save temp image")
             delete_when_done = True
         else:
             raise IOError("Bad parameters passed -- no file and no array.")
