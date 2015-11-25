@@ -14,22 +14,22 @@
 # standard output ans error will be logged in /home/developer/download.log
 0-20 0 * * * sudo rqworker -u redis://redis1-redis-1-vm:6379 fingerprint_new &
 0 1 * * * python -m trendi.flipkart_dl 1 > /home/developer/download.log 2>&1
-45 3 * * * sudo pkill rqworkers
+45 3 * * * sudo pkill rqworker
 46-56 3 * * * sudo rqworker -u redis://redis1-redis-1-vm:6379 DBD &
 46-56 3 * * * sudo rqworker -u redis://redis1-redis-1-vm:6379 fingerprint_new &
 0 4 * * * python -m trendi.shopstyle_dl > /home/developer/download.log 2>&1
-0 7 * * * sudo pkill rqworkers
+0 7 * * * sudo pkill rqworker
 1-6 7 * * * sudo rqworker -u redis://redis1-redis-1-vm:6379 fingerprint_new &
 1-6 7 * * * sudo rqworker -u redis://redis1-redis-1-vm:6379 fingerprint_new &
 1-6 7 * * * sudo rqworker -u redis://redis1-redis-1-vm:6379 fingerprint_new &
 1-6 7 * * * sudo rqworker -u redis://redis1-redis-1-vm:6379 fingerprint_new &
 0 9 * * * python -m trendi.flipkart_dl 2 > /home/developer/download.log 2>&1
 0 17 * * * python -m trendi.flipkart_dl 3 > /home/developer/download.log 2>&1
-45 19 * * * sudo pkill rqworkers
+45 19 * * * sudo pkill rqworker
 46-56 19 * * * sudo rqworker -u redis://redis1-redis-1-vm:6379 DBD &
 46-56 19 * * * sudo rqworker -u redis://redis1-redis-1-vm:6379 fingerprint_new &
 0 20 * * * python -m trendi.shopstyle_dl jp > /home/developer/download.log 2>&1
-0 22 * * * sudo pkill rqworkers
+0 22 * * * sudo pkill rqworker
 1-6 22 * * * sudo rqworker -u redis://redis1-redis-1-vm:6379 fingerprint_new &
 1-6 22 * * * sudo rqworker -u redis://redis1-redis-1-vm:6379 fingerprint_new &
 1-6 22 * * * sudo rqworker -u redis://redis1-redis-1-vm:6379 fingerprint_new &
