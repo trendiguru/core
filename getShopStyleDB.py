@@ -37,7 +37,7 @@ class ShopStyleDownloader():
         self.current_dl_date = str(datetime.datetime.date(datetime.datetime.now()))
 
     def db_download(self, collection):
-        x = raw_input("choose your update type - Daily or Full? (D/F)")
+        x = "F"  # raw_input("choose your update type - Daily or Full? (D/F)")
         if x is "f" or x is "F":
             type = "FULL"
         else:
@@ -89,9 +89,9 @@ class ShopStyleDownloader():
         print collection + " " + type + " DOWNLOAD DONE!!!!!\n"
 
     def wait_for(self, collection):
-        x = raw_input("waitfor enabled? (Y/N)")
-        if x == "n" or x == "N":
-            return
+        # x = raw_input("waitfor enabled? (Y/N)")
+        # if x == "n" or x == "N":
+        #     return
 
         print "Waiting for 15 min before first check"
         total_items_before = self.db[collection].count()
