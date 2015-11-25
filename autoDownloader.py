@@ -17,7 +17,7 @@ for job in jobs:
 
 # set new jobs
 scheduler.schedule(scheduled_time=datetime.now(),
-                   func="caffeDocker",
+                   func="trendi.caffeDocker.do",
                    repeat=5,
                    interval=20)
 
