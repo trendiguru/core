@@ -5,7 +5,6 @@ add description
 """
 
 import smtplib
-import sys
 
 from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
@@ -144,23 +143,24 @@ def stats_and_mail(collection):
 
 
 if __name__ == "__main__":
-    if len(sys.argv) == 1:
-        collection = "products"
-    else:
-        collection = sys.argv[1]
-    print "\n@@@ The Daily DB Updater @@@\n you choose to update the " + collection + " collection"
-    while True:
-        try:
-            x = raw_input("Download or Statistics? (D/S)")
-            break
-        except ValueError:
-            print "Oops! wrong input."
-            y = raw_input("Try again?(Y/N)")
-            if y is "Y" or y is "y":
-                continue
-            else:
-                exit()
-
+    # if len(sys.argv) == 1:
+    #     collection = "products"
+    # else:
+    #     collection = sys.argv[1]
+    # print "\n@@@ The Daily DB Updater @@@\n you choose to update the " + collection + " collection"
+    # while True:
+    #     try:
+    #         x = raw_input("Download or Statistics? (D/S)")
+    #         break
+    #     except ValueError:
+    #         print "Oops! wrong input."
+    #         y = raw_input("Try again?(Y/N)")
+    #         if y is "Y" or y is "y":
+    #             continue
+    #         else:
+    #             exit()
+    x = "d"
+    collection = "products"
     if x is "D" or x is "d":
         update_db = getShopStyleDB.ShopStyleDownloader()
         update_db.db_download(collection)
