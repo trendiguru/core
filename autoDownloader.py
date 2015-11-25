@@ -9,8 +9,6 @@ from constants import redis_conn
 scheduler = Scheduler(connection=redis_conn)
 
 
-def pr():
-    print("boom!")
 # remove old jobs
 jobs = scheduler.get_jobs()
 print jobs
@@ -19,7 +17,7 @@ for job in jobs:
 
 # set new jobs
 scheduler.schedule(scheduled_time=datetime.now(),
-                   func=pr(),
+                   func="echo 'boom!'",
                    repeat=5,
                    interval=20)
 
