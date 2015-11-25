@@ -301,7 +301,7 @@ def get_fg_mask(image, bounding_box=None):
     else:
         faces_dict = find_face_cascade(image)
         if len(faces_dict['faces']) > 0:  # grabcut with mask
-            rectangles = body_estimation(image, faces_dict[0])
+            rectangles = body_estimation(image, faces_dict['faces'][0])
             mask = create_mask_for_gc(rectangles, image)
             cv2.grabCut(image, mask, rect, bgdmodel, fgdmodel, 1, cv2.GC_INIT_WITH_MASK)
         else:  # grabcut with arbitrary rect
