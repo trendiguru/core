@@ -71,18 +71,18 @@ def collect_distances(dir, i):
     dist = []
     i = 0
     for image in images:
-        faces = background_removal.find_face_cascade(image)
-        if faces is None:
+        faces_dict = background_removal.find_face_cascade(image)
+        if faces_dict is None:
             pass
-        elif len(faces) == 0:
+        elif len(faces_dict) == 0:
             pass
         else:
             try:
-                line = length_of_lower_body_part_field(image, faces[0])
+                line = length_of_lower_body_part_field(image, faces_dict[0])
                 if isinstance(line, int):
                     cv2.line(image, (0, line), (image.shape[1], line), [0, 170, 170], 2)
                     cv2.imwrite(os.getcwd() + '/' + str(i) + '.jpg', image)
-                    dist.append((line - faces[0][1]) / float(faces[0][3]))
+                    dist.append((line - faces_dict[0][1]) / float(faces_dict[0][3]))
             except:
                 print "Problem with the length.."
         i += 1
