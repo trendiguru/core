@@ -177,7 +177,7 @@ if __name__ == "__main__":
 
     col = "products"
     if len(sys.argv) == 2:
-        col = col + sys.argv[1]
+        col = col + "_" + sys.argv[1]
     print ("@@@ Shopstyle Download @@@\n you choose to update the " + col + " collection")
     update_db = ShopStyleDownloader()
     update_db.db_download(col)
