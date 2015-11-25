@@ -141,7 +141,7 @@ def convert_and_save_results(mask, label_names, pose,filename,img):  #pose is li
             with open(pose_name, "w") as outfile:
                 print('succesful open, attempting to write:'+str(pose[0]))
                 json.dump([1,2,3], outfile, indent=4)
-                json.dump(pose[0], outfile, indent=4)
+                json.dump(pose[0],'testpose.pose', indent=4)
 
 #            afile = open(pose_name, 'wb')
 #            pickle.dump(pose, afile)
