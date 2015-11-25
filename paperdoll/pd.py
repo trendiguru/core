@@ -103,12 +103,12 @@ def get_parse_mask_parallel(matlab_engine, img_url_or_cv2_array, filename=None, 
         finish_time=time.time()
         print('elapsed time in get_parse_mask_parallel:'+str(finish_time-start_time))
         print('attempting convert and save')
-        convert_and_save_results(mask_np, label_dict, pose, filename+'.jpg', img)
+        convert_and_save_results(mask_np, label_dict, pose_np, filename+'.jpg', img)
         return mask_np, label_dict, pose_np, filename
     else:
         raise ValueError("either image is empty or problem writing")
 
-def convert_and_save_results(mask, label_names, pose,filename,img):  #pose is list not np.array
+def convert_and_save_results(mask, label_names, pose,filename,img):
     fashionista_ordered_categories = constants.fashionista_categories
     new_mask=np.ones(mask.shape)*255  # anything left with 255 wasn't dealt with
     success = True #assume innocence until proven guilty
@@ -138,10 +138,11 @@ def convert_and_save_results(mask, label_names, pose,filename,img):  #pose is li
             pose_name = full_name.strip('.jpg')+'.pose'
 #            print('orig pose '+str(pose))
             print('writing pose to '+str(pose_name))
-            with open(pose_name, "w") as outfile:
+            with open(pose_name, "w+") as outfile:
                 print('succesful open, attempting to write:'+str(pose[0]))
-                json.dump([1,2,3], outfile, indent=4)
-                json.dump(pose[0],'testpose.pose', indent=4)
+                poselist=pose[0].tolist()
+#                json.dump([1,2,3], outfile, indent=4)
+                json.dump(poselist,outfile, indent=4)
 
 #            afile = open(pose_name, 'wb')
 #            pickle.dump(pose, afile)
