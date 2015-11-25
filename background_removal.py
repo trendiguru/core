@@ -176,7 +176,7 @@ def combine_overlapping_rectangles(bb_list):
 
 
 def body_estimation(image, face):
-    x, y, w, h = face[0]
+    x, y, w, h = face
     y_down = image.shape[0] - 1
     x_back = np.max([x - 2 * w, 0])
     x_back_near = np.max([x - w, 0])
@@ -284,7 +284,6 @@ def resize_back(image, resize_ratio):
 
 
 def get_fg_mask(image, bounding_box=None):
-    # image_counter = 0
     rect = (0, 0, image.shape[1]-1, image.shape[0]-1)
     bgdmodel = np.zeros((1, 65), np.float64)  # what is this wierd size about? (jr)
     fgdmodel = np.zeros((1, 65), np.float64)
@@ -300,13 +299,11 @@ def get_fg_mask(image, bounding_box=None):
 
     # grabcut on the whole image, with/without face
     else:
-        faces = find_face_cascade(image)['faces']
-        if len(faces) > 0:  # grabcut with mask
-            rectangles = body_estimation(image, faces[0])
+        faces_dict = find_face_cascade(image)
+        if len(faces_dict['faces']) > 0:  # grabcut with mask
+            rectangles = body_estimation(image, faces_dict[0])
             mask = create_mask_for_gc(rectangles, image)
             cv2.grabCut(image, mask, rect, bgdmodel, fgdmodel, 1, cv2.GC_INIT_WITH_MASK)
-            # album.append(cv2.bitwise_and(image, image, mask=mask2))
-            # image_counter += 1
         else:  # grabcut with arbitrary rect
             mask = create_arbitrary(image)
             cv2.grabCut(image, mask, rect, bgdmodel, fgdmodel, 1, cv2.GC_INIT_WITH_RECT)
