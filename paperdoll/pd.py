@@ -23,6 +23,7 @@ import numpy as np
 import cv2
 import json
 import matlab.engine
+import sys
 
 from .. import Utils
 from .. import constants
@@ -151,7 +152,9 @@ def convert_and_save_results(mask, label_names, pose,filename,img):  #pose is li
 #            print('read pose '+str(read_pose))
         except:
             print('fail in convert_and_save_results dude, bummer')
+            print(str(sys.exc_info()[0]))
             return
+
 def show_max(parsed_img, labels):
     maxpixval = np.ma.max
     print('max pix val:' + str(maxpixval))
