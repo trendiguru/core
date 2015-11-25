@@ -401,7 +401,6 @@ def set_lang(new_lang):
         image_coll_name = "images"
         prod_coll_name = "products"
         return image_coll_name
-
     else:
         lang = new_lang
         lang_suffix = "_" + new_lang
