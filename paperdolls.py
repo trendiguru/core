@@ -273,6 +273,8 @@ def from_paperdoll_to_similar_results(person_id, paper_job_id, num_of_matches=10
     image_obj, person = get_person_by_id(person_id, iip)
     if len(person['face']) > 0:
         final_mask = after_pd_conclusions(mask, labels, person['face'])
+        # x, y, w, h = person['face']
+        # x1_image = np.max(x - 2*w, 0)
     else:
         final_mask = after_pd_conclusions(mask, labels)
     image = Utils.get_cv2_img_array(image_obj['image_urls'][0])
