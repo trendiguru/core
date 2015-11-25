@@ -1,6 +1,5 @@
 __author__ = 'Nadav Paz'
 # Libraries import
-# TODO throw error in find_face if xml's aren't found - currently i think this happens silently
 # TODO - combine pose-estimation face detection as a backup to the cascades face detection
 
 import string
@@ -301,9 +300,9 @@ def get_fg_mask(image, bounding_box=None):
 
     # grabcut on the whole image, with/without face
     else:
-        face = find_face_cascade(image)
-        if len(face) > 0:                                # grabcut with mask
-            rectangles = body_estimation(image, face)
+        faces = find_face_cascade(image)['faces']
+        if len(faces) > 0:  # grabcut with mask
+            rectangles = body_estimation(image, faces[0])
             mask = create_mask_for_gc(rectangles, image)
             cv2.grabCut(image, mask, rect, bgdmodel, fgdmodel, 1, cv2.GC_INIT_WITH_MASK)
             # album.append(cv2.bitwise_and(image, image, mask=mask2))
