@@ -8,7 +8,6 @@ from Tkinter import Tk
 from tkFileDialog import askopenfilename
 import collections
 import os
-import logging
 
 import cv2
 import numpy as np
@@ -32,33 +31,30 @@ def image_is_relevant(image, use_caffe=False, image_url=None):
     - "for face in image_is_relevant(image).faces:"
     """
     Relevance = collections.namedtuple('relevance', 'is_relevant faces')
-    faces = find_face_cascade(image, 10)
-    if len(faces) == 0:
-        faces = find_face(image, 10)
-    if use_caffe:
-        if len(faces) == 0:
+    faces_dict = find_face_cascade(image, 10)
+    if len(faces_dict['faces']) == 0:
+        faces_dict = find_face_ccv(image, 10)
+    if not faces_dict['are_faces']:
+        if use_caffe:
             return Relevance(caffeDocker_test.is_person_in_img('url', image_url).is_person, [])
         else:
-            return Relevance(True, faces)
+            return Relevance(True, faces_dict['faces'])
     else:
-        return Relevance(len(faces) > 0, faces)
+        if len(faces_dict['faces']) > 0:
+            return Relevance(True, faces_dict['faces'])
+        else:
+            return Relevance(False, [])
 
 
-def find_face(image_arr, max_num_of_faces=100, method='ccv'):
+def find_face_ccv(image_arr, max_num_of_faces=100):
     if not isinstance(image_arr, np.ndarray):
         raise IOError('find_face got a bad input: not np.ndarray')
-    if method == 'cascade':
-        logging.debug('doing cascade facedetect')
-        faces = find_face_cascade(image_arr, max_num_of_faces=max_num_of_faces)
-        return faces
     else:  # do ccv
-        logging.debug('doing ccv facedetect')
         faces = ccv.ccv_facedetect(image_array=image_arr)
-
         if faces is None or len(faces) == 0:
-            return []
+            return {'are_faces': False, 'faces': []}
         else:
-            return choose_faces(image_arr, faces, max_num_of_faces)
+            return {'are_faces': True, 'faces': choose_faces(image_arr, faces, max_num_of_faces)}
 
 
 def find_face_cascade(image, max_num_of_faces=10):
@@ -74,8 +70,7 @@ def find_face_cascade(image, max_num_of_faces=10):
             cascade_ok = True
             break
     if cascade_ok is False:
-        logging.warning("no good cascade found!")
-        return []  # can we return [] in both cases or () in both , currently its one and on
+        raise IOError("no good cascade found!")
 
     for cascade in face_cascades:
         faces = cascade.detectMultiScale(
@@ -88,16 +83,16 @@ def find_face_cascade(image, max_num_of_faces=10):
         if len(faces) > 0:
             break
     if len(faces) == 0:
-        return faces  # can we return [] in both cases or () in both , currently its one and one
+        return {'are_faces': False, 'faces': []}
 #    return faces
-    return choose_faces(image, faces, max_num_of_faces)
+    return {'are_faces': True, 'faces': choose_faces(image, faces, max_num_of_faces)}
 
 
 def choose_faces(image, faces_list, max_num_of_faces):
     h, w, d = image.shape
     x_origin = int(w / 2)
     y_origin = int(0.125 * h)
-    if not isinstance(faces_list,list):
+    if not isinstance(faces_list, list):
         faces_list = faces_list.tolist()
     relevant_faces = []
     for face in faces_list:
@@ -143,7 +138,7 @@ def is_skin_color(face_ycrcb):
 def average_bbs(bb1, bb2):
     bb_x = int((bb1[0] + bb2[0]) / 2)
     bb_y = int((bb1[1] + bb2[1]) / 2)
-    bb_w = int((bb1[2] + bb2[2]) / 2)  # this isnt necessarily width, it could be x2 if rect is [x1,y1,x2,y2]
+    bb_w = int((bb1[2] + bb2[2]) / 2)  # this isn't necessarily width, it could be x2 if rect is [x1,y1,x2,y2]
     bb_h = int((bb1[3] + bb2[3]) / 2)
 
     bb_out = [bb_x, bb_y, bb_w, bb_h]
@@ -306,7 +301,7 @@ def get_fg_mask(image, bounding_box=None):
 
     # grabcut on the whole image, with/without face
     else:
-        face = find_face(image)
+        face = find_face_cascade(image)
         if len(face) > 0:                                # grabcut with mask
             rectangles = body_estimation(image, face)
             mask = create_mask_for_gc(rectangles, image)
