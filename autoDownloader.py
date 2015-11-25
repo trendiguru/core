@@ -20,7 +20,7 @@ scheduler.schedule(scheduled_time=datetime.now(),
                    func="trendi.caffeDocker.do",
                    repeat=5,
                    interval=20)
-
+scheduler.enqueue_at(datetime(2015, 11, 25, 13, 39), "trendi.caffeDocker.do")
 print ("new job list:")
 jobs = scheduler.get_jobs()
 print jobs
