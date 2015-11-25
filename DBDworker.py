@@ -28,7 +28,6 @@ MAX_RESULTS_PER_PAGE = 50
 MAX_OFFSET = 5000
 MAX_SET_SIZE = MAX_OFFSET + MAX_RESULTS_PER_PAGE
 db = constants.db
-current_date = db.download_data.find()[0]["current_dl"]
 # collection = constants.update_collection_name
 relevant = constants.db_relevant_items
 fp_version = constants.fingerprint_version
@@ -66,12 +65,13 @@ def download_products(filter_params, total=MAX_SET_SIZE, coll="products"):
     print "Batch Done. Total Product count: {0}".format(db[collection].count())
 
 
-def insert_and_fingerprint(prod, collection):
+def insert_and_fingerprint(prod, collection, current_date):
     """
     this func. inserts a new product to our DB and runs TG fingerprint on it
     :param prod: dictionary of shopstyle product
     :return: Nothing, void function
     """
+
     print "enqueuing for fingerprint & insert,",
     q.enqueue(generate_mask_and_insert, doc=prod, image_url=None,
               fp_date=current_date, coll=collection)
@@ -79,6 +79,7 @@ def insert_and_fingerprint(prod, collection):
 
 def db_update(prod, collection):
     print " Updating product {0}. ".format(prod["id"]),
+    current_date = db.download_data.find({"criteria": collection})["current_dl"]
 
     # requests package can't handle https - temp fix
     prod["image"] = json.loads(json.dumps(prod["image"]).replace("https://", "http://"))
@@ -112,7 +113,7 @@ def db_update(prod, collection):
             db.download_data.find_one_and_update({"criteria": collection},
                                                  {'$inc': {"new_items": 1}})
             db.fp_in_process.insert_one({"id": prod["id"]})
-            insert_and_fingerprint(prod, collection)
+            insert_and_fingerprint(prod, collection, current_date)
         else:  # means the item is in the archive
             # No matter what, we're moving this out of the archive...
             prod_in_archive["archive"] = False
@@ -123,7 +124,7 @@ def db_update(prod, collection):
                 db[collection].insert_one(prod_in_archive)
             else:
                 print "old fp_version, updating fp",
-                insert_and_fingerprint(prod, collection)
+                insert_and_fingerprint(prod, collection, current_date)
             db.archive.delete_one({'id': prod["id"]})
             db.download_data.find_one_and_update({"criteria": collection},
                                                  {'$inc': {"returned_from_archive": 1}})
@@ -140,7 +141,7 @@ def db_update(prod, collection):
             db.download_data.find_one_and_update({"criteria": collection},
                                                  {'$inc': {"existing_but_renewed": 1}})
             db[collection].delete_one({'id': prod['id']})
-            insert_and_fingerprint(prod, collection)
+            insert_and_fingerprint(prod, collection, current_date)
             print "product with an old fp was refingerprinted"
 
 
