@@ -51,7 +51,7 @@ def download_products(filter_params, total=MAX_SET_SIZE, coll="products"):
     filter_params["offset"] = 0
     while filter_params["offset"] < MAX_OFFSET and \
                     (filter_params["offset"] + MAX_RESULTS_PER_PAGE) <= total:
-        product_response = delayed_requests_get(BASE_URL_PRODUCTS, filter_params, coll)
+        product_response = delayed_requests_get(BASE_URL_PRODUCTS, filter_params, collection)
         product_results = product_response.json()
         total = product_results["metadata"]["total"]
         products = product_results["products"]
@@ -79,7 +79,7 @@ def insert_and_fingerprint(prod, collection, current_date):
 
 def db_update(prod, collection):
     print " Updating product {0}. ".format(prod["id"]),
-    current_date = db.download_data.find({"criteria": collection})["current_dl"]
+    current_date = db.download_data.find({"criteria": collection})[0]["current_dl"]
 
     # requests package can't handle https - temp fix
     prod["image"] = json.loads(json.dumps(prod["image"]).replace("https://", "http://"))
