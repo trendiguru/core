@@ -125,21 +125,21 @@ def db_update(prod, collection):
             else:
                 print "old fp_version, updating fp",
                 insert_and_fingerprint(prod, collection, current_date)
-            db.archive.delete_one({'id': prod["id"]})
-            db.download_data.find_one_and_update({"criteria": collection},
-                                                 {'$inc': {"returned_from_archive": 1}})
+                # db.archive.delete_one({'id': prod["id"]})
+                # db.download_data.find_one_and_update({"criteria": collection},
+                #                                      {'$inc': {"returned_from_archive": 1}})
     else:
         # case 2: the product was found in our db, and maybe should be modified
         print "Found existing prod in db,",
         if prod_in_coll.get("download_data")["fp_version"] == fp_version:
             # Thus - update only shopstyle's fields
-            db.download_data.find_one_and_update({"criteria": collection},
-                                                 {'$inc': {"existing_items": 1}})
+            # db.download_data.find_one_and_update({"criteria": collection},
+            #                                      {'$inc': {"existing_items": 1}})
             db[collection].update_one({'id': prod["id"]},
                                    {'$set': {'download_data.dl_version': current_date}})
         else:
-            db.download_data.find_one_and_update({"criteria": collection},
-                                                 {'$inc': {"existing_but_renewed": 1}})
+            # db.download_data.find_one_and_update({"criteria": collection},
+            #                                      {'$inc': {"existing_but_renewed": 1}})
             db[collection].delete_one({'id': prod['id']})
             insert_and_fingerprint(prod, collection, current_date)
             print "product with an old fp was refingerprinted"
