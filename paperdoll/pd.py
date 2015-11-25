@@ -138,7 +138,7 @@ def convert_and_save_results(mask, label_names, pose,filename,img):
 #            print('orig pose '+str(pose))
             print('writing pose to '+str(pose_name))
             with open(pose_name, "w") as outfile:
-            json.dump(pose, outfile, indent=4)
+                json.dump(pose, outfile, indent=4)
 
 #            afile = open(pose_name, 'wb')
 #            pickle.dump(pose, afile)
