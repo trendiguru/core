@@ -19,7 +19,7 @@ for job in jobs:
 
 # set new jobs
 scheduler.schedule(scheduled_time=datetime.now(),
-                   func=pr,
+                   func=pr(),
                    repeat=5,
                    interval=20)
 
