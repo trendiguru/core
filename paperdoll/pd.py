@@ -127,23 +127,24 @@ def convert_and_save_results(mask, label_names, pose,filename,img):
         try:
             dir = constants.pd_output_savedir
             full_name = os.path.join(dir,filename)
-            full_name = filename
+#            full_name = filename
             bmp_name = full_name.strip('.jpg') + ('.bmp')
             print('writing output img to '+str(full_name))
             cv2.imwrite(full_name,img)
             print('writing output bmp to '+str(bmp_name))
             cv2.imwrite(bmp_name,new_mask)
             pose_name = full_name.strip('.jpg')+'.pose'
-            print('orig pose '+str(pose))
+#            print('orig pose '+str(pose))
+            print('writing pose to '+str(pose_name))
             afile = open(pose_name, 'wb')
             pickle.dump(pose, afile)
             afile.close()
 
             #reload object from file
-            file2 = open(pose_name, 'rb')
-            read_pose = pickle.load(file2)
-            file2.close()
-            print('read pose '+str(read_pose))
+#            file2 = open(pose_name, 'rb')
+#            read_pose = pickle.load(file2)
+#            file2.close()
+#            print('read pose '+str(read_pose))
         except:
             print('fail dude')
             return
