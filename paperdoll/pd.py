@@ -138,6 +138,7 @@ def convert_and_save_results(mask, label_names, pose,filename,img):  #pose is li
 #            print('orig pose '+str(pose))
             print('writing pose to '+str(pose_name))
             with open(pose_name, "w") as outfile:
+                print('succesful open, attempting to write:'+str(pose))
                 json.dump(pose, outfile, indent=4)
 
 #            afile = open(pose_name, 'wb')
