@@ -182,4 +182,4 @@ if __name__ == "__main__":
     update_db = ShopStyleDownloader()
     update_db.db_download(col)
 
-    print "Daily Update Finished!!!"
+    print (col + "Update Finished!!!")
