@@ -45,7 +45,10 @@ def swipe_all(col):
         # if cat not in constants.db_relevant_items:
         #     db[col].delete_one({"id": id})
         #     continue
-        tmp_prod = samesame(prod, tmp_prod, cat)
+        try:
+            tmp_prod = samesame(prod, tmp_prod, cat)
+        except:
+            continue
         tmp_prod["fingerprint"] = prod["fingerprint"]
         # db[col].delete_one({"id": id})
         db[col1].insert_one(tmp_prod)
