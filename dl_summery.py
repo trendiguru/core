@@ -33,7 +33,7 @@ def email(stats, coll):
                'items downloaded:\t' + str(stats['items_downloaded']) + '</h3>\n<h3>' + \
                'new items:\t' + str(stats['new_items']) + '</h3>\n<h3>' + \
                'insert errors:\t' + str(stats['errors']) + '</h3>\n<h3>' + \
-               'dl duration(min):\t' + str(stats['dl_duration(min)'])[:5] + '</h3>\n\n<h3>'
+               'dl duration(min):\t' + str(stats['dl_duration(min)']) + '</h3>\n\n<h3>'
         # '</h3>\n<h3>' + '</h3>\n<h3>' + 'items by category:</h3>\n' + '</h3>\n<h3>'
 
     # categories = ""
