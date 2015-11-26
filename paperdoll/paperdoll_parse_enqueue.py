@@ -4,7 +4,7 @@ import numpy as np
 from rq import Queue
 import cv2
 import logging
-import constants
+from .. import constants
 
 redis_conn = constants.redis_conn
 
@@ -60,6 +60,9 @@ def show_parse(filename=None, img_array = None):
         dest = cv2.applyColorMap(scaled, cv2.COLORMAP_HOT)
 #        print('writing parse_img.jpg',img_array)
 #        cv2.imwrite('parse_img.jpg',img_array)
+
+        h,w = img_array.shape[:2]
+        print(h,w)
         cv2.imshow("orig", img_array)
         cv2.imshow("dest", dest)
         cv2.waitKey(0)
