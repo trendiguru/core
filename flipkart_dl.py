@@ -62,7 +62,8 @@ if __name__ == "__main__":
     time.sleep(60)
 
     for x, row in enumerate(DB):
-        print ("row #" + str(x))
+        if divmod(x, 10000) == 0:
+            print ("row #" + str(x))
         tmp_prod = {}
         tmp = row[1]
         catgoriz = re.split(" ", tmp)
@@ -112,7 +113,7 @@ if __name__ == "__main__":
                 try:
                     db.flipkart.delete_one({'id': tmp_prod['id']})
                     db.flipkart.insert_one(tmp_prod)
-                    print "prod inserted successfully"
+                    # print "prod inserted successfully"
                     db.fp_in_process.delete_one({"id": tmp_prod["id"]})
 
                 except:
