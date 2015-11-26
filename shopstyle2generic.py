@@ -17,7 +17,7 @@ def samesame(prod, tmp_prod, cat):
                           'Large': prod['image']['sizes']['Large']['url'],
                           'Medium': prod['image']['sizes']['Medium']['url'],
                           'Small': prod['image']['sizes']['Small']['url'],
-                          'XLarge': prod['image']['sizes']['Xlarge']['url']}
+                          'XLarge': prod['image']['sizes']['XLarge']['url']}
     tmp_prod["status"] = {"instock": prod["inStock"],
                           "hours_out": 0}
     tmp_prod["shortDescription"] = prod["name"]
