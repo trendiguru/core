@@ -51,7 +51,7 @@ def download_products(filter_params, total=MAX_SET_SIZE, coll="products"):
     filter_params["offset"] = 0
     while filter_params["offset"] < MAX_OFFSET and \
                     (filter_params["offset"] + MAX_RESULTS_PER_PAGE) <= total:
-        product_response = delayed_requests_get(BASE_URL_PRODUCTS, filter_params, coll)
+        product_response = delayed_requests_get(BASE_URL_PRODUCTS, filter_params, collection)
         product_results = product_response.json()
         total = product_results["metadata"]["total"]
         products = product_results["products"]
@@ -79,7 +79,7 @@ def insert_and_fingerprint(prod, collection, current_date):
 
 def db_update(prod, collection):
     print " Updating product {0}. ".format(prod["id"]),
-    current_date = db.download_data.find({"criteria": collection})["current_dl"]
+    current_date = db.download_data.find({"criteria": collection})[0]["current_dl"]
 
     # requests package can't handle https - temp fix
     prod["image"] = json.loads(json.dumps(prod["image"]).replace("https://", "http://"))
@@ -125,21 +125,21 @@ def db_update(prod, collection):
             else:
                 print "old fp_version, updating fp",
                 insert_and_fingerprint(prod, collection, current_date)
-            db.archive.delete_one({'id': prod["id"]})
-            db.download_data.find_one_and_update({"criteria": collection},
-                                                 {'$inc': {"returned_from_archive": 1}})
+                # db.archive.delete_one({'id': prod["id"]})
+                # db.download_data.find_one_and_update({"criteria": collection},
+                #                                      {'$inc': {"returned_from_archive": 1}})
     else:
         # case 2: the product was found in our db, and maybe should be modified
         print "Found existing prod in db,",
         if prod_in_coll.get("download_data")["fp_version"] == fp_version:
             # Thus - update only shopstyle's fields
-            db.download_data.find_one_and_update({"criteria": collection},
-                                                 {'$inc': {"existing_items": 1}})
+            # db.download_data.find_one_and_update({"criteria": collection},
+            #                                      {'$inc': {"existing_items": 1}})
             db[collection].update_one({'id': prod["id"]},
                                    {'$set': {'download_data.dl_version': current_date}})
         else:
-            db.download_data.find_one_and_update({"criteria": collection},
-                                                 {'$inc': {"existing_but_renewed": 1}})
+            # db.download_data.find_one_and_update({"criteria": collection},
+            #                                      {'$inc': {"existing_but_renewed": 1}})
             db[collection].delete_one({'id': prod['id']})
             insert_and_fingerprint(prod, collection, current_date)
             print "product with an old fp was refingerprinted"

@@ -1,0 +1,40 @@
+# this is a job list for cron
+# to see cron running tasks "ps -o pid,sess,cmd afx | grep -A20 'cron$'"
+# to insert this list to cron type: '$ crontab /home/developer/python-packages/trendi/autoDownloader'
+# the check if the list was inserted correctly by typing:'$ crontab -l'
+#
+# the download schedule:
+# 1. flipkart#1 at 1am
+# 2. products at 4 am (shopstyle)
+# 3. flipkart#2 at 9am
+# 4. flipkart#3 at 5pm
+# 5. products_jp at 8 pm (shopstyle japan)
+# 6. daily_summery  - stats+email at 23:45pm
+#
+# standard output ans error will be logged in /home/developer/download.log
+0-20 0 * * * sudo rqworker -u redis://redis1-redis-1-vm:6379 fingerprint_new &
+0 1 * * * python -m trendi.flipkart_dl 1 > /home/developer/download.log 2>&1
+45 3 * * * sudo pkill rqworker
+46-56 3 * * * sudo rqworker -u redis://redis1-redis-1-vm:6379 DBD &
+46-56 3 * * * sudo rqworker -u redis://redis1-redis-1-vm:6379 fingerprint_new &
+0 4 * * * python -m trendi.shopstyle_dl > /home/developer/download.log 2>&1
+0 7 * * * sudo pkill rqworker
+1-6 7 * * * sudo rqworker -u redis://redis1-redis-1-vm:6379 fingerprint_new &
+1-6 7 * * * sudo rqworker -u redis://redis1-redis-1-vm:6379 fingerprint_new &
+1-6 7 * * * sudo rqworker -u redis://redis1-redis-1-vm:6379 fingerprint_new &
+1-6 7 * * * sudo rqworker -u redis://redis1-redis-1-vm:6379 fingerprint_new &
+0 9 * * * python -m trendi.flipkart_dl 2 > /home/developer/download.log 2>&1
+0 17 * * * python -m trendi.flipkart_dl 3 > /home/developer/download.log 2>&1
+45 19 * * * sudo pkill rqworker
+46-56 19 * * * sudo rqworker -u redis://redis1-redis-1-vm:6379 DBD &
+46-56 19 * * * sudo rqworker -u redis://redis1-redis-1-vm:6379 fingerprint_new &
+0 20 * * * python -m trendi.shopstyle_dl jp > /home/developer/download.log 2>&1
+0 22 * * * sudo pkill rqworker
+1-6 22 * * * sudo rqworker -u redis://redis1-redis-1-vm:6379 fingerprint_new &
+1-6 22 * * * sudo rqworker -u redis://redis1-redis-1-vm:6379 fingerprint_new &
+1-6 22 * * * sudo rqworker -u redis://redis1-redis-1-vm:6379 fingerprint_new &
+1-6 22 * * * sudo rqworker -u redis://redis1-redis-1-vm:6379 fingerprint_new &
+45 23 * * * python -m trendi.dl_summery > /home/developer/download.log 2>&1
+59 23 * * * sudo pkill rqworker
+
+
