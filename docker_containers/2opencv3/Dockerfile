@@ -80,6 +80,10 @@ RUN  cd /opt/OpenCV
 RUN pwd
 WORKDIR /opt/OpenCV
 RUN pwd
+
+# test on jr's pc
+wget http://sourceforge.net/projects/opencvlibrary/files/latest/download/opencv-3.0.0.zip
+
 RUN  wget -O OpenCV3.0.zip https://codeload.github.com/Itseez/opencv/zip/3.0.0
 RUN  unzip OpenCV3.0.zip
 RUN  wget -O opencv_contrib.zip https://codeload.github.com/Itseez/opencv_contrib/zip/3.0.0
@@ -94,13 +98,20 @@ RUN pwd
 WORKDIR /opt/OpenCV/opencv-3.0.0/build
 RUN pwd
 
+#cmake -D CMAKE_BUILD_TYPE=RELEASE -D CMAKE_INSTALL_PREFIX=/usr/local -D WITH_TBB=ON -D WITH_V4L=ON -D WITH_QT=ON -D WITH_OPENGL=ON ..
+#make -j $(nproc)
+#sudo make install
+#sudo /bin/bash -c 'echo "/usr/local/lib" > /etc/ld.so.conf.d/opencv.conf'
+#sudo ldconfig
+
+
 #for fisherfaces: -DOPENCV_EXTRA_MODULES_PATH=<opencv_contrib>/modules <opencv_source_directory>
 #apparently this actually requires dl of a further repo at https://github.com/Itseez/opencv_contrib.git
 RUN  cmake -D CMAKE_BUILD_TYPE=RELEASE -D CMAKE_INSTALL_PREFIX=$(python -c "import sys; print(sys.prefix)") -D PYTHON_EXECUTABLE=$(which python) -D BUILD_EXAMPLES=OFF -D INSTALL_C_EXAMPLES=OFF -D INSTALL_PYTHON_EXAMPLES=OFF -D INSTALL_TESTS=OFF -D BUILD_opencv_java=OFF -D WITH_IPP=OFF -D OPENCV_EXTRA_MODULES_PATH=/OpenCV/opencv_contrib-3.0.0/modules -D BUILD_NEW_PYTHON_SUPPORT=ON  -DWITH_QT=ON -DWITH_OPENGL=ON -DWITH_TBB=ON -D WITH_V4L=ON ..
 #RUN  cmake -D CMAKE_BUILD_TYPE=RELEASE -D CMAKE_INSTALL_PREFIX=/usr/local -D WITH_TBB=ON -D BUILD_NEW_PYTHON_SUPPORT=ON -D WITH_V4L=ON -D INSTALL_C_EXAMPLES=ON -D INSTALL_PYTHON_EXAMPLES=ON -D BUILD_EXAMPLES=ON -D WITH_QT=OFF -D WITH_OPENGL=ON -D BUILD_opencv_nonfree=ON ..
 RUN  make -j2
 RUN  make install
-RUN  make clean
+#RUN  make clean
 
 RUN  sh -c 'echo "/usr/local/lib" > /etc/ld.so.conf.d/opencv.conf'
 RUN  ldconfig

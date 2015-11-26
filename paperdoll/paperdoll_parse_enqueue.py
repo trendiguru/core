@@ -4,7 +4,7 @@ import numpy as np
 from rq import Queue
 import cv2
 import logging
-from .. import constants
+import constants
 
 redis_conn = constants.redis_conn
 
@@ -53,15 +53,30 @@ def show_parse(filename=None, img_array = None):
     if filename is not None:
         img_array = cv2.imread(filename)
     if img_array is not None:
-        minVal, maxVal, minLoc, maxLoc = cv2.minMaxLoc(img_array)
-        maxVal = 31  # 31 categories in paperdoll
+#        minVal, maxVal, minLoc, maxLoc = cv2.minMaxLoc(img_array)
+        img_array = img_array-1
+        maxVal = 55  # 31 categories in paperdoll
         scaled = np.multiply(img_array, int(255 / maxVal))
-        dest = cv2.applyColorMap(scaled, cv2.COLORMAP_RAINBOW)
-        print('writing parse_img.jpg',img_array)
-        cv2.imwrite('parse_img.jpg',img_array)
+        dest = cv2.applyColorMap(scaled, cv2.COLORMAP_HOT)
+#        print('writing parse_img.jpg',img_array)
+#        cv2.imwrite('parse_img.jpg',img_array)
+        cv2.imshow("orig", img_array)
         cv2.imshow("dest", dest)
         cv2.waitKey(0)
 
+def colorbars(max=55):
+    bar_height = 10
+    bar_width = 20
+    new_img = np.ones([max*bar_height,bar_width],np.uint8)
+    for i in range(0,max):
+        new_img[i*bar_height:(i+1)*bar_height,:] = int(i*255.0/max)
+    #print(new_img)
+    cv2.imwrite('testvarout.jpg',new_img)
+    print('writing file')
+ #   cv2.imshow('colorbars',new_img)
+ #   cv2.waitKey(0)
+
+    show_parse(img_array=new_img+1)
 
 def show_max(parsed_img, labels):
     maxpixval = np.ma.max
