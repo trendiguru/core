@@ -24,7 +24,10 @@ def samesame(prod, tmp_prod, cat):
     tmp_prod["longDescription"] = prod["description"]
     tmp_prod["price"] = {'price': prod["price"],
                          'currency': prod["currency"]}
-    tmp_prod["brand"] = prod['brand']['name']
+    try:
+        tmp_prod["brand"] = prod['brand']['name']
+    except:
+        tmp_prod["brand"] = prod['brandedName']
     tmp_prod["download_data"] = prod["download_data"]
     return tmp_prod
 
@@ -43,7 +46,7 @@ def swipe_all(col):
         tmp_prod = samesame(prod, tmp_prod, cat)
         tmp_prod["fingerprint"] = prod["fingerprint"]
         # db[col].delete_one({"id": id})
-        col = col + '_new'
+        col = 'new_' + col
         db[col].insert_one(tmp_prod)
     print "finished"
 
