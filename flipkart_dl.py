@@ -104,7 +104,7 @@ if __name__ == "__main__":
             tmp_prod["download_data"] = {"dl_version": None, "first_dl": None, "fp_version": None}
             prev = db.flipkart.find_one({'id': tmp_prod["id"]})
             if prev is None:
-                q.enqueue(generate_mask_and_insert, doc=tmp_prod, image_url=imgUrl[1],
+                q.enqueue(generate_mask_and_insert, doc=tmp_prod, image_url=tmp_prod["images"]["XLarge"],
                           fp_date=today_date, coll="flipkart")
                 db.download_data.find_one_and_update({"criteria": criteria},
                                                      {'$inc': {"new_items": 1}})
