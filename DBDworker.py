@@ -104,7 +104,7 @@ def db_update(prod, collection):
     else:
         # case 2: the product was found in our db, and maybe should be modified
         print "Found existing prod in db,",
-        status_new = prod["status"]["instock"]
+        status_new = prod["inStock"]
         status_old = prod_in_coll["status"]["instock"]
         if status_new == False and status_old == False:
             db[collection].update_one({'id': prod["id"]},
