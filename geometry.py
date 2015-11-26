@@ -72,6 +72,7 @@ def collect_distances(dir, i):
     i = 0
     for image in images:
         faces = background_removal.find_face_cascade(image)['faces']
+        print faces
         if faces is None:
             pass
         elif len(faces) == 0:
