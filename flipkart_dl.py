@@ -9,6 +9,7 @@ import StringIO
 import sys
 
 import requests
+
 from rq import Queue
 
 from constants import db, flipkart_relevant_categories, flipkart_paperdoll_women, redis_conn
@@ -53,12 +54,6 @@ if __name__ == "__main__":
     url2 = r1["apiGroups"]["affiliate"]["rawDownloadListings"]["womens_clothing"]["availableVariants"]["v0.1.0"]["get"]
 
     r2 = requests.get(url=url2, headers=headers)
-    db.download_data.find_one_and_update({"criteria": criteria},
-                                         {'$set': {"end_time": datetime.datetime.now()}})
-    total = db.download_data.find({"criteria": criteria})[0]
-    total_time = abs(total["end_time"] - total["start_time"]).total_seconds()
-    db.download_data.find_one_and_update({"criteria": criteria},
-                                         {'$set': {"total_dl_time(min)": str(total_time / 60)[:5]}})
     r2zip = zipfile.ZipFile(StringIO.StringIO(r2.content))
     csv_file = r2zip.open(r2zip.namelist()[0])
 
@@ -67,7 +62,8 @@ if __name__ == "__main__":
     time.sleep(60)
 
     for x, row in enumerate(DB):
-        print ("row #" + str(x))
+        if divmod(x, 10000) == 0:
+            print ("row #" + str(x))
         tmp_prod = {}
         tmp = row[1]
         catgoriz = re.split(" ", tmp)
@@ -77,13 +73,11 @@ if __name__ == "__main__":
         if len(inter) > 0:
             tmp_prod["id"] = row[0]
             db.fp_in_process.insert_one({"id": tmp_prod["id"]})
-            db.download_data.find_one_and_update({"criteria": criteria},
-                                                 {'$inc': {"items_downloaded": 1}})
             tmp_prod["categories"] = inter2paperdole(inter)
             tmp_prod["clickUrl"] = row[6] + affiliate_data
             imgUrl = re.split(';', row[3])
-            # if len(imgUrl) < 13:
-            #     continue
+            if len(imgUrl) < 13:
+                continue
             tmp_prod["images"] = {'Original': [l for l in imgUrl if 'original' in l][0],
                                   'Best': [l for l in imgUrl if '275x340' in l][0],
                                   'IPhone': [l for l in imgUrl if '125x167' in l][0],
@@ -103,8 +97,10 @@ if __name__ == "__main__":
             tmp_prod["brand"] = row[8]
             tmp_prod["download_data"] = {"dl_version": None, "first_dl": None, "fp_version": None}
             prev = db.flipkart.find_one({'id': tmp_prod["id"]})
+            db.download_data.find_one_and_update({"criteria": criteria},
+                                                 {'$inc': {"items_downloaded": 1}})
             if prev is None:
-                q.enqueue(generate_mask_and_insert, doc=tmp_prod, image_url=imgUrl[1],
+                q.enqueue(generate_mask_and_insert, doc=tmp_prod, image_url=tmp_prod["images"]["XLarge"],
                           fp_date=today_date, coll="flipkart")
                 db.download_data.find_one_and_update({"criteria": criteria},
                                                      {'$inc': {"new_items": 1}})
@@ -117,7 +113,7 @@ if __name__ == "__main__":
                 try:
                     db.flipkart.delete_one({'id': tmp_prod['id']})
                     db.flipkart.insert_one(tmp_prod)
-                    print "prod inserted successfully"
+                    # print "prod inserted successfully"
                     db.fp_in_process.delete_one({"id": tmp_prod["id"]})
 
                 except:
@@ -125,6 +121,12 @@ if __name__ == "__main__":
                                                          {'$inc': {"errors": 1}})
                     print "error inserting"
 
+    db.download_data.find_one_and_update({"criteria": criteria},
+                                         {'$set': {"end_time": datetime.datetime.now()}})
+    total = db.download_data.find({"criteria": criteria})[0]
+    total_time = abs(total["end_time"] - total["start_time"]).total_seconds()
+    db.download_data.find_one_and_update({"criteria": criteria},
+                                         {'$set': {"total_dl_time(min)": str(total_time / 60)[:5]}})
     print ("flipkart finished!!!")
 
 """
