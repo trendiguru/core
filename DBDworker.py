@@ -77,7 +77,7 @@ def db_update(prod, collection):
         return
     db.download_data.find_one_and_update({"criteria": collection},
                                          {'$inc': {"items_downloaded": 1}})
-    prod["download_data"]["dl_version"] = current_date
+    prod["download_data"] = {"dl_version": current_date}
     # case 1: new product - try to update, if does not exists, insert a new product and add our fields
     prod_in_coll = db[collection].find_one({"id": prod["id"]})
     if prod_in_coll is None:
