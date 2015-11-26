@@ -28,12 +28,12 @@ def samesame(prod, tmp_prod, cat):
     tmp_prod["download_data"] = prod["download_data"]
     return tmp_prod
 
-def swipe_all():
+
+def swipe_all(col):
     # for col in collections:
-    col = "products_jp"
     products = db[col].find()
     for prod in products:
-        tmp_prod = []
+        tmp_prod = {}
         id = prod["id"]
         tmp_prod["id"] = id
         cat = prod["categories"][0]["id"]
@@ -47,8 +47,9 @@ def swipe_all():
         db[col].insert_one(tmp_prod)
     print "finished"
 
+
 def convert2generic(prod):
-    tmp_prod = []
+    tmp_prod = {}
     tmp_prod["id"] = prod["id"]
     cat = prod["categories"][0]["id"]
     tmp_prod = samesame(prod, tmp_prod, cat)
