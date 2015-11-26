@@ -35,6 +35,7 @@ def samesame(prod, tmp_prod, cat):
 def swipe_all(col):
     # for col in collections:
     products = db[col].find()
+    col1 = 'new_' + col
     for prod in products:
         tmp_prod = {}
         id = prod["id"]
@@ -46,8 +47,7 @@ def swipe_all(col):
         tmp_prod = samesame(prod, tmp_prod, cat)
         tmp_prod["fingerprint"] = prod["fingerprint"]
         # db[col].delete_one({"id": id})
-        col = 'new_' + col
-        db[col].insert_one(tmp_prod)
+        db[col1].insert_one(tmp_prod)
     print "finished"
 
 

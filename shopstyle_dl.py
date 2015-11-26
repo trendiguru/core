@@ -175,7 +175,7 @@ class ShopStyleDownloader:
 
 if __name__ == "__main__":
 
-    col = "products"
+    col = "new_products"
     if len(sys.argv) == 2:
         col = col + "_" + sys.argv[1]
     print ("@@@ Shopstyle Download @@@\n you choose to update the " + col + " collection")
