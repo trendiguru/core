@@ -36,14 +36,15 @@ def swipe_all(col):
     # for col in collections:
     products = db[col].find()
     col1 = 'new_' + col
-    for prod in products:
+    for x, prod in enumerate(products):
+        print (x)
         tmp_prod = {}
         id = prod["id"]
         tmp_prod["id"] = id
         cat = prod["categories"][0]["id"]
-        if cat not in constants.db_relevant_items:
-            db[col].delete_one({"id": id})
-            continue
+        # if cat not in constants.db_relevant_items:
+        #     db[col].delete_one({"id": id})
+        #     continue
         tmp_prod = samesame(prod, tmp_prod, cat)
         tmp_prod["fingerprint"] = prod["fingerprint"]
         # db[col].delete_one({"id": id})
