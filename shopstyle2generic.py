@@ -49,6 +49,7 @@ def swipe_all(col):
             tmp_prod = samesame(prod, tmp_prod, cat)
         except:
             continue
+
         tmp_prod["fingerprint"] = prod["fingerprint"]
         # db[col].delete_one({"id": id})
         db[col1].insert_one(tmp_prod)
