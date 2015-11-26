@@ -78,14 +78,17 @@ if __name__ == "__main__":
             imgUrl = re.split(';', row[3])
             if len(imgUrl) < 13:
                 continue
-            tmp_prod["images"] = {'Original': [l for l in imgUrl if 'original' in l][0],
-                                  'Best': [l for l in imgUrl if '275x340' in l][0],
-                                  'IPhone': [l for l in imgUrl if '125x167' in l][0],
-                                  'IPhoneSmall': [l for l in imgUrl if '100x100' in l][0],
-                                  'Large': [l for l in imgUrl if '400x400' in l][0],
-                                  'Medium': [l for l in imgUrl if '100x100' in l][0],
-                                  'Small': [l for l in imgUrl if '40x40' in l][0],
-                                  'XLarge': [l for l in imgUrl if '700x700' in l][0]}
+            try:
+                tmp_prod["images"] = {'Original': [l for l in imgUrl if 'original' in l][0],
+                                      'Best': [l for l in imgUrl if '275x340' in l][0],
+                                      'IPhone': [l for l in imgUrl if '125x167' in l][0],
+                                      'IPhoneSmall': [l for l in imgUrl if '100x100' in l][0],
+                                      'Large': [l for l in imgUrl if '400x400' in l][0],
+                                      'Medium': [l for l in imgUrl if '100x100' in l][0],
+                                      'Small': [l for l in imgUrl if '40x40' in l][0],
+                                      'XLarge': [l for l in imgUrl if '700x700' in l][0]}
+            except:
+                continue
             if row[10] == 'true':
                 tmp_prod["status"] = {"instock": True, "hours_out": 0}
             else:
