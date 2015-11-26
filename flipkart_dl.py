@@ -9,7 +9,6 @@ import StringIO
 import sys
 
 import requests
-
 from rq import Queue
 
 from constants import db, flipkart_relevant_categories, flipkart_paperdoll_women, redis_conn
@@ -41,7 +40,7 @@ if __name__ == "__main__":
                                  "new_items": 0,
                                  "errors": 0,
                                  "end_time": "still in process",
-                                 "total_dl_time(hours)": "still in process",
+                                 "total_dl_time(min)": "still in process",
                                  "last_request": time.time()})
     db.drop_collection("fp_in_process")
     db.fp_in_process.insert_one({})
