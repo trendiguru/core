@@ -62,7 +62,7 @@ def insert_and_fingerprint(prod, collection, current_date):
     """
 
     print "enqueuing for fingerprint & insert,",
-    q.enqueue(generate_mask_and_insert, doc=prod, image_url=None,
+    q.enqueue(generate_mask_and_insert, doc=prod, image_url=prod["image"]["XLarge"],
               fp_date=current_date, coll=collection)
 
 
