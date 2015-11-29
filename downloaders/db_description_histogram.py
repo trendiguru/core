@@ -110,7 +110,8 @@ def collect_description(search_string='pants',category_id='dresses'):
         print('succesful open, attempting to write word freqs to:'+word_frequencies_filename)
         json.dump(sorted_freqs,outfile, indent=4)
 
-    return {"success": 1}
+    plot_word_hist(word_frequencies)
+    return word_frequencies
 
 def plot_word_hist(word_frequencies):
     labels = [entry[0] for entry in word_frequencies]
