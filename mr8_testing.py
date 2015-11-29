@@ -27,7 +27,7 @@ redis = constants.redis_conn
 def create_new_collection():
     collection = db.new_products
 
-    category_stack = collection.find({"categories": "dresses"})
+    category_stack = collection.find({"categories": "dress"})
     stack_length = 50000  # category_stack.count()
     db.mr8_testing.remove()
     # Tell RQ what Redis connection to use
