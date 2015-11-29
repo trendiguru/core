@@ -84,7 +84,8 @@ def collect_description(search_string='pants',category_id='dresses'):
                 words = s.encode('utf-8')
                 # print(unicode(s.strip(codecs.BOM_UTF8), 'utf-8'))
                 # print(unicode(s.strip(codecs.BOM_UTF8), 'utf-8'))
-        for word in words:
+        individual_words = words.split():
+        for word in individual_words:
             if word in word_frequencies:
                 word_frequencies[word] += 1
             else:
