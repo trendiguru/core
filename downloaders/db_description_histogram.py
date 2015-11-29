@@ -7,6 +7,7 @@ import cv2
 from rq import Queue
 from operator import itemgetter
 import json
+from matplotlib import pyplot as plt
 
 from trendi.constants import db
 from trendi.constants import redis_conn
@@ -64,26 +65,27 @@ def collect_description(search_string='pants',category_id='dresses'):
         return {"success": 0, "error": "could not get collection"}
     doc = next(cursor, None)
     i = 0
-    max_items = 100
+    max_items = 10
     word_frequencies={}
     while i<max_items and  doc is not None:
         print('checking doc #' + str(i + 1))
         if 'categories' in doc:
             try:
-                print('cats:' + str(doc['categories']))
+                #print('cats:' + str(doc['categories']))
+                pass
             except UnicodeEncodeError:
-                print('unicode encode error in description')
+                print('unicode encode error in cats')
                 s = doc['categories']
                 print(s.encode('utf-8'))
                 # print(unicode(s.strip(codecs.BOM_UTF8), 'utf-8'))
         if 'description' in doc:
             try:
-                print('desc:' + str(doc['description']))
+#                print('desc:' + str(doc['description']))
                 words = doc['description']
             except UnicodeEncodeError:
                 print('unicode encode error in description')
                 s = doc['description']
-                print(s.encode('utf-8'))
+ #               print(s.encode('utf-8'))
                 words = s.encode('utf-8')
                 # print(unicode(s.strip(codecs.BOM_UTF8), 'utf-8'))
                 # print(unicode(s.strip(codecs.BOM_UTF8), 'utf-8'))
@@ -93,7 +95,7 @@ def collect_description(search_string='pants',category_id='dresses'):
                 word_frequencies[word] += 1
             else:
                 word_frequencies[word] = 1
-        print(word_frequencies)
+#       print(word_frequencies)
 
         i = i + 1
         doc = next(cursor, None)
@@ -101,14 +103,30 @@ def collect_description(search_string='pants',category_id='dresses'):
 #        raw_input('enter key for next doc')
     sorted_freqs=list(reversed(sorted(word_frequencies.items(), key=itemgetter(1))))
     #sorted_freqs = sorted(word_frequencies, key=lambda word: word[0])  #doesn't give both key and value
-#    print('sorted:')
-#    print(sorted_freqs)
+    print('sorted:')
+    print(sorted_freqs)
     word_frequencies_filename='word_frequencies.txt'
     with open(word_frequencies_filename, "w") as outfile:
         print('succesful open, attempting to write word freqs to:'+word_frequencies_filename)
         json.dump(sorted_freqs,outfile, indent=4)
 
-    return {"success": 1}
+    plot_word_hist(sorted_freqs,category=category_id)
+    return sorted_freqs
+
+def plot_word_hist(word_frequencies,category='nocat'):
+    print('freqs:' +str(word_frequencies))
+    labels = [entry[0] for entry in word_frequencies]
+    y = [entry[1] for entry in word_frequencies]
+    x = xrange(len(labels))
+    print('x {0} y {1} labels {2}'.format(x,y,labels))
+    f = plt.figure()
+    ax = f.add_axes([0.1, 0.1, 0.8, 0.8])
+    ax.bar(x, y, align='center')
+    ax.set_xticks(x)
+    ax.set_xticklabels(labels)
+    plt.savefig(category+'.jpg')
+#    f.show()
+
 
 def step_thru_db(collection='products'):
     '''
