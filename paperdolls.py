@@ -83,7 +83,7 @@ def after_pd_conclusions(mask, labels, face=None):
         ref_area = face[2] * face[3]
         y_split = face[1] + 3 * face[3]
     else:
-        ref_area = np.mean((mask.shape[0], mask.shape[1])) / 10
+        ref_area = (np.mean((mask.shape[0], mask.shape[1])) / 10) ** 2
         y_split = np.round(0.4 * mask.shape[0])
     final_mask = mask[:, :]
     mask_sizes = {"upper_cover": [], "upper_under": [], "lower_cover": [], "lower_under": [], "whole_body": []}
@@ -273,10 +273,11 @@ def from_paperdoll_to_similar_results(person_id, paper_job_id, num_of_matches=10
     image_obj, person = get_person_by_id(person_id, iip)
     if len(person['face']) > 0:
         final_mask = after_pd_conclusions(mask, labels, person['face'])
-        # x, y, w, h = person['face']
-        # x1_image = np.max(x - 2*w, 0)
+        x, y, w, h = person['face']
+        x_middle_face = x + round(float(w) / 2)
     else:
         final_mask = after_pd_conclusions(mask, labels)
+        x_middle_face = None
     image = Utils.get_cv2_img_array(image_obj['image_urls'][0])
     items = []
     idx = 0
@@ -288,7 +289,8 @@ def from_paperdoll_to_similar_results(person_id, paper_job_id, num_of_matches=10
             shopstyle_cat = constants.paperdoll_shopstyle_women[category]
             shopstyle_cat_local_name = constants.paperdoll_shopstyle_women_jp_categories[category]['name']
             item_dict = {"category": shopstyle_cat, 'item_id': str(bson.ObjectId()), 'item_idx': idx,
-                         'saved_date': datetime.datetime.now(), 'category_name': shopstyle_cat_local_name}
+                         'saved_date': datetime.datetime.now(), 'category_name': shopstyle_cat_local_name,
+                         'x_middle': x_middle_face}
             svg_name = find_similar_mongo.mask2svg(
                 item_mask,
                 str(image_obj['_id']) + '_' + person['person_id'] + '_' + item_dict['category'],

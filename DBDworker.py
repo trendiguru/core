@@ -62,12 +62,12 @@ def insert_and_fingerprint(prod, collection, current_date):
     """
 
     print "enqueuing for fingerprint & insert,",
-    q.enqueue(generate_mask_and_insert, doc=prod, image_url=None,
+    q.enqueue(generate_mask_and_insert, doc=prod, image_url=prod["images"]["XLarge"],
               fp_date=current_date, coll=collection)
 
 
 def db_update(prod, collection):
-    print " Updating product {0}. ".format(prod["id"]),
+    # print " Updating product {0}. ".format(prod["id"]),
     current_date = db.download_data.find({"criteria": collection})[0]["current_dl"]
 
     # requests package can't handle https - temp fix
@@ -77,24 +77,24 @@ def db_update(prod, collection):
         return
     db.download_data.find_one_and_update({"criteria": collection},
                                          {'$inc': {"items_downloaded": 1}})
-    prod["download_data"]["dl_version"] = current_date
+    prod["download_data"] = {"dl_version": current_date}
     # case 1: new product - try to update, if does not exists, insert a new product and add our fields
     prod_in_coll = db[collection].find_one({"id": prod["id"]})
     if prod_in_coll is None:
-        print "Product not in db." + collection
+        # print "Product not in db." + collection
         # case 1.1: try finding this product in the products
         if collection != "products":
             prod_in_prod = db.products.find_one({"id": prod["id"]})
             if prod_in_prod is not None:
-                print "but new product is already in db.products"
+                # print "but new product is already in db.products"
                 prod["download_data"] = prod_in_prod["download_data"]
                 prod = convert2generic(prod)
                 prod["fingerprint"] = prod_in_prod["fingerprint"]
                 db[collection].insert_one(prod)
-                print "prod inserted successfully to " + collection
+                # print "prod inserted successfully to " + collection
                 return
         # case 1.2: try finding this product in the products
-        print "New product,",
+        # print "New product,",
         db.download_data.find_one_and_update({"criteria": collection},
                                              {'$inc': {"new_items": 1}})
         db.fp_in_process.insert_one({"id": prod["id"]})
@@ -103,8 +103,8 @@ def db_update(prod, collection):
 
     else:
         # case 2: the product was found in our db, and maybe should be modified
-        print "Found existing prod in db,",
-        status_new = prod["status"]["instock"]
+        # print "Found existing prod in db,",
+        status_new = prod["inStock"]
         status_old = prod_in_coll["status"]["instock"]
         if status_new == False and status_old == False:
             db[collection].update_one({'id': prod["id"]},
@@ -123,12 +123,13 @@ def db_update(prod, collection):
             db[collection].delete_one({'id': prod['id']})
             prod = convert2generic(prod)
             insert_and_fingerprint(prod, collection, current_date)
-            print "product with an old fp was refingerprinted"
+            # print "product with an old fp was refingerprinted"
 
 
 def delayed_requests_get(url, _params, collection):
     dl_data = db.download_data.find({"criteria": collection})[0]
     sleep_time = max(0, 0.1 - (time.time() - dl_data["last_request"]))
+    print (sleep_time)
     time.sleep(sleep_time)
     db.download_data.find_one_and_update({"criteria": collection}, {'$set': {"last_request": time.time()}})
     return requests.get(url, params=_params)

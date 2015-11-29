@@ -24,7 +24,10 @@ def samesame(prod, tmp_prod, cat):
     tmp_prod["longDescription"] = prod["description"]
     tmp_prod["price"] = {'price': prod["price"],
                          'currency': prod["currency"]}
-    tmp_prod["brand"] = prod['brand']['name']
+    try:
+        tmp_prod["brand"] = prod['brand']['name']
+    except:
+        tmp_prod["brand"] = prod['brandedName']
     tmp_prod["download_data"] = prod["download_data"]
     return tmp_prod
 
@@ -32,26 +35,34 @@ def samesame(prod, tmp_prod, cat):
 def swipe_all(col):
     # for col in collections:
     products = db[col].find()
-    for prod in products:
+    col1 = 'new_' + col
+    for x, prod in enumerate(products):
+        print (x)
         tmp_prod = {}
         id = prod["id"]
         tmp_prod["id"] = id
         cat = prod["categories"][0]["id"]
-        if cat not in constants.db_relevant_items:
-            db[col].delete_one({"id": id})
+        # if cat not in constants.db_relevant_items:
+        #     db[col].delete_one({"id": id})
+        #     continue
+        try:
+            tmp_prod = samesame(prod, tmp_prod, cat)
+        except:
             continue
-        tmp_prod = samesame(prod, tmp_prod, cat)
+
         tmp_prod["fingerprint"] = prod["fingerprint"]
         # db[col].delete_one({"id": id})
-        col = col + '_new'
-        db[col].insert_one(tmp_prod)
+        db[col1].insert_one(tmp_prod)
     print "finished"
 
 
 def convert2generic(prod):
     tmp_prod = {}
     tmp_prod["id"] = prod["id"]
-    cat = prod["categories"][0]["id"]
-    tmp_prod = samesame(prod, tmp_prod, cat)
+    tmp = [i["id"] for i in prod["categories"]]
+    cat = [cat for cat in tmp and constants.db_relevant_items]
+    if "women" in cat: cat.remove("women")
+    if "womens-clothes" in cat: cat.remove("womens-clothes")
+    tmp_prod = samesame(prod, tmp_prod, cat[0])
 
     return tmp_prod
