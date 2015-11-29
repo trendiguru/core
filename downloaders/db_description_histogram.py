@@ -94,7 +94,7 @@ def collect_description(search_string='pants',category_id='dresses'):
                 word_frequencies[word] += 1
             else:
                 word_frequencies[word] = 1
-        print(word_frequencies)
+#       print(word_frequencies)
 
         i = i + 1
         doc = next(cursor, None)
