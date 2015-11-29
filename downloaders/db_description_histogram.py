@@ -1,20 +1,16 @@
 __author__ = 'jeremy'
-
-import numpy as np
 import os
 import logging
 import time
 
 import cv2
-from ..constants import db
-from ..constants import redis_conn
 from rq import Queue
 
-from .. import Utils
-from .. import background_removal
-from ..find_similar_mongo import get_all_subcategories
-
-from constants import db
+from trendi.constants import db
+from trendi.constants import redis_conn
+import trendi.Utils as Utils
+import trendi.background_removal as background_removal
+from trendi.find_similar_mongo import get_all_subcategories
 
 current_directory_name = os.getcwd()
 my_path = os.path.dirname(os.path.abspath(__file__))
