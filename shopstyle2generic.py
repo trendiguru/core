@@ -60,7 +60,7 @@ def convert2generic(prod):
     tmp_prod = {}
     tmp_prod["id"] = prod["id"]
     tmp = [i["id"] for i in prod["categories"]]
-    cat = [cat for cat in tmp and constants.db_relevant_items]
+    cat = [cat for cat in tmp and constants.db_relevant_items][0]
     tmp_prod = samesame(prod, tmp_prod, cat)
 
     return tmp_prod
