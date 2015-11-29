@@ -55,7 +55,7 @@ class ShopStyleDownloader():
         # self.db.fp_in_process.create_index("id")
         self.db.dl_cache.delete_many({})
         self.db.dl_cache.create_index("filter_params")
-        root_category, ancestors = self.build_category_tree()
+        root_category, ancestors = self.build_category_tree(collection)
 
         cats_to_dl = [anc["id"] for anc in ancestors]
         for cat in cats_to_dl:
@@ -91,7 +91,7 @@ class ShopStyleDownloader():
             total_items_after = self.db[collection].count()
 
     def build_category_tree(self, collection):
-        parameters = {"pid": PID}  # , "filters": "Category"}
+        parameters = {"pid": PID, "filters": "Category"}
         if collection == "products_jp" or collection == "_new_products_jp":
             parameters["site"] = "www.shopstyle.co.jp"
 
@@ -249,12 +249,12 @@ class ShopStyleDownloader():
         prod_in_coll = self.db[collection].find_one({"id": prod["id"]})
 
         if prod_in_coll is None:
-            # print "Product not in db." + collection
+            print "Product not in db." + collection
             # case 1.1: try finding this product in the products
             if collection != "products":
                 prod_in_prod = self.db.products.find_one({"id": prod["id"]})
                 if prod_in_prod is not None:
-                    # print "but new product is already in db.products"
+                    print "but new product is already in db.products"
                     prod["download_data"] = prod_in_prod["download_data"]
                     prod = convert2generic(prod)
                     prod["fingerprint"] = prod_in_prod["fingerprint"]
