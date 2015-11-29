@@ -12,7 +12,7 @@ def convert2generic(prod):
     id = prod["id"]
     tmp_prod["id"] = id
     tmp = [i["id"] for i in prod["categories"]]
-    cat = [cat for cat in tmp and constants.db_relevant_items]
+    cat = [cat for cat in tmp if cat in constants.db_relevant_items]
     if "women" in cat:
         cat.remove("women")
     if "womens-clothes" in cat:
