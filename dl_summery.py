@@ -28,12 +28,16 @@ def email(stats, coll="products"):
     txt2 = ''
     for i in stats:
         coll = coll or i["criteria"]
+        if stats['dl_duration'] is str:
+            duration = "still in process"
+        else:
+            duration = str(stats['dl_duration'])
         txt2 = txt2 + '<h1><mark>' + coll + '</mark></h1><br>' \
                                             '<h3> date:\t' + str(stats['date']) + '</h3>\n<h3>' + \
                'items downloaded:\t' + str(stats['items_downloaded']) + '</h3>\n<h3>' + \
                'new items:\t' + str(stats['new_items']) + '</h3>\n<h3>' + \
                'insert errors:\t' + str(stats['errors']) + '</h3>\n<h3>' + \
-               'dl duration(min):\t' + str(stats['dl_duration(min)']) + '</h3>\n\n<h3>'
+               'dl duration(min):\t' + duration + '</h3>\n\n<h3>'
         # '</h3>\n<h3>' + '</h3>\n<h3>' + 'items by category:</h3>\n' + '</h3>\n<h3>'
 
     # categories = ""
