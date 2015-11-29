@@ -69,7 +69,7 @@ def collect_description(search_string='pants',category_id='dresses'):
         return {"success": 0, "error": "could not get collection"}
     doc = next(cursor, None)
     i = 0
-    max_items = 10
+    max_items = 10000000
     word_frequencies={}
     while i<max_items and  doc is not None:
         print('checking doc #' + str(i + 1))
@@ -117,21 +117,21 @@ def collect_description(search_string='pants',category_id='dresses'):
     plot_word_hist(sorted_freqs,category=category_id)
     return sorted_freqs
 
-def plot_word_hist(word_frequencies,category='nocat'):
+def plot_word_hist(word_frequencies,category='nocat',cutoff=100):
     print('freqs:' +str(word_frequencies))
     labels = [entry[0] for entry in word_frequencies]
-    y = [entry[1] for entry in word_frequencies]
-    x = xrange(len(labels))
+    y = [entry[1] for entry in word_frequencies if entry[1]>cutoff]
+    x = xrange(len(y))
     print('x {0} y {1} labels {2}'.format(x,y,labels))
 #    f = figure(1)
     f = plt.figure()
-    ax = f.add_axes([0.1, 0.1, 0.8, 0.8])
+    ax = f.add_axes([0.0, 0.0, 1.0, 1.0])
     ax.bar(x, y, align='center')
     ax.set_xticks(x)
-    ax.set_xticklabels(labels)
-    plt.savefig(category+'.jpg')
+    ax.set_xticklabels(labels,rotation='vertical')
+    plt.savefig(category+'.jpg',bbox_inches='tight')
 #    f.show()
-
+#
 
 def step_thru_db(collection='products'):
     '''
