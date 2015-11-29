@@ -28,10 +28,10 @@ def email(stats, coll="products"):
     txt2 = ''
     for curr in stats:
         coll = coll or curr["criteria"]
-        if curr['dl_duration'] is str:
+        if curr['dl_duration(min)'] is str:
             duration = "still in process"
         else:
-            duration = str(curr['dl_duration'])
+            duration = str(curr['dl_duration(min)'])
         txt2 = txt2 + '<h1><mark>' + coll + '</mark></h1><br>' \
                                             '<h3> date:\t' + str(curr['date']) + '</h3>\n<h3>' + \
                'items downloaded:\t' + str(curr['items_downloaded']) + '</h3>\n<h3>' + \
