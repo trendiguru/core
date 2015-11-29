@@ -55,7 +55,7 @@ class ShopStyleDownloader():
         # self.db.fp_in_process.create_index("id")
         self.db.dl_cache.delete_many({})
         self.db.dl_cache.create_index("filter_params")
-        root_category, ancestors = self.build_category_tree()
+        root_category, ancestors = self.build_category_tree(collection)
 
         cats_to_dl = [anc["id"] for anc in ancestors]
         for cat in cats_to_dl:
