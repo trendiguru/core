@@ -69,7 +69,7 @@ def collect_description(search_string='pants',category_id='dresses'):
         return {"success": 0, "error": "could not get collection"}
     doc = next(cursor, None)
     i = 0
-    max_items = 10
+    max_items = 10000000
     word_frequencies={}
     while i<max_items and  doc is not None:
         print('checking doc #' + str(i + 1))
@@ -117,7 +117,7 @@ def collect_description(search_string='pants',category_id='dresses'):
     plot_word_hist(sorted_freqs,category=category_id)
     return sorted_freqs
 
-def plot_word_hist(word_frequencies,category='nocat',cutoff=1):
+def plot_word_hist(word_frequencies,category='nocat',cutoff=100):
     print('freqs:' +str(word_frequencies))
     labels = [entry[0] for entry in word_frequencies]
     y = [entry[1] for entry in word_frequencies if entry[1]>cutoff]
