@@ -55,7 +55,7 @@ def get_db_fields(collection='products'):
         raw_input('enter key for next doc')
     return {"success": 1}
 
-def collect_description(search_string='pants',category_id='Skinny'):
+def collect_description(search_string='pants',category_id='dresses'):
 
     cursor = find_products_by_description(search_string, category_id)
     if cursor is None:  # make sure training collection exists
