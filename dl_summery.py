@@ -27,7 +27,7 @@ def email(stats, coll=None):
     msg['To'] = yonti
     txt2 = ''
     for curr in stats:
-        coll = coll or "products"
+        coll = coll or curr["criteria"]
         if curr['dl_duration(min)'] is str:
             duration = "still in process"
         else:
