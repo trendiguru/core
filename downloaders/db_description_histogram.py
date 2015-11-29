@@ -62,8 +62,9 @@ def collect_description(search_string='pants',category_id='dresses'):
         return {"success": 0, "error": "could not get collection"}
     doc = next(cursor, None)
     i = 0
+    max_items = 5
     word_frequencies={}
-    while doc is not None:
+    while i<max_items and  doc is not None:
         print('checking doc #' + str(i + 1))
         if 'categories' in doc:
             try:
@@ -96,6 +97,9 @@ def collect_description(search_string='pants',category_id='dresses'):
         doc = next(cursor, None)
         print('')
         raw_input('enter key for next doc')
+    sorted_freqs = sorted(word_frequencies, key=lambda word: word[1])
+    print('sorted:')
+    print(sorted_freqs)
     return {"success": 1}
 
 def step_thru_db(collection='products'):
