@@ -55,8 +55,7 @@ def get_db_fields(collection='products'):
         raw_input('enter key for next doc')
     return {"success": 1}
 
-
-def step_thru_db(use_visual_output=False, collection='products'):
+def step_thru_db(collection='products'):
     '''
     fix all the bbs so they fit their respective image
     :return:
@@ -65,10 +64,6 @@ def step_thru_db(use_visual_output=False, collection='products'):
     if db is None:
         print('couldnt open db')
         return {"success": 0, "error": "could not get db"}
-    dbstring = 'db.' + collection
-    # cursor = dbstring.find()
-    # cursor = db.training.find()
-    # look in defaults.py  how this is done
     cursor = db.products.find()
     print('returned cursor')
     if cursor is None:  # make sure training collection exists
@@ -78,23 +73,6 @@ def step_thru_db(use_visual_output=False, collection='products'):
     i = 0
     while doc is not None:
         print('checking doc #' + str(i + 1))
-        for topic in doc:
-            try:
-                print(str(topic) + ':' + str(doc[topic]))
-            except UnicodeEncodeError:
-                print('unicode encode error')
-
-        large_url = doc['image']['sizes']['Large']['url']
-        print('large img url:' + str(large_url))
-        if use_visual_output:
-            img_arr = Utils.get_cv2_img_array(large_url)
-            if 'bounding_box' in doc:
-                if Utils.legal_bounding_box(doc['bounding_box']):
-                    bb1 = doc['bounding_box']
-                    cv2.rectangle(img_arr, (bb1[0], bb1[1]), (bb1[0] + bb1[2], bb1[1] + bb1[3]), [255, 255, 0],
-                                  thickness=2)
-            cv2.imshow('im1', img_arr)
-            k = cv2.waitKey(50) & 0xFF
         if 'categories' in doc:
             try:
                 print('cats:' + str(doc['categories']))
@@ -117,8 +95,6 @@ def step_thru_db(use_visual_output=False, collection='products'):
         print('')
         raw_input('enter key for next doc')
     return {"success": 1}
-
-
 
 def find_products_by_description(search_string, category_id, feature_name=None):
 
