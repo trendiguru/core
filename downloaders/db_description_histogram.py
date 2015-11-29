@@ -11,7 +11,7 @@ import json
 import matplotlib
 matplotlib.use('Agg')
 import matplotlib.pyplot as plt
-import numpy as npp
+import numpy as np
 
 from trendi.constants import db
 from trendi.constants import redis_conn
@@ -112,8 +112,8 @@ def collect_description(search_string='pants',category_id='dresses'):
     sorted_freqs=list(reversed(sorted(word_frequencies.items(), key=itemgetter(1))))
     #sorted_freqs = sorted(word_frequencies, key=lambda word: word[0])  #doesn't give both key and value
     sorted_freqs = purge_common(sorted_freqs)
-    print('sorted:')
-    print(sorted_freqs)
+#    print('sorted:')
+#    print(sorted_freqs)
     word_frequencies_filename='word_frequencies.txt'
     with open(word_frequencies_filename, "w") as outfile:
         print('succesful open, attempting to write word freqs to:'+word_frequencies_filename)
