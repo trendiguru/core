@@ -258,6 +258,7 @@ class ShopStyleDownloader():
                     prod["download_data"] = prod_in_prod["download_data"]
                     prod = convert2generic(prod)
                     prod["fingerprint"] = prod_in_prod["fingerprint"]
+                    prod["download_data"]["dl_version"] = self.current_dl_date
                     self.db[collection].insert_one(prod)
                     return
             self.db.download_data.find_one_and_update({"criteria": collection},
