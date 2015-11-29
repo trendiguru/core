@@ -148,7 +148,7 @@ def find_products_by_description_and_category(search_string, category_id):
     return cursor
 
 def find_products_by_category(category_id):
-    logging.info('****** Starting to find category {1} *****'.format(category_id))
+    logging.info('****** Starting to find category {} *****'.format(category_id))
 
     query = {"categories":
                            {"$elemMatch":
