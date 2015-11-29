@@ -10,7 +10,7 @@ import constants
 db = constants.db
 
 
-def email(stats, coll=None):
+def email(stats, spec_coll=None):
     # me = 'nadav@trendiguru.com'
     # lior = 'lior@trendiguru.com'
     # kyle = 'kyle@trendiguru.com'
@@ -27,7 +27,7 @@ def email(stats, coll=None):
     msg['To'] = yonti
     txt2 = ''
     for curr in stats:
-        coll = coll or curr["collection"]
+        coll = spec_coll or curr["collection"]
         if curr['dl_duration(min)'] is str:
             duration = "still in process"
         else:
@@ -39,6 +39,7 @@ def email(stats, coll=None):
                'insert errors:\t' + str(curr['errors']) + '</h3>\n<h3>' + \
                'dl duration(min):\t' + duration + '</h3>\n\n<h3>'
         # '</h3>\n<h3>' + '</h3>\n<h3>' + 'items by category:</h3>\n' + '</h3>\n<h3>'
+
 
     # categories = ""
     # for i in constants.db_relevant_items:
