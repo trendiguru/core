@@ -7,8 +7,11 @@ import cv2
 from rq import Queue
 from operator import itemgetter
 import json
-from matplotlib import pyplot as plt
-from pylab import *
+
+import matplotlib
+matplotlib.use('Agg')
+import matplotlib.pyplot as plt
+
 
 from trendi.constants import db
 from trendi.constants import redis_conn
@@ -120,13 +123,13 @@ def plot_word_hist(word_frequencies,category='nocat'):
     y = [entry[1] for entry in word_frequencies]
     x = xrange(len(labels))
     print('x {0} y {1} labels {2}'.format(x,y,labels))
-    f = figure(1)
-   # f = plt.figure()
+#    f = figure(1)
+    f = plt.figure()
     ax = f.add_axes([0.1, 0.1, 0.8, 0.8])
     ax.bar(x, y, align='center')
     ax.set_xticks(x)
     ax.set_xticklabels(labels)
-    savefig(category+'.jpg')
+    plt.savefig(category+'.jpg')
 #    f.show()
 
 
