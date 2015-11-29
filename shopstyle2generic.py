@@ -60,7 +60,9 @@ def convert2generic(prod):
     tmp_prod = {}
     tmp_prod["id"] = prod["id"]
     tmp = [i["id"] for i in prod["categories"]]
-    cat = [cat for cat in tmp and constants.db_relevant_items and not "women" and not "women-clothes"][0]
-    tmp_prod = samesame(prod, tmp_prod, cat)
+    cat = [cat for cat in tmp and constants.db_relevant_items]
+    if "women" in cat: cat.remove("women")
+    if "women-clothes" in cat: cat.remove("women-clothes")
+    tmp_prod = samesame(prod, tmp_prod, cat[0])
 
     return tmp_prod
