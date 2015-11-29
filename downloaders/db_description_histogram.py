@@ -64,26 +64,27 @@ def collect_description(search_string='pants',category_id='dresses'):
         return {"success": 0, "error": "could not get collection"}
     doc = next(cursor, None)
     i = 0
-    max_items = 100
+    max_items = 10000000
     word_frequencies={}
     while i<max_items and  doc is not None:
         print('checking doc #' + str(i + 1))
         if 'categories' in doc:
             try:
-                print('cats:' + str(doc['categories']))
+                #print('cats:' + str(doc['categories']))
+                pass
             except UnicodeEncodeError:
-                print('unicode encode error in description')
+                print('unicode encode error in cats')
                 s = doc['categories']
                 print(s.encode('utf-8'))
                 # print(unicode(s.strip(codecs.BOM_UTF8), 'utf-8'))
         if 'description' in doc:
             try:
-                print('desc:' + str(doc['description']))
+#                print('desc:' + str(doc['description']))
                 words = doc['description']
             except UnicodeEncodeError:
                 print('unicode encode error in description')
                 s = doc['description']
-                print(s.encode('utf-8'))
+ #               print(s.encode('utf-8'))
                 words = s.encode('utf-8')
                 # print(unicode(s.strip(codecs.BOM_UTF8), 'utf-8'))
                 # print(unicode(s.strip(codecs.BOM_UTF8), 'utf-8'))
