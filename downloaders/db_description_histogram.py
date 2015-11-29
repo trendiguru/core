@@ -145,7 +145,7 @@ def plot_word_hist(word_frequencies,category='nocat',cutoff=1):
     plt.xlabel(category)
     plt.ylabel('frequency')
     plt.title('word frequencies in '+category+' category')
-    plt.xticks(index + bar_width, labels)
+    plt.xticks(x + bar_width, labels)
     plt.setp(labels,rotation=90)
     #   plt.set_xticklabels(labels,rotation='vertical')
 #   plt.legend()
