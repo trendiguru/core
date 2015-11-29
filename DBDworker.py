@@ -131,7 +131,7 @@ def delayed_requests_get(url, _params, collection):
     # sleep_time = max(0, 0.1 - (time.time() - dl_data["last_request"]))
     # print (sleep_time)
     # time.sleep(sleep_time)
-    time.sleep(1)
+    time.sleep(10)
     db.download_data.find_one_and_update({"criteria": collection}, {'$set': {"last_request": time.time()}})
     return requests.get(url, params=_params)
 
