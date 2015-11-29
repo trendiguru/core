@@ -92,7 +92,7 @@ class ShopStyleDownloader():
 
     def build_category_tree(self, collection):
         parameters = {"pid": PID, "filters": "Category"}
-        if collection == "products_jp" or collection == "_new_products_jp":
+        if collection == "products_jp" or collection == "new_products_jp":
             parameters["site"] = "www.shopstyle.co.jp"
 
         # download all categories
@@ -123,7 +123,7 @@ class ShopStyleDownloader():
         if category_id not in relevant:
             return
         parameters = {"pid": PID}  # , "filters": "Category"}
-        if collection == "products_jp" or collection == "_new_products_jp":
+        if collection == "products_jp" or collection == "new_products_jp":
             parameters["site"] = "www.shopstyle.co.jp"
         category = self.db.categories.find_one({"id": category_id})
         parameters["cat"] = category["id"]
@@ -217,7 +217,7 @@ class ShopStyleDownloader():
         # Write down that we did this
         self.db.dl_cache.insert(dl_query)
 
-        print "Batch Done. Total Product count: {0}".format(self.db.products.count())
+        print "Batch Done. Total Product count: {0}".format(self.db[coll].count())
 
     def delayed_requests_get(self, url, params):
         sleep_time = max(0, 0.1 - (time.time() - self.last_request_time))
