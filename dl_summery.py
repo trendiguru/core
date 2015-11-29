@@ -10,7 +10,7 @@ import constants
 db = constants.db
 
 
-def email(stats, coll):
+def email(stats, coll="products"):
     # me = 'nadav@trendiguru.com'
     # lior = 'lior@trendiguru.com'
     # kyle = 'kyle@trendiguru.com'
@@ -27,7 +27,7 @@ def email(stats, coll):
     msg['To'] = yonti
     txt2 = ''
     for i in stats:
-        coll = i["criteria"]
+        coll = coll or i["criteria"]
         txt2 = txt2 + '<h1><mark>' + coll + '</mark></h1><br>' \
                                             '<h3> date:\t' + str(stats['date']) + '</h3>\n<h3>' + \
                'items downloaded:\t' + str(stats['items_downloaded']) + '</h3>\n<h3>' + \
