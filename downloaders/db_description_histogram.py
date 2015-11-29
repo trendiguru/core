@@ -6,15 +6,13 @@ import logging
 import time
 
 import cv2
-from ..constants import db
-from ..constants import redis_conn
+from .. constants import db
+from .. constants import redis_conn
 from rq import Queue
 
 from .. import Utils
 from .. import background_removal
-from ..find_similar_mongo import get_all_subcategories
-
-from constants import db
+from .. find_similar_mongo import get_all_subcategories
 
 current_directory_name = os.getcwd()
 my_path = os.path.dirname(os.path.abspath(__file__))
