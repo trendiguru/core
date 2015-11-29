@@ -55,6 +55,39 @@ def get_db_fields(collection='products'):
         raw_input('enter key for next doc')
     return {"success": 1}
 
+def collect_description(search_string='pants',category_id='dresses'):
+    cursor = find_products_by_category(category_id)
+    if cursor is None:  # make sure training collection exists
+        print('couldnt get cursor ' + str(collection))
+        return {"success": 0, "error": "could not get collection"}
+    doc = next(cursor, None)
+    i = 0
+    while doc is not None:
+        print('checking doc #' + str(i + 1))
+        if 'categories' in doc:
+            try:
+                print('cats:' + str(doc['categories']))
+            except UnicodeEncodeError:
+                print('unicode encode error in description')
+                s = doc['categories']
+                print(s.encode('utf-8'))
+                # print(unicode(s.strip(codecs.BOM_UTF8), 'utf-8'))
+        if 'description' in doc:
+            try:
+                print('desc:' + str(doc['description']))
+            except UnicodeEncodeError:
+                print('unicode encode error in description')
+                s = doc['description']
+                print(s.encode('utf-8'))
+                # print(unicode(s.strip(codecs.BOM_UTF8), 'utf-8'))
+                # print(unicode(s.strip(codecs.BOM_UTF8), 'utf-8'))
+
+        i = i + 1
+        doc = next(cursor, None)
+        print('')
+        raw_input('enter key for next doc')
+    return {"success": 1}
+
 def step_thru_db(collection='products'):
     '''
     fix all the bbs so they fit their respective image
@@ -96,9 +129,8 @@ def step_thru_db(collection='products'):
         raw_input('enter key for next doc')
     return {"success": 1}
 
-def find_products_by_description(search_string, category_id, feature_name=None):
-
-    logging.info('****** Starting to find {0} *****'.format(feature_name))
+def find_products_by_description_and_category(search_string, category_id):
+    logging.info('****** Starting to find {0} in category {1} *****'.format(search_string,category_id))
 
     query = {"$and": [{"$text": {"$search": search_string}},
                       {"categories":
@@ -108,16 +140,28 @@ def find_products_by_description(search_string, category_id, feature_name=None):
                             }
                        }]
              }
-    fields = {"categories": 1, "image": 1, "human_bb": 1, "fp_version": 1, "bounding_box": 1,
-              "id": 1, "description": 1, "feature_bbs": 1}
-
-    downloaded_images = 0
-
+    fields = {"categories": 1, "id": 1, "description": 1}
     cursor = db.products.find(query, fields).batch_size(10)
-    logging.info("Found {count} products in {category} with {feature}".format(count=cursor.count(),
-                                                                              category=category_id,
-                                                                              feature=feature_name))
+    logging.info("Found {count} products in cat {category} with string {search_string}".format(count=cursor.count(),
+                                                                    category=category_id,
+                                                                    search_string=search_string))
     return cursor
+
+def find_products_by_category(category_id):
+    logging.info('****** Starting to find category {1} *****'.format(category_id))
+
+    query = {"categories":
+                           {"$elemMatch":
+                                {"id": {"$in": get_all_subcategories(db.categories, category_id)}
+                                 }
+                            }
+             }
+    fields = {"categories": 1, "id": 1, "description": 1}
+    cursor = db.products.find(query, fields).batch_size(10)
+    logging.info("Found {count} products in cat {category} ".format(count=cursor.count(),
+                                                                    category=category_id))
+    return cursor
+
 
 def enqueue_for_download(q, iterable, feature_name, category_id, max_images=MAX_IMAGES):
     job_results = []
