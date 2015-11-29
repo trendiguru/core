@@ -75,7 +75,7 @@ def collect_description(search_string='pants',category_id='dresses'):
     print(check_freq)
     word_frequencies={}
     while i<max_items and  doc is not None:
-        print('checking doc #' + str(i + 1))
+#        print('checking doc #' + str(i + 1))
         if 'categories' in doc:
             try:
                 #print('cats:' + str(doc['categories']))
@@ -117,8 +117,7 @@ def collect_description(search_string='pants',category_id='dresses'):
     with open(word_frequencies_filename, "w") as outfile:
         print('succesful open, attempting to write word freqs to:'+word_frequencies_filename)
         json.dump(sorted_freqs,outfile, indent=4)
-
-    plot_word_hist(sorted_freqs,category=category_id,cutoff=5000)
+    plot_word_hist(sorted_freqs,category=category_id,cutoff=10000)
     return sorted_freqs
 
 def plot_word_hist(word_frequencies,category='nocat',cutoff=1):
