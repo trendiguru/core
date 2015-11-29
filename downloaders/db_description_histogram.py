@@ -137,8 +137,9 @@ def plot_word_hist(word_frequencies,category='nocat',cutoff=1):
     ax = f.add_axes([0.0, 0.0, 1.0, 1.0])
     ax.bar(x, y, align='center')
     ax.set_xticks(x)
+    ax.set_aspect(1.0)
     ax.set_xticklabels(labels,rotation='vertical')
-    ax.set_aspect(0.5)
+
 #    plt.tight_layout()
     plt.savefig(category+'.jpg',bbox_inches='tight')
 
