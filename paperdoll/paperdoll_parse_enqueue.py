@@ -62,7 +62,8 @@ def show_parse(filename=None, img_array = None):
 #        cv2.imwrite('parse_img.jpg',img_array)
 
         h,w = img_array.shape[:2]
-        print(h,w)
+        print('h {0} w {1}'.format(h,w))
+#        new_image = np.zeros([h,2*w])
         cv2.imshow("orig", img_array)
         cv2.imshow("dest", dest)
         cv2.waitKey(0)
@@ -137,3 +138,22 @@ if __name__ == "__main__":
 
         #        show_max(img, labels)
 #        show_parse(img_array=img)
+
+#box colors from Yang2011 pose estimato code(this is what pd uses)
+#yellow magenta cyan red green blue white black
+
+#{'g','g','y','m','m','m','m','y','y','y','r','r','r','r','y','c','c','c','c','y','y','y','b','b','b','b'};
+#from images here http://www.ics.uci.edu/~dramanan/software/pose/ it seems to correspond to :
+#head, head
+#chest
+#left shoulder, upper arm, lower arm, hand (mayb backwards) (left for viewer, actually right)
+#chest, chest, chest
+#left hip, knee, ankle, foot (maybe backwards)
+#chest
+#right shoulder, upper arm, lower arm, hand (maybe backwards)
+#chest chest chest
+#right hip, knee, ankle, foot (maybe backwards)
+#26 boxes * 4 coords/box=104 coords
+
+#right hip, knee, ankle, foot
+#

@@ -14,7 +14,7 @@ def show_pd_results(file_base_name):
     else:
         print('coundlt get jpg at '+str(jpg))
 
-    paperdoll_parse_enqueue.colorbars()
+ #   paperdoll_parse_enqueue.colorbars()
 
     print('reading '+str(bmp))
     img_arr = cv2.imread(bmp)

@@ -7,8 +7,17 @@ db = constants.db
 collections = ["products", "products_jp"]
 
 
-def samesame(prod, tmp_prod, cat):
-    tmp_prod["categories"] = constants.shopstyle_paperdoll_women[cat]
+def convert2generic(prod):
+    tmp_prod = {}
+    id = prod["id"]
+    tmp_prod["id"] = id
+    tmp = [i["id"] for i in prod["categories"]]
+    cat = [cat for cat in tmp and constants.db_relevant_items]
+    if "women" in cat:
+        cat.remove("women")
+    if "womens-clothes" in cat:
+        cat.remove("womens-clothes")
+    tmp_prod["categories"] = constants.shopstyle_paperdoll_women[cat[0]]
     tmp_prod["clickUrl"] = prod["clickUrl"]
     tmp_prod["images"] = {'Original': prod['image']['sizes']['Original']['url'],
                           'Best': prod['image']['sizes']['Best']['url'],
@@ -38,15 +47,13 @@ def swipe_all(col):
     col1 = 'new_' + col
     for x, prod in enumerate(products):
         print (x)
-        tmp_prod = {}
-        id = prod["id"]
-        tmp_prod["id"] = id
-        cat = prod["categories"][0]["id"]
+
+
         # if cat not in constants.db_relevant_items:
         #     db[col].delete_one({"id": id})
         #     continue
         try:
-            tmp_prod = samesame(prod, tmp_prod, cat)
+            tmp_prod = convert2generic(prod)
         except:
             continue
 
@@ -56,13 +63,3 @@ def swipe_all(col):
     print "finished"
 
 
-def convert2generic(prod):
-    tmp_prod = {}
-    tmp_prod["id"] = prod["id"]
-    tmp = [i["id"] for i in prod["categories"]]
-    cat = [cat for cat in tmp and constants.db_relevant_items]
-    if "women" in cat: cat.remove("women")
-    if "womens-clothes" in cat: cat.remove("womens-clothes")
-    tmp_prod = samesame(prod, tmp_prod, cat[0])
-
-    return tmp_prod
