@@ -7,6 +7,7 @@ import cv2
 from rq import Queue
 from operator import itemgetter
 import json
+from matplotlib import pyplot as plt
 
 from trendi.constants import db
 from trendi.constants import redis_conn
@@ -64,7 +65,7 @@ def collect_description(search_string='pants',category_id='dresses'):
         return {"success": 0, "error": "could not get collection"}
     doc = next(cursor, None)
     i = 0
-    max_items = 10000000
+    max_items = 10
     word_frequencies={}
     while i<max_items and  doc is not None:
         print('checking doc #' + str(i + 1))
@@ -110,6 +111,19 @@ def collect_description(search_string='pants',category_id='dresses'):
         json.dump(sorted_freqs,outfile, indent=4)
 
     return {"success": 1}
+
+def plot_word_hist(word_frequencies):
+    labels = [entry[0] for entry in word_frequencies]
+    x = xrange(len(labels))
+    y = [entry[1] for entry in word_frequencies]
+    print('x {0} y {1} labels {2}'.format(x,y,labels))
+    f = plt.figure()
+    ax = f.add_axes([0.1, 0.1, 0.8, 0.8])
+    ax.bar(x, y, align='center')
+    ax.set_xticks(x)
+    ax.set_xticklabels(labels)
+    f.show()
+
 
 def step_thru_db(collection='products'):
     '''
