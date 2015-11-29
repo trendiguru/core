@@ -11,7 +11,7 @@ import json
 import matplotlib
 matplotlib.use('Agg')
 import matplotlib.pyplot as plt
-
+import numpy as npp
 
 from trendi.constants import db
 from trendi.constants import redis_conn
@@ -131,6 +131,7 @@ def plot_word_hist(word_frequencies,category='nocat',cutoff=1):
     labels = [entry[0] for entry in word_frequencies]
     y = [entry[1] for entry in word_frequencies if entry[1]>cutoff]
     x = xrange(len(y))
+    x_a = np.arange(len(y))
     print('x {0} y {1} labels {2}'.format(x,y,labels))
 #    f = figure(1)
 
@@ -138,14 +139,14 @@ def plot_word_hist(word_frequencies,category='nocat',cutoff=1):
     bar_width = 0.35
     opacity = 0.4
     error_config = {'ecolor': '0.3'}
-    rects1 = plt.bar(x, y, bar_width,
+    rects1 = plt.bar(x_a, y, bar_width,
                      alpha=opacity,
                      color='b')
 
     plt.xlabel(category)
     plt.ylabel('frequency')
     plt.title('word frequencies in '+category+' category')
-    plt.xticks(x + bar_width, labels)
+    plt.xticks(x_a + bar_width, labels)
     plt.setp(labels,rotation=90)
     #   plt.set_xticklabels(labels,rotation='vertical')
 #   plt.legend()
