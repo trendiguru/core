@@ -67,7 +67,7 @@ def insert_and_fingerprint(prod, collection, current_date):
 
 
 def db_update(prod, collection):
-    print " Updating product {0}. ".format(prod["id"]),
+    # print " Updating product {0}. ".format(prod["id"]),
     current_date = db.download_data.find({"criteria": collection})[0]["current_dl"]
 
     # requests package can't handle https - temp fix
@@ -81,20 +81,20 @@ def db_update(prod, collection):
     # case 1: new product - try to update, if does not exists, insert a new product and add our fields
     prod_in_coll = db[collection].find_one({"id": prod["id"]})
     if prod_in_coll is None:
-        print "Product not in db." + collection
+        # print "Product not in db." + collection
         # case 1.1: try finding this product in the products
         if collection != "products":
             prod_in_prod = db.products.find_one({"id": prod["id"]})
             if prod_in_prod is not None:
-                print "but new product is already in db.products"
+                # print "but new product is already in db.products"
                 prod["download_data"] = prod_in_prod["download_data"]
                 prod = convert2generic(prod)
                 prod["fingerprint"] = prod_in_prod["fingerprint"]
                 db[collection].insert_one(prod)
-                print "prod inserted successfully to " + collection
+                # print "prod inserted successfully to " + collection
                 return
         # case 1.2: try finding this product in the products
-        print "New product,",
+        # print "New product,",
         db.download_data.find_one_and_update({"criteria": collection},
                                              {'$inc': {"new_items": 1}})
         db.fp_in_process.insert_one({"id": prod["id"]})
