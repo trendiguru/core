@@ -69,7 +69,10 @@ def collect_description(search_string='pants',category_id='dresses'):
         return {"success": 0, "error": "could not get collection"}
     doc = next(cursor, None)
     i = 0
-    max_items = 10000000
+    count = cursor.count()
+    max_items = min(10000000,cursor.count())
+    check_freq = max(1,max_items/50)
+    print(check_freq)
     word_frequencies={}
     while i<max_items and  doc is not None:
         print('checking doc #' + str(i + 1))
@@ -103,7 +106,8 @@ def collect_description(search_string='pants',category_id='dresses'):
 
         i = i + 1
         doc = next(cursor, None)
-        print('{0} of {1} done'.format(i,max_items))
+        if i % check_freq==0:
+            print('{0} of {1} done'.format(i,max_items))
 #        raw_input('enter key for next doc')
     sorted_freqs=list(reversed(sorted(word_frequencies.items(), key=itemgetter(1))))
     #sorted_freqs = sorted(word_frequencies, key=lambda word: word[0])  #doesn't give both key and value
