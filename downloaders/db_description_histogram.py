@@ -122,7 +122,7 @@ def collect_description(search_string='pants',category_id='dresses'):
     return sorted_freqs
 
 def purge_common(unsorted):
-    purge_list=['and','a','with','the','in','no','to','at','from',<ul>,</ul>,'this','is','for','of','by','on','an','that','a','A','this']
+    purge_list=['and','a','with','the','in','no','to','at','from','<ul>','</ul>','this','is','for','of','by','on','an','that','a','A','this']
     purged = [(entry[0],entry[1]) for entry in unsorted if not entry[0] in purge_list]
     return purged
 
