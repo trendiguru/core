@@ -62,6 +62,7 @@ def collect_description(search_string='pants',category_id='dresses'):
         return {"success": 0, "error": "could not get collection"}
     doc = next(cursor, None)
     i = 0
+    word_frequencies={}
     while doc is not None:
         print('checking doc #' + str(i + 1))
         if 'categories' in doc:
@@ -75,12 +76,20 @@ def collect_description(search_string='pants',category_id='dresses'):
         if 'description' in doc:
             try:
                 print('desc:' + str(doc['description']))
+                words = doc['description']
             except UnicodeEncodeError:
                 print('unicode encode error in description')
                 s = doc['description']
                 print(s.encode('utf-8'))
+                words = s.encode('utf-8')
                 # print(unicode(s.strip(codecs.BOM_UTF8), 'utf-8'))
                 # print(unicode(s.strip(codecs.BOM_UTF8), 'utf-8'))
+        for word in words:
+            if word in word_frequencies:
+                word_frequencies[word] += 1
+            else:
+                word_frequencies[word] = 1
+        print(word_frequencies)
 
         i = i + 1
         doc = next(cursor, None)
