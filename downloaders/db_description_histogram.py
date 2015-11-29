@@ -118,7 +118,7 @@ def collect_description(search_string='pants',category_id='dresses'):
     with open(word_frequencies_filename, "w") as outfile:
         print('succesful open, attempting to write word freqs to:'+word_frequencies_filename)
         json.dump(sorted_freqs,outfile, indent=4)
-    plot_word_hist(sorted_freqs,category=category_id,cutoff=5000)
+    plot_word_hist(sorted_freqs,category=category_id,cutoff=6000)
     return sorted_freqs
 
 def purge_common(unsorted):
@@ -138,7 +138,7 @@ def plot_word_hist(word_frequencies,category='nocat',cutoff=1):
     ax.bar(x, y, align='center')
     ax.set_xticks(x)
     ax.set_xticklabels(labels,rotation='vertical')
-#    ax.set_aspect(0.9)
+    ax.set_aspect(0.5)
 #    plt.tight_layout()
     plt.savefig(category+'.jpg',bbox_inches='tight')
 
