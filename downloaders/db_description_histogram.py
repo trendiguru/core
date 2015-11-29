@@ -64,7 +64,7 @@ def collect_description(search_string='pants',category_id='dresses'):
         return {"success": 0, "error": "could not get collection"}
     doc = next(cursor, None)
     i = 0
-    max_items = 10000000
+    max_items = 100
     word_frequencies={}
     while i<max_items and  doc is not None:
         print('checking doc #' + str(i + 1))
