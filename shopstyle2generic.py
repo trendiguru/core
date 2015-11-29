@@ -59,7 +59,10 @@ def swipe_all(col):
 def convert2generic(prod):
     tmp_prod = {}
     tmp_prod["id"] = prod["id"]
-    cat = prod["categories"][0]["id"]
-    tmp_prod = samesame(prod, tmp_prod, cat)
+    tmp = [i["id"] for i in prod["categories"]]
+    cat = [cat for cat in tmp and constants.db_relevant_items]
+    if "women" in cat: cat.remove("women")
+    if "womens-clothes" in cat: cat.remove("womens-clothes")
+    tmp_prod = samesame(prod, tmp_prod, cat[0])
 
     return tmp_prod
