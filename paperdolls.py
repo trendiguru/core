@@ -252,7 +252,7 @@ def start_process(page_url, image_url, lang=None):
                 idx += 1
         else:
             # no faces, only general positive human detection
-            person = {'face': [], 'person_id': str(bson.ObjectId()), 'person_idx': 0, 'items': []}
+            person = {'face': [], 'person_id': str(bson.ObjectId()), 'person_idx': 0, 'items': [], 'person_bb': None}
             image_dict['people'].append(person)
             paper_job = paperdoll_parse_enqueue.paperdoll_enqueue(image, person['person_id'])
             q1.enqueue(from_paperdoll_to_similar_results, person['person_id'], paper_job.id,
