@@ -1,6 +1,4 @@
 __author__ = 'jeremy'
-
-import numpy as np
 import os
 import logging
 import time
@@ -10,8 +8,8 @@ from rq import Queue
 
 from trendi.constants import db
 from trendi.constants import redis_conn
-import trendi.Utils
-import trendi.background_removal
+import trendi.Utils as Utils
+import trendi.background_removal as background_removal
 from trendi.find_similar_mongo import get_all_subcategories
 
 current_directory_name = os.getcwd()
