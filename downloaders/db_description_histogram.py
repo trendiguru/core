@@ -6,7 +6,7 @@ import time
 import cv2
 from rq import Queue
 from operator import itemgetter
-
+import json
 
 from trendi.constants import db
 from trendi.constants import redis_conn
