@@ -18,23 +18,21 @@ these are the steps required for testing a new fingerprint:
 import time
 
 from rq import Queue
-from redis import Redis
-import pymongo
 
 from mr8_worker import add_new_field
+import constants
 
-
+db = constants.db
+redis = constants.redis_conn
 def create_new_collection():
-    db = pymongo.MongoClient().mydb
     collection = db.new_products
 
     category_stack = collection.find({"categories": "dresses"})
     stack_length = 50000  # category_stack.count()
     db.mr8_testing.remove()
     # Tell RQ what Redis connection to use
-    redis_conn = Redis()
 
-    q = Queue('MR8', connection=redis_conn)  # no args implies the default queue)
+    q = Queue('MR8', connection=redis)  # no args implies the default queue)
     jobs = []
     for x, doc in enumerate(category_stack):
         if x > stack_length:
@@ -45,7 +43,7 @@ def create_new_collection():
     current = db.fp_testing.count()
     while current < (stack_length - 1000):
         time.sleep(10)
-        current = db.fp_testing.count()
+        current = db.mr8_testing.count()
         print current
 
 
