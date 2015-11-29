@@ -6,13 +6,13 @@ import logging
 import time
 
 import cv2
-from  constants import db
-from  constants import redis_conn
 from rq import Queue
 
-import Utils
-import background_removal
-from find_similar_mongo import get_all_subcategories
+from trendi.constants import db
+from trendi.constants import redis_conn
+import trendi.Utils
+import trendi.background_removal
+from trendi.find_similar_mongo import get_all_subcategories
 
 current_directory_name = os.getcwd()
 my_path = os.path.dirname(os.path.abspath(__file__))
