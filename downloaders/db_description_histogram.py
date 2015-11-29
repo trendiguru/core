@@ -30,6 +30,33 @@ descriptions_dict = {'bowcollar': ["\"bow collar\"", "bowcollar"],
                      'squareneck': ["\"square neck\"", "squareneck"],
                      'v-neck': ["\"v-neck\"", "\"v neck\"", "vneck"]}
 
+
+def get_db_fields(collection='products'):
+    if db is None:
+        print('couldnt open db')
+        return {"success": 0, "error": "could not get db"}
+    cursor = db.products.find()
+    print('returned cursor')
+    if cursor is None:  # make sure training collection exists
+        print('couldnt get cursor ' + str(collection))
+        return {"success": 0, "error": "could not get collection"}
+    doc = next(cursor, None)
+    i = 0
+    while doc is not None:
+        print('checking doc #' + str(i + 1))
+        print('doc:' + str(doc))
+        for topic in doc:
+            try:
+                print(str(topic))
+            except UnicodeEncodeError:
+                print('unicode encode error')
+        i = i + 1
+        doc = next(cursor, None)
+        print('')
+        raw_input('enter key for next doc')
+    return {"success": 1}
+
+
 def step_thru_db(use_visual_output=False, collection='products'):
     '''
     fix all the bbs so they fit their respective image
