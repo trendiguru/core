@@ -63,7 +63,7 @@ def collect_description(search_string='pants',category_id='dresses'):
     doc = next(cursor, None)
     i = 0
     max_items = 5
-    word_frequencies=[]
+    word_frequencies={}
     while i<max_items and  doc is not None:
         print('checking doc #' + str(i + 1))
         if 'categories' in doc:
