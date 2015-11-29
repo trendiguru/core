@@ -103,6 +103,11 @@ def collect_description(search_string='pants',category_id='dresses'):
     #sorted_freqs = sorted(word_frequencies, key=lambda word: word[0])  #doesn't give both key and value
     print('sorted:')
     print(sorted_freqs)
+    word_frequencies_filename='word_frequencies.txt'
+    with open(word_frequencies_filename, "w") as outfile:
+        print('succesful open, attempting to write word freqs to:'+word_frequencies_filename)
+        json.dump(sorted_freqs,outfile, indent=4)
+
     return {"success": 1}
 
 def step_thru_db(collection='products'):
