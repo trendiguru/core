@@ -44,7 +44,6 @@ def get_db_fields(collection='products'):
     i = 0
     while doc is not None:
         print('checking doc #' + str(i + 1))
-        print('doc:' + str(doc))
         for topic in doc:
             try:
                 print(str(topic))
@@ -79,7 +78,6 @@ def step_thru_db(use_visual_output=False, collection='products'):
     i = 0
     while doc is not None:
         print('checking doc #' + str(i + 1))
-        print('doc:' + str(doc))
         for topic in doc:
             try:
                 print(str(topic) + ':' + str(doc[topic]))
