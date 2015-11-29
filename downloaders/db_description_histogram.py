@@ -74,7 +74,7 @@ def collect_description(search_string='pants',category_id='dresses'):
     check_freq = max(1,max_items/50)
     print(check_freq)
     word_frequencies={}
-    while i<max_items and  doc is not None:
+    while i<max_items and doc is not None:
 #        print('checking doc #' + str(i + 1))
         if 'categories' in doc:
             try:
@@ -111,14 +111,21 @@ def collect_description(search_string='pants',category_id='dresses'):
 #        raw_input('enter key for next doc')
     sorted_freqs=list(reversed(sorted(word_frequencies.items(), key=itemgetter(1))))
     #sorted_freqs = sorted(word_frequencies, key=lambda word: word[0])  #doesn't give both key and value
+    sorted_freqs = purge_common(sorted_freqs)
     print('sorted:')
     print(sorted_freqs)
     word_frequencies_filename='word_frequencies.txt'
     with open(word_frequencies_filename, "w") as outfile:
         print('succesful open, attempting to write word freqs to:'+word_frequencies_filename)
         json.dump(sorted_freqs,outfile, indent=4)
-    plot_word_hist(sorted_freqs,category=category_id,cutoff=10000)
+    plot_word_hist(sorted_freqs,category=category_id,cutoff=5000)
     return sorted_freqs
+
+def purge_common(unsorted):
+    purge_list=['and','a','with','the','in','no','to','at','from',<ul>,</ul>,'this','is','for',
+        'of','by','on','an','that','a','A','this']
+    purged = [(entry[0],entry[1]) for entry in unsorted if not entry[0] in purge_list]
+    return purged
 
 def plot_word_hist(word_frequencies,category='nocat',cutoff=1):
     print('freqs:' +str(word_frequencies))
