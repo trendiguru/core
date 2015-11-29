@@ -125,11 +125,11 @@ def plot_word_hist(word_frequencies,category='nocat'):
     print('x {0} y {1} labels {2}'.format(x,y,labels))
 #    f = figure(1)
     f = plt.figure()
-    ax = f.add_axes([0.0, 0.0, 1.0, 1.0])
+    ax = f.add_axes([0.1, 0.1, 0.9, 0.9])
     ax.bar(x, y, align='center')
     ax.set_xticks(x)
     ax.set_xticklabels(labels,rotation='vertical')
-    plt.savefig(category+'.jpg')
+    plt.savefig(category+'.jpg',bbox_inches='tight')
 #    f.show()
 
 
