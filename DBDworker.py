@@ -103,7 +103,7 @@ def db_update(prod, collection):
 
     else:
         # case 2: the product was found in our db, and maybe should be modified
-        print "Found existing prod in db,",
+        # print "Found existing prod in db,",
         status_new = prod["inStock"]
         status_old = prod_in_coll["status"]["instock"]
         if status_new == False and status_old == False:
@@ -123,12 +123,13 @@ def db_update(prod, collection):
             db[collection].delete_one({'id': prod['id']})
             prod = convert2generic(prod)
             insert_and_fingerprint(prod, collection, current_date)
-            print "product with an old fp was refingerprinted"
+            # print "product with an old fp was refingerprinted"
 
 
 def delayed_requests_get(url, _params, collection):
     dl_data = db.download_data.find({"criteria": collection})[0]
     sleep_time = max(0, 0.1 - (time.time() - dl_data["last_request"]))
+    print (sleep_time)
     time.sleep(sleep_time)
     db.download_data.find_one_and_update({"criteria": collection}, {'$set': {"last_request": time.time()}})
     return requests.get(url, params=_params)
