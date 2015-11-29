@@ -120,7 +120,7 @@ def collect_description(search_string='pants',category_id='dresses'):
 def plot_word_hist(word_frequencies,category='nocat',cutoff=1):
     print('freqs:' +str(word_frequencies))
     labels = [entry[0] for entry in word_frequencies]
-    y = [entry[1] for entry in word_frequencies with y>cutoff]
+    y = [entry[1] for entry in word_frequencies if entry[1]>cutoff]
     x = xrange(len(y))
     print('x {0} y {1} labels {2}'.format(x,y,labels))
 #    f = figure(1)
