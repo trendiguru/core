@@ -5,6 +5,8 @@ import time
 
 import cv2
 from rq import Queue
+from operator import itemgetter
+
 
 from trendi.constants import db
 from trendi.constants import redis_conn
@@ -62,7 +64,9 @@ def collect_description(search_string='pants',category_id='dresses'):
         return {"success": 0, "error": "could not get collection"}
     doc = next(cursor, None)
     i = 0
-    while doc is not None:
+    max_items = 5
+    word_frequencies={}
+    while i<max_items and  doc is not None:
         print('checking doc #' + str(i + 1))
         if 'categories' in doc:
             try:
@@ -75,17 +79,35 @@ def collect_description(search_string='pants',category_id='dresses'):
         if 'description' in doc:
             try:
                 print('desc:' + str(doc['description']))
+                words = doc['description']
             except UnicodeEncodeError:
                 print('unicode encode error in description')
                 s = doc['description']
                 print(s.encode('utf-8'))
+                words = s.encode('utf-8')
                 # print(unicode(s.strip(codecs.BOM_UTF8), 'utf-8'))
                 # print(unicode(s.strip(codecs.BOM_UTF8), 'utf-8'))
+        individual_words = words.split()
+        for word in individual_words:
+            if word in word_frequencies:
+                word_frequencies[word] += 1
+            else:
+                word_frequencies[word] = 1
+        print(word_frequencies)
 
         i = i + 1
         doc = next(cursor, None)
         print('')
         raw_input('enter key for next doc')
+    sorted_freqs=list(reversed(sorted(word_frequencies.items(), key=itemgetter(1))))
+    #sorted_freqs = sorted(word_frequencies, key=lambda word: word[0])  #doesn't give both key and value
+    print('sorted:')
+    print(sorted_freqs)
+    word_frequencies_filename='word_frequencies.txt'
+    with open(word_frequencies_filename, "w") as outfile:
+        print('succesful open, attempting to write word freqs to:'+word_frequencies_filename)
+        json.dump(sorted_freqs,outfile, indent=4)
+
     return {"success": 1}
 
 def step_thru_db(collection='products'):
@@ -148,7 +170,7 @@ def find_products_by_description_and_category(search_string, category_id):
     return cursor
 
 def find_products_by_category(category_id):
-    logging.info('****** Starting to find category {1} *****'.format(category_id))
+    logging.info('****** Starting to find category {} *****'.format(category_id))
 
     query = {"categories":
                            {"$elemMatch":
