@@ -110,9 +110,10 @@ def collect_description(search_string='pants',category_id='dresses'):
         print('succesful open, attempting to write word freqs to:'+word_frequencies_filename)
         json.dump(sorted_freqs,outfile, indent=4)
 
-    plot_word_hist(sorted_freqs)
+    plot_word_hist(sorted_freqs,category=category_id)
     return sorted_freqs
-def plot_word_hist(word_frequencies):
+
+def plot_word_hist(word_frequencies,category='nocat'):
     print('freqs:' +str(word_frequencies))
     labels = [entry[0] for entry in word_frequencies]
     y = [entry[1] for entry in word_frequencies]
@@ -123,7 +124,8 @@ def plot_word_hist(word_frequencies):
     ax.bar(x, y, align='center')
     ax.set_xticks(x)
     ax.set_xticklabels(labels)
-    f.show()
+    plt.savefig(category+'.jpg')
+#    f.show()
 
 
 def step_thru_db(collection='products'):
