@@ -91,7 +91,7 @@ class ShopStyleDownloader():
             total_items_after = self.db[collection].count()
 
     def build_category_tree(self, collection):
-        parameters = {"pid": PID}  # , "filters": "Category"}
+        parameters = {"pid": PID, "filters": "Category"}
         if collection == "products_jp" or collection == "_new_products_jp":
             parameters["site"] = "www.shopstyle.co.jp"
 
