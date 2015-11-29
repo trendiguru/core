@@ -133,12 +133,31 @@ def plot_word_hist(word_frequencies,category='nocat',cutoff=1):
     x = xrange(len(y))
     print('x {0} y {1} labels {2}'.format(x,y,labels))
 #    f = figure(1)
-    f = plt.figure()
-    ax = f.add_axes([0.0, 0.0, 1.0, 1.0])
-    ax.bar(x, y, align='center')
-    ax.set_xticks(x)
+
+    fig, ax = plt.subplots()
+    bar_width = 0.35
+    opacity = 0.4
+    error_config = {'ecolor': '0.3'}
+    rects1 = plt.bar(x, y, bar_width,
+                     alpha=opacity,
+                     color='b')
+
+    plt.xlabel(category)
+    plt.ylabel('frequency')
+    plt.title('word frequencies in '+category+' category')
+    plt.xticks(index + bar_width, labels)
+    plt.setp(labels,rotation=90)
+    #   plt.set_xticklabels(labels,rotation='vertical')
+#   plt.legend()
+
+    plt.tight_layout()
+
+#    f = plt.figure()
+#    ax = f.add_axes([0.0, 0.0, 1.0, 1.0])
+#    ax.bar(x, y, align='center')
+#    ax.set_xticks(x)
 #    ax.set_aspect(1.0)
-    ax.set_xticklabels(labels,rotation='vertical')
+#    ax.set_xticklabels(labels,rotation='vertical')
 
 #    plt.tight_layout()
     plt.savefig(category+'.jpg',bbox_inches='tight')
