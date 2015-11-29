@@ -16,62 +16,16 @@ from ..find_similar_mongo import get_all_subcategories
 
 from constants import db
 
-    if db is None:
-        print('couldnt open db')
-        return {"success": 0, "error": "could not get db"}
-    dbstring = 'db.' + collection
-    # cursor = dbstring.find()
-    # cursor = db.training.find()
-    # look in defaults.py  how this is done
-    cursor = db.products.find()
-    print('returned cursor')
-
 current_directory_name = os.getcwd()
-
 my_path = os.path.dirname(os.path.abspath(__file__))
         self.db = constants.db
 
 # download_images_q = Queue('download_images', connection=redis_conn)  # no args implies the default queue
 logging.basicConfig(level=logging.WARNING)
-
 MAX_IMAGES = 10000
-
 descriptions = ['round collar', 'bow collar',
                 'ribbed round neck', 'rollneck',
                 'slash neck']
-
-# LESSONS: CANNOT PUT MULTIPLE PHRASES IN $text
-# v-neck is a superset of v-neckline
-descriptions_dict = {'bowcollar': ["\"bow collar\"", "bowcollar"],
-                     'crewneck': ["\"crew neck\"", "crewneck", "\"classic neckline\""],
-                     'roundneck': ["\"round neck\"", "roundneck"],
-                     'scoopneck': ["\"scoop neck\"", "scoopneck"],
-                     'squareneck': ["\"square neck\"", "squareneck"],
-                     'v-neck': ["\"v-neck\"", "\"v neck\"", "vneck"]}
-import os
-import logging
-import time
-
-import cv2
-from ..constants import db
-from ..constants import redis_conn
-from rq import Queue
-
-from .. import Utils
-from .. import background_removal
-from ..find_similar_mongo import get_all_subcategories
-
-
-# download_images_q = Queue('download_images', connection=redis_conn)  # no args implies the default queue
-logging.basicConfig(level=logging.WARNING)
-
-MAX_IMAGES = 10000
-
-# Leftovers:
-descriptions = ['round collar', 'bow collar',
-                'ribbed round neck', 'rollneck',
-                'slash neck']
-
 # LESSONS: CANNOT PUT MULTIPLE PHRASES IN $text
 # v-neck is a superset of v-neckline
 descriptions_dict = {'bowcollar': ["\"bow collar\"", "bowcollar"],
