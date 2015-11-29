@@ -249,12 +249,12 @@ class ShopStyleDownloader():
         prod_in_coll = self.db[collection].find_one({"id": prod["id"]})
 
         if prod_in_coll is None:
-            # print "Product not in db." + collection
+            print "Product not in db." + collection
             # case 1.1: try finding this product in the products
             if collection != "products":
                 prod_in_prod = self.db.products.find_one({"id": prod["id"]})
                 if prod_in_prod is not None:
-                    # print "but new product is already in db.products"
+                    print "but new product is already in db.products"
                     prod["download_data"] = prod_in_prod["download_data"]
                     prod = convert2generic(prod)
                     prod["fingerprint"] = prod_in_prod["fingerprint"]
