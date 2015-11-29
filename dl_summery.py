@@ -10,7 +10,7 @@ import constants
 db = constants.db
 
 
-def email(stats, coll="products"):
+def email(stats, coll=None):
     # me = 'nadav@trendiguru.com'
     # lior = 'lior@trendiguru.com'
     # kyle = 'kyle@trendiguru.com'
@@ -27,7 +27,7 @@ def email(stats, coll="products"):
     msg['To'] = yonti
     txt2 = ''
     for curr in stats:
-        coll = coll or curr["criteria"]
+        coll = coll or "products"
         if curr['dl_duration(min)'] is str:
             duration = "still in process"
         else:
