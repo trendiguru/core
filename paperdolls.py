@@ -83,7 +83,7 @@ def after_pd_conclusions(mask, labels, face=None):
         ref_area = face[2] * face[3]
         y_split = face[1] + 3 * face[3]
     else:
-        ref_area = np.mean((mask.shape[0], mask.shape[1])) / 10
+        ref_area = (np.mean((mask.shape[0], mask.shape[1])) / 10) ** 2
         y_split = np.round(0.4 * mask.shape[0])
     final_mask = mask[:, :]
     mask_sizes = {"upper_cover": [], "upper_under": [], "lower_cover": [], "lower_under": [], "whole_body": []}
