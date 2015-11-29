@@ -62,7 +62,8 @@ def show_parse(filename=None, img_array = None):
 #        cv2.imwrite('parse_img.jpg',img_array)
 
         h,w = img_array.shape[:2]
-        print(h,w)
+        print('h {0} w {1}'.format(h,w))
+#        new_image = np.zeros([h,2*w])
         cv2.imshow("orig", img_array)
         cv2.imshow("dest", dest)
         cv2.waitKey(0)
