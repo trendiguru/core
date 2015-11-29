@@ -131,7 +131,7 @@ def plot_word_hist(word_frequencies,category='nocat',cutoff=1):
     ax.set_xticklabels(labels,rotation='vertical')
     plt.savefig(category+'.jpg',bbox_inches='tight')
 #    f.show()
-
+#
 
 def step_thru_db(collection='products'):
     '''
