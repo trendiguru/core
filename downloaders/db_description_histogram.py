@@ -18,7 +18,6 @@ from constants import db
 
 current_directory_name = os.getcwd()
 my_path = os.path.dirname(os.path.abspath(__file__))
-        self.db = constants.db
 
 # download_images_q = Queue('download_images', connection=redis_conn)  # no args implies the default queue
 logging.basicConfig(level=logging.WARNING)
