@@ -140,8 +140,8 @@ def plot_word_hist(word_frequencies,category='nocat',cutoff=1):
 #    opacity = 0.4
 #    error_config = {'ecolor': '0.3'}
 #    rects1 = plt.bar(x_a, y, bar_width,
-                     alpha=opacity,
-                     color='b')
+#                     alpha=opacity,
+#                     color='b')
 
 #    plt.xlabel(category)
 #    plt.ylabel('frequency')
