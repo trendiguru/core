@@ -147,7 +147,7 @@ def purge_common(unsorted):
 
 def integrate_freqs(word_frequencies,category='nocat'):
     integral = []
-    normalzed = []
+    normalized = []
     val = 0
     for pair in word_frequencies:
 #        print('pair {0} {1} {2}'.format(pair,pair[0],pair[1]))
@@ -156,7 +156,7 @@ def integrate_freqs(word_frequencies,category='nocat'):
         integral.append(val)
     #f=plt.figure(figsize=(20,5))
     for i in range(0,len(integral)):
-        normalzed.append(integral[i]*1.0/integral[-1])
+        normalized.append(integral[i]*1.0/integral[-1])
     x=range(1,len(integral)+1)
 
     f=plt.figure(figsize=(20,5))
