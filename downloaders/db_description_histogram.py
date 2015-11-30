@@ -157,10 +157,22 @@ def integrate_freqs(word_frequencies,category='nocat'):
     for i in range(0,len(integral)):
         integral[i]=integral[i]*1.0/integral[-1]
     x=range(1,len(integral)+1)
-    plt.plot(x,integral)
+
+    f=plt.figure(figsize=(20,5))
+    ax = f.add_axes([0.0, 0.0, 1.0, 1.0])
+    ax.plot(x, y, align='center')
+#    ax.set_xticks(x)
+ #   ax.set_aspect(1.0)
+#    ax.set_xticklabels(labels,rotation='vertical')
+
+#    plt.tight_layout()
+ #   plt.savefig(category+'.jpg',bbox_inches='tight')
+
+
+ #   plt.plot(x,integral)
     plt.title('cumulative percent for '+category)
     plt.grid(True)
-    plt.savefig(category+'_cumulative.jpg')    #,bbox_inches='tight')
+    plt.savefig(category+'_cumulative.jpg',bbox_inches='tight')
 
 
 def plot_word_hist(word_frequencies,category='nocat',cutoff=1):
