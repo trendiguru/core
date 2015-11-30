@@ -62,7 +62,7 @@ def get_db_fields(collection='products'):
         raw_input('enter key for next doc')
     return {"success": 1}
 
-def collect_description(search_string='pants',category_id='dresses'):
+def collect_description(search_string='pants',category_id='dresses',cutoff=5000):
     cursor = find_products_by_category(category_id)
     if cursor is None:  # make sure training collection exists
         print('couldnt get cursor ' + str(collection))
@@ -128,7 +128,7 @@ def collect_description(search_string='pants',category_id='dresses'):
     with open(word_frequencies_filename, "w") as outfile:
         print('succesful open, attempting to write word freqs to:'+word_frequencies_filename)
         json.dump(sorted_freqs,outfile, indent=4)
-    plot_word_hist(sorted_freqs,category=category_id,cutoff=5000)
+    plot_word_hist(sorted_freqs,category=category_id,cutoff=cutoff)
 #    integrate_freqs(sorted_freqs,category=category_id)
     return sorted_freqs
 
