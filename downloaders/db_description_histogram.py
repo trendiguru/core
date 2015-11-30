@@ -159,7 +159,8 @@ def integrate_freqs(word_frequencies,category='nocat'):
     x=range(1,len(integral)+1)
     plt.plot(x,integral)
     plt.title('cumulative percent for '+category)
-    plt.savefig(category+'_cumulative.jpg',bbox_inches='tight')
+    plt.grid(True)
+    plt.savefig(category+'_cumulative.jpg')    #,bbox_inches='tight')
 
 
 def plot_word_hist(word_frequencies,category='nocat',cutoff=1):
