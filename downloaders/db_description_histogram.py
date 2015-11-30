@@ -130,7 +130,8 @@ def collect_description(search_string='pants',category_id='dresses',cutoff=5000)
         json.dump(sorted_freqs,outfile, indent=4)
     plot_word_hist(sorted_freqs,category=category_id,cutoff=cutoff)
 #    integrate_freqs(sorted_freqs,category=category_id)
-    return sorted_freqs
+#supress giant output
+#    return sorted_freqs
 
 def purge_common(unsorted):
     purge_list=['and','a','with','the','in','no','to','at','from','<ul>',
