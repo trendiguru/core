@@ -335,8 +335,13 @@ shopstyle_paperdoll_women = {'bootcut-jeans': 'jeans',
 
 '''
 this is a list of categories under womens-clothing and mens-clothing in case its needed
+TOP LEVEL CLOTHES:
+ u'womens-outerwear',
+ u'shorts',
+ u'jackets',
 
 ['womens-clothes',
+
  u'womens-outerwear',
  u'wool-coats',
  u'coats',
@@ -344,6 +349,7 @@ this is a list of categories under womens-clothing and mens-clothing in case its
  u'fur-and-shearling-coats',
  u'raincoats-and-trenchcoats',
  u'leather-and-suede-coats',
+
  u'jewelry',
  u'diamond-jewelry',
  u'diamond-necklaces',
@@ -357,18 +363,23 @@ this is a list of categories under womens-clothing and mens-clothing in case its
  u'brooches-and-pins',
  u'rings',
  u'watches',
+
  u'shorts',
+
  u'jackets',
  u'blazers',
  u'neckless-jackets',
  u'casual-jackets',
  u'vests',
  u'leather-jackets',
+
  u'skirts',
  u'mini-skirts',
  u'mid-length-skirts',
  u'long-skirts',
+
  u'womens-suits',
+
  u'jeans',
  u'classic-jeans',
  u'cropped-jeans',
@@ -379,6 +390,7 @@ this is a list of categories under womens-clothing and mens-clothing in case its
  u'flare-jeans',
  u'bootcut-jeans',
  u'relaxed-jeans',
+
  u'womens-tops',
  u'tees-and-tshirts',
  u'cut-sew-tops',
@@ -389,12 +401,14 @@ this is a list of categories under womens-clothing and mens-clothing in case its
  u'sleeveless-tops',
  u'halter-tops',
  u'polo-tops',
+
  u'sweaters',
  u'v-neck-sweaters',
  u'cardigan-sweaters',
  u'crewneck-sweaters',
  u'turleneck-sweaters',
  u'ensembles',
+
  u'womens-pants',
  u'dress-pants',
  u'casual-pants',
@@ -402,7 +416,9 @@ this is a list of categories under womens-clothing and mens-clothing in case its
  u'skinny-pants',
  u'leggings',
  u'wide-leg-pants',
+
  u'sweatshirts',
+
  u'womens-athletic-clothes',
  u'athletic-shorts',
  u'athletic-jackets',
@@ -410,6 +426,7 @@ this is a list of categories under womens-clothing and mens-clothing in case its
  u'sports-bras-and-underwear',
  u'athletic-tops',
  u'athletic-pants',
+
  u'bridal',
  u'bridesmaid',
  u'bridesmaid-jewelry',
@@ -422,6 +439,7 @@ this is a list of categories under womens-clothing and mens-clothing in case its
  u'bridal-jewelry',
  u'bridal-bags',
  u'bridal-veils',
+
  u'maternity-clothes',
  u'maternity-outerwear',
  u'maternity-intimates',
@@ -434,6 +452,7 @@ this is a list of categories under womens-clothing and mens-clothing in case its
  u'maternity-pants',
  u'maternity-dresses',
  u'maternity-swimsuits',
+
  u'dresses',
  u'bridal-dresses',
  u'bridesmaid-dresses',
@@ -441,6 +460,7 @@ this is a list of categories under womens-clothing and mens-clothing in case its
  u'cocktail-dresses',
  u'evening-dresses',
  u'day-dresses',
+
  u'womens-intimates',
  u'undershirts',
  u'camisoles',
@@ -455,6 +475,7 @@ this is a list of categories under womens-clothing and mens-clothing in case its
  u'slippers',
  u'robes',
  u'shapewear',
+
  u'plus-sizes',
  u'plus-size-outerwear',
  u'plus-size-shorts',
@@ -469,6 +490,7 @@ this is a list of categories under womens-clothing and mens-clothing in case its
  u'plus-size-dresses',
  u'plus-size-intimates',
  u'plus-size-swimsuits',
+
  u'petites',
  u'petite-outerwear',
  u'petite-shorts',
@@ -483,6 +505,7 @@ this is a list of categories under womens-clothing and mens-clothing in case its
  u'petite-dresses',
  u'petite-intimates',
  u'petite-swimsuits',
+
  u'womens-accessories',
  u'womens-eyewear',
  u'sunglasses',
@@ -496,6 +519,7 @@ this is a list of categories under womens-clothing and mens-clothing in case its
  u'womens-umbrellas',
  u'hats',
  u'gloves',
+
  u'swimsuits',
  u'one-piece-swimsuits',
  u'two-piece-swimsuits',

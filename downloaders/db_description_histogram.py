@@ -128,7 +128,7 @@ def collect_description(search_string='pants',category_id='dresses',cutoff=5000)
     with open(word_frequencies_filename, "w") as outfile:
         print('succesful open, attempting to write word freqs to:'+word_frequencies_filename)
         json.dump(sorted_freqs,outfile, indent=4)
-    plot_word_hist(sorted_freqs,category=category_id,cutoff=cutoff)
+    plot_word_hist(sorted_freqs,category=category_id,cutoff=cutoff,item_count=count)
 #    integrate_freqs(sorted_freqs,category=category_id)
 #supress giant output
 #    return sorted_freqs
@@ -177,7 +177,7 @@ def integrate_freqs(word_frequencies,category='nocat'):
     plt.savefig(category+'_cumulative.jpg',bbox_inches='tight')
     return(integral)
 
-def plot_word_hist(word_frequencies,category='nocat',cutoff=1):
+def plot_word_hist(word_frequencies,category='nocat',cutoff=1,item_count=None):
 #    print('freqs:' +str(word_frequencies))
     labels = [entry[0] for entry in word_frequencies]
     y = [entry[1] for entry in word_frequencies if entry[1]>cutoff]
@@ -213,7 +213,11 @@ def plot_word_hist(word_frequencies,category='nocat',cutoff=1):
 #    print('ylength {0} intlengh {1}'.format(len(word_frequencies),len(integral)))
 #    print('trunc:'+str(truncated_integral))
     plt.semilogy()
-    plt.title('freqs and cumulative count for '+category+' ,cutoff='+str(cutoff)+', '+str(integral[-1])+' total words')
+    if item_count is not None:
+        plt.title('freqs and cumulative count for '+category+' ,cutoff='+str(cutoff)+'\n'+str(integral[-1])+' total words, '+str(item_count)+' items in category')
+    else:
+        plt.title('freqs and cumulative count for '+category+' ,cutoff='+str(cutoff)+', '+str(integral[-1])+' total words')
+
     plt.grid(True)
     ax.plot(x,truncated_integral,'b.-')
 #    ax.plot(x, normalized,'b.-')
