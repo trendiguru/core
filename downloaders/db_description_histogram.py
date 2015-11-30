@@ -205,12 +205,12 @@ def plot_word_hist(word_frequencies,category='nocat',cutoff=1):
 
 #    f = plt.figure()
     integral = integrate_freqs(word_frequencies,category=category)
-    truncated_integral=integral[0:len()]
+    truncated_integral=integral[0:len(y)]
     f=plt.figure(figsize=(20,5))
     ax = f.add_axes([0.0, 0.0, 1.0, 1.0])
     x_int = xrange(1,len(integral)+1)
     print('ylenth {0} intlengh {1}'.format(len(word_frequencies),len(integral)))
-    ax.plot(x_int,integral)
+    ax.plot(x,truncated_integral)
     plt.twiny(ax)
     ax.bar(x,y)
     ax.set_xticks(x)
