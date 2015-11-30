@@ -70,7 +70,8 @@ def collect_description(search_string='pants',category_id='dresses'):
     doc = next(cursor, None)
     i = 0
     count = cursor.count()
-    max_items = min(10000000,cursor.count())
+    max_items = 100
+    max_items = min(max_items,cursor.count())
     check_freq = max(1,max_items/50)
     print(check_freq)
     word_frequencies={}
@@ -128,7 +129,7 @@ def collect_description(search_string='pants',category_id='dresses'):
         print('succesful open, attempting to write word freqs to:'+word_frequencies_filename)
         json.dump(sorted_freqs,outfile, indent=4)
     plot_word_hist(sorted_freqs,category=category_id,cutoff=6000)
-    integrate_freqs(word_frequencies,category=category_id)
+    integrate_freqs(sorted_freqs,category=category_id)
     return sorted_freqs
 
 def purge_common(unsorted):
