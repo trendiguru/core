@@ -212,9 +212,13 @@ def plot_word_hist(word_frequencies,category='nocat',cutoff=1):
     print('ylenth {0} intlengh {1}'.format(len(word_frequencies),len(integral)))
     print('trunc:'+str(truncated_integral))
     plt.semilogy()
-    ax.plot(x,truncated_integral)
+    plt.title('freqs and cumulative count for '+category)
+    plt.grid(True)
+    ax.plot(x,truncated_integral,'b.-')
+#    ax.plot(x, normalized,'b.-')
     ax.bar(x,y)
     ax.set_xticks(x)
+
  #   ax.set_aspect(1.0)
     ax.set_xticklabels(labels,rotation='vertical')
 
