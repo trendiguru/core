@@ -128,7 +128,7 @@ def collect_description(search_string='pants',category_id='dresses'):
         print('succesful open, attempting to write word freqs to:'+word_frequencies_filename)
         json.dump(sorted_freqs,outfile, indent=4)
     plot_word_hist(sorted_freqs,category=category_id,cutoff=6000)
-    integrate_freqs(word_frequencies,category=category_id):
+    integrate_freqs(word_frequencies,category=category_id)
     return sorted_freqs
 
 def purge_common(unsorted):
