@@ -419,6 +419,7 @@ TOP LEVEL CLOTHES:
 
  u'sweatshirts',
 
+#NOTE WOMENS ATHLETIC SEEMS TO HAVE GONE BYE-BYE
  u'womens-athletic-clothes',
  u'athletic-shorts',
  u'athletic-jackets',
@@ -427,6 +428,7 @@ TOP LEVEL CLOTHES:
  u'athletic-tops',
  u'athletic-pants',
 
+#APPARENTLY THIS CATEGORY IS NO MORE
  u'bridal',
  u'bridesmaid',
  u'bridesmaid-jewelry',

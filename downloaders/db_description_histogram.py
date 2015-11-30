@@ -376,4 +376,20 @@ def print_logging_info(msg):
 logging.info = print_logging_info
 
 if __name__ == '__main__':
-    run()
+    collect_description(category_id='womens-outerwear',cutoff=1000)
+    collect_description(category_id='shorts',cutoff=1000)
+    collect_description(category_id='jackets',cutoff=5000)
+    collect_description(category_id='skirts',cutoff=1000)
+    collect_description(category_id='womens-suits',cutoff=100)
+    collect_description(category_id='jeans',cutoff=2000)
+    collect_description(category_id='womens-tops',cutoff=2000)
+    collect_description(category_id='sweaters',cutoff=2000)
+    collect_description(category_id='womens-pants',cutoff=2000)
+    collect_description(category_id='sweatshirts',cutoff=500)
+    collect_description(category_id='maternity-clothes',cutoff=50)un()
+    collect_description(category_id='dresses',cutoff=5000)
+    collect_description(category_id='womens-intimates',cutoff=30)
+    collect_description(category_id='plus-sizes',cutoff=200)
+    collect_description(category_id='petites',cutoff=350)
+    collect_description(category_id='womens-accessories',cutoff=10)
+    collect_description(category_id='swimsuits',cutoff=20)
