@@ -177,7 +177,7 @@ def integrate_freqs(word_frequencies,category='nocat'):
     return(integral)
 
 def plot_word_hist(word_frequencies,category='nocat',cutoff=1):
-    print('freqs:' +str(word_frequencies))
+#    print('freqs:' +str(word_frequencies))
     labels = [entry[0] for entry in word_frequencies]
     y = [entry[1] for entry in word_frequencies if entry[1]>cutoff]
     x = xrange(len(y))
@@ -208,8 +208,9 @@ def plot_word_hist(word_frequencies,category='nocat',cutoff=1):
     f=plt.figure(figsize=(20,5))
     ax = f.add_axes([0.0, 0.0, 1.0, 1.0])
     x_int = xrange(1,len(integral)+1)
+    print('ylenth {0} intlengh {1}'.format(len(word_frequencies),len(integral)))
     ax.plot(x_int,integral)
-    ax.bar(x,y, align='center')
+    ax.bar(x,y)
     ax.set_xticks(x)
  #   ax.set_aspect(1.0)
     ax.set_xticklabels(labels,rotation='vertical')
