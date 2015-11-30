@@ -158,7 +158,7 @@ def integrate_freqs(word_frequencies,category='nocat'):
     for i in range(0,len(integral)):
         normalized.append(integral[i]*1.0/integral[-1])
     x=range(1,len(integral)+1)
-
+    print('total # words='+str(val))
     f=plt.figure(figsize=(20,5))
     ax = f.add_axes([0.0, 0.0, 1.0, 1.0])
     ax.plot(x, normalized,'b.-')
@@ -209,8 +209,8 @@ def plot_word_hist(word_frequencies,category='nocat',cutoff=1):
     f=plt.figure(figsize=(20,5))
     ax = f.add_axes([0.0, 0.0, 1.0, 1.0])
     x_int = xrange(1,len(integral)+1)
-    print('ylenth {0} intlengh {1}'.format(len(word_frequencies),len(integral)))
-    print('trunc:'+str(truncated_integral))
+#    print('ylength {0} intlengh {1}'.format(len(word_frequencies),len(integral)))
+#    print('trunc:'+str(truncated_integral))
     plt.semilogy()
     plt.title('freqs and cumulative count for '+category+' ,cutoff='+str(cutoff))
     plt.grid(True)
