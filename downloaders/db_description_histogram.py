@@ -11,7 +11,7 @@ import json
 import matplotlib
 matplotlib.use('Agg')
 import matplotlib.pyplot as plt
-
+import numpy as np
 
 from trendi.constants import db
 from trendi.constants import redis_conn
@@ -69,10 +69,13 @@ def collect_description(search_string='pants',category_id='dresses'):
         return {"success": 0, "error": "could not get collection"}
     doc = next(cursor, None)
     i = 0
-    max_items = 10000000
+    count = cursor.count()
+    max_items = min(10000000,cursor.count())
+    check_freq = max(1,max_items/50)
+    print(check_freq)
     word_frequencies={}
-    while i<max_items and  doc is not None:
-        print('checking doc #' + str(i + 1))
+    while i<max_items and doc is not None:
+#        print('checking doc #' + str(i + 1))
         if 'categories' in doc:
             try:
                 #print('cats:' + str(doc['categories']))
@@ -93,6 +96,14 @@ def collect_description(search_string='pants',category_id='dresses'):
                 words = s.encode('utf-8')
                 # print(unicode(s.strip(codecs.BOM_UTF8), 'utf-8'))
                 # print(unicode(s.strip(codecs.BOM_UTF8), 'utf-8'))
+        words = words.lower()  #make lowercase
+        words = words.replace('.','')  #lose periods
+        words = words.replace('<li>','') #lose those thingies
+        words = words.replace('</li>','') #these too
+        words = words.replace(',','') #these too
+        words = words.replace('-','') #these too
+        words = words.replace('/','') #these too
+        words = words.replace(':','') #these too
         individual_words = words.split()
         for word in individual_words:
             if word in word_frequencies:
@@ -103,32 +114,70 @@ def collect_description(search_string='pants',category_id='dresses'):
 
         i = i + 1
         doc = next(cursor, None)
-        print('{0} of {1} done'.format(i,max_items))
+        if i % check_freq==0:
+            print('{0} of {1} done'.format(i,max_items))
 #        raw_input('enter key for next doc')
     sorted_freqs=list(reversed(sorted(word_frequencies.items(), key=itemgetter(1))))
     #sorted_freqs = sorted(word_frequencies, key=lambda word: word[0])  #doesn't give both key and value
-    print('sorted:')
-    print(sorted_freqs)
+    sorted_freqs = purge_common(sorted_freqs)
+#    print('sorted:')
+#    print(sorted_freqs)
     word_frequencies_filename='word_frequencies.txt'
     with open(word_frequencies_filename, "w") as outfile:
         print('succesful open, attempting to write word freqs to:'+word_frequencies_filename)
         json.dump(sorted_freqs,outfile, indent=4)
-
-    plot_word_hist(sorted_freqs,category=category_id,cutoff=1000)
+    plot_word_hist(sorted_freqs,category=category_id,cutoff=6000)
     return sorted_freqs
+
+def purge_common(unsorted):
+    purge_list=['and','a','with','the','in','no','to','at','from','<ul>',
+                '</ul>','this','is','for','of','by','on','an','that','a','this',
+                'it','you','or','may','true','your','our','only']
+#no longer need these as orig list is cleaned up
+#    purge_list = [[word,word+'.'] for word in purge_list]
+#    purge_list = [elem for l in purge_list for elem in l]  #flatten list comp
+#    purge_list = [[word,word.title()] for word in purge_list]
+#    purge_list = [elem for l in purge_list for elem in l]  #flatten list comp
+
+    purged = [(entry[0],entry[1]) for entry in unsorted if not entry[0] in purge_list]
+    return purged
 
 def plot_word_hist(word_frequencies,category='nocat',cutoff=1):
     print('freqs:' +str(word_frequencies))
     labels = [entry[0] for entry in word_frequencies]
     y = [entry[1] for entry in word_frequencies if entry[1]>cutoff]
     x = xrange(len(y))
+    x_a = np.arange(len(y))
     print('x {0} y {1} labels {2}'.format(x,y,labels))
 #    f = figure(1)
-    f = plt.figure()
+
+#    fig, ax = plt.subplots()
+#    bar_width = 0.35
+#    opacity = 0.4
+#    error_config = {'ecolor': '0.3'}
+#    rects1 = plt.bar(x_a, y, bar_width,
+#                     alpha=opacity,
+#                     color='b')
+
+#    plt.xlabel(category)
+#    plt.ylabel('frequency')
+#    plt.title('word frequencies in '+category+' category')
+#    plt.xticks(x_a + bar_width, labels)
+#    plt.setp(labels,rotation=90)
+    #   plt.set_xticklabels(labels,rotation='vertical')
+#   plt.legend()
+
+#    plt.tight_layout()
+
+#    f = plt.figure()
+    f=plt.figure(figsize=(20,5))
     ax = f.add_axes([0.0, 0.0, 1.0, 1.0])
     ax.bar(x, y, align='center')
     ax.set_xticks(x)
+ #   ax.set_aspect(1.0)
     ax.set_xticklabels(labels,rotation='vertical')
+
+#    plt.tight_layout()
     plt.savefig(category+'.jpg',bbox_inches='tight')
 #    f.show()
 #
