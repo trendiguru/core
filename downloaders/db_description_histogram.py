@@ -70,7 +70,7 @@ def collect_description(search_string='pants',category_id='dresses'):
     doc = next(cursor, None)
     i = 0
     count = cursor.count()
-    max_items = 10000
+    max_items = 10000000
     max_items = min(max_items,cursor.count())
     check_freq = max(1,max_items/50)
     print(check_freq)
