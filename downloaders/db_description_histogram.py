@@ -103,6 +103,7 @@ def collect_description(search_string='pants',category_id='dresses'):
         words = words.replace(',','') #these too
         words = words.replace('-','') #these too
         words = words.replace('/','') #these too
+        words = words.replace(':','') #these too
         individual_words = words.split()
         for word in individual_words:
             if word in word_frequencies:
@@ -132,10 +133,11 @@ def purge_common(unsorted):
     purge_list=['and','a','with','the','in','no','to','at','from','<ul>',
                 '</ul>','this','is','for','of','by','on','an','that','a','this',
                 'it','you','or','may','true','your','our','only']
-    purge_list = [[word,word+'.'] for word in purge_list]
-    purge_list = [elem for l in purge_list for elem in l]  #flatten list comp
-    purge_list = [[word,word.title()] for word in purge_list]
-    purge_list = [elem for l in purge_list for elem in l]  #flatten list comp
+#no longer need these as orig list is cleaned up
+#    purge_list = [[word,word+'.'] for word in purge_list]
+#    purge_list = [elem for l in purge_list for elem in l]  #flatten list comp
+#    purge_list = [[word,word.title()] for word in purge_list]
+#    purge_list = [elem for l in purge_list for elem in l]  #flatten list comp
 
     purged = [(entry[0],entry[1]) for entry in unsorted if not entry[0] in purge_list]
     return purged
