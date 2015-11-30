@@ -148,6 +148,7 @@ def integrate_freqs(word_frequencies,category='nocat'):
     integral = []
     val = 0
     for pair in word_frequencies:
+        print('pair {0} {1} {2}'.format(pair,pair[0],pair[1]))
         n=pair[1]
         val = val + n
         integral.append(val)
@@ -161,7 +162,7 @@ def integrate_freqs(word_frequencies,category='nocat'):
 
 
 def plot_word_hist(word_frequencies,category='nocat',cutoff=1):
-    print('freqs:' +str(word_frequencies))
+#    print('freqs:' +str(word_frequencies))
     labels = [entry[0] for entry in word_frequencies]
     y = [entry[1] for entry in word_frequencies if entry[1]>cutoff]
     x = xrange(len(y))
