@@ -104,6 +104,7 @@ def collect_description(search_string='pants',category_id='dresses'):
         words = words.replace('-','') #these too
         words = words.replace('/','') #these too
         words = words.replace(':','') #these too
+        words = words.replace(';','') #these too
         individual_words = words.split()
         for word in individual_words:
             if word in word_frequencies:
@@ -122,11 +123,12 @@ def collect_description(search_string='pants',category_id='dresses'):
     sorted_freqs = purge_common(sorted_freqs)
 #    print('sorted:')
 #    print(sorted_freqs)
-    word_frequencies_filename='word_frequencies.txt'
+    word_frequencies_filename='word_frequencies'+category_id+'.txt'
     with open(word_frequencies_filename, "w") as outfile:
         print('succesful open, attempting to write word freqs to:'+word_frequencies_filename)
         json.dump(sorted_freqs,outfile, indent=4)
     plot_word_hist(sorted_freqs,category=category_id,cutoff=6000)
+    integrate_freqs(word_frequencies,category=category_id):
     return sorted_freqs
 
 def purge_common(unsorted):
@@ -141,6 +143,22 @@ def purge_common(unsorted):
 
     purged = [(entry[0],entry[1]) for entry in unsorted if not entry[0] in purge_list]
     return purged
+
+def integrate_freqs(word_frequencies,category='nocat'):
+    integral = []
+    val = 0
+    for pair in word_frequencies:
+        n=pair[1]
+        val = val + n
+        integral.append(val)
+    #f=plt.figure(figsize=(20,5))
+    for i in range(0,len(integral)):
+        integral[i]=integral[i]*1.0/integral[-1]
+    x=range(1,len(integral)+1)
+    plt.plot(x,integral)
+    plt.title('cumulative percent for '+category)
+    plt.savefig(category+'_cumulative.jpg',bbox_inches='tight')
+
 
 def plot_word_hist(word_frequencies,category='nocat',cutoff=1):
     print('freqs:' +str(word_frequencies))
