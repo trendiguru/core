@@ -213,10 +213,11 @@ def plot_word_hist(word_frequencies,category='nocat',cutoff=1,item_count=None):
 #    print('ylength {0} intlengh {1}'.format(len(word_frequencies),len(integral)))
 #    print('trunc:'+str(truncated_integral))
     plt.semilogy()
+    percent = int(100*(float(truncated_integral[-1])/integral[-1]))
     if item_count is not None:
-        plt.title('freqs and cumulative count for '+category+' ,cutoff='+str(cutoff)+'\n'+str(integral[-1])+' total words, '+str(item_count)+' items in category')
+        plt.title('freqs and cumulative count for '+category+' ,cutoff='+str(cutoff)+'\n'+' for '+str(percent) + ' % of '+str(integral[-1])+' total words, '+str(item_count)+' items in category')
     else:
-        plt.title('freqs and cumulative count for '+category+' ,cutoff='+str(cutoff)+', '+str(integral[-1])+' total words')
+        plt.title('freqs and cumulative count for '+category+' ,cutoff='+str(cutoff)+', for '+str(percent) + ' % of '+str(integral[-1])+' total words')
 
     plt.grid(True)
     ax.plot(x,truncated_integral,'b.-')
