@@ -52,10 +52,8 @@ def swipe_all(col):
         # if cat not in constants.db_relevant_items:
         #     db[col].delete_one({"id": id})
         #     continue
-        try:
-            tmp_prod = convert2generic(prod)
-        except:
-            continue
+
+        tmp_prod = convert2generic(prod)
 
         tmp_prod["fingerprint"] = prod["fingerprint"]
         # db[col].delete_one({"id": id})
