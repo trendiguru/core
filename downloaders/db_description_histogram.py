@@ -70,7 +70,7 @@ def collect_description(search_string='pants',category_id='dresses'):
     doc = next(cursor, None)
     i = 0
     count = cursor.count()
-    max_items = 100
+    max_items = 1000
     max_items = min(max_items,cursor.count())
     check_freq = max(1,max_items/50)
     print(check_freq)
@@ -129,7 +129,7 @@ def collect_description(search_string='pants',category_id='dresses'):
         print('succesful open, attempting to write word freqs to:'+word_frequencies_filename)
         json.dump(sorted_freqs,outfile, indent=4)
     plot_word_hist(sorted_freqs,category=category_id,cutoff=6000)
-    integrate_freqs(sorted_freqs,category=category_id)
+#    integrate_freqs(sorted_freqs,category=category_id)
     return sorted_freqs
 
 def purge_common(unsorted):
@@ -147,6 +147,7 @@ def purge_common(unsorted):
 
 def integrate_freqs(word_frequencies,category='nocat'):
     integral = []
+    normalzed = []
     val = 0
     for pair in word_frequencies:
 #        print('pair {0} {1} {2}'.format(pair,pair[0],pair[1]))
@@ -155,12 +156,12 @@ def integrate_freqs(word_frequencies,category='nocat'):
         integral.append(val)
     #f=plt.figure(figsize=(20,5))
     for i in range(0,len(integral)):
-        integral[i]=integral[i]*1.0/integral[-1]
+        normalzed.append(integral[i]*1.0/integral[-1])
     x=range(1,len(integral)+1)
 
     f=plt.figure(figsize=(20,5))
     ax = f.add_axes([0.0, 0.0, 1.0, 1.0])
-    ax.plot(x, integral,'b.-')
+    ax.plot(x, normalized,'b.-')
 #    ax.set_xticks(x)
  #   ax.set_aspect(1.0)
 #    ax.set_xticklabels(labels,rotation='vertical')
@@ -173,7 +174,7 @@ def integrate_freqs(word_frequencies,category='nocat'):
     plt.title('cumulative percent for '+category)
     plt.grid(True)
     plt.savefig(category+'_cumulative.jpg',bbox_inches='tight')
-
+    return(integral)
 
 def plot_word_hist(word_frequencies,category='nocat',cutoff=1):
     print('freqs:' +str(word_frequencies))
@@ -203,9 +204,11 @@ def plot_word_hist(word_frequencies,category='nocat',cutoff=1):
 #    plt.tight_layout()
 
 #    f = plt.figure()
+    integral = integrate_freqs(sorted_freqs,category=category_id)
     f=plt.figure(figsize=(20,5))
     ax = f.add_axes([0.0, 0.0, 1.0, 1.0])
     ax.bar(x, y, align='center')
+    ax.plot(x,integral)
     ax.set_xticks(x)
  #   ax.set_aspect(1.0)
     ax.set_xticklabels(labels,rotation='vertical')
