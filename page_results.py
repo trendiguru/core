@@ -527,12 +527,12 @@ def image_exists(image_url, collection_name=None):
 
 
 def merge_items(doc):
-    doc['items'] = []
-    for person in doc['people']:
-        for item in person['items']:
-            item['person_bb'] = person['person_bb']
-            doc['items'].append(item)
-    # doc['items'] = [item for person in doc['people'] for item in person["items"]]
+    # doc['items'] = []
+    # for person in doc['people']:
+    #     for item in person['items']:
+    #         item['person_bb'] = person['person_bb']
+    #         doc['items'].append(item)
+    doc['items'] = [item for person in doc['people'] for item in person["items"]]
     del doc["people"]
     return doc
 
