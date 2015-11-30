@@ -160,7 +160,7 @@ def integrate_freqs(word_frequencies,category='nocat'):
 
     f=plt.figure(figsize=(20,5))
     ax = f.add_axes([0.0, 0.0, 1.0, 1.0])
-    ax.plot(x, integral, align='center')
+    ax.plot(x, integral,'b.-')
 #    ax.set_xticks(x)
  #   ax.set_aspect(1.0)
 #    ax.set_xticklabels(labels,rotation='vertical')
