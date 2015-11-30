@@ -70,7 +70,7 @@ def collect_description(search_string='pants',category_id='dresses'):
     doc = next(cursor, None)
     i = 0
     count = cursor.count()
-    max_items = 1000
+    max_items = 10000
     max_items = min(max_items,cursor.count())
     check_freq = max(1,max_items/50)
     print(check_freq)
@@ -207,8 +207,8 @@ def plot_word_hist(word_frequencies,category='nocat',cutoff=1):
     integral = integrate_freqs(word_frequencies,category=category)
     f=plt.figure(figsize=(20,5))
     ax = f.add_axes([0.0, 0.0, 1.0, 1.0])
-    ax.bar(x,y, align='center')
     ax.plot(integral)
+    ax.bar(x,y, align='center')
     ax.set_xticks(x)
  #   ax.set_aspect(1.0)
     ax.set_xticklabels(labels,rotation='vertical')
