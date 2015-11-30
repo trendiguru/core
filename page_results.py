@@ -4,7 +4,6 @@ __author__ = 'jeremy'
 # theirs
 
 import hashlib
-import copy
 import logging
 
 # ours
@@ -398,10 +397,16 @@ def set_lang(new_lang):
     global image_coll_name
     global prod_coll_name
 
-    lang = new_lang
-    lang_suffix = "_" + new_lang
-    image_coll_name = "images{0}".format(lang_suffix)
-    prod_coll_name = "products{0}".format(lang_suffix)
+    if not new_lang:
+        image_coll_name = "images"
+        prod_coll_name = "products"
+        return image_coll_name
+    else:
+        lang = new_lang
+        lang_suffix = "_" + new_lang
+        image_coll_name = "images{0}".format(lang_suffix)
+        prod_coll_name = "products{0}".format(lang_suffix)
+        return image_coll_name
 
 
 def is_image_relevant(image_url, collection_name=None):
@@ -522,7 +527,12 @@ def image_exists(image_url, collection_name=None):
 
 
 def merge_items(doc):
-    doc['items'] = [item for person in doc['people'] for item in person["items"]]
+    doc['items'] = []
+    for person in doc['people']:
+        for item in person['items']:
+            item['person_bb'] = person['person_bb']
+            doc['items'].append(item)
+    # doc['items'] = [item for person in doc['people'] for item in person["items"]]
     del doc["people"]
     return doc
 

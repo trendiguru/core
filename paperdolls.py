@@ -83,7 +83,7 @@ def after_pd_conclusions(mask, labels, face=None):
         ref_area = face[2] * face[3]
         y_split = face[1] + 3 * face[3]
     else:
-        ref_area = np.mean((mask.shape[0], mask.shape[1])) / 10
+        ref_area = (np.mean((mask.shape[0], mask.shape[1])) / 10) ** 2
         y_split = np.round(0.4 * mask.shape[0])
     final_mask = mask[:, :]
     mask_sizes = {"upper_cover": [], "upper_under": [], "lower_cover": [], "lower_under": [], "whole_body": []}
@@ -239,7 +239,11 @@ def start_process(page_url, image_url, lang=None):
             # There are faces
             idx = 0
             for face in relevant_faces:
-                person = {'face': face, 'person_id': str(bson.ObjectId()), 'person_idx': idx, 'items': []}
+                x, y, w, h = face
+                person_bb = [round(max(0, x - 1.5 * w)), y, round(min(image.shape[1], x + 2.5 * w)),
+                             min(image.shape[0], 8 * h)]
+                person = {'face': face, 'person_id': str(bson.ObjectId()), 'person_idx': idx, 'items': [],
+                          'person_bb': person_bb}
                 image_copy = person_isolation(image, face)
                 image_dict['people'].append(person)
                 paper_job = paperdoll_parse_enqueue.paperdoll_enqueue(image_copy, person['person_id'])
@@ -248,7 +252,7 @@ def start_process(page_url, image_url, lang=None):
                 idx += 1
         else:
             # no faces, only general positive human detection
-            person = {'face': [], 'person_id': str(bson.ObjectId()), 'person_idx': 0, 'items': []}
+            person = {'face': [], 'person_id': str(bson.ObjectId()), 'person_idx': 0, 'items': [], 'person_bb': None}
             image_dict['people'].append(person)
             paper_job = paperdoll_parse_enqueue.paperdoll_enqueue(image, person['person_id'])
             q1.enqueue(from_paperdoll_to_similar_results, person['person_id'], paper_job.id,

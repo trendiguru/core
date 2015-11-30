@@ -18,13 +18,15 @@ import random
 import string
 import time
 import os
-
+import pickle
 import numpy as np
 import cv2
-
+import json
 import matlab.engine
-from .. import Utils
+import sys
 
+from .. import Utils
+from .. import constants
 
 def get_parse_from_matlab(image_filename):
     with run_matlab_engine() as eng:
@@ -89,7 +91,6 @@ def get_parse_from_matlab_parallel(image_filename, matlab_engine, use_parfor=Fal
     label_dict = dict(zip(label_names, range(0, len(label_names))))
     return mask, label_dict, pose
 
-
 def get_parse_mask_parallel(matlab_engine, img_url_or_cv2_array, filename=None, use_parfor=False):
     start_time=time.time()
     img = Utils.get_cv2_img_array(img_url_or_cv2_array)
@@ -101,10 +102,60 @@ def get_parse_mask_parallel(matlab_engine, img_url_or_cv2_array, filename=None, 
         pose_np = np.array(pose, dtype=np.uint8)
         finish_time=time.time()
         print('elapsed time in get_parse_mask_parallel:'+str(finish_time-start_time))
+        print('attempting convert and save')
+        convert_and_save_results(mask_np, label_dict, pose_np, filename+'.jpg', img)
         return mask_np, label_dict, pose_np, filename
     else:
         raise ValueError("either image is empty or problem writing")
 
+def convert_and_save_results(mask, label_names, pose,filename,img):
+    fashionista_ordered_categories = constants.fashionista_categories
+    new_mask=np.ones(mask.shape)*255  # anything left with 255 wasn't dealt with
+    success = True #assume innocence until proven guilty
+    print('attempting convert and save')
+    for label in label_names: # need these in order
+        if label in fashionista_ordered_categories:
+            fashionista_index = fashionista_ordered_categories.index(label) + 1  # start w. 1=null,56=skin
+            pd_index = label_names[label]
+            print('old index '+str(pd_index)+' for '+str(label)+': gets new index:'+str(fashionista_index))
+            new_mask[mask==pd_index] = fashionista_index
+        else:
+            print('label '+str(label)+' not found in regular cats')
+            success=False
+    if 255 in new_mask:
+        print('didnt fully convert mask')
+        success = False
+    if success:
+        try:
+            dir = constants.pd_output_savedir
+            full_name = os.path.join(dir,filename)
+#            full_name = filename
+            bmp_name = full_name.strip('.jpg') + ('.bmp')
+            print('writing output img to '+str(full_name))
+            cv2.imwrite(full_name,img)
+            print('writing output bmp to '+str(bmp_name))
+            cv2.imwrite(bmp_name,new_mask)
+            pose_name = full_name.strip('.jpg')+'.pose'
+#            print('orig pose '+str(pose))
+            print('writing pose to '+str(pose_name))
+            with open(pose_name, "w+") as outfile:
+                print('succesful open, attempting to write:'+str(pose[0]))
+                poselist=pose[0].tolist()
+#                json.dump([1,2,3], outfile, indent=4)
+                json.dump(poselist,outfile, indent=4)
+
+#            afile = open(pose_name, 'wb')
+#            pickle.dump(pose, afile)
+#            afile.close()
+            #reload object from file
+#            file2 = open(pose_name, 'rb')
+#            read_pose = pickle.load(file2)
+#            file2.close()
+#            print('read pose '+str(read_pose))
+        except:
+            print('fail in convert_and_save_results dude, bummer')
+            print(str(sys.exc_info()[0]))
+            return
 
 def show_max(parsed_img, labels):
     maxpixval = np.ma.max

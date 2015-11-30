@@ -22,6 +22,7 @@ min_bb_to_image_area_ratio = 0.95  # if bb takes more than this fraction of imag
 
 parallel_matlab_queuename = 'pd'
 nonparallel_matlab_queuename = 'pd_nonparallel'
+caffe_path_in_container = '/opt/caffe'
 # db = pymongo.MongoClient(host=os.environ["MONGO_HOST"], port=int(os.environ["MONGO_PORT"])).mydb
 # redis_conn = Redis(host=os.environ["REDIS_HOST"], port=int(os.environ["REDIS_PORT"]))
 db = pymongo.MongoClient(host="mongodb1-instance-1").mydb
@@ -69,7 +70,7 @@ classifier_to_category_dict = {"dressClassifier.xml": ["dresses", "bridal-mother
                                                        "mens-big-and-tall-coats-and-jackets",
                                                        "mens-big-and-tall-blazers"]}
 
-db_relevant_items = ['women', 'womens-clothes', 'womens-suits', 'shorts', 'petites', 'blazers', 'tees-and-tshirts',
+db_relevant_items = ['women', 'womens-clothes', 'womens-suits', 'shorts', 'blazers', 'tees-and-tshirts',
                      'jeans', 'bootcut-jeans', 'classic-jeans', 'cropped-jeans', 'distressed-jeans',
                      'flare-jeans', 'relaxed-jeans', 'skinny-jeans', 'straight-leg-jeans', 'stretch-jeans',
                      'womens-tops', 'button-front-tops', 'camisole-tops', 'cashmere-tops', 'halter-tops',
@@ -82,8 +83,7 @@ db_relevant_items = ['women', 'womens-clothes', 'womens-suits', 'shorts', 'petit
                      'jackets', 'casual-jackets', 'leather-jackets', 'vests',
                      'coats', 'womens-outerwear', 'fur-and-shearling-coats', 'leather-and-suede-coats',
                      'puffer-coats', 'raincoats-and-trenchcoats', 'wool-coats',
-                     'leggings', 'womens-shoes', 'shoes-athletic', 'boots', 'evening-shoes', 'flats', 'pumps',
-                     'womens-sneakers', 'wedges', 'mules-and-clogs', 'sandles']
+                     'leggings']
 
 # paperdoll items' legends
 
@@ -198,6 +198,16 @@ flipkart_paperdoll_women = {'Tops': 'top', 'Top': 'top',
 paperdoll_relevant_categories = {'top', 'pants', 'shorts', 'jeans', 'jacket', 'blazer', 'shirt', 'skirt', 'blouse',
                                  'dress',
                                  'sweater', 't-shirt', 'cardigan', 'coat', 'suit', 'tights', 'sweatshirt', 'stockings'}
+
+# these are the fashionista db cats in order , e.g. the mask will have 1 for null (unknown) and 56 for skin
+fashionista_categories = ['null','tights','shorts','blazer','t-shirt','bag','shoes','coat','skirt','purse','boots',
+                          'blouse','jacket','bra','dress','pants','sweater','shirt','jeans','leggings','scarf','hat',
+                          'top','cardigan','accessories','vest','sunglasses','belt','socks','glasses','intimate',
+                          'stockings','necklace','cape','jumper','sweatshirt','suit','bracelet','heels','wedges','ring',
+                          'flats','tie','romper','sandals','earrings','gloves','sneakers','clogs','watch','pumps','wallet',
+                          'bodysuit','loafers','hair','skin']
+
+pd_output_savedir = '/home/jeremy/pd_output'
 # for web bounding box interface
 # this is for going to the previous item, highest numbered image
 max_image_val = 666
@@ -212,6 +222,7 @@ Reserve_cpus = 2  # number of cpus to not use when doing stuff in parallel
 # for gender id
 gender_ttl = 5  # 10 seconds ttl , answer should be nearly immediate
 paperdoll_ttl = 90  # seconds to wait for paperdoll result
+caffe_general_ttl = 30  # seconds to wait for paperdoll result
 
 # QC worker voting params
 
@@ -247,7 +258,7 @@ else:
 
 def jp_categories():
     jp = db.products_fp
-    cat_dict = constants.paperdoll_shopstyle_women;
+    cat_dict = paperdoll_shopstyle_women
     jp_dict = {}
     for key, value in cat_dict.iteritems():
         a = db.products_jp.find_one({'categories.id': value})
@@ -257,3 +268,65 @@ def jp_categories():
         else:
             jp_dict[key] = {}
     return jp_dict
+
+
+shopstyle_paperdoll_women = {'bootcut-jeans': 'jeans',
+                             'classic-jeans': 'jeans',
+                             'cropped-jeans': 'jeans',
+                             'distressed-jeans': 'jeans',
+                             'flare-jeans': 'jeans',
+                             'relaxed-jeans': 'jeans',
+                             'skinny-jeans': 'jeans',
+                             'straight-leg-jeans': 'jeans',
+                             'stretch-jeans': 'jeans',
+                             'jeans': 'jeans',
+                             'womens-suits': 'suit',
+                             'shorts': 'shorts',
+                             'blazers': 'blazer',
+                             'tees-and-tshirts': 't-shirt',
+                             'womens-tops': 'top',
+                             'button-front-tops': 'top',
+                             'camisole-tops': 'top',
+                             'cashmere-tops': 'top',
+                             'halter-tops': 'top',
+                             'longsleeve-tops': 'top',
+                             'shortsleeve-tops': 'shirt',
+                             'sleeveless-tops': 'top',
+                             'tank-tops': 'top',
+                             'tunic-tops': 'blouse',
+                             'polo-tops': 'top',
+                             'skirts': 'skirt',
+                             'mini-skirts': 'skirt',
+                             'mid-length-skirts': 'skirt',
+                             'long-skirts': 'skirt',
+                             'sweaters': 'sweater',
+                             'sweatshirts': 'sweatshirt',
+                             'cashmere-sweaters': 'sweater',
+                             'cardigan-sweaters': 'cardigan',
+                             'crewneck-sweaters': 'sweater',
+                             'turleneck-sweaters': 'sweater',
+                             'v-neck-sweaters': 'sweater',
+                             'womens-pants': 'pants',
+                             'wide-leg-pants': 'pants',
+                             'skinny-pants': 'pants',
+                             'dress-pants': 'pants',
+                             'cropped-pants': 'pants',
+                             'casual-pants': 'pants',
+                             'dresses': 'dress',
+                             'cocktail-dresses': 'dress',
+                             'day-dresses': 'dress',
+                             'evening-dresses': 'dress',
+                             'jackets': 'jacket',
+                             'neckless-jackets': 'jacket',
+                             'casual-jackets': 'jacket',
+                             'leather-jackets': 'jacket',
+                             'vests': 'cardigan',
+                             'coats': 'coat',
+                             'womens-outerwear': 'coat',
+                             'plus-size-outerwear': 'coat',
+                             'fur-and-shearling-coats': 'coat',
+                             'leather-and-suede-coats': 'coat',
+                             'puffer-coats': 'coat',
+                             'raincoats-and-trenchcoats': 'coat',
+                             'wool-coats': 'coat',
+                             'leggings': 'tights'}

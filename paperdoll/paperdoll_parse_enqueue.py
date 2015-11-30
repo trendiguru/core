@@ -53,15 +53,34 @@ def show_parse(filename=None, img_array = None):
     if filename is not None:
         img_array = cv2.imread(filename)
     if img_array is not None:
-        minVal, maxVal, minLoc, maxLoc = cv2.minMaxLoc(img_array)
-        maxVal = 31  # 31 categories in paperdoll
+#        minVal, maxVal, minLoc, maxLoc = cv2.minMaxLoc(img_array)
+        img_array = img_array-1
+        maxVal = 55  # 31 categories in paperdoll
         scaled = np.multiply(img_array, int(255 / maxVal))
-        dest = cv2.applyColorMap(scaled, cv2.COLORMAP_RAINBOW)
-        print('writing parse_img.jpg',img_array)
-        cv2.imwrite('parse_img.jpg',img_array)
+        dest = cv2.applyColorMap(scaled, cv2.COLORMAP_HOT)
+#        print('writing parse_img.jpg',img_array)
+#        cv2.imwrite('parse_img.jpg',img_array)
+
+        h,w = img_array.shape[:2]
+        print('h {0} w {1}'.format(h,w))
+#        new_image = np.zeros([h,2*w])
+        cv2.imshow("orig", img_array)
         cv2.imshow("dest", dest)
         cv2.waitKey(0)
 
+def colorbars(max=55):
+    bar_height = 10
+    bar_width = 20
+    new_img = np.ones([max*bar_height,bar_width],np.uint8)
+    for i in range(0,max):
+        new_img[i*bar_height:(i+1)*bar_height,:] = int(i*255.0/max)
+    #print(new_img)
+    cv2.imwrite('testvarout.jpg',new_img)
+    print('writing file')
+ #   cv2.imshow('colorbars',new_img)
+ #   cv2.waitKey(0)
+
+    show_parse(img_array=new_img+1)
 
 def show_max(parsed_img, labels):
     maxpixval = np.ma.max
@@ -119,3 +138,22 @@ if __name__ == "__main__":
 
         #        show_max(img, labels)
 #        show_parse(img_array=img)
+
+#box colors from Yang2011 pose estimato code(this is what pd uses)
+#yellow magenta cyan red green blue white black
+
+#{'g','g','y','m','m','m','m','y','y','y','r','r','r','r','y','c','c','c','c','y','y','y','b','b','b','b'};
+#from images here http://www.ics.uci.edu/~dramanan/software/pose/ it seems to correspond to :
+#head, head
+#chest
+#left shoulder, upper arm, lower arm, hand (mayb backwards) (left for viewer, actually right)
+#chest, chest, chest
+#left hip, knee, ankle, foot (maybe backwards)
+#chest
+#right shoulder, upper arm, lower arm, hand (maybe backwards)
+#chest chest chest
+#right hip, knee, ankle, foot (maybe backwards)
+#26 boxes * 4 coords/box=104 coords
+
+#right hip, knee, ankle, foot
+#
