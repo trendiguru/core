@@ -128,7 +128,7 @@ def collect_description(search_string='pants',category_id='dresses'):
     with open(word_frequencies_filename, "w") as outfile:
         print('succesful open, attempting to write word freqs to:'+word_frequencies_filename)
         json.dump(sorted_freqs,outfile, indent=4)
-    plot_word_hist(sorted_freqs,category=category_id,cutoff=6000)
+    plot_word_hist(sorted_freqs,category=category_id,cutoff=5000)
 #    integrate_freqs(sorted_freqs,category=category_id)
     return sorted_freqs
 
@@ -212,7 +212,7 @@ def plot_word_hist(word_frequencies,category='nocat',cutoff=1):
     print('ylenth {0} intlengh {1}'.format(len(word_frequencies),len(integral)))
     print('trunc:'+str(truncated_integral))
     plt.semilogy()
-    plt.title('freqs and cumulative count for '+category)
+    plt.title('freqs and cumulative count for '+category+' ,cutoff='+str(cutoff))
     plt.grid(True)
     ax.plot(x,truncated_integral,'b.-')
 #    ax.plot(x, normalized,'b.-')
