@@ -96,6 +96,10 @@ def collect_description(search_string='pants',category_id='dresses'):
                 words = s.encode('utf-8')
                 # print(unicode(s.strip(codecs.BOM_UTF8), 'utf-8'))
                 # print(unicode(s.strip(codecs.BOM_UTF8), 'utf-8'))
+        words = words.lower()  #make lowercase
+        words = words.replace('.','')  #lose periods
+        words = words.replace('<li>','') #lose those thingies
+        words = words.replace('</li>','') #these too
         individual_words = words.split()
         for word in individual_words:
             if word in word_frequencies:
@@ -122,7 +126,14 @@ def collect_description(search_string='pants',category_id='dresses'):
     return sorted_freqs
 
 def purge_common(unsorted):
-    purge_list=['and','a','with','the','in','no','to','at','from','<ul>','</ul>','this','is','for','of','by','on','an','that','a','A','this']
+    purge_list=['and','a','with','the','in','no','to','at','from','<ul>',
+                '</ul>','this','is','for','of','by','on','an','that','a','this',
+                'it','you','or','may','true']
+    purge_list = [[word,word+'.'] for word in purge_list]
+    purge_list = [elem for l in purge_list for elem in l]  #flatten list comp
+    purge_list = [[word,word.title()] for word in purge_list]
+    purge_list = [elem for l in purge_list for elem in l]  #flatten list comp
+
     purged = [(entry[0],entry[1]) for entry in unsorted if not entry[0] in purge_list]
     return purged
 
