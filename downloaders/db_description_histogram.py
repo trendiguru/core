@@ -83,7 +83,7 @@ def collect_description(search_string='pants',category_id='dresses'):
             except UnicodeEncodeError:
                 print('unicode encode error in cats')
                 s = doc['categories']
-                print(s.encode('utf-8'))
+               # print(s.encode('utf-8'))
                 # print(unicode(s.strip(codecs.BOM_UTF8), 'utf-8'))
         if 'description' in doc:
             try:
@@ -162,7 +162,7 @@ def integrate_freqs(word_frequencies,category='nocat'):
 
 
 def plot_word_hist(word_frequencies,category='nocat',cutoff=1):
-#    print('freqs:' +str(word_frequencies))
+    print('freqs:' +str(word_frequencies))
     labels = [entry[0] for entry in word_frequencies]
     y = [entry[1] for entry in word_frequencies if entry[1]>cutoff]
     x = xrange(len(y))
