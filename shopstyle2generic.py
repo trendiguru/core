@@ -17,6 +17,8 @@ def convert2generic(prod):
         cat.remove("women")
     if "womens-clothes" in cat:
         cat.remove("womens-clothes")
+    if len(cat) == 0:
+        return None
     tmp_prod["categories"] = constants.shopstyle_paperdoll_women[cat[0]]
     tmp_prod["clickUrl"] = prod["clickUrl"]
     tmp_prod["images"] = {'Original': prod['image']['sizes']['Original']['url'],
@@ -54,7 +56,9 @@ def swipe_all(col):
         #     continue
 
         tmp_prod = convert2generic(prod)
-
+        if tmp_prod is None:
+            print "bad category"
+            continue
         tmp_prod["fingerprint"] = prod["fingerprint"]
         # db[col].delete_one({"id": id})
         db[col1].insert_one(tmp_prod)
