@@ -204,7 +204,7 @@ def plot_word_hist(word_frequencies,category='nocat',cutoff=1):
 #    plt.tight_layout()
 
 #    f = plt.figure()
-    integral = integrate_freqs(sorted_freqs,category=category_id)
+    integral = integrate_freqs(word_frequencies,category=category_id)
     f=plt.figure(figsize=(20,5))
     ax = f.add_axes([0.0, 0.0, 1.0, 1.0])
     ax.bar(x, y, align='center')
