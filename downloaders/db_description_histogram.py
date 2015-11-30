@@ -211,7 +211,7 @@ def plot_word_hist(word_frequencies,category='nocat',cutoff=1):
     x_int = xrange(1,len(integral)+1)
     print('ylenth {0} intlengh {1}'.format(len(word_frequencies),len(integral)))
     print('trunc:'+str(truncated_integral))
-    plt.twiny()
+    plt.semilogy()
     ax.plot(x,truncated_integral)
     ax.bar(x,y)
     ax.set_xticks(x)
