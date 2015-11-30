@@ -386,7 +386,6 @@ if __name__ == '__main__':
     collect_description(category_id='sweaters',cutoff=2000)
     collect_description(category_id='womens-pants',cutoff=2000)
     collect_description(category_id='sweatshirts',cutoff=500)
-    collect_description(category_id='maternity-clothes',cutoff=50)
     collect_description(category_id='dresses',cutoff=5000)
     collect_description(category_id='womens-intimates',cutoff=30)
     collect_description(category_id='plus-sizes',cutoff=200)
