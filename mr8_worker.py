@@ -30,7 +30,7 @@ def add_new_field(doc, x):
         return
     fc = faces[1]
     print fc
-    if fc is not list:
+    if len(fc) == 0:
         return
     x0, y0, w, h = fc[0]
 
@@ -48,11 +48,11 @@ def add_new_field(doc, x):
     ms_response = []
     for idx, val in enumerate(response):
         ms_response.append(fp_yuli_MR8.mean_std_pooling(val, 5))
-    print (ms_response)
-    print ("shape: " + ms_response[0].shape)
+    # print (ms_response)
+    # print ("shape: " + str(ms_response[0].shape))
 
     try:
-        doc["mr8"] = ms_response
+        doc["mr8"] = list(ms_response)
         db.mr8_testing.insert(doc)
     except Exception as ex:
         logging.warning("Exception caught while inserting element #" + str(x) + " to the collection".format(ex))
