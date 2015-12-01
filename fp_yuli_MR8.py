@@ -84,7 +84,7 @@ def yuli_fp(trimmed_mask, feature_size):
     # centy = trimmed_mask.shape[0]/2 ; centx = trimmed_mask.shape[1]/2
     # img = cv2.rectangle(trimmed_mask ,(centx-feature_size, centy-feature_size),(centx+feature_size, centy+feature_size),(255, 0, 0))
     feature = trimmed_mask  # [ centy-feature_size:centy+feature_size, centx-feature_size:centx+feature_size]
-    print feature.shape
+    # print feature.shape
 
     # returns n=3 texture features
 
