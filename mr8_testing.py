@@ -28,7 +28,8 @@ def create_new_collection():
     collection = db.new_products
 
     category_stack = collection.find({"categories": "dress"})
-    stack_length = 50000  # category_stack.count()
+    stack_length = category_stack.count()
+    print(stack_length)
     db.mr8_testing.remove()
     # Tell RQ what Redis connection to use
 
@@ -40,11 +41,14 @@ def create_new_collection():
         job = q.enqueue(add_new_field, doc, x)
         jobs.append(job)
 
-    current = db.fp_testing.count()
-    while current < (stack_length - 1000):
-        time.sleep(10)
-        current = db.mr8_testing.count()
-        print current
+    current = db.mr8_testing.count()
+    time.sleep(1)
+    future = db.mr8_testing.count()
+    while current < future:
+        time.sleep(30)
+        current = future
+        future = db.mr8_testing.count()
+        print future
 
 
 if __name__ == "__main__":
