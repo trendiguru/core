@@ -1,13 +1,10 @@
 __author__ = 'yuli'
 
 import pickle
-
 import os
 
 import cv2
 import numpy as np
-
-import matplotlib.pyplot as plt
 
 import Utils
 import background_removal
@@ -79,7 +76,7 @@ def trim_mask(small_image, mask):
 
 
 def yuli_fp(trimmed_mask, feature_size):
-    from itertools import product, chain
+    from itertools import chain
     import MR8filters
 
     # sample_texture (trimmed_mask , feature_size= min_dim/10 , n= 1 ):
@@ -110,38 +107,38 @@ def yuli_fp(trimmed_mask, feature_size):
     response = MR8filters.apply_filterbank(feature, filterbank)
 
 
-    # plot filters
-    n_sigmas = 3
-    n_orientations = 6
-    # 2 is for bar / edge, + 1 for rot
-    fig, ax = plt.subplots(n_sigmas * 2 + 1, n_orientations)
-    for k, filters in enumerate([bar, edge]):
-        for i, j in product(xrange(n_sigmas), xrange(n_orientations)):
-            row = i + k * n_sigmas
-            ax[row, j].imshow(filters[i, j, :, :], cmap=plt.cm.gray)
-            ax[row, j].set_xticks(())
-            ax[row, j].set_yticks(())
-    ax[-1, 0].imshow(rot[0, 0], cmap=plt.cm.gray)
-    ax[-1, 0].set_xticks(())
-    ax[-1, 0].set_yticks(())
-    ax[-1, 1].imshow(rot[1, 0], cmap=plt.cm.gray)
-    ax[-1, 1].set_xticks(())
-    ax[-1, 1].set_yticks(())
-    for i in xrange(2, n_orientations):
-        ax[-1, i].set_visible(False)
+    # # plot filters
+    # n_sigmas = 3
+    # n_orientations = 6
+    # # 2 is for bar / edge, + 1 for rot
+    # fig, ax = plt.subplots(n_sigmas * 2 + 1, n_orientations)
+    # for k, filters in enumerate([bar, edge]):
+    #     for i, j in product(xrange(n_sigmas), xrange(n_orientations)):
+    #         row = i + k * n_sigmas
+    #         # ax[row, j].imshow(filters[i, j, :, :], cmap=plt.cm.gray)
+    #         ax[row, j].set_xticks(())
+    #         ax[row, j].set_yticks(())
+    # ax[-1, 0].imshow(rot[0, 0], cmap=plt.cm.gray)
+    # ax[-1, 0].set_xticks(())
+    # ax[-1, 0].set_yticks(())
+    # ax[-1, 1].imshow(rot[1, 0], cmap=plt.cm.gray)
+    # ax[-1, 1].set_xticks(())
+    # ax[-1, 1].set_yticks(())
+    # for i in xrange(2, n_orientations):
+    #     ax[-1, i].set_visible(False)
 
 
         # plot responses
-    fig2, ax2 = plt.subplots(3, 3)
-    for axes, res in zip(ax2.ravel(), response):
-        axes.imshow(res, cmap=plt.cm.gray)
-        axes.set_xticks(())
-        axes.set_yticks(())
-    plt.subplot(3, 3, 9)
-    plt.imshow(feature, cmap=plt.cm.gray)
-    # plt.savefig(path+'MR8'+name)
-    # plt.format_coord = format_coord
-    ax2[-1, -1].set_visible(False)
+    # fig2, ax2 = plt.subplots(3, 3)
+    # for axes, res in zip(ax2.ravel(), response):
+    #     axes.imshow(res, cmap=plt.cm.gray)
+    #     axes.set_xticks(())
+    #     axes.set_yticks(())
+    # plt.subplot(3, 3, 9)
+    # plt.imshow(feature, cmap=plt.cm.gray)
+    # # plt.savefig(path+'MR8'+name)
+    # # plt.format_coord = format_coord
+    # ax2[-1, -1].set_visible(False)
     # plt.show()
 
     return response
