@@ -927,7 +927,10 @@ def reconstruct_db_images(images_collection):
     docs_cursor = coll.find()
     print('starting reconstruction on {0} documents'.format(docs_cursor.count()))
     docs_cursor.rewind()
-    for doc in coll.find():
+    i = 0
+    for doc in coll.find({'people.person_id': {'$exists': 0}}):
+        if i % 10 == 0:
+            print("performing the {0}th doc".format(i))
         try:
             image = Utils.get_cv2_img_array(doc['image_urls'][0])
             for person in doc['people']:
@@ -939,6 +942,7 @@ def reconstruct_db_images(images_collection):
                     person_bb = None
                 coll.update_one({'people': {'$elemMatch': {'person_id': person['person_id']}}},
                                 {'$set': {'people.$.person_bb': person_bb}}, upsert=True)
+                i += 1
         except Exception as e:
             print(str(e))
 
