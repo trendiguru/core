@@ -84,7 +84,6 @@ RUN apt-get update
 RUN apt-get install cuda
 
 
-1
 
 ###################
 #CAFFE
