@@ -30,7 +30,7 @@ def add_new_field(doc, x):
         return
     fc = faces[1]
     print fc
-    if fc is not list:
+    if len(fc) == 0:
         return
     x0, y0, w, h = fc[0]
 
