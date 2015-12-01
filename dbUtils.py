@@ -936,8 +936,11 @@ def reconstruct_db_images(images_collection):
                              min(image.shape[0], 8 * h)]
             else:
                 person_bb = None
-            coll.update_one({'people.$.person_id': person['person_id']}, {'$set': {'people.$.person_bb': person_bb}},
-                            upsert=True)
+            try:
+                coll.update_one({'people.$.person_id': person['person_id']}, {'$set': {'people.$.person_bb': person_bb}}
+                                , upsert=True)
+            except Exception as e:
+                print(str(e))
 
 
             # description: classic neckline , round collar, round neck, crew neck, square neck, v-neck, clASsic neckline,round collar,crewneck,crew neck, scoopneck,square neck, bow collar, ribbed round neck,rollneck ,slash neck
