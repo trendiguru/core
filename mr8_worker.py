@@ -25,9 +25,10 @@ def add_new_field(doc, x):
         return
     gray_img = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
     faces = background_removal.image_is_relevant(image)
-    if faces[0] is False:
+    if faces[0] is False or faces[1] is not list:
         return
     fc = faces[1]
+    print fc
     if len(fc[0]) != 4:
         return
     x0, y0, w, h = fc[0]
