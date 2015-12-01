@@ -56,5 +56,5 @@ def add_new_field(doc, x):
         db.mr8_testing.insert(doc)
     except Exception as ex:
         logging.warning("Exception caught while inserting element #" + str(x) + " to the collection".format(ex))
-
+        raw_input('boom!')
     return x
