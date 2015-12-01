@@ -942,6 +942,7 @@ def reconstruct_db_images(images_collection):
                     person_bb = None
                 coll.update_one({'people': {'$elemMatch': {'person_id': person['person_id']}}},
                                 {'$set': {'people.$.person_bb': person_bb}}, upsert=True)
+                i += 1
         except Exception as e:
             print(str(e))
 
