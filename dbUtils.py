@@ -922,7 +922,25 @@ def suits_for_kyle():
         item_image = Utils.get_cv2_img_array(item['image']['sizes']['Best']['url'])
 
 
-# description: classic neckline , round collar, round neck, crew neck, square neck, v-neck, clASsic neckline,round collar,crewneck,crew neck, scoopneck,square neck, bow collar, ribbed round neck,rollneck ,slash neck
+def reconstruct_db_images(images_collection):
+    coll = db[images_collection]
+    docs_cursor = coll.find()
+    print('starting reconstruction on {0} documents'.format(docs_cursor.count()))
+    docs_cursor.rewind()
+    for doc in coll.find():
+        image = Utils.get_cv2_img_array(doc['image_urls'][0])
+        for person in doc['people']:
+            if len(person['face']):
+                x, y, w, h = person['face']
+                person_bb = [round(max(0, x - 1.5 * w)), y, round(min(image.shape[1], x + 2.5 * w)),
+                             min(image.shape[0], 8 * h)]
+            else:
+                person_bb = None
+            coll.update_one({'people.$.person_id': person['person_id']}, {'$set': {'people.$.person_bb': person_bb}},
+                            upsert=True)
+
+
+            # description: classic neckline , round collar, round neck, crew neck, square neck, v-neck, clASsic neckline,round collar,crewneck,crew neck, scoopneck,square neck, bow collar, ribbed round neck,rollneck ,slash neck
 # cats:[{u'shortName': u'V-Necks', u'localizedId': u'v-neck-sweaters', u'id': u'v-neck-sweaters', u'name': u'V-Neck Sweaters'}]
 # cats:[{u'shortName': u'Turtlenecks', u'localizedId': u'turleneck-sweaters', u'id': u'turleneck-sweaters', u'name': u'Turtlenecks'}]
 # cats:[{u'shortName': u'Crewnecks & Scoopnecks', u'localizedId': u'crewneck-sweaters', u'id': u'crewneck-sweaters', u'name': u'Crewnecks & Scoopnecks'}]
