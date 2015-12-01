@@ -1,63 +1,42 @@
 FROM ubuntu:14.04
 
 #increase the available sources for installs
-#RUN sed -i 's/# \(.*multiverse$\)/\1/g' /etc/apt/sources.list
+RUN sed -i 's/# \(.*multiverse$\)/\1/g' /etc/apt/sources.list
 RUN apt-get update
-RUN apt-get -y upgrade
-RUN apt-key update
+#RUN apt-get -y upgrade
+#RUN apt-key update && apt-get update
 
-RUN apt-get install -y wget
-RUN apt-get install -y screen
+RUN apt-get install -y python wget
+#RUN apt-get install -y screen
 #cmap is  for debugging port forwarding
-RUN apt-get install -y nmap
-RUN apt-get install -y cmake
+#RUN apt-get install -y nmap
+RUN apt-get install -y cmake   #have below
 RUN apt-get install -y unzip
 
 #PYTHON NUMPY
+#RUN add-apt-repository ppa:fkrull/deadsnakes
+RUN apt-get update
+#RUN apt-get install -y python2.7
+
 RUN wget https://bootstrap.pypa.io/get-pip.py
 RUN python get-pip.py
-RUN pip install pymongo
+#RUN pip install pymongo
 RUN pip install ipython
 RUN apt-get install -y python-dev
 #RUN apt-get install -y python-numpy
 #RUN easy_install numpy
 RUN pip install numpy
-RUN pip install python-dateutil
+#RUN pip install python-dateutil
 RUN pip install pyparsing
 RUN pip install pytz
 #RUN pip install matplotlib
 
 
 #these scripts are to check port forwarding with a single command
-RUN  echo 'nmap -p 27017 localhost' > portmongo.sh
-RUN chmod o+x portmongo.sh
-RUN  echo 'nmap -p 6379 localhost' > portredis.sh
-RUN chmod o+x portredis.sh
-
-
-#####################
-# redis and rq
-#####################
-#RUN pip install redis
-RUN pip install rq
-
-#####################
-# ssh port forwarding
-#####################
-#turn off asking 'are you sure' on first ssh connect
-#this is supposed to be taken care of by the keyscan but isn't , perhaps because this
-# is not our own repo running on a port like in the example
-#ADD ssh/ssh_config /etc/ssh/ssh_config
-
-
-#mongobd port forward
-#CMD ssh -i /.ssh/first_aws.pem -L 27017:localhost:27017 ubuntu@extremeli.trendi.guru && /bin/bash
-
-#these scripts are to check port forwarding with a single command
-RUN  echo 'nmap -p 27017 localhost' > portmongo.sh
-RUN chmod o+x portmongo.sh
-RUN  echo 'nmap -p 6379 localhost' > portredis.sh
-RUN chmod o+x portredis.sh
+#RUN  echo 'nmap -p 27017 localhost' > portmongo.sh
+#RUN chmod o+x portmongo.sh
+#RUN  echo 'nmap -p 6379 localhost' > portredis.sh
+#RUN chmod o+x portredis.sh
 
 
 
@@ -84,7 +63,7 @@ RUN sudo apt-get install -y \
  #libgflags.a, libgflags_nothreads.a,
 
 
-#RUN sudo apt-get install -y libgflags-dev
+RUN sudo apt-get install -y libgflags-dev
 
 
 ENV PYTHONPATH /opt/caffe/python
@@ -92,6 +71,9 @@ ENV PYTHONPATH /opt/caffe/python
 ENV PATH $PATH:/opt/caffe/.build_release/tools
 
 # Get dependencies
+
+RUN apt-get install -y python-yaml
+
 RUN apt-get update && apt-get install -y \
   bc \
   cmake \
@@ -107,6 +89,8 @@ RUN apt-get update && apt-get install -y \
   libsnappy-dev \
   libopencv-dev \
   libboost-all-dev \
+#https://github.com/boostorg/build/releases/download/2014.10/boost-build-2014-10.tar.bz2
+#sudo apt-get install --no-install-recommends libboost-all-dev   #maybe this instead
   libhdf5-serial-dev \
   liblmdb-dev \
   libjpeg62 \
@@ -126,17 +110,17 @@ RUN update-alternatives --install /usr/bin/cc cc /usr/bin/gcc-4.6 30 && \
   update-alternatives --install /usr/bin/g++ g++ /usr/bin/g++-4.6 30
 
 
-
+RUN  export CXXFLAGS="-fPIC"
 
 
 # Glog
 WORKDIR /opt
 RUN wget https://google-glog.googlecode.com/files/glog-0.3.3.tar.gz
-RUN   tar zxvf glog-0.3.3.tar.gz
+RUN tar zxvf glog-0.3.3.tar.gz
 WORKDIR /opt/glog-0.3.3
 RUN  ./configure
-RUN make
-RUN make install
+RUN  make
+RUN  make install
 
 # Workaround for error loading libglog:
 #   error while loading shared libraries: libglog.so.0: cannot open shared object file
@@ -150,14 +134,27 @@ RUN ldconfig
 WORKDIR /opt
 RUN  wget https://github.com/schuhschuh/gflags/archive/master.zip
 RUN  unzip master.zip
-WORKDIR /opt/gflags-master
+WORKDIR gflags-master
 RUN  mkdir build
-WORKDIR /opt/gflags-master/build
+WORKDIR  /opt/gflags-master/build
+#this export is not enough to force -fPIC
 RUN  export CXXFLAGS="-fPIC"
+
 RUN  cmake ..
+#this seems to suffice to force -fPIC (needed since otherwise the .a generated is no good for caffe)
+RUN  sed -i 's/CMAKE_CXX_FLAGS:STRING=/CMAKE_CXX_FLAGS:STRING=-fPIC/' CMakeCache.txt
+RUN  sed -i 's/CXX :=/CXX ?=/' Makefile
 RUN  make VERBOSE=1
 RUN  make
 RUN  make install
+
+#LMDB
+WORKDIR /opt
+RUN git clone https://github.com/LMDB/lmdb
+WORKDIR /opt/lmdb/libraries/liblmdb
+RUN make
+RUN make install
+
 
 # Clone the Caffe repo
 WORKDIR /opt
@@ -165,11 +162,20 @@ RUN git clone https://github.com/BVLC/caffe.git
 
 # Build Caffe core
 WORKDIR /opt/caffe
-RUN  cp Makefile.config.example Makefile.config
-RUN  echo "CPU_ONLY := 1" >> Makefile.config
-RUN  echo "CXX := /usr/bin/g++-4.6" >> Makefile.config
-RUN  sed -i 's/CXX :=/CXX ?=/' Makefile
-RUN  make all
+
+RUN cp Makefile.config.example Makefile.config
+RUN  sed -i 's/# CPU_ONLY := 1/CPU_ONLY := 1/' Makefile.config
+RUN echo "CPU_ONLY := 1" >> Makefile.config
+RUN echo "CXX := /usr/bin/g++-4.6" >> Makefile.config
+RUN sed -i 's/CXX :=/CXX ?=/' Makefile
+RUN sed -i 's/LIBRARIES += opencv_core opencv_highgui opencv_imgproc/LIBRARIES += opencv_core opencv_highgui opencv_imgproc opencv_imgcodecs/' Makefile
+RUN mkdir build
+WORKDIR build
+RUN cmake ..
+#RUN ./configure
+RUN make all
+RUN make test
+RUN make runtest
 
 # Add ld-so.conf so it can find libcaffe.so
 ADD caffe-ld-so.conf /etc/ld.so.conf.d/
@@ -179,8 +185,9 @@ RUN ldconfig
 
 # Install python deps
 WORKDIR /opt/caffe
-RUN  (pip install -r python/requirements.txt; easy_install numpy; pip install -r python/requirements.txt) && \
+RUN (pip install -r python/requirements.txt; easy_install numpy; pip install -r python/requirements.txt) && \
   easy_install pillow
+
 
 #apparently not necessary after numpy install above
 # Numpy include path hack - github.com/BVLC/caffe/wiki/Setting-up-Caffe-on-Ubuntu-14.04
@@ -188,23 +195,22 @@ RUN  (pip install -r python/requirements.txt; easy_install numpy; pip install -r
 #  ln -s /usr/local/lib/python2.7/dist-packages/$NUMPY_EGG/numpy/core/include/numpy /usr/include/python2.7/numpy
 
 # Build Caffe python bindings
-WORKDIR /opt/caffe && make pycaffe
+#WORKDIR /opt/caffe
+#RUN make pycaffe
 
 
-# Make + run tests
-WORKDIR /opt/caffe
-RUN make test && make runtest
 
 ###### get alexnet 0
 #make all test#
 #make runtest
 #alexnet - get model
 
-WORKDIR /opt/caffe
+#WORKDIR /opt/caffe
 
 RUN ./scripts/download_model_binary.py ./models/bvlc_reference_caffenet
 RUN ./data/ilsvrc12/get_ilsvrc_aux.sh
 
+#the classification.bin isnt there for some reason
 RUN ./build/examples/cpp_classification/classification.bin ./models/bvlc_reference_caffenet/deploy.prototxt ./models/bvlc_reference_caffenet/bvlc_reference_caffenet.caffemodel ./data/ilsvrc12/imagenet_mean.binaryproto ./data/ilsvrc12/synset_words.txt ./examples/images/cat.jpg
 
 
@@ -252,5 +258,12 @@ RUN git clone --verbose git@bitbucket.org:trendiGuru/core.git
 CMD ssh -i /.ssh/first_aws.pem -L 27017:localhost:27017 ubuntu@extremeli.trendi.guru && /bin/bash
 
 
-RUN rqworker -u redis://redis1-redis-1-vm:6379 caffe_general &
+#####################
+# redis and rq
+#####################
+#RUN pip install redis
+RUN pip install rq
+
+
+#RUN rqworker -u redis://redis1-redis-1-vm:6379 caffe_general &
 #RUN rqworker gender &
