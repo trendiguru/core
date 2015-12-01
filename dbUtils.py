@@ -928,19 +928,19 @@ def reconstruct_db_images(images_collection):
     print('starting reconstruction on {0} documents'.format(docs_cursor.count()))
     docs_cursor.rewind()
     for doc in coll.find():
-        image = Utils.get_cv2_img_array(doc['image_urls'][0])
-        for person in doc['people']:
-            if len(person['face']):
-                x, y, w, h = person['face']
-                person_bb = [int(round(max(0, x - 1.5 * w))), y, int(round(min(image.shape[1], x + 2.5 * w))),
-                             min(image.shape[0], 8 * h)]
-            else:
-                person_bb = None
-            try:
-                coll.update_one({'people.$.person_id': person['person_id']}, {'$set': {'people.$.person_bb': person_bb}}
-                                , upsert=True)
-            except Exception as e:
-                print(str(e))
+        try:
+            image = Utils.get_cv2_img_array(doc['image_urls'][0])
+            for person in doc['people']:
+                if len(person['face']):
+                    x, y, w, h = person['face']
+                    person_bb = [int(round(max(0, x - 1.5 * w))), y, int(round(min(image.shape[1], x + 2.5 * w))),
+                                 min(image.shape[0], 8 * h)]
+                else:
+                    person_bb = None
+                coll.update_one({'people': {'$elemMatch': {'person_id': person['person_id']}}},
+                                {'$set': {'people.$.person_bb': person_bb}}, upsert=True)
+        except Exception as e:
+            print(str(e))
 
 
             # description: classic neckline , round collar, round neck, crew neck, square neck, v-neck, clASsic neckline,round collar,crewneck,crew neck, scoopneck,square neck, bow collar, ribbed round neck,rollneck ,slash neck
