@@ -62,7 +62,7 @@ def get_db_fields(collection='products'):
         raw_input('enter key for next doc')
     return {"success": 1}
 
-def collect_description(search_string='pants',category_id='dresses'):
+def collect_description(search_string='pants',category_id='dresses',cutoff=5000):
     cursor = find_products_by_category(category_id)
     if cursor is None:  # make sure training collection exists
         print('couldnt get cursor ' + str(collection))
@@ -70,7 +70,8 @@ def collect_description(search_string='pants',category_id='dresses'):
     doc = next(cursor, None)
     i = 0
     count = cursor.count()
-    max_items = min(10000000,cursor.count())
+    max_items = 10000000
+    max_items = min(max_items,cursor.count())
     check_freq = max(1,max_items/50)
     print(check_freq)
     word_frequencies={}
@@ -83,7 +84,7 @@ def collect_description(search_string='pants',category_id='dresses'):
             except UnicodeEncodeError:
                 print('unicode encode error in cats')
                 s = doc['categories']
-                print(s.encode('utf-8'))
+               # print(s.encode('utf-8'))
                 # print(unicode(s.strip(codecs.BOM_UTF8), 'utf-8'))
         if 'description' in doc:
             try:
@@ -104,6 +105,7 @@ def collect_description(search_string='pants',category_id='dresses'):
         words = words.replace('-','') #these too
         words = words.replace('/','') #these too
         words = words.replace(':','') #these too
+        words = words.replace(';','') #these too
         individual_words = words.split()
         for word in individual_words:
             if word in word_frequencies:
@@ -122,12 +124,14 @@ def collect_description(search_string='pants',category_id='dresses'):
     sorted_freqs = purge_common(sorted_freqs)
 #    print('sorted:')
 #    print(sorted_freqs)
-    word_frequencies_filename='word_frequencies.txt'
+    word_frequencies_filename='word_frequencies_'+category_id+'.txt'
     with open(word_frequencies_filename, "w") as outfile:
         print('succesful open, attempting to write word freqs to:'+word_frequencies_filename)
         json.dump(sorted_freqs,outfile, indent=4)
-    plot_word_hist(sorted_freqs,category=category_id,cutoff=6000)
-    return sorted_freqs
+    plot_word_hist(sorted_freqs,category=category_id,cutoff=cutoff,item_count=count)
+#    integrate_freqs(sorted_freqs,category=category_id)
+#supress giant output
+#    return sorted_freqs
 
 def purge_common(unsorted):
     purge_list=['and','a','with','the','in','no','to','at','from','<ul>',
@@ -142,13 +146,44 @@ def purge_common(unsorted):
     purged = [(entry[0],entry[1]) for entry in unsorted if not entry[0] in purge_list]
     return purged
 
-def plot_word_hist(word_frequencies,category='nocat',cutoff=1):
-    print('freqs:' +str(word_frequencies))
+def integrate_freqs(word_frequencies,category='nocat'):
+    integral = []
+    normalized = []
+    val = 0
+    for pair in word_frequencies:
+#        print('pair {0} {1} {2}'.format(pair,pair[0],pair[1]))
+        n=pair[1]
+        val = val + n
+        integral.append(val)
+    #f=plt.figure(figsize=(20,5))
+    for i in range(0,len(integral)):
+        normalized.append(integral[i]*1.0/integral[-1])
+    x=range(1,len(integral)+1)
+    print('total # words='+str(val))
+    f=plt.figure(figsize=(20,5))
+    ax = f.add_axes([0.0, 0.0, 1.0, 1.0])
+    ax.plot(x, normalized,'b.-')
+#    ax.set_xticks(x)
+ #   ax.set_aspect(1.0)
+#    ax.set_xticklabels(labels,rotation='vertical')
+
+#    plt.tight_layout()
+ #   plt.savefig(category+'.jpg',bbox_inches='tight')
+
+
+ #   plt.plot(x,integral)
+    plt.title('cumulative percent for '+category)
+    plt.grid(True)
+    plt.savefig(category+'_cumulative.jpg',bbox_inches='tight')
+    return(integral)
+
+def plot_word_hist(word_frequencies,category='nocat',cutoff=1,item_count=None):
+#    print('freqs:' +str(word_frequencies))
     labels = [entry[0] for entry in word_frequencies]
     y = [entry[1] for entry in word_frequencies if entry[1]>cutoff]
     x = xrange(len(y))
     x_a = np.arange(len(y))
-    print('x {0} y {1} labels {2}'.format(x,y,labels))
+#    print('x {0} y {1} labels {2}'.format(x,y,labels))
 #    f = figure(1)
 
 #    fig, ax = plt.subplots()
@@ -170,10 +205,26 @@ def plot_word_hist(word_frequencies,category='nocat',cutoff=1):
 #    plt.tight_layout()
 
 #    f = plt.figure()
+    integral = integrate_freqs(word_frequencies,category=category)
+    truncated_integral=integral[0:len(y)]
     f=plt.figure(figsize=(20,5))
     ax = f.add_axes([0.0, 0.0, 1.0, 1.0])
-    ax.bar(x, y, align='center')
+    x_int = xrange(1,len(integral)+1)
+#    print('ylength {0} intlengh {1}'.format(len(word_frequencies),len(integral)))
+#    print('trunc:'+str(truncated_integral))
+    plt.semilogy()
+    percent = int(100*(float(truncated_integral[-1])/integral[-1]))
+    if item_count is not None:
+        plt.title('freqs and cumulative count for '+category+' ,cutoff='+str(cutoff)+'\n'+' for '+str(percent) + ' % of '+str(integral[-1])+' total words, '+str(item_count)+' items in category')
+    else:
+        plt.title('freqs and cumulative count for '+category+' ,cutoff='+str(cutoff)+', for '+str(percent) + ' % of '+str(integral[-1])+' total words')
+
+    plt.grid(True)
+    ax.plot(x,truncated_integral,'b.-')
+#    ax.plot(x, normalized,'b.-')
+    ax.bar(x,y)
     ax.set_xticks(x)
+
  #   ax.set_aspect(1.0)
     ax.set_xticklabels(labels,rotation='vertical')
 
@@ -325,4 +376,19 @@ def print_logging_info(msg):
 logging.info = print_logging_info
 
 if __name__ == '__main__':
-    run()
+    collect_description(category_id='womens-outerwear',cutoff=2000)
+    collect_description(category_id='shorts',cutoff=1000)
+    collect_description(category_id='jackets',cutoff=3000)
+    collect_description(category_id='skirts',cutoff=2000)
+    collect_description(category_id='womens-suits',cutoff=100)
+    collect_description(category_id='jeans',cutoff=2000)
+    collect_description(category_id='womens-tops',cutoff=3000)
+    collect_description(category_id='sweaters',cutoff=2000)
+    collect_description(category_id='womens-pants',cutoff=2000)
+    collect_description(category_id='sweatshirts',cutoff=500)
+    collect_description(category_id='dresses',cutoff=6000)
+    collect_description(category_id='womens-intimates',cutoff=30)
+    collect_description(category_id='plus-sizes',cutoff=300)
+    collect_description(category_id='petites',cutoff=400)
+    collect_description(category_id='womens-accessories',cutoff=10)
+    collect_description(category_id='swimsuits',cutoff=20)
