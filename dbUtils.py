@@ -927,7 +927,10 @@ def reconstruct_db_images(images_collection):
     docs_cursor = coll.find()
     print('starting reconstruction on {0} documents'.format(docs_cursor.count()))
     docs_cursor.rewind()
+    i = 0
     for doc in coll.find():
+        if i % 10 == 0:
+            print("performing the {0}th doc".format(i))
         try:
             image = Utils.get_cv2_img_array(doc['image_urls'][0])
             for person in doc['people']:
