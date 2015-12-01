@@ -338,3 +338,14 @@ CMD ssh -i /.ssh/first_aws.pem -L 27017:localhost:27017 ubuntu@extremeli.trendi.
 
 RUN rqworker -u redis://redis1-redis-1-vm:6379 caffe_general &
 #RUN rqworker gender &
+
+
+###################
+# CUDA
+###################
+#get cuda
+RUN wget http://developer.download.nvidia.com/compute/cuda/repos/ubuntu1404/x86_64/cuda-repo-ubuntu1404_7.5-18_amd64.deb
+RUN dpkg -i cuda-repo-ubuntu1404_7.5-18_amd64.deb
+RUN apt-get update
+RUN apt-get install cuda
+
