@@ -930,7 +930,7 @@ def reconstruct_db_images(images_collection):
     i = 0
     for doc in coll.find({'people.person_id': {'$exists': 0}}):
         if i % 10 == 0:
-            print("performing the {0}th doc".format(i))
+            print('performing the {0}th doc'.format(i))
             i += 1
         try:
             image = Utils.get_cv2_img_array(doc['image_urls'][0])
