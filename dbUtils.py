@@ -20,6 +20,7 @@ from .constants import db
 min_images_per_doc = constants.min_images_per_doc
 max_image_val = constants.max_image_val
 
+
 def lookfor_next_bounded_in_db(current_item=0, current_image=0, only_get_boxed_images=True):
     """
     find next bounded image in db
@@ -70,6 +71,7 @@ def lookfor_next_bounded_in_db(current_item=0, current_image=0, only_get_boxed_i
         doc = training_collection_cursor[i]
         logging.warning("no bounded image found in current doc, trying next")
     return {'error': 0, 'message': "No bounded bb found in db"}
+
 
 def lookfor_next_image_in_regular_db(current_item, only_get_boxed_images=False,
                                      only_get_unboxed_images=True, skip_if_marked_to_skip=True):
@@ -122,6 +124,7 @@ def lookfor_next_image_in_regular_db(current_item, only_get_boxed_images=False,
         logging.warning("no bounded image found in current doc, trying next")
     return {'error': 0, 'message': "No bounded bb found in db"}
 
+
 def lookfor_next_unbounded_image(queryobject):
     n = 0
     got_unbounded_image = False
@@ -168,6 +171,7 @@ def lookfor_next_unbounded_image(queryobject):
             print('utils.py:image is bounded :(')
             logging.debug('image is bounded.....')
     return (urlN)
+
 
 def lookfor_next_bounded_image(queryobject, image_index=0, only_get_boxed_images=True):
     """
@@ -244,6 +248,7 @@ def lookfor_next_bounded_image(queryobject, image_index=0, only_get_boxed_images
     logging.debug('utils.lookfor_next_bounded_image - no bounded image found in this doc')
     return None
 
+
 def insert_bb_into_training_db(receivedData):
     bb = receivedData['bb']
     image_url = receivedData["url"]
@@ -307,6 +312,7 @@ def insert_bb_into_training_db(receivedData):
 #    if trainingdb is None:
 #        return {"success": 0, "error": "could not get trainingdb"}
 
+
 def insert_feature_bb_into_db(new_feature_bb, itemID=id, db=None):
     if db is None:
         return {"success": 0, "error": "could not get db"}
@@ -321,6 +327,7 @@ def insert_feature_bb_into_db(new_feature_bb, itemID=id, db=None):
     i = 0
     write_result = db.training.update({"_id": objectid.ObjectId(id)}, {"$set": {"images": doc['images']}})
     return {"success": 1, 'message': "ok"}
+
 
 def fix_all_bbs_in_db(use_visual_output=True):
     '''
@@ -394,6 +401,7 @@ def fix_all_bbs_in_db(use_visual_output=True):
 
     return {"success": 1}
 
+
 def show_all_bbs_in_db(use_visual_output=True):
     '''
     fix all the bbs so they fit their respective image
@@ -455,6 +463,7 @@ def show_all_bbs_in_db(use_visual_output=True):
         doc = next(training_collection_cursor, None)
 
     return {"success": 1}
+
 
 def step_thru_db(use_visual_output=True, collection='products'):
     '''
@@ -721,6 +730,7 @@ def prune_training_db(use_visual_output=False):
 
 # answers = dbUtils.lookfor_next_unbounded_feature_from_db_category(current_item=current_item,skip_if_marked_to_skip=skip_if_marked_to_skip,which_to_show=which_to_show,filter_type=filter_type,category_id=category_id,word_in_description=word_in_description )
 
+
 def lookfor_next_unbounded_feature_from_db_category(current_item=0, skip_if_marked_to_skip=True,
                                                     which_to_show='showUnboxed', filter_type='byWordInDescription',
                                                     category_id=None, word_in_description=None, db=None):
@@ -779,7 +789,6 @@ def lookfor_next_unbounded_feature_from_db_category(current_item=0, skip_if_mark
 
     # print(str(ans))
     return ans
-
 
 
 def show_db_record(use_visual_output=True, doc=None):
@@ -912,7 +921,26 @@ def suits_for_kyle():
         print('url:' + url)
         item_image = Utils.get_cv2_img_array(item['image']['sizes']['Best']['url'])
 
-# description: classic neckline , round collar, round neck, crew neck, square neck, v-neck, clASsic neckline,round collar,crewneck,crew neck, scoopneck,square neck, bow collar, ribbed round neck,rollneck ,slash neck
+
+def reconstruct_db_images(images_collection):
+    coll = db[images_collection]
+    docs_cursor = coll.find()
+    print('starting reconstruction on {0} documents'.format(docs_cursor.count()))
+    docs_cursor.rewind()
+    for doc in coll.find():
+        image = Utils.get_cv2_img_array(doc['image_urls'][0])
+        for person in doc['people']:
+            if len(person['face']):
+                x, y, w, h = person['face']
+                person_bb = [round(max(0, x - 1.5 * w)), y, round(min(image.shape[1], x + 2.5 * w)),
+                             min(image.shape[0], 8 * h)]
+            else:
+                person_bb = None
+            coll.update_one({'people.$.person_id': person['person_id']}, {'$set': {'people.$.person_bb': person_bb}},
+                            upsert=True)
+
+
+            # description: classic neckline , round collar, round neck, crew neck, square neck, v-neck, clASsic neckline,round collar,crewneck,crew neck, scoopneck,square neck, bow collar, ribbed round neck,rollneck ,slash neck
 # cats:[{u'shortName': u'V-Necks', u'localizedId': u'v-neck-sweaters', u'id': u'v-neck-sweaters', u'name': u'V-Neck Sweaters'}]
 # cats:[{u'shortName': u'Turtlenecks', u'localizedId': u'turleneck-sweaters', u'id': u'turleneck-sweaters', u'name': u'Turtlenecks'}]
 # cats:[{u'shortName': u'Crewnecks & Scoopnecks', u'localizedId': u'crewneck-sweaters', u'id': u'crewneck-sweaters', u'name': u'Crewnecks & Scoopnecks'}]
