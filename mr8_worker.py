@@ -5,7 +5,6 @@ workers for the  mr8 testing
 import logging
 
 import numpy as np
-
 import cv2
 
 import background_removal
@@ -26,9 +25,9 @@ def add_new_field(doc, x):
         return
     gray_img = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
     faces = background_removal.image_is_relevant(image)
-    if not background_removal.image_is_relevant(image).relevance:
+    if not faces[0]:
         return
-    fc = faces['is_relevant faces']
+    fc = faces[1]
     x0 = fc[0][0]
     y0 = fc[0][1]
     w = fc[0][2]
