@@ -173,7 +173,7 @@ def mean_std_pooling(response, s):
         result.append(np.std(block))
         if np.isnan(np.std(block)) == True:
             print 'std isNaN'
-    return np.asarray(result)
+    return result
 
 
 if __name__ == "__main__":
