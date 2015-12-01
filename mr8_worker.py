@@ -52,7 +52,7 @@ def add_new_field(doc, x):
     # print ("shape: " + str(ms_response[0].shape))
 
     try:
-        doc["mr8"] = ms_response
+        doc["mr8"] = list(ms_response)
         db.mr8_testing.insert(doc)
     except Exception as ex:
         logging.warning("Exception caught while inserting element #" + str(x) + " to the collection".format(ex))
