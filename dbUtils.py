@@ -928,7 +928,7 @@ def reconstruct_db_images(images_collection):
     print('starting reconstruction on {0} documents'.format(docs_cursor.count()))
     docs_cursor.rewind()
     i = 0
-    for doc in coll.find({'people.person_id': {'$exists': 0}}):
+    for doc in coll.find({'people.person_bb': {'$exists': 0}}):
         if i % 10 == 0:
             print('performing the {0}th doc'.format(i))
             i += 1
