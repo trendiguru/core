@@ -247,7 +247,7 @@ RUN  sed -i 's/# CPU_ONLY := 1/CPU_ONLY := 1/' Makefile.config
 RUN echo "CPU_ONLY := 1" >> Makefile.config
 RUN echo "CXX := /usr/bin/g++-4.6" >> Makefile.config
 RUN sed -i 's/CXX :=/CXX ?=/' Makefile
-RUN sed -i 's/LIBRARIES += opencv_core opencv_highgui opencv_imgproc/LIBRARIES += opencv_core opencv_highgui opencv_imgproc opencv_imgcodecs/' Makefile
+#RUN sed -i 's/LIBRARIES += opencv_core opencv_highgui opencv_imgproc/LIBRARIES += opencv_core opencv_highgui opencv_imgproc opencv_imgcodecs/' Makefile
 RUN mkdir build
 WORKDIR build
 RUN cmake ..
@@ -284,11 +284,15 @@ RUN make pycaffe
 #alexnet - get model
 
 #WORKDIR /opt/caffe
+RUN pwd
+RUN ls  ./build/examples/cpp_classification/
 
 RUN ./scripts/download_model_binary.py ./models/bvlc_reference_caffenet
 RUN ./data/ilsvrc12/get_ilsvrc_aux.sh
 
+RUN ls  ./build/examples/cpp_classification/
 #the classification.bin isnt there for some reason
+RUN ls
 RUN ./build/examples/cpp_classification/classification.bin ./models/bvlc_reference_caffenet/deploy.prototxt ./models/bvlc_reference_caffenet/bvlc_reference_caffenet.caffemodel ./data/ilsvrc12/imagenet_mean.binaryproto ./data/ilsvrc12/synset_words.txt ./examples/images/cat.jpg
 
 
