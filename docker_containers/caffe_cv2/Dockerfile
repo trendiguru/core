@@ -285,12 +285,12 @@ RUN make pycaffe
 
 #WORKDIR /opt/caffe
 RUN pwd
-RUN ls  ./build/examples/cpp_classification/
+RUN ls  ./build/examples/cpp_classification/  > before.txt
 
 RUN ./scripts/download_model_binary.py ./models/bvlc_reference_caffenet
 RUN ./data/ilsvrc12/get_ilsvrc_aux.sh
 
-RUN ls  ./build/examples/cpp_classification/
+RUN ls  ./build/examples/cpp_classification/   > after.txt
 #the classification.bin isnt there for some reason
 RUN ls
 RUN ./build/examples/cpp_classification/classification.bin ./models/bvlc_reference_caffenet/deploy.prototxt ./models/bvlc_reference_caffenet/bvlc_reference_caffenet.caffemodel ./data/ilsvrc12/imagenet_mean.binaryproto ./data/ilsvrc12/synset_words.txt ./examples/images/cat.jpg
