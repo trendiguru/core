@@ -924,13 +924,13 @@ def suits_for_kyle():
 
 def reconstruct_db_images(images_collection):
     coll = db[images_collection]
-    docs_cursor = coll.find()
+    docs_cursor = coll.find({'people.person_bb': {'$exists': 0}})
     print('starting reconstruction on {0} documents'.format(docs_cursor.count()))
     docs_cursor.rewind()
     i = 0
-    for doc in coll.find({'people.person_id': {'$exists': 0}}):
+    for doc in docs_cursor:
         if i % 10 == 0:
-            print("performing the {0}th doc".format(i))
+            print('performing the {0}th doc'.format(i))
             i += 1
         try:
             image = Utils.get_cv2_img_array(doc['image_urls'][0])

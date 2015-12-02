@@ -4,6 +4,7 @@ import pickle
 import os
 
 import cv2
+
 import numpy as np
 
 import Utils
@@ -162,7 +163,7 @@ def mean_std_pooling(response, s):
     # response dimentions should be mod(n=8)
     result = []
     bl_shaped = blockshaped(response, s, s)
-    print bl_shaped.shape
+    # print bl_shaped.shape
 
     for block in bl_shaped:
         result.append(np.mean(block))
@@ -172,7 +173,7 @@ def mean_std_pooling(response, s):
         result.append(np.std(block))
         if np.isnan(np.std(block)) == True:
             print 'std isNaN'
-    return np.asarray(result)
+    return result
 
 
 if __name__ == "__main__":

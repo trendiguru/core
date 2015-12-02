@@ -47,13 +47,13 @@ def add_new_field(doc, x):
 
     ms_response = []
     for idx, val in enumerate(response):
-        ms_response.append(fp_yuli_MR8.mean_std_pooling(val, 5))
+        ms_response = ms_response + fp_yuli_MR8.mean_std_pooling(val, 5)
     # print (ms_response)
     # print ("shape: " + str(ms_response[0].shape))
-    doc["mr8"] = list(ms_response)
-    try:
-        db.mr8_testing.insert(doc)
-    except Exception as ex:
-        logging.warning("Exception caught while inserting element #" + str(x) + " to the collection".format(ex))
-        raw_input('boom!')
-    return x
+    doc["mr8"] = ms_response
+    # try:
+    db.mr8_testing.insert_one(doc)
+    # except Exception as ex:
+    #     logging.warning("Exception caught while inserting element #" + str(x) + " to the collection".format(ex))
+    #     raw_input('boom!')
+    # return x
