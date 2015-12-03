@@ -123,7 +123,8 @@ RUN pip install rq
 ################
 #numpy scipy
 ###############
-RUN sudo apt-get install -y \
+RUN apt-get update
+RUN apt-get install -y \
     python-numpy  \
     python-scipy  \
     python-matplotlib   \
