@@ -11,30 +11,26 @@
 # 5. products_jp at 8 pm (shopstyle japan)
 # 6. daily_summery  - stats+email at 23:45pm
 #
-# standard output ans error will be logged in /home/developer/download.log
-0-20 0 * * * sudo rqworker -u redis://redis1-redis-1-vm:6379 fingerprint_new &
-0 1 * * * python -m trendi.flipkart_dl 1 > /home/developer/download.log 2>&1
-45 3 * * * sudo pkill rqworker
-46-56 3 * * * sudo rqworker -u redis://redis1-redis-1-vm:6379 DBD &
-46-56 3 * * * sudo rqworker -u redis://redis1-redis-1-vm:6379 fingerprint_new &
-0 4 * * * python -m trendi.shopstyle_dl > /home/developer/download.log 2>&1
-0 7 * * * sudo pkill rqworker
-1-6 7 * * * sudo rqworker -u redis://redis1-redis-1-vm:6379 fingerprint_new &
-1-6 7 * * * sudo rqworker -u redis://redis1-redis-1-vm:6379 fingerprint_new &
-1-6 7 * * * sudo rqworker -u redis://redis1-redis-1-vm:6379 fingerprint_new &
-1-6 7 * * * sudo rqworker -u redis://redis1-redis-1-vm:6379 fingerprint_new &
-0 9 * * * python -m trendi.flipkart_dl 2 > /home/developer/download.log 2>&1
-0 17 * * * python -m trendi.flipkart_dl 3 > /home/developer/download.log 2>&1
-45 19 * * * sudo pkill rqworker
-46-56 19 * * * sudo rqworker -u redis://redis1-redis-1-vm:6379 DBD &
-46-56 19 * * * sudo rqworker -u redis://redis1-redis-1-vm:6379 fingerprint_new &
-0 20 * * * python -m trendi.shopstyle_dl jp > /home/developer/download.log 2>&1
-0 22 * * * sudo pkill rqworker
-1-6 22 * * * sudo rqworker -u redis://redis1-redis-1-vm:6379 fingerprint_new &
-1-6 22 * * * sudo rqworker -u redis://redis1-redis-1-vm:6379 fingerprint_new &
-1-6 22 * * * sudo rqworker -u redis://redis1-redis-1-vm:6379 fingerprint_new &
-1-6 22 * * * sudo rqworker -u redis://redis1-redis-1-vm:6379 fingerprint_new &
+#
+# example: open 6 rqworkers - 1-6 7 * * * sudo rqworker -u redis://redis1-redis-1-vm:6379 fingerprint_new &
+# standard output ans error will be logged temporarily in /home/developer/current_job.log
+# download log will be saved to /home/developer/download.log
+1 0 * * * date >> /home/developer/download.log 2>&1
+2 0 * * * echo "daily clean up - restarting all rqworkers" >> /home/developer/download.log 2>&1
+3 0 * * * sudo pkill rqworker
+5-25 0 * * * sudo rqworker -u redis://redis1-redis-1-vm:6379 fingerprint_new &
+59 0 * * * echo "flipkart first dl started at 1 am" >> /home/developer/download.log 2>&1
+0 1 * * * python -m trendi.flipkart_dl 1 > /home/developer/current_job.log 2>&1
+59 3 * * * echo "shopstyle products dl started at 4 am" >> /home/developer/download.log 2>&1
+0 4 * * * python -m trendi.oldschool_dl > /home/developer/current_job.log 2>&1
+59 8 * * * echo "flipkart second dl started at 9 am" >> /home/developer/download.log 2>&1
+0 9 * * * python -m trendi.flipkart_dl 2 > /home/developer/current_job.log 2>&1
+59 16 * * * echo "flipkart second dl started at 5 pm" >> /home/developer/download.log 2>&1
+0 17 * * * python -m trendi.flipkart_dl 3 > /home/developer/current_job.log 2>&1
+59 19 * * * echo "shopstyle products_jp started at 8 pm" >> /home/developer/download.log 2>&1
+0 20 * * * python -m trendi.oldschool_dl jp > /home/developer/download.log 2>&1
+44 23 * * * echo "daily summery processing" >> /home/developer/download.log 2>&1
 45 23 * * * python -m trendi.dl_summery > /home/developer/download.log 2>&1
-59 23 * * * sudo pkill rqworker
+
 
 
