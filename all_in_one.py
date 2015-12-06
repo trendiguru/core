@@ -181,8 +181,7 @@ def get_results_now(page_url, image_url, collection, wing, weight):
                 category = list(labels.keys())[list(labels.values()).index(num)]
                 if category in constants.paperdoll_shopstyle_women.keys():
                     item_mask = 255 * np.array(final_mask == num, dtype=np.uint8)
-                    shopstyle_cat = constants.paperdoll_shopstyle_women[category]
-                    item_dict = {"category": shopstyle_cat, 'item_id': str(bson.ObjectId()), 'item_idx': item_idx}
+                    item_dict = {"category": category, 'item_id': str(bson.ObjectId()), 'item_idx': item_idx}
                     svg_name = find_similar_mongo.mask2svg(
                         item_mask,
                         str(image_dict['image_hash']) + '_' + person['person_id'] + '_' + item_dict['category'],
