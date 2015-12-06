@@ -149,7 +149,7 @@ def get_results_now(page_url, image_url, collection, wing, weight):
                 item_idx = 0
                 for num in np.unique(final_mask):
                     # convert numbers to labels
-                    category = list(labels.keys())[list(labels.values()).index(num)][0]
+                    category = list(labels.keys())[list(labels.values()).index(num)]
                     if category in constants.paperdoll_shopstyle_women.keys():
                         item_mask = 255 * np.array(final_mask == num, dtype=np.uint8)
                         item_dict = {"category": category, 'item_id': str(bson.ObjectId()), 'item_idx': item_idx}
@@ -178,7 +178,7 @@ def get_results_now(page_url, image_url, collection, wing, weight):
             item_idx = 0
             for num in np.unique(final_mask):
                 # convert numbers to labels
-                category = list(labels.keys())[list(labels.values()).index(num)][0]
+                category = list(labels.keys())[list(labels.values()).index(num)]
                 if category in constants.paperdoll_shopstyle_women.keys():
                     item_mask = 255 * np.array(final_mask == num, dtype=np.uint8)
                     item_dict = {"category": category, 'item_id': str(bson.ObjectId()), 'item_idx': item_idx}
