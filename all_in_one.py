@@ -86,7 +86,8 @@ def distance_function(entry, target_dict, fp_weights, hist_length, wing, weight)
         target_mr8 = trim_mr8(target_dict["mr8"], shift)
         mr8_distance = NNSearch.distance_1_k(entry_mr8, target_mr8)
         mr8_normal = mr8_distance / (2 * shift * 1024)
-        return weight[0] * bhat + weight[1] * mr8_normal
+        w0 = abs(1 - weight)
+        return w0 * bhat + weight * mr8_normal
 
 
 def find_n_nearest_neighbors(target_dict, entries, number_of_matches, fp_weights, hist_length, wing, weight):
