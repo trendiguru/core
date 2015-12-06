@@ -47,7 +47,7 @@ def find_top_n_results(image, mask, number_of_results, item_dict, collection, wi
     fp_len = constants.fingerprint_length
     # get all items in the category
     potential_matches_cursor = collection.find(
-        {"category": item_dict['category']},
+        {"categories": item_dict['category']},
         {"_id": 1, "id": 1, "fingerprint": 1, "images.XLarge": 1, "clickUrl": 1, "mr8": 1}).batch_size(100)
 
     print "amount of docs in cursor: {0}".format(potential_matches_cursor.count())
