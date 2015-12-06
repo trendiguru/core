@@ -118,7 +118,7 @@ def find_n_nearest_neighbors(target_dict, entries, number_of_matches, fp_weights
     return nearest_n
 
 
-def get_results_now(image_url, svg_url='', collection="mr8_testing", wing="left", weight=0.5):
+def get_results_now(image_url, svg_url=None, collection="mr8_testing", wing="left", weight=0.5):
     # IF URL HAS NO IMAGE IN IT
     image = Utils.get_cv2_img_array(image_url)
     if image is None:
@@ -153,7 +153,7 @@ def get_results_now(image_url, svg_url='', collection="mr8_testing", wing="left"
                     if category in constants.paperdoll_shopstyle_women.keys():
                         item_mask = 255 * np.array(final_mask == num, dtype=np.uint8)
                         item_dict = {"category": "dress", 'item_id': str(bson.ObjectId()), 'item_idx': item_idx}
-                        if len(svg_url) == 0:
+                        if svg_url is None:
                             svg_name = find_similar_mongo.mask2svg(
                                 item_mask,
                                 str(image_dict['image_hash']) + '_' + person['person_id'] + '_' + item_dict['category'],
@@ -186,7 +186,7 @@ def get_results_now(image_url, svg_url='', collection="mr8_testing", wing="left"
                 if category in constants.paperdoll_shopstyle_women.keys():
                     item_mask = 255 * np.array(final_mask == num, dtype=np.uint8)
                     item_dict = {"category": category, 'item_id': str(bson.ObjectId()), 'item_idx': item_idx}
-                    if len(svg_url) == 0:
+                    if svg_url is None:
                         svg_name = find_similar_mongo.mask2svg(
                             item_mask,
                             str(image_dict['image_hash']) + '_' + person['person_id'] + '_' + item_dict['category'],
