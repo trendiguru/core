@@ -152,7 +152,8 @@ def get_results_now(image_url, svg_url=None, collection="mr8_testing", wing="lef
                     category = list(labels.keys())[list(labels.values()).index(num)]
                     if category in constants.paperdoll_shopstyle_women.keys():
                         item_mask = 255 * np.array(final_mask == num, dtype=np.uint8)
-                        item_dict = {"category": "dress", 'item_id': str(bson.ObjectId()), 'item_idx': item_idx}
+                        item_dict = {"category": "dress", 'item_id': str(bson.ObjectId()), 'item_idx': item_idx,
+                                     'face': face}
                         if svg_url is None:
                             svg_name = find_similar_mongo.mask2svg(
                                 item_mask,
