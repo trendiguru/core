@@ -300,7 +300,7 @@ RUN ./build/examples/cpp_classification/classification.bin ./models/bvlc_referen
 RUN wget http://developer.download.nvidia.com/compute/cuda/repos/ubuntu1404/x86_64/cuda-repo-ubuntu1404_7.5-18_amd64.deb
 RUN dpkg -i cuda-repo-ubuntu1404_7.5-18_amd64.deb
 RUN apt-get update
-RUN apt-get install cuda
+RUN apt-get install -y cuda
 
 
 
