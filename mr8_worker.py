@@ -64,7 +64,7 @@ def mr8_4_demo(img, fc):
     print fc
     if len(fc) == 0:
         return
-    x0, y0, w, h = fc[0]
+    x0, y0, w, h = fc
 
     s_size = np.amin(np.asarray(w, h))
 
