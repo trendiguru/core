@@ -162,7 +162,7 @@ def get_results_now(page_url, image_url, collection, wing, weight):
                             clean_image,
                             item_mask,
                             100,
-                            item_dict['category'],
+                            item_dict,
                             collection,
                             wing, weight)
                         person['items'].append(item_dict)
@@ -191,7 +191,7 @@ def get_results_now(page_url, image_url, collection, wing, weight):
                     item_dict['fp'], item_dict['similar_results'] = find_top_n_results(clean_image,
                                                                                        item_mask,
                                                                                        100,
-                                                                                       item_dict['category'],
+                                                                                       item_dict,
                                                                                        collection,
                                                                                        wing, weight)
                     person['items'].append(item_dict)
