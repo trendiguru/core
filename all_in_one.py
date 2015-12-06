@@ -118,7 +118,7 @@ def find_n_nearest_neighbors(target_dict, entries, number_of_matches, fp_weights
     return nearest_n
 
 
-def get_results_now(svg_url, image_url, collection, wing, weight):
+def get_results_now(image_url, svg_url='', collection="mr8_testing", wing="left", weight=0.5):
     # IF URL HAS NO IMAGE IN IT
     image = Utils.get_cv2_img_array(image_url)
     if image is None:
