@@ -1,5 +1,5 @@
-FROM ubuntu:14.04
-
+#FROM ubuntu:14.04
+FROM tleyden5iwx/ubuntu-cuda
 #increase the available sources for installs
 RUN sed -i 's/# \(.*multiverse$\)/\1/g' /etc/apt/sources.list
 RUN apt-get update
@@ -275,7 +275,7 @@ RUN (pip install -r python/requirements.txt; easy_install numpy; pip install -r 
 
 # Build Caffe python bindings
 #WORKDIR /opt/caffe
-#RUN make pycaffe
+RUN make pycaffe
 
 
 
@@ -293,14 +293,15 @@ RUN ./data/ilsvrc12/get_ilsvrc_aux.sh
 RUN ./build/examples/cpp_classification/classification.bin ./models/bvlc_reference_caffenet/deploy.prototxt ./models/bvlc_reference_caffenet/bvlc_reference_caffenet.caffemodel ./data/ilsvrc12/imagenet_mean.binaryproto ./data/ilsvrc12/synset_words.txt ./examples/images/cat.jpg
 
 
+#no longer n
 ###################
 # CUDA
 ###################
 #get cuda
-RUN wget http://developer.download.nvidia.com/compute/cuda/repos/ubuntu1404/x86_64/cuda-repo-ubuntu1404_7.5-18_amd64.deb
-RUN dpkg -i cuda-repo-ubuntu1404_7.5-18_amd64.deb
-RUN apt-get update
-RUN apt-get install -y cuda
+#RUN wget http://developer.download.nvidia.com/compute/cuda/repos/ubuntu1404/x86_64/cuda-repo-ubuntu1404_7.5-18_amd64.deb
+#RUN dpkg -i cuda-repo-ubuntu1404_7.5-18_amd64.deb
+#RUN apt-get update
+#RUN apt-get install -y cuda
 
 
 
