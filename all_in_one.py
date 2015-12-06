@@ -47,9 +47,9 @@ def find_top_n_results(image, mask, number_of_results, item_dict, collection, wi
     fp_len = constants.fingerprint_length
     # get all items in the category
     potential_matches_cursor = collection.find(
-        {},
+        {"categories": item_dict['category']},
         {"_id": 1, "id": 1, "fingerprint": 1, "images.XLarge": 1, "clickUrl": 1, "mr8": 1}).batch_size(100)
-    # "categories": item_dict['category']
+
     print "amount of docs in cursor: {0}".format(potential_matches_cursor.count())
     color_fp = fp.fp(image, bins, fp_len, mask)
     if wing == "right":
@@ -149,7 +149,7 @@ def get_results_now(page_url, image_url, collection, wing, weight):
                 item_idx = 0
                 for num in np.unique(final_mask):
                     # convert numbers to labels
-                    category = list(labels.keys())[list(labels.values()).index(num)]
+                    category = list(labels.keys())[list(labels.values()).index(num)][0]
                     if category in constants.paperdoll_shopstyle_women.keys():
                         item_mask = 255 * np.array(final_mask == num, dtype=np.uint8)
                         item_dict = {"category": category, 'item_id': str(bson.ObjectId()), 'item_idx': item_idx}
@@ -178,7 +178,7 @@ def get_results_now(page_url, image_url, collection, wing, weight):
             item_idx = 0
             for num in np.unique(final_mask):
                 # convert numbers to labels
-                category = list(labels.keys())[list(labels.values()).index(num)]
+                category = list(labels.keys())[list(labels.values()).index(num)][0]
                 if category in constants.paperdoll_shopstyle_women.keys():
                     item_mask = 255 * np.array(final_mask == num, dtype=np.uint8)
                     item_dict = {"category": category, 'item_id': str(bson.ObjectId()), 'item_idx': item_idx}
