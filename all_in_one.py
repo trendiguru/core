@@ -130,7 +130,7 @@ def get_results_now(svg_url, image_url, collection, wing, weight):
     clean_image = copy.copy(image)
     relevance = background_removal.image_is_relevant(image, True, image_url)
     image_dict = {'image_urls': [image_url], 'relevant': relevance.is_relevant,
-                  'image_hash': image_hash, 'page_urls': [True], 'people': []}
+                  'image_hash': image_hash, 'page_urls': ["True"], 'people': []}
     if relevance.is_relevant:
         idx = 0
         if len(relevance.faces):
