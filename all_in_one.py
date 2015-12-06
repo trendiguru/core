@@ -32,10 +32,6 @@ def person_isolation(image, face):
     return image_copy
 
 
-def bad(cat):
-    a = cat[100]
-
-
 def find_top_n_results(image, mask, number_of_results, item_dict, collection, wing, weight):
     '''
     for comparing 2 fp call the function twice, both times with collection_name ='fp_testing' :
@@ -154,10 +150,9 @@ def get_results_now(svg_url, image_url, collection, wing, weight):
                 for num in np.unique(final_mask):
                     # convert numbers to labels
                     category = list(labels.keys())[list(labels.values()).index(num)]
-                    bad(category)
                     if category in constants.paperdoll_shopstyle_women.keys():
                         item_mask = 255 * np.array(final_mask == num, dtype=np.uint8)
-                        item_dict = {"category": category, 'item_id': str(bson.ObjectId()), 'item_idx': item_idx}
+                        item_dict = {"category": "dress", 'item_id': str(bson.ObjectId()), 'item_idx': item_idx}
                         if len(svg_url) == 0:
                             svg_name = find_similar_mongo.mask2svg(
                                 item_mask,
