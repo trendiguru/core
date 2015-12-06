@@ -38,6 +38,86 @@ RUN pip install pytz
 #RUN  echo 'nmap -p 6379 localhost' > portredis.sh
 #RUN chmod o+x portredis.sh
 
+##############################
+#OPENCV 3.0
+##############################
+
+MAINTAINER Jeremy Rutman <jeremy@trendiguru.com>
+
+#OPENCV OPENCV OPENCV
+#install opencv3.0
+RUN apt-get -qq install -y build-essential
+RUN apt-get -qq install -y cmake
+RUN apt-get -qq install -y pkg-config
+RUN apt-get -qq install -y yasm
+RUN apt-get -qq install -y libpng12-dev
+#RUN apt-get -qq install -y python-dev    #have below
+RUN apt-get -qq install -y python-numpy  #have below
+
+#install opengl
+#RUN apt-get install -y freeglut3-dev
+RUN  mkdir -p /opt/OpenCV
+WORKDIR /opt/OpenCV
+RUN  wget -O OpenCV3.0.zip https://codeload.github.com/Itseez/opencv/zip/3.0.0
+RUN  unzip OpenCV3.0.zip
+
+ENV OPENCV_HOME /opt/OpenCV
+
+#add the nonfree stuff here if necessary
+RUN  mkdir -p $OPENCV_HOME/opencv-3.0.0/build
+WORKDIR /opt/OpenCV/opencv-3.0.0/build
+
+#for fisherfaces: -DOPENCV_EXTRA_MODULES_PATH=<opencv_contrib>/modules <opencv_source_directory>
+RUN  cmake  .. | tee cmakeout.txt
+
+#RUN  cmake -D CMAKE_BUILD_TYPE=RELEASE -D CMAKE_INSTALL_PREFIX=$(python -c "import sys; print(sys.prefix)") \
+# -D PYTHON_EXECUTABLE=$(which python) -D BUILD_EXAMPLES=OFF -D INSTALL_C_EXAMPLES=ON -D INSTALL_PYTHON_EXAMPLES=OFF -D INSTALL_TESTS=OFF -D BUILD_opencv_java=OFF \
+# -D WITH_IPP=OFF -DOPENCV_EXTRA_MODULES_PATH=/opt/OpenCV/opencv_contrib-3.0.0/modules -D BUILD_NEW_PYTHON_SUPPORT=ON  -D WITH_QT=OFF .. | tee cmakeout.txt
+
+#RUN  cmake -D CMAKE_BUILD_TYPE=RELEASE -D CMAKE_INSTALL_PREFIX=/usr/local -D WITH_TBB=ON -D BUILD_NEW_PYTHON_SUPPORT=ON \
+# -D WITH_V4L=ON -D INSTALL_C_EXAMPLES=ON -D INSTALL_PYTHON_EXAMPLES=ON -D BUILD_EXAMPLES=ON -D WITH_QT=OFF -D WITH_OPENGL=ON -D BUILD_opencv_nonfree=ON ..
+
+RUN  make -j8 | tee makeout.txt
+RUN  make install | tee installout.txt
+
+RUN  sh -c 'echo "/usr/local/lib" > /etc/ld.so.conf.d/opencv.conf'
+RUN  ldconfig
+RUN  echo "OpenCV 3.0.0 is ready to be used"
+
+RUN export PYTHONPATH=/usr/local/lib/python2.7/site-packages:$PYTHONPATH
+
+RUN export uid=1000 gid=1000 && \
+    mkdir -p /home/developer && \
+    echo "developer:x:${uid}:${gid}:Developer,,,:/home/developer:/bin/bash" >> /etc/passwd && \
+    echo "developer:x:${uid}:" >> /etc/group && \
+    echo "developer ALL=(ALL) NOPASSWD: ALL" > /etc/sudoers.d/developer && \
+    chmod 0440 /etc/sudoers.d/developer && \
+    chown ${uid}:${gid} -R /home/developer
+
+#####################
+# redis and rq
+#####################
+#RUN pip install redis
+RUN pip install rq
+
+#####################
+# ssh port forwarding
+#####################
+#turn off asking 'are you sure' on first ssh connect
+#this is supposed to be taken care of by the keyscan but isn't , perhaps because this
+# is not our own repo running on a port like in the example
+#ADD ssh/ssh_config /etc/ssh/ssh_config
+
+
+#mongobd port forward
+#CMD ssh -i /.ssh/first_aws.pem -L 27017:localhost:27017 ubuntu@extremeli.trendi.guru && /bin/bash
+
+#these scripts are to check port forwarding with a single command
+#RUN  echo 'nmap -p 27017 localhost' > portmongo.sh
+#RUN chmod o+x portmongo.sh
+#RUN  echo 'nmap -p 6379 localhost' > portredis.sh
+#UN chmod o+x portredis.sh
+
 
 
 ################
@@ -89,7 +169,6 @@ RUN apt-get update && apt-get install -y \
   libsnappy-dev \
   libopencv-dev \
   libboost-all-dev \
-#https://github.com/boostorg/build/releases/download/2014.10/boost-build-2014-10.tar.bz2
 #sudo apt-get install --no-install-recommends libboost-all-dev   #maybe this instead
   libhdf5-serial-dev \
   liblmdb-dev \
@@ -188,15 +267,14 @@ WORKDIR /opt/caffe
 RUN (pip install -r python/requirements.txt; easy_install numpy; pip install -r python/requirements.txt) && \
   easy_install pillow
 
-
 #apparently not necessary after numpy install above
 # Numpy include path hack - github.com/BVLC/caffe/wiki/Setting-up-Caffe-on-Ubuntu-14.04
 #RUN NUMPY_EGG=`ls /usr/local/lib/python2.7/dist-packages | grep -i numpy` && \
 #  ln -s /usr/local/lib/python2.7/dist-packages/$NUMPY_EGG/numpy/core/include/numpy /usr/include/python2.7/numpy
 
 # Build Caffe python bindings
-#WORKDIR /opt/caffe
-#RUN make pycaffe
+WORKDIR /opt/caffe
+RUN make pycaffe
 
 
 
@@ -258,12 +336,16 @@ RUN git clone --verbose git@bitbucket.org:trendiGuru/core.git
 CMD ssh -i /.ssh/first_aws.pem -L 27017:localhost:27017 ubuntu@extremeli.trendi.guru && /bin/bash
 
 
-#####################
-# redis and rq
-#####################
-#RUN pip install redis
-RUN pip install rq
-
-
-#RUN rqworker -u redis://redis1-redis-1-vm:6379 caffe_general &
+RUN rqworker -u redis://redis1-redis-1-vm:6379 caffe_general &
 #RUN rqworker gender &
+
+
+###################
+# CUDA
+###################
+#get cuda
+RUN wget http://developer.download.nvidia.com/compute/cuda/repos/ubuntu1404/x86_64/cuda-repo-ubuntu1404_7.5-18_amd64.deb
+RUN dpkg -i cuda-repo-ubuntu1404_7.5-18_amd64.deb
+RUN apt-get update
+RUN apt-get install cuda
+

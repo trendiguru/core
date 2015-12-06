@@ -169,7 +169,6 @@ RUN apt-get update && apt-get install -y \
   libsnappy-dev \
   libopencv-dev \
   libboost-all-dev \
-#https://github.com/boostorg/build/releases/download/2014.10/boost-build-2014-10.tar.bz2
 #sudo apt-get install --no-install-recommends libboost-all-dev   #maybe this instead
   libhdf5-serial-dev \
   liblmdb-dev \
