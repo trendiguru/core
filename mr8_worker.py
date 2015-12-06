@@ -59,9 +59,8 @@ def add_new_field(doc, x):
     # return x
 
 
-def mr8_4_demo(img, relevance):
+def mr8_4_demo(img, fc):
     gray_img = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
-    fc = relevance[1]
     print fc
     if len(fc) == 0:
         return

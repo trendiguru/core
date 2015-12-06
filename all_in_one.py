@@ -47,7 +47,7 @@ def find_top_n_results(image, mask, number_of_results, item_dict, collection, wi
     fp_len = constants.fingerprint_length
     # get all items in the category
     potential_matches_cursor = collection.find(
-        {"category": item_dict['category']},
+        {"categories": item_dict['category']},
         {"_id": 1, "id": 1, "fingerprint": 1, "images.XLarge": 1, "clickUrl": 1, "mr8": 1}).batch_size(100)
 
     print "amount of docs in cursor: {0}".format(potential_matches_cursor.count())
@@ -162,7 +162,7 @@ def get_results_now(page_url, image_url, collection, wing, weight):
                             clean_image,
                             item_mask,
                             100,
-                            item_dict['category'],
+                            item_dict,
                             collection,
                             wing, weight)
                         person['items'].append(item_dict)
@@ -181,8 +181,7 @@ def get_results_now(page_url, image_url, collection, wing, weight):
                 category = list(labels.keys())[list(labels.values()).index(num)]
                 if category in constants.paperdoll_shopstyle_women.keys():
                     item_mask = 255 * np.array(final_mask == num, dtype=np.uint8)
-                    shopstyle_cat = constants.paperdoll_shopstyle_women[category]
-                    item_dict = {"category": shopstyle_cat, 'item_id': str(bson.ObjectId()), 'item_idx': item_idx}
+                    item_dict = {"category": category, 'item_id': str(bson.ObjectId()), 'item_idx': item_idx}
                     svg_name = find_similar_mongo.mask2svg(
                         item_mask,
                         str(image_dict['image_hash']) + '_' + person['person_id'] + '_' + item_dict['category'],
@@ -191,7 +190,7 @@ def get_results_now(page_url, image_url, collection, wing, weight):
                     item_dict['fp'], item_dict['similar_results'] = find_top_n_results(clean_image,
                                                                                        item_mask,
                                                                                        100,
-                                                                                       item_dict['category'],
+                                                                                       item_dict,
                                                                                        collection,
                                                                                        wing, weight)
                     person['items'].append(item_dict)
