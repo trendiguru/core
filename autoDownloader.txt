@@ -27,10 +27,10 @@
 0 9 * * * python -m trendi.flipkart_dl 2 > /home/developer/current_job.log 2>&1
 59 16 * * * echo "flipkart second dl started at 5 pm" >> /home/developer/download.log 2>&1
 0 17 * * * python -m trendi.flipkart_dl 3 > /home/developer/current_job.log 2>&1
-59 19 * * * echo "shopstyle products_jp started at 8 pm" >> /home/developer/download.log 2>&1
-0 20 * * * python -m trendi.oldschool_dl jp > /home/developer/download.log 2>&1
+59 18 * * * echo "shopstyle products_jp started at 7 pm" >> /home/developer/download.log 2>&1
+0 19 * * * python -m trendi.oldschool_dl jp > /home/developer/download.log 2>&1
 44 23 * * * echo "daily summery processing" >> /home/developer/download.log 2>&1
-45 23 * * * python -m trendi.dl_summery > /home/developer/download.log 2>&1
+45 23 * * * python -m trendi.dl_summery >> /home/developer/download.log 2>&1
 
 
 

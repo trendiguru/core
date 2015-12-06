@@ -35,8 +35,9 @@ def get_data(my_path):#, testing_amount=0.2):#my_path=os.path.dirname(os.path.ab
     # amount_of_each_tag = np.zeros(output_vector_size)
     for tag in output_tag:
         zero_output_vector = np.zeros(output_vector_size, dtype=np.uint8)
-        zero_output_vector[tag-1] = 1
-        # amount_of_each_tag[tag-1] += 1
+        if tag > 0:
+           zero_output_vector[tag-1] = 1
+           # amount_of_each_tag[tag-1] += 1
         output_vector.append(zero_output_vector)
 
     output_image = np.array(output_image)
@@ -79,43 +80,49 @@ Y_train = output_vector
 
 model_description = 'whatever'#'32k5x5CV1_2x2MP1_32k3x3CV2_32k3x3CV3_32k3x3CV4_2x2MP2_64dFC1_3dFC2'
 size_batch = 16
-epoches_number = 1000
+epoches_number = 10000
 overwrite_weights = True
 testing_amount = 0.15
 
 model = Sequential()
-model.add(Convolution2D(16, 5, 5, border_mode='valid', input_shape=(3, 32, 32)))
-model.add(Activation('sigmoid'))
-model.add(MaxPooling2D(pool_size=(2, 2)))
-model.add(Convolution2D(16, 3, 3, border_mode='valid'))
-model.add(Activation('sigmoid'))
-model.add(MaxPooling2D(pool_size=(2, 2)))
-# model.add(Dropout(0.25))
-
-model.add(Convolution2D(16, 3, 3, border_mode='valid'))
-model.add(Activation('sigmoid'))
+model.add(Convolution2D(32, 3, 3, border_mode='valid', input_shape=(3, 32, 32)))
+model.add(Activation('hard_sigmoid'))
 # model.add(MaxPooling2D(pool_size=(2, 2)))
-model.add(Convolution2D(16, 3, 3, border_mode='valid'))
-model.add(Activation('sigmoid'))
+model.add(Convolution2D(32, 3, 3, border_mode='valid'))
+model.add(Activation('hard_sigmoid'))
+model.add(MaxPooling2D(pool_size=(2, 2)))
+model.add(Dropout(0.25))
+model.add(Convolution2D(64, 3, 3, border_mode='valid'))
+model.add(Activation('hard_sigmoid'))
 # model.add(MaxPooling2D(pool_size=(2, 2)))
-# model.add(Dropout(0.25))
-
-model.add(Flatten())
-model.add(Dense(128))
-model.add(Activation('sigmoid'))
-model.add(Dense(64))
-model.add(Activation('sigmoid'))
+model.add(Convolution2D(64, 3, 3, border_mode='valid'))
+model.add(Activation('hard_sigmoid'))
+model.add(MaxPooling2D(pool_size=(2, 2)))
+model.add(Dropout(0.25))
+# model.add(Convolution2D(64, 3, 3, border_mode='valid'))
+# model.add(Activation('hard_sigmoid'))
+# model.add(MaxPooling2D(pool_size=(2, 2)))
+# model.add(Convolution2D(64, 3, 3, border_mode='valid'))
+# model.add(Activation('hard_sigmoid'))
 # model.add(Dropout(0.5))
 
+model.add(Flatten())
+model.add(Dense(256))
+model.add(Activation('hard_sigmoid'))
+model.add(Dropout(0.5))
+model.add(Dense(128))
+model.add(Activation('hard_sigmoid'))
+model.add(Dense(64))
+model.add(Activation('hard_sigmoid'))
 model.add(Dense(3))
 model.add(Activation('softmax'))
+
 
 optimizer_method = Adadelta()#SGD(lr=0.000001, decay=1e-6, momentum=0.9, nesterov=True)#Adagrad()#Adadelta()#RMSprop()#Adam()
 model.compile(loss='categorical_crossentropy', optimizer=optimizer_method)
 
-EarlyStopping(monitor='val_loss', patience=0, verbose=0)
-checkpointer = ModelCheckpoint(os.path.abspath(__file__) + 'model_weights_' + model_description + '.hdf5', verbose=1, save_best_only=True)
-
+EarlyStopping(monitor='val_loss', patience=0, verbose=1)
+checkpointer = ModelCheckpoint('best_model_weights_' + model_description + '.hdf5', verbose=1, save_best_only=True)
 
 
 model.fit(X_train, Y_train, batch_size=size_batch, nb_epoch=epoches_number, validation_split=testing_amount, show_accuracy=True, callbacks=[checkpointer])
