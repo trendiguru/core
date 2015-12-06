@@ -293,6 +293,17 @@ RUN ./data/ilsvrc12/get_ilsvrc_aux.sh
 RUN ./build/examples/cpp_classification/classification.bin ./models/bvlc_reference_caffenet/deploy.prototxt ./models/bvlc_reference_caffenet/bvlc_reference_caffenet.caffemodel ./data/ilsvrc12/imagenet_mean.binaryproto ./data/ilsvrc12/synset_words.txt ./examples/images/cat.jpg
 
 
+###################
+# CUDA
+###################
+#get cuda
+RUN wget http://developer.download.nvidia.com/compute/cuda/repos/ubuntu1404/x86_64/cuda-repo-ubuntu1404_7.5-18_amd64.deb
+RUN dpkg -i cuda-repo-ubuntu1404_7.5-18_amd64.deb
+RUN apt-get update
+RUN apt-get install -y cuda
+
+
+
 ################################
 # git clone the tg repo , run this last since it requires nonsudo user
 ################################
@@ -340,13 +351,4 @@ CMD ssh -i /.ssh/first_aws.pem -L 27017:localhost:27017 ubuntu@extremeli.trendi.
 RUN rqworker -u redis://redis1-redis-1-vm:6379 caffe_general &
 #RUN rqworker gender &
 
-
-###################
-# CUDA
-###################
-#get cuda
-RUN wget http://developer.download.nvidia.com/compute/cuda/repos/ubuntu1404/x86_64/cuda-repo-ubuntu1404_7.5-18_amd64.deb
-RUN dpkg -i cuda-repo-ubuntu1404_7.5-18_amd64.deb
-RUN apt-get update
-RUN apt-get install cuda
 
