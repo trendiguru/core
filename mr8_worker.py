@@ -66,7 +66,7 @@ def mr8_4_demo(img, fc):
         return
     x0, y0, w, h = fc
 
-    s_size = np.amin(np.asarray(w, h))
+    s_size = min(w, h)
 
     sample = gray_img[y0 + 3 * s_size:y0 + 4 * s_size, x0:x0 + s_size]
     print sample.shape
