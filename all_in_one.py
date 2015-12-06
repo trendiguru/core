@@ -32,6 +32,10 @@ def person_isolation(image, face):
     return image_copy
 
 
+def bad(cat):
+    a = cat[100]
+
+
 def find_top_n_results(image, mask, number_of_results, item_dict, collection, wing, weight):
     '''
     for comparing 2 fp call the function twice, both times with collection_name ='fp_testing' :
@@ -118,7 +122,7 @@ def find_n_nearest_neighbors(target_dict, entries, number_of_matches, fp_weights
     return nearest_n
 
 
-def get_results_now(page_url, image_url, collection, wing, weight):
+def get_results_now(svg_url, image_url, collection, wing, weight):
     # IF URL HAS NO IMAGE IN IT
     image = Utils.get_cv2_img_array(image_url)
     if image is None:
@@ -130,7 +134,7 @@ def get_results_now(page_url, image_url, collection, wing, weight):
     clean_image = copy.copy(image)
     relevance = background_removal.image_is_relevant(image, True, image_url)
     image_dict = {'image_urls': [image_url], 'relevant': relevance.is_relevant,
-                  'image_hash': image_hash, 'page_urls': [page_url], 'people': []}
+                  'image_hash': image_hash, 'page_urls': [True], 'people': []}
     if relevance.is_relevant:
         idx = 0
         if len(relevance.faces):
@@ -150,14 +154,19 @@ def get_results_now(page_url, image_url, collection, wing, weight):
                 for num in np.unique(final_mask):
                     # convert numbers to labels
                     category = list(labels.keys())[list(labels.values()).index(num)]
+                    bad(category)
                     if category in constants.paperdoll_shopstyle_women.keys():
                         item_mask = 255 * np.array(final_mask == num, dtype=np.uint8)
                         item_dict = {"category": category, 'item_id': str(bson.ObjectId()), 'item_idx': item_idx}
-                        svg_name = find_similar_mongo.mask2svg(
-                            item_mask,
-                            str(image_dict['image_hash']) + '_' + person['person_id'] + '_' + item_dict['category'],
-                            constants.svg_folder)
-                        item_dict["svg_url"] = constants.svg_url_prefix + svg_name
+                        if len(svg_url) == 0:
+                            svg_name = find_similar_mongo.mask2svg(
+                                item_mask,
+                                str(image_dict['image_hash']) + '_' + person['person_id'] + '_' + item_dict['category'],
+                                constants.svg_folder)
+                            item_dict["svg_url"] = constants.svg_url_prefix + svg_name
+                        else:
+                            item_dict["svg_url"] = svg_url
+
                         item_dict['fp'], item_dict['similar_results'] = find_top_n_results(
                             clean_image,
                             item_mask,
@@ -182,17 +191,21 @@ def get_results_now(page_url, image_url, collection, wing, weight):
                 if category in constants.paperdoll_shopstyle_women.keys():
                     item_mask = 255 * np.array(final_mask == num, dtype=np.uint8)
                     item_dict = {"category": category, 'item_id': str(bson.ObjectId()), 'item_idx': item_idx}
-                    svg_name = find_similar_mongo.mask2svg(
+                    if len(svg_url) == 0:
+                        svg_name = find_similar_mongo.mask2svg(
+                            item_mask,
+                            str(image_dict['image_hash']) + '_' + person['person_id'] + '_' + item_dict['category'],
+                            constants.svg_folder)
+                        item_dict["svg_url"] = constants.svg_url_prefix + svg_name
+                    else:
+                        item_dict["svg_url"] = svg_url
+                    item_dict['fp'], item_dict['similar_results'] = find_top_n_results(
+                        clean_image,
                         item_mask,
-                        str(image_dict['image_hash']) + '_' + person['person_id'] + '_' + item_dict['category'],
-                        constants.svg_folder)
-                    item_dict["svg_url"] = constants.svg_url_prefix + svg_name
-                    item_dict['fp'], item_dict['similar_results'] = find_top_n_results(clean_image,
-                                                                                       item_mask,
-                                                                                       100,
-                                                                                       item_dict,
-                                                                                       collection,
-                                                                                       wing, weight)
+                        100,
+                        item_dict,
+                        collection,
+                        wing, weight)
                     person['items'].append(item_dict)
                     item_idx += 1
             image_dict['people'].append(person)
