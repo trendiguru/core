@@ -57,3 +57,27 @@ def add_new_field(doc, x):
     #     logging.warning("Exception caught while inserting element #" + str(x) + " to the collection".format(ex))
     #     raw_input('boom!')
     # return x
+
+
+def mr8_4_demo(img, fc):
+    gray_img = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
+    print fc
+    if len(fc) == 0:
+        return
+    x0, y0, w, h = fc
+
+    s_size = min(w, h)
+
+    sample = gray_img[y0 + 3 * s_size:y0 + 4 * s_size, x0:x0 + s_size]
+    print sample.shape
+    d = 40
+    if s_size < d:
+        return
+    resized_sample = cv2.resize(sample, (d, d))
+    response = fp_yuli_MR8.yuli_fp(resized_sample, d / 2)
+    print len(response)
+
+    ms_response = []
+    for idx, val in enumerate(response):
+        ms_response = ms_response + fp_yuli_MR8.mean_std_pooling(val, 5)
+    return ms_response

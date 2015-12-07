@@ -12,7 +12,7 @@ def collar_images_maker_for_testing(image, face_box):
 
     collar_images = []
     a = 1.25 # scalar for increasing collar box in relation to face box (1==100%)
-    max_angle = 360 # tilt angle of the image for diversification
+    max_angle = 15 # tilt angle of the image for diversification
     angle_offset = 5 # tilt angle of the image for diversification
     output_images_size = (32, 32) # pixels^2
 
