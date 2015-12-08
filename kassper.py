@@ -71,7 +71,7 @@ def skin_removal(gc_image, image):
     fgdmodel = np.zeros((1, 65), np.float64)
     ycrcb = cv2.cvtColor(gc_image, cv2.COLOR_BGR2YCR_CB)
     mask = np.zeros(image.shape[:2], dtype=np.uint8)
-    face_rect = background_removal.find_face(image)
+    face_rect = background_removal.find_face_cascade(image)
     if len(face_rect) > 0:
         hsv = cv2.cvtColor(image, cv2.COLOR_BGR2HSV)
         x, y, w, h = face_rect[0]
