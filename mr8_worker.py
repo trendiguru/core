@@ -39,7 +39,7 @@ db = constants.db
 def mr8_4_demo(img, fc, mask):
     if len(fc) != 0:
         x0, y0, w, h = fc
-        s_size = np.amin(np.asarray(w, h))
+        s_size = np.amin([w, h])
         print "s_size:", s_size
     # sample = gray_img[y0 + 3 * s_size:y0 + 4 * s_size, x0:x0 + s_size]
     else:
