@@ -63,7 +63,7 @@ def trim_mask(small_image, mask):
     #facx = rx/10 ; facy =ry/10 ; centx = min_x+rx/2 ; centy = min_y+ry/2
 
     trimmed_mask = img[min_y:max_y, min_x:max_x]
-    cv2.imwrite('mr8_trimmed.jpg',feature)
+    cv2.imwrite('mr8_trimmed.jpg', trimmed_mask)
     
     #print trimmed_mask.shape
     #img = cv2.rectangle(img ,(min_x+facx, min_y+facy),(max_x-facx, max_y-facy),(255, 0, 0))
