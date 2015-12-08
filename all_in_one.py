@@ -164,6 +164,7 @@ def get_results_now(image_url, svg_url=None, collection="mr8_testing", wing="lef
                                 str(image_dict['image_hash']) + '_' + person['person_id'] + '_' + item_dict['category'],
                                 constants.svg_folder)
                             item_dict["svg_url"] = constants.svg_url_prefix + svg_name
+                            return
                         else:
                             item_dict["svg_url"] = svg_url
 
@@ -197,6 +198,7 @@ def get_results_now(image_url, svg_url=None, collection="mr8_testing", wing="lef
                             str(image_dict['image_hash']) + '_' + person['person_id'] + '_' + item_dict['category'],
                             constants.svg_folder)
                         item_dict["svg_url"] = constants.svg_url_prefix + svg_name
+                        return
                     else:
                         item_dict["svg_url"] = svg_url
                     item_dict['fp'], item_dict['similar_results'] = find_top_n_results(
