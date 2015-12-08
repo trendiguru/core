@@ -40,6 +40,8 @@ def mr8_4_demo(img, fc, mask):
     if len(fc) != 0:
         x0, y0, w, h = fc
         s_size = np.amin([w, h])
+        while divmod(s_size, 5) != 0:
+            s_size -= 1
         print "s_size:", s_size
     # sample = gray_img[y0 + 3 * s_size:y0 + 4 * s_size, x0:x0 + s_size]
     else:
@@ -51,5 +53,5 @@ def mr8_4_demo(img, fc, mask):
 
     ms_response = []
     for idx, val in enumerate(response):
-        ms_response = ms_response + fp_yuli_MR8.mean_std_pooling(val, 5)
+        ms_response.fp_yuli_MR8.mean_std_pooling(val, 5)
     return ms_response
