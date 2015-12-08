@@ -71,7 +71,7 @@ def skin_removal(gc_image, image):
     fgdmodel = np.zeros((1, 65), np.float64)
     ycrcb = cv2.cvtColor(gc_image, cv2.COLOR_BGR2YCR_CB)
     mask = np.zeros(image.shape[:2], dtype=np.uint8)
-    face_rect = background_removal.find_face(image)
+    face_rect = background_removal.find_face_cascade(image)
     if len(face_rect) > 0:
         hsv = cv2.cvtColor(image, cv2.COLOR_BGR2HSV)
         x, y, w, h = face_rect[0]
@@ -114,7 +114,7 @@ def skin_detection_with_grabcut(gc_image, image, skin_or_clothes='clothes'):
     hsv = cv2.cvtColor(image, cv2.COLOR_BGR2HSV)
     partly_hsv = cv2.cvtColor(gc_image, cv2.COLOR_BGR2HSV)
     mask = np.zeros(gc_image.shape[:2], dtype=np.uint8)
-    face_rect = background_removal.find_face(image)
+    face_rect = background_removal.find_face_cascade(image)
     if len(face_rect) > 0:
         skin_hue_list = background_removal.face_skin_color_estimation(image, face_rect)
         for i in range(0, gc_image.shape[0]):
