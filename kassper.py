@@ -114,9 +114,9 @@ def skin_detection_with_grabcut(gc_image, image, face=None, skin_or_clothes='clo
     partly_hsv = cv2.cvtColor(gc_image, cv2.COLOR_BGR2HSV)
     mask = np.zeros(gc_image.shape[:2], dtype=np.uint8)
     if len(face) == 0:
-        face_rect = background_removal.find_face_cascade(image)['faces']
-    if len(face_rect) > 0:
-        skin_hue_list = background_removal.face_skin_color_estimation(image, face_rect)
+        face = background_removal.find_face_cascade(image)['faces']
+    if len(face) > 0:
+        skin_hue_list = background_removal.face_skin_color_estimation(image, face)
         for i in range(0, gc_image.shape[0]):
             for j in range(0, gc_image.shape[1]):
                 if partly_hsv[i][j][0] in skin_hue_list and ycrcb[i][j][0] > 0 and 133 < ycrcb[i][j][1] < 173 and 80 < \
