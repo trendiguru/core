@@ -23,7 +23,8 @@ def collar_images_maker_for_testing(image, face_box):
     face = face_box
     face = face
     row, col, dep = image.shape
-
+    if row < (face[1]+2*face[3])*(1+a):
+        return collar_images
     # no flip along vertical axis:
     collar_image_center_point = (face[0]+0.5*face[2], face[1]+1.5*face[3])
     flipped_collar_image_center_point = (col - face[0]+0.5*face[2], face[1]+1.5*face[3])
