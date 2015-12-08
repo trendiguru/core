@@ -37,7 +37,7 @@ def length_of_lower_body_part_field(image, face):
     # TODO - 1. check if there are enough faces down the images..
     # 2.
     image, rr = background_removal.standard_resize(image, 400)
-    face = np.array([int(num) for num in face / rr])
+    face = np.array([int(num) for num in face / rr], dtype=np.uint8)
     gc_image = background_removal.get_masked_image(image, background_removal.get_fg_mask(image))
     y_split = higher_lower_body_split_line(face)
     lower_bgr = image[y_split:gc_image.shape[0] - 1, :, :]
