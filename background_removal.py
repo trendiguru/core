@@ -350,7 +350,7 @@ def get_image():
 
 
 def face_skin_color_estimation(image, face_rect):
-    x, y, w, h = face_rect[0]
+    x, y, w, h = face_rect
     face_image = image[y:y + h, x:x + w, :]
     face_hsv = cv2.cvtColor(face_image, cv2.COLOR_BGR2HSV)
     bins = 180
