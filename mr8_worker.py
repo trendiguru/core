@@ -2,79 +2,63 @@ __author__ = 'yonatan'
 '''
 workers for the  mr8 testing
 '''
-import logging
 
 import numpy as np
-import cv2
 
+from  paperdoll import paperdoll_parse_enqueue
 import background_removal
-import Utils
 import constants
 import fp_yuli_MR8
-
+import paperdolls
 db = constants.db
 
 
 # define a example function
-def add_new_field(doc, x):
-    image_url = doc["images"]["XLarge"]
-
-    image = Utils.get_cv2_img_array(image_url)
-    if not Utils.is_valid_image(image):
-        logging.warning("image is None. url: {url}".format(url=image_url))
-        return
-    gray_img = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
-    faces = background_removal.image_is_relevant(image)
-    print faces
-    if faces[0] is False:
-        return
-    fc = faces[1]
-    print fc
-    if len(fc) == 0:
-        return
-    x0, y0, w, h = fc[0]
-
-    s_size = np.amin(np.asarray(w, h))
-
-    sample = gray_img[y0 + 3 * s_size:y0 + 4 * s_size, x0:x0 + s_size]
-    print sample.shape
-    d = 40
-    if s_size < d:
-        return
-    resized_sample = cv2.resize(sample, (d, d))
-    response = fp_yuli_MR8.yuli_fp(resized_sample, d / 2)
-    print len(response)
-
-    ms_response = []
-    for idx, val in enumerate(response):
-        ms_response = ms_response + fp_yuli_MR8.mean_std_pooling(val, 5)
-    # print (ms_response)
-    # print ("shape: " + str(ms_response[0].shape))
-    doc["mr8"] = ms_response
-    # try:
-    db.mr8_testing.insert_one(doc)
-    # except Exception as ex:
-    #     logging.warning("Exception caught while inserting element #" + str(x) + " to the collection".format(ex))
-    #     raw_input('boom!')
-    # return x
+# def add_new_field(doc, x):
+#     image_url = doc["images"]["XLarge"]
+#
+#     image = Utils.get_cv2_img_array(image_url)
+#     print "image high, width:", image.shape[0], image.shape[1]
+#     if not Utils.is_valid_image(image):
+#         logging.warning("image is None. url: {url}".format(url=image_url))
+#         return
+#
+#
+#     ms_response = []
+#     for idx, val in enumerate(response):
+#         ms_response = ms_response + fp_yuli_MR8.mean_std_pooling(val, 5)
+#     # print (ms_response)
+#     # print ("shape: " + str(ms_response[0].shape))
+#     doc["mr8"] = ms_response
+#     # try:
+#     db.mr8_testing.insert_one(doc)
+#     # except Exception as ex:
+#     #     logging.warning("Exception caught while inserting element #" + str(x) + " to the collection".format(ex))
+#     #     raw_input('boom!')
+#     # return x
 
 
-def mr8_4_demo(img, fc):
-    gray_img = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
-    print fc
-    if len(fc) == 0:
-        return
-    x0, y0, w, h = fc
+def mr8_4_demo(img, fc = None):
+    faces = background_removal.image_is_relevant(img)
+    if faces[0] is True and len(faces[1]) != 0:
+        x0, y0, w, h = faces[1][0]
+        s_size = np.amin(np.asarray(w, h))
+        print "s_size:", s_size
+        face = [x0, y0, w, h]
+    # sample = gray_img[y0 + 3 * s_size:y0 + 4 * s_size, x0:x0 + s_size]
+    else:
+        s_size = np.asarray(0.1 * img.shape[0])
+        print "s_size:", s_size
+        face = None
+    mask, labels, pose = paperdoll_parse_enqueue.paperdoll_enqueue(img, async=False).result[:3]
+    final_mask = paperdolls.after_pd_conclusions(mask, labels, face)
+    for num in np.unique(final_mask):
+        category = list(labels.keys())[list(labels.values()).index(num)]
+        if category in constants.paperdoll_shopstyle_women.keys():
+            item_mask = 255 * np.array(final_mask == num, dtype=np.uint8)
 
-    s_size = min(w, h)
-
-    sample = gray_img[y0 + 3 * s_size:y0 + 4 * s_size, x0:x0 + s_size]
-    print sample.shape
-    d = 40
-    if s_size < d:
-        return
-    resized_sample = cv2.resize(sample, (d, d))
-    response = fp_yuli_MR8.yuli_fp(resized_sample, d / 2)
+    trimmed_mask = fp_yuli_MR8.trim_mask(img, item_mask)
+    response = fp_yuli_MR8.yuli_fp(trimmed_mask, s_size)
     print len(response)
 
     ms_response = []
