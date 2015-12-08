@@ -259,9 +259,9 @@ def start_process(page_url, image_url, lang=None):
                        products_collection=products_collection, images_collection=coll_name, depends_on=paper_job)
     else:  # if not relevant
         logging.warning('image is not relevant, but stored anyway..')
-        images_collection.insert(image_dict)
+        images_collection.insert_one(image_dict)
         return
-    iip.insert(image_dict)
+    iip.insert_one(image_dict)
 
 
 def from_paperdoll_to_similar_results(person_id, paper_job_id, num_of_matches=100, products_collection=None,
@@ -319,7 +319,7 @@ def from_paperdoll_to_similar_results(person_id, paper_job_id, num_of_matches=10
     else:
         image_obj = new_image_obj
     if person['person_idx'] == len(image_obj['people']) - 1:
-        images_collection.insert(image_obj)
+        images_collection.insert_one(image_obj)
         iip.delete_one({'_id': image_obj['_id']})
         logging.warning("Done! image was successfully inserted to the DB images!")
 
@@ -425,7 +425,7 @@ def get_results_now(page_url, image_url, collection='products_jp'):
                     person['items'].append(item_dict)
                     item_idx += 1
             image_dict['people'].append(person)
-        db.demo.insert(image_dict)
+        db.demo.insert_one(image_dict)
         return page_results.merge_items(image_dict)
     else:  # if not relevant
         return
