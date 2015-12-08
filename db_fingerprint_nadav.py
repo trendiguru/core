@@ -11,11 +11,15 @@ import pymongo.errors
 import numpy as np
 import cv2
 
+import collar_classifier
+import geometry
+
 import fingerprint_core as fp
 import background_removal
 import Utils
 import constants
 from .constants import db
+
 
 # globals
 CLASSIFIER_FOR_CATEGORY = {}
@@ -330,3 +334,22 @@ if __name__ == "__main__":
         fingerprint_db(int(args['fp_version']), args['category_id'], args['num_processes'])
     except Exception as e:
         logging.warning("Exception reached main!: {0}".format(e))
+
+
+def change_fp_to_dict(collection, category=None):
+    coll = db[collection]
+    i = 0
+    for doc in coll.find():
+        if i % 10 == 0:
+            print "doing the {0}th item".format(i)
+        fp_dict = {'color': doc['fingerprint']}
+        image = doc["image"]["sizes"]["XLarge"]["url"]
+        faces = background_removal.image_is_relevant(image).faces
+        if len(faces) > 0:
+            fp_dict['lod'] = geometry.length_of_lower_body_part_field(image, faces[0])
+            fp_dict['collar'] = collar_classifier.collar_classifier(image, faces[0])
+        else:
+            fp_dict['lod'] = 0.5
+            fp_dict['collar'] = {'roundneck': 0.5, 'squareneck': 0.5, 'v-neck': 0.5}
+        coll.update_one({'_id': doc['_id']}, {'$set': {'fp_dict': fp_dict}, '$unset': {'fingerprint': ""}})
+        i += 1
