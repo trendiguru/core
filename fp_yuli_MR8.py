@@ -1,16 +1,16 @@
 __author__ = 'yuli'
 
+import pickle
+
+import os
+
+import cv2
+
+import numpy as np
 
 import Utils
 import background_removal
 import kassper
-import cv2
-import numpy as np
-import pickle
-import matplotlib
-import matplotlib.pyplot as plt
-import os
-from PIL import Image
 
 
 def is_relevant_head(first_head):
@@ -72,14 +72,14 @@ def trim_mask(small_image, mask):
 
 
 def yuli_fp(trimmed_mask, feat_size):
-    from itertools import product, chain
+    from itertools import chain
     import MR8filters
 
     #sample_texture (trimmed_mask , feature_size= min_dim/10 , n= 1 ):
 
     centy = trimmed_mask.shape[0]/2 ; centx = trimmed_mask.shape[1]/2
     #img = cv2.rectangle(trimmed_mask ,(centx-feature_size, centy-feature_size),(centx+feature_size, centy+feature_size),(255, 0, 0))
-    feature = [centy-feat_size/2:centy+feat_size/2, centx-feat_size/2:centx+feat_size/2]
+    feature = trimmed_mask[centy - feat_size / 2:centy + feat_size / 2, centx - feat_size / 2:centx + feat_size / 2]
     print "sample shape:", feature.shape
     cv2.imwrite('mr8_samp.jpg',feature)
 
