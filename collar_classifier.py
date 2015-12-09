@@ -129,12 +129,15 @@ def collar_classifier(image, face_box):
     collar_images = collar_images_maker_for_testing(image, face_box)
     return collar_classifier_neural_net(collar_images)
 
+
+
+
 if __name__ == "__main__":
-#    img_arr = cv2.imread('images/vneck.jpg')
-    img_arr = cv2.imread('images/roundneck.jpg')
+    img_arr = cv2.imread('images/vneck.jpg')
+#    img_arr = cv2.imread('images/roundneck.jpg')
 #    img_arr = cv2.imread('images/squareneck.jpg')
     face_bbs =  background_removal.find_face_cascade(img_arr, 10)
-    if len(face_bbs) > 0 :
+    if face_bbs['are_faces'] is True:
         print('face bbs:'+str(face_bbs))
         first_bb = face_bbs['faces'][0]
         print(first_bb)
