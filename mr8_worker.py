@@ -53,5 +53,5 @@ def mr8_4_demo(img, fc, mask):
 
     ms_response = []
     for idx, val in enumerate(response):
-        ms_response.fp_yuli_MR8.mean_std_pooling(val, 5)
+        ms_response = ms_response + fp_yuli_MR8.mean_std_pooling(val, 5)
     return ms_response
