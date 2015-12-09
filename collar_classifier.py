@@ -7,6 +7,7 @@ from keras.models import Sequential
 from keras.layers.core import Dense, Dropout, Activation, Flatten
 from keras.layers.convolutional import Convolution2D, MaxPooling2D
 from keras.optimizers import SGD, Adagrad, Adadelta, RMSprop, Adam
+import time
 
 from trendi import background_removal
 
@@ -133,7 +134,8 @@ if __name__ == "__main__":
         print('face bbs:'+str(face_bbs))
         first_bb = face_bbs['faces'][0]
         print(first_bb)
+        t0 = time.time()
         res = collar_classifier(img_arr, first_bb)
-        print('res = '+str(res))
+        print('res = '+str(res)+' time elapsed:'+str(time.time()-t0))
     else:
         print('no face found')
