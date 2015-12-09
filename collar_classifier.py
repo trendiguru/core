@@ -1,5 +1,6 @@
 import os
 import pickle
+from . import constants
 import numpy as np
 from scipy.stats import mode
 import cv2
@@ -103,7 +104,7 @@ def collar_classifier_neural_net(collar_images):
     optimizer_method = Adadelta()#SGD(lr=0.000001, decay=1e-6, momentum=0.9, nesterov=True)#Adagrad()#Adadelta()#RMSprop()#Adam()
     model.compile(loss='categorical_crossentropy', optimizer=optimizer_method)
     # model.load_weights(pickle.load(open('model_weights_pickled')))
-    model.load_weights('collar_CNN.pymodel_weights_whatever.hdf5')
+    model.load_weights(os.path.join(constants.project_dir, 'collar_CNN.pymodel_weights_whatever.hdf5'))
     proba = model.predict_proba(collar_images, batch_size=size_batch)
     classes = model.predict_classes(collar_images, batch_size=32)
 
