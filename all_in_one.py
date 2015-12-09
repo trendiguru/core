@@ -200,13 +200,13 @@ def get_results_now(image_url, svg_url=None, collection="mr8_testing", wing="lef
                         item_dict["svg_url"] = constants.svg_url_prefix + svg_name
                     else:
                         item_dict["svg_url"] = svg_url
-                    item_dict['fp'], item_dict['similar_results'] = find_top_n_results(
-                        clean_image,
-                        item_mask,
-                        100,
-                        item_dict,
-                        collection,
-                        wing, weight)
+
+                    item_dict['fp'], item_dict['similar_results'] = find_top_n_results(clean_image,
+                                                                                       item_mask,
+                                                                                       100,
+                                                                                       item_dict,
+                                                                                       collection,
+                                                                                       wing, weight)
                     person['items'].append(item_dict)
                     item_idx += 1
             image_dict['people'].append(person)
