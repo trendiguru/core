@@ -40,10 +40,7 @@ def mr8_4_demo(img, fc, mask):
     print (fc)
     if len(fc) == 4:
         x0, y0, w, h = fc
-        print ("w = " + str(w))
-        print ("h = " + str(h))
-        s_size = np.min(w, h)
-        print s_size
+        s_size = min(w, h)
         # while divmod(s_size, 5)[1] != 0:
         #     s_size -= 1
         #     print "s_size:", s_size
