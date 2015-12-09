@@ -39,7 +39,10 @@ db = constants.db
 def mr8_4_demo(img, fc, mask):
     if len(fc) == 4:
         x0, y0, w, h = fc
-        s_size = min(w, h)
+        print ("w = " + str(w))
+        print ("h = " + str(h))
+        s_size = np.min(w, h)
+        print s_size
         # while divmod(s_size, 5)[1] != 0:
         #     s_size -= 1
         #     print "s_size:", s_size
