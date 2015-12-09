@@ -129,7 +129,7 @@ def collar_classifier(image, face_box):
     return collar_classifier_neural_net(collar_images)
 
 if __name__ == "__main__":
-    img_arr = cv2.imread('images/collar.JPG')
+    img_arr = cv2.imread('images/vneck.jpg')
     face_bbs =  background_removal.find_face_cascade(img_arr, 10)
     if len(face_bbs) > 0 :
         print('face bbs:'+str(face_bbs))
