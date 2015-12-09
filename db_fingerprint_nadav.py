@@ -22,6 +22,7 @@ from .constants import db
 
 
 
+
 # globals
 CLASSIFIER_FOR_CATEGORY = {}
 TOTAL_PRODUCTS = mp.Value("i", 0)
@@ -353,15 +354,16 @@ def change_fp_to_dict(collection, category=None):
                 start = time.time()
                 fp_dict['lod'] = geometry.length_of_lower_body_part_field(image, faces[0])
                 print "lod took {0} seconds..".format(time.time() - start)
-
                 try:
                     start = time.time()
                     fp_dict['collar'] = collar_classifier.collar_classifier(image, faces[0])
                     print "collar took {0} seconds..".format(time.time() - start)
                 except:
-                    print "problem"
+                    print "problem with collar.."
+                    fp_dict['collar'] = {'roundneck': 0.5, 'squareneck': 0.5, 'v-neck': 0.5}
             else:
                 fp_dict['lod'] = 0.5
                 fp_dict['collar'] = {'roundneck': 0.5, 'squareneck': 0.5, 'v-neck': 0.5}
+            print "updating fp with lod: {0}, collar: {1}".format(fp_dict['lod'], fp_dict['collar'])
             coll.update_one({'_id': doc['_id']}, {'$set': {'fp_dict': fp_dict}, '$unset': {'fingerprint': ""}})
             i += 1
