@@ -1,7 +1,6 @@
 __author__ = 'yuli'
 
 import pickle
-
 import os
 
 import cv2
@@ -9,8 +8,6 @@ import cv2
 import numpy as np
 
 import Utils
-import background_removal
-import kassper
 
 
 def is_relevant_head(first_head):
@@ -40,16 +37,16 @@ def resize_by_head(small_image, first_head):
 
 
 # Returned mask is resized to max_side_lenth 400
-def get_mask(small_image, bb=None):
-    if bb is not None:
-        bb = [int(b) for b in (np.array(bb) / resize_ratio)]  # shrink bb in the same ratio
-    fg_mask = background_removal.get_fg_mask(small_image, bb)                     # returns the grab-cut mask (if bb => PFG-PBG gc, if !bb => face gc)
-    gc_image = background_removal.get_masked_image(small_image, fg_mask)
-    without_skin = kassper.skin_removal(gc_image, small_image)
-    crawl_mask = kassper.clutter_removal(without_skin, 400)
-    without_clutter = background_removal.get_masked_image(without_skin, crawl_mask)
-    fp_mask = kassper.get_mask(without_clutter)
-    return fp_mask
+# def get_mask(small_image, bb=None):
+#     if bb is not None:
+#         bb = [int(b) for b in (np.array(bb) / resize_ratio)]  # shrink bb in the same ratio
+#     fg_mask = background_removal.get_fg_mask(small_image, bb)                     # returns the grab-cut mask (if bb => PFG-PBG gc, if !bb => face gc)
+#     gc_image = background_removal.get_masked_image(small_image, fg_mask)
+#     without_skin = kassper.skin_removal(gc_image, small_image)
+#     crawl_mask = kassper.clutter_removal(without_skin, 400)
+#     without_clutter = background_removal.get_masked_image(without_skin, crawl_mask)
+#     fp_mask = kassper.get_mask(without_clutter)
+#     return fp_mask
 
 def trim_mask(small_image, mask):
     # returns trimmed mask in grey scale
@@ -81,7 +78,7 @@ def yuli_fp(trimmed_mask, feat_size):
     #img = cv2.rectangle(trimmed_mask ,(centx-feature_size, centy-feature_size),(centx+feature_size, centy+feature_size),(255, 0, 0))
     feature = trimmed_mask[centy - feat_size / 2:centy + feat_size / 2, centx - feat_size / 2:centx + feat_size / 2]
     print "sample shape:", feature.shape
-    cv2.imwrite('mr8_samp.jpg',feature)
+    cv2.imwrite('../../../../vars/www/yuli/mr8_samp.jpg', feature)
 
     d = 40
     if feat_size < d:
