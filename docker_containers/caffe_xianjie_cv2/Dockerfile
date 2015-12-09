@@ -245,7 +245,7 @@ WORKDIR /opt/caffe
 RUN cp Makefile.config.example Makefile.config
 RUN  sed -i 's/# CPU_ONLY := 1/CPU_ONLY := 1/' Makefile.config
 RUN echo "CPU_ONLY := 1" >> Makefile.config
-RUN echo "CXX := /usr/bin/g++-4.6" >> Makefile.config
+RUN echo "CXX := /usr/bin/g++-4.6" >> Makefile
 RUN sed -i 's/CXX :=/CXX ?=/' Makefile
 RUN sed -i 's/LIBRARIES += opencv_core opencv_highgui opencv_imgproc/LIBRARIES += opencv_core opencv_highgui opencv_imgproc opencv_imgcodecs/' Makefile
 RUN mkdir build
