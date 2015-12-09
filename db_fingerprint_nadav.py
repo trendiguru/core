@@ -23,6 +23,7 @@ from .constants import db
 
 
 
+
 # globals
 CLASSIFIER_FOR_CATEGORY = {}
 TOTAL_PRODUCTS = mp.Value("i", 0)
@@ -367,3 +368,12 @@ def change_fp_to_dict(collection, category=None):
             print "updating fp with lod: {0}, collar: {1}".format(fp_dict['lod'], fp_dict['collar'])
             coll.update_one({'_id': doc['_id']}, {'$set': {'fp_dict': fp_dict}, '$unset': {'fingerprint': ""}})
             i += 1
+
+
+def fp_go_back(collection):
+    coll = db[collection]
+    bads = coll.find({'fingerprint': {'$exists': 0}})
+    print bads.count()
+    for doc in bads:
+        coll.update_one({'_id': doc['_id']}, {'$set': {'fingerprint': doc['fp_dict']['color']},
+                                              '$unset': {'fp_dict': ""}})
