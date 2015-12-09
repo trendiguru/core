@@ -37,6 +37,7 @@ db = constants.db
 
 
 def mr8_4_demo(img, fc, mask):
+    print (fc)
     if len(fc) == 4:
         x0, y0, w, h = fc
         print ("w = " + str(w))
