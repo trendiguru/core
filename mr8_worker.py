@@ -42,7 +42,7 @@ def mr8_4_demo(img, fc, mask):
         s_size = min(w, h)
         while divmod(s_size, 5)[1] != 0:
             s_size -= 1
-        print "s_size:", s_size
+            print "s_size:", s_size
     # sample = gray_img[y0 + 3 * s_size:y0 + 4 * s_size, x0:x0 + s_size]
     else:
         s_size = np.asarray(0.1 * img.shape[0])
