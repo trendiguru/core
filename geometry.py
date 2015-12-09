@@ -24,7 +24,7 @@ def length_of_lower_body_part_field(image, face):
     def legs_upper_line_cnt(mask):
         ret, thresh = cv2.threshold(mask, 127, 255, cv2.THRESH_BINARY, 0)
         contours = cv2.findContours(thresh, mode=cv2.RETR_EXTERNAL, method=cv2.CHAIN_APPROX_NONE)[1]
-        y_up = mask.shape[0]
+        y_up = 7
         topmost_list = []
         for contour in contours:
             topmost = tuple(contour[contour[:, :, 1].argmin()][0])
@@ -33,9 +33,6 @@ def length_of_lower_body_part_field(image, face):
         if len(topmost_list) > 0:
             y_up = np.amin(topmost_list)
         return int(y_up)
-
-    # TODO - 1. check if there are enough faces down the images..
-    # 2.
     image, rr = background_removal.standard_resize(image, 400)
     face = np.array([int(num) for num in face / rr], dtype=np.uint8)
     gc_image = background_removal.get_masked_image(image, background_removal.get_fg_mask(image))
@@ -45,10 +42,15 @@ def length_of_lower_body_part_field(image, face):
         only_skin_down = kassper.skin_detection_with_grabcut(lower_bgr, image, face, 'skin')
     except:
         print 'Problem with the grabcut'
-        return -1, -1
+        return 0.5
     only_skin_mask = kassper.clutter_removal(only_skin_down, 100)
-    legs_up_cnt = legs_upper_line_cnt(255 * only_skin_mask) + int(y_split)
-    return legs_up_cnt
+    l = legs_upper_line_cnt(255 * only_skin_mask) + int(y_split)
+    if l > 7 * face[3]:
+        return 1
+    elif l < y_split:
+        return 0
+    else:
+        return (l - y_split) / (face[1] + 7 * face[3] - y_split)
 
 
 def length_of_lower_body_db_dresses(image):
