@@ -18,7 +18,7 @@ from paperdolls import after_pd_conclusions
 import constants
 import fingerprint_core as fp
 import NNSearch
-# import mr8_worker
+import mr8_worker
 import page_results
 import find_similar_mongo
 
@@ -52,11 +52,10 @@ def find_top_n_results(image, mask, number_of_results, item_dict, collection, wi
 
     print "amount of docs in cursor: {0}".format(potential_matches_cursor.count())
     color_fp = fp.fp(image, bins, fp_len, mask)
-    # if wing == "right":
-    #     mr8 = mr8_worker.mr8_4_demo(image, item_dict['face'], mask)
-    # else:
-    #     mr8 = []
-    mr8 = []
+    if wing == "right":
+        mr8 = mr8_worker.mr8_4_demo(image, item_dict['face'], mask)
+    else:
+        mr8 = []
     target_dict = {"clothingClass": item_dict['category'], "fingerprint": color_fp, "mr8": mr8}
     print "calling find_n_nearest.."
     closest_matches = find_n_nearest_neighbors(target_dict, potential_matches_cursor, number_of_results,
