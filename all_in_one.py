@@ -169,7 +169,7 @@ def get_svg(image_url):
                         item_dict["mask"] = item_mask
                         item_dict["fp"] = fp.fp(image, bins, fp_len, item_mask)
                         item_dict["mr8"] = mr8_worker.mr8_4_demo(image, item_dict['face'], item_mask)
-                        image_dict['items'].append(item_dict)
+                        image_dict['items'] = item_dict
                         return image_dict
                         # person['items'].append(item_dict)
                         # idx += 1
@@ -196,7 +196,7 @@ def get_svg(image_url):
                     item_dict["mask"] = item_mask
                     item_dict["fp"] = fp.fp(image, bins, fp_len, mask)
                     item_dict["mr8"] = mr8_worker.mr8_4_demo(image, item_dict['face'], mask)
-                    image_dict['items'].append(item_dict)
+                    image_dict['items'] = item_dict
                     return image_dict
                     #             person['items'].append(item_dict)
                     #             item_idx += 1
