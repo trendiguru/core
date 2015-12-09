@@ -12,7 +12,6 @@ import cv2
 import numpy as np
 
 from . import caffeDocker_test
-from . import geometry
 from . import constants
 from . import Utils
 from . import ccv_facedetector as ccv
@@ -371,10 +370,3 @@ def simple_mask_grabcut(image, mask):
     cv2.grabCut(image, mask, rect, bgdmodel, fgdmodel, 1, cv2.GC_INIT_WITH_MASK)
     mask2 = np.where((mask == 1) + (mask == 3), 255, 0).astype('uint8')
     return mask2
-
-
-def check_LOD(dir):
-    images = Utils.get_images_list(dir)
-    for image in images:
-        geometry.item_length(image)
-
