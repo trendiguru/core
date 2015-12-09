@@ -78,7 +78,7 @@ def yuli_fp(trimmed_mask, feat_size):
     #img = cv2.rectangle(trimmed_mask ,(centx-feature_size, centy-feature_size),(centx+feature_size, centy+feature_size),(255, 0, 0))
     feature = trimmed_mask[centy - feat_size / 2:centy + feat_size / 2, centx - feat_size / 2:centx + feat_size / 2]
     print "sample shape:", feature.shape
-    cv2.imwrite('../../../../vars/www/yuli/mr8_samp.jpg', feature)
+    # cv2.imwrite('../../../../vars/www/yuli/mr8_samp.jpg', feature)
 
     d = 40
     if feat_size < d:
