@@ -6,12 +6,12 @@ import subprocess
 import cv2
 import numpy as np
 
-import fingerprint_core as fp
-import NNSearch
-import background_removal
-import Utils
-import kassper
-import constants
+from . import fingerprint_core as fp
+from . import NNSearch
+from . import background_removal
+from . import Utils
+from . import kassper
+from . import constants
 
 
 fingerprint_length = constants.fingerprint_length

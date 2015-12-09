@@ -11,13 +11,14 @@ import pymongo.errors
 import numpy as np
 import cv2
 
-import collar_classifier
-import geometry
-import fingerprint_core as fp
-import background_removal
-import Utils
-import constants
+from . import collar_classifier
+from . import geometry
+from . import fingerprint_core as fp
+from . import background_removal
+from . import Utils
+from . import constants
 from .constants import db
+
 
 
 
