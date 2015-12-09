@@ -34,7 +34,7 @@ def person_isolation(image, face):
     return image_copy
 
 
-def find_top_n_results(item_dict, number_of_results, collection, wing, weight):
+def find_top_n_results(fp, mr8, category, number_of_results, collection, wing, weight):
     '''
     for comparing 2 fp call the function twice, both times with collection_name ='fp_testing' :
       - for the control group leave fp_category as is
@@ -48,16 +48,16 @@ def find_top_n_results(item_dict, number_of_results, collection, wing, weight):
 
     # get all items in the category
     potential_matches_cursor = collection.find(
-        {"categories": item_dict['category']},
+        {"categories": category},
         {"_id": 1, "id": 1, "fingerprint": 1, "images.XLarge": 1, "clickUrl": 1, "mr8": 1}).batch_size(100)
 
     print "amount of docs in cursor: {0}".format(potential_matches_cursor.count())
-    color_fp = item_dict['fp']
+    color_fp = fp
     if wing == "right":
-        mr8 = item_dict['mr8']
+        mr8 = mr8
     else:
         mr8 = []
-    target_dict = {"clothingClass": item_dict['category'], "fingerprint": color_fp, "mr8": mr8}
+    target_dict = {"clothingClass": category, "fingerprint": color_fp, "mr8": mr8}
     print "calling find_n_nearest.."
     closest_matches = find_n_nearest_neighbors(target_dict, potential_matches_cursor, number_of_results,
                                                fp_weights, bins, wing, weight)
@@ -66,7 +66,7 @@ def find_top_n_results(item_dict, number_of_results, collection, wing, weight):
     # get only the object itself, not the distance
     closest_matches = [match_tuple[0] for match_tuple in closest_matches]
 
-    return color_fp.tolist(), closest_matches
+    return closest_matches
 
 
 def trim_mr8(mr8, shift):
@@ -209,11 +209,13 @@ def get_svg(image_url):
         return
 
 
-def get_results_now(item_dict=None, collection="mr8_testing", wing="left", weight=0.5):
-    item_dict["similar_results"] = find_top_n_results(item_dict,
+def get_results_now(fp, mr8, category, collection="mr8_testing", wing="left", weight=0.5):
+    item_dict = {"similar_results": find_top_n_results(fp,
+                                                       mr8,
+                                                       category,
                                                       100,
                                                       collection,
                                                       wing,
-                                                      weight)
+                                                       weight)}
 
     return item_dict
