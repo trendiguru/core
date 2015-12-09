@@ -163,15 +163,11 @@ def get_svg(image_url):
                             item_mask,
                             str(image_dict['image_hash']) + '_' + person['person_id'] + '_' + item_dict['category'],
                             constants.svg_folder)
-                        print(1)
                         item_dict["svg_url"] = constants.svg_url_prefix + svg_name
-                        print(2)
                         item_dict["type"] = category
-                        print(3)
                         item_dict["mask"] = item_mask
-                        print(4)
                         item_dict["fp"] = fp.fp(image, bins, fp_len, item_mask)
-                        print(5)
+                        print(item_dict['face'])
                         item_dict["mr8"] = mr8_worker.mr8_4_demo(image, item_dict['face'], item_mask)
                         print(6)
                         person['items'] = item_dict
