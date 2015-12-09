@@ -2,11 +2,12 @@ __author__ = 'yuli'
 
 import pickle
 import os
+from itertools import chain
 
 import cv2
-
 import numpy as np
 
+import MR8filters
 import Utils
 
 
@@ -50,7 +51,6 @@ def resize_by_head(small_image, first_head):
 
 def trim_mask(small_image, mask):
     # returns trimmed mask in grey scale
-
     img = cv2.cvtColor(small_image, cv2.COLOR_BGR2GRAY)
     #img = np.multiply(mask, img), min dim
     ind = np.nonzero(mask)
@@ -69,8 +69,6 @@ def trim_mask(small_image, mask):
 
 
 def yuli_fp(trimmed_mask, feat_size):
-    from itertools import chain
-    import MR8filters
 
     #sample_texture (trimmed_mask , feature_size= min_dim/10 , n= 1 ):
 
@@ -82,7 +80,7 @@ def yuli_fp(trimmed_mask, feat_size):
 
     d = 40
     if feat_size < d:
-	print "samp_size too small !!!"
+        print "samp_size too small !!!"
         return
     feature = cv2.resize(feature, (d, d))
     #returns n=3 texture features
