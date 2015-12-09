@@ -5,9 +5,9 @@ import os
 import cv2
 import numpy as np
 
-import kassper
-import background_removal
-import Utils
+from . import kassper
+from . import background_removal
+from . import Utils
 
 
 def higher_lower_body_split_line(face):

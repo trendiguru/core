@@ -11,11 +11,11 @@ import os
 import cv2
 import numpy as np
 
-import caffeDocker_test
-import geometry
-import constants
-import Utils
-import ccv_facedetector as ccv
+from . import caffeDocker_test
+from . import geometry
+from . import constants
+from . import Utils
+from . import ccv_facedetector as ccv
 
 
 def image_is_relevant(image, use_caffe=False, image_url=None):
