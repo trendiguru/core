@@ -21,6 +21,7 @@ from .constants import db
 
 
 
+
 # globals
 CLASSIFIER_FOR_CATEGORY = {}
 TOTAL_PRODUCTS = mp.Value("i", 0)
@@ -346,14 +347,19 @@ def change_fp_to_dict(collection, category=None):
             fp_dict = {'color': doc['fingerprint']}
             image = Utils.get_cv2_img_array(str(doc["images"]["XLarge"]))
             result = background_removal.image_is_relevant(image)
+
             if result.is_relevant:
                 faces = result.faces
                 start = time.time()
                 fp_dict['lod'] = geometry.length_of_lower_body_part_field(image, faces[0])
                 print "lod took {0} seconds..".format(time.time() - start)
-                start = time.time()
-                fp_dict['collar'] = collar_classifier.collar_classifier(image, faces[0])
-                print "collar took {0} seconds..".format(time.time() - start)
+
+                try:
+                    start = time.time()
+                    fp_dict['collar'] = collar_classifier.collar_classifier(image, faces[0])
+                    print "collar took {0} seconds..".format(time.time() - start)
+                except:
+                    print "problem"
             else:
                 fp_dict['lod'] = 0.5
                 fp_dict['collar'] = {'roundneck': 0.5, 'squareneck': 0.5, 'v-neck': 0.5}
