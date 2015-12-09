@@ -52,9 +52,9 @@ def find_top_n_results(image, mask, number_of_results, item_dict, collection, wi
         {"_id": 1, "id": 1, "fingerprint": 1, "images.XLarge": 1, "clickUrl": 1, "mr8": 1}).batch_size(100)
 
     print "amount of docs in cursor: {0}".format(potential_matches_cursor.count())
-    color_fp = fp.fp(image, bins, fp_len, mask)
+    color_fp = item_dict['fp']
     if wing == "right":
-        mr8 = mr8_worker.mr8_4_demo(image, item_dict['face'], mask)
+        mr8 = item_dict['mr8']
     else:
         mr8 = []
     target_dict = {"clothingClass": item_dict['category'], "fingerprint": color_fp, "mr8": mr8}
@@ -163,11 +163,17 @@ def get_svg(image_url):
                             item_mask,
                             str(image_dict['image_hash']) + '_' + person['person_id'] + '_' + item_dict['category'],
                             constants.svg_folder)
+                        print(1)
                         item_dict["svg_url"] = constants.svg_url_prefix + svg_name
+                        print(2)
                         item_dict["type"] = category
+                        print(3)
                         item_dict["mask"] = item_mask
+                        print(4)
                         item_dict["fp"] = fp.fp(image, bins, fp_len, item_mask)
+                        print(5)
                         item_dict["mr8"] = mr8_worker.mr8_4_demo(image, item_dict['face'], item_mask)
+                        print(6)
                         person['items'] = item_dict
 
                         # image_dict['items'] = [item for item in person["items"]]
