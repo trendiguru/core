@@ -1,6 +1,6 @@
 import os
 import pickle
-from . import constants
+
 import numpy as np
 from scipy.stats import mode
 import cv2
@@ -10,7 +10,8 @@ from keras.layers.convolutional import Convolution2D, MaxPooling2D
 from keras.optimizers import SGD, Adagrad, Adadelta, RMSprop, Adam
 import time
 
-from trendi import background_removal
+from trendi import constants, background_removal
+# from . import constants
 
 def collar_images_maker_for_testing(image, face_box):
 
