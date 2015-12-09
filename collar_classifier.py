@@ -131,7 +131,7 @@ if __name__ == "__main__":
     face_bbs =  background_removal.find_face_cascade(img_arr, 10)
     if len(face_bbs) > 0 :
         print('face bbs:'+str(face_bbs))
-        first_bb = face_bbs[0]
+        first_bb = face_bbs['faces'][0]
         print(first_bb)
         collar_images_maker_for_testing(img_arr, first_bb)
     else:
