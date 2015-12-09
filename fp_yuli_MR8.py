@@ -1,14 +1,11 @@
 __author__ = 'yuli'
 
-import pickle
-import os
 from itertools import chain
 
 import cv2
 import numpy as np
 
 import MR8filters
-import Utils
 
 
 def is_relevant_head(first_head):
@@ -83,7 +80,7 @@ def yuli_fp(trimmed_mask, feat_size):
         print "samp_size too small !!!"
         return
     feature = cv2.resize(feature, (d, d))
-    #returns n=3 texture features
+    # returns n=3 texture features
 
     # Make MR8 filters
     edge, bar, rot = MR8filters.makeRFSfilters()
@@ -169,52 +166,41 @@ def mean_std_pooling(response, s):
             print 'std isNaN'
     return np.asarray(result)
 
-
-if __name__ == "__main__":
-
-
-    paths = [["/home/omer/tmp_folder/","/home/omer/"]]
-
-
-    path_in = paths[0][0]
-    path_out = paths[0][1]
-
-    listing = os.listdir(path_in)
-
-    responses = []
-
-    for filename in listing:
-       # im = Image.open(path1 + file)
-        print filename
-        image = Utils.get_cv2_img_array(path_in+filename)
-        #small_image, resize_ratio = background_removal.standard_resize(image, 400)
-
-        gray_img = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
-	print gray_img.shape
-        
-        samp_size = 40
-        response = yuli_fp(gray_img, filename, path_out , samp_size/2 )
-       # print len(response)
-
-        ms_response = []
-        for idx, val in enumerate(response):
-            ms_response.append(mean_std_pooling(val, 5))
-
-        print (ms_response)
-        print "shape: " , ms_response[0].shape
-	
-        responses.append(ms_response)
-
-    with open(path_out+'Results_MR8.pickle', 'w') as f:
-        pickle.dump(responses, f)
-
-
-
-
-
-
-
-
-
-
-
+#
+# if __name__ == "__main__":
+#
+#
+#     paths = [["/home/omer/tmp_folder/","/home/omer/"]]
+#
+#
+#     path_in = paths[0][0]
+#     path_out = paths[0][1]
+#
+#     listing = os.listdir(path_in)
+#
+#     responses = []
+#
+#     for filename in listing:
+#        # im = Image.open(path1 + file)
+#        print filename
+#        image = Utils.get_cv2_img_array(path_in+filename)
+#        #small_image, resize_ratio = background_removal.standard_resize(image, 400)
+#
+#      gray_img = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
+#        print gray_img.shape
+#
+#         samp_size = 40
+#         response = yuli_fp(gray_img, filename, path_out , samp_size/2 )
+#        # print len(response)
+#
+#         ms_response = []
+#         for idx, val in enumerate(response):
+#             ms_response.append(mean_std_pooling(val, 5))
+#
+#             print (ms_response)
+#             print "shape: ", ms_response[0].shape
+#
+#             responses.append(ms_response)
+#
+#     with open(path_out+'Results_MR8.pickle', 'w') as f:
+#         pickle.dump(responses, f)
