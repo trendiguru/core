@@ -5,11 +5,9 @@ workers for the  mr8 testing
 
 import numpy as np
 
-from  paperdoll import paperdoll_parse_enqueue
-import background_removal
 import constants
 import fp_yuli_MR8
-import paperdolls
+
 db = constants.db
 
 
@@ -38,30 +36,22 @@ db = constants.db
 #     # return x
 
 
-def mr8_4_demo(img, fc = None):
-    faces = background_removal.image_is_relevant(img)
-    if faces[0] is True and len(faces[1]) != 0:
-        x0, y0, w, h = faces[1][0]
-        s_size = np.amin(np.asarray(w, h))
+def mr8_4_demo(img, fc, mask):
+    if len(fc) != 0:
+        x0, y0, w, h = fc
+        s_size = np.amin([w, h])
+        while divmod(s_size, 5) != 0:
+            s_size -= 1
         print "s_size:", s_size
-        face = [x0, y0, w, h]
     # sample = gray_img[y0 + 3 * s_size:y0 + 4 * s_size, x0:x0 + s_size]
     else:
         s_size = np.asarray(0.1 * img.shape[0])
         print "s_size:", s_size
-        face = None
-    mask, labels, pose = paperdoll_parse_enqueue.paperdoll_enqueue(img, async=False).result[:3]
-    final_mask = paperdolls.after_pd_conclusions(mask, labels, face)
-    for num in np.unique(final_mask):
-        category = list(labels.keys())[list(labels.values()).index(num)]
-        if category in constants.paperdoll_shopstyle_women.keys():
-            item_mask = 255 * np.array(final_mask == num, dtype=np.uint8)
-
-    trimmed_mask = fp_yuli_MR8.trim_mask(img, item_mask)
+    trimmed_mask = fp_yuli_MR8.trim_mask(img, mask)
     response = fp_yuli_MR8.yuli_fp(trimmed_mask, s_size)
     print len(response)
 
     ms_response = []
     for idx, val in enumerate(response):
-        ms_response = ms_response + fp_yuli_MR8.mean_std_pooling(val, 5)
+        ms_response.fp_yuli_MR8.mean_std_pooling(val, 5)
     return ms_response
