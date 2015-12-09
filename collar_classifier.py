@@ -133,6 +133,7 @@ if __name__ == "__main__":
         print('face bbs:'+str(face_bbs))
         first_bb = face_bbs['faces'][0]
         print(first_bb)
-        collar_images_maker_for_testing(img_arr, first_bb)
+        res = collar_images_maker_for_testing(img_arr, first_bb)
+        print('res = '+str(res))
     else:
         print('no face found')
