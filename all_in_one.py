@@ -91,12 +91,13 @@ def distance_function(entry, target_dict, fp_weights, hist_length, wing, weight)
         entry_mr8 = entry["mr8"]
         target_mr8 = target_dict["mr8"]
         mr8_distance = NNSearch.distance_1_k(entry_mr8, target_mr8)
-        w0 = abs(1 - int(weight))
+        w0 = abs(1 - float(weight))
         return w0 * bhat + weight * mr8_distance
 
 def find_n_nearest_neighbors(target_dict, entries, number_of_matches, fp_weights, hist_length, wing, weight):
     # list of tuples with (entry,distance). Initialize with first n distance values
     nearest_n = []
+    farthest_nearest = 2
     for i, entry in enumerate(entries):
         if i < number_of_matches:
             d = distance_function(entry, target_dict, fp_weights, hist_length, wing, weight)
