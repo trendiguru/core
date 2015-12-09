@@ -146,7 +146,7 @@ def get_svg(image_url):
                 relevant_faces = relevance.faces
             for face in relevant_faces:
                 image_copy = person_isolation(image, face)
-                person = {'face': face, 'person_id': str(bson.ObjectId()), 'person_idx': idx,
+                person = {'face': face, 'person_id': str(bson.ObjectId()), 'person_idx': 1,
                           'items': []}
                 mask, labels, pose = paperdoll_parse_enqueue.paperdoll_enqueue(image_copy, async=False).result[:3]
                 final_mask = after_pd_conclusions(mask, labels, person['face'])
@@ -177,7 +177,7 @@ def get_svg(image_url):
                         # image_dict['people'].append(person)
         else:
             # no faces, only general positive human detection
-            person = {'face': [], 'person_id': str(bson.ObjectId()), 'person_idx': 0, 'items': []}
+            person = {'face': [], 'person_id': str(bson.ObjectId()), 'person_idx': 1, 'items': []}
             mask, labels, pose = paperdoll_parse_enqueue.paperdoll_enqueue(image, async=False).result[:3]
             final_mask = after_pd_conclusions(mask, labels)
             item_idx = 0
