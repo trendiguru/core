@@ -8,6 +8,8 @@ from keras.layers.core import Dense, Dropout, Activation, Flatten
 from keras.layers.convolutional import Convolution2D, MaxPooling2D
 from keras.optimizers import SGD, Adagrad, Adadelta, RMSprop, Adam
 
+from trendi import background_removal
+
 def collar_images_maker_for_testing(image, face_box):
 
     collar_images = []
@@ -124,3 +126,13 @@ def collar_classifier(image, face_box):
     collar_images = collar_images_maker_for_testing(image, face_box)
     return collar_classifier_neural_net(collar_images)
 
+if __name__ == "__main__":
+    img_arr = cv2.imread('images/collar.JPG')
+    face_bbs =  background_removal.find_face_cascade(img_arr, 10)
+    if len(face_bbs) > 0 :
+        print('face bbs:'+str(face_bbs))
+        first_bb = face_bbs[0]
+        print(first_bb)
+        collar_images_maker_for_testing(img_arr, first_bb)
+    else:
+        print('no face found')
