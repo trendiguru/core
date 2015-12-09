@@ -22,6 +22,7 @@ from .constants import db
 
 
 
+
 # globals
 CLASSIFIER_FOR_CATEGORY = {}
 TOTAL_PRODUCTS = mp.Value("i", 0)
@@ -344,7 +345,7 @@ def change_fp_to_dict(collection, category=None):
         if i % 10 == 0:
             print "doing the {0}th item".format(i)
         fp_dict = {'color': doc['fingerprint']}
-        image = Utils.get_cv2_img_array(doc["images"]["XLarge"])
+        image = Utils.get_cv2_img_array(str(doc["images"]["XLarge"]))
         faces = background_removal.image_is_relevant(image).faces
         if len(faces) > 0:
             fp_dict['lod'] = geometry.length_of_lower_body_part_field(image, faces[0])
