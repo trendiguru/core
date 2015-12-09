@@ -148,7 +148,6 @@ def get_svg(image_url):
                 image_copy = person_isolation(image, face)
                 person = {'face': face, 'person_id': str(bson.ObjectId()), 'person_idx': idx,
                           'items': []}
-                image_dict['people'].append(person)
                 mask, labels, pose = paperdoll_parse_enqueue.paperdoll_enqueue(image_copy, async=False).result[:3]
                 final_mask = after_pd_conclusions(mask, labels, person['face'])
                 # image = draw_pose_boxes(pose, image)
@@ -171,15 +170,14 @@ def get_svg(image_url):
                         item_dict["mr8"] = mr8_worker.mr8_4_demo(image, item_dict['face'], item_mask)
                         person['items'] = item_dict
 
-                        image_dict['items'] = [item for item in person["items"]]
-                        return image_dict
+                        # image_dict['items'] = [item for item in person["items"]]
+                        return person
                         # person['items'].append(item_dict)
                         # idx += 1
                         # image_dict['people'].append(person)
         else:
             # no faces, only general positive human detection
             person = {'face': [], 'person_id': str(bson.ObjectId()), 'person_idx': 0, 'items': []}
-            image_dict['people'].append(person)
             mask, labels, pose = paperdoll_parse_enqueue.paperdoll_enqueue(image, async=False).result[:3]
             final_mask = after_pd_conclusions(mask, labels)
             item_idx = 0
@@ -199,8 +197,8 @@ def get_svg(image_url):
                     item_dict["fp"] = fp.fp(image, bins, fp_len, mask)
                     item_dict["mr8"] = mr8_worker.mr8_4_demo(image, item_dict['face'], mask)
                     person['items'] = item_dict
-                    image_dict['items'] = [item for item in person["items"]]
-                    return image_dict
+                    # image_dict['items'] = [item for item in person["items"]]
+                    return person
                     #             person['items'].append(item_dict)
                     #             item_idx += 1
                     #     image_dict['people'].append(person)
