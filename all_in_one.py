@@ -166,8 +166,9 @@ def get_svg(image_url):
                             constants.svg_folder)
                         item_dict["svg_url"] = constants.svg_url_prefix + svg_name
                         item_dict["type"] = category
-                        item_dict["fp"] = fp.fp(image, bins, fp_len, mask)
-                        item_dict["mr8"] = mr8_worker.mr8_4_demo(image, item_dict['face'], mask)
+                        item_dict["mask"] = item_mask
+                        item_dict["fp"] = fp.fp(image, bins, fp_len, item_mask)
+                        item_dict["mr8"] = mr8_worker.mr8_4_demo(image, item_dict['face'], item_mask)
                         return item_dict
                         # person['items'].append(item_dict)
                         # idx += 1
@@ -190,6 +191,7 @@ def get_svg(image_url):
                         str(image_dict['image_hash']) + '_' + person['person_id'] + '_' + item_dict['category'],
                         constants.svg_folder)
                     item_dict["svg_url"] = constants.svg_url_prefix + svg_name
+                    item_dict["type"] = category
                     item_dict["mask"] = item_mask
                     item_dict["fp"] = fp.fp(image, bins, fp_len, mask)
                     item_dict["mr8"] = mr8_worker.mr8_4_demo(image, item_dict['face'], mask)
