@@ -34,7 +34,7 @@ def person_isolation(image, face):
     return image_copy
 
 
-def find_top_n_results(image, mask, number_of_results, item_dict, collection, wing, weight):
+def find_top_n_results(item_dict, number_of_results, collection, wing, weight):
     '''
     for comparing 2 fp call the function twice, both times with collection_name ='fp_testing' :
       - for the control group leave fp_category as is
@@ -209,14 +209,8 @@ def get_svg(image_url):
         return
 
 
-def get_results_now(image_url, item_dict=None, collection="mr8_testing", wing="left", weight=0.5):
-    # IF URL HAS NO IMAGE IN IT
-    image = Utils.get_cv2_img_array(image_url)
-    if image is None:
-        return
-
-    item_dict["similar_results"] = find_top_n_results(image,
-                                                      item_dict,
+def get_results_now(item_dict=None, collection="mr8_testing", wing="left", weight=0.5):
+    item_dict["similar_results"] = find_top_n_results(item_dict,
                                                       100,
                                                       collection,
                                                       wing,
