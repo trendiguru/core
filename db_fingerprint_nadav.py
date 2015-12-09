@@ -13,12 +13,12 @@ import cv2
 
 import collar_classifier
 import geometry
-
 import fingerprint_core as fp
 import background_removal
 import Utils
 import constants
 from .constants import db
+
 
 
 # globals
@@ -343,7 +343,7 @@ def change_fp_to_dict(collection, category=None):
         if i % 10 == 0:
             print "doing the {0}th item".format(i)
         fp_dict = {'color': doc['fingerprint']}
-        image = doc["image"]["sizes"]["XLarge"]["url"]
+        image = doc["images"]["XLarge"]
         faces = background_removal.image_is_relevant(image).faces
         if len(faces) > 0:
             fp_dict['lod'] = geometry.length_of_lower_body_part_field(image, faces[0])
