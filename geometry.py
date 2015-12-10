@@ -1,7 +1,5 @@
 __author__ = 'Nadav Paz'
 
-import os
-
 import cv2
 import numpy as np
 
@@ -81,11 +79,12 @@ def collect_distances(dir, i):
             pass
         else:
             try:
-                line = length_of_lower_body_part_field(image, faces[0])
-                if isinstance(line, int):
-                    cv2.line(image, (0, line), (image.shape[1], line), [0, 170, 170], 2)
-                    cv2.imwrite(os.getcwd() + '/' + str(i) + '.jpg', image)
-                    dist.append((line - faces[0][1]) / float(faces[0][3]))
+                lod = length_of_lower_body_part_field(image, faces[0])
+                print lod
+                # if isinstance(line, int):
+                # cv2.line(image, (0, line), (image.shape[1], line), [0, 170, 170], 2)
+                #     cv2.imwrite(os.getcwd() + '/' + str(i) + '.jpg', image)
+                #     dist.append((line - faces[0][1]) / float(faces[0][3]))
             except:
                 print "Problem with the length.."
         i += 1
