@@ -45,12 +45,12 @@ def length_of_lower_body_part_field(image, face):
         return 0.5, 0
     only_skin_mask = kassper.clutter_removal(only_skin_down, 100)
     l = legs_upper_line_cnt(255 * only_skin_mask) + int(y_split)
-    if l > 7 * face[3]:
+    if l > 6 * face[3]:
         return 1, l
     elif l < y_split:
         return 0, l
     else:
-        return (l - y_split) / (face[1] + 7 * face[3] - y_split), l
+        return (l - y_split) / (face[1] + 6 * face[3] - y_split), l
 
 
 def length_of_lower_body_db_dresses(image):
@@ -81,8 +81,8 @@ def collect_distances(dir, i):
             pass
         else:
             x, y, w, h = face
-            while y < image.shape[0]:
-                cv2.rectangle(image, (x, y), (x + w, y + h), [255, 145, 35], 2)
+            while y + h < image.shape[0]:
+                cv2.rectangle(image, (x, y), (x + w, y + h), [66, 0, 35], 2)
                 y += h
             try:
                 lod, line = length_of_lower_body_part_field(image, face)
