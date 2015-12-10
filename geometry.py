@@ -73,15 +73,19 @@ def collect_distances(dir, i):
     dist = []
     i = 0
     for image in images:
-        faces = background_removal.find_face_cascade(image)['faces']
-        print faces
-        if faces is None:
+        face = background_removal.find_face_cascade(image)['faces'][0]
+        print face
+        if face is None:
             pass
-        elif len(faces) == 0:
+        elif len(face) == 0:
             pass
         else:
+            x, y, w, h = face
+            while y < image.shape[0]:
+                cv2.rectangle(image, (x, y), (x + w, y + h), [255, 145, 35], 2)
+                y += h
             try:
-                lod, line = length_of_lower_body_part_field(image, faces[0])
+                lod, line = length_of_lower_body_part_field(image, face)
                 print lod
                 cv2.line(image, (0, line), (image.shape[1], line), [0, 170, 170], 2)
                 cv2.imwrite(os.getcwd() + '/' + str(i) + '.jpg', image)
