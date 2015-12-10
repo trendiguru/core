@@ -1,5 +1,7 @@
 __author__ = 'Nadav Paz'
 
+import os
+
 import cv2
 import numpy as np
 
@@ -40,15 +42,15 @@ def length_of_lower_body_part_field(image, face):
         only_skin_down = kassper.skin_detection_with_grabcut(lower_bgr, image, face, 'skin')
     except:
         print 'Problem with the grabcut'
-        return 0.5
+        return 0.5, 0
     only_skin_mask = kassper.clutter_removal(only_skin_down, 100)
     l = legs_upper_line_cnt(255 * only_skin_mask) + int(y_split)
     if l > 7 * face[3]:
-        return 1
+        return 1, l
     elif l < y_split:
-        return 0
+        return 0, l
     else:
-        return (l - y_split) / (face[1] + 7 * face[3] - y_split)
+        return (l - y_split) / (face[1] + 7 * face[3] - y_split), l
 
 
 def length_of_lower_body_db_dresses(image):
@@ -79,13 +81,11 @@ def collect_distances(dir, i):
             pass
         else:
             try:
-                lod = length_of_lower_body_part_field(image, faces[0])
+                lod, line = length_of_lower_body_part_field(image, faces[0])
                 print lod
-                # if isinstance(line, int):
-                # cv2.line(image, (0, line), (image.shape[1], line), [0, 170, 170], 2)
-                #     cv2.imwrite(os.getcwd() + '/' + str(i) + '.jpg', image)
-                #     dist.append((line - faces[0][1]) / float(faces[0][3]))
+                cv2.line(image, (0, line), (image.shape[1], line), [0, 170, 170], 2)
+                cv2.imwrite(os.getcwd() + '/' + str(i) + '.jpg', image)
             except:
                 print "Problem with the length.."
         i += 1
-    return dist
+    return
