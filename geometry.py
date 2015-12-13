@@ -12,7 +12,7 @@ from . import Utils
 
 def higher_lower_body_split_line(face):
     w, y, w, h = face
-    y_split = round(y + 3.6 * h)
+    y_split = round(y + 5 * h)
     return y_split
 
 
@@ -49,7 +49,7 @@ def length_of_lower_body_part_field(image, face):
         print 'Problem with the grabcut'
         return 0.5, 0
     only_skin_mask = kassper.clutter_removal(only_skin_down, 100)
-    l = legs_upper_line_cnt(255 * only_skin_mask) + int(y_split)
+    l = legs_upper_line_cnt(255 * only_skin_mask) + y_split
     if l > 9 * face[3]:
         return 1, l
     elif l < y_split:
