@@ -106,7 +106,10 @@ def get_parse_mask_parallel(matlab_engine, img_url_or_cv2_array, filename=None, 
         convert_and_save_results(mask_np, label_dict, pose_np, filename+'.jpg', img)
         return mask_np, label_dict, pose_np, filename
     else:
-        raise ValueError("either image is empty or problem writing")
+        if img is None:
+            raise ValueError("input image is empty")
+        else:
+            raise ValueError("problem writing "+str(filename)+" in get_parse_mask_parallel")
 
 def convert_and_save_results(mask, label_names, pose,filename,img):
     fashionista_ordered_categories = constants.fashionista_categories
