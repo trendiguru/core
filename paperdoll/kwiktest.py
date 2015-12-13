@@ -5,6 +5,7 @@ import numpy as np
 urls=[]
 dts=[]
 
+urls.append('http://notapicture.jpg')
 urls.append('http://i.imgur.com/ahFOgkm.jpg')
 urls.append('https://img1.etsystatic.com/019/1/5682424/il_570xN.555916317_ebv0.jpg')
 urls.append('http://www.customcelebritydresses.com/image/cache/data/4.13/Christina%20Hendricks%20Green%20V-neck%20Prom%20Dress%202008%20Emmy%20Awards%20Red%20Carpet%202-600x600.jpg')
@@ -25,7 +26,11 @@ for url in urls:
     end_time = time.time()
     dt=end_time-start_time
     dts.append(dt)
-    print('retval:' + str(retval.result)+' time:'+str(dt))
+    if retval is not None:
+        print('retval:' + str(retval.result)+' time:'+str(dt))
+    else:
+        print('no return val (None)')
+
 means=np.mean(dts)
 std=np.std(dts)
 print('mean:' + str(means)+' std:'+str(std))
