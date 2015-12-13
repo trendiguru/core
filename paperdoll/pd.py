@@ -73,7 +73,10 @@ def get_parse_mask(img_url_or_cv2_array):
         #            print('callback function returned:'+str(a))
         return mask_np, label_dict, pose_np
     else:
-        print('either image is empty or problem writing')
+        if img is None:
+            logging.debug('image is empty in get_parse_mask')
+        else:
+            logging.debug('problem writing (probably) in get_parse_mask')
         return [[], [], []]
 
 
