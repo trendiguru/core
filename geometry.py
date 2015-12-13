@@ -75,7 +75,6 @@ def length_of_lower_body_db_dresses(image):
 def collect_distances(dir, i):
     images = Utils.get_images_list(dir)[i * 10:10 * (i + 1)]
     print "Total {0} images".format(len(images))
-    dist = []
     i = 0
     for image in images:
         face = background_removal.find_face_cascade(image)['faces'][0]
@@ -91,10 +90,11 @@ def collect_distances(dir, i):
                 print lod
                 cv2.line(image, (0, line), (image.shape[1], line), [0, 170, 170], 2)
                 cv2.imwrite(os.getcwd() + '/' + str(i) + '.jpg', image)
+                while y + h < image.shape[0]:
+                    cv2.rectangle(image, (x, y), (x + w, y + h), [66, 0, 35], 2)
+                    y += h
             except:
                 print "Problem with the length.."
-            while y + h < image.shape[0]:
-                cv2.rectangle(image, (x, y), (x + w, y + h), [66, 0, 35], 2)
-                y += h
+
         i += 1
     return
