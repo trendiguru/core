@@ -26,7 +26,11 @@ for url in urls:
     end_time = time.time()
     dt=end_time-start_time
     dts.append(dt)
-    print('retval:' + str(retval.result)+' time:'+str(dt))
+    if retval is not None:
+        print('retval:' + str(retval.result)+' time:'+str(dt))
+    else:
+        print('no return val (None)')
+
 means=np.mean(dts)
 std=np.std(dts)
 print('mean:' + str(means)+' std:'+str(std))
