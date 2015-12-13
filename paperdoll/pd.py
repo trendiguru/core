@@ -45,18 +45,14 @@ def get_parse_from_matlab(image_filename):
         # subprocess.Popen("cp inputimg.jpg " + outfilename, shell=True, stdout=subprocess.PIPE).stdout.read()
         # subprocess.Popen("cp savedlabels.p " + savedlabels, shell=True, stdout=subprocess.PIPE).stdout.read()
         # subprocess.Popen("cp savedpose.p " + savedpose, shell=True, stdout=subprocess.PIPE).stdout.read()
-
         return mask, label_dict, pose
-
 
 def rand_string():
     return ''.join([random.choice(string.ascii_letters + string.digits) for n in xrange(32)])
 
-
 def test_function():
     print("this is a totally awesome test function")
     return (6 * 7)
-
 
 def get_parse_mask(img_url_or_cv2_array):
     img = Utils.get_cv2_img_array(img_url_or_cv2_array)
