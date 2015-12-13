@@ -32,7 +32,7 @@ def length_of_lower_body_part_field(image, face):
             bottommost = tuple(contour[contour[:, :, 1].argmax()][0])
             moments = cv2.moments(contour)
             cy = int(moments['m01'] / moments['m00'])
-            grade = 0.7 * cy + 0.3 * area
+            grade = 0.5 * cy + 0.5 * area
             if (topmost[1] > 5) and (bottommost[1] > 0.5 * mask.shape[0]):
                 if grade > max_grade:
                     max_grade = grade
