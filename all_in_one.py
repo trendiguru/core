@@ -22,6 +22,8 @@ import mr8_worker
 import page_results
 import find_similar_mongo
 
+bins = constants.histograms_length
+fp_len = constants.fingerprint_length
 
 def person_isolation(image, face):
     x, y, w, h = face
@@ -32,7 +34,7 @@ def person_isolation(image, face):
     return image_copy
 
 
-def find_top_n_results(image, mask, number_of_results, item_dict, collection, wing, weight):
+def find_top_n_results(fp, mr8, category, number_of_results, collection, wing, weight):
     '''
     for comparing 2 fp call the function twice, both times with collection_name ='fp_testing' :
       - for the control group leave fp_category as is
@@ -43,20 +45,19 @@ def find_top_n_results(image, mask, number_of_results, item_dict, collection, wi
     '''
     fp_weights = constants.fingerprint_weights
     collection = constants.db[collection]
-    bins = constants.histograms_length
-    fp_len = constants.fingerprint_length
+
     # get all items in the category
     potential_matches_cursor = collection.find(
-        {"categories": item_dict['category']},
+        {"categories": category},
         {"_id": 1, "id": 1, "fingerprint": 1, "images.XLarge": 1, "clickUrl": 1, "mr8": 1}).batch_size(100)
 
     print "amount of docs in cursor: {0}".format(potential_matches_cursor.count())
-    color_fp = fp.fp(image, bins, fp_len, mask)
+    color_fp = fp
     if wing == "right":
-        mr8 = mr8_worker.mr8_4_demo(image, item_dict['face'], mask)
+        mr8 = mr8
     else:
         mr8 = []
-    target_dict = {"clothingClass": item_dict['category'], "fingerprint": color_fp, "mr8": mr8}
+    target_dict = {"clothingClass": category, "fingerprint": color_fp, "mr8": mr8}
     print "calling find_n_nearest.."
     closest_matches = find_n_nearest_neighbors(target_dict, potential_matches_cursor, number_of_results,
                                                fp_weights, bins, wing, weight)
@@ -65,7 +66,7 @@ def find_top_n_results(image, mask, number_of_results, item_dict, collection, wi
     # get only the object itself, not the distance
     closest_matches = [match_tuple[0] for match_tuple in closest_matches]
 
-    return color_fp.tolist(), closest_matches
+    return closest_matches
 
 
 def trim_mr8(mr8, shift):
@@ -78,21 +79,21 @@ def trim_mr8(mr8, shift):
 def distance_function(entry, target_dict, fp_weights, hist_length, wing, weight):
     key = "fingerprint"
     bhat = NNSearch.distance_Bhattacharyya(entry[key], target_dict[key], fp_weights, hist_length)
-    # if wing == "left":
-    #     return bhat
-    # elif wing == "right":
-    #     # shift = 2
-    #     # entry_mr8 = trim_mr8(entry["mr8"], shift)
-    #     # target_mr8 = trim_mr8(target_dict["mr8"], shift)
-    #     # mr8_distance = NNSearch.distance_1_k(entry_mr8, target_mr8)
-    #     # mr8_normal = mr8_distance
-    #     # w0 = abs(1 - int(weight))
-    #     # return w0 * bhat + weight * mr8_normal
-    #     entry_mr8 = entry["mr8"]
-    #     target_mr8 = target_dict["mr8"]
-    #     mr8_distance = NNSearch.distance_1_k(entry_mr8, target_mr8)
-    #     w0 = abs(1 - weight)
-    #     return w0 * bhat + weight * mr8_distance
+    if wing == "left":
+        return bhat
+    elif wing == "right":
+        # shift = 2
+        # entry_mr8 = trim_mr8(entry["mr8"], shift)
+        # target_mr8 = trim_mr8(target_dict["mr8"], shift)
+        # mr8_distance = NNSearch.distance_1_k(entry_mr8, target_mr8)
+        # mr8_normal = mr8_distance
+        # w0 = abs(1 - int(weight))
+        # return w0 * bhat + weight * mr8_normal
+        entry_mr8 = entry["mr8"]
+        target_mr8 = target_dict["mr8"]
+        mr8_distance = NNSearch.distance_1_k(entry_mr8, target_mr8)
+        w0 = abs(1 - weight)
+        return w0 * bhat + weight * mr8_distance
     return bhat
 
 
@@ -125,14 +126,12 @@ def find_n_nearest_neighbors(target_dict, entries, number_of_matches, fp_weights
     return nearest_n
 
 
-def get_results_now(image_url, svg_url=None, collection="mr8_testing", wing="left", weight=0.5):
-    # IF URL HAS NO IMAGE IN IT
+def get_svg(image_url):
     image = Utils.get_cv2_img_array(image_url)
     if image is None:
         return
 
     image_hash = page_results.get_hash_of_image_from_url(image_url)
-
     # NEW_IMAGE !!
     clean_image = copy.copy(image)
     relevance = background_removal.image_is_relevant(image, True, image_url)
@@ -147,9 +146,8 @@ def get_results_now(image_url, svg_url=None, collection="mr8_testing", wing="lef
                 relevant_faces = relevance.faces
             for face in relevant_faces:
                 image_copy = person_isolation(image, face)
-                person = {'face': face, 'person_id': str(bson.ObjectId()), 'person_idx': idx,
+                person = {'face': face, 'person_id': str(bson.ObjectId()), 'person_idx': 1,
                           'items': []}
-                image_dict['people'].append(person)
                 mask, labels, pose = paperdoll_parse_enqueue.paperdoll_enqueue(image_copy, async=False).result[:3]
                 final_mask = after_pd_conclusions(mask, labels, person['face'])
                 # image = draw_pose_boxes(pose, image)
@@ -159,32 +157,29 @@ def get_results_now(image_url, svg_url=None, collection="mr8_testing", wing="lef
                     category = list(labels.keys())[list(labels.values()).index(num)]
                     if category in constants.paperdoll_shopstyle_women.keys():
                         item_mask = 255 * np.array(final_mask == num, dtype=np.uint8)
-                        item_dict = {"category": "dress", 'item_id': str(bson.ObjectId()), 'item_idx': item_idx,
+                        item_dict = {"category": category, 'item_id': str(bson.ObjectId()), 'item_idx': item_idx,
                                      'face': face}
-                        if svg_url is None:
-                            svg_name = find_similar_mongo.mask2svg(
-                                item_mask,
-                                str(image_dict['image_hash']) + '_' + person['person_id'] + '_' + item_dict['category'],
-                                constants.svg_folder)
-                            item_dict["svg_url"] = constants.svg_url_prefix + svg_name
-                        else:
-                            item_dict["svg_url"] = svg_url
-
-                        item_dict['fp'], item_dict['similar_results'] = find_top_n_results(
-                            clean_image,
+                        svg_name = find_similar_mongo.mask2svg(
                             item_mask,
-                            100,
-                            item_dict,
-                            collection,
-                            wing, weight)
-                        person['items'].append(item_dict)
-                        item_idx += 1
-                idx += 1
-                image_dict['people'].append(person)
+                            str(image_dict['image_hash']) + '_' + person['person_id'] + '_' + item_dict['category'],
+                            constants.svg_folder)
+                        item_dict["svg_url"] = constants.svg_url_prefix + svg_name
+                        item_dict["type"] = category
+                        # item_dict["mask"] = item_mask.tolist()
+                        item_dict["fp"] = fp.fp(image, bins, fp_len, item_mask).tolist()
+                        print(item_dict['face'])
+                        item_dict["mr8"] = mr8_worker.mr8_4_demo(image, item_dict['face'], item_mask)
+                        print(6)
+                        person['items'] = [item_dict]
+
+                        # image_dict['items'] = [item for item in person["items"]]
+                        return person
+                        # person['items'].append(item_dict)
+                        # idx += 1
+                        # image_dict['people'].append(person)
         else:
             # no faces, only general positive human detection
-            person = {'face': [], 'person_id': str(bson.ObjectId()), 'person_idx': 0, 'items': []}
-            image_dict['people'].append(person)
+            person = {'face': [], 'person_id': str(bson.ObjectId()), 'person_idx': 1, 'items': []}
             mask, labels, pose = paperdoll_parse_enqueue.paperdoll_enqueue(image, async=False).result[:3]
             final_mask = after_pd_conclusions(mask, labels)
             item_idx = 0
@@ -194,24 +189,33 @@ def get_results_now(image_url, svg_url=None, collection="mr8_testing", wing="lef
                 if category in constants.paperdoll_shopstyle_women.keys():
                     item_mask = 255 * np.array(final_mask == num, dtype=np.uint8)
                     item_dict = {"category": category, 'item_id': str(bson.ObjectId()), 'item_idx': item_idx}
-                    if svg_url is None:
-                        svg_name = find_similar_mongo.mask2svg(
-                            item_mask,
-                            str(image_dict['image_hash']) + '_' + person['person_id'] + '_' + item_dict['category'],
-                            constants.svg_folder)
-                        item_dict["svg_url"] = constants.svg_url_prefix + svg_name
-                    else:
-                        item_dict["svg_url"] = svg_url
-
-                    item_dict['fp'], item_dict['similar_results'] = find_top_n_results(clean_image,
-                                                                                       item_mask,
-                                                                                       100,
-                                                                                       item_dict,
-                                                                                       collection,
-                                                                                       wing, weight)
-                    person['items'].append(item_dict)
-                    item_idx += 1
-            image_dict['people'].append(person)
-        return page_results.merge_items(image_dict)
+                    svg_name = find_similar_mongo.mask2svg(
+                        item_mask,
+                        str(image_dict['image_hash']) + '_' + person['person_id'] + '_' + item_dict['category'],
+                        constants.svg_folder)
+                    item_dict["svg_url"] = constants.svg_url_prefix + svg_name
+                    item_dict["type"] = category
+                    # item_dict["mask"] = item_mask
+                    item_dict["fp"] = fp.fp(image, bins, fp_len, mask)
+                    item_dict["mr8"] = mr8_worker.mr8_4_demo(image, item_dict['face'], mask)
+                    person['items'] = [item_dict]
+                    # image_dict['items'] = [item for item in person["items"]]
+                    return person
+                    #             person['items'].append(item_dict)
+                    #             item_idx += 1
+                    #     image_dict['people'].append(person)
+                    # return page_results.merge_items(image_dict)
     else:  # if not relevant
         return
+
+
+def get_results_now(fp, mr8, category, collection="mr8_testing", wing="left", weight=0.5):
+    item_dict = {"similar_results": find_top_n_results(fp,
+                                                       mr8,
+                                                       category,
+                                                      100,
+                                                      collection,
+                                                      wing,
+                                                       weight)}
+
+    return item_dict

@@ -19,7 +19,6 @@ import math
 import cv2
 import re
 import string
-import background_removal
 import sys
 
 # import urllib
@@ -600,7 +599,7 @@ def get_images_list(dir_url):
     images_list = []
     # i=0
     for url in paths_list:
-        images_list.append(background_removal.standard_resize(get_cv2_img_array(url), 400)[0])
+        images_list.append(get_cv2_img_array(url))
         # cv2.imshow('1', images_list[i])
         # cv2.waitKey(0)
         # i += 1
