@@ -143,19 +143,15 @@ def convert_and_save_results(mask, label_names, pose,filename,img):
                 poselist=pose[0].tolist()
 #                json.dump([1,2,3], outfile, indent=4)
                 json.dump(poselist,outfile, indent=4)
-
-#            afile = open(pose_name, 'wb')
-#            pickle.dump(pose, afile)
-#            afile.close()
-            #reload object from file
-#            file2 = open(pose_name, 'rb')
-#            read_pose = pickle.load(file2)
-#            file2.close()
-#            print('read pose '+str(read_pose))
+            return
         except:
             print('fail in convert_and_save_results dude, bummer')
             print(str(sys.exc_info()[0]))
             return
+    else:
+        print('didnt fully convert mask, or unkown label in convert_and_save_results')
+        success = False
+        return
 
 def show_max(parsed_img, labels):
     maxpixval = np.ma.max
