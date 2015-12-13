@@ -13,7 +13,7 @@ from . import Utils
 def higher_lower_body_split_line(face):
     w, y, w, h = face
     y_split = round(y + 5 * h)
-    return y_split
+    return int(y_split)
 
 
 def length_of_lower_body_part_field(image, face):
