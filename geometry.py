@@ -50,12 +50,12 @@ def length_of_lower_body_part_field(image, face):
         return 0.5, 0
     only_skin_mask = kassper.clutter_removal(only_skin_down, 100)
     l = legs_upper_line_cnt(255 * only_skin_mask) + int(y_split)
-    if l > 6 * face[3]:
+    if l > 9 * face[3]:
         return 1, l
     elif l < y_split:
         return 0, l
     else:
-        return (l - y_split) / (face[1] + 6 * face[3] - y_split), l
+        return (l - y_split) / (face[1] + 9 * face[3] - y_split), l
 
 
 def length_of_lower_body_db_dresses(image):
