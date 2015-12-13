@@ -5,6 +5,7 @@ import numpy as np
 urls=[]
 dts=[]
 
+urls.append('http://notapicture.jpg')
 urls.append('http://i.imgur.com/ahFOgkm.jpg')
 urls.append('https://img1.etsystatic.com/019/1/5682424/il_570xN.555916317_ebv0.jpg')
 urls.append('http://www.customcelebritydresses.com/image/cache/data/4.13/Christina%20Hendricks%20Green%20V-neck%20Prom%20Dress%202008%20Emmy%20Awards%20Red%20Carpet%202-600x600.jpg')
@@ -21,7 +22,7 @@ urls.append('http://media2.popsugar-assets.com/files/2010/08/34/5/192/1922153/96
 
 for url in urls:
     start_time = time.time()
-    retval = paperdoll_parse_enqueue.paperdoll_enqueue(url, async=False,use_parfor=False) #,queue_name='pd_parfor')
+    retval = paperdoll_parse_enqueue.paperdoll_enqueue(url, async=False,use_parfor=True,queue_name='pd_parfor')
     end_time = time.time()
     dt=end_time-start_time
     dts.append(dt)
