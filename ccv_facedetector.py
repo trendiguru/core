@@ -1,13 +1,16 @@
 from __future__ import print_function
 import commands
-import cv2
 import os
 import os.path
 import logging
 import random
 import string
+
+import cv2
 import numpy as np
+
 from .constants import project_dir
+
 
 path_to_ccvface = '/' + project_dir + '/classifier_stuff/ccvface'
 path_to_ccvface_db = '/' + project_dir + '/classifier_stuff/ccvface.sqlite3'
@@ -256,10 +259,15 @@ if __name__ == "__main__":
     #    direct('.')
     #    pos,neg = run_classifier_on_dir_of_dirs('/home/jeremy/jeremy.rutman@gmail.com/TrendiGuru/techdev/trendi_guru_modules/classifier_stuff/images/llamas')
 
-    #    n,singles,multiples = run_classifier_recursively('images/many_faces',use_visual_output=True,classifier=background_removal.find_face_cascade)
-    #    n,singles,multiples = run_classifier_recursively('images/many_faces',use_visual_output=True)
-    #    print('n:{0} single:{1} multiple:{2}'.format(n,singles,multiples))
-    #    raw_input('enter to continue')
+#    n,singles,multiples = run_classifier_recursively('images/many_faces',use_visual_output=True,classifier=background_removal.find_face_cascade)
+#    n,singles,multiples = run_classifier_recursively('images/many_faces',use_visual_output=True)
+#    print('n:{0} single:{1} multiple:{2}'.format(n,singles,multiples))
+#    raw_input('enter to continue')
+
+    filename = "images/male1.jpg"
+    img_arr = cv2.imread(filename)
+    faces = ccv_facedetect(image_array=img_arr)
+    print('faces:' + str(faces))
 
     n, singles, multiples = run_classifier_recursively('images/many_faces', use_visual_output=True)
     print('n:{0} single:{1} multiple:{2}'.format(n, singles, multiples))

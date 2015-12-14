@@ -12,6 +12,7 @@ import time
 import requests
 from rq import Queue
 
+from shopstyle2generic import convert2generic
 from fingerprint_core import generate_mask_and_insert
 import constants
 
@@ -28,21 +29,11 @@ MAX_RESULTS_PER_PAGE = 50
 MAX_OFFSET = 5000
 MAX_SET_SIZE = MAX_OFFSET + MAX_RESULTS_PER_PAGE
 db = constants.db
-current_date = db.download_data.find()[0]["current_dl"]
-# collection = constants.update_collection_name
 relevant = constants.db_relevant_items
 fp_version = constants.fingerprint_version
 
 
 def download_products(filter_params, total=MAX_SET_SIZE, coll="products"):
-    # if not isinstance(filter_params, UrlParams):
-    #     filter_params = UrlParams(params_dict=filter_params)
-    #
-    # dl_query = {"filter_params": filter_params.encoded()}
-    #
-    # if db.dl_cache.find_one(dl_query):
-    #     print "We've done this batch already, let's not repeat work"
-    #     return
     collection = coll
     if collection != "products":
         filter_params["site"] = "www.shopstyle.co.jp"
@@ -52,7 +43,7 @@ def download_products(filter_params, total=MAX_SET_SIZE, coll="products"):
     filter_params["offset"] = 0
     while filter_params["offset"] < MAX_OFFSET and \
                     (filter_params["offset"] + MAX_RESULTS_PER_PAGE) <= total:
-        product_response = delayed_requests_get(BASE_URL_PRODUCTS, filter_params, coll)
+        product_response = delayed_requests_get(BASE_URL_PRODUCTS, filter_params, collection)
         product_results = product_response.json()
         total = product_results["metadata"]["total"]
         products = product_results["products"]
@@ -60,25 +51,24 @@ def download_products(filter_params, total=MAX_SET_SIZE, coll="products"):
             db_update(prod, collection)
         filter_params["offset"] += MAX_RESULTS_PER_PAGE
 
-    # Write down that we did this
-    # db.dl_cache.insert(dl_query)
-
     print "Batch Done. Total Product count: {0}".format(db[collection].count())
 
 
-def insert_and_fingerprint(prod, collection):
+def insert_and_fingerprint(prod, collection, current_date):
     """
     this func. inserts a new product to our DB and runs TG fingerprint on it
     :param prod: dictionary of shopstyle product
     :return: Nothing, void function
     """
-    print "enqueuing for fingerprint & insert,",
-    q.enqueue(generate_mask_and_insert, doc=prod, image_url=None,
+
+    # print "enqueuing for fingerprint & insert,",
+    q.enqueue(generate_mask_and_insert, doc=prod, image_url=prod["images"]["XLarge"],
               fp_date=current_date, coll=collection)
 
 
 def db_update(prod, collection):
-    print " Updating product {0}. ".format(prod["id"]),
+    # print " Updating product {0}. ".format(prod["id"]),
+    current_date = db.download_data.find({"criteria": collection})[0]["current_dl"]
 
     # requests package can't handle https - temp fix
     prod["image"] = json.loads(json.dumps(prod["image"]).replace("https://", "http://"))
@@ -90,64 +80,58 @@ def db_update(prod, collection):
     prod["download_data"] = {"dl_version": current_date}
     # case 1: new product - try to update, if does not exists, insert a new product and add our fields
     prod_in_coll = db[collection].find_one({"id": prod["id"]})
-    category = prod['categories'][0]['id']
-    print category
     if prod_in_coll is None:
-        print "Product not in db." + collection
+        # print "Product not in db." + collection
         # case 1.1: try finding this product in the products
         if collection != "products":
             prod_in_prod = db.products.find_one({"id": prod["id"]})
             if prod_in_prod is not None:
-                print "but new product is already in db.products"
-                prod["fingerprint"] = prod_in_prod["fingerprint"]
+                # print "but new product is already in db.products"
                 prod["download_data"] = prod_in_prod["download_data"]
+                prod = convert2generic(prod)
+                prod["fingerprint"] = prod_in_prod["fingerprint"]
                 db[collection].insert_one(prod)
-                print "prod inserted successfully to " + collection
+                # print "prod inserted successfully to " + collection
                 return
         # case 1.2: try finding this product in the products
-        print ", searching in archive. "
-        prod_in_archive = db.archive.find_one({'id': prod["id"]})
-        if prod_in_archive is None:
-            print "New product,",
-            db.download_data.find_one_and_update({"criteria": collection},
-                                                 {'$inc': {"new_items": 1}})
-            db.fp_in_process.insert_one({"id": prod["id"]})
-            insert_and_fingerprint(prod, collection)
-        else:  # means the item is in the archive
-            # No matter what, we're moving this out of the archive...
-            prod_in_archive["archive"] = False
-            print "Prod in archive, checking fingerprint version...",
-            if prod_in_archive.get("download_data")["fp_version"] == constants.fingerprint_version:
-                print "fp_version good, moving from db.archive to db.products",
-                prod_in_archive.update(prod)
-                db[collection].insert_one(prod_in_archive)
-            else:
-                print "old fp_version, updating fp",
-                insert_and_fingerprint(prod, collection)
-            db.archive.delete_one({'id': prod["id"]})
-            db.download_data.find_one_and_update({"criteria": collection},
-                                                 {'$inc': {"returned_from_archive": 1}})
+        # print "New product,",
+        db.download_data.find_one_and_update({"criteria": collection},
+                                             {'$inc': {"new_items": 1}})
+        db.fp_in_process.insert_one({"id": prod["id"]})
+        prod = convert2generic(prod)
+        insert_and_fingerprint(prod, collection, current_date)
+
     else:
         # case 2: the product was found in our db, and maybe should be modified
-        print "Found existing prod in db,",
+        # print "Found existing prod in db,",
+        status_new = prod["inStock"]
+        status_old = prod_in_coll["status"]["instock"]
+        if status_new == False and status_old == False:
+            db[collection].update_one({'id': prod["id"]},
+                                      {'$inc': {'status.hours_out': 24}})
+            prod["status"]["hours_out"] = prod_in_coll["status"]["hours_out"] + 24
+        elif status_new == True and status_old == False:
+            db[collection].update_one({'id': prod["id"]},
+                                      {'$set': {'status.hours_out': 0}})
+        else:
+            pass
+
         if prod_in_coll.get("download_data")["fp_version"] == fp_version:
-            # Thus - update only shopstyle's fields
-            db.download_data.find_one_and_update({"criteria": collection},
-                                                 {'$inc': {"existing_items": 1}})
             db[collection].update_one({'id': prod["id"]},
                                    {'$set': {'download_data.dl_version': current_date}})
         else:
-            db.download_data.find_one_and_update({"criteria": collection},
-                                                 {'$inc': {"existing_but_renewed": 1}})
             db[collection].delete_one({'id': prod['id']})
-            insert_and_fingerprint(prod, collection)
-            print "product with an old fp was refingerprinted"
+            prod = convert2generic(prod)
+            insert_and_fingerprint(prod, collection, current_date)
+            # print "product with an old fp was refingerprinted"
 
 
 def delayed_requests_get(url, _params, collection):
     dl_data = db.download_data.find({"criteria": collection})[0]
-    sleep_time = max(0, 0.1 - (time.time() - dl_data["last_request"]))
-    time.sleep(sleep_time)
+    # sleep_time = max(0, 0.1 - (time.time() - dl_data["last_request"]))
+    # print (sleep_time)
+    # time.sleep(sleep_time)
+    time.sleep(10)
     db.download_data.find_one_and_update({"criteria": collection}, {'$set': {"last_request": time.time()}})
     return requests.get(url, params=_params)
 

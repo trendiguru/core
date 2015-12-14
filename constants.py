@@ -22,6 +22,7 @@ min_bb_to_image_area_ratio = 0.95  # if bb takes more than this fraction of imag
 
 parallel_matlab_queuename = 'pd'
 nonparallel_matlab_queuename = 'pd_nonparallel'
+caffe_path_in_container = '/opt/caffe'
 # db = pymongo.MongoClient(host=os.environ["MONGO_HOST"], port=int(os.environ["MONGO_PORT"])).mydb
 # redis_conn = Redis(host=os.environ["REDIS_HOST"], port=int(os.environ["REDIS_PORT"]))
 db = pymongo.MongoClient(host="mongodb1-instance-1").mydb
@@ -69,7 +70,7 @@ classifier_to_category_dict = {"dressClassifier.xml": ["dresses", "bridal-mother
                                                        "mens-big-and-tall-coats-and-jackets",
                                                        "mens-big-and-tall-blazers"]}
 
-db_relevant_items = ['women', 'womens-clothes', 'womens-suits', 'shorts', 'petites', 'blazers', 'tees-and-tshirts',
+db_relevant_items = ['women', 'womens-clothes', 'womens-suits', 'shorts', 'blazers', 'tees-and-tshirts',
                      'jeans', 'bootcut-jeans', 'classic-jeans', 'cropped-jeans', 'distressed-jeans',
                      'flare-jeans', 'relaxed-jeans', 'skinny-jeans', 'straight-leg-jeans', 'stretch-jeans',
                      'womens-tops', 'button-front-tops', 'camisole-tops', 'cashmere-tops', 'halter-tops',
@@ -82,8 +83,7 @@ db_relevant_items = ['women', 'womens-clothes', 'womens-suits', 'shorts', 'petit
                      'jackets', 'casual-jackets', 'leather-jackets', 'vests',
                      'coats', 'womens-outerwear', 'fur-and-shearling-coats', 'leather-and-suede-coats',
                      'puffer-coats', 'raincoats-and-trenchcoats', 'wool-coats',
-                     'leggings', 'womens-shoes', 'shoes-athletic', 'boots', 'evening-shoes', 'flats', 'pumps',
-                     'womens-sneakers', 'wedges', 'mules-and-clogs', 'sandles']
+                     'leggings']
 
 # paperdoll items' legends
 
@@ -198,6 +198,16 @@ flipkart_paperdoll_women = {'Tops': 'top', 'Top': 'top',
 paperdoll_relevant_categories = {'top', 'pants', 'shorts', 'jeans', 'jacket', 'blazer', 'shirt', 'skirt', 'blouse',
                                  'dress',
                                  'sweater', 't-shirt', 'cardigan', 'coat', 'suit', 'tights', 'sweatshirt', 'stockings'}
+
+# these are the fashionista db cats in order , e.g. the mask will have 1 for null (unknown) and 56 for skin
+fashionista_categories = ['null','tights','shorts','blazer','t-shirt','bag','shoes','coat','skirt','purse','boots',
+                          'blouse','jacket','bra','dress','pants','sweater','shirt','jeans','leggings','scarf','hat',
+                          'top','cardigan','accessories','vest','sunglasses','belt','socks','glasses','intimate',
+                          'stockings','necklace','cape','jumper','sweatshirt','suit','bracelet','heels','wedges','ring',
+                          'flats','tie','romper','sandals','earrings','gloves','sneakers','clogs','watch','pumps','wallet',
+                          'bodysuit','loafers','hair','skin']
+
+pd_output_savedir = '/home/jeremy/pd_output'
 # for web bounding box interface
 # this is for going to the previous item, highest numbered image
 max_image_val = 666
@@ -212,6 +222,7 @@ Reserve_cpus = 2  # number of cpus to not use when doing stuff in parallel
 # for gender id
 gender_ttl = 5  # 10 seconds ttl , answer should be nearly immediate
 paperdoll_ttl = 90  # seconds to wait for paperdoll result
+caffe_general_ttl = 30  # seconds to wait for paperdoll result
 
 # QC worker voting params
 
@@ -247,7 +258,7 @@ else:
 
 def jp_categories():
     jp = db.products_fp
-    cat_dict = constants.paperdoll_shopstyle_women;
+    cat_dict = paperdoll_shopstyle_women
     jp_dict = {}
     for key, value in cat_dict.iteritems():
         a = db.products_jp.find_one({'categories.id': value})
@@ -257,3 +268,341 @@ def jp_categories():
         else:
             jp_dict[key] = {}
     return jp_dict
+
+
+shopstyle_paperdoll_women = {'bootcut-jeans': 'jeans',
+                             'classic-jeans': 'jeans',
+                             'cropped-jeans': 'jeans',
+                             'distressed-jeans': 'jeans',
+                             'flare-jeans': 'jeans',
+                             'relaxed-jeans': 'jeans',
+                             'skinny-jeans': 'jeans',
+                             'straight-leg-jeans': 'jeans',
+                             'stretch-jeans': 'jeans',
+                             'jeans': 'jeans',
+                             'womens-suits': 'suit',
+                             'shorts': 'shorts',
+                             'blazers': 'blazer',
+                             'tees-and-tshirts': 't-shirt',
+                             'womens-tops': 'top',
+                             'button-front-tops': 'top',
+                             'camisole-tops': 'top',
+                             'cashmere-tops': 'top',
+                             'halter-tops': 'top',
+                             'longsleeve-tops': 'top',
+                             'shortsleeve-tops': 'shirt',
+                             'sleeveless-tops': 'top',
+                             'tank-tops': 'top',
+                             'tunic-tops': 'blouse',
+                             'polo-tops': 'top',
+                             'skirts': 'skirt',
+                             'mini-skirts': 'skirt',
+                             'mid-length-skirts': 'skirt',
+                             'long-skirts': 'skirt',
+                             'sweaters': 'sweater',
+                             'sweatshirts': 'sweatshirt',
+                             'cashmere-sweaters': 'sweater',
+                             'cardigan-sweaters': 'cardigan',
+                             'crewneck-sweaters': 'sweater',
+                             'turleneck-sweaters': 'sweater',
+                             'v-neck-sweaters': 'sweater',
+                             'womens-pants': 'pants',
+                             'wide-leg-pants': 'pants',
+                             'skinny-pants': 'pants',
+                             'dress-pants': 'pants',
+                             'cropped-pants': 'pants',
+                             'casual-pants': 'pants',
+                             'dresses': 'dress',
+                             'cocktail-dresses': 'dress',
+                             'day-dresses': 'dress',
+                             'evening-dresses': 'dress',
+                             'jackets': 'jacket',
+                             'neckless-jackets': 'jacket',
+                             'casual-jackets': 'jacket',
+                             'leather-jackets': 'jacket',
+                             'vests': 'cardigan',
+                             'coats': 'coat',
+                             'womens-outerwear': 'coat',
+                             'plus-size-outerwear': 'coat',
+                             'fur-and-shearling-coats': 'coat',
+                             'leather-and-suede-coats': 'coat',
+                             'puffer-coats': 'coat',
+                             'raincoats-and-trenchcoats': 'coat',
+                             'wool-coats': 'coat',
+                             'leggings': 'tights'}
+
+
+
+'''
+this is a list of categories under womens-clothing and mens-clothing in case its needed
+TOP LEVEL CLOTHES:
+ u'womens-outerwear',
+ u'shorts',
+ u'jackets',
+
+['womens-clothes',
+
+ u'womens-outerwear',
+ u'wool-coats',
+ u'coats',
+ u'puffer-coats',
+ u'fur-and-shearling-coats',
+ u'raincoats-and-trenchcoats',
+ u'leather-and-suede-coats',
+
+ u'jewelry',
+ u'diamond-jewelry',
+ u'diamond-necklaces',
+ u'diamond-earrings',
+ u'diamond-bracelets',
+ u'diamond-rings',
+ u'charms',
+ u'necklaces',
+ u'earrings',
+ u'bracelets',
+ u'brooches-and-pins',
+ u'rings',
+ u'watches',
+
+ u'shorts',
+
+ u'jackets',
+ u'blazers',
+ u'neckless-jackets',
+ u'casual-jackets',
+ u'vests',
+ u'leather-jackets',
+
+ u'skirts',
+ u'mini-skirts',
+ u'mid-length-skirts',
+ u'long-skirts',
+
+ u'womens-suits',
+
+ u'jeans',
+ u'classic-jeans',
+ u'cropped-jeans',
+ u'skinny-jeans',
+ u'stretch-jeans',
+ u'straight-leg-jeans',
+ u'distressed-jeans',
+ u'flare-jeans',
+ u'bootcut-jeans',
+ u'relaxed-jeans',
+
+ u'womens-tops',
+ u'tees-and-tshirts',
+ u'cut-sew-tops',
+ u'camisole-tops',
+ u'button-front-tops',
+ u'tank-tops',
+ u'tunic-tops',
+ u'sleeveless-tops',
+ u'halter-tops',
+ u'polo-tops',
+
+ u'sweaters',
+ u'v-neck-sweaters',
+ u'cardigan-sweaters',
+ u'crewneck-sweaters',
+ u'turleneck-sweaters',
+ u'ensembles',
+
+ u'womens-pants',
+ u'dress-pants',
+ u'casual-pants',
+ u'cropped-pants',
+ u'skinny-pants',
+ u'leggings',
+ u'wide-leg-pants',
+
+ u'sweatshirts',
+
+#NOTE WOMENS ATHLETIC SEEMS TO HAVE GONE BYE-BYE
+ u'womens-athletic-clothes',
+ u'athletic-shorts',
+ u'athletic-jackets',
+ u'athletic-skirts',
+ u'sports-bras-and-underwear',
+ u'athletic-tops',
+ u'athletic-pants',
+
+#APPARENTLY THIS CATEGORY IS NO MORE
+ u'bridal',
+ u'bridesmaid',
+ u'bridesmaid-jewelry',
+ u'bridal-bridesmaid-dresses',
+ u'bridesmaid-bags',
+ u'bride',
+ u'bridal-lingerie',
+ u'bridal-gowns',
+ u'bridal-shoes',
+ u'bridal-jewelry',
+ u'bridal-bags',
+ u'bridal-veils',
+
+#GONE WITH THE WIND
+ u'maternity-clothes',
+ u'maternity-outerwear',
+ u'maternity-intimates',
+ u'maternity-shorts',
+ u'maternity-jackets',
+ u'maternity-skirts',
+ u'maternity-jeans',
+ u'maternity-tops',
+ u'maternity-sweaters',
+ u'maternity-pants',
+ u'maternity-dresses',
+ u'maternity-swimsuits',
+
+ u'dresses',
+ u'bridal-dresses',
+ u'bridesmaid-dresses',
+ u'wedding-dresses',
+ u'cocktail-dresses',
+ u'evening-dresses',
+ u'day-dresses',
+
+ u'womens-intimates',
+ u'undershirts',
+ u'camisoles',
+ u'panties',
+ u'chemises',
+ u'socks',
+ u'hosiery',
+ u'thongs',
+ u'pajamas',
+ u'bras',
+ u'roomwear',
+ u'slippers',
+ u'robes',
+ u'shapewear',
+
+ u'plus-sizes',
+ u'plus-size-outerwear',
+ u'plus-size-shorts',
+ u'plus-size-jackets',
+ u'plus-size-skirts',
+ u'plus-size-suits',
+ u'plus-size-jeans',
+ u'plus-size-tops',
+ u'plus-size-sweaters',
+ u'plus-size-pants',
+ u'plus-size-sweatshirts',
+ u'plus-size-dresses',
+ u'plus-size-intimates',
+ u'plus-size-swimsuits',
+
+ u'petites',
+ u'petite-outerwear',
+ u'petite-shorts',
+ u'petite-jackets',
+ u'petite-skirts',
+ u'petite-suits',
+ u'petite-jeans',
+ u'petite-tops',
+ u'petite-sweaters',
+ u'petite-pants',
+ u'petite-sweatshirts',
+ u'petite-dresses',
+ u'petite-intimates',
+ u'petite-swimsuits',
+
+ u'womens-accessories',
+ u'womens-eyewear',
+ u'sunglasses',
+ u'womens-eyeglasses',
+ u'key-chains',
+ u'gift-cards',
+ u'straps',
+ u'womens-tech-accessories',
+ u'belts',
+ u'scarves',
+ u'womens-umbrellas',
+ u'hats',
+ u'gloves',
+
+ u'swimsuits',
+ u'one-piece-swimsuits',
+ u'two-piece-swimsuits',
+ u'swimsuit-coverups']
+
+In [19]: get_all_subcategories(db.categories,'mens-clothes')
+Out[19]:
+['mens-clothes',
+ u'mens-outerwear',
+ u'mens-coats',
+ u'mens-jackets',
+ u'mens-denim-jackets',
+ u'mens-overcoats-and-trenchcoats',
+ u'mens-leather-and-suede-coats',
+ u'mens-shorts',
+ u'mens-sweatshirts',
+ u'mens-suits',
+ u'mens-jeans',
+ u'mens-slim-jeans',
+ u'mens-straight-leg-jeans',
+ u'mens-distressed-jeans',
+ u'mens-bootcut-jeans',
+ u'mens-relaxed-jeans',
+ u'mens-loose-jeans',
+ u'mens-low-rise-jeans',
+ u'mens-shirts',
+ u'mens-tees-and-tshirts',
+ u'mens-dress-shirts',
+ u'mens-polo-shirts',
+ u'mens-shortsleeve-shirts',
+ u'mens-longsleeve-shirts',
+ u'mens-sleepwear',
+ u'mens-slippers',
+ u'mens-pajamas',
+ u'mens-robes',
+ u'mens-sweaters',
+ u'mens-v-neck-sweaters',
+ u'mens-cardigan-sweaters',
+ u'mens-crewneck-sweaters',
+ u'mens-turtleneck-sweaters',
+ u'mens-half-zip-sweaters',
+ u'mens-vests',
+ u'mens-ties',
+ u'mens-pants',
+ u'mens-casual-pants',
+ u'mens-cargo-pants',
+ u'mens-dress-pants',
+ u'mens-chinos-and-khakis',
+ u'mens-athletic',
+ u'mens-athletic-shorts',
+ u'mens-athletic-jackets',
+ u'mens-athletic-shirts',
+ u'mens-athletic-pants',
+ u'mens-underwear-and-socks',
+ u'mens-tee-shirts',
+ u'mens-socks',
+ u'mens-boxers',
+ u'mens-briefs',
+ u'mens-big-and-tall',
+ u'mens-big-and-tall-coats-and-jackets',
+ u'mens-big-and-tall-shorts',
+ u'mens-big-and-tall-suits',
+ u'mens-big-and-tall-jeans',
+ u'mens-big-and-tall-shirts',
+ u'mens-big-and-tall-sweaters',
+ u'mens-big-and-tall-pants',
+ u'mens-big-and-tall-underwear-and-socks',
+ u'mens-accessories',
+ u'mens-eyewear',
+ u'mens-sunglasses',
+ u'mens-eyeglasses',
+ u'mens-tech-accessories',
+ u'mens-belts',
+ u'mens-umbrellas',
+ u'mens-hats',
+ u'mens-gloves-and-scarves',
+ u'mens-wallets',
+ u'mens-watches-and-jewelry',
+ u'mens-jewelry',
+ u'mens-cuff-links',
+ u'mens-watches',
+ u'mens-swimsuits']
+'''

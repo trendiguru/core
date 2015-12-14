@@ -5,15 +5,15 @@ import os
 import cv2
 import numpy as np
 
-import kassper
-import background_removal
-import Utils
+from . import kassper
+from . import background_removal
+from . import Utils
 
 
 def higher_lower_body_split_line(face):
-    box_height = face[3]
-    y_split = face[1] + 4.5 * box_height
-    return y_split
+    w, y, w, h = face
+    y_split = round(y + 5 * h)
+    return int(y_split)
 
 
 def length_of_lower_body_part_field(image, face):
@@ -24,31 +24,36 @@ def length_of_lower_body_part_field(image, face):
     def legs_upper_line_cnt(mask):
         ret, thresh = cv2.threshold(mask, 127, 255, cv2.THRESH_BINARY, 0)
         contours = cv2.findContours(thresh, mode=cv2.RETR_EXTERNAL, method=cv2.CHAIN_APPROX_NONE)[1]
-        y_up = mask.shape[0]
-        topmost_list = []
+        max_grade = 0
+        line = mask.shape[0]
         for contour in contours:
+            area = cv2.contourArea(contour)
             topmost = tuple(contour[contour[:, :, 1].argmin()][0])
-            if topmost[1] > 5 and cv2.contourArea(contour) > 100:
-                topmost_list.append(topmost[1])
-        if len(topmost_list) > 0:
-            y_up = np.amin(topmost_list)
-        return int(y_up)
-
-    # TODO - 1. check if there are enough faces down the images..
-    # 2.
+            bottommost = tuple(contour[contour[:, :, 1].argmax()][0])
+            moments = cv2.moments(contour)
+            cy = int(moments['m01'] / moments['m00'])
+            grade = 0.2 * cy + 0.8 * area
+            if (topmost[1] > 5) and (bottommost[1] > 0.5 * mask.shape[0]):
+                if grade > max_grade:
+                    max_grade = grade
+                    line = topmost[1]
+        return int(line)
     image, rr = background_removal.standard_resize(image, 400)
-    face = np.array([int(num) for num in face / rr])
+    face = np.array([int(num) for num in face / rr], dtype=np.uint8)
     gc_image = background_removal.get_masked_image(image, background_removal.get_fg_mask(image))
     y_split = higher_lower_body_split_line(face)
     lower_bgr = image[y_split:gc_image.shape[0] - 1, :, :]
     try:
-        only_skin_down = kassper.skin_detection_with_grabcut(lower_bgr, image, 'skin')
+        only_skin_down = kassper.skin_detection_with_grabcut(lower_bgr, image, face, 'skin')
     except:
         print 'Problem with the grabcut'
-        return -1, -1
+        return 0.6, 0
     only_skin_mask = kassper.clutter_removal(only_skin_down, 100)
-    legs_up_cnt = legs_upper_line_cnt(255 * only_skin_mask) + int(y_split)
-    return legs_up_cnt
+    l = legs_upper_line_cnt(255 * only_skin_mask) + y_split
+    if l > 9 * face[3]:
+        return 1, int(l * rr)
+    else:
+        return float(l - y_split) / (face[1] + 9 * face[3] - y_split), int(l * rr)
 
 
 def length_of_lower_body_db_dresses(image):
@@ -68,22 +73,24 @@ def length_of_lower_body_db_dresses(image):
 def collect_distances(dir, i):
     images = Utils.get_images_list(dir)[i * 10:10 * (i + 1)]
     print "Total {0} images".format(len(images))
-    dist = []
     i = 0
     for image in images:
-        faces = background_removal.find_face_cascade(image)
-        if faces is None:
-            pass
-        elif len(faces) == 0:
-            pass
+        faces = background_removal.find_face_cascade(image)['faces']
+        if len(faces) == 0:
+            print "No faces were detected.."
         else:
+            print faces
+            x, y, w, h = faces[0]
             try:
-                line = length_of_lower_body_part_field(image, faces[0])
-                if isinstance(line, int):
-                    cv2.line(image, (0, line), (image.shape[1], line), [0, 170, 170], 2)
-                    cv2.imwrite(os.getcwd() + '/' + str(i) + '.jpg', image)
-                    dist.append((line - faces[0][1]) / float(faces[0][3]))
+                lod, line = length_of_lower_body_part_field(image, faces[0])
+                print lod
+                cv2.line(image, (0, line - 1), (image.shape[1], line - 1), [0, 170, 170], 2)
+                while y + h < image.shape[0]:
+                    cv2.rectangle(image, (x, y), (x + w, y + h), [66, 0, 35], 2)
+                    y += h
+                cv2.imwrite(os.getcwd() + '/' + str(i) + '.jpg', image)
             except:
                 print "Problem with the length.."
+
         i += 1
-    return dist
+    return

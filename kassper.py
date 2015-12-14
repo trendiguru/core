@@ -71,7 +71,7 @@ def skin_removal(gc_image, image):
     fgdmodel = np.zeros((1, 65), np.float64)
     ycrcb = cv2.cvtColor(gc_image, cv2.COLOR_BGR2YCR_CB)
     mask = np.zeros(image.shape[:2], dtype=np.uint8)
-    face_rect = background_removal.find_face(image)
+    face_rect = background_removal.find_face_cascade(image)
     if len(face_rect) > 0:
         hsv = cv2.cvtColor(image, cv2.COLOR_BGR2HSV)
         x, y, w, h = face_rect[0]
@@ -106,17 +106,17 @@ def skin_removal(gc_image, image):
     return mask2
 
 
-def skin_detection_with_grabcut(gc_image, image, skin_or_clothes='clothes'):
+def skin_detection_with_grabcut(gc_image, image, face=None, skin_or_clothes='clothes'):
     rect = (0, 0, gc_image.shape[1] - 1, gc_image.shape[0] - 1)
     bgdmodel = np.zeros((1, 65), np.float64)
     fgdmodel = np.zeros((1, 65), np.float64)
     ycrcb = cv2.cvtColor(gc_image, cv2.COLOR_BGR2YCR_CB)
-    hsv = cv2.cvtColor(image, cv2.COLOR_BGR2HSV)
     partly_hsv = cv2.cvtColor(gc_image, cv2.COLOR_BGR2HSV)
     mask = np.zeros(gc_image.shape[:2], dtype=np.uint8)
-    face_rect = background_removal.find_face(image)
-    if len(face_rect) > 0:
-        skin_hue_list = background_removal.face_skin_color_estimation(image, face_rect)
+    if len(face) == 0:
+        face = background_removal.find_face_cascade(image)['faces']
+    if len(face) > 0:
+        skin_hue_list = background_removal.face_skin_color_estimation(image, face.tolist())
         for i in range(0, gc_image.shape[0]):
             for j in range(0, gc_image.shape[1]):
                 if partly_hsv[i][j][0] in skin_hue_list and ycrcb[i][j][0] > 0 and 133 < ycrcb[i][j][1] < 173 and 80 < \
