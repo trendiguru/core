@@ -4,7 +4,7 @@ import time
 import numpy as np
 urls=[]
 dts=[]
-urls.append('http://notapicture.jpg')
+#urls.append('http://notapicture.jpg')
 urls.append('http://i.imgur.com/ahFOgkm.jpg')
 urls.append('https://img1.etsystatic.com/019/1/5682424/il_570xN.555916317_ebv0.jpg')
 urls.append('http://www.customcelebritydresses.com/image/cache/data/4.13/Christina%20Hendricks%20Green%20V-neck%20Prom%20Dress%202008%20Emmy%20Awards%20Red%20Carpet%202600x600.jpg')
