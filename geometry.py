@@ -86,7 +86,7 @@ def collect_distances(dir, i):
             try:
                 lod, line = length_of_lower_body_part_field(image, faces[0])
                 print lod
-                cv2.line(image, (0, line), (image.shape[1], line), [0, 170, 170], 2)
+                cv2.line(image, (0, line - 1), (image.shape[1], line - 1), [0, 170, 170], 2)
                 while y + h < image.shape[0]:
                     cv2.rectangle(image, (x, y), (x + w, y + h), [66, 0, 35], 2)
                     y += h
