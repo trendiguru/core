@@ -78,12 +78,12 @@ def collect_distances(dir, i):
     i = 0
     for image in images:
         face = background_removal.find_face_cascade(image)['faces'][0]
-        print face
         if face is None:
             pass
         elif len(face) == 0:
             pass
         else:
+            print face
             x, y, w, h = face
             try:
                 lod, line = length_of_lower_body_part_field(image, face)
