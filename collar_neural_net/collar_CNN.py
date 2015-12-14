@@ -47,7 +47,7 @@ def get_data(my_path):#, testing_amount=0.2):#my_path=os.path.dirname(os.path.ab
     images_vector_shape = output_image.shape
     output_image = np.reshape(output_image, (images_vector_shape[0], images_vector_shape[3],
                                              images_vector_shape[1], images_vector_shape[2]))
-    # print amount_of_each_tag
+    # print amount_of_each_ta g
     # testing_input = []
     # testing_output = []
     # training_input = []
