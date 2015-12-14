@@ -102,7 +102,11 @@ def get_parse_mask_parallel(matlab_engine, img_url_or_cv2_array, filename=None, 
         finish_time=time.time()
         print('elapsed time in get_parse_mask_parallel:'+str(finish_time-start_time))
         print('attempting convert and save')
-        convert_and_save_results(mask_np, label_dict, pose_np, filename+'.jpg', img)
+        if isinstance(img_url_or_cv2_array,basestring):
+            url = img_url_or_cv2_array
+        else:
+            url = None
+        convert_and_save_results(mask_np, label_dict, pose_np, filename+'.jpg', img, url)
         return mask_np, label_dict, pose_np, filename
     else:
         if img is None:
@@ -110,7 +114,7 @@ def get_parse_mask_parallel(matlab_engine, img_url_or_cv2_array, filename=None, 
         else:
             raise ValueError("problem writing "+str(filename)+" in get_parse_mask_parallel")
 
-def convert_and_save_results(mask, label_names, pose,filename,img):
+def convert_and_save_results(mask, label_names, pose,filename,img,url):
     fashionista_ordered_categories = constants.fashionista_categories
     new_mask=np.ones(mask.shape)*255  # anything left with 255 wasn't dealt with
     success = True #assume innocence until proven guilty
@@ -145,6 +149,12 @@ def convert_and_save_results(mask, label_names, pose,filename,img):
                 poselist=pose[0].tolist()
 #                json.dump([1,2,3], outfile, indent=4)
                 json.dump(poselist,outfile, indent=4)
+            if url is not None:
+                url_name = full_name.strip('.jpg')+'.url'
+                print('writing url to '+str(url_name))
+                with open(url_name, "w+") as outfile2:
+                    print('succesful open, attempting to write:'+str(url))
+                    outfile2.write(url)
             return
         except:
             print('fail in convert_and_save_results dude, bummer')

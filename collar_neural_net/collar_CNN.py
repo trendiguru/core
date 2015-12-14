@@ -16,7 +16,7 @@ def get_data(my_path):#, testing_amount=0.2):#my_path=os.path.dirname(os.path.ab
     # if testing_amount > 1.0 or testing_amount < 0.0:
     #     print 'testing_amount should be between 0 and 1 (float)!'
     #     return
-    image_file_types = ['.jpg','.png','.bmp','.gif']
+    image_file_types = ['.jpg', '.jpeg', '.png','.bmp','.gif']
     only_files = [f for f in os.listdir(my_path) if os.path.isfile(os.path.join(my_path, f))]
     output_tag = []
     output_image = []
@@ -85,17 +85,18 @@ overwrite_weights = True
 testing_amount = 0.15
 
 model = Sequential()
-model.add(Convolution2D(32, 3, 3, border_mode='valid', input_shape=(3, 32, 32)))
+model.add(Convolution2D(16, 3, 3, border_mode='full', input_shape=(3, 32, 32)))
 model.add(Activation('hard_sigmoid'))
 # model.add(MaxPooling2D(pool_size=(2, 2)))
-model.add(Convolution2D(32, 3, 3, border_mode='valid'))
+model.add(Convolution2D(16, 3, 3))
 model.add(Activation('hard_sigmoid'))
 model.add(MaxPooling2D(pool_size=(2, 2)))
 model.add(Dropout(0.25))
-model.add(Convolution2D(64, 3, 3, border_mode='valid'))
+
+model.add(Convolution2D(32, 3, 3, border_mode='valid'))
 model.add(Activation('hard_sigmoid'))
 # model.add(MaxPooling2D(pool_size=(2, 2)))
-model.add(Convolution2D(64, 3, 3, border_mode='valid'))
+model.add(Convolution2D(32, 3, 3))
 model.add(Activation('hard_sigmoid'))
 model.add(MaxPooling2D(pool_size=(2, 2)))
 model.add(Dropout(0.25))
@@ -110,12 +111,14 @@ model.add(Flatten())
 model.add(Dense(256))
 model.add(Activation('hard_sigmoid'))
 model.add(Dropout(0.5))
-model.add(Dense(128))
-model.add(Activation('hard_sigmoid'))
-model.add(Dense(64))
-model.add(Activation('hard_sigmoid'))
+#model.add(Dense(128))
+#model.add(Activation('hard_sigmoid'))
+#model.add(Dense(64))
+#model.add(Activation('hard_sigmoid'))
+
 model.add(Dense(3))
 model.add(Activation('softmax'))
+
 
 
 optimizer_method = Adadelta()#SGD(lr=0.000001, decay=1e-6, momentum=0.9, nesterov=True)#Adagrad()#Adadelta()#RMSprop()#Adam()
