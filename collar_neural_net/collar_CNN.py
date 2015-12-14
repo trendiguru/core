@@ -31,6 +31,7 @@ def get_data(my_path):#, testing_amount=0.2):#my_path=os.path.dirname(os.path.ab
                 output_tag.append(int(file_name[-5]))
 
     output_vector_size = max(output_tag)
+    print output_vector_size
     output_vector = []
     # amount_of_each_tag = np.zeros(output_vector_size)
     for tag in output_tag:
@@ -46,7 +47,7 @@ def get_data(my_path):#, testing_amount=0.2):#my_path=os.path.dirname(os.path.ab
     images_vector_shape = output_image.shape
     output_image = np.reshape(output_image, (images_vector_shape[0], images_vector_shape[3],
                                              images_vector_shape[1], images_vector_shape[2]))
-    # print amount_of_each_tag
+    # print amount_of_each_ta g
     # testing_input = []
     # testing_output = []
     # training_input = []
@@ -116,7 +117,7 @@ model.add(Dropout(0.5))
 #model.add(Dense(64))
 #model.add(Activation('hard_sigmoid'))
 
-model.add(Dense(3))
+model.add(Dense(5))
 model.add(Activation('softmax'))
 
 

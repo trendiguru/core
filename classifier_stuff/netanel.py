@@ -102,8 +102,8 @@ def get_pose_est_bbs(url="http://www.thebudgetbabe.com/uploads/2015/201504/celeb
         cv2.rectangle(img_arr, (neckbox[0], neckbox[1]), (neckbox[0] + neckbox[2], neckbox[1] + neckbox[3]),
                       [0, 200, 100],
                       thickness=1)
-        cv2.imshow('im1', img_arr)
-        k = cv2.waitKey(200)
+        # cv2.imshow('im1', img_arr)
+        # k = cv2.waitKey(200)
 
     img2 = img_arr[neckbox[0]:neckbox[0] + neckbox[2], neckbox[0]:neckbox[0] + neckbox[2]]
 
@@ -149,9 +149,9 @@ def find_images(description):
             show_visual_output = False
             if show_visual_output == True:
                 cv2.imshow('im1', img_arr)
-                k = cv2.waitKey(200)
-                cv2.imshow('smallim1', small_img)
-                k = cv2.waitKey(200)
+                # k = cv2.waitKey(200)
+                # cv2.imshow('smallim1', small_img)
+                # k = cv2.waitKey(200)
             relevance = background_removal.image_is_relevant(small_img)
             print('relevance:' + str(relevance))
             rel = relevance.is_relevant
@@ -193,7 +193,7 @@ if __name__ == '__main__':
                     'square neck', 'v-neck', 'classic neckline',
                     'round collar', 'crewneck', 'crew neck', 'scoopneck', 'square neck', 'bow collar',
                     'ribbed round neck', 'rollneck',
-                    'slash neck', 'V-Necks', 'v-neck', 'neck', 'round neck']
+                    'slash neck', 'V-Necks', 'V-necks','Vnecks','vnecks','v-neck', 'neck', 'round neck']
 
     # description: classic neckline , round collar, round neck, crew neck, square neck, v-neck, clASsic neckline,round collar,crewneck,crew neck, scoopneck,square neck, bow collar, ribbed round neck,rollneck ,slash neck
     # cats:[{u'shortName': u'V-Necks', u'localizedId': u'v-neck-sweaters', u'id': u'v-neck-sweaters', u'name': u'V-Neck Sweaters'}]

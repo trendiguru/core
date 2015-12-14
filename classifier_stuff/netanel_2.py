@@ -28,8 +28,8 @@ descriptions_dict = {'bowcollar': ["\"bow collar\"", "bowcollar"],
                      'crewneck': ["\"crew neck\"", "crewneck", "\"classic neckline\""],
                      'roundneck': ["\"round neck\"", "roundneck"],
                      'scoopneck': ["\"scoop neck\"", "scoopneck"],
-                     'squareneck': ["\"square neck\"", "squareneck"],
-                     'v-neck': ["\"v-neck\"", "\"v neck\"", "vneck"]}
+                     'squareneck': ["\"square_neck\"square-neck\"square neck\"", "squareneck"],
+                     'v-neck': ["\"Vneck\"V neck\"V-neck\"v-neck\"", "\"v neck\"", "vneck"]}
 
 
 def find_products_by_description(search_string, category_id, feature_name=None):
