@@ -77,16 +77,14 @@ def collect_distances(dir, i):
     print "Total {0} images".format(len(images))
     i = 0
     for image in images:
-        face = background_removal.find_face_cascade(image)['faces'][0]
-        if face is None:
-            pass
-        elif len(face) == 0:
-            pass
+        faces = background_removal.find_face_cascade(image)['faces']
+        if len(faces) == 0:
+            print "No faces were detected.."
         else:
-            print face
-            x, y, w, h = face
+            print faces
+            x, y, w, h = faces[0]
             try:
-                lod, line = length_of_lower_body_part_field(image, face)
+                lod, line = length_of_lower_body_part_field(image, faces[0])
                 print lod
                 cv2.line(image, (0, line), (image.shape[1], line), [0, 170, 170], 2)
                 while y + h < image.shape[0]:
