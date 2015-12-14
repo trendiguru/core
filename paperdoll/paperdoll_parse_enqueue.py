@@ -31,7 +31,11 @@ def paperdoll_enqueue(img_url_or_cv2_array, filename=None, async=True, queue_nam
     queue = Queue(queue_name, connection=redis_conn)
     job1 = queue.enqueue('trendi_guru_modules.paperdoll.pd.get_parse_mask_parallel', img_url_or_cv2_array,
                                  filename=filename, use_parfor=use_parfor)
-    print('started pd job on queue:'+str(queue))
+    if isinstance(img_url_or_cv2_array,basestring):
+        url = img_url_or_cv2_array
+    else:
+        url = None
+    print('started pd job on queue:'+str(queue)+' url:'+str(url))
     start = time.time()
     if not async:
         print('running synchronously (waiting for result)'),
