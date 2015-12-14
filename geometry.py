@@ -55,7 +55,7 @@ def length_of_lower_body_part_field(image, face):
     elif l < y_split:
         return 0, l
     else:
-        return float(l - y_split) / (face[1] + 9 * face[3] - y_split), l
+        return float(l - y_split) / (face[1] + 9 * face[3] - y_split), int(l * rr)
 
 
 def length_of_lower_body_db_dresses(image):
