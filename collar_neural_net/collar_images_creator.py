@@ -22,6 +22,7 @@ if not os.path.exists(directory_path):
     os.mkdir(dataset_directory_name)
 
 my_path = os.path.dirname(os.path.abspath(__file__))
+print my_path
 only_files = [f for f in os.listdir(my_path) if os.path.isfile(os.path.join(my_path, f))]
 
 only_image_files = []
@@ -35,9 +36,9 @@ print offset_range
 a = (a-1)/2
 image_number = 0
 for image_file_name in only_image_files:
+    print image_file_name
     image = cv2.imread(image_file_name, 1)
     face = face_cascade.detectMultiScale(image, 1.3, 5)#[0]
-    print image_file_name
 
     # checking if the face (ancore) is present / detected:
     if len(face) == 0:
@@ -127,4 +128,4 @@ for image_file_name in only_image_files:
                 # cv2.imshow('cropped', image_of_collar)
                 # cv2.waitKey(500)
 
-print image_call
+# print image_call
