@@ -89,10 +89,10 @@ def collect_distances(dir, i):
                 lod, line = length_of_lower_body_part_field(image, face)
                 print lod
                 cv2.line(image, (0, line), (image.shape[1], line), [0, 170, 170], 2)
-                cv2.imwrite(os.getcwd() + '/' + str(i) + '.jpg', image)
                 while y + h < image.shape[0]:
                     cv2.rectangle(image, (x, y), (x + w, y + h), [66, 0, 35], 2)
                     y += h
+                cv2.imwrite(os.getcwd() + '/' + str(i) + '.jpg', image)
             except:
                 print "Problem with the length.."
 
