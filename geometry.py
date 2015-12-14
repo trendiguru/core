@@ -47,7 +47,7 @@ def length_of_lower_body_part_field(image, face):
         only_skin_down = kassper.skin_detection_with_grabcut(lower_bgr, image, face, 'skin')
     except:
         print 'Problem with the grabcut'
-        return 0.5, 0
+        return 0.6, 0
     only_skin_mask = kassper.clutter_removal(only_skin_down, 100)
     l = legs_upper_line_cnt(255 * only_skin_mask) + y_split
     if l > 9 * face[3]:
