@@ -7,10 +7,10 @@ face_cascade = cv2.CascadeClassifier('/home/nate/Desktop/core/classifier_stuff/c
 # eye_cascade = cv2.CascadeClassifier('haarcascade_eye.xml')
 # current_directory = os.path.abspath()
 
-image_file_types = ['.jpg','.png','.bmp','.gif']
-a = 1.25 # scalar for increasing collar box in relation to face box (1==100%)
-max_angle = 15 # tilt angle of the image for diversification
-angle_offset = 7 # tilt angle of the image for diversification
+image_file_types = ['.jpg', 'jpeg', '.png', '.bmp', '.gif']
+a = 1.35 # scalar for increasing collar box in relation to face box (1==100%)
+max_angle = 9 # tilt angle of the image for diversification
+angle_offset = 3 # tilt angle of the image for diversification
 # max_offset = 0.01 # maximum horizontal movement (% (out of box X) of the collar box for diversification
 # delta_offset = max_offset # horizontal movement increments(%)
 output_images_size = (32, 32) # pixels^2
