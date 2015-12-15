@@ -65,7 +65,7 @@ num = 1
     boxes{1} = boxes{1}(1,:);
   end
   % visualization
-  if 0
+  if 1
     im = imreadx(test(i));
     if ~isempty(boxes{i})
       showskeletons(im, boxes{i}(1,:), conf.pa);
