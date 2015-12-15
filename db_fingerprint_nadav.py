@@ -20,6 +20,7 @@ from . import Utils
 from . import constants
 from .constants import db
 
+
 redis_conn = Redis()
 q2 = Queue('change_fp_to_dict', connection=redis_conn)
 # globals
@@ -335,6 +336,10 @@ if __name__ == "__main__":
         fingerprint_db(int(args['fp_version']), args['category_id'], args['num_processes'])
     except Exception as e:
         logging.warning("Exception reached main!: {0}".format(e))
+
+
+def make_the_change(collection):
+    q2.enqueue('change_fp_to_dict', collection)
 
 
 def change_fp_to_dict(collection, category=None):
