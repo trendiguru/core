@@ -25,16 +25,20 @@ def speed_test(part):
         count = all.count()
         i = 0
         start = time.time()
-        for doc in db.dynamic_fp.find():
+        for doc in all:
             q1.enqueue('start_process_st', page_url='speed_test.fazz', image=doc['images']['XLarge'], image_url=str(i),
                        lang='st')
             i += 1
             if i % 1000 == 0:
                 print "start process did {0} items in {1} seconds".format(db.images_st.find().count(),
                                                                           time.time() - start)
-                # elif part == 2:
-                #
-                # elif part == 3:
+        while db.images_st.find().count() < count:
+            time.sleep(0.5)
+        print "start process is done. did {0} items in {1} seconds".format(db.images_st.find().count(),
+                                                                           time.time() - start)
+        # elif part == 2:
+        #
+        # elif part == 3:
 
 
 def start_process_st(page_url, image, image_url, lang=None):
