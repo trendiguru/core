@@ -217,7 +217,8 @@ def get_svg(image_url):
 
 
 def get_results_now(idx, collection="mr8_testing", wing="left", weight=0.5):
-    item = db.demo_yonti.find_one({"_id": idx})
+    oid = bson.ObjectId(idx)
+    item = db.demo_yonti.find_one({"_id": oid})
     fp = item["fp"]
     mr8 = item["mr8"]
     category = "dress"
