@@ -204,15 +204,16 @@ def start_process(page_url, image_url, lang=None):
         coll_name = 'images_' + lang
         images_collection = db[coll_name]
 
-    # IF URL HAS NO IMAGE IN IT
-    image = Utils.get_cv2_img_array(image_url)
-    if image is None:
-        return
     # IF IMAGE EXISTS IN IMAGES BY URL
     images_obj_url = images_collection.find_one({"image_urls": image_url})
     if images_obj_url:
         return
-
+    
+    # IF URL HAS NO IMAGE IN IT
+    image = Utils.get_cv2_img_array(image_url)
+    if image is None:
+        return
+    
     # IF IMAGE EXISTS IN IMAGES BY HASH (WITH ANOTHER URL)
     image_hash = page_results.get_hash_of_image_from_url(image_url)
     images_obj_hash = images_collection.find_one_and_update({"image_hash": image_hash},

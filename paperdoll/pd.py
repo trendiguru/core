@@ -45,18 +45,14 @@ def get_parse_from_matlab(image_filename):
         # subprocess.Popen("cp inputimg.jpg " + outfilename, shell=True, stdout=subprocess.PIPE).stdout.read()
         # subprocess.Popen("cp savedlabels.p " + savedlabels, shell=True, stdout=subprocess.PIPE).stdout.read()
         # subprocess.Popen("cp savedpose.p " + savedpose, shell=True, stdout=subprocess.PIPE).stdout.read()
-
         return mask, label_dict, pose
-
 
 def rand_string():
     return ''.join([random.choice(string.ascii_letters + string.digits) for n in xrange(32)])
 
-
 def test_function():
     print("this is a totally awesome test function")
     return (6 * 7)
-
 
 def get_parse_mask(img_url_or_cv2_array):
     img = Utils.get_cv2_img_array(img_url_or_cv2_array)
@@ -77,7 +73,10 @@ def get_parse_mask(img_url_or_cv2_array):
         #            print('callback function returned:'+str(a))
         return mask_np, label_dict, pose_np
     else:
-        print('either image is empty or problem writing')
+        if img is None:
+            logging.debug('image is empty in get_parse_mask')
+        else:
+            logging.debug('problem writing (probably) in get_parse_mask')
         return [[], [], []]
 
 
@@ -103,12 +102,19 @@ def get_parse_mask_parallel(matlab_engine, img_url_or_cv2_array, filename=None, 
         finish_time=time.time()
         print('elapsed time in get_parse_mask_parallel:'+str(finish_time-start_time))
         print('attempting convert and save')
-        convert_and_save_results(mask_np, label_dict, pose_np, filename+'.jpg', img)
+        if isinstance(img_url_or_cv2_array,basestring):
+            url = img_url_or_cv2_array
+        else:
+            url = None
+        convert_and_save_results(mask_np, label_dict, pose_np, filename+'.jpg', img, url)
         return mask_np, label_dict, pose_np, filename
     else:
-        raise ValueError("either image is empty or problem writing")
+        if img is None:
+            raise ValueError("input image is empty")
+        else:
+            raise ValueError("problem writing "+str(filename)+" in get_parse_mask_parallel")
 
-def convert_and_save_results(mask, label_names, pose,filename,img):
+def convert_and_save_results(mask, label_names, pose,filename,img,url):
     fashionista_ordered_categories = constants.fashionista_categories
     new_mask=np.ones(mask.shape)*255  # anything left with 255 wasn't dealt with
     success = True #assume innocence until proven guilty
@@ -143,19 +149,21 @@ def convert_and_save_results(mask, label_names, pose,filename,img):
                 poselist=pose[0].tolist()
 #                json.dump([1,2,3], outfile, indent=4)
                 json.dump(poselist,outfile, indent=4)
-
-#            afile = open(pose_name, 'wb')
-#            pickle.dump(pose, afile)
-#            afile.close()
-            #reload object from file
-#            file2 = open(pose_name, 'rb')
-#            read_pose = pickle.load(file2)
-#            file2.close()
-#            print('read pose '+str(read_pose))
+            if url is not None:
+                url_name = full_name.strip('.jpg')+'.url'
+                print('writing url to '+str(url_name))
+                with open(url_name, "w+") as outfile2:
+                    print('succesful open, attempting to write:'+str(url))
+                    outfile2.write(url)
+            return
         except:
             print('fail in convert_and_save_results dude, bummer')
             print(str(sys.exc_info()[0]))
             return
+    else:
+        print('didnt fully convert mask, or unkown label in convert_and_save_results')
+        success = False
+        return
 
 def show_max(parsed_img, labels):
     maxpixval = np.ma.max

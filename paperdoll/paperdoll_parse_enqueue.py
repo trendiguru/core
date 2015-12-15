@@ -28,10 +28,14 @@ def paperdoll_enqueue(img_url_or_cv2_array, filename=None, async=True, queue_nam
             queue_name = constants.nonparallel_matlab_queuename
     if use_parfor:
         queue_name = 'pd_parfor'
-    queue = Queue(queue_name,connection=redis_conn)
+    queue = Queue(queue_name, connection=redis_conn)
     job1 = queue.enqueue('trendi_guru_modules.paperdoll.pd.get_parse_mask_parallel', img_url_or_cv2_array,
-                                 filename=filename,use_parfor=use_parfor)
-    print('started pd job on queue:'+str(queue))
+                                 filename=filename, use_parfor=use_parfor)
+    if isinstance(img_url_or_cv2_array,basestring):
+        url = img_url_or_cv2_array
+    else:
+        url = None
+    print('started pd job on queue:'+str(queue)+' url:'+str(url))
     start = time.time()
     if not async:
         print('running synchronously (waiting for result)'),
@@ -40,7 +44,10 @@ def paperdoll_enqueue(img_url_or_cv2_array, filename=None, async=True, queue_nam
             print('.'),
             elapsed_time = time.time()-start
             if elapsed_time>constants.paperdoll_ttl :
-                print('timeout waiting for pd.get_parse_mask')
+                if isinstance(img_url_or_cv2_array,basestring):
+                    print('timeout waiting for pd.get_parse_mask, url='+img_url_or_cv2_array)
+                else:
+                    print('timeout waiting for pd.get_parse_mask, img_arr given')
                 return
         print('')
         print('elapsed time in paperdoll_enqueue:'+str(elapsed_time))

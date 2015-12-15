@@ -16,7 +16,7 @@ def get_data(my_path):#, testing_amount=0.2):#my_path=os.path.dirname(os.path.ab
     # if testing_amount > 1.0 or testing_amount < 0.0:
     #     print 'testing_amount should be between 0 and 1 (float)!'
     #     return
-    image_file_types = ['.jpg','.png','.bmp','.gif']
+    image_file_types = ['.jpg', '.jpeg', '.png','.bmp','.gif']
     only_files = [f for f in os.listdir(my_path) if os.path.isfile(os.path.join(my_path, f))]
     output_tag = []
     output_image = []
@@ -31,6 +31,7 @@ def get_data(my_path):#, testing_amount=0.2):#my_path=os.path.dirname(os.path.ab
                 output_tag.append(int(file_name[-5]))
 
     output_vector_size = max(output_tag)
+    print output_vector_size
     output_vector = []
     # amount_of_each_tag = np.zeros(output_vector_size)
     for tag in output_tag:
@@ -46,7 +47,7 @@ def get_data(my_path):#, testing_amount=0.2):#my_path=os.path.dirname(os.path.ab
     images_vector_shape = output_image.shape
     output_image = np.reshape(output_image, (images_vector_shape[0], images_vector_shape[3],
                                              images_vector_shape[1], images_vector_shape[2]))
-    # print amount_of_each_tag
+    # print amount_of_each_ta g
     # testing_input = []
     # testing_output = []
     # training_input = []
@@ -85,17 +86,18 @@ overwrite_weights = True
 testing_amount = 0.15
 
 model = Sequential()
-model.add(Convolution2D(32, 3, 3, border_mode='valid', input_shape=(3, 32, 32)))
+model.add(Convolution2D(16, 3, 3, border_mode='full', input_shape=(3, 32, 32)))
 model.add(Activation('hard_sigmoid'))
 # model.add(MaxPooling2D(pool_size=(2, 2)))
-model.add(Convolution2D(32, 3, 3, border_mode='valid'))
+model.add(Convolution2D(16, 3, 3))
 model.add(Activation('hard_sigmoid'))
 model.add(MaxPooling2D(pool_size=(2, 2)))
 model.add(Dropout(0.25))
-model.add(Convolution2D(64, 3, 3, border_mode='valid'))
+
+model.add(Convolution2D(32, 3, 3, border_mode='valid'))
 model.add(Activation('hard_sigmoid'))
 # model.add(MaxPooling2D(pool_size=(2, 2)))
-model.add(Convolution2D(64, 3, 3, border_mode='valid'))
+model.add(Convolution2D(32, 3, 3))
 model.add(Activation('hard_sigmoid'))
 model.add(MaxPooling2D(pool_size=(2, 2)))
 model.add(Dropout(0.25))
@@ -110,12 +112,14 @@ model.add(Flatten())
 model.add(Dense(256))
 model.add(Activation('hard_sigmoid'))
 model.add(Dropout(0.5))
-model.add(Dense(128))
-model.add(Activation('hard_sigmoid'))
-model.add(Dense(64))
-model.add(Activation('hard_sigmoid'))
-model.add(Dense(3))
+#model.add(Dense(128))
+#model.add(Activation('hard_sigmoid'))
+#model.add(Dense(64))
+#model.add(Activation('hard_sigmoid'))
+
+model.add(Dense(5))
 model.add(Activation('softmax'))
+
 
 
 optimizer_method = Adadelta()#SGD(lr=0.000001, decay=1e-6, momentum=0.9, nesterov=True)#Adagrad()#Adadelta()#RMSprop()#Adam()
