@@ -34,8 +34,10 @@ def speed_test(part):
                                                                           time.time() - start)
         while db.images_st.find().count() < count:
             time.sleep(0.5)
+        sumtime = time.time() - start
         print "start process is done. did {0} items in {1} seconds".format(db.images_st.find().count(),
-                                                                           time.time() - start)
+                                                                           sumtime)
+        return float(count) / sumtime
         # elif part == 2:
         #
         # elif part == 3:
