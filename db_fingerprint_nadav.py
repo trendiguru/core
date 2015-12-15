@@ -7,6 +7,8 @@ import time
 import signal
 import traceback
 
+from rq import Queue
+from redis import Redis
 import pymongo.errors
 import numpy as np
 import cv2
@@ -18,12 +20,8 @@ from . import Utils
 from . import constants
 from .constants import db
 
-
-
-
-
-
-
+redis_conn = Redis()
+q2 = Queue('change_fp_to_dict', connection=redis_conn)
 # globals
 CLASSIFIER_FOR_CATEGORY = {}
 TOTAL_PRODUCTS = mp.Value("i", 0)
