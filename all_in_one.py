@@ -218,7 +218,7 @@ def get_svg(image_url):
         return
 
 
-def get_results_now(idx, collection="mr8_testing", wing="left", weight=0.5):
+def get_results_now(idx, collection="mr8_testing", wing="left", weight='0.05'):
     oid = bson.ObjectId(idx)
     item = db.demo_yonti.find_one({"_id": oid})
     fp = item["fp"]
@@ -230,6 +230,6 @@ def get_results_now(idx, collection="mr8_testing", wing="left", weight=0.5):
                                                       100,
                                                       collection,
                                                       wing,
-                                                       weight)}
+                                                       float(weight))}
 
     return item_dict
