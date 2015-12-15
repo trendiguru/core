@@ -24,6 +24,7 @@ import find_similar_mongo
 
 bins = constants.histograms_length
 fp_len = constants.fingerprint_length
+db = constants.db
 
 def person_isolation(image, face):
     x, y, w, h = face
@@ -90,7 +91,9 @@ def distance_function(entry, target_dict, fp_weights, hist_length, wing, weight)
         # w0 = abs(1 - int(weight))
         # return w0 * bhat + weight * mr8_normal
         entry_mr8 = entry["mr8"]
-        target_mr8 = target_dict["mr8"]
+        target_mr8 = []
+        for i in target_dict["mr8"]:
+            target_mr8 += i
         mr8_distance = NNSearch.distance_1_k(entry_mr8, target_mr8)
         w0 = abs(1 - weight)
         return w0 * bhat + weight * mr8_distance
@@ -173,7 +176,10 @@ def get_svg(image_url):
                         person['items'] = [item_dict]
 
                         # image_dict['items'] = [item for item in person["items"]]
-                        return person
+                        idx = db.demo_yonti.insert_one(item_dict).inserted_id
+                        item = {"idx": idx, "svg_url": item_dict["svg_url"], "category": item_dict["category"]}
+                        data = {"items": [item]}
+                        return data
                         # person['items'].append(item_dict)
                         # idx += 1
                         # image_dict['people'].append(person)
@@ -198,9 +204,12 @@ def get_svg(image_url):
                     # item_dict["mask"] = item_mask
                     item_dict["fp"] = fp.fp(image, bins, fp_len, mask)
                     item_dict["mr8"] = mr8_worker.mr8_4_demo(image, item_dict['face'], mask)
-                    person['items'] = [item_dict]
+                    # person['items'] = [item_dict]
                     # image_dict['items'] = [item for item in person["items"]]
-                    return person
+                    idx = db.demo_yonti.insert_one(item_dict).inserted_id
+                    item = {"idx": idx, "svg_url": item_dict["svg_url"], "category": item_dict["category"]}
+                    data = {"items": [item]}
+                    return data
                     #             person['items'].append(item_dict)
                     #             item_idx += 1
                     #     image_dict['people'].append(person)
@@ -209,13 +218,18 @@ def get_svg(image_url):
         return
 
 
-def get_results_now(fp, mr8, category, collection="mr8_testing", wing="left", weight=0.5):
+def get_results_now(idx, collection="mr8_testing", wing="left", weight='0.05'):
+    oid = bson.ObjectId(idx)
+    item = db.demo_yonti.find_one({"_id": oid})
+    fp = item["fp"]
+    mr8 = item["mr8"]
+    category = "dress"
     item_dict = {"similar_results": find_top_n_results(fp,
                                                        mr8,
                                                        category,
                                                       100,
                                                       collection,
                                                       wing,
-                                                       weight)}
+                                                       float(weight))}
 
     return item_dict
