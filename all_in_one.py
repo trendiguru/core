@@ -175,7 +175,7 @@ def get_svg(image_url):
 
                         # image_dict['items'] = [item for item in person["items"]]
                         idx = db.demo_yonti.insert_one(person).inserted_id
-                        item = {"idx": idx, "svg_url": item_dict["svg_url"]}
+                        item = {"idx": idx, "svg_url": item_dict["svg_url"], "category": item_dict["category"]}
                         data = {"items": [item]}
                         return data
                         # person['items'].append(item_dict)
@@ -205,7 +205,7 @@ def get_svg(image_url):
                     # person['items'] = [item_dict]
                     # image_dict['items'] = [item for item in person["items"]]
                     idx = db.demo_yonti.insert_one(item_dict).inserted_id
-                    item = {"idx": idx, "svg_url": item_dict["svg_url"]}
+                    item = {"idx": idx, "svg_url": item_dict["svg_url"], "category": item_dict["category"]}
                     data = {"items": [item]}
                     return data
                     #             person['items'].append(item_dict)
