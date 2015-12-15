@@ -8,7 +8,6 @@ import signal
 import traceback
 
 from rq import Queue
-from redis import Redis
 import pymongo.errors
 import numpy as np
 import cv2
@@ -19,9 +18,9 @@ from . import background_removal
 from . import Utils
 from . import constants
 from .constants import db
+from .constants import redis_conn
 
 
-redis_conn = Redis()
 q2 = Queue('change_fp_to_dict', connection=redis_conn)
 # globals
 CLASSIFIER_FOR_CATEGORY = {}
