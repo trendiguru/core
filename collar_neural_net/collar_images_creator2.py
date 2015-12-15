@@ -2,8 +2,8 @@ import cv2
 import numpy as np
 # import scipy as sp
 import os
-# face_cascade = cv2.CascadeClassifier('/home/developer/python-packages/trendi/classifier_stuff/classifiers_to_test/face/haarcascade_frontalface_default.xml')
-face_cascade = cv2.CascadeClassifier('/home/nate/Desktop/core/classifier_stuff/classifiers_to_test/face/haarcascade_frontalface_default.xml')
+face_cascade = cv2.CascadeClassifier('/home/developer/python-packages/trendi/classifier_stuff/classifiers_to_test/face/haarcascade_frontalface_default.xml')
+# face_cascade = cv2.CascadeClassifier('/home/nate/Desktop/core/classifier_stuff/classifiers_to_test/face/haarcascade_frontalface_default.xml')
 # eye_cascade = cv2.CascadeClassifier('haarcascade_eye.xml')
 # current_directory = os.path.abspath()
 
@@ -92,8 +92,8 @@ for type in neck_type_images_directory:
                 cv2.imwrite(directory_path + '/' + image_call + image_file_name[-4:], resized_image_of_collar)
             # ###########################################################
             # writing a false, i.e. [0, 0, 0, 0, 0]:
-            image_of_collar = image_of_rotated_collar[(offsetted_face[1]+offsetted_face[3])*(1-a)+offsetted_face[3]:
-                                (offsetted_face[1]+2*offsetted_face[3])*(1+a)+offsetted_face[3],
+            image_of_collar = image_of_rotated_collar[(offsetted_face[1]+1.5*offsetted_face[3])*(1-a)+offsetted_face[3]:
+                                (offsetted_face[1]+2.5*offsetted_face[3])*(1+a)+offsetted_face[3],
                                 (offsetted_face[0])*(1-a):(offsetted_face[0]+offsetted_face[2])*(1+a)]
             if np.array(image_of_collar.shape).all() > 0:
                 resized_image_of_collar = cv2.resize(image_of_collar, output_images_size)
@@ -102,6 +102,21 @@ for type in neck_type_images_directory:
 
         # flip along vertical axis:
         image = np.fliplr(image)
+        face = face_cascade.detectMultiScale(image, 1.1, 2)
+        # checking if the face (ancore) is present / detected:
+        if len(face) == 0:
+            continue
+        face = face[0]
+        offsetted_face = face
+        row, col, dep = image.shape
+
+        # no flip along vertical axis:
+        collar_image_center_point = (face[0]+0.5*face[2], face[1]+1.5*face[3])
+        flipped_collar_image_center_point = (col - (face[0]+0.5*face[2]), face[1]+1.5*face[3])
+        # for offset1 in offset_range:
+        #     offsetted_face[0] = face[0] #+ offset1 * face[2]
+            # for offset2 in offset_range:
+            # offsetted_face[1] = face[1] #+ offset2 * face[3]
         for angle in range(-max_angle, max_angle+1, angle_offset):
             image_number += 1
             rotated_image_matrix = cv2.getRotationMatrix2D(flipped_collar_image_center_point, angle, 1.0)
@@ -129,8 +144,8 @@ for type in neck_type_images_directory:
                 cv2.imwrite(directory_path + '/' + image_call + image_file_name[-4:], resized_image_of_collar)
             # ###########################################################
             # writing a false, i.e. [0, 0, 0, 0, 0]:
-            image_of_collar = image_of_rotated_collar[(offsetted_face[1]+offsetted_face[3])*(1-a)+offsetted_face[3]:
-                                (offsetted_face[1]+2*offsetted_face[3])*(1+a)+offsetted_face[3],
+            image_of_collar = image_of_rotated_collar[(offsetted_face[1]+1.5*offsetted_face[3])*(1-a)+offsetted_face[3]:
+                                (offsetted_face[1]+2.5*offsetted_face[3])*(1+a)+offsetted_face[3],
                                 (offsetted_face[0])*(1-a):(offsetted_face[0]+offsetted_face[2])*(1+a)]
             if np.array(image_of_collar.shape).all() > 0:
                 resized_image_of_collar = cv2.resize(image_of_collar, output_images_size)
