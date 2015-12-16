@@ -14,6 +14,8 @@ def runExt(url):
     dcap["phantomjs.page.settings.userAgent"] = user_agent
 
     driver = webdriver.PhantomJS(desired_capabilities=dcap, service_log_path="/home/developer/ghostdriver.log")
+    driver.set_window_size(1024, 768)
+
     driver.get(url)
     scr = open("/var/www/latest/b_main.js").read()
     driver.execute_script(scr)
