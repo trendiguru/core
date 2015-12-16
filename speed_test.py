@@ -26,7 +26,7 @@ def speed_test(part, batch):
         i = 0
         start = time.time()
         for doc in all:
-            q1.enqueue('start_process_st', page_url='speed_test.fazz', image=doc['images']['XLarge'], image_url=str(i),
+            q1.enqueue(start_process_st, page_url='speed_test.fazz', image=doc['images']['XLarge'], image_url=str(i),
                        lang='st')
             i += 1
             if i >= 100 and i % 100 == 0:
