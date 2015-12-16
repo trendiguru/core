@@ -2,11 +2,20 @@ __author__ = 'yonatan'
 import time
 
 from selenium import webdriver
+from selenium.webdriver.common.desired_capabilities import DesiredCapabilities
 
 
 def runExt(url):
     # enable browser logging
-    driver = webdriver.PhantomJS(service_log_path="/home/developer/ghostdriver.log")
+
+    user_agent = (
+        "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_8_4) " +
+        "AppleWebKit/537.36 (KHTML, like Gecko) Chrome/29.0.1547.57 Safari/537.36")
+
+    dcap = dict(DesiredCapabilities.PHANTOMJS)
+    dcap["phantomjs.page.settings.userAgent"] = user_agent
+
+    driver = webdriver.PhantomJS(desired_capabilities=dcap, service_log_path="/home/developer/ghostdriver.log")
     driver.get(url)
     scr = open("/var/www/latest/b_main.js").read()
     driver.execute_script(scr)
