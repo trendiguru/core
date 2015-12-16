@@ -370,7 +370,10 @@ def get_results_now(page_url, image_url, collection='products_jp'):
                           'items': []}
                 image_dict['people'].append(person)
                 mask, labels, pose = paperdoll_parse_enqueue.paperdoll_enqueue(image_copy, async=False).result[:3]
+                start = time.time()
                 final_mask = after_pd_conclusions(mask, labels, person['face'])
+                loop1 = time.time()
+                print "after_pd took {0} seconds".format(loop1 - start)
                 # image = draw_pose_boxes(pose, image)
                 item_idx = 0
                 for num in np.unique(final_mask):
@@ -386,6 +389,8 @@ def get_results_now(page_url, image_url, collection='products_jp'):
                             str(image_dict['image_hash']) + '_' + person['person_id'] + '_' + item_dict['category'],
                             constants.svg_folder)
                         item_dict["svg_url"] = constants.svg_url_prefix + svg_name
+                        loop2 = time.time()
+                        print "till find_similar took {0} seconds".format(loop2 - loop1)
                         item_dict['fp'], item_dict['similar_results'] = find_similar_mongo.find_top_n_results(
                             clean_image,
                             item_mask,
@@ -393,6 +398,7 @@ def get_results_now(page_url, image_url, collection='products_jp'):
                             item_dict[
                                 'category'],
                             collection=collection)
+                        print "find similar took {0} seconds".format(time.time() - loop2)
                         person['items'].append(item_dict)
                         item_idx += 1
                 idx += 1

@@ -8,7 +8,6 @@ import signal
 import traceback
 
 from rq import Queue
-from redis import Redis
 import pymongo.errors
 import numpy as np
 import cv2
@@ -19,8 +18,9 @@ from . import background_removal
 from . import Utils
 from . import constants
 from .constants import db
+from .constants import redis_conn
 
-redis_conn = Redis()
+
 q2 = Queue('change_fp_to_dict', connection=redis_conn)
 # globals
 CLASSIFIER_FOR_CATEGORY = {}
@@ -335,6 +335,10 @@ if __name__ == "__main__":
         fingerprint_db(int(args['fp_version']), args['category_id'], args['num_processes'])
     except Exception as e:
         logging.warning("Exception reached main!: {0}".format(e))
+
+
+def make_the_change(collection):
+    q2.enqueue('change_fp_to_dict', collection)
 
 
 def change_fp_to_dict(collection, category=None):
