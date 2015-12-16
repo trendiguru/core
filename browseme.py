@@ -9,8 +9,7 @@ def runExt(url):
     # enable browser logging
 
     user_agent = (
-        "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_8_4) " +
-        "AppleWebKit/537.36 (KHTML, like Gecko) Chrome/29.0.1547.57 Safari/537.36")
+        "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/53 (KHTML, like Gecko) Chrome/15.0.87")
 
     dcap = dict(DesiredCapabilities.PHANTOMJS)
     dcap["phantomjs.page.settings.userAgent"] = user_agent
