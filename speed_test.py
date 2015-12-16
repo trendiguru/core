@@ -31,7 +31,7 @@ def speed_test(part, batch):
             Queue('new_images', connection=redis_conn).enqueue(start_process_st, 'speed_test.fazz',
                                                                doc['images']['XLarge'], lang='st')
             i += 1
-            if i >= 100 and i % 100 == 0:
+            if i % 100 == 0:
                 print "start process did {0} items in {1} seconds".format(mid1.count(),
                                                                           time.time() - start)
         while mid1.count() < batch - 1:
