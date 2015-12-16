@@ -49,7 +49,7 @@ def speed_test(part, batch):
         for doc in all:
             paper_job = paperdoll_parse_enqueue.paperdoll_enqueue(doc['image_urls'][0], doc['people'][0]['person_id'],
                                                                   queue_name='pd')
-            doc['people'][0]['job'] = paper_job
+            doc['people'][0]['job_id'] = paper_job.id
             del doc['_id']
             mid2.insert(doc)
             print "pd did {0} items in {1} seconds".format(mid2.count(), time.time() - start)
