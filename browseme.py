@@ -18,7 +18,7 @@ def runExt(url):
 
     driver.get(url)
     scr = open("/var/www/latest/b_main.js").read()
-    print scr
+    print scr.split(";")
     driver.execute_script(scr.split(";"))
     time.sleep(5)
     for x in range(10):
