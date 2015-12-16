@@ -1,5 +1,6 @@
 __author__ = 'yonatan'
 import time
+import json
 
 from selenium import webdriver
 from selenium.webdriver.common.desired_capabilities import DesiredCapabilities
@@ -19,7 +20,7 @@ def runExt(url):
     driver.get(url)
     scr = open("/var/www/latest/b_main.js").read()
     print scr
-    driver.execute_script(scr)
+    driver.execute_script(json.dump(scr))
     time.sleep(5)
     for x in range(10):
         script = "scroll(" + str(x * 500) + "," + str(x * 500 + 500) + ")"
