@@ -61,11 +61,11 @@ def get_parse_mask(img_url_or_cv2_array):
             return [[], [], []]
         stripped_name = rand_string()  # img_url_or_cv2_array.split('//')[1]
         modified_name = stripped_name.replace('/', '_')
-        print('stripped name:' + stripped_name)
+    #    print('stripped name:' + stripped_name)
         print('modified name:' + modified_name)
 
         mask, label_dict, pose = get_parse_from_matlab(modified_name)
-        print('labels:' + str(label_dict))
+     #   print('labels:' + str(label_dict))
         mask_np = np.array(mask, dtype=np.uint8)
         pose_np = np.array(pose, dtype=np.uint8)
         #        if callback_pack is not None:
@@ -96,11 +96,11 @@ def get_parse_mask_parallel(matlab_engine, img_url_or_cv2_array, filename=None, 
     filename = filename or rand_string()
     if img is not None and cv2.imwrite(filename + '.jpg', img):
         mask, label_dict, pose = get_parse_from_matlab_parallel(filename + '.jpg', matlab_engine, use_parfor=use_parfor)
-        print('labels:' + str(label_dict))
+        #print('labels:' + str(label_dict))
         mask_np = np.array(mask, dtype=np.uint8)
         pose_np = np.array(pose, dtype=np.uint8)
         finish_time=time.time()
-        print('elapsed time in get_parse_mask_parallel:'+str(finish_time-start_time))
+        print('..........elapsed time in get_parse_mask_parallel:'+str(finish_time-start_time)+'.........')
         print('attempting convert and save')
         if isinstance(img_url_or_cv2_array,basestring):
             url = img_url_or_cv2_array
@@ -123,7 +123,7 @@ def convert_and_save_results(mask, label_names, pose,filename,img,url):
         if label in fashionista_ordered_categories:
             fashionista_index = fashionista_ordered_categories.index(label) + 1  # start w. 1=null,56=skin
             pd_index = label_names[label]
-            print('old index '+str(pd_index)+' for '+str(label)+': gets new index:'+str(fashionista_index))
+       #     print('old index '+str(pd_index)+' for '+str(label)+': gets new index:'+str(fashionista_index))
             new_mask[mask==pd_index] = fashionista_index
         else:
             print('label '+str(label)+' not found in regular cats')
@@ -145,7 +145,7 @@ def convert_and_save_results(mask, label_names, pose,filename,img,url):
 #            print('orig pose '+str(pose))
             print('writing pose to '+str(pose_name))
             with open(pose_name, "w+") as outfile:
-                print('succesful open, attempting to write:'+str(pose[0]))
+                print('succesful open, attempting to write pose')
                 poselist=pose[0].tolist()
 #                json.dump([1,2,3], outfile, indent=4)
                 json.dump(poselist,outfile, indent=4)

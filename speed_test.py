@@ -5,6 +5,10 @@ import time
 import bson
 from rq import Queue
 
+from paperdoll import paperdoll_parse_enqueue
+
+from . import Utils
+
 from .constants import redis_conn
 from . import background_removal
 from . import page_results
@@ -19,31 +23,44 @@ q2 = Queue('from_paperdoll_to_similar_results', connection=redis_conn)
 q3 = Queue('find_similar', connection=redis_conn)
 
 
-def speed_test(part):
+def speed_test(part, batch):
     if part == 1:
-        all = db.dynamic_fp.find()
-        count = all.count()
+        all = db.dynamic_fp.find().limit(batch)
         i = 0
         start = time.time()
         for doc in all:
-            q1.enqueue('start_process_st', page_url='speed_test.fazz', image=doc['images']['XLarge'], image_url=str(i),
-                       lang='st')
+            Queue('new_images', connection=redis_conn).enqueue(start_process_st, 'speed_test.fazz',
+                                                               doc['images']['XLarge'], lang='st')
             i += 1
-            if i % 1000 == 0:
-                print "start process did {0} items in {1} seconds".format(db.images_st.find().count(),
-                                                                          time.time() - start)
-        while db.images_st.find().count() < count:
-            time.sleep(0.5)
+            if i % 100 == 0:
+                print "start process did {0} items in {1} seconds".format(mid1.count(), time.time() - start)
+        first = mid1.count()
+        while mid1.count() - first > 0:
+            first = mid1.count()
+            time.sleep(0.01)
         sumtime = time.time() - start
-        print "start process is done. did {0} items in {1} seconds".format(db.images_st.find().count(),
+        print "start process is done. did {0} items in {1} seconds".format(mid1.count(),
                                                                            sumtime)
-        return float(count) / sumtime
-        # elif part == 2:
-        #
+        return float(mid1.count()) / sumtime
+    elif part == 2:
+        all = mid1.find().limit(batch)
+        i = 0
+        start = time.time()
+        for doc in all:
+            paper_job = paperdoll_parse_enqueue.paperdoll_enqueue(doc['image_urls'][0], doc['people'][0]['person_id'],
+                                                                  queue_name='pd')
+            doc['people'][0]['job_id'] = paper_job.id
+            del doc['_id']
+            mid2.insert(doc)
+            print "pd did {0} items in {1} seconds".format(mid2.count(), time.time() - start)
+        while mid2.count() < batch - 1:
+            time.sleep(0.3)
+        print "pd is done. did {0} items in {1} seconds".format(mid2.count(), time.time() - start)
         # elif part == 3:
 
 
-def start_process_st(page_url, image, image_url, lang=None):
+
+def start_process_st(page_url, image_url, lang=None):
     if not lang:
         coll_name = 'images'
         images_collection = db[coll_name]
@@ -57,7 +74,7 @@ def start_process_st(page_url, image, image_url, lang=None):
         return
 
     # IF URL HAS NO IMAGE IN IT
-    # image = Utils.get_cv2_img_array(image_url)
+    image = Utils.get_cv2_img_array(image_url)
     if image is None:
         return
 
