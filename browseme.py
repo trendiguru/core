@@ -6,10 +6,10 @@ from selenium import webdriver
 
 def runExt(url):
     # enable browser logging
-    driver = webdriver.PhantomJS(
-        service_args=["--webdriver-loglevel=ERROR"])  # service_log_path="/home/developer/ghostdriver.log",
+    driver = webdriver.PhantomJS(service_log_path="/home/developer/ghostdriver.log")
     driver.get(url)
-    driver.execute_script(open("/var/www/latest/b_main.js").read())
+    scr = open("/var/www/latest/b_main.js").read()
+    driver.execute_script(scr)
     time.sleep(1)
     for x in range(10):
         script = "scroll(" + str(x * 500) + "," + str(x * 500 + 500) + ")"
