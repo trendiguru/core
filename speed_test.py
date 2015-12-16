@@ -53,7 +53,7 @@ def speed_test(part, batch):
             del doc['_id']
             mid2.insert(doc)
             print "pd did {0} items in {1} seconds".format(mid2.count(), time.time() - start)
-        while mid2.count < batch - 1:
+        while mid2.count() < batch - 1:
             time.sleep(0.3)
         print "pd is done. did {0} items in {1} seconds".format(mid2.count(), time.time() - start)
         # elif part == 3:
