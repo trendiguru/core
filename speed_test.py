@@ -24,7 +24,6 @@ q3 = Queue('find_similar', connection=redis_conn)
 def speed_test(part, batch):
     if part == 1:
         all = db.dynamic_fp.find().limit(batch)
-        count = all.count()
         i = 0
         start = time.time()
         for doc in all:
@@ -34,14 +33,16 @@ def speed_test(part, batch):
             if i % 100 == 0:
                 print "start process did {0} items in {1} seconds".format(mid1.count(),
                                                                           time.time() - start)
-        while mid1.count() < batch - 1:
-            time.sleep(0.5)
+        first = mid1.count()
+        while mid1.count() - first != 0:
+            first = mid1.count()
+            time.sleep(0.01)
         sumtime = time.time() - start
         print "start process is done. did {0} items in {1} seconds".format(mid1.count(),
                                                                            sumtime)
         return float(mid1.count()) / sumtime
         # elif part == 2:
-        #
+
         # elif part == 3:
 
 
