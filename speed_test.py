@@ -35,8 +35,8 @@ def speed_test(part, batch):
                                                                           time.time() - start)
         first = mid1.count()
         while mid1.count() - first != 0:
-            time.sleep(0.01)
             first = mid1.count()
+            time.sleep(0.01)
         sumtime = time.time() - start
         print "start process is done. did {0} items in {1} seconds".format(mid1.count(),
                                                                            sumtime)
