@@ -19,9 +19,9 @@ q2 = Queue('from_paperdoll_to_similar_results', connection=redis_conn)
 q3 = Queue('find_similar', connection=redis_conn)
 
 
-def speed_test(part):
+def speed_test(part, batch):
     if part == 1:
-        all = db.dynamic_fp.find()
+        all = db.dynamic_fp.find().limit(batch)
         count = all.count()
         i = 0
         start = time.time()
@@ -29,7 +29,7 @@ def speed_test(part):
             q1.enqueue('start_process_st', page_url='speed_test.fazz', image=doc['images']['XLarge'], image_url=str(i),
                        lang='st')
             i += 1
-            if i % 1000 == 0:
+            if i >= 100 and i % 100 == 0:
                 print "start process did {0} items in {1} seconds".format(db.images_st.find().count(),
                                                                           time.time() - start)
         while db.images_st.find().count() < count:
