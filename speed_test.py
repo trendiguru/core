@@ -5,6 +5,8 @@ import time
 import bson
 from rq import Queue
 
+from . import Utils
+
 from .constants import redis_conn
 from . import background_removal
 from . import page_results
@@ -27,7 +29,7 @@ def speed_test(part, batch):
         start = time.time()
         for doc in all:
             Queue('new_images', connection=redis_conn).enqueue(start_process_st, 'speed_test.fazz',
-                                                               doc['images']['XLarge'], str(i), lang='st')
+                                                               doc['images']['XLarge'], lang='st')
             i += 1
             if i >= 100 and i % 100 == 0:
                 print "start process did {0} items in {1} seconds".format(db.images_st.find().count(),
@@ -43,7 +45,7 @@ def speed_test(part, batch):
         # elif part == 3:
 
 
-def start_process_st(page_url, image, image_url, lang=None):
+def start_process_st(page_url, image_url, lang=None):
     if not lang:
         coll_name = 'images'
         images_collection = db[coll_name]
@@ -57,7 +59,7 @@ def start_process_st(page_url, image, image_url, lang=None):
         return
 
     # IF URL HAS NO IMAGE IN IT
-    # image = Utils.get_cv2_img_array(image_url)
+    image = Utils.get_cv2_img_array(image_url)
     if image is None:
         return
 
