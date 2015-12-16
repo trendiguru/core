@@ -59,6 +59,7 @@ def speed_test(part, batch):
         # elif part == 3:
 
 
+
 def start_process_st(page_url, image_url, lang=None):
     if not lang:
         coll_name = 'images'
