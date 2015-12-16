@@ -20,7 +20,7 @@ urls.append('http://media2.popsugar-assets.com/files/2010/08/34/5/192/1922153/96
 
 for url in urls:
     start_time = time.time()
-    retval = paperdoll_parse_enqueue.paperdoll_enqueue(url, async=False,use_parfor=False)  #True,queue_name='pd_parfor')
+    retval = paperdoll_parse_enqueue.paperdoll_enqueue(url, async=False,use_parfor=False,queue_name='pd4')  #True,queue_name='pd_parfor')
     end_time = time.time()
     dt=end_time-start_time
     dts.append(dt)
