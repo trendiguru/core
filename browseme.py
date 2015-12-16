@@ -6,7 +6,7 @@ from selenium import webdriver
 
 def runExt(url):
     # enable browser logging
-    driver = webdriver.PhantomJS()
+    driver = webdriver.PhantomJS(service_args=["--webdriver-loglevel=ERROR"])
     driver.set_window_size(1120, 1050)
     driver.get(url)
     driver.execute_script(open("/var/www/latest/b_main.js").read())
