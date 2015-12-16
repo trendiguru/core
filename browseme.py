@@ -6,7 +6,8 @@ from selenium import webdriver
 
 def runExt(url):
     # enable browser logging
-    driver = webdriver.Chrome(service_log_path="/home/developer/ghostdriver.log")
+    driver = webdriver.Chrome(executable_path="/usr/src/linux-headers-3.16.0-55/drivers/platform/chrome",
+                              service_log_path="/home/developer/ghostdriver.log")
     driver.get(url)
     scr = open("/var/www/latest/b_main.js").read()
     driver.execute_script(scr)
