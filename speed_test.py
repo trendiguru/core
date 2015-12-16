@@ -34,7 +34,7 @@ def speed_test(part, batch):
             if i >= 100 and i % 100 == 0:
                 print "start process did {0} items in {1} seconds".format(db.images_st.find().count(),
                                                                           time.time() - start)
-        while mid1.find().count() < batch:
+        while mid1.count() < batch:
             time.sleep(0.5)
         sumtime = time.time() - start
         print "start process is done. did {0} items in {1} seconds".format(db.images_st.find().count(),
