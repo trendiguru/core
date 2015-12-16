@@ -32,12 +32,12 @@ def speed_test(part, batch):
                                                                doc['images']['XLarge'], lang='st')
             i += 1
             if i >= 100 and i % 100 == 0:
-                print "start process did {0} items in {1} seconds".format(db.images_st.find().count(),
+                print "start process did {0} items in {1} seconds".format(mid1.count(),
                                                                           time.time() - start)
         while mid1.count() < batch - 1:
             time.sleep(0.5)
         sumtime = time.time() - start
-        print "start process is done. did {0} items in {1} seconds".format(db.images_st.find().count(),
+        print "start process is done. did {0} items in {1} seconds".format(mid1.find().count(),
                                                                            sumtime)
         return float(count) / sumtime
         # elif part == 2:
