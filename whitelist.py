@@ -123,7 +123,8 @@ def masterCrawler(floor=2):
     db.crawler_processed.drop()
     db.crawler_processed.create_index("url")
     for site in whiteList:
-        scrap_q.enqueue(scrapLinks, site, floor)
+        url = "http://www." + site
+        scrap_q.enqueue(scrapLinks, url, floor)
     return "finished"
 
 
