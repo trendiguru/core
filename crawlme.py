@@ -1,7 +1,5 @@
 __author__ = 'yonatan'
 
-import sys
-
 from bs4 import BeautifulSoup
 import requests
 import requests.exceptions
@@ -51,18 +49,4 @@ def scrapLinks(url, floor):
     return
 
 
-def masterCrawler(floor=2):
-    db.crawler_processed.drop()
-    db.crawler_processed.create_index("url")
-    for site in constants.white_list:
-        scrap_q.enqueue(scrapLinks, site, floor)
-    return "finished"
 
-
-if __name__ == "__main__":
-    print ("Scraping the white list - Started...)")
-    floor = 2
-    if len(sys.argv) == 2:
-        floor = int(sys.argv[1])
-    res = masterCrawler(floor)
-    print (res)
