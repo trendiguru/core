@@ -2,10 +2,10 @@ __author__ = 'yonatan'
 import time
 
 from selenium import webdriver
-from pyvirtualdisplay import Display
 
 
 def runExt(url):
+    from pyvirtualdisplay import Display
     print("Running Extension on %s" % url)
     # enable browser logging
     display = Display(visible=0, size=(1024, 768))
@@ -21,4 +21,4 @@ def runExt(url):
         time.sleep(0.25)
 
     driver.quit()
-    display.popen.kill()
+    display.popen.terminate()
