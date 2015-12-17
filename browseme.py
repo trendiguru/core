@@ -14,11 +14,11 @@ def runExt(url):
     driver.get(url)
     scr = open("/var/www/latest/b_main.js").read()
     driver.execute_script(scr)
-    time.sleep(5)
-    for x in range(10):
+    time.sleep(1)
+    for x in range(8):
         script = "scroll(" + str(x * 500) + "," + str(x * 500 + 500) + ")"
         driver.execute_script(script)
-        time.sleep(0.5)
+        time.sleep(0.25)
 
     driver.quit()
     display.popen.kill()
