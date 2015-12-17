@@ -369,7 +369,9 @@ def get_results_now(page_url, image_url, collection='products_jp'):
                 person = {'face': face, 'person_id': str(bson.ObjectId()), 'person_idx': idx,
                           'items': []}
                 image_dict['people'].append(person)
+                bpd = time.time()
                 mask, labels, pose = paperdoll_parse_enqueue.paperdoll_enqueue(image_copy, async=False).result[:3]
+                print "single pd took {0} seconds".format(time.time() - bpd)
                 start = time.time()
                 final_mask = after_pd_conclusions(mask, labels, person['face'])
                 loop1 = time.time()
@@ -398,7 +400,8 @@ def get_results_now(page_url, image_url, collection='products_jp'):
                             item_dict[
                                 'category'],
                             collection=collection)
-                        print "find similar took {0} seconds".format(time.time() - loop2)
+                        loop3 = time.time()
+                        print "find similar took {0} seconds".format(loop3 - loop2)
                         person['items'].append(item_dict)
                         item_idx += 1
                 idx += 1
@@ -433,6 +436,8 @@ def get_results_now(page_url, image_url, collection='products_jp'):
                     item_idx += 1
             image_dict['people'].append(person)
         db.demo.insert_one(image_dict)
+        print "after find_similar till the end took {0} seconds, all took {1} seconds".format(time.time() - loop3,
+                                                                                              time.time() - start)
         return page_results.merge_items(image_dict)
     else:  # if not relevant
         return
