@@ -20,5 +20,5 @@ def runExt(url):
         driver.execute_script(script)
         time.sleep(0.5)
 
-    driver.close()
+    driver.quit()
     display.stop()
