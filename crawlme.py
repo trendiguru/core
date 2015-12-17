@@ -1,7 +1,6 @@
 __author__ = 'yonatan'
 
 import sys
-import time
 
 from bs4 import BeautifulSoup
 import requests
@@ -54,7 +53,6 @@ def scrapLinks(url, floor):
 
 def masterCrawler(floor=2):
     db.crawler_processed.drop()
-    db.crawler_processed.insert_one({"url": time.time})
     db.crawler_processed.create_index("url")
     for site in constants.white_list:
         scrap_q.enqueue(scrapLinks, site, floor)
