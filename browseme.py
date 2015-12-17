@@ -21,4 +21,4 @@ def runExt(url):
         time.sleep(0.5)
 
     driver.quit()
-    display.stop()
+    display.popen.kill()
