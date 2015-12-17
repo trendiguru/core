@@ -2,12 +2,15 @@ __author__ = 'yonatan'
 import time
 
 from selenium import webdriver
+from pyvirtualdisplay import Display
 
 
 def runExt(url):
+    print("Running Extension on %s" % url)
     # enable browser logging
-    driver = webdriver.Chrome(executable_path="/usr/src/linux-headers-3.16.0-55/drivers/platform/chrome",
-                              service_log_path="/home/developer/ghostdriver.log")
+    display = Display(visible=0, size=(1024, 768))
+    display.start()
+    driver = webdriver.Firefox()
     driver.get(url)
     scr = open("/var/www/latest/b_main.js").read()
     driver.execute_script(scr)
@@ -17,4 +20,5 @@ def runExt(url):
         driver.execute_script(script)
         time.sleep(0.5)
 
-    driver.quit()
+    driver.close()
+    display.stop()

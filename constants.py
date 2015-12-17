@@ -606,3 +606,6 @@ Out[19]:
  u'mens-watches',
  u'mens-swimsuits']
 '''
+
+white_list = ["http://www.bunte.de",
+              "http://www.gala.fr"]
