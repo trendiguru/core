@@ -308,7 +308,7 @@ def from_paperdoll_to_similar_results(person_id, paper_job_id, num_of_matches=10
         time.sleep(0.2)
         done = all([job.is_finished for job in jobs.values()])
     for idx, job in jobs.iteritems():
-        cur_item = next((item for item in items if item['idx'] == idx), None)
+        cur_item = next((item for item in items if item['item_idx'] == idx), None)
         cur_item['fp'], cur_item['similar_results'] = job.result
     new_image_obj = iip.find_one_and_update({'people.person_id': person_id}, {'$set': {'people.$.items': items}},
                                             return_document=pymongo.ReturnDocument.AFTER)
