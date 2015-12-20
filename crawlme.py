@@ -21,7 +21,9 @@ def scrapLinks(url, floor):
         print ("url already exists... scraper skips")
         return
     db.crawler_processed.insert_one({"url": url})
-    if floor is not theLobby:
+    if floor == theLobby:
+        pass
+    else:
         floor -= 1
         # get url's content
         try:
