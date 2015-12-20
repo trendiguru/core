@@ -433,7 +433,7 @@ def get_results_now(page_url, image_url, collection='products_jp'):
                     item_idx += 1
             image_dict['people'].append(person)
         db.demo.insert_one(image_dict)
-        print "all took {1} seconds".format(time.time() - start)
+        print "all took {0} seconds".format(time.time() - start)
         return page_results.merge_items(image_dict)
     else:  # if not relevant
         return
