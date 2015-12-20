@@ -283,6 +283,7 @@ def from_paperdoll_to_similar_results(person_id, paper_job_id, num_of_matches=10
         final_mask = after_pd_conclusions(mask, labels)
     image = Utils.get_cv2_img_array(image_obj['image_urls'][0])
     items = []
+    jobs = {}
     idx = 0
     for num in np.unique(final_mask):
         # convert numbers to labels
@@ -298,12 +299,17 @@ def from_paperdoll_to_similar_results(person_id, paper_job_id, num_of_matches=10
                 str(image_obj['_id']) + '_' + person['person_id'] + '_' + item_dict['category'],
                 constants.svg_folder)
             item_dict["svg_url"] = constants.svg_url_prefix + svg_name
-            item_dict['fp'], item_dict['similar_results'] = find_similar_mongo.find_top_n_results(image, item_mask,
-                                                                                                  num_of_matches,
-                                                                                                  item_dict['category'],
-                                                                                                  collection=products_collection)
+            jobs[idx] = q2.enqueue(find_similar_mongo.find_top_n_results, image, item_mask, 100,
+                                   item_dict['category'], collection=products_collection)
             items.append(item_dict)
             idx += 1
+    done = all([job.is_finished for job in jobs.values()])
+    while not done:
+        time.sleep(0.2)
+        done = all([job.is_finished for job in jobs.values()])
+    for idx, job in jobs.iteritems():
+        cur_item = next((item for item in items if item['idx'] == idx), None)
+        cur_item['fp'], cur_item['similar_results'] = job.result
     new_image_obj = iip.find_one_and_update({'people.person_id': person_id}, {'$set': {'people.$.items': items}},
                                             return_document=pymongo.ReturnDocument.AFTER)
     total_time = 0
