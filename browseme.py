@@ -22,6 +22,6 @@ def runExt(url):
             time.sleep(0.25)
     except:
         print ("execute Failed!!!")
-    finally:
-        driver.quit()
-        display.popen.terminate()
+
+    driver.quit()
+    display.popen.terminate()
