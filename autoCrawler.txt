@@ -1,0 +1,26 @@
+# this is a job list for cron
+# to see cron running tasks "ps -o pid,sess,cmd afx | grep -A20 'cron$'"
+# to insert this list to cron type: '$ crontab /home/developer/python-packages/trendi/autoBrowser'
+# the check if the list was inserted correctly by typing:'$ crontab -l'
+#
+# the schedule:
+# 1. run the main function : whitelist at 18:15
+# 2. kill all workers and Xvfb every 30 min
+# 3. every 30 min erase the tmp files
+# 4. open the workers again
+#
+#
+# example: open 6 rqworkers - 1-6 7 * * * sudo rqworker -u redis://redis1-redis-1-vm:6379 BrowseMe &
+# standard output ans error will be logged temporarily in /home/developer/current_job.log
+# download log will be saved to /home/developer/crawl.log
+15 18 * * * date >> /home/developer/crawl.log 2>&1
+16,46 * * * * echo "clean up - restarting all rqworkers" >> /home/developer/crawl.log 2>&1
+17,47 * * * * sudo pkill rqworker
+17,47 * * * * sudo pkill Xvfb
+5-25 * * * * sudo rm -r /tmp/tmp*
+18-23 * * * * sudo rqworker -u redis://redis1-redis-1-vm:6379 CrawlMe &
+18-23 * * * * sudo rqworker -u redis://redis1-redis-1-vm:6379 BrowseMe &
+
+
+
+
