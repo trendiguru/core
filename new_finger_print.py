@@ -6,7 +6,7 @@ def spaciogram_finger_print(image, mask):
     '''
     :param image: cv2.BGR arrangement (numpy.array) - a must!
     :param mask: default is 0 / 255, but we check if else and fit for the inner workings.
-    :return: spaciogram - a multi-dimensional histogram (numpy.array)
+    :return: spaciogram - a multi-dimensional histogram  - flatten (numpy.array)
     '''
 
     ############ CHECKS ############
@@ -20,8 +20,11 @@ def spaciogram_finger_print(image, mask):
 
     ############ CALCS ############
     # B, G, R, B/G, G/R, R/B ,edge distance, skeleton distance, channels:
+
+    bins = 6
+
+    # limiting the image size for a quicker calculation:
     limit = [1000, 1000]
-    bins = 10
     resize_interpulation = cv2.INTER_NEAREST#INTER_LINEAR#INTER_CUBIC#INTER_LANCZOS4#INTER_AREA#
     if image.shape[0] > limit[0] or image.shape[1] > limit[1]:
         delta = [1.0 * limit[0] / image.shape[0], 1.0 * limit[1] / image.shape[1]]
@@ -33,23 +36,63 @@ def spaciogram_finger_print(image, mask):
     BGR_channels_list = channles_of_BGR_image(image)
     skell_dist  = skeleton_distance(mask)
     circ_dist = circumfrence_distance(mask)
-    all_channels = []
-    for channel in BGR_channels_list:
-        all_channels.append(channel[mask>0])
-    all_channels.append(skell_dist[mask>0])
-    all_channels.append(circ_dist[mask>0])
-
-
-    # numpy way (after opencv was ~):
     sample = []
-    for channel in all_channels:
-        sample.append(np.array(channel).flatten())
-    # sample = np.array(sample).T
-    print type(sample)
-    print np.array(sample).shape
+    for channel in BGR_channels_list:
+        sample.append(channel[mask>0].flatten())
+    sample.append(skell_dist[mask>0].flatten())
+    sample.append(circ_dist[mask>0].flatten())
     spaciogram, edges = np.histogramdd(sample, bins, normed=True, weights=None)
-    print spaciogram
+    spaciogram = spaciogram.flatten()
+    return spaciogram
 
+def histogram_stack_finger_print(image, mask):
+    '''
+    :param image: cv2.BGR arrangement (numpy.array) - a must!
+    :param mask: default is 0 / 255, but we check if else and fit for the inner workings.
+    :return: spaciogram - a 2DxN stack of histograms - flatten (numpy.array)
+    '''
+
+    ############ CHECKS ############
+    # check if var|image is a numpy array of NxMx3:
+
+    # checks if var|mask is a numpy array of NxM:
+
+    # check if image and mask NxM are same:
+
+    # check if mas is binary, 0/1, or 0/255:
+
+    ############ CALCS ############
+    # B, G, R, B/G, G/R, R/B ,edge distance, skeleton distance, channels:
+
+    bins = 10
+
+    # limiting the image size for a quicker calculation:
+    limit = [1000, 1000]
+    resize_interpulation = cv2.INTER_NEAREST#INTER_LINEAR#INTER_CUBIC#INTER_LANCZOS4#INTER_AREA#
+    if image.shape[0] > limit[0] or image.shape[1] > limit[1]:
+        delta = [1.0 * limit[0] / image.shape[0], 1.0 * limit[1] / image.shape[1]]
+        resize_factor = min(delta)
+        newx, newy = image.shape[1] * resize_factor, image.shape[0] * resize_factor
+        image = cv2.resize(image, (int(newx), int(newy)), interpolation=resize_interpulation)
+        mask = cv2.resize(mask, (int(newx), int(newy)), interpolation=resize_interpulation)
+
+    BGR_channels_list = channles_of_BGR_image(image)
+    skell_dist  = skeleton_distance(mask)
+    circ_dist = circumfrence_distance(mask)
+    sample = []
+    for channel in BGR_channels_list:
+        sample.append(channel[mask>0].flatten())
+
+    skell_sample = skell_dist[mask>0].flatten()
+    circ_sample = circ_dist[mask>0].flatten()
+    spaciogram = []
+    for channel in sample:
+        skell_spaciogram, xedges, yedges = np.histogram2d(skell_sample, channel, bins, normed=True, weights=None)
+        circ_spaciogram, xedges, yedges = np.histogram2d(circ_sample, channel, bins, normed=True, weights=None)
+        spaciogram.append(np.hstack([skell_spaciogram.flatten(), circ_spaciogram.flatten()]))
+    spaciogram = np.concatenate(spaciogram, axis=0)
+    print spaciogram
+    print spaciogram.shape
     return spaciogram
 
 def channles_of_BGR_image(image):
