@@ -370,15 +370,11 @@ def get_results_now(page_url, image_url, collection='products_jp'):
                 person = {'face': face, 'person_id': str(bson.ObjectId()), 'person_idx': idx,
                           'items': []}
                 image_dict['people'].append(person)
-                bpd = time.time()
                 mask, labels, pose = paperdoll_parse_enqueue.paperdoll_enqueue(image_copy, async=False).result[:3]
-                print "single pd took {0} seconds".format(time.time() - bpd)
                 start = time.time()
                 final_mask = after_pd_conclusions(mask, labels, person['face'])
-                loop1 = time.time()
-                print "after_pd took {0} seconds".format(loop1 - start)
-                # image = draw_pose_boxes(pose, image)
                 item_idx = 0
+                jobs = {}
                 for num in np.unique(final_mask):
                     # convert numbers to labels
                     category = list(labels.keys())[list(labels.values()).index(num)]
@@ -392,28 +388,31 @@ def get_results_now(page_url, image_url, collection='products_jp'):
                             str(image_dict['image_hash']) + '_' + person['person_id'] + '_' + item_dict['category'],
                             constants.svg_folder)
                         item_dict["svg_url"] = constants.svg_url_prefix + svg_name
-                        loop2 = time.time()
-                        print "till find_similar took {0} seconds".format(loop2 - loop1)
-                        item_dict['fp'], item_dict['similar_results'] = find_similar_mongo.find_top_n_results(
-                            clean_image,
-                            item_mask,
-                            100,
-                            item_dict[
-                                'category'],
-                            collection=collection)
-                        loop3 = time.time()
-                        print "find similar took {0} seconds".format(loop3 - loop2)
+                        jobs[item_idx] = q2.enqueue(find_similar_mongo.find_top_n_results, clean_image, item_mask, 100,
+                                                    item_dict['category'], collection=collection)
                         person['items'].append(item_dict)
                         item_idx += 1
+                done = all([job.is_finished for job in jobs.values()])
+                b = time.time()
+                print "done is {0}".format(done)
+                while not done:
+                    time.sleep(0.2)
+                    done = all([job.is_finished for job in jobs.values()])
+                print "done is {0} after {1} seconds with {2} items..".format(done, time.time() - b,
+                                                                              len(person['items']))
+                for idx, job in jobs.iteritems():
+                    cur_item = next((item for item in person['items'] if item['item_idx'] == idx), None)
+                    cur_item['fp'], cur_item['similar_results'] = job.result
                 idx += 1
                 image_dict['people'].append(person)
         else:
-            # no faces, only general positive human detection
+            print "no faces, went caffe.."
             person = {'face': [], 'person_id': str(bson.ObjectId()), 'person_idx': 0, 'items': []}
             image_dict['people'].append(person)
             mask, labels, pose = paperdoll_parse_enqueue.paperdoll_enqueue(image, async=False).result[:3]
             final_mask = after_pd_conclusions(mask, labels)
             item_idx = 0
+            jobs = {}
             for num in np.unique(final_mask):
                 # convert numbers to labels
                 category = list(labels.keys())[list(labels.values()).index(num)]
@@ -427,18 +426,14 @@ def get_results_now(page_url, image_url, collection='products_jp'):
                         str(image_dict['image_hash']) + '_' + person['person_id'] + '_' + item_dict['category'],
                         constants.svg_folder)
                     item_dict["svg_url"] = constants.svg_url_prefix + svg_name
-                    item_dict['fp'], item_dict['similar_results'] = find_similar_mongo.find_top_n_results(clean_image,
-                                                                                                          item_mask,
-                                                                                                          100,
-                                                                                                          item_dict[
-                                                                                                              'category'],
-                                                                                                          collection=collection)
+                    jobs[idx] = q2.enqueue(find_similar_mongo.find_top_n_results, clean_image, item_mask, 100,
+                                           item_dict['category'], collection=collection)
+
                     person['items'].append(item_dict)
                     item_idx += 1
             image_dict['people'].append(person)
         db.demo.insert_one(image_dict)
-        print "after find_similar till the end took {0} seconds, all took {1} seconds".format(time.time() - loop3,
-                                                                                              time.time() - start)
+        print "all took {1} seconds".format(time.time() - start)
         return page_results.merge_items(image_dict)
     else:  # if not relevant
         return
