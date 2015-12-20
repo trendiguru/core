@@ -258,7 +258,8 @@ def start_process(page_url, image_url, lang=None):
             image_dict['people'].append(person)
             paper_job = paperdoll_parse_enqueue.paperdoll_enqueue(image, person['person_id'])
             q1.enqueue(from_paperdoll_to_similar_results, person['person_id'], paper_job.id,
-                       products_collection=products_collection, images_collection=coll_name, depends_on=paper_job)
+                       products_collection=products_collection, images_collection=coll_name, depends_on=paper_job,
+                       ttl=1000)
     else:  # if not relevant
         logging.warning('image is not relevant, but stored anyway..')
         images_collection.insert_one(image_dict)
@@ -300,7 +301,7 @@ def from_paperdoll_to_similar_results(person_id, paper_job_id, num_of_matches=10
                 constants.svg_folder)
             item_dict["svg_url"] = constants.svg_url_prefix + svg_name
             jobs[idx] = q2.enqueue(find_similar_mongo.find_top_n_results, image, item_mask, 100,
-                                   item_dict['category'], collection=products_collection)
+                                   item_dict['category'], collection=products_collection, ttl=1000)
             items.append(item_dict)
             idx += 1
     done = all([job.is_finished for job in jobs.values()])
