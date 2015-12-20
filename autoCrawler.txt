@@ -18,8 +18,8 @@
 17,47 * * * * sudo pkill rqworker
 17,47 * * * * sudo pkill Xvfb
 18,48 * * * * sudo rm -r /tmp/tmp*
-19-24 * * * * sudo rqworker -u redis://redis1-redis-1-vm:6379 CrawlMe &
-19-29 * * * * sudo rqworker -u redis://redis1-redis-1-vm:6379 BrowseMe &
+19-24,49-54 * * * * sudo rqworker -u redis://redis1-redis-1-vm:6379 CrawlMe &
+19-29,49-59 * * * * sudo rqworker -u redis://redis1-redis-1-vm:6379 BrowseMe &
 30 18 * * * sudo python -m trendi.whitelist >> /home/developer/crawl.log 2>&1
 
 
