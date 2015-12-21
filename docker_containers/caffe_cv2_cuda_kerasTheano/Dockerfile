@@ -291,11 +291,11 @@ RUN sed -i 's/CXX :=/CXX ?=/' Makefile
 RUN sed -i 's/CXXFLAGS += /CXXFLAGS += -fPIC /' Makefile
 RUN sed -i 's/LIBRARIES += opencv_core opencv_highgui opencv_imgproc/LIBRARIES += opencv_core opencv_highgui opencv_imgproc opencv_imgcodecs/' Makefile
 RUN mkdir build
-WORKDIR build
+#WORKDIR build
 #yet more fPIC madness
-RUN sed -i 's/CMAKE_CXX_FLAGS:STRING=/CMAKE__FLAGS:STRING=-fPIC /' CMakeCache.txt
+#RUN sed -i 's/CMAKE_CXX_FLAGS:STRING=/CMAKE__FLAGS:STRING=-fPIC /' CMakeCache.txt
 
-RUN cmake ..
+#RUN cmake ..
 #RUN ./configure
 RUN make all
 RUN make test
