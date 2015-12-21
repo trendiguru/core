@@ -39,8 +39,12 @@ def scrapLinks(url, floor):
         for anchor in soup.find_all("a"):
             # extract link url from the anchor
             link = anchor.attrs["href"] if "href" in anchor.attrs else ''
-            if not link.startswith('http'):
-                link = url + link
+            if not link.startswith(url):
+                if link.startswith('/'):
+                    link = url + link
+                else:
+                    print ("link to a different site... not enqueued")
+                    continue
             exists = db.crawler_processed.find_one({"url": link})
             if exists:
                 print ("new link already exists... not enqueued")

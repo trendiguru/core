@@ -33,11 +33,13 @@ def spaciogram_finger_print(image, mask):
         image = cv2.resize(image, (int(newx), int(newy)), interpolation=resize_interpulation)
         mask = cv2.resize(mask, (int(newx), int(newy)), interpolation=resize_interpulation)
 
-    BGR_channels_list = channles_of_BGR_image(image)
+    # changing to an exact eucledian space model of color:
+    image = cv2.cvtColor(image, cv2.COLOR_BGR2LAB)
+    channels_list = channles_of_BGR_image(image)
     skell_dist  = skeleton_distance(mask)
     circ_dist = circumfrence_distance(mask)
     sample = []
-    for channel in BGR_channels_list:
+    for channel in channels_list:
         sample.append(channel[mask>0].flatten())
     sample.append(skell_dist[mask>0].flatten())
     sample.append(circ_dist[mask>0].flatten())
@@ -76,11 +78,13 @@ def histogram_stack_finger_print(image, mask):
         image = cv2.resize(image, (int(newx), int(newy)), interpolation=resize_interpulation)
         mask = cv2.resize(mask, (int(newx), int(newy)), interpolation=resize_interpulation)
 
-    BGR_channels_list = channles_of_BGR_image(image)
+    # changing to an exact eucledian space model of color:
+    image = cv2.cvtColor(image, cv2.COLOR_BGR2LAB)
+    channels_list = channles_of_BGR_image(image)
     skell_dist  = skeleton_distance(mask)
     circ_dist = circumfrence_distance(mask)
     sample = []
-    for channel in BGR_channels_list:
+    for channel in channels_list:
         sample.append(channel[mask>0].flatten())
 
     skell_sample = skell_dist[mask>0].flatten()
