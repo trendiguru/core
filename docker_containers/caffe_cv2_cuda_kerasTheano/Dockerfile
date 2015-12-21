@@ -84,7 +84,7 @@ RUN pip install keras
 #RUN chmod o+x portredis.sh
 
 ##############################
-#OPENCV 3.0
+#OPENCV 3.0 WITH GPU
 ##############################
 
 MAINTAINER Jeremy Rutman <jeremy@trendiguru.com>
@@ -175,7 +175,7 @@ RUN pip install rq
 
 
 ###################
-#CAFFE
+#CAFFE WITH GPU
 ###################
 #caffe reqs:
 #anaconda
@@ -283,10 +283,12 @@ RUN git clone https://github.com/BVLC/caffe.git
 WORKDIR /opt/caffe
 
 RUN cp Makefile.config.example Makefile.config
-RUN  sed -i 's/# CPU_ONLY := 1/CPU_ONLY := 1/' Makefile.config
-RUN echo "CPU_ONLY := 1" >> Makefile.config
+RUN  sed -i 's/# CPU_ONLY := 1/CPU_ONLY := 0/' Makefile.config
+RUN echo "CPU_ONLY := 0" >> Makefile.config
 RUN echo "CXX := /usr/bin/g++-4.6" >> Makefile.config
 RUN sed -i 's/CXX :=/CXX ?=/' Makefile
+#fPIC keeps screwing things up
+RUN sed -i 's/CXXFLAGS += /CXXFLAGS += -fPIC /' Makefile
 RUN sed -i 's/LIBRARIES += opencv_core opencv_highgui opencv_imgproc/LIBRARIES += opencv_core opencv_highgui opencv_imgproc opencv_imgcodecs/' Makefile
 RUN mkdir build
 WORKDIR build
