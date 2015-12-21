@@ -130,9 +130,12 @@ RUN cmake -D CMAKE_BUILD_TYPE=RELEASE -D CMAKE_INSTALL_PREFIX=/usr/local -D WITH
 RUN  make -j8 | tee makeout.txt
 RUN  make install | tee installout.txt
 
+##configure lib search path
 RUN  sh -c 'echo "/usr/local/lib" > /etc/ld.so.conf.d/opencv.conf'
 RUN  ldconfig
 RUN  echo "OpenCV 3.0.0 is ready to be used"
+#RUN printf '# OpenCV\nPKG_CONFIG_PATH=$PKG_CONFIG_PATH:/usr/local/lib/pkgconfig\nexport PKG_CONFIG_PATH\n' >> ~/.bashrc
+#RUN source ~/.bashrc
 
 RUN export PYTHONPATH=/usr/local/lib/python2.7/site-packages:$PYTHONPATH
 
