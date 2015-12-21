@@ -250,9 +250,9 @@ RUN sed -i 's/CXX :=/CXX ?=/' Makefile
 #fPIC keeps screwing things up
 RUN sed -i 's/CXXFLAGS += /CXXFLAGS += -fPIC /' Makefile
 RUN sed -i 's/LIBRARIES += opencv_core opencv_highgui opencv_imgproc/LIBRARIES += opencv_core opencv_highgui opencv_imgproc opencv_imgcodecs/' Makefile
-RUN mkdir build
-WORKDIR build
-RUN cmake ..
+#RUN mkdir build
+#WORKDIR build
+#RUN cmake ..
 #RUN ./configure
 RUN make all
 RUN make test
