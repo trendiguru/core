@@ -9,7 +9,7 @@ from crawlme import scrapLinks
 scrap_q = Queue('CrawlMe', connection=constants.redis_conn)
 db = constants.db
 
-whiteList = ["yahoo.com", "msn.com", "yahoo.co.jp", "qq.com", "uol.com.br", "globo.com", "naver.com", "onet.pl",
+fullList = ["yahoo.com", "msn.com", "yahoo.co.jp", "qq.com", "uol.com.br", "globo.com", "naver.com", "onet.pl",
              "espn.go.com", "news.yahoo.com", "163.com", "wp.pl", "sina.com.cn", "news.google.com", "bbc.co.uk",
              "cnn.com", "news.yandex.ru", "rambler.ru", "bbc.com", "cnet.com", "dailymail.co.uk", "milliyet.com.tr",
              "nytimes.com", "news.mail.ru", "zing.vn", "sports.yahoo.com", "news.yahoo.co.jp", "theguardian.com",
@@ -118,8 +118,19 @@ whiteList = ["yahoo.com", "msn.com", "yahoo.co.jp", "qq.com", "uol.com.br", "glo
              "cs10.org", "nitrolicious.com", "vickumbro.tumblr.com", "malemodelscene.net", "ironandtweed.com",
              "fashiontoast.com", "flare.com"]
 
+fashionOnly = ["manrepeller.com", "wishwishwish.net", "parkandcube.com", "stellaswardrobe.com", "cocosteaparty.com",
+               "5inchandup.blogspot.co.uk", "garypeppergirl.com", "camilleovertherainbow.com", "streetpeeper.com",
+               "the-frugality.com", "disneyrollergirl.net", "weworewhat.com", "wearingittoday.co.uk",
+               "ella-lapetiteanglaise.com",
+               "advancedstyle.blogspot.co.uk", "indtl.com", "redcarpet-fashionawards.com", "nadiaaboulhosn.com",
+               "enbrogue.com",
+               "peonylim.com", "vanessajackman.blogspot.co.uk", "alltheprettybirds.com", "lisegrendene.com.br",
+               "nataliehartleywears.blogspot.co.uk", "tommyton.com", "stylebubble.co.uk", "pandorasykes.com",
+               "theblondesalad.com",
+               "thesartorialist.com", "bryanboy.com", "bunte.de", "gala.fr"]
 
-def masterCrawler(floor=2):
+
+def masterCrawler(floor=2, whiteList=fashionOnly):
     db.crawler_processed.drop()
     db.crawler_processed.create_index("url")
     for site in whiteList:
