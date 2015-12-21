@@ -39,7 +39,7 @@ RUN pip install pytz
 #RUN chmod o+x portredis.sh
 
 ##############################
-#OPENCV 3.0
+#OPENCV 3.0, no gpu
 ##############################
 
 MAINTAINER Jeremy Rutman <jeremy@trendiguru.com>
@@ -135,7 +135,7 @@ RUN sudo apt-get install -y \
 
 
 ###################
-#CAFFE
+#CAFFE, no GPU
 ###################
 #caffe reqs:
 #anaconda
