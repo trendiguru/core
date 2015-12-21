@@ -31,6 +31,7 @@ iip = db.iip
 q1 = Queue('find_similar', connection=redis_conn)
 q2 = Queue('find_top_n', connection=redis_conn)
 # sys.stdout = sys.stderr
+TTL = constants.general_ttl
 
 
 # ----------------------------------------------CO-FUNCTIONS------------------------------------------------------------
@@ -310,8 +311,7 @@ def from_paperdoll_to_similar_results(person_id, paper_job_id, num_of_matches=10
                                                                                           num_of_matches,
                                                                                           item_dict['category'],
                                                                                           products_collection),
-                                        ttl=1000,
-                                        result_ttl=1000, timeout=1000)
+                                        ttl=TTL, result_ttl=TTL, timeout=TTL)
             items.append(item_dict)
             idx += 1
     done = all([job.is_finished for job in jobs.values()])
@@ -405,8 +405,14 @@ def get_results_now(page_url, image_url, collection='products_jp'):
                             str(image_dict['image_hash']) + '_' + person['person_id'] + '_' + item_dict['category'],
                             constants.svg_folder)
                         item_dict["svg_url"] = constants.svg_url_prefix + svg_name
-                        jobs[item_idx] = q2.enqueue(find_similar_mongo.find_top_n_results, clean_image, item_mask, 100,
-                                                    item_dict['category'], collection=collection)
+                        jobs[item_idx] = q2.enqueue_call(func=find_similar_mongo.find_top_n_results, args=(clean_image,
+                                                                                                           item_mask,
+                                                                                                           100,
+                                                                                                           item_dict[
+                                                                                                               'category'],
+                                                                                                           collection),
+                                                         ttl=TTL,
+                                                         result_ttl=TTL, timeout=TTL)
                         person['items'].append(item_dict)
                         item_idx += 1
                 done = all([job.is_finished for job in jobs.values()])
@@ -443,9 +449,11 @@ def get_results_now(page_url, image_url, collection='products_jp'):
                         str(image_dict['image_hash']) + '_' + person['person_id'] + '_' + item_dict['category'],
                         constants.svg_folder)
                     item_dict["svg_url"] = constants.svg_url_prefix + svg_name
-                    jobs[idx] = q2.enqueue(find_similar_mongo.find_top_n_results, clean_image, item_mask, 100,
-                                           item_dict['category'], collection=collection)
-
+                    jobs[idx] = q2.enqueue_call(func=find_similar_mongo.find_top_n_results, args=(clean_image,
+                                                                                                  item_mask, 100,
+                                                                                                  item_dict['category'],
+                                                                                                  collection), ttl=TTL,
+                                                result_ttl=TTL, timeout=TTL)
                     person['items'].append(item_dict)
                     item_idx += 1
             image_dict['people'].append(person)
