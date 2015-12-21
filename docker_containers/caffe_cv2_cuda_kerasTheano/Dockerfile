@@ -30,7 +30,7 @@ RUN pip install numpy
 RUN pip install pyparsing
 RUN pip install pytz
 #RUN pip install matplotlib
-
+RUN apt-get install -y git
 
 
 ################
@@ -62,7 +62,7 @@ RUN apt-get install -y libyaml-dev libpython2.7-dev
 RUN pip install pyyaml
 
 #HDF5 and h5py (optional, required if you use model saving/loading functions)
-RUN libhdf5-serial-dev
+RUN apt-get install -y libhdf5-serial-dev
 RUN pip install h5py
 
 #Optional but recommended if you use CNNs: cuDNN.
