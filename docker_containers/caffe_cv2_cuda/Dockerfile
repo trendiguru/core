@@ -39,7 +39,7 @@ RUN pip install pytz
 #RUN chmod o+x portredis.sh
 
 ##############################
-#OPENCV 3.0
+#OPENCV 3.0, no gpu
 ##############################
 
 MAINTAINER Jeremy Rutman <jeremy@trendiguru.com>
@@ -135,7 +135,7 @@ RUN sudo apt-get install -y \
 
 
 ###################
-#CAFFE
+#CAFFE, no GPU
 ###################
 #caffe reqs:
 #anaconda
@@ -247,6 +247,8 @@ RUN  sed -i 's/# CPU_ONLY := 1/CPU_ONLY := 1/' Makefile.config
 RUN echo "CPU_ONLY := 1" >> Makefile.config
 RUN echo "CXX := /usr/bin/g++-4.6" >> Makefile.config
 RUN sed -i 's/CXX :=/CXX ?=/' Makefile
+#fPIC keeps screwing things up
+RUN sed -i 's/CXXFLAGS += /CXXFLAGS += -fPIC /' Makefile
 RUN sed -i 's/LIBRARIES += opencv_core opencv_highgui opencv_imgproc/LIBRARIES += opencv_core opencv_highgui opencv_imgproc opencv_imgcodecs/' Makefile
 RUN mkdir build
 WORKDIR build
