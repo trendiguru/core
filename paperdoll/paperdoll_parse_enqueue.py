@@ -1,10 +1,11 @@
-import time
+import logging
 
 import numpy as np
 from rq import Queue
 import cv2
-import logging
+
 from .. import constants
+
 
 redis_conn = constants.redis_conn
 
@@ -29,9 +30,9 @@ def paperdoll_enqueue(img_url_or_cv2_array, filename=None, async=True, queue_nam
     if use_parfor:
         queue_name = 'pd_parfor'
     queue = Queue(queue_name, connection=redis_conn)
-    job1 = queue.enqueue('trendi.paperdoll.pd.get_parse_mask_parallel', img_url_or_cv2_array,
-                                 filename=filename, use_parfor=use_parfor)
-    if isinstance(img_url_or_cv2_array,basestring):
+    job1 = queue.enqueue_call(func=trendi.paperdoll.pd.get_parse_mask_parallel, args=img_url_or_cv2_array, ttl=1000,
+                              result_ttl=1000, timeout=1000)
+    if isinstance(img_url_or_cv2_array, basestring):
         url = img_url_or_cv2_array
     else:
         url = None
