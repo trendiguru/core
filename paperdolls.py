@@ -2,7 +2,6 @@ __author__ = 'Nadav Paz'
 
 import logging
 import datetime
-import sys
 import time
 import copy
 
@@ -204,6 +203,10 @@ def start_process(page_url, image_url, lang=None):
         products_collection = 'products_' + lang
         coll_name = 'images_' + lang
         images_collection = db[coll_name]
+    # IF IMAGE IN IRRELEVANT_IMAGES
+    images_obj_url = db.irrelevant_images.find_one({"image_urls": image_url})
+    if images_obj_url:
+        return
 
     # IF IMAGE EXISTS IN IMAGES BY URL
     images_obj_url = images_collection.find_one({"image_urls": image_url})
@@ -263,11 +266,11 @@ def start_process(page_url, image_url, lang=None):
                                                                           products_collection, coll_name),
                             depends_on=paper_job, ttl=1000, result_ttl=1000,
                             timeout=1000)
+        iip.insert_one(image_dict)
     else:  # if not relevant
         logging.warning('image is not relevant, but stored anyway..')
-        images_collection.insert_one(image_dict)
+        db.irrelevant_images.insert_one(image_dict)
         return
-    iip.insert_one(image_dict)
 
 
 def from_paperdoll_to_similar_results(person_id, paper_job_id, num_of_matches=100, products_collection='products',
