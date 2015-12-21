@@ -30,7 +30,7 @@ RUN pip install numpy
 RUN pip install pyparsing
 RUN pip install pytz
 #RUN pip install matplotlib
-
+RUN apt-get install -y git
 
 
 ################
