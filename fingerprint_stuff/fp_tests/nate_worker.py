@@ -7,10 +7,10 @@ import logging
 
 import numpy as np
 
-from . import constants
-from . import new_finger_print
-from . import Utils
-from . import background_removal
+from trendi import constants
+from trendi import new_finger_print
+from trendi import Utils
+from trendi import background_removal
 from paperdoll import paperdoll_parse_enqueue
 from paperdolls import after_pd_conclusions
 

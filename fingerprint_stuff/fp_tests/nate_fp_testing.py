@@ -9,7 +9,7 @@ import time
 from rq import Queue
 
 from nate_worker import add_new_field
-from . import constants
+from trendi import constants
 
 db = constants.db
 redis = constants.redis_conn
