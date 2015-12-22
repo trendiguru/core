@@ -20,6 +20,7 @@ def kill_pd_workers():
 #            pid = int(line.split(None, 1)[1])
             r = os.kill(pid, signal.SIGKILL)
             print r
+
 def count_pd_workers():
     n = 0
     #full command to start worker is:
