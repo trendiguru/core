@@ -31,9 +31,9 @@ def count_pd_workers():
     for line in out.splitlines():
 #        print line
         if string_in_pd_command in line:
-            a = line.split(None,1)[1]
+            a = line.split()
             print a
-            pid = int(line.split(None, 1)[1])
+            pid = a[1]
             n = n +1
     return n
 
