@@ -3,7 +3,6 @@ __author__ = 'Nadav Paz'
 import logging
 import datetime
 import time
-import copy
 
 import numpy as np
 import pymongo
@@ -344,6 +343,7 @@ def from_paperdoll_to_similar_results(person_id, paper_job_id, num_of_matches=10
 
 
 def get_results_now(page_url, image_url, collection='products_jp'):
+    a = time.time()
     # IF IMAGE EXISTS IN DEMO BY URL
     images_obj_url = db.demo.find_one({"image_urls": image_url})
     if images_obj_url:
@@ -371,7 +371,6 @@ def get_results_now(page_url, image_url, collection='products_jp'):
         return
 
     # NEW_IMAGE !!
-    clean_image = copy.copy(image)
     relevance = background_removal.image_is_relevant(image, True, image_url)
     image_dict = {'image_urls': [image_url], 'relevant': relevance.is_relevant,
                   'image_hash': image_hash, 'page_urls': [page_url], 'people': []}
@@ -387,6 +386,7 @@ def get_results_now(page_url, image_url, collection='products_jp'):
                 person = {'face': face, 'person_id': str(bson.ObjectId()), 'person_idx': idx,
                           'items': []}
                 image_dict['people'].append(person)
+                print "untill pd: {0}".format(time.time() - a)
                 mask, labels, pose = paperdoll_parse_enqueue.paperdoll_enqueue(image_copy, async=False).result[:3]
                 start = time.time()
                 final_mask = after_pd_conclusions(mask, labels, person['face'])
@@ -405,7 +405,7 @@ def get_results_now(page_url, image_url, collection='products_jp'):
                             str(image_dict['image_hash']) + '_' + person['person_id'] + '_' + item_dict['category'],
                             constants.svg_folder)
                         item_dict["svg_url"] = constants.svg_url_prefix + svg_name
-                        jobs[item_idx] = q2.enqueue_call(func=find_similar_mongo.find_top_n_results, args=(clean_image,
+                        jobs[item_idx] = q2.enqueue_call(func=find_similar_mongo.find_top_n_results, args=(image,
                                                                                                            item_mask,
                                                                                                            100,
                                                                                                            item_dict[
@@ -449,7 +449,7 @@ def get_results_now(page_url, image_url, collection='products_jp'):
                         str(image_dict['image_hash']) + '_' + person['person_id'] + '_' + item_dict['category'],
                         constants.svg_folder)
                     item_dict["svg_url"] = constants.svg_url_prefix + svg_name
-                    jobs[idx] = q2.enqueue_call(func=find_similar_mongo.find_top_n_results, args=(clean_image,
+                    jobs[idx] = q2.enqueue_call(func=find_similar_mongo.find_top_n_results, args=(image,
                                                                                                   item_mask, 100,
                                                                                                   item_dict['category'],
                                                                                                   collection), ttl=TTL,
