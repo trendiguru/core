@@ -30,6 +30,51 @@ RUN pip install numpy
 RUN pip install pyparsing
 RUN pip install pytz
 #RUN pip install matplotlib
+RUN apt-get install -y git
+
+
+################
+#numpy scipy
+###############
+RUN sudo apt-get install -y \
+    python-numpy  \
+    python-scipy  \
+    python-matplotlib   \
+    ipython   \
+    ipython-notebook    \
+    python-pandas     \
+    python-sympy     \
+    python-nose
+
+###############
+#Theano
+###############
+RUN pip install git+git://github.com/Theano/Theano.git
+
+
+###############
+# Keras
+###############
+#numpy, scipy donen above
+
+#pyyaml
+RUN apt-get install -y libyaml-dev libpython2.7-dev
+RUN pip install pyyaml
+
+#HDF5 and h5py (optional, required if you use model saving/loading functions)
+RUN apt-get install -y libhdf5-serial-dev
+RUN pip install h5py
+
+#Optional but recommended if you use CNNs: cuDNN.
+#When using the Theano backend: - Theano - See installation instructions.
+#Note: You should use the latest version of Theano, not the PyPI version.
+#Install it with:*sudo pip install git+git://github.com/Theano/Theano.git*
+#When using the TensorFlow backend: - TensorFlow - See installation instructions.
+#To install Keras, cd to the Keras folder and run the install command:​sudo python setup.py install
+
+RUN pip install keras
+
+
 
 
 #these scripts are to check port forwarding with a single command
@@ -39,7 +84,7 @@ RUN pip install pytz
 #RUN chmod o+x portredis.sh
 
 ##############################
-#OPENCV 3.0, no gpu
+#OPENCV 3.0 WITH GPU
 ##############################
 
 MAINTAINER Jeremy Rutman <jeremy@trendiguru.com>
@@ -68,7 +113,12 @@ RUN  mkdir -p $OPENCV_HOME/opencv-3.0.0/build
 WORKDIR /opt/OpenCV/opencv-3.0.0/build
 
 #for fisherfaces: -DOPENCV_EXTRA_MODULES_PATH=<opencv_contrib>/modules <opencv_source_directory>
-RUN  cmake  .. | tee cmakeout.txt
+#RUN  cmake  .. | tee cmakeout.txt
+#below is for gpu-ready cv2
+RUN cmake -D CMAKE_BUILD_TYPE=RELEASE -D CMAKE_INSTALL_PREFIX=/usr/local -D WITH_TBB=ON \
+-D BUILD_NEW_PYTHON_SUPPORT=ON -D WITH_V4L=ON -D INSTALL_C_EXAMPLES=ON -D INSTALL_PYTHON_EXAMPLES=ON \
+-D BUILD_EXAMPLES=ON -D WITH_QT=ON -D WITH_OPENGL=ON -D ENABLE_FAST_MATH=1 -D CUDA_FAST_MATH=1 \
+-D WITH_CUBLAS=1 .. | tee cmakeout.txt
 
 #RUN  cmake -D CMAKE_BUILD_TYPE=RELEASE -D CMAKE_INSTALL_PREFIX=$(python -c "import sys; print(sys.prefix)") \
 # -D PYTHON_EXECUTABLE=$(which python) -D BUILD_EXAMPLES=OFF -D INSTALL_C_EXAMPLES=ON -D INSTALL_PYTHON_EXAMPLES=OFF -D INSTALL_TESTS=OFF -D BUILD_opencv_java=OFF \
@@ -80,9 +130,12 @@ RUN  cmake  .. | tee cmakeout.txt
 RUN  make -j8 | tee makeout.txt
 RUN  make install | tee installout.txt
 
+##configure lib search path
 RUN  sh -c 'echo "/usr/local/lib" > /etc/ld.so.conf.d/opencv.conf'
 RUN  ldconfig
 RUN  echo "OpenCV 3.0.0 is ready to be used"
+#RUN printf '# OpenCV\nPKG_CONFIG_PATH=$PKG_CONFIG_PATH:/usr/local/lib/pkgconfig\nexport PKG_CONFIG_PATH\n' >> ~/.bashrc
+#RUN source ~/.bashrc
 
 RUN export PYTHONPATH=/usr/local/lib/python2.7/site-packages:$PYTHONPATH
 
@@ -120,22 +173,9 @@ RUN pip install rq
 
 
 
-################
-#numpy scipy
-###############
-RUN sudo apt-get install -y \
-    python-numpy  \
-    python-scipy  \
-    python-matplotlib   \
-    ipython   \
-    ipython-notebook    \
-    python-pandas     \
-    python-sympy     \
-    python-nose
-
 
 ###################
-#CAFFE, no GPU
+#CAFFE WITH GPU
 ###################
 #caffe reqs:
 #anaconda
@@ -243,15 +283,18 @@ RUN git clone https://github.com/BVLC/caffe.git
 WORKDIR /opt/caffe
 
 RUN cp Makefile.config.example Makefile.config
-RUN  sed -i 's/# CPU_ONLY := 1/CPU_ONLY := 1/' Makefile.config
-RUN echo "CPU_ONLY := 1" >> Makefile.config
+RUN  sed -i 's/# CPU_ONLY := 1/CPU_ONLY := 0/' Makefile.config
+RUN echo "CPU_ONLY := 0" >> Makefile.config
 RUN echo "CXX := /usr/bin/g++-4.6" >> Makefile.config
 RUN sed -i 's/CXX :=/CXX ?=/' Makefile
 #fPIC keeps screwing things up
 RUN sed -i 's/CXXFLAGS += /CXXFLAGS += -fPIC /' Makefile
 RUN sed -i 's/LIBRARIES += opencv_core opencv_highgui opencv_imgproc/LIBRARIES += opencv_core opencv_highgui opencv_imgproc opencv_imgcodecs/' Makefile
-#RUN mkdir build
+RUN mkdir build
 #WORKDIR build
+#yet more fPIC madness
+#RUN sed -i 's/CMAKE_CXX_FLAGS:STRING=/CMAKE__FLAGS:STRING=-fPIC /' CMakeCache.txt
+
 #RUN cmake ..
 #RUN ./configure
 RUN make all
@@ -295,15 +338,6 @@ RUN ./data/ilsvrc12/get_ilsvrc_aux.sh
 RUN ./build/examples/cpp_classification/classification.bin ./models/bvlc_reference_caffenet/deploy.prototxt ./models/bvlc_reference_caffenet/bvlc_reference_caffenet.caffemodel ./data/ilsvrc12/imagenet_mean.binaryproto ./data/ilsvrc12/synset_words.txt ./examples/images/cat.jpg
 
 
-#no longer n
-###################
-# CUDA
-###################
-#get cuda
-#RUN wget http://developer.download.nvidia.com/compute/cuda/repos/ubuntu1404/x86_64/cuda-repo-ubuntu1404_7.5-18_amd64.deb
-#RUN dpkg -i cuda-repo-ubuntu1404_7.5-18_amd64.deb
-#RUN apt-get update
-#RUN apt-get install -y cuda
 
 
 
@@ -353,5 +387,6 @@ CMD ssh -i /.ssh/first_aws.pem -L 27017:localhost:27017 ubuntu@extremeli.trendi.
 
 RUN rqworker -u redis://redis1-redis-1-vm:6379 caffe_general &
 #RUN rqworker gender &
+
 
 
