@@ -2,7 +2,7 @@ __author__ = 'jeremy'
 import subprocess, signal
 import time
 
-import constants
+from trendi import constants
 
 string_in_pd_command = 'rq.tgworker'
 
