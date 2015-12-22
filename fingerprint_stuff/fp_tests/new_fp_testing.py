@@ -18,8 +18,9 @@ these are the steps required for testing a new fingerprint:
 import time
 
 from rq import Queue
-from .constants import db
-from .constants import redis_conn
+
+from constants import db
+from constants import redis_conn
 from fp_testing_workers import add_new_fp
 
 

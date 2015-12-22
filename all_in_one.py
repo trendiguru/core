@@ -18,7 +18,7 @@ from paperdolls import after_pd_conclusions
 import constants
 import fingerprint_core as fp
 import NNSearch
-import mr8_worker
+from .fingerprint_stuff.fp_tests import mr8_worker
 import page_results
 import find_similar_mongo
 
