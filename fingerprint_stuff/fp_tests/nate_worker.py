@@ -63,12 +63,13 @@ def add_new_field(doc, x):
     else:  # if not relevant
         print("item " + str(x) + " not relevent!")
         return
-    try:
-        specio = new_finger_print.spaciogram_finger_print(image, item_mask)
-        doc["specio"] = specio
-    except:
-        print("specio specio specio scpecio failed")
-        return
+    # try:
+    specio = new_finger_print.spaciogram_finger_print(image, item_mask)
+    doc["specio"] = specio
+    # except:
+    #     print("specio specio specio scpecio failed")
+    #
+    #     return
     try:
         histo = new_finger_print.histogram_stack_finger_print(image, item_mask)
         doc["histo"] = histo
