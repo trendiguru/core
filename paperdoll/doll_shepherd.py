@@ -16,9 +16,10 @@ def kill_pd_workers():
     for line in out.splitlines():
         if string_in_pd_command in line:
             pid = int(line.split(None, 1)[0])  #maybe on a different unix the output doesnt have owqnder
+            print('pid to kill:'+str(pid))
 #            pid = int(line.split(None, 1)[1])
-            os.kill(pid, signal.SIGKILL)
-
+            r = os.kill(pid, signal.SIGKILL)
+            print r
 def count_pd_workers():
     n = 0
     #full command to start worker is:
