@@ -75,7 +75,7 @@ def find_top_n_results(image, mask, number_of_results=10, category_id=None, coll
     '''
     fp_weights = constants.fingerprint_weights
     collection = db[collection]
-
+    print "query collection name is: {0}".format(str(collection))
     subcategory_id_list = get_all_subcategories(db.categories, category_id)
 
     # get all items in the subcategory/keyword
