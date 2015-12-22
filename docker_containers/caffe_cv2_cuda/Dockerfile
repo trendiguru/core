@@ -1,5 +1,6 @@
-#FROM ubuntu:14.04
+#{{ if .GPU }}
 FROM tleyden5iwx/ubuntu-cuda
+#FROM ubuntu:14.04
 #increase the available sources for installs
 RUN sed -i 's/# \(.*multiverse$\)/\1/g' /etc/apt/sources.list
 RUN apt-get update
@@ -137,23 +138,22 @@ RUN sudo apt-get install -y \
 ###################
 #CAFFE, no GPU
 ###################
-#caffe reqs:
-#anaconda
+#docker/caffe/Dockerfile.template
+# Don't edit this file directly, since it was generated from a template,
+# and you're changes will be *clobbered*.  Edit the template instead.
 
- #libgflags.a, libgflags_nothreads.a,
-
-
-RUN sudo apt-get install -y libgflags-dev
-
+#{{ if .GPU }}
+#FROM tleyden5iwx/ubuntu-cuda
+#{{ else }}
+#FROM ubuntu:14.04
+#{{ end }}
 
 ENV PYTHONPATH /opt/caffe/python
+
 # Add caffe binaries to path
 ENV PATH $PATH:/opt/caffe/.build_release/tools
 
 # Get dependencies
-
-RUN apt-get install -y python-yaml
-
 RUN apt-get update && apt-get install -y \
   bc \
   cmake \
@@ -169,7 +169,6 @@ RUN apt-get update && apt-get install -y \
   libsnappy-dev \
   libopencv-dev \
   libboost-all-dev \
-#sudo apt-get install --no-install-recommends libboost-all-dev   #maybe this instead
   libhdf5-serial-dev \
   liblmdb-dev \
   libjpeg62 \
@@ -188,18 +187,25 @@ RUN update-alternatives --install /usr/bin/cc cc /usr/bin/gcc-4.6 30 && \
   update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-4.6 30 && \
   update-alternatives --install /usr/bin/g++ g++ /usr/bin/g++-4.6 30
 
+#{{ if .GPU }}
+# Allow it to find CUDA libs
+#RUN echo "/usr/local/cuda/lib64" > /etc/ld.so.conf.d/cuda.conf && \
+ # ldconfig
+#{{ end }}
 
-RUN  export CXXFLAGS="-fPIC"
-
+# Clone the Caffe repo
+RUN cd /opt && git clone https://github.com/BVLC/caffe.git
+{{ if .DEVELOP_BRANCH }}
+RUN cd /opt/caffe && git checkout -t origin/dev
+{{ end }}
 
 # Glog
-WORKDIR /opt
-RUN wget https://google-glog.googlecode.com/files/glog-0.3.3.tar.gz
-RUN tar zxvf glog-0.3.3.tar.gz
-WORKDIR /opt/glog-0.3.3
-RUN  ./configure
-RUN  make
-RUN  make install
+RUN cd /opt && wget https://google-glog.googlecode.com/files/glog-0.3.3.tar.gz && \
+  tar zxvf glog-0.3.3.tar.gz && \
+  cd /opt/glog-0.3.3 && \
+  ./configure && \
+  make && \
+  make install
 
 # Workaround for error loading libglog:
 #   error while loading shared libraries: libglog.so.0: cannot open shared object file
@@ -210,53 +216,25 @@ RUN  make install
 RUN ldconfig
 
 # Gflags
-WORKDIR /opt
-RUN  wget https://github.com/schuhschuh/gflags/archive/master.zip
-RUN  unzip master.zip
-WORKDIR gflags-master
-RUN  mkdir build
-WORKDIR  /opt/gflags-master/build
-#this export is not enough to force -fPIC
-RUN  export CXXFLAGS="-fPIC"
-
-RUN  cmake ..
-#this seems to suffice to force -fPIC (needed since otherwise the .a generated is no good for caffe)
-RUN  sed -i 's/CMAKE_CXX_FLAGS:STRING=/CMAKE_CXX_FLAGS:STRING=-fPIC/' CMakeCache.txt
-RUN  sed -i 's/CXX :=/CXX ?=/' Makefile
-RUN  make VERBOSE=1
-RUN  make
-RUN  make install
-
-#LMDB
-WORKDIR /opt
-RUN git clone https://github.com/LMDB/lmdb
-WORKDIR /opt/lmdb/libraries/liblmdb
-RUN make
-RUN make install
-
-
-# Clone the Caffe repo
-WORKDIR /opt
-RUN git clone https://github.com/BVLC/caffe.git
+RUN cd /opt && \
+  wget https://github.com/schuhschuh/gflags/archive/master.zip && \
+  unzip master.zip && \
+  cd /opt/gflags-master && \
+  mkdir build && \
+  cd /opt/gflags-master/build && \
+  export CXXFLAGS="-fPIC" && \
+  cmake .. && \
+  make VERBOSE=1 && \
+  make && \
+  make install
 
 # Build Caffe core
-WORKDIR /opt/caffe
-
-RUN cp Makefile.config.example Makefile.config
-RUN  sed -i 's/# CPU_ONLY := 1/CPU_ONLY := 1/' Makefile.config
-RUN echo "CPU_ONLY := 1" >> Makefile.config
-RUN echo "CXX := /usr/bin/g++-4.6" >> Makefile.config
-RUN sed -i 's/CXX :=/CXX ?=/' Makefile
-#fPIC keeps screwing things up
-RUN sed -i 's/CXXFLAGS += -pthread/CXXFLAGS += -pthread -fPIC /' Makefile
-RUN sed -i 's/LIBRARIES += opencv_core opencv_highgui opencv_imgproc/LIBRARIES += opencv_core opencv_highgui opencv_imgproc opencv_imgcodecs/' Makefile
-#RUN mkdir build
-#WORKDIR build
-#RUN cmake ..
-#RUN ./configure
-RUN make all
-RUN make test
-RUN make runtest
+RUN cd /opt/caffe && \
+  cp Makefile.config.example Makefile.config && \
+  {{ if .CPU }} echo "CPU_ONLY := 1" >> Makefile.config && \ {{ else }} \ {{ end }}
+  echo "CXX := /usr/bin/g++-4.6" >> Makefile.config && \
+  sed -i 's/CXX :=/CXX ?=/' Makefile && \
+  make all
 
 # Add ld-so.conf so it can find libcaffe.so
 ADD caffe-ld-so.conf /etc/ld.so.conf.d/
@@ -265,19 +243,20 @@ ADD caffe-ld-so.conf /etc/ld.so.conf.d/
 RUN ldconfig
 
 # Install python deps
-WORKDIR /opt/caffe
-RUN (pip install -r python/requirements.txt; easy_install numpy; pip install -r python/requirements.txt) && \
-  easy_install pillow
+RUN cd /opt/caffe && \
+  cat python/requirements.txt | xargs -L 1 sudo pip install
 
-
-#apparently not necessary after numpy install above
-# Numpy include path hack - github.com/BVLC/caffe/wiki/Setting-up-Caffe-on-Ubuntu-14.04
-#RUN NUMPY_EGG=`ls /usr/local/lib/python2.7/dist-packages | grep -i numpy` && \
-#  ln -s /usr/local/lib/python2.7/dist-packages/$NUMPY_EGG/numpy/core/include/numpy /usr/include/python2.7/numpy
+# Numpy include path hack - github.com/BVLC/caffe/wiki/Ubuntu-14.04-VirtualBox-VM
+RUN ln -s /usr/include/python2.7/ /usr/local/include/python2.7 && \
+  ln -s /usr/local/lib/python2.7/dist-packages/numpy/core/include/numpy/ /usr/local/include/python2.7/numpy
 
 # Build Caffe python bindings
-#WORKDIR /opt/caffe
-RUN make pycaffe
+RUN cd /opt/caffe && make pycaffe
+
+#{{ if .CPU }}
+# Make + run tests
+RUN cd /opt/caffe && make test && make runtest
+
 
 
 
