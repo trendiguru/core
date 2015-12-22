@@ -301,6 +301,7 @@ def get_fg_mask(image, bounding_box=None):
         faces_dict = find_face_cascade(image)
         if len(faces_dict['faces']) > 0:  # grabcut with mask
             try:
+                print(faces_dict['faces'][0])
                 rectangles = body_estimation(image, faces_dict['faces'][0])
                 mask = create_mask_for_gc(rectangles, image)
             except:
