@@ -3,8 +3,8 @@ __author__ = 'yonatan'
 workers for the  mr8 testing
 '''
 
-import constants
-import fp_yuli_MR8
+from ... import constants
+from ... import fp_yuli_MR8
 
 db = constants.db
 
