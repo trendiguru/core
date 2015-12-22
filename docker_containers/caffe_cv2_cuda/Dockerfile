@@ -248,7 +248,7 @@ RUN echo "CPU_ONLY := 1" >> Makefile.config
 RUN echo "CXX := /usr/bin/g++-4.6" >> Makefile.config
 RUN sed -i 's/CXX :=/CXX ?=/' Makefile
 #fPIC keeps screwing things up
-RUN sed -i 's/CXXFLAGS += /CXXFLAGS += -fPIC /' Makefile
+RUN sed -i 's/CXXFLAGS += -pthread/CXXFLAGS += -pthread -fPIC /' Makefile
 RUN sed -i 's/LIBRARIES += opencv_core opencv_highgui opencv_imgproc/LIBRARIES += opencv_core opencv_highgui opencv_imgproc opencv_imgcodecs/' Makefile
 #RUN mkdir build
 #WORKDIR build
