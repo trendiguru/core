@@ -90,7 +90,7 @@ def find_top_n_results(image, mask, number_of_results=10, category_id=None, coll
     closest_matches = NNSearch.find_n_nearest_neighbors(target_dict, potential_matches_cursor, number_of_results,
                                                         fp_weights, bins, fp_category, distance_function)
 
-    print "done with find_n_nearest.."
+    print "done with find_n_nearest.. num of closest_matches: {0}".format(len(closest_matches))
     # get only the object itself, not the distance
     closest_matches = [match_tuple[0] for match_tuple in closest_matches]
 
