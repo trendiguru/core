@@ -195,9 +195,9 @@ RUN update-alternatives --install /usr/bin/cc cc /usr/bin/gcc-4.6 30 && \
 
 # Clone the Caffe repo
 RUN cd /opt && git clone https://github.com/BVLC/caffe.git
-{{ if .DEVELOP_BRANCH }}
-RUN cd /opt/caffe && git checkout -t origin/dev
-{{ end }}
+#{{ if .DEVELOP_BRANCH }}
+#RUN cd /opt/caffe && git checkout -t origin/dev
+#{{ end }}
 
 # Glog
 RUN cd /opt && wget https://google-glog.googlecode.com/files/glog-0.3.3.tar.gz && \
@@ -231,7 +231,8 @@ RUN cd /opt && \
 # Build Caffe core
 RUN cd /opt/caffe && \
   cp Makefile.config.example Makefile.config && \
-  {{ if .CPU }} echo "CPU_ONLY := 1" >> Makefile.config && \ {{ else }} \ {{ end }}
+#  {{ if .CPU }} echo "CPU_ONLY := 1" >> Makefile.config && \ {{ else }} \ {{ end }}
+  echo "CPU_ONLY := 1" >> Makefile.config &&
   echo "CXX := /usr/bin/g++-4.6" >> Makefile.config && \
   sed -i 's/CXX :=/CXX ?=/' Makefile && \
   make all
