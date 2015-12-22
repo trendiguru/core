@@ -229,10 +229,11 @@ RUN cd /opt && \
   make install
 
 # Build Caffe core
+#  {{ if .CPU }} echo "CPU_ONLY := 1" >> Makefile.config && \ {{ else }} \ {{ end }}
 RUN cd /opt/caffe && \
   cp Makefile.config.example Makefile.config && \
-#  {{ if .CPU }} echo "CPU_ONLY := 1" >> Makefile.config && \ {{ else }} \ {{ end }}
-  echo "CPU_ONLY := 1" >> Makefile.config &&
+#take next line out for gpu
+  echo "CPU_ONLY := 1" >> Makefile.config && \
   echo "CXX := /usr/bin/g++-4.6" >> Makefile.config && \
   sed -i 's/CXX :=/CXX ?=/' Makefile && \
   make all
