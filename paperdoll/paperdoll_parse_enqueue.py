@@ -8,7 +8,7 @@ from .. import constants
 
 
 redis_conn = constants.redis_conn
-TTL = constants.paperdoll_ttl
+TTL = constants.general_ttl
 # Tell RQ what Redis connection to use
 
 def paperdoll_enqueue(img_url_or_cv2_array, person_id=None, async=True, queue_name=None, use_tg_worker=True,

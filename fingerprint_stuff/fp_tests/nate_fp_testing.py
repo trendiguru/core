@@ -29,7 +29,7 @@ def create_new_collection():
     for x, doc in enumerate(category_stack):
         if x > stack_length:
             break
-        job = q.enqueue(add_new_field, doc, x)
+        job = q.enqueue_call(func=add_new_field, args=(doc, x), ttl=1000, result_ttl=1000, timeout=1000)
         jobs.append(job)
 
     current = db.nate_testing.count()
