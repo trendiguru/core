@@ -1,6 +1,9 @@
 __author__ = 'jeremy'
 import subprocess, signal
 import time
+import os
+
+
 
 from trendi import constants
 
