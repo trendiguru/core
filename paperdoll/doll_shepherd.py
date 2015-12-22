@@ -15,7 +15,8 @@ def kill_pd_workers():
 #break ps output down into lines and loop on them...:
     for line in out.splitlines():
         if string_in_pd_command in line:
-            pid = int(line.split(None, 1)[0])
+            pid = int(line.split(None, 1)[0])  #maybe on a different unix the output doesnt have owqnder
+#            pid = int(line.split(None, 1)[1])
             os.kill(pid, signal.SIGKILL)
 
 def count_pd_workers():
@@ -30,7 +31,7 @@ def count_pd_workers():
     for line in out.splitlines():
         print line
         if string_in_pd_command in line:
-            pid = int(line.split(None, 1)[0])
+            pid = int(line.split(None, 1)[1])
             n = n +1
     return n
 
