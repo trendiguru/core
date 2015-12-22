@@ -69,7 +69,7 @@ RUN  mkdir -p $OPENCV_HOME/opencv-3.0.0/build
 WORKDIR /opt/OpenCV/opencv-3.0.0/build
 
 #for fisherfaces: -DOPENCV_EXTRA_MODULES_PATH=<opencv_contrib>/modules <opencv_source_directory>
-RUN  cmake  .. | tee cmakeout.txt
+RUN  cmake  -D BUILD_NEW_PYTHON_SUPPORT=ON .. | tee cmakeout.txt
 
 #RUN  cmake -D CMAKE_BUILD_TYPE=RELEASE -D CMAKE_INSTALL_PREFIX=$(python -c "import sys; print(sys.prefix)") \
 # -D PYTHON_EXECUTABLE=$(which python) -D BUILD_EXAMPLES=OFF -D INSTALL_C_EXAMPLES=ON -D INSTALL_PYTHON_EXAMPLES=OFF -D INSTALL_TESTS=OFF -D BUILD_opencv_java=OFF \
@@ -136,7 +136,7 @@ RUN sudo apt-get install -y \
 
 
 ###################
-#CAFFE, no GPU
+#CAFFE, with GPU
 ###################
 #docker/caffe/Dockerfile.template
 # Don't edit this file directly, since it was generated from a template,
@@ -189,8 +189,8 @@ RUN update-alternatives --install /usr/bin/cc cc /usr/bin/gcc-4.6 30 && \
 
 #{{ if .GPU }}
 # Allow it to find CUDA libs
-#RUN echo "/usr/local/cuda/lib64" > /etc/ld.so.conf.d/cuda.conf && \
- # ldconfig
+RUN echo "/usr/local/cuda/lib64" > /etc/ld.so.conf.d/cuda.conf && \
+ldconfig
 #{{ end }}
 
 # Clone the Caffe repo
@@ -231,9 +231,9 @@ RUN cd /opt && \
 # Build Caffe core
 #  {{ if .CPU }} echo "CPU_ONLY := 1" >> Makefile.config && \ {{ else }} \ {{ end }}
 #take CPU_ONLY  line out for gpu
+#  echo "CPU_ONLY := 1" >> Makefile.config && \
 RUN cd /opt/caffe && \
   cp Makefile.config.example Makefile.config && \
-  echo "CPU_ONLY := 1" >> Makefile.config && \
   echo "CXX := /usr/bin/g++-4.6" >> Makefile.config && \
   sed -i 's/CXX :=/CXX ?=/' Makefile && \
   make all
