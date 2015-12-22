@@ -34,8 +34,12 @@ def add_new_field(doc, x):
     if not Utils.is_valid_image(image):
         logging.warning("image is None. url: {url}".format(url=image_url))
         return
-    small_image, resize_ratio = background_removal.standard_resize(image, 400)
-    mask = background_removal.get_fg_mask(small_image)
+    try:
+        small_image, resize_ratio = background_removal.standard_resize(image, 400)
+        mask = background_removal.get_fg_mask(small_image)
+    except:
+        print("mask error")
+        return
     # relevance = background_removal.image_is_relevant(image, True, image_url)
     # if relevance.is_relevant:
     #     if len(relevance.faces):
