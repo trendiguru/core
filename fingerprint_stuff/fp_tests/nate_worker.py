@@ -7,16 +7,18 @@ import logging
 
 import numpy as np
 
-from trendi import constants
-from trendi import new_finger_print
-from trendi import Utils
-from trendi import background_removal
+from ... import constants
+from ... import new_finger_print
+from ... import Utils
+from ... import background_removal
 
 db = constants.db
 
 
 def person_isolation(image, face):
     x, y, w, h = face
+    print (face)
+    raw_input("boom!")
     image_copy = np.zeros(image.shape, dtype=np.uint8)
     x_back = np.max([x - 1.5 * w, 0])
     x_ahead = np.min([x + 2.5 * w, image.shape[1] - 2])
