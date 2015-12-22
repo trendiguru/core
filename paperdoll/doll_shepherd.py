@@ -36,9 +36,12 @@ def start_pd_workers(n=constants.N_expected_pd_workers_per_server):
     for i in range(0,n):
         print('attempting to start worker')
         command = constants.pd_worker_command
+        command = 'cd /home/jeremy/paperdoll3/paperdoll-v1.0/'
         print('command:'+command)
         p = subprocess.Popen([command], stdout=subprocess.PIPE)
-
+        command =  '/usr/bin/python /usr/local/bin /rqworker -w rq.tgworker.TgWorker -u redis://redis1-redis-1-vm:6379 pd'
+        print('command:'+command)
+        p = subprocess.Popen([command], stdout=subprocess.PIPE)
 def restart_workers():
     kill_pd_workers()
     time.sleep(2)
