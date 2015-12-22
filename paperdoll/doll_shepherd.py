@@ -29,8 +29,10 @@ def count_pd_workers():
     out, err = p.communicate()
 #break ps output down into lines and loop on them...:
     for line in out.splitlines():
-        print line
+#        print line
         if string_in_pd_command in line:
+            a = line.split(None,1)[1]
+            print a
             pid = int(line.split(None, 1)[1])
             n = n +1
     return n
