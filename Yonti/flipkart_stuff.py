@@ -11,7 +11,7 @@ import requests
 from rq import Queue
 
 from constants import db, flipkart_relevant_categories, flipkart_paperdoll_women, redis_conn
-import dailyDBupdate
+from Yonti import dailyDBupdate
 from fingerprint_core import generate_mask_and_insert
 
 q = Queue('fingerprint_new', connection=redis_conn)
