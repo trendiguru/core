@@ -6,12 +6,12 @@ import string
 import logging
 
 import numpy as np
-
 import cv2
 
 import background_removal
 import constants
-import Utils
+import utils
+
 
 
 
@@ -410,7 +410,7 @@ def regular_fp(img, bounding_box=None, weights=np.ones(fingerprint_length), **kw
     if bounding_box == None:
         print('warning - bad bounding box caught in regular_fp')
         bounding_box = [0, 0, img.shape[1], img.shape[0]]
-    mask = Utils.bb_to_mask(bounding_box, img)
+    mask = utils.bb_to_mask(bounding_box, img)
     fingerprint = fp(img, mask, weights=weights)
     return fingerprint
 
