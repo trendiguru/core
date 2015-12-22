@@ -72,12 +72,14 @@ def add_new_field(doc, x):
         print("specio specio specio scpecio failed")
         return
     try:
+        print('6')
         histo = new_finger_print.histogram_stack_finger_print(image, item_mask)
+        print ('7')
         doc["histo"] = histo
     except:
         print("histo histo histo histo failed")
         return
-
+    print('8')
     db.nate_testing.insert_one(doc)
     print("item " + str(x) + " inserted with success!")
     return
