@@ -11,8 +11,6 @@ from trendi import constants
 from trendi import new_finger_print
 from trendi import Utils
 from trendi import background_removal
-from trendi.paperdoll import paperdoll_parse_enqueue
-from trendi.paperdolls import after_pd_conclusions
 
 db = constants.db
 
@@ -37,35 +35,38 @@ def add_new_field(doc, x):
         logging.warning("image is None. url: {url}".format(url=image_url))
         return
 
-    relevance = background_removal.image_is_relevant(image, True, image_url)
-    if relevance.is_relevant:
-        if len(relevance.faces):
-            if not isinstance(relevance.faces, list):
-                relevant_faces = relevance.faces.tolist()
-            else:
-                relevant_faces = relevance.faces
-            for face in relevant_faces:
-                image_copy = person_isolation(image, face)
-                mask, labels, pose = paperdoll_parse_enqueue.paperdoll_enqueue(image_copy, async=False).result[:3]
-                final_mask = after_pd_conclusions(mask, labels, face)
-                break
-        else:
-            # no faces, only general positive human detection
-            mask, labels, pose = paperdoll_parse_enqueue.paperdoll_enqueue(image, async=False).result[:3]
-            final_mask = after_pd_conclusions(mask, labels)
-
-        item_mask = 255 * np.array(final_mask == final_mask, dtype=np.uint8)
-
-    else:  # if not relevant
-        print("item " + str(x) + " not relevent!")
-        return
-    # try:
-    specio = new_finger_print.spaciogram_finger_print(image, item_mask)
-    doc["specio"] = specio
-    # except:
-    #     print("specio specio specio scpecio failed")
+    small_image, resize_ratio = background_removal.standard_resize(image, 400)
+    mask = background_removal.get_fg_mask(small_image)
+    # relevance = background_removal.image_is_relevant(image, True, image_url)
+    # if relevance.is_relevant:
+    #     if len(relevance.faces):
+    #         if not isinstance(relevance.faces, list):
+    #             relevant_faces = relevance.faces.tolist()
+    #         else:
+    #             relevant_faces = relevance.faces
+    #         for face in relevant_faces:
+    #             image_copy = person_isolation(image, face)
+    #             mask, labels, pose = paperdoll_parse_enqueue.paperdoll_enqueue(image_copy, async=False).result[:3]
+    #             final_mask = after_pd_conclusions(mask, labels, face)
+    #             break
+    #     else:
+    #         # no faces, only general positive human detection
+    #         mask, labels, pose = paperdoll_parse_enqueue.paperdoll_enqueue(image, async=False).result[:3]
+    #         final_mask = after_pd_conclusions(mask, labels)
     #
+    #     item_mask = 255 * np.array(final_mask == final_mask, dtype=np.uint8)
+    #
+    # else:  # if not relevant
+    #     print("item " + str(x) + " not relevent!")
     #     return
+    image = small_image
+    item_mask = mask
+    try:
+        specio = new_finger_print.spaciogram_finger_print(image, item_mask)
+        doc["specio"] = specio
+    except:
+        print("specio specio specio scpecio failed")
+        return
     try:
         histo = new_finger_print.histogram_stack_finger_print(image, item_mask)
         doc["histo"] = histo
