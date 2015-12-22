@@ -136,7 +136,7 @@ RUN sudo apt-get install -y \
 
 
 ###################
-#CAFFE, no GPU
+#CAFFE, with GPU
 ###################
 #docker/caffe/Dockerfile.template
 # Don't edit this file directly, since it was generated from a template,
@@ -189,8 +189,8 @@ RUN update-alternatives --install /usr/bin/cc cc /usr/bin/gcc-4.6 30 && \
 
 #{{ if .GPU }}
 # Allow it to find CUDA libs
-#RUN echo "/usr/local/cuda/lib64" > /etc/ld.so.conf.d/cuda.conf && \
- # ldconfig
+RUN echo "/usr/local/cuda/lib64" > /etc/ld.so.conf.d/cuda.conf && \
+ldconfig
 #{{ end }}
 
 # Clone the Caffe repo
@@ -231,9 +231,9 @@ RUN cd /opt && \
 # Build Caffe core
 #  {{ if .CPU }} echo "CPU_ONLY := 1" >> Makefile.config && \ {{ else }} \ {{ end }}
 #take CPU_ONLY  line out for gpu
+#  echo "CPU_ONLY := 1" >> Makefile.config && \
 RUN cd /opt/caffe && \
   cp Makefile.config.example Makefile.config && \
-  echo "CPU_ONLY := 1" >> Makefile.config && \
   echo "CXX := /usr/bin/g++-4.6" >> Makefile.config && \
   sed -i 's/CXX :=/CXX ?=/' Makefile && \
   make all
