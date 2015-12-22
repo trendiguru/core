@@ -10,12 +10,12 @@ string_in_pd_command = 'rq.tgworker'
 def kill_pd_workers():
     #full command to start worker is:
  #   cd /home/jeremy/paperdoll/usr/bin/python /usr/local/bin /rqworker -w rq.tgworker.TgWorker -u redis://redis1-redis-1-vm:6379 pd
-    p = subprocess.Popen(['ps', '-A'], stdout=subprocess.PIPE)
+    p = subprocess.Popen(['ps', '-auxw'], stdout=subprocess.PIPE)
     out, err = p.communicate()
 #break ps output down into lines and loop on them...:
     for line in out.splitlines():
         if string_in_pd_command in line:
-            pid = int(line.split(None, 1)[0])  #maybe on a different unix the output doesnt have owqnder
+            pid = int(line.split(None, 1)[1])  #maybe on a different unix the output doesnt have owqnder
             print('pid to kill:'+str(pid))
 #            pid = int(line.split(None, 1)[1])
             r = os.kill(pid, signal.SIGKILL)
