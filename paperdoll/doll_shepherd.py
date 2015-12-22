@@ -43,7 +43,7 @@ def restart_workers():
     time.sleep(2)
     start_pd_workers()
 
-if __name__ == "__main__"
+if __name__ == "__main__":
     while 1:
         n = count_pd_workers()
         print(str(n)+' workers online')
