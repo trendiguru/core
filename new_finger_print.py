@@ -97,8 +97,8 @@ def histogram_stack_finger_print(image, mask):
         circ_spaciogram, xedges, yedges = np.histogram2d(circ_sample, channel, bins, normed=True, weights=None)
         spaciogram.append(np.hstack([skell_spaciogram.flatten(), circ_spaciogram.flatten()]))
     spaciogram = np.concatenate(spaciogram, axis=0)
-    print spaciogram
-    print spaciogram.shape
+    # print spaciogram
+    # print spaciogram.shape
     return spaciogram
 
 def channles_of_image(image):
