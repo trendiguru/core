@@ -47,6 +47,6 @@ if __name__ == "__main__":
     while 1:
         n = count_pd_workers()
         print(str(n)+' workers online')
-        if n<constants.N_expected_pd_workers_per_server
+        if n<constants.N_expected_pd_workers_per_server:
             start_pd_workers(constants.N_expected_pd_workers_per_server-n)
         time.sleep(10)
