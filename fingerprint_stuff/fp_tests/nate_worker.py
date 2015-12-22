@@ -54,12 +54,8 @@ def add_new_field(doc, x):
             mask, labels, pose = paperdoll_parse_enqueue.paperdoll_enqueue(image, async=False).result[:3]
             final_mask = after_pd_conclusions(mask, labels)
 
-        for num in np.unique(final_mask):
-            # convert numbers to labels
-            category = list(labels.keys())[list(labels.values()).index(num)]
-            if category is 'dress':
-                item_mask = 255 * np.array(final_mask == num, dtype=np.uint8)
-                break
+        item_mask = 255 * np.array(final_mask == final_mask, dtype=np.uint8)
+
     else:  # if not relevant
         print("item " + str(x) + " not relevent!")
         return
