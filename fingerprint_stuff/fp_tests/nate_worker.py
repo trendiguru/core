@@ -34,9 +34,11 @@ def add_new_field(doc, x):
     if not Utils.is_valid_image(image):
         logging.warning("image is None. url: {url}".format(url=image_url))
         return
-
+    print ('1')
     small_image, resize_ratio = background_removal.standard_resize(image, 400)
+    print ('2')
     mask = background_removal.get_fg_mask(small_image)
+    print ('3')
     # relevance = background_removal.image_is_relevant(image, True, image_url)
     # if relevance.is_relevant:
     #     if len(relevance.faces):
@@ -62,8 +64,10 @@ def add_new_field(doc, x):
     image = small_image
     item_mask = mask
     try:
+        print ('4')
         specio = new_finger_print.spaciogram_finger_print(image, item_mask)
         doc["specio"] = specio
+        print ('5')
     except:
         print("specio specio specio scpecio failed")
         return
