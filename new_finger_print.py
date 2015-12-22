@@ -19,9 +19,9 @@ def spaciogram_finger_print(image, mask):
     # check if mas is binary, 0/1, or 0/255:
 
     ############ CALCS ############
-    # B, G, R, B/G, G/R, R/B ,edge distance, skeleton distance, channels:
+    # color channels ,edge distance, skeleton distance, channels:
 
-    bins = 6
+    bins = 8
 
     # limiting the image size for a quicker calculation:
     limit = [1000, 1000]
@@ -35,7 +35,7 @@ def spaciogram_finger_print(image, mask):
 
     # changing to an exact eucledian space model of color:
     image = cv2.cvtColor(image, cv2.COLOR_BGR2LAB)
-    channels_list = channles_of_BGR_image(image)
+    channels_list = channles_of_image(image)
     skell_dist  = skeleton_distance(mask)
     circ_dist = circumfrence_distance(mask)
     sample = []
@@ -44,7 +44,9 @@ def spaciogram_finger_print(image, mask):
     sample.append(skell_dist[mask>0].flatten())
     sample.append(circ_dist[mask>0].flatten())
     spaciogram, edges = np.histogramdd(sample, bins, normed=True, weights=None)
-    spaciogram = spaciogram.flatten()
+    # spaciogram = spaciogram.flatten()
+    # print spaciogram
+    # print spaciogram.shape
     return spaciogram
 
 def histogram_stack_finger_print(image, mask):
@@ -64,7 +66,7 @@ def histogram_stack_finger_print(image, mask):
     # check if mas is binary, 0/1, or 0/255:
 
     ############ CALCS ############
-    # B, G, R, B/G, G/R, R/B ,edge distance, skeleton distance, channels:
+    # color channels ,edge distance, skeleton distance, channels:
 
     bins = 10
 
@@ -80,7 +82,7 @@ def histogram_stack_finger_print(image, mask):
 
     # changing to an exact eucledian space model of color:
     image = cv2.cvtColor(image, cv2.COLOR_BGR2LAB)
-    channels_list = channles_of_BGR_image(image)
+    channels_list = channles_of_image(image)
     skell_dist  = skeleton_distance(mask)
     circ_dist = circumfrence_distance(mask)
     sample = []
@@ -99,7 +101,7 @@ def histogram_stack_finger_print(image, mask):
     print spaciogram.shape
     return spaciogram
 
-def channles_of_BGR_image(image):
+def channles_of_image(image):
     '''
     :param image: cv2.BGR arrangement (numpy.array) - a must!
     :return image_listing: list of analysis images (list of numpy.array)
