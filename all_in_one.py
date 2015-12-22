@@ -11,16 +11,16 @@ import copy
 import numpy as np
 import bson
 
-import Utils
-import background_removal
-from .paperdoll import paperdoll_parse_enqueue
-from paperdolls import after_pd_conclusions
-import constants
-import fingerprint_core as fp
-import NNSearch
-from .fingerprint_stuff.fp_tests import mr8_worker
-import page_results
-import find_similar_mongo
+from trendi import Utils
+from trendi import background_removal
+from trendi.paperdoll import paperdoll_parse_enqueue
+from trendi.paperdolls import after_pd_conclusions
+from trendi import constants
+from trendi import fingerprint_core as fp
+from trendi import NNSearch
+from trendi.fingerprint_stuff.fp_tests import mr8_worker
+from trendi import page_results
+from trendi import find_similar_mongo
 
 bins = constants.histograms_length
 fp_len = constants.fingerprint_length
