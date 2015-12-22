@@ -36,6 +36,7 @@ def start_pd_workers(n=constants.N_expected_pd_workers_per_server):
     for i in range(0,n):
         print('attempting to start worker')
         command = constants.pd_worker_command
+        print('command:'+command)
         p = subprocess.Popen([command], stdout=subprocess.PIPE)
 
 def restart_workers():
