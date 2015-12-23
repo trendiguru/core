@@ -18,10 +18,9 @@ config{1}.scale = 200;
 config{1}.model.thresh = -2;
 
 result = feature_calculator.apply(config, input_sample)
-if  isfield(result, 'final_labeling')
+if  ~isfield(result, 'final_labeling')
     % paperdoll failed to return result
     disp('XXXXXXXXXXisfield switch enteredXXXXXXX');
-
     return
 end
 
