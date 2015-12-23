@@ -16,7 +16,8 @@ theLobby = 0
 
 
 def scrapLinks(url, floor):
-    print colored("Crawling %s" % url, "yellow")
+    url_printable = url.encode('ascii', 'ignore')  # conversion of unicode type to string type
+    print colored("Crawling %s" % url_printable, "yellow")
     exists = db.crawler_processed.find_one({"url": url})
     if exists:
         print ("url already exists... scraper skips")
@@ -31,7 +32,8 @@ def scrapLinks(url, floor):
             response = requests.get(url)
         except (requests.exceptions.MissingSchema, requests.exceptions.ConnectionError):
             # ignore pages with errors
-            print colored("Crawl fail for %s" % url, "red")
+            url_printable = url.encode('ascii', 'ignore')  # conversion of unicode type to string type
+            print colored("Crawl fail for %s" % url_printable, "red")
             return
         # create a beutiful soup for the html document
         soup = BeautifulSoup(response.text, "html.parser")
@@ -51,7 +53,8 @@ def scrapLinks(url, floor):
                 print ("new link already exists... not enqueued")
             else:
                 scrap_q.enqueue(scrapLinks, link, floor)
-    print colored("%s sent to BrowseMe" % url, "green")
+    url_printable = url.encode('ascii', 'ignore')  # conversion of unicode type to string type
+    print colored("%s sent to BrowseMe" % url_printable, "green")
     browse_q.enqueue(runExt, url)
     return
 
