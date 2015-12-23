@@ -15,7 +15,8 @@ theLobby = 0
 
 
 def scrapLinks(url, floor):
-    print("Crawling %s" % url)
+    url_printable = url.encode('ascii', 'ignore')  # conversion of unicode type to string type
+    print("Crawling %s" % url_printable)
     exists = db.crawler_processed.find_one({"url": url})
     if exists:
         print ("url already exists... scraper skips")
