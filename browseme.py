@@ -1,12 +1,13 @@
 __author__ = 'yonatan'
 import time
 
+from termcolor import colored
 from selenium import webdriver
 
 
 def runExt(url):
     from pyvirtualdisplay import Display
-    print("Running Extension on %s" % url)
+    print colored("Running Extension on %s" % url, "yellow")
 
     # enable browser logging
     display = Display(visible=0, size=(1024, 768))
@@ -22,9 +23,9 @@ def runExt(url):
             script = "scroll(" + str(x * 500) + "," + str(x * 500 + 500) + ")"
             driver.execute_script(script)
             time.sleep(0.25)
-        print ("execute Success!!!")
+        print colored("execute Success!!!", "green")
     except:
-        print ("execute Failed!!!")
+        print colored("execute Failed!!!", "red")
 
     driver.quit()
     display.popen.terminate()

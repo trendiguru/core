@@ -30,7 +30,6 @@ def scrapLinks(url, floor):
             response = requests.get(url)
         except (requests.exceptions.MissingSchema, requests.exceptions.ConnectionError):
             # ignore pages with errors
-            url = url.encode('ascii', 'ignore')  # conversion of unicode type to string type
             print("Crawl fail for %s" % url)
             return
         # create a beutiful soup for the html document
