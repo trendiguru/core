@@ -299,13 +299,16 @@ def get_fg_mask(image, bounding_box=None):
     # grabcut on the whole image, with/without face
     else:
         faces_dict = find_face_cascade(image)
-        if len(faces_dict['faces']) > 0:  # grabcut with mask
-            rectangles = body_estimation(image, faces_dict['faces'][0])
-            mask = create_mask_for_gc(rectangles, image)
-            cv2.grabCut(image, mask, rect, bgdmodel, fgdmodel, 1, cv2.GC_INIT_WITH_MASK)
-        else:  # grabcut with arbitrary rect
-            mask = create_arbitrary(image)
-            cv2.grabCut(image, mask, rect, bgdmodel, fgdmodel, 1, cv2.GC_INIT_WITH_RECT)
+        # if len(faces_dict['faces']) > 0:  # grabcut with mask
+        #     try:
+        #         rectangles = body_estimation(image, faces_dict['faces'][0])
+        #         mask = create_mask_for_gc(rectangles, image)
+        #     except:
+        #         mask = create_mask_for_gc(image)
+        #
+        # else:  # grabcut with arbitrary rect
+        mask = create_arbitrary(image)
+        cv2.grabCut(image, mask, rect, bgdmodel, fgdmodel, 1, cv2.GC_INIT_WITH_RECT)
 
     mask2 = np.where((mask == 1) + (mask == 3), 255, 0).astype(np.uint8)
     return mask2

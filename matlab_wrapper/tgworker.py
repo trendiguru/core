@@ -117,8 +117,8 @@ class TgWorker(Worker):
     def execute_job(self, *args, **kwargs):
         """Execute job in same thread/process, do not fork()"""
         print('executing from tgworker')
-        DEFAULT_WORKER_TTL = 420
-        DEFAULT_RESULT_TTL = 500
+        DEFAULT_WORKER_TTL = 1000
+        DEFAULT_RESULT_TTL = 1000
         logger = logging.getLogger(__name__)
         logger.info('checking engine in ej')
         print('checking to start engine in ej')

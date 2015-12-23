@@ -5,7 +5,7 @@ from itertools import chain
 import cv2
 import numpy as np
 
-import MR8filters
+from . import MR8filters
 
 
 def is_relevant_head(first_head):

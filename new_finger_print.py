@@ -19,9 +19,9 @@ def spaciogram_finger_print(image, mask):
     # check if mas is binary, 0/1, or 0/255:
 
     ############ CALCS ############
-    # B, G, R, B/G, G/R, R/B ,edge distance, skeleton distance, channels:
+    # color channels ,edge distance, skeleton distance, channels:
 
-    bins = 6
+    bins = 8
 
     # limiting the image size for a quicker calculation:
     limit = [1000, 1000]
@@ -33,16 +33,20 @@ def spaciogram_finger_print(image, mask):
         image = cv2.resize(image, (int(newx), int(newy)), interpolation=resize_interpulation)
         mask = cv2.resize(mask, (int(newx), int(newy)), interpolation=resize_interpulation)
 
-    BGR_channels_list = channles_of_BGR_image(image)
+    # changing to an exact eucledian space model of color:
+    image = cv2.cvtColor(image, cv2.COLOR_BGR2LAB)
+    channels_list = channles_of_image(image)
     skell_dist  = skeleton_distance(mask)
     circ_dist = circumfrence_distance(mask)
     sample = []
-    for channel in BGR_channels_list:
+    for channel in channels_list:
         sample.append(channel[mask>0].flatten())
     sample.append(skell_dist[mask>0].flatten())
     sample.append(circ_dist[mask>0].flatten())
     spaciogram, edges = np.histogramdd(sample, bins, normed=True, weights=None)
-    spaciogram = spaciogram.flatten()
+    # spaciogram = spaciogram.flatten()
+    # print spaciogram
+    # print spaciogram.shape
     return spaciogram
 
 def histogram_stack_finger_print(image, mask):
@@ -62,7 +66,7 @@ def histogram_stack_finger_print(image, mask):
     # check if mas is binary, 0/1, or 0/255:
 
     ############ CALCS ############
-    # B, G, R, B/G, G/R, R/B ,edge distance, skeleton distance, channels:
+    # color channels ,edge distance, skeleton distance, channels:
 
     bins = 10
 
@@ -76,11 +80,13 @@ def histogram_stack_finger_print(image, mask):
         image = cv2.resize(image, (int(newx), int(newy)), interpolation=resize_interpulation)
         mask = cv2.resize(mask, (int(newx), int(newy)), interpolation=resize_interpulation)
 
-    BGR_channels_list = channles_of_BGR_image(image)
+    # changing to an exact eucledian space model of color:
+    image = cv2.cvtColor(image, cv2.COLOR_BGR2LAB)
+    channels_list = channles_of_image(image)
     skell_dist  = skeleton_distance(mask)
     circ_dist = circumfrence_distance(mask)
     sample = []
-    for channel in BGR_channels_list:
+    for channel in channels_list:
         sample.append(channel[mask>0].flatten())
 
     skell_sample = skell_dist[mask>0].flatten()
@@ -91,11 +97,11 @@ def histogram_stack_finger_print(image, mask):
         circ_spaciogram, xedges, yedges = np.histogram2d(circ_sample, channel, bins, normed=True, weights=None)
         spaciogram.append(np.hstack([skell_spaciogram.flatten(), circ_spaciogram.flatten()]))
     spaciogram = np.concatenate(spaciogram, axis=0)
-    print spaciogram
-    print spaciogram.shape
+    # print spaciogram
+    # print spaciogram.shape
     return spaciogram
 
-def channles_of_BGR_image(image):
+def channles_of_image(image):
     '''
     :param image: cv2.BGR arrangement (numpy.array) - a must!
     :return image_listing: list of analysis images (list of numpy.array)

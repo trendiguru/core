@@ -75,7 +75,9 @@ def find_top_n_results(image, mask, number_of_results=10, category_id=None, coll
     '''
     fp_weights = constants.fingerprint_weights
     collection = db[collection]
-
+    print "query collection name is: {0}".format(str(collection))
+    print "number of results to search: {0}".format(number_of_results)
+    print "category: {0}".format(category_id)
     subcategory_id_list = get_all_subcategories(db.categories, category_id)
 
     # get all items in the subcategory/keyword
@@ -90,7 +92,7 @@ def find_top_n_results(image, mask, number_of_results=10, category_id=None, coll
     closest_matches = NNSearch.find_n_nearest_neighbors(target_dict, potential_matches_cursor, number_of_results,
                                                         fp_weights, bins, fp_category, distance_function)
 
-    print "done with find_n_nearest.."
+    print "done with find_n_nearest.. num of closest_matches: {0}".format(len(closest_matches))
     # get only the object itself, not the distance
     closest_matches = [match_tuple[0] for match_tuple in closest_matches]
 

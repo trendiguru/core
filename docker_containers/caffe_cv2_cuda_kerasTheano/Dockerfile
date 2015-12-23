@@ -1,6 +1,5 @@
-#{{ if .GPU }}
-FROM tleyden5iwx/ubuntu-cuda
 #FROM ubuntu:14.04
+FROM tleyden5iwx/ubuntu-cuda
 #increase the available sources for installs
 RUN sed -i 's/# \(.*multiverse$\)/\1/g' /etc/apt/sources.list
 RUN apt-get update
@@ -31,6 +30,51 @@ RUN pip install numpy
 RUN pip install pyparsing
 RUN pip install pytz
 #RUN pip install matplotlib
+RUN apt-get install -y git
+
+
+################
+#numpy scipy
+###############
+RUN sudo apt-get install -y \
+    python-numpy  \
+    python-scipy  \
+    python-matplotlib   \
+    ipython   \
+    ipython-notebook    \
+    python-pandas     \
+    python-sympy     \
+    python-nose
+
+###############
+#Theano
+###############
+RUN pip install git+git://github.com/Theano/Theano.git
+
+
+###############
+# Keras
+###############
+#numpy, scipy donen above
+
+#pyyaml
+RUN apt-get install -y libyaml-dev libpython2.7-dev
+RUN pip install pyyaml
+
+#HDF5 and h5py (optional, required if you use model saving/loading functions)
+RUN apt-get install -y libhdf5-serial-dev
+RUN pip install h5py
+
+#Optional but recommended if you use CNNs: cuDNN.
+#When using the Theano backend: - Theano - See installation instructions.
+#Note: You should use the latest version of Theano, not the PyPI version.
+#Install it with:*sudo pip install git+git://github.com/Theano/Theano.git*
+#When using the TensorFlow backend: - TensorFlow - See installation instructions.
+#To install Keras, cd to the Keras folder and run the install command:​sudo python setup.py install
+
+RUN pip install keras
+
+
 
 
 #these scripts are to check port forwarding with a single command
@@ -40,7 +84,7 @@ RUN pip install pytz
 #RUN chmod o+x portredis.sh
 
 ##############################
-#OPENCV 3.0, no gpu
+#OPENCV 3.0 WITH GPU
 ##############################
 
 MAINTAINER Jeremy Rutman <jeremy@trendiguru.com>
@@ -69,7 +113,12 @@ RUN  mkdir -p $OPENCV_HOME/opencv-3.0.0/build
 WORKDIR /opt/OpenCV/opencv-3.0.0/build
 
 #for fisherfaces: -DOPENCV_EXTRA_MODULES_PATH=<opencv_contrib>/modules <opencv_source_directory>
-RUN  cmake  -D BUILD_NEW_PYTHON_SUPPORT=ON .. | tee cmakeout.txt
+#RUN  cmake  .. | tee cmakeout.txt
+#below is for gpu-ready cv2
+RUN cmake -D CMAKE_BUILD_TYPE=RELEASE -D CMAKE_INSTALL_PREFIX=/usr/local -D WITH_TBB=ON \
+-D BUILD_NEW_PYTHON_SUPPORT=ON -D WITH_V4L=ON -D INSTALL_C_EXAMPLES=ON -D INSTALL_PYTHON_EXAMPLES=ON \
+-D BUILD_EXAMPLES=ON -D WITH_QT=ON -D WITH_OPENGL=ON -D ENABLE_FAST_MATH=1 -D CUDA_FAST_MATH=1 \
+-D WITH_CUBLAS=1 .. | tee cmakeout.txt
 
 #RUN  cmake -D CMAKE_BUILD_TYPE=RELEASE -D CMAKE_INSTALL_PREFIX=$(python -c "import sys; print(sys.prefix)") \
 # -D PYTHON_EXECUTABLE=$(which python) -D BUILD_EXAMPLES=OFF -D INSTALL_C_EXAMPLES=ON -D INSTALL_PYTHON_EXAMPLES=OFF -D INSTALL_TESTS=OFF -D BUILD_opencv_java=OFF \
@@ -78,12 +127,15 @@ RUN  cmake  -D BUILD_NEW_PYTHON_SUPPORT=ON .. | tee cmakeout.txt
 #RUN  cmake -D CMAKE_BUILD_TYPE=RELEASE -D CMAKE_INSTALL_PREFIX=/usr/local -D WITH_TBB=ON -D BUILD_NEW_PYTHON_SUPPORT=ON \
 # -D WITH_V4L=ON -D INSTALL_C_EXAMPLES=ON -D INSTALL_PYTHON_EXAMPLES=ON -D BUILD_EXAMPLES=ON -D WITH_QT=OFF -D WITH_OPENGL=ON -D BUILD_opencv_nonfree=ON ..
 
-RUN  make -j8 | tee makeout.txt
+RUN  make all -j8 | tee makeout.txt
 RUN  make install | tee installout.txt
 
+##configure lib search path
 RUN  sh -c 'echo "/usr/local/lib" > /etc/ld.so.conf.d/opencv.conf'
 RUN  ldconfig
 RUN  echo "OpenCV 3.0.0 is ready to be used"
+#RUN printf '# OpenCV\nPKG_CONFIG_PATH=$PKG_CONFIG_PATH:/usr/local/lib/pkgconfig\nexport PKG_CONFIG_PATH\n' >> ~/.bashrc
+#RUN source ~/.bashrc
 
 RUN export PYTHONPATH=/usr/local/lib/python2.7/site-packages:$PYTHONPATH
 
@@ -121,39 +173,27 @@ RUN pip install rq
 
 
 
-################
-#numpy scipy
-###############
-RUN sudo apt-get install -y \
-    python-numpy  \
-    python-scipy  \
-    python-matplotlib   \
-    ipython   \
-    ipython-notebook    \
-    python-pandas     \
-    python-sympy     \
-    python-nose
-
 
 ###################
-#CAFFE, with GPU
+#CAFFE WITH GPU
 ###################
-#docker/caffe/Dockerfile.template
-# Don't edit this file directly, since it was generated from a template,
-# and you're changes will be *clobbered*.  Edit the template instead.
+#caffe reqs:
+#anaconda
 
-#{{ if .GPU }}
-#FROM tleyden5iwx/ubuntu-cuda
-#{{ else }}
-#FROM ubuntu:14.04
-#{{ end }}
+ #libgflags.a, libgflags_nothreads.a,
+
+
+RUN sudo apt-get install -y libgflags-dev
+
 
 ENV PYTHONPATH /opt/caffe/python
-
 # Add caffe binaries to path
 ENV PATH $PATH:/opt/caffe/.build_release/tools
 
 # Get dependencies
+
+RUN apt-get install -y python-yaml
+
 RUN apt-get update && apt-get install -y \
   bc \
   cmake \
@@ -169,6 +209,7 @@ RUN apt-get update && apt-get install -y \
   libsnappy-dev \
   libopencv-dev \
   libboost-all-dev \
+#sudo apt-get install --no-install-recommends libboost-all-dev   #maybe this instead
   libhdf5-serial-dev \
   liblmdb-dev \
   libjpeg62 \
@@ -187,25 +228,18 @@ RUN update-alternatives --install /usr/bin/cc cc /usr/bin/gcc-4.6 30 && \
   update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-4.6 30 && \
   update-alternatives --install /usr/bin/g++ g++ /usr/bin/g++-4.6 30
 
-#{{ if .GPU }}
-# Allow it to find CUDA libs
-RUN echo "/usr/local/cuda/lib64" > /etc/ld.so.conf.d/cuda.conf && \
-ldconfig
-#{{ end }}
 
-# Clone the Caffe repo
-RUN cd /opt && git clone https://github.com/BVLC/caffe.git
-#{{ if .DEVELOP_BRANCH }}
-#RUN cd /opt/caffe && git checkout -t origin/dev
-#{{ end }}
+RUN  export CXXFLAGS="-fPIC"
+
 
 # Glog
-RUN cd /opt && wget https://google-glog.googlecode.com/files/glog-0.3.3.tar.gz && \
-  tar zxvf glog-0.3.3.tar.gz && \
-  cd /opt/glog-0.3.3 && \
-  ./configure && \
-  make && \
-  make install
+WORKDIR /opt
+RUN wget https://google-glog.googlecode.com/files/glog-0.3.3.tar.gz
+RUN tar zxvf glog-0.3.3.tar.gz
+WORKDIR /opt/glog-0.3.3
+RUN  ./configure
+RUN  make
+RUN  make install
 
 # Workaround for error loading libglog:
 #   error while loading shared libraries: libglog.so.0: cannot open shared object file
@@ -216,27 +250,56 @@ RUN cd /opt && wget https://google-glog.googlecode.com/files/glog-0.3.3.tar.gz &
 RUN ldconfig
 
 # Gflags
-RUN cd /opt && \
-  wget https://github.com/schuhschuh/gflags/archive/master.zip && \
-  unzip master.zip && \
-  cd /opt/gflags-master && \
-  mkdir build && \
-  cd /opt/gflags-master/build && \
-  export CXXFLAGS="-fPIC" && \
-  cmake .. && \
-  make VERBOSE=1 && \
-  make && \
-  make install
+WORKDIR /opt
+RUN  wget https://github.com/schuhschuh/gflags/archive/master.zip
+RUN  unzip master.zip
+WORKDIR gflags-master
+RUN  mkdir build
+WORKDIR  /opt/gflags-master/build
+#this export is not enough to force -fPIC
+RUN  export CXXFLAGS="-fPIC"
+
+RUN  cmake ..
+#this seems to suffice to force -fPIC (needed since otherwise the .a generated is no good for caffe)
+RUN  sed -i 's/CMAKE_CXX_FLAGS:STRING=/CMAKE_CXX_FLAGS:STRING=-fPIC/' CMakeCache.txt
+RUN  sed -i 's/CXX :=/CXX ?=/' Makefile
+RUN  make VERBOSE=1
+RUN  make
+RUN  make install
+
+#LMDB
+WORKDIR /opt
+RUN git clone https://github.com/LMDB/lmdb
+WORKDIR /opt/lmdb/libraries/liblmdb
+RUN make
+RUN make install
+
+
+# Clone the Caffe repo
+WORKDIR /opt
+RUN git clone https://github.com/BVLC/caffe.git
 
 # Build Caffe core
-#  {{ if .CPU }} echo "CPU_ONLY := 1" >> Makefile.config && \ {{ else }} \ {{ end }}
-#take CPU_ONLY  line out for gpu
-#  echo "CPU_ONLY := 1" >> Makefile.config && \
-RUN cd /opt/caffe && \
-  cp Makefile.config.example Makefile.config && \
-  echo "CXX := /usr/bin/g++-4.6" >> Makefile.config && \
-  sed -i 's/CXX :=/CXX ?=/' Makefile && \
-  make all
+WORKDIR /opt/caffe
+
+RUN cp Makefile.config.example Makefile.config
+RUN  sed -i 's/# CPU_ONLY := 1/CPU_ONLY := 0/' Makefile.config
+RUN echo "CPU_ONLY := 0" >> Makefile.config
+RUN echo "CXX := /usr/bin/g++-4.6" >> Makefile.config
+RUN sed -i 's/CXX :=/CXX ?=/' Makefile
+#fPIC keeps screwing things up
+RUN sed -i 's/CXXFLAGS += /CXXFLAGS += -fPIC /' Makefile
+RUN sed -i 's/LIBRARIES += opencv_core opencv_highgui opencv_imgproc/LIBRARIES += opencv_core opencv_highgui opencv_imgproc opencv_imgcodecs/' Makefile
+RUN mkdir build
+#WORKDIR build
+#yet more fPIC madness
+#RUN sed -i 's/CMAKE_CXX_FLAGS:STRING=/CMAKE__FLAGS:STRING=-fPIC /' CMakeCache.txt
+
+#RUN cmake ..
+#RUN ./configure
+RUN make all
+RUN make test
+RUN make runtest
 
 # Add ld-so.conf so it can find libcaffe.so
 ADD caffe-ld-so.conf /etc/ld.so.conf.d/
@@ -245,20 +308,19 @@ ADD caffe-ld-so.conf /etc/ld.so.conf.d/
 RUN ldconfig
 
 # Install python deps
-RUN cd /opt/caffe && \
-  cat python/requirements.txt | xargs -L 1 sudo pip install
+WORKDIR /opt/caffe
+RUN (pip install -r python/requirements.txt; easy_install numpy; pip install -r python/requirements.txt) && \
+  easy_install pillow
 
-# Numpy include path hack - github.com/BVLC/caffe/wiki/Ubuntu-14.04-VirtualBox-VM
-RUN ln -s /usr/include/python2.7/ /usr/local/include/python2.7 && \
-  ln -s /usr/local/lib/python2.7/dist-packages/numpy/core/include/numpy/ /usr/local/include/python2.7/numpy
+
+#apparently not necessary after numpy install above
+# Numpy include path hack - github.com/BVLC/caffe/wiki/Setting-up-Caffe-on-Ubuntu-14.04
+#RUN NUMPY_EGG=`ls /usr/local/lib/python2.7/dist-packages | grep -i numpy` && \
+#  ln -s /usr/local/lib/python2.7/dist-packages/$NUMPY_EGG/numpy/core/include/numpy /usr/include/python2.7/numpy
 
 # Build Caffe python bindings
-RUN cd /opt/caffe && make pycaffe
-
-#{{ if .CPU }}
-# Make + run tests
-RUN cd /opt/caffe && make test && make runtest
-
+#WORKDIR /opt/caffe
+RUN make pycaffe
 
 
 
@@ -276,15 +338,6 @@ RUN ./data/ilsvrc12/get_ilsvrc_aux.sh
 RUN ./build/examples/cpp_classification/classification.bin ./models/bvlc_reference_caffenet/deploy.prototxt ./models/bvlc_reference_caffenet/bvlc_reference_caffenet.caffemodel ./data/ilsvrc12/imagenet_mean.binaryproto ./data/ilsvrc12/synset_words.txt ./examples/images/cat.jpg
 
 
-#no longer n
-###################
-# CUDA
-###################
-#get cuda
-#RUN wget http://developer.download.nvidia.com/compute/cuda/repos/ubuntu1404/x86_64/cuda-repo-ubuntu1404_7.5-18_amd64.deb
-#RUN dpkg -i cuda-repo-ubuntu1404_7.5-18_amd64.deb
-#RUN apt-get update
-#RUN apt-get install -y cuda
 
 
 
@@ -334,5 +387,6 @@ CMD ssh -i /.ssh/first_aws.pem -L 27017:localhost:27017 ubuntu@extremeli.trendi.
 
 RUN rqworker -u redis://redis1-redis-1-vm:6379 caffe_general &
 #RUN rqworker gender &
+
 
 

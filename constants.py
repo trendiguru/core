@@ -16,6 +16,15 @@ fingerprint_weights = [0.05, 0.5, 0.225, 0.225]
 K = 0.5                     # for euclidean distance
 min_bb_to_image_area_ratio = 0.95  # if bb takes more than this fraction of image area then use  cv2.GC_INIT_WITH_RECT instead of init with mask
 
+
+##############
+# rq / worker stuff
+##############
+
+pd_worker_command =  'cd /home/jeremy/paperdoll3/paperdoll-v1.0/ && /usr/bin/python /usr/local/bin/rqworker -w rq.tgworker.TgWorker -u redis://redis1-redis-1-vm:6379 pd &'
+N_expected_pd_workers_per_server = 15
+
+
 #########
 # DB stuff
 #########
@@ -31,7 +40,10 @@ redis_conn = Redis(host="redis1-redis-1-vm")
 redis_conn_old = Redis()
 update_collection_name = 'products'
 
-# caffe stuff
+############
+## caffe stuff
+############
+
 caffeRelevantLabels = [601, 608, 610, 614, 617, 638, 639, 655, 689, 697, 735, 775, 834, 841, 264, 401, 400]
 
 # fp rating related constants
@@ -223,6 +235,7 @@ Reserve_cpus = 2  # number of cpus to not use when doing stuff in parallel
 gender_ttl = 5  # 10 seconds ttl , answer should be nearly immediate
 paperdoll_ttl = 90  # seconds to wait for paperdoll result
 caffe_general_ttl = 30  # seconds to wait for paperdoll result
+general_ttl = 1000  # ttl of all queues
 
 # QC worker voting params
 
