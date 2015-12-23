@@ -7,9 +7,9 @@ disp(['the image sent to pd in matlab is:' image_filename])
 %profile on
 tic
 
-mask=[]
-label_names = []
-pose = []
+mask=[];
+label_names = [];
+pose = [];
 load data/paperdoll_pipeline.mat config;
 addpath(genpath('.'))
 input_image = imread(image_filename);
@@ -20,7 +20,7 @@ config{1}.model.thresh = -2;
 result = feature_calculator.apply(config, input_sample)
 if  isfield(result, 'final_labeling')
     % paperdoll failed to return result
-    disp('isfield switch entered');
+    disp('XXXXXXXXXXisfield switch enteredXXXXXXX');
 
     return
 end
