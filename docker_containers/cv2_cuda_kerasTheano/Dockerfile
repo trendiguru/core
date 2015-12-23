@@ -258,12 +258,20 @@ RUN pip install rq
 ## TG GIT CLONE ##
 ## TG GIT CLONE ##
 
+RUN export uid=1000 gid=1000 && \
+    mkdir -p /home/developer && \
+    echo "developer:x:${uid}:${gid}:Developer,,,:/home/developer:/bin/bash" >> /etc/passwd && \
+    echo "developer:x:${uid}:" >> /etc/group && \
+    echo "developer ALL=(ALL) NOPASSWD: ALL" > /etc/sudoers.d/developer && \
+    chmod 0440 /etc/sudoers.d/developer && \
+    chown ${uid}:${gid} -R /home/developer
+
+
 RUN apt-get update
 RUN apt-get install -y ca-certificates
 #RUN apt-get install -y git-core
 RUN apt-get install -y --force-yes git
 RUN apt-get install -y ssh
-RUN mkdir /home/developer
 ENV HOME /home/developer
 ADD ssh/ /home/developer/.ssh/
 
