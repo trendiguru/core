@@ -4,8 +4,9 @@ from bs4 import BeautifulSoup
 import requests
 import requests.exceptions
 from rq import Queue
+from termcolor import colored
 
-from browseme import runExt
+from .browseme import runExt
 import constants
 
 browse_q = Queue('BrowseMe', connection=constants.redis_conn)
@@ -15,7 +16,7 @@ theLobby = 0
 
 
 def scrapLinks(url, floor):
-    print("Crawling %s" % url)
+    print colored("Crawling %s" % url, "yellow")
     exists = db.crawler_processed.find_one({"url": url})
     if exists:
         print ("url already exists... scraper skips")
@@ -30,7 +31,7 @@ def scrapLinks(url, floor):
             response = requests.get(url)
         except (requests.exceptions.MissingSchema, requests.exceptions.ConnectionError):
             # ignore pages with errors
-            print("Crawl fail for %s" % url)
+            print colored("Crawl fail for %s" % url, "red")
             return
         # create a beutiful soup for the html document
         soup = BeautifulSoup(response.text, "html.parser")
@@ -50,7 +51,7 @@ def scrapLinks(url, floor):
                 print ("new link already exists... not enqueued")
             else:
                 scrap_q.enqueue(scrapLinks, link, floor)
-
+    print colored("%s sent to BrowseMe", "green")
     browse_q.enqueue(runExt, url)
     return
 
