@@ -88,6 +88,9 @@ def get_parse_from_matlab_parallel(image_filename, matlab_engine, use_parfor=Fal
         mask, label_names, pose = matlab_engine.pd(image_filename, nargout=3)
     os.remove(image_filename)
     label_dict = dict(zip(label_names, range(0, len(label_names))))
+    print('mask in getparse:'+str(mask))
+ #   print('label in getparse:'+str(mask))
+#    print('pose in getparse:'+str(mask))
     if mask == []:
         return None, None, None
     return mask, label_dict, pose
