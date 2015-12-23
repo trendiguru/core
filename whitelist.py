@@ -4,7 +4,7 @@ import sys
 from rq import Queue
 
 import constants
-from crawlme import scrapLinks
+from .crawlme import scrapLinks
 
 scrap_q = Queue('CrawlMe', connection=constants.redis_conn)
 db = constants.db
@@ -118,7 +118,7 @@ fullList = ["yahoo.com", "msn.com", "yahoo.co.jp", "qq.com", "uol.com.br", "glob
              "cs10.org", "nitrolicious.com", "vickumbro.tumblr.com", "malemodelscene.net", "ironandtweed.com",
              "fashiontoast.com", "flare.com"]
 
-fashionOnly = ["manrepeller.com", "wishwishwish.net", "parkandcube.com", "stellaswardrobe.com", "cocosteaparty.com",
+fashionBlogs = ["manrepeller.com", "wishwishwish.net", "parkandcube.com", "stellaswardrobe.com", "cocosteaparty.com",
                "5inchandup.blogspot.co.uk", "garypeppergirl.com", "camilleovertherainbow.com", "streetpeeper.com",
                "the-frugality.com", "disneyrollergirl.net", "weworewhat.com", "wearingittoday.co.uk",
                "ella-lapetiteanglaise.com",
@@ -129,8 +129,29 @@ fashionOnly = ["manrepeller.com", "wishwishwish.net", "parkandcube.com", "stella
                "theblondesalad.com",
                "thesartorialist.com", "bryanboy.com", "bunte.de", "gala.fr"]
 
+top50Fashion = ["refinery29.com", "maxmodels.pl", "stylebistro.com", "fashion.ifeng.com", "tajbao.com",
+                "highsnobiety.com", "osinka.ru", "trendsylvania.net", "whowhatwear.com", "fashiony.ru",
+                "gq.com.tw", "fashion.sina.com.cn", "lookbook.nu", "vogue.com.tw", "thefashionspot.com",
+                "elle.com.tw", "vogue.com.cn", "thehunt.com", "fashionbeans.com", "gqindia.com", "models.com",
+                "fashion.sohu.com", "elle.co.jp", "perfecte.md", "cosmopolitan.lt", "wwd.com", "enrz.com",
+                "moteris.lt", "businessoffashion.com", "styleblazer.com", "theblondesalad.com", "fashiongonerogue.com",
+                "thesartorialist.com", "cupcakesandcashmere.com", "fashion.walla.co.il", "thegloss.com", "vogue.com.au",
+                "panele.lt", "af-110.com", "collegefashion.net", "niv.ru", "desired.de", "fashionstylemag.com",
+                "guimi.com", "fashionbank.ru", "vmagazine.com", "garancedore.fr", "thefashionisto.com",
+                "fashionising.com", "modelmanagement.com"]
 
-def masterCrawler(floor=2, whiteList=fashionOnly):
+top50CelebSytle = ["pudelek.pl", "tmz.com", "super.cz", "ew.com", "entretenimento.r7.com", "hollywoodlife.com",
+                   "kapanlagi.com", "zimbio.com", "jezebel.com", "purepeople.com", "jeanmarcmorandini.com",
+                   "radaronline.com", "etonline.com", "voici.fr", "topito.com", "ciudad.com.ar", "perezhilton.com",
+                   "koreaboo.com", "cztv.com", "virgula.uol.com.br", "suggest.com", "justjared.com", "therichest.com",
+                   "pressroomvip.com", "dagospia.com", "closermag.fr", "kiskegyed.hu", "pagesix.com", "spynews.ro",
+                   "digitalspy.com", "purepeople.com.br", "thepiratebay.uk.net", "sopitas.com", "deadline.com",
+                   "starpulse.com", "multikino.pl", "zakzak.co.jp", "primiciasya.com", "celebuzz.com", "luckstars.co",
+                   "ratingcero.com", "non-stop-people.com", "tochka.net", "toofab.com", "extra.cz", "kozaczek.pl",
+                   "huabian.com", "bossip.com", "spletnik.ru", "wetpaint.com"]
+
+
+def masterCrawler(floor=2, whiteList=top50Fashion):
     db.crawler_processed.drop()
     db.crawler_processed.create_index("url")
     for site in whiteList:
@@ -141,8 +162,16 @@ def masterCrawler(floor=2, whiteList=fashionOnly):
 
 if __name__ == "__main__":
     print ("Scraping the white list - Started...)")
-    floor = 2
+    levels = 2
+    whiteLi = top50Fashion
     if len(sys.argv) == 2:
-        floor = int(sys.argv[1])
-    res = masterCrawler(floor)
+        levels = int(sys.argv[1])
+    if len(sys.argv) == 3:
+        if sys.argv[2] == "top50CelebSytle":
+            whiteLi = top50CelebSytle
+        elif sys.argv[2] == "fashionBlogs":
+            whiteLi = fashionBlogs
+        elif sys.argv[2] == "fullList":
+            whiteLi = fullList
+    res = masterCrawler(levels, whiteLi)
     print (res)

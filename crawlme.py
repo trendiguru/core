@@ -51,7 +51,7 @@ def scrapLinks(url, floor):
                 print ("new link already exists... not enqueued")
             else:
                 scrap_q.enqueue(scrapLinks, link, floor)
-    print colored("%s sent to BrowseMe", "green")
+    print colored("%s sent to BrowseMe" % url, "green")
     browse_q.enqueue(runExt, url)
     return
 
