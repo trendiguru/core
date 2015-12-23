@@ -13,7 +13,7 @@ max_angle = 30 # tilt angle of the image for diversification
 angle_offset = 5 # tilt angle of the image for diversification
 # max_offset = 0.01 # maximum horizontal movement (% (out of box X) of the collar box for diversification
 # delta_offset = max_offset # horizontal movement increments(%)
-output_images_size = (50, 50) # pixels^2
+output_images_size = (32, 32) # pixels^2
 dataset_directory_name = 'dataset'
 
 

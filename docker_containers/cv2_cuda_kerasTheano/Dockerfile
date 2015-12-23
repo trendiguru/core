@@ -31,7 +31,7 @@ RUN pip install pyparsing
 RUN pip install pytz
 #RUN pip install matplotlib
 RUN apt-get install -y git
-
+RUN pip install -e git+https://github.com/garydoranjr/pyemd.git#egg=pyemd # python package for earth removal calculation
 
 ################
 #numpy scipy
