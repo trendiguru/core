@@ -88,6 +88,7 @@ def get_parse_from_matlab_parallel(image_filename, matlab_engine, use_parfor=Fal
         mask, label_names, pose = matlab_engine.pd(image_filename, nargout=3)
     os.remove(image_filename)
     label_dict = dict(zip(label_names, range(0, len(label_names))))
+
     return mask, label_dict, pose
 
 def get_parse_mask_parallel(matlab_engine, img_url_or_cv2_array, filename=None, use_parfor=False):
