@@ -58,7 +58,9 @@ RUN echo deb http://archive.ubuntu.com/ubuntu precise universe multiverse >> /et
     wget \
     unzip; \
     apt-get clean
-ENV YASM_VERSION 1.3.0 ENV OPENCV_VERSION 2.4.10 WORKDIR /usr/local/src
+ENV YASM_VERSION 1.3.0
+ENV OPENCV_VERSION 2.4.10
+WORKDIR /usr/local/src
 RUN git clone --depth 1 https://github.com/l-smash/l-smash
 RUN git clone --depth 1 git://git.videolan.org/x264.git
 RUN hg clone https://bitbucket.org/multicoreware/x265
