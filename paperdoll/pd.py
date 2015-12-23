@@ -91,7 +91,8 @@ def get_parse_from_matlab_parallel(image_filename, matlab_engine, use_parfor=Fal
     print('mask in getparse:'+str(mask))
  #   print('label in getparse:'+str(mask))
 #    print('pose in getparse:'+str(mask))
-    if mask == []:
+    if len(mask) == 0:
+        print('paperdoll failed and get_parse_fmp is returning Nones')
         return None, None, None
     return mask, label_dict, pose
 
