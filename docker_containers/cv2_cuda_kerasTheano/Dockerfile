@@ -263,7 +263,7 @@ RUN apt-get install -y ca-certificates
 #RUN apt-get install -y git-core
 RUN apt-get install -y --force-yes git
 RUN apt-get install -y ssh
-
+RUN mkdir /home/developer
 ENV HOME /home/developer
 ADD ssh/ /home/developer/.ssh/
 
