@@ -55,7 +55,7 @@ import argparse
 
 import Utils
 import NNSearch
-import fingerprint_core as fp_core
+from .. import fingerprint_core as fp_core
 
 
 GREEN = [0, 255, 0]
@@ -1188,8 +1188,7 @@ global visual_output1
 global visual_output2
 
 if __name__ == '__main__':
-    report = analyze_fingerprint(fingerprint_function=fp_core.regular_fp, use_visual_output1=True,
-                                 histogram_length=30, n_docs=6)
+    report = analyze_fingerprint(fingerprint_function=fp_core.regular_fp, use_visual_output1=True, n_docs=6)
     if (0):
         print('hi.')
         print('Memory usage: %s (kb)' % resource.getrusage(resource.RUSAGE_SELF).ru_maxrss)
