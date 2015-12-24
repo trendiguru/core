@@ -26,6 +26,7 @@ import inspect
 import sys
 import matplotlib
 from scipy.spatial import distance as dist
+from trendi import constants
 from trendi.constants import db
 
 matplotlib.use('Agg')  # prevents problems generating plots on server where no display is defined
