@@ -417,7 +417,7 @@ def get_docs(n_items=max_items):
     report['tot_images'] = tot_images
     try:
         report['images_per_group'] = round(tot_images / i, 3)
-    catch ZeroDivisionError:
+    except ZeroDivisionError:
         print "ERROR: No images found"
     return (report, tot_answers)
 
