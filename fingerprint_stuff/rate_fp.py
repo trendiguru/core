@@ -27,7 +27,7 @@ import inspect
 import sys
 import matplotlib
 from scipy.spatial import distance as dist
-from ..constants import db
+from constants import db
 
 matplotlib.use('Agg')  # prevents problems generating plots on server where no display is defined
 import matplotlib.pyplot as plt
@@ -55,7 +55,7 @@ import argparse
 
 import Utils
 import NNSearch
-from .. import fingerprint_core as fp_core
+from trendi import fingerprint_core as fp_core
 
 
 GREEN = [0, 255, 0]
@@ -1105,7 +1105,7 @@ def cross_rate_fingerprint():
 
 # in use
 # @profile
-def analyze_fingerprint(fingerprint_function=fp_core.regular_fp, weights=np.ones(fingerprint_length),
+def analyze_fingerprint(fingerprint_function=fp_core.fp, weights=np.ones(fingerprint_length),
                         distance_function=NNSearch.distance_1_k,
                         distance_power=0.5, n_docs=max_items, use_visual_output1=False,
                         use_visual_output2=False, image_sets=None, self_reporting=None, comparisons_to_make=None,
@@ -1188,7 +1188,7 @@ global visual_output1
 global visual_output2
 
 if __name__ == '__main__':
-    report = analyze_fingerprint(fingerprint_function=fp_core.regular_fp, use_visual_output1=True, n_docs=6)
+    report = analyze_fingerprint(fingerprint_function=fp_core.fp, use_visual_output1=True, n_docs=6)
     if (0):
         print('hi.')
         print('Memory usage: %s (kb)' % resource.getrusage(resource.RUSAGE_SELF).ru_maxrss)
@@ -1201,7 +1201,7 @@ if __name__ == '__main__':
         parser.add_argument('--use_visual_output2', default=False,
                             help='show output for each image')
 
-        parser.add_argument('--fp_function', default=fp_core.regular_fp,
+        parser.add_argument('--fp_function', default=fp_core.fp,
                             help='what fingerprint function to use')
         args = parser.parse_args()
         visual_output1 = args.use_visual_output
