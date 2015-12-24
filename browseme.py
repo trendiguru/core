@@ -10,7 +10,7 @@ from selenium.webdriver.common.proxy import *
 def getProxy():
     pro = random.sample(proxies, 1)
     myProxy = pro[0][0] + ":" + pro[0][1]
-
+    print colored('using Proxy = ' + myProxy, 'magenta', attrs=['bold'])
     proxy = Proxy({
         'proxyType': ProxyType.MANUAL,
         'httpProxy': myProxy,
