@@ -253,6 +253,8 @@ RUN pip install --upgrade https://storage.googleapis.com/tensorflow/linux/gpu/te
 RUN pip install rq
 
 
+RUN apt-get -y --force-yes  install nano
+
 ################################
 # git clone the tg repo , run this last since it requires nonsudo user
 ################################
@@ -261,44 +263,27 @@ RUN pip install rq
 ## TG GIT CLONE ##
 ## TG GIT CLONE ##
 
-RUN export uid=1000 gid=1000 && \
-    mkdir -p /home/developer && \
-    echo "developer:x:${uid}:${gid}:Developer,,,:/home/developer:/bin/bash" >> /etc/passwd && \
-    echo "developer:x:${uid}:" >> /etc/group && \
-    echo "developer ALL=(ALL) NOPASSWD: ALL" > /etc/sudoers.d/developer && \
-    chmod 0440 /etc/sudoers.d/developer && \
-    chown ${uid}:${gid} -R /home/developer
-
-
 RUN apt-get update
 RUN apt-get install -y ca-certificates
 #RUN apt-get install -y git-core
 RUN apt-get install -y --force-yes git
 RUN apt-get install -y ssh
-ENV HOME /home/developer
-ADD ssh/ /home/developer/.ssh/
+
+ADD ssh/ /home/root/.ssh/
 
 ADD ssh/ssh_config /etc/ssh/ssh_config
 
 # Fixes permission if needed
 #RUN chmod 600 /.ssh/*
-RUN chmod 600 /home/developer/.ssh/*
-RUN chown developer:developer /home/developer/
-ADD ssh/first_aws.pem /home/developer/.ssh/first_aws.pem
-RUN chown developer:developer /home/developer/.ssh/*
+RUN chmod 600 /home/root/.ssh/*
+ADD ssh/first_aws.pem /home/root/.ssh/first_aws.pem
 
-RUN ssh-keyscan  bitbucket.com > /home/developer/.ssh/known_hosts
-
-RUN mkdir /home/developer/tg
-RUN chown developer:developer /home/developer/tg
-RUN mkdir /home/developer/tg/Dev
-RUN chown developer:developer /home/developer/tg/Dev
-WORKDIR /home/developer/tg/Dev
-
-RUN apt-get -y --force-yes  install nano
-
-USER developer
+RUN ssh-keyscan  bitbucket.com > /home/root/.ssh/known_hosts
+RUN mkdir /home/root/Dev
+WORKDIR /home/root/Dev
 RUN git clone --verbose git@bitbucket.org:trendiGuru/core.git
+
+
 
 
 
