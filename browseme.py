@@ -46,7 +46,7 @@ def runExt(url):
     except:
         print colored("execute Failed!!!", "red")
 
-    driver.quit()
+    driver.close()
     display.popen.terminate()
 
 
