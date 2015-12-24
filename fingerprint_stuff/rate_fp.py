@@ -415,7 +415,10 @@ def get_docs(n_items=max_items):
         doc = next(training_collection_cursor, None)
     report['n_groups'] = i
     report['tot_images'] = tot_images
-    report['images_per_group'] = round(tot_images / i, 3)
+    try:
+        report['images_per_group'] = round(tot_images / i, 3)
+    catch ZeroDivisionError:
+        print "ERROR: No images found"
     return (report, tot_answers)
 
 
