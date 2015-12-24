@@ -1,6 +1,7 @@
-#FROM ubuntu:14.04
+FROM ubuntu:14.04
 #FROM tleyden5iwx/ubuntu-cuda
-FROM ubuntu:trusty # https://github.com/ampervue/docker-python27-opencv
+#FROM ubuntu:trusty
+# https://github.com/ampervue/docker-python27-opencv
 #MAINTAINER David Karchmer <dkarchmer@gmail.com>
 ######################################## # # Image based on Ubuntu:trusty # #   with Python 2.7 #   and OpenCV 3 (built) #
 #plus a bunch of build essencials ####################################### #
