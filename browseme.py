@@ -31,7 +31,8 @@ def runExt(url):
     display = Display(visible=0, size=(1024, 768))
     display.start()
     newProxy = getProxy()
-    driver = webdriver.Firefox(proxy=newProxy)
+    # driver = webdriver.Firefox(proxy=newProxy)
+    driver = webdriver.Firefox()
     try:
         driver.get(url)
         scr = open("/var/www/latest/b_main.js").read()
