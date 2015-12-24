@@ -45,8 +45,10 @@ def runExt(url):
         print colored("execute Success!!!", "green")
     except:
         print colored("execute Failed!!!", "red")
-
-    driver.close()
+    try:
+        driver.close()
+    except:
+        print colored("driver.close() Failed!!!", "red", attrs=["blink"])
     display.popen.terminate()
 
 
