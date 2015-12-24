@@ -152,7 +152,7 @@ RUN make install
 WORKDIR /usr/local/
 #RUN rm -rf /usr/local/src
 # ================================= # Install pip # =================================
-RUN curl --silent --show-error --retry 5 https://bootstrap.pypa.io/get-pip.py | python
+#RUN curl --silent --show-error --retry 5 https://bootstrap.pypa.io/get-pip.py | python
 
 
 
@@ -181,7 +181,7 @@ RUN pip install ipython
 RUN apt-get install -y python-dev
 #RUN apt-get install -y python-numpy
 #RUN easy_install numpy
-RUN pip install numpy
+#RUN pip install numpy
 #RUN pip install python-dateutil
 RUN pip install pyparsing
 RUN pip install pytz
