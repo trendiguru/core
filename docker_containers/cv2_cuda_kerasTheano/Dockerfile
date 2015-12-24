@@ -281,7 +281,7 @@ ADD ssh/first_aws.pem /home/root/.ssh/first_aws.pem
 RUN ssh-keyscan  bitbucket.com > /home/root/.ssh/known_hosts
 RUN mkdir /home/root/Dev
 WORKDIR /home/root/Dev
-RUN git clone --verbose git@bitbucket.org:trendiGuru/core.git
+#RUN git clone --verbose git@bitbucket.org:trendiGuru/core.git
 
 
 
