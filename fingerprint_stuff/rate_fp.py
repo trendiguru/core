@@ -19,7 +19,6 @@ import multiprocessing
 import datetime
 import json
 import cv2
-import constants
 import random
 import resource
 import os
