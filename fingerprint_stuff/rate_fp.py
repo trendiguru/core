@@ -53,8 +53,8 @@ import pstats
 import logging
 import argparse
 
-import Utils
-import NNSearch
+import trendi.Utils
+import trendi.NNSearch
 from trendi import fingerprint_core as fp_core
 
 
