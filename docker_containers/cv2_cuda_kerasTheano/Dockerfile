@@ -1,6 +1,6 @@
 #FROM ubuntu:14.04
-FROM tleyden5iwx/ubuntu-cuda
-#FROM ubuntu:trusty # https://github.com/ampervue/docker-python27-opencv
+#FROM tleyden5iwx/ubuntu-cuda
+FROM ubuntu:trusty # https://github.com/ampervue/docker-python27-opencv
 #MAINTAINER David Karchmer <dkarchmer@gmail.com>
 ######################################## # # Image based on Ubuntu:trusty # #   with Python 2.7 #   and OpenCV 3 (built) #
 #plus a bunch of build essencials ####################################### #
@@ -150,7 +150,7 @@ RUN make -j 4
 RUN make install
 # ================================= # Remove all tmpfile # =================================
 WORKDIR /usr/local/
-RUN rm -rf /usr/local/src
+#RUN rm -rf /usr/local/src
 # ================================= # Install pip # =================================
 RUN curl --silent --show-error --retry 5 https://bootstrap.pypa.io/get-pip.py | python
 
