@@ -109,27 +109,7 @@ make -j4
 make install
 sh -c 'echo "/usr/local/lib" > /etc/ld.so.conf.d/opencv.conf'
 ldconfig
-# ================================= # Build ffmpeg. # =================================
-apt-get update -qq && apt-get install -y --force-yes \
-    libass-dev
-cd /usr/local/src/ffmpeg
- ./configure --extra-libs="-ldl" \
-            --enable-gpl \
-            --enable-libass \
-            --enable-libfdk-aac \
-            --enable-libfontconfig \
-            --enable-libfreetype \
-            --enable-libfribidi \
-            --enable-libmp3lame \
-            --enable-libopus \
-            --enable-libtheora \
-            --enable-libvorbis \
-            --enable-libvpx \
-            --enable-libx264 \
-            --enable-libx265 \
-            --enable-nonfree
-make -j 4
-make install
+
 # ================================= # Remove all tmpfile # =================================
 cd /usr/local/
 #rm -rf /usr/local/src
