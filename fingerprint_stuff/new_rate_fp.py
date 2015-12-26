@@ -664,7 +664,7 @@ def compare_fingerprints(image_array1, image_array2, fingerprint_function=fp_cor
                     j = j + 1
                     if visual_output2:
                         cv2.rectangle(img_arr2, (bb2[0], bb2[1]), (bb2[0] + bb2[2], bb2[1] + bb2[3]), color=BLUE,
-                                      thickness=2)
+                                      thickness=2)  e
                         cv2.imshow('im2', img_arr2)
                         k = cv2.waitKey(50) & 0xFF
                         #pdb.set_trace()
