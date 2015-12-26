@@ -93,9 +93,23 @@ def get_parse_from_matlab_parallel(image_filename, matlab_engine, use_parfor=Fal
 #    print('pose in getparse:'+str(mask))
     if len(mask) == 0:
         print('paperdoll failed and get_parse_fmp is returning Nones')
+        save_fail_image(image_filename)
         raise Exception('paperdoll failed on this file:',image_filename)
         return None, None, None
     return mask, label_dict, pose
+
+def save_fail_image(img_filename):
+    img_arr = cv2.imread(img_filename)
+    print('attempting to save fail image')
+    if img_arr is not None
+        fail_filename = 'fail'+img_arr
+        dir = constants.pd_output_savedir
+        path = os.path.join(dir,fail_filename)
+        cv2.imwrite(path,img_arr)
+        print('sucessful save of fail image')
+        return
+    print('could not read image '+str(img_filename))
+    return
 
 def get_parse_mask_parallel(matlab_engine, img_url_or_cv2_array, filename=None, use_parfor=False):
     start_time=time.time()
