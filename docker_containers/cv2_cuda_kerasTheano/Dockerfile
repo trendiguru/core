@@ -12,6 +12,12 @@ ENV LANGUAGE en_US:en
 ENV LC_ALL en_US.UTF-8
 RUN apt-get -qq remove ffmpeg
 
+RUN sed -i 's/# \(.*multiverse$\)/\1/g' /etc/apt/sources.list
+
+
+#CUDA
+RUN apt-get install nvidia-current
+RUN apt-get install nvidia-cuda-toolkit
 
 ##############################
 #OPENCV 3.0 WITH GPU
@@ -181,8 +187,6 @@ RUN python get-pip.py
 RUN pip install ipython
 RUN apt-get install -y python-dev
 #RUN apt-get install -y python-numpy
-#RUN easy_install numpy
-#RUN pip install numpy
 #RUN pip install python-dateutil
 RUN pip install pyparsing
 RUN pip install pytz
@@ -193,6 +197,10 @@ RUN pip install -e git+https://github.com/garydoranjr/pyemd.git#egg=pyemd # pyth
 ################
 #numpy scipy
 ###############
+#RUN easy_install numpy
+RUN pip install numpy
+RUN pip install scipy
+
 RUN sudo apt-get install -y \
     python-numpy  \
     python-scipy  \
@@ -206,8 +214,11 @@ RUN sudo apt-get install -y \
 ###############
 #Theano
 ###############
-RUN pip install git+git://github.com/Theano/Theano.git
+ADD .theanorc /home/root/.theanorc
+ADD theano_test.py /home/root/theano_test.py
 
+RUN pip install git+git://github.com/Theano/Theano.git
+RUN export LD_LIBRARY_PATH = "/usr/lib/nvidia-cuda-toolkit"
 
 ###############
 # Keras
@@ -246,14 +257,6 @@ RUN pip install keras
 RUN pip install --upgrade https://storage.googleapis.com/tensorflow/linux/gpu/tensorflow-0.6.0-cp27-none-linux_x86_64.whl
 
 
-
-#####################
-# redis and rq
-#####################
-#RUN pip install redis
-RUN pip install rq
-
-
 RUN apt-get -y --force-yes  install nano
 
 ################################
@@ -278,14 +281,6 @@ ADD ssh/ssh_config /etc/ssh/ssh_config
 #RUN chmod 600 /.ssh/*
 RUN chmod 600 /home/root/.ssh/*
 ADD ssh/first_aws.pem /home/root/.ssh/first_aws.pem
-
 RUN ssh-keyscan  bitbucket.com > /home/root/.ssh/known_hosts
-RUN mkdir /home/root/Dev
-WORKDIR /home/root/Dev
+WORKDIR /home/root
 #RUN git clone --verbose git@bitbucket.org:trendiGuru/core.git
-
-
-
-
-
-
