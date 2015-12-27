@@ -23,7 +23,7 @@ RUN apt-get install -y wget
 RUN wget http://developer.download.nvidia.com/compute/cuda/repos/ubuntu1404/x86_64/cuda-repo-ubuntu1404_7.5-18_amd64.deb
 RUN sudo dpkg -i cuda-repo-ubuntu1404_7.5-18_amd64.deb
 RUN sudo apt-get update
-RUN sudo apt-get install cuda
+RUN sudo apt-get -y install cuda
 
 #RUN apt-get install -y libc6-dev
 #RUN apt-get install -y gcc-4.9-base
