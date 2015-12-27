@@ -1,0 +1,12 @@
+[global]
+device = gpu
+floatX = float32
+
+[blas]
+ldflags = -L/usr/local/lib -lopenblas
+
+[nvcc]
+fastmath = True
+
+[cuda]
+root = /usr/lib/nvidia-cuda-toolkit
