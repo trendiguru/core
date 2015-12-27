@@ -12,6 +12,9 @@ ENV LANGUAGE en_US:en
 ENV LC_ALL en_US.UTF-8
 RUN apt-get -qq remove ffmpeg
 
+RUN sed -i 's/# \(.*multiverse$\)/\1/g' /etc/apt/sources.list
+
+
 #CUDA
 RUN apt-get install nvidia-current
 RUN apt-get install nvidia-cuda-toolkit
