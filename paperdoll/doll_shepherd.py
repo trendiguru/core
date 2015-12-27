@@ -68,9 +68,15 @@ def restart_workers():
     start_pd_workers()
 
 if __name__ == "__main__":
+    host = socket.gethostname()
+    print('host:'+str(host))
+    if host == 'braini1':
+        n_workers = constants.N_expected_pd_workers_per_server_braini1
+    else:
+        n_workers = constants.N_expected_pd_workers_per_server
     while 1:
         n = count_pd_workers()
         print(str(n)+' workers online')
-        if n<constants.N_expected_pd_workers_per_server:
-            start_pd_workers(constants.N_expected_pd_workers_per_server-n)
+        if n<n_workers:
+            start_pd_workers(constants.n_workers-n)
         time.sleep(10)

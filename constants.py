@@ -25,6 +25,7 @@ pd_worker_command =  'cd /home/jeremy/paperdoll3/paperdoll-v1.0/ && /usr/bin/pyt
 pd_worker_command_braini1 =  'cd /home/pd_user/paperdoll  && /usr/bin/python /usr/local/bin/rqworker  -w trendi.matlab_wrapper.tgworker.TgWorker -u redis://redis1-redis-1-vm:6379 pd &'
 
 N_expected_pd_workers_per_server = 15
+N_expected_pd_workers_per_server_braini1 = 41
 
 
 #########
