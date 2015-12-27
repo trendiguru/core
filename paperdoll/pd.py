@@ -18,15 +18,16 @@ import random
 import string
 import time
 import os
-import pickle
-import numpy as np
-import cv2
 import json
-import matlab.engine
 import sys
 
+import numpy as np
+import cv2
+
+import matlab.engine
 from .. import Utils
 from .. import constants
+
 
 def get_parse_from_matlab(image_filename):
     with run_matlab_engine() as eng:
@@ -101,7 +102,7 @@ def get_parse_from_matlab_parallel(image_filename, matlab_engine, use_parfor=Fal
 def save_fail_image(img_filename):
     img_arr = cv2.imread(img_filename)
     print('attempting to save fail image')
-    if img_arr is not None
+    if img_arr is not None:
         fail_filename = 'fail'+img_arr
         dir = constants.pd_output_savedir
         path = os.path.join(dir,fail_filename)
