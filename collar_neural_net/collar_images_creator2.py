@@ -9,7 +9,7 @@ face_cascade = cv2.CascadeClassifier('/home/developer/python-packages/trendi/cla
 
 image_file_types = ['.jpg', 'jpeg', '.png', '.bmp', '.gif']
 a = 1.35 # scalar for increasing collar box in relation to face box (1==100%)
-max_angle = 10 # tilt angle of the image for diversification
+max_angle = 360 # tilt angle of the image for diversification
 angle_offset = 5 # tilt angle of the image for diversification
 # max_offset = 0.01 # maximum horizontal movement (% (out of box X) of the collar box for diversification
 # delta_offset = max_offset # horizontal movement increments(%)
