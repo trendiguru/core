@@ -2,10 +2,10 @@ __author__ = 'jeremy'
 import subprocess, signal
 import time
 import os
-
-
+import socket
 
 from trendi import constants
+
 
 string_in_pd_command = 'rq.tgworker'
 
@@ -44,10 +44,14 @@ def count_pd_workers():
     return n
 
 def start_pd_workers(n=constants.N_expected_pd_workers_per_server):
+
+    command = constants.pd_worker_command
+    host = socket.gethostname()
+    print('host:'+str(host)+' trying to start '+str(n)+' workers')
+    if host == 'braini1':
+        command = constants.pd_worker_command_braini1
  #   /usr/bin/python /usr/local/bin /rqworker -w rq.tgworker.TgWorker -u redis://redis1-redis-1-vm:6379 pd
     for i in range(0,n):
-        print('attempting to start worker')
-        command = constants.pd_worker_command
   #      command = 'cd /home/jeremy/paperdoll3/paperdoll-v1.0/'
         print('command:'+command)
 #        p = subprocess.Popen(command, shell=True,stdout=subprocess.PIPE).stdout.read()
