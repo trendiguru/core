@@ -19,6 +19,12 @@ RUN apt-get install -y build-essential
 
 
 #CUDA
+
+RUN wget http://developer.download.nvidia.com/compute/cuda/repos/ubuntu1404/x86_64/cuda-repo-ubuntu1404_7.5-18_amd64.deb
+RUN sudo dpkg -i cuda-repo-ubuntu1404_7.5-18_amd64.deb
+RUN sudo apt-get update
+RUN sudo apt-get install cuda
+
 #RUN apt-get install -y libc6-dev
 #RUN apt-get install -y gcc-4.9-base
 #RUN apt-get install -y libc6
@@ -28,7 +34,7 @@ RUN apt-get install -y build-essential
 #RUN apt-get install -y nvidia-prime
 #RUN apt-get install -y nvidia-331
 ##RUN apt-get install nvidia-current
-RUN apt-get install -y nvidia-cuda-toolkit
+#RUN apt-get install -y nvidia-cuda-toolkit
 
 ##############################
 #OPENCV 3.0 WITH GPU
