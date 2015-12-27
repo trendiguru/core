@@ -18,6 +18,8 @@ RUN sed -i 's/#restricted/restricted/g' /etc/apt/sources.list
 
 #CUDA
 #RUN apt-get install -y libc6-dev
+RUN apt-get install -y gcc-4.9-base
+RUN apt-get install -y libc6-i386
 RUN apt-get install -y lib32gcc1
 RUN apt-get install -y libc6-i386
 RUN apt-get install -y nvidia-prime
