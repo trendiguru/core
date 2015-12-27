@@ -1,6 +1,89 @@
 
 import numpy as np
 import cv2
+import time
+from emd import emd
+
+def spaciograms_distance_rating(spaciogram_1, spaciogram_2):
+    '''
+    :param spaciogram_1:
+    :param spaciogram_2:
+    :return:
+    '''
+    ############ CHECKS ############
+    # check if spaciogram_1.shape == spaciogram_2.shape:
+    rating = []
+    if np.array(spaciogram_1.shape).all() == np.array(spaciogram_2.shape).all() is False:
+        print 'Error: the dimensions of spaciogram_1 and spaciogram_2 are not equal! \n' \
+              'shapes are: 1st - ' + str(spaciogram_1.shape) + '\n' \
+              'shapes are: 2nd - ' + str(spaciogram_2.shape)
+        return rating
+
+    # # Define number of rows (overall bin count):
+    # numRows = spaciogram_1.size
+    # dims = len(spaciogram_1.shape)
+    # bins_per_dim = len(spaciogram_1)
+    # signature_1 = np.zeros([numRows, dims+1]) #cv2.CreateMat(numRows, dims, cv2.CV_32FC1)
+    # print signature_1.shape
+    # signature_2 = signature_1 #cv2.CreateMat(numRows, dims, cv2.CV_32FC1)
+    # sigrature_index = 0
+    # # fill signature_natures:
+    # # TODO: for production optimize this, use Numpy (reshape?)
+    # for d1 in range(0, bins_per_dim - 1):
+    #     for d2 in range(0, bins_per_dim - 1):
+    #         for d3 in range(0, bins_per_dim - 1):
+    #             for d4 in range(0, bins_per_dim - 1):
+    #                 for d5 in range(0, bins_per_dim - 1):
+    #                     # signature 1:
+    #                     signature_1[sigrature_index, :] = [spaciogram_1[d1, d2, d3, d4, d5], d1, d2, d3, d4, d5]
+    #                     # bin_val = cv2.QueryHistValue_2D(spaciogram_1, d1, d2, d3, d4, d5)
+    #                     # cv.Set2D(signature_1, sigrature_index, 0, bin_val) #bin value
+    #                     # cv.Set2D(signature_1, sigrature_index, 1, d1)  #coord1
+    #                     # cv.Set2D(signature_1, sigrature_index, 2, d2) #coord2
+    #                     # cv.Set2D(signature_1, sigrature_index, 3, d3)  #coord3
+    #                     # cv.Set2D(signature_1, sigrature_index, 4, d4) #coord4
+    #                     # cv.Set2D(signature_1, sigrature_index, 5, d5)  #coord5
+    #                     # signature 2:
+    #                     signature_2[sigrature_index, :] = [spaciogram_2[d1, d2, d3, d4, d5], d1, d2, d3, d4, d5]
+    #                     # bin_val2 = cv2.QueryHistValue_2D(spaciogram_2, d1, d2, d3, d4, d5)
+    #                     # cv.Set2D(signature_2, sigrature_index, 0, bin_val2) #bin value
+    #                     # cv.Set2D(signature_2, sigrature_index, 1, d1)  #coord1
+    #                     # cv.Set2D(signature_2, sigrature_index, 2, d2) #coord2
+    #                     # cv.Set2D(signature_2, sigrature_index, 3, d3)  #coord3
+    #                     # cv.Set2D(signature_2, sigrature_index, 4, d4) #coord4
+    #                     # cv.Set2D(signature_2, sigrature_index, 5, d5)  #coord5
+    #                     sigrature_index += 1
+    #                     print spaciogram_1[d1, d2, d3, d4, d5]
+
+    signature_1 = np.zeros([spaciogram_1.size / len(spaciogram_1),  len(spaciogram_1)])
+    sigrature_index = 0
+    # print len(spaciogram_1)
+    for dim in spaciogram_1:
+        signature_1[:, sigrature_index] = dim.flatten()
+        sigrature_index += 1
+
+    signature_2 = np.zeros([spaciogram_2.size / len(spaciogram_1),  len(spaciogram_2)])
+    sigrature_index = 0
+    for dim in spaciogram_2:
+        signature_2[:, sigrature_index] = dim.flatten()
+        sigrature_index += 1
+
+    # signature_1 = np.reshape(spaciogram_1, (spaciogram_1[0].size, len(spaciogram_1)))
+    # signature_2 = np.reshape(spaciogram_2, (spaciogram_2[0].size, len(spaciogram_2)))
+
+    method = cv2.HISTCMP_BHATTACHARYYA
+    # HISTCMP_CORREL Correlation
+    # HISTCMP_CHISQR Chi-Square
+    # HISTCMP_INTERSECT Intersection
+    # HISTCMP_BHATTACHARYYA Bhattacharyya distance
+    # HISTCMP_HELLINGER Synonym for HISTCMP_BHATTACHARYYA
+    # HISTCMP_CHISQR_ALT
+    # HISTCMP_KL_DIV
+
+    # print cv2.compareHist(spaciogram_1, spaciogram_2, method)
+
+    rating = emd(signature_1, signature_2)
+    return rating
 
 def spaciogram_finger_print(image, mask):
     '''
@@ -21,10 +104,10 @@ def spaciogram_finger_print(image, mask):
     ############ CALCS ############
     # color channels ,edge distance, skeleton distance, channels:
 
-    bins = 8
+    bins = 5
 
     # limiting the image size for a quicker calculation:
-    limit = [1000, 1000]
+    limit = [500, 500]
     resize_interpulation = cv2.INTER_NEAREST#INTER_LINEAR#INTER_CUBIC#INTER_LANCZOS4#INTER_AREA#
     if image.shape[0] > limit[0] or image.shape[1] > limit[1]:
         delta = [1.0 * limit[0] / image.shape[0], 1.0 * limit[1] / image.shape[1]]
@@ -38,15 +121,22 @@ def spaciogram_finger_print(image, mask):
     channels_list = channles_of_image(image)
     skell_dist  = skeleton_distance(mask)
     circ_dist = circumfrence_distance(mask)
+
+    # # opencv way:
+    # channels_list.append(skell_dist)
+    # channels_list.append(circ_dist)
+    # spaciogram = cv2.calcHist(channels_list, range(len(channels_list)),
+    #                           mask, bins, [0, 256])# * np.ones([1, len(channels_list)]), )
+
     sample = []
     for channel in channels_list:
         sample.append(channel[mask>0].flatten())
     sample.append(skell_dist[mask>0].flatten())
     sample.append(circ_dist[mask>0].flatten())
     spaciogram, edges = np.histogramdd(sample, bins, normed=True, weights=None)
-    # spaciogram = spaciogram.flatten()
-    # print spaciogram
-    # print spaciogram.shape
+
+    # spaciogram = spaciogram * (10**bins) #spaciogram.flatten()
+    # print np.amax(spaciogram)
     return spaciogram
 
 def histogram_stack_finger_print(image, mask):
@@ -98,7 +188,6 @@ def histogram_stack_finger_print(image, mask):
         spaciogram.append(np.hstack([skell_spaciogram.flatten(), circ_spaciogram.flatten()]))
     spaciogram = np.concatenate(spaciogram, axis=0)
     # print spaciogram
-    # print spaciogram.shape
     return spaciogram
 
 def channles_of_image(image):
@@ -117,9 +206,9 @@ def channles_of_image(image):
     # image_GRAY = cv2.cvtColor(normalized_image, cv2.COLOR_BGR2GRAY)
     # image_nGRAY = cv2.cvtColor(normalized_image, cv2.COLOR_BGR2GRAY)
 
-    image_B[image_B <= 0] = 1
-    image_G[image_G <= 0] = 1
-    image_R[image_R <= 0] = 1
+    # image_B[image_B <= 0] = 1
+    # image_G[image_G <= 0] = 1
+    # image_R[image_R <= 0] = 1
     # image_nB[image_nB <= 0] = 1
     # image_nG[image_nG <= 0] = 1
     # image_nR[image_nR <= 0] = 1
@@ -218,8 +307,3 @@ def remap(x, oMin, oMax, nMin, nMax):
         result = newMax - portion
 
     return result
-
-# image = cv2.imread('/home/nate/Desktop/wild_square_1.jpg')
-# blob_mask = np.zeros(image.shape[:2], dtype=np.uint8)
-# blob_mask[50:250, 50:250] = 255
-# spaciogram_finger_print(image, blob_mask)
