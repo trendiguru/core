@@ -37,6 +37,7 @@ sudo   apt-get update -qq && apt-get install -y --force-yes \
     v4l-utils \
     python2.7 \
     python2.7-dev \
+    python-dev \
     python-numpy \
     default-jdk \
     ant \
@@ -104,9 +105,9 @@ unzip 3.0.0.zip
 #mkdir -p opencv/release
 echo ls
 cd opencv-3.0.0
-mkdir build
-cd build
-cmake -D CMAKE_BUILD_TYPE=RELEASE -D CMAKE_INSTALL_PREFIX=/usr/local     -D WITH_TBB=ON  -D BUILD_PYTHON_SUPPORT=ON ..
+mkdir release
+cd release
+cmake -D CMAKE_BUILD_TYPE=RELEASE -D CMAKE_INSTALL_PREFIX=/usr/local     -D WITH_TBB=ON  -D BUILD_PYTHON_SUPPORT=ON -D BUILD_NEW_PYTHON_SUPPORT=ON ..
 
 #cmake -D CMAKE_BUILD_TYPE=RELEASE \
  #         -D CMAKE_INSTALL_PREFIX=/usr/local \
@@ -114,8 +115,9 @@ cmake -D CMAKE_BUILD_TYPE=RELEASE -D CMAKE_INSTALL_PREFIX=/usr/local     -D WITH
    #       -D BUILD_PYTHON_SUPPORT=ON \
     #      -D WITH_V4L=ON \
    #       ..
-make -j4
+make -j20
 make install
+export PYTHONPATH=$PYTHONPATH:/usr/local/lib/python2.7/site-packages
 sh -c 'echo "/usr/local/lib" > /etc/ld.so.conf.d/opencv.conf'
 ldconfig
 # ================================= # Build ffmpeg. # =================================
