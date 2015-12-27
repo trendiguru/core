@@ -5,7 +5,7 @@ import execjs
 if __name__ == "__main__":
     ctx = execjs.compile("""
     function main(url){
-    var Nightmare = require('../nightmare');
+    var Nightmare = require('nightmare');
     var vo = require('vo');
 
     vo(run)(function(err, result) {
