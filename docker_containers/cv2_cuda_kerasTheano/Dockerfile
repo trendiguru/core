@@ -17,7 +17,8 @@ RUN sed -i 's/#restricted/restricted/g' /etc/apt/sources.list
 
 
 #CUDA
-RUN apt-get install nvidia-current
+RUN apt-get install nvidia-331
+#RUN apt-get install nvidia-current
 RUN apt-get install nvidia-cuda-toolkit
 
 ##############################
