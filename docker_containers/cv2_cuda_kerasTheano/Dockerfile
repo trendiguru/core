@@ -14,6 +14,7 @@ RUN apt-get -qq remove ffmpeg
 
 RUN sed -i 's/# \(.*multiverse$\)/\1/g' /etc/apt/sources.list
 RUN sed -i 's/#restricted/restricted/g' /etc/apt/sources.list
+RUN apt-get install -y build-essential
 
 
 #CUDA
