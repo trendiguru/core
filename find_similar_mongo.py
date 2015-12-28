@@ -6,6 +6,7 @@ import subprocess
 import cv2
 import numpy as np
 
+from .paperdolls import q3, insert_ready_document
 from . import fingerprint_core as fp
 from . import NNSearch
 from . import background_removal
@@ -62,7 +63,7 @@ def mask2svg(mask, filename, save_in_folder):
     return filename + '.svg'
 
 
-def find_top_n_results(image, mask, number_of_results=10, category_id=None, collection="products",
+def find_top_n_results(item_id, image, mask, number_of_results=10, category_id=None, collection="products",
                        fp_category=FP_KEY, fp_len=fingerprint_length, distance_function=None,
                        bins=histograms_length):
     '''
@@ -96,7 +97,8 @@ def find_top_n_results(image, mask, number_of_results=10, category_id=None, coll
     # get only the object itself, not the distance
     closest_matches = [match_tuple[0] for match_tuple in closest_matches]
 
-    return color_fp.tolist(), closest_matches
+    q3.enqueue_call(func=insert_ready_document, args=(item_id, color_fp.tolist(), closest_matches),
+                    ttl=constants.general_ttl, result_ttl=constants.general_ttl, timeout=constants.general_ttl)
 
 
 def got_bb(image_url, post_id, item_id, bb=None, number_of_results=10, category_id=None):

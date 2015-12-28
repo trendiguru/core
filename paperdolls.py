@@ -29,6 +29,7 @@ images = db.images
 iip = db.iip
 q1 = Queue('find_similar', connection=redis_conn)
 q2 = Queue('find_top_n', connection=redis_conn)
+q3 = Queue('insert_ready_document', connection=redis_conn)
 # sys.stdout = sys.stderr
 TTL = constants.general_ttl
 
@@ -56,6 +57,7 @@ def get_person_by_id(person_id, collection=iip):
 
 
 def get_item_by_id(item_id, collection=iip):
+    collection = db[collection]
     image = collection.find_one({'people.items.item_id': item_id})
     for person in image['people']:
         try:
@@ -252,8 +254,8 @@ def start_process(page_url, image_url, lang=None):
                 image_copy = person_isolation(image, face)
                 image_dict['people'].append(person)
                 paper_job = paperdoll_parse_enqueue.paperdoll_enqueue(image_copy, person['person_id'])
-                q1.enqueue_call(func=from_paperdoll_to_similar_results, args=(person['person_id'], paper_job.id, 100,
-                                                                              products_collection, coll_name),
+                q1.enqueue_call(func=from_paperdoll_to_top_n, args=(person['person_id'], paper_job.id, 100,
+                                                                    products_collection, coll_name),
                                 depends_on=paper_job, ttl=1000, result_ttl=1000,
                                 timeout=1000)
                 idx += 1
@@ -262,10 +264,9 @@ def start_process(page_url, image_url, lang=None):
             person = {'face': [], 'person_id': str(bson.ObjectId()), 'person_idx': 0, 'items': [], 'person_bb': None}
             image_dict['people'].append(person)
             paper_job = paperdoll_parse_enqueue.paperdoll_enqueue(image, person['person_id'])
-            q1.enqueue_call(func=from_paperdoll_to_similar_results, args=(person['person_id'], paper_job.id, 100,
-                                                                          products_collection, coll_name),
-                            depends_on=paper_job, ttl=1000, result_ttl=1000,
-                            timeout=1000)
+            q1.enqueue_call(func=from_paperdoll_to_top_n, args=(person['person_id'], paper_job.id, 100,
+                                                                products_collection, coll_name),
+                            depends_on=paper_job, ttl=1000, result_ttl=1000, timeout=1000)
         iip.insert_one(image_dict)
     else:  # if not relevant
         logging.warning('image is not relevant, but stored anyway..')
@@ -273,8 +274,8 @@ def start_process(page_url, image_url, lang=None):
         return
 
 
-def from_paperdoll_to_similar_results(person_id, paper_job_id, num_of_matches=100, products_collection='products',
-                                      images_collection='images'):
+def from_paperdoll_to_top_n(person_id, paper_job_id, num_of_matches=100, products_collection='products',
+                            images_collection='images'):
     products_collection = products_collection
     images_collection = db[images_collection]
     paper_job_results = job_result_from_id(paper_job_id)
@@ -289,9 +290,8 @@ def from_paperdoll_to_similar_results(person_id, paper_job_id, num_of_matches=10
     else:
         final_mask = after_pd_conclusions(mask, labels)
     image = Utils.get_cv2_img_array(image_obj['image_urls'][0])
-    items = []
-    jobs = {}
     idx = 0
+    items = []
     for num in np.unique(final_mask):
         # convert numbers to labels
         category = list(labels.keys())[list(labels.values()).index(num)]
@@ -306,40 +306,25 @@ def from_paperdoll_to_similar_results(person_id, paper_job_id, num_of_matches=10
                 str(image_obj['_id']) + '_' + person['person_id'] + '_' + item_dict['category'],
                 constants.svg_folder)
             item_dict["svg_url"] = constants.svg_url_prefix + svg_name
-            jobs[idx] = q2.enqueue_call(func=find_similar_mongo.find_top_n_results, args=(image, item_mask,
-                                                                                          num_of_matches,
-                                                                                          item_dict['category'],
-                                                                                          products_collection),
-                                        ttl=TTL, result_ttl=TTL, timeout=TTL)
             items.append(item_dict)
+            q2.enqueue_call(func=find_similar_mongo.find_top_n_results, args=(item_dict['item_id'], image, item_mask,
+                                                                              num_of_matches, item_dict['category'],
+                                                                              products_collection),
+                            ttl=TTL, result_ttl=TTL, timeout=TTL)
             idx += 1
-    done = all([job.is_finished for job in jobs.values()])
-    while not done:
-        time.sleep(0.2)
-        done = all([job.is_finished for job in jobs.values()])
-    for idx, job in jobs.iteritems():
-        cur_item = next((item for item in items if item['item_idx'] == idx), None)
-        cur_item['fp'], cur_item['similar_results'] = job.result
-    new_image_obj = iip.find_one_and_update({'people.person_id': person_id}, {'$set': {'people.$.items': items}},
-                                            return_document=pymongo.ReturnDocument.AFTER)
-    total_time = 0
-    while not new_image_obj:
-        if total_time < 30:
-            print "image_obj after update is None!.. waiting for it.. total time is {0}".format(total_time)
-            time.sleep(2)
-            total_time += 2
-            new_image_obj = iip.find_one_and_update({'people.person_id': person_id},
-                                                    {'$set': {'people.$.items': items}},
-                                                    return_document=pymongo.ReturnDocument.AFTER)
-        else:
-            print "exceeded.."
-            break
-    else:
-        image_obj = new_image_obj
-    if person['person_idx'] == len(image_obj['people']) - 1:
-        images_collection.insert_one(image_obj)
-        iip.delete_one({'_id': image_obj['_id']})
-        logging.warning("Done! image was successfully inserted to the DB images!")
+    iip.find_one_and_update({'people.person_id': person_id}, {'$set': {'people.$.items': items}})
+
+
+def insert_ready_document(item_id, fp, similar_results):
+    image, person, item = get_item_by_id(item_id)
+    fp_field = 'people.' + str(person['person_idx']) + '.items.' + str(item['item_idx']) + '.fp'
+    sr_field = 'people.' + str(person['person_idx']) + '.items.' + str(item['item_idx']) + '.similar_results'
+    new_image = iip.find_one_and_update({'_id': image['_id']}, {'$set': {fp_field: fp, sr_field: similar_results}},
+                                        return_document=pymongo.ReturnDocument.AFTER)
+    if all((len(similar_results) for person in new_image['people'] for similar_results in person['items'])):
+        images.insert_one(image)
+        iip.delete_one({'_id': image['_id']})
+        logging.debug("Done! image was successfully inserted to the DB images!")
 
 
 def get_results_now(page_url, image_url, collection='products_jp'):
