@@ -160,6 +160,9 @@ mv core trendi
 ln -s /root/trendi /usr/local/lib/python2.7/dist-packages/trendi
 
 
+sudo apt-get install firefox
+
+
 #VNC
 sudo apt-get update
 sudo apt-get install xfce4 xfce4-goodies tightvncserver
