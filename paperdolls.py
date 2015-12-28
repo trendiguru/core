@@ -11,6 +11,8 @@ import cv2
 from rq import Queue
 from rq.job import Job
 
+from .constants import redis_conn
+
 
 q1 = Queue('find_similar', connection=redis_conn)
 q2 = Queue('find_top_n', connection=redis_conn)
@@ -24,7 +26,6 @@ from . import background_removal
 from . import Utils
 from . import constants
 from .constants import db
-from .constants import redis_conn
 
 
 folder = '/home/ubuntu/paperdoll/masks/'
