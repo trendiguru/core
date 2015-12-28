@@ -15,8 +15,9 @@ def kill_pd_workers():
     p = subprocess.Popen(['ps', '-auxw'], stdout=subprocess.PIPE)
     out, err = p.communicate()
 #break ps output down into lines and loop on them...:
+    string_to_look_for_in_pd_command = constants.string_to_look_for_in_pd_command
     for line in out.splitlines():
-        if string_in_pd_command in line:
+        if string_to_look_for_in_pd_command in line:
             a = line.split()
             pid = int(a[1])  #maybe on a different unix the output doesnt have owqnder
             print('pid to kill:'+str(pid))
@@ -30,13 +31,13 @@ def count_pd_workers():
  #   /usr/bin/python /usr/local/bin /rqworker -w rq.tgworker.TgWorker -u redis://redis1-redis-1-vm:6379 pd
 #    command = 'ps -auxw'
  #   p = subprocess.Popen(command, shell=True,stdout=subprocess.PIPE).stdout.read()
-    string_in_pd_command = constants.string_in_pd_command
+    string_to_look_for_in_pd_command = constants.string_to_look_for_in_pd_command
     p = subprocess.Popen(['ps', '-aux'], stdout=subprocess.PIPE)
     out, err = p.communicate()
 #break ps output down into lines and loop on them...:
     for line in out.splitlines():
         print line
-        if string_in_pd_command in line:
+        if string_to_look_for_in_pd_command in line:
             a = line.split()
             print a
             pid = a[1]
