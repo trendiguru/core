@@ -29,7 +29,7 @@ images = db.images
 iip = db.iip
 q1 = Queue('find_similar', connection=redis_conn)
 q2 = Queue('find_top_n', connection=redis_conn)
-# q3 = Queue('insert_ready_document', connection=redis_conn)
+q3 = Queue('nadav', connection=redis_conn)
 # sys.stdout = sys.stderr
 TTL = constants.general_ttl
 
@@ -253,7 +253,7 @@ def start_process(page_url, image_url, lang=None):
                 image_copy = person_isolation(image, face)
                 image_dict['people'].append(person)
                 paper_job = paperdoll_parse_enqueue.paperdoll_enqueue(image_copy, person['person_id'])
-                q1.enqueue_call(func=from_paperdoll_to_similar_results, args=(person['person_id'], paper_job.id, 100,
+                q3.enqueue_call(func=from_paperdoll_to_similar_results, args=(person['person_id'], paper_job.id, 100,
                                                                               products_collection, coll_name),
                                 depends_on=paper_job, ttl=1000, result_ttl=1000,
                                 timeout=1000)
@@ -263,7 +263,7 @@ def start_process(page_url, image_url, lang=None):
             person = {'face': [], 'person_id': str(bson.ObjectId()), 'person_idx': 0, 'items': [], 'person_bb': None}
             image_dict['people'].append(person)
             paper_job = paperdoll_parse_enqueue.paperdoll_enqueue(image, person['person_id'])
-            q1.enqueue_call(func=from_paperdoll_to_similar_results, args=(person['person_id'], paper_job.id, 100,
+            q3.enqueue_call(func=from_paperdoll_to_similar_results, args=(person['person_id'], paper_job.id, 100,
                                                                           products_collection, coll_name),
                             depends_on=paper_job, ttl=1000, result_ttl=1000, timeout=1000)
         iip.insert_one(image_dict)
