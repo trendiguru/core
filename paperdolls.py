@@ -11,6 +11,11 @@ import cv2
 from rq import Queue
 from rq.job import Job
 
+
+q1 = Queue('find_similar', connection=redis_conn)
+q2 = Queue('find_top_n', connection=redis_conn)
+q3 = Queue('insert_ready_document', connection=redis_conn)
+
 import boto3
 import page_results
 from .paperdoll import paperdoll_parse_enqueue
@@ -27,9 +32,7 @@ QC_URL = 'https://extremeli.trendi.guru/api/fake_qc/index'
 callback_url = "https://extremeli.trendi.guru/api/nadav/index"
 images = db.images
 iip = db.iip
-q1 = Queue('find_similar', connection=redis_conn)
-q2 = Queue('find_top_n', connection=redis_conn)
-q3 = Queue('insert_ready_document', connection=redis_conn)
+
 # sys.stdout = sys.stderr
 TTL = constants.general_ttl
 
