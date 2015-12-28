@@ -61,7 +61,7 @@ tar xzvf yasm-${YASM_VERSION}.tar.gz
 # Build YASM # =================================
 cd /usr/local/src/yasm-${YASM_VERSION}
 ./configure
-make -j 4
+make -j 48
 make install
 # ================================= # Build L-SMASH # =================================
 cd /usr/local/src/l-smash
@@ -100,47 +100,22 @@ cd /usr/local/src
 apt-get update -qq 
 #apt-get install -y --force-yes libopencv-dev
 #git clone https://github.com/Itseez/opencv.git
-wget https://github.com/Itseez/opencv/archive/3.0.0.zip
-unzip 3.0.0.zip
+#wget https://github.com/Itseez/opencv/archive/3.0.0.zip
+#unzip 3.0.0.zip
 #mkdir -p opencv/release
-echo ls
-cd opencv-3.0.0
-mkdir release
-cd release
-cmake -D CMAKE_BUILD_TYPE=RELEASE -D CMAKE_INSTALL_PREFIX=/usr/local     -D WITH_TBB=ON  -D BUILD_PYTHON_SUPPORT=ON -D BUILD_NEW_PYTHON_SUPPORT=ON ..
+#echo ls
 
-#cmake -D CMAKE_BUILD_TYPE=RELEASE \
- #         -D CMAKE_INSTALL_PREFIX=/usr/local \
-  #        -D WITH_TBB=ON \
-   #       -D BUILD_PYTHON_SUPPORT=ON \
-    #      -D WITH_V4L=ON \
-   #       ..
-make -j20
-make install
+git clone https://github.com/Itseez/opencv.git
+cd opencv
+git checkout 3.0.0
+git status
+git branch
+mkdir build
+cd build
+cmake -D CMAKE_BUILD_TYPE=RELEASE -D CMAKE_INSTALL_PREFIX=/usr/local -D INSTALL_C_EXAMPLES=ON -D INSTALL_PYTHON_EXAMPLES=ON -D OPENCV_EXTRA_MODULES_PATH=~/opencv_contrib/modules -D BUILD_EXAMPLES=ON ..
+make -j48
+sudo make install
+sudo ldconfig
+
 export PYTHONPATH=$PYTHONPATH:/usr/local/lib/python2.7/site-packages
 sh -c 'echo "/usr/local/lib" > /etc/ld.so.conf.d/opencv.conf'
-ldconfig
-# ================================= # Build ffmpeg. # =================================
-apt-get update -qq && apt-get install -y --force-yes \
-    libass-dev
-cd /usr/local/src/ffmpeg
- ./configure --extra-libs="-ldl" \
-            --enable-gpl \
-            --enable-libass \
-            --enable-libfdk-aac \
-            --enable-libfontconfig \
-            --enable-libfreetype \
-            --enable-libfribidi \
-            --enable-libmp3lame \
-            --enable-libopus \
-            --enable-libtheora \
-            --enable-libvorbis \
-            --enable-libvpx \
-            --enable-libx264 \
-            --enable-libx265 \
-            --enable-nonfree
-make -j 4
-make install
-# ================================= # Remove all tmpfile # =================================
-cd /usr/local/
-#rm -rf /usr/local/src
