@@ -20,6 +20,7 @@ histograms_length = constants.histograms_length
 FP_KEY = "fingerprint"
 db = constants.db
 
+
 def get_classifiers():
     default_classifiers = ["/home/www-data/web2py/applications/fingerPrint/modules/shirtClassifier.xml",
                            "/home/www-data/web2py/applications/fingerPrint/modules/pantsClassifier.xml",
@@ -62,7 +63,7 @@ def mask2svg(mask, filename, save_in_folder):
     return filename + '.svg'
 
 
-def find_top_n_results(item_id, image, mask, number_of_results=10, category_id=None, collection="products",
+def find_top_n_results(image, mask, number_of_results=10, category_id=None, collection="products",
                        fp_category=FP_KEY, fp_len=fingerprint_length, distance_function=None,
                        bins=histograms_length):
     '''
@@ -95,9 +96,8 @@ def find_top_n_results(item_id, image, mask, number_of_results=10, category_id=N
     print "done with find_n_nearest.. num of closest_matches: {0}".format(len(closest_matches))
     # get only the object itself, not the distance
     closest_matches = [match_tuple[0] for match_tuple in closest_matches]
-    from .paperdolls import q3, insert_ready_document
-    q3.enqueue_call(func=insert_ready_document, args=(item_id, color_fp.tolist(), closest_matches),
-                    ttl=constants.general_ttl, result_ttl=constants.general_ttl, timeout=constants.general_ttl)
+
+    return color_fp.tolist(), closest_matches
 
 
 def got_bb(image_url, post_id, item_id, bb=None, number_of_results=10, category_id=None):
