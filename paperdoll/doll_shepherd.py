@@ -78,5 +78,5 @@ if __name__ == "__main__":
         n = count_pd_workers()
         print(str(n)+' workers online')
         if n<n_workers:
-            start_pd_workers(constants.n_workers-n)
+            start_pd_workers(n_workers-n)
         time.sleep(10)
