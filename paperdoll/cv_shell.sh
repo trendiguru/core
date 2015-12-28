@@ -156,7 +156,7 @@ sh -c 'echo "/usr/local/lib" > /etc/ld.so.conf.d/opencv.conf'
 #cd "matlabroot/extern/engines/python"
 #python setup.py install
 
-
+mv core trendi
 ln -s /root/trendi /usr/local/lib/python2.7/dist-packages/trendi
 
 
