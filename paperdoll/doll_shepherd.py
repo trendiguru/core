@@ -7,7 +7,6 @@ import socket
 from trendi import constants
 
 
-string_in_pd_command = 'rq.tgworker'
 
 
 def kill_pd_workers():
@@ -31,6 +30,7 @@ def count_pd_workers():
  #   /usr/bin/python /usr/local/bin /rqworker -w rq.tgworker.TgWorker -u redis://redis1-redis-1-vm:6379 pd
 #    command = 'ps -auxw'
  #   p = subprocess.Popen(command, shell=True,stdout=subprocess.PIPE).stdout.read()
+    string_in_pd_command = constants.string_in_pd_command
     p = subprocess.Popen(['ps', '-aux'], stdout=subprocess.PIPE)
     out, err = p.communicate()
 #break ps output down into lines and loop on them...:
