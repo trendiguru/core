@@ -101,11 +101,11 @@ def get_parse_from_matlab_parallel(image_filename, matlab_engine, use_parfor=Fal
 
 def save_fail_image(img_filename):
     img_arr = cv2.imread(img_filename)
+    print('attempting to save fail image')
     if img_arr is not None:
-        fail_filename = 'fail'+img_filename
+        fail_filename = 'fail'+img_arr
         dir = constants.pd_output_savedir
         path = os.path.join(dir,fail_filename)
-        print('attempting to save fail image to '+str(path))
         cv2.imwrite(path,img_arr)
         print('sucessful save of fail image')
         return
