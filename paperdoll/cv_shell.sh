@@ -156,6 +156,10 @@ sh -c 'echo "/usr/local/lib" > /etc/ld.so.conf.d/opencv.conf'
 #cd "matlabroot/extern/engines/python"
 #python setup.py install
 
+mv core trendi
+ln -s /root/trendi /usr/local/lib/python2.7/dist-packages/trendi
+
+
 #VNC
 sudo apt-get update
 sudo apt-get install xfce4 xfce4-goodies tightvncserver
