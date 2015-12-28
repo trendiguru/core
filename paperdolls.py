@@ -61,7 +61,7 @@ def get_person_by_id(person_id, collection=iip):
 
 
 def get_item_by_id(item_id, collection=iip):
-    collection = db[collection]
+    collection = db[str(collection)]
     image = collection.find_one({'people.items.item_id': item_id})
     for person in image['people']:
         try:
