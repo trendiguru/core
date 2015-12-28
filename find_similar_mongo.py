@@ -6,7 +6,6 @@ import subprocess
 import cv2
 import numpy as np
 
-from .paperdolls import q3, insert_ready_document
 from . import fingerprint_core as fp
 from . import NNSearch
 from . import background_removal
@@ -96,7 +95,7 @@ def find_top_n_results(item_id, image, mask, number_of_results=10, category_id=N
     print "done with find_n_nearest.. num of closest_matches: {0}".format(len(closest_matches))
     # get only the object itself, not the distance
     closest_matches = [match_tuple[0] for match_tuple in closest_matches]
-
+    from .paperdolls import q3, insert_ready_document
     q3.enqueue_call(func=insert_ready_document, args=(item_id, color_fp.tolist(), closest_matches),
                     ttl=constants.general_ttl, result_ttl=constants.general_ttl, timeout=constants.general_ttl)
 
