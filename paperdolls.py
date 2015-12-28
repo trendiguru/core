@@ -21,7 +21,7 @@ q3 = Queue('insert_ready_document', connection=redis_conn)
 import boto3
 import page_results
 from .paperdoll import paperdoll_parse_enqueue
-from . import find_similar_mongo
+from .find_similar_mongo import mask2svg, find_top_n_results
 from . import background_removal
 from . import Utils
 from . import constants
@@ -305,15 +305,15 @@ def from_paperdoll_to_top_n(person_id, paper_job_id, num_of_matches=100, product
             shopstyle_cat_local_name = constants.paperdoll_shopstyle_women_jp_categories[category]['name']
             item_dict = {"category": shopstyle_cat, 'item_id': str(bson.ObjectId()), 'item_idx': idx,
                          'saved_date': datetime.datetime.now(), 'category_name': shopstyle_cat_local_name}
-            svg_name = find_similar_mongo.mask2svg(
+            svg_name = mask2svg(
                 item_mask,
                 str(image_obj['_id']) + '_' + person['person_id'] + '_' + item_dict['category'],
                 constants.svg_folder)
             item_dict["svg_url"] = constants.svg_url_prefix + svg_name
             items.append(item_dict)
-            q2.enqueue_call(func=find_similar_mongo.find_top_n_results, args=(item_dict['item_id'], image, item_mask,
-                                                                              num_of_matches, item_dict['category'],
-                                                                              products_collection),
+            q2.enqueue_call(func=find_top_n_results, args=(item_dict['item_id'], image, item_mask,
+                                                           num_of_matches, item_dict['category'],
+                                                           products_collection),
                             ttl=TTL, result_ttl=TTL, timeout=TTL)
             idx += 1
     iip.find_one_and_update({'people.person_id': person_id}, {'$set': {'people.$.items': items}})
@@ -389,18 +389,14 @@ def get_results_now(page_url, image_url, collection='products_jp'):
                         shopstyle_cat = constants.paperdoll_shopstyle_women[category]
                         item_dict = {"category": shopstyle_cat, 'item_id': str(bson.ObjectId()), 'item_idx': item_idx,
                                      'saved_date': datetime.datetime.now()}
-                        svg_name = find_similar_mongo.mask2svg(
+                        svg_name = mask2svg(
                             item_mask,
                             str(image_dict['image_hash']) + '_' + person['person_id'] + '_' + item_dict['category'],
                             constants.svg_folder)
                         item_dict["svg_url"] = constants.svg_url_prefix + svg_name
-                        jobs[item_idx] = q2.enqueue_call(func=find_similar_mongo.find_top_n_results, args=(image,
-                                                                                                           item_mask,
-                                                                                                           100,
-                                                                                                           item_dict[
-                                                                                                               'category'],
-                                                                                                           collection),
-                                                         ttl=TTL,
+                        jobs[item_idx] = q2.enqueue_call(func=find_top_n_results, args=(image, item_mask, 100,
+                                                                                        item_dict['category'],
+                                                                                        collection), ttl=TTL,
                                                          result_ttl=TTL, timeout=TTL)
                         person['items'].append(item_dict)
                         item_idx += 1
@@ -433,16 +429,16 @@ def get_results_now(page_url, image_url, collection='products_jp'):
                     shopstyle_cat = constants.paperdoll_shopstyle_women[category]
                     item_dict = {"category": shopstyle_cat, 'item_id': str(bson.ObjectId()), 'item_idx': item_idx,
                                  'saved_date': datetime.datetime.now()}
-                    svg_name = find_similar_mongo.mask2svg(
+                    svg_name = mask2svg(
                         item_mask,
                         str(image_dict['image_hash']) + '_' + person['person_id'] + '_' + item_dict['category'],
                         constants.svg_folder)
                     item_dict["svg_url"] = constants.svg_url_prefix + svg_name
-                    jobs[idx] = q2.enqueue_call(func=find_similar_mongo.find_top_n_results, args=(image,
-                                                                                                  item_mask, 100,
-                                                                                                  item_dict['category'],
-                                                                                                  collection), ttl=TTL,
-                                                result_ttl=TTL, timeout=TTL)
+                    jobs[idx] = q2.enqueue_call(func=find_top_n_results, args=(image,
+                                                                               item_mask, 100,
+                                                                               item_dict['category'],
+                                                                               collection), ttl=TTL, result_ttl=TTL,
+                                                timeout=TTL)
                     person['items'].append(item_dict)
                     item_idx += 1
             image_dict['people'].append(person)
