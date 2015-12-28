@@ -31,11 +31,11 @@ def count_pd_workers():
  #   /usr/bin/python /usr/local/bin /rqworker -w rq.tgworker.TgWorker -u redis://redis1-redis-1-vm:6379 pd
 #    command = 'ps -auxw'
  #   p = subprocess.Popen(command, shell=True,stdout=subprocess.PIPE).stdout.read()
-    p = subprocess.Popen(['ps', '-auxw'], stdout=subprocess.PIPE)
+    p = subprocess.Popen(['ps', '-aux'], stdout=subprocess.PIPE)
     out, err = p.communicate()
 #break ps output down into lines and loop on them...:
     for line in out.splitlines():
-#        print line
+        print line
         if string_in_pd_command in line:
             a = line.split()
             print a
