@@ -44,6 +44,39 @@ sudo   apt-get update -qq && apt-get install -y --force-yes \
     wget \
     unzip; \
     apt-get clean
+
+
+RUN apt-get update
+#RUN apt-get -y upgrade
+#RUN apt-key update && apt-get update
+
+RUN apt-get install -y python wget
+RUN apt-get install -y screen
+#cmap is  for debugging port forwarding
+#RUN apt-get install -y nmap
+RUN apt-get install -y cmake   #have below
+RUN apt-get install -y unzip
+
+#PYTHON NUMPY
+#RUN add-apt-repository ppa:fkrull/deadsnakes
+RUN apt-get update
+#RUN apt-get install -y python2.7
+
+RUN wget https://bootstrap.pypa.io/get-pip.py
+RUN python get-pip.py
+RUN pip install pymongo
+RUN pip install ipython
+RUN apt-get install -y python-dev
+#RUN apt-get install -y python-numpy
+#RUN easy_install numpy
+RUN pip install numpy
+#RUN pip install python-dateutil
+RUN pip install pyparsing
+RUN pip install pytz
+#RUN pip install matplotlib
+
+
+
 YASM_VERSION=1.3.0
 OPENCV_VERSION=3.0
 cd /usr/local/src
@@ -119,3 +152,13 @@ sudo ldconfig
 
 export PYTHONPATH=$PYTHONPATH:/usr/local/lib/python2.7/site-packages
 sh -c 'echo "/usr/local/lib" > /etc/ld.so.conf.d/opencv.conf'
+
+#cd "matlabroot/extern/engines/python"
+#python setup.py install
+
+#VNC
+sudo apt-get update
+sudo apt-get install xfce4 xfce4-goodies tightvncserver
+adduser vnc
+sudo su vnc
+vncserver
