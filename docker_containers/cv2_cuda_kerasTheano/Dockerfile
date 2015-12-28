@@ -19,6 +19,9 @@ RUN apt-get install -y build-essential
 
 
 #CUDA
+FROM ubuntu:14.04
+RUN apt-get update
+RUN apt-get install -y libboost-all-dev
 RUN apt-get install -y wget
 RUN wget http://developer.download.nvidia.com/compute/cuda/repos/ubuntu1404/x86_64/cuda-repo-ubuntu1404_7.5-18_amd64.deb
 RUN sudo dpkg -i cuda-repo-ubuntu1404_7.5-18_amd64.deb
