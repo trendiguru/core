@@ -138,7 +138,7 @@ def distance_function_nate(entry, target_dict, method):
     if method == "histo":
         dist = NNSearch.distance_1_k(entry[method], target_dict[method])
     else:
-        dist = NNSearch.distance_Bhattacharyya(entry[method], target_dict[method], fp_weights, 696)
+        dist = NNSearch.distance_Bhattacharyya(entry[method], target_dict[method], fp_weights, bins)
 
     return dist
 
