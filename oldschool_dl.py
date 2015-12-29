@@ -5,7 +5,6 @@ import time
 import json
 import urllib
 import datetime
-
 import sys
 
 import requests
@@ -395,7 +394,7 @@ class UrlParams(collections.MutableMapping):
 
 
 if __name__ == "__main__":
-    col = "new_products"
+    col = "products"
     if len(sys.argv) == 2:
         col = col + "_" + sys.argv[1]
     print ("@@@ Shopstyle Download @@@\n you choose to update the " + col + " collection")
