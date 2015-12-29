@@ -163,6 +163,15 @@ ln -s /root/trendi /usr/local/lib/python2.7/dist-packages/trendi
 sudo apt-get install firefox
 
 
+#for paperdoll
+sudo apt-get install libdb-dev
+sudo apt-get install zlib1g-dev
+ssh -f -N -L 6379:redis1-redis-1-vm:6379 root@extremeli.trendi.guru
+#/usr/bin/python /usr/local/bin/rqworker  -w trendi.matlab_wrapper.tgworker.TgWorker  pd
+
+adduser pd_user
+sudo adduser pd_user sudo
+
 #VNC
 sudo apt-get update
 sudo apt-get install xfce4 xfce4-goodies tightvncserver
@@ -170,10 +179,3 @@ adduser vnc
 sudo adduser vnc sudo
 sudo su vnc
 vncserver
-
-
-#for paperdoll
-sudo apt-get install libdb-dev
-sudo apt-get install zlib1g-dev
-ssh -f -N -L 6379:redis1-redis-1-vm:6379 root@extremeli.trendi.guru
-/usr/bin/python /usr/local/bin/rqworker  -w trendi.matlab_wrapper.tgworker.TgWorker  pd
