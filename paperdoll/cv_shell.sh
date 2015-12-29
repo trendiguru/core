@@ -157,7 +157,7 @@ sh -c 'echo "/usr/local/lib" > /etc/ld.so.conf.d/opencv.conf'
 #python setup.py install
 
 mv core trendi
-ln -s /root/trendi /usr/local/lib/python2.7/dist-packages/trendi
+ln -s /home/pd_user/trendi /usr/local/lib/python2.7/dist-packages/trendi
 
 
 sudo apt-get install firefox
@@ -175,6 +175,12 @@ ssh -f -N -L 6379:redis1-redis-1-vm:6379 root@extremeli.trendi.guru
 
 adduser pd_user
 sudo adduser pd_user sudo
+
+#root@brain3:/home/pd_user/trendi/paperdoll# rm /home/pd_user/paperdoll/pd.m
+#root@brain3:/home/pd_user/trendi/paperdoll# rm /home/pd_user/paperdoll/pd.py
+#root@brain3:/home/pd_user/trendi/paperdoll# ln -s /home/pd_user/trendi/paperdoll/pd.m /home/pd_user/paperdoll/pd.m
+#root@brain3:/home/pd_user/trendi/paperdoll# ln -s /home/pd_user/trendi/paperdoll/pd.py /home/pd_user/paperdoll/pd.py
+
 
 #VNC
 sudo apt-get update

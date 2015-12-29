@@ -21,7 +21,7 @@ result = feature_calculator.apply(config, input_sample)
 if  ~isfield(result, 'final_labeling')
     % paperdoll failed to return result
     disp('XXXXXXXXXXisfield switch enteredXXXXXXX');
-    failname = strcat('home/jeremy/pd_output/fail.',image_filename)
+    failname = strcat('/home/jeremy/pd_output/fail.',image_filename)
     disp(['failfile name' failname] )
     imwrite(input_image,failname)
     return
