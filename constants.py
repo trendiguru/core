@@ -31,6 +31,15 @@ string_to_look_for_in_pd_command = 'tgworker'
 N_expected_pd_workers_per_server = 15
 N_expected_pd_workers_per_server_braini1 = 47
 
+#general queues on braini
+string_to_look_for_in_rq_command = 'rqworker'
+unique_strings_to_look_for_in_rq_command = ['new_images','find_similar','find_top_n','fingerprint_new','tgworker']
+worker_commands =['/usr/bin/python /usr/local/bin/rqworker new_images &',
+                  '/usr/bin/python /usr/local/bin/rqworker find_similar &',
+                  '/usr/bin/python /usr/local/bin/rqworker find_top_n &',
+                  '/usr/bin/python /usr/local/bin/fingerprint_new &',
+                   'cd /home/pd_user/paperdoll  && /usr/bin/python /usr/local/bin/rqworker  -w trendi.matlab_wrapper.tgworker.TgWorker  pd &']
+N_expected_workers={47,47,47,47,47]
 
 #########
 # DB stuff
