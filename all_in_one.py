@@ -333,9 +333,9 @@ def get_svg_nate(image_url):
                         item_bb = paperdolls.bb_from_mask(item_mask)
                         item_gc_mask = background_removal.paperdoll_item_mask(item_mask, item_bb)
                         after_gc_mask = background_removal.simple_mask_grabcut(image, item_gc_mask)  # (255, 0) mask
-                        specio = new_finger_print.spaciogram_finger_print(image, after_gc_mask)
+                        specio = new_finger_print.spaciogram_finger_print(image, item_gc_mask)
                         item_dict["specio"] = specio.tolist()
-                        histo = new_finger_print.histogram_stack_finger_print(image, after_gc_mask)
+                        histo = new_finger_print.histogram_stack_finger_print(image, item_gc_mask)
                         item_dict["histo"] = histo.tolist()
                         person['items'] = [item_dict]
 
@@ -369,9 +369,9 @@ def get_svg_nate(image_url):
                     item_bb = paperdolls.bb_from_mask(item_mask)
                     item_gc_mask = background_removal.paperdoll_item_mask(item_mask, item_bb)
                     after_gc_mask = background_removal.simple_mask_grabcut(image, item_gc_mask)  # (255, 0) mask
-                    specio = new_finger_print.spaciogram_finger_print(image, after_gc_mask)
+                    specio = new_finger_print.spaciogram_finger_print(image, item_gc_mask)
                     item_dict["specio"] = specio.tolist()
-                    histo = new_finger_print.histogram_stack_finger_print(image, after_gc_mask)
+                    histo = new_finger_print.histogram_stack_finger_print(image, item_gc_mask)
                     item_dict["histo"] = histo.tolist()
                     person['items'] = [item_dict]
 
