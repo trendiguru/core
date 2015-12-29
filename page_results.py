@@ -473,7 +473,7 @@ def get_data_for_specific_image(image_url=None, image_hash=None, image_projectio
         'shortDescription': 1,
         #'sizes': 1,
         #'pageUrl': 1,
-        '_id': 0,
+        '_id': 1,
         'id': 1,
         'price.currency': 1,
     }
