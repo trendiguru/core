@@ -132,9 +132,9 @@ def distance_function(entry, target_dict, fp_weights, hist_length, wing, weight)
 
 def distance_function_nate(entry, target_dict, method):
     if method == "specio":
-        dist = 0
+        dist = new_finger_print.spaciograms_distance_rating(entry[method], target_dict[method])
     if method == "histo":
-        dist = 0
+        dist = NNSearch.distance_1_k(entry[method], target_dict[method])
     else:
         dist = NNSearch.distance_Bhattacharyya(entry[method], target_dict[method], fp_weights, 696)
 
