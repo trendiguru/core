@@ -143,10 +143,12 @@ def get_parse_mask_parallel(matlab_engine, img_url_or_cv2_array, filename=None, 
 
 def image_big_enough(img_array):
     if img_array is None:
+        logging.debug('image is Nonel')
         return False
     width = img_array.shape[0]
     height = img_array.shape[1]
     if (width < constants.minimum_im_width or height < constants.minimum_im_height):
+        logging.debug('image dimensions too small')
         return False
     else:
         return True

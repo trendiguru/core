@@ -24,7 +24,7 @@ minimum_im_height = 50
 # rq / worker stuff
 ##############
 
-pd_worker_command =  'cd /home/jeremy/paperdoll3/paperdoll-v1.0/ && /usr/bin/python /usr/local/bin/rqworker -w rq.tgworker.TgWorker -u redis://redis1-redis-1-vm:6379 pd &'
+pd_worker_command =  'cd /home/jeremy/paperdoll3/paperdoll-v1.0/ && /usr/bin/python /usr/local/bin/rqworker -w trendi.matlab_wrapper.tgworker.TgWorker -u redis://redis1-redis-1-vm:6379 pd &'
 pd_worker_command_braini1 =  'cd /home/pd_user/paperdoll  && /usr/bin/python /usr/local/bin/rqworker  -w trendi.matlab_wrapper.tgworker.TgWorker  pd &'
 string_to_look_for_in_pd_command = 'tgworker'
 
@@ -36,13 +36,14 @@ N_expected_pd_workers_per_server_braini1 = 47
 # DB stuff
 #########
 
+
 parallel_matlab_queuename = 'pd'
 nonparallel_matlab_queuename = 'pd_nonparallel'
 caffe_path_in_container = '/opt/caffe'
-# db = pymongo.MongoClient(host=os.environ["MONGO_HOST"], port=int(os.environ["MONGO_PORT"])).mydb
-# redis_conn = Redis(host=os.environ["REDIS_HOST"], port=int(os.environ["REDIS_PORT"]))
-db = pymongo.MongoClient(host="mongodb1-instance-1").mydb
-redis_conn = Redis(host="redis1-redis-1-vm")
+db = pymongo.MongoClient(host=os.environ["MONGO_HOST"], port=int(os.environ["MONGO_PORT"])).mydb
+redis_conn = Redis(host=os.environ["REDIS_HOST"], port=int(os.environ["REDIS_PORT"]))
+#db = pymongo.MongoClient(host="mongodb1-instance-1").mydb
+#redis_conn = Redis(host="redis1-redis-1-vm")
 # new worker : rqworker -u redis://redis1-redis-1-vm:6379 [name] &
 redis_conn_old = Redis()
 update_collection_name = 'products'
