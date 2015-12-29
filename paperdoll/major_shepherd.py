@@ -30,12 +30,12 @@ def count_queue_workers(unique_string):
 #    command = 'ps -auxw'
  #   p = subprocess.Popen(command, shell=True,stdout=subprocess.PIPE).stdout.read()
     string_to_look_for_in_rq_command = constants.string_to_look_for_in_rq_command
-    p = subprocess.Popen(['ps', '-aux','|','grep',unique_string,'|','grep',string_to_look_for_in_rq_command], stdout=subprocess.PIPE)
+    p = subprocess.Popen(['ps', '-aux'], stdout=subprocess.PIPE)
     out, err = p.communicate()
 #break ps output down into lines and loop on them...:
     for line in out.splitlines():
         #print line
-        if string_to_look_for_in_pd_command in line:
+        if string_to_look_for_in_rq_command in line and unique_string in line:
             a = line.split()
             print a
             pid = a[1]
