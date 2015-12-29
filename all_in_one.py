@@ -135,7 +135,7 @@ def distance_function(entry, target_dict, fp_weights, hist_length, wing, weight)
 def distance_function_nate(entry, target_dict, method):
     if method == "specio":
         dist = new_finger_print.spaciograms_distance_rating(np.asarray(entry[method]), target_dict[method])
-    if method == "histo":
+    elif method == "histo":
         dist = NNSearch.distance_1_k(np.asarray(entry[method]), target_dict[method])
     else:
         dist = NNSearch.distance_Bhattacharyya(entry[method], target_dict[method], fp_weights, bins)
@@ -400,7 +400,7 @@ def get_results_now(idx, collection="mr8_testing", wing="left", weight='0.05'):
     return item_dict
 
 
-def get_results_now_nate(idx, method="fingerprint"):
+def get_results_now_nate(idx, method):
     oid = bson.ObjectId(idx)
     item = db.demo_yonti.find_one({"_id": oid})
     if method == "specio":
