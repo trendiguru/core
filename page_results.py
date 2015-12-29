@@ -461,21 +461,21 @@ def get_data_for_specific_image(image_url=None, image_hash=None, image_projectio
 
     product_projection = product_projection or {
         #'seeMoreUrl': 1,
-        'image.sizes.XLarge.url': 1,
+        'images.XLarge': 1,
         'clickUrl': 1,
         #'retailer': 1,
         #'currency': 1,
-        'brand.name': 1,
-        'brand.localizedName': 1,
+        'brand': 1,
+        # 'brand.localizedName': 1,
         #'description': 1,
-        'price': 1,
+        'price.price': 1,
         #'categories': 1,
-        'name': 1,
+        'shortDescription': 1,
         #'sizes': 1,
         #'pageUrl': 1,
         '_id': 0,
         'id': 1,
-        'priceLabel': 1,
+        'price.currency': 1,
     }
 
     if image_url is None and image_hash is None:
