@@ -88,7 +88,7 @@ def find_top_n_results_nate(fp, method):
     # get all items in the category
     potential_matches_cursor = collection.find(
         {"categories": "dress"},
-        {"_id": 1, "id": 1, "images.XLarge": 1, "clickUrl": 1, method: 1}).batch_size(100)
+        {"_id": 1, "id": 1, "images.XLarge": 1, "clickUrl": 1, method: 1}).batch_size(100).limit(10000)
 
     print "amount of docs in cursor: {0}".format(potential_matches_cursor.count())
 
