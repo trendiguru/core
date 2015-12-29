@@ -29,6 +29,7 @@ images = db.images
 iip = db.iip
 q1 = Queue('find_similar', connection=redis_conn)
 q2 = Queue('find_top_n', connection=redis_conn)
+q3 = Queue('nadav', connection=redis_conn)
 # sys.stdout = sys.stderr
 TTL = constants.general_ttl
 
@@ -264,8 +265,7 @@ def start_process(page_url, image_url, lang=None):
             paper_job = paperdoll_parse_enqueue.paperdoll_enqueue(image, person['person_id'])
             q1.enqueue_call(func=from_paperdoll_to_similar_results, args=(person['person_id'], paper_job.id, 100,
                                                                           products_collection, coll_name),
-                            depends_on=paper_job, ttl=1000, result_ttl=1000,
-                            timeout=1000)
+                            depends_on=paper_job, ttl=1000, result_ttl=1000, timeout=1000)
         iip.insert_one(image_dict)
     else:  # if not relevant
         logging.warning('image is not relevant, but stored anyway..')
@@ -289,9 +289,9 @@ def from_paperdoll_to_similar_results(person_id, paper_job_id, num_of_matches=10
     else:
         final_mask = after_pd_conclusions(mask, labels)
     image = Utils.get_cv2_img_array(image_obj['image_urls'][0])
+    idx = 0
     items = []
     jobs = {}
-    idx = 0
     for num in np.unique(final_mask):
         # convert numbers to labels
         category = list(labels.keys())[list(labels.values()).index(num)]
@@ -306,12 +306,12 @@ def from_paperdoll_to_similar_results(person_id, paper_job_id, num_of_matches=10
                 str(image_obj['_id']) + '_' + person['person_id'] + '_' + item_dict['category'],
                 constants.svg_folder)
             item_dict["svg_url"] = constants.svg_url_prefix + svg_name
+            items.append(item_dict)
             jobs[idx] = q2.enqueue_call(func=find_similar_mongo.find_top_n_results, args=(image, item_mask,
                                                                                           num_of_matches,
                                                                                           item_dict['category'],
                                                                                           products_collection),
                                         ttl=TTL, result_ttl=TTL, timeout=TTL)
-            items.append(item_dict)
             idx += 1
     done = all([job.is_finished for job in jobs.values()])
     while not done:

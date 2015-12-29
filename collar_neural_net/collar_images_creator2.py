@@ -2,8 +2,8 @@ import cv2
 import numpy as np
 # import scipy as sp
 import os
-face_cascade = cv2.CascadeClassifier('/home/core/classifier_stuff/classifiers_to_test/face/haarcascade_frontalface_default.xml')
-# face_cascade = cv2.CascadeClassifier('/home/developer/python-packages/trendi/classifier_stuff/classifiers_to_test/face/haarcascade_frontalface_default.xml')
+# face_cascade = cv2.CascadeClassifier('/home/core/classifier_stuff/classifiers_to_test/face/haarcascade_frontalface_default.xml')
+face_cascade = cv2.CascadeClassifier('/home/developer/python-packages/trendi/classifier_stuff/classifiers_to_test/face/haarcascade_frontalface_default.xml')
 # face_cascade = cv2.CascadeClassifier('/home/nate/Desktop/core/classifier_stuff/classifiers_to_test/face/haarcascade_frontalface_default.xml')
 # eye_cascade = cv2.CascadeClassifier('haarcascade_eye.xml')
 # current_directory = os.path.abspath()

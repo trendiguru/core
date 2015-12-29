@@ -20,6 +20,7 @@ histograms_length = constants.histograms_length
 FP_KEY = "fingerprint"
 db = constants.db
 
+
 def get_classifiers():
     default_classifiers = ["/home/www-data/web2py/applications/fingerPrint/modules/shirtClassifier.xml",
                            "/home/www-data/web2py/applications/fingerPrint/modules/pantsClassifier.xml",

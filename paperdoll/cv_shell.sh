@@ -37,12 +37,46 @@ sudo   apt-get update -qq && apt-get install -y --force-yes \
     v4l-utils \
     python2.7 \
     python2.7-dev \
+    python-dev \
     python-numpy \
     default-jdk \
     ant \
     wget \
     unzip; \
     apt-get clean
+
+
+RUN apt-get update
+#RUN apt-get -y upgrade
+#RUN apt-key update && apt-get update
+
+RUN apt-get install -y python wget
+RUN apt-get install -y screen
+#cmap is  for debugging port forwarding
+#RUN apt-get install -y nmap
+RUN apt-get install -y cmake   #have below
+RUN apt-get install -y unzip
+
+#PYTHON NUMPY
+#RUN add-apt-repository ppa:fkrull/deadsnakes
+RUN apt-get update
+#RUN apt-get install -y python2.7
+
+RUN wget https://bootstrap.pypa.io/get-pip.py
+RUN python get-pip.py
+RUN pip install pymongo
+RUN pip install ipython
+RUN apt-get install -y python-dev
+#RUN apt-get install -y python-numpy
+#RUN easy_install numpy
+RUN pip install numpy
+#RUN pip install python-dateutil
+RUN pip install pyparsing
+RUN pip install pytz
+#RUN pip install matplotlib
+
+
+
 YASM_VERSION=1.3.0
 OPENCV_VERSION=3.0
 cd /usr/local/src
@@ -60,7 +94,7 @@ tar xzvf yasm-${YASM_VERSION}.tar.gz
 # Build YASM # =================================
 cd /usr/local/src/yasm-${YASM_VERSION}
 ./configure
-make -j 4
+make -j 48
 make install
 # ================================= # Build L-SMASH # =================================
 cd /usr/local/src/l-smash
@@ -99,46 +133,49 @@ cd /usr/local/src
 apt-get update -qq 
 #apt-get install -y --force-yes libopencv-dev
 #git clone https://github.com/Itseez/opencv.git
-wget https://github.com/Itseez/opencv/archive/3.0.0.zip
-unzip 3.0.0.zip
+#wget https://github.com/Itseez/opencv/archive/3.0.0.zip
+#unzip 3.0.0.zip
 #mkdir -p opencv/release
-echo ls
-cd opencv-3.0.0
+#echo ls
+
+git clone https://github.com/Itseez/opencv.git
+cd opencv
+git checkout 3.0.0
+git status
+git branch
 mkdir build
 cd build
-cmake -D CMAKE_BUILD_TYPE=RELEASE -D CMAKE_INSTALL_PREFIX=/usr/local     -D WITH_TBB=ON  -D BUILD_PYTHON_SUPPORT=ON ..
+cmake -D CMAKE_BUILD_TYPE=RELEASE -D CMAKE_INSTALL_PREFIX=/usr/local -D INSTALL_C_EXAMPLES=ON -D INSTALL_PYTHON_EXAMPLES=ON -D OPENCV_EXTRA_MODULES_PATH=~/opencv_contrib/modules -D BUILD_EXAMPLES=ON ..
+make -j48
+sudo make install
+sudo ldconfig
 
-#cmake -D CMAKE_BUILD_TYPE=RELEASE \
- #         -D CMAKE_INSTALL_PREFIX=/usr/local \
-  #        -D WITH_TBB=ON \
-   #       -D BUILD_PYTHON_SUPPORT=ON \
-    #      -D WITH_V4L=ON \
-   #       ..
-make -j4
-make install
+export PYTHONPATH=$PYTHONPATH:/usr/local/lib/python2.7/site-packages
 sh -c 'echo "/usr/local/lib" > /etc/ld.so.conf.d/opencv.conf'
-ldconfig
-# ================================= # Build ffmpeg. # =================================
-apt-get update -qq && apt-get install -y --force-yes \
-    libass-dev
-cd /usr/local/src/ffmpeg
- ./configure --extra-libs="-ldl" \
-            --enable-gpl \
-            --enable-libass \
-            --enable-libfdk-aac \
-            --enable-libfontconfig \
-            --enable-libfreetype \
-            --enable-libfribidi \
-            --enable-libmp3lame \
-            --enable-libopus \
-            --enable-libtheora \
-            --enable-libvorbis \
-            --enable-libvpx \
-            --enable-libx264 \
-            --enable-libx265 \
-            --enable-nonfree
-make -j 4
-make install
-# ================================= # Remove all tmpfile # =================================
-cd /usr/local/
-#rm -rf /usr/local/src
+
+#cd "matlabroot/extern/engines/python"
+#python setup.py install
+
+mv core trendi
+ln -s /root/trendi /usr/local/lib/python2.7/dist-packages/trendi
+
+
+sudo apt-get install firefox
+
+
+#for paperdoll
+sudo apt-get install libdb-dev
+sudo apt-get install zlib1g-dev
+ssh -f -N -L 6379:redis1-redis-1-vm:6379 root@extremeli.trendi.guru
+#/usr/bin/python /usr/local/bin/rqworker  -w trendi.matlab_wrapper.tgworker.TgWorker  pd
+
+adduser pd_user
+sudo adduser pd_user sudo
+
+#VNC
+sudo apt-get update
+sudo apt-get install xfce4 xfce4-goodies tightvncserver
+adduser vnc
+sudo adduser vnc sudo
+sudo su vnc
+vncserver

@@ -2,12 +2,11 @@ __author__ = 'jeremy'
 import subprocess, signal
 import time
 import os
-
-
+import socket
 
 from trendi import constants
 
-string_in_pd_command = 'rq.tgworker'
+
 
 
 def kill_pd_workers():
@@ -16,8 +15,9 @@ def kill_pd_workers():
     p = subprocess.Popen(['ps', '-auxw'], stdout=subprocess.PIPE)
     out, err = p.communicate()
 #break ps output down into lines and loop on them...:
+    string_to_look_for_in_pd_command = constants.string_to_look_for_in_pd_command
     for line in out.splitlines():
-        if string_in_pd_command in line:
+        if string_to_look_for_in_pd_command in line:
             a = line.split()
             pid = int(a[1])  #maybe on a different unix the output doesnt have owqnder
             print('pid to kill:'+str(pid))
@@ -31,12 +31,13 @@ def count_pd_workers():
  #   /usr/bin/python /usr/local/bin /rqworker -w rq.tgworker.TgWorker -u redis://redis1-redis-1-vm:6379 pd
 #    command = 'ps -auxw'
  #   p = subprocess.Popen(command, shell=True,stdout=subprocess.PIPE).stdout.read()
-    p = subprocess.Popen(['ps', '-auxw'], stdout=subprocess.PIPE)
+    string_to_look_for_in_pd_command = constants.string_to_look_for_in_pd_command
+    p = subprocess.Popen(['ps', '-aux'], stdout=subprocess.PIPE)
     out, err = p.communicate()
 #break ps output down into lines and loop on them...:
     for line in out.splitlines():
-#        print line
-        if string_in_pd_command in line:
+        #print line
+        if string_to_look_for_in_pd_command in line:
             a = line.split()
             print a
             pid = a[1]
@@ -44,10 +45,14 @@ def count_pd_workers():
     return n
 
 def start_pd_workers(n=constants.N_expected_pd_workers_per_server):
+
+    command = constants.pd_worker_command
+    host = socket.gethostname()
+    print('host:'+str(host)+' trying to start '+str(n)+' workers')
+    if host == 'braini1':
+        command = constants.pd_worker_command_braini1
  #   /usr/bin/python /usr/local/bin /rqworker -w rq.tgworker.TgWorker -u redis://redis1-redis-1-vm:6379 pd
     for i in range(0,n):
-        print('attempting to start worker')
-        command = constants.pd_worker_command
   #      command = 'cd /home/jeremy/paperdoll3/paperdoll-v1.0/'
         print('command:'+command)
 #        p = subprocess.Popen(command, shell=True,stdout=subprocess.PIPE).stdout.read()
@@ -64,9 +69,15 @@ def restart_workers():
     start_pd_workers()
 
 if __name__ == "__main__":
+    host = socket.gethostname()
+    print('host:'+str(host))
+    if host == 'braini1':
+        n_workers = constants.N_expected_pd_workers_per_server_braini1
+    else:
+        n_workers = constants.N_expected_pd_workers_per_server
     while 1:
         n = count_pd_workers()
         print(str(n)+' workers online')
-        if n<constants.N_expected_pd_workers_per_server:
-            start_pd_workers(constants.N_expected_pd_workers_per_server-n)
+        if n<n_workers:
+            start_pd_workers(n_workers-n)
         time.sleep(10)

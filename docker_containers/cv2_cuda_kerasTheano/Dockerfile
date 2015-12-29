@@ -13,11 +13,30 @@ ENV LC_ALL en_US.UTF-8
 RUN apt-get -qq remove ffmpeg
 
 RUN sed -i 's/# \(.*multiverse$\)/\1/g' /etc/apt/sources.list
+RUN sed -i 's/#restricted/restricted/g' /etc/apt/sources.list
+RUN apt-get update
+RUN apt-get install -y build-essential
 
 
 #CUDA
-RUN apt-get install nvidia-current
-RUN apt-get install nvidia-cuda-toolkit
+RUN apt-get update
+RUN apt-get install -y libboost-all-dev
+RUN apt-get install -y wget
+RUN wget http://developer.download.nvidia.com/compute/cuda/repos/ubuntu1404/x86_64/cuda-repo-ubuntu1404_7.5-18_amd64.deb
+RUN sudo dpkg -i cuda-repo-ubuntu1404_7.5-18_amd64.deb
+RUN sudo apt-get update
+RUN sudo apt-get -y install cuda
+
+#RUN apt-get install -y libc6-dev
+#RUN apt-get install -y gcc-4.9-base
+#RUN apt-get install -y libc6
+#RUN apt-get install -y libc6-i386
+#RUN apt-get install -y lib32gcc1
+#RUN apt-get install -y libc6-i386
+#RUN apt-get install -y nvidia-prime
+#RUN apt-get install -y nvidia-331
+##RUN apt-get install nvidia-current
+#RUN apt-get install -y nvidia-cuda-toolkit
 
 ##############################
 #OPENCV 3.0 WITH GPU
