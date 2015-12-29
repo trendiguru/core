@@ -26,7 +26,7 @@ pd_worker_command_braini1 =  'cd /home/pd_user/paperdoll  && /usr/bin/python /us
 string_to_look_for_in_pd_command = 'tgworker'
 
 N_expected_pd_workers_per_server = 15
-N_expected_pd_workers_per_server_braini1 = 41
+N_expected_pd_workers_per_server_braini1 = 47
 
 
 #########

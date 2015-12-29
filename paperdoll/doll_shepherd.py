@@ -49,7 +49,7 @@ def start_pd_workers(n=constants.N_expected_pd_workers_per_server):
     command = constants.pd_worker_command
     host = socket.gethostname()
     print('host:'+str(host)+' trying to start '+str(n)+' workers')
-    if host == 'braini1':
+    if host == 'braini1' or host == 'brain2' or host== 'brain3':
         command = constants.pd_worker_command_braini1
  #   /usr/bin/python /usr/local/bin /rqworker -w rq.tgworker.TgWorker -u redis://redis1-redis-1-vm:6379 pd
     for i in range(0,n):
@@ -71,7 +71,7 @@ def restart_workers():
 if __name__ == "__main__":
     host = socket.gethostname()
     print('host:'+str(host))
-    if host == 'braini1':
+    if host == 'braini1' or host == 'brain2' or host == 'brain3':
         n_workers = constants.N_expected_pd_workers_per_server_braini1
     else:
         n_workers = constants.N_expected_pd_workers_per_server
