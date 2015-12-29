@@ -50,7 +50,7 @@ def start_workers(command,n_workers):
 
 #    command = constants.worker_base_command+queuename
     host = socket.gethostname()
-    print('host:'+str(host)+' trying to start '+str(n_workers)+' workers with command '+str(command))
+    print('host:'+str(host)+' trying to start '+str(n_workersex)+' workers with command '+str(command))
 #    if host == 'braini1' or host == 'brain2' or host== 'brain3':
  #   /usr/bin/python /usr/local/bin /rqworker -w rq.tgworker.TgWorker -u redis://redis1-redis-1-vm:6379 pd
     for i in range(0,n_workers):
@@ -85,7 +85,7 @@ if __name__ == "__main__":
             print(str(n)+' workers online')
             if n<n_workers:
                 start_workers(command,n_workers-n)
-            time.sleep(10)
+        time.sleep(10)
 
 
 #string_to_look_for_in_rq_command = 'rqworker'
