@@ -39,7 +39,7 @@ worker_commands =['/usr/bin/python /usr/local/bin/rqworker new_images &',
                   '/usr/bin/python /usr/local/bin/rqworker find_top_n &',
                   '/usr/bin/python /usr/local/bin/fingerprint_new &',
                    'cd /home/pd_user/paperdoll  && /usr/bin/python /usr/local/bin/rqworker  -w trendi.matlab_wrapper.tgworker.TgWorker  pd &']
-N_expected_workers=[47,47,47,47,47]exit(git)
+N_expected_workers=[47,47,47,47,47]
 
 #########
 # DB stuff
