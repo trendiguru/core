@@ -11,6 +11,8 @@ import copy
 import numpy as np
 import bson
 
+from . import paperdolls
+
 from . import Utils
 from . import background_removal
 from .paperdoll import paperdoll_parse_enqueue
@@ -328,10 +330,12 @@ def get_svg_nate(image_url):
                         # item_dict["mask"] = item_mask.tolist()
                         item_dict["fp"] = fp.fp(image, bins, fp_len, item_mask).tolist()
                         print(item_dict['face'])
-                        grb_mask = background_removal.simple_mask_grabcut(image, item_mask)
-                        specio = new_finger_print.spaciogram_finger_print(image, grb_mask)
+                        item_bb = paperdolls.bb_from_mask(item_mask)
+                        item_gc_mask = background_removal.paperdoll_item_mask(item_mask, item_bb)
+                        after_gc_mask = background_removal.simple_mask_grabcut(image, item_gc_mask)  # (255, 0) mask
+                        specio = new_finger_print.spaciogram_finger_print(image, after_gc_mask)
                         item_dict["specio"] = specio.tolist()
-                        histo = new_finger_print.histogram_stack_finger_print(image, grb_mask)
+                        histo = new_finger_print.histogram_stack_finger_print(image, after_gc_mask)
                         item_dict["histo"] = histo.tolist()
                         person['items'] = [item_dict]
 
@@ -362,10 +366,12 @@ def get_svg_nate(image_url):
                     # item_dict["mask"] = item_mask.tolist()
                     item_dict["fp"] = fp.fp(image, bins, fp_len, item_mask).tolist()
                     print(item_dict['face'])
-                    grb_mask = background_removal.simple_mask_grabcut(image, item_mask)
-                    specio = new_finger_print.spaciogram_finger_print(image, grb_mask)
+                    item_bb = paperdolls.bb_from_mask(item_mask)
+                    item_gc_mask = background_removal.paperdoll_item_mask(item_mask, item_bb)
+                    after_gc_mask = background_removal.simple_mask_grabcut(image, item_gc_mask)  # (255, 0) mask
+                    specio = new_finger_print.spaciogram_finger_print(image, after_gc_mask)
                     item_dict["specio"] = specio.tolist()
-                    histo = new_finger_print.histogram_stack_finger_print(image, grb_mask)
+                    histo = new_finger_print.histogram_stack_finger_print(image, after_gc_mask)
                     item_dict["histo"] = histo.tolist()
                     person['items'] = [item_dict]
 
