@@ -45,34 +45,34 @@ sudo   apt-get update -qq && apt-get install -y --force-yes \
     unzip; \
     apt-get clean
 
-
-RUN apt-get update
+apt-get update
 #RUN apt-get -y upgrade
 #RUN apt-key update && apt-get update
 
-RUN apt-get install -y python wget
-RUN apt-get install -y screen
+apt-get install -y python wget
+apt-get install -y screen
 #cmap is  for debugging port forwarding
 #RUN apt-get install -y nmap
-RUN apt-get install -y cmake   #have below
-RUN apt-get install -y unzip
+apt-get install -y cmake   #have below
+apt-get install -y unzip
 
 #PYTHON NUMPY
 #RUN add-apt-repository ppa:fkrull/deadsnakes
-RUN apt-get update
+apt-get update
 #RUN apt-get install -y python2.7
 
-RUN wget https://bootstrap.pypa.io/get-pip.py
-RUN python get-pip.py
-RUN pip install pymongo
-RUN pip install ipython
-RUN apt-get install -y python-dev
+wget https://bootstrap.pypa.io/get-pip.py
+python get-pip.py
+pip install pymongo
+pip install redis
+pip install ipython
+apt-get install -y python-dev
 #RUN apt-get install -y python-numpy
 #RUN easy_install numpy
-RUN pip install numpy
+pip install numpy
 #RUN pip install python-dateutil
-RUN pip install pyparsing
-RUN pip install pytz
+pip install pyparsing
+pip install pytz
 #RUN pip install matplotlib
 
 
@@ -157,11 +157,15 @@ sh -c 'echo "/usr/local/lib" > /etc/ld.so.conf.d/opencv.conf'
 #python setup.py install
 
 mv core trendi
-ln -s /root/trendi /usr/local/lib/python2.7/dist-packages/trendi
+ln -s /home/pd_user/trendi /usr/local/lib/python2.7/dist-packages/trendi
 
 
 sudo apt-get install firefox
 
+
+#matlab engine for python
+cd /usr/local/MATLAB/R2015b/extern/engines/python
+python setup.py install
 
 #for paperdoll
 sudo apt-get install libdb-dev
@@ -172,6 +176,12 @@ ssh -f -N -L 6379:redis1-redis-1-vm:6379 root@extremeli.trendi.guru
 adduser pd_user
 sudo adduser pd_user sudo
 
+#root@brain3:/home/pd_user/trendi/paperdoll# rm /home/pd_user/paperdoll/pd.m
+#root@brain3:/home/pd_user/trendi/paperdoll# rm /home/pd_user/paperdoll/pd.py
+#root@brain3:/home/pd_user/trendi/paperdoll# ln -s /home/pd_user/trendi/paperdoll/pd.m /home/pd_user/paperdoll/pd.m
+#root@brain3:/home/pd_user/trendi/paperdoll# ln -s /home/pd_user/trendi/paperdoll/pd.py /home/pd_user/paperdoll/pd.py
+
+
 #VNC
 sudo apt-get update
 sudo apt-get install xfce4 xfce4-goodies tightvncserver
@@ -179,3 +189,6 @@ adduser vnc
 sudo adduser vnc sudo
 sudo su vnc
 vncserver
+
+
+

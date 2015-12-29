@@ -118,7 +118,8 @@ def get_parse_mask_parallel(matlab_engine, img_url_or_cv2_array, filename=None, 
     start_time=time.time()
     img = Utils.get_cv2_img_array(img_url_or_cv2_array)
     filename = filename or rand_string()
-    if img is not None and cv2.imwrite(filename + '.jpg', img):
+    img_ok = image_big_enough(img)
+    if img_ok and cv2.imwrite(filename + '.jpg', img):
         mask, label_dict, pose = get_parse_from_matlab_parallel(filename + '.jpg', matlab_engine, use_parfor=use_parfor)
         #logging.debug('labels:' + str(label_dict))
         mask_np = np.array(mask, dtype=np.uint8)
@@ -135,8 +136,22 @@ def get_parse_mask_parallel(matlab_engine, img_url_or_cv2_array, filename=None, 
     else:
         if img is None:
             raise ValueError("input image is empty")
+        elif not img_ok:
+            raise ValueError("input image is  too small")
         else:
             raise ValueError("problem writing "+str(filename)+" in get_parse_mask_parallel")
+
+def image_big_enough(img_array):
+    if img_array is None:
+        logging.debug('image is Nonel')
+        return False
+    width = img_array.shape[0]
+    height = img_array.shape[1]
+    if (width < constants.minimum_im_width or height < constants.minimum_im_height):
+        logging.debug('image dimensions too small')
+        return False
+    else:
+        return True
 
 def convert_and_save_results(mask, label_names, pose,filename,img,url):
     fashionista_ordered_categories = constants.fashionista_categories

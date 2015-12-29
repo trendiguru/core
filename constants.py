@@ -16,17 +16,20 @@ fingerprint_weights = [0.05, 0.5, 0.225, 0.225]
 K = 0.5                     # for euclidean distance
 min_bb_to_image_area_ratio = 0.95  # if bb takes more than this fraction of image area then use  cv2.GC_INIT_WITH_RECT instead of init with mask
 
+#min images sizes , lower than this gets kicked out by paperdoll
+minimum_im_width = 50
+minimum_im_height = 50
 
 ##############
 # rq / worker stuff
 ##############
 
-pd_worker_command =  'cd /home/jeremy/paperdoll3/paperdoll-v1.0/ && /usr/bin/python /usr/local/bin/rqworker -w rq.tgworker.TgWorker -u redis://redis1-redis-1-vm:6379 pd &'
+pd_worker_command =  'cd /home/jeremy/paperdoll3/paperdoll-v1.0/ && /usr/bin/python /usr/local/bin/rqworker -w trendi.matlab_wrapper.tgworker.TgWorker -u redis://redis1-redis-1-vm:6379 pd &'
 pd_worker_command_braini1 =  'cd /home/pd_user/paperdoll  && /usr/bin/python /usr/local/bin/rqworker  -w trendi.matlab_wrapper.tgworker.TgWorker  pd &'
 string_to_look_for_in_pd_command = 'tgworker'
 
 N_expected_pd_workers_per_server = 15
-N_expected_pd_workers_per_server_braini1 = 41
+N_expected_pd_workers_per_server_braini1 = 47
 
 
 #########
