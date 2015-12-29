@@ -16,6 +16,9 @@ fingerprint_weights = [0.05, 0.5, 0.225, 0.225]
 K = 0.5                     # for euclidean distance
 min_bb_to_image_area_ratio = 0.95  # if bb takes more than this fraction of image area then use  cv2.GC_INIT_WITH_RECT instead of init with mask
 
+#min images sizes , lower than this gets kicked out by paperdoll
+minimum_im_width = 50
+minimum_im_height = 50
 
 ##############
 # rq / worker stuff
