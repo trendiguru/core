@@ -456,6 +456,7 @@ def get_data_for_specific_image(image_url=None, image_hash=None, image_projectio
         'people.items.item_idx': 1,
         'people.items.similar_results': {'$slice': max_results},
         'people.items.similar_results._id': 1,
+        'people.items.similar_results.id': 1,
         'people.items.svg_url': 1,
         'relevant': 1}
 
