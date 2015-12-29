@@ -461,7 +461,7 @@ def get_data_for_specific_image(image_url=None, image_hash=None, image_projectio
 
     product_projection = product_projection or {
         #'seeMoreUrl': 1,
-        'images.XLarge': 1,
+        'image.sizes.XLarge.url': 1,
         'clickUrl': 1,
         #'retailer': 1,
         #'currency': 1,
