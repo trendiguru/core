@@ -36,7 +36,6 @@ N_expected_pd_workers_per_server_braini1 = 47
 # DB stuff
 #########
 
-
 parallel_matlab_queuename = 'pd'
 nonparallel_matlab_queuename = 'pd_nonparallel'
 caffe_path_in_container = '/opt/caffe'
