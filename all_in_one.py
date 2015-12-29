@@ -404,9 +404,9 @@ def get_results_now_nate(idx, method="fingerprint"):
     oid = bson.ObjectId(idx)
     item = db.demo_yonti.find_one({"_id": oid})
     if method == "specio":
-        fp = item["specio"]
+        fp = np.asarray(item["specio"])
     elif method == "histo":
-        fp = item["histo"]
+        fp = np.asarray(item["histo"])
     else:
         fp = item["fp"]
     item_dict = {"similar_results": find_top_n_results_nate(fp, method)}
