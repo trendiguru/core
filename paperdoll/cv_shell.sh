@@ -163,6 +163,10 @@ ln -s /root/trendi /usr/local/lib/python2.7/dist-packages/trendi
 sudo apt-get install firefox
 
 
+#matlab engine for python
+cd /usr/local/MATLAB/R2015b/extern/engines/python
+python setup.py install
+
 #for paperdoll
 sudo apt-get install libdb-dev
 sudo apt-get install zlib1g-dev
@@ -179,3 +183,6 @@ adduser vnc
 sudo adduser vnc sudo
 sudo su vnc
 vncserver
+
+
+
