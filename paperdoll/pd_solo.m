@@ -3,7 +3,7 @@ disp(['starting pd solo, ,let me give you a han'])
 
 load data/paperdoll_pipeline.mat config;
 addpath(genpath('.'))
-input_image = imread('../core/images/male1.jpg');
+input_image = imread('../trendi/images/male1.jpg');
 input_sample = struct('image', imencode(input_image, 'jpg'))
 config{1}.scale = 200;
 config{1}.model.thresh = -2;
