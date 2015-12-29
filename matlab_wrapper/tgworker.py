@@ -48,6 +48,7 @@ from rq.worker import Worker
 #from .worker import Worker
 
 import matlab.engine
+logging.basicConfig(level=logging.DEBUG)
 
 
 green = make_colorizer('darkgreen')
