@@ -37,7 +37,7 @@ unique_strings_to_look_for_in_rq_command = ['new_images','find_similar','find_to
 worker_commands =['/usr/bin/python /usr/local/bin/rqworker new_images &',
                   '/usr/bin/python /usr/local/bin/rqworker find_similar &',
                   '/usr/bin/python /usr/local/bin/rqworker find_top_n &',
-                  '/usr/bin/python /usr/local/bin/fingerprint_new &',
+                  '/usr/bin/python /usr/local/bin/rqworker fingerprint_new &',
                    'cd /home/pd_user/paperdoll  && /usr/bin/python /usr/local/bin/rqworker  -w trendi.matlab_wrapper.tgworker.TgWorker  pd &']
 N_expected_workers=[47,47,47,47,47]
 
