@@ -12,6 +12,7 @@ from redis import Redis
 
 
 
+
 # import constants
 
 redis_conn = Redis(host="redis1-redis-1-vm")  # constants.redis_conn
@@ -37,18 +38,25 @@ def getProxy():
 
 def runExt(url):
     try:
-        subprocess.call(["sudo rm -r /tmp/tmp*"], shell=True)
-        print colored("remove tmp success", "yellow")
+        ret = subprocess.call(["sudo rm -r /tmp/tmp*"], shell=True)
+        if not ret:
+            print colored("remove tmp success", "yellow")
+        else:
+            print colored("remove tmp failed", "magenta")
     except:
-        print colored("remove tmp failed", "magenta")
+        pass
+
     try:
-        subprocess.call(["sudo rm -r /tmp/xvfb-run.*"], shell=True)
-        print colored("remove tmp success", "yellow")
+        ret = subprocess.call(["sudo rm -r /tmp/xvfb-run.*"], shell=True)
+        if not ret:
+            print colored("remove xvfb success", "yellow")
+        else:
+            print colored("remove xvfb failed", "magenta")
     except:
-        print colored("remove xvfb failed", "magenta")
+        pass
     # from xvfbwrapper import Xvfb
     # from pyvirtualdisplay import Display
-    print colored("Running Extension on %s" % url, "blue", "on_white", attrs=['bold'])
+    print colored("Running Extension on %s" % url, "red", "on_white", attrs=['bold'])
 
     #
     # # enable browser logging
