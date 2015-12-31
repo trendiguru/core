@@ -135,10 +135,9 @@ def distance_function(entry, target_dict, fp_weights, hist_length, wing, weight)
 def distance_function_nate(entry, target_dict, method):
     if method == "specio":
         a = time.time()
-        dist, p_time = new_finger_print.spaciograms_distance_rating(np.asarray(entry[method]), target_dict[method])
+        dist = new_finger_print.spaciograms_distance_rating(np.asarray(entry[method]), target_dict[method])
         b = time.time()
         print ("specio time = %s" % str(b - a))
-        print ("emd time = %s" % p_time)
     elif method == "histo":
         dist = NNSearch.distance_1_k(np.asarray(entry[method]), target_dict[method])
     else:
