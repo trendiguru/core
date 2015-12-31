@@ -89,7 +89,7 @@ if __name__ == "__main__":
     if not queue in constants.unique_strings_to_look_for_in_rq_command:
         print('dont have a queue name to start')
         exit()
-    i = constants.unique_strings_to_look_for_in_rq_command(queue)
+    i = constants.unique_strings_to_look_for_in_rq_command.index(queue)
     n_expected_workers = constants.N_expected_workers[i]
     command = constants.worker_commands[i]
     unique_string = constants.unique_strings_to_look_for_in_rq_command[i]
