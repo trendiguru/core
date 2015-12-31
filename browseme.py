@@ -10,22 +10,12 @@ from rq import Queue
 from redis import Redis
 
 
-
-
-
-
-
-
-
-
-
-
-
 # import constants
 
 redis_conn = Redis(host="redis1-redis-1-vm")  # constants.redis_conn
 new_images_Q = Queue("new_images", connection=redis_conn)
 paperdoll_Q = Queue("pd", connection=redis_conn)
+browse_q = Queue('BrowseMe', connection=redis_conn)
 
 
 def getProxy():
@@ -74,20 +64,25 @@ def runExt(url):
 
         driver.get(url)
         scr = open("/var/www/latest/b_main.js").read()
-        print colored("11111111111", "yellow")
+        print colored("driver started", "yellow")
         # wait for the queues to be empty enough
-        while paperdoll_Q.count > 2500 and new_images_Q.count > 50000:
+        countQue = 0
+        while paperdoll_Q.count > 2500 or new_images_Q.count > 50000:
+            countQue += 1
+            print colored("Que Full - taking 5 sec break", "red")
             time.sleep(5)
-        print colored("222222222", "yellow")
+            if countQue > 6:
+                print colored("Que Full - returned to Que", "green", attrs=['bold'])
+                browse_q.enqueue(runExt, url)
+                driver.quit()
 
         driver.execute_script(scr)
         time.sleep(1)
-        print colored("33333333333333", "yellow")
+        print colored("script executed!", "green")
 
         for x in range(8):
             script = "scroll(" + str(x * 500) + "," + str(x * 500 + 500) + ")"
             driver.execute_script(script)
-
             time.sleep(0.25)
         print colored("execute Success!!!", "yellow", "on_magenta", attrs=['bold'])
     except:
