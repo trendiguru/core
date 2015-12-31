@@ -63,15 +63,14 @@ def spaciograms_distance_rating(spaciogram_1, spaciogram_2):
     # for dim in spaciogram_1:
     #     signature_1[:, sigrature_index] = dim.flatten()
     #     sigrature_index += 1
-    #
     # signature_2 = np.zeros([spaciogram_2.size / len(spaciogram_1),  len(spaciogram_2)])
     # sigrature_index = 0
     # for dim in spaciogram_2:
     #     signature_2[:, sigrature_index] = dim.flatten()
     #     sigrature_index += 1
-
     # signature_1 = np.reshape(spaciogram_1, (spaciogram_1[0].size, len(spaciogram_1)))
     # signature_2 = np.reshape(spaciogram_2, (spaciogram_2[0].size, len(spaciogram_2)))
+    # rating = emd(signature_1, signature_2)
 
     method = cv2.HISTCMP_BHATTACHARYYA
     # HISTCMP_CORREL Correlation
@@ -81,9 +80,8 @@ def spaciograms_distance_rating(spaciogram_1, spaciogram_2):
     # HISTCMP_HELLINGER Synonym for HISTCMP_BHATTACHARYYA
     # HISTCMP_CHISQR_ALT
     # HISTCMP_KL_DIV
-
     rating = cv2.compareHist(spaciogram_1.astype('float32'), spaciogram_2.astype('float32'), method)
-    # rating = emd(signature_1, signature_2)
+
     return rating
 
 def spaciogram_finger_print(image, mask):
