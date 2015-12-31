@@ -3,6 +3,7 @@ import subprocess, signal
 import time
 import os
 import socket
+import argparse
 
 from trendi import constants
 
@@ -76,15 +77,28 @@ def restart_workers():
 if __name__ == "__main__":
     host = socket.gethostname()
     print('host:'+str(host))
+
+    parser = argparse.ArgumentParser(description='ye olde shepherd')
+    # parser.add_argument('integers', metavar='N', type=int, nargs='+',
+    # help='an integer for the accumulator')
+    parser.add_argument('--queue', default='new_images',
+                        help='what queue to start')
+    args = parser.parse_args()
+    queue = args.queue
+    print('queue:' + str(queue))
+    if not queue in constants.unique_strings_to_look_for_in_rq_command:
+        print('dont have a queue name to start')
+        return
+    i = constants.unique_strings_to_look_for_in_rq_command(queue)
+    n_expected_workers = constants.N_expected_workers[i]
+    command = constants.worker_commands[i]
+    unique_string = constants.unique_strings_to_look_for_in_rq_command[i]
+    print('i:' + str(i))
     while 1:
-        for i in range(0,len(constants.worker_commands)):
-            n_workers = constants.N_expected_workers[i]
-            command = constants.worker_commands[i]
-            unique_string = constants.unique_strings_to_look_for_in_rq_command[i]
-            n = count_queue_workers(unique_string)
-            print(str(n)+' workers online')
-            if n<n_workers:
-                start_workers(command,n_workers-n)
+        n_actual_workers = count_queue_workers(unique_string)
+        print(str(n)+' workers online')
+        if n<n_workers:
+            start_workers(command,n_expected_workers-n_actual_workers)
         time.sleep(10)
 
 
