@@ -37,36 +37,38 @@ def runExt(url):
 
 
     # enable browser logging
-    with Xvfb(width=1280, height=740) as xvfb:
-        # display.start()
-        # newProxy = getProxy()
-        # driver = webdriver.Firefox(proxy=newProxy)
-        # xvfb.start()
-        driver = webdriver.Firefox()
-        try:
+    display = Xvfb(width=1280, height=740)
+    display.start()
+    # newProxy = getProxy()
+    # driver = webdriver.Firefox(proxy=newProxy)
+    # xvfb.start()
+    driver = webdriver.Firefox()
+    try:
 
-            driver.get(url)
-            scr = open("/var/www/latest/b_main.js").read()
+        driver.get(url)
+        scr = open("/var/www/latest/b_main.js").read()
 
-            # wait for the queues to be empty enough
-            while paperdoll_Q.count > 50 & new_images_Q.count > 50000:
-                time.sleep(5)
+        # wait for the queues to be empty enough
+        while paperdoll_Q.count > 50 & new_images_Q.count > 50000:
+            time.sleep(5)
 
-            driver.execute_script(scr)
-            time.sleep(1)
-            for x in range(8):
-                script = "scroll(" + str(x * 500) + "," + str(x * 500 + 500) + ")"
-                driver.execute_script(script)
-                time.sleep(0.25)
-            print colored("execute Success!!!", "green", "on_white")
-        except:
-            print colored("execute Failed!!!", "red", "on_yellow")
-        try:
-            driver.quit()
-        except:
-            print colored("driver.quit() Failed!!!", "red", "on_yellow")
-            # display.popen.terminate()
-            # xvfb.stop()
+        driver.execute_script(scr)
+        time.sleep(1)
+        for x in range(8):
+            script = "scroll(" + str(x * 500) + "," + str(x * 500 + 500) + ")"
+            driver.execute_script(script)
+            time.sleep(0.25)
+        print colored("execute Success!!!", "green", "on_white")
+    except:
+        print colored("execute Failed!!!", "red", "on_yellow")
+    try:
+        driver.quit()
+    except:
+        print colored("driver.quit() Failed!!!", "red", "on_yellow")
+        # display.popen.terminate()
+        # xvfb.stop()
+    display.stop()
+
 
 proxies = [['118.142.33.112', '8088'],
            ['31.173.74.73', '8080'],
