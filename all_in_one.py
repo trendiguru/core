@@ -24,6 +24,7 @@ from .fingerprint_stuff.fp_tests import mr8_worker
 from . import page_results
 from . import find_similar_mongo
 from . import new_finger_print
+
 fp_weights = constants.fingerprint_weights
 bins = constants.histograms_length
 fp_len = constants.fingerprint_length
@@ -136,7 +137,7 @@ def distance_function_nate(entry, target_dict, method):
         a = time.time()
         dist = new_finger_print.spaciograms_distance_rating(np.asarray(entry[method]), target_dict[method])
         b = time.time()
-        print ("specio time = %s", str(b - a))
+        print ("specio time = %s" % str(b - a))
     elif method == "histo":
         dist = NNSearch.distance_1_k(np.asarray(entry[method]), target_dict[method])
     else:

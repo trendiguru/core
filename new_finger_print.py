@@ -1,8 +1,10 @@
+import time
 
 import numpy as np
 import cv2
-import time
+
 from emd import emd
+
 
 def spaciograms_distance_rating(spaciogram_1, spaciogram_2):
     '''
@@ -81,8 +83,11 @@ def spaciograms_distance_rating(spaciogram_1, spaciogram_2):
     # HISTCMP_KL_DIV
 
     # print cv2.compareHist(spaciogram_1, spaciogram_2, method)
-
+    a = time.time()
     rating = emd(signature_1, signature_2)
+    b = time.time()
+    c = str(b - a)
+    print ("emd time = " + c)
     return rating
 
 def spaciogram_finger_print(image, mask):
