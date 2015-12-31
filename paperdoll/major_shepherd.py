@@ -70,7 +70,7 @@ def restart_workers():
     for i in range(0,len(constants.worker_commands)):
         n_workers = constants.N_expected_workers[i]
         command = constants.worker_commands[i]
-        start_workers(command,n_workers-n)
+        start_workers(command,n_workers)
         time.sleep(10)
 
 if __name__ == "__main__":
