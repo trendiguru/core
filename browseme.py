@@ -1,6 +1,7 @@
 __author__ = 'yonatan'
 import time
 import random
+import subprocess
 
 from termcolor import colored
 from selenium import webdriver
@@ -33,10 +34,10 @@ def getProxy():
 
 
 def runExt(url):
-    # subprocess.call(["sudo", "rm", "-r", "/tmp/tmp*"], shell=True)
+    subprocess.call(["sudo rm -r /tmp/tmp*"], shell=True)
     # from xvfbwrapper import Xvfb
     # from pyvirtualdisplay import Display
-    print colored("Running Extension on %s" % url, "blue", "on_white")
+    print colored("Running Extension on %s" % url, "blue", "on_white", attrs=['bold'])
 
     #
     # # enable browser logging
@@ -63,13 +64,13 @@ def runExt(url):
             script = "scroll(" + str(x * 500) + "," + str(x * 500 + 500) + ")"
             driver.execute_script(script)
             time.sleep(0.25)
-        print colored("execute Success!!!", "green", "on_white")
+        print colored("execute Success!!!", "green", attrs=['bold'])
     except:
-        print colored("execute Failed!!!", "red", "on_yellow")
+        print colored("execute Failed!!!", "red", "on_yellow", attrs=['bold'])
     try:
         driver.quit()
     except:
-        print colored("driver.quit() Failed!!!", "red", "on_yellow")
+        print colored("driver.quit() Failed!!!", "red", "on_yellow", attrs=['bold'])
         # display.popen.terminate()
         # xvfb.stop()
         # display.stop()
