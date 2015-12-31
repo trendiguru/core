@@ -33,24 +33,24 @@ N_expected_pd_workers_per_server_braini1 = 47
 
 #general queues on braini
 string_to_look_for_in_rq_command = 'rqworker'
-unique_strings_to_look_for_in_rq_command = ['new_images','find_top_n','tgworker']   #,'fingerprint_new'  ,'find_similar
+unique_strings_to_look_for_in_rq_command = ['new_images','find_top_n','tgworker','find_similar']   #,'fingerprint_new'  ,'find_similar
 worker_commands =['/usr/bin/python /usr/local/bin/rqworker new_images &',
                   '/usr/bin/python /usr/local/bin/rqworker find_top_n &',
-                   'cd /home/pd_user/paperdoll  && /usr/bin/python /usr/local/bin/rqworker  -w trendi.matlab_wrapper.tgworker.TgWorker  pd &']
-#                  '/usr/bin/python /usr/local/bin/rqworker find_similar &',
+                   'cd /home/pd_user/paperdoll  && /usr/bin/python /usr/local/bin/rqworker  -w trendi.matlab_wrapper.tgworker.TgWorker  pd &',
+                  '/usr/bin/python /usr/local/bin/rqworker find_similar &']
  #                 '/usr/bin/python /usr/local/bin/rqworker fingerprint_new &',
 
-N_expected_workers=[47,47,47]
+N_expected_workers=[47,47,47,47]
 
 
 #########
 # DB stuff
 #########
 #for google cloud servers, environment line in /etc/supervisor.conf should be:
-#environment=REDIS_HOST="redis1-redis-1-vm",REDIS_PORT=6379, MONGO_HOST="mongodb1-instance-1",MONGO_PORT=27019
+#environment=REDIS_HOST="redis1-redis-1-vm",REDIS_PORT=6379, MONGO_HOST="mongodb1-instance-1",MONGO_PORT=27017
 
 #for non- google cloud , environment line in /etc/supervisor.conf should be:
-#environment=REDIS_HOST="localhost",REDIS_PORT=6379,MONGO_HOST="localhost",MONGO_PORT=27019
+#environment=REDIS_HOST="localhost",REDIS_PORT=6379,MONGO_HOST="localhost",MONGO_PORT=27017
 
 # to do the portforwards required to make this work:
 #ssh -f -N -L 27017:mongodb1-instance-1:27017 root@extremeli.trendi.guru
@@ -58,6 +58,11 @@ N_expected_workers=[47,47,47]
 #to kill nound ports
 # lsof -ti:27017 | xargs kill -9
 # lsof -ti:6379 | xargs kill -9
+#to add to .bashrc (maybe better in .profile!!)
+#export REDIS_HOST="localhost"
+#export REDIS_PORT=6379
+#export MONGO_HOST="localhost"
+#export MONGO_PORT=27017
 
 parallel_matlab_queuename = 'pd'
 nonparallel_matlab_queuename = 'pd_nonparallel'
@@ -265,7 +270,7 @@ Reserve_cpus = 2  # number of cpus to not use when doing stuff in parallel
 gender_ttl = 5  # 10 seconds ttl , answer should be nearly immediate
 paperdoll_ttl = 90  # seconds to wait for paperdoll result
 caffe_general_ttl = 30  # seconds to wait for paperdoll result
-general_ttl = 1000  # ttl of all queues
+general_ttl = 2000  # ttl of all queues
 
 # QC worker voting params
 
