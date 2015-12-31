@@ -33,14 +33,14 @@ N_expected_pd_workers_per_server_braini1 = 47
 
 #general queues on braini
 string_to_look_for_in_rq_command = 'rqworker'
-unique_strings_to_look_for_in_rq_command = ['new_images','find_top_n','tgworker']   #,'fingerprint_new'  ,'find_similar
+unique_strings_to_look_for_in_rq_command = ['new_images','find_top_n','tgworker','find_similar']   #,'fingerprint_new'  ,'find_similar
 worker_commands =['/usr/bin/python /usr/local/bin/rqworker new_images &',
                   '/usr/bin/python /usr/local/bin/rqworker find_top_n &',
-                   'cd /home/pd_user/paperdoll  && /usr/bin/python /usr/local/bin/rqworker  -w trendi.matlab_wrapper.tgworker.TgWorker  pd &']
-#                  '/usr/bin/python /usr/local/bin/rqworker find_similar &',
+                   'cd /home/pd_user/paperdoll  && /usr/bin/python /usr/local/bin/rqworker  -w trendi.matlab_wrapper.tgworker.TgWorker  pd &',
+                  '/usr/bin/python /usr/local/bin/rqworker find_similar &']
  #                 '/usr/bin/python /usr/local/bin/rqworker fingerprint_new &',
 
-N_expected_workers=[47,47,47]
+N_expected_workers=[47,47,47,47]
 
 
 #########
@@ -58,6 +58,11 @@ N_expected_workers=[47,47,47]
 #to kill nound ports
 # lsof -ti:27017 | xargs kill -9
 # lsof -ti:6379 | xargs kill -9
+#to add to .bashrc (maybe better in .profile!!)
+#export REDIS_HOST="localhost"
+#export REDIS_PORT=6379
+#export MONGO_HOST="localhost"
+#export MONGO_PORT=27017
 
 parallel_matlab_queuename = 'pd'
 nonparallel_matlab_queuename = 'pd_nonparallel'

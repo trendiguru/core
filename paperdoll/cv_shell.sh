@@ -157,10 +157,10 @@ sh -c 'echo "/usr/local/lib" > /etc/ld.so.conf.d/opencv.conf'
 #python setup.py install
 
 mv core trendi
-ln -s /home/pd_user/trendi /usr/local/lib/python2.7/dist-packages/trendi
+ln -s /home/jeremy/trendi /usr/local/lib/python2.7/dist-packages/trendi
 
 
-sudo apt-get install firefox
+sudo apt-get install -y  firefox
 
 
 #matlab engine for python
@@ -168,13 +168,13 @@ cd /usr/local/MATLAB/R2015b/extern/engines/python
 python setup.py install
 
 #for paperdoll
-sudo apt-get install libdb-dev
-sudo apt-get install zlib1g-dev
+sudo apt-get install -y  libdb-dev
+sudo apt-get install -y  zlib1g-dev
 ssh -f -N -L 6379:redis1-redis-1-vm:6379 root@extremeli.trendi.guru
 #/usr/bin/python /usr/local/bin/rqworker  -w trendi.matlab_wrapper.tgworker.TgWorker  pd
 
-adduser pd_user
-sudo adduser pd_user sudo
+adduser jeremy
+sudo adduser jeremy sudo
 
 #root@brain3:/home/pd_user/trendi/paperdoll# rm /home/pd_user/paperdoll/pd.m
 #root@brain3:/home/pd_user/trendi/paperdoll# rm /home/pd_user/paperdoll/pd.py
@@ -182,12 +182,27 @@ sudo adduser pd_user sudo
 #root@brain3:/home/pd_user/trendi/paperdoll# ln -s /home/pd_user/trendi/paperdoll/pd.py /home/pd_user/paperdoll/pd.py
 
 
-sudo apt-get install python python-tk idle python-pmw python-imaging
-pip install boto3
+sudo apt-get install -y  python python-tk idle python-pmw python-imaging
+pip install   boto3
+pip install rq
+
+
+#ssh -f -N -L 27017:mongodb1-instance-1:27017 root@extremeli.trendi.guru
+#ssh -f -N -L 6379:redis1-redis-1-vm:6379 root@extremeli.trendi.guru
+#to kill nound ports
+# lsof -ti:27017 | xargs kill -9
+# lsof -ti:6379 | xargs kill -9
+#to add to .bashrc (maybe better in .profile!!)
+echo  'export REDIS_HOST="localhost"' >> /root/.bashrc
+echo 'export REDIS_PORT=6379' >> /root/.bashrc
+echo 'export MONGO_HOST="localhost"' >> /root/.bashrc
+echo 'export MONGO_PORT=27017' >> /root/.bashrc
+
+
 
 #VNC
 sudo apt-get update
-sudo apt-get install xfce4 xfce4-goodies tightvncserver
+sudo apt-get install -y xfce4 xfce4-goodies tightvncserver
 adduser vnc
 sudo adduser vnc sudo
 sudo su vnc
