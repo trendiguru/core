@@ -33,13 +33,13 @@ def getProxy():
 def runExt(url):
     # subprocess.call(["sudo", "rm", "-r", "/tmp/tmp*"], shell=True)
     # from xvfbwrapper import Xvfb
-    from pyvirtualdisplay import Display
+    # from pyvirtualdisplay import Display
     print colored("Running Extension on %s" % url, "blue", "on_white")
 
-
-    # enable browser logging
-    display = Display(visible=0, size=(1024, 786))
-    display.start()
+    #
+    # # enable browser logging
+    # display = Display(visible=0, size=(1024, 786))
+    # display.start()
     # newProxy = getProxy()
     # driver = webdriver.Firefox(proxy=newProxy)
     # xvfb.start()
@@ -70,7 +70,7 @@ def runExt(url):
         print colored("driver.quit() Failed!!!", "red", "on_yellow")
         # display.popen.terminate()
         # xvfb.stop()
-    display.stop()
+        # display.stop()
 
 
 proxies = [['118.142.33.112', '8088'],
