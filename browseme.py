@@ -19,6 +19,7 @@ from redis import Redis
 
 
 
+
 # import constants
 
 redis_conn = Redis(host="redis1-redis-1-vm")  # constants.redis_conn
@@ -74,7 +75,7 @@ def runExt(url):
         scr = open("/var/www/latest/b_main.js").read()
         print colored("11111111111", "yellow")
         # wait for the queues to be empty enough
-        while paperdoll_Q.count > 50 & new_images_Q.count > 50000:
+        while paperdoll_Q.count > 500 or new_images_Q.count > 50000:
             time.sleep(1)
         print colored("222222222", "yellow")
 
