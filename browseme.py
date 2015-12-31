@@ -16,6 +16,7 @@ from redis import Redis
 
 
 
+
 # import constants
 
 redis_conn = Redis(host="redis1-redis-1-vm")  # constants.redis_conn
@@ -50,14 +51,7 @@ def runExt(url):
     #     except:
     #         pass
 
-    try:
-        ret = subprocess.call(["sudo rm -r /tmp/tmp*"], shell=True)
-        if not ret:
-            print colored("remove tmp success", "yellow")
-        else:
-            print colored("remove tmp failed", "magenta")
-    except:
-        pass
+
     # from xvfbwrapper import Xvfb
     # from pyvirtualdisplay import Display
     print colored("Running Extension on %s" % url, "red", "on_white", attrs=['bold'])
@@ -97,7 +91,14 @@ def runExt(url):
         # display.popen.terminate()
         # xvfb.stop()
         # display.stop()
-
+    try:
+        ret = subprocess.call(["sudo rm -r /tmp/tmp*"], shell=True)
+        if not ret:
+            print colored("remove tmp success", "yellow")
+        else:
+            print colored("remove tmp failed", "magenta")
+    except:
+        pass
 
 proxies = [['118.142.33.112', '8088'],
            ['31.173.74.73', '8080'],
