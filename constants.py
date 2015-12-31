@@ -44,7 +44,11 @@ N_expected_workers=[47,47,47,47,47]
 #########
 # DB stuff
 #########
-#environment=REDIS_HOST="redis1-redis-1-vm",REDIS_PORT="6379", MONGO_HOST="mongodb1-instance-1",MONGO_PORT="27019"
+#for google cloud servers, environment line in /etc/supervisor.conf should be:
+#environment=REDIS_HOST="redis1-redis-1-vm",REDIS_PORT=6379, MONGO_HOST="mongodb1-instance-1",MONGO_PORT=27019
+
+#for non- google cloud , environment line in /etc/supervisor.conf should be:
+#environment=REDIS_HOST="localhost",REDIS_PORT=6379,MONGO_HOST="localhost",MONGO_PORT=27019
 
 parallel_matlab_queuename = 'pd'
 nonparallel_matlab_queuename = 'pd_nonparallel'
