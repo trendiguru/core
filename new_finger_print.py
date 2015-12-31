@@ -82,13 +82,9 @@ def spaciograms_distance_rating(spaciogram_1, spaciogram_2):
     # HISTCMP_CHISQR_ALT
     # HISTCMP_KL_DIV
 
-    # print cv2.compareHist(spaciogram_1, spaciogram_2, method)
-    a = time.time()
-    rating = emd(signature_1, signature_2)
-    b = time.time()
-    proc_time = str(b - a)
-    print ("emd time = " + proc_time)
-    return rating, proc_time
+    rating = cv2.compareHist(spaciogram_1.astype('float32'), spaciogram_2.astype('float32'), method)
+    # rating = emd(signature_1, signature_2)
+    return rating
 
 def spaciogram_finger_print(image, mask):
     '''
