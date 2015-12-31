@@ -185,6 +185,19 @@ sudo adduser pd_user sudo
 sudo apt-get install python python-tk idle python-pmw python-imaging
 pip install boto3
 
+#ssh -f -N -L 27017:mongodb1-instance-1:27017 root@extremeli.trendi.guru
+#ssh -f -N -L 6379:redis1-redis-1-vm:6379 root@extremeli.trendi.guru
+#to kill nound ports
+# lsof -ti:27017 | xargs kill -9
+# lsof -ti:6379 | xargs kill -9
+#to add to .bashrc (maybe better in .profile!!)
+cat >> /root/.bashrc export REDIS_HOST="localhost"
+cat >> /root/.bashrc export REDIS_PORT=6379
+cat >> /root/.bashrc export MONGO_HOST="localhost"
+cat >> /root/.bashrc export MONGO_PORT=27017
+
+
+
 #VNC
 sudo apt-get update
 sudo apt-get install xfce4 xfce4-goodies tightvncserver
