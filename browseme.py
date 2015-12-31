@@ -43,7 +43,9 @@ def runExt(url):
     # newProxy = getProxy()
     # driver = webdriver.Firefox(proxy=newProxy)
     # xvfb.start()
-    driver = webdriver.Firefox()
+    driver = webdriver.Firefox(
+        firefox_binary=webdriver.firefox.firefox_binary.FirefoxBinary(
+            log_file=open(' /tmp/selenium.log ', ' a ')))
     try:
 
         driver.get(url)
