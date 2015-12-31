@@ -44,15 +44,19 @@ N_expected_workers=[47,47,47,47,47]
 #########
 # DB stuff
 #########
-#environment=REDIS_HOST="redis1-redis-1-vm",REDIS_PORT="6379", MONGO_HOST="mongodb1-instance-1",MONGO_PORT="27019"
+#for google cloud servers, environment line in /etc/supervisor.conf should be:
+#environment=REDIS_HOST="redis1-redis-1-vm",REDIS_PORT=6379, MONGO_HOST="mongodb1-instance-1",MONGO_PORT=27019
+
+#for non- google cloud , environment line in /etc/supervisor.conf should be:
+#environment=REDIS_HOST="localhost",REDIS_PORT=6379,MONGO_HOST="localhost",MONGO_PORT=27019
 
 parallel_matlab_queuename = 'pd'
 nonparallel_matlab_queuename = 'pd_nonparallel'
 caffe_path_in_container = '/opt/caffe'
-#db = pymongo.MongoClient(host=os.environ["MONGO_HOST"], port=int(os.environ["MONGO_PORT"])).mydb
-#redis_conn = Redis(host=os.environ["REDIS_HOST"], port=int(os.environ["REDIS_PORT"]))
-db = pymongo.MongoClient(host="mongodb1-instance-1").mydb
-redis_conn = Redis(host="redis1-redis-1-vm")
+db = pymongo.MongoClient(host=os.environ["MONGO_HOST"], port=int(os.environ["MONGO_PORT"])).mydb
+redis_conn = Redis(host=os.environ["REDIS_HOST"], port=int(os.environ["REDIS_PORT"]))
+#db = pymongo.MongoClient(host="mongodb1-instance-1").mydb
+#redis_conn = Redis(host="redis1-redis-1-vm")
 # new worker : rqworker -u redis://redis1-redis-1-vm:6379 [name] &
 redis_conn_old = Redis()
 update_collection_name = 'products'
