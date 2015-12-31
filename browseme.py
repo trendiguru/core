@@ -10,6 +10,7 @@ from rq import Queue
 from redis import Redis
 
 
+
 # import constants
 
 redis_conn = Redis(host="redis1-redis-1-vm")  # constants.redis_conn
@@ -34,7 +35,10 @@ def getProxy():
 
 
 def runExt(url):
-    subprocess.call(["sudo rm -r /tmp/tmp*"], shell=True)
+    try:
+        subprocess.call(["sudo rm -r /tmp/tmp*"], shell=True)
+    except:
+        print colored("remove tmp failed", "magenta")
     # from xvfbwrapper import Xvfb
     # from pyvirtualdisplay import Display
     print colored("Running Extension on %s" % url, "blue", "on_white", attrs=['bold'])
