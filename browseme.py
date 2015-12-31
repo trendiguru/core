@@ -1,7 +1,6 @@
 __author__ = 'yonatan'
 import time
 import random
-import subprocess
 
 from termcolor import colored
 from selenium import webdriver
@@ -32,9 +31,10 @@ def getProxy():
 
 
 def runExt(url):
+    # subprocess.call(["sudo", "rm", "-r", "/tmp/tmp*"], shell=True)
     from xvfbwrapper import Xvfb
     print colored("Running Extension on %s" % url, "yellow")
-    subprocess.call(["sudo", "rm", "-r", "/tmp/tmp*"], shell=True)
+
 
     # enable browser logging
     with Xvfb(width=1280, height=740) as xvfb:
