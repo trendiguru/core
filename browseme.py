@@ -9,7 +9,7 @@ from rq import Queue
 
 import constants
 
-redis_conn = constants.redis_conn_old
+redis_conn = constants.redis_conn
 new_images_Q = Queue("new_images", connection=redis_conn)
 paperdoll_Q = Queue("pd", connection=redis_conn)
 
@@ -44,7 +44,7 @@ def runExt(url):
     # driver = webdriver.Firefox(proxy=newProxy)
     # xvfb.start()
     driver = webdriver.Firefox(
-        firefox_binary=webdriver.firefox.firefox_binary.FirefoxBinary(
+        firefox_binary=webdriver.Firefox.firefox_binary.FirefoxBinary(
             log_file=open('/home/yonatan/selenium.log', 'a')))
     try:
 
