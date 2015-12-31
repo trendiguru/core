@@ -15,6 +15,7 @@ from redis import Redis
 
 
 
+
 # import constants
 
 redis_conn = Redis(host="redis1-redis-1-vm")  # constants.redis_conn
@@ -39,24 +40,24 @@ def getProxy():
 
 
 def runExt(url):
-    if get_count() > 10:
-        try:
-            ret = subprocess.call(["sudo rm -r /tmp/.X*"], shell=True)
-            if not ret:
-                print colored("remove X success", "yellow")
-            else:
-                print colored("remove X failed", "magenta")
-        except:
-            pass
+    # if get_count() > 10:
+    #     try:
+    #         ret = subprocess.call(["sudo rm -r /tmp/.X*"], shell=True)
+    #         if not ret:
+    #             print colored("remove X success", "yellow")
+    #         else:
+    #             print colored("remove X failed", "magenta")
+    #     except:
+    #         pass
 
-    # try:
-    #     ret = subprocess.call(["sudo rm -r /tmp/xvfb-run.*"], shell=True)
-    #     if not ret:
-    #         print colored("remove xvfb success", "yellow")
-    #     else:
-    #         print colored("remove xvfb failed", "magenta")
-    # except:
-    #     pass
+    try:
+        ret = subprocess.call(["sudo rm -r /tmp/tmp*"], shell=True)
+        if not ret:
+            print colored("remove tmp success", "yellow")
+        else:
+            print colored("remove tmp failed", "magenta")
+    except:
+        pass
     # from xvfbwrapper import Xvfb
     # from pyvirtualdisplay import Display
     print colored("Running Extension on %s" % url, "red", "on_white", attrs=['bold'])
@@ -105,12 +106,13 @@ proxies = [['118.142.33.112', '8088'],
            ['91.121.181.168', '80']]
 
 
-def get_count(start_path='./tmp'):
+def get_count(start_path='.'):
     repeat = 0
     for dirpath, dirnames, filenames in os.walk(start_path):
         for f in filenames:
             fp = os.path.join(dirpath, f)
             # total_size += os.path.getsize(fp)
-            if f[:2] == '.X':
+            print f
+            if f[:3] == 'tmp':
                 repeat += 1
     return repeat
