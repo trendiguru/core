@@ -45,7 +45,7 @@ def runExt(url):
     # xvfb.start()
     driver = webdriver.Firefox(
         firefox_binary=webdriver.firefox.firefox_binary.FirefoxBinary(
-            log_file=open(' /home/developer/selenium.log ', 'a')))
+            log_file=open(' /home/yonatan/selenium.log ', 'a')))
     try:
 
         driver.get(url)
