@@ -97,7 +97,7 @@ if __name__ == "__main__":
     while 1:
         n_actual_workers = count_queue_workers(unique_string)
         print(str(n_actual_workers)+' workers online')
-        if n_actual_workers<n_workers:
+        if n_actual_workers<n_expected_workers:
             start_workers(command,n_expected_workers-n_actual_workers)
         time.sleep(10)
 
