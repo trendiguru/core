@@ -47,10 +47,10 @@ N_expected_workers=[47,47,47]
 # DB stuff
 #########
 #for google cloud servers, environment line in /etc/supervisor.conf should be:
-#environment=REDIS_HOST="redis1-redis-1-vm",REDIS_PORT=6379, MONGO_HOST="mongodb1-instance-1",MONGO_PORT=27019
+#environment=REDIS_HOST="redis1-redis-1-vm",REDIS_PORT=6379, MONGO_HOST="mongodb1-instance-1",MONGO_PORT=27017
 
 #for non- google cloud , environment line in /etc/supervisor.conf should be:
-#environment=REDIS_HOST="localhost",REDIS_PORT=6379,MONGO_HOST="localhost",MONGO_PORT=27019
+#environment=REDIS_HOST="localhost",REDIS_PORT=6379,MONGO_HOST="localhost",MONGO_PORT=27017
 
 # to do the portforwards required to make this work:
 #ssh -f -N -L 27017:mongodb1-instance-1:27017 root@extremeli.trendi.guru

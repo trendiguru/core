@@ -182,6 +182,9 @@ sudo adduser pd_user sudo
 #root@brain3:/home/pd_user/trendi/paperdoll# ln -s /home/pd_user/trendi/paperdoll/pd.py /home/pd_user/paperdoll/pd.py
 
 
+sudo apt-get install python python-tk idle python-pmw python-imaging
+pip install boto3
+
 #VNC
 sudo apt-get update
 sudo apt-get install xfce4 xfce4-goodies tightvncserver
@@ -189,6 +192,5 @@ adduser vnc
 sudo adduser vnc sudo
 sudo su vnc
 vncserver
-
 
 
