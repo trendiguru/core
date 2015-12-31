@@ -34,7 +34,7 @@ def getProxy():
 def runExt(url):
     from xvfbwrapper import Xvfb
     print colored("Running Extension on %s" % url, "yellow")
-    subprocess.call("sudo rm -r /tmp/tmp*")
+    subprocess.call(["sudo", "rm", "-r", "/tmp/tmp*"], shell=True)
 
     # enable browser logging
     with Xvfb(visible=0, size=(1024, 768)) as xvfb:
