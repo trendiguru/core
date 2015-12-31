@@ -191,10 +191,10 @@ pip install   boto3
 # lsof -ti:27017 | xargs kill -9
 # lsof -ti:6379 | xargs kill -9
 #to add to .bashrc (maybe better in .profile!!)
-cat >> /root/.bashrc export REDIS_HOST="localhost"
-cat >> /root/.bashrc export REDIS_PORT=6379
-cat >> /root/.bashrc export MONGO_HOST="localhost"
-cat >> /root/.bashrc export MONGO_PORT=27017
+echo  'export REDIS_HOST="localhost"' /root/.bashrc
+echo 'export REDIS_PORT=6379' /root/.bashrc
+echo 'export MONGO_HOST="localhost"' /root/.bashrc
+echo 'export MONGO_PORT=27017' /root/.bashrc
 
 
 
