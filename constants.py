@@ -58,6 +58,11 @@ N_expected_workers=[47,47,47]
 #to kill nound ports
 # lsof -ti:27017 | xargs kill -9
 # lsof -ti:6379 | xargs kill -9
+#to add to .bashrc (maybe better in .profile!!)
+#export REDIS_HOST="localhost"
+#export REDIS_PORT=6379
+#export MONGO_HOST="localhost"
+#export MONGO_PORT=27017
 
 parallel_matlab_queuename = 'pd'
 nonparallel_matlab_queuename = 'pd_nonparallel'
