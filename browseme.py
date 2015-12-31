@@ -41,6 +41,7 @@ def runExt(url):
         # display.start()
         # newProxy = getProxy()
         # driver = webdriver.Firefox(proxy=newProxy)
+        xvfb.start()
         driver = webdriver.Firefox()
         try:
 
@@ -65,7 +66,7 @@ def runExt(url):
         except:
             print colored("driver.quit() Failed!!!", "red", "on_yellow")
             # display.popen.terminate()
-
+        xvfb.stop()
 
 proxies = [['118.142.33.112', '8088'],
            ['31.173.74.73', '8080'],
