@@ -184,6 +184,8 @@ ssh -f -N -L 6379:redis1-redis-1-vm:6379 root@extremeli.trendi.guru
 
 sudo apt-get install -y  python python-tk idle python-pmw python-imaging
 pip install   boto3
+pip install rq
+
 
 #ssh -f -N -L 27017:mongodb1-instance-1:27017 root@extremeli.trendi.guru
 #ssh -f -N -L 6379:redis1-redis-1-vm:6379 root@extremeli.trendi.guru
