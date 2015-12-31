@@ -10,6 +10,7 @@ from rq import Queue
 from redis import Redis
 
 
+
 # import constants
 
 redis_conn = Redis(host="redis1-redis-1-vm")  # constants.redis_conn
@@ -75,6 +76,7 @@ def runExt(url):
                 print colored("Que Full - returned to Que", "green", attrs=['bold'])
                 browse_q.enqueue(runExt, url)
                 driver.quit()
+                return
 
         driver.execute_script(scr)
         time.sleep(1)
