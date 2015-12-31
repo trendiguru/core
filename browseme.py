@@ -6,10 +6,11 @@ from termcolor import colored
 from selenium import webdriver
 from selenium.webdriver.common.proxy import *
 from rq import Queue
+from redis import Redis
 
-import constants
+# import constants
 
-redis_conn = constants.redis_conn
+redis_conn = Redis(host="redis1-redis-1-vm")  # constants.redis_conn
 new_images_Q = Queue("new_images", connection=redis_conn)
 paperdoll_Q = Queue("pd", connection=redis_conn)
 
