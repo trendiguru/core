@@ -199,6 +199,9 @@ echo 'export MONGO_HOST="localhost"' >> /root/.bashrc
 echo 'export MONGO_PORT=27017' >> /root/.bashrc
 
 
+#root@brain2:/home/pd_user/trendi/paperdoll# ln -s /home/pd_user/trendi/pd.m pd.m
+#root@brain2:/home/pd_user/trendi/paperdoll# ln -s /home/pd_user/trendi/pd.py pd.py
+
 
 #VNC
 sudo apt-get update
