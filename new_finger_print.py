@@ -72,7 +72,7 @@ def spaciograms_distance_rating(spaciogram_1, spaciogram_2):
     # signature_2 = np.reshape(spaciogram_2, (spaciogram_2[0].size, len(spaciogram_2)))
     # rating = emd(signature_1, signature_2)
 
-    method = cv2.HISTCMP_BHATTACHARYYA
+    method = cv2.HISTCMP_CHISQR
     # HISTCMP_CORREL Correlation
     # HISTCMP_CHISQR Chi-Square
     # HISTCMP_INTERSECT Intersection
