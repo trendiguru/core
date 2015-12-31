@@ -157,7 +157,7 @@ sh -c 'echo "/usr/local/lib" > /etc/ld.so.conf.d/opencv.conf'
 #python setup.py install
 
 mv core trendi
-ln -s /home/pd_user/trendi /usr/local/lib/python2.7/dist-packages/trendi
+ln -s /home/jeremy/trendi /usr/local/lib/python2.7/dist-packages/trendi
 
 
 sudo apt-get install -y  firefox
@@ -191,10 +191,10 @@ pip install   boto3
 # lsof -ti:27017 | xargs kill -9
 # lsof -ti:6379 | xargs kill -9
 #to add to .bashrc (maybe better in .profile!!)
-echo  'export REDIS_HOST="localhost"' /root/.bashrc
-echo 'export REDIS_PORT=6379' /root/.bashrc
-echo 'export MONGO_HOST="localhost"' /root/.bashrc
-echo 'export MONGO_PORT=27017' /root/.bashrc
+echo  'export REDIS_HOST="localhost"' >> /root/.bashrc
+echo 'export REDIS_PORT=6379' >> /root/.bashrc
+echo 'export MONGO_HOST="localhost"' >> /root/.bashrc
+echo 'export MONGO_PORT=27017' >> /root/.bashrc
 
 
 
