@@ -301,11 +301,11 @@ def from_paperdoll_to_similar_results(person_id, paper_job_id, num_of_matches=10
             shopstyle_cat_local_name = constants.paperdoll_shopstyle_women_jp_categories[category]['name']
             item_dict = {"category": category, 'item_id': str(bson.ObjectId()), 'item_idx': idx,
                          'saved_date': datetime.datetime.now(), 'category_name': shopstyle_cat_local_name}
-            svg_name = find_similar_mongo.mask2svg(
-                item_mask,
-                str(image_obj['_id']) + '_' + person['person_id'] + '_' + item_dict['category'],
-                constants.svg_folder)
-            item_dict["svg_url"] = constants.svg_url_prefix + svg_name
+            # svg_name = find_similar_mongo.mask2svg(
+            # item_mask,
+            #     str(image_obj['_id']) + '_' + person['person_id'] + '_' + item_dict['category'],
+            #     constants.svg_folder)
+            # item_dict["svg_url"] = constants.svg_url_prefix + svg_name
             items.append(item_dict)
             jobs[idx] = q2.enqueue_call(func=find_similar_mongo.find_top_n_results, args=(image, item_mask,
                                                                                           num_of_matches,
