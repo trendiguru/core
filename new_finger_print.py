@@ -86,9 +86,9 @@ def spaciograms_distance_rating(spaciogram_1, spaciogram_2):
     a = time.time()
     rating = emd(signature_1, signature_2)
     b = time.time()
-    c = str(b - a)
-    print ("emd time = " + c)
-    return rating
+    proc_time = str(b - a)
+    print ("emd time = " + proc_time)
+    return rating, proc_time
 
 def spaciogram_finger_print(image, mask):
     '''
