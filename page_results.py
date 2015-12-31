@@ -456,11 +456,13 @@ def get_data_for_specific_image(image_url=None, image_hash=None, image_projectio
         'people.items.item_idx': 1,
         'people.items.similar_results': {'$slice': max_results},
         'people.items.similar_results._id': 1,
+        'people.items.similar_results.id': 1,
         'people.items.svg_url': 1,
         'relevant': 1}
 
     product_projection = product_projection or {
         #'seeMoreUrl': 1,
+        'image.sizes.XLarge.url': 1,
         'images.XLarge': 1,
         'clickUrl': 1,
         #'retailer': 1,
@@ -473,7 +475,7 @@ def get_data_for_specific_image(image_url=None, image_hash=None, image_projectio
         'shortDescription': 1,
         #'sizes': 1,
         #'pageUrl': 1,
-        '_id': 0,
+        '_id': 1,
         'id': 1,
         'price.currency': 1,
     }
@@ -508,7 +510,7 @@ def load_similar_results(sparse, projection_dict, product_collection_name=None):
         for item in person["items"]:
             similar_results = []
             for result in item["similar_results"]:
-                full_result = collection.find_one({"_id": result["_id"]}, projection_dict)
+                full_result = collection.find_one({"id": result["id"]}, projection_dict)
                 # full_result["clickUrl"] = Utils.shorten_url_bitly(full_result["clickUrl"])
                 similar_results.append(full_result)
             item["similar_results"] = similar_results

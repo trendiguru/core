@@ -7,12 +7,12 @@ so it wouldn't get massed up with every change of the main functions
 """
 
 import copy
+import time
 
 import numpy as np
 import bson
 
 from . import paperdolls
-
 from . import Utils
 from . import background_removal
 from .paperdoll import paperdoll_parse_enqueue
@@ -88,7 +88,7 @@ def find_top_n_results_nate(fp, method):
     # get all items in the category
     potential_matches_cursor = collection.find(
         {"categories": "dress"},
-        {"_id": 1, "id": 1, "images.XLarge": 1, "clickUrl": 1, method: 1}).batch_size(100)
+        {"_id": 1, "id": 1, "images.XLarge": 1, "clickUrl": 1, method: 1}).batch_size(100)  # limit(10000)
 
     print "amount of docs in cursor: {0}".format(potential_matches_cursor.count())
 
@@ -134,8 +134,11 @@ def distance_function(entry, target_dict, fp_weights, hist_length, wing, weight)
 
 def distance_function_nate(entry, target_dict, method):
     if method == "specio":
+        a = time.time()
         dist = new_finger_print.spaciograms_distance_rating(np.asarray(entry[method]), target_dict[method])
-    if method == "histo":
+        b = time.time()
+        print ("specio time = %s" % str(b - a))
+    elif method == "histo":
         dist = NNSearch.distance_1_k(np.asarray(entry[method]), target_dict[method])
     else:
         dist = NNSearch.distance_Bhattacharyya(entry[method], target_dict[method], fp_weights, bins)
@@ -332,7 +335,7 @@ def get_svg_nate(image_url):
                         print(item_dict['face'])
                         item_bb = paperdolls.bb_from_mask(item_mask)
                         item_gc_mask = background_removal.paperdoll_item_mask(item_mask, item_bb)
-                        after_gc_mask = background_removal.simple_mask_grabcut(image, item_gc_mask)  # (255, 0) mask
+                        after_gc_mask = background_removal.get_fg_mask(image, item_bb)  # (255, 0) mask
                         specio = new_finger_print.spaciogram_finger_print(image, after_gc_mask)
                         item_dict["specio"] = specio.tolist()
                         histo = new_finger_print.histogram_stack_finger_print(image, after_gc_mask)
@@ -368,7 +371,7 @@ def get_svg_nate(image_url):
                     print(item_dict['face'])
                     item_bb = paperdolls.bb_from_mask(item_mask)
                     item_gc_mask = background_removal.paperdoll_item_mask(item_mask, item_bb)
-                    after_gc_mask = background_removal.simple_mask_grabcut(image, item_gc_mask)  # (255, 0) mask
+                    after_gc_mask = background_removal.get_fg_mask(image, item_bb)  # (255, 0) mask
                     specio = new_finger_print.spaciogram_finger_print(image, after_gc_mask)
                     item_dict["specio"] = specio.tolist()
                     histo = new_finger_print.histogram_stack_finger_print(image, after_gc_mask)
@@ -400,7 +403,7 @@ def get_results_now(idx, collection="mr8_testing", wing="left", weight='0.05'):
     return item_dict
 
 
-def get_results_now_nate(idx, method="fingerprint"):
+def get_results_now_nate(idx, method):
     oid = bson.ObjectId(idx)
     item = db.demo_yonti.find_one({"_id": oid})
     if method == "specio":
