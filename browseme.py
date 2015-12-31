@@ -17,6 +17,10 @@ from redis import Redis
 
 
 
+
+
+
+
 # import constants
 
 redis_conn = Redis(host="redis1-redis-1-vm")  # constants.redis_conn
@@ -70,18 +74,22 @@ def runExt(url):
 
         driver.get(url)
         scr = open("/var/www/latest/b_main.js").read()
-
+        print colored("11111111111", "yellow")
         # wait for the queues to be empty enough
-        while paperdoll_Q.count > 50 & new_images_Q.count > 50000:
+        while paperdoll_Q.count > 2500 and new_images_Q.count > 50000:
             time.sleep(5)
+        print colored("222222222", "yellow")
 
         driver.execute_script(scr)
         time.sleep(1)
+        print colored("33333333333333", "yellow")
+
         for x in range(8):
             script = "scroll(" + str(x * 500) + "," + str(x * 500 + 500) + ")"
             driver.execute_script(script)
+
             time.sleep(0.25)
-        print colored("execute Success!!!", "green", attrs=['bold'])
+        print colored("execute Success!!!", "yellow", "on_magenta", attrs=['bold'])
     except:
         print colored("execute Failed!!!", "red", "on_yellow", attrs=['bold'])
     try:
