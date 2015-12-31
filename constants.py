@@ -265,7 +265,7 @@ Reserve_cpus = 2  # number of cpus to not use when doing stuff in parallel
 gender_ttl = 5  # 10 seconds ttl , answer should be nearly immediate
 paperdoll_ttl = 90  # seconds to wait for paperdoll result
 caffe_general_ttl = 30  # seconds to wait for paperdoll result
-general_ttl = 1000  # ttl of all queues
+general_ttl = 2000  # ttl of all queues
 
 # QC worker voting params
 
