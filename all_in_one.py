@@ -7,12 +7,12 @@ so it wouldn't get massed up with every change of the main functions
 """
 
 import copy
+import time
 
 import numpy as np
 import bson
 
 from . import paperdolls
-
 from . import Utils
 from . import background_removal
 from .paperdoll import paperdoll_parse_enqueue
@@ -88,7 +88,7 @@ def find_top_n_results_nate(fp, method):
     # get all items in the category
     potential_matches_cursor = collection.find(
         {"categories": "dress"},
-        {"_id": 1, "id": 1, "images.XLarge": 1, "clickUrl": 1, method: 1}).batch_size(100).limit(10000)
+        {"_id": 1, "id": 1, "images.XLarge": 1, "clickUrl": 1, method: 1}).batch_size(100)  # limit(10000)
 
     print "amount of docs in cursor: {0}".format(potential_matches_cursor.count())
 
@@ -134,7 +134,10 @@ def distance_function(entry, target_dict, fp_weights, hist_length, wing, weight)
 
 def distance_function_nate(entry, target_dict, method):
     if method == "specio":
+        a = time.time()
         dist = new_finger_print.spaciograms_distance_rating(np.asarray(entry[method]), target_dict[method])
+        b = time.time()
+        print ("specio time = %s" % str(b - a))
     elif method == "histo":
         dist = NNSearch.distance_1_k(np.asarray(entry[method]), target_dict[method])
     else:
