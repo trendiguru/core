@@ -1,13 +1,17 @@
 __author__ = 'yonatan'
 import time
 import random
-import subprocess
+import os
 
 from termcolor import colored
 from selenium import webdriver
 from selenium.webdriver.common.proxy import *
 from rq import Queue
 from redis import Redis
+
+
+
+
 
 
 
@@ -37,23 +41,17 @@ def getProxy():
 
 
 def runExt(url):
-    try:
-        ret = subprocess.call(["sudo rm -r /tmp/tmp*"], shell=True)
-        if not ret:
-            print colored("remove tmp success", "yellow")
-        else:
-            print colored("remove tmp failed", "magenta")
-    except:
-        pass
+    # if get_count() > 10:
+    #     try:
+    #         ret = subprocess.call(["sudo rm -r /tmp/.X*"], shell=True)
+    #         if not ret:
+    #             print colored("remove X success", "yellow")
+    #         else:
+    #             print colored("remove X failed", "magenta")
+    #     except:
+    #         pass
 
-    try:
-        ret = subprocess.call(["sudo rm -r /tmp/xvfb-run.*"], shell=True)
-        if not ret:
-            print colored("remove xvfb success", "yellow")
-        else:
-            print colored("remove xvfb failed", "magenta")
-    except:
-        pass
+
     # from xvfbwrapper import Xvfb
     # from pyvirtualdisplay import Display
     print colored("Running Extension on %s" % url, "red", "on_white", attrs=['bold'])
@@ -93,10 +91,29 @@ def runExt(url):
         # display.popen.terminate()
         # xvfb.stop()
         # display.stop()
-
+        # try:
+        #     ret = subprocess.call(["sudo rm -r /tmp/tmp*"], shell=True)
+        #     if not ret:
+        #         print colored("remove tmp success", "yellow")
+        #     else:
+        #         print colored("remove tmp failed", "magenta")
+        # except:
+        #     pass
 
 proxies = [['118.142.33.112', '8088'],
            ['31.173.74.73', '8080'],
            ['198.169.246.30', '80'],
            ['202.29.97.2', '3128'],
            ['91.121.181.168', '80']]
+
+
+def get_count(start_path='.'):
+    repeat = 0
+    for dirpath, dirnames, filenames in os.walk(start_path):
+        for f in filenames:
+            fp = os.path.join(dirpath, f)
+            # total_size += os.path.getsize(fp)
+            print f
+            if f[:3] == 'tmp':
+                repeat += 1
+    return repeat
