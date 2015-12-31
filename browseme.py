@@ -38,7 +38,7 @@ def runExt(url):
 
 
     # enable browser logging
-    display = Display(visible=0, size=(1024, 786))
+    display = Display(visible=1, size=(1024, 786))
     display.start()
     # newProxy = getProxy()
     # driver = webdriver.Firefox(proxy=newProxy)
