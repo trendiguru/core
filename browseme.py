@@ -1,7 +1,6 @@
 __author__ = 'yonatan'
 import time
 import random
-import subprocess
 import os
 
 from termcolor import colored
@@ -9,6 +8,7 @@ from selenium import webdriver
 from selenium.webdriver.common.proxy import *
 from rq import Queue
 from redis import Redis
+
 
 
 
@@ -91,14 +91,14 @@ def runExt(url):
         # display.popen.terminate()
         # xvfb.stop()
         # display.stop()
-    try:
-        ret = subprocess.call(["sudo rm -r /tmp/tmp*"], shell=True)
-        if not ret:
-            print colored("remove tmp success", "yellow")
-        else:
-            print colored("remove tmp failed", "magenta")
-    except:
-        pass
+        # try:
+        #     ret = subprocess.call(["sudo rm -r /tmp/tmp*"], shell=True)
+        #     if not ret:
+        #         print colored("remove tmp success", "yellow")
+        #     else:
+        #         print colored("remove tmp failed", "magenta")
+        # except:
+        #     pass
 
 proxies = [['118.142.33.112', '8088'],
            ['31.173.74.73', '8080'],
