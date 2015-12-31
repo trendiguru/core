@@ -18,6 +18,7 @@ from redis import Redis
 
 
 
+
 # import constants
 
 redis_conn = Redis(host="redis1-redis-1-vm")  # constants.redis_conn
@@ -84,10 +85,9 @@ def runExt(url):
         for x in range(8):
             script = "scroll(" + str(x * 500) + "," + str(x * 500 + 500) + ")"
             driver.execute_script(script)
-            print colored("44444444444", "yellow")
 
             time.sleep(0.25)
-        print colored("execute Success!!!", "green", attrs=['bold'])
+        print colored("execute Success!!!", "yellow", "on_magenta", attrs=['bold'])
     except:
         print colored("execute Failed!!!", "red", "on_yellow", attrs=['bold'])
     try:
