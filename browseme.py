@@ -37,7 +37,7 @@ def runExt(url):
     subprocess.call(["sudo", "rm", "-r", "/tmp/tmp*"], shell=True)
 
     # enable browser logging
-    with Xvfb(visible=0, size=(1024, 768)) as xvfb:
+    with Xvfb(width=1280, height=740) as xvfb:
         # display.start()
         # newProxy = getProxy()
         # driver = webdriver.Firefox(proxy=newProxy)
