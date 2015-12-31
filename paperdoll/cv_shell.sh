@@ -173,8 +173,8 @@ sudo apt-get install -y  zlib1g-dev
 ssh -f -N -L 6379:redis1-redis-1-vm:6379 root@extremeli.trendi.guru
 #/usr/bin/python /usr/local/bin/rqworker  -w trendi.matlab_wrapper.tgworker.TgWorker  pd
 
-#adduser pd_user
-#sudo adduser pd_user sudo
+adduser jeremy
+sudo adduser jeremy sudo
 
 #root@brain3:/home/pd_user/trendi/paperdoll# rm /home/pd_user/paperdoll/pd.m
 #root@brain3:/home/pd_user/trendi/paperdoll# rm /home/pd_user/paperdoll/pd.py
