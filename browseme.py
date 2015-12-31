@@ -33,11 +33,11 @@ def getProxy():
 def runExt(url):
     # subprocess.call(["sudo", "rm", "-r", "/tmp/tmp*"], shell=True)
     from xvfbwrapper import Xvfb
-    print colored("Running Extension on %s" % url, "green", "on_white")
+    print colored("Running Extension on %s" % url, "blue", "on_white")
 
 
     # enable browser logging
-    display = Xvfb(width=1280, height=740)
+    display = Xvfb(width=1280, height=740, colordepth=24)
     display.start()
     # newProxy = getProxy()
     # driver = webdriver.Firefox(proxy=newProxy)
