@@ -9,7 +9,7 @@ from rq import Queue
 
 import constants
 
-redis_conn = constants.redis_conn
+redis_conn = constants.redis_conn_old
 new_images_Q = Queue("new_images", connection=redis_conn)
 paperdoll_Q = Queue("pd", connection=redis_conn)
 
