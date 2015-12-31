@@ -8,6 +8,7 @@ from selenium.webdriver.common.proxy import *
 from rq import Queue
 from redis import Redis
 
+
 # import constants
 
 redis_conn = Redis(host="redis1-redis-1-vm")  # constants.redis_conn
@@ -42,11 +43,11 @@ def runExt(url):
     # display = Display(visible=0, size=(1024, 786))
     # display.start()
     # newProxy = getProxy()
-    # driver = webdriver.Firefox(proxy=newProxy)
+    driver = webdriver.Firefox()
     # xvfb.start()
-    driver = webdriver.Firefox(
-        firefox_binary=webdriver.Firefox.firefox_binary.FirefoxBinary(
-            log_file=open('/home/yonatan/selenium.log', 'a')))
+    # driver = webdriver.Firefox(
+    #     firefox_binary=webdriver.Firefox.firefox_binary.FirefoxBinary(
+    #         log_file=open('/home/yonatan/selenium.log', 'a')))
     try:
 
         driver.get(url)
