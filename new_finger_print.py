@@ -57,18 +57,18 @@ def spaciograms_distance_rating(spaciogram_1, spaciogram_2):
     #                     sigrature_index += 1
     #                     print spaciogram_1[d1, d2, d3, d4, d5]
 
-    signature_1 = np.zeros([spaciogram_1.size / len(spaciogram_1),  len(spaciogram_1)])
-    sigrature_index = 0
-    # print len(spaciogram_1)
-    for dim in spaciogram_1:
-        signature_1[:, sigrature_index] = dim.flatten()
-        sigrature_index += 1
-
-    signature_2 = np.zeros([spaciogram_2.size / len(spaciogram_1),  len(spaciogram_2)])
-    sigrature_index = 0
-    for dim in spaciogram_2:
-        signature_2[:, sigrature_index] = dim.flatten()
-        sigrature_index += 1
+    # signature_1 = np.zeros([spaciogram_1.size / len(spaciogram_1),  len(spaciogram_1)])
+    # sigrature_index = 0
+    # # print len(spaciogram_1)
+    # for dim in spaciogram_1:
+    #     signature_1[:, sigrature_index] = dim.flatten()
+    #     sigrature_index += 1
+    #
+    # signature_2 = np.zeros([spaciogram_2.size / len(spaciogram_1),  len(spaciogram_2)])
+    # sigrature_index = 0
+    # for dim in spaciogram_2:
+    #     signature_2[:, sigrature_index] = dim.flatten()
+    #     sigrature_index += 1
 
     # signature_1 = np.reshape(spaciogram_1, (spaciogram_1[0].size, len(spaciogram_1)))
     # signature_2 = np.reshape(spaciogram_2, (spaciogram_2[0].size, len(spaciogram_2)))
