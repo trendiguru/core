@@ -88,7 +88,7 @@ if __name__ == "__main__":
     print('queue:' + str(queue))
     if not queue in constants.unique_strings_to_look_for_in_rq_command:
         print('dont have a queue name to start')
-        return
+        exit()
     i = constants.unique_strings_to_look_for_in_rq_command(queue)
     n_expected_workers = constants.N_expected_workers[i]
     command = constants.worker_commands[i]
@@ -97,7 +97,7 @@ if __name__ == "__main__":
     while 1:
         n_actual_workers = count_queue_workers(unique_string)
         print(str(n)+' workers online')
-        if n<n_workers:
+        if n_actual_workers<n_workers:
             start_workers(command,n_expected_workers-n_actual_workers)
         time.sleep(10)
 
