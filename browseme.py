@@ -11,6 +11,7 @@ from redis import Redis
 
 
 
+
 # import constants
 
 redis_conn = Redis(host="redis1-redis-1-vm")  # constants.redis_conn
@@ -71,8 +72,8 @@ def runExt(url):
         while paperdoll_Q.count > 2500 or new_images_Q.count > 50000:
             countQue += 1
             print colored("Que Full - taking 5 sec break", "red")
-            time.sleep(5)
-            if countQue > 6:
+            time.sleep(15)
+            if countQue > 1:
                 print colored("Que Full - returned to Que", "green", attrs=['bold'])
                 browse_q.enqueue(runExt, url)
                 driver.quit()
