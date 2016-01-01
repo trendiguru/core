@@ -58,10 +58,10 @@ def main():
     for f in files2erase:
         ret = subprocess.call(["sudo rm -r /tmp/" + f], shell=True)
         if not ret:
-            print colored("removed X succeeded", "yellow")
+            print colored("removed %s succeeded" % f, "yellow")
             count += 1
         else:
-            print colored("removing X failed", "red")
+            print colored("removing %s failed" % f, "red")
 
     print colored("%s files deleted!!!" % str(count))
 
