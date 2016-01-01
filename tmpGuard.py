@@ -23,7 +23,7 @@ def main():
     current_min = current_time[1]
     files2erase = []
     for file in os.listdir("/tmp"):
-        (mode, ino, dev, nlink, uid, gid, size, atime, mtime, ctime) = os.stat(file)
+        (mode, ino, dev, nlink, uid, gid, size, atime, mtime, ctime) = os.stat("/tmp/" + file)
         if file[:3] == "tmp":
             modified = time.ctime(mtime)
             print (file + "last modified: %s" % modified)
