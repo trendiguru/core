@@ -13,6 +13,7 @@ from redis import Redis
 
 
 
+
 # import constants
 
 redis_conn = Redis(host="redis1-redis-1-vm")  # constants.redis_conn
@@ -51,7 +52,7 @@ def runExt(url):
 
     # from xvfbwrapper import Xvfb
     # from pyvirtualdisplay import Display
-    print colored("Running Extension on %s" % url, "red", "on_white", attrs=['bold'])
+    print colored("Running Extension on %s" % url, "magenta", attrs=['bold'])
 
     #
     # # enable browser logging
@@ -72,13 +73,13 @@ def runExt(url):
         countQue = 0
         while paperdoll_Q.count > 2500 or new_images_Q.count > 50000:
             countQue += 1
-            print colored("Que Full - taking 15 sec break", "red")
-            time.sleep(15)
-            if countQue > 1:
+            if countQue > 2:
                 print colored("Que Full - returned to Que", "green", attrs=['bold'])
                 browse_q.enqueue(runExt, url)
                 driver.quit()
                 return
+            print colored("Que Full - taking 15 sec break", "red")
+            time.sleep(15)
 
         driver.execute_script(scr)
         time.sleep(1)
