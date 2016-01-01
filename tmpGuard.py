@@ -22,11 +22,13 @@ def main():
     current_min = current_time[1]
     print colored("\ntmpGuard : %s\n" % current[-2], "red", "on_yellow")
     files2erase = []
+    i = 0
     for f in os.listdir("/tmp"):
         (mode, ino, dev, nlink, uid, gid, size, atime, mtime, ctime) = os.stat("/tmp/" + f)
         if f[:3] == "tmp":
+            i += 1
             modified = time.ctime(mtime)
-            print (f + "last modified: %s" % modified)
+            print ("%s) %s  last modified: %s" % (str(i), f, modified))
             modified_list = modified.split(" ")
             modified_date = modified_list[-3]
             modified_time = modified_list[-2].split(":")
