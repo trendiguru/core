@@ -1,14 +1,14 @@
 __author__ = 'yonatan'
 
 """
-updates the status key of all the products in a collection
+updates the status key of the products/products_jp in a collection
 logic:
 1. checks the date when it was last updated (the 'download_data.dl_version' value)
 2. if it was updated in the last 2 days then it is instock -> "status.instock = True"
 3. else "status.instock = False"
     and the days diff is calculated
 
-* the flipkart collection is downloaded every 8 hours - we might want to shorten the 2 days margin to X hours.
+*  the flipkart collection status is already updated at download
 
 """
 import datetime
@@ -37,7 +37,7 @@ def update_status(coll="products"):
     print colored("out of stock = %s" % str(out), "yellow")
     sanity = total - instock
     if sanity == out:
-        print colored("senity check ok", "green", attrs=['bold'])
+        print colored("sanity check ok", "green", attrs=['bold'])
     else:
         print colored("this is insane", "red", "on_yellow")
     for day in range(2, month):
@@ -46,6 +46,8 @@ def update_status(coll="products"):
         print colored("%s items out of stock for %s days " % (str(res.modified_count), str(day)), "magenta",
                       attrs=['bold'])
 
+
+# add email
 
 if __name__ == "__main__":
     if len(sys.argv) > 1:
