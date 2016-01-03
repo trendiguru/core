@@ -1,9 +1,5 @@
-import time
-
 import numpy as np
 import cv2
-
-from emd import emd
 
 
 def spaciograms_distance_rating(spaciogram_1, spaciogram_2, rank):
@@ -149,7 +145,6 @@ def spaciogram_finger_print(image, mask):
     # sample.append(skell_dist[mask > 0].flatten())
     # sample.append(circ_dist[mask > 0].flatten())
     # spaciogram, edges = np.histogramdd(sample, bins, normed=True, weights=None)
-
 
     # stacking the spaciograms:
     spaciograms = []

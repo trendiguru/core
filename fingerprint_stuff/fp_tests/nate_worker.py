@@ -32,7 +32,7 @@ def add_new_field(doc, x):
 
     image = Utils.get_cv2_img_array(image_url)
     # image is BGR?
-    print "image high, width:", image.shape[0], image.shape[1]
+    print "image height, width:", image.shape[0], image.shape[1]
     if not Utils.is_valid_image(image):
         logging.warning("image is None. url: {url}".format(url=image_url))
         return
@@ -66,12 +66,12 @@ def add_new_field(doc, x):
     #     return
     image = small_image
     item_mask = mask
-    try:
-        specio = new_finger_print.spaciogram_finger_print(image, item_mask)
-        doc["specio"] = specio.tolist()
-    except:
-        print("specio specio specio scpecio failed")
-        return
+    # try:
+    specio = new_finger_print.spaciogram_finger_print(image, item_mask)
+    doc["specio"] = specio.tolist()
+    # except:
+    #     print("specio specio specio scpecio failed")
+    #     return
     # try:
     #     histo = new_finger_print.histogram_stack_finger_print(image, item_mask)
     #     doc["histo"] = histo.tolist()
