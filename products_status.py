@@ -30,20 +30,21 @@ def update_status(coll="products"):
     collection.update_many({"download_data.dl_version": {"$ne": today_date}}, {'$set': {"status.instock": False}})
     collection.update_many({"download_data.dl_version": yesterday}, {'$set': {"status.instock": True}})
     total = collection.count()
-    print colored("total = %s" % str(total), "red")
+    print colored("total = %s" % str(total), "green", attrs=['bold'])
     instock = collection.find({"status.instock": True}).count()
-    print colored("instock = %s" % str(instock), "blue")
+    print colored("instock = %s" % str(instock), "yellow")
     out = collection.find({"status.instock": False}).count()
-    print colored("out of stock = %s" % str(out), "blue")
+    print colored("out of stock = %s" % str(out), "yellow")
     sanity = total - instock
     if sanity == out:
-        print colored("senity check ok", "green")
+        print colored("senity check ok", "green", attrs=['bold'])
     else:
         print colored("this is insane", "red", "on_yellow")
     for day in range(2, month):
         date = str((today - datetime.timedelta(day)).date())
         res = collection.update_many({"download_data.dl_version": date}, {'$set': {"status.days_out": day}})
-        print colored("%s items out of stock for %s days " % (str(res.modified_count), str(day)), "magenta")
+        print colored("%s items out of stock for %s days " % (str(res.modified_count), str(day)), "magenta",
+                      attrs=['bold'])
 
 
 if __name__ == "__main__":
