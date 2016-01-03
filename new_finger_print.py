@@ -87,7 +87,7 @@ def spaciograms_distance_rating(spaciogram_1, spaciogram_2, rank):
         rating = cv2.compareHist(spaciogram_1[0].astype('float32'), spaciogram_2[0].astype('float32'), method)
     elif rank == 2:
         rating = cv2.compareHist(spaciogram_1[1].astype('float32'), spaciogram_2[1].astype('float32'), method)
-    elif rank ==3:
+    elif rank == 3:
         rating = 0.0
         for i in range(2, len(spaciogram_1)):
             rating += cv2.compareHist(spaciogram_1[i].astype('float32'), spaciogram_2[i].astype('float32'), method)
