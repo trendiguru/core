@@ -196,6 +196,7 @@ def job_result_from_id(job_id, job_class=Job, conn=None):
 
 
 def start_process(page_url, image_url, lang=None):
+    # db.monitoring.update_one({'queue': 'start_process'}, {'$inc': {'count': 1}})
     if not lang:
         products_collection = 'products'
         coll_name = 'images'
@@ -255,8 +256,7 @@ def start_process(page_url, image_url, lang=None):
                 paper_job = paperdoll_parse_enqueue.paperdoll_enqueue(image_copy, person['person_id'])
                 q1.enqueue_call(func=from_paperdoll_to_similar_results, args=(person['person_id'], paper_job.id, 100,
                                                                               products_collection, coll_name),
-                                depends_on=paper_job, ttl=1000, result_ttl=1000,
-                                timeout=1000)
+                                depends_on=paper_job, ttl=TTL, result_ttl=TTL, timeout=TTL)
                 idx += 1
         else:
             # no faces, only general positive human detection
@@ -265,7 +265,7 @@ def start_process(page_url, image_url, lang=None):
             paper_job = paperdoll_parse_enqueue.paperdoll_enqueue(image, person['person_id'])
             q1.enqueue_call(func=from_paperdoll_to_similar_results, args=(person['person_id'], paper_job.id, 100,
                                                                           products_collection, coll_name),
-                            depends_on=paper_job, ttl=1000, result_ttl=1000, timeout=1000)
+                            depends_on=paper_job, ttl=TTL, result_ttl=TTL, timeout=TTL)
         iip.insert_one(image_dict)
     else:  # if not relevant
         logging.warning('image is not relevant, but stored anyway..')
