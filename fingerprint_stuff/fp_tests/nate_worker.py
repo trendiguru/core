@@ -68,7 +68,7 @@ def add_new_field(doc, x):
     item_mask = mask
     try:
         specio = new_finger_print.spaciogram_finger_print(image, item_mask)
-        doc["specio"] = specio.tolist()
+        doc["specio"] = specio
     except:
         print("specio specio specio scpecio failed")
         return

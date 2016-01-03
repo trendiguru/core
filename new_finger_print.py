@@ -151,12 +151,12 @@ def spaciogram_finger_print(image, mask):
     # coars_color_spaciogram:
     bins = 5
     coars_color_spaciogram, coars_color_edges = np.histogramdd(sample, bins, normed=True, weights=None)
-    spaciograms.append(coars_color_spaciogram)
+    spaciograms.append(coars_color_spaciogram.tolist())
 
     # fine_color_spaciogram:
     bins = 10
     fine_color_spaciogram, fine_color_edges = np.histogramdd(sample, bins, normed=True, weights=None)
-    spaciograms.append(fine_color_spaciogram)
+    spaciograms.append(fine_color_spaciogram.tolist())
 
     # patterned_spaciograms
     bins = 8
@@ -165,7 +165,7 @@ def spaciogram_finger_print(image, mask):
     for wave in waves:
         wavy_sample = wave[mask > 0].flatten()
         patterned_spaciogram, patterned_edges = np.histogramdd([sample[0], sample[1], sample[2], wavy_sample], bins, normed=True, weights=None)
-        spaciograms.append(patterned_spaciogram)
+        spaciograms.append(patterned_spaciogram.tolist())
     return spaciograms
 
 def histogram_stack_finger_print(image, mask):
