@@ -9,6 +9,7 @@ import StringIO
 import sys
 
 import requests
+
 from rq import Queue
 
 from constants import db, flipkart_relevant_categories, flipkart_paperdoll_women, redis_conn
@@ -98,7 +99,8 @@ if __name__ == "__main__":
             tmp_prod["shortDescription"] = row[1]
             tmp_prod["longDescription"] = row[2]
             tmp_prod["price"] = {'price': row[5],
-                                 'currency': 'INR'}
+                                 'currency': 'INR',
+                                 'priceLabel': "\u20B9 %s" % str(row[5])}
             tmp_prod["brand"] = row[8]
             tmp_prod["download_data"] = {"dl_version": None, "first_dl": None, "fp_version": None}
             prev = db.flipkart.find_one({'id': tmp_prod["id"]})
@@ -177,13 +179,14 @@ flipkart info:
                                 [125x167, 400x400, 275x275, original, 75x75, 700x700, 125x125,
                                  40x40, 100x100, 200x200, 1100x1360, 180x240, 275x340]
                  4.mrp - it's also the price - needs to understand the difference between the fields
+                    maximumRetailPrice
                  5.price - in indian rupee!
+                    sellingPrice
                  6.productUrl - without our affiliate info
                  7.categories - usually not specific enough - only 'womens_clothing'
                  8.productBrand
                  9.deliveryTime
-                 10.status - instock : True/False
-                             hours_out : the # updates every run by 8
+                 10.inStock : true/false
                  11.codAvailable
                  12.emiAvailable
                  13.offers
@@ -218,7 +221,8 @@ flipkart info:
                                 * the sizes were taken from shopstyle
                                         - need to convert the flipkart image links to these categories
                                 * shopstyle links in "image.sizes.XLarge.url"
-                6.  inStock - True/False
+                10.status - instock : True/False
+                             hours_out : the # updates every run by 8
                 7.  shortDescription - title(flipkart)/name(shopstyle)
                 8.  longDescription - description
                 9.  price - {'price':
