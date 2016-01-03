@@ -19,7 +19,7 @@ from termcolor import colored
 from . import constants
 
 db = constants.db
-month = 30
+month = 31
 
 
 def update_status(coll="products"):
