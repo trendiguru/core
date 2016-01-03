@@ -1,14 +1,14 @@
 __author__ = 'yonatan'
 
 """
-updates the status key of all the products in a collection
+updates the status key of the products/products_jp in a collection
 logic:
 1. checks the date when it was last updated (the 'download_data.dl_version' value)
 2. if it was updated in the last 2 days then it is instock -> "status.instock = True"
 3. else "status.instock = False"
     and the days diff is calculated
 
-* the flipkart collection is downloaded every 8 hours - we might want to shorten the 2 days margin to X hours.
+*  the flipkart collection status is already updated at download
 
 """
 import datetime

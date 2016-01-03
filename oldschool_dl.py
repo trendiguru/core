@@ -48,7 +48,10 @@ class ShopStyleDownloader():
                                           "errors": 0,
                                           "end_time": "still in process",
                                           "total_dl_time(min)": "still in process",
-                                          "last_request": time.time()})
+                                          "last_request": time.time(),
+                                          "total_items": 0,
+                                          "instock": 0,
+                                          "out": 0})
         # self.db.drop_collection("fp_in_process")
         # self.db.fp_in_process.insert_one({})
         # self.db.fp_in_process.create_index("id")
@@ -61,15 +64,20 @@ class ShopStyleDownloader():
             self.download_category(cat, collection)
 
         self.wait_for(collection)
-        self.db.download_data.find_one_and_update({"criteria": collection},
-                                                  {'$set': {"end_time": datetime.datetime.now()}})
         tmp = self.db.download_data.find({"criteria": collection})[0]
         total_time = abs(tmp["end_time"] - tmp["start_time"]).total_seconds()
-        self.db.download_data.find_one_and_update({"criteria": collection},
-                                                  {'$set': {"total_dl_time(min)": str(total_time / 60)[:5]}})
         del_items = self.db[collection].delete_many({'fingerprint': {"$exists": False}})
         # print str(del_items.deleted_count) + ' items without fingerprint were deleted!\n'
         self.db.drop_collection("fp_in_process")
+        total_items = self.db[collection].count()
+        instock = self.db[collection].find({"status.instock": True}).count()
+        out = self.db[collection].find({"status.instock": False}).count()
+        self.db.download_data.find_one_and_update({"criteria": collection},
+                                                  {'$set': {"total_dl_time(min)": str(total_time / 60)[:5],
+                                                            "end_time": datetime.datetime.now(),
+                                                            "total_items": str(total_items),
+                                                            "instock": str(instock),
+                                                            "out": str(out)}})
         print collection + " DOWNLOAD DONE!!!!!\n"
 
     def wait_for(self, collection):

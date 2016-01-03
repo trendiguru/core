@@ -9,7 +9,6 @@ import StringIO
 import sys
 
 import requests
-
 from rq import Queue
 
 from constants import db, flipkart_relevant_categories, flipkart_paperdoll_women, redis_conn
@@ -42,7 +41,10 @@ if __name__ == "__main__":
                                  "errors": 0,
                                  "end_time": "still in process",
                                  "total_dl_time(min)": "still in process",
-                                 "last_request": time.time()})
+                                 "last_request": time.time(),
+                                 "total_items": 0,
+                                 "instock": 0,
+                                 "out": 0})
     db.drop_collection("fp_in_process")
     db.fp_in_process.insert_one({})
     db.fp_in_process.create_index("id")
@@ -90,9 +92,9 @@ if __name__ == "__main__":
             except:
                 continue
             if row[10] == 'true':
-                tmp_prod["status"] = {"instock": True, "hours_out": 0}
+                tmp_prod["status"] = {"instock": True, "days_out": 0}
             else:
-                tmp_prod["status"] = {"instock": False, "hours_out": 0}
+                tmp_prod["status"] = {"instock": False, "days_out": 0}
             tmp_prod["shortDescription"] = row[1]
             tmp_prod["longDescription"] = row[2]
             tmp_prod["price"] = {'price': row[5],
@@ -111,7 +113,7 @@ if __name__ == "__main__":
                 tmp_prod["fingerprint"] = prev["fingerprint"]
                 tmp_prod["download_data"] = prev["download_data"]
                 if not tmp_prod["status"]["instock"]:
-                    tmp_prod["status"]["hours_out"] = prev["status"]["hours_out"] + 8
+                    tmp_prod["status"]["days_out"] = prev["status"]["days_out"] + 1 / 3
                 tmp_prod["download_data"]["dl_version"] = today_date
                 try:
                     db.flipkart.delete_one({'id': tmp_prod['id']})
@@ -124,12 +126,21 @@ if __name__ == "__main__":
                                                          {'$inc': {"errors": 1}})
                     print "error inserting"
 
-    db.download_data.find_one_and_update({"criteria": criteria},
-                                         {'$set': {"end_time": datetime.datetime.now()}})
+    old = db.flipkart.find({"download_data.dl_version": {"$ne": today_date}})
+    for item in old:
+        db.flipkart.find_one_and_update({'id': item['id']}, {"$inc": {"status.days_out": 1 / 3}})
     total = db.download_data.find({"criteria": criteria})[0]
     total_time = abs(total["end_time"] - total["start_time"]).total_seconds()
+    total_items = db.flipkart.count()
+    instock = db.flipkart.find({"status.instock": True}).count()
+    out = db.flipkart.find({"status.instock": False}).count()
     db.download_data.find_one_and_update({"criteria": criteria},
-                                         {'$set': {"total_dl_time(min)": str(total_time / 60)[:5]}})
+                                         {'$set': {"total_dl_time(min)": str(total_time / 60)[:5],
+                                                   "end_time": datetime.datetime.now(),
+                                                   "total_items": str(total_items),
+                                                   "instock": str(instock),
+                                                   "out": str(out)}})
+
     print ("flipkart finished!!!")
 
 """
