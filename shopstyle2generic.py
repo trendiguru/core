@@ -34,7 +34,8 @@ def convert2generic(prod):
     tmp_prod["shortDescription"] = prod["name"]
     tmp_prod["longDescription"] = prod["description"]
     tmp_prod["price"] = {'price': prod["price"],
-                         'currency': prod["currency"]}
+                         'currency': prod["currency"],
+                         "priceLabel": prod["priceLabel"]}
     # add price + label = prod[priceLabel]
     try:
         tmp_prod["brand"] = prod['brand']['name']
