@@ -27,7 +27,7 @@ def update_status(coll="products"):
     today = datetime.datetime.today()
     today_date = str(today.date())
     yesterday = str((today - datetime.timedelta(1)).date())
-    collection.update_many({"download_date": {"$not": today_date}}, {'$set': {"status.instock": False}})
+    collection.update_many({"download_date": {"$ne": today_date}}, {'$set': {"status.instock": False}})
     collection.update_many({"download_date": yesterday}, {'$set': {"status.instock": True}})
     total = collection.count()
     print colored("total = %s" % str(total), "red")
