@@ -37,7 +37,7 @@ def update_status(coll="products"):
     print colored("out of stock = %s" % str(out), "yellow")
     sanity = total - instock
     if sanity == out:
-        print colored("senity check ok", "green", attrs=['bold'])
+        print colored("sanity check ok", "green", attrs=['bold'])
     else:
         print colored("this is insane", "red", "on_yellow")
     for day in range(2, month):
@@ -46,6 +46,8 @@ def update_status(coll="products"):
         print colored("%s items out of stock for %s days " % (str(res.modified_count), str(day)), "magenta",
                       attrs=['bold'])
 
+
+# add email
 
 if __name__ == "__main__":
     if len(sys.argv) > 1:
