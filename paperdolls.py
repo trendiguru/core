@@ -253,7 +253,9 @@ def start_process(page_url, image_url, lang=None):
                           'person_bb': person_bb}
                 image_copy = person_isolation(image, face)
                 image_dict['people'].append(person)
+                db.monitoring.update_one({'queue': 'pd'}, {'$inc': {'count': 1}})
                 paper_job = paperdoll_parse_enqueue.paperdoll_enqueue(image_copy, person['person_id'])
+                db.monitoring.update_one({'queue': 'find_similar'}, {'$inc': {'count': 1}})
                 q1.enqueue_call(func=from_paperdoll_to_similar_results, args=(person['person_id'], paper_job.id, 100,
                                                                               products_collection, coll_name),
                                 depends_on=paper_job, ttl=TTL, result_ttl=TTL, timeout=TTL)
@@ -307,6 +309,7 @@ def from_paperdoll_to_similar_results(person_id, paper_job_id, num_of_matches=10
             #     constants.svg_folder)
             # item_dict["svg_url"] = constants.svg_url_prefix + svg_name
             items.append(item_dict)
+            db.monitoring.update_one({'queue': 'find_top_n'}, {'$inc': {'count': 1}})
             jobs[idx] = q2.enqueue_call(func=find_similar_mongo.find_top_n_results, args=(image, item_mask,
                                                                                           num_of_matches,
                                                                                           item_dict['category'],
