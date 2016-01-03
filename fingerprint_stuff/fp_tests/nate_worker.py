@@ -72,14 +72,16 @@ def add_new_field(doc, x):
     except:
         print("specio specio specio scpecio failed")
         return
-    try:
-        histo = new_finger_print.histogram_stack_finger_print(image, item_mask)
-        doc["histo"] = histo.tolist()
-    except:
-        print("histo histo histo histo failed")
-        return
-    db.nate_testing.insert_one(doc)
-    print("item " + str(x) + " inserted with success!")
+    # try:
+    #     histo = new_finger_print.histogram_stack_finger_print(image, item_mask)
+    #     doc["histo"] = histo.tolist()
+    # except:
+    #     print("histo histo histo histo failed")
+    #     return
+    db.nate_testing.find_one_and_update({'id': doc['id']},
+                                        {"$set": {"specio": doc["specio"]}})
+    # db.nate_testing.insert_one(doc)
+    print("item " + str(x) + " updated/inserted with success!")
     return
 
 # def mr8_4_demo(img, fc, mask):
