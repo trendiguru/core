@@ -379,12 +379,12 @@ def remap(x, oMin, oMax, nMin, nMax):
         reverseOutput = True
 
 # new_value = ( (old_value - old_min) / (old_max - old_min) ) * (new_max - new_min) + new_min
-    portion = (x-oldMin)*(newMax-newMin)/(oldMax-oldMin)
+    portion = (x-oldMin)*(float(newMax-newMin)/(oldMax-oldMin))
     if reverseInput:
-        portion = (oldMax-x)*(newMax-newMin)/(oldMax-oldMin)
+        portion = (oldMax-x)*(float(newMax-newMin)/(oldMax-oldMin))
 
     result = portion + newMin
     if reverseOutput:
         result = newMax - portion
-
+    result = np.array(result).astype('uint8')
     return result
