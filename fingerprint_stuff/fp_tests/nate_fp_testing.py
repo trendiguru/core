@@ -30,7 +30,11 @@ def create_new_collection():
         #     continue
         # job = q.enqueue_call(func=add_new_field, args=(doc, x), ttl=1000, result_ttl=1000, timeout=1000)
         # jobs.append(job)
-        add_new_field(doc, x)
+        try:
+            add_new_field(doc, x)
+        except:
+            print("error in add_new_field - file not updated")
+            db.nate_testing.delete_one({"id": doc["id"]})
     # current = db.nate_testing.count()
     # time.sleep(1)
     # future = db.nate_testing.count()
