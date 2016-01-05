@@ -2,6 +2,10 @@ __author__ = 'Nadav Paz'
 
 import time
 
+from rq import Queue
+
+from .constants import redis_conn
+
 from .constants import db
 from . import paperdolls
 
@@ -19,7 +23,7 @@ def reset_amount():
 def check_queues():
     print "find_similar queue: {0}".format(paperdolls.q1.count)
     print "find_top_n queue: {0}".format(paperdolls.q2.count)
-
+    print "find_similar queue: {0}".format(Queue('failed', connection=redis_conn).count)
 
     # def get_minutely():
     # how much time back should I save?
