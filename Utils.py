@@ -117,7 +117,7 @@ def get_cv2_img_array(url_or_path_to_image_file_or_cv2_image_array, convert_url_
                 # print("trying locally (not url)")
                 img_path = url_or_path_to_image_file_or_cv2_image_array
                 try:
-                    img_array = imread(img_path)
+                    img_array = cv2.imread(img_path)
                     if img_array is not None:
                         # print("success trying locally (not url)")
                         got_locally = True
