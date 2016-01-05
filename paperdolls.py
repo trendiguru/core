@@ -340,9 +340,9 @@ def from_paperdoll_to_similar_results(person_id, paper_job_id, num_of_matches=10
     else:
         image_obj = new_image_obj
     if person['person_idx'] == len(image_obj['people']) - 1:
-        images_collection.insert_one(image_obj)
+        a = images_collection.insert_one(image_obj)
         iip.delete_one({'_id': image_obj['_id']})
-        logging.warning("Done! image was successfully inserted to the DB images!")
+        logging.warning("# of images inserted to db.images: {0}".format(a.acknowledged * 1))
 
 
 def get_results_now(page_url, image_url, collection='products_jp'):
