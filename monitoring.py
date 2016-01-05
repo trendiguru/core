@@ -79,6 +79,7 @@ def email(stats, title, recipients):
 
 
 def run():
+    mail_sent = 0
     while 1:
 
         # REDIS & RQ
@@ -88,6 +89,7 @@ def run():
         if not redis_conn.ping():
             stats = {'massage': 'FAILED TO CONNECT REDIS !', 'date': time.ctime()}
             email(stats, 'REDIS CONNECTION', [lior, nadav])
+            mail_sent = 1
 
         # putting on queue
 
@@ -98,9 +100,11 @@ def run():
             if job.is_failed:
                 stats = {'massage': 'TEST JOB IS FAILED!', 'date': time.ctime()}
                 email(stats, 'FAILED TO ENQUEUE', [lior, nadav])
+                mail_sent = 1
         except Exception as e:
             stats = {'massage': e.message, 'date': time.ctime()}
             email(stats, 'FAILED TO ENQUEUE', [lior, nadav])
+            mail_sent = 1
 
         # MONGO
 
@@ -111,6 +115,7 @@ def run():
         except Exception as e:
             stats = {'massage': e.message, 'date': time.ctime()}
             email(stats, 'FAILED TO CONNECT MONGO !', [lior, nadav])
+            mail_sent = 1
 
         # inserting a doc to db.test
 
@@ -120,8 +125,13 @@ def run():
         except Exception as e:
             stats = {'massage': e.message, 'date': time.ctime()}
             email(stats, 'FAILED TO INSERT TO DB.TEST', [lior, nadav])
+            mail_sent = 1
 
-        time.sleep(10)
+        if mail_sent:
+            mail_sent = 0
+            time.sleep(3600)
+        else:
+            time.sleep(10)
 
 
 if __name__ == "__main__":
