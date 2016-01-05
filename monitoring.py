@@ -64,7 +64,8 @@ def email(stats, title, recipients):
 
     part1 = MIMEText(html, 'html')
     msg.attach(part1)
-    server = smtplib.SMTP('extremeli.trendi.guru')
+    server = smtplib.SMTP('extremeli.trendi.guru', 22)
+    server.sendmail(sender, recipients, msg.as_string())
     server.quit()
 
 
