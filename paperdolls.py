@@ -290,6 +290,9 @@ def from_paperdoll_to_similar_results(person_id, paper_job_id, num_of_matches=10
     else:
         final_mask = after_pd_conclusions(mask, labels)
     image = Utils.get_cv2_img_array(image_obj['image_urls'][0])
+    if not image:
+        iip.delete_one({'_id': image_obj['_id']})
+        raise SystemError("image came back empty from Utils.get_cv2..")
     idx = 0
     items = []
     jobs = {}
@@ -298,7 +301,6 @@ def from_paperdoll_to_similar_results(person_id, paper_job_id, num_of_matches=10
         category = list(labels.keys())[list(labels.values()).index(num)]
         if category in constants.paperdoll_shopstyle_women.keys():
             item_mask = 255 * np.array(final_mask == num, dtype=np.uint8)
-            # shopstyle_cat = constants.paperdoll_shopstyle_women[category]
             shopstyle_cat_local_name = constants.paperdoll_shopstyle_women_jp_categories[category]['name']
             item_dict = {"category": category, 'item_id': str(bson.ObjectId()), 'item_idx': idx,
                          'saved_date': datetime.datetime.now(), 'category_name': shopstyle_cat_local_name}

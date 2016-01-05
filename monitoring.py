@@ -1,13 +1,23 @@
 __author__ = 'Nadav Paz'
 
 import time
+import smtplib
+from email.mime.text import MIMEText
+from email.mime.multipart import MIMEMultipart
 
 from rq import Queue
 
+from .constants import db
 from .constants import redis_conn
 
-from .constants import db
-from . import paperdolls
+
+nadav = 'nadav@trendiguru.com'
+lior = 'lior@trendiguru.com'
+kyle = 'kyle@trendiguru.com'
+jeremy = 'jeremy@trendiguru.com'
+yonti = 'yontilevin@gmail.com'
+sender = 'Notifier@trendiguru.com'
+all = 'members@trendiguru.com'
 
 
 def reset_time():
@@ -21,27 +31,52 @@ def reset_amount():
 
 
 def check_queues():
-    print "find_similar queue: {0}".format(paperdolls.q1.count)
-    print "find_top_n queue: {0}".format(paperdolls.q2.count)
-    print "find_similar queue: {0}".format(Queue('failed', connection=redis_conn).count)
+    data = {'new_images': Queue('new_images', connection=redis_conn).count,
+            'pd': Queue('pd', connection=redis_conn).count,
+            'find_similar': Queue('find_similar', connection=redis_conn).count,
+            'find_top_n': Queue('find_top_n', connection=redis_conn).count}
 
-    # def get_minutely():
-    # how much time back should I save?
-    # what exactly to save?
-    # which stats should I get out of the stats and how?
 
-    
-        # # TIME STATS
-        # def moment_information():
-        # def minute_information():
-        # def hour_information():
-        # def daily_information():
-        # def weekly_information():
-        #
-        # # OTHER STATS
-        # def queues_status():
-        # def workers_status():
-        # def
-        #
-        # if __name__ == '__main__':
-        # print "starting monitoring.."
+def email(stats, title, recipients):
+    msg = MIMEMultipart('alternative')
+    msg['Subject'] = title
+    msg['From'] = sender
+    msg['To'] = ", ".join(recipients)
+
+    txt = '<h3> date:\t' + stats['date'] + '</h3>\n<h3>' + \
+          'massage:\t' + stats['massage'] + '</h3>\n'
+
+    html = """\
+    <html>
+    <head>
+    <style>
+    table, th, td {
+        border: 1px solid black;
+        border-collapse: collapse;
+    }
+    th, td {
+        padding: 5px;
+    }
+    </style>
+    </head>
+    <body>"""
+    html += txt
+
+    part1 = MIMEText(html, 'html')
+    msg.attach(part1)
+    server = smtplib.SMTP('extremeli.trendi.guru')
+    server.quit()
+
+
+# def queues_stats():
+#
+# email(stats, 'monitoring', [nadav])
+#     with open(date + '.txt', 'w') as outfile:
+#         json.dump(stats, outfile)
+
+
+if __name__ == "__main__":
+    while 1:
+        if not redis_conn.ping():
+            stats = {'massage': 'No REDIS connection !', 'date': time.ctime()}
+            email(stats, 'REDIS CONNECTION', [lior, nadav])
