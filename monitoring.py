@@ -52,7 +52,7 @@ def email(stats, title, recipients):
     msg['To'] = ", ".join(recipients)
 
     txt = '<h3> date:\t' + stats['date'] + '</h3>\n<h3>' + \
-          'massage:\t' + stats['massage'] + '</h3>\n'
+          'massege:\t' + stats['massege'] + '</h3>\n'
 
     html = """\
     <html>
@@ -87,7 +87,7 @@ def run():
         # basic connection
 
         if not redis_conn.ping():
-            stats = {'massage': 'FAILED TO CONNECT REDIS !', 'date': time.ctime()}
+            stats = {'massege': 'FAILED TO CONNECT REDIS !', 'date': time.ctime()}
             email(stats, 'REDIS CONNECTION', [lior, nadav])
             mail_sent = 1
 
@@ -98,11 +98,11 @@ def run():
             time.sleep(0.1)
             print "Did job start? : {0}".format(job.is_started)
             if job.is_failed:
-                stats = {'massage': 'TEST JOB IS FAILED!', 'date': time.ctime()}
+                stats = {'massege': 'TEST JOB IS FAILED!', 'date': time.ctime()}
                 email(stats, 'FAILED TO ENQUEUE', [lior, nadav])
                 mail_sent = 1
         except Exception as e:
-            stats = {'massage': e.message, 'date': time.ctime()}
+            stats = {'massege': e.message, 'date': time.ctime()}
             email(stats, 'FAILED TO ENQUEUE', [lior, nadav])
             mail_sent = 1
 
@@ -113,7 +113,7 @@ def run():
         try:
             db = pymongo.MongoClient(host=os.environ["MONGO_HOST"], port=int(os.environ["MONGO_PORT"])).mydb
         except Exception as e:
-            stats = {'massage': e.message, 'date': time.ctime()}
+            stats = {'massege': e.message, 'date': time.ctime()}
             email(stats, 'FAILED TO CONNECT MONGO !', [lior, nadav])
             mail_sent = 1
 
@@ -123,7 +123,7 @@ def run():
             db.test.insert_one({'name': 'test'})
             db.test.delete_one({'name': 'test'})
         except Exception as e:
-            stats = {'massage': e.message, 'date': time.ctime()}
+            stats = {'massege': e.message, 'date': time.ctime()}
             email(stats, 'FAILED TO INSERT TO DB.TEST', [lior, nadav])
             mail_sent = 1
 
