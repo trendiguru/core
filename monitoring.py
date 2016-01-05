@@ -9,6 +9,7 @@ from rq import Queue
 
 from .constants import db
 from .constants import redis_conn
+from .constants import
 
 
 nadav = 'nadav@trendiguru.com'
@@ -65,23 +66,24 @@ def email(stats, title, recipients):
     part1 = MIMEText(html, 'html')
     msg.attach(part1)
     server = smtplib.SMTP('smtp-relay.gmail.com', 587)
+    server.starttls()
     server.sendmail(sender, recipients, msg.as_string())
     server.quit()
-
-
-# def queues_stats():
-#
-# email(stats, 'monitoring', [nadav])
-#     with open(date + '.txt', 'w') as outfile:
-#         json.dump(stats, outfile)
 
 
 if __name__ == "__main__":
     while 1:
         time.sleep(5)
+
+        # REDIS & RQ
+
+        # basic connection
+
         if not redis_conn.ping():
             stats = {'massage': 'No REDIS connection !', 'date': time.ctime()}
             email(stats, 'REDIS CONNECTION', [lior, nadav])
         else:
             stats = {'massage': 'REDIS connection is jussst fiiine !', 'date': time.ctime()}
             email(stats, 'REDIS CONNECTION', [lior, nadav])
+
+            #
