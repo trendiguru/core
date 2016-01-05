@@ -2,8 +2,11 @@ __author__ = 'Nadav Paz'
 
 import time
 import smtplib
+import os
 from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
+
+import pymongo
 
 from rq import Queue
 
@@ -83,15 +86,38 @@ if __name__ == "__main__":
         # basic connection
 
         if not redis_conn.ping():
-            stats = {'massage': 'No REDIS connection !', 'date': time.ctime()}
+            stats = {'massage': 'FAILED TO CONNECT REDIS !', 'date': time.ctime()}
             email(stats, 'REDIS CONNECTION', [lior, nadav])
 
         # putting on queue
 
-        # try:
-        # test_q.enqueue(nop)
-        # except SystemError() as e:
-        #     print e
+        try:
+            job = test_q.enqueue(return_1)
+            time.sleep(0.01)
+            if job.is_failed:
+                stats = {'massage': 'TEST JOB IS FAILED!', 'date': time.ctime()}
+                email(stats, 'FAILED TO ENQUEUE', [lior, nadav])
+        except Exception as e:
+            stats = {'massage': e.message, 'date': time.ctime()}
+            email(stats, 'FAILED TO ENQUEUE', [lior, nadav])
+
+        # MONGO
+
+        # basic connection
+
+        try:
+            db = pymongo.MongoClient(host=os.environ["MONGO_HOST"], port=int(os.environ["MONGO_PORT"])).mydb
+        except Exception as e:
+            stats = {'massage': e.message, 'date': time.ctime()}
+            email(stats, 'FAILED TO CONNECT MONGO !', [lior, nadav])
+
+        # inserting a doc to db.test
+
+        try:
+            db.test.insert_one({'name': 'test'})
+        except Exception as e:
+            stats = {'massage': e.message, 'date': time.ctime()}
+            email(stats, 'FAILED TO INSERT TO DB.TEST', [lior, nadav])
 
         time.sleep(10)
 
