@@ -290,7 +290,7 @@ def from_paperdoll_to_similar_results(person_id, paper_job_id, num_of_matches=10
     else:
         final_mask = after_pd_conclusions(mask, labels)
     image = Utils.get_cv2_img_array(image_obj['image_urls'][0])
-    if not image:
+    if image is None:
         iip.delete_one({'_id': image_obj['_id']})
         raise SystemError("image came back empty from Utils.get_cv2..")
     idx = 0
