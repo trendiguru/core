@@ -77,6 +77,7 @@ def email(stats, title, recipients):
 
 if __name__ == "__main__":
     while 1:
+        time.sleep(5)
         if not redis_conn.ping():
             stats = {'massage': 'No REDIS connection !', 'date': time.ctime()}
             email(stats, 'REDIS CONNECTION', [lior, nadav])
