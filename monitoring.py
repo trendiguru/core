@@ -78,7 +78,7 @@ def email(stats, title, recipients):
     server.quit()
 
 
-if __name__ == "__main__":
+def run():
     while 1:
 
         # REDIS & RQ
@@ -121,3 +121,6 @@ if __name__ == "__main__":
 
         time.sleep(10)
 
+
+if __name__ == "__main__":
+    run()
