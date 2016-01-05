@@ -4,6 +4,9 @@ import pickle
 import numpy as np
 import cv2
 import h5py
+import theano
+theano.config.device = 'gpu'
+theano.config.floatX = 'float32'
 from keras.callbacks import ModelCheckpoint, EarlyStopping, Callback
 from keras.models import Sequential
 from keras.layers.core import Dense, Dropout, Activation, Flatten
