@@ -11,6 +11,7 @@ from .constants import db
 from .constants import redis_conn
 
 
+test_q = Queue('test', connection=redis_conn)
 nadav = 'nadav@trendiguru.com'
 lior = 'lior@trendiguru.com'
 kyle = 'kyle@trendiguru.com'
@@ -35,6 +36,10 @@ def check_queues():
             'pd': Queue('pd', connection=redis_conn).count,
             'find_similar': Queue('find_similar', connection=redis_conn).count,
             'find_top_n': Queue('find_top_n', connection=redis_conn).count}
+
+
+def nop():
+    pass
 
 
 def email(stats, title, recipients):
@@ -72,7 +77,6 @@ def email(stats, title, recipients):
 
 if __name__ == "__main__":
     while 1:
-        time.sleep(5)
 
         # REDIS & RQ
 
@@ -81,8 +85,13 @@ if __name__ == "__main__":
         if not redis_conn.ping():
             stats = {'massage': 'No REDIS connection !', 'date': time.ctime()}
             email(stats, 'REDIS CONNECTION', [lior, nadav])
-        else:
-            stats = {'massage': 'REDIS connection is jussst fiiine !', 'date': time.ctime()}
-            email(stats, 'REDIS CONNECTION', [lior, nadav])
 
-            #
+        # putting on queue
+
+        # try:
+        # test_q.enqueue(nop)
+        # except SystemError() as e:
+        #     print e
+
+        time.sleep(10)
+
