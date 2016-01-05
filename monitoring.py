@@ -80,3 +80,6 @@ if __name__ == "__main__":
         if not redis_conn.ping():
             stats = {'massage': 'No REDIS connection !', 'date': time.ctime()}
             email(stats, 'REDIS CONNECTION', [lior, nadav])
+        else:
+            stats = {'massage': 'REDIS connection is jussst fiiine !', 'date': time.ctime()}
+            email(stats, 'REDIS CONNECTION', [lior, nadav])
