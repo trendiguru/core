@@ -14,7 +14,7 @@ from .constants import db
 from .constants import redis_conn
 
 
-test_q = Queue('test', connection=redis_conn)
+test_q = Queue('test_q', connection=redis_conn)
 nadav = 'nadav@trendiguru.com'
 lior = 'lior@trendiguru.com'
 kyle = 'kyle@trendiguru.com'
@@ -93,8 +93,8 @@ def run():
 
         try:
             job = test_q.enqueue(return_1)
+            time.sleep(0.1)
             print "Did job start? : {0}".format(job.is_started)
-            time.sleep(0.01)
             if job.is_failed:
                 stats = {'massage': 'TEST JOB IS FAILED!', 'date': time.ctime()}
                 email(stats, 'FAILED TO ENQUEUE', [lior, nadav])
