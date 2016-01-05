@@ -70,6 +70,21 @@ max_images_per_doc = 100 #constants.max_images_per_doc
 max_items = 100 #constants.max_items
 
 
+def get_mask(img):
+    from trendi.paperdoll import paperdoll_parse_enqueue
+    #import background_removal
+    from trendi import paperdolls
+
+    mask, labels, pose = paperdoll_parse_enqueue.paperdoll_enqueue(img, async=False).result[:3]
+    final_mask = paperdolls.after_pd_conclusions(mask, labels)#, person['face'])
+    for num in np.unique(final_mask):
+	category = list(labels.keys())[list(labels.values()).index(num)]
+    category = 'dress'
+    if category in constants.paperdoll_shopstyle_women.keys():
+	    item_mask = 255 * np.array(final_mask == num, dtype=np.uint8)
+        return item_mask
+
+
 #this is for the training collection, where there's a set of images from different angles in each record
 def find_stats(confusion_vector, stdev_vector, report):
     weighted_average = 0
@@ -680,7 +695,7 @@ def compare_fingerprints(image_array1, image_array2, fingerprint_function=fp_cor
                 #ffp1 = fingerprint_function(img_arr1, bounding_box=bb1, weights=weights, **fingerprint_arguments)
                 ma = np.zeros(img_arr1.shape[:2])
                 ma[bb1[0]:bb1[0]+bb1[2],bb1[1]:bb1[1]+bb1[3]]=1
-                fp1 = np.multiply(fingerprint_function(img_arr1, mask= None, **fingerprint_arguments), weights)
+                fp1 = np.multiply(fingerprint_function(img_arr1, mask= get_mask(img_arr1), **fingerprint_arguments), weights)
             except Exception as e:
                 print(e)
 
@@ -725,7 +740,7 @@ def compare_fingerprints(image_array1, image_array2, fingerprint_function=fp_cor
                         #fp2 = fingerprint_function(img_arr2, bounding_box=bb2, weights=weights, **fingerprint_arguments)
                         ma = np.zeros(img_arr2.shape[:2])
                         ma[bb2[0]:bb2[0]+bb2[2],bb2[1]:bb2[1]+bb2[3]]=1
-                        fp2 = np.multiply(fingerprint_function(img_arr2, mask= ma, **fingerprint_arguments), weights)
+                        fp2 = np.multiply(fingerprint_function(img_arr2, mask= get_mask(img_arr2), **fingerprint_arguments), weights)
                     except Exception as e:
                         print(e)
                         fp2 = np.ones(fingerprint_length)  # this is arbitrary but lets keep going instead of crashing
@@ -787,7 +802,7 @@ def compare_fingerprints_except_diagonal(image_array1, image_array2, fingerprint
                 #fp1 = fingerprint_function(img_arr1, bounding_box=bb1, weights=weights, **fingerprint_arguments)
                 ma = np.zeros(img_arr1.shape[:2])
                 ma[bb1[0]:bb1[0]+bb1[2],bb1[1]:bb1[1]+bb1[3]]=1
-                fp1 = np.multiply(fingerprint_function(img_arr1, mask= None, **fingerprint_arguments), weights)
+                fp1 = np.multiply(fingerprint_function(img_arr1, mask= get_mask(img_arr1), **fingerprint_arguments), weights)
             except Exception as e:
                 print(e)
             #except:
@@ -829,7 +844,7 @@ def compare_fingerprints_except_diagonal(image_array1, image_array2, fingerprint
                         #fp2 = fingerprint_function(img_arr2, bounding_box=bb2, weights=weights, **fingerprint_arguments)
                         ma = np.zeros(img_arr2.shape[:2])
                         ma[bb2[0]:bb2[0]+bb2[2],bb2[1]:bb2[1]+bb2[3]]=1
-                        fp2 = np.multiply(fingerprint_function(img_arr2, mask= None, **fingerprint_arguments), weights)
+                        fp2 = np.multiply(fingerprint_function(img_arr2, mask= get_mask(img_arr2), **fingerprint_arguments), weights)
                     except Exception as e:
                         print(e)
                         fp2 = np.ones(fingerprint_length)  # this is arbitrary but lets keep going instead of crashing
