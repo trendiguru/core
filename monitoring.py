@@ -115,6 +115,7 @@ def run():
 
         try:
             db.test.insert_one({'name': 'test'})
+            db.delete.insert_one({'name': 'test'})
         except Exception as e:
             stats = {'massage': e.message, 'date': time.ctime()}
             email(stats, 'FAILED TO INSERT TO DB.TEST', [lior, nadav])
