@@ -27,9 +27,9 @@ import sys
 import matplotlib
 from scipy.spatial import distance as dist
 from trendi import constants
-#from trendi.constants import db
+from trendi.constants import db
 import pymongo
-db = pymongo.MongoClient().mydb
+#db = pymongo.MongoClient().mydb
 
 
 matplotlib.use('Agg')  # prevents problems generating plots on server where no display is defined
