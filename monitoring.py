@@ -9,7 +9,6 @@ from rq import Queue
 
 from .constants import db
 from .constants import redis_conn
-from .constants import
 
 
 nadav = 'nadav@trendiguru.com'
