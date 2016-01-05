@@ -38,8 +38,8 @@ def check_queues():
             'find_top_n': Queue('find_top_n', connection=redis_conn).count}
 
 
-def nop():
-    pass
+def return_1():
+    return 1
 
 
 def email(stats, title, recipients):
