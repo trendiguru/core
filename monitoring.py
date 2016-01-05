@@ -64,7 +64,7 @@ def email(stats, title, recipients):
 
     part1 = MIMEText(html, 'html')
     msg.attach(part1)
-    server = smtplib.SMTP('localhost')
+    server = smtplib.SMTP('smtp-relay.gmail.com', 587)
     server.sendmail(sender, recipients, msg.as_string())
     server.quit()
 
