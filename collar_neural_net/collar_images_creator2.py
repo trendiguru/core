@@ -1,13 +1,120 @@
 import cv2
 import numpy as np
+from PIL import Image, ImageEnhance
 # import scipy as sp
 import os
+# import argparse
+# from __future__ import print_function
+#
+# def adjust_gamma(image, gamma=1.0):
+# 	# build a lookup table mapping the pixel values [0, 255] to
+# 	# their adjusted gamma values
+# 	invGamma = 1.0 / gamma
+# 	table = np.array([((i / 255.0) ** invGamma) * 255
+# 		for i in np.arange(0, 256)]).astype("uint8")
+#
+# 	# apply gamma correction using the lookup table
+# 	return cv2.LUT(image, table)
+#
+# ap = argparse.ArgumentParser()
+# ap.add_argument("-i", "--image", required=True, help="path to input image")
+# args = vars(ap.parse_args())
+
+def remap(x, oMin, oMax, nMin, nMax):
+
+    #range check
+    if oMin == oMax:
+        print "Warning: Zero input range"
+        return None
+
+    if nMin == nMax:
+        print "Warning: Zero output range"
+        return None
+
+    #check reversed input range
+    reverseInput = False
+    oldMin = min(oMin, oMax)
+    oldMax = max(oMin, oMax)
+    if not oldMin == oMin:
+        reverseInput = True
+
+    #check reversed output range
+    reverseOutput = False
+    newMin = min(nMin, nMax)
+    newMax = max(nMin, nMax)
+    if not newMin == nMin :
+        reverseOutput = True
+
+# new_value = ( (old_value - old_min) / (old_max - old_min) ) * (new_max - new_min) + new_min
+    portion = (x-oldMin)*(float(newMax-newMin)/(oldMax-oldMin))
+    if reverseInput:
+        portion = (oldMax-x)*(float(newMax-newMin)/(oldMax-oldMin))
+
+    result = portion + newMin
+    if reverseOutput:
+        result = newMax - portion
+    result = np.array(result).astype('uint8')
+    return result
+
+def whiten_image(image):
+    '''
+    :param image: uint8 image grayscale or BGR
+    :return:
+    '''
+    whitend_image = []
+    # if grayscale:
+    if len(image.shape) == 1:
+        oMax = image.max()
+        nMax = 255
+        dScale = nMax - oMax
+        if dScale > 0:
+            whitend_image = np.zeros(image.shape)
+            oMin = image.min()
+            nMin = oMin
+            whitend_image = remap(image, oMin, oMax, nMin, nMax)
+        else:
+            whitend_image = image
+
+    # if BGR:
+    elif len(image.shape) == 3:
+        oMax = image.max()
+        nMax = 255
+        dScale = nMax - oMax
+        if dScale > 0:
+            whitend_image = np.zeros(image.shape)
+            for i in range(3):
+                oMin = image[:, :, i].min()
+                nMin = oMin
+                oMax = image[:, :, i].max()
+                nMax = oMax + dScale
+                whitend_image[:, :, i] = remap(image[:, :, i], oMin, oMax, nMin, nMax)
+        else:
+            whitend_image = image
+
+    else:
+        print 'Error: input is not a 3 channle image nore a grayscale (1 ch) image!'
+    return whitend_image.astype('uint8')
+
+def PIL2array(img):
+    return np.array(img.getdata(),
+                    np.uint8).reshape(img.size[1], img.size[0], 3)
+
+def array2PIL(arr, size):
+    mode = 'RGBA'
+    arr = arr.reshape(arr.shape[0]*arr.shape[1], arr.shape[2])
+    if len(arr[0]) == 3:
+        arr = np.c_[arr, 255*np.ones((len(arr),1), np.uint8)]
+    return Image.frombuffer(mode, size, arr.tostring(), 'raw', mode, 0, 1)
+
+
+
 # face_cascade = cv2.CascadeClassifier('/home/core/classifier_stuff/classifiers_to_test/face/haarcascade_frontalface_default.xml')
 face_cascade = cv2.CascadeClassifier('/home/developer/python-packages/trendi/classifier_stuff/classifiers_to_test/face/haarcascade_frontalface_default.xml')
 # face_cascade = cv2.CascadeClassifier('/home/nate/Desktop/core/classifier_stuff/classifiers_to_test/face/haarcascade_frontalface_default.xml')
 # eye_cascade = cv2.CascadeClassifier('haarcascade_eye.xml')
 # current_directory = os.path.abspath()
 
+enhancement_factors = [0.5, 1.0, 1.1]
 image_file_types = ['.jpg', 'jpeg', '.png', '.bmp', '.gif']
 a = 1.35 # scalar for increasing collar box in relation to face box (1==100%)
 max_angle = 10 # tilt angle of the image for diversification
@@ -67,7 +174,6 @@ for type in neck_type_images_directory:
             # for offset2 in offset_range:
             # offsetted_face[1] = face[1] #+ offset2 * face[3]
         for angle in range(-max_angle, max_angle+1, angle_offset):
-            image_number += 1
             rotated_image_matrix = cv2.getRotationMatrix2D(collar_image_center_point, angle, 1.0)
             image_of_rotated_collar = cv2.warpAffine(image, rotated_image_matrix,(row, col))
             image_of_collar = image_of_rotated_collar[(offsetted_face[1]+offsetted_face[3])*(1-a):
@@ -90,7 +196,19 @@ for type in neck_type_images_directory:
                 elif 'vneck' in type:
                     image_call = image_call + '_5'
                 # ###########################################################
-                cv2.imwrite(directory_path + '/' + image_call + image_file_name[-4:], resized_image_of_collar)
+                resized_image_of_collar = Image.fromarray(whiten_image(resized_image_of_collar))
+                # enhance the image:
+                enhancers = []
+                enhancers.append(ImageEnhance.Sharpness(resized_image_of_collar))
+                enhancers.append(ImageEnhance.Brightness(resized_image_of_collar))
+                enhancers.append(ImageEnhance.Contrast(resized_image_of_collar))
+                enhancers.append(ImageEnhance.Color(resized_image_of_collar))
+                for enhancer in enhancers:
+                    for factor in enhancement_factors:
+                        image_number += 1
+                        resized_image_of_collar = enhancer.enhance(factor)
+                        cv2.imwrite(directory_path + '/' + str(image_number) + '_' + image_call + image_file_name[-4:], PIL2array(resized_image_of_collar))
+
             # ###########################################################
             # writing a false, i.e. [0, 0, 0, 0, 0]:
             image_of_collar = image_of_rotated_collar[(offsetted_face[1]+1.5*offsetted_face[3])*(1-a)+offsetted_face[3]:
@@ -99,7 +217,18 @@ for type in neck_type_images_directory:
             if np.array(image_of_collar.shape).all() > 0:
                 resized_image_of_collar = cv2.resize(image_of_collar, output_images_size)
                 image_call = str(image_number) + '_0'
-                cv2.imwrite(directory_path + '/' + image_call + image_file_name[-4:], resized_image_of_collar)
+                resized_image_of_collar = Image.fromarray(whiten_image(resized_image_of_collar))
+                # enhance the image:
+                enhancers = []
+                enhancers.append(ImageEnhance.Sharpness(resized_image_of_collar))
+                enhancers.append(ImageEnhance.Brightness(resized_image_of_collar))
+                enhancers.append(ImageEnhance.Contrast(resized_image_of_collar))
+                enhancers.append(ImageEnhance.Color(resized_image_of_collar))
+                for enhancer in enhancers:
+                    for factor in enhancement_factors:
+                        image_number += 1
+                        resized_image_of_collar = enhancer.enhance(factor)
+                        cv2.imwrite(directory_path + '/' + str(image_number) + '_' + image_call + image_file_name[-4:], PIL2array(resized_image_of_collar))
 
         # flip along vertical axis:
         image = np.fliplr(image)
@@ -119,7 +248,6 @@ for type in neck_type_images_directory:
             # for offset2 in offset_range:
             # offsetted_face[1] = face[1] #+ offset2 * face[3]
         for angle in range(-max_angle, max_angle+1, angle_offset):
-            image_number += 1
             rotated_image_matrix = cv2.getRotationMatrix2D(flipped_collar_image_center_point, angle, 1.0)
             image_of_rotated_collar = cv2.warpAffine(image, rotated_image_matrix,(row, col))
             image_of_collar = image_of_rotated_collar[(offsetted_face[1]+offsetted_face[3])*(1-a):
@@ -142,7 +270,18 @@ for type in neck_type_images_directory:
                 elif 'vneck' in type:
                     image_call = image_call + '_5'
                 # ###########################################################
-                cv2.imwrite(directory_path + '/' + image_call + image_file_name[-4:], resized_image_of_collar)
+                resized_image_of_collar = Image.fromarray(whiten_image(resized_image_of_collar))
+                # enhance the image:
+                enhancers = []
+                enhancers.append(ImageEnhance.Sharpness(resized_image_of_collar))
+                enhancers.append(ImageEnhance.Brightness(resized_image_of_collar))
+                enhancers.append(ImageEnhance.Contrast(resized_image_of_collar))
+                enhancers.append(ImageEnhance.Color(resized_image_of_collar))
+                for enhancer in enhancers:
+                    for factor in enhancement_factors:
+                        image_number += 1
+                        resized_image_of_collar = enhancer.enhance(factor)
+                        cv2.imwrite(directory_path + '/' + str(image_number) + '_' + image_call + image_file_name[-4:], PIL2array(resized_image_of_collar))
             # ###########################################################
             # writing a false, i.e. [0, 0, 0, 0, 0]:
             image_of_collar = image_of_rotated_collar[(offsetted_face[1]+1.5*offsetted_face[3])*(1-a)+offsetted_face[3]:
@@ -151,7 +290,17 @@ for type in neck_type_images_directory:
             if np.array(image_of_collar.shape).all() > 0:
                 resized_image_of_collar = cv2.resize(image_of_collar, output_images_size)
                 image_call = str(image_number) + '_0'
-                cv2.imwrite(directory_path + '/' + image_call + image_file_name[-4:], resized_image_of_collar)
-
+                resized_image_of_collar = Image.fromarray(whiten_image(resized_image_of_collar))
+                # enhance the image:
+                enhancers = []
+                enhancers.append(ImageEnhance.Sharpness(resized_image_of_collar))
+                enhancers.append(ImageEnhance.Brightness(resized_image_of_collar))
+                enhancers.append(ImageEnhance.Contrast(resized_image_of_collar))
+                enhancers.append(ImageEnhance.Color(resized_image_of_collar))
+                for enhancer in enhancers:
+                    for factor in enhancement_factors:
+                        image_number += 1
+                        resized_image_of_collar = enhancer.enhance(factor)
+                        cv2.imwrite(directory_path + '/' + str(image_number) + '_' + image_call + image_file_name[-4:], PIL2array(resized_image_of_collar))
 
             # print image_call
