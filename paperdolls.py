@@ -29,7 +29,6 @@ images = db.images
 iip = db.iip
 q1 = Queue('find_similar', connection=redis_conn)
 q2 = Queue('find_top_n', connection=redis_conn)
-q3 = Queue('nadav', connection=redis_conn)
 # sys.stdout = sys.stderr
 TTL = constants.general_ttl
 
