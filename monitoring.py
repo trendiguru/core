@@ -93,6 +93,7 @@ def run():
 
         try:
             job = test_q.enqueue(return_1)
+            print "Did job start? : {0}".format(job.is_started)
             time.sleep(0.01)
             if job.is_failed:
                 stats = {'massage': 'TEST JOB IS FAILED!', 'date': time.ctime()}
