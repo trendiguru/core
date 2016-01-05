@@ -127,6 +127,15 @@ def run():
             email(stats, 'FAILED TO INSERT TO DB.TEST', [lior, nadav])
             mail_sent = 1
 
+        # IMAGES INSERTS
+
+        images_init = db.images.count()
+        time.sleep(60)
+        if not db.images.count() - images_init:
+            stats = {'massege': '0 IMAGES WERE INSERTED IN THE LAST MINUTE TO DB.IMAGES !!', 'date': time.ctime()}
+            email(stats, '0 INSERTS', [lior, nadav])
+            mail_sent = 1
+
         if mail_sent:
             mail_sent = 0
             time.sleep(3600)
