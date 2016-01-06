@@ -80,7 +80,7 @@ if __name__ == "__main__":
                         help='how many pd workers')
     args = parser.parse_args()
     n_expected_workers = args.N
-    print('N:' + str(N))
+    print('N:' + str(n_expected_workers))
     while 1:
         n_actual_workers = count_pd_workers()
         print(str(n_actual_workers)+' workers online')
