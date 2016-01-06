@@ -320,10 +320,13 @@ def from_paperdoll_to_similar_results(person_id, paper_job_id, num_of_matches=10
     done = all([job.is_finished for job in jobs.values()])
     while not done:
         time.sleep(0.2)
-        done = all([job.is_finished for job in jobs.values()])
+        done = all([job.is_finished or job.is_failed for job in jobs.values()])
     for idx, job in jobs.iteritems():
         cur_item = next((item for item in items if item['item_idx'] == idx), None)
-        cur_item['fp'], cur_item['similar_results'] = job.result
+        if job.is_failed:
+            items[:] = [item for item in items if item['item_idx'] != cur_item['item_idx']]
+        else:
+            cur_item['fp'], cur_item['similar_results'] = job.result
     new_image_obj = iip.find_one_and_update({'people.person_id': person_id}, {'$set': {'people.$.items': items}},
                                             return_document=pymongo.ReturnDocument.AFTER)
     total_time = 0
