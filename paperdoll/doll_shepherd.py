@@ -76,10 +76,10 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser(description='ye olde shepherd')
     # parser.add_argument('integers', metavar='N', type=int, nargs='+',
     # help='an integer for the accumulator')
-    parser.add_argument('--N', default='47',
+    parser.add_argument('--N', default=47,
                         help='how many pd workers')
     args = parser.parse_args()
-    n_expected_workers = args.N
+    n_expected_workers = int(args.N)
     print('N:' + str(n_expected_workers))
     while 1:
         n_actual_workers = count_pd_workers()
