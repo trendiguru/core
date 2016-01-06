@@ -42,7 +42,10 @@ if __name__ == "__main__":
                                  "errors": 0,
                                  "end_time": "still in process",
                                  "total_dl_time(min)": "still in process",
-                                 "last_request": time.time()})
+                                 "last_request": time.time(),
+                                 "total_items": 0,
+                                 "instock": 0,
+                                 "out": 0})
     db.drop_collection("fp_in_process")
     db.fp_in_process.insert_one({})
     db.fp_in_process.create_index("id")
@@ -90,13 +93,14 @@ if __name__ == "__main__":
             except:
                 continue
             if row[10] == 'true':
-                tmp_prod["status"] = {"instock": True, "hours_out": 0}
+                tmp_prod["status"] = {"instock": True, "days_out": 0}
             else:
-                tmp_prod["status"] = {"instock": False, "hours_out": 0}
+                tmp_prod["status"] = {"instock": False, "days_out": 0}
             tmp_prod["shortDescription"] = row[1]
             tmp_prod["longDescription"] = row[2]
             tmp_prod["price"] = {'price': row[5],
-                                 'currency': 'INR'}
+                                 'currency': 'INR',
+                                 'priceLabel': "\u20B9 %s" % str(row[5])}
             tmp_prod["brand"] = row[8]
             tmp_prod["download_data"] = {"dl_version": None, "first_dl": None, "fp_version": None}
             prev = db.flipkart.find_one({'id': tmp_prod["id"]})
@@ -111,7 +115,7 @@ if __name__ == "__main__":
                 tmp_prod["fingerprint"] = prev["fingerprint"]
                 tmp_prod["download_data"] = prev["download_data"]
                 if not tmp_prod["status"]["instock"]:
-                    tmp_prod["status"]["hours_out"] = prev["status"]["hours_out"] + 8
+                    tmp_prod["status"]["days_out"] = prev["status"]["days_out"] + 1 / 3
                 tmp_prod["download_data"]["dl_version"] = today_date
                 try:
                     db.flipkart.delete_one({'id': tmp_prod['id']})
@@ -124,12 +128,21 @@ if __name__ == "__main__":
                                                          {'$inc': {"errors": 1}})
                     print "error inserting"
 
-    db.download_data.find_one_and_update({"criteria": criteria},
-                                         {'$set': {"end_time": datetime.datetime.now()}})
+    old = db.flipkart.find({"download_data.dl_version": {"$ne": today_date}})
+    for item in old:
+        db.flipkart.find_one_and_update({'id': item['id']}, {"$inc": {"status.days_out": 1 / 3}})
     total = db.download_data.find({"criteria": criteria})[0]
     total_time = abs(total["end_time"] - total["start_time"]).total_seconds()
+    total_items = db.flipkart.count()
+    instock = db.flipkart.find({"status.instock": True}).count()
+    out = db.flipkart.find({"status.instock": False}).count()
     db.download_data.find_one_and_update({"criteria": criteria},
-                                         {'$set': {"total_dl_time(min)": str(total_time / 60)[:5]}})
+                                         {'$set': {"total_dl_time(min)": str(total_time / 60)[:5],
+                                                   "end_time": datetime.datetime.now(),
+                                                   "total_items": str(total_items),
+                                                   "instock": str(instock),
+                                                   "out": str(out)}})
+
     print ("flipkart finished!!!")
 
 """
@@ -166,13 +179,14 @@ flipkart info:
                                 [125x167, 400x400, 275x275, original, 75x75, 700x700, 125x125,
                                  40x40, 100x100, 200x200, 1100x1360, 180x240, 275x340]
                  4.mrp - it's also the price - needs to understand the difference between the fields
+                    maximumRetailPrice
                  5.price - in indian rupee!
+                    sellingPrice
                  6.productUrl - without our affiliate info
                  7.categories - usually not specific enough - only 'womens_clothing'
                  8.productBrand
                  9.deliveryTime
-                 10.status - instock : True/False
-                             hours_out : the # updates every run by 8
+                 10.inStock : true/false
                  11.codAvailable
                  12.emiAvailable
                  13.offers
@@ -207,7 +221,8 @@ flipkart info:
                                 * the sizes were taken from shopstyle
                                         - need to convert the flipkart image links to these categories
                                 * shopstyle links in "image.sizes.XLarge.url"
-                6.  inStock - True/False
+                10.status - instock : True/False
+                             hours_out : the # updates every run by 8
                 7.  shortDescription - title(flipkart)/name(shopstyle)
                 8.  longDescription - description
                 9.  price - {'price':

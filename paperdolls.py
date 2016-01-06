@@ -29,7 +29,6 @@ images = db.images
 iip = db.iip
 q1 = Queue('find_similar', connection=redis_conn)
 q2 = Queue('find_top_n', connection=redis_conn)
-q3 = Queue('nadav', connection=redis_conn)
 # sys.stdout = sys.stderr
 TTL = constants.general_ttl
 
@@ -196,6 +195,7 @@ def job_result_from_id(job_id, job_class=Job, conn=None):
 
 
 def start_process(page_url, image_url, lang=None):
+    # db.monitoring.update_one({'queue': 'start_process'}, {'$inc': {'count': 1}})
     if not lang:
         products_collection = 'products'
         coll_name = 'images'
@@ -252,11 +252,12 @@ def start_process(page_url, image_url, lang=None):
                           'person_bb': person_bb}
                 image_copy = person_isolation(image, face)
                 image_dict['people'].append(person)
+                db.monitoring.update_one({'queue': 'pd'}, {'$inc': {'count': 1}})
                 paper_job = paperdoll_parse_enqueue.paperdoll_enqueue(image_copy, person['person_id'])
+                db.monitoring.update_one({'queue': 'find_similar'}, {'$inc': {'count': 1}})
                 q1.enqueue_call(func=from_paperdoll_to_similar_results, args=(person['person_id'], paper_job.id, 100,
                                                                               products_collection, coll_name),
-                                depends_on=paper_job, ttl=1000, result_ttl=1000,
-                                timeout=1000)
+                                depends_on=paper_job, ttl=TTL, result_ttl=TTL, timeout=TTL)
                 idx += 1
         else:
             # no faces, only general positive human detection
@@ -265,7 +266,7 @@ def start_process(page_url, image_url, lang=None):
             paper_job = paperdoll_parse_enqueue.paperdoll_enqueue(image, person['person_id'])
             q1.enqueue_call(func=from_paperdoll_to_similar_results, args=(person['person_id'], paper_job.id, 100,
                                                                           products_collection, coll_name),
-                            depends_on=paper_job, ttl=1000, result_ttl=1000, timeout=1000)
+                            depends_on=paper_job, ttl=TTL, result_ttl=TTL, timeout=TTL)
         iip.insert_one(image_dict)
     else:  # if not relevant
         logging.warning('image is not relevant, but stored anyway..')
@@ -289,6 +290,9 @@ def from_paperdoll_to_similar_results(person_id, paper_job_id, num_of_matches=10
     else:
         final_mask = after_pd_conclusions(mask, labels)
     image = Utils.get_cv2_img_array(image_obj['image_urls'][0])
+    if image is None:
+        iip.delete_one({'_id': image_obj['_id']})
+        raise SystemError("image came back empty from Utils.get_cv2..")
     idx = 0
     items = []
     jobs = {}
@@ -297,7 +301,6 @@ def from_paperdoll_to_similar_results(person_id, paper_job_id, num_of_matches=10
         category = list(labels.keys())[list(labels.values()).index(num)]
         if category in constants.paperdoll_shopstyle_women.keys():
             item_mask = 255 * np.array(final_mask == num, dtype=np.uint8)
-            # shopstyle_cat = constants.paperdoll_shopstyle_women[category]
             shopstyle_cat_local_name = constants.paperdoll_shopstyle_women_jp_categories[category]['name']
             item_dict = {"category": category, 'item_id': str(bson.ObjectId()), 'item_idx': idx,
                          'saved_date': datetime.datetime.now(), 'category_name': shopstyle_cat_local_name}
@@ -307,6 +310,7 @@ def from_paperdoll_to_similar_results(person_id, paper_job_id, num_of_matches=10
             #     constants.svg_folder)
             # item_dict["svg_url"] = constants.svg_url_prefix + svg_name
             items.append(item_dict)
+            db.monitoring.update_one({'queue': 'find_top_n'}, {'$inc': {'count': 1}})
             jobs[idx] = q2.enqueue_call(func=find_similar_mongo.find_top_n_results, args=(image, item_mask,
                                                                                           num_of_matches,
                                                                                           item_dict['category'],
@@ -316,10 +320,13 @@ def from_paperdoll_to_similar_results(person_id, paper_job_id, num_of_matches=10
     done = all([job.is_finished for job in jobs.values()])
     while not done:
         time.sleep(0.2)
-        done = all([job.is_finished for job in jobs.values()])
+        done = all([job.is_finished or job.is_failed for job in jobs.values()])
     for idx, job in jobs.iteritems():
         cur_item = next((item for item in items if item['item_idx'] == idx), None)
-        cur_item['fp'], cur_item['similar_results'] = job.result
+        if job.is_failed:
+            items[:] = [item for item in items if item['item_idx'] != cur_item['item_idx']]
+        else:
+            cur_item['fp'], cur_item['similar_results'] = job.result
     new_image_obj = iip.find_one_and_update({'people.person_id': person_id}, {'$set': {'people.$.items': items}},
                                             return_document=pymongo.ReturnDocument.AFTER)
     total_time = 0
@@ -337,9 +344,9 @@ def from_paperdoll_to_similar_results(person_id, paper_job_id, num_of_matches=10
     else:
         image_obj = new_image_obj
     if person['person_idx'] == len(image_obj['people']) - 1:
-        images_collection.insert_one(image_obj)
+        a = images_collection.insert_one(image_obj)
         iip.delete_one({'_id': image_obj['_id']})
-        logging.warning("Done! image was successfully inserted to the DB images!")
+        logging.warning("# of images inserted to db.images: {0}".format(a.acknowledged * 1))
 
 
 def get_results_now(page_url, image_url, collection='products_jp'):

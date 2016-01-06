@@ -1,15 +1,12 @@
-import time
-
 import numpy as np
 import cv2
 
-from emd import emd
 
-
-def spaciograms_distance_rating(spaciogram_1, spaciogram_2):
+def spaciograms_distance_rating(spaciogram_1, spaciogram_2, rank):
     '''
     :param spaciogram_1:
     :param spaciogram_2:
+    :param rank:
     :return:
     '''
     ############ CHECKS ############
@@ -20,7 +17,9 @@ def spaciograms_distance_rating(spaciogram_1, spaciogram_2):
               'shapes are: 1st - ' + str(spaciogram_1.shape) + '\n' \
               'shapes are: 2nd - ' + str(spaciogram_2.shape)
         return rating
-
+    if rank < 1 or rank >3:
+        print 'Error: only 3 ranks, rank = 1, 2 or 3!'
+        return rating
     # # Define number of rows (overall bin count):
     # numRows = spaciogram_1.size
     # dims = len(spaciogram_1.shape)
@@ -56,21 +55,21 @@ def spaciograms_distance_rating(spaciogram_1, spaciogram_2):
     #                     # cv.Set2D(signature_2, sigrature_index, 5, d5)  #coord5
     #                     sigrature_index += 1
     #                     print spaciogram_1[d1, d2, d3, d4, d5]
-
     # signature_1 = np.zeros([spaciogram_1.size / len(spaciogram_1),  len(spaciogram_1)])
     # sigrature_index = 0
     # # print len(spaciogram_1)
     # for dim in spaciogram_1:
     #     signature_1[:, sigrature_index] = dim.flatten()
     #     sigrature_index += 1
+    #
     # signature_2 = np.zeros([spaciogram_2.size / len(spaciogram_1),  len(spaciogram_2)])
     # sigrature_index = 0
     # for dim in spaciogram_2:
     #     signature_2[:, sigrature_index] = dim.flatten()
     #     sigrature_index += 1
+
     # signature_1 = np.reshape(spaciogram_1, (spaciogram_1[0].size, len(spaciogram_1)))
     # signature_2 = np.reshape(spaciogram_2, (spaciogram_2[0].size, len(spaciogram_2)))
-    # rating = emd(signature_1, signature_2)
 
     method = cv2.HISTCMP_BHATTACHARYYA
     # HISTCMP_CORREL Correlation
@@ -80,8 +79,18 @@ def spaciograms_distance_rating(spaciogram_1, spaciogram_2):
     # HISTCMP_HELLINGER Synonym for HISTCMP_BHATTACHARYYA
     # HISTCMP_CHISQR_ALT
     # HISTCMP_KL_DIV
-    rating = cv2.compareHist(spaciogram_1.astype('float32'), spaciogram_2.astype('float32'), method)
+    if rank == 1:
+        rating = cv2.compareHist(spaciogram_1[0].astype('float32'), spaciogram_2[0].astype('float32'), method)
+    elif rank == 2:
+        rating = cv2.compareHist(spaciogram_1[1].astype('float32'), spaciogram_2[1].astype('float32'), method)
+    elif rank == 3:
+        rating = 0.0
+        for i in range(2, len(spaciogram_1)):
+            rating += cv2.compareHist(spaciogram_1[i].astype('float32'), spaciogram_2[i].astype('float32'), method)
+    else:
+        rating = []
 
+    # rating = emd(signature_1, signature_2)
     return rating
 
 def spaciogram_finger_print(image, mask):
@@ -103,7 +112,10 @@ def spaciogram_finger_print(image, mask):
     ############ CALCS ############
     # color channels ,edge distance, skeleton distance, channels:
 
-    bins = 5
+    # bins = 5
+
+    if np.amax(mask) == 1:
+        mask = 255 * mask
 
     # limiting the image size for a quicker calculation:
     limit = [500, 500]
@@ -118,25 +130,43 @@ def spaciogram_finger_print(image, mask):
     # changing to an exact eucledian space model of color:
     image = cv2.cvtColor(image, cv2.COLOR_BGR2LAB)
     channels_list = channles_of_image(image)
-    skell_dist  = skeleton_distance(mask)
-    circ_dist = circumfrence_distance(mask)
+    # skell_dist  = skeleton_distance(mask)
+    # circ_dist = circumfrence_distance(mask)
 
     # # opencv way:
     # channels_list.append(skell_dist)
     # channels_list.append(circ_dist)
     # spaciogram = cv2.calcHist(channels_list, range(len(channels_list)),
     #                           mask, bins, [0, 256])# * np.ones([1, len(channels_list)]), )
-
+    #
     sample = []
     for channel in channels_list:
-        sample.append(channel[mask>0].flatten())
-    sample.append(skell_dist[mask>0].flatten())
-    sample.append(circ_dist[mask>0].flatten())
-    spaciogram, edges = np.histogramdd(sample, bins, normed=True, weights=None)
+        sample.append(channel[mask > 0].flatten())
+    # sample.append(skell_dist[mask > 0].flatten())
+    # sample.append(circ_dist[mask > 0].flatten())
+    # spaciogram, edges = np.histogramdd(sample, bins, normed=True, weights=None)
 
-    # spaciogram = spaciogram * (10**bins) #spaciogram.flatten()
-    # print np.amax(spaciogram)
-    return spaciogram
+    # stacking the spaciograms:
+    spaciograms = []
+    # coars_color_spaciogram:
+    bins = 5
+    coars_color_spaciogram, coars_color_edges = np.histogramdd(sample, bins, normed=True, weights=None)
+    spaciograms.append(coars_color_spaciogram.tolist())
+
+    # fine_color_spaciogram:
+    bins = 10
+    fine_color_spaciogram, fine_color_edges = np.histogramdd(sample, bins, normed=True, weights=None)
+    spaciograms.append(fine_color_spaciogram.tolist())
+
+    # patterned_spaciograms
+    bins = 8
+    waves = wavelet_images(mask)
+
+    for wave in waves:
+        wavy_sample = wave[mask > 0].flatten()
+        patterned_spaciogram, patterned_edges = np.histogramdd([sample[0], sample[1], sample[2], wavy_sample], bins, normed=True, weights=None)
+        spaciograms.append(patterned_spaciogram.tolist())
+    return spaciograms
 
 def histogram_stack_finger_print(image, mask):
     '''
@@ -158,6 +188,10 @@ def histogram_stack_finger_print(image, mask):
     # color channels ,edge distance, skeleton distance, channels:
 
     bins = 10
+
+
+    if np.amax(mask) == 1:
+        mask = 255 * mask
 
     # limiting the image size for a quicker calculation:
     limit = [1000, 1000]
@@ -271,6 +305,54 @@ def circumfrence_distance(blob_mask):
     cv2.normalize(circumfrencen_distance_mask, circumfrencen_distance_mask, 0, 1., cv2.NORM_MINMAX)
     return circumfrencen_distance_mask
 
+def wavelet(frequency, phase, X):
+    '''
+
+    :param frequency: Hz
+    :param phase: deg
+    :param X: length of window (x axis)
+    :return: wave image of grayscale
+    '''
+
+    D = float(X) / frequency
+    if D > X / 2:
+        D = X / 2
+    omega = np.arange(0, 180 * D, 180 * D / X)
+    wave = (255 * (np.sin(np.deg2rad(omega + phase)) / 2 + 0.5)).astype('uint8')
+    if len(wave) - X > 0:
+        wave = wave[:-(len(wave) - X)]
+    return wave
+
+def wavelet_images(mask):
+    '''
+
+    :param bounding_box:
+    :return:
+    '''
+
+    bounding_box = cv2.boundingRect(mask)
+    bounding_box = [bounding_box[1], bounding_box[0], bounding_box[3], bounding_box[2]]
+    box = bounding_box[2:]
+    wave = np.ones(box).astype('uint8')
+    zero_mask = np.zeros(mask.shape).astype('uint8')
+    waves = []
+    for phase in [90, 270]:
+        for freq in [2, box[0] / 12, box[0]]:
+            new_wave = (wave.T * wavelet(freq, phase, box[0])).T
+            new_wave_mask = zero_mask
+            new_wave_mask[bounding_box[0]:bounding_box[0]+box[0], bounding_box[1]:bounding_box[1]+box[1]] = new_wave
+            new_wave_mask[mask == 0] = 0
+            temp = new_wave_mask.copy()
+            waves.append(temp)
+        for freq in [2, box[1] / 12, box[1]]:
+            new_wave = wave * wavelet(freq, phase, box[1])
+            new_wave_mask = zero_mask
+            new_wave_mask[bounding_box[0]:bounding_box[0]+box[0], bounding_box[1]:bounding_box[1]+box[1]] = new_wave
+            new_wave_mask[mask == 0] = 0
+            temp = new_wave_mask.copy()
+            waves.append(temp)
+    return waves
+
 def remap(x, oMin, oMax, nMin, nMax):
 
     #range check
@@ -297,12 +379,12 @@ def remap(x, oMin, oMax, nMin, nMax):
         reverseOutput = True
 
 # new_value = ( (old_value - old_min) / (old_max - old_min) ) * (new_max - new_min) + new_min
-    portion = (x-oldMin)*(newMax-newMin)/(oldMax-oldMin)
+    portion = (x-oldMin)*(float(newMax-newMin)/(oldMax-oldMin))
     if reverseInput:
-        portion = (oldMax-x)*(newMax-newMin)/(oldMax-oldMin)
+        portion = (oldMax-x)*(float(newMax-newMin)/(oldMax-oldMin))
 
     result = portion + newMin
     if reverseOutput:
         result = newMax - portion
-
+    result = np.array(result).astype('uint8')
     return result

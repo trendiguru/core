@@ -31,16 +31,16 @@ def convert2generic(prod):
                           'XLarge': prod['image']['sizes']['XLarge']['url']}
     tmp_prod["status"] = {"instock": prod["inStock"],
                           "hours_out": 0}
-    tmp_prod["shortDescription"] = prod["name"]
+    tmp_prod["shortDescription"] = prod["name"]  # localized name
     tmp_prod["longDescription"] = prod["description"]
     tmp_prod["price"] = {'price': prod["price"],
-                         'currency': prod["currency"]}
-    # add price + label = prod[priceLabel]
+                         'currency': prod["currency"],
+                         "priceLabel": prod["priceLabel"]}
+
     try:
         tmp_prod["brand"] = prod['brand']['name']
     except:
         tmp_prod["brand"] = prod['brandedName']
-    #add localized name
     tmp_prod["download_data"] = prod["download_data"]
     return tmp_prod
 
