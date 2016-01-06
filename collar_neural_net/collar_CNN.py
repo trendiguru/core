@@ -82,7 +82,7 @@ Y_train = output_vector
 
 
 
-model_description = 'whatever'#'32k5x5CV1_2x2MP1_32k3x3CV2_32k3x3CV3_32k3x3CV4_2x2MP2_64dFC1_3dFC2'
+model_description = 'whatever' #'32k5x5CV1_2x2MP1_32k3x3CV2_32k3x3CV3_32k3x3CV4_2x2MP2_64dFC1_3dFC2'
 size_batch = 16
 epoches_number = 10000
 overwrite_weights = True
