@@ -2,7 +2,8 @@ from __future__ import print_function
 
 __author__ = 'jeremy'
 # todo weight averages by number of pics
-# DONE add mask instead oF BB
+# DONE a
+# dd mask instead oF BB
 # TODO add fp to image and present in single frame, also dow both images being compared
 # compute stdev and add to report
 # done: fix ConnectionError: HTTPConnectionPool(host='img.sheinside.com', port=80): Max retries exceeded with url: /images/lookbook/wearing/201428/04181405101082542276157.jpg (Caused by <class 'socket.error'>: [Errno 104] Connection reset by peer)
@@ -28,7 +29,7 @@ import matplotlib
 from scipy.spatial import distance as dist
 from trendi import constants
 from trendi.constants import db
-#import pymongo
+import pymongo
 #db = pymongo.MongoClient().mydb
 
 
@@ -66,8 +67,8 @@ BLUE = [255, 0, 0]
 Reserve_cpus = constants.Reserve_cpus
 fingerprint_length = constants.fingerprint_length
 min_images_per_doc = 0 # constants.min_images_per_doc
-max_images_per_doc = 100 #constants.max_images_per_doc
-max_items = 100 #constants.max_items
+max_images_per_doc = 1000000 #constants.max_images_per_doc
+max_items = 1000000 #constants.max_items
 
 
 def get_mask(img):
@@ -429,7 +430,7 @@ def get_docs(n_items=max_items):
                     max_images_per_doc) + ' , ' + str(
                     n_images) + ' images tot in doc #' + str(i) + ' id:' + str(id))
                 tot_answers.append(get_images_from_doc(images))
-                report['n_images'].append(n_good)
+                report['n_images'].append(n_images)# report['n_images'].append(n_good)
             else:
                 print('not enough bounded boxes (only ' + str(n_good) + ' found, of ' + str(
                     min_images_per_doc) + ' required, ' + str(n_images) + ' images tot)          ', end='\r', sep='')
@@ -449,8 +450,8 @@ def get_images_from_doc(images):
     '''
     pruned_images = []
     for img in images:
-        if Utils.good_bb(img, skip_if_marked_to_skip=True) and good_img(img):
-            pruned_images.append(img)
+   #     if Utils.good_bb(img, skip_if_marked_to_skip=True) and good_img(img):
+        pruned_images.append(img)
             # print('pruned images:')
             # nice_print(pruned_images)
     return (pruned_images)
@@ -729,7 +730,7 @@ def compare_fingerprints(image_array1, image_array2, fingerprint_function=fp_cor
                         #fp2 = fingerprint_function(img_arr2, bounding_box=bb2, weights=weights, **fingerprint_arguments)
                         ma = np.zeros(img_arr2.shape[:2])
                         ma[bb2[0]:bb2[0]+bb2[2],bb2[1]:bb2[1]+bb2[3]]=1
-                        fp2 = np.multiply(fingerprint_function(img_arr2, mask=get_mask(img_arr2), **fingerprint_arguments), weights)
+                        fp2 = np.multiply(fingerprint_function(img_arr2, mask=get_mask(image_array2), **fingerprint_arguments), weights)
                     except Exception as e:
                         print(e)
                         fp2 = np.ones(fingerprint_length)  # this is arbitrary but lets keep going instead of crashing
