@@ -53,7 +53,7 @@ def get_data(my_path):#, testing_amount=0.2):#my_path=os.path.dirname(os.path.ab
     # print amount_of_each_ta g
     # testing_input = []
     # testing_output = []
-    # training_input = []
+    # training_inputnano = []
     # training_output = []
     # for type in range(output_vector_size):
     #     amount_of_tag = int(amount_of_each_tag[type] * testing_amount)
@@ -89,15 +89,15 @@ overwrite_weights = True
 testing_amount = 0.05
 
 model = Sequential()
-model.add(Convolution2D(16, 3, 3, border_mode='full', input_shape=(3, 32, 32)))
+model.add(Convolution2D(8, 3, 3, border_mode='full', input_shape=(3, 32, 32)))
 model.add(Activation('hard_sigmoid'))
 model.add(MaxPooling2D(pool_size=(2, 2)))
 model.add(Dropout(0.25))
-model.add(Convolution2D(32, 3, 3, border_mode='full'))
+model.add(Convolution2D(8, 3, 3, border_mode='full'))
 model.add(Activation('hard_sigmoid'))
 model.add(MaxPooling2D(pool_size=(2, 2)))
 model.add(Dropout(0.25))
-model.add(Convolution2D(32, 3, 3, border_mode='full'))
+model.add(Convolution2D(8, 3, 3, border_mode='full'))
 model.add(Activation('hard_sigmoid'))
 model.add(MaxPooling2D(pool_size=(2, 2)))
 model.add(Dropout(0.25))
