@@ -28,9 +28,9 @@ import sys
 import matplotlib
 from scipy.spatial import distance as dist
 from trendi import constants
-#from trendi.constants import db
+from trendi.constants import db
 import pymongo
-db = pymongo.MongoClient().mydb
+#db = pymongo.MongoClient().mydb
 
 
 matplotlib.use('Agg')  # prevents problems generating plots on server where no display is defined
@@ -76,7 +76,7 @@ def get_mask(img):
     #import background_removal
     from trendi import paperdolls
 
-    mask, labels, pose = paperdoll_parse_enqueue.paperdoll_enqueue(img, async=False).result[:3]
+    mask, labels, pose = paperdoll_parse_enqueue.paperdoll_enqueue(img, async=False)#.result[:3]
     print("Mask shape: "+mask.shape)
     final_mask = paperdolls.after_pd_conclusions(mask, labels)#, person['face'])
     for num in np.unique(final_mask):
