@@ -92,8 +92,8 @@ def get_parse_from_matlab_parallel(image_filename, matlab_engine, use_parfor=Fal
     else:
         mask, label_names, pose = matlab_engine.pd(image_filename, nargout=3,stdout=out,stderr=err)
 
-    print('ml output:'+str(out.getvalue()))
-    print('ml stderr:'+str(err.getvalue()))
+#    print('ml output:'+str(out.getvalue()))
+ #   print('ml stderr:'+str(err.getvalue()))
 
     os.remove(image_filename)
     label_dict = dict(zip(label_names, range(0, len(label_names))))
