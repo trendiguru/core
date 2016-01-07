@@ -21,7 +21,7 @@ import os
 import json
 import sys
 import logging
-
+import  StringIO
 import numpy as np
 import cv2
 
@@ -84,11 +84,17 @@ def get_parse_mask(img_url_or_cv2_array):
 
 
 def get_parse_from_matlab_parallel(image_filename, matlab_engine, use_parfor=False):
-    logging.debug('get_parse_from_ml_parallel is using name:' + image_filename+' and use_parfor='+str(use_parfor))
+    print('get_parse_from_ml_parallel is using name:' + image_filename+' and use_parfor='+str(use_parfor))
+    out = StringIO.StringIO()
+    err = StringIO.StringIO()
     if use_parfor:
-        mask, label_names, pose = matlab_engine.pd_parfor(image_filename, nargout=3)
+        mask, label_names, pose = matlab_engine.pd_parfor(image_filename, nargout=3,stdout=out,stderr=err)
     else:
-        mask, label_names, pose = matlab_engine.pd(image_filename, nargout=3)
+        mask, label_names, pose = matlab_engine.pd(image_filename, nargout=3,stdout=out,stderr=err)
+
+#    print('ml output:'+str(out.getvalue()))
+ #   print('ml stderr:'+str(err.getvalue()))
+
     os.remove(image_filename)
     label_dict = dict(zip(label_names, range(0, len(label_names))))
 #    logging.debug('mask in getparse:'+str(mask))
@@ -113,6 +119,7 @@ def save_fail_image(img_filename):
         return
     logging.debug('could not read image '+str(img_filename))
     return
+
 
 def get_parse_mask_parallel(matlab_engine, img_url_or_cv2_array, filename=None, use_parfor=False):
     start_time=time.time()

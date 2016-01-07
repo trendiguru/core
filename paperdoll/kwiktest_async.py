@@ -18,6 +18,7 @@ urls.append('https://s-media-cache-ak0.pinimg.com/736x/c1/a4/56/c1a456661a699c99
 urls.append('http://gingerparrot.co.uk/wp/wp-content/uploads/2014/04/Katy-B-Red-Hair-White-Clothes-Still-Video.jpg')
 urls.append('http://media2.popsugar-assets.com/files/2010/08/34/5/192/1922153/9621f2d8749ddac7_red-main/i/What-Kind-Makeup-Wear-Youre-Redhead-Wearing-Red-Dress.jpg')
 
+#todo - add depends_on to get results of job
 for url in urls:
     start_time = time.time()
     retval = paperdoll_parse_enqueue.paperdoll_enqueue(url, async=True,use_parfor=False)  #True,queue_name='pd_parfor')

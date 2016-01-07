@@ -108,7 +108,7 @@ def array2PIL(arr, size):
 
 
 
-face_cascade = cv2.CascadeClassifier('/home/developer/core/classifier_stuff/classifiers_to_test/face/haarcascade_frontalface_default.xml')
+face_cascade = cv2.CascadeClassifier('/home/netanel/core/classifier_stuff/classifiers_to_test/face/haarcascade_frontalface_default.xml')
 # face_cascade = cv2.CascadeClassifier('/home/developer/python-packages/trendi/classifier_stuff/classifiers_to_test/face/haarcascade_frontalface_default.xml')
 # face_cascade = cv2.CascadeClassifier('/home/nate/Desktop/core/classifier_stuff/classifiers_to_test/face/haarcascade_frontalface_default.xml')
 # eye_cascade = cv2.CascadeClassifier('haarcascade_eye.xml')
