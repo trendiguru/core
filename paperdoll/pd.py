@@ -21,7 +21,7 @@ import os
 import json
 import sys
 import logging
-
+import  StringIO
 import numpy as np
 import cv2
 
