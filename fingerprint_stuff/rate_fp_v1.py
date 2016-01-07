@@ -77,11 +77,12 @@ def get_mask(img):
     from trendi import paperdolls
 
     mask, labels, pose = paperdoll_parse_enqueue.paperdoll_enqueue(img, async=False).result[:3]
+    print("Mask shape: "+mask.shape)
     final_mask = paperdolls.after_pd_conclusions(mask, labels)#, person['face'])
     for num in np.unique(final_mask):
-    #category = list(labels.keys())[list(labels.values()).index(num)]
-        category = 'dress'
-        if category in constants.paperdoll_shopstyle_women.keys():
+        category = list(labels.keys())[list(labels.values()).index(num)]
+        if category == 'dress'  and category in constants.paperdoll_shopstyle_women.keys():
+            print("Found dress!!")
             item_mask = 255 * np.array(final_mask == num, dtype=np.uint8)
             return item_mask
 
