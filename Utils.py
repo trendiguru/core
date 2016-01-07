@@ -736,6 +736,19 @@ def isnumber(str):
         return False
 
 
+def kick_fp_out():
+    fp = 'people.0.items.0.similar_results.0.fingerprint'
+    idx = 0
+    for doc in db.images.find({fp: {'$exists': 1}}):
+        idx += 1
+        for person in doc['people']:
+            for item in person['items']:
+                for result in item['similar_results']:
+                    if 'fingerprint' in result.keys():
+                        result.pop('fingerprint')
+        db.images.replace_one({'_id': doc['_id']}, doc)
+    print("{0} docs modified".format(idx))
+
 if __name__ == '__main__':
     print('starting')
     # show_all_bbs_in_db()
