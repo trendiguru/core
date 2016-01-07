@@ -83,13 +83,13 @@ Y_train = output_vector
 
 
 model_description = 'whatever' #'32k5x5CV1_2x2MP1_32k3x3CV2_32k3x3CV3_32k3x3CV4_2x2MP2_64dFC1_3dFC2'
-size_batch = 16
+size_batch = 32
 epoches_number = 10000
 overwrite_weights = True
 testing_amount = 0.05
 
 model = Sequential()
-model.add(Convolution2D(16, 3, 3, border_mode='valid', input_shape=(3, 32, 32)))
+model.add(Convolution2D(32, 5, 5, border_mode='valid', input_shape=(3, 32, 32)))
 model.add(Activation('hard_sigmoid'))
 model.add(MaxPooling2D(pool_size=(2, 2)))
 model.add(Dropout(0.25))
