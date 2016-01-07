@@ -50,6 +50,8 @@ def start_pd_workers(n=constants.N_expected_pd_workers_per_server):
     host = socket.gethostname()
     print('host:'+str(host)+' trying to start '+str(n)+' workers')
     command = constants.pd_worker_command_braini1
+    print('command:'+command)
+
     if host == 'pp-2':
         print('running on pp-2 so need gcloud command not softlayer')
         command = constants.pd_worker_command
