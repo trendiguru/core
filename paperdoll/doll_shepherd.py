@@ -47,11 +47,11 @@ def count_pd_workers():
 
 def start_pd_workers(n=constants.N_expected_pd_workers_per_server):
 
-    command = constants.pd_worker_command
+    command = constants.pd_worker_command_braini1
     host = socket.gethostname()
     print('host:'+str(host)+' trying to start '+str(n)+' workers')
-    if host == 'braini1' or host == 'brain2' or host== 'brain3':
-        command = constants.pd_worker_command_braini1
+    if host == 'pp-2':
+        command = constants.pd_worker_command
  #   /usr/bin/python /usr/local/bin /rqworker -w rq.tgworker.TgWorker -u redis://redis1-redis-1-vm:6379 pd
     for i in range(0,n):
   #      command = 'cd /home/jeremy/paperdoll3/paperdoll-v1.0/'
