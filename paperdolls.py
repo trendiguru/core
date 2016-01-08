@@ -285,7 +285,7 @@ def from_paperdoll_to_similar_results(person_id, paper_job_id, num_of_matches=10
             paper_job_results[3], person_id))
     mask, labels = paper_job_results[:2]
     image_obj, person = get_person_by_id(person_id, iip)
-    if 'face' in person and len(person['face']) > 0:
+    if person is not None and 'face' in person and len(person['face']) > 0:
         final_mask = after_pd_conclusions(mask, labels, person['face'])
     else:
         final_mask = after_pd_conclusions(mask, labels)
