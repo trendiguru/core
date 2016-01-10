@@ -144,7 +144,7 @@ if __name__ == "__main__":
         if cpu < constants.lower_threshold:
             print('cpu {0} too low, start non-pd worker'.format(cpu))
             start_workers(constants.multi_queue_command,1)
-        elif cpu > constants.upper_threshold:
+        elif cpu > constants.upper_threshold and n_extra > 0:
             print('cpu {0} too high, kill non-pd worker'.format(cpu))
             kill_worker(unique)
         time.sleep(10)
