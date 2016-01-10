@@ -19,12 +19,12 @@ def stage_one(target_dict, entries, rank):
     nearest_n = []
     farthest_nearest = 20000
     for i, entry in enumerate(entries):
-        if i < 1000:
+        if i < 100:
             d = distance_function_nate(entry, target_dict, rank)
             nearest_n.append((entry, d))
         else:
             break
-            if i == 1000:
+            if i == 100:
                 # sort by distance
                 nearest_n.sort(key=lambda tup: tup[1])
                 # last item in the list (index -1, go python!)
@@ -33,7 +33,7 @@ def stage_one(target_dict, entries, rank):
             # Loop through remaining entries, if one of them is better, insert it in the correct location and remove last item
             d = distance_function_nate(entry, target_dict, rank)
             if d < farthest_nearest:
-                insert_at = 998
+                insert_at = 98
                 while d < nearest_n[insert_at][1]:
                     insert_at -= 1
                     if insert_at == -1:
