@@ -111,7 +111,7 @@ def kill_worker(unique = 'find_similar'):
             pid = int(a[1])  #maybe on a different unix the output doesnt have owqnder
             print('pid to kill:'+str(pid)+' using unique string:'+str(unique))
 #            pid = int(line.split(None, 1)[1])
-            r = os.kill(pid, signal.SIGTERM)
+            r = os.kill(pid, signal.SIGINT)  #make sure this is warm not cold shutdown - sigterm seems to be cold
             print r
             return
 
