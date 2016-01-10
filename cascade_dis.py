@@ -5,30 +5,30 @@ from new_finger_print import spaciograms_distance_rating
 
 
 def distance_function_nate(entry, target_dict, rank):
-    a = time.time()
+    # a = time.time()
     dist = spaciograms_distance_rating(entry["specio"], target_dict["specio"], rank)
-    b = time.time()
-    print ("specio time = %s" % str(b - a))
+    # b = time.time()
+    # print ("specio time = %s" % str(b - a))
 
     return dist
 
 
-def stage_one(target_dict, entries, rank):
+def stage_one(target_dict, entries, rank, stopme):
     start_time = time.time()
     # list of tuples with (entry,distance). Initialize with first n distance values
     nearest_n = []
     farthest_nearest = 20000
     for i, entry in enumerate(entries):
-        if i < 1000:
+        if i < stopme:
             d = distance_function_nate(entry, target_dict, rank)
             nearest_n.append((entry, d))
         else:
-            if i == 1000:
+            if i == stopme:
                 # sort by distance
                 nearest_n.sort(key=lambda tup: tup[1])
                 # last item in the list (index -1, go python!)
                 farthest_nearest = nearest_n[-1][1]
-            if i == 2000:
+            if i == 2 * stopme:
                 break
             # Loop through remaining entries, if one of them is better, insert it in the correct location and remove last item
             d = distance_function_nate(entry, target_dict, rank)
