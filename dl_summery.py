@@ -32,6 +32,9 @@ def email(stats, spec_coll=None):
             duration = "still in process"
         else:
             duration = str(curr['dl_duration(min)'])
+        print curr
+        for i in curr:
+            print(i + ' type: ' + i.type())
         txt2 = txt2 + '<h1><mark>' + coll + '</mark></h1>' \
                                             '<h3> date:\t' + str(curr['date']) + '</h3>\n<h3>' + \
                'items downloaded:\t' + str(curr['items_downloaded']) + '</h3>\n<h3>' + \
