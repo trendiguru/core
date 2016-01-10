@@ -64,6 +64,8 @@ class ShopStyleDownloader():
             self.download_category(cat, collection)
 
         self.wait_for(collection)
+        self.db.download_data.find_one_and_update({"criteria": collection},
+                                                  {'$set': {"end_time": datetime.datetime.now()}})
         tmp = self.db.download_data.find({"criteria": collection})[0]
         total_time = abs(tmp["end_time"] - tmp["start_time"]).total_seconds()
         del_items = self.db[collection].delete_many({'fingerprint': {"$exists": False}})

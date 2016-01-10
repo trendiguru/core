@@ -131,6 +131,8 @@ if __name__ == "__main__":
     old = db.flipkart.find({"download_data.dl_version": {"$ne": today_date}})
     for item in old:
         db.flipkart.find_one_and_update({'id': item['id']}, {"$inc": {"status.days_out": 1 / 3}})
+    db.download_data.find_one_and_update({"criteria": criteria},
+                                         {'$set': {"end_time": datetime.datetime.now()}})
     total = db.download_data.find({"criteria": criteria})[0]
     total_time = abs(total["end_time"] - total["start_time"]).total_seconds()
     total_items = db.flipkart.count()
