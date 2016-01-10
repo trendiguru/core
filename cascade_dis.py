@@ -18,6 +18,7 @@ def stage_one(target_dict, entries, rank, stopme):
     # list of tuples with (entry,distance). Initialize with first n distance values
     nearest_n = []
     farthest_nearest = 20000
+    t = 0
     for i, entry in enumerate(entries):
         if i < stopme:
             d = distance_function_nate(entry, target_dict, rank)
@@ -32,7 +33,10 @@ def stage_one(target_dict, entries, rank, stopme):
                 break
             # Loop through remaining entries, if one of them is better, insert it in the correct location and remove last item
             d = distance_function_nate(entry, target_dict, rank)
+
             if d < farthest_nearest:
+                t += 1
+                print (t)
                 insert_at = 98
                 while d < nearest_n[insert_at][1]:
                     insert_at -= 1
