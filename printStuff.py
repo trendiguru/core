@@ -7,7 +7,6 @@ from termcolor import colored
 colors = ["red", "blue", "green", "magenta", "yellow"]
 
 if __name__ == "__main__":
-    global colors
     for i in range(30):
         sleep(1)
         r = random.randint(0, 5)
