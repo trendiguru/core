@@ -46,6 +46,26 @@ def count_pd_workers():
             n = n +1
     return n
 
+def count_queue_workers(unique_string):
+    n = 0
+    #full command to start worker is:
+ #   /usr/bin/python /usr/local/bin /rqworker -w rq.tgworker.TgWorker -u redis://redis1-redis-1-vm:6379 pd
+#    command = 'ps -auxw'
+ #   p = subprocess.Popen(command, shell=True,stdout=subprocess.PIPE).stdout.read()
+    string_to_look_for_in_rq_command = constants.string_to_look_for_in_rq_command
+    p = subprocess.Popen(['ps', '-aux'], stdout=subprocess.PIPE)
+    out, err = p.communicate()
+#break ps output down into lines and loop on them...:
+    for line in out.splitlines():
+        #print line
+        if string_to_look_for_in_rq_command in line and unique_string in line:
+            a = line.split()
+#            print a
+            pid = a[1]
+            n = n +1
+    return n
+
+
 def start_pd_workers(n=constants.N_expected_pd_workers_per_server):
 
     host = socket.gethostname()
@@ -111,18 +131,20 @@ if __name__ == "__main__":
                         help='how many workers')
     args = parser.parse_args()
     n_expected_workers = int(args.N)
+    unique = constants.unique_in_multi_queue
     print('N:' + str(n_expected_workers))
     while 1:
         cpu  = psutil.cpu_percent()
         n_actual_workers = count_pd_workers()
-        print(str(n_actual_workers)+' workers online, cpu='+str(cpu))
+        n_extra = count_queue_workers(unique)
+        print(str(n_actual_workers)+' workers online, '+str(n_extra)+' nonpd workers, cpu='+str(cpu))
         if n_actual_workers<n_expected_workers:
             start_pd_workers(n_expected_workers-n_actual_workers)
-
+        print('{0} extra (nonpd) workers')
         if cpu < constants.lower_threshold:
             print('cpu {0} too low, start non-pd worker'.format(cpu))
             start_workers(constants.multi_queue_command,1)
         elif cpu > constants.upper_threshold:
             print('cpu {0} too high, kill non-pd worker'.format(cpu))
-            kill_worker(constants.unique_in_multi_queue)
+            kill_worker(unique)
         time.sleep(10)
