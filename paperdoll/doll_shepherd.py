@@ -140,7 +140,6 @@ if __name__ == "__main__":
         print(str(n_actual_workers)+' workers online, '+str(n_extra)+' nonpd workers, cpu='+str(cpu))
         if n_actual_workers<n_expected_workers:
             start_pd_workers(n_expected_workers-n_actual_workers)
-        print('{0} extra (nonpd) workers')
         if cpu < constants.lower_threshold:
             print('cpu {0} too low, start non-pd worker'.format(cpu))
             start_workers(constants.multi_queue_command,1)
