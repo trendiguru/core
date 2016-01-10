@@ -39,8 +39,8 @@ def email(stats, spec_coll=None):
                'insert errors:\t' + str(curr['errors']) + '</h3>\n<h3>' + \
                'dl duration(min):\t' + duration + + '</h3>\n\n<h3>' + \
                'total_items:\t' + str(curr['total_items']) + '</h3>\n<h3>' + \
-               'in stock:\t' + str(curr['instock']) + '</h3>\n<h3>' + \
-               'out of stock:\t' + str(curr['out']) + '</h3><br>'
+               'in stock:\t' + str(curr['instock']) + '</h3>\n<h3>'  # + \
+        # 'out of stock:\t' + str(curr['out']) + '</h3><br>'
 
         # '</h3>\n<h3>' + '</h3>\n<h3>' + 'items by category:</h3>\n' + '</h3>\n<h3>'
 
