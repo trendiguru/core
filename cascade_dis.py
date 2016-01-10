@@ -15,14 +15,14 @@ def distance_function_nate(entry, target_dict, index):
     return dist
 
 
-def stage_one(target_dict, entries):
+def stage_one(target_dict, entries, ind):
     start_time = time.time()
     # list of tuples with (entry,distance). Initialize with first n distance values
     nearest_n = []
     farthest_nearest = 20000
     for i, entry in enumerate(entries):
         if i < 1000:
-            d = distance_function_nate(entry, target_dict)
+            d = distance_function_nate(entry, target_dict, ind)
             nearest_n.append((entry, d))
         else:
             if i == 100:
@@ -32,7 +32,7 @@ def stage_one(target_dict, entries):
                 farthest_nearest = nearest_n[-1][1]
 
             # Loop through remaining entries, if one of them is better, insert it in the correct location and remove last item
-            d = distance_function_nate(entry, target_dict)
+            d = distance_function_nate(entry, target_dict, ind)
             if d < farthest_nearest:
                 insert_at = 98
                 while d < nearest_n[insert_at][1]:
