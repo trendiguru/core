@@ -54,5 +54,5 @@ def stage_one(target_dict, entries, rank, stopme):
     end_time = time.time()
     total_time = end_time - start_time
     print ("total time = %s" % (str(total_time)))
-    id_list = [item['id'] for item in nearest_n]
-    return id_list, nearest_n
+    # id_list = [item[0]['id'] for item in nearest_n]
+    return nearest_n
