@@ -7,7 +7,6 @@ so it wouldn't get massed up with every change of the main functions
 """
 
 import copy
-import time
 
 import numpy as np
 import bson
@@ -88,14 +87,30 @@ def find_top_n_results_nate(fp, method):
     # get all items in the category
     potential_matches_cursor = collection.find(
         {"categories": "dress"},
-        {"_id": 1, "id": 1, "images.XLarge": 1, "clickUrl": 1, method: 1}).batch_size(100)  # limit(10000)
+        {"_id": 1, "id": 1, "images.XLarge": 1, "clickUrl": 1, method: 1}).batch_size(10000)  # limit(10000)
 
     print "amount of docs in cursor: {0}".format(potential_matches_cursor.count())
 
     target_dict = {"clothingClass": "dress", method: fp}
     print "calling find_n_nearest.."
-    closest_matches = find_n_nearest_neighbors_nate(method, target_dict, potential_matches_cursor)
+    if method == "fingerprint":
+        closest_matches = find_n_nearest_neighbors_nate(method, target_dict, potential_matches_cursor)
 
+    elif method == "specio":
+        potential_matches_cursor = collection.find(
+            {"categories": "dress"},
+            {"_id": 1, "id": 1, "sp_one": 1}).batch_size(15000)  # limit
+        closest_matches = find_n_nearest_neighbors_nate(method, target_dict, potential_matches_cursor,
+                                                        rank=1, b_size=1000)
+        id_list = [item[0]["id"] for item in closest_matches]
+        query2 = collection.find({"id": {"$in": id_list}}, {"_id": 1, "id": 1, "sp_two": 1}).batch_size(1000)
+        closest_matches = find_n_nearest_neighbors_nate(method, target_dict, query2,
+                                                        rank=2, b_size=100)
+        id_list2 = [item[0]["id"] for item in closest_matches]
+        query3 = collection.find({"id": {"$in": id_list2}},
+                                 {"_id": 1, "id": 1, "specio": 1, "images.XLarge": 1, "clickUrl": 1}).batch_size(100)
+        closest_matches = find_n_nearest_neighbors_nate(method, target_dict, query3,
+                                                        rank=3, b_size=20)
     print "done with find_n_nearest.."
     # get only the object itself, not the distance
     closest_matches = [match_tuple[0] for match_tuple in closest_matches]
@@ -132,12 +147,14 @@ def distance_function(entry, target_dict, fp_weights, hist_length, wing, weight)
     return bhat
 
 
-def distance_function_nate(entry, target_dict, method):
+def distance_function_nate(entry, target_dict, method, rank):
     if method == "specio":
-        a = time.time()
-        dist = new_finger_print.spaciograms_distance_rating(np.asarray(entry[method]), target_dict[method])
-        b = time.time()
-        print ("specio time = %s" % str(b - a))
+        if rank == 1:
+            dist = new_finger_print.spaciograms_distance_rating(entry["sp_one"], target_dict["sp_one"], rank)
+        elif rank == 2:
+            dist = new_finger_print.spaciograms_distance_rating(entry["sp_two"], target_dict["sp_two"], rank)
+        elif rank == 3:
+            dist = new_finger_print.spaciograms_distance_rating(entry["specio"], target_dict["specio"], rank)
     elif method == "histo":
         dist = NNSearch.distance_1_k(np.asarray(entry[method]), target_dict[method])
     else:
@@ -146,25 +163,25 @@ def distance_function_nate(entry, target_dict, method):
     return dist
 
 
-def find_n_nearest_neighbors_nate(method, target_dict, entries):
+def find_n_nearest_neighbors_nate(method, target_dict, entries, rank=1, b_size=20):
     # list of tuples with (entry,distance). Initialize with first n distance values
     nearest_n = []
     farthest_nearest = 20000
     for i, entry in enumerate(entries):
-        if i < 100:
-            d = distance_function_nate(entry, target_dict, method)
+        if i < b_size:
+            d = distance_function_nate(entry, target_dict, method, rank)
             nearest_n.append((entry, d))
         else:
-            if i == 100:
+            if i == b_size:
                 # sort by distance
                 nearest_n.sort(key=lambda tup: tup[1])
                 # last item in the list (index -1, go python!)
                 farthest_nearest = nearest_n[-1][1]
 
             # Loop through remaining entries, if one of them is better, insert it in the correct location and remove last item
-            d = distance_function_nate(entry, target_dict, method)
+            d = distance_function_nate(entry, target_dict, method, rank)
             if d < farthest_nearest:
-                insert_at = 98
+                insert_at = b_size - 2
                 while d < nearest_n[insert_at][1]:
                     insert_at -= 1
                     if insert_at == -1:
@@ -337,7 +354,9 @@ def get_svg_nate(image_url):
                         item_gc_mask = background_removal.paperdoll_item_mask(item_mask, item_bb)
                         after_gc_mask = background_removal.get_fg_mask(image, item_bb)  # (255, 0) mask
                         specio = new_finger_print.spaciogram_finger_print(image, after_gc_mask)
-                        item_dict["specio"] = specio.tolist()
+                        item_dict["specio"] = specio
+                        item_dict["sp_one"] = item_dict["specio"][0]
+                        item_dict["sp_two"] = item_dict["specio"][1]
                         histo = new_finger_print.histogram_stack_finger_print(image, after_gc_mask)
                         item_dict["histo"] = histo.tolist()
                         person['items'] = [item_dict]
@@ -373,7 +392,9 @@ def get_svg_nate(image_url):
                     item_gc_mask = background_removal.paperdoll_item_mask(item_mask, item_bb)
                     after_gc_mask = background_removal.get_fg_mask(image, item_bb)  # (255, 0) mask
                     specio = new_finger_print.spaciogram_finger_print(image, after_gc_mask)
-                    item_dict["specio"] = specio.tolist()
+                    item_dict["specio"] = specio
+                    item_dict["sp_one"] = item_dict["specio"][0]
+                    item_dict["sp_two"] = item_dict["specio"][1]
                     histo = new_finger_print.histogram_stack_finger_print(image, after_gc_mask)
                     item_dict["histo"] = histo.tolist()
                     person['items'] = [item_dict]
