@@ -81,12 +81,12 @@ def spaciograms_distance_rating(spaciogram_1, spaciogram_2, rank):
     # HISTCMP_HELLINGER Synonym for HISTCMP_BHATTACHARYYA
     # HISTCMP_CHISQR_ALT
     # HISTCMP_KL_DIV
-    if rank == 1:
-        rating = cv2.compareHist(np.array(spaciogram_1[0]).astype('float32'),
-                                 np.array(spaciogram_2[0]).astype('float32'), method)
-    elif rank == 2:
-        rating = cv2.compareHist(np.array(spaciogram_1[1]).astype('float32'),
-                                 np.array(spaciogram_2[1]).astype('float32'), method)
+    if rank != 3:
+        rating = cv2.compareHist(np.array(spaciogram_1).astype('float32'),
+                                 np.array(spaciogram_2).astype('float32'), method)
+    # elif rank == 2:
+    #     rating = cv2.compareHist(np.array(spaciogram_1[1]).astype('float32'),
+    #                              np.array(spaciogram_2[1]).astype('float32'), method)
     elif rank == 3:
         rating = 0.0
         for i in range(2, len(spaciogram_1)):
