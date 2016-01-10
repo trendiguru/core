@@ -1,14 +1,12 @@
 __author__ = 'yonatan'
 import time
 
-import numpy as np
-
 from new_finger_print import spaciograms_distance_rating
 
 
 def distance_function_nate(entry, target_dict, rank):
     a = time.time()
-    dist = spaciograms_distance_rating(np.asarray(entry["specio"]), target_dict["specio"], rank)
+    dist = spaciograms_distance_rating(entry["specio"], target_dict["specio"], rank)
     b = time.time()
     print ("specio time = %s" % str(b - a))
 
