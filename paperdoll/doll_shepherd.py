@@ -109,9 +109,6 @@ if __name__ == "__main__":
     # help='an integer for the accumulator')
     parser.add_argument('--N', default=47,
                         help='how many workers')
-    queue_order = constants.queue_order
-    parser.add_argument('--extra_queues', default=['find_similar','find_top_n'],
-                        help='how many pd workers')
     args = parser.parse_args()
     n_expected_workers = int(args.N)
     print('N:' + str(n_expected_workers))
