@@ -29,7 +29,6 @@ images = db.images
 iip = db.iip
 q1 = Queue('find_similar', connection=redis_conn)
 q2 = Queue('find_top_n', connection=redis_conn)
-q3 = Queue('nadav', connection=redis_conn)
 # sys.stdout = sys.stderr
 TTL = constants.general_ttl
 
@@ -286,11 +285,14 @@ def from_paperdoll_to_similar_results(person_id, paper_job_id, num_of_matches=10
             paper_job_results[3], person_id))
     mask, labels = paper_job_results[:2]
     image_obj, person = get_person_by_id(person_id, iip)
-    if len(person['face']) > 0:
+    if person is not None and 'face' in person and len(person['face']) > 0:
         final_mask = after_pd_conclusions(mask, labels, person['face'])
     else:
         final_mask = after_pd_conclusions(mask, labels)
     image = Utils.get_cv2_img_array(image_obj['image_urls'][0])
+    if image is None:
+        iip.delete_one({'_id': image_obj['_id']})
+        raise SystemError("image came back empty from Utils.get_cv2..")
     idx = 0
     items = []
     jobs = {}
@@ -299,7 +301,6 @@ def from_paperdoll_to_similar_results(person_id, paper_job_id, num_of_matches=10
         category = list(labels.keys())[list(labels.values()).index(num)]
         if category in constants.paperdoll_shopstyle_women.keys():
             item_mask = 255 * np.array(final_mask == num, dtype=np.uint8)
-            # shopstyle_cat = constants.paperdoll_shopstyle_women[category]
             shopstyle_cat_local_name = constants.paperdoll_shopstyle_women_jp_categories[category]['name']
             item_dict = {"category": category, 'item_id': str(bson.ObjectId()), 'item_idx': idx,
                          'saved_date': datetime.datetime.now(), 'category_name': shopstyle_cat_local_name}
@@ -319,10 +320,13 @@ def from_paperdoll_to_similar_results(person_id, paper_job_id, num_of_matches=10
     done = all([job.is_finished for job in jobs.values()])
     while not done:
         time.sleep(0.2)
-        done = all([job.is_finished for job in jobs.values()])
+        done = all([job.is_finished or job.is_failed for job in jobs.values()])
     for idx, job in jobs.iteritems():
         cur_item = next((item for item in items if item['item_idx'] == idx), None)
-        cur_item['fp'], cur_item['similar_results'] = job.result
+        if job.is_failed:
+            items[:] = [item for item in items if item['item_idx'] != cur_item['item_idx']]
+        else:
+            cur_item['fp'], cur_item['similar_results'] = job.result
     new_image_obj = iip.find_one_and_update({'people.person_id': person_id}, {'$set': {'people.$.items': items}},
                                             return_document=pymongo.ReturnDocument.AFTER)
     total_time = 0
@@ -340,9 +344,9 @@ def from_paperdoll_to_similar_results(person_id, paper_job_id, num_of_matches=10
     else:
         image_obj = new_image_obj
     if person['person_idx'] == len(image_obj['people']) - 1:
-        images_collection.insert_one(image_obj)
+        a = images_collection.insert_one(image_obj)
         iip.delete_one({'_id': image_obj['_id']})
-        logging.warning("Done! image was successfully inserted to the DB images!")
+        logging.warning("# of images inserted to db.images: {0}".format(a.acknowledged * 1))
 
 
 def get_results_now(page_url, image_url, collection='products_jp'):

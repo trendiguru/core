@@ -5,6 +5,7 @@ import os
 import socket
 
 from trendi import constants
+import argparse
 
 
 
@@ -46,11 +47,14 @@ def count_pd_workers():
 
 def start_pd_workers(n=constants.N_expected_pd_workers_per_server):
 
-    command = constants.pd_worker_command
     host = socket.gethostname()
     print('host:'+str(host)+' trying to start '+str(n)+' workers')
-    if host == 'braini1' or host == 'brain2' or host== 'brain3':
-        command = constants.pd_worker_command_braini1
+    command = constants.pd_worker_command_braini1
+    print('command:'+command)
+
+    if host == 'pp-2':
+        print('running on pp-2 so need gcloud command not softlayer')
+        command = constants.pd_worker_command
  #   /usr/bin/python /usr/local/bin /rqworker -w rq.tgworker.TgWorker -u redis://redis1-redis-1-vm:6379 pd
     for i in range(0,n):
   #      command = 'cd /home/jeremy/paperdoll3/paperdoll-v1.0/'
@@ -71,13 +75,20 @@ def restart_workers():
 if __name__ == "__main__":
     host = socket.gethostname()
     print('host:'+str(host))
-    if host == 'braini1' or host == 'brain2' or host == 'brain3':
-        n_workers = constants.N_expected_pd_workers_per_server_braini1
-    else:
-        n_workers = constants.N_expected_pd_workers_per_server
+
+    parser = argparse.ArgumentParser(description='ye olde shepherd')
+    # parser.add_argument('integers', metavar='N', type=int, nargs='+',
+    # help='an integer for the accumulator')
+    parser.add_argument('--N', default=47,
+                        help='how many pd workers')
+    args = parser.parse_args()
+    n_expected_workers = int(args.N)
+    print('N:' + str(n_expected_workers))
     while 1:
-        n = count_pd_workers()
-        print(str(n)+' workers online')
-        if n<n_workers:
-            start_pd_workers(n_workers-n)
+        n_actual_workers = count_pd_workers()
+        print(str(n_actual_workers)+' workers online')
+        if n_actual_workers<n_expected_workers:
+            start_pd_workers(n_expected_workers-n_actual_workers)
         time.sleep(10)
+
+
