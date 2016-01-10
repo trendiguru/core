@@ -118,14 +118,14 @@ if __name__ == "__main__":
     while 1:
         cpu  = psutil.cpu_percent()
         n_actual_workers = count_pd_workers()
-        print(str(n_actual_workers)+' workers online')
+        print(str(n_actual_workers)+' workers online, cpu='+str(cpu))
         if n_actual_workers<n_expected_workers:
             start_pd_workers(n_expected_workers-n_actual_workers)
 
         if cpu < constants.lower_threshold:
-            print('cpu too low, start non-pd worker')
+            print('cpu {0} too low, start non-pd worker'.format(cpu))
             start_workers(constants.multi_queue_command,1)
         elif cpu > constants.upper_threshold:
-            print('cpu too high, kill non-pd worker')
+            print('cpu {0} too high, kill non-pd worker'.format(cpu))
             kill_worker(constants.unique_in_multi_queue)
         time.sleep(10)
