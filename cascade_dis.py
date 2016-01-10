@@ -25,7 +25,7 @@ def stage_one(target_dict, entries, rank, stopme):
     farthest_nearest = 20000
     i = 0
     for entry in entries:
-        if divmod(i, 1000) == 0:
+        if (i % 1000) == 0:
             print (i)
         # print ("boom")
         if i < stopme:
