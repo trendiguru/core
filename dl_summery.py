@@ -32,18 +32,16 @@ def email(stats, spec_coll=None):
             duration = "still in process"
         else:
             duration = str(curr['dl_duration(min)'])
-        print curr
-        for i in range(len(curr)):
-            print(curr[i] + ' type: ' + curr[i].type())
+
         txt2 = txt2 + '<h1><mark>' + coll + '</mark></h1>' \
                                             '<h3> date:\t' + str(curr['date']) + '</h3>\n<h3>' + \
                'items downloaded:\t' + str(curr['items_downloaded']) + '</h3>\n<h3>' + \
                'new items:\t' + str(curr['new_items']) + '</h3>\n<h3>' + \
                'insert errors:\t' + str(curr['errors']) + '</h3>\n<h3>' + \
-               'dl duration(min):\t' + duration + + '</h3>\n\n<h3>' + \
+               'dl duration(min):\t' + duration + '</h3>\n\n<h3>' + \
                'total_items:\t' + str(curr['total_items']) + '</h3>\n<h3>' + \
-               'in stock:\t' + str(curr['instock']) + '</h3>\n<h3>'  # + \
-        # 'out of stock:\t' + str(curr['out']) + '</h3><br>'
+               'in stock:\t' + str(curr['instock']) + '</h3>\n<h3>' + \
+               'out of stock:\t' + str(curr['out']) + '</h3><br>'
 
         # '</h3>\n<h3>' + '</h3>\n<h3>' + 'items by category:</h3>\n' + '</h3>\n<h3>'
 
