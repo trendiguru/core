@@ -18,8 +18,7 @@ def stage_one(target_dict, entries, rank, stopme):
     # list of tuples with (entry,distance). Initialize with first n distance values
     nearest_n = []
     farthest_nearest = 20000
-    t = 0
-    i = 0
+    i = -1
     for entry in entries:
         i += 1
         if i < stopme:
