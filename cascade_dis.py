@@ -19,7 +19,9 @@ def stage_one(target_dict, entries, rank, stopme):
     nearest_n = []
     farthest_nearest = 20000
     t = 0
-    for i, entry in enumerate(entries):
+    i = 0
+    for entry in entries:
+        i += 1
         if i < stopme:
             d = distance_function_nate(entry, target_dict, rank)
             nearest_n.append((entry, d))
@@ -35,8 +37,6 @@ def stage_one(target_dict, entries, rank, stopme):
             d = distance_function_nate(entry, target_dict, rank)
 
             if d < farthest_nearest:
-                t += 1
-                print (t)
                 insert_at = 98
                 while d < nearest_n[insert_at][1]:
                     insert_at -= 1
