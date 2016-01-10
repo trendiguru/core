@@ -23,6 +23,7 @@ def stage_one(target_dict, entries, rank):
             d = distance_function_nate(entry, target_dict, rank)
             nearest_n.append((entry, d))
         else:
+            break
             if i == 1000:
                 # sort by distance
                 nearest_n.sort(key=lambda tup: tup[1])
