@@ -147,4 +147,4 @@ if __name__ == "__main__":
         elif cpu > constants.upper_threshold and n_extra > 0:
             print('cpu {0} too high, kill non-pd worker'.format(cpu))
             kill_worker(unique)
-        time.sleep(10)
+        time.sleep(30)
