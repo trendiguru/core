@@ -4,6 +4,7 @@ import time
 import os
 import socket
 import psutil
+import random
 
 from trendi import constants
 import argparse
@@ -105,15 +106,18 @@ def start_workers(command,n_workers):
 def kill_worker(unique = 'find_similar'):
     p = subprocess.Popen(['ps', '-auxw'], stdout=subprocess.PIPE)
     out, err = p.communicate()
+    pids = []
     for line in out.splitlines():
         if unique in line:
             a = line.split()
             pid = int(a[1])  #maybe on a different unix the output doesnt have owqnder
-            print('pid to kill:'+str(pid)+' using unique string:'+str(unique))
+            print('a pid to kill:'+str(pid)+' using unique string:'+str(unique))
 #            pid = int(line.split(None, 1)[1])
-            r = os.kill(pid, signal.SIGINT)  #make sure this is warm not cold shutdown - sigterm seems to be cold
-            print r
-            return
+            pids.append(pid)
+    n=random.randrange(len(pids))
+    print('{0} got the short straw'.format(pids[n]))
+    r = os.kill(pids[n], signal.SIGINT)  #make sure this is warm not cold shutdown - sigterm seems to be cold
+    return
 
 def restart_workers():
     kill_pd_workers()
@@ -147,4 +151,4 @@ if __name__ == "__main__":
         elif cpu > constants.upper_threshold and n_extra > 0:
             print('cpu {0} too high, kill non-pd worker'.format(cpu))
             kill_worker(unique)
-        time.sleep(30)
+        time.sleep(10)
