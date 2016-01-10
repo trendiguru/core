@@ -12,7 +12,7 @@ def spaciograms_distance_rating(spaciogram_1, spaciogram_2, rank):
     ############ CHECKS ############
     # check if spaciogram_1.shape == spaciogram_2.shape:
     rating = []
-    if np.array(spaciogram_1.shape).all() == np.array(spaciogram_2.shape).all() is False:
+    if (np.array(spaciogram_1).shape).all() != (np.array(spaciogram_2).shape).all() is False:
         print 'Error: the dimensions of spaciogram_1 and spaciogram_2 are not equal! \n' \
               'shapes are: 1st - ' + str(spaciogram_1.shape) + '\n' \
               'shapes are: 2nd - ' + str(spaciogram_2.shape)
