@@ -20,7 +20,7 @@ def stage_one(target_dict, entries, rank, stopme):
     farthest_nearest = 20000
     i = 0
     for entry in entries:
-
+        print ("boom")
         if i < stopme:
             d = distance_function_nate(entry, target_dict, rank)
             nearest_n.append((entry, d))
