@@ -25,6 +25,8 @@ def stage_one(target_dict, entries, rank, stopme):
     farthest_nearest = 20000
     i = 0
     for entry in entries:
+        if divmod(i, 1000) == 0:
+            print (i)
         # print ("boom")
         if i < stopme:
             d = distance_function_nate(entry, target_dict, rank)
@@ -40,7 +42,7 @@ def stage_one(target_dict, entries, rank, stopme):
             d = distance_function_nate(entry, target_dict, rank)
 
             if d < farthest_nearest:
-                insert_at = 98
+                insert_at = stopme - 2
                 while d < nearest_n[insert_at][1]:
                     insert_at -= 1
                     if insert_at == -1:
