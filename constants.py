@@ -46,8 +46,8 @@ worker_commands =['/usr/bin/python /usr/local/bin/rqworker find_similar &',
 multi_queue_command ='/usr/bin/python /usr/local/bin/rqworker find_similar find_top_n new_images'
 unique_in_multi_queue = 'find_similar'
 N_expected_workers_by_server={'braini1':47,'brain2':47,'brain3':96,'braini4':96,'braini5':96}
-lower_threshold = 80
-upper_threshold = 90
+lower_threshold = 70
+upper_threshold = 85
 
 #########
 # DB stuff
