@@ -6,7 +6,7 @@ from new_finger_print import spaciograms_distance_rating
 
 def distance_function_nate(entry, target_dict, rank):
     # a = time.time()
-    dist = spaciograms_distance_rating(entry["specio"], target_dict["specio"], rank)
+    dist = spaciograms_distance_rating(entry["sp_one"], target_dict["sp_one"], rank)
     # b = time.time()
     # print ("specio time = %s" % str(b - a))
 
@@ -20,7 +20,7 @@ def stage_one(target_dict, entries, rank, stopme):
     farthest_nearest = 20000
     i = 0
     for entry in entries:
-        print ("boom")
+        # print ("boom")
         if i < stopme:
             d = distance_function_nate(entry, target_dict, rank)
             nearest_n.append((entry, d))
