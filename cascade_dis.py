@@ -18,8 +18,9 @@ def stage_one(target_dict, entries, rank, stopme):
     # list of tuples with (entry,distance). Initialize with first n distance values
     nearest_n = []
     farthest_nearest = 20000
-    t = 0
-    for i, entry in enumerate(entries):
+    i = 0
+    for entry in entries:
+
         if i < stopme:
             d = distance_function_nate(entry, target_dict, rank)
             nearest_n.append((entry, d))
@@ -35,8 +36,6 @@ def stage_one(target_dict, entries, rank, stopme):
             d = distance_function_nate(entry, target_dict, rank)
 
             if d < farthest_nearest:
-                t += 1
-                print (t)
                 insert_at = 98
                 while d < nearest_n[insert_at][1]:
                     insert_at -= 1
@@ -45,6 +44,7 @@ def stage_one(target_dict, entries, rank, stopme):
                 nearest_n.insert(insert_at + 1, (entry, d))
                 nearest_n.pop()
                 farthest_nearest = nearest_n[-1][1]
+        i += 1
     end_time = time.time()
     total_time = end_time - start_time
     print ("total time = %s" % (str(total_time)))
