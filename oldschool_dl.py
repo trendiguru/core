@@ -214,12 +214,13 @@ class ShopStyleDownloader():
         while filter_params["offset"] < MAX_OFFSET and \
                         (filter_params["offset"] + MAX_RESULTS_PER_PAGE) <= total:
             product_response = self.delayed_requests_get(BASE_URL_PRODUCTS, filter_params)
-            product_results = product_response.json()
-            total = product_results["metadata"]["total"]
-            products = product_results["products"]
-            for prod in products:
-                self.db_update(prod, coll)
-            filter_params["offset"] += MAX_RESULTS_PER_PAGE
+            if product_response.status_code == 200:
+                product_results = product_response.json()
+                total = product_results["metadata"]["total"]
+                products = product_results["products"]
+                for prod in products:
+                    self.db_update(prod, coll)
+                filter_params["offset"] += MAX_RESULTS_PER_PAGE
 
         # Write down that we did this
         self.db.dl_cache.insert(dl_query)
