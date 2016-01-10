@@ -6,6 +6,7 @@ import socket
 import argparse
 
 from trendi import constants
+import psutil
 
 
 def kill_all_workers():
@@ -75,38 +76,24 @@ def restart_workers():
         time.sleep(10)
 
 if __name__ == "__main__":
+    #scputimes(user=0.3, nice=0.0, system=0.2, idle=99.4, iowait=0.0, irq=0.0, softirq=0.0, steal=0.0, guest=0.0, guest_nice=0.0)
     host = socket.gethostname()
     print('host:'+str(host))
-
-    parser = argparse.ArgumentParser(description='ye olde shepherd')
-    # parser.add_argument('integers', metavar='N', type=int, nargs='+',
-    # help='an integer for the accumulator')
-    parser.add_argument('--queue', default='new_images',
-                        help='what queue to start')
-    args = parser.parse_args()
-    queue = args.queue
-    print('queue:' + str(queue))
-    if not queue in constants.unique_strings_to_look_for_in_rq_command:
-        print('dont have a queue name to start')
-        exit()
-    i = constants.unique_strings_to_look_for_in_rq_command.index(queue)
-    n_expected_workers = constants.N_expected_workers[i]
-    command = constants.worker_commands[i]
+    if host in constants.N_expected_pd_workers_per_server:
+        n_expected_workers = constants.N_expected_workers_by_server[host]
+    else:
+        n_expected_workers = constants.N_default_workers
+    unique_strings_to_look_for_in_rq_command.index(queue)
+    commands = constants.worker_commands
     unique_string = constants.unique_strings_to_look_for_in_rq_command[i]
     print('i:' + str(i))
     while 1:
-        n_actual_workers = count_queue_workers(unique_string)
-        print(str(n_actual_workers)+' workers online')
-        if n_actual_workers<n_expected_workers:
-            start_workers(command,n_expected_workers-n_actual_workers)
+        for i in range(0,len(commands)):
+            command = commands[i]
+            unique_string = constants.unique_strings_to_look_for_in_rq_command[i]
+            n_actual_workers = count_queue_workers(unique_string)
+            print(str(n_actual_workers)+' workers online in queue '+str(unique_string))
+            if n_actual_workers<n_expected_workers:
+                start_workers(command,n_expected_workers-n_actual_workers)
         time.sleep(10)
 
-
-#string_to_look_for_in_rq_command = 'rqworker'
-#unique_strings_to_look_for_in_rq_command = ['new_images','find_similar','find_top_n','fingerprint_new','tgworker']
-#worker_commands =['/usr/bin/python /usr/local/bin/rqworker new_images &',
- #                 '/usr/bin/python /usr/local/bin/rqworker find_similar &',
- #                 '/usr/bin/python /usr/local/bin/rqworker find_top_n &',
- #                 '/usr/bin/python /usr/local/bin/fingerprint_new &',
-  #                 'cd /home/pd_user/paperdoll  && /usr/bin/python /usr/local/bin/rqworker  -w trendi.matlab_wrapper.tgworker.TgWorker  pd &']
-#N_expected_workers={47,47,47,47,47]

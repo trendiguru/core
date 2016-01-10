@@ -3,6 +3,7 @@ import subprocess, signal
 import time
 import os
 import socket
+import psutil
 
 from trendi import constants
 import argparse
@@ -67,6 +68,32 @@ def start_pd_workers(n=constants.N_expected_pd_workers_per_server):
         #print('command:'+command)
         #p = subprocess.Popen(command, stdout=subprocess.PIPE)
 
+def start_workers(command,n_workers):
+    host = socket.gethostname()
+    print('host:'+str(host)+' trying to start '+str(n_workers)+' workers with command '+str(command))
+    for i in range(0,n_workers):
+  #      command = 'cd /home/jeremy/paperdoll3/paperdoll-v1.0/'
+        print('command:'+command)
+#        p = subprocess.Popen(command, shell=True,stdout=subprocess.PIPE).stdout.read()
+        p = subprocess.Popen(command, shell=True,stdout=subprocess.PIPE)
+        print(p)
+        #p = subprocess.Popen(command, stdout=subprocess.PIPE)
+        #command =  '/usr/bin/python /usr/local/bin /rqworker -w rq.tgworker.TgWorker -u redis://redis1-redis-1-vm:6379 pd'
+        #print('command:'+command)
+        #p = subprocess.Popen(command, stdout=subprocess.PIPE)
+
+def kill_worker(unique = 'find_similar'):
+    p = subprocess.Popen(['ps', '-auxw'], stdout=subprocess.PIPE)
+    out, err = p.communicate()
+    for line in out.splitlines():
+        if unique in line:
+            a = line.split()
+            pid = int(a[1])  #maybe on a different unix the output doesnt have owqnder
+            print('pid to kill:'+str(pid)+' using unique string:'+str(unique))
+#            pid = int(line.split(None, 1)[1])
+            r = os.kill(pid, signal.SIGKILL)
+            print r
+
 def restart_workers():
     kill_pd_workers()
     time.sleep(2)
@@ -75,20 +102,30 @@ def restart_workers():
 if __name__ == "__main__":
     host = socket.gethostname()
     print('host:'+str(host))
+    cpu  = psutil.cpu_percent()
 
     parser = argparse.ArgumentParser(description='ye olde shepherd')
     # parser.add_argument('integers', metavar='N', type=int, nargs='+',
     # help='an integer for the accumulator')
     parser.add_argument('--N', default=47,
+                        help='how many workers')
+    queue_order = constants.queue_order
+    parser.add_argument('--extra_queues', default=['find_similar','find_top_n'],
                         help='how many pd workers')
     args = parser.parse_args()
     n_expected_workers = int(args.N)
     print('N:' + str(n_expected_workers))
     while 1:
+        cpu  = psutil.cpu_percent()
         n_actual_workers = count_pd_workers()
         print(str(n_actual_workers)+' workers online')
         if n_actual_workers<n_expected_workers:
             start_pd_workers(n_expected_workers-n_actual_workers)
+
+        if cpu < constants.lower_threshold:
+            print('cpu too low, start non-pd worker')
+            start_workers(constants.multi_queue_command,1)
+        elif cpu > constants.upper_threshold:
+            print('cpu too high, kill non-pd worker')
+            kill_worker(constants.unique_in_multi_queue)
         time.sleep(10)
-
-
