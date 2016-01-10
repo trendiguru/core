@@ -113,6 +113,7 @@ def kill_worker(unique = 'find_similar'):
 #            pid = int(line.split(None, 1)[1])
             r = os.kill(pid, signal.SIGKILL)
             print r
+            return
 
 def restart_workers():
     kill_pd_workers()
