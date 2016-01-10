@@ -41,7 +41,7 @@ def count_pd_workers():
         #print line
         if string_to_look_for_in_pd_command in line:
             a = line.split()
-            print a
+            #print a
             pid = a[1]
             n = n +1
     return n
