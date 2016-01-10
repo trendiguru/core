@@ -6,23 +6,23 @@ import numpy as np
 from new_finger_print import spaciograms_distance_rating
 
 
-def distance_function_nate(entry, target_dict, index):
+def distance_function_nate(entry, target_dict, rank):
     a = time.time()
-    dist = spaciograms_distance_rating(np.asarray(entry["specio"][index]), target_dict["specio"][index])
+    dist = spaciograms_distance_rating(np.asarray(entry["specio"]), target_dict["specio"], rank)
     b = time.time()
     print ("specio time = %s" % str(b - a))
 
     return dist
 
 
-def stage_one(target_dict, entries, ind):
+def stage_one(target_dict, entries, rank):
     start_time = time.time()
     # list of tuples with (entry,distance). Initialize with first n distance values
     nearest_n = []
     farthest_nearest = 20000
     for i, entry in enumerate(entries):
         if i < 1000:
-            d = distance_function_nate(entry, target_dict, ind)
+            d = distance_function_nate(entry, target_dict, rank)
             nearest_n.append((entry, d))
         else:
             if i == 100:
@@ -32,7 +32,7 @@ def stage_one(target_dict, entries, ind):
                 farthest_nearest = nearest_n[-1][1]
 
             # Loop through remaining entries, if one of them is better, insert it in the correct location and remove last item
-            d = distance_function_nate(entry, target_dict, ind)
+            d = distance_function_nate(entry, target_dict, rank)
             if d < farthest_nearest:
                 insert_at = 98
                 while d < nearest_n[insert_at][1]:
