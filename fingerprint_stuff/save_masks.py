@@ -14,7 +14,7 @@ assert (training_collection_cursor)  # make sure training collection exists
 
 pruned_images=[]
 c = 0
-while c<2:
+while c<2: # < num of doc items
     doc = next(training_collection_cursor, None)
     images = doc['images']
     for img in images:
@@ -24,21 +24,21 @@ while c<2:
         print(len(pruned_images))
     c+=1
 
-# img_arrs=[]
-# masks = []
-# mask_items = []
-# for url1 in pruned_images:
-#     img_arrs.append( Utils.get_cv2_img_array(url1, convert_url_to_local_filename=True, download=True))
-#     mask, labels, pose = paperdoll_parse_enqueue.paperdoll_enqueue(img, async=False).result[:3]
-#     masks.append(mask)
-#     print("Mask shape: "+mask.shape)
-#     final_mask = paperdolls.after_pd_conclusions(mask, labels)#, person['face'])
-#     for num in np.unique(final_mask):
-#         category = list(labels.keys())[list(labels.values()).index(num)]
-#         if category == 'dress'  and category in constants.paperdoll_shopstyle_women.keys():
-#             print("Found dress!!")
-#             mask_item = 255 * np.array(final_mask == num, dtype=np.uint8)
-#             mask_items.append(mask_item)
-#
-# np.save("yuli_masks.npy", masks)
-# np.save("yuli_mask_items.npy", mask_items)
+img_arrs=[]
+masks = []
+mask_items = []
+for url1 in pruned_images:
+    img_arrs.append( Utils.get_cv2_img_array(url1, convert_url_to_local_filename=True, download=True))
+    mask, labels, pose = paperdoll_parse_enqueue.paperdoll_enqueue(img, async=False).result[:3]
+    masks.append(mask)
+    print("Mask shape: "+mask.shape)
+    final_mask = paperdolls.after_pd_conclusions(mask, labels)#, person['face'])
+    for num in np.unique(final_mask):
+        category = list(labels.keys())[list(labels.values()).index(num)]
+        if category == 'dress'  and category in constants.paperdoll_shopstyle_women.keys():
+            print("Found dress!!")
+            mask_item = 255 * np.array(final_mask == num, dtype=np.uint8)
+            mask_items.append(mask_item)
+
+np.save("yuli_masks.npy", masks)
+np.save("yuli_mask_items.npy", mask_items)
