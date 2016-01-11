@@ -11,11 +11,11 @@ from trendi import paperdolls
 
 training_collection_cursor = db.training2.find()
 assert (training_collection_cursor)  # make sure training collection exists
-doc = next(training_collection_cursor, None)
 
 pruned_images=[]
 c = 0
 while c<2:
+    doc = next(training_collection_cursor, None)
     images = doc['images']
     for img in images:
        #     if Utils.good_bb(img, skip_if_marked_to_skip=True) and good_img(img):
@@ -23,7 +23,7 @@ while c<2:
         print(pruned_images)
         print(len(pruned_images))
     c+=1
-#
+
 # img_arrs=[]
 # masks = []
 # mask_items = []
