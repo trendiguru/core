@@ -64,6 +64,8 @@ class ShopStyleDownloader():
             self.download_category(cat, collection)
 
         self.wait_for(collection)
+        self.db.download_data.find_one_and_update({"criteria": collection},
+                                                  {'$set': {"end_time": datetime.datetime.now()}})
         tmp = self.db.download_data.find({"criteria": collection})[0]
         total_time = abs(tmp["end_time"] - tmp["start_time"]).total_seconds()
         del_items = self.db[collection].delete_many({'fingerprint': {"$exists": False}})
@@ -214,12 +216,13 @@ class ShopStyleDownloader():
         while filter_params["offset"] < MAX_OFFSET and \
                         (filter_params["offset"] + MAX_RESULTS_PER_PAGE) <= total:
             product_response = self.delayed_requests_get(BASE_URL_PRODUCTS, filter_params)
-            product_results = product_response.json()
-            total = product_results["metadata"]["total"]
-            products = product_results["products"]
-            for prod in products:
-                self.db_update(prod, coll)
-            filter_params["offset"] += MAX_RESULTS_PER_PAGE
+            if product_response.status_code == 200:
+                product_results = product_response.json()
+                total = product_results["metadata"]["total"]
+                products = product_results["products"]
+                for prod in products:
+                    self.db_update(prod, coll)
+                filter_params["offset"] += MAX_RESULTS_PER_PAGE
 
         # Write down that we did this
         self.db.dl_cache.insert(dl_query)

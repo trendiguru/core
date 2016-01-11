@@ -12,7 +12,9 @@ def spaciograms_distance_rating(spaciogram_1, spaciogram_2, rank):
     ############ CHECKS ############
     # check if spaciogram_1.shape == spaciogram_2.shape:
     rating = []
-    if np.array(spaciogram_1.shape).all() == np.array(spaciogram_2.shape).all() is False:
+    spaciogram_1 = np.array(spaciogram_1)
+    spaciogram_2 = np.array(spaciogram_2)
+    if spaciogram_1.shape != spaciogram_2.shape is False:
         print 'Error: the dimensions of spaciogram_1 and spaciogram_2 are not equal! \n' \
               'shapes are: 1st - ' + str(spaciogram_1.shape) + '\n' \
               'shapes are: 2nd - ' + str(spaciogram_2.shape)
@@ -79,14 +81,17 @@ def spaciograms_distance_rating(spaciogram_1, spaciogram_2, rank):
     # HISTCMP_HELLINGER Synonym for HISTCMP_BHATTACHARYYA
     # HISTCMP_CHISQR_ALT
     # HISTCMP_KL_DIV
-    if rank == 1:
-        rating = cv2.compareHist(spaciogram_1[0].astype('float32'), spaciogram_2[0].astype('float32'), method)
-    elif rank == 2:
-        rating = cv2.compareHist(spaciogram_1[1].astype('float32'), spaciogram_2[1].astype('float32'), method)
+    if rank != 3:
+        rating = cv2.compareHist(np.array(spaciogram_1).astype('float32'),
+                                 np.array(spaciogram_2).astype('float32'), method)
+    # elif rank == 2:
+    #     rating = cv2.compareHist(np.array(spaciogram_1[1]).astype('float32'),
+    #                              np.array(spaciogram_2[1]).astype('float32'), method)
     elif rank == 3:
         rating = 0.0
         for i in range(2, len(spaciogram_1)):
-            rating += cv2.compareHist(spaciogram_1[i].astype('float32'), spaciogram_2[i].astype('float32'), method)
+            rating += cv2.compareHist(np.array(spaciogram_1[i]).astype('float32'),
+                                      np.array(spaciogram_2[i]).astype('float32'), method)
     else:
         rating = []
 
