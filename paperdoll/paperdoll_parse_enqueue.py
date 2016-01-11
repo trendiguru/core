@@ -43,16 +43,15 @@ def paperdoll_enqueue(img_url_or_cv2_array, person_id=None, async=True, queue_na
     if not async:
         print('running synchronously (waiting for result)'),
         while job1.result is None:
-
-            # time.sleep(0.5)
-            # print('.'),
-            # elapsed_time = time.time()-start
-            # if elapsed_time>constants.paperdoll_ttl :
-            #     if isinstance(img_url_or_cv2_array,basestring):
-            #         print('timeout waiting for pd.get_parse_mask, url='+img_url_or_cv2_array)
-            #     else:
-            #         print('timeout waiting for pd.get_parse_mask, img_arr given')
-            #     return
+            time.sleep(0.5)
+            print('.'),
+            elapsed_time = time.time()-start
+            if elapsed_time>constants.paperdoll_ttl :
+                if isinstance(img_url_or_cv2_array,basestring):
+                    print('timeout waiting for pd.get_parse_mask, url='+img_url_or_cv2_array)
+                else:
+                    print('timeout waiting for pd.get_parse_mask, img_arr given')
+                return
         print('')
         print('elapsed time in paperdoll_enqueue:'+str(elapsed_time))
         #todo - see if I can return the parse, pose etc here without breaking anything (aysnc version gets job1 back so there may be expectation of getting a job instead of tuple
