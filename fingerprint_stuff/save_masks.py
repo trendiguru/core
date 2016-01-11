@@ -34,7 +34,7 @@ for url1 in pruned_images:
     while max_retry and not got_mask:
         try:
             mask, labels, pose = paperdoll_parse_enqueue.paperdoll_enqueue(img_arr, at_front=True, async=False).result[:3]
-            got_mask = bool(mask)
+            got_mask = np.any(mask) # condition for legal mask?
             print(str(got_mask))
             masks.append(mask)
             print("Mask type: "+type(mask))
@@ -48,7 +48,7 @@ for url1 in pruned_images:
 
         except Exception as e:
             max_retry = max_retry - 1
-            print("Failes to get mask with exception:")
+            print("Failed to get mask with exception:")
             print e.message
 
     if not got_mask:

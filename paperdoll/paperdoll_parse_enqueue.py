@@ -17,7 +17,7 @@ def paperdoll_enqueue(img_url_or_cv2_array, person_id=None, async=True, queue_na
     The 'parallel matlab queue' which starts engines and keeps them warm is 'pd'.  This worker should be running somewhere (ideally in a screen like pd1).
     The use_tg_worker argument forces  use/nonuse of the tgworker than knows how to keep the engines warm and can be started along the lines of:
         rqworker -u redis://redis1-redis-1-vm:6379  -w rq.tgworker.TgWorker  pd
-    :param img_url_or_cv2_array: the image/url
+    :param img_url_or_cv2_got_mask = bool(mask)array: the image/url
     :param async: whether to run async or sync
     :param queue: queue name on which to run paperdoll
     :param use_tg_worker: whether or not to use special tg worker, if so queue needs to have been started with -t tgworker
