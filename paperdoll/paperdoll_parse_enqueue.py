@@ -12,7 +12,7 @@ TTL = constants.general_ttl
 # Tell RQ what Redis connection to use
 
 def paperdoll_enqueue(img_url_or_cv2_array, person_id=None, async=True, queue_name=None, use_tg_worker=True,
-                      use_parfor=False):
+                      use_parfor=False, at_front=False):
     """
     The 'parallel matlab queue' which starts engines and keeps them warm is 'pd'.  This worker should be running somewhere (ideally in a screen like pd1).
     The use_tg_worker argument forces  use/nonuse of the tgworker than knows how to keep the engines warm and can be started along the lines of:
@@ -33,7 +33,7 @@ def paperdoll_enqueue(img_url_or_cv2_array, person_id=None, async=True, queue_na
     queue = Queue(queue_name, connection=redis_conn)
     job1 = queue.enqueue_call(func='trendi.paperdoll.pd.get_parse_mask_parallel',
                               args=(img_url_or_cv2_array, person_id),
-                              ttl=TTL, result_ttl=TTL, timeout=TTL)
+                              ttl=TTL, result_ttl=TTL, timeout=TTL, at_front=at_front)
     if isinstance(img_url_or_cv2_array, basestring):
         url = img_url_or_cv2_array
     else:
