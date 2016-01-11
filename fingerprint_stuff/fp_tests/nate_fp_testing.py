@@ -28,13 +28,13 @@ def create_new_collection():
     for x, doc in enumerate(category_stack):
         # if x < 5000:
         #     continue
-        # job = q.enqueue_call(func=add_new_field, args=(doc, x), ttl=1000, result_ttl=1000, timeout=1000)
-        # jobs.append(job)
-        try:
-            add_new_field(doc, x)
-        except:
-            print("error in add_new_field - file not updated")
-            db.nate_testing.delete_one({"id": doc["id"]})
+        job = q.enqueue(add_new_field, doc, x)
+        jobs.append(job)
+        # try:
+        #     add_new_field(doc, x)
+        # except:
+        #     print("error in add_new_field - file not updated")
+        #     db.nate_testing.delete_one({"id": doc["id"]})
     # current = db.nate_testing.count()
     # time.sleep(1)
     # future = db.nate_testing.count()
@@ -43,7 +43,7 @@ def create_new_collection():
     #     current = future
     #     future = db.nate_testing.count()
     #     print future
-    print ("finished")
+    print ("finished creating Q")
 
 if __name__ == "__main__":
     create_new_collection()

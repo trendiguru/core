@@ -68,7 +68,9 @@ def add_new_field(doc, x):
     item_mask = mask
     try:
         specio = new_finger_print.spaciogram_finger_print(image, item_mask)
-        doc["specio"] = specio
+        # doc["specio"] = specio
+        # doc["sp_one"] = specio[0]
+        # doc["sp_two"] = specio[1]
     except:
         print("specio specio specio scpecio failed")
         return
@@ -79,7 +81,9 @@ def add_new_field(doc, x):
     #     print("histo histo histo histo failed")
     #     return
     db.nate_testing.find_one_and_update({'id': doc['id']},
-                                        {"$set": {"specio": doc["specio"]}})
+                                        {"$set": {"specio": specio,
+                                                  "sp_one": specio[0],
+                                                  "sp_two": specio[1]}})
     # db.nate_testing.insert_one(doc)
     print("item " + str(x) + " updated/inserted with success!")
     return
