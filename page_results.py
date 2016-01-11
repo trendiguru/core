@@ -498,6 +498,7 @@ def get_data_for_specific_image(image_url=None, image_hash=None, image_projectio
         merged_dict = merge_items(full_image_dict)
         return merged_dict
     else:
+        logging.debug('image / hash  was NOT found in db')
         return None
 
 
@@ -505,6 +506,14 @@ def load_similar_results(sparse, projection_dict, product_collection_name=None):
     product_collection_name = product_collection_name or prod_coll_name
     collection = db[product_collection_name]
     print "Will load similar results from collection: " + str(collection)
+    for person in sparse["people"]:
+        for item in person["items"]:
+            similar_results = []
+            for result in item["similar_results"]:
+                full_result = collection.find_one({"id": result["id"]}, projection_dict)
+                # full_result["clickUrl"] = Utils.shorten_url_bitly(full_result["clickUrl"])
+                similar_results.append(full_result)
+            item["similar_results"] = similar_results
     return sparse
 
 
@@ -528,7 +537,6 @@ def merge_items(doc):
     doc['items'] = [item for person in doc['people'] for item in person["items"]]
     del doc["people"]
     return doc
-
 
 def get_hash_of_image_from_url(image_url):
     if image_url is None:
