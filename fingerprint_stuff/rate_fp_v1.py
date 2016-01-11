@@ -76,7 +76,8 @@ def get_mask(img):
     #import background_removal
     from trendi import paperdolls
 
-    mask, labels, pose = paperdoll_parse_enqueue.paperdoll_enqueue(img, async=False)#.result[:3]
+    mask, labels, pose = paperdoll_parse_enqueue.paperdoll_enqueue(img, async=False).result[:3]
+
     print("Mask shape: "+mask.shape)
     final_mask = paperdolls.after_pd_conclusions(mask, labels)#, person['face'])
     for num in np.unique(final_mask):
@@ -84,6 +85,7 @@ def get_mask(img):
         if category == 'dress'  and category in constants.paperdoll_shopstyle_women.keys():
             print("Found dress!!")
             item_mask = 255 * np.array(final_mask == num, dtype=np.uint8)
+
             return item_mask
 
 
