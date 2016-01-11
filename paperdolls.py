@@ -318,12 +318,12 @@ def from_paperdoll_to_similar_results(person_id, paper_job_id, num_of_matches=10
                                                                                           products_collection),
                                         ttl=TTL, result_ttl=TTL, timeout=TTL)
             idx += 1
-    print "everyone was sent to find_top_n after {0} seconds.".format(time.time() - start)
+    # print "everyone was sent to find_top_n after {0} seconds.".format(time.time() - start)
     done = all([job.is_finished for job in jobs.values()])
     while not done:
         time.sleep(0.2)
         done = all([job.is_finished or job.is_failed for job in jobs.values()])
-    print "all find_top_n is done after {0} seconds".format(time.time() - start)
+    # print "all find_top_n is done after {0} seconds".format(time.time() - start)
     for idx, job in jobs.iteritems():
         cur_item = next((item for item in items if item['item_idx'] == idx), None)
         if job.is_failed:
@@ -335,7 +335,7 @@ def from_paperdoll_to_similar_results(person_id, paper_job_id, num_of_matches=10
     total_time = 0
     while not new_image_obj:
         if total_time < 30:
-            print "image_obj after update is None!.. waiting for it.. total time is {0}".format(total_time)
+            # print "image_obj after update is None!.. waiting for it.. total time is {0}".format(total_time)
             time.sleep(2)
             total_time += 2
             new_image_obj = iip.find_one_and_update({'people.person_id': person_id},
@@ -347,7 +347,7 @@ def from_paperdoll_to_similar_results(person_id, paper_job_id, num_of_matches=10
     else:
         image_obj = new_image_obj
     if person['person_idx'] == len(image_obj['people']) - 1:
-        print "inserted to db.images after {0} seconds".format(time.time() - start)
+        # print "inserted to db.images after {0} seconds".format(time.time() - start)
         a = images_collection.insert_one(image_obj)
         iip.delete_one({'_id': image_obj['_id']})
         logging.warning("# of images inserted to db.images: {0}".format(a.acknowledged * 1))
