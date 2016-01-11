@@ -7,7 +7,6 @@ from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
 
 import pymongo
-
 from rq import Queue
 
 from .constants import db
@@ -79,32 +78,46 @@ def email(stats, title, recipients):
 
 
 def run():
-    mail_sent = 0
+    checklist = {'redis_conn': {'flag': 0, 'start': 0},
+                 'rq_functionality': {'flag': 0, 'start': 0},
+                 'mongo_conn': {'flag': 0, 'start': 0},
+                 'mongo_functionality': {'flag': 0, 'start': 0},
+                 '0_inserts': {'flag': 0, 'start': 0}}
     while 1:
+        print "starting a check in {0}".format(time.ctime())
 
         # REDIS & RQ
 
         # basic connection
 
         if not redis_conn.ping():
+            if checklist['redis_conn']['flag'] and time.time() - checklist['redis_conn']['start'] < 3600:
+                break
             stats = {'massege': 'FAILED TO CONNECT REDIS !', 'date': time.ctime()}
             email(stats, 'REDIS CONNECTION', [lior, nadav])
-            mail_sent = 1
+            checklist['redis_conn']['flag'] = 1
+            checklist['redis_conn']['start'] = time.time()
 
         # putting on queue
 
         try:
             job = test_q.enqueue(return_1)
             time.sleep(0.1)
-            print "Did job start? : {0}".format(job.is_started)
             if job.is_failed:
+                if checklist['rq_functionality']['flag'] and time.time() - checklist['rq_functionality'][
+                    'start'] < 3600:
+                    break
                 stats = {'massege': 'TEST JOB IS FAILED!', 'date': time.ctime()}
                 email(stats, 'FAILED TO ENQUEUE', [lior, nadav])
-                mail_sent = 1
+                checklist['rq_functionality']['flag'] = 1
+                checklist['rq_functionality']['start'] = time.time()
         except Exception as e:
+            if checklist['rq_functionality']['flag'] and time.time() - checklist['rq_functionality']['start'] < 3600:
+                break
             stats = {'massege': e.message, 'date': time.ctime()}
             email(stats, 'FAILED TO ENQUEUE', [lior, nadav])
-            mail_sent = 1
+            checklist['rq_functionality']['flag'] = 1
+            checklist['rq_functionality']['start'] = time.time()
 
         # MONGO
 
@@ -113,9 +126,12 @@ def run():
         try:
             db = pymongo.MongoClient(host=os.environ["MONGO_HOST"], port=int(os.environ["MONGO_PORT"])).mydb
         except Exception as e:
+            if checklist['mongo_conn']['flag'] and time.time() - checklist['mongo_conn']['start'] < 3600:
+                break
             stats = {'massege': e.message, 'date': time.ctime()}
             email(stats, 'FAILED TO CONNECT MONGO !', [lior, nadav])
-            mail_sent = 1
+            checklist['mongo_conn']['flag'] = 1
+            checklist['mongo_conn']['start'] = time.time()
 
         # inserting a doc to db.test
 
@@ -123,24 +139,30 @@ def run():
             db.test.insert_one({'name': 'test'})
             db.test.delete_one({'name': 'test'})
         except Exception as e:
+            if checklist['mongo_functionality']['flag'] and time.time() - checklist['mongo_functionality'][
+                'start'] < 3600:
+                break
             stats = {'massege': e.message, 'date': time.ctime()}
             email(stats, 'FAILED TO INSERT TO DB.TEST', [lior, nadav])
-            mail_sent = 1
+            checklist['mongo_functionality']['flag'] = 1
+            checklist['mongo_functionality']['start'] = time.time()
 
         # IMAGES INSERTS
 
         images_init = db.images.count()
         time.sleep(60)
         if not db.images.count() - images_init:
+            if checklist['0_inserts']['flag'] and time.time() - checklist['0_inserts']['start'] < 3600:
+                break
             stats = {'massege': '0 IMAGES WERE INSERTED IN THE LAST MINUTE TO DB.IMAGES !!', 'date': time.ctime()}
             email(stats, '0 INSERTS', [lior, nadav])
-            mail_sent = 1
+            checklist['0_inserts']['flags'] = 1
+            checklist['0_inserts']['start'] = time.time()
 
-        if mail_sent:
-            mail_sent = 0
-            time.sleep(3600)
-        else:
-            time.sleep(10)
+        for type_of, error in checklist.iteritems():
+            if time.time() - error['start'] > 3600:
+                checklist[type_of]['start'] = time.time()
+                checklist[type_of]['flag'] = 0
 
 
 if __name__ == "__main__":
