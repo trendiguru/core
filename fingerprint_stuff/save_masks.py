@@ -35,8 +35,9 @@ for url1 in pruned_images:
         try:
             mask, labels, pose = paperdoll_parse_enqueue.paperdoll_enqueue(img_arr, at_front=True, async=False).result[:3]
             got_mask = bool(mask)
+            print(str(got_mask))
             masks.append(mask)
-            print("Mask shape: "+mask.shape)
+            print("Mask type: "+type(mask))
             final_mask = paperdolls.after_pd_conclusions(mask, labels)#, person['face'])
             for num in np.unique(final_mask):
                 category = list(labels.keys())[list(labels.values()).index(num)]
@@ -45,8 +46,10 @@ for url1 in pruned_images:
                     mask_item = 255 * np.array(final_mask == num, dtype=np.uint8)
                     mask_items.append(mask_item)
 
-        except:
+        except Exception as e:
             max_retry = max_retry - 1
+            print("Failes to get mask with exception:")
+            print e.message
 
     if not got_mask:
         print url1 + " failed."
