@@ -66,7 +66,7 @@ def get_data(my_path):#, testing_amount=0.2):#my_path=os.path.dirname(os.path.ab
     return output_image, output_vector
 
 path = os.path.dirname(os.path.abspath(__file__)) + '/dataset/'
-# testing_input, testing_output, training_input, training_output = get_data(path)
+# testing_input, testing_output, training_input, training_output = get_data(path )
 #
 # print testing_input.shape, testing_output.shape
 # print training_input.shape, training_output.shape
