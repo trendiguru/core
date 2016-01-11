@@ -167,6 +167,7 @@ def run():
 
 
 def get_white_list():
+
     def get_domain(url):
         short_url = ""
         cnt = 0
@@ -181,8 +182,8 @@ def get_white_list():
     for doc in db.images.find():
         domain = get_domain(doc['page_urls'][0])
         if not db.white_list.find_one({'domain.name': domain}):
-            db.white_list.insert({'long_urls': [{'name': doc['page_urls'][0], 'count': 0}]},
-                                 {'domain': {'name': domain, 'count': 0}})
+            db.white_list.insert({'long_urls': [{'name': doc['page_urls'][0], 'count': 0}],
+                                  'domain': {'name': domain, 'count': 0}})
         else:
             if not db.white_list.find_one({'long_url.name': doc['page_urls'][0]}):
                 db.white_list.update_one({'domain.name': domain}, {'$inc': {'domain.count': 1},
