@@ -14,7 +14,7 @@ assert (training_collection_cursor)  # make sure training collection exists
 
 pruned_images=[]
 c = 0
-while c<2: # < num of doc items
+while c<2: # < num of doc items (collection items)
     doc = next(training_collection_cursor, None)
     images = doc['images']
     for img in images:
@@ -29,10 +29,12 @@ masks = []
 mask_items = []
 for url1 in pruned_images:
     max_retry = 5
+    got_mask = False
     img_arr = Utils.get_cv2_img_array(url1)
-    while max_retry:
+    while max_retry and not got_mask:
         try:
             mask, labels, pose = paperdoll_parse_enqueue.paperdoll_enqueue(img_arr, at_front=True, async=False).result[:3]
+            got_mask = bool(mask)
             masks.append(mask)
             print("Mask shape: "+mask.shape)
             final_mask = paperdolls.after_pd_conclusions(mask, labels)#, person['face'])
@@ -42,11 +44,15 @@ for url1 in pruned_images:
                     print("Found dress!!")
                     mask_item = 255 * np.array(final_mask == num, dtype=np.uint8)
                     mask_items.append(mask_item)
+
         except:
             max_retry = max_retry - 1
-    else:
+
+    if not got_mask:
         print url1 + " failed."
         continue
+    else:
+        print "Success: " + url1
 
 
 np.save("yuli_masks.npy", masks)
