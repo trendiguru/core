@@ -27,7 +27,7 @@ def person_isolation(image, face):
 
 
 # define a example function
-def add_new_field(doc, x):
+def add_new_field(doc):
     image_url = doc["images"]["XLarge"]
 
     image = Utils.get_cv2_img_array(image_url)
@@ -83,9 +83,10 @@ def add_new_field(doc, x):
     db.nate_testing.find_one_and_update({'id': doc['id']},
                                         {"$set": {"specio": specio,
                                                   "sp_one": specio[0],
-                                                  "sp_two": specio[1]}})
+                                                  "sp_two": specio[1],
+                                                  "sp_update": "Done"}})
     # db.nate_testing.insert_one(doc)
-    print("item " + str(x) + " updated/inserted with success!")
+    print("item updated/inserted with success!")
     return
 
 # def mr8_4_demo(img, fc, mask):
