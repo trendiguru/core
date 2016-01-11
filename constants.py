@@ -25,7 +25,7 @@ minimum_im_height = 50
 ##############
 
 pd_worker_command =  'cd /home/jeremy/paperdoll3/paperdoll-v1.0/ && /usr/bin/python /usr/local/bin/rqworker -w trendi.matlab_wrapper.tgworker.TgWorker -u redis://redis1-redis-1-vm:6379 pd &'
-pd_worker_command_braini1 =  'cd /home/pd_user/paperdoll  && /usr/bin/python /usr/local/bin/rqworker  -w trendi.matlab_wrapper.tgworker.TgWorker  pd &'
+pd_worker_command_braini1 =  'cd /home/pd_user/paperdoll  && /usr/bin/python /usr/local/bin/rqworker  -w trendi.matlab_wrapper.tgworker.TgWorker  pd &',
 string_to_look_for_in_pd_command = 'tgworker'
 
 N_expected_pd_workers_per_server = 15
@@ -46,6 +46,7 @@ worker_commands =['/usr/bin/python /usr/local/bin/rqworker find_similar &',
 multi_queue_command ='/usr/bin/python /usr/local/bin/rqworker find_similar find_top_n new_images'
 unique_in_multi_queue = 'find_similar'
 N_expected_workers_by_server={'braini1':47,'brain2':47,'brain3':96,'braini4':96,'braini5':96}
+N_max_workers = 120
 lower_threshold = 70
 upper_threshold = 85
 
@@ -732,3 +733,65 @@ white_list = ["http://www.bunte.de",
               "marca.com",
               "pixnet.net",
               "accuweather.com"]
+
+blacklisted_terms =['asshole',
+     'asshole',
+     'asswipe',
+     'b00b',
+     'bitch',
+     'bitch',
+     'bitch',
+     'blowjob',
+     'blowjob',
+     'boffing',
+     'boob',
+     'butt-pirate',
+     'c0ck',
+     'clit',
+     'clit',
+     'cock',
+     'cock-goblins',
+     'cum',
+     'cum',
+     'cunt',
+     'cunt',
+     'dominatrix',
+     'ejaculate',
+     'enema',
+     'faggot',
+     'fuck',
+     'fuck',
+     'jackoff',
+     'jackoff',
+     'masturb',
+     'muffplower',
+     'nutsack',
+     'orgasm',
+     'p0rn',
+     'penis',
+     'porn',
+     'pr0n',
+     'pussy',
+     'schlampe',
+     'schlong',
+     'screw',
+     'screwing',
+     'semen',
+     'shit',
+     'skank',
+     'slut',
+     'slut',
+     'smut',
+     'testicle',
+     'testicle',
+     'tits',
+     'tits',
+     'twat',
+     'wank',
+     'wh00r',
+     'wh0re',
+     'whore',
+     'whore',
+     'x-rated',
+     'xrated',
+     'xxx']

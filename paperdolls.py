@@ -191,6 +191,14 @@ def job_result_from_id(job_id, job_class=Job, conn=None):
     return job.result
 
 
+def blacklisted_term_in_url(page_url):
+    lowercase_url = page_url.lower()
+    for term in constants.blacklisted_terms:
+        if term in lowercase_url:
+            return True
+        return False
+
+
 # ----------------------------------------------MAIN-FUNCTIONS----------------------------------------------------------
 
 
@@ -204,6 +212,17 @@ def start_process(page_url, image_url, lang=None):
         products_collection = 'products_' + lang
         coll_name = 'images_' + lang
         images_collection = db[coll_name]
+
+    # IF URL IS BLACKLISTED - put in blacklisted_urls
+    # {"page_url":"hoetownXXX.com","image_urls":["hoetownXXX.com/yomama1.jpg","yomama2.jpg"]}
+    if blacklisted_term_in_url(page_url):
+        if db.blacklisted_urls.find_one({"page_url": page_url}):
+            db.blacklisted_urls.update_one({"page_url": page_url},
+                                           {"$push": {"image_urls": image_url}})
+        else:
+            db.blacklisted_urls.insert_one({"page_url": page_url,"image_urls":[image_url]})
+        return
+
     # IF IMAGE IN IRRELEVANT_IMAGES
     images_obj_url = db.irrelevant_images.find_one({"image_urls": image_url})
     if images_obj_url:
