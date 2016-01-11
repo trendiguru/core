@@ -37,7 +37,7 @@ for url1 in pruned_images:
             got_mask = np.any(mask) # condition for legal mask?
             print(str(got_mask))
             masks.append(mask)
-            print("Mask type: "+type(mask))
+
             final_mask = paperdolls.after_pd_conclusions(mask, labels)#, person['face'])
             for num in np.unique(final_mask):
                 category = list(labels.keys())[list(labels.values()).index(num)]
