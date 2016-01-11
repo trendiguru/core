@@ -66,7 +66,7 @@ def get_data(my_path):#, testing_amount=0.2):#my_path=os.path.dirname(os.path.ab
     return output_image, output_vector
 
 path = os.path.dirname(os.path.abspath(__file__)) + '/dataset/'
-# testing_input, testing_output, training_input, training_output = get_data(path )
+# testing_input, testing_output, training_input, training_output = get_data(path)
 #
 # print testing_input.shape, testing_output.shape
 # print training_input.shape, training_output.shape
@@ -99,12 +99,12 @@ model.add(Activation('hard_sigmoid'))
 # model.add(Dropout(0.25))
 model.add(Convolution2D(32, 3, 3, border_mode='valid'))
 model.add(Activation('hard_sigmoid'))
-model.add(MaxPooling2D(pool_size=(2, 2)))
-model.add(Dropout(0.25))
-# model.add(Convolution2D(32, 3, 3, border_mode='valid'))
-# model.add(Activation('hard_sigmoid'))
 # model.add(MaxPooling2D(pool_size=(2, 2)))
 # model.add(Dropout(0.25))
+model.add(Convolution2D(32, 3, 3, border_mode='valid'))
+model.add(Activation('hard_sigmoid'))
+model.add(MaxPooling2D(pool_size=(2, 2)))
+model.add(Dropout(0.25))
 # model.add(Convolution2D(8, 3, 3, border_mode='valid'))
 # model.add(Activation('hard_sigmoid'))
 # model.add(Convolution2D(8, 3, 3, border_mode='valid'))
