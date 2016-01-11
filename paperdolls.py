@@ -191,6 +191,13 @@ def job_result_from_id(job_id, job_class=Job, conn=None):
     return job.result
 
 
+def blacklisted_term_in_url(page_url):
+    for term in constants.blacklisted_terms:
+        if term in page_url:
+            return True
+        return False
+
+
 # ----------------------------------------------MAIN-FUNCTIONS----------------------------------------------------------
 
 
@@ -204,6 +211,17 @@ def start_process(page_url, image_url, lang=None):
         products_collection = 'products_' + lang
         coll_name = 'images_' + lang
         images_collection = db[coll_name]
+
+    # IF URL IS BLACKLISTED - put in blacklisted_urls
+    # {"page_url":"hoetownXXX.com","image_urls":["hoetownXXX.com/yomama1.jpg","yomama2.jpg"]}
+    if blacklisted_term_in_url(page_url):
+        if db.blacklisted_urls.find_one({"page_url": page_url}):
+            db.blacklisted_urls.update_one({"page_url": page_url},
+                                           {"$push": {"image_urls": image_url}})
+        else:
+            db.blacklisted_urls.insert_one({"page_url": page_url,"image_urls":[image_url]})
+        return
+
     # IF IMAGE IN IRRELEVANT_IMAGES
     images_obj_url = db.irrelevant_images.find_one({"image_urls": image_url})
     if images_obj_url:
@@ -276,6 +294,7 @@ def start_process(page_url, image_url, lang=None):
 
 def from_paperdoll_to_similar_results(person_id, paper_job_id, num_of_matches=100, products_collection='products',
                                       images_collection='images'):
+    start = time.time()
     products_collection = products_collection
     images_collection = db[images_collection]
     paper_job_results = job_result_from_id(paper_job_id)
@@ -317,10 +336,12 @@ def from_paperdoll_to_similar_results(person_id, paper_job_id, num_of_matches=10
                                                                                           products_collection),
                                         ttl=TTL, result_ttl=TTL, timeout=TTL)
             idx += 1
+    # print "everyone was sent to find_top_n after {0} seconds.".format(time.time() - start)
     done = all([job.is_finished for job in jobs.values()])
     while not done:
         time.sleep(0.2)
         done = all([job.is_finished or job.is_failed for job in jobs.values()])
+    # print "all find_top_n is done after {0} seconds".format(time.time() - start)
     for idx, job in jobs.iteritems():
         cur_item = next((item for item in items if item['item_idx'] == idx), None)
         if job.is_failed:
@@ -332,7 +353,7 @@ def from_paperdoll_to_similar_results(person_id, paper_job_id, num_of_matches=10
     total_time = 0
     while not new_image_obj:
         if total_time < 30:
-            print "image_obj after update is None!.. waiting for it.. total time is {0}".format(total_time)
+            # print "image_obj after update is None!.. waiting for it.. total time is {0}".format(total_time)
             time.sleep(2)
             total_time += 2
             new_image_obj = iip.find_one_and_update({'people.person_id': person_id},
@@ -344,6 +365,7 @@ def from_paperdoll_to_similar_results(person_id, paper_job_id, num_of_matches=10
     else:
         image_obj = new_image_obj
     if person['person_idx'] == len(image_obj['people']) - 1:
+        # print "inserted to db.images after {0} seconds".format(time.time() - start)
         a = images_collection.insert_one(image_obj)
         iip.delete_one({'_id': image_obj['_id']})
         logging.warning("# of images inserted to db.images: {0}".format(a.acknowledged * 1))

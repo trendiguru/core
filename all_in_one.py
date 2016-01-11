@@ -333,7 +333,7 @@ def get_svg_nate(image_url):
                 image_copy = person_isolation(image, face)
                 person = {'face': face, 'person_id': str(bson.ObjectId()), 'person_idx': 1,
                           'items': []}
-                mask, labels, pose = paperdoll_parse_enqueue.paperdoll_enqueue(image_copy, async=False).result[:3]
+                mask, labels, pose = paperdoll_parse_enqueue.paperdoll_enqueue(image_copy, async=False, at_front=True).result[:3]
                 final_mask = after_pd_conclusions(mask, labels, person['face'])
                 # image = draw_pose_boxes(pose, image)
                 item_idx = 0
