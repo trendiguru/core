@@ -91,12 +91,15 @@ def find_top_n_results_nate(fp, method):
 
     print "amount of docs in cursor: {0}".format(potential_matches_cursor.count())
 
-    target_dict = {"clothingClass": "dress", method: fp}
+    target_dict = {"categories": "dress", method: fp}
+
     print "calling find_n_nearest.."
     if method == "fingerprint":
         closest_matches = find_n_nearest_neighbors_nate(method, target_dict, potential_matches_cursor)
 
     elif method == "specio":
+        target_dict["sp_one"] = fp[0]
+        target_dict["sp_two"] = fp[1]
         potential_matches_cursor = collection.find(
             {"categories": "dress"},
             {"_id": 1, "id": 1, "sp_one": 1}).batch_size(15000)  # limit
@@ -111,6 +114,8 @@ def find_top_n_results_nate(fp, method):
                                  {"_id": 1, "id": 1, "specio": 1, "images.XLarge": 1, "clickUrl": 1}).batch_size(100)
         closest_matches = find_n_nearest_neighbors_nate(method, target_dict, query3,
                                                         rank=3, b_size=20)
+    else:
+        return []
     print "done with find_n_nearest.."
     # get only the object itself, not the distance
     closest_matches = [match_tuple[0] for match_tuple in closest_matches]
