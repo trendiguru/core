@@ -196,7 +196,7 @@ def blacklisted_term_in_url(page_url):
     for term in constants.blacklisted_terms:
         if term in lowercase_url:
             return True
-        return False
+    return False
 
 
 # ----------------------------------------------MAIN-FUNCTIONS----------------------------------------------------------
