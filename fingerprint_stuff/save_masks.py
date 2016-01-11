@@ -14,14 +14,15 @@ assert (training_collection_cursor)  # make sure training collection exists
 doc = next(training_collection_cursor, None)
 
 pruned_images=[]
-while doc is not None:
+c = 0
+while c<2:
     images = doc['images']
     for img in images:
        #     if Utils.good_bb(img, skip_if_marked_to_skip=True) and good_img(img):
         pruned_images.append(img["url"])
         print(pruned_images)
         print(len(pruned_images))
-
+    c+=1
 #
 # img_arrs=[]
 # masks = []
