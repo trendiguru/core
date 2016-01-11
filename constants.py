@@ -733,3 +733,5 @@ white_list = ["http://www.bunte.de",
               "marca.com",
               "pixnet.net",
               "accuweather.com"]
+
+blacklisted_terms = ['xxx','porn']
