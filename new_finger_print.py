@@ -19,7 +19,7 @@ def spaciograms_distance_rating(spaciogram_1, spaciogram_2, rank):
               'shapes are: 1st - ' + str(spaciogram_1.shape) + '\n' \
               'shapes are: 2nd - ' + str(spaciogram_2.shape)
         return rating
-    if rank < 1 or rank >3:
+    if rank < 1 or rank > 3:
         print 'Error: only 3 ranks, rank = 1, 2 or 3!'
         return rating
     # # Define number of rows (overall bin count):
@@ -81,12 +81,12 @@ def spaciograms_distance_rating(spaciogram_1, spaciogram_2, rank):
     # HISTCMP_HELLINGER Synonym for HISTCMP_BHATTACHARYYA
     # HISTCMP_CHISQR_ALT
     # HISTCMP_KL_DIV
-    if rank == 1:
-        rating = cv2.compareHist(np.array(spaciogram_1[0]).astype('float32'),
-                                 np.array(spaciogram_2[0]).astype('float32'), method)
-    elif rank == 2:
-        rating = cv2.compareHist(np.array(spaciogram_1[1]).astype('float32'),
-                                 np.array(spaciogram_2[1]).astype('float32'), method)
+    if rank != 3:
+        rating = cv2.compareHist(np.array(spaciogram_1).astype('float32'),
+                                 np.array(spaciogram_2).astype('float32'), method)
+    # elif rank == 2:
+    #     rating = cv2.compareHist(np.array(spaciogram_1[1]).astype('float32'),
+    #                              np.array(spaciogram_2[1]).astype('float32'), method)
     elif rank == 3:
         rating = 0.0
         for i in range(2, len(spaciogram_1)):
@@ -123,7 +123,7 @@ def spaciogram_finger_print(image, mask):
         mask = 255 * mask
 
     # limiting the image size for a quicker calculation:
-    limit = [500, 500]
+    limit = [300, 300]
     resize_interpulation = cv2.INTER_NEAREST#INTER_LINEAR#INTER_CUBIC#INTER_LANCZOS4#INTER_AREA#
     if image.shape[0] > limit[0] or image.shape[1] > limit[1]:
         delta = [1.0 * limit[0] / image.shape[0], 1.0 * limit[1] / image.shape[1]]
@@ -133,7 +133,7 @@ def spaciogram_finger_print(image, mask):
         mask = cv2.resize(mask, (int(newx), int(newy)), interpolation=resize_interpulation)
 
     # changing to an exact eucledian space model of color:
-    image = cv2.cvtColor(image, cv2.COLOR_BGR2LAB)
+    # image = cv2.cvtColor(image, cv2.COLOR_BGR2LAB)
     channels_list = channles_of_image(image)
     # skell_dist  = skeleton_distance(mask)
     # circ_dist = circumfrence_distance(mask)
