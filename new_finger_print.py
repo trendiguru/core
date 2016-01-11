@@ -19,7 +19,7 @@ def spaciograms_distance_rating(spaciogram_1, spaciogram_2, rank):
               'shapes are: 1st - ' + str(spaciogram_1.shape) + '\n' \
               'shapes are: 2nd - ' + str(spaciogram_2.shape)
         return rating
-    if rank < 1 or rank >3:
+    if rank < 1 or rank > 3:
         print 'Error: only 3 ranks, rank = 1, 2 or 3!'
         return rating
     # # Define number of rows (overall bin count):
