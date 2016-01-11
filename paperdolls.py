@@ -192,10 +192,11 @@ def job_result_from_id(job_id, job_class=Job, conn=None):
 
 
 def blacklisted_term_in_url(page_url):
+    lowercase_url = page_url.lower()
     for term in constants.blacklisted_terms:
-        if term in page_url:
+        if term in lowercase_url:
             return True
-        return False
+    return False
 
 
 # ----------------------------------------------MAIN-FUNCTIONS----------------------------------------------------------
