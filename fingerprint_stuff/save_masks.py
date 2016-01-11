@@ -17,7 +17,7 @@ while doc is not None:
     images = doc['images']
     for img in images:
        #     if Utils.good_bb(img, skip_if_marked_to_skip=True) and good_img(img):
-            pruned_images.append(img["url"])
+        pruned_images.append(img["url"])
 
 img_arrs=[]
 masks = []
