@@ -191,10 +191,19 @@ def job_result_from_id(job_id, job_class=Job, conn=None):
     return job.result
 
 
+def blacklisted_term_in_url(page_url):
+    lowercase_url = page_url.lower()
+    for term in constants.blacklisted_terms:
+        if term in lowercase_url:
+            return True
+    return False
+
+
 # ----------------------------------------------MAIN-FUNCTIONS----------------------------------------------------------
 
 
 def start_process(page_url, image_url, lang=None):
+    # db.monitoring.update_one({'queue': 'start_process'}, {'$inc': {'count': 1}})
     if not lang:
         products_collection = 'products'
         coll_name = 'images'
@@ -203,6 +212,17 @@ def start_process(page_url, image_url, lang=None):
         products_collection = 'products_' + lang
         coll_name = 'images_' + lang
         images_collection = db[coll_name]
+
+    # IF URL IS BLACKLISTED - put in blacklisted_urls
+    # {"page_url":"hoetownXXX.com","image_urls":["hoetownXXX.com/yomama1.jpg","yomama2.jpg"]}
+    if blacklisted_term_in_url(page_url):
+        if db.blacklisted_urls.find_one({"page_url": page_url}):
+            db.blacklisted_urls.update_one({"page_url": page_url},
+                                           {"$push": {"image_urls": image_url}})
+        else:
+            db.blacklisted_urls.insert_one({"page_url": page_url,"image_urls":[image_url]})
+        return
+
     # IF IMAGE IN IRRELEVANT_IMAGES
     images_obj_url = db.irrelevant_images.find_one({"image_urls": image_url})
     if images_obj_url:
@@ -251,11 +271,12 @@ def start_process(page_url, image_url, lang=None):
                           'person_bb': person_bb}
                 image_copy = person_isolation(image, face)
                 image_dict['people'].append(person)
+                db.monitoring.update_one({'queue': 'pd'}, {'$inc': {'count': 1}})
                 paper_job = paperdoll_parse_enqueue.paperdoll_enqueue(image_copy, person['person_id'])
+                db.monitoring.update_one({'queue': 'find_similar'}, {'$inc': {'count': 1}})
                 q1.enqueue_call(func=from_paperdoll_to_similar_results, args=(person['person_id'], paper_job.id, 100,
                                                                               products_collection, coll_name),
-                                depends_on=paper_job, ttl=1000, result_ttl=1000,
-                                timeout=1000)
+                                depends_on=paper_job, ttl=TTL, result_ttl=TTL, timeout=TTL)
                 idx += 1
         else:
             # no faces, only general positive human detection
@@ -264,8 +285,7 @@ def start_process(page_url, image_url, lang=None):
             paper_job = paperdoll_parse_enqueue.paperdoll_enqueue(image, person['person_id'])
             q1.enqueue_call(func=from_paperdoll_to_similar_results, args=(person['person_id'], paper_job.id, 100,
                                                                           products_collection, coll_name),
-                            depends_on=paper_job, ttl=1000, result_ttl=1000,
-                            timeout=1000)
+                            depends_on=paper_job, ttl=TTL, result_ttl=TTL, timeout=TTL)
         iip.insert_one(image_dict)
     else:  # if not relevant
         logging.warning('image is not relevant, but stored anyway..')
@@ -275,6 +295,7 @@ def start_process(page_url, image_url, lang=None):
 
 def from_paperdoll_to_similar_results(person_id, paper_job_id, num_of_matches=100, products_collection='products',
                                       images_collection='images'):
+    start = time.time()
     products_collection = products_collection
     images_collection = db[images_collection]
     paper_job_results = job_result_from_id(paper_job_id)
@@ -284,48 +305,56 @@ def from_paperdoll_to_similar_results(person_id, paper_job_id, num_of_matches=10
             paper_job_results[3], person_id))
     mask, labels = paper_job_results[:2]
     image_obj, person = get_person_by_id(person_id, iip)
-    if len(person['face']) > 0:
+    if person is not None and 'face' in person and len(person['face']) > 0:
         final_mask = after_pd_conclusions(mask, labels, person['face'])
     else:
         final_mask = after_pd_conclusions(mask, labels)
     image = Utils.get_cv2_img_array(image_obj['image_urls'][0])
+    if image is None:
+        iip.delete_one({'_id': image_obj['_id']})
+        raise SystemError("image came back empty from Utils.get_cv2..")
+    idx = 0
     items = []
     jobs = {}
-    idx = 0
     for num in np.unique(final_mask):
         # convert numbers to labels
         category = list(labels.keys())[list(labels.values()).index(num)]
         if category in constants.paperdoll_shopstyle_women.keys():
             item_mask = 255 * np.array(final_mask == num, dtype=np.uint8)
-            shopstyle_cat = constants.paperdoll_shopstyle_women[category]
             shopstyle_cat_local_name = constants.paperdoll_shopstyle_women_jp_categories[category]['name']
-            item_dict = {"category": shopstyle_cat, 'item_id': str(bson.ObjectId()), 'item_idx': idx,
+            item_dict = {"category": category, 'item_id': str(bson.ObjectId()), 'item_idx': idx,
                          'saved_date': datetime.datetime.now(), 'category_name': shopstyle_cat_local_name}
-            svg_name = find_similar_mongo.mask2svg(
-                item_mask,
-                str(image_obj['_id']) + '_' + person['person_id'] + '_' + item_dict['category'],
-                constants.svg_folder)
-            item_dict["svg_url"] = constants.svg_url_prefix + svg_name
+            # svg_name = find_similar_mongo.mask2svg(
+            # item_mask,
+            #     str(image_obj['_id']) + '_' + person['person_id'] + '_' + item_dict['category'],
+            #     constants.svg_folder)
+            # item_dict["svg_url"] = constants.svg_url_prefix + svg_name
+            items.append(item_dict)
+            db.monitoring.update_one({'queue': 'find_top_n'}, {'$inc': {'count': 1}})
             jobs[idx] = q2.enqueue_call(func=find_similar_mongo.find_top_n_results, args=(image, item_mask,
                                                                                           num_of_matches,
                                                                                           item_dict['category'],
                                                                                           products_collection),
                                         ttl=TTL, result_ttl=TTL, timeout=TTL)
-            items.append(item_dict)
             idx += 1
+    # print "everyone was sent to find_top_n after {0} seconds.".format(time.time() - start)
     done = all([job.is_finished for job in jobs.values()])
     while not done:
         time.sleep(0.2)
-        done = all([job.is_finished for job in jobs.values()])
+        done = all([job.is_finished or job.is_failed for job in jobs.values()])
+    # print "all find_top_n is done after {0} seconds".format(time.time() - start)
     for idx, job in jobs.iteritems():
         cur_item = next((item for item in items if item['item_idx'] == idx), None)
-        cur_item['fp'], cur_item['similar_results'] = job.result
+        if job.is_failed:
+            items[:] = [item for item in items if item['item_idx'] != cur_item['item_idx']]
+        else:
+            cur_item['fp'], cur_item['similar_results'] = job.result
     new_image_obj = iip.find_one_and_update({'people.person_id': person_id}, {'$set': {'people.$.items': items}},
                                             return_document=pymongo.ReturnDocument.AFTER)
     total_time = 0
     while not new_image_obj:
         if total_time < 30:
-            print "image_obj after update is None!.. waiting for it.. total time is {0}".format(total_time)
+            # print "image_obj after update is None!.. waiting for it.. total time is {0}".format(total_time)
             time.sleep(2)
             total_time += 2
             new_image_obj = iip.find_one_and_update({'people.person_id': person_id},
@@ -337,9 +366,10 @@ def from_paperdoll_to_similar_results(person_id, paper_job_id, num_of_matches=10
     else:
         image_obj = new_image_obj
     if person['person_idx'] == len(image_obj['people']) - 1:
-        images_collection.insert_one(image_obj)
+        # print "inserted to db.images after {0} seconds".format(time.time() - start)
+        a = images_collection.insert_one(image_obj)
         iip.delete_one({'_id': image_obj['_id']})
-        logging.warning("Done! image was successfully inserted to the DB images!")
+        logging.warning("# of images inserted to db.images: {0}".format(a.acknowledged * 1))
 
 
 def get_results_now(page_url, image_url, collection='products_jp'):

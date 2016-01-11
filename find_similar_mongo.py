@@ -20,6 +20,7 @@ histograms_length = constants.histograms_length
 FP_KEY = "fingerprint"
 db = constants.db
 
+
 def get_classifiers():
     default_classifiers = ["/home/www-data/web2py/applications/fingerPrint/modules/shirtClassifier.xml",
                            "/home/www-data/web2py/applications/fingerPrint/modules/pantsClassifier.xml",
@@ -78,12 +79,12 @@ def find_top_n_results(image, mask, number_of_results=10, category_id=None, coll
     print "query collection name is: {0}".format(str(collection))
     print "number of results to search: {0}".format(number_of_results)
     print "category: {0}".format(category_id)
-    subcategory_id_list = get_all_subcategories(db.categories, category_id)
+    # subcategory_id_list = get_all_subcategories(db.categories, category_id)
 
     # get all items in the subcategory/keyword
     potential_matches_cursor = collection.find(
-        {"categories": {"$elemMatch": {"id": {"$in": subcategory_id_list}}}},
-        {"_id": 1, "id": 1, "fingerprint": 1, "image.sizes.XLarge.url": 1, "clickUrl": 1}).batch_size(100)
+        {"categories": category_id},
+        {"_id": 1, "id": 1, "fingerprint": 1, "images.XLarge": 1, "clickUrl": 1}).batch_size(100)
 
     print "amount of docs in cursor: {0}".format(potential_matches_cursor.count())
     color_fp = fp.fp(image, bins, fp_len, mask)
@@ -94,7 +95,6 @@ def find_top_n_results(image, mask, number_of_results=10, category_id=None, coll
 
     print "done with find_n_nearest.. num of closest_matches: {0}".format(len(closest_matches))
     # get only the object itself, not the distance
-    closest_matches = [match_tuple[0] for match_tuple in closest_matches]
 
     return color_fp.tolist(), closest_matches
 

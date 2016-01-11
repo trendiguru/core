@@ -18,27 +18,30 @@ import random
 import string
 import time
 import os
-import pickle
+import json
+import sys
+import logging
+import  StringIO
 import numpy as np
 import cv2
-import json
-import matlab.engine
-import sys
 
+import matlab.engine
 from .. import Utils
 from .. import constants
+
+logging.basicConfig(level=logging.DEBUG)
 
 def get_parse_from_matlab(image_filename):
     with run_matlab_engine() as eng:
         mask, label_names, pose = eng.pd("inputimg.jpg", nargout=3)
         label_dict = dict(zip(label_names, range(0, len(label_names))))
-        # print('label dict'+str(label_dict))
+        # logging.debug('label dict'+str(label_dict))
         # stripped_name = image_filename.split('.jpg')[0]
         # outfilename = 'pd_output/' + stripped_name + '.png'
         # savedlabels = 'pd_output/' + stripped_name + '.lbls'
         # savedpose = 'pd_output/' + stripped_name + '.pos'
 
-        # print('outfilename:' + outfilename)
+        # logging.debug('outfilename:' + outfilename)
         # subprocess.Popen("scp -i /home/jeremy/first_aws.pem  output.png ubuntu@extremeli.trendi.guru:" + outfilename,
         #                  shell=True, stdout=subprocess.PIPE).stdout.read()
         # subprocess.Popen("cp output.png " + outfilename, shell=True, stdout=subprocess.PIPE).stdout.read()
@@ -51,7 +54,7 @@ def rand_string():
     return ''.join([random.choice(string.ascii_letters + string.digits) for n in xrange(32)])
 
 def test_function():
-    print("this is a totally awesome test function")
+    logging.debug("this is a totally awesome test function")
     return (6 * 7)
 
 def get_parse_mask(img_url_or_cv2_array):
@@ -61,16 +64,16 @@ def get_parse_mask(img_url_or_cv2_array):
             return [[], [], []]
         stripped_name = rand_string()  # img_url_or_cv2_array.split('//')[1]
         modified_name = stripped_name.replace('/', '_')
-    #    print('stripped name:' + stripped_name)
-        print('modified name:' + modified_name)
+    #    logging.debug('stripped name:' + stripped_name)
+        logging.debug('modified name:' + modified_name)
 
         mask, label_dict, pose = get_parse_from_matlab(modified_name)
-     #   print('labels:' + str(label_dict))
+     #   logging.debug('labels:' + str(label_dict))
         mask_np = np.array(mask, dtype=np.uint8)
         pose_np = np.array(pose, dtype=np.uint8)
         #        if callback_pack is not None:
         #            a=callback_pack[0]
-        #            print('callback function returned:'+str(a))
+        #            logging.debug('callback function returned:'+str(a))
         return mask_np, label_dict, pose_np
     else:
         if img is None:
@@ -82,33 +85,55 @@ def get_parse_mask(img_url_or_cv2_array):
 
 def get_parse_from_matlab_parallel(image_filename, matlab_engine, use_parfor=False):
     print('get_parse_from_ml_parallel is using name:' + image_filename+' and use_parfor='+str(use_parfor))
+    out = StringIO.StringIO()
+    err = StringIO.StringIO()
     if use_parfor:
-        mask, label_names, pose = matlab_engine.pd_parfor(image_filename, nargout=3)
+        mask, label_names, pose = matlab_engine.pd_parfor(image_filename, nargout=3,stdout=out,stderr=err)
     else:
-        mask, label_names, pose = matlab_engine.pd(image_filename, nargout=3)
+        mask, label_names, pose = matlab_engine.pd(image_filename, nargout=3,stdout=out,stderr=err)
+
+#    print('ml output:'+str(out.getvalue()))
+ #   print('ml stderr:'+str(err.getvalue()))
+
     os.remove(image_filename)
     label_dict = dict(zip(label_names, range(0, len(label_names))))
-#    print('mask in getparse:'+str(mask))
-#    print('label dict in getparse:'+str(label_dict))
-#    print('pose in getparse:'+str(mask))
+#    logging.debug('mask in getparse:'+str(mask))
+#    logging.debug('label dict in getparse:'+str(label_dict))
+#    logging.debug('pose in getparse:'+str(pose))
     if len(mask) == 0:
-        print('paperdoll failed and get_parse_fmp is returning Nones')
+        logging.debug('paperdoll failed and get_parse_fmp is returning Nones')
+        save_fail_image(image_filename)
         raise Exception('paperdoll failed on this file:',image_filename)
         return None, None, None
     return mask, label_dict, pose
+
+def save_fail_image(img_filename):
+    img_arr = cv2.imread(img_filename)
+    logging.debug('attempting to save fail image')
+    if img_arr is not None:
+        fail_filename = 'fail'+img_arr
+        dir = constants.pd_output_savedir
+        path = os.path.join(dir,fail_filename)
+        cv2.imwrite(path,img_arr)
+        logging.debug('sucessful save of fail image')
+        return
+    logging.debug('could not read image '+str(img_filename))
+    return
+
 
 def get_parse_mask_parallel(matlab_engine, img_url_or_cv2_array, filename=None, use_parfor=False):
     start_time=time.time()
     img = Utils.get_cv2_img_array(img_url_or_cv2_array)
     filename = filename or rand_string()
-    if img is not None and cv2.imwrite(filename + '.jpg', img):
+    img_ok = image_big_enough(img)
+    if img_ok and cv2.imwrite(filename + '.jpg', img):
         mask, label_dict, pose = get_parse_from_matlab_parallel(filename + '.jpg', matlab_engine, use_parfor=use_parfor)
-        #print('labels:' + str(label_dict))
+        #logging.debug('labels:' + str(label_dict))
         mask_np = np.array(mask, dtype=np.uint8)
         pose_np = np.array(pose, dtype=np.uint8)
         finish_time=time.time()
-        print('..........elapsed time in get_parse_mask_parallel:'+str(finish_time-start_time)+'.........')
-        print('attempting convert and save')
+        logging.debug('..........elapsed time in get_parse_mask_parallel:'+str(finish_time-start_time)+'.........')
+        logging.debug('attempting convert and save')
         if isinstance(img_url_or_cv2_array,basestring):
             url = img_url_or_cv2_array
         else:
@@ -118,25 +143,39 @@ def get_parse_mask_parallel(matlab_engine, img_url_or_cv2_array, filename=None, 
     else:
         if img is None:
             raise ValueError("input image is empty")
+        elif not img_ok:
+            raise ValueError("input image is  too small")
         else:
             raise ValueError("problem writing "+str(filename)+" in get_parse_mask_parallel")
+
+def image_big_enough(img_array):
+    if img_array is None:
+        logging.debug('image is Nonel')
+        return False
+    width = img_array.shape[0]
+    height = img_array.shape[1]
+    if (width < constants.minimum_im_width or height < constants.minimum_im_height):
+        logging.debug('image dimensions too small')
+        return False
+    else:
+        return True
 
 def convert_and_save_results(mask, label_names, pose,filename,img,url):
     fashionista_ordered_categories = constants.fashionista_categories
     new_mask=np.ones(mask.shape)*255  # anything left with 255 wasn't dealt with
     success = True #assume innocence until proven guilty
-    print('attempting convert and save')
+    logging.debug('attempting convert and save')
     for label in label_names: # need these in order
         if label in fashionista_ordered_categories:
             fashionista_index = fashionista_ordered_categories.index(label) + 1  # start w. 1=null,56=skin
             pd_index = label_names[label]
-       #     print('old index '+str(pd_index)+' for '+str(label)+': gets new index:'+str(fashionista_index))
+       #     logging.debug('old index '+str(pd_index)+' for '+str(label)+': gets new index:'+str(fashionista_index))
             new_mask[mask==pd_index] = fashionista_index
         else:
-            print('label '+str(label)+' not found in regular cats')
+            logging.debug('label '+str(label)+' not found in regular cats')
             success=False
     if 255 in new_mask:
-        print('didnt fully convert mask')
+        logging.debug('didnt fully convert mask')
         success = False
     if success:
         try:
@@ -144,39 +183,39 @@ def convert_and_save_results(mask, label_names, pose,filename,img,url):
             full_name = os.path.join(dir,filename)
 #            full_name = filename
             bmp_name = full_name.strip('.jpg') + ('.bmp')
-            print('writing output img to '+str(full_name))
+            logging.debug('writing output img to '+str(full_name))
             cv2.imwrite(full_name,img)
-            print('writing output bmp to '+str(bmp_name))
+            logging.debug('writing output bmp to '+str(bmp_name))
             cv2.imwrite(bmp_name,new_mask)
             pose_name = full_name.strip('.jpg')+'.pose'
-#            print('orig pose '+str(pose))
-            print('writing pose to '+str(pose_name))
+#            logging.debug('orig pose '+str(pose))
+#            logging.debug('writing pose to '+str(pose_name))
             with open(pose_name, "w+") as outfile:
-                print('succesful open, attempting to write pose')
+                logging.debug('succesful open, attempting to write pose')
                 poselist=pose[0].tolist()
 #                json.dump([1,2,3], outfile, indent=4)
                 json.dump(poselist,outfile, indent=4)
             if url is not None:
                 url_name = full_name.strip('.jpg')+'.url'
-                print('writing url to '+str(url_name))
+                logging.debug('writing url to '+str(url_name))
                 with open(url_name, "w+") as outfile2:
-                    print('succesful open, attempting to write:'+str(url))
+                    logging.debug('succesful open, attempting to write:'+str(url))
                     outfile2.write(url)
             return
         except:
-            print('fail in convert_and_save_results dude, bummer')
-            print(str(sys.exc_info()[0]))
+            logging.debug('fail in convert_and_save_results dude, bummer')
+            logging.debug(str(sys.exc_info()[0]))
             return
     else:
-        print('didnt fully convert mask, or unkown label in convert_and_save_results')
+        logging.debug('didnt fully convert mask, or unkown label in convert_and_save_results')
         success = False
         return
 
 def show_max(parsed_img, labels):
     maxpixval = np.ma.max
-    print('max pix val:' + str(maxpixval))
+    logging.debug('max pix val:' + str(maxpixval))
     maxlabelval = len(labels)
-    print('max label val:' + str(maxlabelval))
+    logging.debug('max label val:' + str(maxlabelval))
 
 
 def test_scp():
@@ -189,7 +228,7 @@ def run_test():
     url = 'http://assets.yandycdn.com/HiRez/ES-4749-B-AMPM2012-2.jpg'
     img, labels, pose = get_parse_mask(img_url_or_cv2_array=url)
     show_max(img, labels)
-    print('labels:' + str(labels))
+    logging.debug('labels:' + str(labels))
     # show_parse(img_array=img)
 
 

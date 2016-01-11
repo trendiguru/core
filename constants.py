@@ -16,26 +16,68 @@ fingerprint_weights = [0.05, 0.5, 0.225, 0.225]
 K = 0.5                     # for euclidean distance
 min_bb_to_image_area_ratio = 0.95  # if bb takes more than this fraction of image area then use  cv2.GC_INIT_WITH_RECT instead of init with mask
 
+#min images sizes , lower than this gets kicked out by paperdoll
+minimum_im_width = 50
+minimum_im_height = 50
 
 ##############
 # rq / worker stuff
 ##############
 
-pd_worker_command =  'cd /home/jeremy/paperdoll3/paperdoll-v1.0/ && /usr/bin/python /usr/local/bin/rqworker -w rq.tgworker.TgWorker -u redis://redis1-redis-1-vm:6379 pd &'
-N_expected_pd_workers_per_server = 15
+pd_worker_command =  'cd /home/jeremy/paperdoll3/paperdoll-v1.0/ && /usr/bin/python /usr/local/bin/rqworker -w trendi.matlab_wrapper.tgworker.TgWorker -u redis://redis1-redis-1-vm:6379 pd &'
+pd_worker_command_braini1 =  'cd /home/pd_user/paperdoll  && /usr/bin/python /usr/local/bin/rqworker  -w trendi.matlab_wrapper.tgworker.TgWorker  pd &',
+string_to_look_for_in_pd_command = 'tgworker'
 
+N_expected_pd_workers_per_server = 15
+N_expected_pd_workers_per_server_braini1 = 47
+N_default_workers = 47
+
+#general queues on braini
+string_to_look_for_in_rq_command = 'rqworker'
+unique_strings_to_look_for_in_rq_command = ['find_similar','tgworker','find_top_n','new_images']   #,'fingerprint_new'  ,'find_similar
+# the worker_commands are ordered by priority of queue
+worker_commands =['/usr/bin/python /usr/local/bin/rqworker find_similar &',
+                   'cd /home/pd_user/paperdoll  && /usr/bin/python /usr/local/bin/rqworker  -w trendi.matlab_wrapper.tgworker.TgWorker  pd &',
+                  '/usr/bin/python /usr/local/bin/rqworker find_top_n &',
+                '/usr/bin/python /usr/local/bin/rqworker new_images &'
+                  ]
+ #                 '/usr/bin/python /usr/local/bin/rqworker fingerprint_new &',,
+
+multi_queue_command ='/usr/bin/python /usr/local/bin/rqworker find_similar find_top_n new_images'
+unique_in_multi_queue = 'find_similar'
+N_expected_workers_by_server={'braini1':47,'brain2':47,'brain3':96,'braini4':96,'braini5':96}
+N_max_workers = 120
+lower_threshold = 70
+upper_threshold = 85
 
 #########
 # DB stuff
 #########
+#for google cloud servers, environment line in /etc/supervisor.conf should be:
+#environment=REDIS_HOST="redis1-redis-1-vm",REDIS_PORT=6379, MONGO_HOST="mongodb1-instance-1",MONGO_PORT=27017
+
+#for non- google cloud , environment line in /etc/supervisor.conf should be:
+#environment=REDIS_HOST="localhost",REDIS_PORT=6379,MONGO_HOST="localhost",MONGO_PORT=27017
+
+# to do the portforwards required to make this work:
+#ssh -f -N -L 27017:mongodb1-instance-1:27017 root@extremeli.trendi.guru
+#ssh -f -N -L 6379:redis1-redis-1-vm:6379 root@extremeli.trendi.guru
+#to kill nound ports
+# lsof -ti:27017 | xargs kill -9
+# lsof -ti:6379 | xargs kill -9
+#to add to .bashrc (maybe better in .profile!!)
+#export REDIS_HOST="localhost"
+#export REDIS_PORT=6379
+#export MONGO_HOST="localhost"
+#export MONGO_PORT=27017
 
 parallel_matlab_queuename = 'pd'
 nonparallel_matlab_queuename = 'pd_nonparallel'
 caffe_path_in_container = '/opt/caffe'
-# db = pymongo.MongoClient(host=os.environ["MONGO_HOST"], port=int(os.environ["MONGO_PORT"])).mydb
-# redis_conn = Redis(host=os.environ["REDIS_HOST"], port=int(os.environ["REDIS_PORT"]))
-db = pymongo.MongoClient(host="mongodb1-instance-1").mydb
-redis_conn = Redis(host="redis1-redis-1-vm")
+db = pymongo.MongoClient(host=os.environ["MONGO_HOST"], port=int(os.environ["MONGO_PORT"])).mydb
+redis_conn = Redis(host=os.environ["REDIS_HOST"], port=int(os.environ["REDIS_PORT"]))
+#db = pymongo.MongoClient(host="mongodb1-instance-1").mydb
+#redis_conn = Redis(host="redis1-redis-1-vm")
 # new worker : rqworker -u redis://redis1-redis-1-vm:6379 [name] &
 redis_conn_old = Redis()
 update_collection_name = 'products'
@@ -235,7 +277,7 @@ Reserve_cpus = 2  # number of cpus to not use when doing stuff in parallel
 gender_ttl = 5  # 10 seconds ttl , answer should be nearly immediate
 paperdoll_ttl = 90  # seconds to wait for paperdoll result
 caffe_general_ttl = 30  # seconds to wait for paperdoll result
-general_ttl = 1000  # ttl of all queues
+general_ttl = 2000  # ttl of all queues
 
 # QC worker voting params
 
@@ -691,3 +733,65 @@ white_list = ["http://www.bunte.de",
               "marca.com",
               "pixnet.net",
               "accuweather.com"]
+
+blacklisted_terms =['asshole',
+     'asshole',
+     'asswipe',
+     'b00b',
+     'bitch',
+     'bitch',
+     'bitch',
+     'blowjob',
+     'blowjob',
+     'boffing',
+     'boob',
+     'butt-pirate',
+     'c0ck',
+     'clit',
+     'clit',
+     'cock',
+     'cock-goblins',
+     'cum',
+     'cum',
+     'cunt',
+     'cunt',
+     'dominatrix',
+     'ejaculate',
+     'enema',
+     'faggot',
+     'fuck',
+     'fuck',
+     'jackoff',
+     'jackoff',
+     'masturb',
+     'muffplower',
+     'nutsack',
+     'orgasm',
+     'p0rn',
+     'penis',
+     'porn',
+     'pr0n',
+     'pussy',
+     'schlampe',
+     'schlong',
+     'screw',
+     'screwing',
+     'semen',
+     'shit',
+     'skank',
+     'slut',
+     'slut',
+     'smut',
+     'testicle',
+     'testicle',
+     'tits',
+     'tits',
+     'twat',
+     'wank',
+     'wh00r',
+     'wh0re',
+     'whore',
+     'whore',
+     'x-rated',
+     'xrated',
+     'xxx']

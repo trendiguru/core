@@ -5,7 +5,6 @@ import time
 import json
 import urllib
 import datetime
-
 import sys
 
 import requests
@@ -49,7 +48,10 @@ class ShopStyleDownloader():
                                           "errors": 0,
                                           "end_time": "still in process",
                                           "total_dl_time(min)": "still in process",
-                                          "last_request": time.time()})
+                                          "last_request": time.time(),
+                                          "total_items": 0,
+                                          "instock": 0,
+                                          "out": 0})
         # self.db.drop_collection("fp_in_process")
         # self.db.fp_in_process.insert_one({})
         # self.db.fp_in_process.create_index("id")
@@ -66,11 +68,18 @@ class ShopStyleDownloader():
                                                   {'$set': {"end_time": datetime.datetime.now()}})
         tmp = self.db.download_data.find({"criteria": collection})[0]
         total_time = abs(tmp["end_time"] - tmp["start_time"]).total_seconds()
-        self.db.download_data.find_one_and_update({"criteria": collection},
-                                                  {'$set': {"total_dl_time(min)": str(total_time / 60)[:5]}})
         del_items = self.db[collection].delete_many({'fingerprint': {"$exists": False}})
         # print str(del_items.deleted_count) + ' items without fingerprint were deleted!\n'
         self.db.drop_collection("fp_in_process")
+        total_items = self.db[collection].count()
+        instock = self.db[collection].find({"status.instock": True}).count()
+        out = self.db[collection].find({"status.instock": False}).count()
+        self.db.download_data.find_one_and_update({"criteria": collection},
+                                                  {'$set': {"total_dl_time(min)": str(total_time / 60)[:5],
+                                                            "end_time": datetime.datetime.now(),
+                                                            "total_items": str(total_items),
+                                                            "instock": str(instock),
+                                                            "out": str(out)}})
         print collection + " DOWNLOAD DONE!!!!!\n"
 
     def wait_for(self, collection):
@@ -207,12 +216,13 @@ class ShopStyleDownloader():
         while filter_params["offset"] < MAX_OFFSET and \
                         (filter_params["offset"] + MAX_RESULTS_PER_PAGE) <= total:
             product_response = self.delayed_requests_get(BASE_URL_PRODUCTS, filter_params)
-            product_results = product_response.json()
-            total = product_results["metadata"]["total"]
-            products = product_results["products"]
-            for prod in products:
-                self.db_update(prod, coll)
-            filter_params["offset"] += MAX_RESULTS_PER_PAGE
+            if product_response.status_code == 200:
+                product_results = product_response.json()
+                total = product_results["metadata"]["total"]
+                products = product_results["products"]
+                for prod in products:
+                    self.db_update(prod, coll)
+                filter_params["offset"] += MAX_RESULTS_PER_PAGE
 
         # Write down that we did this
         self.db.dl_cache.insert(dl_query)
@@ -395,7 +405,7 @@ class UrlParams(collections.MutableMapping):
 
 
 if __name__ == "__main__":
-    col = "new_products"
+    col = "products"
     if len(sys.argv) == 2:
         col = col + "_" + sys.argv[1]
     print ("@@@ Shopstyle Download @@@\n you choose to update the " + col + " collection")
