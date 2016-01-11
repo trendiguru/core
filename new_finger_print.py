@@ -123,7 +123,7 @@ def spaciogram_finger_print(image, mask):
         mask = 255 * mask
 
     # limiting the image size for a quicker calculation:
-    limit = [500, 500]
+    limit = [300, 300]
     resize_interpulation = cv2.INTER_NEAREST#INTER_LINEAR#INTER_CUBIC#INTER_LANCZOS4#INTER_AREA#
     if image.shape[0] > limit[0] or image.shape[1] > limit[1]:
         delta = [1.0 * limit[0] / image.shape[0], 1.0 * limit[1] / image.shape[1]]
@@ -133,7 +133,7 @@ def spaciogram_finger_print(image, mask):
         mask = cv2.resize(mask, (int(newx), int(newy)), interpolation=resize_interpulation)
 
     # changing to an exact eucledian space model of color:
-    image = cv2.cvtColor(image, cv2.COLOR_BGR2LAB)
+    # image = cv2.cvtColor(image, cv2.COLOR_BGR2LAB)
     channels_list = channles_of_image(image)
     # skell_dist  = skeleton_distance(mask)
     # circ_dist = circumfrence_distance(mask)
