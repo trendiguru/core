@@ -154,6 +154,7 @@ def run():
         if not db.images.count() - images_init:
             if checklist['0_inserts']['flag'] and time.time() - checklist['0_inserts']['start'] < 3600:
                 break
+
             stats = {'massege': '0 IMAGES WERE INSERTED IN THE LAST MINUTE TO DB.IMAGES !!', 'date': time.ctime()}
             email(stats, '0 INSERTS', [lior, nadav])
             checklist['0_inserts']['flags'] = 1
@@ -164,6 +165,34 @@ def run():
                 checklist[type_of]['start'] = time.time()
                 checklist[type_of]['flag'] = 0
 
+
+def get_white_list():
+    def get_domain(url):
+        short_url = ""
+        cnt = 0
+        for letter in url:
+            if cnt == 3:
+                return short_url
+            if letter == '/':
+                cnt += 1
+            short_url += letter
+
+    idx = 0
+    for doc in db.images.find():
+        domain = get_domain(doc['page_urls'][0])
+        if not db.white_list.find_one({'domain.name': domain}):
+            db.white_list.insert({'long_urls': [{'name': doc['page_urls'][0], 'count': 0}]},
+                                 {'domain': {'name': domain, 'count': 0}})
+        else:
+            if not db.white_list.find_one({'long_url.name': doc['page_urls'][0]}):
+                db.white_list.update_one({'domain.name': domain}, {'$inc': {'domain.count': 1},
+                                                                   '$push': {'long_urls': {'name': doc['page_urls'][0],
+                                                                                           'count': 0}}})
+            else:
+                db.white_list.update_one({'domain.name': domain}, {'$inc': {'domain.count': 1, 'long_url.count': 1}})
+        if not idx % 100:
+            print "performing {0}th doc".format(idx)
+        idx += 1
 
 if __name__ == "__main__":
     run()
