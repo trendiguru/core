@@ -200,6 +200,7 @@ def get_white_list():
 
 def check_relevancy():
     relevant_count = 0
+    how_many_images = 0
     for doc in db.white_list.find():
         if doc['domain']['name']:
             splitted = doc['domain']['name'].split('/')[2]
@@ -207,7 +208,12 @@ def check_relevancy():
                 splitted = splitted[4:]
             if splitted in whitelist.fullList:
                 relevant_count += 1
+                how_many_images += doc['domain']['count']
                 print relevant_count
+                print how_many_images
+                print splitted
+                time.sleep(0.3)
+
 
 if __name__ == "__main__":
     run()
