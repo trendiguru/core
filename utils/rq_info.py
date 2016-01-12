@@ -11,7 +11,7 @@ push_connection(con)
 
 def failed_info():
     fq = get_failed_queue()
-    count = fq.count()
+    count = fq.count
     print('count:'+str(count))
 #    fq.requeue(job.id)
 
