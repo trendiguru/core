@@ -45,7 +45,6 @@ class OutcomesTest(unittest.TestCase):
             'http://www.fashiondays.ro',
             'http://www.voonik.com',
             'http://lookbook.nu',
-            'http://beeg.com',
             'http://www.freepik.com',
             'http://www.3suisses.fr',
             'http://www.clubmonaco.com',
