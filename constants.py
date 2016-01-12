@@ -734,6 +734,7 @@ white_list = ["http://www.bunte.de",
               "pixnet.net",
               "accuweather.com"]
 
+#if any one of these appears as a substring in a url, it gets booted
 blacklisted_terms =['alohatube',
     'asshole',
      'asswipe',
