@@ -16,9 +16,10 @@ class OutcomesTest(unittest.TestCase):
 
 
     def test_blacklisted_term_in_url():
-        oklist=['nastygal.com','cnn.com',
-            'http://www.booking.com/
-            'http://ok.ru',            'http://www.youjizz.com',
+        goodlist=['nastygal.com',
+            'cnn.com',
+            'http://www.booking.com/',
+            'http://ok.ru',
             'http://www.msn.com',
             'http://www.netflix.com',
             'http://vk.com',
@@ -30,7 +31,6 @@ class OutcomesTest(unittest.TestCase):
             'http://www.tagged.com',
             'http://www.jollychic.com',
             'http://www.aliexpress.com',
-            'http://www.sex.com',
             'http://www.flipkart.com',
             'http://www.wildfashion.ro',
             'http://www.posthaus.com.br',
@@ -38,9 +38,7 @@ class OutcomesTest(unittest.TestCase):
             'http://fallout4.2game.info',
             'http://www.asos.com',
             'http://www.gala.de',
-            'http://www.jizzhut.com',
             'http://shop.mango.com',
-            'https://www.google.co.il',
             'http://www.refinery29.com',
             'https://vk.com',
             'http://www.fashiondays.ro',
@@ -51,7 +49,16 @@ class OutcomesTest(unittest.TestCase):
             'http://www.3suisses.fr',
             'http://www.clubmonaco.com',
             'http://www.amazon.com',
+            'http://globoesporte.globo.com/',
+            'nastygal.com']
+
+        badlist = [
+            'http://www.jizzhut.com',
+            'http://www.youjizz.com',
+            'http://www.sex.com',
             'http://jerkoffer.com',
-            'http://globoesporte.globo.com/']
-
-
+            'http://xxxtubedot.com/'
+            'http://www.youx.xxx/'
+            'http://dirtyasiantube.com/'
+            'grannyfucks.me',
+            'https://www.google.co.il' ]
