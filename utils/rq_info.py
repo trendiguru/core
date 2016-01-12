@@ -16,10 +16,12 @@ def failed_info():
     print('count:'+str(count))
 
     failed_jobs = fq.jobs
+    print('len:'+str(len(failed_jobs)))
     for job in failed_jobs:
         exception_info = job.exc_info
-        print('exception info:'+str(exception_info[0:60]))
-
+        #print('exception info:'+str(exception_info))
+        lines = exception_info.split('\n')
+        print(lines[-2])
 
 if __name__ == "__main__":
     failed_info()
