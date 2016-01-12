@@ -25,7 +25,7 @@ minimum_im_height = 50
 ##############
 
 pd_worker_command =  'cd /home/jeremy/paperdoll3/paperdoll-v1.0/ && /usr/bin/python /usr/local/bin/rqworker -w trendi.matlab_wrapper.tgworker.TgWorker -u redis://redis1-redis-1-vm:6379 pd &'
-pd_worker_command_braini1 =  'cd /home/pd_user/paperdoll  && /usr/bin/python /usr/local/bin/rqworker  -w trendi.matlab_wrapper.tgworker.TgWorker  pd &',
+pd_worker_command_braini1 =  'cd /home/pd_user/paperdoll  && /usr/bin/python /usr/local/bin/rqworker  -w trendi.matlab_wrapper.tgworker.TgWorker  pd &'
 string_to_look_for_in_pd_command = 'tgworker'
 
 N_expected_pd_workers_per_server = 15
@@ -734,9 +734,13 @@ white_list = ["http://www.bunte.de",
               "pixnet.net",
               "accuweather.com"]
 
-blacklisted_terms =['asshole',
+#if any one of these appears as a substring in a url, it gets booted
+blacklisted_terms =['alohatube',
+    'asshole',
      'asswipe',
+    'beeg.com',
      'b00b',
+     'boob',
      'bitch',
      'blowjob',
      'boffing',
@@ -752,31 +756,44 @@ blacklisted_terms =['asshole',
      'enema',
      'faggot',
      'fuck',
+    'google.com',
+    'google.co.il',
      'jackoff',
+     'jerkoff',
+    'jizz',
+   'jjgirls',
      'masturb',
      'muffplower',
+     'mrsex',
+    'mygrandmatube',
+  'naughtyamerica'
      'nutsack',
      'orgasm',
      'p0rn',
      'penis',
+    'pichunter',
      'porn',
      'pr0n',
      'pussy',
      'schlampe',
      'schlong',
-     'screw',
      'semen',
-     'shit',
+     'sex.com',
+    'sexychinese',
+     'streamsex',
+    'shit',
      'skank',
      'slut',
      'smut',
      'testicle',
      'tits',
      'twat',
+    'valenciacitas.com'
      'wank',
      'wh00r',
      'wh0re',
      'whore',
      'x-rated',
      'xrated',
-     'xxx']
+     'xxx',
+      'youjizz']
