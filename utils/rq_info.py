@@ -9,7 +9,9 @@ con = constants.redis_conn
 
 
 def failed_info():
-    fq = Queue('failed', con)
+    #fq = rq.Queue("failed", connection=constants.redis_conn)
+
+    fq = Queue('failed', connection = con)
     count = fq.count
     print('count:'+str(count))
 
