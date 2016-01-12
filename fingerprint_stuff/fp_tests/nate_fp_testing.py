@@ -17,7 +17,7 @@ def create_new_collection():
     collection = db.new_products
 
     # category_stack = collection.find({"categories": "dress"})
-    category_stack = db.nate_testing.find()
+    category_stack = db.nate_testing.find({"sp_update": {"$exists": 0}}).batch_size(15000)
     stack_length = category_stack.count()
     print(stack_length)
     # db.nate_testing.remove()
@@ -25,10 +25,12 @@ def create_new_collection():
 
     q = Queue('nate_fp', connection=redis)  # no args implies the default queue)
     jobs = []
-    for x, doc in enumerate(category_stack):
+    for doc in category_stack:
         # if x < 5000:
         #     continue
-        job = q.enqueue(add_new_field, doc, x)
+        db.nate_testing.find_one_and_update({'id': doc['id']},
+                                            {"$set": {"sp_update": "Queued"}})
+        job = q.enqueue(add_new_field, doc)
         jobs.append(job)
         # try:
         #     add_new_field(doc, x)

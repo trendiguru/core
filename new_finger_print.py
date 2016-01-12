@@ -123,7 +123,7 @@ def spaciogram_finger_print(image, mask):
         mask = 255 * mask
 
     # limiting the image size for a quicker calculation:
-    limit = [300, 300]
+    limit = [500, 500]
     resize_interpulation = cv2.INTER_NEAREST#INTER_LINEAR#INTER_CUBIC#INTER_LANCZOS4#INTER_AREA#
     if image.shape[0] > limit[0] or image.shape[1] > limit[1]:
         delta = [1.0 * limit[0] / image.shape[0], 1.0 * limit[1] / image.shape[1]]
@@ -133,10 +133,10 @@ def spaciogram_finger_print(image, mask):
         mask = cv2.resize(mask, (int(newx), int(newy)), interpolation=resize_interpulation)
 
     # changing to an exact eucledian space model of color:
-    # image = cv2.cvtColor(image, cv2.COLOR_BGR2LAB)
+    image = cv2.cvtColor(image, cv2.COLOR_BGR2LAB)
     channels_list = channles_of_image(image)
-    # skell_dist  = skeleton_distance(mask)
-    # circ_dist = circumfrence_distance(mask)
+    skell_dist  = skeleton_distance(mask)
+    circ_dist = circumfrence_distance(mask)
 
     # # opencv way:
     # channels_list.append(skell_dist)
@@ -164,13 +164,20 @@ def spaciogram_finger_print(image, mask):
     spaciograms.append(fine_color_spaciogram.tolist())
 
     # patterned_spaciograms
-    bins = 8
-    waves = wavelet_images(mask)
+    bins = 10
+    patterned_spaciogram, patterned_edges = np.histogramdd([sample[0], sample[1], sample[2], skell_dist[mask > 0].flatten()], bins, normed=True, weights=None)
+    spaciograms.append(patterned_spaciogram.tolist())
+    patterned_spaciogram, patterned_edges = np.histogramdd([sample[0], sample[1], sample[2], circ_dist[mask > 0].flatten()], bins, normed=True, weights=None)
+    spaciograms.append(patterned_spaciogram.tolist())
 
-    for wave in waves:
-        wavy_sample = wave[mask > 0].flatten()
-        patterned_spaciogram, patterned_edges = np.histogramdd([sample[0], sample[1], sample[2], wavy_sample], bins, normed=True, weights=None)
-        spaciograms.append(patterned_spaciogram.tolist())
+
+    # waves = wavelet_images(mask)
+    #
+    # for wave in waves:
+    #     wavy_sample = wave[mask > 0].flatten()
+    #     patterned_spaciogram, patterned_edges = np.histogramdd([sample[0], sample[1], sample[2], wavy_sample], bins, normed=True, weights=None)
+    #     spaciograms.append(patterned_spaciogram.tolist())
+
     return spaciograms
 
 def histogram_stack_finger_print(image, mask):

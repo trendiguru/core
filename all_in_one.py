@@ -358,7 +358,7 @@ def get_svg_nate(image_url):
                         item_bb = paperdolls.bb_from_mask(item_mask)
                         item_gc_mask = background_removal.paperdoll_item_mask(item_mask, item_bb)
                         after_gc_mask = background_removal.get_fg_mask(image, item_bb)  # (255, 0) mask
-                        specio = new_finger_print.spaciogram_finger_print(image, after_gc_mask)
+                        specio = new_finger_print.spaciogram_finger_print(image, item_mask)
                         item_dict["specio"] = specio
                         item_dict["sp_one"] = item_dict["specio"][0]
                         item_dict["sp_two"] = item_dict["specio"][1]
@@ -396,7 +396,7 @@ def get_svg_nate(image_url):
                     item_bb = paperdolls.bb_from_mask(item_mask)
                     item_gc_mask = background_removal.paperdoll_item_mask(item_mask, item_bb)
                     after_gc_mask = background_removal.get_fg_mask(image, item_bb)  # (255, 0) mask
-                    specio = new_finger_print.spaciogram_finger_print(image, after_gc_mask)
+                    specio = new_finger_print.spaciogram_finger_print(image, item_mask)
                     item_dict["specio"] = specio
                     item_dict["sp_one"] = item_dict["specio"][0]
                     item_dict["sp_two"] = item_dict["specio"][1]
