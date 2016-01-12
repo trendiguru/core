@@ -1,4 +1,6 @@
+import unittest
 
+from trendi import paperdolls
 
 class OutcomesTest(unittest.TestCase):
     # examples of things to return
@@ -62,3 +64,13 @@ class OutcomesTest(unittest.TestCase):
             'http://dirtyasiantube.com/'
             'grannyfucks.me',
             'https://www.google.co.il' ]
+
+        for url in goodlist:
+            isbad = paperdolls.blacklisted_term_in_url(url)
+            print('good url {0} has badness {1}'.format(url,isbad))
+            self.assertTrue(not isbad)
+
+        for url in badlist:
+            isbad = paperdolls.blacklisted_term_in_url(url)
+            print('bad url {0} has badness {1}'.format(url,isbad))
+            self.assertTrue(isbad)
