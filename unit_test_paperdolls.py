@@ -27,7 +27,6 @@ class OutcomesTest(unittest.TestCase):
             'http://vk.com',
             'http://www.dasding.de',
             'http://www.zara.com',
-            'http://www.alohatube.com',
             'https://www.instagram.com',
             'http://www.jabong.com',
             'http://www.tagged.com',
