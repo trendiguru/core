@@ -9,6 +9,8 @@ from email.mime.multipart import MIMEMultipart
 import pymongo
 from rq import Queue
 
+from . import whitelist
+
 from .constants import db
 from .constants import redis_conn
 
@@ -194,6 +196,18 @@ def get_white_list():
         if not idx % 100:
             print "performing {0}th doc".format(idx)
         idx += 1
+
+
+def check_relevancy():
+    relevant_count = 0
+    for doc in db.white_list.find():
+        if doc['domain']['name']:
+            splitted = doc['domain']['name'].split('/')[2]
+            if splitted[:3] == 'www':
+                splitted = splitted[4:]
+            if splitted in whitelist.fullList:
+                relevant_count += 1
+                print relevant_count
 
 if __name__ == "__main__":
     run()
