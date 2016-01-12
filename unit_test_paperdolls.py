@@ -74,3 +74,6 @@ class OutcomesTest(unittest.TestCase):
             isbad = paperdolls.blacklisted_term_in_url(url)
             print('bad url {0} has badness {1}'.format(url,isbad))
             self.assertTrue(isbad)
+
+if __name__ == "__main__"
+    unittest.main()
