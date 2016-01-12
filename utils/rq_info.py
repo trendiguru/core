@@ -3,7 +3,7 @@ from redis import StrictRedis
 from rq import push_connection, get_failed_queue, Queue
 from rq.job import Job
 
-from . import constants
+from trendi import constants
 
 con = constants.redis_conn
 
