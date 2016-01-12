@@ -7,17 +7,11 @@ from rq.job import Job
 con = StrictRedis()
 push_connection(con)
 
-def div_by_zero(x):
-    return x / 0
+def failed_info():
+    fq = get_failed_queue()
+    count = fq.count()
+    print('count:'+str(count))
+#    fq.requeue(job.id)
 
-job = Job.create(func=div_by_zero, args=(1, 2, 3))
-job.origin = 'fake'
-job.save()
-fq = get_failed_queue()
-fq.quarantine(job, Exception('Some fake error'))
-assert(fq.count == 1)
-
-fq.requeue(job.id)
-
-assert(fq.count == 0)
-assert(Queue('fake').count == 1)
+if __name__ == "__main__":
+    failed_info()
