@@ -75,5 +75,5 @@ class OutcomesTest(unittest.TestCase):
             print('bad url {0} has badness {1}'.format(url,isbad))
             self.assertTrue(isbad)
 
-if __name__ == "__main__"
+if __name__ == "__main__":
     unittest.main()
