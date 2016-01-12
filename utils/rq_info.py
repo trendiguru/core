@@ -3,8 +3,10 @@ from redis import StrictRedis
 from rq import push_connection, get_failed_queue, Queue
 from rq.job import Job
 
+from trendi import constants
 
-con = StrictRedis()
+con = constants.redis_conn
+#con = StrictRedis()
 push_connection(con)
 
 def failed_info():
