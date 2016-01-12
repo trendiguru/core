@@ -17,7 +17,7 @@ class OutcomesTest(unittest.TestCase):
         pass
 
 
-    def test_blacklisted_term_in_url():
+    def test_blacklisted_term_in_url(self):
         goodlist=['nastygal.com',
             'cnn.com',
             'http://www.booking.com/',
