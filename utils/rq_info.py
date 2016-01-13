@@ -25,7 +25,8 @@ def failed_info():
         exception_info = dict['exc_info']
         reason = exception_info[-2]
         if reason in reasons_dict:
-            reasons_dict[reason].append[dict]
+            jobs_with_same_reason = reasons_dict[reason]
+            jobs_with_same_reason.append(dict)
         else:
             reasons_dict[reason]=[dict]
 
