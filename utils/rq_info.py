@@ -33,6 +33,8 @@ def failed_info():
             jobs_with_same_reason.append(dict)
         else:
             reasons_dict[reason]=[dict]
+        print reasons_dict
+    print reasons_dict
 
 def print_reasons(reasons_dict):
     for reason in reasons_dict:
