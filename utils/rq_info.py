@@ -12,8 +12,8 @@ def queue_counts():
     #fq = rq.Queue("failed", connection=constants.redis_conn)
     all_queues = Queue.all(connection = con)
     count_dict = {}
-    time = time.time()
-    count_dict['time'] = time
+    t = time.time()
+    count_dict['time'] = t
     for queue in all_queues:
         a_queue = Queue(queue, connection = con)
         count = a_queue.count
