@@ -99,6 +99,12 @@ def get_parse_from_matlab_parallel(image_filename, matlab_engine, use_parfor=Fal
         f.write('image: '+image_filename+'\n')
         f.write('output: '+outstring+'\n')
         f.write('err: '+errstring+'\n')
+    if errstring:
+        with open('pd_ml_errlog.log','a') as f:
+            outstring = out.getvalue()
+            f.write('image: '+image_filename+'\n')
+            f.write('output: '+outstring+'\n')
+            f.write('err: '+errstring+'\n')
 
 #    print('ml output:'+str(out.getvalue()))
  #   print('ml stderr:'+str(err.getvalue()))

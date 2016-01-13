@@ -16,7 +16,7 @@ def queue_counts():
     count_dict['time'] = t
     for queue in all_queues:
         a_queue = Queue(queue, connection = con)
-        count = a_queue.count
+        count = a_queue.count()
         count_dict[queue] = count
     return count_dict
 
