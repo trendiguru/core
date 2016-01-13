@@ -84,7 +84,7 @@ if __name__ == "__main__":
     get_reasons()
     while 1:
         count_dict = queue_counts()
-        print(count_dict)
+        print('counts: '+str(count_dict))
         j = json.dumps(count_dict)
         with open('queue_counts.json','a') as f:
             f.write(j)
