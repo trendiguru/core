@@ -24,7 +24,8 @@ def failed_info():
 #            print(key,dict[key])
         if 'exc_info' in dict:
             exception_info = dict['exc_info']
-        else exception_info = 'no info given\nno info given'
+        else:
+            exception_info = 'no info given\nno info given'
         lines = exception_info.split('\n')
         reason = lines[-2]
         if reason in reasons_dict:
