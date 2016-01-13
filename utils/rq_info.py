@@ -19,8 +19,8 @@ def failed_info():
     print('len:'+str(len(failed_jobs)))
     for job in failed_jobs:
         dict = job.to_dict()
-        for key,val in dict:
-            print(key,val)
+        for key in dict:
+            print(key,val=dict[key])
         created_time = dict['created_at']
         exception_info = dict['exc_info']
         #print('exception info:'+str(exception_info))
