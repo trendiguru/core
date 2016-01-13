@@ -36,6 +36,7 @@ def failed_info():
         for reason in reasons_dict:
             print reason, str(len(reasons_dict[reason]))
 #    print reasons_dict
+    return reasons_dict
 
 def print_reasons(reasons_dict):
     for reason in reasons_dict:
