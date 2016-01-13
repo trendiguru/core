@@ -2,10 +2,22 @@
 from redis import StrictRedis
 from rq import push_connection, get_failed_queue, Queue
 from rq.job import Job
-
+import time
 from trendi import constants
 
 con = constants.redis_conn
+
+def queue_counts():
+    #fq = rq.Queue("failed", connection=constants.redis_conn)
+    all_queues = Queue.all(connection = con)
+    count_dict = {}
+    time = time.time()
+    count_dict['time'] = time
+    for queue in all_queues
+        a_queue = Queue(queue, connection = con)
+        count = a_queue.count
+        count_dict[queue] = count
+    return queue_counts
 
 
 def failed_info():
@@ -69,6 +81,7 @@ def print_reasons(reasons_dict):
 
 if __name__ == "__main__":
     get_reasons()
+    print(queue_counts())
 #    reasons_dict = failed_info()
  #   print_reasons(reasons_dict)
 
