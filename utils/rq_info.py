@@ -23,7 +23,10 @@ def failed_info():
  #       for key in dict:
 #            print(key,dict[key])
         if 'exc_info' in dict:
-            exception_info = dict['exc_info']
+            if exception_info == '':
+                exception_info = 'no info given\nno info given'
+            else:
+                exception_info = dict['exc_info']
         else:
             exception_info = 'no info given\nno info given'
         lines = exception_info.split('\n')
