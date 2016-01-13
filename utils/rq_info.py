@@ -39,6 +39,14 @@ def failed_info():
 
     return reasons_dict
 
+def get_reasons():
+    reasons_dict = failed_info()
+    small_dict = {}
+    for reason in reasons_dict:
+        small_dict[reason] = len(reasons_dict[reason])
+    print small_dict
+    return small_dict
+
 def print_reasons(reasons_dict):
     for reason in reasons_dict:
         arr = reasons_dict[reason]
@@ -59,8 +67,9 @@ def print_reasons(reasons_dict):
 
 
 if __name__ == "__main__":
-    reasons_dict = failed_info()
-    print_reasons(reasons_dict)
+    get_reasons()
+#    reasons_dict = failed_info()
+ #   print_reasons(reasons_dict)
 
 '''
     job.args                 job.dependency           job.fetch                job.id                   job.kwargs               job.return_value
