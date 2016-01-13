@@ -22,6 +22,13 @@ def failed_info():
         dict = job.to_dict()
         for key in dict:
             print(key,dict[key])
+        reason = exception_info[-2]
+        if reason in reasons_dict:
+            reasons_dict[reason].append[dict]
+        else:
+            reasons_dict[reason]=[dict]
+
+def print_reasons(dict):
         created_time = dict['created_at']
         exception_info = dict['exc_info']
         #print('exception info:'+str(exception_info))
@@ -33,13 +40,12 @@ def failed_info():
            func = dict['func_name']
         args = dict['args']
         id = dict['id']
-        reason = exception_info[-2]
         print('reason {5} id {0} created {1} ended {2} function {3} args {4}'.format(id,created_time,end_time,func,args,reason))
-        if reason in reasons_dict:
-            reasons_dict[reason].append[dict]
+
 
 if __name__ == "__main__":
-    failed_info()
+    reasons_dict = failed_info()
+    print_reasons(reasons_dict)
 
 '''
     job.args                 job.dependency           job.fetch                job.id                   job.kwargs               job.return_value
