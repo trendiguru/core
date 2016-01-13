@@ -20,7 +20,7 @@ def failed_info():
     for job in failed_jobs:
         dict = job.to_dict()
         for key in dict:
-            print(key,val=dict[key])
+            print(key,dict[key])
         created_time = dict['created_at']
         exception_info = dict['exc_info']
         #print('exception info:'+str(exception_info))
