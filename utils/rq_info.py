@@ -28,7 +28,7 @@ def failed_info():
         lines = exception_info.split('\n')
         enqueue_time = dict['enqueued_at']
         end_time = dict['ended_at']
-        func = dict['func_name']
+        func = dict['func_name' ]
         args = dict['args']
         id = dict['id']
         reason = exception_info[-2]
