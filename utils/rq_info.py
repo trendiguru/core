@@ -22,7 +22,7 @@ def failed_info():
 #            print(key,dict[key])
         if 'exc_info' in dict:
             exception_info = dict['exc_info']
-            if exception_info == '':
+            if exception_info == '' or exception_info is None:
                 exception_info = 'no info given\nno info given'
         else:
             exception_info = 'no info given\nno info given'
