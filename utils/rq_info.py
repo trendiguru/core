@@ -22,8 +22,11 @@ def failed_info():
         dict = job.to_dict()
  #       for key in dict:
 #            print(key,dict[key])
-        exception_info = dict['exc_info']
-        reason = exception_info[-2]
+        if 'exc_info' in dict:
+            exception_info = dict['exc_info']
+        else exception_info = 'no info given\nno info given'
+        lines = exception_info.split('\n')
+        reason = lines[-2]
         if reason in reasons_dict:
             jobs_with_same_reason = reasons_dict[reason]
             jobs_with_same_reason.append(dict)
