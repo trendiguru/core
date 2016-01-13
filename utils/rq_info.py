@@ -20,8 +20,8 @@ def failed_info():
     reasons_dict = {}
     for job in failed_jobs:
         dict = job.to_dict()
-        for key in dict:
-            print(key,dict[key])
+ #       for key in dict:
+#            print(key,dict[key])
         exception_info = dict['exc_info']
         reason = exception_info[-2]
         if reason in reasons_dict:
