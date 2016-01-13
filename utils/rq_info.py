@@ -30,19 +30,23 @@ def failed_info():
         else:
             reasons_dict[reason]=[dict]
 
-def print_reasons(dict):
-        created_time = dict['created_at']
-        exception_info = dict['exc_info']
-        #print('exception info:'+str(exception_info))
-        lines = exception_info.split('\n')
-        enqueue_time = dict['enqueued_at']
-        end_time = dict['ended_at']
-        func = ''
-        if 'func_name' in dict:
-           func = dict['func_name']
-        args = dict['args']
-        id = dict['id']
-        print('reason {5} id {0} created {1} ended {2} function {3} args {4}'.format(id,created_time,end_time,func,args,reason))
+def print_reasons(reasons_dict):
+    for reason in reasons_dict:
+        arr = reasons_dict[reason]
+        n=len(arr)
+        print('reason:{0}, n:{1}'.format(reason,n))
+#        created_time = dict['created_at']
+ #       exception_info = dict['exc_info']
+  #      #print('exception info:'+str(exception_info))
+   #     lines = exception_info.split('\n')
+#        enqueue_time = dict['enqueued_at']
+ #       end_time = dict['ended_at']
+  #      func = ''
+  #      if 'func_name' in dict:
+   #        func = dict['func_name']
+    #    args = dict['args']
+     #   id = dict['id']
+      #  print('reason {5} id {0} created {1} ended {2} function {3} args {4}'.format(id,created_time,end_time,func,args,reason))
 
 
 if __name__ == "__main__":
