@@ -18,7 +18,7 @@ def queue_counts():
         a_queue = Queue(queue, connection = con)
         count = a_queue.count
         count_dict[queue] = count
-    return queue_counts
+    return count_dict
 
 
 def failed_info():
