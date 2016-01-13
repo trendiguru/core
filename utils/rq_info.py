@@ -45,6 +45,8 @@ def get_reasons():
     for reason in reasons_dict:
         small_dict[reason] = len(reasons_dict[reason])
     print small_dict
+    sorted(small_dict.values(),key=lambda x:x[1])
+
     return small_dict
 
 def print_reasons(reasons_dict):
