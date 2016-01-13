@@ -13,10 +13,8 @@ def failed_info():
 
     fq = Queue('failed', connection = con)
     count = fq.count
-    print('count:'+str(count))
-
+    print('failed jobs count:'+str(count))
     failed_jobs = fq.jobs
-    print('len:'+str(len(failed_jobs)))
     reasons_dict = {}
     for job in failed_jobs:
         dict = job.to_dict()
