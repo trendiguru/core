@@ -17,6 +17,7 @@ def failed_info():
 
     failed_jobs = fq.jobs
     print('len:'+str(len(failed_jobs)))
+    reasons_dict = {}
     for job in failed_jobs:
         dict = job.to_dict()
         for key in dict:
@@ -27,10 +28,13 @@ def failed_info():
         lines = exception_info.split('\n')
         enqueue_time = dict['enqueued_at']
         end_time = dict['ended_at']
-        func =dict['function_name']
+        func = dict['func_name']
         args = dict['args']
         id = dict['id']
-        print('id {0} created {1} ended {2} function {3} args {4}'.format(id,created_time,end_time,func,args))
+        reason = exception_info[-2]
+        print('reason {5} id {0} created {1} ended {2} function {3} args {4}'.format(id,created_time,end_time,func,args,reason))
+        if reason in reasons_dict:
+            reasons_dict[reason].append[dict]
 
 if __name__ == "__main__":
     failed_info()
