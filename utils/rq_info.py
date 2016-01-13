@@ -22,6 +22,7 @@ def failed_info():
         dict = job.to_dict()
         for key in dict:
             print(key,dict[key])
+        exception_info = dict['exc_info']
         reason = exception_info[-2]
         if reason in reasons_dict:
             reasons_dict[reason].append[dict]
