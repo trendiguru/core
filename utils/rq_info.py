@@ -30,7 +30,7 @@ def failed_info():
         func =dict['function_name']
         args = dict['args']
         id = dict['id']
-        print('id {0} created {1} ended {2} function {3} args {4}'.format(id,created_time,end_time,func))
+        print('id {0} created {1} ended {2} function {3} args {4}'.format(id,created_time,end_time,func,args))
 
 if __name__ == "__main__":
     failed_info()
