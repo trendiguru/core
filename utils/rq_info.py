@@ -4,6 +4,7 @@ from rq import push_connection, get_failed_queue, Queue
 from rq.job import Job
 import time
 from trendi import constants
+import json
 
 con = constants.redis_conn
 
@@ -81,8 +82,15 @@ def print_reasons(reasons_dict):
 
 if __name__ == "__main__":
     get_reasons()
-    print(queue_counts())
-#    reasons_dict = failed_info()
+    while 1:
+        count_dict = queue_counts()
+        print(count_dict)
+        j = json.dumps(count_dict)
+        with open('queue_counts.json','a') as f:
+            f.write(j)
+        time.sleep(10)
+#
+    #     reasons_dict = failed_info()
  #   print_reasons(reasons_dict)
 
 '''
