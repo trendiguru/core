@@ -197,7 +197,7 @@ def spaciogram_finger_print(image, mask):
             # cv2.waitKey(0)
             localized_masks.append(spatio_mask)
 
-    # spatןal histograms list:
+    # spatial histograms list:
     for local_mask in localized_masks:
         input_channles = []
         for channle in sample:
