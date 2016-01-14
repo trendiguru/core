@@ -164,7 +164,7 @@ def spaciogram_finger_print(image, mask):
     for channle in sample[:3]:
         input_channles.append(channle[mask > 0].flatten())
     coars_color_spaciogram, coars_color_edges = np.histogramdd(input_channles, bins, normed=True, weights=None)
-    spaciograms.append(np_hist_to_cv(coars_color_spaciogram))
+    spaciograms.append(np_hist_to_cv(coars_color_spaciogram).flatten())
 
     # fine_color_spaciogram:
     bins = 10
@@ -172,7 +172,7 @@ def spaciogram_finger_print(image, mask):
     for channle in sample:
         input_channles.append(channle[mask > 0].flatten())
     fine_color_spaciogram, fine_color_edges = np.histogramdd(input_channles, bins, normed=True, weights=None)
-    spaciograms.append(np_hist_to_cv(fine_color_spaciogram))
+    spaciograms.append(np_hist_to_cv(fine_color_spaciogram).flatten())
 
     # patterned_spaciograms:
     bins = 8
@@ -197,13 +197,13 @@ def spaciogram_finger_print(image, mask):
             # cv2.waitKey(0)
             localized_masks.append(spatio_mask)
 
-    # spatןal histograms list:
+    # spatial histograms list:
     for local_mask in localized_masks:
         input_channles = []
         for channle in sample:
             input_channles.append(channle[local_mask > 0].flatten())
         patterned_spaciogram, patterned_edges = np.histogramdd(input_channles, bins, normed=True, weights=None)
-        spaciograms.append(np_hist_to_cv(patterned_spaciogram))
+        spaciograms.append(np_hist_to_cv(patterned_spaciogram).flatten())
 
 
     # waves = wavelet_images(mask)
