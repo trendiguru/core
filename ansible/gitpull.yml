@@ -1,7 +1,20 @@
-- hosts: all
+- hosts: braini-paperdoll
   gather_facts: no
   tasks:
-  - debug: msg="hi"
   - name: git pull
     git: repo=git@bitbucket.org:trendiGuru/core.git dest=/home/pd_user/trendi accept_hostkey=yes
+    sudo_user: jeremy
+
+- hosts: braini-nonpaperdoll
+  gather_facts: no
+  tasks:
+  - name: git pull
+    git: repo=git@bitbucket.org:trendiGuru/core.git dest=/home/jeremy/trendi accept_hostkey=yes
+    sudo_user: jeremy
+
+- hosts: gcloud-dev
+  gather_facts: no
+  tasks:
+  - name: git pull
+    git: repo=git@bitbucket.org:trendiGuru/core.git dest=/home/developer/python-packages/trendi accept_hostkey=yes
     sudo_user: jeremy

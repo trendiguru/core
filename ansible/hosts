@@ -52,7 +52,7 @@ braini-nonpaperdoll
 146.148.10.50
 
 [pp2]
-#pp-2, temporary-disk
+#pp-2
 104.155.19.29
 
 [redis]
