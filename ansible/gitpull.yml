@@ -1,0 +1,7 @@
+- hosts: all
+  gather_facts: no
+  tasks:
+  - debug: msg="hi"
+  - name: git pull
+    git: repo=git@bitbucket.org:trendiGuru/core.git dest=/home/pd_user/trendi accept_hostkey=yes
+    sudo_user: jeremy
