@@ -45,7 +45,7 @@ worker_commands =['/usr/bin/python /usr/local/bin/rqworker find_similar &',
 
 multi_queue_command ='/usr/bin/python /usr/local/bin/rqworker find_similar find_top_n new_images'
 unique_in_multi_queue = 'find_similar'
-N_expected_workers_by_server={'braini1':47,'brain2':47,'brain3':96,'braini4':96,'braini5':96}
+N_expected_workers_by_server={'braini1':45,'brain2':45,'brain3':90,'braini4':90,'braini5':90}
 N_max_workers = 120
 lower_threshold = 70
 upper_threshold = 85
@@ -275,7 +275,7 @@ Reserve_cpus = 2  # number of cpus to not use when doing stuff in parallel
 
 # for gender id
 gender_ttl = 5  # 10 seconds ttl , answer should be nearly immediate
-paperdoll_ttl = 90  # seconds to wait for paperdoll result
+paperdoll_ttl = 150  # seconds to wait for paperdoll result
 caffe_general_ttl = 30  # seconds to wait for paperdoll result
 general_ttl = 2000  # ttl of all queues
 
