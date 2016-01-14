@@ -130,7 +130,7 @@ def spaciogram_finger_print(image, mask):
         image = cv2.resize(image, (int(newx), int(newy)), interpolation=resize_interpulation)
         mask = cv2.resize(mask, (int(newx), int(newy)), interpolation=resize_interpulation)
 
-    # changing to an exact eucledian space model of color:
+    # changing to an exact eucledian space model of color :
     image = cv2.cvtColor(image, cv2.COLOR_BGR2HSV)
     # channels_list = channles_of_image(image)
     # skell_dist  = skeleton_distance(mask)
