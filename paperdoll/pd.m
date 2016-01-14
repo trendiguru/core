@@ -27,7 +27,7 @@ if ~ isfield(result, final_labeling)
     % paperdoll failed to return result
     disp(['paperdoll failed to get result for ',image_filename])
     fid = fopen('pd_ml_errlog.log', 'a+');
-    s = sprintf('result from pd didn't have final labelling for image %s\n',image_filename)
+    s = sprintf('result from pd didnt have final labelling for image %s\n',image_filename)
     fprintf(fid, s);
     fclose(fid);
     return
