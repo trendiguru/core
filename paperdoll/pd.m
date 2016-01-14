@@ -22,6 +22,16 @@ disp('debug6')
 
 result = feature_calculator.apply(config, input_sample)
 disp('debug7')
+result = feature_calculator.apply(config, input_sample)
+if ~ isfield(result, final_labeling)
+    % paperdoll failed to return result
+    disp(['paperdoll failed to get result for ',image_filename])
+    fid = fopen('pd_ml_errlog.log', 'a+');
+    fprintf(fid, 'result from pd didn't have final labelling for image %s\n',image_filename);
+    fclose(fid);
+    return
+end
+
 
 mask = imdecode(result.final_labeling, 'png');
 disp('debug8')
