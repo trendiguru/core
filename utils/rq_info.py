@@ -43,7 +43,7 @@ def failed_info():
         reason = lines[0]
         if len(lines)>1:
             reason = lines[-2]
-        if 'NoSuchJobError' in reason:
+        if 'NoSuchJobError' in reason or 'InvalidDocument' in reason or 'WiredTigerIndex' in reason:
 #        if len(reason)>40:
             reason=reason[0:34]  #job # is different each time so avoid that
  #       print('exc info:')
