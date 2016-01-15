@@ -45,8 +45,10 @@ def failed_info():
             reason = lines[-2]
         if len(reason)>30:
             reason=reason[0:30]  #job # is different each time so avoid that
-        print('exc info:'+str(exception_info))
-        print('reason:'+str(reason))
+        print('exc info:')
+        print str(exception_info))
+        print('reason:')
+        print str(reason))
         raw_input('enter to continue')
         if reason in reasons_dict:
             jobs_with_same_reason = reasons_dict[reason]
