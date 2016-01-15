@@ -43,8 +43,8 @@ def failed_info():
         reason = lines[0]
         if len(lines)>1:
             reason = lines[-2]
-        if len(reason)>30:
-            reason=reason[0:30]  #job # is different each time so avoid that
+        if len(reason)>40:
+            reason=reason[0:40]  #job # is different each time so avoid that
         print('exc info:')
         print str(exception_info)
         print('reason:')
