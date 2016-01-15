@@ -31,7 +31,7 @@ if ~ isfield(result, 'final_labeling')
     s = sprintf('result from pd didnt have final labelling for image %s\n',image_filename)
     fprintf(fid, s);
     fclose(fid);
-    failname = strcat('/home/jeremy/pd_output_fails/',image_filename)
+    failname = strcat('/home/jeremy/pd_output/fail_labelling.',image_filename)
     imwrite(input_image,failname)
     return
 end
