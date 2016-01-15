@@ -35,8 +35,6 @@ def failed_info():
  #           print(key,dict[key])
         if 'exc_info' in dict:
             exception_info = dict['exc_info']
-            print('exc info:'+str(exception_info))
-            raw_input('enter to continue')
             if exception_info == '' or exception_info is None:
                 exception_info = 'no info given\nno info given'
         else:
@@ -47,6 +45,9 @@ def failed_info():
             reason = lines[-2]
         if len(reason)>30:
             reason=reason[0:30]  #job # is different each time so avoid that
+        print('exc info:'+str(exception_info))
+        print('reason:'+str(reason))
+        raw_input('enter to continue')
         if reason in reasons_dict:
             jobs_with_same_reason = reasons_dict[reason]
             jobs_with_same_reason.append(dict)
