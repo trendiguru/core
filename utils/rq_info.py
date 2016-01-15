@@ -93,7 +93,7 @@ if __name__ == "__main__":
     st = json.dumps(reasons, sort_keys=True,indent=4, separators=(',', ': '))
 
     timestring = time.strftime("%H:%M:%S %d/%m/%Y")
-    st.['timestamp'] = timestring
+    st['timestamp'] = timestring
 
     print st
 
