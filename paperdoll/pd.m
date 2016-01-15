@@ -33,7 +33,6 @@ if ~ isfield(result, 'final_labeling')
     fclose(fid);
     failname = strcat('/home/jeremy/pd_output_fails/',image_filename)
     imwrite(input_image,failname)
-
     return
 end
 
