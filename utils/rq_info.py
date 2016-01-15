@@ -81,14 +81,15 @@ def print_reasons(reasons_dict):
 
 
 if __name__ == "__main__":
-    get_reasons()
-    while 1:
-        count_dict = queue_counts()
-        print('counts: '+str(count_dict))
-        j = json.dumps(count_dict)
-        with open('queue_counts.json','a') as f:
-            f.write(j)
-        time.sleep(10)
+    reasons = get_reasons()
+    print reasons
+
+#    count_dict = queue_counts()
+ #   print('counts: '+str(count_dict))
+  #  j = json.dumps(count_dict)
+  #  with open('queue_counts.json','a') as f:
+   #     f.write(j)
+    #time.sleep(10)
 #
     #     reasons_dict = failed_info()
  #   print_reasons(reasons_dict)
