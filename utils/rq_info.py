@@ -98,7 +98,7 @@ if __name__ == "__main__":
     print st
 
     with open('errordump.txt', 'w') as outfile:
-    json.dump(st, outfile)
+        json.dump(st, outfile)
 
 #    count_dict = queue_counts()
  #   print('counts: '+str(count_dict))
