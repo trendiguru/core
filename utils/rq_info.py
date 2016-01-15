@@ -62,7 +62,7 @@ def get_reasons():
     for reason in reasons_dict:
         small_dict[reason] = len(reasons_dict[reason])
     sorted_dict = sorted(small_dict.items(),key=lambda x:x[1],reverse=True)
-    json.dumps(sortedl_dict, sort_keys=True,indent=4, separators=(',', ': '))
+    json.dumps(sorted_dict, sort_keys=True,indent=4, separators=(',', ': '))
     return sorted_dict
 
 def print_reasons(reasons_dict):
