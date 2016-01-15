@@ -43,6 +43,7 @@ def count_queue_workers(unique_string):
             print a
             pid = a[1]
             n = n +1
+    n = n/2  #there is adouble count of each process, one appears with /bin/sh at beginning of ps line
     return n
 
 def start_workers(command,n_workers):
