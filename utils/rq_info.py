@@ -40,7 +40,9 @@ def failed_info():
         else:
             exception_info = 'no info given\nno info given'
         lines = exception_info.split('\n')
-        reason = lines[-2]
+        reason = lines[0]
+        if len(lines)>1:
+            reason = lines[-2]
         if reason in reasons_dict:
             jobs_with_same_reason = reasons_dict[reason]
             jobs_with_same_reason.append(dict)
