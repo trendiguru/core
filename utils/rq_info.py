@@ -34,7 +34,7 @@ def failed_info():
  #       for key in dict:
 #            print(key,dict[key])
         if 'exc_info' in dict:
-            exception_info = dict['exc_info']
+            exception_info = dict['exc_info'][0:30]  #job # is different each time so avoid that
             if exception_info == '' or exception_info is None:
                 exception_info = 'no info given\nno info given'
         else:
