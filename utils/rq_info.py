@@ -31,8 +31,9 @@ def failed_info():
     reasons_dict = {}
     for job in failed_jobs:
         dict = job.to_dict()
- #       for key in dict:
-#            print(key,dict[key])
+        for key in dict:
+            print(key,dict[key])
+            raw_input('enter to continue')
         if 'exc_info' in dict:
             exception_info = dict['exc_info']
             if exception_info == '' or exception_info is None:
