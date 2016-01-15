@@ -34,7 +34,7 @@ def failed_info():
  #       for key in dict:
 #            print(key,dict[key])
         if 'exc_info' in dict:
-            exception_info = dict['exc_info'][0:30]  #job # is different each time so avoid that
+            exception_info = dict['exc_info']:
             if exception_info == '' or exception_info is None:
                 exception_info = 'no info given\nno info given'
         else:
@@ -43,6 +43,8 @@ def failed_info():
         reason = lines[0]
         if len(lines)>1:
             reason = lines[-2]
+        if len(reason)>30:
+            reason=reason[0:30]  #job # is different each time so avoid that
         if reason in reasons_dict:
             jobs_with_same_reason = reasons_dict[reason]
             jobs_with_same_reason.append(dict)
@@ -84,7 +86,7 @@ def print_reasons(reasons_dict):
 
 if __name__ == "__main__":
     reasons = get_reasons()
-    print reasons
+    #print reasons
 
 #    count_dict = queue_counts()
  #   print('counts: '+str(count_dict))
