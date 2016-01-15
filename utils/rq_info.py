@@ -91,7 +91,14 @@ def print_reasons(reasons_dict):
 if __name__ == "__main__":
     reasons = get_reasons()
     st = json.dumps(reasons, sort_keys=True,indent=4, separators=(',', ': '))
+
+    timestring = time.strftime("%H:%M:%S %d/%m/%Y")
+    st.['timestamp'] = timestring
+
     print st
+
+    with open('errordump.txt', 'w') as outfile:
+    json.dump(st, outfile)
 
 #    count_dict = queue_counts()
  #   print('counts: '+str(count_dict))
