@@ -48,7 +48,7 @@ def failed_info():
  #       print('exc info:')
  #       print str(exception_info)
         print('reason: '+ str(reason))
-        raw_input('enter to continue')
+ #       raw_input('enter to continue')
         if reason in reasons_dict:
             jobs_with_same_reason = reasons_dict[reason]
             jobs_with_same_reason.append(dict)
