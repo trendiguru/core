@@ -110,7 +110,7 @@ if __name__ == "__main__":
     with open('errordump.txt', 'a') as outfile:
         json.dump(reasons, outfile, sort_keys=True,indent=4, separators=(',', ': '))
 
-    get_info_by_number( dc4ebb1f-9fbb-4ee6-ad5f-0f7e83f5e44a)
+    get_info_by_number('dc4ebb1f-9fbb-4ee6-ad5f-0f7e83f5e44a')
 
 
 #    count_dict = queue_counts()
