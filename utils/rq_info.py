@@ -95,7 +95,7 @@ if __name__ == "__main__":
     st = json.dumps(reasons, sort_keys=True,indent=4, separators=(',', ': '))
     print st
     with open('errordump.txt', 'w') as outfile:
-        json.dump(st, outfile)
+        json.dump(st, outfile, sort_keys=True,indent=4, separators=(',', ': '))
 
 #    count_dict = queue_counts()
  #   print('counts: '+str(count_dict))
