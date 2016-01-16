@@ -5,8 +5,10 @@ from trendi import constants
 db = constants.db
 bl = db.blacklisted_urls
 dicts = bl.find()
-print('count:'+str(len(dicts)))
+print('count:'+dicts.count())
 raw_input()
-for dict in dicts:
+dict = dicts.next()
+while dict is not None:
     url =  dict['page_url']
     print('url:'+url)
+    dict = dicts.next()
