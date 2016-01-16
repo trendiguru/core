@@ -68,7 +68,7 @@ def get_reasons():
         small_dict[reason] = len(reasons_dict[reason])
     sorted_dict = sorted(small_dict.items(),key=lambda x:x[1],reverse=True)
     timestring = time.strftime("%H:%M:%S %d/%m/%Y")
-    small_dict['timestamp'] = timestring
+    sorted_dict['timestamp'] = timestring
     return sorted_dict
 
 def print_reasons(reasons_dict):
