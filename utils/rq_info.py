@@ -20,10 +20,22 @@ def queue_counts():
         count_dict[queue] = count
     return count_dict
 
+def get_info_by_number(job_no):
+    fq = Queue('failed', connection = con)
+    count = fq.count
+    print('FAILED JOBS COUNT:'+str(count))
+    failed_jobs = fq.jobs
+    for job in failed_jobs:
+#        for key in dict:
+ #           print(key,dict[key])
+        if job.id == job_no:
+            dict = job.to_dict()
+    print('found job:')
+    st = json.dumps(reasons, sort_keys=True,indent=4, separators=(',', ': '))
+    print st
 
 def failed_info():
     #fq = rq.Queue("failed", connection=constants.redis_conn)
-
     fq = Queue('failed', connection = con)
     count = fq.count
     print('FAILED JOBS COUNT:'+str(count))
@@ -97,6 +109,8 @@ if __name__ == "__main__":
     print st
     with open('errordump.txt', 'a') as outfile:
         json.dump(reasons, outfile, sort_keys=True,indent=4, separators=(',', ': '))
+
+    get_info_by_number( dc4ebb1f-9fbb-4ee6-ad5f-0f7e83f5e44a)
 
 
 #    count_dict = queue_counts()
