@@ -67,6 +67,8 @@ def get_reasons():
     for reason in reasons_dict:
         small_dict[reason] = len(reasons_dict[reason])
     sorted_dict = sorted(small_dict.items(),key=lambda x:x[1],reverse=True)
+    timestring = time.strftime("%H:%M:%S %d/%m/%Y")
+    small_dict['timestamp'] = timestring
     return sorted_dict
 
 def print_reasons(reasons_dict):
@@ -91,12 +93,7 @@ def print_reasons(reasons_dict):
 if __name__ == "__main__":
     reasons = get_reasons()
     st = json.dumps(reasons, sort_keys=True,indent=4, separators=(',', ': '))
-
-    timestring = time.strftime("%H:%M:%S %d/%m/%Y")
-    st['timestamp'] = timestring
-
     print st
-
     with open('errordump.txt', 'w') as outfile:
         json.dump(st, outfile)
 
