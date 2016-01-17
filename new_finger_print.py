@@ -12,13 +12,13 @@ def spaciograms_distance_rating(spaciogram_1, spaciogram_2, rank):
     ############ CHECKS ############
     # check if spaciogram_1.shape == spaciogram_2.shape:
     rating = []
-    spaciogram_1 = np.array(spaciogram_1)
-    spaciogram_2 = np.array(spaciogram_2)
-    if spaciogram_1.shape != spaciogram_2.shape is False:
-        print 'Error: the dimensions of spaciogram_1 and spaciogram_2 are not equal! \n' \
-              'shapes are: 1st - ' + str(spaciogram_1.shape) + '\n' \
-              'shapes are: 2nd - ' + str(spaciogram_2.shape)
-        return rating
+    # spaciogram_1 = np.array(spaciogram_1)
+    # spaciogram_2 = np.array(spaciogram_2)
+    # if spaciogram_1.shape != spaciogram_2.shape is False:
+    #     print 'Error: the dimensions of spaciogram_1 and spaciogram_2 are not equal! \n' \
+    #           'shapes are: 1st - ' + str(spaciogram_1.shape) + '\n' \
+    #           'shapes are: 2nd - ' + str(spaciogram_2.shape)
+    #     return rating
     if rank < 1 or rank > 3:
         print 'Error: only 3 ranks, rank = 1, 2 or 3!'
         return rating
@@ -81,17 +81,16 @@ def spaciograms_distance_rating(spaciogram_1, spaciogram_2, rank):
     # HISTCMP_HELLINGER Synonym for HISTCMP_BHATTACHARYYA
     # HISTCMP_CHISQR_ALT
     # HISTCMP_KL_DIV
+
     if rank != 3:
-        rating = cv2.compareHist(np.array(spaciogram_1).astype('float32'),
-                                 np.array(spaciogram_2).astype('float32'), method)
+        rating = cv2.compareHist(spaciogram_1, spaciogram_2, method)
     # elif rank == 2:
     #     rating = cv2.compareHist(np.array(spaciogram_1[1]).astype('float32'),
     #                              np.array(spaciogram_2[1]).astype('float32'), method)
     elif rank == 3:
         rating = 0.0
         for i in range(2, len(spaciogram_1)):
-            rating += cv2.compareHist(np.array(spaciogram_1[i]).astype('float32'),
-                                      np.array(spaciogram_2[i]).astype('float32'), method)
+            rating += cv2.compareHist(spaciogram_1[i], spaciogram_2[i], method)
     else:
         rating = []
 
@@ -132,43 +131,80 @@ def spaciogram_finger_print(image, mask):
         image = cv2.resize(image, (int(newx), int(newy)), interpolation=resize_interpulation)
         mask = cv2.resize(mask, (int(newx), int(newy)), interpolation=resize_interpulation)
 
-    # changing to an exact eucledian space model of color:
-    image = cv2.cvtColor(image, cv2.COLOR_BGR2LAB)
-    channels_list = channles_of_image(image)
-    skell_dist  = skeleton_distance(mask)
+    # changing to an exact eucledian space model of color :
+    image = cv2.cvtColor(image, cv2.COLOR_BGR2HSV)
+    # channels_list = channles_of_image(image)
+    # skell_dist  = skeleton_distance(mask)
     circ_dist = circumfrence_distance(mask)
 
     # # opencv way:
-    # channels_list.append(skell_dist)
-    # channels_list.append(circ_dist)
-    # spaciogram = cv2.calcHist(channels_list, range(len(channels_list)),
-    #                           mask, bins, [0, 256])# * np.ones([1, len(channels_list)]), )
-    #
+    # bins  = 5
+    # channels_list = []
+    # channels_list.append(image[:, :, 0].flatten())
+    # channels_list.append(image[:, :, 1].flatten())
+    # channels_list.append(image[:, :, 2].flatten())
+    # channels_list.append(circ_dist.flatten())
+    # IM = cv2.merge([image[:, :, 0], image[:, :, 1], image[:, :, 2], circ_dist]).astype('uint8')
+    # print IM.shape
+    # hist = cv2.calcHist(IM, [0, 1, 2, 3], mask.astype('uint8'), bins, [0, 180, 0, 256, 0, 256, 0, 256])
+    # hist = cv2.normalize(hist).flatten()
+    # spaciograms = hist
+
     sample = []
-    for channel in channels_list:
-        sample.append(channel[mask > 0].flatten())
-    # sample.append(skell_dist[mask > 0].flatten())
-    # sample.append(circ_dist[mask > 0].flatten())
+    sample.append(image[:, :, 0])
+    sample.append(image[:, :, 1])
+    sample.append(image[:, :, 2])
+    sample.append(circ_dist)
     # spaciogram, edges = np.histogramdd(sample, bins, normed=True, weights=None)
 
     # stacking the spaciograms:
     spaciograms = []
     # coars_color_spaciogram:
-    bins = 5
-    coars_color_spaciogram, coars_color_edges = np.histogramdd(sample, bins, normed=True, weights=None)
-    spaciograms.append(coars_color_spaciogram.tolist())
+    bins = 8
+    input_channles = []
+    for channle in sample[:3]:
+        input_channles.append(channle[mask > 0].flatten())
+    coars_color_spaciogram, coars_color_edges = np.histogramdd(input_channles, bins, normed=True, weights=None)
+    spaciograms.append((coars_color_spaciogram.flatten()).tolist())
 
     # fine_color_spaciogram:
     bins = 10
-    fine_color_spaciogram, fine_color_edges = np.histogramdd(sample, bins, normed=True, weights=None)
-    spaciograms.append(fine_color_spaciogram.tolist())
+    input_channles = []
+    for channle in sample:
+        input_channles.append(channle[mask > 0].flatten())
+    fine_color_spaciogram, fine_color_edges = np.histogramdd(input_channles, bins, normed=True, weights=None)
+    spaciograms.append((fine_color_spaciogram.flatten()).tolist())
 
-    # patterned_spaciograms
-    bins = 10
-    patterned_spaciogram, patterned_edges = np.histogramdd([sample[0], sample[1], sample[2], skell_dist[mask > 0].flatten()], bins, normed=True, weights=None)
-    spaciograms.append(patterned_spaciogram.tolist())
-    patterned_spaciogram, patterned_edges = np.histogramdd([sample[0], sample[1], sample[2], circ_dist[mask > 0].flatten()], bins, normed=True, weights=None)
-    spaciograms.append(patterned_spaciogram.tolist())
+    # patterned_spaciograms:
+    bins = 8
+    spatial_vertical_partitions = 5
+    spatial_horizontal_partitions = 2
+
+    # first - finding the bounding box of the mask blob:
+    bounding_box = cv2.boundingRect(mask)
+    box = bounding_box[2:]
+
+    # then localized masks:
+    localized_masks = []
+    vertical_step = box[1] / spatial_vertical_partitions
+    horizontal_step = box[0] / spatial_horizontal_partitions
+    for v_i in range(spatial_vertical_partitions):
+        for h_i in range(spatial_horizontal_partitions):
+            spatio_mask = np.zeros(mask.shape).astype('uint8')
+            spatio_mask[bounding_box[1] + v_i * vertical_step:bounding_box[1] + (v_i+1) * vertical_step,
+                        bounding_box[0] + h_i * horizontal_step:bounding_box[0] + (h_i+1) * horizontal_step] = 255
+            spatio_mask = spatio_mask * (mask / 255)
+            # cv2.imshow('P', spatio_mask)
+            # cv2.waitKey(0)
+            localized_masks.append(spatio_mask)
+
+    # spatial histograms list:
+    for local_mask in localized_masks:
+        input_channles = []
+        for channle in sample:
+            input_channles.append(channle[local_mask > 0].flatten())
+        patterned_spaciogram, patterned_edges = np.histogramdd(input_channles, bins, normed=True, weights=None)
+        spaciograms.append((patterned_spaciogram.flatten()).tolist())
 
 
     # waves = wavelet_images(mask)
@@ -234,6 +270,11 @@ def histogram_stack_finger_print(image, mask):
     spaciogram = np.concatenate(spaciogram, axis=0)
     # print spaciogram
     return spaciogram
+
+def np_hist_to_cv(np_histogram_output):
+    # counts, bin_edges = np_histogram_output
+    counts = np_histogram_output
+    return counts.ravel().astype('float32')
 
 def channles_of_image(image):
     '''
@@ -306,6 +347,7 @@ def skeleton_distance(blob_mask):
     skeleton_mask[skeleton_mask == 1] = 255
     skeleton_distance_mask = cv2.distanceTransform(skeleton_mask, cv2.DIST_L2, 3)
     cv2.normalize(skeleton_distance_mask, skeleton_distance_mask, 0, 1., cv2.NORM_MINMAX)
+    skeleton_distance_mask = np.asarray(256 * skeleton_distance_mask, np.uint8)
     return skeleton_distance_mask
 
 def circumfrence_distance(blob_mask):
@@ -315,6 +357,7 @@ def circumfrence_distance(blob_mask):
     '''
     circumfrencen_distance_mask = cv2.distanceTransform(blob_mask, cv2.DIST_L2, 3)
     cv2.normalize(circumfrencen_distance_mask, circumfrencen_distance_mask, 0, 1., cv2.NORM_MINMAX)
+    circumfrencen_distance_mask = np.asarray(256 * circumfrencen_distance_mask, np.uint8)
     return circumfrencen_distance_mask
 
 def wavelet(frequency, phase, X):

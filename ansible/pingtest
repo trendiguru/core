@@ -1,0 +1,12 @@
+- hosts: braini
+  gather_facts: no
+  tasks:
+  - debug: msg="hi"
+  - ping:
+
+- hosts: gcloud
+  gather_facts: no
+  tasks:
+  - debug: msg="hi"
+  - ping:
+

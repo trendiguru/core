@@ -98,8 +98,12 @@ def find_top_n_results_nate(fp, method):
         closest_matches = find_n_nearest_neighbors_nate(method, target_dict, potential_matches_cursor)
 
     elif method == "specio":
+        for i in range(len(fp)):
+            fp[i] = np.float32(np.array(fp[i]))
         target_dict["sp_one"] = fp[0]
         target_dict["sp_two"] = fp[1]
+        target_dict["specio"] = fp
+
         potential_matches_cursor = collection.find(
             {"categories": "dress"},
             {"_id": 1, "id": 1, "sp_one": 1}).batch_size(15000)  # limit
@@ -155,10 +159,14 @@ def distance_function(entry, target_dict, fp_weights, hist_length, wing, weight)
 def distance_function_nate(entry, target_dict, method, rank):
     if method == "specio":
         if rank == 1:
-            dist = new_finger_print.spaciograms_distance_rating(entry["sp_one"], target_dict["sp_one"], rank)
+            dist = new_finger_print.spaciograms_distance_rating(np.float32(np.array(entry["sp_one"])),
+                                                                target_dict["sp_one"], rank)
         elif rank == 2:
-            dist = new_finger_print.spaciograms_distance_rating(entry["sp_two"], target_dict["sp_two"], rank)
+            dist = new_finger_print.spaciograms_distance_rating(np.float32(np.array(entry["sp_two"])),
+                                                                target_dict["sp_two"], rank)
         elif rank == 3:
+            for i in range(len(entry["specio"])):
+                entry["specio"][i] = np.float32(np.array(entry["specio"][i]))
             dist = new_finger_print.spaciograms_distance_rating(entry["specio"], target_dict["specio"], rank)
     elif method == "histo":
         dist = NNSearch.distance_1_k(np.asarray(entry[method]), target_dict[method])
@@ -172,6 +180,7 @@ def find_n_nearest_neighbors_nate(method, target_dict, entries, rank=1, b_size=2
     # list of tuples with (entry,distance). Initialize with first n distance values
     nearest_n = []
     farthest_nearest = 20000
+
     for i, entry in enumerate(entries):
         if i < b_size:
             d = distance_function_nate(entry, target_dict, method, rank)
@@ -333,7 +342,8 @@ def get_svg_nate(image_url):
                 image_copy = person_isolation(image, face)
                 person = {'face': face, 'person_id': str(bson.ObjectId()), 'person_idx': 1,
                           'items': []}
-                mask, labels, pose = paperdoll_parse_enqueue.paperdoll_enqueue(image_copy, async=False, at_front=True).result[:3]
+                mask, labels, pose = paperdoll_parse_enqueue.paperdoll_enqueue(image_copy, async=False, at_front=True,
+                                                                               queue_name='pd_yonti').result[:3]
                 final_mask = after_pd_conclusions(mask, labels, person['face'])
                 # image = draw_pose_boxes(pose, image)
                 item_idx = 0
@@ -375,7 +385,8 @@ def get_svg_nate(image_url):
         else:
             # no faces, only general positive human detection
             person = {'face': [], 'person_id': str(bson.ObjectId()), 'person_idx': 1, 'items': []}
-            mask, labels, pose = paperdoll_parse_enqueue.paperdoll_enqueue(image, async=False).result[:3]
+            mask, labels, pose = paperdoll_parse_enqueue.paperdoll_enqueue(image, async=False,
+                                                                           queue_name='pd_yonti').result[:3]
             final_mask = after_pd_conclusions(mask, labels)
             item_idx = 0
             for num in np.unique(final_mask):

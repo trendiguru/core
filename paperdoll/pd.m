@@ -4,6 +4,9 @@ function [mask,label_names,pose] = pd(image_filename)
 disp(['the image sent to pd in matlab is:' image_filename])
 %todo - check if we cant load this once only (when engine is created)
 
+mask = [] ;
+label_names = [] ;
+pose = [] ;
 %profile on
 tic
 disp('debug0')
@@ -22,6 +25,20 @@ disp('debug6')
 
 result = feature_calculator.apply(config, input_sample)
 disp('debug7')
+result = feature_calculator.apply(config, input_sample)
+
+if ~ isfield(result, 'final_labeling')
+    % paperdoll failed to return result
+    disp(['paperdoll failed to get result for ',image_filename])
+    fid = fopen('pd_ml_errlog.log', 'a+');
+    s = sprintf('result from pd didnt have final labelling for image %s\n',image_filename)
+    fprintf(fid, s);
+    fclose(fid);
+    failname = strcat('/home/jeremy/pd_output/fail_labelling.',image_filename)
+    imwrite(input_image,failname)
+    return
+end
+
 
 mask = imdecode(result.final_labeling, 'png');
 disp('debug8')

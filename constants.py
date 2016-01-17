@@ -275,7 +275,7 @@ Reserve_cpus = 2  # number of cpus to not use when doing stuff in parallel
 
 # for gender id
 gender_ttl = 5  # 10 seconds ttl , answer should be nearly immediate
-paperdoll_ttl = 90  # seconds to wait for paperdoll result
+paperdoll_ttl = 150  # seconds to wait for paperdoll result
 caffe_general_ttl = 30  # seconds to wait for paperdoll result
 general_ttl = 2000  # ttl of all queues
 
@@ -797,3 +797,13 @@ blacklisted_terms =['alohatube',
      'xrated',
      'xxx',
       'youjizz']
+
+blacklisted_exceptions = ['xxxlarge',
+                          'xxxsmall',
+                          'peacock',
+                          'cocktail',
+                          'blogspot',
+                          'wellandgood',
+                          'fashion',
+                          'xxxhairsnap',
+                          'kannada']
