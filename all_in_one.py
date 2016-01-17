@@ -84,17 +84,15 @@ def find_top_n_results_nate(fp, method):
     '''
     collection = constants.db["nate_testing"]
 
-    # get all items in the category
-    potential_matches_cursor = collection.find(
-        {"categories": "dress"},
-        {"_id": 1, "id": 1, "images.XLarge": 1, "clickUrl": 1, method: 1}).batch_size(10000)  # limit(10000)
-
-    print "amount of docs in cursor: {0}".format(potential_matches_cursor.count())
-
     target_dict = {"categories": "dress", method: fp}
 
     print "calling find_n_nearest.."
     if method == "fingerprint":
+        potential_matches_cursor = collection.find(
+            {"categories": "dress"},
+            {"_id": 1, "id": 1, "images.XLarge": 1, "clickUrl": 1, method: 1}).batch_size(10000)  # limit(10000)
+
+        print "amount of docs in cursor: {0}".format(potential_matches_cursor.count())
         closest_matches = find_n_nearest_neighbors_nate(method, target_dict, potential_matches_cursor)
 
     elif method == "specio":
@@ -107,13 +105,16 @@ def find_top_n_results_nate(fp, method):
         potential_matches_cursor = collection.find(
             {"categories": "dress"},
             {"_id": 1, "id": 1, "sp_one": 1}).batch_size(15000)  # limit
+        print("rank1 started")
         closest_matches = find_n_nearest_neighbors_nate(method, target_dict, potential_matches_cursor,
                                                         rank=1, b_size=1000)
         id_list = [item[0]["id"] for item in closest_matches]
         query2 = collection.find({"id": {"$in": id_list}}, {"_id": 1, "id": 1, "sp_two": 1}).batch_size(1000)
+        print("rank2 started")
         closest_matches = find_n_nearest_neighbors_nate(method, target_dict, query2,
                                                         rank=2, b_size=100)
         id_list2 = [item[0]["id"] for item in closest_matches]
+        print("rank3 started")
         query3 = collection.find({"id": {"$in": id_list2}},
                                  {"_id": 1, "id": 1, "specio": 1, "images.XLarge": 1, "clickUrl": 1}).batch_size(100)
         closest_matches = find_n_nearest_neighbors_nate(method, target_dict, query3,
@@ -182,6 +183,7 @@ def find_n_nearest_neighbors_nate(method, target_dict, entries, rank=1, b_size=2
     farthest_nearest = 20000
 
     for i, entry in enumerate(entries):
+        print(i)
         if i < b_size:
             d = distance_function_nate(entry, target_dict, method, rank)
             nearest_n.append((entry, d))
@@ -342,8 +344,8 @@ def get_svg_nate(image_url):
                 image_copy = person_isolation(image, face)
                 person = {'face': face, 'person_id': str(bson.ObjectId()), 'person_idx': 1,
                           'items': []}
-                mask, labels, pose = paperdoll_parse_enqueue.paperdoll_enqueue(image_copy, async=False, at_front=True,
-                                                                               queue_name='pd_yonti').result[:3]
+                mask, labels, pose = paperdoll_parse_enqueue.paperdoll_enqueue(image_copy, async=False,
+                                                                               at_front=True).result[:3]
                 final_mask = after_pd_conclusions(mask, labels, person['face'])
                 # image = draw_pose_boxes(pose, image)
                 item_idx = 0
@@ -385,8 +387,7 @@ def get_svg_nate(image_url):
         else:
             # no faces, only general positive human detection
             person = {'face': [], 'person_id': str(bson.ObjectId()), 'person_idx': 1, 'items': []}
-            mask, labels, pose = paperdoll_parse_enqueue.paperdoll_enqueue(image, async=False,
-                                                                           queue_name='pd_yonti').result[:3]
+            mask, labels, pose = paperdoll_parse_enqueue.paperdoll_enqueue(image, async=False).result[:3]
             final_mask = after_pd_conclusions(mask, labels)
             item_idx = 0
             for num in np.unique(final_mask):
@@ -444,7 +445,7 @@ def get_results_now_nate(idx, method):
     oid = bson.ObjectId(idx)
     item = db.demo_yonti.find_one({"_id": oid})
     if method == "specio":
-        fp = np.asarray(item["specio"])
+        fp = item["specio"]
     elif method == "histo":
         fp = np.asarray(item["histo"])
     else:
