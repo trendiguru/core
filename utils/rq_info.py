@@ -59,6 +59,9 @@ def failed_info():
         if 'NoSuchJobError' in reason or 'InvalidDocument' in reason or 'WiredTigerIndex' in reason:
 #        if len(reason)>40:
             reason=reason[0:34]  #job # is different each time so avoid that
+        if 'paperdoll failed on this file' in reason:
+            reason=reason[0:42]  #job # is different each time so avoid that
+
  #       print('exc info:')
  #       print str(exception_info)
         print('reason: '+ str(reason))
