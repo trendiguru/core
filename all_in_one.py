@@ -99,7 +99,7 @@ def find_top_n_results_nate(fp, method):
 
     elif method == "specio":
         for i in range(len(fp)):
-            fp[i] = np.array(fp[i])
+            fp[i] = np.float32(np.array(fp[i]))
         target_dict["sp_one"] = fp[0]
         target_dict["sp_two"] = fp[1]
         target_dict["specio"] = fp
@@ -159,12 +159,14 @@ def distance_function(entry, target_dict, fp_weights, hist_length, wing, weight)
 def distance_function_nate(entry, target_dict, method, rank):
     if method == "specio":
         if rank == 1:
-            dist = new_finger_print.spaciograms_distance_rating(np.array(entry["sp_one"]), target_dict["sp_one"], rank)
+            dist = new_finger_print.spaciograms_distance_rating(np.float32(np.array(entry["sp_one"])),
+                                                                target_dict["sp_one"], rank)
         elif rank == 2:
-            dist = new_finger_print.spaciograms_distance_rating(np.array(entry["sp_two"]), target_dict["sp_two"], rank)
+            dist = new_finger_print.spaciograms_distance_rating(np.float32(np.array(entry["sp_two"])),
+                                                                target_dict["sp_two"], rank)
         elif rank == 3:
             for i in range(len(entry["specio"])):
-                entry["specio"][i] = np.array(entry["specio"][i])
+                entry["specio"][i] = np.float32(np.array(entry["specio"][i]))
             dist = new_finger_print.spaciograms_distance_rating(entry["specio"], target_dict["specio"], rank)
     elif method == "histo":
         dist = NNSearch.distance_1_k(np.asarray(entry[method]), target_dict[method])
