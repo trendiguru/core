@@ -14,13 +14,13 @@ def cleanMe():
     i = 0
     d = 0
     for doc in images:
-        if i > 10:
+        if d > 3:
             break
         print colored('item #%s' % i, 'green')
         urls = doc['image_urls']
         for url in urls:
-            raw_input(url)
             if any(term in url for term in blackList):
+                raw_input(url)
                 image_id = doc["_id"]
                 db.images.delete_one({'_id': image_id})
                 d += 1
