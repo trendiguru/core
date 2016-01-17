@@ -797,3 +797,10 @@ blacklisted_terms =['alohatube',
      'xrated',
      'xxx',
       'youjizz']
+
+blacklisted_exceptions = ['xxxlarge',
+                          'xxxsmall',
+                          'peacock',
+                          'cocktail',
+                          'blogspot',
+                          'wellandgood']

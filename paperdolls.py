@@ -220,7 +220,7 @@ def start_process(page_url, image_url, lang=None):
             db.blacklisted_urls.update_one({"page_url": page_url},
                                            {"$push": {"image_urls": image_url}})
         else:
-            db.blacklisted_urls.insert_one({"page_url": page_url,"image_urls":[image_url]})
+            db.blacklisted_urls.insert_one({"page_url": page_url, "image_urls": [image_url]})
         return
 
     # IF IMAGE IN IRRELEVANT_IMAGES
@@ -256,33 +256,17 @@ def start_process(page_url, image_url, lang=None):
     image_dict = {'image_urls': [image_url], 'relevant': relevance.is_relevant,
                   'image_hash': image_hash, 'page_urls': [page_url], 'people': []}
     if relevance.is_relevant:
-        if not isinstance(relevance.faces, list):
-            relevant_faces = relevance.faces.tolist()
-        else:
-            relevant_faces = relevance.faces
-        if len(relevant_faces) > 0:
-            # There are faces
-            idx = 0
-            for face in relevant_faces:
-                x, y, w, h = face
-                person_bb = [int(round(max(0, x - 1.5 * w))), y, int(round(min(image.shape[1], x + 2.5 * w))),
-                             min(image.shape[0], 8 * h)]
-                person = {'face': face, 'person_id': str(bson.ObjectId()), 'person_idx': idx, 'items': [],
-                          'person_bb': person_bb}
-                image_copy = person_isolation(image, face)
-                image_dict['people'].append(person)
-                db.monitoring.update_one({'queue': 'pd'}, {'$inc': {'count': 1}})
-                paper_job = paperdoll_parse_enqueue.paperdoll_enqueue(image_copy, person['person_id'])
-                db.monitoring.update_one({'queue': 'find_similar'}, {'$inc': {'count': 1}})
-                q1.enqueue_call(func=from_paperdoll_to_similar_results, args=(person['person_id'], paper_job.id, 100,
-                                                                              products_collection, coll_name),
-                                depends_on=paper_job, ttl=TTL, result_ttl=TTL, timeout=TTL)
-                idx += 1
-        else:
-            # no faces, only general positive human detection
-            person = {'face': [], 'person_id': str(bson.ObjectId()), 'person_idx': 0, 'items': [], 'person_bb': None}
+        # There are faces
+        idx = 0
+        for face in relevance.faces:
+            x, y, w, h = face
+            person_bb = [int(round(max(0, x - 1.5 * w))), y, int(round(min(image.shape[1], x + 2.5 * w))),
+                         min(image.shape[0], 8 * h)]
+            person = {'face': face, 'person_id': str(bson.ObjectId()), 'person_idx': idx, 'items': [],
+                      'person_bb': person_bb}
+            image_copy = person_isolation(image, face)
             image_dict['people'].append(person)
-            paper_job = paperdoll_parse_enqueue.paperdoll_enqueue(image, person['person_id'])
+            paper_job = paperdoll_parse_enqueue.paperdoll_enqueue(image_copy, person['person_id'])
             q1.enqueue_call(func=from_paperdoll_to_similar_results, args=(person['person_id'], paper_job.id, 100,
                                                                           products_collection, coll_name),
                             depends_on=paper_job, ttl=TTL, result_ttl=TTL, timeout=TTL)
