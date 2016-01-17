@@ -21,10 +21,10 @@ def cleanMe(manual=False):
         urls = doc['image_urls']
         for url in urls:
             if any(term in url for term in blackList):
-                if manual:
-                    raw_input(url)
                 if any(x in url for x in exceptions):
                     continue
+                if manual:
+                    raw_input(url)
                 image_id = doc["_id"]
                 db.images.delete_one({'_id': image_id})
                 d += 1
