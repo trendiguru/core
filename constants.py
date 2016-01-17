@@ -800,4 +800,5 @@ blacklisted_terms =['alohatube',
 
 blacklisted_exceptions = ['xxxlarge',
                           'xxxsmall',
-                          'peacock']
+                          'peacock',
+                          'cocktail']
