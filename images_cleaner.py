@@ -31,5 +31,5 @@ def cleanMe():
     print colored("total images after: $s" % db.images.count(), 'yellow')
 
 
-if __name__ == "__main":
+if __name__ == "__main__":
     cleanMe()
