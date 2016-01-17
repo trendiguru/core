@@ -98,8 +98,12 @@ def find_top_n_results_nate(fp, method):
         closest_matches = find_n_nearest_neighbors_nate(method, target_dict, potential_matches_cursor)
 
     elif method == "specio":
+        for i in range(len(fp)):
+            fp[i] = np.array(fp[i])
         target_dict["sp_one"] = fp[0]
         target_dict["sp_two"] = fp[1]
+        target_dict["specio"] = fp
+
         potential_matches_cursor = collection.find(
             {"categories": "dress"},
             {"_id": 1, "id": 1, "sp_one": 1}).batch_size(15000)  # limit
@@ -172,6 +176,7 @@ def find_n_nearest_neighbors_nate(method, target_dict, entries, rank=1, b_size=2
     # list of tuples with (entry,distance). Initialize with first n distance values
     nearest_n = []
     farthest_nearest = 20000
+
     for i, entry in enumerate(entries):
         if i < b_size:
             d = distance_function_nate(entry, target_dict, method, rank)
