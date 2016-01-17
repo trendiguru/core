@@ -18,6 +18,6 @@ def getItems(idx):
                 tmp["people"][x]["items"][y]["category"] = cand_item['category']
                 tmp["people"][x]["items"][y]["saved_date"] = cand_item['saved_date']
                 for w in range(10):
-                    tmp["people"][x]["items"][y]["top10"][w] = cand_item['similar_results'][w]["sizes.Xlarge.url"]
+                    tmp["people"][x]["items"][y]["top10"][w] = cand_item['similar_results'][w]["sizes.XLarge.url"]
         batch.append(tmp)
     return batch
