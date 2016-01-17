@@ -81,6 +81,7 @@ def spaciograms_distance_rating(spaciogram_1, spaciogram_2, rank):
     # HISTCMP_HELLINGER Synonym for HISTCMP_BHATTACHARYYA
     # HISTCMP_CHISQR_ALT
     # HISTCMP_KL_DIV
+
     if rank != 3:
         rating = cv2.compareHist(spaciogram_1, spaciogram_2, method)
     # elif rank == 2:
