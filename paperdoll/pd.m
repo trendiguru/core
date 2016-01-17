@@ -20,7 +20,7 @@ disp('debug2')
 try
 input_image = imread(image_filename);
 disp('debug3')
-catch
+catch     %i think there may be cases where the ml read starts before the python write finishes
     disp('debug3.5 (try catch')
     pause(0.2)
     try
