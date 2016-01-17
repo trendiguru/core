@@ -74,7 +74,7 @@ def get_parse_mask(img_url_or_cv2_array):
         #        if callback_pack is not None:
         #            a=callback_pack[0]
         #            logging.debug('callback function returned:'+str(a))
-        return mask_np, label_dict, pose_np
+
     else:
         if img is None:
             logging.debug('image is empty in get_parse_mask')

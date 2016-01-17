@@ -1,12 +1,12 @@
-function [mask,label_names,pose] = pd(image_filename)
+bqqfunction [mask,label_names,pose] = pd(image_filename)
 %todo - check if path already ok,
 % check if data already loaded
 disp(['the image sent to pd in matlab is:' image_filename])
 %todo - check if we cant load this once only (when engine is created)
 
-mask = []
-label_names = []
-pose = []
+mask = [] ;
+label_names = [] ;
+pose = [] ;
 %profile on
 tic
 disp('debug0')
