@@ -96,7 +96,7 @@ class TgWorker(Worker):
                 logging.debug('perform_job in sw')
                 job.matlab_engine = self.matlab_engine
                 logging.debug('pj engine:'+str(self.matlab_engine))
-                logging.debug('pj args,kwargs:'+str(job._args)+','+str(job._kwargs))
+             #   logging.debug('pj args,kwargs:'+str(job._args)+','+str(job._kwargs))
                 if len(job._args) > 0:
                     new_args = (self.matlab_engine,)+job._args
                     logging.debug('tg pj  new args:'+str(new_args))
