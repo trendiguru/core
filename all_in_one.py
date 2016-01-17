@@ -84,17 +84,15 @@ def find_top_n_results_nate(fp, method):
     '''
     collection = constants.db["nate_testing"]
 
-    # get all items in the category
-    potential_matches_cursor = collection.find(
-        {"categories": "dress"},
-        {"_id": 1, "id": 1, "images.XLarge": 1, "clickUrl": 1, method: 1}).batch_size(10000)  # limit(10000)
-
-    print "amount of docs in cursor: {0}".format(potential_matches_cursor.count())
-
     target_dict = {"categories": "dress", method: fp}
 
     print "calling find_n_nearest.."
     if method == "fingerprint":
+        potential_matches_cursor = collection.find(
+            {"categories": "dress"},
+            {"_id": 1, "id": 1, "images.XLarge": 1, "clickUrl": 1, method: 1}).batch_size(10000)  # limit(10000)
+
+        print "amount of docs in cursor: {0}".format(potential_matches_cursor.count())
         closest_matches = find_n_nearest_neighbors_nate(method, target_dict, potential_matches_cursor)
 
     elif method == "specio":
