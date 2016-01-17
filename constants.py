@@ -803,4 +803,7 @@ blacklisted_exceptions = ['xxxlarge',
                           'peacock',
                           'cocktail',
                           'blogspot',
-                          'wellandgood']
+                          'wellandgood',
+                          'fashion',
+                          'xxxhairsnap',
+                          'kannada']

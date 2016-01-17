@@ -333,7 +333,8 @@ def get_svg_nate(image_url):
                 image_copy = person_isolation(image, face)
                 person = {'face': face, 'person_id': str(bson.ObjectId()), 'person_idx': 1,
                           'items': []}
-                mask, labels, pose = paperdoll_parse_enqueue.paperdoll_enqueue(image_copy, async=False, at_front=True).result[:3]
+                mask, labels, pose = paperdoll_parse_enqueue.paperdoll_enqueue(image_copy, async=False, at_front=True,
+                                                                               queue_name="pd_yonti").result[:3]
                 final_mask = after_pd_conclusions(mask, labels, person['face'])
                 # image = draw_pose_boxes(pose, image)
                 item_idx = 0
@@ -375,7 +376,8 @@ def get_svg_nate(image_url):
         else:
             # no faces, only general positive human detection
             person = {'face': [], 'person_id': str(bson.ObjectId()), 'person_idx': 1, 'items': []}
-            mask, labels, pose = paperdoll_parse_enqueue.paperdoll_enqueue(image, async=False).result[:3]
+            mask, labels, pose = paperdoll_parse_enqueue.paperdoll_enqueue(image, async=False,
+                                                                           queue_name='pd_yonti').result[:3]
             final_mask = after_pd_conclusions(mask, labels)
             item_idx = 0
             for num in np.unique(final_mask):
