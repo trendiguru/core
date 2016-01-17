@@ -6,7 +6,7 @@ from . import constants
 
 db = constants.db
 blackList = constants.blacklisted_terms
-
+exceptions = constants.blacklisted_exceptions
 
 def cleanMe():
     images = db.images.find().batch_size(10000)
@@ -21,6 +21,8 @@ def cleanMe():
         for url in urls:
             if any(term in url for term in blackList):
                 raw_input(url)
+                if any(x in url for x in exceptions):
+                    continue
                 image_id = doc["_id"]
                 db.images.delete_one({'_id': image_id})
                 d += 1
