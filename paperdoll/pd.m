@@ -14,8 +14,24 @@ load data/paperdoll_pipeline.mat config;
 disp('debug1')
 addpath(genpath('.'))
 disp('debug2')
+
+
+%read image
+try
 input_image = imread(image_filename);
 disp('debug3')
+catch
+    disp('debug3.5')
+    warning(['Problem doing imread of ',image_filename]) ;
+    fid = fopen('pd_ml_errlog.log', 'a+');
+    s = sprintf('problem reading image %s\n',image_filename)
+    fprintf(fid, s);
+    fclose(fid);
+    return
+end
+
+
+
 input_sample = struct('image', imencode(input_image, 'jpg'));
 disp('debug4')
 config{1}.scale = 200;
