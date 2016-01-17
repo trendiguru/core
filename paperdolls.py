@@ -11,6 +11,7 @@ import cv2
 from rq import Queue
 from rq.job import Job
 
+import tldextract
 import boto3
 import page_results
 from .paperdoll import paperdoll_parse_enqueue
@@ -18,6 +19,7 @@ from . import find_similar_mongo
 from . import background_removal
 from . import Utils
 from . import constants
+from . import whitelist
 from .constants import db
 from .constants import redis_conn
 
@@ -256,22 +258,27 @@ def start_process(page_url, image_url, lang=None):
     image_dict = {'image_urls': [image_url], 'relevant': relevance.is_relevant, 'views': 1,
                   'image_hash': image_hash, 'page_urls': [page_url], 'people': []}
     if relevance.is_relevant:
-        # There are faces
-        idx = 0
-        for face in relevance.faces:
-            x, y, w, h = face
-            person_bb = [int(round(max(0, x - 1.5 * w))), y, int(round(min(image.shape[1], x + 2.5 * w))),
-                         min(image.shape[0], 8 * h)]
-            person = {'face': face, 'person_id': str(bson.ObjectId()), 'person_idx': idx, 'items': [],
-                      'person_bb': person_bb}
-            image_copy = person_isolation(image, face)
-            image_dict['people'].append(person)
-            paper_job = paperdoll_parse_enqueue.paperdoll_enqueue(image_copy, person['person_id'])
-            q1.enqueue_call(func=from_paperdoll_to_similar_results, args=(person['person_id'], paper_job.id, 100,
-                                                                          products_collection, coll_name),
-                            depends_on=paper_job, ttl=TTL, result_ttl=TTL, timeout=TTL)
-        logging.warning("trying to insert {0}".format(image_dict))
-        iip.insert_one(image_dict)
+        a = tldextract.extract(image_url)
+        short_url = a.domain + '.' + a.suffix
+        if short_url in whitelist.fullList:
+            # There are faces
+            idx = 0
+            for face in relevance.faces:
+                x, y, w, h = face
+                person_bb = [int(round(max(0, x - 1.5 * w))), y, int(round(min(image.shape[1], x + 2.5 * w))),
+                             min(image.shape[0], 8 * h)]
+                person = {'face': face, 'person_id': str(bson.ObjectId()), 'person_idx': idx, 'items': [],
+                          'person_bb': person_bb}
+                image_copy = person_isolation(image, face)
+                image_dict['people'].append(person)
+                paper_job = paperdoll_parse_enqueue.paperdoll_enqueue(image_copy, person['person_id'])
+                q1.enqueue_call(func=from_paperdoll_to_similar_results, args=(person['person_id'], paper_job.id, 100,
+                                                                              products_collection, coll_name),
+                                depends_on=paper_job, ttl=TTL, result_ttl=TTL, timeout=TTL)
+            logging.warning("trying to insert {0}".format(image_dict))
+            iip.insert_one(image_dict)
+        else:
+            db.to_be_processed.insert_one(image_dict)
     else:  # if not relevant
         logging.warning('image is not relevant, but stored anyway..')
         db.irrelevant_images.insert_one(image_dict)
