@@ -14,11 +14,11 @@ def spaciograms_distance_rating(spaciogram_1, spaciogram_2, rank):
     rating = []
     # spaciogram_1 = np.array(spaciogram_1)
     # spaciogram_2 = np.array(spaciogram_2)
-    if spaciogram_1.shape != spaciogram_2.shape is False:
-        print 'Error: the dimensions of spaciogram_1 and spaciogram_2 are not equal! \n' \
-              'shapes are: 1st - ' + str(spaciogram_1.shape) + '\n' \
-              'shapes are: 2nd - ' + str(spaciogram_2.shape)
-        return rating
+    # if spaciogram_1.shape != spaciogram_2.shape is False:
+    #     print 'Error: the dimensions of spaciogram_1 and spaciogram_2 are not equal! \n' \
+    #           'shapes are: 1st - ' + str(spaciogram_1.shape) + '\n' \
+    #           'shapes are: 2nd - ' + str(spaciogram_2.shape)
+    #     return rating
     if rank < 1 or rank > 3:
         print 'Error: only 3 ranks, rank = 1, 2 or 3!'
         return rating
@@ -81,6 +81,7 @@ def spaciograms_distance_rating(spaciogram_1, spaciogram_2, rank):
     # HISTCMP_HELLINGER Synonym for HISTCMP_BHATTACHARYYA
     # HISTCMP_CHISQR_ALT
     # HISTCMP_KL_DIV
+
     if rank != 3:
         rating = cv2.compareHist(spaciogram_1, spaciogram_2, method)
     # elif rank == 2:

@@ -30,10 +30,12 @@ def get_info_by_number(job_no):
  #           print(key,dict[key])
         if job.id == job_no:
             dict = job.to_dict()
-        print('found job:')
-        st = json.dumps(dict, sort_keys=True,indent=4, separators=(',', ': '))
-        print st
+            print('found job:')
+            st = json.dumps(dict, sort_keys=True,indent=4, separators=(',', ': '))
+            print st
+            return dict
     print 'didnt find job '+str(job_no)
+    return None
 
 def failed_info():
     #fq = rq.Queue("failed", connection=constants.redis_conn)
