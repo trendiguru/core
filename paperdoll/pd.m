@@ -1,4 +1,4 @@
-bqqfunction [mask,label_names,pose] = pd(image_filename)
+function [mask,label_names,pose] = pd(image_filename)
 %todo - check if path already ok,
 % check if data already loaded
 disp(['the image sent to pd in matlab is:' image_filename])
