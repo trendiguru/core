@@ -21,22 +21,19 @@ try
 input_image = imread(image_filename);
 disp('debug3')
 catch
-    disp('debug3.5')
+    disp('debug3.5 (try catch')
     pause(0.2)
-
     try
     input_image = imread(image_filename);
-    disp('debug3')
+    disp('debug3.7 (inner try catch)')
     catch
-
-
-
-    warning(['Problem doing imread of ',image_filename]) ;
-    fid = fopen('pd_ml_errlog.log', 'a+');
-    s = sprintf('problem reading image %s\n',image_filename)
-    fprintf(fid, s);
-    fclose(fid);
-    return
+        warning(['Problem doing imread of ',image_filename]) ;
+        fid = fopen('pd_ml_errlog.log', 'a+');
+        s = sprintf('problem reading image %s\n',image_filename)
+        fprintf(fid, s);
+        fclose(fid);
+        return
+     end
 end
 
 
