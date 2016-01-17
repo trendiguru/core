@@ -444,7 +444,7 @@ def get_results_now_nate(idx, method):
     oid = bson.ObjectId(idx)
     item = db.demo_yonti.find_one({"_id": oid})
     if method == "specio":
-        fp = np.asarray(item["specio"])
+        fp = item["specio"]
     elif method == "histo":
         fp = np.asarray(item["histo"])
     else:
