@@ -156,6 +156,48 @@ top50CelebSytle = ["pudelek.pl", "tmz.com", "super.cz", "ew.com", "entreteniment
                    "ratingcero.com", "non-stop-people.com", "tochka.net", "toofab.com", "extra.cz", "kozaczek.pl",
                    "huabian.com", "bossip.com", "spletnik.ru", "wetpaint.com"]
 
+arts_and_all_countries = ['pudelek.pl', 'tmz.com', 'super.cz', 'ew.com', 'entretenimento.r7.com', 'hollywoodlife.com',
+                          'kapanlagi.com', 'zimbio.com', 'jezebel.com', 'purepeople.com', 'jeanmarcmorandini.com',
+                          'radaronline.com', 'etonline.com', 'voici.fr', 'topito.com', 'ciudad.com.ar',
+                          'perezhilton.com', 'virgula.uol.com.br', 'suggest.com', 'justjared.com', 'therichest.com',
+                          'pressroomvip.com', 'dagospia.com', 'closermag.fr', 'pagesix.com', 'digitalspy.com',
+                          'purepeople.com.br', 'thepiratebay.uk.net', 'sopitas.com', 'deadline.com', 'starpulse.com',
+                          'primiciasya.com', 'celebuzz.com', 'luckstars.co', 'ratingcero.com', 'non-stop-people.com',
+                          'tochka.net', 'toofab.com', 'extra.cz', 'kozaczek.pl', 'huabian.com', 'bossip.com',
+                          'spletnik.ru', 'wetpaint.com', 'promiflash.de', 'gala.fr', 'natalie.mu', 'public.fr',
+                          'digitalspy.co.uk', 'bollywoodlife.com', 'tiramillas.net', 'storm.mg', 'thesuperficial.com',
+                          '2sao.vn', 'oprah.com', 'hecklerspray.com', 'gossiplankanews.com', 'guiadasemana.com.br',
+                          'hiddenplaybook.com', 'celebritynetworth.com', 'vietgiaitri.com', 'gossip-tv.gr',
+                          'okmagazine.com', 'ohtuleht.ee', 'alternatifim.com', 'egokick.com', 'relax.by',
+                          'kanyetothe.com', 'coed.com', 'tvnotas.com.mx', 'lifeandstylemag.com', 'hawtcelebs.com',
+                          'lazygirls.info', 'sabay.com.kh', 'hypescience.com', 'wwtdd.com', 'pinkvilla.com',
+                          'fusion.net', 'betterfap.com', 'grabo.bg', 'madamenoire.com', 'hitfix.com', 'ahaonline.cz',
+                          '123telugu.com', 'nofilmschool.com', 'dongtw.com', 'playgroundmag.net', 'ngoisao.vn',
+                          'potins.net', 'wowkeren.com', 'movistar-adsl.com', 'purebreak.com', 'entertaintastic.com',
+                          'dioguinho.pt', 'perfecte.ro', 'napi.hu', 'klubas.lt', 'esmas.com', 'vertele.com',
+                          'purebreak.com.br']
+
+arts_and_india = ['bollywoodlife.com', '123telugu.com', 'pinkvilla.com', 'missmalini.com', 'tollywood.net',
+                  'indiancinemagallery.com', 'therichest.com', 'hollywoodlife.com', 'andhravilas.net', 'follo.in',
+                  'ew.com', 'moviemint.com', 'zimbio.com', 'boxofficeindia.com', 'bollyguide.com', 'tellychowk.com',
+                  'tellyduniya.com', 'bollywoodtadka.in', 'ap13.in', 'hecklerspray.com', 'starsunfolded.com',
+                  'bollymeaning.com', 'radaronline.com', 'filmycity.in', 'liveinstyle.com', 'celebritytoob.com',
+                  'boxofficecapsule.com', 'bollywood3.com', 'tellystars.com', 'justjared.com', 'tmz.com',
+                  'thepiratebay.uk.net', 'bollybreak.in', 'foundpix.com', 'coed.com', 'screenjunkies.com',
+                  'etonline.com', 'jezebel.com', 'indiglamour.com', 'nofilmschool.com', 'sara-freder.com',
+                  'deadline.com', 'celebuzz.com', 'digitalspy.com', 'perezhilton.com', 'ganna.com',
+                  'celebritynetworth.com', 'vietgiaitri.com', 'bollyhollynews.com', 'hitfix.com', 'sharestills.com',
+                  'ndtvimg.com', 'celebritykick.com', 'hawtcelebs.com', 'yadtek.com', 'masala.com', 'denofgeek.us',
+                  'djhardwell.com', 'promiflash.de', 'bharatwaves.org', 'slava.bg', 'oprah.com', 'sawfirst.com',
+                  'lifeandstylemag.com', 'toofab.com', 'lazygirls.info', 'watchmojo.com', 'princemahesh.com',
+                  'pressroomvip.com', 'wetpaint.com', 'screencrush.com', 'nokomis.in', 'delhievents.com',
+                  'jaynestars.com', 'starpulse.com', 'celebdetail.com', 'celebritysizes.com', 'moviespicy.com',
+                  'ajithfans.com', 'news.indiglamour.com', 'snehasallapam.com', 'ebharat.in', 'celebritytonic.com',
+                  'okmagazine.com', 'tvactress.in', 'ratingcero.com', 'nagfans.com', 'egokick.com', 'hypable.com',
+                  'boxofficeindia.co.in', 'fusion.net', 'thehollywoodgossip.com', 'aceshowbiz.com', 'nyoozflix.com',
+                  'gossiplankanews.com', 'indianalerts.com', 'digitalspy.co.uk', 'indianactressphotos.in',
+                  'moviepics99.com', 'stillgalaxy.com']
+
 
 def masterCrawler(floor=2, whiteList=top50Fashion):
     db.crawler_processed.drop()
