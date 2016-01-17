@@ -116,7 +116,13 @@ fullList = ["yahoo.com", "msn.com", "yahoo.co.jp", "qq.com", "uol.com.br", "glob
              "tokyofashion.com", "fashionfixation.com", "fabulousafter40.com", "fashionisers.com",
              "frappuccini.tumblr.com", "self.com.cn", "fashionweekdaily.com", "doyoulikevintage.tumblr.com",
              "cs10.org", "nitrolicious.com", "vickumbro.tumblr.com", "malemodelscene.net", "ironandtweed.com",
-             "fashiontoast.com", "flare.com"]
+             "fashiontoast.com", "flare.com", 'peonylim.com', 'vanessajackman.blogspot.co.uk', 'manrepeller.com',
+             'redcarpet-fashionawards.com', 'enbrogue.com', 'wishwishwish.net', 'stellaswardrobe.com', 'bryanboy.com',
+             'stylebubble.co.uk', 'pandorasykes.com', 'indtl.com', 'streetpeeper.com', '5inchandup.blogspot.co.uk',
+             'bunte.de', 'nataliehartleywears.blogspot.co.uk', 'the-frugality.com', 'garypeppergirl.com',
+             'weworewhat.com', 'ella-lapetiteanglaise.com', 'camilleovertherainbow.com', 'lisegrendene.com.br',
+             'nadiaaboulhosn.com', 'tommyton.com', 'wearingittoday.co.uk', 'alltheprettybirds.com', 'parkandcube.com',
+             'advancedstyle.blogspot.co.uk', 'disneyrollergirl.net', 'cocosteaparty.com']
 
 fashionBlogs = ["manrepeller.com", "wishwishwish.net", "parkandcube.com", "stellaswardrobe.com", "cocosteaparty.com",
                "5inchandup.blogspot.co.uk", "garypeppergirl.com", "camilleovertherainbow.com", "streetpeeper.com",
