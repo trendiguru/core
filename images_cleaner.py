@@ -10,7 +10,7 @@ blackList = constants.blacklisted_terms
 
 def cleanMe():
     images = db.images.find().batch_size(10000)
-    print colored("total images before: $s" % db.images.count(), 'yellow')
+    print colored("total images before: %s" % db.images.count(), 'yellow')
     i = 0
     d = 0
     for doc in images:
@@ -28,7 +28,7 @@ def cleanMe():
                 break
         i += 1
 
-    print colored("total images after: $s" % db.images.count(), 'yellow')
+    print colored("total images after: %s" % db.images.count(), 'yellow')
 
 
 if __name__ == "__main__":
