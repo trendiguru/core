@@ -254,13 +254,13 @@ def start_process(page_url, image_url, lang=None):
 
     # NEW_IMAGE !!
     print "Start process image shape: " + str(image.shape)
-    relevance = background_removal.image_is_relevant(image, use_caffe=False, image_url=image_url)
-    image_dict = {'image_urls': [image_url], 'relevant': relevance.is_relevant, 'views': 1,
-                  'image_hash': image_hash, 'page_urls': [page_url], 'people': []}
-    if relevance.is_relevant:
-        a = tldextract.extract(image_url)
-        short_url = a.domain + '.' + a.suffix
-        if short_url in whitelist.fullList:
+    a = tldextract.extract(image_url)
+    short_url = a.domain + '.' + a.suffix
+    if short_url in whitelist.fullList:
+        relevance = background_removal.image_is_relevant(image, use_caffe=False, image_url=image_url)
+        image_dict = {'image_urls': [image_url], 'relevant': relevance.is_relevant, 'views': 1,
+                      'image_hash': image_hash, 'page_urls': [page_url], 'people': []}
+        if relevance.is_relevant:
             # There are faces
             idx = 0
             for face in relevance.faces:
@@ -277,12 +277,10 @@ def start_process(page_url, image_url, lang=None):
                                 depends_on=paper_job, ttl=TTL, result_ttl=TTL, timeout=TTL)
             logging.warning("trying to insert {0}".format(image_dict))
             iip.insert_one(image_dict)
-        else:
-            db.to_be_processed.insert_one(image_dict)
-    else:  # if not relevant
-        logging.warning('image is not relevant, but stored anyway..')
-        db.irrelevant_images.insert_one(image_dict)
-        return
+        else:  # if not relevant
+            logging.warning('image is not relevant, but stored anyway..')
+            db.irrelevant_images.insert_one(image_dict)
+            return
 
 
 def from_paperdoll_to_similar_results(person_id, paper_job_id, num_of_matches=100, products_collection='products',
