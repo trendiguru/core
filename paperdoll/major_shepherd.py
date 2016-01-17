@@ -7,6 +7,7 @@ import argparse
 
 from trendi import constants
 import psutil
+import random
 
 
 def kill_all_workers():
@@ -42,29 +43,16 @@ def count_queue_workers(unique_string):
             print a
             pid = a[1]
             n = n +1
+    n = n/2  #there is adouble count of each process, one appears with /bin/sh at beginning of ps line
     return n
 
 def start_workers(command,n_workers):
-
-#worker_base_command = '/usr/bin/python /usr/local/bin/rqworker '
-#worker_extra_queues={'new_images','find_similar','find_top_n']
-#N_expected_pd_workers_extra_queues={47,47,47]
-
-#    command = constants.worker_base_command+queuename
     host = socket.gethostname()
     print('host:'+str(host)+' trying to start '+str(n_workers)+' workers with command '+str(command))
-#    if host == 'braini1' or host == 'brain2' or host== 'brain3':
- #   /usr/bin/python /usr/local/bin /rqworker -w rq.tgworker.TgWorker -u redis://redis1-redis-1-vm:6379 pd
     for i in range(0,n_workers):
-  #      command = 'cd /home/jeremy/paperdoll3/paperdoll-v1.0/'
         print('command:'+command)
-#        p = subprocess.Popen(command, shell=True,stdout=subprocess.PIPE).stdout.read()
         p = subprocess.Popen(command, shell=True,stdout=subprocess.PIPE)
         print(p)
-        #p = subprocess.Popen(command, stdout=subprocess.PIPE)
-        #command =  '/usr/bin/python /usr/local/bin /rqworker -w rq.tgworker.TgWorker -u redis://redis1-redis-1-vm:6379 pd'
-        #print('command:'+command)
-        #p = subprocess.Popen(command, stdout=subprocess.PIPE)
 
 def restart_workers():
     kill_all_workers()
@@ -75,25 +63,35 @@ def restart_workers():
         start_workers(command,n_workers)
         time.sleep(10)
 
+def kill_worker(unique = 'find_similar'):
+    p = subprocess.Popen(['ps', '-auxw'], stdout=subprocess.PIPE)
+    out, err = p.communicate()
+    pids = []
+    for line in out.splitlines():
+        if unique in line:
+            a = line.split()
+            pid = int(a[1])  #maybe on a different unix the output doesnt have owqnder
+            print('a pid to kill:'+str(pid)+' using unique string:'+str(unique))
+#            pid = int(line.split(None, 1)[1])
+            pids.append(pid)
+    n=random.randrange(len(pids))
+    print('{0} got the short straw'.format(pids[n]))
+    r = os.kill(pids[n], signal.SIGINT)  #make sure this is warm not cold shutdown - sigterm seems to be cold
+    return
+
+
 if __name__ == "__main__":
-    #scputimes(user=0.3, nice=0.0, system=0.2, idle=99.4, iowait=0.0, irq=0.0, softirq=0.0, steal=0.0, guest=0.0, guest_nice=0.0)
-    host = socket.gethostname()
-    print('host:'+str(host))
-    if host in constants.N_expected_pd_workers_per_server:
-        n_expected_workers = constants.N_expected_workers_by_server[host]
-    else:
-        n_expected_workers = constants.N_default_workers
-    unique_strings_to_look_for_in_rq_command.index(queue)
-    commands = constants.worker_commands
-    unique_string = constants.unique_strings_to_look_for_in_rq_command[i]
-    print('i:' + str(i))
+    unique = constants.unique_in_multi_queue
     while 1:
-        for i in range(0,len(commands)):
-            command = commands[i]
-            unique_string = constants.unique_strings_to_look_for_in_rq_command[i]
-            n_actual_workers = count_queue_workers(unique_string)
-            print(str(n_actual_workers)+' workers online in queue '+str(unique_string))
-            if n_actual_workers<n_expected_workers:
-                start_workers(command,n_expected_workers-n_actual_workers)
+        cpu  = psutil.cpu_percent()
+        n_extra = count_queue_workers(unique)
+        print(str(n_extra)+' nonpd workers, cpu='+str(cpu))
+        if cpu < constants.lower_threshold and n_extra<constants.N_max_workers:
+            print('cpu {0} too low, start non-pd worker'.format(cpu))
+            start_workers(constants.multi_queue_command,1)
+        elif cpu > constants.upper_threshold and n_extra > 0:
+            print('cpu {0} too high, kill non-pd worker'.format(cpu))
+            kill_worker(unique)
+
         time.sleep(10)
 

@@ -91,6 +91,19 @@ def get_parse_from_matlab_parallel(image_filename, matlab_engine, use_parfor=Fal
         mask, label_names, pose = matlab_engine.pd_parfor(image_filename, nargout=3,stdout=out,stderr=err)
     else:
         mask, label_names, pose = matlab_engine.pd(image_filename, nargout=3,stdout=out,stderr=err)
+    outstring = out.getvalue()
+    errstring = err.getvalue()
+    logging.debug('ml output:'+str(outstring)+'\n')
+    logging.debug('ml err output:'+str(errstring)+'\n')
+    with open('pd_ml_log.log','a') as f:
+        f.write('image: '+image_filename+'\n')
+        f.write('output: '+outstring+'\n')
+        f.write('err: '+errstring+'\n')
+    if errstring is not None and errstring is not '':
+        with open('pd_ml_errlog.log','a') as f:
+            f.write('image: '+image_filename+'\n')
+            f.write('output: '+outstring+'\n')
+            f.write('err: '+errstring+'\n')
 
 #    print('ml output:'+str(out.getvalue()))
  #   print('ml stderr:'+str(err.getvalue()))
