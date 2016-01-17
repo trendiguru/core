@@ -414,7 +414,11 @@ def is_image_relevant(image_url, collection_name=None):
     if image_url is not None:
         query = {"image_urls": image_url}
         image_dict = db[collection_name].find_one(query, {'relevant': 1, 'people.items.similar_results': 1})
-        return has_items(image_dict)
+        if not image_dict:
+            return False
+        else:
+            db.images.update_one(query, {'$inc': {'views': 1}})
+            return has_items(image_dict)
     else:
         return False
 
@@ -538,6 +542,7 @@ def merge_items(doc):
     del doc["people"]
     return doc
 
+
 def get_hash_of_image_from_url(image_url):
     if image_url is None:
         logging.warning("Bad image url!")
@@ -551,18 +556,5 @@ def get_hash_of_image_from_url(image_url):
     url_hash = m.hexdigest()
     logging.debug('url_image hash:' + url_hash + ' for ' + image_url)
     return url_hash
-
-# No longer, necessary, used fancy image_projection instead
-# def reduce_item(item, desired_keys=None):
-#     desired_keys = desired_keys or [u'category',
-#                                     u'similar_results',
-#                                     u'item_id',
-#                                     u'svg_url']
-#
-#     unwanted = set(desired_keys) - set(item)
-#     for unwanted_key in unwanted:
-#         del item[unwanted_key]
-#
-#     return item
 
 
