@@ -105,13 +105,16 @@ def find_top_n_results_nate(fp, method):
         potential_matches_cursor = collection.find(
             {"categories": "dress"},
             {"_id": 1, "id": 1, "sp_one": 1}).batch_size(15000)  # limit
+        print("rank1 started")
         closest_matches = find_n_nearest_neighbors_nate(method, target_dict, potential_matches_cursor,
                                                         rank=1, b_size=1000)
         id_list = [item[0]["id"] for item in closest_matches]
         query2 = collection.find({"id": {"$in": id_list}}, {"_id": 1, "id": 1, "sp_two": 1}).batch_size(1000)
+        print("rank2 started")
         closest_matches = find_n_nearest_neighbors_nate(method, target_dict, query2,
                                                         rank=2, b_size=100)
         id_list2 = [item[0]["id"] for item in closest_matches]
+        print("rank3 started")
         query3 = collection.find({"id": {"$in": id_list2}},
                                  {"_id": 1, "id": 1, "specio": 1, "images.XLarge": 1, "clickUrl": 1}).batch_size(100)
         closest_matches = find_n_nearest_neighbors_nate(method, target_dict, query3,
