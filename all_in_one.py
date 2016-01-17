@@ -183,6 +183,7 @@ def find_n_nearest_neighbors_nate(method, target_dict, entries, rank=1, b_size=2
     farthest_nearest = 20000
 
     for i, entry in enumerate(entries):
+        print(i)
         if i < b_size:
             d = distance_function_nate(entry, target_dict, method, rank)
             nearest_n.append((entry, d))
