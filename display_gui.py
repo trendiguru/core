@@ -26,5 +26,6 @@ def getItems(idx):
                         'top10': top10}
                 items4people.append(dict)
             people.append(items4people)
+        tmp["people"] = people
         batch.append(tmp)
     return batch
