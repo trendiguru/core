@@ -2,12 +2,6 @@
   gather_facts: no
   tasks:
 
-
-##- name: checkout repo
-#  git: repo=https://github.com/some/repo.git version=master dest={{ dst }}
-#  become: yes
-#  become_user: some_user
-
 - name: git pull braini pd
     git: repo=git@bitbucket.org:trendiGuru/core.git dest=/home/pd_user/trendi accept_hostkey=yes
     become: yes
