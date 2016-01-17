@@ -1,10 +1,9 @@
 - hosts: braini-paperdoll
   gather_facts: no
   tasks:
-
-- name: git pull braini pd
+  - name: git pull braini pd
     git: repo=git@bitbucket.org:trendiGuru/core.git dest=/home/pd_user/trendi accept_hostkey=yes
-    become: yes
+    become:yes
     become_user: jeremy
 
 - hosts: braini-nonpaperdoll
