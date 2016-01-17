@@ -25,6 +25,9 @@ def cleanMe(manual=False):
                     continue
                 if manual:
                     raw_input(url)
+                else:
+                    print(url)
+
                 image_id = doc["_id"]
                 db.images.delete_one({'_id': image_id})
                 d += 1
