@@ -331,6 +331,8 @@ def get_svg_nate(image_url):
     relevance = background_removal.image_is_relevant(image, True, image_url)
     image_dict = {'image_urls': [image_url], 'relevant': relevance.is_relevant,
                   'image_hash': image_hash, 'page_urls': ["True"], 'people': []}
+    worker_name = 'pd_yonti'
+
     if relevance.is_relevant:
         idx = 0
         if len(relevance.faces):
@@ -343,7 +345,7 @@ def get_svg_nate(image_url):
                 person = {'face': face, 'person_id': str(bson.ObjectId()), 'person_idx': 1,
                           'items': []}
                 mask, labels, pose = paperdoll_parse_enqueue.paperdoll_enqueue(image_copy,
-                                                                               queue_name="pd_yonti").result[:3]
+                                                                               queue_name=worker_name).result[:3]
                 final_mask = after_pd_conclusions(mask, labels, person['face'])
                 # image = draw_pose_boxes(pose, image)
                 item_idx = 0
@@ -385,7 +387,7 @@ def get_svg_nate(image_url):
         else:
             # no faces, only general positive human detection
             person = {'face': [], 'person_id': str(bson.ObjectId()), 'person_idx': 1, 'items': []}
-            mask, labels, pose = paperdoll_parse_enqueue.paperdoll_enqueue(image, queue_name="pd_yonti").result[:3]
+            mask, labels, pose = paperdoll_parse_enqueue.paperdoll_enqueue(image, queue_name=worker_name).result[:3]
             final_mask = after_pd_conclusions(mask, labels)
             item_idx = 0
             for num in np.unique(final_mask):
