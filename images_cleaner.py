@@ -1,5 +1,7 @@
 __author__ = 'yonatan'
 
+import sys
+
 from termcolor import colored
 
 from . import constants
@@ -8,19 +10,19 @@ db = constants.db
 blackList = constants.blacklisted_terms
 exceptions = constants.blacklisted_exceptions
 
-def cleanMe():
+
+def cleanMe(manual=False):
     images = db.images.find().batch_size(10000)
     print colored("total images before: %s" % db.images.count(), 'yellow')
     i = 0
     d = 0
     for doc in images:
-        if d > 3:
-            break
         print colored('item #%s' % i, 'green')
         urls = doc['image_urls']
         for url in urls:
             if any(term in url for term in blackList):
-                raw_input(url)
+                if manual:
+                    raw_input(url)
                 if any(x in url for x in exceptions):
                     continue
                 image_id = doc["_id"]
@@ -34,4 +36,8 @@ def cleanMe():
 
 
 if __name__ == "__main__":
-    cleanMe()
+    if len(sys.argv) == 2:
+        manual = sys.argv[1]
+    else:
+        manual = False
+    cleanMe(manual)
