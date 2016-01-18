@@ -18,3 +18,9 @@
   - name: git pull gclouddev
     git: repo=git@bitbucket.org:trendiGuru/core.git dest=/home/developer/python-packages/trendi accept_hostkey=yes
     sudo_user: jeremy
+
+
+# Flush only one db in a redis instance
+#- redis: command=flush db=1 flush_mode=db
+#mongostat
+#redis-cli ping
