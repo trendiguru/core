@@ -222,13 +222,13 @@ def start_process(page_url, image_url, lang=None):
 
     # IF URL IS BLACKLISTED - put in blacklisted_urls
     # {"page_url":"hoetownXXX.com","image_urls":["hoetownXXX.com/yomama1.jpg","yomama2.jpg"]}
-    if blacklisted_term_in_url(page_url):
-        if db.blacklisted_urls.find_one({"page_url": page_url}):
-            db.blacklisted_urls.update_one({"page_url": page_url},
-                                           {"$push": {"image_urls": image_url}})
-        else:
-            db.blacklisted_urls.insert_one({"page_url": page_url, "image_urls": [image_url]})
-        return
+    # if blacklisted_term_in_url(page_url):
+    # if db.blacklisted_urls.find_one({"page_url": page_url}):
+    #         db.blacklisted_urls.update_one({"page_url": page_url},
+    #                                        {"$push": {"image_urls": image_url}})
+    #     else:
+    #         db.blacklisted_urls.insert_one({"page_url": page_url, "image_urls": [image_url]})
+    #     return
 
     # IF IMAGE IN IRRELEVANT_IMAGES
     images_obj_url = db.irrelevant_images.find_one({"image_urls": image_url})
@@ -341,20 +341,6 @@ def from_paperdoll_to_similar_results(person_id, paper_job_id, num_of_matches=10
             cur_item['fp'], cur_item['similar_results'] = job.result
     new_image_obj = iip.find_one_and_update({'people.person_id': person_id}, {'$set': {'people.$.items': items}},
                                             return_document=pymongo.ReturnDocument.AFTER)
-    # total_time = 0
-    # while not new_image_obj:
-    # if total_time < 30:
-    #         # print "image_obj after update is None!.. waiting for it.. total time is {0}".format(total_time)
-    #         time.sleep(2)
-    #         total_time += 2
-    #         new_image_obj = iip.find_one_and_update({'people.person_id': person_id},
-    #                                                 {'$set': {'people.$.items': items}},
-    #                                                 return_document=pymongo.ReturnDocument.AFTER)
-    #     else:
-    #         print "exceeded.."
-    #         break
-    # else:
-    #     image_obj = new_image_obj
     if all((len(similar_results) for person in new_image_obj['people'] for similar_results in person['items'])):
         # print "inserted to db.images after {0} seconds".format(time.time() - start)
         a = images_collection.insert_one(image_obj)
