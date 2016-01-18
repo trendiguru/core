@@ -123,10 +123,9 @@ def find_top_n_results_nate(fp, method):
         return []
     print "done with find_n_nearest.."
     # get only the object itself, not the distance
-    closest_matches = [{"_id": match_tuple[0]["_id"],
-                        "id": match_tuple[0]["id"],
-                        "images.Xlarge": match_tuple[0]["images.XLarge"],
-                        "clickUrl": match_tuple[0]["clickUrl"]} for match_tuple in closest_matches]
+    closest_matches_id = [item[0]["id"] for item in closest_matches]
+    closest_matches = collection.find({"id": {"$in": closest_matches_id}},
+                                      {"_id": 1, "id": 1, "images.XLarge": 1, "clickUrl": 1}).batch_size(100)
 
     return closest_matches
 
