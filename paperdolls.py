@@ -3,6 +3,7 @@ __author__ = 'Nadav Paz'
 import logging
 import datetime
 import time
+import pickle
 
 import numpy as np
 import pymongo
@@ -11,7 +12,6 @@ import cv2
 from rq import Queue
 from rq.job import Job
 
-import pickle
 import tldextract
 import boto3
 import page_results
@@ -264,7 +264,7 @@ def start_process(page_url, image_url, lang=None):
         idx = 0
         for face in relevance.faces:
             x, y, w, h = face
-            person_bb = [int(round(max(0, x - 1.5 * w))), y, int(round(min(image.shape[1], x + 2.5 * w))),
+            person_bb = [int(round(max(0, x - 1.5 * w))), int(y), int(round(min(image.shape[1], x + 2.5 * w))),
                          min(image.shape[0], 8 * h)]
             person = {'face': face.tolist(), 'person_id': str(bson.ObjectId()), 'person_idx': idx, 'items': [],
                       'person_bb': person_bb}
