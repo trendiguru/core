@@ -206,6 +206,7 @@ def blacklisted_term_in_url(page_url):
 
 def start_process(page_url, image_url, lang=None):
     # db.monitoring.update_one({'queue': 'start_process'}, {'$inc': {'count': 1}})
+    print 'hellloo'
     if not lang:
         products_collection = 'products'
         coll_name = 'images'
