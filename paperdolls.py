@@ -276,7 +276,7 @@ def start_process(page_url, image_url, lang=None):
             q1.enqueue_call(func=from_paperdoll_to_similar_results, args=(person['person_id'], paper_job.id, 100,
                                                                           products_collection, coll_name),
                             depends_on=paper_job, ttl=TTL, result_ttl=TTL, timeout=TTL)
-        with open('new_images_log.txt', 'a') as f:
+        with open('/tmp/new_images_log.txt', 'a') as f:
             f.write("trying to insert {0}".format(image_dict))
             f.close()
         iip.insert_one(image_dict)
