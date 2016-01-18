@@ -280,7 +280,7 @@ def start_process(page_url, image_url, lang=None):
         iip.insert_one(image_dict)
         return
     else:  # if not relevant
-        logging.warning('image is not relevant, but stored anyway..')
+        print 'image is not relevant, but stored anyway..'
         db.irrelevant_images.insert_one(image_dict)
         return
 
