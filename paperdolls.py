@@ -11,6 +11,7 @@ import cv2
 from rq import Queue
 from rq.job import Job
 
+import pickle
 import tldextract
 import boto3
 import page_results
@@ -276,7 +277,12 @@ def start_process(page_url, image_url, lang=None):
             q1.enqueue_call(func=from_paperdoll_to_similar_results, args=(person['person_id'], paper_job.id, 100,
                                                                           products_collection, coll_name),
                             depends_on=paper_job, ttl=TTL, result_ttl=TTL, timeout=TTL)
-        iip.insert_one(image_dict)
+        try:
+            iip.insert_one(image_dict)
+        except pymongo.errors.InvalidDocument:
+            print image_dict
+            with open("/tmp/bad_dict.pickle", "wb") as f:
+                f.write(pickle.dumps(image_dict))
         return
     else:  # if not relevant
         print 'image is not relevant, but stored anyway..'
