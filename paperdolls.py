@@ -215,6 +215,11 @@ def start_process(page_url, image_url, lang=None):
         coll_name = 'images_' + lang
         images_collection = db[coll_name]
 
+    page_domain = tldextract.extract(page_url).registered_domain
+    if page_domain not in whitelist.fullList:
+        logging.debug("Domain not in whitelist: {0}. Page: {1}".format(page_domain, page_url))
+        return
+
     # IF URL IS BLACKLISTED - put in blacklisted_urls
     # {"page_url":"hoetownXXX.com","image_urls":["hoetownXXX.com/yomama1.jpg","yomama2.jpg"]}
     if blacklisted_term_in_url(page_url):
@@ -254,33 +259,32 @@ def start_process(page_url, image_url, lang=None):
 
     # NEW_IMAGE !!
     print "Start process image shape: " + str(image.shape)
-    a = tldextract.extract(image_url)
-    short_url = a.domain + '.' + a.suffix
-    if short_url in whitelist.fullList:
-        relevance = background_removal.image_is_relevant(image, use_caffe=False, image_url=image_url)
-        image_dict = {'image_urls': [image_url], 'relevant': relevance.is_relevant, 'views': 1,
-                      'image_hash': image_hash, 'page_urls': [page_url], 'people': []}
-        if relevance.is_relevant:
-            # There are faces
-            idx = 0
-            for face in relevance.faces:
-                x, y, w, h = face
-                person_bb = [int(round(max(0, x - 1.5 * w))), y, int(round(min(image.shape[1], x + 2.5 * w))),
-                             min(image.shape[0], 8 * h)]
-                person = {'face': face, 'person_id': str(bson.ObjectId()), 'person_idx': idx, 'items': [],
-                          'person_bb': person_bb}
-                image_copy = person_isolation(image, face)
-                image_dict['people'].append(person)
-                paper_job = paperdoll_parse_enqueue.paperdoll_enqueue(image_copy, person['person_id'])
-                q1.enqueue_call(func=from_paperdoll_to_similar_results, args=(person['person_id'], paper_job.id, 100,
-                                                                              products_collection, coll_name),
-                                depends_on=paper_job, ttl=TTL, result_ttl=TTL, timeout=TTL)
-            logging.warning("trying to insert {0}".format(image_dict))
-            iip.insert_one(image_dict)
-        else:  # if not relevant
-            logging.warning('image is not relevant, but stored anyway..')
-            db.irrelevant_images.insert_one(image_dict)
-            return
+
+    relevance = background_removal.image_is_relevant(image, use_caffe=False, image_url=image_url)
+    image_dict = {'image_urls': [image_url], 'relevant': relevance.is_relevant, 'views': 1,
+                  'image_hash': image_hash, 'page_urls': [page_url], 'people': []}
+    if relevance.is_relevant:
+        # There are faces
+        idx = 0
+        for face in relevance.faces:
+            x, y, w, h = face
+            person_bb = [int(round(max(0, x - 1.5 * w))), y, int(round(min(image.shape[1], x + 2.5 * w))),
+                         min(image.shape[0], 8 * h)]
+            person = {'face': face, 'person_id': str(bson.ObjectId()), 'person_idx': idx, 'items': [],
+                      'person_bb': person_bb}
+            image_copy = person_isolation(image, face)
+            image_dict['people'].append(person)
+            paper_job = paperdoll_parse_enqueue.paperdoll_enqueue(image_copy, person['person_id'])
+            q1.enqueue_call(func=from_paperdoll_to_similar_results, args=(person['person_id'], paper_job.id, 100,
+                                                                          products_collection, coll_name),
+                            depends_on=paper_job, ttl=TTL, result_ttl=TTL, timeout=TTL)
+        logging.warning("trying to insert {0}".format(image_dict))
+        iip.insert_one(image_dict)
+        return
+    else:  # if not relevant
+        logging.warning('image is not relevant, but stored anyway..')
+        db.irrelevant_images.insert_one(image_dict)
+        return
 
 
 def from_paperdoll_to_similar_results(person_id, paper_job_id, num_of_matches=100, products_collection='products',
