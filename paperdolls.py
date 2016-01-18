@@ -276,7 +276,7 @@ def start_process(page_url, image_url, lang=None):
             q1.enqueue_call(func=from_paperdoll_to_similar_results, args=(person['person_id'], paper_job.id, 100,
                                                                           products_collection, coll_name),
                             depends_on=paper_job, ttl=TTL, result_ttl=TTL, timeout=TTL)
-        logging.warning("trying to insert {0}".format(image_dict))
+        print "trying to insert {0}".format(image_dict)
         iip.insert_one(image_dict)
         return
     else:  # if not relevant
