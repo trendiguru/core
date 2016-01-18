@@ -9,7 +9,7 @@ from .crawlme import scrapLinks
 scrap_q = Queue('CrawlMe', connection=constants.redis_conn)
 db = constants.db
 
-fullList = ["yahoo.com", "msn.com", "yahoo.co.jp", "qq.com", "uol.com.br", "globo.com", "naver.com", "onet.pl",
+fullList = {"yahoo.com", "msn.com", "yahoo.co.jp", "qq.com", "uol.com.br", "globo.com", "naver.com", "onet.pl",
              "espn.go.com", "news.yahoo.com", "163.com", "wp.pl", "sina.com.cn", "news.google.com", "bbc.co.uk",
              "cnn.com", "news.yandex.ru", "rambler.ru", "bbc.com", "cnet.com", "dailymail.co.uk", "milliyet.com.tr",
              "nytimes.com", "news.mail.ru", "zing.vn", "sports.yahoo.com", "news.yahoo.co.jp", "theguardian.com",
@@ -122,9 +122,9 @@ fullList = ["yahoo.com", "msn.com", "yahoo.co.jp", "qq.com", "uol.com.br", "glob
              'bunte.de', 'nataliehartleywears.blogspot.co.uk', 'the-frugality.com', 'garypeppergirl.com',
              'weworewhat.com', 'ella-lapetiteanglaise.com', 'camilleovertherainbow.com', 'lisegrendene.com.br',
              'nadiaaboulhosn.com', 'tommyton.com', 'wearingittoday.co.uk', 'alltheprettybirds.com', 'parkandcube.com',
-             'advancedstyle.blogspot.co.uk', 'disneyrollergirl.net', 'cocosteaparty.com']
+             'advancedstyle.blogspot.co.uk', 'disneyrollergirl.net', 'cocosteaparty.com'}
 
-fashionBlogs = ["manrepeller.com", "wishwishwish.net", "parkandcube.com", "stellaswardrobe.com", "cocosteaparty.com",
+fashionBlogs = {"manrepeller.com", "wishwishwish.net", "parkandcube.com", "stellaswardrobe.com", "cocosteaparty.com",
                "5inchandup.blogspot.co.uk", "garypeppergirl.com", "camilleovertherainbow.com", "streetpeeper.com",
                "the-frugality.com", "disneyrollergirl.net", "weworewhat.com", "wearingittoday.co.uk",
                "ella-lapetiteanglaise.com",
@@ -133,9 +133,9 @@ fashionBlogs = ["manrepeller.com", "wishwishwish.net", "parkandcube.com", "stell
                "peonylim.com", "vanessajackman.blogspot.co.uk", "alltheprettybirds.com", "lisegrendene.com.br",
                "nataliehartleywears.blogspot.co.uk", "tommyton.com", "stylebubble.co.uk", "pandorasykes.com",
                "theblondesalad.com",
-               "thesartorialist.com", "bryanboy.com", "bunte.de", "gala.fr"]
+               "thesartorialist.com", "bryanboy.com", "bunte.de", "gala.fr"}
 
-top50Fashion = ["refinery29.com", "maxmodels.pl", "stylebistro.com", "fashion.ifeng.com", "tajbao.com",
+top50Fashion = {"refinery29.com", "maxmodels.pl", "stylebistro.com", "fashion.ifeng.com", "tajbao.com",
                 "highsnobiety.com", "osinka.ru", "trendsylvania.net", "whowhatwear.com", "fashiony.ru",
                 "gq.com.tw", "fashion.sina.com.cn", "lookbook.nu", "vogue.com.tw", "thefashionspot.com",
                 "elle.com.tw", "vogue.com.cn", "thehunt.com", "fashionbeans.com", "gqindia.com", "models.com",
@@ -144,9 +144,9 @@ top50Fashion = ["refinery29.com", "maxmodels.pl", "stylebistro.com", "fashion.if
                 "thesartorialist.com", "cupcakesandcashmere.com", "fashion.walla.co.il", "thegloss.com", "vogue.com.au",
                 "panele.lt", "af-110.com", "collegefashion.net", "niv.ru", "desired.de", "fashionstylemag.com",
                 "guimi.com", "fashionbank.ru", "vmagazine.com", "garancedore.fr", "thefashionisto.com",
-                "fashionising.com", "modelmanagement.com"]
+                "fashionising.com", "modelmanagement.com"}
 
-top50CelebSytle = ["pudelek.pl", "tmz.com", "super.cz", "ew.com", "entretenimento.r7.com", "hollywoodlife.com",
+top50CelebSytle = {"pudelek.pl", "tmz.com", "super.cz", "ew.com", "entretenimento.r7.com", "hollywoodlife.com",
                    "kapanlagi.com", "zimbio.com", "jezebel.com", "purepeople.com", "jeanmarcmorandini.com",
                    "radaronline.com", "etonline.com", "voici.fr", "topito.com", "ciudad.com.ar", "perezhilton.com",
                    "koreaboo.com", "cztv.com", "virgula.uol.com.br", "suggest.com", "justjared.com", "therichest.com",
@@ -154,9 +154,9 @@ top50CelebSytle = ["pudelek.pl", "tmz.com", "super.cz", "ew.com", "entreteniment
                    "digitalspy.com", "purepeople.com.br", "thepiratebay.uk.net", "sopitas.com", "deadline.com",
                    "starpulse.com", "multikino.pl", "zakzak.co.jp", "primiciasya.com", "celebuzz.com", "luckstars.co",
                    "ratingcero.com", "non-stop-people.com", "tochka.net", "toofab.com", "extra.cz", "kozaczek.pl",
-                   "huabian.com", "bossip.com", "spletnik.ru", "wetpaint.com"]
+                   "huabian.com", "bossip.com", "spletnik.ru", "wetpaint.com"}
 
-arts_and_all_countries = ['pudelek.pl', 'tmz.com', 'super.cz', 'ew.com', 'entretenimento.r7.com', 'hollywoodlife.com',
+arts_and_all_countries = {'pudelek.pl', 'tmz.com', 'super.cz', 'ew.com', 'entretenimento.r7.com', 'hollywoodlife.com',
                           'kapanlagi.com', 'zimbio.com', 'jezebel.com', 'purepeople.com', 'jeanmarcmorandini.com',
                           'radaronline.com', 'etonline.com', 'voici.fr', 'topito.com', 'ciudad.com.ar',
                           'perezhilton.com', 'virgula.uol.com.br', 'suggest.com', 'justjared.com', 'therichest.com',
@@ -175,9 +175,9 @@ arts_and_all_countries = ['pudelek.pl', 'tmz.com', 'super.cz', 'ew.com', 'entret
                           '123telugu.com', 'nofilmschool.com', 'dongtw.com', 'playgroundmag.net', 'ngoisao.vn',
                           'potins.net', 'wowkeren.com', 'movistar-adsl.com', 'purebreak.com', 'entertaintastic.com',
                           'dioguinho.pt', 'perfecte.ro', 'napi.hu', 'klubas.lt', 'esmas.com', 'vertele.com',
-                          'purebreak.com.br']
+                          'purebreak.com.br'}
 
-arts_and_india = ['bollywoodlife.com', '123telugu.com', 'pinkvilla.com', 'missmalini.com', 'tollywood.net',
+arts_and_india = {'bollywoodlife.com', '123telugu.com', 'pinkvilla.com', 'missmalini.com', 'tollywood.net',
                   'indiancinemagallery.com', 'therichest.com', 'hollywoodlife.com', 'andhravilas.net', 'follo.in',
                   'ew.com', 'moviemint.com', 'zimbio.com', 'boxofficeindia.com', 'bollyguide.com', 'tellychowk.com',
                   'tellyduniya.com', 'bollywoodtadka.in', 'ap13.in', 'hecklerspray.com', 'starsunfolded.com',
@@ -196,9 +196,9 @@ arts_and_india = ['bollywoodlife.com', '123telugu.com', 'pinkvilla.com', 'missma
                   'okmagazine.com', 'tvactress.in', 'ratingcero.com', 'nagfans.com', 'egokick.com', 'hypable.com',
                   'boxofficeindia.co.in', 'fusion.net', 'thehollywoodgossip.com', 'aceshowbiz.com', 'nyoozflix.com',
                   'gossiplankanews.com', 'indianalerts.com', 'digitalspy.co.uk', 'indianactressphotos.in',
-                  'moviepics99.com', 'stillgalaxy.com']
+                  'moviepics99.com', 'stillgalaxy.com'}
 
-arts_and_us = ['tmz.com', 'ew.com', 'jezebel.com', 'hollywoodlife.com', 'etonline.com', 'radaronline.com', 'zimbio.com',
+arts_and_us = {'tmz.com', 'ew.com', 'jezebel.com', 'hollywoodlife.com', 'etonline.com', 'radaronline.com', 'zimbio.com',
                'perezhilton.com', 'pagesix.com', 'suggest.com', 'starpulse.com', 'therichest.com', 'bossip.com',
                'deadline.com', 'toofab.com', 'oprah.com', 'hiddenplaybook.com', 'pressroomvip.com', 'egokick.com',
                'okmagazine.com', 'justjared.com', 'celebuzz.com', 'wetpaint.com', 'thesuperficial.com',
@@ -216,9 +216,9 @@ arts_and_us = ['tmz.com', 'ew.com', 'jezebel.com', 'hollywoodlife.com', 'etonlin
                'redlettermedia.com', 'hawtcelebs.com', 'closerweekly.com', 'dvdtalk.com', 'hypable.com',
                'soapsindepth.com', 'mediamass.net', 'theforce.net', 'famefocus.com', 'storm.mg', 'accessthestars.com',
                'bollywoodlife.com', 'screenjunkies.com', 'starmagazine.com', 'digitalspy.co.uk', 'dayscafe.com',
-               'barevhayer.com', 'collegecandy.com']
+               'barevhayer.com', 'collegecandy.com'}
 
-fash_and_mod_all = ['maxmodels.pl', 'stylebistro.com', 'fashion.ifeng.com', 'tajbao.com', 'highsnobiety.com',
+fash_and_mod_all = {'maxmodels.pl', 'stylebistro.com', 'fashion.ifeng.com', 'tajbao.com', 'highsnobiety.com',
                     'osinka.ru', 'trendsylvania.net', 'whowhatwear.com', 'fashiony.ru', 'fashion.sina.com.cn',
                     'lookbook.nu', 'vogue.com.tw', 'thefashionspot.com', 'elle.com.tw', 'vogue.com.cn', 'thehunt.com',
                     'fashionbeans.com', 'models.com', 'fashion.sohu.com', 'purseblog.com', 'elle.co.jp', 'perfecte.md',
@@ -237,9 +237,9 @@ fash_and_mod_all = ['maxmodels.pl', 'stylebistro.com', 'fashion.ifeng.com', 'taj
                     'celebsvenue.com', 'fashion.hola.com', 'todaysfashion.com', 'fashion.allwomenstalk.com',
                     'hellomollyfashion.com', 'magazine-data.com', 'style.com', 'wearesodroee.com', 'eazyfashion.com',
                     'candidfashionpolice.com', 'malemodelscene.net', 'starttoday.jp', 'nifmagazine.com',
-                    'harpersbazaar.com.au', 'levi.com.cn', 'femlife.de']
+                    'harpersbazaar.com.au', 'levi.com.cn', 'femlife.de'}
 
-fash_and_mod_india = ['tajbao.com', 'roposo.com', 'styleblazer.com', 'whowhatwear.com', 'stylebistro.com',
+fash_and_mod_india = {'tajbao.com', 'roposo.com', 'styleblazer.com', 'whowhatwear.com', 'stylebistro.com',
                       'fashionbeans.com', 'highsnobiety.com', 'fashiontv.com', 'lovemaegan.com', 'thefashionspot.com',
                       'fashionnstyle.com', 'basenotes.net', 'lookbook.nu', 'thefashionisto.com', 'models.com',
                       'collegefashion.net', 'thegloss.com', 'fashiongonerogue.com', 'thehunt.com',
@@ -263,9 +263,9 @@ fash_and_mod_india = ['tajbao.com', 'roposo.com', 'styleblazer.com', 'whowhatwea
                       'fashiontrendsetter.com', 'dreeamcast.com', 'golpobd24.blogspot.in', 'styldrv.com',
                       'fashionpr.com', 'shefashiontrend.com', 'blender-models.com', 'vintage-obsession.com',
                       'fashion.com', 'd2xzbo2ehns0vv.cloudfront.net', 'malemodelscene.net', 'fashionindie.com',
-                      'fustany.com', 'minhaz.me']
+                      'fustany.com', 'minhaz.me'}
 
-fash_and_mod_us = ['stylebistro.com', 'whowhatwear.com', 'highsnobiety.com', 'thehunt.com', 'purseblog.com',
+fash_and_mod_us = {'stylebistro.com', 'whowhatwear.com', 'highsnobiety.com', 'thehunt.com', 'purseblog.com',
                    'thefashionspot.com', 'lookbook.nu', 'wwd.com', 'fashionbeans.com', 'models.com', 'wmagazine.com',
                    'basenotes.net', 'thegloss.com', 'collegefashion.net', 'fashionnstyle.com', 'styleblazer.com',
                    'mybodygallery.com', 'stylight.com', 'picbazi.com', 'thesartorialist.com', 'stylishlyme.com',
@@ -286,9 +286,9 @@ fash_and_mod_us = ['stylebistro.com', 'whowhatwear.com', 'highsnobiety.com', 'th
                    'fabulousafter40.com', 'fashionisers.com', 'frappuccini.tumblr.com', 'self.com.cn',
                    'fashionweekdaily.com', 'doyoulikevintage.tumblr.com', 'cs10.org', 'nitrolicious.com',
                    'vickumbro.tumblr.com', 'malemodelscene.net', 'ironandtweed.com', 'fashiontoast.com', 'flare.com',
-                   'heartifb.com', 'mylifeaseva.com']
+                   'heartifb.com', 'mylifeaseva.com'}
 
-e_zines = ['buzzfeed.com', 'forbes.com', 'mynet.com', 'pixnet.net', 'vice.com', 'novinky.cz', 'rollingstone.com',
+e_zines = {'buzzfeed.com', 'forbes.com', 'mynet.com', 'pixnet.net', 'vice.com', 'novinky.cz', 'rollingstone.com',
            'refinery29.com', 'people.com', 'focus.de', 'complex.com', 'time.com', 'theatlantic.com', 'obozrevatel.com',
            'xl.pt', 'littlethings.com', 'slate.com', 'si.com', 'lepoint.fr', 'blic.rs', 'korrespondent.net',
            'upsocl.com', 'vogue.com', 'esquire.com', 'salon.com', 'askmen.com', 'censor.net.ua', 'intoday.in',
@@ -303,10 +303,12 @@ e_zines = ['buzzfeed.com', 'forbes.com', 'mynet.com', 'pixnet.net', 'vice.com', 
            'tiphero.com', 'prozeny.cz', 'dnaindia.com', 'srbijadanas.com', 'sopitas.com', 'fontanka.ru', 'kiskegyed.hu',
            'adweek.com', 'redbookmag.com', 'nerdist.com', 'test.de', 'allure.com', 'cosmo.ru', 'newsweek.com',
            'bunte.de', 'boldsky.com', 'gunosy.com', 'instyle.com', 'naturalnews.com', 'pronto.com.ar', 'barrons.com',
-           'madmoizelle.com', 'glamour.com', 'walkerplus.com', 'maxim.com', 'runnersworld.com']
+           'madmoizelle.com', 'glamour.com', 'walkerplus.com', 'maxim.com', 'runnersworld.com'}
 
-all_white_lists = fullList + fashionBlogs + top50CelebSytle + top50Fashion + arts_and_all_countries + arts_and_india + \
-                  arts_and_us + fash_and_mod_all + fash_and_mod_india + fash_and_mod_us + e_zines
+all_white_lists = frozenset().union(fullList, fashionBlogs, top50CelebSytle, top50Fashion, arts_and_all_countries,
+                                    arts_and_india, arts_and_us, fash_and_mod_all, fash_and_mod_india, fash_and_mod_us,
+                                    e_zines)
+
 
 def masterCrawler(floor=2, whiteList=top50Fashion):
     db.crawler_processed.drop()
