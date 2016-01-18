@@ -265,7 +265,7 @@ def start_process(page_url, image_url, lang=None):
             x, y, w, h = face
             person_bb = [int(round(max(0, x - 1.5 * w))), y, int(round(min(image.shape[1], x + 2.5 * w))),
                          min(image.shape[0], 8 * h)]
-            person = {'face': face, 'person_id': str(bson.ObjectId()), 'person_idx': idx, 'items': [],
+            person = {'face': face.tolist(), 'person_id': str(bson.ObjectId()), 'person_idx': idx, 'items': [],
                       'person_bb': person_bb}
             image_copy = person_isolation(image, face)
             image_dict['people'].append(person)
