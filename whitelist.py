@@ -288,6 +288,9 @@ fash_and_mod_us = ['stylebistro.com', 'whowhatwear.com', 'highsnobiety.com', 'th
                    'vickumbro.tumblr.com', 'malemodelscene.net', 'ironandtweed.com', 'fashiontoast.com', 'flare.com',
                    'heartifb.com', 'mylifeaseva.com']
 
+all_white_lists = [fullList, fashionBlogs, top50CelebSytle, top50Fashion, arts_and_all_countries, arts_and_india,
+                   arts_and_us, fash_and_mod_all, fash_and_mod_india, fash_and_mod_us]
+
 def masterCrawler(floor=2, whiteList=top50Fashion):
     db.crawler_processed.drop()
     db.crawler_processed.create_index("url")
