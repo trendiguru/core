@@ -55,11 +55,7 @@ def find_face_ccv(image_arr, max_num_of_faces=100):
 
 
 def find_face_cascade(image, max_num_of_faces=10):
-    if len(image.shape) > 2:
-        gray = cv2.cvtColor(image, constants.BGR2GRAYCONST)
-    else:
-        gray = image
-
+    gray = cv2.cvtColor(image, constants.BGR2GRAYCONST)
     face_cascades = [
         cv2.CascadeClassifier(os.path.join(constants.classifiers_folder, 'haarcascade_frontalface_alt2.xml')),
         cv2.CascadeClassifier(os.path.join(constants.classifiers_folder, 'haarcascade_frontalface_alt.xml')),
