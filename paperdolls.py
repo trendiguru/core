@@ -3,6 +3,7 @@ __author__ = 'Nadav Paz'
 import logging
 import datetime
 import time
+import pickle
 
 import numpy as np
 import pymongo
@@ -216,27 +217,22 @@ def start_process(page_url, image_url, lang=None):
         images_collection = db[coll_name]
 
     page_domain = tldextract.extract(page_url).registered_domain
-    if page_domain not in whitelist.fullList:
+    if page_domain not in whitelist.all_white_lists:
         logging.debug("Domain not in whitelist: {0}. Page: {1}".format(page_domain, page_url))
         return
 
     # IF URL IS BLACKLISTED - put in blacklisted_urls
     # {"page_url":"hoetownXXX.com","image_urls":["hoetownXXX.com/yomama1.jpg","yomama2.jpg"]}
-    if blacklisted_term_in_url(page_url):
-        if db.blacklisted_urls.find_one({"page_url": page_url}):
-            db.blacklisted_urls.update_one({"page_url": page_url},
-                                           {"$push": {"image_urls": image_url}})
-        else:
-            db.blacklisted_urls.insert_one({"page_url": page_url, "image_urls": [image_url]})
-        return
+    # if blacklisted_term_in_url(page_url):
+    # if db.blacklisted_urls.find_one({"page_url": page_url}):
+    #         db.blacklisted_urls.update_one({"page_url": page_url},
+    #                                        {"$push": {"image_urls": image_url}})
+    #     else:
+    #         db.blacklisted_urls.insert_one({"page_url": page_url, "image_urls": [image_url]})
+    #     return
 
     # IF IMAGE IN IRRELEVANT_IMAGES
     images_obj_url = db.irrelevant_images.find_one({"image_urls": image_url})
-    if images_obj_url:
-        return
-
-    # IF IMAGE EXISTS IN IMAGES BY URL
-    images_obj_url = images_collection.find_one({"image_urls": image_url})
     if images_obj_url:
         return
     
@@ -261,28 +257,35 @@ def start_process(page_url, image_url, lang=None):
     print "Start process image shape: " + str(image.shape)
 
     relevance = background_removal.image_is_relevant(image, use_caffe=False, image_url=image_url)
-    image_dict = {'image_urls': [image_url], 'relevant': relevance.is_relevant, 'views': 1,
-                  'image_hash': image_hash, 'page_urls': [page_url], 'people': []}
+    image_dict = {'image_urls': [image_url], 'relevant': relevance.is_relevant, 'views': 1, 'people': [],
+                  'image_hash': image_hash, 'page_urls': [page_url], 'saved_date': datetime.datetime.now()}
     if relevance.is_relevant:
         # There are faces
         idx = 0
         for face in relevance.faces:
             x, y, w, h = face
-            person_bb = [int(round(max(0, x - 1.5 * w))), y, int(round(min(image.shape[1], x + 2.5 * w))),
+            person_bb = [int(round(max(0, x - 1.5 * w))), int(y), int(round(min(image.shape[1], x + 2.5 * w))),
                          min(image.shape[0], 8 * h)]
-            person = {'face': face, 'person_id': str(bson.ObjectId()), 'person_idx': idx, 'items': [],
+            person = {'face': face.tolist(), 'person_id': str(bson.ObjectId()), 'person_idx': idx, 'items': [],
                       'person_bb': person_bb}
             image_copy = person_isolation(image, face)
             image_dict['people'].append(person)
             paper_job = paperdoll_parse_enqueue.paperdoll_enqueue(image_copy, person['person_id'])
+
+            # TODO: what happens if paper_job is failed (pop person..)
+
             q1.enqueue_call(func=from_paperdoll_to_similar_results, args=(person['person_id'], paper_job.id, 100,
                                                                           products_collection, coll_name),
                             depends_on=paper_job, ttl=TTL, result_ttl=TTL, timeout=TTL)
-        logging.warning("trying to insert {0}".format(image_dict))
-        iip.insert_one(image_dict)
+        try:
+            iip.insert_one(image_dict)
+        except pymongo.errors.InvalidDocument:
+            print image_dict
+            with open("/tmp/bad_dict.pickle", "wb") as f:
+                f.write(pickle.dumps(image_dict))
         return
     else:  # if not relevant
-        logging.warning('image is not relevant, but stored anyway..')
+        print 'image is not relevant, but stored anyway..'
         db.irrelevant_images.insert_one(image_dict)
         return
 
@@ -299,10 +302,9 @@ def from_paperdoll_to_similar_results(person_id, paper_job_id, num_of_matches=10
             paper_job_results[3], person_id))
     mask, labels = paper_job_results[:2]
     image_obj, person = get_person_by_id(person_id, iip)
-    if person is not None and 'face' in person and len(person['face']) > 0:
-        final_mask = after_pd_conclusions(mask, labels, person['face'])
-    else:
-        final_mask = after_pd_conclusions(mask, labels)
+    if not image_obj or not person:
+        raise SystemError("couldn't find image or person by person_id")
+    final_mask = after_pd_conclusions(mask, labels, person['face'])
     image = Utils.get_cv2_img_array(image_obj['image_urls'][0])
     if image is None:
         iip.delete_one({'_id': image_obj['_id']})
@@ -317,14 +319,14 @@ def from_paperdoll_to_similar_results(person_id, paper_job_id, num_of_matches=10
             item_mask = 255 * np.array(final_mask == num, dtype=np.uint8)
             shopstyle_cat_local_name = constants.paperdoll_shopstyle_women_jp_categories[category]['name']
             item_dict = {"category": category, 'item_id': str(bson.ObjectId()), 'item_idx': idx,
-                         'saved_date': datetime.datetime.now(), 'category_name': shopstyle_cat_local_name}
+                         'category_name': shopstyle_cat_local_name}
             # svg_name = find_similar_mongo.mask2svg(
             # item_mask,
             #     str(image_obj['_id']) + '_' + person['person_id'] + '_' + item_dict['category'],
             #     constants.svg_folder)
             # item_dict["svg_url"] = constants.svg_url_prefix + svg_name
             items.append(item_dict)
-            db.monitoring.update_one({'queue': 'find_top_n'}, {'$inc': {'count': 1}})
+            # db.monitoring.update_one({'queue': 'find_top_n'}, {'$inc': {'count': 1}})
             jobs[idx] = q2.enqueue_call(func=find_similar_mongo.find_top_n_results, args=(image, item_mask,
                                                                                           num_of_matches,
                                                                                           item_dict['category'],
@@ -345,21 +347,7 @@ def from_paperdoll_to_similar_results(person_id, paper_job_id, num_of_matches=10
             cur_item['fp'], cur_item['similar_results'] = job.result
     new_image_obj = iip.find_one_and_update({'people.person_id': person_id}, {'$set': {'people.$.items': items}},
                                             return_document=pymongo.ReturnDocument.AFTER)
-    total_time = 0
-    while not new_image_obj:
-        if total_time < 30:
-            # print "image_obj after update is None!.. waiting for it.. total time is {0}".format(total_time)
-            time.sleep(2)
-            total_time += 2
-            new_image_obj = iip.find_one_and_update({'people.person_id': person_id},
-                                                    {'$set': {'people.$.items': items}},
-                                                    return_document=pymongo.ReturnDocument.AFTER)
-        else:
-            print "exceeded.."
-            break
-    else:
-        image_obj = new_image_obj
-    if person['person_idx'] == len(image_obj['people']) - 1:
+    if all((len(similar_results) for person in new_image_obj['people'] for similar_results in person['items'])):
         # print "inserted to db.images after {0} seconds".format(time.time() - start)
         a = images_collection.insert_one(image_obj)
         iip.delete_one({'_id': image_obj['_id']})

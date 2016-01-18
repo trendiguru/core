@@ -735,7 +735,7 @@ white_list = ["http://www.bunte.de",
               "accuweather.com"]
 
 #if any one of these appears as a substring in a url, it gets booted
-blacklisted_terms =['alohatube',
+blacklisted_terms = {'alohatube',
     'asshole',
      'asswipe',
     'beeg.com',
@@ -796,9 +796,9 @@ blacklisted_terms =['alohatube',
      'x-rated',
      'xrated',
      'xxx',
-      'youjizz']
+    'youjizz'}
 
-blacklisted_exceptions = ['xxxlarge',
+blacklisted_exceptions = {'xxxlarge',
                           'xxxsmall',
                           'peacock',
                           'cocktail',
@@ -806,4 +806,4 @@ blacklisted_exceptions = ['xxxlarge',
                           'wellandgood',
                           'fashion',
                           'xxxhairsnap',
-                          'kannada']
+                          'kannada'}

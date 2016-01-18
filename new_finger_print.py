@@ -154,21 +154,21 @@ def spaciogram_finger_print(image, mask):
     sample.append(image[:, :, 0])
     sample.append(image[:, :, 1])
     sample.append(image[:, :, 2])
-    sample.append(circ_dist)
+    # sample.append(circ_dist)
     # spaciogram, edges = np.histogramdd(sample, bins, normed=True, weights=None)
 
     # stacking the spaciograms:
     spaciograms = []
     # coars_color_spaciogram:
-    bins = 8
+    bins = 5
     input_channles = []
-    for channle in sample[:3]:
+    for channle in sample:#[:3]:
         input_channles.append(channle[mask > 0].flatten())
     coars_color_spaciogram, coars_color_edges = np.histogramdd(input_channles, bins, normed=True, weights=None)
     spaciograms.append((coars_color_spaciogram.flatten()).tolist())
 
     # fine_color_spaciogram:
-    bins = 10
+    bins = 8
     input_channles = []
     for channle in sample:
         input_channles.append(channle[mask > 0].flatten())
