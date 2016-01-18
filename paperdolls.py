@@ -216,7 +216,7 @@ def start_process(page_url, image_url, lang=None):
         images_collection = db[coll_name]
 
     page_domain = tldextract.extract(page_url).registered_domain
-    if page_domain not in whitelist.fullList:
+    if page_domain not in whitelist.all_white_lists:
         logging.debug("Domain not in whitelist: {0}. Page: {1}".format(page_domain, page_url))
         return
 
@@ -276,9 +276,6 @@ def start_process(page_url, image_url, lang=None):
             q1.enqueue_call(func=from_paperdoll_to_similar_results, args=(person['person_id'], paper_job.id, 100,
                                                                           products_collection, coll_name),
                             depends_on=paper_job, ttl=TTL, result_ttl=TTL, timeout=TTL)
-        with open('/tmp/new_images_log.txt', 'a') as f:
-            f.write("trying to insert {0}".format(image_dict))
-            f.close()
         iip.insert_one(image_dict)
         return
     else:  # if not relevant

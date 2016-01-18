@@ -288,8 +288,25 @@ fash_and_mod_us = ['stylebistro.com', 'whowhatwear.com', 'highsnobiety.com', 'th
                    'vickumbro.tumblr.com', 'malemodelscene.net', 'ironandtweed.com', 'fashiontoast.com', 'flare.com',
                    'heartifb.com', 'mylifeaseva.com']
 
-all_white_lists = [fullList, fashionBlogs, top50CelebSytle, top50Fashion, arts_and_all_countries, arts_and_india,
-                   arts_and_us, fash_and_mod_all, fash_and_mod_india, fash_and_mod_us]
+e_zines = ['buzzfeed.com', 'forbes.com', 'mynet.com', 'pixnet.net', 'vice.com', 'novinky.cz', 'rollingstone.com',
+           'refinery29.com', 'people.com', 'focus.de', 'complex.com', 'time.com', 'theatlantic.com', 'obozrevatel.com',
+           'xl.pt', 'littlethings.com', 'slate.com', 'si.com', 'lepoint.fr', 'blic.rs', 'korrespondent.net',
+           'upsocl.com', 'vogue.com', 'esquire.com', 'salon.com', 'askmen.com', 'censor.net.ua', 'intoday.in',
+           'nature.com', 'stern.de', 'blogtamsu.vn', 'vz.ru', 'sinaimg.cn', 'realsimple.com', 'cosmopolitan.com',
+           'usnews.com', 'vox.com', 'timeout.com', 'nymag.com', 'distractify.com', 'newyorker.com', 'variety.com',
+           'harpersbazaar.com', 'elle.com', 'gq.com', 'aplus.com', 'inc.com', 'bizjournals.com', 'dose.com',
+           'gentside.com', 'libertatea.ro', 'vanityfair.com', 'telegraf.com.ua', 'elle.fr', 'imujer.com', 'dir.bg',
+           'caras.uol.com.br', 'somethingawful.com', 'batanga.com', 'thesun.co.uk', 'thrillist.com',
+           'opposingviews.com',
+           'seventeen.com', 'motherjones.com', 'pjmedia.com', 'meneame.net', 'hypebeast.com', 'tomshw.it',
+           'fastcompany.com', 'fanpage.gr', 'svpressa.ru', 'parismatch.com', 'marieclaire.com', 'theweek.com',
+           'tiphero.com', 'prozeny.cz', 'dnaindia.com', 'srbijadanas.com', 'sopitas.com', 'fontanka.ru', 'kiskegyed.hu',
+           'adweek.com', 'redbookmag.com', 'nerdist.com', 'test.de', 'allure.com', 'cosmo.ru', 'newsweek.com',
+           'bunte.de', 'boldsky.com', 'gunosy.com', 'instyle.com', 'naturalnews.com', 'pronto.com.ar', 'barrons.com',
+           'madmoizelle.com', 'glamour.com', 'walkerplus.com', 'maxim.com', 'runnersworld.com']
+
+all_white_lists = fullList + fashionBlogs + top50CelebSytle + top50Fashion + arts_and_all_countries + arts_and_india + \
+                  arts_and_us + fash_and_mod_all + fash_and_mod_india + fash_and_mod_us + e_zines
 
 def masterCrawler(floor=2, whiteList=top50Fashion):
     db.crawler_processed.drop()
