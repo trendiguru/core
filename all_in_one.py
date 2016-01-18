@@ -123,7 +123,10 @@ def find_top_n_results_nate(fp, method):
         return []
     print "done with find_n_nearest.."
     # get only the object itself, not the distance
-    closest_matches = [match_tuple[0] for match_tuple in closest_matches]
+    closest_matches = [{"_id": match_tuple[0]["_id"],
+                        "id": match_tuple[0]["id"],
+                        "images.Xlarge": match_tuple[0]["images.XLarge"],
+                        "clickUrl": match_tuple[0]["clickUrl"]} for match_tuple in closest_matches]
 
     return closest_matches
 
