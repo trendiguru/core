@@ -168,7 +168,7 @@ def spaciogram_finger_print(image, mask):
     spaciograms.append((coars_color_spaciogram.flatten()).tolist())
 
     # fine_color_spaciogram:
-    bins = 10
+    bins = 8
     input_channles = []
     for channle in sample:
         input_channles.append(channle[mask > 0].flatten())
