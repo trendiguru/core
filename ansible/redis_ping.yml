@@ -2,12 +2,13 @@
   gather_facts: no
   tasks:
 
+  - ping:
   - name: print to stdout
-  command: echo "hello"
-  register: hello
+    command: echo "hello"
+    register: hello
 
-- debug: msg="{{ hello.stdout }}"
-- debug: msg="{{ hello.stderr }}"
+  - debug: msg="{{ hello.stdout }}"
+  - debug: msg="{{ hello.stderr }}"
 
 #- hosts: braini-nonpaperdoll
 
