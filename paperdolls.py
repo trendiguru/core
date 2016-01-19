@@ -279,10 +279,11 @@ def start_process(page_url, image_url, lang=None):
                             depends_on=paper_job, ttl=TTL, result_ttl=TTL, timeout=TTL)
         try:
             iip.insert_one(image_dict)
-        except pymongo.errors.InvalidDocument:
+        except pymongo.errors.InvalidDocument as inv_err:
             print image_dict
             with open("/tmp/bad_dict.pickle", "wb") as f:
                 f.write(pickle.dumps(image_dict))
+            raise inv_err
         return
     else:  # if not relevant
         print 'image is not relevant, but stored anyway..'
