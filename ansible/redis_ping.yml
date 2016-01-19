@@ -1,16 +1,16 @@
-- hosts: braini-paperdoll
-  gather_facts: no
-  tasks:
+#- hosts: braini-paperdoll
+ # gather_facts: no
+  #tasks:
 
-  - name: ping
-  - ping:
+#  - name: ping
+ #   ping:
 
-  - name: print to stdout
-    command: echo "hello"
-    register: hello
+#  - name: print to stdout
+ #   command: echo "hello"
+#    register: hello
 
-  - debug: msg="{{ hello.stdout }}"
-  - debug: msg="{{ hello.stderr }}"
+ # - debug: msg="{{ hello.stdout }}"
+ # - debug: msg="{{ hello.stderr }}"
 
 #- hosts: braini-nonpaperdoll
 
@@ -18,3 +18,17 @@
 #- redis: command=flush db=1 flush_mode=db
 #mongostat
 #redis-cli ping
+
+
+- hosts: localhost
+  tasks:
+
+    - name: run syslog-ng version
+      command: syslog-ng --version
+      register: ver_out
+      changed_when: false
+
+    - name: set ver
+      set_fact: ver="{{ ver_out.stdout.splitlines()[0]|regex_replace('[^\d.]+', '') }}"
+
+    - debug: msg="answer={{ ver }}"
