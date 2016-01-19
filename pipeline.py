@@ -1,6 +1,5 @@
 __author__ = 'Nadav Paz'
 
-import time
 import logging
 
 import cv2
@@ -130,13 +129,7 @@ def merge_people_and_insert(image_obj):
     db.images.insert_one(image_obj)
 
 
-def merge_items_and_return_person_job(jobs, items, person_id):
-    done = all([job.is_finished for job in jobs.values()])
-    # POLLING
-    while not done:
-        time.sleep(0.2)
-        done = all([job.is_finished or job.is_failed for job in jobs.values()])
-
+def merge_items_into_person(jobs, person_id):
     # all items are done, now merge all items (unless job is failed, and then pop it out from items)
     for idx, job in jobs.iteritems():
         cur_item = next((item for item in items if item['item_idx'] == idx), None)
@@ -224,7 +217,7 @@ def person_job(person_id, products_coll, images_coll, image_url):
             item_mask = 255 * np.array(final_mask == num, dtype=np.uint8)
             shopstyle_cat_local_name = constants.paperdoll_shopstyle_women_jp_categories[category]['name']
             item = {"category": category, 'item_id': str(bson.ObjectId()), 'item_idx': idx,
-                    'category_name': shopstyle_cat_local_name, 'items': []}
+                    'category_name': shopstyle_cat_local_name, 'similar_results': []}
             item_jobs.append(q2.enqueue_call(func=find_similar_mongo.find_top_n_results, args=(image, item_mask, 100,
                                                                                                category, products_coll),
                                              ttl=TTL, result_ttl=TTL, timeout=TTL))
@@ -232,4 +225,4 @@ def person_job(person_id, products_coll, images_coll, image_url):
                 db.iip.update_one({'person_id': person_id}, {'$push': {'items': item}})
                 idx += 1
 
-    return merge_items_and_return_person_job(item_jobs, person_id)
+    return merge_items_into_person(item_jobs, person_id)
