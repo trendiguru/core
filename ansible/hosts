@@ -34,9 +34,12 @@ braini-nonpaperdoll
 [gcloud-dev]
 #extremeli-evolution-dev-1
 104.155.51.241
-
 #extremeli-evolution-dev-2
 104.155.77.106
+
+[pp2]
+#pp-2
+104.155.19.29
 
 
 [fazz1]
@@ -51,13 +54,24 @@ braini-nonpaperdoll
 #mongodb1-instance-1
 146.148.10.50
 
-[pp2]
-#pp-2
-104.155.19.29
 
 [redis]
 #redis1-redis-1-vm
 104.155.69.205
+
+#gcloud ubuntu logins
+[gcloud_ubuntu_user:children]
+gcloud-dev
+gcloud-production
+pp2
+
+#gcloud root logins
+[gcloud_root_user:children]
+redis
+mongodb
+front-api
+fazz1
+
 
 #all gcloud computers
 [gcloud:children]
@@ -87,11 +101,12 @@ braini-nonpaperdoll
 #159.8.45.214
 #37.58.101.171
 
+#104.154.64.27 #fazz-1
+#146.148.10.50 #mongodb1-instance-1
+#104.155.69.205 #redis1-redis-1-vm
+
+#104.155.19.29 #pp-2
 #104.155.22.95  #extremeli-evolution-1
 #104.155.51.241 #extremeli-evolution-dev-1
 #104.155.77.106 #extremeli-evolution-dev-2
-#104.154.64.27 #fazz-1
 #104.155.90.40#front-api-1
-#146.148.10.50 #mongodb1-instance-1
-#104.155.19.29 #pp-2
-#104.155.69.205 #redis1-redis-1-vm
