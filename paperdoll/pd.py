@@ -236,12 +236,14 @@ def test_scp():
                      stdout=subprocess.PIPE).stdout.read()
 
 
-def run_test():
+def run_test(img_filename):
     # url =  'http://aelida.com/wp-content/uploads/2012/06/love-this-style.jpg'
-    url = 'http://assets.yandycdn.com/HiRez/ES-4749-B-AMPM2012-2.jpg'
-    img, labels, pose = get_parse_mask(img_url_or_cv2_array=url)
+#    url = 'http://assets.yandycdn.com/HiRez/ES-4749-B-AMPM2012-2.jpg'
+    img, labels, pose = get_parse_mask(img_filename)
     show_max(img, labels)
+#    logging.debug('im:' + str(img))
     logging.debug('labels:' + str(labels))
+    logging.debug('pose:' + str(pose))
     # show_parse(img_array=img)
 
 
@@ -251,6 +253,6 @@ def run_matlab_engine(options_string='-nodesktop'):
     yield eng
     eng.quit()
 
-
 if __name__ == "__main__":
-    run_test()
+    im = 'product_9415_photo_3295_bbox_336_195_339_527.jpg'
+    run_test(im)
