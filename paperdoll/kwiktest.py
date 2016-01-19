@@ -28,7 +28,7 @@ urls.append('http://media2.popsugar-assets.com/files/2010/08/34/5/192/1922153/96
 for f in filenames:
     print('sending filenames')
     start_time = time.time()
-    retval = paperdoll_parse_enqueue.paperdoll_enqueue(i, async=False,use_parfor=False)  #True,queue_name='pd_parfor')
+    retval = paperdoll_parse_enqueue.paperdoll_enqueue(f, async=False,use_parfor=False)  #True,queue_name='pd_parfor')
     end_time = time.time()
     dt=end_time-start_time
     dts.append(dt)
@@ -41,7 +41,7 @@ for f in filenames:
     print('sending img arrays')
     im = cv2.imread(f)
     start_time = time.time()
-    retval = paperdoll_parse_enqueue.paperdoll_enqueue(f, async=False,use_parfor=False)  #True,queue_name='pd_parfor')
+    retval = paperdoll_parse_enqueue.paperdoll_enqueue(im, async=False,use_parfor=False)  #True,queue_name='pd_parfor')
     end_time = time.time()
     dt=end_time-start_time
     dts.append(dt)
