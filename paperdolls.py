@@ -349,7 +349,7 @@ def from_paperdoll_to_similar_results(person_id, paper_job_id, num_of_matches=10
                                             return_document=pymongo.ReturnDocument.AFTER)
     if all((len(similar_results) for person in new_image_obj['people'] for similar_results in person['items'])):
         # print "inserted to db.images after {0} seconds".format(time.time() - start)
-        a = images_collection.insert_one(image_obj)
+        a = images_collection.insert_one(new_image_obj)
         iip.delete_one({'_id': image_obj['_id']})
         logging.warning("# of images inserted to db.images: {0}".format(a.acknowledged * 1))
 
