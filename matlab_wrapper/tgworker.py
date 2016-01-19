@@ -67,7 +67,6 @@ class TgWorker(Worker):
         DEFAULT_WORKER_TTL = 1000
         DEFAULT_RESULT_TTL = 1000
         logger = logging.getLogger(__name__)
-        logger.info('checking engine in ej')
         logging.debug('checking to start engine in ej')
         if not hasattr(self,'matlab_engine'):
             eng = matlab.engine.start_matlab()

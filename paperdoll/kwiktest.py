@@ -2,12 +2,14 @@ __author__ = 'jeremy'
 from trendi.paperdoll import paperdoll_parse_enqueue
 import time
 import numpy as np
+import cv2
+
 urls=[]
 dts=[]
 #urls.append('http://notapicture.jpg')
 
-im =  []
-im.append( '/home/netanel/meta/dataset/testurls/product_9415_photo_3295_bbox_336_195_339_527.jpg')
+filenames =  []
+filenames.append( '/home/netanel/meta/dataset/testurls/product_9415_photo_3295_bbox_336_195_339_527.jpg')
 
 
 urls.append('http://i.imgur.com/ahFOgkm.jpg')
@@ -23,9 +25,23 @@ urls.append('http://gingerparrot.co.uk/wp/wp-content/uploads/2014/04/Katy-B-Red-
 urls.append('http://media2.popsugar-assets.com/files/2010/08/34/5/192/1922153/9621f2d8749ddac7_red-main/i/What-Kind-Makeup-Wear-Youre-Redhead-Wearing-Red-Dress.jpg')
 
 
-for i in im:
+for f in filenames:
+    print('sending filenames')
     start_time = time.time()
     retval = paperdoll_parse_enqueue.paperdoll_enqueue(i, async=False,use_parfor=False)  #True,queue_name='pd_parfor')
+    end_time = time.time()
+    dt=end_time-start_time
+    dts.append(dt)
+    if retval is not None:
+        print('retval:' + str(retval.result)+' time:'+str(dt))
+    else:
+        print('no return val (None)')
+
+for f in filenames:
+    print('sending img arrays')
+    im = cv2.imread(f)
+    start_time = time.time()
+    retval = paperdoll_parse_enqueue.paperdoll_enqueue(f, async=False,use_parfor=False)  #True,queue_name='pd_parfor')
     end_time = time.time()
     dt=end_time-start_time
     dts.append(dt)
