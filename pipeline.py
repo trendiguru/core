@@ -1,9 +1,12 @@
 __author__ = 'Nadav Paz'
 
 import time
+import logging
 
 import bson
 
+import tldextract
+from . import whitelist
 from . import background_removal
 from . import Utils
 from . import page_results
@@ -11,7 +14,23 @@ from .paperdoll import paperdoll_parse_enqueue
 from .constants import db
 from .constants import q1
 from .constants import q2
+from .constants import q3
 from .constants import general_ttl as TTL
+
+
+------------------------------------------------------------------------------------------------------------------------
+
+
+def is_in_whitelist(page_url):
+    page_domain = tldextract.extract(page_url).registered_domain
+    if page_domain not in whitelist.all_white_lists:
+        logging.debug("Domain not in whitelist: {0}. Page: {1}".format(page_domain, page_url))
+        return False
+    else:
+        return True
+
+
+------------------------------------------------------------------------------------------------------------------------
 
 
 def merge_people_and_insert(jobs, people, image_id):
@@ -63,33 +82,50 @@ def start_pipeline(page_url, image_url, lang):
         products_collection = 'products_' + lang
         coll_name = 'images_' + lang
         images_collection = db[coll_name]
+
+    if not is_in_whitelist(page_url):
+        return
+
+    images_obj_url = db.irrelevant_images.find_one({"image_urls": image_url})
+    if images_obj_url:
+        return
+
+    image_hash = page_results.get_hash_of_image_from_url(image_url)
+    images_obj_hash = images_collection.find_one_and_update({"image_hash": image_hash},
+                                                            {'$push': {'image_urls': image_url}})
+    if images_obj_hash:
+        return
+
+    iip_obj = db.iip.find_one({"image_urls": image_url}) or db.iip.find_one({"image_hash": image_hash})
+    if iip_obj:
+        return
+
     image = Utils.get_cv2_img_array(image_url)
     if image is None:
         return
-    print "Starting pipeline with image: {0}".format(image_url)
-    image_hash = page_results.get_hash_of_image_from_url(image_url)
+
     relevance = background_removal.image_is_relevant(image, use_caffe=False, image_url=image_url)
     image_dict = {'image_urls': [image_url], 'relevant': relevance.is_relevant,
                   'image_hash': image_hash, 'page_urls': [page_url], 'people': []}
     if relevance.is_relevant:
         # There are faces
-        people_jobs = {}
+        people_jobs = []
         idx = 0
         for face in relevance.relevant_faces:
             x, y, w, h = face
-            person_bb = [int(round(max(0, x - 1.5 * w))), y, int(round(min(image.shape[1], x + 2.5 * w))),
+            person_bb = [int(round(max(0, x - 1.5 * w))), str(y), int(round(min(image.shape[1], x + 2.5 * w))),
                          min(image.shape[0], 8 * h)]
             person = {'face': face, 'person_id': str(bson.ObjectId()), 'person_idx': idx, 'items': [],
                       'person_bb': person_bb}
             image_copy = background_removal.person_isolation(image, face)
             image_dict['people'].append(person)
-            people_jobs[idx] = q1.enqueue_call(func=person_job, args=(person['person_id'], image_copy,
+            people_jobs.append(q1.enqueue_call(func=person_job, args=(person['person_id'], image_copy,
                                                                       products_collection, images_collection),
-                                               ttl=TTL, result_ttl=TTL, timeout=TTL)
+                                               ttl=TTL, result_ttl=TTL, timeout=TTL))
             idx += 1
 
         image_dict = db.iip.insert_one(image_dict)
-        merge_people_and_insert(people_jobs, image_dict['people'], image_dict['_id'])
+        q3.enqueue_call(func=merge_people_and_insert, args=(image_dict, ), depends_on=people_jobs)
     else:
         db.irrelevant_image.insert_one(image_dict)
 
