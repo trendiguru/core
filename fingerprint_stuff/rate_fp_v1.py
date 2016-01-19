@@ -1,5 +1,6 @@
-from __future__ import print_function
+__author__ = 'jeremy'
 
+from __future__ import print_function
 __author__ = 'jeremy'
 # todo weight averages by number of pics
 # DONE a
@@ -12,8 +13,7 @@ __author__ = 'jeremy'
 # TODO load all images for a given set  and keep in memory
 # TODO fix trendibb_editor, only first image is shown correctly
 # TODO combine check fingerprint and check_fp_except_diag
-# TODO do 2d histogram
-# TODO do histogram equalization
+# TODO do 2d histogra
 # from joblib import Parallel, delayed
 # NOTE - cross-compare not yet implementing weights, fp_function,distance_function,distance_power
 import multiprocessing
@@ -28,9 +28,9 @@ import sys
 import matplotlib
 from scipy.spatial import distance as dist
 from trendi import constants
-from trendi.constants import db
+#from trendi.constants import db
 import pymongo
-#db = pymongo.MongoClient().mydb
+db = pymongo.MongoClient().mydb
 
 
 matplotlib.use('Agg')  # prevents problems generating plots on server where no display is defined
@@ -603,7 +603,7 @@ def normalize_matrix(matrix):
     return (normalized_matrix)
 
 # maybe delete
-def cross_compare(image_sets):
+def cross_compare(image_sets, mask_arrs):
     '''
     compares image set i to image set j (including j=i)
     '''
@@ -615,9 +615,9 @@ def cross_compare(image_sets):
             print('group 1:' + str(image_sets[i]))
             print('group 2:' + str(image_sets[j]))
             if (i == j):
-                avg_dist = compare_fingerprints(image_sets[i], image_sets[j],do_diagonal=False)
+                avg_dist = compare_fingerprints(image_sets[i], image_sets[j], mask_arrs[i], mask_arrs[j], do_diagonal=False)
             else:
-                avg_dist = compare_fingerprints(image_sets[i], image_sets[j])
+                avg_dist = compare_fingerprints(image_sets[i], image_sets[j], mask_arrs[i], mask_arrs[j])
             confusion_matrix[i, j] = avg_dist
             print('confusion matrix is currently:' + str(confusion_matrix))
             # normalized_matrix = normalize_matrix(confusion_matrix)
@@ -651,7 +651,8 @@ def calculate_cross_confusion_matrix():
                   sep='')
         doc = next(training_collection_cursor, None)
     print('tot number of groups:' + str(i) + '=' + str(len(tot_answers)))
-    confusion_matrix = cross_compare(tot_answers)
+    mask_arrs = np.load("yuli_mask_items_new.npy")
+    confusion_matrix = cross_compare(tot_answers, mask_arrs)
     print('confusion matrix:' + str(confusion_matrix))
     cross_report['confusion_matrix'] = confusion_matrix.tolist()  # this is required for json dumping
     # cross_report['fingerprint_function']='fp'
@@ -660,7 +661,7 @@ def calculate_cross_confusion_matrix():
     return (confusion_matrix)
 
 ##in use
-def compare_fingerprints(image_array1, image_array2, fingerprint_function=fp_core.fp,
+def compare_fingerprints(image_array1, image_array2, mask_arr1, mask_arr2, fingerprint_function=fp_core.fp,
                                          weights=np.ones(fingerprint_length), distance_function=NNSearch.distance_1_k,
                                          distance_power=0.5,do_diagonal=True, **fingerprint_arguments):
     global visual_output1
@@ -685,14 +686,15 @@ def compare_fingerprints(image_array1, image_array2, fingerprint_function=fp_cor
                 if img_arr1.shape[0] == 0 or img_arr1.shape[1] == 0:
                     print('aaaagggghh!! this is a zero-area image1 !!! how did that happen??!?!? shape:' + str(
                         img_arr1.shape))
-                if img_arr1.shape[0] == bb1[3] or img_arr1.shape[1] == bb1[2]:
-                    print('bb and img have same shape, bb:' + str(bb1) + ' im:' + str(img_arr1.shape))
+                # if img_arr1.shape[0] == bb1[3] or img_arr1.shape[1] == bb1[2]:
+                #     print('bb and img have same shape, bb:' + str(bb1) + ' im:' + str(img_arr1.shape))
+
                 #print('bb:' + str(bb1) + ' im:' + str(img_arr1.shape))
                 #fp1 = fingerprint_function(img_arr1, bounding_box=bb1, weights=weights, **fingerprint_arguments)
                 ma = np.zeros(img_arr1.shape[:2])
                 ma[bb1[0]:bb1[0]+bb1[2],bb1[1]:bb1[1]+bb1[3]]=1
-                fp1 = np.multiply(fingerprint_function(img_arr1, mask= get_mask(img_arr1) , **fingerprint_arguments), weights)
-            except Exception as e:
+                fp1 = np.multiply(fingerprint_function(img_arr1, mask=mask_arr1[image_array1.index(entry1)] , **fingerprint_arguments), weights)
+            except Exception as e:                               #numpy.where(array==item
                 print(e)
             #except:
              #   print('something bad happened, bb1=' + str(bb1) + ' and imsize1=' + str(img_arr1.shape))
@@ -727,13 +729,14 @@ def compare_fingerprints(image_array1, image_array2, fingerprint_function=fp_cor
                         if img_arr2.shape[0] == 0 or img_arr2.shape[1] == 0:
                             print('aaaagggghh!! this is a zero-area image2 !!! how did that happen??!?!? area:' + str(
                                 img_arr2.shape))
-                        if img_arr2.shape[0] == bb2[3] or img_arr2.shape[1] == bb2[2]:
-                            print('bb and img have same shape, bb:' + str(bb2) + ' im:' + str(img_arr2.shape))
+                        # if img_arr2.shape[0] == bb2[3] or img_arr2.shape[1] == bb2[2]:
+                        #     print('bb and img have same shape, bb:' + str(bb2) + ' im:' + str(img_arr2.shape))
+
                         #print('bb:' + str(bb2) + ' im:' + str(img_arr2.shape))
                         #fp2 = fingerprint_function(img_arr2, bounding_box=bb2, weights=weights, **fingerprint_arguments)
                         ma = np.zeros(img_arr2.shape[:2])
                         ma[bb2[0]:bb2[0]+bb2[2],bb2[1]:bb2[1]+bb2[3]]=1
-                        fp2 = np.multiply(fingerprint_function(img_arr2, mask=get_mask(image_array2), **fingerprint_arguments), weights)
+                        fp2 = np.multiply(fingerprint_function(img_arr2, mask=mask_arr2[image_array2.index(entry2)], **fingerprint_arguments), weights)
                     except Exception as e:
                         print(e)
                         fp2 = np.ones(fingerprint_length)  # this is arbitrary but lets keep going instead of crashing
@@ -770,18 +773,21 @@ def compare_fingerprints(image_array1, image_array2, fingerprint_function=fp_cor
 #########33
 # start code in use
 ##########
-def make_cross_comparison_sets(image_sets):
+def make_cross_comparison_sets(image_sets, mask_arrs):
     '''
     This is for cross comparison with n image sets instead of the full possible n(n-1)/2 sets,
     for n image sets.  For each image set, a single comparison set is chosen.
     Just make sure the one chosen for comparison is not the same set.
     '''
-    answers = []
-    for i in range(0, len(image_sets)):
-      answers = []
+    answers_im = []
+    answers_ma = []
     rang = range(len(image_sets))
-    [[ answers.append([image_sets[i], image_sets[j]]) for j in rang[i+1:]] for i in rang ]
-    print("Right number of cross comparison sets = ", len(rang)*(len(rang)-1)/2 == len(answers ) )
+    [[ answers_im.append([image_sets[i], image_sets[j]]) for j in rang[i+1:]] for i in rang ]
+    [[ answers_ma.append([mask_arrs[i], mask_arrs[j]]) for j in rang[i+1:]] for i in rang ]
+    print("Number of cross comparison sets:", len(answers_im))
+    print("Number of cross comparison mask sets:", len(answers_ma))
+    print("Right combinatorics: ", len(rang)*(len(rang)-1)/2 )
+
     # for i in range(0, len(image_sets)):
     #     j = random.randint(0, len(image_sets) - 1)
     #     while j == i:
@@ -790,10 +796,10 @@ def make_cross_comparison_sets(image_sets):
     #     print('set1:' + str(i) + ', set2:' + str(j))
     #     # print('set1:' + str(image_sets[i]) + ', set2:' + str(image_sets[j]))
     #     answers.append([image_sets[i], image_sets[j]])
-    return answers
+    return answers_im, answers_ma
 
 
-def partial_cross_compare_wrapper((image_sets, fingerprint_function, weights,
+def partial_cross_compare_wrapper((image_sets, mask_arrs, fingerprint_function, weights,
                                   distance_function, distance_power, fingerprint_arguments)):
     # print ('module name:'+str( __name__))
     # if hasattr(os, 'getppid'):  # only available on Unix
@@ -809,12 +815,14 @@ def partial_cross_compare_wrapper((image_sets, fingerprint_function, weights,
 
     image_set1 = image_sets[0]
     image_set2 = image_sets[1]
+    mask_arr1 = mask_arrs[0]
+    mask_arr2 = mask_arrs[1]
     print('imset1 has ' + str(len(image_set1)) + ' images, imset2 has ' + str(len(image_set2)) + ' images')
     proc_name = multiprocessing.current_process().name
     # print('proc_name:' + str(proc_name))
     # print('im1' + str(image_set1))
     #    print('im2' + str(image_set2))
-    avg_dist, stdev, all_distances = compare_fingerprints(image_set1, image_set2, fingerprint_function,
+    avg_dist, stdev, all_distances = compare_fingerprints(image_set1, image_set2, mask_arr1, mask_arr2, fingerprint_function,
                                                           weights, distance_function,
                                                           distance_power, **fingerprint_arguments)
     confusion_matrix = avg_dist
@@ -822,7 +830,7 @@ def partial_cross_compare_wrapper((image_sets, fingerprint_function, weights,
     return ([confusion_matrix, stdev_matrix, all_distances])
 
 
-def calculate_partial_cross_confusion_vector(image_sets, fingerprint_function=fp_core.fp,
+def calculate_partial_cross_confusion_vector(image_sets, mask_arrs, fingerprint_function=fp_core.fp,
                                              weights=np.ones(fingerprint_length),
                                              distance_function=NNSearch.distance_1_k, distance_power=0.5, report=None,
                                              comparisons_to_make=None, parallelize=True, **fingerprint_arguments):
@@ -838,7 +846,7 @@ def calculate_partial_cross_confusion_vector(image_sets, fingerprint_function=fp
     all_distances = []
 
     if comparisons_to_make is None:
-        comparisons_to_make = make_cross_comparison_sets(image_sets)
+        comparisons_to_make, masks_sets = make_cross_comparison_sets(image_sets, mask_arrs)
     # comparisons_dict = {'comparisons_to_make':comparisons_to_make,'image_sets':image_sets}
     # attempt to parallelize
     if parallelize:
@@ -849,7 +857,7 @@ def calculate_partial_cross_confusion_vector(image_sets, fingerprint_function=fp
         print('start calculating cross comparisons')
         tupled_arguments = []
         for image_set in comparisons_to_make:
-            tupled_arguments.append((image_set, fingerprint_function, weights,
+            tupled_arguments.append((image_set, masks_sets[comparisons_to_make.index(image_set)], fingerprint_function, weights,
                                      distance_function, distance_power, fingerprint_arguments))
         answers = p.map(partial_cross_compare_wrapper, tupled_arguments)
         # answers = p.map(partial_cross_compare_wrapper, comparisons_to_make)
@@ -863,8 +871,10 @@ def calculate_partial_cross_confusion_vector(image_sets, fingerprint_function=fp
         for i in range(0, len(image_sets)):
             imset1 = comparisons_to_make[i][0]
             imset2 = comparisons_to_make[i][1]
+            mask_arr1 = masks_sets[i][0]
+            mask_arr2 = masks_sets[i][1]
             # print('comparing group ' + str(imset1) + ' to group ' + str(imset2))
-            avg_dist, stdev, all_dists = compare_fingerprints(imset1, imset2,
+            avg_dist, stdev, all_dists = compare_fingerprints(imset1, imset2, mask_arr1, mask_arr2,
                                                               fingerprint_function=fingerprint_function,
                                                               weights=weights, distance_function=distance_function,
                                                               distance_power=distance_power, **fingerprint_arguments)
@@ -888,6 +898,7 @@ def calculate_partial_cross_confusion_vector(image_sets, fingerprint_function=fp
     report = find_stats(confusion_vector, stdev_vector, report)
     report['fingerprint_function'] = str(fingerprint_function)
     report['all_distances'] = all_distances
+    report['num_all_distances'] = len([val for sl in all_distances for val in sl])
 
     # print('s.fp_func:' + str(fingerprint_fu
 
@@ -896,7 +907,7 @@ def calculate_partial_cross_confusion_vector(image_sets, fingerprint_function=fp
     return (report)
 
 
-def self_compare_wrapper2(image_set, fingerprint_function=fp_core.fp, weights=np.ones(fingerprint_length),
+def self_compare_wrapper2(image_set, mask_arrs, fingerprint_function=fp_core.fp, weights=np.ones(fingerprint_length),
                           distance_function=NNSearch.distance_1_k, distance_power=0.5, **fingerprint_arguments):
     # print ('module name:'+str( __name__))
     # if hasattr(os, 'getppid'):  # only available on Unix
@@ -904,7 +915,7 @@ def self_compare_wrapper2(image_set, fingerprint_function=fp_core.fp, weights=np
     # print ('process id:'+str( os.getpid()))
     proc_name = multiprocessing.current_process().name
     print('proc_name:' + str(proc_name))
-    avg_dist, stdev, all_distances = compare_fingerprints(image_set, image_set, fingerprint_function,
+    avg_dist, stdev, all_distances = compare_fingerprints(image_set, image_set, mask_arrs, mask_arrs, fingerprint_function,
                                                                           weights,
                                                                           distance_function, distance_power,do_diagonal=False,
                                                                           **fingerprint_arguments)
@@ -913,7 +924,7 @@ def self_compare_wrapper2(image_set, fingerprint_function=fp_core.fp, weights=np
     return ([confusion_matrix, stdev_matrix, all_distances])
 
 
-def self_compare_wrapper(( image_set, fingerprint_function, weights,
+def self_compare_wrapper(( image_set,mask_arrs, fingerprint_function, weights,
                          distance_function, distance_power, fingerprint_arguments)):
     # print ('module name:'+str( __name__))
     # if hasattr(os, 'getppid'):  # only available on Unix
@@ -928,7 +939,7 @@ def self_compare_wrapper(( image_set, fingerprint_function, weights,
     # print('d_func:' + str(distance_function))
     # print('d_pow:' + str(distance_power))
     # print('fp_args:' + str(fingerprint_arguments))
-    avg_dist, stdev, all_distances = compare_fingerprints(image_set, image_set, fingerprint_function,
+    avg_dist, stdev, all_distances = compare_fingerprints(image_set, image_set, mask_arrs, mask_arrs,  fingerprint_function,
                                                                           weights,
                                                                           distance_function, distance_power,do_diagonal=False,
                                                                           **fingerprint_arguments)
@@ -937,7 +948,7 @@ def self_compare_wrapper(( image_set, fingerprint_function, weights,
     return ([confusion_matrix, stdev_matrix, all_distances])
 
 
-def calculate_self_confusion_vector(image_sets, fingerprint_function=fp_core.fp, weights=np.ones(fingerprint_length),
+def calculate_self_confusion_vector(image_sets, mask_arrs, fingerprint_function=fp_core.fp, weights=np.ones(fingerprint_length),
                                     distance_function=NNSearch.distance_1_k, distance_power=0.5, report=None,
                                     parallelize=True, **fingerprint_arguments):
     '''
@@ -970,7 +981,7 @@ def calculate_self_confusion_vector(image_sets, fingerprint_function=fp_core.fp,
         print('start calculating self comparisons')
         tupled_arguments = []
         for image_set in image_sets:
-            tupled_arguments.append((image_set, fingerprint_function, weights,
+            tupled_arguments.append((image_set, mask_arrs[image_sets.index(image_set)], fingerprint_function, weights,
                                      distance_function, distance_power, fingerprint_arguments))
 
             answers = p.map(self_compare_wrapper, tupled_arguments)
@@ -992,7 +1003,7 @@ def calculate_self_confusion_vector(image_sets, fingerprint_function=fp_core.fp,
         for i in range(0, len(image_sets)):
             print('comparing group ' + str(i) + ' to itself')
             print('imageset:' + str(image_sets[i]))
-            avg_dist, stdev, all_dists = compare_fingerprints(image_sets[i], image_sets[i],
+            avg_dist, stdev, all_dists = compare_fingerprints(image_sets[i], image_sets[i], mask_arrs[i], mask_arrs[i],
                                                                               fingerprint_function=fingerprint_function,
                                                                               weights=weights,
                                                                               distance_function=distance_function,
@@ -1015,6 +1026,9 @@ def calculate_self_confusion_vector(image_sets, fingerprint_function=fp_core.fp,
     report = find_stats(confusion_vector, stdev_vector, report)
     report['fingerprint_function'] = str(fingerprint_function)
     report['all_distances'] = all_distances
+    report['num_all_distances'] = len([val for sl in all_distances for val in sl])
+
+
     # print('report:' + str(report))
     return (report)
 
@@ -1074,7 +1088,9 @@ def analyze_fingerprint(fingerprint_function=fp_core.fp, weights=np.ones(fingerp
 
     cross_report = dict(self_report)
 
-    self_report = calculate_self_confusion_vector(image_sets, fingerprint_function=fingerprint_function,
+    mask_arrs = np.load("yuli_mask_items_new.npy")
+
+    self_report = calculate_self_confusion_vector(image_sets, mask_arrs, fingerprint_function=fingerprint_function,
                                                   weights=weights, distance_function=distance_function,
                                                   distance_power=distance_power, report=self_report,
                                                   **fingerprint_arguments)
@@ -1090,8 +1106,10 @@ def analyze_fingerprint(fingerprint_function=fp_core.fp, weights=np.ones(fingerp
         del (self_report['stdev_vector'])
     if not isinstance(self_report['weights'], list):
         self_report['weights'] = self_report['weights'].tolist()
+    if not isinstance(self_report['num_all_distances'], list):
+        self_report['num_all_distances'] = str(self_report['num_all_distances'])
 
-    cross_report = calculate_partial_cross_confusion_vector(image_sets, fingerprint_function=fingerprint_function,
+    cross_report = calculate_partial_cross_confusion_vector(image_sets, mask_arrs, fingerprint_function=fingerprint_function,
                                                             weights=weights,
                                                             distance_function=distance_function,
                                                             distance_power=distance_power, report=cross_report,
@@ -1106,6 +1124,9 @@ def analyze_fingerprint(fingerprint_function=fp_core.fp, weights=np.ones(fingerp
         del (cross_report['stdev_vector'])
     if not isinstance(cross_report['weights'], list):
         cross_report['weights'] = cross_report['weights'].tolist()
+    if not isinstance(cross_report['num_all_distances'], list):
+        cross_report['num_all_distances'] = str(cross_report['num_all_distances'])
+
 
     all_cross = cross_report['all_distances']
     del cross_report['all_distances']
