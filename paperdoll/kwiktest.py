@@ -9,7 +9,7 @@ dts=[]
 #urls.append('http://notapicture.jpg')
 
 filenames =  []
-filenames.append( '/home/netanel/meta/dataset/testurls/product_9415_photo_3295_bbox_336_195_339_527.jpg')
+filenames.append( '/home/netanel/meta/dataset/test1/product_9415_photo_3295_bbox_336_195_339_527.jpg')
 
 
 urls.append('http://i.imgur.com/ahFOgkm.jpg')
