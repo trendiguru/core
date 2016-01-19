@@ -3,6 +3,8 @@ __author__ = 'Nadav Paz'
 import time
 import logging
 
+import numpy as np
+
 import bson
 
 import tldextract
@@ -30,23 +32,23 @@ def is_in_whitelist(page_url):
         return True
 
 
+def person_isolation(image, face):
+    x, y, w, h = face
+    image_copy = np.zeros(image.shape, dtype=np.uint8)
+    x_back = np.max([x - 1.5 * w, 0])
+    x_ahead = np.min([x + 2.5 * w, image.shape[1] - 2])
+    image_copy[:, int(x_back):int(x_ahead), :] = image[:, int(x_back):int(x_ahead), :]
+    return image_copy
+
+
 ------------------------------------------------------------------------------------------------------------------------
 
 
-def merge_people_and_insert(jobs, people, image_id):
-    done = all([job.is_finished for job in jobs.values()])
-    # POLLING
-    while not done:
-        time.sleep(0.2)
-        done = all([job.is_finished or job.is_failed for job in jobs.values()])
-
-    image_obj = db.iip.find_one({'_id': image_id})
+def merge_people_and_insert(image_obj):
     # all people are done, now merge all people (unless job is failed, and then pop it out from people)
-    for job in jobs:
-        cur_person = next((person for person in people if person['person_idx'] == idx), None)
-        if job.is_finished:
-            image_obj['people'].append(person)
-
+    for person in image_obj['people']:
+        ready_person = db.people.find_one({'id': person['person_id']})
+        person['items'] = ready_person['items']
     db.images.insert_one(image_obj)
 
 
@@ -117,15 +119,15 @@ def start_pipeline(page_url, image_url, lang):
                          min(image.shape[0], 8 * h)]
             person = {'face': face, 'person_id': str(bson.ObjectId()), 'person_idx': idx, 'items': [],
                       'person_bb': person_bb}
-            image_copy = background_removal.person_isolation(image, face)
-            image_dict['people'].append(person)
+            image_copy = person_isolation(image, face)
             people_jobs.append(q1.enqueue_call(func=person_job, args=(person['person_id'], image_copy,
                                                                       products_collection, images_collection),
                                                ttl=TTL, result_ttl=TTL, timeout=TTL))
-            idx += 1
-
-        image_dict = db.iip.insert_one(image_dict)
-        q3.enqueue_call(func=merge_people_and_insert, args=(image_dict, ), depends_on=people_jobs)
+            if db.iip.insert_one(person).acknowledged:
+                image_dict['people'].append(person)
+                idx += 1
+        q3.enqueue_call(func=merge_people_and_insert, args=(image_dict, ), depends_on=people_jobs, ttl=TTL,
+                        result_ttl=TTL, timeout=TTL)
     else:
         db.irrelevant_image.insert_one(image_dict)
 
