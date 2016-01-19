@@ -175,7 +175,7 @@ arts_and_all_countries = {'pudelek.pl', 'tmz.com', 'super.cz', 'ew.com', 'entret
                           '123telugu.com', 'nofilmschool.com', 'dongtw.com', 'playgroundmag.net', 'ngoisao.vn',
                           'potins.net', 'wowkeren.com', 'movistar-adsl.com', 'purebreak.com', 'entertaintastic.com',
                           'dioguinho.pt', 'perfecte.ro', 'napi.hu', 'klubas.lt', 'esmas.com', 'vertele.com',
-                          'purebreak.com.br'}
+                          'purebreak.com.br', 'globo.com', 'telegraph.co.uk'}
 
 arts_and_india = {'bollywoodlife.com', '123telugu.com', 'pinkvilla.com', 'missmalini.com', 'tollywood.net',
                   'indiancinemagallery.com', 'therichest.com', 'hollywoodlife.com', 'andhravilas.net', 'follo.in',
