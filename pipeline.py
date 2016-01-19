@@ -15,6 +15,7 @@ from . import whitelist
 from . import background_removal
 from . import Utils
 from . import page_results
+from . import find_similar_mongo
 from .paperdoll import paperdoll_parse_enqueue
 
 
@@ -196,9 +197,8 @@ def start_pipeline(page_url, image_url, lang):
                          min(image.shape[0], 8 * h)]
             person = {'face': face, 'person_id': str(bson.ObjectId()), 'person_idx': idx, 'items': [],
                       'person_bb': person_bb}
-            image_copy = person_isolation(image, face)
-            people_jobs.append(q1.enqueue_call(func=person_job, args=(person['person_id'], image_copy,
-                                                                      products_collection, images_collection),
+            people_jobs.append(q1.enqueue_call(func=person_job, args=(person['person_id'], products_collection,
+                                                                      images_collection, image_url),
                                                ttl=TTL, result_ttl=TTL, timeout=TTL))
             if db.iip.insert_one(person).acknowledged:
                 image_dict['people'].append(person)
@@ -209,11 +209,27 @@ def start_pipeline(page_url, image_url, lang):
         db.irrelevant_image.insert_one(image_dict)
 
 
-def person_job(person_id, image, products_coll, images_coll):
+def person_job(person_id, products_coll, images_coll, image_url):
+    person = db.iip.find_one({'person_id': person_id})
+    image = person_isolation(Utils.get_cv2_img_array(image_url), person['face'])
     paper_job = paperdoll_parse_enqueue.paperdoll_enqueue(image, person_id, async=False)
     mask, labels = paper_job.result[:2]
-    mask = after_pd_conclusions(mask)
-    item_jobs = {}
-    for item in items:
-        item_jobs['idx'] = q2.enqueue_call(func=item_job, args=(nyet1, nyet2)))
-        return merge_items_and_return_person_job(item_jobs, items, person_id)
+    final_mask = after_pd_conclusions(mask, labels)
+    item_jobs = []
+    idx = 0
+    for num in np.unique(final_mask):
+        # convert numbers to labels
+        category = list(labels.keys())[list(labels.values()).index(num)]
+        if category in constants.paperdoll_shopstyle_women.keys():
+            item_mask = 255 * np.array(final_mask == num, dtype=np.uint8)
+            shopstyle_cat_local_name = constants.paperdoll_shopstyle_women_jp_categories[category]['name']
+            item = {"category": category, 'item_id': str(bson.ObjectId()), 'item_idx': idx,
+                    'category_name': shopstyle_cat_local_name, 'items': []}
+            item_jobs.append(q2.enqueue_call(func=find_similar_mongo.find_top_n_results, args=(image, item_mask, 100,
+                                                                                               category, products_coll),
+                                             ttl=TTL, result_ttl=TTL, timeout=TTL))
+            if db.iip.insert_one(item).acknowledged:
+                db.iip.update_one({'person_id': person_id}, {'$push': {'items': item}})
+                idx += 1
+
+    return merge_items_and_return_person_job(item_jobs, person_id)
