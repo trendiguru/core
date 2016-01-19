@@ -31,7 +31,7 @@ def get_images_mongo():
 
 def masks_from_imgs_localy():
     import os
-    path = "/home/omer/new/trendi/fingerprint_stuff/test1/"
+    path = "/home/developer/python-packages/core_yuli/fingerprint_stuff/test1/"
     listing = os.listdir(path)
 
     pruned_images=[]
@@ -52,6 +52,8 @@ def masks_from_imgs_localy():
                     if category == 'dress'  and category in constants.paperdoll_shopstyle_women.keys():
                         print("Found dress!!")
                         mask_item = 255 * np.array(final_mask == num, dtype=np.uint8)
+                        mfilename = "/home/developer/python-packages/core_yuli/fingerprint_stuff/test1_masks/" + file + ".npy"
+                        np.save(mfilename, mask_item)
 
             except Exception as e:
                 max_retry = max_retry - 1
@@ -88,8 +90,7 @@ def make_masks(images):
                         print("Found dress!!")
                         mask_item = 255 * np.array(final_mask == num, dtype=np.uint8)
                         mask_items.append(mask_item)
-                        mfilename = "/home/omer/new/trendi/fingerprint_stuff/test1_masks/" + file + ".npy"
-                        np.save(mfilename, mask_items)
+
 
             except Exception as e:
                 max_retry = max_retry - 1
