@@ -134,14 +134,14 @@ def set_collections(lang):
 
 
 def merge_people_and_insert(jobs, image_id):
-    people = [db.iip.find_one({'_id': job.result}, {'_id': 0}) for job in jobs]
+    people = [db.iip.find_one({'_id': job.result}, {'_id': 0}) for job in jobs if job.is_finished]
     result = db.iip.find_one_and_update_one({'_id': image_id}, {'$set': {'people': people}},
                                             return_document=pymongo.ReturnDocument.AFTER)
     db.images.insert_one(result)
 
 
 def merge_items_into_person(jobs, person_id):
-    items = [db.iip.find_one({'_id': job.result}, {'_id': 0}) for job in jobs]
+    items = [db.iip.find_one({'_id': job.result}, {'_id': 0}) for job in jobs if job.is_finished]
     db.iip.update_one({'person_id': person_id}, {'$set': {'items': items}})
     return person_id
 
