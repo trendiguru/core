@@ -40,9 +40,7 @@ def build_dists(photo, path, mpath, listing):
                 img_arr2 = Utils.get_cv2_img_array(path+file)
                 fp2 = np.multiply(fingerprint_function(img_arr2, mask= fp2_mask ), fp_weights)
                 dists[file] = NNSearch.distance_Bhattacharyya(fp1, fp2, weights, hist_len)
-
-    dists[photo] = sort_dists_by_val(dists, n= 10)
-    return dists
+    return sort_dists_by_val(dists, n= 10)
 
 def match_rank(file, dists):
     photo_id, sep, matched_id = file.split('_bbox')[0].partition('photo_')
