@@ -131,7 +131,8 @@ def merge_people_and_insert(image_obj):
 
 def merge_items_into_person(jobs, person_id):
     # all items are done, now merge all items (unless job is failed, and then pop it out from items)
-    for idx, job in jobs.iteritems():
+    person = db.iip.find_one({'person_id': person_id})
+    for items in person['items']:
         cur_item = next((item for item in items if item['item_idx'] == idx), None)
         if job.is_failed:
             items[:] = [item for item in items if item['item_idx'] != cur_item['item_idx']]
