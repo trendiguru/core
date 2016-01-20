@@ -183,7 +183,7 @@ def start_pipeline(page_url, image_url, lang):
             x, y, w, h = face
             person_bb = [int(round(max(0, x - 1.5 * w))), str(y), int(round(min(image.shape[1], x + 2.5 * w))),
                          min(image.shape[0], 8 * h)]
-            people_jobs.append(q2.enqueue_call(func=person_job, args=(face, person_bb, products_coll,
+            people_jobs.append(q2.enqueue_call(func=person_job, args=(face.tolist(), person_bb, products_coll,
                                                                       image_url),
                                                ttl=TTL, result_ttl=TTL, timeout=TTL))
         image_id = db.iip.insert_one(image_dict).inserted_id
