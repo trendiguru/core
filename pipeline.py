@@ -121,6 +121,15 @@ def after_pd_conclusions(mask, labels, face=None):
     return final_mask
 
 
+def set_collections(lang):
+    if not lang:
+        return 'images', 'products'
+    else:
+        products_collection = 'products_' + lang
+        images_collection = 'images_' + lang
+        return images_collection, products_collection
+
+
 # -----------------------------------------------MERGE-FUNCTIONS--------------------------------------------------------
 
 
@@ -141,14 +150,7 @@ def merge_items_into_person(jobs, person_id):
 
 
 def start_pipeline(page_url, image_url, lang):
-    if not lang:
-        products_collection = 'products'
-        coll_name = 'images'
-        images_collection = db[coll_name]
-    else:
-        products_collection = 'products_' + lang
-        coll_name = 'images_' + lang
-        images_collection = db[coll_name]
+    images_coll, products_coll = set_collections(lang)
 
     if not is_in_whitelist(page_url):
         return
@@ -158,8 +160,8 @@ def start_pipeline(page_url, image_url, lang):
         return
 
     image_hash = page_results.get_hash_of_image_from_url(image_url)
-    images_obj_hash = images_collection.find_one_and_update({"image_hash": image_hash},
-                                                            {'$push': {'image_urls': image_url}})
+    images_obj_hash = db[images_coll].find_one_and_update({"image_hash": image_hash},
+                                                          {'$push': {'image_urls': image_url}})
     if images_obj_hash:
         return
 
@@ -181,7 +183,7 @@ def start_pipeline(page_url, image_url, lang):
             x, y, w, h = face
             person_bb = [int(round(max(0, x - 1.5 * w))), str(y), int(round(min(image.shape[1], x + 2.5 * w))),
                          min(image.shape[0], 8 * h)]
-            people_jobs.append(q2.enqueue_call(func=person_job, args=(face, person_bb, products_collection,
+            people_jobs.append(q2.enqueue_call(func=person_job, args=(face, person_bb, products_coll,
                                                                       image_url),
                                                ttl=TTL, result_ttl=TTL, timeout=TTL))
         image_id = db.iip.insert_one(image_dict).inserted_id
