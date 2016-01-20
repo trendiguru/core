@@ -218,7 +218,7 @@ def start_process(page_url, image_url, lang=None):
 
     page_domain = tldextract.extract(page_url).registered_domain
     if page_domain not in whitelist.all_white_lists:
-        logging.debug("Domain not in whitelist: {0}. Page: {1}".format(page_domain, page_url))
+        # logging.debug("Domain not in whitelist: {0}. Page: {1}".format(page_domain, page_url))
         return
 
     # IF URL IS BLACKLISTED - put in blacklisted_urls

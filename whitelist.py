@@ -122,7 +122,11 @@ fullList = {"yahoo.com", "msn.com", "yahoo.co.jp", "qq.com", "uol.com.br", "glob
              'bunte.de', 'nataliehartleywears.blogspot.co.uk', 'the-frugality.com', 'garypeppergirl.com',
              'weworewhat.com', 'ella-lapetiteanglaise.com', 'camilleovertherainbow.com', 'lisegrendene.com.br',
              'nadiaaboulhosn.com', 'tommyton.com', 'wearingittoday.co.uk', 'alltheprettybirds.com', 'parkandcube.com',
-             'advancedstyle.blogspot.co.uk', 'disneyrollergirl.net', 'cocosteaparty.com'}
+             'advancedstyle.blogspot.co.uk', 'disneyrollergirl.net', 'cocosteaparty.com', "tumblr.com", "index.hu",
+             "as.com", 'index.hr', "akhbarak.net", "elpais.com.uy", "terra.com.br", "instagram.com", 'blick.ch',
+             "filme-bune.net", 'walla.co.il', 'ynet.co.il', 'fashioncelebstyle.com', '24sata.hr', '990.ro',
+             'aliexpress.com', 'ebay.com', 'elmanana.mx', 'flipkart.com', 'idens.cz', 'jutarnji.hr',
+             'manoramaonline.com', 'myway.com', 'nametests.com', 'ndtv.com', 'net.hr'}
 
 fashionBlogs = {"manrepeller.com", "wishwishwish.net", "parkandcube.com", "stellaswardrobe.com", "cocosteaparty.com",
                "5inchandup.blogspot.co.uk", "garypeppergirl.com", "camilleovertherainbow.com", "streetpeeper.com",
@@ -175,7 +179,8 @@ arts_and_all_countries = {'pudelek.pl', 'tmz.com', 'super.cz', 'ew.com', 'entret
                           '123telugu.com', 'nofilmschool.com', 'dongtw.com', 'playgroundmag.net', 'ngoisao.vn',
                           'potins.net', 'wowkeren.com', 'movistar-adsl.com', 'purebreak.com', 'entertaintastic.com',
                           'dioguinho.pt', 'perfecte.ro', 'napi.hu', 'klubas.lt', 'esmas.com', 'vertele.com',
-                          'purebreak.com.br', 'globo.com', 'telegraph.co.uk'}
+                          'purebreak.com.br', 'globo.com', 'telegraph.co.uk', 'filmesonlinegratis.net', 'kooora.com',
+                          'yahoo-mbga.jp', 'stardoll.com', 'filmeonline2013.biz', 'filmehd.net', 'yallakora.com'}
 
 arts_and_india = {'bollywoodlife.com', '123telugu.com', 'pinkvilla.com', 'missmalini.com', 'tollywood.net',
                   'indiancinemagallery.com', 'therichest.com', 'hollywoodlife.com', 'andhravilas.net', 'follo.in',

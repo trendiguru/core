@@ -3,8 +3,9 @@ import os
 import cv2
 import pymongo
 from redis import Redis
+from rq import Queue
 
-
+redis_conn = Redis(host=os.environ["REDIS_HOST"], port=int(os.environ["REDIS_PORT"]))
 # file containing constants for general TG use
 # fingerprint related consts
 
@@ -27,6 +28,11 @@ minimum_im_height = 50
 pd_worker_command =  'cd /home/jeremy/paperdoll3/paperdoll-v1.0/ && /usr/bin/python /usr/local/bin/rqworker -w trendi.matlab_wrapper.tgworker.TgWorker -u redis://redis1-redis-1-vm:6379 pd &'
 pd_worker_command_braini1 =  'cd /home/pd_user/paperdoll  && /usr/bin/python /usr/local/bin/rqworker  -w trendi.matlab_wrapper.tgworker.TgWorker  pd &'
 string_to_look_for_in_pd_command = 'tgworker'
+q1 = Queue('start_pipeline', connection=redis_conn)
+q2 = Queue('person_job', connection=redis_conn)
+q3 = Queue('item_job', connection=redis_conn)
+q4 = Queue('merge_items', connection=redis_conn)
+q5 = Queue('merge_people', connection=redis_conn)
 
 N_expected_pd_workers_per_server = 15
 N_expected_pd_workers_per_server_braini1 = 47
@@ -75,7 +81,7 @@ parallel_matlab_queuename = 'pd'
 nonparallel_matlab_queuename = 'pd_nonparallel'
 caffe_path_in_container = '/opt/caffe'
 db = pymongo.MongoClient(host=os.environ["MONGO_HOST"], port=int(os.environ["MONGO_PORT"])).mydb
-redis_conn = Redis(host=os.environ["REDIS_HOST"], port=int(os.environ["REDIS_PORT"]))
+
 #db = pymongo.MongoClient(host="mongodb1-instance-1").mydb
 #redis_conn = Redis(host="redis1-redis-1-vm")
 # new worker : rqworker -u redis://redis1-redis-1-vm:6379 [name] &
@@ -275,7 +281,7 @@ Reserve_cpus = 2  # number of cpus to not use when doing stuff in parallel
 
 # for gender id
 gender_ttl = 5  # 10 seconds ttl , answer should be nearly immediate
-paperdoll_ttl = 150  # seconds to wait for paperdoll result
+paperdoll_ttl = 300  # seconds to wait for paperdoll result
 caffe_general_ttl = 30  # seconds to wait for paperdoll result
 general_ttl = 2000  # ttl of all queues
 
