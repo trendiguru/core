@@ -5,6 +5,7 @@ import logging
 import cv2
 
 import numpy as np
+import pymongo
 
 import bson
 
@@ -23,6 +24,7 @@ TTL = constants.general_ttl
 q1 = constants.q1
 q2 = constants.q2
 q3 = constants.q3
+q4 = constants.q4
 
 # -----------------------------------------------CO-FUNCTIONS-----------------------------------------------------------
 
@@ -121,27 +123,17 @@ def after_pd_conclusions(mask, labels, face=None):
 # -----------------------------------------------MERGE-FUNCTIONS--------------------------------------------------------
 
 
-def merge_people_and_insert(image_obj):
-    # all people are done, now merge all people (unless job is failed, and then pop it out from people)
-    for person in image_obj['people']:
-        ready_person = db.people.find_one({'id': person['person_id']})
-        person['items'] = ready_person['items']
-    db.images.insert_one(image_obj)
+def merge_people_and_insert(jobs, image_id):
+    people = [db.iip.find_one({'_id': job.result}, {'_id': 0}) for job in jobs]
+    result = db.iip.find_one_and_update_one({'_id': image_id}, {'$set': {'people': people}},
+                                            return_document=pymongo.ReturnDocument.AFTER)
+    db.images.insert_one(result)
 
 
 def merge_items_into_person(jobs, person_id):
-    # all items are done, now merge all items (unless job is failed, and then pop it out from items)
-    person = db.iip.find_one({'person_id': person_id})
-    for items in person['items']:
-        cur_item = next((item for item in items if item['item_idx'] == idx), None)
-        if job.is_failed:
-            items[:] = [item for item in items if item['item_idx'] != cur_item['item_idx']]
-        else:
-            cur_item['fp'], cur_item['similar_results'] = job.result
-
-    # update iip object and return. after this return - the current person_job has to get it!
-    db.iip.update_one({'people.$.person_id': person_id}, {'$set': {'people.$.items': items}})
-    return
+    items = [db.iip.find_one({'_id': job.result}, {'_id': 0}) for job in jobs]
+    db.iip.update_one({'person_id': person_id}, {'$set': {'items': items}})
+    return person_id
 
 
 # -----------------------------------------------MAIN-FUNCTIONS---------------------------------------------------------
@@ -184,46 +176,43 @@ def start_pipeline(page_url, image_url, lang):
     if relevance.is_relevant:
         # There are faces
         people_jobs = []
-        idx = 0
         for face in relevance.relevant_faces:
             x, y, w, h = face
             person_bb = [int(round(max(0, x - 1.5 * w))), str(y), int(round(min(image.shape[1], x + 2.5 * w))),
                          min(image.shape[0], 8 * h)]
-            person = {'face': face, 'person_id': str(bson.ObjectId()), 'person_idx': idx, 'items': [],
-                      'person_bb': person_bb}
-            people_jobs.append(q1.enqueue_call(func=person_job, args=(person['person_id'], products_collection,
-                                                                      images_collection, image_url),
+            people_jobs.append(q1.enqueue_call(func=person_job, args=(face, person_bb, products_collection,
+                                                                      image_url),
                                                ttl=TTL, result_ttl=TTL, timeout=TTL))
-            if db.iip.insert_one(person).acknowledged:
-                image_dict['people'].append(person)
-                idx += 1
-        q3.enqueue_call(func=merge_people_and_insert, args=(image_dict, ), depends_on=people_jobs, ttl=TTL,
+        image_id = db.iip.insert_one(image_dict).inserted_id
+        q3.enqueue_call(func=merge_people_and_insert, args=(people_jobs, image_id), depends_on=people_jobs, ttl=TTL,
                         result_ttl=TTL, timeout=TTL)
     else:
         db.irrelevant_image.insert_one(image_dict)
 
 
-def person_job(person_id, products_coll, images_coll, image_url):
-    person = db.iip.find_one({'person_id': person_id})
-    image = person_isolation(Utils.get_cv2_img_array(image_url), person['face'])
-    paper_job = paperdoll_parse_enqueue.paperdoll_enqueue(image, person_id, async=False)
+def person_job(face, person_bb, products_coll, image_url):
+    person = {'face': face, 'person_bb': person_bb, '_id': bson.ObjectId()}
+    image = person_isolation(Utils.get_cv2_img_array(image_url), face)
+    paper_job = paperdoll_parse_enqueue.paperdoll_enqueue(image, str(person['_id']), async=False)
     mask, labels = paper_job.result[:2]
     final_mask = after_pd_conclusions(mask, labels)
     item_jobs = []
-    idx = 0
     for num in np.unique(final_mask):
         # convert numbers to labels
         category = list(labels.keys())[list(labels.values()).index(num)]
         if category in constants.paperdoll_shopstyle_women.keys():
             item_mask = 255 * np.array(final_mask == num, dtype=np.uint8)
-            shopstyle_cat_local_name = constants.paperdoll_shopstyle_women_jp_categories[category]['name']
-            item = {"category": category, 'item_id': str(bson.ObjectId()), 'item_idx': idx,
-                    'category_name': shopstyle_cat_local_name, 'similar_results': []}
-            item_jobs.append(q2.enqueue_call(func=find_similar_mongo.find_top_n_results, args=(image, item_mask, 100,
-                                                                                               category, products_coll),
+            item_jobs.append(q2.enqueue_call(func=item_job, args=(image, category, item_mask, products_coll),
                                              ttl=TTL, result_ttl=TTL, timeout=TTL))
-            if db.iip.insert_one(item).acknowledged:
-                db.iip.update_one({'person_id': person_id}, {'$push': {'items': item}})
-                idx += 1
+            item_jobs.append(item_job)
+    db.iip.insert_one(person)
+    return q4.enqueue_call(func=merge_items_into_person, args=(item_jobs, person['_id']), depends_on=item_jobs,
+                           ttl=TTL, result_ttl=TTL, timeout=TTL)
 
-    return merge_items_into_person(item_jobs, person_id)
+
+def item_job(image, category, item_mask, products_coll):
+    item = {'category': category}
+    fp, similar_results = find_similar_mongo.find_top_n_results(image, item_mask, 100, category,
+                                                                products_coll)
+    item['fp'], item['similar_results'] = fp, similar_results
+    return db.iip.insert_one(item).inserted_id
