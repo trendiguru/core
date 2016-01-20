@@ -72,7 +72,7 @@ def main_func():
         #all_[file]["keylist"] = match_rank(file, sorted_dists)[0]
         all_[file]["score"] = match_rank(file, sorted_dists) # a dict
 
-    with open('test1_results.pickle', 'wb') as f:
+    with open('/home/netanel/meta/dataset/test1_results.pickle', 'wb') as f:
         pickle.dump(all_, f)
     return
 
