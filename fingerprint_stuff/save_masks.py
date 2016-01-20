@@ -15,19 +15,19 @@ from trendi import paperdolls
 
 
 
-def get_images_mongo():
-    pruned_images=[]
-    c = 0
-    while c<2: # < num of doc items (collection items)
-        doc = next(training_collection_cursor, None)
-        images = doc['images']
-        for img in images:
-           #     if Utils.good_bb(img, skip_if_marked_to_skip=True) and good_img(img):
-            pruned_images.append(img["url"])
-            print(pruned_images)
-            print(len(pruned_images))
-        c+=1
-    return pruned_images
+# def get_images_mongo():
+#     pruned_images=[]
+#     c = 0
+#     while c<2: # < num of doc items (collection items)
+#         doc = next(training_collection_cursor, None)
+#         images = doc['images']
+#         for img in images:
+#            #     if Utils.good_bb(img, skip_if_marked_to_skip=True) and good_img(img):
+#             pruned_images.append(img["url"])
+#             print(pruned_images)
+#             print(len(pruned_images))
+#         c+=1
+#     return pruned_images
 
 def masks_from_imgs_localy():
     import os
