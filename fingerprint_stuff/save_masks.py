@@ -34,12 +34,11 @@ def masks_from_imgs_localy():
     path = "/home/netanel/meta/dataset/test1/"
     listing = os.listdir(path)
 
-    pruned_images=[]
     for file in listing:
        #     if Utils.good_bb(img, skip_if_marked_to_skip=True) and good_img(img):
         max_retry = 5
         got_mask = False
-        img_arr = Utils.get_cv2_img_array(file)
+        img_arr = path+file # Utils.get_cv2_img_array(file)
         while max_retry and not got_mask:
             try:
                 mask, labels, pose = paperdoll_parse_enqueue.paperdoll_enqueue(img_arr, at_front=True, async=False, queue_name="pd_yuli").result[:3]
