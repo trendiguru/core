@@ -236,7 +236,7 @@ def test_scp():
                      stdout=subprocess.PIPE).stdout.read()
 
 
-def analyze_dir(path):
+#def analyze_dir(path):
 
 def run_test(img_filename):
     eng = matlab.engine.start_matlab()
