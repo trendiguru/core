@@ -1,6 +1,6 @@
 __author__ = 'yuli'
 
-from trendi.constants import db
+#from trendi.constants import db
 from trendi import constants
 from trendi import Utils
 import numpy as np
@@ -10,8 +10,8 @@ from trendi.paperdoll import paperdoll_parse_enqueue
 from trendi import paperdolls
 
 
-training_collection_cursor = db.training2.find()
-assert (training_collection_cursor)  # make sure training collection exists
+#training_collection_cursor = db.training2.find()
+#assert (training_collection_cursor)  # make sure training collection exists
 
 
 
