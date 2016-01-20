@@ -29,8 +29,8 @@ def bild_dist_(photo, listing):
     fingerprint_length = constants.fingerprint_length
     fp_weights = np.ones(fingerprint_length)
 
-    fp1_mask =
-    img_arr1 =
+    fp1_mask = np.load()
+    img_arr1 = Utils.get_cv2_img_array(photo)# , convert_url_to_local_filename=True, download=True)
     fp1 = np.multiply(fingerprint_function(img_arr1, mask= fp1_mask , **fingerprint_arguments), fp_weights)
     for file in listing:
         fp2_mask =

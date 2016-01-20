@@ -1,33 +1,33 @@
 __author__ = 'yuli'
 
-#from trendi.constants import db
+from trendi.constants import db
 from trendi import constants
 from trendi import Utils
 import numpy as np
 
 from trendi.paperdoll import paperdoll_parse_enqueue
     #import background_removal
-from trendi import paperdolls
+#from trendi import paperdolls
 
 
-#training_collection_cursor = db.training2.find()
-#assert (training_collection_cursor)  # make sure training collection exists
+training_collection_cursor = db.training2.find()
+assert (training_collection_cursor)  # make sure training collection exists
 
 
 
-# def get_images_mongo():
-#     pruned_images=[]
-#     c = 0
-#     while c<2: # < num of doc items (collection items)
-#         doc = next(training_collection_cursor, None)
-#         images = doc['images']
-#         for img in images:
-#            #     if Utils.good_bb(img, skip_if_marked_to_skip=True) and good_img(img):
-#             pruned_images.append(img["url"])
-#             print(pruned_images)
-#             print(len(pruned_images))
-#         c+=1
-#     return pruned_images
+def get_images_mongo():
+    pruned_images=[]
+    c = 0
+    while c<2: # < num of doc items (collection items)
+        doc = next(training_collection_cursor, None)
+        images = doc['images']
+        for img in images:
+           #     if Utils.good_bb(img, skip_if_marked_to_skip=True) and good_img(img):
+            pruned_images.append(img["url"])
+            print(pruned_images)
+            print(len(pruned_images))
+        c+=1
+    return pruned_images
 
 def masks_from_imgs_localy():
     import os
