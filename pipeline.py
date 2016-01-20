@@ -6,6 +6,7 @@ import cv2
 
 import numpy as np
 import pymongo
+from rq.job import Job
 
 import bson
 
@@ -133,15 +134,23 @@ def set_collections(lang):
 # -----------------------------------------------MERGE-FUNCTIONS--------------------------------------------------------
 
 
-def merge_people_and_insert(jobs, image_id):
-    people = [db.iip.find_one({'_id': job.result}, {'_id': 0}) for job in jobs if job.is_finished]
+def merge_people_and_insert(jobs_ids, image_id):
+    people = []
+    for job_id in jobs_ids:
+        job = Job.fetch(job_id, connection=constants.redis_conn)
+        if job.is_finished:
+            people.append(db.iip.find_one({'_id': job.result}, {'_id': 0}))
     result = db.iip.find_one_and_update_one({'_id': image_id}, {'$set': {'people': people}},
                                             return_document=pymongo.ReturnDocument.AFTER)
     db.images.insert_one(result)
 
 
-def merge_items_into_person(jobs, person_id):
-    items = [db.iip.find_one({'_id': job.result}, {'_id': 0}) for job in jobs if job.is_finished]
+def merge_items_into_person(jobs_ids, person_id):
+    items = []
+    for job_id in jobs_ids:
+        job = Job.fetch(job_id, connection=constants.redis_conn)
+        if job.is_finished:
+            items.append(db.iip.find_one({'_id': job.result}, {'_id': 0}))
     db.iip.update_one({'person_id': person_id}, {'$set': {'items': items}})
     return person_id
 
@@ -187,7 +196,8 @@ def start_pipeline(page_url, image_url, lang):
                                                                       image_url),
                                                ttl=TTL, result_ttl=TTL, timeout=TTL))
         image_id = db.iip.insert_one(image_dict).inserted_id
-        q5.enqueue_call(func=merge_people_and_insert, args=(people_jobs, image_id), depends_on=people_jobs, ttl=TTL,
+        q5.enqueue_call(func=merge_people_and_insert, args=([job.id for job in people_jobs], image_id),
+                        depends_on=people_jobs, ttl=TTL,
                         result_ttl=TTL, timeout=TTL)
     else:
         db.irrelevant_image.insert_one(image_dict)
@@ -208,8 +218,10 @@ def person_job(face, person_bb, products_coll, image_url):
             item_jobs.append(q3.enqueue_call(func=item_job, args=(image, category, item_mask, products_coll),
                                              ttl=TTL, result_ttl=TTL, timeout=TTL))
     db.iip.insert_one(person)
-    return q4.enqueue_call(func=merge_items_into_person, args=(item_jobs, person['_id']), depends_on=item_jobs,
-                           ttl=TTL, result_ttl=TTL, timeout=TTL)
+    merge_person_job = q4.enqueue_call(func=merge_items_into_person, args=([job.id for job in item_jobs],
+                                                                           person['_id']), depends_on=item_jobs,
+                                       ttl=TTL, result_ttl=TTL, timeout=TTL)
+    return merge_person_job.id
 
 
 def item_job(image, category, item_mask, products_coll):
