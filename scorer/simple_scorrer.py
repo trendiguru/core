@@ -1,6 +1,6 @@
 __author__ = 'yuli'
 
-import os
+import os, os.path
 from scipy.spatial import distance as dist
 import matplotlib.pyplot as plt
 import numpy as np
@@ -30,14 +30,16 @@ def build_dists(photo, path, mpath, listing):
     fingerprint_length = constants.fingerprint_length
     fp_weights = np.ones(fingerprint_length)
 
-    fp1_mask = np.load(mpath+photo+".npy")
-    img_arr1 = Utils.get_cv2_img_array(path+photo)# , convert_url_to_local_filename=True, download=True)
-    fp1 = np.multiply(fingerprint_function(img_arr1, mask= fp1_mask ), fp_weights)
-    for file in listing:
-        fp2_mask = np.load(mpath+file+".npy")
-        img_arr2 = Utils.get_cv2_img_array(path+file)
-        fp2 = np.multiply(fingerprint_function(img_arr2, mask= fp2_mask ), fp_weights)
-        dists[file] = NNSearch.distance_Bhattacharyya(fp1, fp2, weights, hist_len)
+    if os.path.exists(mpath+photo+".npy"):
+        fp1_mask = np.load(mpath+photo+".npy")
+        img_arr1 = Utils.get_cv2_img_array(path+photo)# , convert_url_to_local_filename=True, download=True)
+        fp1 = np.multiply(fingerprint_function(img_arr1, mask= fp1_mask ), fp_weights)
+        for file in listing:
+            if os.path.exists(mpath+file+".npy"):
+                fp2_mask = np.load(mpath+file+".npy")
+                img_arr2 = Utils.get_cv2_img_array(path+file)
+                fp2 = np.multiply(fingerprint_function(img_arr2, mask= fp2_mask ), fp_weights)
+                dists[file] = NNSearch.distance_Bhattacharyya(fp1, fp2, weights, hist_len)
 
     dists[photo] = sort_dists_by_val(dists, n= 10)
     return dists
