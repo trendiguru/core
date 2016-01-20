@@ -207,7 +207,6 @@ def person_job(face, person_bb, products_coll, image_url):
             item_mask = 255 * np.array(final_mask == num, dtype=np.uint8)
             item_jobs.append(q3.enqueue_call(func=item_job, args=(image, category, item_mask, products_coll),
                                              ttl=TTL, result_ttl=TTL, timeout=TTL))
-            item_jobs.append(item_job)
     db.iip.insert_one(person)
     return q4.enqueue_call(func=merge_items_into_person, args=(item_jobs, person['_id']), depends_on=item_jobs,
                            ttl=TTL, result_ttl=TTL, timeout=TTL)
