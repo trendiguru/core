@@ -124,7 +124,7 @@ fullList = {"yahoo.com", "msn.com", "yahoo.co.jp", "qq.com", "uol.com.br", "glob
              'nadiaaboulhosn.com', 'tommyton.com', 'wearingittoday.co.uk', 'alltheprettybirds.com', 'parkandcube.com',
              'advancedstyle.blogspot.co.uk', 'disneyrollergirl.net', 'cocosteaparty.com', "tumblr.com", "index.hu",
              "as.com", 'index.hr', "akhbarak.net", "elpais.com.uy", "terra.com.br", "instagram.com", 'blick.ch',
-             "filme-bune.net"}
+             "filme-bune.net", 'walla.co.il', 'ynet.co.il', 'fashioncelebstyle.com'}
 
 fashionBlogs = {"manrepeller.com", "wishwishwish.net", "parkandcube.com", "stellaswardrobe.com", "cocosteaparty.com",
                "5inchandup.blogspot.co.uk", "garypeppergirl.com", "camilleovertherainbow.com", "streetpeeper.com",
