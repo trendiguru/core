@@ -69,7 +69,7 @@ def main_func():
 
     listing = os.listdir(path)
     for file in listing:
-        all[file] = {}
+        all_[file] = {}
         sorted_dists = build_dists(file, path, mpath, listing) #numpy array
         all_[file]["sorted_dists"] = sorted_dists
         all_[file]["score"] = match_rank(file, sorted_dists) # a dict
