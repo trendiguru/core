@@ -5,7 +5,7 @@ from scipy.spatial import distance as dist
 import matplotlib.pyplot as plt
 import numpy as np
 import operator
-
+import pickle
 #from trendi.constants import db
 import pymongo
 db = pymongo.MongoClient().mydb
@@ -22,48 +22,58 @@ def sort_dists_by_val(dists, n= 10):
     sorted_x = sorted(x.items(), key=operator.itemgetter(1))
     return sorted_x
 
-def bild_dist_(photo, listing):
-    top_dists = {}
-    weights = [1, 1, 1, 1]
+def build_dists(photo, path, mpath, listing):
+    dists = {}
+    weights = constants.fingerprint_weights
+    hist_len = constants.histograms_length
     fingerprint_function=fp_core.fp
     fingerprint_length = constants.fingerprint_length
     fp_weights = np.ones(fingerprint_length)
 
-    fp1_mask = np.load()
-    img_arr1 = Utils.get_cv2_img_array(photo)# , convert_url_to_local_filename=True, download=True)
-    fp1 = np.multiply(fingerprint_function(img_arr1, mask= fp1_mask , **fingerprint_arguments), fp_weights)
+    fp1_mask = np.load(mpath+photo+".npy")
+    img_arr1 = Utils.get_cv2_img_array(path+photo)# , convert_url_to_local_filename=True, download=True)
+    fp1 = np.multiply(fingerprint_function(img_arr1, mask= fp1_mask ), fp_weights)
     for file in listing:
-        fp2_mask =
-        img_arr2 =
-        fp2 = np.multiply(fingerprint_function(img_arr2, mask= fp2_mask , **fingerprint_arguments), fp_weights)
+        fp2_mask = np.load(mpath+file+".npy")
+        img_arr2 = Utils.get_cv2_img_array(path+file)
+        fp2 = np.multiply(fingerprint_function(img_arr2, mask= fp2_mask ), fp_weights)
         dists[file] = NNSearch.distance_Bhattacharyya(fp1, fp2, weights, hist_len)
 
-    top_dists[photo] = sort_dists_by_val(dists, n= 10)
-    return top_dists
+    dists[photo] = sort_dists_by_val(dists, n= 10)
+    return dists
 
 def match_rank(file, dists):
     photo_id, sep, matched_id = file.split('_bbox')[0].partition('photo_')
     photo_id = photo_id.strip('product_').strip('_') #strip from file product ___
-    score = 0
+    score = {}
     # position of matched photo : (wheter or not to use dict_len depends if sorted dict is in ascending or descending order)
     key_list = []
     for key in dists.keys():
         matched_key = key.strip('product_').strip('_photo')
         if matched_key == matched_id:
             key_list.append(key)
+
+    for k in key_list:
+        score[k]=[key[0] for key in dists].index(k)
+    #[ score.append([key[0] for key in dists].index(k)) for k in key_list ]
     # score.append( dict_len - dists.keys().index(str(key)) )   for key in key_list
     return score
 
 def main_func():
     all_ = {}
 
-    path = "/home/omer/new/trendi/fingerprint_stuff/test1/"
+    path = "/home/netanel/meta/dataset/test1/"
+    mpath = "/home/netanel/meta/dataset/test1_masks/"
+
     listing = os.listdir(path)
     for file in listing:
-        top_dists = build_dist_(file, listing) #numpy array
-        all_[photo_id]["top_dists"] = top_dists
-        all_[photo_id]["score"] = match_rank(file, top_dists)
+        sorted_dists = build_dists(file, path, mpath, listing) #numpy array
+        all_[file]["top_dists"] = sorted_dists
+        #all_[file]["keylist"] = match_rank(file, sorted_dists)[0]
+        all_[file]["score"] = match_rank(file, sorted_dists) # a dict
 
+    with open('test1_results.pickle', 'wb') as f:
+        pickle.dump(all_, f)
     return
 
 if __name__ == '__main__':
