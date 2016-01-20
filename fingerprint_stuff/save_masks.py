@@ -45,7 +45,7 @@ def masks_from_imgs_localy():
                 got_mask = np.any(mask) # condition for legal mask?
                 print(str(got_mask))
 
-                final_mask = paperdolls.after_pd_conclusions(mask, labels)#, person['face'])
+                final_mask = mask # paperdolls.after_pd_conclusions(mask, labels)#, person['face'])
                 for num in np.unique(final_mask):
                     category = list(labels.keys())[list(labels.values()).index(num)]
                     if category == 'dress'  and category in constants.paperdoll_shopstyle_women.keys():
