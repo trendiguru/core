@@ -42,7 +42,7 @@ def masks_from_imgs_localy():
         img_arr = Utils.get_cv2_img_array(file)
         while max_retry and not got_mask:
             try:
-                mask, labels, pose = paperdoll_parse_enqueue.paperdoll_enqueue(img_arr, at_front=True, async=False).result[:3]
+                mask, labels, pose = paperdoll_parse_enqueue.paperdoll_enqueue(img_arr, at_front=True, async=False, queue_name="pd_yuli").result[:3]
                 got_mask = np.any(mask) # condition for legal mask?
                 print(str(got_mask))
 
