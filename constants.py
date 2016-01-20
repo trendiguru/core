@@ -801,6 +801,7 @@ blacklisted_terms = {'alohatube',
      'wh0re',
      'whore',
      'x-rated',
+     'xnxx',
      'xrated',
      'xxx',
     'youjizz'}
