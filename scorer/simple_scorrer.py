@@ -69,9 +69,9 @@ def main_func():
 
     listing = os.listdir(path)
     for file in listing:
+        all[file] = {}
         sorted_dists = build_dists(file, path, mpath, listing) #numpy array
-        all_[file]["top_dists"] = sorted_dists
-        #all_[file]["keylist"] = match_rank(file, sorted_dists)[0]
+        all_[file]["sorted_dists"] = sorted_dists
         all_[file]["score"] = match_rank(file, sorted_dists) # a dict
 
     with open('/home/netanel/meta/dataset/test1_results.pickle', 'wb') as f:
