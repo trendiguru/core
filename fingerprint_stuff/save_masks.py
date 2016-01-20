@@ -31,7 +31,7 @@ def get_images_mongo():
 
 def masks_from_imgs_localy():
     import os
-    path = "/home/developer/python-packages/core_yuli/fingerprint_stuff/test1/"
+    path = "/home/netanel/meta/dataset/test1/"
     listing = os.listdir(path)
 
     pruned_images=[]
@@ -52,7 +52,7 @@ def masks_from_imgs_localy():
                     if category == 'dress'  and category in constants.paperdoll_shopstyle_women.keys():
                         print("Found dress!!")
                         mask_item = 255 * np.array(final_mask == num, dtype=np.uint8)
-                        mfilename = "/home/developer/python-packages/core_yuli/fingerprint_stuff/test1_masks/" + file + ".npy"
+                        mfilename = "/home/netanel/meta/dataset/test1_masks/" + file + ".npy"
                         np.save(mfilename, mask_item)
 
             except Exception as e:
@@ -78,7 +78,7 @@ def make_masks(images):
         img_arr = Utils.get_cv2_img_array(url1)
         while max_retry and not got_mask:
             try:
-                mask, labels, pose = paperdoll_parse_enqueue.paperdoll_enqueue(img_arr, at_front=True, async=False).result[:3]
+                mask, labels, pose = paperdoll_parse_enqueue.paperdoll_enqueue(img_arr, at_front=True, async=False ).result[:3]
                 got_mask = np.any(mask) # condition for legal mask?
                 print(str(got_mask))
                 masks.append(mask)
