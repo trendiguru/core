@@ -183,7 +183,7 @@ def start_pipeline(page_url, image_url, lang):
 
     relevance = background_removal.image_is_relevant(image, use_caffe=False, image_url=image_url)
     image_dict = {'image_urls': [image_url], 'relevant': relevance.is_relevant, 'views': 1,
-                  'saved_date': datetime.datetime.now(), 'image_hash': image_hash, 'page_urls': [page_url],
+                  'saved_date': datetime.datetime.utcnow(), 'image_hash': image_hash, 'page_urls': [page_url],
                   'people': []}
     if relevance.is_relevant:
         # There are faces

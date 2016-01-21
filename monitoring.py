@@ -200,11 +200,11 @@ def get_white_list():
 
 def get_last_images(time_unit, num):
     if time_unit == 'day':
-        curs = db.images.find({'saved_date': {'$gt': datetime.datetime.now() - datetime.timedelta(days=num)}})
+        curs = db.images.find({'saved_date': {'$gt': datetime.datetime.utcnow() - datetime.timedelta(days=num)}})
     elif time_unit == 'hour':
-        curs = db.images.find({'saved_date': {'$gt': datetime.datetime.now() - datetime.timedelta(hours=num)}})
+        curs = db.images.find({'saved_date': {'$gt': datetime.datetime.utcnow() - datetime.timedelta(hours=num)}})
     elif time_unit == 'minute':
-        curs = db.images.find({'saved_date': {'$gt': datetime.datetime.now() - datetime.timedelta(minutes=num)}})
+        curs = db.images.find({'saved_date': {'$gt': datetime.datetime.utcnow() - datetime.timedelta(minutes=num)}})
     return curs
 
 
