@@ -171,7 +171,7 @@ def start_pipeline(page_url, image_url, lang):
 
     image_hash = page_results.get_hash_of_image_from_url(image_url)
     images_obj_hash = db[images_coll].find_one_and_update({"image_hash": image_hash},
-                                                          {'$push': {'image_urls': image_url}})
+                                                          {'$addToSet': {'image_urls': image_url}})
     if images_obj_hash:
         return
 
