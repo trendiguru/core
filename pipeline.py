@@ -136,8 +136,7 @@ def set_collections(lang):
 
 
 def merge_people_and_insert(jobs_ids, image_dict):
-    person_job_ids = [Job.fetch(job_id).result for job_id in jobs_ids]
-    image_dict["people"] = [Job.fetch(job_id).result for job_id in person_job_ids]
+    image_dict["people"] = [Job.fetch(job_id).result for job_id in jobs_ids]
 
     if all(person is None for person in image_dict["people"]):
         raise RuntimeError("Trying to insert an image, but people is None!")
