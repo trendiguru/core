@@ -7,6 +7,7 @@ import time
 import cv2
 import numpy as np
 from rq.job import Job
+from rq import push_connection
 import bson
 
 import tldextract
@@ -26,6 +27,7 @@ q2 = constants.q2
 q3 = constants.q3
 q4 = constants.q4
 q5 = constants.q5
+push_connection(constants.redis_conn)
 
 # -----------------------------------------------CO-FUNCTIONS-----------------------------------------------------------
 
