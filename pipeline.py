@@ -136,8 +136,8 @@ def merge_people_and_insert(jobs_ids, image_dict):
     person_job_ids = [Job.fetch(job_id, connection=constants.redis_conn).result for job_id in jobs_ids]
     image_dict["people"] = [Job.fetch(job_id, connection=constants.redis_conn).result for job_id in person_job_ids]
 
-    # No one to return to, insert
-    print "Will insert: {0}".format(image_dict)
+    if image_dict["people"] is None:
+        raise RuntimeError("Trying to insert an image, but people is None!")
     insert_result = db.images.insert_one(image_dict)
     if not insert_result.acknowledged:
         raise IOError("Insert failed")
@@ -226,7 +226,10 @@ def get_person_job_id(face, person_bb, products_coll, image_url):
 
 def create_item(image, category, item_mask, products_coll):
     item = {'category': category}
-    fp, similar_results = find_similar_mongo.find_top_n_results(image, item_mask, 100, category,
-                                                                products_coll)
-    item['fp'], item['similar_results'] = fp, similar_results
+    try:
+        fp, similar_results = find_similar_mongo.find_top_n_results(image, item_mask, 100, category,
+                                                                    products_coll)
+        item['fp'], item['similar_results'] = fp, similar_results
+    except Exception as e:
+        print e.message, e.args
     return item
