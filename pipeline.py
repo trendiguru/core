@@ -136,7 +136,7 @@ def merge_people_and_insert(jobs_ids, image_dict):
     person_job_ids = [Job.fetch(job_id, connection=constants.redis_conn).result for job_id in jobs_ids]
     image_dict["people"] = [Job.fetch(job_id, connection=constants.redis_conn).result for job_id in person_job_ids]
 
-    if image_dict["people"] is None:
+    if all(person is None for person in image_dict["people"]):
         raise RuntimeError("Trying to insert an image, but people is None!")
     insert_result = db.images.insert_one(image_dict)
     if not insert_result.acknowledged:
