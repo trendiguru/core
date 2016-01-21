@@ -2,6 +2,7 @@ __author__ = 'Nadav Paz'
 
 import logging
 import datetime
+import time
 
 import cv2
 import numpy as np
@@ -183,16 +184,20 @@ def start_pipeline(page_url, image_url, lang):
                   'people': []}
     if relevance.is_relevant:
         # There are faces
-        people_jobs = []
+        people_job_id_jobs = []
         for face in relevance.faces:
             x, y, w, h = face
             person_bb = [int(round(max(0, x - 1.5 * w))), str(y), int(round(min(image.shape[1], x + 2.5 * w))),
                          min(image.shape[0], 8 * h)]
             # These are job whos result is the id of the person job
-            people_jobs.append(q2.enqueue_call(func=get_person_job_id, args=(face.tolist(), person_bb, products_coll,
-                                                                             image_url),
-                                               ttl=TTL, result_ttl=TTL, timeout=TTL))
-
+            people_job_id_jobs.append(q2.enqueue_call(func=get_person_job_id, args=(face.tolist(), person_bb,
+                                                                                    products_coll, image_url),
+                                                      ttl=TTL, result_ttl=TTL, timeout=TTL))
+        done = all([job.is_finished for job in people_job_id_jobs])
+        while not done:
+            time.sleep(0.5)
+            done = all([job.is_finished for job in people_job_id_jobs])
+        people_jobs = [Job.fetch(job.result) for job in people_job_id_jobs]
         q5.enqueue_call(func=merge_people_and_insert, args=([job.id for job in people_jobs], image_dict),
                         depends_on=people_jobs, ttl=TTL,
                         result_ttl=TTL, timeout=TTL)
