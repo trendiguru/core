@@ -50,7 +50,7 @@ def match_rank(file, dists):
     key_list = []
     dists_keys = [x[0] for x in dists]
     for key in dists_keys:
-        matched_key = key.strip('product_').strip('_photo')
+        matched_key = key.split('_photo')[0].strip('product_')
         if matched_key == photo_id:
             key_list.append(key)
     print("len key list:", len(key_list))
@@ -78,6 +78,8 @@ def main_func():
 
     with open('/home/netanel/meta/dataset/test1_results.pickle', 'wb') as f:
         pickle.dump(all_, f)
+    # with open('~/meta/dataset/test1_results.pickle', 'rb') as handle:
+    #    b = pickle.load(handle)
     return
 
 if __name__ == '__main__':
