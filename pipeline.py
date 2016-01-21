@@ -138,7 +138,7 @@ def merge_people_and_insert(jobs_ids, image_id):
     for job_id in jobs_ids:
         job = Job.fetch(job_id, connection=constants.redis_conn)
         if job.is_finished:
-            people.append(db.iip.find_one({'_id': job.result}, {'_id': 0}))
+            people.append([job.id, job_id])
     result = db.iip.find_one_and_update({'_id': image_id}, {'$set': {'people': people}},
                                         return_document=pymongo.ReturnDocument.AFTER)
     db.images.insert_one(result)
