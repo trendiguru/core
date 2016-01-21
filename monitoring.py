@@ -5,12 +5,12 @@ import smtplib
 import os
 from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
+import datetime
 
 import pymongo
 from rq import Queue
 
 from . import whitelist
-
 from .constants import db
 from .constants import redis_conn
 
@@ -196,6 +196,24 @@ def get_white_list():
         if not idx % 100:
             print "performing {0}th doc".format(idx)
         idx += 1
+
+
+def get_last_images(time_unit, num):
+    if time_unit == 'day':
+        curs = db.images.find({'saved_date': {'$gt': datetime.datetime.now() - datetime.timedelta(days=num)}})
+    elif time_unit == 'hour':
+        curs = db.images.find({'saved_date': {'$gt': datetime.datetime.now() - datetime.timedelta(hours=num)}})
+    elif time_unit == 'minute':
+        curs = db.images.find({'saved_date': {'$gt': datetime.datetime.now() - datetime.timedelta(minutes=num)}})
+    return curs
+
+
+def get_top_viewed_images(x):
+    dict = {}
+    curs = db.images.find({'views': {'$gt': x}}).sort([('views', pymongo.DESCENDING)])
+    for doc in curs:
+        dict[doc['image_urls'][0]] = doc['views']
+    return dict
 
 
 def check_relevancy():
