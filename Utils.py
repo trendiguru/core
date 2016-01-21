@@ -751,6 +751,7 @@ def kick_fp_out():
         print("did {0} docs".format(idx))
     print("{0} docs modified".format(idx))
 
+
 if __name__ == '__main__':
     print('starting')
     # show_all_bbs_in_db()

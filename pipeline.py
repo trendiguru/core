@@ -1,13 +1,13 @@
 __author__ = 'Nadav Paz'
 
 import logging
+import datetime
+import time
 
 import cv2
-
 import numpy as np
-import pymongo
 from rq.job import Job
-
+from rq import push_connection
 import bson
 
 import tldextract
@@ -27,6 +27,7 @@ q2 = constants.q2
 q3 = constants.q3
 q4 = constants.q4
 q5 = constants.q5
+push_connection(constants.redis_conn)
 
 # -----------------------------------------------CO-FUNCTIONS-----------------------------------------------------------
 
@@ -134,25 +135,21 @@ def set_collections(lang):
 # -----------------------------------------------MERGE-FUNCTIONS--------------------------------------------------------
 
 
-def merge_people_and_insert(jobs_ids, image_id):
-    people = []
-    for job_id in jobs_ids:
-        job = Job.fetch(job_id, connection=constants.redis_conn)
-        if job.is_finished:
-            people.append(db.iip.find_one({'_id': job.result}, {'_id': 0}))
-    result = db.iip.find_one_and_update({'_id': image_id}, {'$set': {'people': people}},
-                                        return_document=pymongo.ReturnDocument.AFTER)
-    db.images.insert_one(result)
+def merge_people_and_insert(jobs_ids, image_dict):
+    image_dict["people"] = [Job.fetch(job_id).result for job_id in jobs_ids]
+
+    if all(person is None for person in image_dict["people"]):
+        raise RuntimeError("Trying to insert an image, but people is None!")
+    insert_result = db.images.insert_one(image_dict)
+    if not insert_result.acknowledged:
+        raise IOError("Insert failed")
 
 
-def merge_items_into_person(jobs_ids, person_id):
-    items = []
-    for job_id in jobs_ids:
-        job = Job.fetch(job_id, connection=constants.redis_conn)
-        if job.is_finished:
-            items.append(db.iip.find_one({'_id': job.result}, {'_id': 0}))
-    db.iip.update_one({'person_id': person_id}, {'$set': {'items': items}})
-    return person_id
+def merge_items_into_person(jobs_ids, person_dict):
+    person_dict["items"] = [Job.fetch(job_id).result for job_id in jobs_ids]
+    if all(item is None for item in person_dict["items"]):
+        raise RuntimeError("All items in person are None!")
+    return person_dict
 
 
 # -----------------------------------------------MAIN-FUNCTIONS---------------------------------------------------------
@@ -162,6 +159,10 @@ def start_pipeline(page_url, image_url, lang):
     images_coll, products_coll = set_collections(lang)
 
     if not is_in_whitelist(page_url):
+        return
+
+    images_by_url = db.images.find_one({"image_urls": image_url})
+    if images_by_url:
         return
 
     images_obj_url = db.irrelevant_images.find_one({"image_urls": image_url})
@@ -174,39 +175,43 @@ def start_pipeline(page_url, image_url, lang):
     if images_obj_hash:
         return
 
-    iip_obj = db.iip.find_one({"image_urls": image_url}) or db.iip.find_one({"image_hash": image_hash})
-    if iip_obj:
-        return
-
     image = Utils.get_cv2_img_array(image_url)
     if image is None:
-        return
+        raise IOError("'get_cv2_img_array' has failed. Bad image!")
 
     relevance = background_removal.image_is_relevant(image, use_caffe=False, image_url=image_url)
-    image_dict = {'image_urls': [image_url], 'relevant': relevance.is_relevant,
-                  'image_hash': image_hash, 'page_urls': [page_url], 'people': []}
+    image_dict = {'image_urls': [image_url], 'relevant': relevance.is_relevant, 'views': 1,
+                  'saved_date': datetime.datetime.utcnow(), 'image_hash': image_hash, 'page_urls': [page_url],
+                  'people': []}
     if relevance.is_relevant:
         # There are faces
-        people_jobs = []
+        people_job_id_jobs = []
         for face in relevance.faces:
             x, y, w, h = face
             person_bb = [int(round(max(0, x - 1.5 * w))), str(y), int(round(min(image.shape[1], x + 2.5 * w))),
                          min(image.shape[0], 8 * h)]
-            people_jobs.append(q2.enqueue_call(func=person_job, args=(face.tolist(), person_bb, products_coll,
-                                                                      image_url),
-                                               ttl=TTL, result_ttl=TTL, timeout=TTL))
-        image_id = db.iip.insert_one(image_dict).inserted_id
-        q5.enqueue_call(func=merge_people_and_insert, args=([job.id for job in people_jobs], image_id),
+            # These are job whos result is the id of the person job
+            people_job_id_jobs.append(q2.enqueue_call(func=get_person_job_id, args=(face.tolist(), person_bb,
+                                                                                    products_coll, image_url),
+                                                      ttl=TTL, result_ttl=TTL, timeout=TTL))
+        done = all([job.is_finished for job in people_job_id_jobs])
+        while not done:
+            time.sleep(0.5)
+            done = all([job.is_finished for job in people_job_id_jobs])
+        people_jobs = [Job.fetch(job.result) for job in people_job_id_jobs]
+        q5.enqueue_call(func=merge_people_and_insert, args=([job.id for job in people_jobs], image_dict),
                         depends_on=people_jobs, ttl=TTL,
                         result_ttl=TTL, timeout=TTL)
     else:
-        db.irrelevant_image.insert_one(image_dict)
+        db.irrelevant_images.insert_one(image_dict)
 
 
-def person_job(face, person_bb, products_coll, image_url):
-    person = {'face': face, 'person_bb': person_bb, '_id': bson.ObjectId()}
+def get_person_job_id(face, person_bb, products_coll, image_url):
+    person = {'face': face, 'person_bb': person_bb}
     image = person_isolation(Utils.get_cv2_img_array(image_url), face)
-    paper_job = paperdoll_parse_enqueue.paperdoll_enqueue(image, str(person['_id']), async=False)
+    paper_job = paperdoll_parse_enqueue.paperdoll_enqueue(image, str(bson.ObjectId()), async=False)
+    if not paper_job:
+        raise SystemError("Paperdoll has returned empty results!")
     mask, labels = paper_job.result[:2]
     final_mask = after_pd_conclusions(mask, labels)
     item_jobs = []
@@ -215,18 +220,24 @@ def person_job(face, person_bb, products_coll, image_url):
         category = list(labels.keys())[list(labels.values()).index(num)]
         if category in constants.paperdoll_shopstyle_women.keys():
             item_mask = 255 * np.array(final_mask == num, dtype=np.uint8)
-            item_jobs.append(q3.enqueue_call(func=item_job, args=(image, category, item_mask, products_coll),
+
+            # THese are jobs whos result is an item
+            item_jobs.append(q3.enqueue_call(func=create_item, args=(image, category, item_mask, products_coll),
                                              ttl=TTL, result_ttl=TTL, timeout=TTL))
-    db.iip.insert_one(person)
+
+    # The result of this job is a person dict
     merge_person_job = q4.enqueue_call(func=merge_items_into_person, args=([job.id for job in item_jobs],
-                                                                           person['_id']), depends_on=item_jobs,
+                                                                           person), depends_on=item_jobs,
                                        ttl=TTL, result_ttl=TTL, timeout=TTL)
     return merge_person_job.id
 
 
-def item_job(image, category, item_mask, products_coll):
+def create_item(image, category, item_mask, products_coll):
     item = {'category': category}
-    fp, similar_results = find_similar_mongo.find_top_n_results(image, item_mask, 100, category,
-                                                                products_coll)
-    item['fp'], item['similar_results'] = fp, similar_results
-    return db.iip.insert_one(item).inserted_id
+    try:
+        fp, similar_results = find_similar_mongo.find_top_n_results(image, item_mask, 100, category,
+                                                                    products_coll)
+        item['fp'], item['similar_results'] = fp, similar_results
+    except Exception as e:
+        print e.message, e.args
+    return item
