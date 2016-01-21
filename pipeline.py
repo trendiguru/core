@@ -196,9 +196,9 @@ def start_pipeline(page_url, image_url, lang):
 
 
 def get_person_job_id(face, person_bb, products_coll, image_url):
-    person = {'face': face, 'person_bb': person_bb, '_id': bson.ObjectId()}
+    person = {'face': face, 'person_bb': person_bb}
     image = person_isolation(Utils.get_cv2_img_array(image_url), face)
-    paper_job = paperdoll_parse_enqueue.paperdoll_enqueue(image, str(person['_id']), async=False)
+    paper_job = paperdoll_parse_enqueue.paperdoll_enqueue(image, str(bson.ObjectId()), async=False)
     mask, labels = paper_job.result[:2]
     final_mask = after_pd_conclusions(mask, labels)
     item_jobs = []
