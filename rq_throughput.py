@@ -42,3 +42,6 @@ def monitor_q_throughput(name, n=100, interval=1):
 #     dq, dr, ds = q1 - q0, r1 - r0, s1 - s0
 #     q0, r0, s0 = q1, r1, s1
 #     print "{0} images/min: {1} relevant, {2} irrelevant, {3} blacklisted".format(dq+dr+ds, dq, dr, ds)
+
+
+

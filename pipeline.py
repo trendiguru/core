@@ -133,25 +133,17 @@ def set_collections(lang):
 # -----------------------------------------------MERGE-FUNCTIONS--------------------------------------------------------
 
 
-def merge_people_and_insert(jobs_ids, image_id):
-    people = []
-    for job_id in jobs_ids:
-        job = Job.fetch(job_id, connection=constants.redis_conn)
-        if job.is_finished:
-            people.append(db.iip.find_one({'_id': job.result}, {'_id': 0}))
-    result = db.iip.find_one_and_update({'_id': image_id}, {'$set': {'people': people}},
-                                        return_document=pymongo.ReturnDocument.AFTER)
-    db.images.insert_one(result)
+def merge_people_and_insert(jobs_ids, image_dict):
+    person_job_ids = [Job.fetch(job_id, connection=constants.redis_conn).result for job_id in jobs_ids]
+    image_dict["people"] = [Job.fetch(job_id, connection=constants.redis_conn).result for job_id in person_job_ids]
+
+    # No one to return to, insert
+    db.images.insert_one(image_dict)
 
 
-def merge_items_into_person(jobs_ids, person_id):
-    items = []
-    for job_id in jobs_ids:
-        job = Job.fetch(job_id, connection=constants.redis_conn)
-        if job.is_finished:
-            items.append(db.iip.find_one({'_id': job.result}, {'_id': 0}))
-    db.iip.update_one({'person_id': person_id}, {'$set': {'items': items}})
-    return person_id
+def merge_items_into_person(jobs_ids, person_dict):
+    person_dict["items"] = [Job.fetch(job_id, connection=constants.redis_conn).result for job_id in jobs_ids]
+    return person_dict
 
 
 # -----------------------------------------------MAIN-FUNCTIONS---------------------------------------------------------
@@ -183,7 +175,7 @@ def start_pipeline(page_url, image_url, lang):
 
     relevance = background_removal.image_is_relevant(image, use_caffe=False, image_url=image_url)
     image_dict = {'image_urls': [image_url], 'relevant': relevance.is_relevant, 'views': 1,
-                  'saved_date': datetime.datetime.now(), 'image_hash': image_hash, 'page_urls': [page_url],
+                  'saved_date': datetime.datetime.utcnow(), 'image_hash': image_hash, 'page_urls': [page_url],
                   'people': []}
     if relevance.is_relevant:
         # There are faces
@@ -192,18 +184,19 @@ def start_pipeline(page_url, image_url, lang):
             x, y, w, h = face
             person_bb = [int(round(max(0, x - 1.5 * w))), str(y), int(round(min(image.shape[1], x + 2.5 * w))),
                          min(image.shape[0], 8 * h)]
-            people_jobs.append(q2.enqueue_call(func=person_job, args=(face.tolist(), person_bb, products_coll,
+            # These are job whos result is the id of the person job
+            people_jobs.append(q2.enqueue_call(func=get_person_job_id, args=(face.tolist(), person_bb, products_coll,
                                                                       image_url),
                                                ttl=TTL, result_ttl=TTL, timeout=TTL))
-        image_id = db.iip.insert_one(image_dict).inserted_id
-        q5.enqueue_call(func=merge_people_and_insert, args=([job.id for job in people_jobs], image_id),
+
+        q5.enqueue_call(func=merge_people_and_insert, args=([job.id for job in people_jobs], image_dict),
                         depends_on=people_jobs, ttl=TTL,
                         result_ttl=TTL, timeout=TTL)
     else:
         db.irrelevant_image.insert_one(image_dict)
 
 
-def person_job(face, person_bb, products_coll, image_url):
+def get_person_job_id(face, person_bb, products_coll, image_url):
     person = {'face': face, 'person_bb': person_bb, '_id': bson.ObjectId()}
     image = person_isolation(Utils.get_cv2_img_array(image_url), face)
     paper_job = paperdoll_parse_enqueue.paperdoll_enqueue(image, str(person['_id']), async=False)
@@ -215,18 +208,21 @@ def person_job(face, person_bb, products_coll, image_url):
         category = list(labels.keys())[list(labels.values()).index(num)]
         if category in constants.paperdoll_shopstyle_women.keys():
             item_mask = 255 * np.array(final_mask == num, dtype=np.uint8)
-            item_jobs.append(q3.enqueue_call(func=item_job, args=(image, category, item_mask, products_coll),
+
+            # THese are jobs whos result is an item
+            item_jobs.append(q3.enqueue_call(func=create_item, args=(image, category, item_mask, products_coll),
                                              ttl=TTL, result_ttl=TTL, timeout=TTL))
-    db.iip.insert_one(person)
+
+    # The result of this job is a person dict
     merge_person_job = q4.enqueue_call(func=merge_items_into_person, args=([job.id for job in item_jobs],
                                                                            person['_id']), depends_on=item_jobs,
                                        ttl=TTL, result_ttl=TTL, timeout=TTL)
     return merge_person_job.id
 
 
-def item_job(image, category, item_mask, products_coll):
+def create_item(image, category, item_mask, products_coll):
     item = {'category': category}
     fp, similar_results = find_similar_mongo.find_top_n_results(image, item_mask, 100, category,
                                                                 products_coll)
     item['fp'], item['similar_results'] = fp, similar_results
-    return db.iip.insert_one(item).inserted_id
+    return item
