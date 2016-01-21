@@ -51,7 +51,7 @@ def match_rank(file, dists):
     dists_keys = [x[0] for x in dists]
     for key in dists_keys:
         matched_key = key.strip('product_').strip('_photo')
-        if matched_key == matched_id:
+        if matched_key == photo_id:
             key_list.append(key)
     print("len key list:", len(key_list))
 
@@ -60,9 +60,6 @@ def match_rank(file, dists):
         print("matched_key:",  k)
         print("matched_key score:", score[k])
 
-
-    #[ score.append([key[0] for key in dists].index(k)) for k in key_list ]
-    # score.append( dict_len - dists.keys().index(str(key)) )   for key in key_list
     return score
 
 def main_func():
