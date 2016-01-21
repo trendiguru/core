@@ -5,7 +5,6 @@ import datetime
 
 import cv2
 import numpy as np
-import pymongo
 from rq.job import Job
 import bson
 
@@ -215,7 +214,7 @@ def get_person_job_id(face, person_bb, products_coll, image_url):
 
     # The result of this job is a person dict
     merge_person_job = q4.enqueue_call(func=merge_items_into_person, args=([job.id for job in item_jobs],
-                                                                           person['_id']), depends_on=item_jobs,
+                                                                           person), depends_on=item_jobs,
                                        ttl=TTL, result_ttl=TTL, timeout=TTL)
     return merge_person_job.id
 
