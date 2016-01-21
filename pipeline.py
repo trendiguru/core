@@ -195,7 +195,7 @@ def start_pipeline(page_url, image_url, lang):
                         depends_on=people_jobs, ttl=TTL,
                         result_ttl=TTL, timeout=TTL)
     else:
-        db.irrelevant_image.insert_one(image_dict)
+        db.irrelevant_images.insert_one(image_dict)
 
 
 def get_person_job_id(face, person_bb, products_coll, image_url):
