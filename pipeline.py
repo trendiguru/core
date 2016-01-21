@@ -137,7 +137,10 @@ def merge_people_and_insert(jobs_ids, image_dict):
     image_dict["people"] = [Job.fetch(job_id, connection=constants.redis_conn).result for job_id in person_job_ids]
 
     # No one to return to, insert
-    db.images.insert_one(image_dict)
+    print "Will insert: {0}".format(image_dict)
+    insert_result = db.images.insert_one(image_dict)
+    if not insert_result.acknowledged:
+        raise IOError("Insert failed")
 
 
 def merge_items_into_person(jobs_ids, person_dict):
