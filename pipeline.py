@@ -150,7 +150,7 @@ def merge_items_into_person(jobs_ids, person_id):
         job = Job.fetch(job_id, connection=constants.redis_conn)
         if job.is_finished:
             items.append(db.iip.find_one({'_id': job.result}, {'_id': 0}))
-    db.iip.update_one({'person_id': person_id}, {'$set': {'items': items}})
+    db.iip.update_one({'_id': person_id}, {'$set': {'items': items}})
     return person_id
 
 
