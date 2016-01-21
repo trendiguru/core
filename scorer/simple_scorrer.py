@@ -53,6 +53,7 @@ def match_rank(file, dists):
         matched_key = key.split('_photo')[0].strip('product_')
         if matched_key == photo_id:
             key_list.append(key)
+    print("photo_id:", file)
     print("len key list:", len(key_list))
 
     for k in key_list:
