@@ -157,6 +157,10 @@ def start_pipeline(page_url, image_url, lang):
     if not is_in_whitelist(page_url):
         return
 
+    images_by_url = db.images.find_one({"image_urls": image_url})
+    if images_by_url:
+        return
+
     images_obj_url = db.irrelevant_images.find_one({"image_urls": image_url})
     if images_obj_url:
         return
@@ -165,10 +169,6 @@ def start_pipeline(page_url, image_url, lang):
     images_obj_hash = db[images_coll].find_one_and_update({"image_hash": image_hash},
                                                           {'$push': {'image_urls': image_url}})
     if images_obj_hash:
-        return
-
-    iip_obj = db.iip.find_one({"image_urls": image_url}) or db.iip.find_one({"image_hash": image_hash})
-    if iip_obj:
         return
 
     image = Utils.get_cv2_img_array(image_url)
