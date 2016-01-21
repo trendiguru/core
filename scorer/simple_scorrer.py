@@ -40,7 +40,7 @@ def build_dists(photo, path, mpath, listing):
                 img_arr2 = Utils.get_cv2_img_array(path+file)
                 fp2 = np.multiply(fingerprint_function(img_arr2, mask= fp2_mask ), fp_weights)
                 dists[file] = NNSearch.distance_Bhattacharyya(fp1, fp2, weights, hist_len)
-    return sort_dists_by_val(dists, n= 10)
+    return dists
 
 def match_rank(file, dists):
     photo_id, sep, matched_id = file.split('_bbox')[0].partition('photo_')
@@ -48,7 +48,8 @@ def match_rank(file, dists):
     score = {}
     # position of matched photo : (wheter or not to use dict_len depends if sorted dict is in ascending or descending order)
     key_list = []
-    for key in dists.keys():
+    dists_keys = [x[0] for x in dists]
+    for key in dists_keys:
         matched_key = key.strip('product_').strip('_photo')
         if matched_key == matched_id:
             key_list.append(key)
@@ -68,7 +69,8 @@ def main_func():
     listing = os.listdir(path)
     for file in listing:
         all_[file] = {}
-        sorted_dists = build_dists(file, path, mpath, listing) #numpy array
+        distances = build_dists(file, path, mpath, listing) #numpy array
+        sorted_dists = sort_dists_by_val(distances, n= 10)
         all_[file]["sorted_dists"] = sorted_dists
         all_[file]["score"] = match_rank(file, sorted_dists) # a dict
 
