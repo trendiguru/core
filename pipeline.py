@@ -173,7 +173,7 @@ def start_pipeline(page_url, image_url, lang):
 
     image = Utils.get_cv2_img_array(image_url)
     if image is None:
-        return
+        raise IOError("'get_cv2_img_array' has failed. Bad image!")
 
     relevance = background_removal.image_is_relevant(image, use_caffe=False, image_url=image_url)
     image_dict = {'image_urls': [image_url], 'relevant': relevance.is_relevant, 'views': 1,
@@ -188,7 +188,7 @@ def start_pipeline(page_url, image_url, lang):
                          min(image.shape[0], 8 * h)]
             # These are job whos result is the id of the person job
             people_jobs.append(q2.enqueue_call(func=get_person_job_id, args=(face.tolist(), person_bb, products_coll,
-                                                                      image_url),
+                                                                             image_url),
                                                ttl=TTL, result_ttl=TTL, timeout=TTL))
 
         q5.enqueue_call(func=merge_people_and_insert, args=([job.id for job in people_jobs], image_dict),
