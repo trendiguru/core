@@ -213,11 +213,9 @@ def get_person_job_id(face, person_bb, products_coll, image_url):
     while not paper_job.is_finished or paper_job.is_failed:
         time.sleep(0.5)
     if paper_job.is_failed:
-        return None
-        # raise SystemError("Paper-job has failed!")
+        raise SystemError("Paper-job has failed!")
     elif not paper_job.result:
-        return None
-        # raise SystemError("Paperdoll has returned empty results!")
+        raise SystemError("Paperdoll has returned empty results!")
     mask, labels = paper_job.result[:2]
     final_mask = after_pd_conclusions(mask, labels)
     item_jobs = []
