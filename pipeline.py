@@ -194,11 +194,11 @@ def start_pipeline(page_url, image_url, lang):
             people_job_id_jobs.append(q2.enqueue_call(func=get_person_job_id, args=(face.tolist(), person_bb,
                                                                                     products_coll, image_url),
                                                       ttl=TTL, result_ttl=TTL, timeout=TTL))
-        done = all([job.is_finished for job in people_job_id_jobs])
+        done = all([job.is_finished or job.is_failed for job in people_job_id_jobs])
         while not done:
             time.sleep(0.5)
-            done = all([job.is_finished for job in people_job_id_jobs])
-        people_jobs = [Job.fetch(job.result) for job in people_job_id_jobs]
+            done = all([job.is_finished or job.is_failed for job in people_job_id_jobs])
+        people_jobs = [Job.fetch(job.result) for job in people_job_id_jobs if job.is_finished]
         q5.enqueue_call(func=merge_people_and_insert, args=([job.id for job in people_jobs], image_dict),
                         depends_on=people_jobs, ttl=TTL,
                         result_ttl=TTL, timeout=TTL)
