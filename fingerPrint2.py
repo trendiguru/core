@@ -82,12 +82,17 @@ def fp(pathToImageFile_Or_cv2ImageArray, bb=None):
     s=5   #crop out the outer 1/s of the image for color/texture-based features
     h=img.shape[1]
     w=img.shape[0]
-    r=[h/s,w/s,h-2*h/s,w-2*w/s]
+# old dumb crop
+#    r=[h/s,w/s,h-2*h/s,w-2*w/s]
     #print('r='+str(r))
-    roi= np.zeros((r[3],r[2],3),np.uint8)
-    for xx in range(r[2]):
-        for yy in range(r[3]):
-            roi[yy  ,xx,:]=img[yy+r[1],xx+r[0],:]
+#    roi= np.zeros((r[3],r[2],3),np.uint8)
+#    for xx in range(r[2]):
+ #       for yy in range(r[3]):
+  #          roi[yy  ,xx,:]=img[yy+r[1],xx+r[0],:]
+
+#new awesome efficient crop
+    r=[w/s,h/s,w-2*w/s,h-2*h/s] #x,y,w,h
+    roi = img[r[1]:r[1]+r[3], r[0]:r[0]+r[2]]
 
     hsv = cv2.cvtColor(roi, cv2.COLOR_BGR2HSV)
 
