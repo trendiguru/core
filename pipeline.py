@@ -195,8 +195,8 @@ def start_pipeline(page_url, image_url, lang):
             people_job_id_jobs.append(q2.enqueue_call(func=get_person_job_id, args=(face.tolist(), person_bb,
                                                                                     products_coll, image_url),
                                                       ttl=TTL, result_ttl=TTL, timeout=TTL))
-        q6.enqueue_call(func=wait_for_person_ids, args=(people_job_id_jobs, image_dict), depends_on=people_job_id_jobs,
-                        ttl=TTL, result_ttl=TTL, timeout=TTL)
+        q6.enqueue_call(func=wait_for_person_ids, args=([job.id for job in people_job_id_jobs], image_dict),
+                        depends_on=people_job_id_jobs, ttl=TTL, result_ttl=TTL, timeout=TTL)
 
     else:
         db.irrelevant_images.insert_one(image_dict)
