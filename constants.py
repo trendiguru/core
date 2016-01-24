@@ -40,19 +40,19 @@ N_default_workers = 47
 
 #general queues on braini
 string_to_look_for_in_rq_command = 'rqworker'
-unique_strings_to_look_for_in_rq_command = ['find_similar','tgworker','find_top_n','new_images','start_pipeline','person_job']   #,'fingerprint_new'  ,'find_similar
+unique_strings_to_look_for_in_rq_command = ['person_job','tgworker','item_job','merge_items','merge_people,''start_pipeline','person_job']   #,'fingerprint_new'  ,'find_similar
 # the worker_commands are ordered by priority of queue
-worker_commands =['/usr/bin/python /usr/local/bin/rqworker find_similar &',
+worker_commands =['/usr/bin/python /usr/local/bin/rqworker person_job &',
                    'cd /home/pd_user/paperdoll  && /usr/bin/python /usr/local/bin/rqworker  -w trendi.matlab_wrapper.tgworker.TgWorker  pd &',
-                  '/usr/bin/python /usr/local/bin/rqworker find_top_n &',
-                '/usr/bin/python /usr/local/bin/rqworker new_images &',
+                  '/usr/bin/python /usr/local/bin/rqworker item_job &',
+                '/usr/bin/python /usr/local/bin/rqworker merge_items &',
                 '/usr/bin/python /usr/local/bin/rqworker start_pipeline &',
                 '/usr/bin/python /usr/local/bin/rqworker person_job &'
                   ]
  #                 '/usr/bin/python /usr/local/bin/rqworker fingerprint_new &',,
 
-multi_queue_command ='/usr/bin/python /usr/local/bin/rqworker find_similar find_top_n new_images start_pipeline person_job'
-unique_in_multi_queue = 'find_similar'
+multi_queue_command ='/usr/bin/python /usr/local/bin/rqworker  start_pipeline person_job item_job merge_items merge_people wait_for_person_ids'
+unique_in_multi_queue = 'wait_for_person_ids'
 N_expected_workers_by_server={'braini1':45,'brain2':45,'brain3':90,'braini4':90,'braini5':90}
 N_max_workers = 120
 lower_threshold = 70
