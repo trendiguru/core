@@ -33,6 +33,7 @@ q2 = Queue('person_job', connection=redis_conn)
 q3 = Queue('item_job', connection=redis_conn)
 q4 = Queue('merge_items', connection=redis_conn)
 q5 = Queue('merge_people', connection=redis_conn)
+q6 = Queue('wait_for_person_ids', connection=redis_conn)
 
 N_expected_pd_workers_per_server = 15
 N_expected_pd_workers_per_server_braini1 = 47

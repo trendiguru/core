@@ -27,6 +27,7 @@ q2 = constants.q2
 q3 = constants.q3
 q4 = constants.q4
 q5 = constants.q5
+q6 = constants.q6
 push_connection(constants.redis_conn)
 
 # -----------------------------------------------CO-FUNCTIONS-----------------------------------------------------------
@@ -190,20 +191,21 @@ def start_pipeline(page_url, image_url, lang):
             x, y, w, h = face
             person_bb = [int(round(max(0, x - 1.5 * w))), str(y), int(round(min(image.shape[1], x + 2.5 * w))),
                          min(image.shape[0], 8 * h)]
-            # These are job whos result is the id of the person job
+            # These are job whose result is the id of the person job
             people_job_id_jobs.append(q2.enqueue_call(func=get_person_job_id, args=(face.tolist(), person_bb,
                                                                                     products_coll, image_url),
                                                       ttl=TTL, result_ttl=TTL, timeout=TTL))
-        done = all([job.is_finished or job.is_failed for job in people_job_id_jobs])
-        while not done:
-            time.sleep(0.5)
-            done = all([job.is_finished or job.is_failed for job in people_job_id_jobs])
-        people_jobs = [Job.fetch(job.result) for job in people_job_id_jobs if job.result]
-        q5.enqueue_call(func=merge_people_and_insert, args=([job.id for job in people_jobs], image_dict),
-                        depends_on=people_jobs, ttl=TTL,
-                        result_ttl=TTL, timeout=TTL)
+        q6.enqueue_call(func=wait_for_person_ids, args=(people_job_id_jobs, image_dict), depends_on=people_job_id_jobs,
+                        ttl=TTL, result_ttl=TTL, timeout=TTL)
+
     else:
         db.irrelevant_images.insert_one(image_dict)
+
+
+def wait_for_person_ids(ids_jobs, image_dict):
+    people_jobs = [Job.fetch(job.result) for job in ids_jobs if job.result]
+    q5.enqueue_call(func=merge_people_and_insert, args=([job.id for job in people_jobs], image_dict),
+                    depends_on=people_jobs, ttl=TTL, result_ttl=TTL, timeout=TTL)
 
 
 def get_person_job_id(face, person_bb, products_coll, image_url):
