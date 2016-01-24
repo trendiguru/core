@@ -9,8 +9,8 @@ import numpy as np
 from rq.job import Job
 from rq import push_connection
 import bson
-
 import tldextract
+
 from . import constants
 from . import whitelist
 from . import background_removal
@@ -209,8 +209,12 @@ def start_pipeline(page_url, image_url, lang):
 def get_person_job_id(face, person_bb, products_coll, image_url):
     person = {'face': face, 'person_bb': person_bb}
     image = person_isolation(Utils.get_cv2_img_array(image_url), face)
-    paper_job = paperdoll_parse_enqueue.paperdoll_enqueue(image, str(bson.ObjectId()), async=False)
-    if not paper_job:
+    paper_job = paperdoll_parse_enqueue.paperdoll_enqueue(image, str(bson.ObjectId()))
+    while not paper_job.is_finished or paper_job.is_failed:
+        time.sleep(0.5)
+    if paper_job.is_failed:
+        raise SystemError("Paper-job has failed!")
+    elif not paper_job.result:
         raise SystemError("Paperdoll has returned empty results!")
     mask, labels = paper_job.result[:2]
     final_mask = after_pd_conclusions(mask, labels)
@@ -221,7 +225,7 @@ def get_person_job_id(face, person_bb, products_coll, image_url):
         if category in constants.paperdoll_shopstyle_women.keys():
             item_mask = 255 * np.array(final_mask == num, dtype=np.uint8)
 
-            # THese are jobs whos result is an item
+            # These are jobs whose result is an item
             item_jobs.append(q3.enqueue_call(func=create_item, args=(image, category, item_mask, products_coll),
                                              ttl=TTL, result_ttl=TTL, timeout=TTL))
 
