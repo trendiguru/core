@@ -210,8 +210,8 @@ def get_last_images(time_unit, num):
 
 def get_top_viewed_images(x):
     dict = {}
-    curs = db.images.find({'views': {'$gt': 1}}).sort([('views', pymongo.DESCENDING)])
-    for doc in curs.limit(x):
+    curs = db.images.find({'views': {'$gt': 1}}).sort([('views', pymongo.DESCENDING)]).limit(x)
+    for doc in curs:
         dict[doc['image_urls'][0]] = doc['views']
     return dict
 
