@@ -6,6 +6,7 @@ import os
 from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
 import datetime
+import subprocess
 
 import pymongo
 from rq import Queue
@@ -231,6 +232,14 @@ def check_relevancy():
                 print how_many_images
                 print splitted
                 time.sleep(0.3)
+
+
+def download_last_x_logs(x):
+    command = 'gsutil'
+    page = 'gs://fzz_logs'
+    last_x_log = subprocess.check_output([command, 'ls ' + page]).split('\n')[-(x + 1):-1]
+    for log in last_x_log:
+        subprocess.call([command, 'cp ' + page + '/' + log])
 
 
 if __name__ == "__main__":
