@@ -83,7 +83,7 @@ def email(stats, title, recipients):
     server.quit()
 
 
-def run():
+def monitize():
     checklist = {'redis_conn': {'flag': 0, 'start': 0},
                  'rq_functionality': {'flag': 0, 'start': 0},
                  'mongo_conn': {'flag': 0, 'start': 0},
@@ -262,16 +262,18 @@ def save_log_to_mongo(log_file, delete_after=True, first_time=False):
                 docs_list.append({'domain': domain, 'count': 1, 'cs_uri': [doc['cs_uri']]})
     if not first_time:
         db.log.insert_many(docs_list)
-    print "{0} requests were inserted to db.log".format(len(docs_list) * first_time + db.log.count() * first_time)
+    print "{0} requests were inserted to db.log at {1}".format(len(docs_list) * first_time + db.log.count() * first_time
+                                                               , datetime.datetime.utcnow())
+    print "sum of all domains in db.log is {0}".format(db.log.count())
     csv_file.close()
     if delete_after:
         os.remove(log_file)
 
 
-def build_top_1000():
-    for log_file in download_last_x_logs('all'):
-        save_log_to_mongo(log_file, delete_after=True)
-
+def run():
+    logs = download_last_x_logs(1)
+    for log in logs:
+        save_log_to_mongo(log)
 
 
 if __name__ == "__main__":
