@@ -241,7 +241,7 @@ def download_last_x_logs(x):
     os.chdir(address)
     last_x_log = subprocess.check_output([command, 'ls ' + page]).split('\n')[-(x + 1):-1]
     for log in last_x_log:
-        filename = log[len(page):] + ".csv"
+        filename = log[len(page) + 1:] + ".csv"
         subprocess.call([command, 'cp ' + log + ' ' + filename])
 
 
