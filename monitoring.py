@@ -265,6 +265,7 @@ def save_log_to_mongo(log_file, delete_after=True, first_time=False):
     print "{0} requests were inserted to db.log at {1}".format(len(docs_list) * first_time + db.log.count() * first_time
                                                                , datetime.datetime.utcnow())
     print "sum of all domains in db.log is {0}".format(db.log.count())
+    print '\n'
     csv_file.close()
     if delete_after:
         os.remove(log_file)
