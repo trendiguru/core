@@ -9,6 +9,8 @@ import datetime
 import subprocess
 import csv
 
+import tldextract
+
 import pymongo
 from rq import Queue
 
@@ -170,18 +172,11 @@ def run():
                 checklist[type_of]['flag'] = 0
 
 
+def get_domain(url):
+    return tldextract.extract(url).registered_domain
+
+
 def get_white_list():
-
-    def get_domain(url):
-        short_url = ""
-        cnt = 0
-        for letter in url:
-            if cnt == 3:
-                return short_url
-            if letter == '/':
-                cnt += 1
-            short_url += letter
-
     idx = 0
     for doc in db.images.find():
         domain = get_domain(doc['page_urls'][0])
@@ -240,7 +235,10 @@ def download_last_x_logs(x):
     page = 'gs://fzz_logs'
     address = "/home/developer/logs"
     os.chdir(address)
-    last_x_log = subprocess.check_output([command, 'ls ' + page]).split('\n')[-(x + 1):-1]
+    if x == 'all':
+        last_x_log = subprocess.check_output([command, 'ls ' + page]).split('\n')[:-1]
+    else:
+        last_x_log = subprocess.check_output([command, 'ls ' + page]).split('\n')[-(x + 1):-1]
     saved_logs = []
     for log in last_x_log:
         filename = log[len(page) + 1:] + ".csv"
@@ -249,11 +247,27 @@ def download_last_x_logs(x):
     return saved_logs
 
 
-def save_log_to_mongo(log_file):
+def save_log_to_mongo(log_file, delete_after=False):
     csv_file = open(log_file, 'r')
     reader = csv.DictReader(csv_file)
-    res = db.log.insert_many([doc for doc in reader])
-    print "{0} requests were inserted to db.log".format(len(res.inserted_ids))
+    docs_list = []
+    for doc in reader:
+        domain = get_domain(doc['cs_referer'])
+        if db.log.find_one({'domain': domain}):
+            db.log.update_one({'domain': domain}, {'$addToSet': {'cs_uri': doc['cs_uri']}, '$inc': {'count': 1}})
+        else:
+            docs_list.append({'domain': domain, 'count': 1, 'cs_uri': doc['cs_uri']})
+    db.log.insert_many(docs_list)
+    print "{0} requests were inserted to db.log".format(len(docs_list))
+    csv_file.close()
+    if delete_after:
+        os.remove(log_file)
+
+
+def build_top_1000():
+    for log_file in download_last_x_logs('all'):
+        save_log_to_mongo(log_file, delete_after=True)
+
 
 
 if __name__ == "__main__":
