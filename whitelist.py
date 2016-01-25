@@ -128,7 +128,7 @@ fullList = {"yahoo.com", "msn.com", "yahoo.co.jp", "qq.com", "uol.com.br", "glob
              'aliexpress.com', 'ebay.com', 'elmanana.mx', 'flipkart.com', 'idens.cz', 'jutarnji.hr',
              'manoramaonline.com', 'myway.com', 'nametests.com', 'ndtv.com', 'net.hr', 'origo.hu', 'ouedkniss.com',
              'pinoyhdreplay.org', 'pinoynetwork.se', 'postimees.ee', 'pudelek.pl', 'rakuten.co.jp', 'sapo.cv', 'tfc.tv',
-             'thestar.com.my', 'trendiguru.com', 'websta.me', 'siol.net', 'tportal.hr'}
+             'thestar.com.my', 'trendiguru.com', 'websta.me', 'siol.net', 'tportal.hr', 'iol.pt'}
 
 fashionBlogs = {"manrepeller.com", "wishwishwish.net", "parkandcube.com", "stellaswardrobe.com", "cocosteaparty.com",
                "5inchandup.blogspot.co.uk", "garypeppergirl.com", "camilleovertherainbow.com", "streetpeeper.com",
