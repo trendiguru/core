@@ -271,10 +271,18 @@ def save_log_to_mongo(log_file, delete_after=True, first_time=False):
         os.remove(log_file)
 
 
+def get_top_x(x):
+    top = db.log.find({}).sort('count', pymongo.DESCENDING)
+    print "Top " + str(x) + " sites:"
+    for doc in top.limit(x):
+        print "{0}: {1}".format(doc['domain'], doc['count'])
+
+
 def run():
     logs = download_last_x_logs(1)
     for log in logs:
         save_log_to_mongo(log)
+    get_top_x(100)
 
 
 if __name__ == "__main__":
