@@ -247,7 +247,7 @@ def download_last_x_logs(x):
     return saved_logs
 
 
-def save_log_to_mongo(log_file, delete_after=False):
+def save_log_to_mongo(log_file, delete_after=True, first_time=False):
     csv_file = open(log_file, 'r')
     reader = csv.DictReader(csv_file)
     docs_list = []
@@ -256,9 +256,13 @@ def save_log_to_mongo(log_file, delete_after=False):
         if db.log.find_one({'domain': domain}):
             db.log.update_one({'domain': domain}, {'$addToSet': {'cs_uri': doc['cs_uri']}, '$inc': {'count': 1}})
         else:
-            docs_list.append({'domain': domain, 'count': 1, 'cs_uri': doc['cs_uri']})
-    db.log.insert_many(docs_list)
-    print "{0} requests were inserted to db.log".format(len(docs_list))
+            if first_time:
+                db.log.insert_one({'domain': domain, 'count': 1, 'cs_uri': doc['cs_uri']})
+            else:
+                docs_list.append({'domain': domain, 'count': 1, 'cs_uri': doc['cs_uri']})
+    if not first_time:
+        db.log.insert_many(docs_list)
+    print "{0} requests were inserted to db.log".format(len(docs_list) * first_time + len(docs_list) * first_time)
     csv_file.close()
     if delete_after:
         os.remove(log_file)
