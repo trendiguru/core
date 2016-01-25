@@ -239,7 +239,7 @@ def download_last_x_logs(x):
     page = 'gs://fzz_logs'
     last_x_log = subprocess.check_output([command, 'ls ' + page]).split('\n')[-(x + 1):-1]
     for log in last_x_log:
-        subprocess.call([command, 'cp ' + page + '/' + log])
+        subprocess.call([command, 'cp ' + page + '/' + log + ' /home/developer/logs/' + log + '.csv'])
 
 
 if __name__ == "__main__":
