@@ -257,9 +257,9 @@ def save_log_to_mongo(log_file, delete_after=True, first_time=False):
             db.log.update_one({'domain': domain}, {'$addToSet': {'cs_uri': doc['cs_uri']}, '$inc': {'count': 1}})
         else:
             if first_time:
-                db.log.insert_one({'domain': domain, 'count': 1, 'cs_uri': doc['cs_uri']})
+                db.log.insert_one({'domain': domain, 'count': 1, 'cs_uri': [doc['cs_uri']]})
             else:
-                docs_list.append({'domain': domain, 'count': 1, 'cs_uri': doc['cs_uri']})
+                docs_list.append({'domain': domain, 'count': 1, 'cs_uri': [doc['cs_uri']]})
     if not first_time:
         db.log.insert_many(docs_list)
     print "{0} requests were inserted to db.log".format(len(docs_list) * first_time + len(docs_list) * first_time)
