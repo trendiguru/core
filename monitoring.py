@@ -262,7 +262,7 @@ def save_log_to_mongo(log_file, delete_after=True, first_time=False):
                 docs_list.append({'domain': domain, 'count': 1, 'cs_uri': [doc['cs_uri']]})
     if not first_time:
         db.log.insert_many(docs_list)
-    print "{0} requests were inserted to db.log".format(len(docs_list) * first_time + len(docs_list) * first_time)
+    print "{0} requests were inserted to db.log".format(len(docs_list) * first_time + db.log.count() * first_time)
     csv_file.close()
     if delete_after:
         os.remove(log_file)
