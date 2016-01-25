@@ -7,6 +7,7 @@ from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
 import datetime
 import subprocess
+import csv
 
 import pymongo
 from rq import Queue
@@ -248,8 +249,11 @@ def download_last_x_logs(x):
     return saved_logs
 
 
-# def save_log_to_mongo(log_file):
-
+def save_log_to_mongo(log_file):
+    csv_file = open(log_file, 'r')
+    reader = csv.DictReader(csv_file)
+    res = db.log.insert_many([doc for doc in reader])
+    print "{0} requests were inserted to db.log".format(len(res.inserted_ids))
 
 
 if __name__ == "__main__":
