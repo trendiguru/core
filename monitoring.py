@@ -255,7 +255,7 @@ def save_log_to_mongo(log_file, delete_after=True, first_time=False):
     docs_list = []
 
     for doc in reader:
-        view = {'ip': doc['c_ip'], 'time': datetime.datetime.utcfromtimestamp(doc['time_micros'] / 1e6)}
+        view = {'ip': doc['c_ip'], 'time': datetime.datetime.utcfromtimestamp(int(doc['time_micros']) / 1e6)}
         page = {'url': doc['cs_referer'], 'view_count': 1, 'views': [view]}
         domain = get_domain(doc['cs_referer'])
         # if domain is already in the DB:
