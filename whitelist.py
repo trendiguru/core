@@ -128,7 +128,9 @@ fullList = {"yahoo.com", "msn.com", "yahoo.co.jp", "qq.com", "uol.com.br", "glob
              'aliexpress.com', 'ebay.com', 'elmanana.mx', 'flipkart.com', 'idens.cz', 'jutarnji.hr',
              'manoramaonline.com', 'myway.com', 'nametests.com', 'ndtv.com', 'net.hr', 'origo.hu', 'ouedkniss.com',
              'pinoyhdreplay.org', 'pinoynetwork.se', 'postimees.ee', 'pudelek.pl', 'rakuten.co.jp', 'sapo.cv', 'tfc.tv',
-             'thestar.com.my', 'trendiguru.com', 'websta.me'}
+             'thestar.com.my', 'trendiguru.com', 'websta.me', 'siol.net', 'tportal.hr', 'iol.pt', 'freenet.de',
+             'jewelryquestion.com', 'larep.fr', 'dailymotion.com', 'mundopositivo.com.br', 'mediaset.it',
+             'cifraclub.com.br'}
 
 fashionBlogs = {"manrepeller.com", "wishwishwish.net", "parkandcube.com", "stellaswardrobe.com", "cocosteaparty.com",
                "5inchandup.blogspot.co.uk", "garypeppergirl.com", "camilleovertherainbow.com", "streetpeeper.com",
@@ -138,7 +140,7 @@ fashionBlogs = {"manrepeller.com", "wishwishwish.net", "parkandcube.com", "stell
                "enbrogue.com",
                "peonylim.com", "vanessajackman.blogspot.co.uk", "alltheprettybirds.com", "lisegrendene.com.br",
                "nataliehartleywears.blogspot.co.uk", "tommyton.com", "stylebubble.co.uk", "pandorasykes.com",
-               "theblondesalad.com",
+               "theblondesalad.com", 'notorious-mag.com',
                "thesartorialist.com", "bryanboy.com", "bunte.de", "gala.fr"}
 
 top50Fashion = {"refinery29.com", "maxmodels.pl", "stylebistro.com", "fashion.ifeng.com", "tajbao.com",
