@@ -264,8 +264,8 @@ def save_log_to_mongo(log_file, delete_after=True, first_time=False):
                                                    '$inc': {'count': 1}})
             # if page is already in the DB:
             if db.log.find_one({'pages.url': doc['cs_referer']}):
-                db.log.update_one({'pages.$.url': doc['cs_referer']}, {'$push': {'pages.$.views': view},
-                                                                       '$inc': {'pages.$.view_count': 1}})
+                db.log.update_one({'pages.url': doc['cs_referer']}, {'$push': {'pages.$.views': view},
+                                                                     '$inc': {'pages.$.view_count': 1}})
             # new page
             else:
                 db.log.update_one({'domain': domain}, {'$push': {'pages': page}})
