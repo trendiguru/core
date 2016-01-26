@@ -140,7 +140,7 @@ fashionBlogs = {"manrepeller.com", "wishwishwish.net", "parkandcube.com", "stell
                "enbrogue.com",
                "peonylim.com", "vanessajackman.blogspot.co.uk", "alltheprettybirds.com", "lisegrendene.com.br",
                "nataliehartleywears.blogspot.co.uk", "tommyton.com", "stylebubble.co.uk", "pandorasykes.com",
-               "theblondesalad.com",
+               "theblondesalad.com", 'notorious-mag.com',
                "thesartorialist.com", "bryanboy.com", "bunte.de", "gala.fr"}
 
 top50Fashion = {"refinery29.com", "maxmodels.pl", "stylebistro.com", "fashion.ifeng.com", "tajbao.com",
