@@ -173,6 +173,8 @@ def monitize():
 
 
 def get_domain(url):
+    if not isinstance(url, str):
+        url = str(url)
     return tldextract.extract(url).registered_domain
 
 
@@ -252,9 +254,12 @@ def save_log_to_mongo(log_file, delete_after=True, first_time=False):
     reader = csv.DictReader(csv_file)
     docs_list = []
     for doc in reader:
+        view = {'ip': doc['c_ip'], 'time': datetime.datetime.fromtimestamp(doc['time_micros'])}
         domain = get_domain(doc['cs_referer'])
         if db.log.find_one({'domain': domain}):
-            db.log.update_one({'domain': domain}, {'$addToSet': {'cs_uri': doc['cs_uri']}, '$inc': {'count': 1}})
+            db.log.update_one({'domain': domain}, {'$addToSet': {'cs_uri': doc['cs_uri']},
+                                                   '$inc': {'count': 1}})
+            db.log.update_one({'domain.pages.$.url': doc['cs_referer']}, )
         else:
             if first_time:
                 db.log.insert_one({'domain': domain, 'count': 1, 'cs_uri': [doc['cs_uri']]})
