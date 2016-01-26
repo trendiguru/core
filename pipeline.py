@@ -212,13 +212,15 @@ def wait_for_person_ids(ids_jobs, image_dict):
 def get_person_job_id(face, person_bb, products_coll, image_url):
     person = {'face': face, 'person_bb': person_bb}
     image = person_isolation(Utils.get_cv2_img_array(image_url), face)
+    start_time = time.time()
     paper_job = paperdoll_parse_enqueue.paperdoll_enqueue(image, str(bson.ObjectId()))
     while not paper_job.is_finished or paper_job.is_failed:
         time.sleep(0.5)
     if paper_job.is_failed:
         raise SystemError("Paper-job has failed!")
     elif not paper_job.result:
-        raise SystemError("Paperdoll has returned empty results!")
+        elapsed = time.time()-start_time
+        raise SystemError("Paperdoll has returned empty results ({0} elapsed,timeout={1} )!".format(elapsed,paper_job.timeout))
     mask, labels = paper_job.result[:2]
     final_mask = after_pd_conclusions(mask, labels)
     item_jobs = []
