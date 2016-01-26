@@ -253,19 +253,27 @@ def save_log_to_mongo(log_file, delete_after=True, first_time=False):
     csv_file = open(log_file, 'r')
     reader = csv.DictReader(csv_file)
     docs_list = []
+
     for doc in reader:
         view = {'ip': doc['c_ip'], 'time': datetime.datetime.fromtimestamp(doc['time_micros'])}
+        page = {'url': doc['cs_referer'], 'view_count': 1, 'views': [view]}
         domain = get_domain(doc['cs_referer'])
+        # if domain is already in the DB:
         if db.log.find_one({'domain': domain}):
             db.log.update_one({'domain': domain}, {'$addToSet': {'cs_uri': doc['cs_uri']},
                                                    '$inc': {'count': 1}})
-            db.log.update_one({'domain.pages.$.url': doc['cs_referer']}, )
-        else:
-            if first_time:
-                db.log.insert_one({'domain': domain, 'count': 1, 'cs_uri': [doc['cs_uri']]})
+            # if page is already in the DB:
+            if db.log.find_one({'pages.url': doc['cs_referer']}):
+                db.log.update_one({'pages.$.url': doc['cs_referer']}, {'$push': {'pages.$.views': view},
+                                                                       '$inc': {'pages.$.view_count': 1}})
+            # new page
             else:
-                docs_list.append({'domain': domain, 'count': 1, 'cs_uri': [doc['cs_uri']]})
-    if not first_time:
+                db.log.update_one({'domain': domain}, {'$push': {'pages': page}})
+        # new domain
+        else:
+            docs_list.append({'domain': domain, 'count': 1, 'cs_uri': [doc['cs_uri']], 'pages': [page]})
+
+    if len(docs_list):
         db.log.insert_many(docs_list)
     print "sum of all domains in db.log is {0}".format(db.log.count())
     print '\n'
