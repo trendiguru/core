@@ -203,7 +203,8 @@ def start_pipeline(page_url, image_url, lang):
 
 
 def wait_for_person_ids(ids_jobs, image_dict):
-    people_jobs = [Job.fetch(job_id) for job_id in ids_jobs]
+    people_jobs_ids = [Job.fetch(job_id).result for job_id in ids_jobs]
+    people_jobs = [Job.fetch(job_id) for job_id in people_jobs_ids]
     q5.enqueue_call(func=merge_people_and_insert, args=([job.id for job in people_jobs], image_dict),
                     depends_on=people_jobs, ttl=TTL, result_ttl=TTL, timeout=TTL)
 
