@@ -1,5 +1,7 @@
 __author__ = 'yonatan'
 
+import bson
+
 from . import constants
 
 db = constants.db
@@ -9,7 +11,7 @@ def getItems(last_id):
     if len(last_id) == 0:
         items = db.images.find().limit(100)
     else:
-        items = db.images.find({'_id' > last_id}).limit(100)
+        items = db.images.find({'_id' > bson.objectid.ObjectId(last_id)}).limit(100)
     batch = []
     for i in range(0, 100):
         tmp_item = items[i]
