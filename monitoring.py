@@ -8,6 +8,7 @@ from email.mime.multipart import MIMEMultipart
 import datetime
 import subprocess
 import csv
+from collections import OrderedDict
 
 import tldextract
 
@@ -283,11 +284,26 @@ def save_log_to_mongo(log_file, delete_after=True, first_time=False):
 
 
 def get_top_x(x):
-    top_dict = {}
+    top_dict = OrderedDict()
+    idx = 1
     top = db.log.find({}).sort('count', pymongo.DESCENDING)
     for doc in top.limit(x):
-        top_dict[doc['domain']] = doc['count']
+        top_dict[str(idx) + ') ' + doc['domain']] = doc['count']
         print "{0} : {1}".format(doc['domain'], doc['count'])
+        idx += 1
+    return top_dict
+
+
+def get_top_x_whitelist(x):
+    top_dict = OrderedDict()
+    idx = 1
+    top = db.log.find({}).sort('count', pymongo.DESCENDING)
+    for doc in top:
+        if doc['domain'] in whitelist.all_white_lists:
+            top_dict[str(idx) + ') ' + doc['domain']] = doc['count']
+            idx += 1
+        if idx == x:
+            break
     return top_dict
 
 
