@@ -7,7 +7,7 @@ db = constants.db
 
 def getItems(idx):
     items = db.images.find().batch_size(100)
-    start = int(idx)
+    start = int(idx) * 100
     batch = []
     for i in range(start, 100 + start):
         tmp_item = items[i]
