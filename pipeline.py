@@ -1,6 +1,5 @@
 __author__ = 'Nadav Paz'
 
-import logging
 import datetime
 import time
 
@@ -36,7 +35,6 @@ push_connection(constants.redis_conn)
 def is_in_whitelist(page_url):
     page_domain = tldextract.extract(page_url).registered_domain
     if page_domain not in whitelist.all_white_lists:
-        logging.debug("Domain not in whitelist: {0}. Page: {1}".format(page_domain, page_url))
         return False
     else:
         return True
