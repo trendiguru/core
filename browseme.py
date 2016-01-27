@@ -9,6 +9,9 @@ from selenium.webdriver.common.proxy import *
 from rq import Queue
 from redis import Redis
 
+from . import tmpGuard
+
+
 
 
 
@@ -17,7 +20,7 @@ from redis import Redis
 # import constants
 
 redis_conn = Redis(host="redis1-redis-1-vm")  # constants.redis_conn
-new_images_Q = Queue("new_images", connection=redis_conn)
+pipeline_Q = Queue("start_pipeline", connection=redis_conn)
 paperdoll_Q = Queue("pd", connection=redis_conn)
 browse_q = Queue('BrowseMe', connection=redis_conn)
 
@@ -59,28 +62,28 @@ def runExt(url):
     # display = Display(visible=0, size=(1024, 786))
     # display.start()
     # newProxy = getProxy()
-    driver = webdriver.Firefox()
+
     # xvfb.start()
     # driver = webdriver.Firefox(
     #     firefox_binary=webdriver.Firefox.firefox_binary.FirefoxBinary(
     #         log_file=open('/home/yonatan/selenium.log', 'a')))
+    tmpGuard.main()
     try:
-
-        driver.get(url)
         scr = open("/var/www/latest/b_main.js").read()
         print colored("driver started", "yellow")
         # wait for the queues to be empty enough
         countQue = 0
-        while paperdoll_Q.count > 2500 or new_images_Q.count > 50000:
+        while paperdoll_Q.count > 250 or pipeline_Q.count > 5000:
             countQue += 1
             if countQue > 2:
                 print colored("Que Full - returned to Que", "green", attrs=['bold'])
                 browse_q.enqueue(runExt, url)
-                driver.quit()
+                # driver.quit()
                 return
             print colored("Que Full - taking 15 sec break", "red")
             time.sleep(15)
-
+        driver = webdriver.Firefox()
+        driver.get(url)
         driver.execute_script(scr)
         time.sleep(1)
         print colored("script executed!", "green")
