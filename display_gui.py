@@ -16,7 +16,7 @@ def getItems(last_id):
         filters["_id"] = {"$gt": bson.ObjectId(last_id)}
         items = db.images.find(filters).limit(100)
     batch = []
-    for i in range(0, items.count()):
+    for i in range(0, 100):
         tmp_item = items[i]
         tmp = {"item_urls": tmp_item["image_urls"]}
         people = []
