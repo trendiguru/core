@@ -20,7 +20,7 @@ def main(manual=True):
     current_time = current[-2].split(":")
     current_hour = current_time[0]
     current_min = current_time[1]
-    if divmod(current_min, 10) != 0 and manual:
+    if divmod(int(current_min), 10) != 0 and manual:
         print colored("exited without deleting - minute isn't dividable by 10")
         return
     print colored("\ntmpGuard : %s\n" % current[-2], "red", "on_yellow")
