@@ -20,11 +20,11 @@ def main(manual=True):
     current_time = current[-2].split(":")
     current_hour = current_time[0]
     current_min = current_time[1]
-    tmp_min = int(current_min)
-    print type(tmp_min)
-    if divmod(tmp_min, 10)[1] != 0 and manual:
-        print colored("exited without deleting - minute isn't dividable by 10")
-        return
+    # tmp_min = int(current_min)
+    # print type(tmp_min)
+    # if divmod(tmp_min, 10)[1] != 0 and manual:
+    #     print colored("exited without deleting - minute isn't dividable by 10")
+    #     return
     print colored("\ntmpGuard : %s\n" % current[-2], "red", "on_yellow")
     files2erase = []
     i = 0
