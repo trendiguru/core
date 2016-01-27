@@ -3,8 +3,9 @@ import os
 import cv2
 import pymongo
 from redis import Redis
+from rq import Queue
 
-
+redis_conn = Redis(host=os.environ["REDIS_HOST"], port=int(os.environ["REDIS_PORT"]))
 # file containing constants for general TG use
 # fingerprint related consts
 
@@ -27,6 +28,12 @@ minimum_im_height = 50
 pd_worker_command =  'cd /home/jeremy/paperdoll3/paperdoll-v1.0/ && /usr/bin/python /usr/local/bin/rqworker -w trendi.matlab_wrapper.tgworker.TgWorker -u redis://redis1-redis-1-vm:6379 pd &'
 pd_worker_command_braini1 =  'cd /home/pd_user/paperdoll  && /usr/bin/python /usr/local/bin/rqworker  -w trendi.matlab_wrapper.tgworker.TgWorker  pd &'
 string_to_look_for_in_pd_command = 'tgworker'
+q1 = Queue('start_pipeline', connection=redis_conn)
+q2 = Queue('person_job', connection=redis_conn)
+q3 = Queue('item_job', connection=redis_conn)
+q4 = Queue('merge_items', connection=redis_conn)
+q5 = Queue('merge_people', connection=redis_conn)
+q6 = Queue('wait_for_person_ids', connection=redis_conn)
 
 N_expected_pd_workers_per_server = 15
 N_expected_pd_workers_per_server_braini1 = 47
@@ -34,17 +41,19 @@ N_default_workers = 47
 
 #general queues on braini
 string_to_look_for_in_rq_command = 'rqworker'
-unique_strings_to_look_for_in_rq_command = ['find_similar','tgworker','find_top_n','new_images']   #,'fingerprint_new'  ,'find_similar
+unique_strings_to_look_for_in_rq_command = ['person_job','tgworker','item_job','merge_items','merge_people,''start_pipeline','person_job']   #,'fingerprint_new'  ,'find_similar
 # the worker_commands are ordered by priority of queue
-worker_commands =['/usr/bin/python /usr/local/bin/rqworker find_similar &',
+worker_commands =['/usr/bin/python /usr/local/bin/rqworker person_job &',
                    'cd /home/pd_user/paperdoll  && /usr/bin/python /usr/local/bin/rqworker  -w trendi.matlab_wrapper.tgworker.TgWorker  pd &',
-                  '/usr/bin/python /usr/local/bin/rqworker find_top_n &',
-                '/usr/bin/python /usr/local/bin/rqworker new_images &'
+                  '/usr/bin/python /usr/local/bin/rqworker item_job &',
+                '/usr/bin/python /usr/local/bin/rqworker merge_items &',
+                '/usr/bin/python /usr/local/bin/rqworker start_pipeline &',
+                '/usr/bin/python /usr/local/bin/rqworker person_job &'
                   ]
  #                 '/usr/bin/python /usr/local/bin/rqworker fingerprint_new &',,
 
-multi_queue_command ='/usr/bin/python /usr/local/bin/rqworker find_similar find_top_n new_images'
-unique_in_multi_queue = 'find_similar'
+multi_queue_command ='/usr/bin/python /usr/local/bin/rqworker  start_pipeline person_job item_job merge_items merge_people wait_for_person_ids'
+unique_in_multi_queue = 'wait_for_person_ids'
 N_expected_workers_by_server={'braini1':45,'brain2':45,'brain3':90,'braini4':90,'braini5':90}
 N_max_workers = 120
 lower_threshold = 70
@@ -75,7 +84,7 @@ parallel_matlab_queuename = 'pd'
 nonparallel_matlab_queuename = 'pd_nonparallel'
 caffe_path_in_container = '/opt/caffe'
 db = pymongo.MongoClient(host=os.environ["MONGO_HOST"], port=int(os.environ["MONGO_PORT"])).mydb
-redis_conn = Redis(host=os.environ["REDIS_HOST"], port=int(os.environ["REDIS_PORT"]))
+
 #db = pymongo.MongoClient(host="mongodb1-instance-1").mydb
 #redis_conn = Redis(host="redis1-redis-1-vm")
 # new worker : rqworker -u redis://redis1-redis-1-vm:6379 [name] &
@@ -275,7 +284,7 @@ Reserve_cpus = 2  # number of cpus to not use when doing stuff in parallel
 
 # for gender id
 gender_ttl = 5  # 10 seconds ttl , answer should be nearly immediate
-paperdoll_ttl = 150  # seconds to wait for paperdoll result
+paperdoll_ttl = 300  # seconds to wait for paperdoll result
 caffe_general_ttl = 30  # seconds to wait for paperdoll result
 general_ttl = 2000  # ttl of all queues
 
@@ -735,7 +744,7 @@ white_list = ["http://www.bunte.de",
               "accuweather.com"]
 
 #if any one of these appears as a substring in a url, it gets booted
-blacklisted_terms =['alohatube',
+blacklisted_terms = {'alohatube',
     'asshole',
      'asswipe',
     'beeg.com',
@@ -775,6 +784,7 @@ blacklisted_terms =['alohatube',
      'porn',
      'pr0n',
      'pussy',
+     'redtube',
      'schlampe',
      'schlong',
      'semen',
@@ -794,11 +804,12 @@ blacklisted_terms =['alohatube',
      'wh0re',
      'whore',
      'x-rated',
+     'xnxx',
      'xrated',
      'xxx',
-      'youjizz']
+    'youjizz'}
 
-blacklisted_exceptions = ['xxxlarge',
+blacklisted_exceptions = {'xxxlarge',
                           'xxxsmall',
                           'peacock',
                           'cocktail',
@@ -806,4 +817,4 @@ blacklisted_exceptions = ['xxxlarge',
                           'wellandgood',
                           'fashion',
                           'xxxhairsnap',
-                          'kannada']
+                          'kannada'}

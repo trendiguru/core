@@ -84,7 +84,7 @@ def get_parse_mask(img_url_or_cv2_array):
 
 
 def get_parse_from_matlab_parallel(image_filename, matlab_engine, use_parfor=False):
-    print('get_parse_from_ml_parallel is using name:' + image_filename+' and use_parfor='+str(use_parfor))
+    logging.debug('get_parse_from_ml_parallel is using name:' + image_filename+' and use_parfor='+str(use_parfor))
     out = StringIO.StringIO()
     err = StringIO.StringIO()
     if use_parfor:
@@ -105,8 +105,8 @@ def get_parse_from_matlab_parallel(image_filename, matlab_engine, use_parfor=Fal
             f.write('output: '+outstring+'\n')
             f.write('err: '+errstring+'\n')
 
-#    print('ml output:'+str(out.getvalue()))
- #   print('ml stderr:'+str(err.getvalue()))
+#    logging.debug('ml output:'+str(out.getvalue()))
+ #   logging.debug('ml stderr:'+str(err.getvalue()))
 
     os.remove(image_filename)
     label_dict = dict(zip(label_names, range(0, len(label_names))))
@@ -236,12 +236,20 @@ def test_scp():
                      stdout=subprocess.PIPE).stdout.read()
 
 
-def run_test():
+#def analyze_dir(path):
+
+def run_test(img_filename):
+    eng = matlab.engine.start_matlab()
+
     # url =  'http://aelida.com/wp-content/uploads/2012/06/love-this-style.jpg'
-    url = 'http://assets.yandycdn.com/HiRez/ES-4749-B-AMPM2012-2.jpg'
-    img, labels, pose = get_parse_mask(img_url_or_cv2_array=url)
+#    url = 'http://assets.yandycdn.com/HiRez/ES-4749-B-AMPM2012-2.jpg'
+    img, labels, pose = get_parse_from_matlab(img_filename)
+
+#    img, labels, pose = get_parse_mask(img_filename)
     show_max(img, labels)
+#    logging.debug('im:' + str(img))
     logging.debug('labels:' + str(labels))
+    logging.debug('pose:' + str(pose))
     # show_parse(img_array=img)
 
 
@@ -251,6 +259,6 @@ def run_matlab_engine(options_string='-nodesktop'):
     yield eng
     eng.quit()
 
-
 if __name__ == "__main__":
-    run_test()
+    im = '/home/netanel/meta/dataset/test1/product_9415_photo_3295_bbox_336_195_339_527.jpg'
+    run_test(im)

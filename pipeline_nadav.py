@@ -36,17 +36,6 @@ q2 = Queue('find_top_n', connection=redis_conn)
 TTL = constants.general_ttl
 
 
-# ----------------------------------------------CO-FUNCTIONS------------------------------------------------------------
-
-
-def upload_image(image, name, bucket_name=None):
-    image_string = cv2.imencode(".jpg", image)[1].tostring()
-    bucket_name = bucket_name or "tg-boxed-faces"
-    s3 = boto3.resource('s3')
-    bucket = s3.Bucket(name=bucket_name)
-    bucket.put_object(Key="{0}.jpg".format(name), Body=image_string, ACL='public-read', ContentType="image/jpg")
-    return "{0}/{1}/{2}.jpg".format("https://s3.eu-central-1.amazonaws.com", bucket_name, name)
-
 
 def get_person_by_id(person_id, collection=iip):
     image = collection.find_one({'people.person_id': person_id})
@@ -70,97 +59,6 @@ def get_item_by_id(item_id, collection=iip):
         except:
             logging.warning("No items to this person, continuing..")
             return None, None, None
-
-
-def after_pd_conclusions(mask, labels, face=None):
-    """
-    1. if there's a full-body clothing:
-        1.1 add to its' mask - all the rest lower body items' masks.
-        1.2 add other upper cover items if they pass the pixel-amount condition/
-    2. else -
-        2.1 lower-body: decide whether it's a pants, jeans.. or a skirt, and share masks
-        2.2 upper-body: decide whether it's a one-part or under & cover
-    3. return new mask
-    """
-    if face:
-        ref_area = face[2] * face[3]
-        y_split = face[1] + 3 * face[3]
-    else:
-        ref_area = (np.mean((mask.shape[0], mask.shape[1])) / 10) ** 2
-        y_split = np.round(0.4 * mask.shape[0])
-    final_mask = mask[:, :]
-    mask_sizes = {"upper_cover": [], "upper_under": [], "lower_cover": [], "lower_under": [], "whole_body": []}
-    for num in np.unique(mask):
-        item_mask = 255 * np.array(mask == num, dtype=np.uint8)
-        category = list(labels.keys())[list(labels.values()).index(num)]
-        print "W2P: checking {0}".format(category)
-        for key, item in constants.paperdoll_categories.iteritems():
-            if category in item:
-                mask_sizes[key].append({num: cv2.countNonZero(item_mask)})
-    # 1
-    for item in mask_sizes["whole_body"]:
-        if (float(item.values()[0]) / (ref_area) > 2) or \
-                (len(mask_sizes["upper_cover"]) == 0 and len(mask_sizes["upper_under"]) == 0) or \
-                (len(mask_sizes["lower_cover"]) == 0 and len(mask_sizes["lower_under"]) == 0):
-            print "W2P: That's a {0}".format(list(labels.keys())[list(labels.values()).index((item.keys()[0]))])
-            item_num = item.keys()[0]
-            for num in np.unique(mask):
-                cat = list(labels.keys())[list(labels.values()).index(num)]
-                # 1.1, 1.2
-                if cat in constants.paperdoll_categories["lower_cover"] or \
-                                cat in constants.paperdoll_categories["lower_under"] or \
-                                cat in constants.paperdoll_categories["upper_under"]:
-                    final_mask = np.where(mask == num, item_num, final_mask)
-            return final_mask
-    # 2, 2.1
-    sections = {"upper_cover": 0, "upper_under": 0, "lower_cover": 0, "lower_under": 0}
-    max_item_count = 0
-    max_cat = 9
-    print "W2P: That's a 2-part clothing item!"
-    for section in sections.keys():
-        for item in mask_sizes[section]:
-            if item.values()[0] > max_item_count:
-                max_item_count = item.values()[0]
-                max_cat = item.keys()[0]
-                sections[section] = max_cat
-        # share masks
-        if max_item_count > 0:
-            for item in mask_sizes[section]:
-                cat = list(labels.keys())[list(labels.values()).index(item.keys()[0])]
-                # 2.1, 2.2
-                if cat in constants.paperdoll_categories[section]:
-                    final_mask = np.where(mask == item.keys()[0], max_cat, final_mask)
-            max_item_count = 0
-
-    for item in mask_sizes['whole_body']:
-        for i in range(0, mask.shape[0]):
-            if i <= y_split:
-                for j in range(0, mask.shape[1]):
-                    if mask[i][j] == item.keys()[0]:
-                        final_mask[i][j] = sections["upper_under"] or sections["upper_cover"] or 0
-            else:
-                for j in range(0, mask.shape[1]):
-                    if mask[i][j] == item.keys()[0]:
-                        final_mask[i][j] = sections["lower_cover"] or sections["lower_under"] or 0
-    return final_mask
-
-
-def person_isolation(image, face):
-    x, y, w, h = face
-    image_copy = np.zeros(image.shape, dtype=np.uint8)
-    x_back = np.max([x - 1.5 * w, 0])
-    x_ahead = np.min([x + 2.5 * w, image.shape[1] - 2])
-    image_copy[:, int(x_back):int(x_ahead), :] = image[:, int(x_back):int(x_ahead), :]
-    return image_copy
-
-
-def create_gc_mask(image, pd_mask, bgnd_mask, skin_mask):
-    item_bb = bb_from_mask(pd_mask)
-    item_gc_mask = background_removal.paperdoll_item_mask(pd_mask, item_bb)
-    after_gc_mask = background_removal.simple_mask_grabcut(image, item_gc_mask)  # (255, 0) mask
-    final_mask = cv2.bitwise_and(bgnd_mask, after_gc_mask)
-    final_mask = cv2.bitwise_and(skin_mask, final_mask)
-    return final_mask  # (255, 0) mask
 
 
 def bb_from_mask(mask):
@@ -218,7 +116,7 @@ def start_process(page_url, image_url, lang=None):
 
     page_domain = tldextract.extract(page_url).registered_domain
     if page_domain not in whitelist.all_white_lists:
-        # logging.debug("Domain not in whitelist: {0}. Page: {1}".format(page_domain, page_url))
+        logging.debug("Domain not in whitelist: {0}. Page: {1}".format(page_domain, page_url))
         return
 
     # IF URL IS BLACKLISTED - put in blacklisted_urls

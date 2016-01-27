@@ -1,12 +1,17 @@
 - hosts: braini
   gather_facts: no
   tasks:
-  - debug: msg="hi"
+#  - debug: msg="hi"
   - ping:
 
-- hosts: gcloud
+- hosts: gcloud_ubuntu_user
   gather_facts: no
   tasks:
-  - debug: msg="hi"
+#  - debug: msg="hi"
   - ping:
 
+- hosts: gcloud_root_user
+  gather_facts: no
+  tasks:
+  #- debug: msg="hi"
+  - ping:
