@@ -7,11 +7,12 @@ from . import constants
 db = constants.db
 
 
-def getItems(last_id):
+def getItems(last_id, filters):
     if len(last_id) == 0:
-        items = db.images.find().limit(100)
+        items = db.images.find(filters).limit(100)
     else:
-        items = db.images.find({"_id": {"$gt": bson.ObjectId(last_id)}}).limit(100)
+        filters["_id"] = {"$gt": bson.ObjectId(last_id)}
+        items = db.images.find(filters).limit(100)
     batch = []
     for i in range(0, 100):
         tmp_item = items[i]
