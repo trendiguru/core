@@ -18,6 +18,7 @@ from . import tmpGuard
 
 
 
+
 # import constants
 
 redis_conn = Redis(host="redis1-redis-1-vm")  # constants.redis_conn
@@ -69,6 +70,7 @@ def runExt(url):
     #     firefox_binary=webdriver.Firefox.firefox_binary.FirefoxBinary(
     #         log_file=open('/home/yonatan/selenium.log', 'a')))
     tmpGuard.main()
+    driver = webdriver.Firefox()
     try:
         scr = open("/var/www/latest/b_main.js").read()
         print colored("driver started", "yellow")
@@ -83,7 +85,6 @@ def runExt(url):
                 return
             print colored("Que Full - taking 15 sec break", "red")
             time.sleep(15)
-        driver = webdriver.Firefox()
         print colored("0", "green")
         driver.get(url)
         print colored("1", "green")
