@@ -298,10 +298,12 @@ def get_top_x_whitelist(x):
     top_dict = OrderedDict()
     idx = 1
     top = db.log.find({}).sort('count', pymongo.DESCENDING)
-    for doc in top.limit(x):
+    for doc in top:
         if doc['domain'] in whitelist.all_white_lists:
             top_dict[str(idx) + ') ' + doc['domain']] = doc['count']
             idx += 1
+        if idx == x:
+            break
     return top_dict
 
 
