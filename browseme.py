@@ -17,6 +17,7 @@ from . import tmpGuard
 
 
 
+
 # import constants
 
 redis_conn = Redis(host="redis1-redis-1-vm")  # constants.redis_conn
@@ -83,8 +84,11 @@ def runExt(url):
             print colored("Que Full - taking 15 sec break", "red")
             time.sleep(15)
         driver = webdriver.Firefox()
+        print colored("0", "green")
         driver.get(url)
+        print colored("1", "green")
         driver.execute_script(scr)
+        print colored("2", "green")
         time.sleep(1)
         print colored("script executed!", "green")
 
