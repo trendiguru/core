@@ -1,7 +1,5 @@
 __author__ = 'yonatan'
 
-import datetime
-
 import bson
 
 from . import constants
@@ -11,7 +9,7 @@ db = constants.db
 
 def getItems(last_id, date_filter=None):
     filters = {}
-    filters["saved_date"] = {"$gt": datetime.datetime.strptime(date_filter, "%Y-%m-%d")}
+    # filters["saved_date"] = {"$gt": datetime.datetime.strptime(date_filter, "%Y-%m-%d")}
     if len(last_id) == 0:
         items = db.images.find(filters).limit(100)
     else:
