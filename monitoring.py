@@ -261,15 +261,24 @@ def save_log_to_mongo(log_file, delete_after=True, first_time=False):
         domain = get_domain(doc['cs_referer'])
         # if domain is already in the DB:
         if db.log.find_one({'domain': domain}):
-            db.log.update_one({'domain': domain}, {'$addToSet': {'cs_uri': doc['cs_uri']},
-                                                   '$inc': {'count': 1}})
+            try:
+                db.log.update_one({'domain': domain}, {'$addToSet': {'cs_uri': doc['cs_uri']},
+                                                       '$inc': {'count': 1}})
+            except Exception as e:
+                print e
             # if page is already in the DB:
             if db.log.find_one({'pages.url': doc['cs_referer']}):
-                db.log.update_one({'pages.url': doc['cs_referer']}, {'$push': {'pages.$.views': view},
+                try:
+                    db.log.update_one({'pages.url': doc['cs_referer']}, {'$push': {'pages.$.views': view},
                                                                      '$inc': {'pages.$.view_count': 1}})
+                except Exception as e:
+                    print e
             # new page
             else:
-                db.log.update_one({'domain': domain}, {'$push': {'pages': page}})
+                try:
+                    db.log.update_one({'domain': domain}, {'$push': {'pages': page}})
+                except Exception as e:
+                    print e
         # new domain
         else:
             docs_list.append({'domain': domain, 'count': 1, 'cs_uri': [doc['cs_uri']], 'pages': [page]})
