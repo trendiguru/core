@@ -29,9 +29,13 @@ def getItems(last_id, date_filter):
                 itemCategory = cand_item['category']
                 itemSavedDate = cand_item['saved_date']
                 top10 = []
+                try:
+                    for w in range(10):
+                        top10.append(cand_item['similar_results'][w]["image"]["sizes"]["XLarge"]["url"])
+                except:
+                    for w in range(10):
+                        top10.append(cand_item['similar_results'][w]["image"]["XLarge"])
 
-                for w in range(10):
-                    top10.append(cand_item['similar_results'][w]["image"]["sizes"]["XLarge"]["url"])
                 dict = {'category': itemCategory,
                         'saved_date': itemSavedDate,
                         'top10': top10}
