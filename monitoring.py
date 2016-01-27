@@ -8,6 +8,7 @@ from email.mime.multipart import MIMEMultipart
 import datetime
 import subprocess
 import csv
+from collections import OrderedDict
 
 import tldextract
 
@@ -283,7 +284,7 @@ def save_log_to_mongo(log_file, delete_after=True, first_time=False):
 
 
 def get_top_x(x):
-    top_dict = {}
+    top_dict = OrderedDict()
     top = db.log.find({}).sort('count', pymongo.DESCENDING)
     for doc in top.limit(x):
         top_dict[doc['domain']] = doc['count']
