@@ -8,6 +8,7 @@ from email.mime.multipart import MIMEMultipart
 import datetime
 import subprocess
 import csv
+from collections import OrderedDict
 
 import tldextract
 
@@ -255,7 +256,7 @@ def save_log_to_mongo(log_file, delete_after=True, first_time=False):
     docs_list = []
 
     for doc in reader:
-        view = {'ip': doc['c_ip'], 'time': datetime.datetime.fromtimestamp(doc['time_micros'])}
+        view = {'ip': doc['c_ip'], 'time': datetime.datetime.utcfromtimestamp((int(doc['time_micros'])) / 1e6)}
         page = {'url': doc['cs_referer'], 'view_count': 1, 'views': [view]}
         domain = get_domain(doc['cs_referer'])
         # if domain is already in the DB:
@@ -264,8 +265,8 @@ def save_log_to_mongo(log_file, delete_after=True, first_time=False):
                                                    '$inc': {'count': 1}})
             # if page is already in the DB:
             if db.log.find_one({'pages.url': doc['cs_referer']}):
-                db.log.update_one({'pages.$.url': doc['cs_referer']}, {'$push': {'pages.$.views': view},
-                                                                       '$inc': {'pages.$.view_count': 1}})
+                db.log.update_one({'pages.url': doc['cs_referer']}, {'$push': {'pages.$.views': view},
+                                                                     '$inc': {'pages.$.view_count': 1}})
             # new page
             else:
                 db.log.update_one({'domain': domain}, {'$push': {'pages': page}})
@@ -283,10 +284,27 @@ def save_log_to_mongo(log_file, delete_after=True, first_time=False):
 
 
 def get_top_x(x):
+    top_dict = OrderedDict()
+    idx = 1
     top = db.log.find({}).sort('count', pymongo.DESCENDING)
-    print "Top " + str(x) + " sites:"
     for doc in top.limit(x):
-        print "{0}: {1}".format(doc['domain'], doc['count'])
+        top_dict[str(idx) + ') ' + doc['domain']] = doc['count']
+        print "{0} : {1}".format(doc['domain'], doc['count'])
+        idx += 1
+    return top_dict
+
+
+def get_top_x_whitelist(x):
+    top_dict = OrderedDict()
+    idx = 1
+    top = db.log.find({}).sort('count', pymongo.DESCENDING)
+    for doc in top:
+        if doc['domain'] in whitelist.all_white_lists:
+            top_dict[str(idx) + ') ' + doc['domain']] = doc['count']
+            idx += 1
+        if idx == x:
+            break
+    return top_dict
 
 
 def run():
