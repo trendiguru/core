@@ -24,13 +24,13 @@ def getItems(last_id, date_filter=None):
             items4people = []
             for y, cand_item in enumerate(candidate["items"]):
                 itemCategory = cand_item['category']
-                # itemSavedDate = cand_item['saved_date']
+                itemSavedDate = cand_item['saved_date']
                 top10 = []
 
                 for w in range(10):
                     top10.append(cand_item['similar_results'][w]["image"]["sizes"]["XLarge"]["url"])
                 dict = {'category': itemCategory,
-                        # 'saved_date': itemSavedDate,
+                        'saved_date': itemSavedDate,
                         'top10': top10}
                 items4people.append(dict)
             people.append(items4people)
