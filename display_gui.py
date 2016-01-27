@@ -1,5 +1,7 @@
 __author__ = 'yonatan'
 
+import datetime
+
 import bson
 
 from . import constants
@@ -7,13 +9,17 @@ from . import constants
 db = constants.db
 
 
-def getItems(last_id):
+def getItems(last_id, date_filter=None):
+    filters = {}
+    if date_filter != None and date_filter != "":
+        filters["saved_date"] = {"$gt": datetime.datetime.strptime(date_filter, "%Y-%m-%d")}
     if len(last_id) == 0:
-        items = db.images.find().limit(100)
+        items = db.images.find(filters).limit(100)
     else:
-        items = db.images.find({"_id": {"$gt": bson.ObjectId(last_id)}}).limit(100)
+        filters["_id"] = {"$gt": bson.ObjectId(last_id)}
+        items = db.images.find(filters).limit(100)
     batch = []
-    for i in range(0, 100):
+    for i in range(0, items.count()):
         tmp_item = items[i]
         tmp = {"item_urls": tmp_item["image_urls"]}
         people = []

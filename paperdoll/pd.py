@@ -84,6 +84,16 @@ def get_parse_mask(img_url_or_cv2_array):
 
 
 def get_parse_from_matlab_parallel(image_filename, matlab_engine, use_parfor=False):
+
+#    >>> import matlab.engine
+#>>> eng = matlab.engine.start_matlab()
+#>>>
+#>>> # Do something that throws an exception...
+#>>>
+#>>> eng.eval('exception = MException.last;', nargout=0)
+#>>> eng.eval('getReport(exception)')
+
+
     logging.debug('get_parse_from_ml_parallel is using name:' + image_filename+' and use_parfor='+str(use_parfor))
     out = StringIO.StringIO()
     err = StringIO.StringIO()
