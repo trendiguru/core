@@ -7,7 +7,10 @@ from . import constants
 db = constants.db
 
 
-def getItems(last_id, filters):
+def getItems(last_id, date_filter=None):
+    filters = {}
+    if date_filter != None:
+        filters["saved_date"] = {"$gt": date_filter}
     if len(last_id) == 0:
         items = db.images.find(filters).limit(100)
     else:
