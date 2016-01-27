@@ -5,11 +5,13 @@ from . import constants
 db = constants.db
 
 
-def getItems(idx):
-    items = db.images.find().batch_size(100)
-    start = int(idx) * 100
+def getItems(last_id):
+    if len(last_id) == 0:
+        items = db.images.find().limit(100)
+    else:
+        items = db.images.find({'_id' > last_id}).limit(100)
     batch = []
-    for i in range(start, 100 + start):
+    for i in range(0, 100):
         tmp_item = items[i]
         tmp = {"item_urls": tmp_item["image_urls"]}
         people = []
