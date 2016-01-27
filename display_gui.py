@@ -7,7 +7,7 @@ from . import constants
 db = constants.db
 
 
-def getItems(last_id, date_filter=None):
+def getItems(last_id):
     filters = {}
     # filters["saved_date"] = {"$gt": datetime.datetime.strptime(date_filter, "%Y-%m-%d")}
     if len(last_id) == 0:
