@@ -30,4 +30,7 @@ def getItems(last_id):
             people.append(items4people)
         tmp["people"] = people
         batch.append(tmp)
+    last_id = tmp_item["_id"]
+    tmp = {"last_id": last_id}
+    batch.append(tmp)
     return batch
