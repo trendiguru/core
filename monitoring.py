@@ -294,6 +294,17 @@ def get_top_x(x):
     return top_dict
 
 
+def get_top_x_whitelist(x):
+    top_dict = OrderedDict()
+    idx = 1
+    top = db.log.find({}).sort('count', pymongo.DESCENDING)
+    for doc in top.limit(x):
+        if doc['domain'] in whitelist.all_white_lists:
+            top_dict[str(idx) + ') ' + doc['domain']] = doc['count']
+            idx += 1
+    return top_dict
+
+
 def run():
     logs = download_last_x_logs(1)
     for log in logs:
