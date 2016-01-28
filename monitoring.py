@@ -267,31 +267,20 @@ def save_log_to_mongo(log_file, delete_after=True):
 
             # if domain is already in the DB:
             s1 = time.time()
-            if db.log.find_one({'domain': domain}, {'_id': 1}):
-                print "find_one by domain took {0} secs".format(time.time() - s1)
-                try:
-                    s2 = time.time()
-                    db.log.update_one({'domain': domain}, {'$addToSet': {'cs_uri': request['cs_uri']},
-                                                           '$inc': {'count': 1}})
-                    print "update_one by domain took {0} secs".format(time.time() - s2)
-                except Exception as e:
-                    print e
+            if db.log.find_one_and_update({'domain': domain}, {'$addToSet': {'cs_uri': request['cs_uri']},
+                                                               '$inc': {'count': 1}}):
+                print "find_one_and_update by domain took {0} secs".format(time.time() - s1)
                 # if page is already in the DB:
-                s3 = time.time()
-                if db.log.find_one({'pages.url': page['url']}):
-                    print "find_one by page_url took {0} secs".format(time.time() - s3)
-                    s4 = time.time()
-                    try:
-                        db.log.update_one({'pages.url': page['url']}, {'$push': {'pages.$.views': view},
-                                                                       '$inc': {'pages.$.view_count': 1}})
-                        print "update_one by page_url took {0} secs".format()
-                    except Exception as e:
-                        print e
+                s2 = time.time()
+                if db.log.find_one_and_update({'pages.url': page['url']}, {'$push': {'pages.$.views': view},
+                                                                           '$inc': {'pages.$.view_count': 1}}):
+                    print "find_one_and_update by page_url took {0} secs".format(time.time() - s2)
                 # new page
                 else:
                     try:
                         db.log.update_one({'domain': domain}, {'$push': {'pages': page}})
                     except Exception as e:
+                        print "push page to doc failed:"
                         print e
             # new domain
             else:
