@@ -13,7 +13,7 @@ def getItems(last_id, date_filter):
     filters = {}
     if date_filter != "":
         filters["saved_date"] = {"$gt": datetime.datetime.strptime(date_filter, "%Y-%m-%d")}
-    if len(last_id) == 0:
+    if last_id == '0':
         items = db.images.find(filters).limit(100)
     else:
         filters["_id"] = {"$gt": bson.ObjectId(last_id)}
