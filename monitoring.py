@@ -259,29 +259,32 @@ def save_log_to_mongo(log_file, delete_after=True, first_time=False):
         view = {'ip': doc['c_ip'], 'time': datetime.datetime.utcfromtimestamp((int(doc['time_micros'])) / 1e6)}
         page = {'url': doc['cs_referer'], 'view_count': 1, 'views': [view]}
         domain = get_domain(doc['cs_referer'])
-        # if domain is already in the DB:
-        if db.log.find_one({'domain': domain}):
-            try:
-                db.log.update_one({'domain': domain}, {'$addToSet': {'cs_uri': doc['cs_uri']},
-                                                       '$inc': {'count': 1}})
-            except Exception as e:
-                print e
-            # if page is already in the DB:
-            if db.log.find_one({'pages.url': doc['cs_referer']}):
+        # if page url valid to index
+        if len(page['url']) < 1024:
+
+            # if domain is already in the DB:
+            if db.log.find_one({'domain': domain}):
                 try:
-                    db.log.update_one({'pages.url': doc['cs_referer']}, {'$push': {'pages.$.views': view},
-                                                                     '$inc': {'pages.$.view_count': 1}})
+                    db.log.update_one({'domain': domain}, {'$addToSet': {'cs_uri': doc['cs_uri']},
+                                                           '$inc': {'count': 1}})
                 except Exception as e:
                     print e
-            # new page
+                # if page is already in the DB:
+                if db.log.find_one({'pages.url': page['url']}):
+                    try:
+                        db.log.update_one({'pages.url': page['url']}, {'$push': {'pages.$.views': view},
+                                                                       '$inc': {'pages.$.view_count': 1}})
+                    except Exception as e:
+                        print e
+                # new page
+                else:
+                    try:
+                        db.log.update_one({'domain': domain}, {'$push': {'pages': page}})
+                    except Exception as e:
+                        print e
+            # new domain
             else:
-                try:
-                    db.log.update_one({'domain': domain}, {'$push': {'pages': page}})
-                except Exception as e:
-                    print e
-        # new domain
-        else:
-            docs_list.append({'domain': domain, 'count': 1, 'cs_uri': [doc['cs_uri']], 'pages': [page]})
+                docs_list.append({'domain': domain, 'count': 1, 'cs_uri': [doc['cs_uri']], 'pages': [page]})
 
     if len(docs_list):
         db.log.insert_many(docs_list)
