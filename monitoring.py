@@ -258,8 +258,7 @@ def save_log_to_mongo(log_file, delete_after=True):
     docs_list = []
     idx = 1
     for request in reader:
-        if idx % 100 == 0:
-            print "doing the {0}th line..".format(idx)
+        print "doing the {0}th line..".format(idx)
         view = {'ip': request['c_ip'], 'time': datetime.datetime.utcfromtimestamp((int(request['time_micros'])) / 1e6)}
         page = {'url': request['cs_referer'], 'view_count': 1, 'views': [view]}
         domain = get_domain(request['cs_referer'])
