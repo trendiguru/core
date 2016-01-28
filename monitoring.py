@@ -264,7 +264,7 @@ def save_log_to_mongo(log_file, delete_after=True):
         domain = get_domain(request['cs_referer'])
         # if page url valid to index
         if len(page['url']) < 1024:
-
+            print "len(page['url']) < 1023.."
             if domain in whitelist.all_white_lists:
                 # if domain is already in the DB:
                 s1 = time.time()
@@ -288,7 +288,7 @@ def save_log_to_mongo(log_file, delete_after=True):
                 else:
                     s4 = time.time()
                     docs_list.append({'domain': domain, 'count': 1, 'cs_uri': [request['cs_uri']], 'pages': [page]})
-                    "IN the whitelist, domain NOT-FOUND, append to list took {0} secs".format(time.time() - s4)
+                    print "IN the whitelist, domain NOT-FOUND, append to list took {0} secs".format(time.time() - s4)
             else:
                 s5 = time.time()
                 if not db.log.find_one_and_update({'domain': domain}, {'$addToSet': {'cs_uri': request['cs_uri']},
