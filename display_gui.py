@@ -26,21 +26,24 @@ def getItems(last_id, date_filter):
         people = []
         for x, candidate in enumerate(tmp_item["people"]):
             items4people = []
-            for y, cand_item in enumerate(candidate["items"]):
-                itemCategory = cand_item['category']
-                top10 = []
-                try:
-                    for w in range(10):
-                        top10.append(cand_item['similar_results'][w]["image"]["sizes"]["XLarge"]["url"])
-                except:
+            try:
+                for y, cand_item in enumerate(candidate["items"]):
+                    itemCategory = cand_item['category']
+                    top10 = []
                     try:
                         for w in range(10):
-                            top10.append(cand_item['similar_results'][w]["images"]["XLarge"])
+                            top10.append(cand_item['similar_results'][w]["image"]["sizes"]["XLarge"]["url"])
                     except:
-                        pass
-                dict = {'category': itemCategory,
-                        'top10': top10}
-                items4people.append(dict)
+                        try:
+                            for w in range(10):
+                                top10.append(cand_item['similar_results'][w]["images"]["XLarge"])
+                        except:
+                            pass
+                    dict = {'category': itemCategory,
+                            'top10': top10}
+                    items4people.append(dict)
+            except:
+                pass
             people.append(items4people)
         tmp["people"] = people
         batch.append(tmp)
