@@ -267,7 +267,7 @@ def save_log_to_mongo(log_file, delete_after=True):
 
             # if domain is already in the DB:
             s1 = time.time()
-            if db.log.find_one({'domain': domain}):
+            if db.log.find_one({'domain': domain}, {'_id': 1}):
                 print "find_one by domain took {0} secs".format(time.time() - s1)
                 try:
                     s2 = time.time()
