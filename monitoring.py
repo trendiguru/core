@@ -296,6 +296,9 @@ def save_log_to_mongo(log_file, delete_after=True):
                     print "OUT of the whitelist, domain NOT-FOUND, find_one_and_update by DOMAIN took {0} secs".format(
                         time.time() - s5)
                     docs_list.append({'domain': domain, 'count': 1, 'cs_uri': [request['cs_uri']]})
+                else:
+                    print "OUT of the whitelist, domain FOUND, find_one_and_update by DOMAIN took {0} secs".format(
+                        time.time() - s5)
         else:
             print "len(page['url']) > 1023 !!"
         idx += 1
