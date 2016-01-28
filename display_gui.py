@@ -19,7 +19,8 @@ def getItems(last_id, date_filter):
         filters["_id"] = {"$gt": bson.ObjectId(last_id)}
         items = db.images.find(filters).limit(100)
     batch = []
-    for i in range(0, 100):
+    max_range = min(100, items.count())
+    for i in range(0, max_range):
         tmp_item = items[i]
         tmp = {"item_urls": tmp_item["image_urls"]}
         people = []
@@ -27,7 +28,6 @@ def getItems(last_id, date_filter):
             items4people = []
             for y, cand_item in enumerate(candidate["items"]):
                 itemCategory = cand_item['category']
-                itemSavedDate = cand_item['saved_date']
                 top10 = []
                 try:
                     for w in range(10):
@@ -39,7 +39,6 @@ def getItems(last_id, date_filter):
                     except:
                         pass
                 dict = {'category': itemCategory,
-                        'saved_date': itemSavedDate,
                         'top10': top10}
                 items4people.append(dict)
             people.append(items4people)
