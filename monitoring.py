@@ -266,17 +266,25 @@ def save_log_to_mongo(log_file, delete_after=True):
         if len(page['url']) < 1024:
 
             # if domain is already in the DB:
+            s1 = time.time()
             if db.log.find_one({'domain': domain}):
+                print "find_one by domain took {0} secs".format(time.time() - s1)
                 try:
+                    s2 = time.time()
                     db.log.update_one({'domain': domain}, {'$addToSet': {'cs_uri': request['cs_uri']},
                                                            '$inc': {'count': 1}})
+                    print "update_one by domain took {0} secs".format(time.time() - s2)
                 except Exception as e:
                     print e
                 # if page is already in the DB:
+                s3 = time.time()
                 if db.log.find_one({'pages.url': page['url']}):
+                    print "find_one by page_url took {0} secs".format(time.time() - s3)
+                    s4 = time.time()
                     try:
                         db.log.update_one({'pages.url': page['url']}, {'$push': {'pages.$.views': view},
                                                                        '$inc': {'pages.$.view_count': 1}})
+                        print "update_one by page_url took {0} secs".format()
                     except Exception as e:
                         print e
                 # new page
