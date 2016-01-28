@@ -26,9 +26,8 @@ def getItems(last_id, date_filter):
                "saved_date": tmp_item["saved_date"]}
         people = []
         for x, candidate in enumerate(tmp_item["people"]):
+            items4people = []
             try:
-                items4people = []
-
                 for y, cand_item in enumerate(candidate["items"]):
                     itemCategory = cand_item['category']
                     top10 = []
