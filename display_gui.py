@@ -47,8 +47,8 @@ def getItems(last_id, date_filter):
                 people.append(items4people)
             except:
                 pass
-        # if len(people) == 0:
-        #     continue
+        if len(people) == 0:
+            continue
         tmp["people"] = people
         batch.append(tmp)
     last_id = tmp_item["_id"]
