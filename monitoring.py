@@ -250,6 +250,9 @@ def download_last_x_logs(x):
     return saved_logs
 
 
+log_blacklist = ['googleapis.com', 'youtube.com']
+
+
 def save_log_to_mongo(log_file, delete_after=True):
     start = time.time()
     print "starting to update the log.."
@@ -258,49 +261,49 @@ def save_log_to_mongo(log_file, delete_after=True):
     docs_list = []
     idx = 1
     for request in reader:
-        print "doing the {0}th line..".format(idx)
+        if idx % 1000 == 0:
+            print "doing the {0}th line..".format(idx)
         view = {'ip': request['c_ip'], 'time': datetime.datetime.utcfromtimestamp((int(request['time_micros'])) / 1e6)}
         page = {'url': request['cs_referer'], 'view_count': 1, 'views': [view]}
         domain = get_domain(request['cs_referer'])
         # if page url valid to index
-        if len(page['url']) < 1024:
-            print "len(page['url']) < 1023.."
+        if len(page['url']) < 1024 and domain not in log_blacklist:
+            # print "len(page['url']) < 1023.."
             if domain in whitelist.all_white_lists:
                 # if domain is already in the DB:
-                s1 = time.time()
+                # s1 = time.time()
                 a = db.log.find_one_and_update({'domain': domain}, {'$addToSet': {'cs_uri': request['cs_uri']},
                                                                     '$inc': {'count': 1}})
                 if a:
-                    print "IN the whitelist, domain FOUND, find_one_and_update by DOMAIN took {0} secs with domain count of {1}".format(
-                        time.time() - s1, a['count'])
+                    # print "IN the whitelist, domain FOUND, find_one_and_update by DOMAIN took {0} secs with domain count of {1}".format(
+                    # time.time() - s1, a['count'])
                     # if page is already in the DB:
-                    s2 = time.time()
+                    # s2 = time.time()
                     if db.log.find_one_and_update({'pages.url': page['url']}, {'$push': {'pages.$.views': view},
                                                                                '$inc': {'pages.$.view_count': 1}}):
-                        print "IN the whitelist, page_url FOUND, find_one_and_update by PAGE_URL took {0} secs with domain count of {1}".format(
-                            time.time() - s2, a['count'])
+                        pass
+                        # print "IN the whitelist, page_url FOUND, find_one_and_update by PAGE_URL took {0} secs with domain count of {1}".format(
+                        # time.time() - s2, a['count'])
                     # new page
                     else:
-                        s3 = time.time()
+                        # s3 = time.time()
                         db.log.update_one({'domain': domain}, {'$push': {'pages': page}})
-                        print "IN the whitelist, page_url NOT-FOUND, update_one by DOMAIN took {0} secs with domain count of {1}".format(
-                            time.time() - s3, a['count'])
+                        # print "IN the whitelist, page_url NOT-FOUND, update_one by DOMAIN took {0} secs with domain count of {1}".format(
+                        # time.time() - s3, a['count'])
                 # new domain
                 else:
-                    s4 = time.time()
+                    # s4 = time.time()
                     docs_list.append({'domain': domain, 'count': 1, 'cs_uri': [request['cs_uri']], 'pages': [page]})
-                    print "IN the whitelist, domain NOT-FOUND, append to list took {0} secs".format(time.time() - s4)
+                    # print "IN the whitelist, domain NOT-FOUND, append to list took {0} secs".format(time.time() - s4)
             else:
-                s5 = time.time()
+                # s5 = time.time()
                 b = db.log.find_one_and_update({'domain': domain}, {'$addToSet': {'cs_uri': request['cs_uri']},
                                                                     '$inc': {'count': 1}})
                 if not b:
-                    print "OUT of the whitelist, domain NOT-FOUND, find_one_and_update by DOMAIN took {0} secs".format(
-                        time.time() - s5)
+                    # print "OUT of the whitelist, domain NOT-FOUND, find_one_and_update by DOMAIN took {0} secs".format(
+                    # time.time() - s5)
                     docs_list.append({'domain': domain, 'count': 1, 'cs_uri': [request['cs_uri']]})
-                else:
-                    print "OUT of the whitelist, domain FOUND, find_one_and_update by DOMAIN took {0} secs with domain count of {1}".format(
-                        time.time() - s5, b['count'])
+
         else:
             print "len(page['url']) > 1023 !!"
         idx += 1
