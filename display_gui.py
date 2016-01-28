@@ -22,11 +22,13 @@ def getItems(last_id, date_filter):
     max_range = min(100, items.count())
     for i in range(0, max_range):
         tmp_item = items[i]
-        tmp = {"item_urls": tmp_item["image_urls"]}
+        tmp = {"item_urls": tmp_item["image_urls"],
+               "saved_date": tmp_item["saved_date"]}
         people = []
         for x, candidate in enumerate(tmp_item["people"]):
-            items4people = []
             try:
+                items4people = []
+
                 for y, cand_item in enumerate(candidate["items"]):
                     itemCategory = cand_item['category']
                     top10 = []
@@ -42,9 +44,11 @@ def getItems(last_id, date_filter):
                     dict = {'category': itemCategory,
                             'top10': top10}
                     items4people.append(dict)
+                people.append(items4people)
             except:
                 pass
-            people.append(items4people)
+        if len(people) == 0:
+            continue
         tmp["people"] = people
         batch.append(tmp)
     last_id = tmp_item["_id"]
