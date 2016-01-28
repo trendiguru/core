@@ -265,26 +265,31 @@ def save_log_to_mongo(log_file, delete_after=True):
         # if page url valid to index
         if len(page['url']) < 1024:
 
-            # if domain is already in the DB:
-            s1 = time.time()
-            if db.log.find_one_and_update({'domain': domain}, {'$addToSet': {'cs_uri': request['cs_uri']},
-                                                               '$inc': {'count': 1}}):
-                print "find_one_and_update by domain took {0} secs".format(time.time() - s1)
-                # if page is already in the DB:
-                s2 = time.time()
-                if db.log.find_one_and_update({'pages.url': page['url']}, {'$push': {'pages.$.views': view},
-                                                                           '$inc': {'pages.$.view_count': 1}}):
-                    print "find_one_and_update by page_url took {0} secs".format(time.time() - s2)
-                # new page
+            if domain in whitelist.all_white_lists:
+                # if domain is already in the DB:
+                s1 = time.time()
+                if db.log.find_one_and_update({'domain': domain}, {'$addToSet': {'cs_uri': request['cs_uri']},
+                                                                   '$inc': {'count': 1}}):
+                    print "find_one_and_update by domain took {0} secs".format(time.time() - s1)
+                    # if page is already in the DB:
+                    s2 = time.time()
+                    if db.log.find_one_and_update({'pages.url': page['url']}, {'$push': {'pages.$.views': view},
+                                                                               '$inc': {'pages.$.view_count': 1}}):
+                        print "find_one_and_update by page_url took {0} secs".format(time.time() - s2)
+                    # new page
+                    else:
+                        try:
+                            db.log.update_one({'domain': domain}, {'$push': {'pages': page}})
+                        except Exception as e:
+                            print "push page to doc failed:"
+                            print e
+                # new domain
                 else:
-                    try:
-                        db.log.update_one({'domain': domain}, {'$push': {'pages': page}})
-                    except Exception as e:
-                        print "push page to doc failed:"
-                        print e
-            # new domain
+                    docs_list.append({'domain': domain, 'count': 1, 'cs_uri': [request['cs_uri']], 'pages': [page]})
             else:
-                docs_list.append({'domain': domain, 'count': 1, 'cs_uri': [request['cs_uri']], 'pages': [page]})
+                if not db.log.find_one_and_update({'domain': domain}, {'$addToSet': {'cs_uri': request['cs_uri']},
+                                                                       '$inc': {'count': 1}}):
+                    docs_list.append({'domain': domain, 'count': 1, 'cs_uri': [request['cs_uri']]})
         idx += 1
     if len(docs_list):
         db.log.insert_many(docs_list)
