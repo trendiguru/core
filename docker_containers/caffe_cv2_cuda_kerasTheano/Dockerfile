@@ -14,7 +14,7 @@ RUN apt-get update
 RUN wget https://bootstrap.pypa.io/get-pip.py
 RUN python get-pip.py
 RUN pip install ipython
-RUN apt-get install -y python-dev
+#RUN apt-get install -y python-dev
 RUN pip install numpy
 RUN pip install pyparsing
 RUN pip install pytz
