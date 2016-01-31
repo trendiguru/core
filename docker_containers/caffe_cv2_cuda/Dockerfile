@@ -33,6 +33,9 @@ RUN pip install ipython
 #RUN apt-get install -y python-numpy
 #RUN easy_install numpy
 RUN apt-get install -y gcc
+
+RUN apt-get install -y libc6
+RUN apt-get install -y libc6-dev-bin
 RUN apt-get install -y libc6-dev
 RUN apt-get install -y libatlas-dev
 RUN apt-get install -y libatlas-base-dev
