@@ -7,7 +7,7 @@ RUN apt-get upgrade -y
 #increase the available sources for installs
 #RUN sed -i 's/# \(.*multiverse$\)/\1/g' /etc/apt/sources.list
 
-RUN apt-get -qq install build-dep
+RUN apt-get -qq install -y build-dep
 RUN apt-get -qq install -y build-essential
 
 RUN apt-get install -y gcc
