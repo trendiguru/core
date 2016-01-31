@@ -8,8 +8,6 @@ RUN apt-get install -y -q gfortran liblapack-dev
 ENV LAPACK /usr/lib/liblapack.so
 ENV ATLAS /usr/lib/libatlas.so
 ENV BLAS /usr/lib/libblas.so
-RUN pip install -U pip setuptools
-RUN pip install virtualenv
 
 RUN echo "deb http://archive.ubuntu.com/ubuntu precise main universe" > /etc/apt/sources.list
 RUN apt-get update
@@ -25,6 +23,8 @@ RUN apt-get update
 
 RUN wget https://bootstrap.pypa.io/get-pip.py
 RUN python get-pip.py
+RUN pip install -U pip setuptools
+RUN pip install virtualenv
 RUN pip install ipython
 #RUN apt-get install -y python-dev
 RUN pip install numpy
