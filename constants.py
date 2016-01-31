@@ -814,6 +814,7 @@ blacklisted_terms = {'alohatube',
      'xxx',
     'youjizz'}
 
+#....unless any of these also appears
 blacklisted_exceptions = {'xxxlarge',
                           'xxxsmall',
                           'peacock',

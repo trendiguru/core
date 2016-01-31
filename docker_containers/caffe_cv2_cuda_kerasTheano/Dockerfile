@@ -1,5 +1,5 @@
-#FROM ubuntu:14.04
-FROM tleyden5iwx/ubuntu-cuda
+FROM ubuntu:14.04
+#FROM tleyden5iwx/ubuntu-cuda
 #increase the available sources for installs
 RUN sed -i 's/# \(.*multiverse$\)/\1/g' /etc/apt/sources.list
 RUN apt-get update
