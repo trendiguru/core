@@ -9,7 +9,7 @@ RUN apt-get upgrade -y
 
 RUN apt-get install -y gcc
 RUN apt-get install -y python wget
-RUN apt-get install -y cmake   #have below
+#RUN apt-get install -y cmake   #have below
 RUN apt-get install -y unzip
 RUN apt-get update
 
