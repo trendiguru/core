@@ -1,9 +1,45 @@
-#{{ if .GPU }}
-#FROM tleyden5iwx/ubuntu-cuda
 FROM ubuntu:14.04
 RUN echo "deb http://archive.ubuntu.com/ubuntu precise main universe" > /etc/apt/sources.list
 RUN apt-get update
 RUN apt-get upgrade -y
+#FROM tleyden5iwx/ubuntu-cuda
+#increase the available sources for installs
+#RUN sed -i 's/# \(.*multiverse$\)/\1/g' /etc/apt/sources.list
+
+RUN apt-get install -y python wget
+RUN apt-get install -y cmake   #have below
+RUN apt-get install -y unzip
+RUN apt-get update
+
+RUN wget https://bootstrap.pypa.io/get-pip.py
+RUN python get-pip.py
+RUN pip install ipython
+RUN apt-get install -y python-dev
+RUN pip install numpy
+RUN pip install pyparsing
+RUN pip install pytz
+RUN apt-get install -y git
+
+################
+#numpy scipy
+###############
+RUN sudo apt-get install -y \
+    python-numpy  \
+    python-scipy  \
+    python-matplotlib   \
+    ipython   \
+    ipython-notebook    \
+    python-pandas     \
+    python-sympy     \
+    python-nose
+
+
+#{{ if .GPU }}
+#FROM tleyden5iwx/ubuntu-cuda
+#ROM ubuntu:14.04
+#RUN echo "deb http://archive.ubuntu.com/ubuntu precise main universe" > /etc/apt/sources.list
+#RUN apt-get update
+#RUN apt-get upgrade -y
 
 
 #FROM ubuntu:14.04
@@ -13,37 +49,37 @@ RUN apt-get upgrade -y
 #RUN apt-get -y upgrade
 #RUN apt-key update && apt-get update
 
-RUN apt-get install -y python wget
+#RUN apt-get install -y python wget
 #RUN apt-get install -y screen
 #cmap is  for debugging port forwarding
 #RUN apt-get install -y nmap
-RUN apt-get install -y cmake   #have below
-RUN apt-get install -y unzip
+#RUN apt-get install -y cmake   #have below
+#RUN apt-get install -y unzip
 
 #PYTHON NUMPY
 #RUN add-apt-repository ppa:fkrull/deadsnakes
-RUN apt-get update
-RUN apt-get install -y python2.7
+#RUN apt-get update
+#RUN apt-get install -y python2.7
 
-RUN wget https://bootstrap.pypa.io/get-pip.py
-RUN python get-pip.py
+#RUN wget https://bootstrap.pypa.io/get-pip.py
+#RUN python get-pip.py
 #RUN pip install pymongo
-RUN pip install ipython
+#RUN pip install ipython
 #RUN apt-get install -y python-dev
 #RUN apt-get install -y python-numpy
 #RUN easy_install numpy
-RUN apt-get install -y gcc
+#R#UN apt-get install -y gcc
 
-RUN apt-get install -y libc6
+#RUN apt-get install -y libc6
 #RUN apt-get install -y libc6-dev-bin
-RUN apt-get install -y libc6-dev
-RUN apt-get install -y libatlas-dev
-RUN apt-get install -y libatlas-base-dev
-RUN apt-get install -y python-numpy
-RUN pip install numpy
+#RUN apt-get install -y libc6-dev
+#RUN apt-get install -y libatlas-dev
+#RUN apt-get install -y libatlas-base-dev
+#RUN apt-get install -y python-numpy
+#RUN pip install numpy
 #RUN pip install python-dateutil
-RUN pip install pyparsing
-RUN pip install pytz
+#RUN pip install pyparsing
+#RUN pip install pytz
 #RUN pip install matplotlib
 
 
