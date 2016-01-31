@@ -1,35 +1,86 @@
-#{{ if .GPU }}
-FROM tleyden5iwx/ubuntu-cuda
-#FROM ubuntu:14.04
-#increase the available sources for installs
-RUN sed -i 's/# \(.*multiverse$\)/\1/g' /etc/apt/sources.list
+FROM ubuntu:14.04
+RUN echo "deb http://archive.ubuntu.com/ubuntu precise main universe" > /etc/apt/sources.list
 RUN apt-get update
-#RUN apt-get -y upgrade
-#RUN apt-key update && apt-get update
+RUN apt-get upgrade -y
+#FROM tleyden5iwx/ubuntu-cuda
+#increase the available sources for installs
+#RUN sed -i 's/# \(.*multiverse$\)/\1/g' /etc/apt/sources.list
 
+RUN apt-get install -y gcc
 RUN apt-get install -y python wget
-#RUN apt-get install -y screen
-#cmap is  for debugging port forwarding
-#RUN apt-get install -y nmap
 RUN apt-get install -y cmake   #have below
 RUN apt-get install -y unzip
-
-#PYTHON NUMPY
-#RUN add-apt-repository ppa:fkrull/deadsnakes
 RUN apt-get update
-#RUN apt-get install -y python2.7
 
 RUN wget https://bootstrap.pypa.io/get-pip.py
 RUN python get-pip.py
-#RUN pip install pymongo
 RUN pip install ipython
-RUN apt-get install -y python-dev
-#RUN apt-get install -y python-numpy
-#RUN easy_install numpy
+#RUN apt-get install -y python-dev
 RUN pip install numpy
-#RUN pip install python-dateutil
 RUN pip install pyparsing
 RUN pip install pytz
+RUN apt-get install -y git
+
+################
+#numpy scipy
+###############
+RUN sudo apt-get install -y \
+    python-numpy  \
+    python-scipy  \
+    python-matplotlib   \
+    ipython   \
+    ipython-notebook    \
+    python-pandas     \
+    python-sympy     \
+    python-nose
+
+
+#{{ if .GPU }}
+#FROM tleyden5iwx/ubuntu-cuda
+#ROM ubuntu:14.04
+#RUN echo "deb http://archive.ubuntu.com/ubuntu precise main universe" > /etc/apt/sources.list
+#RUN apt-get update
+#RUN apt-get upgrade -y
+
+
+#FROM ubuntu:14.04
+#increase the available sources for installs
+#RUN sed -i 's/# \(.*multiverse$\)/\1/g' /etc/apt/sources.list
+#RUN apt-get update
+#RUN apt-get -y upgrade
+#RUN apt-key update && apt-get update
+
+#RUN apt-get install -y python wget
+#RUN apt-get install -y screen
+#cmap is  for debugging port forwarding
+#RUN apt-get install -y nmap
+#RUN apt-get install -y cmake   #have below
+#RUN apt-get install -y unzip
+
+#PYTHON NUMPY
+#RUN add-apt-repository ppa:fkrull/deadsnakes
+#RUN apt-get update
+#RUN apt-get install -y python2.7
+
+#RUN wget https://bootstrap.pypa.io/get-pip.py
+#RUN python get-pip.py
+#RUN pip install pymongo
+#RUN pip install ipython
+#RUN apt-get install -y python-dev
+#RUN apt-get install -y python-numpy
+#RUN easy_install numpy
+#R#UN apt-get install -y gcc
+
+#RUN apt-get install -y libc6
+#RUN apt-get install -y libc6-dev-bin
+#RUN apt-get install -y libc6-dev
+#RUN apt-get install -y libatlas-dev
+#RUN apt-get install -y libatlas-base-dev
+#RUN apt-get install -y python-numpy
+#RUN pip install numpy
+#RUN pip install python-dateutil
+#RUN pip install pyparsing
+#RUN pip install pytz
 #RUN pip install matplotlib
 
 
@@ -38,6 +89,18 @@ RUN pip install pytz
 #RUN chmod o+x portmongo.sh
 #RUN  echo 'nmap -p 6379 localhost' > portredis.sh
 #RUN chmod o+x portredis.sh
+
+
+###################
+# CUDA
+###################
+#get cuda
+#RUN wget http://developer.download.nvidia.com/compute/cuda/repos/ubuntu1404/x86_64/cuda-repo-ubuntu1404_7.5-18_amd64.deb
+#RUN dpkg -i cuda-repo-ubuntu1404_7.5-18_amd64.deb
+#RUN apt-get update
+#RUN apt-get install -y cuda
+
+
 
 ##############################
 #OPENCV 3.0, no gpu
@@ -275,16 +338,6 @@ RUN ./data/ilsvrc12/get_ilsvrc_aux.sh
 #the classification.bin isnt there for some reason
 RUN ./build/examples/cpp_classification/classification.bin ./models/bvlc_reference_caffenet/deploy.prototxt ./models/bvlc_reference_caffenet/bvlc_reference_caffenet.caffemodel ./data/ilsvrc12/imagenet_mean.binaryproto ./data/ilsvrc12/synset_words.txt ./examples/images/cat.jpg
 
-
-#no longer n
-###################
-# CUDA
-###################
-#get cuda
-#RUN wget http://developer.download.nvidia.com/compute/cuda/repos/ubuntu1404/x86_64/cuda-repo-ubuntu1404_7.5-18_amd64.deb
-#RUN dpkg -i cuda-repo-ubuntu1404_7.5-18_amd64.deb
-#RUN apt-get update
-#RUN apt-get install -y cuda
 
 
 
