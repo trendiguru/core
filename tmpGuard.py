@@ -44,16 +44,16 @@ def main(manual=True):
             date_diff = int(current_date) - int(modified_date)
             if date_diff == 0:
                 if hour_diff == 0:
-                    if min_diff > 10:
+                    if min_diff > 5:
                         files2erase.append(f)
                 elif hour_diff == 1:
-                    if min_diff + 60 > 10:
+                    if min_diff + 60 > 5:
                         files2erase.append(f)
                 else:
                     files2erase.append(f)
             elif date_diff == 1:
                 if hour_diff + 24 == 1:
-                    if min_diff + 60 > 10:
+                    if min_diff + 60 > 5:
                         files2erase.append(f)
                 else:
                     files2erase.append(f)
@@ -74,4 +74,4 @@ def main(manual=True):
 if __name__ == "__main__":
     while True:
         main(False)
-        time.sleep(600)
+        time.sleep(300)
