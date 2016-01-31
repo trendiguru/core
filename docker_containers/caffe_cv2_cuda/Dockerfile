@@ -23,7 +23,7 @@ RUN apt-get install -y unzip
 #PYTHON NUMPY
 #RUN add-apt-repository ppa:fkrull/deadsnakes
 RUN apt-get update
-#RUN apt-get install -y python2.7
+RUN apt-get install -y python2.7
 
 RUN wget https://bootstrap.pypa.io/get-pip.py
 RUN python get-pip.py
@@ -32,6 +32,8 @@ RUN pip install ipython
 #RUN apt-get install -y python-dev
 #RUN apt-get install -y python-numpy
 #RUN easy_install numpy
+RUN apt-get install -y libatlas-base-dev
+RUN apt-get install -y python-numpy
 RUN pip install numpy
 #RUN pip install python-dateutil
 RUN pip install pyparsing
