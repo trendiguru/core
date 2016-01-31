@@ -6,7 +6,7 @@ RUN apt-get upgrade -y
 #increase the available sources for installs
 #RUN sed -i 's/# \(.*multiverse$\)/\1/g' /etc/apt/sources.list
 
-RUN apt-get install libc-dev
+RUN apt-get install libc6
 RUN apt-get  install -y build-essential
 
 RUN apt-get install -y gcc
