@@ -32,8 +32,9 @@ RUN apt-get install -y cuda
 ##############################
 #OPENCV 3.0, no gpu
 ##############################
+RUN apt-get -qq install build-dep
 RUN apt-get -qq install -y build-essential
-#RUN apt-get -qq install -y cmake
+RUN apt-get -qq install -y cmake
 RUN apt-get -qq install -y pkg-config
 RUN apt-get -qq install -y yasm
 RUN apt-get -qq install -y libpng12-dev
