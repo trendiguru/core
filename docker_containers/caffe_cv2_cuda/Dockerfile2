@@ -40,3 +40,5 @@ ENV PYTHONPATH=/root/caffe/python:$PYTHONPATH
 
 # Set ~/caffe as working directory
 WORKDIR /root/caffe
+
+RUN apt-get install -y nano
