@@ -11,8 +11,8 @@ from . import constants
 redis_conn = constants.redis_conn
 from rq import Queue
 
-browseMe_q = Queue('BrowseMe', redis_conn)
-crawlMe_q = Queue('CrawlMe', redis_conn)
+browseMe_q = Queue('BrowseMe', connection=redis_conn)
+crawlMe_q = Queue('CrawlMe', connection=redis_conn)
 
 if __name__ == "__main__":
     print "start time: {0}".format(datetime.datetime.utcnow())
