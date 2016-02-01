@@ -25,7 +25,7 @@ def main(manual=True):
     # if divmod(tmp_min, 10)[1] != 0 and manual:
     #     print colored("exited without deleting - minute isn't dividable by 10")
     #     return
-    print colored("\ntmpGuard : %s\n" % current[-2], "red", "on_yellow")
+    # print colored("\ntmpGuard : %s\n" % current[-2], "red", "on_yellow")
     files2erase = []
     i = 0
     for f in os.listdir("/tmp"):
