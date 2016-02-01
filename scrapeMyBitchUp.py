@@ -16,7 +16,7 @@ crawlMe_q = Queue('CrawlMe', connection=redis_conn)
 
 if __name__ == "__main__":
     print "start time: {0}".format(datetime.datetime.utcnow())
-    link_list = ['http://www.' + domain[3:] for domain in monitoring.get_top_x_whitelist(100).keys()]
+    link_list = ['http://www.' + domain[4:] for domain in monitoring.get_top_x_whitelist(100).keys()]
     for link in link_list:
         while crawlMe_q.count > 1000:
             time.sleep(300)
