@@ -51,6 +51,10 @@ def getItems(last_id, date_filter):
         tmp["people"] = people
         batch.append(tmp)
     last_id = tmp_item["_id"]
-    tmp = {"last_id": last_id}
-    batch.append(tmp)
+    last = {"last_id": last_id}
+    batch.append(last)
+    count = {"count": items.count()}
+    batch.append(count)
+    if len(batch) == 2:
+        batch = getItems(last_id, date_filter)
     return batch
