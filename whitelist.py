@@ -126,7 +126,7 @@ fullList = {"yahoo.com", "msn.com", "yahoo.co.jp", "qq.com", "uol.com.br", "glob
              "as.com", 'index.hr', "akhbarak.net", "elpais.com.uy", "terra.com.br", "instagram.com", 'blick.ch',
              "filme-bune.net", 'walla.co.il', 'ynet.co.il', 'fashioncelebstyle.com', '24sata.hr', '990.ro',
              'aliexpress.com', 'ebay.com', 'elmanana.mx', 'flipkart.com', 'idens.cz', 'jutarnji.hr',
-             'manoramaonline.com', 'myway.com', 'nametests.com', 'ndtv.com', 'net.hr', 'origo.hu', 'ouedkniss.com',
+             'manoramaonline.com', 'nametests.com', 'ndtv.com', 'net.hr', 'origo.hu', 'ouedkniss.com',
              'pinoyhdreplay.org', 'pinoynetwork.se', 'postimees.ee', 'pudelek.pl', 'rakuten.co.jp', 'sapo.cv', 'tfc.tv',
              'thestar.com.my', 'trendiguru.com', 'websta.me', 'siol.net', 'tportal.hr', 'iol.pt', 'freenet.de',
              'jewelryquestion.com', 'larep.fr', 'dailymotion.com', 'mundopositivo.com.br', 'mediaset.it',
