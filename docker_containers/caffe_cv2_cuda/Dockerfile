@@ -1,4 +1,5 @@
-FROM ubuntu:14.04
+FROM ipython/scipystack
+#FROM ubuntu:14.04
 RUN echo "deb http://archive.ubuntu.com/ubuntu precise main universe" > /etc/apt/sources.list
 RUN apt-get update
 RUN apt-get upgrade -y
@@ -6,110 +7,37 @@ RUN apt-get upgrade -y
 #increase the available sources for installs
 #RUN sed -i 's/# \(.*multiverse$\)/\1/g' /etc/apt/sources.list
 
+#RUN apt-get -qq install -y build-dep
+RUN apt-get -qq install -y build-essential
+
 RUN apt-get install -y gcc
 RUN apt-get install -y python wget
-RUN apt-get install -y cmake   #have below
+#RUN apt-get install -y cmake   #have below
 RUN apt-get install -y unzip
 RUN apt-get update
 
+
 RUN wget https://bootstrap.pypa.io/get-pip.py
 RUN python get-pip.py
-RUN pip install ipython
-#RUN apt-get install -y python-dev
-RUN pip install numpy
-RUN pip install pyparsing
-RUN pip install pytz
 RUN apt-get install -y git
-
-################
-#numpy scipy
-###############
-RUN sudo apt-get install -y \
-    python-numpy  \
-    python-scipy  \
-    python-matplotlib   \
-    ipython   \
-    ipython-notebook    \
-    python-pandas     \
-    python-sympy     \
-    python-nose
-
-
-#{{ if .GPU }}
-#FROM tleyden5iwx/ubuntu-cuda
-#ROM ubuntu:14.04
-#RUN echo "deb http://archive.ubuntu.com/ubuntu precise main universe" > /etc/apt/sources.list
-#RUN apt-get update
-#RUN apt-get upgrade -y
-
-
-#FROM ubuntu:14.04
-#increase the available sources for installs
-#RUN sed -i 's/# \(.*multiverse$\)/\1/g' /etc/apt/sources.list
-#RUN apt-get update
-#RUN apt-get -y upgrade
-#RUN apt-key update && apt-get update
-
-#RUN apt-get install -y python wget
-#RUN apt-get install -y screen
-#cmap is  for debugging port forwarding
-#RUN apt-get install -y nmap
-#RUN apt-get install -y cmake   #have below
-#RUN apt-get install -y unzip
-
-#PYTHON NUMPY
-#RUN add-apt-repository ppa:fkrull/deadsnakes
-#RUN apt-get update
-#RUN apt-get install -y python2.7
-
-#RUN wget https://bootstrap.pypa.io/get-pip.py
-#RUN python get-pip.py
-#RUN pip install pymongo
-#RUN pip install ipython
-#RUN apt-get install -y python-dev
-#RUN apt-get install -y python-numpy
-#RUN easy_install numpy
-#R#UN apt-get install -y gcc
-
-#RUN apt-get install -y libc6
-#RUN apt-get install -y libc6-dev-bin
-#RUN apt-get install -y libc6-dev
-#RUN apt-get install -y libatlas-dev
-#RUN apt-get install -y libatlas-base-dev
-#RUN apt-get install -y python-numpy
-#RUN pip install numpy
-#RUN pip install python-dateutil
-#RUN pip install pyparsing
-#RUN pip install pytz
-#RUN pip install matplotlib
-
-
-#these scripts are to check port forwarding with a single command
-#RUN  echo 'nmap -p 27017 localhost' > portmongo.sh
-#RUN chmod o+x portmongo.sh
-#RUN  echo 'nmap -p 6379 localhost' > portredis.sh
-#RUN chmod o+x portredis.sh
-
 
 ###################
 # CUDA
 ###################
-#get cuda
-#RUN wget http://developer.download.nvidia.com/compute/cuda/repos/ubuntu1404/x86_64/cuda-repo-ubuntu1404_7.5-18_amd64.deb
-#RUN dpkg -i cuda-repo-ubuntu1404_7.5-18_amd64.deb
-#RUN apt-get update
-#RUN apt-get install -y cuda
+RUN apt-get update
+RUN apt-get install -y libboost-all-dev
+RUN apt-get install -y wget
+RUN wget http://developer.download.nvidia.com/compute/cuda/repos/ubuntu1404/x86_64/cuda-repo-ubuntu1404_7.5-18_amd64.deb
+RUN dpkg -i cuda-repo-ubuntu1404_7.5-18_amd64.deb
+RUN apt-get update
+RUN apt-get -y install cuda
 
 
 
 ##############################
 #OPENCV 3.0, no gpu
 ##############################
-
-MAINTAINER Jeremy Rutman <jeremy@trendiguru.com>
-
-#OPENCV OPENCV OPENCV
-#install opencv3.0
+RUN apt-get -qq install build-dep
 RUN apt-get -qq install -y build-essential
 RUN apt-get -qq install -y cmake
 RUN apt-get -qq install -y pkg-config
