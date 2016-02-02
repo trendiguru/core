@@ -321,7 +321,7 @@ all_white_lists = frozenset().union(fullList, fashionBlogs, top50CelebSytle, top
 
 
 def masterCrawler(floor=2, whiteList=top50Fashion):
-    db.scraped_urls.delete_many()
+    # db.scraped_urls.delete_many()
     # db.scraped_urls.create_indexes(["url", "domain", "urlId", "domain_locked"])
     urlid = time.time()
     for site in whiteList:
