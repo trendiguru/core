@@ -63,7 +63,7 @@ def erasetmp(delta):
                     tmp2erase.append(f)
             else:
                 tmp2erase.append(f)
-    if i > 30:
+    if i > 30 and delta > 1:
         tmp2erase = erasetmp(1)
     return tmp2erase
 
