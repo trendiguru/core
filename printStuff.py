@@ -18,13 +18,14 @@ if __name__ == "__main__":
     print colored("BroseMe %s is opened" % (str(i)), colors[r])
     rc_list.append(child.returncode)
     a = 0
-
+    print rc_list
     while all(rc is None for rc in rc_list):
         a += 1
         if a == 2:
             print colored("killllllllllllllllll", "green")
             c = subprocess.Popen("echo life is good", shell=True)
             rc_list.append(c.returncode)
+            print rc_list
         sleep(10)
 
         print colored("still working", 'yellow')
