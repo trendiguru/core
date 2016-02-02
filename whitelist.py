@@ -146,8 +146,8 @@ fashionBlogs = {"manrepeller.com", "wishwishwish.net", "parkandcube.com", "stell
 
 top50Fashion = {"refinery29.com", "maxmodels.pl", "stylebistro.com", "fashion.ifeng.com", "tajbao.com",
                 "highsnobiety.com", "osinka.ru", "trendsylvania.net", "whowhatwear.com", "fashiony.ru",
-                "gq.com.tw", "fashion.sina.com.cn", "lookbook.nu", "vogue.com.tw", "thefashionspot.com",
-                "elle.com.tw", "vogue.com.cn", "thehunt.com", "fashionbeans.com", "gqindia.com", "models.com",
+                "fashion.sina.com.cn", "lookbook.nu", "vogue.com.tw", "thefashionspot.com",
+                "vogue.com.cn", "thehunt.com", "fashionbeans.com", "models.com",
                 "fashion.sohu.com", "elle.co.jp", "perfecte.md", "cosmopolitan.lt", "wwd.com", "enrz.com",
                 "moteris.lt", "businessoffashion.com", "styleblazer.com", "theblondesalad.com", "fashiongonerogue.com",
                 "thesartorialist.com", "cupcakesandcashmere.com", "fashion.walla.co.il", "thegloss.com", "vogue.com.au",

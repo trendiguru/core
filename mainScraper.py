@@ -3,6 +3,7 @@ __author__ = 'yonatan'
 import subprocess
 from time import sleep
 import argparse
+import re
 
 from termcolor import colored
 
@@ -10,8 +11,13 @@ from . import whitelist
 
 
 def screenCheck():
-    screen = subprocess.call(["screen -ls"], stdout=subprocess.PIPE, shell=True)
-    print screen
+    screen = subprocess.Popen(["screen -ls"], stdout=subprocess.PIPE, shell=True)
+    output = screen.stdout.read()
+    output2list = re.split('\W+', output)
+    if any(element is "scraper" for element in output2list):
+        return True
+    else:
+        return False
 
 def getUserInput():
     parser = argparse.ArgumentParser(description='Main Scraper')
