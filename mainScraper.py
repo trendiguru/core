@@ -35,7 +35,7 @@ def getUserInput():
 def master():
     print colored("starting master...", "green", attrs=["bold"])
     subprocess.call(
-        ["screen -S scraper python -m trendi.mainScraper workers"],
+        ["screen -S scraper python -m -d trendi.mainScraper workers"],
         shell=True)
     print colored("scraper detached/terminated", "green", attrs=["bold"])
 
@@ -43,21 +43,22 @@ def master():
 def runWorkers():
     rc_list = []
     tmpguard = subprocess.Popen(["python -m trendi.tmpGuard"], shell=True)
-    rc_list.append(tmpguard)
+    # rc_list.append(tmpguard)
     crawlme = subprocess.Popen(["rqworker -u redis://redis1-redis-1-vm:6379 CrawlMe "], shell=True)
-    rc_list.append(crawlme)
+    # rc_list.append(crawlme)
     for i in range(10):
         browseme = subprocess.Popen(["sudo ./xvfb-run-safe.sh rqworker -u redis://redis1-redis-1-vm:6379 BrowseMe"],
                                     shell=True)
         print colored("BroseMe %s is opened" % (str(i)), 'green')
-        rc_list.append(browseme)
-
-    while any(rc.returncode is None for rc in rc_list):
-        sleep(60)
-        print colored("still working", 'yellow')
-
-    print colored("exiting", 'red')
-    sleep(15)
+        # rc_list.append(browseme)
+    while True:
+        sleep(1000)
+        # while any(rc.returncode is None for rc in rc_list):
+        #     sleep(60)
+        #     print colored("still working", 'yellow')
+        #
+        # print colored("exiting", 'red')
+        # sleep(15)
 
 
 if __name__ == "__main__":
