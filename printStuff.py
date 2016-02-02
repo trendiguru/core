@@ -26,8 +26,8 @@ if __name__ == "__main__":
             c = subprocess.Popen("echo life is good", shell=True)
             rc_list.append(c.returncode)
             print rc_list
-            c.kill()
-            print rc_list
+            c.terminate()
+            rc_list.append(c.returncode)
         sleep(10)
 
         print colored("still working", 'yellow')
