@@ -52,7 +52,7 @@ def runWorkers():
         print colored("BroseMe %s is opened" % (str(i)), 'green')
         rc_list.append(browseme)
 
-    while all(rc.returncode is None for rc in rc_list):
+    while any(rc.returncode is None for rc in rc_list):
         sleep(60)
         print colored("still working", 'yellow')
 
