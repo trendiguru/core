@@ -8,8 +8,8 @@ from termcolor import colored
 
 def master():
     print colored("starting master...", "green", attrs=["bold"])
-    commands = "'sudo ./xvfb-run-safe.sh rqworker -u redis://redis1-redis-1-vm:6379 BrowseMe &;\
-                sudo ./xvfb-run-safe.sh rqworker -u redis://redis1-redis-1-vm:6379 BrowseMe &'"
+    commands = "sudo ./xvfb-run-safe.sh rqworker -u redis://redis1-redis-1-vm:6379 BrowseMe &;\
+                sudo ./xvfb-run-safe.sh rqworker -u redis://redis1-redis-1-vm:6379 BrowseMe &"
     subprocess.call(["screen -S test1 " + commands], shell=True)
     sleep(2)
     print colored("closing master...", "green", attrs=["bold"])
