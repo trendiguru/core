@@ -83,7 +83,7 @@ def mainDelete(filename):
             print colored("removing %s failed" % f, "red")
 
     print colored("%s files deleted!!!" % str(count))
-
+    time.sleep(15)
 
 if __name__ == "__main__":
     mainDelete("xvfb")
