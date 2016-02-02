@@ -9,6 +9,10 @@ from termcolor import colored
 from . import whitelist
 
 
+def screenCheck():
+    screen = subprocess.call("screen -ls")
+    print screen
+
 def getUserInput():
     parser = argparse.ArgumentParser(description='Main Scraper')
     parser.add_argument("func", default="screen", help=(
