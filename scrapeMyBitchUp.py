@@ -16,6 +16,7 @@ browseMe_q = Queue('BrowseMe', connection=redis_conn)
 crawlMe_q = Queue('CrawlMe', connection=redis_conn)
 
 if __name__ == "__main__":
+    urlid = time.time()
     print "start time: {0}".format(datetime.datetime.utcnow())
     if mainScraper.screenCheck():
         mainScraper.master()
@@ -24,7 +25,7 @@ if __name__ == "__main__":
         while crawlMe_q.count > 1000:
             time.sleep(300)
         print "Gonna scrape {0} now..".format(link)
-        crawlme.scrapLinks(link, 2)
+        crawlme.scrapLinks(link, urlid, 2)
     while browseMe_q.count > 20:
         time.sleep(30)
     print "end at {0}".format(datetime.datetime.utcnow())
