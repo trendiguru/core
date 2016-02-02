@@ -10,9 +10,8 @@ from rq import Queue
 from redis import Redis
 import pymongo
 
-rd = "redis1-redis-1-vm"
-db = pymongo.MongoClient(host=rd, port=int(rd)).mydb
-redis_conn = Redis(host=rd)
+db = pymongo.MongoClient(host="localhost", port=27017).mydb
+redis_conn = Redis(host="redis1-redis-1-vm")
 person_job_Q = Queue("person_job", connection=redis_conn)
 # paperdoll_Q = Queue("pd", connection=redis_conn)
 browse_q = Queue('BrowseMe', connection=redis_conn)
