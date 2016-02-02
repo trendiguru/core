@@ -6,12 +6,17 @@ import argparse
 
 from termcolor import colored
 
+import whitelist
+
 
 def getUserInput():
     parser = argparse.ArgumentParser(description='Main Scraper')
     parser.add_argument("func", default="screen", help=(
         "The function you want to run"))
-
+    parser.add_argument("-scrap", "-s", dest="list2scrap", default="None", help=(
+        "enter list name if you want to scrap a list from whitelist.py"))
+    parser.add_argument("-floors", "-f", dest="floors", default="2", help=(
+        "enter how many pages in to scrap"))
     args = parser.parse_args()
     return args
 
@@ -21,7 +26,7 @@ def master():
     subprocess.call(
         ["screen -S scraper python -m trendi.mainScraper workers"],
         shell=True)
-    print colored("sraper detached/terminated", "green", attrs=["bold"])
+    print colored("scraper detached/terminated", "green", attrs=["bold"])
 
 
 def runWorkers():
@@ -48,6 +53,13 @@ if __name__ == "__main__":
     user_input = getUserInput()
     print user_input
     if user_input.func == "screen":
+        if user_input.list2scrap != "None":
+            try:
+                floor = int(user_input.floors)
+            except:
+                print colored("floor is not an int", "red")
+                exit(1)
+            whitelist.masterCrawler(floor)
         master()
     elif user_input.func == "workers":
         runWorkers()
