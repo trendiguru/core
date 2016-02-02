@@ -17,6 +17,7 @@ def screenCheck():
     if any(element is "scraper" for element in output2list):
         return True
     else:
+        print colored("open new screen")
         return False
 
 def getUserInput():
