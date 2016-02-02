@@ -36,7 +36,7 @@ def getProxy():
 
 def checkDomain(domain):
     domain_exists = db.scraped_urls.find({"$and": [{"domain": domain},
-                                                   {"domain_lock": True}]})
+                                                   {"domain_locked": True}]})
     if domain_exists.count() > 2:
         return True
     return False
