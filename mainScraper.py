@@ -10,7 +10,7 @@ from . import whitelist
 
 
 def screenCheck():
-    screen = subprocess.call("screen -ls")
+    screen = subprocess.call(["screen -ls"], stdout=subprocess.PIPE, shell=True)
     print screen
 
 def getUserInput():
