@@ -6,7 +6,7 @@ import argparse
 
 from termcolor import colored
 
-import whitelist
+from . import whitelist
 
 
 def getUserInput():

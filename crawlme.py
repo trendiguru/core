@@ -7,7 +7,7 @@ from rq import Queue
 from termcolor import colored
 
 from .browseme import runExt
-import constants
+from . import constants
 
 browse_q = Queue('BrowseMe', connection=constants.redis_conn)
 scrap_q = Queue('CrawlMe', connection=constants.redis_conn)
