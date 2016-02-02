@@ -15,10 +15,10 @@ if __name__ == "__main__":
         r = random.randint(0, 4)
         print colored("BroseMe %s is opened" % (str(i)), colors[r])
         rc_list.append(child.returncode)
-
+    a = 0
     while all(rc is None for rc in rc_list):
-        a = raw_input("xxxxxxxx")
-        if a == "x":
+        a += 1
+        if a == 5:
             child.kill()
         sleep(30)
 
