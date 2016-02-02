@@ -35,7 +35,7 @@ def getUserInput():
 def master():
     print colored("starting master...", "green", attrs=["bold"])
     subprocess.call(
-        ["screen -m -d scraper python -m trendi.mainScraper workers"],
+        ["screen -S -d scraper python -m trendi.mainScraper workers"],
         shell=True)
     print colored("scraper detached/terminated", "green", attrs=["bold"])
 
