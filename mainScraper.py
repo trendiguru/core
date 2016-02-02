@@ -28,8 +28,8 @@ def runWorkers():
     rc_list = []
     tmpguard = subprocess.Popen(["python -m trendi.tmpGuard"], shell=True)
     rc_list.append(tmpguard)
-    crawlme = subprocess.Popen(["rqworker -u redis://redis1-redis-1-vm:6379 CrawlMe"], shell=True)
-    rc_list.append(crawlme)
+    # crawlme = subprocess.Popen(["rqworker -u redis://redis1-redis-1-vm:6379 CrawlMe"], shell=True)
+    # rc_list.append(crawlme)
     for i in range(10):
         browseme = subprocess.Popen(["sudo ./xvfb-run-safe.sh rqworker -u redis://redis1-redis-1-vm:6379 BrowseMe"],
                                     shell=True)
