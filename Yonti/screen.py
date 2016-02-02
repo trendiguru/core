@@ -1,7 +1,7 @@
 __author__ = 'yonatan'
 
+import subprocess
 from time import sleep
-from os import system
 
 from termcolor import colored
 
@@ -9,8 +9,9 @@ from termcolor import colored
 def master():
     print colored("starting master...", "green", attrs=["bold"])
     # commands = "./xvfb-run-safe.sh rqworker -u redis://redis1-redis-1-vm:6379 BrowseMe &"
-    system(
-        "screen -S test1 sudo ./xvfb-run-safe.sh rqworker -u redis://redis1-redis-1-vm:6379 BrowseMe &")
+    subprocess.call(
+        ["screen -S test1 python -m trendi.printStuff"],
+        shell=True)
     sleep(2)
     print colored("closing master...", "green", attrs=["bold"])
 
