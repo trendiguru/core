@@ -17,7 +17,11 @@ if __name__ == "__main__":
         rc_list.append(child.returncode)
 
     while all(rc is None for rc in rc_list):
+        a = raw_input("xxxxxxxx")
+        if a == "x":
+            rc_list[0] = 1
         sleep(30)
+
         print colored("still working", 'yellow')
 
     print colored("exiting", 'red')
