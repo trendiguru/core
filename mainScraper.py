@@ -48,9 +48,9 @@ def runWorkers():
 if __name__ == "__main__":
     user_input = getUserInput()
     print user_input
-    if user_input["func"] is "screen":
+    if user_input.func is "screen":
         master()
-    elif user_input["func"] is "workers":
+    elif user_input.func is "workers":
         runWorkers()
     else:
         print colored("bad input", "red")
