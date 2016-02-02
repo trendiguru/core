@@ -14,26 +14,30 @@ import subprocess
 from termcolor import colored
 
 
-def main(manual=True):
+def erasexvfb():
+    xvfb2erase = []
+    i = 0
+    for f in os.listdir("/tmp"):
+        (mode, ino, dev, nlink, uid, gid, size, atime, mtime, ctime) = os.stat("/tmp/" + f)
+        if f[:8] == "xvfb-run":
+            xvfb2erase.append(f)
+    return xvfb2erase
+
+
+def erasetmp(delta):
     current = (time.ctime(time.time())).split(" ")
     current_date = current[-3]
     current_time = current[-2].split(":")
     current_hour = current_time[0]
     current_min = current_time[1]
-    # tmp_min = int(current_min)
-    # print type(tmp_min)
-    # if divmod(tmp_min, 10)[1] != 0 and manual:
-    #     print colored("exited without deleting - minute isn't dividable by 10")
-    #     return
-    # print colored("\ntmpGuard : %s\n" % current[-2], "red", "on_yellow")
-    files2erase = []
+    tmp2erase = []
     i = 0
     for f in os.listdir("/tmp"):
         (mode, ino, dev, nlink, uid, gid, size, atime, mtime, ctime) = os.stat("/tmp/" + f)
         if f[:3] == "tmp":
             i += 1
             modified = time.ctime(mtime)
-            print ("%s) %s  last modified: %s" % (str(i), f, modified))
+            # print ("%s) %s  last modified: %s" % (str(i), f, modified))
             modified_list = modified.split(" ")
             modified_date = modified_list[-3]
             modified_time = modified_list[-2].split(":")
@@ -44,21 +48,31 @@ def main(manual=True):
             date_diff = int(current_date) - int(modified_date)
             if date_diff == 0:
                 if hour_diff == 0:
-                    if min_diff > 5:
-                        files2erase.append(f)
+                    if min_diff > delta:
+                        tmp2erase.append(f)
                 elif hour_diff == 1:
-                    if min_diff + 60 > 5:
-                        files2erase.append(f)
+                    if min_diff + 60 > delta:
+                        tmp2erase.append(f)
                 else:
-                    files2erase.append(f)
+                    tmp2erase.append(f)
             elif date_diff == 1:
                 if hour_diff + 24 == 1:
-                    if min_diff + 60 > 5:
-                        files2erase.append(f)
+                    if min_diff + 60 > delta:
+                        tmp2erase.append(f)
                 else:
-                    files2erase.append(f)
+                    tmp2erase.append(f)
             else:
-                files2erase.append(f)
+                tmp2erase.append(f)
+    if i > 30:
+        tmp2erase = erasetmp(1)
+    return tmp2erase
+
+
+def mainDelete(filename):
+    if filename is "tmp":
+        files2erase = erasetmp(5)
+    else:
+        files2erase = erasexvfb()
     count = 0
     for f in files2erase:
         ret = subprocess.call(["sudo rm -r /tmp/" + f], shell=True)
@@ -72,6 +86,7 @@ def main(manual=True):
 
 
 if __name__ == "__main__":
+    mainDelete("xvfb")
     while True:
-        main(False)
-        time.sleep(300)
+        mainDelete("tmp")
+        time.sleep(180)
