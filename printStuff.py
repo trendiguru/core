@@ -23,7 +23,7 @@ if __name__ == "__main__":
         if a == 2:
             print colored("killllllllllllllllll", "green")
             os.killpg(os.getpgid(child.pid), signal.SIGTERM)
-        sleep(30)
+        sleep(10)
 
         print colored("still working", 'yellow')
 
