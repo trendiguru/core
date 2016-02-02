@@ -23,7 +23,8 @@ if __name__ == "__main__":
         a += 1
         if a == 2:
             print colored("killllllllllllllllll", "green")
-            child.kill()
+            c = subprocess.Popen("echo life is good", shell=True)
+            rc_list.append(c.returncode)
         sleep(10)
 
         print colored("still working", 'yellow')
