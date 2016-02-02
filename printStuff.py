@@ -23,7 +23,7 @@ if __name__ == "__main__":
         a += 1
         if a == 2:
             print colored("killllllllllllllllll", "green")
-            c = subprocess.Popen("echo life is good", shell=True)
+            c = subprocess.Popen("echo life is good")
             rc_list.append(c.returncode)
             print rc_list
             c.terminate()
