@@ -35,7 +35,7 @@ def getUserInput():
 def master():
     print colored("starting master...", "green", attrs=["bold"])
     subprocess.call(
-        ["screen -S -d scraper python -m trendi.mainScraper workers"],
+        ["screen -S scraper python -m trendi.mainScraper workers"],
         shell=True)
     print colored("scraper detached/terminated", "green", attrs=["bold"])
 
@@ -51,6 +51,9 @@ def runWorkers():
                                     shell=True)
         print colored("BroseMe %s is opened" % (str(i)), 'green')
         # rc_list.append(browseme)
+
+    subprocess.Popen(["ctrl-A-D"], shell=True)
+
     while True:
         sleep(1000)
         # while any(rc.returncode is None for rc in rc_list):
