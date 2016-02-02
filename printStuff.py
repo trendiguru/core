@@ -19,6 +19,7 @@ if __name__ == "__main__":
     while all(rc is None for rc in rc_list):
         a += 1
         if a == 5:
+            print colored("killllllllllllllllll", "green")
             child.kill()
         sleep(30)
 
