@@ -8,10 +8,9 @@ from selenium import webdriver
 from selenium.webdriver.common.proxy import *
 from rq import Queue
 from redis import Redis
+import pymongo
 
-from trendi import constants
-
-db = constants.db
+db = pymongo.MongoClient(host=os.environ["MONGO_HOST"], port=int(os.environ["MONGO_PORT"])).mydb
 redis_conn = Redis(host="redis1-redis-1-vm")
 person_job_Q = Queue("person_job", connection=redis_conn)
 # paperdoll_Q = Queue("pd", connection=redis_conn)
