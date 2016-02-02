@@ -20,7 +20,8 @@ if __name__ == "__main__":
     print "start time: {0}".format(datetime.datetime.utcnow())
     if not mainScraper.screenCheck():
         mainScraper.master()
-    link_list = ['http://www.' + domain[4:] for domain in monitoring.get_top_x_whitelist(100).keys()]
+    domain_list = [domain[(domain.find(" ") + 1):] for domain in monitoring.get_top_x_whitelist(100).keys()]
+    link_list = ['http://www.' + domain for domain in domain_list]
     for link in link_list:
         while crawlMe_q.count > 1000:
             time.sleep(300)
