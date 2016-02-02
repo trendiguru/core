@@ -20,7 +20,7 @@ def master():
     print colored("starting master...", "green", attrs=["bold"])
     # commands = "./xvfb-run-safe.sh rqworker -u redis://redis1-redis-1-vm:6379 BrowseMe &"
     subprocess.call(
-        ["screen -S scraper python -m trendi.printStuff"],
+        ["screen -S scraper python -m trendi.mainScraper workers"],
         shell=True)
     print colored("sraper detached/terminated", "green", attrs=["bold"])
 
