@@ -71,8 +71,11 @@ def erasetmp(delta):
 def mainDelete(filename):
     if filename == "tmp":
         files2erase = erasetmp(5)
-    else:
+    elif filename == "xvfb":
         files2erase = erasexvfb()
+    else:
+        print colored("bad input")
+        exit(1)
     count = 0
     for f in files2erase:
         ret = subprocess.call(["sudo rm -r /tmp/" + f], shell=True)
