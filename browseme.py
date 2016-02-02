@@ -9,6 +9,9 @@ from selenium.webdriver.common.proxy import *
 from rq import Queue
 from redis import Redis
 
+import constants
+
+db = constants.db
 redis_conn = Redis(host="redis1-redis-1-vm")
 person_job_Q = Queue("person_job", connection=redis_conn)
 # paperdoll_Q = Queue("pd", connection=redis_conn)
@@ -31,8 +34,24 @@ def getProxy():
     return proxy
 
 
-def runExt(url):
+def checkDomain(domain):
+    domain_exists = db.scraped_urls.find({"$and": [{"domain": domain},
+                                                   {"domain_lock": True}]})
+    if domain_exists.count() > 2:
+        return True
+    return False
+
+
+def runExt(url, domain):
     print colored("Running Extension on %s" % url, "magenta", attrs=['bold'])
+    domain_locked = checkDomain(domain)
+    if domain_locked:
+        print colored("domain is processed in this moment  - returning to Q", "yellow")
+        browse_q.enqueue(runExt, url, domain)
+        exit()
+    else:
+        db.scraped_urls.update_one({"url": url}, {"$set": {"domain_locked": True}})
+
     driver = webdriver.Firefox()
     try:
         scr = open("/var/www/latest/b_main.js").read()
@@ -42,11 +61,11 @@ def runExt(url):
         while person_job_Q.count > 500:
             countQue += 1
             if countQue > 2:
-                print colored("Que Full - returned to Que", "green", attrs=['bold'])
-                browse_q.enqueue(runExt, url)
-                # driver.quit()
-                return
-            print colored("Que Full - taking 15 sec break", "red")
+                print colored("person job Que Full - returned to Que", "green", attrs=['bold'])
+                browse_q.enqueue(runExt, url, domain)
+                driver.quit()
+                exit()
+            print colored("person job Que Full - taking 15 sec break", "red")
             time.sleep(15)
         # print colored("0", "green")
         driver.get(url)
@@ -63,6 +82,8 @@ def runExt(url):
         print colored("execute Success!!!", "yellow", "on_magenta", attrs=['bold'])
     except:
         print colored("execute Failed!!!", "red", "on_yellow", attrs=['bold'])
+
+    db.scraped_urls.update_one({"url": url}, {"$set": {"domain_locked": False}})
     try:
         driver.quit()
     except:
