@@ -2,6 +2,8 @@ __author__ = 'yonatan'
 from time import sleep
 import random
 import subprocess
+import os
+import signal
 
 from termcolor import colored
 
@@ -20,7 +22,7 @@ if __name__ == "__main__":
         a += 1
         if a == 2:
             print colored("killllllllllllllllll", "green")
-            child.terminate()
+            os.kill(child.pid, signal.SIGINT)
         sleep(30)
 
         print colored("still working", 'yellow')
