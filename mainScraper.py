@@ -52,7 +52,7 @@ def runWorkers():
         print colored("BroseMe %s is opened" % (str(i)), 'green')
         # rc_list.append(browseme)
 
-    subprocess.Popen(["^a - d"], shell=True)
+    subprocess.Popen(["Ctrl-a d"], shell=True)
 
     while True:
         sleep(1000)
