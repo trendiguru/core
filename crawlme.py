@@ -6,8 +6,8 @@ import requests.exceptions
 from rq import Queue
 from termcolor import colored
 
-from .browseme import runExt
-from . import constants
+from trendi.browseme import runExt
+from trendi import constants
 
 browse_q = Queue('BrowseMe', connection=constants.redis_conn)
 scrap_q = Queue('CrawlMe', connection=constants.redis_conn)

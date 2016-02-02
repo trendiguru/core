@@ -4,8 +4,8 @@ import time
 
 from rq import Queue
 
-from . import constants
-from .crawlme import scrapLinks
+from trendi import constants
+from trendi.crawlme import scrapLinks
 
 scrap_q = Queue('CrawlMe', connection=constants.redis_conn)
 db = constants.db

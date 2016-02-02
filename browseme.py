@@ -9,7 +9,7 @@ from selenium.webdriver.common.proxy import *
 from rq import Queue
 from redis import Redis
 
-from . import constants
+from trendi import constants
 
 db = constants.db
 redis_conn = Redis(host="redis1-redis-1-vm")
