@@ -19,7 +19,7 @@ crawlMe_q = Queue('CrawlMe', connection=redis_conn)
 
 if __name__ == "__main__":
     urlid = time.time()
-    db.scraped_urls.delete_many()
+    db.scraped_urls.delete_many({})
     print "start time: {0}".format(datetime.datetime.utcnow())
     if not mainScraper.screenCheck():
         mainScraper.master()
