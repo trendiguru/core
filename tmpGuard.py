@@ -69,7 +69,7 @@ def erasetmp(delta):
 
 
 def mainDelete(filename):
-    if filename is "tmp":
+    if filename == "tmp":
         files2erase = erasetmp(5)
     else:
         files2erase = erasexvfb()

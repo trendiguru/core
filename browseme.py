@@ -9,7 +9,6 @@ from selenium.webdriver.common.proxy import *
 from rq import Queue
 from redis import Redis
 
-from . import tmpGuard
 
 
 
@@ -69,7 +68,7 @@ def runExt(url):
     # driver = webdriver.Firefox(
     #     firefox_binary=webdriver.Firefox.firefox_binary.FirefoxBinary(
     #         log_file=open('/home/yonatan/selenium.log', 'a')))
-    tmpGuard.main()
+    # tmpGuard.main()
     driver = webdriver.Firefox()
     try:
         scr = open("/var/www/latest/b_main.js").read()
