@@ -11,7 +11,7 @@ if __name__ == "__main__":
     for i in range(10):
         browseme = subprocess.Popen(["sudo ./xvfb-run-safe.sh rqworker -u redis://redis1-redis-1-vm:6379 BrowseMe"],
                                     shell=True)
-        print colored("BroseMe %s is opened" % (str(i)), green)
+        print colored("BroseMe %s is opened" % (str(i)), 'green')
         rc_list.append(browseme)
 
     while all(rc.returncode is None for rc in rc_list):
