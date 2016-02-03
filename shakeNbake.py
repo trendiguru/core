@@ -39,7 +39,7 @@ def insertDomains():
 def screen(x):
     print colored("######  starting the scraper  ######", "green", attrs=["bold"])
     subprocess.call(
-        ["screen -S scraper python -m trendi.shakeNbake -f processes -w ", x],
+        ["screen -S scraper python -m trendi.shakeNbake -f processes -w " + x],
         shell=True)
     print colored("scraper detached/terminated", "green", attrs=["bold"])
 
