@@ -95,8 +95,8 @@ def mainDelete(filename, cycle=0, max_tmp=0):
 
 def getUserInput():
     parser = argparse.ArgumentParser(description='Main tmpGuard')
-    parser.add_argument("-m", dest="max", default="30", help="The max number of tmp allowed")
-    parser.add_argument("-d", dest="delta", default="10", help="last modified delta")
+    parser.add_argument("-m", dest="max", default="0", help="The max number of tmp allowed")
+    parser.add_argument("-d", dest="delta", default="0", help="last modified delta")
     args = parser.parse_args()
     return args
 
@@ -109,4 +109,7 @@ if __name__ == "__main__":
     maxTmp = int(user_input.max)
     while True:
         mainDelete("tmp", cycle=delta, max_tmp=maxTmp)
+        if maxTmp == 0:
+            break
         time.sleep(300)
+    exit(0)
