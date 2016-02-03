@@ -19,10 +19,9 @@ import argparse
 from bs4 import BeautifulSoup
 from selenium import webdriver
 from termcolor import colored
+import pymongo
 
-from . import constants
-
-db = constants.db
+db = pymongo.MongoClient(host="mongodb1-instance-1", port=27017).mydb
 MAX_PER_DOMAIN = 1000
 
 whitelist = ["gettyimages.com", "tmz.com", "super.cz", "ew.com", "entretenimento.r7.com", "hollywoodlife.com",
