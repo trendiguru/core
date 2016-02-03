@@ -147,7 +147,7 @@ def firefox():
             getAllUrls(url, html, domain["_id"])
 
             try:
-                driver.execute_async_script(scr, "done")
+                response = driver.execute_async_script(scr)
                 sleep(1)
                 print colored("script executed! on %s" % url_printable, "blue", "on_green", attrs=['bold'])
 
