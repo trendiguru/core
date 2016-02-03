@@ -25,6 +25,9 @@ from . import constants
 db = constants.db
 MAX_PER_DOMAIN = 1000
 
+whitelist = ["gettyimages.com", "tmz.com", "super.cz", "ew.com", "entretenimento.r7.com", "hollywoodlife.com",
+             "kapanlagi.com", "zimbio.com", "jezebel.com", "purepeople.com", "jeanmarcmorandini.com"]
+
 
 def insertDomains():
     for domain in whitelist:
@@ -172,6 +175,3 @@ if __name__ == "__main__":
         firefox()
     else:
         print colored("bad input", "red")
-
-whitelist = ["gettyimages.com", "tmz.com", "super.cz", "ew.com", "entretenimento.r7.com", "hollywoodlife.com",
-             "kapanlagi.com", "zimbio.com", "jezebel.com", "purepeople.com", "jeanmarcmorandini.com"]
