@@ -55,8 +55,8 @@ def processes(x="1"):
 
     subprocess.Popen(["screen -d scraper"], shell=True)
 
-    # while True:
-    #     sleep(1000)
+    while True:
+        sleep(1000)
 
 
 def getAllUrls(url, html, obid):
