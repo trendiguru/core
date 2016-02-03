@@ -60,6 +60,7 @@ def processes(x="1"):
     subprocess.Popen(["python -m trendi.tmpGuard"], shell=True)
     # tmpGuard.mainDelete("xvfb")
     # tmpGuard.mainDelete("tmp")
+    sleep(30)
     for i in range(workers):
         browseme = subprocess.Popen(["sudo ./xvfb-run-safe.sh python -m trendi.shakeNbake -f firefox"],
                                     shell=True)
