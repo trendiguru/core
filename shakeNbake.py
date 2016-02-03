@@ -141,7 +141,7 @@ def firefox():
             try:
                 driver.execute_script(scr)
                 sleep(2)
-                print colored("script executed! on %s" % url_printable, "green")
+                print colored("script executed! on %s" % url_printable, "magenta", "on_green", attrs=['bold'])
 
                 for x in range(8):
                     script = "scroll(" + str(x * 500) + "," + str(x * 500 + 500) + ")"
@@ -163,7 +163,7 @@ def firefox():
                     url_count = current_count
 
                 if last_processed < url_count and last_processed < MAX_PER_DOMAIN:
-                    db.scraped_urls.update_one({"_id": domain["_id"]}, {"$set": {"paused": False}})
+                    db.scraped_urls.update_one({"_id": domain["_id"]}, {"$set": {"paused": False, "locked": False}})
                     updated += 1
                     continue
 
