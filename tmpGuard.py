@@ -90,7 +90,7 @@ def mainDelete(filename, cycle=0, max_tmp=0):
             print colored("removing %s failed" % f, "red")
 
     print colored("%s files deleted!!!" % str(count))
-    time.sleep(15)
+    # time.sleep(15)
 
 
 def getUserInput():
