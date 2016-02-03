@@ -25,15 +25,16 @@ from . import tmpGuard
 db = pymongo.MongoClient(host="mongodb1-instance-1", port=27017).mydb
 MAX_PER_DOMAIN = 20
 
-whitelist = ["gettyimages.com", "tmz.com", "super.cz", "ew.com", "entretenimento.r7.com", "hollywoodlife.com",
-             "kapanlagi.com", "zimbio.com", "jezebel.com", "purepeople.com", "jeanmarcmorandini.com",
-             "radaronline.com", "etonline.com", "voici.fr", "topito.com", "ciudad.com.ar", "perezhilton.com",
-             "koreaboo.com", "cztv.com", "virgula.uol.com.br", "suggest.com", "justjared.com", "therichest.com",
-             "pressroomvip.com", "dagospia.com", "closermag.fr", "kiskegyed.hu", "pagesix.com",
-             "digitalspy.com", "purepeople.com.br", "thepiratebay.uk.net", "sopitas.com", "deadline.com",
-             "starpulse.com", "multikino.pl", "primiciasya.com", "celebuzz.com", "luckstars.co",
-             "ratingcero.com", "non-stop-people.com", "tochka.net", "toofab.com", "extra.cz",
-             "huabian.com", "bossip.com", "spletnik.ru", "wetpaint.com"]
+whitelist = ["refinery29.com", "maxmodels.pl", "stylebistro.com", "fashion.ifeng.com", "tajbao.com",
+             "highsnobiety.com", "osinka.ru", "trendsylvania.net", "whowhatwear.com", "fashiony.ru",
+             "fashion.sina.com.cn", "lookbook.nu", "vogue.com.tw", "thefashionspot.com",
+             "vogue.com.cn", "thehunt.com", "fashionbeans.com", "models.com",
+             "fashion.sohu.com", "perfecte.md", "cosmopolitan.lt", "wwd.com", "enrz.com",
+             "moteris.lt", "businessoffashion.com", "styleblazer.com", "theblondesalad.com", "fashiongonerogue.com",
+             "thesartorialist.com", "cupcakesandcashmere.com", "fashion.walla.co.il", "thegloss.com", "vogue.com.au",
+             "panele.lt", "af-110.com", "collegefashion.net", "niv.ru", "desired.de", "fashionstylemag.com",
+             "guimi.com", "fashionbank.ru", "vmagazine.com", "garancedore.fr", "thefashionisto.com",
+             "fashionising.com", "modelmanagement.com"]
 
 
 def insertDomains():
