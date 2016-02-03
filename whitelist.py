@@ -1,9 +1,10 @@
 __author__ = 'yonatan'
 import sys
+import time
 
 from rq import Queue
 
-import constants
+from . import constants
 from .crawlme import scrapLinks
 
 scrap_q = Queue('CrawlMe', connection=constants.redis_conn)
@@ -145,8 +146,8 @@ fashionBlogs = {"manrepeller.com", "wishwishwish.net", "parkandcube.com", "stell
 
 top50Fashion = {"refinery29.com", "maxmodels.pl", "stylebistro.com", "fashion.ifeng.com", "tajbao.com",
                 "highsnobiety.com", "osinka.ru", "trendsylvania.net", "whowhatwear.com", "fashiony.ru",
-                "gq.com.tw", "fashion.sina.com.cn", "lookbook.nu", "vogue.com.tw", "thefashionspot.com",
-                "elle.com.tw", "vogue.com.cn", "thehunt.com", "fashionbeans.com", "gqindia.com", "models.com",
+                "fashion.sina.com.cn", "lookbook.nu", "vogue.com.tw", "thefashionspot.com",
+                "vogue.com.cn", "thehunt.com", "fashionbeans.com", "models.com",
                 "fashion.sohu.com", "elle.co.jp", "perfecte.md", "cosmopolitan.lt", "wwd.com", "enrz.com",
                 "moteris.lt", "businessoffashion.com", "styleblazer.com", "theblondesalad.com", "fashiongonerogue.com",
                 "thesartorialist.com", "cupcakesandcashmere.com", "fashion.walla.co.il", "thegloss.com", "vogue.com.au",
@@ -320,11 +321,13 @@ all_white_lists = frozenset().union(fullList, fashionBlogs, top50CelebSytle, top
 
 
 def masterCrawler(floor=2, whiteList=top50Fashion):
-    db.crawler_processed.drop()
-    db.crawler_processed.create_index("url")
+    # db.scraped_urls.delete_many()
+
+    # db.scraped_urls.create_indexes(["url", "domain", "urlId", "domain_locked"])
+    urlid = time.time()
     for site in whiteList:
         url = "http://www." + site
-        scrap_q.enqueue(scrapLinks, url, floor)
+        scrap_q.enqueue(scrapLinks, url, urlid, floor)
     return "finished"
 
 

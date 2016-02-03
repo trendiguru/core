@@ -24,6 +24,8 @@ RUN apt-get install -y git
 ###################
 # CUDA
 ###################
+RUN apt-get install -y freeglut3-dev
+RUN apt-get install -y build-essential libx11-dev libxmu-dev libxi-dev libgl1-mesa-glx libglu1-mesa libglu1-mesa-dev
 RUN apt-get update
 RUN apt-get install -y libboost-all-dev
 RUN apt-get install -y wget
@@ -45,6 +47,7 @@ RUN apt-get -qq install -y yasm
 RUN apt-get -qq install -y libpng12-dev
 #RUN apt-get -qq install -y python-dev    #have below
 RUN apt-get -qq install -y python-numpy  #have below
+
 
 #install opengl
 #RUN apt-get install -y freeglut3-dev
