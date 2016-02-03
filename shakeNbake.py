@@ -119,9 +119,10 @@ def firefox():
 
             try:
                 driver.get(url)
-                print colored("got url %s with success" % url_printable, "green")
+                print colored("got url %s with success" % url_printable, "cyan")
             except:
                 print colored("failed getting url %s " % url_printable, "red", "on_yellow")
+                sleep(2)
                 db.scraped_urls.update_one({"_id": domain["_id"]}, {"$set": {"locked": False,
                                                                              "last_processed": last_processed}})
                 continue
@@ -129,7 +130,7 @@ def firefox():
             try:
                 elem = driver.find_element_by_xpath("//*")
                 html = elem.get_attribute("outerHTML")
-                print colored("got html with success on %s" % url_printable, "green")
+                print colored("got html with success on %s" % url_printable, "cyan")
             except:
                 print colored("failed getting html on %s" % url_printable, "red", "on_yellow")
                 db.scraped_urls.update_one({"_id": domain["_id"]}, {"$set": {"locked": False,
@@ -141,7 +142,7 @@ def firefox():
             try:
                 driver.execute_script(scr)
                 sleep(2)
-                print colored("script executed! on %s" % url_printable, "magenta", "on_green", attrs=['bold'])
+                print colored("script executed! on %s" % url_printable, "blue", "on_green", attrs=['bold'])
 
                 for x in range(8):
                     script = "scroll(" + str(x * 500) + "," + str(x * 500 + 500) + ")"
