@@ -7,6 +7,7 @@ from rq import Queue
 from . import constants
 from .crawlme import scrapLinks
 
+
 scrap_q = Queue('CrawlMe', connection=constants.redis_conn)
 db = constants.db
 
@@ -131,7 +132,7 @@ fullList = {"yahoo.com", "msn.com", "yahoo.co.jp", "qq.com", "uol.com.br", "glob
              'pinoyhdreplay.org', 'pinoynetwork.se', 'postimees.ee', 'pudelek.pl', 'rakuten.co.jp', 'sapo.cv', 'tfc.tv',
              'thestar.com.my', 'trendiguru.com', 'websta.me', 'siol.net', 'tportal.hr', 'iol.pt', 'freenet.de',
              'jewelryquestion.com', 'larep.fr', 'dailymotion.com', 'mundopositivo.com.br', 'mediaset.it',
-             'cifraclub.com.br', 'gmx.net'}
+             'cifraclub.com.br', 'gmx.net', 'web.de'}
 
 fashionBlogs = {"manrepeller.com", "wishwishwish.net", "parkandcube.com", "stellaswardrobe.com", "cocosteaparty.com",
                "5inchandup.blogspot.co.uk", "garypeppergirl.com", "camilleovertherainbow.com", "streetpeeper.com",
