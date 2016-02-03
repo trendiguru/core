@@ -34,6 +34,7 @@ def insertDomains():
                 "locked": False,
                 "paused": False,
                 "last_processed": 0,
+                "url_count": 1,
                 "url_list": ["http://www." + domain]}
         db.scraped_urls.insert_one(item)
 
@@ -86,7 +87,7 @@ def getAllUrls(url, html, obid):
         new_count = len(url_list)
         urls_added = new_count - url_count
         if urls_added > 0:
-            db.scraped_urls.find_one_and_update({"_id": obid}, {"$set": {"url_list": url_list}})
+            db.scraped_urls.find_one_and_update({"_id": obid}, {"$set": {"url_list": url_list, "url_count": new_count}})
         print colored("%s urls added to domain %s" % (str(urls_added), domain_name), "magenta", attrs=['bold'])
 
 
