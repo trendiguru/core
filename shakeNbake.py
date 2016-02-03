@@ -114,6 +114,7 @@ def firefox():
                 url_count = current_count
             if last_processed >= url_count or last_processed > MAX_PER_DOMAIN:
                 db.scraped_urls.update_one({"_id": domain["_id"]}, {"$set": {"paused": True}})
+                print colored("domain %s is paused!!! " % domain["name"], "yellow")
                 continue
             url = domain["url_list"][last_processed]
             url_printable = url.encode('ascii', 'ignore')  # conversion of unicode type to string type
@@ -167,6 +168,7 @@ def firefox():
                 last_processed = domain["last_processed"]
                 if last_processed < url_count and last_processed < MAX_PER_DOMAIN:
                     db.scraped_urls.update_one({"_id": domain["_id"]}, {"$set": {"paused": False, "locked": False}})
+                    print colored("domain %s is resumed!!! " % domain["name"], "yellow")
                     updated += 1
                     continue
 
