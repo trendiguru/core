@@ -61,7 +61,7 @@ def screen(workers):
         name = "scraper" + str(i)
         if i == m:
             d += n
-        cmd = "screen -S " + name + " python -m trendi.shakeNbake -f processes -w " + str(d) + "-n " + name
+        cmd = "screen -S " + name + " python -m trendi.shakeNbake -f processes -w " + str(d) + "-n " + str(i)
         print colored("opening screen " + name, "green", attrs=["bold"])
         subprocess.call([cmd], shell=True)
         print colored("screen " + name + " detached", "yellow", attrs=["bold"])
@@ -69,9 +69,10 @@ def screen(workers):
     print colored("all screens are opened", "magenta", attrs=["bold"])
 
 
-def processes(w, screen_name):
+def processes(w, screen_number):
     # subprocess.Popen(["python -m trendi.tmpGuard"], shell=True)
     # sleep(60)
+    screen_name = "scraper" + screen_number
     for i in range(int(w)):
         browseme = subprocess.Popen(["sudo ./xvfb-run-safe.sh python -m trendi.shakeNbake -f firefox &"],
                                     shell=True)
@@ -197,7 +198,7 @@ def getUserInput():
     parser = argparse.ArgumentParser(description='Main Scraper')
     parser.add_argument("-f", dest="function", help="The function you want to run")
     parser.add_argument("-w", dest="workers", default="10", help="enter the number of workers to run simultaneously")
-    parser.add_argument("-n", dest="s_name", default="scraper", help="the current screen name")
+    parser.add_argument("-n", dest="s_number", default="0", help="the current screen number")
     args = parser.parse_args()
     return args
 
