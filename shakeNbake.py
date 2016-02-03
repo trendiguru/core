@@ -54,31 +54,20 @@ def screen(workers):
     tmpGuard.mainDelete("xvfb")
     tmpGuard.mainDelete("tmp")
     insertDomains()
-    w = int(workers)
-    d = 5  # number of workers per screen
-    m, n = divmod(w, d)
-    for i in range(m):
-        name = "scraper" + str(i)
-        if i == m:
-            d += n
-        cmd = "screen -S " + name + " python -m trendi.shakeNbake -f processes -w " + str(d) + " -n " + name
-        print colored("opening screen " + name, "green", attrs=["bold"])
-        subprocess.call([cmd], shell=True)
-        print colored("screen " + name + " detached", "yellow", attrs=["bold"])
-
-    print colored("all screens are opened", "magenta", attrs=["bold"])
+    cmd = "screen -S scraper python -m trendi.shakeNbake -f processes -w " + str(workers)
+    print colored("opening screen", "green", attrs=["bold"])
+    subprocess.call([cmd], shell=True)
+    print colored("screen detached", "yellow", attrs=["bold"])
 
 
-def processes(w, screen_name):
-    # subprocess.Popen(["python -m trendi.tmpGuard"], shell=True)
-    # sleep(60)
+def processes(w):
     for i in range(int(w)):
         browseme = subprocess.Popen(["sudo ./xvfb-run-safe.sh python -m trendi.shakeNbake -f firefox &"],
                                     shell=True)
         print colored("firefox %s is opened" % (str(i)), 'green')
 
     sleep(5)
-    subprocess.Popen(["screen -d " + screen_name], shell=True)
+    subprocess.Popen(["screen -d"], shell=True)
 
     while True:
         sleep(1000)
@@ -158,14 +147,14 @@ def firefox():
             getAllUrls(url, html, domain["_id"])
 
             try:
-                driver.execute_script(scr)
-                sleep(2)
+                driver.execute_async_script(scr)
+                sleep(1)
                 print colored("script executed! on %s" % url_printable, "blue", "on_green", attrs=['bold'])
 
-                for x in range(8):
-                    script = "scroll(" + str(x * 500) + "," + str(x * 500 + 500) + ")"
-                    driver.execute_script(script)
-                    sleep(0.25)
+                # for x in range(8):
+                #     script = "scroll(" + str(x * 500) + "," + str(x * 500 + 500) + ")"
+                #     driver.execute_script(script)
+                #     sleep(0.25)
 
             except:
                 print colored("url %s : script execution failed!!!" % url_printable, "red", "on_yellow")
@@ -197,7 +186,6 @@ def getUserInput():
     parser = argparse.ArgumentParser(description='Main Scraper')
     parser.add_argument("-f", dest="function", help="The function you want to run")
     parser.add_argument("-w", dest="workers", default="10", help="enter the number of workers to run simultaneously")
-    parser.add_argument("-n", dest="s_name", default="scraper", help="the current screen name")
     args = parser.parse_args()
     return args
 
@@ -208,7 +196,7 @@ if __name__ == "__main__":
     if user_input.function == "screen":
         screen(user_input.workers)
     elif user_input.function == "processes":
-        processes(user_input.workers, user_input.s_name)
+        processes(user_input.workers)
     elif user_input.function == "firefox":
         firefox()
     else:
