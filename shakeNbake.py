@@ -107,7 +107,7 @@ def getAllUrls(url, html, obid):
 
 def firefox():
     driver = webdriver.Firefox()
-    scr = open("/var/www/latest/b_main1.js").read()
+    scr = 'arguments[arguments.length - 1](' + open("/var/www/latest/b_main.js").read() + ');'
     while True:
         domain = db.scraped_urls.find_one_and_update({"locked": False, "paused": False}, {"$set": {"locked": True}})
         if domain:
