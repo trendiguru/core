@@ -58,7 +58,8 @@ def processes(x="1"):
     tmpguard = subprocess.Popen(["python -m trendi.tmpGuard"], shell=True)
     db.scraped_urls.delete_many({})
     insertDomains()
-    for i in range(int(x)):
+    workers = min(int(x), len(whitelist))
+    for i in range(workers):
         browseme = subprocess.Popen(["sudo ./xvfb-run-safe.sh python -m trendi.shakeNbake -f firefox"],
                                     shell=True)
         print colored("firefox %s is opened" % (str(i)), 'green')
@@ -162,7 +163,7 @@ def firefox():
                 current_count = len(domain["url_list"])
                 if current_count > url_count:
                     url_count = current_count
-
+                last_processed = domain["last_processed"]
                 if last_processed < url_count and last_processed < MAX_PER_DOMAIN:
                     db.scraped_urls.update_one({"_id": domain["_id"]}, {"$set": {"paused": False, "locked": False}})
                     updated += 1
