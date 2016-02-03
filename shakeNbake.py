@@ -118,8 +118,17 @@ def firefox():
                                                                              "last_processed": last_processed}})
                 continue
 
-            elem = driver.find_element_by_css_selector('#my-id')
-            html = elem.get_attribute('innerHTML')
+            try:
+                elem = driver.find_element_by_xpath("//*")
+                html = elem.get_attribute("outerHTML")
+                print colored("got html with success", "green")
+            except:
+                print colored("failed getting html", "red", "on_yellow")
+                db.scraped_urls.update_one({"_id": domain["_id"]}, {"$set": {"locked": False,
+                                                                             "last_processed": last_processed}})
+                continue
+            # elem = driver.find_element_by_css_selector('#my-id')
+            # html = elem.get_attribute('innerHTML')
             # subprocess.Popen(["python -m trendi.shakeNbake -f getAllUrls "], shell=True)
             getAllUrls(html, domain["_id"])
 
