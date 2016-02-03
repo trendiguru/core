@@ -25,7 +25,14 @@ db = pymongo.MongoClient(host="mongodb1-instance-1", port=27017).mydb
 MAX_PER_DOMAIN = 1000
 
 whitelist = ["gettyimages.com", "tmz.com", "super.cz", "ew.com", "entretenimento.r7.com", "hollywoodlife.com",
-             "kapanlagi.com", "zimbio.com", "jezebel.com", "purepeople.com", "jeanmarcmorandini.com"]
+             "kapanlagi.com", "zimbio.com", "jezebel.com", "purepeople.com", "jeanmarcmorandini.com",
+             "radaronline.com", "etonline.com", "voici.fr", "topito.com", "ciudad.com.ar", "perezhilton.com",
+             "koreaboo.com", "cztv.com", "virgula.uol.com.br", "suggest.com", "justjared.com", "therichest.com",
+             "pressroomvip.com", "dagospia.com", "closermag.fr", "kiskegyed.hu", "pagesix.com",
+             "digitalspy.com", "purepeople.com.br", "thepiratebay.uk.net", "sopitas.com", "deadline.com",
+             "starpulse.com", "multikino.pl", "primiciasya.com", "celebuzz.com", "luckstars.co",
+             "ratingcero.com", "non-stop-people.com", "tochka.net", "toofab.com", "extra.cz",
+             "huabian.com", "bossip.com", "spletnik.ru", "wetpaint.com"]
 
 
 def insertDomains():
@@ -77,11 +84,12 @@ def getAllUrls(url, html, obid):
                 if link.startswith('/'):
                     link = url + link
                 else:
-                    print ("link to a different site... not enqueued")
+                    # print ("link to a different site... not enqueued")
                     continue
             exists = [match for match in url_list if match == link]
             if len(exists) > 0:
-                print colored("link already exists... ", "yellow")
+                # print colored("link already exists... ", "yellow")
+                pass
             else:
                 url_list.append(link)
         new_count = len(url_list)
@@ -121,21 +129,19 @@ def firefox():
             try:
                 elem = driver.find_element_by_xpath("//*")
                 html = elem.get_attribute("outerHTML")
-                print colored("got html with success", "green")
+                print colored("got html with success on %s" % url_printable, "green")
             except:
-                print colored("failed getting html", "red", "on_yellow")
+                print colored("failed getting html on %s" % url_printable, "red", "on_yellow")
                 db.scraped_urls.update_one({"_id": domain["_id"]}, {"$set": {"locked": False,
                                                                              "last_processed": last_processed}})
                 continue
-            # elem = driver.find_element_by_css_selector('#my-id')
-            # html = elem.get_attribute('innerHTML')
             # subprocess.Popen(["python -m trendi.shakeNbake -f getAllUrls "], shell=True)
             getAllUrls(url, html, domain["_id"])
 
             try:
                 driver.execute_script(scr)
                 sleep(2)
-                print colored("script executed!", "green")
+                print colored("script executed! on %s" % url_printable, "green")
 
                 for x in range(8):
                     script = "scroll(" + str(x * 500) + "," + str(x * 500 + 500) + ")"
