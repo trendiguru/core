@@ -98,7 +98,9 @@ def getAllUrls(url, html, obid):
         urls_added = new_count - url_count
         if urls_added > 0:
             db.scraped_urls.find_one_and_update({"_id": obid}, {"$set": {"url_list": url_list, "url_count": new_count}})
-        print colored("%s urls added to domain %s" % (str(urls_added), domain_name), "magenta", attrs=['bold'])
+        print colored("%s urls added to domain %s, url count for this domain is %s " % (str(urls_added), domain_name,
+                                                                                        str(new_count)), "magenta",
+                      attrs=['bold'])
 
 
 def firefox():
