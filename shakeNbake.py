@@ -20,8 +20,10 @@ from selenium import webdriver
 from termcolor import colored
 import pymongo
 
+from . import tmpGuard
+
 db = pymongo.MongoClient(host="mongodb1-instance-1", port=27017).mydb
-MAX_PER_DOMAIN = 1000
+MAX_PER_DOMAIN = 20
 
 whitelist = ["gettyimages.com", "tmz.com", "super.cz", "ew.com", "entretenimento.r7.com", "hollywoodlife.com",
              "kapanlagi.com", "zimbio.com", "jezebel.com", "purepeople.com", "jeanmarcmorandini.com",
@@ -57,7 +59,9 @@ def screen(x):
 
 def processes(x="1"):
     workers = min(int(x), len(whitelist))
-    subprocess.Popen(["python -m trendi.tmpGuard -d 5 -m " + str(workers + 5)], shell=True)
+    # subprocess.Popen(["python -m trendi.tmpGuard -d 5 -m " + str(workers + 5)], shell=True)
+    tmpGuard.mainDelete("xvfb")
+    tmpGuard.mainDelete("tmp")
     for i in range(workers):
         browseme = subprocess.Popen(["sudo ./xvfb-run-safe.sh python -m trendi.shakeNbake -f firefox"],
                                     shell=True)

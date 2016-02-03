@@ -25,7 +25,7 @@ def erasexvfb():
     return xvfb2erase
 
 
-def erasetmp(cycle_delta, max_tmp=30):
+def erasetmp(cycle_delta=0, max_tmp=0):
     current = (time.ctime(time.time())).split(" ")
     current_date = current[-3]
     current_time = current[-2].split(":")
@@ -36,6 +36,9 @@ def erasetmp(cycle_delta, max_tmp=30):
     for f in os.listdir("/tmp"):
         (mode, ino, dev, nlink, uid, gid, size, atime, mtime, ctime) = os.stat("/tmp/" + f)
         if f[:3] == "tmp":
+            if max_tmp == 0:
+                tmp2erase.append(f)
+                continue
             i += 1
             modified = time.ctime(mtime)
             # print ("%s) %s  last modified: %s" % (str(i), f, modified))
@@ -65,11 +68,11 @@ def erasetmp(cycle_delta, max_tmp=30):
             else:
                 tmp2erase.append(f)
     if i > max_tmp and cycle_delta > 1:
-        tmp2erase = erasetmp(1)
+        tmp2erase = erasetmp(1, 50)
     return tmp2erase
 
 
-def mainDelete(filename, cycle=5, max_tmp=30):
+def mainDelete(filename, cycle=0, max_tmp=0):
     if filename == "tmp":
         files2erase = erasetmp(cycle, max_tmp)
     elif filename == "xvfb":
