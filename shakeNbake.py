@@ -20,6 +20,8 @@ from selenium import webdriver
 from termcolor import colored
 import pymongo
 
+from . import tmpGuard
+
 db = pymongo.MongoClient(host="mongodb1-instance-1", port=27017).mydb
 MAX_PER_DOMAIN = 20
 
@@ -45,23 +47,32 @@ def insertDomains():
         db.scraped_urls.insert_one(item)
 
 
-def screen(x):
+def screen(workers):
+    workers = min(int(workers), len(whitelist))
     print colored("######  starting the scraper  ######", "green", attrs=["bold"])
     db.scraped_urls.delete_many({})
+    tmpGuard.mainDelete("xvfb")
+    tmpGuard.mainDelete("tmp")
     insertDomains()
-    subprocess.call(
-        ["screen -S scraper python -m trendi.shakeNbake -f processes -w " + x],
-        shell=True)
-    print colored("scraper detached/terminated", "green", attrs=["bold"])
+    w = int(workers)
+    d = 5  # number of workers per screen
+    m, n = divmod(w, d)
+    for i in range(m):
+        name = "scraper" + str(i)
+        if i == m:
+            d += n
+        cmd = "screen -S " + name + " python -m trendi.shakeNbake -f processes -w " + str(d)
+        print colored("opening screen " + name, "green", attrs=["bold"])
+        subprocess.call([cmd], shell=True)
+        print colored("screen " + name + " detached", "yellow", attrs=["bold"])
+
+    print colored("all screens are opened", "magenta", attrs=["bold"])
 
 
-def processes(x="1"):
-    workers = min(int(x), len(whitelist))
-    subprocess.Popen(["python -m trendi.tmpGuard"], shell=True)
-    # tmpGuard.mainDelete("xvfb")
-    # tmpGuard.mainDelete("tmp")
-    sleep(30)
-    for i in range(workers):
+def processes(w):
+    # subprocess.Popen(["python -m trendi.tmpGuard"], shell=True)
+    # sleep(60)
+    for i in range(int(w)):
         browseme = subprocess.Popen(["sudo ./xvfb-run-safe.sh python -m trendi.shakeNbake -f firefox"],
                                     shell=True)
         print colored("firefox %s is opened" % (str(i)), 'green')
