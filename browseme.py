@@ -42,7 +42,6 @@ def checkDomain(domain):
 
 
 def runExt(url, domain):
-    print colored("Running Extension on %s" % url, "magenta", attrs=['bold'])
     domain_locked = checkDomain(domain)
     if domain_locked:
         print colored("domain is processed in this moment  - returning to Q", "yellow")
@@ -50,7 +49,7 @@ def runExt(url, domain):
         exit()
     else:
         db.scraped_urls.update_one({"url": url}, {"$set": {"domain_locked": True}})
-
+    print colored("Running Extension on %s" % url, "magenta", attrs=['bold'])
     driver = webdriver.Firefox()
     try:
         scr = open("/var/www/latest/b_main.js").read()
