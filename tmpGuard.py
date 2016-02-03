@@ -24,7 +24,7 @@ def erasexvfb():
     return xvfb2erase
 
 
-def erasetmp(delta):
+def erasetmp(cycle_delta, max_tmp=30):
     current = (time.ctime(time.time())).split(" ")
     current_date = current[-3]
     current_time = current[-2].split(":")
@@ -48,29 +48,29 @@ def erasetmp(delta):
             date_diff = int(current_date) - int(modified_date)
             if date_diff == 0:
                 if hour_diff == 0:
-                    if min_diff > delta:
+                    if min_diff > cycle_delta:
                         tmp2erase.append(f)
                 elif hour_diff == 1:
-                    if min_diff + 60 > delta:
+                    if min_diff + 60 > cycle_delta:
                         tmp2erase.append(f)
                 else:
                     tmp2erase.append(f)
             elif date_diff == 1:
                 if hour_diff + 24 == 1:
-                    if min_diff + 60 > delta:
+                    if min_diff + 60 > cycle_delta:
                         tmp2erase.append(f)
                 else:
                     tmp2erase.append(f)
             else:
                 tmp2erase.append(f)
-    if i > 30 and delta > 1:
+    if i > max_tmp and cycle_delta > 1:
         tmp2erase = erasetmp(1)
     return tmp2erase
 
 
-def mainDelete(filename):
+def mainDelete(filename, cycle=5, max_tmp=30):
     if filename == "tmp":
-        files2erase = erasetmp(5)
+        files2erase = erasetmp(cycle, max_tmp)
     elif filename == "xvfb":
         files2erase = erasexvfb()
     else:

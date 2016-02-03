@@ -11,7 +11,6 @@ logic:
 5. inject js - scroll
 6. do again from 2
 """
-
 import subprocess
 from time import sleep
 import argparse
@@ -20,6 +19,8 @@ from bs4 import BeautifulSoup
 from selenium import webdriver
 from termcolor import colored
 import pymongo
+
+from . import tmpGuard
 
 db = pymongo.MongoClient(host="mongodb1-instance-1", port=27017).mydb
 MAX_PER_DOMAIN = 1000
@@ -48,6 +49,8 @@ def insertDomains():
 
 def screen(x):
     print colored("######  starting the scraper  ######", "green", attrs=["bold"])
+    db.scraped_urls.delete_many({})
+    insertDomains()
     subprocess.call(
         ["screen -S scraper python -m trendi.shakeNbake -f processes -w " + x],
         shell=True)
@@ -55,9 +58,7 @@ def screen(x):
 
 
 def processes(x="1"):
-    tmpguard = subprocess.Popen(["python -m trendi.tmpGuard"], shell=True)
-    db.scraped_urls.delete_many({})
-    insertDomains()
+    tmpGuard.mainDelete("xvfb")
     workers = min(int(x), len(whitelist))
     for i in range(workers):
         browseme = subprocess.Popen(["sudo ./xvfb-run-safe.sh python -m trendi.shakeNbake -f firefox"],
@@ -67,7 +68,8 @@ def processes(x="1"):
     subprocess.Popen(["screen -d scraper"], shell=True)
 
     while True:
-        sleep(1000)
+        tmpGuard.mainDelete("tmp", cycle=10, max_tmp=workers)
+        sleep(300)
 
 
 def getAllUrls(url, html, obid):
@@ -170,7 +172,9 @@ def firefox():
                     continue
 
             if updated == 0:
-                exit()
+                break
+
+    driver.quit()
 
 
 def getUserInput():
