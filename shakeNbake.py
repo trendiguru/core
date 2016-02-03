@@ -130,7 +130,7 @@ def firefox():
             # elem = driver.find_element_by_css_selector('#my-id')
             # html = elem.get_attribute('innerHTML')
             # subprocess.Popen(["python -m trendi.shakeNbake -f getAllUrls "], shell=True)
-            getAllUrls(html, domain["_id"])
+            getAllUrls(url, html, domain["_id"])
 
             try:
                 driver.execute_script(scr)
