@@ -10,6 +10,7 @@ the webdrivers are recognized by the 'tmp' opening
 import os
 import time
 import subprocess
+import argparse
 
 from termcolor import colored
 
@@ -88,8 +89,21 @@ def mainDelete(filename, cycle=5, max_tmp=30):
     print colored("%s files deleted!!!" % str(count))
     time.sleep(15)
 
+
+def getUserInput():
+    parser = argparse.ArgumentParser(description='Main tmpGuard')
+    parser.add_argument("-m", dest="max", default="30", help="The max number of tmp allowed")
+    parser.add_argument("-d", dest="delta", default="10", help="last modified delta")
+    args = parser.parse_args()
+    return args
+
+
 if __name__ == "__main__":
+    user_input = getUserInput()
+    print user_input
     mainDelete("xvfb")
+    delta = int(user_input.delta)
+    maxTmp = int(user_input.max)
     while True:
-        mainDelete("tmp")
-        time.sleep(180)
+        mainDelete("tmp", cycle=delta, max_tmp=maxTmp)
+        time.sleep(300)

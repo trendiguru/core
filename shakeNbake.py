@@ -20,8 +20,6 @@ from selenium import webdriver
 from termcolor import colored
 import pymongo
 
-from . import tmpGuard
-
 db = pymongo.MongoClient(host="mongodb1-instance-1", port=27017).mydb
 MAX_PER_DOMAIN = 1000
 
@@ -58,8 +56,8 @@ def screen(x):
 
 
 def processes(x="1"):
-    tmpGuard.mainDelete("xvfb")
     workers = min(int(x), len(whitelist))
+    subprocess.Popen(["python -m trendi.tmpGuard -d 5 -m " + str(workers + 5)], shell=True)
     for i in range(workers):
         browseme = subprocess.Popen(["sudo ./xvfb-run-safe.sh python -m trendi.shakeNbake -f firefox"],
                                     shell=True)
@@ -68,8 +66,7 @@ def processes(x="1"):
     subprocess.Popen(["screen -d scraper"], shell=True)
 
     while True:
-        tmpGuard.mainDelete("tmp", cycle=10, max_tmp=workers)
-        sleep(300)
+        sleep(1000)
 
 
 def getAllUrls(url, html, obid):
@@ -139,7 +136,7 @@ def firefox():
                 db.scraped_urls.update_one({"_id": domain["_id"]}, {"$set": {"locked": False,
                                                                              "last_processed": last_processed}})
                 continue
-            # subprocess.Popen(["python -m trendi.shakeNbake -f getAllUrls "], shell=True)
+
             getAllUrls(url, html, domain["_id"])
 
             try:
