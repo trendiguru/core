@@ -107,7 +107,7 @@ def getAllUrls(url, html, obid):
 
 def firefox():
     driver = webdriver.Firefox()
-    scr = open("/var/www/latest/b_main1.js").read()
+    scr = open("/var/www/latest/b_main.js").read()
     while True:
         domain = db.scraped_urls.find_one_and_update({"locked": False, "paused": False}, {"$set": {"locked": True}})
         if domain:
@@ -147,7 +147,8 @@ def firefox():
             getAllUrls(url, html, domain["_id"])
 
             try:
-                response = driver.execute_async_script(scr)
+                args = ["done"]
+                response = driver.execute_async_script(scr, args[0])
                 sleep(1)
                 print colored("script executed! on %s" % url_printable, "blue", "on_green", attrs=['bold'])
 
