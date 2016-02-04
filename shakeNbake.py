@@ -120,6 +120,7 @@ def getAllUrls(url, html, obid):
 
 def firefox():
     driver = webdriver.Firefox()
+    driver.implicitly_wait(5)
     scr = open("/var/www/latest/b_main.js").read()
     while True:
         domains = db.scraped_urls.find({"locked": False, "paused": False})
