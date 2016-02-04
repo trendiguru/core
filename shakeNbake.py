@@ -117,7 +117,10 @@ def firefox():
         domains_count = domains.count()
         if domains_count > 0:
             rand = random.randint(0, domains_count - 1)
-            domain = domains[rand]
+            try:
+                domain = domains[rand]
+            except:
+                continue
             domain_id = domain["_id"]
             db.scraped_urls.update_one({"_id": domain_id}, {"$set": {"locked": True}})
             url_count = domain["url_count"]
@@ -157,7 +160,7 @@ def firefox():
             getAllUrls(url, html, domain_id)
 
             try:
-                # driver.set_script_timeout(10)
+                driver.set_script_timeout(30)
                 response = driver.execute_script(scr)
                 print colored("script executed! on %s" % url_printable, "blue", "on_green", attrs=['bold'])
 
