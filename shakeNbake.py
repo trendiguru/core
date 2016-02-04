@@ -135,7 +135,7 @@ def firefox():
                 driver.get(url)
                 print colored("got url %s with success" % url_printable, "cyan")
             except:
-                print colored("failed getting url %s " % url_printable, "red", "on_yellow")
+                print colored("failed getting url %s " % url_printable, "blue", "on_yellow")
                 db.scraped_urls.update_one({"_id": domain_id}, {"$set": {"locked": False,
                                                                              "last_processed": last_processed}})
                 continue
@@ -146,7 +146,7 @@ def firefox():
                 html = elem.get_attribute("outerHTML")
                 print colored("got html with success on %s" % url_printable, "cyan")
             except:
-                print colored("failed getting html on %s" % url_printable, "red", "on_yellow")
+                print colored("failed getting html on %s" % url_printable, "blue", "on_yellow")
                 db.scraped_urls.update_one({"_id": domain_id}, {"$set": {"locked": False,
                                                                          "last_processed": last_processed}})
                 continue
@@ -154,7 +154,7 @@ def firefox():
             getAllUrls(url, html, domain_id)
 
             try:
-                driver.set_script_timeout(5)
+                driver.set_script_timeout(10)
                 response = driver.execute_async_script(scr)
                 print colored("script executed! on %s" % url_printable, "blue", "on_green", attrs=['bold'])
 
