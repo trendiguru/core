@@ -176,8 +176,9 @@ def firefox():
                 # driver.set_script_timeout(1)
                 driver.execute_script(scr)
                 print colored("script executed! on %s" % url_printable, "blue", "on_green", attrs=['bold'])
+                sleep(2)
                 driver.execute_script("window.scrollTo(0, document.body.scrollHeight);")
-
+                sleep(2)
                 #
                 # for x in range(40):
                 #     script = "scroll(" + str(x * 50) + "," + str(x * 50 + 50) + ")"
