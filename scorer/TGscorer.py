@@ -1,10 +1,19 @@
 import numpy as np
 import cv2
-from .. import find_similar_mongo
-from .. import background_removal
-from .. import constants
-from ..paperdoll import paperdoll_parse_enqueue
-from .. import paperdolls
+import time
+import os
+import io
+import json
+import urllib
+from joblib import Parallel, delayed
+import multiprocessing
+
+
+# from .. import find_similar_mongo
+# from .. import background_removal
+# from .. import constants
+# from ..paperdoll import paperdoll_parse_enqueue
+# from .. import paperdolls
 
 original_paperdoll_weights_dictionary = {'background': 1,
                                          'blazer': 1,
@@ -172,9 +181,6 @@ def classification_rating(goldenset_classes, testset_classes, weights_dictionary
 
 
     # classes rating calculation (7):
-    print PC
-    print NC
-    print PWC
     if testset_classes == 0:
         class_rating = 0.0
     elif (float(PWC) / len(testset_classes) + float(NC) / NWgolden) == 0:
@@ -396,26 +402,330 @@ def run_scorer(test_case_image_path, goldenset_classes, goldenset_images, filter
     return test_classes_score, test_results_score
 
 
-def lab(filtered_paperdoll=True):
-    goldenset_classes = []
-    goldenset_classes.append(['dress', 'shoes', 'bracelet'])  # 1
-    goldenset_classes.append(['dress', 'shoes', 'bracelet'])  # 2
-    goldenset_classes.append(['skirt', 'belt', 'top', 'shoes'])  # 3
-    goldenset_classes.append(['shoes', 'socks', 'dress', 'necklace'])  # 4
-    goldenset_classes.append(['dress', 'heels'])  # 5
-    goldenset_classes.append(['dress', 'heels', 'bag'])  # 6
-    goldenset_classes.append(['sneakers', 'dress', 'sunglasses', 'scarf'])  # 7
-    goldenset_classes.append(['dress', 'heels'])  # 8
-    goldenset_classes.append(['dress', 'heels'])  # 9
-    goldenset_classes.append(['dress', 'heels'])  # 10
-    goldenset_classes.append(['sandals', 'dress', 'bracelet'])  # 11
-    goldenset_classes.append(['shoes', 'dress', 'leggings'])  # 12
-    goldenset_classes.append(['boots', 'top', 'leggings'])  # 13
+###########
+# make json file:
+def fingerprint_1D(image, mask):
 
-    i = 1
-    for goldenset_classes_of_image in goldenset_classes:
-        test_case_image_path = str(i) + '.jpg'
-        print test_case_image_path
-        print goldenset_classes_of_image
-        print run_scorer(test_case_image_path, goldenset_classes_of_image, [], filtered_paperdoll)
-        i += 1
+    roi = image
+    # roi[:, :, 0] = image[:, :, 0] * (mask/255)
+    # roi[:, :, 1] = image[:, :, 1] * (mask/255)
+    # roi[:, :, 2] = image[:, :, 2] * (mask/255)
+    # cv2.imshow('L', roi)
+    # cv2.waitKey(0)
+
+    hsv = cv2.cvtColor(roi, cv2.COLOR_BGR2HSV)
+
+    #OpenCV uses  H: 0 - 180, S: 0 - 255, V: 0 - 255
+    #histograms
+    devision_factor = 1
+    bins = [180/devision_factor, 255/devision_factor, 255/devision_factor]
+    n_pixels = cv2.countNonZero(mask)
+    # weights_circumfrance = circumfrence_distance(mask)
+    # numpy's histogram:
+    # histHue = np.histogram(hsv[:, :, 0], bins=bins, normed=False, weights=weights_circumfrance, density=True)[0]
+    # histSat = np.histogram(hsv[:, :, 1], bins=bins, normed=False, weights=weights_circumfrance, density=True)[0]
+    # histInt = np.histogram(hsv[:, :, 2], bins=bins, normed=False, weights=weights_circumfrance, density=True)[0]
+
+    # opencv's histogram:
+    hist_hue = cv2.calcHist([hsv], [0], mask, [bins[0]], [0, 180])
+    hist_hue = [item for sublist in hist_hue for item in sublist]  # flatten nested
+    hist_hue = np.divide(hist_hue, n_pixels)
+
+    hist_sat = cv2.calcHist([hsv], [1], mask, [bins[1]], [0, 255])
+    hist_sat = [item for sublist in hist_sat for item in sublist]
+    hist_sat = np.divide(hist_sat, n_pixels)
+
+    hist_int = cv2.calcHist([hsv], [2], mask, [bins[2]], [0, 255])
+    hist_int = [item for sublist in hist_int for item in sublist]  # flatten nested list
+    hist_int = np.divide(hist_int, n_pixels)
+
+    # Uniformity  t(5)=sum(p.^ 2);
+    hue_uniformity = np.dot(hist_hue, hist_hue)
+    sat_uniformity = np.dot(hist_sat, hist_sat)
+    int_uniformity = np.dot(hist_int, hist_int)
+
+    # Entropy   t(6)=-sum(p. *(log2(p+ eps)));
+    eps = 1e-15
+    max_log_value = np.log2(bins)  # this is same as sum of p log p
+    l_hue = -np.log2(hist_hue + eps) / max_log_value[0]
+    hue_entropy = np.dot(hist_hue, l_hue)
+    l_sat = -np.log2(hist_sat + eps) / max_log_value[1]
+    sat_entropy = np.dot(hist_sat, l_sat)
+    l_int = -np.log2(hist_int + eps) / max_log_value[2]
+    int_entropy = np.dot(hist_int, l_int)
+
+    result_vector = [hue_uniformity, sat_uniformity, int_uniformity, hue_entropy, sat_entropy, int_entropy]
+    resultVector = np.concatenate((result_vector, hist_hue, hist_sat, hist_int), axis=0)
+
+    resultVector[6:] = resultVector[6:] * 0.05
+    resultVector[6:6+bins[0]] = resultVector[6:6+bins[0]] * 0.5
+    resultVector[6+bins[0]:6+bins[0]+bins[1]] = resultVector[6+bins[0]:6+bins[0]+bins[1]] * 0.225
+    resultVector[6+bins[0]+bins[1]:6+bins[0]+bins[1]+bins[2]] = resultVector[6+bins[0]+bins[1]:6+bins[0]+bins[1]+bins[2]] * 0.225
+
+    return resultVector
+
+
+def do4image(path2file):
+    image_dict = {'product_id': 0,
+                  'photo_id':0,
+                  'bbox': [],
+                  '1D_fp': []}
+
+    filename = path2file.split('/')[-1]
+    if filename[-4:] == '.jpg':
+        # getting data from filename string:
+        file_data = filename.split('_')
+        image_dict['product_id'] = file_data[1]
+        image_dict['photo_id'] = file_data[3]
+        bbox = [int(file_data[5]), int(file_data[6]), int(file_data[7]), int(file_data[8][:-4])]
+        image_dict['bbox'] = bbox
+        image_dict['1D_fp'] = []
+        try:
+            # adding the spatioggram data:
+            image = cv2.imread(path2file)
+            if not image.data:
+                return image_dict
+            mask = np.zeros(image.shape[:2], dtype=np.uint8)
+            mask[bbox[1]:bbox[1]+bbox[3], bbox[0]:bbox[0]+bbox[2]] = 255
+            image_dict['1D_fp'] = fingerprint_1D(image, mask).tolist()
+        except:
+            pass
+    return image_dict
+
+
+def make_json_data_at(path):
+    only_files = [f for f in os.listdir(path) if os.path.isfile(os.path.join(path, f))]
+    paths = [path] * len(only_files)
+    paths = [''.join(x) for x in zip(*[paths, only_files])]
+    # multi-processing:
+    print 'scraping data from images list @ ' + path
+    # pool = multiprocessing.Pool()
+    # json2list = pool.map(do4image, paths)
+    json2list = []
+    for file in only_files:
+        json2list.append(do4image(path+file))
+
+    output_json_filename = 'finger_print2_data_' + path.split('/')[-2] + '.json'
+    print 'saving data from images list, to ' + output_json_filename + '.JSON @ run path'
+    # Writing JSON data:
+    j = json.dumps(json2list)
+    f = open(output_json_filename, 'w')
+    f.write(j)
+    f.close()
+    return
+
+#loading and analysis:
+def load_json_data_at(path):
+    with open(path) as data_file:
+        data = json.load(data_file)
+    return data
+
+
+def np_hist_to_cv(np_histogram_output):
+    # counts, bin_edges = np_histogram_output
+    counts = np_histogram_output
+    return counts.ravel().astype('float32')
+
+
+def chi2_distance(histA, histB):
+    eps = 1e-10
+    # compute the chi-squared distance
+    d = 0.5 * np.sum([((a - b) ** 2) / (a + b + eps)
+        for (a, b) in zip(histA, histB)])
+    # return the chi-squared distance
+    return d
+
+
+def fingerprints_distance(query_fp, target_fp, distance_function):
+    '''
+    :param spaciogram_1:
+    :param spaciogram_2:
+    :param filter_rank:
+    :return:
+    '''
+    ############ CHECKS ############
+    # check if spaciogram_1.shape == target_fp.shape:
+    rating = []
+    query_fp = np_hist_to_cv(np.array(query_fp))
+    target_fp = np_hist_to_cv(np.array(target_fp))
+    if query_fp.shape != target_fp.shape:
+        # print 'Error: the dimensions of query_fp and target_fp are not equal! \n' \
+        #       'shapes are: 1st - ' + str(np.array(query_fp).shape) + '\n' \
+        #       'shapes are: 2nd - ' + str(np.array(target_fp).shape)
+        return rating
+
+    query = []
+    for el in query_fp:
+        query.append([el])
+    query_fp = query
+    query = []
+    for el in target_fp:
+        query.append([el])
+    target_fp = query
+
+    # method = cv2.HISTCMP_BHATTACHARYYA
+    # HISTCMP_CORREL Correlation
+    # HISTCMP_CHISQR Chi-Square
+    # HISTCMP_INTERSECT Intersection
+    # HISTCMP_BHATTACHARYYA Bhattacharyya distance
+    # HISTCMP_HELLINGER Synonym for HISTCMP_BHATTACHARYYA
+    # HISTCMP_CHISQR_ALT
+    # HISTCMP_KL_DIV
+    if distance_function == 1:
+        rating = cv2.compareHist(np.array(query_fp).astype('float32'), np.array(target_fp).astype('float32'), cv2.HISTCMP_CORREL)
+    elif distance_function == 2:
+        rating = cv2.compareHist(np.array(query_fp).astype('float32'), np.array(target_fp).astype('float32'), cv2.HISTCMP_BHATTACHARYYA)
+    # rating = chi2_distance(query_fp, target_fp)
+    # rating = emd(query_fp, target_fp)
+    return rating
+
+
+def sort_by_fingerprint_1D(query_photo_id, data, distance_function):
+    sorted_list_of_simillar_images = []
+    # load the json database and find the fingequery_fprprint of the desiered image:
+    query_dictionary = filter(lambda query: int(query['photo_id']) == int(query_photo_id), data)
+    if not query_dictionary:
+        return sorted_list_of_simillar_images
+    query_fp = query_dictionary[0]['1D_fp']
+
+    # calculate distances from query:
+    for image_data in data:
+        target_fp = image_data['1D_fp']
+        distance = fingerprints_distance(query_fp, target_fp, distance_function)
+        if distance:
+            sorted_list_of_simillar_images.append([int(image_data['product_id']), int(image_data['photo_id']), distance])
+            # sort the list of distances:
+            sorted_list_of_simillar_images.sort(key=lambda x: x[2])
+
+    return sorted_list_of_simillar_images
+
+
+def fp_rating(product_id, sorted_list_of_simillar_images):
+    product_sorted_list = np.array(sorted_list_of_simillar_images)[:, 0]
+    database_size = product_sorted_list.shape[0]
+    match_locations = (1 + np.where(product_sorted_list == product_id)[0]).astype('float32') / database_size
+    # return nothing if there is no match:
+    if len(match_locations) == 0:
+        return 0
+
+    rating = 1 - np.sum(match_locations) / match_locations.shape[0]
+    return rating
+
+
+##########
+
+def lab_json():
+    t = time.time()
+    train_pairs_dresses_images_path = '/home/nate/Desktop/meta/dataset/train_pairs_dresses/'
+    make_json_data_at(train_pairs_dresses_images_path)
+    print 'elapsed time: ' + str(time.time() - t)
+    t = time.time()
+    train_pairs_dresses_images_path = '/home/nate/Desktop/meta/dataset/test_pairs_dresses/'
+    make_json_data_at(train_pairs_dresses_images_path)
+    print 'elapsed time: ' + str(time.time() - t)
+
+
+def do4image_rating(image_data):
+    image = image_data
+    product_id = int(image['product_id'])
+    sorted_list_of_simillar_images_method_1 = sort_by_fingerprint_1D(image['photo_id'], data, 1)
+    sorted_list_of_simillar_images_method_2 = sort_by_fingerprint_1D(image['photo_id'], data, 2)
+    rating_1 = fp_rating(product_id, sorted_list_of_simillar_images_method_1)
+    rating_2 = fp_rating(product_id, sorted_list_of_simillar_images_method_2)
+    return [rating_1, rating_2]
+
+def lab_fp_rating():
+
+    data_length = len(data)
+    print 'data set length is: ' + str(data_length) + ' samples.'
+
+    fp_methods_rating = []
+    # counter = 0
+    # for image in data:
+    #     product_id = int(image['product_id'])
+    #     sorted_list_of_simillar_images_method_1 = sort_by_fingerprint_1D(image['photo_id'], data, 1)
+    #     sorted_list_of_simillar_images_method_2 = sort_by_fingerprint_1D(image['photo_id'], data, 2)
+    #     rating_1 = fp_rating(product_id, sorted_list_of_simillar_images_method_1)
+    #     rating_2 = fp_rating(product_id, sorted_list_of_simillar_images_method_2)
+    #     fp_methods_rating.append([rating_1, rating_2])
+        # counter += 1
+        # if counter == 30:
+        #     print 1.0 * counter / data_length
+
+    pool = multiprocessing.Pool()
+    fp_methods_rating = pool.map(do4image_rating, data)
+
+    list_of_method_rating_listing = fp_methods_rating
+    # output_json_filename = 'list_of_method_rating_listing.json'
+    # Writing JSON data:
+    # j = json.dumps(list_of_method_rating_listing)
+    # f = open(output_json_filename, 'w')
+    # f.write(j)
+    # f.write(j)
+    # f.close()
+
+    np.savetxt("foo.csv", np.asarray(list_of_method_rating_listing), delimiter=",")
+    print 'finished assessing distances and saved to current folder'
+
+
+
+
+json_data_file_path_1 = 'finger_print2_data_test_pairs_dresses.json'
+json_data_file_path_2 = 'finger_print2_data_train_pairs_dresses.json'
+
+data1 = load_json_data_at(json_data_file_path_1)
+# data2 = load_json_data_at(json_data_file_path_2)
+data = data1 #+ data2
+
+
+
+
+
+
+def lab_classes():
+    goldenset_classes = []
+
+    goldenset_classes.append(['skirt', 'top', 'boots'])  # 1
+    goldenset_classes.append(['dress', 'belt', 'shoes', 'leggings'])  # 2
+    goldenset_classes.append(['dress'])  # 3
+    goldenset_classes.append(['dress', 'shoes'])  # 4
+    goldenset_classes.append(['dress', 'top', 'belt', 'boots', 'bag'])  # 5
+    goldenset_classes.append(['dress', 'heels'])  # 6
+    goldenset_classes.append(['dress', 'belt', 'cardigan'])  # 7
+    goldenset_classes.append(['dress', 'shoes'])  # 8
+    goldenset_classes.append(['dress', 'shoes'])  # 9
+    goldenset_classes.append(['dress', 'belt', 'cardigan', 'heels', 'bag'])  # 10
+    goldenset_classes.append(['dress', 'cardigan'])  # 11
+    goldenset_classes.append(['cardigan', 'belt', 'dress', 'leggings', 'shoes'])  # 12
+    goldenset_classes.append(['dress', 'shoes'])  # 13
+    goldenset_classes.append(['blouse', 'dress'])  # 14
+    goldenset_classes.append(['dress', 'belt', 'heels'])  # 15
+
+    ppd_classes = []
+    ppd_classes.append(['belt', 'boots', 'dress', 'skirt'])  # 1
+    ppd_classes.append(['bag', 'dress', 'top'])  # 2
+    ppd_classes.append(['jacket', 'jeans', 'skirt'])  # 3
+    ppd_classes.append(['bag', 'belt', 'dress', 'pumps', 'shoes'])  # 4
+    ppd_classes.append(['bag', 'belt', 'dress', 'heels', 'shoes', 'shorts', 'skirt', 'top'])  # 5
+    ppd_classes.append(['bag', 'dress', 'shirt', 'shoes'])  # 6
+    ppd_classes.append(['bag', 'dress', 'jeans', 'pants', 'shoes', 't-shirt'])  # 7
+    ppd_classes.append(['bag', 'dress', 'shoes'])  # 8
+    ppd_classes.append(['dress', 'shoes'])  # 8
+    ppd_classes.append(['bag', 'belt', 'blouse', 'dress', 'shoes', 'shorts', 'skirt', 'top'])  # 10
+    ppd_classes.append(['bag', 'belt', 'cardigan', 'dress', 'shoes'])  # 11
+    ppd_classes.append(['dress', 'flats', 'shoes', 'sunglasses', 'wedges'])  # 12
+    ppd_classes.append(['bag', 'belt', 'dress', 'shoes'])  # 13
+    ppd_classes.append(['blouse', 'dress'])  # 14
+    ppd_classes.append(['belt', 'dress', 'shoes'])  # 15
+
+    index_image_class_rating = []
+    for i in range(len(goldenset_classes)):
+        index_image_class_rating = classification_rating(goldenset_classes[i], ppd_classes[i], original_paperdoll_weights_dictionary)
+        print index_image_class_rating
+
+
+
+
+
+# lab_json()
+lab_fp_rating()
