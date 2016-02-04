@@ -39,6 +39,7 @@ whitelist = ["refinery29.com", "maxmodels.pl", "stylebistro.com", "fashion.ifeng
 
 
 def insertDomains():
+    items = []
     for domain in whitelist:
         item = {"name": domain,
                 "locked": False,
@@ -46,7 +47,8 @@ def insertDomains():
                 "last_processed": 0,
                 "url_count": 1,
                 "url_list": ["http://www." + domain]}
-        db.scraped_urls.insert_one(item)
+        items.append(item)
+    db.scraped_urls.insert_many(items)
 
 
 def screen(workers):
@@ -87,7 +89,7 @@ def getAllUrls(url, html, obid):
             # extract link url from the anchor
             link = anchor.attrs["href"] if "href" in anchor.attrs else ''
             if not link.startswith(domain_name):
-                if link.startswith('/'):
+                if link.startswith('/') and len(link) > 3:
                     link = url + link
                 else:
                     # print ("link to a different site... not enqueued")
@@ -115,9 +117,11 @@ def firefox():
         domains_count = domains.count()
         if domains_count > 0:
             rand = random.randint(0, domains_count - 1)
-            domain = domains[rand]
+            try:
+                domain = domains[rand]
+            except:
+                continue
             domain_id = domain["_id"]
-            db.scraped_urls.update_one({"_id": domain_id}, {"$set": {"locked": True}})
             url_count = domain["url_count"]
             last_processed = domain["last_processed"]
             current_count = len(domain["url_list"])
@@ -127,6 +131,7 @@ def firefox():
                 db.scraped_urls.update_one({"_id": domain_id}, {"$set": {"paused": True}})
                 print colored("domain %s is paused!!! " % domain["name"], "yellow")
                 continue
+            db.scraped_urls.update_one({"_id": domain_id}, {"$set": {"locked": True}})
             url = domain["url_list"][last_processed]
             url_printable = url.encode('ascii', 'ignore')  # conversion of unicode type to string type
             last_processed += 1
@@ -137,11 +142,11 @@ def firefox():
             except:
                 print colored("URL failed on %s" % url_printable, "blue", "on_yellow")
                 db.scraped_urls.update_one({"_id": domain_id}, {"$set": {"locked": False,
-                                                                             "last_processed": last_processed}})
+                                                                         "last_processed": last_processed}})
                 continue
 
             try:
-                driver.set_page_load_timeout(2)
+                # driver.set_page_load_timeout(2)
                 elem = driver.find_element_by_xpath("//*")
                 html = elem.get_attribute("outerHTML")
                 # print colored("got html with success on %s" % url_printable, "cyan")
@@ -149,38 +154,48 @@ def firefox():
                 print colored("HTML failed on %s" % url_printable, "blue", "on_yellow")
                 db.scraped_urls.update_one({"_id": domain_id}, {"$set": {"locked": False,
                                                                          "last_processed": last_processed}})
-                driver.execute_script("window.stop();")
+                # driver.execute_script("window.stop();")
                 continue
 
             getAllUrls(url, html, domain_id)
 
             try:
-                driver.set_script_timeout(10)
-                response = driver.execute_script(scr)
+                # driver.set_script_timeout(1)
+                driver.execute_script(scr)
                 print colored("script executed! on %s" % url_printable, "blue", "on_green", attrs=['bold'])
 
-                # for x in range(8):
-                #     script = "scroll(" + str(x * 500) + "," + str(x * 500 + 500) + ")"
-                #     driver.execute_script(script)
-                #     sleep(0.25)
+                for x in range(4):
+                    script = "scroll(" + str(x * 1000) + "," + str(x * 1000 + 1000) + ")"
+                    driver.execute_script(script)
+                    sleep(0.25)
 
             except:
                 print colored("EXECUTE failed on %s " % url_printable, "red", "on_yellow")
 
             db.scraped_urls.update_one({"_id": domain["_id"]}, {"$set": {"locked": False,
                                                                          "last_processed": last_processed}})
-            driver.execute_script("window.stop();")
+            # driver.execute_script("window.stop();")
+
         else:
+            # wait and try again
+            sleep(2)
+            domains = db.scraped_urls.find({"locked": False, "paused": False})
+            domains_count = domains.count()
+            if domains_count > 0:
+                continue
+            # wait didnt help - check for jams
             all_domains = db.scraped_urls.find()
             updated = 0
             for domain in all_domains:
+                if domain["locked"]:
+                    continue
                 url_count = domain["url_count"]
                 current_count = len(domain["url_list"])
                 if current_count > url_count:
                     url_count = current_count
                 last_processed = domain["last_processed"]
                 if last_processed < url_count and last_processed < MAX_PER_DOMAIN:
-                    db.scraped_urls.update_one({"_id": domain["_id"]}, {"$set": {"paused": False, "locked": False}})
+                    db.scraped_urls.update_one({"_id": domain["_id"]}, {"$set": {"paused": False}})
                     print colored("domain %s is resumed!!! " % domain["name"], "yellow")
                     updated += 1
                     continue
