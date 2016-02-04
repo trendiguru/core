@@ -109,7 +109,7 @@ def getAllUrls(url, html, obid):
 
 def firefox():
     driver = webdriver.Firefox()
-    scr = open("/var/www/latest/b_main1.js").read()
+    scr = open("/var/www/latest/b_main.js").read()
     while True:
         domains = db.scraped_urls.find({"locked": False, "paused": False})
         domains_count = domains.count()
