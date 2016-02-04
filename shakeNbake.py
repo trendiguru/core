@@ -24,27 +24,30 @@ import pymongo
 from . import tmpGuard
 
 db = pymongo.MongoClient(host="mongodb1-instance-1", port=27017).mydb
-MAX_PER_DOMAIN = 1000
+MAX_PER_DOMAIN = 5000
 
-whitelist = ["manrepeller.com", "wishwishwish.net", "parkandcube.com", "stellaswardrobe.com", "cocosteaparty.com",
-             "5inchandup.blogspot.co.uk", "garypeppergirl.com", "camilleovertherainbow.com", "streetpeeper.com",
-             "the-frugality.com", "disneyrollergirl.net", "weworewhat.com", "wearingittoday.co.uk",
-             "ella-lapetiteanglaise.com",
-             "advancedstyle.blogspot.co.uk", "indtl.com", "redcarpet-fashionawards.com", "nadiaaboulhosn.com",
-             "enbrogue.com",
-             "peonylim.com", "vanessajackman.blogspot.co.uk", "alltheprettybirds.com", "lisegrendene.com.br",
-             "nataliehartleywears.blogspot.co.uk", "tommyton.com", "stylebubble.co.uk", "pandorasykes.com",
-             "theblondesalad.com", 'notorious-mag.com',
-             "thesartorialist.com", "bryanboy.com", "bunte.de", "gala.fr",
-             "pudelek.pl", "tmz.com", "super.cz", "ew.com", "entretenimento.r7.com", "hollywoodlife.com",
-             "kapanlagi.com", "zimbio.com", "jezebel.com", "purepeople.com", "jeanmarcmorandini.com",
-             "radaronline.com", "etonline.com", "voici.fr", "topito.com", "ciudad.com.ar", "perezhilton.com",
-             "koreaboo.com", "cztv.com", "virgula.uol.com.br", "suggest.com", "justjared.com", "therichest.com",
-             "pressroomvip.com", "dagospia.com", "closermag.fr", "kiskegyed.hu", "pagesix.com", "spynews.ro",
-             "digitalspy.com", "purepeople.com.br", "thepiratebay.uk.net", "sopitas.com", "deadline.com",
-             "starpulse.com", "multikino.pl", "zakzak.co.jp", "primiciasya.com", "celebuzz.com", "luckstars.co",
-             "ratingcero.com", "non-stop-people.com", "tochka.net", "toofab.com", "extra.cz", "kozaczek.pl",
-             "huabian.com", "bossip.com", "spletnik.ru", "wetpaint.com"]
+whitelist = ["gettyimages.com"]
+
+
+# "manrepeller.com", "wishwishwish.net", "parkandcube.com", "stellaswardrobe.com", "cocosteaparty.com",
+#              "5inchandup.blogspot.co.uk", "garypeppergirl.com", "camilleovertherainbow.com", "streetpeeper.com",
+#              "the-frugality.com", "disneyrollergirl.net", "weworewhat.com", "wearingittoday.co.uk",
+#              "ella-lapetiteanglaise.com",
+#              "advancedstyle.blogspot.co.uk", "indtl.com", "redcarpet-fashionawards.com", "nadiaaboulhosn.com",
+#              "enbrogue.com",
+#              "peonylim.com", "vanessajackman.blogspot.co.uk", "alltheprettybirds.com", "lisegrendene.com.br",
+#              "nataliehartleywears.blogspot.co.uk", "tommyton.com", "stylebubble.co.uk", "pandorasykes.com",
+#              "theblondesalad.com", 'notorious-mag.com',
+#              "thesartorialist.com", "bryanboy.com", "bunte.de", "gala.fr",
+#              "pudelek.pl", "tmz.com", "super.cz", "ew.com", "entretenimento.r7.com", "hollywoodlife.com",
+#              "kapanlagi.com", "zimbio.com", "jezebel.com", "purepeople.com", "jeanmarcmorandini.com",
+#              "radaronline.com", "etonline.com", "voici.fr", "topito.com", "ciudad.com.ar", "perezhilton.com",
+#              "koreaboo.com", "cztv.com", "virgula.uol.com.br", "suggest.com", "justjared.com", "therichest.com",
+#              "pressroomvip.com", "dagospia.com", "closermag.fr", "kiskegyed.hu", "pagesix.com", "spynews.ro",
+#              "digitalspy.com", "purepeople.com.br", "thepiratebay.uk.net", "sopitas.com", "deadline.com",
+#              "starpulse.com", "multikino.pl", "zakzak.co.jp", "primiciasya.com", "celebuzz.com", "luckstars.co",
+#              "ratingcero.com", "non-stop-people.com", "tochka.net", "toofab.com", "extra.cz", "kozaczek.pl",
+#              "huabian.com", "bossip.com", "spletnik.ru", "wetpaint.com"]
 
 
 def insertDomains():
@@ -120,7 +123,7 @@ def getAllUrls(url, html, obid):
 
 def firefox():
     driver = webdriver.Firefox()
-    driver.set_script_timeout(15)
+    driver.set_script_timeout(55)
     driver.set_page_load_timeout(2)
 
     scr = open("/var/www/latest/b_main.js").read()
@@ -145,7 +148,7 @@ def firefox():
                 db.scraped_urls.update_one({"_id": domain_id}, {"$set": {"paused": True}})
                 print colored("domain %s is paused!!! " % domain["name"], "yellow")
                 continue
-            db.scraped_urls.update_one({"_id": domain_id}, {"$set": {"locked": True}})
+            db.scraped_urls.update_one({"_id": domain_id}, {"$set": {"locked": True, "last_processed": last_processed}})
             url = domain["url_list"][last_processed]
             url_printable = url.encode('ascii', 'ignore')  # conversion of unicode type to string type
             last_processed += 1
@@ -155,8 +158,8 @@ def firefox():
                 # print colored("got url %s with success" % url_printable, "cyan")
             except:
                 print colored("URL failed on %s" % url_printable, "blue", "on_yellow")
-                db.scraped_urls.update_one({"_id": domain_id}, {"$set": {"locked": False,
-                                                                         "last_processed": last_processed}})
+                db.scraped_urls.update_one({"_id": domain_id}, {"$set": {"locked": False}})
+
                 continue
 
             try:
@@ -166,8 +169,7 @@ def firefox():
                 # print colored("got html with success on %s" % url_printable, "cyan")
             except:
                 print colored("HTML failed on %s" % url_printable, "blue", "on_yellow")
-                db.scraped_urls.update_one({"_id": domain_id}, {"$set": {"locked": False,
-                                                                         "last_processed": last_processed}})
+                db.scraped_urls.update_one({"_id": domain_id}, {"$set": {"locked": False}})
                 # driver.execute_script("window.stop();")
                 continue
 
@@ -177,7 +179,8 @@ def firefox():
                 # driver.set_script_timeout(1)
                 driver.execute_async_script(scr)
                 print colored("script executed! on %s" % url_printable, "blue", "on_green", attrs=['bold'])
-                sleep(15)
+
+
                 #
                 # for x in range(40):
                 #     script = "scroll(" + str(x * 50) + "," + str(x * 50 + 50) + ")"
@@ -187,10 +190,9 @@ def firefox():
             except:
                 print colored("EXECUTE failed on %s " % url_printable, "red", "on_yellow")
 
-            db.scraped_urls.update_one({"_id": domain["_id"]}, {"$set": {"locked": False,
-                                                                         "last_processed": last_processed}})
+            db.scraped_urls.update_one({"_id": domain["_id"]}, {"$set": {"locked": False}})
             # driver.execute_script("window.stop();")
-
+            sleep(60)
         else:
             # wait and try again
             sleep(2)
