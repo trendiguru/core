@@ -121,6 +121,8 @@ def firefox():
                 domain = domains[rand]
             except:
                 continue
+            if domain["locked"]:
+                continue
             domain_id = domain["_id"]
             url_count = domain["url_count"]
             last_processed = domain["last_processed"]
