@@ -122,7 +122,6 @@ def firefox():
             except:
                 continue
             domain_id = domain["_id"]
-            db.scraped_urls.update_one({"_id": domain_id}, {"$set": {"locked": True}})
             url_count = domain["url_count"]
             last_processed = domain["last_processed"]
             current_count = len(domain["url_list"])
@@ -132,6 +131,7 @@ def firefox():
                 db.scraped_urls.update_one({"_id": domain_id}, {"$set": {"paused": True}})
                 print colored("domain %s is paused!!! " % domain["name"], "yellow")
                 continue
+            db.scraped_urls.update_one({"_id": domain_id}, {"$set": {"locked": True}})
             url = domain["url_list"][last_processed]
             url_printable = url.encode('ascii', 'ignore')  # conversion of unicode type to string type
             last_processed += 1
