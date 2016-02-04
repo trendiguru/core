@@ -89,7 +89,7 @@ def getAllUrls(url, html, obid):
             # extract link url from the anchor
             link = anchor.attrs["href"] if "href" in anchor.attrs else ''
             if not link.startswith(domain_name):
-                if link.startswith('/'):
+                if link.startswith('/') and len(link) > 3:
                     link = url + link
                 else:
                     # print ("link to a different site... not enqueued")
@@ -160,14 +160,14 @@ def firefox():
             getAllUrls(url, html, domain_id)
 
             try:
-                driver.set_script_timeout(1)
-                response = driver.execute_script(scr)
+                # driver.set_script_timeout(1)
+                driver.execute_script(scr)
                 print colored("script executed! on %s" % url_printable, "blue", "on_green", attrs=['bold'])
 
-                # for x in range(8):
-                #     script = "scroll(" + str(x * 500) + "," + str(x * 500 + 500) + ")"
-                #     driver.execute_script(script)
-                #     sleep(0.25)
+                for x in range(4):
+                    script = "scroll(" + str(x * 1000) + "," + str(x * 1000 + 1000) + ")"
+                    driver.execute_script(script)
+                    sleep(0.25)
 
             except:
                 print colored("EXECUTE failed on %s " % url_printable, "red", "on_yellow")
