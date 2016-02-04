@@ -64,7 +64,7 @@ def screen(workers):
 
 def processes(w):
     for i in range(int(w)):
-        browseme = subprocess.Popen(["sudo ./xvfb-run-safe.sh python -m trendi.shakeNbake -f firefox &"],
+        browseme = subprocess.Popen(["sudo ./xvfb-run-safe.sh python -m trendi.shakeNbake -f firefox"],
                                     shell=True)
         print colored("firefox %s is opened" % (str(i)), 'green')
 
@@ -133,9 +133,9 @@ def firefox():
 
             try:
                 driver.get(url)
-                print colored("got url %s with success" % url_printable, "cyan")
+                # print colored("got url %s with success" % url_printable, "cyan")
             except:
-                print colored("failed getting url %s " % url_printable, "blue", "on_yellow")
+                print colored("URL failed on %s" % url_printable, "blue", "on_yellow")
                 db.scraped_urls.update_one({"_id": domain_id}, {"$set": {"locked": False,
                                                                              "last_processed": last_processed}})
                 continue
@@ -144,18 +144,19 @@ def firefox():
                 driver.set_page_load_timeout(2)
                 elem = driver.find_element_by_xpath("//*")
                 html = elem.get_attribute("outerHTML")
-                print colored("got html with success on %s" % url_printable, "cyan")
+                # print colored("got html with success on %s" % url_printable, "cyan")
             except:
-                print colored("failed getting html on %s" % url_printable, "blue", "on_yellow")
+                print colored("HTML failed on %s" % url_printable, "blue", "on_yellow")
                 db.scraped_urls.update_one({"_id": domain_id}, {"$set": {"locked": False,
                                                                          "last_processed": last_processed}})
+                driver.execute_script("window.stop();")
                 continue
 
             getAllUrls(url, html, domain_id)
 
             try:
                 driver.set_script_timeout(10)
-                response = driver.execute_async_script(scr)
+                response = driver.execute_script(scr)
                 print colored("script executed! on %s" % url_printable, "blue", "on_green", attrs=['bold'])
 
                 # for x in range(8):
@@ -164,7 +165,7 @@ def firefox():
                 #     sleep(0.25)
 
             except:
-                print colored("url %s : script execution failed!!!" % url_printable, "red", "on_yellow")
+                print colored("EXECUTE failed on %s " % url_printable, "red", "on_yellow")
 
             db.scraped_urls.update_one({"_id": domain["_id"]}, {"$set": {"locked": False,
                                                                          "last_processed": last_processed}})
