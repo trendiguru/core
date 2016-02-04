@@ -121,7 +121,7 @@ def getAllUrls(url, html, obid):
 
 def firefox():
     driver = webdriver.Firefox()
-    driver.set_script_timeout(55)
+    driver.set_script_timeout(10)
     driver.set_page_load_timeout(2)
 
     scr = open("/var/www/latest/b_main.js").read()
@@ -165,19 +165,18 @@ def firefox():
                 elem = driver.find_element_by_xpath("//*")
                 html = elem.get_attribute("outerHTML")
                 # print colored("got html with success on %s" % url_printable, "cyan")
+                getAllUrls(url, html, domain_id)
             except:
                 print colored("HTML failed on %s" % url_printable, "blue", "on_yellow")
-                db.scraped_urls.update_one({"_id": domain_id}, {"$set": {"locked": False}})
-                # driver.execute_script("window.stop();")
-                continue
-
-            getAllUrls(url, html, domain_id)
+                # db.scraped_urls.update_one({"_id": domain_id}, {"$set": {"locked": False}})
+                # # driver.execute_script("window.stop();")
+                # continue
 
             try:
                 # driver.set_script_timeout(1)
                 driver.execute_async_script(scr)
                 print colored("script executed! on %s" % url_printable, "blue", "on_green", attrs=['bold'])
-
+                driver.execute_script("window.scrollTo(0, document.body.scrollHeight);")
 
                 #
                 # for x in range(40):
@@ -190,20 +189,18 @@ def firefox():
 
             db.scraped_urls.update_one({"_id": domain["_id"]}, {"$set": {"locked": False}})
             # driver.execute_script("window.stop();")
-            sleep(60)
+
         else:
-            # wait and try again
-            sleep(2)
-            domains = db.scraped_urls.find({"locked": False, "paused": False})
+            # check if it because all are locked
+            domains = db.scraped_urls.find({"locked": False})
             domains_count = domains.count()
-            if domains_count > 0:
+            if domains_count == 0:
+                sleep(2)
                 continue
-            # wait didnt help - check for jams
+            # check for jams
             all_domains = db.scraped_urls.find()
             updated = 0
             for domain in all_domains:
-                if domain["locked"]:
-                    continue
                 url_count = domain["url_count"]
                 current_count = len(domain["url_list"])
                 if current_count > url_count:
