@@ -154,7 +154,7 @@ def firefox():
                 print colored("HTML failed on %s" % url_printable, "blue", "on_yellow")
                 db.scraped_urls.update_one({"_id": domain_id}, {"$set": {"locked": False,
                                                                          "last_processed": last_processed}})
-                driver.execute_script("window.stop();")
+                # driver.execute_script("window.stop();")
                 continue
 
             getAllUrls(url, html, domain_id)
@@ -174,7 +174,7 @@ def firefox():
 
             db.scraped_urls.update_one({"_id": domain["_id"]}, {"$set": {"locked": False,
                                                                          "last_processed": last_processed}})
-            driver.execute_script("window.stop();")
+            # driver.execute_script("window.stop();")
 
         else:
             # wait and try again
