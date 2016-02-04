@@ -26,16 +26,25 @@ from . import tmpGuard
 db = pymongo.MongoClient(host="mongodb1-instance-1", port=27017).mydb
 MAX_PER_DOMAIN = 1000
 
-whitelist = ["refinery29.com", "maxmodels.pl", "stylebistro.com", "fashion.ifeng.com", "tajbao.com",
-             "highsnobiety.com", "osinka.ru", "trendsylvania.net", "whowhatwear.com", "fashiony.ru",
-             "fashion.sina.com.cn", "lookbook.nu", "vogue.com.tw", "thefashionspot.com",
-             "vogue.com.cn", "thehunt.com", "fashionbeans.com", "models.com",
-             "fashion.sohu.com", "perfecte.md", "cosmopolitan.lt", "wwd.com", "enrz.com",
-             "moteris.lt", "businessoffashion.com", "styleblazer.com", "theblondesalad.com", "fashiongonerogue.com",
-             "thesartorialist.com", "cupcakesandcashmere.com", "fashion.walla.co.il", "thegloss.com", "vogue.com.au",
-             "panele.lt", "af-110.com", "collegefashion.net", "niv.ru", "desired.de", "fashionstylemag.com",
-             "guimi.com", "fashionbank.ru", "vmagazine.com", "garancedore.fr", "thefashionisto.com",
-             "fashionising.com", "modelmanagement.com"]
+whitelist = ["manrepeller.com", "wishwishwish.net", "parkandcube.com", "stellaswardrobe.com", "cocosteaparty.com",
+             "5inchandup.blogspot.co.uk", "garypeppergirl.com", "camilleovertherainbow.com", "streetpeeper.com",
+             "the-frugality.com", "disneyrollergirl.net", "weworewhat.com", "wearingittoday.co.uk",
+             "ella-lapetiteanglaise.com",
+             "advancedstyle.blogspot.co.uk", "indtl.com", "redcarpet-fashionawards.com", "nadiaaboulhosn.com",
+             "enbrogue.com",
+             "peonylim.com", "vanessajackman.blogspot.co.uk", "alltheprettybirds.com", "lisegrendene.com.br",
+             "nataliehartleywears.blogspot.co.uk", "tommyton.com", "stylebubble.co.uk", "pandorasykes.com",
+             "theblondesalad.com", 'notorious-mag.com',
+             "thesartorialist.com", "bryanboy.com", "bunte.de", "gala.fr",
+             "pudelek.pl", "tmz.com", "super.cz", "ew.com", "entretenimento.r7.com", "hollywoodlife.com",
+             "kapanlagi.com", "zimbio.com", "jezebel.com", "purepeople.com", "jeanmarcmorandini.com",
+             "radaronline.com", "etonline.com", "voici.fr", "topito.com", "ciudad.com.ar", "perezhilton.com",
+             "koreaboo.com", "cztv.com", "virgula.uol.com.br", "suggest.com", "justjared.com", "therichest.com",
+             "pressroomvip.com", "dagospia.com", "closermag.fr", "kiskegyed.hu", "pagesix.com", "spynews.ro",
+             "digitalspy.com", "purepeople.com.br", "thepiratebay.uk.net", "sopitas.com", "deadline.com",
+             "starpulse.com", "multikino.pl", "zakzak.co.jp", "primiciasya.com", "celebuzz.com", "luckstars.co",
+             "ratingcero.com", "non-stop-people.com", "tochka.net", "toofab.com", "extra.cz", "kozaczek.pl",
+             "huabian.com", "bossip.com", "spletnik.ru", "wetpaint.com"]
 
 
 def insertDomains():
@@ -166,10 +175,10 @@ def firefox():
                 driver.execute_script(scr)
                 print colored("script executed! on %s" % url_printable, "blue", "on_green", attrs=['bold'])
 
-                for x in range(4):
-                    script = "scroll(" + str(x * 1000) + "," + str(x * 1000 + 1000) + ")"
+                for x in range(40):
+                    script = "scroll(" + str(x * 50) + "," + str(x * 50 + 50) + ")"
                     driver.execute_script(script)
-                    sleep(0.25)
+                    sleep(0.05)
 
             except:
                 print colored("EXECUTE failed on %s " % url_printable, "red", "on_yellow")
