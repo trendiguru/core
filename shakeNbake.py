@@ -64,7 +64,7 @@ def insertDomains():
 
 
 def screen(workers):
-    workers = min(int(workers), len(whitelist))
+    # workers = min(int(workers), len(whitelist))
     print colored("######  starting the scraper  ######", "green", attrs=["bold"])
     db.scraped_urls.delete_many({})
     tmpGuard.mainDelete("xvfb")
