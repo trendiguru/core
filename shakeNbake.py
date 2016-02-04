@@ -148,10 +148,10 @@ def firefox():
                 db.scraped_urls.update_one({"_id": domain_id}, {"$set": {"paused": True}})
                 print colored("domain %s is paused!!! " % domain["name"], "yellow")
                 continue
+            last_processed += 1
             db.scraped_urls.update_one({"_id": domain_id}, {"$set": {"locked": True, "last_processed": last_processed}})
             url = domain["url_list"][last_processed]
             url_printable = url.encode('ascii', 'ignore')  # conversion of unicode type to string type
-            last_processed += 1
 
             try:
                 driver.get(url)
