@@ -14,6 +14,7 @@ logic:
 import subprocess
 from time import sleep
 import argparse
+import random
 
 from bs4 import BeautifulSoup
 from selenium import webdriver
@@ -108,17 +109,22 @@ def getAllUrls(url, html, obid):
 
 def firefox():
     driver = webdriver.Firefox()
-    scr = open("/var/www/latest/b_main1.js").read()
+    scr = open("/var/www/latest/b_main.js").read()
     while True:
-        domain = db.scraped_urls.find_one_and_update({"locked": False, "paused": False}, {"$set": {"locked": True}})
-        if domain:
+        domains = db.scraped_urls.find({"locked": False, "paused": False})
+        domains_count = domains.count()
+        if domains_count > 0:
+            rand = random.randint(0, domains_count - 1)
+            domain = domains[rand]
+            domain_id = domain["_id"]
+            db.scraped_urls.update_one({"_id": domain_id}, {"$set": {"locked": True}})
             url_count = domain["url_count"]
             last_processed = domain["last_processed"]
             current_count = len(domain["url_list"])
             if current_count > url_count:
                 url_count = current_count
             if last_processed >= url_count or last_processed > MAX_PER_DOMAIN:
-                db.scraped_urls.update_one({"_id": domain["_id"]}, {"$set": {"paused": True}})
+                db.scraped_urls.update_one({"_id": domain_id}, {"$set": {"paused": True}})
                 print colored("domain %s is paused!!! " % domain["name"], "yellow")
                 continue
             url = domain["url_list"][last_processed]
@@ -130,8 +136,7 @@ def firefox():
                 print colored("got url %s with success" % url_printable, "cyan")
             except:
                 print colored("failed getting url %s " % url_printable, "red", "on_yellow")
-                sleep(2)
-                db.scraped_urls.update_one({"_id": domain["_id"]}, {"$set": {"locked": False,
+                db.scraped_urls.update_one({"_id": domain_id}, {"$set": {"locked": False,
                                                                              "last_processed": last_processed}})
                 continue
 
@@ -141,14 +146,14 @@ def firefox():
                 print colored("got html with success on %s" % url_printable, "cyan")
             except:
                 print colored("failed getting html on %s" % url_printable, "red", "on_yellow")
-                db.scraped_urls.update_one({"_id": domain["_id"]}, {"$set": {"locked": False,
-                                                                             "last_processed": last_processed}})
+                db.scraped_urls.update_one({"_id": domain_id}, {"$set": {"locked": False,
+                                                                         "last_processed": last_processed}})
                 continue
 
-            getAllUrls(url, html, domain["_id"])
+            getAllUrls(url, html, domain_id)
 
             try:
-                response = driver.execute_async_script(scr)
+                response = driver.execute_script(scr)
                 sleep(1)
                 print colored("script executed! on %s" % url_printable, "blue", "on_green", attrs=['bold'])
 
@@ -162,6 +167,7 @@ def firefox():
 
             db.scraped_urls.update_one({"_id": domain["_id"]}, {"$set": {"locked": False,
                                                                          "last_processed": last_processed}})
+            driver.execute_script("window.stop();")
         else:
             all_domains = db.scraped_urls.find()
             updated = 0
