@@ -160,7 +160,7 @@ def firefox():
             getAllUrls(url, html, domain_id)
 
             try:
-                driver.set_script_timeout(30)
+                driver.set_script_timeout(1)
                 response = driver.execute_script(scr)
                 print colored("script executed! on %s" % url_printable, "blue", "on_green", attrs=['bold'])
 
