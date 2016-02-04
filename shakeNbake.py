@@ -141,6 +141,7 @@ def firefox():
                 continue
 
             try:
+                driver.set_page_load_timeout(2)
                 elem = driver.find_element_by_xpath("//*")
                 html = elem.get_attribute("outerHTML")
                 print colored("got html with success on %s" % url_printable, "cyan")
@@ -153,8 +154,8 @@ def firefox():
             getAllUrls(url, html, domain_id)
 
             try:
-                response = driver.execute_script(scr)
-                sleep(1)
+                driver.set_script_timeout(5)
+                response = driver.execute_async_script(scr)
                 print colored("script executed! on %s" % url_printable, "blue", "on_green", attrs=['bold'])
 
                 # for x in range(8):
