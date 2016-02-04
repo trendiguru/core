@@ -122,7 +122,7 @@ def getAllUrls(url, html, obid):
 def firefox():
     driver = webdriver.Firefox()
     driver.implicitly_wait(10)
-    driver.set_page_load_timeout(2)
+    # driver.set_page_load_timeout(2)
 
     scr = open("/var/www/latest/b_main.js").read()
     while True:
