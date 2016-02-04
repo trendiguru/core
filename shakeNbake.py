@@ -162,17 +162,6 @@ def firefox():
 
                 continue
 
-            try:
-                # driver.set_page_load_timeout(2)
-                elem = driver.find_element_by_xpath("//*")
-                html = elem.get_attribute("outerHTML")
-                # print colored("got html with success on %s" % url_printable, "cyan")
-                getAllUrls(url, html, domain_id)
-            except:
-                print colored("HTML failed on %s" % url_printable, "blue", "on_yellow")
-                # db.scraped_urls.update_one({"_id": domain_id}, {"$set": {"locked": False}})
-                # # driver.execute_script("window.stop();")
-                # continue
 
             try:
                 # driver.set_script_timeout(1)
@@ -189,6 +178,18 @@ def firefox():
 
             except:
                 print colored("EXECUTE failed on %s " % url_printable, "red", "on_yellow")
+
+            try:
+                # driver.set_page_load_timeout(2)
+                elem = driver.find_element_by_xpath("//*")
+                html = elem.get_attribute("outerHTML")
+                # print colored("got html with success on %s" % url_printable, "cyan")
+                getAllUrls(url, html, domain_id)
+            except:
+                print colored("HTML failed on %s" % url_printable, "blue", "on_yellow")
+                # db.scraped_urls.update_one({"_id": domain_id}, {"$set": {"locked": False}})
+                # # driver.execute_script("window.stop();")
+                # continue
 
             db.scraped_urls.update_one({"_id": domain["_id"]}, {"$set": {"locked": False}})
             # driver.execute_script("window.stop();")
