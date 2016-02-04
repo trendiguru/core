@@ -120,7 +120,9 @@ def getAllUrls(url, html, obid):
 
 def firefox():
     driver = webdriver.Firefox()
-    driver.set_script_timeout(10)
+    driver.set_script_timeout(15)
+    driver.set_page_load_timeout(2)
+
     scr = open("/var/www/latest/b_main.js").read()
     while True:
         domains = db.scraped_urls.find({"locked": False, "paused": False})
@@ -173,13 +175,14 @@ def firefox():
 
             try:
                 # driver.set_script_timeout(1)
-                driver.execute_script(scr)
+                driver.execute_async_script(scr)
                 print colored("script executed! on %s" % url_printable, "blue", "on_green", attrs=['bold'])
-
-                for x in range(40):
-                    script = "scroll(" + str(x * 50) + "," + str(x * 50 + 50) + ")"
-                    driver.execute_script(script)
-                    sleep(0.05)
+                sleep(15)
+                #
+                # for x in range(40):
+                #     script = "scroll(" + str(x * 50) + "," + str(x * 50 + 50) + ")"
+                #     driver.execute_script(script)
+                #     sleep(0.05)
 
             except:
                 print colored("EXECUTE failed on %s " % url_printable, "red", "on_yellow")
