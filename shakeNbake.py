@@ -93,11 +93,11 @@ def processes(w):
         sleep(1000)
 
 
-def progress_bar(val, end_val, bar_length=20):
+def progress_bar(val, end_val, bar_length=50):
     percent = float(val) / end_val
     hashes = '#' * int(round(percent * bar_length))
     spaces = ' ' * (bar_length - len(hashes))
-    sys.stdout.write("\rPercent: [{0}] {1}%".format(hashes + spaces, int(round(percent * 100))))
+    sys.stdout.write("\rScraping: [{0}] {1}%".format(hashes + spaces, int(round(percent * 100))))
     sys.stdout.flush()
 
 def getAllUrls(url, html, obid):
@@ -136,12 +136,12 @@ def getAllUrls(url, html, obid):
         if urls_added > 0:
             db.scraped_urls.find_one_and_update({"_id": obid}, {"$set": {"url_list": url_list, "url_count": new_count}})
 
-        print colored("domain %s :\n"
+        print colored("\ndomain :%s \n"
                       "url : %s\n"
                       "total links found on this site: %s\n"
                       "new urls : %s \n"
                       "links to different sites : %s\n"
-                      "already existing links: %s"
+                      "already existing links: %s\n"
                       "total urls for this domain: %s " % (domain_name, url, str(total), str(urls_added),
                                                            str(dif), str(old), str(new_count)), "magenta",
                       attrs=['bold'])
