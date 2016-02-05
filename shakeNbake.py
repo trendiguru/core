@@ -107,11 +107,11 @@ def getAllUrls(url, html, obid):
                 if link.startswith('/') and len(link) > 3:
                     link = url + link
                 else:
-                    # print ("link to a different site... not enqueued")
+                    print ("link to a different site... not enqueued")
                     continue
             exists = [match for match in url_list if match == link]
             if len(exists) > 0:
-                # print colored("link already exists... ", "yellow")
+                print colored("link already exists... ", "yellow")
                 pass
             else:
                 url_list.append(link)
