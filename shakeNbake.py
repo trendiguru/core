@@ -24,7 +24,7 @@ import pymongo
 from . import tmpGuard
 
 db = pymongo.MongoClient(host="mongodb1-instance-1", port=27017).mydb
-MAX_PER_DOMAIN = 5000
+MAX_PER_DOMAIN = 10000
 
 whitelist = ["gettyimages.com"]
 
@@ -95,6 +95,8 @@ def processes(w):
 def getAllUrls(url, html, obid):
     soup = BeautifulSoup(html, "html.parser")
     domain = db.scraped_urls.find_one({"_id": obid})
+    dif = 0
+    old = 0
     if domain:
         # find and process all the anchors in the document
         domain_name = domain["name"]
@@ -107,20 +109,30 @@ def getAllUrls(url, html, obid):
                 if link.startswith('/') and len(link) > 3:
                     link = domain_name + link
                 else:
+                    dif += 1
                     print ("link to a different site... not enqueued")
                     continue
             exists = [match for match in url_list if match == link]
             if len(exists) > 0:
+                old += 1
                 print colored("link already exists... ", "yellow")
                 pass
             else:
                 url_list.append(link)
         new_count = len(url_list)
         urls_added = new_count - url_count
+        total = urls_added + dif + old
         if urls_added > 0:
             db.scraped_urls.find_one_and_update({"_id": obid}, {"$set": {"url_list": url_list, "url_count": new_count}})
-        print colored("%s urls added to domain %s, url count for this domain is %s " % (str(urls_added), domain_name,
-                                                                                        str(new_count)), "magenta",
+
+        print colored("domain %s :\n"
+                      "url : %s\n"
+                      "total links found on this site: %s\n"
+                      "new urls : %s \n"
+                      "links to different sites : %s\n"
+                      "already existing links: %s"
+                      "total urls for this domain: %s " % (domain_name, url, str(total), str(urls_added),
+                                                           str(dif), str(old), str(new_count)), "magenta",
                       attrs=['bold'])
 
 
@@ -169,7 +181,10 @@ def firefox():
             try:
                 # driver.set_script_timeout(1)
                 driver.execute_script(scr)
-                print colored("script executed! on %s" % url_printable, "blue", "on_green", attrs=['bold'])
+                print colored(
+                    "sctipt executed! #%s for domain : %s \n full url is %s" % (str(last_processed - 1), domain["name"],
+                                                                                url_printable), "blue", "on_green",
+                    attrs=['bold'])
                 sleep(2)
                 driver.execute_script("window.scrollTo(0, document.body.scrollHeight);")
                 sleep(2)
@@ -187,7 +202,7 @@ def firefox():
                 elem = driver.find_element_by_xpath("//*")
                 html = elem.get_attribute("outerHTML")
                 # print colored("got html with success on %s" % url_printable, "cyan")
-                getAllUrls(url, html, domain_id)
+                getAllUrls(url_printable, html, domain_id)
             except:
                 print colored("HTML failed on %s" % url_printable, "blue", "on_yellow")
                 # db.scraped_urls.update_one({"_id": domain_id}, {"$set": {"locked": False}})
