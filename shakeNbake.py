@@ -105,7 +105,7 @@ def getAllUrls(url, html, obid):
             link = anchor.attrs["href"] if "href" in anchor.attrs else ''
             if not link.startswith(domain_name):
                 if link.startswith('/') and len(link) > 3:
-                    link = url + link
+                    link = domain_name + link
                 else:
                     print ("link to a different site... not enqueued")
                     continue
