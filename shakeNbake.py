@@ -15,6 +15,7 @@ import subprocess
 from time import sleep
 import argparse
 import random
+import sys
 
 from bs4 import BeautifulSoup
 from selenium import webdriver
@@ -92,6 +93,13 @@ def processes(w):
         sleep(1000)
 
 
+def progress_bar(val, end_val, bar_length=20):
+    percent = float(val) / end_val
+    hashes = '#' * int(round(percent * bar_length))
+    spaces = ' ' * (bar_length - len(hashes))
+    sys.stdout.write("\rPercent: [{0}] {1}%".format(hashes + spaces, int(round(percent * 100))))
+    sys.stdout.flush()
+
 def getAllUrls(url, html, obid):
     soup = BeautifulSoup(html, "html.parser")
     domain = db.scraped_urls.find_one({"_id": obid})
@@ -102,7 +110,10 @@ def getAllUrls(url, html, obid):
         domain_name = domain["name"]
         url_list = domain["url_list"]
         url_count = len(url_list)
-        for anchor in soup.find_all("a"):
+        all_links = soup.find_all("a")
+        end_val = len(all_links)
+        for x, anchor in enumerate(all_links):
+            progress_bar(x, end_val)
             # extract link url from the anchor
             link = anchor.attrs["href"] if "href" in anchor.attrs else ''
             if not link.startswith(domain_name):
@@ -110,12 +121,12 @@ def getAllUrls(url, html, obid):
                     link = domain_name + link
                 else:
                     dif += 1
-                    print ("link to a different site... not enqueued")
+                    # print ("link to a different site... not enqueued")
                     continue
             exists = [match for match in url_list if match == link]
             if len(exists) > 0:
                 old += 1
-                print colored("link already exists... ", "yellow")
+                # print colored("link already exists... ", "yellow")
                 pass
             else:
                 url_list.append(link)
