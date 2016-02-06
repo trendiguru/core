@@ -371,3 +371,12 @@ def simple_mask_grabcut(image, mask):
     cv2.grabCut(image, mask, rect, bgdmodel, fgdmodel, 1, cv2.GC_INIT_WITH_MASK)
     mask2 = np.where((mask == 1) + (mask == 3), 255, 0).astype('uint8')
     return mask2
+
+
+def person_isolation(image, face):
+    x, y, w, h = face
+    image_copy = np.zeros(image.shape, dtype=np.uint8)
+    x_back = np.max([x - 1.5 * w, 0])
+    x_ahead = np.min([x + 2.5 * w, image.shape[1] - 2])
+    image_copy[:, int(x_back):int(x_ahead), :] = image[:, int(x_back):int(x_ahead), :]
+    return image_copy
