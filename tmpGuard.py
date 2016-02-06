@@ -10,6 +10,7 @@ the webdrivers are recognized by the 'tmp' opening
 import os
 import time
 import subprocess
+import argparse
 
 from termcolor import colored
 
@@ -24,7 +25,7 @@ def erasexvfb():
     return xvfb2erase
 
 
-def erasetmp(cycle_delta, max_tmp=30):
+def erasetmp(cycle_delta=0, max_tmp=0):
     current = (time.ctime(time.time())).split(" ")
     current_date = current[-3]
     current_time = current[-2].split(":")
@@ -35,6 +36,9 @@ def erasetmp(cycle_delta, max_tmp=30):
     for f in os.listdir("/tmp"):
         (mode, ino, dev, nlink, uid, gid, size, atime, mtime, ctime) = os.stat("/tmp/" + f)
         if f[:3] == "tmp":
+            if max_tmp == 0:
+                tmp2erase.append(f)
+                continue
             i += 1
             modified = time.ctime(mtime)
             # print ("%s) %s  last modified: %s" % (str(i), f, modified))
@@ -64,11 +68,11 @@ def erasetmp(cycle_delta, max_tmp=30):
             else:
                 tmp2erase.append(f)
     if i > max_tmp and cycle_delta > 1:
-        tmp2erase = erasetmp(1)
+        tmp2erase = erasetmp(1, 50)
     return tmp2erase
 
 
-def mainDelete(filename, cycle=5, max_tmp=30):
+def mainDelete(filename, cycle=0, max_tmp=0):
     if filename == "tmp":
         files2erase = erasetmp(cycle, max_tmp)
     elif filename == "xvfb":
@@ -86,10 +90,26 @@ def mainDelete(filename, cycle=5, max_tmp=30):
             print colored("removing %s failed" % f, "red")
 
     print colored("%s files deleted!!!" % str(count))
-    time.sleep(15)
+    # time.sleep(15)
+
+
+def getUserInput():
+    parser = argparse.ArgumentParser(description='Main tmpGuard')
+    parser.add_argument("-m", dest="max", default="0", help="The max number of tmp allowed")
+    parser.add_argument("-d", dest="delta", default="0", help="last modified delta")
+    args = parser.parse_args()
+    return args
+
 
 if __name__ == "__main__":
+    user_input = getUserInput()
+    print user_input
     mainDelete("xvfb")
+    delta = int(user_input.delta)
+    maxTmp = int(user_input.max)
     while True:
-        mainDelete("tmp")
-        time.sleep(180)
+        mainDelete("tmp", cycle=delta, max_tmp=maxTmp)
+        if maxTmp == 0:
+            break
+        time.sleep(300)
+    exit(0)

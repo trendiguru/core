@@ -14,6 +14,8 @@ logic:
 import subprocess
 from time import sleep
 import argparse
+import random
+import sys
 
 from bs4 import BeautifulSoup
 from selenium import webdriver
@@ -23,20 +25,35 @@ import pymongo
 from . import tmpGuard
 
 db = pymongo.MongoClient(host="mongodb1-instance-1", port=27017).mydb
-MAX_PER_DOMAIN = 1000
+MAX_PER_DOMAIN = 10000
 
-whitelist = ["gettyimages.com", "tmz.com", "super.cz", "ew.com", "entretenimento.r7.com", "hollywoodlife.com",
-             "kapanlagi.com", "zimbio.com", "jezebel.com", "purepeople.com", "jeanmarcmorandini.com",
-             "radaronline.com", "etonline.com", "voici.fr", "topito.com", "ciudad.com.ar", "perezhilton.com",
-             "koreaboo.com", "cztv.com", "virgula.uol.com.br", "suggest.com", "justjared.com", "therichest.com",
-             "pressroomvip.com", "dagospia.com", "closermag.fr", "kiskegyed.hu", "pagesix.com",
-             "digitalspy.com", "purepeople.com.br", "thepiratebay.uk.net", "sopitas.com", "deadline.com",
-             "starpulse.com", "multikino.pl", "primiciasya.com", "celebuzz.com", "luckstars.co",
-             "ratingcero.com", "non-stop-people.com", "tochka.net", "toofab.com", "extra.cz",
-             "huabian.com", "bossip.com", "spletnik.ru", "wetpaint.com"]
+whitelist = ["gettyimages.com"]
+
+
+# "manrepeller.com", "wishwishwish.net", "parkandcube.com", "stellaswardrobe.com",
+#              "cocosteaparty.com",
+#              "5inchandup.blogspot.co.uk", "garypeppergirl.com", "camilleovertherainbow.com", "streetpeeper.com",
+#              "the-frugality.com", "disneyrollergirl.net", "weworewhat.com", "wearingittoday.co.uk",
+#              "ella-lapetiteanglaise.com",
+#              "advancedstyle.blogspot.co.uk", "indtl.com", "redcarpet-fashionawards.com", "nadiaaboulhosn.com",
+#              "enbrogue.com",
+#              "peonylim.com", "vanessajackman.blogspot.co.uk", "alltheprettybirds.com", "lisegrendene.com.br",
+#              "nataliehartleywears.blogspot.co.uk", "tommyton.com", "stylebubble.co.uk", "pandorasykes.com",
+#              "theblondesalad.com", 'notorious-mag.com',
+#              "thesartorialist.com", "bryanboy.com", "bunte.de", "gala.fr",
+#              "pudelek.pl", "tmz.com", "super.cz", "ew.com", "entretenimento.r7.com", "hollywoodlife.com",
+#              "kapanlagi.com", "zimbio.com", "jezebel.com", "purepeople.com", "jeanmarcmorandini.com",
+#              "radaronline.com", "etonline.com", "voici.fr", "topito.com", "ciudad.com.ar", "perezhilton.com",
+#              "koreaboo.com", "cztv.com", "virgula.uol.com.br", "suggest.com", "justjared.com", "therichest.com",
+#              "pressroomvip.com", "dagospia.com", "closermag.fr", "kiskegyed.hu", "pagesix.com", "spynews.ro",
+#              "digitalspy.com", "purepeople.com.br", "thepiratebay.uk.net", "sopitas.com", "deadline.com",
+#              "starpulse.com", "multikino.pl", "zakzak.co.jp", "primiciasya.com", "celebuzz.com", "luckstars.co",
+#              "ratingcero.com", "non-stop-people.com", "tochka.net", "toofab.com", "extra.cz", "kozaczek.pl",
+#              "huabian.com", "bossip.com", "spletnik.ru", "wetpaint.com"]
 
 
 def insertDomains():
+    items = []
     for domain in whitelist:
         item = {"name": domain,
                 "locked": False,
@@ -44,120 +61,176 @@ def insertDomains():
                 "last_processed": 0,
                 "url_count": 1,
                 "url_list": ["http://www." + domain]}
-        db.scraped_urls.insert_one(item)
+        items.append(item)
+    db.scraped_urls.insert_many(items)
 
 
-def screen(x):
+def screen(workers):
+    # workers = min(int(workers), len(whitelist))
     print colored("######  starting the scraper  ######", "green", attrs=["bold"])
     db.scraped_urls.delete_many({})
-    insertDomains()
-    subprocess.call(
-        ["screen -S scraper python -m trendi.shakeNbake -f processes -w " + x],
-        shell=True)
-    print colored("scraper detached/terminated", "green", attrs=["bold"])
-
-
-def processes(x="1"):
     tmpGuard.mainDelete("xvfb")
-    workers = min(int(x), len(whitelist))
-    for i in range(workers):
+    tmpGuard.mainDelete("tmp")
+    insertDomains()
+    cmd = "screen -S scraper python -m trendi.shakeNbake -f processes -w " + str(workers)
+    print colored("opening screen", "green", attrs=["bold"])
+    subprocess.call([cmd], shell=True)
+    print colored("screen detached", "yellow", attrs=["bold"])
+
+
+def processes(w):
+    sleep(5)
+    for i in range(int(w)):
+        sleep(1)
         browseme = subprocess.Popen(["sudo ./xvfb-run-safe.sh python -m trendi.shakeNbake -f firefox"],
                                     shell=True)
         print colored("firefox %s is opened" % (str(i)), 'green')
 
-    subprocess.Popen(["screen -d scraper"], shell=True)
+    sleep(5)
+    subprocess.Popen(["screen -d"], shell=True)
 
     while True:
-        tmpGuard.mainDelete("tmp", cycle=10, max_tmp=workers)
-        sleep(300)
+        sleep(1000)
 
+
+def progress_bar(val, end_val, bar_length=50):
+    percent = float(val) / end_val
+    hashes = '#' * int(round(percent * bar_length))
+    spaces = ' ' * (bar_length - len(hashes))
+    sys.stdout.write("\rScraping: [{0}] {1}%".format(hashes + spaces, int(round(percent * 100))))
+    sys.stdout.flush()
 
 def getAllUrls(url, html, obid):
     soup = BeautifulSoup(html, "html.parser")
     domain = db.scraped_urls.find_one({"_id": obid})
+    dif = 0
+    old = 0
     if domain:
         # find and process all the anchors in the document
         domain_name = domain["name"]
         url_list = domain["url_list"]
         url_count = len(url_list)
-        for anchor in soup.find_all("a"):
+        all_links = soup.find_all("a")
+        end_val = len(all_links)
+        for x, anchor in enumerate(all_links):
+            progress_bar(x, end_val)
             # extract link url from the anchor
             link = anchor.attrs["href"] if "href" in anchor.attrs else ''
             if not link.startswith(domain_name):
-                if link.startswith('/'):
-                    link = url + link
+                if link.startswith('/') and len(link) > 3:
+                    link = domain_name + link
                 else:
+                    dif += 1
                     # print ("link to a different site... not enqueued")
                     continue
             exists = [match for match in url_list if match == link]
             if len(exists) > 0:
+                old += 1
                 # print colored("link already exists... ", "yellow")
                 pass
             else:
                 url_list.append(link)
         new_count = len(url_list)
         urls_added = new_count - url_count
+        total = urls_added + dif + old
         if urls_added > 0:
             db.scraped_urls.find_one_and_update({"_id": obid}, {"$set": {"url_list": url_list, "url_count": new_count}})
-        print colored("%s urls added to domain %s" % (str(urls_added), domain_name), "magenta", attrs=['bold'])
+
+        print colored("\ndomain :%s \n"
+                      "url : %s\n"
+                      "total links found on this site: %s\n"
+                      "new urls : %s \n"
+                      "links to different sites : %s\n"
+                      "already existing links: %s\n"
+                      "total urls for this domain: %s " % (domain_name, url, str(total), str(urls_added),
+                                                           str(dif), str(old), str(new_count)), "magenta",
+                      attrs=['bold'])
 
 
 def firefox():
     driver = webdriver.Firefox()
+    driver.implicitly_wait(10)
+    # driver.set_page_load_timeout(2)
+
     scr = open("/var/www/latest/b_main.js").read()
     while True:
-        domain = db.scraped_urls.find_one_and_update({"locked": False, "paused": False}, {"$set": {"locked": True}})
-        if domain:
+        domains = db.scraped_urls.find({"locked": False, "paused": False})
+        domains_count = domains.count()
+        if domains_count > 0:
+            rand = random.randint(0, domains_count - 1)
+            try:
+                domain = domains[rand]
+            except:
+                continue
+            if domain["locked"]:
+                continue
+            domain_id = domain["_id"]
             url_count = domain["url_count"]
             last_processed = domain["last_processed"]
             current_count = len(domain["url_list"])
             if current_count > url_count:
                 url_count = current_count
             if last_processed >= url_count or last_processed > MAX_PER_DOMAIN:
-                db.scraped_urls.update_one({"_id": domain["_id"]}, {"$set": {"paused": True}})
+                db.scraped_urls.update_one({"_id": domain_id}, {"$set": {"paused": True}})
+                print colored("domain %s is paused!!! " % domain["name"], "yellow")
                 continue
+
             url = domain["url_list"][last_processed]
             url_printable = url.encode('ascii', 'ignore')  # conversion of unicode type to string type
             last_processed += 1
-
+            db.scraped_urls.update_one({"_id": domain_id}, {"$set": {"locked": True, "last_processed": last_processed}})
             try:
                 driver.get(url)
-                print colored("got url %s with success" % url_printable, "cyan")
+                # print colored("got url %s with success" % url_printable, "cyan")
             except:
-                print colored("failed getting url %s " % url_printable, "red", "on_yellow")
-                sleep(2)
-                db.scraped_urls.update_one({"_id": domain["_id"]}, {"$set": {"locked": False,
-                                                                             "last_processed": last_processed}})
+                print colored("URL failed on %s" % url_printable, "blue", "on_yellow")
+                db.scraped_urls.update_one({"_id": domain_id}, {"$set": {"locked": False}})
+
                 continue
 
+
             try:
+                # driver.set_script_timeout(1)
+                driver.execute_script(scr)
+                print colored(
+                    "sctipt executed! #%s for domain : %s \n full url is %s" % (str(last_processed - 1), domain["name"],
+                                                                                url_printable), "blue", "on_green",
+                    attrs=['bold'])
+                sleep(2)
+                driver.execute_script("window.scrollTo(0, document.body.scrollHeight);")
+                sleep(2)
+                #
+                # for x in range(40):
+                #     script = "scroll(" + str(x * 50) + "," + str(x * 50 + 50) + ")"
+                #     driver.execute_script(script)
+                #     sleep(0.05)
+
+            except:
+                print colored("EXECUTE failed on %s " % url_printable, "red", "on_yellow")
+
+            try:
+                # driver.set_page_load_timeout(2)
                 elem = driver.find_element_by_xpath("//*")
                 html = elem.get_attribute("outerHTML")
-                print colored("got html with success on %s" % url_printable, "cyan")
+                # print colored("got html with success on %s" % url_printable, "cyan")
+                getAllUrls(url_printable, html, domain_id)
             except:
-                print colored("failed getting html on %s" % url_printable, "red", "on_yellow")
-                db.scraped_urls.update_one({"_id": domain["_id"]}, {"$set": {"locked": False,
-                                                                             "last_processed": last_processed}})
-                continue
-            # subprocess.Popen(["python -m trendi.shakeNbake -f getAllUrls "], shell=True)
-            getAllUrls(url, html, domain["_id"])
+                print colored("HTML failed on %s" % url_printable, "blue", "on_yellow")
+                # db.scraped_urls.update_one({"_id": domain_id}, {"$set": {"locked": False}})
+                # # driver.execute_script("window.stop();")
+                # continue
 
-            try:
-                driver.execute_script(scr)
-                sleep(2)
-                print colored("script executed! on %s" % url_printable, "blue", "on_green", attrs=['bold'])
+            db.scraped_urls.update_one({"_id": domain["_id"]}, {"$set": {"locked": False}})
+            # driver.execute_script("window.stop();")
 
-                for x in range(8):
-                    script = "scroll(" + str(x * 500) + "," + str(x * 500 + 500) + ")"
-                    driver.execute_script(script)
-                    sleep(0.25)
-
-            except:
-                print colored("url %s : script execution failed!!!" % url_printable, "red", "on_yellow")
-
-            db.scraped_urls.update_one({"_id": domain["_id"]}, {"$set": {"locked": False,
-                                                                         "last_processed": last_processed}})
         else:
+            # check if it because all are locked
+            domains = db.scraped_urls.find({"locked": False})
+            domains_count = domains.count()
+            if domains_count == 0:
+                sleep(2)
+                continue
+            # check for jams
             all_domains = db.scraped_urls.find()
             updated = 0
             for domain in all_domains:
@@ -167,7 +240,8 @@ def firefox():
                     url_count = current_count
                 last_processed = domain["last_processed"]
                 if last_processed < url_count and last_processed < MAX_PER_DOMAIN:
-                    db.scraped_urls.update_one({"_id": domain["_id"]}, {"$set": {"paused": False, "locked": False}})
+                    db.scraped_urls.update_one({"_id": domain["_id"]}, {"$set": {"paused": False}})
+                    print colored("domain %s is resumed!!! " % domain["name"], "yellow")
                     updated += 1
                     continue
 

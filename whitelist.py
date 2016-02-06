@@ -7,7 +7,6 @@ from rq import Queue
 from . import constants
 from .crawlme import scrapLinks
 
-
 scrap_q = Queue('CrawlMe', connection=constants.redis_conn)
 db = constants.db
 
@@ -149,7 +148,7 @@ top50Fashion = {"refinery29.com", "maxmodels.pl", "stylebistro.com", "fashion.if
                 "highsnobiety.com", "osinka.ru", "trendsylvania.net", "whowhatwear.com", "fashiony.ru",
                 "fashion.sina.com.cn", "lookbook.nu", "vogue.com.tw", "thefashionspot.com",
                 "vogue.com.cn", "thehunt.com", "fashionbeans.com", "models.com",
-                "fashion.sohu.com", "elle.co.jp", "perfecte.md", "cosmopolitan.lt", "wwd.com", "enrz.com",
+                "fashion.sohu.com", "gettyimages.com", "perfecte.md", "cosmopolitan.lt", "wwd.com", "enrz.com",
                 "moteris.lt", "businessoffashion.com", "styleblazer.com", "theblondesalad.com", "fashiongonerogue.com",
                 "thesartorialist.com", "cupcakesandcashmere.com", "fashion.walla.co.il", "thegloss.com", "vogue.com.au",
                 "panele.lt", "af-110.com", "collegefashion.net", "niv.ru", "desired.de", "fashionstylemag.com",
