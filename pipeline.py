@@ -40,15 +40,6 @@ def is_in_whitelist(page_url):
         return True
 
 
-def person_isolation(image, face):
-    x, y, w, h = face
-    image_copy = np.zeros(image.shape, dtype=np.uint8)
-    x_back = np.max([x - 1.5 * w, 0])
-    x_ahead = np.min([x + 2.5 * w, image.shape[1] - 2])
-    image_copy[:, int(x_back):int(x_ahead), :] = image[:, int(x_back):int(x_ahead), :]
-    return image_copy
-
-
 def after_pd_conclusions(mask, labels, face=None):
     """
     1. if there's a full-body clothing:
@@ -209,7 +200,7 @@ def wait_for_person_ids(ids_jobs, image_dict):
 
 def get_person_job_id(face, person_bb, products_coll, image_url):
     person = {'face': face, 'person_bb': person_bb}
-    image = person_isolation(Utils.get_cv2_img_array(image_url), face)
+    image = background_removal.person_isolation(Utils.get_cv2_img_array(image_url), face)
     start_time = time.time()
     paper_job = paperdoll_parse_enqueue.paperdoll_enqueue(image, str(bson.ObjectId()))
     while not paper_job.is_finished or paper_job.is_failed:
