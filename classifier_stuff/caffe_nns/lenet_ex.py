@@ -35,7 +35,12 @@ def lenet(lmdb, batch_size):
     n.loss = L.SoftmaxWithLoss(n.ip2,n.label)
     return n.to_proto()
 
-os.chdir('/home/jr/sw/caffe')
+host = socket.gethostname()
+print('host:'+str(host))
+if host == 'jr-ThinkPad-X1-Carbon':
+    os.chdir('/home/jr/sw/caffe')
+else:
+    os.chdir('/root/caffe')
 with open('examples/mnist/lenet_auto_train.prototxt','w') as f:
     f.write(str(lenet('examples/mnist/mnist_train_lmdb',64)))
 with open('examples/mnist/lenet_auto_test.prototxt','w') as f:
