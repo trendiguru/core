@@ -64,14 +64,17 @@ solver.test_nets[0].forward()  # test net (there can be more than one)
 # we use a little trick to tile the first eight images
 if pc:
     plt.imshow(solver.net.blobs['data'].data[:8, 0].transpose(1, 0, 2).reshape(28, 8*28), cmap='gray')
+    plt.show(block=False)
 print solver.net.blobs['label'].data[:8]
 if pc:
     plt.imshow(solver.test_nets[0].blobs['data'].data[:8, 0].transpose(1, 0, 2).reshape(28, 8*28), cmap='gray')
+    plt.draw()
 print solver.test_nets[0].blobs['label'].data[:8]
 solver.step(1)
 if pc:
     plt.imshow(solver.net.params['conv1'][0].diff[:, 0].reshape(4, 5, 5, 5)
        .transpose(0, 2, 1, 3).reshape(4*5, 5*5), cmap='gray')
+    plt.draw()
 
 #%%time
 niter = 200
@@ -106,10 +109,13 @@ for it in range(niter):
         test_acc[it // test_interval] = correct / 1e4
 
 
-_, ax1 = plt.subplots()
-ax2 = ax1.twinx()
-ax1.plot(arange(niter), train_loss)
-ax2.plot(test_interval * arange(len(test_acc)), test_acc, 'r')
-ax1.set_xlabel('iteration')
-ax1.set_ylabel('train loss')
-ax2.set_ylabel('test accuracy')
+if pc:
+    _, ax1 = plt.subplots()
+    ax2 = ax1.twinx()
+    ax1.plot(arange(niter), train_loss)
+    ax2.plot(test_interval * arange(len(test_acc)), test_acc, 'r')
+    ax1.set_xlabel('iteration')
+    ax1.set_ylabel('train loss')
+    ax2.set_ylabel('test accuracy')
+
+    plt.show()
