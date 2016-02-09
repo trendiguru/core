@@ -5,6 +5,38 @@ from trendi import Utils
 
 dir = '/home/jr/Pictures/'
 
+'''
+caffe image db usage
+http://stackoverflow.com/questions/31427094/guide-to-use-convert-imageset-cpp
+
+Labels: create a text file (e.g., /path/to/labels/train.txt) with a line per input image . For example:
+
+img_0000.jpeg 1
+img_0001.jpeg 0
+img_0002.jpeg 0
+
+In this example the first image is labeled 1 while the other two are labeled 0.
+Convert the dataset
+
+~$ GLOG_logtostderr=1 $CAFFE_ROOT/build/tools/convert_imageset \
+    --resize_height=200 --resize_width=200 --shuffle  \
+    /path/to/jpegs/ \
+    /path/to/labels/train.txt \
+    /path/to/lmdb/train_lmdb
+
+Command line explained:
+
+GLOG_logtostderr flag is set to 1 before calling convert_imageset indicates the logging mechanism to redirect log messages to stderr.
+--resize_height and --resize_width resize all input images to same size 200x200.
+--shuffle randomly change the order of images and does not preserve the order in the /path/to/labels/train.txt file.
+Following are the path to the images folder, the labels text file and the output name. Note that the output name should not exist prior to calling convert_imageset otherwise you'll get a scary error message.
+
+Other flags that might be useful:
+
+--backend - allows you to choose between an lmdb dataset or levelDB.
+--gray - convert all images to gray scale.
+--help - shows some help, see all relevant flags under Flags from tools/convert_imageset.cpp
+'''
 def crop(img_arr,bb):
     x=bb[0]
     y=bb[1]
@@ -32,6 +64,8 @@ def batch_crop(path):
             cv2.imwrite(name,cropped)
         else:
             print('skipping '+str(file_n)+', already done')
+
+def generate_pics()
 
 def caffe_filelist(path):
     types = ['bubba_kush', 'hawg', 'hindu_kush', 'platinum_og2']
