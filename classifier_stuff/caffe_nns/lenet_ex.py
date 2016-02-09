@@ -38,8 +38,10 @@ def lenet(lmdb, batch_size):
 host = socket.gethostname()
 print('host:'+str(host))
 if host == 'jr-ThinkPad-X1-Carbon':
+    pc = True
     os.chdir('/home/jr/sw/caffe')
 else:
+    pc = False
     os.chdir('/root/caffe')
 with open('examples/mnist/lenet_auto_train.prototxt','w') as f:
     f.write(str(lenet('examples/mnist/mnist_train_lmdb',64)))
@@ -60,12 +62,15 @@ solver = caffe.SGDSolver('examples/mnist/lenet_auto_solver.prototxt')
 solver.net.forward()  # train net
 solver.test_nets[0].forward()  # test net (there can be more than one)
 # we use a little trick to tile the first eight images
-plt.imshow(solver.net.blobs['data'].data[:8, 0].transpose(1, 0, 2).reshape(28, 8*28), cmap='gray')
+if pc:
+    plt.imshow(solver.net.blobs['data'].data[:8, 0].transpose(1, 0, 2).reshape(28, 8*28), cmap='gray')
 print solver.net.blobs['label'].data[:8]
-plt.imshow(solver.test_nets[0].blobs['data'].data[:8, 0].transpose(1, 0, 2).reshape(28, 8*28), cmap='gray')
+if pc:
+    plt.imshow(solver.test_nets[0].blobs['data'].data[:8, 0].transpose(1, 0, 2).reshape(28, 8*28), cmap='gray')
 print solver.test_nets[0].blobs['label'].data[:8]
 solver.step(1)
-plt.imshow(solver.net.params['conv1'][0].diff[:, 0].reshape(4, 5, 5, 5)
+if pc:
+    plt.imshow(solver.net.params['conv1'][0].diff[:, 0].reshape(4, 5, 5, 5)
        .transpose(0, 2, 1, 3).reshape(4*5, 5*5), cmap='gray')
 
 #%%time
