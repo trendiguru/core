@@ -16,7 +16,7 @@ def crop(img_arr,bb):
 
 if __name__=="__main__":
 
-    file_list = Utils.get_directory_structure('/home/jr/Pictures/nugs')
+    file_list = Utils.get_files_from_dir_and_subdirs('/home/jr/Pictures/nugs')
     print('n_files:'+str(len(file_list)))
     #print('filelist:'+str(file_list))
     bb = [350,150,450,550]

@@ -636,7 +636,7 @@ def shorten_url_bitly(long_url):
     return response.text.rstrip()
 
 
-def get_directory_structure(path=None):
+def get_files_from_dir_and_subdirs(path=None):
     '''
     this returns the full paths of every file in and under the given dir
     :param path:
