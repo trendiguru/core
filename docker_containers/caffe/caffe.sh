@@ -37,30 +37,11 @@ sudo apt-get install -y  python-pip
 sudo apt-get install -y  unzip
 sudo apt-get install -y  wget
 
-#sudo apt-get install libgflags-dev libgoogle-glog-dev liblmdb-dev
+sudo apt-get install libgflags-dev libgoogle-glog-dev liblmdb-dev
 #sudo apt-get install libprotobuf-dev libleveldb-dev libsnappy-dev libopencv-dev libhdf5-serial-dev protobuf-compiler
 #sudo apt-get install --no-install-recommends libboost-all-dev
 sudo apt-get install libboost-all-dev
 
-# glog
-wget https://google-glog.googlecode.com/files/glog-0.3.3.tar.gz
-tar zxvf glog-0.3.3.tar.gz
-cd glog-0.3.3
-./configure
-make && make install
-
-# gflags
-wget https://github.com/schuhschuh/gflags/archive/master.zip
-unzip master.zip
-cd gflags-master
-mkdir build && cd build
-export CXXFLAGS="-fPIC" && cmake .. && make VERBOSE=1
-make && make install
-
-# lmdb
-git clone git://gitorious.org/mdb/mdb.git
-cd mdb/libraries/liblmdb
-make && make install
 
 # Make and move into build directory
 cp Makefile.config.example Makefile.config

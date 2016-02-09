@@ -636,6 +636,42 @@ def shorten_url_bitly(long_url):
     return response.text.rstrip()
 
 
+def get_files_from_dir_and_subdirs(path=None):
+    '''
+    this returns the full paths of every file in and under the given dir
+    :param path:
+    :return: list of full paths of files (not dirs)
+    '''
+
+    if path is None:
+        path = os.getcwd()
+ #   print('basepath:' + path)
+#    raw_input('enter to continue')
+    file_list = []
+    done_paths = []
+    for paths, dirs, files in os.walk(path):
+        if paths not in done_paths:
+            count = paths.count('/')
+            if files:
+                for ele1 in files:
+#                    raw_input('enter to continue')
+                    #                  print('---------' * (count), ele1)
+                    full_name = os.path.join(path, ele1)
+#                    print('filename:' + str(full_name))
+                    file_list.append(full_name)
+                print('{0} files found in dir {1}'.format(len(files),path))
+            if dirs:
+                for ele2 in dirs:
+#                    print('dir:'+str( ele2))
+                    abs_path = os.path.join(paths, ele2)
+                    # recursively calling the direct function on each directory
+                    more_files = get_directory_structure(path=abs_path)
+                    # adding the paths to the list that got traversed
+                    done_paths.append(abs_path)
+                    for file_n in more_files:
+                        file_list.append(file_n)
+    return(file_list)
+
 # testing git pull on pp2
 def git_pull(**kwargs):
     import subprocess
