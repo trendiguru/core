@@ -132,7 +132,7 @@ fullList = {"yahoo.com", "msn.com", "yahoo.co.jp", "qq.com", "uol.com.br", "glob
              'pinoyhdreplay.org', 'pinoynetwork.se', 'postimees.ee', 'pudelek.pl', 'rakuten.co.jp', 'sapo.cv', 'tfc.tv',
              'thestar.com.my', 'trendiguru.com', 'websta.me', 'siol.net', 'tportal.hr', 'iol.pt', 'freenet.de',
              'jewelryquestion.com', 'larep.fr', 'dailymotion.com', 'mundopositivo.com.br', 'mediaset.it',
-             'cifraclub.com.br', 'gmx.net', 'web.de', 'detik.com'}
+             'cifraclub.com.br', 'gmx.net', 'web.de', 'detik.com', 'slobodnadalmacija.hr', 'storm'}
 
 fashionBlogs = {"manrepeller.com", "wishwishwish.net", "parkandcube.com", "stellaswardrobe.com", "cocosteaparty.com",
                "5inchandup.blogspot.co.uk", "garypeppergirl.com", "camilleovertherainbow.com", "streetpeeper.com",
@@ -149,7 +149,7 @@ top50Fashion = {"refinery29.com", "maxmodels.pl", "stylebistro.com", "fashion.if
                 "highsnobiety.com", "osinka.ru", "trendsylvania.net", "whowhatwear.com", "fashiony.ru",
                 "fashion.sina.com.cn", "lookbook.nu", "vogue.com.tw", "thefashionspot.com",
                 "vogue.com.cn", "thehunt.com", "fashionbeans.com", "models.com",
-                "fashion.sohu.com", "elle.co.jp", "perfecte.md", "cosmopolitan.lt", "wwd.com", "enrz.com",
+                "fashion.sohu.com", "gettyimages.com", "perfecte.md", "cosmopolitan.lt", "wwd.com", "enrz.com",
                 "moteris.lt", "businessoffashion.com", "styleblazer.com", "theblondesalad.com", "fashiongonerogue.com",
                 "thesartorialist.com", "cupcakesandcashmere.com", "fashion.walla.co.il", "thegloss.com", "vogue.com.au",
                 "panele.lt", "af-110.com", "collegefashion.net", "niv.ru", "desired.de", "fashionstylemag.com",

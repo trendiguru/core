@@ -15,6 +15,7 @@ import subprocess
 from time import sleep
 import argparse
 import random
+import sys
 
 from bs4 import BeautifulSoup
 from selenium import webdriver
@@ -24,28 +25,31 @@ import pymongo
 from . import tmpGuard
 
 db = pymongo.MongoClient(host="mongodb1-instance-1", port=27017).mydb
-MAX_PER_DOMAIN = 1000
+MAX_PER_DOMAIN = 10000
 
-whitelist = ["gettyimages.com", "manrepeller.com", "wishwishwish.net", "parkandcube.com", "stellaswardrobe.com",
-             "cocosteaparty.com",
-             "5inchandup.blogspot.co.uk", "garypeppergirl.com", "camilleovertherainbow.com", "streetpeeper.com",
-             "the-frugality.com", "disneyrollergirl.net", "weworewhat.com", "wearingittoday.co.uk",
-             "ella-lapetiteanglaise.com",
-             "advancedstyle.blogspot.co.uk", "indtl.com", "redcarpet-fashionawards.com", "nadiaaboulhosn.com",
-             "enbrogue.com",
-             "peonylim.com", "vanessajackman.blogspot.co.uk", "alltheprettybirds.com", "lisegrendene.com.br",
-             "nataliehartleywears.blogspot.co.uk", "tommyton.com", "stylebubble.co.uk", "pandorasykes.com",
-             "theblondesalad.com", 'notorious-mag.com',
-             "thesartorialist.com", "bryanboy.com", "bunte.de", "gala.fr",
-             "pudelek.pl", "tmz.com", "super.cz", "ew.com", "entretenimento.r7.com", "hollywoodlife.com",
-             "kapanlagi.com", "zimbio.com", "jezebel.com", "purepeople.com", "jeanmarcmorandini.com",
-             "radaronline.com", "etonline.com", "voici.fr", "topito.com", "ciudad.com.ar", "perezhilton.com",
-             "koreaboo.com", "cztv.com", "virgula.uol.com.br", "suggest.com", "justjared.com", "therichest.com",
-             "pressroomvip.com", "dagospia.com", "closermag.fr", "kiskegyed.hu", "pagesix.com", "spynews.ro",
-             "digitalspy.com", "purepeople.com.br", "thepiratebay.uk.net", "sopitas.com", "deadline.com",
-             "starpulse.com", "multikino.pl", "zakzak.co.jp", "primiciasya.com", "celebuzz.com", "luckstars.co",
-             "ratingcero.com", "non-stop-people.com", "tochka.net", "toofab.com", "extra.cz", "kozaczek.pl",
-             "huabian.com", "bossip.com", "spletnik.ru", "wetpaint.com"]
+whitelist = ["gettyimages.com"]
+
+
+# "manrepeller.com", "wishwishwish.net", "parkandcube.com", "stellaswardrobe.com",
+#              "cocosteaparty.com",
+#              "5inchandup.blogspot.co.uk", "garypeppergirl.com", "camilleovertherainbow.com", "streetpeeper.com",
+#              "the-frugality.com", "disneyrollergirl.net", "weworewhat.com", "wearingittoday.co.uk",
+#              "ella-lapetiteanglaise.com",
+#              "advancedstyle.blogspot.co.uk", "indtl.com", "redcarpet-fashionawards.com", "nadiaaboulhosn.com",
+#              "enbrogue.com",
+#              "peonylim.com", "vanessajackman.blogspot.co.uk", "alltheprettybirds.com", "lisegrendene.com.br",
+#              "nataliehartleywears.blogspot.co.uk", "tommyton.com", "stylebubble.co.uk", "pandorasykes.com",
+#              "theblondesalad.com", 'notorious-mag.com',
+#              "thesartorialist.com", "bryanboy.com", "bunte.de", "gala.fr",
+#              "pudelek.pl", "tmz.com", "super.cz", "ew.com", "entretenimento.r7.com", "hollywoodlife.com",
+#              "kapanlagi.com", "zimbio.com", "jezebel.com", "purepeople.com", "jeanmarcmorandini.com",
+#              "radaronline.com", "etonline.com", "voici.fr", "topito.com", "ciudad.com.ar", "perezhilton.com",
+#              "koreaboo.com", "cztv.com", "virgula.uol.com.br", "suggest.com", "justjared.com", "therichest.com",
+#              "pressroomvip.com", "dagospia.com", "closermag.fr", "kiskegyed.hu", "pagesix.com", "spynews.ro",
+#              "digitalspy.com", "purepeople.com.br", "thepiratebay.uk.net", "sopitas.com", "deadline.com",
+#              "starpulse.com", "multikino.pl", "zakzak.co.jp", "primiciasya.com", "celebuzz.com", "luckstars.co",
+#              "ratingcero.com", "non-stop-people.com", "tochka.net", "toofab.com", "extra.cz", "kozaczek.pl",
+#              "huabian.com", "bossip.com", "spletnik.ru", "wetpaint.com"]
 
 
 def insertDomains():
@@ -89,35 +93,57 @@ def processes(w):
         sleep(1000)
 
 
+def progress_bar(val, end_val, bar_length=50):
+    percent = float(val) / end_val
+    hashes = '#' * int(round(percent * bar_length))
+    spaces = ' ' * (bar_length - len(hashes))
+    sys.stdout.write("\rScraping: [{0}] {1}%".format(hashes + spaces, int(round(percent * 100))))
+    sys.stdout.flush()
+
 def getAllUrls(url, html, obid):
     soup = BeautifulSoup(html, "html.parser")
     domain = db.scraped_urls.find_one({"_id": obid})
+    dif = 0
+    old = 0
     if domain:
         # find and process all the anchors in the document
         domain_name = domain["name"]
         url_list = domain["url_list"]
         url_count = len(url_list)
-        for anchor in soup.find_all("a"):
+        all_links = soup.find_all("a")
+        end_val = len(all_links)
+        for x, anchor in enumerate(all_links):
+            progress_bar(x, end_val)
             # extract link url from the anchor
             link = anchor.attrs["href"] if "href" in anchor.attrs else ''
             if not link.startswith(domain_name):
                 if link.startswith('/') and len(link) > 3:
-                    link = url + link
+                    link = domain_name + link
                 else:
+                    dif += 1
                     # print ("link to a different site... not enqueued")
                     continue
             exists = [match for match in url_list if match == link]
             if len(exists) > 0:
+                old += 1
                 # print colored("link already exists... ", "yellow")
                 pass
             else:
                 url_list.append(link)
         new_count = len(url_list)
         urls_added = new_count - url_count
+        total = urls_added + dif + old
         if urls_added > 0:
             db.scraped_urls.find_one_and_update({"_id": obid}, {"$set": {"url_list": url_list, "url_count": new_count}})
-        print colored("%s urls added to domain %s, url count for this domain is %s " % (str(urls_added), domain_name,
-                                                                                        str(new_count)), "magenta",
+
+        print colored("\ndomain :%s \n"
+                      "url : %s\n"
+                      "total links found on this site: %s\n"
+                      "new urls : %s \n"
+                      "links to different sites : %s\n"
+                      "already existing links: %s\n"
+                      "total urls for this domain: %s " % (domain_name, url, str(total), str(urls_added),
+                                                           str(dif), str(old), str(new_count)), "magenta",
                       attrs=['bold'])
 
 
@@ -162,22 +188,14 @@ def firefox():
 
                 continue
 
-            try:
-                # driver.set_page_load_timeout(2)
-                elem = driver.find_element_by_xpath("//*")
-                html = elem.get_attribute("outerHTML")
-                # print colored("got html with success on %s" % url_printable, "cyan")
-                getAllUrls(url, html, domain_id)
-            except:
-                print colored("HTML failed on %s" % url_printable, "blue", "on_yellow")
-                # db.scraped_urls.update_one({"_id": domain_id}, {"$set": {"locked": False}})
-                # # driver.execute_script("window.stop();")
-                # continue
 
             try:
                 # driver.set_script_timeout(1)
                 driver.execute_script(scr)
-                print colored("script executed! on %s" % url_printable, "blue", "on_green", attrs=['bold'])
+                print colored(
+                    "sctipt executed! #%s for domain : %s \n full url is %s" % (str(last_processed - 1), domain["name"],
+                                                                                url_printable), "blue", "on_green",
+                    attrs=['bold'])
                 sleep(2)
                 driver.execute_script("window.scrollTo(0, document.body.scrollHeight);")
                 sleep(2)
@@ -189,6 +207,18 @@ def firefox():
 
             except:
                 print colored("EXECUTE failed on %s " % url_printable, "red", "on_yellow")
+
+            try:
+                # driver.set_page_load_timeout(2)
+                elem = driver.find_element_by_xpath("//*")
+                html = elem.get_attribute("outerHTML")
+                # print colored("got html with success on %s" % url_printable, "cyan")
+                getAllUrls(url_printable, html, domain_id)
+            except:
+                print colored("HTML failed on %s" % url_printable, "blue", "on_yellow")
+                # db.scraped_urls.update_one({"_id": domain_id}, {"$set": {"locked": False}})
+                # # driver.execute_script("window.stop();")
+                # continue
 
             db.scraped_urls.update_one({"_id": domain["_id"]}, {"$set": {"locked": False}})
             # driver.execute_script("window.stop();")

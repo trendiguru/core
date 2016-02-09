@@ -198,7 +198,7 @@ def scorer(goldenset_classes,testset_classes,weights_dictionary,goldenset_images
 
 def lab():
     '''
-    # ##################################################################################
+    # ########################################## ########################################
     #   LAB LAB LAB LAB LAB LAB LAB LAB LAB LAB LAB LAB LAB LAB LAB LAB LAB LAB LAB LAB
     ###################################################################################
 
