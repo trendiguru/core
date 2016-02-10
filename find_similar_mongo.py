@@ -84,7 +84,7 @@ def find_top_n_results(image, mask, number_of_results=10, category_id=None, coll
     # get all items in the subcategory/keyword
     potential_matches_cursor = collection.find(
         {"categories": category_id},
-        {"_id": 1, "id": 1, "fingerprint": 1, "images.XLarge": 1, "clickUrl": 1}).batch_size(100)
+        {"id": 1, "fingerprint": 1, "images.XLarge": 1, "clickUrl": 1}).batch_size(100)
 
     print "amount of docs in cursor: {0}".format(potential_matches_cursor.count())
     color_fp = fp.fp(image, bins, fp_len, mask)
