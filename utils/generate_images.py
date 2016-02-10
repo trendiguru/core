@@ -44,7 +44,7 @@ def generate_images(img_filename, max_angle = 5,n_angles=10,
     if img_arr is None:
         print('didnt get input image')
         return
-
+    orig_path, filename = os.path.split(img_filename)
     if output_dir is not None and not os.path.exists(output_dir):
         os.mkdir(output_dir)
     eps = 0.01
@@ -118,9 +118,13 @@ def generate_images(img_filename, max_angle = 5,n_angles=10,
                                 M[1,2]=M[1,2]+offset_y
                                 print('M='+str(M))
                                 xformed_img_arr = cv2.warpAffine(noised,  M, (width,height))
-                                name = img_filename[0:-4]+'_ref{0}dx{1}dy{2}rot{3}scl{4}n{5}b{6}'.format(n_reflection,offset_x,offset_y,angle,scale,i,blur)+'.jpg'
-                                print('name:'+str(name))
-                                cv2.imwrite(name, xformed_img_arr)
+                                name = filename[0:-4]+'_ref{0}dx{1}dy{2}rot{3}scl{4}n{5}b{6}'.format(n_reflection,offset_x,offset_y,angle,scale,i,blur)+'.jpg'
+                                if output_dir is not None:
+                                    full_name = os.path.join(output_dir,name)
+                                else:
+                                    full_name = os.path.join(orig_path,name)
+                                print('name:'+str(full_name))
+                                cv2.imwrite(full_name, xformed_img_arr)
                                 cv2.imshow('xformed',xformed_img_arr)
                                 k = cv2.waitKey(0)
                           #  raw_input('enter to cont')
@@ -197,4 +201,4 @@ if __name__=="__main__":
                     max_scale=1.2, n_scales=2,
                     noise_level=0.1,noise_type='gauss',n_noises=2,
                     max_blur=5, n_blurs=2,
-                    do_mirror_lr=True,do_mirror_ud=False,output_dir=None)
+                    do_mirror_lr=True,do_mirror_ud=False,output_dir='snorb')
