@@ -665,7 +665,7 @@ def get_files_from_dir_and_subdirs(path=None):
 #                    print('dir:'+str( ele2))
                     abs_path = os.path.join(paths, ele2)
                     # recursively calling the direct function on each directory
-                    more_files = get_directory_structure(path=abs_path)
+                    more_files = get_files_from_dir_and_subdirs(path=abs_path)
                     # adding the paths to the list that got traversed
                     done_paths.append(abs_path)
                     for file_n in more_files:
