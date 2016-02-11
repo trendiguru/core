@@ -41,14 +41,6 @@ MAX_IMAGES = 10000
 
 #list of outermost cats and synonyms, for searching in our db
 #(CANNOT PUT MULTIPLE PHRASES IN $text)
-descriptions_dict = {'dress': ["dress"],
-                     'skirt': ["skirt"],
-                     'pants': ["pants", "jeans"],
-                     'shirt': ["shirt", "top"],
-                     'outerwear': ["outerwear", "jacket","coat"],
-                     'suit': ["suit","blazer"],
-                     'shorts': ["shorts"]}
-
 
 
 def get_db_fields(collection='products'):
@@ -218,8 +210,20 @@ def run(category_id, search_string_dict=None, async=True):
 def print_logging_info(msg):
     print msg
 
+
 # hackety hack
 logging.info = print_logging_info
 
 if __name__ == '__main__':
-    get_db_fields()
+    descriptions_dict = {'dress': ["dress"],
+                     'skirt': ["skirt"],
+                     'pants': ["pants", "jeans"],
+                     'shirt': ["shirt", "top"],
+                     'outerwear': ["outerwear", "jacket","coat"],
+                     'suit': ["suit","blazer"],
+                     'shorts': ["shorts"]}
+    for key,val in descriptions_dict.iteritems():
+        for cat in val:
+            cursor = find_products_by_category(cat)
+            n=cursor.count()
+            print('cat:{0} subcat:{1} n:{2}'.format(key,cat,n))
