@@ -146,6 +146,21 @@ def find_products_by_category(category_id):
     return cursor
 
 
+def simple_find_products_by_category(category_id):
+    logging.info('****** Starting to find category {} *****'.format(category_id))
+
+#{"username" : {$regex : ".*son.*"}}
+
+    query = {"categories":
+                           {"$regex":"*category_id*"}
+                   }
+    fields = {"categories": 1, "id": 1, "description": 1}
+    cursor = db.products.find(query, fields).batch_size(10)
+    logging.info("Found {count} products in cat {category} ".format(count=cursor.count(),
+                                                                    category=category_id))
+    return cursor
+
+
 def enqueue_for_download(q, iterable, feature_name, category_id, max_images=MAX_IMAGES):
     job_results = []
     for prod in iterable:
