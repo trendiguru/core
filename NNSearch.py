@@ -88,5 +88,6 @@ def find_n_nearest_neighbors(target_dict, entries, number_of_matches, fp_weights
                 nearest_n.pop()
                 farthest_nearest = nearest_n[-1][1]
     [result[0].pop('fingerprint') for result in nearest_n]
+    [result[0].pop('_id') for result in nearest_n]
     nearest_n = [result[0] for result in nearest_n]
     return nearest_n
