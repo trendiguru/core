@@ -154,6 +154,7 @@ def simple_find_products_by_category(category_id):
     query = {"categories":
                            {"$regex":reg}
                    }
+    query = {"categories":category_id  }
     fields = {"categories": 1, "id": 1, "description": 1}
 #    cursor = db.products.find(query, fields).batch_size(10)
     cursor = db.products.find(query).batch_size(10)
