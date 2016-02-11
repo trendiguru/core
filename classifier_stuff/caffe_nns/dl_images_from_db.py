@@ -239,6 +239,6 @@ if __name__ == '__main__':
                      'shorts': ["shorts"]}
     for key,val in descriptions_dict.iteritems():
         for cat in val:
-            cursor = find_products_by_category(cat)
+            cursor = simple_find_products_by_category(cat)
             n=cursor.count()
             print('cat:{0} subcat:{1} n:{2}'.format(key,cat,n))
