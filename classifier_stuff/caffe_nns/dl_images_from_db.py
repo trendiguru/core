@@ -152,10 +152,11 @@ def simple_find_products_by_category(category_id):
 #{"username" : {$regex : ".*son.*"}}
     reg = "*"+category_id+"*"
     query = {"categories":
-                           {$regex:reg}
+                           {"$regex":reg}
                    }
     fields = {"categories": 1, "id": 1, "description": 1}
-    cursor = db.products.find(query, fields).batch_size(10)
+#    cursor = db.products.find(query, fields).batch_size(10)
+    cursor = db.products.find(query).batch_size(10)
     logging.info("Found {count} products in cat {category} ".format(count=cursor.count(),
                                                                     category=category_id))
     return cursor
