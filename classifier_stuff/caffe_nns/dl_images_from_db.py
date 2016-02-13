@@ -170,40 +170,36 @@ def enqueue_for_download(q, iterable, feature_name, category_id, max_images=MAX_
         job_results.append(res.result)
     return job_results
 
-def download_image(prod, feature_name, category_id, max_images):
-    downloaded_images = 0
-    directory = os.path.join(category_id, feature_name)
+def download_cursor(cursor,dl_dir,name_prefix):
+    job_results = []
+    i = 0
+    n_success = 0
+    doc = next(cursor, None)
+    while doc is not None:
+        name= name_prefix + '{0:0>5}'.format(i)
+        path = os.join(dl_dir,name)
+        n_success +=  download_image(doc,path)
+        i += 1
+        doc = next(cursor, None)
+    print('{} succesful saves of {} tries'.format(n_success,i))
+
+def download_image(prod,path):
     try:
-        downloaded_images = len([name for name in os.listdir(directory) if os.path.isfile(name)])
-    except:
-        pass
-    if downloaded_images < max_images:
-            xlarge_url = prod['image']['sizes']['XLarge']['url']
-
-            img_arr = Utils.get_cv2_img_array(xlarge_url)
-            if img_arr is None:
-                logging.warning("Could not download image at url: {0}".format(xlarge_url))
-                return
-
-            relevance = background_removal.image_is_relevant(img_arr)
-            if relevance.is_relevant:
-                logging.info("Image is relevant...")
-
-                filename = "{0}_{1}.jpg".format(feature_name, prod["id"])
-                filepath = os.path.join(directory, filename)
-                Utils.ensure_dir(directory)
-                logging.info("Attempting to save to {0}...".format(filepath))
-                success = cv2.imwrite(filepath, img_arr)
-                if not success:
-                    logging.info("!!!!!COULD NOT SAVE IMAGE!!!!!")
-                    return 0
-                # downloaded_images += 1
-                logging.info("Saved... Downloaded approx. {0} images in this category/feature combination"
-                             .format(downloaded_images))
-                return 1
-            else:
-                # TODO: Count number of irrelevant images (for statistics)
-                return 0
+        xlarge_url = prod['image']['sizes']['XLarge']['url']
+    except KeyError:
+        logging.debug('no such key in prod')
+        return 0
+    img_arr = Utils.get_cv2_img_array(xlarge_url)
+    if img_arr is None:
+        logging.warning("Could not download image at url: {0}".format(xlarge_url))
+        return
+    logging.info("Attempting to save to {0}...".format(path))
+    success = cv2.imwrite(path, img_arr)
+    if not success:
+        logging.info("!!!!!COULD NOT SAVE IMAGE!!!!!")
+        return 0
+    logging.info("Saved {0}".format(path)
+    return 1
 
 def run(category_id, search_string_dict=None, async=True):
     logging.info('Starting...')
@@ -244,3 +240,6 @@ if __name__ == '__main__':
             cursor = simple_find_products_by_category(cat)
             n=cursor.count()
             print('cat:{0} subcat:{1} n:{2}'.format(key,cat,n))
+            dl_dir = key
+            Utils.ensure_dir(dl_dir)
+            download_cursor(cursor,dl_dir,cat)
