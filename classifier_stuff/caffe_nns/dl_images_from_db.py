@@ -177,7 +177,7 @@ def download_cursor(cursor,dl_dir,name_prefix):
     doc = next(cursor, None)
     while doc is not None:
         name= name_prefix + '{0:0>5}'.format(i)
-        path = os.join(dl_dir,name)
+        path = os.path.join(dl_dir,name)
         n_success +=  download_image(doc,path)
         i += 1
         doc = next(cursor, None)
