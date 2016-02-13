@@ -198,7 +198,7 @@ def download_image(prod,path):
     if not success:
         logging.info("!!!!!COULD NOT SAVE IMAGE!!!!!")
         return 0
-    logging.info("Saved {0}".format(path)
+    logging.info("Saved {0}".format(path))
     return 1
 
 def run(category_id, search_string_dict=None, async=True):
