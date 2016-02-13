@@ -195,7 +195,6 @@ def download_image(prod,path):
     except:
         logging.warning('some problem with key of product {0}'.format(prod))
         return 0
-    logging.info("still Attempting to save to {0}".format(path))
     img_arr = Utils.get_cv2_img_array(xlarge_url)
     if img_arr is None:
         logging.warning("Could not download image at url: {0}".format(xlarge_url))
