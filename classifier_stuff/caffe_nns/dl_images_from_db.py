@@ -189,7 +189,7 @@ def download_image(prod,path):
     try:
         xlarge_url = prod['image']['sizes']['XLarge']['url']
     except KeyError:
-        logging.warning('no such key in prod')
+        logging.warning('no such key in product {0}'.format(prod))
         return 0
     except:
         logging.warning('some problem with key of product {0}'.format(prod))
