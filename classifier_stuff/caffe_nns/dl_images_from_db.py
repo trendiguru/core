@@ -188,7 +188,7 @@ def download_image(prod,path):
     logging.info("Attempting to save to {0}".format(path))
     try:
 #        xlarge_url = prod['image']['sizes']['XLarge']['url']  apparently [sizes] and [url] went bye-bye
-        xlarge_url = prod['image']['XLarge']
+        xlarge_url = prod['images']['XLarge']
     except KeyError:
         logging.warning('no such key in product {0}'.format(prod))
         return 0
