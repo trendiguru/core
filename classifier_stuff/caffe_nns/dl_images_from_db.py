@@ -185,15 +185,16 @@ def download_cursor(cursor,dl_dir,name_prefix):
     print('{} succesful saves of {} tries'.format(n_success,i))
 
 def download_image(prod,path):
-    logging.info("Attempting to save to {0}...".format(path))
+    logging.info("Attempting to save to {0}".format(path))
     try:
         xlarge_url = prod['image']['sizes']['XLarge']['url']
     except KeyError:
-        logging.debug('no such key in prod')
+        logging.warning('no such key in prod')
         return 0
     except:
-        logging.debug('some problem with key of product {0}'.format(prod))
+        logging.warning('some problem with key of product {0}'.format(prod))
         return 0
+    logging.info("still Attempting to save to {0}".format(path))
     img_arr = Utils.get_cv2_img_array(xlarge_url)
     if img_arr is None:
         logging.warning("Could not download image at url: {0}".format(xlarge_url))
