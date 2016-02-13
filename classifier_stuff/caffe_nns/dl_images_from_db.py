@@ -1,6 +1,7 @@
 __author__ = 'jeremy'
 import os
 import logging
+logging.basicConfig(llevel=logging.DEBUG)
 import time
 
 import cv2
@@ -184,6 +185,7 @@ def download_cursor(cursor,dl_dir,name_prefix):
     print('{} succesful saves of {} tries'.format(n_success,i))
 
 def download_image(prod,path):
+    logging.info("Attempting to save to {0}...".format(path))
     try:
         xlarge_url = prod['image']['sizes']['XLarge']['url']
     except KeyError:
@@ -193,7 +195,6 @@ def download_image(prod,path):
     if img_arr is None:
         logging.warning("Could not download image at url: {0}".format(xlarge_url))
         return
-    logging.info("Attempting to save to {0}...".format(path))
     success = cv2.imwrite(path, img_arr)
     if not success:
         logging.info("!!!!!COULD NOT SAVE IMAGE!!!!!")
