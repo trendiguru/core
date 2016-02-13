@@ -191,10 +191,13 @@ def download_image(prod,path):
     except KeyError:
         logging.debug('no such key in prod')
         return 0
+    except:
+        logging.debug('some problem with key of product {0}'.format(prod))
+        return 0
     img_arr = Utils.get_cv2_img_array(xlarge_url)
     if img_arr is None:
         logging.warning("Could not download image at url: {0}".format(xlarge_url))
-        return
+        return 0
     success = cv2.imwrite(path, img_arr)
     if not success:
         logging.info("!!!!!COULD NOT SAVE IMAGE!!!!!")
