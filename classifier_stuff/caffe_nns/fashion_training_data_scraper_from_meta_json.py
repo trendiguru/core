@@ -6,6 +6,7 @@ import urllib
 from joblib import Parallel, delayed
 import multiprocessing
 import cv2
+import time
 
 # getting the links and image numbers to web links to list from the text:
 #example line for product #23  , url starts at char 11
@@ -67,7 +68,7 @@ def library_for_dataset_scraping(json_file,json_files_path, photos_path,max_item
     else:
         print('not a json file')
 
-def library_with_cropping(json_file,json_files_path, photos_path,max_items):
+def library_with_cropping(json_file,json_files_path, photos_path,listing,max_items):
     # finds only dresses dataset:
     data = []
 
@@ -82,47 +83,55 @@ def library_with_cropping(json_file,json_files_path, photos_path,max_items):
         data = json.load(open(json_files_path + json_file))
         n = 0
         for data_pack in data:
+            print('')
             photo_id = data_pack['photo']
             product_id = data_pack['product']
             # annotated data ordering (if exists)
-            file_name = 'product_%s_photo_%s.jpg' % (product_id, photo_id)
-            cropped_name = 'product_%s_photo_%s_cropped.jpg' % (product_id, photo_id)
-            full_path = photos_path + set_name + '/' + file_name
-            f = open(full_path, 'wb')
             if len(data_pack) > 2:
+                file_name = 'product_%s_photo_%s_withbb.jpg' % (product_id, photo_id)
+                cropped_name = 'product_%s_photo_%s_cropped.jpg' % (product_id, photo_id)
+                full_path = photos_path + set_name + '/' + file_name
+                cropped_path = photos_path + set_name + '/' + cropped_name
+                print  'attempting full+cropped img save of: ' + full_path
+                f = open(full_path, 'wb')
                 bbox_dict = data_pack['bbox']
                 bbox = [int(bbox_dict['left']), int(bbox_dict['top']), int(bbox_dict['width']), int(bbox_dict['height'])]
                 try:
                     url_call = urllib.urlopen(listing[photo_id-1])
                     f.write(url_call.read())
-                    f.close()
                     f.flush()
-                    print listing[photo_id-1] + '\n saved as: ' + full_path
-                    img_arr = cv2.imread(full_path)
+                    f.close()
+                    print listing[photo_id-1] + '\n succesful full img saved as: ' + full_path
+      #              time.sleep(0.1)
                     try:
-                        cropped = img_arr[bbox[0]:bbox[0]+bbox[1],bbox[2]:bbox[2]+bbox[3]]
-                        cropped_path = photos_path + set_name + '/' + cropped_name
-                        retval = cv2.imwrite(cropped,cropped_path)
-                        print listing[photo_id-1] + '\n succesful save as: ' + cropped_path + ' retval:' +str(retval)
+                        print('trying crop')
+                        img_arr = cv2.imread(full_path)
+                        if img_arr is None:
+                            print('could not read img:'+full_path)
+                        cropped = img_arr[bbox[1]:bbox[3]+bbox[1],bbox[0]:bbox[2]+bbox[0]]
+                        cropped_path = full_path  #clobber orig image
+                        cv2.imwrite(cropped_path,cropped)
+                        print listing[photo_id-1] + '\n cropped succesful save as: ' + cropped_path
                     except:
-                        print listing[photo_id-1] + '\n unsuccesful save as: ' + cropped_path + ' retval:' +str(retval)
-                        pass
+                        print listing[photo_id-1] + '\n cropped unsuccesful save as: ' + cropped_path
                 except:
-                    print listing[photo_id-1] + '\n unsuccesful save of: ' + full_path + '\n'
-                    pass
-
-
-
+                    print listing[photo_id-1] + '\n yo full img unsuccesful save of: ' + full_path
             else:
+                file_name = 'product_%s_photo_%s.jpg' % (product_id, photo_id)
+                full_path = photos_path + set_name + '/' + file_name
+                print  'attempting full catalog img save of: ' + full_path
+                f = open(full_path, 'wb')
                 try:
                     url_call = urllib.urlopen(listing[photo_id-1])
                     f.write(url_call.read())
                     f.close()
-                    print listing[photo_id-1] + '\n saved as: ' + full_path
+                    print listing[photo_id-1] + '\n catalog img saved as: ' + full_path
                 except:
-                    print listing[photo_id-1] + '\n passed: ' + full_path + '\n'
+                    print listing[photo_id-1] + '\n catalog img unsuccesful save: ' + full_path + '\n'
                     pass
             n+=1
+            print('')
+
             if n>max_items:
                 print('hit max items')
                 break
@@ -133,14 +142,17 @@ def library_with_cropping(json_file,json_files_path, photos_path,max_items):
 if __name__ == "__main__":
 # opening the JSONs structure files:
     num_cores = multiprocessing.cpu_count()
+  #  num_cores = 1
     json_files_path = os.path.dirname(os.path.abspath(__file__)) + '/meta/json/'
     images_files_path = os.path.dirname(os.path.abspath(__file__)) + '/photos/photos.txt'
-    photos_path = os.path.dirname(os.path.abspath(__file__)) + '/dataset/'
-    if not os.path.exists(photos_path):
-            os.mkdir(photos_path)
+    dl_path = os.path.dirname(os.path.abspath(__file__)) + '/dataset/'
+    if not os.path.exists(dl_path):
+            os.mkdir(dl_path)
 
     listing = get_product_photos(images_files_path)
 
+    max_items = 100
     only_files = [f for f in os.listdir(json_files_path) if os.path.isfile(os.path.join(json_files_path, f))]
+#    only_files = ['test_pairs_footwear.json']
     print only_files
-    Parallel(n_jobs=num_cores)(delayed(library_with_cropping)(json_file,json_files_path,photos_path,listing) for json_file in only_files)
+    Parallel(n_jobs=num_cores)(delayed(library_with_cropping)(json_file,json_files_path,dl_path,listing,max_items) for json_file in only_files)
