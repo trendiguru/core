@@ -171,12 +171,12 @@ def enqueue_for_download(q, iterable, feature_name, category_id, max_images=MAX_
         job_results.append(res.result)
     return job_results
 
-def download_cursor(cursor,dl_dir,name_prefix):
+def download_cursor(cursor,dl_dir,name_prefix,max_items):
     job_results = []
     i = 0
     n_success = 0
     doc = next(cursor, None)
-    while doc is not None:
+    while doc is not None and i<max_items:
         name= name_prefix + '{0:0>5}'.format(i) + '.jpg'
         path = os.path.join(dl_dir,name)
         n_success +=  download_image(doc,path)
@@ -240,6 +240,7 @@ if __name__ == '__main__':
                      'outerwear': ["outerwear", "jacket","coat"],
                      'suit': ["suit","blazer"],
                      'shorts': ["shorts"]}
+    max_items = 1000 #max ims per cat to dl
     for key,val in descriptions_dict.iteritems():
         for cat in val:
             cursor = simple_find_products_by_category(cat)
@@ -247,4 +248,4 @@ if __name__ == '__main__':
             print('cat:{0} subcat:{1} n:{2}'.format(key,cat,n))
             dl_dir = key
             Utils.ensure_dir(dl_dir)
-            download_cursor(cursor,dl_dir,cat)
+            download_cursor(cursor,dl_dir,cat,max_items)
