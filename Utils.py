@@ -117,7 +117,7 @@ def get_cv2_img_array(url_or_path_to_image_file_or_cv2_image_array, convert_url_
                 # print("trying locally (not url)")
                 img_path = url_or_path_to_image_file_or_cv2_image_array
                 try:
-                    img_array = imread(img_path)
+                    img_array = cv2.imread(img_path)
                     if img_array is not None:
                         # print("success trying locally (not url)")
                         got_locally = True
@@ -259,7 +259,7 @@ def bounding_box_inside_image(image_array, rect):
         if rect[0] < width and rect[0] + rect[2] < width and rect[1] < height and rect[1] + rect[3] < height:
             return True  # bb fits into image
         else:
-            print('warning - bb not inside image')
+            #print('warning - bb not inside image')
             return False
     else:
         print('warning - bb not legal (either too small or None')

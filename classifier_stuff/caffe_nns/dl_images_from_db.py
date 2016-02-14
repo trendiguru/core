@@ -148,7 +148,7 @@ def find_products_by_category(category_id):
 
 
 def simple_find_products_by_category(category_id):
-    logging.info('****** Starting to find category {} *****'.format(category_id))
+    logging.info('****** Starting to find category {} '.format(category_id))
 
 #{"username" : {$regex : ".*son.*"}}
     reg = "*"+category_id+"*"
@@ -176,6 +176,7 @@ def download_cursor(cursor,dl_dir,name_prefix,max_items):
     i = 0
     n_success = 0
     doc = next(cursor, None)
+    logging.info('starting to download cursor, dir {} prefix {} maxitems {}'.format(dl_dir,name_prefix,max_items))
     while doc is not None and i<max_items:
         name= name_prefix + '{0:0>5}'.format(i) + '.jpg'
         path = os.path.join(dl_dir,name)
