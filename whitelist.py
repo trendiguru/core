@@ -164,14 +164,16 @@ if __name__ == "__main__":
     print ("Scraping the white list - Started...)")
     levels = 2
     whiteLi = top50Fashion
-    if len(sys.argv) == 2:
+    if len(sys.argv) > 1:
         levels = int(sys.argv[1])
-    if len(sys.argv) == 3:
+    if len(sys.argv) > 2:
         if sys.argv[2] == "top50CelebSytle":
             whiteLi = top50CelebSytle
         elif sys.argv[2] == "fashionBlogs":
             whiteLi = fashionBlogs
         elif sys.argv[2] == "fullList":
             whiteLi = fullList
+        else:
+            whiteLi = [sys.argv[2]]
     res = masterCrawler(levels, whiteLi)
     print (res)

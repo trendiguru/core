@@ -4,6 +4,9 @@ import pickle
 import numpy as np
 import cv2
 import h5py
+# import theano
+# theano.config.device = 'gpu'
+# theano.config.floatX = 'float32'
 from keras.callbacks import ModelCheckpoint, EarlyStopping, Callback
 from keras.models import Sequential
 from keras.layers.core import Dense, Dropout, Activation, Flatten
@@ -50,7 +53,7 @@ def get_data(my_path):#, testing_amount=0.2):#my_path=os.path.dirname(os.path.ab
     # print amount_of_each_ta g
     # testing_input = []
     # testing_output = []
-    # training_input = []
+    # training_inputnano = []
     # training_output = []
     # for type in range(output_vector_size):
     #     amount_of_tag = int(amount_of_each_tag[type] * testing_amount)
@@ -79,42 +82,42 @@ Y_train = output_vector
 
 
 
-model_description = 'whatever'#'32k5x5CV1_2x2MP1_32k3x3CV2_32k3x3CV3_32k3x3CV4_2x2MP2_64dFC1_3dFC2'
-size_batch = 16
+model_description = 'whatever' #'32k5x5CV1_2x2MP1_32k3x3CV2_32k3x3CV3_32k3x3CV4_2x2MP2_64dFC1_3dFC2'
+size_batch = 32
 epoches_number = 10000
 overwrite_weights = True
 testing_amount = 0.05
 
 model = Sequential()
-model.add(Convolution2D(16, 3, 3, border_mode='full', input_shape=(3, 32, 32)))
+model.add(Convolution2D(32, 3, 3, border_mode='valid', input_shape=(3, 32, 32)))
 model.add(Activation('hard_sigmoid'))
 model.add(MaxPooling2D(pool_size=(2, 2)))
-model.add(Convolution2D(32, 3, 3))
-model.add(Activation('hard_sigmoid'))
-model.add(MaxPooling2D(pool_size=(2, 2)))
-# model.add(Dropout(0.25))
-
+model.add(Dropout(0.25))
 model.add(Convolution2D(64, 3, 3, border_mode='valid'))
 model.add(Activation('hard_sigmoid'))
 model.add(MaxPooling2D(pool_size=(2, 2)))
-# model.add(Convolution2D(128, 3, 3))
+model.add(Dropout(0.25))
+model.add(Convolution2D(128, 3, 3, border_mode='valid'))
+model.add(Activation('hard_sigmoid'))
+model.add(MaxPooling2D(pool_size=(2, 2)))
+model.add(Dropout(0.25))
+# model.add(Convolution2D(16, 3, 3, border_mode='valid'))
 # model.add(Activation('hard_sigmoid'))
 # model.add(MaxPooling2D(pool_size=(2, 2)))
 # model.add(Dropout(0.25))
-# model.add(Convolution2D(64, 3, 3, border_mode='valid'))
+# model.add(Convolution2D(8, 3, 3, border_mode='valid'))
+# model.add(Activation('hard_sigmoid'))
+# model.add(Convolution2D(8, 3, 3, border_mode='valid'))
 # model.add(Activation('hard_sigmoid'))
 # model.add(MaxPooling2D(pool_size=(2, 2)))
-# model.add(Convolution2D(64, 3, 3, border_mode='valid'))
-# model.add(Activation('hard_sigmoid'))
-# model.add(Dropout(0.5))
+# model.add(Dropout(0.25))
 
 model.add(Flatten())
 model.add(Dense(256))
 model.add(Activation('hard_sigmoid'))
-# model.add(Dense(128))
-# model.add(Activation('hard_sigmoid'))
-# model.add(Dense(64))
-# model.add(Activation('hard_sigmoid'))
+# model.add(Dropout(0.5))
+model.add(Dense(64))
+model.add(Activation('hard_sigmoid'))
 # model.add(Dropout(0.5))
 model.add(Dense(5))
 model.add(Activation('softmax'))

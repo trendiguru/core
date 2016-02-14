@@ -12,12 +12,12 @@ TTL = constants.general_ttl
 # Tell RQ what Redis connection to use
 
 def paperdoll_enqueue(img_url_or_cv2_array, person_id=None, async=True, queue_name=None, use_tg_worker=True,
-                      use_parfor=False):
+                      use_parfor=False, at_front=False):
     """
     The 'parallel matlab queue' which starts engines and keeps them warm is 'pd'.  This worker should be running somewhere (ideally in a screen like pd1).
     The use_tg_worker argument forces  use/nonuse of the tgworker than knows how to keep the engines warm and can be started along the lines of:
         rqworker -u redis://redis1-redis-1-vm:6379  -w rq.tgworker.TgWorker  pd
-    :param img_url_or_cv2_array: the image/url
+    :param img_url_or_cv2_got_mask = bool(mask)array: the image/url
     :param async: whether to run async or sync
     :param queue: queue name on which to run paperdoll
     :param use_tg_worker: whether or not to use special tg worker, if so queue needs to have been started with -t tgworker
@@ -33,7 +33,7 @@ def paperdoll_enqueue(img_url_or_cv2_array, person_id=None, async=True, queue_na
     queue = Queue(queue_name, connection=redis_conn)
     job1 = queue.enqueue_call(func='trendi.paperdoll.pd.get_parse_mask_parallel',
                               args=(img_url_or_cv2_array, person_id),
-                              ttl=TTL, result_ttl=TTL, timeout=TTL)
+                              ttl=TTL, result_ttl=TTL, timeout=TTL, at_front=at_front)
     if isinstance(img_url_or_cv2_array, basestring):
         url = img_url_or_cv2_array
     else:
@@ -119,7 +119,7 @@ def callback_example(queue_name,previous_job_id,*args,**kwargs):
     print('prev result:')
     print job1_answers
 
-    logging.warning('this is the callback calling')
+    logging.פ('this is the callback calling')
     return (567,job1_answers)
 
     #run a parallelization test

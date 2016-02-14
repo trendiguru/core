@@ -32,12 +32,17 @@ def email(stats, spec_coll=None):
             duration = "still in process"
         else:
             duration = str(curr['dl_duration(min)'])
+
         txt2 = txt2 + '<h1><mark>' + coll + '</mark></h1>' \
                                             '<h3> date:\t' + str(curr['date']) + '</h3>\n<h3>' + \
                'items downloaded:\t' + str(curr['items_downloaded']) + '</h3>\n<h3>' + \
                'new items:\t' + str(curr['new_items']) + '</h3>\n<h3>' + \
                'insert errors:\t' + str(curr['errors']) + '</h3>\n<h3>' + \
-               'dl duration(min):\t' + duration + '</h3><br>'
+               'dl duration(min):\t' + duration + '</h3>\n\n<h3>' + \
+               'total_items:\t' + str(curr['total_items']) + '</h3>\n<h3>' + \
+               'in stock:\t' + str(curr['instock']) + '</h3>\n<h3>' + \
+               'out of stock:\t' + str(curr['out']) + '</h3><br>'
+
         # '</h3>\n<h3>' + '</h3>\n<h3>' + 'items by category:</h3>\n' + '</h3>\n<h3>'
 
 
@@ -110,7 +115,10 @@ def stats_and_mail():
                       'items_downloaded': dl_data['items_downloaded'],
                       'new_items': dl_data['new_items'],
                       'dl_duration(min)': dl_data['total_dl_time(min)'],
-                      'errors': dl_data['errors']})
+                      'errors': dl_data['errors'],
+                      'total_items': dl_data["total_items"],
+                      "instock": dl_data["instock"],
+                      "out": dl_data["out"]})
         # 'items_by_category': {}}
     # for i in constants.db_relevant_items:
     #     if i == 'women' or i == 'women-cloth':

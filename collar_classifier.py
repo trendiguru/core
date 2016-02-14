@@ -4,6 +4,9 @@ import pickle
 import numpy as np
 from scipy.stats import mode
 import cv2
+# import theano
+# theano.config.device = 'gpu'
+# theano.config.floatX = 'float32'
 from keras.models import Sequential
 from keras.layers.core import Dense, Dropout, Activation, Flatten
 from keras.layers.convolutional import Convolution2D, MaxPooling2D

@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-from __future__ import (absolute_import, division, print_function,
+from __future__ import (absolute_import, division,
                         unicode_literals)
 
 import errno
@@ -17,21 +17,38 @@ import os
 
 from rq.compat import as_text, string_types, text_type
 
-from .connections import get_current_connection
-from .exceptions import DequeueTimeout
-from .job import Job, JobStatus
-from .logutils import setup_loghandlers
-from .queue import Queue, get_failed_queue
-from .registry import FinishedJobRegistry, StartedJobRegistry, clean_registries
-from .suspension import is_suspended
-from .timeouts import UnixSignalDeathPenalty
-from .utils import (ensure_list, enum, import_attribute, make_colorizer,
+#ON braini1THIS GOES LIKE
+from rq.connections import get_current_connection
+from rq.exceptions import DequeueTimeout
+from rq.job import Job, JobStatus
+from rq.logutils import setup_loghandlers
+from rq.queue import Queue, get_failed_queue
+from rq.registry import FinishedJobRegistry, StartedJobRegistry, clean_registries
+from rq.suspension import is_suspended
+from rq.timeouts import UnixSignalDeathPenalty
+from rq.utils import (ensure_list, enum, import_attribute, make_colorizer,
                     utcformat, utcnow, utcparse)
-from .version import VERSION
+from rq.version import VERSION
 
-from .worker import Worker
+from rq.worker import Worker
+
+#ON PP-@ THIS GOES LIKE
+#from .connections import get_current_connection
+#from .exceptions import DequeueTimeout
+#from .job import Job, JobStatus
+#from .logutils import setup_loghandlers
+#from .queue import Queue, get_failed_queue
+#from .registry import FinishedJobRegistry, StartedJobRegistry, clean_registries
+#from .suspension import is_suspended
+#from .timeouts import UnixSignalDeathPenalty
+#from .utils import (ensure_list, enum, import_attribute, make_colorizer,
+#                    utcformat, utcnow, utcparse)
+#from .version import VERSION
+
+#from .worker import Worker
 
 import matlab.engine
+logging.basicConfig(level=logging.DEBUG)
 
 
 green = make_colorizer('darkgreen')
@@ -40,99 +57,29 @@ blue = make_colorizer('darkblue')
 
 
 class TgWorker(Worker):
-    def dont_do__init__(self, queues, name=None,
-                 default_result_ttl=None, connection=None,
-                 exc_handler=None, default_worker_ttl=None, job_class=None):
-
-##jr in
-        print('this overrides but doesnt work')
-
-        DEFAULT_WORKER_TTL = 420
-        DEFAULT_RESULT_TTL = 500
-        logger = logging.getLogger(__name__)
-        #jr out
-        if connection is None:
-            connection = get_current_connection()
-        self.connection = connection
-
-        print('debug1')
-
-        queues = [self.queue_class(name=q) if isinstance(q, text_type) else q
-                  for q in ensure_list(queues)]
-        self._name = name
-        self.queues = queues
-        self.validate_queues()
-        self._exc_handlers = []
-        print('debug2')
-
-        if default_result_ttl is None:
-            default_result_ttl = DEFAULT_RESULT_TTL
-        self.default_result_ttl = default_result_ttl
-
-        if default_worker_ttl is None:
-            default_worker_ttl = DEFAULT_WORKER_TTL
-        self.default_worker_ttl = default_worker_ttl
-        print('debug3')
-
-        self._state = 'starting'
-        self._is_horse = False
-        self._horse_pid = 0
-        self._stop_requested = False
-        self.log = logger
-        self.failed_queue = get_failed_queue(connection=self.connection)
-        self.last_cleaned_at = None
-        # By default, push the "move-to-failed-queue" exception handler onto
-        # the stack
-        print('debug4')
-
-        self.push_exc_handler(self.move_to_failed_queue)
-        if exc_handler is not None:
-            self.push_exc_handler(exc_handler)
-
-        if job_class is not None:
-            if isinstance(job_class, string_types):
-                job_class = import_attribute(job_class)
-            self.job_class = job_class
-        print('debug5')
-
-            #JR in
-        print('debug6')
-        logger.info('attempting to start engine as user '+os.getegid())
-
-        import matlab.engine
-        eng = matlab.engine.start_matlab()
-        engine_name = eng.engineName
-        logger.info('new engine name:'+str(engine_name))
-        a=eng.factorial(5)
-        print('debug7')
-
-        logger.info('test using engine:5! ='+str(a))
-        self.matlab_engine = eng
-        print('debug8')
-    #JR out
 
     def main_work_horse(self, *args, **kwargs):
         raise NotImplementedError("Test worker does not implement this method")
 
     def execute_job(self, *args, **kwargs):
         """Execute job in same thread/process, do not fork()"""
-        print('executing from tgworker')
+        logging.debug('executing from tgworker')
         DEFAULT_WORKER_TTL = 1000
         DEFAULT_RESULT_TTL = 1000
         logger = logging.getLogger(__name__)
         logger.info('checking engine in ej')
-        print('checking to start engine in ej')
+        logging.debug('checking to start engine in ej')
         if not hasattr(self,'matlab_engine'):
             eng = matlab.engine.start_matlab()
             engine_name = eng.engineName
-            print('new engine name:'+str(engine_name))
+            logging.debug('new engine name:'+str(engine_name))
             a=eng.factorial(8)
-            print('test using engine:8! ='+str(a))
+            logging.debug('test using engine:8! ='+str(a))
             self.matlab_engine = eng
-            print('ej engine:'+str(self.matlab_engine))
+            logging.debug('ej engine:'+str(self.matlab_engine))
         else:
             logger.info('found engine in ej')
-            print('found engine in ej')
+            logging.debug('found engine in ej')
 
         return self.perform_job(*args, **kwargs)
 
@@ -146,17 +93,17 @@ class TgWorker(Worker):
             started_job_registry = StartedJobRegistry(job.origin, self.connection)
 
             try:
-                print('perform_job in sw')
+                logging.debug('perform_job in sw')
                 job.matlab_engine = self.matlab_engine
-                print('pj engine:'+str(self.matlab_engine))
-                print('pj args,kwargs:'+str(job._args)+','+str(job._kwargs))
+                logging.debug('pj engine:'+str(self.matlab_engine))
+                logging.debug('pj args,kwargs:'+str(job._args)+','+str(job._kwargs))
                 if len(job._args) > 0:
                     new_args = (self.matlab_engine,)+job._args
-                    print('tg pj  new args:'+str(new_args))
+                    logging.debug('tg pj  new args:'+str(new_args))
                     job._args = new_args
                 elif len(job._kwargs) > 0:
                     job._kwargs['matlab_engine']=self.matlab_engine
-                    print('tg pj new kwargs:'+str(job._kwargs))
+                    logging.debug('tg pj new kwargs:'+str(job._kwargs))
                 with self.death_penalty_class(job.timeout or self.queue_class.DEFAULT_TIMEOUT):
                     rv = job.perform()
         # Pickle the result in the same try-except block since we need
