@@ -86,6 +86,7 @@ def library_with_cropping(json_file,json_files_path, photos_path,max_items):
             product_id = data_pack['product']
             # annotated data ordering (if exists)
             file_name = 'product_%s_photo_%s.jpg' % (product_id, photo_id)
+            cropped_name = 'product_%s_photo_%s_cropped.jpg' % (product_id, photo_id)
             full_path = photos_path + set_name + '/' + file_name
             f = open(full_path, 'wb')
             if len(data_pack) > 2:
@@ -96,22 +97,30 @@ def library_with_cropping(json_file,json_files_path, photos_path,max_items):
                     f.write(url_call.read())
                     f.close()
                     f.flush()
+                    print listing[photo_id-1] + '\n saved as: ' + full_path
                     img_arr = cv2.imread(full_path)
-                    cropped = img_arr[bbox[0]:bbox[0]+bbox[1],bbox[2]:bbox[2]+bbox[3]]
-                    cv2.imwrite(cropped,full_path)
-                    print listing[photo_id-1] + '\n saved as: ' + file_name
+                    try:
+                        cropped = img_arr[bbox[0]:bbox[0]+bbox[1],bbox[2]:bbox[2]+bbox[3]]
+                        cropped_path = photos_path + set_name + '/' + cropped_name
+                        retval = cv2.imwrite(cropped,cropped_path)
+                        print listing[photo_id-1] + '\n succesful save as: ' + cropped_path + ' retval:' +str(retval)
+                    except:
+                        print listing[photo_id-1] + '\n unsuccesful save as: ' + cropped_path + ' retval:' +str(retval)
+                        pass
                 except:
-                    print listing[photo_id-1] + '\n passed: ' + file_name + '\n'
+                    print listing[photo_id-1] + '\n unsuccesful save of: ' + full_path + '\n'
                     pass
+
+
 
             else:
                 try:
                     url_call = urllib.urlopen(listing[photo_id-1])
                     f.write(url_call.read())
                     f.close()
-                    print listing[photo_id-1] + '\n saved as: ' + file_name
+                    print listing[photo_id-1] + '\n saved as: ' + full_path
                 except:
-                    print listing[photo_id-1] + '\n passed: ' + file_name + '\n'
+                    print listing[photo_id-1] + '\n passed: ' + full_path + '\n'
                     pass
             n+=1
             if n>max_items:
