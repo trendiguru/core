@@ -52,9 +52,7 @@ class ShopStyleDownloader():
                                           "total_items": 0,
                                           "instock": 0,
                                           "out": 0})
-        # self.db.drop_collection("fp_in_process")
-        # self.db.fp_in_process.insert_one({})
-        # self.db.fp_in_process.create_index("id")
+
         self.db.dl_cache.delete_many({})
         self.db.dl_cache.create_index("filter_params")
         root_category, ancestors = self.build_category_tree(collection)
@@ -64,23 +62,31 @@ class ShopStyleDownloader():
             self.download_category(cat, collection)
 
         self.wait_for(collection)
-        self.db.download_data.find_one_and_update({"criteria": collection},
+        self.db.download_data.update_one({"criteria": collection},
                                                   {'$set': {"end_time": datetime.datetime.now()}})
         tmp = self.db.download_data.find({"criteria": collection})[0]
         total_time = abs(tmp["end_time"] - tmp["start_time"]).total_seconds()
         del_items = self.db[collection].delete_many({'fingerprint': {"$exists": False}})
         # print str(del_items.deleted_count) + ' items without fingerprint were deleted!\n'
-        self.db.drop_collection("fp_in_process")
         total_items = self.db[collection].count()
+        old = self.db[collection].find({"download_data.dl_version": {"$ne": self.current_dl_date}})
+        y_new, m_new, d_new = map(int, self.current_dl_date.split("-"))
+        for item in old:
+            y_old, m_old, d_old = map(int, item["download_data"]["dl_version"].split("-"))
+            days_out = 365*(y_new-y_old)+30*(m_new-m_old)+(d_new-d_old)
+            self.db[collection].update_one({'id': item['id']}, {"$set": {"status.days_out": days_out,
+                                                                         "status.instock": False}})
+
         instock = self.db[collection].find({"status.instock": True}).count()
         out = self.db[collection].find({"status.instock": False}).count()
-        self.db.download_data.find_one_and_update({"criteria": collection},
+        self.db.download_data.update_one({"criteria": collection},
                                                   {'$set': {"total_dl_time(min)": str(total_time / 60)[:5],
                                                             "end_time": datetime.datetime.now(),
                                                             "total_items": str(total_items),
                                                             "instock": str(instock),
                                                             "out": str(out)}})
         print collection + " DOWNLOAD DONE!!!!!\n"
+
 
     def wait_for(self, collection):
         # print "Waiting for 45 min before first check"
@@ -251,7 +257,7 @@ class ShopStyleDownloader():
 
         # requests package can't handle https - temp fix
         prod["image"] = json.loads(json.dumps(prod["image"]).replace("https://", "http://"))
-        self.db.download_data.find_one_and_update({"criteria": collection},
+        self.db.download_data.update_one({"criteria": collection},
                                                   {'$inc': {"items_downloaded": 1}})
         prod["download_data"] = {"dl_version": self.current_dl_date}
 
@@ -271,7 +277,7 @@ class ShopStyleDownloader():
                     prod["download_data"]["dl_version"] = self.current_dl_date
                     self.db[collection].insert_one(prod)
                     return
-            self.db.download_data.find_one_and_update({"criteria": collection},
+            self.db.download_data.update_one({"criteria": collection},
                                                       {'$inc': {"new_items": 1}})
             prod = convert2generic(prod)
             self.insert_and_fingerprint(prod, collection)
@@ -284,15 +290,16 @@ class ShopStyleDownloader():
             status_old = prod_in_coll["status"]["instock"]
             if status_new is False and status_old is False:
                 self.db[collection].update_one({'id': prod["id"]},
-                                               {'$inc': {'status.hours_out': 24}})
-                prod["status"]["hours_out"] = prod_in_coll["status"]["hours_out"] + 24
+                                               {'$inc': {'status.days_out': 1}})
+                prod["status"]["days_out"] = prod_in_coll["status"]["days"] + 1
             elif status_new is True and status_old is False:
                 self.db[collection].update_one({'id': prod["id"]},
-                                               {'$set': {'status.hours_out': 0}})
+                                               {'$set': {'status.days_out': 0,
+                                                         'status.instock': True}})
             else:
                 pass
 
-            if prod_in_coll.get("download_data")["fp_version"] == fp_version:
+            if prod_in_coll["download_data"]["fp_version"] == fp_version:
                 self.db[collection].update_one({'id': prod["id"]},
                                                {'$set': {'download_data.dl_version': self.current_dl_date}})
             else:
