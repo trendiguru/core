@@ -12,7 +12,7 @@ try:
 except ImportError:
     flags = None
 
-SCOPES = 'https://www.googleapis.com/auth/drive.file'
+SCOPES = 'https://www.googleapis.com/auth/drive'
 store = file.Storage('storage.json')
 creds = store.get()
 if not creds or creds.invalid:
