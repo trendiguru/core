@@ -27,7 +27,8 @@ FILES = (
 )
 
 for filename, convert in FILES:
-    metadata = {'title': filename}
+    metadata = {'title': filename,
+                'parents':[{'id':"0B-fDiFA73MH_N1ZCNVNYcW0tRFk"}]}
     res = DRIVE.files().insert(convert=convert, body=metadata,
             media_body=filename, fields='mimeType,exportLinks').execute()
     if res:
