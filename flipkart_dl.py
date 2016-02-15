@@ -104,12 +104,12 @@ if __name__ == "__main__":
             tmp_prod["brand"] = row[8]
             tmp_prod["download_data"] = {"dl_version": None, "first_dl": None, "fp_version": None}
             prev = db.flipkart.find_one({'id': tmp_prod["id"]})
-            db.download_data.find_one_and_update({"criteria": criteria},
+            db.download_data.update_one({"criteria": criteria},
                                                  {'$inc': {"items_downloaded": 1}})
             if prev is None:
                 q.enqueue(generate_mask_and_insert, doc=tmp_prod, image_url=tmp_prod["images"]["XLarge"],
                           fp_date=today_date, coll="flipkart")
-                db.download_data.find_one_and_update({"criteria": criteria},
+                db.download_data.update_one({"criteria": criteria},
                                                      {'$inc': {"new_items": 1}})
             else:
                 tmp_prod["fingerprint"] = prev["fingerprint"]
@@ -124,21 +124,25 @@ if __name__ == "__main__":
                     db.fp_in_process.delete_one({"id": tmp_prod["id"]})
 
                 except:
-                    db.download_data.find_one_and_update({"criteria": criteria},
+                    db.download_data.update_one({"criteria": criteria},
                                                          {'$inc': {"errors": 1}})
                     print "error inserting"
 
     old = db.flipkart.find({"download_data.dl_version": {"$ne": today_date}})
+    y_new, m_new, d_new = map(int, today_date.split("-"))
     for item in old:
-        db.flipkart.find_one_and_update({'id': item['id']}, {"$inc": {"status.days_out": 1 / 3}})
-    db.download_data.find_one_and_update({"criteria": criteria},
+        y_old, m_old, d_old = map(int, item["download_data"]["dl_version"].split("-"))
+        days_out = 365*(y_new-y_old)+30*(m_new-m_old)+(d_new-d_old)
+        db.flipkart.update_one({'id': item['id']}, {"$set": {"status.days_out": days_out,
+                                                                     "status.instock": False}})
+    db.download_data.update_one({"criteria": criteria},
                                          {'$set': {"end_time": datetime.datetime.now()}})
     total = db.download_data.find({"criteria": criteria})[0]
     total_time = abs(total["end_time"] - total["start_time"]).total_seconds()
     total_items = db.flipkart.count()
     instock = db.flipkart.find({"status.instock": True}).count()
     out = db.flipkart.find({"status.instock": False}).count()
-    db.download_data.find_one_and_update({"criteria": criteria},
+    db.download_data.update_one({"criteria": criteria},
                                          {'$set': {"total_dl_time(min)": str(total_time / 60)[:5],
                                                    "end_time": datetime.datetime.now(),
                                                    "total_items": str(total_items),
