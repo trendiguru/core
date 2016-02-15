@@ -121,8 +121,8 @@ def callback_example(queue_name,previous_job_id,*args,**kwargs):
     print('prev result:')
     print job1_answers
 
-    # logging.warning('this is the callback calling')
-    return (567,job1_answers)
+    print 'this is the callback calling'
+    return 567, job1_answers
 
     #run a parallelization test
 if __name__ == "__main__":
