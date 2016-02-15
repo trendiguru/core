@@ -22,8 +22,8 @@ if not creds or creds.invalid:
 DRIVE = build('drive', 'v2', http=creds.authorize(Http()))
 
 FILES = (
-    ('xl1.xlsx', False),
-    ('xl1.xlsx', True),
+    ('autoCrawler.txt', False),
+    ('autoCrawler.txt', True),
 )
 
 for filename, convert in FILES:
