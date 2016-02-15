@@ -155,6 +155,7 @@ class ShopStyleDownloader():
             initial_filter_params = UrlParams(params_dict=parameters)
             self.divide_and_conquer(initial_filter_params, 0, collection)
 
+
     def divide_and_conquer(self, filter_params, filter_index, coll="products"):
         """Keep branching until we find disjoint subsets which have less then MAX_SET_SIZE items"""
         if filter_index >= len(FILTERS):
