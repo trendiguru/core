@@ -119,7 +119,7 @@ class ShopStyleDownloader():
         self.db.categories.insert(category_list)
         # find all the children
         for cat in self.db.categories.find():
-            self.db.categories.update({"id": cat["parentId"]}, {"$addToSet": {"childrenIds": cat["id"]}})
+            self.db.categories.update_one({"id": cat["parentId"]}, {"$addToSet": {"childrenIds": cat["id"]}})
         # get list of all categories under root - "ancestors"
         ancestors = []
         for c in self.db.categories.find({"parentId": root_category}):
@@ -131,7 +131,7 @@ class ShopStyleDownloader():
             hist = response.json()["categoryHistogram"]
             # save count for each category
             for cat in hist:
-                self.db.categories.update({"id": cat["id"]}, {"$set": {"count": cat["count"]}})
+                self.db.categories.update_one({"id": cat["id"]}, {"$set": {"count": cat["count"]}})
         return root_category, ancestors
 
     def download_category(self, category_id, collection):
@@ -154,6 +154,7 @@ class ShopStyleDownloader():
         else:
             initial_filter_params = UrlParams(params_dict=parameters)
             self.divide_and_conquer(initial_filter_params, 0, collection)
+
 
     def divide_and_conquer(self, filter_params, filter_index, coll="products"):
         """Keep branching until we find disjoint subsets which have less then MAX_SET_SIZE items"""
