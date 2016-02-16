@@ -111,7 +111,7 @@ model.add(Dense(5))
 model.add(Activation('softmax'))
 
 
-optimizer_method = SGD(lr=0.001, decay=1e-6, momentum=0.9, nesterov=True)#Adagrad()#Adadelta()#RMSprop()#Adam()#Adadelta() #
+optimizer_method = SGD(lr=0.001, decay=1e-6, momentum=0.9, nesterov=True)#Adagrad()#Adadelta()#RMSprop()#Adam()#Adadelta()#
 model.compile(loss='categorical_crossentropy', optimizer=optimizer_method)
 
 EarlyStopping(monitor='val_loss', patience=0, verbose=1)
