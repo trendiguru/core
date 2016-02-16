@@ -4,6 +4,7 @@ import os
 import cv2
 import hashlib
 import logging
+logging.basicConfig(level=logging.DEBUG)
 import numpy as np
 
 def image_stats_from_dir(dirname):
@@ -67,26 +68,35 @@ def remove_dupe_images(dir):
     :param dir:
     :return: number of dupes removed
     '''
-    files = [f.split('.')[0] for f in os.listdir(dir) if os.path.isfile(os.path.join(dir, f))]
-    hashes = {}
+    files = [f for f in os.listdir(dir) if os.path.isfile(os.path.join(dir, f))]
+    print('n files:'+str(len(files)))
+    hashes = []
+    dupe_count = 0
     for a_file in files:
-        img_arr = cv2.imread(a_file)
-        if img_arr is not None:
-            m = hashlib.md5()
-            m.update(img_arr)
-            current_hash = m.hexdigest()
-            logging.debug('image hash:' + current_hash + ' for ' + a_file)
-           dupe_flag = False
-            for a_previous_hash in hashes:
-                if  current_hash == a_previous_hash:
-                    fullpath = os.path.join(dir,files[i])
-                    print('going to remove '+str(fullpath))
-#                    os.remove(fullpath)
-                    dupe_flag = True
-                    break
-            if not dupe_flag:
-                hashes.append(current_hash)
+        fullname = os.path.join(dir,a_file)
+#        img_arr = cv2.imread(fullname)
+        with open(fullname,'r') as f:
+            logging.debug('current file:'+fullname)
+            contents = f.read()
+            if contents is not None:
+                m = hashlib.md5()
+                m.update(contents)
+                current_hash = m.hexdigest()
+                logging.debug('image hash:' + current_hash + ' for ' + a_file)
+                dupe_flag = False
+                for a_previous_hash in hashes:
+                    if  current_hash == a_previous_hash:
+                        fullpath = os.path.join(dir,a_file)
+                        print('going to remove '+str(fullpath))
+                        os.remove(fullpath)
+                        dupe_flag = True
+                        dupe_count = dupe_count + 1
+                        break
+                if not dupe_flag:
+                    hashes.append(current_hash)
+                    print(fullname+' not a dupe')
+    print('found {} dupes'.format(dupe_count))
 
 if __name__ == "__main__":
-    remove_dupe_images()
-    image_stats_from_dir('/home/jr/python-packages/trendi/classifier_stuff/caffe_nns/dataset/train_pairs_belts/')
+    remove_dupe_images('/media/jr/Transcend/my_stuff/tg/tg_ultimate_image_db/ours/test')
+#    image_stats_from_dir('/home/jr/python-packages/trendi/classifier_stuff/caffe_nns/dataset/train_pairs_belts/')
