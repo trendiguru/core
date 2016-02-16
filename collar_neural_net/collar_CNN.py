@@ -82,49 +82,36 @@ Y_train = output_vector
 
 
 
-model_description = 'whatever' #'32k5x5CV1_2x2MP1_32k3x3CV2_32k3x3CV3_32k3x3CV4_2x2MP2_64dFC1_3dFC2'
+model_description = 'EX' #'32k5x5CV1_2x2MP1_32k3x3CV2_32k3x3CV3_32k3x3CV4_2x2MP2_64dFC1_3dFC2'
 size_batch = 32
 epoches_number = 10000
 overwrite_weights = True
 testing_amount = 0.05
 
 model = Sequential()
-model.add(Convolution2D(64, 3, 3, border_mode='valid', input_shape=(3, 32, 32)))
-model.add(Activation('hard_sigmoid'))
+model.add(Convolution2D(16, 3, 3, border_mode='valid', input_shape=(3, 32, 32)))
+model.add(Activation('relu'))
+model.add(Convolution2D(16, 3, 3))
+model.add(Activation('relu'))
 model.add(MaxPooling2D(pool_size=(2, 2)))
 model.add(Dropout(0.25))
+
 model.add(Convolution2D(32, 3, 3, border_mode='valid'))
-model.add(Activation('hard_sigmoid'))
+model.add(Activation('relu'))
+model.add(Convolution2D(32, 3, 3))
+model.add(Activation('relu'))
 model.add(MaxPooling2D(pool_size=(2, 2)))
 model.add(Dropout(0.25))
-model.add(Convolution2D(16, 3, 3, border_mode='valid'))
-model.add(Activation('hard_sigmoid'))
-model.add(MaxPooling2D(pool_size=(2, 2)))
-model.add(Dropout(0.25))
-# model.add(Convolution2D(16, 3, 3, border_mode='valid'))
-# model.add(Activation('hard_sigmoid'))
-# model.add(MaxPooling2D(pool_size=(2, 2)))
-# model.add(Dropout(0.25))
-# model.add(Convolution2D(8, 3, 3, border_mode='valid'))
-# model.add(Activation('hard_sigmoid'))
-# model.add(Convolution2D(8, 3, 3, border_mode='valid'))
-# model.add(Activation('hard_sigmoid'))
-# model.add(MaxPooling2D(pool_size=(2, 2)))
-# model.add(Dropout(0.25))
 
 model.add(Flatten())
 model.add(Dense(256))
-model.add(Activation('hard_sigmoid'))
-# model.add(Dropout(0.5))
-model.add(Dense(64))
-model.add(Activation('hard_sigmoid'))
-# model.add(Dropout(0.5))
+model.add(Activation('relu'))
+model.add(Dropout(0.5))
 model.add(Dense(5))
 model.add(Activation('softmax'))
 
 
-
-optimizer_method = Adadelta()#SGD(lr=0.000001, decay=1e-6, momentum=0.9, nesterov=True)#Adagrad()#Adadelta()#RMSprop()#Adam()
+optimizer_method = SGD(lr=0.001, decay=1e-6, momentum=0.9, nesterov=True)#Adagrad()#Adadelta()#RMSprop()#Adam()#Adadelta()#
 model.compile(loss='categorical_crossentropy', optimizer=optimizer_method)
 
 EarlyStopping(monitor='val_loss', patience=0, verbose=1)

@@ -108,9 +108,9 @@ def array2PIL(arr, size):
 
 
 
-face_cascade = cv2.CascadeClassifier('/home/netanel/core/classifier_stuff/classifiers_to_test/face/haarcascade_frontalface_default.xml')
+# face_cascade = cv2.CascadeClassifier('/home/netanel/core/classifier_stuff/classifiers_to_test/face/haarcascade_frontalface_default.xml')
 # face_cascade = cv2.CascadeClassifier('/home/developer/python-packages/trendi/classifier_stuff/classifiers_to_test/face/haarcascade_frontalface_default.xml')
-# face_cascade = cv2.CascadeClassifier('/home/nate/Desktop/core/classifier_stuff/classifiers_to_test/face/haarcascade_frontalface_default.xml')
+face_cascade = cv2.CascadeClassifier('/home/nate/Desktop/core/classifier_stuff/classifiers_to_test/face/haarcascade_frontalface_default.xml')
 # eye_cascade = cv2.CascadeClassifier('haarcascade_eye.xml')
 # current_directory = os.path.abspath()
 
@@ -175,7 +175,7 @@ for type in neck_type_images_directory:
             # offsetted_face[1] = face[1] #+ offset2 * face[3]
         for angle in range(-max_angle, max_angle+1, angle_offset):
             rotated_image_matrix = cv2.getRotationMatrix2D(collar_image_center_point, angle, 1.0)
-            image_of_rotated_collar = cv2.warpAffine(image, rotated_image_matrix,(row, col))
+            image_of_rotated_collar = cv2.warpAffine(image, rotated_image_matrix, (row, col))
             image_of_collar = image_of_rotated_collar[(offsetted_face[1]+offsetted_face[3])*(1-a):
                                 (offsetted_face[1]+2*offsetted_face[3])*(1+a),
                                 (offsetted_face[0])*(1-a):(offsetted_face[0]+offsetted_face[2])*(1+a)]
@@ -226,9 +226,11 @@ for type in neck_type_images_directory:
                 enhancers.append(ImageEnhance.Color(resized_image_of_collar))
                 for enhancer in enhancers:
                     for factor in enhancement_factors:
-                        image_number += 1
-                        resized_image_of_collar = enhancer.enhance(factor)
-                        cv2.imwrite(directory_path + '/' + str(image_number) + '_' + image_call + image_file_name[-4:], PIL2array(resized_image_of_collar))
+                        for angle_for_zero in [0, 90, 180, 270]:
+                            image_number += 1
+                            resized_image_of_collar = enhancer.enhance(factor)
+                            resized_image_of_collar_rotated = resized_image_of_collar.rotate(angle_for_zero)
+                            cv2.imwrite(directory_path + '/' + str(image_number) + '_' + image_call + image_file_name[-4:], PIL2array(resized_image_of_collar_rotated))
 
         # flip along vertical axis:
         image = np.fliplr(image)
@@ -299,8 +301,10 @@ for type in neck_type_images_directory:
                 enhancers.append(ImageEnhance.Color(resized_image_of_collar))
                 for enhancer in enhancers:
                     for factor in enhancement_factors:
-                        image_number += 1
-                        resized_image_of_collar = enhancer.enhance(factor)
-                        cv2.imwrite(directory_path + '/' + str(image_number) + '_' + image_call + image_file_name[-4:], PIL2array(resized_image_of_collar))
+                        for angle_for_zero in [0, 90, 180, 270]:
+                            image_number += 1
+                            resized_image_of_collar = enhancer.enhance(factor)
+                            resized_image_of_collar_rotated = resized_image_of_collar.rotate(angle_for_zero)
+                            cv2.imwrite(directory_path + '/' + str(image_number) + '_' + image_call + image_file_name[-4:], PIL2array(resized_image_of_collar_rotated))
 
             # print image_call

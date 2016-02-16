@@ -580,6 +580,50 @@ def fingerprints_distance(query_fp, target_fp, distance_function):
     return rating
 
 
+def spatiogram_fingerprints_distance(query_fp, target_fp):
+    '''
+    :param spaciogram_1:
+    :param spaciogram_2:
+    :param filter_rank:
+    :return:
+    '''
+    ############ CHECKS ############
+    # check if spaciogram_1.shape == target_fp.shape:
+    rating = []
+
+    query_fp = np.array(query_fp, np.float32)
+    target_fp = np.array(target_fp, np.float32)
+
+    if query_fp.shape != target_fp.shape:
+        # print 'Error: the dimensions of query_fp and target_fp are not equal! \n' \
+        #       'shapes are: 1st - ' + str(np.array(query_fp).shape) + '\n' \
+        #       'shapes are: 2nd - ' + str(np.array(target_fp).shape)
+        return rating
+
+    # HISTCMP_CORREL Correlation
+    # HISTCMP_CHISQR Chi-Square
+    # HISTCMP_INTERSECT Intersection
+    # HISTCMP_BHATTACHARYYA Bhattacharyya distance
+    # HISTCMP_HELLINGER Synonym for HISTCMP_BHATTACHARYYA
+    # HISTCMP_CHISQR_ALT
+    # HISTCMP_KL_DIV
+
+    rating = []
+    for i in range(np.array(query_fp).shape[0]):
+        # rating.append(chi2_distance(query_fp[i], target_fp[i]))
+        rating.append(cv2.compareHist(query_fp[i], target_fp[i], cv2.HISTCMP_BHATTACHARYYA))
+
+    rating = np.array(rating).astype('float32')
+    # rating = cv2.normalize(rating, rating)
+    # print rating
+    # rating = cv2.compareHist(rating, np.zeros(rating.shape[0]).astype('float32'), cv2.HISTCMP_CHISQR)
+    # rating = chi2_distance(rating, np.zeros(len(rating)).astype('float32'))
+    rating = rating.max()#np.sum(rating**2)#rating.max()#np.average(rating)#
+    # print rating
+    # rating = emd(query_fp, target_fp)
+    return rating
+
+
 def sort_by_fingerprint_1D(query_photo_id, data, distance_function):
     sorted_list_of_simillar_images = []
     # load the json database and find the fingequery_fprprint of the desiered image:
@@ -592,6 +636,46 @@ def sort_by_fingerprint_1D(query_photo_id, data, distance_function):
     for image_data in data:
         target_fp = image_data['1D_fp']
         distance = fingerprints_distance(query_fp, target_fp, distance_function)
+        if distance:
+            sorted_list_of_simillar_images.append([int(image_data['product_id']), int(image_data['photo_id']), distance])
+            # sort the list of distances:
+            sorted_list_of_simillar_images.sort(key=lambda x: x[2])
+
+    return sorted_list_of_simillar_images
+
+
+def sort_by_fingerprint_3D(query_photo_id, data, distance_function):
+    sorted_list_of_simillar_images = []
+    # load the json database and find the fingequery_fprprint of the desiered image:
+    query_dictionary = filter(lambda query: int(query['photo_id']) == int(query_photo_id), data)
+    if not query_dictionary:
+        return sorted_list_of_simillar_images
+    query_fp = query_dictionary[0]['3D_fp']
+
+    # calculate distances from query:
+    for image_data in data:
+        target_fp = image_data['3D_fp']
+        distance = fingerprints_distance(query_fp, target_fp, distance_function)
+        if distance:
+            sorted_list_of_simillar_images.append([int(image_data['product_id']), int(image_data['photo_id']), distance])
+            # sort the list of distances:
+            sorted_list_of_simillar_images.sort(key=lambda x: x[2])
+
+    return sorted_list_of_simillar_images
+
+
+def sort_by_fingerprint_3D_spatiogram(query_photo_id, data):
+    sorted_list_of_simillar_images = []
+    # load the json database and find the fingequery_fprprint of the desiered image:
+    query_dictionary = filter(lambda query: int(query['photo_id']) == int(query_photo_id), data)
+    if not query_dictionary:
+        return sorted_list_of_simillar_images
+    query_fp = query_dictionary[0]['3D_spatiogram_fp']
+
+    # calculate distances from query:
+    for image_data in data:
+        target_fp = image_data['3D_spatiogram_fp']
+        distance = spatiogram_fingerprints_distance(query_fp, target_fp)
         if distance:
             sorted_list_of_simillar_images.append([int(image_data['product_id']), int(image_data['photo_id']), distance])
             # sort the list of distances:
@@ -628,29 +712,28 @@ def lab_json():
 def do4image_rating(image_data):
     image = image_data
     product_id = int(image['product_id'])
-    sorted_list_of_simillar_images_method_1 = sort_by_fingerprint_1D(image['photo_id'], data, 1)
-    sorted_list_of_simillar_images_method_2 = sort_by_fingerprint_1D(image['photo_id'], data, 2)
-    rating_1 = fp_rating(product_id, sorted_list_of_simillar_images_method_1)
-    rating_2 = fp_rating(product_id, sorted_list_of_simillar_images_method_2)
-    return [rating_1, rating_2]
+    sorted_list_of_simillar_images_1D_method_1 = sort_by_fingerprint_1D(image['photo_id'], data, 1)
+    sorted_list_of_simillar_images_1D_method_2 = sort_by_fingerprint_1D(image['photo_id'], data, 2)
+    sorted_list_of_simillar_images_3D = sort_by_fingerprint_3D(image['photo_id'], data, 2)
+    sorted_list_of_simillar_images_3D_spatiogram = sort_by_fingerprint_3D_spatiogram(image['photo_id'], data)
+    rating_1 = fp_rating(product_id, sorted_list_of_simillar_images_1D_method_1)
+    rating_2 = fp_rating(product_id, sorted_list_of_simillar_images_1D_method_2)
+    rating_3 = fp_rating(product_id, sorted_list_of_simillar_images_3D)
+    rating_4 = fp_rating(product_id, sorted_list_of_simillar_images_3D_spatiogram)
+    return [rating_1, rating_2, rating_3, rating_4]
 
 def lab_fp_rating():
 
     data_length = len(data)
     print 'data set length is: ' + str(data_length) + ' samples.'
 
-    fp_methods_rating = []
+    # fp_methods_rating = []
     # counter = 0
-    # for image in data:
-    #     product_id = int(image['product_id'])
-    #     sorted_list_of_simillar_images_method_1 = sort_by_fingerprint_1D(image['photo_id'], data, 1)
-    #     sorted_list_of_simillar_images_method_2 = sort_by_fingerprint_1D(image['photo_id'], data, 2)
-    #     rating_1 = fp_rating(product_id, sorted_list_of_simillar_images_method_1)
-    #     rating_2 = fp_rating(product_id, sorted_list_of_simillar_images_method_2)
-    #     fp_methods_rating.append([rating_1, rating_2])
-        # counter += 1
-        # if counter == 30:
-        #     print 1.0 * counter / data_length
+    # for image_data in data:
+    #     fp_methods_rating.append(do4image_rating(image_data))
+    #     counter += 1
+    #     if counter == 30:
+    #         print 1.0 * counter / data_length
 
     pool = multiprocessing.Pool()
     fp_methods_rating = pool.map(do4image_rating, data)
@@ -664,13 +747,13 @@ def lab_fp_rating():
     # f.write(j)
     # f.close()
 
-    np.savetxt("foo.csv", np.asarray(list_of_method_rating_listing), delimiter=",")
+    np.savetxt("foo_1D_euclidian_and_bhattacharya_3D_bhattacharya_and_spatiogram.csv", np.asarray(list_of_method_rating_listing), delimiter=",")
     print 'finished assessing distances and saved to current folder'
 
 
 
 
-json_data_file_path_1 = 'finger_print2_data_test_pairs_dresses.json'
+json_data_file_path_1 = 'finger_print2_data_test_pairs_dresses_EX.json'
 json_data_file_path_2 = 'finger_print2_data_train_pairs_dresses.json'
 
 data1 = load_json_data_at(json_data_file_path_1)
