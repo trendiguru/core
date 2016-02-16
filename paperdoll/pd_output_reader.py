@@ -2,6 +2,7 @@ import cv2
 import os
 import pwd
 import numpy as np
+import logging
 #print os.environ["USER"]
 #print os.getuid() # numeric uid
 #print pwd.getpwuid(os.getuid())
@@ -23,19 +24,17 @@ def show_pd_results(file_base_name):
 
     print('reading '+str(jpg_file))
     img_arr = cv2.imread(jpg_file)
-    if img_arr is not None:
-        cv2.imshow('orig',img_arr)
-    else:
-        print('coundlt get jpg at '+str(jpg_file))
-
  #   paperdoll_parse_enqueue.colorbars()
-
+    if img_arr is None:
+        logging.debug('couldnt open file '+jpg_file)
+        return
     print('reading '+str(mask_file))
     mask_arr = cv2.imread(mask_file)
     if mask_arr is not None:
         paperdoll_parse_enqueue.show_parse(img_array = mask_arr)
     else:
         print('couldnt get png at '+str(mask_file))
+        return
     max = np.amax(mask_arr)
     min = np.amin(mask_arr)
     print('min {0} max {0} '.format(min,max))
@@ -51,8 +50,8 @@ def show_pd_results(file_base_name):
   #  new_image[:,w:,:] = dest
 
 
-    cv2.imshow("orig", img_arr)
-    cv2.imshow("dest", colored)
+#    cv2.imshow("orig", img_arr)
+ #   cv2.imshow("dest", colored)
     cv2.imshow("both", both)
     cv2.waitKey(1000)
 
