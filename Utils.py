@@ -20,8 +20,9 @@ import cv2
 import re
 import string
 import sys
+import hashlib
 # import urllib
-# logging.setLevel(logging.DEBUG)
+logging.basicConfig(level=logging.WARNING)
 
 db = constants.db
 
@@ -670,6 +671,41 @@ def get_files_from_dir_and_subdirs(path=None):
                     for file_n in more_files:
                         file_list.append(file_n)
     return(file_list)
+
+def remove_duplicate_files(dir):
+    '''
+    remove dupe files from dir  - warning this deletes files
+    :param dir:
+    :return: number of dupes removed
+    '''
+    files = [f for f in os.listdir(dir) if os.path.isfile(os.path.join(dir, f))]
+    print('n files:'+str(len(files)))
+    hashes = []
+    dupe_count = 0
+    for a_file in files:
+        fullname = os.path.join(dir,a_file)
+#        img_arr = cv2.imread(fullname)
+        with open(fullname,'r') as f:
+            logging.debug('current file:'+fullname)
+            contents = f.read()
+            if contents is not None:
+                m = hashlib.md5()
+                m.update(contents)
+                current_hash = m.hexdigest()
+                logging.debug('image hash:' + current_hash + ' for ' + a_file)
+                dupe_flag = False
+                for a_previous_hash in hashes:
+                    if  current_hash == a_previous_hash:
+                        fullpath = os.path.join(dir,a_file)
+                        print('going to remove '+str(fullpath))
+                        os.remove(fullpath)
+                        dupe_flag = True
+                        dupe_count = dupe_count + 1
+                        break
+                if not dupe_flag:
+                    hashes.append(current_hash)
+                    print(fullname+' not a dupe')
+    print('found {} dupes'.format(dupe_count))
 
 
 # testing git pull on pp2
