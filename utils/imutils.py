@@ -1,9 +1,8 @@
 __author__ = 'jeremy'
 
 import os
-import urllib
 import cv2
-import time
+import hashlib
 import logging
 import numpy as np
 
@@ -61,5 +60,33 @@ def image_stats(filename):
         logging.warning('could not open {}'.format(filename))
         return None
 
+
+def remove_dupe_images(dir):
+    '''
+    remove dupe files from dir  - warning this deletes files
+    :param dir:
+    :return: number of dupes removed
+    '''
+    files = [f.split('.')[0] for f in os.listdir(dir) if os.path.isfile(os.path.join(dir, f))]
+    hashes = {}
+    for a_file in files:
+        img_arr = cv2.imread(a_file)
+        if img_arr is not None:
+            m = hashlib.md5()
+            m.update(img_arr)
+            current_hash = m.hexdigest()
+            logging.debug('image hash:' + current_hash + ' for ' + a_file)
+           dupe_flag = False
+            for a_previous_hash in hashes:
+                if  current_hash == a_previous_hash:
+                    fullpath = os.path.join(dir,files[i])
+                    print('going to remove '+str(fullpath))
+#                    os.remove(fullpath)
+                    dupe_flag = True
+                    break
+            if not dupe_flag:
+                hashes.append(current_hash)
+
 if __name__ == "__main__":
+    remove_dupe_images()
     image_stats_from_dir('/home/jr/python-packages/trendi/classifier_stuff/caffe_nns/dataset/train_pairs_belts/')

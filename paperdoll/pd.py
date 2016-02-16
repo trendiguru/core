@@ -185,6 +185,14 @@ def image_big_enough(img_array):
 
 def convert_and_save_results(mask, label_names, pose,filename,img,url):
     fashionista_ordered_categories = constants.fashionista_categories
+        #in case it changes in future - as of 2/16 this list goes a little something like this:
+        #fashionista_categories = ['null','tights','shorts','blazer','t-shirt','bag','shoes','coat','skirt','purse','boots',
+          #                'blouse','jacket','bra','dress','pants','sweater','shirt','jeans','leggings','scarf','hat',
+            #              'top','cardigan','accessories','vest','sunglasses','belt','socks','glasses','intimate',
+              #            'stockings','necklace','cape','jumper','sweatshirt','suit','bracelet','heels','wedges','ring',
+                #          'flats','tie','romper','sandals','earrings','gloves','sneakers','clogs','watch','pumps','wallet',
+                  #        'bodysuit','loafers','hair','skin']
+
     new_mask=np.ones(mask.shape)*255  # anything left with 255 wasn't dealt with
     success = True #assume innocence until proven guilty
     logging.debug('attempting convert and save')

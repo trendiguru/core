@@ -20,7 +20,6 @@ import cv2
 import re
 import string
 import sys
-
 # import urllib
 # logging.setLevel(logging.DEBUG)
 
@@ -671,6 +670,7 @@ def get_files_from_dir_and_subdirs(path=None):
                     for file_n in more_files:
                         file_list.append(file_n)
     return(file_list)
+
 
 # testing git pull on pp2
 def git_pull(**kwargs):
