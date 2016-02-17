@@ -68,7 +68,8 @@ def test_or_training_textfile(dir_of_dirs,test_or_train=None):
     :param dir_of_dirs:
     :return:
     '''
-    only_dirs = [dir for dir in os.listdir(dir_of_dirs) if os.path.isdir(os.path.join(dir,dir_of_dirs))]
+    only_dirs = [dir for dir in os.listdir(dir_of_dirs) if os.path.isdir(os.path.join(dir_of_dirs,dir))]
+    only_dirs.sort()
     print(str(len(only_dirs))+' dirs:'+str(only_dirs))
     if test_or_train:
         filename = os.path.join(dir_of_dirs,test_or_train+'.txt')
@@ -90,5 +91,6 @@ def test_or_training_textfile(dir_of_dirs,test_or_train=None):
 
 if __name__ == "__main__":
     test_or_training_textfile('/home/jr/python-packages/trendi/classifier_stuff/caffe_nns/only_train',test_or_train='test')
+    test_or_training_textfile('/home/jr/python-packages/trendi/classifier_stuff/caffe_nns/only_train',test_or_train='train')
 #    Utils.remove_duplicate_files('/media/jr/Transcend/my_stuff/tg/tg_ultimate_image_db/ours/pd_output_brain1/')
 #    image_stats_from_dir('/home/jr/python-packages/trendi/classifier_stuff/caffe_nns/dataset/train_pairs_belts/')
