@@ -30,33 +30,60 @@ def show_pd_results(file_base_name):
         return
     print('reading '+str(mask_file))
     mask_arr = cv2.imread(mask_file)
+    mask_arr = mask_arr[:,:,0] # all channels are identical
+    print np.shape(mask_arr)
     if mask_arr is not None:
         pass
 #        paperdoll_parse_enqueue.show_parse(img_array = mask_arr)
     else:
         print('couldnt get png at '+str(mask_file))
         return
+    mask_arr = mask_arr-1
+    uniques = np.unique(mask_arr)
+    print('uniques;'+str(uniques))
     mmax = np.amax(mask_arr)
     mmin = np.amin(mask_arr)
     print('min {} max {} '.format(mmin,mmax))
-    mask_arr = mask_arr-1
+
+    h = np.shape(img_arr)[0]
+    w = np.shape(img_arr)[1]
+    max_width = 500
+    if w > max_width:
+        img_arr = cv2.resize(img_arr,(h*max_width/w,max_width))
+        mask_arr = cv2.resize(mask_arr,(h*max_width/w,max_width))
+
     maxVal = 56  # 57 categories in paperdoll
     scaled = np.multiply(mask_arr, int(255 / maxVal))
-    colored = cv2.applyColorMap(scaled, cv2.COLORMAP_HOT)
-    h,w,d = img_arr.shape
-    print('h {0} w {1} d{2} '.format(h,w,d))
-    both = np.concatenate((img_arr,colored), axis=1)
-#    new_image = np.zeros([h,2*w,3])
- #   new_image[:,0:w,:] = img_arr
-  #  new_image[:,w:,:] = dest
-
-
+#    colored = cv2.applyColorMap(scaled, cv2.COLORMAP_HSV)
+ #   h,w,d = img_arr.shape
+  #  print('h {0} w {1} d{2} '.format(h,w,d))
+    mask_with_labels = add_unique_colorbars(constants.fashionista_categories,uniques,scaled)
+    both = np.concatenate((img_arr,mask_with_labels), axis=1)
 #    cv2.imshow("orig", img_arr)
  #   cv2.imshow("dest", colored)
     cv2.imshow("both", both)
 #    colorbars()
-    cv2.waitKey(1000)
+    cv2.waitKey(0)
 
+def add_unique_colorbars(labels,uniques,img_arr):
+    maxval = 56
+    bar_height = 12
+    bar_width = 70
+    text_width = 100
+    font = cv2.FONT_HERSHEY_SIMPLEX
+    i =0
+    h = np.shape(img_arr)[0]
+    w = np.shape(img_arr)[1]
+    y_labelpos = h-20
+    x_labelpos = 20   #bottom left corner
+    for unique in uniques:
+        img_arr[y_labelpos - (i+1)*bar_height:y_labelpos-i*bar_height,x_labelpos:x_labelpos+bar_width] = int(unique*255/maxval)
+        cv2.putText(img_arr,labels[unique],(x_labelpos, max(5,y_labelpos -i*bar_height)), font, 0.5,128,1,8) #cv2.LINE_AA)
+        i = i + 1
+    colored = cv2.applyColorMap(img_arr, cv2.COLORMAP_HSV)
+#    cv2.imshow('labels',colored)
+ #   cv2.waitKey(0)
+    return colored
 
 def colorbars(labels):
     maxval = 56
@@ -83,7 +110,8 @@ if __name__ == '__main__':
     print os.getuid() # numeric uid
     print pwd.getpwuid(os.getuid())
     path = '/home/jr/tg/pd_output'
-    path = '/media/jr/Transcend/my_stuff/tg/tg_ultimate_image_db/ours/pd_output_brain2'
+    path = '/media/jr/Transcend/my_stuff/tg/tg_ultimate_image_db/ours/pd_output_brain1'
+    path = '/home/jr/tg/pd_output/'
     files = ['56558cd462532224c676ba7c']
     #take the file 'base' i.e. without extension
     files = [f.split('.')[0] for f in os.listdir(path) if os.path.isfile(os.path.join(path, f))]
@@ -100,7 +128,7 @@ if __name__ == '__main__':
 
     for file in files:
         fullpath = os.path.join(path,file)
-        raw_input('enter')
+  #      raw_input('enter')
         show_pd_results(fullpath)
 #        raw_input('enter for next')
 
