@@ -62,8 +62,23 @@ def image_stats(filename):
         logging.warning('could not open {}'.format(filename))
         return None
 
+def test_or_training_textfile(dir_of_dirs):
+    '''
+    takes dir of dirs each with different class, makes textfile suitable for training/test set
+    :param dir_of_dirs:
+    :return:
+    '''
+    only_dirs = [dir for dir in os.listdir(dir_of_dirs) if os.path.isdir(os.path.join(dir,dir_of_dirs))]
+    print('dirs:'+str(only_dirs))
+    for dir in only_dirs:
+        fulldir = os.path.join(dir_of_dirs,dir)
+        print('fulldir:'+str(fulldir))
+        only_files = [f for f in os.listdir(fulldir) if os.path.isfile(os.path.join(fulldir, f))]
+        n = len(only_files)
+        print('n files {} in {}'.format(n,dir))
 
 
 if __name__ == "__main__":
-    Utils.remove_duplicate_files('/media/jr/Transcend/my_stuff/tg/tg_ultimate_image_db/ours/pd_output_brain1/')
+    test_or_training_textfile('/home/jr/python-packages/trendi/classifier_stuff/caffe_nns/only_train')
+#    Utils.remove_duplicate_files('/media/jr/Transcend/my_stuff/tg/tg_ultimate_image_db/ours/pd_output_brain1/')
 #    image_stats_from_dir('/home/jr/python-packages/trendi/classifier_stuff/caffe_nns/dataset/train_pairs_belts/')
