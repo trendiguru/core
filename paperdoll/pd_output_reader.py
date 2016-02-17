@@ -31,15 +31,16 @@ def show_pd_results(file_base_name):
     print('reading '+str(mask_file))
     mask_arr = cv2.imread(mask_file)
     if mask_arr is not None:
-        paperdoll_parse_enqueue.show_parse(img_array = mask_arr)
+        pass
+#        paperdoll_parse_enqueue.show_parse(img_array = mask_arr)
     else:
         print('couldnt get png at '+str(mask_file))
         return
-    max = np.amax(mask_arr)
-    min = np.amin(mask_arr)
-    print('min {0} max {0} '.format(min,max))
+    mmax = np.amax(mask_arr)
+    mmin = np.amin(mask_arr)
+    print('min {} max {} '.format(mmin,mmax))
     mask_arr = mask_arr-1
-    maxVal = 50  # 31 categories in paperdoll
+    maxVal = 56  # 57 categories in paperdoll
     scaled = np.multiply(mask_arr, int(255 / maxVal))
     colored = cv2.applyColorMap(scaled, cv2.COLORMAP_HOT)
     h,w,d = img_arr.shape
@@ -53,29 +54,27 @@ def show_pd_results(file_base_name):
 #    cv2.imshow("orig", img_arr)
  #   cv2.imshow("dest", colored)
     cv2.imshow("both", both)
+#    colorbars()
     cv2.waitKey(1000)
 
-def colorbars(max=55):
-    fashionista_ordered_categories = constants.fashionista_categories
-        #in case it changes in future - as of 2/16 this list goes a little something like this:
-        #fashionista_categories = ['null','tights','shorts','blazer','t-shirt','bag','shoes','coat','skirt','purse','boots',
-          #                'blouse','jacket','bra','dress','pants','sweater','shirt','jeans','leggings','scarf','hat',
-            #              'top','cardigan','accessories','vest','sunglasses','belt','socks','glasses','intimate',
-              #            'stockings','necklace','cape','jumper','sweatshirt','suit','bracelet','heels','wedges','ring',
-                #          'flats','tie','romper','sandals','earrings','gloves','sneakers','clogs','watch','pumps','wallet',
-                  #        'bodysuit','loafers','hair','skin']
-    bar_height = 10
-    bar_width = 20
-    new_img = np.ones([max*bar_height,bar_width],np.uint8)
-    for i in range(0,max):
-        new_img[i*bar_height:(i+1)*bar_height,:] = int(i*255.0/max)
-    #print(new_img)
-    cv2.imwrite('testvarout.jpg',new_img)
-    print('writing file')
- #   cv2.imshow('colorbars',new_img)
- #   cv2.waitKey(0)
 
-    show_parse(img_array=new_img+1)
+def colorbars(labels):
+    maxval = 56
+    bar_height = 12
+    bar_width = 70
+    text_width = 100
+    new_img = np.zeros([len(labels)*bar_height,bar_width+text_width],np.uint8)
+    font = cv2.FONT_HERSHEY_SIMPLEX
+    for i in range(0,len(labels)):
+        new_img[i*bar_height:(i+1)*bar_height,0:bar_width] = int(i*255/maxval)
+        cv2.putText(new_img,labels[i],(5+bar_width, bar_height+i*bar_height), font, 0.5,128,1,8) #cv2.LINE_AA)
+  #      cv2.imwrite('testvarout.jpg',new_img)
+    #print(new_img)
+    colored = cv2.applyColorMap(new_img, cv2.COLORMAP_HSV)
+    cv2.imshow('labels',colored)
+    cv2.waitKey(0)
+
+#    show_parse(img_array=new_img+1)
 
 
 
@@ -89,9 +88,19 @@ if __name__ == '__main__':
     #take the file 'base' i.e. without extension
     files = [f.split('.')[0] for f in os.listdir(path) if os.path.isfile(os.path.join(path, f))]
     print('nfiles:'+str(len(files)))
+    fashionista_ordered_categories = constants.fashionista_categories
+        #in case it changes in future - as of 2/16 this list goes a little something like this:
+        #fashionista_categories = ['null','tights','shorts','blazer','t-shirt','bag','shoes','coat','skirt','purse',
+    # 'boots',  'blouse','jacket','bra','dress','pants','sweater','shirt','jeans','leggings','scarf','hat',
+            #              'top','cardigan','accessories','vest','sunglasses','belt','socks','glasses','intimate',
+              #            'stockings','necklace','cape','jumper','sweatshirt','suit','bracelet','heels','wedges','ring',
+                #          'flats','tie','romper','sandals','earrings','gloves','sneakers','clogs','watch','pumps','wallet',
+                  #        'bodysuit','loafers','hair','skin']
+    colorbars(fashionista_ordered_categories)
 
     for file in files:
         fullpath = os.path.join(path,file)
+        raw_input('enter')
         show_pd_results(fullpath)
 #        raw_input('enter for next')
 
