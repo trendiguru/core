@@ -62,23 +62,33 @@ def image_stats(filename):
         logging.warning('could not open {}'.format(filename))
         return None
 
-def test_or_training_textfile(dir_of_dirs):
+def test_or_training_textfile(dir_of_dirs,test_or_train=None):
     '''
     takes dir of dirs each with different class, makes textfile suitable for training/test set
     :param dir_of_dirs:
     :return:
     '''
     only_dirs = [dir for dir in os.listdir(dir_of_dirs) if os.path.isdir(os.path.join(dir,dir_of_dirs))]
-    print('dirs:'+str(only_dirs))
-    for dir in only_dirs:
-        fulldir = os.path.join(dir_of_dirs,dir)
-        print('fulldir:'+str(fulldir))
-        only_files = [f for f in os.listdir(fulldir) if os.path.isfile(os.path.join(fulldir, f))]
-        n = len(only_files)
-        print('n files {} in {}'.format(n,dir))
-
+    print(str(len(only_dirs))+' dirs:'+str(only_dirs))
+    if test_or_train:
+        filename = os.path.join(dir_of_dirs,test_or_train+'.txt')
+    else:
+        filename = os.path.join(dir_of_dirs,'fileclasses.txt')
+    with open(filename,'a') as myfile:  #append , don't clobber
+        classno = 0
+        for dir in only_dirs:
+            if (not test_or_train) or dir[0:4]==test_or_train[0:4]:
+                fulldir = os.path.join(dir_of_dirs,dir)
+                print('fulldir:'+str(fulldir))
+                only_files = [f for f in os.listdir(fulldir) if os.path.isfile(os.path.join(fulldir, f))]
+                n = len(only_files)
+                print('n files {} in {}'.format(n,dir))
+                for a_file in only_files:
+                    line = os.path.join(dir_of_dirs,dir, a_file) + ' '+ str(classno) + '\n'
+                    myfile.write(line)
+                classno += 1
 
 if __name__ == "__main__":
-    test_or_training_textfile('/home/jr/python-packages/trendi/classifier_stuff/caffe_nns/only_train')
+    test_or_training_textfile('/home/jr/python-packages/trendi/classifier_stuff/caffe_nns/only_train',test_or_train='test')
 #    Utils.remove_duplicate_files('/media/jr/Transcend/my_stuff/tg/tg_ultimate_image_db/ours/pd_output_brain1/')
 #    image_stats_from_dir('/home/jr/python-packages/trendi/classifier_stuff/caffe_nns/dataset/train_pairs_belts/')
