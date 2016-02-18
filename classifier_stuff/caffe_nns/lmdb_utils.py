@@ -32,7 +32,7 @@ def dir_of_dirs_to_lmdb(dbname,dir_of_dirs,test_or_train=None,max_images_per_cla
 #    map_size = X.nbytes * 10
 
     if test_or_train:
-        dbname = dbname+test_or_train
+        dbname = dbname+'.'+test_or_train
     classno = 0
     image_number =0
 
@@ -87,23 +87,23 @@ def dir_of_dirs_to_lmdb(dbname,dir_of_dirs,test_or_train=None,max_images_per_cla
 
     #You can also open up and inspect an existing LMDB database from Python:
 def inspect_db(dbname):
-    env = lmdb.open('mylmdb', readonly=True)
+    env = lmdb.open(dbname, readonly=True)
     with env.begin() as txn:
-        raw_datum = txn.get(b'00000000')
-
-    datum = caffe.proto.caffe_pb2.Datum()
-    datum.ParseFromString(raw_datum)
-
-    flat_x = np.fromstring(datum.data, dtype=np.uint8)
-    x = flat_x.reshape(datum.channels, datum.height, datum.width)
-    y = datum.label
-
-    #Iterating <key, value> pairs is also easy:
+        try:
+            raw_datum = txn.get(b'00000000')
+            datum = caffe.proto.caffe_pb2.Datum()
+            datum.ParseFromString(raw_datum)
+            flat_x = np.fromstring(datum.data, dtype=np.uint8)
+            x = flat_x.reshape(datum.channels, datum.height, datum.width)
+            y = datum.label
+            #Iterating <key, value> pairs is also easy:
+            raw_input('enter to continue')
 
     with env.begin() as txn:
         cursor = txn.cursor()
         for key, value in cursor:
             print(key, value)
+
 
 def crude_lmdb():
     in_db = lmdb.open('image-lmdb', map_size=int(1e12))
@@ -129,7 +129,7 @@ if __name__ == "__main__":
     dir_of_dirs = '/home/jr/python-packages/trendi/classifier_stuff/caffe_nns/only_train'
     print('dir:'+dir_of_dirs)
     dir_of_dirs_to_lmdb('testdb',dir_of_dirs,test_or_train='test')
-    inspect_db('testdb')
+    inspect_db('testdb.test')
 
 #    test_or_training_textfile(dir_of_dirs,test_or_train='train')
 #    Utils.remove_duplicate_files('/media/jr/Transcend/my_stuff/tg/tg_ultimate_image_db/ours/pd_output_brain1/')
