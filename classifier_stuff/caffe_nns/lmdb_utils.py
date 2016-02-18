@@ -50,7 +50,8 @@ def dir_of_dirs_to_lmdb(dbname,dir_of_dirs,test_or_train=None,max_images_per_cla
                 only_files = [f for f in os.listdir(fulldir) if os.path.isfile(os.path.join(fulldir, f))]
                 n = len(only_files)
                 print('n files {} in {}'.format(n,dir))
-                for a_file in only_files:
+                for n in range(0,min(max_images_per_class,len(only_files))):
+                    a_file =only_files[n]
                     fullname = os.path.join(fulldir,a_file)
                     #img_arr = mpimg.imread(fullname)  #if you don't have cv2 handy use matplotlib
                     img_arr = cv2.imread(fullname)
@@ -128,6 +129,7 @@ if __name__ == "__main__":
     dir_of_dirs = '/home/jr/python-packages/trendi/classifier_stuff/caffe_nns/only_train'
     print('dir:'+dir_of_dirs)
     dir_of_dirs_to_lmdb('testdb',dir_of_dirs,test_or_train='test')
+    inspect_db('testdb')
 
 #    test_or_training_textfile(dir_of_dirs,test_or_train='train')
 #    Utils.remove_duplicate_files('/media/jr/Transcend/my_stuff/tg/tg_ultimate_image_db/ours/pd_output_brain1/')
