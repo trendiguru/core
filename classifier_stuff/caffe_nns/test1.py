@@ -8,9 +8,60 @@ from caffe import layers as L
 from caffe import params as P
 #from matplotlib import *
 from matplotlib import pyplot as plt
+import numpy as np
+import lmdb
+import caffe
 
 #get_ipython().system(u'data/mnist/get_mnist.sh')
 #get_ipython().system(u'examples/mnist/create_mnist.sh')
+
+import lmdb
+from PIL import Image
+
+def lmdb()
+    in_db = lmdb.open('image-lmdb', map_size=int(1e12))
+    in_db = lmdb.open('image-lmdb', map_size=int(1e12))
+    with in_db.begin(write=True) as in_txn:
+        for in_idx, in_ in enumerate(inputs):
+            # load image:
+            # - as np.uint8 {0, ..., 255}
+            # - in BGR (switch from RGB)
+            # - in Channel x Height x Width order (switch from H x W x C)
+ #           im = np.array(Image.open(in_)) # or load whatever ndarray you need
+  #          im = im[:,:,::-1]
+   #         im = im.transpose((2,0,1))
+    #        im_dat = caffe.io.array_to_datum(im)
+      #      in_txn.put('{:0>10d}'.format(in_idx), im_dat.SerializeToString())
+            im = np.array(Image.open(in_)) # or load whatever ndarray you need
+            im = im[:,:,::-1]
+            im = im.transpose((2,0,1))
+            im_dat = caffe.io.array_to_datum(im)
+            in_txn.put('{:0>10d}'.format(in_idx), im_dat.SerializeToString())
+
+    in_db.close()
+
+#label = L.Data(batch_size=99, backend=P.Data.LMDB, source='train_label', transform_param=dict(scale=1./255), ntop=1)
+#data = L.Data(batch_size=99, backend=P.Data.LMDB, source='train_data', transform_param=dict(scale=1./255), ntop=1)
+
+'''  layer {
+    name: "data"
+    type: "ImageData"
+    top: "data"
+    top: "label"
+    transform_param {
+      mirror: false
+      crop_size: 227
+      mean_file: "data/ilsvrc12/imagenet_mean.binaryproto"
+    }
+    image_data_param {
+      source: "examples/_temp/file_list.txt"
+      batch_size: 50
+      new_height: 256
+      new_width: 256
+    }
+  }
+'''
+
 def lenet(lmdb, batch_size):
     n=caffe.NetSpec()
     n.data,n.label=L.Data(batch_size=batch_size,backend=P.Data.LMDB,source=lmdb,transform_param=dict(scale=1./255),ntop=2)
@@ -110,3 +161,56 @@ def run_net():
 
         plt.show()
 
+
+################LMDB FUN RIPPED FROM http://deepdish.io/2015/04/28/creating-lmdb-in-python/
+N = 1000
+# Let's pretend this is interesting data
+X = np.zeros((N, 3, 32, 32), dtype=np.uint8)
+y = np.zeros(N, dtype=np.int64)
+
+# We need to prepare the database for the size. We'll set it 10 times
+# greater than what we theoretically need. There is little drawback to
+# setting this too big. If you still run into problem after raising
+# this, you might want to try saving fewer entries in a single
+# transaction.
+map_size = X.nbytes * 10
+
+env = lmdb.open('mylmdb', map_size=map_size)
+
+with env.begin(write=True) as txn:
+    # txn is a Transaction object
+    for i in range(N):
+        datum = caffe.proto.caffe_pb2.Datum()
+        datum.channels = X.shape[1]
+        datum.height = X.shape[2]
+        datum.width = X.shape[3]
+        datum.data = X[i].tobytes()  # or .tostring() if numpy < 1.9
+        datum.label = int(y[i])
+        str_id = '{:08}'.format(i)
+
+        # The encode is only essential in Python 3
+        txn.put(str_id.encode('ascii'), datum.SerializeToString())
+
+You can also open up and inspect an existing LMDB database from Python:
+
+import numpy as np
+import lmdb
+import caffe
+
+env = lmdb.open('mylmdb', readonly=True)
+with env.begin() as txn:
+    raw_datum = txn.get(b'00000000')
+
+datum = caffe.proto.caffe_pb2.Datum()
+datum.ParseFromString(raw_datum)
+
+flat_x = np.fromstring(datum.data, dtype=np.uint8)
+x = flat_x.reshape(datum.channels, datum.height, datum.width)
+y = datum.label
+
+Iterating <key, value> pairs is also easy:
+
+with env.begin() as txn:
+    cursor = txn.cursor()
+    for key, value in cursor:
+        print(key, value)
