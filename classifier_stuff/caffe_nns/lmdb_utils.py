@@ -33,6 +33,7 @@ def dir_of_dirs_to_lmdb(dbname,dir_of_dirs,test_or_train=None,max_images_per_cla
 
     if test_or_train:
         dbname = dbname+'.'+test_or_train
+    print('writing to db:'+dbname)
     classno = 0
     image_number =0
 
@@ -62,19 +63,22 @@ def dir_of_dirs_to_lmdb(dbname,dir_of_dirs,test_or_train=None,max_images_per_cla
                          #   y = np.zeros(N, dtype=np.int64)
                     #    cv2.imshow('img',img_arr)
                      #   cv2.waitKey(10)
-                        datum = caffe.proto.caffe_pb2.Datum()
-                        datum.channels = img_arr.shape[2]
-                        datum.height = img_arr.shape[0]
-                        datum.width = img_arr.shape[1]
-                        datum.data = img_arr.tobytes()  # or .tostring() if numpy < 1.9
-                        datum.label = classno
-                        str_id = '{:08}'.format(image_number)
-                        #print('strid:'+str(str_id))
-                        # The encode is only essential in Python 3
-                        txn.put(str_id.encode('ascii'), datum.SerializeToString())
-            #            in_txn.put('{:0>10d}'.format(in_idx), im_dat.SerializeToString())
-                        image_number += 1
-                        image_number_in_class += 1
+                        try:
+                            datum = caffe.proto.caffe_pb2.Datum()
+                            datum.channels = img_arr.shape[2]
+                            datum.height = img_arr.shape[0]
+                            datum.width = img_arr.shape[1]
+                            datum.data = img_arr.tobytes()  # or .tostring() if numpy < 1.9
+                            datum.label = classno
+                            str_id = '{:08}'.format(image_number)
+                            print('strid:{} w:{} h:{}'.format(str_id,datm.width,datum.height))
+                            # The encode is only essential in Python 3
+                            txn.put(str_id.encode('ascii'), datum.SerializeToString())
+                #            in_txn.put('{:0>10d}'.format(in_idx), im_dat.SerializeToString())
+                            image_number += 1
+                            image_number_in_class += 1
+                        except:
+                            print('some problem with lmdb')
                     else:
                         print('couldnt read '+a_file)
             print('{} items in class {}'.format(image_number_in_class,classno))
@@ -89,16 +93,26 @@ def dir_of_dirs_to_lmdb(dbname,dir_of_dirs,test_or_train=None,max_images_per_cla
 def inspect_db(dbname):
     env = lmdb.open(dbname, readonly=True)
     with env.begin() as txn:
-        try:
-            raw_datum = txn.get(b'00000000')
-            datum = caffe.proto.caffe_pb2.Datum()
-            datum.ParseFromString(raw_datum)
-            flat_x = np.fromstring(datum.data, dtype=np.uint8)
-            x = flat_x.reshape(datum.channels, datum.height, datum.width)
-            y = datum.label
-            #Iterating <key, value> pairs is also easy:
-            raw_input('enter to continue')
+        n=0
+        while(1):
+            try:
 
+#                            str_id = '{:08}'.format(image_number)
+ #                           print('strid:{} w:{} h:{}'.format(str_id,datm.width,datum.height))
+  #                          # The encode is only essential in Python 3
+   #                         txn.put(str_id.encode('ascii'), datum.SerializeToString())
+
+                raw_datum = txn.get(b'00000000')
+                datum = caffe.proto.caffe_pb2.Datum()
+                datum.ParseFromString(raw_datum)
+                flat_x = np.fromstring(datum.data, dtype=np.uint8)
+                x = flat_x.reshape(datum.channels, datum.height, datum.width)
+                y = datum.label
+                #Iterating <key, value> pairs is also easy:
+                raw_input('enter to continue (n={}'.format(n))
+                n+=1
+            except:
+                print('error getting record {} from db'.format(n))
     with env.begin() as txn:
         cursor = txn.cursor()
         for key, value in cursor:
