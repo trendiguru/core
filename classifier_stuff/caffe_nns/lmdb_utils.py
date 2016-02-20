@@ -96,20 +96,21 @@ def inspect_db(dbname):
         n=0
         while(1):
             try:
-
-#                            str_id = '{:08}'.format(image_number)
- #                           print('strid:{} w:{} h:{}'.format(str_id,datm.width,datum.height))
-  #                          # The encode is only essential in Python 3
-   #                         txn.put(str_id.encode('ascii'), datum.SerializeToString())
-
-                raw_datum = txn.get(b'00000000')
+                str_id = '{:08}'.format(n)
+                print('strid:{} '.format(str_id))
+             # The encode is only essential in Python 3
+             #   txn.put(str_id.encode('ascii'), datum.SerializeToString())
+                raw_datum = txn.get(str_id.encode('ascii'))
+#                raw_datum = txn.get(b'00000000')
                 datum = caffe.proto.caffe_pb2.Datum()
                 datum.ParseFromString(raw_datum)
                 flat_x = np.fromstring(datum.data, dtype=np.uint8)
                 x = flat_x.reshape(datum.channels, datum.height, datum.width)
                 y = datum.label
+ #               print('datum:'+str(datum))
+                print('data {} y{} width {} height {} chan {}'.format(x,y,datum.width,datum.height,datum.channels))
                 #Iterating <key, value> pairs is also easy:
-                raw_input('enter to continue (n={}'.format(n))
+                raw_input('enter to continue (n={})'.format(n))
                 n+=1
             except:
                 print('error getting record {} from db'.format(n))
@@ -142,7 +143,7 @@ def crude_lmdb():
 if __name__ == "__main__":
     dir_of_dirs = '/home/jr/python-packages/trendi/classifier_stuff/caffe_nns/only_train'
     print('dir:'+dir_of_dirs)
-    dir_of_dirs_to_lmdb('testdb',dir_of_dirs,test_or_train='test')
+#    dir_of_dirs_to_lmdb('testdb',dir_of_dirs,test_or_train='test')
     inspect_db('testdb.test')
 
 #    test_or_training_textfile(dir_of_dirs,test_or_train='train')
