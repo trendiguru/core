@@ -90,6 +90,7 @@ def dir_of_dirs_to_lmdb(dbname,dir_of_dirs,test_or_train=None,max_images_per_cla
 
 
     #You can also open up and inspect an existing LMDB database from Python:
+# assuming here that dataum.data, datum.channels, datum.width etc all exist as in dir_of_dirs_to_lmdb
 def inspect_db(dbname):
     env = lmdb.open(dbname, readonly=True)
     with env.begin() as txn:
