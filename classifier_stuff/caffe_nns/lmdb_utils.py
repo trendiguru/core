@@ -8,6 +8,7 @@ import cv2
 import os
 import lmdb
 from PIL import Image
+from trendi.utils import imutils
 
 #get_ipython().system(u'data/mnist/get_mnist.sh')
 #get_ipython().system(u'examples/mnist/create_mnist.sh')
@@ -19,7 +20,7 @@ from PIL import Image
 
 ################LMDB FUN (originally) RIPPED FROM http://deepdish.io/2015/04/28/creating-lmdb-in-python/
 #############changes by awesome d.j. jazzy jer  awesomest hAckz0r evarr
-def dir_of_dirs_to_lmdb(dbname,dir_of_dirs,test_or_train=None,max_images_per_class = 100):
+def dir_of_dirs_to_lmdb(dbname,dir_of_dirs,test_or_train=None,max_images_per_class = 100,resize_x=128,resize_y=128):
     only_dirs = [dir for dir in os.listdir(dir_of_dirs) if os.path.isdir(os.path.join(dir_of_dirs,dir))]
     only_dirs.sort()
     print(str(len(only_dirs))+' dirs:'+str(only_dirs)+' in '+dir_of_dirs)
@@ -57,6 +58,9 @@ def dir_of_dirs_to_lmdb(dbname,dir_of_dirs,test_or_train=None,max_images_per_cla
                     #img_arr = mpimg.imread(fullname)  #if you don't have cv2 handy use matplotlib
                     img_arr = cv2.imread(fullname)
                     if img_arr is not None:
+                        h=img_arr.shape[0]
+                        w=img_arr.shape[1]
+                        print('img {} w:{} h:{}'.format(image_number, h,w))
                         #    N = 1000
                         #    # Let's pretend this is interesting data
                         #    X = np.zeros((N, 3, 32, 32), dtype=np.uint8)
@@ -84,9 +88,6 @@ def dir_of_dirs_to_lmdb(dbname,dir_of_dirs,test_or_train=None,max_images_per_cla
             print('{} items in class {}'.format(image_number_in_class,classno))
             classno += 1
             env.close()
-
-
-
 
 
     #You can also open up and inspect an existing LMDB database from Python:
@@ -142,10 +143,14 @@ def crude_lmdb():
     in_db.close()
 
 if __name__ == "__main__":
-    dir_of_dirs = '/home/jr/python-packages/trendi/classifier_stuff/caffe_nns/only_train'
+    dir_of_dirs = '/home/jr/python-packages/trendi/classifier_stuff/caffe_nns/test_train_dirs'
     print('dir:'+dir_of_dirs)
-#    dir_of_dirs_to_lmdb('testdb',dir_of_dirs,test_or_train='test')
-    inspect_db('testdb.test')
+    averages = imutils.image_stats_from_dir_of_dirs(dir_of_dirs)
+    dir_of_dirs_to_lmdb('testdb',dir_of_dirs,test_or_train='test',resize_x=128,resize_y=90,avg_B=101,avg_G=105,avg_R=123)
+
+
+#    dir_of_dirs_to_lmdb('testdb',dir_of_dirs,test_or_train='test',resize_x=128,resize_y=90,avg_B=101,avg_G=105,avg_R=123)
+ #   inspect_db('testdb.test')
 
 #    test_or_training_textfile(dir_of_dirs,test_or_train='train')
 #    Utils.remove_duplicate_files('/media/jr/Transcend/my_stuff/tg/tg_ultimate_image_db/ours/pd_output_brain1/')
