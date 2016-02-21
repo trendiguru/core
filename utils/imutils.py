@@ -139,18 +139,78 @@ def resize_and_crop_image( input_file_or_np_arr, output_file=None, output_side_l
         new_height = output_side_length * height / width
     else:
         new_width = output_side_length * width / height
-    resized_img = cv2.resize(img, (new_width, new_height))
+    resized_img = cv2.resize(input_file_or_np_arr, (new_width, new_height))
     height_offset = (new_height - output_side_length) / 2
     width_offset = (new_width - output_side_length) / 2
     cropped_img = resized_img[height_offset:height_offset + output_side_length,
                               width_offset:width_offset + output_side_length]
+    use_visual_output=True
+    if use_visual_output is True:
+        cv2.imshow('cropped', cropped_img)
+        cv2.imshow('orig',input_file_or_np_arr)
+        cv2.waitKey(0)
     if output_file is not None:
         cv2.imwrite(output_file, cropped_img)
     return cropped_img
+
+def resize_and_crop_image_using_bb( input_file_or_np_arr, bb=None, output_file=None, output_w = 128,output_h = 128):
+    '''Takes an image name, resize it and crop the center square
+    '''
+    #TODO - implement nonsquare crop
+    if isinstance(input_file_or_np_arr,basestring):
+        orig_name = input_file_or_np_arr
+        input_file_or_np_arr = cv2.imread(input_file_or_np_arr)
+        if 'bb=' in orig_name and bb is None:
+            strs = orig_name.split('bb=')
+            bb_str = strs[1]
+            coords = bb_str.split('_')
+            bb_x = int(coords[0])
+            bb_y = int(coords[1])
+            bb_w = int(coords[2])
+            bb_h = int(coords[3])
+            bb=[bb_x,bb_y,bb_w,bb_h]
+    if bb is None:
+        dsize = [output_w,output_h]
+        output_img_arr = cv2.resize(input_file_or_np_arr, dsize)
+        return output_img_arr
+    height, width, depth = input_file_or_np_arr.shape
+    in_aspect = bb[2]/bb[3]
+    out_aspect = output_w/output_h
+    x1 = bb[0]
+    x2 = bb[0] + bb[2]
+    y1 = bb[1]
+    y2 = bb[1] + bb[3]
+    if in_aspect>out_aspect:
+        extra_pad_y = int((output_h*bb[2]/output_w - bb[3]) / 2)
+        y1 = max(0,bb[1] - extra_pad_y)
+        y2 = min(height,bb[1]+bb[3]+extra_pad_y)
+    elif in_aspect<out_aspect:
+        extra_pad_x = int((output_w*bb[3]/output_h - bb[2]) / 2)
+        x1 = max(0,bb[0] - extra_pad_x)
+        x2 = min(width,bb[0]+bb[2]+extra_pad_x)
+    cropped_img = input_file_or_np_arr[y1:y2,x1:x2,:]
+
+    print('cropped size:{} ar {} desired ar {}'.format(cropped_img.shape,cropped_img.shape[1]/cropped_img.shape[0],output_w/output_h))
+    scaled_cropped_img = cv2.resize(cropped_img,(output_w,output_h))
+    print('resize:{} ar {} desired ar {}'.format(scaled_cropped_img.shape,scaled_cropped_img.shape[1]/scaled_cropped_img.shape[0],output_w/output_h))
+    use_visual_output=True
+    if use_visual_output is True:
+        cv2.imshow('scaled_cropped', scaled_cropped_img)
+        cv2.imshow('orig',input_file_or_np_arr)
+        cv2.waitKey(0)
+    if output_file is not None:
+        cv2.imwrite(output_file, cropped_img)
+    return scaled_cropped_img
 
 
 if __name__ == "__main__":
 #    test_or_training_textfile('/home/jr/python-packages/trendi/classifier_stuff/caffe_nns/only_train',test_or_train='test')
  #   test_or_training_textfile('/home/jr/python-packages/trendi/classifier_stuff/caffe_nns/only_train',test_or_train='train')
 #    Utils.remove_duplicate_files('/media/jr/Transcend/my_stuff/tg/tg_ultimate_image_db/ours/pd_output_brain1/')
-    image_stats_from_dir_of_dirs(dir_of_dirs)
+    resize_and_crop_image_using_bb('../images/female1.jpg',bb=[240,122,170,170],output_w=50,output_h=50)
+    resize_and_crop_image_using_bb('../images/female1.jpg',bb=[240,122,170,400],output_w=50,output_h=50)
+    resize_and_crop_image_using_bb('../images/female1.jpg',bb=[240,122,170,400],output_w=150,output_h=50)
+    resize_and_crop_image_using_bb('../images/female1.jpg',bb=[240,122,170,400],output_w=50,output_h=150)
+    resize_and_crop_image_using_bb('../images/female1.jpg',bb=[240,122,170,170],output_w=1000,output_h=100)
+
+#    image_stats_from_dir_of_dirs(dir_of_dirs)
