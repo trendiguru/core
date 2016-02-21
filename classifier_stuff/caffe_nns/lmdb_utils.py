@@ -10,6 +10,13 @@ import lmdb
 from PIL import Image
 from trendi.utils import imutils
 
+#shellscript for mean comp:
+#TOOLS=/home/ubuntu/repositories/caffe/build/tools
+#DATA=/home/ubuntu/AdienceFaces/lmdb/Test_fold_is_0/gender_train_lmdb
+#OUT=/home/ubuntu/AdienceFaces/mean_image/Test_folder_is_0
+
+#$TOOLS/compute_image_mean.bin $DATA $OUT/mean.binaryproto
+
 #get_ipython().system(u'data/mnist/get_mnist.sh')
 #get_ipython().system(u'examples/mnist/create_mnist.sh')
 
@@ -20,7 +27,7 @@ from trendi.utils import imutils
 
 ################LMDB FUN (originally) RIPPED FROM http://deepdish.io/2015/04/28/creating-lmdb-in-python/
 #############changes by awesome d.j. jazzy jer  awesomest hAckz0r evarr
-def dir_of_dirs_to_lmdb(dbname,dir_of_dirs,test_or_train=None,max_images_per_class = 100,resize_x=128,resize_y=128):
+def dir_of_dirs_to_lmdb(dbname,dir_of_dirs,test_or_train=None,max_images_per_class = 100,resize_x=128,resize_y=128,avg_B=None,avg_G=None,avg_R=None):
     only_dirs = [dir for dir in os.listdir(dir_of_dirs) if os.path.isdir(os.path.join(dir_of_dirs,dir))]
     only_dirs.sort()
     print(str(len(only_dirs))+' dirs:'+str(only_dirs)+' in '+dir_of_dirs)
@@ -58,6 +65,8 @@ def dir_of_dirs_to_lmdb(dbname,dir_of_dirs,test_or_train=None,max_images_per_cla
                     #img_arr = mpimg.imread(fullname)  #if you don't have cv2 handy use matplotlib
                     img_arr = cv2.imread(fullname)
                     if img_arr is not None:
+                        if(resize_x is not None):
+                            img_arr = imutils.resize_and_crop_image(img_arr, output_side_length = resize_x)
                         h=img_arr.shape[0]
                         w=img_arr.shape[1]
                         print('img {} w:{} h:{}'.format(image_number, h,w))
@@ -65,9 +74,17 @@ def dir_of_dirs_to_lmdb(dbname,dir_of_dirs,test_or_train=None,max_images_per_cla
                         #    # Let's pretend this is interesting data
                         #    X = np.zeros((N, 3, 32, 32), dtype=np.uint8)
                          #   y = np.zeros(N, dtype=np.int64)
-                    #    cv2.imshow('img',img_arr)
-                     #   cv2.waitKey(10)
+                        use_visual_output = True
+                        if use_visual_output is True:
+                            cv2.imshow('img',img_arr)
+                            cv2.waitKey(0)
                         try:
+                            if avg_B is not None and avg_G is not None and avg_R is not None:
+                                img_arr[:,:,0] = img_arr[:,:,0]-avg_B
+                                img_arr[:,:,1] = img_arr[:,:,1]-avg_G
+                                img_arr[:,:,2] = img_arr[:,:,2]-avg_R
+                            img_arr[:,:,0] = img_arr[:,:,0]-avg_B
+                            img_arr[:,:,0] = img_arr[:,:,0]-avg_B
                             datum = caffe.proto.caffe_pb2.Datum()
                             datum.channels = img_arr.shape[2]
                             datum.height = img_arr.shape[0]
@@ -145,8 +162,10 @@ def crude_lmdb():
 if __name__ == "__main__":
     dir_of_dirs = '/home/jr/python-packages/trendi/classifier_stuff/caffe_nns/test_train_dirs'
     print('dir:'+dir_of_dirs)
-    averages = imutils.image_stats_from_dir_of_dirs(dir_of_dirs)
-    dir_of_dirs_to_lmdb('testdb',dir_of_dirs,test_or_train='test',resize_x=128,resize_y=90,avg_B=101,avg_G=105,avg_R=123)
+    h,w,d,B,G,R,n = imutils.image_stats_from_dir_of_dirs(dir_of_dirs)
+    resize_x = 128
+    resize_y = int(h*128/w)
+    dir_of_dirs_to_lmdb('testdb',dir_of_dirs,test_or_train='test',resize_x=resize_x,resize_y=resize_y,avg_B=B,avg_G=G,avg_R=R)
 
 
 #    dir_of_dirs_to_lmdb('testdb',dir_of_dirs,test_or_train='test',resize_x=128,resize_y=90,avg_B=101,avg_G=105,avg_R=123)

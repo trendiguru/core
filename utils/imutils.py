@@ -126,11 +126,13 @@ def test_or_training_textfile(dir_of_dirs,test_or_train=None):
                     myfile.write(line)
                 classno += 1
 
-def resize_and_crop_image(self, input_file, output_file, output_side_length = 256):
+def resize_and_crop_image( input_file_or_np_arr, output_file=None, output_side_length = 256):
     '''Takes an image name, resize it and crop the center square
     '''
-    img = cv2.imread(input_file)
-    height, width, depth = img.shape
+    #TODO - implement nonsquare crop
+    if isinstance(input_file_or_np_arr,basestring):
+        input_file_or_np_arr = cv2.imread(input_file_or_np_arr)
+    height, width, depth = input_file_or_np_arr.shape
     new_height = output_side_length
     new_width = output_side_length
     if height > width:
@@ -142,8 +144,9 @@ def resize_and_crop_image(self, input_file, output_file, output_side_length = 25
     width_offset = (new_width - output_side_length) / 2
     cropped_img = resized_img[height_offset:height_offset + output_side_length,
                               width_offset:width_offset + output_side_length]
-    cv2.imwrite(output_file, cropped_img)
-
+    if output_file is not None:
+        cv2.imwrite(output_file, cropped_img)
+    return cropped_img
 
 
 if __name__ == "__main__":
