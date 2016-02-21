@@ -68,7 +68,7 @@ def library_for_dataset_scraping(json_file,json_files_path, photos_path,max_item
     else:
         print('not a json file')
 
-def library_with_cropping(json_file,json_files_path, photos_path,listing,max_items):
+def library_with_cropping(json_file,json_files_path, photos_path,listing,max_items,docrop=False):
     # finds only dresses dataset:
     data = []
 
@@ -87,15 +87,17 @@ def library_with_cropping(json_file,json_files_path, photos_path,listing,max_ite
             photo_id = data_pack['photo']
             product_id = data_pack['product']
             # annotated data ordering (if exists)
+            # product# , photo#, bb
             if len(data_pack) > 2:
                 file_name = 'product_%s_photo_%s_withbb.jpg' % (product_id, photo_id)
+                bbox_dict = data_pack['bbox']
+                bbox = [int(bbox_dict['left']), int(bbox_dict['top']), int(bbox_dict['width']), int(bbox_dict['height'])]
+                file_name = 'product_%s_photo_%s_bbox_%s_%s_%s_%s.jpg' % (product_id, photo_id, bbox[0], bbox[1], bbox[2], bbox[3])
                 cropped_name = 'product_%s_photo_%s_cropped.jpg' % (product_id, photo_id)
                 full_path = photos_path + set_name + '/' + file_name
                 cropped_path = photos_path + set_name + '/' + cropped_name
                 print  'attempting full+cropped img save of: ' + full_path
                 f = open(full_path, 'wb')
-                bbox_dict = data_pack['bbox']
-                bbox = [int(bbox_dict['left']), int(bbox_dict['top']), int(bbox_dict['width']), int(bbox_dict['height'])]
                 try:
                     url_call = urllib.urlopen(listing[photo_id-1])
                     f.write(url_call.read())
@@ -103,19 +105,22 @@ def library_with_cropping(json_file,json_files_path, photos_path,listing,max_ite
                     f.close()
                     print listing[photo_id-1] + '\n succesful full img saved as: ' + full_path
       #              time.sleep(0.1)
-                    try:
-                        print('trying crop')
-                        img_arr = cv2.imread(full_path)
-                        if img_arr is None:
-                            print('could not read img:'+full_path)
-                        cropped = img_arr[bbox[1]:bbox[3]+bbox[1],bbox[0]:bbox[2]+bbox[0]]
-                        cropped_path = full_path  #clobber orig image
-                        cv2.imwrite(cropped_path,cropped)
-                        print listing[photo_id-1] + '\n cropped succesful save as: ' + cropped_path
-                    except:
-                        print listing[photo_id-1] + '\n cropped unsuccesful save as: ' + cropped_path
+                    if docrop:
+                        try:
+                            print('trying crop')
+                            img_arr = cv2.imread(full_path)
+                            if img_arr is None:
+                                print('could not read img:'+full_path)
+                            cropped = img_arr[bbox[1]:bbox[3]+bbox[1],bbox[0]:bbox[2]+bbox[0]]
+                            cropped_path = full_path  #clobber orig image
+                            cv2.imwrite(cropped_path,cropped)
+                            print listing[photo_id-1] + '\n cropped succesful save as: ' + cropped_path
+                        except:
+                            print listing[photo_id-1] + '\n cropped unsuccesful save as: ' + cropped_path
                 except:
                     print listing[photo_id-1] + '\n yo full img unsuccesful save of: ' + full_path
+
+            # product# , photo#, no bb
             else:
                 file_name = 'product_%s_photo_%s.jpg' % (product_id, photo_id)
                 full_path = photos_path + set_name + '/' + file_name
@@ -151,7 +156,7 @@ if __name__ == "__main__":
 
     listing = get_product_photos(images_files_path)
 
-    max_items = 1000000
+    max_items = 100
     only_files = [f for f in os.listdir(json_files_path) if os.path.isfile(os.path.join(json_files_path, f))]
 #    only_files = ['test_pairs_footwear.json']
     print only_files

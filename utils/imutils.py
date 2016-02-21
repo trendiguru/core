@@ -23,14 +23,15 @@ def image_stats_from_dir_of_dirs(dir_of_dirs):
     for a_dir in only_dirs:
         fulldir = os.path.join(dir_of_dirs,a_dir)
         results = image_stats_from_dir(fulldir)
-        hlist.append(results[0])
-        wlist.append(results[1])
-        dlist.append(results[2])
-        Blist.append(results[3])
-        Glist.append(results[4])
-        Rlist.append(results[5])
-        nlist.append(results[6])
-        n += 1
+        if results is not None:
+            hlist.append(results[0])
+            wlist.append(results[1])
+            dlist.append(results[2])
+            Blist.append(results[3])
+            Glist.append(results[4])
+            Rlist.append(results[5])
+            nlist.append(results[6])
+            n += 1
     avg_h = np.average(hlist,weights=nlist)
     avg_w = np.average(wlist,weights=nlist)
     avg_d = np.average(dlist,weights=nlist)
@@ -70,6 +71,8 @@ def image_stats_from_dir(dirname):
     avg_G = np.mean(Glist)
     avg_R = np.mean(Rlist)
     print('dir:{} avg of {} images: h:{} w{} d{} B {} G {} R {}'.format(dirname,n,avg_h,avg_w,avg_d,avg_B,avg_G,avg_R))
+    if n == 0 :
+        return None
     return([avg_h,avg_w,avg_d,avg_B,avg_G,avg_R,n])
 
 def image_stats(filename):
@@ -160,18 +163,25 @@ def resize_and_crop_image_using_bb( input_file_or_np_arr, bb=None, output_file=N
     if isinstance(input_file_or_np_arr,basestring):
         orig_name = input_file_or_np_arr
         input_file_or_np_arr = cv2.imread(input_file_or_np_arr)
-        if 'bb=' in orig_name and bb is None:
-            strs = orig_name.split('bb=')
+        if 'bbox_' in orig_name and bb is None:
+            strs = orig_name.split('bbox_')
             bb_str = strs[1]
             coords = bb_str.split('_')
             bb_x = int(coords[0])
             bb_y = int(coords[1])
             bb_w = int(coords[2])
-            bb_h = int(coords[3])
+            bb_h = coords[3].split('.')[0]  #this has .jpg or .bmp at the end
+            bb_h = int(bb_h)
             bb=[bb_x,bb_y,bb_w,bb_h]
     if bb is None:
-        dsize = [output_w,output_h]
+        print('no bbox given')
+        dsize =(output_w,output_h)
         output_img_arr = cv2.resize(input_file_or_np_arr, dsize)
+        use_visual_output = True
+        if use_visual_output is True:
+            cv2.imshow('resized', output_img_arr)
+            cv2.imshow('orig',input_file_or_np_arr)
+            cv2.waitKey(0)
         return output_img_arr
     height, width, depth = input_file_or_np_arr.shape
     in_aspect = bb[2]/bb[3]
