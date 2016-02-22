@@ -31,7 +31,7 @@ def dir_of_dirs_to_lmdb(dbname,dir_of_dirs,test_or_train=None,max_images_per_cla
     print('writing to lmdb {} test/train {} max {} new_x {} new_y {} avgB {} avg G {} avgR {}'.format(dbname,test_or_train,max_images_per_class,resize_x,resize_y,avg_B,avg_G,avg_R))
     initial_only_dirs = [dir for dir in os.listdir(dir_of_dirs) if os.path.isdir(os.path.join(dir_of_dirs,dir))]
     initial_only_dirs.sort()
-    print(str(len(initial_only_dirs))+' dirs:'+str(initial_only_dirs)+' in '+dir_of_dirs)
+ #   print(str(len(initial_only_dirs))+' dirs:'+str(initial_only_dirs)+' in '+dir_of_dirs)
     # txn is a Transaction object
     only_dirs = []
     for a_dir in initial_only_dirs:
@@ -39,7 +39,7 @@ def dir_of_dirs_to_lmdb(dbname,dir_of_dirs,test_or_train=None,max_images_per_cla
             #open and close db every class to cut down on memory
             #maybe this is irrelevant and we can do this once
             only_dirs.append(a_dir)
-    print(str(len(only_dirs))+' dirs:'+str(only_dirs)+' in '+dir_of_dirs)
+    print(str(len(only_dirs))+' relevant dirs:'+str(only_dirs)+' in '+dir_of_dirs)
 
 
     map_size = 1e13  #size of db in bytes, can also be done by 10X actual size  as in:
@@ -72,15 +72,18 @@ def dir_of_dirs_to_lmdb(dbname,dir_of_dirs,test_or_train=None,max_images_per_cla
             for n in range(0,min(max_images_per_class,len(only_files))):
                 a_file =only_files[n]
                 fullname = os.path.join(fulldir,a_file)
+                cropped_name= os.path.join(fulldir,'cropped_'+a_file)
                 #img_arr = mpimg.imread(fullname)  #if you don't have cv2 handy use matplotlib
                 img_arr = cv2.imread(fullname)
                 if img_arr is not None:
+                    h_orig=img_arr.shape[0]
+                    w_orig=img_arr.shape[1]
                     if(resize_x is not None):
 #                            img_arr = imutils.resize_and_crop_image(img_arr, output_side_length = resize_x)
-                        img_arr = imutils.resize_and_crop_image_using_bb(fullname, output_w=128,output_h=128,use_visual_output=False)
+                        img_arr = imutils.resize_and_crop_image_using_bb(fullname, output_file=a_file,output_w=128,output_h=128,use_visual_output=False)
                     h=img_arr.shape[0]
                     w=img_arr.shape[1]
-                    print('img {} w:{} h:{} name:{}'.format(image_number, h,w,fullname))
+                    print('img {} after resize w:{} h:{} (before was {}x{} name:{}'.format(image_number, h,w,h_orig,w_orig,fullname))
                     #    N = 1000
                     #    # Let's pretend this is interesting data
                     #    X = np.zeros((N, 3, 32, 32), dtype=np.uint8)
@@ -101,14 +104,15 @@ def dir_of_dirs_to_lmdb(dbname,dir_of_dirs,test_or_train=None,max_images_per_cla
                         datum.data = img_arr.tobytes()  # or .tostring() if numpy < 1.9
                         datum.label = classno
                         str_id = '{:08}'.format(image_number)
-                        print('strid:{} w:{} h:{}'.format(str_id,datm.width,datum.height))
+                        print('strid:{} w:{} h:{}'.format(str_id,datum.width,datum.height))
                         # The encode is only essential in Python 3
                         txn.put(str_id.encode('ascii'), datum.SerializeToString())
             #            in_txn.put('{:0>10d}'.format(in_idx), im_dat.SerializeToString())
                         image_number += 1
                         image_number_in_class += 1
                     except:
-                        print('some problem with lmdb')
+                        e = sys.exc_info()[0]
+                        print('some problem with lmdb:'+str(e))
                 else:
                     print('couldnt read '+a_file)
         print('{} items in class {}'.format(image_number_in_class,classno))
