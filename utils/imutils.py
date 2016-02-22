@@ -129,7 +129,7 @@ def test_or_training_textfile(dir_of_dirs,test_or_train=None):
                     myfile.write(line)
                 classno += 1
 
-def resize_and_crop_image( input_file_or_np_arr, output_file=None, output_side_length = 256):
+def resize_and_crop_image( input_file_or_np_arr, output_file=None, output_side_length = 256,use_visual_output=False):
     '''Takes an image name, resize it and crop the center square
     '''
     #TODO - implement nonsquare crop
@@ -147,7 +147,6 @@ def resize_and_crop_image( input_file_or_np_arr, output_file=None, output_side_l
     width_offset = (new_width - output_side_length) / 2
     cropped_img = resized_img[height_offset:height_offset + output_side_length,
                               width_offset:width_offset + output_side_length]
-    use_visual_output=True
     if use_visual_output is True:
         cv2.imshow('cropped', cropped_img)
         cv2.imshow('orig',input_file_or_np_arr)
@@ -200,10 +199,9 @@ def resize_and_crop_image_using_bb( input_file_or_np_arr, bb=None, output_file=N
         x2 = min(width,bb[0]+bb[2]+extra_pad_x)
     cropped_img = input_file_or_np_arr[y1:y2,x1:x2,:]
 
-    print('cropped size:{} ar {} desired ar {}'.format(cropped_img.shape,cropped_img.shape[1]/cropped_img.shape[0],output_w/output_h))
+    print('cropped size:{} ar {} desired ar {}'.format(cropped_img.shape,float(cropped_img.shape[1])/cropped_img.shape[0],float(output_w/output_h)))
     scaled_cropped_img = cv2.resize(cropped_img,(output_w,output_h))
-    print('resize:{} ar {} desired ar {}'.format(scaled_cropped_img.shape,scaled_cropped_img.shape[1]/scaled_cropped_img.shape[0],output_w/output_h))
-    use_visual_output=True
+    print('resize:{} ar {} desired ar {}'.format(scaled_cropped_img.shape,float(scaled_cropped_img.shape[1])/scaled_cropped_img.shape[0],float(output_w/output_h)))
     if use_visual_output is True:
         cv2.imshow('scaled_cropped', scaled_cropped_img)
         cv2.imshow('orig',input_file_or_np_arr)
