@@ -103,12 +103,12 @@ def dir_of_dirs_to_lmdb(dbname,dir_of_dirs,test_or_train=None,max_images_per_cla
                     datum.channels = img_arr.shape[2]
                     datum.height = img_arr.shape[0]
                     datum.width = img_arr.shape[1]
-                    img_reshaped = img_arr.reshape((datum.channels,datum.height,datum.width))
-                    print('reshaped size: '+str(img_reshaped.shape))
+#                    img_reshaped = img_arr.reshape((datum.channels,datum.height,datum.width))
+#                    print('reshaped size: '+str(img_reshaped.shape))
                     datum.data = img_arr.tobytes()  # or .tostring() if numpy < 1.9
                     datum.label = classno
                     str_id = '{:08}'.format(image_number)
-#                    print('strid:{} w:{} h:{}'.format(str_id,datum.width,datum.height))
+                    print('strid:{} w:{} h:{} d:{} class:{}'.format(str_id,datum.width,datum.height,datum.channels,datum.label))
                     # The encode is only essential in Python 3
                     try:
                         txn.put(str_id.encode('ascii'), datum.SerializeToString())
@@ -150,8 +150,9 @@ def inspect_db(dbname,show_visual_output=True,B=128,G=128,R=128):
                 x[:,:,2] = x[:,:,2]+R
                 y = datum.label
  #               print('datum:'+str(datum))
-                print('image# {} data {} y{} width {} height {} chan {}'.format(n,x,y,datum.width,datum.height,datum.channels))
-                print(' data size {}'.format(x.shape))
+#                print('image# {} data {} class {} width {} height {} chan {}'.format(n,x,y,datum.width,datum.height,datum.channels))
+                print('image# {} datasize {} class {} width {} height {} chan {}'.format(n,x.shape,y,datum.width,datum.height,datum.channels))
+#                print(' data size {}'.format(x.shape))
                 #Iterating <key, value> pairs is also easy:
 #                raw_input('enter to continue (n={})'.format(n))
                 n+=1
@@ -200,7 +201,7 @@ if __name__ == "__main__":
     B=142
     G=151
     R=162
-    dir_of_dirs_to_lmdb('testdb',dir_of_dirs,max_images_per_class =5,test_or_train='test',resize_x=resize_x,resize_y=resize_y,avg_B=B,avg_G=G,avg_R=R)
+    dir_of_dirs_to_lmdb('testdb',dir_of_dirs,max_images_per_class =50,test_or_train='test',resize_x=resize_x,resize_y=resize_y,avg_B=B,avg_G=G,avg_R=R)
     inspect_db('testdb.test',show_visual_output=True,B=B,G=G,R=R)
 
 #  weighted averages of 16 directories: h:1742.51040222 w1337.66435506 d3.0 B 142.492848614 G 151.617458606 R 162.580921717 totfiles 1442

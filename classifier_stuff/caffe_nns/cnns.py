@@ -4,6 +4,8 @@ import sys
 import os
 import socket
 from pylab import *
+from trendi.classifier_stuff.caffe_nns import lmdb_utils
+
 try:
     import caffe
     from caffe import layers as L
@@ -139,7 +141,6 @@ def run_lenet():
                 correct += sum(solver.test_nets[0].blobs['ip2'].data.argmax(1)
                                == solver.test_nets[0].blobs['label'].data)
             test_acc[it // test_interval] = correct / 1e4
-
     if pc:
         _, ax1 = plt.subplots()
         ax2 = ax1.twinx()
@@ -163,22 +164,13 @@ def mynet(db, batch_size):
     n.loss = L.SoftmaxWithLoss(n.ip2,n.label)
     return n.to_proto()
 
-
 def run_my_net(nn_dir,train_db,test_db,solver_prototxt):
-    host = socket.gethostname()
-    print('host:'+str(host))
-    if host == 'jr-ThinkPad-X1-Carbon':
-        pc = True
-        os.chdir('/home/jr/sw/caffe')
-    else:
-        pc = False
-        os.chdir('/root/caffe')
-    train_prototfile = os.path.join(nn_dir,'train.prototxt')
-    test_prototfile = os.path.join(nn_dir,'test.prototxt')
+    train_protofile = os.path.join(nn_dir,'train.prototxt')
+    test_protofile = os.path.join(nn_dir,'test.prototxt')
     with open(train_protofile,'w') as f:
         f.write(str(lenet(train_db,64)))
     with open(test_protofile,'w') as f:
-        f.write(str(lenet(test_lmdb,100)))
+        f.write(str(lenet(test_db,100)))
     if pc:
         print('using cpu only on '+str(host))
         caffe.set_mode_cpu()
@@ -241,4 +233,5 @@ def run_my_net(nn_dir,train_db,test_db,solver_prototxt):
 
         plt.show()
 
-if __name__ = "__main__"
+if __name__ = "__main__":
+        dir_of_dirs_to_lmdb('testdb',dir_of_dirs,max_images_per_class =5,test_or_train='test',resize_x=resize_x,resize_y=resize_y,avg_B=B,avg_G=G,avg_R=R)

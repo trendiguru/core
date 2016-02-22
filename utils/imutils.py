@@ -206,7 +206,7 @@ def resize_and_crop_image_using_bb( input_file_or_np_arr, bb=None, output_file=N
 
     #print('orig size {}x{} cropped to:{}x{},ar={} desired ar={}'.format(input_file_or_np_arr.shape[0],input_file_or_np_arr.shape[1],cropped_img.shape[0],cropped_img.shape[1],float(cropped_img.shape[1])/cropped_img.shape[0],float(output_w/output_h)))
     scaled_cropped_img = cv2.resize(cropped_img,(output_w,output_h))
-    print('resized to : {}x{}, ar={}, desired ar={}'.format(scaled_cropped_img.shape[0],scaled_cropped_img.shape[1],float(scaled_cropped_img.shape[1])/scaled_cropped_img.shape[0],float(output_w/output_h)))
+#    print('resized to : {}x{}, ar={}, desired ar={}'.format(scaled_cropped_img.shape[0],scaled_cropped_img.shape[1],float(scaled_cropped_img.shape[1])/scaled_cropped_img.shape[0],float(output_w/output_h)))
     if use_visual_output is True:
         cv2.imshow('scaled_cropped', scaled_cropped_img)
         cv2.imshow('orig',input_file_or_np_arr)
