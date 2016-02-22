@@ -7,7 +7,7 @@ import csv
 import gzip
 import json
 import requests
-from cv2 import imread, imdecode, imwrite
+from cv2 import imdecode, imwrite
 import logging
 import os
 from requests import ConnectionError
@@ -822,6 +822,12 @@ def kick_fp_out():
         db.images.replace_one({'_id': doc['_id']}, doc)
         print("did {0} docs".format(idx))
     print("{0} docs modified".format(idx))
+
+
+def data_url_to_cv2_img(url):
+    nparr = np.fromstring(url.split(',')[1].decode('base64'), np.uint8)
+    img = cv2.imdecode(nparr, cv2.IMREAD_COLOR)
+    return img
 
 
 if __name__ == '__main__':
