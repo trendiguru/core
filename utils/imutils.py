@@ -215,7 +215,6 @@ def resize_and_crop_image_using_bb( input_file_or_np_arr, bb=None, output_file=N
         cv2.imwrite(output_file, cropped_img)
     return scaled_cropped_img
 
-
 if __name__ == "__main__":
 #    test_or_training_textfile('/home/jr/python-packages/trendi/classifier_stuff/caffe_nns/only_train',test_or_train='test')
  #   test_or_training_textfile('/home/jr/python-packages/trendi/classifier_stuff/caffe_nns/only_train',test_or_train='train')
