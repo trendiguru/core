@@ -212,7 +212,7 @@ def resize_and_crop_image_using_bb( input_file_or_np_arr, bb=None, output_file=N
         cv2.imshow('orig',input_file_or_np_arr)
         cv2.waitKey(0)
     if output_file is not None:
-        cv2.imwrite(output_file, cropped_img)
+        cv2.imwrite(output_file, scaled_cropped_img)
     return scaled_cropped_img
 
 if __name__ == "__main__":
