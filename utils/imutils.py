@@ -156,7 +156,7 @@ def resize_and_crop_image( input_file_or_np_arr, output_file=None, output_side_l
         cv2.imwrite(output_file, cropped_img)
     return cropped_img
 
-def resize_and_crop_image_using_bb( input_file_or_np_arr, bb=None, output_file=None, output_w = 128,output_h = 128):
+def resize_and_crop_image_using_bb( input_file_or_np_arr, bb=None, output_file=None, output_w = 128,output_h = 128,use_visual_output=False):
     '''Takes an image name, resize it and crop the center square
     '''
     #TODO - implement nonsquare crop
@@ -177,7 +177,7 @@ def resize_and_crop_image_using_bb( input_file_or_np_arr, bb=None, output_file=N
         print('no bbox given')
         dsize =(output_w,output_h)
         output_img_arr = cv2.resize(input_file_or_np_arr, dsize)
-        use_visual_output = True
+       # use_visual_output = False
         if use_visual_output is True:
             cv2.imshow('resized', output_img_arr)
             cv2.imshow('orig',input_file_or_np_arr)

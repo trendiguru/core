@@ -77,7 +77,7 @@ def dir_of_dirs_to_lmdb(dbname,dir_of_dirs,test_or_train=None,max_images_per_cla
                 if img_arr is not None:
                     if(resize_x is not None):
 #                            img_arr = imutils.resize_and_crop_image(img_arr, output_side_length = resize_x)
-                        img_arr = imutils.resize_and_crop_image_using_bb(fullname, output_w=128,output_h=128)
+                        img_arr = imutils.resize_and_crop_image_using_bb(fullname, output_w=128,output_h=128,use_visual_output=False)
                     h=img_arr.shape[0]
                     w=img_arr.shape[1]
                     print('img {} w:{} h:{} name:{}'.format(image_number, h,w,fullname))
