@@ -1,8 +1,9 @@
 from __future__ import print_function
+
 import commands
+import logging
 import os
 import os.path
-import logging
 import random
 import string
 
@@ -10,7 +11,6 @@ import cv2
 import numpy as np
 
 from .constants import project_dir
-
 
 path_to_ccvface = '/' + project_dir + '/classifier_stuff/ccvface'
 path_to_ccvface_db = '/' + project_dir + '/classifier_stuff/ccvface.sqlite3'
@@ -31,7 +31,7 @@ def ccv_facedetect(filename=None, image_array=None):
         .format(path_to_ccvface=path_to_ccvface, filename=filename, path_to_ccvface_db=path_to_ccvface_db)
 
     retvals = commands.getstatusoutput(detect_command)
-    logging.debug('return from command ' + detect_command + ':' + str(retvals), end="\n")
+    # logging.debug('return from command ' + detect_command + ':' + str(retvals), end="\n")
 
     if delete_when_done:
         try:
