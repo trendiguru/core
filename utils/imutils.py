@@ -194,19 +194,19 @@ def resize_and_crop_image_using_bb( input_file_or_np_arr, bb=None, output_file=N
         round = (output_h*bb[2]/output_w - bb[3]) % 2
         y1 = max(0,bb[1] - extra_pad_y)
         y2 = min(height,bb[1]+bb[3]+extra_pad_y+round)
-        print('pad y {} y1 {} y2 {}'.format(extra_pad_y,y1,y2))
+        #print('pad y {} y1 {} y2 {}'.format(extra_pad_y,y1,y2))
     elif in_aspect<out_aspect:
         extra_pad_x = int((output_w*bb[3]/output_h - bb[2]) / 2)
         round = (output_w*bb[3]/output_h - bb[2]) % 2
         x1 = max(0,bb[0] - extra_pad_x)
         x2 = min(width,bb[0]+bb[2]+extra_pad_x+round)
-        print('pad x {} x1 {} x2 {}'.format(extra_pad_x,x1,x2))
-    print('x1 {} x2 {} y1 {} y2 {}'.format(x1,x2,y1,y2))
+        #print('pad x {} x1 {} x2 {}'.format(extra_pad_x,x1,x2))
+    #print('x1 {} x2 {} y1 {} y2 {}'.format(x1,x2,y1,y2))
     cropped_img = input_file_or_np_arr[y1:y2,x1:x2,:]
 
-    print('orig size {}x{} cropped to:{}x{},ar={} desired ar={}'.format(input_file_or_np_arr.shape[0],input_file_or_np_arr.shape[1],cropped_img.shape[0],cropped_img.shape[1],float(cropped_img.shape[1])/cropped_img.shape[0],float(output_w/output_h)))
+    #print('orig size {}x{} cropped to:{}x{},ar={} desired ar={}'.format(input_file_or_np_arr.shape[0],input_file_or_np_arr.shape[1],cropped_img.shape[0],cropped_img.shape[1],float(cropped_img.shape[1])/cropped_img.shape[0],float(output_w/output_h)))
     scaled_cropped_img = cv2.resize(cropped_img,(output_w,output_h))
-    print('resized to :{} ar {} desired ar {}'.format(scaled_cropped_img.shape,float(scaled_cropped_img.shape[1])/scaled_cropped_img.shape[0],float(output_w/output_h)))
+    print('resized to : {}x{}, ar={}, desired ar={}'.format(scaled_cropped_img.shape[0],scaled_cropped_img.shape[1],float(scaled_cropped_img.shape[1])/scaled_cropped_img.shape[0],float(output_w/output_h)))
     if use_visual_output is True:
         cv2.imshow('scaled_cropped', scaled_cropped_img)
         cv2.imshow('orig',input_file_or_np_arr)

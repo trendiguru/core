@@ -112,9 +112,9 @@ def dir_of_dirs_to_lmdb(dbname,dir_of_dirs,test_or_train=None,max_images_per_cla
                     except:
                         e = sys.exc_info()[0]
                         print('some problem with lmdb:'+str(e))
-                    print()
                 else:
                     print('couldnt read '+a_file)
+                print
         print('{} items in class {}'.format(image_number_in_class,classno))
         classno += 1
         env.close()
