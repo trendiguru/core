@@ -213,7 +213,9 @@ def resize_and_crop_image_using_bb( input_file_or_np_arr, bb=None, output_file=N
         cv2.waitKey(0)
     if output_file is not None:
         print('writing outfile '+output_file)
-        Utils.ensure_dir(output_file)
+        output_dir = output_file.split('/')[-1]
+        print('out dir:'+str(output_dir))
+        Utils.ensure_dir(output_dir)
         cv2.imwrite(output_file, cropped_img)
     return scaled_cropped_img
 
