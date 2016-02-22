@@ -27,7 +27,7 @@ from trendi.utils import imutils
 
 ################LMDB FUN (originally) RIPPED FROM http://deepdish.io/2015/04/28/creating-lmdb-in-python/
 #############changes by awesome d.j. jazzy jer  awesomest hAckz0r evarr
-def dir_of_dirs_to_lmdb(dbname,dir_of_dirs,test_or_train=None,max_images_per_class = 1000,resize_x=128,resize_y=128,avg_B=None,avg_G=None,avg_R=None,resize_w_bb=True):
+def dir_of_dirs_to_lmdb(dbname,dir_of_dirs,test_or_train=None,max_images_per_class = 1000,resize_x=128,resize_y=128,avg_B=None,avg_G=None,avg_R=None,resize_w_bb=True,use_visual_output=False):
     print('writing to lmdb {} test/train {} max {} new_x {} new_y {} avgB {} avg G {} avgR {}'.format(dbname,test_or_train,max_images_per_class,resize_x,resize_y,avg_B,avg_G,avg_R))
     initial_only_dirs = [dir for dir in os.listdir(dir_of_dirs) if os.path.isdir(os.path.join(dir_of_dirs,dir))]
     initial_only_dirs.sort()
@@ -80,7 +80,7 @@ def dir_of_dirs_to_lmdb(dbname,dir_of_dirs,test_or_train=None,max_images_per_cla
                     w_orig=img_arr.shape[1]
                     if(resize_x is not None):
 #                            img_arr = imutils.resize_and_crop_image(img_arr, output_side_length = resize_x)
-                        img_arr = imutils.resize_and_crop_image_using_bb(fullname, output_file=a_file,output_w=128,output_h=128,use_visual_output=False)
+                        img_arr = imutils.resize_and_crop_image_using_bb(fullname, output_file=a_file,output_w=128,output_h=128,use_visual_output=use_visual_output)
                     h=img_arr.shape[0]
                     w=img_arr.shape[1]
                     print('img {} after resize w:{} h:{} (before was {}x{} name:{}'.format(image_number, h,w,h_orig,w_orig,fullname))
@@ -88,24 +88,23 @@ def dir_of_dirs_to_lmdb(dbname,dir_of_dirs,test_or_train=None,max_images_per_cla
                     #    # Let's pretend this is interesting data
                     #    X = np.zeros((N, 3, 32, 32), dtype=np.uint8)
                      #   y = np.zeros(N, dtype=np.int64)
-                    use_visual_output = False
                     if use_visual_output is True:
                         cv2.imshow('img',img_arr)
                         cv2.waitKey(0)
+                    if avg_B is not None and avg_G is not None and avg_R is not None:
+                        img_arr[:,:,0] = img_arr[:,:,0]-avg_B
+                        img_arr[:,:,1] = img_arr[:,:,1]-avg_G
+                        img_arr[:,:,2] = img_arr[:,:,2]-avg_R
+                    datum = caffe.proto.caffe_pb2.Datum()
+                    datum.channels = img_arr.shape[2]
+                    datum.height = img_arr.shape[0]
+                    datum.width = img_arr.shape[1]
+                    datum.data = img_arr.tobytes()  # or .tostring() if numpy < 1.9
+                    datum.label = classno
+                    str_id = '{:08}'.format(image_number)
+                    print('strid:{} w:{} h:{}'.format(str_id,datum.width,datum.height))
+                    # The encode is only essential in Python 3
                     try:
-                        if avg_B is not None and avg_G is not None and avg_R is not None:
-                            img_arr[:,:,0] = img_arr[:,:,0]-avg_B
-                            img_arr[:,:,1] = img_arr[:,:,1]-avg_G
-                            img_arr[:,:,2] = img_arr[:,:,2]-avg_R
-                        datum = caffe.proto.caffe_pb2.Datum()
-                        datum.channels = img_arr.shape[2]
-                        datum.height = img_arr.shape[0]
-                        datum.width = img_arr.shape[1]
-                        datum.data = img_arr.tobytes()  # or .tostring() if numpy < 1.9
-                        datum.label = classno
-                        str_id = '{:08}'.format(image_number)
-                        print('strid:{} w:{} h:{}'.format(str_id,datum.width,datum.height))
-                        # The encode is only essential in Python 3
                         txn.put(str_id.encode('ascii'), datum.SerializeToString())
             #            in_txn.put('{:0>10d}'.format(in_idx), im_dat.SerializeToString())
                         image_number += 1
