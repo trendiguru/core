@@ -12,7 +12,7 @@ try:
 except ImportError:
     flags = None
 
-SCOPES = 'https://www.googleapis.com/auth/drive.file'
+SCOPES = 'https://www.googleapis.com/auth/drive'
 store = file.Storage('storage.json')
 creds = store.get()
 if not creds or creds.invalid:
@@ -27,7 +27,8 @@ FILES = (
 )
 
 for filename, convert in FILES:
-    metadata = {'title': filename}
+    metadata = {'title': filename,
+                'parents':[{'id':"0B-fDiFA73MH_N1ZCNVNYcW0tRFk"}]}
     res = DRIVE.files().insert(convert=convert, body=metadata,
             media_body=filename, fields='mimeType,exportLinks').execute()
     if res:
