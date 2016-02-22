@@ -80,7 +80,7 @@ def dir_of_dirs_to_lmdb(dbname,dir_of_dirs,test_or_train=None,max_images_per_cla
                     w_orig=img_arr.shape[1]
                     if(resize_x is not None):
 #                            img_arr = imutils.resize_and_crop_image(img_arr, output_side_length = resize_x)
-                        img_arr = imutils.resize_and_crop_image_using_bb(fullname, output_file=a_file,output_w=128,output_h=128,use_visual_output=use_visual_output)
+                        img_arr = imutils.resize_and_crop_image_using_bb(fullname, output_file=cropped_name,output_w=128,output_h=128,use_visual_output=use_visual_output)
                     h=img_arr.shape[0]
                     w=img_arr.shape[1]
                     print('img {} after resize w:{} h:{} (before was {}x{} name:{}'.format(image_number, h,w,h_orig,w_orig,fullname))
@@ -102,7 +102,7 @@ def dir_of_dirs_to_lmdb(dbname,dir_of_dirs,test_or_train=None,max_images_per_cla
                     datum.data = img_arr.tobytes()  # or .tostring() if numpy < 1.9
                     datum.label = classno
                     str_id = '{:08}'.format(image_number)
-                    print('strid:{} w:{} h:{}'.format(str_id,datum.width,datum.height))
+#                    print('strid:{} w:{} h:{}'.format(str_id,datum.width,datum.height))
                     # The encode is only essential in Python 3
                     try:
                         txn.put(str_id.encode('ascii'), datum.SerializeToString())
