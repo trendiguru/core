@@ -171,16 +171,20 @@ def run_my_net(nn_dir,train_db,test_db,solver_prototxt):
         f.write(str(lenet(train_db,64)))
     with open(test_protofile,'w') as f:
         f.write(str(lenet(test_db,100)))
-    if pc:
-        print('using cpu only on '+str(host))
+    host = socket.gethostname()
+    print('host:'+str(host))
+    if host == 'jr-ThinkPad-X1-Carbon':
+        print('using cpu')
+        pc = True
         caffe.set_mode_cpu()
     else:
+        print('using gpu')
         caffe.set_mode_gpu()
         caffe.set_device(0)
 
     solver = caffe.SGDSolver(solver_prototxt)
-    [(k, v.data.shape) for k, v in solver.net.blobs.items()]
-    [(k, v[0].data.shape) for k, v in solver.net.params.items()]
+    print [(k, v.data.shape) for k, v in solver.net.blobs.items()]
+    print [(k, v[0].data.shape) for k, v in solver.net.params.items()]
     solver.net.forward()  # train net
     solver.test_nets[0].forward()  # test net (there can be more than one)
     # we use a little trick to tile the first eight images
