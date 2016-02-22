@@ -152,7 +152,7 @@ def inspect_db(dbname,show_visual_output=True,B=128,G=128,R=128):
  #               print('datum:'+str(datum))
 #                print('image# {} data {} class {} width {} height {} chan {}'.format(n,x,y,datum.width,datum.height,datum.channels))
                 print('image# {} datasize {} class {} width {} height {} chan {}'.format(n,x.shape,y,datum.width,datum.height,datum.channels))
-#                print(' data size {}'.format(x.shape))
+#'testdb.test'                print(' data size {}'.format(x.shape))
                 #Iterating <key, value> pairs is also easy:
 #                raw_input('enter to continue (n={})'.format(n))
                 n+=1
@@ -161,6 +161,7 @@ def inspect_db(dbname,show_visual_output=True,B=128,G=128,R=128):
                     cv2.waitKey(0)
             except:
                 print('error getting record {} from db'.format(n))
+                break
     with env.begin() as txn:
         cursor = txn.cursor()
         for key, value in cursor:
@@ -191,7 +192,7 @@ if __name__ == "__main__":
     dir_of_dirs = '/home/jeremy/core/classifier_stuff/caffe_nns/dataset'
     dir_of_dirs = '/home/jr/python-packages/trendi/classifier_stuff/caffe_nns/dataset'
     print('dir:'+dir_of_dirs)
-#    h,w,d,B,G,R,n = imutils.image_stats_from_dir_of_dirs(dir_of_dirs)
+#    h,w,d,B,G,R,n = imutils.image_stats_from_dir_of_ditestrs(dir_of_dirs)
     resize_x = 128
     #resize_y = int(h*128/w)
     resize_y=200
