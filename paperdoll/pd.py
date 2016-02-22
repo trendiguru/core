@@ -192,7 +192,6 @@ def convert_and_save_results(mask, label_names, pose,filename,img,url):
               #            'stockings','necklace','cape','jumper','sweatshirt','suit','bracelet','heels','wedges','ring',
                 #          'flats','tie','romper','sandals','earrings','gloves','sneakers','clogs','watch','pumps','wallet',
                   #        'bodysuit','loafers','hair','skin']
-
     new_mask=np.ones(mask.shape)*255  # anything left with 255 wasn't dealt with
     success = True #assume innocence until proven guilty
     logging.debug('attempting convert and save')

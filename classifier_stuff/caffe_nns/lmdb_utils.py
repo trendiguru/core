@@ -84,7 +84,7 @@ def dir_of_dirs_to_lmdb(dbname,dir_of_dirs,test_or_train=None,max_images_per_cla
                     w_orig=img_arr.shape[1]
                     if(resize_x is not None):
 #                            img_arr = imutils.resize_and_crop_image(img_arr, output_side_length = resize_x)
-                        img_arr = imutils.resize_and_crop_image_using_bb(fullname, output_file=cropped_name,output_w=128,output_h=128,use_visual_output=use_visual_output)
+                        img_arr = imutils.resize_and_crop_image_using_bb(fullname, output_file=cropped_name,output_w=resize_x,output_h=resize_y,use_visual_output=use_visual_output)
                     h=img_arr.shape[0]
                     w=img_arr.shape[1]
                     print('img {} after resize w:{} h:{} (before was {}x{} name:{}'.format(image_number, h,w,h_orig,w_orig,fullname))
@@ -103,6 +103,8 @@ def dir_of_dirs_to_lmdb(dbname,dir_of_dirs,test_or_train=None,max_images_per_cla
                     datum.channels = img_arr.shape[2]
                     datum.height = img_arr.shape[0]
                     datum.width = img_arr.shape[1]
+                    img_reshaped = img_arr.reshape((datum.channels,datum.height,datum.width))
+                    print('reshaped size: '+str(img_reshaped.shape))
                     datum.data = img_arr.tobytes()  # or .tostring() if numpy < 1.9
                     datum.label = classno
                     str_id = '{:08}'.format(image_number)
@@ -126,7 +128,7 @@ def dir_of_dirs_to_lmdb(dbname,dir_of_dirs,test_or_train=None,max_images_per_cla
 
     #You can also open up and inspect an existing LMDB database from Python:
 # assuming here that dataum.data, datum.channels, datum.width etc all exist as in dir_of_dirs_to_lmdb
-def inspect_db(dbname):
+def inspect_db(dbname,show_visual_output=True,B=128,G=128,R=128):
     env = lmdb.open(dbname, readonly=True)
     with env.begin() as txn:
         n=0
@@ -141,13 +143,21 @@ def inspect_db(dbname):
                 datum = caffe.proto.caffe_pb2.Datum()
                 datum.ParseFromString(raw_datum)
                 flat_x = np.fromstring(datum.data, dtype=np.uint8)
-                x = flat_x.reshape(datum.channels, datum.height, datum.width)
+#                x = flat_x.reshape(datum.channels, datum.height, datum.width)
+                x = flat_x.reshape(datum.height, datum.width,datum.channels)
+                x[:,:,0] = x[:,:,0]+B
+                x[:,:,1] = x[:,:,1]+G
+                x[:,:,2] = x[:,:,2]+R
                 y = datum.label
  #               print('datum:'+str(datum))
                 print('image# {} data {} y{} width {} height {} chan {}'.format(n,x,y,datum.width,datum.height,datum.channels))
+                print(' data size {}'.format(x.shape))
                 #Iterating <key, value> pairs is also easy:
-                raw_input('enter to continue (n={})'.format(n))
+#                raw_input('enter to continue (n={})'.format(n))
                 n+=1
+                if show_visual_output is True:
+                    cv2.imshow('out',x)
+                    cv2.waitKey(0)
             except:
                 print('error getting record {} from db'.format(n))
     with env.begin() as txn:
@@ -177,20 +187,21 @@ def crude_lmdb():
     in_db.close()
 
 if __name__ == "__main__":
-    dir_of_dirs = '/home/jr/python-packages/trendi/classifier_stuff/caffe_nns/dataset'
     dir_of_dirs = '/home/jeremy/core/classifier_stuff/caffe_nns/dataset'
+    dir_of_dirs = '/home/jr/python-packages/trendi/classifier_stuff/caffe_nns/dataset'
     print('dir:'+dir_of_dirs)
 #    h,w,d,B,G,R,n = imutils.image_stats_from_dir_of_dirs(dir_of_dirs)
     resize_x = 128
     #resize_y = int(h*128/w)
-    resize_y=128
+    resize_y=200
    # B=int(B)
    # G=int(G)
     #R=int(R)
     B=142
     G=151
     R=162
-    dir_of_dirs_to_lmdb('testdb',dir_of_dirs,max_images_per_class =1000,test_or_train='test',resize_x=resize_x,resize_y=resize_y,avg_B=B,avg_G=G,avg_R=R)
+    dir_of_dirs_to_lmdb('testdb',dir_of_dirs,max_images_per_class =5,test_or_train='test',resize_x=resize_x,resize_y=resize_y,avg_B=B,avg_G=G,avg_R=R)
+    inspect_db('testdb.test',show_visual_output=True,B=B,G=G,R=R)
 
 #  weighted averages of 16 directories: h:1742.51040222 w1337.66435506 d3.0 B 142.492848614 G 151.617458606 R 162.580921717 totfiles 1442
 
