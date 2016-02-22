@@ -72,7 +72,9 @@ def dir_of_dirs_to_lmdb(dbname,dir_of_dirs,test_or_train=None,max_images_per_cla
             for n in range(0,min(max_images_per_class,len(only_files))):
                 a_file =only_files[n]
                 fullname = os.path.join(fulldir,a_file)
-                cropped_name= os.path.join(fulldir,'cropped_'+a_file)
+                cropped_dir= os.path.join(fulldir,'cropped')
+                cropped_name= os.path.join(cropped_dir,'cropped_'+a_file)
+
                 #img_arr = mpimg.imread(fullname)  #if you don't have cv2 handy use matplotlib
                 img_arr = cv2.imread(fullname)
                 if img_arr is not None:
