@@ -9,6 +9,7 @@ import os
 import lmdb
 from PIL import Image
 from trendi.utils import imutils
+from trendi import Utils
 
 #shellscript for mean comp:
 #TOOLS=/home/ubuntu/repositories/caffe/build/tools
@@ -73,6 +74,7 @@ def dir_of_dirs_to_lmdb(dbname,dir_of_dirs,test_or_train=None,max_images_per_cla
                 a_file =only_files[n]
                 fullname = os.path.join(fulldir,a_file)
                 cropped_dir= os.path.join(fulldir,'cropped')
+                Utils.ensure_dir(cropped_dir)
                 cropped_name= os.path.join(cropped_dir,'cropped_'+a_file)
 
                 #img_arr = mpimg.imread(fullname)  #if you don't have cv2 handy use matplotlib
