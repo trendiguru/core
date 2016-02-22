@@ -170,6 +170,7 @@ def crude_lmdb():
 
 if __name__ == "__main__":
     dir_of_dirs = '/home/jr/python-packages/trendi/classifier_stuff/caffe_nns/dataset'
+    dir_of_dirs = '/home/jeremy/core/classifier_stuff/caffe_nns/dataset'
     print('dir:'+dir_of_dirs)
 #    h,w,d,B,G,R,n = imutils.image_stats_from_dir_of_dirs(dir_of_dirs)
     resize_x = 128
