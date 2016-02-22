@@ -183,8 +183,8 @@ def resize_and_crop_image_using_bb( input_file_or_np_arr, bb=None, output_file=N
             cv2.waitKey(0)
         return output_img_arr
     height, width, depth = input_file_or_np_arr.shape
-    in_aspect = bb[2]/bb[3]
-    out_aspect = output_w/output_h
+    in_aspect = float(bb[2])/bb[3]
+    out_aspect = float(output_w)/output_h
     x1 = bb[0]
     x2 = bb[0] + bb[2]
     y1 = bb[1]
