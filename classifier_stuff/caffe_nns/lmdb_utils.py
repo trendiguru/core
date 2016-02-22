@@ -139,7 +139,7 @@ def inspect_db(dbname):
                 x = flat_x.reshape(datum.channels, datum.height, datum.width)
                 y = datum.label
  #               print('datum:'+str(datum))
-                print('data {} y{} width {} height {} chan {}'.format(x,y,datum.width,datum.height,datum.channels))
+                print('image# {} data {} y{} width {} height {} chan {}'.format(n,x,y,datum.width,datum.height,datum.channels))
                 #Iterating <key, value> pairs is also easy:
                 raw_input('enter to continue (n={})'.format(n))
                 n+=1
