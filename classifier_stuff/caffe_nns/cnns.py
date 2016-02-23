@@ -203,12 +203,13 @@ def mynet(db, batch_size):
 
 def run_my_net(nn_dir,train_db,test_db,solver_prototxt):
 
-    file_base = filename.split('prototxt')[0]
-    train_file = os.path.join(dir,file_base+'train.prototxt')
+    proto_filename = os.path.basename(solver_prototxt)
+    proto_file_base = proto_filename.split('prototxt')[0]
+    proto_dir = os.path.dirname(solver_prototxt)
+    train_protofile = os.path.join(proto_dir,proto_file_base+'train.prototxt')
+    test_protofile = os.path.join(proto_dir,proto_file_base+'train.prototxt')
+    print('trainfile:{} testfile:{}',train_protofile,test_protofile)
 
-
-    train_protofile = os.path.join(nn_dir,'train.prototxt')
-    test_protofile = os.path.join(nn_dir,'test.prototxt')
     with open(train_protofile,'w') as f:
         f.write(str(mynet(train_db,64)))
     with open(test_protofile,'w') as f:
@@ -291,8 +292,8 @@ if __name__ == "__main__":
     B=142
     G=151
     R=162
-    lmdb_utils.dir_of_dirs_to_lmdb('sntestdb',dir_of_dirs,max_images_per_class =50,test_or_train='test',resize_x=resize_x,resize_y=resize_y,avg_B=B,avg_G=G,avg_R=R)
-    lmdb_utils.dir_of_dirs_to_lmdb('testdb',dir_of_dirs,max_images_per_class =50,test_or_train='train',resize_x=resize_x,resize_y=resize_y,avg_B=B,avg_G=G,avg_R=R)
+#    lmdb_utils.dir_of_dirs_to_lmdb('sntestdb',dir_of_dirs,max_images_per_class =50,test_or_train='test',resize_x=resize_x,resize_y=resize_y,avg_B=B,avg_G=G,avg_R=R)
+ #   lmdb_utils.dir_of_dirs_to_lmdb('testdb',dir_of_dirs,max_images_per_class =50,test_or_train='train',resize_x=resize_x,resize_y=resize_y,avg_B=B,avg_G=G,avg_R=R)
 
     proto_file = os.path.join(dir_of_dirs,'my_auto_solver.prototxt')
     write_prototxt(proto_file)
