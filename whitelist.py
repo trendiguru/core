@@ -132,7 +132,7 @@ fullList = {"yahoo.com", "msn.com", "yahoo.co.jp", "qq.com", "uol.com.br", "glob
              'thestar.com.my', 'trendiguru.com', 'websta.me', 'siol.net', 'tportal.hr', 'iol.pt', 'freenet.de',
              'jewelryquestion.com', 'larep.fr', 'dailymotion.com', 'mundopositivo.com.br', 'mediaset.it',
              'cifraclub.com.br', 'gmx.net', 'web.de', 'detik.com', 'slobodnadalmacija.hr', 'storm.com', 'stylebook.de',
-            'instyle.mx', 'mako.co.il'}
+            'instyle.mx', 'mako.co.il', 'haaretz.co.il'}
 
 fashionBlogs = {"manrepeller.com", "wishwishwish.net", "parkandcube.com", "stellaswardrobe.com", "cocosteaparty.com",
                "5inchandup.blogspot.co.uk", "garypeppergirl.com", "camilleovertherainbow.com", "streetpeeper.com",
