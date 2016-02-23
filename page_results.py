@@ -551,10 +551,11 @@ def get_hash_of_image_from_url(image_url):
     if img_arr is None:
         logging.warning('couldnt get img_arr from url:' + image_url + ' in get_hash_of_image')
         return None
+    return get_hash(img_arr)
+
+
+def get_hash(image):
     m = hashlib.md5()
-    m.update(img_arr)
+    m.update(image)
     url_hash = m.hexdigest()
-    logging.debug('url_image hash:' + url_hash + ' for ' + image_url)
     return url_hash
-
-
