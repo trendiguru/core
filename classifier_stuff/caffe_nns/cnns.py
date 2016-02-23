@@ -55,6 +55,43 @@ from PIL import Image
   }
 '''
 
+
+def write_prototxt(proto_filename):
+    # The train/test net protocol buffer definition
+    dir = os.path.dirname(proto_filename)
+    filename = os.path.basename(proto_filename)
+    file_base = filename.split('prototxt')[0]
+    train_file = os.path.join(dir,file_base+'train.prototxt')
+    test_file = os.path.join(dir,file_base + 'test.prototxt')
+    # test_iter specifies how many forward passes the test should carry out.
+    # In the case of MNIST, we have test batch size 100 and 100 test iterations,
+    # covering the full 10,000 testing images.
+    # test_interval - Carry out testing every 500 training iterations.
+    # base_lr - The base learning rate, momentum and the weight decay of the network.
+    # lr_policy - The learning rate policy
+    # display - Display every n iterations
+    # max_iter - The maximum number of iterations
+    # snarpshot - snapshot intermediate results
+    prototxt ={ 'train_net':train_file,
+                        'test_net': test_file,
+                        'test_iter': 100,
+                        'test_interval': 500,
+                        'base_lr': 0.01,
+                        'momentum': 0.9,
+                        'weight_decay': 0.0005,
+                        'lr_policy': "inv",
+                        'gamma': 0.0001,
+                        'power': 0.75,
+                        'display': 100,
+                        'max_iter': 10000,
+                        'snapshot': 5000,
+                        'snapshot_prefix': dir}
+    print prototxt
+    with open(proto_filename,'w') as f:
+        for key, val in prototxt.iteritems():
+            line=key+':'+str(val)+'\n'
+            f.write(line)
+
 def lenet(lmdb, batch_size):
     n=caffe.NetSpec()
     n.data,n.label=L.Data(batch_size=batch_size,backend=P.Data.LMDB,source=lmdb,transform_param=dict(scale=1./255),ntop=2)
@@ -165,12 +202,17 @@ def mynet(db, batch_size):
     return n.to_proto()
 
 def run_my_net(nn_dir,train_db,test_db,solver_prototxt):
+
+    file_base = filename.split('prototxt')[0]
+    train_file = os.path.join(dir,file_base+'train.prototxt')
+
+
     train_protofile = os.path.join(nn_dir,'train.prototxt')
     test_protofile = os.path.join(nn_dir,'test.prototxt')
     with open(train_protofile,'w') as f:
-        f.write(str(lenet(train_db,64)))
+        f.write(str(mynet(train_db,64)))
     with open(test_protofile,'w') as f:
-        f.write(str(lenet(test_db,100)))
+        f.write(str(mynet(test_db,100)))
     host = socket.gethostname()
     print('host:'+str(host))
     if host == 'jr-ThinkPad-X1-Carbon':
@@ -234,8 +276,24 @@ def run_my_net(nn_dir,train_db,test_db,solver_prototxt):
         ax1.set_xlabel('iteration')
         ax1.set_ylabel('train loss')
         ax2.set_ylabel('test accuracy')
-
         plt.show()
 
-if __name__ = "__main__":
-        dir_of_dirs_to_lmdb('testdb',dir_of_dirs,max_images_per_class =5,test_or_train='test',resize_x=resize_x,resize_y=resize_y,avg_B=B,avg_G=G,avg_R=R)
+if __name__ == "__main__":
+    dir_of_dirs = '/home/jr/python-packages/trendi/classifier_stuff/caffe_nns/dataset'
+    print('dir:'+dir_of_dirs)
+#    h,w,d,B,G,R,n = imutils.image_stats_from_dir_of_ditestrs(dir_of_dirs)
+    resize_x = 128
+    #resize_y = int(h*128/w)
+    resize_y=200
+   # B=int(B)
+   # G=int(G)
+    #R=int(R)
+    B=142
+    G=151
+    R=162
+    lmdb_utils.dir_of_dirs_to_lmdb('sntestdb',dir_of_dirs,max_images_per_class =50,test_or_train='test',resize_x=resize_x,resize_y=resize_y,avg_B=B,avg_G=G,avg_R=R)
+    lmdb_utils.dir_of_dirs_to_lmdb('testdb',dir_of_dirs,max_images_per_class =50,test_or_train='train',resize_x=resize_x,resize_y=resize_y,avg_B=B,avg_G=G,avg_R=R)
+
+    proto_file = os.path.join(dir_of_dirs,'my_auto_solver.prototxt')
+    write_prototxt(proto_file)
+    run_my_net()
