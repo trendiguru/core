@@ -57,20 +57,21 @@ def dir_of_dirs_to_lmdb(dbname,dir_of_dirs,test_or_train=None,max_images_per_cla
     classno = 0
     image_number =0
 
+    env = lmdb.open(dbname, map_size=map_size)
+    with env.begin(write=True) as txn:
     # txn is a Transaction object
-    for a_dir in only_dirs:
-        # do only test or train dirs if this param was sent
-        image_number_in_class = 0
-        #open and close db every class to cut down on memory
-        #maybe this is irrelevant and we can do this once
-        env = lmdb.open(dbname, map_size=map_size)
-        with env.begin(write=True) as txn:
+            #maybe open and close db every class to cut down on memory
+            #assuming this is irrelevant and we can do this once
+        for a_dir in only_dirs:
+            # do only test or train dirs if this param was sent
+            image_number_in_class = 0
             fulldir = os.path.join(dir_of_dirs,a_dir)
             print('fulldir:'+str(fulldir))
             only_files = [f for f in os.listdir(fulldir) if os.path.isfile(os.path.join(fulldir, f))]
             n = len(only_files)
             print('n files {} in {}'.format(n,dir))
-            for n in range(0,min(max_images_per_class,len(only_files))):
+            print('maximages to do:{} of {}'.format(max_images_per_class,n))
+            for n in range(0,min(max_images_per_class,n)):
                 a_file =only_files[n]
                 fullname = os.path.join(fulldir,a_file)
                 cropped_dir= os.path.join(fulldir,'cropped')
@@ -123,7 +124,7 @@ def dir_of_dirs_to_lmdb(dbname,dir_of_dirs,test_or_train=None,max_images_per_cla
                 print
         print('{} items in class {}'.format(image_number_in_class,classno))
         classno += 1
-        env.close()
+    env.close()
 
 
     #You can also open up and inspect an existing LMDB database from Python:
@@ -162,6 +163,7 @@ def inspect_db(dbname,show_visual_output=True,B=128,G=128,R=128):
             except:
                 print('error getting record {} from db'.format(n))
                 break
+
     with env.begin() as txn:
         cursor = txn.cursor()
         for key, value in cursor:
@@ -188,6 +190,14 @@ def crude_lmdb():
             in_txn.put('{:0>10d}'.format(in_idx), im_dat.SerializeToString())
     in_db.close()
 
+def kill_db(db_name):
+    print('ABOUT TO DELETE DB '+str(db_name)+'!!!!')
+    raw_input('press enter to continue or ctrl-C to not')
+    env = lmdb.open(db_name, readonly=False)
+    txn = lmdb.Transaction(env)
+    txn.drop(db_name,delete=True)
+    #print('retval from drop='+str(retval))
+
 if __name__ == "__main__":
     dir_of_dirs = '/home/jeremy/core/classifier_stuff/caffe_nns/dataset'
     dir_of_dirs = '/home/jr/python-packages/trendi/classifier_stuff/caffe_nns/dataset'
@@ -202,8 +212,12 @@ if __name__ == "__main__":
     B=142
     G=151
     R=162
-    dir_of_dirs_to_lmdb('testdb',dir_of_dirs,max_images_per_class =50,test_or_train='test',resize_x=resize_x,resize_y=resize_y,avg_B=B,avg_G=G,avg_R=R)
+    kill_db('testdb.test')
+ #   kill_db('testdb.train')
+    dir_of_dirs_to_lmdb('mydb',dir_of_dirs,max_images_per_class =5,test_or_train='test',resize_x=resize_x,resize_y=resize_y,avg_B=B,avg_G=G,avg_R=R)
+    dir_of_dirs_to_lmdb('mydb',dir_of_dirs,max_images_per_class =5,test_or_train='train',resize_x=resize_x,resize_y=resize_y,avg_B=B,avg_G=G,avg_R=R)
     inspect_db('testdb.test',show_visual_output=True,B=B,G=G,R=R)
+    inspect_db('testdb.train',show_visual_output=True,B=B,G=G,R=R)
 
 #  weighted averages of 16 directories: h:1742.51040222 w1337.66435506 d3.0 B 142.492848614 G 151.617458606 R 162.580921717 totfiles 1442
 
