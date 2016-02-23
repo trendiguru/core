@@ -10,6 +10,7 @@ import lmdb
 from PIL import Image
 from trendi.utils import imutils
 from trendi import Utils
+import random
 
 #shellscript for mean comp:
 #TOOLS=/home/ubuntu/repositories/caffe/build/tools
@@ -28,7 +29,7 @@ from trendi import Utils
 
 ################LMDB FUN (originally) RIPPED FROM http://deepdish.io/2015/04/28/creating-lmdb-in-python/
 #############changes by awesome d.j. jazzy jer  awesomest hAckz0r evarr
-def dir_of_dirs_to_lmdb(dbname,dir_of_dirs,test_or_train=None,max_images_per_class = 1000,resize_x=128,resize_y=128,avg_B=None,avg_G=None,avg_R=None,resize_w_bb=True,use_visual_output=False):
+def dir_of_dirs_to_lmdb(dbname,dir_of_dirs,test_or_train=None,max_images_per_class = 1000,resize_x=128,resize_y=128,avg_B=None,avg_G=None,avg_R=None,resize_w_bb=True,use_visual_output=False,shuffle=True):
     print('writing to lmdb {} test/train {} max {} new_x {} new_y {} avgB {} avg G {} avgR {}'.format(dbname,test_or_train,max_images_per_class,resize_x,resize_y,avg_B,avg_G,avg_R))
     initial_only_dirs = [dir for dir in os.listdir(dir_of_dirs) if os.path.isdir(os.path.join(dir_of_dirs,dir))]
     initial_only_dirs.sort()
@@ -56,12 +57,14 @@ def dir_of_dirs_to_lmdb(dbname,dir_of_dirs,test_or_train=None,max_images_per_cla
     print('writing to db:'+dbname)
     classno = 0
     image_number =0
-
+    n_for_each_class = []
     env = lmdb.open(dbname, map_size=map_size)
     with env.begin(write=True) as txn:
     # txn is a Transaction object
             #maybe open and close db every class to cut down on memory
             #assuming this is irrelevant and we can do this once
+        if shuffle is True:
+            random.shuffle(only_dirs)
         for a_dir in only_dirs:
             # do only test or train dirs if this param was sent
             image_number_in_class = 0
@@ -122,10 +125,11 @@ def dir_of_dirs_to_lmdb(dbname,dir_of_dirs,test_or_train=None,max_images_per_cla
                 else:
                     print('couldnt read '+a_file)
                 print
-        print('{} items in class {}'.format(image_number_in_class,classno))
-        classno += 1
+            print('{} items in class {}'.format(image_number_in_class,classno))
+            classno += 1
+            n_for_each_class.append(image_number_in_class)
     env.close()
-
+    return classno, n_for_each_class
 
     #You can also open up and inspect an existing LMDB database from Python:
 # assuming here that dataum.data, datum.channels, datum.width etc all exist as in dir_of_dirs_to_lmdb
@@ -164,11 +168,13 @@ def inspect_db(dbname,show_visual_output=True,B=128,G=128,R=128):
                 print('error getting record {} from db'.format(n))
                 break
 
-    with env.begin() as txn:
-        cursor = txn.cursor()
-        for key, value in cursor:
-            print(key, value)
-
+#    with env.begin() as txn:
+ #       cursor = txn.cursor()
+  #      n=0
+   #     for key, value in cursor:
+    #        print('img {}  class {}'.format(n,value))
+#            print(key, value)
+   #         n=n+1
 
 def crude_lmdb():
     in_db = lmdb.open('image-lmdb', map_size=int(1e12))
@@ -212,12 +218,14 @@ if __name__ == "__main__":
     B=142
     G=151
     R=162
-    kill_db('testdb.test')
+#    kill_db('testdb.test')
  #   kill_db('testdb.train')
-    dir_of_dirs_to_lmdb('mydb',dir_of_dirs,max_images_per_class =5,test_or_train='test',resize_x=resize_x,resize_y=resize_y,avg_B=B,avg_G=G,avg_R=R)
-    dir_of_dirs_to_lmdb('mydb',dir_of_dirs,max_images_per_class =5,test_or_train='train',resize_x=resize_x,resize_y=resize_y,avg_B=B,avg_G=G,avg_R=R)
-    inspect_db('testdb.test',show_visual_output=True,B=B,G=G,R=R)
-    inspect_db('testdb.train',show_visual_output=True,B=B,G=G,R=R)
+    n_test_classes,test_populations = dir_of_dirs_to_lmdb('mydb',dir_of_dirs,max_images_per_class =50,test_or_train='test',resize_x=resize_x,resize_y=resize_y,avg_B=B,avg_G=G,avg_R=R)
+    n_train_classes,train_populations = dir_of_dirs_to_lmdb('mydb',dir_of_dirs,max_images_per_class =50,test_or_train='train',resize_x=resize_x,resize_y=resize_y,avg_B=B,avg_G=G,avg_R=R)
+    print('{} test classes with {} files'.format(n_test_classes,test_populations))
+    print('{} train classes with {} files'.format(n_train_classes,train_populations))
+  #  inspect_db('mydb.test',show_visual_output=False,B=B,G=G,R=R)
+   # inspect_db('mydb.train',show_visual_output=False,B=B,G=G,R=R)
 
 #  weighted averages of 16 directories: h:1742.51040222 w1337.66435506 d3.0 B 142.492848614 G 151.617458606 R 162.580921717 totfiles 1442
 

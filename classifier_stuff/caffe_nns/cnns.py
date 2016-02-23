@@ -90,6 +90,8 @@ def write_prototxt(proto_filename):
     with open(proto_filename,'w') as f:
         for key, val in prototxt.iteritems():
             line=key+':'+str(val)+'\n'
+            if isinstance(val,basestring):
+                line=key+':\"'+str(val)+'\"\n'
             f.write(line)
 
 def lenet(lmdb, batch_size):
@@ -189,6 +191,7 @@ def run_lenet():
         plt.show()
 
 def mynet(db, batch_size):
+    print('building proto with db {} and batchsize {}'.format(db,batch_size))
     n=caffe.NetSpec()
     n.data,n.label=L.Data(batch_size=batch_size,backend=P.Data.LMDB,source=db,transform_param=dict(scale=1./255),ntop=2)
     n.conv1 = L.Convolution(n.data,kernel_size=5,num_output=20,weight_filler=dict(type='xavier'))
@@ -207,13 +210,15 @@ def run_my_net(nn_dir,train_db,test_db,solver_prototxt):
     proto_file_base = proto_filename.split('prototxt')[0]
     proto_dir = os.path.dirname(solver_prototxt)
     train_protofile = os.path.join(proto_dir,proto_file_base+'train.prototxt')
-    test_protofile = os.path.join(proto_dir,proto_file_base+'train.prototxt')
-    print('trainfile:{} testfile:{}',train_protofile,test_protofile)
+    test_protofile = os.path.join(proto_dir,proto_file_base+'test.prototxt')
+    print('using trainfile:{} testfile:{}',train_protofile,test_protofile)
 
     with open(train_protofile,'w') as f:
-        f.write(str(mynet(train_db,64)))
-    with open(test_protofile,'w') as f:
-        f.write(str(mynet(test_db,100)))
+        f.write(str(mynet(train_db,20)))
+        f.close
+    with open(test_protofile,'w') as g:
+        g.write(str(mynet(test_db,100)))
+        g.close
     host = socket.gethostname()
     print('host:'+str(host))
     if host == 'jr-ThinkPad-X1-Carbon':
@@ -283,18 +288,19 @@ if __name__ == "__main__":
     dir_of_dirs = '/home/jr/python-packages/trendi/classifier_stuff/caffe_nns/dataset'
     print('dir:'+dir_of_dirs)
 #    h,w,d,B,G,R,n = imutils.image_stats_from_dir_of_ditestrs(dir_of_dirs)
-    resize_x = 128
+    resize_x = 200
     #resize_y = int(h*128/w)
-    resize_y=200
+    resize_y=100
    # B=int(B)
    # G=int(G)
     #R=int(R)
     B=142
     G=151
     R=162
-#    lmdb_utils.dir_of_dirs_to_lmdb('sntestdb',dir_of_dirs,max_images_per_class =50,test_or_train='test',resize_x=resize_x,resize_y=resize_y,avg_B=B,avg_G=G,avg_R=R)
- #   lmdb_utils.dir_of_dirs_to_lmdb('testdb',dir_of_dirs,max_images_per_class =50,test_or_train='train',resize_x=resize_x,resize_y=resize_y,avg_B=B,avg_G=G,avg_R=R)
+    db_name = 'mydb'
+#    lmdb_utils.dir_of_dirs_to_lmdb(db_name,dir_of_dirs,max_images_per_class =50,test_or_train='test',resize_x=resize_x,resize_y=resize_y,avg_B=B,avg_G=G,avg_R=R)
+ #   lmdb_utils.dir_of_dirs_to_lmdb(db_name,dir_of_dirs,max_images_per_class =50,test_or_train='train',resize_x=resize_x,resize_y=resize_y,avg_B=B,avg_G=G,avg_R=R)
 
-    proto_file = os.path.join(dir_of_dirs,'my_auto_solver.prototxt')
+    proto_file = os.path.join(dir_of_dirs,'my_solver.prototxt')
     write_prototxt(proto_file)
-    run_my_net()
+    run_my_net(dir_of_dirs,'mydb.train','mydb.test',proto_file)
