@@ -16,7 +16,7 @@ def add_to_whitelist(url):
     try:
         reg = tldextract.extract(url).registered_domain
         if reg not in wl:
-            wl.append(url)
+            wl.append(reg)
             with open(WHITELIST_PATH, 'wb') as f:
                 pickle.dump(wl, f)
             return "Done! :)"
