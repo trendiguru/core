@@ -22,8 +22,8 @@ def add_to_whitelist(url):
             return "Done! :)"
         else:
             return reg + " is already in the WhiteList! :)"
-    except:
-        return "Failed for some reason.. :( check url"
+    except Exception as e:
+        return e
 
 
     # def masterCrawler(floor=2, whiteList=top50Fashion):
