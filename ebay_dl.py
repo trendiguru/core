@@ -19,9 +19,11 @@ import time
 import datetime
 from . import constants
 db = constants.db
+db.ebay_Female.delete_many()
+db.ebay_Male.delete_many()
 today_date = str(datetime.datetime.date(datetime.datetime.now()))
-ebaysNotRelevant = ['status.txt', 'StoreInformation.xml', '11880.txt.gz', '19105.txt.gz', '20058.txt.gz',
-                    '20478.txt.gz', ]
+ebaysNotRelevant = [ '11880', '19105', '20058', '300511', '300535', '301139', '301741', '302298', '302371', '302418',
+                    '300205', '300374', '300408', '302768', '303009', '303250', '303278', '304025', '303152']
 
 # fills our generic dictionary with the info from ebay
 def ebay2generic(item):
@@ -69,8 +71,12 @@ for line in data:
 
 #remove not relevant stores/files
 for store in ebaysNotRelevant:
-    if store in files:
-        files.remove(store)
+    fullname= store +"txt.gz"
+    if fullname in files:
+        files.remove(fullname)
+    files.remove("status.txt")
+    files.remove("StoreInformation.xml")
+
 # temporary
 categories =[]
 black_list = []
@@ -115,7 +121,7 @@ for filename in files:
         black_list.append(filename)
         print("%s = %s is not relevant!" %(filename, item["MERCHANT_NAME"]))
     else:
-        print("%s potiential items for %s" % (str(itemCount), item["MERCHANT_NAME"]))
+        print("%s potiential items for %s = %s" % (str(itemCount), item["MERCHANT_NAME"],filename))
     print ("item download+scraping took %s secs" % str(stop-start))
 
 ftp.quit()
