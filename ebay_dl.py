@@ -26,7 +26,7 @@ ebaysNotRelevant = ['status.txt', 'StoreInformation.xml', '11880.txt.gz', '19105
 # fills our generic dictionary with the info from ebay
 def ebay2generic(item):
     try:
-        generic = {"id": item["OFFER_ID"],
+        generic = {"id": item["\\xef\\xbb\\xbfOFFER_ID"],
                    "categories": item["ORIG_MERCHANT_CATEGORY_NAME"],
                    "clickUrl": item["OFFER_URL_MIN_CATEGORY_BID"],
                    "images": item["IMAGE_URL"],
