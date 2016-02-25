@@ -25,24 +25,28 @@ ebaysNotRelevant = ['status.txt', 'StoreInformation.xml', '11880.txt.gz', '19105
 
 # fills our generic dictionary with the info from ebay
 def ebay2generic(item):
-    generic = {"id": item["OFFER_ID"],
-               "categories": item["ORIG_MERCHANT_CATEGORY_NAME"],
-               "clickUrl": item["OFFER_URL_MIN_CATEGORY_BID"],
-               "images": item["IMAGE_URL"],
-               "status": {"instock" : True, "days_out" : 0},
-               "shortDescription": item["OFFER_TITLE"],
-               "longDescription": item["OFFER_DESCRIPTION"],
-               "price": {'price': item["PRICE"],
-                         'priceLabel': "USD"   },
-               "Brand" : item["MANUFACTURER"],
-               "download_data": {'dl_version': today_date,
-                                 'first_dl': today_date,
-                                 'fp_version': constants.fingerprint_version},
-               "fingerprint": None,
-               "gender": item["GENDER"],
-               "ebay_raw": item}
-    if item["STOCK"] != "In Stock":
-        generic["status.instock"] = False
+    try:
+        generic = {"id": item["OFFER_ID"],
+                   "categories": item["ORIG_MERCHANT_CATEGORY_NAME"],
+                   "clickUrl": item["OFFER_URL_MIN_CATEGORY_BID"],
+                   "images": item["IMAGE_URL"],
+                   "status": {"instock" : True, "days_out" : 0},
+                   "shortDescription": item["OFFER_TITLE"],
+                   "longDescription": item["OFFER_DESCRIPTION"],
+                   "price": {'price': item["PRICE"],
+                             'priceLabel': "USD"   },
+                   "Brand" : item["MANUFACTURER"],
+                   "download_data": {'dl_version': today_date,
+                                     'first_dl': today_date,
+                                     'fp_version': constants.fingerprint_version},
+                   "fingerprint": None,
+                   "gender": item["GENDER"],
+                   "ebay_raw": item}
+        if item["STOCK"] != "In Stock":
+            generic["status.instock"] = False
+    except:
+        print item
+        generic = item
     return generic
 
 
