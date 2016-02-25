@@ -19,8 +19,8 @@ import time
 import datetime
 from . import constants
 db = constants.db
-db.ebay_Female.delete_many()
-db.ebay_Male.delete_many()
+db.ebay_Female.delete_many({})
+db.ebay_Male.delete_many({})
 today_date = str(datetime.datetime.date(datetime.datetime.now()))
 ebaysNotRelevant = [ '11880', '19105', '20058', '300511', '300535', '301139', '301741', '302298', '302371', '302418',
                     '300205', '300374', '300408', '302768', '303009', '303250', '303278', '304025', '303152']
