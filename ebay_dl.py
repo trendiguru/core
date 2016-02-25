@@ -74,8 +74,9 @@ for store in ebaysNotRelevant:
     fullname= store +"txt.gz"
     if fullname in files:
         files.remove(fullname)
-    files.remove("status.txt")
-    files.remove("StoreInformation.xml")
+
+files.remove("status.txt")
+files.remove("StoreInformation.xml")
 
 # temporary
 categories =[]
