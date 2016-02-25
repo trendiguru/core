@@ -71,7 +71,7 @@ for line in data:
 
 #remove not relevant stores/files
 for store in ebaysNotRelevant:
-    fullname= store +"txt.gz"
+    fullname= store +".txt.gz"
     if fullname in files:
         files.remove(fullname)
 
