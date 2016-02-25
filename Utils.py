@@ -7,7 +7,7 @@ import csv
 import gzip
 import json
 import requests
-from cv2 import imread, imdecode, imwrite
+from cv2 import imdecode, imwrite
 import logging
 import os
 from requests import ConnectionError
@@ -20,9 +20,9 @@ import cv2
 import re
 import string
 import sys
-
+import hashlib
 # import urllib
-# logging.setLevel(logging.DEBUG)
+logging.basicConfig(level=logging.WARNING)
 
 db = constants.db
 
@@ -117,7 +117,7 @@ def get_cv2_img_array(url_or_path_to_image_file_or_cv2_image_array, convert_url_
                 # print("trying locally (not url)")
                 img_path = url_or_path_to_image_file_or_cv2_image_array
                 try:
-                    img_array = imread(img_path)
+                    img_array = cv2.imread(img_path)
                     if img_array is not None:
                         # print("success trying locally (not url)")
                         got_locally = True
@@ -259,7 +259,7 @@ def bounding_box_inside_image(image_array, rect):
         if rect[0] < width and rect[0] + rect[2] < width and rect[1] < height and rect[1] + rect[3] < height:
             return True  # bb fits into image
         else:
-            print('warning - bb not inside image')
+            #print('warning - bb not inside image')
             return False
     else:
         print('warning - bb not legal (either too small or None')
@@ -672,6 +672,42 @@ def get_files_from_dir_and_subdirs(path=None):
                         file_list.append(file_n)
     return(file_list)
 
+def remove_duplicate_files(dir):
+    '''
+    remove dupe files from dir  - warning this deletes files
+    :param dir:
+    :return: number of dupes removed
+    '''
+    files = [f for f in os.listdir(dir) if os.path.isfile(os.path.join(dir, f))]
+    print('n files:'+str(len(files)))
+    hashes = []
+    dupe_count = 0
+    for a_file in files:
+        fullname = os.path.join(dir,a_file)
+#        img_arr = cv2.imread(fullname)
+        with open(fullname,'r') as f:
+            logging.debug('current file:'+fullname)
+            contents = f.read()
+            if contents is not None:
+                m = hashlib.md5()
+                m.update(contents)
+                current_hash = m.hexdigest()
+                logging.debug('image hash:' + current_hash + ' for ' + a_file)
+                dupe_flag = False
+                for a_previous_hash in hashes:
+                    if  current_hash == a_previous_hash:
+                        fullpath = os.path.join(dir,a_file)
+                        print('going to remove '+str(fullpath))
+                        os.remove(fullpath)
+                        dupe_flag = True
+                        dupe_count = dupe_count + 1
+                        break
+                if not dupe_flag:
+                    hashes.append(current_hash)
+                    print(fullname+' not a dupe')
+    print('found {} dupes'.format(dupe_count))
+
+
 # testing git pull on pp2
 def git_pull(**kwargs):
     import subprocess
@@ -786,6 +822,12 @@ def kick_fp_out():
         db.images.replace_one({'_id': doc['_id']}, doc)
         print("did {0} docs".format(idx))
     print("{0} docs modified".format(idx))
+
+
+def data_url_to_cv2_img(url):
+    nparr = np.fromstring(url.split(',')[1].decode('base64'), np.uint8)
+    img = cv2.imdecode(nparr, cv2.IMREAD_COLOR)
+    return img
 
 
 if __name__ == '__main__':
