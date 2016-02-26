@@ -22,9 +22,19 @@ db = constants.db
 db.ebay_Female.delete_many({})
 db.ebay_Male.delete_many({})
 today_date = str(datetime.datetime.date(datetime.datetime.now()))
-ebaysNotRelevant = [ '11880', '19105', '20058', '300511', '300535', '301139', '301741', '302298', '302371', '302418',
-                    '300205', '300374', '300408', '302768', '303009', '303250', '303278', '304025', '303152']
+ebaysNotRelevant = [ '11880' , '19105' , '20058' , '300511', '300535', '301139', '301741', '302298', '302371', '302418',
+                     '300205', '300374', '300408', '302768', '303009', '303250', '303278', '304025', '303152', '20478' ,
+                     '300625', '301216', '301142', '301216', '301336', '301443', '301458', '301502', '301650', '301740',
+                     '302024', '302108', '302256', '302539', '303329', '308473', '307846', '307281', '309405', '315072',
+                     '328843', '455011', '455079', '456694', '459861', '463405', '464743', '468327', '471434', '468805',
+                     '410435', '462102', '462521', '463011', '463405', '463551', '463947']
 
+b = open("/home/developer/python-packages/trendi/Yonti/blacklist.txt",'r')
+for store in b:
+    if store not in ebaysNotRelevant:
+        ebaysNotRelevant.append(store)
+
+# manual check [20478,
 # fills our generic dictionary with the info from ebay
 def ebay2generic(item):
     try:
@@ -81,7 +91,8 @@ files.remove("StoreInformation.xml")
 # temporary
 categories =[]
 black_list = []
-gen = []
+white_list = []
+
 for filename in files:
     start = time.time()
     sio = StringIO()
@@ -110,20 +121,19 @@ for filename in files:
         gender = item["GENDER"]
         generic_dict = ebay2generic(item)
         if gender is "Female":
-            db.ebay_Female.insert(generic_dict)
+            db.ebay_Female.insert_one(generic_dict)
         elif gender is "Male":
-            db.ebay_Male.insert(generic_dict)
+            db.ebay_Male.insert_one(generic_dict)
         else:
-            if gender not in gen:
-                gen.append(gender)
-            # db.ebay_other.insert(item)
+            db.ebay_Unisex.insert_one(generic_dict)
     stop = time.time()
-    if itemCount == 0:
+    if itemCount < 10:
         black_list.append(filename)
         print("%s = %s is not relevant!" %(filename, item["MERCHANT_NAME"]))
     else:
+        white_list.append(filename)
         print("%s potiential items for %s = %s" % (str(itemCount), item["MERCHANT_NAME"],filename))
-    print ("item download+scraping took %s secs" % str(stop-start))
+    print "item download+scraping took %s secs" % str(stop-start)
 
 ftp.quit()
 stop_time = time.time()
@@ -138,9 +148,9 @@ print ("\n\nblacklist:")
 for black in black_list:
     print(black)
 
-print ("\n\ngender:")
-for g in gen:
-    print(g)
+print ("\n\nwhitelist:")
+for w in white_list:
+    print(w)
 
 '''
 ftp codes per country:
