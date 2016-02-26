@@ -55,7 +55,7 @@ def ebay2generic(item):
                    "gender": item["GENDER"],
                    "ebay_raw": item}
         if item["STOCK"] != "In Stock":
-            generic["status.instock"] = False
+            generic["status"]["instock"] = False
     except:
         print item
         generic = item
@@ -120,9 +120,9 @@ for filename in files:
         #needs to add search for id and etc...
         gender = item["GENDER"]
         generic_dict = ebay2generic(item)
-        if gender is "Female":
+        if gender == "Female":
             db.ebay_Female.insert_one(generic_dict)
-        elif gender is "Male":
+        elif gender == "Male":
             db.ebay_Male.insert_one(generic_dict)
         else:
             db.ebay_Unisex.insert_one(generic_dict)
