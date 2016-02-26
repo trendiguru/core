@@ -29,7 +29,7 @@ ebaysNotRelevant = [ '11880' , '19105' , '20058' , '300511', '300535', '301139',
                      '328843', '455011', '455079', '456694', '459861', '463405', '464743', '468327', '471434', '468805',
                      '410435', '462102', '462521', '463011', '463405', '463551', '463947']
 
-b = open("/home/developer/python-packages/trendi/Yonti/blacklist.txt",'r')
+b = open("/home/developer/python-packages/trendi/Yonti/ebay_blacklist.txt",'r')
 for store in b:
     if store not in ebaysNotRelevant:
         ebaysNotRelevant.append(store)
