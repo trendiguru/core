@@ -61,12 +61,19 @@ def ebay2generic(item):
         generic = item
     return generic
 
+us_params = {"url": "partnersw.ftp.ebaycommercenetwork.com",
+          "user": 'p1129643',
+          'password': '6F2lqCf4'}
+
+def ftp_connection(params):
+    ftp = FTP(params["url"])
+    ftp.login(user=params["user"], passwd=params["password"])
+    return ftp
 
 start_time = time.time()
 #connecting to FTP
 # username, passwd are for the US - for other countries check the bottom
-ftp = FTP("partnersw.ftp.ebaycommercenetwork.com") #this is the for the US
-ftp.login(user='p1129643', passwd='6F2lqCf4')
+ftp = ftp_connection(us_params)
 
 # get a list of all files in the directory
 data = []
@@ -95,13 +102,18 @@ white_list = []
 
 for filename in files:
     start = time.time()
+
     sio = StringIO()
     def handle_binary(more_data):
         sio.write(more_data)
 
-    resp = ftp.retrbinary('RETR '+filename, callback=handle_binary)
-    sio.seek(0)
+    try:
+        resp = ftp.retrbinary('RETR '+filename, callback=handle_binary)
+    except:
+        ftp = ftp_connection(us_params)
+        resp = ftp.retrbinary('RETR '+filename, callback=handle_binary)
 
+    sio.seek(0)
     zipfile = gzip.GzipFile(fileobj = sio)
     unzipped = zipfile.read()
     # each item is arranged in a dict according to the keys of the first item
