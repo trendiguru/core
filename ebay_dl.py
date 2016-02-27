@@ -21,6 +21,7 @@ from . import constants
 db = constants.db
 db.ebay_Female.delete_many({})
 db.ebay_Male.delete_many({})
+db.ebay_Unisex.delete_many({})
 today_date = str(datetime.datetime.date(datetime.datetime.now()))
 ebaysNotRelevant = [ '11880' , '19105' , '20058' , '300511', '300535', '301139', '301741', '302298', '302371', '302418',
                      '300205', '300374', '300408', '302768', '303009', '303250', '303278', '304025', '303152', '20478' ,
@@ -110,9 +111,11 @@ for filename in files:
     try:
         resp = ftp.retrbinary('RETR '+filename, callback=handle_binary)
     except:
-        ftp = ftp_connection(us_params)
-        resp = ftp.retrbinary('RETR '+filename, callback=handle_binary)
-
+        try:
+            ftp = ftp_connection(us_params)
+            resp = ftp.retrbinary('RETR '+filename, callback=handle_binary)
+        except:
+            continue
     sio.seek(0)
     zipfile = gzip.GzipFile(fileobj = sio)
     unzipped = zipfile.read()
