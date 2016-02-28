@@ -211,9 +211,9 @@ if __name__ == "__main__":
     dir_of_dirs = '/home/jr/python-packages/trendi/classifier_stuff/caffe_nns/dataset'
     print('dir:'+dir_of_dirs)
 #    h,w,d,B,G,R,n = imutils.image_stats_from_dir_of_ditestrs(dir_of_dirs)
-    resize_x = 128
+    resize_x = 200
     #resize_y = int(h*128/w)
-    resize_y=200
+    resize_y= 100
    # B=int(B)
    # G=int(G)
     #R=int(R)
@@ -222,10 +222,10 @@ if __name__ == "__main__":
     R=162
 #    kill_db('testdb.test')
  #   kill_db('testdb.train')
-    n_test_classes,test_populations = dir_of_dirs_to_lmdb('mydb',dir_of_dirs,max_images_per_class =50,test_or_train='test',resize_x=resize_x,resize_y=resize_y,avg_B=B,avg_G=G,avg_R=R)
-    n_train_classes,train_populations = dir_of_dirs_to_lmdb('mydb',dir_of_dirs,max_images_per_class =50,test_or_train='train',resize_x=resize_x,resize_y=resize_y,avg_B=B,avg_G=G,avg_R=R)
-    print('{} test classes with {} files'.format(n_test_classes,test_populations))
-    print('{} train classes with {} files'.format(n_train_classes,train_populations))
+ #   n_test_classes,test_populations = dir_of_dirs_to_lmdb('mydb',dir_of_dirs,max_images_per_class =50,test_or_train='test',resize_x=resize_x,resize_y=resize_y,avg_B=B,avg_G=G,avg_R=R)
+  #  n_train_classes,train_populations = dir_of_dirs_to_lmdb('mydb',dir_of_dirs,max_images_per_class =50,test_or_train='train',resize_x=resize_x,resize_y=resize_y,avg_B=B,avg_G=G,avg_R=R)
+   # print('{} test classes with {} files'.format(n_test_classes,test_populations))
+   # print('{} train classes with {} files'.format(n_train_classes,train_populations))
     inspect_db('mydb.test',show_visual_output=True,B=B,G=G,R=R)
    # inspect_db('mydb.train',show_visual_output=False,B=B,G=G,R=R)
 

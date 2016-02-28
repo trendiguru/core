@@ -217,7 +217,7 @@ def run_my_net(nn_dir,train_db,test_db,solver_prototxt,batch_size = 100):
         f.write(str(mynet(train_db,batch_size = batch_size)))
         f.close
     with open(test_protofile,'w') as g:
-        g.write(str(mynet(test_db, batch_size = size)))
+        g.write(str(mynet(test_db, batch_size = batch_size)))
         g.close
     host = socket.gethostname()
     print('host:'+str(host))
@@ -238,7 +238,8 @@ def run_my_net(nn_dir,train_db,test_db,solver_prototxt,batch_size = 100):
     # we use a little trick to tile the first eight images
     if pc:
         pass
-        plt.imshow(solver.net.blobs['data'].data[:8, 0].transpose(1, 0, 2).reshape(28, 8*28), cmap='gray',block=False)
+
+    #         plt.imshow(solver.net.blobs['data'].data[:8, 0].transpose(1, 0, 2).reshape(28, 8*28), cmap='gray',block=False)
  #       plt.show(block=False)
     print solver.net.blobs['label'].data[:8]
 
