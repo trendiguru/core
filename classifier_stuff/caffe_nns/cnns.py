@@ -56,7 +56,7 @@ from PIL import Image
 '''
 
 
-def write_prototxt(proto_filename):
+def write_prototxt(proto_filename,test_iter = 9):
     # The train/test net protocol buffer definition
     dir = os.path.dirname(proto_filename)
     filename = os.path.basename(proto_filename)
@@ -74,8 +74,8 @@ def write_prototxt(proto_filename):
     # snarpshot - snapshot intermediate results
     prototxt ={ 'train_net':train_file,
                         'test_net': test_file,
-                        'test_iter': 100,
-                        'test_interval': 500,
+                        'test_iter': 9,
+                        'test_interval': 10,
                         'base_lr': 0.01,
                         'momentum': 0.9,
                         'weight_decay': 0.0005,
@@ -94,7 +94,7 @@ def write_prototxt(proto_filename):
                 line=key+':\"'+str(val)+'\"\n'
             f.write(line)
 
-def lenet(lmdb, batch_size):
+def lenet(lmdb, batch_size):  #test_iter * batch_size <= n_samples!!!
     n=caffe.NetSpec()
     n.data,n.label=L.Data(batch_size=batch_size,backend=P.Data.LMDB,source=lmdb,transform_param=dict(scale=1./255),ntop=2)
     n.conv1 = L.Convolution(n.data,kernel_size=5,num_output=20,weight_filler=dict(type='xavier'))
@@ -204,20 +204,20 @@ def mynet(db, batch_size):
     n.loss = L.SoftmaxWithLoss(n.ip2,n.label)
     return n.to_proto()
 
-def run_my_net(nn_dir,train_db,test_db,solver_prototxt):
+def run_my_net(nn_dir,train_db,test_db,solver_prototxt,batch_size = 100):
 
     proto_filename = os.path.basename(solver_prototxt)
     proto_file_base = proto_filename.split('prototxt')[0]
     proto_dir = os.path.dirname(solver_prototxt)
     train_protofile = os.path.join(proto_dir,proto_file_base+'train.prototxt')
     test_protofile = os.path.join(proto_dir,proto_file_base+'test.prototxt')
-    print('using trainfile:{} testfile:{}',train_protofile,test_protofile)
+    print('using trainfile:{} testfile:{}'.format(train_protofile,test_protofile))
 
     with open(train_protofile,'w') as f:
-        f.write(str(mynet(train_db,20)))
+        f.write(str(mynet(train_db,batch_size = batch_size)))
         f.close
     with open(test_protofile,'w') as g:
-        g.write(str(mynet(test_db,100)))
+        g.write(str(mynet(test_db, batch_size = size)))
         g.close
     host = socket.gethostname()
     print('host:'+str(host))
@@ -237,6 +237,7 @@ def run_my_net(nn_dir,train_db,test_db,solver_prototxt):
     solver.test_nets[0].forward()  # test net (there can be more than one)
     # we use a little trick to tile the first eight images
     if pc:
+        pass
         plt.imshow(solver.net.blobs['data'].data[:8, 0].transpose(1, 0, 2).reshape(28, 8*28), cmap='gray',block=False)
  #       plt.show(block=False)
     print solver.net.blobs['label'].data[:8]
@@ -298,9 +299,13 @@ if __name__ == "__main__":
     G=151
     R=162
     db_name = 'mydb'
-#    lmdb_utils.dir_of_dirs_to_lmdb(db_name,dir_of_dirs,max_images_per_class =50,test_or_train='test',resize_x=resize_x,resize_y=resize_y,avg_B=B,avg_G=G,avg_R=R)
- #   lmdb_utils.dir_of_dirs_to_lmdb(db_name,dir_of_dirs,max_images_per_class =50,test_or_train='train',resize_x=resize_x,resize_y=resize_y,avg_B=B,avg_G=G,avg_R=R)
+    lmdb_utils.kill_db(db_name)
+    lmdb_utils.dir_of_dirs_to_lmdb(db_name,dir_of_dirs,max_images_per_class =50,test_or_train='test',resize_x=resize_x,resize_y=resize_y,avg_B=B,avg_G=G,avg_R=R)
+    lmdb_utils.dir_of_dirs_to_lmdb(db_name,dir_of_dirs,max_images_per_class =50,test_or_train='train',resize_x=resize_x,resize_y=resize_y,avg_B=B,avg_G=G,avg_R=R)
 
+    n_samples = 180
+    test_iter = 10
+    batch_size = n_samples / test_iter
     proto_file = os.path.join(dir_of_dirs,'my_solver.prototxt')
-    write_prototxt(proto_file)
-    run_my_net(dir_of_dirs,'mydb.train','mydb.test',proto_file)
+    write_prototxt(proto_file,test_iter = test_iter)
+    run_my_net(dir_of_dirs,'mydb.train','mydb.test',proto_file,batch_size = batch_size)

@@ -163,7 +163,8 @@ def inspect_db(dbname,show_visual_output=True,B=128,G=128,R=128):
                 n+=1
                 if show_visual_output is True:
                     cv2.imshow('out',x)
-                    cv2.waitKey(0)
+                    if cv2.waitKey(0) == ord('q'):
+                        break
             except:
                 print('error getting record {} from db'.format(n))
                 break
@@ -225,7 +226,7 @@ if __name__ == "__main__":
     n_train_classes,train_populations = dir_of_dirs_to_lmdb('mydb',dir_of_dirs,max_images_per_class =50,test_or_train='train',resize_x=resize_x,resize_y=resize_y,avg_B=B,avg_G=G,avg_R=R)
     print('{} test classes with {} files'.format(n_test_classes,test_populations))
     print('{} train classes with {} files'.format(n_train_classes,train_populations))
-  #  inspect_db('mydb.test',show_visual_output=False,B=B,G=G,R=R)
+    inspect_db('mydb.test',show_visual_output=True,B=B,G=G,R=R)
    # inspect_db('mydb.train',show_visual_output=False,B=B,G=G,R=R)
 
 #  weighted averages of 16 directories: h:1742.51040222 w1337.66435506 d3.0 B 142.492848614 G 151.617458606 R 162.580921717 totfiles 1442
