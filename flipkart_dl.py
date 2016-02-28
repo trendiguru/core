@@ -210,11 +210,10 @@ flipkart info:
                        - split the title and look for relevent categories
                        - if relevant :
                             - check if id already exists
-                                -does: get prod fp from current collection
+                                -does: update prod info
                                 -doen't: send product to fp
-                            - build prod info
-                            - insert prod to new collection
-                       - change collections
+                                    - build prod info
+                                    - insert prod to new collection
 
 6. what is the prod info?
                 - the generic prod info contains the following fields:
@@ -229,7 +228,7 @@ flipkart info:
                                         - need to convert the flipkart image links to these categories
                                 * shopstyle links in "image.sizes.XLarge.url"
                 10.status - instock : True/False
-                             hours_out : the # updates every run by 8
+                             days_out : the # updates every run by 1
                 7.  shortDescription - title(flipkart)/name(shopstyle)
                 8.  longDescription - description
                 9.  price - {'price':
