@@ -199,10 +199,11 @@ def crude_lmdb():
 def kill_db(db_name):
     print('ABOUT TO DELETE DB '+str(db_name)+'!!!!')
     raw_input('press enter to continue or ctrl-C to not')
-    env = lmdb.open(db_name, readonly=False)
-    txn = lmdb.Transaction(env)
-    txn.drop(db_name,delete=True)
-    #print('retval from drop='+str(retval))
+    in_db = lmdb.open(db_name)
+    with in_db.begin(write=True) as in_txn:
+        db = in_db.open_db()
+        in_txn.drop(db)
+        print in_txn.stat()
 
 if __name__ == "__main__":
     dir_of_dirs = '/home/jeremy/core/classifier_stuff/caffe_nns/dataset'
