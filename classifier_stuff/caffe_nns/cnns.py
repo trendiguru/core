@@ -287,8 +287,15 @@ def run_my_net(nn_dir,train_db,test_db,solver_prototxt,batch_size = 100):
         plt.show()
 
 if __name__ == "__main__":
-    dir_of_dirs = '/home/jr/python-packages/trendi/classifier_stuff/caffe_nns/dataset'
-#    dir_of_dirs = '/home/jeremy/core/classifier_stuff/caffe_nns/dataset'  #b2
+    host = socket.gethostname()
+    print('host:'+str(host))
+    if host == 'jr-ThinkPad-X1-Carbon':
+        pc = True
+        dir_of_dirs = '/home/jr/python-packages/trendi/classifier_stuff/caffe_nns/dataset'
+    else:
+        dir_of_dirs = '/home/jeremy/core/classifier_stuff/caffe_nns/dataset'  #b2
+        pc = False
+
     print('dir:'+dir_of_dirs)
 #    h,w,d,B,G,R,n = imutils.image_stats_from_dir_of_ditestrs(dir_of_dirs)
     resize_x = 200
