@@ -209,7 +209,8 @@ def run_my_net(nn_dir,train_db,test_db,solver_prototxt,batch_size = 100):
     print('host:'+str(host))
     if host == 'jr-ThinkPad-X1-Carbon':
         pc = True
-
+    else:
+        pc = False
     proto_filename = os.path.basename(solver_prototxt)
     proto_file_base = proto_filename.split('prototxt')[0]
     proto_dir = os.path.dirname(solver_prototxt)
@@ -315,10 +316,12 @@ if __name__ == "__main__":
     R=162
     db_name = 'mydb'
     lmdb_utils.kill_db(db_name)
-    n_test_classes,test_populations,image_number = lmdb_utils.dir_of_dirs_to_lmdb(db_name,dir_of_dirs,max_images_per_class =max_images_per_class,test_or_train='test',resize_x=resize_x,resize_y=resize_y,avg_B=B,avg_G=G,avg_R=R)
-    n_train_classes,train_populations,image_number = lmdb_utils.dir_of_dirs_to_lmdb(db_name,dir_of_dirs,max_images_per_class =max_images_per_class,test_or_train='train',resize_x=resize_x,resize_y=resize_y,avg_B=B,avg_G=G,avg_R=R)
+    n_test_classes,test_populations,image_number_test = lmdb_utils.dir_of_dirs_to_lmdb(db_name,dir_of_dirs,max_images_per_class =max_images_per_class,test_or_train='test',resize_x=resize_x,resize_y=resize_y,avg_B=B,avg_G=G,avg_R=R)
+    n_train_classes,train_populations,image_number_train = lmdb_utils.dir_of_dirs_to_lmdb(db_name,dir_of_dirs,max_images_per_class =max_images_per_class,test_or_train='train',resize_x=resize_x,resize_y=resize_y,avg_B=B,avg_G=G,avg_R=R)
+
 
     tot_train_samples = np.sum(train_populations)
+
     tot_test_samples = np.sum(test_populations)
 
     n_classes = n_test_classes

@@ -156,9 +156,10 @@ def resize_and_crop_image( input_file_or_np_arr, output_file=None, output_side_l
     return cropped_img
 
 def resize_and_crop_image_using_bb( input_file_or_np_arr, bb=None, output_file=None, output_w = 128,output_h = 128,use_visual_output=False):
-    '''Takes an image name, resize it and crop the center square
+    '''Takes an image name, resize it and crop the center area, keeping as much of orig as possible
     '''
     #TODO - implement nonsquare crop
+    # done
     if isinstance(input_file_or_np_arr,basestring):
         orig_name = input_file_or_np_arr
         input_file_or_np_arr = cv2.imread(input_file_or_np_arr)
@@ -174,22 +175,19 @@ def resize_and_crop_image_using_bb( input_file_or_np_arr, bb=None, output_file=N
             bb=[bb_x,bb_y,bb_w,bb_h]
             print('bb:'+str(bb))
             if bb_h == 0:
-                print('bad height')
+                logging.warning('bad height encountered in imutils.resize_and_crop_image for '+str(input_file_or_np_arr))
                 return None
             if bb_w == 0:
-                print('bad width')
+                logging.warning('bad width encountered in imutils.resize_and_crop_image for '+str(input_file_or_np_arr))
                 return None
-    if bb is None:
-        print('no bbox given')
-        dsize =(output_w,output_h)
-        output_img_arr = cv2.resize(input_file_or_np_arr, dsize)
-       # use_visual_output = False
-        if use_visual_output is True:
-            cv2.imshow('resized', output_img_arr)
-            cv2.imshow('orig',input_file_or_np_arr)
-            cv2.waitKey(0)
-        return None
+
     height, width, depth = input_file_or_np_arr.shape
+
+    if bb is None:
+        bb = [0,0, width,height]
+        print('no bbox given, using entire image')
+
+
     in_aspect = float(bb[2])/bb[3]
     out_aspect = float(output_w)/output_h
     x1 = bb[0]
