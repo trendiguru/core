@@ -205,6 +205,10 @@ def mynet(db, batch_size):
     return n.to_proto()
 
 def run_my_net(nn_dir,train_db,test_db,solver_prototxt,batch_size = 100):
+    host = socket.gethostname()
+    print('host:'+str(host))
+    if host == 'jr-ThinkPad-X1-Carbon':
+        pc = True
 
     proto_filename = os.path.basename(solver_prototxt)
     proto_file_base = proto_filename.split('prototxt')[0]
