@@ -313,7 +313,6 @@ if __name__ == "__main__":
     B=142
     G=151
     R=162
-    max_images_per_class = 50
     db_name = 'mydb'
     lmdb_utils.kill_db(db_name)
     n_test_classes,test_populations = lmdb_utils.dir_of_dirs_to_lmdb(db_name,dir_of_dirs,max_images_per_class =max_images_per_class,test_or_train='test',resize_x=resize_x,resize_y=resize_y,avg_B=B,avg_G=G,avg_R=R)
