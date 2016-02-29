@@ -172,6 +172,13 @@ def resize_and_crop_image_using_bb( input_file_or_np_arr, bb=None, output_file=N
             bb_h = coords[3].split('.')[0]  #this has .jpg or .bmp at the end
             bb_h = int(bb_h)
             bb=[bb_x,bb_y,bb_w,bb_h]
+            print('bb:'+str(bb))
+            if bb_h == 0:
+                print('bad height')
+                return None
+            if bb_w == 0:
+                print('bad width')
+                return None
     if bb is None:
         print('no bbox given')
         dsize =(output_w,output_h)
@@ -181,7 +188,7 @@ def resize_and_crop_image_using_bb( input_file_or_np_arr, bb=None, output_file=N
             cv2.imshow('resized', output_img_arr)
             cv2.imshow('orig',input_file_or_np_arr)
             cv2.waitKey(0)
-        return output_img_arr
+        return None
     height, width, depth = input_file_or_np_arr.shape
     in_aspect = float(bb[2])/bb[3]
     out_aspect = float(output_w)/output_h
