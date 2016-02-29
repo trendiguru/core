@@ -304,8 +304,9 @@ if __name__ == "__main__":
     lmdb_utils.dir_of_dirs_to_lmdb(db_name,dir_of_dirs,max_images_per_class =100,test_or_train='test',resize_x=resize_x,resize_y=resize_y,avg_B=B,avg_G=G,avg_R=R)
     lmdb_utils.dir_of_dirs_to_lmdb(db_name,dir_of_dirs,max_images_per_class =100,test_or_train='train',resize_x=resize_x,resize_y=resize_y,avg_B=B,avg_G=G,avg_R=R)
 
-    n_samples = 180
-    test_iter = 10
+    n_classes = 11
+    n_samples = 1000
+    test_iter = 100
     batch_size = n_samples / test_iter
     proto_file = os.path.join(dir_of_dirs,'my_solver.prototxt')
     write_prototxt(proto_file,test_iter = test_iter)
