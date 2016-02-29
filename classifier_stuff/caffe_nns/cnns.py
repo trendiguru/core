@@ -292,15 +292,17 @@ if __name__ == "__main__":
     if host == 'jr-ThinkPad-X1-Carbon':
         pc = True
         dir_of_dirs = '/home/jr/python-packages/trendi/classifier_stuff/caffe_nns/dataset'
+        max_images_per_class = 100
     else:
         dir_of_dirs = '/home/jeremy/core/classifier_stuff/caffe_nns/dataset'  #b2
+        max_images_per_class = 1000
         pc = False
 
     print('dir:'+dir_of_dirs)
 #    h,w,d,B,G,R,n = imutils.image_stats_from_dir_of_ditestrs(dir_of_dirs)
     resize_x = 200
     #resize_y = int(h*128/w)
-    resize_y=100
+    resize_y=200
    # B=int(B)
    # G=int(G)
     #R=int(R)
