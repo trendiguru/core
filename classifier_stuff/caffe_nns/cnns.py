@@ -364,9 +364,9 @@ if __name__ == "__main__":
 
     print('dir:'+dir_of_dirs)
 #    h,w,d,B,G,R,n = imutils.image_stats_from_dir_of_ditestrs(dir_of_dirs)
-    resize_x = 200
+    resize_x = 100
     #resize_y = int(h*128/w)
-    resize_y=200
+    resize_y=100
    # B=int(B)
    # G=int(G)
     #R=int(R)
@@ -374,26 +374,27 @@ if __name__ == "__main__":
     G=151
     R=162
     db_name = 'pluszero'
+    db_name = 'mydb100'
 #    lmdb_utils.kill_db(db_name)
-#    n_test_classes,test_populations,image_number_test = lmdb_utils.dir_of_dirs_to_lmdb(db_name,dir_of_dirs,max_images_per_class =max_images_per_class,test_or_train='test')
+    n_test_classes,test_populations,image_number_test = lmdb_utils.dir_of_dirs_to_lmdb(db_name,dir_of_dirs,max_images_per_class =max_images_per_class,test_or_train='test')
 #    n_test_classes,test_populations,image_number_test = lmdb_utils.dir_of_dirs_to_lmdb(db_name,dir_of_dirs,max_images_per_class =max_images_per_class)
- #   n_train_classes,train_populations,image_number_train = lmdb_utils.dir_of_dirs_to_lmdb(db_name,dir_of_dirs,max_images_per_class =max_images_per_class)
+    n_train_classes,train_populations,image_number_train = lmdb_utils.dir_of_dirs_to_lmdb(db_name,dir_of_dirs,max_images_per_class =max_images_per_class,test_or_train='train')
 
 
-#    tot_train_samples = np.sum(train_populations)
-    tot_train_samples = 1000
+    tot_train_samples = np.sum(train_populations)
+#    tot_train_samples = 1000
 
-    #tot_test_samples = np.sum(test_populations)
-    tot_test_samples = 1000
+    tot_test_samples = np.sum(test_populations)
+#    tot_test_samples = 1000
 
-#    n_classes = n_test_classes
-    n_classes  = 10
+    n_classes = n_test_classes
+#    n_classes  = 10
 
     n_samples = min(tot_train_samples,tot_test_samples)
     test_iter = 100
     batch_size = n_samples / test_iter
-    batch_size = 50
-#    print('trainclasses {} n {} test classes{} n {} testiter {} batch_size {}'.format(n_train_classes,tot_train_samples,n_test_classes,tot_test_samples,test_iter,batch_size))
+#    batch_size = 50
+    print('trainclasses {} n {} test classes{} n {} testiter {} batch_size {}'.format(n_train_classes,tot_train_samples,n_test_classes,tot_test_samples,test_iter,batch_size))
     proto_file = os.path.join(dir_of_dirs,'my_solver.prototxt')
     write_prototxt(proto_file,test_iter = test_iter)
     run_my_net(dir_of_dirs,'mydb.train','mydb.test',proto_file,batch_size = batch_size)
