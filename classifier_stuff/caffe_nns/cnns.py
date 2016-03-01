@@ -397,4 +397,4 @@ if __name__ == "__main__":
 
     proto_file = os.path.join(dir_of_dirs,'my_solver.prototxt')
     write_prototxt(proto_file,test_iter = test_iter,solver_mode=solver_mode)
-    run_my_net(dir_of_dirs,db_name+'train',db_name+'.test',proto_file,batch_size = batch_size)
+    run_my_net(dir_of_dirs,db_name+'.train',db_name+'.test',proto_file,batch_size = batch_size)
