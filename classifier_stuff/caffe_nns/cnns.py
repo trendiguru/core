@@ -36,7 +36,21 @@ from PIL import Image
 #label = L.Data(batch_size=99, backend=P.Data.LMDB, source='train_label', transform_param=dict(scale=1./255), ntop=1)
 #data = L.Data(batch_size=99, backend=P.Data.LMDB, source='train_data', transform_param=dict(scale=1./255), ntop=1)
 
-'''  layer {
+'''
+  layers {
+name: "images"
+type: IMAGE_DATA
+top: "data"
+top: "label"
+image_data_param {
+source: "custom_train_lmdb"
+batch_size: 4
+crop_size: 227
+shuffle: true
+}
+
+
+  layer {
     name: "data"
     type: "ImageData"
     top: "data"
@@ -349,6 +363,49 @@ def run_my_net(nn_dir,train_db,test_db,solver_prototxt,batch_size = 100):
         ax1.set_ylabel('train loss')
         ax2.set_ylabel('test accuracy')
         plt.show()
+
+def load_net(prototxt,caffemodel,mean_B=128,mean_G=128,mean_R=128,image='../../images/female1.jpg',image_width=128,image_height=128,image_depth=3,batch_size=256):
+    host = socket.gethostname()
+    print('host:'+str(host))
+    pc = False
+    caffe.set_mode_gpu()
+    if host == 'jr-ThinkPad-X1-Carbon':
+        pc = True
+        caffe.set_mode_cpu()
+    net = caffe.Net(prototxt,caffemodel,caffe.TEST)
+    # see http://nbviewer.jupyter.org/github/BVLC/caffe/blob/master/examples/00-classification.ipynb
+#    mu = np.load(caffe_root + 'python/caffe/imagenet/ilsvrc_2012_mean.npy')
+ #   mu = mu.mean(1).mean(1)  # average over pixels to obtain the mean (BGR) pixel values
+    mu = [mean_B,mean_G,mean_R]
+    print 'mean-subtracted values:', zip('BGR', mu)
+
+    # create transformer for the input called 'data'
+    transformer = caffe.io.Transformer({'data': net.blobs['data'].data.shape})
+
+#    transformer.set_transpose('data', (2,0,1))  # move image channels to outermost dimension
+    transformer.set_mean('data', mu)            # subtract the dataset-mean value in each channel
+    transformer.set_raw_scale('data', 255)      # rescale from [0, 1] to [0, 255]
+#    transformer.set_channel_swap('data', (2,1,0))  # swap channels from RGB to BGR
+# set the size of the input (we can skip this if we're happy
+#  with the default; we can also change it later, e.g., for different batch sizes)
+    net.blobs['data'].reshape(batch_size,        # batch size
+                              image_depth,         # 3-channel (BGR) images
+                             image_width, image_height)  # image size is 227x227
+    image = caffe.io.load_image(image)
+    transformed_image = transformer.preprocess('data', image)
+#    plt.imshow(image)
+# copy the image data into the memory allocated for the net
+    net.blobs['data'].data[...] = transformed_image
+
+    ### perform classification
+    output = net.forward()
+
+    output_prob = output['prob'][0]  # the output probability vector for the first image in the batch
+
+    print 'predicted classes:', output_prob
+    print 'predicted class is:', output_prob.argmax()
+
+
 
 if __name__ == "__main__":
     host = socket.gethostname()
