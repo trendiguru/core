@@ -205,7 +205,12 @@ def mynet(db, batch_size):
     return n.to_proto()
 
 def run_my_net(nn_dir,train_db,test_db,solver_prototxt,batch_size = 100):
-
+    host = socket.gethostname()
+    print('host:'+str(host))
+    if host == 'jr-ThinkPad-X1-Carbon':
+        pc = True
+    else:
+        pc = False
     proto_filename = os.path.basename(solver_prototxt)
     proto_file_base = proto_filename.split('prototxt')[0]
     proto_dir = os.path.dirname(solver_prototxt)
@@ -262,7 +267,7 @@ def run_my_net(nn_dir,train_db,test_db,solver_prototxt,batch_size = 100):
         # store the output on the first test batch
         # (start the forward pass at conv1 to avoid loading new data)
         solver.test_nets[0].forward(start='conv1')
-        output[it] = solver.test_nets[0].blobs['ip2'].data[:8]
+#        output[it] = solver.test_nets[0].blobs['ip2'].data[:8]
 
         # run a full test every so often
         # (Caffe can also do this for us and write to a log, but we show here
@@ -287,12 +292,22 @@ def run_my_net(nn_dir,train_db,test_db,solver_prototxt,batch_size = 100):
         plt.show()
 
 if __name__ == "__main__":
-    dir_of_dirs = '/home/jr/python-packages/trendi/classifier_stuff/caffe_nns/dataset'
+    host = socket.gethostname()
+    print('host:'+str(host))
+    if host == 'jr-ThinkPad-X1-Carbon':
+        pc = True
+        dir_of_dirs = '/home/jr/python-packages/trendi/classifier_stuff/caffe_nns/dataset'
+        max_images_per_class = 100
+    else:
+        dir_of_dirs = '/home/jeremy/core/classifier_stuff/caffe_nns/dataset'  #b2
+        max_images_per_class = 1000
+        pc = False
+
     print('dir:'+dir_of_dirs)
 #    h,w,d,B,G,R,n = imutils.image_stats_from_dir_of_ditestrs(dir_of_dirs)
     resize_x = 200
     #resize_y = int(h*128/w)
-    resize_y=100
+    resize_y=200
    # B=int(B)
    # G=int(G)
     #R=int(R)
@@ -301,12 +316,19 @@ if __name__ == "__main__":
     R=162
     db_name = 'mydb'
     lmdb_utils.kill_db(db_name)
-    lmdb_utils.dir_of_dirs_to_lmdb(db_name,dir_of_dirs,max_images_per_class =50,test_or_train='test',resize_x=resize_x,resize_y=resize_y,avg_B=B,avg_G=G,avg_R=R)
-    lmdb_utils.dir_of_dirs_to_lmdb(db_name,dir_of_dirs,max_images_per_class =50,test_or_train='train',resize_x=resize_x,resize_y=resize_y,avg_B=B,avg_G=G,avg_R=R)
+    n_test_classes,test_populations,image_number_test = lmdb_utils.dir_of_dirs_to_lmdb(db_name,dir_of_dirs,max_images_per_class =max_images_per_class,test_or_train='test',resize_x=resize_x,resize_y=resize_y,avg_B=B,avg_G=G,avg_R=R)
+    n_train_classes,train_populations,image_number_train = lmdb_utils.dir_of_dirs_to_lmdb(db_name,dir_of_dirs,max_images_per_class =max_images_per_class,test_or_train='train',resize_x=resize_x,resize_y=resize_y,avg_B=B,avg_G=G,avg_R=R)
 
-    n_samples = 180
-    test_iter = 10
+
+    tot_train_samples = np.sum(train_populations)
+
+    tot_test_samples = np.sum(test_populations)
+
+    n_classes = n_test_classes
+    n_samples = min(tot_train_samples,tot_test_samples)
+    test_iter = 100
     batch_size = n_samples / test_iter
+    print('trainclasses {} n {} test classes{} n {} testiter {} batch_size {}'.format(n_train_classes,tot_train_samples,n_test_classes,tot_test_samples,test_iter,batch_size))
     proto_file = os.path.join(dir_of_dirs,'my_solver.prototxt')
     write_prototxt(proto_file,test_iter = test_iter)
     run_my_net(dir_of_dirs,'mydb.train','mydb.test',proto_file,batch_size = batch_size)
