@@ -56,7 +56,7 @@ from PIL import Image
 '''
 
 
-def write_prototxt(proto_filename,test_iter = 9):
+def write_prototxt(proto_filename,test_iter = 9,solver_mode='CPU'):
     # The train/test net protocol buffer definition
     dir = os.path.dirname(proto_filename)
     filename = os.path.basename(proto_filename)
@@ -74,8 +74,8 @@ def write_prototxt(proto_filename,test_iter = 9):
     # snarpshot - snapshot intermediate results
     prototxt ={ 'train_net':train_file,
                         'test_net': test_file,
-                        'test_iter': 9,
-                        'test_interval': 10,
+                        'test_iter': test_iter,
+                        'test_interval': 500,
                         'base_lr': 0.01,
                         'momentum': 0.9,
                         'weight_decay': 0.0005,
@@ -85,27 +85,67 @@ def write_prototxt(proto_filename,test_iter = 9):
                         'display': 100,
                         'max_iter': 10000,
                         'snapshot': 5000,
-                        'snapshot_prefix': dir}
+                        'snapshot_prefix': dir,
+                        'solver_mode':solver_mode }
+
     print prototxt
     with open(proto_filename,'w') as f:
         for key, val in prototxt.iteritems():
             line=key+':'+str(val)+'\n'
-            if isinstance(val,basestring):
+            if isinstance(val,basestring) and key is not 'solver_mode':
                 line=key+':\"'+str(val)+'\"\n'
             f.write(line)
 
+#net: "examples/mnist/lenet_train_test.prototxt"
+#test_iter: 100
+#test_interval: 500
+#base_lr: 0.01
+#momentum: 0.9
+#weight_decay: 0.0005
+#lr_policy: "inv"
+#gamma: 0.0001
+#power: 0.75
+#display: 100
+#max_iter: 10000
+#snapshot: 5000
+#snapshot_prefix: "examples/mnist/lenet"
+#solver_mode: GPU
+
+
 def lenet(lmdb, batch_size):  #test_iter * batch_size <= n_samples!!!
+    lr_mult1 = 1
+    lr_mult2 = 2
     n=caffe.NetSpec()
     n.data,n.label=L.Data(batch_size=batch_size,backend=P.Data.LMDB,source=lmdb,transform_param=dict(scale=1./255),ntop=2)
-    n.conv1 = L.Convolution(n.data,kernel_size=5,num_output=20,weight_filler=dict(type='xavier'))
+
+#    n.conv1 = L.Convolution(n.data,kernel_size=5,stride = 1, num_output=50,weight_filler=dict(type='xavier'))
+    n.conv1 = L.Convolution(n.data,param=[dict(lr_mult=lr_mult1),dict(lr_mult=lr_mult2)],
+                            kernel_size=5,stride = 1, num_output=50,weight_filler=dict(type='xavier'))
+#    L.Convolution(bottom, param=[dict(lr_mult=lr_mult1),dict(lr_mult=lr_mult2)],
+ #       kernel_h=kh, kernel_w=kw, stride=stride, num_output=nout, pad=pad,
+  #      weight_filler=dict(type='gaussian', std=0.1, sparse=sparse),
+   #     bias_filler=dict(type='constant', value=0))
+
     n.pool1 = L.Pooling(n.conv1, kernel_size=2, stride=2, pool=P.Pooling.MAX)
-    n.conv2 = L.Convolution(n.pool1,kernel_size=5,num_output=20,weight_filler=dict(type='xavier'))
+    n.conv2 = L.Convolution(n.pool1,param=[dict(lr_mult=lr_mult1),dict(lr_mult=lr_mult2)],
+                            kernel_size=5,stride=1,num_output=20,weight_filler=dict(type='xavier'))
     n.pool2 = L.Pooling(n.conv2, kernel_size=2, stride=2, pool=P.Pooling.MAX)
-    n.ip1 = L.InnerProduct(n.pool2,num_output=500,weight_filler=dict(type='xavier'))
+
+#    n.ip1 = L.InnerProduct(n.pool2,num_output=500,weight_filler=dict(type='xavier'))
+    n.ip1 = L.InnerProduct(n.pool2,param=[dict(lr_mult=lr_mult1),dict(lr_mult=lr_mult2)],num_output=500,weight_filler=dict(type='xavier'))
     n.relu1 = L.ReLU(n.ip1, in_place=True)
-    n.ip2 = L.InnerProduct(n.relu1,num_output=10,weight_filler=dict(type='xavier'))
+    n.ip2 = L.InnerProduct(n.relu1,param=[dict(lr_mult=lr_mult1),dict(lr_mult=lr_mult2)],num_output=10,weight_filler=dict(type='xavier'))
     n.loss = L.SoftmaxWithLoss(n.ip2,n.label)
     return n.to_proto()
+#missing from conv and ip1,2:
+    # param {
+#    lr_mult: 1
+#  }
+ # param {
+  #  lr_mult: 2
+  #}
+
+
 
 def run_lenet():
     host = socket.gethostname()
@@ -191,18 +231,37 @@ def run_lenet():
         plt.show()
 
 def mynet(db, batch_size):
-    print('building proto with db {} and batchsize {}'.format(db,batch_size))
+    lr_mult1 = 1
+    lr_mult2 = 2
     n=caffe.NetSpec()
     n.data,n.label=L.Data(batch_size=batch_size,backend=P.Data.LMDB,source=db,transform_param=dict(scale=1./255),ntop=2)
-    n.conv1 = L.Convolution(n.data,kernel_size=5,num_output=20,weight_filler=dict(type='xavier'))
+
+#    n.conv1 = L.Convolution(n.data,kernel_size=5,stride = 1, num_output=50,weight_filler=dict(type='xavier'))
+    n.conv1 = L.Convolution(n.data,param=[dict(lr_mult=lr_mult1),dict(lr_mult=lr_mult2)],
+                            kernel_size=5,stride = 1, num_output=50,weight_filler=dict(type='xavier'))
+#    L.Convolution(bottom, param=[dict(lr_mult=lr_mult1),dict(lr_mult=lr_mult2)],
+ #       kernel_h=kh, kernel_w=kw, stride=stride, num_output=nout, pad=pad,
+  #      weight_filler=dict(type='gaussian', std=0.1, sparse=sparse),
+   #     bias_filler=dict(type='constant', value=0))
+
     n.pool1 = L.Pooling(n.conv1, kernel_size=2, stride=2, pool=P.Pooling.MAX)
-    n.conv2 = L.Convolution(n.pool1,kernel_size=5,num_output=20,weight_filler=dict(type='xavier'))
+    n.conv2 = L.Convolution(n.pool1,param=[dict(lr_mult=lr_mult1),dict(lr_mult=lr_mult2)],
+                            kernel_size=5,stride=1,num_output=20,weight_filler=dict(type='xavier'))
     n.pool2 = L.Pooling(n.conv2, kernel_size=2, stride=2, pool=P.Pooling.MAX)
-    n.ip1 = L.InnerProduct(n.pool2,num_output=500,weight_filler=dict(type='xavier'))
+
+#    n.ip1 = L.InnerProduct(n.pool2,num_output=500,weight_filler=dict(type='xavier'))
+    n.ip1 = L.InnerProduct(n.pool2,param=[dict(lr_mult=lr_mult1),dict(lr_mult=lr_mult2)],num_output=500,weight_filler=dict(type='xavier'))
     n.relu1 = L.ReLU(n.ip1, in_place=True)
-    n.ip2 = L.InnerProduct(n.relu1,num_output=10,weight_filler=dict(type='xavier'))
+    n.ip2 = L.InnerProduct(n.relu1,param=[dict(lr_mult=lr_mult1),dict(lr_mult=lr_mult2)],num_output=10,weight_filler=dict(type='xavier'))
     n.loss = L.SoftmaxWithLoss(n.ip2,n.label)
     return n.to_proto()
+#missing from conv and ip1,2:
+    # param {
+#    lr_mult: 1
+#  }
+ # param {
+  #  lr_mult: 2
+  #}
 
 def run_my_net(nn_dir,train_db,test_db,solver_prototxt,batch_size = 100):
     host = socket.gethostname()
@@ -297,10 +356,10 @@ if __name__ == "__main__":
     if host == 'jr-ThinkPad-X1-Carbon':
         pc = True
         dir_of_dirs = '/home/jr/python-packages/trendi/classifier_stuff/caffe_nns/dataset'
-        max_images_per_class = 100
+        max_images_per_class = 1000
     else:
         dir_of_dirs = '/home/jeremy/core/classifier_stuff/caffe_nns/dataset'  #b2
-        max_images_per_class = 1000
+        max_images_per_class = 10000
         pc = False
 
     print('dir:'+dir_of_dirs)
@@ -314,21 +373,27 @@ if __name__ == "__main__":
     B=142
     G=151
     R=162
-    db_name = 'mydb'
-    lmdb_utils.kill_db(db_name)
-    n_test_classes,test_populations,image_number_test = lmdb_utils.dir_of_dirs_to_lmdb(db_name,dir_of_dirs,max_images_per_class =max_images_per_class,test_or_train='test',resize_x=resize_x,resize_y=resize_y,avg_B=B,avg_G=G,avg_R=R)
-    n_train_classes,train_populations,image_number_train = lmdb_utils.dir_of_dirs_to_lmdb(db_name,dir_of_dirs,max_images_per_class =max_images_per_class,test_or_train='train',resize_x=resize_x,resize_y=resize_y,avg_B=B,avg_G=G,avg_R=R)
+    db_name = 'pluszero'
+#    lmdb_utils.kill_db(db_name)
+#    n_test_classes,test_populations,image_number_test = lmdb_utils.dir_of_dirs_to_lmdb(db_name,dir_of_dirs,max_images_per_class =max_images_per_class,test_or_train='test')
+#    n_test_classes,test_populations,image_number_test = lmdb_utils.dir_of_dirs_to_lmdb(db_name,dir_of_dirs,max_images_per_class =max_images_per_class)
+ #   n_train_classes,train_populations,image_number_train = lmdb_utils.dir_of_dirs_to_lmdb(db_name,dir_of_dirs,max_images_per_class =max_images_per_class)
 
 
-    tot_train_samples = np.sum(train_populations)
+#    tot_train_samples = np.sum(train_populations)
+    tot_train_samples = 1000
 
-    tot_test_samples = np.sum(test_populations)
+    #tot_test_samples = np.sum(test_populations)
+    tot_test_samples = 1000
 
-    n_classes = n_test_classes
+#    n_classes = n_test_classes
+    n_classes  = 10
+
     n_samples = min(tot_train_samples,tot_test_samples)
     test_iter = 100
     batch_size = n_samples / test_iter
-    print('trainclasses {} n {} test classes{} n {} testiter {} batch_size {}'.format(n_train_classes,tot_train_samples,n_test_classes,tot_test_samples,test_iter,batch_size))
+    batch_size = 50
+#    print('trainclasses {} n {} test classes{} n {} testiter {} batch_size {}'.format(n_train_classes,tot_train_samples,n_test_classes,tot_test_samples,test_iter,batch_size))
     proto_file = os.path.join(dir_of_dirs,'my_solver.prototxt')
     write_prototxt(proto_file,test_iter = test_iter)
     run_my_net(dir_of_dirs,'mydb.train','mydb.test',proto_file,batch_size = batch_size)

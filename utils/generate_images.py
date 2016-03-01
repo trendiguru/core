@@ -150,6 +150,7 @@ def add_noise(image, noise_typ,level):
         return image
     if noise_typ == "gauss":
         row,col,ch= image.shape
+        print('row {} col {} ch {}'.format(row,col,ch))
         mean = 0
         var = level*255
         sigma = var**0.5
