@@ -230,7 +230,7 @@ def run_lenet():
         ax2.set_ylabel('test accuracy')
         plt.show()
 
-def mynet(db, batch_size):
+def mynet(db, batch_size,n_classes=11  ):
     lr_mult1 = 1
     lr_mult2 = 2
     n=caffe.NetSpec()
@@ -252,7 +252,7 @@ def mynet(db, batch_size):
 #    n.ip1 = L.InnerProduct(n.pool2,num_output=500,weight_filler=dict(type='xavier'))
     n.ip1 = L.InnerProduct(n.pool2,param=[dict(lr_mult=lr_mult1),dict(lr_mult=lr_mult2)],num_output=500,weight_filler=dict(type='xavier'))
     n.relu1 = L.ReLU(n.ip1, in_place=True)
-    n.ip2 = L.InnerProduct(n.relu1,param=[dict(lr_mult=lr_mult1),dict(lr_mult=lr_mult2)],num_output=10,weight_filler=dict(type='xavier'))
+    n.ip2 = L.InnerProduct(n.relu1,param=[dict(lr_mult=lr_mult1),dict(lr_mult=lr_mult2)],num_output=n_classes,weight_filler=dict(type='xavier'))
     n.loss = L.SoftmaxWithLoss(n.ip2,n.label)
     return n.to_proto()
 #missing from conv and ip1,2:
@@ -378,29 +378,23 @@ if __name__ == "__main__":
     db_name = 'pluszero'
     db_name = 'mydb100'
 #    lmdb_utils.kill_db(db_name)
-    n_test_classes,test_populations,image_number_test = lmdb_utils.dir_of_dirs_to_lmdb(db_name,dir_of_dirs,
-                                                                                       max_images_per_class =max_images_per_class,test_or_train='test',resize_x=resize_x,resize_y=resize_y)
-
-    n_train_classes,train_populations,image_number_train = lmdb_utils.dir_of_dirs_to_lmdb(db_name,dir_of_dirs,
-                                                                                          max_images_per_class =max_images_per_class,test_or_train='train',resize_x=resize_x,resize_y=resize_y)
-
-#    n_test_classes,test_populations,image_number_test = lmdb_utils.dir_of_dirs_to_lmdb(db_name,dir_of_dirs,max_images_per_class =max_images_per_class)
-
-
-    tot_train_samples = np.sum(train_populations)
-#    tot_train_samples = 1000
-
-    tot_test_samples = np.sum(test_populations)
-#    tot_test_samples = 1000
-
-    n_classes = n_test_classes
-#    n_classes  = 10
-
-    n_samples = min(tot_train_samples,tot_test_samples)
+    generate_db = False
     test_iter = 100
-    batch_size = n_samples / test_iter
     batch_size = 256  #use powers of 2 for better perf (aupposedly)
-    print('trainclasses {} n {} test classes{} n {} testiter {} batch_size {}'.format(n_train_classes,tot_train_samples,n_test_classes,tot_test_samples,test_iter,batch_size))
+
+    if generate_db:
+        n_test_classes,test_populations,image_number_test = lmdb_utils.dir_of_dirs_to_lmdb(db_name,dir_of_dirs,
+                                                                                           max_images_per_class =max_images_per_class,test_or_train='test',resize_x=resize_x,resize_y=resize_y)
+        n_train_classes,train_populations,image_number_train = lmdb_utils.dir_of_dirs_to_lmdb(db_name,dir_of_dirs,
+                                                                                              max_images_per_class =max_images_per_class,test_or_train='train',resize_x=resize_x,resize_y=resize_y)
+        tot_train_samples = np.sum(train_populations)
+        tot_test_samples = np.sum(test_populations)
+        n_classes = n_test_classes
+        print('trainclasses {} n {} test classes{} n {} testiter {} batch_size {}'.format(n_train_classes,tot_train_samples,n_test_classes,tot_test_samples,test_iter,batch_size))
+    else:
+        n_classes  = 11
+        n_train_classes  = 10
+
     proto_file = os.path.join(dir_of_dirs,'my_solver.prototxt')
     write_prototxt(proto_file,test_iter = test_iter,solver_mode=solver_mode)
-    run_my_net(dir_of_dirs,'mydb.train','mydb.test',proto_file,batch_size = batch_size)
+    run_my_net(dir_of_dirs,db_name+'train',db_name+'.test',proto_file,batch_size = batch_size)
