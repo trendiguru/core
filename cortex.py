@@ -314,4 +314,4 @@ def collar_lab():
     print results
 
 
-#build_sequential_net_from_weights_filename('C2Dx32x3x3xvalidx3x32x32XAxreluXMPx2x2XC2Dx16x3x3xvalidXAxreluXDOx0.25XC2Dx8x3x3xvalidXAxreluXDOx0.25XFXDx1152XAxreluXDOx05XDx5XAxsoftmaxXOPxsgdx1e-6x1e-6x0.9x1XCOxcc.hdf5')
+# build_sequential_net_from_weights_filename('C2Dx32x3x3xvalidx3x32x32XAxreluXMPx2x2XC2Dx16x3x3xvalidXAxreluXDOx0.25XC2Dx8x3x3xvalidXAxreluXDOx0.25XFXDx1152XAxreluXDOx05XDx5XAxsoftmaxXOPxsgdx1e-6x1e-6x0.9x1XCOxcc.hdf5')
