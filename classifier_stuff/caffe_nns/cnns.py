@@ -56,7 +56,7 @@ from PIL import Image
 '''
 
 
-def write_prototxt(proto_filename,test_iter = 9,solver_mode='CPU'):
+def write_prototxt(proto_filename,test_iter = 9,solver_mode='GPU'):
     # The train/test net protocol buffer definition
     dir = os.path.dirname(proto_filename)
     filename = os.path.basename(proto_filename)
@@ -357,10 +357,12 @@ if __name__ == "__main__":
         pc = True
         dir_of_dirs = '/home/jr/python-packages/trendi/classifier_stuff/caffe_nns/dataset'
         max_images_per_class = 1000
+        solver_mode = 'CPU'
     else:
         dir_of_dirs = '/home/jeremy/core/classifier_stuff/caffe_nns/dataset'  #b2
         max_images_per_class = 10000
         pc = False
+        solver_mode = 'GPU'
 
     print('dir:'+dir_of_dirs)
 #    h,w,d,B,G,R,n = imutils.image_stats_from_dir_of_ditestrs(dir_of_dirs)
@@ -376,9 +378,13 @@ if __name__ == "__main__":
     db_name = 'pluszero'
     db_name = 'mydb100'
 #    lmdb_utils.kill_db(db_name)
-    n_test_classes,test_populations,image_number_test = lmdb_utils.dir_of_dirs_to_lmdb(db_name,dir_of_dirs,max_images_per_class =max_images_per_class,test_or_train='test')
+    n_test_classes,test_populations,image_number_test = lmdb_utils.dir_of_dirs_to_lmdb(db_name,dir_of_dirs,
+                                                                                       max_images_per_class =max_images_per_class,test_or_train='test',resize_x=resize_x,resize_y=resize_y)
+
+    n_train_classes,train_populations,image_number_train = lmdb_utils.dir_of_dirs_to_lmdb(db_name,dir_of_dirs,
+                                                                                          max_images_per_class =max_images_per_class,test_or_train='train',resize_x=resize_x,resize_y=resize_y)
+
 #    n_test_classes,test_populations,image_number_test = lmdb_utils.dir_of_dirs_to_lmdb(db_name,dir_of_dirs,max_images_per_class =max_images_per_class)
-    n_train_classes,train_populations,image_number_train = lmdb_utils.dir_of_dirs_to_lmdb(db_name,dir_of_dirs,max_images_per_class =max_images_per_class,test_or_train='train')
 
 
     tot_train_samples = np.sum(train_populations)
@@ -393,8 +399,8 @@ if __name__ == "__main__":
     n_samples = min(tot_train_samples,tot_test_samples)
     test_iter = 100
     batch_size = n_samples / test_iter
-#    batch_size = 50
+    batch_size = 256  #use powers of 2 for better perf (aupposedly)
     print('trainclasses {} n {} test classes{} n {} testiter {} batch_size {}'.format(n_train_classes,tot_train_samples,n_test_classes,tot_test_samples,test_iter,batch_size))
     proto_file = os.path.join(dir_of_dirs,'my_solver.prototxt')
-    write_prototxt(proto_file,test_iter = test_iter)
+    write_prototxt(proto_file,test_iter = test_iter,solver_mode=solver_mode)
     run_my_net(dir_of_dirs,'mydb.train','mydb.test',proto_file,batch_size = batch_size)
