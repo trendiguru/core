@@ -437,7 +437,7 @@ if __name__ == "__main__":
     db_name = 'pluszero'
     db_name = 'mydb100'
 #    lmdb_utils.kill_db(db_name)
-    generate_db = True
+    generate_db = False
     test_iter = 100
     batch_size = 256  #use powers of 2 for better perf (aupposedly)
 
@@ -449,9 +449,9 @@ if __name__ == "__main__":
         tot_train_samples = np.sum(train_populations)
         tot_test_samples = np.sum(test_populations)
         n_classes = n_test_classes
-        print('trainclasses {} sum {} n {} test classes{} sum {} n {} testiter {} batch_size {}'.format(n_train_classes,tot_train_samples,n_test_classes,tot_test_samples,test_iter,batch_size))
+        print('trainclasses {} sum {} n {} test classes{} sum {} n {} testiter {} batch_size {}'.format(n_train_classes,tot_train_samples,image_number_train,n_test_classes,tot_test_samples,image_number_test,test_iter,batch_size))
     else:
         n_classes  = 11
 
 
-    run_my_net(dir_of_dirs,db_name+'.train',db_name+'.test',proto_file,batch_size = batch_size)
+    run_my_net(dir_of_dirs,db_name+'.train',db_name+'.test',batch_size = batch_size,n_classes=11)
