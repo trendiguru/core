@@ -277,7 +277,7 @@ def mynet(db, batch_size,n_classes=11  ):
   #  lr_mult: 2
   #}
 
-def run_my_net(nn_dir,train_db,test_db,batch_size = 100):
+def run_my_net(nn_dir,train_db,test_db,batch_size = 100,n_classes=11):
     host = socket.gethostname()
     print('host:'+str(host))
     if host == 'jr-ThinkPad-X1-Carbon':
@@ -300,10 +300,10 @@ def run_my_net(nn_dir,train_db,test_db,batch_size = 100):
     print('using trainfile:{} testfile:{}'.format(train_protofile,test_protofile))
 
     with open(train_protofile,'w') as f:
-        f.write(str(mynet(train_db,batch_size = batch_size)))
+        f.write(str(mynet(train_db,batch_size = batch_size,n_classes=n_classes)))
         f.close
     with open(test_protofile,'w') as g:
-        g.write(str(mynet(test_db, batch_size = batch_size)))
+        g.write(str(mynet(test_db, batch_size = batch_size,n_classes=n_classes)))
         g.close
 
     solver = caffe.SGDSolver(proto_file_path)
