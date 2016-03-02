@@ -153,19 +153,21 @@ def interleaved_dir_of_dirs_to_lmdb(dbname,dir_of_dirs,test_or_train=None,max_im
             #open and close db every class to cut down on memory
             #maybe this is irrelevant and we can do this once
             only_dirs.append(a_dir)
-    print(str(len(only_dirs))+' relevant dirs:'+str(only_dirs)+' in '+dir_of_dirs)
+    only_dirs.sort()
+    print(str(len(only_dirs))+' relevant dirs in '+dir_of_dirs)
 
-    random.shuffle(only_dirs)
+#    random.shuffle(only_dirs)  #this gets confusing as now the class labels change every time
     n_classes = len(only_dirs)
     print('{} classes'.format(n_classes))
     all_files = {}
+    classno = 0
     for a_dir in only_dirs:
         # do only test or train dirs if this param was sent
-        image_number_in_class = 0
         fulldir = os.path.join(dir_of_dirs,a_dir)
-        print('fulldir:'+str(fulldir))
+        print('class:'+str(classno)+' dir:'+str(fulldir))
         only_files = [f for f in os.listdir(fulldir) if os.path.isfile(os.path.join(fulldir, f))]
         all_files[a_dir] = only_files
+        classno += 1
 
     map_size = 1e13  #size of db in bytes, can also be done by 10X actual size  as in:
     # We need to prepare the database for the size. We'll set it 10 times
@@ -178,20 +180,25 @@ def interleaved_dir_of_dirs_to_lmdb(dbname,dir_of_dirs,test_or_train=None,max_im
     if test_or_train:
         dbname = dbname+'.'+test_or_train
     print('writing to db:'+dbname)
-    classno = 0
+    classno = -1
     image_number =0
     image_number_in_class = 0
     n_for_each_class = np.zeros(n_classes)
     env = lmdb.open(dbname, map_size=map_size)
     with env.begin(write=True) as txn:      # txn is a Transaction object
         while image_number_in_class<max_images_per_class:
+    #        raw_input('enter to continue')
+            classno += 1
+            if classno == n_classes:
+                classno = 0
+                image_number_in_class += 1
             # do only test or train dirs if this param was sent
             a_dir = only_dirs[classno]
             fulldir = os.path.join(dir_of_dirs,a_dir)
             print('fulldir:'+str(fulldir))
             only_files = all_files[a_dir]
             n = len(only_files)
-            if image_number_in_class > n:
+            if image_number_in_class >= n:
                 print('reached end of images in '+a_dir+' which has '+str(n)+' files, skipping to next class')
                 continue
             print('n files {} in {} current {} class {}'.format(n,a_dir,image_number_in_class,classno))
@@ -246,10 +253,7 @@ def interleaved_dir_of_dirs_to_lmdb(dbname,dir_of_dirs,test_or_train=None,max_im
             except:
                 e = sys.exc_info()[0]
                 logging.warning('some problem with lmdb:'+str(e))
-            classno += 1
-            if classno > n_classes:
-                classno = 0
-                image_number_in_class += 1
+            print
     env.close()
     return classno, n_for_each_class,image_number
 
@@ -345,11 +349,13 @@ if __name__ == "__main__":
     R=162
 #    kill_db('testdb.test')
  #   kill_db('testdb.train')
-    n_test_classes,test_populations = interleaved_dir_of_dirs_to_lmdb('mydb2',dir_of_dirs,max_images_per_class =500,test_or_train='test',resize_x=resize_x,resize_y=resize_y,avg_B=B,avg_G=G,avg_R=R)
-    n_train_classes,train_populations = interleaved_dir_of_dirs_to_lmdb('mydb2',dir_of_dirs,max_images_per_class =500,test_or_train='train',resize_x=resize_x,resize_y=resize_y,avg_B=B,avg_G=G,avg_R=R)
+    db = 'mydb2'
+    use_visual_output = False
+    n_test_classes,test_populations,test_imageno = interleaved_dir_of_dirs_to_lmdb('mydb2',dir_of_dirs,max_images_per_class =150,test_or_train='test',resize_x=resize_x,resize_y=resize_y,avg_B=B,avg_G=G,avg_R=R,use_visual_output=use_visual_output)
+#    n_train_classes,train_populations,train_imageno = interleaved_dir_of_dirs_to_lmdb('mydb2',dir_of_dirs,max_images_per_class =150,test_or_train='train',resize_x=resize_x,resize_y=resize_y,avg_B=B,avg_G=G,avg_R=R)
    # print('{} test classes with {} files'.format(n_test_classes,test_populations))
    # print('{} train classes with {} files'.format(n_train_classes,train_populations))
-    inspect_db('mydb.test',show_visual_output=True,B=B,G=G,R=R)
+    inspect_db(db+'.test',show_visual_output=True,B=B,G=G,R=R)
    # inspect_db('mydb.train',show_visual_output=False,B=B,G=G,R=R)
 
 #  weighted averages of 16 directories: h:1742.51040222 w1337.66435506 d3.0 B 142.492848614 G 151.617458606 R 162.580921717 totfiles 1442
