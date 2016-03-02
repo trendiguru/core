@@ -277,7 +277,7 @@ def mynet(db, batch_size,n_classes=11  ):
   #  lr_mult: 2
   #}
 
-def run_my_net(nn_dir,train_db,test_db,batch_size = 100,n_classes=11):
+def run_my_net(nn_dir,train_db,test_db,batch_size = 64,n_classes=11):
     host = socket.gethostname()
     print('host:'+str(host))
     if host == 'jr-ThinkPad-X1-Carbon':
@@ -345,15 +345,17 @@ def run_my_net(nn_dir,train_db,test_db,batch_size = 100,n_classes=11):
         # run a full test every so often
         # (Caffe can also do this for us and write to a log, but we show here
         #  how to do it directly in Python, where more complicated things are easier.)
+        n_sample = 100
         if it % test_interval == 0:
             print 'Iteration', it, 'testing...'
             correct = 0
-            for test_it in range(100):
+            for test_it in range(n_sample):
                 solver.test_nets[0].forward()
                 correct += sum(solver.test_nets[0].blobs['ip2'].data.argmax(1)
                                == solver.test_nets[0].blobs['label'].data)
-            print('correct %:'+str(correct/100)+' size:'+str(solver.test_nets[0].blobs['label'].data.shape))
-            test_acc[it // test_interval] = correct / 1e4
+            percent_correct = float(correct)/(n_sample*batch_size)
+            print('correct %:'+str(percent_correct)+' size:'+str(solver.test_nets[0].blobs['label'].data.shape))
+            test_acc[it // test_interval] = percent_correct
 
     if pc:
         _, ax1 = plt.subplots()
