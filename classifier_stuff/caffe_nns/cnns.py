@@ -277,18 +277,26 @@ def mynet(db, batch_size,n_classes=11  ):
   #  lr_mult: 2
   #}
 
-def run_my_net(nn_dir,train_db,test_db,solver_prototxt,batch_size = 100):
+def run_my_net(nn_dir,train_db,test_db,batch_size = 100):
     host = socket.gethostname()
     print('host:'+str(host))
     if host == 'jr-ThinkPad-X1-Carbon':
         pc = True
+        solver_mode = 'CPU'
+        caffe.set_mode_cpu()
     else:
         pc = False
-    proto_filename = os.path.basename(solver_prototxt)
+        solver_mode = 'GPU'
+        caffe.set_mode_gpu()
+        caffe.set_device(0)
+
+    proto_filename = 'my_solver.prototxt'
+    proto_file_path = os.path.join(nn_dir,'my_solver.prototxt')
+    test_iter = 100
+    write_prototxt(proto_file_path,test_iter = test_iter,solver_mode=solver_mode)
     proto_file_base = proto_filename.split('prototxt')[0]
-    proto_dir = os.path.dirname(solver_prototxt)
-    train_protofile = os.path.join(proto_dir,proto_file_base+'train.prototxt')
-    test_protofile = os.path.join(proto_dir,proto_file_base+'test.prototxt')
+    train_protofile = os.path.join(nn_dir,proto_file_base+'train.prototxt')
+    test_protofile = os.path.join(nn_dir,proto_file_base+'test.prototxt')
     print('using trainfile:{} testfile:{}'.format(train_protofile,test_protofile))
 
     with open(train_protofile,'w') as f:
@@ -297,19 +305,11 @@ def run_my_net(nn_dir,train_db,test_db,solver_prototxt,batch_size = 100):
     with open(test_protofile,'w') as g:
         g.write(str(mynet(test_db, batch_size = batch_size)))
         g.close
-    host = socket.gethostname()
-    print('host:'+str(host))
-    if host == 'jr-ThinkPad-X1-Carbon':
-        print('using cpu')
-        pc = True
-        caffe.set_mode_cpu()
-    else:
-        print('using gpu')
-        caffe.set_mode_gpu()
-        caffe.set_device(0)
 
-    solver = caffe.SGDSolver(solver_prototxt)
+    solver = caffe.SGDSolver(proto_file_path)
+    print('k,v all elements shape:')
     print [(k, v.data.shape) for k, v in solver.net.blobs.items()]
+    print('k, v[0] shape:')
     print [(k, v[0].data.shape) for k, v in solver.net.params.items()]
     solver.net.forward()  # train net
     solver.test_nets[0].forward()  # test net (there can be more than one)
@@ -323,7 +323,7 @@ def run_my_net(nn_dir,train_db,test_db,solver_prototxt,batch_size = 100):
 
 
     #%%time
-    niter = 200
+    niter = 10000
     test_interval = 25
     # losses will also be stored in the log
     train_loss = zeros(niter)
@@ -363,6 +363,8 @@ def run_my_net(nn_dir,train_db,test_db,solver_prototxt,batch_size = 100):
         ax1.set_ylabel('train loss')
         ax2.set_ylabel('test accuracy')
         plt.show()
+    print('loss:'+str(train_loss))
+    print('acc:'+str(test_acc))
 
 def load_net(prototxt,caffemodel,mean_B=128,mean_G=128,mean_R=128,image='../../images/female1.jpg',image_width=128,image_height=128,image_depth=3,batch_size=256):
     host = socket.gethostname()
@@ -435,23 +437,21 @@ if __name__ == "__main__":
     db_name = 'pluszero'
     db_name = 'mydb100'
 #    lmdb_utils.kill_db(db_name)
-    generate_db = False
+    generate_db = True
     test_iter = 100
     batch_size = 256  #use powers of 2 for better perf (aupposedly)
 
     if generate_db:
-        n_test_classes,test_populations,image_number_test = lmdb_utils.dir_of_dirs_to_lmdb(db_name,dir_of_dirs,
+        n_test_classes,test_populations,image_number_test = lmdb_utils.interleaved_dir_of_dirs_to_lmdb(db_name,dir_of_dirs,
                                                                                            max_images_per_class =max_images_per_class,test_or_train='test',resize_x=resize_x,resize_y=resize_y)
-        n_train_classes,train_populations,image_number_train = lmdb_utils.dir_of_dirs_to_lmdb(db_name,dir_of_dirs,
+        n_train_classes,train_populations,image_number_train = lmdb_utils.interleaved_dir_of_dirs_to_lmdb(db_name,dir_of_dirs,
                                                                                               max_images_per_class =max_images_per_class,test_or_train='train',resize_x=resize_x,resize_y=resize_y)
         tot_train_samples = np.sum(train_populations)
         tot_test_samples = np.sum(test_populations)
         n_classes = n_test_classes
-        print('trainclasses {} n {} test classes{} n {} testiter {} batch_size {}'.format(n_train_classes,tot_train_samples,n_test_classes,tot_test_samples,test_iter,batch_size))
+        print('trainclasses {} sum {} n {} test classes{} sum {} n {} testiter {} batch_size {}'.format(n_train_classes,tot_train_samples,n_test_classes,tot_test_samples,test_iter,batch_size))
     else:
         n_classes  = 11
-        n_train_classes  = 10
 
-    proto_file = os.path.join(dir_of_dirs,'my_solver.prototxt')
-    write_prototxt(proto_file,test_iter = test_iter,solver_mode=solver_mode)
+
     run_my_net(dir_of_dirs,db_name+'.train',db_name+'.test',proto_file,batch_size = batch_size)
