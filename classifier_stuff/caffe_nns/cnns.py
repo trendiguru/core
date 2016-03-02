@@ -352,6 +352,7 @@ def run_my_net(nn_dir,train_db,test_db,batch_size = 100,n_classes=11):
                 solver.test_nets[0].forward()
                 correct += sum(solver.test_nets[0].blobs['ip2'].data.argmax(1)
                                == solver.test_nets[0].blobs['label'].data)
+            print('correct %:'+str(correct/100))
             test_acc[it // test_interval] = correct / 1e4
 
     if pc:
