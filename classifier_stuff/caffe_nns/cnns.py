@@ -488,6 +488,7 @@ if __name__ == "__main__":
         solver_mode = 'CPU'
     else:
         dir_of_dirs = '/home/jeremy/core/classifier_stuff/caffe_nns/dataset'  #b2
+        dir_of_dirs = '/home/jeremy/core/classifier_stuff/caffe_nns/plusminus_data'  #b2
         max_images_per_class = 10000
         pc = False
         solver_mode = 'GPU'
