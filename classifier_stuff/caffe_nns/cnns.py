@@ -507,21 +507,22 @@ if __name__ == "__main__":
     db_name = 'mydb100'
     db_name = 'plus_zero'
 #    lmdb_utils.kill_db(db_name)
-    generate_db = True
     test_iter = 100
     batch_size = 32  #use powers of 2 for better perf (supposedly)
 
+    generate_db = True
     if generate_db:
         n_test_classes,test_populations,image_number_test = lmdb_utils.interleaved_dir_of_dirs_to_lmdb(db_name,dir_of_dirs,
-                                                                                           max_images_per_class =max_images_per_class,test_or_train='test',resize_x=resize_x,resize_y=resize_y)
+                                                                                           max_images_per_class =max_images_per_class,test_or_train='test',resize_x=resize_x,resize_y=resize_y,
+                                                                                        avg_B=128,avg_G=128,avg_R=128,use_visual_output=False,n_channels=1)
         n_train_classes,train_populations,image_number_train = lmdb_utils.interleaved_dir_of_dirs_to_lmdb(db_name,dir_of_dirs,
-                                                                                              max_images_per_class =max_images_per_class,test_or_train='train',resize_x=resize_x,resize_y=resize_y)
+                                                                                              max_images_per_class =max_images_per_class,test_or_train='train',resize_x=resize_x,resize_y=resize_y,
+                                                                                        avg_B=128,avg_G=128,avg_R=128,use_visual_output=False,n_channels=1)
         tot_train_samples = np.sum(train_populations)
         tot_test_samples = np.sum(test_populations)
         n_classes = n_test_classes
         print('trainclasses {} sum {} n {} test classes{} sum {} n {} testiter {} batch_size {}'.format(n_train_classes,tot_train_samples,image_number_train,n_test_classes,tot_test_samples,image_number_test,test_iter,batch_size))
     else:
         n_classes  = 2
-
 
     run_my_net(dir_of_dirs,db_name+'.train',db_name+'.test',batch_size = batch_size,n_classes=n_classes)

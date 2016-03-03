@@ -140,7 +140,8 @@ def dir_of_dirs_to_lmdb(dbname,dir_of_dirs,test_or_train=None,max_images_per_cla
     return classno, n_for_each_class,image_number
 
 
-def interleaved_dir_of_dirs_to_lmdb(dbname,dir_of_dirs,test_or_train=None,max_images_per_class = 1000,resize_x=None,resize_y=100,avg_B=None,avg_G=None,avg_R=None,resize_w_bb=True,use_visual_output=False,shuffle=True,use_bb_from_name=False):
+def interleaved_dir_of_dirs_to_lmdb(dbname,dir_of_dirs,test_or_train=None,max_images_per_class = 1000,resize_x=None,resize_y=100,avg_B=None,avg_G=None,avg_R=None,
+                                    resize_w_bb=True,use_visual_output=False,shuffle=True,use_bb_from_name=False,n_channels=3):
 # maybe try randomize instead of interleave, cn use del list[index]
     print('writing to lmdb {} test/train {} max {} new_x {} new_y {} avgB {} avg G {} avgR {}'.format(dbname,test_or_train,max_images_per_class,resize_x,resize_y,avg_B,avg_G,avg_R))
     initial_only_dirs = [dir for dir in os.listdir(dir_of_dirs) if os.path.isdir(os.path.join(dir_of_dirs,dir))]
@@ -238,12 +239,15 @@ def interleaved_dir_of_dirs_to_lmdb(dbname,dir_of_dirs,test_or_train=None,max_im
                 img_arr[:,:,1] = img_arr[:,:,1]-avg_G
                 img_arr[:,:,2] = img_arr[:,:,2]-avg_R
             datum = caffe.proto.caffe_pb2.Datum()
-            datum.channels = img_arr.shape[2]
             datum.height = img_arr.shape[0]
             datum.width = img_arr.shape[1]
 #                    img_reshaped = img_arr.reshape((datum.channels,datum.height,datum.width))
 #                    print('reshaped size: '+str(img_reshaped.shape))
             datum.data = img_arr.tobytes()  # or .tostring() if numpy < 1.9
+            if n_channels == 1:  #for grayscale img
+                datum.channels = 1
+                blue_chan = img_arr[:,:,0]
+                datum.data = blue_chan.tobytes()  # or .tostring() if numpy < 1.9
             datum.label = classno
             str_id = '{:08}'.format(image_number)
             print('strid:{} w:{} h:{} d:{} class:{}'.format(str_id,datum.width,datum.height,datum.channels,datum.label))
@@ -258,7 +262,7 @@ def interleaved_dir_of_dirs_to_lmdb(dbname,dir_of_dirs,test_or_train=None,max_im
                 logging.warning('some problem with lmdb:'+str(e))
             print
     env.close()
-    return classno, n_for_each_class,image_number
+    return n_classes, n_for_each_class,image_number
 
 
     #You can also open up and inspect an existing LMDB database from Python:
