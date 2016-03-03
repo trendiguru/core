@@ -5,6 +5,12 @@ import os
 import socket
 from pylab import *
 from trendi.classifier_stuff.caffe_nns import lmdb_utils
+import sys
+import caffe
+import cv2
+import Image
+import matplotlib
+
 
 try:
     import caffe
@@ -267,8 +273,29 @@ def mynet(db, batch_size,n_classes=11  ):
     n.ip1 = L.InnerProduct(n.pool2,param=[dict(lr_mult=lr_mult1),dict(lr_mult=lr_mult2)],num_output=500,weight_filler=dict(type='xavier'))
     n.relu1 = L.ReLU(n.ip1, in_place=True)
     n.ip2 = L.InnerProduct(n.relu1,param=[dict(lr_mult=lr_mult1),dict(lr_mult=lr_mult2)],num_output=n_classes,weight_filler=dict(type='xavier'))
+#    n.accuracy = L.Accuracy(n.ip2,n.label)
     n.loss = L.SoftmaxWithLoss(n.ip2,n.label)
     return n.to_proto()
+
+'''to conditionally include, use
+  include {
+    phase: TRAIN
+  }
+
+(at end)
+  layer {
+  name: "accuracy"
+  type: "Accuracy"
+  bottom: "ip2"
+  bottom: "label"
+  top: "accuracy"
+  include {
+    phase: TEST
+  }
+}
+
+'''
+
 #missing from conv and ip1,2:
     # param {
 #    lr_mult: 1
@@ -411,13 +438,41 @@ def load_net(prototxt,caffemodel,mean_B=128,mean_G=128,mean_R=128,image='../../i
     print 'predicted class is:', output_prob.argmax()
 
 
+def test_net(prototxt,caffemodel, db_path):
+    net = caffe.Net(prototxt, caffemodel,caffe.TEST)
+    caffe.set_mode_cpu()
+    lmdb_env = lmdb.open(db_path)
+    lmdb_txn = lmdb_env.begin()
+    lmdb_cursor = lmdb_txn.cursor()
+    count = 0
+    correct = 0
+    max_to_test = 100
+    for key, value in lmdb_cursor:
+        print "Count:"
+        print count
+        count = count + 1
+        datum = caffe.proto.caffe_pb2.Datum()
+        datum.ParseFromString(value)
+        label = int(datum.label)
+        image = caffe.io.datum_to_array(datum)
+        image = image.astype(np.uint8)
+        out = net.forward_all(data=np.asarray([image]))
+        predicted_label = out['prob'][0].argmax(axis=0)
+        if label == predicted_label[0][0]:
+            correct = correct + 1
+        print("Label is class " + str(label) + ", predicted class is " + str(predicted_label[0][0]))
+        if count == max_to_test:
+            break
+    print(str(correct) + " out of " + str(count) + " were classified correctly")
+
+
 
 if __name__ == "__main__":
     host = socket.gethostname()
     print('host:'+str(host))
     if host == 'jr-ThinkPad-X1-Carbon':
         pc = True
-        dir_of_dirs = '/home/jr/python-packages/trendi/classifier_stuff/caffe_nns/dataset'
+        dir_of_dirs = '/home/jr/python-packages/trendi/classifier_stuff/caffe_nns/plusminus_data'
         max_images_per_class = 1000
         solver_mode = 'CPU'
     else:
@@ -439,10 +494,11 @@ if __name__ == "__main__":
     R=162
     db_name = 'pluszero'
     db_name = 'mydb100'
+    db_name = 'plus_zero'
 #    lmdb_utils.kill_db(db_name)
-    generate_db = False
+    generate_db = True
     test_iter = 100
-    batch_size = 256  #use powers of 2 for better perf (aupposedly)
+    batch_size = 32  #use powers of 2 for better perf (supposedly)
 
     if generate_db:
         n_test_classes,test_populations,image_number_test = lmdb_utils.interleaved_dir_of_dirs_to_lmdb(db_name,dir_of_dirs,
@@ -454,7 +510,7 @@ if __name__ == "__main__":
         n_classes = n_test_classes
         print('trainclasses {} sum {} n {} test classes{} sum {} n {} testiter {} batch_size {}'.format(n_train_classes,tot_train_samples,image_number_train,n_test_classes,tot_test_samples,image_number_test,test_iter,batch_size))
     else:
-        n_classes  = 11
+        n_classes  = 2
 
 
-    run_my_net(dir_of_dirs,db_name+'.train',db_name+'.test',batch_size = batch_size,n_classes=11)
+    run_my_net(dir_of_dirs,db_name+'.train',db_name+'.test',batch_size = batch_size,n_classes=n_classes)

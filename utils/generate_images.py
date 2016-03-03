@@ -71,7 +71,10 @@ def generate_images(img_filename, max_angle = 5,n_angles=10,
     elif n_blurs ==1:
         blurs = [max_blur]
     else:
-         blurs = np.arange(1, max_blur+eps, (max_blur-1)/(n_blurs-1))
+        print('n_blurs-1:' + str(n_blurs-1))
+        rat = float(max_blur)/(n_blurs-1)
+        print('rat:'+str(rat))
+        blurs = np.arange(1, max_blur+eps, rat)
     if n_noises <1:
          n_noises=1
          noise_type=None
@@ -79,6 +82,10 @@ def generate_images(img_filename, max_angle = 5,n_angles=10,
 
     height=img_arr.shape[0]
     width=img_arr.shape[1]
+    if len(img_arr.shape) == 2:
+        depth = img_arr.shape[2]
+    else:
+        depth = 1
     center = (width/2,height/2)
     reflections=[img_arr]
     if do_mirror_lr:
@@ -117,8 +124,10 @@ def generate_images(img_filename, max_angle = 5,n_angles=10,
                                 M[0,2]=M[0,2]+offset_x
                                 M[1,2]=M[1,2]+offset_y
                                 print('M='+str(M))
-                                dest =
-                                xformed_img_arr = cv2.warpAffine(noised,  M, dest, (width,height))
+                                dest = np.ones_like(img_arr) * 255
+#                                xformed_img_arr  = cv2.warpAffine(noised,  M, (width,height),dst=dest,borderMode=cv2.BORDER_TRANSPARENT)
+                                xformed_img_arr  = cv2.warpAffine(noised,  M, (width,height),dst=dest,borderMode=cv2.BORDER_REPLICATE)
+                                xformed_img_arr = dest
                                 name = filename[0:-4]+'_ref{0}dx{1}dy{2}rot{3}scl{4}n{5}b{6}'.format(n_reflection,offset_x,offset_y,angle,scale,i,blur)+'.jpg'
                                 if output_dir is not None:
                                     full_name = os.path.join(output_dir,name)

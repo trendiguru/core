@@ -140,7 +140,7 @@ def dir_of_dirs_to_lmdb(dbname,dir_of_dirs,test_or_train=None,max_images_per_cla
     return classno, n_for_each_class,image_number
 
 
-def interleaved_dir_of_dirs_to_lmdb(dbname,dir_of_dirs,test_or_train=None,max_images_per_class = 1000,resize_x=128,resize_y=128,avg_B=None,avg_G=None,avg_R=None,resize_w_bb=True,use_visual_output=False,shuffle=True):
+def interleaved_dir_of_dirs_to_lmdb(dbname,dir_of_dirs,test_or_train=None,max_images_per_class = 1000,resize_x=None,resize_y=100,avg_B=None,avg_G=None,avg_R=None,resize_w_bb=True,use_visual_output=False,shuffle=True,use_bb_from_name=False):
 # maybe try randomize instead of interleave, cn use del list[index]
     print('writing to lmdb {} test/train {} max {} new_x {} new_y {} avgB {} avg G {} avgR {}'.format(dbname,test_or_train,max_images_per_class,resize_x,resize_y,avg_B,avg_G,avg_R))
     initial_only_dirs = [dir for dir in os.listdir(dir_of_dirs) if os.path.isdir(os.path.join(dir_of_dirs,dir))]
@@ -218,7 +218,10 @@ def interleaved_dir_of_dirs_to_lmdb(dbname,dir_of_dirs,test_or_train=None,max_im
                 logging.warning('skipping due to zero width or height:'+fullname)
                 continue
             if(resize_x is not None):
-                resized = imutils.resize_and_crop_image_using_bb(fullname, output_file=cropped_name,output_w=resize_x,output_h=resize_y,use_visual_output=use_visual_output)
+                if use_bb_from_name:
+                    resized = imutils.resize_and_crop_image_using_bb(fullname, output_file=cropped_name,output_w=resize_x,output_h=resize_y,use_visual_output=use_visual_output)
+                else:
+                    resized = cv2.resize(img_arr,(resize_x,resize_y))
                 if resized is not None:
                     img_arr = resized
                 else:
@@ -260,7 +263,7 @@ def interleaved_dir_of_dirs_to_lmdb(dbname,dir_of_dirs,test_or_train=None,max_im
 
     #You can also open up and inspect an existing LMDB database from Python:
 # assuming here that dataum.data, datum.channels, datum.width etc all exist as in dir_of_dirs_to_lmdb
-def inspect_db(dbname,show_visual_output=True,B=128,G=128,R=128):
+def inspect_db(dbname,show_visual_output=True,B=0,G=0,R=0):
     env = lmdb.open(dbname, readonly=True)
     with env.begin() as txn:
         n=0
@@ -281,12 +284,11 @@ def inspect_db(dbname,show_visual_output=True,B=128,G=128,R=128):
                 x[:,:,1] = x[:,:,1]+G
                 x[:,:,2] = x[:,:,2]+R
                 y = datum.label
- #               print('datum:'+str(datum))
-#                print('image# {} data {} class {} width {} height {} chan {}'.format(n,x,y,datum.width,datum.height,datum.channels))
                 print('image# {} datasize {} class {} width {} height {} chan {}'.format(n,x.shape,y,datum.width,datum.height,datum.channels))
-#'testdb.test'                print(' data size {}'.format(x.shape))
-                #Iterating <key, value> pairs is also easy:
-#                raw_input('enter to continue (n={})'.format(n))
+
+#now try opening as caffe would
+
+
                 n+=1
                 if show_visual_output is True:
                     cv2.imshow('out',x)
