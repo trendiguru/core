@@ -95,7 +95,7 @@ def write_prototxt(proto_filename,test_iter = 9,solver_mode='GPU'):
     prototxt ={ 'train_net':train_file,
                         'test_net': test_file,
                         'test_iter': test_iter,
-                        'test_interval': 500,
+                        'test_interval': 200,
                         'base_lr': 0.01,
                         'momentum': 0.9,
                         'weight_decay': 0.0005,
@@ -164,6 +164,17 @@ def lenet(lmdb, batch_size):  #test_iter * batch_size <= n_samples!!!
  # param {
   #  lr_mult: 2
   #}
+'''
+}
+layer {
+  name: "accuracy"
+  type: "Accuracy"
+  bottom: "ip2"
+  bottom: "label"
+  top: "accuracy"
+}
+
+'''
 
 
 

@@ -286,12 +286,9 @@ def inspect_db(dbname,show_visual_output=True,B=0,G=0,R=0):
                 y = datum.label
                 print('image# {} datasize {} class {} width {} height {} chan {}'.format(n,x.shape,y,datum.width,datum.height,datum.channels))
 
-#now try opening as caffe would
-
-
                 n+=1
                 if show_visual_output is True:
-                    cv2.imshow('out',x)
+                    cv2.imshow('lmdbout',x)
                     if cv2.waitKey(0) == ord('q'):
                         break
             except:
