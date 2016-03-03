@@ -8,8 +8,8 @@ from trendi.classifier_stuff.caffe_nns import lmdb_utils
 import sys
 import caffe
 import cv2
-import Image
-import matplotlib
+#import Image
+#import matplotlib
 
 
 try:
@@ -392,7 +392,7 @@ def run_my_net(nn_dir,train_db,test_db,batch_size = 64,n_classes=11):
                 correct += sum(solver.test_nets[0].blobs['ip2'].data.argmax(1)
                                == solver.test_nets[0].blobs['label'].data)
             percent_correct = float(correct)/(n_sample*batch_size)
-            print('correct %:'+str(percent_correct))
+            print('correct {} n {} batchsize {} %{}:'.format(correct,n_sample,len(solver.test_nets[0].blobs['label'].data), percent_correct))
             test_acc[it // test_interval] = percent_correct
 
     if pc:
