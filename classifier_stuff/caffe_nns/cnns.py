@@ -484,12 +484,12 @@ if __name__ == "__main__":
     if host == 'jr-ThinkPad-X1-Carbon':
         pc = True
         dir_of_dirs = '/home/jr/python-packages/trendi/classifier_stuff/caffe_nns/plusminus_data'
-        max_images_per_class = 1000
+        max_images_per_class = 10000
         solver_mode = 'CPU'
     else:
         dir_of_dirs = '/home/jeremy/core/classifier_stuff/caffe_nns/dataset'  #b2
         dir_of_dirs = '/home/jeremy/core/classifier_stuff/caffe_nns/plusminus_data'  #b2
-        max_images_per_class = 10000
+        max_images_per_class = 100000
         pc = False
         solver_mode = 'GPU'
 

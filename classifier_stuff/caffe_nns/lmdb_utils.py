@@ -196,13 +196,13 @@ def interleaved_dir_of_dirs_to_lmdb(dbname,dir_of_dirs,test_or_train=None,max_im
             # do only test or train dirs if this param was sent
             a_dir = only_dirs[classno]
             fulldir = os.path.join(dir_of_dirs,a_dir)
-            print('fulldir:'+str(fulldir))
+#            print('fulldir:'+str(fulldir))
             only_files = all_files[a_dir]
             n = len(only_files)
             if image_number_in_class >= n:
                 print('reached end of images in '+a_dir+' which has '+str(n)+' files, skipping to next class')
                 continue
-            print('n files {} in {} current {} class {}'.format(n,a_dir,image_number_in_class,classno))
+   #         print('n files {} in {} current {} class {}'.format(n,a_dir,image_number_in_class,classno),end='')
             a_file =only_files[image_number_in_class]
             fullname = os.path.join(fulldir,a_file)
             cropped_dir= os.path.join(fulldir,'cropped')
@@ -230,7 +230,7 @@ def interleaved_dir_of_dirs_to_lmdb(dbname,dir_of_dirs,test_or_train=None,max_im
                     continue  #didnt do good resize
             h=img_arr.shape[0]
             w=img_arr.shape[1]
-            print('img {} after resize w:{} h:{} (before was {}x{} name:{}'.format(image_number, h,w,h_orig,w_orig,fullname))
+#            print('img {} after resize w:{} h:{} (before was {}x{} name:{}'.format(image_number, h,w,h_orig,w_orig,fullname))
             if use_visual_output is True:
                 cv2.imshow('img',img_arr)
                 cv2.waitKey(0)
@@ -250,7 +250,7 @@ def interleaved_dir_of_dirs_to_lmdb(dbname,dir_of_dirs,test_or_train=None,max_im
                 datum.data = blue_chan.tobytes()  # or .tostring() if numpy < 1.9
             datum.label = classno
             str_id = '{:08}'.format(image_number)
-            print('strid:{} w:{} h:{} d:{} class:{}'.format(str_id,datum.width,datum.height,datum.channels,datum.label))
+            print('strid:{} w:{} h:{} d:{} class:{}'.format(str_id,datum.width,datum.height,datum.channels,datum.label)),
             # The encode is only essential in Python 3
             try:
                 txn.put(str_id.encode('ascii'), datum.SerializeToString())
