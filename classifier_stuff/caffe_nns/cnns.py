@@ -265,7 +265,10 @@ def mynet(db, batch_size,n_classes=11,meanB=128,meanG=128,meanR=128  ):
     lr_mult1 = 1
     lr_mult2 = 2
     n=caffe.NetSpec()
-    n.data,n.label=L.Data(batch_size=batch_size,backend=P.Data.LMDB,source=db,transform_param=dict(scale=1./255,mean_value=meanB),ntop=2)
+    if meanB:
+        n.data,n.label=L.Data(batch_size=batch_size,backend=P.Data.LMDB,source=db,transform_param=dict(scale=1./255,mean_value=meanB),ntop=2)
+    else:
+        n.data,n.label=L.Data(batch_size=batch_size,backend=P.Data.LMDB,source=db,transform_param=dict(scale=1./255),ntop=2)
 
 #    n.conv1 = L.Convolution(n.data,kernel_size=5,stride = 1, num_output=50,weight_filler=dict(type='xavier'))
     n.conv1 = L.Convolution(n.data,param=[dict(lr_mult=lr_mult1),dict(lr_mult=lr_mult2)],
