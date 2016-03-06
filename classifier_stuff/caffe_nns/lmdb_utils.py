@@ -253,6 +253,8 @@ def interleaved_dir_of_dirs_to_lmdb(dbname,dir_of_dirs,test_or_train=None,max_im
                 datum.channels = 1
                 blue_chan = img_arr[:,:,0]
                 datum.data = blue_chan.tobytes()  # or .tostring() if numpy < 1.9
+            else:
+                datum.channels = img_arr.shape[2]
             datum.label = classno
             str_id = '{:08}'.format(image_number)
             print('strid:{} w:{} h:{} d:{} class:{} name {}'.format(str_id,datum.width,datum.height,datum.channels,datum.label,a_file)),
