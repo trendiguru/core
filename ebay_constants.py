@@ -40,4 +40,9 @@ blacklist_categories =['Sleepwear', 'Shapewear','Slips','Bedding','Lingerie','Ca
 'intimates','school','perfume','earrings','anklets','wallets','rings','kimono','Dogs','Cats','Vehicles','scarf',
 'poncho','ring','gown','HIDDEN','Shawls','Raincoats','Graphics','Gymgo','Auto','Wigs','DEFAULT','Mannequins','Forms',
 'Hardware','Sleep','Maternity','Earmuffs','Earwarmers','Veils','Handkerchiefs','Phones','Mittens','Umbrellas','Cycling',
-'Headpieces','Doctors','Pet','Animals','Skating']
+'Headpieces','Doctors','Pet','Animals','Skating', 'bras', 'bra']
+
+categories_keywords = ['Pants', 'Shirts', 'T-Shirts', 'Dress', 'Dresses', 'Swim', 'Suit', 'Shoes', 'Botts', 'Skirt',
+'Shorts', 'Coats', 'Leggings', 'shorts', 'blazers', 'tees', 'tshirts', 'jeans', 'Tops','Polo','cardigan', 'jackets',
+'vests', 'sweaters', 'sweatshirts', 'jacket', 'vest', 'sweater','sweatshirt', 'skirts','top', 'coat', 'hills',
+'Hoodie', 'Tee', 'swimsuit', 'bikinis', 'bikini']
