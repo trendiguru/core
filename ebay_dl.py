@@ -17,25 +17,27 @@ import gzip
 import csv
 import time
 import datetime
+import re
 from . import constants
+from . import ebay_constants
 db = constants.db
 db.ebay_Female.delete_many({})
-db.ebay_Male.delete_many({})
-db.ebay_Unisex.delete_many({})
+# db.ebay_Male.delete_many({})
+# db.ebay_Unisex.delete_many({})
 today_date = str(datetime.datetime.date(datetime.datetime.now()))
 
-ebaysNotRelevant = []
-b = open("/home/developer/python-packages/trendi/Yonti/ebay_blacklist.txt",'r')
-for store in b:
-    if store not in ebaysNotRelevant:
-        ebaysNotRelevant.append(store)
+ebaysNotRelevant = ebay_constants.blacklist_stores
+# b = open("/home/developer/python-packages/trendi/Yonti/ebay_blacklist.txt",'r')
+# for store in b:
+#     if store not in ebaysNotRelevant:
+#         ebaysNotRelevant.append(store)
 
 # manual check [20478,
 # fills our generic dictionary with the info from ebay
-def ebay2generic(item):
+def ebay2generic(item, subcats):
     try:
         generic = {"id": item["\xef\xbb\xbfOFFER_ID"],
-                   "categories": item["ORIG_MERCHANT_CATEGORY_NAME"],
+                   "categories": subcats,
                    "clickUrl": item["OFFER_URL_MIN_CATEGORY_BID"],
                    "images": item["IMAGE_URL"],
                    "status": {"instock" : True, "days_out" : 0},
@@ -67,6 +69,19 @@ def ftp_connection(params):
     ftp.login(user=params["user"], passwd=params["password"])
     return ftp
 
+def title2category(title):
+    TITLE= title.upper()
+    split1 = re.split(' |-', TITLE)
+    cats = []
+    for s in split1:
+        if s in ebay_constants.categories_keywords:
+            cats.append(s)
+        elif s in ebay_constants.blacklist_categories:
+            return []
+        else:
+            pass
+    return cats
+
 start_time = time.time()
 #connecting to FTP
 # username, passwd are for the US - for other countries check the bottom
@@ -85,7 +100,7 @@ for line in data:
 
 #remove not relevant stores/files
 for store in ebaysNotRelevant:
-    fullname= store +".txt.gz"
+    fullname= str(store) +".txt.gz"
     if fullname in files:
         files.remove(fullname)
 
@@ -122,15 +137,15 @@ for filename in files:
     for item in items:
         # verify right category
         mainCategory = item["CATEGORY_NAME"]
-        if mainCategory != "Clothing":
+        gender = item["GENDER"]
+        if mainCategory != "Clothing" or gender !='Female':
             continue
-        subCategory = item["ORIG_MERCHANT_CATEGORY_NAME"]
-        if subCategory not in categories:
-            categories.append(subCategory)
+        subCategorys = title2category(item["OFFER_TITLE"])
+        if len(subCategorys)<1:
+            continue
         itemCount +=1
         #needs to add search for id and etc...
-        gender = item["GENDER"]
-        generic_dict = ebay2generic(item)
+        generic_dict = ebay2generic(item, subCategorys)
         if gender == "Female":
             db.ebay_Female.insert_one(generic_dict)
         elif gender == "Male":
