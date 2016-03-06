@@ -533,9 +533,9 @@ if __name__ == "__main__":
     db_name = 'mydb200'
 #    lmdb_utils.kill_db(db_name)
     test_iter = 100
-    batch_size = 32  #use powers of 2 for better perf (supposedly)
+    batch_size = 256  #use powers of 2 for better perf (supposedly)
 
-    generate_db = True
+    generate_db = False
     if generate_db:
         n_test_classes,test_populations,image_number_test = lmdb_utils.interleaved_dir_of_dirs_to_lmdb(db_name,dir_of_dirs,
                                                                                            max_images_per_class =max_images_per_class,test_or_train='test',resize_x=resize_x,resize_y=resize_y,
