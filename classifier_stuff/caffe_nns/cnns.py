@@ -523,7 +523,7 @@ if __name__ == "__main__":
     R=162
     db_name = 'pluszero'
     db_name = 'plus_zero'
-    db_name = 'mydb100'
+    db_name = 'mydb200'
 #    lmdb_utils.kill_db(db_name)
     test_iter = 100
     batch_size = 32  #use powers of 2 for better perf (supposedly)
