@@ -135,8 +135,8 @@ def generate_images(img_filename, max_angle = 5,n_angles=10,
                                 else:
                                     full_name = os.path.join(orig_path,name)
                                 print('name:'+str(full_name))
+                                cv2.imwrite(full_name, xformed_img_arr)
                                 if show_visual_output:
-                                    cv2.imwrite(full_name, xformed_img_arr)
                                     cv2.imshow('xformed',xformed_img_arr)
                                     k = cv2.waitKey(0)
                           #  raw_input('enter to cont')
