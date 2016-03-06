@@ -130,6 +130,7 @@ def generate_images(img_filename, max_angle = 5,n_angles=10,
                                 xformed_img_arr  = cv2.warpAffine(noised,  M, (width,height),dst=dest,borderMode=cv2.BORDER_REPLICATE)
                                 xformed_img_arr = dest
                                 name = filename[0:-4]+'_ref{0}dx{1}dy{2}rot{3}scl{4}n{5}b{6}'.format(n_reflection,offset_x,offset_y,angle,scale,i,blur)+'.jpg'
+                                name = filename[0:-4]+'_ref%ddx%ddy%drot%.2fscl%.2fn%db%.2f' % (n_reflection,offset_x,offset_y,angle,scale,i,blur)+'.jpg'
                                 if output_dir is not None:
                                     full_name = os.path.join(output_dir,name)
                                 else:

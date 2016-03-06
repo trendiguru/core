@@ -517,7 +517,7 @@ if __name__ == "__main__":
     test_iter = 100
     batch_size = 32  #use powers of 2 for better perf (supposedly)
 
-    generate_db = False
+    generate_db = True
     if generate_db:
         n_test_classes,test_populations,image_number_test = lmdb_utils.interleaved_dir_of_dirs_to_lmdb(db_name,dir_of_dirs,
                                                                                            max_images_per_class =max_images_per_class,test_or_train='test',resize_x=resize_x,resize_y=resize_y,
