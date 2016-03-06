@@ -32,18 +32,21 @@ blacklist_stores = [20478,301443,301740,304078,304080,304563,304769,304973,30560
 303278,304025,303152,300625,301216,301142,301216,301336,301502,301650,302024,302108,302256,302539,303329,308473,307846,
 307281,309405,315072,328843,455011,455079,456694,459861,463405,464743,468327,471434,468805,410435,462102,463406,463947]
 
-blacklist_categories =['Sleepwear', 'Shapewear','Slips','Bedding','Lingerie','Camisoles','Jewelry','Sports','Watches',
-'Perfumes','Colognes','Health','Toys','Sunglasses','Cosmetics','Luggage','Media','Supplies','Musical','Pens','Pencils',
-'Compacts','Vases','Panties','Pajamas','Robes','Socks','Hats','Headwear','Arts','Cellular','Children','scarves',
-'Gloves','Winter_Gloves','Handbags','kitchen','Electronics','bike','underwear','Furniture','Birds','keychains','cheer',
-'pom','nightgowns','chemises','scrub','scrubs','bathrobes','bracelets','pantyhose','Childrens','Wristlets','Clutches',
-'intimates','school','perfume','earrings','anklets','wallets','rings','kimono','Dogs','Cats','Vehicles','scarf',
-'poncho','ring','gown','HIDDEN','Shawls','Raincoats','Graphics','Gymgo','Auto','Wigs','DEFAULT','Mannequins','Forms',
-'Hardware','Sleep','Maternity','Earmuffs','Earwarmers','Veils','Handkerchiefs','Phones','Mittens','Umbrellas','Cycling',
-'Headpieces','Doctors','Pet','Animals','Skating', 'bras', 'bra', 'Hosiery']
+blacklist_categories = ['SLEEPWEAR', 'SHAPEWEAR', 'SLIPS', 'BEDDING', 'LINGERIE', 'CAMISOLES', 'JEWELRY', 'SPORTS',
+                        'WATCHES', 'PERFUMES', 'COLOGNES', 'HEALTH', 'TOYS', 'SUNGLASSES', 'COSMETICS', 'LUGGAGE',
+                        'MEDIA', 'SUPPLIES', 'MUSICAL', 'PENS', 'PENCILS', 'COMPACTS', 'VASES', 'PANTIES', 'PAJAMAS',
+                        'ROBES', 'SOCKS', 'HATS', 'HEADWEAR', 'ARTS', 'CELLULAR', 'CHILDREN', 'SCARVES', 'GLOVES',
+                        'WINTER_GLOVES', 'HANDBAGS', 'KITCHEN', 'ELECTRONICS', 'BIKE', 'UNDERWEAR', 'FURNITURE',
+                        'BIRDS', 'KEYCHAINS', 'CHEER', 'POM', 'NIGHTGOWNS', 'CHEMISES', 'SCRUB', 'SCRUBS', 'BATHROBES',
+                        'BRACELETS', 'PANTYHOSE', 'CHILDRENS', 'WRISTLETS', 'CLUTCHES', 'INTIMATES', 'SCHOOL',
+                        'PERFUME', 'EARRINGS', 'ANKLETS', 'WALLETS', 'RINGS', 'KIMONO', 'DOGS', 'CATS', 'VEHICLES',
+                        'SCARF', 'PONCHO', 'RING', 'GOWN', 'HIDDEN', 'SHAWLS', 'RAINCOATS', 'GRAPHICS', 'GYMGO', 'AUTO',
+                        'WIGS', 'DEFAULT', 'MANNEQUINS', 'FORMS', 'HARDWARE', 'SLEEP', 'MATERNITY', 'EARMUFFS',
+                        'EARWARMERS', 'VEILS', 'HANDKERCHIEFS', 'PHONES', 'MITTENS', 'UMBRELLAS', 'CYCLING',
+                        'HEADPIECES', 'DOCTORS', 'PET', 'ANIMALS', 'SKATING', 'BRAS', 'BRA', 'HOSIERY']
 
-categories_keywords = ['Pants', 'Shirts', 'T-Shirts', 'Dress', 'Dresses', 'Swim', 'Suit', 'Shoes', 'Botts', 'Skirt',
-'Shorts', 'Coats', 'Leggings', 'shorts', 'blazers', 'tees', 'tshirts', 'jeans', 'Tops','Polo','cardigan', 'jackets',
-'vests', 'sweaters', 'sweatshirts', 'jacket', 'vest', 'sweater','sweatshirt', 'skirts','top', 'coat', 'hills',
-'Hoodie', 'Tee', 'swimsuit', 'bikinis', 'bikini','capris', 'belt', 'belts','Knits', 'Blouses', 'romper', 'rompers',
-'shirt', 'Loafers', 'Moccasins']
+categories_keywords = ['PANTS', 'SHIRTS', 'T-SHIRTS', 'DRESS', 'DRESSES', 'SWIM', 'SUIT', 'SHOES', 'BOOTS', 'SKIRT',
+                       'SHORTS', 'COATS', 'LEGGINGS', 'SHORTS', 'BLAZERS', 'TEES', 'TSHIRTS', 'JEANS', 'TOPS', 'POLO',
+                       'CARDIGAN', 'JACKETS', 'VESTS', 'SWEATERS', 'SWEATSHIRTS', 'JACKET', 'VEST', 'SWEATER',
+                       'SWEATSHIRT', 'SKIRTS', 'TOP', 'COAT', 'HILLS', 'HOODIE', 'TEE', 'SWIMSUIT', 'BIKINIS','BIKINI','CAPRIS','BELT','BELTS',
+                       'KNITS','BLOUSES','ROMPER','ROMPERS','SHIRT','LOAFERS','MOCCASINS']

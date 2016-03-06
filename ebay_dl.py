@@ -27,6 +27,7 @@ db.ebay_Female.delete_many({})
 today_date = str(datetime.datetime.date(datetime.datetime.now()))
 
 ebaysNotRelevant = ebay_constants.blacklist_stores
+
 # b = open("/home/developer/python-packages/trendi/Yonti/ebay_blacklist.txt",'r')
 # for store in b:
 #     if store not in ebaysNotRelevant:
