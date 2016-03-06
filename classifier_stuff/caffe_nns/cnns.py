@@ -548,6 +548,6 @@ if __name__ == "__main__":
         n_classes = n_test_classes
         print('trainclasses {} sum {} n {} test classes{} sum {} n {} testiter {} batch_size {}'.format(n_train_classes,tot_train_samples,image_number_train,n_test_classes,tot_test_samples,image_number_test,test_iter,batch_size))
     else:
-        n_classes  = 2
+        n_classes  = 11
 
     run_my_net(dir_of_dirs,db_name+'.train',db_name+'.test',batch_size = batch_size,n_classes=n_classes,meanB=B,meanR=R,meanG=G)
