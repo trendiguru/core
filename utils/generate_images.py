@@ -102,9 +102,9 @@ def generate_images(img_filename, max_angle = 5,n_angles=10,
         mirror_image = cv2.flip(fimg,0)
         mirror_image = cv2.flip(mirror_image,1)
         reflections.append(mirror_image)
-
-    cv2.imshow('orig',img_arr)
-    k = cv2.waitKey(0)
+    if show_visual_output:
+        cv2.imshow('orig',img_arr)
+        k = cv2.waitKey(0)
     #SO CLEANNNN
     for n_reflection in range(0,len(reflections)):
         for offset_x in offsets_x:
