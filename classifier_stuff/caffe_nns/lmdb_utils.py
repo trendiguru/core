@@ -11,6 +11,9 @@ from PIL import Image
 from trendi.utils import imutils
 from trendi import Utils
 import random
+import logging
+
+logging.basicConfig(level=logging.DEBUG)
 
 #shellscript for mean comp:
 #TOOLS=/home/ubuntu/repositories/caffe/build/tools
@@ -88,7 +91,12 @@ def dir_of_dirs_to_lmdb(dbname,dir_of_dirs,test_or_train=None,max_images_per_cla
                     w_orig=img_arr.shape[1]
                     if(resize_x is not None):
 #                            img_arr = imutils.resize_and_crop_image(img_arr, output_side_length = resize_x)
-                        img_arr = imutils.resize_and_crop_image_using_bb(fullname, output_file=cropped_name,output_w=resize_x,output_h=resize_y,use_visual_output=use_visual_output)
+                        resized = imutils.resize_and_crop_image_using_bb(fullname, output_file=cropped_name,output_w=resize_x,output_h=resize_y,use_visual_output=use_visual_output)
+                        if resized is not None:
+                            img_arr = resized
+                        else:
+                            print('resize failed')
+                            continue  #didnt do good resize
                     h=img_arr.shape[0]
                     w=img_arr.shape[1]
                     print('img {} after resize w:{} h:{} (before was {}x{} name:{}'.format(image_number, h,w,h_orig,w_orig,fullname))
@@ -129,11 +137,137 @@ def dir_of_dirs_to_lmdb(dbname,dir_of_dirs,test_or_train=None,max_images_per_cla
             classno += 1
             n_for_each_class.append(image_number_in_class)
     env.close()
-    return classno, n_for_each_class
+    return classno, n_for_each_class,image_number
+
+
+def interleaved_dir_of_dirs_to_lmdb(dbname,dir_of_dirs,test_or_train=None,max_images_per_class = 1000,resize_x=None,resize_y=100,avg_B=None,avg_G=None,avg_R=None,
+                                    resize_w_bb=True,use_visual_output=False,shuffle=True,use_bb_from_name=False,n_channels=3):
+# maybe try randomize instead of interleave, cn use del list[index]
+    print('writing to lmdb {} test/train {} max {} new_x {} new_y {} avgB {} avg G {} avgR {}'.format(dbname,test_or_train,max_images_per_class,resize_x,resize_y,avg_B,avg_G,avg_R))
+    initial_only_dirs = [dir for dir in os.listdir(dir_of_dirs) if os.path.isdir(os.path.join(dir_of_dirs,dir))]
+    initial_only_dirs.sort()
+ #   print(str(len(initial_only_dirs))+' dirs:'+str(initial_only_dirs)+' in '+dir_of_dirs)
+    # txn is a Transaction object
+    only_dirs = []
+    for a_dir in initial_only_dirs:
+        if (not test_or_train) or a_dir[0:4]==test_or_train[0:4]:
+            #open and close db every class to cut down on memory
+            #maybe this is irrelevant and we can do this once
+            only_dirs.append(a_dir)
+    only_dirs.sort()
+    print(str(len(only_dirs))+' relevant dirs in '+dir_of_dirs)
+
+#    random.shuffle(only_dirs)  #this gets confusing as now the class labels change every time
+    n_classes = len(only_dirs)
+    print('{} classes'.format(n_classes))
+    all_files = {}
+    classno = 0
+    for a_dir in only_dirs:
+        # do only test or train dirs if this param was sent
+        fulldir = os.path.join(dir_of_dirs,a_dir)
+        print('class:'+str(classno)+' dir:'+str(fulldir))
+        only_files = [f for f in os.listdir(fulldir) if os.path.isfile(os.path.join(fulldir, f))]
+        all_files[a_dir] = only_files
+        classno += 1
+
+    map_size = 1e13  #size of db in bytes, can also be done by 10X actual size  as in:
+    # We need to prepare the database for the size. We'll set it 10 times
+    # greater than what we theoretically need. There is little drawback to
+    # setting this too big. If you still run into problem after raising
+    # this, you might want to try saving fewer entries in a single
+    # transaction.
+#    map_size = X.nbytes * 10
+
+    if test_or_train:
+        dbname = dbname+'.'+test_or_train
+    print('writing to db:'+dbname)
+    classno = -1
+    image_number =0
+    image_number_in_class = 0
+    n_for_each_class = np.zeros(n_classes)
+    env = lmdb.open(dbname, map_size=map_size)
+    with env.begin(write=True) as txn:      # txn is a Transaction object
+        while image_number_in_class<max_images_per_class:
+    #        raw_input('enter to continue')
+            classno += 1
+            if classno == n_classes:
+                classno = 0
+                image_number_in_class += 1
+            # do only test or train dirs if this param was sent
+            a_dir = only_dirs[classno]
+            fulldir = os.path.join(dir_of_dirs,a_dir)
+#            print('fulldir:'+str(fulldir))
+            only_files = all_files[a_dir]
+            n = len(only_files)
+            if image_number_in_class >= n:
+                print('reached end of images in '+a_dir+' which has '+str(n)+' files, skipping to next class')
+                continue
+   #         print('n files {} in {} current {} class {}'.format(n,a_dir,image_number_in_class,classno),end='')
+            a_file =only_files[image_number_in_class]
+            fullname = os.path.join(fulldir,a_file)
+            cropped_dir= os.path.join(fulldir,'cropped')
+            Utils.ensure_dir(cropped_dir)
+            cropped_name= os.path.join(cropped_dir,'cropped_'+a_file)
+            #img_arr = mpimg.imread(fullname)  #if you don't have cv2 handy use matplotlib
+            img_arr = cv2.imread(fullname)
+            if img_arr is  None:
+                logging.warning('could not read:'+fullname)
+                continue
+            h_orig=img_arr.shape[0]
+            w_orig=img_arr.shape[1]
+            if h_orig ==0 or w_orig == 0:
+                logging.warning('skipping due to zero width or height:'+fullname)
+                continue
+            if(resize_x is not None):
+                if use_bb_from_name:
+                    resized = imutils.resize_and_crop_image_using_bb(fullname, output_file=cropped_name,output_w=resize_x,output_h=resize_y,use_visual_output=use_visual_output)
+                else:
+                    resized = cv2.resize(img_arr,(resize_x,resize_y))
+                if resized is not None:
+                    img_arr = resized
+                else:
+                    logging.warning('resize failed')
+                    continue  #didnt do good resize
+            h=img_arr.shape[0]
+            w=img_arr.shape[1]
+#            print('img {} after resize w:{} h:{} (before was {}x{} name:{}'.format(image_number, h,w,h_orig,w_orig,fullname))
+            if use_visual_output is True:
+                cv2.imshow('img',img_arr)
+                cv2.waitKey(0)
+            if avg_B is not None and avg_G is not None and avg_R is not None:
+                img_arr[:,:,0] = img_arr[:,:,0]-avg_B
+                img_arr[:,:,1] = img_arr[:,:,1]-avg_G
+                img_arr[:,:,2] = img_arr[:,:,2]-avg_R
+            datum = caffe.proto.caffe_pb2.Datum()
+            datum.height = img_arr.shape[0]
+            datum.width = img_arr.shape[1]
+#                    img_reshaped = img_arr.reshape((datum.channels,datum.height,datum.width))
+#                    print('reshaped size: '+str(img_reshaped.shape))
+            datum.data = img_arr.tobytes()  # or .tostring() if numpy < 1.9
+            if n_channels == 1:  #for grayscale img
+                datum.channels = 1
+                blue_chan = img_arr[:,:,0]
+                datum.data = blue_chan.tobytes()  # or .tostring() if numpy < 1.9
+            datum.label = classno
+            str_id = '{:08}'.format(image_number)
+            print('strid:{} w:{} h:{} d:{} class:{}'.format(str_id,datum.width,datum.height,datum.channels,datum.label)),
+            # The encode is only essential in Python 3
+            try:
+                txn.put(str_id.encode('ascii'), datum.SerializeToString())
+    #            in_txn.put('{:0>10d}'.format(in_idx), im_dat.SerializeToString())
+                image_number += 1
+                n_for_each_class[classno] += 1
+            except:
+                e = sys.exc_info()[0]
+                logging.warning('some problem with lmdb:'+str(e))
+            print
+    env.close()
+    return n_classes, n_for_each_class,image_number
+
 
     #You can also open up and inspect an existing LMDB database from Python:
 # assuming here that dataum.data, datum.channels, datum.width etc all exist as in dir_of_dirs_to_lmdb
-def inspect_db(dbname,show_visual_output=True,B=128,G=128,R=128):
+def inspect_db(dbname,show_visual_output=True,B=0,G=0,R=0):
     env = lmdb.open(dbname, readonly=True)
     with env.begin() as txn:
         n=0
@@ -154,16 +288,13 @@ def inspect_db(dbname,show_visual_output=True,B=128,G=128,R=128):
                 x[:,:,1] = x[:,:,1]+G
                 x[:,:,2] = x[:,:,2]+R
                 y = datum.label
- #               print('datum:'+str(datum))
-#                print('image# {} data {} class {} width {} height {} chan {}'.format(n,x,y,datum.width,datum.height,datum.channels))
                 print('image# {} datasize {} class {} width {} height {} chan {}'.format(n,x.shape,y,datum.width,datum.height,datum.channels))
-#'testdb.test'                print(' data size {}'.format(x.shape))
-                #Iterating <key, value> pairs is also easy:
-#                raw_input('enter to continue (n={})'.format(n))
+
                 n+=1
                 if show_visual_output is True:
-                    cv2.imshow('out',x)
-                    cv2.waitKey(0)
+                    cv2.imshow('lmdbout',x)
+                    if cv2.waitKey(0) == ord('q'):
+                        break
             except:
                 print('error getting record {} from db'.format(n))
                 break
@@ -199,19 +330,20 @@ def crude_lmdb():
 def kill_db(db_name):
     print('ABOUT TO DELETE DB '+str(db_name)+'!!!!')
     raw_input('press enter to continue or ctrl-C to not')
-    env = lmdb.open(db_name, readonly=False)
-    txn = lmdb.Transaction(env)
-    txn.drop(db_name,delete=True)
-    #print('retval from drop='+str(retval))
+    in_db = lmdb.open(db_name)
+    with in_db.begin(write=True) as in_txn:
+        db = in_db.open_db()
+        in_txn.drop(db)
+        print in_txn.stat()
 
 if __name__ == "__main__":
     dir_of_dirs = '/home/jeremy/core/classifier_stuff/caffe_nns/dataset'
     dir_of_dirs = '/home/jr/python-packages/trendi/classifier_stuff/caffe_nns/dataset'
     print('dir:'+dir_of_dirs)
 #    h,w,d,B,G,R,n = imutils.image_stats_from_dir_of_ditestrs(dir_of_dirs)
-    resize_x = 128
+    resize_x = 200
     #resize_y = int(h*128/w)
-    resize_y=200
+    resize_y= 100
    # B=int(B)
    # G=int(G)
     #R=int(R)
@@ -220,11 +352,13 @@ if __name__ == "__main__":
     R=162
 #    kill_db('testdb.test')
  #   kill_db('testdb.train')
-    n_test_classes,test_populations = dir_of_dirs_to_lmdb('mydb',dir_of_dirs,max_images_per_class =50,test_or_train='test',resize_x=resize_x,resize_y=resize_y,avg_B=B,avg_G=G,avg_R=R)
-    n_train_classes,train_populations = dir_of_dirs_to_lmdb('mydb',dir_of_dirs,max_images_per_class =50,test_or_train='train',resize_x=resize_x,resize_y=resize_y,avg_B=B,avg_G=G,avg_R=R)
-    print('{} test classes with {} files'.format(n_test_classes,test_populations))
-    print('{} train classes with {} files'.format(n_train_classes,train_populations))
-  #  inspect_db('mydb.test',show_visual_output=False,B=B,G=G,R=R)
+    db = 'mydb2'
+    use_visual_output = False
+    n_test_classes,test_populations,test_imageno = interleaved_dir_of_dirs_to_lmdb('mydb2',dir_of_dirs,max_images_per_class =150,test_or_train='test',resize_x=resize_x,resize_y=resize_y,avg_B=B,avg_G=G,avg_R=R,use_visual_output=use_visual_output)
+#    n_train_classes,train_populations,train_imageno = interleaved_dir_of_dirs_to_lmdb('mydb2',dir_of_dirs,max_images_per_class =150,test_or_train='train',resize_x=resize_x,resize_y=resize_y,avg_B=B,avg_G=G,avg_R=R)
+   # print('{} test classes with {} files'.format(n_test_classes,test_populations))
+   # print('{} train classes with {} files'.format(n_train_classes,train_populations))
+    inspect_db(db+'.test',show_visual_output=True,B=B,G=G,R=R)
    # inspect_db('mydb.train',show_visual_output=False,B=B,G=G,R=R)
 
 #  weighted averages of 16 directories: h:1742.51040222 w1337.66435506 d3.0 B 142.492848614 G 151.617458606 R 162.580921717 totfiles 1442
