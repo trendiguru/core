@@ -10,7 +10,8 @@ def generate_images(img_filename, max_angle = 5,n_angles=10,
                     max_scale=1.2, n_scales=1,
                     noise_level=0.05,n_noises=1,noise_type='gauss',
                     max_blur=2, n_blurs=1,
-                    do_mirror_lr=True,do_mirror_ud=False,output_dir=None):
+                    do_mirror_lr=True,do_mirror_ud=False,output_dir=None,
+                    show_visual_output=False):
     '''
     generates a bunch of variations of image by rotating, translating, noising etc
     total # images generated is n_angles*n_offsets_x*n_offsets_y*n_noises*n_scales*etc, these are done in nested loops
@@ -101,9 +102,9 @@ def generate_images(img_filename, max_angle = 5,n_angles=10,
         mirror_image = cv2.flip(fimg,0)
         mirror_image = cv2.flip(mirror_image,1)
         reflections.append(mirror_image)
-
-    cv2.imshow('orig',img_arr)
-    k = cv2.waitKey(0)
+    if show_visual_output:
+        cv2.imshow('orig',img_arr)
+        k = cv2.waitKey(0)
     #SO CLEANNNN
     for n_reflection in range(0,len(reflections)):
         for offset_x in offsets_x:
@@ -129,14 +130,16 @@ def generate_images(img_filename, max_angle = 5,n_angles=10,
                                 xformed_img_arr  = cv2.warpAffine(noised,  M, (width,height),dst=dest,borderMode=cv2.BORDER_REPLICATE)
                                 xformed_img_arr = dest
                                 name = filename[0:-4]+'_ref{0}dx{1}dy{2}rot{3}scl{4}n{5}b{6}'.format(n_reflection,offset_x,offset_y,angle,scale,i,blur)+'.jpg'
+                                name = filename[0:-4]+'_ref%ddx%ddy%drot%.2fscl%.2fn%db%.2f' % (n_reflection,offset_x,offset_y,angle,scale,i,blur)+'.jpg'
                                 if output_dir is not None:
                                     full_name = os.path.join(output_dir,name)
                                 else:
                                     full_name = os.path.join(orig_path,name)
                                 print('name:'+str(full_name))
                                 cv2.imwrite(full_name, xformed_img_arr)
-                                cv2.imshow('xformed',xformed_img_arr)
-                                k = cv2.waitKey(0)
+                                if show_visual_output:
+                                    cv2.imshow('xformed',xformed_img_arr)
+                                    k = cv2.waitKey(0)
                           #  raw_input('enter to cont')
 
 

@@ -181,6 +181,7 @@ def interleaved_dir_of_dirs_to_lmdb(dbname,dir_of_dirs,test_or_train=None,max_im
     if test_or_train:
         dbname = dbname+'.'+test_or_train
     print('writing to db:'+dbname)
+    got_image = False
     classno = -1
     image_number =0
     image_number_in_class = 0
@@ -193,6 +194,10 @@ def interleaved_dir_of_dirs_to_lmdb(dbname,dir_of_dirs,test_or_train=None,max_im
             if classno == n_classes:
                 classno = 0
                 image_number_in_class += 1
+                if got_image == False:
+                    print('no images left in any dirs')
+                    break  #no images left
+                got_image = False
             # do only test or train dirs if this param was sent
             a_dir = only_dirs[classno]
             fulldir = os.path.join(dir_of_dirs,a_dir)
@@ -257,6 +262,7 @@ def interleaved_dir_of_dirs_to_lmdb(dbname,dir_of_dirs,test_or_train=None,max_im
     #            in_txn.put('{:0>10d}'.format(in_idx), im_dat.SerializeToString())
                 image_number += 1
                 n_for_each_class[classno] += 1
+                got_image = True
             except:
                 e = sys.exc_info()[0]
                 logging.warning('some problem with lmdb:'+str(e))
@@ -274,21 +280,32 @@ def inspect_db(dbname,show_visual_output=True,B=0,G=0,R=0):
         while(1):
             try:
                 str_id = '{:08}'.format(n)
-                print('strid:{} '.format(str_id))
+   #             print('strid:{} '.format(str_id))
              # The encode is only essential in Python 3
              #   txn.put(str_id.encode('ascii'), datum.SerializeToString())
                 raw_datum = txn.get(str_id.encode('ascii'))
+#                print('rawdat size {}'.format(len(raw_datum)))
+
 #                raw_datum = txn.get(b'00000000')
                 datum = caffe.proto.caffe_pb2.Datum()
                 datum.ParseFromString(raw_datum)
                 flat_x = np.fromstring(datum.data, dtype=np.uint8)
+#                print('flatxsize {}'.format(len(flat_x)))
+      #          print('channels {} width {} height {} rawsize {} rawsize {}'.format(datum.channels,datum.width,datum.height,len(raw_datum),len(flat_x)))
+
 #                x = flat_x.reshape(datum.channels, datum.height, datum.width)
-                x = flat_x.reshape(datum.height, datum.width,datum.channels)
-                x[:,:,0] = x[:,:,0]+B
-                x[:,:,1] = x[:,:,1]+G
-                x[:,:,2] = x[:,:,2]+R
+                if datum.channels == 3:
+#                    print('reshaping 3 chan')
+                    x = flat_x.reshape(datum.height, datum.width,datum.channels)
+                    x[:,:,0] = x[:,:,0]+B
+                    x[:,:,1] = x[:,:,1]+G
+                    x[:,:,2] = x[:,:,2]+R
+                elif datum.channels == 1:
+   #                 print('reshaping 1 chan')
+                    x = flat_x.reshape(datum.height, datum.width)
+                    x[:,:] = x[:,:]+B
                 y = datum.label
-                print('image# {} datasize {} class {} width {} height {} chan {}'.format(n,x.shape,y,datum.width,datum.height,datum.channels))
+                print('db {} image# {} datasize {} class {} w {} h {} ch {} rawsize {} flatsize {}'.format(dbname,n,x.shape,y,datum.width,datum.height,datum.channels,len(raw_datum),len(flat_x)))
 
                 n+=1
                 if show_visual_output is True:
@@ -350,15 +367,20 @@ if __name__ == "__main__":
     B=142
     G=151
     R=162
+    B=0
+    G=0
+    R=0
 #    kill_db('testdb.test')
  #   kill_db('testdb.train')
     db = 'mydb2'
     use_visual_output = False
-    n_test_classes,test_populations,test_imageno = interleaved_dir_of_dirs_to_lmdb('mydb2',dir_of_dirs,max_images_per_class =150,test_or_train='test',resize_x=resize_x,resize_y=resize_y,avg_B=B,avg_G=G,avg_R=R,use_visual_output=use_visual_output)
+ #   n_test_classes,test_populations,test_imageno = interleaved_dir_of_dirs_to_lmdb('mydb2',dir_of_dirs,max_images_per_class =150,test_or_train='test',resize_x=resize_x,resize_y=resize_y,
+   #                                                                                avg_B=B,avg_G=G,avg_R=R,use_visual_output=use_visual_output,n_channels=1)
 #    n_train_classes,train_populations,train_imageno = interleaved_dir_of_dirs_to_lmdb('mydb2',dir_of_dirs,max_images_per_class =150,test_or_train='train',resize_x=resize_x,resize_y=resize_y,avg_B=B,avg_G=G,avg_R=R)
    # print('{} test classes with {} files'.format(n_test_classes,test_populations))
    # print('{} train classes with {} files'.format(n_train_classes,train_populations))
-    inspect_db(db+'.test',show_visual_output=True,B=B,G=G,R=R)
+    inspect_db('plus_zero.test',show_visual_output=True,B=B,G=G,R=R)
+    inspect_db('plus_zero.train',show_visual_output=True,B=B,G=G,R=R)
    # inspect_db('mydb.train',show_visual_output=False,B=B,G=G,R=R)
 
 #  weighted averages of 16 directories: h:1742.51040222 w1337.66435506 d3.0 B 142.492848614 G 151.617458606 R 162.580921717 totfiles 1442
