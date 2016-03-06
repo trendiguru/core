@@ -142,6 +142,8 @@ def generate_images(img_filename, max_angle = 5,n_angles=10,
                                     k = cv2.waitKey(0)
                           #  raw_input('enter to cont')
 
+def generate_images_for_directory(dir,**args):
+
 
 def add_noise(image, noise_typ,level):
     '''
@@ -209,6 +211,7 @@ def add_noise(image, noise_typ,level):
 
 if __name__=="__main__":
     img_filename = '../images/female1.jpg'
+    generate_images_for_directory('home/jr/core/classifier_stuff/caffe_nns/dataset')
     generate_images(img_filename, max_angle = 3,n_angles=2,
                     max_offset_x = 50,n_offsets_x=2,
                     max_offset_y = 50, n_offsets_y=2,

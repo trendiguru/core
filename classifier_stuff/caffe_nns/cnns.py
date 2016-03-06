@@ -524,10 +524,10 @@ if __name__ == "__main__":
     if generate_db:
         n_test_classes,test_populations,image_number_test = lmdb_utils.interleaved_dir_of_dirs_to_lmdb(db_name,dir_of_dirs,
                                                                                            max_images_per_class =max_images_per_class,test_or_train='test',resize_x=resize_x,resize_y=resize_y,
-                                                                                        use_visual_output=False,n_channels=1)
+                                                                                        use_visual_output=False,n_channels=3)
         n_train_classes,train_populations,image_number_train = lmdb_utils.interleaved_dir_of_dirs_to_lmdb(db_name,dir_of_dirs,
                                                                                               max_images_per_class =max_images_per_class,test_or_train='train',resize_x=resize_x,resize_y=resize_y,
-                                                                                        use_visual_output=False,n_channels=1)
+                                                                                        use_visual_output=False,n_channels=3)
         tot_train_samples = np.sum(train_populations)
         tot_test_samples = np.sum(test_populations)
         n_classes = n_test_classes
