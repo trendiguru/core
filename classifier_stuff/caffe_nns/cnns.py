@@ -103,7 +103,7 @@ def write_prototxt(proto_filename,test_iter = 9,solver_mode='GPU'):
                         'gamma': 0.0001,
                         'power': 0.75,
                         'display': 100,
-                        'max_iter': 1000,
+                        'max_iter': 100000,
                         'snapshot': 5000,
                         'snapshot_prefix': dir,
                         'solver_mode':solver_mode }
@@ -268,6 +268,7 @@ def mynet(db, batch_size,n_classes=11,meanB=128,meanG=128,meanR=128  ):
     if meanB:
         n.data,n.label=L.Data(batch_size=batch_size,backend=P.Data.LMDB,source=db,transform_param=dict(scale=1./255,mean_value=meanB),ntop=2)
     elif meanB and meanG and meanR:
+        print('using vector mean')
         n.data,n.label=L.Data(batch_size=batch_size,backend=P.Data.LMDB,source=db,transform_param=dict(scale=1./255,mean_value=[meanB,meanG,meanR]),ntop=2)
     else:
         n.data,n.label=L.Data(batch_size=batch_size,backend=P.Data.LMDB,source=db,transform_param=dict(scale=1./255),ntop=2)
@@ -290,14 +291,14 @@ def mynet(db, batch_size,n_classes=11,meanB=128,meanG=128,meanR=128  ):
     n.pool3 = L.Pooling(n.conv3, kernel_size=2, stride=2, pool=P.Pooling.MAX)
 
     n.conv4 = L.Convolution(n.pool3,param=[dict(lr_mult=lr_mult1),dict(lr_mult=lr_mult2)],
-                            kernel_size=5,stride=1,num_output=20,weight_filler=dict(type='xavier'))
+                            kernel_size=5,stride=1,num_output=50,weight_filler=dict(type='xavier'))
     n.pool4 = L.Pooling(n.conv4, kernel_size=2, stride=2, pool=P.Pooling.MAX)
 
 #    n.ip1 = L.InnerProduct(n.pool2,num_output=500,weight_filler=dict(type='xavier'))
     n.ip1 = L.InnerProduct(n.pool4,param=[dict(lr_mult=lr_mult1),dict(lr_mult=lr_mult2)],num_output=1000,weight_filler=dict(type='xavier'))
     n.relu1 = L.ReLU(n.ip1, in_place=True)
     n.ip2 = L.InnerProduct(n.relu1,param=[dict(lr_mult=lr_mult1),dict(lr_mult=lr_mult2)],num_output=n_classes,weight_filler=dict(type='xavier'))
-    n.accuracy = L.Accuracy(n.ip2,n.label)
+  #  n.accuracy = L.Accuracy(n.ip2,n.label)
     n.loss = L.SoftmaxWithLoss(n.ip2,n.label)
     return n.to_proto()
 
@@ -506,8 +507,8 @@ if __name__ == "__main__":
     print('host:'+str(host))
     if host == 'jr-ThinkPad-X1-Carbon':
         pc = True
-        dir_of_dirs = '/home/jr/python-packages/trendi/classifier_stuff/caffe_nns/plusminus_data'
         dir_of_dirs = '/home/jr/python-packages/trendi/classifier_stuff/caffe_nns/dataset'
+        dir_of_dirs = '/home/jr/python-packages/trendi/classifier_stuff/caffe_nns/plusminus_data'
         max_images_per_class = 10000
         solver_mode = 'CPU'
     else:
@@ -529,11 +530,11 @@ if __name__ == "__main__":
     G=151
     R=162
     db_name = 'pluszero'
-    db_name = 'plus_zero'
     db_name = 'mydb200'
+    db_name = 'plus_zero'
 #    lmdb_utils.kill_db(db_name)
     test_iter = 100
-    batch_size = 256  #use powers of 2 for better perf (supposedly)
+    batch_size = 32  #use powers of 2 for better perf (supposedly)
 
     generate_db = False
     if generate_db:
