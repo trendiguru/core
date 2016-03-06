@@ -103,7 +103,7 @@ def write_prototxt(proto_filename,test_iter = 9,solver_mode='GPU'):
                         'gamma': 0.0001,
                         'power': 0.75,
                         'display': 100,
-                        'max_iter': 10000,
+                        'max_iter': 1000,
                         'snapshot': 5000,
                         'snapshot_prefix': dir,
                         'solver_mode':solver_mode }
@@ -267,6 +267,8 @@ def mynet(db, batch_size,n_classes=11,meanB=128,meanG=128,meanR=128  ):
     n=caffe.NetSpec()
     if meanB:
         n.data,n.label=L.Data(batch_size=batch_size,backend=P.Data.LMDB,source=db,transform_param=dict(scale=1./255,mean_value=meanB),ntop=2)
+    elif meanB and meanG and meanR:
+        n.data,n.label=L.Data(batch_size=batch_size,backend=P.Data.LMDB,source=db,transform_param=dict(scale=1./255,mean_value=meanB,mean_value=meanG,mean_value=meanR),ntop=2)
     else:
         n.data,n.label=L.Data(batch_size=batch_size,backend=P.Data.LMDB,source=db,transform_param=dict(scale=1./255),ntop=2)
 
@@ -412,15 +414,17 @@ def run_my_net(nn_dir,train_db,test_db,batch_size = 64,n_classes=11,meanB=None,m
             print('correct {} n {} batchsize {} %{}:'.format(correct,n_sample,len(solver.test_nets[0].blobs['label'].data), percent_correct))
             test_acc[it // test_interval] = percent_correct
 
+    _, ax1 = plt.subplots()
+    ax2 = ax1.twinx()
+    ax1.plot(arange(niter), train_loss)
+    ax2.plot(test_interval * arange(len(test_acc)), test_acc, 'r')
+    ax1.set_xlabel('iteration')
+    ax1.set_ylabel('train loss')
+    ax2.set_ylabel('test accuracy')
     if pc:
-        _, ax1 = plt.subplots()
-        ax2 = ax1.twinx()
-        ax1.plot(arange(niter), train_loss)
-        ax2.plot(test_interval * arange(len(test_acc)), test_acc, 'r')
-        ax1.set_xlabel('iteration')
-        ax1.set_ylabel('train loss')
-        ax2.set_ylabel('test accuracy')
         plt.show()
+    fig = plt.figure()
+    fig.savefig('out.png')
     print('loss:'+str(train_loss))
     print('acc:'+str(test_acc))
 
@@ -453,6 +457,8 @@ def load_net(prototxt,caffemodel,mean_B=128,mean_G=128,mean_R=128,image='../../i
                              image_width, image_height)  # image size is 227x227
     image = caffe.io.load_image(image)
     transformed_image = transformer.preprocess('data', image)
+    fig = plt.figure()
+    fig.savefig('out.png')
 #    plt.imshow(image)
 # copy the image data into the memory allocated for the net
     net.blobs['data'].data[...] = transformed_image
@@ -501,6 +507,7 @@ if __name__ == "__main__":
     if host == 'jr-ThinkPad-X1-Carbon':
         pc = True
         dir_of_dirs = '/home/jr/python-packages/trendi/classifier_stuff/caffe_nns/plusminus_data'
+        dir_of_dirs = '/home/jr/python-packages/trendi/classifier_stuff/caffe_nns/dataset'
         max_images_per_class = 10000
         solver_mode = 'CPU'
     else:

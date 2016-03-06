@@ -117,6 +117,7 @@ def generate_images(img_filename, max_angle = 5,n_angles=10,
         bb_h = coords[3].split('.')[0]  #this has .jpg or .bmp at the end
         bb_h = int(bb_h)
         bb=[bb_x,bb_y,bb_w,bb_h]
+        bb_points  = [[bb_x,bb_y],[bb_x+bb_w,bb_y],[bb_x,bb_y+bb_h],[bb_x+bb_w,bb_y+bb_h]]  #topleft topright bottomleft bottomright
         print('bb:'+str(bb))
         if bb_h == 0:
             logging.warning('bad height encountered in imutils.resize_and_crop_image for '+str(input_file_or_np_arr))
@@ -153,6 +154,7 @@ def generate_images(img_filename, max_angle = 5,n_angles=10,
 #                                xformed_img_arr  = cv2.warpAffine(noised,  M, (width,height),dst=dest,borderMode=cv2.BORDER_TRANSPARENT)
                                 xformed_img_arr  = cv2.warpAffine(noised,  M, (width,height),dst=dest,borderMode=cv2.BORDER_REPLICATE)
                                 xformed_img_arr = dest
+                                xformed_bb_points  = np.dot()
                                 name = filename[0:-4]+'_ref{0}dx{1}dy{2}rot{3}scl{4}n{5}b{6}'.format(n_reflection,offset_x,offset_y,angle,scale,i,blur)+'.jpg'
                                 name = filename[0:-4]+'_ref%ddx%ddy%drot%.2fscl%.2fn%db%.2f' % (n_reflection,offset_x,offset_y,angle,scale,i,blur)+'.jpg'
                                 if output_dir is not None:
