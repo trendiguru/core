@@ -496,8 +496,8 @@ if __name__ == "__main__":
         max_images_per_class = 10000
         solver_mode = 'CPU'
     else:
-        dir_of_dirs = '/home/jeremy/core/classifier_stuff/caffe_nns/dataset'  #b2
         dir_of_dirs = '/home/jeremy/core/classifier_stuff/caffe_nns/plusminus_data'  #b2
+        dir_of_dirs = '/home/jeremy/core/classifier_stuff/caffe_nns/dataset'  #b2
         max_images_per_class = 100000
         pc = False
         solver_mode = 'GPU'
@@ -514,8 +514,8 @@ if __name__ == "__main__":
     G=151
     R=162
     db_name = 'pluszero'
-    db_name = 'mydb100'
     db_name = 'plus_zero'
+    db_name = 'mydb100'
 #    lmdb_utils.kill_db(db_name)
     test_iter = 100
     batch_size = 32  #use powers of 2 for better perf (supposedly)
@@ -535,4 +535,4 @@ if __name__ == "__main__":
     else:
         n_classes  = 2
 
-    run_my_net(dir_of_dirs,db_name+'.train',db_name+'.test',batch_size = batch_size,n_classes=n_classes,meanB=128)
+    run_my_net(dir_of_dirs,db_name+'.train',db_name+'.test',batch_size = batch_size,n_classes=n_classes,meanB=B,meanR=R,meanG=G)
