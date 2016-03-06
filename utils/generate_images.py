@@ -13,7 +13,7 @@ def generate_images(img_filename, max_angle = 5,n_angles=10,
                     noise_level=0.05,n_noises=1,noise_type='gauss',
                     max_blur=2, n_blurs=1,
                     do_mirror_lr=True,do_mirror_ud=False,output_dir=None,
-                    show_visual_output=False):
+                    show_visual_output=False,bb=None):
     '''
     generates a bunch of variations of image by rotating, translating, noising etc
     total # images generated is n_angles*n_offsets_x*n_offsets_y*n_noises*n_scales*etc, these are done in nested loops
@@ -107,6 +107,28 @@ def generate_images(img_filename, max_angle = 5,n_angles=10,
     if show_visual_output:
         cv2.imshow('orig',img_arr)
         k = cv2.waitKey(0)
+    if 'bbox_' in img_filename and bb is None:
+        strs = orig_name.split('bbox_')
+        bb_str = strs[1]
+        coords = bb_str.split('_')
+        bb_x = int(coords[0])
+        bb_y = int(coords[1])
+        bb_w = int(coords[2])
+        bb_h = coords[3].split('.')[0]  #this has .jpg or .bmp at the end
+        bb_h = int(bb_h)
+        bb=[bb_x,bb_y,bb_w,bb_h]
+        print('bb:'+str(bb))
+        if bb_h == 0:
+            logging.warning('bad height encountered in imutils.resize_and_crop_image for '+str(input_file_or_np_arr))
+            return None
+        if bb_w == 0:
+            logging.warning('bad width encountered in imutils.resize_and_crop_image for '+str(input_file_or_np_arr))
+            return None
+
+# Python: cv2.transform(src, m[, dst]) → dst
+#http://docs.opencv.org/2.4/modules/core/doc/operations_on_arrays.html#void%20transform%28InputArray%20src,%20OutputArray%20dst,%20InputArray%20m%29
+
+
     #SO CLEANNNN
     for n_reflection in range(0,len(reflections)):
         for offset_x in offsets_x:
