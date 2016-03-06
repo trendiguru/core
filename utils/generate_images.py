@@ -10,7 +10,8 @@ def generate_images(img_filename, max_angle = 5,n_angles=10,
                     max_scale=1.2, n_scales=1,
                     noise_level=0.05,n_noises=1,noise_type='gauss',
                     max_blur=2, n_blurs=1,
-                    do_mirror_lr=True,do_mirror_ud=False,output_dir=None):
+                    do_mirror_lr=True,do_mirror_ud=False,output_dir=None,
+                    show_visual_output=False):
     '''
     generates a bunch of variations of image by rotating, translating, noising etc
     total # images generated is n_angles*n_offsets_x*n_offsets_y*n_noises*n_scales*etc, these are done in nested loops
@@ -134,9 +135,10 @@ def generate_images(img_filename, max_angle = 5,n_angles=10,
                                 else:
                                     full_name = os.path.join(orig_path,name)
                                 print('name:'+str(full_name))
-                                cv2.imwrite(full_name, xformed_img_arr)
-                                cv2.imshow('xformed',xformed_img_arr)
-                                k = cv2.waitKey(0)
+                                if show_visual_output:
+                                    cv2.imwrite(full_name, xformed_img_arr)
+                                    cv2.imshow('xformed',xformed_img_arr)
+                                    k = cv2.waitKey(0)
                           #  raw_input('enter to cont')
 
 

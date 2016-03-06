@@ -261,11 +261,11 @@ def run_lenet():
         ax2.set_ylabel('test accuracy')
         plt.show()
 
-def mynet(db, batch_size,n_classes=11  ):
+def mynet(db, batch_size,n_classes=11,meanB=128,meanG=128,meanR=128  ):
     lr_mult1 = 1
     lr_mult2 = 2
     n=caffe.NetSpec()
-    n.data,n.label=L.Data(batch_size=batch_size,backend=P.Data.LMDB,source=db,transform_param=dict(scale=1./255),ntop=2)
+    n.data,n.label=L.Data(batch_size=batch_size,backend=P.Data.LMDB,source=db,transform_param=dict(scale=1./255,mean_value=meanB),ntop=2)
 
 #    n.conv1 = L.Convolution(n.data,kernel_size=5,stride = 1, num_output=50,weight_filler=dict(type='xavier'))
     n.conv1 = L.Convolution(n.data,param=[dict(lr_mult=lr_mult1),dict(lr_mult=lr_mult2)],
@@ -315,7 +315,7 @@ def mynet(db, batch_size,n_classes=11  ):
   #  lr_mult: 2
   #}
 
-def run_my_net(nn_dir,train_db,test_db,batch_size = 64,n_classes=11):
+def run_my_net(nn_dir,train_db,test_db,batch_size = 64,n_classes=11,meanB=None,meanG=None,meanR=None):
     host = socket.gethostname()
     print('host:'+str(host))
     if host == 'jr-ThinkPad-X1-Carbon':
@@ -338,13 +338,19 @@ def run_my_net(nn_dir,train_db,test_db,batch_size = 64,n_classes=11):
     print('using trainfile:{} testfile:{}'.format(train_protofile,test_protofile))
 
     with open(train_protofile,'w') as f:
-        f.write(str(mynet(train_db,batch_size = batch_size,n_classes=n_classes)))
+        f.write(str(mynet(train_db,batch_size = batch_size,n_classes=n_classes,meanB=meanB,meanG=meanG,meanR=meanR)))
         f.close
     with open(test_protofile,'w') as g:
-        g.write(str(mynet(test_db, batch_size = batch_size,n_classes=n_classes)))
+        g.write(str(mynet(test_db, batch_size = batch_size,n_classes=n_classes,meanB=meanB,meanG=meanG,meanR=meanR)))
         g.close
 
     solver = caffe.SGDSolver(proto_file_path)
+
+#    caffe.draw_net_to_file(proto_file_path,,'net_topo.png', rankdir='LR')
+  #  caffe.proto.caffe_pb2.NetParameter protocol buffer.
+   #         datum = caffe.proto.caffe_pb2.Datum()
+    netparam = caffe.proto.caffe_pb2.NetParameter()
+
     print('k,v all elements shape:')
     print [(k, v.data.shape) for k, v in solver.net.blobs.items()]
     print('k, v[0] shape:')
@@ -511,14 +517,14 @@ if __name__ == "__main__":
     test_iter = 100
     batch_size = 32  #use powers of 2 for better perf (supposedly)
 
-    generate_db = True
+    generate_db = False
     if generate_db:
         n_test_classes,test_populations,image_number_test = lmdb_utils.interleaved_dir_of_dirs_to_lmdb(db_name,dir_of_dirs,
                                                                                            max_images_per_class =max_images_per_class,test_or_train='test',resize_x=resize_x,resize_y=resize_y,
-                                                                                        avg_B=128,avg_G=128,avg_R=128,use_visual_output=False,n_channels=1)
+                                                                                        use_visual_output=False,n_channels=1)
         n_train_classes,train_populations,image_number_train = lmdb_utils.interleaved_dir_of_dirs_to_lmdb(db_name,dir_of_dirs,
                                                                                               max_images_per_class =max_images_per_class,test_or_train='train',resize_x=resize_x,resize_y=resize_y,
-                                                                                        avg_B=128,avg_G=128,avg_R=128,use_visual_output=False,n_channels=1)
+                                                                                        use_visual_output=False,n_channels=1)
         tot_train_samples = np.sum(train_populations)
         tot_test_samples = np.sum(test_populations)
         n_classes = n_test_classes
@@ -526,4 +532,4 @@ if __name__ == "__main__":
     else:
         n_classes  = 2
 
-    run_my_net(dir_of_dirs,db_name+'.train',db_name+'.test',batch_size = batch_size,n_classes=n_classes)
+    run_my_net(dir_of_dirs,db_name+'.train',db_name+'.test',batch_size = batch_size,n_classes=n_classes,meanB=128)
