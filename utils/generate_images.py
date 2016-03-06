@@ -2,7 +2,9 @@ import cv2
 import numpy as np
 # import scipy as sp
 import os
+import logging
 
+logging.basicConfig(level=logging.DEBUG)
 
 def generate_images(img_filename, max_angle = 5,n_angles=10,
                     max_offset_x = 100,n_offsets_x=1,
@@ -43,7 +45,7 @@ def generate_images(img_filename, max_angle = 5,n_angles=10,
 
     img_arr = cv2.imread(img_filename)
     if img_arr is None:
-        print('didnt get input image')
+        logging.warning('didnt get input image '+str(img_filename))
         return
     orig_path, filename = os.path.split(img_filename)
     if output_dir is not None and not os.path.exists(output_dir):
@@ -142,7 +144,21 @@ def generate_images(img_filename, max_angle = 5,n_angles=10,
                                     k = cv2.waitKey(0)
                           #  raw_input('enter to cont')
 
-def generate_images_for_directory(dir,**args):
+def generate_images_for_directory(fulldir,**args):
+    only_files = [f for f in os.listdir(fulldir) if os.path.isfile(os.path.join(fulldir, f))]
+    for a_file in only_files:
+        full_filename = os.path.join(fulldir,a_file)
+        generate_images(full_filename,**args)
+
+def generate_images_for_directory_of_directories(dir_of_dirs,filter= None,**args):
+    only_dirs = [dir for dir in os.listdir(dir_of_dirs) if os.path.isdir(os.path.join(dir_of_dirs,dir))  ]
+    logging.debug(str(only_dirs))
+    if filter:
+        only_dirs = [dir for dir in only_dirs if filter in dir  ]
+    logging.debug(str(only_dirs))
+    for a_dir in only_dirs:
+        full_dir = os.path.join(dir_of_dirs,a_dir)
+        generate_images_for_directory(full_dir,**args)
 
 
 def add_noise(image, noise_typ,level):
@@ -211,7 +227,15 @@ def add_noise(image, noise_typ,level):
 
 if __name__=="__main__":
     img_filename = '../images/female1.jpg'
-    generate_images_for_directory('home/jr/core/classifier_stuff/caffe_nns/dataset')
+    generate_images_for_directory('home/jr/core/classifier_stuff/caffe_nns/dataset',
+                    max_angle = 3,n_angles=2,
+                    max_offset_x = 10,n_offsets_x=0,
+                    max_offset_y = 10, n_offsets_y=0,
+                    max_scale=1.2, n_scales=2,
+                    noise_level=0.1,noise_type='gauss',n_noises=0,
+                    max_blur=5, n_blurs=2,
+                    do_mirror_lr=True,do_mirror_ud=False)
+
     generate_images(img_filename, max_angle = 3,n_angles=2,
                     max_offset_x = 50,n_offsets_x=2,
                     max_offset_y = 50, n_offsets_y=2,
