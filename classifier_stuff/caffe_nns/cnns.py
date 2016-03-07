@@ -323,26 +323,32 @@ def mynet(db, batch_size,n_classes=11,meanB=128,meanG=128,meanR=128  ):
 #    n.conv1 = L.Convolution(n.data,kernel_size=5,stride = 1, num_output=50,weight_filler=dict(type='xavier'))
     n.conv1 = L.Convolution(n.data,param=[dict(lr_mult=lr_mult1),dict(lr_mult=lr_mult2)],
                             kernel_size=5,stride = 1, num_output=50,weight_filler=dict(type='xavier'))
+
+#is relu required after every conv?
+#    n.relu1 = L.ReLU(n.ip1, in_place=True)
+
 #    L.Convolution(bottom, param=[dict(lr_mult=lr_mult1),dict(lr_mult=lr_mult2)],
  #       kernel_h=kh, kernel_w=kw, stride=stride, num_output=nout, pad=pad,
   #      weight_filler=dict(type='gaussian', std=0.1, sparse=sparse),
    #     bias_filler=dict(type='constant', value=0))
     n.pool1 = L.Pooling(n.conv1, kernel_size=2, stride=2, pool=P.Pooling.MAX)
 
-    n.conv2 = L.Convolution(n.pool1,param=[dict(lr_mult=lr_mult1),dict(lr_mult=lr_mult2)],
-                            kernel_size=5,stride=1,num_output=50,weight_filler=dict(type='xavier'))
+    n.conv2 = L.Convolution(n.pool1,param=[dict(lr_mult=lr_mult1,decay_mult=decay_mult1),
+                                          dict(lr_mult=lr_mult2,decay_mult=decay_mult2)],
+                            kernel_size=5,stride = 1, num_output=50,weight_filler=dict(type='xavier'))
+
     n.pool2 = L.Pooling(n.conv2, kernel_size=2, stride=2, pool=P.Pooling.MAX)
 
-    n.conv3 = L.Convolution(n.pool2,param=[dict(lr_mult=lr_mult1),dict(lr_mult=lr_mult2)],
-                            kernel_size=5,stride = 1, num_output=50,weight_filler=dict(type='xavier'))
-    n.pool3 = L.Pooling(n.conv3, kernel_size=2, stride=2, pool=P.Pooling.MAX)
+#    n.conv3 = L.Convolution(n.pool2,param=[dict(lr_mult=lr_mult1),dict(lr_mult=lr_mult2)],
+  #                          kernel_size=5,stride = 1, num_output=50,weight_filler=dict(type='xavier'))
+   # n.pool3 = L.Pooling(n.conv3, kernel_size=2, stride=2, pool=P.Pooling.MAX)
 
-    n.conv4 = L.Convolution(n.pool3,param=[dict(lr_mult=lr_mult1),dict(lr_mult=lr_mult2)],
-                            kernel_size=5,stride=1,num_output=50,weight_filler=dict(type='xavier'))
-    n.pool4 = L.Pooling(n.conv4, kernel_size=2, stride=2, pool=P.Pooling.MAX)
+#    n.conv4 = L.Convolution(n.pool3,param=[dict(lr_mult=lr_mult1),dict(lr_mult=lr_mult2)],
+  #                          kernel_size=5,stride=1,num_output=50,weight_filler=dict(type='xavier'))
+   # n.pool4 = L.Pooling(n.conv4, kernel_size=2, stride=2, pool=P.Pooling.MAX)
 
 #    n.ip1 = L.InnerProduct(n.pool2,num_output=500,weight_filler=dict(type='xavier'))
-    n.ip1 = L.InnerProduct(n.pool4,param=[dict(lr_mult=lr_mult1),dict(lr_mult=lr_mult2)],num_output=1000,weight_filler=dict(type='xavier'))
+    n.ip1 = L.InnerProduct(n.pool2,param=[dict(lr_mult=lr_mult1),dict(lr_mult=lr_mult2)],num_output=1000,weight_filler=dict(type='xavier'))
     n.relu1 = L.ReLU(n.ip1, in_place=True)
     n.ip2 = L.InnerProduct(n.relu1,param=[dict(lr_mult=lr_mult1),dict(lr_mult=lr_mult2)],num_output=n_classes,weight_filler=dict(type='xavier'))
   #  n.accuracy = L.Accuracy(n.ip2,n.label)
