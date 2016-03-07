@@ -77,7 +77,7 @@ def title2category(title):
     for s in split1:
         if s in ebay_constants.categories_keywords:
             cats.append(s)
-        elif s in ebay_constants.blacklist_categories:
+        elif s in ebay_constants.categories_badwords:
             return []
         else:
             pass
