@@ -14,9 +14,9 @@ parent_folder = "0B-fDiFA73MH_N1ZCNVNYcW0tRFk"
 def is_file_in_folder(service, folder_id, file_name):
     # param={"name":='ebay'"}
     try:
-        query_by_name = "trashed = false and fullText contains " + file_name
+        query_by_name = "trashed = false and starred = false and fullText contains '" + file_name+"'"
         children = service.children().list(folderId=folder_id, q=query_by_name).execute()
-        childs =children.get('item')
+        childs =children.get('items')
         print (childs)
         if len(childs)<1:
             return False, []
@@ -41,9 +41,8 @@ def upload2drive(FILE2INSERT):
                     if flags else tools.run(flow, store)
         DRIVE = build('drive', 'v2', http=creds.authorize(Http()))
 
-        is_file_in_folder(DRIVE, folder_id=parent_folder, file_name="'ebay'")
-
         filename,path2file,convert = FILE2INSERT
+        is_file_in_folder(DRIVE, folder_id=parent_folder, file_name=filename)
         metadata = {'title': filename,
                     'parents':[{'id': parent_folder}]}
         res = DRIVE.files().insert(convert=convert, body=metadata,
