@@ -593,7 +593,7 @@ if __name__ == "__main__":
     B=112
     G=123
     R=136
-    db_name = 'highly_populated'
+    db_name = 'highly_populated_cropped'
 
 #    lmdb_utils.kill_db(db_name)
     test_iter = 100
