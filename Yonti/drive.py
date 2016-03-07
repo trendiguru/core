@@ -16,11 +16,12 @@ def is_file_in_folder(service, folder_id, file_name):
     try:
         children = service.children().list(folderId=folder_id).execute()
         for child in children.get('items', []):
-            child_name = child['name']
-            child_id = child['id']
-            print ('File Name : %s  File Id: %s' % (child_name,child_id))
-            if child_name == 'ebay':
-                return True, child_id
+            print(child)
+            # child_name = child['name']
+            # child_id = child['id']
+            # print ('File Name : %s  File Id: %s' % (child_name,child_id))
+            # if child_name == 'ebay':
+            #     return True, child_id
             break
     except errors.HttpError, error:
         if error.resp.status != 404:
