@@ -10,6 +10,10 @@ worksheet_main.write('A1', 'ffffffff')
 worksheet_main.write('A2', 'test')
 worksheet_main.write('C1', 'ffffffff')
 worksheet_main.write('D2', 'test')
+worksheet_main.write('A3', 'ffffffff')
+worksheet_main.write('A4', 'test')
+worksheet_main.write('C6', 'ffffffff')
+worksheet_main.write('D1', 'test')
 
 workbook.close()
 
