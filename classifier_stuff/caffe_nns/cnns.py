@@ -79,6 +79,7 @@ shuffle: true
 
 def write_prototxt(proto_filename,test_iter = 9,solver_mode='GPU'):
     # The train/test net protocol buffer definition
+
     dir = os.path.dirname(proto_filename)
     filename = os.path.basename(proto_filename)
     file_base = filename.split('prototxt')[0]
@@ -111,7 +112,7 @@ def write_prototxt(proto_filename,test_iter = 9,solver_mode='GPU'):
                         'snapshot_prefix': dir,
                         'solver_mode':solver_mode }
 
-    print prototxt
+    print('writing prototxt:'+str(prototxt))
     with open(proto_filename,'w') as f:
         for key, val in prototxt.iteritems():
             line=key+':'+str(val)+'\n'
@@ -304,17 +305,19 @@ def run_lenet():
         plt.show()
 
 def mynet(db, batch_size,n_classes=11,meanB=128,meanG=128,meanR=128  ):
+    print('running mynet n {} B {} G {} R {] db {} batchsize {} '.format(n_classes,meanB,meanG,meanR,db,batch_size))
     lr_mult1 = 1
     lr_mult2 = 2
     decay_mult1 =1
     decay_mult2 =0
 
     n=caffe.NetSpec()
-    if meanB:
-        n.data,n.label=L.Data(batch_size=batch_size,backend=P.Data.LMDB,source=db,transform_param=dict(scale=1./255,mean_value=meanB),ntop=2)
-    elif meanB is not None and meanG is not None and meanR is not None:
-        print('using vector mean')
+    if meanB is not None and meanG is not None and meanR is not None:
+        print('using vector mean ({} {} {})'.format(meanB,meanG,meanR ))
         n.data,n.label=L.Data(batch_size=batch_size,backend=P.Data.LMDB,source=db,transform_param=dict(scale=1./255,mean_value=[meanB,meanG,meanR]),ntop=2)
+    elif meanB:
+        print('using 1D mean {} '.format(meanB))
+        n.data,n.label=L.Data(batch_size=batch_size,backend=P.Data.LMDB,source=db,transform_param=dict(scale=1./255,mean_value=meanB),ntop=2)
     else:
         n.data,n.label=L.Data(batch_size=batch_size,backend=P.Data.LMDB,source=db,transform_param=dict(scale=1./255),ntop=2)
 
@@ -338,16 +341,19 @@ def mynet(db, batch_size,n_classes=11,meanB=128,meanG=128,meanR=128  ):
 
     n.pool2 = L.Pooling(n.conv2, kernel_size=2, stride=2, pool=P.Pooling.MAX)
 
-#    n.conv3 = L.Convolution(n.pool2,param=[dict(lr_mult=lr_mult1),dict(lr_mult=lr_mult2)],
-  #                          kernel_size=5,stride = 1, num_output=50,weight_filler=dict(type='xavier'))
-   # n.pool3 = L.Pooling(n.conv3, kernel_size=2, stride=2, pool=P.Pooling.MAX)
+    n.conv3 = L.Convolution(n.pool2,param=[dict(lr_mult=lr_mult1,decay_mult=decay_mult1),
+                                          dict(lr_mult=lr_mult2,decay_mult=decay_mult2)],
+                            kernel_size=5,stride = 1, num_output=50,weight_filler=dict(type='xavier'))
+
+    n.pool3 = L.Pooling(n.conv3, kernel_size=2, stride=2, pool=P.Pooling.MAX)
+
 
 #    n.conv4 = L.Convolution(n.pool3,param=[dict(lr_mult=lr_mult1),dict(lr_mult=lr_mult2)],
   #                          kernel_size=5,stride=1,num_output=50,weight_filler=dict(type='xavier'))
    # n.pool4 = L.Pooling(n.conv4, kernel_size=2, stride=2, pool=P.Pooling.MAX)
 
 #    n.ip1 = L.InnerProduct(n.pool2,num_output=500,weight_filler=dict(type='xavier'))
-    n.ip1 = L.InnerProduct(n.pool2,param=[dict(lr_mult=lr_mult1),dict(lr_mult=lr_mult2)],num_output=1000,weight_filler=dict(type='xavier'))
+    n.ip1 = L.InnerProduct(n.pool3,param=[dict(lr_mult=lr_mult1),dict(lr_mult=lr_mult2)],num_output=1000,weight_filler=dict(type='xavier'))
     n.relu1 = L.ReLU(n.ip1, in_place=True)
     n.ip2 = L.InnerProduct(n.relu1,param=[dict(lr_mult=lr_mult1),dict(lr_mult=lr_mult2)],num_output=n_classes,weight_filler=dict(type='xavier'))
     n.accuracy = L.Accuracy(n.ip2,n.label)
