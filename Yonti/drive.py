@@ -26,9 +26,9 @@ def upload2drive(FILES):
             metadata = {'title': filename,
                         'parents':[{'id':"0B-fDiFA73MH_N1ZCNVNYcW0tRFk"}]}
             res = DRIVE.files().insert(convert=convert, body=metadata,
-                    media_body=path2file, fields='mimeType,exportLinks').execute()
+                    media_body=path2file, fields='id').execute()
             if res:
-                print('Uploaded "%s" (%s)' % (filename, res.getId()))
+                print('Uploaded "%s" (%s)' % (filename, res['id']))
         return True
     except:
         return False
