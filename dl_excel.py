@@ -32,8 +32,8 @@ bold = workbook.add_format({'bold': True, })
 # # Start from the first cell. Rows and columns are zero indexed.
 # row = 1
 # col = 0
-worksheet_main.set_column('B:E',20)
-worksheet_main.add_table('B2:E'+str(len(categories)+3),
+worksheet_main.set_column('B:F',15)
+worksheet_main.add_table('B2:F'+str(len(categories)+5),
                          {'data' : categories,
                           'total_row': True,
                           'columns': [{'header': 'Category', 'total_string': 'Total'},
