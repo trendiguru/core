@@ -66,7 +66,7 @@ def image_stats_from_dir(dirname):
             Glist.append(results[4])
             Rlist.append(results[5])
             n += 1
-            print(str(n) +' of '+str(len(only_files)), end='')
+            print(str(n) +' of '+str(len(only_files)), end='\r')
     avg_h = np.mean(hlist)
     avg_w = np.mean(wlist)
     avg_d = np.mean(dlist)
