@@ -26,7 +26,7 @@ bold = workbook.add_format({'bold': True, })
 # row = 1
 # col = 0
 worksheet_main.set_column('B:C',20)
-worksheet_main.add_table('B2:C'+str(len(categories)+2),
+worksheet_main.add_table('B2:C'+str(len(categories)+3),
                          {'data' : categories,
                           'total_row': True,
                           'columns': [{'header': 'categories', 'total_string': 'Total', 'format': bold},
