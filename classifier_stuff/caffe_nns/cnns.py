@@ -458,7 +458,7 @@ def run_my_net(nn_dir,train_db,test_db,batch_size = 64,n_classes=11,meanB=None,m
             percent_correct = float(correct)/(n_sample*batch_size)
             print('correct {} n {} batchsize {} %{}:'.format(correct,n_sample,len(solver.test_nets[0].blobs['label'].data), percent_correct))
             test_acc[it // test_interval] = percent_correct
-
+            print('acc so far:'+str(test_acc))
     _, ax1 = plt.subplots()
     ax2 = ax1.twinx()
     ax1.plot(arange(niter), train_loss)
