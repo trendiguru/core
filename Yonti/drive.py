@@ -1,5 +1,6 @@
 from __future__ import print_function
 from apiclient.discovery import build
+from apiclient import errors
 from httplib2 import Http
 from oauth2client import file, client, tools
 try:
@@ -7,6 +8,33 @@ try:
     flags = argparse.ArgumentParser(parents=[tools.argparser]).parse_args()
 except ImportError:
     flags = None
+
+def retrieve_all_files(service):
+  """Retrieve a list of File resources.
+
+  Args:
+    service: Drive API service instance.
+  Returns:
+    List of File resources.
+  """
+  result = []
+  page_token = None
+  while True:
+    try:
+        param = {}
+        if page_token:
+            param['pageToken'] = page_token
+        files = service.files().list(**param).execute()
+
+        result.extend(files['items'])
+        page_token = files.get('nextPageToken')
+        if not page_token:
+            break
+    except errors.HttpError, error:
+        print ('An error occurred: %s' % error)
+        break
+  return result
+
 
 def upload2drive(FILES):
 #FILES = [(filename, path2file, True/False),...]
@@ -20,14 +48,16 @@ def upload2drive(FILES):
             creds = tools.run_flow(flow, store, flags) \
                     if flags else tools.run(flow, store)
         DRIVE = build('drive', 'v2', http=creds.authorize(Http()))
-
-        for filename,path2file,convert in FILES:
-            metadata = {'title': filename,
-                        'parents':[{'id':"0B-fDiFA73MH_N1ZCNVNYcW0tRFk"}]}
-            res = DRIVE.files().insert(convert=convert, body=metadata,
-                    media_body=path2file, fields='mimeType,exportLinks').execute()
-            if res:
-                print('Uploaded "%s" (%s)' % (filename, res['mimeType']))
+        filesInDrive = retrieve_all_files(DRIVE)
+        for f in filesInDrive:
+            print(f)
+        # for filename,path2file,convert in FILES:
+        #     metadata = {'title': filename,
+        #                 'parents':[{'id':"0B-fDiFA73MH_N1ZCNVNYcW0tRFk"}]}
+        #     res = DRIVE.files().insert(convert=convert, body=metadata,
+        #             media_body=path2file, fields='mimeType,exportLinks').execute()
+        #     if res:
+        #         print('Uploaded "%s" (%s)' % (filename, res['mimeType']))
         return True
     except:
         return False
