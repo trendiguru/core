@@ -1,6 +1,7 @@
 import xlsxwriter
 from .Yonti import drive
 from . import constants
+from . import ebay_constants
 db = constants.db
 
 filename = 'ebay'
@@ -9,26 +10,25 @@ workbook = xlsxwriter.Workbook(path2file)
 worksheet_main = workbook.add_worksheet('main')
 
 #prepare date
-expenses = (
-    ['Rent', 1000],
-    ['Gas',   100],
-    ['Food',  300],
-    ['Gym',    50],
-)
+categories = []
+for cat in ebay_constants.categories_keywords:
+    count = db.ebay_Female.find({'categories':cat}).count()
+    categories.append([cat, count])
 
 # Start from the first cell. Rows and columns are zero indexed.
 row = 0
 col = 0
 
 # Iterate over the data and write it out row by row.
-for item, cost in (expenses):
+for item, cost in (categories):
     worksheet_main.write(row, col,     item)
     worksheet_main.write(row, col + 1, cost)
     row += 1
 
 # Write a total using a formula.
+lastrow = row-1
 worksheet_main.write(row, 0, 'Total')
-worksheet_main.write(row, 1, '=SUM(B1:B4)')
+worksheet_main.write(row, 1, '=SUM(B1:B'+str(lastrow)+')')
 
 workbook.close()
 
