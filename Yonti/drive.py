@@ -8,8 +8,32 @@ try:
     flags = argparse.ArgumentParser(parents=[tools.argparser]).parse_args()
 except ImportError:
     flags = None
+ebay_id = '1JMRyLEf4jeEIH7Af07brOQStLxK-o4Bquho0JlsHttE'
+parent_folder = "0B-fDiFA73MH_N1ZCNVNYcW0tRFk"
 
-def upload2drive(FILES):
+def is_file_in_folder(service, folder_id, file_id):
+  """Check if a file is in a specific folder.
+
+  Args:
+    service: Drive API service instance.
+    folder_id: ID of the folder.
+    file_id: ID of the file.
+  Returns:
+    Whether or not the file is in the folder.
+  """
+  param={"q":'name="ebay"'}
+  try:
+    children = service.children().list(folderId=folder_id, **param ).execute()
+    for child in children.get('items', []):
+        print ('File Id: %s' % child['id'])
+        break
+  except errors.HttpError, error:
+    if error.resp.status != 404:
+      print ('An error occurred: %s' % error)
+    return False
+  return True, child['id']
+
+def upload2drive(FILE2INSERT):
 #FILES = [(filename, path2file, True/False),...]
     try:
         SCOPES = 'https://www.googleapis.com/auth/drive'
@@ -21,14 +45,17 @@ def upload2drive(FILES):
             creds = tools.run_flow(flow, store, flags) \
                     if flags else tools.run(flow, store)
         DRIVE = build('drive', 'v2', http=creds.authorize(Http()))
+        file_exists, file_id = is_file_in_folder(DRIVE, folder_id=parent_folder, file_name='ebay')
+        if file_exists:
+            DRIVE.children().delete(folderId=parent_folder, childId=file_id).execute()
 
-        for filename,path2file,convert in FILES:
-            metadata = {'title': filename,
-                        'parents':[{'id':"0B-fDiFA73MH_N1ZCNVNYcW0tRFk"}]}
-            res = DRIVE.files().insert(convert=convert, body=metadata,
-                    media_body=path2file, fields='id').execute()
-            if res:
-                print('Uploaded "%s" (%s)' % (filename, res['id']))
+        filename,path2file,convert = FILE2INSERT
+        metadata = {'title': filename,
+                    'parents':[{'id': parent_folder}]}
+        res = DRIVE.files().insert(convert=convert, body=metadata,
+                media_body=path2file, fields='id').execute()
+        if res:
+            print('Created new file named : "%s"  file id: %s' % (filename, res['id']))
         return True
     except:
         return False
