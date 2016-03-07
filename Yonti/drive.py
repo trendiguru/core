@@ -1,9 +1,6 @@
-#!/usr/bin/env python
-
 from __future__ import print_function
-import os
-
 from apiclient.discovery import build
+from apiclient import errors
 from httplib2 import Http
 from oauth2client import file, client, tools
 try:
@@ -11,34 +8,51 @@ try:
     flags = argparse.ArgumentParser(parents=[tools.argparser]).parse_args()
 except ImportError:
     flags = None
+ebay_id = '1JMRyLEf4jeEIH7Af07brOQStLxK-o4Bquho0JlsHttE'
+parent_folder = "0B-fDiFA73MH_N1ZCNVNYcW0tRFk"
 
-SCOPES = 'https://www.googleapis.com/auth/drive'
-store = file.Storage('storage.json')
-creds = store.get()
-if not creds or creds.invalid:
-    flow = client.flow_from_clientsecrets('client_secret.json', SCOPES)
-    creds = tools.run_flow(flow, store, flags) \
-            if flags else tools.run(flow, store)
-DRIVE = build('drive', 'v2', http=creds.authorize(Http()))
+def is_file_in_folder(service, folder_id, file_name):
+    # param={"name":='ebay'"}
+    try:
+        children = service.children().list(folderId=folder_id, q="fullText contains 'ebay'").execute()
+        for child in children.get('name', []):
+            print(child)
+            # child_name = child['name']
+            # child_id = child['id']
+            # print ('File Name : %s  File Id: %s' % (child_name,child_id))
+            # if child_name == 'ebay':
+            #     return True, child_id
+            break
+    except errors.HttpError, error:
+        if error.resp.status != 404:
+            print ('An error occurred: %s' % error)
+        return False, []
 
-FILES = (
-    ('autoCrawler.txt', False),
-    ('autoCrawler.txt', True),
-)
+    return False, []
 
-for filename, convert in FILES:
-    metadata = {'title': filename,
-                'parents':[{'id':"0B-fDiFA73MH_N1ZCNVNYcW0tRFk"}]}
-    res = DRIVE.files().insert(convert=convert, body=metadata,
-            media_body=filename, fields='mimeType,exportLinks').execute()
-    if res:
-        print('Uploaded "%s" (%s)' % (filename, res['mimeType']))
+def upload2drive(FILE2INSERT):
+#FILES = [(filename, path2file, True/False),...]
+    try:
+        SCOPES = 'https://www.googleapis.com/auth/drive'
+        store = file.Storage('/home/developer/python-packages/trendi/Yonti/storage.json')
+        creds = store.get()
+        if not creds or creds.invalid:
+            flow = client.flow_from_clientsecrets('/home/developer/python-packages/trendi/Yonti/client_secret.json',
+                                                  SCOPES)
+            creds = tools.run_flow(flow, store, flags) \
+                    if flags else tools.run(flow, store)
+        DRIVE = build('drive', 'v2', http=creds.authorize(Http()))
+        file_exists, file_id = is_file_in_folder(DRIVE, folder_id=parent_folder, file_name='ebay')
+        if file_exists:
+            DRIVE.children().delete(folderId=parent_folder, childId=file_id).execute()
 
-# if res:
-#     MIMETYPE = 'application/pdf'
-#     res, data = DRIVE._http.request(res['exportLinks'][MIMETYPE])
-#     if data:
-#         fn = '%s.pdf' % os.path.splitext(filename)[0]
-#         with open(fn, 'wb') as fh:
-#             fh.write(data)
-#         print('Downloaded "%s" (%s)' % (fn, MIMETYPE))
+        filename,path2file,convert = FILE2INSERT
+        metadata = {'title': filename,
+                    'parents':[{'id': parent_folder}]}
+        res = DRIVE.files().insert(convert=convert, body=metadata,
+                media_body=path2file, fields='id').execute()
+        if res:
+            print('Created new file named : "%s"  file id: %s' % (filename, res['id']))
+        return True
+    except:
+        return False
