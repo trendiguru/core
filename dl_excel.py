@@ -13,7 +13,7 @@ worksheet_main = workbook.add_worksheet('main')
 categories = []
 print ("total count = %s" %(db.ebay_Female.count()))
 for cat in ebay_constants.categories_keywords:
-    count = db.ebay_Female.find({'categories':cat}).count()
+    count = db.ebay_Female.find({'categories': cat}).count()
     categories.append([cat, count])
 
 # #create headers
@@ -34,8 +34,7 @@ worksheet_main.add_table('B2:C'+str(len(categories)),
                           'banded_columns': True,
                           'banded_rows': False,
                           'header_row': True,
-                          'autofilter': True,
-                          'style': 'Table Style Light 11'})
+                          'autofilter': True})
 # for item, cost in (categories):
 #     worksheet_main.write(row, col,     item)
 #     worksheet_main.write(row, col + 1, cost)

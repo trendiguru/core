@@ -51,5 +51,5 @@ categories_badwords = ['SLEEPWEAR', 'SHAPEWEAR', 'SLIPS', 'BEDDING', 'LINGERIE',
 categories_keywords = ['PANTS', 'SHIRTS', 'T-SHIRTS', 'DRESS', 'DRESSES', 'SWIM', 'SUIT', 'SHOES', 'BOOTS', 'SKIRT',
                        'SHORTS', 'COATS', 'LEGGINGS', 'SHORTS', 'BLAZERS', 'TEES', 'TSHIRTS', 'JEANS', 'TOPS', 'POLO',
                        'CARDIGAN', 'JACKETS', 'VESTS', 'SWEATERS', 'SWEATSHIRTS', 'JACKET', 'VEST', 'SWEATER',
-                       'SWEATSHIRT', 'SKIRTS', 'TOP', 'COAT', 'HILLS', 'HOODIE', 'TEE', 'SWIMSUIT', 'BIKINIS','BIKINI','CAPRIS','BELT','BELTS',
-                       'KNITS','BLOUSES','ROMPER','ROMPERS','SHIRT','LOAFERS','MOCCASINS']
+                       'SWEATSHIRT', 'SKIRTS', 'TOP', 'COAT', 'HILLS', 'HOODIE', 'TEE', 'SWIMSUIT', 'BIKINIS','BIKINI',
+                       'CAPRIS','BELT','BELTS','KNITS','BLOUSES','ROMPER','ROMPERS','SHIRT','LOAFERS','MOCCASINS']
