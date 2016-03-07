@@ -6,7 +6,8 @@ path2file = '/home/developer/yonti/ebay.xlsx'
 workbook = xlsxwriter.Workbook(path2file)
 worksheet_main = workbook.add_worksheet('main')
 
-worksheet_main.write('A1', 'Hello world')
+worksheet_main.write('A1', 'ffffffff')
+worksheet_main.write('A2', 'test')
 
 workbook.close()
 
