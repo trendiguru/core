@@ -33,7 +33,7 @@ bold = workbook.add_format({'bold': True, })
 # row = 1
 # col = 0
 worksheet_main.set_column('B:F',15)
-worksheet_main.add_table('B2:F'+str(len(categories)+5),
+worksheet_main.add_table('B2:F'+str(len(categories)+3),
                          {'data' : categories,
                           'total_row': True,
                           'columns': [{'header': 'Category', 'total_string': 'Total'},
