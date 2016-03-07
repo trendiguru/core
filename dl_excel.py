@@ -36,6 +36,7 @@ worksheet_main.set_column('B:F',15)
 worksheet_main.add_table('B2:F'+str(len(categories)+4),
                          {'data' : categories,
                           'header_row': True,
+                          'autofilter': True,
                           'total_row': True,
                           'columns': [{'header': 'Category', 'total_string': 'Total'},
                                       {'header': 'items',    'total_function' : 'sum'},
