@@ -302,17 +302,17 @@ def inspect_db(dbname,show_visual_output=True,B=0,G=0,R=0):
                 datum.ParseFromString(raw_datum)
                 flat_x = np.fromstring(datum.data, dtype=np.uint8)
 
-                print('flatxsize {}'.format(len(flat_x)))
-                print('channels {} width {} height {} rawsize {} rawsize {}'.format(datum.channels,datum.width,datum.height,len(raw_datum),len(flat_x)))
+                print('db {} strid {} channels {} width {} height {} datumsize {} flatxsize {}'.format(dbname,str_id,datum.channels,datum.width,datum.height,len(raw_datum),len(flat_x)))
 
+
+                orig_x = flat_x.reshape(datum.channels, datum.height, datum.width)
+                if datum.channels == 3:
+                    logging.debug('before transpose shape:'+str(orig_x.shape))
 # as the input is transposed to c,h,w  by transpose(2,0,1) we have to undo it with transpose(1,2,0)
 #h w c  transpose(2,0,1) -> c h w
 #c h w  transpose(1,2,0) -> h w c
-
-#                x = flat_x.reshape(datum.channels, datum.height, datum.width)
-                if datum.channels == 3:
-#                    print('reshaping 3 chan')
-                    x = flat_x.transpose((2,0,1))
+                    x = orig_x.transpose((1,2,0))
+                    logging.debug('after transpose shape:'+str(x.shape))
       #              x = flat_x.reshape(datum.height, datum.width,datum.channels)
                     x[:,:,0] = x[:,:,0]+B
                     x[:,:,1] = x[:,:,1]+G
