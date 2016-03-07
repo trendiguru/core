@@ -14,8 +14,8 @@ parent_folder = "0B-fDiFA73MH_N1ZCNVNYcW0tRFk"
 def is_file_in_folder(service, folder_id, file_name):
     # param={"name":='ebay'"}
     try:
-        children = service.children().list(folderId=folder_id).execute()
-        for child in children.get('items', []):
+        children = service.children().list(folderId=folder_id, fields='id').execute()
+        for child in children.get('id', []):
             print(child)
             # child_name = child['name']
             # child_id = child['id']
