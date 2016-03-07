@@ -14,7 +14,7 @@ parent_folder = "0B-fDiFA73MH_N1ZCNVNYcW0tRFk"
 def is_file_in_folder(service, folder_id, file_name):
     # param={"name":='ebay'"}
     try:
-        query_by_name = "trashed = false and starred = false and fullText contains " + file_name
+        query_by_name = "trashed = false and starred = false and fullText contains '" + file_name+"'"
         children = service.children().list(folderId=folder_id, q=query_by_name).execute()
         childs =children.get('items')
         print (childs)
