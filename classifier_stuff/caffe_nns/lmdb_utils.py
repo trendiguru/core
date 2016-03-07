@@ -248,19 +248,22 @@ def interleaved_dir_of_dirs_to_lmdb(dbname,dir_of_dirs,test_or_train=None,max_im
             datum.height = img_arr.shape[0]
             datum.width = img_arr.shape[1]
 
-        #see https://github.com/BVLC/caffe/issues/1698 -
-            img_arr = img_arr[:,:,::-1]
-            img_arr = img_arr.transpose((2,0,1))
-
-#                    img_reshaped = img_arr.reshape((datum.channels,datum.height,datum.width))
-            print('reshaped size: '+str(img_arr.shape))
-            datum.data = img_arr.tobytes()  # or .tostring() if numpy < 1.9
             if n_channels == 1:  #for grayscale img
                 datum.channels = 1
                 blue_chan = img_arr[:,:,0]
                 datum.data = blue_chan.tobytes()  # or .tostring() if numpy < 1.9
             else:
                 datum.channels = img_arr.shape[2]
+
+        #see https://github.com/BVLC/caffe/issues/1698 -
+            #reverse order of channels  - BGR -> RGB (and vice versa)
+#            img_arr = img_arr[:,:,::-1]
+        # and reorder with channel first, channel x  height x width
+            img_arr = img_arr.transpose((2,0,1))
+
+#                    img_reshaped = img_arr.reshape((datum.channels,datum.height,datum.width))
+            print('reshaped size: '+str(img_arr.shape))
+            datum.data = img_arr.tobytes()  # or .tostring() if numpy < 1.9
             datum.label = classno
             str_id = '{:08}'.format(image_number)
             print('db: {} strid:{} w:{} h:{} d:{} class:{} name {}'.format(dbname,str_id,datum.width,datum.height,datum.channels,datum.label,a_file)),
@@ -298,13 +301,19 @@ def inspect_db(dbname,show_visual_output=True,B=0,G=0,R=0):
                 datum = caffe.proto.caffe_pb2.Datum()
                 datum.ParseFromString(raw_datum)
                 flat_x = np.fromstring(datum.data, dtype=np.uint8)
-#                print('flatxsize {}'.format(len(flat_x)))
-      #          print('channels {} width {} height {} rawsize {} rawsize {}'.format(datum.channels,datum.width,datum.height,len(raw_datum),len(flat_x)))
+
+                print('flatxsize {}'.format(len(flat_x)))
+                print('channels {} width {} height {} rawsize {} rawsize {}'.format(datum.channels,datum.width,datum.height,len(raw_datum),len(flat_x)))
+
+# as the input is transposed to c,h,w  by transpose(2,0,1) we have to undo it with transpose(1,2,0)
+#h w c  transpose(2,0,1) -> c h w
+#c h w  transpose(1,2,0) -> h w c
 
 #                x = flat_x.reshape(datum.channels, datum.height, datum.width)
                 if datum.channels == 3:
 #                    print('reshaping 3 chan')
-                    x = flat_x.reshape(datum.height, datum.width,datum.channels)
+                    x = flat_x.transpose((2,0,1))
+      #              x = flat_x.reshape(datum.height, datum.width,datum.channels)
                     x[:,:,0] = x[:,:,0]+B
                     x[:,:,1] = x[:,:,1]+G
                     x[:,:,2] = x[:,:,2]+R
