@@ -29,12 +29,11 @@ worksheet_main.set_column('B:C',20)
 worksheet_main.add_table('B2:C'+str(len(categories)+3),
                          {'data' : categories,
                           'total_row': True,
-                          'columns': [{'header': 'categories', 'total_string': 'Total', 'format': bold},
-                                      {'header': 'count',   'total_function' : 'sum', 'format':   bold}],
+                          'columns': [{'header': 'categories', 'total_string': 'Total'},
+                                      {'header': 'count',   'total_function' : 'sum'},],
                           'banded_columns': True,
                           'banded_rows': False,
-                          'header_row': True,
-                          'autofilter': True})
+                          'header_row': True})
 # for item, cost in (categories):
 #     worksheet_main.write(row, col,     item)
 #     worksheet_main.write(row, col + 1, cost)
