@@ -16,24 +16,31 @@ for cat in ebay_constants.categories_keywords:
     count = db.ebay_Female.find({'categories':cat}).count()
     categories.append([cat, count])
 
-#create headers
-worksheet_main.write(0, 1, 'CATEGORIES')
-worksheet_main.write(2, 1, 'COUNT')
+# #create headers
+# bold = workbook.add_format({'bold': True})
+# worksheet_main.write(0, 0, 'CATEGORIES', bold)
+# worksheet_main.write(0, 1,      'COUNT', bold)
+#
+# # Start from the first cell. Rows and columns are zero indexed.
+# row = 1
+# col = 0
 
-# Start from the first cell. Rows and columns are zero indexed.
-row = 1
-col = 0
-
-# Iterate over the data and write it out row by row.
-for item, cost in (categories):
-    worksheet_main.write(row, col,     item)
-    worksheet_main.write(row, col + 1, cost)
-    row += 1
+worksheet_main.add_table('B2:C'+str(len(categories)), {'data' : categories,
+                                                       'total_row': True,
+                                                       'columns':[{'header': 'categories'},
+                                                                  {'header': 'count'}
+                                                                  ],
+                                                       'first_column': True,
+                                                       'last_column' : True})
+# for item, cost in (categories):
+#     worksheet_main.write(row, col,     item)
+#     worksheet_main.write(row, col + 1, cost)
+#     row += 1
 
 # Write a total using a formula.
-lastrow = row-1
-worksheet_main.write(row, 0, 'Total')
-worksheet_main.write(row, 1, '=SUM(B1:B'+str(lastrow)+')')
+# lastrow = row-1
+# worksheet_main.write(row, 0,                      'Total', bold)
+# worksheet_main.write(row, 1, '=SUM(B1:B'+str(lastrow)+')', bold)
 
 workbook.close()
 
