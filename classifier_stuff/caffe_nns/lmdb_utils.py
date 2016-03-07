@@ -13,7 +13,7 @@ from trendi import Utils
 import random
 import logging
 
-logging.basicConfig(level=logging.DEBUG)
+logging.basicConfig(level=logging.WARNING)
 
 #shellscript for mean comp:
 #TOOLS=/home/ubuntu/repositories/caffe/build/tools
@@ -205,7 +205,7 @@ def interleaved_dir_of_dirs_to_lmdb(dbname,dir_of_dirs,test_or_train=None,max_im
             only_files = all_files[a_dir]
             n = len(only_files)
             if image_number_in_class >= n:
-                print('reached end of images in '+a_dir+' which has '+str(n)+' files, skipping to next class')
+#                print('reached end of images in '+a_dir+' which has '+str(n)+' files, skipping to next class')
                 continue
    #         print('n files {} in {} current {} class {}'.format(n,a_dir,image_number_in_class,classno),end='')
             a_file =only_files[image_number_in_class]
@@ -253,9 +253,11 @@ def interleaved_dir_of_dirs_to_lmdb(dbname,dir_of_dirs,test_or_train=None,max_im
                 datum.channels = 1
                 blue_chan = img_arr[:,:,0]
                 datum.data = blue_chan.tobytes()  # or .tostring() if numpy < 1.9
+            else:
+                datum.channels = img_arr.shape[2]
             datum.label = classno
             str_id = '{:08}'.format(image_number)
-            print('strid:{} w:{} h:{} d:{} class:{}'.format(str_id,datum.width,datum.height,datum.channels,datum.label)),
+            print('db: {} strid:{} w:{} h:{} d:{} class:{} name {}'.format(dbname,str_id,datum.width,datum.height,datum.channels,datum.label,a_file)),
             # The encode is only essential in Python 3
             try:
                 txn.put(str_id.encode('ascii'), datum.SerializeToString())

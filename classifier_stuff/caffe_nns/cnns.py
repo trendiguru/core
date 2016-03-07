@@ -103,7 +103,7 @@ def write_prototxt(proto_filename,test_iter = 9,solver_mode='GPU'):
                         'gamma': 0.0001,
                         'power': 0.75,
                         'display': 100,
-                        'max_iter': 10000,
+                        'max_iter': 1000,
                         'snapshot': 5000,
                         'snapshot_prefix': dir,
                         'solver_mode':solver_mode }
@@ -267,6 +267,8 @@ def mynet(db, batch_size,n_classes=11,meanB=128,meanG=128,meanR=128  ):
     n=caffe.NetSpec()
     if meanB:
         n.data,n.label=L.Data(batch_size=batch_size,backend=P.Data.LMDB,source=db,transform_param=dict(scale=1./255,mean_value=meanB),ntop=2)
+    elif meanB and meanG and meanR:
+        n.data,n.label=L.Data(batch_size=batch_size,backend=P.Data.LMDB,source=db,transform_param=dict(scale=1./255,mean_value=[meanB,meanG,meanR]),ntop=2)
     else:
         n.data,n.label=L.Data(batch_size=batch_size,backend=P.Data.LMDB,source=db,transform_param=dict(scale=1./255),ntop=2)
 
@@ -277,17 +279,25 @@ def mynet(db, batch_size,n_classes=11,meanB=128,meanG=128,meanR=128  ):
  #       kernel_h=kh, kernel_w=kw, stride=stride, num_output=nout, pad=pad,
   #      weight_filler=dict(type='gaussian', std=0.1, sparse=sparse),
    #     bias_filler=dict(type='constant', value=0))
-
     n.pool1 = L.Pooling(n.conv1, kernel_size=2, stride=2, pool=P.Pooling.MAX)
+
     n.conv2 = L.Convolution(n.pool1,param=[dict(lr_mult=lr_mult1),dict(lr_mult=lr_mult2)],
-                            kernel_size=5,stride=1,num_output=20,weight_filler=dict(type='xavier'))
+                            kernel_size=5,stride=1,num_output=50,weight_filler=dict(type='xavier'))
     n.pool2 = L.Pooling(n.conv2, kernel_size=2, stride=2, pool=P.Pooling.MAX)
 
+    n.conv3 = L.Convolution(n.pool2,param=[dict(lr_mult=lr_mult1),dict(lr_mult=lr_mult2)],
+                            kernel_size=5,stride = 1, num_output=50,weight_filler=dict(type='xavier'))
+    n.pool3 = L.Pooling(n.conv3, kernel_size=2, stride=2, pool=P.Pooling.MAX)
+
+    n.conv4 = L.Convolution(n.pool3,param=[dict(lr_mult=lr_mult1),dict(lr_mult=lr_mult2)],
+                            kernel_size=5,stride=1,num_output=20,weight_filler=dict(type='xavier'))
+    n.pool4 = L.Pooling(n.conv4, kernel_size=2, stride=2, pool=P.Pooling.MAX)
+
 #    n.ip1 = L.InnerProduct(n.pool2,num_output=500,weight_filler=dict(type='xavier'))
-    n.ip1 = L.InnerProduct(n.pool2,param=[dict(lr_mult=lr_mult1),dict(lr_mult=lr_mult2)],num_output=500,weight_filler=dict(type='xavier'))
+    n.ip1 = L.InnerProduct(n.pool4,param=[dict(lr_mult=lr_mult1),dict(lr_mult=lr_mult2)],num_output=1000,weight_filler=dict(type='xavier'))
     n.relu1 = L.ReLU(n.ip1, in_place=True)
     n.ip2 = L.InnerProduct(n.relu1,param=[dict(lr_mult=lr_mult1),dict(lr_mult=lr_mult2)],num_output=n_classes,weight_filler=dict(type='xavier'))
-#    n.accuracy = L.Accuracy(n.ip2,n.label)
+    n.accuracy = L.Accuracy(n.ip2,n.label)
     n.loss = L.SoftmaxWithLoss(n.ip2,n.label)
     return n.to_proto()
 
@@ -404,15 +414,17 @@ def run_my_net(nn_dir,train_db,test_db,batch_size = 64,n_classes=11,meanB=None,m
             print('correct {} n {} batchsize {} %{}:'.format(correct,n_sample,len(solver.test_nets[0].blobs['label'].data), percent_correct))
             test_acc[it // test_interval] = percent_correct
 
+    _, ax1 = plt.subplots()
+    ax2 = ax1.twinx()
+    ax1.plot(arange(niter), train_loss)
+    ax2.plot(test_interval * arange(len(test_acc)), test_acc, 'r')
+    ax1.set_xlabel('iteration')
+    ax1.set_ylabel('train loss')
+    ax2.set_ylabel('test accuracy')
     if pc:
-        _, ax1 = plt.subplots()
-        ax2 = ax1.twinx()
-        ax1.plot(arange(niter), train_loss)
-        ax2.plot(test_interval * arange(len(test_acc)), test_acc, 'r')
-        ax1.set_xlabel('iteration')
-        ax1.set_ylabel('train loss')
-        ax2.set_ylabel('test accuracy')
         plt.show()
+    fig = plt.figure()
+    fig.savefig('out.png')
     print('loss:'+str(train_loss))
     print('acc:'+str(test_acc))
 
@@ -445,6 +457,8 @@ def load_net(prototxt,caffemodel,mean_B=128,mean_G=128,mean_R=128,image='../../i
                              image_width, image_height)  # image size is 227x227
     image = caffe.io.load_image(image)
     transformed_image = transformer.preprocess('data', image)
+    fig = plt.figure()
+    fig.savefig('out.png')
 #    plt.imshow(image)
 # copy the image data into the memory allocated for the net
     net.blobs['data'].data[...] = transformed_image
@@ -493,6 +507,7 @@ if __name__ == "__main__":
     if host == 'jr-ThinkPad-X1-Carbon':
         pc = True
         dir_of_dirs = '/home/jr/python-packages/trendi/classifier_stuff/caffe_nns/plusminus_data'
+        dir_of_dirs = '/home/jr/python-packages/trendi/classifier_stuff/caffe_nns/dataset'
         max_images_per_class = 10000
         solver_mode = 'CPU'
     else:
@@ -504,9 +519,9 @@ if __name__ == "__main__":
 
     print('dir:'+dir_of_dirs)
 #    h,w,d,B,G,R,n = imutils.image_stats_from_dir_of_ditestrs(dir_of_dirs)
-    resize_x = 100
+    resize_x = 200
     #resize_y = int(h*128/w)
-    resize_y=100
+    resize_y=200
    # B=int(B)
    # G=int(G)
     #R=int(R)
@@ -515,24 +530,24 @@ if __name__ == "__main__":
     R=162
     db_name = 'pluszero'
     db_name = 'plus_zero'
-    db_name = 'mydb100'
+    db_name = 'mydb200'
 #    lmdb_utils.kill_db(db_name)
     test_iter = 100
-    batch_size = 32  #use powers of 2 for better perf (supposedly)
+    batch_size = 256  #use powers of 2 for better perf (supposedly)
 
-    generate_db = True
+    generate_db = False
     if generate_db:
         n_test_classes,test_populations,image_number_test = lmdb_utils.interleaved_dir_of_dirs_to_lmdb(db_name,dir_of_dirs,
                                                                                            max_images_per_class =max_images_per_class,test_or_train='test',resize_x=resize_x,resize_y=resize_y,
-                                                                                        use_visual_output=False,n_channels=1)
+                                                                                        use_visual_output=False,n_channels=3)
         n_train_classes,train_populations,image_number_train = lmdb_utils.interleaved_dir_of_dirs_to_lmdb(db_name,dir_of_dirs,
                                                                                               max_images_per_class =max_images_per_class,test_or_train='train',resize_x=resize_x,resize_y=resize_y,
-                                                                                        use_visual_output=False,n_channels=1)
+                                                                                        use_visual_output=False,n_channels=3)
         tot_train_samples = np.sum(train_populations)
         tot_test_samples = np.sum(test_populations)
         n_classes = n_test_classes
         print('trainclasses {} sum {} n {} test classes{} sum {} n {} testiter {} batch_size {}'.format(n_train_classes,tot_train_samples,image_number_train,n_test_classes,tot_test_samples,image_number_test,test_iter,batch_size))
     else:
-        n_classes  = 2
+        n_classes  = 11
 
     run_my_net(dir_of_dirs,db_name+'.train',db_name+'.test',batch_size = batch_size,n_classes=n_classes,meanB=B,meanR=R,meanG=G)
