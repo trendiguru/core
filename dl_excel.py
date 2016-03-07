@@ -13,28 +13,27 @@ worksheet_main = workbook.add_worksheet('main')
 categories = []
 print ("total count = %s" %(db.ebay_Female.count()))
 for cat in ebay_constants.categories_keywords:
-    count = db.ebay_Female.find({'categories':cat}).count()
+    count = db.ebay_Female.find({'categories': cat}).count()
     categories.append([cat, count])
 
 # #create headers
-bold = workbook.add_format({'bold': True})
+bold = workbook.add_format({'bold': True, })
+
 # worksheet_main.write(0, 0, 'CATEGORIES', bold)
 # worksheet_main.write(0, 1,      'COUNT', bold)
 #
 # # Start from the first cell. Rows and columns are zero indexed.
 # row = 1
 # col = 0
-
-worksheet_main.add_table('B2:C'+str(len(categories)), {'data' : categories,
-                                                       'total_row': True,
-                                                       'columns':[{'header': 'categories', 'format' :bold},
-                                                                  {'header': 'count','format':bold,
-                                                                   'total_function' : 'sum'},
-                                                                  {'total_string': 'Total'}],
-                                                       'first_column': True,
-                                                       'last_column' : True,
-                                                       'banded_columns': True,
-                                                       'banded_rows': False})
+worksheet_main.set_column('B:C',20)
+worksheet_main.add_table('B2:C'+str(len(categories)+3),
+                         {'data' : categories,
+                          'total_row': True,
+                          'columns': [{'header': 'Categories', 'total_string': 'Total'},
+                                      {'header': 'Count',   'total_function' : 'sum'},],
+                          'banded_columns': True,
+                          'banded_rows': False,
+                          'header_row': True})
 # for item, cost in (categories):
 #     worksheet_main.write(row, col,     item)
 #     worksheet_main.write(row, col + 1, cost)
