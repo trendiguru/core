@@ -12,7 +12,7 @@ worksheet_main.write('A2', 'test')
 workbook.close()
 
 print ('uploading to drive...')
-files = [(filename,path2file, True)]
+files = (filename,path2file, True)
 res = drive.upload2drive(files)
 if res:
     print('files uploaded!')
