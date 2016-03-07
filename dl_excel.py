@@ -17,7 +17,7 @@ for cat in ebay_constants.categories_keywords:
     categories.append([cat, count])
 
 # #create headers
-# bold = workbook.add_format({'bold': True})
+bold = workbook.add_format({'bold': True})
 # worksheet_main.write(0, 0, 'CATEGORIES', bold)
 # worksheet_main.write(0, 1,      'COUNT', bold)
 #
@@ -27,11 +27,14 @@ for cat in ebay_constants.categories_keywords:
 
 worksheet_main.add_table('B2:C'+str(len(categories)), {'data' : categories,
                                                        'total_row': True,
-                                                       'columns':[{'header': 'categories'},
-                                                                  {'header': 'count'}
-                                                                  ],
+                                                       'columns':[{'header': 'categories', 'format' :bold},
+                                                                  {'header': 'count','format':bold,
+                                                                   'total_function' : 'sum'},
+                                                                  {'total_string': 'Total'}],
                                                        'first_column': True,
-                                                       'last_column' : True})
+                                                       'last_column' : True,
+                                                       'banded_columns': True,
+                                                       'banded_rows': False})
 # for item, cost in (categories):
 #     worksheet_main.write(row, col,     item)
 #     worksheet_main.write(row, col + 1, cost)
