@@ -1,3 +1,5 @@
+from __future__ import print_function
+
 __author__ = 'jeremy'
 
 import os
@@ -7,7 +9,6 @@ import logging
 logging.basicConfig(level=logging.DEBUG)
 import numpy as np
 from trendi import Utils
-from __future__ import print_function
 
 def image_stats_from_dir_of_dirs(dir_of_dirs):
     only_dirs = [dir for dir in os.listdir(dir_of_dirs) if os.path.isdir(os.path.join(dir_of_dirs,dir))]
