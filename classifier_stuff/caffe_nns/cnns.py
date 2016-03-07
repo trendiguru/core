@@ -153,14 +153,10 @@ solver_mode: GPU
 def lenet(lmdb, batch_size):  #test_iter * batch_size <= n_samples!!!
     lr_mult1 = 1
     lr_mult2 = 2
-    decay_mult1 =1
-    decay_mult2 =0
     n=caffe.NetSpec()
     n.data,n.label=L.Data(batch_size=batch_size,backend=P.Data.LMDB,source=lmdb,transform_param=dict(scale=1./255),ntop=2)
 
-    n.conv1 = L.Convolution(n.data,param=[dict(lr_mult=lr_mult1,decay_mult=decay_mult1),
-                                          dict(lr_mult=lr_mult2,decay_mult=decay_mult2)],
-                            kernel_size=5,stride = 1, num_output=50,weight_filler=dict(type='xavier'))
+    n.conv1 = L.Convolution(n.data,  kernel_size=5,stride = 1, num_output=50,weight_filler=dict(type='xavier'))
 #    L.Convolution(bottom, param=[dict(lr_mult=lr_mult1),dict(lr_mult=lr_mult2)],
  #       kernel_h=kh, kernel_w=kw, stride=stride, num_output=nout, pad=pad,
   #      weight_filler=dict(type='gaussian', std=0.1, sparse=sparse),
@@ -308,6 +304,9 @@ def run_lenet():
 def mynet(db, batch_size,n_classes=11,meanB=128,meanG=128,meanR=128  ):
     lr_mult1 = 1
     lr_mult2 = 2
+    decay_mult1 =1
+    decay_mult2 =0
+
     n=caffe.NetSpec()
     if meanB:
         n.data,n.label=L.Data(batch_size=batch_size,backend=P.Data.LMDB,source=db,transform_param=dict(scale=1./255,mean_value=meanB),ntop=2)
@@ -316,6 +315,10 @@ def mynet(db, batch_size,n_classes=11,meanB=128,meanG=128,meanR=128  ):
         n.data,n.label=L.Data(batch_size=batch_size,backend=P.Data.LMDB,source=db,transform_param=dict(scale=1./255,mean_value=[meanB,meanG,meanR]),ntop=2)
     else:
         n.data,n.label=L.Data(batch_size=batch_size,backend=P.Data.LMDB,source=db,transform_param=dict(scale=1./255),ntop=2)
+
+    n.conv1 = L.Convolution(n.data,param=[dict(lr_mult=lr_mult1,decay_mult=decay_mult1),
+                                          dict(lr_mult=lr_mult2,decay_mult=decay_mult2)],
+                            kernel_size=5,stride = 1, num_output=50,weight_filler=dict(type='xavier'))
 
 #    n.conv1 = L.Convolution(n.data,kernel_size=5,stride = 1, num_output=50,weight_filler=dict(type='xavier'))
     n.conv1 = L.Convolution(n.data,param=[dict(lr_mult=lr_mult1),dict(lr_mult=lr_mult2)],
