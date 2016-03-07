@@ -585,14 +585,26 @@ if __name__ == "__main__":
     db_name = 'pluszero'
     db_name = 'mydb200'
     db_name = 'plus_zero'
+
+
+    B=112
+    G=123
+    R=136
     db_name = 'highly_populated'
 #    lmdb_utils.kill_db(db_name)
     test_iter = 100
     batch_size = 32  #use powers of 2 for better perf (supposedly)
 
+    find_averages = False
+    if find_averages:
+        retval = imutils.image_stats_from_dir_of_dirs(dir_of_dirs)
+#            return([avg_h,avg_w,avg_d,avg_B,avg_G,avg_R,totfiles])
+        B = retval[3]
+        G = retval[4]
+        R = retval[5]
+
     generate_db = True
     if generate_db:
-        retval = imutils.image_stats_from_dir_of_dirs(dir_of_dirs)
         raw_input('return to continue')
         n_test_classes,test_populations,image_number_test = lmdb_utils.interleaved_dir_of_dirs_to_lmdb(db_name,dir_of_dirs,
                                                                                            max_images_per_class =max_images_per_class,test_or_train='test',resize_x=resize_x,resize_y=resize_y,

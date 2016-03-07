@@ -243,11 +243,17 @@ def interleaved_dir_of_dirs_to_lmdb(dbname,dir_of_dirs,test_or_train=None,max_im
                 img_arr[:,:,0] = img_arr[:,:,0]-avg_B
                 img_arr[:,:,1] = img_arr[:,:,1]-avg_G
                 img_arr[:,:,2] = img_arr[:,:,2]-avg_R
+
             datum = caffe.proto.caffe_pb2.Datum()
             datum.height = img_arr.shape[0]
             datum.width = img_arr.shape[1]
+
+        #see https://github.com/BVLC/caffe/issues/1698 -
+            img_arr = img_arr[:,:,::-1]
+            img_arr = img_arr.transpose((2,0,1))
+
 #                    img_reshaped = img_arr.reshape((datum.channels,datum.height,datum.width))
-#                    print('reshaped size: '+str(img_reshaped.shape))
+            print('reshaped size: '+str(img_arr.shape))
             datum.data = img_arr.tobytes()  # or .tostring() if numpy < 1.9
             if n_channels == 1:  #for grayscale img
                 datum.channels = 1
