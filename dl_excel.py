@@ -25,17 +25,15 @@ bold = workbook.add_format({'bold': True})
 # # Start from the first cell. Rows and columns are zero indexed.
 # row = 1
 # col = 0
-worksheet_main.set_column('B:B',70)
-worksheet_main.set_column('C:C',70)
+worksheet_main.set_column('B:C',20)
 worksheet_main.add_table('B2:C'+str(len(categories)),
-                         {
-                             'data' : categories,
+                         {'data' : categories,
                           'total_row': True,
-                          'columns': [{'header': 'categories', 'total_string': 'Total','format' :bold},
-                                      {'header': 'count','format':bold, 'total_function' : 'sum'}],
+                          'columns': [{'header': 'categories', 'total_string': 'Total', 'format': bold},
+                                      {'header': 'count',   'total_function' : 'sum', 'format':   bold}],
                           'banded_columns': True,
                           'banded_rows': False,
-                          'autofilter': False})
+                          'autofilter': True})
 # for item, cost in (categories):
 #     worksheet_main.write(row, col,     item)
 #     worksheet_main.write(row, col + 1, cost)
