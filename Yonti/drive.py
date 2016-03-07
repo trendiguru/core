@@ -19,12 +19,12 @@ def retrieve_all_files(service):
     """
     result = []
     page_token = None
-    page_token = None
     while True:
         response = service.files().list(q="mimeType='image/jpeg'",
                                         spaces='drive',
                                         fields='nextPageToken, files(id, name)',
                                         pageToken=page_token).execute()
+        print('rs')
         for file in response.get('files', []):
             # Process change
             print ('Found file: %s (%s)' % (file.get('name'), file.get('id')))
