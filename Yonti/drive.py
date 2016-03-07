@@ -20,7 +20,7 @@ def retrieve_all_files(service):
     result = []
     page_token = None
     while True:
-        response = service.files().list(q="mimeType='image/jpeg'",
+        response = service.files().list(q="name='ebay'",
                                         spaces='drive',
                                         fields='nextPageToken, files(id, name)',
                                         pageToken=page_token).execute()
