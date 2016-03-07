@@ -41,9 +41,8 @@ def upload2drive(FILE2INSERT):
                     if flags else tools.run(flow, store)
         DRIVE = build('drive', 'v2', http=creds.authorize(Http()))
 
-        is_file_in_folder(DRIVE, folder_id=parent_folder, file_name="'ebay'")
-
         filename,path2file,convert = FILE2INSERT
+        is_file_in_folder(DRIVE, folder_id=parent_folder, file_name=filename)
         metadata = {'title': filename,
                     'parents':[{'id': parent_folder}]}
         res = DRIVE.files().insert(convert=convert, body=metadata,
