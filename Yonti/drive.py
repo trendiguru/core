@@ -8,7 +8,7 @@ try:
 except ImportError:
     flags = None
 
-def upload2drive(FILES)
+def upload2drive(FILES):
 #FILES = [(filename, True/False),...]
     try:
         SCOPES = 'https://www.googleapis.com/auth/drive'
