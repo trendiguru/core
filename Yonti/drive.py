@@ -14,21 +14,17 @@ parent_folder = "0B-fDiFA73MH_N1ZCNVNYcW0tRFk"
 def is_file_in_folder(service, folder_id, file_name):
     # param={"name":='ebay'"}
     try:
-        children = service.children().list(folderId=folder_id, q="fullText contains 'ebay'").execute()
-        for child in children.get('name', []):
-            print(child)
-            # child_name = child['name']
-            # child_id = child['id']
-            # print ('File Name : %s  File Id: %s' % (child_name,child_id))
-            # if child_name == 'ebay':
-            #     return True, child_id
-            break
+        query_by_name = "fullText contains '"+file_name+"' and trashed = false"
+        children = service.children().list(folderId=folder_id, q=query_by_name).execute()
+        child =children.get('item')
+        child_id = child['id']
+        return True, child_id
+
     except errors.HttpError, error:
         if error.resp.status != 404:
             print ('An error occurred: %s' % error)
-        return False, []
-
     return False, []
+
 
 def upload2drive(FILE2INSERT):
 #FILES = [(filename, path2file, True/False),...]
@@ -43,6 +39,7 @@ def upload2drive(FILE2INSERT):
                     if flags else tools.run(flow, store)
         DRIVE = build('drive', 'v2', http=creds.authorize(Http()))
         file_exists, file_id = is_file_in_folder(DRIVE, folder_id=parent_folder, file_name='ebay')
+
         if file_exists:
             DRIVE.children().delete(folderId=parent_folder, childId=file_id).execute()
 
