@@ -84,7 +84,7 @@ def write_prototxt(proto_filename,test_iter = 9,solver_mode='GPU'):
     file_base = filename.split('prototxt')[0]
     train_file = os.path.join(dir,file_base+'train.prototxt')
     test_file = os.path.join(dir,file_base + 'test.prototxt')
-    # test_iter specifies how many forward passes the test should carry out.
+    # test_iter specifies how many forward passes the test should carry out. test_iter*batch_size<= # test images
     # In the case of MNIST, we have test batch size 100 and 100 test iterations,
     # covering the full 10,000 testing images.
     # test_interval - Carry out testing every 500 training iterations.
@@ -631,3 +631,9 @@ if __name__ == "__main__":
   #  lmdb_utils.inspect_db(db_name+'.test')
    # raw_input('enter to cont')
     run_my_net(dir_of_dirs,db_name+'.train',db_name+'.test',batch_size = batch_size,n_classes=n_classes,meanB=B,meanR=R,meanG=G)
+
+
+#to train at cli:
+# caffe train -solver=solver_prototxt
+#to test
+#caffe test -mode test.prototxt -weights model.caffemodel -gpu 0 -iterations 100

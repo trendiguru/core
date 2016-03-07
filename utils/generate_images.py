@@ -126,7 +126,7 @@ def generate_images(img_filename, max_angle = 5,n_angles=10,
             logging.warning('bad width encountered in imutils.resize_and_crop_image for '+str(input_file_or_np_arr))
             return None
 
-# Python: cv2.transform(src, m[, dst]) → dst
+# Python: cv2.transform(src, m[, dst]) -> dst
 #http://docs.opencv.org/2.4/modules/core/doc/operations_on_arrays.html#void%20transform%28InputArray%20src,%20OutputArray%20dst,%20InputArray%20m%29
 
 
@@ -154,7 +154,7 @@ def generate_images(img_filename, max_angle = 5,n_angles=10,
 #                                xformed_img_arr  = cv2.warpAffine(noised,  M, (width,height),dst=dest,borderMode=cv2.BORDER_TRANSPARENT)
                                 xformed_img_arr  = cv2.warpAffine(noised,  M, (width,height),dst=dest,borderMode=cv2.BORDER_REPLICATE)
                                 xformed_img_arr = dest
-                                xformed_bb_points  = np.dot()
+                                xformed_bb_points  = np.dot(bb_points,M)
                                 name = filename[0:-4]+'_ref{0}dx{1}dy{2}rot{3}scl{4}n{5}b{6}'.format(n_reflection,offset_x,offset_y,angle,scale,i,blur)+'.jpg'
                                 name = filename[0:-4]+'_ref%ddx%ddy%drot%.2fscl%.2fn%db%.2f' % (n_reflection,offset_x,offset_y,angle,scale,i,blur)+'.jpg'
                                 if output_dir is not None:
@@ -164,6 +164,16 @@ def generate_images(img_filename, max_angle = 5,n_angles=10,
                                 print('name:'+str(full_name))
                                 cv2.imwrite(full_name, xformed_img_arr)
                                 if show_visual_output:
+
+                                  #  img_copy = xformed_img_arr.copy()
+                                    #cv2.rectangle(img, pt1, pt2, color[, thickness[, lineType[, shift]]]) → None
+#                                    cv2.rectangle(img_copy,pt1,pt2)
+
+                          #          cv2.line(img_copy,pt1,pt2)
+                            #        cv2.line(img_copy,pt2,pt3)
+                              #      cv2.line(img_copy,pt3,pt4)
+                                #    cv2.line(img_copy,pt4,pt1)
+                                  #  k = cv2.waitKey(0)
                                     cv2.imshow('xformed',xformed_img_arr)
                                     k = cv2.waitKey(0)
                           #  raw_input('enter to cont')
