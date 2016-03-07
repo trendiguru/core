@@ -76,8 +76,8 @@ def fromCats2ppdCats(cats):
     for cat in cats:
         ppd_cats.append(ebay_constants.ebay_paperdoll_women[cat])
     cat_count = len(ppd_cats)
-    if cat_count>1:
-        print (ppd_cats)
+    # if cat_count>1:
+    #     print (ppd_cats)
     if cat_count==0:
         return []
     return ppd_cats[0]
