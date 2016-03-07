@@ -24,10 +24,11 @@ def retrieve_all_files(service):
         param = {}
         if page_token:
             param['pageToken'] = page_token
-        files = service.files().list(**param).execute()
+        children = service.children().list(folderId="0B-fDiFA73MH_N1ZCNVNYcW0tRFk",**param).execute()
 
-        result.extend(files['items'])
-        page_token = files.get('nextPageToken')
+        for child in children.get('items', []):
+            print ('File Id: %s' % child['id'])
+        page_token = children.get('nextPageToken')
         if not page_token:
             break
     except errors.HttpError, error:
@@ -49,8 +50,8 @@ def upload2drive(FILES):
                     if flags else tools.run(flow, store)
         DRIVE = build('drive', 'v2', http=creds.authorize(Http()))
         filesInDrive = retrieve_all_files(DRIVE)
-        for f in filesInDrive:
-            print(f)
+        # for f in filesInDrive:
+        #     print(f)
         # for filename,path2file,convert in FILES:
         #     metadata = {'title': filename,
         #                 'parents':[{'id':"0B-fDiFA73MH_N1ZCNVNYcW0tRFk"}]}
