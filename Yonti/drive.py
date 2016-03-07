@@ -10,31 +10,28 @@ except ImportError:
     flags = None
 
 def retrieve_all_files(service):
-  """Retrieve a list of File resources.
+    """Retrieve a list of File resources.
 
-  Args:
+    Args:
     service: Drive API service instance.
-  Returns:
+    Returns:
     List of File resources.
-  """
-  result = []
-  page_token = None
-  while True:
-    try:
-        param = {}
-        if page_token:
-            param['pageToken'] = page_token
-        children = service.children().list(folderId="0B-fDiFA73MH_N1ZCNVNYcW0tRFk",**param).execute()
-
-        for child in children.get('items'):
-            print (child)
-        page_token = children.get('nextPageToken')
-        if not page_token:
+    """
+    result = []
+    page_token = None
+    page_token = None
+    while True:
+        response = service.files().list(q="mimeType='image/jpeg'",
+                                        spaces='drive',
+                                        fields='nextPageToken, files(id, name)',
+                                        pageToken=page_token).execute()
+        for file in response.get('files', []):
+            # Process change
+            print ('Found file: %s (%s)' % (file.get('name'), file.get('id')))
+        page_token = response.get('nextPageToken', None)
+        if page_token is None:
             break
-    except errors.HttpError, error:
-        print ('An error occurred: %s' % error)
-        break
-  return result
+    return result
 
 
 def upload2drive(FILES):
