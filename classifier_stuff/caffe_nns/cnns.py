@@ -93,6 +93,8 @@ def write_prototxt(proto_filename,test_iter = 9,solver_mode='GPU'):
     # display - Display every n iterations
     # max_iter - The maximum number of iterations
     # snarpshot - snapshot intermediate results
+    # snarpshot prefix - dir for snapshot
+    # solver_mode - CPU or GPU
     prototxt ={ 'train_net':train_file,
                         'test_net': test_file,
                         'test_iter': test_iter,
@@ -103,8 +105,8 @@ def write_prototxt(proto_filename,test_iter = 9,solver_mode='GPU'):
                         'lr_policy': "inv",
                         'gamma': 0.0001,
                         'power': 0.75,
-                        'display': 50,
-                        'max_iter': 100000,
+                        'display': 10,
+                        'max_iter': 10000,
                         'snapshot': 1000,
                         'snapshot_prefix': dir,
                         'solver_mode':solver_mode }
