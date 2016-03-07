@@ -166,7 +166,7 @@ def generate_images(img_filename, max_angle = 5,n_angles=10,
                                 if show_visual_output:
 
                                   #  img_copy = xformed_img_arr.copy()
-                                    #cv2.rectangle(img, pt1, pt2, color[, thickness[, lineType[, shift]]]) → None
+                                    #cv2.rectangle(img, pt1, pt2, color[, thickness[, lineType[, shift]]]) -> None
 #                                    cv2.rectangle(img_copy,pt1,pt2)
 
                           #          cv2.line(img_copy,pt1,pt2)
