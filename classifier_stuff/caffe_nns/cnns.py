@@ -8,7 +8,7 @@ from trendi.classifier_stuff.caffe_nns import lmdb_utils
 import sys
 import caffe
 import cv2
-from trendi import imutils
+from trendi.utils import imutils
 #import Image
 #import matplotlib
 
