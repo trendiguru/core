@@ -105,7 +105,7 @@ def write_prototxt(proto_filename,test_iter = 9,solver_mode='GPU'):
                         'power': 0.75,
                         'display': 50,
                         'max_iter': 100000,
-                        'snapshot': 5000,
+                        'snapshot': 1000,
                         'snapshot_prefix': dir,
                         'solver_mode':solver_mode }
 
@@ -351,7 +351,7 @@ def mynet(db, batch_size,n_classes=11,meanB=128,meanG=128,meanR=128  ):
     n.ip1 = L.InnerProduct(n.pool2,param=[dict(lr_mult=lr_mult1),dict(lr_mult=lr_mult2)],num_output=1000,weight_filler=dict(type='xavier'))
     n.relu1 = L.ReLU(n.ip1, in_place=True)
     n.ip2 = L.InnerProduct(n.relu1,param=[dict(lr_mult=lr_mult1),dict(lr_mult=lr_mult2)],num_output=n_classes,weight_filler=dict(type='xavier'))
-  #  n.accuracy = L.Accuracy(n.ip2,n.label)
+    n.accuracy = L.Accuracy(n.ip2,n.label)
     n.loss = L.SoftmaxWithLoss(n.ip2,n.label)
     return n.to_proto()
 
@@ -562,7 +562,7 @@ if __name__ == "__main__":
         pc = True
         dir_of_dirs = '/home/jr/python-packages/trendi/classifier_stuff/caffe_nns/dataset'
         dir_of_dirs = '/home/jr/python-packages/trendi/classifier_stuff/caffe_nns/plusminus_data'
-        max_images_per_class = 10000
+        max_images_per_class = 100
         solver_mode = 'CPU'
     else:
         dir_of_dirs = '/home/jeremy/core/classifier_stuff/caffe_nns/plusminus_data'  #b2
@@ -604,9 +604,10 @@ if __name__ == "__main__":
         G = retval[4]
         R = retval[5]
 
-    generate_db = True
+#    lmdb_utils.inspect_db(db_name+'.train')
+  #  lmdb_utils.inspect_db(db_name+'.test')
+    generate_db = False
     if generate_db:
-        raw_input('return to continue')
         n_test_classes,test_populations,image_number_test = lmdb_utils.interleaved_dir_of_dirs_to_lmdb(db_name,dir_of_dirs,
                                                                                            max_images_per_class =max_images_per_class,test_or_train='test',resize_x=resize_x,resize_y=resize_y,
                                                                                         use_visual_output=False,n_channels=3)
@@ -622,6 +623,9 @@ if __name__ == "__main__":
         print('trainclasses {} populations {} tot_images {} '.format(n_train_classes,train_populations,image_number_train))
         print('sum test pops {}  sum train pops {}  testiter {} batch_size {}'.format(tot_train_samples,tot_test_samples,test_iter,batch_size))
     else:
-        n_classes  = 11
+        n_classes  = 4
 
+#    lmdb_utils.inspect_db(db_name+'.train')
+  #  lmdb_utils.inspect_db(db_name+'.test')
+   # raw_input('enter to cont')
     run_my_net(dir_of_dirs,db_name+'.train',db_name+'.test',batch_size = batch_size,n_classes=n_classes,meanB=B,meanR=R,meanG=G)
