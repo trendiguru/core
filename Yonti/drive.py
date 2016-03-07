@@ -11,27 +11,20 @@ except ImportError:
 ebay_id = '1JMRyLEf4jeEIH7Af07brOQStLxK-o4Bquho0JlsHttE'
 parent_folder = "0B-fDiFA73MH_N1ZCNVNYcW0tRFk"
 
-def is_file_in_folder(service, folder_id, file_id):
-  """Check if a file is in a specific folder.
+def is_file_in_folder(service, folder_id, file_name):
+    param={"q":'name="ebay"'}
+    try:
+        children = service.children().list(folderId=folder_id, **param ).execute()
+        for child in children.get('items', []):
+            c_id = child['id']
+            print ('File Id: %s' % c_id)
+            break
+    except errors.HttpError, error:
+        if error.resp.status != 404:
+            print ('An error occurred: %s' % error)
+        return False
 
-  Args:
-    service: Drive API service instance.
-    folder_id: ID of the folder.
-    file_id: ID of the file.
-  Returns:
-    Whether or not the file is in the folder.
-  """
-  param={"q":'name="ebay"'}
-  try:
-    children = service.children().list(folderId=folder_id, **param ).execute()
-    for child in children.get('items', []):
-        print ('File Id: %s' % child['id'])
-        break
-  except errors.HttpError, error:
-    if error.resp.status != 404:
-      print ('An error occurred: %s' % error)
-    return False
-  return True, child['id']
+    return True, c_id
 
 def upload2drive(FILE2INSERT):
 #FILES = [(filename, path2file, True/False),...]
