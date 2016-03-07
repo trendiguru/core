@@ -569,7 +569,8 @@ if __name__ == "__main__":
     else:
         dir_of_dirs = '/home/jeremy/core/classifier_stuff/caffe_nns/plusminus_data'  #b2
         dir_of_dirs = '/home/jeremy/core/classifier_stuff/caffe_nns/populated_items'  #b2
-        max_images_per_class = 100000
+        dir_of_dirs = '/home/jeremy/core/classifier_stuff/caffe_nns/cropped_dataset'  #b2
+        max_images_per_class = 10000
         pc = False
         solver_mode = 'GPU'
 
@@ -608,15 +609,15 @@ if __name__ == "__main__":
 
 #    lmdb_utils.inspect_db(db_name+'.train')
   #  lmdb_utils.inspect_db(db_name+'.test')
-    generate_db = False
+    generate_db = True
     if generate_db:
         n_test_classes,test_populations,image_number_test = lmdb_utils.interleaved_dir_of_dirs_to_lmdb(db_name,dir_of_dirs,
-                                                                                           max_images_per_class =max_images_per_class,test_or_train='test',resize_x=resize_x,resize_y=resize_y,
+                                                                                           max_images_per_class = 1000,test_or_train='test',resize_x=resize_x,resize_y=resize_y,
                                                                                         use_visual_output=False,n_channels=3)
         print('testclasses {} populations {} tot_images {} '.format(n_test_classes,test_populations,image_number_test))
 
         n_train_classes,train_populations,image_number_train = lmdb_utils.interleaved_dir_of_dirs_to_lmdb(db_name,dir_of_dirs,
-                                                                                              max_images_per_class =max_images_per_class,test_or_train='train',resize_x=resize_x,resize_y=resize_y,
+                                                                                              max_images_per_class =10000,test_or_train='train',resize_x=resize_x,resize_y=resize_y,
                                                                                         use_visual_output=False,n_channels=3)
         tot_train_samples = np.sum(train_populations)
         tot_test_samples = np.sum(test_populations)
