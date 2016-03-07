@@ -9,22 +9,23 @@ except ImportError:
     flags = None
 
 def upload2drive(FILES):
-#FILES = [(filename, True/False),...]
+#FILES = [(filename, path2file, True/False),...]
     try:
         SCOPES = 'https://www.googleapis.com/auth/drive'
         store = file.Storage('storage.json')
         creds = store.get()
         if not creds or creds.invalid:
-            flow = client.flow_from_clientsecrets('client_secret.json', SCOPES)
+            flow = client.flow_from_clientsecrets('/home/developer/python-packages/trendi/Yonti/client_secret.json',
+                                                  SCOPES)
             creds = tools.run_flow(flow, store, flags) \
                     if flags else tools.run(flow, store)
         DRIVE = build('drive', 'v2', http=creds.authorize(Http()))
 
-        for filename, convert in FILES:
+        for filename,path2file,convert in FILES:
             metadata = {'title': filename,
                         'parents':[{'id':"0B-fDiFA73MH_N1ZCNVNYcW0tRFk"}]}
             res = DRIVE.files().insert(convert=convert, body=metadata,
-                    media_body=filename, fields='mimeType,exportLinks').execute()
+                    media_body=path2file, fields='mimeType,exportLinks').execute()
             if res:
                 print('Uploaded "%s" (%s)' % (filename, res['mimeType']))
         return True
