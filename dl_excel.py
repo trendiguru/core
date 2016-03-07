@@ -26,7 +26,7 @@ def mongo2xl(filename, dl_info):
 
 
     ppd_categories = list(set(ebay_constants.ebay_paperdoll_women.values()))
-    for gender in ['Female','Male','Unisex']:
+    for gender in ['Female']:#'Male','Unisex']:
         if gender is 'Female':
             collection = db.ebay_Female
             current_worksheet = workbook.add_worksheet('Female')
