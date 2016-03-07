@@ -12,7 +12,7 @@ def upload2drive(FILES):
 #FILES = [(filename, path2file, True/False),...]
     try:
         SCOPES = 'https://www.googleapis.com/auth/drive'
-        store = file.Storage('storage.json')
+        store = file.Storage('/home/developer/python-packages/trendi/Yonti/storage.json')
         creds = store.get()
         if not creds or creds.invalid:
             flow = client.flow_from_clientsecrets('/home/developer/python-packages/trendi/Yonti/client_secret.json',
