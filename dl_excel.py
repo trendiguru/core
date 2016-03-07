@@ -25,8 +25,8 @@ bold = workbook.add_format({'bold': True})
 # # Start from the first cell. Rows and columns are zero indexed.
 # row = 1
 # col = 0
-worksheet_main.set_col('B',70)
-worksheet_main.set_col('C',70)
+worksheet_main.set_column('B:B',70)
+worksheet_main.set_column('C:C',70)
 worksheet_main.add_table('B2:C'+str(len(categories)),
                          {
                              'data' : categories,
