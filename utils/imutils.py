@@ -22,6 +22,7 @@ def image_stats_from_dir_of_dirs(dir_of_dirs):
     n=0
     for a_dir in only_dirs:
         fulldir = os.path.join(dir_of_dirs,a_dir)
+        print('analyzing dir '+fulldir)
         results = image_stats_from_dir(fulldir)
         if results is not None:
             hlist.append(results[0])
