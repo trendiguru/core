@@ -16,7 +16,7 @@ def is_file_in_folder(service, folder_id, file_name):
     try:
         query_by_name = "trashed = false and fullText contains " + file_name
         children = service.children().list(folderId=folder_id, q=query_by_name).execute()
-        childs =children.get('item')
+        childs =children.get('items')
         print (childs)
         if len(childs)<1:
             return False, []
