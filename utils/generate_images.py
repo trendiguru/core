@@ -108,7 +108,7 @@ def generate_images(img_filename, max_angle = 5,n_angles=10,
         cv2.imshow('orig',img_arr)
         k = cv2.waitKey(0)
     if 'bbox_' in img_filename and bb is None:
-        strs = orig_name.split('bbox_')
+        strs = img_filename.split('bbox_')
         bb_str = strs[1]
         coords = bb_str.split('_')
         bb_x = int(coords[0])
