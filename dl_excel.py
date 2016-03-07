@@ -8,6 +8,8 @@ worksheet_main = workbook.add_worksheet('main')
 
 worksheet_main.write('A1', 'ffffffff')
 worksheet_main.write('A2', 'test')
+worksheet_main.write('C1', 'ffffffff')
+worksheet_main.write('D2', 'test')
 
 workbook.close()
 
