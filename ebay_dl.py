@@ -20,6 +20,7 @@ import datetime
 import re
 from . import constants
 from . import ebay_constants
+from . import dl_excel
 db = constants.db
 db.ebay_Female.delete_many({})
 # db.ebay_Male.delete_many({})
@@ -70,9 +71,20 @@ def ftp_connection(params):
     ftp.login(user=params["user"], passwd=params["password"])
     return ftp
 
+def fromCats2ppdCats(cats):
+    ppd_cats = []
+    for cat in cats:
+        ppd_cats.append(ebay_constants.ebay_paperdoll_women[cat])
+    cat_count = len(ppd_cats)
+    if cat_count>1:
+        print (ppd_cats)
+    if cat_count==0:
+        return []
+    return ppd_cats[0]
+
 def title2category(title):
     TITLE= title.upper()
-    split1 = re.split(' |-', TITLE)
+    split1 = re.split(' ', TITLE)
     cats = []
     for s in split1:
         if s in ebay_constants.categories_keywords:
@@ -81,7 +93,8 @@ def title2category(title):
             return []
         else:
             pass
-    return cats
+    ppd_cats = fromCats2ppdCats(cats)
+    return ppd_cats
 
 start_time = time.time()
 #connecting to FTP
@@ -165,19 +178,12 @@ for filename in files:
 ftp.quit()
 stop_time = time.time()
 total_time = (stop_time-start_time)/60
-print ("download_time = %s" % str(total_time))
+dl_info = {"date": today_date,
+           "dl_duration": total_time,
+           "blacklist" : black_list,
+           "whitelist" : white_list}
 
-print ("\n\ncategories:")
-for cat in categories:
-    print(cat)
-
-print ("\n\nblacklist:")
-for black in black_list:
-    print(black)
-
-print ("\n\nwhitelist:")
-for w in white_list:
-    print(w)
+dl_excel.mongo2xl('ebay', dl_info)
 
 '''
 ftp codes per country:
