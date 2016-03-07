@@ -33,8 +33,9 @@ bold = workbook.add_format({'bold': True, })
 # row = 1
 # col = 0
 worksheet_main.set_column('B:F',15)
-worksheet_main.add_table('B2:F'+str(len(categories)+3),
+worksheet_main.add_table('B2:F'+str(len(categories)+4),
                          {'data' : categories,
+                          'header_row': True,
                           'total_row': True,
                           'columns': [{'header': 'Category', 'total_string': 'Total'},
                                       {'header': 'items',    'total_function' : 'sum'},
@@ -42,8 +43,7 @@ worksheet_main.add_table('B2:F'+str(len(categories)+3),
                                       {'header': 'instock',  'total_function' : 'sum'},
                                       {'header': 'out of stock', 'total_function' : 'sum'}],
                           'banded_columns': True,
-                          'banded_rows': False,
-                          'header_row': True})
+                          'banded_rows': False})
 # for item, cost in (categories):
 #     worksheet_main.write(row, col,     item)
 #     worksheet_main.write(row, col + 1, cost)
