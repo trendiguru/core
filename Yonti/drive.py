@@ -14,10 +14,12 @@ parent_folder = "0B-fDiFA73MH_N1ZCNVNYcW0tRFk"
 def is_file_in_folder(service, folder_id, file_name):
     # param={"name":='ebay'"}
     try:
-        query_by_name = "fullText contains '"+file_name+"' and trashed = false"
+        query_by_name = ["fullText contains '", file_name ,"' and trashed = false"]
         children = service.children().list(folderId=folder_id, q=query_by_name).execute()
         child =children.get('item')
         print (child)
+        if len(child)<1:
+            return False, []
         child_id = child['id']
         return True, child_id
 
