@@ -11,12 +11,17 @@ worksheet_main = workbook.add_worksheet('main')
 
 #prepare date
 categories = []
+print ("total count = %s" %(db.ebay_Female.count()))
 for cat in ebay_constants.categories_keywords:
     count = db.ebay_Female.find({'categories':cat}).count()
     categories.append([cat, count])
 
+#create headers
+worksheet_main.write(0, 1, 'CATEGORIES')
+worksheet_main.write(2, 1, 'COUNT')
+
 # Start from the first cell. Rows and columns are zero indexed.
-row = 0
+row = 1
 col = 0
 
 # Iterate over the data and write it out row by row.
