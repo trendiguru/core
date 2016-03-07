@@ -27,7 +27,7 @@ def retrieve_all_files(service):
         children = service.children().list(folderId="0B-fDiFA73MH_N1ZCNVNYcW0tRFk",**param).execute()
 
         for child in children.get('items', []):
-            print ('File Id: %s' % child['id'])
+            print ('File Id: %s  File Name: %s '% (child['id'], child['name']))
         page_token = children.get('nextPageToken')
         if not page_token:
             break
