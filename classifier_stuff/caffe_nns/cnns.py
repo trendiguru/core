@@ -591,6 +591,7 @@ if __name__ == "__main__":
     G=123
     R=136
     db_name = 'highly_populated'
+
 #    lmdb_utils.kill_db(db_name)
     test_iter = 100
     batch_size = 32  #use powers of 2 for better perf (supposedly)
