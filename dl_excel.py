@@ -17,30 +17,18 @@ def fillTable(worksheet,main_categories,collection,bold):
         instock = collection.find({'categories': cat, 'status.instock': True}).count()
         out = collection.find({'categories': cat, 'status.instock': False}).count()
         categories.append([cat, items, new_items, instock, out])
-    categories_length =len(categories)+2
+    categories_length =len(categories)+4
     worksheet.set_column('B:F',15)
-    options = {'data': categories,
-           'style': 'Table Style Light 11',
-           'total_row': 1,
-           'columns': [{'header': 'Product', 'total_string': 'Totals'},
-                       {'header': 'Quarter 1', 'total_function': 'sum'},
-                       {'header': 'Quarter 2', 'total_function': 'sum'},
-                       {'header': 'Quarter 3', 'total_function': 'sum'},
-                       {'header': 'Quarter 4', 'total_function': 'sum'},
-                       {'header': 'Year',
-                        'formula': '=SUM(Table11[@[Quarter 1]:[Quarter 4]])',
-                        'total_function': 'sum'
-                        },
-                       ]}
-    worksheet.add_table('B2:F'+str(categories_length+1), options)
-                     # {'data' : categories,
-                     #  'total_row': False,
-                     #  'columns': [{ 'total_string': 'Total'},
-                     #              {'total_function' : 'sum'},
-                     #              {'total_function' : 'sum'},
-                     #              {'total_function' : 'sum'},
-                     #              { 'total_function' : 'sum'}],
-                     #  })
+    options = {'data' : categories,
+               'total_row': True,
+               'columns': [{ 'total_string': 'Total'},
+                           {'total_function' : 'sum'},
+                           {'total_function' : 'sum'},
+                           {'total_function' : 'sum'},
+                           { 'total_function' : 'sum'}]
+               }
+    worksheet.add_table('B2:F'+str(categories_length), options)
+
 
 def mongo2xl(filename, dl_info):
     path2file = '/home/developer/yonti/'+filename+'.xlsx'
