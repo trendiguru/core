@@ -7,6 +7,29 @@ import datetime
 today_date = str(datetime.datetime.date(datetime.datetime.now()))
 
 db = constants.db
+def fillTable(worksheet,main_categories,collection,bold):
+    worksheet.write(0, 1, 'total count', bold)
+    worksheet.write(0, 2, collection.count(), bold)
+    categories = []
+    for cat in main_categories:
+        items = collection.find({'categories': cat}).count()
+        new_items = collection.find({'categories': cat, 'download_data.first_dl': today_date}).count()
+        instock = collection.find({'categories': cat, 'status.instock': True}).count()
+        out = collection.find({'categories': cat, 'status.instock': False}).count()
+        categories.append([cat, items,new_items, instock, out])
+    categories_length =len(categories)+2
+    worksheet.set_column('B:F',15)
+    worksheet.add_table('B2:F'+str(categories_length+1),
+                     {'data' : categories,
+                      'header_row': True,
+                      'autofilter': True,
+                      'total_row': True,
+                      'columns': [{'header': 'Category', 'total_string': 'Total'},
+                                  {'header': 'items',    'total_function' : '=SUBTOTAL(109,C2:C'+str(categories_length)},
+                                  {'header': 'new items','total_function' : '=SUBTOTAL(109,D2:D'+str(categories_length)},
+                                  {'header': 'instock',  'total_function' : '=SUBTOTAL(109,E2:E'+str(categories_length)},
+                                  {'header': 'out of stock', 'total_function' : '=SUBTOTAL(109,F2:F'+str(categories_length)}],
+                      'banded_columns': True})
 
 def mongo2xl(filename, dl_info):
     path2file = '/home/developer/yonti/'+filename+'.xlsx'
@@ -26,60 +49,55 @@ def mongo2xl(filename, dl_info):
     for i,w in enumerate(dl_info['whitelist']):
         worksheet_main.write(2+i,6, w)
 
+    categories = list(set(ebay_constants.ebay_paperdoll_women.values()))
 
-    ppd_categories = list(set(ebay_constants.ebay_paperdoll_women.values()))
-    for gender in ['Female', 'Male', 'Unisex']:
-        if gender is 'Female':
-            collection = db.ebay_Female
-            current_worksheet = workbook.add_worksheet('Female')
-        elif gender is 'Male':
-            collection = db.ebay_Male
-            current_worksheet = workbook.add_worksheet('Male')
+    if filename == 'ebay':
+        for gender in ['Female', 'Male', 'Unisex']:
+            if gender is 'Female':
+                collection = db.ebay_Female
+                current_worksheet = workbook.add_worksheet('Female')
+            elif gender is 'Male':
+                collection = db.ebay_Male
+                current_worksheet = workbook.add_worksheet('Male')
+            else:
+                collection = db.ebay_Unisex
+                current_worksheet = workbook.add_worksheet('Unisex')
+
+            fillTable(current_worksheet, categories, collection, bold)
+
+        current_worksheet = workbook.add_worksheet('ftp folder')
+        current_worksheet.set_column('A:D',25)
+        current_worksheet.add_table('A1:D'+str(len(dl_info['raw_data'])+4),
+                                    {'data': dl_info['raw_data'],
+                                     'columns': [ {'header': 'Filename'},
+                                                  {'header': 'Update time'},
+                                                  {'header': 'Size'},
+                                                  {'header': 'Status'}],
+                                     'banded_columns': True,
+                                     'banded_rows': True})
+    else:
+        if filename == 'shopstyle':
+            collection = db.products
+
+        elif filename == 'flipkart':
+            collection = db.flipkart
+
         else:
-            collection = db.ebay_Unisex
-            current_worksheet = workbook.add_worksheet('Unisex')
+            print ('nothing to convert')
+            workbook.close()
+            exit()
 
-        current_worksheet.write(0, 1, 'total count', bold)
-        current_worksheet.write(0, 2, collection.count(), bold)
-        categories = []
-        for cat in ppd_categories:
-            items = collection.find({'categories': cat}).count()
-            new_items = collection.find({'categories': cat, 'download_data.first_dl': today_date}).count()
-            instock = collection.find({'categories': cat, 'status.instock': True}).count()
-            out = collection.find({'categories': cat, 'status.instock': False}).count()
-            categories.append([cat, items,new_items, instock, out])
-
-        current_worksheet.set_column('B:F',15)
-        current_worksheet.add_table('B2:F'+str(len(categories)+4),
-                                 {'data' : categories,
-                                  'header_row': True,
-                                  'autofilter': True,
-                                  'total_row': True,
-                                  'columns': [{'header': 'Category', 'total_string': 'Total'},
-                                              {'header': 'items',    'total_function' : 'sum'},
-                                              {'header': 'new items','total_function' : 'sum'},
-                                              {'header': 'instock',  'total_function' : 'sum'},
-                                              {'header': 'out of stock', 'total_function' : 'sum'}],
-                                  'banded_columns': True,
-                                  'banded_rows': False})
-
-    current_worksheet = workbook.add_worksheet('ftp folder')
-    current_worksheet.set_column('A:D',25)
-    current_worksheet.add_table('A1:D'+str(len(dl_info['raw_data'])+4),
-                                {'data': dl_info['raw_data'],
-                                 'columns': [ {'header': 'Filename'},
-                                              {'header': 'Update time'},
-                                              {'header': 'Size'},
-                                              {'header': 'Status'}],
-                                 'banded_columns': True,
-                                 'banded_rows': True})
+        current_worksheet = workbook.add_worksheet('Women')
+        fillTable(current_worksheet,categories,collection, bold)
 
     workbook.close()
 
     print ('uploading to drive...')
-    files = (filename,path2file, True)
+    files = (filename, path2file, True)
     res = drive.upload2drive(files)
     if res:
         print('file uploaded!')
     else:
         print ('error while uploading!')
+
+    exit()
