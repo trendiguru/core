@@ -21,13 +21,15 @@ def fillTable(worksheet,main_categories,collection,bold):
     worksheet.set_column('B:F',15)
     worksheet.add_table('B2:F'+str(categories_length+1),
                      {'data' : categories,
+                      'header_row': False,
+                      'autofilter': True,
                       'total_row': True,
                       'columns': [{'header': 'Category', 'total_string': 'Total'},
-                                  {'total_function' : 'sum','header': 'items'},
-                                  {'total_function' : 'sum','header': 'new items'},
-                                  { 'total_function' : 'sum','header': 'instock'},
-                                  { 'total_function' : 'sum'}],})#'header': 'out of stock',
-
+                                  {'header': 'items',    'total_function' : 'sum'},
+                                  {'header': 'new items','total_function' : 'sum'},
+                                  {'header': 'instock',  'total_function' : 'sum'},
+                                  {'header': 'out of stock', 'total_function' : 'sum'}],
+                      })
 
 def mongo2xl(filename, dl_info):
     path2file = '/home/developer/yonti/'+filename+'.xlsx'
