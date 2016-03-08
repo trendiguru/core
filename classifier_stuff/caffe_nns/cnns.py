@@ -344,8 +344,8 @@ def mynet(db, batch_size,n_classes=11,meanB=128,meanG=128,meanR=128):
     n.pool2 = L.Pooling(n.conv2, kernel_size=2, stride=2, pool=P.Pooling.MAX)
 
 #    n.conv3 = L.Convolution(n.pool2,param=[dict(lr_mult=lr_mult1,decay_mult=decay_mult1),
-                                          dict(lr_mult=lr_mult2,decay_mult=decay_mult2)],
-                            kernel_size=5,stride = 1, num_output=50,weight_filler=dict(type='xavier'))
+             #                             dict(lr_mult=lr_mult2,decay_mult=decay_mult2)],
+               #             kernel_size=5,stride = 1, num_output=50,weight_filler=dict(type='xavier'))
 
 #    n.relu3 = L.ReLU(n.conv3, in_place=True)
   #  n.pool3 = L.Pooling(n.conv3, kernel_size=2, stride=2, pool=P.Pooling.MAX)
@@ -725,7 +725,7 @@ if __name__ == "__main__":
         dir_of_dirs = '/home/jeremy/core/classifier_stuff/caffe_nns/plusminus_data'  #b2
         dir_of_dirs = '/home/jeremy/core/classifier_stuff/caffe_nns/populated_items'  #b2
         dir_of_dirs = '/home/jeremy/core/classifier_stuff/caffe_nns/cropped_dataset'  #b2
-        nn_dir = '/home/jeremy/core/classifier_stuff/caffe_nns/conv_relu_x2'  #b2
+        nn_dir = '/home/jeremy/core/classifier_stuff/caffe_nns/conv_relu_x2ll'  #b2
         max_images_per_class = 10000
         pc = False
         solver_mode = 'GPU'
