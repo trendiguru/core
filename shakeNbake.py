@@ -27,7 +27,7 @@ from . import tmpGuard
 db = pymongo.MongoClient(host="mongodb1-instance-1", port=27017).mydb
 MAX_PER_DOMAIN = 5000
 
-whitelist = ["stylebook.com"]
+whitelist = ["stylebook.de"]
 
 
 # "manrepeller.com", "wishwishwish.net", "parkandcube.com", "stellaswardrobe.com",
@@ -117,7 +117,7 @@ def getAllUrls(url, html, obid):
             progress_bar(x, end_val)
             # extract link url from the anchor
             link = anchor.attrs["href"] if "href" in anchor.attrs else ''
-            print (link)
+            # print (link)
             if not link.startswith(domain_name):
                 if link.startswith('/') and len(link) > 3:
                     link = domain_name + link
