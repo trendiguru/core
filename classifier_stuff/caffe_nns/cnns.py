@@ -641,10 +641,10 @@ def run_my_net(nn_dir,train_db,test_db,batch_size = 64,n_classes=11,meanB=None,m
         plt.show()
     print('loss:'+str(train_loss))
     print('acc:'+str(test_acc))
-    outfilename = 'results.txt'
+    outfilename = os.path.join(nn_dir,'results.txt')
     with open(outfilename,'a') as f:
         f.write('dir {} db {}'.format(nn_dir,train_db,test_db))
-        f.write(test_acc)
+        f.write(str(test_acc))
         f.write(str(train_net))
         f.close()
 
@@ -741,7 +741,7 @@ if __name__ == "__main__":
         dir_of_dirs = '/home/jeremy/core/classifier_stuff/caffe_nns/plusminus_data'  #b2
         dir_of_dirs = '/home/jeremy/core/classifier_stuff/caffe_nns/populated_items'  #b2
         dir_of_dirs = '/home/jeremy/core/classifier_stuff/caffe_nns/cropped_dataset'  #b2
-        nn_dir = '/home/jeremy/core/classifier_stuff/caffe_nns/conv_relu_x2ll'  #b2
+        nn_dir = '/home/jeremy/core/classifier_stuff/caffe_nns/conv_relu_x4_nopool'  #b2
         max_images_per_class = 10000
         pc = False
         solver_mode = 'GPU'
