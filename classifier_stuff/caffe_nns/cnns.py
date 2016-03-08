@@ -462,7 +462,7 @@ def googLeNet(db, batch_size, n_classes=11, meanB=128, meanG=128, meanR=128):
                             bias_filler=dict(type='constant',value=0.2))
     n.inception_3a_relu_pool_proj_25 = L.ReLU(n.inception_3a_pool_proj_24, in_place=True)
     n.inception_3a_output_26 = L.Concat(bottom=n.inception_3a_1x1_13,
-                            bottom= in_place
+                            bottom= in_place)
 
 #    n.lrn1 = L.LRN(n.pool1,lrn_param=dict(local_size=5,alpha=0.0001,beta=0.75))
 
