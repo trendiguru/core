@@ -136,7 +136,7 @@ def write_prototxt(proto_filename,test_iter = 9,solver_mode='GPU'):
 #solver_mode: GPU
 
 #googlenet:
-'''net: "models/bvlc_googlenet/train_val.prototxt"
+'''net: "models/bvlc_googlenet/googLeNet.prototxt"
 test_iter: 1000
 test_interval: 4000
 test_initialization: false
@@ -360,10 +360,87 @@ def mynet(db, batch_size,n_classes=11,meanB=128,meanG=128,meanR=128  ):
     n.loss = L.SoftmaxWithLoss(n.ip2,n.label)
     return n.to_proto()
 
+
+def googLeNet(db, batch_size, n_classes=11, meanB=128, meanG=128, meanR=128):
+#    print('running mynet n {} B {} G {} R {] db {} batchsize {} '.format(n_classes,meanB,meanG,meanR,db,batch_size))
+    print('running mynet n {}  batchsize {} '.format(n_classes,batch_size))
+   #crop size 224
+    lr_mult1 = 1
+    lr_mult2 = 2
+    decay_mult1 =1
+    decay_mult2 =0
+
+    n=caffe.NetSpec()
+    if meanB is not None and meanG is not None and meanR is not None:
+        print('using vector mean ({} {} {})'.format(meanB,meanG,meanR ))
+        n.data,n.label=L.Data(batch_size=batch_size,backend=P.Data.LMDB,source=db,transform_param=dict(scale=1./255,mean_value=[meanB,meanG,meanR],mirror=True),ntop=2)
+    elif meanB:
+        print('using 1D mean {} '.format(meanB))
+        n.data,n.label=L.Data(batch_size=batch_size,backend=P.Data.LMDB,source=db,transform_param=dict(scale=1./255,mean_value=meanB),ntop=2)
+    else:
+        n.data,n.label=L.Data(batch_size=batch_size,backend=P.Data.LMDB,source=db,transform_param=dict(scale=1./255),ntop=2)
+
+    n.conv1 = L.Convolution(n.data,param=[dict(lr_mult=lr_mult1,decay_mult=decay_mult1),
+                                          dict(lr_mult=lr_mult2,decay_mult=decay_mult2)],
+                            kernel_size=5,stride = 1, num_output=64,weight_filler=dict(type='xavier'),bias_filler=dict(type='constant',value=0.2))
+
+
+    n.pool1 = L.Pooling(n.conv1, kernel_size=3, stride=2, pool=P.Pooling.MAX)
+    n.lrn1 = L.LRN(n.pool1,lrn_param=dict(local_size=5,alpha=0.0001,beta=0.75))
+
+    n.conv2 = L.Convolution(n.lrn1,param=[dict(lr_mult=lr_mult1,decay_mult=decay_mult1),
+                                          dict(lr_mult=lr_mult2,decay_mult=decay_mult2)],
+                            kernel_size=7,stride = 2, num_output=50,pad=3,weight_filler=dict(type='xavier'),bias_filler=dict(type='constant',value=0.2))
+
+    n.pool2 = L.Pooling(n.conv2, kernel_size=2, stride=2, pool=P.Pooling.MAX)
+
+    n.conv3 = L.Convolution(n.pool2,param=[dict(lr_mult=lr_mult1,decay_mult=decay_mult1),
+                                          dict(lr_mult=lr_mult2,decay_mult=decay_mult2)],
+                            kernel_size=5,stride = 1, num_output=50,weight_filler=dict(type='xavier'))
+
+    n.pool3 = L.Pooling(n.conv3, kernel_size=2, stride=2, pool=P.Pooling.MAX)
+
+
+#    n.conv4 = L.Convolution(n.pool3,param=[dict(lr_mult=lr_mult1),dict(lr_mult=lr_mult2)],
+  #                          kernel_size=5,stride=1,num_output=50,weight_filler=dict(type='xavier'))
+   # n.pool4 = L.Pooling(n.conv4, kernel_size=2, stride=2, pool=P.Pooling.MAX)
+
+#    n.ip1 = L.InnerProduct(n.pool2,num_output=500,weight_filler=dict(type='xavier'))
+    n.ip1 = L.InnerProduct(n.pool3,param=[dict(lr_mult=lr_mult1),dict(lr_mult=lr_mult2)],num_output=1000,weight_filler=dict(type='xavier'))
+    n.relu1 = L.ReLU(n.ip1, in_place=True)
+    n.ip2 = L.InnerProduct(n.relu1,param=[dict(lr_mult=lr_mult1),dict(lr_mult=lr_mult2)],num_output=n_classes,weight_filler=dict(type='xavier'))
+    n.accuracy = L.Accuracy(n.ip2,n.label)
+    n.loss = L.SoftmaxWithLoss(n.ip2,n.label)
+    return n.to_proto()
+
+
 '''to conditionally include, use
   include {
     phase: TRAIN
   }
+
+(data)
+layer {
+  name: "data"
+  type: "Data"
+  top: "data"
+  top: "label"
+  include {
+    phase: TRAIN
+  }
+  transform_param {
+    mirror: true
+    crop_size: 224
+    mean_value: 104
+    mean_value: 117
+    mean_value: 123
+  }
+  data_param {
+    source: "examples/imagenet/ilsvrc12_train_lmdb"
+    batch_size: 32
+    backend: LMDB
+  }
+
 
 (at end)
   layer {
@@ -375,6 +452,7 @@ def mynet(db, batch_size,n_classes=11,meanB=128,meanG=128,meanR=128  ):
   include {
     phase: TEST
   }
+
 }
 
 '''
@@ -410,10 +488,10 @@ def run_my_net(nn_dir,train_db,test_db,batch_size = 64,n_classes=11,meanB=None,m
     print('using trainfile:{} testfile:{}'.format(train_protofile,test_protofile))
 
     with open(train_protofile,'w') as f:
-        f.write(str(mynet(train_db,batch_size = batch_size,n_classes=n_classes,meanB=meanB,meanG=meanG,meanR=meanR)))
+        f.write(str(googLeNet(train_db,batch_size = batch_size,n_classes=n_classes,meanB=meanB,meanG=meanG,meanR=meanR)))
         f.close
     with open(test_protofile,'w') as g:
-        g.write(str(mynet(test_db, batch_size = batch_size,n_classes=n_classes,meanB=meanB,meanG=meanG,meanR=meanR)))
+        g.write(str(googLeNet(test_db, batch_size = batch_size,n_classes=n_classes,meanB=meanB,meanG=meanG,meanR=meanR)))
         g.close
 
     solver = caffe.SGDSolver(proto_file_path)
@@ -596,7 +674,7 @@ if __name__ == "__main__":
     B=112
     G=123
     R=136
-    db_name = 'highly_populated_cropped'
+   # db_name = 'highly_populated_cropped'
 
 #    lmdb_utils.kill_db(db_name)
     test_iter = 100
@@ -629,7 +707,7 @@ if __name__ == "__main__":
         print('trainclasses {} populations {} tot_images {} '.format(n_train_classes,train_populations,image_number_train))
         print('sum test pops {}  sum train pops {}  testiter {} batch_size {}'.format(tot_train_samples,tot_test_samples,test_iter,batch_size))
     else:
-        n_classes  = 4
+        n_classes  = 2
 
 #    lmdb_utils.inspect_db(db_name+'.train')
   #  lmdb_utils.inspect_db(db_name+'.test')
