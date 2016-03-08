@@ -46,7 +46,7 @@ def upload2drive(FILE2INSERT):
                     'parents':[{'id': parent_folder}]}
         # res = DRIVE.files().insert(convert=convert, body=metadata,
         #         media_body=path2file, fields='id').execute()
-        res = DRIVE.files().insert(convert=False, body=metadata,
+        res = DRIVE.files().insert(body=metadata,
                 media_body=path2file, fields='id').execute()
         if res:
             print('Created new file named : "%s"  file id: %s' % (filename, res['id']))
