@@ -12,12 +12,15 @@ def fillTable(worksheet,main_categories,collection,bold):
     worksheet.write(0, 2, collection.count(), bold)
     categories = []
     for cat in main_categories:
+        print(cat)
+
         items = collection.find({'categories': cat}).count()
         new_items = collection.find({'categories': cat, 'download_data.first_dl': today_date}).count()
         instock = collection.find({'categories': cat, 'status.instock': True}).count()
         out = collection.find({'categories': cat, 'status.instock': False}).count()
         categories.append([cat, items,new_items, instock, out])
     categories_length =len(categories)+2
+    print("addtable")
     worksheet.set_column('B:F',15)
     worksheet.add_table('B2:F'+str(categories_length+1),
                      {'data' : categories,
@@ -86,7 +89,7 @@ def mongo2xl(filename, dl_info):
             print ('nothing to convert')
             workbook.close()
             exit()
-
+        print("filltable")
         current_worksheet = workbook.add_worksheet('Women')
         fillTable(current_worksheet,categories,collection, bold)
 
