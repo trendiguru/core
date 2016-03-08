@@ -95,7 +95,7 @@ def write_prototxt(proto_filename,test_iter = 9,solver_mode='GPU'):
     # display - Display every n iterations
     # max_iter - The maximum number of iterations
     # snarpshot - snapshot intermediate results
-    # snarpshot prefix - dir for snapshot
+    # snarpshot prefix - dir for snapshot  - maybe requires '/' at end?
     # solver_mode - CPU or GPU
     prototxt ={ 'train_net':train_file,
                         'test_net': test_file,
@@ -110,7 +110,7 @@ def write_prototxt(proto_filename,test_iter = 9,solver_mode='GPU'):
                         'display': 10,
                         'max_iter': 10000,
                         'snapshot': 1000,
-                        'snapshot_prefix': dir,
+                        'snapshot_prefix': dir+'/',
                         'solver_mode':solver_mode }
 
     print('writing prototxt:'+str(prototxt))
@@ -343,12 +343,12 @@ def mynet(db, batch_size,n_classes=11,meanB=128,meanG=128,meanR=128):
     n.relu2 = L.ReLU(n.conv2, in_place=True)
     n.pool2 = L.Pooling(n.conv2, kernel_size=2, stride=2, pool=P.Pooling.MAX)
 
-    n.conv3 = L.Convolution(n.pool2,param=[dict(lr_mult=lr_mult1,decay_mult=decay_mult1),
+#    n.conv3 = L.Convolution(n.pool2,param=[dict(lr_mult=lr_mult1,decay_mult=decay_mult1),
                                           dict(lr_mult=lr_mult2,decay_mult=decay_mult2)],
                             kernel_size=5,stride = 1, num_output=50,weight_filler=dict(type='xavier'))
 
-    n.relu3 = L.ReLU(n.conv3, in_place=True)
-    n.pool3 = L.Pooling(n.conv3, kernel_size=2, stride=2, pool=P.Pooling.MAX)
+#    n.relu3 = L.ReLU(n.conv3, in_place=True)
+  #  n.pool3 = L.Pooling(n.conv3, kernel_size=2, stride=2, pool=P.Pooling.MAX)
 
 
 #    n.conv4 = L.Convolution(n.pool3,param=[dict(lr_mult=lr_mult1),dict(lr_mult=lr_mult2)],
@@ -356,7 +356,7 @@ def mynet(db, batch_size,n_classes=11,meanB=128,meanG=128,meanR=128):
    # n.pool4 = L.Pooling(n.conv4, kernel_size=2, stride=2, pool=P.Pooling.MAX)
 
 #    n.ip1 = L.InnerProduct(n.pool2,num_output=500,weight_filler=dict(type='xavier'))
-    n.ip1 = L.InnerProduct(n.pool3,param=[dict(lr_mult=lr_mult1),dict(lr_mult=lr_mult2)],num_output=1000,weight_filler=dict(type='xavier'))
+    n.ip1 = L.InnerProduct(n.pool2,param=[dict(lr_mult=lr_mult1),dict(lr_mult=lr_mult2)],num_output=1000,weight_filler=dict(type='xavier'))
     n.relu4 = L.ReLU(n.ip1, in_place=True)
     n.ip2 = L.InnerProduct(n.ip1,param=[dict(lr_mult=lr_mult1),dict(lr_mult=lr_mult2)],num_output=n_classes,weight_filler=dict(type='xavier'))
     n.accuracy = L.Accuracy(n.ip2,n.label)
@@ -401,20 +401,20 @@ def googLeNet(db, batch_size, n_classes=11, meanB=128, meanG=128, meanR=128):
                             kernel_size=1,
                             weight_filler=dict(type='xavier'),
                             bias_filler=dict(type='constant',value=0.2))
-    n.relu2 = L.ReLU(n.conv2_reduce,in_place=True)
+    n.conv2_relu_3x3_reduce_8 = L.ReLU(n.conv2_3x3reduce_7,in_place=True)
 
-    n.conv2 = L.Convolution(n.conv2_reduce,param=[dict(lr_mult=lr_mult1,decay_mult=decay_mult1),
+    n.conv2_3x3_9 = L.Convolution(n.conv2_3x3reduce_7,param=[dict(lr_mult=lr_mult1,decay_mult=decay_mult1),
                             dict(lr_mult=lr_mult2,decay_mult=decay_mult2)],
                             num_output=192,
                             pad = 1,
                             kernel_size=3,
                             weight_filler=dict(type='xavier'),
                             bias_filler=dict(type='constant',value=0.2))
-    n.relu2 = L.ReLU(n.conv2,in_place=True)
-    n.lrn2 = L.LRN(n.conv2,lrn_param=dict(local_size=5,alpha=0.0001,beta=0.75))
-    n.pool2 = L.Pooling(n.lrn2, kernel_size=3, stride=2, pool=P.Pooling.MAX)
+    n.conv2_relu_3x3_10 = L.ReLU(n.conv2_3x3_9,in_place=True)
+    n.conv2_norm2_11 = L.LRN(n.conv2_3x3_9,lrn_param=dict(local_size=5,alpha=0.0001,beta=0.75))
+    n.pool2_3x3_s2_12 = L.Pooling(n.conv2_norm2_11, kernel_size=3, stride=2, pool=P.Pooling.MAX)
 
-    n.inception_3a = L.Convolution(n.pool2,param=[dict(lr_mult=lr_mult1,decay_mult=decay_mult1),
+    n.inception_3a_1x1_13 = L.Convolution(n.pool2,param=[dict(lr_mult=lr_mult1,decay_mult=decay_mult1),
                             dict(lr_mult=lr_mult2,decay_mult=decay_mult2)],
                             num_output=64,
                             kernel_size=1,
@@ -725,7 +725,7 @@ if __name__ == "__main__":
         dir_of_dirs = '/home/jeremy/core/classifier_stuff/caffe_nns/plusminus_data'  #b2
         dir_of_dirs = '/home/jeremy/core/classifier_stuff/caffe_nns/populated_items'  #b2
         dir_of_dirs = '/home/jeremy/core/classifier_stuff/caffe_nns/cropped_dataset'  #b2
-        nn_dir = '/home/jeremy/core/classifier_stuff/caffe_nns/conv_relu1'  #b2
+        nn_dir = '/home/jeremy/core/classifier_stuff/caffe_nns/conv_relu_x2'  #b2
         max_images_per_class = 10000
         pc = False
         solver_mode = 'GPU'
@@ -787,3 +787,4 @@ if __name__ == "__main__":
 # caffe train -solver=solver_prototxt
 #to test
 #caffe test -mode test.prototxt -weights model.caffemodel -gpu 0 -iterations 100
+#/opt/caffe/build/tools/caffe test -model cropped_dataset/my_solver.train.prototxt -weights cropped_dataset_iter_3000.caffemodel  -gpu 0 -iterations 500
