@@ -539,7 +539,7 @@ layer {
   #  lr_mult: 2
   #}
 
-def run_my_net(nn_dir,train_db,test_db,batch_size = 64,n_classes=11,meanB=None,meanG=None,meanR=None):
+def run_my_net(nn_dir,train_db,test_db,batch_size = 64,n_classes=11,meanB=None,meanG=None,meanR=None,n_filters=50,n_ip1=1000):
     host = socket.gethostname()
     print('host:'+str(host))
     if host == 'jr-ThinkPad-X1-Carbon':
@@ -564,11 +564,11 @@ def run_my_net(nn_dir,train_db,test_db,batch_size = 64,n_classes=11,meanB=None,m
     print('using  testfile:{}'.format(test_protofile))
 
     with open(train_protofile,'w') as f:
-        train_net = mynet(train_db,batch_size = batch_size,n_classes=n_classes,meanB=meanB,meanG=meanG,meanR=meanR)
+        train_net = mynet(train_db,batch_size = batch_size,n_classes=n_classes,meanB=meanB,meanG=meanG,meanR=meanR,n_filters=n_filters,n_ip1=n_ip1)
         f.write(str(train_net))
         f.close
     with open(test_protofile,'w') as g:
-        test_net = mynet(test_db,batch_size = batch_size,n_classes=n_classes,meanB=meanB,meanG=meanG,meanR=meanR)
+        test_net = mynet(test_db,batch_size = batch_size,n_classes=n_classes,meanB=meanB,meanG=meanG,meanR=meanR,n_filters=n_filters,n_ip1=n_ip1)
         g.write(str(test_net))
         g.close
 
