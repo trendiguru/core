@@ -1,15 +1,13 @@
-'''
-creation date: 21.2.2016
+"""
+creation date: 8.3.2016
 by: yonti
 description: this program downloads all relevant items from ebay through ftp
     - file = store
     - each file is downloaded and then scanned for CATEGORY_NAME= clothing  - this step can be parallelized
     - each item relevant is inserted into our mongo db - using the extended generic dictionary (*see bottom for details)
     - TODO: nlp on description
-            get relevant attributes from ATTRIBUTES key
             run on non english ebay databases
-
-'''
+"""
 
 from ftplib import FTP
 from StringIO import StringIO
@@ -76,15 +74,31 @@ def fromCats2ppdCats(cats):
     for cat in cats:
         ppd_cats.append(ebay_constants.ebay_paperdoll_women[cat])
     cat_count = len(ppd_cats)
-    # if cat_count>1:
-    #     print (ppd_cats)
-    if cat_count==0:
+    if cat_count>1:
+        if 'polo' in ppd_cats:
+            return 'polo'
+        elif 't-shirt' in ppd_cats:
+            return 't-shirt'
+        elif 'blazer' in ppd_cats:
+            return 'blazer'
+        elif 'bikini' in ppd_cats:
+            return 'bikini'
+        elif 'swimsuit' in ppd_cats:
+            return 'swimsuit'
+        elif 'sweater' in ppd_cats:
+            return 'sweater'
+        elif 'sweatshirt' in ppd_cats:
+            return 'sweatshirt'
+        else:
+            return ppd_cats[0]
+    elif cat_count==0:
         return []
-    return ppd_cats[0]
+    else:
+        return ppd_cats[0]
 
 def title2category(title):
     TITLE= title.upper()
-    split1 = re.split(' ', TITLE)
+    split1 = re.split(' |-', TITLE)
     cats = []
     for s in split1:
         if s in ebay_constants.categories_keywords:
@@ -126,54 +140,54 @@ categories =[]
 black_list = []
 white_list = []
 
-for filename in files:
-    start = time.time()
-
-    sio = StringIO()
-    def handle_binary(more_data):
-        sio.write(more_data)
-
-    try:
-        resp = ftp.retrbinary('RETR '+filename, callback=handle_binary)
-    except:
-        try:
-            ftp = ftp_connection(us_params)
-            resp = ftp.retrbinary('RETR '+filename, callback=handle_binary)
-        except:
-            continue
-    sio.seek(0)
-    zipfile = gzip.GzipFile(fileobj = sio)
-    unzipped = zipfile.read()
-    # each item is arranged in a dict according to the keys of the first item
-    # all items are gathered in a list
-    items = csv.DictReader(unzipped.splitlines(), delimiter='\t')
-    itemCount = 0
-    for item in items:
-        # verify right category
-        mainCategory = item["CATEGORY_NAME"]
-        gender = item["GENDER"]
-        if mainCategory != "Clothing" or gender !='Female':
-            continue
-        subCategorys = title2category(item["OFFER_TITLE"])
-        if len(subCategorys)<1:
-            continue
-        itemCount +=1
-        #needs to add search for id and etc...
-        generic_dict = ebay2generic(item, subCategorys)
-        if gender == "Female":
-            db.ebay_Female.insert_one(generic_dict)
-        elif gender == "Male":
-            db.ebay_Male.insert_one(generic_dict)
-        else:
-            db.ebay_Unisex.insert_one(generic_dict)
-    stop = time.time()
-    if itemCount < 10:
-        black_list.append(filename)
-        print("%s = %s is not relevant!" %(filename, item["MERCHANT_NAME"]))
-    else:
-        white_list.append(filename)
-        print("%s potiential items for %s = %s" % (str(itemCount), item["MERCHANT_NAME"],filename))
-    print "item download+scraping took %s secs" % str(stop-start)
+# for filename in files:
+#     start = time.time()
+#
+#     sio = StringIO()
+#     def handle_binary(more_data):
+#         sio.write(more_data)
+#
+#     try:
+#         resp = ftp.retrbinary('RETR '+filename, callback=handle_binary)
+#     except:
+#         try:
+#             ftp = ftp_connection(us_params)
+#             resp = ftp.retrbinary('RETR '+filename, callback=handle_binary)
+#         except:
+#             continue
+#     sio.seek(0)
+#     zipfile = gzip.GzipFile(fileobj = sio)
+#     unzipped = zipfile.read()
+#     # each item is arranged in a dict according to the keys of the first item
+#     # all items are gathered in a list
+#     items = csv.DictReader(unzipped.splitlines(), delimiter='\t')
+#     itemCount = 0
+#     for item in items:
+#         # verify right category
+#         mainCategory = item["CATEGORY_NAME"]
+#         gender = item["GENDER"]
+#         if mainCategory != "Clothing":
+#             continue
+#         subCategorys = title2category(item["OFFER_TITLE"])
+#         if len(subCategorys)<1:
+#             continue
+#         itemCount +=1
+#         #needs to add search for id and etc...
+#         generic_dict = ebay2generic(item, subCategorys)
+#         if gender == "Female":
+#             db.ebay_Female.insert_one(generic_dict)
+#         elif gender == "Male":
+#             db.ebay_Male.insert_one(generic_dict)
+#         else:
+#             db.ebay_Unisex.insert_one(generic_dict)
+#     stop = time.time()
+#     if itemCount < 10:
+#         black_list.append(filename)
+#         print("%s = %s is not relevant!" %(filename, item["MERCHANT_NAME"]))
+#     else:
+#         white_list.append(filename)
+#         print("%s potiential items for %s = %s" % (str(itemCount), item["MERCHANT_NAME"],filename))
+#     print "item download+scraping took %s secs" % str(stop-start)
 
 ftp.quit()
 stop_time = time.time()
@@ -181,7 +195,8 @@ total_time = (stop_time-start_time)/60
 dl_info = {"date": today_date,
            "dl_duration": total_time,
            "blacklist" : black_list,
-           "whitelist" : white_list}
+           "whitelist" : white_list,
+           "raw_data": data}
 
 dl_excel.mongo2xl('ebay', dl_info)
 
