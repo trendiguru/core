@@ -40,12 +40,13 @@ def upload2drive(FILE2INSERT):
                     if flags else tools.run(flow, store)
         DRIVE = build('drive', 'v2', http=creds.authorize(Http()))
 
-        filename,path2file= FILE2INSERT
+        filename,path2file,convert = FILE2INSERT
         is_file_in_folder(DRIVE, folder_id=parent_folder, file_name=filename)
         metadata = {'title': filename,
                     'parents':[{'id': parent_folder}]}
-        res = DRIVE.files().insert(body=metadata,
+        res = DRIVE.files().insert(convert=convert, body=metadata,
                 media_body=path2file, fields='id').execute()
+
         if res:
             print('Created new file named : "%s"  file id: %s' % (filename, res['id']))
         return True
