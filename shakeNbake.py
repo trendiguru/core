@@ -86,7 +86,7 @@ def processes(w):
                                     shell=True)
         print colored("firefox %s is opened" % (str(i)), 'green')
 
-    sleep(5)
+    sleep(30)
     subprocess.Popen(["screen -d"], shell=True)
 
     while True:
