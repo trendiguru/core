@@ -12,27 +12,24 @@ def fillTable(worksheet,main_categories,collection,bold):
     worksheet.write(0, 2, collection.count(), bold)
     categories = []
     for cat in main_categories:
-        print(cat)
-
         items = collection.find({'categories': cat}).count()
         new_items = collection.find({'categories': cat, 'download_data.first_dl': today_date}).count()
         instock = collection.find({'categories': cat, 'status.instock': True}).count()
         out = collection.find({'categories': cat, 'status.instock': False}).count()
-        categories.append([cat, items,new_items, instock, out])
-    categories_length =len(categories)+2
-    print("addtable")
+        categories.append([cat, items, new_items, instock, out])
+    categories_length =len(categories)+3
     worksheet.set_column('B:F',15)
-    worksheet.add_table('B2:F'+str(categories_length+1),
-                     {'data' : categories,
-                      'header_row': True,
-                      'autofilter': True,
-                      'total_row': True,
-                      'columns': [{'header': 'Category', 'total_string': 'Total'},
-                                  {'header': 'items',    'total_function' : '=SUBTOTAL(109,C2:C'+str(categories_length)},
-                                  {'header': 'new items','total_function' : '=SUBTOTAL(109,D2:D'+str(categories_length)},
-                                  {'header': 'instock',  'total_function' : '=SUBTOTAL(109,E2:E'+str(categories_length)},
-                                  {'header': 'out of stock', 'total_function' : '=SUBTOTAL(109,F2:F'+str(categories_length)}],
-                      'banded_columns': True})
+
+    options = {'data' : categories,
+               'total_row': True,
+               'columns': [{ 'header': 'Categories','total_string': 'Total'},
+                           { 'header': 'items','total_function' : 'sum'},
+                           { 'header': 'new_items','total_function' : 'sum'},
+                           { 'header': 'instock','total_function' : 'sum'},
+                           { 'header': 'out of stock','total_function' : 'sum'},]
+               }
+    worksheet.add_table('B2:F'+str(categories_length), options)
+
 
 def mongo2xl(filename, dl_info):
     path2file = '/home/developer/yonti/'+filename+'.xlsx'
@@ -88,8 +85,7 @@ def mongo2xl(filename, dl_info):
         else:
             print ('nothing to convert')
             workbook.close()
-            exit()
-        print("filltable")
+            return
         current_worksheet = workbook.add_worksheet('Women')
         fillTable(current_worksheet,categories,collection, bold)
 
@@ -103,4 +99,3 @@ def mongo2xl(filename, dl_info):
     else:
         print ('error while uploading!')
 
-    exit()
