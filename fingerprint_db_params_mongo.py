@@ -99,7 +99,7 @@ def fingerprint_the_unfingerprinted():
                                         "bounding_box": np.array(chosen_bounding_box).tolist()}
                                })
  	   	    #print('full image bounding_box:'+str(chosen_bounding_box))
-    		n_unbounded_images += 1
+            n_unbounded_images += 1
         except Exception as e:
             logging.warning("Exception caught while fingerprinting, skipping: {0}".format(e))
             i += 1
