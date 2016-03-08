@@ -92,7 +92,7 @@ def mongo2xl(filename, dl_info):
     workbook.close()
 
     print ('uploading to drive...')
-    files = (filename, path2file, True)
+    files = (filename, path2file)
     res = drive.upload2drive(files)
     if res:
         print('file uploaded!')
