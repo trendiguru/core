@@ -19,11 +19,12 @@ def fillTable(worksheet,main_categories,collection,bold):
         categories.append([cat, items, new_items, instock, out])
     categories_length =len(categories)+3
     worksheet.set_column('B:F',15)
+
     options = {'data' : categories,
                'total_row': True,
                'columns': [{ 'header': 'Categories','total_string': 'Total'},
-                           { 'header': 'items','total_function' : 'sum'},
-                           { 'header': 'new_items','total_function' : 'sum'},
+                           { 'header': 'items','total_function' : 'count'},
+                           { 'header': 'new_items','total_function' : 'count'},
                            { 'header': 'instock','total_function' : 'sum'},
                            { 'header': 'out of stock','total_function' : 'sum'},]
                }
