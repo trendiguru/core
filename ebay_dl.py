@@ -194,8 +194,9 @@ stop_time = time.time()
 total_time = (stop_time-start_time)/60
 raw_data =[]
 for line in data:
-    split=line.split()
-    raw_data.append(split)
+    s=line.split()
+    sorted_data = [s[8], s[5]+ " " + s[6] + " at " + s[7], s[4]]
+    raw_data.append(sorted_data)
 
 dl_info = {"date": today_date,
            "dl_duration": total_time,

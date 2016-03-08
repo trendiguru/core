@@ -64,9 +64,14 @@ def mongo2xl(filename, dl_info):
     #                               'banded_rows': False})
 
     current_worksheet = workbook.add_worksheet('ftp folder')
-    current_worksheet.set_column('A:Z',15)
-    current_worksheet.add_table('A1:Z'+str(len(dl_info['raw_data'])+4),
-                                {'data': dl_info['raw_data']})
+    current_worksheet.set_column('A:C',25)
+    current_worksheet.add_table('A1:C'+str(len(dl_info['raw_data'])+4),
+                                {'data': dl_info['raw_data'],
+                                 'columns': [ {'header': 'Filename'},
+                                              {'header': 'Update time'},
+                                              {'header': 'Size'}],
+                                 'banded_columns': True,
+                                 'banded_rows': False})
 
     workbook.close()
 
