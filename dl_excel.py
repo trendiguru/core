@@ -22,11 +22,11 @@ def fillTable(worksheet,main_categories,collection,bold):
     worksheet.add_table('B2:F'+str(categories_length+1),
                      {'data' : categories,
                       'total_row': False,
-                      'columns': [{'header': 'Category', 'total_string': 'Total'},
-                                  {'header': 'items',    'total_function' : 'sum'},
-                                  {'header': 'new items','total_function' : 'sum'},
-                                  {'header': 'instock',  'total_function' : 'sum'},
-                                  {'header': 'out of stock', 'total_function' : 'sum'}],
+                      'columns': [{ 'total_string': 'Total'},
+                                  {'total_function' : 'sum'},
+                                  {'total_function' : 'sum'},
+                                  {'total_function' : 'sum'},
+                                  { 'total_function' : 'sum'}],
                       })
 
 def mongo2xl(filename, dl_info):
