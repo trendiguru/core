@@ -21,8 +21,8 @@ from . import ebay_constants
 from . import dl_excel
 db = constants.db
 db.ebay_Female.delete_many({})
-# db.ebay_Male.delete_many({})
-# db.ebay_Unisex.delete_many({})
+db.ebay_Male.delete_many({})
+db.ebay_Unisex.delete_many({})
 today_date = str(datetime.datetime.date(datetime.datetime.now()))
 
 ebaysNotRelevant = ebay_constants.blacklist_stores
@@ -140,54 +140,54 @@ categories =[]
 black_list = []
 white_list = []
 
-# for filename in files:
-#     start = time.time()
-#
-#     sio = StringIO()
-#     def handle_binary(more_data):
-#         sio.write(more_data)
-#
-#     try:
-#         resp = ftp.retrbinary('RETR '+filename, callback=handle_binary)
-#     except:
-#         try:
-#             ftp = ftp_connection(us_params)
-#             resp = ftp.retrbinary('RETR '+filename, callback=handle_binary)
-#         except:
-#             continue
-#     sio.seek(0)
-#     zipfile = gzip.GzipFile(fileobj = sio)
-#     unzipped = zipfile.read()
-#     # each item is arranged in a dict according to the keys of the first item
-#     # all items are gathered in a list
-#     items = csv.DictReader(unzipped.splitlines(), delimiter='\t')
-#     itemCount = 0
-#     for item in items:
-#         # verify right category
-#         mainCategory = item["CATEGORY_NAME"]
-#         gender = item["GENDER"]
-#         if mainCategory != "Clothing":
-#             continue
-#         subCategorys = title2category(item["OFFER_TITLE"])
-#         if len(subCategorys)<1:
-#             continue
-#         itemCount +=1
-#         #needs to add search for id and etc...
-#         generic_dict = ebay2generic(item, subCategorys)
-#         if gender == "Female":
-#             db.ebay_Female.insert_one(generic_dict)
-#         elif gender == "Male":
-#             db.ebay_Male.insert_one(generic_dict)
-#         else:
-#             db.ebay_Unisex.insert_one(generic_dict)
-#     stop = time.time()
-#     if itemCount < 10:
-#         black_list.append(filename)
-#         print("%s = %s is not relevant!" %(filename, item["MERCHANT_NAME"]))
-#     else:
-#         white_list.append(filename)
-#         print("%s potiential items for %s = %s" % (str(itemCount), item["MERCHANT_NAME"],filename))
-#     print "item download+scraping took %s secs" % str(stop-start)
+for filename in files:
+    start = time.time()
+
+    sio = StringIO()
+    def handle_binary(more_data):
+        sio.write(more_data)
+
+    try:
+        resp = ftp.retrbinary('RETR '+filename, callback=handle_binary)
+    except:
+        try:
+            ftp = ftp_connection(us_params)
+            resp = ftp.retrbinary('RETR '+filename, callback=handle_binary)
+        except:
+            continue
+    sio.seek(0)
+    zipfile = gzip.GzipFile(fileobj = sio)
+    unzipped = zipfile.read()
+    # each item is arranged in a dict according to the keys of the first item
+    # all items are gathered in a list
+    items = csv.DictReader(unzipped.splitlines(), delimiter='\t')
+    itemCount = 0
+    for item in items:
+        # verify right category
+        mainCategory = item["CATEGORY_NAME"]
+        gender = item["GENDER"]
+        if mainCategory != "Clothing":
+            continue
+        subCategorys = title2category(item["OFFER_TITLE"])
+        if len(subCategorys)<1:
+            continue
+        itemCount +=1
+        #needs to add search for id and etc...
+        generic_dict = ebay2generic(item, subCategorys)
+        if gender == "Female":
+            db.ebay_Female.insert_one(generic_dict)
+        elif gender == "Male":
+            db.ebay_Male.insert_one(generic_dict)
+        else:
+            db.ebay_Unisex.insert_one(generic_dict)
+    stop = time.time()
+    if itemCount < 10:
+        black_list.append(filename)
+        print("%s = %s is not relevant!" %(filename, item["MERCHANT_NAME"]))
+    else:
+        white_list.append(filename)
+        print("%s potiential items for %s = %s" % (str(itemCount), item["MERCHANT_NAME"],filename))
+    print "item download+scraping took %s secs" % str(stop-start)
 
 ftp.quit()
 stop_time = time.time()
@@ -195,7 +195,8 @@ total_time = (stop_time-start_time)/60
 raw_data =[]
 for line in data:
     s=line.split()
-    sorted_data = [s[8], s[5]+ " " + s[6] + " at " + s[7], s[4]]
+    status = "whitelist" if s[8] in white_list else "blacklist"
+    sorted_data = [s[8], s[5]+ " " + s[6] + " at " + s[7], s[4], status]
     raw_data.append(sorted_data)
 
 dl_info = {"date": today_date,
