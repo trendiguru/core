@@ -641,10 +641,10 @@ def run_my_net(nn_dir,train_db,test_db,batch_size = 64,n_classes=11,meanB=None,m
         plt.show()
     print('loss:'+str(train_loss))
     print('acc:'+str(test_acc))
-    outfilename = 'results.txt'
+    outfilename = os.path.join(nn_dir,'results.txt')
     with open(outfilename,'a') as f:
         f.write('dir {} db {}'.format(nn_dir,train_db,test_db))
-        f.write(test_acc)
+        f.write(str(test_acc))
         f.write(str(train_net))
         f.close()
 
