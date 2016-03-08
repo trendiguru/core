@@ -25,9 +25,9 @@ import pymongo
 from . import tmpGuard
 
 db = pymongo.MongoClient(host="mongodb1-instance-1", port=27017).mydb
-MAX_PER_DOMAIN = 10000
+MAX_PER_DOMAIN = 5000
 
-whitelist = ["gettyimages.com"]
+whitelist = ["stylebook.com"]
 
 
 # "manrepeller.com", "wishwishwish.net", "parkandcube.com", "stellaswardrobe.com",
@@ -253,7 +253,7 @@ def firefox():
 
 def getUserInput():
     parser = argparse.ArgumentParser(description='Main Scraper')
-    parser.add_argument("-f", dest="function", help="The function you want to run")
+    parser.add_argument("-f", dest="function", default="screen", help="The function you want to run")
     parser.add_argument("-w", dest="workers", default="10", help="enter the number of workers to run simultaneously")
     args = parser.parse_args()
     return args
