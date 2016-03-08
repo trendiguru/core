@@ -712,6 +712,7 @@ if __name__ == "__main__":
         pc = True
         dir_of_dirs = '/home/jr/python-packages/trendi/classifier_stuff/caffe_nns/dataset'
         dir_of_dirs = '/home/jr/python-packages/trendi/classifier_stuff/caffe_nns/plusminus_data'
+        nn_dir = '/home/jr/python-packages/trendi/classifier_stuff/caffe_nns/plusminus_data'
         max_images_per_class = 100
         solver_mode = 'CPU'
         B=142
@@ -724,6 +725,7 @@ if __name__ == "__main__":
         dir_of_dirs = '/home/jeremy/core/classifier_stuff/caffe_nns/plusminus_data'  #b2
         dir_of_dirs = '/home/jeremy/core/classifier_stuff/caffe_nns/populated_items'  #b2
         dir_of_dirs = '/home/jeremy/core/classifier_stuff/caffe_nns/cropped_dataset'  #b2
+        nn_dir = '/home/jeremy/core/classifier_stuff/caffe_nns/conv_relu1'  #b2
         max_images_per_class = 10000
         pc = False
         solver_mode = 'GPU'
@@ -778,7 +780,7 @@ if __name__ == "__main__":
 #    lmdb_utils.inspect_db(db_name+'.train')
   #  lmdb_utils.inspect_db(db_name+'.test')
    # raw_input('enter to cont')
-    run_my_net(dir_of_dirs,db_name+'.train',db_name+'.test',batch_size = batch_size,n_classes=n_classes,meanB=B,meanR=R,meanG=G)
+    run_my_net(nn_dir,db_name+'.train',db_name+'.test',batch_size = batch_size,n_classes=n_classes,meanB=B,meanR=R,meanG=G)
 
 
 #to train at cli:
