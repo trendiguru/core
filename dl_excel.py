@@ -15,10 +15,15 @@ def fillTable(worksheet,main_categories,collection,bold):
         print(cat)
 
         items = collection.find({'categories': cat}).count()
+        print("1")
         new_items = collection.find({'categories': cat, 'download_data.first_dl': today_date}).count()
+        print("2")
         instock = collection.find({'categories': cat, 'status.instock': True}).count()
+        print("3")
         out = collection.find({'categories': cat, 'status.instock': False}).count()
+        print("4")
         categories.append([cat, items,new_items, instock, out])
+        print("5")
     categories_length =len(categories)+2
     print("addtable")
     worksheet.set_column('B:F',15)
