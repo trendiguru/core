@@ -82,7 +82,7 @@ def processes(w):
     sleep(5)
     for i in range(int(w)):
         sleep(1)
-        browseme = subprocess.Popen(["sudo xvfb-run-safe.sh python -m trendi.shakeNbake -f firefox"],
+        browseme = subprocess.Popen(["sudo ./xvfb-run-safe.sh python -m trendi.shakeNbake -f firefox"],
                                     shell=True)
         print colored("firefox %s is opened" % (str(i)), 'green')
 
