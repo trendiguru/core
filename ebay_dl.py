@@ -192,11 +192,16 @@ white_list = []
 ftp.quit()
 stop_time = time.time()
 total_time = (stop_time-start_time)/60
+raw_data =[]
+for line in data:
+    split=line.split()
+    raw_data.append(split)
+
 dl_info = {"date": today_date,
            "dl_duration": total_time,
            "blacklist" : black_list,
            "whitelist" : white_list,
-           "raw_data": data}
+           "raw_data": raw_data}
 
 dl_excel.mongo2xl('ebay', dl_info)
 
