@@ -28,10 +28,10 @@ def fillTable(worksheet,main_categories,collection,bold):
                       'autofilter': True,
                       'total_row': True,
                       'columns': [{'header': 'Category', 'total_string': 'Total'},
-                                  {'header': 'items',    'total_function' : '=SUBTOTAL(109,C2:C'+str(categories_length)},
-                                  {'header': 'new items','total_function' : '=SUBTOTAL(109,D2:D'+str(categories_length)},
-                                  {'header': 'instock',  'total_function' : '=SUBTOTAL(109,E2:E'+str(categories_length)},
-                                  {'header': 'out of stock', 'total_function' : '=SUBTOTAL(109,F2:F'+str(categories_length)}],
+                                  {'header': 'items',    'total_function' : '=SUBTOTAL(109,C2:C'+str(categories_length)+')'},
+                                  {'header': 'new items','total_function' : '=SUBTOTAL(109,D2:D'+str(categories_length)+')'},
+                                  {'header': 'instock',  'total_function' : '=SUBTOTAL(109,E2:E'+str(categories_length)+')'},
+                                  {'header': 'out of stock', 'total_function' : '=SUBTOTAL(109,F2:F'+str(categories_length)}+')'],
                       'banded_columns': True})
 
 def mongo2xl(filename, dl_info):
