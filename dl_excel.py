@@ -25,10 +25,10 @@ def fillTable(worksheet,main_categories,collection,bold):
                       'autofilter': True,
                       'total_row': True,
                       'columns': [{'header': 'Category', 'total_string': 'Total'},
-                                  {'header': 'items',    'total_function' : '=sum(C2:C'+str(categories_length)+')'},
-                                  {'header': 'new items','total_function' : '=sum(D2:D'+str(categories_length)+')'},
-                                  {'header': 'instock',  'total_function' : '=sum(E2:E'+str(categories_length)+')'},
-                                  {'header': 'out of stock', 'total_function' : '=sum(F2:F'+str(categories_length)+')'}],
+                                  {'header': 'items',    'total_function' : '=sum'},
+                                  {'header': 'new items','total_function' : '=sum'},
+                                  {'header': 'instock',  'total_function' : '=sum'},
+                                  {'header': 'out of stock', 'total_function' : '=sum'}],
                       'banded_columns': True})
 
 def mongo2xl(filename, dl_info):
