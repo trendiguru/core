@@ -110,7 +110,7 @@ def write_prototxt(proto_filename,test_iter = 9,solver_mode='GPU'):
                         'display': 10,
                         'max_iter': 10000,
                         'snapshot': 1000,
-                        'snapshot_prefix': dir+'/',
+                        'snapshot_prefix': dir+'/net',
                         'solver_mode':solver_mode }
 
     print('writing prototxt:'+str(prototxt))
@@ -341,23 +341,24 @@ def mynet(db, batch_size,n_classes=11,meanB=128,meanG=128,meanR=128):
                             kernel_size=5,stride = 1, num_output=50,weight_filler=dict(type='xavier'))
 
     n.relu2 = L.ReLU(n.conv2, in_place=True)
-    n.pool2 = L.Pooling(n.conv2, kernel_size=2, stride=2, pool=P.Pooling.MAX)
+#    n.pool2 = L.Pooling(n.conv2, kernel_size=2, stride=2, pool=P.Pooling.MAX)
 
-#    n.conv3 = L.Convolution(n.pool2,param=[dict(lr_mult=lr_mult1,decay_mult=decay_mult1),
-             #                             dict(lr_mult=lr_mult2,decay_mult=decay_mult2)],
-               #             kernel_size=5,stride = 1, num_output=50,weight_filler=dict(type='xavier'))
+    n.conv3 = L.Convolution(n.conv2,param=[dict(lr_mult=lr_mult1,decay_mult=decay_mult1),
+                            dict(lr_mult=lr_mult2,decay_mult=decay_mult2)],
+                            kernel_size=5,stride = 1, num_output=50,weight_filler=dict(type='xavier'))
 
-#    n.relu3 = L.ReLU(n.conv3, in_place=True)
+    n.relu3 = L.ReLU(n.conv3, in_place=True)
   #  n.pool3 = L.Pooling(n.conv3, kernel_size=2, stride=2, pool=P.Pooling.MAX)
 
 
-#    n.conv4 = L.Convolution(n.pool3,param=[dict(lr_mult=lr_mult1),dict(lr_mult=lr_mult2)],
-  #                          kernel_size=5,stride=1,num_output=50,weight_filler=dict(type='xavier'))
+    n.conv4 = L.Convolution(n.conv3,param=[dict(lr_mult=lr_mult1),dict(lr_mult=lr_mult2)],
+                            kernel_size=5,stride=1,num_output=50,weight_filler=dict(type='xavier'))
+    n.relu4 = L.ReLU(n.conv4, in_place=True)
    # n.pool4 = L.Pooling(n.conv4, kernel_size=2, stride=2, pool=P.Pooling.MAX)
 
 #    n.ip1 = L.InnerProduct(n.pool2,num_output=500,weight_filler=dict(type='xavier'))
-    n.ip1 = L.InnerProduct(n.pool2,param=[dict(lr_mult=lr_mult1),dict(lr_mult=lr_mult2)],num_output=1000,weight_filler=dict(type='xavier'))
-    n.relu4 = L.ReLU(n.ip1, in_place=True)
+    n.ip1 = L.InnerProduct(n.conv4,param=[dict(lr_mult=lr_mult1),dict(lr_mult=lr_mult2)],num_output=1000,weight_filler=dict(type='xavier'))
+    n.relu5 = L.ReLU(n.ip1, in_place=True)
     n.ip2 = L.InnerProduct(n.ip1,param=[dict(lr_mult=lr_mult1),dict(lr_mult=lr_mult2)],num_output=n_classes,weight_filler=dict(type='xavier'))
     n.accuracy = L.Accuracy(n.ip2,n.label)
     n.loss = L.SoftmaxWithLoss(n.ip2,n.label)
@@ -414,39 +415,54 @@ def googLeNet(db, batch_size, n_classes=11, meanB=128, meanG=128, meanR=128):
     n.conv2_norm2_11 = L.LRN(n.conv2_3x3_9,lrn_param=dict(local_size=5,alpha=0.0001,beta=0.75))
     n.pool2_3x3_s2_12 = L.Pooling(n.conv2_norm2_11, kernel_size=3, stride=2, pool=P.Pooling.MAX)
 
-    n.inception_3a_1x1_13 = L.Convolution(n.pool2,param=[dict(lr_mult=lr_mult1,decay_mult=decay_mult1),
+    n.inception_3a_1x1_13 = L.Convolution(n.pool2_3x3s2_12,param=[dict(lr_mult=lr_mult1,decay_mult=decay_mult1),
                             dict(lr_mult=lr_mult2,decay_mult=decay_mult2)],
                             num_output=64,
                             kernel_size=1,
                             weight_filler=dict(type='xavier'),
                             bias_filler=dict(type='constant',value=0.2))
-    n.inception_3a_relu = L.ReLU(n.inception_3a,in_place=True)
+    n.inception_3a_relu1x1_14 = L.ReLU(n.inception_3a_1x1_13,in_place=True)
 # does inception_3a get used later
-    n.inception_3a_reduce =  L.Convolution(n.pool2,param=[dict(lr_mult=lr_mult1,decay_mult=decay_mult1),
+    n.inception_3a_3x3_reduce_15 =  L.Convolution(n.pool2,param=[dict(lr_mult=lr_mult1,decay_mult=decay_mult1),
                             dict(lr_mult=lr_mult2,decay_mult=decay_mult2)],
                             num_output=96,
                             kernel_size=1,
                             weight_filler=dict(type='xavier'),
                             bias_filler=dict(type='constant',value=0.2))
-    n.inception_3a_reduce_relu3x3 = L.ReLU(n.inception_3a_reduce,in_place=True)
-
-    n.inception_3a_3x3 =  L.Convolution(n.pool2,param=[dict(lr_mult=lr_mult1,decay_mult=decay_mult1),
+    n.inception_3a_relu_3x3_reduce_16 = L.ReLU(n.inception_3a_3x3_reduce_15,in_place=True)
+    n.inception_3a_3x3_17 =  L.Convolution(n.inception_3a_3x3_reduce_15,param=[dict(lr_mult=lr_mult1,decay_mult=decay_mult1),
                             dict(lr_mult=lr_mult2,decay_mult=decay_mult2)],
                             num_output=128,
                             pad = 1,
                             kernel_size=3,
                             weight_filler=dict(type='xavier'),
                             bias_filler=dict(type='constant',value=0.2))
-    n.inception_3a_relu3x3 = L.ReLU(n.inception_3a_3x3,in_place=True)
-
-    n.inception_3a_3x3 =  L.Convolution(n.pool2,param=[dict(lr_mult=lr_mult1,decay_mult=decay_mult1),
+    n.inception_3a_relu3x3_18 = L.ReLU(n.inception_3a_3x3_17,in_place=True)
+    n.inception_3a_5x5_19 =  L.Convolution(n.pool2_3x3s2_12,param=[dict(lr_mult=lr_mult1,decay_mult=decay_mult1),
                             dict(lr_mult=lr_mult2,decay_mult=decay_mult2)],
-                            num_output=128,
+                            num_output=16,
                             pad = 1,
-                            kernel_size=3,
+                            kernel_size=1,
                             weight_filler=dict(type='xavier'),
                             bias_filler=dict(type='constant',value=0.2))
-    n.inception_3a_relu3x3 = L.ReLU(n.inception_3a_3x3,in_place=True)
+    n.inception_3a_relu5x5_reduce_20 = L.ReLU(n.inception_3a_5x5_19,in_place=True)
+    n.inception_3a_5x5_21 =  L.Convolution(n.inception_3a_relu5x5_reduce_20,param=[dict(lr_mult=lr_mult1,decay_mult=decay_mult1),
+                            dict(lr_mult=lr_mult2,decay_mult=decay_mult2)],
+                            num_output=32,
+                            pad = 2,
+                            kernel_size=5,
+                            weight_filler=dict(type='xavier'),
+                            bias_filler=dict(type='constant',value=0.2))
+    n.inception_3a_relu5x5_22 = L.ReLU(n.inception_3a_5x5_21,in_place=True)
+    n.inception_3a_pool_23 = L.Pooling(n.pool2_3x3_s2_12, kernel_size=3, stride=1,pad=1, pool=P.Pooling.MAX)
+    n.inception_3a_pool_proj_24 =  L.Convolution(n.inception_3a_pool_23,param=[dict(lr_mult=lr_mult1,decay_mult=decay_mult1),
+                            dict(lr_mult=lr_mult2,decay_mult=decay_mult2)],
+                            num_output=32,
+                            weight_filler=dict(type='xavier'),
+                            bias_filler=dict(type='constant',value=0.2))
+    n.inception_3a_relu_pool_proj_25 = L.ReLU(n.inception_3a_pool_proj_24, in_place=True)
+    n.inception_3a_output_26 = L.Concat(bottom=n.inception_3a_1x1_13,
+                            bottom= in_place
 
     n.lrn1 = L.LRN(n.pool1,lrn_param=dict(local_size=5,alpha=0.0001,beta=0.75))
 
@@ -787,4 +803,4 @@ if __name__ == "__main__":
 # caffe train -solver=solver_prototxt
 #to test
 #caffe test -mode test.prototxt -weights model.caffemodel -gpu 0 -iterations 100
-#/opt/caffe/build/tools/caffe test -model cropped_dataset/my_solver.train.prototxt -weights cropped_dataset_iter_3000.caffemodel  -gpu 0 -iterations 500
+#/opt/caffe/build/tools/caffe test -model cropped_dataset/my_solver.test.prototxt -weights cropped_dataset_iter_3000.caffemodel  -gpu 0 -iterations 500
