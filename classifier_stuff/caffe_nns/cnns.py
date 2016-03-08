@@ -464,16 +464,16 @@ def googLeNet(db, batch_size, n_classes=11, meanB=128, meanG=128, meanR=128):
     n.inception_3a_output_26 = L.Concat(bottom=n.inception_3a_1x1_13,
                             bottom= in_place
 
-    n.lrn1 = L.LRN(n.pool1,lrn_param=dict(local_size=5,alpha=0.0001,beta=0.75))
+#    n.lrn1 = L.LRN(n.pool1,lrn_param=dict(local_size=5,alpha=0.0001,beta=0.75))
 
 
-    n.pool2 = L.Pooling(n.conv2, kernel_size=2, stride=2, pool=P.Pooling.MAX)
+#    n.pool2 = L.Pooling(n.conv2, kernel_size=2, stride=2, pool=P.Pooling.MAX)
 
-    n.conv3 = L.Convolution(n.pool2,param=[dict(lr_mult=lr_mult1,decay_mult=decay_mult1),
-                                          dict(lr_mult=lr_mult2,decay_mult=decay_mult2)],
-                            kernel_size=5,stride = 1, num_output=50,weight_filler=dict(type='xavier'))
+#    n.conv3 = L.Convolution(n.pool2,param=[dict(lr_mult=lr_mult1,decay_mult=decay_mult1),
+  #                                        dict(lr_mult=lr_mult2,decay_mult=decay_mult2)],
+    #                        kernel_size=5,stride = 1, num_output=50,weight_filler=dict(type='xavier'))
 
-    n.pool3 = L.Pooling(n.conv3, kernel_size=2, stride=2, pool=P.Pooling.MAX)
+#    n.pool3 = L.Pooling(n.conv3, kernel_size=2, stride=2, pool=P.Pooling.MAX)
 
 
 #    n.conv4 = L.Convolution(n.pool3,param=[dict(lr_mult=lr_mult1),dict(lr_mult=lr_mult2)],
@@ -481,11 +481,11 @@ def googLeNet(db, batch_size, n_classes=11, meanB=128, meanG=128, meanR=128):
    # n.pool4 = L.Pooling(n.conv4, kernel_size=2, stride=2, pool=P.Pooling.MAX)
 
 #    n.ip1 = L.InnerProduct(n.pool2,num_output=500,weight_filler=dict(type='xavier'))
-    n.ip1 = L.InnerProduct(n.pool3,param=[dict(lr_mult=lr_mult1),dict(lr_mult=lr_mult2)],num_output=1000,weight_filler=dict(type='xavier'))
-    n.relu1 = L.ReLU(n.ip1, in_place=True)
-    n.ip2 = L.InnerProduct(n.relu1,param=[dict(lr_mult=lr_mult1),dict(lr_mult=lr_mult2)],num_output=n_classes,weight_filler=dict(type='xavier'))
-    n.accuracy = L.Accuracy(n.ip2,n.label)
-    n.loss = L.SoftmaxWithLoss(n.ip2,n.label)
+#    n.ip1 = L.InnerProduct(n.pool3,param=[dict(lr_mult=lr_mult1),dict(lr_mult=lr_mult2)],num_output=1000,weight_filler=dict(type='xavier'))
+  #  n.relu1 = L.ReLU(n.ip1, in_place=True)
+   # n.ip2 = L.InnerProduct(n.relu1,param=[dict(lr_mult=lr_mult1),dict(lr_mult=lr_mult2)],num_output=n_classes,weight_filler=dict(type='xavier'))
+    #n.accuracy = L.Accuracy(n.ip2,n.label)
+    #n.loss = L.SoftmaxWithLoss(n.ip2,n.label)
     return n.to_proto()
 
 
