@@ -44,8 +44,8 @@ def upload2drive(FILE2INSERT):
         is_file_in_folder(DRIVE, folder_id=parent_folder, file_name=filename)
         metadata = {'title': filename,
                     'parents':[{'id': parent_folder}]}
-        res = DRIVE.files().insert(convert=convert, body=metadata,
-                media_body=path2file, fields='id').execute()
+        # res = DRIVE.files().insert(convert=convert, body=metadata,
+        #         media_body=path2file, fields='id').execute()
         res = DRIVE.files().insert(convert=False, body=metadata,
                 media_body=path2file, fields='id').execute()
         if res:
