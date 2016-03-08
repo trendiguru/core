@@ -113,9 +113,11 @@ def getAllUrls(url, html, obid):
         all_links = soup.find_all("a")
         end_val = len(all_links)
         for x, anchor in enumerate(all_links):
+
             progress_bar(x, end_val)
             # extract link url from the anchor
             link = anchor.attrs["href"] if "href" in anchor.attrs else ''
+            print (link)
             if not link.startswith(domain_name):
                 if link.startswith('/') and len(link) > 3:
                     link = domain_name + link
