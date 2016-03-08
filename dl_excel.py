@@ -23,11 +23,11 @@ def fillTable(worksheet,main_categories,collection,bold):
                      {'data' : categories,
                       'total_row': True,
                       'columns': [{'header': 'Category', 'total_string': 'Total'},
-                                  {'header': 'items',    'total_function' : 'sum'},
-                                  {'header': 'new items','total_function' : 'sum'},
-                                  {'header': 'instock',  'total_function' : 'sum'},
-                                  {'header': 'out of stock', 'total_function' : 'sum'}],
-                      })
+                                  {'total_function' : 'sum','header': 'items'},
+                                  {'total_function' : 'sum','header': 'new items'},
+                                  { 'total_function' : 'sum','header': 'instock'},
+                                  { 'total_function' : 'sum'}],})#'header': 'out of stock',
+
 
 def mongo2xl(filename, dl_info):
     path2file = '/home/developer/yonti/'+filename+'.xlsx'
