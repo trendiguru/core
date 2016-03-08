@@ -741,7 +741,7 @@ if __name__ == "__main__":
         dir_of_dirs = '/home/jeremy/core/classifier_stuff/caffe_nns/plusminus_data'  #b2
         dir_of_dirs = '/home/jeremy/core/classifier_stuff/caffe_nns/populated_items'  #b2
         dir_of_dirs = '/home/jeremy/core/classifier_stuff/caffe_nns/cropped_dataset'  #b2
-        nn_dir = '/home/jeremy/core/classifier_stuff/caffe_nns/conv_relu_x2ll'  #b2
+        nn_dir = '/home/jeremy/core/classifier_stuff/caffe_nns/conv_relu_x4_nopool'  #b2
         max_images_per_class = 10000
         pc = False
         solver_mode = 'GPU'
