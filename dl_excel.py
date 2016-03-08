@@ -17,15 +17,15 @@ def fillTable(worksheet,main_categories,collection,bold):
         instock = collection.find({'categories': cat, 'status.instock': True}).count()
         out = collection.find({'categories': cat, 'status.instock': False}).count()
         categories.append([cat, items, new_items, instock, out])
-    categories_length =len(categories)+4
+    categories_length =len(categories)+3
     worksheet.set_column('B:F',15)
     options = {'data' : categories,
                'total_row': True,
-               'columns': [{ 'total_string': 'Total'},
-                           {'total_function' : 'sum'},
-                           {'total_function' : 'sum'},
-                           {'total_function' : 'sum'},
-                           { 'total_function' : 'sum'}]
+               'columns': [{ 'header': 'Categories','total_string': 'Total'},
+                           { 'header': 'items','total_function' : 'sum'},
+                           { 'header': 'new_items','total_function' : 'sum'},
+                           { 'header': 'instock','total_function' : 'sum'},
+                           { 'header': 'out of stock','total_function' : 'sum'},]
                }
     worksheet.add_table('B2:F'+str(categories_length), options)
 
