@@ -18,11 +18,13 @@ def mongo2xl(filename, dl_info):
     worksheet_main.write(1,1, "date")
     worksheet_main.write(2,1, today_date)
     worksheet_main.write(1,2, "duration")
-    worksheet_main.write(2,2, dl_info['duration'])
+    worksheet_main.write(2,2, dl_info['dl_duration'])
     worksheet_main.write(1,4, "blacklist")
-    worksheet_main.write(2,4, dl_info['blacklist'])
+    for i,b in enumerate(dl_info['blacklist']):
+        worksheet_main.write(2+i,4, b)
     worksheet_main.write(1,6, "whitelist")
-    worksheet_main.write(2,6, dl_info['whitelist'])
+    for i,w in enumerate(dl_info['whitelist']):
+        worksheet_main.write(2+i,6, w)
 
 
     ppd_categories = list(set(ebay_constants.ebay_paperdoll_women.values()))
