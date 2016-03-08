@@ -28,7 +28,7 @@ def mongo2xl(filename, dl_info):
 
 
     ppd_categories = list(set(ebay_constants.ebay_paperdoll_women.values()))
-    for gender in ['Female']:#'Male','Unisex']:
+    for gender in ['Female', 'Male', 'Unisex']:
         if gender is 'Female':
             collection = db.ebay_Female
             current_worksheet = workbook.add_worksheet('Female')
@@ -62,15 +62,17 @@ def mongo2xl(filename, dl_info):
                                               {'header': 'out of stock', 'total_function' : 'sum'}],
                                   'banded_columns': True,
                                   'banded_rows': False})
-    # for item, cost in (categories):
-    #     worksheet_main.write(row, col,     item)
-    #     worksheet_main.write(row, col + 1, cost)
-    #     row += 1
 
-    # Write a total using a formula.
-    # lastrow = row-1
-    # worksheet_main.write(row, 0,                      'Total', bold)
-    # worksheet_main.write(row, 1, '=SUM(B1:B'+str(lastrow)+')', bold)
+    current_worksheet = workbook.add_worksheet('ftp folder')
+    current_worksheet.set_column('A:D',25)
+    current_worksheet.add_table('A1:D'+str(len(dl_info['raw_data'])+4),
+                                {'data': dl_info['raw_data'],
+                                 'columns': [ {'header': 'Filename'},
+                                              {'header': 'Update time'},
+                                              {'header': 'Size'},
+                                              {'header': 'Status'}],
+                                 'banded_columns': True,
+                                 'banded_rows': True})
 
     workbook.close()
 

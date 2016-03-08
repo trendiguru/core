@@ -1,15 +1,13 @@
-'''
-creation date: 21.2.2016
+"""
+creation date: 8.3.2016
 by: yonti
 description: this program downloads all relevant items from ebay through ftp
     - file = store
     - each file is downloaded and then scanned for CATEGORY_NAME= clothing  - this step can be parallelized
     - each item relevant is inserted into our mongo db - using the extended generic dictionary (*see bottom for details)
     - TODO: nlp on description
-            get relevant attributes from ATTRIBUTES key
             run on non english ebay databases
-
-'''
+"""
 
 from ftplib import FTP
 from StringIO import StringIO
@@ -23,8 +21,8 @@ from . import ebay_constants
 from . import dl_excel
 db = constants.db
 db.ebay_Female.delete_many({})
-# db.ebay_Male.delete_many({})
-# db.ebay_Unisex.delete_many({})
+db.ebay_Male.delete_many({})
+db.ebay_Unisex.delete_many({})
 today_date = str(datetime.datetime.date(datetime.datetime.now()))
 
 ebaysNotRelevant = ebay_constants.blacklist_stores
@@ -76,15 +74,31 @@ def fromCats2ppdCats(cats):
     for cat in cats:
         ppd_cats.append(ebay_constants.ebay_paperdoll_women[cat])
     cat_count = len(ppd_cats)
-    # if cat_count>1:
-    #     print (ppd_cats)
-    if cat_count==0:
+    if cat_count>1:
+        if 'polo' in ppd_cats:
+            return 'polo'
+        elif 't-shirt' in ppd_cats:
+            return 't-shirt'
+        elif 'blazer' in ppd_cats:
+            return 'blazer'
+        elif 'bikini' in ppd_cats:
+            return 'bikini'
+        elif 'swimsuit' in ppd_cats:
+            return 'swimsuit'
+        elif 'sweater' in ppd_cats:
+            return 'sweater'
+        elif 'sweatshirt' in ppd_cats:
+            return 'sweatshirt'
+        else:
+            return ppd_cats[0]
+    elif cat_count==0:
         return []
-    return ppd_cats[0]
+    else:
+        return ppd_cats[0]
 
 def title2category(title):
     TITLE= title.upper()
-    split1 = re.split(' ', TITLE)
+    split1 = re.split(' |-', TITLE)
     cats = []
     for s in split1:
         if s in ebay_constants.categories_keywords:
@@ -152,7 +166,7 @@ for filename in files:
         # verify right category
         mainCategory = item["CATEGORY_NAME"]
         gender = item["GENDER"]
-        if mainCategory != "Clothing" or gender !='Female':
+        if mainCategory != "Clothing":
             continue
         subCategorys = title2category(item["OFFER_TITLE"])
         if len(subCategorys)<1:
@@ -178,10 +192,18 @@ for filename in files:
 ftp.quit()
 stop_time = time.time()
 total_time = (stop_time-start_time)/60
+raw_data =[]
+for line in data:
+    s=line.split()
+    status = "whitelist" if s[8] in white_list else "blacklist"
+    sorted_data = [s[8], s[5]+ " " + s[6] + " at " + s[7], s[4], status]
+    raw_data.append(sorted_data)
+
 dl_info = {"date": today_date,
            "dl_duration": total_time,
            "blacklist" : black_list,
-           "whitelist" : white_list}
+           "whitelist" : white_list,
+           "raw_data": raw_data}
 
 dl_excel.mongo2xl('ebay', dl_info)
 

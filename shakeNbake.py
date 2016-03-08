@@ -25,9 +25,9 @@ import pymongo
 from . import tmpGuard
 
 db = pymongo.MongoClient(host="mongodb1-instance-1", port=27017).mydb
-MAX_PER_DOMAIN = 10000
+MAX_PER_DOMAIN = 5000
 
-whitelist = ["gettyimages.com"]
+whitelist = ["stylebook.de"]
 
 
 # "manrepeller.com", "wishwishwish.net", "parkandcube.com", "stellaswardrobe.com",
@@ -86,7 +86,7 @@ def processes(w):
                                     shell=True)
         print colored("firefox %s is opened" % (str(i)), 'green')
 
-    sleep(5)
+    sleep(30)
     subprocess.Popen(["screen -d"], shell=True)
 
     while True:
@@ -113,9 +113,11 @@ def getAllUrls(url, html, obid):
         all_links = soup.find_all("a")
         end_val = len(all_links)
         for x, anchor in enumerate(all_links):
+
             progress_bar(x, end_val)
             # extract link url from the anchor
             link = anchor.attrs["href"] if "href" in anchor.attrs else ''
+            # print (link)
             if not link.startswith(domain_name):
                 if link.startswith('/') and len(link) > 3:
                     link = domain_name + link
@@ -253,7 +255,7 @@ def firefox():
 
 def getUserInput():
     parser = argparse.ArgumentParser(description='Main Scraper')
-    parser.add_argument("-f", dest="function", help="The function you want to run")
+    parser.add_argument("-f", dest="function", default="screen", help="The function you want to run")
     parser.add_argument("-w", dest="workers", default="10", help="enter the number of workers to run simultaneously")
     args = parser.parse_args()
     return args
