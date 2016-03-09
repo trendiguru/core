@@ -111,6 +111,7 @@ def title2category(gender, title):
             return gender, []
         else:
             pass
+    print (gender , cats)
     gender, ppd_cats = fromCats2ppdCats(gender, cats)
     return gender, ppd_cats
 
