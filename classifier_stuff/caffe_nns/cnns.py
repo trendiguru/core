@@ -296,7 +296,7 @@ def alexnet_linearized(db, batch_size,n_classes=11,meanB=128,meanG=128,meanR=128
 
     n.conv1 = L.Convolution(n.data,param=[dict(lr_mult=lr_mult1,decay_mult=decay_mult1),
                                           dict(lr_mult=lr_mult2,decay_mult=decay_mult2)],
-                            kernel_size=10,stride = 2, num_output=48,weight_filler=dict(type='xavier'))
+                            kernel_size=10,stride = 1, num_output=48,weight_filler=dict(type='xavier'))
     n.relu1 = L.ReLU(n.conv1, in_place=True)
     n.pool1 = L.Pooling(n.conv1, kernel_size=2, stride=2, pool=P.Pooling.MAX)
     n.conv2 = L.Convolution(n.pool1,param=[dict(lr_mult=lr_mult1,decay_mult=decay_mult1),
@@ -916,7 +916,7 @@ if __name__ == "__main__":
 #    nn_dir = '/home/jeremy/core/classifier_stuff/caffe_nns/conv_relu_x4_nopool_70filters_2000ip1'  #b2
     #     run_my_net(nn_dir,db_name+'.train',db_name+'.test',batch_size = batch_size,n_classes=n_classes,meanB=B,meanR=R,meanG=G,n_filters=70,n_ip1=2000)
 
-    nn_dir = '/home/jeremy/core/classifier_stuff/caffe_nns/alexnet3'  #b2
+    nn_dir = '/home/jeremy/core/classifier_stuff/caffe_nns/alexnet4'  #b2
     run_my_net(nn_dir,db_name+'.train',db_name+'.test',batch_size = batch_size,n_classes=n_classes,meanB=B,meanR=R,meanG=G,n_filters=50,n_ip1=1000)
 
 
