@@ -95,7 +95,7 @@ def mongo2xl(filename, dl_info):
 
         total_items += collection.count()
         current_worksheet = workbook.add_worksheet('Women')
-        fillTable(current_worksheet,categories,collection, bold)
+        fillTable(current_worksheet,categories,collection, bold,today)
 
     worksheet_main.write(3, 2, total_items)
     workbook.close()
