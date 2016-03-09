@@ -48,6 +48,7 @@ def image_stats_from_dir_of_dirs(dir_of_dirs):
 
 
 def image_chooser(dirname):
+    print('choosing images from dir:'+str(dirname))
     removed_dir = os.path.join(dirname,'removed')
     Utils.ensure_dir(removed_dir)
     only_files = [f for f in os.listdir(dirname) if os.path.isfile(os.path.join(dirname, f))]
