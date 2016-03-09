@@ -6,6 +6,7 @@ import sys
 import os
 import cv2
 import hashlib
+import shutil
 import logging
 logging.basicConfig(level=logging.DEBUG)
 import numpy as np
@@ -44,6 +45,35 @@ def image_stats_from_dir_of_dirs(dir_of_dirs):
     totfiles = np.sum(nlist)
     print('weighted averages of {} directories: h:{} w{} d{} B {} G {} R {} totfiles {}'.format(n,avg_h,avg_w,avg_d,avg_B,avg_G,avg_R,totfiles))
     return([avg_h,avg_w,avg_d,avg_B,avg_G,avg_R,totfiles])
+
+
+def image_chooser(source_dir,dest_dir,removed_dir=None):
+    if removed_dir is None:
+        removed_dir = os.path.join(source_dir,'removed')
+    Utils.ensure_dir(removed_dir)
+    print('choosing images from dir:'+str(source_dir)+', goood to '+str(dest_dir)+' and removed to '+str(removed_dir))
+    only_files = [f for f in os.listdir(source_dir) if os.path.isfile(os.path.join(source_dir, f))]
+    for a_file in only_files:
+        fullname = os.path.join(source_dir,a_file)
+        img_arr = cv2.imread(fullname)
+        if img_arr is not None:
+            shape = img_arr.shape
+            print('img:'+a_file+' shape:'+str(shape))
+            print('(q)uit (d)elete (k)eep')
+            cv2.imshow('img',img_arr)
+            k = cv2.waitKey(0)
+            if k==ord('q'):    # q to stop
+                break
+            elif k==ord('d'):  # normally -1 returned,so don't print it
+                print('removing '+a_file+' to '+removed_dir)
+                dest_fullname = os.path.join(removed_dir,a_file)
+                shutil.move(fullname, dest_fullname)
+            elif k== ord('k'):
+                print('placing '+a_file+' in '+dest_dir)
+                dest_fullname = os.path.join(dest_dir,a_file)
+                shutil.move(fullname, dest_fullname)
+        else:
+            print('trouble opening image '+str(fullname))
 
 
 def image_stats_from_dir(dirname):
@@ -235,5 +265,6 @@ if __name__ == "__main__":
   #  resize_and_crop_image_using_bb('../images/female1.jpg',bb=[240,122,170,400],output_w=150,output_h=50)
    # resize_and_crop_image_using_bb('../images/female1.jpg',bb=[240,122,170,400],output_w=50,output_h=150)
     #resize_and_crop_image_using_bb('../images/female1.jpg',bb=[240,122,170,170],output_w=1000,output_h=100)
+    image_chooser('../images')
 
     image_stats_from_dir_of_dirs(dir_of_dirs)

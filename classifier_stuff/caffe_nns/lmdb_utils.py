@@ -396,8 +396,8 @@ if __name__ == "__main__":
 #    n_train_classes,train_populations,train_imageno = interleaved_dir_of_dirs_to_lmdb('mydb2',dir_of_dirs,max_images_per_class =150,test_or_train='train',resize_x=resize_x,resize_y=resize_y,avg_B=B,avg_G=G,avg_R=R)
    # print('{} test classes with {} files'.format(n_test_classes,test_populations))
    # print('{} train classes with {} files'.format(n_train_classes,train_populations))
-    inspect_db('plus_zero.test',show_visual_output=True,B=B,G=G,R=R)
-    inspect_db('plus_zero.train',show_visual_output=True,B=B,G=G,R=R)
+    inspect_db('highly_populated_cropped.test',show_visual_output=True,B=B,G=G,R=R)
+    inspect_db('highly_populated_cropped.train',show_visual_output=True,B=B,G=G,R=R)
    # inspect_db('mydb.train',show_visual_output=False,B=B,G=G,R=R)
 
 #  weighted averages of 16 directories: h:1742.51040222 w1337.66435506 d3.0 B 142.492848614 G 151.617458606 R 162.580921717 totfiles 1442

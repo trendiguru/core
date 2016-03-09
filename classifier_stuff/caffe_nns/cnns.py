@@ -220,7 +220,111 @@ layer {
 }
 '''
 
+'''       from nate's vgg
+  1. slicing the layers is by a '_'
+    2. slicing each layer data is by a 'x'
+    3. 'C2D' = Sequential.add(Convolution2D())
+        3.1 number of kernels (int)
+        3.2 length of kernel along dim 1(int)
+        3.3 length of kernel along dim 2(int)
+        3.4 border_mode -> 'valid' / 'same'
+        3.5 input_shape -> 3x dimentions (int)
+    4. 'MP' = max pooling layer
+        4.1 pool length dim 1 (int)
+        4.2 pool length dim 2 (int)
+    5. 'AP' = average pooling layer
+        5.1 pool length dim 1 (int)
+        5.2 pool length dim 2 (int)
+    4. 'F' = Sequential.add(Flatten())
+    5. 'A' = Sequential.add(Activation(->)) : 'relu' / 'sigmoid' / 'hard_sigmoid / 'softmax' / 'tanh' / 'softplus' / 'linear'
+    6. 'DO' = Sequential.add(Dropout(->)) : 0.0 <= value <= 1.0
+    7. 'D' = Sequential.add(Dense(->)) : int value > 0 (fu
+'''
+def vggnet(db, batch_size,n_classes=11,meanB=128,meanG=128,meanR=128,n_filters=50,n_ip1=1000):
+    print('running mynet n {} B {} G {} R {} db {} batchsize {}'.format(n_classes,meanB,meanG,meanR,db,batch_size))
+    lr_mult1 = 1
+    lr_mult2 = 2
+    decay_mult1 =1
+    decay_mult2 =0
 
+    n=caffe.NetSpec()
+    if meanB is not None and meanG is not None and meanR is not None:
+        print('using vector mean ({} {} {})'.format(meanB,meanG,meanR ))
+        n.data,n.label=L.Data(batch_size=batch_size,backend=P.Data.LMDB,source=db,transform_param=dict(scale=1./255,mean_value=[meanB,meanG,meanR]),ntop=2)
+    elif meanB:
+        print('using 1D mean {} '.format(meanB))
+        n.data,n.label=L.Data(batch_size=batch_size,backend=P.Data.LMDB,source=db,transform_param=dict(scale=1./255,mean_value=meanB),ntop=2)
+    else:
+        n.data,n.label=L.Data(batch_size=batch_size,backend=P.Data.LMDB,source=db,transform_param=dict(scale=1./255),ntop=2)
+
+    n.conv1 = L.Convolution(n.data,param=[dict(lr_mult=lr_mult1,decay_mult=decay_mult1),
+                                          dict(lr_mult=lr_mult2,decay_mult=decay_mult2)],
+                            kernel_size=5,stride = 1, num_output=n_filters,weight_filler=dict(type='xavier'))
+
+#is relu required after every conv?
+    n.pool1 = L.Pooling(n.conv1, kernel_size=2, stride=2, pool=P.Pooling.MAX)
+    n.relu1 = L.ReLU(n.pool1, in_place=True)
+
+#    L.Convolution(bottom, param=[dict(lr_mult=lr_mult1),dict(lr_mult=lr_mult2)],
+ #       kernel_h=kh, kernel_w=kw, stride=stride, num_output=nout, pad=pad,
+  #      weight_filler=dict(type='gaussian', std=0.1, sparse=sparse),
+   #     bias_filler=dict(type='constant', value=0))
+
+    n.ip1 = L.InnerProduct(n.pool1,param=[dict(lr_mult=lr_mult1),dict(lr_mult=lr_mult2)],num_output=n_ip1,weight_filler=dict(type='xavier'))
+    n.relu1 = L.ReLU(n.ip1, in_place=True)
+    n.ip2 = L.InnerProduct(n.ip1,param=[dict(lr_mult=lr_mult1),dict(lr_mult=lr_mult2)],num_output=n_classes,weight_filler=dict(type='xavier'))
+    n.accuracy = L.Accuracy(n.ip2,n.label)
+    n.loss = L.SoftmaxWithLoss(n.ip2,n.label)
+    return n.to_proto()
+
+def alexnet_linearized(db, batch_size,n_classes=11,meanB=128,meanG=128,meanR=128,n_filters=50,n_ip1=1000):
+    print('building alexnet n {} B {} G {} R {} db {} batchsize {}'.format(n_classes,meanB,meanG,meanR,db,batch_size))
+    lr_mult1 = 1
+    lr_mult2 = 2
+    decay_mult1 =1
+    decay_mult2 =0
+
+    n=caffe.NetSpec()
+    if meanB is not None and meanG is not None and meanR is not None:
+        print('using vector mean ({} {} {})'.format(meanB,meanG,meanR ))
+        n.data,n.label=L.Data(batch_size=batch_size,backend=P.Data.LMDB,source=db,transform_param=dict(scale=1./255,mean_value=[meanB,meanG,meanR]),ntop=2)
+    elif meanB:
+        print('using 1D mean {} '.format(meanB))
+        n.data,n.label=L.Data(batch_size=batch_size,backend=P.Data.LMDB,source=db,transform_param=dict(scale=1./255,mean_value=meanB),ntop=2)
+    else:
+        n.data,n.label=L.Data(batch_size=batch_size,backend=P.Data.LMDB,source=db,transform_param=dict(scale=1./255),ntop=2)
+
+    n.conv1 = L.Convolution(n.data,param=[dict(lr_mult=lr_mult1,decay_mult=decay_mult1),
+                                          dict(lr_mult=lr_mult2,decay_mult=decay_mult2)],
+                            kernel_size=10,stride = 2, num_output=48,weight_filler=dict(type='xavier'))
+    n.relu1 = L.ReLU(n.conv1, in_place=True)
+    n.pool1 = L.Pooling(n.conv1, kernel_size=2, stride=2, pool=P.Pooling.MAX)
+    n.conv2 = L.Convolution(n.pool1,param=[dict(lr_mult=lr_mult1,decay_mult=decay_mult1),
+                                          dict(lr_mult=lr_mult2,decay_mult=decay_mult2)],
+                            kernel_size=5,stride = 1, num_output=128,weight_filler=dict(type='xavier'))
+    n.relu2 = L.ReLU(n.conv2, in_place=True)
+    n.pool2 = L.Pooling(n.conv2, kernel_size=2, stride=2, pool=P.Pooling.MAX)
+    n.conv3 = L.Convolution(n.pool2,param=[dict(lr_mult=lr_mult1,decay_mult=decay_mult1),
+                                          dict(lr_mult=lr_mult2,decay_mult=decay_mult2)],
+                            kernel_size=3,stride = 1, num_output=192,weight_filler=dict(type='xavier'))
+    n.relu3 = L.ReLU(n.conv3, in_place=True)
+    n.conv4 = L.Convolution(n.conv3,param=[dict(lr_mult=lr_mult1,decay_mult=decay_mult1),
+                                          dict(lr_mult=lr_mult2,decay_mult=decay_mult2)],
+                            kernel_size=3,stride = 1, num_output=192,weight_filler=dict(type='xavier'))
+    n.relu4 = L.ReLU(n.conv4, in_place=True)
+    n.conv5 = L.Convolution(n.conv4,param=[dict(lr_mult=lr_mult1,decay_mult=decay_mult1),
+                                          dict(lr_mult=lr_mult2,decay_mult=decay_mult2)],
+                            kernel_size=3,stride = 1, num_output=128,weight_filler=dict(type='xavier'))
+    n.relu5 = L.ReLU(n.conv5, in_place=True)
+#    n.pool3 = L.Pooling(n.conv5, kernel_size=2, stride=1, pool=P.Pooling.MAX)
+    n.ip1 = L.InnerProduct(n.conv5,param=[dict(lr_mult=lr_mult1),dict(lr_mult=lr_mult2)],num_output=2048,weight_filler=dict(type='xavier'))
+    n.relu6 = L.ReLU(n.ip1, in_place=True)
+    n.ip2 = L.InnerProduct(n.ip1,param=[dict(lr_mult=lr_mult1),dict(lr_mult=lr_mult2)],num_output=2048,weight_filler=dict(type='xavier'))
+    n.relu7 = L.ReLU(n.ip2, in_place=True)
+    n.ip3 = L.InnerProduct(n.ip2,param=[dict(lr_mult=lr_mult1),dict(lr_mult=lr_mult2)],num_output=n_classes,weight_filler=dict(type='xavier'))
+    n.accuracy = L.Accuracy(n.ip3,n.label)
+    n.loss = L.SoftmaxWithLoss(n.ip3,n.label)
+    return n.to_proto()
 
 def run_lenet():
     host = socket.gethostname()
@@ -564,11 +668,11 @@ def run_my_net(nn_dir,train_db,test_db,batch_size = 64,n_classes=11,meanB=None,m
     print('using  testfile:{}'.format(test_protofile))
 
     with open(train_protofile,'w') as f:
-        train_net = mynet(train_db,batch_size = batch_size,n_classes=n_classes,meanB=meanB,meanG=meanG,meanR=meanR,n_filters=n_filters,n_ip1=n_ip1)
+        train_net = alexnet_linearized(train_db,batch_size = batch_size,n_classes=n_classes,meanB=meanB,meanG=meanG,meanR=meanR,n_filters=n_filters,n_ip1=n_ip1)
         f.write(str(train_net))
         f.close
     with open(test_protofile,'w') as g:
-        test_net = mynet(test_db,batch_size = batch_size,n_classes=n_classes,meanB=meanB,meanG=meanG,meanR=meanR,n_filters=n_filters,n_ip1=n_ip1)
+        test_net = alexnet_linearized(test_db,batch_size = batch_size,n_classes=n_classes,meanB=meanB,meanG=meanG,meanR=meanR,n_filters=n_filters,n_ip1=n_ip1)
         g.write(str(test_net))
         g.close
 
@@ -740,7 +844,7 @@ if __name__ == "__main__":
         dir_of_dirs = '/home/jeremy/core/classifier_stuff/caffe_nns/plusminus_data'  #b2
         dir_of_dirs = '/home/jeremy/core/classifier_stuff/caffe_nns/populated_items'  #b2
         dir_of_dirs = '/home/jeremy/core/classifier_stuff/caffe_nns/cropped_dataset'  #b2
-        nn_dir = '/home/jeremy/core/classifier_stuff/caffe_nns/conv_relu_x4_nopool'  #b2
+#        nn_dir = '/home/jeremy/core/classifier_stuff/caffe_nns/vgg_'  #b2
         max_images_per_class = 10000
         pc = False
         solver_mode = 'GPU'
@@ -812,8 +916,8 @@ if __name__ == "__main__":
 #    nn_dir = '/home/jeremy/core/classifier_stuff/caffe_nns/conv_relu_x4_nopool_70filters_2000ip1'  #b2
     #     run_my_net(nn_dir,db_name+'.train',db_name+'.test',batch_size = batch_size,n_classes=n_classes,meanB=B,meanR=R,meanG=G,n_filters=70,n_ip1=2000)
 
-    nn_dir = '/home/jeremy/core/classifier_stuff/caffe_nns/conv_relu_x4_nopool_50filters_2000ip1'  #b2
-    run_my_net(nn_dir,db_name+'.train',db_name+'.test',batch_size = batch_size,n_classes=n_classes,meanB=B,meanR=R,meanG=G,n_filters=50,n_ip1=2000)
+    nn_dir = '/home/jeremy/core/classifier_stuff/caffe_nns/alexnet3'  #b2
+    run_my_net(nn_dir,db_name+'.train',db_name+'.test',batch_size = batch_size,n_classes=n_classes,meanB=B,meanR=R,meanG=G,n_filters=50,n_ip1=1000)
 
 
 #to train at cli:
