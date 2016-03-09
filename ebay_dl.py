@@ -95,7 +95,7 @@ def fromCats2ppdCats(gender, cats):
         return "Androgyny", []
     else:
         cat =  ppd_cats[0]
-    if any(x == cat for x in ['dress', 'skirt']):
+    if any(x == cat for x in ['dress', 'skirt','bikini','stockings']):
         gender = 'Female'
     return gender, cat
 
@@ -104,6 +104,8 @@ def title2category(gender, title):
     TITLE= title.upper()
     split1 = re.split(' |-', TITLE)
     cats = []
+    genderAlert = None
+
     for s in split1:
         if s in ebay_constants.categories_keywords:
             cats.append(s)
@@ -111,7 +113,13 @@ def title2category(gender, title):
             return gender, []
         else:
             pass
+        if s in ['WOMAN','WOMAN\'S', 'WOMEN','WOMEN\'S']:
+            genderAlert = 'Female'
+        if s in ['MAN','MAN\'S', 'MEN','MEN\'S']:
+            genderAlert = 'Male'
+
     gender, ppd_cats = fromCats2ppdCats(gender, cats)
+    gender = genderAlert or gender
     return gender, ppd_cats
 
 start_time = time.time()
@@ -202,6 +210,7 @@ for line in data:
     sorted_data = [s[8], s[5]+ " " + s[6] + " at " + s[7], s[4], status]
     raw_data.append(sorted_data)
 
+white_list = [x[:-7] for x in white_list] # remove ".txt.gz"
 white_list_new = [x for x in white_list if x not in ebay_constants.ebay_whitelist]
 dl_info = {"date": today_date,
            "dl_duration": total_time,

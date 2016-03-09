@@ -56,7 +56,7 @@ ebay_whitelist = [19153,19244,20629,300086,300450,300751,301278,302661,302924,30
 523588,523784,523848,523885,524617,524760,525168,525216,525230,525270,525487,526356,526483,526670,526850,526855,526938,
 527303,527407,527423,527520,527660,527661,527679,527830,527971,527972,528367,528368,528386,528601,528684,528851,528857,
 528858,528953,528979,528994,529006,529079,529084,529154,529168,529189,529402,529416,529478,529520,529543,529740,529807,
-529974,530019,530176,530213,530240,90093,9105,9180,9224,9235,9317,9183,9185,9214,9278,9296,9466,9490]
+529974,530019,530176,530213,530240,90093,9105,9180,9224,9235,9317]
 
 ebay_not_classified = [90034,301425,330911,530251,530243,530242,530232,530184,530183,530163,530137,530136,527314,526653,
 529979,529869,529621,529552,529038,528701,528527,528558,528462,527997,527720,527490,527432,527415,527316,527042,526620,
@@ -74,7 +74,7 @@ categories_badwords = ['SLEEPWEAR', 'SHAPEWEAR', 'SLIPS', 'BEDDING', 'LINGERIE',
                         'WIGS', 'DEFAULT', 'MANNEQUINS', 'FORMS', 'HARDWARE', 'SLEEP', 'MATERNITY', 'EARMUFFS',
                         'EARWARMERS', 'VEILS', 'HANDKERCHIEFS', 'PHONES', 'MITTENS', 'UMBRELLAS', 'CYCLING',
                         'HEADPIECES', 'DOCTORS', 'PET', 'ANIMALS', 'SKATING', 'BRAS', 'BRA', 'HOSIERY','INFANT', 'BABY',
-                        'GIRLS', 'GYMBOREE']
+                        'GIRLS', 'GYMBOREE', 'BRIEFS', 'BRIEF']
 
 categories_keywords = ['BELT', 'BELTS', 'BIKINI', 'BIKINIS', 'BLAZER', 'BLAZERS', 'BLOUSE', 'BLOUSES', 'BOOTS',
                        'CAPRIS', 'CARDIGAN', 'COAT', 'COATS', 'DRESS', 'DRESSES', 'HILLS', 'HOODIE','HOODIEs', 'JACKET',
@@ -82,7 +82,7 @@ categories_keywords = ['BELT', 'BELTS', 'BIKINI', 'BIKINIS', 'BLAZER', 'BLAZERS'
                        'MOCCASINS','OUTWEAR','OXFORDS', 'PANT', 'PANTS', 'POLO', 'ROMPER', 'ROMPERS', 'SANDALS',
                        'SHIRT','SHIRTS', 'SHOES', 'SHORTS', 'SKIRT', 'SKIRTS','SNIKERS', 'STOCKINGS', 'SUIT', 'SUITS',
                        'SWEATERS', 'SWEATSHIRT', 'SWEATSHIRTS', 'SWIM', 'SWIMING','SWIMINGSUIT',
-                       'SWEATER','SWIMINGSUITS', 'SWIMSUIT', 'SWIMSUITS', 'T', 'TEE', 'TEES', 'TOP', 'TOPS',
+                       'SWEATER','SWIMINGSUITS', 'SWIMSUIT', 'SWIMSUITS', 'T', 'TEE', 'TEES', 'TIGHTS','TOP', 'TOPS',
                        'TROUSER', 'TROUSERS', 'TSHIRT', 'TSHIRTS', 'TUNIC', 'TUNICS', 'VEST', 'VESTS']
 
 ebay_paperdoll_women = { 'BELT': 'belt', 'BELTS': 'belt',
@@ -105,7 +105,8 @@ ebay_paperdoll_women = { 'BELT': 'belt', 'BELTS': 'belt',
                          'SNEAKERS': 'shoes', 'OXFORDS': 'shoes', 'SANDALS': 'shoes',
                          'SHORTS': 'shorts',
                          'SKIRTS': 'skirt', 'SKIRT': 'skirt',
-                         'STOCKINGS': 'stockings','LEGGINGS': 'stocking', 'LEGGING': 'stocking',
+                         'STOCKINGS': 'stockings',
+                         'LEGGINGS': 'leggings', 'LEGGING': 'leggings', 'TIGHTS': 'leggings',
                          'SUITS': 'suit', 'SUIT': 'suit', 'JUMPSUIT': 'suit','JUMPSUITS': 'suit',
                          'SWEATERS': 'sweater', 'SWEATER': 'sweater',
                          'SWEATSHIRTS': 'sweatshirt', 'SWEATSHIRT': 'sweatshirt',
