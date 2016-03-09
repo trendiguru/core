@@ -65,7 +65,7 @@ def image_chooser(dirname):
                 break
             elif k==ord('d'):  # normally -1 returned,so don't print it
                 print('moving '+a_file+' to '+removed_dir)
-                dest_fullname = os.path.join(removed_dir,removed_dir)
+                dest_fullname = os.path.join(removed_dir,a_file)
                 shutil.move(fullname, dest_fullname)
             elif k== ord('n'):
                 continue
