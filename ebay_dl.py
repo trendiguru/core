@@ -101,6 +101,7 @@ def fromCats2ppdCats(gender, cats):
 
 
 def title2category(gender, title):
+    print (gender)
     TITLE= title.upper()
     split1 = re.split(' |-', TITLE)
     cats = []
