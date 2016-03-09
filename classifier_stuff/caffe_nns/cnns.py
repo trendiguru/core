@@ -316,8 +316,8 @@ def alexnet_linearized(db, batch_size,n_classes=11,meanB=128,meanG=128,meanR=128
                                           dict(lr_mult=lr_mult2,decay_mult=decay_mult2)],
                             kernel_size=3,stride = 1, num_output=128,weight_filler=dict(type='xavier'))
     n.relu5 = L.ReLU(n.conv5, in_place=True)
-    n.pool3 = L.Pooling(n.conv5, kernel_size=2, stride=1, pool=P.Pooling.MAX)
-    n.ip1 = L.InnerProduct(n.pool3,param=[dict(lr_mult=lr_mult1),dict(lr_mult=lr_mult2)],num_output=2048,weight_filler=dict(type='xavier'))
+#    n.pool3 = L.Pooling(n.conv5, kernel_size=2, stride=1, pool=P.Pooling.MAX)
+    n.ip1 = L.InnerProduct(n.conv5,param=[dict(lr_mult=lr_mult1),dict(lr_mult=lr_mult2)],num_output=2048,weight_filler=dict(type='xavier'))
     n.relu6 = L.ReLU(n.ip1, in_place=True)
     n.ip2 = L.InnerProduct(n.ip1,param=[dict(lr_mult=lr_mult1),dict(lr_mult=lr_mult2)],num_output=2048,weight_filler=dict(type='xavier'))
     n.relu7 = L.ReLU(n.ip2, in_place=True)
