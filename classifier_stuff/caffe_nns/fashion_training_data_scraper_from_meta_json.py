@@ -135,7 +135,7 @@ def library_with_cropping(json_file,json_files_path, photos_path,listing,max_ite
                     print listing[photo_id-1] + '\n catalog img unsuccesful save: ' + full_path + '\n'
                     pass
             n+=1
-            print('')
+            print('n='+str(n))
 
             if n>max_items:
                 print('hit max items')
@@ -156,7 +156,7 @@ if __name__ == "__main__":
 
     listing = get_product_photos(images_files_path)
 
-    max_items = 50000
+    max_items = 5000000
     only_files = [f for f in os.listdir(json_files_path) if os.path.isfile(os.path.join(json_files_path, f))]
 #    only_files = ['test_pairs_footwear.json']
     print only_files
