@@ -23,13 +23,16 @@ def fillTable(worksheet,main_categories,collection,bold):
     options = {'data' : categories,
                'total_row': True,
                'columns': [{ 'header': 'Categories','total_string': 'Total'},
-                           { 'header': 'items','total_function' : 'sum'},
-                           { 'header': 'new_items','total_function' : 'sum'},
-                           { 'header': 'instock','total_function' : 'sum'},
-                           { 'header': 'out of stock','total_function' : 'sum'},]
+                           { 'header': 'items'},
+                           { 'header': 'new_items'},
+                           { 'header': 'instock'},
+                           { 'header': 'out of stock'},]
                }
     worksheet.add_table('B2:F'+str(categories_length), options)
-
+    worksheet.write_formula('C'+str(categories_length), '=SUM(C3:C'+str(categories_length-1)+')')
+    worksheet.write_formula('D'+str(categories_length), '=SUM(D3:D'+str(categories_length-1)+')')
+    worksheet.write_formula('E'+str(categories_length), '=SUM(E3:E'+str(categories_length-1)+')')
+    worksheet.write_formula('F'+str(categories_length), '=SUM(F3:F'+str(categories_length-1)+')')
 
 def mongo2xl(filename, dl_info):
     path2file = '/home/developer/yonti/'+filename+'.xlsx'
@@ -49,7 +52,7 @@ def mongo2xl(filename, dl_info):
     for i,w in enumerate(dl_info['whitelist']):
         worksheet_main.write(2+i,6, w)
 
-    categories = list(set(ebay_constants.ebay_paperdoll_women.values()))
+    categories = list(set(ebay_constants.ebay_paperdoll_women.values())).sort()
 
     if filename == 'ebay':
         for gender in ['Female', 'Male', 'Unisex']:
