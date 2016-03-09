@@ -73,7 +73,8 @@ categories_badwords = ['SLEEPWEAR', 'SHAPEWEAR', 'SLIPS', 'BEDDING', 'LINGERIE',
                         'SCARF', 'PONCHO', 'RING', 'GOWN', 'HIDDEN', 'SHAWLS', 'RAINCOATS', 'GRAPHICS', 'GYMGO', 'AUTO',
                         'WIGS', 'DEFAULT', 'MANNEQUINS', 'FORMS', 'HARDWARE', 'SLEEP', 'MATERNITY', 'EARMUFFS',
                         'EARWARMERS', 'VEILS', 'HANDKERCHIEFS', 'PHONES', 'MITTENS', 'UMBRELLAS', 'CYCLING',
-                        'HEADPIECES', 'DOCTORS', 'PET', 'ANIMALS', 'SKATING', 'BRAS', 'BRA', 'HOSIERY','INFANT']
+                        'HEADPIECES', 'DOCTORS', 'PET', 'ANIMALS', 'SKATING', 'BRAS', 'BRA', 'HOSIERY','INFANT', 'BABY',
+                        'GIRLS', 'GYMBOREE']
 
 categories_keywords = ['BELT', 'BELTS', 'BIKINI', 'BIKINIS', 'BLAZER', 'BLAZERS', 'BLOUSE', 'BLOUSES', 'BOOTS',
                        'CAPRIS', 'CARDIGAN', 'COAT', 'COATS', 'DRESS', 'DRESSES', 'HILLS', 'HOODIE','HOODIEs', 'JACKET',
