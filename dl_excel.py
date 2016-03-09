@@ -52,7 +52,8 @@ def mongo2xl(filename, dl_info):
     for i,w in enumerate(dl_info['whitelist']):
         worksheet_main.write(2+i,6, w)
 
-    categories = list(set(ebay_constants.ebay_paperdoll_women.values())).sort()
+    categories = list(set(ebay_constants.ebay_paperdoll_women.values()))
+    categories.sort()
 
     if filename == 'ebay':
         for gender in ['Female', 'Male', 'Unisex']:
