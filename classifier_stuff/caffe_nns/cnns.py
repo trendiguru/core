@@ -807,8 +807,13 @@ if __name__ == "__main__":
   #  run_my_net(nn_dir,db_name+'.train',db_name+'.test',batch_size = batch_size,n_classes=n_classes,meanB=B,meanR=R,meanG=G,n_filters=200,n_ip1=1000)
    # nn_dir = '/home/jeremy/core/classifier_stuff/caffe_nns/conv_relu_x4_nopool_200filters_2000ip1'  #b2
     #run_my_net(nn_dir,db_name+'.train',db_name+'.test',batch_size = batch_size,n_classes=n_classes,meanB=B,meanR=R,meanG=G,n_filters=200,n_ip1=2000)
-    nn_dir = '/home/jeremy/core/classifier_stuff/caffe_nns/conv_relu_x4_nopool_70filters_2000ip1'  #b2
-    run_my_net(nn_dir,db_name+'.train',db_name+'.test',batch_size = batch_size,n_classes=n_classes,meanB=B,meanR=R,meanG=G,n_filters=70,n_ip1=2000)
+
+#out of memory!!
+#    nn_dir = '/home/jeremy/core/classifier_stuff/caffe_nns/conv_relu_x4_nopool_70filters_2000ip1'  #b2
+    #     run_my_net(nn_dir,db_name+'.train',db_name+'.test',batch_size = batch_size,n_classes=n_classes,meanB=B,meanR=R,meanG=G,n_filters=70,n_ip1=2000)
+
+    nn_dir = '/home/jeremy/core/classifier_stuff/caffe_nns/conv_relu_x4_nopool_50filters_2000ip1'  #b2
+    run_my_net(nn_dir,db_name+'.train',db_name+'.test',batch_size = batch_size,n_classes=n_classes,meanB=B,meanR=R,meanG=G,n_filters=50,n_ip1=2000)
 
 
 #to train at cli:
