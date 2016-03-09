@@ -156,7 +156,7 @@ if __name__ == "__main__":
 
     listing = get_product_photos(images_files_path)
 
-    max_items = 10000
+    max_items = 50000
     only_files = [f for f in os.listdir(json_files_path) if os.path.isfile(os.path.join(json_files_path, f))]
 #    only_files = ['test_pairs_footwear.json']
     print only_files
