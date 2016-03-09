@@ -78,11 +78,11 @@ def fromCats2ppdCats(gender, cats):
         elif 'blazer' in ppd_cats:
             cat = 'blazer'
         elif 'bikini' in ppd_cats:
-            return 'bikini'
+            cat =  'bikini'
         elif 'swimsuit' in ppd_cats:
             cat =  'swimsuit'
         elif 'sweater' in ppd_cats:
-            return 'sweater'
+            cat = 'sweater'
         elif 'sweatshirt' in ppd_cats:
             cat =  'sweatshirt'
         elif all(x in ppd_cats for x in ['dress','shirt']):
@@ -92,7 +92,7 @@ def fromCats2ppdCats(gender, cats):
         else:
             cat = ppd_cats[0]
     elif cat_count==0:
-        return "Androgyny",[]
+        return "Androgyny", []
     else:
         cat =  ppd_cats[0]
     if any(x == cat for x in ['dress', 'skirt']):
@@ -101,7 +101,6 @@ def fromCats2ppdCats(gender, cats):
 
 
 def title2category(gender, title):
-    print (gender)
     TITLE= title.upper()
     split1 = re.split(' |-', TITLE)
     cats = []
@@ -112,7 +111,6 @@ def title2category(gender, title):
             return gender, []
         else:
             pass
-    print (gender , cats)
     gender, ppd_cats = fromCats2ppdCats(gender, cats)
     return gender, ppd_cats
 
