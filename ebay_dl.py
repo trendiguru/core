@@ -25,19 +25,13 @@ db.ebay_Male.delete_many({})
 db.ebay_Unisex.delete_many({})
 today_date = str(datetime.datetime.date(datetime.datetime.now()))
 
-ebaysNotRelevant = ebay_constants.blacklist_stores
+ebaysNotRelevant = ebay_constants.ebay_blacklist
 
-# b = open("/home/developer/python-packages/trendi/Yonti/ebay_blacklist.txt",'r')
-# for store in b:
-#     if store not in ebaysNotRelevant:
-#         ebaysNotRelevant.append(store)
-
-# manual check [20478,
 # fills our generic dictionary with the info from ebay
-def ebay2generic(item, subcats):
+def ebay2generic(item, gender, subcat):
     try:
         generic = {"id": item["\xef\xbb\xbfOFFER_ID"],
-                   "categories": subcats,
+                   "categories": subcat,
                    "clickUrl": item["OFFER_URL_MIN_CATEGORY_BID"],
                    "images": item["IMAGE_URL"],
                    "status": {"instock" : True, "days_out" : 0},
@@ -51,7 +45,7 @@ def ebay2generic(item, subcats):
                                      'first_dl': today_date,
                                      'fp_version': constants.fingerprint_version},
                    "fingerprint": None,
-                   "gender": item["GENDER"],
+                   "gender": gender,
                    "ebay_raw": item}
         if item["STOCK"] != "In Stock":
             generic["status"]["instock"] = False
@@ -69,34 +63,44 @@ def ftp_connection(params):
     ftp.login(user=params["user"], passwd=params["password"])
     return ftp
 
-def fromCats2ppdCats(cats):
+def fromCats2ppdCats(gender, cats):
     ppd_cats = []
     for cat in cats:
         ppd_cats.append(ebay_constants.ebay_paperdoll_women[cat])
     cat_count = len(ppd_cats)
+    if gender == '':
+        gender = 'Unisex'
     if cat_count>1:
         if 'polo' in ppd_cats:
-            return 'polo'
+            cat = 'polo'
         elif 't-shirt' in ppd_cats:
-            return 't-shirt'
+            cat = 't-shirt'
         elif 'blazer' in ppd_cats:
-            return 'blazer'
+            cat = 'blazer'
         elif 'bikini' in ppd_cats:
             return 'bikini'
         elif 'swimsuit' in ppd_cats:
-            return 'swimsuit'
+            cat =  'swimsuit'
         elif 'sweater' in ppd_cats:
             return 'sweater'
         elif 'sweatshirt' in ppd_cats:
-            return 'sweatshirt'
+            cat =  'sweatshirt'
+        elif all(x in ppd_cats for x in ['dress','shirt']):
+            cat =  'shirt'
+        elif all(x in ppd_cats for x in ['dress','pants']):
+            cat =  'pants'
         else:
-            return ppd_cats[0]
+            cat = ppd_cats[0]
     elif cat_count==0:
-        return []
+        return "Androgyny",[]
     else:
-        return ppd_cats[0]
+        cat =  ppd_cats[0]
+    if any(x == cat for x in ['dress', 'skirt']):
+        gender = 'Female'
+    return gender, cat
 
-def title2category(title):
+
+def title2category(gender, title):
     TITLE= title.upper()
     split1 = re.split(' |-', TITLE)
     cats = []
@@ -104,11 +108,11 @@ def title2category(title):
         if s in ebay_constants.categories_keywords:
             cats.append(s)
         elif s in ebay_constants.categories_badwords:
-            return []
+            return gender, []
         else:
             pass
-    ppd_cats = fromCats2ppdCats(cats)
-    return ppd_cats
+    gender, ppd_cats = fromCats2ppdCats(gender, cats)
+    return gender, ppd_cats
 
 start_time = time.time()
 #connecting to FTP
@@ -165,21 +169,20 @@ for filename in files:
     for item in items:
         # verify right category
         mainCategory = item["CATEGORY_NAME"]
-        gender = item["GENDER"]
         if mainCategory != "Clothing":
             continue
-        subCategorys = title2category(item["OFFER_TITLE"])
-        if len(subCategorys)<1:
+        gender, subCategory = title2category(item["GENDER"], item["OFFER_TITLE"])
+        if len(subCategory)<1:
             continue
         itemCount +=1
         #needs to add search for id and etc...
-        generic_dict = ebay2generic(item, subCategorys)
-        if gender == "Female":
-            db.ebay_Female.insert_one(generic_dict)
-        elif gender == "Male":
-            db.ebay_Male.insert_one(generic_dict)
-        else:
-            db.ebay_Unisex.insert_one(generic_dict)
+        collection_name = "ebay_"+gender
+        #check if exists
+        #to do
+
+        generic_dict = ebay2generic(item, gender, subCategory)
+        db[collection_name].insert_one(generic_dict)
+
     stop = time.time()
     if itemCount < 10:
         black_list.append(filename)
@@ -199,22 +202,18 @@ for line in data:
     sorted_data = [s[8], s[5]+ " " + s[6] + " at " + s[7], s[4], status]
     raw_data.append(sorted_data)
 
+white_list_new = [x for x in white_list if x not in ebay_constants.ebay_whitelist]
 dl_info = {"date": today_date,
            "dl_duration": total_time,
            "blacklist" : black_list,
-           "whitelist" : white_list,
+           "whitelist" : white_list_new,
            "raw_data": raw_data}
 
 dl_excel.mongo2xl('ebay', dl_info)
 
 '''
 ftp codes per country:
-country  |Account               |FTP address                            |Username   |Password   |TrackingID
-US       |Trendi Guru-1129643   |partnersw.ftp.ebaycommercenetwork.com  |p1129643   |6F2lqCf4   |8097282
-DE       |Trendi Guru-1036365   |partnersw.ftp.ebaycommercenetwork.com  |p1036365   |vmo7tzXb   |8097281
-UK       |Trendi Guru-1129924   |partnersw.ftp.ebaycommercenetwork.com  |p1129924   |J5Swk69V   |8097283
-FR       |Trendi Guru-1129925   |partnersw.ftp.ebaycommercenetwork.com  |p1129925   |frRf0CR6   |8097284
-AU       |Trendi Guru-1129927   |partnersw.ftp.ebaycommercenetwork.com  |p1129927   |4awYGf27   |8097285
+can be found in our google drive
 
 extended generic dictionary -
     has all the categories from the generic db + extra key which contains all the raw info from ebay
