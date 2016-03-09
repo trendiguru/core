@@ -305,7 +305,7 @@ def run_lenet():
         ax2.set_ylabel('test accuracy')
         plt.show()
 
-def mynet(db, batch_size,n_classes=11,meanB=128,meanG=128,meanR=128):
+def mynet(db, batch_size,n_classes=11,meanB=128,meanG=128,meanR=128,n_filters=50,n_ip1=1000):
     print('running mynet n {} B {} G {} R {} db {} batchsize {}'.format(n_classes,meanB,meanG,meanR,db,batch_size))
     lr_mult1 = 1
     lr_mult2 = 2
@@ -324,7 +324,7 @@ def mynet(db, batch_size,n_classes=11,meanB=128,meanG=128,meanR=128):
 
     n.conv1 = L.Convolution(n.data,param=[dict(lr_mult=lr_mult1,decay_mult=decay_mult1),
                                           dict(lr_mult=lr_mult2,decay_mult=decay_mult2)],
-                            kernel_size=5,stride = 1, num_output=50,weight_filler=dict(type='xavier'))
+                            kernel_size=5,stride = 1, num_output=n_filters,weight_filler=dict(type='xavier'))
 
 #is relu required after every conv?
     n.relu1 = L.ReLU(n.conv1, in_place=True)
@@ -338,26 +338,26 @@ def mynet(db, batch_size,n_classes=11,meanB=128,meanG=128,meanR=128):
 
     n.conv2 = L.Convolution(n.pool1,param=[dict(lr_mult=lr_mult1,decay_mult=decay_mult1),
                                           dict(lr_mult=lr_mult2,decay_mult=decay_mult2)],
-                            kernel_size=5,stride = 1, num_output=50,weight_filler=dict(type='xavier'))
+                            kernel_size=5,stride = 1, num_output=n_filters,weight_filler=dict(type='xavier'))
 
     n.relu2 = L.ReLU(n.conv2, in_place=True)
 #    n.pool2 = L.Pooling(n.conv2, kernel_size=2, stride=2, pool=P.Pooling.MAX)
 
     n.conv3 = L.Convolution(n.conv2,param=[dict(lr_mult=lr_mult1,decay_mult=decay_mult1),
                             dict(lr_mult=lr_mult2,decay_mult=decay_mult2)],
-                            kernel_size=5,stride = 1, num_output=50,weight_filler=dict(type='xavier'))
+                            kernel_size=5,stride = 1, num_output=n_filters,weight_filler=dict(type='xavier'))
 
     n.relu3 = L.ReLU(n.conv3, in_place=True)
   #  n.pool3 = L.Pooling(n.conv3, kernel_size=2, stride=2, pool=P.Pooling.MAX)
 
 
     n.conv4 = L.Convolution(n.conv3,param=[dict(lr_mult=lr_mult1),dict(lr_mult=lr_mult2)],
-                            kernel_size=5,stride=1,num_output=50,weight_filler=dict(type='xavier'))
+                            kernel_size=5,stride=1,num_output=n_filters,weight_filler=dict(type='xavier'))
     n.relu4 = L.ReLU(n.conv4, in_place=True)
    # n.pool4 = L.Pooling(n.conv4, kernel_size=2, stride=2, pool=P.Pooling.MAX)
 
 #    n.ip1 = L.InnerProduct(n.pool2,num_output=500,weight_filler=dict(type='xavier'))
-    n.ip1 = L.InnerProduct(n.conv4,param=[dict(lr_mult=lr_mult1),dict(lr_mult=lr_mult2)],num_output=1000,weight_filler=dict(type='xavier'))
+    n.ip1 = L.InnerProduct(n.conv4,param=[dict(lr_mult=lr_mult1),dict(lr_mult=lr_mult2)],num_output=n_ip1,weight_filler=dict(type='xavier'))
     n.relu5 = L.ReLU(n.ip1, in_place=True)
     n.ip2 = L.InnerProduct(n.ip1,param=[dict(lr_mult=lr_mult1),dict(lr_mult=lr_mult2)],num_output=n_classes,weight_filler=dict(type='xavier'))
     n.accuracy = L.Accuracy(n.ip2,n.label)
@@ -438,14 +438,14 @@ def googLeNet(db, batch_size, n_classes=11, meanB=128, meanG=128, meanR=128):
                             weight_filler=dict(type='xavier'),
                             bias_filler=dict(type='constant',value=0.2))
     n.inception_3a_relu3x3_18 = L.ReLU(n.inception_3a_3x3_17,in_place=True)
-    n.inception_3a_5x5_19 =  L.Convolution(n.pool2_3x3s2_12,param=[dict(lr_mult=lr_mult1,decay_mult=decay_mult1),
+    n.inception_3a_5x5_reduce_19 =  L.Convolution(n.pool2_3x3s2_12,param=[dict(lr_mult=lr_mult1,decay_mult=decay_mult1),
                             dict(lr_mult=lr_mult2,decay_mult=decay_mult2)],
                             num_output=16,
                             pad = 1,
                             kernel_size=1,
                             weight_filler=dict(type='xavier'),
                             bias_filler=dict(type='constant',value=0.2))
-    n.inception_3a_relu5x5_reduce_20 = L.ReLU(n.inception_3a_5x5_19,in_place=True)
+    n.inception_3a_relu5x5_reduce_20 = L.ReLU(n.inception_3a_5x5_reduce_19,in_place=True)
     n.inception_3a_5x5_21 =  L.Convolution(n.inception_3a_relu5x5_reduce_20,param=[dict(lr_mult=lr_mult1,decay_mult=decay_mult1),
                             dict(lr_mult=lr_mult2,decay_mult=decay_mult2)],
                             num_output=32,
@@ -461,7 +461,7 @@ def googLeNet(db, batch_size, n_classes=11, meanB=128, meanG=128, meanR=128):
                             weight_filler=dict(type='xavier'),
                             bias_filler=dict(type='constant',value=0.2))
     n.inception_3a_relu_pool_proj_25 = L.ReLU(n.inception_3a_pool_proj_24, in_place=True)
-    n.inception_3a_output_26 = L.Concat(bottom=[n.inception_3a_1x1_13], in_place=True)
+    n.inception_3a_output_26 = L.Concat(bottom=[n.inception_3a_1x1_13,n.inception_3a_3x3_17,n.inception_3a_5x5_21,n.inception_3a_pool_proj_24])
 
 #    n.lrn1 = L.LRN(n.pool1,lrn_param=dict(local_size=5,alpha=0.0001,beta=0.75))
 
@@ -539,7 +539,7 @@ layer {
   #  lr_mult: 2
   #}
 
-def run_my_net(nn_dir,train_db,test_db,batch_size = 64,n_classes=11,meanB=None,meanG=None,meanR=None):
+def run_my_net(nn_dir,train_db,test_db,batch_size = 64,n_classes=11,meanB=None,meanG=None,meanR=None,n_filters=50,n_ip1=1000):
     host = socket.gethostname()
     print('host:'+str(host))
     if host == 'jr-ThinkPad-X1-Carbon':
@@ -564,11 +564,11 @@ def run_my_net(nn_dir,train_db,test_db,batch_size = 64,n_classes=11,meanB=None,m
     print('using  testfile:{}'.format(test_protofile))
 
     with open(train_protofile,'w') as f:
-        train_net = mynet(train_db,batch_size = batch_size,n_classes=n_classes,meanB=meanB,meanG=meanG,meanR=meanR)
+        train_net = mynet(train_db,batch_size = batch_size,n_classes=n_classes,meanB=meanB,meanG=meanG,meanR=meanR,n_filters=n_filters,n_ip1=n_ip1)
         f.write(str(train_net))
         f.close
     with open(test_protofile,'w') as g:
-        test_net = mynet(test_db,batch_size = batch_size,n_classes=n_classes,meanB=meanB,meanG=meanG,meanR=meanR)
+        test_net = mynet(test_db,batch_size = batch_size,n_classes=n_classes,meanB=meanB,meanG=meanG,meanR=meanR,n_filters=n_filters,n_ip1=n_ip1)
         g.write(str(test_net))
         g.close
 
@@ -795,7 +795,25 @@ if __name__ == "__main__":
 #    lmdb_utils.inspect_db(db_name+'.train')
   #  lmdb_utils.inspect_db(db_name+'.test')
    # raw_input('enter to cont')
-    run_my_net(nn_dir,db_name+'.train',db_name+'.test',batch_size = batch_size,n_classes=n_classes,meanB=B,meanR=R,meanG=G)
+#    nn_dir = '/home/jeremy/core/classifier_stuff/caffe_nns/conv_relu_x4_nopool_50filters'  #b2
+  #  run_my_net(nn_dir,db_name+'.train',db_name+'.test',batch_size = batch_size,n_classes=n_classes,meanB=B,meanR=R,meanG=G,n_filters=50,n_ip1=1000)
+   # nn_dir = '/home/jeremy/core/classifier_stuff/caffe_nns/conv_relu_x4_nopool_70filters'  #b2
+  #  run_my_net(nn_dir,db_name+'.train',db_name+'.test',batch_size = batch_size,n_classes=n_classes,meanB=B,meanR=R,meanG=G,n_filters=70,n_ip1=1000)
+
+#out of memory!!
+    #      nn_dir = '/home/jeremy/core/classifier_stuff/caffe_nns/conv_relu_x4_nopool_100filters'  #b2
+    #run_my_net(nn_dir,db_name+'.train',db_name+'.test',batch_size = batch_size,n_classes=n_classes,meanB=B,meanR=R,meanG=G,n_filters=100,n_ip1=1000)
+#    nn_dir = '/home/jeremy/core/classifier_stuff/caffe_nns/conv_relu_x4_nopool_200filters'  #b2
+  #  run_my_net(nn_dir,db_name+'.train',db_name+'.test',batch_size = batch_size,n_classes=n_classes,meanB=B,meanR=R,meanG=G,n_filters=200,n_ip1=1000)
+   # nn_dir = '/home/jeremy/core/classifier_stuff/caffe_nns/conv_relu_x4_nopool_200filters_2000ip1'  #b2
+    #run_my_net(nn_dir,db_name+'.train',db_name+'.test',batch_size = batch_size,n_classes=n_classes,meanB=B,meanR=R,meanG=G,n_filters=200,n_ip1=2000)
+
+#out of memory!!
+#    nn_dir = '/home/jeremy/core/classifier_stuff/caffe_nns/conv_relu_x4_nopool_70filters_2000ip1'  #b2
+    #     run_my_net(nn_dir,db_name+'.train',db_name+'.test',batch_size = batch_size,n_classes=n_classes,meanB=B,meanR=R,meanG=G,n_filters=70,n_ip1=2000)
+
+    nn_dir = '/home/jeremy/core/classifier_stuff/caffe_nns/conv_relu_x4_nopool_50filters_2000ip1'  #b2
+    run_my_net(nn_dir,db_name+'.train',db_name+'.test',batch_size = batch_size,n_classes=n_classes,meanB=B,meanR=R,meanG=G,n_filters=50,n_ip1=2000)
 
 
 #to train at cli:
