@@ -277,6 +277,55 @@ def vggnet(db, batch_size,n_classes=11,meanB=128,meanG=128,meanR=128,n_filters=5
     n.loss = L.SoftmaxWithLoss(n.ip2,n.label)
     return n.to_proto()
 
+def alexnet_linearized(db, batch_size,n_classes=11,meanB=128,meanG=128,meanR=128,n_filters=50,n_ip1=1000):
+    print('building alexnet n {} B {} G {} R {} db {} batchsize {}'.format(n_classes,meanB,meanG,meanR,db,batch_size))
+    lr_mult1 = 1
+    lr_mult2 = 2
+    decay_mult1 =1
+    decay_mult2 =0
+
+    n=caffe.NetSpec()
+    if meanB is not None and meanG is not None and meanR is not None:
+        print('using vector mean ({} {} {})'.format(meanB,meanG,meanR ))
+        n.data,n.label=L.Data(batch_size=batch_size,backend=P.Data.LMDB,source=db,transform_param=dict(scale=1./255,mean_value=[meanB,meanG,meanR]),ntop=2)
+    elif meanB:
+        print('using 1D mean {} '.format(meanB))
+        n.data,n.label=L.Data(batch_size=batch_size,backend=P.Data.LMDB,source=db,transform_param=dict(scale=1./255,mean_value=meanB),ntop=2)
+    else:
+        n.data,n.label=L.Data(batch_size=batch_size,backend=P.Data.LMDB,source=db,transform_param=dict(scale=1./255),ntop=2)
+
+    n.conv1 = L.Convolution(n.data,param=[dict(lr_mult=lr_mult1,decay_mult=decay_mult1),
+                                          dict(lr_mult=lr_mult2,decay_mult=decay_mult2)],
+                            kernel_size=10,stride = 4, num_output=48,weight_filler=dict(type='xavier'))
+    n.relu1 = L.ReLU(n.conv1, in_place=True)
+    n.pool1 = L.Pooling(n.conv1, kernel_size=2, stride=2, pool=P.Pooling.MAX)
+    n.conv2 = L.Convolution(n.pool1,param=[dict(lr_mult=lr_mult1,decay_mult=decay_mult1),
+                                          dict(lr_mult=lr_mult2,decay_mult=decay_mult2)],
+                            kernel_size=5,stride = 1, num_output=128,weight_filler=dict(type='xavier'))
+    n.relu2 = L.ReLU(n.conv2, in_place=True)
+    n.pool2 = L.Pooling(n.conv2, kernel_size=2, stride=2, pool=P.Pooling.MAX)
+    n.conv3 = L.Convolution(n.pool2,param=[dict(lr_mult=lr_mult1,decay_mult=decay_mult1),
+                                          dict(lr_mult=lr_mult2,decay_mult=decay_mult2)],
+                            kernel_size=3,stride = 1, num_output=192,weight_filler=dict(type='xavier'))
+    n.relu3 = L.ReLU(n.conv3, in_place=True)
+    n.conv4 = L.Convolution(n.conv3,param=[dict(lr_mult=lr_mult1,decay_mult=decay_mult1),
+                                          dict(lr_mult=lr_mult2,decay_mult=decay_mult2)],
+                            kernel_size=3,stride = 1, num_output=192,weight_filler=dict(type='xavier'))
+    n.relu4 = L.ReLU(n.conv4, in_place=True)
+    n.conv5 = L.Convolution(n.conv4,param=[dict(lr_mult=lr_mult1,decay_mult=decay_mult1),
+                                          dict(lr_mult=lr_mult2,decay_mult=decay_mult2)],
+                            kernel_size=3,stride = 1, num_output=128,weight_filler=dict(type='xavier'))
+    n.relu5 = L.ReLU(n.conv5, in_place=True)
+    n.pool3 = L.Pooling(n.conv5, kernel_size=2, stride=1, pool=P.Pooling.MAX)
+    n.ip1 = L.InnerProduct(n.pool3,param=[dict(lr_mult=lr_mult1),dict(lr_mult=lr_mult2)],num_output=2048,weight_filler=dict(type='xavier'))
+    n.relu6 = L.ReLU(n.ip1, in_place=True)
+    n.ip2 = L.InnerProduct(n.ip1,param=[dict(lr_mult=lr_mult1),dict(lr_mult=lr_mult2)],num_output=2048,weight_filler=dict(type='xavier'))
+    n.relu7 = L.ReLU(n.ip2, in_place=True)
+    n.ip3 = L.InnerProduct(n.ip2,param=[dict(lr_mult=lr_mult1),dict(lr_mult=lr_mult2)],num_output=n_classes,weight_filler=dict(type='xavier'))
+    n.accuracy = L.Accuracy(n.ip3,n.label)
+    n.loss = L.SoftmaxWithLoss(n.ip3,n.label)
+    return n.to_proto()
+
 def run_lenet():
     host = socket.gethostname()
     print('host:'+str(host))
@@ -619,11 +668,11 @@ def run_my_net(nn_dir,train_db,test_db,batch_size = 64,n_classes=11,meanB=None,m
     print('using  testfile:{}'.format(test_protofile))
 
     with open(train_protofile,'w') as f:
-        train_net = vggnet(train_db,batch_size = batch_size,n_classes=n_classes,meanB=meanB,meanG=meanG,meanR=meanR,n_filters=n_filters,n_ip1=n_ip1)
+        train_net = alexnet_linearized(train_db,batch_size = batch_size,n_classes=n_classes,meanB=meanB,meanG=meanG,meanR=meanR,n_filters=n_filters,n_ip1=n_ip1)
         f.write(str(train_net))
         f.close
     with open(test_protofile,'w') as g:
-        test_net = vggnet(test_db,batch_size = batch_size,n_classes=n_classes,meanB=meanB,meanG=meanG,meanR=meanR,n_filters=n_filters,n_ip1=n_ip1)
+        test_net = alexnet_linearized(test_db,batch_size = batch_size,n_classes=n_classes,meanB=meanB,meanG=meanG,meanR=meanR,n_filters=n_filters,n_ip1=n_ip1)
         g.write(str(test_net))
         g.close
 
