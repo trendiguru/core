@@ -296,14 +296,14 @@ def alexnet_linearized(db, batch_size,n_classes=11,meanB=128,meanG=128,meanR=128
 
     n.conv1 = L.Convolution(n.data,param=[dict(lr_mult=lr_mult1,decay_mult=decay_mult1),
                                           dict(lr_mult=lr_mult2,decay_mult=decay_mult2)],
-                            kernel_size=10,stride = 1, num_output=48,weight_filler=dict(type='xavier'))
+                            kernel_size=10,stride = 4, num_output=48,weight_filler=dict(type='xavier'))
     n.relu1 = L.ReLU(n.conv1, in_place=True)
-    n.pool1 = L.Pooling(n.conv1, kernel_size=2, stride=2, pool=P.Pooling.MAX)
+    n.pool1 = L.Pooling(n.conv1, kernel_size=3, stride=2, pool=P.Pooling.MAX)
     n.conv2 = L.Convolution(n.pool1,param=[dict(lr_mult=lr_mult1,decay_mult=decay_mult1),
                                           dict(lr_mult=lr_mult2,decay_mult=decay_mult2)],
                             kernel_size=5,stride = 1, num_output=128,weight_filler=dict(type='xavier'))
     n.relu2 = L.ReLU(n.conv2, in_place=True)
-    n.pool2 = L.Pooling(n.conv2, kernel_size=2, stride=2, pool=P.Pooling.MAX)
+    n.pool2 = L.Pooling(n.conv2, kernel_size=3, stride=2, pool=P.Pooling.MAX)
     n.conv3 = L.Convolution(n.pool2,param=[dict(lr_mult=lr_mult1,decay_mult=decay_mult1),
                                           dict(lr_mult=lr_mult2,decay_mult=decay_mult2)],
                             kernel_size=3,stride = 1, num_output=192,weight_filler=dict(type='xavier'))
@@ -316,12 +316,13 @@ def alexnet_linearized(db, batch_size,n_classes=11,meanB=128,meanG=128,meanR=128
                                           dict(lr_mult=lr_mult2,decay_mult=decay_mult2)],
                             kernel_size=3,stride = 1, num_output=128,weight_filler=dict(type='xavier'))
     n.relu5 = L.ReLU(n.conv5, in_place=True)
-#    n.pool3 = L.Pooling(n.conv5, kernel_size=2, stride=1, pool=P.Pooling.MAX)
-    n.ip1 = L.InnerProduct(n.conv5,param=[dict(lr_mult=lr_mult1),dict(lr_mult=lr_mult2)],num_output=2048,weight_filler=dict(type='xavier'))
+    n.pool3 = L.Pooling(n.conv5, kernel_size=3, stride=2, pool=P.Pooling.MAX)
+    n.ip1 = L.InnerProduct(n.pool3,param=[dict(lr_mult=lr_mult1),dict(lr_mult=lr_mult2)],num_output=2048,weight_filler=dict(type='xavier'))
     n.relu6 = L.ReLU(n.ip1, in_place=True)
     n.ip2 = L.InnerProduct(n.ip1,param=[dict(lr_mult=lr_mult1),dict(lr_mult=lr_mult2)],num_output=2048,weight_filler=dict(type='xavier'))
     n.relu7 = L.ReLU(n.ip2, in_place=True)
     n.ip3 = L.InnerProduct(n.ip2,param=[dict(lr_mult=lr_mult1),dict(lr_mult=lr_mult2)],num_output=n_classes,weight_filler=dict(type='xavier'))
+#maybe add relu here?
     n.accuracy = L.Accuracy(n.ip3,n.label)
     n.loss = L.SoftmaxWithLoss(n.ip3,n.label)
     return n.to_proto()
@@ -865,7 +866,8 @@ if __name__ == "__main__":
 
 #    lmdb_utils.kill_db(db_name)
     test_iter = 100
-    batch_size = 32  #use powers of 2 for better perf (supposedly)
+    batch_size = 16  #use powers of 2 for better perf (supposedly)
+# out of mem possibly correctable:    Reading dangerously large protocol message.  If the message turns out to be larger than 2147483647 bytes, parsing will be halted for security reasons.  To increase the limit (or to disable these warnings), see CodedInputStream::SetTotalBytesLimit() in google/protobuf/io/coded_stream.h
 
     find_averages = False
     if find_averages:
@@ -916,7 +918,7 @@ if __name__ == "__main__":
 #    nn_dir = '/home/jeremy/core/classifier_stuff/caffe_nns/conv_relu_x4_nopool_70filters_2000ip1'  #b2
     #     run_my_net(nn_dir,db_name+'.train',db_name+'.test',batch_size = batch_size,n_classes=n_classes,meanB=B,meanR=R,meanG=G,n_filters=70,n_ip1=2000)
 
-    nn_dir = '/home/jeremy/core/classifier_stuff/caffe_nns/alexnet4'  #b2
+    nn_dir = '/home/jeremy/core/classifier_stuff/caffe_nns/alexnet5'  #b2
     run_my_net(nn_dir,db_name+'.train',db_name+'.test',batch_size = batch_size,n_classes=n_classes,meanB=B,meanR=R,meanG=G,n_filters=50,n_ip1=1000)
 
 
