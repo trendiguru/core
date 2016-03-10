@@ -250,7 +250,7 @@ def resize_and_crop_image_using_bb( input_file_or_np_arr, bb=None, output_file=N
     #print('x1 {} x2 {} y1 {} y2 {}'.format(x1,x2,y1,y2))
     cropped_img = input_file_or_np_arr[y1:y2,x1:x2,:]
 
-    #print('orig size {}x{} cropped to:{}x{},ar={} desired ar={}'.format(input_file_or_np_arr.shape[0],input_file_or_np_arr.shape[1],cropped_img.shape[0],cropped_img.shape[1],float(cropped_img.shape[1])/cropped_img.shape[0],float(output_w/output_h)))
+    logging.debug('orig size {}x{} cropped to:{}x{},ar={} desired ar={}'.format(input_file_or_np_arr.shape[0],input_file_or_np_arr.shape[1],cropped_img.shape[0],cropped_img.shape[1],float(cropped_img.shape[1])/cropped_img.shape[0],float(output_w/output_h)))
     scaled_cropped_img = cv2.resize(cropped_img,(output_w,output_h))
 #    print('resized to : {}x{}, ar={}, desired ar={}'.format(scaled_cropped_img.shape[0],scaled_cropped_img.shape[1],float(scaled_cropped_img.shape[1])/scaled_cropped_img.shape[0],float(output_w/output_h)))
     if use_visual_output is True:
@@ -312,8 +312,8 @@ if __name__ == "__main__":
    # resize_and_crop_image_using_bb('../images/female1.jpg',bb=[240,122,170,400],output_w=50,output_h=150)
     #resize_and_crop_image_using_bb('../images/female1.jpg',bb=[240,122,170,170],output_w=1000,output_h=100)
     dir_of_dirs = '/home/jeremy/core/classifier_stuff/caffe_nns/dataset'
-    avg_h,avg_w,avg_d,avg_B,avg_G,avg_R,totfiles = image_stats_from_dir_of_dirs(dir_of_dirs,filter='test')
-    print('avg h {} avg w {} avgB {} avgG {} avgR {} nfiles {} in dir_of_dirs {}',avg_h,avg_w,avg_d,avg_B,avg_G,avg_R,totfiles,dir_of_dirs)
+#    avg_h,avg_w,avg_d,avg_B,avg_G,avg_R,totfiles = image_stats_from_dir_of_dirs(dir_of_dirs,filter='test')
+ #   print('avg h {} avg w {} avgB {} avgG {} avgR {} nfiles {} in dir_of_dirs {}',avg_h,avg_w,avg_d,avg_B,avg_G,avg_R,totfiles,dir_of_dirs)
 #    dir_of_dirs = '/home/jr/core/classifier_stuff/caffe_nns/dataset'
-    raw_input('enter to continue')
-    crop_files_in_dir_of_dirs(dir_of_dirs,bb=None,output_w =200,output_h =200,use_visual_output=True)
+#    raw_input('enter to continue')
+    crop_files_in_dir_of_dirs(dir_of_dirs,bb=None,output_w =150,output_h =200,use_visual_output=True)
