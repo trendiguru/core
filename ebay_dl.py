@@ -23,16 +23,15 @@ db = constants.db
 db.ebay_Female.delete_many({})
 db.ebay_Male.delete_many({})
 db.ebay_Unisex.delete_many({})
+db.ebay_Tees.delete_many({})
 today_date = str(datetime.datetime.date(datetime.datetime.now()))
-
-
-def handle_binary(more_data):
-    sio.write(more_data)
 
 
 def getStoreInfo(ftp):
     store_info = []
     sio = StringIO()
+    def handle_binary(more_data):
+        sio.write(more_data)
     resp = ftp.retrbinary('RETR StoreInformation.xml', callback=handle_binary)
     sio.seek(0)
     xml = sio.read()
@@ -177,6 +176,8 @@ files.remove("StoreInformation.xml")
 for filename in files:
     start = time.time()
     sio = StringIO()
+    def handle_binary(more_data):
+        sio.write(more_data)
     try:
         resp = ftp.retrbinary('RETR '+filename, callback=handle_binary)
     except:
@@ -233,6 +234,12 @@ for line in data[:-2]:
 dl_info = {"date": today_date,
            "dl_duration": total_time,
            "store_info": store_info}
+
+for col in ["Female","Male","Unisex","Tees"]:
+    col_name = "ebay_"+col
+    db[col_name].create_index("categories")
+    db[col_name].create_index("status")
+    db[col_name].create_index("download_data")
 
 dl_excel.mongo2xl('ebay', dl_info)
 

@@ -51,17 +51,19 @@ def mongo2xl(filename, dl_info):
     total_items = 0
     if filename == 'ebay':
 
-        for gender in ['Female', 'Male', 'Unisex']:
+        for gender in ['Female', 'Male', 'Unisex','Tees']:
             if gender is 'Female':
                 collection = db.ebay_Female
                 current_worksheet = workbook.add_worksheet('Female')
             elif gender is 'Male':
                 collection = db.ebay_Male
-
                 current_worksheet = workbook.add_worksheet('Male')
-            else:
+            elif gender is 'Unisex':
                 collection = db.ebay_Unisex
                 current_worksheet = workbook.add_worksheet('Unisex')
+            else:
+                collection = db.ebay_Tees
+                current_worksheet = workbook.add_worksheet('Tees')
 
             fillTable(current_worksheet, categories, collection, bold, today)
             total_items += collection.count()
