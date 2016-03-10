@@ -211,9 +211,9 @@ for filename in files:
         if exists:
             db[collection_name].update_one({'id':exists['id']}, {"$set": {"download_data.dl_version":today_date,
                                                                               "price": generic_dict["price"]}})
-            if exists["status.instock"] != generic_dict["status.instock"] :
+            if exists["status"]["instock"] != generic_dict["status"]["instock"] :
                 db[collection_name].update_one({'id':exists['id']}, {"$set": {"status":generic_dict["status"]}})
-            elif exists["status.instock"] is False and generic_dict["status.instock"] is False:
+            elif exists["status"]["instock"] is False and generic_dict["status"]["instock"] is False:
                 db[collection_name].update_one({'id':exists['id']}, {"$inc": "status.days_out"})
             else:
                 pass
