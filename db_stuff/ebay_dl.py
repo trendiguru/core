@@ -20,12 +20,11 @@ from .. import constants
 from . import ebay_constants
 from . import dl_excel
 db = constants.db
-db.ebay_Female.delete_many({})
-db.ebay_Male.delete_many({})
-db.ebay_Unisex.delete_many({})
-db.ebay_Tees.delete_many({})
+# db.ebay_Female.delete_many({})
+# db.ebay_Male.delete_many({})
+# db.ebay_Unisex.delete_many({})
+# db.ebay_Tees.delete_many({})
 today_date = str(datetime.datetime.date(datetime.datetime.now()))
-
 
 def getStoreInfo(ftp):
     store_info = []
@@ -206,11 +205,20 @@ for filename in files:
         collection_name = "ebay_"+gender
         if subCategory == "t-shirt":
             collection_name ="ebay_Tees"
-        #check if exists
-        #to do
 
         generic_dict = ebay2generic(item, gender, subCategory)
-        db[collection_name].insert_one(generic_dict)
+        exists = db[collection_name].find_one({'id':generic_dict['id']})
+        if exists:
+            db[collection_name].update_one({'id':exists['id']}, {"$set": {"download_data.dl_version":today_date,
+                                                                              "price": generic_dict["price"]}})
+            if exists["status.instock"] != generic_dict["status.instock"] :
+                db[collection_name].update_one({'id':exists['id']}, {"$set": {"status":generic_dict["status"]}})
+            elif exists["status.instock"] is False and generic_dict["status.instock"] is False:
+                db[collection_name].update_one({'id':exists['id']}, {"$inc": "status.days_out"})
+            else:
+                pass
+        else:
+            db[collection_name].insert_one(generic_dict)
 
     stop = time.time()
     if itemCount < 1:
@@ -225,7 +233,7 @@ for filename in files:
 ftp.quit()
 stop_time = time.time()
 total_time = (stop_time-start_time)/60
-raw_data =[]
+
 for line in data[:-2]:
     s=line.split()
     idx = [x["id"] == s[8][:-7] for x in store_info].index(True)
