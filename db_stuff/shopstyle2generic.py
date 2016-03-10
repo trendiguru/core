@@ -1,7 +1,7 @@
 __author__ = 'yonatan'
 
-import constants
-
+from .. import constants
+from .shopstyle_constants import shopstyle_paperdoll_women, shopstyle_relevant_items
 db = constants.db
 
 collections = ["products", "products_jp"]
@@ -12,14 +12,14 @@ def convert2generic(prod):
     id = prod["id"]
     tmp_prod["id"] = id
     tmp = [i["id"] for i in prod["categories"]]
-    cat = [cat for cat in tmp if cat in constants.db_relevant_items]
+    cat = [cat for cat in tmp if cat in shopstyle_relevant_items]
     if "women" in cat:
         cat.remove("women")
     if "womens-clothes" in cat:
         cat.remove("womens-clothes")
     if len(cat) == 0:
         return None
-    tmp_prod["categories"] = constants.shopstyle_paperdoll_women[cat[0]]
+    tmp_prod["categories"] = shopstyle_paperdoll_women[cat[0]]
     tmp_prod["clickUrl"] = prod["clickUrl"]
     tmp_prod["images"] = {'Original': prod['image']['sizes']['Original']['url'],
                           'Best': prod['image']['sizes']['Best']['url'],

@@ -16,16 +16,36 @@ import csv
 import time
 import datetime
 import re
-from . import constants
+from .. import constants
 from . import ebay_constants
 from . import dl_excel
 db = constants.db
-db.ebay_Female.delete_many({})
-db.ebay_Male.delete_many({})
-db.ebay_Unisex.delete_many({})
+# db.ebay_Female.delete_many({})
+# db.ebay_Male.delete_many({})
+# db.ebay_Unisex.delete_many({})
+# db.ebay_Tees.delete_many({})
 today_date = str(datetime.datetime.date(datetime.datetime.now()))
 
-ebaysNotRelevant = ebay_constants.ebay_blacklist
+def getStoreInfo(ftp):
+    store_info = []
+    sio = StringIO()
+    def handle_binary(more_data):
+        sio.write(more_data)
+    resp = ftp.retrbinary('RETR StoreInformation.xml', callback=handle_binary)
+    sio.seek(0)
+    xml = sio.read()
+    split= re.split('</store><store id=',xml)
+    split2 = re.split("<store id=|<name><!|></name>|<url><!|></url>",  split[0])
+    item = {'id': split2[1][1:-2],'name': split2[2][7:-2],'link':split2[4][7:-2],
+            'dl_duration':0,'items_downloaded':0, 'B/W': 'black', 'modified':""}
+    store_info.append(item)
+    for line in split[1:]:
+        split2 = re.split("<name><!|></name>|<url><!|></url>",  line)
+        item = {'id': split2[0][1:-2], 'name': split2[1][7:-2], 'link':split2[3][7:-2],
+                'dl_duration':0,'items_downloaded':0, 'B/W': 'black','modified':""}
+        store_info.append(item)
+    return store_info
+
 
 # fills our generic dictionary with the info from ebay
 def ebay2generic(item, gender, subcat):
@@ -58,10 +78,12 @@ us_params = {"url": "partnersw.ftp.ebaycommercenetwork.com",
           "user": 'p1129643',
           'password': '6F2lqCf4'}
 
+
 def ftp_connection(params):
     ftp = FTP(params["url"])
     ftp.login(user=params["user"], passwd=params["password"])
     return ftp
+
 
 def fromCats2ppdCats(gender, cats):
     ppd_cats = []
@@ -75,6 +97,8 @@ def fromCats2ppdCats(gender, cats):
             cat = 'polo'
         elif 't-shirt' in ppd_cats:
             cat = 't-shirt'
+        elif 'shirt' in ppd_cats:
+            cat = 'shirt'
         elif 'blazer' in ppd_cats:
             cat = 'blazer'
         elif 'bikini' in ppd_cats:
@@ -85,9 +109,7 @@ def fromCats2ppdCats(gender, cats):
             cat = 'sweater'
         elif 'sweatshirt' in ppd_cats:
             cat =  'sweatshirt'
-        elif all(x in ppd_cats for x in ['dress','shirt']):
-            cat =  'shirt'
-        elif all(x in ppd_cats for x in ['dress','pants']):
+        elif 'pants' in ppd_cats:
             cat =  'pants'
         else:
             cat = ppd_cats[0]
@@ -95,14 +117,16 @@ def fromCats2ppdCats(gender, cats):
         return "Androgyny", []
     else:
         cat =  ppd_cats[0]
-    if any(x == cat for x in ['dress', 'skirt','bikini','stockings']):
+    if any(x == cat for x in ['dress', 'stockings']):
         gender = 'Female'
+    if any(cat == x for x in ['skirt','bikini']) and gender == 'Male':
+        cat = 'shirt'
     return gender, cat
 
 
 def title2category(gender, title):
     TITLE= title.upper()
-    split1 = re.split(' |-', TITLE)
+    split1 = re.split(' |-|,', TITLE)
     cats = []
     genderAlert = None
 
@@ -137,9 +161,10 @@ for line in data:
     filename = elements[8]
     files.append(filename)
 
+store_info = getStoreInfo(ftp)
 
 #remove not relevant stores/files
-for store in ebaysNotRelevant:
+for store in ebay_constants.ebay_blacklist:
     fullname= str(store) +".txt.gz"
     if fullname in files:
         files.remove(fullname)
@@ -147,18 +172,11 @@ for store in ebaysNotRelevant:
 files.remove("status.txt")
 files.remove("StoreInformation.xml")
 
-# temporary
-categories =[]
-black_list = []
-white_list = []
-
 for filename in files:
     start = time.time()
-
     sio = StringIO()
     def handle_binary(more_data):
         sio.write(more_data)
-
     try:
         resp = ftp.retrbinary('RETR '+filename, callback=handle_binary)
     except:
@@ -174,6 +192,7 @@ for filename in files:
     # all items are gathered in a list
     items = csv.DictReader(unzipped.splitlines(), delimiter='\t')
     itemCount = 0
+    new_items = 0
     for item in items:
         # verify right category
         mainCategory = item["CATEGORY_NAME"]
@@ -185,38 +204,52 @@ for filename in files:
         itemCount +=1
         #needs to add search for id and etc...
         collection_name = "ebay_"+gender
-        #check if exists
-        #to do
+        if subCategory == "t-shirt":
+            collection_name ="ebay_Tees"
 
         generic_dict = ebay2generic(item, gender, subCategory)
-        db[collection_name].insert_one(generic_dict)
+        exists = db[collection_name].find_one({'id':generic_dict['id']})
+        if exists:
+            db[collection_name].update_one({'id':exists['id']}, {"$set": {"download_data.dl_version":today_date,
+                                                                              "price": generic_dict["price"]}})
+            if exists["status"]["instock"] != generic_dict["status"]["instock"] :
+                db[collection_name].update_one({'id':exists['id']}, {"$set": {"status":generic_dict["status"]}})
+            elif exists["status"]["instock"] is False and generic_dict["status"]["instock"] is False:
+                db[collection_name].update_one({'id':exists['id']}, {"$inc": {"status.days_out":1}})
+            else:
+                pass
+        else:
+            new_items+=1
+            db[collection_name].insert_one(generic_dict)
 
     stop = time.time()
-    if itemCount < 10:
-        black_list.append(filename)
+    if itemCount < 1:
         print("%s = %s is not relevant!" %(filename, item["MERCHANT_NAME"]))
     else:
-        white_list.append(filename)
-        print("%s potiential items for %s = %s" % (str(itemCount), item["MERCHANT_NAME"],filename))
-    print "item download+scraping took %s secs" % str(stop-start)
+        idx = [x["id"] == filename[:-7] for x in store_info].index(True)
+        store_info[idx]['dl_duration']=stop-start
+        store_info[idx]['items_downloaded']=itemCount
+        store_info[idx]['B/W']= 'white'
+        print("%s (%s) potiential items for %s = %s" % (str(itemCount), str(new_items), item["MERCHANT_NAME"],filename))
 
 ftp.quit()
 stop_time = time.time()
 total_time = (stop_time-start_time)/60
-raw_data =[]
-for line in data:
-    s=line.split()
-    status = "whitelist" if s[8] in white_list else "blacklist"
-    sorted_data = [s[8], s[5]+ " " + s[6] + " at " + s[7], s[4], status]
-    raw_data.append(sorted_data)
 
-white_list = [x[:-7] for x in white_list] # remove ".txt.gz"
-white_list_new = [x for x in white_list if x not in ebay_constants.ebay_whitelist]
+for line in data[:-2]:
+    s=line.split()
+    idx = [x["id"] == s[8][:-7] for x in store_info].index(True)
+    store_info[idx]['modified'] = s[5] + " " + s[6] + " at " + s[7]
+
 dl_info = {"date": today_date,
            "dl_duration": total_time,
-           "blacklist" : black_list,
-           "whitelist" : white_list_new,
-           "raw_data": raw_data}
+           "store_info": store_info}
+
+for col in ["Female","Male","Unisex","Tees"]:
+    col_name = "ebay_"+col
+    db[col_name].create_index("categories")
+    db[col_name].create_index("status")
+    db[col_name].create_index("download_data")
 
 dl_excel.mongo2xl('ebay', dl_info)
 

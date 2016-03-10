@@ -12,9 +12,9 @@ import requests
 
 from rq import Queue
 
-from constants import db, flipkart_relevant_categories, flipkart_paperdoll_women, redis_conn
-from fingerprint_core import generate_mask_and_insert
-
+from ..constants import db, redis_conn
+from ..fingerprint_core import generate_mask_and_insert
+from .flipkart_constants import flipkart_relevant_categories, flipkart_paperdoll_women
 q = Queue('fingerprint_new', connection=redis_conn)
 
 today_date = str(datetime.datetime.date(datetime.datetime.now()))
