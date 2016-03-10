@@ -729,7 +729,7 @@ def run_net(net_builder,nn_dir,train_db,test_db,batch_size = 64,n_classes=11,mea
                 correct += sum(solver.test_nets[0].blobs['output_layer'].data.argmax(1)
                                == solver.test_nets[0].blobs['label'].data)
             percent_correct = float(correct)/(n_sample*batch_size)
-            print('correct {} n {} batchsize {} acc {} size(solver.test_nets[0].blob[output_layer]'.format(correct,n_sample, percent_correct),len(solver.test_nets[0].blobs['label'].data))
+            print('correct {} n {} batchsize {} acc {} size(solver.test_nets[0].blob[output_layer]'.format(correct,n_sample,batch_size, percent_correct,len(solver.test_nets[0].blobs['label'].data)))
             test_acc[it // test_interval] = percent_correct
             print('acc so far:'+str(test_acc))
     _, ax1 = plt.subplots()
