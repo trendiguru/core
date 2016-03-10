@@ -772,10 +772,10 @@ if __name__ == "__main__":
         base_dir = '/home/jeremy/core/classifier_stuff/caffe_nns/'
         dir_of_dirs = '/home/jeremy/core/classifier_stuff/caffe_nns/plusminus_data'  #b2
         dir_of_dirs = '/home/jeremy/core/classifier_stuff/caffe_nns/populated_items'  #b2
-        dir_of_dirs = '/home/jeremy/core/classifier_stuff/caffe_nns/cropped_dataset'  #b2
-        nn_dir = '/home/jeremy/core/classifier_stuff/caffe_nns/alexnet6'  #b2
+        dir_of_dirs = '/home/jeremy/core/classifier_stuff/caffe_nns/dataset/cropped'  #b2
+        nn_dir = '/home/jeremy/core/classifier_stuff/caffe_nns/alexnet7'  #b2
 #        nn_dir = '/home/jeremy/core/classifier_stuff/caffe_nns/vgg_'  #b2
-        max_images_per_class = 10000
+        max_images_per_class = 15000
         pc = False
         solver_mode = 'GPU'
         B=112
@@ -784,7 +784,7 @@ if __name__ == "__main__":
         db_name = 'highly_populated_cropped'
 
 #    h,w,d,B,G,R,n = imutils.image_stats_from_dir_of_ditestrs(dir_of_dirs)
-    resize_x = 200
+    resize_x = 150
     resize_y=200
     print('dir:'+dir_of_dirs)
     print('rgb:'+str(R)+','+str(G)+','+str(B))
@@ -795,7 +795,7 @@ if __name__ == "__main__":
 
 #    lmdb_utils.kill_db(db_name)
     test_iter = 100
-    batch_size = 16  #use powers of 2 for better perf (supposedly)
+    batch_size = 32  #use powers of 2 for better perf (supposedly)
 # out of mem possibly correctable:    Reading dangerously large protocol message.  If the message turns out to be larger than 2147483647 bytes, parsing will be halted for security reasons.  To increase the limit (or to disable these warnings), see CodedInputStream::SetTotalBytesLimit() in google/protobuf/io/coded_stream.h
 
     find_averages = False
@@ -808,10 +808,10 @@ if __name__ == "__main__":
 
 #    lmdb_utils.inspect_db(db_name+'.train')
   #  lmdb_utils.inspect_db(db_name+'.test')
-    generate_db = False
+    generate_db = True
     if generate_db:
         n_test_classes,test_populations,image_number_test = lmdb_utils.interleaved_dir_of_dirs_to_lmdb(db_name,dir_of_dirs,
-                                                                                           max_images_per_class = 1000,test_or_train='test',resize_x=resize_x,resize_y=resize_y,
+                                                                                           max_images_per_class = 10000,test_or_train='test',resize_x=resize_x,resize_y=resize_y,
                                                                                         use_visual_output=False,n_channels=3)
         print('testclasses {} populations {} tot_images {} '.format(n_test_classes,test_populations,image_number_test))
 
