@@ -97,7 +97,7 @@ def generate_images(img_filename, max_angle = 5,n_angles=10,
         reflections.append(mirror_image)
     if do_mirror_ud:
         fimg=img_arr.copy()
-        mirror_image = cv2.flip(fimg,0)
+        mirror_image = cv2.\(fimg,0)
         reflections.append(mirror_image)
     if do_mirror_ud and do_mirror_lr:
         fimg=img_arr.copy()

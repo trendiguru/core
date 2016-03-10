@@ -721,6 +721,34 @@ def git_pull(**kwargs):
         logging.warning("git_pull failed with exception: {0}".format(e))
     return
 
+def map_function_on_dir(func,dirname,**arglist):
+    '''
+    takes a function that has a filename as first arg and maps it onto files in dirname
+    :param func: function to map
+    :param dirname: dir of files to do function on
+    :param arglist: args to func
+    :return:
+    '''
+    logging.debug('applying function {} to files in directory {} with arguments {}'.format(func,dirname,str(arglist)))
+    only_files = [f for f in os.listdir(dirname) if os.path.isfile(os.path.join(dirname, f))]
+    for a_file in only_files:
+        fullpath = os.path.join(dirname,a_file)
+        func(fullpath,arglist)
+
+def map_function_on_dir_of_dirs(func,dir_of_dirs,**arglist):
+    '''
+    takes a function that has a filename as first arg and maps it onto files in directory of directories
+    :param func: function to map
+    :param dir_of_dirs: dir of dirs to do function on
+    :param arglist: args to func
+    :return:
+    '''
+    logging.debug('applying function {} to files in directories under directory {} with arguments {}'.format(func,dir_of_dirs,str(arglist)))
+    only_dirs = [dir for dir in os.listdir(dir_of_dirs) if os.path.isdir(os.path.join(dir_of_dirs,dir))]
+    for a_dir in only_dirs:
+        fullpath = os.path.join(dir_of_dirs,a_dir)
+        map_function_on_dir(func,fullpath,**arglist)
+
 
 ############################
 ### math stuff

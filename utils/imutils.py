@@ -110,6 +110,7 @@ def image_stats_from_dir(dirname):
         return None
     return([avg_h,avg_w,avg_d,avg_B,avg_G,avg_R,n])
 
+
 def image_stats(filename):
     img_arr = cv2.imread(filename)
     if img_arr is not None:
@@ -198,6 +199,9 @@ def resize_and_crop_image_using_bb( input_file_or_np_arr, bb=None, output_file=N
     if isinstance(input_file_or_np_arr,basestring):
         orig_name = input_file_or_np_arr
         input_file_or_np_arr = cv2.imread(input_file_or_np_arr)
+        if input_file_or_np_arr is None:
+            logging.debug('trouble reading input file {}'.format(orig_name))
+            return
         if 'bbox_' in orig_name and bb is None:
             strs = orig_name.split('bbox_')
             bb_str = strs[1]
@@ -252,9 +256,49 @@ def resize_and_crop_image_using_bb( input_file_or_np_arr, bb=None, output_file=N
         cv2.imshow('orig',input_file_or_np_arr)
         cv2.waitKey(0)
     if output_file is not None:
+#        orig_dir = os.path.dirname(orig_name)
+  #      orig_name_only = os.path.basename(orig_name)
+    #    output_file = os.path.join(orig_dir,output_dir)
         print('writing to:'+output_file)
-        cv2.imwrite(output_file, scaled_cropped_img)
+        retval = cv2.imwrite(output_file, scaled_cropped_img)
+        if retval is False:
+            logging.warning('retval from imwrite is false (attempt to write file:'+output_file+' has failed :(  )')
     return scaled_cropped_img
+
+def crop_files_in_dir(dirname,save_dir,**arglist):
+    '''
+    takes a function that has a filename as first arg and maps it onto files in dirname
+    :param func: function to map
+    :param dirname: dir of files to do function on
+    :param arglist: args to func
+    :return:
+    '''
+    Utils.ensure_dir(save_dir)
+    logging.debug('cropping files in directory {} with arguments {}'.format(dirname,str(arglist)))
+    only_files = [f for f in os.listdir(dirname) if os.path.isfile(os.path.join(dirname, f))]
+    for a_file in only_files:
+        input_path = os.path.join(dirname,a_file)
+        output_path = os.path.join(save_dir,a_file)
+        arglist['output_file']=output_path
+        resize_and_crop_image_using_bb(input_path,**arglist)
+
+def crop_files_in_dir_of_dirs(dir_of_dirs,**arglist):
+    '''
+    takes a function that has a filename as first arg and maps it onto files in directory of directories
+    :param func: function to map
+    :param dir_of_dirs: dir of dirs to do function on
+    :param arglist: args to func
+    :return:
+    '''
+    logging.debug('cropping files in directories under directory {} with arguments {}'.format(dir_of_dirs,str(arglist)))
+    only_dirs = [dir for dir in os.listdir(dir_of_dirs) if os.path.isdir(os.path.join(dir_of_dirs,dir))]
+    for a_dir in only_dirs:
+        fullpath = os.path.join(dir_of_dirs,a_dir)
+        save_dir =  os.path.join(dir_of_dirs,'cropped/')
+        save_dir =  os.path.join(save_dir,a_dir)
+        Utils.ensure_dir(save_dir)
+        crop_files_in_dir(fullpath,save_dir,**arglist)
+
 
 if __name__ == "__main__":
 #    test_or_training_textfile('/home/jr/python-packages/trendi/classifier_stuff/caffe_nns/only_train',test_or_train='test')
@@ -265,6 +309,8 @@ if __name__ == "__main__":
   #  resize_and_crop_image_using_bb('../images/female1.jpg',bb=[240,122,170,400],output_w=150,output_h=50)
    # resize_and_crop_image_using_bb('../images/female1.jpg',bb=[240,122,170,400],output_w=50,output_h=150)
     #resize_and_crop_image_using_bb('../images/female1.jpg',bb=[240,122,170,170],output_w=1000,output_h=100)
-    image_chooser('../images')
+    dir_of_dirs = '/home/jeremy/core/classifier_stuff/'
+    dir_of_dirs = '/home/jr/core/classifier_stuff/caffe_nns/dataset'
+    crop_files_in_dir_of_dirs(dir_of_dirs,bb=None,output_w =200,output_h =200,use_visual_output=True)
 
-    image_stats_from_dir_of_dirs(dir_of_dirs)
+#    image_stats_from_dir_of_dirs(dir_of_dirs)
