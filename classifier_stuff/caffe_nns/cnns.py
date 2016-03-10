@@ -321,7 +321,7 @@ def alexnet_linearized(db, batch_size,n_classes=11,meanB=128,meanG=128,meanR=128
     n.relu6 = L.ReLU(n.ip1, in_place=True)
     n.ip2 = L.InnerProduct(n.ip1,param=[dict(lr_mult=lr_mult1),dict(lr_mult=lr_mult2)],num_output=2048,weight_filler=dict(type='xavier'))
     n.relu7 = L.ReLU(n.ip2, in_place=True)
-    n.ip3 = L.InnerProduct(n.ip2,param=[dict(lr_mult=lr_mult1),dict(lr_mult=lr_mult2)],num_output=n_classes,weight_filler=dict(type='xavier'))
+    n.output_layer = L.InnerProduct(n.ip2,param=[dict(lr_mult=lr_mult1),dict(lr_mult=lr_mult2)],num_output=n_classes,weight_filler=dict(type='xavier'))
 #maybe add relu here?
     n.accuracy = L.Accuracy(n.ip3,n.label)
     n.loss = L.SoftmaxWithLoss(n.ip3,n.label)
