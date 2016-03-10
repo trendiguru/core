@@ -307,9 +307,10 @@ def crop_files_in_dir_of_dirs(dir_of_dirs,**arglist):
         Utils.ensure_dir(save_dir)
         fullpaths.append(fullpath)
         save_dirs.append(save_dir)
-        #crop_files_in_dir(fullpath,save_dir,**arglist)
+        crop_files_in_dir(fullpath,save_dir,**arglist)
 
-    Parallel(n_jobs=num_cores)(delayed(crop_files_in_dir)(the_dir,the_path) for the_dir, the_path  in [fullpaths,save_dirs])
+# this will work if i can find how to do [x,y for x in a for y in b] 'zip' style
+#     Parallel(n_jobs=num_cores)(delayed(crop_files_in_dir)(the_dir,the_path) for the_dir, the_path  in [fullpaths,save_dirs])
 
 
 if __name__ == "__main__":
