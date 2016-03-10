@@ -754,6 +754,9 @@ def run_net(net_builder,nn_dir,train_db,test_db,batch_size = 64,n_classes=11,mea
 
 
 
+host = socket.gethostname()
+print('host:'+str(host))
+
 if __name__ == "__main__":
     if host == 'jr-ThinkPad-X1-Carbon':
         pc = True
