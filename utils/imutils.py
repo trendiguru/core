@@ -309,8 +309,9 @@ if __name__ == "__main__":
   #  resize_and_crop_image_using_bb('../images/female1.jpg',bb=[240,122,170,400],output_w=150,output_h=50)
    # resize_and_crop_image_using_bb('../images/female1.jpg',bb=[240,122,170,400],output_w=50,output_h=150)
     #resize_and_crop_image_using_bb('../images/female1.jpg',bb=[240,122,170,170],output_w=1000,output_h=100)
-    dir_of_dirs = '/home/jeremy/core/classifier_stuff/'
-    dir_of_dirs = '/home/jr/core/classifier_stuff/caffe_nns/dataset'
+    dir_of_dirs = '/home/jeremy/core/classifier_stuff/dataset'
+    avg_h,avg_w,avg_d,avg_B,avg_G,avg_R,totfiles = image_stats_from_dir_of_dirs(dir_of_dirs)
+    print('avg h {} avg w {} avgB {} avgG {} avgR {} nfiles {} in dir_of_dirs {}',avg_h,avg_w,avg_d,avg_B,avg_G,avg_R,totfiles,dir_of_dirs)
+#    dir_of_dirs = '/home/jr/core/classifier_stuff/caffe_nns/dataset'
+    raw_input('enter to continue')
     crop_files_in_dir_of_dirs(dir_of_dirs,bb=None,output_w =200,output_h =200,use_visual_output=True)
-
-#    image_stats_from_dir_of_dirs(dir_of_dirs)
