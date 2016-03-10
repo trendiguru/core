@@ -324,7 +324,7 @@ def alexnet_linearized(db, batch_size,n_classes=11,meanB=128,meanG=128,meanR=128
     n.output_layer = L.InnerProduct(n.ip2,param=[dict(lr_mult=lr_mult1),dict(lr_mult=lr_mult2)],num_output=n_classes,weight_filler=dict(type='xavier'))
 #maybe add relu here?
     n.accuracy = L.Accuracy(n.output_layer,n.label)
-    n.loss = L.SoftmaxWithLoss(n.ip3,n.label)
+    n.loss = L.SoftmaxWithLoss(n.output_layer,n.label)
     return n.to_proto()
 
 def run_lenet():
