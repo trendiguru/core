@@ -140,8 +140,8 @@ def dir_of_dirs_to_lmdb(dbname,dir_of_dirs,test_or_train=None,max_images_per_cla
     return classno, n_for_each_class,image_number
 
 
-def interleaved_dir_of_dirs_to_lmdb(dbname,dir_of_dirs,test_or_train=None,max_images_per_class = 1000,resize_x=None,resize_y=100,avg_B=None,avg_G=None,avg_R=None,
-                                    resize_w_bb=True,use_visual_output=False,shuffle=True,use_bb_from_name=False,n_channels=3):
+def interleaved_dir_of_dirs_to_lmdb(dbname,dir_of_dirs,test_or_train=None,max_images_per_class = 150000,resize_x=200,resize_y=200,avg_B=None,avg_G=None,avg_R=None,
+                                    use_visual_output=False,use_bb_from_name=True,n_channels=3):
 # maybe try randomize instead of interleave, cn use del list[index]
     print('writing to lmdb {} test/train {} max {} new_x {} new_y {} avgB {} avg G {} avgR {}'.format(dbname,test_or_train,max_images_per_class,resize_x,resize_y,avg_B,avg_G,avg_R))
     initial_only_dirs = [dir for dir in os.listdir(dir_of_dirs) if os.path.isdir(os.path.join(dir_of_dirs,dir))]
@@ -372,12 +372,12 @@ def kill_db(db_name):
 
 if __name__ == "__main__":
     dir_of_dirs = '/home/jeremy/core/classifier_stuff/caffe_nns/dataset'
-    dir_of_dirs = '/home/jr/python-packages/trendi/classifier_stuff/caffe_nns/dataset'
+#    dir_of_dirs = '/home/jr/python-packages/trendi/classifier_stuff/caffe_nns/dataset'
     print('dir:'+dir_of_dirs)
 #    h,w,d,B,G,R,n = imutils.image_stats_from_dir_of_ditestrs(dir_of_dirs)
     resize_x = 200
     #resize_y = int(h*128/w)
-    resize_y= 100
+    resize_y= 200
    # B=int(B)
    # G=int(G)
     #R=int(R)
@@ -391,8 +391,8 @@ if __name__ == "__main__":
  #   kill_db('testdb.train')
     db = 'mydb2'
     use_visual_output = False
- #   n_test_classes,test_populations,test_imageno = interleaved_dir_of_dirs_to_lmdb('mydb2',dir_of_dirs,max_images_per_class =150,test_or_train='test',resize_x=resize_x,resize_y=resize_y,
-   #                                                                                avg_B=B,avg_G=G,avg_R=R,use_visual_output=use_visual_output,n_channels=1)
+    n_test_classes,test_populations,test_imageno = interleaved_dir_of_dirs_to_lmdb('todel',dir_of_dirs,max_images_per_class =150000,test_or_train='test',resize_x=resize_x,resize_y=resize_y,
+                                                                                   avg_B=B,avg_G=G,avg_R=R,use_visual_output=use_visual_output,n_channels=1)
 #    n_train_classes,train_populations,train_imageno = interleaved_dir_of_dirs_to_lmdb('mydb2',dir_of_dirs,max_images_per_class =150,test_or_train='train',resize_x=resize_x,resize_y=resize_y,avg_B=B,avg_G=G,avg_R=R)
    # print('{} test classes with {} files'.format(n_test_classes,test_populations))
    # print('{} train classes with {} files'.format(n_train_classes,train_populations))

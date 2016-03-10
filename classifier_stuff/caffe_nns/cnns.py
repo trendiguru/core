@@ -298,12 +298,12 @@ def alexnet_linearized(db, batch_size,n_classes=11,meanB=128,meanG=128,meanR=128
                                           dict(lr_mult=lr_mult2,decay_mult=decay_mult2)],
                             kernel_size=10,stride = 4, num_output=48,weight_filler=dict(type='xavier'))
     n.relu1 = L.ReLU(n.conv1, in_place=True)
-    n.pool1 = L.Pooling(n.conv1, kernel_size=3, stride=2, pool=P.Pooling.MAX)
+    n.pool1 = L.Pooling(n.conv1, kernel_size=3, stride=1, pool=P.Pooling.MAX)
     n.conv2 = L.Convolution(n.pool1,param=[dict(lr_mult=lr_mult1,decay_mult=decay_mult1),
                                           dict(lr_mult=lr_mult2,decay_mult=decay_mult2)],
                             kernel_size=5,stride = 1, num_output=128,weight_filler=dict(type='xavier'))
     n.relu2 = L.ReLU(n.conv2, in_place=True)
-    n.pool2 = L.Pooling(n.conv2, kernel_size=3, stride=2, pool=P.Pooling.MAX)
+    n.pool2 = L.Pooling(n.conv2, kernel_size=3, stride=1, pool=P.Pooling.MAX)
     n.conv3 = L.Convolution(n.pool2,param=[dict(lr_mult=lr_mult1,decay_mult=decay_mult1),
                                           dict(lr_mult=lr_mult2,decay_mult=decay_mult2)],
                             kernel_size=3,stride = 1, num_output=192,weight_filler=dict(type='xavier'))
@@ -316,7 +316,7 @@ def alexnet_linearized(db, batch_size,n_classes=11,meanB=128,meanG=128,meanR=128
                                           dict(lr_mult=lr_mult2,decay_mult=decay_mult2)],
                             kernel_size=3,stride = 1, num_output=128,weight_filler=dict(type='xavier'))
     n.relu5 = L.ReLU(n.conv5, in_place=True)
-    n.pool3 = L.Pooling(n.conv5, kernel_size=3, stride=2, pool=P.Pooling.MAX)
+    n.pool3 = L.Pooling(n.conv5, kernel_size=3, stride=1, pool=P.Pooling.MAX)
     n.ip1 = L.InnerProduct(n.pool3,param=[dict(lr_mult=lr_mult1),dict(lr_mult=lr_mult2)],num_output=2048,weight_filler=dict(type='xavier'))
     n.relu6 = L.ReLU(n.ip1, in_place=True)
     n.ip2 = L.InnerProduct(n.ip1,param=[dict(lr_mult=lr_mult1),dict(lr_mult=lr_mult2)],num_output=2048,weight_filler=dict(type='xavier'))
@@ -328,8 +328,6 @@ def alexnet_linearized(db, batch_size,n_classes=11,meanB=128,meanG=128,meanR=128
     return n.to_proto()
 
 def run_lenet():
-    host = socket.gethostname()
-    print('host:'+str(host))
     if host == 'jr-ThinkPad-X1-Carbon':
         pc = True
         os.chdir('/home/jr/sw/caffe')
@@ -644,9 +642,7 @@ layer {
   #  lr_mult: 2
   #}
 
-def run_my_net(nn_dir,train_db,test_db,batch_size = 64,n_classes=11,meanB=None,meanG=None,meanR=None,n_filters=50,n_ip1=1000):
-    host = socket.gethostname()
-    print('host:'+str(host))
+def run_net(net_builder,nn_dir,train_db,test_db,batch_size = 64,n_classes=11,meanB=None,meanG=None,meanR=None,n_filters=50,n_ip1=1000):
     if host == 'jr-ThinkPad-X1-Carbon':
         pc = True
         solver_mode = 'CPU'
@@ -669,11 +665,11 @@ def run_my_net(nn_dir,train_db,test_db,batch_size = 64,n_classes=11,meanB=None,m
     print('using  testfile:{}'.format(test_protofile))
 
     with open(train_protofile,'w') as f:
-        train_net = alexnet_linearized(train_db,batch_size = batch_size,n_classes=n_classes,meanB=meanB,meanG=meanG,meanR=meanR,n_filters=n_filters,n_ip1=n_ip1)
+        train_net = net_builder(train_db,batch_size = batch_size,n_classes=n_classes,meanB=meanB,meanG=meanG,meanR=meanR,n_filters=n_filters,n_ip1=n_ip1)
         f.write(str(train_net))
         f.close
     with open(test_protofile,'w') as g:
-        test_net = alexnet_linearized(test_db,batch_size = batch_size,n_classes=n_classes,meanB=meanB,meanG=meanG,meanR=meanR,n_filters=n_filters,n_ip1=n_ip1)
+        test_net = net_builder(test_db,batch_size = batch_size,n_classes=n_classes,meanB=meanB,meanG=meanG,meanR=meanR,n_filters=n_filters,n_ip1=n_ip1)
         g.write(str(test_net))
         g.close
 
@@ -703,6 +699,7 @@ def run_my_net(nn_dir,train_db,test_db,batch_size = 64,n_classes=11,meanB=None,m
     test_interval = 100
     # losses will also be stored in the log
     train_loss = zeros(niter)
+    train_acc = zeros(niter)
     test_acc = zeros(int(np.ceil(niter / test_interval)))
     output = zeros((niter, 8, 10))
 
@@ -712,6 +709,8 @@ def run_my_net(nn_dir,train_db,test_db,batch_size = 64,n_classes=11,meanB=None,m
 
         # store the train loss
         train_loss[it] = solver.net.blobs['loss'].data
+        train_acc[it] = solver.net.blobs['accuracy'].data
+        print('train loss {} train acc. {}'.format(train_loss[it],train_acc[it]))
         # store the output on the first test batch
         # (start the forward pass at conv1 to avoid loading new data)
         solver.test_nets[0].forward(start='conv1')
@@ -726,10 +725,11 @@ def run_my_net(nn_dir,train_db,test_db,batch_size = 64,n_classes=11,meanB=None,m
             correct = 0
             for test_it in range(n_sample):
                 solver.test_nets[0].forward()
-                correct += sum(solver.test_nets[0].blobs['ip2'].data.argmax(1)
+                    #note the blob you check here has to be the final 'output layer'
+                correct += sum(solver.test_nets[0].blobs['output_layer'].data.argmax(1)
                                == solver.test_nets[0].blobs['label'].data)
             percent_correct = float(correct)/(n_sample*batch_size)
-            print('correct {} n {} batchsize {} %{}:'.format(correct,n_sample,len(solver.test_nets[0].blobs['label'].data), percent_correct))
+            print('correct {} n {} batchsize {} acc {} size(solver.test_nets[0].blob[output_layer]'.format(correct,n_sample, percent_correct),len(solver.test_nets[0].blobs['label'].data))
             test_acc[it // test_interval] = percent_correct
             print('acc so far:'+str(test_acc))
     _, ax1 = plt.subplots()
@@ -752,87 +752,14 @@ def run_my_net(nn_dir,train_db,test_db,batch_size = 64,n_classes=11,meanB=None,m
         f.write(str(train_net))
         f.close()
 
-def load_net(prototxt,caffemodel,mean_B=128,mean_G=128,mean_R=128,image='../../images/female1.jpg',image_width=128,image_height=128,image_depth=3,batch_size=256):
-    host = socket.gethostname()
-    print('host:'+str(host))
-    pc = False
-    caffe.set_mode_gpu()
-    if host == 'jr-ThinkPad-X1-Carbon':
-        pc = True
-        caffe.set_mode_cpu()
-    net = caffe.Net(prototxt,caffemodel,caffe.TEST)
-    # see http://nbviewer.jupyter.org/github/BVLC/caffe/blob/master/examples/00-classification.ipynb
-#    mu = np.load(caffe_root + 'python/caffe/imagenet/ilsvrc_2012_mean.npy')
- #   mu = mu.mean(1).mean(1)  # average over pixels to obtain the mean (BGR) pixel values
-    mu = [mean_B,mean_G,mean_R]
-    print 'mean-subtracted values:', zip('BGR', mu)
-
-    # create transformer for the input called 'data'
-    transformer = caffe.io.Transformer({'data': net.blobs['data'].data.shape})
-
-#    transformer.set_transpose('data', (2,0,1))  # move image channels to outermost dimension
-    transformer.set_mean('data', mu)            # subtract the dataset-mean value in each channel
-    transformer.set_raw_scale('data', 255)      # rescale from [0, 1] to [0, 255]
-#    transformer.set_channel_swap('data', (2,1,0))  # swap channels from RGB to BGR
-# set the size of the input (we can skip this if we're happy
-#  with the default; we can also change it later, e.g., for different batch sizes)
-    net.blobs['data'].reshape(batch_size,        # batch size
-                              image_depth,         # 3-channel (BGR) images
-                             image_width, image_height)  # image size is 227x227
-    image = caffe.io.load_image(image)
-    transformed_image = transformer.preprocess('data', image)
-    fig = plt.figure()
-    fig.savefig('out.png')
-#    plt.imshow(image)
-# copy the image data into the memory allocated for the net
-    net.blobs['data'].data[...] = transformed_image
-
-    ### perform classification
-    output = net.forward()
-
-    output_prob = output['prob'][0]  # the output probability vector for the first image in the batch
-
-    print 'predicted classes:', output_prob
-    print 'predicted class is:', output_prob.argmax()
-
-
-def test_net(prototxt,caffemodel, db_path):
-    net = caffe.Net(prototxt, caffemodel,caffe.TEST)
-    caffe.set_mode_cpu()
-    lmdb_env = lmdb.open(db_path)
-    lmdb_txn = lmdb_env.begin()
-    lmdb_cursor = lmdb_txn.cursor()
-    count = 0
-    correct = 0
-    max_to_test = 100
-    for key, value in lmdb_cursor:
-        print "Count:"
-        print count
-        count = count + 1
-        datum = caffe.proto.caffe_pb2.Datum()
-        datum.ParseFromString(value)
-        label = int(datum.label)
-        image = caffe.io.datum_to_array(datum)
-        image = image.astype(np.uint8)
-        out = net.forward_all(data=np.asarray([image]))
-        predicted_label = out['prob'][0].argmax(axis=0)
-        if label == predicted_label[0][0]:
-            correct = correct + 1
-        print("Label is class " + str(label) + ", predicted class is " + str(predicted_label[0][0]))
-        if count == max_to_test:
-            break
-    print(str(correct) + " out of " + str(count) + " were classified correctly")
-
 
 
 if __name__ == "__main__":
-    host = socket.gethostname()
-    print('host:'+str(host))
     if host == 'jr-ThinkPad-X1-Carbon':
         pc = True
         dir_of_dirs = '/home/jr/python-packages/trendi/classifier_stuff/caffe_nns/dataset'
         dir_of_dirs = '/home/jr/python-packages/trendi/classifier_stuff/caffe_nns/plusminus_data'
-        nn_dir = '/home/jr/python-packages/trendi/classifier_stuff/caffe_nns/plusminus_data'
+        nn_dir = '/home/jr/python-packages/trendi/classifier_stuff/caffe_nns/plusminus_alextest'
         max_images_per_class = 100
         solver_mode = 'CPU'
         B=142
@@ -842,9 +769,11 @@ if __name__ == "__main__":
         db_name = 'mydb200'
         db_name = 'plus_zero'
     else:
+        base_dir = '/home/jeremy/core/classifier_stuff/caffe_nns/'
         dir_of_dirs = '/home/jeremy/core/classifier_stuff/caffe_nns/plusminus_data'  #b2
         dir_of_dirs = '/home/jeremy/core/classifier_stuff/caffe_nns/populated_items'  #b2
         dir_of_dirs = '/home/jeremy/core/classifier_stuff/caffe_nns/cropped_dataset'  #b2
+        nn_dir = '/home/jeremy/core/classifier_stuff/caffe_nns/alexnet6'  #b2
 #        nn_dir = '/home/jeremy/core/classifier_stuff/caffe_nns/vgg_'  #b2
         max_images_per_class = 10000
         pc = False
@@ -918,8 +847,7 @@ if __name__ == "__main__":
 #    nn_dir = '/home/jeremy/core/classifier_stuff/caffe_nns/conv_relu_x4_nopool_70filters_2000ip1'  #b2
     #     run_my_net(nn_dir,db_name+'.train',db_name+'.test',batch_size = batch_size,n_classes=n_classes,meanB=B,meanR=R,meanG=G,n_filters=70,n_ip1=2000)
 
-    nn_dir = '/home/jeremy/core/classifier_stuff/caffe_nns/alexnet5'  #b2
-    run_my_net(nn_dir,db_name+'.train',db_name+'.test',batch_size = batch_size,n_classes=n_classes,meanB=B,meanR=R,meanG=G,n_filters=50,n_ip1=1000)
+    run_net(alexnet_linearized,nn_dir,db_name+'.train',db_name+'.test',batch_size = batch_size,n_classes=n_classes,meanB=B,meanR=R,meanG=G,n_filters=50,n_ip1=1000)
 
 
 #to train at cli:
