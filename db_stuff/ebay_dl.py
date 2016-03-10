@@ -192,6 +192,7 @@ for filename in files:
     # all items are gathered in a list
     items = csv.DictReader(unzipped.splitlines(), delimiter='\t')
     itemCount = 0
+    existing = 0
     for item in items:
         # verify right category
         mainCategory = item["CATEGORY_NAME"]
@@ -217,6 +218,7 @@ for filename in files:
                 db[collection_name].update_one({'id':exists['id']}, {"$inc": "status.days_out"})
             else:
                 pass
+            existing+=1
         else:
             db[collection_name].insert_one(generic_dict)
 
@@ -228,7 +230,7 @@ for filename in files:
         store_info[idx]['dl_duration']=stop-start
         store_info[idx]['items_downloaded']=itemCount
         store_info[idx]['B/W']= 'white'
-        print("%s potiential items for %s = %s" % (str(itemCount), item["MERCHANT_NAME"],filename))
+        print("%s (%s) potiential items for %s = %s" % (str(itemCount), str(existing), item["MERCHANT_NAME"],filename))
 
 ftp.quit()
 stop_time = time.time()
