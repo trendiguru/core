@@ -25,15 +25,14 @@ my_path = os.path.dirname(os.path.abspath(__file__))
 # download_images_q = Queue('download_images', connection=redis_conn)  # no args implies the default queue
 logging.basicConfig(level=logging.WARNING)
 MAX_IMAGES = 10000
-descriptions = ['round collar', 'bow collar',
-                'ribbed round neck', 'rollneck',
-                'slash neck']
+descriptions = ['strapless', 'no sleeve',
+                'short sleeve', 'long sleeve']
 # LESSONS: CANNOT PUT MULTIPLE PHRASES IN $text
 # v-neck is a superset of v-neckline
-descriptions_dict = {'bowcollar': ["\"bow collar\"", "bowcollar"],
-                     'crewneck': ["\"crew neck\"", "crewneck", "\"classic neckline\""],
-                     'roundneck': ["\"round neck\"", "roundneck"],
-                     'scoopneck': ["\"scoop neck\"", "scoopneck"],
+descriptions_dict = {'strapless': ["\"bow collar\"", "bowcollar"],
+                     'none': ["\"crew neck\"", "crewneck", "\"classic neckline\""],
+                     'short': ["\"round neck\"", "roundneck"],
+                     'long': ["\"scoop neck\"", "scoopneck"],
                      'squareneck': ["\"square neck\"", "squareneck"],
                      'v-neck': ["\"v-neck\"", "\"v neck\"", "vneck"]}
 
