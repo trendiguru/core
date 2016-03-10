@@ -787,8 +787,8 @@ if __name__ == "__main__":
         db_name = 'highly_populated_cropped'
 
 #    h,w,d,B,G,R,n = imutils.image_stats_from_dir_of_ditestrs(dir_of_dirs)
-    resize_x = 150
-    resize_y=200
+    resize_x = None
+    resize_y=None
     print('dir:'+dir_of_dirs)
     print('rgb:'+str(R)+','+str(G)+','+str(B))
     print('mode:'+solver_mode)
