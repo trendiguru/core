@@ -66,9 +66,9 @@ def ebay2generic(item, gender, subcat):
                              'priceLabel': "USD"   },
                    "Brand" : item["MANUFACTURER"],
                    "Site" : item["MERCHANT_NAME"],
-                   # "download_data": {'dl_version': today_date,
-                   #                   'first_dl': today_date,
-                   #                   'fp_version': constants.fingerprint_version},
+                   "download_data": {'dl_version': today_date,
+                                     'first_dl': today_date,
+                                     'fp_version': constants.fingerprint_version},
                    "fingerprint": None,
                    "gender": gender,
                    "ebay_raw": item}
