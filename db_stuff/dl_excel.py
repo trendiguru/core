@@ -71,13 +71,15 @@ def mongo2xl(filename, dl_info):
         for status in ["black","white"]:
             current_worksheet = workbook.add_worksheet(status+'list')
 
-            dict2list = [[x["id"],x["name"].decode("utf8"),x["items_downloaded"],x["dl_duration"],x["link"],x["modified"]]
+            dict2list = [[x["id"],x["name"].decode("utf8"),x["items_downloaded"],x["dl_duration"][:6],
+                          x["link"],x["modified"]]
                          for x in dl_info["store_info"] if x["B/W"] == status]
             item_count = len(dict2list)
 
-            current_worksheet.set_column('A:F',10)
-            current_worksheet.set_column('B',25)
-            current_worksheet.set_column('E',35)
+            current_worksheet.set_column('A:D',10)
+            current_worksheet.set_column('B:B',25)
+            current_worksheet.set_column('E:E',35)
+            current_worksheet.set_column('F:F',25)
             current_worksheet.add_table('A1:F'+str(item_count+4),
                                         {'data': dict2list,
                                          'columns': [ {'header': 'id'},

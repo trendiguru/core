@@ -19,11 +19,16 @@ import re
 from .. import constants
 from . import ebay_constants
 from . import dl_excel
+from rq import Queue
+from ..fingerprint_core import generate_mask_and_insert
+
+q = Queue('fingerprint_new', connection=constants.redis_conn)
+
 db = constants.db
-db.ebay_Female.delete_many({})
-db.ebay_Male.delete_many({})
-db.ebay_Unisex.delete_many({})
-db.ebay_Tees.delete_many({})
+# db.ebay_Female.delete_many({})
+# db.ebay_Male.delete_many({})
+# db.ebay_Unisex.delete_many({})
+# db.ebay_Tees.delete_many({})
 today_date = str(datetime.datetime.date(datetime.datetime.now()))
 
 def getStoreInfo(ftp):
@@ -211,7 +216,7 @@ for filename in files:
 
         generic_dict = ebay2generic(item, gender, subCategory)
         exists = db[collection_name].find_one({'id':generic_dict['id']})
-        if exists:
+        if exists and exists["fingerprint"] is not None:
             db[collection_name].update_one({'id':exists['id']}, {"$set": {"download_data.dl_version":today_date,
                                                                               "price": generic_dict["price"]}})
             if exists["status"]["instock"] != generic_dict["status"]["instock"] :
@@ -222,18 +227,23 @@ for filename in files:
                 pass
         else:
             new_items+=1
-            db[collection_name].insert_one(generic_dict)
+            q.enqueue(generate_mask_and_insert, doc=generic_dict, image_url=generic_dict["images"],
+                  fp_date=today_date, coll=collection_name)
+            # db[collection_name].insert_one(generic_dict)
 
     stop = time.time()
     if itemCount < 1:
         print("%s = %s is not relevant!" %(filename, item["MERCHANT_NAME"]))
     else:
-        idx = [x["id"] == filename[:-7] for x in store_info].index(True)
-        store_info[idx]['dl_duration']=stop-start
-        store_info[idx]['items_downloaded']=itemCount
-        store_info[idx]['B/W']= 'white'
-        print("%s (%s) potiential items for %s = %s" % (str(itemCount), str(new_items), item["MERCHANT_NAME"],filename))
-
+        try:
+            idx = [x["id"] == filename[:-7] for x in store_info].index(True)
+            store_info[idx]['dl_duration']=stop-start
+            store_info[idx]['items_downloaded']=itemCount
+            store_info[idx]['B/W']= 'white'
+            print("%s (%s) potiential items for %s = %s" % (str(itemCount), str(new_items), item["MERCHANT_NAME"],filename))
+        except:
+            print ('%s not found in store info' %filename)
+            continue
 ftp.quit()
 stop_time = time.time()
 total_time = (stop_time-start_time)/60
@@ -249,9 +259,11 @@ dl_info = {"date": today_date,
 
 for col in ["Female","Male","Unisex","Tees"]:
     col_name = "ebay_"+col
-    db[col_name].create_index("categories")
-    db[col_name].create_index("status")
-    db[col_name].create_index("download_data")
+    db[col_name].reindex()
+
+    # db[col_name].create_index("categories")
+    # db[col_name].create_index("status")
+    # db[col_name].create_index("download_data")
 
 dl_excel.mongo2xl('ebay', dl_info)
 
