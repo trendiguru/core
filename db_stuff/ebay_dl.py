@@ -227,7 +227,10 @@ for filename in files:
             else:
                 pass
         else:
-            new_items+=1
+            if exists:
+                db[collection_name].delete_many({'id':exists['id']})
+            else:
+                new_items+=1
             q.enqueue(generate_mask_and_insert, doc=generic_dict, image_url=generic_dict["images"],
                   fp_date=today_date, coll=collection_name)
             # db[collection_name].insert_one(generic_dict)
