@@ -107,8 +107,8 @@ def write_prototxt(proto_filename,test_iter = 9,solver_mode='GPU'):
                         'lr_policy': "inv",
                         'gamma': 0.0001,
                         'power': 0.75,
-                        'display': 10,
-                        'max_iter': 10000,
+                        'display': 20,
+                        'max_iter': 1000,
                         'snapshot': 1000,
                         'snapshot_prefix': dir+'/net',
                         'solver_mode':solver_mode }
@@ -298,12 +298,12 @@ def alexnet_linearized(db, batch_size,n_classes=11,meanB=128,meanG=128,meanR=128
                                           dict(lr_mult=lr_mult2,decay_mult=decay_mult2)],
                             kernel_size=10,stride = 4, num_output=48,weight_filler=dict(type='xavier'))
     n.relu1 = L.ReLU(n.conv1, in_place=True)
-    n.pool1 = L.Pooling(n.conv1, kernel_size=3, stride=2, pool=P.Pooling.MAX)
+    n.pool1 = L.Pooling(n.conv1, kernel_size=2, stride=2, pool=P.Pooling.MAX)
     n.conv2 = L.Convolution(n.pool1,param=[dict(lr_mult=lr_mult1,decay_mult=decay_mult1),
                                           dict(lr_mult=lr_mult2,decay_mult=decay_mult2)],
                             kernel_size=5,stride = 1, num_output=128,weight_filler=dict(type='xavier'))
     n.relu2 = L.ReLU(n.conv2, in_place=True)
-    n.pool2 = L.Pooling(n.conv2, kernel_size=3, stride=2, pool=P.Pooling.MAX)
+    n.pool2 = L.Pooling(n.conv2, kernel_size=2, stride=2, pool=P.Pooling.MAX)
     n.conv3 = L.Convolution(n.pool2,param=[dict(lr_mult=lr_mult1,decay_mult=decay_mult1),
                                           dict(lr_mult=lr_mult2,decay_mult=decay_mult2)],
                             kernel_size=3,stride = 1, num_output=192,weight_filler=dict(type='xavier'))
@@ -316,7 +316,7 @@ def alexnet_linearized(db, batch_size,n_classes=11,meanB=128,meanG=128,meanR=128
                                           dict(lr_mult=lr_mult2,decay_mult=decay_mult2)],
                             kernel_size=3,stride = 1, num_output=128,weight_filler=dict(type='xavier'))
     n.relu5 = L.ReLU(n.conv5, in_place=True)
-    n.pool3 = L.Pooling(n.conv5, kernel_size=3, stride=2, pool=P.Pooling.MAX)
+    n.pool3 = L.Pooling(n.conv5, kernel_size=2, stride=2, pool=P.Pooling.MAX)
     n.ip1 = L.InnerProduct(n.pool3,param=[dict(lr_mult=lr_mult1),dict(lr_mult=lr_mult2)],num_output=2048,weight_filler=dict(type='xavier'))
     n.relu6 = L.ReLU(n.ip1, in_place=True)
     n.ip2 = L.InnerProduct(n.ip1,param=[dict(lr_mult=lr_mult1),dict(lr_mult=lr_mult2)],num_output=2048,weight_filler=dict(type='xavier'))
@@ -701,6 +701,7 @@ def run_net(net_builder,nn_dir,train_db,test_db,batch_size = 64,n_classes=11,mea
     train_loss = zeros(niter)
     train_acc = zeros(niter)
     test_acc = zeros(int(np.ceil(niter / test_interval)))
+    train_acc2 = zeros(int(np.ceil(niter / test_interval)))
     output = zeros((niter, 8, 10))
 
     # the main solver loop
@@ -721,6 +722,8 @@ def run_net(net_builder,nn_dir,train_db,test_db,batch_size = 64,n_classes=11,mea
         #  how to do it directly in Python, where more complicated things are easier.)
         n_sample = 100
         if it % test_interval == 0:
+            train_acc2[it//test_interval] = solver.net.blobs['accuracy'].data
+
             print 'Iteration', it, 'testing...'
             correct = 0
             for test_it in range(n_sample):
@@ -732,17 +735,48 @@ def run_net(net_builder,nn_dir,train_db,test_db,batch_size = 64,n_classes=11,mea
             print('correct {} n {} batchsize {} acc {} size(solver.test_nets[0].blob[output_layer]'.format(correct,n_sample,batch_size, percent_correct,len(solver.test_nets[0].blobs['label'].data)))
             test_acc[it // test_interval] = percent_correct
             print('acc so far:'+str(test_acc))
-    _, ax1 = plt.subplots()
-    ax2 = ax1.twinx()
-    ax1.plot(arange(niter), train_loss)
-    ax2.plot(test_interval * arange(len(test_acc)), test_acc, 'r')
-    ax1.set_xlabel('iteration')
-    ax1.set_ylabel('train loss')
-    ax2.set_ylabel('test accuracy')
-    fig = plt.figure()
-    fig.savefig('out.png')
-    if pc:
+
+  #  _, ax1 = plt.subplots()
+  #  ax2 = ax1.twinx()
+  #  ax1.plot(arange(niter), train_loss)
+  #  ax2.plot(test_interval * arange(len(test_acc)), test_acc, 'r')
+ #   ax1.set_xlabel('iteration')
+ #   ax1.set_ylabel('train loss')
+ #   ax2.set_ylabel('test accuracy')
+ #   fig = plt.figure()
+ #   fig.savefig('out.png')
+
+        fig1 = plt.figure()
+        ax1 = fig1.add_subplot(111)
+        ax1.plot(arange(niter), train_loss,'r.-',label='train_loss')
+        ax1.set_ylabel('test accuracy/loss',color='r')
+        ax1.set_xlabel('iteration',color='g')
+
+        axb = ax1.twinx()
+        axb.plot(arange(niter), train_acc,'b.-',label='train_acc')
+        axb.set_ylabel('sin', color='b')
+        legend = ax1.legend(loc='upper center', shadow=True)
         plt.show()
+
+
+        fig2 = plt.figure()
+        ax2 = fig2.add_subplot(111)
+        ax2.plot(arange(int(np.ceil(niter / test_interval))), test_acc,'b.-')
+        ax2.plot(arange(int(np.ceil(niter / test_interval))), train_acc2,'g.-')
+        ax2.set_xlabel('iteration/'+str(test_interval))
+        ax2.set_ylabel('test/train accuracy')
+        legend = ax2.legend(loc='upper center', shadow=True)
+        plt.show()
+
+    figname = os.path.join(nn_dir,'loss_acc.png')
+    fig1.savefig(figname)
+    figname = os.path.join(nn_dir,'train_test_acc.png')
+    fig2.savefig(figname)
+
+#    if pc:
+#        plt.show()
+
+
     print('loss:'+str(train_loss))
     print('acc:'+str(test_acc))
     outfilename = os.path.join(nn_dir,'results.txt')
@@ -776,7 +810,7 @@ if __name__ == "__main__":
         dir_of_dirs = '/home/jeremy/core/classifier_stuff/caffe_nns/plusminus_data'  #b2
         dir_of_dirs = '/home/jeremy/core/classifier_stuff/caffe_nns/populated_items'  #b2
         dir_of_dirs = '/home/jeremy/core/classifier_stuff/caffe_nns/dataset/cropped'  #b2
-        nn_dir = '/home/jeremy/core/classifier_stuff/caffe_nns/alexnet8'  #b2
+        nn_dir = '/home/jeremy/core/classifier_stuff/caffe_nns/alexnet9'  #b2
 #        nn_dir = '/home/jeremy/core/classifier_stuff/caffe_nns/vgg_'  #b2
         max_images_per_class = 15000
         pc = False

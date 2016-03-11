@@ -51,19 +51,40 @@ def image_stats_from_dir_of_dirs(dir_of_dirs,filter=None):
     return([avg_h,avg_w,avg_d,avg_B,avg_G,avg_R,totfiles])
 
 
-def image_chooser(source_dir,dest_dir,removed_dir=None):
+def image_chooser_dir_of_dirs(dir_of_dirs,dest_dir,removed_dir=None,filter=None,reprocess_dir=None):
+    only_dirs = [d for d in os.listdir(dir_of_dirs) if os.path.isdir(os.path.join(dir_of_dirs, d))]
+    if filter is not None:
+        only_dirs = [d for d in only_dirs if filter in d]
+
+    if removed_dir is None:
+        removed_dir = os.path.join(dir_of_dirs,'removed')
+
+    if reprocess_dir is None:
+        reprocess_dir = os.path.join(dir_of_dirs,'reprocess')
+
+    for d in only_dirs:
+        actual_dest = os.path.join(dest_dir,d)
+        actual_removed_dest = os.path.join(removed_dir,d)
+        actual_reprocess_dest = os.path.join(reprocess_dir,d)
+        Utils.ensure_dir(actual_dest)
+        image_chooser(d,actual_dest,removed_dir=actual_removed_dest,reprocess_dir=actual_reprocess_dest)
+
+def image_chooser(source_dir,dest_dir,removed_dir=None,reprocess_dir=None):
     if removed_dir is None:
         removed_dir = os.path.join(source_dir,'removed')
+    if reprocess_dir is None:
+        removed_dir = os.path.join(source_dir,'reprocess')
     Utils.ensure_dir(removed_dir)
-    print('choosing images from dir:'+str(source_dir)+', goood to '+str(dest_dir)+' and removed to '+str(removed_dir))
+    print('choosing:'+str(source_dir)+' good:'+str(dest_dir)+' removed:'+str(removed_dir)+' reprocess:'+str(reprocess_dir))
     only_files = [f for f in os.listdir(source_dir) if os.path.isfile(os.path.join(source_dir, f))]
+
     for a_file in only_files:
         fullname = os.path.join(source_dir,a_file)
         img_arr = cv2.imread(fullname)
         if img_arr is not None:
             shape = img_arr.shape
             print('img:'+a_file+' shape:'+str(shape))
-            print('(q)uit (d)elete (k)eep')
+            print('(q)uit (d)elete (k)eep (r)eprocess (fix later)')
             cv2.imshow('img',img_arr)
             k = cv2.waitKey(0)
             if k==ord('q'):    # q to stop
@@ -73,8 +94,12 @@ def image_chooser(source_dir,dest_dir,removed_dir=None):
                 dest_fullname = os.path.join(removed_dir,a_file)
                 shutil.move(fullname, dest_fullname)
             elif k== ord('k'):
-                print('placing '+a_file+' in '+dest_dir)
+                print('keeping '+a_file+' in '+dest_dir)
                 dest_fullname = os.path.join(dest_dir,a_file)
+                shutil.move(fullname, dest_fullname)
+            elif k== ord('r'):
+                print('reprocessing '+a_file+' in '+reprocess_dir)
+                dest_fullname = os.path.join(reprocess_dir,a_file)
                 shutil.move(fullname, dest_fullname)
         else:
             print('trouble opening image '+str(fullname))
@@ -322,9 +347,12 @@ if __name__ == "__main__":
   #  resize_and_crop_image_using_bb('../images/female1.jpg',bb=[240,122,170,400],output_w=150,output_h=50)
    # resize_and_crop_image_using_bb('../images/female1.jpg',bb=[240,122,170,400],output_w=50,output_h=150)
     #resize_and_crop_image_using_bb('../images/female1.jpg',bb=[240,122,170,170],output_w=1000,output_h=100)
-    dir_of_dirs = '/home/jeremy/core/classifier_stuff/caffe_nns/dataset'
+    dir_of_dirs = '/home/jeremy/core/classifier_stuff/caffe_nns/dataset/cropped'
 #    avg_h,avg_w,avg_d,avg_B,avg_G,avg_R,totfiles = image_stats_from_dir_of_dirs(dir_of_dirs,filter='test')
  #   print('avg h {} avg w {} avgB {} avgG {} avgR {} nfiles {} in dir_of_dirs {}',avg_h,avg_w,avg_d,avg_B,avg_G,avg_R,totfiles,dir_of_dirs)
 #    dir_of_dirs = '/home/jr/core/classifier_stuff/caffe_nns/dataset'
 #    raw_input('enter to continue')
-    crop_files_in_dir_of_dirs(dir_of_dirs,bb=None,output_w =150,output_h =200,use_visual_output=True)
+    output_dir = '/home/jeremy/core/classifier_stuff/caffe_nns/curated_dataset'
+    image_chooser_dir_of_dirs(dir_of_dirs,output_dir,filter='test')
+
+#    crop_files_in_dir_of_dirs(dir_of_dirs,bb=None,output_w =150,output_h =200,use_visual_output=True)
