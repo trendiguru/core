@@ -20,10 +20,10 @@ from .. import constants
 from . import ebay_constants
 from . import dl_excel
 db = constants.db
-# db.ebay_Female.delete_many({})
-# db.ebay_Male.delete_many({})
-# db.ebay_Unisex.delete_many({})
-# db.ebay_Tees.delete_many({})
+db.ebay_Female.delete_many({})
+db.ebay_Male.delete_many({})
+db.ebay_Unisex.delete_many({})
+db.ebay_Tees.delete_many({})
 today_date = str(datetime.datetime.date(datetime.datetime.now()))
 
 def getStoreInfo(ftp):
@@ -111,13 +111,15 @@ def fromCats2ppdCats(gender, cats):
             cat =  'sweatshirt'
         elif 'pants' in ppd_cats:
             cat =  'pants'
+        elif 'dress' in ppd_cats and gender == 'Male':
+            cat = ppd_cats[1]
         else:
             cat = ppd_cats[0]
     elif cat_count==0:
         return "Androgyny", []
     else:
         cat =  ppd_cats[0]
-    if any(x == cat for x in ['dress', 'stockings']):
+    if any(x == cat for x in ['dress', 'stockings','bikini']):
         gender = 'Female'
     if any(cat == x for x in ['skirt','bikini']) and gender == 'Male':
         cat = 'shirt'
