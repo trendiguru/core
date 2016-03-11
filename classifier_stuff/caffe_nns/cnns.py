@@ -107,7 +107,7 @@ def write_prototxt(proto_filename,test_iter = 9,solver_mode='GPU'):
                         'lr_policy': "inv",
                         'gamma': 0.0001,
                         'power': 0.75,
-                        'display': 10,
+                        'display': 20,
                         'max_iter': 10000,
                         'snapshot': 1000,
                         'snapshot_prefix': dir+'/net',
@@ -746,32 +746,35 @@ def run_net(net_builder,nn_dir,train_db,test_db,batch_size = 64,n_classes=11,mea
  #   fig = plt.figure()
  #   fig.savefig('out.png')
 
-    fig1 = plt.figure()
-    ax1 = fig1.add_subplot(111)
-    ax1.plot(arange(niter), train_loss,'r.-',label='train_loss')
-    ax1.set_xlabel('iteration',color='g')
-    ax1.set_ylabel('test accuracy/loss',color='b')
+        fig1 = plt.figure()
+        ax1 = fig1.add_subplot(111)
+        ax1.plot(arange(niter), train_loss,'r.-',label='train_loss')
+        ax1.set_ylabel('test accuracy/loss',color='r')
+        ax1.set_xlabel('iteration',color='g')
 
-    axb = ax1.twinx()
-    axb.plot(arange(niter, train_acc,'r.-'),label='train_acc')
-    axb.set_ylabel('sin', color='r')
-    legend = ax1.legend(loc='upper center', shadow=True)
-    plt.show()
+        axb = ax1.twinx()
+        axb.plot(arange(niter), train_acc,'b.-',label='train_acc')
+        axb.set_ylabel('sin', color='b')
+        legend = ax1.legend(loc='upper center', shadow=True)
+        plt.show()
+
+
+        fig2 = plt.figure()
+        ax2 = fig2.add_subplot(111)
+        ax2.plot(arange(int(np.ceil(niter / test_interval))), test_acc,'b.-')
+        ax2.plot(arange(int(np.ceil(niter / test_interval))), train_acc2,'g.-')
+        ax2.set_xlabel('iteration/'+str(test_interval))
+        ax2.set_ylabel('test/train accuracy')
+        legend = ax2.legend(loc='upper center', shadow=True)
+        plt.show()
+
     plt.savefig(fig1, format='png')
-
-
-    fig2 = plt.figure()
-    ax2 = fig2.add_subplot(111)
-    ax2.plot(arange(int(np.ceil(niter / test_interval))), test_acc,'b.-')
-    ax2.plot(arange(int(np.ceil(niter / test_interval))), train_acc2,'g.-')
-    ax2.set_xlabel('iteration/'+str(test_interval))
-    ax2.set_ylabel('test/train accuracy')
-    legend = ax2.legend(loc='upper center', shadow=True)
-    plt.show()
     plt.savefig(fig2, format='png')
 
-    if pc:
-        plt.show()
+#    if pc:
+#        plt.show()
+
+
     print('loss:'+str(train_loss))
     print('acc:'+str(test_acc))
     outfilename = os.path.join(nn_dir,'results.txt')
