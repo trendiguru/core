@@ -228,12 +228,15 @@ for filename in files:
     if itemCount < 1:
         print("%s = %s is not relevant!" %(filename, item["MERCHANT_NAME"]))
     else:
-        idx = [x["id"] == filename[:-7] for x in store_info].index(True)
-        store_info[idx]['dl_duration']=stop-start
-        store_info[idx]['items_downloaded']=itemCount
-        store_info[idx]['B/W']= 'white'
-        print("%s (%s) potiential items for %s = %s" % (str(itemCount), str(new_items), item["MERCHANT_NAME"],filename))
-
+        try:
+            idx = [x["id"] == filename[:-7] for x in store_info].index(True)
+            store_info[idx]['dl_duration']=stop-start
+            store_info[idx]['items_downloaded']=itemCount
+            store_info[idx]['B/W']= 'white'
+            print("%s (%s) potiential items for %s = %s" % (str(itemCount), str(new_items), item["MERCHANT_NAME"],filename))
+        except:
+            print ('%s not found in store info' %filename)
+            continue
 ftp.quit()
 stop_time = time.time()
 total_time = (stop_time-start_time)/60
