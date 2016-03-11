@@ -90,21 +90,32 @@ def image_chooser(source_dir,dest_dir,removed_dir=None,reprocess_dir=None):
             print('img '+str(i)+' of '+str(n)+':'+a_file+' shape:'+str(shape))
             print('(q)uit (d)elete (k)eep (r)eprocess (fix later)')
             cv2.imshow('img',img_arr)
-            k = cv2.waitKey(0)
-            if k==ord('q'):    # q to stop
-                break
-            elif k==ord('d'):  # normally -1 returned,so don't print it
-#                print('removing '+a_file+' to '+removed_dir)
-                dest_fullname = os.path.join(removed_dir,a_file)
-                shutil.move(fullname, dest_fullname)
-            elif k== ord('k'):
-#                print('keeping '+a_file+' in '+dest_dir)
-                dest_fullname = os.path.join(dest_dir,a_file)
-                shutil.move(fullname, dest_fullname)
-            elif k== ord('r'):
-#                print('reprocessing '+a_file+' in '+reprocess_dir)
-                dest_fullname = os.path.join(reprocess_dir,a_file)
-                shutil.move(fullname, dest_fullname)
+            while(1):
+                k = cv2.waitKey(0)
+                    # q to stop
+                if k==ord('q'):
+                    return
+                elif k==ord('d'):  # normally -1 returned,so don't print it
+    #                print('removing '+a_file+' to '+removed_dir)
+                    print('removing')
+                    dest_fullname = os.path.join(removed_dir,a_file)
+                    shutil.move(fullname, dest_fullname)
+                    break
+                elif k== ord('k'):
+    #                print('keeping '+a_file+' in '+dest_dir)
+                    print('keeping')
+                    dest_fullname = os.path.join(dest_dir,a_file)
+                    shutil.move(fullname, dest_fullname)
+                    break
+                elif k== ord('r'):
+    #                print('reprocessing '+a_file+' in '+reprocess_dir)
+                    print('reprocessing')
+                    dest_fullname = os.path.join(reprocess_dir,a_file)
+                    shutil.move(fullname, dest_fullname)
+                    break
+                else:
+                    k = cv2.waitKey(0)
+                    print('unident key')
         else:
             print('trouble opening image '+str(fullname))
 
