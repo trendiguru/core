@@ -71,7 +71,7 @@ def mongo2xl(filename, dl_info):
         for status in ["black","white"]:
             current_worksheet = workbook.add_worksheet(status+'list')
 
-            dict2list = [[x["id"],x["name"],x["items_downloaded"],x["dl_duration"],x["link"],x["modified"]]
+            dict2list = [[x["id"],x["name"],x["items_downloaded"],x["dl_duration"].decode("utf"),x["link"],x["modified"]]
                          for x in dl_info["store_info"] if x["B/W"] == status]
             item_count = len(dict2list)
 

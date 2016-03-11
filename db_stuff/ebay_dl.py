@@ -36,12 +36,12 @@ def getStoreInfo(ftp):
     xml = sio.read()
     split= re.split('</store><store id=',xml)
     split2 = re.split("<store id=|<name><!|></name>|<url><!|></url>",  split[0])
-    item = {'id': split2[1][1:-2],'name': split2[2][7:-2],'link':split2[4][7:-2].decode("utf"),
+    item = {'id': split2[1][1:-2],'name': split2[2][7:-2],'link':split2[4][7:-2],
             'dl_duration':0,'items_downloaded':0, 'B/W': 'black', 'modified':""}
     store_info.append(item)
     for line in split[1:]:
         split2 = re.split("<name><!|></name>|<url><!|></url>",  line)
-        item = {'id': split2[0][1:-2], 'name': split2[1][7:-2], 'link':split2[3][7:-2].decode("utf"),
+        item = {'id': split2[0][1:-2], 'name': split2[1][7:-2], 'link':split2[3][7:-2],
                 'dl_duration':0,'items_downloaded':0, 'B/W': 'black','modified':""}
         store_info.append(item)
     return store_info
