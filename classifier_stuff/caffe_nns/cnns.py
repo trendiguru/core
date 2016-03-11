@@ -756,6 +756,9 @@ def run_net(net_builder,nn_dir,train_db,test_db,batch_size = 64,n_classes=11,mea
     axb.plot(arange(niter, train_acc,'r.-'),label='train_acc')
     axb.set_ylabel('sin', color='r')
     legend = ax1.legend(loc='upper center', shadow=True)
+    plt.show()
+    plt.savefig(fig1, format='png')
+
 
     fig2 = plt.figure()
     ax2 = fig2.add_subplot(111)
@@ -765,7 +768,7 @@ def run_net(net_builder,nn_dir,train_db,test_db,batch_size = 64,n_classes=11,mea
     ax2.set_ylabel('test/train accuracy')
     legend = ax2.legend(loc='upper center', shadow=True)
     plt.show()
-
+    plt.savefig(fig2, format='png')
 
     if pc:
         plt.show()
