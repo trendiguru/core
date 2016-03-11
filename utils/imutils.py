@@ -81,14 +81,15 @@ def image_chooser(source_dir,dest_dir,removed_dir=None,reprocess_dir=None):
     only_files = [f for f in os.listdir(source_dir) if os.path.isfile(os.path.join(source_dir, f))]
     n = len(only_files)
     i = 0
-    for a_file in only_files:
-        i = i + 1
+    for i in range(0,n):
+        a_file = only_files[i]
+#        i = i + 1
         fullname = os.path.join(source_dir,a_file)
         img_arr = cv2.imread(fullname)
         if img_arr is not None:
             shape = img_arr.shape
             print('img '+str(i)+' of '+str(n)+':'+a_file+' shape:'+str(shape))
-            print('(q)uit (d)elete (k)eep (r)eprocess (fix later)')
+            print('(q)uit (d)elete (k)eep (r)eprocess (fix later) (u)ndo')
             cv2.imshow('img',img_arr)
             while(1):
                 k = cv2.waitKey(0)
@@ -100,22 +101,36 @@ def image_chooser(source_dir,dest_dir,removed_dir=None,reprocess_dir=None):
                     print('removing')
                     dest_fullname = os.path.join(removed_dir,a_file)
                     shutil.move(fullname, dest_fullname)
+                    prev_moved_to = dest_fullname
+                    prev_moved_from = fullname
                     break
                 elif k== ord('k'):
     #                print('keeping '+a_file+' in '+dest_dir)
                     print('keeping')
                     dest_fullname = os.path.join(dest_dir,a_file)
                     shutil.move(fullname, dest_fullname)
+                    prev_moved_to = dest_fullname
+                    prev_moved_from = fullname
                     break
                 elif k== ord('r'):
     #                print('reprocessing '+a_file+' in '+reprocess_dir)
                     print('reprocessing')
                     dest_fullname = os.path.join(reprocess_dir,a_file)
                     shutil.move(fullname, dest_fullname)
+                    prev_moved_to = dest_fullname
+                    prev_moved_from = fullname
+                    break
+                elif k== ord('u'):
+    #                print('reprocessing '+a_file+' in '+reprocess_dir)
+                    print('undo')
+                    dest_fullname = os.path.join(reprocess_dir,a_file)
+                    shutil.move(prev_moved_to,prev_moved_from)
+                    i = i - 2
                     break
                 else:
                     k = cv2.waitKey(0)
                     print('unident key')
+                    #add 'back' option
         else:
             print('trouble opening image '+str(fullname))
 
