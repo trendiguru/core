@@ -768,8 +768,10 @@ def run_net(net_builder,nn_dir,train_db,test_db,batch_size = 64,n_classes=11,mea
         legend = ax2.legend(loc='upper center', shadow=True)
         plt.show()
 
-    plt.savefig(fig1, format='png')
-    plt.savefig(fig2, format='png')
+    figname = os.path.join(nn_dir,'loss_acc.png')
+    fig1.savefig(figname)
+    figname = os.path.join(nn_dir,'train_test_acc.png')
+    fig2.savefig(figname)
 
 #    if pc:
 #        plt.show()
