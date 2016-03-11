@@ -327,4 +327,6 @@ if __name__ == "__main__":
  #   print('avg h {} avg w {} avgB {} avgG {} avgR {} nfiles {} in dir_of_dirs {}',avg_h,avg_w,avg_d,avg_B,avg_G,avg_R,totfiles,dir_of_dirs)
 #    dir_of_dirs = '/home/jr/core/classifier_stuff/caffe_nns/dataset'
 #    raw_input('enter to continue')
+    output_dir = '/home/jeremy/core/classifier_stuff/caffe_nns/curated_dataset'
+    image_chooser(dir_of_dirs,output_dir)
     crop_files_in_dir_of_dirs(dir_of_dirs,bb=None,output_w =150,output_h =200,use_visual_output=True)
