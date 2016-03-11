@@ -828,7 +828,7 @@ if __name__ == "__main__":
         print('trainclasses {} populations {} tot_images {} '.format(n_train_classes,train_populations,image_number_train))
         print('sum test pops {}  sum train pops {}  testiter {} batch_size {}'.format(tot_train_samples,tot_test_samples,test_iter,batch_size))
     else:
-        n_classes  = 4
+        n_classes  = 11
 
 #    lmdb_utils.inspect_db(db_name+'.train')
   #  lmdb_utils.inspect_db(db_name+'.test')
