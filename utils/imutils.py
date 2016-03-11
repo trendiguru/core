@@ -10,6 +10,8 @@ import shutil
 import logging
 logging.basicConfig(level=logging.DEBUG)
 import numpy as np
+from joblib import Parallel,delayed
+import multiprocessing
 from trendi import Utils
 
 def image_stats_from_dir_of_dirs(dir_of_dirs,filter=None):
@@ -295,12 +297,20 @@ def crop_files_in_dir_of_dirs(dir_of_dirs,**arglist):
     '''
     logging.debug('cropping files in directories under directory {} with arguments {}'.format(dir_of_dirs,str(arglist)))
     only_dirs = [dir for dir in os.listdir(dir_of_dirs) if os.path.isdir(os.path.join(dir_of_dirs,dir))]
+    num_cores = multiprocessing.cpu_count()
+    fullpaths = []
+    save_dirs = []
     for a_dir in only_dirs:
         fullpath = os.path.join(dir_of_dirs,a_dir)
         save_dir =  os.path.join(dir_of_dirs,'cropped/')
         save_dir =  os.path.join(save_dir,a_dir)
         Utils.ensure_dir(save_dir)
+        fullpaths.append(fullpath)
+        save_dirs.append(save_dir)
         crop_files_in_dir(fullpath,save_dir,**arglist)
+
+# this will work if i can find how to do [x,y for x in a for y in b] 'zip' style
+#     Parallel(n_jobs=num_cores)(delayed(crop_files_in_dir)(the_dir,the_path) for the_dir, the_path  in [fullpaths,save_dirs])
 
 
 if __name__ == "__main__":

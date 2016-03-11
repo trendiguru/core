@@ -321,10 +321,10 @@ def alexnet_linearized(db, batch_size,n_classes=11,meanB=128,meanG=128,meanR=128
     n.relu6 = L.ReLU(n.ip1, in_place=True)
     n.ip2 = L.InnerProduct(n.ip1,param=[dict(lr_mult=lr_mult1),dict(lr_mult=lr_mult2)],num_output=2048,weight_filler=dict(type='xavier'))
     n.relu7 = L.ReLU(n.ip2, in_place=True)
-    n.ip3 = L.InnerProduct(n.ip2,param=[dict(lr_mult=lr_mult1),dict(lr_mult=lr_mult2)],num_output=n_classes,weight_filler=dict(type='xavier'))
+    n.output_layer = L.InnerProduct(n.ip2,param=[dict(lr_mult=lr_mult1),dict(lr_mult=lr_mult2)],num_output=n_classes,weight_filler=dict(type='xavier'))
 #maybe add relu here?
-    n.accuracy = L.Accuracy(n.ip3,n.label)
-    n.loss = L.SoftmaxWithLoss(n.ip3,n.label)
+    n.accuracy = L.Accuracy(n.output_layer,n.label)
+    n.loss = L.SoftmaxWithLoss(n.output_layer,n.label)
     return n.to_proto()
 
 def run_lenet():
@@ -729,7 +729,7 @@ def run_net(net_builder,nn_dir,train_db,test_db,batch_size = 64,n_classes=11,mea
                 correct += sum(solver.test_nets[0].blobs['output_layer'].data.argmax(1)
                                == solver.test_nets[0].blobs['label'].data)
             percent_correct = float(correct)/(n_sample*batch_size)
-            print('correct {} n {} batchsize {} acc {} size(solver.test_nets[0].blob[output_layer]'.format(correct,n_sample, percent_correct),len(solver.test_nets[0].blobs['label'].data))
+            print('correct {} n {} batchsize {} acc {} size(solver.test_nets[0].blob[output_layer]'.format(correct,n_sample,batch_size, percent_correct,len(solver.test_nets[0].blobs['label'].data)))
             test_acc[it // test_interval] = percent_correct
             print('acc so far:'+str(test_acc))
     _, ax1 = plt.subplots()
@@ -754,6 +754,9 @@ def run_net(net_builder,nn_dir,train_db,test_db,batch_size = 64,n_classes=11,mea
 
 
 
+host = socket.gethostname()
+print('host:'+str(host))
+
 if __name__ == "__main__":
     if host == 'jr-ThinkPad-X1-Carbon':
         pc = True
@@ -772,10 +775,10 @@ if __name__ == "__main__":
         base_dir = '/home/jeremy/core/classifier_stuff/caffe_nns/'
         dir_of_dirs = '/home/jeremy/core/classifier_stuff/caffe_nns/plusminus_data'  #b2
         dir_of_dirs = '/home/jeremy/core/classifier_stuff/caffe_nns/populated_items'  #b2
-        dir_of_dirs = '/home/jeremy/core/classifier_stuff/caffe_nns/cropped_dataset'  #b2
-        nn_dir = '/home/jeremy/core/classifier_stuff/caffe_nns/alexnet6'  #b2
+        dir_of_dirs = '/home/jeremy/core/classifier_stuff/caffe_nns/dataset/cropped'  #b2
+        nn_dir = '/home/jeremy/core/classifier_stuff/caffe_nns/alexnet7'  #b2
 #        nn_dir = '/home/jeremy/core/classifier_stuff/caffe_nns/vgg_'  #b2
-        max_images_per_class = 10000
+        max_images_per_class = 15000
         pc = False
         solver_mode = 'GPU'
         B=112
@@ -784,8 +787,8 @@ if __name__ == "__main__":
         db_name = 'highly_populated_cropped'
 
 #    h,w,d,B,G,R,n = imutils.image_stats_from_dir_of_ditestrs(dir_of_dirs)
-    resize_x = 200
-    resize_y=200
+    resize_x = None
+    resize_y=None
     print('dir:'+dir_of_dirs)
     print('rgb:'+str(R)+','+str(G)+','+str(B))
     print('mode:'+solver_mode)
@@ -795,7 +798,7 @@ if __name__ == "__main__":
 
 #    lmdb_utils.kill_db(db_name)
     test_iter = 100
-    batch_size = 16  #use powers of 2 for better perf (supposedly)
+    batch_size = 32  #use powers of 2 for better perf (supposedly)
 # out of mem possibly correctable:    Reading dangerously large protocol message.  If the message turns out to be larger than 2147483647 bytes, parsing will be halted for security reasons.  To increase the limit (or to disable these warnings), see CodedInputStream::SetTotalBytesLimit() in google/protobuf/io/coded_stream.h
 
     find_averages = False
@@ -811,7 +814,7 @@ if __name__ == "__main__":
     generate_db = False
     if generate_db:
         n_test_classes,test_populations,image_number_test = lmdb_utils.interleaved_dir_of_dirs_to_lmdb(db_name,dir_of_dirs,
-                                                                                           max_images_per_class = 1000,test_or_train='test',resize_x=resize_x,resize_y=resize_y,
+                                                                                           max_images_per_class = 10000,test_or_train='test',resize_x=resize_x,resize_y=resize_y,
                                                                                         use_visual_output=False,n_channels=3)
         print('testclasses {} populations {} tot_images {} '.format(n_test_classes,test_populations,image_number_test))
 
@@ -825,7 +828,7 @@ if __name__ == "__main__":
         print('trainclasses {} populations {} tot_images {} '.format(n_train_classes,train_populations,image_number_train))
         print('sum test pops {}  sum train pops {}  testiter {} batch_size {}'.format(tot_train_samples,tot_test_samples,test_iter,batch_size))
     else:
-        n_classes  = 4
+        n_classes  = 11
 
 #    lmdb_utils.inspect_db(db_name+'.train')
   #  lmdb_utils.inspect_db(db_name+'.test')
