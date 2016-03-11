@@ -298,12 +298,12 @@ def alexnet_linearized(db, batch_size,n_classes=11,meanB=128,meanG=128,meanR=128
                                           dict(lr_mult=lr_mult2,decay_mult=decay_mult2)],
                             kernel_size=10,stride = 4, num_output=48,weight_filler=dict(type='xavier'))
     n.relu1 = L.ReLU(n.conv1, in_place=True)
-    n.pool1 = L.Pooling(n.conv1, kernel_size=3, stride=1, pool=P.Pooling.MAX)
+    n.pool1 = L.Pooling(n.conv1, kernel_size=3, stride=2, pool=P.Pooling.MAX)
     n.conv2 = L.Convolution(n.pool1,param=[dict(lr_mult=lr_mult1,decay_mult=decay_mult1),
                                           dict(lr_mult=lr_mult2,decay_mult=decay_mult2)],
                             kernel_size=5,stride = 1, num_output=128,weight_filler=dict(type='xavier'))
     n.relu2 = L.ReLU(n.conv2, in_place=True)
-    n.pool2 = L.Pooling(n.conv2, kernel_size=3, stride=1, pool=P.Pooling.MAX)
+    n.pool2 = L.Pooling(n.conv2, kernel_size=3, stride=2, pool=P.Pooling.MAX)
     n.conv3 = L.Convolution(n.pool2,param=[dict(lr_mult=lr_mult1,decay_mult=decay_mult1),
                                           dict(lr_mult=lr_mult2,decay_mult=decay_mult2)],
                             kernel_size=3,stride = 1, num_output=192,weight_filler=dict(type='xavier'))
@@ -316,7 +316,7 @@ def alexnet_linearized(db, batch_size,n_classes=11,meanB=128,meanG=128,meanR=128
                                           dict(lr_mult=lr_mult2,decay_mult=decay_mult2)],
                             kernel_size=3,stride = 1, num_output=128,weight_filler=dict(type='xavier'))
     n.relu5 = L.ReLU(n.conv5, in_place=True)
-    n.pool3 = L.Pooling(n.conv5, kernel_size=3, stride=1, pool=P.Pooling.MAX)
+    n.pool3 = L.Pooling(n.conv5, kernel_size=3, stride=2, pool=P.Pooling.MAX)
     n.ip1 = L.InnerProduct(n.pool3,param=[dict(lr_mult=lr_mult1),dict(lr_mult=lr_mult2)],num_output=2048,weight_filler=dict(type='xavier'))
     n.relu6 = L.ReLU(n.ip1, in_place=True)
     n.ip2 = L.InnerProduct(n.ip1,param=[dict(lr_mult=lr_mult1),dict(lr_mult=lr_mult2)],num_output=2048,weight_filler=dict(type='xavier'))
@@ -776,7 +776,7 @@ if __name__ == "__main__":
         dir_of_dirs = '/home/jeremy/core/classifier_stuff/caffe_nns/plusminus_data'  #b2
         dir_of_dirs = '/home/jeremy/core/classifier_stuff/caffe_nns/populated_items'  #b2
         dir_of_dirs = '/home/jeremy/core/classifier_stuff/caffe_nns/dataset/cropped'  #b2
-        nn_dir = '/home/jeremy/core/classifier_stuff/caffe_nns/alexnet7'  #b2
+        nn_dir = '/home/jeremy/core/classifier_stuff/caffe_nns/alexnet8'  #b2
 #        nn_dir = '/home/jeremy/core/classifier_stuff/caffe_nns/vgg_'  #b2
         max_images_per_class = 15000
         pc = False
