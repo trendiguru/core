@@ -20,10 +20,10 @@ from .. import constants
 from . import ebay_constants
 from . import dl_excel
 db = constants.db
-db.ebay_Female.delete_many({})
-db.ebay_Male.delete_many({})
-db.ebay_Unisex.delete_many({})
-db.ebay_Tees.delete_many({})
+# db.ebay_Female.delete_many({})
+# db.ebay_Male.delete_many({})
+# db.ebay_Unisex.delete_many({})
+# db.ebay_Tees.delete_many({})
 today_date = str(datetime.datetime.date(datetime.datetime.now()))
 
 def getStoreInfo(ftp):
@@ -252,9 +252,11 @@ dl_info = {"date": today_date,
 
 for col in ["Female","Male","Unisex","Tees"]:
     col_name = "ebay_"+col
-    db[col_name].create_index("categories")
-    db[col_name].create_index("status")
-    db[col_name].create_index("download_data")
+    db[col_name].reindex()
+
+    # db[col_name].create_index("categories")
+    # db[col_name].create_index("status")
+    # db[col_name].create_index("download_data")
 
 dl_excel.mongo2xl('ebay', dl_info)
 
