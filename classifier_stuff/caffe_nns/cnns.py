@@ -701,6 +701,7 @@ def run_net(net_builder,nn_dir,train_db,test_db,batch_size = 64,n_classes=11,mea
     train_loss = zeros(niter)
     train_acc = zeros(niter)
     test_acc = zeros(int(np.ceil(niter / test_interval)))
+    train_acc2 = zeros(int(np.ceil(niter / test_interval)))
     output = zeros((niter, 8, 10))
 
     # the main solver loop
@@ -721,6 +722,8 @@ def run_net(net_builder,nn_dir,train_db,test_db,batch_size = 64,n_classes=11,mea
         #  how to do it directly in Python, where more complicated things are easier.)
         n_sample = 100
         if it % test_interval == 0:
+            train_acc2[it//test_interval] = solver.net.blobs['accuracy'].data
+
             print 'Iteration', it, 'testing...'
             correct = 0
             for test_it in range(n_sample):
@@ -732,15 +735,38 @@ def run_net(net_builder,nn_dir,train_db,test_db,batch_size = 64,n_classes=11,mea
             print('correct {} n {} batchsize {} acc {} size(solver.test_nets[0].blob[output_layer]'.format(correct,n_sample,batch_size, percent_correct,len(solver.test_nets[0].blobs['label'].data)))
             test_acc[it // test_interval] = percent_correct
             print('acc so far:'+str(test_acc))
-    _, ax1 = plt.subplots()
-    ax2 = ax1.twinx()
-    ax1.plot(arange(niter), train_loss)
-    ax2.plot(test_interval * arange(len(test_acc)), test_acc, 'r')
-    ax1.set_xlabel('iteration')
-    ax1.set_ylabel('train loss')
-    ax2.set_ylabel('test accuracy')
-    fig = plt.figure()
-    fig.savefig('out.png')
+
+  #  _, ax1 = plt.subplots()
+  #  ax2 = ax1.twinx()
+  #  ax1.plot(arange(niter), train_loss)
+  #  ax2.plot(test_interval * arange(len(test_acc)), test_acc, 'r')
+ #   ax1.set_xlabel('iteration')
+ #   ax1.set_ylabel('train loss')
+ #   ax2.set_ylabel('test accuracy')
+ #   fig = plt.figure()
+ #   fig.savefig('out.png')
+
+    fig1 = plt.figure()
+    ax1 = fig1.add_subplot(111)
+    ax1.plot(arange(niter), train_loss,'r.-',label='train_loss')
+    ax1.set_xlabel('iteration',color='g')
+    ax1.set_ylabel('test accuracy/loss',color='b')
+
+    axb = ax1.twinx()
+    axb.plot(arange(niter, train_acc,'r.-'),label='train_acc')
+    axb.set_ylabel('sin', color='r')
+    legend = ax1.legend(loc='upper center', shadow=True)
+
+    fig2 = plt.figure()
+    ax2 = fig2.add_subplot(111)
+    ax2.plot(arange(int(np.ceil(niter / test_interval))), test_acc,'b.-')
+    ax2.plot(arange(int(np.ceil(niter / test_interval))), train_acc2,'g.-')
+    ax2.set_xlabel('iteration/'+str(test_interval))
+    ax2.set_ylabel('test/train accuracy')
+    legend = ax2.legend(loc='upper center', shadow=True)
+    plt.show()
+
+
     if pc:
         plt.show()
     print('loss:'+str(train_loss))
