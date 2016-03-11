@@ -76,7 +76,7 @@ def mongo2xl(filename, dl_info):
             item_count = len(dict2list)
 
             current_worksheet.set_column('A:G',15)
-            current_worksheet.add_table('A1:G'+str(item_count+3),
+            current_worksheet.add_table('A1:G'+str(item_count),
                                         {'data': dict2list,
                                          'columns': [ {'header': 'id'},
                                                       {'header' : 'name'},
