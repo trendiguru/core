@@ -108,7 +108,7 @@ def write_prototxt(proto_filename,test_iter = 9,solver_mode='GPU'):
                         'gamma': 0.0001,
                         'power': 0.75,
                         'display': 20,
-                        'max_iter': 1000,
+                        'max_iter': 20000,
                         'snapshot': 1000,
                         'snapshot_prefix': dir+'/net',
                         'solver_mode':solver_mode }
@@ -832,7 +832,7 @@ if __name__ == "__main__":
 
 #    lmdb_utils.kill_db(db_name)
     test_iter = 100
-    batch_size = 32  #use powers of 2 for better perf (supposedly)
+    batch_size = 64  #use powers of 2 for better perf (supposedly)
 # out of mem possibly correctable:    Reading dangerously large protocol message.  If the message turns out to be larger than 2147483647 bytes, parsing will be halted for security reasons.  To increase the limit (or to disable these warnings), see CodedInputStream::SetTotalBytesLimit() in google/protobuf/io/coded_stream.h
 
     find_averages = False
