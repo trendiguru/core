@@ -12,6 +12,7 @@ logging.basicConfig(level=logging.DEBUG)
 import numpy as np
 from joblib import Parallel,delayed
 import multiprocessing
+import socket
 from trendi import Utils
 
 def image_stats_from_dir_of_dirs(dir_of_dirs,filter=None):
@@ -63,12 +64,13 @@ def image_chooser_dir_of_dirs(dir_of_dirs,dest_dir,removed_dir=None,filter=None,
         reprocess_dir = os.path.join(dir_of_dirs,'reprocess')
 
     for d in only_dirs:
+        actual_source = os.path.join(dir_of_dirs,d)
         actual_dest = os.path.join(dest_dir,d)
         actual_removed_dest = os.path.join(removed_dir,d)
         actual_reprocess_dest = os.path.join(reprocess_dir,d)
         Utils.ensure_dir(actual_dest)
         Utils.ensure_dir(actual_reprocess_dest)
-        image_chooser(d,actual_dest,removed_dir=actual_removed_dest,reprocess_dir=actual_reprocess_dest)
+        image_chooser(actual_source,actual_dest,removed_dir=actual_removed_dest,reprocess_dir=actual_reprocess_dest)
 
 def image_chooser(source_dir,dest_dir,removed_dir=None,reprocess_dir=None):
     if removed_dir is None:
@@ -90,7 +92,12 @@ def image_chooser(source_dir,dest_dir,removed_dir=None,reprocess_dir=None):
             shape = img_arr.shape
             print('img '+str(i)+' of '+str(n)+':'+a_file+' shape:'+str(shape))
             print('(q)uit (d)elete (k)eep (r)eprocess (fix later) (u)ndo')
-            cv2.imshow('img',img_arr)
+            resized = img_arr
+            h,w = img_arr.shape[0:2]
+            if h>200:
+                resized = cv2.resize(img_arr,(int((200.0*w)/h),200))
+                print('h,w {},{} newh neww {},{}'.format(h,w,resized.shape[0],resized.shape[1]))
+            cv2.imshow('img',resized)
             while(1):
                 k = cv2.waitKey(0)
                     # q to stop
@@ -367,6 +374,8 @@ def crop_files_in_dir_of_dirs(dir_of_dirs,**arglist):
 # this will work if i can find how to do [x,y for x in a for y in b] 'zip' style
 #     Parallel(n_jobs=num_cores)(delayed(crop_files_in_dir)(the_dir,the_path) for the_dir, the_path  in [fullpaths,save_dirs])
 
+host = socket.gethostname()
+print('host:'+str(host))
 
 if __name__ == "__main__":
 #    test_or_training_textfile('/home/jr/python-packages/trendi/classifier_stuff/caffe_nns/only_train',test_or_train='test')
@@ -377,12 +386,17 @@ if __name__ == "__main__":
   #  resize_and_crop_image_using_bb('../images/female1.jpg',bb=[240,122,170,400],output_w=150,output_h=50)
    # resize_and_crop_image_using_bb('../images/female1.jpg',bb=[240,122,170,400],output_w=50,output_h=150)
     #resize_and_crop_image_using_bb('../images/female1.jpg',bb=[240,122,170,170],output_w=1000,output_h=100)
-    dir_of_dirs = '/home/jeremy/core/classifier_stuff/caffe_nns/dataset/cropped'
+    if host == 'jr-ThinkPad-X1-Carbon':
+        dir_of_dirs = '/home/jr/core/classifier_stuff/caffe_nns/dataset/'
+        output_dir = '/home/jr/core/classifier_stuff/caffe_nns/curated_dataset'
+    else:
+        dir_of_dirs = '/home/jeremy/core/classifier_stuff/caffe_nns/dataset/cropped'
+        output_dir = '/home/jeremy/core/classifier_stuff/caffe_nns/curated_dataset'
+
 #    avg_h,avg_w,avg_d,avg_B,avg_G,avg_R,totfiles = image_stats_from_dir_of_dirs(dir_of_dirs,filter='test')
  #   print('avg h {} avg w {} avgB {} avgG {} avgR {} nfiles {} in dir_of_dirs {}',avg_h,avg_w,avg_d,avg_B,avg_G,avg_R,totfiles,dir_of_dirs)
 #    dir_of_dirs = '/home/jr/core/classifier_stuff/caffe_nns/dataset'
 #    raw_input('enter to continue')
-    output_dir = '/home/jeremy/core/classifier_stuff/caffe_nns/curated_dataset'
     image_chooser_dir_of_dirs(dir_of_dirs,output_dir,filter='test')
 
 #    crop_files_in_dir_of_dirs(dir_of_dirs,bb=None,output_w =150,output_h =200,use_visual_output=True)
