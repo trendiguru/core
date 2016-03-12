@@ -108,7 +108,7 @@ def write_prototxt(proto_filename,test_iter = 9,solver_mode='GPU'):
                         'gamma': 0.0001,
                         'power': 0.75,
                         'display': 20,
-                        'max_iter': 1000,
+                        'max_iter': 20000,
                         'snapshot': 1000,
                         'snapshot_prefix': dir+'/net',
                         'solver_mode':solver_mode }
