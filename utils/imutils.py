@@ -84,8 +84,8 @@ def image_chooser(source_dir,dest_dir,removed_dir=None,reprocess_dir=None):
     n = len(only_files)
     i = -1
     while i < n: #to allow undo need to manipulate index which doesnt work with iterator
-        a_file = only_files[i]
         i = i + 1
+        a_file = only_files[i]
         fullname = os.path.join(source_dir,a_file)
         img_arr = cv2.imread(fullname)
         if img_arr is not None:
@@ -103,7 +103,7 @@ def image_chooser(source_dir,dest_dir,removed_dir=None,reprocess_dir=None):
                     # q to stop
                 if k==ord('q'):
                     print('quitting')
-                    return
+                    sys.exit('quitting since you pressed q')
                 elif k==ord('d'):  # normally -1 returned,so don't print it
     #                print('removing '+a_file+' to '+removed_dir)
                     print('removing')
