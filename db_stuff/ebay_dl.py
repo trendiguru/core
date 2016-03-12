@@ -21,6 +21,7 @@ from . import ebay_constants
 from . import dl_excel
 from rq import Queue
 from ..fingerprint_core import generate_mask_and_insert
+from time import sleep
 
 q = Queue('fingerprint_new', connection=constants.redis_conn)
 
@@ -200,6 +201,7 @@ for filename in files:
     items = csv.DictReader(unzipped.splitlines(), delimiter='\t')
     itemCount = 0
     new_items = 0
+    stoll = 0
     for item in items:
         # verify right category
         mainCategory = item["CATEGORY_NAME"]
@@ -231,11 +233,18 @@ for filename in files:
                 db[collection_name].delete_many({'id':exists['id']})
             else:
                 new_items+=1
+            while q.count > 250000:
+                print( "Q full - stolling")
+                sleep(60)
+                stoll+=1
+
+
             q.enqueue(generate_mask_and_insert, doc=generic_dict, image_url=generic_dict["images"],
                   fp_date=today_date, coll=collection_name)
             # db[collection_name].insert_one(generic_dict)
 
-    stop = time.time()
+    stop = time.time() - 60*stoll
+
     if itemCount < 1:
         print("%s = %s is not relevant!" %(filename, item["MERCHANT_NAME"]))
     else:
