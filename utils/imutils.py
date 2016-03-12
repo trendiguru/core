@@ -82,8 +82,11 @@ def image_chooser(source_dir,dest_dir,removed_dir=None,reprocess_dir=None):
     print('choosing:'+str(source_dir)+' good:'+str(dest_dir)+' removed:'+str(removed_dir)+' reprocess:'+str(reprocess_dir))
     only_files = [f for f in os.listdir(source_dir) if os.path.isfile(os.path.join(source_dir, f))]
     n = len(only_files)
+    if n==0:
+        print('no files in '+source_dir)
+        return
     i = -1
-    while i < n: #to allow undo need to manipulate index which doesnt work with iterator
+    while i < n : #to allow undo need to manipulate index which doesnt work with iterator
         i = i + 1
         a_file = only_files[i]
         fullname = os.path.join(source_dir,a_file)
