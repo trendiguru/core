@@ -60,11 +60,11 @@ if __name__ == "__main__":
     r2 = requests.get(url=url2, headers=headers)
     r2zip = zipfile.ZipFile(StringIO.StringIO(r2.content))
     csv_file = r2zip.open(r2zip.namelist()[0])
-
+    print("csv downloaded")
     time.sleep(60)
     DB = csv.reader(csv_file)
     time.sleep(60)
-
+    print("loop through items in file")
     for x, row in enumerate(DB):
         if divmod(x, 10000) == 0:
             print ("row #" + str(x))
