@@ -235,7 +235,7 @@ for filename in files:
                 new_items+=1
             while q.count > 250000:
                 print( "Q full - stolling")
-                sleep(60)
+                sleep(600)
                 stoll+=1
 
 
@@ -243,14 +243,14 @@ for filename in files:
                   fp_date=today_date, coll=collection_name)
             # db[collection_name].insert_one(generic_dict)
 
-    stop = time.time() - 60*stoll
+    stop = time.time()
 
     if itemCount < 1:
         print("%s = %s is not relevant!" %(filename, item["MERCHANT_NAME"]))
     else:
         try:
             idx = [x["id"] == filename[:-7] for x in store_info].index(True)
-            store_info[idx]['dl_duration']=stop-start
+            store_info[idx]['dl_duration']=stop- start - 600*stoll
             store_info[idx]['items_downloaded']=itemCount
             store_info[idx]['B/W']= 'white'
             print("%s (%s) potiential items for %s = %s" % (str(itemCount), str(new_items), item["MERCHANT_NAME"],filename))

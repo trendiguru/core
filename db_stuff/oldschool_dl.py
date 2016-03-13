@@ -257,6 +257,10 @@ class ShopStyleDownloader():
         :param prod: dictionary of shopstyle product
         :return: Nothing, void function
         """
+        while q.count>250000:
+            print ("Q full - stolling")
+            time.sleep(600)
+
         q.enqueue(generate_mask_and_insert, doc=prod, image_url=prod["images"]["XLarge"],
                   fp_date=self.current_dl_date, coll=collection)
         print "inserting,",

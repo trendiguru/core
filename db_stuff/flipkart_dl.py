@@ -108,6 +108,9 @@ if __name__ == "__main__":
             # db.download_data.update_one({"criteria": criteria},
             #                                      {'$inc': {"items_downloaded": 1}})
             if prev is None:
+                while q.count > 250000:
+                    print( "Q full - stolling")
+                    time.sleep(600)
                 q.enqueue(generate_mask_and_insert, doc=tmp_prod, image_url=tmp_prod["images"]["XLarge"],
                           fp_date=today_date, coll="flipkart")
                 # db.download_data.update_one({"criteria": criteria},
