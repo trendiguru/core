@@ -47,9 +47,9 @@ if __name__ == "__main__":
     #                              "total_items": 0,
     #                              "instock": 0,
     #                              "out": 0})
-    db.drop_collection("fp_in_process")
-    db.fp_in_process.insert_one({})
-    db.fp_in_process.create_index("id")
+    # db.drop_collection("fp_in_process")
+    # db.fp_in_process.insert_one({})
+    # db.fp_in_process.create_index("id")
 
     r1 = requests.get(url=url, headers=headers)
 
@@ -76,7 +76,7 @@ if __name__ == "__main__":
             continue
         if len(inter) > 0:
             tmp_prod["id"] = row[0]
-            db.fp_in_process.insert_one({"id": tmp_prod["id"]})
+            # db.fp_in_process.insert_one({"id": tmp_prod["id"]})
             tmp_prod["categories"] = inter2paperdole(inter)
             tmp_prod["clickUrl"] = row[6] + affiliate_data
             imgUrl = re.split(';', row[3])
@@ -125,7 +125,7 @@ if __name__ == "__main__":
                     db.flipkart.delete_one({'id': tmp_prod['id']})
                     db.flipkart.insert_one(tmp_prod)
                     # print "prod inserted successfully"
-                    db.fp_in_process.delete_one({"id": tmp_prod["id"]})
+                    # db.fp_in_process.delete_one({"id": tmp_prod["id"]})
 
                 except:
                     # db.download_data.update_one({"criteria": criteria},
