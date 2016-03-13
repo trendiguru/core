@@ -66,8 +66,8 @@ if __name__ == "__main__":
     time.sleep(60)
     print("loop through items in file")
     for x, row in enumerate(DB):
-        if divmod(x, 10000) == 0:
-            print ("row #" + str(x))
+        # if divmod(x, 10000) == 0:
+        print ("row #" + str(x))
         tmp_prod = {}
         tmp = row[1]
         catgoriz = re.split(" ", tmp)
