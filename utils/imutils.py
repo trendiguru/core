@@ -79,6 +79,7 @@ def image_chooser(source_dir,dest_dir,removed_dir=None,reprocess_dir=None):
         reprocess_dir = os.path.join(source_dir,'reprocess')
     Utils.ensure_dir(removed_dir)
     Utils.ensure_dir(reprocess_dir)
+    Utils.ensure_dir(dest_dir)
     print('choosing:'+str(source_dir)+' good:'+str(dest_dir)+' removed:'+str(removed_dir)+' reprocess:'+str(reprocess_dir))
     only_files = [f for f in os.listdir(source_dir) if os.path.isfile(os.path.join(source_dir, f))]
     n = len(only_files)
