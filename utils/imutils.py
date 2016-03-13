@@ -82,27 +82,31 @@ def image_chooser(source_dir,dest_dir,removed_dir=None,reprocess_dir=None):
     print('choosing:'+str(source_dir)+' good:'+str(dest_dir)+' removed:'+str(removed_dir)+' reprocess:'+str(reprocess_dir))
     only_files = [f for f in os.listdir(source_dir) if os.path.isfile(os.path.join(source_dir, f))]
     n = len(only_files)
-    i = 0
-    for i in range(0,n):
+    if n==0:
+        print('no files in '+source_dir)
+        return
+    i = -1
+    while i < n-1 : #to allow undo need to manipulate index which doesnt work with iterator
+        i = i + 1
         a_file = only_files[i]
-#        i = i + 1
         fullname = os.path.join(source_dir,a_file)
         img_arr = cv2.imread(fullname)
         if img_arr is not None:
             shape = img_arr.shape
-            print('img '+str(i)+' of '+str(n)+':'+a_file+' shape:'+str(shape))
-            print('(q)uit (d)elete (k)eep (r)eprocess (fix later) (u)ndo')
             resized = img_arr
             h,w = img_arr.shape[0:2]
             if h>200:
                 resized = cv2.resize(img_arr,(int((200.0*w)/h),200))
                 print('h,w {},{} newh neww {},{}'.format(h,w,resized.shape[0],resized.shape[1]))
+            print('img '+str(i)+' of '+str(n)+':'+a_file+' shape:'+str(shape) +' (resized to '+str(resized.shape)+')')
+            print('(q)uit (d)elete (k)eep (r)eprocess (fix later) (u)ndo')
             cv2.imshow('img',resized)
             while(1):
                 k = cv2.waitKey(0)
                     # q to stop
                 if k==ord('q'):
-                    return
+                    print('quitting')
+                    sys.exit('quitting since you pressed q')
                 elif k==ord('d'):  # normally -1 returned,so don't print it
     #                print('removing '+a_file+' to '+removed_dir)
                     print('removing')
