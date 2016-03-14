@@ -11,10 +11,10 @@ def fillTable(worksheet,main_categories,collection,bold ,today):
     categories = []
     for cat in main_categories:
         print(cat)
-        items = collection.find({'categories': cat},{}).count()
-        new_items = collection.find({'categories': cat, 'download_data.first_dl': today},{}).count()
-        instock = collection.find({'categories': cat, 'status.instock': True},{}).count()
-        out = collection.find({'categories': cat, 'status.instock': False},{}).count()
+        items = collection.find({'categories': cat},{'_id':0, 'categories':1}).count()
+        new_items = collection.find({'categories': cat, 'download_data.first_dl': today},{'_id':0, 'categories':1}).count()
+        instock = collection.find({'categories': cat, 'status.instock': True},{'_id':0, 'categories':1}).count()
+        out = collection.find({'categories': cat, 'status.instock': False},{'_id':0, 'categories':1}).count()
         categories.append([cat, items, new_items, instock, out])
     categories_length =len(categories)+3
     worksheet.set_column('B:F',15)
