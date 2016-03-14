@@ -218,10 +218,10 @@ for filename in files:
         if subCategory == "t-shirt":
             collection_name ="ebay_Tees"
             exists = db[collection_name].find({'id':item["\xef\xbb\xbfOFFER_ID"]})
-            if len(exists)>1:
+            if exists.count()>1:
                 db[collection_name].delete_many({'id':item["\xef\xbb\xbfOFFER_ID"]})
                 exists=[]
-            if len(exists)==0:
+            if exists.count()==0:
                 generic_dict = ebay2generic(item, gender, subCategory)
                 db[collection_name].insert_one(generic_dict)
                 itemCount +=1
