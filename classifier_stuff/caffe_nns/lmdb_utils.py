@@ -197,17 +197,23 @@ def interleaved_dir_of_dirs_to_lmdb(dbname,dir_of_dirs,test_or_train=None,max_im
             # do only test or train dirs if this param was sent
             fulldir = os.path.join(dir_of_dirs,a_dir)
             only_files = [os.path.join(fulldir,f) for f in os.listdir(fulldir) if os.path.isfile(os.path.join(fulldir, f))]
-            if binary_class_filter in a_dir: #class 0
+            if binary_class_filter in a_dir: #class 0 (usu. will be positives)
                 print('class 0: dir:'+str(fulldir))
                 all_files[0] += only_files  #add only_files to all_files[0] (concatenates lists)
-            else:               #class 1
+            else:               #class 1 (usu will be negatives)
                 print('class 1: dir:'+str(fulldir))
                 all_files[1] += only_files
     #shuffle the entries in the two classes since one (the second) is made of grouped cats
         random.shuffle(all_files[0])
         random.shuffle(all_files[1])
-
-    # setup db for multiple classes in alphabetical order of directory
+    #keep same number of positives and negatives
+        n_positives = len(all_files[0])
+        n_negatives = len(all_files[1])
+        n_min = min(n_positives,n_negatives)
+        all_files[0] = all_files[0][0:n_min-1]
+        all_files[1] = all_files[1][0:n_min-1]
+        print('positives {} negatives {} after pos {} neg {}'.format(n_positives,n_negatives,len(all_files[0]),len(all_files[1])))
+# setup db for multiple classes in alphabetical order of directory
     else:
         n_classes = len(only_dirs)
         classno=0

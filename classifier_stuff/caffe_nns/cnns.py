@@ -696,6 +696,7 @@ def run_net(net_builder,nn_dir,train_db,test_db,batch_size = 64,n_classes=11,mea
 
     #%%time
     niter = 10000
+    training_acc_threshold = 0.95
     test_interval = 100
     # losses will also be stored in the log
     train_loss = zeros(niter)
@@ -735,6 +736,9 @@ def run_net(net_builder,nn_dir,train_db,test_db,batch_size = 64,n_classes=11,mea
             print('correct {} n {} batchsize {} acc {} size(solver.test_nets[0].blob[output_layer]'.format(correct,n_sample,batch_size, percent_correct,len(solver.test_nets[0].blobs['label'].data)))
             test_acc[it // test_interval] = percent_correct
             print('acc so far:'+str(test_acc))
+            if test_acc [it // test_interval] > training_acc_threshold:
+                print('acc of {} is above required threshold of {}, thus stopping:'.format(test_acc,training_acc_threshold))
+                break
 
   #  _, ax1 = plt.subplots()
   #  ax2 = ax1.twinx()
