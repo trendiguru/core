@@ -867,7 +867,7 @@ if __name__ == "__main__":
             print('testclasses {} populations {} tot_images {} '.format(n_test_classes,test_populations,test_imageno))
             print('trainclasses {} populations {} tot_images {} '.format(n_train_classes,train_populations,train_imageno))
             print('sum test pops {}  sum train pops {}  testiter {} batch_size {}'.format(tot_train_samples,tot_test_samples,test_iter,batch_size))
-            nn_dir = '/home/jeremy/core/classifier_stuff/caffe_nns/alexnet_'+db_name  #b2
+            nn_dir = '/home/jeremy/core/classifier_stuff/caffe_nns/alexnet10_'+db_name  #b2
             run_net(alexnet_linearized,nn_dir,db_name+'.train',db_name+'.test',batch_size = batch_size,n_classes=n_classes,meanB=B,meanR=R,meanG=G,n_filters=50,n_ip1=1000)
 
 
