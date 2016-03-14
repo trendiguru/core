@@ -52,6 +52,7 @@ def mongo2xl(filename, dl_info):
     if filename == 'ebay':
 
         for gender in ['Female', 'Male', 'Unisex','Tees']:
+            print("working on "+ gender)
             if gender is 'Female':
                 collection = db.ebay_Female
                 current_worksheet = workbook.add_worksheet('Female')
@@ -69,6 +70,7 @@ def mongo2xl(filename, dl_info):
             total_items += collection.count()
 
         for status in ["black","white"]:
+            print("working on "+ status+"list")
             current_worksheet = workbook.add_worksheet(status+'list')
 
             dict2list = [[x["id"],x["name"].decode("utf8"),x["items_downloaded"],x["dl_duration"][:6],
