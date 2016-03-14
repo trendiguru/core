@@ -1,6 +1,6 @@
 #!/bin/bash
 
-cd /root
+cd /home/jeremy/sw
 git clone https://github.com/BVLC/caffe.git
 cd caffe
 
@@ -8,8 +8,10 @@ cd caffe
 cat python/requirements.txt | xargs -n1 pip install && \
 
 #prereqs for cuda
-sudo apt-get install freeglut3-dev build-essential libx11-dev libxmu-dev libxi-dev libgl1-mesa-glx libglu1-mesa libglu1-mesa-dev
+sudo apt-get install -y freeglut3-dev build-essential libx11-dev libxmu-dev libxi-dev libgl1-mesa-glx libglu1-mesa libglu1-mesa-dev
 
+sudo apt-get install -y  python-dev
+#sudo apt-get install -y  python-devel
 sudo apt-get update
 sudo apt-get install -y  bc
 sudo apt-get install -y  cmake
@@ -32,7 +34,6 @@ sudo apt-get install -y  libfreeimage-dev
 sudo apt-get install -y  libatlas-base-dev
 sudo apt-get install -y  pkgconf
 sudo apt-get install -y  protobuf-compiler
-sudo apt-get install -y  python-dev
 sudo apt-get install -y  python-pip
 sudo apt-get install -y  unzip
 sudo apt-get install -y  wget
