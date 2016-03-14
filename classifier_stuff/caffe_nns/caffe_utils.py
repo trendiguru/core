@@ -8,6 +8,7 @@ import numpy as np
 import lmdb
 import caffe
 from collections import defaultdict
+import socket
 
 def conf_mat(deploy_prototxt_file_path,caffe_model_file_path,test_lmdb_path,meanB=128,meanG=128,meanR=128)
 #    caffe.set_mode_gpu()
@@ -138,12 +139,21 @@ def test_net(prototxt,caffemodel, db_path):
             break
     print(str(correct) + " out of " + str(count) + " were classified correctly")
 
+def sliding_window(image, stepSize, windowSize):
+	# slide a window across the image
+	for y in xrange(0, image.shape[0], stepSize):
+		for x in xrange(0, image.shape[1], stepSize):
+			# yield the current window
+			yield (x, y, image[y:y + windowSize[1], x:x + windowSize[0]])
+
+def detect_with_scale_pyramid_and_sliding_window(img_arr,caffemodel):
+
 host = socket.gethostname()
 print('host:'+str(host))
 
 if __name__ == "__main__":
-    if host == ""
-    deploy_prototxt
-    conf_mat(deploy_prototxt_file_path,caffe_model_file_path,test_lmdb_path,meanB=128,meanG=128,meanR=128)
+    if host == "":
+#        deploy_prototxt
+#        conf_mat(deploy_prototxt_file_path,caffe_model_file_path,test_lmdb_path,meanB=128,meanG=128,meanR=128)
 
 
