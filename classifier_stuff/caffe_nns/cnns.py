@@ -741,9 +741,9 @@ def run_net(net_builder,nn_dir,train_db,test_db,batch_size = 64,n_classes=11,mea
             print('correct {} n {} batchsize {} acc {} size(solver.test_nets[0].blob[output_layer]'.format(correct,n_sample,batch_size, percent_correct,len(solver.test_nets[0].blobs['label'].data)))
             test_acc[it // test_interval] = percent_correct
             running_avg_test_acc = (1-alpha)*running_avg_test_acc + alpha*train_acc[it]
-            print('acc so far:'+str(test_acc)+' running avg:'+str(running_avg_test_acc)+ ' previous:'+str(prev_running_avg_test_acc))
-            drunning_avg = running_avg_test_acc/prev_running_avg_test_acc
-            prev_running_avg_test_acc=running_avg_test_acc
+            print('acc so far:'+str(test_acc)+' running avg:'+str(running_avg_test_acc)+ ' previous:'+str(previous_running_avg_test_acc))
+            drunning_avg = running_avg_test_acc/previous_running_avg_test_acc
+            previous_running_avg_test_acc=running_avg_test_acc
             if test_acc [it // test_interval] > training_acc_threshold:
                 print('acc of {} is above required threshold of {}, thus stopping:'.format(test_acc,training_acc_threshold))
                 break
