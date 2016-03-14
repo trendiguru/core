@@ -25,31 +25,29 @@ import pymongo
 from . import tmpGuard
 
 db = pymongo.MongoClient(host="mongodb1-instance-1", port=27017).mydb
-MAX_PER_DOMAIN = 5000
+MAX_PER_DOMAIN = 50
 
-whitelist = ["stylebook.de"]
-
-
-# "manrepeller.com", "wishwishwish.net", "parkandcube.com", "stellaswardrobe.com",
-#              "cocosteaparty.com",
-#              "5inchandup.blogspot.co.uk", "garypeppergirl.com", "camilleovertherainbow.com", "streetpeeper.com",
-#              "the-frugality.com", "disneyrollergirl.net", "weworewhat.com", "wearingittoday.co.uk",
-#              "ella-lapetiteanglaise.com",
-#              "advancedstyle.blogspot.co.uk", "indtl.com", "redcarpet-fashionawards.com", "nadiaaboulhosn.com",
-#              "enbrogue.com",
-#              "peonylim.com", "vanessajackman.blogspot.co.uk", "alltheprettybirds.com", "lisegrendene.com.br",
-#              "nataliehartleywears.blogspot.co.uk", "tommyton.com", "stylebubble.co.uk", "pandorasykes.com",
-#              "theblondesalad.com", 'notorious-mag.com',
-#              "thesartorialist.com", "bryanboy.com", "bunte.de", "gala.fr",
-#              "pudelek.pl", "tmz.com", "super.cz", "ew.com", "entretenimento.r7.com", "hollywoodlife.com",
-#              "kapanlagi.com", "zimbio.com", "jezebel.com", "purepeople.com", "jeanmarcmorandini.com",
-#              "radaronline.com", "etonline.com", "voici.fr", "topito.com", "ciudad.com.ar", "perezhilton.com",
-#              "koreaboo.com", "cztv.com", "virgula.uol.com.br", "suggest.com", "justjared.com", "therichest.com",
-#              "pressroomvip.com", "dagospia.com", "closermag.fr", "kiskegyed.hu", "pagesix.com", "spynews.ro",
-#              "digitalspy.com", "purepeople.com.br", "thepiratebay.uk.net", "sopitas.com", "deadline.com",
-#              "starpulse.com", "multikino.pl", "zakzak.co.jp", "primiciasya.com", "celebuzz.com", "luckstars.co",
-#              "ratingcero.com", "non-stop-people.com", "tochka.net", "toofab.com", "extra.cz", "kozaczek.pl",
-#              "huabian.com", "bossip.com", "spletnik.ru", "wetpaint.com"]
+whitelist = ["stylebook.de",
+"manrepeller.com", "wishwishwish.net", "parkandcube.com", "stellaswardrobe.com",
+             "cocosteaparty.com",
+             "5inchandup.blogspot.co.uk", "garypeppergirl.com", "camilleovertherainbow.com", "streetpeeper.com",
+             "the-frugality.com", "disneyrollergirl.net", "weworewhat.com", "wearingittoday.co.uk",
+             "ella-lapetiteanglaise.com",
+             "advancedstyle.blogspot.co.uk", "indtl.com", "redcarpet-fashionawards.com", "nadiaaboulhosn.com",
+             "enbrogue.com",
+             "peonylim.com", "vanessajackman.blogspot.co.uk", "alltheprettybirds.com", "lisegrendene.com.br",
+             "nataliehartleywears.blogspot.co.uk", "tommyton.com", "stylebubble.co.uk", "pandorasykes.com",
+             "theblondesalad.com", 'notorious-mag.com',
+             "thesartorialist.com", "bryanboy.com", "bunte.de", "gala.fr",
+             "pudelek.pl", "tmz.com", "super.cz", "ew.com", "entretenimento.r7.com", "hollywoodlife.com",
+             "kapanlagi.com", "zimbio.com", "jezebel.com", "purepeople.com", "jeanmarcmorandini.com",
+             "radaronline.com", "etonline.com", "voici.fr", "topito.com", "ciudad.com.ar", "perezhilton.com",
+             "koreaboo.com", "cztv.com", "virgula.uol.com.br", "suggest.com", "justjared.com", "therichest.com",
+             "pressroomvip.com", "dagospia.com", "closermag.fr", "kiskegyed.hu", "pagesix.com", "spynews.ro",
+             "digitalspy.com", "purepeople.com.br", "thepiratebay.uk.net", "sopitas.com", "deadline.com",
+             "starpulse.com", "multikino.pl", "zakzak.co.jp", "primiciasya.com", "celebuzz.com", "luckstars.co",
+             "ratingcero.com", "non-stop-people.com", "tochka.net", "toofab.com", "extra.cz", "kozaczek.pl",
+             "huabian.com", "bossip.com", "spletnik.ru", "wetpaint.com"]
 
 
 def insertDomains():
