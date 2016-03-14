@@ -25,7 +25,7 @@ import pymongo
 from . import tmpGuard
 
 db = pymongo.MongoClient(host="mongodb1-instance-1", port=27017).mydb
-MAX_PER_DOMAIN = 50
+MAX_PER_DOMAIN = 500
 
 whitelist = ["stylebook.de",
 "manrepeller.com", "wishwishwish.net", "parkandcube.com", "stellaswardrobe.com",
@@ -84,9 +84,16 @@ def processes(w):
                                     shell=True)
         print colored("firefox %s is opened" % (str(i)), 'green')
 
-    sleep(30)
-    subprocess.Popen(["screen -d"], shell=True)
-
+    sleep(60)
+    # subprocess.Popen(["screen -d"], shell=True)
+    # get permission for tmp files
+    ret = subprocess.call(["sudo chmod -R /tmp/tmp*" ], shell=True)
+    sleep(5)
+    ret = subprocess.call(["sudo rm -r /tmp/tmp*/cache2/entries/" ], shell=True)
+    if not ret:
+        print colored("removed succeeded", "yellow")
+    else:
+        print colored("removing failed", "red")
     while True:
         sleep(1000)
 
