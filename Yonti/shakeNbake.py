@@ -196,9 +196,9 @@ def firefox():
                     "sctipt executed! #%s for domain : %s \n full url is %s" % (str(last_processed - 1), domain["name"],
                                                                                 url_printable), "blue", "on_green",
                     attrs=['bold'])
-                sleep(15)
+                sleep(30)
                 driver.execute_script("window.scrollTo(0, document.body.scrollHeight);")
-                sleep(15)
+                sleep(30)
                 #
                 # for x in range(40):
                 #     script = "scroll(" + str(x * 50) + "," + str(x * 50 + 50) + ")"
