@@ -91,7 +91,7 @@ def processes(w):
     count = 0
     while True:
         count +=1
-        ret = subprocess.call(["sudo rm -r /tmp/tmp*/cache2/entries/*" ], shell=True)
+        ret = subprocess.call(["sudo rm -r /tmp/tmp*/cache2/entries/" ], shell=True)
         if not ret:
             print colored("removed %s succeeded" % str(count), "yellow")
         else:
