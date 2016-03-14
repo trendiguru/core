@@ -203,6 +203,9 @@ def interleaved_dir_of_dirs_to_lmdb(dbname,dir_of_dirs,test_or_train=None,max_im
             else:               #class 1
                 print('class 1: dir:'+str(fulldir))
                 all_files[1] += only_files
+    #shuffle the entries in the two classes since one (the second) is made of grouped cats
+        random.shuffle(all_files[0])
+        random.shuffle(all_files[1])
 
     # setup db for multiple classes in alphabetical order of directory
     else:

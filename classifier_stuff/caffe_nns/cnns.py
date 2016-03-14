@@ -768,9 +768,9 @@ def run_net(net_builder,nn_dir,train_db,test_db,batch_size = 64,n_classes=11,mea
         legend = ax2.legend(loc='upper center', shadow=True)
         plt.show()
 
-    figname = os.path.join(nn_dir,'loss_acc.png')
+    figname = os.path.join(nn_dir,'loss_and_testacc.png')
     fig1.savefig(figname)
-    figname = os.path.join(nn_dir,'train_test_acc.png')
+    figname = os.path.join(nn_dir,'trainacc_and_testacc.png')
     fig2.savefig(figname)
 
 #    if pc:
@@ -820,7 +820,7 @@ if __name__ == "__main__":
         R=136
         db_name = 'highly_populated_cropped'
         db_name = 'binary_dresses'
-
+        use_visual_output = False
 #    h,w,d,B,G,R,n = imutils.image_stats_from_dir_of_ditestrs(dir_of_dirs)
     resize_x = None
     resize_y=None
@@ -846,22 +846,35 @@ if __name__ == "__main__":
 
 #    lmdb_utils.inspect_db(db_name+'.train')
   #  lmdb_utils.inspect_db(db_name+'.test')
-    generate_db = False
+    generate_db = True
     if generate_db:
-        n_test_classes,test_populations,image_number_test = lmdb_utils.interleaved_dir_of_dirs_to_lmdb(db_name,dir_of_dirs,
-                                                                                           max_images_per_class = 10000,test_or_train='test',resize_x=resize_x,resize_y=resize_y,
-                                                                                        use_visual_output=False,n_channels=3)
-        print('testclasses {} populations {} tot_images {} '.format(n_test_classes,test_populations,image_number_test))
+        filters = ['bags','belts','dresses','eyewear','footwear','hats','leggings','outerwear','pants','skirts','tops']
+        for a_filter in filters:
+            db_name = 'binary_'+a_filter
+            n_test_classes,test_populations,test_imageno = lmdb_utils.interleaved_dir_of_dirs_to_lmdb(db_name,dir_of_dirs,max_images_per_class =5000,
+                                                                                           test_or_train='test',use_visual_output=use_visual_output,
+                                                                                           n_channels=3,resize_x=resize_x,resize_y=resize_y,
+                                                                                           binary_class_filter=a_filter)
+            print('testclasses {} populations {} tot_images {} '.format(n_test_classes,test_populations,test_imageno))
 
-        n_train_classes,train_populations,image_number_train = lmdb_utils.interleaved_dir_of_dirs_to_lmdb(db_name,dir_of_dirs,
-                                                                                              max_images_per_class =10000,test_or_train='train',resize_x=resize_x,resize_y=resize_y,
-                                                                                        use_visual_output=False,n_channels=3)
-        tot_train_samples = np.sum(train_populations)
-        tot_test_samples = np.sum(test_populations)
-        n_classes = n_test_classes
-        print('testclasses {} populations {} tot_images {} '.format(n_test_classes,test_populations,image_number_test))
-        print('trainclasses {} populations {} tot_images {} '.format(n_train_classes,train_populations,image_number_train))
-        print('sum test pops {}  sum train pops {}  testiter {} batch_size {}'.format(tot_train_samples,tot_test_samples,test_iter,batch_size))
+            n_train_classes,train_populations,train_imageno = lmdb_utils.interleaved_dir_of_dirs_to_lmdb(db_name,dir_of_dirs,max_images_per_class =50000,
+                                                                                           test_or_train='train',use_visual_output=use_visual_output,
+                                                                                           n_channels=3,resize_x=resize_x,resize_y=resize_y,
+                                                                                           binary_class_filter=a_filter)
+            tot_train_samples = np.sum(train_populations)
+            tot_test_samples = np.sum(test_populations)
+            n_classes = n_test_classes
+            print('testclasses {} populations {} tot_images {} '.format(n_test_classes,test_populations,test_imageno))
+            print('trainclasses {} populations {} tot_images {} '.format(n_train_classes,train_populations,train_imageno))
+            print('sum test pops {}  sum train pops {}  testiter {} batch_size {}'.format(tot_train_samples,tot_test_samples,test_iter,batch_size))
+            nn_dir = '/home/jeremy/core/classifier_stuff/caffe_nns/alexnet_'+db_name  #b2
+            run_net(alexnet_linearized,nn_dir,db_name+'.train',db_name+'.test',batch_size = batch_size,n_classes=n_classes,meanB=B,meanR=R,meanG=G,n_filters=50,n_ip1=1000)
+
+
+
+
+
+
     else:
         n_classes  = 11
 
