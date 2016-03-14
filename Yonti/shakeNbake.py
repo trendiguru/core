@@ -96,7 +96,7 @@ def processes(w):
             print colored("removed %s succeeded" % str(count), "yellow")
         else:
             print colored("removing %s failed" % str(count), "red")
-        sleep(15)
+        sleep(300)
 
 
 def progress_bar(val, end_val, bar_length=50):
