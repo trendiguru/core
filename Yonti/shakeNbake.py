@@ -84,19 +84,18 @@ def processes(w):
                                     shell=True)
         print colored("firefox %s is opened" % (str(i)), 'green')
 
-    sleep(30)
+    sleep(60)
     # subprocess.Popen(["screen -d"], shell=True)
     # get permission for tmp files
-    count = 0
-
+    ret = subprocess.call(["sudo chmod -R /tmp/tmp*" ], shell=True)
+    sleep(5)
+    ret = subprocess.call(["sudo rm -r /tmp/tmp*/cache2/entries/" ], shell=True)
+    if not ret:
+        print colored("removed succeeded", "yellow")
+    else:
+        print colored("removing failed", "red")
     while True:
-        count +=1
-        ret = subprocess.call(["sudo rm -r /tmp/tmp*/cache2/entries/" ], shell=True)
-        if not ret:
-            print colored("removed %s succeeded" % str(count), "yellow")
-        else:
-            print colored("removing %s failed" % str(count), "red")
-        sleep(300)
+        sleep(1000)
 
 
 def progress_bar(val, end_val, bar_length=50):
