@@ -6,10 +6,12 @@ import matplotlib.image as mpimg
 import numpy as np
 import cv2
 import os
+import socket
 import lmdb
 from PIL import Image
 from trendi.utils import imutils
 from trendi import Utils
+from trendi import constants
 import random
 import logging
 
@@ -140,35 +142,80 @@ def dir_of_dirs_to_lmdb(dbname,dir_of_dirs,test_or_train=None,max_images_per_cla
     return classno, n_for_each_class,image_number
 
 
-def interleaved_dir_of_dirs_to_lmdb(dbname,dir_of_dirs,test_or_train=None,max_images_per_class = 150000,resize_x=200,resize_y=200,avg_B=None,avg_G=None,avg_R=None,
-                                    use_visual_output=False,use_bb_from_name=True,n_channels=3):
+def crop_dir(dir_to_crop,resize_x,resize_y,save_cropped=False,use_bb_from_name=True):
+#fix this up to make it work
+    all_files = [f for f in os.listdir(dir_to_crop) if os.path.isfile(f)]
+    cropped_dir = os.path.join(dir_to_crop,'cropped')
+    Utils.ensure_dir(cropped_dir)
+
+    for a_file in all_files:
+        cropped_name = os.path.join(cropped_dir,'cropped_'+a_file)
+        fullname = os.path.join(dir_to_crop,a_file)
+        if use_bb_from_name:
+            resized = imutils.resize_and_crop_image_using_bb(fullname, output_file=cropped_name,output_w=resize_x,output_h=resize_y,use_visual_output=use_visual_output)
+        else:
+            resized = cv2.resize(img_arr,(resize_x,resize_y))
+        if resized is not None:
+            img_arr = resized
+        else:
+            logging.warning('resize failed')
+            continue  #didnt do good resize
+        h=img_arr.shape[0]
+        w=img_arr.shape[1]
+
+
+
+def interleaved_dir_of_dirs_to_lmdb(dbname,dir_of_dirs,test_or_train=None,max_images_per_class = 150000,
+                                    resize_x=None,resize_y=None,write_cropped=False,
+                                    avg_B=None,avg_G=None,avg_R=None,
+                                    use_visual_output=False,use_bb_from_name=True,n_channels=3,binary_class_filter=None):
 # maybe try randomize instead of interleave, cn use del list[index]
-    print('writing to lmdb {} test/train {} max {} new_x {} new_y {} avgB {} avg G {} avgR {}'.format(dbname,test_or_train,max_images_per_class,resize_x,resize_y,avg_B,avg_G,avg_R))
+    print('writing to lmdb {} test/train {} max {} new_x {} new_y {} avgB {} avg G {} avgR {} binfilt {}'.format(dbname,test_or_train,max_images_per_class,resize_x,resize_y,avg_B,avg_G,avg_R,binary_class_filter))
     initial_only_dirs = [dir for dir in os.listdir(dir_of_dirs) if os.path.isdir(os.path.join(dir_of_dirs,dir))]
     initial_only_dirs.sort()
  #   print(str(len(initial_only_dirs))+' dirs:'+str(initial_only_dirs)+' in '+dir_of_dirs)
     # txn is a Transaction object
+    #prepare directories
     only_dirs = []
     for a_dir in initial_only_dirs:
+        #only take 'test' or 'train' dirs, if test_or_train is specified
         if (not test_or_train) or a_dir[0:4]==test_or_train[0:4]:
-            #open and close db every class to cut down on memory
-            #maybe this is irrelevant and we can do this once
             only_dirs.append(a_dir)
     only_dirs.sort()
     print(str(len(only_dirs))+' relevant dirs in '+dir_of_dirs)
 
+    #prepare files
 #    random.shuffle(only_dirs)  #this gets confusing as now the class labels change every time
-    n_classes = len(only_dirs)
-    print('{} classes'.format(n_classes))
-    all_files = {}
+    all_files = []
     classno = 0
-    for a_dir in only_dirs:
-        # do only test or train dirs if this param was sent
-        fulldir = os.path.join(dir_of_dirs,a_dir)
-        print('class:'+str(classno)+' dir:'+str(fulldir))
-        only_files = [f for f in os.listdir(fulldir) if os.path.isfile(os.path.join(fulldir, f))]
-        all_files[a_dir] = only_files
-        classno += 1
+    # setup db for binary (yes or no) classes - any dirs with filter word are class 0, everything else class 1
+    if binary_class_filter is not None:
+        n_classes = 2
+        all_files.append([])  #init the empty classes with empty lists
+        all_files.append([])
+        for a_dir in only_dirs:
+            # do only test or train dirs if this param was sent
+            fulldir = os.path.join(dir_of_dirs,a_dir)
+            only_files = [os.path.join(fulldir,f) for f in os.listdir(fulldir) if os.path.isfile(os.path.join(fulldir, f))]
+            if binary_class_filter in a_dir: #class 0
+                print('class 0: dir:'+str(fulldir))
+                all_files[0] += only_files  #add only_files to all_files[0] (concatenates lists)
+            else:               #class 1
+                print('class 1: dir:'+str(fulldir))
+                all_files[1] += only_files
+
+    # setup db for multiple classes in alphabetical order of directory
+    else:
+        n_classes = len(only_dirs)
+        classno=0
+        for a_dir in only_dirs:
+            # do only test or train dirs if this param was sent
+            fulldir = os.path.join(dir_of_dirs,a_dir)
+            print('class:'+str(classno)+' dir:'+str(fulldir))
+            only_files = [os.path.join(fulldir,f) for f in os.listdir(fulldir) if os.path.isfile(os.path.join(fulldir, f))]
+            all_files.append(only_files)
+            classno += 1
+    print('{} classes, binary filter is {}'.format(n_classes,binary_class_filter))
 
     map_size = 1e13  #size of db in bytes, can also be done by 10X actual size  as in:
     # We need to prepare the database for the size. We'll set it 10 times
@@ -194,25 +241,23 @@ def interleaved_dir_of_dirs_to_lmdb(dbname,dir_of_dirs,test_or_train=None,max_im
             if classno == n_classes:
                 classno = 0
                 image_number_in_class += 1
-                if got_image == False:
+                if got_image == False: #Will only be false if we got thru all classes but processed no images
                     print('no images left in any dirs')
                     break  #no images left
                 got_image = False
-            # do only test or train dirs if this param was sent
-            a_dir = only_dirs[classno]
-            fulldir = os.path.join(dir_of_dirs,a_dir)
+
+#            a_dir = only_dirs[classno]
+#            fulldir = os.path.join(dir_of_dirs,a_dir)
 #            print('fulldir:'+str(fulldir))
-            only_files = all_files[a_dir]
+            only_files = all_files[classno]
             n = len(only_files)
             if image_number_in_class >= n:
-#                print('reached end of images in '+a_dir+' which has '+str(n)+' files, skipping to next class')
+                print('reached end of images in class'+str(classno)+' which has '+str(n)+' files, skipping to next class')
                 continue
    #         print('n files {} in {} current {} class {}'.format(n,a_dir,image_number_in_class,classno),end='')
             a_file =only_files[image_number_in_class]
-            fullname = os.path.join(fulldir,a_file)
-            cropped_dir= os.path.join(fulldir,'cropped')
-            Utils.ensure_dir(cropped_dir)
-            cropped_name= os.path.join(cropped_dir,'cropped_'+a_file)
+#            fullname = os.path.join(fulldir,a_file)
+            fullname = a_file
             #img_arr = mpimg.imread(fullname)  #if you don't have cv2 handy use matplotlib
             img_arr = cv2.imread(fullname)
             if img_arr is  None:
@@ -220,10 +265,17 @@ def interleaved_dir_of_dirs_to_lmdb(dbname,dir_of_dirs,test_or_train=None,max_im
                 continue
             h_orig=img_arr.shape[0]
             w_orig=img_arr.shape[1]
-            if h_orig ==0 or w_orig == 0:
-                logging.warning('skipping due to zero width or height:'+fullname)
+            if h_orig < constants.nn_img_minimum_sidelength or w_orig < constants.nn_img_minimum_sidelength:
+                logging.warning('skipping {} due to  width {} or height {} being less than {}:'.format(fullname,w_orig,h_orig,constants.nn_img_minimum_sidelength))
                 continue
             if(resize_x is not None):
+                cropped_name = None
+                if write_cropped is True:
+                    base_dir = os.path.dirname(a_file)
+                    base_name = os.path.basename(a_file)
+                    cropped_dir = os.path.join(base_dir,'cropped')
+                    Utils.ensure_dir(cropped_dir)
+                    cropped_name = os.path.join(cropped_dir,'cropped_'+base_name)
                 if use_bb_from_name:
                     resized = imutils.resize_and_crop_image_using_bb(fullname, output_file=cropped_name,output_w=resize_x,output_h=resize_y,use_visual_output=use_visual_output)
                 else:
@@ -235,10 +287,11 @@ def interleaved_dir_of_dirs_to_lmdb(dbname,dir_of_dirs,test_or_train=None,max_im
                     continue  #didnt do good resize
             h=img_arr.shape[0]
             w=img_arr.shape[1]
-#            print('img {} after resize w:{} h:{} (before was {}x{} name:{}'.format(image_number, h,w,h_orig,w_orig,fullname))
+        #            print('img {} after resize w:{} h:{} (before was {}x{} name:{}'.format(image_number, h,w,h_orig,w_orig,fullname))
             if use_visual_output is True:
                 cv2.imshow('img',img_arr)
                 cv2.waitKey(0)
+            #these pixel value offsets can be removed using caffe (in the test/train protobuf)- so currently these are None and this part is not entered
             if avg_B is not None and avg_G is not None and avg_R is not None:
                 img_arr[:,:,0] = img_arr[:,:,0]-avg_B
                 img_arr[:,:,1] = img_arr[:,:,1]-avg_G
@@ -262,11 +315,11 @@ def interleaved_dir_of_dirs_to_lmdb(dbname,dir_of_dirs,test_or_train=None,max_im
             img_arr = img_arr.transpose((2,0,1))
 
 #                    img_reshaped = img_arr.reshape((datum.channels,datum.height,datum.width))
-            print('reshaped size: '+str(img_arr.shape))
+#            print('reshaped size: '+str(img_arr.shape))
             datum.data = img_arr.tobytes()  # or .tostring() if numpy < 1.9
             datum.label = classno
             str_id = '{:08}'.format(image_number)
-            print('db: {} strid:{} w:{} h:{} d:{} class:{} name {}'.format(dbname,str_id,datum.width,datum.height,datum.channels,datum.label,a_file)),
+            print('db: {} strid:{} w:{} h:{} d:{} shape {} class:{} name {}'.format(dbname,str_id,datum.width,datum.height,datum.channels,img_arr.shape,datum.label,a_file)),
             # The encode is only essential in Python 3
             try:
                 txn.put(str_id.encode('ascii'), datum.SerializeToString())
@@ -326,7 +379,7 @@ def inspect_db(dbname,show_visual_output=True,B=0,G=0,R=0):
 
                 n+=1
                 if show_visual_output is True:
-                    cv2.imshow('lmdbout',x)
+                    cv2.imshow(dbname,x)
                     if cv2.waitKey(0) == ord('q'):
                         break
             except:
@@ -370,34 +423,52 @@ def kill_db(db_name):
         in_txn.drop(db)
         print in_txn.stat()
 
+host = socket.gethostname()
+print('host:'+str(host))
+
 if __name__ == "__main__":
-    dir_of_dirs = '/home/jeremy/core/classifier_stuff/caffe_nns/dataset'
+    if host == 'jr-ThinkPad-X1-Carbon':
+        dir_of_dirs = '/home/jr/core/classifier_stuff/caffe_nns/dataset'
+        binary_class_filter = 'dresses'
+    else:
+        dir_of_dirs = '/home/jeremy/core/classifier_stuff/caffe_nns/dataset/cropped'
 #    dir_of_dirs = '/home/jr/python-packages/trendi/classifier_stuff/caffe_nns/dataset'
     print('dir:'+dir_of_dirs)
 #    h,w,d,B,G,R,n = imutils.image_stats_from_dir_of_ditestrs(dir_of_dirs)
-    resize_x = 200
-    #resize_y = int(h*128/w)
-    resize_y= 200
-   # B=int(B)
-   # G=int(G)
-    #R=int(R)
     B=142
     G=151
     R=162
     B=0
     G=0
     R=0
+    resize_x=150
+    resize_y=200
+    resize_x=None
+    resize_y=None
 #    kill_db('testdb.test')
  #   kill_db('testdb.train')
-    db = 'mydb2'
+    db_name = 'binary_dresses'
     use_visual_output = False
-    n_test_classes,test_populations,test_imageno = interleaved_dir_of_dirs_to_lmdb('todel',dir_of_dirs,max_images_per_class =150000,test_or_train='test',resize_x=resize_x,resize_y=resize_y,
-                                                                                   avg_B=B,avg_G=G,avg_R=R,use_visual_output=use_visual_output,n_channels=1)
+    n_test_classes,test_populations,test_imageno = interleaved_dir_of_dirs_to_lmdb(db_name,dir_of_dirs,max_images_per_class =3000,
+                                                                                   test_or_train='test',use_visual_output=use_visual_output,
+                                                                                   n_channels=3,resize_x=resize_x,resize_y=resize_y,
+                                                                                   binary_class_filter='dresses')
+    print('n_test classes {} pops {} test_imageno {}'.format(n_test_classes,test_populations,test_imageno))
+
+    n_test_classes,test_populations,test_imageno = interleaved_dir_of_dirs_to_lmdb(db_name,dir_of_dirs,max_images_per_class =13000,
+                                                                                   test_or_train='train',use_visual_output=use_visual_output,
+                                                                                   n_channels=3,resize_x=resize_x,resize_y=resize_y,
+                                                                                   binary_class_filter='dresses')
+    print('n_test classes {} pops {} test_imageno {}'.format(n_test_classes,test_populations,test_imageno))
+    inspect_db(db_name+'.test')
+
+#    n_test_classes,test_populations,test_imageno = interleaved_dir_of_dirs_to_lmdb('todel',dir_of_dirs,max_images_per_class =150000,test_or_train='test',resize_x=resize_x,resize_y=resize_y,
+#                                                                                   avg_B=B,avg_G=G,avg_R=R,use_visual_output=use_visual_output,n_channels=1)
 #    n_train_classes,train_populations,train_imageno = interleaved_dir_of_dirs_to_lmdb('mydb2',dir_of_dirs,max_images_per_class =150,test_or_train='train',resize_x=resize_x,resize_y=resize_y,avg_B=B,avg_G=G,avg_R=R)
    # print('{} test classes with {} files'.format(n_test_classes,test_populations))
    # print('{} train classes with {} files'.format(n_train_classes,train_populations))
-    inspect_db('highly_populated_cropped.test',show_visual_output=True,B=B,G=G,R=R)
-    inspect_db('highly_populated_cropped.train',show_visual_output=True,B=B,G=G,R=R)
+#    inspect_db('highly_populated_cropped.test',show_visual_output=True,B=B,G=G,R=R)
+#    inspect_db('highly_populated_cropped.train',show_visual_output=True,B=B,G=G,R=R)
    # inspect_db('mydb.train',show_visual_output=False,B=B,G=G,R=R)
 
 #  weighted averages of 16 directories: h:1742.51040222 w1337.66435506 d3.0 B 142.492848614 G 151.617458606 R 162.580921717 totfiles 1442

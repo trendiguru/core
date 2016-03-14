@@ -98,6 +98,7 @@ update_collection_name = 'products'
 caffeRelevantLabels = [601, 608, 610, 614, 617, 638, 639, 655, 689, 697, 735, 775, 834, 841, 264, 401, 400]
 
 # fp rating related constants
+nn_img_minimum_sidelength = 10  #for traiing cnn's , min width and height
 min_image_area = 400
 min_images_per_doc = 10  # item has to have at least this number of pics
 max_images_per_doc = 18  # item has to have less than this number of pics
