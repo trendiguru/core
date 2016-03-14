@@ -10,6 +10,7 @@ def fillTable(worksheet,main_categories,collection,bold ,today):
     worksheet.write(0, 2, collection.count(), bold)
     categories = []
     for cat in main_categories:
+        print(cat)
         items = collection.find({'categories': cat}).count()
         new_items = collection.find({'categories': cat, 'download_data.first_dl': today}).count()
         instock = collection.find({'categories': cat, 'status.instock': True}).count()
