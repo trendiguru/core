@@ -72,7 +72,7 @@ def screen(workers):
     tmpGuard.mainDelete("xvfb")
     tmpGuard.mainDelete("tmp")
     insertDomains()
-    cmd = "screen -S scraper python -m trendi.shakeNbake -f processes -w " + str(workers)
+    cmd = "screen -S scraper python -m trendi.Yonti.shakeNbake -f processes -w " + str(workers)
     print colored("opening screen", "green", attrs=["bold"])
     subprocess.call([cmd], shell=True)
     print colored("screen detached", "yellow", attrs=["bold"])
@@ -82,7 +82,7 @@ def processes(w):
     sleep(5)
     for i in range(int(w)):
         sleep(1)
-        browseme = subprocess.Popen(["sudo ./xvfb-run-safe.sh python -m trendi.shakeNbake -f firefox"],
+        browseme = subprocess.Popen(["sudo ./xvfb-run-safe.sh python -m trendi.Yonti.shakeNbake -f firefox"],
                                     shell=True)
         print colored("firefox %s is opened" % (str(i)), 'green')
 
