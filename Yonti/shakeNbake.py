@@ -152,7 +152,7 @@ def firefox():
     driver.implicitly_wait(10)
     # driver.set_page_load_timeout(2)
 
-    scr = open("/var/www/latest/b_main_jay.js").read()
+    scr = open("/var/www/latest/test1212.js").read()
     while True:
         domains = db.scraped_urls.find({"locked": False, "paused": False})
         domains_count = domains.count()
