@@ -852,7 +852,7 @@ if __name__ == "__main__":
   #  lmdb_utils.inspect_db(db_name+'.test')
     generate_db = True
     if generate_db:
-        filters = ['bags','belts','dresses','eyewear','footwear','hats','leggings','outerwear','pants','skirts','tops']
+        filters = ['dresses','eyewear','footwear','hats','leggings','outerwear','pants','skirts','tops'] #done -  'bags','belts',
         for a_filter in filters:
             db_name = 'binary_'+a_filter
             n_test_classes,test_populations,test_imageno = lmdb_utils.interleaved_dir_of_dirs_to_lmdb(db_name,dir_of_dirs,max_images_per_class =5000,

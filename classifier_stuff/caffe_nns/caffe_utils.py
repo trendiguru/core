@@ -9,6 +9,7 @@ import lmdb
 import caffe
 from collections import defaultdict
 import socket
+import imutils
 
 def conf_mat(deploy_prototxt_file_path,caffe_model_file_path,test_lmdb_path,meanB=128,meanG=128,meanR=128)
 #    caffe.set_mode_gpu()
@@ -66,7 +67,7 @@ def conf_mat(deploy_prototxt_file_path,caffe_model_file_path,test_lmdb_path,mean
         for pl in labels_set:
             print "(%i , %i) | %i" % (l, pl, matrix[(l,pl)])
 
-def load_net(prototxt,caffemodel,mean_B=128,mean_G=128,mean_R=128,image='../../images/female1.jpg',image_width=128,image_height=128,image_depth=3,batch_size=256):
+def load_net(prototxt,caffemodel,mean_B=128,mean_G=128,mean_R=128,image='../../images/female1.jpg',image_width=150,image_height=200,image_depth=3,batch_size=256):
         host = socket.gethostname()
         print('host:'+str(host))
         pc = False
@@ -84,15 +85,16 @@ def load_net(prototxt,caffemodel,mean_B=128,mean_G=128,mean_R=128,image='../../i
         # create transformer for the input called 'data'
         transformer = caffe.io.Transformer({'data': net.blobs['data'].data.shape})
 
-    #    transformer.set_transpose('data', (2,0,1))  # move image channels to outermost dimension
+        transformer.set_transpose('data', (2,0,1))  # move image channels to outermost dimension
         transformer.set_mean('data', mu)            # subtract the dataset-mean value in each channel
-        transformer.set_raw_scale('data', 255)      # rescale from [0, 1] to [0, 255]
+   #     transformer.set_raw_scale('data', 255)      # rescale from [0, 1] to [0, 255]
+        transformer.set_raw_scale('data', 1.0/255)      # rescale from [0, 1] to [0, 255]
     #    transformer.set_channel_swap('data', (2,1,0))  # swap channels from RGB to BGR
     # set the size of the input (we can skip this if we're happy
     #  with the default; we can also change it later, e.g., for different batch sizes)
-        net.blobs['data'].reshape(batch_size,        # batch size
-                                  image_depth,         # 3-channel (BGR) images
-                                 image_width, image_height)  # image size is 227x227
+ #       net.blobs['data'].reshape(batch_size,        # batch size
+ #                                 image_depth,         # 3-channel (BGR) images
+ #                                image_width, image_height)  # image size is 227x227
         image = caffe.io.load_image(image)
         transformed_image = transformer.preprocess('data', image)
         fig = plt.figure()
@@ -147,6 +149,44 @@ def sliding_window(image, stepSize, windowSize):
 			yield (x, y, image[y:y + windowSize[1], x:x + windowSize[0]])
 
 def detect_with_scale_pyramid_and_sliding_window(img_arr,caffemodel):
+# loop over the image pyramid
+    for resized in pyramid(img_arr, scale=1.5):
+        # loop over the sliding window for each layer of the pyramid
+        for (x, y, window) in sliding_window(resized, stepSize=32, windowSize=(winW, winH)):
+            # if the window does not meet our desired window size, ignore it
+            if window.shape[0] != winH or window.shape[1] != winW:
+                continue
+
+            # THIS IS WHERE YOU WOULD PROCESS YOUR WINDOW, SUCH AS APPLYING A
+            # MACHINE LEARNING CLASSIFIER TO CLASSIFY THE CONTENTS OF THE
+            # WINDOW
+
+            # since we do not have a classifier, we'll just draw the window
+            clone = resized.copy()
+            cv2.rectangle(clone, (x, y), (x + winW, y + winH), (0, 255, 0), 2)
+            cv2.imshow("Window", clone)
+            cv2.waitKey(1)
+            time.sleep(0.025)
+
+
+
+def pyramid(image, scale=1.5, minSize=(30, 30)):
+	# yield the original image
+	yield image
+
+	# keep looping over the pyramid
+	while True:
+		# compute the new dimensions of the image and resize it
+		w = int(image.shape[1] / scale)
+		image = imutils.resize(image, width=w)
+
+		# if the resized image does not meet the supplied minimum
+		# size, then stop constructing the pyramid
+		if image.shape[0] < minSize[1] or image.shape[1] < minSize[0]:
+			break
+
+		# yield the next image in the pyramid
+		yield image
 
 host = socket.gethostname()
 print('host:'+str(host))
