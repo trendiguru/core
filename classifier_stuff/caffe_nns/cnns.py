@@ -705,8 +705,8 @@ def run_net(net_builder,nn_dir,train_db,test_db,batch_size = 64,n_classes=11,mea
     train_acc2 = zeros(int(np.ceil(niter / test_interval)))
     running_avg_test_acc = 0
     previous_running_avg_test_acc = -1.0
-    running_avg_upper_threshold = 1.01
-    running_avg_lower_threshold = 0.99
+    running_avg_upper_threshold = 1.001
+    running_avg_lower_threshold = 0.999
     alpha = 0.1
     output = zeros((niter, 8, 10))
 
@@ -741,15 +741,15 @@ def run_net(net_builder,nn_dir,train_db,test_db,batch_size = 64,n_classes=11,mea
             print('correct {} n {} batchsize {} acc {} size(solver.test_nets[0].blob[output_layer]'.format(correct,n_sample,batch_size, percent_correct,len(solver.test_nets[0].blobs['label'].data)))
             test_acc[it // test_interval] = percent_correct
             running_avg_test_acc = (1-alpha)*running_avg_test_acc + alpha*train_acc[it]
-            print('acc so far:'+str(test_acc)+' running avg '+str(running_avg_test_acc))
+            print('acc so far:'+str(test_acc)+' running avg:'+str(running_avg_test_acc)+ ' previous:'+str(prev_running_avg_test_acc))
+            drunning_avg = running_avg_test_acc/prev_running_avg_test_acc
+            prev_running_avg_test_acc=running_avg_test_acc
             if test_acc [it // test_interval] > training_acc_threshold:
                 print('acc of {} is above required threshold of {}, thus stopping:'.format(test_acc,training_acc_threshold))
                 break
-            drunning_avg = running_avg_test_acc/prev_running_avg_test_acc
             if drunning_avg > running_avg_lower_threshold and drunning_avg < running_avg_upper_threshold :
                 print('drunning avg of {} is between required thresholds of {} and {}, thus stopping:'.format(drunning_avg,running_avg_lower_threshold,running_avg_upper_threshold))
                 break
-            prev_running_avg_test_acc=running_avg_test_acc
 
   #  _, ax1 = plt.subplots()
   #  ax2 = ax1.twinx()
