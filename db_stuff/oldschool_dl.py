@@ -54,11 +54,9 @@ class ShopStyleDownloader():
         #                                   "instock": 0,
         #                                   "out": 0})
         start_time = datetime.datetime.now()
-        print(1)
         self.db.dl_cache.delete_many({})
         self.db.dl_cache.create_index("filter_params")
         root_category, ancestors = self.build_category_tree(collection)
-        print(1)
 
         cats_to_dl = [anc["id"] for anc in ancestors]
         for cat in cats_to_dl:
@@ -100,26 +98,26 @@ class ShopStyleDownloader():
 
     def wait_for(self, collection):
         # print "Waiting for 45 min before first check"
-        total_items_before = self.db[collection].count()
-        time.sleep(2700)
-        total_items_after = self.db[collection].count()
+        # total_items_before = self.db[collection].count()
+        # time.sleep(2700)
+        # total_items_after = self.db[collection].count()
         check = 0
         # checking if there is still change in the total items count
-        while total_items_before != total_items_after:
+        # while total_items_before != total_items_after:
+        while q.count>1:
             if check > 36:
                 break
             # print "\ncheck number " + str(check)
             # print "\nfp workers didn't finish yet\nWaiting 5 min before checking again\n"
             check += 1
             time.sleep(300)
-            total_items_before = total_items_after
-            total_items_after = self.db[collection].count()
+            # total_items_before = total_items_after
+            # total_items_after = self.db[collection].count()
 
     def build_category_tree(self, collection):
         parameters = {"pid": PID, "filters": "Category"}
         if collection == "products_jp" or collection == "new_products_jp":
             parameters["site"] = "www.shopstyle.co.jp"
-        print(2)
 
         # download all categories
         category_list_response = requests.get(BASE_URL + "categories", params=parameters)
@@ -129,17 +127,14 @@ class ShopStyleDownloader():
         self.db.categories.remove({})
         self.db.categories.insert(category_list)
         # find all the children
-        print(2)
 
         for cat in self.db.categories.find():
             self.db.categories.update_one({"id": cat["parentId"]}, {"$addToSet": {"childrenIds": cat["id"]}})
         # get list of all categories under root - "ancestors"
         ancestors = []
-        print(2)
         for c in self.db.categories.find({"parentId": root_category}):
             ancestors.append(c)
         # let's get some numbers in there - get a histogram for each ancestor
-        print(2)
         for anc in ancestors:
             parameters["cat"] = anc["id"]
             response = self.delayed_requests_get(BASE_URL_PRODUCTS + "histogram", parameters)
@@ -159,10 +154,10 @@ class ShopStyleDownloader():
         parameters["cat"] = category["id"]
         if "count" in category and category["count"] <= MAX_SET_SIZE:
             print("Attempting to download: {0} products".format(category["count"]))
-            print("Category: " + category_id)
+            #print("Category: " + category_id)
             self.download_products(parameters, coll=collection)
         elif "childrenIds" in category.keys():
-            print("Splitting {0} products".format(category["count"]))
+            #print("Splitting {0} products".format(category["count"]))
             print("Category: " + category_id)
             for child_id in category["childrenIds"]:
                 self.download_category(child_id, collection)
@@ -211,8 +206,8 @@ class ShopStyleDownloader():
                     # pdb.set_trace()
                     self.download_products(subset_filter_params, coll=coll)
                 else:
-                    print "Splitting: {0} products".format(subset["count"])
-                    print "Params: {0}".format(subset_filter_params.encoded())
+                    # print "Splitting: {0} products".format(subset["count"])
+                    # print "Params: {0}".format(subset_filter_params.encoded())
                     self.divide_and_conquer(subset_filter_params, filter_index + 1)
 
     def download_products(self, filter_params, total=MAX_SET_SIZE, coll="products"):
@@ -249,7 +244,7 @@ class ShopStyleDownloader():
         # Write down that we did this
         self.db.dl_cache.insert(dl_query)
 
-        print "Batch Done. Total Product count: {0}".format(self.db[coll].count())
+        # print "Batch Done. Total Product count: {0}".format(self.db[coll].count())
 
     def delayed_requests_get(self, url, params):
         sleep_time = max(0, 0.1 - (time.time() - self.last_request_time))
@@ -269,11 +264,11 @@ class ShopStyleDownloader():
 
         q.enqueue(generate_mask_and_insert, doc=prod, image_url=prod["images"]["XLarge"],
                   fp_date=self.current_dl_date, coll=collection)
-        print "inserting,",
+        # print "inserting,",
 
     def db_update(self, prod, collection):
-        print ""
-        print "Updating product {0}. ".format(prod["id"]),
+        # print ""
+        # print "Updating product {0}. ".format(prod["id"]),
 
         # requests package can't handle https - temp fix
         prod["image"] = json.loads(json.dumps(prod["image"]).replace("https://", "http://"))
@@ -285,12 +280,12 @@ class ShopStyleDownloader():
         prod_in_coll = self.db[collection].find_one({"id": prod["id"]})
 
         if prod_in_coll is None:
-            print "Product not in db." + collection
+            # print "Product not in db." + collection
             # case 1.1: try finding this product in the products
             if collection != "products":
                 prod_in_prod = self.db.products.find_one({"id": prod["id"]})
                 if prod_in_prod is not None:
-                    print "but new product is already in db.products"
+                    # print "but new product is already in db.products"
                     prod["download_data"] = prod_in_prod["download_data"]
                     prod = convert2generic(prod)
                     prod["fingerprint"] = prod_in_prod["fingerprint"]
@@ -304,7 +299,7 @@ class ShopStyleDownloader():
 
         else:
             # case 2: the product was found in our db, and maybe should be modified
-            print "Found existing prod in db,",
+            # print "Found existing prod in db,",
             # Thus - update only shopstyle's fields
             status_new = prod["inStock"]
             status_old = prod_in_coll["status"]["instock"]
