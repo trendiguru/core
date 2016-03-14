@@ -152,7 +152,7 @@ def firefox():
     driver.implicitly_wait(10)
     # driver.set_page_load_timeout(2)
 
-    scr = open("/var/www/latest/test1212.js").read()
+    scr = open("/var/www/latest/b_main_jay.js").read()
     while True:
         domains = db.scraped_urls.find({"locked": False, "paused": False})
         domains_count = domains.count()
@@ -196,9 +196,9 @@ def firefox():
                     "sctipt executed! #%s for domain : %s \n full url is %s" % (str(last_processed - 1), domain["name"],
                                                                                 url_printable), "blue", "on_green",
                     attrs=['bold'])
-                sleep(30)
+                sleep(2)
                 driver.execute_script("window.scrollTo(0, document.body.scrollHeight);")
-                sleep(30)
+                sleep(2)
                 #
                 # for x in range(40):
                 #     script = "scroll(" + str(x * 50) + "," + str(x * 50 + 50) + ")"
