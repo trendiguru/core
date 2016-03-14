@@ -846,7 +846,7 @@ if __name__ == "__main__":
 
 #    lmdb_utils.inspect_db(db_name+'.train')
   #  lmdb_utils.inspect_db(db_name+'.test')
-    generate_db = False
+    generate_db = True
     if generate_db:
         filters = ['bags','belts','dresses','eyewear','footwear','hats','leggings','outerwear','pants','skirts','tops']
         for a_filter in filters:
