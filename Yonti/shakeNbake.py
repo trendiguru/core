@@ -87,8 +87,8 @@ def processes(w):
     sleep(30)
     # subprocess.Popen(["screen -d"], shell=True)
     # get permission for tmp files
-    subprocess.call(["sudo rm -r /tmp/tmp*/cache2/entries"], shell=True)
     count = 0
+
     while True:
         count +=1
         ret = subprocess.call(["sudo rm -r /tmp/tmp*/cache2/entries/" ], shell=True)
