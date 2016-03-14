@@ -22,7 +22,6 @@ relevant = shopstyle_relevant_items
 BASE_URL = "http://api.shopstyle.com/api/v2/"
 BASE_URL_PRODUCTS = BASE_URL + "products/"
 PID = "uid900-25284470-95"
-TG_FIELDS = ["fp_version", "fingerprint", "fp_date", "human_bb", "bounding_box"]
 # ideally, get filter list from DB. for now:
 # removed "Category" for now because its results  are not disjoint (sum of subsets > set)
 FILTERS = ["Brand", "Retailer", "Price", "Color", "Size", "Discount"]
@@ -55,9 +54,11 @@ class ShopStyleDownloader():
         #                                   "instock": 0,
         #                                   "out": 0})
         start_time = datetime.datetime.now()
+        print(1)
         self.db.dl_cache.delete_many({})
         self.db.dl_cache.create_index("filter_params")
         root_category, ancestors = self.build_category_tree(collection)
+        print(1)
 
         cats_to_dl = [anc["id"] for anc in ancestors]
         for cat in cats_to_dl:
@@ -118,6 +119,7 @@ class ShopStyleDownloader():
         parameters = {"pid": PID, "filters": "Category"}
         if collection == "products_jp" or collection == "new_products_jp":
             parameters["site"] = "www.shopstyle.co.jp"
+        print(2)
 
         # download all categories
         category_list_response = requests.get(BASE_URL + "categories", params=parameters)
@@ -127,13 +129,17 @@ class ShopStyleDownloader():
         self.db.categories.remove({})
         self.db.categories.insert(category_list)
         # find all the children
+        print(2)
+
         for cat in self.db.categories.find():
             self.db.categories.update_one({"id": cat["parentId"]}, {"$addToSet": {"childrenIds": cat["id"]}})
         # get list of all categories under root - "ancestors"
         ancestors = []
+        print(2)
         for c in self.db.categories.find({"parentId": root_category}):
             ancestors.append(c)
         # let's get some numbers in there - get a histogram for each ancestor
+        print(2)
         for anc in ancestors:
             parameters["cat"] = anc["id"]
             response = self.delayed_requests_get(BASE_URL_PRODUCTS + "histogram", parameters)
