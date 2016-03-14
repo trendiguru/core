@@ -217,9 +217,9 @@ for filename in files:
         collection_name = "ebay_"+gender
         if subCategory == "t-shirt":
             collection_name ="ebay_Tees"
-            exists = db[collection_name].find({'id':generic_dict['id']})
+            exists = db[collection_name].find({'id':item["\xef\xbb\xbfOFFER_ID"]})
             if len(exists)>1:
-                db[collection_name].delete_many({'id':generic_dict['id']})
+                db[collection_name].delete_many({'id':item["\xef\xbb\xbfOFFER_ID"]})
                 exists=[]
             if len(exists)==0:
                 generic_dict = ebay2generic(item, gender, subCategory)
