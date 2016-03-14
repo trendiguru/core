@@ -29,7 +29,7 @@ db = constants.db
 # db.ebay_Female.delete_many({})
 # db.ebay_Male.delete_many({})
 # db.ebay_Unisex.delete_many({})
-# db.ebay_Tees.delete_many({})
+db.ebay_Tees.delete_many({})
 today_date = str(datetime.datetime.date(datetime.datetime.now()))
 
 def getStoreInfo(ftp):
@@ -118,17 +118,19 @@ def fromCats2ppdCats(gender, cats):
         elif 'pants' in ppd_cats:
             cat =  'pants'
         elif 'dress' in ppd_cats and gender == 'Male':
-            cat = ppd_cats[1]
+            ppd_cats.remove('dress')
+            cat = ppd_cats[0]
         else:
             cat = ppd_cats[0]
     elif cat_count==0:
         return "Androgyny", []
     else:
         cat =  ppd_cats[0]
-    if any(x == cat for x in ['dress', 'stockings','bikini']):
-        gender = 'Female'
-    if any(cat == x for x in ['skirt','bikini']) and gender == 'Male':
+    if any(x == cat for x in ['dress', 'stockings','bikini']) and gender=='Male':
+        return "Androgyny", []
+    if cat == 'skirt' and gender == 'Male':
         cat = 'shirt'
+
     return gender, cat
 
 
@@ -210,13 +212,23 @@ for filename in files:
         gender, subCategory = title2category(item["GENDER"], item["OFFER_TITLE"])
         if len(subCategory)<1:
             continue
-        itemCount +=1
+
         #needs to add search for id and etc...
         collection_name = "ebay_"+gender
         if subCategory == "t-shirt":
             collection_name ="ebay_Tees"
+            exists = db[collection_name].find({'id':generic_dict['id']})
+            if len(exists)>1:
+                db[collection_name].delete_many({'id':generic_dict['id']})
+                exists=[]
+            if len(exists)==0:
+                generic_dict = ebay2generic(item, gender, subCategory)
+                db[collection_name].insert_one(generic_dict)
+                itemCount +=1
+            else:
+                pass
             continue
-
+        itemCount +=1
         generic_dict = ebay2generic(item, gender, subCategory)
         exists = db[collection_name].find_one({'id':generic_dict['id']})
         if exists and exists["fingerprint"] is not None:
@@ -270,8 +282,14 @@ dl_info = {"date": today_date,
            "dl_duration": total_time,
            "store_info": store_info}
 
+f = open('/home/developer/yonti/tmp_store_info.log','w')
+for line in store_info:
+    f.write(str(line.values())+'\n')
+f.close()
+
 for col in ["Female","Male","Unisex","Tees"]:
     col_name = "ebay_"+col
+    db[col_name].delete_many({'fingerprint': None})
     db[col_name].reindex()
 
     # db[col_name].create_index("categories")
