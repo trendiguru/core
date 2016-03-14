@@ -810,7 +810,7 @@ if __name__ == "__main__":
         dir_of_dirs = '/home/jeremy/core/classifier_stuff/caffe_nns/plusminus_data'  #b2
         dir_of_dirs = '/home/jeremy/core/classifier_stuff/caffe_nns/populated_items'  #b2
         dir_of_dirs = '/home/jeremy/core/classifier_stuff/caffe_nns/dataset/cropped'  #b2
-        nn_dir = '/home/jeremy/core/classifier_stuff/caffe_nns/alexnet9'  #b2
+        nn_dir = '/home/jeremy/core/classifier_stuff/caffe_nns/alexnet10'  #b2
 #        nn_dir = '/home/jeremy/core/classifier_stuff/caffe_nns/vgg_'  #b2
         max_images_per_class = 15000
         pc = False
@@ -819,6 +819,7 @@ if __name__ == "__main__":
         G=123
         R=136
         db_name = 'highly_populated_cropped'
+        db_name = 'binary_dresses'
 
 #    h,w,d,B,G,R,n = imutils.image_stats_from_dir_of_ditestrs(dir_of_dirs)
     resize_x = None
