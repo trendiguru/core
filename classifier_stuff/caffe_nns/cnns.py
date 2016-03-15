@@ -781,7 +781,8 @@ def run_net(net_builder,nn_dir,train_db,test_db,batch_size = 64,n_classes=11,mea
         #figure 1 - train loss and train acc. for all forward passes
         fig1 = plt.figure()
         ax1 = fig1.add_subplot(111)
-        ax1.plot(arange(niter), train_loss,'r.-',label='train_loss')
+        ax1.plot(arange(niter), train_loss,'r.-')
+        ax1.set_title('train loss / accuracy')
         ax1.set_ylabel('test loss',color='r')
         ax1.set_xlabel('iteration',color='g')
 
@@ -798,6 +799,7 @@ def run_net(net_builder,nn_dir,train_db,test_db,batch_size = 64,n_classes=11,mea
         ax2.plot(arange(int(np.ceil(niter / test_interval))), train_acc2,'g.-')
         ax2.set_xlabel('iteration/'+str(test_interval))
         ax2.set_ylabel('test/train accuracy')
+        ax1.set_title('test/train accuracy')
         #axes = plt.gca()
         #ax1.set_xlim([xmin,xmax])
         ax2.set_ylim([0,1])
