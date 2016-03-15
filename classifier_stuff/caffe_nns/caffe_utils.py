@@ -221,7 +221,7 @@ def detect_with_scale_pyramid_and_sliding_window(image_filename_or_cv2_array,pro
 # loop over the image pyramid
     for resized in pyramid(img_arr, scale=1.5):
         # loop over the sliding window for each layer of the pyramid
-        for (x, y, window) in sliding_window(resized, stepSize=32, windowSize=(image_height, image_width)):
+        for (x, y, window) in sliding_window(resized, stepSize=32, windowSize=(image_width, image_height)):
             # if the window does not meet our desired window size, ignore it
             if window.shape[0] != image_height or window.shape[1] != image_width:
                 logging.debug('got bad window shape from sliding_window')
