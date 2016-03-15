@@ -78,6 +78,7 @@ def get_nn_answer(prototxt,caffemodel,mean_B=128,mean_G=128,mean_R=128,image_fil
             pc = True
             caffe.set_mode_cpu()
         net = caffe.Net(prototxt,caffemodel,caffe.TEST)
+
     #    solver = caffe.SGDSolver(proto_file_path)
         # see http://nbviewer.jupyter.org/github/BVLC/caffe/blob/master/examples/00-classification.ipynb
     #    mu = np.load(caffe_root + 'python/caffe/imagenet/ilsvrc_2012_mean.npy')
@@ -110,12 +111,13 @@ def get_nn_answer(prototxt,caffemodel,mean_B=128,mean_G=128,mean_R=128,image_fil
         output = net.forward()
 
 #        output_prob = output['prob'][0]  # the output probability vector for the first image in the batch
-        print('output '+str(output))
+        print('all '+str(output))
         n = net.blobs
         print('net '+str(n))
 
         output = n['output_layer'].data
-        print('output '+str(n))
+        print('output '+str(output))
+
 
         #        correct += sum(solver.test_nets[0].blobs['output_layer'].data.argmax(1)
         #                       == solver.test_nets[0].blobs['label'].data)
