@@ -90,6 +90,7 @@ def processes(w):
     ret = subprocess.call(["sudo chmod -R /tmp/tmp*" ], shell=True)
     sleep(5)
     ret = subprocess.call(["sudo rm -r /tmp/tmp*/cache2/entries/" ], shell=True)
+    ret = subprocess.call(["sudo rm -r /tmp/tmp*/thumbnails/" ], shell=True)
     if not ret:
         print colored("removed succeeded", "yellow")
     else:

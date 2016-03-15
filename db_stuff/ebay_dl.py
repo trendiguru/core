@@ -8,7 +8,7 @@ description: this program downloads all relevant items from ebay through ftp
     - TODO: nlp on description
             run on non english ebay databases
 """
-
+import gc
 from ftplib import FTP
 from StringIO import StringIO
 import gzip
@@ -185,6 +185,7 @@ files.remove("StoreInformation.xml")
 for filename in files:
     start = time.time()
     sio = StringIO()
+    gc.collect()
     def handle_binary(more_data):
         sio.write(more_data)
     try:
@@ -282,12 +283,7 @@ dl_info = {"date": today_date,
            "dl_duration": total_time,
            "store_info": store_info}
 
-f = open('/home/developer/yonti/tmp_store_info.log','w')
-for line in store_info:
-    f.write(str(line.values())+'\n')
-f.close()
-
-for col in ["Female","Male","Unisex","Tees"]:
+for col in ["Female","Male","Unisex"]:#,"Tees"]:
     col_name = "ebay_"+col
     db[col_name].delete_many({'fingerprint': None})
     db[col_name].reindex()
