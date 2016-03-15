@@ -282,11 +282,6 @@ dl_info = {"date": today_date,
            "dl_duration": total_time,
            "store_info": store_info}
 
-f = open('/home/developer/yonti/tmp_store_info.log','w')
-for line in store_info:
-    f.write(str(line.values())+'\n')
-f.close()
-
 for col in ["Female","Male","Unisex","Tees"]:
     col_name = "ebay_"+col
     db[col_name].delete_many({'fingerprint': None})

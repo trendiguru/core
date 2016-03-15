@@ -69,30 +69,37 @@ def mongo2xl(filename, dl_info):
 
             fillTable(current_worksheet, categories, collection, bold, today)
             total_items += collection.count()
+        store_info = dl_info["store_info"]
+        try:
+            for status in ["black","white"]:
+                print("working on "+ status+"list")
+                current_worksheet = workbook.add_worksheet(status+'list')
 
-        for status in ["black","white"]:
-            print("working on "+ status+"list")
-            current_worksheet = workbook.add_worksheet(status+'list')
+                dict2list = [[x["id"],x["name"].decode("utf8"),x["items_downloaded"],x["dl_duration"][:6],
+                              x["link"],x["modified"]]
+                             for x in store_info if x["B/W"] == status]
+                item_count = len(dict2list)
 
-            dict2list = [[x["id"],x["name"].decode("utf8"),x["items_downloaded"],x["dl_duration"][:6],
-                          x["link"],x["modified"]]
-                         for x in dl_info["store_info"] if x["B/W"] == status]
-            item_count = len(dict2list)
-
-            current_worksheet.set_column('A:D',10)
-            current_worksheet.set_column('B:B',25)
-            current_worksheet.set_column('E:E',35)
-            current_worksheet.set_column('F:F',25)
-            current_worksheet.add_table('A1:F'+str(item_count+4),
-                                        {'data': dict2list,
-                                         'columns': [ {'header': 'id'},
-                                                      {'header' : 'name'},
-                                                      {'header' : 'items_downloaded'},
-                                                      {'header' : 'download duration'},
-                                                      {'header' : 'link'},
-                                                      {'header': 'modified time'}],
-                                         'banded_columns': True,
-                                         'banded_rows': True})
+                current_worksheet.set_column('A:D',10)
+                current_worksheet.set_column('B:B',25)
+                current_worksheet.set_column('E:E',35)
+                current_worksheet.set_column('F:F',25)
+                current_worksheet.add_table('A1:F'+str(item_count+4),
+                                            {'data': dict2list,
+                                             'columns': [ {'header': 'id'},
+                                                          {'header' : 'name'},
+                                                          {'header' : 'items_downloaded'},
+                                                          {'header' : 'download duration'},
+                                                          {'header' : 'link'},
+                                                          {'header': 'modified time'}],
+                                             'banded_columns': True,
+                                             'banded_rows': True})
+        except:
+            print ("error in blacklist/whitelist- saving to disk")
+            f = open('/home/developer/yonti/tmp_store_info.log','w')
+            for line in store_info:
+                f.write(str(line.values())+'\n')
+            f.close()
 
     else:
         if filename == 'shopstyle':
