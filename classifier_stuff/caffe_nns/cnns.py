@@ -761,25 +761,29 @@ def run_net(net_builder,nn_dir,train_db,test_db,batch_size = 64,n_classes=11,mea
  #   fig = plt.figure()
  #   fig.savefig('out.png')
 
+        #figure 1 - train loss and train acc. for all forward passes
         fig1 = plt.figure()
         ax1 = fig1.add_subplot(111)
         ax1.plot(arange(niter), train_loss,'r.-',label='train_loss')
-        ax1.set_ylabel('test accuracy/loss',color='r')
+        ax1.set_ylabel('test loss',color='r')
         ax1.set_xlabel('iteration',color='g')
 
         axb = ax1.twinx()
-        axb.plot(arange(niter), train_acc,'b.-',label='train_acc')
-        axb.set_ylabel('sin', color='b')
+        axb.plot(arange(niter), train_acc,'b.-',label='train_acc',title='train loss and accuracy')
+        axb.set_ylabel('train acc.', color='b')
         legend = ax1.legend(loc='upper center', shadow=True)
         plt.show()
 
-
+        #figure 2 - train and test acc every N passes
         fig2 = plt.figure()
         ax2 = fig2.add_subplot(111)
-        ax2.plot(arange(int(np.ceil(niter / test_interval))), test_acc,'b.-')
+        ax2.plot(arange(int(np.ceil(niter / test_interval))), test_acc,'b.-',title='train, test acc for '+str(train_db)+','+str(test_db))
         ax2.plot(arange(int(np.ceil(niter / test_interval))), train_acc2,'g.-')
         ax2.set_xlabel('iteration/'+str(test_interval))
         ax2.set_ylabel('test/train accuracy')
+        #axes = plt.gca()
+        #ax1.set_xlim([xmin,xmax])
+        ax2.set_ylim([0,1])
         legend = ax2.legend(loc='upper center', shadow=True)
         plt.show()
 
@@ -796,9 +800,9 @@ def run_net(net_builder,nn_dir,train_db,test_db,batch_size = 64,n_classes=11,mea
     print('acc:'+str(test_acc))
     outfilename = os.path.join(nn_dir,'results.txt')
     with open(outfilename,'a') as f:
-        f.write('dir {} db {}'.format(nn_dir,train_db,test_db))
+        f.write('dir {}\n db {}\nAccuracy\n'.format(nn_dir,train_db,test_db))
         f.write(str(test_acc))
-        f.write(str(train_net))
+#        f.write(str(train_net))
         f.close()
 
 
