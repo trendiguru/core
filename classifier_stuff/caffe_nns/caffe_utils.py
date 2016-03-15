@@ -219,7 +219,7 @@ def detect_with_scale_pyramid_and_sliding_window(image_filename_or_cv2_array,pro
 # loop over the image pyramid
     for resized in pyramid(orig_img_arr, scale=1.5):
         # loop over the sliding window for each layer of the pyramid
-        for (x, y, window) in sliding_window(resized, stepSize=32, windowSize=(winW, winH)):
+        for (x, y, window) in sliding_window(resized, stepSize=32, windowSize=(image_height, image_width)):
             # if the window does not meet our desired window size, ignore it
             if window.shape[0] != winH or window.shape[1] != winW:
                 continue
@@ -266,7 +266,7 @@ if __name__ == "__main__":
         prototxt = '/home/jeremy/core/classifier_stuff/caffe_nns/alexnet10_binary_dresses/my_solver.deploy.prototxt'
         caffemodel = '/home/jeremy/core/classifier_stuff/caffe_nns/alexnet10_binary_dresses/net_iter_9000.caffemodel'
 
-        img_filename = '/home/jeremy/core/classifier_stuff/caffe_nns/dataset/cropped/retrieval_dresses/product_11111_photo_65075.jpg'
+        img_filename = '/home/jeremy/core/images/female1.jpg'
 
     parser = argparse.ArgumentParser(description='test an image yo')
     parser.add_argument('-i', '--image', help='path to image file to be analyzed yo', required=False)
