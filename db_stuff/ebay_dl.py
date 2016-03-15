@@ -8,7 +8,7 @@ description: this program downloads all relevant items from ebay through ftp
     - TODO: nlp on description
             run on non english ebay databases
 """
-
+import gc
 from ftplib import FTP
 from StringIO import StringIO
 import gzip
@@ -185,6 +185,7 @@ files.remove("StoreInformation.xml")
 for filename in files:
     start = time.time()
     sio = StringIO()
+    gc.collect()
     def handle_binary(more_data):
         sio.write(more_data)
     try:
