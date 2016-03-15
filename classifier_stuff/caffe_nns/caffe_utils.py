@@ -226,6 +226,20 @@ if __name__ == "__main__":
 
         img_filename = '/home/jeremy/core/classifier_stuff/caffe_nns/dataset/cropped/retrieval_dresses/product_11111_photo_65075.jpg'
 
+    parser = argparse.ArgumentParser(description='test an image yo')
+    parser.add_argument('-i', '--image', help='path to image file to be analyzed yo', required=False)
+    parser.add_argument('-d', '--deploy_proto', help='deploy prototxt', required=False)
+    parser.add_argument('-c', '--caffemodel', help='caffe model', required=False)
+    args = vars(parser.parse_args())
+
+    if args.image:
+        img_filename = args.image
+    if args.deploy_proto:
+        prototxt = args.deploy_proto
+    if args.caffemodel:
+        caffemodel = args.caffemodel
+
+    print('img {} proto {} caffemodel {}'.format(img_filename,prototxt,caffemodel))
     get_nn_answer(prototxt,caffemodel,mean_B=112,mean_G=123,mean_R=136,image_filename=img_filename,image_width=150,image_height=200)
 #        deploy_prototxt
 #        conf_mat(deploy_prototxt_file_path,caffe_model_file_path,test_lmdb_path,meanB=128,meanG=128,meanR=128)
