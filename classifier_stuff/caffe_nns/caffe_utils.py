@@ -13,9 +13,11 @@ from trendi.utils import imutils
 import cv2
 import matplotlib as plt
 import argparse
-
+import time
 import logging
 logging.basicConfig(level=logging.DEBUG)
+
+from trendi import Utils
 
 def conf_mat(deploy_prototxt_file_path,caffe_model_file_path,test_lmdb_path,meanB=128,meanG=128,meanR=128):
 #    caffe.set_mode_gpu()
@@ -118,6 +120,9 @@ def get_nn_answer(prototxt,caffemodel,mean_B=128,mean_G=128,mean_R=128,image_fil
             logging.debug('preprocess')
         else: #dont use transformer, rather do it myself
             img_arr = cv2.imread(image_filename)
+            h,w = img_arr.shape[0:1]
+            if h != image_height or w != image_width:
+                img_arr = cv2.resize(img_arr,(image_height,image_width))
             if mean_B is not None and mean_G is not None and mean_R is not None:
                 img_arr[:,:,0] = img_arr[:,:,0]-mean_B
                 img_arr[:,:,1] = img_arr[:,:,1]-mean_G
@@ -133,7 +138,7 @@ def get_nn_answer(prototxt,caffemodel,mean_B=128,mean_G=128,mean_R=128,image_fil
         output = net.forward()
 
 #        output_prob = output['prob'][0]  # the output probability vector for the first image in the batch
-        print('all '+str(output))
+#        print('all '+str(output))
         n = net.blobs
         print('net '+str(n))
 
@@ -184,9 +189,35 @@ def sliding_window(image, stepSize, windowSize):
 			# yield the current window
 			yield (x, y, image[y:y + windowSize[1], x:x + windowSize[0]])
 
-def detect_with_scale_pyramid_and_sliding_window(img_arr,caffemodel):
+def detect_with_scale_pyramid_and_sliding_window(image_filename_or_cv2_array,prototxt,caffemodel,mean_B=128,mean_G=128,mean_R=128,image_width=150,image_height=200):
+    caffe.set_mode_gpu()
+    if host == 'jr-ThinkPad-X1-Carbon':
+        caffe.set_mode_cpu()
+    net = caffe.Net(prototxt,caffemodel,caffe.TEST)
+    img_arr = Utils.get_cv2_img_array(image_filename_or_cv2_array)
+    orig_img_arr = img_arr.copy()
+    h,w = img_arr.shape[0:1]
+    if h != image_height or w != image_width:
+        img_arr = cv2.resize(img_arr,(image_height,image_width))
+    if mean_B is not None and mean_G is not None and mean_R is not None:
+        img_arr[:,:,0] = img_arr[:,:,0]-mean_B
+        img_arr[:,:,1] = img_arr[:,:,1]-mean_G
+        img_arr[:,:,2] = img_arr[:,:,2]-mean_R
+    img_arr = np.divide(img_arr,255.0)
+    transformed_image = img_arr.transpose((2,0,1))
+
+# copy the image data into the memory allocated for the net
+    net.blobs['data'].data[...] = transformed_image
+    ### perform classification
+    output = net.forward()
+
+    n = net.blobs
+    print('net '+str(n))
+    output = n['output_layer'].data
+    print('output '+str(output))
+
 # loop over the image pyramid
-    for resized in pyramid(img_arr, scale=1.5):
+    for resized in pyramid(orig_img_arr, scale=1.5):
         # loop over the sliding window for each layer of the pyramid
         for (x, y, window) in sliding_window(resized, stepSize=32, windowSize=(winW, winH)):
             # if the window does not meet our desired window size, ignore it
@@ -254,7 +285,9 @@ if __name__ == "__main__":
         caffemodel = args.caffemodel
 
     print('img {} proto {} caffemodel {}'.format(img_filename,prototxt,caffemodel))
-    get_nn_answer(prototxt,caffemodel,mean_B=112,mean_G=123,mean_R=136,image_filename=img_filename,image_width=150,image_height=200)
+    #get_nn_answer(prototxt,caffemodel,mean_B=112,mean_G=123,mean_R=136,image_filename=img_filename,image_width=150,image_height=200)
+    detect_with_scale_pyramid_and_sliding_window(img_filename,prototxt,caffemodel,mean_B=128,mean_G=128,mean_R=128,image_width=150,image_height=200)
+
 #        deploy_prototxt
 #        conf_mat(deploy_prototxt_file_path,caffe_model_file_path,test_lmdb_path,meanB=128,meanG=128,meanR=128)
 
