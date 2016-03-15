@@ -9,7 +9,7 @@ import lmdb
 import caffe
 from collections import defaultdict
 import socket
-from trendi import imutils
+from trendi.utils import imutils
 import matplotlib as plt
 
 def conf_mat(deploy_prototxt_file_path,caffe_model_file_path,test_lmdb_path,meanB=128,meanG=128,meanR=128):
