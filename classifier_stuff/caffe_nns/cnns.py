@@ -108,7 +108,7 @@ def write_prototxt(proto_filename,test_iter = 9,solver_mode='GPU'):
                         'gamma': 0.0001,
                         'power': 0.75,
                         'display': 20,
-                        'max_iter': 20000,
+                        'max_iter': 5000,
                         'snapshot': 1000,
                         'snapshot_prefix': dir+'/net',
                         'solver_mode':solver_mode }
@@ -695,13 +695,19 @@ def run_net(net_builder,nn_dir,train_db,test_db,batch_size = 64,n_classes=11,mea
     print solver.net.blobs['label'].data[:8]
 
     #%%time
-    niter = 10000
+    niter = 5000
+    training_acc_threshold = 0.95
     test_interval = 100
     # losses will also be stored in the log
     train_loss = zeros(niter)
     train_acc = zeros(niter)
     test_acc = zeros(int(np.ceil(niter / test_interval)))
     train_acc2 = zeros(int(np.ceil(niter / test_interval)))
+    running_avg_test_acc = 0
+    previous_running_avg_test_acc = -1.0
+    running_avg_upper_threshold = 1.001
+    running_avg_lower_threshold = 0.999
+    alpha = 0.1
     output = zeros((niter, 8, 10))
 
     # the main solver loop
@@ -734,7 +740,16 @@ def run_net(net_builder,nn_dir,train_db,test_db,batch_size = 64,n_classes=11,mea
             percent_correct = float(correct)/(n_sample*batch_size)
             print('correct {} n {} batchsize {} acc {} size(solver.test_nets[0].blob[output_layer]'.format(correct,n_sample,batch_size, percent_correct,len(solver.test_nets[0].blobs['label'].data)))
             test_acc[it // test_interval] = percent_correct
-            print('acc so far:'+str(test_acc))
+            running_avg_test_acc = (1-alpha)*running_avg_test_acc + alpha*test_acc[it//test_interval]
+            print('acc so far:'+str(test_acc)+' running avg:'+str(running_avg_test_acc)+ ' previous:'+str(previous_running_avg_test_acc))
+            drunning_avg = running_avg_test_acc/previous_running_avg_test_acc
+            previous_running_avg_test_acc=running_avg_test_acc
+            if test_acc [it // test_interval] > training_acc_threshold:
+                print('acc of {} is above required threshold of {}, thus stopping:'.format(test_acc,training_acc_threshold))
+                break
+            if drunning_avg > running_avg_lower_threshold and drunning_avg < running_avg_upper_threshold :
+                print('drunning avg of {} is between required thresholds of {} and {}, thus stopping:'.format(drunning_avg,running_avg_lower_threshold,running_avg_upper_threshold))
+                break
 
   #  _, ax1 = plt.subplots()
   #  ax2 = ax1.twinx()
@@ -848,7 +863,7 @@ if __name__ == "__main__":
   #  lmdb_utils.inspect_db(db_name+'.test')
     generate_db = True
     if generate_db:
-        filters = ['bags','belts','dresses','eyewear','footwear','hats','leggings','outerwear','pants','skirts','tops']
+        filters = ['dresses','eyewear','footwear','hats','leggings','outerwear','pants','skirts','tops'] #done -  'bags','belts',
         for a_filter in filters:
             db_name = 'binary_'+a_filter
             n_test_classes,test_populations,test_imageno = lmdb_utils.interleaved_dir_of_dirs_to_lmdb(db_name,dir_of_dirs,max_images_per_class =5000,
@@ -867,7 +882,7 @@ if __name__ == "__main__":
             print('testclasses {} populations {} tot_images {} '.format(n_test_classes,test_populations,test_imageno))
             print('trainclasses {} populations {} tot_images {} '.format(n_train_classes,train_populations,train_imageno))
             print('sum test pops {}  sum train pops {}  testiter {} batch_size {}'.format(tot_train_samples,tot_test_samples,test_iter,batch_size))
-            nn_dir = '/home/jeremy/core/classifier_stuff/caffe_nns/alexnet_'+db_name  #b2
+            nn_dir = '/home/jeremy/core/classifier_stuff/caffe_nns/alexnet10_'+db_name  #b2
             run_net(alexnet_linearized,nn_dir,db_name+'.train',db_name+'.test',batch_size = batch_size,n_classes=n_classes,meanB=B,meanR=R,meanG=G,n_filters=50,n_ip1=1000)
 
 
