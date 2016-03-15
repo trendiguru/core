@@ -260,22 +260,23 @@ def detect_with_scale_pyramid_and_sliding_window(image_filename_or_cv2_array,pro
 
 
 def pyramid(image, scale=1.5, minSize=(30, 30)):
-	# yield the original image
-	yield image
+    # yield the original image
+    yield image
 
-	# keep looping over the pyramid
-	while True:
-		# compute the new dimensions of the image and resize it
-		w = int(image.shape[1] / scale)
-		image = imutils.resize(image, width=w)
+    # keep looping over the pyramid
+    while True:
+        # compute the new dimensions of the image and resize it
+        w = int(image.shape[1] / scale)
+        h = int(image.shape[0] / scale)
+        image = cv2.resize(image, (w,h))
 
-		# if the resized image does not meet the supplied minimum
-		# size, then stop constructing the pyramid
-		if image.shape[0] < minSize[1] or image.shape[1] < minSize[0]:
-			break
+        # if the resized image does not meet the supplied minimum
+        # size, then stop constructing the pyramid
+        if image.shape[0] < minSize[1] or image.shape[1] < minSize[0]:
+            break
 
-		# yield the next image in the pyramid
-		yield image
+        # yield the next image in the pyramid
+        yield image
 
 host = socket.gethostname()
 print('host:'+str(host))
