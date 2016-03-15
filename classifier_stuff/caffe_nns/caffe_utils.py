@@ -12,6 +12,9 @@ import socket
 from trendi.utils import imutils
 import cv2
 import matplotlib as plt
+import logging
+
+logging.basicConfig(level=logging.DEBUG)
 
 def conf_mat(deploy_prototxt_file_path,caffe_model_file_path,test_lmdb_path,meanB=128,meanG=128,meanR=128):
 #    caffe.set_mode_gpu()
@@ -87,10 +90,14 @@ def get_nn_answer(prototxt,caffemodel,mean_B=128,mean_G=128,mean_R=128,image_fil
         print 'mean-subtracted values:',  mu
         # create transformer for the input called 'data'
         transformer = caffe.io.Transformer({'data': net.blobs['data'].data.shape})
+        logging.debug('transformer')
         transformer.set_transpose('data', (2,0,1))  # move image channels to outermost dimension
+        logging.debug('transpose')
         transformer.set_mean('data', mu)            # subtract the dataset-mean value in each channel
    #     transformer.set_raw_scale('data', 255)      # rescale from [0, 1] to [0, 255]
+        logging.debug('mean')
         transformer.set_raw_scale('data', 1.0/255)      # rescale from [0, 1] to [0, 255]
+        logging.debug('scale')
     #    transformer.set_channel_swap('data', (2,1,0))  # swap channels from RGB to BGR
     # set the size of the input (we can skip this if we're happy
     #  with the default; we can also change it later, e.g., for different batch sizes)
@@ -99,13 +106,17 @@ def get_nn_answer(prototxt,caffemodel,mean_B=128,mean_G=128,mean_R=128,image_fil
  #                                image_width, image_height)  # image size is 227x227
             #possibly use cv2.imread here instead as that's how i did it in lmdb_utils
         image = caffe.io.load_image(image_filename)
+        logging.debug('load')
         cv2.imshow(image_filename,image)
+        logging.debug('imshow')
 #        fig = plt.figure()
 #        fig.savefig('out.png')
         transformed_image = transformer.preprocess('data', image)
+        logging.debug('preprocess')
     #    plt.imshow(image)
     # copy the image data into the memory allocated for the net
         net.blobs['data'].data[...] = transformed_image
+        logging.debug('netblobs')
 
         ### perform classification
         output = net.forward()
