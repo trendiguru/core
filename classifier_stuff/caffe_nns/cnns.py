@@ -240,6 +240,14 @@ layer {
     6. 'DO' = Sequential.add(Dropout(->)) : 0.0 <= value <= 1.0
     7. 'D' = Sequential.add(Dense(->)) : int value > 0 (fu
 '''
+#layer {
+#  name: "data"
+#  type: "Input"
+#  top: "data"
+#  input_param { shape: { dim: 10 dim: 3 dim: 227 dim: 227 } }
+#}
+
+
 def vggnet(db, batch_size,n_classes=11,meanB=128,meanG=128,meanR=128,n_filters=50,n_ip1=1000):
     print('running mynet n {} B {} G {} R {} db {} batchsize {}'.format(n_classes,meanB,meanG,meanR,db,batch_size))
     lr_mult1 = 1
@@ -277,7 +285,9 @@ def vggnet(db, batch_size,n_classes=11,meanB=128,meanG=128,meanR=128,n_filters=5
     n.loss = L.SoftmaxWithLoss(n.ip2,n.label)
     return n.to_proto()
 
-def alexnet_linearized(db, batch_size,n_classes=11,meanB=128,meanG=128,meanR=128,n_filters=50,n_ip1=1000):
+def alexnet_linearized(db, batch_size,n_classes=11,meanB=128,meanG=128,meanR=128,n_filters=50,n_ip1=1000,deploy=False):
+
+
     print('building alexnet n {} B {} G {} R {} db {} batchsize {}'.format(n_classes,meanB,meanG,meanR,db,batch_size))
     lr_mult1 = 1
     lr_mult2 = 2
@@ -285,14 +295,19 @@ def alexnet_linearized(db, batch_size,n_classes=11,meanB=128,meanG=128,meanR=128
     decay_mult2 =0
 
     n=caffe.NetSpec()
-    if meanB is not None and meanG is not None and meanR is not None:
-        print('using vector mean ({} {} {})'.format(meanB,meanG,meanR ))
-        n.data,n.label=L.Data(batch_size=batch_size,backend=P.Data.LMDB,source=db,transform_param=dict(scale=1./255,mean_value=[meanB,meanG,meanR]),ntop=2)
-    elif meanB:
-        print('using 1D mean {} '.format(meanB))
-        n.data,n.label=L.Data(batch_size=batch_size,backend=P.Data.LMDB,source=db,transform_param=dict(scale=1./255,mean_value=meanB),ntop=2)
+
+    if deploy:
+#        n.data,n.label=L.Data(batch_size=batch_size,backend=P.Data.LMDB,source=db,transform_param=dict(scale=1./255,mean_value=[meanB,meanG,meanR]),ntop=2)
+        n.data = L.Input(input_param=dict(shape=dict(dim=[1,3,200,150])))
     else:
-        n.data,n.label=L.Data(batch_size=batch_size,backend=P.Data.LMDB,source=db,transform_param=dict(scale=1./255),ntop=2)
+        if meanB is not None and meanG is not None and meanR is not None:
+            print('using vector mean ({} {} {})'.format(meanB,meanG,meanR ))
+            n.data,n.label=L.Data(batch_size=batch_size,backend=P.Data.LMDB,source=db,transform_param=dict(scale=1./255,mean_value=[meanB,meanG,meanR]),ntop=2)
+        elif meanB:
+            print('using 1D mean {} '.format(meanB))
+            n.data,n.label=L.Data(batch_size=batch_size,backend=P.Data.LMDB,source=db,transform_param=dict(scale=1./255,mean_value=meanB),ntop=2)
+        else:
+            n.data,n.label=L.Data(batch_size=batch_size,backend=P.Data.LMDB,source=db,transform_param=dict(scale=1./255),ntop=2)
 
     n.conv1 = L.Convolution(n.data,param=[dict(lr_mult=lr_mult1,decay_mult=decay_mult1),
                                           dict(lr_mult=lr_mult2,decay_mult=decay_mult2)],
@@ -323,7 +338,8 @@ def alexnet_linearized(db, batch_size,n_classes=11,meanB=128,meanG=128,meanR=128
     n.relu7 = L.ReLU(n.ip2, in_place=True)
     n.output_layer = L.InnerProduct(n.ip2,param=[dict(lr_mult=lr_mult1),dict(lr_mult=lr_mult2)],num_output=n_classes,weight_filler=dict(type='xavier'))
 #maybe add relu here?
-    n.accuracy = L.Accuracy(n.output_layer,n.label)
+    if not deploy:
+        n.accuracy = L.Accuracy(n.output_layer,n.label)
     n.loss = L.SoftmaxWithLoss(n.output_layer,n.label)
     return n.to_proto()
 
