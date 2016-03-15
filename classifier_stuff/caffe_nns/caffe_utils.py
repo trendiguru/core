@@ -10,6 +10,7 @@ import caffe
 from collections import defaultdict
 import socket
 import imutils
+import matplotlib as plt
 
 def conf_mat(deploy_prototxt_file_path,caffe_model_file_path,test_lmdb_path,meanB=128,meanG=128,meanR=128)
 #    caffe.set_mode_gpu()
@@ -67,7 +68,7 @@ def conf_mat(deploy_prototxt_file_path,caffe_model_file_path,test_lmdb_path,mean
         for pl in labels_set:
             print "(%i , %i) | %i" % (l, pl, matrix[(l,pl)])
 
-def load_net(prototxt,caffemodel,mean_B=128,mean_G=128,mean_R=128,image='../../images/female1.jpg',image_width=150,image_height=200,image_depth=3,batch_size=256):
+def get_nn_answer(prototxt,caffemodel,mean_B=128,mean_G=128,mean_R=128,image_filename='../../images/female1.jpg',image_width=150,image_height=200):
         host = socket.gethostname()
         print('host:'+str(host))
         pc = False
@@ -80,7 +81,7 @@ def load_net(prototxt,caffemodel,mean_B=128,mean_G=128,mean_R=128,image='../../i
     #    mu = np.load(caffe_root + 'python/caffe/imagenet/ilsvrc_2012_mean.npy')
      #   mu = mu.mean(1).mean(1)  # average over pixels to obtain the mean (BGR) pixel values
         mu = [mean_B,mean_G,mean_R]
-        print 'mean-subtracted values:', zip('BGR', mu)
+        print 'mean-subtracted values:',  mu
 
         # create transformer for the input called 'data'
         transformer = caffe.io.Transformer({'data': net.blobs['data'].data.shape})
@@ -95,10 +96,12 @@ def load_net(prototxt,caffemodel,mean_B=128,mean_G=128,mean_R=128,image='../../i
  #       net.blobs['data'].reshape(batch_size,        # batch size
  #                                 image_depth,         # 3-channel (BGR) images
  #                                image_width, image_height)  # image size is 227x227
-        image = caffe.io.load_image(image)
+            #possibly use cv2.imread here instead as that's how i did it in lmdb_utils
+        image = caffe.io.load_image(image_filename)
+        cv2.imshow(image_filename,image)
+#        fig = plt.figure()
+#        fig.savefig('out.png')
         transformed_image = transformer.preprocess('data', image)
-        fig = plt.figure()
-        fig.savefig('out.png')
     #    plt.imshow(image)
     # copy the image data into the memory allocated for the net
         net.blobs['data'].data[...] = transformed_image
@@ -192,7 +195,16 @@ host = socket.gethostname()
 print('host:'+str(host))
 
 if __name__ == "__main__":
-    if host == "":
+
+    if host == 'jr-ThinkPad-X1-Carbon':
+        pass
+    else:
+        prototxt = 'home/jeremy/core/classifier_stuff/caffe_nns/alexnet10_binary_dresses/my_solver_test.prototxt'
+        caffemodel = 'home/jeremy/core/classifier_stuff/caffe_nns/alexnet10_binary_dresses/net_iter_9000.caffemodel'
+
+        img_filename = 'home/jeremy/core/classifier_stuff/caffe_nns/dataset/cropped/retrieval_dresses/product_11111_photo_65075.jpg'
+
+    get_nn_answer(prototxt,caffemodel,mean_B=128,mean_G=128,mean_R=128,image_filename=img_filename,image_width=150,image_height=200):
 #        deploy_prototxt
 #        conf_mat(deploy_prototxt_file_path,caffe_model_file_path,test_lmdb_path,meanB=128,meanG=128,meanR=128)
 
