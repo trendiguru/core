@@ -230,7 +230,7 @@ def detect_with_scale_pyramid_and_sliding_window(image_filename_or_cv2_array,pro
             # THIS IS WHERE YOU WOULD PROCESS YOUR WINDOW, SUCH AS APPLYING A
             # MACHINE LEARNING CLASSIFIER TO CLASSIFY THE CONTENTS OF THE
             # WINDOW
-            img_arr2=window
+            img_arr2=window.copy()
             if mean_B is not None and mean_G is not None and mean_R is not None:
                 img_arr2[:,:,0] = img_arr2[:,:,0]-mean_B
                 img_arr2[:,:,1] = img_arr2[:,:,1]-mean_G
@@ -251,7 +251,8 @@ def detect_with_scale_pyramid_and_sliding_window(image_filename_or_cv2_array,pro
             # since we do not have a classifier, we'll just draw the window
             clone = resized.copy()
             cv2.rectangle(clone, (x, y), (x + image_width, y +image_height), (0, 255, 0), 2)
-            cv2.imshow("Window", clone)
+            cv2.imshow("sliding window", clone)
+            cv2.imshow("window", window)
             fname = 'output'+str(i)+'.jpg'
             cv2.imwrite(fname,clone)
             cv2.waitKey(1)
