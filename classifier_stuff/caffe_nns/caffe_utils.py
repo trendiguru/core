@@ -12,7 +12,7 @@ import socket
 import imutils
 import matplotlib as plt
 
-def conf_mat(deploy_prototxt_file_path,caffe_model_file_path,test_lmdb_path,meanB=128,meanG=128,meanR=128)
+def conf_mat(deploy_prototxt_file_path,caffe_model_file_path,test_lmdb_path,meanB=128,meanG=128,meanR=128):
 #    caffe.set_mode_gpu()
 
     # Modify the paths given below
