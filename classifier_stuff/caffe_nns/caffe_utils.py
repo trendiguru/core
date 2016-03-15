@@ -199,10 +199,10 @@ if __name__ == "__main__":
     if host == 'jr-ThinkPad-X1-Carbon':
         pass
     else:
-        prototxt = 'home/jeremy/core/classifier_stuff/caffe_nns/alexnet10_binary_dresses/my_solver_test.prototxt'
-        caffemodel = 'home/jeremy/core/classifier_stuff/caffe_nns/alexnet10_binary_dresses/net_iter_9000.caffemodel'
+        prototxt = '/home/jeremy/core/classifier_stuff/caffe_nns/alexnet10_binary_dresses/my_solver_test.prototxt'
+        caffemodel = '/home/jeremy/core/classifier_stuff/caffe_nns/alexnet10_binary_dresses/net_iter_9000.caffemodel'
 
-        img_filename = 'home/jeremy/core/classifier_stuff/caffe_nns/dataset/cropped/retrieval_dresses/product_11111_photo_65075.jpg'
+        img_filename = '/home/jeremy/core/classifier_stuff/caffe_nns/dataset/cropped/retrieval_dresses/product_11111_photo_65075.jpg'
 
     get_nn_answer(prototxt,caffemodel,mean_B=128,mean_G=128,mean_R=128,image_filename=img_filename,image_width=150,image_height=200)
 #        deploy_prototxt
