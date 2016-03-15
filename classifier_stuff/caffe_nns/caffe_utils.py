@@ -80,7 +80,7 @@ def get_nn_answer(prototxt,caffemodel,mean_B=128,mean_G=128,mean_R=128,image_fil
         # see http://nbviewer.jupyter.org/github/BVLC/caffe/blob/master/examples/00-classification.ipynb
     #    mu = np.load(caffe_root + 'python/caffe/imagenet/ilsvrc_2012_mean.npy')
      #   mu = mu.mean(1).mean(1)  # average over pixels to obtain the mean (BGR) pixel values
-        mu = [mean_B,mean_G,mean_R]
+        mu = np.matrix([mean_B,mean_G,mean_R])
         print 'mean-subtracted values:',  mu
 
         # create transformer for the input called 'data'
@@ -204,7 +204,7 @@ if __name__ == "__main__":
 
         img_filename = '/home/jeremy/core/classifier_stuff/caffe_nns/dataset/cropped/retrieval_dresses/product_11111_photo_65075.jpg'
 
-    get_nn_answer(prototxt,caffemodel,mean_B=128,mean_G=128,mean_R=128,image_filename=img_filename,image_width=150,image_height=200)
+    get_nn_answer(prototxt,caffemodel,mean_B=112,mean_G=123,mean_R=136,image_filename=img_filename,image_width=150,image_height=200)
 #        deploy_prototxt
 #        conf_mat(deploy_prototxt_file_path,caffe_model_file_path,test_lmdb_path,meanB=128,meanG=128,meanR=128)
 
