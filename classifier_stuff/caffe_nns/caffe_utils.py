@@ -38,10 +38,10 @@ def conf_mat(deploy_prototxt_file_path,caffe_model_file_path,test_lmdb_path,mean
 
     for key, value in lmdb_cursor:
         datum = caffe.proto.caffe_pb2.Datum()
-            datum.ParseFromString(value)
-            label = int(datum.label)
-            image = caffe.io.datum_to_array(datum)
-            image = image.astype(np.uint8)
+        datum.ParseFromString(value)
+        label = int(datum.label)
+        image = caffe.io.datum_to_array(datum)
+        image = image.astype(np.uint8)
 #        out = net.forward_all(data=np.asarray([image]) - mean_image)
 #        image[:,:,0] = image[:,:,0]- meanB
   #      image[:,:,1] = image[:,:,1]- meanB
