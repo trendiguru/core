@@ -282,7 +282,7 @@ dl_info = {"date": today_date,
            "dl_duration": total_time,
            "store_info": store_info}
 
-for col in ["Female","Male","Unisex","Tees"]:
+for col in ["Female","Male","Unisex"]:#,"Tees"]:
     col_name = "ebay_"+col
     db[col_name].delete_many({'fingerprint': None})
     db[col_name].reindex()
