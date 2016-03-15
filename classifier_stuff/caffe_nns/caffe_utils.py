@@ -198,8 +198,8 @@ def detect_with_scale_pyramid_and_sliding_window(image_filename_or_cv2_array,pro
     orig_img_arr = img_arr.copy()
     logging.debug('orig shape '+str(img_arr.shape))
     h,w = img_arr.shape[0:2]
-    if h != image_height or w != image_width:
-        img_arr = cv2.resize(img_arr,(image_width,image_height))
+#    if h != image_height or w != image_width:
+#        img_arr = cv2.resize(img_arr,(image_width,image_height))
     logging.debug('resized shape '+str(img_arr.shape))
     if mean_B is not None and mean_G is not None and mean_R is not None:
         img_arr[:,:,0] = img_arr[:,:,0]-mean_B
@@ -217,13 +217,14 @@ def detect_with_scale_pyramid_and_sliding_window(image_filename_or_cv2_array,pro
     print('net '+str(n))
     output = n['output_layer'].data
     print('output '+str(output))
-
+    i=0
 # loop over the image pyramid
     for resized in pyramid(orig_img_arr, scale=1.5):
         # loop over the sliding window for each layer of the pyramid
         for (x, y, window) in sliding_window(resized, stepSize=32, windowSize=(image_height, image_width)):
             # if the window does not meet our desired window size, ignore it
-            if window.shape[0] != winH or window.shape[1] != winW:
+            if window.shape[0] != image_height or window.shape[1] != image_width:
+                logging.debug('got bad window shape from sliding_window')
                 continue
 
             # THIS IS WHERE YOU WOULD PROCESS YOUR WINDOW, SUCH AS APPLYING A
@@ -234,9 +235,11 @@ def detect_with_scale_pyramid_and_sliding_window(image_filename_or_cv2_array,pro
             clone = resized.copy()
             cv2.rectangle(clone, (x, y), (x + winW, y + winH), (0, 255, 0), 2)
             cv2.imshow("Window", clone)
+            fname = 'output'+str(i)+'.jpg'
+            cv2.imwrite(fname,clone)
             cv2.waitKey(1)
             time.sleep(0.025)
-
+            i = i +1
 
 
 def pyramid(image, scale=1.5, minSize=(30, 30)):
