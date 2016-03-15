@@ -232,6 +232,9 @@ if __name__ == "__main__":
     parser.add_argument('-d', '--deploy_proto', help='deploy prototxt', required=False)
     parser.add_argument('-c', '--caffemodel', help='caffe model', required=False)
     args = vars(parser.parse_args())
+    print args
+    args = parser.parse_args()
+    print args
 
     if args.image:
         img_filename = args.image
