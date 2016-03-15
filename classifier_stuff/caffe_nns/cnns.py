@@ -740,7 +740,7 @@ def run_net(net_builder,nn_dir,train_db,test_db,batch_size = 64,n_classes=11,mea
             percent_correct = float(correct)/(n_sample*batch_size)
             print('correct {} n {} batchsize {} acc {} size(solver.test_nets[0].blob[output_layer]'.format(correct,n_sample,batch_size, percent_correct,len(solver.test_nets[0].blobs['label'].data)))
             test_acc[it // test_interval] = percent_correct
-            running_avg_test_acc = (1-alpha)*running_avg_test_acc + alpha*train_acc[it]
+            running_avg_test_acc = (1-alpha)*running_avg_test_acc + alpha*test_acc[it//test_interval]
             print('acc so far:'+str(test_acc)+' running avg:'+str(running_avg_test_acc)+ ' previous:'+str(previous_running_avg_test_acc))
             drunning_avg = running_avg_test_acc/previous_running_avg_test_acc
             previous_running_avg_test_acc=running_avg_test_acc
