@@ -122,6 +122,7 @@ def get_nn_answer(prototxt,caffemodel,mean_B=128,mean_G=128,mean_R=128,image_fil
                 img_arr[:,:,0] = img_arr[:,:,0]-mean_B
                 img_arr[:,:,1] = img_arr[:,:,1]-mean_G
                 img_arr[:,:,2] = img_arr[:,:,2]-mean_R
+            img_arr = np.divide(img_arr,255.0)
             transformed_image = img_arr.transpose((2,0,1))
 
     # copy the image data into the memory allocated for the net
