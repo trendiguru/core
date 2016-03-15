@@ -199,7 +199,7 @@ def detect_with_scale_pyramid_and_sliding_window(image_filename_or_cv2_array,pro
     logging.debug('orig shape '+str(img_arr.shape))
     h,w = img_arr.shape[0:2]
     if h != image_height or w != image_width:
-        img_arr = cv2.resize(img_arr,(image_height,image_width))
+        img_arr = cv2.resize(img_arr,(image_width,image_height))
     logging.debug('resized shape '+str(img_arr.shape))
     if mean_B is not None and mean_G is not None and mean_R is not None:
         img_arr[:,:,0] = img_arr[:,:,0]-mean_B
