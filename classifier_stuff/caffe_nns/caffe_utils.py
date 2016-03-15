@@ -120,7 +120,7 @@ def get_nn_answer(prototxt,caffemodel,mean_B=128,mean_G=128,mean_R=128,image_fil
             logging.debug('preprocess')
         else: #dont use transformer, rather do it myself
             img_arr = cv2.imread(image_filename)
-            h,w = img_arr.shape[0:1]
+            h,w = img_arr.shape[0:2]
             if h != image_height or w != image_width:
                 img_arr = cv2.resize(img_arr,(image_height,image_width))
             if mean_B is not None and mean_G is not None and mean_R is not None:
@@ -196,7 +196,7 @@ def detect_with_scale_pyramid_and_sliding_window(image_filename_or_cv2_array,pro
     net = caffe.Net(prototxt,caffemodel,caffe.TEST)
     img_arr = Utils.get_cv2_img_array(image_filename_or_cv2_array)
     orig_img_arr = img_arr.copy()
-    h,w = img_arr.shape[0:1]
+    h,w = img_arr.shape[0:2]
     if h != image_height or w != image_width:
         img_arr = cv2.resize(img_arr,(image_height,image_width))
     if mean_B is not None and mean_G is not None and mean_R is not None:
