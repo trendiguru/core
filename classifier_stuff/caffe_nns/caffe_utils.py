@@ -196,30 +196,30 @@ def detect_with_scale_pyramid_and_sliding_window(image_filename_or_cv2_array,pro
     net = caffe.Net(prototxt,caffemodel,caffe.TEST)
     img_arr = Utils.get_cv2_img_array(image_filename_or_cv2_array)
     orig_img_arr = img_arr.copy()
-    logging.debug('orig shape '+str(img_arr.shape))
-    h,w = img_arr.shape[0:2]
+
+    if(0):
+        if mean_B is not None and mean_G is not None and mean_R is not None:
+            img_arr[:,:,0] = img_arr[:,:,0]-mean_B
+            img_arr[:,:,1] = img_arr[:,:,1]-mean_G
+            img_arr[:,:,2] = img_arr[:,:,2]-mean_R
+        img_arr = np.divide(img_arr,255.0)
+        transformed_image = img_arr.transpose((2,0,1))
+
+        net.blobs['data'].data[...] = transformed_image
+        ### perform classification
+        output = net.forward()
+
+        logging.debug('orig shape '+str(img_arr.shape))
+        h,w = img_arr.shape[0:2]
 #    if h != image_height or w != image_width:
 #        img_arr = cv2.resize(img_arr,(image_width,image_height))
-    logging.debug('resized shape '+str(img_arr.shape))
-    if mean_B is not None and mean_G is not None and mean_R is not None:
-        img_arr[:,:,0] = img_arr[:,:,0]-mean_B
-        img_arr[:,:,1] = img_arr[:,:,1]-mean_G
-        img_arr[:,:,2] = img_arr[:,:,2]-mean_R
-    img_arr = np.divide(img_arr,255.0)
-    transformed_image = img_arr.transpose((2,0,1))
 
 # copy the image data into the memory allocated for the net
-    net.blobs['data'].data[...] = transformed_image
-    ### perform classification
-    output = net.forward()
 
-    n = net.blobs
-    print('net '+str(n))
-    output = n['output_layer'].data
-    print('output '+str(output))
+
     i=0
 # loop over the image pyramid
-    for resized in pyramid(orig_img_arr, scale=1.5):
+    for resized in pyramid(img_arr, scale=1.5):
         # loop over the sliding window for each layer of the pyramid
         for (x, y, window) in sliding_window(resized, stepSize=32, windowSize=(image_height, image_width)):
             # if the window does not meet our desired window size, ignore it
@@ -230,10 +230,27 @@ def detect_with_scale_pyramid_and_sliding_window(image_filename_or_cv2_array,pro
             # THIS IS WHERE YOU WOULD PROCESS YOUR WINDOW, SUCH AS APPLYING A
             # MACHINE LEARNING CLASSIFIER TO CLASSIFY THE CONTENTS OF THE
             # WINDOW
+            img_arr2=window
+            if mean_B is not None and mean_G is not None and mean_R is not None:
+                img_arr2[:,:,0] = img_arr2[:,:,0]-mean_B
+                img_arr2[:,:,1] = img_arr2[:,:,1]-mean_G
+                img_arr2[:,:,2] = img_arr2[:,:,2]-mean_R
+            img_arr2 = np.divide(img_arr2,255.0)
+            transformed_image = img_arr2.transpose((2,0,1))
+
+            net.blobs['data'].data[...] = transformed_image
+            ### perform classification
+            output = net.forward()
+
+            n = net.blobs
+            print('net '+str(n))
+            output = n['output_layer'].data
+            print('output '+str(output))
+
 
             # since we do not have a classifier, we'll just draw the window
             clone = resized.copy()
-            cv2.rectangle(clone, (x, y), (x + winW, y + winH), (0, 255, 0), 2)
+            cv2.rectangle(clone, (x, y), (x + image_width, y +image_height), (0, 255, 0), 2)
             cv2.imshow("Window", clone)
             fname = 'output'+str(i)+'.jpg'
             cv2.imwrite(fname,clone)
