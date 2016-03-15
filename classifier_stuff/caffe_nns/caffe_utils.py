@@ -204,7 +204,7 @@ if __name__ == "__main__":
 
         img_filename = 'home/jeremy/core/classifier_stuff/caffe_nns/dataset/cropped/retrieval_dresses/product_11111_photo_65075.jpg'
 
-    get_nn_answer(prototxt,caffemodel,mean_B=128,mean_G=128,mean_R=128,image_filename=img_filename,image_width=150,image_height=200):
+    get_nn_answer(prototxt,caffemodel,mean_B=128,mean_G=128,mean_R=128,image_filename=img_filename,image_width=150,image_height=200)
 #        deploy_prototxt
 #        conf_mat(deploy_prototxt_file_path,caffe_model_file_path,test_lmdb_path,meanB=128,meanG=128,meanR=128)
 
