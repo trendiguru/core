@@ -87,34 +87,43 @@ def get_nn_answer(prototxt,caffemodel,mean_B=128,mean_G=128,mean_R=128,image_fil
         # see http://nbviewer.jupyter.org/github/BVLC/caffe/blob/master/examples/00-classification.ipynb
     #    mu = np.load(caffe_root + 'python/caffe/imagenet/ilsvrc_2012_mean.npy')
      #   mu = mu.mean(1).mean(1)  # average over pixels to obtain the mean (BGR) pixel values
-        mu = np.array([mean_B,mean_G,mean_R])
-        print 'mean-subtracted values:',  mu
         # create transformer for the input called 'data'
-        transformer = caffe.io.Transformer({'data': net.blobs['data'].data.shape})
-        logging.debug('transformer')
-        transformer.set_transpose('data', (2,0,1))  # move image channels to outermost dimension
-        logging.debug('transpose')
-        transformer.set_mean('data', mu)            # subtract the dataset-mean value in each channel
-   #     transformer.set_raw_scale('data', 255)      # rescale from [0, 1] to [0, 255]
-        logging.debug('mean')
-        transformer.set_raw_scale('data', 255)      # rescale from [0, 1] to [0, 255]
-        logging.debug('scale')
-    #    transformer.set_channel_swap('data', (2,1,0))  # swap channels from RGB to BGR
-    # set the size of the input (we can skip this if we're happy
-    #  with the default; we can also change it later, e.g., for different batch sizes)
- #       net.blobs['data'].reshape(batch_size,        # batch size
- #                                 image_depth,         # 3-channel (BGR) images
- #                                image_width, image_height)  # image size is 227x227
-            #possibly use cv2.imread here instead as that's how i did it in lmdb_utils
-        image = caffe.io.load_image(image_filename)
-        logging.debug('load')
-        cv2.imshow(image_filename,image)
-        logging.debug('imshow')
-#        fig = plt.figure()
-#        fig.savefig('out.png')
-        transformed_image = transformer.preprocess('data', image)
-        logging.debug('preprocess')
-    #    plt.imshow(image)
+        trans = False
+        if trans:  #do the xforms using the caffe transformer
+            mu = np.array([mean_B,mean_G,mean_R])
+            print 'mean-subtracted values:',  mu
+            transformer = caffe.io.Transformer({'data': net.blobs['data'].data.shape})
+            logging.debug('transformer')
+            transformer.set_transpose('data', (2,0,1))  # move image channels to outermost dimension
+            logging.debug('transpose')
+            transformer.set_mean('data', mu)            # subtract the dataset-mean value in each channel
+       #     transformer.set_raw_scale('data', 255)      # rescale from [0, 1] to [0, 255]
+            logging.debug('mean')
+            transformer.set_raw_scale('data', 255)      # rescale from [0, 1] to [0, 255]
+            logging.debug('scale')
+        #    transformer.set_channel_swap('data', (2,1,0))  # swap channels from RGB to BGR
+        # set the size of the input (we can skip this if we're happy
+        #  with the default; we can also change it later, e.g., for different batch sizes)
+     #       net.blobs['data'].reshape(batch_size,        # batch size
+     #                                 image_depth,         # 3-channel (BGR) images
+     #                                image_width, image_height)  # image size is 227x227
+                #possibly use cv2.imread here instead as that's how i did it in lmdb_utils
+            image = caffe.io.load_image(image_filename)
+            logging.debug('load')
+            cv2.imshow(image_filename,image)
+            logging.debug('imshow')
+    #        fig = plt.figure()
+    #        fig.savefig('out.png')
+            transformed_image = transformer.preprocess('data', image)
+            logging.debug('preprocess')
+        else: #dont use transformer, rather do it myself
+            img_arr = cv2.imread(image_filename)
+            if mean_B is not None and mean_G is not None and mean_R is not None:
+                img_arr[:,:,0] = img_arr[:,:,0]-mean_B
+                img_arr[:,:,1] = img_arr[:,:,1]-mean_G
+                img_arr[:,:,2] = img_arr[:,:,2]-mean_R
+            transformed_image = img_arr.transpose((2,0,1))
+
     # copy the image data into the memory allocated for the net
         net.blobs['data'].data[...] = transformed_image
         logging.debug('netblobs')
