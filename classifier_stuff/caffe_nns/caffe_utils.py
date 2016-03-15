@@ -56,7 +56,7 @@ def conf_mat(deploy_prototxt_file_path,caffe_model_file_path,test_lmdb_path,mean
         labels_set.update([label, plabel])
 
         if not iscorrect:
-                print("\rError: key = %s, expected %i but predicted %i" % (key, label, plabel))
+            print("\rError: key = %s, expected %i but predicted %i" % (key, label, plabel))
             sys.stdout.write("\rAccuracy: %.1f%%" % (100.*correct/count))
             sys.stdout.flush()
 
