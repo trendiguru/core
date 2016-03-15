@@ -80,12 +80,10 @@ def get_nn_answer(prototxt,caffemodel,mean_B=128,mean_G=128,mean_R=128,image_fil
         # see http://nbviewer.jupyter.org/github/BVLC/caffe/blob/master/examples/00-classification.ipynb
     #    mu = np.load(caffe_root + 'python/caffe/imagenet/ilsvrc_2012_mean.npy')
      #   mu = mu.mean(1).mean(1)  # average over pixels to obtain the mean (BGR) pixel values
-        mu = np.matrix([mean_B,mean_G,mean_R])
+        mu = np.array([mean_B,mean_G,mean_R])
         print 'mean-subtracted values:',  mu
-
         # create transformer for the input called 'data'
         transformer = caffe.io.Transformer({'data': net.blobs['data'].data.shape})
-
         transformer.set_transpose('data', (2,0,1))  # move image channels to outermost dimension
         transformer.set_mean('data', mu)            # subtract the dataset-mean value in each channel
    #     transformer.set_raw_scale('data', 255)      # rescale from [0, 1] to [0, 255]
