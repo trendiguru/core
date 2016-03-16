@@ -9,9 +9,17 @@ import lmdb
 import caffe
 from collections import defaultdict
 import socket
-import imutils
+from trendi.utils import imutils
+import cv2
+import matplotlib as plt
+import argparse
+import time
+import logging
+logging.basicConfig(level=logging.DEBUG)
 
-def conf_mat(deploy_prototxt_file_path,caffe_model_file_path,test_lmdb_path,meanB=128,meanG=128,meanR=128)
+from trendi import Utils
+
+def conf_mat(deploy_prototxt_file_path,caffe_model_file_path,test_lmdb_path,meanB=128,meanG=128,meanR=128):
 #    caffe.set_mode_gpu()
 
     # Modify the paths given below
@@ -37,10 +45,10 @@ def conf_mat(deploy_prototxt_file_path,caffe_model_file_path,test_lmdb_path,mean
 
     for key, value in lmdb_cursor:
         datum = caffe.proto.caffe_pb2.Datum()
-            datum.ParseFromString(value)
-            label = int(datum.label)
-            image = caffe.io.datum_to_array(datum)
-            image = image.astype(np.uint8)
+        datum.ParseFromString(value)
+        label = int(datum.label)
+        image = caffe.io.datum_to_array(datum)
+        image = image.astype(np.uint8)
 #        out = net.forward_all(data=np.asarray([image]) - mean_image)
 #        image[:,:,0] = image[:,:,0]- meanB
   #      image[:,:,1] = image[:,:,1]- meanB
@@ -55,7 +63,7 @@ def conf_mat(deploy_prototxt_file_path,caffe_model_file_path,test_lmdb_path,mean
         labels_set.update([label, plabel])
 
         if not iscorrect:
-                print("\rError: key = %s, expected %i but predicted %i" % (key, label, plabel))
+            print("\rError: key = %s, expected %i but predicted %i" % (key, label, plabel))
             sys.stdout.write("\rAccuracy: %.1f%%" % (100.*correct/count))
             sys.stdout.flush()
 
@@ -67,7 +75,7 @@ def conf_mat(deploy_prototxt_file_path,caffe_model_file_path,test_lmdb_path,mean
         for pl in labels_set:
             print "(%i , %i) | %i" % (l, pl, matrix[(l,pl)])
 
-def load_net(prototxt,caffemodel,mean_B=128,mean_G=128,mean_R=128,image='../../images/female1.jpg',image_width=150,image_height=200,image_depth=3,batch_size=256):
+def get_nn_answer(prototxt,caffemodel,mean_B=128,mean_G=128,mean_R=128,image_filename='../../images/female1.jpg',image_width=150,image_height=200):
         host = socket.gethostname()
         print('host:'+str(host))
         pc = False
@@ -76,40 +84,73 @@ def load_net(prototxt,caffemodel,mean_B=128,mean_G=128,mean_R=128,image='../../i
             pc = True
             caffe.set_mode_cpu()
         net = caffe.Net(prototxt,caffemodel,caffe.TEST)
+
+    #    solver = caffe.SGDSolver(proto_file_path)
         # see http://nbviewer.jupyter.org/github/BVLC/caffe/blob/master/examples/00-classification.ipynb
     #    mu = np.load(caffe_root + 'python/caffe/imagenet/ilsvrc_2012_mean.npy')
      #   mu = mu.mean(1).mean(1)  # average over pixels to obtain the mean (BGR) pixel values
-        mu = [mean_B,mean_G,mean_R]
-        print 'mean-subtracted values:', zip('BGR', mu)
-
         # create transformer for the input called 'data'
-        transformer = caffe.io.Transformer({'data': net.blobs['data'].data.shape})
+        trans = False
+        if trans:  #do the xforms using the caffe transformer
+            mu = np.array([mean_B,mean_G,mean_R])
+            print 'mean-subtracted values:',  mu
+            transformer = caffe.io.Transformer({'data': net.blobs['data'].data.shape})
+            logging.debug('transformer')
+            transformer.set_transpose('data', (2,0,1))  # move image channels to outermost dimension
+            logging.debug('transpose')
+            transformer.set_mean('data', mu)            # subtract the dataset-mean value in each channel
+       #     transformer.set_raw_scale('data', 255)      # rescale from [0, 1] to [0, 255]
+            logging.debug('mean')
+            transformer.set_raw_scale('data', 255)      # rescale from [0, 1] to [0, 255]
+            logging.debug('scale')
+        #    transformer.set_channel_swap('data', (2,1,0))  # swap channels from RGB to BGR
+        # set the size of the input (we can skip this if we're happy
+        #  with the default; we can also change it later, e.g., for different batch sizes)
+     #       net.blobs['data'].reshape(batch_size,        # batch size
+     #                                 image_depth,         # 3-channel (BGR) images
+     #                                image_width, image_height)  # image size is 227x227
+                #possibly use cv2.imread here instead as that's how i did it in lmdb_utils
+            image = caffe.io.load_image(image_filename)
+            logging.debug('load')
+            cv2.imshow(image_filename,image)
+            logging.debug('imshow')
+    #        fig = plt.figure()
+    #        fig.savefig('out.png')
+            transformed_image = transformer.preprocess('data', image)
+            logging.debug('preprocess')
+        else: #dont use transformer, rather do it myself
+            img_arr = cv2.imread(image_filename)
+            h,w = img_arr.shape[0:2]
+            if h != image_height or w != image_width:
+                img_arr = cv2.resize(img_arr,(image_height,image_width))
+            if mean_B is not None and mean_G is not None and mean_R is not None:
+                img_arr[:,:,0] = img_arr[:,:,0]-mean_B
+                img_arr[:,:,1] = img_arr[:,:,1]-mean_G
+                img_arr[:,:,2] = img_arr[:,:,2]-mean_R
+            img_arr = np.divide(img_arr,255.0)
+            transformed_image = img_arr.transpose((2,0,1))
 
-        transformer.set_transpose('data', (2,0,1))  # move image channels to outermost dimension
-        transformer.set_mean('data', mu)            # subtract the dataset-mean value in each channel
-   #     transformer.set_raw_scale('data', 255)      # rescale from [0, 1] to [0, 255]
-        transformer.set_raw_scale('data', 1.0/255)      # rescale from [0, 1] to [0, 255]
-    #    transformer.set_channel_swap('data', (2,1,0))  # swap channels from RGB to BGR
-    # set the size of the input (we can skip this if we're happy
-    #  with the default; we can also change it later, e.g., for different batch sizes)
- #       net.blobs['data'].reshape(batch_size,        # batch size
- #                                 image_depth,         # 3-channel (BGR) images
- #                                image_width, image_height)  # image size is 227x227
-        image = caffe.io.load_image(image)
-        transformed_image = transformer.preprocess('data', image)
-        fig = plt.figure()
-        fig.savefig('out.png')
-    #    plt.imshow(image)
     # copy the image data into the memory allocated for the net
         net.blobs['data'].data[...] = transformed_image
+        logging.debug('netblobs')
 
         ### perform classification
         output = net.forward()
 
-        output_prob = output['prob'][0]  # the output probability vector for the first image in the batch
+#        output_prob = output['prob'][0]  # the output probability vector for the first image in the batch
+#        print('all '+str(output))
+        n = net.blobs
+        print('net '+str(n))
 
-        print 'predicted classes:', output_prob
-        print 'predicted class is:', output_prob.argmax()
+        output = n['output_layer'].data
+        print('output '+str(output))
+
+
+        #        correct += sum(solver.test_nets[0].blobs['output_layer'].data.argmax(1)
+        #                       == solver.test_nets[0].blobs['label'].data)
+
+#        print 'predicted classes:', output_prob
+#        print 'predicted class is:', output_prob.argmax()
 
 
 def test_net(prototxt,caffemodel, db_path):
@@ -148,51 +189,130 @@ def sliding_window(image, stepSize, windowSize):
 			# yield the current window
 			yield (x, y, image[y:y + windowSize[1], x:x + windowSize[0]])
 
-def detect_with_scale_pyramid_and_sliding_window(img_arr,caffemodel):
+def detect_with_scale_pyramid_and_sliding_window(image_filename_or_cv2_array,prototxt,caffemodel,mean_B=128,mean_G=128,mean_R=128,image_width=150,image_height=200,show_visual_output=False):
+    caffe.set_mode_gpu()
+    if host == 'jr-ThinkPad-X1-Carbon':
+        caffe.set_mode_cpu()
+    net = caffe.Net(prototxt,caffemodel,caffe.TEST)
+    img_arr = Utils.get_cv2_img_array(image_filename_or_cv2_array)
+    orig_img_arr = img_arr.copy()
+
+    if(0):
+        if mean_B is not None and mean_G is not None and mean_R is not None:
+            img_arr[:,:,0] = img_arr[:,:,0]-mean_B
+            img_arr[:,:,1] = img_arr[:,:,1]-mean_G
+            img_arr[:,:,2] = img_arr[:,:,2]-mean_R
+        img_arr = np.divide(img_arr,255.0)
+        transformed_image = img_arr.transpose((2,0,1))
+
+        net.blobs['data'].data[...] = transformed_image
+        ### perform classification
+        output = net.forward()
+
+        logging.debug('orig shape '+str(img_arr.shape))
+        h,w = img_arr.shape[0:2]
+#    if h != image_height or w != image_width:
+#        img_arr = cv2.resize(img_arr,(image_width,image_height))
+
+# copy the image data into the memory allocated for the net
+
+
+    i=0
 # loop over the image pyramid
     for resized in pyramid(img_arr, scale=1.5):
         # loop over the sliding window for each layer of the pyramid
-        for (x, y, window) in sliding_window(resized, stepSize=32, windowSize=(winW, winH)):
+        for (x, y, window) in sliding_window(resized, stepSize=32, windowSize=(image_width, image_height)):
             # if the window does not meet our desired window size, ignore it
-            if window.shape[0] != winH or window.shape[1] != winW:
+            if window.shape[0] != image_height or window.shape[1] != image_width:
+                logging.debug('got bad window shape from sliding_window')
                 continue
 
             # THIS IS WHERE YOU WOULD PROCESS YOUR WINDOW, SUCH AS APPLYING A
             # MACHINE LEARNING CLASSIFIER TO CLASSIFY THE CONTENTS OF THE
             # WINDOW
+            img_arr2=window.copy()
+            if mean_B is not None and mean_G is not None and mean_R is not None:
+                img_arr2[:,:,0] = img_arr2[:,:,0]-mean_B
+                img_arr2[:,:,1] = img_arr2[:,:,1]-mean_G
+                img_arr2[:,:,2] = img_arr2[:,:,2]-mean_R
+            img_arr2 = np.divide(img_arr2,255.0)
+            transformed_image = img_arr2.transpose((2,0,1))
+
+            net.blobs['data'].data[...] = transformed_image
+            ### perform classification
+            output = net.forward()
+
+            n = net.blobs
+            print('net '+str(n))
+            output = n['output_layer'].data
+            print('output '+str(output))
+
 
             # since we do not have a classifier, we'll just draw the window
             clone = resized.copy()
-            cv2.rectangle(clone, (x, y), (x + winW, y + winH), (0, 255, 0), 2)
-            cv2.imshow("Window", clone)
-            cv2.waitKey(1)
-            time.sleep(0.025)
-
+            cv2.rectangle(clone, (x, y), (x + image_width, y +image_height), (0, 255, 0), 2)
+            if show_visual_output:
+                cv2.imshow("sliding window", clone)
+                cv2.imshow("window", window)
+                cv2.waitKey(1)
+                time.sleep(0.025)
+            fname = 'output'+str(i)+'.jpg'
+#            cv2.imwrite(fname,clone)
+            i = i +1
 
 
 def pyramid(image, scale=1.5, minSize=(30, 30)):
-	# yield the original image
-	yield image
+    # yield the original image
+    yield image
 
-	# keep looping over the pyramid
-	while True:
-		# compute the new dimensions of the image and resize it
-		w = int(image.shape[1] / scale)
-		image = imutils.resize(image, width=w)
+    # keep looping over the pyramid
+    while True:
+        # compute the new dimensions of the image and resize it
+        w = int(image.shape[1] / scale)
+        h = int(image.shape[0] / scale)
+        image = cv2.resize(image, (w,h))
 
-		# if the resized image does not meet the supplied minimum
-		# size, then stop constructing the pyramid
-		if image.shape[0] < minSize[1] or image.shape[1] < minSize[0]:
-			break
+        # if the resized image does not meet the supplied minimum
+        # size, then stop constructing the pyramid
+        if image.shape[0] < minSize[1] or image.shape[1] < minSize[0]:
+            break
 
-		# yield the next image in the pyramid
-		yield image
+        # yield the next image in the pyramid
+        yield image
 
 host = socket.gethostname()
 print('host:'+str(host))
 
 if __name__ == "__main__":
-    if host == "":
+
+    if host == 'jr-ThinkPad-X1-Carbon':
+        pass
+    else:
+        prototxt = '/home/jeremy/core/classifier_stuff/caffe_nns/alexnet10_binary_dresses/my_solver.deploy.prototxt'
+        caffemodel = '/home/jeremy/core/classifier_stuff/caffe_nns/alexnet10_binary_dresses/net_iter_9000.caffemodel'
+
+        img_filename = '/home/jeremy/core/images/female1.jpg'
+
+    parser = argparse.ArgumentParser(description='test an image yo')
+    parser.add_argument('-i', '--image', help='path to image file to be analyzed yo', required=False)
+    parser.add_argument('-d', '--deploy_proto', help='deploy prototxt', required=False)
+    parser.add_argument('-c', '--caffemodel', help='caffe model', required=False)
+    args = vars(parser.parse_args())
+    print args
+    args = parser.parse_args()
+    print args
+
+    if args.image:
+        img_filename = args.image
+    if args.deploy_proto:
+        prototxt = args.deploy_proto
+    if args.caffemodel:
+        caffemodel = args.caffemodel
+
+    print('img {} proto {} caffemodel {}'.format(img_filename,prototxt,caffemodel))
+    #get_nn_answer(prototxt,caffemodel,mean_B=112,mean_G=123,mean_R=136,image_filename=img_filename,image_width=150,image_height=200)
+    detect_with_scale_pyramid_and_sliding_window(img_filename,prototxt,caffemodel,mean_B=128,mean_G=128,mean_R=128,image_width=150,image_height=200,show_visual_output=False)
+
 #        deploy_prototxt
 #        conf_mat(deploy_prototxt_file_path,caffe_model_file_path,test_lmdb_path,meanB=128,meanG=128,meanR=128)
 

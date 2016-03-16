@@ -240,6 +240,14 @@ layer {
     6. 'DO' = Sequential.add(Dropout(->)) : 0.0 <= value <= 1.0
     7. 'D' = Sequential.add(Dense(->)) : int value > 0 (fu
 '''
+#layer {
+#  name: "data"
+#  type: "Input"
+#  top: "data"
+#  input_param { shape: { dim: 10 dim: 3 dim: 227 dim: 227 } }
+#}
+
+
 def vggnet(db, batch_size,n_classes=11,meanB=128,meanG=128,meanR=128,n_filters=50,n_ip1=1000):
     print('running mynet n {} B {} G {} R {} db {} batchsize {}'.format(n_classes,meanB,meanG,meanR,db,batch_size))
     lr_mult1 = 1
@@ -277,7 +285,9 @@ def vggnet(db, batch_size,n_classes=11,meanB=128,meanG=128,meanR=128,n_filters=5
     n.loss = L.SoftmaxWithLoss(n.ip2,n.label)
     return n.to_proto()
 
-def alexnet_linearized(db, batch_size,n_classes=11,meanB=128,meanG=128,meanR=128,n_filters=50,n_ip1=1000):
+def alexnet_linearized(db, batch_size,n_classes=11,meanB=128,meanG=128,meanR=128,n_filters=50,n_ip1=1000,deploy=False):
+
+
     print('building alexnet n {} B {} G {} R {} db {} batchsize {}'.format(n_classes,meanB,meanG,meanR,db,batch_size))
     lr_mult1 = 1
     lr_mult2 = 2
@@ -285,14 +295,19 @@ def alexnet_linearized(db, batch_size,n_classes=11,meanB=128,meanG=128,meanR=128
     decay_mult2 =0
 
     n=caffe.NetSpec()
-    if meanB is not None and meanG is not None and meanR is not None:
-        print('using vector mean ({} {} {})'.format(meanB,meanG,meanR ))
-        n.data,n.label=L.Data(batch_size=batch_size,backend=P.Data.LMDB,source=db,transform_param=dict(scale=1./255,mean_value=[meanB,meanG,meanR]),ntop=2)
-    elif meanB:
-        print('using 1D mean {} '.format(meanB))
-        n.data,n.label=L.Data(batch_size=batch_size,backend=P.Data.LMDB,source=db,transform_param=dict(scale=1./255,mean_value=meanB),ntop=2)
+
+    if deploy:
+#        n.data,n.label=L.Data(batch_size=batch_size,backend=P.Data.LMDB,source=db,transform_param=dict(scale=1./255,mean_value=[meanB,meanG,meanR]),ntop=2)
+        n.data = L.Input(input_param=dict(shape=dict(dim=[1,3,200,150])))
     else:
-        n.data,n.label=L.Data(batch_size=batch_size,backend=P.Data.LMDB,source=db,transform_param=dict(scale=1./255),ntop=2)
+        if meanB is not None and meanG is not None and meanR is not None:
+            print('using vector mean ({} {} {})'.format(meanB,meanG,meanR ))
+            n.data,n.label=L.Data(batch_size=batch_size,backend=P.Data.LMDB,source=db,transform_param=dict(scale=1./255,mean_value=[meanB,meanG,meanR]),ntop=2)
+        elif meanB:
+            print('using 1D mean {} '.format(meanB))
+            n.data,n.label=L.Data(batch_size=batch_size,backend=P.Data.LMDB,source=db,transform_param=dict(scale=1./255,mean_value=meanB),ntop=2)
+        else:
+            n.data,n.label=L.Data(batch_size=batch_size,backend=P.Data.LMDB,source=db,transform_param=dict(scale=1./255),ntop=2)
 
     n.conv1 = L.Convolution(n.data,param=[dict(lr_mult=lr_mult1,decay_mult=decay_mult1),
                                           dict(lr_mult=lr_mult2,decay_mult=decay_mult2)],
@@ -323,7 +338,8 @@ def alexnet_linearized(db, batch_size,n_classes=11,meanB=128,meanG=128,meanR=128
     n.relu7 = L.ReLU(n.ip2, in_place=True)
     n.output_layer = L.InnerProduct(n.ip2,param=[dict(lr_mult=lr_mult1),dict(lr_mult=lr_mult2)],num_output=n_classes,weight_filler=dict(type='xavier'))
 #maybe add relu here?
-    n.accuracy = L.Accuracy(n.output_layer,n.label)
+    if not deploy:
+        n.accuracy = L.Accuracy(n.output_layer,n.label)
     n.loss = L.SoftmaxWithLoss(n.output_layer,n.label)
     return n.to_proto()
 
@@ -737,6 +753,7 @@ def run_net(net_builder,nn_dir,train_db,test_db,batch_size = 64,n_classes=11,mea
                     #note the blob you check here has to be the final 'output layer'
                 correct += sum(solver.test_nets[0].blobs['output_layer'].data.argmax(1)
                                == solver.test_nets[0].blobs['label'].data)
+                print('{} outputlayer.data {}'.format(test_it,solver.test_nets[0].blobs['output_layer'].data))
             percent_correct = float(correct)/(n_sample*batch_size)
             print('correct {} n {} batchsize {} acc {} size(solver.test_nets[0].blob[output_layer]'.format(correct,n_sample,batch_size, percent_correct,len(solver.test_nets[0].blobs['label'].data)))
             test_acc[it // test_interval] = percent_correct
@@ -761,25 +778,31 @@ def run_net(net_builder,nn_dir,train_db,test_db,batch_size = 64,n_classes=11,mea
  #   fig = plt.figure()
  #   fig.savefig('out.png')
 
+        #figure 1 - train loss and train acc. for all forward passes
         fig1 = plt.figure()
         ax1 = fig1.add_subplot(111)
-        ax1.plot(arange(niter), train_loss,'r.-',label='train_loss')
-        ax1.set_ylabel('test accuracy/loss',color='r')
+        ax1.plot(arange(niter), train_loss,'r.-')
+        ax1.set_title('train loss / accuracy for '+str(train_db))
+        ax1.set_ylabel('test loss',color='r')
         ax1.set_xlabel('iteration',color='g')
 
         axb = ax1.twinx()
         axb.plot(arange(niter), train_acc,'b.-',label='train_acc')
-        axb.set_ylabel('sin', color='b')
+        axb.set_ylabel('train acc.', color='b')
         legend = ax1.legend(loc='upper center', shadow=True)
         plt.show()
 
-
+        #figure 2 - train and test acc every N passes
         fig2 = plt.figure()
         ax2 = fig2.add_subplot(111)
         ax2.plot(arange(int(np.ceil(niter / test_interval))), test_acc,'b.-')
         ax2.plot(arange(int(np.ceil(niter / test_interval))), train_acc2,'g.-')
         ax2.set_xlabel('iteration/'+str(test_interval))
         ax2.set_ylabel('test/train accuracy')
+        ax1.set_title('train, test acc for '+str(train_db)+','+str(test_db))
+        #axes = plt.gca()
+        #ax1.set_xlim([xmin,xmax])
+        ax2.set_ylim([0,1])
         legend = ax2.legend(loc='upper center', shadow=True)
         plt.show()
 
@@ -796,9 +819,9 @@ def run_net(net_builder,nn_dir,train_db,test_db,batch_size = 64,n_classes=11,mea
     print('acc:'+str(test_acc))
     outfilename = os.path.join(nn_dir,'results.txt')
     with open(outfilename,'a') as f:
-        f.write('dir {} db {}'.format(nn_dir,train_db,test_db))
+        f.write('dir {}\n db {}\nAccuracy\n'.format(nn_dir,train_db,test_db))
         f.write(str(test_acc))
-        f.write(str(train_net))
+#        f.write(str(train_net))
         f.close()
 
 
@@ -863,7 +886,7 @@ if __name__ == "__main__":
   #  lmdb_utils.inspect_db(db_name+'.test')
     generate_db = True
     if generate_db:
-        filters = ['dresses','eyewear','footwear','hats','leggings','outerwear','pants','skirts','tops'] #done -  'bags','belts',
+        filters = ['pants','skirts','tops'] #done -  'bags','belts','dresses','eyewear','footwear','hats','leggings','outerwear',
         for a_filter in filters:
             db_name = 'binary_'+a_filter
             n_test_classes,test_populations,test_imageno = lmdb_utils.interleaved_dir_of_dirs_to_lmdb(db_name,dir_of_dirs,max_images_per_class =5000,
