@@ -189,7 +189,7 @@ def sliding_window(image, stepSize, windowSize):
 			# yield the current window
 			yield (x, y, image[y:y + windowSize[1], x:x + windowSize[0]])
 
-def detect_with_scale_pyramid_and_sliding_window(image_filename_or_cv2_array,prototxt,caffemodel,mean_B=128,mean_G=128,mean_R=128,image_width=150,image_height=200):
+def detect_with_scale_pyramid_and_sliding_window(image_filename_or_cv2_array,prototxt,caffemodel,mean_B=128,mean_G=128,mean_R=128,image_width=150,image_height=200,show_visual_output=False):
     caffe.set_mode_gpu()
     if host == 'jr-ThinkPad-X1-Carbon':
         caffe.set_mode_cpu()
@@ -251,10 +251,11 @@ def detect_with_scale_pyramid_and_sliding_window(image_filename_or_cv2_array,pro
             # since we do not have a classifier, we'll just draw the window
             clone = resized.copy()
             cv2.rectangle(clone, (x, y), (x + image_width, y +image_height), (0, 255, 0), 2)
-            cv2.imshow("sliding window", clone)
-            cv2.imshow("window", window)
+            if show_visual_output:
+                cv2.imshow("sliding window", clone)
+                cv2.imshow("window", window)
             fname = 'output'+str(i)+'.jpg'
-            cv2.imwrite(fname,clone)
+#            cv2.imwrite(fname,clone)
             cv2.waitKey(1)
             time.sleep(0.025)
             i = i +1
@@ -310,7 +311,7 @@ if __name__ == "__main__":
 
     print('img {} proto {} caffemodel {}'.format(img_filename,prototxt,caffemodel))
     #get_nn_answer(prototxt,caffemodel,mean_B=112,mean_G=123,mean_R=136,image_filename=img_filename,image_width=150,image_height=200)
-    detect_with_scale_pyramid_and_sliding_window(img_filename,prototxt,caffemodel,mean_B=128,mean_G=128,mean_R=128,image_width=150,image_height=200)
+    detect_with_scale_pyramid_and_sliding_window(img_filename,prototxt,caffemodel,mean_B=128,mean_G=128,mean_R=128,image_width=150,image_height=200,show_visual_output=False)
 
 #        deploy_prototxt
 #        conf_mat(deploy_prototxt_file_path,caffe_model_file_path,test_lmdb_path,meanB=128,meanG=128,meanR=128)
