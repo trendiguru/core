@@ -254,10 +254,10 @@ def detect_with_scale_pyramid_and_sliding_window(image_filename_or_cv2_array,pro
             if show_visual_output:
                 cv2.imshow("sliding window", clone)
                 cv2.imshow("window", window)
+                cv2.waitKey(1)
+                time.sleep(0.025)
             fname = 'output'+str(i)+'.jpg'
 #            cv2.imwrite(fname,clone)
-            cv2.waitKey(1)
-            time.sleep(0.025)
             i = i +1
 
 
