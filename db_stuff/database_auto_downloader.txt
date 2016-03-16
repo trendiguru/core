@@ -1,0 +1,29 @@
+# this is a job list for cron
+# to see cron running tasks "ps -o pid,sess,cmd afx | grep -A20 'cron$'"
+# to insert this list to cron type: '$ crontab /home/developer/python-packages/trendi/db_stuff/database_auto_downloader'
+# the check if the list was inserted correctly by typing:'$ crontab -l'
+#
+# the download schedule:
+# 1. products at 4 am (shopstyle)
+# 2. ebay at 12 pm
+#
+#
+# example: open 6 rqworkers - 1-6 7 * * * sudo rqworker -u redis://redis1-redis-1-vm:6379 fingerprint_new &
+# standard output ans error will be logged temporarily in /home/developer/current_job.log
+# download log will be saved to /home/developer/download.log
+1 0 * * * date >> /home/developer/download.log 2>&1
+2 0 * * * echo "daily clean up - restarting all fingerprinters" >> /home/developer/download.log 2>&1
+3 0 * * * sudo supervisorctl restart fingerprint_new: >> /home/developer/download.log 2>&1
+59 3 * * * echo "shopstyle products dl started at 4 am" >> /home/developer/download.log 2>&1
+0 4 * * * python -m trendi.db_stuff oldschool_dl > /home/developer/current_job.log 2>&1
+59 11 * * * echo "ebay dl started at 12 am" >> /home/developer/download.log 2>&1
+0 12 * * * python -m trendi.db_stuff.ebay_dl > /home/developer/current_job.log 2>&1
+
+
+
+
+
+
+
+
+
