@@ -708,10 +708,10 @@ def small_googLeNet(db, batch_size, n_classes=11, meanB=128, meanG=128, meanR=12
                             weight_filler=dict(type='xavier'),
                             bias_filler=dict(type='constant',value=0.2))
 
-    return n.to_proto()
-'''
     n.inception_3a_relu_pool_proj_25 = L.ReLU(n.inception_3a_pool_proj_24, in_place=True)
-    n.inception_3a_output_26 = L.Concat(bottom=[n.inception_3a_1x1_13,n.inception_3a_3x3_17,n.inception_3a_5x5_21,n.inception_3a_pool_proj_24])
+
+
+    n.inception_3a_output_26 = L.Concat(n.inception_3a_relu_pool_proj_25,bottom=[n.inception_3a_1x1_13,n.inception_3a_3x3_17,n.inception_3a_5x5_21,n.inception_3a_pool_proj_24])
 
 
 
@@ -724,7 +724,8 @@ def small_googLeNet(db, batch_size, n_classes=11, meanB=128, meanG=128, meanR=12
     n.loss = L.SoftmaxWithLoss(n.output_layer,n.label)
 #    n.accuracy = L.Accuracy(n.output_layer,n.label,include=[dict(phase=TEST)])
     n.accuracy = L.Accuracy(n.output_layer,n.label)
-'''
+
+    return n.to_proto()
 
 #layers at end of googLeNet:
 '''
