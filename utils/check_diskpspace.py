@@ -5,6 +5,7 @@ import smtplib
 import sys
 sender = 'the_guru@trendi.guru'
 receivers = ['jeremy.rutman@gmail.com']
+receivers = 'jeremy.rutman@gmail.com'
 
 message = """From: the guru <the_guru@trendi.guru>
 To: To Person <to@todomain.com>
@@ -29,7 +30,7 @@ for line in relevant_lines:
         try:
            smtpObj = smtplib.SMTP('localhost')
            smtpObj.sendmail(sender, receivers, message)
-           print "Successfully sent email"
+           print "Successfully sent email to "+str(receivers)
         except :
            print "Error: unable to send email: "+ str(sys.exc_info()[0])
 
