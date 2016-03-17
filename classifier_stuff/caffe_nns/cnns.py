@@ -657,8 +657,6 @@ def small_googLeNet(db, batch_size, n_classes=11, meanB=128, meanG=128, meanR=12
     n.conv2_relu_3x3_10 = L.ReLU(n.conv2_3x3_9,in_place=True)
     n.conv2_norm2_11 = L.LRN(n.conv2_3x3_9,lrn_param=dict(local_size=5,alpha=0.0001,beta=0.75))
 
-    return n.to_proto()
-'''
 
     n.pool2_3x3_s2_12 = L.Pooling(n.conv2_norm2_11, kernel_size=3, stride=2, pool=P.Pooling.MAX)
     ###########above is the inception input layer, 4 things should refer to it
@@ -701,6 +699,9 @@ def small_googLeNet(db, batch_size, n_classes=11, meanB=128, meanG=128, meanR=12
                             bias_filler=dict(type='constant',value=0.2))
     n.inception_3a_relu5x5_22 = L.ReLU(n.inception_3a_5x5_21,in_place=True)
 
+    return n.to_proto()
+
+'''
     n.inception_3a_pool_23 = L.Pooling(n.pool2_3x3_s2_12, kernel_size=3, stride=1,pad=1, pool=P.Pooling.MAX)
     n.inception_3a_pool_proj_24 =  L.Convolution(n.inception_3a_pool_23, param=[dict(lr_mult=lr_mult1,decay_mult=decay_mult1),
                             dict(lr_mult=lr_mult2,decay_mult=decay_mult2)],
