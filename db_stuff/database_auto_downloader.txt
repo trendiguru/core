@@ -15,7 +15,7 @@
 2 0 * * * echo "daily clean up - restarting all fingerprinters" >> /home/developer/download.log 2>&1
 3 0 * * * sudo supervisorctl restart fingerprint_new: >> /home/developer/download.log 2>&1
 59 3 * * * echo "shopstyle products dl started at 4 am" >> /home/developer/download.log 2>&1
-0 4 * * * python -m trendi.db_stuff oldschool_dl > /home/developer/current_job.log 2>&1
+0 4 * * * python -m trendi.db_stuff.oldschool_dl > /home/developer/current_job.log 2>&1
 59 11 * * * echo "ebay dl started at 12 am" >> /home/developer/download.log 2>&1
 0 12 * * * python -m trendi.db_stuff.ebay_dl > /home/developer/current_job.log 2>&1
 
