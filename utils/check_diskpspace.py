@@ -12,20 +12,8 @@ from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
 import datetime
 import subprocess
-import csv
-from collections import OrderedDict
-
-import tldextract
-
-import pymongo
-from rq import Queue
-
-from . import whitelist
-from .constants import db
-from .constants import redis_conn
 
 
-test_q = Queue('test_q', connection=redis_conn)
 nadav = 'nadav@trendiguru.com'
 lior = 'lior@trendiguru.com'
 kyle = 'kyle@trendiguru.com'
