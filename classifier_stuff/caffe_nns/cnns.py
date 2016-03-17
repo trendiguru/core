@@ -711,7 +711,8 @@ def small_googLeNet(db, batch_size, n_classes=11, meanB=128, meanG=128, meanR=12
     n.inception_3a_relu_pool_proj_25 = L.ReLU(n.inception_3a_pool_proj_24, in_place=True)
 
 
-    n.inception_3a_output_26 = L.Concat(n.inception_3a_relu_pool_proj_25,bottom=[n.inception_3a_1x1_13,n.inception_3a_3x3_17,n.inception_3a_5x5_21,n.inception_3a_pool_proj_24])
+    bottom_layers = [n.inception_3a_1x1_13,n.inception_3a_3x3_17,n.inception_3a_5x5_21,n.inception_3a_pool_proj_24]
+    n.inception_3a_output_26 = L.Concat(*bottom_layers)
 
 
 
