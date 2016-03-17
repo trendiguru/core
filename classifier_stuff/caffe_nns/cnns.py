@@ -717,7 +717,8 @@ def small_googLeNet(db, batch_size, n_classes=11, meanB=128, meanG=128, meanR=12
 
 
     n.inception_3a_avg_pool = L.Pooling(n.inception_3a_output_26, kernel_size=7, stride = 1,pool=P.Pooling.AVE)
-    n.final_dropout = L.Dropout(n.inception_3a_avg_pool, dropout_ratio=dict(factor=0.4),in_place=True)
+    n.final_dropout = L.Dropout(n.inception_3a_avg_pool, dropout_param=dict(dropout_ratio=0.4),in_place=True)
+#    n.final_dropout = L.Dropout(n.inception_3a_avg_pool, in_place=True)
     n.output_layer = L.InnerProduct(n.inception_3a_avg_pool,param=[dict(lr_mult=lr_mult1),dict(lr_mult=lr_mult2)],num_output=n_classes,weight_filler=dict(type='xavier'))
 
 
