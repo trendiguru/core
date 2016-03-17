@@ -701,15 +701,15 @@ def small_googLeNet(db, batch_size, n_classes=11, meanB=128, meanG=128, meanR=12
 
     n.inception_3a_pool_23 = L.Pooling(n.pool2_3x3_s2_12, kernel_size=3, stride=1,pad=1, pool=P.Pooling.MAX)
 
-    return n.to_proto()
-'''
-
     n.inception_3a_pool_proj_24 =  L.Convolution(n.inception_3a_pool_23, param=[dict(lr_mult=lr_mult1,decay_mult=decay_mult1),
                             dict(lr_mult=lr_mult2,decay_mult=decay_mult2)],
                             num_output=32,
                             kernel_size=1,
                             weight_filler=dict(type='xavier'),
                             bias_filler=dict(type='constant',value=0.2))
+
+    return n.to_proto()
+'''
     n.inception_3a_relu_pool_proj_25 = L.ReLU(n.inception_3a_pool_proj_24, in_place=True)
     n.inception_3a_output_26 = L.Concat(bottom=[n.inception_3a_1x1_13,n.inception_3a_3x3_17,n.inception_3a_5x5_21,n.inception_3a_pool_proj_24])
 
