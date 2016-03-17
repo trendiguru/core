@@ -644,9 +644,9 @@ def small_googLeNet(db, batch_size, n_classes=11, meanB=128, meanG=128, meanR=12
                             kernel_size=1,
                             weight_filler=dict(type='xavier'),
                             bias_filler=dict(type='constant',value=0.2))
-    n.conv2_relu_3x3_reduce_8 = L.ReLU(n.conv2_3x3reduce_7,in_place=True)
+    n.conv2_relu_3x3_reduce_8 = L.ReLU(n.conv2_3x3_reduce_7,in_place=True)
 
-    n.conv2_3x3_9 = L.Convolution(n.conv2_3x3reduce_7,param=[dict(lr_mult=lr_mult1,decay_mult=decay_mult1),
+    n.conv2_3x3_9 = L.Convolution(n.conv2_3x3_reduce_7,param=[dict(lr_mult=lr_mult1,decay_mult=decay_mult1),
                             dict(lr_mult=lr_mult2,decay_mult=decay_mult2)],
                             num_output=192,
                             pad = 1,
