@@ -26,7 +26,7 @@ all = 'members@trendiguru.com'
 
 
 sender = 'the_guru@trendi.guru'
-receivers = ['jeremy.rutman@gmail.com','jeremy_spagnet@hotmail.com']
+receivers = [nadav,lior,jeremy,yonti]
 #receivers = 'jeremy.rutman@gmail.com'
 
 message = """From: the guru <the_guru@trendi.guru>
@@ -82,7 +82,7 @@ for line in relevant_lines:
     print('device {} size {} u {} a{} p {} m {}'.format(device, size, used, available, percent, mountpoint))
     percentage = percent.split('%')[0]
    # print percentage
-    if int(percentage)>10:
+    if int(percentage)>90:
         print('high percent on {}!'.format(device))
         message = 'high percent disk use ({})% on {}!'.format(percentage,device)
         try:
