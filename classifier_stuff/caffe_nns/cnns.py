@@ -485,7 +485,7 @@ def mynet(db, batch_size,n_classes=11,meanB=128,meanG=128,meanR=128,n_filters=50
 
 def googLeNet(db, batch_size, n_classes=11, meanB=128, meanG=128, meanR=128):
 #    print('running mynet n {} B {} G {} R {] db {} batchsize {} '.format(n_classes,meanB,meanG,meanR,db,batch_size))
-    print('running mynet n {}  batchsize {} '.format(n_classes,batch_size))
+    print('running GoogLenet n {}  batchsize {} '.format(n_classes,batch_size))
    #crop size 224
     lr_mult1 = 1
     lr_mult2 = 2
@@ -607,7 +607,7 @@ def googLeNet(db, batch_size, n_classes=11, meanB=128, meanG=128, meanR=128):
 
 def small_googLeNet(db, batch_size, n_classes=11, meanB=128, meanG=128, meanR=128,n_filters=50,n_ip1=1000):
 #    print('running mynet n {} B {} G {} R {] db {} batchsize {} '.format(n_classes,meanB,meanG,meanR,db,batch_size))
-    print('running mynet n {}  batchsize {} '.format(n_classes,batch_size))
+    print('running small googlenet n {}  batchsize {} '.format(n_classes,batch_size))
    #crop size 224
     lr_mult1 = 1
     lr_mult2 = 2
@@ -634,6 +634,7 @@ def small_googLeNet(db, batch_size, n_classes=11, meanB=128, meanG=128, meanR=12
                             stride = 2,
                             weight_filler=dict(type='xavier'),
                             bias_filler=dict(type='constant',value=0.2))
+'''
     n.conv1_relu_7x7_4 = L.ReLU(n.conv1_7x7_s2_3,in_place=True)
     n.pool1_3x3_s2_5 = L.Pooling(n.conv1_7x7_s2_3, kernel_size=3, stride=2, pool=P.Pooling.MAX)
     n.pool1_norm1_6 = L.LRN(n.pool1_3x3_s2_5,lrn_param=dict(local_size=5,alpha=0.0001,beta=0.75))
@@ -712,6 +713,7 @@ def small_googLeNet(db, batch_size, n_classes=11, meanB=128, meanG=128, meanR=12
     n.loss = L.SoftmaxWithLoss(n.output_layer,n.label)
 #    n.accuracy = L.Accuracy(n.output_layer,n.label,include=[dict(phase=TEST)])
     n.accuracy = L.Accuracy(n.output_layer,n.label)
+'''
     return n.to_proto()
 
 #layers at end of googLeNet:
