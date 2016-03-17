@@ -665,7 +665,7 @@ def small_googLeNet(db, batch_size, n_classes=11, meanB=128, meanG=128, meanR=12
                             bias_filler=dict(type='constant',value=0.2))
     n.inception_3a_relu1x1_14 = L.ReLU(n.inception_3a_1x1_13,in_place=True)
 # does inception_3a get used later
-    n.inception_3a_3x3_reduce_15 =  L.Convolution(n.pool2,param=[dict(lr_mult=lr_mult1,decay_mult=decay_mult1),
+    n.inception_3a_3x3_reduce_15 =  L.Convolution(n.pool2_3x3_s2_12,param=[dict(lr_mult=lr_mult1,decay_mult=decay_mult1),
                             dict(lr_mult=lr_mult2,decay_mult=decay_mult2)],
                             num_output=96,
                             kernel_size=1,
@@ -676,7 +676,7 @@ def small_googLeNet(db, batch_size, n_classes=11, meanB=128, meanG=128, meanR=12
                             dict(lr_mult=lr_mult2,decay_mult=decay_mult2)],
                             num_output=128,
                             pad = 1,
-                            kernel_size=3,
+                            kernel_size=3,   #kern=3 and pad=1 keeps size apparently
                             weight_filler=dict(type='xavier'),
                             bias_filler=dict(type='constant',value=0.2))
     n.inception_3a_relu3x3_18 = L.ReLU(n.inception_3a_3x3_17,in_place=True)
@@ -688,18 +688,20 @@ def small_googLeNet(db, batch_size, n_classes=11, meanB=128, meanG=128, meanR=12
                             weight_filler=dict(type='xavier'),
                             bias_filler=dict(type='constant',value=0.2))
     n.inception_3a_relu5x5_reduce_20 = L.ReLU(n.inception_3a_5x5_reduce_19,in_place=True)
-    n.inception_3a_5x5_21 =  L.Convolution(n.inception_3a_relu5x5_reduce_20,param=[dict(lr_mult=lr_mult1,decay_mult=decay_mult1),
+    n.inception_3a_5x5_21 =  L.Convolution(n.inception_3a_relu5x5_reduce_19,param=[dict(lr_mult=lr_mult1,decay_mult=decay_mult1),
                             dict(lr_mult=lr_mult2,decay_mult=decay_mult2)],
                             num_output=32,
                             pad = 2,
-                            kernel_size=5,
+                            kernel_size=5,  #same for kern=5 pad=2
                             weight_filler=dict(type='xavier'),
                             bias_filler=dict(type='constant',value=0.2))
     n.inception_3a_relu5x5_22 = L.ReLU(n.inception_3a_5x5_21,in_place=True)
+
     n.inception_3a_pool_23 = L.Pooling(n.pool2_3x3_s2_12, kernel_size=3, stride=1,pad=1, pool=P.Pooling.MAX)
     n.inception_3a_pool_proj_24 =  L.Convolution(n.inception_3a_pool_23, param=[dict(lr_mult=lr_mult1,decay_mult=decay_mult1),
                             dict(lr_mult=lr_mult2,decay_mult=decay_mult2)],
                             num_output=32,
+                            kernel_size=1,
                             weight_filler=dict(type='xavier'),
                             bias_filler=dict(type='constant',value=0.2))
     n.inception_3a_relu_pool_proj_25 = L.ReLU(n.inception_3a_pool_proj_24, in_place=True)
