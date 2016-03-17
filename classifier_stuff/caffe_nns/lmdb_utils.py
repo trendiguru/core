@@ -163,7 +163,22 @@ def crop_dir(dir_to_crop,resize_x,resize_y,save_cropped=False,use_bb_from_name=T
         h=img_arr.shape[0]
         w=img_arr.shape[1]
 
+def generate_binary_dbs(dir_of_dirs,filter='test'):
+    '''
+    This will generate all binary combos from a directory, e.g. dir_a,dir_b,dir_c will lead to db_a_vs_b, db_a_vs_c, db_b_vs_c
+    :param dir_of_dirs:
+    :param filter: required word in dirs , e.g. 'train' to limit dirs to those that have 'train' in the name
+    :return:list of db locations
+    '''
+    if filter is not None:
+        only_dirs = [dir for dir in os.listdir(dir_of_dirs) if os.path.isdir(os.path.join(dir_of_dirs,dir)) and filter in dir]
+    else:
+        only_dirs = [dir for dir in os.listdir(dir_of_dirs) if os.path.isdir(os.path.join(dir_of_dirs,dir)) ]
+    only_dirs.sort()
+    print(str(len(only_dirs))+' relevant dirs in '+dir_of_dirs)
 
+    for dir1 in only_dirs:
+        remaining_dirs = only_dirs.de
 
 def interleaved_dir_of_dirs_to_lmdb(dbname,dir_of_dirs,test_or_train=None,max_images_per_class = 150000,
                                     resize_x=None,resize_y=None,write_cropped=False,

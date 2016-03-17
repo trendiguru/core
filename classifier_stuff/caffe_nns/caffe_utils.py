@@ -18,8 +18,67 @@ import logging
 logging.basicConfig(level=logging.DEBUG)
 
 from trendi import Utils
+from trendi.classifier_stuff.caffe_nns import lmdb_utils
 
-def conf_mat(deploy_prototxt_file_path,caffe_model_file_path,test_lmdb_path,meanB=128,meanG=128,meanR=128):
+def confusion_vector_for_binary_classifiers(deploy_prototxt,caffe_model_file_path,test_lmdb_path_list=None,meanB=128,meanG=128,meanR=128):
+    if host != 'jr-ThinkPad-X1-Carbon':
+        caffe.set_mode_gpu()
+    if test_lmdb_path_list is None:
+        lmdb_utils.generate_binary_dbs(dir_of_dirs,filter='test')
+
+    # Modify the paths given below
+    # Extract mean from the mean image file
+#    mean_blobproto_new = caffe.proto.caffe_pb2.BlobProto()
+  #  f = open(mean_file_binaryproto, 'rb')
+   # mean_blobproto_new.ParseFromString(f.read())
+   # mean_image = caffe.io.blobproto_to_array(mean_blobproto_new)
+    #f.close()
+
+    # CNN reconstruction and loading the trained weights
+    net = caffe.Net(deploy_prototxt_file_path, caffe_model_file_path, caffe.TEST)
+
+    count = 0
+    correct = 0
+    matrix = defaultdict(int) # (real,pred) -> int
+    labels_set = set()
+
+    lmdb_env = lmdb.open(test_lmdb_path)
+    lmdb_txn = lmdb_env.begin()
+    lmdb_cursor = lmdb_txn.cursor()
+
+    for key, value in lmdb_cursor:
+        datum = caffe.proto.caffe_pb2.Datum()
+        datum.ParseFromString(value)
+        label = int(datum.label)
+        image = caffe.io.datum_to_array(datum)
+        image = image.astype(np.uint8)
+#        out = net.forward_all(data=np.asarray([image]) - mean_image)
+#        image[:,:,0] = image[:,:,0]- meanB
+  #      image[:,:,1] = image[:,:,1]- meanB
+    #    image[:,:,2] = image[:,:,2] - meanB
+        thedata = np.asarray([image])
+        out = net.forward_all(thedata)
+        plabel = int(out['prob'][0].argmax(axis=0))
+        count += 1
+        iscorrect = label == plabel
+        correct += (1 if iscorrect else 0)
+        matrix[(label, plabel)] += 1
+        labels_set.update([label, plabel])
+
+        if not iscorrect:
+            print("\rError: key = %s, expected %i but predicted %i" % (key, label, plabel))
+            sys.stdout.write("\rAccuracy: %.1f%%" % (100.*correct/count))
+            sys.stdout.flush()
+
+    print("\n" + str(correct) + " out of " + str(count) + " were classified correctly")
+    print ""
+    print "Confusion matrix:"
+    print "(r , p) | count"
+    for l in labels_set:
+        for pl in labels_set:
+            print "(%i , %i) | %i" % (l, pl, matrix[(l,pl)])
+
+def confusion_matrix(deploy_prototxt_file_path,caffe_model_file_path,test_lmdb_path,meanB=128,meanG=128,meanR=128):
 #    caffe.set_mode_gpu()
 
     # Modify the paths given below
