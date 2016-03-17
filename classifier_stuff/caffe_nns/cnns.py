@@ -605,7 +605,7 @@ def googLeNet(db, batch_size, n_classes=11, meanB=128, meanG=128, meanR=128):
     #n.loss = L.SoftmaxWithLoss(n.ip2,n.label)
     return n.to_proto()
 
-def small_googLeNet(db, batch_size, n_classes=11, meanB=128, meanG=128, meanR=128):
+def small_googLeNet(db, batch_size, n_classes=11, meanB=128, meanG=128, meanR=128,n_filters=50,n_ip1=1000):
 #    print('running mynet n {} B {} G {} R {] db {} batchsize {} '.format(n_classes,meanB,meanG,meanR,db,batch_size))
     print('running mynet n {}  batchsize {} '.format(n_classes,batch_size))
    #crop size 224
