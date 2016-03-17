@@ -1066,9 +1066,9 @@ if __name__ == "__main__":
 
 #    lmdb_utils.inspect_db(db_name+'.train')
   #  lmdb_utils.inspect_db(db_name+'.test')
-    generate_db = True
+    filters = ['bags','belts','dresses','eyewear','footwear','hats','leggings','outerwear','pants','skirts','tops'] #done -
+    generate_db = False
     if generate_db:
-        filters = ['pants','skirts','tops'] #done -  'bags','belts','dresses','eyewear','footwear','hats','leggings','outerwear',
         for a_filter in filters:
             db_name = 'binary_'+a_filter
             n_test_classes,test_populations,test_imageno = lmdb_utils.interleaved_dir_of_dirs_to_lmdb(db_name,dir_of_dirs,max_images_per_class =5000,
@@ -1096,7 +1096,7 @@ if __name__ == "__main__":
 
 
     else:
-        n_classes  = 11
+        n_classes  = 2
 
 #    lmdb_utils.inspect_db(db_name+'.train')
   #  lmdb_utils.inspect_db(db_name+'.test')
@@ -1119,8 +1119,10 @@ if __name__ == "__main__":
     #     run_my_net(nn_dir,db_name+'.train',db_name+'.test',batch_size = batch_size,n_classes=n_classes,meanB=B,meanR=R,meanG=G,n_filters=70,n_ip1=2000)
 
 #    run_net(alexnet_linearized,nn_dir,db_name+'.train',db_name+'.test',batch_size = batch_size,n_classes=n_classes,meanB=B,meanR=R,meanG=G,n_filters=50,n_ip1=1000)
+for a_filter in filters:
+    db_name = 'binary_'+a_filter
     run_net(small_googLeNet,nn_dir,db_name+'.train',db_name+'.test',batch_size = batch_size,n_classes=n_classes,meanB=B,meanR=R,meanG=G,n_filters=50,n_ip1=1000)
-    small_googLeNet()
+
 
 #to train at cli:
 # caffe train -solver=solver_prototxt
