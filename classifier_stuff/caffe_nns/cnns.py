@@ -657,7 +657,7 @@ def small_googLeNet(db, batch_size, n_classes=11, meanB=128, meanG=128, meanR=12
     n.conv2_norm2_11 = L.LRN(n.conv2_3x3_9,lrn_param=dict(local_size=5,alpha=0.0001,beta=0.75))
     n.pool2_3x3_s2_12 = L.Pooling(n.conv2_norm2_11, kernel_size=3, stride=2, pool=P.Pooling.MAX)
 
-    n.inception_3a_1x1_13 = L.Convolution(n.pool2_3x3s2_12,param=[dict(lr_mult=lr_mult1,decay_mult=decay_mult1),
+    n.inception_3a_1x1_13 = L.Convolution(n.pool2_3x3_s2_12,param=[dict(lr_mult=lr_mult1,decay_mult=decay_mult1),
                             dict(lr_mult=lr_mult2,decay_mult=decay_mult2)],
                             num_output=64,
                             kernel_size=1,
