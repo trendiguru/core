@@ -634,6 +634,9 @@ def small_googLeNet(db, batch_size, n_classes=11, meanB=128, meanG=128, meanR=12
                             stride = 2,
                             weight_filler=dict(type='xavier'),
                             bias_filler=dict(type='constant',value=0.2))
+
+    return n.to_proto()
+
 '''
     n.conv1_relu_7x7_4 = L.ReLU(n.conv1_7x7_s2_3,in_place=True)
     n.pool1_3x3_s2_5 = L.Pooling(n.conv1_7x7_s2_3, kernel_size=3, stride=2, pool=P.Pooling.MAX)
@@ -714,7 +717,6 @@ def small_googLeNet(db, batch_size, n_classes=11, meanB=128, meanG=128, meanR=12
 #    n.accuracy = L.Accuracy(n.output_layer,n.label,include=[dict(phase=TEST)])
     n.accuracy = L.Accuracy(n.output_layer,n.label)
 '''
-    return n.to_proto()
 
 #layers at end of googLeNet:
 '''
