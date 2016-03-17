@@ -706,9 +706,9 @@ def small_googLeNet(db, batch_size, n_classes=11, meanB=128, meanG=128, meanR=12
     n.inception_3a_relu_pool_proj_25 = L.ReLU(n.inception_3a_pool_proj_24, in_place=True)
     n.inception_3a_output_26 = L.Concat(bottom=[n.inception_3a_1x1_13,n.inception_3a_3x3_17,n.inception_3a_5x5_21,n.inception_3a_pool_proj_24])
     n.inception_3a_avg_pool = L.Pooling(n.inception_3a_output_26, kernel_size=7, stride = 1,pool=P.Pooling.AVE)
-    n.final_dropout = L.Dropout(n.inception_3a_avg_pool, dropout_ratio=dict(factor=0.4))
+    n.final_dropout = L.Dropout(n.inception_3a_avg_pool, dropout_ratio=dict(factor=0.4),in_place=True)
 
-    n.output_layer = L.InnerProduct(n.pool3,param=[dict(lr_mult=lr_mult1),dict(lr_mult=lr_mult2)],num_output=n_classes,weight_filler=dict(type='xavier'))
+    n.output_layer = L.InnerProduct(n.inception_3a_avg_pool,param=[dict(lr_mult=lr_mult1),dict(lr_mult=lr_mult2)],num_output=n_classes,weight_filler=dict(type='xavier'))
     n.loss = L.SoftmaxWithLoss(n.output_layer,n.label)
 #    n.accuracy = L.Accuracy(n.output_layer,n.label,include=[dict(phase=TEST)])
     n.accuracy = L.Accuracy(n.output_layer,n.label)
