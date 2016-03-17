@@ -626,7 +626,8 @@ def small_googLeNet(db, batch_size, n_classes=11, meanB=128, meanG=128, meanR=12
     else: #no mean to remove
         n.data_1,n.label=L.Data(batch_size=batch_size,backend=P.Data.LMDB,source=db,transform_param=dict(scale=1./255,mirror=True),ntop=2)
 
-    n.conv1_7x7_s2_3 = L.Convolution(n.data_1,param=[dict(lr_mult=lr_mult1,decay_mult=decay_mult1),
+#n.conv1_7x7_s2_3
+    n.conv1 = L.Convolution(n.data_1,param=[dict(lr_mult=lr_mult1,decay_mult=decay_mult1),
                             dict(lr_mult=lr_mult2,decay_mult=decay_mult2)],
                             num_output=64,
                             pad = 3,
@@ -635,8 +636,8 @@ def small_googLeNet(db, batch_size, n_classes=11, meanB=128, meanG=128, meanR=12
                             weight_filler=dict(type='xavier'),
                             bias_filler=dict(type='constant',value=0.2))
 
-    n.conv1_relu_7x7_4 = L.ReLU(n.conv1_7x7_s2_3,in_place=True)
-    n.pool1_3x3_s2_5 = L.Pooling(n.conv1_7x7_s2_3, kernel_size=3, stride=2, pool=P.Pooling.MAX)
+    n.conv1_relu_7x7_4 = L.ReLU(n.conv1,in_place=True)
+    n.pool1_3x3_s2_5 = L.Pooling(n.conv1, kernel_size=3, stride=2, pool=P.Pooling.MAX)
     n.pool1_norm1_6 = L.LRN(n.pool1_3x3_s2_5,lrn_param=dict(local_size=5,alpha=0.0001,beta=0.75))
 
     n.conv2_3x3_reduce_7 = L.Convolution(n.pool1_norm1_6,param=[dict(lr_mult=lr_mult1,decay_mult=decay_mult1),
