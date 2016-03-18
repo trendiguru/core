@@ -952,7 +952,7 @@ def run_net(net_builder,nn_dir,train_db,test_db,batch_size = 64,n_classes=11,mea
                     #note the blob you check here has to be the final 'output layer'
                 correct += sum(solver.test_nets[0].blobs['output_layer'].data.argmax(1)
                                == solver.test_nets[0].blobs['label'].data)
-                print('{} outputlayer.data {}'.format(test_it,solver.test_nets[0].blobs['output_layer'].data))
+#                print('{} outputlayer.data {}'.format(test_it,solver.test_nets[0].blobs['output_layer'].data))
             percent_correct = float(correct)/(n_sample*batch_size)
             print('correct {} n {} batchsize {} acc {} size(solver.test_nets[0].blob[output_layer]'.format(correct,n_sample,batch_size, percent_correct,len(solver.test_nets[0].blobs['label'].data)))
             test_acc[it // test_interval] = percent_correct
@@ -1070,7 +1070,7 @@ if __name__ == "__main__":
 
 #    lmdb_utils.kill_db(db_name)
     test_iter = 100
-    batch_size = 64  #use powers of 2 for better perf (supposedly)
+    batch_size = 32  #use powers of 2 for better perf (supposedly)
 # out of mem possibly correctable:    Reading dangerously large protocol message.  If the message turns out to be larger than 2147483647 bytes, parsing will be halted for security reasons.  To increase the limit (or to disable these warnings), see CodedInputStream::SetTotalBytesLimit() in google/protobuf/io/coded_stream.h
 
     find_averages = False
