@@ -29,7 +29,7 @@ db = constants.db
 # db.ebay_Female.delete_many({})
 # db.ebay_Male.delete_many({})
 # db.ebay_Unisex.delete_many({})
-db.ebay_Tees.delete_many({})
+# db.ebay_Tees.delete_many({})
 today_date = str(datetime.datetime.date(datetime.datetime.now()))
 
 def getStoreInfo(ftp):
