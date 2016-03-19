@@ -1085,7 +1085,7 @@ if __name__ == "__main__":
 
 #    lmdb_utils.inspect_db(db_name+'.train')
   #  lmdb_utils.inspect_db(db_name+'.test')
-    filters = ['bags','belts','dresses','eyewear','footwear','hats','leggings','outerwear','pants','skirts','tops'] #done -
+    filters = ['skirts','pants','tops','leggings','outerwear'] #done 'bags','belts','dresses','eyewear','footwear','hats',-
     generate_db = False
     if generate_db:
         for a_filter in filters:
@@ -1149,3 +1149,5 @@ for a_filter in filters:
 #to test
 #caffe test -mode test.prototxt -weights model.caffemodel -gpu 0 -iterations 100
 #/opt/caffe/build/tools/caffe test -model cropped_dataset/my_solver.test.prototxt -weights cropped_dataset_iter_3000.caffemodel  -gpu 0 -iterations 500
+
+#run of googLeNet_1_inception started at 61G used 71G free mem
