@@ -107,7 +107,7 @@ def write_prototxt(proto_filename,test_iter = 9,solver_mode='GPU'):
                         'lr_policy': "inv",
                         'gamma': 0.0001,
                         'power': 0.75,
-                        'display': 20,
+                        'display': 50,
                         'max_iter': 5000,
                         'snapshot': 1000,
                         'snapshot_prefix': dir+'/net',
@@ -953,7 +953,7 @@ def run_net(net_builder,nn_dir,train_db,test_db,batch_size = 64,n_classes=11,mea
                 correct += sum(solver.test_nets[0].blobs['output_layer'].data.argmax(1)
                                == solver.test_nets[0].blobs['label'].data)
 
-                print('{}. outputlayer.data {}  correct:{}'.format(test_it,solver.test_nets[0].blobs['output_layer'].data, solver.test_nets[0].blobs['label'].data))
+             #   print('{}. outputlayer.data {}  correct:{}'.format(test_it,solver.test_nets[0].blobs['output_layer'].data, solver.test_nets[0].blobs['label'].data))
 
             percent_correct = float(correct)/(n_sample*batch_size)
             print('correct {} n {} batchsize {} acc {} size(solver.test_nets[0].blob[output_layer]'.format(correct,n_sample,batch_size, percent_correct,len(solver.test_nets[0].blobs['label'].data)))
@@ -1071,8 +1071,8 @@ if __name__ == "__main__":
 
 
 #    lmdb_utils.kill_db(db_name)
-    test_iter = 100
-    batch_size = 32  #use powers of 2 for better perf (supposedly)
+    test_iter = 200
+    batch_size = 16  #use powers of 2 for better perf (supposedly)
 # out of mem possibly correctable:    Reading dangerously large protocol message.  If the message turns out to be larger than 2147483647 bytes, parsing will be halted for security reasons.  To increase the limit (or to disable these warnings), see CodedInputStream::SetTotalBytesLimit() in google/protobuf/io/coded_stream.h
 
     find_averages = False
@@ -1106,7 +1106,7 @@ if __name__ == "__main__":
             print('testclasses {} populations {} tot_images {} '.format(n_test_classes,test_populations,test_imageno))
             print('trainclasses {} populations {} tot_images {} '.format(n_train_classes,train_populations,train_imageno))
             print('sum test pops {}  sum train pops {}  testiter {} batch_size {}'.format(tot_train_samples,tot_test_samples,test_iter,batch_size))
-            nn_dir = '/home/jeremy/core/classifier_stuff/caffe_nns/alexnet10_'+db_name  #b2
+            nn_dir = '/home/jeremy/core/classifier_stuff/caffe_nns/googLeNet_1inception_'+db_name  #b2
             run_net(alexnet_linearized,nn_dir,db_name+'.train',db_name+'.test',batch_size = batch_size,n_classes=n_classes,meanB=B,meanR=R,meanG=G,n_filters=50,n_ip1=1000)
 
 
@@ -1140,6 +1140,7 @@ if __name__ == "__main__":
 #    run_net(alexnet_linearized,nn_dir,db_name+'.train',db_name+'.test',batch_size = batch_size,n_classes=n_classes,meanB=B,meanR=R,meanG=G,n_filters=50,n_ip1=1000)
 for a_filter in filters:
     db_name = 'binary_'+a_filter
+    nn_dir = '/home/jeremy/core/classifier_stuff/caffe_nns/googLeNet_1inception_'+db_name  #b2
     run_net(small_googLeNet,nn_dir,db_name+'.train',db_name+'.test',batch_size = batch_size,n_classes=n_classes,meanB=B,meanR=R,meanG=G,n_filters=50,n_ip1=1000)
 
 
