@@ -952,7 +952,11 @@ def run_net(net_builder,nn_dir,train_db,test_db,batch_size = 64,n_classes=11,mea
                     #note the blob you check here has to be the final 'output layer'
                 correct += sum(solver.test_nets[0].blobs['output_layer'].data.argmax(1)
                                == solver.test_nets[0].blobs['label'].data)
+<<<<<<< HEAD
 #                print('{} outputlayer.data {}'.format(test_it,solver.test_nets[0].blobs['output_layer'].data))
+=======
+                print('{}. outputlayer.data {}  correct:{}'.format(test_it,solver.test_nets[0].blobs['output_layer'].data, solver.test_nets[0].blobs['label'].data))
+>>>>>>> 0c61f6bb53a2894b6e74eac472e8fd2040db118a
             percent_correct = float(correct)/(n_sample*batch_size)
             print('correct {} n {} batchsize {} acc {} size(solver.test_nets[0].blob[output_layer]'.format(correct,n_sample,batch_size, percent_correct,len(solver.test_nets[0].blobs['label'].data)))
             test_acc[it // test_interval] = percent_correct
