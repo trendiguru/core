@@ -73,8 +73,19 @@ def mongo2xl(filename, dl_info):
         try:
             s_i =[]
             for x in store_info:
-                tmp = [x["id"],x["name"].decode("utf8"),x["items_downloaded"],x["dl_duration"][:6],
-                              x["link"],x["modified"],x["B/W"]]
+                tmp_id = x["id"]
+                print(tmp_id)
+                tmp_name = x["name"].decode("utf8")
+                print (tmp_name)
+                tmp_item_count = x["items_downloaded"]
+                print (tmp_item_count)
+                tmp_duration = x["dl_duration"]
+                print (tmp_duration)
+                tmp_link =  x["link"]
+                print (tmp_link)
+                tmp_modified = x["modified"]
+                tmp_BW = x["B/W"]
+                tmp = [tmp_id,tmp_name,tmp_item_count,tmp_duration,tmp_link,tmp_modified,tmp_BW]
                 print (tmp)
                 s_i.append(tmp)
 
