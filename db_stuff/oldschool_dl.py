@@ -53,7 +53,7 @@ class ShopStyleDownloader():
         #                                   "total_items": 0,
         #                                   "instock": 0,
         #                                   "out": 0})
-        start_time = datetime.datetime.now()
+        start_time = time.time()
         self.db.dl_cache.delete_many({})
         self.db.dl_cache.create_index("filter_params")
         root_category, ancestors = self.build_category_tree(collection)
@@ -63,12 +63,12 @@ class ShopStyleDownloader():
             self.download_category(cat, collection)
 
         self.wait_for(collection)
-        end_time= datetime.datetime.now()
+        end_time= time.time()
         # self.db.download_data.update_one({"criteria": collection},
         #                                           {'$set': {"end_time": datetime.datetime.now()}})
         # tmp = self.db.download_data.find({"criteria": collection})[0]
         # total_time = abs(tmp["end_time"] - tmp["start_time"]).total_seconds()
-        total_time = abs(end_time - start_time).total_seconds()
+        total_time = (end_time - start_time)/3600
         del_items = self.db[collection].delete_many({'fingerprint': {"$exists": False}})
         # print str(del_items.deleted_count) + ' items without fingerprint were deleted!\n'
         # total_items = self.db[collection].count()

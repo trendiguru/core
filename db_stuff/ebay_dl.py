@@ -272,7 +272,7 @@ for filename in files:
             continue
 ftp.quit()
 stop_time = time.time()
-total_time = (stop_time-start_time)/60
+total_time = (stop_time-start_time)/3600
 
 for line in data[:-2]:
     s=line.split()
