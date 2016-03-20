@@ -857,7 +857,7 @@ layer {
   #  lr_mult: 2
   #}
 
-def run_net(net_builder,nn_dir,train_db,test_db,batch_size = 64,n_classes=11,meanB=None,meanG=None,meanR=None,n_filters=50,n_ip1=1000):
+def run_net(net_builder,nn_dir,train_db,test_db,batch_size = 64,n_classes=11,meanB=None,meanG=None,meanR=None,n_filters=50,n_ip1=1000,n_test_items=None):
     if host == 'jr-ThinkPad-X1-Carbon':
         pc = True
         solver_mode = 'CPU'
@@ -939,7 +939,6 @@ def run_net(net_builder,nn_dir,train_db,test_db,batch_size = 64,n_classes=11,mea
         # run a full test every so often
         # (Caffe can also do this for us and write to a log, but we show here
         #  how to do it directly in Python, where more complicated things are easier.)
-        n_sample = 100
         if it % test_interval == 0:
             #maybe this is whats sucking mem
             # store the train loss
@@ -955,6 +954,8 @@ def run_net(net_builder,nn_dir,train_db,test_db,batch_size = 64,n_classes=11,mea
 
             print 'Iteration', it, 'testing...'
             correct = 0
+            n_sample = 100
+
             for test_it in range(n_sample):
                 solver.test_nets[0].forward()
                     #note the blob you check here has to be the final 'output layer'
@@ -1160,7 +1161,11 @@ if __name__ == "__main__":
 for a_filter in filters:
     db_name = 'binary_'+a_filter
     nn_dir = '/home/jeremy/core/classifier_stuff/caffe_nns/googLeNet_1inception_'+db_name  #b2
-    run_net(small_googLeNet,nn_dir,db_name+'.train',db_name+'.test',batch_size = batch_size,n_classes=n_classes,meanB=B,meanR=R,meanG=G,n_filters=50,n_ip1=1000)
+    train_size = lmdb_utils.db_size(db_name+'.train')
+    test_size  = lmdb_utils.db_size(db_name+'.test')
+    print('trainsize {} tstsize {}')
+
+#    run_net(small_googLeNet,nn_dir,db_name+'.train',db_name+'.test',batch_size = batch_size,n_classes=n_classes,meanB=B,meanR=R,meanG=G,n_filters=50,n_ip1=1000)
 
 
 #to train at cli:
