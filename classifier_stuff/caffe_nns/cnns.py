@@ -108,7 +108,7 @@ def write_prototxt(proto_filename,test_iter = 9,solver_mode='GPU'):
                         'gamma': 0.0001,
                         'power': 0.75,
                         'display': 50,
-                        'max_iter': 5000,
+                        'max_iter': 10000,
                         'snapshot': 1000,
                         'snapshot_prefix': dir+'/net',
                         'solver_mode':solver_mode }
@@ -857,7 +857,7 @@ layer {
   #  lr_mult: 2
   #}
 
-def run_net(net_builder,nn_dir,train_db,test_db,batch_size = 64,n_classes=11,meanB=None,meanG=None,meanR=None,n_filters=50,n_ip1=1000):
+def run_net(net_builder,nn_dir,train_db,test_db,batch_size = 64,n_classes=11,meanB=None,meanG=None,meanR=None,n_filters=50,n_ip1=1000,n_test_items=None):
     if host == 'jr-ThinkPad-X1-Carbon':
         pc = True
         solver_mode = 'CPU'
@@ -910,40 +910,50 @@ def run_net(net_builder,nn_dir,train_db,test_db,batch_size = 64,n_classes=11,mea
     print solver.net.blobs['label'].data[:8]
 
     #%%time
-    niter = 5000
+    niter = 10000
     training_acc_threshold = 0.95
     test_interval = 100
     # losses will also be stored in the log
-    train_loss = zeros(niter)
-    train_acc = zeros(niter)
-    test_acc = zeros(int(np.ceil(niter / test_interval)))
-    train_acc2 = zeros(int(np.ceil(niter / test_interval)))
+   # train_loss = zeros(niter)
+   # train_acc = zeros(niter)
+   # test_acc = zeros(int(np.ceil(niter / test_interval)))
+   # train_acc2 = zeros(int(np.ceil(niter / test_interval)))
+    train_loss = []
+    train_acc = []
+    test_acc = []
+    train_acc2 = []
     running_avg_test_acc = 0
     previous_running_avg_test_acc = -1.0
     running_avg_upper_threshold = 1.001
     running_avg_lower_threshold = 0.999
     alpha = 0.1
     output = zeros((niter, 8, 10))
-
+    train_size = lmdb_utils.db_size(train_db)
+    test_size  = lmdb_utils.db_size(test_db)
+    n_sample = test_size/batch_size
+    print('db {} {} trainsize {} testsize {} batchsize {} n_samples {}'.format(train_db,test_db,train_size,test_size,batch_size,n_sample))
     # the main solver loop
     for it in range(niter):
         solver.step(1)  # SGD by Caffe
 
-        # store the train loss
-        train_loss[it] = solver.net.blobs['loss'].data
-        train_acc[it] = solver.net.blobs['accuracy'].data
-        print('train loss {} train acc. {}'.format(train_loss[it],train_acc[it]))
-        # store the output on the first test batch
-        # (start the forward pass at conv1 to avoid loading new data)
         solver.test_nets[0].forward(start='conv1')
 #        output[it] = solver.test_nets[0].blobs['ip2'].data[:8]
 
         # run a full test every so often
         # (Caffe can also do this for us and write to a log, but we show here
         #  how to do it directly in Python, where more complicated things are easier.)
-        n_sample = 100
         if it % test_interval == 0:
-            train_acc2[it//test_interval] = solver.net.blobs['accuracy'].data
+            #maybe this is whats sucking mem
+            # store the train loss
+            train_loss.append(solver.net.blobs['loss'].data)
+    #        train_acc[it] = solver.net.blobs['accuracy'].data
+            train_acc.append(solver.net.blobs['accuracy'].data)
+            print('train loss {} train acc. {}'.format(train_loss[-1],train_acc[-1]))
+#            print('train loss {} train acc. {}'.format(train_loss[it],train_acc[it]))
+            # store the output on the first test batch
+            # (start the forward pass at conv1 to avoid loading new data)
+        #    train_acc2[it//test_interval] = solver.net.blobs['accuracy'].data
+            train_acc2.append(solver.net.blobs['accuracy'].data)
 
             print 'Iteration', it, 'testing...'
             correct = 0
@@ -957,15 +967,17 @@ def run_net(net_builder,nn_dir,train_db,test_db,batch_size = 64,n_classes=11,mea
 
             percent_correct = float(correct)/(n_sample*batch_size)
             print('correct {} n {} batchsize {} acc {} size(solver.test_nets[0].blob[output_layer]'.format(correct,n_sample,batch_size, percent_correct,len(solver.test_nets[0].blobs['label'].data)))
-            test_acc[it // test_interval] = percent_correct
+#            test_acc[it // test_interval] = percent_correct
+            test_acc.append(percent_correct)
             running_avg_test_acc = (1-alpha)*running_avg_test_acc + alpha*test_acc[it//test_interval]
             print('acc so far:'+str(test_acc)+' running avg:'+str(running_avg_test_acc)+ ' previous:'+str(previous_running_avg_test_acc))
             drunning_avg = running_avg_test_acc/previous_running_avg_test_acc
             previous_running_avg_test_acc=running_avg_test_acc
-            if test_acc [it // test_interval] > training_acc_threshold:
+#            if test_acc [it // test_interval] > training_acc_threshold:
+            if test_acc [-1] > training_acc_threshold and 0:
                 print('acc of {} is above required threshold of {}, thus stopping:'.format(test_acc,training_acc_threshold))
                 break
-            if drunning_avg > running_avg_lower_threshold and drunning_avg < running_avg_upper_threshold :
+            if drunning_avg > running_avg_lower_threshold and drunning_avg < running_avg_upper_threshold and 0:
                 print('drunning avg of {} is between required thresholds of {} and {}, thus stopping:'.format(drunning_avg,running_avg_lower_threshold,running_avg_upper_threshold))
                 break
 
@@ -980,15 +992,24 @@ def run_net(net_builder,nn_dir,train_db,test_db,batch_size = 64,n_classes=11,mea
  #   fig.savefig('out.png')
 
         #figure 1 - train loss and train acc. for all forward passes
+        plt.close("all")
+
         fig1 = plt.figure()
         ax1 = fig1.add_subplot(111)
-        ax1.plot(arange(niter), train_loss,'r.-')
+    #    print('it {} trainloss {} len {}'.format(it,train_loss,len(train_loss)))
+        l = len(train_loss)
+        print('l {} train_loss {}'.format(l,train_loss))
+        ax1.plot(arange(l), train_loss,'r.-')
+        plt.yscale('log')
         ax1.set_title('train loss / accuracy for '+str(train_db))
-        ax1.set_ylabel('test loss',color='r')
+        ax1.set_ylabel('train loss',color='r')
         ax1.set_xlabel('iteration',color='g')
 
         axb = ax1.twinx()
-        axb.plot(arange(niter), train_acc,'b.-',label='train_acc')
+        l = len(train_acc)
+        print('l {} train_acc {}'.format(l,train_acc))
+        axb.plot(arange(l), train_acc,'b.-',label='train_acc')
+        plt.yscale('log')
         axb.set_ylabel('train acc.', color='b')
         legend = ax1.legend(loc='upper center', shadow=True)
         plt.show()
@@ -996,11 +1017,15 @@ def run_net(net_builder,nn_dir,train_db,test_db,batch_size = 64,n_classes=11,mea
         #figure 2 - train and test acc every N passes
         fig2 = plt.figure()
         ax2 = fig2.add_subplot(111)
-        ax2.plot(arange(int(np.ceil(niter / test_interval))), test_acc,'b.-')
-        ax2.plot(arange(int(np.ceil(niter / test_interval))), train_acc2,'g.-')
+        l = len(test_acc)
+        print('l {} test_acc {}'.format(l,test_acc))
+#        ax2.plot(arange(1+int(np.ceil(it / test_interval))), test_acc,'b.-',label='test_acc')
+        ax2.plot(arange(l), test_acc,'b.-',label='test_acc')
+        ax2.plot(arange(l), train_acc2,'g.-',label='train_acc')
         ax2.set_xlabel('iteration/'+str(test_interval))
         ax2.set_ylabel('test/train accuracy')
-        ax1.set_title('train, test acc for '+str(train_db)+','+str(test_db))
+        ax2.set_title('train, test acc for '+str(train_db)+','+str(test_db))
+        legend = ax2.legend(loc='upper center', shadow=True)
         #axes = plt.gca()
         #ax1.set_xlim([xmin,xmax])
         ax2.set_ylim([0,1])
