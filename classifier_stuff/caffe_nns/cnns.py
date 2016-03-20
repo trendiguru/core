@@ -931,7 +931,7 @@ def run_net(net_builder,nn_dir,train_db,test_db,batch_size = 64,n_classes=11,mea
     train_size = lmdb_utils.db_size(train_db)
     test_size  = lmdb_utils.db_size(test_db)
     n_sample = test_size/batch_size
-    print('trainsize {} testsize {} batchsize {} n_samples {}'.format(train_size,test_size,batch_size,n_sample))
+    print('db {} {} trainsize {} testsize {} batchsize {} n_samples {}'.format(train_db,test_db,train_size,test_size,batch_size,n_sample))
     # the main solver loop
     for it in range(niter):
         solver.step(1)  # SGD by Caffe
@@ -957,9 +957,6 @@ def run_net(net_builder,nn_dir,train_db,test_db,batch_size = 64,n_classes=11,mea
 
             print 'Iteration', it, 'testing...'
             correct = 0
-            print('trainsize {} tstsize {}'.format(train_size,test_size))
-
-
             for test_it in range(n_sample):
                 solver.test_nets[0].forward()
                     #note the blob you check here has to be the final 'output layer'
@@ -1001,6 +998,7 @@ def run_net(net_builder,nn_dir,train_db,test_db,batch_size = 64,n_classes=11,mea
         ax1 = fig1.add_subplot(111)
     #    print('it {} trainloss {} len {}'.format(it,train_loss,len(train_loss)))
         l = len(train_loss)
+        print('l {} train_loss {}'.format(l,train_loss))
         ax1.plot(arange(l), train_loss,'r.-')
         plt.yscale('log')
         ax1.set_title('train loss / accuracy for '+str(train_db))
@@ -1008,6 +1006,8 @@ def run_net(net_builder,nn_dir,train_db,test_db,batch_size = 64,n_classes=11,mea
         ax1.set_xlabel('iteration',color='g')
 
         axb = ax1.twinx()
+        l = len(train_acc)
+        print('l {} train_acc {}'.format(l,train_acc))
         axb.plot(arange(l), train_acc,'b.-',label='train_acc')
         plt.yscale('log')
         axb.set_ylabel('train acc.', color='b')
@@ -1018,6 +1018,7 @@ def run_net(net_builder,nn_dir,train_db,test_db,batch_size = 64,n_classes=11,mea
         fig2 = plt.figure()
         ax2 = fig2.add_subplot(111)
         l = len(test_acc)
+        print('l {} test_acc {}'.format(l,test_acc))
 #        ax2.plot(arange(1+int(np.ceil(it / test_interval))), test_acc,'b.-',label='test_acc')
         ax2.plot(arange(l), test_acc,'b.-',label='test_acc')
         ax2.plot(arange(l), train_acc2,'g.-',label='train_acc')
