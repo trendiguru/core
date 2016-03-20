@@ -730,6 +730,259 @@ def small_googLeNet(db, batch_size, n_classes=11, meanB=128, meanG=128, meanR=12
 
     return n.to_proto()
 
+def yolo_net(db, batch_size, n_classes=11, meanB=128, meanG=128, meanR=128,n_filters=50,n_ip1=1000):
+#    print('running mynet n {} B {} G {} R {] db {} batchsize {} '.format(n_classes,meanB,meanG,meanR,db,batch_size))
+    print('running yolonet n {}  batchsize {} '.format(n_classes,batch_size))
+   #crop size 224
+    lr_mult1 = 1
+    lr_mult2 = 2
+    decay_mult1 =1
+    decay_mult2 =0
+
+    n=caffe.NetSpec()
+    if meanB is not None and meanG is not None and meanR is not None: #RGB image with mean to remove
+        print('using vector mean ({} {} {})'.format(meanB,meanG,meanR ))
+        n.data_1,n.label=L.Data(batch_size=batch_size,backend=P.Data.LMDB,source=db,transform_param=dict(scale=1./255,mean_value=[meanB,meanG,meanR],mirror=True),ntop=2)
+        #,include=dict(phase=TEST)
+        #try a list of L.Data layers, one with train and one with test
+    elif meanB: #grayscale
+        print('using 1D mean {} '.format(meanB))
+        n.data_1,n.label=L.Data(batch_size=batch_size,backend=P.Data.LMDB,source=db,transform_param=dict(scale=1./255,mean_value=meanB,mirror=True),ntop=2)
+    else: #no mean to remove
+        n.data_1,n.label=L.Data(batch_size=batch_size,backend=P.Data.LMDB,source=db,transform_param=dict(scale=1./255,mirror=True),ntop=2)
+
+    n.conv_2 = L.Convolution(n.data_1,param=[dict(lr_mult=lr_mult1,decay_mult=decay_mult1),
+                            dict(lr_mult=lr_mult2,decay_mult=decay_mult2)],
+                            num_output=64,
+                            pad = 3,  #check
+                            kernel_size=7,
+                            stride = 2,
+                            weight_filler=dict(type='xavier'),
+                            bias_filler=dict(type='constant',value=0.2))
+    n.relu_3 = L.ReLU(n.conv_2,in_place=True)
+    n.pool_4 = L.Pooling(n.conv_2, kernel_size=2, stride=2, pool=P.Pooling.MAX)
+#    n.pool1_norm1_6 = L.LRN(n.pool1_3x3_s2_5,lrn_param=dict(local_size=5,alpha=0.0001,beta=0.75))
+
+    n.conv_5 = L.Convolution(n.pool_4,param=[dict(lr_mult=lr_mult1,decay_mult=decay_mult1),
+                            dict(lr_mult=lr_mult2,decay_mult=decay_mult2)],
+                            num_output=192,
+                            pad = 1,  #check
+                            stride = 1,
+                            kernel_size=3,
+                            weight_filler=dict(type='xavier'),
+                            bias_filler=dict(type='constant',value=0.2))
+    n.relu_6 = L.ReLU(n.conv_5,in_place=True)
+    n.pool_7 = L.Pooling(n.conv_5, kernel_size=2, stride=2, pool=P.Pooling.MAX)
+
+    n.conv_8 = L.Convolution(n.pool_7,param=[dict(lr_mult=lr_mult1,decay_mult=decay_mult1),
+                            dict(lr_mult=lr_mult2,decay_mult=decay_mult2)],
+                            num_output=128,
+                            stride = 1,
+                            kernel_size=1,
+                            weight_filler=dict(type='xavier'),
+                            bias_filler=dict(type='constant',value=0.2))
+    n.relu_9 = L.ReLU(n.conv_8,in_place=True)
+    n.conv_10 = L.Convolution(n.conv_8,param=[dict(lr_mult=lr_mult1,decay_mult=decay_mult1),
+                            dict(lr_mult=lr_mult2,decay_mult=decay_mult2)],
+                            num_output=256,
+                            stride = 1,
+                            kernel_size=3,
+                            weight_filler=dict(type='xavier'),
+                            bias_filler=dict(type='constant',value=0.2))
+    n.relu_11 = L.ReLU(n.conv_10,in_place=True)
+    n.conv_12 = L.Convolution(n.conv_10,param=[dict(lr_mult=lr_mult1,decay_mult=decay_mult1),
+                            dict(lr_mult=lr_mult2,decay_mult=decay_mult2)],
+                            num_output=256,
+                            stride = 1,
+                            kernel_size=1,
+                            weight_filler=dict(type='xavier'),
+                            bias_filler=dict(type='constant',value=0.2))
+    n.relu_13 = L.ReLU(n.conv_12,in_place=True)
+    n.conv_14 = L.Convolution(n.conv_12,param=[dict(lr_mult=lr_mult1,decay_mult=decay_mult1),
+                            dict(lr_mult=lr_mult2,decay_mult=decay_mult2)],
+                            num_output=512,
+                            stride = 1,
+                            kernel_size=3,
+                            weight_filler=dict(type='xavier'),
+                            bias_filler=dict(type='constant',value=0.2))
+    n.relu_15 = L.ReLU(n.conv_14,in_place=True)
+    n.pool_16 = L.Pooling(n.conv_14, kernel_size=2, stride=2, pool=P.Pooling.MAX)
+
+#1
+    n.conv_17 = L.Convolution(n.pool_16,param=[dict(lr_mult=lr_mult1,decay_mult=decay_mult1),
+                            dict(lr_mult=lr_mult2,decay_mult=decay_mult2)],
+                            num_output=256,
+                            stride = 1,
+                            kernel_size=1,
+                            weight_filler=dict(type='xavier'),
+                            bias_filler=dict(type='constant',value=0.2))
+    n.relu_18 = L.ReLU(n.conv_17,in_place=True)
+    n.conv_19 = L.Convolution(n.conv_17,param=[dict(lr_mult=lr_mult1,decay_mult=decay_mult1),
+                            dict(lr_mult=lr_mult2,decay_mult=decay_mult2)],
+                            num_output=512,
+                            stride = 1,
+                            kernel_size=3,
+                            weight_filler=dict(type='xavier'),
+                            bias_filler=dict(type='constant',value=0.2))
+    n.relu_20 = L.ReLU(n.conv_19,in_place=True)
+#2
+    n.conv_21 = L.Convolution(n.conv_19,param=[dict(lr_mult=lr_mult1,decay_mult=decay_mult1),
+                            dict(lr_mult=lr_mult2,decay_mult=decay_mult2)],
+                            num_output=256,
+                            stride = 1,
+                            kernel_size=1,
+                            weight_filler=dict(type='xavier'),
+                            bias_filler=dict(type='constant',value=0.2))
+    n.relu_22 = L.ReLU(n.conv_21,in_place=True)
+    n.conv_23 = L.Convolution(n.conv_21,param=[dict(lr_mult=lr_mult1,decay_mult=decay_mult1),
+                            dict(lr_mult=lr_mult2,decay_mult=decay_mult2)],
+                            num_output=512,
+                            stride = 1,
+                            kernel_size=3,
+                            weight_filler=dict(type='xavier'),
+                            bias_filler=dict(type='constant',value=0.2))
+    n.relu_24 = L.ReLU(n.conv_23,in_place=True)
+#3
+    n.conv_25 = L.Convolution(n.conv_23,param=[dict(lr_mult=lr_mult1,decay_mult=decay_mult1),
+                            dict(lr_mult=lr_mult2,decay_mult=decay_mult2)],
+                            num_output=256,
+                            stride = 1,
+                            kernel_size=1,
+                            weight_filler=dict(type='xavier'),
+                            bias_filler=dict(type='constant',value=0.2))
+    n.relu_26 = L.ReLU(n.conv_25,in_place=True)
+    n.conv_27 = L.Convolution(n.conv_25,param=[dict(lr_mult=lr_mult1,decay_mult=decay_mult1),
+                            dict(lr_mult=lr_mult2,decay_mult=decay_mult2)],
+                            num_output=512,
+                            stride = 1,
+                            kernel_size=3,
+                            weight_filler=dict(type='xavier'),
+                            bias_filler=dict(type='constant',value=0.2))
+    n.relu_28 = L.ReLU(n.conv_27,in_place=True)
+#4
+    n.conv_29 = L.Convolution(n.conv_27,param=[dict(lr_mult=lr_mult1,decay_mult=decay_mult1),
+                            dict(lr_mult=lr_mult2,decay_mult=decay_mult2)],
+                            num_output=256,
+                            stride = 1,
+                            kernel_size=1,
+                            weight_filler=dict(type='xavier'),
+                            bias_filler=dict(type='constant',value=0.2))
+    n.relu_30 = L.ReLU(n.conv_29,in_place=True)
+    n.conv_31 = L.Convolution(n.conv_29,param=[dict(lr_mult=lr_mult1,decay_mult=decay_mult1),
+                            dict(lr_mult=lr_mult2,decay_mult=decay_mult2)],
+                            num_output=512,
+                            stride = 1,
+                            kernel_size=3,
+                            weight_filler=dict(type='xavier'),
+                            bias_filler=dict(type='constant',value=0.2))
+    n.relu_32 = L.ReLU(n.conv_31,in_place=True)
+#1x1x512
+    n.conv_33 = L.Convolution(n.conv_31,param=[dict(lr_mult=lr_mult1,decay_mult=decay_mult1),
+                            dict(lr_mult=lr_mult2,decay_mult=decay_mult2)],
+                            num_output=512,
+                            stride = 1,
+                            kernel_size=3,
+                            weight_filler=dict(type='xavier'),
+                            bias_filler=dict(type='constant',value=0.2))
+    n.relu_34 = L.ReLU(n.conv_33,in_place=True)
+#3x3x1024
+    n.conv_35 = L.Convolution(n.conv_33,param=[dict(lr_mult=lr_mult1,decay_mult=decay_mult1),
+                            dict(lr_mult=lr_mult2,decay_mult=decay_mult2)],
+                            num_output=512,
+                            stride = 1,
+                            kernel_size=3,
+                            weight_filler=dict(type='xavier'),
+                            bias_filler=dict(type='constant',value=0.2))
+    n.relu_36 = L.ReLU(n.conv_35,in_place=True)
+#maxpool2x2
+    n.pool_37 = L.Pooling(n.conv_35, kernel_size=2, stride=2, pool=P.Pooling.MAX)
+
+#1x1x512  #1
+    n.conv_38 = L.Convolution(n.conv_37,param=[dict(lr_mult=lr_mult1,decay_mult=decay_mult1),
+                            dict(lr_mult=lr_mult2,decay_mult=decay_mult2)],
+                            num_output=512,
+                            stride = 1,
+                            kernel_size=1,
+                            weight_filler=dict(type='xavier'),
+                            bias_filler=dict(type='constant',value=0.2))
+    n.relu_39 = L.ReLU(n.conv_38,in_place=True)
+#3x3x1024 #1
+    n.conv_40 = L.Convolution(n.conv_39,param=[dict(lr_mult=lr_mult1,decay_mult=decay_mult1),
+                            dict(lr_mult=lr_mult2,decay_mult=decay_mult2)],
+                            num_output=1024,
+                            stride = 1,
+                            kernel_size=3,
+                            weight_filler=dict(type='xavier'),
+                            bias_filler=dict(type='constant',value=0.2))
+    n.relu_41 = L.ReLU(n.conv_40,in_place=True)
+#1x1x512  #2
+    n.conv_42 = L.Convolution(n.conv_40,param=[dict(lr_mult=lr_mult1,decay_mult=decay_mult1),
+                            dict(lr_mult=lr_mult2,decay_mult=decay_mult2)],
+                            num_output=512,
+                            stride = 1,
+                            kernel_size=1,
+                            weight_filler=dict(type='xavier'),
+                            bias_filler=dict(type='constant',value=0.2))
+    n.relu_43 = L.ReLU(n.conv_42,in_place=True)
+#3x3x1024 #2
+    n.conv_44 = L.Convolution(n.conv_42,param=[dict(lr_mult=lr_mult1,decay_mult=decay_mult1),
+                            dict(lr_mult=lr_mult2,decay_mult=decay_mult2)],
+                            num_output=1024,
+                            stride = 1,
+                            kernel_size=3,
+                            weight_filler=dict(type='xavier'),
+                            bias_filler=dict(type='constant',value=0.2))
+    n.relu_45 = L.ReLU(n.conv_44,in_place=True)
+#3x3x1024
+    n.conv_46 = L.Convolution(n.conv_44,param=[dict(lr_mult=lr_mult1,decay_mult=decay_mult1),
+                            dict(lr_mult=lr_mult2,decay_mult=decay_mult2)],
+                            num_output=1024,
+                            stride = 1,
+                            kernel_size=3,
+                            weight_filler=dict(type='xavier'),
+                            bias_filler=dict(type='constant',value=0.2))
+    n.relu_47 = L.ReLU(n.conv_46,in_place=True)
+#3x3x1024s2
+    n.conv_48 = L.Convolution(n.conv_46,param=[dict(lr_mult=lr_mult1,decay_mult=decay_mult1),
+                            dict(lr_mult=lr_mult2,decay_mult=decay_mult2)],
+                            num_output=1024,
+                            stride = 2,
+                            kernel_size=3,
+                            weight_filler=dict(type='xavier'),
+                            bias_filler=dict(type='constant',value=0.2))
+    n.relu_49 = L.ReLU(n.conv_48,in_place=True)
+
+#3x3x1024
+    n.conv_50 = L.Convolution(n.conv_48,param=[dict(lr_mult=lr_mult1,decay_mult=decay_mult1),
+                            dict(lr_mult=lr_mult2,decay_mult=decay_mult2)],
+                            num_output=1024,
+                            stride = 1,
+                            kernel_size=3,
+                            weight_filler=dict(type='xavier'),
+                            bias_filler=dict(type='constant',value=0.2))
+    n.relu_51 = L.ReLU(n.conv_50,in_place=True)
+#3x3x1024
+    n.conv_52 = L.Convolution(n.conv_50,param=[dict(lr_mult=lr_mult1,decay_mult=decay_mult1),
+                            dict(lr_mult=lr_mult2,decay_mult=decay_mult2)],
+                            num_output=1024,
+                            stride = 1,
+                            kernel_size=3,
+                            weight_filler=dict(type='xavier'),
+                            bias_filler=dict(type='constant',value=0.2))
+    n.relu_53 = L.ReLU(n.conv_52,in_place=True)
+
+#    n.final_dropout = L.Dropout(n.inception_3a_avg_pool, in_place=True)
+    output_h = 7
+    output_w = 7
+    n_bbs = 2
+    n.ip1_54 = L.InnerProduct(n.conv_52,param=[dict(lr_mult=lr_mult1),dict(lr_mult=lr_mult2)],num_output=4096,weight_filler=dict(type='xavier'))
+    n.ip1_54 = L.InnerProduct(n.conv_52,param=[dict(lr_mult=lr_mult1),dict(lr_mult=lr_mult2)],num_output=output_h*output_w*(n_bbs*5+n_classes),weight_filler=dict(type='xavier'))
+    n.loss = L.SoftmaxWithLoss(n.output_layer,n.label)
+#    n.accuracy = L.Accuracy(n.output_layer,n.label,include=[dict(phase=TEST)])
+    n.accuracy = L.Accuracy(n.output_layer,n.label)
+
+    return n.to_proto()
+
 #layers at end of googLeNet:
 '''
 layer {

@@ -52,35 +52,43 @@ def image_stats_from_dir_of_dirs(dir_of_dirs,filter=None):
     return([avg_h,avg_w,avg_d,avg_B,avg_G,avg_R,totfiles])
 
 
-def image_chooser_dir_of_dirs(dir_of_dirs,dest_dir,removed_dir=None,filter=None,reprocess_dir=None):
+def image_chooser_dir_of_dirs(dir_of_dirs,dest_dir,removed_dir=None,filter=None,relabel_dir=None,multiple_dir=None):
+    print('running images chooser source:{} dest:{} filter {}'.format(dir_of_dirs,dest_dir,filter))
     only_dirs = [d for d in os.listdir(dir_of_dirs) if os.path.isdir(os.path.join(dir_of_dirs, d))]
     if filter is not None:
         only_dirs = [d for d in only_dirs if filter in d]
 
-    if removed_dir is None:
-        removed_dir = os.path.join(dir_of_dirs,'removed')
-
-    if reprocess_dir is None:
-        reprocess_dir = os.path.join(dir_of_dirs,'reprocess')
 
     for d in only_dirs:
         actual_source = os.path.join(dir_of_dirs,d)
         actual_dest = os.path.join(dest_dir,d)
-        actual_removed_dest = os.path.join(removed_dir,d)
-        actual_reprocess_dest = os.path.join(reprocess_dir,d)
-        Utils.ensure_dir(actual_dest)
-        Utils.ensure_dir(actual_reprocess_dest)
-        image_chooser(actual_source,actual_dest,removed_dir=actual_removed_dest,reprocess_dir=actual_reprocess_dest)
 
-def image_chooser(source_dir,dest_dir,removed_dir=None,reprocess_dir=None):
+        if removed_dir is None:
+            removed_dir = os.path.join(actual_source,'removed')
+        if relabel_dir is None:
+            relabel_dir = os.path.join(actual_source,'mislabelled')
+        if multiple_dir is None:
+            multiple_dir = os.path.join(actual_source,'multiple_items')
+
+        Utils.ensure_dir(actual_dest)
+        Utils.ensure_dir(removed_dir)
+        Utils.ensure_dir(relabel_dir)
+        Utils.ensure_dir(multiple_dir)
+        image_chooser(actual_source,actual_dest,removed_dir=removed_dir,relabel_dir=relabel_dir,multiple_dir=multiple_dir)
+
+def image_chooser(source_dir,dest_dir,removed_dir=None,relabel_dir=None,multiple_dir=None):
+    print('starting image chooser source {} dest {}'.format(source_dir,dest_dir))
     if removed_dir is None:
         removed_dir = os.path.join(source_dir,'removed')
-    if reprocess_dir is None:
-        reprocess_dir = os.path.join(source_dir,'reprocess')
+    if relabel_dir is None:
+        relabel_dir = os.path.join(source_dir,'mislabelled')
+    if multiple_dir is None:
+        multiple_dir = os.path.join(source_dir,'multiple_items')
     Utils.ensure_dir(removed_dir)
-    Utils.ensure_dir(reprocess_dir)
+    Utils.ensure_dir(multiple_dir)
+    Utils.ensure_dir(relabel_dir)
     Utils.ensure_dir(dest_dir)
-    print('choosing:'+str(source_dir)+' good:'+str(dest_dir)+' removed:'+str(removed_dir)+' reprocess:'+str(reprocess_dir))
+    print('choosing:'+str(source_dir)+'\ngood:'+str(dest_dir)+' \nremoved:'+str(removed_dir)+' \nreprocess:'+str(relabel_dir)+'\nmultiple:'+str(multiple_dir))
     only_files = [f for f in os.listdir(source_dir) if os.path.isfile(os.path.join(source_dir, f))]
     n = len(only_files)
     if n==0:
@@ -100,7 +108,7 @@ def image_chooser(source_dir,dest_dir,removed_dir=None,reprocess_dir=None):
                 resized = cv2.resize(img_arr,(int((200.0*w)/h),200))
                 print('h,w {},{} newh neww {},{}'.format(h,w,resized.shape[0],resized.shape[1]))
             print('img '+str(i)+' of '+str(n)+':'+a_file+' shape:'+str(shape) +' (resized to '+str(resized.shape)+')')
-            print('(q)uit (d)elete (k)eep (r)eprocess (fix later) (u)ndo')
+            print('(q)uit (d)elete (k)eep (r)elabel (m)ultiple items (u)ndo')
             cv2.imshow('img',resized)
             while(1):
                 k = cv2.waitKey(0)
@@ -110,7 +118,7 @@ def image_chooser(source_dir,dest_dir,removed_dir=None,reprocess_dir=None):
                     sys.exit('quitting since you pressed q')
                 elif k==ord('d'):  # normally -1 returned,so don't print it
     #                print('removing '+a_file+' to '+removed_dir)
-                    print('removing')
+                    print('removing to '+str(removed_dir))
                     dest_fullname = os.path.join(removed_dir,a_file)
                     shutil.move(fullname, dest_fullname)
                     prev_moved_to = dest_fullname
@@ -118,7 +126,7 @@ def image_chooser(source_dir,dest_dir,removed_dir=None,reprocess_dir=None):
                     break
                 elif k== ord('k'):
     #                print('keeping '+a_file+' in '+dest_dir)
-                    print('keeping')
+                    print('keeping in '+str(dest_dir))
                     dest_fullname = os.path.join(dest_dir,a_file)
                     shutil.move(fullname, dest_fullname)
                     prev_moved_to = dest_fullname
@@ -126,8 +134,16 @@ def image_chooser(source_dir,dest_dir,removed_dir=None,reprocess_dir=None):
                     break
                 elif k== ord('r'):
     #                print('reprocessing '+a_file+' in '+reprocess_dir)
-                    print('reprocessing')
-                    dest_fullname = os.path.join(reprocess_dir,a_file)
+                    print('relabel-moving to '+str(relabel_dir))
+                    dest_fullname = os.path.join(relabel_dir,a_file)
+                    shutil.move(fullname, dest_fullname)
+                    prev_moved_to = dest_fullname
+                    prev_moved_from = fullname
+                    break
+                elif k== ord('m'):
+    #                print('reprocessing '+a_file+' in '+reprocess_dir)
+                    print('multiple items-moving to '+str(multiple_dir))
+                    dest_fullname = os.path.join(multiple_dir,a_file)
                     shutil.move(fullname, dest_fullname)
                     prev_moved_to = dest_fullname
                     prev_moved_from = fullname
@@ -135,7 +151,6 @@ def image_chooser(source_dir,dest_dir,removed_dir=None,reprocess_dir=None):
                 elif k== ord('u'):
     #                print('reprocessing '+a_file+' in '+reprocess_dir)
                     print('undo')
-                    dest_fullname = os.path.join(reprocess_dir,a_file)
                     shutil.move(prev_moved_to,prev_moved_from)
                     i = i - 2
                     break
@@ -391,9 +406,9 @@ if __name__ == "__main__":
   #  resize_and_crop_image_using_bb('../images/female1.jpg',bb=[240,122,170,400],output_w=150,output_h=50)
    # resize_and_crop_image_using_bb('../images/female1.jpg',bb=[240,122,170,400],output_w=50,output_h=150)
     #resize_and_crop_image_using_bb('../images/female1.jpg',bb=[240,122,170,170],output_w=1000,output_h=100)
-    if host == 'jr-ThinkPad-X1-Carbon':
-        dir_of_dirs = '/home/jr/core/classifier_stuff/caffe_nns/dataset/'
-        output_dir = '/home/jr/core/classifier_stuff/caffe_nns/curated_dataset'
+    if host == 'jr-ThinkPad-X1-Carbon' or host == 'jr':
+        dir_of_dirs = '/home/jeremy/tg/train_pairs_dresses'
+        output_dir = '/home/jeremy/tg/curated_train_pairs_dresses'
     else:
         dir_of_dirs = '/home/jeremy/core/classifier_stuff/caffe_nns/dataset/cropped'
         output_dir = '/home/jeremy/core/classifier_stuff/caffe_nns/curated_dataset'
@@ -402,6 +417,8 @@ if __name__ == "__main__":
  #   print('avg h {} avg w {} avgB {} avgG {} avgR {} nfiles {} in dir_of_dirs {}',avg_h,avg_w,avg_d,avg_B,avg_G,avg_R,totfiles,dir_of_dirs)
 #    dir_of_dirs = '/home/jr/core/classifier_stuff/caffe_nns/dataset'
 #    raw_input('enter to continue')
-    image_chooser_dir_of_dirs(dir_of_dirs,output_dir,filter='test')
+    print('source {} dest {}'.format(dir_of_dirs,output_dir))
+  #  image_chooser_dir_of_dirs(dir_of_dirs,output_dir)
+    image_chooser(dir_of_dirs,output_dir)
 
 #    crop_files_in_dir_of_dirs(dir_of_dirs,bb=None,output_w =150,output_h =200,use_visual_output=True)
