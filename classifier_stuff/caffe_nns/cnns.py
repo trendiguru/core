@@ -914,10 +914,14 @@ def run_net(net_builder,nn_dir,train_db,test_db,batch_size = 64,n_classes=11,mea
     training_acc_threshold = 0.95
     test_interval = 100
     # losses will also be stored in the log
-    train_loss = zeros(niter)
-    train_acc = zeros(niter)
-    test_acc = zeros(int(np.ceil(niter / test_interval)))
-    train_acc2 = zeros(int(np.ceil(niter / test_interval)))
+   # train_loss = zeros(niter)
+   # train_acc = zeros(niter)
+   # test_acc = zeros(int(np.ceil(niter / test_interval)))
+   # train_acc2 = zeros(int(np.ceil(niter / test_interval)))
+    train_loss = []
+    train_acc = []
+    test_acc = []
+    train_acc2 = []
     running_avg_test_acc = 0
     previous_running_avg_test_acc = -1.0
     running_avg_upper_threshold = 1.001
@@ -930,8 +934,9 @@ def run_net(net_builder,nn_dir,train_db,test_db,batch_size = 64,n_classes=11,mea
         solver.step(1)  # SGD by Caffe
 
         # store the train loss
-        train_loss[it] = solver.net.blobs['loss'].data
-        train_acc[it] = solver.net.blobs['accuracy'].data
+        train_loss.append(solver.net.blobs['loss'].data)
+#        train_acc[it] = solver.net.blobs['accuracy'].data
+        train_acc.append(solver.net.blobs['accuracy'].data)
         print('train loss {} train acc. {}'.format(train_loss[it],train_acc[it]))
         # store the output on the first test batch
         # (start the forward pass at conv1 to avoid loading new data)
@@ -943,7 +948,8 @@ def run_net(net_builder,nn_dir,train_db,test_db,batch_size = 64,n_classes=11,mea
         #  how to do it directly in Python, where more complicated things are easier.)
         n_sample = 100
         if it % test_interval == 0:
-            train_acc2[it//test_interval] = solver.net.blobs['accuracy'].data
+        #    train_acc2[it//test_interval] = solver.net.blobs['accuracy'].data
+            train_acc2.append(solver.net.blobs['accuracy'].data)
 
             print 'Iteration', it, 'testing...'
             correct = 0
@@ -957,12 +963,14 @@ def run_net(net_builder,nn_dir,train_db,test_db,batch_size = 64,n_classes=11,mea
 
             percent_correct = float(correct)/(n_sample*batch_size)
             print('correct {} n {} batchsize {} acc {} size(solver.test_nets[0].blob[output_layer]'.format(correct,n_sample,batch_size, percent_correct,len(solver.test_nets[0].blobs['label'].data)))
-            test_acc[it // test_interval] = percent_correct
+#            test_acc[it // test_interval] = percent_correct
+            test_acc.append(percent_correct)
             running_avg_test_acc = (1-alpha)*running_avg_test_acc + alpha*test_acc[it//test_interval]
             print('acc so far:'+str(test_acc)+' running avg:'+str(running_avg_test_acc)+ ' previous:'+str(previous_running_avg_test_acc))
             drunning_avg = running_avg_test_acc/previous_running_avg_test_acc
             previous_running_avg_test_acc=running_avg_test_acc
-            if test_acc [it // test_interval] > training_acc_threshold:
+#            if test_acc [it // test_interval] > training_acc_threshold:
+            if test_acc [-1] > training_acc_threshold:
                 print('acc of {} is above required threshold of {}, thus stopping:'.format(test_acc,training_acc_threshold))
                 break
             if drunning_avg > running_avg_lower_threshold and drunning_avg < running_avg_upper_threshold :
