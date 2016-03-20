@@ -933,13 +933,6 @@ def run_net(net_builder,nn_dir,train_db,test_db,batch_size = 64,n_classes=11,mea
     for it in range(niter):
         solver.step(1)  # SGD by Caffe
 
-        # store the train loss
-        train_loss.append(solver.net.blobs['loss'].data)
-#        train_acc[it] = solver.net.blobs['accuracy'].data
-        train_acc.append(solver.net.blobs['accuracy'].data)
-        print('train loss {} train acc. {}'.format(train_loss[it],train_acc[it]))
-        # store the output on the first test batch
-        # (start the forward pass at conv1 to avoid loading new data)
         solver.test_nets[0].forward(start='conv1')
 #        output[it] = solver.test_nets[0].blobs['ip2'].data[:8]
 
@@ -948,6 +941,14 @@ def run_net(net_builder,nn_dir,train_db,test_db,batch_size = 64,n_classes=11,mea
         #  how to do it directly in Python, where more complicated things are easier.)
         n_sample = 100
         if it % test_interval == 0:
+            #maybe this is whats sucking mem
+            # store the train loss
+            train_loss.append(solver.net.blobs['loss'].data)
+    #        train_acc[it] = solver.net.blobs['accuracy'].data
+            train_acc.append(solver.net.blobs['accuracy'].data)
+            print('train loss {} train acc. {}'.format(train_loss[it],train_acc[it]))
+            # store the output on the first test batch
+            # (start the forward pass at conv1 to avoid loading new data)
         #    train_acc2[it//test_interval] = solver.net.blobs['accuracy'].data
             train_acc2.append(solver.net.blobs['accuracy'].data)
 
@@ -990,7 +991,7 @@ def run_net(net_builder,nn_dir,train_db,test_db,batch_size = 64,n_classes=11,mea
         #figure 1 - train loss and train acc. for all forward passes
         fig1 = plt.figure()
         ax1 = fig1.add_subplot(111)
-        print('it {} trainloss {} len {}'.format(it,train_loss,len(train_loss)))
+    #    print('it {} trainloss {} len {}'.format(it,train_loss,len(train_loss)))
         ax1.plot(arange(it+1), train_loss,'r.-')
         plt.yscale('log')
         ax1.set_title('train loss / accuracy for '+str(train_db))
