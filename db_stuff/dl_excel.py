@@ -74,15 +74,14 @@ def mongo2xl(filename, dl_info):
             s_i =[]
             for x in store_info:
                 tmp_id = x["id"]
-                print(tmp_id)
-                tmp_name = x["name"].decode("utf8")
-                print (tmp_name)
+                try:
+                    tmp_name = x["name"].decode("utf8")
+                except:
+                    tmp_name =""
+                    print ("utf8 decode failed for %s" %str(tmp_id))
                 tmp_item_count = x["items_downloaded"]
-                print (tmp_item_count)
                 tmp_duration = x["dl_duration"]
-                print (tmp_duration)
                 tmp_link =  x["link"]
-                print (tmp_link)
                 tmp_modified = x["modified"]
                 tmp_BW = x["B/W"]
                 tmp = [tmp_id,tmp_name,tmp_item_count,tmp_duration,tmp_link,tmp_modified,tmp_BW]
