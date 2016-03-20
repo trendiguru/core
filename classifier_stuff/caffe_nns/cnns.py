@@ -990,6 +990,7 @@ def run_net(net_builder,nn_dir,train_db,test_db,batch_size = 64,n_classes=11,mea
         #figure 1 - train loss and train acc. for all forward passes
         fig1 = plt.figure()
         ax1 = fig1.add_subplot(111)
+        print('it {} trainloss {} len {}'.format(it,train_loss,len(train_loss)))
         ax1.plot(arange(it), train_loss,'r.-')
         plt.yscale('log')
         ax1.set_title('train loss / accuracy for '+str(train_db))
