@@ -35,7 +35,7 @@ logging.basicConfig(level=logging.WARNING)
 ################LMDB FUN (originally) RIPPED FROM http://deepdish.io/2015/04/28/creating-lmdb-in-python/
 #############changes by awesome d.j. jazzy jer  awesomest hAckz0r evarr
 def db_size(dbname):
-    env = lmdb.open(dbname, map_size=map_size)
+    env = lmdb.open(dbname)
     db_stats=env.stat()
     print db_stats
     db_size = db_stats['entries']
