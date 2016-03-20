@@ -286,7 +286,8 @@ dl_info = {"date": today_date,
 for col in ["Female","Male","Unisex"]:#,"Tees"]:
     col_name = "ebay_"+col
     db[col_name].delete_many({'fingerprint': None})
-    db[col_name].reindex()
+    db[col_name].update_many({"download_data.dl_version":{"$not":today_date}},{"$set":{"status.instock":False},
+                                                                               "$inc": {"status.days_out":1}})
 
     # db[col_name].create_index("categories")
     # db[col_name].create_index("status")
