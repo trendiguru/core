@@ -990,6 +990,8 @@ def run_net(net_builder,nn_dir,train_db,test_db,batch_size = 64,n_classes=11,mea
  #   fig.savefig('out.png')
 
         #figure 1 - train loss and train acc. for all forward passes
+        plt.close("all")
+
         fig1 = plt.figure()
         ax1 = fig1.add_subplot(111)
     #    print('it {} trainloss {} len {}'.format(it,train_loss,len(train_loss)))
