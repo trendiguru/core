@@ -946,7 +946,8 @@ def run_net(net_builder,nn_dir,train_db,test_db,batch_size = 64,n_classes=11,mea
             train_loss.append(solver.net.blobs['loss'].data)
     #        train_acc[it] = solver.net.blobs['accuracy'].data
             train_acc.append(solver.net.blobs['accuracy'].data)
-            print('train loss {} train acc. {}'.format(train_loss[it],train_acc[it]))
+            print('train loss {} train acc. {}'.format(train_loss[-1],train_acc[-1]))
+#            print('train loss {} train acc. {}'.format(train_loss[it],train_acc[it]))
             # store the output on the first test batch
             # (start the forward pass at conv1 to avoid loading new data)
         #    train_acc2[it//test_interval] = solver.net.blobs['accuracy'].data
