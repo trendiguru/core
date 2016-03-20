@@ -910,7 +910,7 @@ def run_net(net_builder,nn_dir,train_db,test_db,batch_size = 64,n_classes=11,mea
     print solver.net.blobs['label'].data[:8]
 
     #%%time
-    niter = 5000
+    niter = 10000
     training_acc_threshold = 0.95
     test_interval = 100
     # losses will also be stored in the log
@@ -928,7 +928,10 @@ def run_net(net_builder,nn_dir,train_db,test_db,batch_size = 64,n_classes=11,mea
     running_avg_lower_threshold = 0.999
     alpha = 0.1
     output = zeros((niter, 8, 10))
-
+    train_size = lmdb_utils.db_size(train_db)
+    test_size  = lmdb_utils.db_size(test_db)
+    n_sample = test_size/batch_size
+    print('trainsize {} testsize {} batchsize {} n_samples {}'.format(train_size,test_size,batch_size,n_sample))
     # the main solver loop
     for it in range(niter):
         solver.step(1)  # SGD by Caffe
@@ -954,7 +957,8 @@ def run_net(net_builder,nn_dir,train_db,test_db,batch_size = 64,n_classes=11,mea
 
             print 'Iteration', it, 'testing...'
             correct = 0
-            n_sample = 100
+            print('trainsize {} tstsize {}'.format(train_size,test_size))
+
 
             for test_it in range(n_sample):
                 solver.test_nets[0].forward()
@@ -973,10 +977,10 @@ def run_net(net_builder,nn_dir,train_db,test_db,batch_size = 64,n_classes=11,mea
             drunning_avg = running_avg_test_acc/previous_running_avg_test_acc
             previous_running_avg_test_acc=running_avg_test_acc
 #            if test_acc [it // test_interval] > training_acc_threshold:
-            if test_acc [-1] > training_acc_threshold:
+            if test_acc [-1] > training_acc_threshold and 0:
                 print('acc of {} is above required threshold of {}, thus stopping:'.format(test_acc,training_acc_threshold))
                 break
-            if drunning_avg > running_avg_lower_threshold and drunning_avg < running_avg_upper_threshold :
+            if drunning_avg > running_avg_lower_threshold and drunning_avg < running_avg_upper_threshold and 0:
                 print('drunning avg of {} is between required thresholds of {} and {}, thus stopping:'.format(drunning_avg,running_avg_lower_threshold,running_avg_upper_threshold))
                 break
 
@@ -1161,11 +1165,7 @@ if __name__ == "__main__":
 for a_filter in filters:
     db_name = 'binary_'+a_filter
     nn_dir = '/home/jeremy/core/classifier_stuff/caffe_nns/googLeNet_1inception_'+db_name  #b2
-    train_size = lmdb_utils.db_size(db_name+'.train')
-    test_size  = lmdb_utils.db_size(db_name+'.test')
-    print('trainsize {} tstsize {}')
-
-#    run_net(small_googLeNet,nn_dir,db_name+'.train',db_name+'.test',batch_size = batch_size,n_classes=n_classes,meanB=B,meanR=R,meanG=G,n_filters=50,n_ip1=1000)
+    run_net(small_googLeNet,nn_dir,db_name+'.train',db_name+'.test',batch_size = batch_size,n_classes=n_classes,meanB=B,meanR=R,meanG=G,n_filters=50,n_ip1=1000)
 
 
 #to train at cli:

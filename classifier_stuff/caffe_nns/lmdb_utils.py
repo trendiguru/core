@@ -37,10 +37,10 @@ logging.basicConfig(level=logging.WARNING)
 def db_size(dbname):
     env = lmdb.open(dbname)
     db_stats=env.stat()
-    print db_stats
+    #print db_stats
     db_size = db_stats['entries']
     print('size of db {}:{}'.format(dbname,db_size))
-
+    return db_size
 
 def dir_of_dirs_to_lmdb(dbname,dir_of_dirs,test_or_train=None,max_images_per_class = 1000,resize_x=128,resize_y=128,avg_B=None,avg_G=None,avg_R=None,resize_w_bb=True,use_visual_output=False,shuffle=True):
     print('writing to lmdb {} test/train {} max {} new_x {} new_y {} avgB {} avg G {} avgR {}'.format(dbname,test_or_train,max_images_per_class,resize_x,resize_y,avg_B,avg_G,avg_R))
