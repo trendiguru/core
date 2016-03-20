@@ -990,14 +990,14 @@ def run_net(net_builder,nn_dir,train_db,test_db,batch_size = 64,n_classes=11,mea
         #figure 1 - train loss and train acc. for all forward passes
         fig1 = plt.figure()
         ax1 = fig1.add_subplot(111)
-        ax1.plot(arange(niter), train_loss,'r.-')
+        ax1.plot(arange(it), train_loss,'r.-')
         plt.yscale('log')
         ax1.set_title('train loss / accuracy for '+str(train_db))
         ax1.set_ylabel('train loss',color='r')
         ax1.set_xlabel('iteration',color='g')
 
         axb = ax1.twinx()
-        axb.plot(arange(niter), train_acc,'b.-',label='train_acc')
+        axb.plot(arange(it), train_acc,'b.-',label='train_acc')
         plt.yscale('log')
         axb.set_ylabel('train acc.', color='b')
         legend = ax1.legend(loc='upper center', shadow=True)
@@ -1006,8 +1006,8 @@ def run_net(net_builder,nn_dir,train_db,test_db,batch_size = 64,n_classes=11,mea
         #figure 2 - train and test acc every N passes
         fig2 = plt.figure()
         ax2 = fig2.add_subplot(111)
-        ax2.plot(arange(int(np.ceil(niter / test_interval))), test_acc,'b.-',label='test_acc')
-        ax2.plot(arange(int(np.ceil(niter / test_interval))), train_acc2,'g.-',label='train_acc')
+        ax2.plot(arange(int(np.ceil(it / test_interval))), test_acc,'b.-',label='test_acc')
+        ax2.plot(arange(int(np.ceil(it / test_interval))), train_acc2,'g.-',label='train_acc')
         ax2.set_xlabel('iteration/'+str(test_interval))
         ax2.set_ylabel('test/train accuracy')
         ax2.set_title('train, test acc for '+str(train_db)+','+str(test_db))
