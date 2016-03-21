@@ -976,7 +976,7 @@ def yolo_net(db, batch_size, n_classes=11, meanB=128, meanG=128, meanR=128,n_fil
     output_w = 7
     n_bbs = 2
     n.ip1_54 = L.InnerProduct(n.conv_52,param=[dict(lr_mult=lr_mult1),dict(lr_mult=lr_mult2)],num_output=4096,weight_filler=dict(type='xavier'))
-    n.ip1_54 = L.InnerProduct(n.conv_52,param=[dict(lr_mult=lr_mult1),dict(lr_mult=lr_mult2)],num_output=output_h*output_w*(n_bbs*5+n_classes),weight_filler=dict(type='xavier'))
+    n.output_layer = L.InnerProduct(n.ip1_54,param=[dict(lr_mult=lr_mult1),dict(lr_mult=lr_mult2)],num_output=output_h*output_w*(n_bbs*5+n_classes),weight_filler=dict(type='xavier'))
     n.loss = L.SoftmaxWithLoss(n.output_layer,n.label)
 #    n.accuracy = L.Accuracy(n.output_layer,n.label,include=[dict(phase=TEST)])
     n.accuracy = L.Accuracy(n.output_layer,n.label)
