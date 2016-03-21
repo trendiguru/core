@@ -340,7 +340,7 @@ def alexnet_linearized(db, batch_size,n_classes=11,meanB=128,meanG=128,meanR=128
 #maybe add relu here?
     if not deploy:
         n.accuracy = L.Accuracy(n.output_layer,n.label)
-    n.loss = L.SoftmaxWithLoss(n.output_layer,n.label)
+        n.loss = L.SoftmaxWithLoss(n.output_layer,n.label)
     return n.to_proto()
 
 def run_lenet():
@@ -977,7 +977,9 @@ def yolo_net(db, batch_size, n_classes=11, meanB=128, meanG=128, meanR=128,n_fil
     n_bbs = 2
     n.ip1_54 = L.InnerProduct(n.conv_52,param=[dict(lr_mult=lr_mult1),dict(lr_mult=lr_mult2)],num_output=4096,weight_filler=dict(type='xavier'))
     n.output_layer = L.InnerProduct(n.ip1_54,param=[dict(lr_mult=lr_mult1),dict(lr_mult=lr_mult2)],num_output=output_h*output_w*(n_bbs*5+n_classes),weight_filler=dict(type='xavier'))
-    n.loss = L.SoftmaxWithLoss(n.output_layer,n.label)
+#    n.loss = L.SoftmaxWithLoss(n.output_layer,n.label)
+    n.loss = L.EuclideanLoss(n.output_layer,n.label)
+
 #    n.accuracy = L.Accuracy(n.output_layer,n.label,include=[dict(phase=TEST)])
     n.accuracy = L.Accuracy(n.output_layer,n.label)
 
@@ -1129,8 +1131,10 @@ def run_net(net_builder,nn_dir,train_db,test_db,batch_size = 64,n_classes=11,mea
     proto_file_base = proto_filename.split('prototxt')[0]
     train_protofile = os.path.join(nn_dir,proto_file_base+'train.prototxt')
     test_protofile = os.path.join(nn_dir,proto_file_base+'test.prototxt')
+    deploy_protofile = os.path.join(nn_dir,proto_file_base+'deploy.prototxt')
     print('using trainfile:{}'.format(train_protofile))
     print('using  testfile:{}'.format(test_protofile))
+    print('using deployfile:{}'.format(deploy_protofile))
 
     with open(train_protofile,'w') as f:
         train_net = net_builder(train_db,batch_size = batch_size,n_classes=n_classes,meanB=meanB,meanG=meanG,meanR=meanR,n_filters=n_filters,n_ip1=n_ip1)
@@ -1140,6 +1144,10 @@ def run_net(net_builder,nn_dir,train_db,test_db,batch_size = 64,n_classes=11,mea
         test_net = net_builder(test_db,batch_size = batch_size,n_classes=n_classes,meanB=meanB,meanG=meanG,meanR=meanR,n_filters=n_filters,n_ip1=n_ip1)
         g.write(str(test_net))
         g.close
+    with open(deploy_protofile,'w') as h:
+        deploy_net = net_builder(test_db,batch_size = batch_size,n_classes=n_classes,meanB=meanB,meanG=meanG,meanR=meanR,deploy=True)
+        h.write(str(deploy_net))
+        h.close
 
     solver = caffe.SGDSolver(proto_file_path)
 
@@ -1327,7 +1335,7 @@ if __name__ == "__main__":
         dir_of_dirs = '/home/jeremy/core/classifier_stuff/caffe_nns/plusminus_data'  #b2
         dir_of_dirs = '/home/jeremy/core/classifier_stuff/caffe_nns/populated_items'  #b2
         dir_of_dirs = '/home/jeremy/core/classifier_stuff/caffe_nns/dataset/cropped'  #b2
-        nn_dir = '/home/jeremy/core/classifier_stuff/caffe_nns/alexnet10'  #b2
+        nn_dir = '/home/jeremy/core/classifier_stuff/caffe_nns/alexnet11'  #b2
 #        nn_dir = '/home/jeremy/core/classifier_stuff/caffe_nns/vgg_'  #b2
         max_images_per_class = 15000
         pc = False
@@ -1335,8 +1343,8 @@ if __name__ == "__main__":
         B=112
         G=123
         R=136
-        db_name = 'highly_populated_cropped'
         db_name = 'binary_dresses'
+        db_name = 'highly_populated_cropped'
         use_visual_output = False
 #    h,w,d,B,G,R,n = imutils.image_stats_from_dir_of_ditestrs(dir_of_dirs)
     resize_x = None
@@ -1416,10 +1424,13 @@ if __name__ == "__main__":
     #     run_my_net(nn_dir,db_name+'.train',db_name+'.test',batch_size = batch_size,n_classes=n_classes,meanB=B,meanR=R,meanG=G,n_filters=70,n_ip1=2000)
 
 #    run_net(alexnet_linearized,nn_dir,db_name+'.train',db_name+'.test',batch_size = batch_size,n_classes=n_classes,meanB=B,meanR=R,meanG=G,n_filters=50,n_ip1=1000)
-for a_filter in filters:
-    db_name = 'binary_'+a_filter
-    nn_dir = '/home/jeremy/core/classifier_stuff/caffe_nns/googLeNet_1inception_'+db_name  #b2
-    run_net(small_googLeNet,nn_dir,db_name+'.train',db_name+'.test',batch_size = batch_size,n_classes=n_classes,meanB=B,meanR=R,meanG=G,n_filters=50,n_ip1=1000)
+    run_net(alexnet_linearized,nn_dir,db_name+'.train',db_name+'.test',batch_size = batch_size,n_classes=n_classes,meanB=B,meanR=R,meanG=G,n_filters=50,n_ip1=1000)
+
+
+#for a_filter in filters:
+#    db_name = 'binary_'+a_filter
+#    nn_dir = '/home/jeremy/core/classifier_stuff/caffe_nns/googLeNet_1inception_'+db_name  #b2
+#    run_net(small_googLeNet,nn_dir,db_name+'.train',db_name+'.test',batch_size = batch_size,n_classes=n_classes,meanB=B,meanR=R,meanG=G,n_filters=50,n_ip1=1000)
 
 
 #to train at cli:

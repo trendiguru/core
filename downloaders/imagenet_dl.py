@@ -36,7 +36,7 @@ def get_imagepath(wnid):
 
 def main():
     if not os.path.exists(structure_released):
-        print "The file {0} does not exists.".format(structure_released)
+        print "The file {0} does not exist.".format(structure_released)
         download_file(base_url + structure_released,
                       structure_released)
     print "loading structure..."
