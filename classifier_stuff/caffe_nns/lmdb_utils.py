@@ -483,13 +483,13 @@ if __name__ == "__main__":
     db_name = 'binary_dresses'
     use_visual_output = False
     n_test_classes,test_populations,test_imageno = interleaved_dir_of_dirs_to_lmdb(db_name,dir_of_dirs,max_images_per_class =3000,
-                                                                                   test_or_train='test',use_visual_output=use_visual_output,
+                                                                                   positive_filtern='test',use_visual_output=use_visual_output,
                                                                                    n_channels=3,resize_x=resize_x,resize_y=resize_y,
                                                                                    binary_class_filter='dresses')
     print('n_test classes {} pops {} test_imageno {}'.format(n_test_classes,test_populations,test_imageno))
 
     n_test_classes,test_populations,test_imageno = interleaved_dir_of_dirs_to_lmdb(db_name,dir_of_dirs,max_images_per_class =13000,
-                                                                                   test_or_train='train',use_visual_output=use_visual_output,
+                                                                                   positive_filter='train',use_visual_output=use_visual_output,
                                                                                    n_channels=3,resize_x=resize_x,resize_y=resize_y,
                                                                                    binary_class_filter='dresses')
     print('n_test classes {} populationss {} test_imageno {}'.format(n_test_classes,test_populations,test_imageno))
