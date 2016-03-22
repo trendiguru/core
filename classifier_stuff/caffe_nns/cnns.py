@@ -1377,12 +1377,12 @@ if __name__ == "__main__":
     generate_db = True
     if generate_db:
         n_test_classes,test_populations,test_imageno = lmdb_utils.interleaved_dir_of_dirs_to_lmdb(db_name,dir_of_dirs,max_images_per_class =15000,
-                                                                                       test_or_train='test',use_visual_output=use_visual_output,
+                                                                                       positive_filter='test',use_visual_output=use_visual_output,
                                                                                        n_channels=3,resize_x=resize_x,resize_y=resize_y)
         print('testclasses {} populations {} tot_images {} '.format(n_test_classes,test_populations,test_imageno))
 
         n_train_classes,train_populations,train_imageno = lmdb_utils.interleaved_dir_of_dirs_to_lmdb(db_name,dir_of_dirs,max_images_per_class =50000,
-                                                                                       test_or_train='train',use_visual_output=use_visual_output,
+                                                                                       positive_filter='train',use_visual_output=use_visual_output,
                                                                                        n_channels=3,resize_x=resize_x,resize_y=resize_y)
         tot_train_samples = np.sum(train_populations)
         tot_test_samples = np.sum(test_populations)
