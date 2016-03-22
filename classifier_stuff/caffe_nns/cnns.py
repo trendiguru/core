@@ -1335,7 +1335,8 @@ if __name__ == "__main__":
         dir_of_dirs = '/home/jeremy/core/classifier_stuff/caffe_nns/plusminus_data'  #b2
         dir_of_dirs = '/home/jeremy/core/classifier_stuff/caffe_nns/populated_items'  #b2
         dir_of_dirs = '/home/jeremy/core/classifier_stuff/caffe_nns/dataset/cropped'  #b2
-        nn_dir = '/home/jeremy/core/classifier_stuff/caffe_nns/alexnet11'  #b2
+        dir_of_dirs = '/home/jeremy/core/classifier_stuff/caffe_nns/dataset/retrieval'  #b2
+        nn_dir = '/home/jeremy/core/classifier_stuff/caffe_nns/alexnet12_multi_retreival'  #b2
 #        nn_dir = '/home/jeremy/core/classifier_stuff/caffe_nns/vgg_'  #b2
         max_images_per_class = 15000
         pc = False
@@ -1345,6 +1346,7 @@ if __name__ == "__main__":
         R=136
         db_name = 'binary_dresses'
         db_name = 'highly_populated_cropped'
+        db_name = 'multi_retreival'
         use_visual_output = False
 #    h,w,d,B,G,R,n = imutils.image_stats_from_dir_of_ditestrs(dir_of_dirs)
     resize_x = None
@@ -1372,33 +1374,46 @@ if __name__ == "__main__":
 #    lmdb_utils.inspect_db(db_name+'.train')
   #  lmdb_utils.inspect_db(db_name+'.test')
     filters = ['skirts','pants','tops','leggings','outerwear'] #done 'bags','belts','dresses','eyewear','footwear','hats',-
-    generate_db = False
+    generate_db = True
     if generate_db:
-        for a_filter in filters:
-            db_name = 'binary_'+a_filter
-            n_test_classes,test_populations,test_imageno = lmdb_utils.interleaved_dir_of_dirs_to_lmdb(db_name,dir_of_dirs,max_images_per_class =5000,
-                                                                                           test_or_train='test',use_visual_output=use_visual_output,
-                                                                                           n_channels=3,resize_x=resize_x,resize_y=resize_y,
-                                                                                           binary_class_filter=a_filter)
-            print('testclasses {} populations {} tot_images {} '.format(n_test_classes,test_populations,test_imageno))
+        n_test_classes,test_populations,test_imageno = lmdb_utils.interleaved_dir_of_dirs_to_lmdb(db_name,dir_of_dirs,max_images_per_class =15000,
+                                                                                       test_or_train='test',use_visual_output=use_visual_output,
+                                                                                       n_channels=3,resize_x=resize_x,resize_y=resize_y)
+        print('testclasses {} populations {} tot_images {} '.format(n_test_classes,test_populations,test_imageno))
 
-            n_train_classes,train_populations,train_imageno = lmdb_utils.interleaved_dir_of_dirs_to_lmdb(db_name,dir_of_dirs,max_images_per_class =50000,
-                                                                                           test_or_train='train',use_visual_output=use_visual_output,
-                                                                                           n_channels=3,resize_x=resize_x,resize_y=resize_y,
-                                                                                           binary_class_filter=a_filter)
-            tot_train_samples = np.sum(train_populations)
-            tot_test_samples = np.sum(test_populations)
-            n_classes = n_test_classes
-            print('testclasses {} populations {} tot_images {} '.format(n_test_classes,test_populations,test_imageno))
-            print('trainclasses {} populations {} tot_images {} '.format(n_train_classes,train_populations,train_imageno))
-            print('sum test pops {}  sum train pops {}  testiter {} batch_size {}'.format(tot_train_samples,tot_test_samples,test_iter,batch_size))
-            nn_dir = '/home/jeremy/core/classifier_stuff/caffe_nns/googLeNet_1inception_'+db_name  #b2
-            run_net(alexnet_linearized,nn_dir,db_name+'.train',db_name+'.test',batch_size = batch_size,n_classes=n_classes,meanB=B,meanR=R,meanG=G,n_filters=50,n_ip1=1000)
+        n_train_classes,train_populations,train_imageno = lmdb_utils.interleaved_dir_of_dirs_to_lmdb(db_name,dir_of_dirs,max_images_per_class =50000,
+                                                                                       test_or_train='train',use_visual_output=use_visual_output,
+                                                                                       n_channels=3,resize_x=resize_x,resize_y=resize_y)
+        tot_train_samples = np.sum(train_populations)
+        tot_test_samples = np.sum(test_populations)
+        n_classes = n_test_classes
+        print('testclasses {} populations {} tot_images {} '.format(n_test_classes,test_populations,test_imageno))
+        print('trainclasses {} populations {} tot_images {} '.format(n_train_classes,train_populations,train_imageno))
+        print('sum test pops {}  sum train pops {}  testiter {} batch_size {}'.format(tot_train_samples,tot_test_samples,test_iter,batch_size))
+        run_net(alexnet_linearized,nn_dir,db_name+'.train',db_name+'.test',batch_size = batch_size,n_classes=n_classes,meanB=B,meanR=R,meanG=G,n_filters=50,n_ip1=1000)
 
 
+        if(0):
+            for a_filter in filters:
+                db_name = 'binary_'+a_filter
+                n_test_classes,test_populations,test_imageno = lmdb_utils.interleaved_dir_of_dirs_to_lmdb(db_name,dir_of_dirs,max_images_per_class =5000,
+                                                                                               test_or_train='test',use_visual_output=use_visual_output,
+                                                                                               n_channels=3,resize_x=resize_x,resize_y=resize_y,
+                                                                                               binary_class_filter=a_filter)
+                print('testclasses {} populations {} tot_images {} '.format(n_test_classes,test_populations,test_imageno))
 
-
-
+                n_train_classes,train_populations,train_imageno = lmdb_utils.interleaved_dir_of_dirs_to_lmdb(db_name,dir_of_dirs,max_images_per_class =50000,
+                                                                                               test_or_train='train',use_visual_output=use_visual_output,
+                                                                                               n_channels=3,resize_x=resize_x,resize_y=resize_y,
+                                                                                               binary_class_filter=a_filter)
+                tot_train_samples = np.sum(train_populations)
+                tot_test_samples = np.sum(test_populations)
+                n_classes = n_test_classes
+                print('testclasses {} populations {} tot_images {} '.format(n_test_classes,test_populations,test_imageno))
+                print('trainclasses {} populations {} tot_images {} '.format(n_train_classes,train_populations,train_imageno))
+                print('sum test pops {}  sum train pops {}  testiter {} batch_size {}'.format(tot_train_samples,tot_test_samples,test_iter,batch_size))
+                nn_dir = '/home/jeremy/core/classifier_stuff/caffe_nns/googLeNet_1inception_'+db_name  #b2
+                run_net(alexnet_linearized,nn_dir,db_name+'.train',db_name+'.test',batch_size = batch_size,n_classes=n_classes,meanB=B,meanR=R,meanG=G,n_filters=50,n_ip1=1000)
 
     else:
         n_classes  = 2
@@ -1424,7 +1439,7 @@ if __name__ == "__main__":
     #     run_my_net(nn_dir,db_name+'.train',db_name+'.test',batch_size = batch_size,n_classes=n_classes,meanB=B,meanR=R,meanG=G,n_filters=70,n_ip1=2000)
 
 #    run_net(alexnet_linearized,nn_dir,db_name+'.train',db_name+'.test',batch_size = batch_size,n_classes=n_classes,meanB=B,meanR=R,meanG=G,n_filters=50,n_ip1=1000)
-    run_net(alexnet_linearized,nn_dir,db_name+'.train',db_name+'.test',batch_size = batch_size,n_classes=n_classes,meanB=B,meanR=R,meanG=G,n_filters=50,n_ip1=1000)
+#    run_net(alexnet_linearized,nn_dir,db_name+'.train',db_name+'.test',batch_size = batch_size,n_classes=n_classes,meanB=B,meanR=R,meanG=G,n_filters=50,n_ip1=1000)
 
 
 #for a_filter in filters:
