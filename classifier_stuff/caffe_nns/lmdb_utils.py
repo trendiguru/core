@@ -202,7 +202,7 @@ def interleaved_dir_of_dirs_to_lmdb(dbname,dir_of_dirs,positive_filter=None,max_
     only_dirs = []
     for a_dir in initial_only_dirs:
         #only take 'test' or 'train' dirs, if test_or_train is specified
-        if (not positive_filter or positive_filter in a_dir:
+        if (not positive_filter or positive_filter in a_dir):
             only_dirs.append(a_dir)
     only_dirs.sort()
     print(str(len(only_dirs))+' relevant dirs in '+dir_of_dirs)
