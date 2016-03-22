@@ -125,7 +125,7 @@ def find_products_by_category(category_id):
     return cursor
 
 
-def enqueue_for_download(q, iterable, feature_name, category_id, max_images=MAX_IMAGES):
+def enqueue_for_download(q, iterable, feature_name, category_id, max_images=100000):
     job_results = []
     for prod in iterable:
         res = q.enqueue(download_image, prod, feature_name, category_id, max_images)
