@@ -1346,7 +1346,7 @@ if __name__ == "__main__":
         R=136
         db_name = 'binary_dresses'
         db_name = 'highly_populated_cropped'
-        db_name = 'multi_retreival'
+        db_name = 'multi_retrieval'
         use_visual_output = False
 #    h,w,d,B,G,R,n = imutils.image_stats_from_dir_of_ditestrs(dir_of_dirs)
     resize_x = None
@@ -1376,12 +1376,12 @@ if __name__ == "__main__":
     filters = ['skirts','pants','tops','leggings','outerwear'] #done 'bags','belts','dresses','eyewear','footwear','hats',-
     generate_db = True
     if generate_db:
-        n_test_classes,test_populations,test_imageno = lmdb_utils.interleaved_dir_of_dirs_to_lmdb(db_name,dir_of_dirs,max_images_per_class =15000,
+        n_test_classes,test_populations,test_imageno = lmdb_utils.interleaved_dir_of_dirs_to_lmdb(db_name+'_test',dir_of_dirs,max_images_per_class =15000,
                                                                                        positive_filter='test',use_visual_output=use_visual_output,
                                                                                        n_channels=3,resize_x=resize_x,resize_y=resize_y)
         print('testclasses {} populations {} tot_images {} '.format(n_test_classes,test_populations,test_imageno))
 
-        n_train_classes,train_populations,train_imageno = lmdb_utils.interleaved_dir_of_dirs_to_lmdb(db_name,dir_of_dirs,max_images_per_class =50000,
+        n_train_classes,train_populations,train_imageno = lmdb_utils.interleaved_dir_of_dirs_to_lmdb(db_name+'_train',dir_of_dirs,max_images_per_class =50000,
                                                                                        positive_filter='train',use_visual_output=use_visual_output,
                                                                                        n_channels=3,resize_x=resize_x,resize_y=resize_y)
         tot_train_samples = np.sum(train_populations)
