@@ -207,7 +207,7 @@ class ShopStyleDownloader():
                     # print "Params: {0}".format(subset_filter_params.encoded())
                     self.divide_and_conquer(subset_filter_params, filter_index + 1)
 
-    def download_products(self, filter_params, total=MAX_SET_SIZE, coll):
+    def download_products(self, filter_params, coll, total=MAX_SET_SIZE):
         """
         Download with paging...
         :param filter_params:
