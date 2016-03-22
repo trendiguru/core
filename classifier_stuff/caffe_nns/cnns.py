@@ -1396,13 +1396,13 @@ if __name__ == "__main__":
         if(0):
             for a_filter in filters:
                 db_name = 'binary_'+a_filter
-                n_test_classes,test_populations,test_imageno = lmdb_utils.interleaved_dir_of_dirs_to_lmdb(db_name,dir_of_dirs,max_images_per_class =5000,
+                n_test_classes,test_populations,test_imageno = lmdb_utils.interleaved_dir_of_dirs_to_lmdb(db_name+'_test',dir_of_dirs,max_images_per_class =5000,
                                                                                                positive_filter='test',use_visual_output=use_visual_output,
                                                                                                n_channels=3,resize_x=resize_x,resize_y=resize_y,
                                                                                                binary_class_filter=a_filter)
                 print('testclasses {} populations {} tot_images {} '.format(n_test_classes,test_populations,test_imageno))
 
-                n_train_classes,train_populations,train_imageno = lmdb_utils.interleaved_dir_of_dirs_to_lmdb(db_name,dir_of_dirs,max_images_per_class =50000,
+                n_train_classes,train_populations,train_imageno = lmdb_utils.interleaved_dir_of_dirs_to_lmdb(db_name+'_train',dir_of_dirs,max_images_per_class =50000,
                                                                                                positive_filter='train',use_visual_output=use_visual_output,
                                                                                                n_channels=3,resize_x=resize_x,resize_y=resize_y,
                                                                                                binary_class_filter=a_filter)

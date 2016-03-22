@@ -258,8 +258,6 @@ def interleaved_dir_of_dirs_to_lmdb(dbname,dir_of_dirs,positive_filter=None,max_
     # transaction.
 #    map_size = X.nbytes * 10
 
-    if test_or_train:
-        dbname = dbname+'.'+test_or_train
     print('writing to db:'+dbname)
     got_image = False
     classno = -1
