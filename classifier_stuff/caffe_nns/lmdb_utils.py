@@ -188,12 +188,12 @@ def generate_binary_dbs(dir_of_dirs,filter='test'):
     for dir1 in only_dirs:
         remaining_dirs = only_dirs.de
 
-def interleaved_dir_of_dirs_to_lmdb(dbname,dir_of_dirs,test_or_train=None,max_images_per_class = 150000,
+def interleaved_dir_of_dirs_to_lmdb(dbname,dir_of_dirs,positive_filter=None,max_images_per_class = 150000,
                                     resize_x=None,resize_y=None,write_cropped=False,
                                     avg_B=None,avg_G=None,avg_R=None,
                                     use_visual_output=False,use_bb_from_name=True,n_channels=3,binary_class_filter=None):
 # maybe try randomize instead of interleave, cn use del list[index]
-    print('writing to lmdb {} test/train {} max {} new_x {} new_y {} avgB {} avg G {} avgR {} binfilt {}'.format(dbname,test_or_train,max_images_per_class,resize_x,resize_y,avg_B,avg_G,avg_R,binary_class_filter))
+    print('writing to lmdb {} filter {} max {} new_x {} new_y {} avgB {} avg G {} avgR {} binfilt {}'.format(dbname,positive_filter,max_images_per_class,resize_x,resize_y,avg_B,avg_G,avg_R,binary_class_filter))
     initial_only_dirs = [dir for dir in os.listdir(dir_of_dirs) if os.path.isdir(os.path.join(dir_of_dirs,dir))]
     initial_only_dirs.sort()
  #   print(str(len(initial_only_dirs))+' dirs:'+str(initial_only_dirs)+' in '+dir_of_dirs)
@@ -202,10 +202,11 @@ def interleaved_dir_of_dirs_to_lmdb(dbname,dir_of_dirs,test_or_train=None,max_im
     only_dirs = []
     for a_dir in initial_only_dirs:
         #only take 'test' or 'train' dirs, if test_or_train is specified
-        if (not test_or_train) or a_dir[0:4]==test_or_train[0:4]:
+        if (not positive_filter or positive_filter in a_dir:
             only_dirs.append(a_dir)
     only_dirs.sort()
     print(str(len(only_dirs))+' relevant dirs in '+dir_of_dirs)
+   # print only_dirs
 
     #prepare files
 #    random.shuffle(only_dirs)  #this gets confusing as now the class labels change every time
