@@ -92,7 +92,7 @@ class ShopStyleDownloader():
            "dl_duration": total_time,
            "store_info": []}
 
-        dl_excel.mongo2xl('shopstyle', dl_info)
+        dl_excel.mongo2xl('Gangnam', dl_info)
         print collection + " DOWNLOAD DONE!!!!!\n"
 
 
