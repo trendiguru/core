@@ -118,6 +118,7 @@ def find_products_by_category(category_id):
                                  }
                             }
              }
+    print('query is:'+str(query))
     fields = {"categories": 1, "id": 1, "description": 1}
     cursor = db.products.find(query, fields).batch_size(10)
     logging.info("Found {count} products in cat {category} ".format(count=cursor.count(),
