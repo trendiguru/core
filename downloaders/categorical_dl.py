@@ -188,7 +188,7 @@ def run(category_id, search_string_dict=None, async=True):
                                                        sum((job.result for job in jrs if job and job.result))))
 
 def download_all_images_in_category(category_id,download_dir):
-    cursor = find_products_by_category(cat)
+    cursor = find_products_by_category(category_id)
     Utils.ensure_dir(download_dir)
     count = 0
     for prod in cursor:
