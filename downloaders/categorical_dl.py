@@ -207,8 +207,6 @@ def download_all_images_in_category(category_id,download_dir):
         logging.info("Saved... Downloaded approx. {0} images in this category/feature combination"
                      .format(count))
 
-
-
 def print_logging_info(msg):
     print msg
 
@@ -219,17 +217,50 @@ my_path = os.path.dirname(os.path.abspath(__file__))
 MAX_IMAGES = 10000
 
 if __name__ == '__main__':
-    shopstyle_women = ['womens-tops', 'womens-pants',  'womens-tops', 'skirts',
-                        'dresses', 'womens-suits','shapewear', 'leggings', 'hosiery']
 
-    shopstyle_men = ['mens-shirts', 'mens-pants', 'mens-shorts',
-                        'mens-jeans',  'mens-outerwear',
-                        'mens-suits','mens-sweaters',  'mens-tees-and-tshirts',
-                         'mens-overcoats-and-trenchcoats', 'mens-sweatshirts']
+    womens = ['womens-accessories',
+     'womens-athletic-clothes',
+     'bridal',
+     'jeans',
+     'dresses',
+     'womens-intimates',
+     'jackets',
+     'jewelry',
+     'maternity-clothes',
+     'womens-outerwear',
+     'womens-pants',
+     'petites',
+     'plus-sizes',
+     'shorts',
+     'skirts',
+     'womens-suits',
+     'sweaters',
+     'swimsuits',
+     'sweatshirts',
+     'teen-girls-clothes',
+     'womens-tops']
 
-    shopstyle_nogender = ['shorts', 'jeans', 'jackets',  'blazers', 'vests', 'tees-and-tshirts' ,'coats','sweatshirts','sweaters']
+    mens = ['mens-accessories',
+     'mens-athletic',
+     'mens-big-and-tall',
+     'mens-jeans',
+     'mens-outerwear',
+     'mens-pants',
+     'mens-shirts',
+     'mens-shorts',
+     'mens-sleepwear',
+     'mens-blazers-and-sport-coats',
+     'mens-suits',
+     'mens-sweaters',
+     'mens-sweatshirts',
+     'mens-swimsuits',
+     'mens-ties',
+     'teen-guys-clothes',
+     'mens-underwear-and-socks',
+     'mens-watches-and-jewelry']
 
-    all_shopstyle = shopstyle_men+shopstyle_women+shopstyle_nogender
+
+    all_shopstyle = womens+mens
     dl_dir = '/home/jeremy/shopstyle_images'
     for cat in all_shopstyle:
         full_dl_dir = os.path.join(dl_dir,cat)
