@@ -2,6 +2,7 @@ __author__ = 'jeremy'
 import os
 import logging
 import cv2
+import random
 
 logging.basicConfig(level=logging.DEBUG)
 
@@ -11,8 +12,27 @@ logging.basicConfig(level=logging.DEBUG)
 #these aparently correspond to filename lines in the train.txt file
 # so we'll step thru dirs and append the train.txt file as well as the bbox file
 
-def dir_to_darknet(dir, trainfile,bbfile,category_number):
+
+def dir_of_dirs_to_darknet(dir_of_dirs, trainfile,bbfile,positive_filter=None):
+    initial_only_dirs = [dir for dir in os.listdir(dir_of_dirs) if os.path.isdir(os.path.join(dir_of_dirs,dir))]
+ #   print(str(len(initial_only_dirs))+' dirs:'+str(initial_only_dirs)+' in '+dir_of_dirs)
+    # txn is a Transaction object
+    #prepare directories
+    only_dirs = []
+    category_number = 0
+    for a_dir in initial_only_dirs:
+        #only take 'test' or 'train' dirs, if test_or_train is specified
+        if (not positive_filter or positive_filter in a_dir):
+            only_dirs.append(a_dir)
+            n_files = dir_to_darknet(a_dir,trainfile,bbfile,category_number)
+            print('did {} files in {}'.format(n_files,a_dir)
+            category_number += 1
+
+
+def dir_to_darknet(dir, trainfile,bbfile,category_number,randomize=True):
     only_files = [f for f in os.listdir(dir) if os.path.isfile(os.path.join(dir, f))]
+    if randomize:
+        random.shuffle(only_files)
     n = 0
     n_digits = 5
     with open(trainfile,'a') as fp_t:
@@ -26,7 +46,7 @@ def dir_to_darknet(dir, trainfile,bbfile,category_number):
                 fp_bb.write(line)
                 fp_t.write(full_filename)
                 n = n + 1
-                raw_input('enter for next')
+#                raw_input('enter for next')
         fp_bb.close()
     fp_t.close()
     return n
@@ -45,7 +65,7 @@ def get_darkbb(filename):
         bb_h = coords[3].split('.')[0]  #this has .jpg or .bmp at the end
         bb_h = int(bb_h)
         bb=[bb_x,bb_y,bb_w,bb_h]
-        print('bb:'+str(bb))
+        logging.debug('bb:'+str(bb))
         if bb_h == 0:
             logging.warning('bad height encountered in imutils.resize_and_crop_image for '+str(filename))
             return None
@@ -58,12 +78,12 @@ def get_darkbb(filename):
             return None
         h,w = img_arr.shape[0:2]
         converted_bb = convert([w,h],bb)
-        print('converted bb:{} im_w {} im_h {}'.format(converted_bb,w,h))
+        logging.debug('converted bb:{} im_w {} im_h {}'.format(converted_bb,w,h))
         w_conv = converted_bb[2]*w
         h_conv = converted_bb[3]*h
         x_conv = converted_bb[0]*w - w_conv/2
         y_conv = converted_bb[1]*h - h_conv/2
-        print('converted bb xlates to: x:{} y:{} w:{} h:{}'.format(x_conv,y_conv,w_conv,h_conv))
+        logging.debug('converted bb xlates to: x:{} y:{} w:{} h:{}'.format(x_conv,y_conv,w_conv,h_conv))
         return(converted_bb)
     else:
         logging.warning('no bbox_ in filename, dont know how to get bb')
