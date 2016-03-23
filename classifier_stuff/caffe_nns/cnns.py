@@ -1338,7 +1338,7 @@ if __name__ == "__main__":
         dir_of_dirs = '/home/jeremy/core/classifier_stuff/caffe_nns/dataset/cropped'  #b2
         dir_of_dirs = '/home/jeremy/core/classifier_stuff/caffe_nns/dataset/retrieval'  #b2
         nn_dir = '/home/jeremy/core/classifier_stuff/caffe_nns/alexnet12_multi_retrieval'  #b2
-        nn_dir = '/home/jeremy/core/classifier_stuff/caffe_nns/small_goog_multi_retrieval'  #b2
+        nn_dir = '/home/jeremy/core/classifier_stuff/caffe_nns/small_goog_multi_retrieval_b64'  #b2
 
 #        nn_dir = '/home/jeremy/core/classifier_stuff/caffe_nns/vgg_'  #b2
         max_images_per_class = 15000
@@ -1363,7 +1363,7 @@ if __name__ == "__main__":
 
 #    lmdb_utils.kill_db(db_name)
     test_iter = 200
-    batch_size = 16  #use powers of 2 for better perf (supposedly)
+    batch_size = 64  #use powers of 2 for better perf (supposedly)
 # out of mem possibly correctable:    Reading dangerously large protocol message.  If the message turns out to be larger than 2147483647 bytes, parsing will be halted for security reasons.  To increase the limit (or to disable these warnings), see CodedInputStream::SetTotalBytesLimit() in google/protobuf/io/coded_stream.h
 
     find_averages = False
