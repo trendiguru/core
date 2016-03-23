@@ -32,7 +32,7 @@ def dir_of_dirs_to_darknet(dir_of_dirs, trainfile,bbfile,positive_filter=None,ma
 
 def dir_to_darknet(dir, trainfile,bbfile,category_number,randomize=True,maxfiles_per_dir=999999):
     only_files = [f for f in os.listdir(dir) if os.path.isfile(os.path.join(dir, f))]
-    new_length = min(len(only_files,maxfiles_per_dir))
+    new_length = min(len(only_files),maxfiles_per_dir)
     only_files = only_files[0:new_length]
     if randomize:
         random.shuffle(only_files)
