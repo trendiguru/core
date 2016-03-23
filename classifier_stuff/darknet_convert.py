@@ -19,7 +19,8 @@ def dir_to_darknet(dir, trainfile,bbfile,category_number):
             for a_file in only_files:
                 full_filename = os.path.join(dir,a_file)
                 dark_bb = get_darkbb(full_filename)
-                line = str(category_number).join(str(a for a in dark_bb))
+#                line = str(category_number)+join(str(a for a in dark_bb))
+                line = str(category_number)+' '+dark_bb[0][0:5]+' '+dark_bb[1][0:5]+' '+dark_bb[2][0:5]+' '+dark_bb[3][0:5]
                 print('line to write:'+line)
                 fp_bb.write(line)
                 fp_t.write(full_filename)
