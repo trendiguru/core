@@ -23,8 +23,9 @@ def dir_of_dirs_to_darknet(dir_of_dirs, trainfile,bbfile,positive_filter=None):
     for a_dir in initial_only_dirs:
         #only take 'test' or 'train' dirs, if test_or_train is specified
         if (not positive_filter or positive_filter in a_dir):
-            only_dirs.append(a_dir)
-            n_files = dir_to_darknet(a_dir,trainfile,bbfile,category_number)
+            fulldir = os.path.join(dir_of_dirs,a_dir)
+            only_dirs.append(fulldir)
+            n_files = dir_to_darknet(fulldir,trainfile,bbfile,category_number)
             print('did {} files in {}'.format(n_files,a_dir))
             category_number += 1
 
