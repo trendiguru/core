@@ -605,7 +605,7 @@ def googLeNet(db, batch_size, n_classes=11, meanB=128, meanG=128, meanR=128):
     #n.loss = L.SoftmaxWithLoss(n.ip2,n.label)
     return n.to_proto()
 
-def small_googLeNet(db, batch_size, n_classes=11, meanB=128, meanG=128, meanR=128,n_filters=50,n_ip1=1000):
+def small_googLeNet(db, batch_size, n_classes=11, meanB=128, meanG=128, meanR=128,n_filters=50,n_ip1=1000,deploy=False):
 #    print('running mynet n {} B {} G {} R {] db {} batchsize {} '.format(n_classes,meanB,meanG,meanR,db,batch_size))
     print('running small googlenet n {}  batchsize {} '.format(n_classes,batch_size))
    #crop size 224
@@ -723,10 +723,11 @@ def small_googLeNet(db, batch_size, n_classes=11, meanB=128, meanG=128, meanR=12
     n.output_layer = L.InnerProduct(n.inception_3a_avg_pool,param=[dict(lr_mult=lr_mult1),dict(lr_mult=lr_mult2)],num_output=n_classes,weight_filler=dict(type='xavier'))
 
 
+    if not deploy:
 
-    n.loss = L.SoftmaxWithLoss(n.output_layer,n.label)
-#    n.accuracy = L.Accuracy(n.output_layer,n.label,include=[dict(phase=TEST)])
-    n.accuracy = L.Accuracy(n.output_layer,n.label)
+        n.loss = L.SoftmaxWithLoss(n.output_layer,n.label)
+    #    n.accuracy = L.Accuracy(n.output_layer,n.label,include=[dict(phase=TEST)])
+        n.accuracy = L.Accuracy(n.output_layer,n.label)
 
     return n.to_proto()
 
@@ -1390,7 +1391,7 @@ if __name__ == "__main__":
         print('testclasses {} populations {} tot_images {} '.format(n_test_classes,test_populations,test_imageno))
         print('trainclasses {} populations {} tot_images {} '.format(n_train_classes,train_populations,train_imageno))
         print('sum test pops {}  sum train pops {}  testiter {} batch_size {}'.format(tot_train_samples,tot_test_samples,test_iter,batch_size))
-    run_net(alexnet_linearized,nn_dir,db_name+'_train',db_name+'_test',batch_size = batch_size,n_classes=11,meanB=B,meanR=R,meanG=G,n_filters=50,n_ip1=1000)
+    run_net(small_googLeNet,nn_dir,db_name+'_train',db_name+'_test',batch_size = batch_size,n_classes=11,meanB=B,meanR=R,meanG=G,n_filters=50,n_ip1=1000)
 
     if(0):
         for a_filter in filters:
