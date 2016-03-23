@@ -56,7 +56,6 @@ def dir_of_dirs_to_lmdb(dbname,dir_of_dirs,test_or_train=None,max_images_per_cla
             only_dirs.append(a_dir)
     print(str(len(only_dirs))+' relevant dirs:'+str(only_dirs)+' in '+dir_of_dirs)
 
-
     map_size = 1e13  #size of db in bytes, can also be done by 10X actual size  as in:
     # We need to prepare the database for the size. We'll set it 10 times
     # greater than what we theoretically need. There is little drawback to
@@ -188,7 +187,7 @@ def generate_binary_dbs(dir_of_dirs,filter='test'):
     for dir1 in only_dirs:
         remaining_dirs = only_dirs.de
 
-def interleaved_dir_of_dirs_to_lmdb(dbname,dir_of_dirs,positive_filter=None,max_images_per_class = 150000,
+def interleaved_dir_of_dirs_to_lmdb(dbname,dir_of_dirs,positive_filter=None,max_images_per_class = 15000,
                                     resize_x=None,resize_y=None,write_cropped=False,
                                     avg_B=None,avg_G=None,avg_R=None,
                                     use_visual_output=False,use_bb_from_name=True,n_channels=3,binary_class_filter=None):
@@ -234,6 +233,8 @@ def interleaved_dir_of_dirs_to_lmdb(dbname,dir_of_dirs,positive_filter=None,max_
         n_positives = len(all_files[0])
         n_negatives = len(all_files[1])
         n_min = min(n_positives,n_negatives)
+        n_min = min(n_min,max_images_per_class)
+
         all_files[0] = all_files[0][0:n_min-1]
         all_files[1] = all_files[1][0:n_min-1]
         print('positives {} negatives {} after pos {} neg {}'.format(n_positives,n_negatives,len(all_files[0]),len(all_files[1])))
@@ -246,7 +247,10 @@ def interleaved_dir_of_dirs_to_lmdb(dbname,dir_of_dirs,positive_filter=None,max_
             fulldir = os.path.join(dir_of_dirs,a_dir)
             print('class:'+str(classno)+' dir:'+str(fulldir))
             only_files = [os.path.join(fulldir,f) for f in os.listdir(fulldir) if os.path.isfile(os.path.join(fulldir, f))]
-            all_files.append(only_files)
+            random.shuffle(only_files)
+            truncated_files = only_files[0:max_images_per_class]
+            print('len of {} is {}'.format(a_dir,len(truncated_files)))
+            all_files.append(truncated_files)
             classno += 1
     print('{} classes, binary filter is {}'.format(n_classes,binary_class_filter))
 
