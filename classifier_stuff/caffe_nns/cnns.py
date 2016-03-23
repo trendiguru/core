@@ -1259,7 +1259,7 @@ def run_net(net_builder,nn_dir,train_db,test_db,batch_size = 64,n_classes=11,mea
         ax1 = fig1.add_subplot(111)
     #    print('it {} trainloss {} len {}'.format(it,train_loss,len(train_loss)))
         l = len(train_loss)
-        print('l {} train_loss {}'.format(l,train_loss))
+ #       print('l {} train_loss {}'.format(l,train_loss))
         ax1.plot(arange(l), train_loss,'r.-')
         plt.yscale('log')
         ax1.set_title('train loss / accuracy for '+str(train_db))
@@ -1268,7 +1268,7 @@ def run_net(net_builder,nn_dir,train_db,test_db,batch_size = 64,n_classes=11,mea
 
         axb = ax1.twinx()
         l = len(train_acc)
-        print('l {} train_acc {}'.format(l,train_acc))
+ #       print('l {} train_acc {}'.format(l,train_acc))
         axb.plot(arange(l), train_acc,'b.-',label='train_acc')
 #        plt.yscale('log')   #ValueError: Data has no positive values, and therefore can not be log-scaled.
         axb.set_ylabel('train acc.', color='b')
