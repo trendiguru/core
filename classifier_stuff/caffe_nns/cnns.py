@@ -1374,7 +1374,7 @@ if __name__ == "__main__":
 #    lmdb_utils.inspect_db(db_name+'.train')
   #  lmdb_utils.inspect_db(db_name+'.test')
     filters = ['skirts','pants','tops','leggings','outerwear'] #done 'bags','belts','dresses','eyewear','footwear','hats',-
-    generate_db = True
+    generate_db = False
     if generate_db:
         n_test_classes,test_populations,test_imageno = lmdb_utils.interleaved_dir_of_dirs_to_lmdb(db_name+'_test',dir_of_dirs,max_images_per_class =15000,
                                                                                        positive_filter='test',use_visual_output=use_visual_output,
