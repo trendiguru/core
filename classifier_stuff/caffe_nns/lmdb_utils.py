@@ -288,7 +288,7 @@ def interleaved_dir_of_dirs_to_lmdb(dbname,dir_of_dirs,positive_filter=None,max_
             only_files = all_files[classno]
             n = len(only_files)
             if image_number_in_class >= n:
-                print('reached end of images in class'+str(classno)+' which has '+str(n)+' files, skipping to next class')
+ #               print('reached end of images in class'+str(classno)+' which has '+str(n)+' files, skipping to next class')
                 continue
    #         print('n files {} in {} current {} class {}'.format(n,a_dir,image_number_in_class,classno),end='')
             a_file =only_files[image_number_in_class]

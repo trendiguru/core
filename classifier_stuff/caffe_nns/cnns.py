@@ -1381,7 +1381,7 @@ if __name__ == "__main__":
                                                                                        n_channels=3,resize_x=resize_x,resize_y=resize_y)
         print('testclasses {} populations {} tot_images {} '.format(n_test_classes,test_populations,test_imageno))
 
-        n_train_classes,train_populations,train_imageno = lmdb_utils.interleaved_dir_of_dirs_to_lmdb(db_name+'_train',dir_of_dirs,max_images_per_class =50000,
+        n_train_classes,train_populations,train_imageno = lmdb_utils.interleaved_dir_of_dirs_to_lmdb(db_name+'_train',dir_of_dirs,max_images_per_class =15000,
                                                                                        positive_filter='train',use_visual_output=use_visual_output,
                                                                                        n_channels=3,resize_x=resize_x,resize_y=resize_y)
         tot_train_samples = np.sum(train_populations)
