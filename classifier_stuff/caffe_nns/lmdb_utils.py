@@ -248,8 +248,9 @@ def interleaved_dir_of_dirs_to_lmdb(dbname,dir_of_dirs,positive_filter=None,max_
             print('class:'+str(classno)+' dir:'+str(fulldir))
             only_files = [os.path.join(fulldir,f) for f in os.listdir(fulldir) if os.path.isfile(os.path.join(fulldir, f))]
             random.shuffle(only_files)
-            truncated_files = only_files[0:max_images_per_class]
-            print('len of {} is {}'.format(a_dir,len(truncated_files)))
+            n_min = min(len(only_files),max_images_per_class)
+            truncated_files = only_files[0:n_min]
+            print('len of {} is {} truncated to {}'.format(a_dir,len(only_files),len(truncated_files)))
             all_files.append(truncated_files)
             classno += 1
     print('{} classes, binary filter is {}'.format(n_classes,binary_class_filter))
