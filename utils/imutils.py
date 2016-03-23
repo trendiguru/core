@@ -349,7 +349,7 @@ def resize_and_crop_image_using_bb( input_file_or_np_arr, bb=None, output_file=N
         print('writing to:'+output_file)
         retval = cv2.imwrite(output_file, scaled_cropped_img)
         if retval is False:
-            logging.warning('retval from imwrite is false (attempt to write file:'+output_file+' has failed :(  )')
+             logging.warning('retval from imwrite is false (attempt to write file:'+output_file+' has failed :(  )')
     return scaled_cropped_img
 
 def crop_files_in_dir(dirname,save_dir,**arglist):
