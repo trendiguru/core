@@ -1336,7 +1336,7 @@ if __name__ == "__main__":
         dir_of_dirs = '/home/jeremy/core/classifier_stuff/caffe_nns/populated_items'  #b2
         dir_of_dirs = '/home/jeremy/core/classifier_stuff/caffe_nns/dataset/cropped'  #b2
         dir_of_dirs = '/home/jeremy/core/classifier_stuff/caffe_nns/dataset/retrieval'  #b2
-        nn_dir = '/home/jeremy/core/classifier_stuff/caffe_nns/alexnet12_multi_retreival'  #b2
+        nn_dir = '/home/jeremy/core/classifier_stuff/caffe_nns/alexnet12_multi_retrieval'  #b2
 #        nn_dir = '/home/jeremy/core/classifier_stuff/caffe_nns/vgg_'  #b2
         max_images_per_class = 15000
         pc = False
