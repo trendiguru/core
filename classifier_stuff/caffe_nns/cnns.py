@@ -1279,7 +1279,7 @@ def run_net(net_builder,nn_dir,train_db,test_db,batch_size = 64,n_classes=11,mea
         fig2 = plt.figure()
         ax2 = fig2.add_subplot(111)
         l = len(test_acc)
-        print('l {} test_acc {}'.format(l,test_acc))
+   #     print('l {} test_acc {}'.format(l,test_acc))
 #        ax2.plot(arange(1+int(np.ceil(it / test_interval))), test_acc,'b.-',label='test_acc')
         ax2.plot(arange(l), test_acc,'b.-',label='test_acc')
         ax2.plot(arange(l), train_acc2,'g.-',label='train_acc')
