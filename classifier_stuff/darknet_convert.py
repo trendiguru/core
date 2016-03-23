@@ -41,10 +41,10 @@ def dir_to_darknet(dir, trainfile,bbfile,category_number,randomize=True):
                 full_filename = os.path.join(dir,a_file)
                 dark_bb = get_darkbb(full_filename)
 #                line = str(category_number)+join(str(a for a in dark_bb))
-                line = str(category_number)+' '+str(dark_bb[0])[0:n_digits]+' '+str(dark_bb[1])[0:n_digits]+' '+str(dark_bb[2])[0:n_digits]+' '+str(dark_bb[3])[0:n_digits]
+                line = str(category_number)+' '+str(dark_bb[0])[0:n_digits]+' '+str(dark_bb[1])[0:n_digits]+' '+str(dark_bb[2])[0:n_digits]+' '+str(dark_bb[3])[0:n_digits] + '\n'
                 print('line to write:'+line)
                 fp_bb.write(line)
-                fp_t.write(full_filename)
+                fp_t.write(full_filename+'\n')
                 n = n + 1
 #                raw_input('enter for next')
         fp_bb.close()
