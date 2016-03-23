@@ -1270,7 +1270,7 @@ def run_net(net_builder,nn_dir,train_db,test_db,batch_size = 64,n_classes=11,mea
         l = len(train_acc)
         print('l {} train_acc {}'.format(l,train_acc))
         axb.plot(arange(l), train_acc,'b.-',label='train_acc')
-        plt.yscale('log')
+#        plt.yscale('log')   #ValueError: Data has no positive values, and therefore can not be log-scaled.
         axb.set_ylabel('train acc.', color='b')
         legend = ax1.legend(loc='upper center', shadow=True)
         plt.show()
