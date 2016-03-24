@@ -123,6 +123,9 @@ def mongo2xl(filename, dl_info):
         elif filename == 'flipkart':
             collection = db.flipkart
 
+        elif filename == 'Gangnam':
+            collection = db.Gangnam_Style_Female
+
         else:
             print ('nothing to convert')
             workbook.close()
