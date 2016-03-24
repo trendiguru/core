@@ -731,6 +731,180 @@ def small_googLeNet(db, batch_size, n_classes=11, meanB=128, meanG=128, meanR=12
 
     return n.to_proto()
 
+def googLeNet_2_inceptions(db, batch_size, n_classes=11, meanB=128, meanG=128, meanR=128,n_filters=50,n_ip1=1000,deploy=False):
+#    print('running mynet n {} B {} G {} R {] db {} batchsize {} '.format(n_classes,meanB,meanG,meanR,db,batch_size))
+    print('running small googlenet n {}  batchsize {} '.format(n_classes,batch_size))
+   #crop size 224
+    lr_mult1 = 1
+    lr_mult2 = 2
+    decay_mult1 =1
+    decay_mult2 =0
+
+    n=caffe.NetSpec()
+    if meanB is not None and meanG is not None and meanR is not None: #RGB image with mean to remove
+        print('using vector mean ({} {} {})'.format(meanB,meanG,meanR ))
+        n.data_1,n.label=L.Data(batch_size=batch_size,backend=P.Data.LMDB,source=db,transform_param=dict(scale=1./255,mean_value=[meanB,meanG,meanR],mirror=True),ntop=2)
+        #,include=dict(phase=TEST)
+        #try a list of L.Data layers, one with train and one with test
+    elif meanB: #grayscale
+        print('using 1D mean {} '.format(meanB))
+        n.data_1,n.label=L.Data(batch_size=batch_size,backend=P.Data.LMDB,source=db,transform_param=dict(scale=1./255,mean_value=meanB,mirror=True),ntop=2)
+    else: #no mean to remove
+        n.data_1,n.label=L.Data(batch_size=batch_size,backend=P.Data.LMDB,source=db,transform_param=dict(scale=1./255,mirror=True),ntop=2)
+
+#n.conv1_7x7_s2_3
+    n.conv1 = L.Convolution(n.data_1,param=[dict(lr_mult=lr_mult1,decay_mult=decay_mult1),
+                            dict(lr_mult=lr_mult2,decay_mult=decay_mult2)],
+                            num_output=64,
+                            pad = 3,
+                            kernel_size=7,
+                            stride = 2,
+                            weight_filler=dict(type='xavier'),
+                            bias_filler=dict(type='constant',value=0.2))
+
+    n.conv1_relu_7x7_4 = L.ReLU(n.conv1,in_place=True)
+    n.pool1_3x3_s2_5 = L.Pooling(n.conv1, kernel_size=3, stride=2, pool=P.Pooling.MAX)
+    n.pool1_norm1_6 = L.LRN(n.pool1_3x3_s2_5,lrn_param=dict(local_size=5,alpha=0.0001,beta=0.75))
+
+    n.conv2_3x3_reduce_7 = L.Convolution(n.pool1_norm1_6,param=[dict(lr_mult=lr_mult1,decay_mult=decay_mult1),
+                            dict(lr_mult=lr_mult2,decay_mult=decay_mult2)],
+                            num_output=64,
+                            kernel_size=1,
+                            weight_filler=dict(type='xavier'),
+                            bias_filler=dict(type='constant',value=0.2))
+    n.conv2_relu_3x3_reduce_8 = L.ReLU(n.conv2_3x3_reduce_7,in_place=True)
+
+    n.conv2_3x3_9 = L.Convolution(n.conv2_3x3_reduce_7,param=[dict(lr_mult=lr_mult1,decay_mult=decay_mult1),
+                            dict(lr_mult=lr_mult2,decay_mult=decay_mult2)],
+                            num_output=192,
+                            pad = 1,
+                            kernel_size=3,
+                            weight_filler=dict(type='xavier'),
+                            bias_filler=dict(type='constant',value=0.2))
+    n.conv2_relu_3x3_10 = L.ReLU(n.conv2_3x3_9,in_place=True)
+    n.conv2_norm2_11 = L.LRN(n.conv2_3x3_9,lrn_param=dict(local_size=5,alpha=0.0001,beta=0.75))
+
+
+    n.pool2_3x3_s2_12 = L.Pooling(n.conv2_norm2_11, kernel_size=3, stride=2, pool=P.Pooling.MAX)
+    ###########above is the inception input layer, 4 things should refer to it
+    n.inception_3a_1x1_13 = L.Convolution(n.pool2_3x3_s2_12,param=[dict(lr_mult=lr_mult1,decay_mult=decay_mult1),
+                            dict(lr_mult=lr_mult2,decay_mult=decay_mult2)],
+                            num_output=64,
+                            kernel_size=1,
+                            weight_filler=dict(type='xavier'),
+                            bias_filler=dict(type='constant',value=0.2))
+    n.inception_3a_relu1x1_14 = L.ReLU(n.inception_3a_1x1_13,in_place=True)
+    n.inception_3a_3x3_reduce_15 =  L.Convolution(n.pool2_3x3_s2_12,param=[dict(lr_mult=lr_mult1,decay_mult=decay_mult1),
+                            dict(lr_mult=lr_mult2,decay_mult=decay_mult2)],
+                            num_output=96,
+                            kernel_size=1,
+                            weight_filler=dict(type='xavier'),
+                            bias_filler=dict(type='constant',value=0.2))
+    n.inception_3a_relu_3x3_reduce_16 = L.ReLU(n.inception_3a_3x3_reduce_15,in_place=True)
+    n.inception_3a_3x3_17 =  L.Convolution(n.inception_3a_3x3_reduce_15,param=[dict(lr_mult=lr_mult1,decay_mult=decay_mult1),
+                            dict(lr_mult=lr_mult2,decay_mult=decay_mult2)],
+                            num_output=128,
+                            pad = 1,
+                            kernel_size=3,   #kern=3 and pad=1 keeps size apparently
+                            weight_filler=dict(type='xavier'),
+                            bias_filler=dict(type='constant',value=0.2))
+    n.inception_3a_relu3x3_18 = L.ReLU(n.inception_3a_3x3_17,in_place=True)
+    n.inception_3a_5x5_reduce_19 =  L.Convolution(n.pool2_3x3_s2_12,param=[dict(lr_mult=lr_mult1,decay_mult=decay_mult1),
+                            dict(lr_mult=lr_mult2,decay_mult=decay_mult2)],
+                            num_output=16,
+                            pad = 1,
+                            kernel_size=1,
+                            weight_filler=dict(type='xavier'),
+                            bias_filler=dict(type='constant',value=0.2))
+    n.inception_3a_relu5x5_reduce_20 = L.ReLU(n.inception_3a_5x5_reduce_19,in_place=True)
+    n.inception_3a_5x5_21 =  L.Convolution(n.inception_3a_5x5_reduce_19,param=[dict(lr_mult=lr_mult1,decay_mult=decay_mult1),
+                            dict(lr_mult=lr_mult2,decay_mult=decay_mult2)],
+                            num_output=32,
+                            pad = 1,
+                            kernel_size=5,  #same for kern=5 pad=2
+                            weight_filler=dict(type='xavier'),
+                            bias_filler=dict(type='constant',value=0.2))
+    n.inception_3a_relu5x5_22 = L.ReLU(n.inception_3a_5x5_21,in_place=True)
+
+    n.inception_3a_pool_23 = L.Pooling(n.pool2_3x3_s2_12, kernel_size=3, stride=1,pad=1, pool=P.Pooling.MAX)
+
+    n.inception_3a_pool_proj_24 =  L.Convolution(n.inception_3a_pool_23, param=[dict(lr_mult=lr_mult1,decay_mult=decay_mult1),
+                            dict(lr_mult=lr_mult2,decay_mult=decay_mult2)],
+                            num_output=32,
+                            kernel_size=1,
+                            weight_filler=dict(type='xavier'),
+                            bias_filler=dict(type='constant',value=0.2))
+
+    n.inception_3a_relu_pool_proj_25 = L.ReLU(n.inception_3a_pool_proj_24, in_place=True)
+    bottom_layers = [n.inception_3a_1x1_13,n.inception_3a_3x3_17,n.inception_3a_5x5_21,n.inception_3a_pool_proj_24]
+    n.inception_3a_output_26 = L.Concat(*bottom_layers)
+#########3 end inception 1 ########################
+###################begin inception 2 ###########above is the inception input layer, 4 things should refer to it
+    n.inception_3b_1x1_27 = L.Convolution(n.inception_3a_output_26,param=[dict(lr_mult=lr_mult1,decay_mult=decay_mult1),
+                            dict(lr_mult=lr_mult2,decay_mult=decay_mult2)],
+                            num_output=128,
+                            kernel_size=1,
+                            weight_filler=dict(type='xavier'),
+                            bias_filler=dict(type='constant',value=0.2))
+    n.inception_3b_relu1x1_28 = L.ReLU(n.inception_3b_1x1_27,in_place=True)
+    n.inception_3b_3x3_reduce_29 =  L.Convolution(n.inception_3a_output_26,param=[dict(lr_mult=lr_mult1,decay_mult=decay_mult1),
+                            dict(lr_mult=lr_mult2,decay_mult=decay_mult2)],
+                            num_output=128,
+                            kernel_size=1,
+                            weight_filler=dict(type='xavier'),
+                            bias_filler=dict(type='constant',value=0.2))
+    n.inception_3b_relu_3x3_reduce_30 = L.ReLU(n.inception_3b_3x3_reduce_29,in_place=True)
+    n.inception_3b_3x3_31 =  L.Convolution(n.inception_3b_3x3_reduce_29,param=[dict(lr_mult=lr_mult1,decay_mult=decay_mult1),
+                            dict(lr_mult=lr_mult2,decay_mult=decay_mult2)],
+                            num_output=192,
+                            pad = 1,
+                            kernel_size=3,   #kern=3 and pad=1 keeps size apparently
+                            weight_filler=dict(type='xavier'),
+                            bias_filler=dict(type='constant',value=0.2))
+    n.inception_3b_relu3x3_32 = L.ReLU(n.inception_3b_3x3_31,in_place=True)
+    n.inception_3b_5x5_reduce_33 =  L.Convolution(n.inception_3a_output_26,param=[dict(lr_mult=lr_mult1,decay_mult=decay_mult1),
+                            dict(lr_mult=lr_mult2,decay_mult=decay_mult2)],
+                            num_output=16,
+                            pad = 1,
+                            kernel_size=1,
+                            weight_filler=dict(type='xavier'),
+                            bias_filler=dict(type='constant',value=0.2))
+    n.inception_3b_relu5x5_reduce_34 = L.ReLU(n.inception_3b_5x5_reduce_33,in_place=True)
+    n.inception_3b_5x5_35 =  L.Convolution(n.inception_3b_5x5_reduce_33,param=[dict(lr_mult=lr_mult1,decay_mult=decay_mult1),
+                            dict(lr_mult=lr_mult2,decay_mult=decay_mult2)],
+                            num_output=96,
+                            pad = 1,
+                            kernel_size=5,  #same for kern=5 pad=2
+                            weight_filler=dict(type='xavier'),
+                            bias_filler=dict(type='constant',value=0.2))
+    n.inception_3b_relu5x5_36 = L.ReLU(n.inception_3b_5x5_35,in_place=True)
+
+    n.inception_3b_pool_37 = L.Pooling(n.inception_3a_output_26, kernel_size=3, stride=1,pad=1, pool=P.Pooling.MAX)
+
+    n.inception_3b_pool_proj_38 =  L.Convolution(n.inception_3b_pool_37, param=[dict(lr_mult=lr_mult1,decay_mult=decay_mult1),
+                            dict(lr_mult=lr_mult2,decay_mult=decay_mult2)],
+                            num_output=64,
+                            kernel_size=1,
+                            weight_filler=dict(type='xavier'),
+                            bias_filler=dict(type='constant',value=0.2))
+    n.inception_3b_relu_pool_proj_39 = L.ReLU(n.inception_3b_pool_proj_38, in_place=True)
+
+    bottom_layers = [n.inception_3b_1x1_27,n.inception_3b_3x3_31,n.inception_3b_5x5_35,n.inception_3b_pool_proj_38]
+    n.inception_3b_output_40 = L.Concat(*bottom_layers)
+
+    n.inception_3b_avg_pool_41 = L.Pooling(n.inception_3b_output_40, kernel_size=7, stride = 1,pool=P.Pooling.AVE)
+    n.final_dropout = L.Dropout(n.inception_3b_avg_pool_41 , dropout_param=dict(dropout_ratio=0.4),in_place=True)
+#    n.final_dropout = L.Dropout(n.inception_3a_avg_pool, in_place=True)
+    n.output_layer = L.InnerProduct(n.inception_3b_avg_pool_41,param=[dict(lr_mult=lr_mult1),dict(lr_mult=lr_mult2)],num_output=n_classes,weight_filler=dict(type='xavier'))
+
+    if not deploy:
+
+        n.loss = L.SoftmaxWithLoss(n.output_layer,n.label)
+    #    n.accuracy = L.Accuracy(n.output_layer,n.label,include=[dict(phase=TEST)])
+        n.accuracy = L.Accuracy(n.output_layer,n.label)
+    return n.to_proto()
+
+
 def yolo_net(db, batch_size, n_classes=11, meanB=128, meanG=128, meanR=128,n_filters=50,n_ip1=1000):
 #    print('running mynet n {} B {} G {} R {] db {} batchsize {} '.format(n_classes,meanB,meanG,meanR,db,batch_size))
     print('running yolonet n {}  batchsize {} '.format(n_classes,batch_size))
@@ -1283,7 +1457,7 @@ def run_net(net_builder,nn_dir,train_db,test_db,batch_size = 64,n_classes=11,mea
    #     print('l {} test_acc {}'.format(l,test_acc))
 #        ax2.plot(arange(1+int(np.ceil(it / test_interval))), test_acc,'b.-',label='test_acc')
         ax2.plot(arange(l), test_acc,'b.-',label='test_acc')
-        ax2.plot(arange(l), train_acc2,'g.-',label='train_acc')
+        ax2.plot(arange(l), train_acc,'g.-',label='train_acc' )  #theres a mistake here, const value shown
         ax2.set_xlabel('iteration/'+str(test_interval))
         ax2.set_ylabel('test/train accuracy')
         ax2.set_title('train, test acc for '+str(train_db)+','+str(test_db))
@@ -1338,7 +1512,7 @@ if __name__ == "__main__":
         dir_of_dirs = '/home/jeremy/core/classifier_stuff/caffe_nns/dataset/cropped'  #b2
         dir_of_dirs = '/home/jeremy/core/classifier_stuff/caffe_nns/dataset/retrieval'  #b2
         nn_dir = '/home/jeremy/core/classifier_stuff/caffe_nns/alexnet12_multi_retrieval'  #b2
-        nn_dir = '/home/jeremy/core/classifier_stuff/caffe_nns/small_goog_multi_retrieval_b64'  #b2
+        nn_dir = '/home/jeremy/core/classifier_stuff/caffe_nns/goog_2inceptions_catalog'  #b2
 
 #        nn_dir = '/home/jeremy/core/classifier_stuff/caffe_nns/vgg_'  #b2
         max_images_per_class = 15000
@@ -1393,7 +1567,8 @@ if __name__ == "__main__":
         print('testclasses {} populations {} tot_images {} '.format(n_test_classes,test_populations,test_imageno))
         print('trainclasses {} populations {} tot_images {} '.format(n_train_classes,train_populations,train_imageno))
         print('sum test pops {}  sum train pops {}  testiter {} batch_size {}'.format(tot_train_samples,tot_test_samples,test_iter,batch_size))
-    run_net(small_googLeNet,nn_dir,db_name+'_train',db_name+'_test',batch_size = batch_size,n_classes=11,meanB=B,meanR=R,meanG=G,n_filters=50,n_ip1=1000)
+    run_net(googLeNet_2_inceptions,nn_dir,db_name+'_train',db_name+'_test',batch_size = batch_size,n_classes=11,meanB=B,meanR=R,meanG=G,n_filters=50,n_ip1=1000)
+
 
     if(0):
         for a_filter in filters:
@@ -1452,6 +1627,10 @@ if __name__ == "__main__":
 
 #to train at cli:
 # caffe train -solver=solver_prototxt
+# resume training
+# /opt/caffe/build/tools/caffe train --solver=solver.prototxt --snapshot=caffenet_train_iter_10000.solverstate
+
+
 #to test
 #caffe test -mode test.prototxt -weights model.caffemodel -gpu 0 -iterations 100
 #/opt/caffe/build/tools/caffe test -model cropped_dataset/my_solver.test.prototxt -weights cropped_dataset_iter_3000.caffemodel  -gpu 0 -iterations 500
