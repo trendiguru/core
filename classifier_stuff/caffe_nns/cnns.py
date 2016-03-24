@@ -1512,7 +1512,7 @@ if __name__ == "__main__":
         dir_of_dirs = '/home/jeremy/core/classifier_stuff/caffe_nns/dataset/cropped'  #b2
         dir_of_dirs = '/home/jeremy/core/classifier_stuff/caffe_nns/dataset/retrieval'  #b2
         nn_dir = '/home/jeremy/core/classifier_stuff/caffe_nns/alexnet12_multi_retrieval'  #b2
-        nn_dir = '/home/jeremy/core/classifier_stuff/caffe_nns/small_goog_multi_retrieval_b64'  #b2
+        nn_dir = '/home/jeremy/core/classifier_stuff/caffe_nns/goog_2inceptions_catalog'  #b2
 
 #        nn_dir = '/home/jeremy/core/classifier_stuff/caffe_nns/vgg_'  #b2
         max_images_per_class = 15000
@@ -1567,7 +1567,8 @@ if __name__ == "__main__":
         print('testclasses {} populations {} tot_images {} '.format(n_test_classes,test_populations,test_imageno))
         print('trainclasses {} populations {} tot_images {} '.format(n_train_classes,train_populations,train_imageno))
         print('sum test pops {}  sum train pops {}  testiter {} batch_size {}'.format(tot_train_samples,tot_test_samples,test_iter,batch_size))
-    run_net(small_googLeNet,nn_dir,db_name+'_train',db_name+'_test',batch_size = batch_size,n_classes=11,meanB=B,meanR=R,meanG=G,n_filters=50,n_ip1=1000)
+    run_net(googLeNet_2_inceptions,nn_dir,db_name+'_train',db_name+'_test',batch_size = batch_size,n_classes=11,meanB=B,meanR=R,meanG=G,n_filters=50,n_ip1=1000)
+
 
     if(0):
         for a_filter in filters:
