@@ -19,14 +19,16 @@ logging.basicConfig(level=logging.DEBUG)
 
 
 
-def dir_of_dirs_to_darknet(dir_of_dirs, trainfile,annotations_dir, positive_filter=None,maxfiles_per_dir=999999,bbfile_prefix=None):
+def dir_of_dirs_to_darknet(dir_of_dirs, trainfile,positive_filter=None,maxfiles_per_dir=999999,bbfile_prefix=None):
     initial_only_dirs = [dir for dir in os.listdir(dir_of_dirs) if os.path.isdir(os.path.join(dir_of_dirs,dir))]
  #   print(str(len(initial_only_dirs))+' dirs:'+str(initial_only_dirs)+' in '+dir_of_dirs)
     # txn is a Transaction object
     #prepare directories
     only_dirs = []
     category_number = 0
-    ensure_dir(annotations_dir)
+    if dir_of_dirs[-1]='/':
+        dir_of_dirs = dirs_of_dirs[0:-1]
+    one_dir_up = os.path.split(dir_of_dirs)[0]
     print('outer dir of dirs:{} trainfile:{}'.format(dir_of_dirs,trainfile))
     for a_dir in initial_only_dirs:
         #only take 'test' or 'train' dirs, if test_or_train is specified
@@ -34,6 +36,9 @@ def dir_of_dirs_to_darknet(dir_of_dirs, trainfile,annotations_dir, positive_filt
             print('doing directory {} '.format(a_dir))
             fulldir = os.path.join(dir_of_dirs,a_dir)
             only_dirs.append(fulldir)
+            annotations_dir = os.path.join(one_dir_up,'labels')
+            annotations_dir = os.path.join(annotations_dir,a_dir)
+            ensure_dir(annotations_dir)
             n_files = dir_to_darknet(fulldir,trainfile,category_number,annotations_dir,maxfiles_per_dir=maxfiles_per_dir,bbfile_prefix=bbfile_prefix)
             print('did {} files in {}'.format(n_files,a_dir))
             category_number += 1
@@ -51,15 +56,15 @@ def dir_to_darknet(dir, trainfile,category_number,annotations_dir,randomize=True
         for a_file in only_files:
             containing_dir = os.path.split(dir)[-1]
             bbfilename_from_outerdir = False
-            if bbfilename_from_outerdir:
-                bbfile = containing_dir +"_{0:0>3}".format(n)+'.txt'  #dir_003.txt
-                bbfile = os.path.join(dir,bbfile)              #dir_of_dirs/dir/dir_003.txt
-                if bbfile_prefix:
-                    bbfile = bbfile_prefix+"_{0:0>3}".format(n)+'.txt'
-            else:
-                filebase = a_file[0:-4]   #file.jpg -> file
-                bbfile = filebase+"_{0:0>3}".format(n)+'.txt'
-                bbfile = os.path.join(dir,bbfile)              #dir_of_dirs/dir/dir_003.txt
+#            if bbfilename_from_outerdir:
+#                bbfile = containing_dir +"_{0:0>3}".format(n)+'.txt'  #dir_003.txt
+#                bbfile = os.path.join(dir,bbfile)              #dir_of_dirs/dir/dir_003.txt
+#                if bbfile_prefix:
+#                    bbfile = bbfile_prefix+"_{0:0>3}".format(n)+'.txt'
+#            else:
+#                filebase = a_file[0:-4]   #file.jpg -> file
+#                bbfile = filebase+"_{0:0>3}".format(n)+'.txt'
+#                bbfile = os.path.join(dir,bbfile)              #dir_of_dirs/dir/dir_003.txt
             filebase = a_file[0:-4]   #file.jpg -> file
             bbfile = filebase+'.txt'
             bbfile = os.path.join(annotations_dir,bbfile)              #dir_of_dirs/dir/dir_003.txt
@@ -101,10 +106,10 @@ def dir_to_darknet_singlefile(dir, trainfile,bbfile,category_number,randomize=Tr
                 line = str(category_number)+' '+str(dark_bb[0])[0:n_digits]+' '+str(dark_bb[1])[0:n_digits]+' '+str(dark_bb[2])[0:n_digits]+' '+str(dark_bb[3])[0:n_digits] + '\n'
                 print('line to write:'+line)
                 fp_bb.write(line)
+                fp_bb.close()
                 fp_t.write(full_filename+'\n')
                 n = n + 1
 #                raw_input('enter for next')
-        fp_bb.close()
     fp_t.close()
     return n
 
@@ -186,7 +191,7 @@ print('host:'+str(host))
 if __name__ == '__main__':
     if host == 'jr':
         dir_of_dirs = '/home/jeremy/python-packages/trendi/classifier_stuff/caffe_nns/dataset'
-        images_dir = '/home/jeremy/tg/berg_test/cropped/'
+        images_dir = '/home/jeremy/tg/berg_test/cropped'
         dir = '/home/jeremy/tg/berg_test/cropped/test_pairs_belts'
         trainfile = '/home/jeremy/tg/trainjr.txt'
         bbfile = '/home/jeremy/tg/bbjr.txt'
