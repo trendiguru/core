@@ -52,8 +52,10 @@ def dir_to_darknet(dir, trainfile,category_number,annotations_dir,randomize=True
         random.shuffle(only_files)
     n = 0
     n_digits = 5
+    totfiles = len(only_files)
     with open(trainfile,'a') as fp_t:
         for a_file in only_files:
+
             containing_dir = os.path.split(dir)[-1]
             bbfilename_from_outerdir = False
 #            if bbfilename_from_outerdir:
@@ -68,7 +70,7 @@ def dir_to_darknet(dir, trainfile,category_number,annotations_dir,randomize=True
             filebase = a_file[0:-4]   #file.jpg -> file
             bbfile = filebase+'.txt'
             bbfile = os.path.join(annotations_dir,bbfile)              #dir_of_dirs/dir/dir_003.txt
-            print('bbfilename:'+str(bbfile))
+            print('bbfilename:{}, {} of {}'.format(bbfile,n,totfiles))
             with open(bbfile,'w') as fp_bb:
                 full_filename = os.path.join(dir,a_file)
                 dark_bb = get_darkbb(full_filename)
