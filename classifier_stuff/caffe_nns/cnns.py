@@ -862,7 +862,7 @@ def googLeNet_2_inceptions(db, batch_size, n_classes=11, meanB=128, meanG=128, m
                             weight_filler=dict(type='xavier'),
                             bias_filler=dict(type='constant',value=0.2))
     n.inception_3b_relu3x3_32 = L.ReLU(n.inception_3b_3x3_31,in_place=True)
-    n.inception_3b_5x5_reduce_33 =  L.Convolution(n.inception_3b_output_26,param=[dict(lr_mult=lr_mult1,decay_mult=decay_mult1),
+    n.inception_3b_5x5_reduce_33 =  L.Convolution(n.inception_3a_output_26,param=[dict(lr_mult=lr_mult1,decay_mult=decay_mult1),
                             dict(lr_mult=lr_mult2,decay_mult=decay_mult2)],
                             num_output=16,
                             pad = 1,
@@ -879,7 +879,7 @@ def googLeNet_2_inceptions(db, batch_size, n_classes=11, meanB=128, meanG=128, m
                             bias_filler=dict(type='constant',value=0.2))
     n.inception_3b_relu5x5_36 = L.ReLU(n.inception_3b_5x5_35,in_place=True)
 
-    n.inception_3b_pool_37 = L.Pooling(n.inception_3b_output_26, kernel_size=3, stride=1,pad=1, pool=P.Pooling.MAX)
+    n.inception_3b_pool_37 = L.Pooling(n.inception_3a_output_26, kernel_size=3, stride=1,pad=1, pool=P.Pooling.MAX)
 
     n.inception_3b_pool_proj_38 =  L.Convolution(n.inception_3b_pool_37, param=[dict(lr_mult=lr_mult1,decay_mult=decay_mult1),
                             dict(lr_mult=lr_mult2,decay_mult=decay_mult2)],
