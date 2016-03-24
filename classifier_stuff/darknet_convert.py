@@ -26,8 +26,8 @@ def dir_of_dirs_to_darknet(dir_of_dirs, trainfile,positive_filter=None,maxfiles_
     #prepare directories
     only_dirs = []
     category_number = 0
-    if dir_of_dirs[-1]='/':
-        dir_of_dirs = dirs_of_dirs[0:-1]
+    if dir_of_dirs[-1] == '/':
+        dir_of_dirs = dir_of_dirs[0:-1]
     one_dir_up = os.path.split(dir_of_dirs)[0]
     print('outer dir of dirs:{} trainfile:{}'.format(dir_of_dirs,trainfile))
     for a_dir in initial_only_dirs:
