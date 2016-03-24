@@ -204,5 +204,5 @@ if __name__ == '__main__':
         annotations_dir = '/home/jeremy/core/classifier_stuff/caffe_nns/annotations'
 
 
-    n_files = dir_of_dirs_to_darknet(images_dir,trainfile,maxfiles_per_dir=10)
+    n_files = dir_of_dirs_to_darknet(images_dir,trainfile,maxfiles_per_dir=10000)
 #    n_files = dir_to_darknet(dir,trainfile,bbfile,37)
