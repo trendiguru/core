@@ -108,7 +108,7 @@ def write_prototxt(proto_filename,test_iter = 9,solver_mode='GPU'):
                         'gamma': 0.0001,
                         'power': 0.75,
                         'display': 50,
-                        'max_iter': 10000,
+                        'max_iter': 15000,
                         'snapshot': 1000,
                         'snapshot_prefix': dir+'/net',
                         'solver_mode':solver_mode }
@@ -605,7 +605,7 @@ def googLeNet(db, batch_size, n_classes=11, meanB=128, meanG=128, meanR=128):
     #n.loss = L.SoftmaxWithLoss(n.ip2,n.label)
     return n.to_proto()
 
-def small_googLeNet(db, batch_size, n_classes=11, meanB=128, meanG=128, meanR=128,n_filters=50,n_ip1=1000):
+def small_googLeNet(db, batch_size, n_classes=11, meanB=128, meanG=128, meanR=128,n_filters=50,n_ip1=1000,deploy=False):
 #    print('running mynet n {} B {} G {} R {] db {} batchsize {} '.format(n_classes,meanB,meanG,meanR,db,batch_size))
     print('running small googlenet n {}  batchsize {} '.format(n_classes,batch_size))
    #crop size 224
@@ -723,10 +723,11 @@ def small_googLeNet(db, batch_size, n_classes=11, meanB=128, meanG=128, meanR=12
     n.output_layer = L.InnerProduct(n.inception_3a_avg_pool,param=[dict(lr_mult=lr_mult1),dict(lr_mult=lr_mult2)],num_output=n_classes,weight_filler=dict(type='xavier'))
 
 
+    if not deploy:
 
-    n.loss = L.SoftmaxWithLoss(n.output_layer,n.label)
-#    n.accuracy = L.Accuracy(n.output_layer,n.label,include=[dict(phase=TEST)])
-    n.accuracy = L.Accuracy(n.output_layer,n.label)
+        n.loss = L.SoftmaxWithLoss(n.output_layer,n.label)
+    #    n.accuracy = L.Accuracy(n.output_layer,n.label,include=[dict(phase=TEST)])
+        n.accuracy = L.Accuracy(n.output_layer,n.label)
 
     return n.to_proto()
 
@@ -1259,7 +1260,7 @@ def run_net(net_builder,nn_dir,train_db,test_db,batch_size = 64,n_classes=11,mea
         ax1 = fig1.add_subplot(111)
     #    print('it {} trainloss {} len {}'.format(it,train_loss,len(train_loss)))
         l = len(train_loss)
-        print('l {} train_loss {}'.format(l,train_loss))
+ #       print('l {} train_loss {}'.format(l,train_loss))
         ax1.plot(arange(l), train_loss,'r.-')
         plt.yscale('log')
         ax1.set_title('train loss / accuracy for '+str(train_db))
@@ -1268,9 +1269,9 @@ def run_net(net_builder,nn_dir,train_db,test_db,batch_size = 64,n_classes=11,mea
 
         axb = ax1.twinx()
         l = len(train_acc)
-        print('l {} train_acc {}'.format(l,train_acc))
+ #       print('l {} train_acc {}'.format(l,train_acc))
         axb.plot(arange(l), train_acc,'b.-',label='train_acc')
-        plt.yscale('log')
+#        plt.yscale('log')   #ValueError: Data has no positive values, and therefore can not be log-scaled.
         axb.set_ylabel('train acc.', color='b')
         legend = ax1.legend(loc='upper center', shadow=True)
         plt.show()
@@ -1279,7 +1280,7 @@ def run_net(net_builder,nn_dir,train_db,test_db,batch_size = 64,n_classes=11,mea
         fig2 = plt.figure()
         ax2 = fig2.add_subplot(111)
         l = len(test_acc)
-        print('l {} test_acc {}'.format(l,test_acc))
+   #     print('l {} test_acc {}'.format(l,test_acc))
 #        ax2.plot(arange(1+int(np.ceil(it / test_interval))), test_acc,'b.-',label='test_acc')
         ax2.plot(arange(l), test_acc,'b.-',label='test_acc')
         ax2.plot(arange(l), train_acc2,'g.-',label='train_acc')
@@ -1336,7 +1337,9 @@ if __name__ == "__main__":
         dir_of_dirs = '/home/jeremy/core/classifier_stuff/caffe_nns/populated_items'  #b2
         dir_of_dirs = '/home/jeremy/core/classifier_stuff/caffe_nns/dataset/cropped'  #b2
         dir_of_dirs = '/home/jeremy/core/classifier_stuff/caffe_nns/dataset/retrieval'  #b2
-        nn_dir = '/home/jeremy/core/classifier_stuff/caffe_nns/alexnet12_multi_retreival'  #b2
+        nn_dir = '/home/jeremy/core/classifier_stuff/caffe_nns/alexnet12_multi_retrieval'  #b2
+        nn_dir = '/home/jeremy/core/classifier_stuff/caffe_nns/small_goog_multi_retrieval_b64'  #b2
+
 #        nn_dir = '/home/jeremy/core/classifier_stuff/caffe_nns/vgg_'  #b2
         max_images_per_class = 15000
         pc = False
@@ -1360,7 +1363,7 @@ if __name__ == "__main__":
 
 #    lmdb_utils.kill_db(db_name)
     test_iter = 200
-    batch_size = 16  #use powers of 2 for better perf (supposedly)
+    batch_size = 64  #use powers of 2 for better perf (supposedly)
 # out of mem possibly correctable:    Reading dangerously large protocol message.  If the message turns out to be larger than 2147483647 bytes, parsing will be halted for security reasons.  To increase the limit (or to disable these warnings), see CodedInputStream::SetTotalBytesLimit() in google/protobuf/io/coded_stream.h
 
     find_averages = False
@@ -1374,14 +1377,14 @@ if __name__ == "__main__":
 #    lmdb_utils.inspect_db(db_name+'.train')
   #  lmdb_utils.inspect_db(db_name+'.test')
     filters = ['skirts','pants','tops','leggings','outerwear'] #done 'bags','belts','dresses','eyewear','footwear','hats',-
-    generate_db = True
+    generate_db = False
     if generate_db:
         n_test_classes,test_populations,test_imageno = lmdb_utils.interleaved_dir_of_dirs_to_lmdb(db_name+'_test',dir_of_dirs,max_images_per_class =15000,
                                                                                        positive_filter='test',use_visual_output=use_visual_output,
                                                                                        n_channels=3,resize_x=resize_x,resize_y=resize_y)
         print('testclasses {} populations {} tot_images {} '.format(n_test_classes,test_populations,test_imageno))
 
-        n_train_classes,train_populations,train_imageno = lmdb_utils.interleaved_dir_of_dirs_to_lmdb(db_name+'_train',dir_of_dirs,max_images_per_class =50000,
+        n_train_classes,train_populations,train_imageno = lmdb_utils.interleaved_dir_of_dirs_to_lmdb(db_name+'_train',dir_of_dirs,max_images_per_class =15000,
                                                                                        positive_filter='train',use_visual_output=use_visual_output,
                                                                                        n_channels=3,resize_x=resize_x,resize_y=resize_y)
         tot_train_samples = np.sum(train_populations)
@@ -1390,30 +1393,29 @@ if __name__ == "__main__":
         print('testclasses {} populations {} tot_images {} '.format(n_test_classes,test_populations,test_imageno))
         print('trainclasses {} populations {} tot_images {} '.format(n_train_classes,train_populations,train_imageno))
         print('sum test pops {}  sum train pops {}  testiter {} batch_size {}'.format(tot_train_samples,tot_test_samples,test_iter,batch_size))
-        run_net(alexnet_linearized,nn_dir,db_name+'.train',db_name+'.test',batch_size = batch_size,n_classes=n_classes,meanB=B,meanR=R,meanG=G,n_filters=50,n_ip1=1000)
+    run_net(small_googLeNet,nn_dir,db_name+'_train',db_name+'_test',batch_size = batch_size,n_classes=11,meanB=B,meanR=R,meanG=G,n_filters=50,n_ip1=1000)
 
+    if(0):
+        for a_filter in filters:
+            db_name = 'binary_'+a_filter
+            n_test_classes,test_populations,test_imageno = lmdb_utils.interleaved_dir_of_dirs_to_lmdb(db_name+'_test',dir_of_dirs,max_images_per_class =5000,
+                                                                                           positive_filter='test',use_visual_output=use_visual_output,
+                                                                                           n_channels=3,resize_x=resize_x,resize_y=resize_y,
+                                                                                           binary_class_filter=a_filter)
+            print('testclasses {} populations {} tot_images {} '.format(n_test_classes,test_populations,test_imageno))
 
-        if(0):
-            for a_filter in filters:
-                db_name = 'binary_'+a_filter
-                n_test_classes,test_populations,test_imageno = lmdb_utils.interleaved_dir_of_dirs_to_lmdb(db_name+'_test',dir_of_dirs,max_images_per_class =5000,
-                                                                                               positive_filter='test',use_visual_output=use_visual_output,
-                                                                                               n_channels=3,resize_x=resize_x,resize_y=resize_y,
-                                                                                               binary_class_filter=a_filter)
-                print('testclasses {} populations {} tot_images {} '.format(n_test_classes,test_populations,test_imageno))
-
-                n_train_classes,train_populations,train_imageno = lmdb_utils.interleaved_dir_of_dirs_to_lmdb(db_name+'_train',dir_of_dirs,max_images_per_class =50000,
-                                                                                               positive_filter='train',use_visual_output=use_visual_output,
-                                                                                               n_channels=3,resize_x=resize_x,resize_y=resize_y,
-                                                                                               binary_class_filter=a_filter)
-                tot_train_samples = np.sum(train_populations)
-                tot_test_samples = np.sum(test_populations)
-                n_classes = n_test_classes
-                print('testclasses {} populations {} tot_images {} '.format(n_test_classes,test_populations,test_imageno))
-                print('trainclasses {} populations {} tot_images {} '.format(n_train_classes,train_populations,train_imageno))
-                print('sum test pops {}  sum train pops {}  testiter {} batch_size {}'.format(tot_train_samples,tot_test_samples,test_iter,batch_size))
-                nn_dir = '/home/jeremy/core/classifier_stuff/caffe_nns/googLeNet_1inception_'+db_name  #b2
-                run_net(alexnet_linearized,nn_dir,db_name+'.train',db_name+'.test',batch_size = batch_size,n_classes=n_classes,meanB=B,meanR=R,meanG=G,n_filters=50,n_ip1=1000)
+            n_train_classes,train_populations,train_imageno = lmdb_utils.interleaved_dir_of_dirs_to_lmdb(db_name+'_train',dir_of_dirs,max_images_per_class =50000,
+                                                                                           positive_filter='train',use_visual_output=use_visual_output,
+                                                                                           n_channels=3,resize_x=resize_x,resize_y=resize_y,
+                                                                                           binary_class_filter=a_filter)
+            tot_train_samples = np.sum(train_populations)
+            tot_test_samples = np.sum(test_populations)
+            n_classes = n_test_classes
+            print('testclasses {} populations {} tot_images {} '.format(n_test_classes,test_populations,test_imageno))
+            print('trainclasses {} populations {} tot_images {} '.format(n_train_classes,train_populations,train_imageno))
+            print('sum test pops {}  sum train pops {}  testiter {} batch_size {}'.format(tot_train_samples,tot_test_samples,test_iter,batch_size))
+            nn_dir = '/home/jeremy/core/classifier_stuff/caffe_nns/googLeNet_1inception_'+db_name  #b2
+            run_net(alexnet_linearized,nn_dir,db_name+'.train',db_name+'.test',batch_size = batch_size,n_classes=n_classes,meanB=B,meanR=R,meanG=G,n_filters=50,n_ip1=1000)
 
     else:
         n_classes  = 2
