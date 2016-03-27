@@ -11,13 +11,13 @@ import requests
 from rq import Queue
 
 from .. import constants
-from .shopstyle_constants import shopstyle_relevant_items
+from .shopstyle_constants import shopstyle_relevant_items_Female
 from .shopstyle2generic import convert2generic
 from ..fingerprint_core import generate_mask_and_insert
 from . import dl_excel
 
 q = Queue('fingerprint_new', connection=constants.redis_conn)
-relevant = shopstyle_relevant_items
+relevant = shopstyle_relevant_items_Female
 
 BASE_URL = "http://api.shopstyle.com/api/v2/"
 BASE_URL_PRODUCTS = BASE_URL + "products/"
