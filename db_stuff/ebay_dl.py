@@ -32,7 +32,17 @@ db = constants.db
 # db.ebay_Tees.delete_many({})
 today_date = str(datetime.datetime.date(datetime.datetime.now()))
 
-def getStoreInfo(ftp):
+def getStoreStatus(store_id,files):
+    if store_id in ebay_constants.ebay_blacklist:
+        fullname= str(store_id) +".txt.gz"
+        files.remove(fullname)
+        return "blacklisted"
+    elif store_id in ebay_constants.ebay_whitelist:
+        return "whitelisted"
+    else:
+        return "new item"
+
+def getStoreInfo(ftp, files):
     store_info = []
     sio = StringIO()
     def handle_binary(more_data):
@@ -42,14 +52,21 @@ def getStoreInfo(ftp):
     xml = sio.read()
     split= re.split('</store><store id=',xml)
     split2 = re.split("<store id=|<name><!|></name>|<url><!|></url>",  split[0])
-    item = {'id': split2[1][1:-2],'name': split2[2][7:-2],'link':split2[4][7:-2],
-            'dl_duration':0,'items_downloaded':0, 'B/W': 'black', 'modified':""}
+    store_id = split2[1][1:-2]
+    status = getStoreStatus(store_id,files)
+
+    item = {'id': store_id,'name': split2[2][7:-2],'link':split2[4][7:-2],
+            'dl_duration':0,'items_downloaded':0, 'B/W': 'black', 'modified':"",'status':status}
     store_info.append(item)
     for line in split[1:]:
         split2 = re.split("<name><!|></name>|<url><!|></url>",  line)
-        item = {'id': split2[0][1:-2], 'name': split2[1][7:-2], 'link':split2[3][7:-2],
-                'dl_duration':0,'items_downloaded':0, 'B/W': 'black','modified':""}
+        store_id = split2[0][1:-2]
+        status = getStoreStatus(store_id,files)
+        item = {'id': store_id, 'name': split2[1][7:-2], 'link':split2[3][7:-2],
+                'dl_duration':0,'items_downloaded':0, 'B/W': 'black','modified':"",'status':status}
         store_info.append(item)
+    files.remove("status.txt")
+    files.remove("StoreInformation.xml")
     return store_info
 
 
@@ -171,16 +188,8 @@ for line in data:
     filename = elements[8]
     files.append(filename)
 
-store_info = getStoreInfo(ftp)
+store_info = getStoreInfo(ftp,files)
 
-#remove not relevant stores/files
-for store in ebay_constants.ebay_blacklist:
-    fullname= str(store) +".txt.gz"
-    if fullname in files:
-        files.remove(fullname)
-
-files.remove("status.txt")
-files.remove("StoreInformation.xml")
 
 for filename in files:
     start = time.time()

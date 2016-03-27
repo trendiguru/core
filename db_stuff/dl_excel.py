@@ -84,7 +84,8 @@ def mongo2xl(filename, dl_info):
                 tmp_link =  x["link"]
                 tmp_modified = x["modified"]
                 tmp_BW = x["B/W"]
-                tmp = [tmp_id,tmp_name,tmp_item_count,tmp_duration,tmp_link,tmp_modified,tmp_BW]
+                tmp_status = x["status"]
+                tmp = [tmp_id,tmp_name,tmp_item_count,tmp_duration,tmp_link,tmp_modified,tmp_status,tmp_BW]
                 print (tmp)
                 s_i.append(tmp)
 
@@ -92,21 +93,22 @@ def mongo2xl(filename, dl_info):
                 print("working on "+ status+"list")
                 current_worksheet = workbook.add_worksheet(status+'list')
 
-                dict2list = [y[:6] for y in s_i if y[6]==status]
+                dict2list = [y[:7] for y in s_i if y[7]==status]
                 item_count = len(dict2list)
 
-                current_worksheet.set_column('A:D',15)
+                current_worksheet.set_column('A:G',15)
                 current_worksheet.set_column('B:B',25)
                 current_worksheet.set_column('E:E',35)
                 current_worksheet.set_column('F:F',25)
-                current_worksheet.add_table('A1:F'+str(item_count+4),
+                current_worksheet.add_table('A1:G'+str(item_count+4),
                                             {'data': dict2list,
                                              'columns': [ {'header': 'id'},
                                                           {'header' : 'name'},
                                                           {'header' : 'items_downloaded'},
                                                           {'header' : 'download duration'},
                                                           {'header' : 'link'},
-                                                          {'header': 'modified time'}],
+                                                          {'header': 'modified time'},
+                                                          {'header': 'status'}],
                                              'banded_columns': True,
                                              'banded_rows': True})
         except:
