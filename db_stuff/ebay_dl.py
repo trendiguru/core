@@ -134,6 +134,8 @@ def fromCats2ppdCats(gender, cats):
             cat =  'sweatshirt'
         elif 'pants' in ppd_cats:
             cat =  'pants'
+        elif 'belt' in ppd_cats:
+            cat = 'belt'
         elif 'dress' in ppd_cats and gender == 'Male':
             ppd_cats.remove('dress')
             cat = ppd_cats[0]
@@ -156,7 +158,8 @@ def title2category(gender, title):
     split1 = re.split(' |-|,', TITLE)
     cats = []
     genderAlert = None
-
+    if any(x in TITLE for x in ['BELT BUCKLE','BELT STRAP']):
+        return gender, []
     for s in split1:
         if s in ebay_constants.categories_keywords:
             cats.append(s)
