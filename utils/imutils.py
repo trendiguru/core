@@ -13,6 +13,12 @@ import numpy as np
 from joblib import Parallel,delayed
 import multiprocessing
 import socket
+import copy
+
+os.environ['REDIS_HOST']='10'
+os.environ['MONGO_HOST']='10'
+os.environ['REDIS_PORT']='10'
+os.environ['MONGO_PORT']='10'
 from trendi import Utils
 
 def image_stats_from_dir_of_dirs(dir_of_dirs,filter=None):
@@ -50,7 +56,6 @@ def image_stats_from_dir_of_dirs(dir_of_dirs,filter=None):
     totfiles = np.sum(nlist)
     print('weighted averages of {} directories: h:{} w{} d{} B {} G {} R {} totfiles {}'.format(n,avg_h,avg_w,avg_d,avg_B,avg_G,avg_R,totfiles))
     return([avg_h,avg_w,avg_d,avg_B,avg_G,avg_R,totfiles])
-
 
 def image_chooser_dir_of_dirs(dir_of_dirs,dest_dir,removed_dir=None,filter=None,relabel_dir=None,multiple_dir=None):
     print('running images chooser source:{} dest:{} filter {}'.format(dir_of_dirs,dest_dir,filter))
@@ -161,7 +166,6 @@ def image_chooser(source_dir,dest_dir,removed_dir=None,relabel_dir=None,multiple
         else:
             print('trouble opening image '+str(fullname))
 
-
 def image_stats_from_dir(dirname):
     only_files = [f for f in os.listdir(dirname) if os.path.isfile(os.path.join(dirname, f))]
     hlist = []
@@ -195,7 +199,6 @@ def image_stats_from_dir(dirname):
     if n == 0 :
         return None
     return([avg_h,avg_w,avg_d,avg_B,avg_G,avg_R,n])
-
 
 def image_stats(filename):
     img_arr = cv2.imread(filename)
@@ -277,8 +280,140 @@ def resize_and_crop_image( input_file_or_np_arr, output_file=None, output_side_l
         cv2.imwrite(output_file, cropped_img)
     return cropped_img
 
+def resize_and_crop_maintain_bb( input_file_or_np_arr, output_file=None, output_width = 150, output_height = 200,use_visual_output=False,bb=None):
+    '''Takes an image name, resize it and crop the center square
+    '''
+    #TODO - implement nonsquare crop
+    #done
+    #TODO - implement non-square resize up to maximum deformation e.g. 10% xscale=2 yscale=2.2
+    if isinstance(input_file_or_np_arr,basestring):
+        print('got image name '+str(input_file_or_np_arr))
+        if bb is None:
+            if 'bbox_' in input_file_or_np_arr:
+                strs = input_file_or_np_arr.split('bbox_')
+                bb_str = strs[1]
+                coords = bb_str.split('_')
+                bb_x = int(coords[0])
+                bb_y = int(coords[1])
+                bb_w = int(coords[2])
+                bb_h = coords[3].split('.')[0]  #this has .jpg or .bmp at the end
+                bb_h = int(bb_h)
+                bb=[bb_x,bb_y,bb_w,bb_h]
+                if bb_h == 0:
+                    logging.warning('bad height encountered in imutils.resize_and_crop_image for '+str(input_file_or_np_arr))
+                    return None
+                if bb_w == 0:
+                    logging.warning('bad width encountered in imutils.resize_and_crop_image for '+str(input_file_or_np_arr))
+                    return None
+        input_file_or_np_arr_name = input_file_or_np_arr
+        input_file_or_np_arr = cv2.imread(input_file_or_np_arr)
+        if input_file_or_np_arr is None:
+            logging.warning('input file {} is none'.format(input_file_or_np_arr_name))
+            return None
+    img_height, img_width, img_depth = input_file_or_np_arr.shape
+
+    if bb is None:
+        bb = [0,0, img_width,img_height]
+        print('no bbox given, using entire image')
+    print('bb (x,y,w,h) {} {} {} {} image:{}x{} desired:{}x{}'.format(bb[0],bb[1],bb[2],bb[3],img_width,img_height,output_width,output_height))
+    if bb[0]<0:
+        logging.warning('BB x out of bounds, being reset')
+        bb[0]=0
+    if bb[1]<0 :
+        bb[1]=0
+        logging.warning('BB y out of bounds, being reset')
+    if bb[0]+bb[2] > img_width:
+        logging.warning('BB width out of bounds, being reset')
+        bb[2]=img_width-bb[0]
+    if bb[1]+bb[3] > img_height:
+        logging.warning('BB height out of bounds, being reset')
+        bb[3]=img_height - bb[1]
+
+    orig_bb = copy.deepcopy(bb)
+    in_aspect = float(img_width)/img_height
+    out_aspect = float(output_width)/output_height
+    width_out_in_ratio = float(output_width)/img_width
+    height_out_in_ratio = float(output_height)/img_height
+    if width_out_in_ratio > height_out_in_ratio:  #rescale by smallest amt possible
+#    if abs(1-width_out_in_ratio) < abs(1-height_out_in_ratio):  #rescale by smallest amt possible
+ #   if output_width >  output_height:  #rescale by smallest amt possible
+        #this may be wrong when width_input>1 and height_inout<1 or vice versa
+        new_width = int(width_out_in_ratio*img_width)  #should be output_width.  try round instead of int, didnt work
+        new_height = int(width_out_in_ratio*img_height)  #may besomething other than output_height
+        bb = np.multiply(bb,width_out_in_ratio)
+        bb = [int(i) for i in bb]
+        print('match width, new w,h:{},{} new bb {},{},{},{}'.format(new_width,new_height,bb[0],bb[1],bb[2],bb[3]))
+        scaled_img = cv2.resize(input_file_or_np_arr,(new_width,new_height))
+        y1 = bb[1]
+        y2 = bb[1] + bb[3]
+
+        height_to_crop = new_height - output_height
+        output_extra_margin_over_bb = int(float(new_height-output_height )/2)
+        ymin = y1 - output_extra_margin_over_bb
+        print('tentative ymin '+str(ymin)+' extra margin '+str(output_extra_margin_over_bb))
+        if ymin<0:
+            ymin = 0
+#            ymax = bb[3]
+            ymax = output_height
+        else:
+            ymax = y2 + output_extra_margin_over_bb
+            if ymax>new_height:
+                ymax = new_height
+#                ymin = ymax - bb[3]
+                ymin = new_height-output_height
+        print('new ymin,ymax:{},{}'.format(ymin,ymax))
+        cropped_img = scaled_img[ymin:ymax,0:output_width,:]   #crop image
+        bb[1] = bb[1]-ymin
+
+    else:  #matching output height, width should be more than desired
+        new_width = int(height_out_in_ratio*img_width)  #maybe other
+        new_height = int(height_out_in_ratio*img_height)  #should be output_height
+        bb = np.multiply(bb,height_out_in_ratio)
+        bb = [int(i) for i in bb]
+        print('match height, new w,h:{},{} new bb {},{},{},{}'.format(new_width,new_height,bb[0],bb[1],bb[2],bb[3]))
+        scaled_img = cv2.resize(input_file_or_np_arr,(new_width,new_height))
+
+        x1 = bb[0]
+        x2 = bb[0] + bb[2]
+
+        width_to_crop = new_width - output_width
+        output_extra_margin_over_bb = int(float(new_width-output_width)/2)
+        xmin = x1 - output_extra_margin_over_bb
+        print('tentative xmin '+str(xmin)+' extra margin '+str(output_extra_margin_over_bb))
+        if xmin<0:
+            xmin = 0
+#            xmax = bb[2]
+            xmax = output_width
+        else:
+            xmax = x2 + output_extra_margin_over_bb
+
+            if xmax>new_width:
+                xmax = new_width
+                xmin = new_width-output_width
+        print('new xmin,xmax:{},{}'.format(xmin,xmax))
+        cropped_img = scaled_img[0:output_height,xmin:xmax,:]
+        bb[0] = bb[0]-xmin
+
+    raw_input('enter to continue')
+
+    if use_visual_output is True:
+        cropped_copy = copy.deepcopy(cropped_img)
+        cv2.rectangle(cropped_copy,(bb[0],bb[1]),(bb[0]+bb[2],bb[1]+bb[3]),color=[0,255,0 ])
+        cv2.imshow('scaled_cropped', cropped_copy)
+        orig_copy = copy.deepcopy(input_file_or_np_arr)
+        cv2.rectangle(orig_copy,(orig_bb[0],orig_bb[1]),(orig_bb[0]+orig_bb[2],orig_bb[1]+orig_bb[3]),color=[0,255,0 ])
+
+        cv2.imshow('orig',orig_copy)
+        cv2.waitKey(0)
+    if output_file is not None:
+        print('writing to:'+output_file)
+        retval = cv2.imwrite(output_file, cropped_img)
+        if retval is False:
+             logging.warning('retval from imwrite is false (attempt to write file:'+output_file+' has failed :(  )')
+    return cropped_img
+
 def resize_and_crop_image_using_bb( input_file_or_np_arr, bb=None, output_file=None, output_w = 128,output_h = 128,use_visual_output=False):
-    '''Takes an image name, resize it and crop the center area, keeping as much of orig as possible
+    '''Takes an image name, resize it and crop the bb area, keeping as much of orig as possible
     '''
     #TODO - implement nonsquare crop
     # done
@@ -406,6 +541,22 @@ if __name__ == "__main__":
   #  resize_and_crop_image_using_bb('../images/female1.jpg',bb=[240,122,170,400],output_w=150,output_h=50)
    # resize_and_crop_image_using_bb('../images/female1.jpg',bb=[240,122,170,400],output_w=50,output_h=150)
     #resize_and_crop_image_using_bb('../images/female1.jpg',bb=[240,122,170,170],output_w=1000,output_h=100)
+
+    if host == 'jr':
+        dir = '/home/jeremy/projects/core/images'
+
+    x=os.listdir(dir)
+    print(x)
+    only_files = [f for f in os.listdir(dir) if os.path.isfile(os.path.join(dir,f))]
+    print(dir)
+    print(only_files)
+    for a_file in only_files:
+        print('file '+a_file)
+        fullfile = os.path.join(dir,a_file)
+        cropped_img = resize_and_crop_maintain_bb(fullfile, output_width = 150, output_height = 200,use_visual_output=True,bb=None)
+    raw_input('ok')
+
+
     if host == 'jr-ThinkPad-X1-Carbon' or host == 'jr':
         dir_of_dirs = '/home/jeremy/tg/train_pairs_dresses'
         output_dir = '/home/jeremy/tg/curated_train_pairs_dresses'
