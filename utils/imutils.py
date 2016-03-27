@@ -350,6 +350,7 @@ def resize_and_crop_maintain_bb( input_file_or_np_arr, output_file=None, output_
         height_to_crop = new_height - output_height
         output_extra_margin_over_bb = int(float(new_height-output_height )/2)
         ymin = y1 - output_extra_margin_over_bb
+
         print('tentative ymin '+str(ymin)+' extra margin '+str(output_extra_margin_over_bb))
         if ymin<0:
             ymin = 0
@@ -378,6 +379,7 @@ def resize_and_crop_maintain_bb( input_file_or_np_arr, output_file=None, output_
 
         width_to_crop = new_width - output_width
         output_extra_margin_over_bb = int(float(new_width-output_width)/2)
+        bb_center_x
         xmin = x1 - output_extra_margin_over_bb
         print('tentative xmin '+str(xmin)+' extra margin '+str(output_extra_margin_over_bb))
         if xmin<0:
@@ -405,7 +407,9 @@ def resize_and_crop_maintain_bb( input_file_or_np_arr, output_file=None, output_
 
         cv2.imshow('orig',orig_copy)
         cv2.waitKey(0)
-    if output_file is not None:
+    if output_file is  None:
+        if input_file_or_np_arr_name:
+            output_file = orig_copy
         print('writing to:'+output_file)
         retval = cv2.imwrite(output_file, cropped_img)
         if retval is False:
