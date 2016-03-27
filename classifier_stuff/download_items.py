@@ -1,7 +1,5 @@
 from __future__ import with_statement
-
 __author__ = 'dr. groovemaster'
-
 import cv2
 
 GREEN = [0, 255, 0]
@@ -17,7 +15,6 @@ import Utils
 import background_removal
 from find_similar_mongo import get_all_subcategories
 from ..constants import db
-
 
 def dl_keyword_images(category_id, total=2000, keyword=None,
                       # dir='/home/jeremy/jeremy.rutman@gmail.com/TrendiGuru/techdev/trendi_guru_modules/images',
