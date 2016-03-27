@@ -5,7 +5,8 @@
 #
 # the download schedule:
 # 1. products at 4 am (shopstyle)
-# 2. ebay at 12 pm
+# 2. Gangnam at 8 am (shopstyle Korean)
+# 3. ebay at 12 am
 #
 #
 # example: open 6 rqworkers - 1-6 7 * * * sudo rqworker -u redis://redis1-redis-1-vm:6379 fingerprint_new &
@@ -16,6 +17,8 @@
 3 0 * * * sudo supervisorctl restart fingerprint_new: >> /home/developer/download.log 2>&1
 59 3 * * * echo "shopstyle products dl started at 4 am" >> /home/developer/download.log 2>&1
 0 4 * * * python -m trendi.db_stuff.oldschool_dl > /home/developer/current_job.log 2>&1
+59 7 * * * echo "shopstyle korean dl started at 8 am" >> /home/developer/download.log 2>&1
+0 8 * * * python -m trendi.db_stuff.gangnam_style > /home/developer/current_job.log 2>&1
 59 11 * * * echo "ebay dl started at 12 am" >> /home/developer/download.log 2>&1
 0 12 * * * python -m trendi.db_stuff.ebay_dl > /home/developer/current_job.log 2>&1
 
