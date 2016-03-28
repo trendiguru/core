@@ -6,7 +6,7 @@ import json
 import urllib
 import datetime
 import sys
-
+import argparse
 import requests
 from rq import Queue
 
@@ -392,16 +392,16 @@ class UrlParams(collections.MutableMapping):
 
 
 if __name__ == "__main__":
+    parser = argparse.ArgumentParser(description='"@@@ Shopstyle Download @@@')
+    parser.add_argument('-g', '--gender', help='Input file name', required=True)
+    args = parser.parse_args()
+
     col = "Gangnam_Style"
-    if len(sys.argv) == 2:
-        gender=sys.argv[1]
-        if gender in ['Female','Male']:
-            col = col + "_" +gender
-        else:
-            print("bad input - gender should be only Female or Male (case sensitive)")
-            sys.exit(1)
-    else :
-        print("no input - missing gender - enter Female or Male (case sensitive) as a second argument")
+    gender=args['gender']
+    if gender in ['Female','Male']:
+        col = col + "_" +gender
+    else:
+        print("bad input - gender should be only Female or Male (case sensitive)")
         sys.exit(1)
 
     print ("@@@ Shopstyle Download @@@\n you choose to update the " + col + " collection")
