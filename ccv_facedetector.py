@@ -269,12 +269,13 @@ if __name__ == "__main__":
         faces = ccv_facedetect(filename)
         print('faces:' + str(faces))
         img_arr = cv2.imread(filename)
+
         if len(faces):
             for rect in faces:
                 print('rect:' + str(rect))
                 cv2.rectangle(img_arr, (rect[0], rect[1]), (rect[0] + rect[2], rect[1] + rect[3]), [255, 255, 255], 5)
                 cv2.rectangle(img_arr, (rect[0], rect[1]), (rect[0] + rect[2], rect[1] + rect[3]), [255, 255, 255], 5)
-        cv2.imshow('candidate', img_arr)
+#        cv2.imshow('candidate', img_arr)
 
     if(0):
 
