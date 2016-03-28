@@ -435,7 +435,7 @@ if __name__ == "__main__":
     col = user_input.name
     gender = user_input.gender
 
-    if gender in ['Female','Male']:
+    if gender in ['Female','Male'] and col in ["ShopStyle","GangnamStyle"]:
         col = col + "_" +gender
     else:
         print("bad input - gender should be only Female or Male (case sensitive)")
