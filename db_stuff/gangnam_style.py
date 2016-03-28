@@ -42,8 +42,10 @@ class ShopStyleDownloader():
         self.current_dl_date = str(datetime.datetime.date(datetime.datetime.now()))
         self.last_request_time = time.time()
         if gender == 'Female':
+            self.gender = 'Female'
             self.relevant = shopstyle_constants.shopstyle_relevant_items_Female
         else:
+            self.gender = 'Male'
             self.relevant = shopstyle_constants.shopstyle_relevant_items_Male
 
     def db_download(self):
@@ -251,13 +253,13 @@ class ShopStyleDownloader():
                 if prod_in_prod is not None:
                     # print "but new product is already in db.products"
                     prod["download_data"] = prod_in_prod["download_data"]
-                    prod = convert2generic(prod)
+                    prod = convert2generic(prod, self.gender)
                     prod["fingerprint"] = prod_in_prod["fingerprint"]
                     prod["download_data"]["dl_version"] = self.current_dl_date
                     self.collection.insert_one(prod)
                     return
 
-            prod = convert2generic(prod)
+            prod = convert2generic(prod, self.gender)
             self.insert_and_fingerprint(prod)
 
         else:
@@ -282,7 +284,7 @@ class ShopStyleDownloader():
                                                {'$set': {'download_data.dl_version': self.current_dl_date}})
             else:
                 self.collection.delete_one({'id': prod['id']})
-                prod = convert2generic(prod)
+                prod = convert2generic(prod, self.gender)
                 self.insert_and_fingerprint(prod)
 
 

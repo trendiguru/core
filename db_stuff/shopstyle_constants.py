@@ -24,7 +24,7 @@ shopstyle_relevant_items_Male= ['men', 'mens-clothes', 'mens-belts', 'mens-jacke
                      'mens-crewneck-sweaters','mens-turleneck-sweaters', 'mens-v-neck-sweaters',
                      'mens-half-zip-sweaters','mens-vests']
 
-shopstyle_paperdoll_women = {'belts': 'belt',
+shopstyle_paperdoll_female = {'belts': 'belt',
                              'bootcut-jeans': 'jeans',
                              'classic-jeans': 'jeans',
                              'cropped-jeans': 'jeans',
@@ -86,7 +86,7 @@ shopstyle_paperdoll_women = {'belts': 'belt',
                              'wool-coats': 'coat',
                              'leggings': 'tights'}
 
-shopstyle_paperdoll_women = {'mens-belts' : 'belts',
+shopstyle_paperdoll_male = {'mens-belts' : 'belts',
                              'mens-jackets': 'jacket',
                              'mens-denim-jacket': 'jacket',
                              'mens-jeans': 'jeans',
