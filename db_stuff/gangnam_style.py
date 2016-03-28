@@ -391,7 +391,7 @@ class UrlParams(collections.MutableMapping):
 
 def getUserInput():
     parser = argparse.ArgumentParser(description='"@@@ Shopstyle Download @@@')
-    parser.add_argument('-g', '--gender', dest= "gender", help='Input file name', required=True)
+    parser.add_argument('-g', '--gender', dest= "gender", help='Input file name')
     args = parser.parse_args()
     return args
 
