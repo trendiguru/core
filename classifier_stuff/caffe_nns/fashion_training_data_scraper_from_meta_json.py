@@ -123,7 +123,7 @@ def generate_bbfiles_from_json(json_file,imagefiles_dir,darknet=True,category_nu
             if darknet:
                 print('looking for file '+full_filename)
                 if os.path.isfile(full_filename):
-                    img_arr = cv2.imread(file_name)
+                    img_arr = cv2.imread(full_filename)
                     if img_arr is None:
                         logging.warning('could not open file '+str(full_filename))
                         continue
