@@ -389,14 +389,17 @@ class UrlParams(collections.MutableMapping):
     def encoded(self):
         return self.__class__.encode_params(self)
 
+def getUserInput():
+    parser = argparse.ArgumentParser(description='"@@@ Shopstyle Download @@@')
+    parser.add_argument('-g', '--gender', dest= "gender", help='Input file name', required=True)
+    args = parser.parse_args()
+    return args
 
 if __name__ == "__main__":
-    parser = argparse.ArgumentParser(description='"@@@ Shopstyle Download @@@')
-    parser.add_argument('-g', '--gender', help='Input file name', required=True)
-    args = parser.parse_args()
+    user_input = getUserInput()
 
     col = "Gangnam_Style"
-    gender=args['gender']
+    gender=user_input.gender
     if gender in ['Female','Male']:
         col = col + "_" +gender
     else:
@@ -408,4 +411,4 @@ if __name__ == "__main__":
     update_db.db_download()
 
     print (col + "Update Finished!!!")
-    # sys.exit(0)
+    sys.exit(0)
