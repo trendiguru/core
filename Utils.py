@@ -750,6 +750,16 @@ def map_function_on_dir_of_dirs(func,dir_of_dirs,**arglist):
         map_function_on_dir(func,fullpath,**arglist)
 
 
+def parent_dir(path):
+    '''
+    returns parent of file or dir pointed to by path
+    :param path:
+    :return: parent
+    '''
+    return os.path.abspath(os.path.join(a_directory, os.pardir))
+
+
+
 ############################
 ### math stuff
 ############################
