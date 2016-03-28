@@ -549,7 +549,7 @@ def kill_the_missing(sourcedir, targetdir):
     n_killed = 0
     for a_file in files_in_target:
         if a_file in files_in_source:
-            print('file {] in both dirs'.format(a_file))
+            print('file {} in both dirs'.format(a_file))
             n_matched += 1
         else:
             print('file {} not matched, moving to {}'.format(a_file,kill_dir))
