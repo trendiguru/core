@@ -115,7 +115,7 @@ def generate_bbfiles_from_json(json_file,imagefiles_dir,darknet=True,category_nu
 #        cropped_name = 'product_%s_photo_%s_cropped.jpg' % (product_id, photo_id)
 #        full_path = photos_path + set_name + '/' + file_name
 #        cropped_path = photos_path + set_name + '/' + cropped_name
-        bb_path = os.join(parent_dir,bbfile)
+        bb_path = os.path.join(parent_dir,bbfile)
 #        print  'attempting full+cropped img save of: ' + full_path
         f = open(bb_path, 'a+')  #append to end of bbfile to allow for multiple bbs for same file
         # consider that same image may occur in several dirs....
