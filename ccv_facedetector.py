@@ -268,7 +268,7 @@ if __name__ == "__main__":
     filenames = ["images/female_korean1.jpg","images/male_korean1.jpg","images/female_korean2.jpg","images/male_korean2.jpg","images/female_korean3.jpg","images/male_korean3.jpg"]
     for filename in filenames:
         faces = ccv_facedetect(filename)
-        print('faces:' + str(faces))
+        print('faces:' + str(faces)+ " in file "+filename)
         img_arr = cv2.imread(filename)
 
         if len(faces):
