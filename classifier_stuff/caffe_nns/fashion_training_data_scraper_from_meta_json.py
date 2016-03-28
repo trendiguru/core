@@ -124,6 +124,9 @@ def generate_bbfiles_from_json(json_file,imagefiles_dir,darknet=True,category_nu
                 print('looking for file '+full_filename)
                 if os.path.isfile(full_filename):
                     img_arr = cv2.imread(file_name)
+                    if img_arr is None:
+                        logging.warning('could not open file '+str(full_filename))
+                        continue
                     h,w = img_arr.shape[0:2]
                     dark_bbox = darknet_convert.convert((w,h),bbox)
                     print('bb {} darkbb{} w {} h {}'.format(bbox,dark_bbox,w,h))
