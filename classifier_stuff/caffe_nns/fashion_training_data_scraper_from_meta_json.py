@@ -80,7 +80,9 @@ def library_for_dataset_scraping(json_file,json_files_path, photos_path,max_item
 
 #TODO write file to check for same product number in different dirs and combine the bb file
 
-def generate_bbfiles_from_json(json_file,imagefiles_dir,darknet=True,category_number=None):
+def generate_bbfiles_from_dir_of_jsons(json_dir,imagefiles_dir,darknet=True,category_number=None,clobber=False):
+
+def generate_bbfiles_from_json(json_file,imagefiles_dir,darknet=True,category_number=None,clobber=False):
     '''
     This is to take a json file from tamara berg stuff and write a file having the bb coords,
     either in darknet (percent) or pixel format.
@@ -117,7 +119,10 @@ def generate_bbfiles_from_json(json_file,imagefiles_dir,darknet=True,category_nu
 #        cropped_path = photos_path + set_name + '/' + cropped_name
         bb_full_filename = os.path.join(imagefiles_dir,bbfile)
 #        print  'attempting full+cropped img save of: ' + full_path
-        f = open(bb_full_filename, 'a')  #append to end of bbfile to allow for multiple bbs for same file 'a+' is read/appendwrite
+        if not clobber:
+            f = open(bb_full_filename, 'a')  #append to end of bbfile to allow for multiple bbs for same file 'a+' is read/appendwrite
+        else:
+            f = open(bb_full_filename, 'w')  #overwrite bbfile
 
         # consider that same image may occur in several dirs....
         try:

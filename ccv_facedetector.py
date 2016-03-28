@@ -10,7 +10,7 @@ import string
 import cv2
 import numpy as np
 
-from .constants import project_dir
+from trendi.constants import project_dir
 
 path_to_ccvface = '/' + project_dir + '/classifier_stuff/ccvface'
 path_to_ccvface_db = '/' + project_dir + '/classifier_stuff/ccvface.sqlite3'
@@ -264,42 +264,46 @@ if __name__ == "__main__":
 #    print('n:{0} single:{1} multiple:{2}'.format(n,singles,multiples))
 #    raw_input('enter to continue')
 
-    filename = "images/male1.jpg"
-    img_arr = cv2.imread(filename)
-    faces = ccv_facedetect(image_array=img_arr)
-    print('faces:' + str(faces))
+    filenames = ["/home/jeremy/projects/core/images/female1.jpg","/home/jeremy/projects/core/images/male3.jpg"]
+    for filename in filenames:
+        faces = ccv_facedetect(filename)
+        print('faces:' + str(faces))
+        img_arr = cv2.imread(filename)
+        if len(faces):
+            for rect in faces:
+                print('rect:' + str(rect))
+                cv2.rectangle(img_arr, (rect[0], rect[1]), (rect[0] + rect[2], rect[1] + rect[3]), [255, 255, 255], 5)
+                cv2.rectangle(img_arr, (rect[0], rect[1]), (rect[0] + rect[2], rect[1] + rect[3]), [255, 255, 255], 5)
+        cv2.imshow('candidate', img_arr)
 
-    n, singles, multiples = run_classifier_recursively('images/many_faces', use_visual_output=True)
-    print('n:{0} single:{1} multiple:{2}'.format(n, singles, multiples))
-    raw_input('enter to continue')
+    if(0):
 
-    n, singles, multiples = run_classifier_recursively(
-        '/home/developer/python-packages/trendi_guru_modules/images/female_faces')
-    print('n:{0} single:{1} multiple:{2}'.format(n, singles, multiples))
-    raw_input('enter to continue')
+        filename = "/home/jeremy/projects/core/images/female1.jpg"
+        img_arr = cv2.imread(filename)
+        faces = ccv_facedetect(image_array=img_arr)
+        print('faces:' + str(faces))
 
-    n, singles, multiples = run_classifier_recursively(
-        '/home/developer/python-packages/trendi_guru_modules/classifier_stuff/images/llamas')
-    print('n:{0} single:{1} multiple:{2}'.format(n, singles, multiples))
-    raw_input('enter to continue')
+        n, singles, multiples = run_classifier_recursively('images/many_faces', use_visual_output=True)
+        print('n:{0} single:{1} multiple:{2}'.format(n, singles, multiples))
+        raw_input('enter to continue')
 
-    n, singles, multiples = run_classifier_recursively(
-        '/home/developer/python-packages/trendi_guru_modules/classifier_stuff/images/monkeys')
-    print('n:{0} single:{1} multiple:{2}'.format(n, singles, multiples))
-    raw_input('enter to continue')
+        n, singles, multiples = run_classifier_recursively(
+            '/home/developer/python-packages/trendi_guru_modules/images/female_faces')
+        print('n:{0} single:{1} multiple:{2}'.format(n, singles, multiples))
+        raw_input('enter to continue')
 
-    n, singles, multiples = run_classifier_recursively(
-        '/home/developer/python-packages/trendi_guru_modules/classifier_stuff/images/male_faces')
-    print('n:{0} single:{1} multiple:{2}'.format(n, singles, multiples))
-    raw_input('enter to continue')
+        n, singles, multiples = run_classifier_recursively(
+            '/home/developer/python-packages/trendi_guru_modules/classifier_stuff/images/llamas')
+        print('n:{0} single:{1} multiple:{2}'.format(n, singles, multiples))
+        raw_input('enter to continue')
 
-    filename = "../images/male1.jpg"
-    faces = ccv_facedetect(filename)
-    print('faces:' + str(faces))
-    img_arr = cv2.imread(filename)
-    if len(faces):
-        for rect in faces:
-            print('rect:' + str(rect))
-            cv2.rectangle(img_arr, (rect[0], rect[1]), (rect[0] + rect[2], rect[1] + rect[3]), [255, 255, 255], 5)
-            cv2.rectangle(img_arr, (rect[0], rect[1]), (rect[0] + rect[2], rect[1] + rect[3]), [255, 255, 255], 5)
-    cv2.imshow('candidate', img_arr)
+        n, singles, multiples = run_classifier_recursively(
+            '/home/developer/python-packages/trendi_guru_modules/classifier_stuff/images/monkeys')
+        print('n:{0} single:{1} multiple:{2}'.format(n, singles, multiples))
+        raw_input('enter to continue')
+
+        n, singles, multiples = run_classifier_recursively(
+            '/home/developer/python-packages/trendi_guru_modules/classifier_stuff/images/male_faces')
+        print('n:{0} single:{1} multiple:{2}'.format(n, singles, multiples))
+        raw_input('enter to continue')
+
