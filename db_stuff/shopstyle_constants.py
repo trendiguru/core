@@ -24,7 +24,8 @@ shopstyle_relevant_items_Male= ['men', 'mens-clothes', 'mens-belts', 'mens-jacke
                      'mens-crewneck-sweaters','mens-turleneck-sweaters', 'mens-v-neck-sweaters',
                      'mens-half-zip-sweaters','mens-vests']
 
-shopstyle_paperdoll_women = {'bootcut-jeans': 'jeans',
+shopstyle_paperdoll_women = {'belts': 'belt',
+                             'bootcut-jeans': 'jeans',
                              'classic-jeans': 'jeans',
                              'cropped-jeans': 'jeans',
                              'distressed-jeans': 'jeans',
@@ -85,7 +86,41 @@ shopstyle_paperdoll_women = {'bootcut-jeans': 'jeans',
                              'wool-coats': 'coat',
                              'leggings': 'tights'}
 
-
+shopstyle_paperdoll_women = {'mens-belts' : 'belts',
+                             'mens-jackets': 'jacket',
+                             'mens-denim-jacket': 'jacket',
+                             'mens-jeans': 'jeans',
+                             'mens-bootcut-jeans': 'jeans',
+                             'mens-low-rise-jeans': 'jeans',
+                             'mens-distressed-jeans': 'jeans',
+                             'mens-slim-jeans': 'jeans',
+                             'mens-relaxed-jeans': 'jeans',
+                             'mens-loose-jeans': 'jeans',
+                             'mens-straight-leg-jeans': 'jeans',
+                             'mens-leather-and-suede-coats': 'coat',
+                             'mens-overcoats-and-trenchcoats': 'coats',
+                             'mens-wool-coats' : 'coats',
+                             'mens-pants' : 'pants',
+                             'mens-cargo-pants' : 'pants',
+                             'mens-casual-pants' :'pants',
+                             'mens-chinos-and-khakis' : 'pants',
+                             'mens-dress-pants' : 'pants',
+                             'mens-shirts' : 'shirts',
+                             'mens-dress-shirts' : 'shirts',
+                             'mens-longsleeve-shirts' : 'shirts',
+                             'mens-shortsleeve-shirts' : 'shirts',
+                             'mens-polo-shirts' : 'shirts',
+                             'mens-tees-and-tshirts' : 'shirts',
+                             'mens-shorts' : 'shorts',
+                             'mens-sweaters' : 'sweater',
+                             'mens-sweatshirts' : 'sweatshirt',
+                             'mens-cashmere-sweaters' : 'sweater',
+                             'mens-cardigan-sweaters' : 'sweater',
+                             'mens-crewneck-sweaters' : 'sweater',
+                             'mens-turleneck-sweaters' : 'sweater',
+                             'mens-v-neck-sweaters' : 'sweater',
+                             'mens-half-zip-sweaters': 'sweater',
+                             'mens-vests' : 'vests'}
 
 '''
 this is a list of categories under womens-clothing and mens-clothing in case its needed
