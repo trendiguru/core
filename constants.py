@@ -5,7 +5,7 @@ import pymongo
 from redis import Redis
 from rq import Queue
 
-redis_conn = Redis(host=os.environ["REDIS_HOST"], port=int(os.environ["REDIS_PORT"]))
+redis_conn = Redis(host=os.getenv("REDIS_HOST", "redis1-redis-1-vm"), port=int(os.getenv("REDIS_PORT", "6379")))
 
 # getting redis /mongo going: do the tunnels
 # ssh -f -N -L 6379:redis1-redis-1-vm:6379 root@extremeli.trendi.guru
@@ -95,7 +95,8 @@ upper_threshold = 85
 parallel_matlab_queuename = 'pd'
 nonparallel_matlab_queuename = 'pd_nonparallel'
 caffe_path_in_container = '/opt/caffe'
-db = pymongo.MongoClient(host=os.environ["MONGO_HOST"], port=int(os.environ["MONGO_PORT"])).mydb
+db = pymongo.MongoClient(host=os.getenv("MONGO_HOST", "mongodb1-instance-1"),
+                         port=int(os.getenv("MONGO_PORT", "27017"))).mydb
 
 #db = pymongo.MongoClient(host="mongodb1-instance-1").mydb
 #redis_conn = Redis(host="redis1-redis-1-vm")
