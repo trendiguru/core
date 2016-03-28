@@ -756,7 +756,7 @@ def parent_dir(path):
     :param path:
     :return: parent
     '''
-    return os.path.abspath(os.path.join(a_directory, os.pardir))
+    return os.path.abspath(os.path.join(path, os.pardir))
 
 
 

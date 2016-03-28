@@ -217,7 +217,7 @@ def library_with_cropping(json_file,json_files_path, photos_path,listing,max_ite
     else:
         print('not a json file')
 
-
+ 
 if __name__ == "__main__":
 # opening the JSONs structure files:
     num_cores = multiprocessing.cpu_count()
