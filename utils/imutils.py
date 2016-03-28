@@ -560,6 +560,7 @@ def kill_the_missing(sourcedir, targetdir):
     files_in_target = [f for f in os.listdir(targetdir) if os.path.isfile(os.path.join(targetdir,f))]
     print('{} files in {}, {} files in {}'.format(len(files_in_source),sourcedir,len(files_in_target),targetdir))
 
+
 def resize_and_crop_maintain_bb_on_dir(dir, output_width = 150, output_height = 200,use_visual_output=True):
     only_files = [f for f in os.listdir(dir) if os.path.isfile(os.path.join(dir,f))]
     print('doing resize/crop in dir '+dir)
