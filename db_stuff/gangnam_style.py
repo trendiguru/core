@@ -52,7 +52,6 @@ class ShopStyleDownloader():
     def db_download(self):
         start_time = time.time()
 
-        self.cache.delete_many({})
         self.cache.create_index("filter_params")
         root_category, ancestors = self.build_category_tree()
 
@@ -76,6 +75,7 @@ class ShopStyleDownloader():
            "dl_duration": total_time,
            "store_info": []}
 
+        self.cache.delete_many({})
         dl_excel.mongo2xl(self.collection_name, dl_info)
         print self.collection_name + " DOWNLOAD DONE!!!!!\n"
 
@@ -248,8 +248,13 @@ class ShopStyleDownloader():
         if prod_in_coll is None:
             # print "Product not in db." + collection
             # case 1.1: try finding this product in the products
-            if self.collection_name != "products":
-                prod_in_prod = self.db.products.find_one({"id": prod["id"]})
+            if self.collection_name in ['GangnamStyle_Female','GangnamStyle_Male'] :
+                if self.gender =='Female':
+                    # TODO: change from products to Shopstyle
+                    prod_in_prod = self.db.products.find_one({"id": prod["id"]})
+                else:
+                    prod_in_prod = self.db.ShopStyle_Male.find_one({"id": prod["id"]})
+
                 if prod_in_prod is not None:
                     # print "but new product is already in db.products"
                     prod["download_data"] = prod_in_prod["download_data"]
@@ -392,15 +397,18 @@ class UrlParams(collections.MutableMapping):
 
 def getUserInput():
     parser = argparse.ArgumentParser(description='"@@@ Shopstyle Download @@@')
-    parser.add_argument('-g', '--gender',default="Male", dest= "gender", help='Input file name')
+    parser.add_argument('-n', '--name',default="ShopStyle", dest= "name",
+                        help='collection name - currently only ShopStyle or GangnamStyle')
+    parser.add_argument('-g', '--gender', dest= "gender",
+                        help='specify which gender to download. (Female or Male - case sensitive)', required=True)
     args = parser.parse_args()
     return args
 
 if __name__ == "__main__":
     user_input = getUserInput()
+    col = user_input.name
+    gender = user_input.gender
 
-    col = "Gangnam_Style"
-    gender=user_input.gender
     if gender in ['Female','Male']:
         col = col + "_" +gender
     else:
