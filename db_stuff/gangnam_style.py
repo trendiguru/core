@@ -172,7 +172,6 @@ class ShopStyleDownloader():
                 if subset["count"] < MAX_SET_SIZE:
                     # print("Attempting to download: %i products" % subset["count"])
                     # print("Params: " + str(subset_filter_params.items()))
-                    # pdb.set_trace()
                     self.download_products(subset_filter_params)
                 else:
                     # print "Splitting: {0} products".format(subset["count"])
@@ -409,4 +408,4 @@ if __name__ == "__main__":
     update_db.db_download()
 
     print (col + "Update Finished!!!")
-    sys.exit(0)
+    # sys.exit(0)
