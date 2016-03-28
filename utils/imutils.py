@@ -533,6 +533,33 @@ def crop_files_in_dir_of_dirs(dir_of_dirs,**arglist):
 # this will work if i can find how to do [x,y for x in a for y in b] 'zip' style
 #     Parallel(n_jobs=num_cores)(delayed(crop_files_in_dir)(the_dir,the_path) for the_dir, the_path  in [fullpaths,save_dirs])
 
+def kill_the_missing(sourcedir, targetdir)
+    '''
+    this removes anything not in the source , from the target
+    :param sourcedir: has files removed relative to target
+    :param targetdir: has extra files, we want to remove the extras it has relative to source
+    :return:
+    '''
+    files_in_source = [f for f in os.listdir(sourcedir) if os.path.isfile(os.path.join(sourcedir,f))]
+    files_in_target = [f for f in os.listdir(targetdir) if os.path.isfile(os.path.join(targetdir,f))]
+    print('{} files in {}, {} files in {}'.format(len(files_in_source),sourcedir,len(files_in_target),targetdir))
+    kill_dir = os.path.join(targetdir,'removed')
+    Utils.ensure_dir(kill_dir)
+    n_matched = 0
+    n_killed = 0
+    for a_file in files_in_target:
+        if a_file in files_in_source:
+            print('file {] in both dirs'.format(a_file))
+            n_matched += 1
+        else:
+            print('file {} not matched, moving to {}'.format(a_file,kill_dir))
+            n_killed += 1
+    print('n matched {} n killed {}'.format(n_matched,n_killed))
+    files_in_source = [f for f in os.listdir(sourcedir) if os.path.isfile(os.path.join(sourcedir,f))]
+    files_in_target = [f for f in os.listdir(targetdir) if os.path.isfile(os.path.join(targetdir,f))]
+    print('{} files in {}, {} files in {}'.format(len(files_in_source),sourcedir,len(files_in_target),targetdir))
+
+
 host = socket.gethostname()
 print('host:'+str(host))
 
@@ -574,6 +601,7 @@ if __name__ == "__main__":
 #    raw_input('enter to continue')
     print('source {} dest {}'.format(dir_of_dirs,output_dir))
   #  image_chooser_dir_of_dirs(dir_of_dirs,output_dir)
-    image_chooser(dir_of_dirs,output_dir)
 
 #    crop_files_in_dir_of_dirs(dir_of_dirs,bb=None,output_w =150,output_h =200,use_visual_output=True)
+
+    image_chooser(dir_of_dirs,output_dir)
