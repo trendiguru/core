@@ -264,7 +264,7 @@ if __name__ == "__main__":
 #    print('n:{0} single:{1} multiple:{2}'.format(n,singles,multiples))
 #    raw_input('enter to continue')
 
-    filenames = ["/home/jeremy/projects/core/images/female1.jpg","/home/jeremy/projects/core/images/male3.jpg"]
+    filenames = ["images/female1.jpg","images/male3.jpg"]
     for filename in filenames:
         faces = ccv_facedetect(filename)
         print('faces:' + str(faces))
@@ -278,7 +278,7 @@ if __name__ == "__main__":
 
     if(0):
 
-        filename = "/home/jeremy/projects/core/images/female1.jpg"
+        filename = "images/female1.jpg"
         img_arr = cv2.imread(filename)
         faces = ccv_facedetect(image_array=img_arr)
         print('faces:' + str(faces))
