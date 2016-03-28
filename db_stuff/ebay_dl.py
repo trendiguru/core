@@ -26,18 +26,15 @@ from time import sleep
 q = Queue('fingerprint_new', connection=constants.redis_conn)
 
 db = constants.db
-# db.ebay_Female.delete_many({})
-# db.ebay_Male.delete_many({})
-# db.ebay_Unisex.delete_many({})
-# db.ebay_Tees.delete_many({})
 today_date = str(datetime.datetime.date(datetime.datetime.now()))
 
 def getStoreStatus(store_id,files):
-    if store_id in ebay_constants.ebay_blacklist:
-        fullname= str(store_id) +".txt.gz"
+    store_int = int(store_id)
+    if store_int in ebay_constants.ebay_blacklist:
+        fullname= store_id +".txt.gz"
         files.remove(fullname)
         return "blacklisted"
-    elif store_id in ebay_constants.ebay_whitelist:
+    elif store_int in ebay_constants.ebay_whitelist:
         return "whitelisted"
     else:
         return "new item"
