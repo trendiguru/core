@@ -139,7 +139,7 @@ def generate_bbfiles_from_json(json_file,imagefiles_dir,darknet=True,category_nu
             line_to_write = str(category_number)+' '+str(bbox[0])[0:n_digits]+' '+str(bbox[1])[0:n_digits]+' '+str(bbox[2])[0:n_digits]+' '+str(bbox[3])[0:n_digits] + '\n'
             f.write(line_to_write)
             f.flush()
-            print 'succesful bb appended to  ' + bb_path
+            print 'succesful bb appended to  ' + bb_full_filename
  #                   print listing[photo_id-1] + '\n cropped succesful save as: ' + cropped_path
         except Exception as e:
             print(str(traceback.format_exception(*sys.exc_info())))
