@@ -88,7 +88,6 @@ class ShopStyleDownloader():
 
         # add to the archive items which were not downloaded today but were instock yesterday
         notUpdated = self.collection.find({"download_data.dl_version": {"$ne": self.current_dl_date}})
-        y_new, m_new, d_new = map(int, self.current_dl_date.split("-"))
         for item in notUpdated:
             y_old, m_old, d_old = map(int, item["download_data"]["dl_version"].split("-"))
             days_out = 365 * (y_new - y_old) + 30 * (m_new - m_old) + (d_new - d_old)
