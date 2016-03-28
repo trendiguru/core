@@ -533,7 +533,7 @@ def crop_files_in_dir_of_dirs(dir_of_dirs,**arglist):
 # this will work if i can find how to do [x,y for x in a for y in b] 'zip' style
 #     Parallel(n_jobs=num_cores)(delayed(crop_files_in_dir)(the_dir,the_path) for the_dir, the_path  in [fullpaths,save_dirs])
 
-def kill_the_missing(sourcedir, targetdir)
+def kill_the_missing(sourcedir, targetdir):
     '''
     this removes anything not in the source , from the target
     :param sourcedir: has files removed relative to target
