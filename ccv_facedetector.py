@@ -264,7 +264,7 @@ if __name__ == "__main__":
 #    print('n:{0} single:{1} multiple:{2}'.format(n,singles,multiples))
 #    raw_input('enter to continue')
 
-    filenames = ["images/female1.jpg","images/male3.jpg"]
+    filenames = ["images/female1.jpg","images/male1.jpg","images/female2.jpg","images/male2.jpg","images/female3.jpg","images/male3.jpg"]
     for filename in filenames:
         faces = ccv_facedetect(filename)
         print('faces:' + str(faces))
