@@ -117,7 +117,8 @@ def generate_bbfiles_from_json(json_file,imagefiles_dir,darknet=True,category_nu
 #        cropped_path = photos_path + set_name + '/' + cropped_name
         bb_path = os.path.join(parent_dir,bbfile)
 #        print  'attempting full+cropped img save of: ' + full_path
-        f = open(bb_path, 'a+')  #append to end of bbfile to allow for multiple bbs for same file
+        f = open(bb_path, 'a')  #append to end of bbfile to allow for multiple bbs for same file 'a+' is read/appendwrite
+
         # consider that same image may occur in several dirs....
         try:
             if darknet:
@@ -137,7 +138,7 @@ def generate_bbfiles_from_json(json_file,imagefiles_dir,darknet=True,category_nu
             line_to_write = str(category_number)+str(bbox[0])+' '+str(bbox[1])+' '+str(bbox[2])+' '+str(bbox[3])+' '
             f.write(line_to_write)
             f.flush()
-            print listing[photo_id-1] + '\n succesful full img saved as: ' + full_path
+            print 'succesful bb appended to  ' + bb_path
  #                   print listing[photo_id-1] + '\n cropped succesful save as: ' + cropped_path
         except Exception as e:
             print(str(traceback.format_exception(*sys.exc_info())))
