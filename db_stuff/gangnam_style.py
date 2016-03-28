@@ -11,10 +11,16 @@ import requests
 from rq import Queue
 
 from .. import constants
+print (1)
 from . import shopstyle_constants
+print (1)
 from .shopstyle2generic import convert2generic
+print (1)
 from ..fingerprint_core import generate_mask_and_insert
+print (1)
 from . import dl_excel
+print (1)
+
 
 q = Queue('fingerprint_new', connection=constants.redis_conn)
 
@@ -404,11 +410,11 @@ if __name__ == "__main__":
         col = col + "_" +gender
     else:
         print("bad input - gender should be only Female or Male (case sensitive)")
-        # sys.exit(1)
+        sys.exit(1)
 
     print ("@@@ Shopstyle Download @@@\n you choose to update the " + col + " collection")
     update_db = ShopStyleDownloader(col,gender)
     update_db.db_download()
 
     print (col + "Update Finished!!!")
-    # sys.exit(0)
+    sys.exit(0)
