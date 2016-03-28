@@ -276,7 +276,7 @@ if __name__ == "__main__":
                 print('rect:' + str(rect))
                 cv2.rectangle(img_arr, (rect[0], rect[1]), (rect[0] + rect[2], rect[1] + rect[3]), [255, 255, 255], 5)
                 cv2.rectangle(img_arr, (rect[0], rect[1]), (rect[0] + rect[2], rect[1] + rect[3]), [255, 255, 255], 5)
-#        cv2.imshow('candidate', img_arr)
+        cv2.imshow('candidate', img_arr)
 
     if(0):
 
