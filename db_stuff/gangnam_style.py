@@ -11,15 +11,10 @@ import requests
 from rq import Queue
 
 from .. import constants
-print (1)
 from . import shopstyle_constants
-print (1)
 from .shopstyle2generic import convert2generic
-print (1)
 from ..fingerprint_core import generate_mask_and_insert
-print (1)
 from . import dl_excel
-print (1)
 
 
 q = Queue('fingerprint_new', connection=constants.redis_conn)
