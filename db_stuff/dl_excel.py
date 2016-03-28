@@ -1,38 +1,55 @@
 import xlsxwriter
+import re
 from ..Yonti import drive
 from .. import constants
 from . import ebay_constants
 db = constants.db
 
 
-def fillTable(worksheet,main_categories,collection,bold ,today):
-    worksheet.write(0, 1, 'total count', bold)
+def fillTable(worksheet,main_categories,collection, archive, bold ,today):
+    worksheet.write(0, 1, 'instock count', bold)
     worksheet.write(0, 2, collection.count(), bold)
+    worksheet.write(0, 4, 'archive count', bold)
+    worksheet.write(0, 5, archive.count(), bold)
     categories = []
     for cat in main_categories:
         print(cat)
-        items = collection.find({'categories': {'$eq': cat}}).count()
-        new_items = collection.find({'$and': [{'categories': {'$eq': cat}}, {'download_data.first_dl': {'$eq':today}}]}).count()
-        instock = collection.find({'$and': [{'categories': {'$eq': cat}}, {'status.instock': {'$eq': True}}]}).count()
-        out = collection.find({'$and': [{'categories': {'$eq': cat}}, {'status.instock': {'$eq': False}}]}).count()
-        categories.append([cat, items, new_items, instock, out])
+        instock = collection.find({'categories': {'$eq': cat}}).count()
+        new_items = collection.find({'$and': [{'categories': {'$eq': cat}},
+                                              {'download_data.first_dl': {'$eq':today}}]}).count()
+        archive = archive.find({'categories': {'$eq': cat}}).count()
+        total = instock + archive
+        categories.append([cat, instock, new_items, archive, total])
     categories_length =len(categories)+3
     worksheet.set_column('B:F',15)
 
     options = {'data' : categories,
                'total_row': True,
                'columns': [{'header': 'Categories','total_string': 'Total'},
-                           {'header': 'items'},
-                           {'header': 'new_items'},
                            {'header': 'instock'},
-                           {'header': 'out of stock'}]}
+                           {'header': 'new instock items'},
+                           {'header': 'archived'},
+                           {'header': 'total'}]}
 
     worksheet.add_table('B2:F'+str(categories_length), options)
     for x in ['C', 'D', 'E', 'F']:
         worksheet.write_formula(x+str(categories_length), '=SUM('+x+'3:'+x+str(categories_length-1)+')')
 
 
-def mongo2xl(filename, dl_info):
+def mongo2xl(collection_name, dl_info):
+    if collection_name == 'ebay':
+        filename = collection_name
+    else:
+        fail = False
+        filename = 'empty'
+        try:
+            [filename, gender] = re.split("_", collection_name)
+        except:
+            fail = True
+        if filename not in ["ShopStyle", "GangnamStyle"] or fail:
+            print ('error in collection name')
+            return
+
     path2file = '/home/developer/yonti/'+filename+'.xlsx'
     workbook = xlsxwriter.Workbook(path2file)
     bold = workbook.add_format({'bold': True})
@@ -44,31 +61,25 @@ def mongo2xl(filename, dl_info):
     worksheet_main.write(1,2, today)
     worksheet_main.write(2,1, "duration")
     worksheet_main.write(2,2, dl_info['dl_duration'])
-    worksheet_main.write(3,1, "total items")
+    worksheet_main.write(3,1, "instock items")
+    worksheet_main.write(4, 1, "archived items")
 
     categories = list(set(ebay_constants.ebay_paperdoll_women.values()))
     categories.sort()
 
-    total_items = 0
+    instock_items = 0
+    archived_items = 0
     if filename == 'ebay':
 
         for gender in ['Female', 'Male', 'Unisex','Tees']:
             print("working on "+ gender)
-            if gender is 'Female':
-                collection = db.ebay_Female
-                current_worksheet = workbook.add_worksheet('Female')
-            elif gender is 'Male':
-                collection = db.ebay_Male
-                current_worksheet = workbook.add_worksheet('Male')
-            elif gender is 'Unisex':
-                collection = db.ebay_Unisex
-                current_worksheet = workbook.add_worksheet('Unisex')
-            else:
-                collection = db.ebay_Tees
-                current_worksheet = workbook.add_worksheet('Tees')
+            collection = db['ebay_'+gender]
+            archive = db['ebay_'+gender+'_archive']
+            current_worksheet = workbook.add_worksheet(gender)
+            fillTable(current_worksheet, categories, collection, archive, bold, today)
+            instock_items += collection.count()
+            archived_items += archive.count()
 
-            fillTable(current_worksheet, categories, collection, bold, today)
-            total_items += collection.count()
         store_info = dl_info["store_info"]
         try:
             s_i =[]
@@ -119,25 +130,21 @@ def mongo2xl(filename, dl_info):
             f.close()
 
     else:
-        if filename == 'shopstyle':
-            collection = db.products
+        for gender in ['Female', 'Male']:
+            print("working on " + gender)
+            collection = db[collection_name]
+            arcive = db[collection_name+"_archive"]
+            if gender is 'Female':
+                current_worksheet = workbook.add_worksheet('Female')
+            else :
+                current_worksheet = workbook.add_worksheet('Male')
 
-        elif filename == 'flipkart':
-            collection = db.flipkart
+            fillTable(current_worksheet, categories, collection, arcive, bold, today)
+            instock_items += collection.count()
+            archived_items += archive.count()
 
-        elif filename == 'Gangnam':
-            collection = db.Gangnam_Style_Female
-
-        else:
-            print ('nothing to convert')
-            workbook.close()
-            return
-
-        total_items += collection.count()
-        current_worksheet = workbook.add_worksheet('Women')
-        fillTable(current_worksheet,categories,collection, bold,today)
-
-    worksheet_main.write(3, 2, total_items)
+    worksheet_main.write(3, 2, instock_items)
+    worksheet_main.write(4, 2, archived_items)
     workbook.close()
 
     print ('uploading to drive...')

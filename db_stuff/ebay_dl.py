@@ -173,6 +173,42 @@ def title2category(gender, title):
     gender = genderAlert or gender
     return gender, ppd_cats
 
+
+def theArchiveDoorman():
+    for gender in ["Female","Male","Unisex","Tees"]:
+        collection = db['ebay_'+gender]
+        archive = db['ebay_'+gender+'_archive']
+        # clean the archive from items older than a week
+        archivers = archive.find()
+        y_new, m_new, d_new = map(int, today_date.split("-"))
+        for item in archivers:
+            y_old, m_old, d_old = map(int, item["download_data"]["dl_version"].split("-"))
+            days_out = 365 * (y_new - y_old) + 30 * (m_new - m_old) + (d_new - d_old)
+            if days_out < 7:
+                archive.update_one({'id': item['id']}, {"$set": {"status.days_out": days_out}})
+            else:
+                archive.delete_one({'id': item['id']})
+
+        # add to the archive items which were not downloaded today but were instock yesterday
+        notUpdated = collection.find({"download_data.dl_version": {"$ne": today_date}})
+        for item in notUpdated:
+            y_old, m_old, d_old = map(int, item["download_data"]["dl_version"].split("-"))
+            days_out = 365 * (y_new - y_old) + 30 * (m_new - m_old) + (d_new - d_old)
+            if days_out < 7:
+                item['status']['instock'] = False
+                item['status']['days_out'] = days_out
+                archive.insert_one(item)
+
+            collection.delete_one({'id': item['id']})
+
+        # move to the archive all the items which were downloaded today but are out of stock
+        outStockers = collection.find({'status.instock': False})
+        for item in outStockers:
+            archive.insert_one(item)
+            collection.delete_one({'id': item['id']})
+
+        archive.reindex()
+
 start_time = time.time()
 #connecting to FTP
 # username, passwd are for the US - for other countries check the bottom
@@ -297,6 +333,7 @@ for col in ["Female","Male","Unisex"]:#,"Tees"]:
     db[col_name].delete_many({'fingerprint': None})
     db[col_name].update_many({"download_data.dl_version":{"$ne":today_date}},{"$set":{"status.instock":False},
                                                                                "$inc": {"status.days_out":1}})
+theArchiveDoorman()
 
     # db[col_name].create_index("categories")
     # db[col_name].create_index("status")

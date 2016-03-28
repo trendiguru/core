@@ -38,6 +38,7 @@ class ShopStyleDownloader():
         self.db = constants.db
         self.collection_name = collection
         self.collection = self.db[collection]
+        self.collection_archive = self.db[collection+'_archive']
         self.cache = self.db[dl_cache]
         self.categories = self.db.categories
         self.current_dl_date = str(datetime.datetime.date(datetime.datetime.now()))
@@ -63,13 +64,7 @@ class ShopStyleDownloader():
         end_time= time.time()
         total_time = (end_time - start_time)/3600
         del_items = self.collection.delete_many({'fingerprint': {"$exists": False}})
-        old = self.collection.find({"download_data.dl_version": {"$ne": self.current_dl_date}})
-        y_new, m_new, d_new = map(int, self.current_dl_date.split("-"))
-        for item in old:
-            y_old, m_old, d_old = map(int, item["download_data"]["dl_version"].split("-"))
-            days_out = 365*(y_new-y_old)+30*(m_new-m_old)+(d_new-d_old)
-            self.collection.update_one({'id': item['id']}, {"$set": {"status.days_out": days_out,
-                                                                         "status.instock": False}})
+        self.theArchiveDoorman()
 
         dl_info = {"date": self.current_dl_date,
            "dl_duration": total_time,
@@ -79,6 +74,37 @@ class ShopStyleDownloader():
         dl_excel.mongo2xl(self.collection_name, dl_info)
         print self.collection_name + " DOWNLOAD DONE!!!!!\n"
 
+    def theArchiveDoorman(self):
+        # clean the archive from items older than a week
+        archivers = self.collection_archive.find()
+        y_new, m_new, d_new = map(int, self.current_dl_date.split("-"))
+        for item in archivers:
+            y_old, m_old, d_old = map(int, item["download_data"]["dl_version"].split("-"))
+            days_out = 365 * (y_new - y_old) + 30 * (m_new - m_old) + (d_new - d_old)
+            if days_out < 7:
+                self.collection_archive.update_one({'id': item['id']}, {"$set": {"status.days_out": days_out}})
+            else:
+                self.collection_archive.delete_one({'id': item['id']})
+
+        # add to the archive items which were not downloaded today but were instock yesterday
+        notUpdated = self.collection.find({"download_data.dl_version": {"$ne": self.current_dl_date}})
+        for item in notUpdated:
+            y_old, m_old, d_old = map(int, item["download_data"]["dl_version"].split("-"))
+            days_out = 365 * (y_new - y_old) + 30 * (m_new - m_old) + (d_new - d_old)
+            if days_out < 7:
+                item['status']['instock'] = False
+                item['status']['days_out'] = days_out
+                self.collection_archive.insert_one(item)
+
+            self.collection.delete_one({'id': item['id']})
+
+        # move to the archive all the items which were downloaded today but are out of stock
+        outStockers = self.collection.find({'status.instock': False})
+        for item in outStockers:
+            self.collection_archive.insert_one(item)
+            self.collection.delete_one({'id':item['id']})
+
+        self.collection_archive.reindex()
 
     def wait_for(self):
         check = 0
@@ -409,7 +435,7 @@ if __name__ == "__main__":
     col = user_input.name
     gender = user_input.gender
 
-    if gender in ['Female','Male']:
+    if gender in ['Female','Male'] and col in ["ShopStyle","GangnamStyle"]:
         col = col + "_" +gender
     else:
         print("bad input - gender should be only Female or Male (case sensitive)")
