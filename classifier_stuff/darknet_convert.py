@@ -33,8 +33,7 @@ def show_darknet_bbs(dir_of_bbfiles,dir_of_images):
                     vals = [int(s) if s.isdigit() else float(s) for s in line.split()]
                     classno = vals[0]
                     dark_bb = [vals[1],vals[2],vals[3],vals[4]]
-                    imfile = bbfile[0:-4]
-                    print('classno {} darkbb {} imfile {}'.format(classno,dark_bb,imfile))
+                    print('classno {} darkbb {} imfile {}'.format(classno,dark_bb,imgfile))
         except:
             print('could not open {}'.format(full_filename))
             traceback.print_exc()
