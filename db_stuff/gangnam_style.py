@@ -275,10 +275,9 @@ class ShopStyleDownloader():
         if prod_in_coll is None:
             # print "Product not in db." + collection
             # case 1.1: try finding this product in the products
-            if self.collection_name in ['GangnamStyle_Female','GangnamStyle_Male','ShopStyle_Female'] :
+            if self.collection_name in ['GangnamStyle_Female','GangnamStyle_Male'] :
                 if self.gender =='Female':
-                    # TODO: change from products to Shopstyle
-                    prod_in_prod = self.db.products.find_one({"id": prod["id"]})
+                    prod_in_prod = self.db.ShopStyle_Female.find_one({"id": prod["id"]})
                 else:
                     prod_in_prod = self.db.ShopStyle_Male.find_one({"id": prod["id"]})
 

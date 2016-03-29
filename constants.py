@@ -16,7 +16,7 @@ redis_conn = Redis(host=os.getenv("REDIS_HOST", "redis1-redis-1-vm"), port=int(o
 # export MONGO_PORT=27017
 # export MONGO_HOST=localhost
 
-
+manual_gender_domains = ['fashionseoul.com']
 
 # file containing constants for general TG use
 # fingerprint related consts
