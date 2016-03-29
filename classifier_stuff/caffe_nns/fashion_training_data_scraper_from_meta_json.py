@@ -145,7 +145,7 @@ def generate_bbfiles_from_dir_of_jsons(json_dir,imagefiles_dir_of_dirs,bb_dir,da
     for a_file in json_files:
         prefix = a_file[0:-5]
         imagefiles_dir = prefix
-    print('json {} images {} class {}'.format(a_file,imagefiles_dir,class_number))
+        print('json {} images {} class {}'.format(a_file,imagefiles_dir,class_number))
         full_json_file = os.path.join(json_dir,a_file)
         full_images_dir = os.path.join(imagefiles_dir_of_dirs,prefix)
         generate_bbfiles_from_json(full_json_file,full_images_dir,bb_dir,darknet=True,class_number=class_number,clobber=False)
