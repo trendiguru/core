@@ -133,9 +133,10 @@ def mongo2xl(collection_name, dl_info):
 
     else:
         for gender in ['Female', 'Male']:
-            print("working on " + gender)
-            collection = db[collection_name]
-            archive = db[collection_name+"_archive"]
+            tmp = filename +"_"+ gender
+            print("working on " + tmp)
+            collection = db[tmp]
+            archive = db[tmp+"_archive"]
             if gender is 'Female':
                 current_worksheet = workbook.add_worksheet('Female')
             else :
