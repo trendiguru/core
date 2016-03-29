@@ -77,7 +77,7 @@ def library_for_dataset_scraping(json_file,json_files_path, photos_path,max_item
                 file_name = 'product_%s_photo_%s_bbox_%s_%s_%s_%s.jpg' % (product_id, photo_id, bbox[0], bbox[1], bbox[2], bbox[3])
 #                file_name = 'product_%s_photo_%s.jpg' % (product_id, photo_id)
             else:
-                file_name = 'product_%s_photo_%s.jpg' % (product_id, photo_id)
+                file_name = 'product_%s_photo_%s.jpg' % (product_id, photo_id) #
             # downloading the images from the web:
             f = open(photos_path + set_name + '/' + file_name, 'wb')
             try:
