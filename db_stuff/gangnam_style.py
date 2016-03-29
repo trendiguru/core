@@ -30,7 +30,6 @@ MAX_OFFSET = 5000
 MAX_SET_SIZE = MAX_OFFSET + MAX_RESULTS_PER_PAGE
 fp_version = constants.fingerprint_version
 
-
 class ShopStyleDownloader():
     def __init__(self,collection,gender):
         # connect to db
@@ -40,6 +39,7 @@ class ShopStyleDownloader():
         self.collection = self.db[collection]
         self.collection_archive = self.db[collection+'_archive']
         self.cache = self.db[dl_cache]
+        self.cache_counter = 0
         self.categories = self.db.categories
         self.current_dl_date = str(datetime.datetime.date(datetime.datetime.now()))
         self.last_request_time = time.time()
@@ -218,7 +218,8 @@ class ShopStyleDownloader():
                     "filter_params": filter_params.encoded()}
 
         if self.cache.find_one(dl_query):
-            print "We've done this batch already, let's not repeat work"
+            self.cache_counter +=1
+            print "%s ) We've done this batch already, let's not repeat work" %str(self.cache_counter)
             return
 
         if "filters" in filter_params:
@@ -274,7 +275,7 @@ class ShopStyleDownloader():
         if prod_in_coll is None:
             # print "Product not in db." + collection
             # case 1.1: try finding this product in the products
-            if self.collection_name in ['GangnamStyle_Female','GangnamStyle_Male'] :
+            if self.collection_name in ['GangnamStyle_Female','GangnamStyle_Male','ShopStyle_Female'] :
                 if self.gender =='Female':
                     # TODO: change from products to Shopstyle
                     prod_in_prod = self.db.products.find_one({"id": prod["id"]})
