@@ -80,7 +80,15 @@ def library_for_dataset_scraping(json_file,json_files_path, photos_path,max_item
 
 #TODO write file to check for same product number in different dirs and combine the bb file
 
-def generate_bbfiles_from_dir_of_jsons(json_dir,imagefiles_dir,darknet=True,category_number=None,clobber=False):
+def generate_bbfiles_from_dir_of_jsons(json_dir,imagefiles_dir_of_dirs,darknet=True,category_number=None,clobber=False):
+#    only_dirs = [d for d in json_dir if os.path.isdir(os.path.join(json_dir,d))]
+    json_files = [f for f in json_dir if os.path.isfile(os.path.join(json_dir,f))]
+    class_number = 0
+    for a_file in json_files:
+        prefix = json_dir[4:]
+        imagefiles_dir = prefix
+        generate_bbfiles_from_json(a_file,imagefiles_dir,darknet=True,category_number=None,clobber=False)
+        class_number += 1
 
 def generate_bbfiles_from_json(json_file,imagefiles_dir,darknet=True,category_number=None,clobber=False):
     '''
