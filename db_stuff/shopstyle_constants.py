@@ -86,7 +86,7 @@ shopstyle_paperdoll_female = {'belts': 'belt',
                              'wool-coats': 'coat',
                              'leggings': 'tights'}
 
-shopstyle_paperdoll_male = {'mens-belts' : 'belts',
+shopstyle_paperdoll_male = {'mens-belts' : 'belt',
                              'mens-jackets': 'jacket',
                              'mens-denim-jacket': 'jacket',
                              'mens-jeans': 'jeans',
