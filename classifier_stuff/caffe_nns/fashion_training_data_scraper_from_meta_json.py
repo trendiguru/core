@@ -79,6 +79,34 @@ def library_for_dataset_scraping(json_file,json_files_path, photos_path,max_item
 
 
 #TODO write file to check for same product number in different dirs and combine the bb file
+def combine_bbs(json_dir,imagefiles_dir_of_dirs):
+
+    json_files = [f for f in json_dir if os.path.isfile(os.path.join(json_dir,f))]
+    for a_file in json_files:
+        prefix = a_file[:-5]
+        imagefiles_dir = prefix
+    data = json.load(open(json_file))
+    n = 0
+    l = len(data)
+    print('length = '+str(l))
+    for i in len(data):
+#    for data_pack in data:
+        data_pack = data[i]
+        photo_id = data_pack['photo']
+        product_id = data_pack['product']
+        print('photo:{} product:{}'.format(photo_id,product_id))
+        if not 'bbox' in data_pack:
+            logging.warning('bbox data not found')
+            continue
+        bbox_dict = data_pack['bbox']
+        bbox = [int(bbox_dict['left']), int(bbox_dict['top']), int(bbox_dict['width']), int(bbox_dict['height'])]
+        file_name = 'product_%s_photo_%s_bbox_%s_%s_%s_%s.jpg' % (product_id, photo_id, bbox[0], bbox[1], bbox[2], bbox[3])
+
+
+
+
+
+
 
 def generate_bbfiles_from_dir_of_jsons(json_dir,imagefiles_dir_of_dirs,darknet=True,category_number=None,clobber=False):
 #    only_dirs = [d for d in json_dir if os.path.isdir(os.path.join(json_dir,d))]
