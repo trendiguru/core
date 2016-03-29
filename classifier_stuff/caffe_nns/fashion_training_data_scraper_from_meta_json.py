@@ -105,8 +105,8 @@ def combine_bbs(json_dir,imagefiles_dir_of_dirs):
         print('file:'+str(json_file))
         prefix = json_file[:-5]
         imagefiles_dir = prefix
-    fullpath = os.path.join(json_dir,json_file)
-    data = json.load(open(fullpath))
+        fullpath = os.path.join(json_dir,json_file)
+        data = json.load(open(fullpath))
         l = len(data)
         print('length = '+str(l))
         combine_bbs_within_category(data)
