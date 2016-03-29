@@ -34,6 +34,10 @@ def show_darknet_bbs(dir_of_bbfiles,dir_of_images):
                     classno = vals[0]
                     dark_bb = [vals[1],vals[2],vals[3],vals[4]]
                     print('classno {} darkbb {} imfile {}'.format(classno,dark_bb,imgfile))
+                    full_imgname = os.path.join(dir_of_images,imgfile)
+                    img_arr = cv2.imread(full_imgname)
+                    w,h = img_arr[0:2]
+                    bb = convert_dark_to_xywh((w,h),dark_bb)
         except:
             print('could not open {}'.format(full_filename))
             traceback.print_exc()
@@ -192,25 +196,24 @@ def convert(imsize, box):
     h = h*dh
     return (x,y,w,h)
 
-def convert_dark_to_xywh(imsize, box):
+def convert_dark_to_xywh(imsize, dark_bb):
     '''
     convert box [x y w h ] to box [x_center% ycenter% w% h%] where % is % of picture w or h
     :param size: [image_w,image_h]
     :param box: [x,y,w,h] of bounding box
     :return: [x_center% y_center% w% h%]
     '''
-    dw = 1./imsize[0]
-    dh = 1./imsize[1]
-    x_middle = box[0] + box[2]/2.0
-    y_middle = box[1] + box[3]/2.0
-    w = box[2]
-    h = box[3]
-    logging.debug('x_mid {} y_mid {} w {} h {}'.format(x_middle,y_middle,w,h))
-    x = x_middle*dw
-    w = w*dw
-    y = y_middle*dh
-    h = h*dh
-    return (x,y,w,h)
+
+    w,h = imsize
+    x_middle = dark_bb[0]*w
+    y_middle = dark_bb[1]*h
+    bb_w = int(dark_bb[2]*w)
+    bb_h = int(dark_bb[3]*h)
+    x = int(x_middle - float(bb_w)/2)
+    y = int(y_middle - float(bb_h)/2)
+    bb = [x,y,bb_w,bb_h]
+    logging.debug('dark bb x_min {} y_mid {} w {} h {} output x {} y{} w {} h {} imw {} imh {}'.format(dark_bb[0],dark_bb[1],dark_bb[2],dark_bb[3],bb[0],bb[1],bb[2],bb[3],imsize[0],imsize[1]))
+    return [x,y,w,h]
 
 def ensure_dir(f):
     '''
