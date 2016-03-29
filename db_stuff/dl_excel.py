@@ -17,9 +17,9 @@ def fillTable(worksheet,main_categories,collection, archive, bold ,today):
         instock = collection.find({'categories': {'$eq': cat}}).count()
         new_items = collection.find({'$and': [{'categories': {'$eq': cat}},
                                               {'download_data.first_dl': {'$eq':today}}]}).count()
-        archive = archive.find({'categories': {'$eq': cat}}).count()
-        total = instock + archive
-        categories.append([cat, instock, new_items, archive, total])
+        archived = archive.find({'categories': {'$eq': cat}}).count()
+        total = instock + archived
+        categories.append([cat, instock, new_items, archived, total])
     categories_length =len(categories)+3
     worksheet.set_column('B:F',15)
 
