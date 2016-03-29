@@ -219,7 +219,7 @@ def convert_dark_to_xywh(imsize, dark_bb):
     y = int(y_middle - float(bb_h)/2)
     bb = [x,y,bb_w,bb_h]
     logging.debug('output x {} y{} w {} h {} '.format(bb[0],bb[1],bb[2],bb[3]))
-    return [x,y,w,h]
+    return [x,y,bb_w,bb_h]
 
 def ensure_dir(f):
     '''
