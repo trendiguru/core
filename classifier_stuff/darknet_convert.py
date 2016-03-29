@@ -37,7 +37,7 @@ def show_darknet_bbs(dir_of_bbfiles,dir_of_images):
                 img_arr = cv2.imread(full_imgname)
                 w,h = img_arr.shape[0:2]
                 bb = convert_dark_to_xywh((w,h),dark_bb)
-                cv2.rectangle((bb[0],bb[1]),(bb[0]+bb[2],bb[1]+bb[3]),color=[255,0,0])
+                cv2.rectangle(img_arr, (bb[0],bb[1]),(bb[0]+bb[2],bb[1]+bb[3]),color=[255,0,0])
             cv2.imshow(imgfile,img_arr)
             cv2.waitKey(0)
 
