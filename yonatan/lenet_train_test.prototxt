@@ -9,10 +9,14 @@ layer {
   }
   transform_param {
     scale: 0.00390625
+    mean_value: 120
+    mean_value: 120
+    mean_value: 120
   }
   image_data_param {
     source: "/home/yonatan/core/yonatan/train.txt"
     batch_size: 64
+    shuffle: True
   }
 }
 layer {
@@ -25,10 +29,14 @@ layer {
   }
   transform_param {
     scale: 0.00390625
+    mean_value: 120
+    mean_value: 120
+    mean_value: 120
   }
   image_data_param {
     source: "/home/yonatan/core/yonatan/test.txt"
     batch_size: 100
+    shuffle: True
   }
 }
 layer {
