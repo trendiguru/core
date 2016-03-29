@@ -16,7 +16,7 @@ layer {
   image_data_param {
     source: "/home/yonatan/core/yonatan/train.txt"
     batch_size: 64
-    shuffle: True
+    shuffle: true
   }
 }
 layer {
@@ -36,7 +36,7 @@ layer {
   image_data_param {
     source: "/home/yonatan/core/yonatan/test.txt"
     batch_size: 100
-    shuffle: True
+    shuffle: true
   }
 }
 layer {
