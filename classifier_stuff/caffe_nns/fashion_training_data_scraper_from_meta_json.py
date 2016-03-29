@@ -79,8 +79,46 @@ def library_for_dataset_scraping(json_file,json_files_path, photos_path,max_item
 
 
 #TODO write file to check for same product number in different dirs and combine the bb file
+def combine_bbs(json_dir,imagefiles_dir_of_dirs):
 
-def generate_bbfiles_from_json(json_file,imagefiles_dir,darknet=True,category_number=None):
+    json_files = [f for f in json_dir if os.path.isfile(os.path.join(json_dir,f))]
+    for a_file in json_files:
+        prefix = a_file[:-5]
+        imagefiles_dir = prefix
+    data = json.load(open(json_file))
+    n = 0
+    l = len(data)
+    print('length = '+str(l))
+    for i in len(data):
+#    for data_pack in data:
+        data_pack = data[i]
+        photo_id = data_pack['photo']
+        product_id = data_pack['product']
+        print('photo:{} product:{}'.format(photo_id,product_id))
+        if not 'bbox' in data_pack:
+            logging.warning('bbox data not found')
+            continue
+        bbox_dict = data_pack['bbox']
+        bbox = [int(bbox_dict['left']), int(bbox_dict['top']), int(bbox_dict['width']), int(bbox_dict['height'])]
+        file_name = 'product_%s_photo_%s_bbox_%s_%s_%s_%s.jpg' % (product_id, photo_id, bbox[0], bbox[1], bbox[2], bbox[3])
+
+
+
+
+
+
+
+def generate_bbfiles_from_dir_of_jsons(json_dir,imagefiles_dir_of_dirs,darknet=True,category_number=None,clobber=False):
+#    only_dirs = [d for d in json_dir if os.path.isdir(os.path.join(json_dir,d))]
+    json_files = [f for f in json_dir if os.path.isfile(os.path.join(json_dir,f))]
+    class_number = 0
+    for a_file in json_files:
+        prefix = json_dir[4:]
+        imagefiles_dir = prefix
+        generate_bbfiles_from_json(a_file,imagefiles_dir,darknet=True,category_number=None,clobber=False)
+        class_number += 1
+
+def generate_bbfiles_from_json(json_file,imagefiles_dir,darknet=True,category_number=None,clobber=False):
     '''
     This is to take a json file from tamara berg stuff and write a file having the bb coords,
     either in darknet (percent) or pixel format.
@@ -117,7 +155,10 @@ def generate_bbfiles_from_json(json_file,imagefiles_dir,darknet=True,category_nu
 #        cropped_path = photos_path + set_name + '/' + cropped_name
         bb_full_filename = os.path.join(imagefiles_dir,bbfile)
 #        print  'attempting full+cropped img save of: ' + full_path
-        f = open(bb_full_filename, 'a')  #append to end of bbfile to allow for multiple bbs for same file 'a+' is read/appendwrite
+        if not clobber:
+            f = open(bb_full_filename, 'a')  #append to end of bbfile to allow for multiple bbs for same file 'a+' is read/appendwrite
+        else:
+            f = open(bb_full_filename, 'w')  #overwrite bbfile
 
         # consider that same image may occur in several dirs....
         try:
@@ -135,12 +176,15 @@ def generate_bbfiles_from_json(json_file,imagefiles_dir,darknet=True,category_nu
                 else:
                     print('could not find file')
                     continue
-            n_digits = 5
-            line_to_write = str(category_number)+' '+str(bbox[0])[0:n_digits]+' '+str(bbox[1])[0:n_digits]+' '+str(bbox[2])[0:n_digits]+' '+str(bbox[3])[0:n_digits] + '\n'
-            f.write(line_to_write)
-            f.flush()
-            print 'succesful bb appended to  ' + bb_full_filename
- #                   print listing[photo_id-1] + '\n cropped succesful save as: ' + cropped_path
+                n_digits = 5
+                line_to_write = str(category_number)+' '+str(bbox[0])[0:n_digits]+' '+str(bbox[1])[0:n_digits]+' '+str(bbox[2])[0:n_digits]+' '+str(bbox[3])[0:n_digits] + '\n'
+                f.write(line_to_write)
+                f.flush()
+                print 'succesful bb appended to  ' + bb_full_filename
+     #                   print listing[photo_id-1] + '\n cropped succesful save as: ' + cropped_path
+            else: #write not in darknet format
+                pass
+
         except Exception as e:
             print(str(traceback.format_exception(*sys.exc_info())))
             raise

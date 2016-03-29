@@ -5,7 +5,7 @@ import cv2
 import random
 import socket
 
-logging.basicConfig(level=logging.WARNING)
+logging.basicConfig(level=logging.DEBUG)
 
 #as described here http://guanghan.info/blog/en/my-works/train-yolo/
 #we want file w lines like:
