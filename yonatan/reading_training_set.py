@@ -8,7 +8,7 @@ import matplotlib.pyplot as plt
 width = 100
 height = 100
 
-mypath = '../../male'
+mypath = '/home/yonatan/male'
 f = []
 breaker = False
 text_file = open("train.txt", "w")
@@ -22,7 +22,7 @@ for root, dirs, files in os.walk(mypath):
 text_file.flush()
 #text_file.close()
 
-mypath = '../../female'
+mypath = '/home/yonatan/female'
 f = []
 breaker = False
 text_file = open("train.txt", "a")
