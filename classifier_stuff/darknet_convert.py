@@ -17,6 +17,17 @@ logging.basicConfig(level=logging.DEBUG)
 # Remember to put the folder 'images' and folder 'annotations' in the same parent directory,
 # as the darknet code look for annotation files this way (by default).
 
+def show_darknet_bbs(dir_of_bbfiles):
+    bbfiles = [f for f in os.listdir(dir_of_bbfiles) if os.path.isfile(os.path.join(dir_of_bbfiles,f)) and f[-4:]=='txt']
+    for bbfile in bbfiles:
+        full_filename = os.path.join(dir_of_bbfiles,bbfile)
+        with open(full_filename,'r+') as fp:
+	    for line in fp:
+         #   line = str(category_number)+' '+str(dark_bb[0])[0:n_digits]+' '+str(dark_bb[1])[0:n_digits]+' '+str(dark_bb[2])[0:n_digits]+' '+str(dark_bb[3])[0:n_digits] + '\n'
+                vals = [int(s) if s.isdigit() else float(s) for s in line.split()]
+		classno = vals[0]
+		dark_bb = [vals[1],vals[2],vals[3],vals[4]]
+		imfile = bbfile[0:-4]
 
 
 def dir_of_dirs_to_darknet(dir_of_dirs, trainfile,positive_filter=None,maxfiles_per_dir=999999,bbfile_prefix=None):
@@ -154,6 +165,26 @@ def get_darkbb(filename):
 
 
 def convert(imsize, box):
+    '''
+    convert box [x y w h ] to box [x_center% ycenter% w% h%] where % is % of picture w or h
+    :param size: [image_w,image_h]
+    :param box: [x,y,w,h] of bounding box
+    :return: [x_center% y_center% w% h%]
+    '''
+    dw = 1./imsize[0]
+    dh = 1./imsize[1]
+    x_middle = box[0] + box[2]/2.0
+    y_middle = box[1] + box[3]/2.0
+    w = box[2]
+    h = box[3]
+    logging.debug('x_mid {} y_mid {} w {} h {}'.format(x_middle,y_middle,w,h))
+    x = x_middle*dw
+    w = w*dw
+    y = y_middle*dh
+    h = h*dh
+    return (x,y,w,h)
+
+def convert_dark_to_xywh(imsize, box):
     '''
     convert box [x y w h ] to box [x_center% ycenter% w% h%] where % is % of picture w or h
     :param size: [image_w,image_h]

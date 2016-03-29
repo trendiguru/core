@@ -123,6 +123,7 @@ def generate_bbfiles_from_dir_of_jsons(json_dir,imagefiles_dir_of_dirs,bb_dir,da
 #    only_dirs = [d for d in json_dir if os.path.isdir(os.path.join(json_dir,d))]
     json_files = [f for f in os.listdir(json_dir) if os.path.isfile(os.path.join(json_dir,f)) and f[-5:] == '.json' and not 'retrieval' in f]
     class_number = 0
+    Utils.ensure_dir(bb_dir)
     for a_file in json_files:
         prefix = a_file[0:-5]
         imagefiles_dir = prefix
@@ -149,7 +150,7 @@ def generate_bbfiles_from_json(json_file,imagefiles_dir,bb_dir,darknet=True,clas
         logging.warning('nonjson file sent')
         return
     print('jsonfile:{} imagesdir:{}'.format(json_file,imagefiles_dir))
-    raw_input('enter to continue')
+  #  raw_input('enter to continue')
     parent_dir = Utils.parent_dir(json_file)
     data = json.load(open(json_file))
     n = 0
