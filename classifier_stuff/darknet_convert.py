@@ -21,16 +21,20 @@ def show_darknet_bbs(dir_of_bbfiles,dir_of_images):
     imgfiles = [f for f in os.listdir(dir_of_images) if os.path.isfile(os.path.join(dir_of_images,f)) and f[-4:]=='.jpg' or f[-5:]=='.jpeg' ]
     for imgfile in imgfiles:
         corresponding_bbfile=imgfile.split('photo_')[1]
-        print('img {} bbfile {}'.format(imgfile,corresponding_bbfile))
         full_filename = os.path.join(dir_of_bbfiles,corresponding_bbfile)
-        with open(full_filename,'r+') as fp:
-            for line in fp:
-             #   line = str(category_number)+' '+str(dark_bb[0])[0:n_digits]+' '+str(dark_bb[1])[0:n_digits]+' '+str(dark_bb[2])[0:n_digits]+' '+str(dark_bb[3])[0:n_digits] + '\n'
-                vals = [int(s) if s.isdigit() else float(s) for s in line.split()]
-                classno = vals[0]
-                dark_bb = [vals[1],vals[2],vals[3],vals[4]]
-                imfile = bbfile[0:-4]
-                print('classno {} darkbb {} imfile {}'.format(classno,dark_bb,imfile))
+        print('img {} bbfile {} full {}'.format(imgfile,corresponding_bbfile,full_filename))
+        try:
+            with open(full_filename,'r+') as fp:
+                for line in fp:
+                 #   line = str(category_number)+' '+str(dark_bb[0])[0:n_digits]+' '+str(dark_bb[1])[0:n_digits]+' '+str(dark_bb[2])[0:n_digits]+' '+str(dark_bb[3])[0:n_digits] + '\n'
+                    vals = [int(s) if s.isdigit() else float(s) for s in line.split()]
+                    classno = vals[0]
+                    dark_bb = [vals[1],vals[2],vals[3],vals[4]]
+                    imfile = bbfile[0:-4]
+                    print('classno {} darkbb {} imfile {}'.format(classno,dark_bb,imfile))
+        except:
+            print('could not open {}'.format(full_filename))
+
 
 def dir_of_dirs_to_darknet(dir_of_dirs, trainfile,positive_filter=None,maxfiles_per_dir=999999,bbfile_prefix=None):
     initial_only_dirs = [dir for dir in os.listdir(dir_of_dirs) if os.path.isdir(os.path.join(dir_of_dirs,dir))]
