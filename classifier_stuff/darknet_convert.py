@@ -38,8 +38,8 @@ def show_darknet_bbs(dir_of_bbfiles,dir_of_images):
                 w,h = img_arr.shape[0:2]
                 bb = convert_dark_to_xywh((w,h),dark_bb)
                 cv2.rectangle((bb[0],bb[1]),(bb[0]+bb[2],bb[1]+bb[3]),color=[255,0,0])
-                cv2.imshow(imgfile,img_arr)
-                cv2.waitKey(0)
+            cv2.imshow(imgfile,img_arr)
+            cv2.waitKey(0)
 
 def dir_of_dirs_to_darknet(dir_of_dirs, trainfile,positive_filter=None,maxfiles_per_dir=999999,bbfile_prefix=None):
     initial_only_dirs = [dir for dir in os.listdir(dir_of_dirs) if os.path.isdir(os.path.join(dir_of_dirs,dir))]
