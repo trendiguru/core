@@ -2,7 +2,7 @@ import xlsxwriter
 import re
 from ..Yonti import drive
 from .. import constants
-from . import ebay_constants
+
 import argparse
 
 db = constants.db
@@ -66,13 +66,14 @@ def mongo2xl(collection_name, dl_info):
     worksheet_main.write(3,1, "instock items")
     worksheet_main.write(4, 1, "archived items")
 
-    categories = list(set(ebay_constants.ebay_paperdoll_women.values()))
-    categories.sort()
+
 
     instock_items = 0
     archived_items = 0
     if filename == 'ebay':
-
+        from . import ebay_constants
+        categories = list(set(ebay_constants.ebay_paperdoll_women.values()))
+        categories.sort()
         for gender in ['Female', 'Male', 'Unisex','Tees']:
             print("working on "+ gender)
             collection = db['ebay_'+gender]
@@ -132,16 +133,21 @@ def mongo2xl(collection_name, dl_info):
             f.close()
 
     else:
+        from . import shopstyle_constants
+        categories = list(set(shopstyle_constants.shopstyle_paperdoll_female.values()))
+        categories.sort()
         for gender in ['Female', 'Male']:
             tmp = filename +"_"+ gender
             print("working on " + tmp)
             collection = db[tmp]
             archive = db[tmp+"_archive"]
             if gender is 'Female':
+                categories = list(set(shopstyle_constants.shopstyle_paperdoll_female.values()))
                 current_worksheet = workbook.add_worksheet('Female')
             else :
+                categories = list(set(shopstyle_constants.shopstyle_paperdoll_male.values()))
                 current_worksheet = workbook.add_worksheet('Male')
-
+            categories.sort()
             fillTable(current_worksheet, categories, collection, archive, bold, today)
             instock_items += collection.count()
             archived_items += archive.count()
