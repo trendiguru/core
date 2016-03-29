@@ -41,7 +41,7 @@ def show_darknet_bbs(dir_of_bbfiles,dir_of_images):
             #resize to avoid giant images
             dest_height = 400
             dest_width = int(float(dest_height)/h*w)
-            print('h {} w{} destw {} desth {}'.format(h,w,dest_width,dest_height))
+#            print('h {} w{} destw {} desth {}'.format(h,w,dest_width,dest_height))
             im2 = cv2.resize(img_arr,(dest_width,dest_height))
             cv2.imshow(imgfile,im2)
             cv2.waitKey(0)
