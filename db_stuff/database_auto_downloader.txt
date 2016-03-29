@@ -4,10 +4,11 @@
 # the check if the list was inserted correctly by typing:'$ crontab -l'
 #
 # the download schedule:
-# 1. products at 4 am (shopstyle)
-# 2. Gangnam at 8 am (shopstyle Korean)
-# 3. ebay at 12 am
-#
+# 1. ShopStyle Female at 00:05 am
+# 2. GangnamStyle Female at 03:00 am (shopstyle Korean)
+# 3. ShopStyle Male at 06:00 am
+# 4. GangnamStyle Male at 09:00 am (shopstyle Korean)
+# 5. ebay at 12:00 am
 #
 # example: open 6 rqworkers - 1-6 7 * * * sudo rqworker -u redis://redis1-redis-1-vm:6379 fingerprint_new &
 # standard output ans error will be logged temporarily in /home/developer/current_job.log
@@ -16,15 +17,15 @@
 2 0 * * * echo "daily clean up - restarting all fingerprinters" >> /home/developer/download.log 2>&1
 3 0 * * * sudo supervisorctl restart fingerprint_new: >> /home/developer/download.log 2>&1
 4 0 * * * echo "shopstyle US Female download started at 00:05 am" >> /home/developer/download.log 2>&1
-5 0 * * * python -m trendi.db_stuff.gangnam_style -n ShopStyle -g Female > /home/developer/current_job.log 2>&1
-59 2 * * * echo "shopstyle KR Female download started at 04:00 am" >> /home/developer/download.log 2>&1
-0 3 * * * python -m trendi.db_stuff.gangnam_style -n GangnamStyle -g Female > /home/developer/current_job.log 2>&1
-59 5 * * * echo "shopstyle US Male download started at 08:00 am" >> /home/developer/download.log 2>&1
-0 6 * * * python -m trendi.db_stuff.gangnam_style -n ShopStyle -g Male > /home/developer/current_job.log 2>&1
-59 8 * * * echo "shopstyle US Male download started at 08:00 am" >> /home/developer/download.log 2>&1
-0 9 * * * python -m trendi.db_stuff.gangnam_style -n GangnamStyle -g Male > /home/developer/current_job.log 2>&1
-59 11 * * * echo "ebay dl started at 12 am" >> /home/developer/download.log 2>&1
-0 12 * * * python -m trendi.db_stuff.ebay_dl > /home/developer/current_job.log 2>&1
+5 0 * * * python -m trendi.db_stuff.gangnam_style -n ShopStyle -g Female > /home/developer/ShopStyle_US_Female.log 2>&1
+59 2 * * * echo "shopstyle KR Female download started at 03:00 am" >> /home/developer/download.log 2>&1
+0 3 * * * python -m trendi.db_stuff.gangnam_style -n GangnamStyle -g Female > /home/developer/ShopStyle_KR_Female.log 2>&1
+59 5 * * * echo "shopstyle US Male download started at 06:00 am" >> /home/developer/download.log 2>&1
+0 6 * * * python -m trendi.db_stuff.gangnam_style -n ShopStyle -g Male > /home/developer/ShopStyle_US_Male.log 2>&1
+59 8 * * * echo "shopstyle US Male download started at 09:00 am" >> /home/developer/download.log 2>&1
+0 9 * * * python -m trendi.db_stuff.gangnam_style -n GangnamStyle -g Male > /home/developer/ShopStyle_KR_Male.log 2>&1
+59 11 * * * echo "ebay dl started at 12:00 am" >> /home/developer/download.log 2>&1
+0 12 * * * python -m trendi.db_stuff.ebay_dl > /home/developer/EBAY.log 2>&1
 
 
 
