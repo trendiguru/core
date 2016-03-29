@@ -36,7 +36,7 @@ def show_darknet_bbs(dir_of_bbfiles,dir_of_images):
                     print('classno {} darkbb {} imfile {}'.format(classno,dark_bb,imgfile))
                     full_imgname = os.path.join(dir_of_images,imgfile)
                     img_arr = cv2.imread(full_imgname)
-                    w,h = img_arr[0:2]
+                    w,h = img_arr.shape[0:2]
                     bb = convert_dark_to_xywh((w,h),dark_bb)
         except:
             print('could not open {}'.format(full_filename))
