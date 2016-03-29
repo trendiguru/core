@@ -3,6 +3,8 @@ import re
 from ..Yonti import drive
 from .. import constants
 from . import ebay_constants
+import argparse
+
 db = constants.db
 
 
@@ -156,3 +158,36 @@ def mongo2xl(collection_name, dl_info):
     else:
         print ('error while uploading!')
 
+
+def getUserInput():
+    parser = argparse.ArgumentParser(description='"@@@ create excel and upload to drive @@@')
+    parser.add_argument('-n', '--name',default="ShopStyle", dest= "name",
+                        help='collection name - currently only ShopStyle or GangnamStyle')
+    parser.add_argument('-g', '--gender', dest= "gender",
+                        help='specify which gender to download. (Female or Male - case sensitive)', required=True)
+    args = parser.parse_args()
+    return args
+
+if __name__ == "__main__":
+    import sys
+    import datetime
+    current_dl_date = str(datetime.datetime.date(datetime.datetime.now()))
+
+    user_input = getUserInput()
+    col = user_input.name
+    gender = user_input.gender
+
+    if gender in ['Female','Male'] and col in ["ShopStyle","GangnamStyle"]:
+        col = col + "_" +gender
+    else:
+        print("bad input - gender should be only Female or Male (case sensitive)")
+        sys.exit(1)
+
+    dl_info = {"date": current_dl_date,
+               "dl_duration": 0,
+               "store_info": []}
+
+    mongo2xl(col, dl_info)
+
+    print (col + "Update Finished!!!")
+    sys.exit(0)
