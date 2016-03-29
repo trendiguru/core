@@ -11,7 +11,7 @@ layer {
     scale: 0.00390625
   }
   data_param {
-    source: "train.txt"
+    source: "/home/yonatan/core/yonatan/train.txt"
     batch_size: 64
   }
 }
@@ -27,7 +27,7 @@ layer {
     scale: 0.00390625
   }
   data_param {
-    source: "test.txt"
+    source: "/home/yonatan/core/yonatan/test.txt"
     batch_size: 100
   }
 }
