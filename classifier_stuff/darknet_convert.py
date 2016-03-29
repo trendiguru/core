@@ -21,6 +21,7 @@ def show_darknet_bbs(dir_of_bbfiles,dir_of_images):
     imgfiles = [f for f in os.listdir(dir_of_images) if os.path.isfile(os.path.join(dir_of_images,f)) and f[-4:]=='.jpg' or f[-5:]=='.jpeg' ]
     for imgfile in imgfiles:
         corresponding_bbfile=imgfile.split('photo_')[1]
+        corresponding_bbfile=corresponding_bbfile.split('.jpg')[0]
         full_filename = os.path.join(dir_of_bbfiles,corresponding_bbfile)
         print('img {} bbfile {} full {}'.format(imgfile,corresponding_bbfile,full_filename))
         try:
