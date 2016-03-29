@@ -29,7 +29,7 @@ def show_darknet_bbs(dir_of_bbfiles,dir_of_images):
         try:
             with open(full_filename,'r+') as fp:
                 for line in fp:
-                 #   line = str(category_number)+' '+str(dark_bb[0])[0:n_digits]+' '+str(dark_bb[1])[0:n_digits]+' '+str(dark_bb[2])[0:n_digits]+' '+str(dark_bb[3])[0:n_digits] + '\n'
+                 #   line = str(category_number)+' '+str(  dark_bb[0])[0:n_digits]+' '+str(dark_bb[1])[0:n_digits]+' '+str(dark_bb[2])[0:n_digits]+' '+str(dark_bb[3])[0:n_digits] + '\n'
                     vals = [int(s) if s.isdigit() else float(s) for s in line.split()]
                     classno = vals[0]
                     dark_bb = [vals[1],vals[2],vals[3],vals[4]]
@@ -203,8 +203,10 @@ def convert_dark_to_xywh(imsize, dark_bb):
     :param box: [x,y,w,h] of bounding box
     :return: [x_center% y_center% w% h%]
     '''
+    logging.debug('dark bb x_min {} y_mid {} w {} h {}  imw {} imh {}'.format(dark_bb[0],dark_bb[1],dark_bb[2],dark_bb[3],imsize[0],imsize[1]))
 
-    w,h = imsize
+    w=imsize[0]
+    h=imsize[1]
     x_middle = dark_bb[0]*w
     y_middle = dark_bb[1]*h
     bb_w = int(dark_bb[2]*w)
@@ -212,7 +214,7 @@ def convert_dark_to_xywh(imsize, dark_bb):
     x = int(x_middle - float(bb_w)/2)
     y = int(y_middle - float(bb_h)/2)
     bb = [x,y,bb_w,bb_h]
-    logging.debug('dark bb x_min {} y_mid {} w {} h {} output x {} y{} w {} h {} imw {} imh {}'.format(dark_bb[0],dark_bb[1],dark_bb[2],dark_bb[3],bb[0],bb[1],bb[2],bb[3],imsize[0],imsize[1]))
+    logging.debug('output x {} y{} w {} h {} '.format(bb[0],bb[1],bb[2],bb[3]))
     return [x,y,w,h]
 
 def ensure_dir(f):
