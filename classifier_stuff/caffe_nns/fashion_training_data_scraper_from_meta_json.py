@@ -82,7 +82,7 @@ def library_for_dataset_scraping(json_file,json_files_path, photos_path,max_item
 def combine_bbs(json_dir,imagefiles_dir_of_dirs):
 
     json_files = [f for f in json_dir if os.path.isfile(os.path.join(json_dir,f))]
-    for a_file in json_files:
+    for json_file in json_files:
         prefix = a_file[:-5]
         imagefiles_dir = prefix
     data = json.load(open(json_file))
