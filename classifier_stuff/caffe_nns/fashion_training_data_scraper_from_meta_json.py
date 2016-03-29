@@ -126,13 +126,13 @@ def combine_bbs_within_category(data):
         bbox = [int(bbox_dict['left']), int(bbox_dict['top']), int(bbox_dict['width']), int(bbox_dict['height'])]
         file_name = 'product_%s_photo_%s_bbox_%s_%s_%s_%s.jpg' % (product_id, photo_id, bbox[0], bbox[1], bbox[2], bbox[3])
     for j in range(i,len(data)):
-            data_pack2 = data[i]
-            photo_id2 = data_pack['photo']
-            product_id2 = data_pack['product']
+        data_pack2 = data[i]
+        photo_id2 = data_pack['photo']
+        product_id2 = data_pack['product']
       #      print('photo2:{} product2:{}'.format(photo_id2,product_id2))
-            if not 'bbox' in data_pack2:
-                logging.warning('bbox data not found')
-                continue
+        if not 'bbox' in data_pack2:
+            logging.warning('bbox data not found')
+            continue
         if photo_id2 == photo_id:
             pass
 
