@@ -102,7 +102,7 @@ def combine_bbs(json_dir,imagefiles_dir_of_dirs):
     print('json files:'+str(json_files))
     n = 0
     for json_file in json_files:
-    print('file:'+str(json_file))
+        print('file:'+str(json_file))
         prefix = json_file[:-5]
         imagefiles_dir = prefix
     fullpath = os.path.join(json_dir,json_file)
