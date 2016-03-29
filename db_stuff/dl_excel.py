@@ -133,13 +133,13 @@ def mongo2xl(collection_name, dl_info):
         for gender in ['Female', 'Male']:
             print("working on " + gender)
             collection = db[collection_name]
-            arcive = db[collection_name+"_archive"]
+            archive = db[collection_name+"_archive"]
             if gender is 'Female':
                 current_worksheet = workbook.add_worksheet('Female')
             else :
                 current_worksheet = workbook.add_worksheet('Male')
 
-            fillTable(current_worksheet, categories, collection, arcive, bold, today)
+            fillTable(current_worksheet, categories, collection, archive, bold, today)
             instock_items += collection.count()
             archived_items += archive.count()
 
