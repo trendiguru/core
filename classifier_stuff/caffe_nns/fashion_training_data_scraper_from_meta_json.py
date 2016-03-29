@@ -83,7 +83,7 @@ def combine_bbs(json_dir,imagefiles_dir_of_dirs):
 
     json_files = [f for f in json_dir if os.path.isfile(os.path.join(json_dir,f))]
     for json_file in json_files:
-        prefix = a_file[:-5]
+        prefix = json_file[:-5]
         imagefiles_dir = prefix
     data = json.load(open(json_file))
     n = 0
