@@ -4,6 +4,7 @@ import logging
 import cv2
 import random
 import socket
+import traceback
 
 logging.basicConfig(level=logging.DEBUG)
 
@@ -36,7 +37,7 @@ def show_darknet_bbs(dir_of_bbfiles,dir_of_images):
                     print('classno {} darkbb {} imfile {}'.format(classno,dark_bb,imfile))
         except:
             print('could not open {}'.format(full_filename))
-
+            traceback.print_exc()
 
 def dir_of_dirs_to_darknet(dir_of_dirs, trainfile,positive_filter=None,maxfiles_per_dir=999999,bbfile_prefix=None):
     initial_only_dirs = [dir for dir in os.listdir(dir_of_dirs) if os.path.isdir(os.path.join(dir_of_dirs,dir))]
