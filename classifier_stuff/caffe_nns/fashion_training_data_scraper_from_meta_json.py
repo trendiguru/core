@@ -31,7 +31,7 @@ def rename_bbox_files(dir):
         elements = dest_split.split('_')
         product = elements[1]
         photo = elements[3]
-        dest_base = photo+'.jpg'
+        dest_base = 'photo_'+photo+'.jpg'
         print('photo {} prod {} dest {} name {}'.format(photo,product,dest_base,a_file))
 #        shutil.move(full_source, dest)
         dest = os.path.join(dir,dest_base)
