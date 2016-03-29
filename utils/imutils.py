@@ -561,6 +561,29 @@ def kill_the_missing(sourcedir, targetdir):
     print('{} files in {}, {} files in {}'.format(len(files_in_source),sourcedir,len(files_in_target),targetdir))
 
 
+def find_the_common(sourcedir, targetdir):
+    '''
+    this removes anything not in the source , from the target
+    :param sourcedir: has files removed relative to target
+    :param targetdir: has extra files, we want to remove the extras it has relative to source
+    :return:
+    '''
+    files_in_source = [f for f in os.listdir(sourcedir) if os.path.isfile(os.path.join(sourcedir,f))]
+    files_in_target = [f for f in os.listdir(targetdir) if os.path.isfile(os.path.join(targetdir,f))]
+    print('{} files in {}, {} files in {}'.format(len(files_in_source),sourcedir,len(files_in_target),targetdir))
+    n_matched = 0
+    n_not_matched = 0
+    for a_file in files_in_target:
+        if a_file in files_in_source:
+            print('file {} in both dirs'.format(a_file))
+            n_matched += 1
+        else:
+            print('file {} not matched'.format(a_file))
+            n_not_matched += 1
+    print('n matched {} n not matched {}'.format(n_matched,n_not_matched))
+    files_in_source = [f for f in os.listdir(sourcedir) if os.path.isfile(os.path.join(sourcedir,f))]
+    files_in_target = [f for f in os.listdir(targetdir) if os.path.isfile(os.path.join(targetdir,f))]
+
 def resize_and_crop_maintain_bb_on_dir(dir, output_width = 150, output_height = 200,use_visual_output=True):
     only_files = [f for f in os.listdir(dir) if os.path.isfile(os.path.join(dir,f))]
     print('doing resize/crop in dir '+dir)
