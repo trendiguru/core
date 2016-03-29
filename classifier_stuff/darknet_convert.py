@@ -26,21 +26,17 @@ def show_darknet_bbs(dir_of_bbfiles,dir_of_images):
         corresponding_bbfile = corresponding_bbfile + '.txt'
         full_filename = os.path.join(dir_of_bbfiles,corresponding_bbfile)
         print('img {} bbfile {} full {}'.format(imgfile,corresponding_bbfile,full_filename))
-        try:
-            with open(full_filename,'r+') as fp:
-                for line in fp:
-                 #   line = str(category_number)+' '+str(  dark_bb[0])[0:n_digits]+' '+str(dark_bb[1])[0:n_digits]+' '+str(dark_bb[2])[0:n_digits]+' '+str(dark_bb[3])[0:n_digits] + '\n'
-                    vals = [int(s) if s.isdigit() else float(s) for s in line.split()]
-                    classno = vals[0]
-                    dark_bb = [vals[1],vals[2],vals[3],vals[4]]
-                    print('classno {} darkbb {} imfile {}'.format(classno,dark_bb,imgfile))
-                    full_imgname = os.path.join(dir_of_images,imgfile)
-                    img_arr = cv2.imread(full_imgname)
-                    w,h = img_arr.shape[0:2]
-                    bb = convert_dark_to_xywh((w,h),dark_bb)
-        except:
-            print('could not open {}'.format(full_filename))
-            traceback.print_exc()
+        with open(full_filename,'r+') as fp:
+            for line in fp:
+             #   line = str(category_number)+' '+str(  dark_bb[0])[0:n_digits]+' '+str(dark_bb[1])[0:n_digits]+' '+str(dark_bb[2])[0:n_digits]+' '+str(dark_bb[3])[0:n_digits] + '\n'
+                vals = [int(s) if s.isdigit() else float(s) for s in line.split()]
+                classno = vals[0]
+                dark_bb = [vals[1],vals[2],vals[3],vals[4]]
+                print('classno {} darkbb {} imfile {}'.format(classno,dark_bb,imgfile))
+                full_imgname = os.path.join(dir_of_images,imgfile)
+                img_arr = cv2.imread(full_imgname)
+                w,h = img_arr.shape[0:2]
+                bb = convert_dark_to_xywh((w,h),dark_bb)
 
 def dir_of_dirs_to_darknet(dir_of_dirs, trainfile,positive_filter=None,maxfiles_per_dir=999999,bbfile_prefix=None):
     initial_only_dirs = [dir for dir in os.listdir(dir_of_dirs) if os.path.isdir(os.path.join(dir_of_dirs,dir))]
