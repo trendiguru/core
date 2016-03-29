@@ -18,7 +18,7 @@ logging.basicConfig(level=logging.DEBUG)
 # as the darknet code look for annotation files this way (by default).
 
 def show_darknet_bbs(dir_of_bbfiles,dir_of_images):
-    imgfiles = [f for f in os.listdir(dir_of_images) if os.path.isfile(os.path.join(dir_of_images,f)) and f[-4:]=='txt']
+    imgfiles = [f for f in os.listdir(dir_of_images) if os.path.isfile(os.path.join(dir_of_images,f)) and f[-4:]=='.jpg' or f[-5:]=='.jpeg' ]
     for imgfile in imgfiles:
         corresponding_bbfile=imgfile.split('photo_')[1]
         print('img {} bbfile {}'.format(imgfile,corresponding_bbfile))
