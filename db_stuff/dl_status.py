@@ -62,6 +62,7 @@ def flatenDict(info):
             if gender in ["Unisex", "Tees"] and collection != "ebay_":
                 continue
             key = collection + gender
+            print (key)
             status = info["collections"][key]["status"]
             if status == "Working":
                 updated_count = db[key].find({'download_data.dl_version': current_date}).count()
