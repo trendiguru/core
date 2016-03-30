@@ -67,6 +67,9 @@ def flatenDict(info):
                 total = db[key].count()
                 percent = int(updated_count/total)
                 notes = str(percent) +"% is already done"
+            elif status == "Done":
+                new_items = db[key].find({'download_data.first_dl': current_date}).count()
+                notes = str(new_items) + " new items"
             else:
                 notes = ""
             item = [key, status, notes]
