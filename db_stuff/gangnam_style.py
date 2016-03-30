@@ -58,6 +58,7 @@ class ShopStyleDownloader():
         start_time = time.time()
 
         self.cache.create_index("filter_params")
+        self.cache.create_index("dl_version")
         root_category, ancestors = self.build_category_tree()
 
         cats_to_dl = [anc["id"] for anc in ancestors]

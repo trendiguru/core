@@ -230,7 +230,8 @@ store_info = getStoreInfo(ftp,files)
 
 for col in ["Female","Male","Unisex","Tees"]:
     col_name = "ebay_"+col
-    status.update_one({"date": today_date}, {"$set": {col_name: "Working"}})
+    status_full_path = "collections." + col_name + ".status"
+    status.update_one({"date": today_date}, {"$set": {status_full_path: "Working"}})
 
 for filename in files:
     start = time.time()
