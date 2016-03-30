@@ -16,6 +16,7 @@ import csv
 import time
 import datetime
 import re
+import sys
 from .. import constants
 from . import ebay_constants
 from . import dl_excel
@@ -26,6 +27,7 @@ from time import sleep
 q = Queue('fingerprint_new', connection=constants.redis_conn)
 
 db = constants.db
+status = db.download_status
 today_date = str(datetime.datetime.date(datetime.datetime.now()))
 
 def getStoreStatus(store_id,files):
@@ -226,6 +228,9 @@ for line in data:
 
 store_info = getStoreInfo(ftp,files)
 
+for col in ["Female","Male","Unisex","Tees"]:
+    col_name = "ebay_"+col
+    status.update_one({"date": today_date}, {"$set": {col_name: "Working"}})
 
 for filename in files:
     start = time.time()
@@ -318,7 +323,6 @@ for filename in files:
 ftp.quit()
 stop_time = time.time()
 total_time = (stop_time-start_time)/3600
-
 for line in data[:-2]:
     s=line.split()
     idx = [x["id"] == s[8][:-7] for x in store_info].index(True)
@@ -328,18 +332,23 @@ dl_info = {"date": today_date,
            "dl_duration": total_time,
            "store_info": store_info}
 
-for col in ["Female","Male","Unisex"]:#,"Tees"]:
+for col in ["Female","Male","Unisex","Tees"]:
     col_name = "ebay_"+col
-    db[col_name].delete_many({'fingerprint': None})
-    db[col_name].update_many({"download_data.dl_version":{"$ne":today_date}},{"$set":{"status.instock":False},
-                                                                               "$inc": {"status.days_out":1}})
+    status.update_one({"date": today_date}, {"$set": {col_name: "Finishing Up"}})
+    if col != "Tees":
+        db[col_name].delete_many({'fingerprint': None})
+
 theArchiveDoorman()
 
-    # db[col_name].create_index("categories")
-    # db[col_name].create_index("status")
-    # db[col_name].create_index("download_data")
-
 dl_excel.mongo2xl('ebay', dl_info)
+
+for col in ["Female","Male","Unisex","Tees"]:
+    col_name = "ebay_"+col
+    status.update_one({"date": today_date}, {"$set": {col_name: "Done"}})
+
+print("ebay Download is Done")
+sys.exit(0)
+
 
 '''
 ftp codes per country:
