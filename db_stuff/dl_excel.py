@@ -165,6 +165,7 @@ def mongo2xl(collection_name, dl_info):
     else:
         print ('error while uploading!')
 
+    return
 
 def getUserInput():
     parser = argparse.ArgumentParser(description='"@@@ create excel and upload to drive @@@')

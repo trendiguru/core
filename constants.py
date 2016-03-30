@@ -199,13 +199,11 @@ paperdoll_shopstyle_women_jp_categories = {
             'name': u'\u30d1\u30fc\u30c6\u30a3\u30c9\u30ec\u30b9'},
     'vest': {'id': u'\u30d9\u30b9\u30c8', 'name': u'\u30d9\u30b9\u30c8'}}
 
-paperdoll_shopstyle_men = {'top': 'mens-shirts', 'pants': 'mens-pants', 'shorts': 'mens-shorts',
-                           'jeans': 'mens-jeans', 'jacket': 'mens-outerwear', 'blazer': 'mens-outerwear',
-                           'shirt': 'mens-shirts', 'skirt': 'mens-shorts', 'blouse': 'mens-shirts',
-                           'dress': 'mens-suits', 'sweater': 'mens-sweaters', 't-shirt': 'mens-tees-and-tshirts',
-                           'cardigan': 'mens-cardigan-sweaters', 'coat': 'mens-overcoats-and-trenchcoats',
-                           'suit': 'mens-suits', 'vest': 'vests', 'sweatshirt': 'mens-sweatshirts',
-                           'leggings': 'mens-pants', 'stockings': 'mens-pants', 'tights': 'mens-pants'}
+paperdoll_paperdoll_men = {'top': 'shirt', 'pants': 'pants', 'shorts': 'shorts', 'jeans': 'jeans', 'jacket': 'jacket',
+                           'blazer': 'blazer', 'shirt': 'shirt', 'skirt': 'shorts', 'blouse': 'shirt',
+                           'dress': 'suit', 'sweater': 'sweater', 't-shirt': 'shirt',
+                           'cardigan': 'cardigan', 'coat': 'coat', 'suit': 'suit', 'vest': 'vest',
+                           'sweatshirt': 'sweatshirt', 'leggings': 'pants', 'stockings': 'pants', 'tights': 'pants'}
 
 paperdoll_categories = {"whole_body": ['bodysuit', 'dress', 'jumper', 'suit', 'romper'],
                         "upper_cover": ['blazer', 'cape', 'jacket', 'cardigan', 'coat', 'vest', 'sweatshirt'],
