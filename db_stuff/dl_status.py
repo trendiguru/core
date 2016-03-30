@@ -46,10 +46,10 @@ def createItem():
                 "ebay_Male": {"status":"Starting on 12:00 am", "notes":""},
                 "ebay_Unisex": {"status":"Starting on 12:00 am", "notes":""},
                 "ebay_Tees": {"status":"Starting on 12:00 am", "notes":""},
-                "ShopStyle_Female": {"status":"Starting on 12:00 am", "notes":""},
-                "ShopStyle_Male": {"status":"Starting on 12:00 am", "notes":""},
-                "GangnamStyle_Female": {"status":"Starting on 12:00 am", "notes":""},
-                "GangnamStyle_Male": {"status":"Starting on 12:00 am", "notes":""}}}
+                "ShopStyle_Female": {"status":"Starting on 00:05 am", "notes":""},
+                "ShopStyle_Male": {"status":"Starting on 06:00 am", "notes":""},
+                "GangnamStyle_Female": {"status":"Starting on 03:00 am", "notes":""},
+                "GangnamStyle_Male": {"status":"Starting on 09:00 am", "notes":""}}}
 
     dl_status.insert_one(item)
     print("new item inserted")
