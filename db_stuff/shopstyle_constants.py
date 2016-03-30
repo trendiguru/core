@@ -22,7 +22,7 @@ shopstyle_relevant_items_Male= ['men', 'mens-clothes', 'mens-belts', 'mens-jacke
                      'mens-polo-shirts', 'mens-tees-and-tshirts', 'mens-shorts',
                      'mens-sweaters', 'mens-sweatshirts', 'mens-cashmere-sweaters', 'mens-cardigan-sweaters',
                      'mens-crewneck-sweaters','mens-turleneck-sweaters', 'mens-v-neck-sweaters',
-                     'mens-half-zip-sweaters','mens-vests']
+                     'mens-half-zip-sweaters','mens-vests','mens-suits']
 
 shopstyle_paperdoll_female = {'belts': 'belt',
                              'bootcut-jeans': 'jeans',
@@ -120,7 +120,8 @@ shopstyle_paperdoll_male = {'mens-belts' : 'belt',
                              'mens-turleneck-sweaters' : 'sweater',
                              'mens-v-neck-sweaters' : 'sweater',
                              'mens-half-zip-sweaters': 'sweater',
-                             'mens-vests' : 'vest'}
+                             'mens-vests' : 'vest',
+                             'mens-suits': 'suit'}
 
 '''
 this is a list of categories under womens-clothing and mens-clothing in case its needed
