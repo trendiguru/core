@@ -35,7 +35,7 @@ db = constants.db
 dl_status=db.download_status
 
 def createItem():
-    existing = dl_status.find({"date":current_date})
+    existing = dl_status.find_one({"date":current_date})
     if existing:
         print("item already exists")
         return
