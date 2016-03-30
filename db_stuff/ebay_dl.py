@@ -335,7 +335,9 @@ dl_info = {"date": today_date,
 
 for col in ["Female","Male","Unisex","Tees"]:
     col_name = "ebay_"+col
-    status.update_one({"date": today_date}, {"$set": {col_name: "Finishing Up"}})
+    status_full_path = "collections."+col_name+".status"
+
+    status.update_one({"date": today_date}, {"$set": {status_full_path: "Finishing Up"}})
     if col != "Tees":
         db[col_name].delete_many({'fingerprint': None})
 
