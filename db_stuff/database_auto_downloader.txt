@@ -1,6 +1,6 @@
 # this is a job list for cron
 # to see cron running tasks "ps -o pid,sess,cmd afx | grep -A20 'cron$'"
-# to insert this list to cron type: '$ crontab /home/developer/python-packages/trendi/db_stuff/database_auto_downloader'
+# to insert this list to cron type: '$ crontab /home/developer/python-packages/trendi/db_stuff/database_auto_downloader.txt'
 # the check if the list was inserted correctly by typing:'$ crontab -l'
 #
 # the download schedule:
