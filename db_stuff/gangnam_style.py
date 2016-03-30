@@ -97,6 +97,10 @@ class ShopStyleDownloader():
         # add to the archive items which were not downloaded today but were instock yesterday
         notUpdated = self.collection.find({"download_data.dl_version": {"$ne": self.current_dl_date}})
         for item in notUpdated:
+            self.collection.delete_one({'id': item['id']})
+            existing = self.collection_archive.find_one({"id": item["id"]})
+            if existing:
+                continue
             y_old, m_old, d_old = map(int, item["download_data"]["dl_version"].split("-"))
             days_out = 365 * (y_new - y_old) + 30 * (m_new - m_old) + (d_new - d_old)
             if days_out < 7:
@@ -104,13 +108,15 @@ class ShopStyleDownloader():
                 item['status']['days_out'] = days_out
                 self.collection_archive.insert_one(item)
 
-            self.collection.delete_one({'id': item['id']})
 
         # move to the archive all the items which were downloaded today but are out of stock
         outStockers = self.collection.find({'status.instock': False})
         for item in outStockers:
-            self.collection_archive.insert_one(item)
             self.collection.delete_one({'id':item['id']})
+            existing = self.collection_archive.find_one({"id": item["id"]})
+            if existing:
+                continue
+            self.collection_archive.insert_one(item)
 
         self.collection_archive.reindex()
 
