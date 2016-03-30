@@ -69,7 +69,7 @@ def flatenDict(info):
                 percent = int(updated_count/total)
                 notes = str(percent) +"% is already done"
             else:
-                notes = info['collection'][key]["notes"]
+                notes = info['collections'][key]["notes"]
             item = [key, status, notes]
             infoList.append(item)
     return infoList
