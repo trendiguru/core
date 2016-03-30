@@ -93,7 +93,7 @@ def checkStatus():
                 minute = "0"+str(minute)
             else:
                 minute=str(minute)
-            current_worksheet.write(0, 5, " %d:%d" %(hour,minute), bold)
+            current_worksheet.write(0, 5, " %s:%s" %(hour,minute), bold)
         else:
             current_worksheet= workbook.add_worksheet(dl_date)
         current_worksheet.write(0, 1, 'date', bold)
