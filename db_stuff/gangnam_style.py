@@ -50,8 +50,8 @@ class ShopStyleDownloader():
             self.gender = 'Male'
             self.relevant = shopstyle_constants.shopstyle_relevant_items_Male
         self.status = self.db.download_status
-        self.status_full_path = "collection." + self.collection_name + ".status"
-        self.notes_full_path = "collection." + self.collection_name + ".notes"
+        self.status_full_path = "collections." + self.collection_name + ".status"
+        self.notes_full_path = "collections." + self.collection_name + ".notes"
         self.status.update_one({"date":self.current_dl_date},{"$set":{self.status_full_path: "Working"}})
 
     def db_download(self):
