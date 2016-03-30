@@ -41,14 +41,15 @@ def createItem():
         return
     else:
         item = {"date": current_date,
-                "ebay_Female": "Starting on 12:00 am",
-                "ebay_Male": "Starting on 12:00 am",
-                "ebay_Unisex": "Starting on 12:00 am",
-                "ebay_Tees": "Starting on 12:00 am",
-                "ShopStyle_Female": "Starting on 00:05 am",
-                "ShopStyle_Male": "Starting on 03:00 am",
-                "GangnamStyle_Female": "Starting on 06:00 am",
-                "GangnamStyle_Male": "Starting on 09:00 am"}
+                "collections":{
+                "ebay_Female": {"status":"Starting on 12:00 am", "notes":""},
+                "ebay_Male": {"status":"Starting on 12:00 am", "notes":""},
+                "ebay_Unisex": {"status":"Starting on 12:00 am", "notes":""},
+                "ebay_Tees": {"status":"Starting on 12:00 am", "notes":""},
+                "ShopStyle_Female": {"status":"Starting on 12:00 am", "notes":""},
+                "ShopStyle_Male": {"status":"Starting on 12:00 am", "notes":""},
+                "GangnamStyle_Female": {"status":"Starting on 12:00 am", "notes":""},
+                "GangnamStyle_Male": {"status":"Starting on 12:00 am", "notes":""}}}
 
     dl_status.insert_one(item)
     print("new item inserted")
@@ -67,11 +68,8 @@ def flatenDict(info):
                 total = db[key].count()
                 percent = int(updated_count/total)
                 notes = str(percent) +"% is already done"
-            elif status == "Done":
-                new_items = db[key].find({'download_data.first_dl': current_date}).count()
-                notes = str(new_items) + " new items"
             else:
-                notes = ""
+                notes = info['collection'][key]["notes"]
             item = [key, status, notes]
             infoList.append(item)
     return infoList

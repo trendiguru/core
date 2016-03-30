@@ -50,7 +50,9 @@ class ShopStyleDownloader():
             self.gender = 'Male'
             self.relevant = shopstyle_constants.shopstyle_relevant_items_Male
         self.status = self.db.download_status
-        self.status.update_one({"date":self.current_dl_date},{"$set":{collection: "Working"}})
+        self.status_full_path = "collection." + self.collection_name + ".status"
+        self.notes_full_path = "collection." + self.collection_name + ".notes"
+        self.status.update_one({"date":self.current_dl_date},{"$set":{self.status_full_path: "Working"}})
 
     def db_download(self):
         start_time = time.time()
@@ -65,7 +67,7 @@ class ShopStyleDownloader():
         self.wait_for()
         end_time= time.time()
         total_time = (end_time - start_time)/3600
-        self.status.update_one({"date": self.current_dl_date}, {"$set": {self.collection_name: "Finishing Up"}})
+        self.status.update_one({"date": self.current_dl_date}, {"$set": {self.status_full_path: "Finishing Up"}})
         del_items = self.collection.delete_many({'fingerprint': {"$exists": False}})
         self.theArchiveDoorman()
 
@@ -76,7 +78,9 @@ class ShopStyleDownloader():
         self.cache.delete_many({})
         dl_excel.mongo2xl(self.collection_name, dl_info)
         print self.collection_name + " DOWNLOAD DONE!!!!!\n"
-        self.status.update_one({"date": self.current_dl_date}, {"$set": {self.collection_name: "Done"}})
+        new_items = self.collection.find({'download_data.first_dl': self.current_dl_date}).count()
+        self.status.update_one({"date": self.current_dl_date}, {"$set": {self.status_full_path: "Done",
+                                                                         self.notes_full_path: new_items}})
 
     def theArchiveDoorman(self):
         # clean the archive from items older than a week

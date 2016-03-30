@@ -344,7 +344,11 @@ dl_excel.mongo2xl('ebay', dl_info)
 
 for col in ["Female","Male","Unisex","Tees"]:
     col_name = "ebay_"+col
-    status.update_one({"date": today_date}, {"$set": {col_name: "Done"}})
+    status_full_path = "collection."+col_name+".status"
+    notes_full_path = "collection."+col_name+".notes"
+    new_items = db[col_name].find({'download_data.first_dl': today_date}).count()
+    status.update_one({"$and":{"date": today_date, "collection":col_name}}, {"$set": {status_full_path: "Done",
+                                                                                     notes_full_path: new_items}})
 
 print("ebay Download is Done")
 sys.exit(0)
