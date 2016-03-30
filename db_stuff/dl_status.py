@@ -86,21 +86,21 @@ def checkStatus():
         dl_date = daily_info['date']
         if  dl_date == current_date:
             current_worksheet = workbook.add_worksheet('today')
-            current_worksheet.write(0, 4, 'last check', bold)
+            current_worksheet.write(12, 1, 'last check', bold)
             hour = str(now.hour)
             minute = now.minute
             if minute<10:
                 minute = "0"+str(minute)
             else:
                 minute=str(minute)
-            current_worksheet.write(0, 5, " %s:%s" %(hour,minute), bold)
+            current_worksheet.write(12, 2, " %s:%s" %(hour,minute), bold)
         else:
             current_worksheet= workbook.add_worksheet(dl_date)
         current_worksheet.write(0, 1, 'date', bold)
         current_worksheet.write(0, 2, dl_date, bold)
         dict2list = flatenDict(daily_info)
         current_worksheet.set_column('B:F', 22)
-        current_worksheet.add_table('B2:D10',
+        current_worksheet.add_table('B3:D11',
                                     {'data': dict2list,
                                      'columns': [{'header': 'Collection Name'},
                                                  {'header': 'Download Status'},
