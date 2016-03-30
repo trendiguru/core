@@ -159,7 +159,9 @@ class ShopStyleDownloader():
     def download_category(self, category_id):
         if category_id not in self.relevant:
             return
-        parameters = {"pid": PID, "shipping": "KR"}  # , "filters": "Category"}
+        parameters = {"pid": PID}
+        if self.collection_name in ["GangnamStyle_Female","GangnamStyle_Male"]:
+            parameters["shipping"]= "KR" # , "filters": "Category"}
 
         category = self.categories.find_one({"id": category_id})
         parameters["cat"] = category["id"]
