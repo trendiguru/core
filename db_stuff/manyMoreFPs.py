@@ -23,6 +23,7 @@ def fps(w):
     while True:
         sleep(1000)
 
+
 def getUserInput():
     parser = argparse.ArgumentParser(description='give me some more fingerprinters!')
     parser.add_argument("-n", dest="workers", default="25", help="enter the number of workers to run simultaneously")
