@@ -53,4 +53,6 @@ text_file.flush()
  
              # Save it back to disk.
              img.save(os.path.join(root, 'resized-' + file))
+
+             #erase_me
 '''
