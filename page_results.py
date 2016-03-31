@@ -435,7 +435,7 @@ def has_items(image_dict):
 
 
 def get_data_for_specific_image(image_url=None, image_hash=None, image_projection=None, product_projection=None,
-                                max_results=20, lang=None):
+                                max_results=20, lang=None, products_collection='ShopStyle'):
     """
     this just checks db for an image or hash. It doesn't start the pipeline or update the db
     :param image_url: url of image to find
@@ -498,7 +498,7 @@ def get_data_for_specific_image(image_url=None, image_hash=None, image_projectio
     if sparse_image_dict is not None:
         logging.debug('found image (or hash) in db ')
         # hash gets checked in update_image_in_db(), alternatively it could be checked here
-        full_image_dict = load_similar_results(sparse_image_dict, product_projection)
+        full_image_dict = load_similar_results(sparse_image_dict, product_projection, products_collection)
         merged_dict = merge_items(full_image_dict)
         return merged_dict
     else:
@@ -506,17 +506,20 @@ def get_data_for_specific_image(image_url=None, image_hash=None, image_projectio
         return None
 
 
-def load_similar_results(sparse, projection_dict, product_collection_name=None):
-    product_collection_name = product_collection_name or prod_coll_name
-    collection = db[product_collection_name]
-    print "Will load similar results from collection: " + str(collection)
+def load_similar_results(sparse, projection_dict, product_collection_name):
+    print "Will load similar results from collection: " + product_collection_name
     for person in sparse["people"]:
+        if 'gender' in person.keys():
+            collection = db[product_collection_name + '_' + person['gender']]
+        else:
+            collection = db['products']
         for item in person["items"]:
             similar_results = []
             for result in item["similar_results"]:
                 full_result = collection.find_one({"id": result["id"]}, projection_dict)
-                # full_result["clickUrl"] = Utils.shorten_url_bitly(full_result["clickUrl"])
-                similar_results.append(full_result)
+                if full_result:
+                    # full_result["clickUrl"] = Utils.shorten_url_bitly(full_result["clickUrl"])
+                    similar_results.append(full_result)
             item["similar_results"] = similar_results
     return sparse
 
