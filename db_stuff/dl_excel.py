@@ -74,7 +74,7 @@ def mongo2xl(collection_name, dl_info):
         from . import ebay_constants
         categories = list(set(ebay_constants.ebay_paperdoll_women.values()))
         categories.sort()
-        for gender in ['Female', 'Male', 'Unisex','Tees']:
+        for gender in ['Female', 'Male', 'Unisex']:#,'Tees']:
             print("working on "+ gender)
             collection = db['ebay_'+gender]
             archive = db['ebay_'+gender+'_archive']
