@@ -68,10 +68,10 @@ def firefox():
         try:
 
             driver.execute_script(scr)
-            print colored("sctipt executed! ", "blue", "on_green", attrs=['bold'])
-            sleep(15)
+            print colored("script executed! ", "blue", "on_green", attrs=['bold'])
+            sleep(30)
             driver.execute_script("window.scrollTo(0, document.body.scrollHeight);")
-            sleep(15)
+            sleep(30)
 
             # for x in range(40):
             #     script = "scroll(" + str(x * 50) + "," + str(x * 50 + 50) + ")"
@@ -81,7 +81,7 @@ def firefox():
         except:
             print colored("EXECUTE failed on %s " % url, "red", "on_yellow")
 
-        sleep(50)
+        sleep(30)
     driver.quit()
 
 
