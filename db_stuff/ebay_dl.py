@@ -177,7 +177,7 @@ def title2category(gender, title):
 
 
 def theArchiveDoorman():
-    for gender in ["Female","Male","Unisex","Tees"]:
+    for gender in ["Female","Male","Unisex"]:
         collection = db['ebay_'+gender]
         archive = db['ebay_'+gender+'_archive']
         # clean the archive from items older than a week
@@ -228,7 +228,7 @@ for line in data:
 
 store_info = getStoreInfo(ftp,files)
 
-for col in ["Female","Male","Unisex","Tees"]:
+for col in ["Female","Male","Unisex"]:#,"Tees"]:
     col_name = "ebay_"+col
     status_full_path = "collections." + col_name + ".status"
     status.update_one({"date": today_date}, {"$set": {status_full_path: "Working"}})
@@ -268,17 +268,17 @@ for filename in files:
         #needs to add search for id and etc...
         collection_name = "ebay_"+gender
         if subCategory == "t-shirt":
-            collection_name ="ebay_Tees"
-            exists = db[collection_name].find({'id':item["\xef\xbb\xbfOFFER_ID"]})
-            if exists.count()>1:
-                db[collection_name].delete_many({'id':item["\xef\xbb\xbfOFFER_ID"]})
-                exists=[]
-            if exists.count()==0:
-                generic_dict = ebay2generic(item, gender, subCategory)
-                db[collection_name].insert_one(generic_dict)
-                itemCount +=1
-            else:
-                pass
+            # collection_name ="ebay_Tees"
+            # exists = db[collection_name].find({'id':item["\xef\xbb\xbfOFFER_ID"]})
+            # if exists.count()>1:
+            #     db[collection_name].delete_many({'id':item["\xef\xbb\xbfOFFER_ID"]})
+            #     exists=[]
+            # if exists.count()==0:
+            #     generic_dict = ebay2generic(item, gender, subCategory)
+            #     db[collection_name].insert_one(generic_dict)
+            #     itemCount +=1
+            # else:
+            #     pass
             continue
         itemCount +=1
         generic_dict = ebay2generic(item, gender, subCategory)
@@ -321,6 +321,7 @@ for filename in files:
         except:
             print ('%s not found in store info' %filename)
             continue
+
 ftp.quit()
 stop_time = time.time()
 total_time = (stop_time-start_time)/3600
@@ -333,19 +334,19 @@ dl_info = {"date": today_date,
            "dl_duration": total_time,
            "store_info": store_info}
 
-for col in ["Female","Male","Unisex","Tees"]:
+for col in ["Female","Male","Unisex"]:#,"Tees"]:
     col_name = "ebay_"+col
     status_full_path = "collections."+col_name+".status"
 
     status.update_one({"date": today_date}, {"$set": {status_full_path: "Finishing Up"}})
-    if col != "Tees":
-        db[col_name].delete_many({'fingerprint': None})
+    # if col != "Tees":
+    #     db[col_name].delete_many({'fingerprint': None})
 
 theArchiveDoorman()
 
 dl_excel.mongo2xl('ebay', dl_info)
 
-for col in ["Female","Male","Unisex","Tees"]:
+for col in ["Female","Male","Unisex"]:#,"Tees"]:
     col_name = "ebay_"+col
     status_full_path = "collections."+col_name+".status"
     notes_full_path = "collections."+col_name+".notes"
