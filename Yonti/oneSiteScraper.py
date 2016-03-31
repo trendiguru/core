@@ -67,9 +67,9 @@ def firefox():
         try:
             driver.execute_script(scr)
             print colored("sctipt executed! ", "blue", "on_green", attrs=['bold'])
-            sleep(5)
+            sleep(15)
             driver.execute_script("window.scrollTo(0, document.body.scrollHeight);")
-            sleep(5)
+            sleep(155)
 
             # for x in range(40):
             #     script = "scroll(" + str(x * 50) + "," + str(x * 50 + 50) + ")"
