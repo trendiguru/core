@@ -8,7 +8,9 @@ from termcolor import colored
 def screen(workers):
     print colored("######  starting to open FPs  ######", "green", attrs=["bold"])
     cmd = "screen -S scraper python -m trendi.db_stuff.manyMoreFPs -f fps -w " + str(workers)
+    sleep(5)
     print colored("opening screen", "green", attrs=["bold"])
+    sleep(5)
     subprocess.call([cmd], shell=True)
     print colored("screen detached", "yellow", attrs=["bold"])
 
