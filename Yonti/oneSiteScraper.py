@@ -54,7 +54,7 @@ def firefox():
     driver.implicitly_wait(10)
     # driver.set_page_load_timeout(2)
 
-    scr = open("/var/www/latest/run_ext.js").read()
+    scr = open("/var/www/latest/b_main.js").read()
 
     while True:
         try:
@@ -69,9 +69,9 @@ def firefox():
 
             driver.execute_script(scr)
             print colored("script executed! ", "blue", "on_green", attrs=['bold'])
-            sleep(30)
+            sleep(10)
             driver.execute_script("window.scrollTo(0, document.body.scrollHeight);")
-            sleep(30)
+            sleep(10)
 
             # for x in range(40):
             #     script = "scroll(" + str(x * 50) + "," + str(x * 50 + 50) + ")"
@@ -81,7 +81,7 @@ def firefox():
         except:
             print colored("EXECUTE failed on %s " % url, "red", "on_yellow")
 
-        sleep(30)
+        sleep(40)
     driver.quit()
 
 
