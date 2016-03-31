@@ -74,7 +74,8 @@ def flatenDict(info):
                 notes = str(count) + " new items dl today"
             else:
                 notes = info['collections'][key]["notes"]
-            item = [key, status, notes]
+            eft =  info['collections'][key]["EFT"]
+            item = [key, status, notes, eft]
             infoList.append(item)
     return infoList
 
