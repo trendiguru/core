@@ -13,7 +13,7 @@ from . import tmpGuard
 db = pymongo.MongoClient(host="mongodb1-instance-1", port=27017).mydb
 MAX_PER_DOMAIN = 1
 
-url = ['http://lookbook.nu/']
+url = 'http://lookbook.nu/'
 
 
 def screen(workers):
