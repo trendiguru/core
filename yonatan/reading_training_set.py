@@ -11,7 +11,7 @@ height = 100
 mypath = '/home/yonatan/male'
 f = []
 breaker = False
-text_file = open("test.txt", "w")
+text_file = open("train.txt", "w")
 for root, dirs, files in os.walk(mypath):
     for file in files:
         if file.endswith(".jpg"):
@@ -25,7 +25,7 @@ text_file.flush()
 mypath = '/home/yonatan/female'
 f = []
 breaker = False
-text_file = open("test.txt", "a")
+text_file = open("train.txt", "a")
 for root, dirs, files in os.walk(mypath):
     for file in files:
         if file.endswith(".jpg"):

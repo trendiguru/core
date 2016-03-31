@@ -1,6 +1,6 @@
 # this is a job list for cron
 # to see cron running tasks "ps -o pid,sess,cmd afx | grep -A20 'cron$'"
-# to insert this list to cron type: '$ crontab /home/developer/python-packages/trendi/db_stuff/database_auto_downloader'
+# to insert this list to cron type: '$ crontab /home/developer/python-packages/trendi/db_stuff/database_auto_downloader.txt'
 # the check if the list was inserted correctly by typing:'$ crontab -l'
 #
 # the download schedule:
@@ -9,11 +9,16 @@
 # 3. ShopStyle Male at 06:00 am
 # 4. GangnamStyle Male at 09:00 am (shopstyle Korean)
 # 5. ebay at 12:00 am
-#
+# *** every 15 minutes the status check will run
 # example: open 6 rqworkers - 1-6 7 * * * sudo rqworker -u redis://redis1-redis-1-vm:6379 fingerprint_new &
 # standard output ans error will be logged temporarily in /home/developer/yonti/current_job.log
 # download log will be saved to /home/developer/download.log
 1 0 * * * date >> /home/developer/download.log 2>&1
+1 0 * * * python -m trendi.db_stuff.dl_status -m create >> /home/developer/yonti/download.log 2>&1
+10 * * * * python -m trendi.db_stuff.dl_status -m check
+25 * * * * python -m trendi.db_stuff.dl_status -m check
+40 * * * * python -m trendi.db_stuff.dl_status -m check
+55 * * * * python -m trendi.db_stuff.dl_status -m check
 2 0 * * * echo "daily clean up - restarting all fingerprinters" >> /home/developer/yonti/download.log 2>&1
 3 0 * * * sudo supervisorctl restart fingerprint_new: >> /home/developer/yonti/download.log 2>&1
 4 0 * * * echo "shopstyle US Female download started at 00:05 am" >> /home/developer/yonti/download.log 2>&1
