@@ -54,9 +54,7 @@ def firefox():
     driver.implicitly_wait(10)
     # driver.set_page_load_timeout(2)
 
-    # scr = open("/var/www/latest/run_ext.js").read()
-    scr = '<script id="fzz-script" data-pid="scraper" src="https://fzz.storage.googleapis.com/fzz.min.js" async defer></script>'
-
+    scr = open("/var/www/latest/run_ext.js").read()
 
     while True:
         try:
