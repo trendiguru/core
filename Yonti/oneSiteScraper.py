@@ -86,8 +86,7 @@ def firefox():
 def getUserInput():
     parser = argparse.ArgumentParser(description='Main Scraper')
     parser.add_argument("-f", dest="function", default="screen", help="The function you want to run")
-    parser.add_argument("-w", dest="workers", default="10", help="enter the number of workers to run simultaneously",
-                        required=True)
+    parser.add_argument("-w", dest="workers", default="10", help="enter the number of workers to run simultaneously")
     args = parser.parse_args()
     return args
 
