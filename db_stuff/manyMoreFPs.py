@@ -7,7 +7,7 @@ from termcolor import colored
 
 def screen(workers):
     print colored("######  starting to open FPs  ######", "green", attrs=["bold"])
-    cmd = "screen -S scraper python -m trendi.db_stuff.manyMoreFPs -f fps -w " + str(workers)
+    cmd = "screen -S manyMore python -m trendi.db_stuff.manyMoreFPs -f fps -n " + str(workers)
     sleep(5)
     print colored("opening screen", "green", attrs=["bold"])
     sleep(5)
@@ -20,7 +20,7 @@ def fps(w):
     sleep(5)
     for i in range(int(w)):
         sleep(1)
-        a = subprocess.Popen(["rqworker -u redis://redis1-redis-1-vm:6379 fingerprint_new"],shell=True)
+        a = subprocess.Popen(["sudo rqworker -u redis://redis1-redis-1-vm:6379 fingerprint_new"],shell=True)
         print colored("fp_new #%s is opened" % (str(i)), 'green')
 
     while True:
