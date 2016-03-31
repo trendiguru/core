@@ -16,6 +16,7 @@ def screen(workers):
 
 
 def fps(w):
+    print("many more fps")
     sleep(1)
     for i in range(int(w)):
         sleep(1)
