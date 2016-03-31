@@ -199,9 +199,13 @@ paperdoll_shopstyle_women_jp_categories = {
             'name': u'\u30d1\u30fc\u30c6\u30a3\u30c9\u30ec\u30b9'},
     'vest': {'id': u'\u30d9\u30b9\u30c8', 'name': u'\u30d9\u30b9\u30c8'}}
 
+paperdoll_relevant_categories = {'top', 'pants', 'shorts', 'jeans', 'jacket', 'blazer', 'shirt', 'skirt', 'blouse',
+                                 'dress', 'bodysuit', 'vest', 'cardigan', 'leggings', 'sweater', 't-shirt', 'coat',
+                                 'suit', 'tights', 'sweatshirt', 'stockings'}
+
 paperdoll_paperdoll_men = {'top': 'shirt', 'pants': 'pants', 'shorts': 'shorts', 'jeans': 'jeans', 'jacket': 'jacket',
                            'blazer': 'blazer', 'shirt': 'shirt', 'skirt': 'shorts', 'blouse': 'shirt',
-                           'dress': 'suit', 'sweater': 'sweater', 't-shirt': 'shirt',
+                           'dress': 'suit', 'sweater': 'sweater', 't-shirt': 'shirt', 'bodysuit': 'suit',
                            'cardigan': 'cardigan', 'coat': 'coat', 'suit': 'suit', 'vest': 'vest',
                            'sweatshirt': 'sweatshirt', 'leggings': 'pants', 'stockings': 'pants', 'tights': 'pants'}
 
@@ -228,11 +232,6 @@ nonlogic_clothing = [{'pants': ['jeans', 'stockings', 'jumper', 'suit', 'tights'
 caffe_relevant_strings = ['hoopskirt', 'jean', 'blue_jean', 'denim', 'jersey', 'T-shirt', 'tee shirt', 'kimono',
                           'lab coat', 'tank suit', 'maillot', 'miniskirt', 'mini', 'overskirt', 'pajama', 'pyjama',
                           "pj's", 'jammies', 'poncho', 'sarong', 'suit', 'suit of clothes', 'sweatshirt']
-
-
-paperdoll_relevant_categories = {'top', 'pants', 'shorts', 'jeans', 'jacket', 'blazer', 'shirt', 'skirt', 'blouse',
-                                 'dress',
-                                 'sweater', 't-shirt', 'cardigan', 'coat', 'suit', 'tights', 'sweatshirt', 'stockings'}
 
 # these are the fashionista db cats in order , e.g. the mask will have 1 for null (unknown) and 56 for skin
 fashionista_categories = ['null','tights','shorts','blazer','t-shirt','bag','shoes','coat','skirt','purse','boots',
