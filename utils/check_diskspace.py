@@ -84,9 +84,11 @@ for line in relevant_lines:
    # print percentage
     if int(percentage)>90:
         print('high percent on {}!'.format(device))
-        message = 'high percent disk use ({})% on {}!'.format(percentage,device)
+        host = str(socket.gethostname())
+        message = 'high percent disk use ({})% on device {} of host {}!'.format(percentage,device,host)
+
         try:
-            email(message, 'high disk use on '+str(device), receivers)
+            email(message, 'high disk use on '+str(device)+' host:'+host, receivers)
 
             print "Successfully sent email to "+str(receivers)
         except :

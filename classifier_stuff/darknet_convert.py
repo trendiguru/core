@@ -6,7 +6,7 @@ import random
 import socket
 import traceback
 
-logging.basicConfig(level=logging.DEBUG)
+logging.basicConfig(level=logging.WARNING)
 
 #as described here http://guanghan.info/blog/en/my-works/train-yolo/
 #we want file w lines like:
@@ -27,12 +27,14 @@ def show_darknet_bbs(dir_of_bbfiles,dir_of_images):
         full_filename = os.path.join(dir_of_bbfiles,corresponding_bbfile)
         print('img {} bbfile {} full {}'.format(imgfile,corresponding_bbfile,full_filename))
         with open(full_filename,'r+') as fp:
+            n_boxes = 0
             for line in fp:
+                n_boxes += 1
              #   line = str(category_number)+' '+str(  dark_bb[0])[0:n_digits]+' '+str(dark_bb[1])[0:n_digits]+' '+str(dark_bb[2])[0:n_digits]+' '+str(dark_bb[3])[0:n_digits] + '\n'
                 vals = [int(s) if s.isdigit() else float(s) for s in line.split()]
                 classno = vals[0]
                 dark_bb = [vals[1],vals[2],vals[3],vals[4]]
-                print('classno {} darkbb {} imfile {}'.format(classno,dark_bb,imgfile))
+                print('classno {} darkbb {} imfile {} n_boxes {}'.format(classno,dark_bb,imgfile,n_boxes))
                 full_imgname = os.path.join(dir_of_images,imgfile)
                 img_arr = cv2.imread(full_imgname)
                 h,w = img_arr.shape[0:2]
