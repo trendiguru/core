@@ -1,7 +1,7 @@
 __author__ = 'jeremy'
 
 # NOTE - THE VERSION WHICH IS ON EXTREMELY IS NOT ACTUALLY USED
-# the real pd.py is   on mightili , and this one is here only so that I can enqueue the right function name
+# the real pd.py is   on braini , and this one is here only so that I can enqueue the right function name
 # the mightili version should be pulled from our repo using git pull , so actually the files are identical.
 # but don't expect changes to pd.py on extremeli to hchange anything until you do a git pull on mightili
 # (or wherever pd.py is actually running)
