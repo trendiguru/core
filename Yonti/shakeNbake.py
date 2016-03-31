@@ -25,9 +25,9 @@ import pymongo
 from . import tmpGuard
 
 db = pymongo.MongoClient(host="mongodb1-instance-1", port=27017).mydb
-MAX_PER_DOMAIN = 500
+MAX_PER_DOMAIN = 1
 
-whitelist = ["stylebook.de",
+whitelist =      ["stylebook.de",
 "manrepeller.com", "wishwishwish.net", "parkandcube.com", "stellaswardrobe.com",
              "cocosteaparty.com",
              "5inchandup.blogspot.co.uk", "garypeppergirl.com", "camilleovertherainbow.com", "streetpeeper.com",
@@ -160,7 +160,7 @@ def firefox():
     driver.implicitly_wait(10)
     # driver.set_page_load_timeout(2)
 
-    scr = open("/var/www/latest/test1212.js").read()
+    scr = open("/var/www/latest/run_ext.js").read()
     while True:
         domains = db.scraped_urls.find({"locked": False, "paused": False})
         domains_count = domains.count()

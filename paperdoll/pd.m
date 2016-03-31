@@ -47,7 +47,7 @@ disp('debug6')
 
 result = feature_calculator.apply(config, input_sample)
 disp('debug7')
-result = feature_calculator.apply(config, input_sample)
+%result = feature_calculator.apply(config, input_sample)
 
 if ~ isfield(result, 'final_labeling')
     % paperdoll failed to return result
