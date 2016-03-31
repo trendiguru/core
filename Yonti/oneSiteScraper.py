@@ -13,7 +13,7 @@ from . import tmpGuard
 db = pymongo.MongoClient(host="mongodb1-instance-1", port=27017).mydb
 MAX_PER_DOMAIN = 1
 
-url = 'http://lookbook.nu/'
+url = 'http://www.lookbook.nu/'
 
 
 def screen(workers):
@@ -54,7 +54,7 @@ def firefox():
     driver.implicitly_wait(10)
     # driver.set_page_load_timeout(2)
 
-    scr = open("/var/www/latest/b_main.js").read()
+    scr = open("/var/www/latest/run_ext.js").read()
 
     while True:
         try:
