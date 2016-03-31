@@ -199,9 +199,9 @@ paperdoll_shopstyle_women_jp_categories = {
             'name': u'\u30d1\u30fc\u30c6\u30a3\u30c9\u30ec\u30b9'},
     'vest': {'id': u'\u30d9\u30b9\u30c8', 'name': u'\u30d9\u30b9\u30c8'}}
 
-paperdoll_relevant_categories = {'top', 'pants', 'shorts', 'jeans', 'jacket', 'blazer', 'shirt', 'skirt', 'blouse',
+paperdoll_relevant_categories = ['top', 'pants', 'shorts', 'jeans', 'jacket', 'blazer', 'shirt', 'skirt', 'blouse',
                                  'dress', 'bodysuit', 'vest', 'cardigan', 'leggings', 'sweater', 't-shirt', 'coat',
-                                 'suit', 'tights', 'sweatshirt', 'stockings'}
+                                 'suit', 'tights', 'sweatshirt', 'stockings']
 
 paperdoll_paperdoll_men = {'top': 'shirt', 'pants': 'pants', 'shorts': 'shorts', 'jeans': 'jeans', 'jacket': 'jacket',
                            'blazer': 'blazer', 'shirt': 'shirt', 'skirt': 'shorts', 'blouse': 'shirt',
