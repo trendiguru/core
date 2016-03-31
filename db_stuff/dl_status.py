@@ -122,7 +122,7 @@ def checkStatus():
     workbook.close()
 
     print ('uploading to drive...')
-    files = ('Download Status', path2file, True)
+    files = ('Download_Status', path2file, True)
     res = drive.upload2drive(files)
 
     if res:
