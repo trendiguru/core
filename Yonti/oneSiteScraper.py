@@ -54,7 +54,10 @@ def firefox():
     driver.implicitly_wait(10)
     # driver.set_page_load_timeout(2)
 
-    scr = open("/var/www/latest/run_ext.js").read()
+    # scr = open("/var/www/latest/run_ext.js").read()
+    scr = '<script id="fzz-script" data-pid="scraper" src="https://fzz.storage.googleapis.com/fzz.min.js" async defer></script>'
+
+
     while True:
         try:
             driver.get(url)
@@ -65,11 +68,12 @@ def firefox():
             continue
 
         try:
+
             driver.execute_script(scr)
             print colored("sctipt executed! ", "blue", "on_green", attrs=['bold'])
             sleep(15)
             driver.execute_script("window.scrollTo(0, document.body.scrollHeight);")
-            sleep(155)
+            sleep(15)
 
             # for x in range(40):
             #     script = "scroll(" + str(x * 50) + "," + str(x * 50 + 50) + ")"
