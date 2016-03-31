@@ -4,6 +4,7 @@ import argparse
 import sys
 from termcolor import colored
 
+
 def screen(workers):
     print colored("######  starting to open FPs  ######", "green", attrs=["bold"])
     cmd = "screen -S scraper python -m trendi.db_stuff.manyMoreFPs -f fps -w " + str(workers)
