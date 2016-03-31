@@ -17,10 +17,10 @@ def screen(workers):
 
 def fps(w):
     print("many more fps")
-    sleep(1)
+    sleep(5)
     for i in range(int(w)):
         sleep(1)
-        subprocess.Popen(["rqworker -u redis://redis1-redis-1-vm:6379 fingerprint_new"],shell=True)
+        a = subprocess.Popen(["rqworker -u redis://redis1-redis-1-vm:6379 fingerprint_new"],shell=True)
         print colored("fp_new #%s is opened" % (str(i)), 'green')
 
     while True:
