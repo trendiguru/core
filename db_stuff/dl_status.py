@@ -45,7 +45,7 @@ def createItem():
                 "ebay_Female": {"status":"Starting on 12:00 am", "notes":""},
                 "ebay_Male": {"status":"Starting on 12:00 am", "notes":""},
                 "ebay_Unisex": {"status":"Starting on 12:00 am", "notes":""},
-                "ebay_Tees": {"status":"Starting on 12:00 am", "notes":""},
+                # "ebay_Tees": {"status":"Starting on 12:00 am", "notes":""},
                 "ShopStyle_Female": {"status":"Starting on 00:05 am", "notes":""},
                 "ShopStyle_Male": {"status":"Starting on 06:00 am", "notes":""},
                 "GangnamStyle_Female": {"status":"Starting on 03:00 am", "notes":""},
@@ -58,7 +58,7 @@ def createItem():
 def flatenDict(info):
     infoList = []
     for collection in ["ebay_","ShopStyle_","GangnamStyle_"]:
-        for gender in ["Male","Female","Unisex","Tees"]:
+        for gender in ["Male","Female","Unisex"]:#,"Tees"]:
             if gender in ["Unisex", "Tees"] and collection != "ebay_":
                 continue
             key = collection + gender
@@ -69,6 +69,9 @@ def flatenDict(info):
                 total = db[key].count()
                 percent = int(100 * updated_count/total)
                 notes = str(percent) +"% is already done"
+            elif status == "Done":
+                count = info['collections'][key]["notes"]
+                notes = str(count) + " new items dl today"
             else:
                 notes = info['collections'][key]["notes"]
             item = [key, status, notes]
@@ -83,11 +86,11 @@ def checkStatus():
     bold = workbook.add_format({'bold': True})
 
     lasts_days_info = dl_status.find()
-
+    todays = workbook.add_worksheet('today')
     for daily_info in lasts_days_info:
         dl_date = daily_info['date']
         if  dl_date == current_date:
-            current_worksheet = workbook.add_worksheet('today')
+            current_worksheet = todays
             current_worksheet.write(12, 1, 'last check', bold)
             hour = str(now.hour)
             minute = now.minute
