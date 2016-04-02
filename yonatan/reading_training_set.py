@@ -22,7 +22,7 @@ for root, dirs, files in os.walk(mypath):
 text_file.flush()
 #text_file.close()
 
-mypath = '/home/yonatan/test-set/female'
+mypath = '/home/yonatan/test_set/female'
 f = []
 breaker = False
 text_file = open("test.txt", "a")
