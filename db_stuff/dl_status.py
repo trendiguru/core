@@ -42,14 +42,14 @@ def createItem():
     else:
         item = {"date": current_date,
                 "collections":{
-                "ebay_Female": {"status":"Starting on 12:00 am", "notes":""},
-                "ebay_Male": {"status":"Starting on 12:00 am", "notes":""},
-                "ebay_Unisex": {"status":"Starting on 12:00 am", "notes":""},
+                "ebay_Female": {"status":"Starting on 12:00 am", "notes":"","EFT":"midnight"},
+                "ebay_Male": {"status":"Starting on 12:00 am", "notes":"","EFT":"midnight"},
+                "ebay_Unisex": {"status":"Starting on 12:00 am", "notes":"","EFT":"midnight"},
                 # "ebay_Tees": {"status":"Starting on 12:00 am", "notes":""},
-                "ShopStyle_Female": {"status":"Starting on 00:05 am", "notes":""},
-                "ShopStyle_Male": {"status":"Starting on 06:00 am", "notes":""},
-                "GangnamStyle_Female": {"status":"Starting on 03:00 am", "notes":""},
-                "GangnamStyle_Male": {"status":"Starting on 09:00 am", "notes":""}}}
+                "ShopStyle_Female": {"status":"Starting on 00:05 am", "notes":"","EFT":"7:00 AM"},
+                "ShopStyle_Male": {"status":"Starting on 06:00 am", "notes":"","EFT":"9:00 AM"},
+                "GangnamStyle_Female": {"status":"Starting on 03:00 am", "notes":"","EFT":"10:00 AM"},
+                "GangnamStyle_Male": {"status":"Starting on 09:00 am", "notes":"","EFT":"12:00 AM"}}}
 
     dl_status.insert_one(item)
     print("new item inserted")
@@ -74,7 +74,11 @@ def flatenDict(info):
                 notes = str(count) + " new items dl today"
             else:
                 notes = info['collections'][key]["notes"]
-            item = [key, status, notes]
+            try:
+                eft =  info['collections'][key]["EFT"]
+            except:
+                eft = "TBD"
+            item = [key, status, notes, eft]
             infoList.append(item)
     return infoList
 
@@ -91,25 +95,26 @@ def checkStatus():
         dl_date = daily_info['date']
         if  dl_date == current_date:
             current_worksheet = todays
-            current_worksheet.write(12, 1, 'last check', bold)
+            current_worksheet.write(11, 1, 'last check', bold)
             hour = str(now.hour)
             minute = now.minute
             if minute<10:
                 minute = "0"+str(minute)
             else:
                 minute=str(minute)
-            current_worksheet.write(12, 2, " %s:%s" %(hour,minute), bold)
+            current_worksheet.write(11, 2, " %s:%s" %(hour,minute), bold)
         else:
             current_worksheet= workbook.add_worksheet(dl_date)
         current_worksheet.write(0, 1, 'date', bold)
         current_worksheet.write(0, 2, dl_date, bold)
         dict2list = flatenDict(daily_info)
-        current_worksheet.set_column('B:F', 22)
-        current_worksheet.add_table('B3:D11',
+        current_worksheet.set_column('B:E', 30)
+        current_worksheet.add_table('B3:E10',
                                     {'data': dict2list,
                                      'columns': [{'header': 'Collection Name'},
                                                  {'header': 'Download Status'},
-                                                 {'header': 'Notes'}],
+                                                 {'header': 'Notes'},
+                                                 {'header': 'Estimated Finishing Time '}],
                                      'banded_columns': True,
                                      'banded_rows': True})
 
@@ -117,7 +122,7 @@ def checkStatus():
     workbook.close()
 
     print ('uploading to drive...')
-    files = ('Download Status', path2file, True)
+    files = ('Download_Status', path2file, True)
     res = drive.upload2drive(files)
 
     if res:
