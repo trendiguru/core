@@ -422,7 +422,7 @@ if __name__ == '__main__':
         bbfile = '/home/jeremy/tg/bbjr.txt'
         annotations_dir = '/home/jeremy/annotations'
     else:
-        dir_of_dirs = '/home/jeremy/core/classifier_stuff/caffe_nns/images'
+        dir_of_dirs = '/home/jeremy/images'
         images_dir = dir_of_dirs
         dir = '/home/jeremy/tg/berg_test/cropped/test_pairs_belts'
         trainfile =  '/home/jeremy/core/classifier_stuff/caffe_nns/trainfilejr.txt'
