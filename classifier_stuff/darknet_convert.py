@@ -110,7 +110,7 @@ def get_image_and_bbs(image_index_in_file,image_dir= '/home/jeremy/images',maste
 def do_delete(image_number):
     braini2_ip = '37.58.101.173'
     print('finished command')
-    command = 'ssh root@'+braini2_ip+' mv /home/jeremy/trainjr.txt /home/jeremy/MOVEDITBABY.txt'b
+    command = 'ssh root@'+braini2_ip+' mv /home/jeremy/trainjr.txt /home/jeremy/MOVEDITBABY.txt'
     os.system(command)
     print('finished command')
     with open('out.txt','a') as f:
