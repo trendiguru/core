@@ -289,9 +289,9 @@ def dir_to_darknet(dir, trainfile,category_number,annotations_dir,randomize=True
                 fp_t.write(full_filename+'\n')
                 n = n + 1
 #                raw_input('enter for next')
-    #    fp_bb.flush()
-        fp_bb.close()
-    fp_t.close()
+    #           fp_bb.flush()
+                fp_bb.close()
+        fp_t.close()
     return n
 
 
