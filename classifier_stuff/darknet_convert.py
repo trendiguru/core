@@ -71,16 +71,33 @@ def get_image_and_bbs(image_index_in_file,image_dir= '/home/jeremy/images',maste
                 new_image = True
                 dict = {}
                 dict['image_filename']=line_elements[0]
+                dict['image_width']=line_elements[1]
+                dict['image_height']=line_elements[2]
+                logging.debug('new img {}'.format(dict))
             elif len(line_elements) == 4:  #delete filename width height
                 delete = True
                 new_image = True
                 dict = {}
                 dict['image_filename']=line_elements[1]
+                dict['image_width']=line_elements[2]
+                dict['image_height']=line_elements[3]
+                logging.debug('new img TO DELETE {}'.format(dict))
             elif len(line_elements) == 5: #category x y w h
-                delete = True
-                new_image = True
+                new_image = False
                 dict = {}
-                dict['image_filename']=line_elements[1]
+                dict['class']=line_elements[0]
+                dark_bbox = [float(line_elements[1]),float(line_elements[2]),float(line_elements[3]),float(line_elements[4])]
+                imsize = (dict['image_width'],dict['image_height'])
+                bbox = convert_dark_to_xywh(imsize,dark_bbox)
+                dict['bbox'] = bbox
+                dict['image_height']=line_elements[3]
+                new_image = False
+                logging.debug('class {} bbox {}'.format(dict['class'],dict['bbox']))
+            if i==image_index_in_file:
+                return(dict)
+            if new_image:
+                i++
+
 
 
 #            print('h {} w{} destw {} desth {}'.format(h,w,dest_width,dest_height))
@@ -93,7 +110,7 @@ def get_image_and_bbs(image_index_in_file,image_dir= '/home/jeremy/images',maste
 def do_delete(image_number):
     braini2_ip = '37.58.101.173'
     print('finished command')
-    command = 'ssh root@'+braini2_ip+' mv /home/jeremy/trainjr.txt /home/jeremy/MOVEDITBABY.txt'
+    command = 'ssh root@'+braini2_ip+' mv /home/jeremy/trainjr.txt /home/jeremy/MOVEDITBABY.txt'b
     os.system(command)
     print('finished command')
     with open('out.txt','a') as f:
