@@ -236,6 +236,7 @@ def dir_of_dirs_to_darknet(dir_of_dirs, trainfile,positive_filter=None,maxfiles_
         #only take 'test' or 'train' dirs, if test_or_train is specified
         if (not positive_filter or positive_filter in a_dir):
             print('doing directory {} class {} ({})'.format(a_dir,category_number,tamara_berg_categories[category_number]))
+            raw_input('ret to cont')
             fulldir = os.path.join(dir_of_dirs,a_dir)
             only_dirs.append(fulldir)
             annotations_dir = os.path.join(one_dir_up,'labels')
