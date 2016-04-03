@@ -454,6 +454,7 @@ def get_data_for_specific_image(image_url=None, image_hash=None, image_projectio
         'image_hash': 1,
         'image_urls': 1,
         'page_urls': 1,
+        'people.gender': 1,
         'people.items.category': 1,
         'people.items.category_name': 1,
         'people.items.item_id': 1,
