@@ -40,6 +40,28 @@ layer {
   }
 }
 layer {
+  name: "yonatanfaces"
+  type: "Input"
+  top: "data"
+  include {
+    phase: DEPLOY
+  }
+  transform_param {
+    scale: 0.00390625
+    mean_value: 120
+    mean_value: 120
+    mean_value: 120
+  }
+  input_param {
+    shape {
+    dim: 1
+    dim: 3
+    dim: 250
+    dim: 250
+    }
+  }
+}
+layer {
   name: "conv1"
   type: "Convolution"
   bottom: "data"
