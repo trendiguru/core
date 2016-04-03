@@ -67,7 +67,7 @@ def get_image_and_bbs(image_index_in_file,image_dir= '/home/jeremy/images',maste
         for line in master_bb:
             new_image=False
             line_elements = line.split()
-            if len(line_elements) == 3  #filename imwidth imheight
+            if len(line_elements) == 3:  #filename imwidth imheight
                 new_image = True
                 dict = {}
                 dict['image_filename']=line_elements[0]
