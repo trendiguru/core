@@ -62,7 +62,7 @@ def bbs_to_txtfile(dir_of_bbfiles,dir_of_images,master_bbfile='/home/jeremy/data
             #            print('h {} w{} destw {} desth {}'.format(h,w,dest_width,dest_height))
                         im2 = cv2.resize(img_arr,(dest_width,dest_height))
                         cv2.imshow(imgfile,im2)
-                        cv2.waitKey(0)
+                        cv2.waitKey(100)
 
 
 
