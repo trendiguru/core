@@ -8,10 +8,10 @@ import matplotlib.pyplot as plt
 width = 100
 height = 100
 
-mypath = '/home/yonatan/male'
+mypath = '/home/yonatan/test_set/male'
 f = []
 breaker = False
-text_file = open("train.txt", "w")
+text_file = open("test.txt", "w")
 for root, dirs, files in os.walk(mypath):
     for file in files:
         if file.endswith(".jpg"):
@@ -22,10 +22,10 @@ for root, dirs, files in os.walk(mypath):
 text_file.flush()
 #text_file.close()
 
-mypath = '/home/yonatan/female'
+mypath = '/home/yonatan/test_set/female'
 f = []
 breaker = False
-text_file = open("train.txt", "a")
+text_file = open("test.txt", "a")
 for root, dirs, files in os.walk(mypath):
     for file in files:
         if file.endswith(".jpg"):
