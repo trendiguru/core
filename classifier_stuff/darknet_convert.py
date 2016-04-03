@@ -22,7 +22,7 @@ logging.basicConfig(level=logging.WARNING)
 # Remember to put the folder 'images' and folder 'annotations' in the same parent directory,
 # as the darknet code look for annotation files this way (by default).
 
-def bbs_to_db(dir_of_bbfiles,dir_of_images,master_bbfile='/home/jeremy/dataset/master_bbfile.txt',use_visual_output=True):
+def bbs_to_db(dir_of_bbfiles,dir_of_images,,use_visual_output=True):
     '''
     master bbfile format :
         [delete] path   imwidth, imheight
@@ -78,6 +78,7 @@ def bbs_to_db(dir_of_bbfiles,dir_of_images,master_bbfile='/home/jeremy/dataset/m
             fp.close()
         print('db entry:'+str(info_dict))
         db.training_images.update( {url:full_imgname},info_dict,{upsert:true})
+        raw_input('enter to continue')
 
 '''   db.training_images.find_one_and_update({'person_id': person_id},
                                               {'$set': {'gender': gender, 'status': 'done'}})
