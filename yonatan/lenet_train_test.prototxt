@@ -54,10 +54,10 @@ layer {
   }
   input_param {
     shape {
-    dim: 1
-    dim: 3
-    dim: 250
-    dim: 250
+      dim: 1
+      dim: 3
+      dim: 250
+      dim: 250
     }
   }
 }
