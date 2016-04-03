@@ -53,7 +53,7 @@ def bbs_to_txtfile(dir_of_bbfiles,dir_of_images,master_bbfile='/home/jeremy/mast
                     dark_bb = [vals[1],vals[2],vals[3],vals[4]]
                     print('classno {} darkbb {} imfile {} n_boxes {}'.format(classno,dark_bb,imgfile,n_boxes))
                     bb = convert_dark_to_xywh((w,h),dark_bb)
-                    master_bb.write(str(vals[0])+' '+str(bb[0])+' '+str(bb[1])+' 'str(bb[2])+' '+str(bb[3]))
+                    master_bb.write(str(vals[0])+' '+str(bb[0])+' '+str(bb[1])+' '+str(bb[2])+' '+str(bb[3]))
                     cv2.rectangle(img_arr, (bb[0],bb[1]),(bb[0]+bb[2],bb[1]+bb[3]),color=[int(255.0/10*classno),100,100],thickness=10)
 
 def get_image_and_bbs(image_index_in_file,image_dir= '/home/jeremy/images',master_bbfile='/home/jeremy/master_bbfile.txt'):
