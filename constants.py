@@ -204,7 +204,7 @@ paperdoll_relevant_categories = ['top', 'pants', 'shorts', 'jeans', 'jacket', 'b
                                  'suit', 'tights', 'sweatshirt', 'stockings']
 
 paperdoll_paperdoll_men = {'top': 'shirt', 'pants': 'pants', 'shorts': 'shorts', 'jeans': 'jeans', 'jacket': 'jacket',
-                           'blazer': 'blazer', 'shirt': 'shirt', 'skirt': 'shorts', 'blouse': 'shirt',
+                           'blazer': 'blazer', 'shirt': 'shirt', 'skirt': 'pants', 'blouse': 'shirt',
                            'dress': 'suit', 'sweater': 'sweater', 't-shirt': 'shirt', 'bodysuit': 'suit',
                            'cardigan': 'cardigan', 'coat': 'coat', 'suit': 'suit', 'vest': 'vest',
                            'sweatshirt': 'sweatshirt', 'leggings': 'pants', 'stockings': 'pants', 'tights': 'pants'}
