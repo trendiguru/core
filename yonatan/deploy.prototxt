@@ -1,8 +1,4 @@
 input: "data"
-input_dim: 1
-input_dim: 3
-input_dim: 250
-input_dim: 250
 layer {
   name: "conv1"
   type: "Convolution"
