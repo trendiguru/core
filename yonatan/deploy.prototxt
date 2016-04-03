@@ -1,14 +1,8 @@
-layer {
-  name: "yonatanfaces"
-  type: "Input"
-  top: "data"
-  transform_param {
-    scale: 0.00390625
-    mean_value: 120
-    mean_value: 120
-    mean_value: 120
-  }
-}
+input: "data"
+input_dim: 1
+input_dim: 3
+input_dim: 250
+input_dim: 250
 layer {
   name: "conv1"
   type: "Convolution"
