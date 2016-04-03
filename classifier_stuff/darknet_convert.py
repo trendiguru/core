@@ -96,7 +96,7 @@ def get_image_and_bbs(image_index_in_file,image_dir= '/home/jeremy/images',maste
             if i==image_index_in_file:
                 return(dict)
             if new_image:
-                i++
+                i = i + 1
 
 
 
