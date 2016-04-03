@@ -242,6 +242,8 @@ fashionista_categories = ['null','tights','shorts','blazer','t-shirt','bag','sho
                           'flats','tie','romper','sandals','earrings','gloves','sneakers','clogs','watch','pumps','wallet',
                           'bodysuit','loafers','hair','skin']
 
+tamara_berg_categories = ['bag','belt','dress','eyewear','footwear','hat','legging','outerwear','pants','skirts','top']
+
 pd_output_savedir = '/home/jeremy/pd_output'
 # for web bounding box interface
 # this is for going to the previous item, highest numbered image

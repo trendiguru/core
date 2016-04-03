@@ -9,6 +9,7 @@ import pymongo
 import bson
 import time
 from trendi.constants import db
+from trendi.constants import tamara_berg_categories
 
 logging.basicConfig(level=logging.WARNING)
 
@@ -33,7 +34,6 @@ def bbs_to_db(dir_of_bbfiles,dir_of_images,use_visual_output=True):
     :param master_bbfile:
     :return:
     '''
-    tamara_category_list = ['bag','belt','dress','eyewear','footwear','hat','legging','outerwear','pants','skirts','top']
     imgfiles = [f for f in os.listdir(dir_of_images) if os.path.isfile(os.path.join(dir_of_images,f)) and f[-4:]=='.jpg' or f[-5:]=='.jpeg' ]
     for imgfile in imgfiles:
         corresponding_bbfile=imgfile.split('photo_')[1]
@@ -58,7 +58,7 @@ def bbs_to_db(dir_of_bbfiles,dir_of_images,use_visual_output=True):
              #   line = str(category_number)+' '+str(  dark_bb[0])[0:n_digits]+' '+str(dark_bb[1])[0:n_digits]+' '+str(dark_bb[2])[0:n_digits]+' '+str(dark_bb[3])[0:n_digits] + '\n'
                 vals = [int(s) if s.isdigit() else float(s) for s in line.split()]
                 classno = vals[0]
-                item_dict['category'] = tamara_category_list[classno]
+                item_dict['category'] = tamara_berg_categories[classno]
                 dark_bb = [vals[1],vals[2],vals[3],vals[4]]
                 print('classno {} ({}) darkbb {} imfile {} n_boxes {}'.format(classno,info_dict['category'],dark_bb,imgfile,n_boxes))
                 bb = convert_dark_to_xywh((w,h),dark_bb)
@@ -134,9 +134,6 @@ def bbs_to_txtfile(dir_of_bbfiles,dir_of_images,master_bbfile='/home/jeremy/data
                         cv2.imshow(imgfile,im2)
                         cv2.waitKey(100)
                         cv2.destroyAllWindows()
-
-
-
 
 def get_image_and_bbs(image_index_in_file,image_dir= '/home/jeremy/images',master_bbfile='/home/jeremy/master_bbfile.txt'):
     dir = '/home/jeremy/images'
@@ -225,7 +222,7 @@ def show_darknet_bbs(dir_of_bbfiles,dir_of_images):
             cv2.waitKey(0)
 
 def dir_of_dirs_to_darknet(dir_of_dirs, trainfile,positive_filter=None,maxfiles_per_dir=999999,bbfile_prefix=None):
-    initial_only_dirs = [dir for dir in os.listdir(dir_of_dirs) if os.path.isdir(os.path.join(dir_of_dirs,dir))]
+    initial_only_dirs = [dir for dir in os.listdir(dir_of_dirs) if os.path.isdir(os.path.join(dir_of_dirs,dir)) ]
  #   print(str(len(initial_only_dirs))+' dirs:'+str(initial_only_dirs)+' in '+dir_of_dirs)
     # txn is a Transaction object
     #prepare directories
@@ -234,11 +231,11 @@ def dir_of_dirs_to_darknet(dir_of_dirs, trainfile,positive_filter=None,maxfiles_
     if dir_of_dirs[-1] == '/':
         dir_of_dirs = dir_of_dirs[0:-1]
     one_dir_up = os.path.split(dir_of_dirs)[0]
-    print('outer dir of dirs:{} trainfile:{}'.format(dir_of_dirs,trainfile))
+    print('outer dir of dirs:{} trainfile:{} '.format(dir_of_dirs,trainfile))
     for a_dir in initial_only_dirs:
         #only take 'test' or 'train' dirs, if test_or_train is specified
         if (not positive_filter or positive_filter in a_dir):
-            print('doing directory {} '.format(a_dir))
+            print('doing directory {} class {} ({})'.format(a_dir,category_number,tamara_berg_categories[category_number]))
             fulldir = os.path.join(dir_of_dirs,a_dir)
             only_dirs.append(fulldir)
             annotations_dir = os.path.join(one_dir_up,'labels')
@@ -432,5 +429,7 @@ if __name__ == '__main__':
         annotations_dir = '/home/jeremy/core/classifier_stuff/caffe_nns/annotations'
 
 
-    n_files = dir_of_dirs_to_darknet(images_dir,trainfile,maxfiles_per_dir=10000)
+    n_files = dir_of_dirs_to_darknet(images_dir,trainfile,maxfiles_per_dir=50000,positive_filter='train')
+    n_files = dir_of_dirs_to_darknet(images_dir,trainfile,maxfiles_per_dir=50000,positive_filter='test')
 #    n_files = dir_to_darknet(dir,trainfile,bbfile,37)
+#after using this, use fashion_training_data_scraper_from_meta to combine multiple cats into one
