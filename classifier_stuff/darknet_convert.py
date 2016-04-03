@@ -18,6 +18,88 @@ logging.basicConfig(level=logging.WARNING)
 # Remember to put the folder 'images' and folder 'annotations' in the same parent directory,
 # as the darknet code look for annotation files this way (by default).
 
+def bbs_to_txtfile(dir_of_bbfiles,dir_of_images,master_bbfile='/home/jeremy/master_bbfile.txt'):
+    '''
+    master bbfile format :
+        [delete] path   imwidth, imheight
+        category bbx bby bbwidth bbheight
+        category bbx bby bbwidth bbheight
+    :param dir_of_bbfiles:
+    :param dir_of_images:
+    :param master_bbfile:
+    :return:
+    '''
+    imgfiles = [f for f in os.listdir(dir_of_images) if os.path.isfile(os.path.join(dir_of_images,f)) and f[-4:]=='.jpg' or f[-5:]=='.jpeg' ]
+    with open(master_bbfile,'w') as master_bb:
+        master_bb.write('path to file image width image height\n')
+        master_bb.write('category # x,y,w,h \n')
+        for imgfile in imgfiles:
+            corresponding_bbfile=imgfile.split('photo_')[1]
+            corresponding_bbfile=corresponding_bbfile.split('.jpg')[0]
+            corresponding_bbfile = corresponding_bbfile + '.txt'
+            full_filename = os.path.join(dir_of_bbfiles,corresponding_bbfile)
+            print('img {} bbfile {} full {}'.format(imgfile,corresponding_bbfile,full_filename))
+            full_imgname = os.path.join(dir_of_images,imgfile)
+            img_arr = cv2.imread(full_imgname)
+            h,w = img_arr.shape[0:2]
+            master_bb.write(full_filename+' '+str(w)+' ' +str(h)+'\n')
+            with open(full_filename,'r+') as fp:
+                n_boxes = 0
+                for line in fp:
+                    n_boxes += 1
+                 #   line = str(category_number)+' '+str(  dark_bb[0])[0:n_digits]+' '+str(dark_bb[1])[0:n_digits]+' '+str(dark_bb[2])[0:n_digits]+' '+str(dark_bb[3])[0:n_digits] + '\n'
+                    vals = [int(s) if s.isdigit() else float(s) for s in line.split()]
+                    classno = vals[0]
+                    dark_bb = [vals[1],vals[2],vals[3],vals[4]]
+                    print('classno {} darkbb {} imfile {} n_boxes {}'.format(classno,dark_bb,imgfile,n_boxes))
+                    bb = convert_dark_to_xywh((w,h),dark_bb)
+                    master_bb.write(str(vals[0])+' '+str(bb[0])+' '+str(bb[1])+' 'str(bb[2])+' '+str(bb[3]))
+                    cv2.rectangle(img_arr, (bb[0],bb[1]),(bb[0]+bb[2],bb[1]+bb[3]),color=[int(255.0/10*classno),100,100],thickness=10)
+
+def get_image_and_bbs(image_index_in_file,image_dir= '/home/jeremy/images',master_bbfile='/home/jeremy/master_bbfile.txt'):
+    dir = '/home/jeremy/images'
+    #resize to avoid giant images
+    dest_height = 400
+    dest_width = int(float(dest_height)/h*w)
+    info = []
+    i = 0
+    with open(master_bbfile,'w') as master_bb:
+        for line in master_bb:
+            new_image=False
+            line_elements = line.split()
+            if len(line_elements) == 3  #filename imwidth imheight
+                new_image = True
+                dict = {}
+                dict['image_filename']=line_elements[0]
+            elif len(line_elements) == 4:  #delete filename width height
+                delete = True
+                new_image = True
+                dict = {}
+                dict['image_filename']=line_elements[1]
+            elif len(line_elements) == 5: #category x y w h
+                delete = True
+                new_image = True
+                dict = {}
+                dict['image_filename']=line_elements[1]
+
+
+#            print('h {} w{} destw {} desth {}'.format(h,w,dest_width,dest_height))
+#    im2 = cv2.resize(img_arr,(dest_width,dest_height))
+#    cv2.imshow(imgfile,im2)
+#   cv2.waitKey(0)
+
+
+
+def do_delete(image_number):
+    braini2_ip = '37.58.101.173'
+    print('finished command')
+    command = 'ssh root@'+braini2_ip+' mv /home/jeremy/trainjr.txt /home/jeremy/MOVEDITBABY.txt'
+    os.system(command)
+    print('finished command')
+    with open('out.txt','a') as f:
+        f.write('did '+command+'\n')
+        f.close()
+
 def show_darknet_bbs(dir_of_bbfiles,dir_of_images):
     imgfiles = [f for f in os.listdir(dir_of_images) if os.path.isfile(os.path.join(dir_of_images,f)) and f[-4:]=='.jpg' or f[-5:]=='.jpeg' ]
     for imgfile in imgfiles:
