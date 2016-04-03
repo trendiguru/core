@@ -5,6 +5,10 @@ import cv2
 import random
 import socket
 import traceback
+import pymongo
+import bson
+import time
+from trendi.constants import db
 
 logging.basicConfig(level=logging.WARNING)
 
@@ -17,6 +21,72 @@ logging.basicConfig(level=logging.WARNING)
 #Note that each image corresponds to an annotation file. But we only need one single training list of images.
 # Remember to put the folder 'images' and folder 'annotations' in the same parent directory,
 # as the darknet code look for annotation files this way (by default).
+
+def bbs_to_db(dir_of_bbfiles,dir_of_images,use_visual_output=True):
+    '''
+    master bbfile format :
+        [delete] path   imwidth, imheight
+        category bbx bby bbwidth bbheight
+        category bbx bby bbwidth bbheight
+    :param dir_of_bbfiles:
+    :param dir_of_images:
+    :param master_bbfile:
+    :return:
+    '''
+    tamara_category_list = ['bag','belt','dress','eyewear','footwear','hat','legging','outerwear','pants','skirts','top']
+    imgfiles = [f for f in os.listdir(dir_of_images) if os.path.isfile(os.path.join(dir_of_images,f)) and f[-4:]=='.jpg' or f[-5:]=='.jpeg' ]
+    for imgfile in imgfiles:
+        corresponding_bbfile=imgfile.split('photo_')[1]
+        corresponding_bbfile=corresponding_bbfile.split('.jpg')[0]
+        corresponding_bbfile = corresponding_bbfile + '.txt'
+        full_filename = os.path.join(dir_of_bbfiles,corresponding_bbfile)
+        print('img {} bbfile {} full {}'.format(imgfile,corresponding_bbfile,full_filename))
+        full_imgname = os.path.join(dir_of_images,imgfile)
+        img_arr = cv2.imread(full_imgname)
+        h,w = img_arr.shape[0:2]
+#            master_bb.write(full_filename+' '+str(w)+' ' +str(h)+'\n')
+        info_dict = {}
+        info_dict['url'] = full_imgname
+        info_dict['image_width'] = w
+        info_dict['image_height'] = h
+        items = []
+        with open(full_filename,'r+') as fp:
+            item_dict = {}
+            n_boxes = 0
+            for line in fp:
+                n_boxes += 1
+             #   line = str(category_number)+' '+str(  dark_bb[0])[0:n_digits]+' '+str(dark_bb[1])[0:n_digits]+' '+str(dark_bb[2])[0:n_digits]+' '+str(dark_bb[3])[0:n_digits] + '\n'
+                vals = [int(s) if s.isdigit() else float(s) for s in line.split()]
+                classno = vals[0]
+                item_dict['category'] = tamara_category_list[classno]
+                dark_bb = [vals[1],vals[2],vals[3],vals[4]]
+                print('classno {} ({}) darkbb {} imfile {} n_boxes {}'.format(classno,info_dict['category'],dark_bb,imgfile,n_boxes))
+                bb = convert_dark_to_xywh((w,h),dark_bb)
+                item_dict['bb'] = bb
+                if use_visual_output:
+                    cv2.rectangle(img_arr, (bb[0],bb[1]),(bb[0]+bb[2],bb[1]+bb[3]),color=[int(255.0/10*classno),100,100],thickness=10)
+                    #resize to avoid giant images
+                    dest_height = 400
+                    dest_width = int(float(dest_height)/h*w)
+        #            print('h {} w{} destw {} desth {}'.format(h,w,dest_width,dest_height))
+                    im2 = cv2.resize(img_arr,(dest_width,dest_height))
+                    cv2.imshow(imgfile,im2)
+                    cv2.waitKey(100)
+                    cv2.destroyAllWindows()
+                items.append(item_dict)
+            info_dict['items'] = items
+            fp.close()
+        print('db entry:'+str(info_dict))
+        db.training_images.update( {url:full_imgname},info_dict,{upsert:true})
+        raw_input('enter to continue')
+
+'''   db.training_images.find_one_and_update({'person_id': person_id},
+                                              {'$set': {'gender': gender, 'status': 'done'}})
+    image = db.genderator.find_one_and_update({'status': 'fresh'},
+                                                  {'$set' : {'status': 'busy'}},
+                                                  return_document=pymongo.ReturnDocument.AFTER)
+'''
+
 
 def bbs_to_txtfile(dir_of_bbfiles,dir_of_images,master_bbfile='/home/jeremy/dataset/master_bbfile.txt',use_visual_output=True):
     '''
