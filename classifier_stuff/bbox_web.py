@@ -4,7 +4,7 @@ import system
 from subprocess import call
 
 def do_delete(image_number):
-    braini2_ip = 37.58.101.173
+    braini2_ip = '37.58.101.173'
     print('finished command')
     command = 'ssh root@'+braini2_ip+' mv /home/jeremy/trainjr.txt /home/jeremy/MOVEDITBABY.txt'
     os.system(command)
