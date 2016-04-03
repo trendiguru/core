@@ -1,0 +1,19 @@
+layer {
+  name: "yonatanfaces"
+  type: "Input"
+  top: "data"
+  transform_param {
+    scale: 0.00390625
+    mean_value: 120
+    mean_value: 120
+    mean_value: 120
+  }
+  input_param {
+    shape {
+      dim: 1
+      dim: 3
+      dim: 250
+      dim: 250
+    }
+  }
+}
