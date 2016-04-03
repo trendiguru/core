@@ -8,12 +8,4 @@ layer {
     mean_value: 120
     mean_value: 120
   }
-  input_param {
-    shape {
-      dim: 1
-      dim: 3
-      dim: 250
-      dim: 250
-    }
-  }
 }
