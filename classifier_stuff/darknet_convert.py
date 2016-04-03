@@ -232,11 +232,12 @@ def dir_of_dirs_to_darknet(dir_of_dirs, trainfile,positive_filter=None,maxfiles_
         dir_of_dirs = dir_of_dirs[0:-1]
     one_dir_up = os.path.split(dir_of_dirs)[0]
     print('outer dir of dirs:{} trainfile:{} '.format(dir_of_dirs,trainfile))
+    print('dirs {}'.format(initial_only_dirs))
     for a_dir in initial_only_dirs:
         #only take 'test' or 'train' dirs, if test_or_train is specified
+        print('doing directory {} class {} ({})'.format(a_dir,category_number,tamara_berg_categories[category_number]))
+        raw_input('ret to cont')
         if (not positive_filter or positive_filter in a_dir):
-            print('doing directory {} class {} ({})'.format(a_dir,category_number,tamara_berg_categories[category_number]))
-            raw_input('ret to cont')
             fulldir = os.path.join(dir_of_dirs,a_dir)
             only_dirs.append(fulldir)
             annotations_dir = os.path.join(one_dir_up,'labels')
@@ -245,7 +246,8 @@ def dir_of_dirs_to_darknet(dir_of_dirs, trainfile,positive_filter=None,maxfiles_
             n_files = dir_to_darknet(fulldir,trainfile,category_number,annotations_dir,maxfiles_per_dir=maxfiles_per_dir,bbfile_prefix=bbfile_prefix)
             print('did {} files in {}'.format(n_files,a_dir))
             category_number += 1
-
+        else:
+            print('directory filtered, didnt have {}'.format(positive_filter))
 
 def dir_to_darknet(dir, trainfile,category_number,annotations_dir,randomize=True,maxfiles_per_dir=999999,bbfile_prefix=None):
     only_files = [f for f in os.listdir(dir) if os.path.isfile(os.path.join(dir, f))]
