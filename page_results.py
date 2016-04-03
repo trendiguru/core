@@ -462,7 +462,7 @@ def get_data_for_specific_image(image_url=None, image_hash=None, image_projectio
         'people.items.similar_results': {'$slice': max_results},
         'people.items.similar_results._id': 1,
         'people.items.similar_results.id': 1,
-        'people.items.svg_url': 1,
+        # 'people.items.svg_url': 1,
         'relevant': 1}
 
     product_projection = product_projection or {
@@ -513,7 +513,7 @@ def load_similar_results(sparse, projection_dict, product_collection_name):
         if 'gender' in person.keys():
             collection = db[product_collection_name + '_' + person['gender']]
         else:
-            collection = db['products']
+            collection = db[product_collection_name + "_Female"]
         for item in person["items"]:
             similar_results = []
             for result in item["similar_results"]:
