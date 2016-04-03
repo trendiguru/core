@@ -9,5 +9,5 @@ def do_delete(image_number):
     os.system(command)
     print('finished command')
     with open('out.txt','a') as f:
-        f.write('did '+command)
+        f.write('did '+command+'\n')
         f.close()
