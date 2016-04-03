@@ -16,6 +16,9 @@ layer {
     mean_value: 120
     mean_value: 120
   }
+  accuracy_param {
+    axis: 2
+  }
 }
 layer {
   name: "conv1"
