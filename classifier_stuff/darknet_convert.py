@@ -18,7 +18,7 @@ logging.basicConfig(level=logging.WARNING)
 # Remember to put the folder 'images' and folder 'annotations' in the same parent directory,
 # as the darknet code look for annotation files this way (by default).
 
-def bbs_to_txtfile(dir_of_bbfiles,dir_of_images,master_bbfile='/home/jeremy/master_bbfile.txt'):
+def bbs_to_txtfile(dir_of_bbfiles,dir_of_images,master_bbfile='/home/jeremy/dataset/master_bbfile.txt'):
     '''
     master bbfile format :
         [delete] path   imwidth, imheight
@@ -31,7 +31,7 @@ def bbs_to_txtfile(dir_of_bbfiles,dir_of_images,master_bbfile='/home/jeremy/mast
     '''
     imgfiles = [f for f in os.listdir(dir_of_images) if os.path.isfile(os.path.join(dir_of_images,f)) and f[-4:]=='.jpg' or f[-5:]=='.jpeg' ]
     with open(master_bbfile,'w') as master_bb:
-        master_bb.write('path to file image width image height\n')
+        master_bb.write('[delete] path_to_file image_width image_height\n')
         master_bb.write('category # x,y,w,h \n')
         for imgfile in imgfiles:
             corresponding_bbfile=imgfile.split('photo_')[1]
@@ -53,7 +53,7 @@ def bbs_to_txtfile(dir_of_bbfiles,dir_of_images,master_bbfile='/home/jeremy/mast
                     dark_bb = [vals[1],vals[2],vals[3],vals[4]]
                     print('classno {} darkbb {} imfile {} n_boxes {}'.format(classno,dark_bb,imgfile,n_boxes))
                     bb = convert_dark_to_xywh((w,h),dark_bb)
-                    master_bb.write(str(vals[0])+' '+str(bb[0])+' '+str(bb[1])+' 'str(bb[2])+' '+str(bb[3]))
+                    master_bb.write(str(vals[0])+' '+str(bb[0])+' '+str(bb[1])+' '+str(bb[2])+' '+str(bb[3])+'\n')
                     cv2.rectangle(img_arr, (bb[0],bb[1]),(bb[0]+bb[2],bb[1]+bb[3]),color=[int(255.0/10*classno),100,100],thickness=10)
 
 def get_image_and_bbs(image_index_in_file,image_dir= '/home/jeremy/images',master_bbfile='/home/jeremy/master_bbfile.txt'):
@@ -67,7 +67,7 @@ def get_image_and_bbs(image_index_in_file,image_dir= '/home/jeremy/images',maste
         for line in master_bb:
             new_image=False
             line_elements = line.split()
-            if len(line_elements) == 3  #filename imwidth imheight
+            if len(line_elements) == 3:  #filename imwidth imheight
                 new_image = True
                 dict = {}
                 dict['image_filename']=line_elements[0]
@@ -96,7 +96,7 @@ def get_image_and_bbs(image_index_in_file,image_dir= '/home/jeremy/images',maste
             if i==image_index_in_file:
                 return(dict)
             if new_image:
-                i++
+                i = i + 1
 
 
 
@@ -110,7 +110,7 @@ def get_image_and_bbs(image_index_in_file,image_dir= '/home/jeremy/images',maste
 def do_delete(image_number):
     braini2_ip = '37.58.101.173'
     print('finished command')
-    command = 'ssh root@'+braini2_ip+' mv /home/jeremy/trainjr.txt /home/jeremy/MOVEDITBABY.txt'b
+    command = 'ssh root@'+braini2_ip+' mv /home/jeremy/trainjr.txt /home/jeremy/MOVEDITBABY.txt'
     os.system(command)
     print('finished command')
     with open('out.txt','a') as f:
