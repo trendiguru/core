@@ -1,6 +1,5 @@
 __author__ = 'jeremy'
 import os
-import system
 from subprocess import call
 
 def do_delete(image_number):
