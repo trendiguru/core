@@ -226,6 +226,7 @@ def dir_of_dirs_to_darknet(dir_of_dirs, trainfile,positive_filter=None,maxfiles_
  #   print(str(len(initial_only_dirs))+' dirs:'+str(initial_only_dirs)+' in '+dir_of_dirs)
     # txn is a Transaction object
     #prepare directories
+    initial_only_dirs.sort()
     only_dirs = []
     category_number = 0
     if dir_of_dirs[-1] == '/':
