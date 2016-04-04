@@ -56,9 +56,9 @@ def bbs_to_db(dir_of_bbfiles,dir_of_images,use_visual_output=True):
                 vals = [int(s) if s.isdigit() else float(s) for s in line.split()]
                 classno = vals[0]
                 item_dict['category'] = tamara_berg_categories[classno]
-                dark_bb = [vals[1],vals[2],vals[3],vals[4]]
-                print('classno {} ({}) darkbb {} imfile {} n_boxes {}'.format(classno,info_dict['category'],dark_bb,imgfile,n_boxes))
-                bb = convert_dark_to_xywh((w,h),dark_bb)
+                bb = [vals[1],vals[2],vals[3],vals[4]]
+                print('classno {} ({}) bb {} imfile {} n_boxes {}'.format(classno,info_dict['category'],bb,imgfile,n_boxes))
+#                bb = convert_dark_to_xywh((w,h),dark_bb)
                 item_dict['bb'] = bb
                 if use_visual_output:
                     cv2.rectangle(img_arr, (bb[0],bb[1]),(bb[0]+bb[2],bb[1]+bb[3]),color=[int(255.0/10*classno),100,100],thickness=10)
@@ -66,6 +66,8 @@ def bbs_to_db(dir_of_bbfiles,dir_of_images,use_visual_output=True):
                     dest_height = 400
                     dest_width = int(float(dest_height)/h*w)
         #            print('h {} w{} destw {} desth {}'.format(h,w,dest_width,dest_height))
+                    factor = float(h)/dest_width
+                    newx = bb[0]*factor
                     im2 = cv2.resize(img_arr,(dest_width,dest_height))
                     cv2.imshow(imgfile,im2)
                     cv2.waitKey(100)
@@ -465,9 +467,9 @@ if __name__ == '__main__':
         trainfile =  '/home/jeremy/core/classifier_stuff/caffe_nns/trainfilejr.txt'
         annotations_dir = '/home/jeremy/core/classifier_stuff/caffe_nns/annotations'
 
-#    show_regular_bbs(bbfiles,images_dir)
+    show_regular_bbs(bbfiles,images_dir)
 
-    bbs_to_db(bbfiles,images_dir,use_visual_output=True)
+#    bbs_to_db(bbfiles,images_dir,use_visual_output=True)
  #   n_files = dir_of_dirs_to_darknet(images_dir,trainfile,maxfiles_per_dir=50000,positive_filter='train')
  #   n_files = dir_of_dirs_to_darknet(images_dir,trainfile,maxfiles_per_dir=50000,positive_filter='test')
 #    n_files = dir_to_darknet(dir,trainfile,bbfile,37)
