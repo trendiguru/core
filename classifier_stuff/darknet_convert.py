@@ -76,7 +76,7 @@ def bbs_to_db(dir_of_bbfiles,dir_of_images,use_visual_output=True):
             info_dict['items'] = items
             fp.close()
         print('db entry:'+str(info_dict))
-        ack = db.training_images.updateOne( {'url':full_imgname},info_dict,{upsert:True})
+        ack = db.training_images.updateOne( {'url':full_imgname},info_dict,{'upsert':True})
         raw_input('ack:'+str(ack)+' enter to continue')
 
 '''   db.training_images.find_one_and_update({'person_id': person_id},
