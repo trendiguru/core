@@ -453,12 +453,14 @@ if __name__ == '__main__':
         annotations_dir = '/home/jeremy/annotations'
     else:
         dir_of_dirs = '/home/jeremy/dataset/'
-        images_dir = dir_of_dirs
+        images_dir = '/home/jeremy/dataset/images'
+        bbfiles = '/home/jeremy/dataset/bbs'
         dir = '/home/jeremy/tg/berg_test/cropped/test_pairs_belts'
         trainfile =  '/home/jeremy/core/classifier_stuff/caffe_nns/trainfilejr.txt'
         annotations_dir = '/home/jeremy/core/classifier_stuff/caffe_nns/annotations'
 
+    show_regular_bbs(bbfiles,images_dir)
 
-    n_files = dir_of_dirs_to_darknet(images_dir,trainfile,maxfiles_per_dir=50000,positive_filter='train')
-    n_files = dir_of_dirs_to_darknet(images_dir,trainfile,maxfiles_per_dir=50000,positive_filter='test')
+ #   n_files = dir_of_dirs_to_darknet(images_dir,trainfile,maxfiles_per_dir=50000,positive_filter='train')
+ #   n_files = dir_of_dirs_to_darknet(images_dir,trainfile,maxfiles_per_dir=50000,positive_filter='test')
 #    n_files = dir_to_darknet(dir,trainfile,bbfile,37)
