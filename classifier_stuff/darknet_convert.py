@@ -213,7 +213,7 @@ def show_regular_bbs(dir_of_bbfiles,dir_of_images):
                 bb = [vals[1],vals[2],vals[3],vals[4]]
                 print('classno {} ({}) darkbb {} imfile {} n_boxes {}'.format(classno,tamara_berg_categories[classno],bb,imgfile,n_boxes))
                 cv2.rectangle(img_arr, (bb[0],bb[1]),(bb[0]+bb[2],bb[1]+bb[3]),color=[int(255.0/10*classno),100,100],thickness=10)
-                cv2.putText(img_arr,tamara_berg_categories[classno], (bb[0]+1,bb[1]+5), cv2.FONT_HERSHEY_SIMPLEX, 2, [int(255.0/10*classno),100,100],2)
+                cv2.putText(img_arr,tamara_berg_categories[classno], (bb[0]+1,bb[1]+5), cv2.FONT_HERSHEY_SIMPLEX, 4, [int(255.0/10*classno),100,100],2)
             #resize to avoid giant images
             dest_height = 400
             dest_width = int(float(dest_height)/h*w)
