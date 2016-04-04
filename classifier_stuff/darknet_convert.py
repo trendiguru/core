@@ -67,8 +67,8 @@ def bbs_to_db(dir_of_bbfiles,dir_of_images,use_visual_output=True):
                     dest_width = int(float(dest_height)/h*w)
         #            print('h {} w{} destw {} desth {}'.format(h,w,dest_width,dest_height))
                     factor = float(h)/dest_width
-                    newx = bb[0]*factor
-                    newy = bb[0]*factor
+                    newx = int(bb[0]*factor)
+                    newy = int(bb[0]*factor)
                     im2 = cv2.resize(img_arr,(dest_width,dest_height))
                     cv2.putText(im2,tamara_berg_categories[classno], (newx+1,newy+5), cv2.FONT_HERSHEY_SIMPLEX, 2, [int(255.0/10*classno),100,100],2)
 
