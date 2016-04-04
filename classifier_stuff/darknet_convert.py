@@ -467,9 +467,9 @@ if __name__ == '__main__':
         trainfile =  '/home/jeremy/core/classifier_stuff/caffe_nns/trainfilejr.txt'
         annotations_dir = '/home/jeremy/core/classifier_stuff/caffe_nns/annotations'
 
-    show_regular_bbs(bbfiles,images_dir)
+#    show_regular_bbs(bbfiles,images_dir)
 
-#    bbs_to_db(bbfiles,images_dir,use_visual_output=True)
+    bbs_to_db(bbfiles,images_dir,use_visual_output=True)
  #   n_files = dir_of_dirs_to_darknet(images_dir,trainfile,maxfiles_per_dir=50000,positive_filter='train')
  #   n_files = dir_of_dirs_to_darknet(images_dir,trainfile,maxfiles_per_dir=50000,positive_filter='test')
 #    n_files = dir_to_darknet(dir,trainfile,bbfile,37)
