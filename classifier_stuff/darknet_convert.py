@@ -57,7 +57,7 @@ def bbs_to_db(dir_of_bbfiles,dir_of_images,use_visual_output=True):
                 classno = vals[0]
                 item_dict['category'] = tamara_berg_categories[classno]
                 bb = [vals[1],vals[2],vals[3],vals[4]]
-                print('classno {} ({}) bb {} imfile {} n_boxes {}'.format(classno,info_dict['category'],bb,imgfile,n_boxes))
+                print('classno {} ({}) bb {} imfile {} n_boxes {}'.format(classno,item_dict['category'],bb,imgfile,n_boxes))
 #                bb = convert_dark_to_xywh((w,h),dark_bb)
                 item_dict['bb'] = bb
                 if use_visual_output:
