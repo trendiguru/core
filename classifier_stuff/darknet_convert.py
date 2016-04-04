@@ -63,7 +63,7 @@ def bbs_to_db(dir_of_bbfiles,dir_of_images,use_visual_output=True):
                 if use_visual_output:
                     cv2.rectangle(img_arr, (bb[0],bb[1]),(bb[0]+bb[2],bb[1]+bb[3]),color=[int(255.0/10*classno),100,100],thickness=10)
                     #resize to avoid giant images
-                    dest_height = 400
+                    dest_height = 200
                     dest_width = int(float(dest_height)/h*w)
         #            print('h {} w{} destw {} desth {}'.format(h,w,dest_width,dest_height))
                     factor = float(h)/dest_width
@@ -73,7 +73,7 @@ def bbs_to_db(dir_of_bbfiles,dir_of_images,use_visual_output=True):
                     cv2.putText(im2,tamara_berg_categories[classno], (newx+1,newy+5), cv2.FONT_HERSHEY_SIMPLEX, 10, [int(255.0/10*classno),100,100],3)
 
                     cv2.imshow(imgfile,im2)
-                    cv2.waitKey(10)
+                    cv2.waitKey(100)
                 items.append(item_dict)
             cv2.destroyAllWindows()
             info_dict['items'] = items
