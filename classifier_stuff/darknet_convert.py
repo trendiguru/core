@@ -204,7 +204,7 @@ def show_regular_bbs(dir_of_bbfiles,dir_of_images):
                 vals = [int(s) if s.isdigit() else float(s) for s in line.split()]
                 classno = vals[0]
                 bb = [vals[1],vals[2],vals[3],vals[4]]
-                print('classno {} darkbb {} imfile {} n_boxes {}'.format(classno,bb,imgfile,n_boxes))
+                print('classno {} ({}) darkbb {} imfile {} n_boxes {}'.format(classno,tamara_berg_categories,bb,imgfile,n_boxes))
                 full_imgname = os.path.join(dir_of_images,imgfile)
                 img_arr = cv2.imread(full_imgname)
                 h,w = img_arr.shape[0:2]
