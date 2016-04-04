@@ -183,8 +183,6 @@ def generate_bbfiles_from_json(json_file,imagefiles_dir,bb_dir,darknet=True,clas
             continue
         bbox_dict = data_pack['bbox']
         bbox = [int(bbox_dict['left']), int(bbox_dict['top']), int(bbox_dict['width']), int(bbox_dict['height'])]
-        file_name = 'product_%s_photo_%s_bbox_%s_%s_%s_%s.jpg' % (product_id, photo_id, bbox[0], bbox[1], bbox[2], bbox[3])
-        full_filename = os.path.join(imagefiles_dir,file_name)
 #        bbfilebase = file_name[0:-4]   #file.jpg -> file
         bbfilebase = str(photo_id)   #file.jpg -> file
         bbfile = bbfilebase+'.txt'
@@ -202,6 +200,8 @@ def generate_bbfiles_from_json(json_file,imagefiles_dir,bb_dir,darknet=True,clas
     #considered!
         try:
             if darknet:
+                file_name = 'product_%s_photo_%s_bbox_%s_%s_%s_%s.jpg' % (product_id, photo_id, bbox[0], bbox[1], bbox[2], bbox[3])
+                full_filename = os.path.join(imagefiles_dir,file_name)
                 print('looking for file '+full_filename)
                 if os.path.isfile(full_filename):
                     img_arr = cv2.imread(full_filename)
@@ -327,7 +327,7 @@ def generate_bbfiles_from_json_dir_of_dirs(dir_of_jsons,imagefiles_dir,darknet=F
         #only take 'test' or 'train' dirs, if test_or_train is specified
         print('doing file {} class {} ({})'.format(a_file,constants.tamara_berg_categories[category_number]))
         raw_input('ret to cont')
-        generate_bbfiles_from_json(a_file,imagefiles_dir,darknet=True,category_number = category_number)
+        generate_bbfiles_from_json(a_file,imagefiles_dir,darknet=False,category_number = category_number)
         category_number += 1
 
 
@@ -336,9 +336,11 @@ if __name__ == "__main__":
     num_cores = multiprocessing.cpu_count()
   #  num_cores = 1
     json_files_path = os.path.dirname(os.path.abspath(__file__)) + '/meta/json/'
+    json_dir = '/home/jeremy/dataset/json/'
     json_file = '/home/jeremy/dataset/json/test_pairs_bags.json'
     imagefiles_dir = '/home/jeremy/dataset/test_pairs_bags'
-    generate_bbfiles_from_json(json_file,imagefiles_dir,darknet=True,category_number=66)
+    generate_bbfiles_from_json_dir_of_dirs(json_dir,imagefiles_dir,darknet=True,category_number=66)
+#    generate_bbfiles_from_json(json_file,imagefiles_dir,darknet=True,category_number=66)
 
     if(0):
         images_files_path = os.path.dirname(os.path.abspath(__file__)) + '/photos/photos.txt'
