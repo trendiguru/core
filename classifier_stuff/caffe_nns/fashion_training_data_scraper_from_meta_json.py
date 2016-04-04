@@ -323,10 +323,11 @@ def generate_bbfiles_from_json_dir_of_dirs(dir_of_jsons,imagefiles_dir,bb_dir,da
     print('outer dir of jsons:{} '.format(dir_of_jsons))
     print('json files {}'.format(only_files))
     for a_file in only_files:
+        fullfile = os.path.join(dir_of_jsons,a_file)
         #only take 'test' or 'train' dirs, if test_or_train is specified
-        print('doing file {} class {} ({})'.format(a_file,category_number,constants.tamara_berg_categories[category_number]))
+        print('doing file {} class {} ({})'.format(fullfile,category_number,constants.tamara_berg_categories[category_number]))
         raw_input('ret to cont')
-        generate_bbfiles_from_json(a_file,imagefiles_dir,bb_dir,darknet=False,class_number = category_number,clobber=False)
+        generate_bbfiles_from_json(fullfile,imagefiles_dir,bb_dir,darknet=False,class_number = category_number,clobber=False)
         category_number += 1
 #def generate_bbfiles_from_json(json_file,imagefiles_dir,bb_dir,darknet=True,class_number=None,clobber=False):
 
