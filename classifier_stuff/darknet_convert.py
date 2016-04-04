@@ -24,12 +24,9 @@ logging.basicConfig(level=logging.WARNING)
 # as the darknet code look for annotation files this way (by default).
 
 def bbs_to_db(dir_of_bbfiles,dir_of_images,use_visual_output=True):
-    '''
-    master bbfile format :
-        [delete] path   imwidth, imheight
-        category bbx bby bbwidth bbheight
-        category bbx bby bbwidth bbheight
-        :param dir_of_bbfiles:
+    '''  takes dir of bbs and images , puts info into db
+    apparently mogno / pymongo creates the _id field so i dont have to
+    :param dir_of_bbfiles:
     :param dir_of_images:
     :param use_visual_output:
     :return:
@@ -59,27 +56,32 @@ def bbs_to_db(dir_of_bbfiles,dir_of_images,use_visual_output=True):
                 vals = [int(s) if s.isdigit() else float(s) for s in line.split()]
                 classno = vals[0]
                 item_dict['category'] = tamara_berg_categories[classno]
-                dark_bb = [vals[1],vals[2],vals[3],vals[4]]
-                print('classno {} ({}) darkbb {} imfile {} n_boxes {}'.format(classno,info_dict['category'],dark_bb,imgfile,n_boxes))
-                bb = convert_dark_to_xywh((w,h),dark_bb)
+                bb = [vals[1],vals[2],vals[3],vals[4]]
+                print('classno {} ({}) bb {} imfile {} n_boxes {}'.format(classno,item_dict['category'],bb,imgfile,n_boxes))
+#                bb = convert_dark_to_xywh((w,h),dark_bb)
                 item_dict['bb'] = bb
                 if use_visual_output:
                     cv2.rectangle(img_arr, (bb[0],bb[1]),(bb[0]+bb[2],bb[1]+bb[3]),color=[int(255.0/10*classno),100,100],thickness=10)
                     #resize to avoid giant images
-                    dest_height = 400
+                    dest_height = 200
                     dest_width = int(float(dest_height)/h*w)
         #            print('h {} w{} destw {} desth {}'.format(h,w,dest_width,dest_height))
+                    factor = float(h)/dest_width
+                    newx = int(bb[0]*factor)
+                    newy = int(bb[0]*factor)
                     im2 = cv2.resize(img_arr,(dest_width,dest_height))
+                    cv2.putText(im2,tamara_berg_categories[classno], (newx+1,newy+5), cv2.FONT_HERSHEY_SIMPLEX, 0.5, [int(255.0/10*classno),100,100],3)
+
                     cv2.imshow(imgfile,im2)
                     cv2.waitKey(100)
-                    cv2.destroyAllWindows()
                 items.append(item_dict)
+            cv2.destroyAllWindows()
             info_dict['items'] = items
             fp.close()
         print('db entry:'+str(info_dict))
-        ack = db.training_images.updateOne( {'url':full_imgname},info_dict,{upsert:true})
-        raw_input('enter to continue')
-
+        ack = db.training_images.replace_one( {'url':full_imgname},info_dict,upsert=True)
+#        raw_input('ack:'+str(ack)+' enter to continue')
+        print('ack:'+str(ack))
 '''   db.training_images.find_one_and_update({'person_id': person_id},
                                               {'$set': {'gender': gender, 'status': 'done'}})
     image = db.genderator.find_one_and_update({'status': 'fresh'},
@@ -190,6 +192,41 @@ def do_delete(image_number):
     with open('out.txt','a') as f:
         f.write('did '+command+'\n')
         f.close()
+
+def show_regular_bbs(dir_of_bbfiles,dir_of_images):
+    imgfiles = [f for f in os.listdir(dir_of_images) if os.path.isfile(os.path.join(dir_of_images,f)) and f[-4:]=='.jpg' or f[-5:]=='.jpeg' ]
+    for imgfile in imgfiles:
+        corresponding_bbfile=imgfile.split('photo_')[1]
+        corresponding_bbfile=corresponding_bbfile.split('.jpg')[0]
+        corresponding_bbfile = corresponding_bbfile + '.txt'
+        full_filename = os.path.join(dir_of_bbfiles,corresponding_bbfile)
+        print('img {} bbfile {} full {}'.format(imgfile,corresponding_bbfile,full_filename))
+        full_imgname = os.path.join(dir_of_images,imgfile)
+        img_arr = cv2.imread(full_imgname)
+        if img_arr is None:
+            logging.warning('coulndt open '+str(full_imgname))
+            return
+        h,w = img_arr.shape[0:2]
+
+        with open(full_filename,'r+') as fp:
+            n_boxes = 0
+            for line in fp:
+                n_boxes += 1
+             #   line = str(category_number)+' '+str(  dark_bb[0])[0:n_digits]+' '+str(dark_bb[1])[0:n_digits]+' '+str(dark_bb[2])[0:n_digits]+' '+str(dark_bb[3])[0:n_digits] + '\n'
+                vals = [int(s) if s.isdigit() else float(s) for s in line.split()]
+                classno = vals[0]
+                bb = [vals[1],vals[2],vals[3],vals[4]]
+                print('classno {} ({}) darkbb {} imfile {} n_boxes {}'.format(classno,tamara_berg_categories[classno],bb,imgfile,n_boxes))
+                cv2.rectangle(img_arr, (bb[0],bb[1]),(bb[0]+bb[2],bb[1]+bb[3]),color=[int(255.0/10*classno),100,100],thickness=10)
+                cv2.putText(img_arr,tamara_berg_categories[classno], (bb[0]+1,bb[1]+5), cv2.FONT_HERSHEY_SIMPLEX, 4, [int(255.0/10*classno),100,100],2)
+            #resize to avoid giant images
+            dest_height = 400
+            dest_width = int(float(dest_height)/h*w)
+#            print('h {} w{} destw {} desth {}'.format(h,w,dest_width,dest_height))
+            im2 = cv2.resize(img_arr,(dest_width,dest_height))
+            cv2.imshow(imgfile,im2)
+            cv2.waitKey(0)
+            cv2.destroyAllWindows()
 
 def show_darknet_bbs(dir_of_bbfiles,dir_of_images):
     imgfiles = [f for f in os.listdir(dir_of_images) if os.path.isfile(os.path.join(dir_of_images,f)) and f[-4:]=='.jpg' or f[-5:]=='.jpeg' ]
@@ -427,13 +464,15 @@ if __name__ == '__main__':
         annotations_dir = '/home/jeremy/annotations'
     else:
         dir_of_dirs = '/home/jeremy/dataset/'
-        images_dir = dir_of_dirs
+        images_dir = '/home/jeremy/dataset/images'
+        bbfiles = '/home/jeremy/dataset/bbs'
         dir = '/home/jeremy/tg/berg_test/cropped/test_pairs_belts'
         trainfile =  '/home/jeremy/core/classifier_stuff/caffe_nns/trainfilejr.txt'
         annotations_dir = '/home/jeremy/core/classifier_stuff/caffe_nns/annotations'
 
+#    show_regular_bbs(bbfiles,images_dir)
 
-    n_files = dir_of_dirs_to_darknet(images_dir,trainfile,maxfiles_per_dir=50000,positive_filter='train')
-    n_files = dir_of_dirs_to_darknet(images_dir,trainfile,maxfiles_per_dir=50000,positive_filter='test')
+    bbs_to_db(bbfiles,images_dir,use_visual_output=True)
+ #   n_files = dir_of_dirs_to_darknet(images_dir,trainfile,maxfiles_per_dir=50000,positive_filter='train')
+ #   n_files = dir_of_dirs_to_darknet(images_dir,trainfile,maxfiles_per_dir=50000,positive_filter='test')
 #    n_files = dir_to_darknet(dir,trainfile,bbfile,37)
-#after using this, use fashion_training_data_scraper_from_meta to combine multiple cats into one
