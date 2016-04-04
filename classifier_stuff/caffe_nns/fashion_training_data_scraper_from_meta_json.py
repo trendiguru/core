@@ -339,7 +339,8 @@ if __name__ == "__main__":
     json_dir = '/home/jeremy/dataset/json/'
     json_file = '/home/jeremy/dataset/json/test_pairs_bags.json'
     imagefiles_dir = '/home/jeremy/dataset/test_pairs_bags'
-    generate_bbfiles_from_json_dir_of_dirs(json_dir,imagefiles_dir,darknet=True)
+    generate_bbfiles_from_json_dir_of_dirs(json_dir,imagefiles_dir,darknet=True,positive_filter='train')
+    generate_bbfiles_from_json_dir_of_dirs(json_dir,imagefiles_dir,darknet=True,positive_filter='test')
 #    generate_bbfiles_from_json(json_file,imagefiles_dir,darknet=True,category_number=66)
 
     if(0):
