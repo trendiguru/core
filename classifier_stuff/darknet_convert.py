@@ -68,6 +68,7 @@ def bbs_to_db(dir_of_bbfiles,dir_of_images,use_visual_output=True):
         #            print('h {} w{} destw {} desth {}'.format(h,w,dest_width,dest_height))
                     factor = float(h)/dest_width
                     newx = bb[0]*factor
+                    newxy = bb[0]*factor
                     im2 = cv2.resize(img_arr,(dest_width,dest_height))
                     cv2.imshow(imgfile,im2)
                     cv2.waitKey(100)
@@ -76,7 +77,7 @@ def bbs_to_db(dir_of_bbfiles,dir_of_images,use_visual_output=True):
             info_dict['items'] = items
             fp.close()
         print('db entry:'+str(info_dict))
-        ack = db.training_images.updateOne( {'url':full_imgname},info_dict,{'upsert':True})
+        ack = db.training_images.update_one( {'url':full_imgname},info_dict,{'upsert':True})
         raw_input('ack:'+str(ack)+' enter to continue')
 
 '''   db.training_images.find_one_and_update({'person_id': person_id},
