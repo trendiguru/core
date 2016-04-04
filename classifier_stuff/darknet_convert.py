@@ -75,7 +75,7 @@ def bbs_to_db(dir_of_bbfiles,dir_of_images,use_visual_output=True):
             fp.close()
         print('db entry:'+str(info_dict))
         ack = db.training_images.updateOne( {'url':full_imgname},info_dict,{upsert:true})
-        raw_input('enter to continue')
+        raw_input('ack:'+str(ack)+' enter to continue')
 
 '''   db.training_images.find_one_and_update({'person_id': person_id},
                                               {'$set': {'gender': gender, 'status': 'done'}})
@@ -465,8 +465,9 @@ if __name__ == '__main__':
         trainfile =  '/home/jeremy/core/classifier_stuff/caffe_nns/trainfilejr.txt'
         annotations_dir = '/home/jeremy/core/classifier_stuff/caffe_nns/annotations'
 
-    show_regular_bbs(bbfiles,images_dir)
+#    show_regular_bbs(bbfiles,images_dir)
 
+    bbs_to_db(bbfiles,images_dir,use_visual_output=True)
  #   n_files = dir_of_dirs_to_darknet(images_dir,trainfile,maxfiles_per_dir=50000,positive_filter='train')
  #   n_files = dir_of_dirs_to_darknet(images_dir,trainfile,maxfiles_per_dir=50000,positive_filter='test')
 #    n_files = dir_to_darknet(dir,trainfile,bbfile,37)
