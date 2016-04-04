@@ -31,9 +31,9 @@ def bbs_to_db(dir_of_bbfiles,dir_of_images,use_visual_output=True):
         [delete] path   imwidth, imheight
         category bbx bby bbwidth bbheight
         category bbx bby bbwidth bbheight
-    :param dir_of_bbfiles:
+        :param dir_of_bbfiles:
     :param dir_of_images:
-    :param master_bbfile:
+    :param use_visual_output:
     :return:
     '''
     imgfiles = [f for f in os.listdir(dir_of_images) if os.path.isfile(os.path.join(dir_of_images,f)) and f[-4:]=='.jpg' or f[-5:]=='.jpeg' ]
