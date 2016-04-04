@@ -70,18 +70,18 @@ def bbs_to_db(dir_of_bbfiles,dir_of_images,use_visual_output=True):
                     newx = int(bb[0]*factor)
                     newy = int(bb[0]*factor)
                     im2 = cv2.resize(img_arr,(dest_width,dest_height))
-                    cv2.putText(im2,tamara_berg_categories[classno], (newx+1,newy+5), cv2.FONT_HERSHEY_SIMPLEX, 3, [int(255.0/10*classno),100,100],3)
+                    cv2.putText(im2,tamara_berg_categories[classno], (newx+1,newy+5), cv2.FONT_HERSHEY_SIMPLEX, 10, [int(255.0/10*classno),100,100],3)
 
                     cv2.imshow(imgfile,im2)
-                    cv2.waitKey(0)
-                    cv2.destroyAllWindows()
+                    cv2.waitKey(10)
                 items.append(item_dict)
+            cv2.destroyAllWindows()
             info_dict['items'] = items
             fp.close()
         print('db entry:'+str(info_dict))
         ack = db.training_images.replace_one( {'url':full_imgname},info_dict,upsert=True)
-        raw_input('ack:'+str(ack)+' enter to continue')
-
+#        raw_input('ack:'+str(ack)+' enter to continue')
+        print('ack:'+str(ack))
 '''   db.training_images.find_one_and_update({'person_id': person_id},
                                               {'$set': {'gender': gender, 'status': 'done'}})
     image = db.genderator.find_one_and_update({'status': 'fresh'},
