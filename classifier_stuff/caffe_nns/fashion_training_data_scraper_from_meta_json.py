@@ -326,7 +326,7 @@ def generate_bbfiles_from_json_dir_of_dirs(dir_of_jsons,imagefiles_dir,bb_dir,da
         #only take 'test' or 'train' dirs, if test_or_train is specified
         print('doing file {} class {} ({})'.format(a_file,category_number,constants.tamara_berg_categories[category_number]))
         raw_input('ret to cont')
-        generate_bbfiles_from_json(a_file,imagefiles_dir,bb_dir,darknet=False,class_number = category_number)
+        generate_bbfiles_from_json(a_file,imagefiles_dir,bb_dir,darknet=False,class_number = category_number,clobber=False)
         category_number += 1
 #def generate_bbfiles_from_json(json_file,imagefiles_dir,bb_dir,darknet=True,class_number=None,clobber=False):
 
@@ -340,8 +340,8 @@ if __name__ == "__main__":
     json_file = '/home/jeremy/dataset/json/test_pairs_bags.json'
     bb_dir = '/home/jeremy/dataset/bbs'
     imagefiles_dir = '/home/jeremy/dataset/test_pairs_bags'
-    generate_bbfiles_from_json_dir_of_dirs(json_dir,imagefiles_dir,darknet=True,positive_filter='train')
-    generate_bbfiles_from_json_dir_of_dirs(json_dir,imagefiles_dir,darknet=True,positive_filter='test')
+    generate_bbfiles_from_json_dir_of_dirs(json_dir,imagefiles_dir,bb_dir,darknet=True,positive_filter='train')
+    generate_bbfiles_from_json_dir_of_dirs(json_dir,imagefiles_dir,bb_dir,darknet=True,positive_filter='test')
 #    generate_bbfiles_from_json(json_file,imagefiles_dir,darknet=True,class_number=66)
 
     if(0):
