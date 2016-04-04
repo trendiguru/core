@@ -23,8 +23,6 @@ logging.basicConfig(level=logging.WARNING)
 # Remember to put the folder 'images' and folder 'annotations' in the same parent directory,
 # as the darknet code look for annotation files this way (by default).
 
-def delete(item_id):
-
 def bbs_to_db(dir_of_bbfiles,dir_of_images,use_visual_output=True):
     '''
     master bbfile format :
