@@ -308,7 +308,7 @@ def library_with_cropping(json_file, json_files_path, photos_path, listing,max_i
     else:
         print('not a json file')
 
-def generate_bbfiles_from_json_dir_of_dirs(dir_of_jsons,imagefiles_dir,darknet=False,positive_filter=None):
+def generate_bbfiles_from_json_dir_of_dirs(dir_of_jsons,imagefiles_dir,bb_dir,darknet=False,positive_filter=None):
     initial_only_files = [dir for dir in os.listdir(dir_of_jsons) if os.path.isfile(os.path.join(dir_of_jsons,dir)) ]
     initial_only_files.sort()
     only_files = []
@@ -326,8 +326,9 @@ def generate_bbfiles_from_json_dir_of_dirs(dir_of_jsons,imagefiles_dir,darknet=F
         #only take 'test' or 'train' dirs, if test_or_train is specified
         print('doing file {} class {} ({})'.format(a_file,category_number,constants.tamara_berg_categories[category_number]))
         raw_input('ret to cont')
-        generate_bbfiles_from_json(a_file,imagefiles_dir,darknet=False,class_number = category_number)
+        generate_bbfiles_from_json(a_file,imagefiles_dir,bb_dir,darknet=False,class_number = category_number)
         category_number += 1
+#def generate_bbfiles_from_json(json_file,imagefiles_dir,bb_dir,darknet=True,class_number=None,clobber=False):
 
 
 if __name__ == "__main__":
@@ -337,6 +338,7 @@ if __name__ == "__main__":
     json_files_path = os.path.dirname(os.path.abspath(__file__)) + '/meta/json/'
     json_dir = '/home/jeremy/dataset/json/'
     json_file = '/home/jeremy/dataset/json/test_pairs_bags.json'
+    bb_dir = '/home/jeremy/dataset/bbs'
     imagefiles_dir = '/home/jeremy/dataset/test_pairs_bags'
     generate_bbfiles_from_json_dir_of_dirs(json_dir,imagefiles_dir,darknet=True,positive_filter='train')
     generate_bbfiles_from_json_dir_of_dirs(json_dir,imagefiles_dir,darknet=True,positive_filter='test')
