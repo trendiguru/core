@@ -204,7 +204,7 @@ def show_regular_bbs(dir_of_bbfiles,dir_of_images):
                 vals = [int(s) if s.isdigit() else float(s) for s in line.split()]
                 classno = vals[0]
                 bb = [vals[1],vals[2],vals[3],vals[4]]
-                print('classno {} ({}) darkbb {} imfile {} n_boxes {}'.format(classno,tamara_berg_categories,bb,imgfile,n_boxes))
+                print('classno {} ({}) darkbb {} imfile {} n_boxes {}'.format(classno,tamara_berg_categories[classno],bb,imgfile,n_boxes))
                 full_imgname = os.path.join(dir_of_images,imgfile)
                 img_arr = cv2.imread(full_imgname)
                 h,w = img_arr.shape[0:2]
@@ -216,6 +216,7 @@ def show_regular_bbs(dir_of_bbfiles,dir_of_images):
             im2 = cv2.resize(img_arr,(dest_width,dest_height))
             cv2.imshow(imgfile,im2)
             cv2.waitKey(0)
+            cv2.destroyAllWindows()
 
 def show_darknet_bbs(dir_of_bbfiles,dir_of_images):
     imgfiles = [f for f in os.listdir(dir_of_images) if os.path.isfile(os.path.join(dir_of_images,f)) and f[-4:]=='.jpg' or f[-5:]=='.jpeg' ]
