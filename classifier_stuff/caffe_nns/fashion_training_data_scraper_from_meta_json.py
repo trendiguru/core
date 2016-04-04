@@ -219,14 +219,13 @@ def generate_bbfiles_from_json(json_file,imagefiles_dir,bb_dir,darknet=True,clas
                 line_to_write = str(class_number)+' '+str(bbox[0])[0:n_digits]+' '+str(bbox[1])[0:n_digits]+' '+str(bbox[2])[0:n_digits]+' '+str(bbox[3])[0:n_digits] + '\n'
                 f.write(line_to_write)
                 f.flush()
-                print 'succesful bb appended to  ' + bb_full_filename
+                print 'successful dark_bb appended to  ' + bb_full_filename
      #                   print listing[photo_id-1] + '\n cropped succesful save as: ' + cropped_path
             else: #write  in regular format (class, x y w  h  in pixels)
-                print('looking for file '+full_filename)
                 line_to_write = str(class_number)+' '+str(bbox[0])+' '+str(bbox[1])+' '+str(bbox[2])+' '+str(bbox[3]) + '\n'
                 f.write(line_to_write)
                 f.flush()
-                print 'succesful bb appended to  ' + bb_full_filename
+                print 'successful pixel bb appended to  ' + bb_full_filename
 
         except Exception as e:
             print(str(traceback.format_exception(*sys.exc_info())))
@@ -327,7 +326,7 @@ def generate_bbfiles_from_json_dir_of_dirs(dir_of_jsons,imagefiles_dir,darknet=F
         #only take 'test' or 'train' dirs, if test_or_train is specified
         print('doing file {} class {} ({})'.format(a_file,category_number,constants.tamara_berg_categories[category_number]))
         raw_input('ret to cont')
-        generate_bbfiles_from_json(a_file,imagefiles_dir,darknet=False,category_number = category_number)
+        generate_bbfiles_from_json(a_file,imagefiles_dir,darknet=False,class_number = category_number)
         category_number += 1
 
 
@@ -341,7 +340,7 @@ if __name__ == "__main__":
     imagefiles_dir = '/home/jeremy/dataset/test_pairs_bags'
     generate_bbfiles_from_json_dir_of_dirs(json_dir,imagefiles_dir,darknet=True,positive_filter='train')
     generate_bbfiles_from_json_dir_of_dirs(json_dir,imagefiles_dir,darknet=True,positive_filter='test')
-#    generate_bbfiles_from_json(json_file,imagefiles_dir,darknet=True,category_number=66)
+#    generate_bbfiles_from_json(json_file,imagefiles_dir,darknet=True,class_number=66)
 
     if(0):
         images_files_path = os.path.dirname(os.path.abspath(__file__)) + '/photos/photos.txt'
