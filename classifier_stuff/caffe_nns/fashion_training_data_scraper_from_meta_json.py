@@ -325,7 +325,7 @@ def generate_bbfiles_from_json_dir_of_dirs(dir_of_jsons,imagefiles_dir,darknet=F
     print('json files {}'.format(only_files))
     for a_file in only_files:
         #only take 'test' or 'train' dirs, if test_or_train is specified
-        print('doing file {} class {} ({})'.format(a_file,constants.tamara_berg_categories[category_number]))
+        print('doing file {} class {} ({})'.format(a_file,category_number,constants.tamara_berg_categories[category_number]))
         raw_input('ret to cont')
         generate_bbfiles_from_json(a_file,imagefiles_dir,darknet=False,category_number = category_number)
         category_number += 1
