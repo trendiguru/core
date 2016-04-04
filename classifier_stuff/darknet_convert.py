@@ -70,8 +70,10 @@ def bbs_to_db(dir_of_bbfiles,dir_of_images,use_visual_output=True):
                     newx = bb[0]*factor
                     newxy = bb[0]*factor
                     im2 = cv2.resize(img_arr,(dest_width,dest_height))
+                    cv2.putText(im2,tamara_berg_categories[classno], (newx+1,newy+5), cv2.FONT_HERSHEY_SIMPLEX, 2, [int(255.0/10*classno),100,100],2)
+
                     cv2.imshow(imgfile,im2)
-                    cv2.waitKey(100)
+                    cv2.waitKey(0)
                     cv2.destroyAllWindows()
                 items.append(item_dict)
             info_dict['items'] = items
