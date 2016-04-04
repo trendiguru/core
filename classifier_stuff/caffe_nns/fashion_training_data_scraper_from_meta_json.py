@@ -14,6 +14,7 @@ import shutil
 
 from trendi import Utils
 from trendi.classifier_stuff import darknet_convert
+from trendi import constants
 
 logging.basicConfig(level=logging.DEBUG)
 
@@ -155,6 +156,7 @@ def generate_bbfiles_from_json(json_file,imagefiles_dir,bb_dir,darknet=True,clas
     '''
     This is to take a json file from tamara berg stuff and write a file having the bb coords,
     either in darknet (percent) or pixel format.
+    Currently all bbs of a given image are entered into the same bbfile
     :param json_file:
     :param json_files_path:
     :param listing:
@@ -219,8 +221,12 @@ def generate_bbfiles_from_json(json_file,imagefiles_dir,bb_dir,darknet=True,clas
                 f.flush()
                 print 'succesful bb appended to  ' + bb_full_filename
      #                   print listing[photo_id-1] + '\n cropped succesful save as: ' + cropped_path
-            else: #write not in darknet format
-                pass
+            else: #write  in regular format (class, x y w  h  in pixels)
+                print('looking for file '+full_filename)
+                line_to_write = str(class_number)+' '+str(bbox[0])+' '+str(bbox[1])+' '+str(bbox[2])+' '+str(bbox[3]) + '\n'
+                f.write(line_to_write)
+                f.flush()
+                print 'succesful bb appended to  ' + bb_full_filename
 
         except Exception as e:
             print(str(traceback.format_exception(*sys.exc_info())))
@@ -228,7 +234,7 @@ def generate_bbfiles_from_json(json_file,imagefiles_dir,bb_dir,darknet=True,clas
     f.close()
 
 
-def library_with_cropping(json_file,json_files_path, photos_path,listing,max_items,docrop=False):
+def library_with_cropping(json_file, json_files_path, photos_path, listing,max_items, docrop=False):
     # finds only dresses dataset:
     data = []
 
@@ -303,7 +309,28 @@ def library_with_cropping(json_file,json_files_path, photos_path,listing,max_ite
     else:
         print('not a json file')
 
- 
+def generate_bbfiles_from_json_dir_of_dirs(dir_of_jsons,imagefiles_dir,darknet=False,positive_filter=None):
+    initial_only_files = [dir for dir in os.listdir(dir_of_jsons) if os.path.isfile(os.path.join(dir_of_jsons,dir)) ]
+    initial_only_files.sort()
+    only_files = []
+    if positive_filter:
+        for a_file in initial_only_files:
+            if positive_filter in a_file:
+                only_files.append(a_file)
+    else:
+        only_files = initial_only_files
+
+    category_number = 0
+    print('outer dir of jsons:{} '.format(dir_of_jsons))
+    print('json files {}'.format(only_files))
+    for a_file in only_files:
+        #only take 'test' or 'train' dirs, if test_or_train is specified
+        print('doing file {} class {} ({})'.format(a_file,constants.tamara_berg_categories[category_number]))
+        raw_input('ret to cont')
+        generate_bbfiles_from_json(a_file,imagefiles_dir,darknet=True,category_number = category_number)
+        category_number += 1
+
+
 if __name__ == "__main__":
 # opening the JSONs structure files:
     num_cores = multiprocessing.cpu_count()

@@ -24,12 +24,9 @@ logging.basicConfig(level=logging.WARNING)
 # as the darknet code look for annotation files this way (by default).
 
 def bbs_to_db(dir_of_bbfiles,dir_of_images,use_visual_output=True):
-    '''
-    master bbfile format :
-        [delete] path   imwidth, imheight
-        category bbx bby bbwidth bbheight
-        category bbx bby bbwidth bbheight
-        :param dir_of_bbfiles:
+    '''  takes dir of bbs and images , puts info into db
+    apparently mogno / pymongo creates the _id field so i dont have to
+    :param dir_of_bbfiles:
     :param dir_of_images:
     :param use_visual_output:
     :return:
@@ -436,4 +433,3 @@ if __name__ == '__main__':
     n_files = dir_of_dirs_to_darknet(images_dir,trainfile,maxfiles_per_dir=50000,positive_filter='train')
     n_files = dir_of_dirs_to_darknet(images_dir,trainfile,maxfiles_per_dir=50000,positive_filter='test')
 #    n_files = dir_to_darknet(dir,trainfile,bbfile,37)
-#after using this, use fashion_training_data_scraper_from_meta to combine multiple cats into one
