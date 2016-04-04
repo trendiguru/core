@@ -188,6 +188,35 @@ def do_delete(image_number):
         f.write('did '+command+'\n')
         f.close()
 
+def show_regular_bbs(dir_of_bbfiles,dir_of_images):
+    imgfiles = [f for f in os.listdir(dir_of_images) if os.path.isfile(os.path.join(dir_of_images,f)) and f[-4:]=='.jpg' or f[-5:]=='.jpeg' ]
+    for imgfile in imgfiles:
+        corresponding_bbfile=imgfile.split('photo_')[1]
+        corresponding_bbfile=corresponding_bbfile.split('.jpg')[0]
+        corresponding_bbfile = corresponding_bbfile + '.txt'
+        full_filename = os.path.join(dir_of_bbfiles,corresponding_bbfile)
+        print('img {} bbfile {} full {}'.format(imgfile,corresponding_bbfile,full_filename))
+        with open(full_filename,'r+') as fp:
+            n_boxes = 0
+            for line in fp:
+                n_boxes += 1
+             #   line = str(category_number)+' '+str(  dark_bb[0])[0:n_digits]+' '+str(dark_bb[1])[0:n_digits]+' '+str(dark_bb[2])[0:n_digits]+' '+str(dark_bb[3])[0:n_digits] + '\n'
+                vals = [int(s) if s.isdigit() else float(s) for s in line.split()]
+                classno = vals[0]
+                bb = [vals[1],vals[2],vals[3],vals[4]]
+                print('classno {} darkbb {} imfile {} n_boxes {}'.format(classno,bb,imgfile,n_boxes))
+                full_imgname = os.path.join(dir_of_images,imgfile)
+                img_arr = cv2.imread(full_imgname)
+                h,w = img_arr.shape[0:2]
+                cv2.rectangle(img_arr, (bb[0],bb[1]),(bb[0]+bb[2],bb[1]+bb[3]),color=[int(255.0/10*classno),100,100],thickness=10)
+            #resize to avoid giant images
+            dest_height = 400
+            dest_width = int(float(dest_height)/h*w)
+#            print('h {} w{} destw {} desth {}'.format(h,w,dest_width,dest_height))
+            im2 = cv2.resize(img_arr,(dest_width,dest_height))
+            cv2.imshow(imgfile,im2)
+            cv2.waitKey(0)
+
 def show_darknet_bbs(dir_of_bbfiles,dir_of_images):
     imgfiles = [f for f in os.listdir(dir_of_images) if os.path.isfile(os.path.join(dir_of_images,f)) and f[-4:]=='.jpg' or f[-5:]=='.jpeg' ]
     for imgfile in imgfiles:
