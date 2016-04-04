@@ -196,6 +196,13 @@ def show_regular_bbs(dir_of_bbfiles,dir_of_images):
         corresponding_bbfile = corresponding_bbfile + '.txt'
         full_filename = os.path.join(dir_of_bbfiles,corresponding_bbfile)
         print('img {} bbfile {} full {}'.format(imgfile,corresponding_bbfile,full_filename))
+        full_imgname = os.path.join(dir_of_images,imgfile)
+        img_arr = cv2.imread(full_imgname)
+        if img_arr is None:
+            logging.warning('coulndt open '+str(full_imgname))
+            return
+        h,w = img_arr.shape[0:2]
+
         with open(full_filename,'r+') as fp:
             n_boxes = 0
             for line in fp:
@@ -205,9 +212,6 @@ def show_regular_bbs(dir_of_bbfiles,dir_of_images):
                 classno = vals[0]
                 bb = [vals[1],vals[2],vals[3],vals[4]]
                 print('classno {} ({}) darkbb {} imfile {} n_boxes {}'.format(classno,tamara_berg_categories[classno],bb,imgfile,n_boxes))
-                full_imgname = os.path.join(dir_of_images,imgfile)
-                img_arr = cv2.imread(full_imgname)
-                h,w = img_arr.shape[0:2]
                 cv2.rectangle(img_arr, (bb[0],bb[1]),(bb[0]+bb[2],bb[1]+bb[3]),color=[int(255.0/10*classno),100,100],thickness=10)
             #resize to avoid giant images
             dest_height = 400
