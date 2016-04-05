@@ -4,7 +4,7 @@ function [mask,label_names,pose] = pd(image_filename)
 disp(['the image sent to pd in matlab is:' image_filename])
 %todo - check if we cant load this once only (when engine is created)
 
-logname = strcat(image_filename,'.ml_log')
+logname = strcat(image_filename,'.log')
 fid = fopen(logname, 'a+');
 s = sprintf('starting pd.m analysis of %s\n',image_filename)
 fprintf(fid, s);
@@ -96,7 +96,7 @@ disp('debug16')
 toc
 disp('debug17')
 
-logname = strcat(image_filename,'.ml_log')
+logname = strcat(image_filename,'.log')
 fid = fopen(logname, 'a+');
 s = sprintf('finished pd.m analysis of %s\n',image_filename)
 fprintf(fid, s);
