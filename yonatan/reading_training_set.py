@@ -7,7 +7,7 @@ import matplotlib.pyplot as plt
 
 sets = {'train', 'test'}
 total_gender_pics = 0
-total_gender_train_pics = 1500
+total_gender_train_pics = 2500
 total_gender_test_pics = 225
 
 for set in sets:
