@@ -970,7 +970,7 @@ def clean_duplicates(collection, field):
            current_url = doc['image_urls']
            collection.delete_many({'$and': [{'image_urls': doc['image_urls']},{'_id': {'$ne': doc['_id']}}]})
 
-    print "total {0} docs were deleted".format(db.images.count() - before)
+    print("total {0} docs were deleted".format(db.images.count() - before))
 
 if __name__ == '__main__':
     print('starting')
