@@ -10,6 +10,7 @@ import cv2
 from bson import objectid
 import matplotlib.pyplot as plt
 import numpy as np
+import pymongo
 
 # ours
 import constants
@@ -956,6 +957,18 @@ def reconstruct_db_images(images_collection):
 def generate_id():
     id = objectid.ObjectId()
     return id
+
+
+def clean_duplicates(collection, field):
+    collection = db[collection]
+    sorted = collection.find().sort(field, pymongo.ASCENDING)
+
+    current_url = ""
+    for doc in sorted:
+        if doc['image_urls'] != current_url:
+           current_url = doc['image_urls']
+           collection.delete_many({'$and': [{'image_urls': doc['image_urls']},{'_id': {'$ne': doc['_id']}}]})
+
 
 if __name__ == '__main__':
     print('starting')
