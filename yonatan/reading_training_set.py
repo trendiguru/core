@@ -6,13 +6,17 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 sets = {'train', 'test'}
-total_gender_pics = 10
+total_gender_pics = 0
+total_gender_train_pics = 1500
+total_gender_test_pics = 225
 
 for set in sets:
     if set == 'train':
+        total_gender_pics = total_gender_train_pics
         mypath_male = '/home/yonatan/train_set/male'
         mypath_female = '/home/yonatan/train_set/female'
     else:
+        total_gender_pics = total_gender_test_pics
         mypath_male = '/home/yonatan/test_set/male'
         mypath_female = '/home/yonatan/test_set/female'
 
