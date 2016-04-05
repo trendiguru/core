@@ -92,9 +92,14 @@ def get_parse_from_matlab_parallel(image_filename, matlab_engine, use_parfor=Fal
 #>>>
 #>>> eng.eval('exception = MException.last;', nargout=0)
 #>>> eng.eval('getReport(exception)')
+
     with open('pd_ml_log.log','a') as f:
         f.write('starting analysis of image: '+image_filename+'\n')
         f.close()
+
+    with open(image_filename+'.log','a') as g:
+        g.write('starting analysis of image: '+image_filename+'\n')
+        g.close()
 
 
     logging.debug('get_parse_from_ml_parallel is using name:' + image_filename+' and use_parfor='+str(use_parfor))
@@ -133,6 +138,12 @@ def get_parse_from_matlab_parallel(image_filename, matlab_engine, use_parfor=Fal
         save_fail_image(image_filename)
         raise Exception('paperdoll failed on this file:',image_filename)
         return None, None, None
+
+    with open(image_filename+'.log','a') as g:
+        g.write('finished analysis of image: '+image_filename+'\n')
+        g.close()
+
+
     return mask, label_dict, pose
 
 def save_fail_image(img_filename):
