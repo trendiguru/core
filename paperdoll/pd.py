@@ -98,7 +98,7 @@ def get_parse_from_matlab_parallel(image_filename, matlab_engine, use_parfor=Fal
         f.close()
 
     with open(image_filename+'.log','a') as g:
-        g.write('starting analysis of image: '+image_filename+'\n')
+        g.write('starting pd.py analysis of image: '+image_filename+'\n')
         g.close()
 
 
@@ -140,7 +140,7 @@ def get_parse_from_matlab_parallel(image_filename, matlab_engine, use_parfor=Fal
         return None, None, None
 
     with open(image_filename+'.log','a') as g:
-        g.write('finished analysis of image: '+image_filename+'\n')
+        g.write('finished pd.py analysis of image: '+image_filename+'\n')
         g.close()
 
 
