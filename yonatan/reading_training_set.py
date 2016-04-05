@@ -23,7 +23,7 @@ for set in sets:
         if breaker:
             break
         for file in files:
-            if male_count > total_gender_pics:
+            if male_count >= total_gender_pics:
                 breaker = True
                 break
             if file.endswith(".jpg"):
@@ -39,7 +39,7 @@ for set in sets:
         if breaker:
             break
         for file in files:
-            if female_count > total_gender_pics:
+            if female_count >= total_gender_pics:
                 breaker = True
                 break
             if file.endswith(".jpg"):
