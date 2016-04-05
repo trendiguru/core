@@ -28,7 +28,7 @@ for set in sets:
                 break
             if file.endswith(".jpg"):
                 text_file.write(root + "/" + file + " 0\n")
-                male_count =+ 1
+                male_count += 1
     text_file.flush()
     #text_file.close()
 
@@ -44,34 +44,9 @@ for set in sets:
                 break
             if file.endswith(".jpg"):
                 text_file.write(root + "/" + file + " 1\n")
-                female_count =+ 1
+                female_count += 1
     text_file.flush()
     #text_file.close()
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 
