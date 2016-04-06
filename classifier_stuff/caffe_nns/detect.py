@@ -191,7 +191,7 @@ def main(argv):
                 print('2nd value {} also > threshold {}'.format(vals,threshold))
             print('window {} topindices {} vals {} label {}'.format(window,sorted,vals,label))
             cv2.rectangle(img_arr,(window[1],window[0]),(window[3],window[2]),[255,255,100],2)
-            cv2.putText(img_arr,label, (window[1],window[0]), cv2.FONT_HERSHEY_SIMPLEX, 0.5, [255,100,100],3)
+            cv2.putText(img_arr,label, (window[1],window[0]), cv2.FONT_HERSHEY_SIMPLEX, 0.5, [100,255,0],1)
 
             cv2.imshow('test',img_arr)
             cv2.waitKey(0)
