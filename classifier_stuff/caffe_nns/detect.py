@@ -172,26 +172,27 @@ def main(argv):
 
     for d in detections:
 
-#	print d
-	predictions = d['prediction']
+    #	print d
+        predictions = d['prediction']
         filename = d['filename']
         img_arr = cv2.imread(filename)
-	window = d['window']
-	class1 = np.argmax(predictions)
-	sorted = predictions.argsort()[-1:-5:-1]
+        window = d['window']
+        class1 = np.argmax(predictions)
+        sorted = predictions.argsort()[-1:-5:-1]
         vals = []
-	for s in sorted:
-	    vals.append(predictions[s])
-	if vals[0]>threshold:
-	    window=[ int(x) for x in window]
+        for s in sorted:
+            vals.append(predictions[s])
+        if vals[0]>threshold:
+            window=[ int(x) for x in window]
             topwindows.append(window)
-	    topindices.append(vals[0])
+            topindices.append(vals[0])
             label = labels[class1]
-	    if vals[1]>threshold:
-		print('2nd value {} also > threshold {}'.format(vals,threshold))
-    	    print('window {} topindices {} vals {} label {}'.format(window,sorted,vals,label))
-	    cv2.rectangle(img_arr,(window[1],window[0]),(window[3],window[2]),[255,255,100],2)
-	
+            if vals[1]>threshold:
+            print('2nd value {} also > threshold {}'.format(vals,threshold))
+            print('window {} topindices {} vals {} label {}'.format(window,sorted,vals,label))
+            cv2.rectangle(img_arr,(window[1],window[0]),(window[3],window[2]),[255,255,100],2)
+            cv2.putText(img_arr,label, (window[1],window[0]), cv2.FONT_HERSHEY_SIMPLEX, 0.5, [255,100,100],3)
+
             cv2.imshow('test',img_arr)
             cv2.waitKey(0)
     cv2.waitKey(0)
