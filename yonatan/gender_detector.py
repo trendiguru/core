@@ -14,9 +14,10 @@ import time
 import caffe
 
 
-#def main(argv):
-def main(input_image):
-
+#def main(input_image):
+def main(argv):
+    
+    input_image = sys.argv[1]
     model_def = "/home/yonatan/core/yonatan/deploy.prototxt"
     pretrained_model = "/home/yonatan/network_5000_train_set/intermediate_output_iter_10000.caffemodel"
     caffe.set_mode_gpu()
@@ -61,4 +62,4 @@ def main(input_image):
         print "it's a girl!"
 
 if __name__ == '__main__':
-    main()
+    main(sys.argv)
