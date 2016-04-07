@@ -238,7 +238,7 @@ def get_shopstyle_nadav(download_dir='./'):
                          .format(count))
             h,w = img_arr.shape[:2]
             rect = [20, 20, w-40, h-40]
-            grabmask = background_removal.simple_mask_grabcut(img_arr, rect=rect)
+            grabmask = background_removal.simple_mask_grabcut(img_arr)
             grabmask = cat_count * grabmask / 255
             grabmask = grabmask.astype(np.uint8)
             maskname = "{0}_{1}_mask.png".format(cat, prod["id"])
