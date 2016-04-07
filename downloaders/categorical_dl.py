@@ -269,7 +269,7 @@ def fix_shopstyle_nadav(download_dir='./'):
         rect = [20, 20, w-40, h-40]
         input_mask = np.ones((h,w))
         input_mask = input_mask * cv2.GC_PR_BGD
-        input_mask[margin_h:-margin_h,margin_w,-margin_w] = cv2.GC_PR_FGD
+        input_mask[margin_h:-margin_h,margin_w:-margin_w] = cv2.GC_PR_FGD
         print('unqieus:'+str(np.unique(input_mask)))
         grabmask = background_removal.simple_mask_grabcut(img_arr,input_mask)
         print('unqieus:'+str(np.unique(grabmask)))
