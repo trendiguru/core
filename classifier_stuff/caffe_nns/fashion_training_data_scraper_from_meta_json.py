@@ -98,6 +98,7 @@ def library_for_dataset_scraping(json_file,json_files_path, photos_path,max_item
 
 
 #TODO write file to check for same product number in different dirs and combine the bb file
+#DONE
 def combine_bbs(json_dir,imagefiles_dir_of_dirs):
     json_files = [f for f in os.listdir(json_dir) if os.path.isfile(os.path.join(json_dir,f)) and f[-5:] == '.json' and not 'retrieval' in f]
     print('json files:'+str(json_files))

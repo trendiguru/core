@@ -7,12 +7,14 @@ from pylab import *
 from trendi.classifier_stuff.caffe_nns import lmdb_utils
 import sys
 import caffe
+import caffe.draw
 import cv2
 from trendi.utils import imutils
 #import Image
 #import matplotlib
 from trendi import Utils
-
+from caffe.proto import caffe_pb2
+from google.protobuf import text_format
 
 try:
     import caffe
@@ -1287,6 +1289,21 @@ layer {
   #  lr_mult: 2
   #}
 
+def display_conv_layer(blob):
+    print('blob:'+str(blob))
+    print('blob data size:{}'.format(blob.data.shape))
+    plt.imshow(blob.data[:8, 0].transpose(1, 0, 2).reshape(28, 8*28), cmap='gray',block=False)
+    plt.show(block=False)
+#    plt.imshow(solver.net.blobs['data'].data[:8, 0].transpose(1, 0, 2).reshape(28, 8*28), cmap='gray',block=False)
+#    plt.show(block=False)
+#    print solver.net.blobs['label'].data[:8]
+
+def draw_net(prototxt,outfile):
+    net = caffe_pb2.NetParameter()
+    text_format.Merge(open(prototxt).read(), net)
+    print('Drawing net to %s' % outfile)
+    caffe.draw.draw_net_to_file(net, outfile, 'TB') #TB for vertical, 'RL' for horizontal
+
 def run_net(net_builder,nn_dir,train_db,test_db,batch_size = 64,n_classes=11,meanB=None,meanG=None,meanR=None,n_filters=50,n_ip1=1000,n_test_items=None):
     if host == 'jr-ThinkPad-X1-Carbon':
         pc = True
@@ -1325,11 +1342,7 @@ def run_net(net_builder,nn_dir,train_db,test_db,batch_size = 64,n_classes=11,mea
         h.close
 
     solver = caffe.SGDSolver(proto_file_path)
-
-#    caffe.draw_net_to_file(proto_file_path,,'net_topo.png', rankdir='LR')
-  #  caffe.proto.caffe_pb2.NetParameter protocol buffer.
-   #         datum = caffe.proto.caffe_pb2.Datum()
-    netparam = caffe.proto.caffe_pb2.NetParameter()
+    draw_net(deploy_protofile,os.path,join(nn_dir,'net_arch.jpg'))
 
     print('k,v all elements shape:')
     print [(k, v.data.shape) for k, v in solver.net.blobs.items()]
@@ -1337,6 +1350,7 @@ def run_net(net_builder,nn_dir,train_db,test_db,batch_size = 64,n_classes=11,mea
     print [(k, v[0].data.shape) for k, v in solver.net.params.items()]
     solver.net.forward()  # train net
     solver.test_nets[0].forward()  # test net (there can be more than one)
+
     # we use a little trick to tile the first eight images
     if pc:
         pass
