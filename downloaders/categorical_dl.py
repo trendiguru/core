@@ -251,7 +251,7 @@ def get_shopstyle_nadav(download_dir='./',max_images_per_cat = 1000):
                 break
 
 def fix_shopstyle_nadav(download_dir='./'):
-    '''
+    '''rab
     dl shopstyle images
     currently, ladies only
     :return:
@@ -264,17 +264,20 @@ def fix_shopstyle_nadav(download_dir='./'):
             logging.warning("Could not open image at : {0}".format(imagefile))
             continue
         h,w = img_arr.shape[:2]
+        margin_w = int(w/10.0)
+        margin_h = int(h/10.0)
         rect = [20, 20, w-40, h-40]
-        input_mask = np.zeros((h,w))
-        grabmask = background_removal.simple_mask_grabcut(img_arr)
-        grabmask = float(grabmask) / 255
-        grabmask = grabmask.astype(np.uint8)
-        maskname = "{0}_{1}_mask.png".format(cat, prod["id"])
+        input_mask = np.ones((h,w))
+        input_mask = input_mask * cv2.GC_PR_BGD
+        input_mask[margin_h:-margin_h,margin_w,-margin_w] = cv2.GC_PR_FGD
+        print('unqieus:'+str(np.unique(input_mask)))
+        grabmask = background_removal.simple_mask_grabcut(img_arr,input_mask)
+        print('unqieus:'+str(np.unique(grabmask)))
+        maskname = imagefile.split('.jpg')[0]+'_mask.jpg'
         success = cv2.imwrite(maskname, grabmask)
         if not success:
             logging.warning("!!!!!COULD NOT SAVE IMAGE!!!!!")
             continue
-        cat_count = cat_count + 1
         count = count + 1
 
 
