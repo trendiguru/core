@@ -364,11 +364,14 @@ def face_skin_color_estimation(image, face_rect):
     return skin_hue_list
 
 
-def simple_mask_grabcut(image, mask):
-    rect = (0, 0, image.shape[1] - 1, image.shape[0] - 1)
+def simple_mask_grabcut(image, rect=None, mask=None):
+    if not rect:
+        rect = (0, 0, image.shape[1] - 1, image.shape[0] - 1)
+    if not mask:
+        mask = np.zeros(image.shape[:2], dtype=np.uint8)
     bgdmodel = np.zeros((1, 65), np.float64)
     fgdmodel = np.zeros((1, 65), np.float64)
-    cv2.grabCut(image, mask, rect, bgdmodel, fgdmodel, 1, cv2.GC_INIT_WITH_MASK)
+    cv2.grabCut(image, mask, rect, bgdmodel, fgdmodel, 1, cv2.GC_INIT_WITH_RECT)
     mask2 = np.where((mask == 1) + (mask == 3), 255, 0).astype('uint8')
     return mask2
 
