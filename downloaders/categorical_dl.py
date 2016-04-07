@@ -237,7 +237,7 @@ def get_shopstyle_nadav(download_dir='./'):
             logging.info("Saved... Downloaded approx. {0} images in this category/feature combination"
                          .format(count))
             mask = np.zeros_like(img_arr)
-            h,w = img_arr.size[0:2]
+            h,w = img_arr.shape[:2]
             hmargin = int(float(h)/10)
             wmargin = int(float(h)/10)
             maskval = 3
