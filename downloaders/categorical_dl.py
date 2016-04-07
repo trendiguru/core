@@ -244,6 +244,7 @@ def get_shopstyle_nadav(download_dir='./'):
             mask[hmargin:-hmargin,wmargin:-wmargin] = maskval
             grabmask = background_removal.simple_mask_grabcut(img_arr, mask)
             grabmask = cat_count * grabmask / 255
+            grabmask = grabmask.astype(np.uint8)
             maskname = "{0}_{1}_mask.png".format(cat, prod["id"])
             success = cv2.imwrite(maskname, grabmask)
             if not success:
