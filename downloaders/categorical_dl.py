@@ -219,6 +219,7 @@ def get_shopstyle_nadav(download_dir='./'):
         #women only right now
         cursor = db.ShopStyle_Female.find({'categories': cat})
         count =0
+        cat_count = 0
         for prod in cursor:
             xlarge_url = prod['image']['sizes']['XLarge']['url']
             img_arr = Utils.get_cv2_img_array(xlarge_url)
@@ -235,7 +236,20 @@ def get_shopstyle_nadav(download_dir='./'):
             count += 1
             logging.info("Saved... Downloaded approx. {0} images in this category/feature combination"
                          .format(count))
-
+            mask = np.zeros_like(img_arr)
+            h,w = img_arr.size[0:2]
+            hmargin = int(float(h)/10)
+            wmargin = int(float(h)/10)
+            maskval = 3
+            mask[hmargin:-hmargin,wmargin:-wmargin] = maskval
+            grabmask = background_removal.simple_mask_grabcut(img_arr, mask)
+            grabmask = cat_count * grabmask / 255
+            maskname = "{0}_{1}_mask.png".format(cat, prod["id"])
+            success = cv2.imwrite(maskname, grabmask)
+            if not success:
+                logging.warning("!!!!!COULD NOT SAVE IMAGE!!!!!")
+                continue
+            cat_count = cat_count + 1
 
 
 def print_logging_info(msg):
