@@ -61,7 +61,7 @@ def main(argv):
     else:
         print "it's a girl!"
     print predictions
-    print input_image
+    print inputs
 
 if __name__ == '__main__':
     main(sys.argv)
