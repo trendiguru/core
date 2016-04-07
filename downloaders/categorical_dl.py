@@ -221,7 +221,7 @@ def get_shopstyle_nadav(download_dir='./'):
         count =0
         cat_count = 0
         for prod in cursor:
-            xlarge_url = prod['image']['sizes']['XLarge']['url']
+            xlarge_url = prod['images']['XLarge']
             img_arr = Utils.get_cv2_img_array(xlarge_url)
             if img_arr is None:
                 logging.warning("Could not download image at url: {0}".format(xlarge_url))
