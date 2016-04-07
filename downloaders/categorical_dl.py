@@ -239,7 +239,7 @@ def get_shopstyle_nadav(download_dir='./',max_images_per_cat = 1000):
             rect = [20, 20, w-40, h-40]
             bgfgmask = cat_count * bgfgmask / 255
             bgfgmask = bgfgmask.astype(np.uint8)
-            grabmask = background_removal.simple_mask_grabcut(img_arr,rect=None,mask=bgfgmask)
+            grabmask = background_removal.simple_mask_grabcut(img_arr,rect=None ,mask=bgfgmask)
             maskname = "{0}_{1}_mask.png".format(cat, prod["id"])
             success = cv2.imwrite(maskname, grabmask)
             if not success:
