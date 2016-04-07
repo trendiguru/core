@@ -236,11 +236,11 @@ def get_shopstyle_nadav(download_dir='./'):
             count += 1
             logging.info("Saved... Downloaded approx. {0} images in this category/feature combination"
                          .format(count))
-            mask = np.zeros_like(img_arr, dtype=np.uint8)[:, :, 0]
+            mask = np.ones(img_arr.shape[:2], dtype=np.uint8)
             h,w = img_arr.shape[:2]
             hmargin = int(float(h)/10)
             wmargin = int(float(h)/10)
-            mask[hmargin:-hmargin,wmargin:-wmargin] = 3
+            # mask[hmargin:-hmargin,wmargin:-wmargin] = 3
             grabmask = background_removal.simple_mask_grabcut(img_arr, mask)
             grabmask = cat_count * grabmask / 255
             grabmask = grabmask.astype(np.uint8)
