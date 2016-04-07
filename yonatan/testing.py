@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 import sys
 sys.path.insert(0, '/home/yonatan/core')
-import background_removal.py
+import background_removal
 
 base_image = background_removal.get_image()
 print base_image
