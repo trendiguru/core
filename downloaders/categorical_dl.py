@@ -233,7 +233,6 @@ def get_shopstyle_nadav(download_dir='./',max_images_per_cat = 1000):
             if not success:
                 logging.warning("!!!!!COULD NOT SAVE IMAGE!!!!!")
                 continue
-            count += 1
             logging.info("Saved... Downloaded approx. {0} images in this category/feature combination"
                          .format(count))
             h,w = img_arr.shape[:2]
@@ -251,6 +250,34 @@ def get_shopstyle_nadav(download_dir='./',max_images_per_cat = 1000):
             if count>max_images_per_cat:
                 break
 
+def fix_shopstyle_nadav(download_dir='./'):
+    '''
+    dl shopstyle images
+    currently, ladies only
+    :return:
+    '''
+    images_only = [f for f in os.listdir(download_dir) if 'jpg' in f and not '_mask' in f]
+    print('{} jpg images without _mask in the name'.format(len(images_only)))
+    for imagefile in images_only:
+        img_arr = Utils.get_cv2_img_array(imagefile)
+        if img_arr is None:
+            logging.warning("Could not open image at : {0}".format(imagefile))
+            continue
+        h,w = img_arr.shape[:2]
+        rect = [20, 20, w-40, h-40]
+        input_mask = np.zeros((h,w))
+        grabmask = background_removal.simple_mask_grabcut(img_arr)
+        grabmask = float(grabmask) / 255
+        grabmask = grabmask.astype(np.uint8)
+        maskname = "{0}_{1}_mask.png".format(cat, prod["id"])
+        success = cv2.imwrite(maskname, grabmask)
+        if not success:
+            logging.warning("!!!!!COULD NOT SAVE IMAGE!!!!!")
+            continue
+        cat_count = cat_count + 1
+        count = count + 1
+
+
 def print_logging_info(msg):
     print msg
 
@@ -261,6 +288,7 @@ my_path = os.path.dirname(os.path.abspath(__file__))
 MAX_IMAGES = 10000
 
 if __name__ == '__main__':
+    fix_shopstyle_nadav(download_dir='./')
 
     womens = ['womens-accessories',
      'womens-athletic-clothes',
