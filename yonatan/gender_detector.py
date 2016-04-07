@@ -18,8 +18,8 @@ import caffe
 def main(argv):
 
     input_image = sys.argv[1]
-    model_def = "/home/yonatan/core/yonatan/deploy.prototxt"
-    pretrained_model = "home/yonatan/network_5000_train_set/intermediate_output_iter_10000.caffemodel"
+    MODLE_FILE = "home/yonatan/core/yonatan/deploy.prototxt"
+    PRETRAINED = "home/yonatan/network_5000_train_set/intermediate_output_iter_10000.caffemodel"
     caffe.set_mode_gpu()
     image_dims = [250, 250]
     mean, input_scale = None, None
@@ -28,7 +28,7 @@ def main(argv):
     ext = 'jpg'
 
     # Make classifier.
-    classifier = caffe.Classifier(model_def=model_def, pretrained_model=pretrained_model,
+    classifier = caffe.Classifier(MODLE_FILE, PRETRAINED,
             image_dims=image_dims, mean=mean,
             input_scale=input_scale, raw_scale=raw_scale,
             channel_swap=channel_swap)
