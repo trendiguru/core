@@ -60,6 +60,7 @@ def main(argv):
         print "it's a boy!"
     else:
         print "it's a girl!"
+    print predictions
 
 if __name__ == '__main__':
     main(sys.argv)
