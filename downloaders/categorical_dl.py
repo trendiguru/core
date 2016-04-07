@@ -12,7 +12,7 @@ import matplotlib
 matplotlib.use('Agg')
 import matplotlib.pyplot as plt
 import numpy as np
-
+from trendi import constants
 from trendi.constants import db
 from trendi.constants import redis_conn
 import trendi.Utils as Utils
@@ -208,6 +208,36 @@ def download_all_images_in_category(category_id,download_dir):
         logging.info("Saved... Downloaded approx. {0} images in this category/feature combination"
                      .format(count))
 
+def get_shopstyle_nadav(download_dir='./'):
+    '''
+    dl shopstyle images
+    currently, ladies only
+    :return:
+    '''
+    cats = constants.paperdoll_relevant_categories
+    for cat in cats:
+        #women only right now
+        cursor = db.ShopStyle_Female.find({'categories': cat})
+        count =0
+        for prod in cursor:
+            xlarge_url = prod['image']['sizes']['XLarge']['url']
+            img_arr = Utils.get_cv2_img_array(xlarge_url)
+            if img_arr is None:
+                logging.warning("Could not download image at url: {0}".format(xlarge_url))
+                continue
+            filename = "{0}_{1}.jpg".format(cat, prod["id"])
+            filepath = os.path.join(download_dir, filename)
+            logging.info("Attempting to save to {0}...".format(filepath))
+            success = cv2.imwrite(filepath, img_arr)
+            if not success:
+                logging.warning("!!!!!COULD NOT SAVE IMAGE!!!!!")
+                continue
+            count += 1
+            logging.info("Saved... Downloaded approx. {0} images in this category/feature combination"
+                         .format(count))
+
+
+
 def print_logging_info(msg):
     print msg
 
@@ -267,3 +297,7 @@ if __name__ == '__main__':
         full_dl_dir = os.path.join(dl_dir,cat)
         Utils.ensure_dir(full_dl_dir)
         download_all_images_in_category(cat,full_dl_dir)
+
+
+#db.collection_names
+#ShopStyle Men, Women
