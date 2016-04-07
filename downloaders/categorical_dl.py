@@ -242,6 +242,7 @@ def get_shopstyle_nadav(download_dir='./'):
             wmargin = int(float(h)/10)
             maskval = 3
             mask[hmargin:-hmargin,wmargin:-wmargin] = maskval
+            mask = mask.astype(np.uint8)
             grabmask = background_removal.simple_mask_grabcut(img_arr, mask)
             grabmask = cat_count * grabmask / 255
             grabmask = grabmask.astype(np.uint8)
