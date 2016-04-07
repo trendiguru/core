@@ -23,7 +23,7 @@ def main(argv):
     caffe.set_mode_gpu()
     image_dims = [250, 250]
     mean, input_scale = None, None
-    channel_swap = [2, 1, 0]
+    channel_swap = '2,1,0'
     raw_scale = 255.0
     ext = 'jpg'
 
