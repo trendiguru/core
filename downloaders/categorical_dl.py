@@ -208,7 +208,7 @@ def download_all_images_in_category(category_id,download_dir):
         logging.info("Saved... Downloaded approx. {0} images in this category/feature combination"
                      .format(count))
 
-def get_shopstyle_nadav(download_dir='./'):
+def get_shopstyle_nadav(download_dir='./',max_images_per_cat = 1000):
     '''
     dl shopstyle images
     currently, ladies only
@@ -238,7 +238,7 @@ def get_shopstyle_nadav(download_dir='./'):
                          .format(count))
             h,w = img_arr.shape[:2]
             rect = [20, 20, w-40, h-40]
-            grabmask = background_removal.simple_mask_grabcut(img_arr, rect=rect)
+            grabmask = background_removal.simple_mask_grabcut(img_arr)
             grabmask = cat_count * grabmask / 255
             grabmask = grabmask.astype(np.uint8)
             maskname = "{0}_{1}_mask.png".format(cat, prod["id"])
@@ -247,7 +247,9 @@ def get_shopstyle_nadav(download_dir='./'):
                 logging.warning("!!!!!COULD NOT SAVE IMAGE!!!!!")
                 continue
             cat_count = cat_count + 1
-
+            count = count + 1
+            if count>max_images_per_cat:
+                break
 
 def print_logging_info(msg):
     print msg
