@@ -208,7 +208,7 @@ def download_all_images_in_category(category_id,download_dir):
         logging.info("Saved... Downloaded approx. {0} images in this category/feature combination"
                      .format(count))
 
-def get_shopstyle_nadav(download_dir='./'):
+def get_shopstyle_nadav(download_dir='./',max_images_per_cat = 1000):
     '''
     dl shopstyle images
     currently, ladies only
@@ -247,7 +247,9 @@ def get_shopstyle_nadav(download_dir='./'):
                 logging.warning("!!!!!COULD NOT SAVE IMAGE!!!!!")
                 continue
             cat_count = cat_count + 1
-
+            count = count + 1
+            if count>max_images_per_cat:
+                break
 
 def print_logging_info(msg):
     print msg
