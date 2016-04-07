@@ -18,7 +18,7 @@ import caffe
 def main(argv):
 
     input_image = sys.argv[1]
-    model_def = "/core/yonatan/deploy.prototxt"
+    model_def = "/home/yonatan/core/yonatan/deploy.prototxt"
     pretrained_model = "home/yonatan/network_5000_train_set/intermediate_output_iter_10000.caffemodel"
     caffe.set_mode_gpu()
     image_dims = [250, 250]
