@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 
-from Trendi import background_removal
+from trendi import background_removal
 
 base_image = get_image()
 print base_image
