@@ -78,7 +78,7 @@ def the_detector(image):
             channel_swap=channel_swap)
 
     # Load numpy array (.npy), directory glob (*.jpg), or image file.
-    #input_file = os.path.expanduser(input_image)
+    input_file = os.path.expanduser(input_image)
     if input_file.endswith('npy'):
         print("Loading file: %s" % input_file)
         inputs = np.load(input_file)
