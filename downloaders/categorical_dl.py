@@ -309,7 +309,7 @@ def fix_shopstyle_nadav(download_dir='./'):
         for cat in cats:
             if cat in imagefile:
                 catno = cats.index(cat)
-                print('img: {} category:{}'.format(imagefile,catno)
+                print('img: {} category:{}'.format(imagefile,catno))
                 break
         if catno == -1:
             logging.warning('could not find cat of image:'+str(imagefile))
