@@ -57,6 +57,7 @@ face_image = image[y:(y-h), x:(x+w)]
 
 print face_image
 print type(face_image)
+print face_image.shape
 cv2.imshow("cropped", face_image)
 cv2.waitKey(0)
 
