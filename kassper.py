@@ -162,7 +162,7 @@ def create_item_mask(image):
     mask[h_margin:h-h_margin, w_margin:w-w_margin] = 3
     wo_bckgnd_mask = background_removal.simple_mask_grabcut(image, mask=mask)
     skin_mask = skin_detection_with_grabcut(background_removal.get_masked_image(image, wo_bckgnd_mask.astype(np.uint8)),
-                                            image, 'skin')
+                                            image, skin_or_clothes='skin')
     outmask = np.where(wo_bckgnd_mask == 255, 255, 0)
     outmask = np.where(skin_mask == 255, 100, outmask)
     return outmask
