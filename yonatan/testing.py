@@ -4,6 +4,7 @@ import numpy as np
 from trendi import background_removal, Utils, constants
 from PIL import Image
 import cv2
+import os
 
 path = "/home/yonatan/test_set/female/Juljia_Vysotskij_0001.jpg"
 image = Utils.get_cv2_img_array(path)
