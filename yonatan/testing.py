@@ -73,7 +73,7 @@ def the_detector(image):
     MODLE_FILE = "/home/yonatan/core/yonatan/deploy.prototxt"
     PRETRAINED = "/home/yonatan/network_5000_train_set/intermediate_output_iter_10000.caffemodel"
     caffe.set_mode_gpu()
-    image_dims = [image.shape[0], image.shape[1]]
+    image_dims = (image.shape[0], image.shape[1])
     mean, input_scale = None, (250, 250)
     channel_swap = [2, 1, 0]
     raw_scale = 255.0
