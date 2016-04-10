@@ -278,7 +278,7 @@ def display_shopstyle_nadav(download_dir='./'):
         h,w = img_arr.shape[:2]
         combined_img = np.zeros([h,w*2,3])
         combined_img[:,0:w,:] = img_arr
-        combined_img[:,w+1:,:] = np.multiply(mask_arr,128/n_cats)
+        combined_img[:,w:,:] = np.multiply(mask_arr,128/n_cats)
         cv2.imshow(imagefile)
         cv2.waitKey(0)
         cv2.destroyAllWindows()
