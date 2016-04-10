@@ -52,6 +52,6 @@ h = face[0][3]
 face_image = image[x:(x+w), y:(y-h)]
 
 print face_image
-print face_image.type
+print type(face_image)
 
 
