@@ -12,5 +12,5 @@ print im.size
 
 base_image = np.array([caffe.io.load_image(path)])
 #print base_image.shape
-face_image = background_removal.find_face_cascade(base_image)
+face_image = background_removal.find_face_cascade(im)
 print face_image
