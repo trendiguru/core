@@ -3,6 +3,7 @@
 import caffe
 import numpy as np
 from trendi import background_removal, Utils, constants
+from core.yonatan import gender_detector
 import cv2
 import os
 
@@ -41,9 +42,18 @@ def find_face(image):
 face = find_face(image)
 print face
 
+if len(face) == 0:
+    print "Fail"
+
 x = face[0][0]
 y = face[0][1]
 w = face[0][2]
 h = face[0][3]
 
-print image[x:(x+w), y:(y-h)]
+face_image = image[x:(x+w), y:(y-h)]
+
+print face_image
+print face_image.type
+
+
+#gender_detector()
