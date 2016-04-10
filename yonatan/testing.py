@@ -36,7 +36,7 @@ print face_image
 '''
 
 def find_face(image):
-	gray = cv2.cvtColor(image, constants.BGR2GRAYCONST)
+    gray = cv2.cvtColor(image, constants.BGR2GRAYCONST)
     face_cascades = [
         cv2.CascadeClassifier(os.path.join(constants.classifiers_folder, 'haarcascade_frontalface_alt2.xml')),
         cv2.CascadeClassifier(os.path.join(constants.classifiers_folder, 'haarcascade_frontalface_alt.xml')),
@@ -60,7 +60,7 @@ def find_face(image):
         )
         if len(faces) > 0:
             break
-	return faces
+    return faces
 
 
 face = find_face(path)
