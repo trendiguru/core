@@ -233,14 +233,13 @@ def get_shopstyle_nadav(download_dir='./',max_images_per_cat = 1000):
             if not success:
                 logging.warning("!!!!!COULD NOT SAVE IMAGE!!!!!")
                 continue
-            count += 1
             logging.info("Saved... Downloaded approx. {0} images in this category/feature combination"
                          .format(count))
             h,w = img_arr.shape[:2]
             rect = [20, 20, w-40, h-40]
-            grabmask = background_removal.simple_mask_grabcut(img_arr)
-            grabmask = cat_count * grabmask / 255
-            grabmask = grabmask.astype(np.uint8)
+            bgfgmask = cat_count * bgfgmask / 255
+            bgfgmask = bgfgmask.astype(np.uint8)
+            grabmask = background_removal.simple_mask_grabcut(img_arr,rect=None ,mask=bgfgmask)
             maskname = "{0}_{1}_mask.png".format(cat, prod["id"])
             success = cv2.imwrite(maskname, grabmask)
             if not success:
@@ -250,6 +249,37 @@ def get_shopstyle_nadav(download_dir='./',max_images_per_cat = 1000):
             count = count + 1
             if count>max_images_per_cat:
                 break
+
+def fix_shopstyle_nadav(download_dir='./'):
+    '''rab
+    dl shopstyle images
+    currently, ladies only
+    :return:
+    '''
+    images_only = [f for f in os.listdir(download_dir) if 'jpg' in f and not '_mask' in f]
+    print('{} jpg images without _mask in the name'.format(len(images_only)))
+    for imagefile in images_only:
+        img_arr = Utils.get_cv2_img_array(imagefile)
+        if img_arr is None:
+            logging.warning("Could not open image at : {0}".format(imagefile))
+            continue
+        h,w = img_arr.shape[:2]
+        margin_w = int(w/10.0)
+        margin_h = int(h/10.0)
+        rect = [20, 20, w-40, h-40]
+        input_mask = np.ones((h,w))
+        input_mask = input_mask * cv2.GC_PR_BGD
+        input_mask[margin_h:-margin_h,margin_w:-margin_w] = cv2.GC_PR_FGD
+        print('unqieus:'+str(np.unique(input_mask)))
+        grabmask = background_removal.simple_mask_grabcut(img_arr,input_mask)
+        print('unqieus:'+str(np.unique(grabmask)))
+        maskname = imagefile.split('.jpg')[0]+'_mask.jpg'
+        success = cv2.imwrite(maskname, grabmask)
+        if not success:
+            logging.warning("!!!!!COULD NOT SAVE IMAGE!!!!!")
+            continue
+        count = count + 1
+
 
 def print_logging_info(msg):
     print msg
@@ -261,6 +291,7 @@ my_path = os.path.dirname(os.path.abspath(__file__))
 MAX_IMAGES = 10000
 
 if __name__ == '__main__':
+    fix_shopstyle_nadav(download_dir='./')
 
     womens = ['womens-accessories',
      'womens-athletic-clothes',
