@@ -204,6 +204,7 @@ paperdoll_relevant_categories = ['top', 'pants', 'shorts', 'jeans', 'jacket', 'b
                                  'dress', 'bodysuit', 'vest', 'cardigan', 'leggings', 'sweater', 't-shirt', 'coat',
                                  'suit', 'tights', 'sweatshirt', 'stockings']
 
+
 paperdoll_paperdoll_men = {'top': 'shirt', 'pants': 'pants', 'shorts': 'shorts', 'jeans': 'jeans', 'jacket': 'jacket',
                            'blazer': 'jacket', 'shirt': 'shirt', 'skirt': 'pants', 'blouse': 'shirt',
                            'dress': 'suit', 'sweater': 'sweater', 't-shirt': 'shirt', 'bodysuit': 'suit',
@@ -242,7 +243,9 @@ fashionista_categories = ['null','tights','shorts','blazer','t-shirt','bag','sho
                           'flats','tie','romper','sandals','earrings','gloves','sneakers','clogs','watch','pumps','wallet',
                           'bodysuit','loafers','hair','skin']
 
-tamara_berg_categories = ['bag','belt','dress','eyewear','footwear','hat','legging','outerwear','pants','skirts','top']
+tamara_berg_categories =          ['bag','belt','dress','eyewear','footwear','hat','legging','outerwear','pants','skirts','top']
+tamara_berg_improved_categories = ['bag','belt','dress','eyewear','footwear','hat','legging','outerwear','pants','skirts','top',
+                                   'skin','tights','shorts','blouse','bra','vest','suit','jeans','necklace','sweatshirt','tie']
 
 pd_output_savedir = '/home/jeremy/pd_output'
 # for web bounding box interface
