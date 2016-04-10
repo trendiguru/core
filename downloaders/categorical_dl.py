@@ -278,14 +278,17 @@ def display_shopstyle_nadav(download_dir='./'):
         if mask_arr is None:
             logging.warning("Could not mask at : {0}".format(corresponding_mask))
             continue
+        mask_img = np.multiply(mask_arr,128/n_cats)
+        mask_img = mask_img.astype(np.uint8)
         h,w = img_arr.shape[:2]
         combined_img = np.zeros([h,w*2,3])
         combined_img[:,0:w,:] = img_arr
-        combined_img[:,w:,:] = np.multiply(mask_arr,128/n_cats)
+        combined_img[:,w:,:] = mask_img
         cv2.imshow(imagefile,combined_img)
+        cv2.imshow(imagefile,img_arr)
+        cv2.imshow(imagefile,mask_img)
         cv2.waitKey(0)
         cv2.destroyAllWindows()
-
 
         print('file: {} uniques:{} count:{}'.format(imagefile,np.unique(mask_arr),count))
         count = count + 1
