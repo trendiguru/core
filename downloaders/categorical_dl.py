@@ -305,35 +305,43 @@ def fix_shopstyle_nadav(download_dir='./'):
     print('{} jpg images without _mask in the name'.format(len(images_only)))
     cats = constants.paperdoll_relevant_categories
     for imagefile in images_only:
-        cat = - 1
+        catno = - 1
         for cat in cats:
             if cat in imagefile:
                 catno = cats.index(cat)
+                print('img: {} category:{}'.format(imagefile,catno))
                 break
-        if cat == -1:
+        if catno == -1:
             logging.warning('could not find cat of image:'+str(imagefile))
             continue
 
-        img_arr = Utils.get_cv2_img_array(imagefile)
+        fullname = os.path.join(download_dir,imagefile)
+        img_arr = Utils.get_cv2_img_array(fullname)
         if img_arr is None:
             logging.warning("Could not open image at : {0}".format(imagefile))
             continue
         h,w = img_arr.shape[:2]
         margin_w = int(w/10.0)
         margin_h = int(h/10.0)
-        rect = [20, 20, w-40, h-40]
+        rect = [margin_w,margin_h, w-margin_w*2 ,  h-margin_h*2]
         input_mask = np.ones((h,w))
         input_mask = input_mask * cv2.GC_PR_BGD
         input_mask[margin_h:-margin_h,margin_w:-margin_w] = cv2.GC_PR_FGD
         print('uniques:'+str(np.unique(input_mask)))
-        grabmask = background_removal.simple_mask_grabcut(img_arr,input_mask)
+        bgdmodel = np.zeros((1,65),np.float64)
+        fgdmodel = np.zeros((1,65),np.float64)
+        grabmask = cv2.grabCut(img_arr, input_mask, rect, bgdmodel, fgdmodel, 1, cv2.GC_INIT_WITH_RECT)
         print('uniques:'+str(np.unique(grabmask)))
-        maskname = imagefile.split('.jpg')[0]+'_mask.jpg'
+        maskname = imagefile.split('.jpg')[0]+'_mask.png'
         success = cv2.imwrite(maskname, grabmask)
         if not success:
             logging.warning("!!!!!COULD NOT SAVE IMAGE!!!!!")
             continue
         count = count + 1
+
+        mask_multiplied = grabmask*255
+        cv2.imshow('mask',mask_multiplied)
+        cv2.waitKey(0)
 
 
 def print_logging_info(msg):
