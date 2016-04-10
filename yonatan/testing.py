@@ -57,6 +57,7 @@ face_image = image[x:(x+w), y:(y-h)]
 
 print face_image
 print type(face_image)
+cv2.imshow("cropped", face_image)
 
 
 def the_detector(image):
