@@ -321,17 +321,24 @@ def fix_shopstyle_nadav(download_dir='./'):
             logging.warning("Could not open image at : {0}".format(imagefile))
             continue
         h,w = img_arr.shape[:2]
-        margin_w = int(w/10.0)
-        margin_h = int(h/10.0)
         rect = [margin_w,margin_h, w-margin_w*2 ,  h-margin_h*2]
-        input_mask = np.ones((h,w))
-        input_mask = input_mask * cv2.GC_PR_BGD
-        input_mask[margin_h:-margin_h,margin_w:-margin_w] = cv2.GC_PR_FGD
+        bgmargin_w = int(w/10.0)
+        bgmargin_h = int(h/10.0)
+        fgmargin_w = int(w/5.0)
+        fgmargin_h = int(h/5.0)
+    6 mask = np.zeros(img.shape[:2],np.uint8)
+        input_mask = np.zeros((h,w),np.uint8)
+#        input_mask = input_mask * cv2.GC_PR_BGD
+        input_mask[bgmargin_h:-bgmargin_h,bgmargin_w:-bgmargin_w] = cv2.GC_PR_BGD
+        input_mask[fgmargin_h:-fgmargin_h,fgmargin_w:-fgmargin_w] = cv2.GC_PR_FGD
+
         print('uniques:'+str(np.unique(input_mask)))
         bgdmodel = np.zeros((1,65),np.float64)
         fgdmodel = np.zeros((1,65),np.float64)
         grabmask = cv2.grabCut(img_arr, input_mask, rect, bgdmodel, fgdmodel, 1, cv2.GC_INIT_WITH_RECT)
+        grabmask2 = cv2.grabCut(img_arr, input_mask, rect, bgdmodel, fgdmodel, 1, cv2.GC_INIT_WITH_MASK)
         print('uniques:'+str(np.unique(grabmask)))
+        print('uniques2:'+str(np.unique(grabmask2)))
         maskname = imagefile.split('.jpg')[0]+'_mask.png'
         success = cv2.imwrite(maskname, grabmask)
         if not success:
@@ -339,8 +346,11 @@ def fix_shopstyle_nadav(download_dir='./'):
             continue
         count = count + 1
 
-        mask_multiplied = grabmask*255
+        mask_multiplied = grabmask*50
+        mask_multiplied2 = grabmask2*50
         cv2.imshow('mask',mask_multiplied)
+        cv2.imshow('mask2',mask_multiplied2)
+        cv2.imshow('orig',img_arr)
         cv2.waitKey(0)
 
 
