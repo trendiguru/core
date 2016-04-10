@@ -261,6 +261,8 @@ def get_shopstyle_nadav(download_dir='./',max_images_per_cat = 1000):
                 break
 
 def display_shopstyle_nadav(download_dir='./'):
+    cats = constants.paperdoll_relevant_categories
+    n_cats = len(cats)
     images_only = [f for f in os.listdir(download_dir) if 'jpg' in f and not '_mask' in f]
     print('{} jpg images without _mask in the name'.format(len(images_only)))
     for imagefile in images_only:
@@ -276,7 +278,7 @@ def display_shopstyle_nadav(download_dir='./'):
         h,w = img_arr.shape[:2]
         combined_img = np.zeros([h,w*2,3])
         combined_img[:,0:w,:] = img_arr
-        combined_img[:,w+1:,:] = mask_arr
+        combined_img[:,w+1:,:] = np.multiply(mask_arr,128/n_cats)
         cv2.imshow(imagefile)
         cv2.waitKey(0)
         cv2.destroyAllWindows()
