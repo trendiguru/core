@@ -40,3 +40,10 @@ def find_face(image):
 
 face = find_face(image)
 print face
+
+x = face[0][0]
+y = face[0][1]
+w = face[0][2]
+h = face[0][3]
+
+print image[x:(x+w), y:(y-h)]
