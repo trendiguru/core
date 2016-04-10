@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 import caffe
 import numpy as np
-from trendi import background_removal, Utils
+from trendi import background_removal, Utils, constants
 from PIL import Image
 import cv2
 
