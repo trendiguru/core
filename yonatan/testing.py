@@ -8,6 +8,18 @@ path = "/home/yonatan/test_set/female/Juljia_Vysotskij_0001.jpg"
 im = Image.open(path)
 print im.size
 
+def is_grey_scale(img_path):
+    im = Image.open(img_path)
+    w,h = im.size
+    for i in range(w):
+        for j in range(h):
+            r,g,b = im.getpixel((i,j))
+            if r != g != b: return False
+    return True
+
+print is_grey_scale(path)
+
+
 
 
 base_image = np.array([caffe.io.load_image(path)])
