@@ -371,9 +371,9 @@ def simple_mask_grabcut(image, rect=None, mask=None):
         mask = np.zeros(image.shape[:2], dtype=np.uint8)
     bgdmodel = np.zeros((1, 65), np.float64)
     fgdmodel = np.zeros((1, 65), np.float64)
-    cv2.grabCut(image, mask, rect, bgdmodel, fgdmodel, 1, cv2.GC_INIT_WITH_RECT)
-    mask2 = np.where((mask == 1) + (mask == 3), 255, 0).astype('uint8')
-    return mask2
+    cv2.grabCut(image, mask, rect, bgdmodel, fgdmodel, 1, cv2.GC_INIT_WITH_MASK)
+    outmask = np.where((mask == 1) + (mask == 3), 255, 0)
+    return outmask
 
 
 def person_isolation(image, face):

@@ -2,8 +2,7 @@ __author__ = 'Nadav Paz'
 
 import numpy as np
 import cv2
-
-import background_removal
+from . import background_removal
 
 
 def clutter_removal(image, thresh):     # non-recursive
@@ -113,8 +112,6 @@ def skin_detection_with_grabcut(gc_image, image, face=None, skin_or_clothes='clo
     ycrcb = cv2.cvtColor(gc_image, cv2.COLOR_BGR2YCR_CB)
     partly_hsv = cv2.cvtColor(gc_image, cv2.COLOR_BGR2HSV)
     mask = np.zeros(gc_image.shape[:2], dtype=np.uint8)
-    if len(face) == 0:
-        face = background_removal.find_face_cascade(image)['faces']
     if len(face) > 0:
         skin_hue_list = background_removal.face_skin_color_estimation(image, face.tolist())
         for i in range(0, gc_image.shape[0]):
@@ -144,6 +141,27 @@ def skin_detection_with_grabcut(gc_image, image, face=None, skin_or_clothes='clo
                     else:
                         mask[i][j] = 2
     cv2.grabCut(gc_image, mask, rect, bgdmodel, fgdmodel, 1, cv2.GC_INIT_WITH_MASK)
-    mask2 = np.where((mask == 1) + (mask == 3), 255, 0).astype('uint8')
-    detected_image = background_removal.get_masked_image(gc_image, mask2)
-    return detected_image
+    mask2 = np.where((mask == 1) + (mask == 3), 255, 0)
+    # detected_image = background_removal.get_masked_image(gc_image, mask2)
+    return mask2
+
+
+def create_item_mask(image):
+    """
+    this function will manage the isolation of the item and will create it's mask
+    :param image: 3d numpy array (BGR)
+    :return: 2d numpy array annotated mask with
+             0 = background
+             1 = skin
+             2 = the item
+    """
+    h, w = image.shape[:2]
+    mask = 2*np.ones((h, w), dtype=np.uint8)
+    h_margin = int(0.05*h)
+    w_margin = int(0.05*w)
+    mask[h_margin:h-h_margin, w_margin:w-w_margin] = 3
+    wo_bckgnd_mask = background_removal.simple_mask_grabcut(image, mask=mask)
+    skin_mask = skin_detection_with_grabcut(background_removal.get_masked_image(image, wo_bckgnd_mask), image, 'skin')
+    outmask = np.where(wo_bckgnd_mask == 255, 255, 0)
+    outmask = np.where(skin_mask == 255, 100, outmask)
+    return outmask
