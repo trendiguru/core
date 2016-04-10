@@ -243,9 +243,9 @@ fashionista_categories = ['null','tights','shorts','blazer','t-shirt','bag','sho
                           'flats','tie','romper','sandals','earrings','gloves','sneakers','clogs','watch','pumps','wallet',
                           'bodysuit','loafers','hair','skin']
 
-tamara_berg_categories =          ['bag','belt','dress','eyewear','footwear','hat','legging','outerwear','pants','skirts','top']
+tamara_berg_categories =          ['bag','belt','dress','eyewear','footwear','hat','legging','outerwear','pants','skirts','top',      'skin','background']   #orig t.b. cats dont have skin or bg
 tamara_berg_improved_categories = ['bag','belt','dress','eyewear','footwear','hat','legging','outerwear','pants','skirts','top',
-                                   'skin','tights','shorts','blouse','bra','vest','suit','jeans','necklace','sweatshirt','tie']
+                                   'skin','background','tights','shorts','blouse','bra','vest','suit','jeans','necklace','sweatshirt','tie']
 
 pd_output_savedir = '/home/jeremy/pd_output'
 # for web bounding box interface
