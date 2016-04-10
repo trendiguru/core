@@ -304,6 +304,7 @@ def fix_shopstyle_nadav(download_dir='./'):
     images_only = [f for f in os.listdir(download_dir) if 'jpg' in f and not '_mask' in f]
     print('{} jpg images without _mask in the name'.format(len(images_only)))
     cats = constants.paperdoll_relevant_categories
+    count = 0
     for imagefile in images_only:
         catno = - 1
         for cat in cats:
