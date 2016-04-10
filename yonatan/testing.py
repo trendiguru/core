@@ -77,22 +77,10 @@ def the_detector(image):
             input_scale=input_scale, raw_scale=raw_scale,
             channel_swap=channel_swap)
 
-    # Load numpy array (.npy), directory glob (*.jpg), or image file.
-    input_file = os.path.expanduser(input_image)
-    if input_file.endswith('npy'):
-        print("Loading file: %s" % input_file)
-        inputs = np.load(input_file)
-    elif os.path.isdir(input_file):
-        print("Loading folder: %s" % input_file)
-        inputs =[caffe.io.load_image(im_f)
-                 for im_f in glob.glob(input_file + '/*.' + ext)]
-    else:
-        print("Loading file: %s" % input_file)
-        inputs = [caffe.io.load_image(input_file)]
 
-    print("Classifying %d inputs." % len(inputs))
+    inputs = image
 
-    # Classify.
+# Classify.
     start = time.time()
     predictions = classifier.predict(inputs)
     print("Done in %.2f s." % (time.time() - start))
