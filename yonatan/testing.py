@@ -53,7 +53,7 @@ y = face[0][1]
 w = face[0][2]
 h = face[0][3]
 
-face_image = image[y:(y-h), x:(x+w)]
+face_image = image[y:(y+h), x:(x+w)]
 
 print face_image
 print type(face_image)
