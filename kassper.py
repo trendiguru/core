@@ -112,7 +112,7 @@ def skin_detection_with_grabcut(gc_image, image, face=None, skin_or_clothes='clo
     ycrcb = cv2.cvtColor(gc_image, cv2.COLOR_BGR2YCR_CB)
     partly_hsv = cv2.cvtColor(gc_image, cv2.COLOR_BGR2HSV)
     mask = np.zeros(gc_image.shape[:2], dtype=np.uint8)
-    if len(face) > 0:
+    if face and len(face) > 0:
         skin_hue_list = background_removal.face_skin_color_estimation(image, face.tolist())
         for i in range(0, gc_image.shape[0]):
             for j in range(0, gc_image.shape[1]):
@@ -161,7 +161,8 @@ def create_item_mask(image):
     w_margin = int(0.05*w)
     mask[h_margin:h-h_margin, w_margin:w-w_margin] = 3
     wo_bckgnd_mask = background_removal.simple_mask_grabcut(image, mask=mask)
-    skin_mask = skin_detection_with_grabcut(background_removal.get_masked_image(image, wo_bckgnd_mask), image, 'skin')
+    skin_mask = skin_detection_with_grabcut(background_removal.get_masked_image(image, wo_bckgnd_mask.astype(np.uint8)),
+                                            image, skin_or_clothes='skin')
     outmask = np.where(wo_bckgnd_mask == 255, 255, 0)
     outmask = np.where(skin_mask == 255, 100, outmask)
     return outmask
