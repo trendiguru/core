@@ -9,7 +9,7 @@ im = Image.open(path)
 print im.size
 
 def is_grey_scale(img_path):
-    im = Image.open(img_path).convert('RGB')
+    im = Image.open(img_path)
     w,h = im.size
     for i in range(w):
         for j in range(h):
