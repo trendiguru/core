@@ -6,7 +6,7 @@ from PIL import Image
 import cv2
 
 path = "/home/yonatan/test_set/female/Juljia_Vysotskij_0001.jpg"
-#image = Utils.get_cv2_img_array(path)
+image = Utils.get_cv2_img_array(path)
 #im = Image.open(path)
 #print image.shape
 
@@ -64,5 +64,5 @@ def find_face(image):
     return faces
 
 
-face = find_face(path)
+face = find_face(image)
 print face
