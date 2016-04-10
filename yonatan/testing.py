@@ -9,7 +9,8 @@ im = Image.open(path)
 print im.size
 
 im_rgb = Image.open(path).convert('RGB')
-print im_rgb.size
+im_arr_rgb = np.array(im_rgb)
+print im_arr_rgb.size
 
 def is_grey_scale(img_path):
     im = Image.open(img_path).convert('RGB')
