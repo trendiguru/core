@@ -210,13 +210,14 @@ def download_all_images_in_category(category_id,download_dir):
 
 def get_shopstyle_nadav(download_dir='./',max_images_per_cat = 1000):
     '''
-    dl shopstyle images
+    dl shopstyle images, grabcut out the database image, and make a mask with category number
     currently, ladies only
     :return:
     '''
     cats = constants.paperdoll_relevant_categories
     for cat in cats:
         #women only right now
+        print('category:{} number {}'.format(cat,cat_count))
         cursor = db.ShopStyle_Female.find({'categories': cat})
         count =0
         cat_count = 0
@@ -239,7 +240,16 @@ def get_shopstyle_nadav(download_dir='./',max_images_per_cat = 1000):
             rect = [20, 20, w-40, h-40]
             bgfgmask = cat_count * bgfgmask / 255
             bgfgmask = bgfgmask.astype(np.uint8)
+
+            bgdmodel = np.zeros((1, 65), np.float64)
+            fgdmodel = np.zeros((1, 65), np.float64)
+            cv2.grabCut(image, mask, rect, bgdmodel, fgdmodel, 1, cv2.GC_INIT_WITH_RECT)
+            mask2 = np.where((mask == 1) + (mask == 3), 255, 0).astype('uint8')
+            return mask2
+
             grabmask = background_removal.simple_mask_grabcut(img_arr,rect=None ,mask=bgfgmask)
+
+
             maskname = "{0}_{1}_mask.png".format(cat, prod["id"])
             success = cv2.imwrite(maskname, grabmask)
             if not success:
@@ -250,6 +260,41 @@ def get_shopstyle_nadav(download_dir='./',max_images_per_cat = 1000):
             if count>max_images_per_cat:
                 break
 
+def display_shopstyle_nadav(download_dir='./'):
+    cats = constants.paperdoll_relevant_categories
+    n_cats = len(cats)
+    count = 0
+    images_only = [f for f in os.listdir(download_dir) if 'jpg' in f and not '_mask' in f]
+    print('{} jpg images without _mask in the name'.format(len(images_only)))
+    for imagefile in images_only:
+        full_imagename = os.path.join(download_dir,imagefile)
+        img_arr = Utils.get_cv2_img_array(full_imagename)
+        if img_arr is None:
+            logging.warning("Could not open image at : {0}".format(full_imagename))
+            continue
+        corresponding_mask = full_imagename[0:-4] + '_mask.png'
+        mask_arr = Utils.get_cv2_img_array(corresponding_mask)
+        mask_arr = mask_arr.astype(np.uint8)
+        if mask_arr is None:
+            logging.warning("Could not mask at : {0}".format(corresponding_mask))
+            continue
+        factor = 255/n_cats
+        mask_img = np.multiply(mask_arr,255)
+        mask_img = mask_img.astype(np.uint8)
+        h,w = img_arr.shape[:2]
+        combined_img = np.zeros([h,w*2,3])
+        combined_img[:,0:w,:] = img_arr
+        combined_img[:,w:,:] = mask_img
+        cv2.imshow(imagefile+'comb',combined_img)
+        cv2.imshow(imagefile+'orig',img_arr)
+        cv2.imshow(imagefile+'mask',mask_img)
+        cv2.waitKey(0)
+        cv2.destroyAllWindows()
+
+        print('file: {} uniques:{} count:{}'.format(imagefile,np.unique(mask_arr),count))
+        count = count + 1
+
+
 def fix_shopstyle_nadav(download_dir='./'):
     '''rab
     dl shopstyle images
@@ -258,27 +303,67 @@ def fix_shopstyle_nadav(download_dir='./'):
     '''
     images_only = [f for f in os.listdir(download_dir) if 'jpg' in f and not '_mask' in f]
     print('{} jpg images without _mask in the name'.format(len(images_only)))
+    cats = constants.paperdoll_relevant_categories
+    count = 0
     for imagefile in images_only:
-        img_arr = Utils.get_cv2_img_array(imagefile)
+        catno = - 1
+        for cat in cats:
+            if cat in imagefile:
+                catno = cats.index(cat)
+                print('img: {} category:{}'.format(imagefile,catno))
+                break
+        if catno == -1:
+            logging.warning('could not find cat of image:'+str(imagefile))
+            continue
+
+        fullname = os.path.join(download_dir,imagefile)
+        img_arr = Utils.get_cv2_img_array(fullname)
         if img_arr is None:
             logging.warning("Could not open image at : {0}".format(imagefile))
             continue
         h,w = img_arr.shape[:2]
-        margin_w = int(w/10.0)
-        margin_h = int(h/10.0)
-        rect = [20, 20, w-40, h-40]
-        input_mask = np.ones((h,w))
-        input_mask = input_mask * cv2.GC_PR_BGD
-        input_mask[margin_h:-margin_h,margin_w:-margin_w] = cv2.GC_PR_FGD
-        print('unqieus:'+str(np.unique(input_mask)))
-        grabmask = background_removal.simple_mask_grabcut(img_arr,input_mask)
-        print('unqieus:'+str(np.unique(grabmask)))
-        maskname = imagefile.split('.jpg')[0]+'_mask.jpg'
-        success = cv2.imwrite(maskname, grabmask)
+        bgmargin_w = int(w/10.0)
+        bgmargin_h = int(h/10.0)
+        fgmargin_w = int(w/5.0)
+        fgmargin_h = int(h/5.0)
+        rect = (bgmargin_w, bgmargin_h, w-bgmargin_w*2, h-bgmargin_h*2) #anthing outside rect is obvious backgnd
+        #mask = np.zeros(img.shape[:2],np.uint8)
+        input_mask = np.zeros((h,w),np.uint8)
+#        input_mask = input_mask * cv2.GC_PR_BGD
+        bgdmodel = np.zeros((1,65),np.float64)
+        fgdmodel = np.zeros((1,65),np.float64)
+
+#        cv2.grabCut(img,mask,rect,bgdModel,fgdModel,5,cv2.GC_INIT_WITH_RECT)
+
+
+        cv2.grabCut(img_arr, input_mask, rect, bgdmodel, fgdmodel, 5, cv2.GC_INIT_WITH_RECT)
+        grabmask1 = np.copy(input_mask)
+
+        input_mask[bgmargin_h:-bgmargin_h,bgmargin_w:-bgmargin_w] = cv2.GC_PR_BGD
+        input_mask[fgmargin_h:-fgmargin_h,fgmargin_w:-fgmargin_w] = cv2.GC_PR_FGD
+        cv2.grabCut(img_arr, input_mask, rect, bgdmodel, fgdmodel, 5, cv2.GC_INIT_WITH_MASK)
+        grabmask2 = np.copy(input_mask)
+
+        print('uniques:'+str(np.unique(grabmask1)))
+        print('uniques2:'+str(np.unique(grabmask2)))
+        maskname = imagefile.split('.jpg')[0]+'_mask.png'
+        success = cv2.imwrite(maskname, grabmask1)
         if not success:
             logging.warning("!!!!!COULD NOT SAVE IMAGE!!!!!")
             continue
         count = count + 1
+
+        outmask1 = np.where((grabmask1==cv2.GC_BGD)|(grabmask1==cv2.GC_PR_BGD),0,1).astype('uint8')
+        outimg1 = img_arr*outmask1[:,:,np.newaxis]
+        outmask2 = np.where((grabmask2==cv2.GC_BGD)|(grabmask2==cv2.GC_PR_BGD),0,1).astype('uint8')
+        outimg2 = img_arr*outmask2[:,:,np.newaxis]
+
+        mask_multiplied = grabmask1*50
+        mask_multiplied2 = grabmask2*50
+        cv2.imshow('mask',outimg1)
+        cv2.imshow('mask2',outimg2)
+        cv2.imshow('orig',img_arr)
+        cv2.waitKey(0)
 
 
 def print_logging_info(msg):

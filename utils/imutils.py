@@ -584,6 +584,13 @@ def find_the_common(sourcedir, targetdir):
     files_in_source = [f for f in os.listdir(sourcedir) if os.path.isfile(os.path.join(sourcedir,f))]
     files_in_target = [f for f in os.listdir(targetdir) if os.path.isfile(os.path.join(targetdir,f))]
 
+def oversegment(img_arr):
+    image_height,image_width,image_channels = img_arr.shape
+    num_superpixels = 100
+    num_levels = 20
+    cv2.SuperpixelSEEDS.createSuperpixelSEEDS(image_width, image_height, image_channels, num_superpixels, num_levels, use_prior = 2, histogram_bins=5, double_step = False)
+
+
 def resize_and_crop_maintain_bb_on_dir(dir, output_width = 150, output_height = 200,use_visual_output=True):
     only_files = [f for f in os.listdir(dir) if os.path.isfile(os.path.join(dir,f))]
     print('doing resize/crop in dir '+dir)
