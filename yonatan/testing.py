@@ -5,9 +5,9 @@ from trendi import background_removal, Utils
 from PIL import Image
 
 path = "/home/yonatan/test_set/female/Juljia_Vysotskij_0001.jpg"
-image = Utils.get_cv2_img_array(path)
+#image = Utils.get_cv2_img_array(path)
 #im = Image.open(path)
-print image.size
+#print image.shape
 
 '''
 im_rgb = Image.open(path).convert('RGB')
@@ -25,7 +25,7 @@ def is_grey_scale(img_path):
     return True
 
 print is_grey_scale(path)
-'''
+
 
 
 
@@ -33,3 +33,35 @@ print is_grey_scale(path)
 #print base_image.shape
 face_image = background_removal.find_face_cascade(image)
 print face_image
+'''
+
+def find_face(image):
+	gray = cv2.cvtColor(image, constants.BGR2GRAYCONST)
+    face_cascades = [
+        cv2.CascadeClassifier(os.path.join(constants.classifiers_folder, 'haarcascade_frontalface_alt2.xml')),
+        cv2.CascadeClassifier(os.path.join(constants.classifiers_folder, 'haarcascade_frontalface_alt.xml')),
+        cv2.CascadeClassifier(os.path.join(constants.classifiers_folder, 'haarcascade_frontalface_alt_tree.xml')),
+        cv2.CascadeClassifier(os.path.join(constants.classifiers_folder, 'haarcascade_frontalface_default.xml'))]
+    cascade_ok = False
+    for cascade in face_cascades:
+        if not cascade.empty():
+            cascade_ok = True
+            break
+    if cascade_ok is False:
+        raise IOError("no good cascade found!")
+    faces = []
+    for cascade in face_cascades:
+        faces = cascade.detectMultiScale(
+            gray,
+            scaleFactor=1.1,
+            minNeighbors=2,
+            minSize=(5, 5),
+            flags=constants.scale_flag
+        )
+        if len(faces) > 0:
+            break
+	return faces
+
+
+face = find_face(path)
+print face
