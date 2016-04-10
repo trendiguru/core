@@ -86,7 +86,7 @@ def the_detector(image):
             channel_swap=channel_swap)
 
 
-    inputs = cv2_image_to_caffe(image)
+    inputs = [cv2_image_to_caffe(image)]
     print("Classifying %d inputs." % len(inputs))
 # Classify.
     start = time.time()
