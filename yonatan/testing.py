@@ -8,8 +8,11 @@ path = "/home/yonatan/test_set/female/Juljia_Vysotskij_0001.jpg"
 im = Image.open(path)
 print im.size
 
+im_rgb = Image.open(path).convert('RGB')
+print im_rgb.size
+
 def is_grey_scale(img_path):
-    im = Image.open(img_path)
+    im = Image.open(img_path).convert('RGB')
     w,h = im.size
     for i in range(w):
         for j in range(h):
