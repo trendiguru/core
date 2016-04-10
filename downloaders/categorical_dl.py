@@ -325,20 +325,22 @@ def fix_shopstyle_nadav(download_dir='./'):
         bgmargin_h = int(h/10.0)
         fgmargin_w = int(w/5.0)
         fgmargin_h = int(h/5.0)
-        rect = np.array([bgmargin_w, bgmargin_h, w-bgmargin_w*2, h-bgmargin_h*2]) #anthing outside rect is obvious backgnd
+        rect = (bgmargin_w, bgmargin_h, w-bgmargin_w*2, h-bgmargin_h*2) #anthing outside rect is obvious backgnd
         #mask = np.zeros(img.shape[:2],np.uint8)
         input_mask = np.zeros((h,w),np.uint8)
 #        input_mask = input_mask * cv2.GC_PR_BGD
-
-        print('uniques:'+str(np.unique(input_mask)))
         bgdmodel = np.zeros((1,65),np.float64)
         fgdmodel = np.zeros((1,65),np.float64)
-        cv2.grabCut(img_arr, input_mask, rect, bgdmodel, fgdmodel, 1, cv2.GC_INIT_WITH_RECT)
+
+#        cv2.grabCut(img,mask,rect,bgdModel,fgdModel,5,cv2.GC_INIT_WITH_RECT)
+
+
+        cv2.grabCut(img_arr, input_mask, rect, bgdmodel, fgdmodel, 5, cv2.GC_INIT_WITH_RECT)
         grabmask1 = np.copy(input_mask)
 
         input_mask[bgmargin_h:-bgmargin_h,bgmargin_w:-bgmargin_w] = cv2.GC_PR_BGD
         input_mask[fgmargin_h:-fgmargin_h,fgmargin_w:-fgmargin_w] = cv2.GC_PR_FGD
-        cv2.grabCut(img_arr, input_mask, rect, bgdmodel, fgdmodel, 1, cv2.GC_INIT_WITH_MASK)
+        cv2.grabCut(img_arr, input_mask, rect, bgdmodel, fgdmodel, 5, cv2.GC_INIT_WITH_MASK)
         grabmask2 = np.copy(input_mask)
 
         print('uniques:'+str(np.unique(grabmask1)))
