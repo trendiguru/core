@@ -303,7 +303,17 @@ def fix_shopstyle_nadav(download_dir='./'):
     '''
     images_only = [f for f in os.listdir(download_dir) if 'jpg' in f and not '_mask' in f]
     print('{} jpg images without _mask in the name'.format(len(images_only)))
+    cats = constants.paperdoll_relevant_categories
     for imagefile in images_only:
+        cat = - 1
+        for cat in cats:
+            if cat in imagefile:
+                catno = cats.index(cat)
+                break
+        if cat == -1:
+            logging.warning('could not find cat of image:'+str(imagefile))
+            continue
+
         img_arr = Utils.get_cv2_img_array(imagefile)
         if img_arr is None:
             logging.warning("Could not open image at : {0}".format(imagefile))
