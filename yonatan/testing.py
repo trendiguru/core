@@ -11,14 +11,13 @@ import glob
 import time
 import skimage
 
+path = "/home/yonatan/test_set/female/Juljia_Vysotskij_0001.jpg"
+image = Utils.get_cv2_img_array(path)
+
+
 def cv2_image_to_caffe(image):
     return skimage.img_as_float(cv2.cvtColor(image, cv2.COLOR_BGR2RGB)).astype(np.float32)
 
-
-
-path = "/home/yonatan/test_set/female/Juljia_Vysotskij_0001.jpg"
-image = Utils.get_cv2_img_array(path)
-print image
 
 def find_face(image):
     gray = cv2.cvtColor(image, constants.BGR2GRAYCONST)
@@ -61,19 +60,19 @@ h = face[0][3]
 
 face_image = image[y:(y+h), x:(x+w)]
 
+'''
 print face_image
 print type(face_image)
 print face_image.shape
 cv2.imshow("cropped", face_image)
 cv2.waitKey(0)
+'''
 
 def the_detector(image):
 
-    input_image = image
     MODLE_FILE = "/home/yonatan/core/yonatan/deploy.prototxt"
     PRETRAINED = "/home/yonatan/network_5000_train_set/intermediate_output_iter_10000.caffemodel"
     caffe.set_mode_gpu()
-    #image_dims = (image.shape[0], image.shape[1])
     image_dims = (250, 250)
     mean, input_scale = None, None
     channel_swap = None
@@ -87,11 +86,11 @@ def the_detector(image):
             channel_swap=channel_swap)
 
 
-    inputs = [cv2_image_to_caffe(image)]
-    print("Classifying %d inputs." % len(inputs))
+    input = [cv2_image_to_caffe(image)]
+    print("Classifying %d input." % len(input))
 # Classify.
     start = time.time()
-    predictions = classifier.predict(inputs)
+    predictions = classifier.predict(input)
     print("Done in %.2f s." % (time.time() - start))
 
     # Save
@@ -102,7 +101,7 @@ def the_detector(image):
     else:
         print "it's a girl!"
     print predictions
-    print np.array(inputs).shape
+    print np.array(input).shape
 
 
 the_detector(face_image)
