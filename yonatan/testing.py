@@ -9,6 +9,12 @@ import sys
 import argparse
 import glob
 import time
+import skimage
+
+def cv2_image_to_caffe(image):
+    return skimage.img_as_float(cv2.cvtColor(image, cv2.COLOR_BGR2RGB)).astype(np.float32)
+
+
 
 path = "/home/yonatan/test_set/female/Juljia_Vysotskij_0001.jpg"
 image = Utils.get_cv2_img_array(path)
@@ -80,8 +86,8 @@ def the_detector(image):
             channel_swap=channel_swap)
 
 
-    inputs = image
-
+    inputs = cv2_image_to_caffe(image)
+    print("Classifying %d inputs." % len(inputs))
 # Classify.
     start = time.time()
     predictions = classifier.predict(inputs)
