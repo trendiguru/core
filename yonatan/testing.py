@@ -76,7 +76,7 @@ def the_detector(image):
     #image_dims = (image.shape[0], image.shape[1])
     image_dims = (250, 250)
     mean, input_scale = None, None
-    channel_swap = [2, 1, 0]
+    channel_swap = None
     raw_scale = 255.0
     ext = 'jpg'
 
