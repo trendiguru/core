@@ -274,6 +274,7 @@ def display_shopstyle_nadav(download_dir='./'):
             continue
         corresponding_mask = full_imagename[0:-4] + '_mask.png'
         mask_arr = Utils.get_cv2_img_array(corresponding_mask)
+        mask_arr = mask_arr.astype(np.uint8)
         if mask_arr is None:
             logging.warning("Could not mask at : {0}".format(corresponding_mask))
             continue
