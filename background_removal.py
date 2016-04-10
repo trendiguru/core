@@ -365,9 +365,9 @@ def face_skin_color_estimation(image, face_rect):
 
 
 def simple_mask_grabcut(image, rect=None, mask=None):
-    if not rect:
+    if rect is None:
         rect = (0, 0, image.shape[1] - 1, image.shape[0] - 1)
-    if not mask:
+    if mask is None:
         mask = np.zeros(image.shape[:2], dtype=np.uint8)
     bgdmodel = np.zeros((1, 65), np.float64)
     fgdmodel = np.zeros((1, 65), np.float64)
