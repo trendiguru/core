@@ -325,31 +325,40 @@ def fix_shopstyle_nadav(download_dir='./'):
         bgmargin_h = int(h/10.0)
         fgmargin_w = int(w/5.0)
         fgmargin_h = int(h/5.0)
-        rect = [fgmargin_w, fgmargin_h, w-fgmargin_w*2, h-fgmargin_h*2]
+        rect = [bgmargin_w, bgmargin_h, w-bgmargin_w*2, h-bgmargin_h*2] #anthing outside rect is obvious backgnd
         #mask = np.zeros(img.shape[:2],np.uint8)
         input_mask = np.zeros((h,w),np.uint8)
 #        input_mask = input_mask * cv2.GC_PR_BGD
-        input_mask[bgmargin_h:-bgmargin_h,bgmargin_w:-bgmargin_w] = cv2.GC_PR_BGD
-        input_mask[fgmargin_h:-fgmargin_h,fgmargin_w:-fgmargin_w] = cv2.GC_PR_FGD
 
         print('uniques:'+str(np.unique(input_mask)))
         bgdmodel = np.zeros((1,65),np.float64)
         fgdmodel = np.zeros((1,65),np.float64)
-        grabmask = cv2.grabCut(img_arr, input_mask, rect, bgdmodel, fgdmodel, 1, cv2.GC_INIT_WITH_RECT)
-        grabmask2 = cv2.grabCut(img_arr, input_mask, rect, bgdmodel, fgdmodel, 1, cv2.GC_INIT_WITH_MASK)
-        print('uniques:'+str(np.unique(grabmask)))
+        cv2.grabCut(img_arr, input_mask, rect, bgdmodel, fgdmodel, 1, cv2.GC_INIT_WITH_RECT)
+        grabmask1 = np.copy(input_mask)
+
+        input_mask[bgmargin_h:-bgmargin_h,bgmargin_w:-bgmargin_w] = cv2.GC_PR_BGD
+        input_mask[fgmargin_h:-fgmargin_h,fgmargin_w:-fgmargin_w] = cv2.GC_PR_FGD
+        cv2.grabCut(img_arr, input_mask, rect, bgdmodel, fgdmodel, 1, cv2.GC_INIT_WITH_MASK)
+        grabmask2 = np.copy(input_mask)
+
+        print('uniques:'+str(np.unique(grabmask1)))
         print('uniques2:'+str(np.unique(grabmask2)))
         maskname = imagefile.split('.jpg')[0]+'_mask.png'
-        success = cv2.imwrite(maskname, grabmask)
+        success = cv2.imwrite(maskname, grabmask1)
         if not success:
             logging.warning("!!!!!COULD NOT SAVE IMAGE!!!!!")
             continue
         count = count + 1
 
-        mask_multiplied = grabmask*50
+        outmask1 = np.where((grabmask1==cv2.GC_BGD)|(grabmask1==cv2.GC_PR_BGD),0,1).astype('uint8')
+        outimg1 = img_arr*outmask1[:,:,np.newaxis]
+        outmask2 = np.where((grabmask2==cv2.GC_BGD)|(grabmask2==cv2.GC_PR_BGD),0,1).astype('uint8')
+        outimg2 = img_arr*outmask2[:,:,np.newaxis]
+
+        mask_multiplied = grabmask1*50
         mask_multiplied2 = grabmask2*50
-        cv2.imshow('mask',mask_multiplied)
-        cv2.imshow('mask2',mask_multiplied2)
+        cv2.imshow('mask',outimg1)
+        cv2.imshow('mask2',outimg2)
         cv2.imshow('orig',img_arr)
         cv2.waitKey(0)
 
