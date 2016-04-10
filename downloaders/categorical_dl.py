@@ -321,7 +321,7 @@ def fix_shopstyle_nadav(download_dir='./'):
             logging.warning("Could not open image at : {0}".format(imagefile))
             continue
         h,w = img_arr.shape[:2]
-        rect = [margin_w,margin_h, w-margin_w*2 ,  h-margin_h*2]
+        rect = [fgmargin_w,fgmargin_h, w-fgmargin_w*2 ,  h-fgmargin_h*2]
         bgmargin_w = int(w/10.0)
         bgmargin_h = int(h/10.0)
         fgmargin_w = int(w/5.0)
