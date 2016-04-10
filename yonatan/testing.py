@@ -3,7 +3,7 @@
 import caffe
 import numpy as np
 from trendi import background_removal, Utils, constants
-from trendi.yonatan import gender_detector
+from core.yonatan import gender_detector
 import cv2
 import os
 
