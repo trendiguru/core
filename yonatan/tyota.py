@@ -125,7 +125,7 @@ for set in sets:
 
                 #img = Image.fromarray(face_image)
 
-                img = resize_image(face_image , (width, height))
+                img = resize_image(face_image , (width, height, 3))
                 #img = img.resize((width, height), face_image.BILINEAR)
                 print img.shape
                 print type(img)
