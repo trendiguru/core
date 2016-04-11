@@ -50,8 +50,8 @@ def find_face(image):
     return faces
 
 
-width = 115
-height = 115
+width = 100
+height = 100
 counter = 0
 
 sets = {'train', 'test'}
@@ -85,7 +85,7 @@ for set in sets:
 
                 img = Image.fromarray(face_image)
 
-                new_img = resizeimage.resize_thumbnail(face_image, [width, height])
+                new_img = resizeimage.resize_thumbnail(img, [width, height])
 
                 #img = img.resize((width, height), img.BILINEAR)
                 print "new_img.size"
