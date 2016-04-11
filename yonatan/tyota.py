@@ -87,7 +87,7 @@ for set in sets:
 
                 #new_img = resizeimage.resize_thumbnail(img, [width, height])
 
-                img = img.resize((width, height), img.BILINEAR)
+                img = img.resize((width, height))
                 print "new_img.size"
                 print img.size
                 print type(img)
