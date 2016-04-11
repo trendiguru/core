@@ -13,6 +13,10 @@ credentials = GoogleCredentials.get_application_default()
 bucket = storage.Client(credentials=credentials).bucket("tg-training")
 
 
+def resize_bb(bb, ratio):
+    rerurn
+
+
 def get_margined_bb(image, bb, buffer):
     x, y, w, h = bb
     x_back = np.max((x - int(buffer*w), 0))
@@ -41,14 +45,16 @@ def create_training_set_with_grabcut(collection):
         if image is None:
             print "{0} is a bad image".format(img_url)
             continue
-        skin_mask = kassper.skin_detection_with_grabcut(image, image, skin_or_clothes='skin')
+        small_image, ratio = background_removal.standard_resize(image, 600)
+        skin_mask = kassper.skin_detection_with_grabcut(small_image, small_image, skin_or_clothes='skin')
         mask = np.where(skin_mask == 255, 1, 0).astype(np.uint8)
         for item in doc['items']:
-            item_bb = get_margined_bb(image, item['bb'], 0.1)
+            bb = [int(c/ratio) for c in item['bb']]
+            item_bb = get_margined_bb(small_image, bb, 0.1)
             if item['category'] not in cats:
                 continue
             category_num = cats.index(item['category'])
-            item_mask = background_removal.simple_mask_grabcut(image, rect=item_bb)
+            item_mask = background_removal.simple_mask_grabcut(small_image, rect=bb)
             mask = np.where(item_mask == 255, category_num, mask)
         filename = 'tamara_berg_street2shop_dataset/masks/' + url[:-4]
         save_to_storage(bucket, mask, filename)
