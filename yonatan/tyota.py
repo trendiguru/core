@@ -88,7 +88,7 @@ for set in sets:
                 img = resizeimage.resize_thumbnail(img, [width, height])
 
                 #img = img.resize((width, height), img.BILINEAR)
-                print img.shape
+                #print img.shape
                 print type(img)
                 cv2.imshow("cropped", img)
                 cv2.waitKey(0)
