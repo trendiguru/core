@@ -115,7 +115,8 @@ for set in sets:
                 face_image = image[y:(y + h), x:(x + w)]
                 #im = Image.fromarray(face_image)
                 #im.save("/home/yonatan/test_set/female/DELETE-Juljia_Vysotskij_0001.jpg")
-                print type(face_image)
+                cv2.imshow("cropped", face_image)
+                cv2.waitKey(0)
 
 
                 # Open the image file.
@@ -128,6 +129,8 @@ for set in sets:
                 #img = img.resize((width, height), face_image.BILINEAR)
                 print img.shape
                 print type(img)
+                cv2.imshow("cropped", img)
+                cv2.waitKey(0)
                 #final_img = Image.fromarray(img)
                 # Save it back to disk.
                 #final_img.save(os.path.join(root, 'resized_face-' + file))
