@@ -98,8 +98,8 @@ for set in sets:
                 #final_img.save(os.path.join(root, 'resized_face-' + file))
                 #scipy.misc.toimage(img, cmin=0.0, cmax=...).save(os.path.join(root, 'resized_face-' + file))
 
-                #img.save(os.path.join(root, 'resized_face-' + file))
-                scipy.misc.imsave(os.path.join(root, 'resized_face-' + file), img)
+                img.save(os.path.join(root, 'resized_face-' + file))
+                #scipy.misc.imsave(os.path.join(root, 'resized_face-' + file), img)
                 counter += 1
                 print counter
                 print file
