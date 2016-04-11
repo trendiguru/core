@@ -87,6 +87,9 @@ for set in sets:
 
                 #new_img = resizeimage.resize_thumbnail(img, [width, height])
 
+                cv2.imshow("cropped", img)
+                cv2.waitKey(0)
+
                 img = img.resize((width, height))
                 print "new_img.size"
                 print img.size
