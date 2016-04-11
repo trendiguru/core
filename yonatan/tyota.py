@@ -88,7 +88,7 @@ for set in sets:
                 # Resize it.
                 img = Image.fromarray(face_image)
                 print type(img)
-                exit()
+
                 img = img.resize((width, height), face_image.BILINEAR)
 
                 # Save it back to disk.
