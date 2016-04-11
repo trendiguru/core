@@ -82,10 +82,10 @@ for set in sets:
                 cv2.waitKey(0)
 
                 print face_image.shape
-                # Open the image file.
+
                 img = Image.fromarray(face_image)
 
-                new_img = resizeimage.resize_thumbnail(img, [width, height, 3])
+                new_img = resizeimage.resize_thumbnail(face_image, [width, height])
 
                 #img = img.resize((width, height), img.BILINEAR)
                 print "new_img.size"
