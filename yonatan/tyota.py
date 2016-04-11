@@ -83,19 +83,19 @@ for set in sets:
 
                 print face_image.shape
 
-                img = Image.fromarray(face_image)
+                #img = Image.fromarray(face_image)
 
                 #new_img = resizeimage.resize_thumbnail(img, [width, height])
 
 
-                #img = img.astype(uint8)
+                # img = img.astype(uint8)
 
                 # img = img.astype(float32)
 
-                img = uint8(img)
+                # img = uint8(img)
 
                 # img = float32(img)
-
+                '''
                 img = img.resize((width, height))
 
                 print "new_img.size"
@@ -107,8 +107,8 @@ for set in sets:
                 # Save it back to disk.
                 #final_img.save(os.path.join(root, 'resized_face-' + file))
                 #scipy.misc.toimage(img, cmin=0.0, cmax=...).save(os.path.join(root, 'resized_face-' + file))
-
-                img.save(os.path.join(root, 'resized_face-' + file))
+                '''
+                face_image.save(os.path.join(root, 'face-' + file))
 
                 #scipy.misc.imsave(os.path.join(root, 'resized_face-' + file), img)
                 counter += 1
