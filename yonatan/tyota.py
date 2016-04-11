@@ -79,7 +79,6 @@ for set in sets:
                 #im = Image.fromarray(face_image)
                 #im.save("/home/yonatan/test_set/female/DELETE-Juljia_Vysotskij_0001.jpg")
                 print type(face_image)
-                exit()
 
 
                 # Open the image file.
@@ -88,6 +87,8 @@ for set in sets:
 
                 # Resize it.
                 img = Image.fromarray(face_image)
+                print type(img)
+                exit()
                 img = img.resize((width, height), face_image.BILINEAR)
 
                 # Save it back to disk.
