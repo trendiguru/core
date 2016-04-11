@@ -50,8 +50,8 @@ def find_face(image):
     return faces
 
 
-width = 100
-height = 100
+width = 115
+height = 115
 counter = 0
 
 sets = {'train', 'test'}
@@ -99,7 +99,7 @@ for set in sets:
                 #scipy.misc.toimage(img, cmin=0.0, cmax=...).save(os.path.join(root, 'resized_face-' + file))
 
                 #img.save(os.path.join(root, 'resized_face-' + file))
-                scipy.misc.imsave(os.path.join(root, 'resized_face-' + file), new_img)
+                scipy.misc.imsave(os.path.join(root, 'resized_face-' + file), img)
                 counter += 1
                 print counter
                 print file
