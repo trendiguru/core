@@ -50,8 +50,8 @@ def find_face(image):
     return faces
 
 
-width = 115
-height = 115
+width = 50
+height = 50
 counter = 0
 
 sets = {'train', 'test'}
