@@ -11,7 +11,7 @@ width = 115
 height = 115
 counter = 0
 
-sets = {'train', 'test'}
+sets = {'train'}
 
 for set in sets:
     if set == 'train':
