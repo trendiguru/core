@@ -48,9 +48,9 @@ def bbs_to_db(dir_of_bbfiles,dir_of_images,use_visual_output=True):
         info_dict['image_height'] = h
         items = []
         with open(full_filename,'r+') as fp:
-            item_dict = {}
             n_boxes = 0
             for line in fp:
+                item_dict = {}
                 n_boxes += 1
              #   line = str(category_number)+' '+str(  dark_bb[0])[0:n_digits]+' '+str(dark_bb[1])[0:n_digits]+' '+str(dark_bb[2])[0:n_digits]+' '+str(dark_bb[3])[0:n_digits] + '\n'
                 vals = [int(s) if s.isdigit() else float(s) for s in line.split()]
@@ -76,7 +76,7 @@ def bbs_to_db(dir_of_bbfiles,dir_of_images,use_visual_output=True):
         #             cv2.waitKey(100)
                 items.append(item_dict)
             # cv2.destroyAllWindows()
-            fp.close()
+        #fp.close()
         info_dict['items'] = items
         print('db entry:'+str(info_dict))
         ack = db.training_images.insert_one(info_dict)
