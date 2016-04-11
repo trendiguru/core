@@ -92,6 +92,8 @@ for set in sets:
             if file.endswith(".jpg"):
                 # Open the image file.
                 img = Image.open(os.path.join(root, file))
+                print type(img)
+                exit()
 
                 # Resize it.
                 img = img.resize((width, height), Image.BILINEAR)
