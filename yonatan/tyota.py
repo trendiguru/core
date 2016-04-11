@@ -50,8 +50,8 @@ def find_face(image):
     return faces
 
 
-width = 115
-height = 115
+width = 350
+height = 350
 counter = 0
 
 sets = {'train', 'test'}
@@ -82,14 +82,15 @@ for set in sets:
                 cv2.waitKey(0)
 
                 print face_image.shape
-                # Open the image file.
+
                 img = Image.fromarray(face_image)
 
-                new_img = resizeimage.resize_thumbnail(img, [200, 200])
+                #new_img = resizeimage.resize_thumbnail(img, [width, height])
 
-                #img = img.resize((width, height), img.BILINEAR)
-                print new_img.size
-                print type(new_img)
+                img = img.resize((width, height))
+                print "new_img.size"
+                print img.size
+                print type(img)
                 #cv2.imshow("cropped", img)
                 #cv2.waitKey(0)
                 #final_img = Image.fromarray(img)
@@ -98,7 +99,7 @@ for set in sets:
                 #scipy.misc.toimage(img, cmin=0.0, cmax=...).save(os.path.join(root, 'resized_face-' + file))
 
                 #img.save(os.path.join(root, 'resized_face-' + file))
-                scipy.misc.imsave(os.path.join(root, 'resized_face-' + file), new_img)
+                scipy.misc.imsave(os.path.join(root, 'resized_face-' + file), img)
                 counter += 1
                 print counter
                 print file
