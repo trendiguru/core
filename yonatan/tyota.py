@@ -123,7 +123,7 @@ for set in sets:
                 # Open the image file.
                 img = Image.fromarray(face_image)
 
-                img = resizeimage.resize_cover(img, (width, height))
+                img = resizeimage.resize_cover(img, (width, height), validate=False)
                 #img = Image.fromarray(face_image)
 
                 #img = resize_image(face_image , (width, height, 3))
