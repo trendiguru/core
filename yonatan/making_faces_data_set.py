@@ -30,7 +30,7 @@ for set in sets:
                 img = img.resize((width, height), Image.BILINEAR)
 
                 # Save it back to disk.
-                img.save(os.path.join(root, file + 'resized'))
+                img.save(os.path.join(root, 'resized-' + file))
 
 
     for root, dirs, files in os.walk(mypath_female):
@@ -43,4 +43,4 @@ for set in sets:
                 img = img.resize((width, height), Image.BILINEAR)
 
                 # Save it back to disk.
-                img.save(os.path.join(root, file + 'resized'))
+                img.save(os.path.join(root, 'resized-' + file))
