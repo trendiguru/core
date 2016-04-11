@@ -85,12 +85,12 @@ for set in sets:
 
                 img = Image.fromarray(face_image)
 
-                new_img = resizeimage.resize_thumbnail(img, [width, height])
+                #new_img = resizeimage.resize_thumbnail(img, [width, height])
 
-                #img = img.resize((width, height), img.BILINEAR)
+                img = img.resize((width, height), img.BILINEAR)
                 print "new_img.size"
-                print new_img.size
-                print type(new_img)
+                print img.size
+                print type(img)
                 #cv2.imshow("cropped", img)
                 #cv2.waitKey(0)
                 #final_img = Image.fromarray(img)
