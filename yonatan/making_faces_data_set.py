@@ -9,6 +9,7 @@ from PIL import Image
 
 width = 115
 height = 115
+counter = 0
 
 sets = {'train', 'test'}
 
@@ -31,6 +32,8 @@ for set in sets:
 
                 # Save it back to disk.
                 img.save(os.path.join(root, 'resized-' + file))
+                counter += 1
+                print counter
 
 
     for root, dirs, files in os.walk(mypath_female):
@@ -44,3 +47,5 @@ for set in sets:
 
                 # Save it back to disk.
                 img.save(os.path.join(root, 'resized-' + file))
+                counter += 1
+                print counter
