@@ -78,12 +78,12 @@ for set in sets:
                 face_image = image[y:(y + h), x:(x + w)]
                 #im = Image.fromarray(face_image)
                 #im.save("/home/yonatan/test_set/female/DELETE-Juljia_Vysotskij_0001.jpg")
-                cv2.imshow("cropped", face_image)
-                cv2.waitKey(0)
+                #cv2.imshow("cropped", face_image)
+                #cv2.waitKey(0)
 
                 print face_image.shape
 
-                #img = Image.fromarray(face_image)
+                img = Image.fromarray(face_image)
 
                 #new_img = resizeimage.resize_thumbnail(img, [width, height])
 
