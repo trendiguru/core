@@ -78,7 +78,8 @@ for set in sets:
                 face_image = image[y:(y + h), x:(x + w)]
                 #im = Image.fromarray(face_image)
                 #im.save("/home/yonatan/test_set/female/DELETE-Juljia_Vysotskij_0001.jpg")
-
+                print type(face_image)
+                exit()
 
 
                 # Open the image file.
