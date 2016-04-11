@@ -85,11 +85,11 @@ for set in sets:
                 # Open the image file.
                 img = Image.fromarray(face_image)
 
-                img = resizeimage.resize_thumbnail(img, [width, height])
+                new_img = resizeimage.resize_thumbnail(img, [width, height])
 
                 #img = img.resize((width, height), img.BILINEAR)
-                print img.size
-                print type(img)
+                print new_img.size
+                print type(new_img)
                 #cv2.imshow("cropped", img)
                 #cv2.waitKey(0)
                 #final_img = Image.fromarray(img)
@@ -98,7 +98,7 @@ for set in sets:
                 #scipy.misc.toimage(img, cmin=0.0, cmax=...).save(os.path.join(root, 'resized_face-' + file))
 
                 #img.save(os.path.join(root, 'resized_face-' + file))
-                scipy.misc.imsave(os.path.join(root, 'resized_face-' + file), img)
+                scipy.misc.imsave(os.path.join(root, 'resized_face-' + file), new_img)
                 counter += 1
                 print counter
                 print file
