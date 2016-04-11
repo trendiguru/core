@@ -118,7 +118,7 @@ for set in sets:
                 cv2.imshow("cropped", face_image)
                 cv2.waitKey(0)
 
-
+                print face_image.shape
                 # Open the image file.
 
                 #img = Image.open(os.path.join(root, file))
