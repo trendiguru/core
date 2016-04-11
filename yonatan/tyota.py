@@ -85,7 +85,7 @@ for set in sets:
                 # Open the image file.
                 img = Image.fromarray(face_image)
 
-                new_img = resizeimage.resize_thumbnail(img, [width, height])
+                new_img = resizeimage.resize_thumbnail(img, [200, 200])
 
                 #img = img.resize((width, height), img.BILINEAR)
                 print new_img.size
