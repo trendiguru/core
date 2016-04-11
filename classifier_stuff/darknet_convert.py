@@ -76,7 +76,7 @@ def bbs_to_db(dir_of_bbfiles,dir_of_images,use_visual_output=True):
         #             cv2.waitKey(100)
                 items.append(item_dict)
             # cv2.destroyAllWindows()
-            fp.close()
+        #fp.close()
         info_dict['items'] = items
         print('db entry:'+str(info_dict))
         ack = db.training_images.insert_one(info_dict)
