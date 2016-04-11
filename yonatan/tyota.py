@@ -87,7 +87,16 @@ for set in sets:
 
                 #new_img = resizeimage.resize_thumbnail(img, [width, height])
 
-                img = img.resize((width, height), image.ANTIALIAS)
+                img = img.resize((width, height))
+
+                #image = image.astype(uint8)
+
+                #image = image.astype(float32)
+
+                #image = uint8(image)
+
+                #image = float32(image)
+
                 print "new_img.size"
                 print img.size
                 print type(img)
@@ -99,6 +108,8 @@ for set in sets:
                 #scipy.misc.toimage(img, cmin=0.0, cmax=...).save(os.path.join(root, 'resized_face-' + file))
 
                 img.save(os.path.join(root, 'resized_face-' + file))
+                cv2.imshow("cropped", os.path.join(root, 'resized_face-' + file))
+                cv2.waitKey(0)
                 #scipy.misc.imsave(os.path.join(root, 'resized_face-' + file), img)
                 counter += 1
                 print counter
