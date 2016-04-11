@@ -95,6 +95,8 @@ for set in sets:
                 # img = uint8(img)
 
                 # img = float32(img)
+
+                resized_image = cv2.resize(face_image, (width, height))
                 '''
                 img = img.resize((width, height))
 
@@ -110,7 +112,7 @@ for set in sets:
                 '''
                 #img.save(os.path.join(root, 'face-' + file))
 
-                cv2.imwrite(os.path.join(root, 'face-' + file), face_image)
+                cv2.imwrite(os.path.join(root, 'face-' + file), resized_image)
                 counter += 1
                 print counter
                 print file
