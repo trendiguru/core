@@ -110,7 +110,7 @@ for set in sets:
                 '''
                 #img.save(os.path.join(root, 'face-' + file))
 
-                scipy.misc.imsave(os.path.join(root, 'face-' + file), face_image)
+                cv2.imwrite(os.path.join(root, 'face-' + file), face_image)
                 counter += 1
                 print counter
                 print file
