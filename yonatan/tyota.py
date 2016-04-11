@@ -88,11 +88,11 @@ for set in sets:
                 #new_img = resizeimage.resize_thumbnail(img, [width, height])
 
 
-                img = img.astype(uint8)
+                #img = img.astype(uint8)
 
                 # img = img.astype(float32)
 
-                # img = uint8(img)
+                img = uint8(img)
 
                 # img = float32(img)
 
