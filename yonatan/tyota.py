@@ -14,6 +14,7 @@ import argparse
 import glob
 import time
 import skimage
+import scipy
 
 
 def cv2_image_to_caffe(image):
@@ -127,9 +128,10 @@ for set in sets:
                 #img = img.resize((width, height), face_image.BILINEAR)
                 print img.shape
                 print type(img)
-                final_img = Image.fromarray(img)
+                #final_img = Image.fromarray(img)
                 # Save it back to disk.
-                final_img.save(os.path.join(root, 'resized_face-' + file))
+                #final_img.save(os.path.join(root, 'resized_face-' + file))
+                scipy.misc.toimage(img, cmin=0.0, cmax=...).save(os.path.join(root, 'resized_face-' + file))
                 counter += 1
                 print counter
                 print file
