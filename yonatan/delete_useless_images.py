@@ -11,7 +11,7 @@ width = 115
 height = 115
 counter = 0
 
-sets = {'train'}
+sets = {'train', 'test'}
 
 for set in sets:
     if set == 'train':
@@ -24,7 +24,7 @@ for set in sets:
     for root, dirs, files in os.walk(mypath_male):
         for file in files:
             if file.startswith("resized-"):
-                os.remove(file)
+                os.remove(os.path.join(root, file))
                 counter += 1
                 print counter
 
@@ -32,6 +32,8 @@ for set in sets:
     for root, dirs, files in os.walk(mypath_female):
         for file in files:
             if file.startswith("resized-"):
-                os.remove(file)
+                os.remove(os.path.join(root, file))
                 counter += 1
                 print counter
+
+                os.path.join(root, file)
