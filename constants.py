@@ -243,7 +243,8 @@ fashionista_categories = ['null','tights','shorts','blazer','t-shirt','bag','sho
                           'flats','tie','romper','sandals','earrings','gloves','sneakers','clogs','watch','pumps','wallet',
                           'bodysuit','loafers','hair','skin']
 
-tamara_berg_categories =          ['bag','belt','dress','eyewear','footwear','hat','legging','outerwear','pants','skirts','top',      'skin','background']   #orig t.b. cats dont have skin or bg
+tamara_berg_categories = ['bag', 'belt', 'dress', 'eyewear', 'footwear', 'hat', 'legging', 'outerwear', 'pants',
+                          'skirts', 'top', 'skin', 'background']   # orig t.b. cats don't have skin or bg
 tamara_berg_improved_categories = ['bag','belt','dress','eyewear','footwear','hat','legging','outerwear','pants','skirts','top',
                                    'skin','background','tights','shorts','blouse','bra','vest','suit','jeans','necklace','sweatshirt','tie']
 

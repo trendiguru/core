@@ -44,9 +44,12 @@ def create_training_set_with_grabcut():
         mask = np.where(skin_mask == 255, 1, 0).astype(np.uint8)
         for item in doc['items']:
             item_bb = get_margined_bb(image, item['bb'], 0.1)
+            if item['category'] not in cats:
+                continue
             category_num = cats.index(item['category'])
             item_mask = background_removal.simple_mask_grabcut(image, rect=item_bb)
             mask = np.where(item_mask == 255, category_num, mask)
         filename = 'tamara_berg_street2shop_dataset/masks/' + url[:-4]
         save_to_storage(bucket, mask, filename)
         db.training_images.update_one({'_id': doc['_id']}, {'$set': {'mask_url': filename}})
+
