@@ -120,8 +120,8 @@ for set in sets:
 
                 print face_image.shape
                 # Open the image file.
-
-                img = Image.open(face_image)
+                img = Image.fromarray(face_image)
+                img = Image.open(img)
 
                 #img = Image.fromarray(face_image)
 
