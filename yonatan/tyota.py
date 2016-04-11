@@ -83,7 +83,7 @@ for set in sets:
 
                 print face_image.shape
 
-                img = Image.fromarray(face_image)
+                #img = Image.fromarray(face_image)
 
                 #new_img = resizeimage.resize_thumbnail(img, [width, height])
 
