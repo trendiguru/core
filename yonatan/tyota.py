@@ -14,7 +14,8 @@ import argparse
 import glob
 import time
 import skimage
-from PIL import Image
+import scipy
+from resizeimage import resizeimage
 
 
 def cv2_image_to_caffe(image):
@@ -49,7 +50,6 @@ def find_face(image):
     return faces
 
 
-
 width = 115
 height = 115
 counter = 0
@@ -78,23 +78,29 @@ for set in sets:
                 face_image = image[y:(y + h), x:(x + w)]
                 #im = Image.fromarray(face_image)
                 #im.save("/home/yonatan/test_set/female/DELETE-Juljia_Vysotskij_0001.jpg")
-                print type(face_image)
+                cv2.imshow("cropped", face_image)
+                cv2.waitKey(0)
 
-
+                print face_image.shape
                 # Open the image file.
-
-                #img = Image.open(os.path.join(root, file))
-
-                # Resize it.
                 img = Image.fromarray(face_image)
+
+                img = resizeimage.resize_thumbnail(img, [width, height])
+
+                #img = img.resize((width, height), img.BILINEAR)
+                print img.shape
                 print type(img)
-
-                img = img.resize((width, height), face_image.BILINEAR)
-
+                cv2.imshow("cropped", img)
+                cv2.waitKey(0)
+                #final_img = Image.fromarray(img)
                 # Save it back to disk.
-                img.save(os.path.join(root, 'resized_face-' + file))
+                #final_img.save(os.path.join(root, 'resized_face-' + file))
+                #scipy.misc.toimage(img, cmin=0.0, cmax=...).save(os.path.join(root, 'resized_face-' + file))
+                scipy.misc.imsave(os.path.join(root, 'resized_face-' + file), img)
                 counter += 1
                 print counter
+                print file
+                exit()
 
 
     for root, dirs, files in os.walk(mypath_female):
