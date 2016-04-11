@@ -121,7 +121,6 @@ for set in sets:
 
                 #img = Image.open(os.path.join(root, file))
 
-                # Resize it.
                 #img = Image.fromarray(face_image)
 
                 img = resize_image(face_image , (width, height))
