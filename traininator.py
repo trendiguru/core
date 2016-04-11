@@ -28,10 +28,11 @@ def save_to_storage(buck, data, filename):
     blb.upload_from_string(data.tostring())
 
 
-def create_training_set_with_grabcut():
+def create_training_set_with_grabcut(collection):
+    coll = db[collection]
     i = 1
     total = db.training_images.count()
-    for doc in db.training_images.find():
+    for doc in coll.find():
         if not i % 1000:
             print "did {0}/{1} documents".format(i, total)
         url = doc['url'].split('/')[-1]
@@ -51,5 +52,5 @@ def create_training_set_with_grabcut():
             mask = np.where(item_mask == 255, category_num, mask)
         filename = 'tamara_berg_street2shop_dataset/masks/' + url[:-4]
         save_to_storage(bucket, mask, filename)
-        db.training_images.update_one({'_id': doc['_id']}, {'$set': {'mask_url': filename}})
+        coll.update_one({'_id': doc['_id']}, {'$set': {'mask_url': filename}})
 
