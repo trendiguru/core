@@ -127,6 +127,7 @@ for set in sets:
                 img = resize_image(face_image , (width, height))
                 #img = img.resize((width, height), face_image.BILINEAR)
                 print img.shape
+                print type(img)
                 final_img = Image.fromarray(img)
                 # Save it back to disk.
                 final_img.save(os.path.join(root, 'resized_face-' + file))
