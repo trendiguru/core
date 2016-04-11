@@ -53,27 +53,6 @@ for set in sets:
     #text_file.close()
 
 
-
-
-'''
-width = 100
-height = 100
-             #breaker  = True
-             #break
-    if breaker:
-        break
-
-        if file.endswith("Aaron_Eckhart_0001.jpg"):
-             # Open the image file.
-         img = Image.open(os.path.join(root, file))
- 
-             # Resize it.
-             img = img.resize((width, height), Image.BILINEAR)
- 
-             # Save it back to disk.
-             img.save(os.path.join(root, 'resized-' + file))
-
-'''
 '''
     mypath = '/home/yonatan/test_set/female'
     f = []
