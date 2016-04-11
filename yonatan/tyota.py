@@ -15,6 +15,7 @@ import glob
 import time
 import skimage
 import scipy
+from resizeimage import resizeimage
 
 
 def cv2_image_to_caffe(image):
@@ -121,8 +122,8 @@ for set in sets:
                 print face_image.shape
                 # Open the image file.
                 img = Image.fromarray(face_image)
-                img = Image.open(img)
 
+                img = resizeimage.resize_cover(img, [width, height])
                 #img = Image.fromarray(face_image)
 
                 #img = resize_image(face_image , (width, height, 3))
