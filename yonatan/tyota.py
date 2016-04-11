@@ -86,6 +86,7 @@ for set in sets:
                 #img = Image.open(os.path.join(root, file))
 
                 # Resize it.
+                img = Image.fromarray(face_image)
                 img = img.resize((width, height), face_image.BILINEAR)
 
                 # Save it back to disk.
@@ -116,6 +117,7 @@ for set in sets:
                 # img = Image.open(os.path.join(root, file))
 
                 # Resize it.
+                img = Image.fromarray(face_image)
                 img = img.resize((width, height), face_image.BILINEAR)
 
                 # Save it back to disk.
