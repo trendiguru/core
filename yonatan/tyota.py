@@ -123,11 +123,11 @@ for set in sets:
                 # Open the image file.
                 img = Image.fromarray(face_image)
 
-                img = resizeimage.resize_cover(img, [width, height])
+                img = resizeimage.resize_cover(img, (width, height))
                 #img = Image.fromarray(face_image)
 
                 #img = resize_image(face_image , (width, height, 3))
-                img = img.resize((width, height), img.BILINEAR)
+                #img = img.resize((width, height), img.BILINEAR)
                 print img.shape
                 print type(img)
                 cv2.imshow("cropped", img)
