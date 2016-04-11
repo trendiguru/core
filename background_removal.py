@@ -370,7 +370,7 @@ def simple_mask_grabcut(image, rect=None, mask=None):
         mode = cv2.GC_INIT_WITH_MASK
     else:
         rect = tuple(rect)
-        mask = np.zeros(image.shape, dtype=np.uint8)
+        mask = np.zeros(image.shape[:2], dtype=np.uint8)
         mode = cv2.GC_INIT_WITH_RECT
     bgdmodel = np.zeros((1, 65), np.float64)
     fgdmodel = np.zeros((1, 65), np.float64)
