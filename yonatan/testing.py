@@ -10,6 +10,7 @@ import argparse
 import glob
 import time
 import skimage
+from PIL import Image
 
 path = "/home/yonatan/test_set/female/Juljia_Vysotskij_0001.jpg"
 image = Utils.get_cv2_img_array(path)
@@ -59,6 +60,8 @@ w = face[0][2]
 h = face[0][3]
 
 face_image = image[y:(y+h), x:(x+w)]
+im = Image.fromarray(face_image)
+im.save("/home/yonatan/test_set/female/DELETE-Juljia_Vysotskij_0001.jpg")
 
 '''
 print face_image

@@ -7,7 +7,6 @@ from skimage.transform import resize
 import os
 from PIL import Image
 import caffe
-import numpy as np
 from trendi import background_removal, Utils, constants
 import cv2
 import sys
@@ -16,10 +15,6 @@ import glob
 import time
 import skimage
 from PIL import Image
-
-
-path = "/home/yonatan/test_set/female/Juljia_Vysotskij_0001.jpg"
-image = Utils.get_cv2_img_array(path)
 
 
 def cv2_image_to_caffe(image):
@@ -54,24 +49,6 @@ def find_face(image):
     return faces
 
 
-face = find_face(image)
-
-
-x = face[0][0]
-y = face[0][1]
-w = face[0][2]
-h = face[0][3]
-
-face_image = image[y:(y+h), x:(x+w)]
-im = Image.fromarray(face_image)
-im.save("/home/yonatan/test_set/female/DELETE-Juljia_Vysotskij_0001.jpg")
-
-
-
-
-
-
-
 
 width = 115
 height = 115
@@ -90,11 +67,26 @@ for set in sets:
     for root, dirs, files in os.walk(mypath_male):
         for file in files:
             if file.endswith(".jpg"):
+                image = Utils.get_cv2_img_array(os.path.join(root, file))
+                face = find_face(image)
+
+                x = face[0][0]
+                y = face[0][1]
+                w = face[0][2]
+                h = face[0][3]
+
+                face_image = image[y:(y + h), x:(x + w)]
+                #im = Image.fromarray(face_image)
+                #im.save("/home/yonatan/test_set/female/DELETE-Juljia_Vysotskij_0001.jpg")
+
+
+
                 # Open the image file.
-                img = Image.open(os.path.join(root, file))
+
+                #img = Image.open(os.path.join(root, file))
 
                 # Resize it.
-                img = img.resize((width, height), Image.BILINEAR)
+                img = img.resize((width, height), face_image.BILINEAR)
 
                 # Save it back to disk.
                 img.save(os.path.join(root, 'resized_face-' + file))
@@ -105,11 +97,26 @@ for set in sets:
     for root, dirs, files in os.walk(mypath_female):
         for file in files:
             if file.endswith(".jpg"):
+                image = Utils.get_cv2_img_array(os.path.join(root, file))
+                face = find_face(image)
+
+                x = face[0][0]
+                y = face[0][1]
+                w = face[0][2]
+                h = face[0][3]
+
+                face_image = image[y:(y + h), x:(x + w)]
+                # im = Image.fromarray(face_image)
+                # im.save("/home/yonatan/test_set/female/DELETE-Juljia_Vysotskij_0001.jpg")
+
+
+
                 # Open the image file.
-                img = Image.open(os.path.join(root, file))
+
+                # img = Image.open(os.path.join(root, file))
 
                 # Resize it.
-                img = img.resize((width, height), Image.BILINEAR)
+                img = img.resize((width, height), face_image.BILINEAR)
 
                 # Save it back to disk.
                 img.save(os.path.join(root, 'resized_face-' + file))
