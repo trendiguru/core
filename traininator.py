@@ -44,6 +44,7 @@ def create_training_set_with_grabcut(collection):
         if image is None:
             print "{0} is a bad image".format(img_url)
             continue
+        i += 1
         small_image, ratio = background_removal.standard_resize(image, 600)
         skin_mask = kassper.skin_detection_with_grabcut(small_image, small_image, skin_or_clothes='skin')
         mask = np.where(skin_mask == 255, 1, 0).astype(np.uint8)
