@@ -60,6 +60,7 @@ for set in sets:
                 image = Utils.get_cv2_img_array(os.path.join(root, file))
                 face = find_face(image)
                 print face
+                print file
                 x = face[0][0]
                 y = face[0][1]
                 w = face[0][2]
