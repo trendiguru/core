@@ -78,16 +78,28 @@ for set in sets:
                 face_image = image[y:(y + h), x:(x + w)]
                 #im = Image.fromarray(face_image)
                 #im.save("/home/yonatan/test_set/female/DELETE-Juljia_Vysotskij_0001.jpg")
-                cv2.imshow("cropped", face_image)
-                cv2.waitKey(0)
+                #cv2.imshow("cropped", face_image)
+                #cv2.waitKey(0)
 
                 print face_image.shape
 
-                img = Image.fromarray(face_image)
+                #img = Image.fromarray(face_image)
 
                 #new_img = resizeimage.resize_thumbnail(img, [width, height])
 
+
+                # img = img.astype(uint8)
+
+                # img = img.astype(float32)
+
+                # img = uint8(img)
+
+                # img = float32(img)
+
+                resized_image = cv2.resize(face_image, (width, height))
+                '''
                 img = img.resize((width, height))
+
                 print "new_img.size"
                 print img.size
                 print type(img)
@@ -97,9 +109,10 @@ for set in sets:
                 # Save it back to disk.
                 #final_img.save(os.path.join(root, 'resized_face-' + file))
                 #scipy.misc.toimage(img, cmin=0.0, cmax=...).save(os.path.join(root, 'resized_face-' + file))
+                '''
+                #img.save(os.path.join(root, 'face-' + file))
 
-                img.save(os.path.join(root, 'resized_face-' + file))
-                #scipy.misc.imsave(os.path.join(root, 'resized_face-' + file), img)
+                cv2.imwrite(os.path.join(root, 'face-' + file), resized_image)
                 counter += 1
                 print counter
                 print file
