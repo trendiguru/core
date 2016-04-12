@@ -23,7 +23,7 @@ for set in sets:
 
     for root, dirs, files in os.walk(mypath_male):
         for file in files:
-            if file.startswith("resized-"):
+            if file.startswith("face-"):
                 os.remove(os.path.join(root, file))
                 counter += 1
                 print counter
@@ -31,7 +31,7 @@ for set in sets:
 
     for root, dirs, files in os.walk(mypath_female):
         for file in files:
-            if file.startswith("resized-"):
+            if file.startswith("face-"):
                 os.remove(os.path.join(root, file))
                 counter += 1
                 print counter
