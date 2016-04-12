@@ -35,8 +35,9 @@ def create_training_set_with_grabcut(collection):
     total = db.training_images.count()
     start = time.time()
     for doc in coll.find():
-        if not i % 1000:
+        if not i % 10:
             print "did {0}/{1} documents in {2} seconds".format(i, total, time.time()-start)
+            print "average time for image = {0}".format((time.time()-start)/i)
         url = doc['url'].split('/')[-1]
         img_url = 'https://tg-training.storage.googleapis.com/tamara_berg_street2shop_dataset/images/' + url
         image = Utils.get_cv2_img_array(img_url)
