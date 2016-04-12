@@ -67,12 +67,6 @@ im = Image.fromarray(face_image)
 im.save("/home/yonatan/test_set/female/DELETE-Juljia_Vysotskij_0001.jpg")
 
 
-
-
-
-
-
-
 width = 115
 height = 115
 counter = 0
