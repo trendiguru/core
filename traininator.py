@@ -49,10 +49,11 @@ def create_training_set_with_grabcut(collection):
         i += 1
         small_image, ratio = background_removal.standard_resize(image, 600)
         skin_mask = kassper.skin_detection_with_grabcut(small_image, small_image, skin_or_clothes='skin')
-        mask = np.where(skin_mask == 255, 35, 0).astype(np.uint8)
+        # mask = np.where(skin_mask == 255, 35, 0).astype(np.uint8)
+        mask = np.zeros(small_image.shape[:2], dtype=np.uint8)
         for item in doc['items']:
             bb = [int(c/ratio) for c in item['bb']]
-            item_bb = get_margined_bb(small_image, bb, 0.1)
+            item_bb = get_margined_bb(small_image, bb, 0)
             if item['category'] not in cats:
                 continue
             category_num = cats.index(item['category'])
