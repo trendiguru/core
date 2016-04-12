@@ -1,4 +1,5 @@
 import numpy as np
+import time
 from . import background_removal
 from . import constants
 from . import Utils
@@ -32,9 +33,10 @@ def create_training_set_with_grabcut(collection):
     coll = db[collection]
     i = 1
     total = db.training_images.count()
+    start = time.time()
     for doc in coll.find():
         if not i % 1000:
-            print "did {0}/{1} documents".format(i, total)
+            print "did {0}/{1} documents in {2} seconds".format(i, total, time.time()-start)
         url = doc['url'].split('/')[-1]
         img_url = 'https://tg-training.storage.googleapis.com/tamara_berg_street2shop_dataset/images/' + url
         image = Utils.get_cv2_img_array(img_url)
@@ -55,4 +57,4 @@ def create_training_set_with_grabcut(collection):
         filename = 'tamara_berg_street2shop_dataset/masks/' + url[:-4] + '.png'
         save_to_storage(bucket, mask, filename)
         coll.update_one({'_id': doc['_id']}, {'$set': {'mask_url': 'https://tg-training.storage.googleapis.com/' + filename}})
-
+    print "Done masking! took {0} seconds".format(time.time()-start)
