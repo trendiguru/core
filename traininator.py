@@ -1,5 +1,6 @@
 import numpy as np
 import time
+import cv2
 from . import background_removal
 from . import constants
 from . import Utils
@@ -25,8 +26,9 @@ def get_margined_bb(image, bb, buffer):
 
 def save_to_storage(buck, data, filename):
     blb = buck.blob(filename)
+    mask_str = cv2.imencode('.png', data)[1].tostring()
     # To upload from 2d-mask
-    blb.upload_from_string(data.tostring())
+    blb.upload_from_string(mask_str)
 
 
 def create_training_set_with_grabcut(collection):
