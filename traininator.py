@@ -13,10 +13,6 @@ credentials = GoogleCredentials.get_application_default()
 bucket = storage.Client(credentials=credentials).bucket("tg-training")
 
 
-def resize_bb(bb, ratio):
-    rerurn
-
-
 def get_margined_bb(image, bb, buffer):
     x, y, w, h = bb
     x_back = np.max((x - int(buffer*w), 0))
@@ -56,7 +52,7 @@ def create_training_set_with_grabcut(collection):
             category_num = cats.index(item['category'])
             item_mask = background_removal.simple_mask_grabcut(small_image, rect=item_bb)
             mask = np.where(item_mask == 255, category_num, mask)
-        filename = 'tamara_berg_street2shop_dataset/masks/' + url[:-4]
+        filename = 'tamara_berg_street2shop_dataset/masks/' + url[:-4] + '.png'
         save_to_storage(bucket, mask, filename)
-        coll.update_one({'_id': doc['_id']}, {'$set': {'mask_url': filename}})
+        coll.update_one({'_id': doc['_id']}, {'$set': {'mask_url': 'https://tg-training.storage.googleapis.com/' + filename}})
 
