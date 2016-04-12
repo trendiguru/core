@@ -30,7 +30,7 @@ for set in sets:
             if male_count >= total_gender_pics:
                 breaker = True
                 break
-            if file.endswith(".jpg"):
+            if file.startswith("face-"):
                 text_file.write(root + "/" + file + " 0\n")
                 male_count += 1
     text_file.flush()
@@ -47,7 +47,7 @@ for set in sets:
             if female_count >= total_gender_pics:
                 breaker = True
                 break
-            if file.endswith(".jpg"):
+            if file.startswith("face-"):
                 text_file.write(root + "/" + file + " 1\n")
                 female_count += 1
     text_file.flush()
