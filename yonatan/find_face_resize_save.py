@@ -60,22 +60,21 @@ for set in sets:
                 image = Utils.get_cv2_img_array(os.path.join(root, file))
                 face = find_face(image)
 
-                #if face ==
-                print face
-                print file
-                print ("size %d" %(face.size))
-                x = face[0][0]
-                y = face[0][1]
-                w = face[0][2]
-                h = face[0][3]
+                if face:
+                    x = face[0][0]
+                    y = face[0][1]
+                    w = face[0][2]
+                    h = face[0][3]
 
-                face_image = image[y:(y + h), x:(x + w)]
+                    face_image = image[y:(y + h), x:(x + w)]
 
-                resized_image = cv2.resize(face_image, (width, height))
+                    resized_image = cv2.resize(face_image, (width, height))
 
-                cv2.imwrite(os.path.join(root, 'face-' + file), resized_image)
-                counter += 1
-                print counter
+                    cv2.imwrite(os.path.join(root, 'face-' + file), resized_image)
+                    counter += 1
+                    print counter
+                else:
+                    print "Can't detect face"
 
 
     for root, dirs, files in os.walk(mypath_female):
@@ -84,15 +83,18 @@ for set in sets:
                 image = Utils.get_cv2_img_array(os.path.join(root, file))
                 face = find_face(image)
 
-                x = face[0][0]
-                y = face[0][1]
-                w = face[0][2]
-                h = face[0][3]
+                if face:
+                    x = face[0][0]
+                    y = face[0][1]
+                    w = face[0][2]
+                    h = face[0][3]
 
-                face_image = image[y:(y + h), x:(x + w)]
+                    face_image = image[y:(y + h), x:(x + w)]
 
-                resized_image = cv2.resize(face_image, (width, height))
+                    resized_image = cv2.resize(face_image, (width, height))
 
-                cv2.imwrite(os.path.join(root, 'face-' + file), resized_image)
-                counter += 1
-                print counter
+                    cv2.imwrite(os.path.join(root, 'face-' + file), resized_image)
+                    counter += 1
+                    print counter
+                else:
+                    print "Can't detect face"
