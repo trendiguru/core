@@ -169,6 +169,5 @@ layer {
   name: "loss"
   type: "Softmax"
   bottom: "ip2"
-  bottom: "label"
   top: "loss"
 }
