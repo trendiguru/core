@@ -620,7 +620,7 @@ def show_mask_with_labels(mask_filename,labels):
         scaled = np.uint8(np.multiply(img_arr, 255.0 / maxVal))
         dest = cv2.applyColorMap(scaled,colormap)
         bar_height = int(float(h)/len(uniques))
-        bar_width = 50
+        bar_width = 100
         colorbar = np.zeros([bar_height*len(uniques),bar_width])
         i = 0
         print('len labels:'+str(len(labels)))
@@ -719,7 +719,8 @@ if __name__ == "__main__":
 #        resize_and_crop_maintain_bb_on_dir(dir, output_width = 448, output_height = 448,use_visual_output=True)
     dir = '/home/jeremy/tg/pd_output'
     dir = '/root'
-    masklist = [f for f in os.listdir(dir) if '_output.bmp' in f]
+    masklist = [f for f in os.listdir(dir) if '_output.png' in f]
+    print('masks:'+str(masklist))
     labels = constants.pascal_context_labels
     for mask in masklist:
         fullname = os.path.join(dir,mask)
