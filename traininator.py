@@ -48,17 +48,20 @@ def create_training_set_with_grabcut(collection):
             continue
         i += 1
         small_image, ratio = background_removal.standard_resize(image, 600)
-        skin_mask = kassper.skin_detection_with_grabcut(small_image, small_image, skin_or_clothes='skin')
+        # skin_mask = kassper.skin_detection_with_grabcut(small_image, small_image, skin_or_clothes='skin')
         # mask = np.where(skin_mask == 255, 35, 0).astype(np.uint8)
         mask = np.zeros(small_image.shape[:2], dtype=np.uint8)
         for item in doc['items']:
-            bb = [int(c/ratio) for c in item['bb']]
-            item_bb = get_margined_bb(small_image, bb, 0)
-            if item['category'] not in cats:
+            try:
+                bb = [int(c/ratio) for c in item['bb']]
+                item_bb = get_margined_bb(small_image, bb, 0)
+                if item['category'] not in cats:
+                    continue
+                category_num = cats.index(item['category'])
+                item_mask = background_removal.simple_mask_grabcut(small_image, rect=item_bb)
+            except:
                 continue
-            category_num = cats.index(item['category'])
-            item_mask = background_removal.simple_mask_grabcut(small_image, rect=item_bb)
-            mask = np.where(item_mask == 255, 35*category_num, mask)
+            mask = np.where(item_mask == 255, category_num, mask)
         filename = 'tamara_berg_street2shop_dataset/masks/' + url[:-4] + '.txt'
         save_to_storage(bucket, mask, filename)
         coll.update_one({'_id': doc['_id']}, {'$set': {'mask_url': 'https://tg-training.storage.googleapis.com/' + filename}})
