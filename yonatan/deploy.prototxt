@@ -132,6 +132,7 @@ layer {
       type: "constant"
     }
   }
+}
 layer {
   name: "encode1neuron"
   bottom: "ip2"
