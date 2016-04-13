@@ -248,6 +248,12 @@ tamara_berg_categories = ['bag', 'belt', 'dress', 'eyewear', 'footwear', 'hat', 
 tamara_berg_improved_categories = ['bag','belt','dress','eyewear','footwear','hat','legging','outerwear','pants','skirts','top',
                                    'skin','background','tights','shorts','blouse','bra','vest','suit','jeans','necklace','sweatshirt','tie']
 
+pascal_context_labels = ['aeroplane','bicycle','bird','boat','bottle','bus','car','cat','chair','cow','table','dog','horse','motorbike','person','pottedplant',\
+'sheep','sofa','train','tvmonitor','bag','bed','bench','book','building','cabinet','ceiling','cloth','computer','cup','door','fence',\
+'floor','flower','food','grass','ground','keyboard','light','mountain','mouse','curtain','platform','sign','plate','road','rock',\
+'shelves','sidewalk','sky','snow','bedclothes','track','tree','truck','wall','water','window','wood']
+
+
 pd_output_savedir = '/home/jeremy/pd_output'
 # for web bounding box interface
 # this is for going to the previous item, highest numbered image
