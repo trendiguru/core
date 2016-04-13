@@ -132,4 +132,9 @@ layer {
       type: "constant"
     }
   }
+layer {
+  name: "encode1neuron"
+  bottom: "ip2"
+  top: "encode1neuron"
+  type: "Sigmoid"
 }
