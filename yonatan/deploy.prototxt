@@ -133,9 +133,3 @@ layer {
     }
   }
 }
-layer {
-  name: "relu2"
-  type: "ReLU"
-  bottom: "ip2"
-  top: "relu2"
-}
