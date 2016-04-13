@@ -14,7 +14,7 @@ layer {
     mean_value: 120
   }
   image_data_param {
-    source: "/home/yonatan/core/yonatan/face_train.txt"
+    source: "/home/yonatan/core/yonatan/train.txt"
     batch_size: 50
     shuffle: true
   }
@@ -34,7 +34,7 @@ layer {
     mean_value: 120
   }
   image_data_param {
-    source: "/home/yonatan/core/yonatan/face_test.txt"
+    source: "/home/yonatan/core/yonatan/test.txt"
     batch_size: 45
     shuffle: true
   }
