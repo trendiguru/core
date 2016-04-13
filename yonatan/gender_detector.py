@@ -18,7 +18,7 @@ def main(argv):
 
     input_image = sys.argv[1]
     MODLE_FILE = "/home/yonatan/core/yonatan/deploy.prototxt"
-    PRETRAINED = "/home/yonatan/network_5000_train_faces_115/intermediate_output_iter_10000.caffemodel"
+    PRETRAINED = "/home/yonatan/intermediate_output_iter_10000.caffemodel"
     caffe.set_mode_gpu()
     image_dims = [115, 115]
     mean, input_scale = None, None
