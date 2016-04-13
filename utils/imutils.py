@@ -600,6 +600,35 @@ def resize_and_crop_maintain_bb_on_dir(dir, output_width = 150, output_height = 
         fullfile = os.path.join(dir,a_file)
         retval = resize_and_crop_maintain_bb(fullfile, output_width = 150, output_height = 200,use_visual_output=True,bb=None)
 
+def show_mask(mask_filename,labels):
+    img_arr = cv2.imread(mask_filename)
+    s = img_arr.shape
+    if len(s) != 2:
+        logging.warning('got a multichannel image that I CANNOT DEAL WITH')
+        return
+    h,w = img_arr.shape
+    uniques = np.unique(img_arr)
+    if len(uniques>len(labels)):
+        logging.warning('number of unique mask values > number of labels!!!')
+        return
+    if img_arr is not None:
+        # minVal, maxVal, minLoc, maxLoc = cv2.minMaxLoc(img_array)
+        maxVal = len(labels)
+        scaled = np.integer(np.multiply(img_arr, 255.0 / maxVal))
+        dest = cv2.applyColorMap(scaled, cv2.COLORMAP_RAINBOW)
+        bar_height = 10
+        bar_width = 50
+        colorbar = np.zeros([bar_height*maxVal,bar_width])
+        for i in range(0,maxVal):
+            colorbar[i*bar_height:i*bar_height+bar_height,:] = i
+        scaled_colorbar = np.integer(np.multiply(img_arr, 255.0 / maxVal))
+        dest_colorbar = cv2.applyColorMap(scaled_colorbar, cv2.COLORMAP_RAINBOW)
+        cv2.imshow('map',dest)
+        cv2.imshow('colorbar',dest_colorbar)
+        cv2.waitKey(0)
+        return dest
+
+
 
 def nms_detections(dets, overlap=0.3):
     """
