@@ -6,8 +6,8 @@ layer {
     shape: {
       dim: 1
       dim: 3
-      dim: 250
-      dim: 250
+      dim: 115
+      dim: 115
     }
   }
   transform_param {

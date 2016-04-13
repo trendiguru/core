@@ -57,7 +57,10 @@ def create_training_set_with_grabcut(collection):
             if item['category'] not in cats:
                 continue
             category_num = cats.index(item['category'])
-            item_mask = background_removal.simple_mask_grabcut(small_image, rect=item_bb)
+            try:
+                item_mask = background_removal.simple_mask_grabcut(small_image, rect=item_bb)
+            except:
+                continue
             mask = np.where(item_mask == 255, 35*category_num, mask)
         filename = 'tamara_berg_street2shop_dataset/masks/' + url[:-4] + '.txt'
         save_to_storage(bucket, mask, filename)
