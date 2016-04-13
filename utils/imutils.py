@@ -627,7 +627,10 @@ def show_mask_with_labels(mask_filename,labels):
         for unique in uniques:
             print('unique:'+str(unique))
             colorbar[i*bar_height:i*bar_height+bar_height,:] = unique
-            cv2.putText(colorbar,labels[unique-1],(5,i*bar_height+bar_height/2-5),cv2.FONT_HERSHEY_PLAIN,1,[255,0,0],thickness=2)
+	    if unique > len(labels):
+		logging.warning('pixel value out of label range')
+		continue
+            cv2.putText(colorbar,labels[unique],(5,i*bar_height+bar_height/2-10),cv2.FONT_HERSHEY_PLAIN,1,[i*255/len(uniques),i*255/len(uniques),100],thickness=2)
             i=i+1
 
         scaled_colorbar = np.uint8(np.multiply(colorbar, 255.0 / maxVal))
@@ -715,10 +718,14 @@ if __name__ == "__main__":
 #        dir = '/home/jeremy/projects/core/images'
 #        resize_and_crop_maintain_bb_on_dir(dir, output_width = 448, output_height = 448,use_visual_output=True)
     dir = '/home/jeremy/tg/pd_output'
-    masklist = [f for f in os.listdir(dir) if 'bmp' in f]
+    dir = '/root'
+    masklist = [f for f in os.listdir(dir) if '_output.bmp' in f]
+    labels = constants.pascal_context_labels
     for mask in masklist:
         fullname = os.path.join(dir,mask)
-        show_mask_with_labels(fullname,constants.fashionista_categories)
+#        show_mask_with_labels(fullname,constants.fashionista_categories)
+	print('name:'+mask)
+        show_mask_with_labels(fullname,labels)
 
 
 
