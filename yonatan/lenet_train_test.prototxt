@@ -15,7 +15,7 @@ layer {
   }
   image_data_param {
     source: "/home/yonatan/core/yonatan/face_train.txt"
-    batch_size: 64
+    batch_size: 50
     shuffle: true
   }
 }
@@ -35,7 +35,7 @@ layer {
   }
   image_data_param {
     source: "/home/yonatan/core/yonatan/face_test.txt"
-    batch_size: 100
+    batch_size: 45
     shuffle: true
   }
 }
