@@ -32,6 +32,7 @@ def main(argv):
             input_scale=input_scale, raw_scale=raw_scale,
             channel_swap=channel_swap)
 
+
     # Load numpy array (.npy), directory glob (*.jpg), or image file.
     input_file = os.path.expanduser(input_image)
     if input_file.endswith('npy'):
