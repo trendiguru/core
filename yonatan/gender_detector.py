@@ -64,7 +64,7 @@ def genderator(image):
     print np.array(inputs).shape
 
     text_file = open("face_testing.txt", "a")
-    text_file.write("predictions: %s" % (np.array2string(predictions, separator=', ')))
+    text_file.write("predictions: %s\n" % (np.array2string(predictions, separator=', ')))
     text_file.flush()
 #if __name__ == '__main__':
 #    genderator(sys.argv)
