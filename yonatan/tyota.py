@@ -12,6 +12,8 @@ import time
 import skimage
 from PIL import Image
 from . import gender_detector
+import random
+from matplotlib import pyplot
 
 
 mypath_female = '/home/yonatan/test_set/female'
@@ -29,5 +31,10 @@ for root, dirs, files in os.walk(mypath_female):
             female_count += 1
 print ("female_count: %d" % (female_count))
 
-np.histogram(array_boys)
-np.histogram(array_girls)
+
+bins = np.linspace(-1000, 1000, 50)
+
+pyplot.hist(array_boys, bins, alpha=0.5, label='array_boys')
+pyplot.hist(array_girls, bins, alpha=0.5, label='array_girls')
+pyplot.legend(loc='upper right')
+pyplot.show()

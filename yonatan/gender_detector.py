@@ -53,8 +53,8 @@ def genderator(image):
 
     # making the predictions -> precentage
     sum = predictions[0][0] + predictions[0][1]
-    predictions[0][0] = predictions[0][0] / sum
-    predictions[0][1] = predictions[0][1] / sum
+    #predictions[0][0] = predictions[0][0] / sum
+    #predictions[0][1] = predictions[0][1] / sum
 
     if predictions[0][0] > predictions[0][1]:
         print "it's a boy!"
