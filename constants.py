@@ -254,7 +254,7 @@ colorful_fashion_to_fashionista = {'bk':'null','T-shirt':'t-shirt','bag':'bag','
 
 #all the cf stuff maps directly to fashionista except skin (index 8) which I map to 56 (end of fashionista list)
 #currently off by one
-# colorful_fashion_to_fashionista_index_conversion = [(0,0),(1,4),(2,5),(3,27),(4,3),(5,11),(6,7),(7,14),(8,56),
+colorful_fashion_to_fashionista_index_conversion = [(0,0),(1,4),(2,5),(3,27),(4,3),(5,11),(6,7),(7,14),(8,56),
         (9,54),(10,21),(11,18),(12,19),(13,15),(14,20),(15,6),(16,2),(17,55),(18,8),(19,28),(20,31),(21,26),(22,16)]
 
 tamara_berg_categories = ['bag', 'belt', 'dress', 'eyewear', 'footwear', 'hat', 'legging', 'outerwear', 'pants',
