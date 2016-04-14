@@ -23,4 +23,4 @@ for root, dirs, files in os.walk(mypath_female):
         if file.startswith("face-"):
             gender_detector.genderator(file)
             female_count += 1
-print ("%s female_count: %d" % (set, female_count))
+print ("female_count: %d" % (female_count))
