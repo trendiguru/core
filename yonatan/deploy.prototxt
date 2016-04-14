@@ -134,8 +134,9 @@ layer {
   }
 }
 layer {
-  name: "relu2"
-  type: "ReLU"
+  name: "loss"
+  type: "Softmax"
   bottom: "ip2"
-  top: "relu2"
+  bottom: "label"
+  top: "loss"
 }
