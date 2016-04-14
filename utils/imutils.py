@@ -625,13 +625,14 @@ def show_mask_with_labels(mask_filename,labels):
         i = 0
         print('len labels:'+str(len(labels)))
         for unique in uniques:
-            print('unique:'+str(unique))
+            if unique > len(labels):
+                logging.warning('pixel value out of label range')
+                continue
+            print('unique:'+str(unique)+':'+labels[unique])
             colorbar[i*bar_height:i*bar_height+bar_height,:] = unique
-	    if unique > len(labels):
-		logging.warning('pixel value out of label range')
-		continue
-            cv2.putText(colorbar,labels[unique],(5,i*bar_height+bar_height/2-10),cv2.FONT_HERSHEY_PLAIN,1,[i*255/len(uniques),i*255/len(uniques),100],thickness=2)
-            i=i+1
+
+        cv2.putText(colorbar,labels[unique],(5,i*bar_height+bar_height/2-10),cv2.FONT_HERSHEY_PLAIN,1,[i*255/len(uniques),i*255/len(uniques),100],thickness=2)
+        i=i+1
 
         scaled_colorbar = np.uint8(np.multiply(colorbar, 255.0 / maxVal))
         dest_colorbar = cv2.applyColorMap(scaled_colorbar, colormap)
