@@ -18,6 +18,7 @@ mypath_female = '/home/yonatan/test_set/female'
 
 
 female_count = 0
+text_file = open("face_testing.txt", "w")
 for root, dirs, files in os.walk(mypath_female):
     for file in files:
         if file.startswith("face-"):
