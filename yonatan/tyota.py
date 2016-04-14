@@ -2,7 +2,7 @@
 
 import caffe
 import numpy as np
-from trendi import background_removal, Utils, constants
+from .trendi import background_removal, Utils, constants
 import cv2
 import os
 import sys
@@ -11,7 +11,7 @@ import glob
 import time
 import skimage
 from PIL import Image
-from trendi.yonatan import gender_detector
+from .trendi.yonatan import gender_detector
 
 
 mypath_female = '/home/yonatan/test_set/female'
