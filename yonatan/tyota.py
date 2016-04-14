@@ -24,3 +24,4 @@ for root, dirs, files in os.walk(mypath_female):
             gender_detector.genderator(root + "/" + file)
             female_count += 1
 print ("female_count: %d" % (female_count))
+
