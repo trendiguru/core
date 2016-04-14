@@ -243,6 +243,17 @@ fashionista_categories = ['null','tights','shorts','blazer','t-shirt','bag','sho
                           'flats','tie','romper','sandals','earrings','gloves','sneakers','clogs','watch','pumps','wallet',
                           'bodysuit','loafers','hair','skin']
 
+colorful_fashion_parsing_categories = ['bk','T-shirt','bag','belt','blazer','blouse','coat','dress','face','hair','hat',
+'jeans','legging','pants','scarf','shoe','shorts','skin','skirt','socks','stocking','sunglass','sweater']
+
+colorful_fashion_to_fashionista = {'bk':'null','T-shirt':'t-shirt','bag':'bag','belt':'belt','blazer':'blazer','blouse':'blouse',
+            'coat':'coat','dress':'dress','face':None,'hair':'hair','hat':'hat','jeans':'jeans','legging':'leggings',
+            'pants':'pants','scarf':'scarf','shoe':'shoes','shorts':'shorts','skin':'skin','skirt':'skirt','socks':'socks',
+            'stocking':'stockings','sunglass':'sunglasses','sweater':'sweater'}
+#all the cf stuff maps directly to fashionista except skin (index 8) which I map to 56 (end of fashionista list)
+colorful_fashion_to_fashionista_index_conversion = [(0,0),(1,4),(2,5),(3,27),(4,3),(5,11),(6,7),(7,14),(8,56),
+        (9,54),(10,21),(11,18),(12,19),(13,15),(14,20),(15,6),(16,2),(17,55),(18,8),(19,28),(20,31),(21,26),(22,16)]
+
 tamara_berg_categories = ['bag', 'belt', 'dress', 'eyewear', 'footwear', 'hat', 'legging', 'outerwear', 'pants',
                           'skirts', 'top', 'skin', 'background']   # orig t.b. cats don't have skin or bg
 tamara_berg_improved_categories = ['bag','belt','dress','eyewear','footwear','hat','legging','outerwear','pants','skirts','top',

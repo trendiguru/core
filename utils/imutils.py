@@ -602,7 +602,7 @@ def resize_and_crop_maintain_bb_on_dir(dir, output_width = 150, output_height = 
         retval = resize_and_crop_maintain_bb(fullfile, output_width = 150, output_height = 200,use_visual_output=True,bb=None)
 
 def show_mask_with_labels(mask_filename,labels):
-    colormap = cv2.COLORMAP_RAINBOW
+    colormap = cv2.COLORMAP_HSV
     img_arr = cv2.imread(mask_filename)
     s = img_arr.shape
     print(s)
