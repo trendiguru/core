@@ -1,9 +1,5 @@
 #!/usr/bin/env python
-"""
-classify.py is an out-of-the-box image classifer callable from the command line.
 
-By default it configures and runs the Caffe reference ImageNet model.
-"""
 import numpy as np
 import os
 import sys
@@ -14,10 +10,12 @@ import caffe
 
 
 #def main(input_image):
-def main(argv):
+#def genderator(argv):
+def genderator(image):
 
-    input_image = sys.argv[1]
-    MODLE_FILE = "/home/yonatan/core/yonatan/deploy.prototxt"
+    #input_image = sys.argv[1]
+    input_image = image
+    MODLE_FILE = "/home/yonatan/trendi/yonatan/deploy.prototxt"
     PRETRAINED = "/home/yonatan/network_5000_train_faces_115/intermediate_output_iter_10000.caffemodel"
     caffe.set_mode_gpu()
     image_dims = [115, 115]
@@ -53,9 +51,11 @@ def main(argv):
     predictions = classifier.predict(inputs)
     print("Done in %.2f s." % (time.time() - start))
 
-    # Save
-    #print("Saving results into %s" % args.output_file)
-    #np.save(args.output_file, predictions)
+    # making the predictions -> precentage
+    sum = predictions[0][0] + predictions[0][1]
+    predictions[0][0] = predictions[0][0] / sum
+    predictions[0][1] = predictions[0][1] / sum
+
     if predictions[0][0] > predictions[0][1]:
         print "it's a boy!"
     else:
@@ -63,5 +63,11 @@ def main(argv):
     print predictions
     print np.array(inputs).shape
 
-if __name__ == '__main__':
-    main(sys.argv)
+    text_file = open("face_testing.txt", "a")
+    text_file.write("predictions: %s sum: %f\n" % (np.array2string(predictions, separator=', '), sum))
+    text_file.flush()
+
+    return predictions
+
+#if __name__ == '__main__':
+#    genderator(sys.argv)
