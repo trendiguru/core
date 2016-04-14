@@ -1,9 +1,9 @@
 load fashon_parsing_data.mat
 
-fashionista_vals=[4, 5, 27, 3, 11, 7, 14,56, 54,21,18,19,15,20,6,2,55,8,28,31,26,16]
+fashionista_vals=[0,4, 5, 27, 3, 11, 7, 14,56, 54,21,18,19,15,20,6,2,55,8,28,31,26,16]
 
 %for f = 1:2682
-for f = 1:1
+for f = 1:3
 a = fashion_dataset(f)
 b=a{1}
 name = b.img_name
