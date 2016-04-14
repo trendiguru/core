@@ -14,9 +14,11 @@ import caffe
 
 
 #def main(input_image):
-def main(argv):
+#def genderator(argv):
+def genderator(image):
 
-    input_image = sys.argv[1]
+    #input_image = sys.argv[1]
+    input_image = image
     MODLE_FILE = "/home/yonatan/core/yonatan/deploy.prototxt"
     PRETRAINED = "/home/yonatan/network_5000_train_faces_115/intermediate_output_iter_10000.caffemodel"
     caffe.set_mode_gpu()
@@ -65,5 +67,5 @@ def main(argv):
     print predictions
     print np.array(inputs).shape
 
-if __name__ == '__main__':
-    main(sys.argv)
+#if __name__ == '__main__':
+#    genderator(sys.argv)
