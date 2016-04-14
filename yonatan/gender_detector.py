@@ -53,9 +53,11 @@ def main(argv):
     predictions = classifier.predict(inputs)
     print("Done in %.2f s." % (time.time() - start))
 
-    # Save
-    #print("Saving results into %s" % args.output_file)
-    #np.save(args.output_file, predictions)
+    # making the predictions -> precentage
+    sum = predictions[0][0] + predictions[0][1]
+    predictions[0][0] = predictions[0][0] / sum
+    predictions[0][1] = predictions[0][1] / sum
+
     if predictions[0][0] > predictions[0][1]:
         print "it's a boy!"
     else:
