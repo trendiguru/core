@@ -21,6 +21,6 @@ female_count = 0
 for root, dirs, files in os.walk(mypath_female):
     for file in files:
         if file.startswith("face-"):
-            gender_detector.genderator(file)
+            gender_detector.genderator(root + "/" + file)
             female_count += 1
 print ("female_count: %d" % (female_count))

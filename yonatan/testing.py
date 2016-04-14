@@ -2,7 +2,7 @@
 
 import caffe
 import numpy as np
-from trendi import background_removal, Utils, constants
+from .. import background_removal, Utils, constants
 import cv2
 import os
 import sys
@@ -73,7 +73,7 @@ cv2.waitKey(0)
 
 def the_detector(image):
 
-    MODLE_FILE = "/home/yonatan/core/yonatan/deploy.prototxt"
+    MODLE_FILE = "/home/yonatan/trendi/yonatan/deploy.prototxt"
     PRETRAINED = "/home/yonatan/network_5000_train_set/intermediate_output_iter_10000.caffemodel"
     caffe.set_mode_gpu()
     image_dims = (250, 250)
