@@ -16,7 +16,7 @@ theval = b.category_label(ind);
 newval = fashionista_vals(theval);
 s=sprintf('%d %d %d',ind,theval,newval);
 disp(s);
-out(i,j)=theval;
+out(i,j)=newval;
 end
 end
 c=cast(out,'uint8');
