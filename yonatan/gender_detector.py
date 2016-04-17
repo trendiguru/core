@@ -17,7 +17,7 @@ def genderator(image):
     input_image = image
     MODLE_FILE = "/home/yonatan/trendi/yonatan/Alexnet_deploy.prototxt"
     PRETRAINED = "/home/yonatan/alexnet_first_try/caffe_alexnet_train_iter_10000.caffemodel"
-    caffe.set_mode_gpu()
+    caffe.set_mode_cpu()
     image_dims = [115, 115]
     mean, input_scale = None, None
     channel_swap = [2, 1, 0]
