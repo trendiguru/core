@@ -60,14 +60,13 @@ def genderator(image):
         print "it's a boy!"
     else:
         print "it's a girl!"
-    print predictions
-    print np.array(inputs).shape
+
+    #print predictions
+    #print np.array(inputs).shape
+    predictions_array = predictions
 
     text_file = open("face_testing.txt", "a")
     text_file.write("predictions: %s sum: %f\n" % (np.array2string(predictions, separator=', '), sum))
     text_file.flush()
 
-    return predictions
-
-#if __name__ == '__main__':
-#    genderator(sys.argv)
+    return predictions_array

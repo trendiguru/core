@@ -58,3 +58,6 @@ plt.show()
 # Save the figure to the current path
 fig.savefig('test_image.png')
 '''
+
+#if __name__ == '__main__':
+#    genderator(sys.argv)
