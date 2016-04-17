@@ -1,7 +1,7 @@
 name: "AlexNet"
 layer {
   name: "data"
-  type: "Data"
+  type: "ImageData"
   top: "data"
   top: "label"
   include {
@@ -22,7 +22,7 @@ layer {
 }
 layer {
   name: "data"
-  type: "Data"
+  type: "ImageData"
   top: "data"
   top: "label"
   include {
