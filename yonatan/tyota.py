@@ -33,10 +33,10 @@ print ("female_count: %d" % (female_count))
 
 histogram=plt.figure(1)
 
-#bins = np.linspace(-1000, 1000, 50)
+bins = np.linspace(-1000, 1000, 50)
 
-plt.hist(array_boys, bins=20, alpha=0.5, label='array_boys')
-plt.hist(array_girls, bins=20, alpha=0.5, label='array_girls')
+plt.hist(array_boys, alpha=0.5, label='array_boys')
+plt.hist(array_girls, alpha=0.5, label='array_girls')
 plt.legend()
 
 plt.show()
