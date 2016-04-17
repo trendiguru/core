@@ -10,17 +10,35 @@ import argparse
 import glob
 import time
 import skimage
-from PIL import Image
+import urllib
 
 path = "/home/yonatan/test_set/female/Juljia_Vysotskij_0001.jpg"
 image = Utils.get_cv2_img_array(path)
 
 
+# METHOD #1: OpenCV, NumPy, and urllib
+def url_to_image(url):
+	# download the image, convert it to a NumPy array, and then read
+	# it into OpenCV format
+	resp = urllib.urlopen(url)
+	image = np.asarray(bytearray(resp.read()), dtype="uint8")
+	image = cv2.imdecode(image, cv2.IMREAD_COLOR)
+
+	# return the image
+	return image
+
 def cv2_image_to_caffe(image):
     return skimage.img_as_float(cv2.cvtColor(image, cv2.COLOR_BGR2RGB)).astype(np.float32)
 
 
-def find_face(image):
+#def find_face(url):
+def find_face(argv):
+
+    #image = url_to_image(url)
+    image = url_to_image(sys.argv[1])
+    cv2.imshow("Image", image)
+    cv2.waitKey(0)
+
     gray = cv2.cvtColor(image, constants.BGR2GRAYCONST)
     face_cascades = [
         cv2.CascadeClassifier(os.path.join(constants.classifiers_folder, 'haarcascade_frontalface_alt2.xml')),
