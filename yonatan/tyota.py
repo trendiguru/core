@@ -51,4 +51,4 @@ pyplot.show()
 #import plotly.plotly as py  # tools to communicate with Plotly's server
 
 
-plot_url = plotly.plot_mpl(histogram, filename='male_female_histogram')
+#plot_url = plotly.plot_mpl(histogram, filename='male_female_histogram')
