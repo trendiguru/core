@@ -14,11 +14,10 @@ layer {
     mean_value: 120
     mean_value: 120
   }
-  data_param {
+  image_data_param {
     source: "/home/yonatan/trendi/yonatan/face_train.txt"
     batch_size: 50
     shuffle: true
-    backend: LMDB
   }
 }
 layer {
@@ -36,11 +35,10 @@ layer {
     mean_value: 120
     mean_value: 120
   }
-  data_param {
+  image_data_param {
     source: "/home/yonatan/trendi/yonatan/face_test.txt"
     batch_size: 45
     shuffle: true
-    backend: LMDB
   }
 }
 layer {
