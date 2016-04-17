@@ -235,7 +235,7 @@ caffe_relevant_strings = ['hoopskirt', 'jean', 'blue_jean', 'denim', 'jersey', '
                           'lab coat', 'tank suit', 'maillot', 'miniskirt', 'mini', 'overskirt', 'pajama', 'pyjama',
                           "pj's", 'jammies', 'poncho', 'sarong', 'suit', 'suit of clothes', 'sweatshirt']
 
-# these are the fashionista db cats in order , e.g. the mask will have 1 for null (unknown) and 56 for skin
+# these are the fashionista db cats in order , e.g. the mask will have 1 for null (bkgnd) and 56 for skin
 #the first '' value is to keep mask=1 -> null, mask=2->tights etc
 fashionista_categories = ['','null','tights','shorts','blazer','t-shirt','bag','shoes','coat','skirt','purse','boots',
                           'blouse','jacket','bra','dress','pants','sweater','shirt','jeans','leggings','scarf','hat',
@@ -243,6 +243,14 @@ fashionista_categories = ['','null','tights','shorts','blazer','t-shirt','bag','
                           'stockings','necklace','cape','jumper','sweatshirt','suit','bracelet','heels','wedges','ring',
                           'flats','tie','romper','sandals','earrings','gloves','sneakers','clogs','watch','pumps','wallet',
                           'bodysuit','loafers','hair','skin']
+
+fashionista_categories_augmented = ['','null','tights','shorts','blazer','t-shirt','bag','shoes','coat','skirt','purse','boots',
+                          'blouse','jacket','bra','dress','pants','sweater','shirt','jeans','leggings','scarf','hat',
+                          'top','cardigan','accessories','vest','sunglasses','belt','socks','glasses','intimate',
+                          'stockings','necklace','cape','jumper','sweatshirt','suit','bracelet','heels','wedges','ring',
+                          'flats','tie','romper','sandals','earrings','gloves','sneakers','clogs','watch','pumps','wallet',
+                          'bodysuit','loafers','hair','skin','face']
+
 
 colorful_fashion_parsing_categories = ['bk','T-shirt','bag','belt','blazer','blouse','coat','dress','face','hair','hat',
 'jeans','legging','pants','scarf','shoe','shorts','skin','skirt','socks','stocking','sunglass','sweater']
