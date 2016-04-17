@@ -114,7 +114,7 @@ def has_items(image_dict):
 
 
 def get_data_for_specific_image(image_url=None, image_hash=None, image_projection=None, product_projection=None,
-                                max_results=20, lang=None, products_collection='ebay'):
+                                max_results=20, lang=None, ip=None, page_url=None):
     """
     this just checks db for an image or hash. It doesn't start the pipeline or update the db
     :param image_url: url of image to find
@@ -124,7 +124,8 @@ def get_data_for_specific_image(image_url=None, image_hash=None, image_projectio
     if lang:
         set_lang(lang)
     image_collection = db[image_coll_name]
-
+    domain = tldextract.extract(page_url).registered_domain
+    products_collection = get_collection_from_ip_and_domain(ip, domain)
     print "##### image_coll_name: " + image_coll_name + " #####"
 
     # REMEMBER, image_obj is sparse, similar_results have very few fields.
