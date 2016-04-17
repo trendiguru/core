@@ -1646,7 +1646,7 @@ if __name__ == "__main__":
 
 
 #to test
-#caffe test -mode test.prototxt -weights model.caffemodel -gpu 0 -iterations 100
+#caffe test -model test.prototxt -weights model.caffemodel -gpu 0 -iterations 100
 #/opt/caffe/build/tools/caffe test -model cropped_dataset/my_solver.test.prototxt -weights cropped_dataset_iter_3000.caffemodel  -gpu 0 -iterations 500
 
 #run of googLeNet_1_inception started at 61G used 71G free mem

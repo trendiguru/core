@@ -614,9 +614,10 @@ def show_parse(filename=None, img_array=None):
         maxVal = np.amax(img_array)
         scaled = np.multiply(img_array, int(255 / maxVal))
         dest = cv2.applyColorMap(scaled, cv2.COLORMAP_RAINBOW)
+        return dest
         cv2.imshow("dest", dest)
         cv2.waitKey(0)
-
+    logging.warning('got None as image array from:'+filename)
 
 def shorten_url_googl(long_url):
     url = "https://www.googleapis.com/urlshortener/v1/url"

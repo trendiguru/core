@@ -53,20 +53,3 @@ for set in sets:
     text_file.flush()
     print ("%s female_count: %d" % (set, female_count))
     #text_file.close()
-
-
-'''
-    mypath = '/home/yonatan/test_set/female'
-    f = []
-    breaker = False
-    text_file = open("test.txt", "a")
-    for root, dirs, files in os.walk(mypath):
-        for file in files:
-            if file.endswith(".jpg"):
-                text_file.write(root + "/" + file + " 1\n")
-                #img = Image.open(root + "/" + file)
-                #iar = np.asarray(img)
-                #f.append(iar)
-    text_file.flush()
-    #text_file.close()
-'''

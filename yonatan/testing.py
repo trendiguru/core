@@ -2,7 +2,7 @@
 
 import caffe
 import numpy as np
-from trendi import background_removal, Utils, constants
+from .. import background_removal, Utils, constants
 import cv2
 import os
 import sys
@@ -10,17 +10,35 @@ import argparse
 import glob
 import time
 import skimage
-from PIL import Image
+import urllib
 
 path = "/home/yonatan/test_set/female/Juljia_Vysotskij_0001.jpg"
 image = Utils.get_cv2_img_array(path)
 
 
+# METHOD #1: OpenCV, NumPy, and urllib
+def url_to_image(url):
+	# download the image, convert it to a NumPy array, and then read
+	# it into OpenCV format
+	resp = urllib.urlopen(url)
+	image = np.asarray(bytearray(resp.read()), dtype="uint8")
+	image = cv2.imdecode(image, cv2.IMREAD_COLOR)
+
+	# return the image
+	return image
+
 def cv2_image_to_caffe(image):
     return skimage.img_as_float(cv2.cvtColor(image, cv2.COLOR_BGR2RGB)).astype(np.float32)
 
 
-def find_face(image):
+#def find_face(url):
+def find_face(argv):
+
+    #image = url_to_image(url)
+    image = url_to_image(sys.argv[1])
+    cv2.imshow("Image", image)
+    cv2.waitKey(0)
+
     gray = cv2.cvtColor(image, constants.BGR2GRAYCONST)
     face_cascades = [
         cv2.CascadeClassifier(os.path.join(constants.classifiers_folder, 'haarcascade_frontalface_alt2.xml')),
@@ -60,8 +78,8 @@ w = face[0][2]
 h = face[0][3]
 
 face_image = image[y:(y+h), x:(x+w)]
-im = Image.fromarray(face_image)
-im.save("/home/yonatan/test_set/female/DELETE-Juljia_Vysotskij_0001.jpg")
+#im = Image.fromarray(face_image)
+#im.save("/home/yonatan/test_set/female/DELETE-Juljia_Vysotskij_0001.jpg")
 
 '''
 print face_image
@@ -73,10 +91,10 @@ cv2.waitKey(0)
 
 def the_detector(image):
 
-    MODLE_FILE = "/home/yonatan/core/yonatan/deploy.prototxt"
-    PRETRAINED = "/home/yonatan/network_5000_train_set/intermediate_output_iter_10000.caffemodel"
+    MODLE_FILE = "/home/yonatan/trendi/yonatan/Alexnet_deploy.prototxt"
+    PRETRAINED = "/home/yonatan/alexnet_first_try/caffe_alexnet_train_iter_10000.caffemodel"
     caffe.set_mode_gpu()
-    image_dims = (250, 250)
+    image_dims = (115, 115)
     mean, input_scale = None, None
     channel_swap = None
     raw_scale = 255.0
@@ -103,8 +121,6 @@ def the_detector(image):
         print "it's a boy!"
     else:
         print "it's a girl!"
-    print predictions
-    print np.array(input).shape
 
 
 the_detector(face_image)

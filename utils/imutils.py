@@ -14,6 +14,7 @@ from joblib import Parallel,delayed
 import multiprocessing
 import socket
 import copy
+from trendi import constants
 
 os.environ['REDIS_HOST']='10'
 os.environ['MONGO_HOST']='10'
@@ -600,6 +601,49 @@ def resize_and_crop_maintain_bb_on_dir(dir, output_width = 150, output_height = 
         fullfile = os.path.join(dir,a_file)
         retval = resize_and_crop_maintain_bb(fullfile, output_width = 150, output_height = 200,use_visual_output=True,bb=None)
 
+def show_mask_with_labels(mask_filename,labels):
+    colormap = cv2.COLORMAP_JET
+    img_arr = cv2.imread(mask_filename)
+    s = img_arr.shape
+    print(s)
+    if len(s) != 2:
+        logging.warning('got a multichannel image, using chan 0')
+    h,w = img_arr.shape[0:2]
+    uniques = np.unique(img_arr)
+    print('number of unique mask values:'+str(len(uniques)))
+    if len(uniques)>len(labels):
+        logging.warning('number of unique mask values > number of labels!!!')
+        return
+    if img_arr is not None:
+        # minVal, maxVal, minLoc, maxLoc = cv2.minMaxLoc(img_array)
+        maxVal = len(labels)
+        scaled = np.uint8(np.multiply(img_arr, 255.0 / maxVal))
+        dest = cv2.applyColorMap(scaled,colormap)
+        bar_height = int(float(h)/len(uniques))
+        bar_width = 100
+        colorbar = np.zeros([bar_height*len(uniques),bar_width])
+        i = 0
+        print('len labels:'+str(len(labels)))
+        for unique in uniques:
+            if unique > len(labels):
+                logging.warning('pixel value out of label range')
+                continue
+            print('unique:'+str(unique)+':'+labels[unique])
+            colorbar[i*bar_height:i*bar_height+bar_height,:] = unique
+
+#        cv2.putText(colorbar,labels[unique],(5,i*bar_height+bar_height/2-10),cv2.FONT_HERSHEY_PLAIN,1,[i*255/len(uniques),i*255/len(uniques),100],thickness=2)
+            cv2.putText(colorbar,labels[unique],(5,i*bar_height+bar_height/2-10),cv2.FONT_HERSHEY_PLAIN,1,[100,100,100],thickness=2)
+            i=i+1
+
+        scaled_colorbar = np.uint8(np.multiply(colorbar, 255.0 / maxVal))
+        dest_colorbar = cv2.applyColorMap(scaled_colorbar, colormap)
+        cv2.imshow('map',dest)
+        cv2.imshow('colorbar',dest_colorbar)
+        cv2.waitKey(0)
+        cv2.destroyAllWindows()
+#        return dest
+
+
 
 def nms_detections(dets, overlap=0.3):
     """
@@ -675,6 +719,18 @@ if __name__ == "__main__":
 #    crop_files_in_dir_of_dirs(dir_of_dirs,bb=None,output_w =150,output_h =200,use_visual_output=True)
 #        dir = '/home/jeremy/projects/core/images'
 #        resize_and_crop_maintain_bb_on_dir(dir, output_width = 448, output_height = 448,use_visual_output=True)
+    dir = '/home/jeremy/tg/pd_output'
+    dir = '/root'
+    masklist = [f for f in os.listdir(dir) if '_output.png' in f]
+    print('masks:'+str(masklist))
+    labels = constants.pascal_context_labels
+    for mask in masklist:
+        fullname = os.path.join(dir,mask)
+#        show_mask_with_labels(fullname,constants.fashionista_categories)
+	print('name:'+mask)
+        show_mask_with_labels(fullname,labels)
+
+
 
     if host == 'jr-ThinkPad-X1-Carbon' or host == 'jr':
         dir_of_dirs = '/home/jeremy/tg/train_pairs_dresses'
@@ -685,7 +741,7 @@ if __name__ == "__main__":
         dir_of_dirs = '/home/jeremy/core/classifier_stuff/caffe_nns/dataset/cropped'
         output_dir = '/home/jeremy/core/classifier_stuff/caffe_nns/curated_dataset'
 
-    kill_the_missing(sourcedir, targetdir)
+ #   kill_the_missing(sourcedir, targetdir)
 
 
 
