@@ -14,6 +14,7 @@ from PIL import Image
 from . import gender_detector
 import random
 from matplotlib import pyplot
+import plotly.plotly as plotly
 
 
 mypath_female = '/home/yonatan/test_set/female'
@@ -31,6 +32,7 @@ for root, dirs, files in os.walk(mypath_female):
             female_count += 1
 print ("female_count: %d" % (female_count))
 
+histogram=pyplot.figure()
 
 bins = np.linspace(-1000, 1000, 50)
 
@@ -42,3 +44,11 @@ pyplot.legend(loc='upper right')
 #pyplot.savefig[hist]
 
 pyplot.show()
+
+
+
+#import matplotlib.pyplot as plt
+#import plotly.plotly as py  # tools to communicate with Plotly's server
+
+
+plot_url = plotly.plot_mpl(histogram, filename='male_female_histogram')
