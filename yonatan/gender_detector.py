@@ -2,11 +2,11 @@
 
 import numpy as np
 import os
+import caffe
 import sys
 import argparse
 import glob
 import time
-import caffe
 
 
 #def main(input_image):

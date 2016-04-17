@@ -13,7 +13,7 @@ import skimage
 from PIL import Image
 from . import gender_detector
 import random
-from matplotlib import pyplot
+import matplotlib.pyplot as plt
 
 
 mypath_female = '/home/yonatan/test_set/female'
@@ -31,13 +31,27 @@ for root, dirs, files in os.walk(mypath_female):
             female_count += 1
 print ("female_count: %d" % (female_count))
 
+print array_boys
+
+histogram=plt.figure(1)
 
 bins = np.linspace(-1000, 1000, 50)
 
-pyplot.hist(array_boys, bins, alpha=0.5, label='array_boys')
-pyplot.hist(array_girls, bins, alpha=0.5, label='array_girls')
-pyplot.legend(loc='upper right')
+plt.hist(array_boys, alpha=0.5, label='array_boys')
+plt.hist(array_girls, alpha=0.5, label='array_girls')
+plt.legend()
 
-pyplot.savefig['hist.png']
+histogram.savefig('test_image.png')
 
-pyplot.show()
+'''
+fig = plt.figure(1)
+plt.hist(gaussian_numbers, bins=20, histtype='stepfilled', normed=True, color='b', label='Gaussian')
+plt.hist(uniform_numbers, bins=20, histtype='stepfilled', normed=True, color='r', alpha=0.5, label='Uniform')
+plt.title("Gaussian/Uniform Histogram")
+plt.xlabel("Value")
+plt.ylabel("Probability")
+plt.legend()
+plt.show()
+# Save the figure to the current path
+fig.savefig('test_image.png')
+'''
