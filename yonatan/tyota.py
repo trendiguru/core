@@ -13,8 +13,7 @@ import skimage
 from PIL import Image
 from . import gender_detector
 import random
-from matplotlib import pyplot
-#import plotly.plotly as plotly
+import matplotlib.pyplot as plt
 
 
 mypath_female = '/home/yonatan/test_set/female'
@@ -32,23 +31,24 @@ for root, dirs, files in os.walk(mypath_female):
             female_count += 1
 print ("female_count: %d" % (female_count))
 
-histogram=pyplot.figure()
+histogram=plt.figure()
 
 bins = np.linspace(-1000, 1000, 50)
 
-pyplot.hist(array_boys, bins, alpha=0.5, label='array_boys')
-pyplot.hist(array_girls, bins, alpha=0.5, label='array_girls')
-pyplot.legend(loc='upper right')
+plt.hist(array_boys, bins, alpha=0.5, label='array_boys')
+plt.hist(array_girls, bins, alpha=0.5, label='array_girls')
+plt.legend()
 
-#hist = []
-#pyplot.savefig[hist]
+plt.show()
 
-pyplot.show()
-
-
-
-#import matplotlib.pyplot as plt
-#import plotly.plotly as py  # tools to communicate with Plotly's server
-
-
-#plot_url = plotly.plot_mpl(histogram, filename='male_female_histogram')
+'''
+gaussian_numbers = normal(size=1000)
+uniform_numbers = uniform(low=-3, high=3, size=1000)
+plt.hist(gaussian_numbers, bins=20, histtype='stepfilled', normed=True, color='b', label='Gaussian')
+plt.hist(uniform_numbers, bins=20, histtype='stepfilled', normed=True, color='r', alpha=0.5, label='Uniform')
+plt.title("Gaussian/Uniform Histogram")
+plt.xlabel("Value")
+plt.ylabel("Probability")
+plt.legend()
+plt.show()
+'''
