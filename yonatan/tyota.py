@@ -31,7 +31,7 @@ for root, dirs, files in os.walk(mypath_female):
             female_count += 1
 print ("female_count: %d" % (female_count))
 
-histogram=plt.figure()
+histogram=plt.figure(1)
 
 #bins = np.linspace(-1000, 1000, 50)
 
@@ -40,10 +40,10 @@ plt.hist(array_girls, bins=20, alpha=0.5, label='array_girls')
 plt.legend()
 
 plt.show()
+histogram.savefig('test_image.png')
 
 '''
-gaussian_numbers = normal(size=1000)
-uniform_numbers = uniform(low=-3, high=3, size=1000)
+fig = plt.figure(1)
 plt.hist(gaussian_numbers, bins=20, histtype='stepfilled', normed=True, color='b', label='Gaussian')
 plt.hist(uniform_numbers, bins=20, histtype='stepfilled', normed=True, color='r', alpha=0.5, label='Uniform')
 plt.title("Gaussian/Uniform Histogram")
@@ -51,4 +51,6 @@ plt.xlabel("Value")
 plt.ylabel("Probability")
 plt.legend()
 plt.show()
+# Save the figure to the current path
+fig.savefig('test_image.png')
 '''
