@@ -9,7 +9,7 @@ layer {
   }
   transform_param {
     scale: 0.00390625
-    mean_file: "opt/caffe/data/ilsvrc12/imagenet_mean.binaryproto"
+    mean_file: "/opt/caffe/data/ilsvrc12/imagenet_mean.binaryproto"
   }
   image_data_param {
     source: "/home/yonatan/trendi/yonatan/face_train.txt"
@@ -27,7 +27,7 @@ layer {
   }
   transform_param {
     scale: 0.00390625
-    mean_file: "opt/caffe/data/ilsvrc12/imagenet_mean.binaryproto"
+    mean_file: "/opt/caffe/data/ilsvrc12/imagenet_mean.binaryproto"
   }
   image_data_param {
     source: "/home/yonatan/trendi/yonatan/face_test.txt"
