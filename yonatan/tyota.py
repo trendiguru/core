@@ -29,6 +29,7 @@ for root, dirs, files in os.walk(mypath_female):
             np.append(array_boys, predictions[0][0])
             np.append(array_girls, predictions[0][1])
             female_count += 1
+            print predictions
             print predictions[0][0]
             print array_boys
 print ("female_count: %d" % (female_count))
