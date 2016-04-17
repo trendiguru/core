@@ -26,8 +26,9 @@ for root, dirs, files in os.walk(mypath_female):
     for file in files:
         if file.startswith("face-"):
             predictions = gender_detector.genderator(root + "/" + file)
-            np.append(array_boys, predictions[0][0])
-            np.append(array_girls, predictions[0][1])
+            print type(predictions)
+            array_boys=np.append(array_boys, predictions[0][0])
+            array_girls=np.append(array_girls, predictions[0][1])
             female_count += 1
             print predictions
             print predictions[0][0]
