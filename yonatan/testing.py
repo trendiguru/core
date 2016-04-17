@@ -60,8 +60,8 @@ w = face[0][2]
 h = face[0][3]
 
 face_image = image[y:(y+h), x:(x+w)]
-im = Image.fromarray(face_image)
-im.save("/home/yonatan/test_set/female/DELETE-Juljia_Vysotskij_0001.jpg")
+#im = Image.fromarray(face_image)
+#im.save("/home/yonatan/test_set/female/DELETE-Juljia_Vysotskij_0001.jpg")
 
 '''
 print face_image
@@ -74,7 +74,7 @@ cv2.waitKey(0)
 def the_detector(image):
 
     MODLE_FILE = "/home/yonatan/trendi/yonatan/deploy.prototxt"
-    PRETRAINED = "/home/yonatan/network_5000_train_set/intermediate_output_iter_10000.caffemodel"
+    PRETRAINED = "/home/yonatan/alexnet_first_try/caffe_alexnet_train_iter_10000.caffemodel"
     caffe.set_mode_gpu()
     image_dims = (250, 250)
     mean, input_scale = None, None
@@ -103,8 +103,6 @@ def the_detector(image):
         print "it's a boy!"
     else:
         print "it's a girl!"
-    print predictions
-    print np.array(input).shape
 
 
 the_detector(face_image)
