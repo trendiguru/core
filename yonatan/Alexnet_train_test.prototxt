@@ -10,7 +10,7 @@ layer {
   transform_param {
     mirror: true
     crop_size: 115
-    mean_file: "data/ilsvrc12/imagenet_mean.binaryproto"
+    mean_file: "opt/caffe/data/ilsvrc12/imagenet_mean.binaryproto"
   }
   data_param {
     source: "home/yonatan/trendi/yonatan/face_train.txt"
@@ -30,7 +30,7 @@ layer {
   transform_param {
     mirror: false
     crop_size: 115
-    mean_file: "data/ilsvrc12/imagenet_mean.binaryproto"
+    mean_file: "opt/caffe/data/ilsvrc12/imagenet_mean.binaryproto"
   }
   data_param {
     source: "/home/yonatan/trendi/yonatan/face_test.txt"
