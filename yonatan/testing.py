@@ -73,7 +73,7 @@ cv2.waitKey(0)
 
 def the_detector(image):
 
-    MODLE_FILE = "/home/yonatan/trendi/yonatan/deploy.prototxt"
+    MODLE_FILE = "/home/yonatan/trendi/yonatan/Alexnet_deploy.prototxt"
     PRETRAINED = "/home/yonatan/alexnet_first_try/caffe_alexnet_train_iter_10000.caffemodel"
     caffe.set_mode_gpu()
     image_dims = (250, 250)
