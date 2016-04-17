@@ -48,7 +48,7 @@ def get_collection_from_ip_and_domain(ip, domain):
 
 
 def route(ip, images_list, page_url):
-    ret = {'relevant': []}
+    ret = {}
     for image_url in images_list:
         # IF IMAGE IS IN DB.IMAGES:
         image_obj = db.images.find_one({'image_urls': image_url})
@@ -58,11 +58,13 @@ def route(ip, images_list, page_url):
             # IF IMAGE HAS RESULTS FROM THIS IP:
             if has_results_from_collection(image_obj, collection):
                 # APPEND URL TO RELEVANT LIST
-                ret['relevant'].append(image_url)
+                ret[image_url] = True
             else:
+                ret[image_url] = False
                 # GET RESULTS TO THIS GEO
                 add_results_from_collection(image_obj, collection)
         else:
+            ret[image_url] = False
             start_pipeline.enqueue_call(func=pipeline.start_pipeline,
                                         args=(page_url, image_url, lang),
                                         ttl=2000, result_ttl=2000, timeout=2000)
