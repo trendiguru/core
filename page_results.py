@@ -9,7 +9,6 @@ import tldextract
 # ours
 import Utils
 import constants
-import pipeline
 
 # logging.basicConfig(format='%(levelname)s:%(message)s', level=logging.DEBUG)
 db = constants.db
