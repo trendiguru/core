@@ -9,12 +9,13 @@ layer {
   }
   transform_param {
     mirror: true
-    crop_size: 227
+    crop_size: 115
     mean_file: "data/ilsvrc12/imagenet_mean.binaryproto"
   }
   data_param {
-    source: "examples/imagenet/ilsvrc12_train_lmdb"
-    batch_size: 256
+    source: "home/yonatan/trendi/yonatan/face_train.txt"
+    batch_size: 50
+    shuffle: true
     backend: LMDB
   }
 }
@@ -28,12 +29,13 @@ layer {
   }
   transform_param {
     mirror: false
-    crop_size: 227
+    crop_size: 115
     mean_file: "data/ilsvrc12/imagenet_mean.binaryproto"
   }
   data_param {
-    source: "examples/imagenet/ilsvrc12_val_lmdb"
-    batch_size: 50
+    source: "/home/yonatan/trendi/yonatan/face_test.txt"
+    batch_size: 45
+    shuffle: true
     backend: LMDB
   }
 }

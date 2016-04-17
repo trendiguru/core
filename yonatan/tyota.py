@@ -38,6 +38,6 @@ pyplot.hist(array_boys, bins, alpha=0.5, label='array_boys')
 pyplot.hist(array_girls, bins, alpha=0.5, label='array_girls')
 pyplot.legend(loc='upper right')
 
-pyplot.savefig['hist.png']
+pyplot.savefig[hist]
 
 pyplot.show()
