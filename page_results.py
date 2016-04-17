@@ -35,16 +35,18 @@ def add_results_from_collection(image_obj, collection):
 def get_collection_from_ip_and_domain(ip, domain):
     if domain in constants.products_per_site.keys():
         return constants.products_per_site[domain]
-    reader = maxminddb.open_database(geo_db_path + '/GeoLite2-Country.mmdb')
-    user_info = reader.get(ip)
-    if user_info:
-        if 'country' in user_info.keys():
-            country_iso_code = user_info['country']['iso_code']
-            return next((k for k, v in constants.products_per_country.items() if country_iso_code in v), None)
-        elif 'registered_country' in user_info.keys():
-            country_iso_code = user_info['registered_country']['iso_code']
-            return next((k for k, v in constants.products_per_country.items() if country_iso_code in v), None)
-    return constants.products_per_country['default']
+    else:
+        return constants.products_per_site['default']
+    # reader = maxminddb.open_database(geo_db_path + '/GeoLite2-Country.mmdb')
+    # user_info = reader.get(ip)
+    # if user_info:
+    #     if 'country' in user_info.keys():
+    #         country_iso_code = user_info['country']['iso_code']
+    #         return next((k for k, v in constants.products_per_country.items() if country_iso_code in v), None)
+    #     elif 'registered_country' in user_info.keys():
+    #         country_iso_code = user_info['registered_country']['iso_code']
+    #         return next((k for k, v in constants.products_per_country.items() if country_iso_code in v), None)
+    # return constants.products_per_country['default']
 
 
 def route(ip, images_list, page_url):
