@@ -68,7 +68,7 @@ def route(ip, images_list, page_url):
         else:
             ret[image_url] = False
             start_pipeline.enqueue_call(func=pipeline.start_pipeline,
-                                        args=(page_url, image_url, lang),
+                                        args=(page_url, image_url),
                                         ttl=2000, result_ttl=2000, timeout=2000)
     return ret
 
