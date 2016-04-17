@@ -14,7 +14,7 @@ from PIL import Image
 from . import gender_detector
 import random
 from matplotlib import pyplot
-import plotly.plotly as plotly
+#import plotly.plotly as plotly
 
 
 mypath_female = '/home/yonatan/test_set/female'
