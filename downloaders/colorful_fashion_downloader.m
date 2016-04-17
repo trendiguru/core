@@ -21,8 +21,8 @@ disp(s);
 end
 
 
-%for f = 1:2682
-for f = 1:3
+for f = 1:2682
+%for f = 1:3
 a = fashion_dataset(f)
 b=a{1}
 name = b.img_name

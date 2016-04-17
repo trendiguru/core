@@ -602,7 +602,7 @@ def resize_and_crop_maintain_bb_on_dir(dir, output_width = 150, output_height = 
         retval = resize_and_crop_maintain_bb(fullfile, output_width = 150, output_height = 200,use_visual_output=True,bb=None)
 
 def show_mask_with_labels(mask_filename,labels):
-    colormap = cv2.COLORMAP_HSV
+    colormap = cv2.COLORMAP_JET
     img_arr = cv2.imread(mask_filename)
     s = img_arr.shape
     print(s)
@@ -632,7 +632,7 @@ def show_mask_with_labels(mask_filename,labels):
             colorbar[i*bar_height:i*bar_height+bar_height,:] = unique
 
 #        cv2.putText(colorbar,labels[unique],(5,i*bar_height+bar_height/2-10),cv2.FONT_HERSHEY_PLAIN,1,[i*255/len(uniques),i*255/len(uniques),100],thickness=2)
-            cv2.putText(colorbar,labels[unique],(5,i*bar_height+bar_height/2-10),cv2.FONT_HERSHEY_PLAIN,1,[10,10,10],thickness=2)
+            cv2.putText(colorbar,labels[unique],(5,i*bar_height+bar_height/2-10),cv2.FONT_HERSHEY_PLAIN,1,[100,100,100],thickness=2)
             i=i+1
 
         scaled_colorbar = np.uint8(np.multiply(colorbar, 255.0 / maxVal))
