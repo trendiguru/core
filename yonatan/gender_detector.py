@@ -3,6 +3,10 @@
 import numpy as np
 import os
 import caffe
+import sys
+import argparse
+import glob
+import time
 
 
 #def main(input_image):
@@ -26,11 +30,6 @@ def genderator(image):
             input_scale=input_scale, raw_scale=raw_scale,
             channel_swap=channel_swap)
 
-    import sys
-    import argparse
-    import glob
-    import time
-    import caffe
 
     # Load numpy array (.npy), directory glob (*.jpg), or image file.
     input_file = os.path.expanduser(input_image)
