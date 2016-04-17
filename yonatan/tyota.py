@@ -17,8 +17,10 @@ import matplotlib.pyplot as plt
 
 
 mypath_female = '/home/yonatan/test_set/female'
-array_boys = np.array([])
-array_girls = np.array([])
+array_boys_success = np.array([])
+array_girls_success = np.array([])
+array_boys_failure = np.array([])
+array_girls_failure = np.array([])
 
 female_count = 0
 text_file = open("face_testing.txt", "w")
@@ -26,39 +28,25 @@ for root, dirs, files in os.walk(mypath_female):
     for file in files:
         if file.startswith("face-"):
             predictions = gender_detector.genderator(root + "/" + file)
-            print type(predictions)
-            array_boys=np.append(array_boys, predictions[0][0])
-            array_girls=np.append(array_girls, predictions[0][1])
+            if predictions[0][0] > predictions[0][1]:
+                array_boys_failure = np.append(array_boys_failure, predictions[0][0])
+                array_girls_failure = np.append(array_girls_failure, predictions[0][1])
+            else:
+                array_boys_success=np.append(array_boys_success, predictions[0][0])
+                array_girls_success=np.append(array_girls_success, predictions[0][1])
             female_count += 1
-            print predictions
-            print predictions[0][0]
-            print array_boys
 print ("female_count: %d" % (female_count))
-
-print array_boys
 
 histogram=plt.figure(1)
 
 bins = np.linspace(-1000, 1000, 50)
 
-plt.hist(array_boys, alpha=0.5, label='array_boys')
-plt.hist(array_girls, alpha=0.5, label='array_girls')
+plt.hist(array_boys_success, alpha=0.5, label='array_boys_success')
+plt.hist(array_girls_success, alpha=0.5, label='array_girls_success')
+plt.legend()
+
+plt.hist(array_boys_failure, alpha=0.5, label='array_boys_failure')
+plt.hist(array_girls_failure, alpha=0.5, label='array_girls_failure')
 plt.legend()
 
 histogram.savefig('test_image.png')
-
-'''
-fig = plt.figure(1)
-plt.hist(gaussian_numbers, bins=20, histtype='stepfilled', normed=True, color='b', label='Gaussian')
-plt.hist(uniform_numbers, bins=20, histtype='stepfilled', normed=True, color='r', alpha=0.5, label='Uniform')
-plt.title("Gaussian/Uniform Histogram")
-plt.xlabel("Value")
-plt.ylabel("Probability")
-plt.legend()
-plt.show()
-# Save the figure to the current path
-fig.savefig('test_image.png')
-'''
-
-#if __name__ == '__main__':
-#    genderator(sys.argv)
