@@ -9,7 +9,7 @@ import tldextract
 # ours
 import Utils
 import constants
-
+import find_similar_mongo
 # logging.basicConfig(format='%(levelname)s:%(message)s', level=logging.DEBUG)
 db = constants.db
 start_pipeline = constants.q1
@@ -27,7 +27,14 @@ def has_results_from_collection(image_obj, collection):
 
 
 def add_results_from_collection(image_obj, collection):
-
+    for person in image_obj:
+        for item in person:
+            fp, similar_results = find_similar_mongo.find_top_n_results(number_of_results=100,
+                                                                        category_id=item['category'],
+                                                                        fingerprint=item['fp'],
+                                                                        collection=collection)
+            item['similar_results'][collection] = similar_results
+    db.images.replace_one({'_id': image_obj['_id']}, image_obj)
     return True
 
 
