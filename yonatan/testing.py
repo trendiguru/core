@@ -108,6 +108,8 @@ def the_detector(face):
 
 
     input = [cv2_image_to_caffe(face)]
+    cv2.imshow("cropped", input)
+    cv2.waitKey(0)
     print("Classifying %d input." % len(input))
 # Classify.
     start = time.time()
