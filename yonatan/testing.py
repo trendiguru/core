@@ -106,9 +106,9 @@ def the_detector(face):
             input_scale=input_scale, raw_scale=raw_scale,
             channel_swap=channel_swap)
 
-    threshed = cv2.adaptiveThreshold(face, 255, cv2.ADAPTIVE_THRESH_MEAN_C, cv2.THRESH_BINARY, 3, 0)
-    cv2.imshow("cropped", threshed)
-    cv2.waitKey(0)
+    #threshed = cv2.adaptiveThreshold(face, 255, cv2.ADAPTIVE_THRESH_MEAN_C, cv2.THRESH_BINARY, 3, 0)
+    #cv2.imshow("cropped", threshed)
+    #cv2.waitKey(0)
 
     input = [cv2_image_to_caffe(face)]
     print("Classifying %d input." % len(input))
@@ -124,6 +124,7 @@ def the_detector(face):
         print "it's a boy!"
     else:
         print "it's a girl!"
+    print predictions
 
 
 the_detector(face)
