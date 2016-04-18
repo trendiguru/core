@@ -74,6 +74,8 @@ def find_face(argv):
 
     face_image = image[y:(y + h), x:(x + w)]
 
+    cv2.imshow("cropped_face", face_image)
+    cv2.waitKey(0)
     return face_image
 
 
