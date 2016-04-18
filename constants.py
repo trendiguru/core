@@ -17,7 +17,8 @@ redis_conn = Redis(host=os.getenv("REDIS_HOST", "redis1-redis-1-vm"), port=int(o
 # export MONGO_HOST=localhost
 
 manual_gender_domains = ['fashionseoul.com', 'haaretz.co.il']
-products_per_site = {'default': 'ebay', 'fashionseoul.com': 'GangnamStyle', 'fazz.co': 'ShopStyle'}
+products_per_site = {'default': 'ebay', 'fashionseoul.com': 'GangnamStyle', 'fazz.co': 'ShopStyle',
+                     'mako.co.il': 'ebay'}
 products_per_country = {'default': 'ebay', 'ebay': ['US'], 'GangnhamStyle': ['KR']}
 # file containing constants for general TG use
 # fingerprint related consts
