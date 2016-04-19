@@ -1,4 +1,3 @@
-__author__ = 'jeremy'
 import caffe
 
 import numpy as np
@@ -38,12 +37,16 @@ class SBDDSegDataLayer(caffe.Layer):
         """
         # config
         params = eval(self.param_str)
-        self.sbdd_dir = params['sbdd_dir']
+        self.labels_dir = params['labels_dir']
+        self.images_dir = params['images_dir']
         self.split = params['split']
         self.mean = np.array(params['mean'])
         self.random = params.get('randomize', True)
         self.seed = params.get('seed', None)
-	self.labelfile = params.get('labelfile',self.split+'labels.txt')
+        self.imagesfile = params.get('imagefile',self.split+'images.txt')
+        self.labelsfile = params.get('labelfile',self.split+'labels.txt')
+
+        print('labeldir {} imagedir {} ;abe;file {} imagefile {}'.format(self.labels_dir,self.images_dir,self.labelsfile,self.images$
         # two tops: data and label
         if len(top) != 2:
             raise Exception("Need to define two tops: data and label.")
@@ -52,12 +55,9 @@ class SBDDSegDataLayer(caffe.Layer):
             raise Exception("Do not define a bottom.")
 
         # load indices for images and labels
-        split_f  = '{}/{}.txt'.format(self.sbdd_dir,
-                self.split)
-        self.imagefiles = open(split_f, 'r').read().splitlines()
+        self.imagefiles = open(imagesfile, 'r').read().splitlines()
+        self.labelfiles = open(labelsfile, 'r').read().splitlines()
         self.idx = 0
-
-        self.labelfiles = open(labelfile, 'r').read().splitlines()
 
         # make eval deterministic
         if 'train' not in self.split:
@@ -72,9 +72,9 @@ class SBDDSegDataLayer(caffe.Layer):
     def reshape(self, bottom, top):
         # load image + label image pair
         self.data = self.load_image(self.indices[self.idx])
-#	if self.load_labels_from_mat:
+#       if self.load_labels_from_mat:
 #            self.label = self.load_label(self.indices[self.idx])#
-#	else:
+#       else:
         self.label = self.load_label_image(self.indices[self.idx])
         # reshape tops to fit (leading 1 is for batch dimension)
         top[0].reshape(1, *self.data.shape)
@@ -99,7 +99,7 @@ class SBDDSegDataLayer(caffe.Layer):
         pass
 
 
-    def load_image(self, filename):
+    def load_image(self,idx):
         """
         Load input image and preprocess for Caffe:
         - cast to float
@@ -107,6 +107,9 @@ class SBDDSegDataLayer(caffe.Layer):
         - subtract mean
         - transpose to channel x height x width order
         """
+        filename = self.imagefiles[idx]
+        full_filename=os.path.join(self.images_dir,filename)
+        print('imagefile:'+full_filename)
         im = Image.open(filename)
         in_ = np.array(im, dtype=np.float32)
         in_ = in_[:,:,::-1]
@@ -133,12 +136,20 @@ class SBDDSegDataLayer(caffe.Layer):
         """
 #        import scipy.io
 #        mat = scipy.io.loadmat('{}/cls/{}.mat'.format(self.sbdd_dir, idx))
-        self.imagefiles = open(split_f, 'r').read().splitlines()
 
-        filename = labelfiles[idx]
+        filename = self.labelfiles[idx]
 
-        full_filename = os.path.join(self.sbdd_dir, filename))
+        filename = self.imagefiles[idx]
+        filename = filename.split('.jpg')[0]
+        filename = filename+'.png'
+        full_filename=os.path.join(self.labels_dir,filename)
+        print('labelfile:'+full_filename)
         im = Image.open(full_filename)
+        if im is None:
+            print(' COULD NOT LOAD FILE '+full_filename)
         in_ = np.array(im, dtype=np.uint8)
         label = in_[np.newaxis, ...]
         return label
+
+
+
