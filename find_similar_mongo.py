@@ -62,7 +62,7 @@ def mask2svg(mask, filename, save_in_folder):
     return filename + '.svg'
 
 
-def find_top_n_results(image, mask, number_of_results=10, category_id=None, collection="products",
+def find_top_n_results(image=None, mask=None, number_of_results=10, category_id=None, collection="products",
                        fp_category=FP_KEY, fp_len=fingerprint_length, distance_function=None,
                        bins=histograms_length, fingerprint=None):
     '''

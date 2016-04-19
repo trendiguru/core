@@ -1,57 +1,57 @@
 #!/usr/bin/env python
 
-import caffe
 import numpy as np
-from .. import background_removal, Utils, constants
-import cv2
 import os
+import caffe
 import sys
 import argparse
 import glob
 import time
-import skimage
-from PIL import Image
-from . import gender_detector
-import random
-import matplotlib.pyplot as plt
 
 
-mypath_female = '/home/yonatan/test_set/female'
-array_boys = np.array([])
-array_girls = np.array([])
+#def main(input_image):
+def genderator(argv):
 
-female_count = 0
-text_file = open("face_testing.txt", "w")
-for root, dirs, files in os.walk(mypath_female):
-    for file in files:
-        if file.startswith("face-"):
-            predictions = gender_detector.genderator(root + "/" + file)
-            np.append(array_boys, predictions[0][0])
-            np.append(array_girls, predictions[0][1])
-            female_count += 1
-print ("female_count: %d" % (female_count))
+    input_image = sys.argv[1]
+    MODLE_FILE = "/home/yonatan/trendi/yonatan/Alexnet_deploy.prototxt"
+    PRETRAINED = "/home/yonatan/alexnet_first_try/caffe_alexnet_train_iter_10000.caffemodel"
+    caffe.set_mode_gpu()
+    image_dims = [115, 115]
+    mean, input_scale = None, None
+    channel_swap = [2, 1, 0]
+    raw_scale = 255.0
+    ext = 'jpg'
 
-print array_boys
+    # Make classifier.
+    classifier = caffe.Classifier(MODLE_FILE, PRETRAINED,
+            image_dims=image_dims, mean=mean,
+            input_scale=input_scale, raw_scale=raw_scale,
+            channel_swap=channel_swap)
 
-histogram=plt.figure(1)
 
-bins = np.linspace(-1000, 1000, 50)
+    # Load numpy array (.npy), directory glob (*.jpg), or image file.
+    input_file = os.path.expanduser(input_image)
+    if input_file.endswith('npy'):
+        print("Loading file: %s" % input_file)
+        inputs = np.load(input_file)
+    elif os.path.isdir(input_file):
+        print("Loading folder: %s" % input_file)
+        inputs =[caffe.io.load_image(im_f)
+                 for im_f in glob.glob(input_file + '/*.' + ext)]
+    else:
+        print("Loading file: %s" % input_file)
+        inputs = [caffe.io.load_image(input_file)]
 
-plt.hist(array_boys, alpha=0.5, label='array_boys')
-plt.hist(array_girls, alpha=0.5, label='array_girls')
-plt.legend()
+    print("Classifying %d inputs." % len(inputs))
 
-histogram.savefig('test_image.png')
+    # Classify.
+    start = time.time()
+    predictions = classifier.predict(inputs)
+    print("Done in %.2f s." % (time.time() - start))
 
-'''
-fig = plt.figure(1)
-plt.hist(gaussian_numbers, bins=20, histtype='stepfilled', normed=True, color='b', label='Gaussian')
-plt.hist(uniform_numbers, bins=20, histtype='stepfilled', normed=True, color='r', alpha=0.5, label='Uniform')
-plt.title("Gaussian/Uniform Histogram")
-plt.xlabel("Value")
-plt.ylabel("Probability")
-plt.legend()
-plt.show()
-# Save the figure to the current path
-fig.savefig('test_image.png')
-'''
+    if predictions[0][0] > predictions[0][1]:
+        print "it's a boy!"
+    else:
+        print "it's a girl!"
+
+    return predictions

@@ -1,7 +1,7 @@
 name: "AlexNet"
 layer {
   name: "data"
-  type: "Data"
+  type: "ImageData"
   top: "data"
   top: "label"
   include {
@@ -10,18 +10,19 @@ layer {
   transform_param {
     mirror: true
     crop_size: 115
-    mean_file: "data/ilsvrc12/imagenet_mean.binaryproto"
+    mean_value: 120
+    mean_value: 120
+    mean_value: 120
   }
-  data_param {
-    source: "home/yonatan/trendi/yonatan/face_train.txt"
+  image_data_param {
+    source: "/home/yonatan/trendi/yonatan/face_train.txt"
     batch_size: 50
     shuffle: true
-    backend: LMDB
   }
 }
 layer {
   name: "data"
-  type: "Data"
+  type: "ImageData"
   top: "data"
   top: "label"
   include {
@@ -30,13 +31,14 @@ layer {
   transform_param {
     mirror: false
     crop_size: 115
-    mean_file: "data/ilsvrc12/imagenet_mean.binaryproto"
+    mean_value: 120
+    mean_value: 120
+    mean_value: 120
   }
-  data_param {
+  image_data_param {
     source: "/home/yonatan/trendi/yonatan/face_test.txt"
     batch_size: 45
     shuffle: true
-    backend: LMDB
   }
 }
 layer {

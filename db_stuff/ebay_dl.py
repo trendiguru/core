@@ -17,7 +17,7 @@ import time
 import datetime
 import re
 import sys
-from .. import constants
+from .. import constants, Utils, page_results
 from . import ebay_constants
 from . import dl_excel
 from rq import Queue
@@ -30,6 +30,7 @@ db = constants.db
 status = db.download_status
 today_date = str(datetime.datetime.date(datetime.datetime.now()))
 
+
 def getStoreStatus(store_id,files):
     store_int = int(store_id)
     if store_int in ebay_constants.ebay_blacklist:
@@ -40,6 +41,7 @@ def getStoreStatus(store_id,files):
         return "whitelisted"
     else:
         return "new item"
+
 
 def getStoreInfo(ftp, files):
     store_info = []
@@ -91,14 +93,18 @@ def ebay2generic(item, gender, subcat):
                    "ebay_raw": item}
         if item["STOCK"] != "In Stock":
             generic["status"]["instock"] = False
+        image = Utils.get_cv2_img_array(item["IMAGE_URL"])
+        if image is not None:
+            img_hash = page_results.get_hash(image)
+            generic["img_hash"] = img_hash
     except:
         print item
         generic = item
     return generic
 
 us_params = {"url": "partnersw.ftp.ebaycommercenetwork.com",
-          "user": 'p1129643',
-          'password': '6F2lqCf4'}
+             "user": 'p1129643',
+             'password': '6F2lqCf4'}
 
 
 def ftp_connection(params):
@@ -210,6 +216,7 @@ def theArchiveDoorman():
             collection.delete_one({'id': item['id']})
 
         archive.reindex()
+
 
 start_time = time.time()
 #connecting to FTP
