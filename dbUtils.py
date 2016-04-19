@@ -982,7 +982,7 @@ def hash_all_products():
     for gender in ['Female', 'Male']:
         modified = 0
         collection = db['ebay_' + gender]
-        for doc in collection.find():
+        for doc in collection.find({'img_hash': {'$exists': 0}}):
             if modified % 1000 == 0:
                 print("till now {0} have been modified".format(modified))
             try:
