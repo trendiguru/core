@@ -12,8 +12,8 @@ import time
 import skimage
 import urllib
 
-path = "/home/yonatan/test_set/female/Juljia_Vysotskij_0001.jpg"
-image = Utils.get_cv2_img_array(path)
+#path = "/home/yonatan/test_set/female/Juljia_Vysotskij_0001.jpg"
+#image = Utils.get_cv2_img_array(path)
 
 
 # METHOD #1: OpenCV, NumPy, and urllib
@@ -63,23 +63,25 @@ def find_face(argv):
         )
         if len(faces) > 0:
             break
-    return faces
+
+    if len(faces) == 0:
+        print "Fail"
+
+    x = faces[0][0]
+    y = faces[0][1]
+    w = faces[0][2]
+    h = faces[0][3]
+
+    face_image = image[y:(y + h), x:(x + w)]
+
+    cv2.imshow("cropped_face", face_image)
+    cv2.waitKey(0)
+    return face_image
 
 
-face = find_face(image)
+face = find_face(sys.argv)
 print face
 
-if len(face) == 0:
-    print "Fail"
-
-x = face[0][0]
-y = face[0][1]
-w = face[0][2]
-h = face[0][3]
-
-face_image = image[y:(y+h), x:(x+w)]
-#im = Image.fromarray(face_image)
-#im.save("/home/yonatan/test_set/female/DELETE-Juljia_Vysotskij_0001.jpg")
 
 '''
 print face_image
@@ -89,7 +91,7 @@ cv2.imshow("cropped", face_image)
 cv2.waitKey(0)
 '''
 
-def the_detector(image):
+def the_detector(face):
 
     MODLE_FILE = "/home/yonatan/trendi/yonatan/Alexnet_deploy.prototxt"
     PRETRAINED = "/home/yonatan/alexnet_first_try/caffe_alexnet_train_iter_10000.caffemodel"
@@ -106,8 +108,11 @@ def the_detector(image):
             input_scale=input_scale, raw_scale=raw_scale,
             channel_swap=channel_swap)
 
+    #threshed = cv2.adaptiveThreshold(face, 255, cv2.ADAPTIVE_THRESH_MEAN_C, cv2.THRESH_BINARY, 3, 0)
+    #cv2.imshow("cropped", threshed)
+    #cv2.waitKey(0)
 
-    input = [cv2_image_to_caffe(image)]
+    input = [cv2_image_to_caffe(face)]
     print("Classifying %d input." % len(input))
 # Classify.
     start = time.time()
@@ -121,6 +126,7 @@ def the_detector(image):
         print "it's a boy!"
     else:
         print "it's a girl!"
+    print predictions
 
 
-the_detector(face_image)
+the_detector(face)
