@@ -218,18 +218,6 @@ def theArchiveDoorman():
         archive.reindex()
 
 
-def hash_all_products():
-    for gender in ['Female', 'Male']:
-        collection = db['ebay_' + gender]
-        for doc in collection.find():
-            try:
-                image = Utils.get_cv2_img_array(doc['images'])
-                img_hash = page_results.get_hash(image)
-                collection.update_one({'_id': doc['_id']}, {'$set': {'img_hash': img_hash}})
-            except:
-                print "something went wrong.."
-
-
 start_time = time.time()
 #connecting to FTP
 # username, passwd are for the US - for other countries check the bottom
