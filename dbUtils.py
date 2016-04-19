@@ -986,7 +986,7 @@ def hash_all_products():
             if modified % 1000 == 0:
                 print("till now {0} have been modified".format(modified))
             try:
-                image = Utils.get_cv2_img_array(doc['images'])
+                image = Utils.get_cv2_img_array(doc['images']['XLarge'])
                 img_hash = page_results.get_hash(image)
                 ans = collection.update_one({'_id': doc['_id']}, {'$set': {'img_hash': img_hash}})
                 modified += ans.modified_count
