@@ -17,6 +17,10 @@ import urllib
 from PIL import Image
 
 
+def cv2_image_to_caffe(image):
+    return skimage.img_as_float(cv2.cvtColor(image, cv2.COLOR_BGR2RGB)).astype(np.float32)
+
+
 def url_to_image(url):
 	# download the image, convert it to a NumPy array, and then read
 	# it into OpenCV format
@@ -93,17 +97,20 @@ for line in file:
     words = file_as_array_by_lines.split()
 
     face_image = find_face(words[0])
-
-    im = Image.fromarray(face_image)
     # Resize it.
-    img = im.resize((width, height), Image.BILINEAR)
+    resized_image = cv2.resize(face_image, (width, height))
 
-    img.save(os.path.join('home/yonatan/55k_train_set', 'resized_face-' + str(counter)))
+    resized_image.save(os.path.join('/home/yonatan/55k_train_set', 'resized_face-' + str(counter) + '.jpg'))
 
-    cv2.imshow("cropped_face", img)
+    #cv2.imwrite(os.path.join(root, 'face-' + file), resized_image)
+
+    cv2.imshow("cropped_face", resized_image)
     cv2.waitKey(0)
 
     break
+
+
+
 
 '''
 sets = {'train', 'test'}
