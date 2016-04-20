@@ -592,7 +592,7 @@ def oversegment(img_arr):
     cv2.SuperpixelSEEDS.createSuperpixelSEEDS(image_width, image_height, image_channels, num_superpixels, num_levels, use_prior = 2, histogram_bins=5, double_step = False)
 
 def defenestrate_labels(mask,kplist):
-    matches = np.zeros_like(mask)
+    matches = np.ones_like(mask)
     for i in range(0,len(kplist)):
         index = kplist[i]
         nv = np.multiply(mask == index,i+1)
