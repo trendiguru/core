@@ -598,6 +598,7 @@ def defenestrate_labels(mask,kplist):
         nv = np.multiply(mask == index,i+1)
         print(nv.shape)
         matches = np.add(matches,nv)
+
     return matches
 
 def resize_and_crop_maintain_bb_on_dir(dir, output_width = 150, output_height = 200,use_visual_output=True):
@@ -756,8 +757,10 @@ if __name__ == "__main__":
         print('name:'+mask)
         mask_img = cv2.imread(fullname)
         if len(mask_img.shape)==3:
+            print('fixing multichan')
             mask_img = mask_img[:,:,0]
         new_mask = defenestrate_labels(mask_img,[1,56,57])
+        print('uniques '+str(np.unique(new_mask)))
         show_mask_with_labels(fullname,['null','skin','hair'])
 
 
