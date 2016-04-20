@@ -11,7 +11,7 @@ from bson import objectid
 import matplotlib.pyplot as plt
 import numpy as np
 import pymongo
-
+import time
 # ours
 import constants
 import page_results
@@ -986,9 +986,15 @@ def hash_all_products():
             if modified % 1000 == 0:
                 print("till now {0} have been modified".format(modified))
             try:
+                start = time.time()
                 image = Utils.get_cv2_img_array(doc['images']['XLarge'])
+                mid = time.time()
+                print("get_cv2 took {0} seconds".format(mid-start))
                 img_hash = page_results.get_hash(image)
+                mid2 = time.time()
+                print("hashing took {0} seconds".format(mid2-mid))
                 ans = collection.update_one({'_id': doc['_id']}, {'$set': {'img_hash': img_hash}})
+                print("updating collection took {0} seconds".format(time.time()-mid2))
                 modified += ans.modified_count
             except:
                 print("something went wrong..")
