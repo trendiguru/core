@@ -989,7 +989,7 @@ def hash_all_products():
             hash_q.enqueue_call(func=hash_the_image, args=(doc['_id'], doc['images']['XLarge'], collection.name))
 
 
-def hash_the_image(image_url, collection, id):
+def hash_the_image(id, image_url, collection):
         collection = db[collection]
         image = Utils.get_cv2_img_array(image_url)
         img_hash = page_results.get_hash(image)
