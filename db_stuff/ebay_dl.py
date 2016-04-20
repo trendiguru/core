@@ -77,7 +77,7 @@ def ebay2generic(item, gender, subcat):
         generic = {"id": item["\xef\xbb\xbfOFFER_ID"],
                    "categories": subcat,
                    "clickUrl": item["OFFER_URL_MIN_CATEGORY_BID"],
-                   "images": item["IMAGE_URL"],
+                   "images": {"XLarge": item["IMAGE_URL"]},
                    "status": {"instock" : True, "days_out" : 0},
                    "shortDescription": item["OFFER_TITLE"],
                    "longDescription": item["OFFER_DESCRIPTION"],
