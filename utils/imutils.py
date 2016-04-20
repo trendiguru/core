@@ -644,6 +644,21 @@ def show_mask_with_labels(mask_filename,labels):
         cv2.destroyAllWindows()
 #        return dest
 
+def resize_dir(dir,out_dir,factor=4,filter='.jpg'):
+    imfiles = [f for f in os.listdir(dir) if os.path.isfile(os.path.join(dir,f)) and filter in f]
+    for f in imfiles:
+        infile = os.path.join(dir,f)
+        img_arr = cv2.imread(infile)
+        if filter == '.png' or filter=='.bmp' or filter == 'png' or filter == 'bmp':  #png mask is read as x*y*3 , prob. bmp too
+            img_arr = img_arr[:,:,0]
+        h, w = img_arr.shape[0:2]
+        new_h = int(h/factor)
+        new_w = int(w/factor)
+        output_arr = cv2.resize(img_arr,(new_w,new_h))
+        actualh,actualw = output_arr.shape[0:2]
+        outfile = os.path.join(out_dir,f)
+        cv2.imwrite(outfile,output_arr)
+        print('orig w,h {},{} new {},{} infile {} outfile {} shape {}'.format(w,h,actualw,actualh,infile,outfile,output_arr.shape))
 
 
 def nms_detections(dets, overlap=0.3):
