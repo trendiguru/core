@@ -6,6 +6,7 @@ __author__ = 'jeremy'
 
 # builtin
 import logging
+import rq
 import cv2
 from bson import objectid
 import matplotlib.pyplot as plt
@@ -15,12 +16,14 @@ import time
 # ours
 import constants
 import page_results
-from find_similar_mongo import get_all_subcategories
-import Utils
-from .constants import db
-
+from trendi.find_similar_mongo import get_all_subcategories
+from trendi import Utils
+from trendi.constants import db, redis_conn
+rq.push_connection(redis_conn)
 min_images_per_doc = constants.min_images_per_doc
 max_image_val = constants.max_image_val
+
+hash_q = rq.Queue("hash_q")
 
 
 def lookfor_next_bounded_in_db(current_item=0, current_image=0, only_get_boxed_images=True):
@@ -979,26 +982,16 @@ def clean_duplicates(collection, field):
 
 
 def hash_all_products():
+
+    def hash_the_image(image_url, collection):
+        image = Utils.get_cv2_img_array(image_url)
+        img_hash = page_results.get_hash(image)
+        collection.update_one({'_id': doc['_id']}, {'$set': {'img_hash': img_hash}})
+
     for gender in ['Female', 'Male']:
-        modified = 0
         collection = db['ebay_' + gender]
         for doc in collection.find({'img_hash': {'$exists': 0}}):
-            if modified % 1000 == 0:
-                print("till now {0} have been modified".format(modified))
-            try:
-                start = time.time()
-                image = Utils.get_cv2_img_array(doc['images']['XLarge'])
-                mid = time.time()
-                print("get_cv2 took {0} seconds".format(mid-start))
-                img_hash = page_results.get_hash(image)
-                mid2 = time.time()
-                print("hashing took {0} seconds".format(mid2-mid))
-                ans = collection.update_one({'_id': doc['_id']}, {'$set': {'img_hash': img_hash}})
-                print("updating collection took {0} seconds".format(time.time()-mid2))
-                modified += ans.modified_count
-            except:
-                print("something went wrong..")
-
+            hash_q.enqueue(hash_the_image, doc['images']['XLarge'], collection)
 
 if __name__ == '__main__':
     print('starting')
