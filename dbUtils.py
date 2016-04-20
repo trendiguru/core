@@ -983,16 +983,18 @@ def clean_duplicates(collection, field):
 
 def hash_all_products():
 
-    def hash_the_image(image_url, collection):
-        collection = db[collection]
-        image = Utils.get_cv2_img_array(image_url)
-        img_hash = page_results.get_hash(image)
-        collection.update_one({'_id': doc['_id']}, {'$set': {'img_hash': img_hash}})
-
     for gender in ['Female', 'Male']:
         collection = db['ebay_' + gender]
         for doc in collection.find({'img_hash': {'$exists': 0}}):
-            hash_q.enqueue_call(func=hash_the_image, args=(doc['images']['XLarge'], collection.name))
+            hash_q.enqueue_call(func=hash_the_image, args=(doc['_id'], doc['images']['XLarge'], collection.name))
+
+
+def hash_the_image(image_url, collection, id):
+        collection = db[collection]
+        image = Utils.get_cv2_img_array(image_url)
+        img_hash = page_results.get_hash(image)
+        collection.update_one({'_id': id}, {'$set': {'img_hash': img_hash}})
+
 
 if __name__ == '__main__':
     print('starting')
