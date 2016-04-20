@@ -100,7 +100,8 @@ for line in file:
     # Resize it.
     resized_image = cv2.resize(face_image, (width, height))
 
-    resized_image.save(os.path.join('/home/yonatan/55k_train_set', 'resized_face-' + str(counter) + '.jpg'))
+    cv2.imwrite('resized_face-' + str(counter) + '.jpg', resized_image)
+    #resized_image.save(os.path.join('/home/yonatan/55k_train_set', 'resized_face-' + str(counter) + '.jpg'))
 
     #cv2.imwrite(os.path.join(root, 'face-' + file), resized_image)
 
