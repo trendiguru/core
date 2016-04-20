@@ -92,8 +92,7 @@ for line in file:
     #split line to link and label
     words = file_as_array_by_lines.split()
 
-    image_from_link = url_to_image(words[0])
-    face_image = find_face(image_from_link)
+    face_image = find_face(words[0])
 
     im = Image.fromarray(face_image)
     # Resize it.
