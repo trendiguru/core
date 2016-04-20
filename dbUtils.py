@@ -11,9 +11,10 @@ from bson import objectid
 import matplotlib.pyplot as plt
 import numpy as np
 import pymongo
-
+import time
 # ours
 import constants
+import page_results
 from find_similar_mongo import get_all_subcategories
 import Utils
 from .constants import db
@@ -975,6 +976,29 @@ def clean_duplicates(collection, field):
             deleted += collection.delete_many({'$and': [{'image_urls': doc['image_urls'][0]}, {'_id': {'$ne': doc['_id']}}]}).deleted_count
 
     print("total {0} docs were deleted".format(deleted))
+
+
+def hash_all_products():
+    for gender in ['Female', 'Male']:
+        modified = 0
+        collection = db['ebay_' + gender]
+        for doc in collection.find({'img_hash': {'$exists': 0}}):
+            if modified % 1000 == 0:
+                print("till now {0} have been modified".format(modified))
+            try:
+                start = time.time()
+                image = Utils.get_cv2_img_array(doc['images']['XLarge'])
+                mid = time.time()
+                print("get_cv2 took {0} seconds".format(mid-start))
+                img_hash = page_results.get_hash(image)
+                mid2 = time.time()
+                print("hashing took {0} seconds".format(mid2-mid))
+                ans = collection.update_one({'_id': doc['_id']}, {'$set': {'img_hash': img_hash}})
+                print("updating collection took {0} seconds".format(time.time()-mid2))
+                modified += ans.modified_count
+            except:
+                print("something went wrong..")
+
 
 if __name__ == '__main__':
     print('starting')
