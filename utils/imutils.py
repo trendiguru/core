@@ -591,6 +591,13 @@ def oversegment(img_arr):
     num_levels = 20
     cv2.SuperpixelSEEDS.createSuperpixelSEEDS(image_width, image_height, image_channels, num_superpixels, num_levels, use_prior = 2, histogram_bins=5, double_step = False)
 
+def defenestrate_labels(mask,kplist):
+    matches = np.zeros_like(mask)
+    for i in range(0,len(kplist)):
+        index = kplist[i]
+        nv = np.multiply(mask == index,i+1)
+        matches = matches + nv
+    return matches
 
 def resize_and_crop_maintain_bb_on_dir(dir, output_width = 150, output_height = 200,use_visual_output=True):
     only_files = [f for f in os.listdir(dir) if os.path.isfile(os.path.join(dir,f))]
@@ -737,14 +744,17 @@ if __name__ == "__main__":
 #        resize_and_crop_maintain_bb_on_dir(dir, output_width = 448, output_height = 448,use_visual_output=True)
     dir = '/home/jeremy/tg/pd_output'
     dir = '/root'
-    masklist = [f for f in os.listdir(dir) if '_output.png' in f]
+    dir = '/home/jeremy/images_dbs/fashionista-v0.2.1'
+    masklist = [f for f in os.listdir(dir) if '_mask.png' in f]
     print('masks:'+str(masklist))
     labels = constants.pascal_context_labels
+    final_labels = ['','bk','skin','hair']
     for mask in masklist:
         fullname = os.path.join(dir,mask)
-#        show_mask_with_labels(fullname,constants.fashionista_categories)
-	print('name:'+mask)
-        show_mask_with_labels(fullname,labels)
+        show_mask_with_labels(fullname,constants.fashionista_categories)
+        print('name:'+mask)
+        new_mask = defenestrate_labels(mask,[1,56,57])
+        show_mask_with_labels(fullname,['null','skin','hair'])
 
 
 
