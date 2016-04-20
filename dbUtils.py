@@ -991,7 +991,7 @@ def hash_all_products():
     for gender in ['Female', 'Male']:
         collection = db['ebay_' + gender]
         for doc in collection.find({'img_hash': {'$exists': 0}}):
-            hash_q.enqueue(hash_the_image, doc['images']['XLarge'], collection)
+            hash_q.enqueue_call(func=hash_the_image, args=(doc['images']['XLarge'], collection))
 
 if __name__ == '__main__':
     print('starting')
