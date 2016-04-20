@@ -744,7 +744,7 @@ if __name__ == "__main__":
 #        resize_and_crop_maintain_bb_on_dir(dir, output_width = 448, output_height = 448,use_visual_output=True)
     dir = '/home/jeremy/tg/pd_output'
     dir = '/root'
-    dir = '/home/jeremy/images_dbs/fashionista-v0.2.1'
+    dir = '/home/jeremy/image_dbs/fashionista-v0.2.1'
     masklist = [f for f in os.listdir(dir) if '_mask.png' in f]
     print('masks:'+str(masklist))
     labels = constants.pascal_context_labels
