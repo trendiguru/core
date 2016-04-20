@@ -98,7 +98,7 @@ for line in file:
     # Resize it.
     img = im.resize((width, height), Image.BILINEAR)
 
-    img.save(os.path.join('/home/yonatan/55k_train_set/', 'resized_face-' + str(counter)))
+    img.save(os.path.join('/home/yonatan/55k_train_set', 'resized_face-' + str(counter)))
 
     cv2.imshow("cropped_face", img)
     cv2.waitKey(0)
