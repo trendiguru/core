@@ -596,7 +596,7 @@ def defenestrate_labels(mask,kplist):
     for i in range(0,len(kplist)):
         index = kplist[i]
         nv = np.multiply(mask == index,i+1)
-        matches = matches + nv
+        matches = np.add(matches,nv)
     return matches
 
 def resize_and_crop_maintain_bb_on_dir(dir, output_width = 150, output_height = 200,use_visual_output=True):
