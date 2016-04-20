@@ -756,7 +756,7 @@ if __name__ == "__main__":
         print('name:'+mask)
         mask_img = cv2.imread(fullname)
         if len(mask_img.shape)==3:
-            mask_img = mask_img(:,:,0)
+            mask_img = mask_img[:,:,0]
         new_mask = defenestrate_labels(mask_img,[1,56,57])
         show_mask_with_labels(fullname,['null','skin','hair'])
 
