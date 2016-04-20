@@ -6,12 +6,12 @@ import subprocess
 import cv2
 import numpy as np
 
-from . import NNSearch
-from . import Utils
-from . import background_removal
-from . import constants
-from . import fingerprint_core as fp
-from . import kassper
+from trendi import NNSearch
+from trendi import Utils
+from trendi import background_removal
+from trendi import constants
+from trendi import fingerprint_core as fp
+from trendi import kassper
 
 fingerprint_length = constants.fingerprint_length
 histograms_length = constants.histograms_length
