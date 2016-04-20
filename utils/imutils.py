@@ -596,6 +596,8 @@ def defenestrate_labels(mask,kplist):
     for i in range(0,len(kplist)):
         index = kplist[i]
         nv = np.multiply(mask == index,i+1)
+        print nv
+        print nv.shape
         matches = np.add(matches,nv)
     return matches
 
@@ -753,7 +755,10 @@ if __name__ == "__main__":
         fullname = os.path.join(dir,mask)
         show_mask_with_labels(fullname,constants.fashionista_categories)
         print('name:'+mask)
-        new_mask = defenestrate_labels(mask,[1,56,57])
+        mask_img = cv2.imread(fullname)
+        if len(mask_img.shape)==3:
+            mask_img = mask_img(:,:,0)
+        new_mask = defenestrate_labels(mask_img,[1,56,57])
         show_mask_with_labels(fullname,['null','skin','hair'])
 
 
