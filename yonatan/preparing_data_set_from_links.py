@@ -103,7 +103,7 @@ for line in file:
     cv2.imwrite(os.path.join('/home/yonatan', 'resized_face-' + str(counter) + '.jpg'), resized_image)
     #resized_image.save(os.path.join('/home/yonatan/55k_train_set', 'resized_face-' + str(counter) + '.jpg'))
 
-    cv2.imwrite(os.path.join(root, 'face-' + file), resized_image)
+    #cv2.imwrite(os.path.join(root, 'face-' + file), resized_image)
 
     cv2.imshow("cropped_face", resized_image)
     cv2.waitKey(0)
