@@ -596,7 +596,7 @@ def defenestrate_labels(mask,kplist):
     for i in range(0,len(kplist)):
         index = kplist[i]
         nv = np.multiply(mask == index,i+1)
-        print nv.shape
+        print(nv.shape)
         matches = np.add(matches,nv)
     return matches
 
