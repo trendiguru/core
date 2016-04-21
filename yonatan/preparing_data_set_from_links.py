@@ -39,8 +39,6 @@ def find_face(raw_image):
 
     #image = url_to_image(url)
     image = url_to_image(raw_image)
-    cv2.imshow("Image", image)
-    cv2.waitKey(0)
 
     gray = cv2.cvtColor(image, constants.BGR2GRAYCONST)
     face_cascades = [
