@@ -604,13 +604,14 @@ def defenestrate_directory(indir,outdir,filter='.png',keep_these_cats=[1,55,56,5
     masklist = [f for f in os.listdir(indir) if filter in f]
 #    print('masks:'+str(masklist))
 #    labels = constants.pascal_context_labels
-    final_labels = ['','bk','skin','hair']
+    final_labels = ['','null','hair','skin','face']
     final_labels = [labels[ind] for ind in keep_these_cats]
-
+    final_labels = [''].append(final_labels)
+    print('final labels:'+str(final_labels))
     for mask in masklist:
         fullname = os.path.join(indir,mask)
         print('name:'+mask+' full:'+fullname)
-        show_mask_with_labels(fullname,constants.fashionista_categories)
+        show_mask_with_labels(fullname,labels)
         mask_img = cv2.imread(fullname)
         if len(mask_img.shape)==3:
             print('fixing multichan mask')
@@ -619,7 +620,7 @@ def defenestrate_directory(indir,outdir,filter='.png',keep_these_cats=[1,55,56,5
         outname = os.path.join(outdir,mask)
         cv2.imwrite(outname,new_mask)
         print('uniques '+str(np.unique(new_mask)))
-        show_mask_with_labels('test.bmp',['','null','hair','skin','face'])
+        show_mask_with_labels('test.bmp',final_labels)
 
 def concatenate_labels(mask,kplist):
     matches = np.ones_like(mask)
