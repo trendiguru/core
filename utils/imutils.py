@@ -644,7 +644,7 @@ def resize_and_crop_maintain_bb_on_dir(dir, output_width = 150, output_height = 
 
 def show_mask_with_labels(mask_filename,labels):
     colormap = cv2.COLORMAP_JET
-    img_arr = cv2.imread(mask_filename, cv2.CV_LOAD_IMAGE_GRAYSCALE)
+    img_arr = cv2.imread(mask_filename, cv2.IMREAD_GRAYSCALE)
     s = img_arr.shape
     print(s)
     if len(s) != 2:
@@ -786,7 +786,7 @@ if __name__ == "__main__":
         fullname = os.path.join(dir,mask)
 #        show_mask_with_labels(fullname,constants.fashionista_categories)
         print('name:'+mask)
-        mask_img = cv2.imread(fullname, cv2.CV_LOAD_IMAGE_GRAYSCALE)
+        mask_img = cv2.imread(fullname, cv2.IMREAD_GRAYSCALE)
         if len(mask_img.shape)==3:
             print('fixing multichan')
             mask_img = mask_img[:,:,0]
