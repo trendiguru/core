@@ -599,14 +599,17 @@ def defenestrate_labels(mask,kplist):
         print(nv.shape)
         matches = np.add(matches,nv)
     return matches
-def defenestrate_directory(indir,outdir,filter='_mask',keep_these_cats=[1,55,56,57]):
+
+def defenestrate_directory(indir,outdir,filter='_mask',keep_these_cats=[1,55,56,57],labels=constants.fashionista_categories_augmented):
     masklist = [f for f in os.listdir(indir) if '_mask.png' in f]
 #    print('masks:'+str(masklist))
 #    labels = constants.pascal_context_labels
     final_labels = ['','bk','skin','hair']
+    final_labels = [labels[ind] for ind in keep_these_cats]
+
     for mask in masklist:
         fullname = os.path.join(dir,mask)
-#        show_mask_with_labels(fullname,constants.fashionista_categories)
+        show_mask_with_labels(fullname,constants.fashionista_categories)
         print('name:'+mask)
         mask_img = cv2.imread(fullname)
         if len(mask_img.shape)==3:
@@ -615,8 +618,8 @@ def defenestrate_directory(indir,outdir,filter='_mask',keep_these_cats=[1,55,56,
         new_mask = defenestrate_labels(mask_img,keep_these_cats)
         cv2.imwrite('test.bmp',new_mask)
         print('uniques '+str(np.unique(new_mask)))
-        #show_mask_with_labels('test.bmp',['','null','hair','skin','face'])
-#
+        show_mask_with_labels('test.bmp',['','null','hair','skin','face'])
+
 
 
 
@@ -777,25 +780,10 @@ if __name__ == "__main__":
 #        resize_and_crop_maintain_bb_on_dir(dir, output_width = 448, output_height = 448,use_visual_output=True)
     dir = '/home/jeremy/tg/pd_output'
     dir = '/root'
-    dir = '/home/jeremy/image_dbs/fashionista-v0.2.1'
-    masklist = [f for f in os.listdir(dir) if '_mask.png' in f]
-    print('masks:'+str(masklist))
-    labels = constants.pascal_context_labels
-    final_labels = ['','bk','skin','hair']
-    for mask in masklist:
-        fullname = os.path.join(dir,mask)
-#        show_mask_with_labels(fullname,constants.fashionista_categories)
-        print('name:'+mask)
-        mask_img = cv2.imread(fullname, cv2.IMREAD_GRAYSCALE)
-        if len(mask_img.shape)==3:
-            print('fixing multichan')
-            mask_img = mask_img[:,:,0]
-        new_mask = defenestrate_labels(mask_img,[1,55,56,57])
-        print('new mask shape:'+str(new_mask.shape))
-        cv2.imwrite('test.bmp',new_mask)
-        print('uniques '+str(np.unique(new_mask)))
-        show_mask_with_labels('test.bmp',['','null','hair','skin','face'])
-#
+    indir = '/home/jeremy/image_dbs/fashionista-v0.2.1'
+    outdir = '/home/jeremy/image_dbs/fashionista-v0.2.1/reduced_cats'
+    defenestrate_directory(indir,outdir,filter='_mask',keep_these_cats=[1,55,56,57],labels=constants.fashionista_categories_augmented)
+
 
 
     if host == 'jr-ThinkPad-X1-Carbon' or host == 'jr':
