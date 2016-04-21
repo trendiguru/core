@@ -772,7 +772,7 @@ if __name__ == "__main__":
         new_mask = defenestrate_labels(mask_img,[1,55,56,57])
         cv2.imwrite('test.bmp',new_mask)
         print('uniques '+str(np.unique(new_mask)))
-        show_mask_with_labels('test.bmp',['','null','hair','skin','face'])
+        #show_mask_with_labels('test.bmp',['','null','hair','skin','face'])
 #
 
 
