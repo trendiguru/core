@@ -606,8 +606,7 @@ def defenestrate_directory(indir,outdir,filter='.png',keep_these_cats=[1,55,56,5
 #    labels = constants.pascal_context_labels
     final_labels = ['','null','hair','skin','face']
     final_labels = [labels[ind] for ind in keep_these_cats]
-    print(' labels:'+str(final_labels))
-    final_labels = [''].append(final_labels)
+    final_labels[:0] = [''] #prepend
     print('final labels:'+str(final_labels))
     for mask in masklist:
         fullname = os.path.join(indir,mask)
