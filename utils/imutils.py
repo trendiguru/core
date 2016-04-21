@@ -786,7 +786,7 @@ if __name__ == "__main__":
 
     indir = '/home/jeremy/image_dbs/colorful_fashion_parsing_data/labels_200x150'
     outdir = '/home/jeremy/image_dbs/colorful_fashion_parsing_data/labels_200x150/reduced_cats'
-    defenestrate_directory(indir,outdir,filter='_mask',keep_these_cats=[1,55,56,57],labels=constants.fashionista_categories_augmented)
+    defenestrate_directory(indir,outdir,filter='.png',keep_these_cats=[1,55,56,57],labels=constants.fashionista_categories_augmented)
 
 
 
