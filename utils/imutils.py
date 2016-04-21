@@ -598,8 +598,18 @@ def defenestrate_labels(mask,kplist):
         nv = np.multiply(mask == index,i)
         print(nv.shape)
         matches = np.add(matches,nv)
-
     return matches
+
+def concatenate_labels(mask,kplist):
+    matches = np.ones_like(mask)
+    first = kplist[0]
+    for i in range(0,len(kplist)):
+        index = kplist[i]
+        nv = np.multiply(mask == index,first)
+        print(nv.shape)
+        matches = np.add(matches,nv)
+    return matches
+
 
 def resize_and_crop_maintain_bb_on_dir(dir, output_width = 150, output_height = 200,use_visual_output=True):
     only_files = [f for f in os.listdir(dir) if os.path.isfile(os.path.join(dir,f))]
@@ -753,7 +763,7 @@ if __name__ == "__main__":
     final_labels = ['','bk','skin','hair']
     for mask in masklist:
         fullname = os.path.join(dir,mask)
-        show_mask_with_labels(fullname,constants.fashionista_categories)
+#        show_mask_with_labels(fullname,constants.fashionista_categories)
         print('name:'+mask)
         mask_img = cv2.imread(fullname)
         if len(mask_img.shape)==3:
@@ -763,7 +773,7 @@ if __name__ == "__main__":
         cv2.imwrite('test.bmp',new_mask)
         print('uniques '+str(np.unique(new_mask)))
         show_mask_with_labels('test.bmp',['','null','hair','skin','face'])
-
+#
 
 
     if host == 'jr-ThinkPad-X1-Carbon' or host == 'jr':
