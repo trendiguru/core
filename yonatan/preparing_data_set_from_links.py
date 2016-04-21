@@ -77,8 +77,6 @@ def find_face(raw_image):
 
     face_image = image[y:(y + h), x:(x + w)]
 
-    cv2.imshow("cropped_face", face_image)
-    cv2.waitKey(0)
     return face_image
 
 
@@ -108,26 +106,23 @@ for line in file:
 
     text_file.write('/home/yonatan/55k_face_train_list.txt/' + image_file_name + ' ' + words[1] + '\n')
 
-    cv2.imshow("cropped_face", resized_image)
-    cv2.waitKey(0)
+    print counter
 
-    text_file.flush()
-
-    break
+text_file.flush()
 
 
 
 
-'''
+
+
+
 sets = {'train', 'test'}
 
 for set in sets:
     if set == 'train':
-        mypath_male = '/home/yonatan/train_set/male'
-        mypath_female = '/home/yonatan/train_set/female'
+
     else:
-        mypath_male = '/home/yonatan/test_set/male'
-        mypath_female = '/home/yonatan/test_set/female'
+
 
     for root, dirs, files in os.walk(mypath_male):
         for file in files:
@@ -157,4 +152,4 @@ for set in sets:
                 img.save(os.path.join(root, 'resized_face-' + file))
                 counter += 1
                 print counter
-'''
+
