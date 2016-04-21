@@ -599,6 +599,27 @@ def defenestrate_labels(mask,kplist):
         print(nv.shape)
         matches = np.add(matches,nv)
     return matches
+def defenestrate_directory(indir,outdir,filter='_mask',keep_these_cats=[1,55,56,57]):
+    masklist = [f for f in os.listdir(indir) if '_mask.png' in f]
+#    print('masks:'+str(masklist))
+#    labels = constants.pascal_context_labels
+    final_labels = ['','bk','skin','hair']
+    for mask in masklist:
+        fullname = os.path.join(dir,mask)
+#        show_mask_with_labels(fullname,constants.fashionista_categories)
+        print('name:'+mask)
+        mask_img = cv2.imread(fullname)
+        if len(mask_img.shape)==3:
+            print('fixing multichan mask')
+            mask_img = mask_img[:,:,0]
+        new_mask = defenestrate_labels(mask_img,keep_these_cats)
+        cv2.imwrite('test.bmp',new_mask)
+        print('uniques '+str(np.unique(new_mask)))
+        #show_mask_with_labels('test.bmp',['','null','hair','skin','face'])
+#
+
+
+
 
 def concatenate_labels(mask,kplist):
     matches = np.ones_like(mask)
@@ -772,7 +793,7 @@ if __name__ == "__main__":
         new_mask = defenestrate_labels(mask_img,[1,55,56,57])
         cv2.imwrite('test.bmp',new_mask)
         print('uniques '+str(np.unique(new_mask)))
-        #show_mask_with_labels('test.bmp',['','null','hair','skin','face'])
+        show_mask_with_labels('test.bmp',['','null','hair','skin','face'])
 #
 
 
