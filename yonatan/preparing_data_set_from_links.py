@@ -67,6 +67,7 @@ def find_face(raw_image):
 
     if len(faces) == 0:
         print "Fail"
+        return 0
 
     x = faces[0][0]
     y = faces[0][1]
@@ -101,6 +102,8 @@ for set in sets:
         words = file_as_array_by_lines.split()
 
         face_image = find_face(words[0])
+        if face_image == 0:
+            continue
         # Resize it.
         resized_image = cv2.resize(face_image, (width, height))
 
