@@ -684,7 +684,7 @@ def show_mask_with_labels(mask_filename,labels):
         dest_colorbar = cv2.applyColorMap(scaled_colorbar, colormap)
         cv2.imshow('map',dest)
         cv2.imshow('colorbar',dest_colorbar)
-        cv2.waitKey(10)
+        cv2.waitKey(0)
         cv2.destroyAllWindows()
 #        return dest
 
