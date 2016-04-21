@@ -88,6 +88,8 @@ height = 115
 #opens the txt file for reading
 file = open('55k_train_set.txt', 'r')
 
+text_file = open("55k_face_train_list.txt", "w")
+
 counter = 0
 #convert the file to an array and divide it by lines
 for line in file:
@@ -100,12 +102,16 @@ for line in file:
     # Resize it.
     resized_image = cv2.resize(face_image, (width, height))
 
-    resized_image.save(os.path.join('/home/yonatan/55k_train_set', 'resized_face-' + str(counter) + '.jpg'))
+    image_file_name = 'resized_face-' + str(counter) + '.jpg'
 
-    #cv2.imwrite(os.path.join(root, 'face-' + file), resized_image)
+    cv2.imwrite(os.path.join('/home/yonatan/55k_train_set', image_file_name), resized_image)
+
+    text_file.write('/home/yonatan/55k_face_train_list.txt/' + image_file_name + ' ' + words[1] + '\n')
 
     cv2.imshow("cropped_face", resized_image)
     cv2.waitKey(0)
+
+    text_file.flush()
 
     break
 
