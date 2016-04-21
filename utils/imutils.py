@@ -608,7 +608,7 @@ def defenestrate_directory(indir,outdir,filter='_mask',keep_these_cats=[1,55,56,
     final_labels = [labels[ind] for ind in keep_these_cats]
 
     for mask in masklist:
-        fullname = os.path.join(dir,mask)
+        fullname = os.path.join(indir,mask)
         print('name:'+mask+' full:'+fullname)
         show_mask_with_labels(fullname,constants.fashionista_categories)
         mask_img = cv2.imread(fullname)
@@ -616,7 +616,8 @@ def defenestrate_directory(indir,outdir,filter='_mask',keep_these_cats=[1,55,56,
             print('fixing multichan mask')
             mask_img = mask_img[:,:,0]
         new_mask = defenestrate_labels(mask_img,keep_these_cats)
-        cv2.imwrite('test.bmp',new_mask)
+        outname = os.path.join(outdir,mask)
+        cv2.imwrite(outname,new_mask)
         print('uniques '+str(np.unique(new_mask)))
         show_mask_with_labels('test.bmp',['','null','hair','skin','face'])
 
