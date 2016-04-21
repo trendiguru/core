@@ -684,7 +684,7 @@ def show_mask_with_labels(mask_filename,labels):
         dest_colorbar = cv2.applyColorMap(scaled_colorbar, colormap)
         cv2.imshow('map',dest)
         cv2.imshow('colorbar',dest_colorbar)
-        cv2.waitKey(0)
+        cv2.waitKey(10)
         cv2.destroyAllWindows()
 #        return dest
 
@@ -783,6 +783,9 @@ if __name__ == "__main__":
     dir = '/root'
     indir = '/home/jeremy/image_dbs/fashionista-v0.2.1'
     outdir = '/home/jeremy/image_dbs/fashionista-v0.2.1/reduced_cats'
+
+    indir = '/home/jeremy/image_dbs/colorful_fashion_parsing_data/labels'
+    outdir = '/home/jeremy/image_dbs/colorful_fashion_parsing_data/labels/reduced_cats'
     defenestrate_directory(indir,outdir,filter='_mask',keep_these_cats=[1,55,56,57],labels=constants.fashionista_categories_augmented)
 
 
