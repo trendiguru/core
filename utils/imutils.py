@@ -600,8 +600,8 @@ def defenestrate_labels(mask,kplist):
         matches = np.add(matches,nv)
     return matches
 
-def defenestrate_directory(indir,outdir,filter='_mask',keep_these_cats=[1,55,56,57],labels=constants.fashionista_categories_augmented):
-    masklist = [f for f in os.listdir(indir) if '_mask.png' in f]
+def defenestrate_directory(indir,outdir,filter='.png',keep_these_cats=[1,55,56,57],labels=constants.fashionista_categories_augmented):
+    masklist = [f for f in os.listdir(indir) if filter in f]
 #    print('masks:'+str(masklist))
 #    labels = constants.pascal_context_labels
     final_labels = ['','bk','skin','hair']
@@ -620,10 +620,6 @@ def defenestrate_directory(indir,outdir,filter='_mask',keep_these_cats=[1,55,56,
         cv2.imwrite(outname,new_mask)
         print('uniques '+str(np.unique(new_mask)))
         show_mask_with_labels('test.bmp',['','null','hair','skin','face'])
-
-
-
-
 
 def concatenate_labels(mask,kplist):
     matches = np.ones_like(mask)
