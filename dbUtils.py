@@ -1016,3 +1016,15 @@ if __name__ == '__main__':
     # lookfor_next_unbounded_feature_from_db_category(current_item=0, skip_if_marked_to_skip=False,
     # which_to_show='showAll', filter_type='byCategoryID',
     # category_id='dresses', word_in_description=None, db=None)
+
+
+def clean_duplicates_aggregate(collection, key):
+    pipeline = [{"$group": {"_id": "$"+key, "dups": {'$addToSet': "$_id"}, "count": {"$sum": 1}}}]
+    for group in list(db[collection].aggregate(pipeline)):
+        i = 0
+        for dup in group['dups']:
+            if not i:
+                continue
+                i += 1
+            else:
+                db[collection].delete_one({'_id': dup})
