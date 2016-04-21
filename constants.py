@@ -246,12 +246,12 @@ fashionista_categories = ['','null','tights','shorts','blazer','t-shirt','bag','
                           'flats','tie','romper','sandals','earrings','gloves','sneakers','clogs','watch','pumps','wallet',
                           'bodysuit','loafers','hair','skin']
 
-fashionista_categories_augmented = ['','null','tights','shorts','blazer','t-shirt','bag','shoes','coat','skirt','purse','boots',
-                          'blouse','jacket','bra','dress','pants','sweater','shirt','jeans','leggings','scarf','hat',
-                          'top','cardigan','accessories','vest','sunglasses','belt','socks','glasses','intimate',
-                          'stockings','necklace','cape','jumper','sweatshirt','suit','bracelet','heels','wedges','ring',
-                          'flats','tie','romper','sandals','earrings','gloves','sneakers','clogs','watch','pumps','wallet',
-                          'bodysuit','loafers','hair','skin','face']
+fashionista_categories_augmented = ['','null','tights','shorts','blazer','t-shirt','bag','shoes','coat','skirt','purse',
+                                    'boots','blouse','jacket','bra','dress','pants','sweater','shirt','jeans','leggings',
+                                    'scarf','hat','top','cardigan','accessories','vest','sunglasses','belt','socks','glasses',
+                                    'intimate','stockings','necklace','cape','jumper','sweatshirt','suit','bracelet','heels','wedges',
+                                    'ring','flats','tie','romper','sandals','earrings','gloves','sneakers','clogs','watch',
+                                    'pumps','wallet','bodysuit','loafers','hair','skin','face']
 
 
 colorful_fashion_parsing_categories = ['bk','T-shirt','bag','belt','blazer','blouse','coat','dress','face','hair','hat',
