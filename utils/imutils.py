@@ -619,8 +619,8 @@ def defenestrate_directory(indir,outdir,filter='.png',keep_these_cats=[1,55,56,5
         new_mask = defenestrate_labels(mask_img,keep_these_cats)
         outname = os.path.join(outdir,mask)
         cv2.imwrite(outname,new_mask)
-        print('uniques '+str(np.unique(new_mask)))
-        show_mask_with_labels('test.bmp',final_labels)
+        print('outname:'+outname+', uniques '+str(np.unique(new_mask)))
+        show_mask_with_labels(outname,final_labels)
 
 def concatenate_labels(mask,kplist):
     matches = np.ones_like(mask)
