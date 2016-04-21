@@ -609,8 +609,8 @@ def defenestrate_directory(indir,outdir,filter='_mask',keep_these_cats=[1,55,56,
 
     for mask in masklist:
         fullname = os.path.join(dir,mask)
+        print('name:'+mask+' full:'+fullname)
         show_mask_with_labels(fullname,constants.fashionista_categories)
-        print('name:'+mask)
         mask_img = cv2.imread(fullname)
         if len(mask_img.shape)==3:
             print('fixing multichan mask')
