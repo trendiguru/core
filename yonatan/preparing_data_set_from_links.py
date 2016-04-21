@@ -83,73 +83,35 @@ def find_face(raw_image):
 width = 115
 height = 115
 
-#opens the txt file for reading
-file = open('55k_train_set.txt', 'r')
 
-text_file = open("55k_face_train_list.txt", "w")
-
-counter = 0
-#convert the file to an array and divide it by lines
-for line in file:
-    counter += 1
-    file_as_array_by_lines = line
-    #split line to link and label
-    words = file_as_array_by_lines.split()
-
-    face_image = find_face(words[0])
-    # Resize it.
-    resized_image = cv2.resize(face_image, (width, height))
-
-    image_file_name = 'resized_face-' + str(counter) + '.jpg'
-
-    cv2.imwrite(os.path.join('/home/yonatan/55k_train_set', image_file_name), resized_image)
-
-    text_file.write('/home/yonatan/55k_face_train_list.txt/' + image_file_name + ' ' + words[1] + '\n')
-
-    print counter
-
-text_file.flush()
-
-
-
-
-
-
-
-sets = {'train', 'test'}
+sets = {'train', 'cv'}
 
 for set in sets:
     if set == 'train':
-
+        file = open('Stan_train.txt', 'r')
+        text_file = open("55k_face_train_list.txt", "w")
     else:
+        file = open('Stan_cv.txt', 'r')
+        text_file = open("55k_face_cv_list.txt", "w")
 
+    counter = 0
 
-    for root, dirs, files in os.walk(mypath_male):
-        for file in files:
-            if file.endswith(".jpg"):
-                # Open the image file.
-                img = Image.open(os.path.join(root, file))
+    for line in file:
+        counter += 1
+        file_as_array_by_lines = line
+        #split line to link and label
+        words = file_as_array_by_lines.split()
 
-                # Resize it.
-                img = img.resize((width, height), Image.BILINEAR)
+        face_image = find_face(words[0])
+        # Resize it.
+        resized_image = cv2.resize(face_image, (width, height))
 
-                # Save it back to disk.
-                img.save(os.path.join(root, 'resized_face-' + file))
-                counter += 1
-                print counter
+        image_file_name = 'resized_face-' + str(counter) + '.jpg'
 
+        cv2.imwrite(os.path.join('/home/yonatan/55k_' + set + '_set', image_file_name), resized_image)
 
-    for root, dirs, files in os.walk(mypath_female):
-        for file in files:
-            if file.endswith(".jpg"):
-                # Open the image file.
-                img = Image.open(os.path.join(root, file))
+        text_file.write('/home/yonatan/55k_face_' + set + '_list.txt/' + image_file_name + ' ' + words[1] + '\n')
 
-                # Resize it.
-                img = img.resize((width, height), Image.BILINEAR)
+        print counter
 
-                # Save it back to disk.
-                img.save(os.path.join(root, 'resized_face-' + file))
-                counter += 1
-                print counter
-
+    text_file.flush()
