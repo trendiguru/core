@@ -8,7 +8,7 @@ __author__ = 'jeremy'
 import logging
 import rq
 import cv2
-from bson import objectid
+from bson import objectid, ObjectId
 import matplotlib.pyplot as plt
 import numpy as np
 import pymongo
@@ -1022,9 +1022,10 @@ def clean_duplicates_aggregate(collection, key):
     pipeline = [{"$group": {"_id": "$"+key, "dups": {'$addToSet': "$_id"}, "count": {"$sum": 1}}}]
     for group in list(db[collection].aggregate(pipeline)):
         i = 0
-        for dup in group['dups']:
-            if not i:
-                continue
-                i += 1
-            else:
-                db[collection].delete_one({'_id': dup})
+        if group['count'] > 1:
+            for dup in group['dups']:
+                if not i:
+                    continue
+                    i += 1
+                else:
+                    db[collection].delete_one({'_id': ObjectId(dup)})
