@@ -611,7 +611,7 @@ def defenestrate_directory(indir,outdir,filter='.png',keep_these_cats=[1,55,56,5
     for mask in masklist:
         fullname = os.path.join(indir,mask)
         print('name:'+mask+' full:'+fullname)
-        show_mask_with_labels(fullname,labels)
+ #       show_mask_with_labels(fullname,labels)
         mask_img = cv2.imread(fullname)
         if len(mask_img.shape)==3:
             print('fixing multichan mask')
@@ -620,7 +620,7 @@ def defenestrate_directory(indir,outdir,filter='.png',keep_these_cats=[1,55,56,5
         outname = os.path.join(outdir,mask)
         cv2.imwrite(outname,new_mask)
         print('outname:'+outname+', uniques '+str(np.unique(new_mask)))
-        show_mask_with_labels(outname,final_labels)
+  #      show_mask_with_labels(outname,final_labels)
 
 def concatenate_labels(mask,kplist):
     matches = np.ones_like(mask)
@@ -681,7 +681,7 @@ def show_mask_with_labels(mask_filename,labels):
         dest_colorbar = cv2.applyColorMap(scaled_colorbar, colormap)
         cv2.imshow('map',dest)
         cv2.imshow('colorbar',dest_colorbar)
-        cv2.waitKey(10)
+        cv2.waitKey(0)
         cv2.destroyAllWindows()
 #        return dest
 
