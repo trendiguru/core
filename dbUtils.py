@@ -8,7 +8,7 @@ __author__ = 'jeremy'
 import logging
 import rq
 import cv2
-from bson import objectid
+from bson import objectid, ObjectId
 import matplotlib.pyplot as plt
 import numpy as np
 import pymongo
@@ -1016,3 +1016,16 @@ if __name__ == '__main__':
     # lookfor_next_unbounded_feature_from_db_category(current_item=0, skip_if_marked_to_skip=False,
     # which_to_show='showAll', filter_type='byCategoryID',
     # category_id='dresses', word_in_description=None, db=None)
+
+
+def clean_duplicates_aggregate(collection, key):
+    pipeline = [{"$group": {"_id": "$"+key, "dups": {'$addToSet': "$_id"}, "count": {"$sum": 1}}}]
+    for group in list(db[collection].aggregate(pipeline)):
+        first = True
+        if group['count'] > 1:
+            for dup in group['dups']:
+                if first:
+                    first = False
+                    continue
+                else:
+                    db[collection].delete_one({'_id': ObjectId(dup)})

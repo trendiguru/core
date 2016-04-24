@@ -310,7 +310,7 @@ for filename in files:
                 stoll+=1
 
 
-            q.enqueue(generate_mask_and_insert, doc=generic_dict, image_url=generic_dict["images"],
+            q.enqueue(generate_mask_and_insert, doc=generic_dict, image_url=generic_dict["images"]["XLarge"],
                   fp_date=today_date, coll=collection_name)
             # db[collection_name].insert_one(generic_dict)
 
