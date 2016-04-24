@@ -465,18 +465,19 @@ def fcn_dirs_to_lmdb(dbname,image_dir,label_dir,resize_x=None,resize_y=None,avg_
                 datum.data = blue_chan.tobytes()  # or .tostring() if numpy < 1.9
             else:
                 datum.channels = img_arr.shape[2]
-        #see https://github.com/BVLC/caffe/issues/1698 -
-            #reverse order of channels  - BGR -> RGB (and vice versa)
+        #see https://github.com/BVLC/caffe/issues/1698 -       #reverse order of channels  - BGR -> RGB (and vice versa)
                 # no actual need for this as a. cv2 has BGR as default like caffe and
                 # b. this order is irrelevant unless you are trying to fine-tune trained net.
-#            img_arr = img_arr[:,:,::-1]
-        # and reorder with channel first, channel x  height x width
+#            img_arr = img_arr[:,:,::-1]     # and reorder with channel first, channel x  height x width
             img_arr = img_arr.transpose((2,0,1))
-
-#                    img_reshaped = img_arr.reshape((datum.channels,datum.height,datum.width))
+#           img_reshaped = img_arr.reshape((datum.channels,datum.height,datum.width))
 #            print('reshaped size: '+str(img_arr.shape))
+            print('img arr size:'+str(img_arr.shape)+ ' class:'+str(type(img_arr)))
+
             datum.data = img_arr.tobytes()  # or .tostring() if numpy < 1.9
+
             padded_label = copy.copy(label_arr[np.newaxis, ...])
+            print('padded label size:'+str(padded_label.shape)+' type:'+str(type(padded_label)))
             datum.label = padded_label.tobytes()
             str_id = '{:08}'.format(image_number)
             print('db: {} strid:{} imgshape {} labelshape {} imgname {} lblname {}'.format(dbname,str_id,img_arr.shape,label_arr.shape,a_file,label_name))
