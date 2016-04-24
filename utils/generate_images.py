@@ -266,19 +266,19 @@ if __name__=="__main__":
     label_dir = '/home/jeremy/image_dbs/colorful_fashion_parsing_data/labels'
 
     generate_images_for_directory(image_dir,
-                    max_angle = 10,n_angles=5,
-                    max_offset_x = 10,n_offsets_x=3,
-                    max_offset_y = 10, n_offsets_y=3,
-                    max_scale=1.3, n_scales=5,
+                    max_angle = 10,n_angles=2,
+                    max_offset_x = 10,n_offsets_x=2,
+                    max_offset_y = 10, n_offsets_y=2,
+                    max_scale=1.3, n_scales=2,
                     noise_level=0.1,noise_type='gauss',n_noises=0,
                     max_blur=5, n_blurs=0,
                     do_mirror_lr=True,do_mirror_ud=False,do_bb=False)
 
     generate_images_for_directory(label_dir,
-                    max_angle = 10,n_angles=5,
-                    max_offset_x = 10,n_offsets_x=3,
-                    max_offset_y = 10, n_offsets_y=3,
-                    max_scale=1.3, n_scales=5,
+                    max_angle = 10,n_angles=2,
+                    max_offset_x = 10,n_offsets_x=2,
+                    max_offset_y = 10, n_offsets_y=2,
+                    max_scale=1.3, n_scales=2,
                     noise_level=0.1,noise_type='gauss',n_noises=0,
                     max_blur=5, n_blurs=0,
                     do_mirror_lr=True,do_mirror_ud=False,do_bb=False)
