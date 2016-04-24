@@ -646,7 +646,7 @@ def resize_and_crop_maintain_bb_on_dir(dir, output_width = 150, output_height = 
 def show_mask_with_labels(mask_filename,labels):
     colormap = cv2.COLORMAP_JET
     img_arr = Utils.get_cv2_img_array(mask_filename)
-    img_arr = cv2.imread(mask_filename, cv2.IMREAD_GRAYSCALE)
+#    img_arr = cv2.imread(mask_filename, cv2.IMREAD_GRAYSCALE)
     s = img_arr.shape
     print(s)
     if len(s) != 2:
