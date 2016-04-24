@@ -546,7 +546,7 @@ def inspect_db(dbname,show_visual_output=True,B=0,G=0,R=0):
 #            print(key, value)
    #         n=n+1
 
-def inspect_fcn_db(dbname,show_visual_output=True,B=0,G=0,R=0):
+def inspect_fcn_db(dbname,show_visual_output=True,mean=(0,0,0)):
     env = lmdb.open(dbname, readonly=True)
     with env.begin() as txn:
         n=0
@@ -579,9 +579,9 @@ def inspect_fcn_db(dbname,show_visual_output=True,B=0,G=0,R=0):
                     x = orig_x.transpose((1,2,0))
                     logging.debug('after transpose shape:'+str(x.shape))
       #              x = flat_x.reshape(datum.height, datum.width,datum.channels)
-                    x[:,:,0] = x[:,:,0]+B
-                    x[:,:,1] = x[:,:,1]+G
-                    x[:,:,2] = x[:,:,2]+R
+                    x[:,:,0] = x[:,:,0]+mean[0]
+                    x[:,:,1] = x[:,:,1]+mean[1]
+                    x[:,:,2] = x[:,:,2]+mean[2]
                 elif datum.channels == 1:
    #                 print('reshaping 1 chan')
                     x = flat_x.reshape(datum.height, datum.width)
@@ -667,7 +667,7 @@ if __name__ == "__main__":
 
     fcn_dirs_to_lmdb(db_name,image_dir,label_dir,resize_x=None,resize_y=None,avg_B=B,avg_G=G,avg_R=R,
                      use_visual_output=True,imgfilter='.jpg',labelsuffix='.png',shuffle=True,label_strings=constants.fashionista_categories_augmented)
-    inspect_db(db_name)
+    inspect_db(db_name,mean=(B,G,R))
 
 #    n_test_classes,test_populations,test_imageno = interleaved_dir_of_dirs_to_lmdb(db_name,dir_of_dirs,max_images_per_class =3000,
 #                                                                                   positive_filtern='test',use_visual_output=use_visual_output,
