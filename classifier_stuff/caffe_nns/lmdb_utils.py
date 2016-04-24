@@ -395,7 +395,9 @@ def fcn_dirs_to_lmdb(dbname,image_dir,label_dir,resize_x=None,resize_y=None,avg_
     with env.begin(write=True) as txn:      # txn is a Transaction object
         for a_file in imagefiles:
             full_image_name = os.path.join(image_dir,a_file)
-            label_name = a_file.strip(imgfilter)[0]+labelsuffix
+            label_name = a_file.split(imgfilter)[0]
+            print('interim label:'+label_name)
+            label_name = label_name + labelsuffix
             print('interim label:'+label_name)
             full_label_name = os.path.join(label_dir,label_name)
             #img_arr = mpimg.imread(fullname)  #if you don't have cv2 handy use matplotlib
