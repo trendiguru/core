@@ -699,7 +699,8 @@ def resize_dir(dir,out_dir,factor=4,filter='.jpg'):
         actualh,actualw = output_arr.shape[0:2]
         outfile = os.path.join(out_dir,f)
         cv2.imwrite(outfile,output_arr)
-        print('orig w,h {},{} new {},{} infile {} outfile {} shape {}'.format(w,h,actualw,actualh,infile,outfile,output_arr.shape))
+        print('orig w,h {},{} new {},{} '.format(w,h,actualw,actualh)
+        print('infile {} outfile {}'.format(infile,outfile))
 
 
 def nms_detections(dets, overlap=0.3):

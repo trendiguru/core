@@ -1650,3 +1650,7 @@ if __name__ == "__main__":
 #/opt/caffe/build/tools/caffe test -model cropped_dataset/my_solver.test.prototxt -weights cropped_dataset_iter_3000.caffemodel  -gpu 0 -iterations 500
 
 #run of googLeNet_1_inception started at 61G used 71G free mem
+
+#loss on 57 cats 65000
+#LOSS on 4 cats 20800
+#normalized 1.37  ( =20800/(150*100))
