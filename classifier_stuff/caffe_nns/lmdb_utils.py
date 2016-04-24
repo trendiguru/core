@@ -397,9 +397,7 @@ def fcn_dirs_to_lmdb(dbname,image_dir,label_dir,resize_x=None,resize_y=None,avg_
         for a_file in imagefiles:
             full_image_name = os.path.join(image_dir,a_file)
             label_name = a_file.split(imgfilter)[0]
-            print('interim label:'+label_name)
             label_name = label_name + labelsuffix
-            print('interim label:'+label_name)
             full_label_name = os.path.join(label_dir,label_name)
             #img_arr = mpimg.imread(fullname)  #if you don't have cv2 handy use matplotlib
             print('imagefile:'+full_image_name)
@@ -415,12 +413,13 @@ def fcn_dirs_to_lmdb(dbname,image_dir,label_dir,resize_x=None,resize_y=None,avg_
                 logging.warning('could not read:'+full_image_name)
                 continue
             label_arr = cv2.imread(full_label_name,cv2.IMREAD_GRAYSCALE)
-            if len(label_arr.shape) == 3:
-                print('read multichann label, using chan 0')
-                label_arr = label_arr[:,:,0]
             if label_arr is  None:
                 logging.warning('could not read:'+full_label_name)
                 continue
+            if len(label_arr.shape) == 3:
+                print('read multichann label, using chan 0')
+                label_arr = label_arr[:,:,0]
+
             h_orig=img_arr.shape[0]
             w_orig=img_arr.shape[1]
             h_label_orig=label_arr.shape[0]
@@ -481,7 +480,7 @@ def fcn_dirs_to_lmdb(dbname,image_dir,label_dir,resize_x=None,resize_y=None,avg_
 
             padded_label = copy.copy(label_arr[np.newaxis, ...])
             print('padded label size:'+str(padded_label.shape)+' type:'+str(type(padded_label)))
-            datum.label = padded_label.tobytes()
+            datum.data = padded_label.tobytes()
             str_id = '{:08}'.format(image_number)
             print('db: {} strid:{} imgshape {} labelshape {} imgname {} lblname {}'.format(dbname,str_id,img_arr.shape,label_arr.shape,a_file,label_name))
             # The encode is only essential in Python 3
