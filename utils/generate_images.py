@@ -13,7 +13,7 @@ def generate_images(img_filename, max_angle = 5,n_angles=10,
                     noise_level=0.05,n_noises=1,noise_type='gauss',
                     max_blur=2, n_blurs=1,
                     do_mirror_lr=True,do_mirror_ud=False,output_dir=None,
-                    show_visual_output=False,bb=None,do_bb=False):
+                    show_visual_output=False,bb=None,do_bb=False,suffix='.jpg'):
     '''
     generates a bunch of variations of image by rotating, translating, noising etc
     total # images generated is n_angles*n_offsets_x*n_offsets_y*n_noises*n_scales*etc, these are done in nested loops
@@ -156,8 +156,8 @@ def generate_images(img_filename, max_angle = 5,n_angles=10,
                                 xformed_img_arr = dest
                                 if do_bb:
                                     xformed_bb_points  = np.dot(bb_points,M)
-                                name = filename[0:-4]+'_ref{0}dx{1}dy{2}rot{3}scl{4}n{5}b{6}'.format(n_reflection,offset_x,offset_y,angle,scale,i,blur)+'.jpg'
-                                name = filename[0:-4]+'_ref%ddx%ddy%drot%.2fscl%.2fn%db%.2f' % (n_reflection,offset_x,offset_y,angle,scale,i,blur)+'.jpg'
+                                name = filename[0:-4]+'_ref{0}dx{1}dy{2}rot{3}scl{4}n{5}b{6}'.format(n_reflection,offset_x,offset_y,angle,scale,i,blur)+suffix
+                                name = filename[0:-4]+'_ref%ddx%ddy%drot%.2fscl%.2fn%db%.2f' % (n_reflection,offset_x,offset_y,angle,scale,i,blur)+suffix
                                 if output_dir is not None:
                                     full_name = os.path.join(output_dir,name)
                                 else:
@@ -265,14 +265,14 @@ if __name__=="__main__":
     image_dir = '/home/jeremy/image_dbs/colorful_fashion_parsing_data/images/train'
     label_dir = '/home/jeremy/image_dbs/colorful_fashion_parsing_data/labels'
 
-    generate_images_for_directory(image_dir,
-                    max_angle = 10,n_angles=2,
-                    max_offset_x = 10,n_offsets_x=2,
-                    max_offset_y = 10, n_offsets_y=2,
-                    max_scale=1.3, n_scales=2,
-                    noise_level=0.1,noise_type='gauss',n_noises=0,
-                    max_blur=5, n_blurs=0,
-                    do_mirror_lr=True,do_mirror_ud=False,do_bb=False)
+#    generate_images_for_directory(image_dir,
+#                    max_angle = 10,n_angles=2,
+#                    max_offset_x = 10,n_offsets_x=2,
+#                    max_offset_y = 10, n_offsets_y=2,
+#                    max_scale=1.3, n_scales=2,
+#                    noise_level=0.1,noise_type='gauss',n_noises=0,
+#                    max_blur=5, n_blurs=0,
+#                    do_mirror_lr=True,do_mirror_ud=False,do_bb=False,suffix='.jpg')
 
     generate_images_for_directory(label_dir,
                     max_angle = 10,n_angles=2,
@@ -281,7 +281,7 @@ if __name__=="__main__":
                     max_scale=1.3, n_scales=2,
                     noise_level=0.1,noise_type='gauss',n_noises=0,
                     max_blur=5, n_blurs=0,
-                    do_mirror_lr=True,do_mirror_ud=False,do_bb=False)
+                    do_mirror_lr=True,do_mirror_ud=False,do_bb=False,suffix='.png')
 
 
 #    generate_images(img_filename, max_angle = 3,n_angles=2,
