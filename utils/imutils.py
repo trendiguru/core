@@ -699,7 +699,7 @@ def resize_dir(dir,out_dir,factor=4,filter='.jpg'):
         actualh,actualw = output_arr.shape[0:2]
         outfile = os.path.join(out_dir,f)
         cv2.imwrite(outfile,output_arr)
-        print('orig w,h {},{} new {},{} '.format(w,h,actualw,actualh)
+        print('orig w,h {},{} new {},{} '.format(w,h,actualw,actualh))
         print('infile {} outfile {}'.format(infile,outfile))
 
 
