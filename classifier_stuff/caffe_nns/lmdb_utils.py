@@ -451,7 +451,7 @@ def fcn_dirs_to_lmdb(dbname,image_dir,label_dir,resize_x=None,resize_y=None,avg_
                 cv2.imshow('img',img_arr)
 #                cv2.imshow('label',label_arr)
                 cv2.waitKey(0)
-                imutils.show_mask_with_labels(label_arr,labels=label_strings)
+                imutils.show_mask_with_labels_from_img_arr(label_arr,labels=label_strings)
             #these pixel value offsets can be removed using caffe (in the test/train protobuf)- so currently these are None and this part is not entered
             if avg_B is not None and avg_G is not None and avg_R is not None:
                 img_arr[:,:,0] = img_arr[:,:,0]-avg_B
