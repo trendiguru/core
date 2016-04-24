@@ -11,6 +11,7 @@ import lmdb
 from PIL import Image
 import random
 import logging
+import copy
 
 from trendi.utils import imutils
 from trendi import Utils
