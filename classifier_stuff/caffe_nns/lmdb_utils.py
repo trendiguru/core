@@ -414,7 +414,10 @@ def fcn_dirs_to_lmdb(dbname,image_dir,label_dir,resize_x=None,resize_y=None,avg_
             if img_arr is  None:
                 logging.warning('could not read:'+full_image_name)
                 continue
-            label_arr = cv2.imread(full_label_name)
+            label_arr = cv2.imread(full_label_name,cv2.IMREAD_GRAYSCALE)
+            if len(label_arr.shape) == 3:
+                print('read multichann label, using chan 0')
+                label_arr = label_arr[:,:,0]
             if label_arr is  None:
                 logging.warning('could not read:'+full_label_name)
                 continue
