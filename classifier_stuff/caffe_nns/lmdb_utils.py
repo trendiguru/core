@@ -9,11 +9,12 @@ import os
 import socket
 import lmdb
 from PIL import Image
+import random
+import logging
+
 from trendi.utils import imutils
 from trendi import Utils
 from trendi import constants
-import random
-import logging
 
 logging.basicConfig(level=logging.WARNING)
 
@@ -373,6 +374,121 @@ def interleaved_dir_of_dirs_to_lmdb(dbname,dir_of_dirs,positive_filter=None,max_
 
     #You can also open up and inspect an existing LMDB database from Python:
 # assuming here that dataum.data, datum.channels, datum.width etc all exist as in dir_of_dirs_to_lmdb
+
+def fcn_dirs_to_lmdb(dbname,image_dir,label_dir,resize_x=None,resize_y=None,avg_B=None,avg_G=None,avg_R=None,
+                     use_visual_output=False,imgfilter='.jpg',labelsuffix='.png',shuffle=True,label_strings=constants.fashionista_categories_augmented):
+# maybe try randomize instead of interleave, cn use del list[index]
+    print('writing to lmdb {} filter {} lblsuffix {} new_x {} new_y {} avgB {} avg G {} avgR {}'.format(dbname,imgfilter,labelsuffix,resize_x,resize_y,avg_B,avg_G,avg_R))
+    imagefiles = [f for f in os.listdir(image_dir) if imgfilter in f]
+    imagefiles.sort()
+    print(str(len(imagefiles))+' relevant images in '+dir_of_dirs)
+    if shuffle:
+        print('shuffling images')
+        random.shuffle(imagefiles)  #this gets confusing as now the class labels change every time
+
+    map_size = 1e13  #size of db in bytes, can also be done by 10X actual size  as in: map_size = X.nbytes * 10
+
+    got_image = False
+    image_number =0
+    env = lmdb.open(dbname, map_size=map_size)
+
+    with env.begin(write=True) as txn:      # txn is a Transaction object
+        for a_file in imagefiles:
+            full_image_name = os.path.join(image_dir,a_file)
+            label_name = a_file.strip(imgfilter)[0]+labelsuffix
+            full_label_name = os.path.join(label_dir,label_name)
+            #img_arr = mpimg.imread(fullname)  #if you don't have cv2 handy use matplotlib
+            if not os.path.exists(full_image_name):
+                logging.warning('could not find image file '+full_image_name)
+                continue
+            if not os.path.exists(full_label_name):
+                logging.warning('could not find label file '+full_label_name)
+                continue
+            img_arr = cv2.imread(full_image_name)
+            if img_arr is  None:
+                logging.warning('could not read:'+full_image_name)
+                continue
+            label_arr = cv2.imread(full_label_name)
+            if label_arr is  None:
+                logging.warning('could not read:'+full_label_name)
+                continue
+            h_orig=img_arr.shape[0]
+            w_orig=img_arr.shape[1]
+            h_label_orig=label_arr.shape[0]
+            w_label_orig=label_arr.shape[1]
+            if len(img_arr.shape) == 2:
+                n_channels = 1
+            else:
+                n_channels = 3
+            if h_orig < constants.nn_img_minimum_sidelength or w_orig < constants.nn_img_minimum_sidelength:
+                logging.warning('skipping {} due to  width {} or height {} being less than {}:'.format(full_image_name,w_orig,h_orig,constants.nn_img_minimum_sidelength))
+                continue
+            if h_label_orig < constants.nn_img_minimum_sidelength or w_label_orig < constants.nn_img_minimum_sidelength:
+                logging.warning('skipping {} due to  width {} or height {} being less than {}:'.format(full_label_name,w_label_orig,h_label_orig,constants.nn_img_minimum_sidelength))
+                continue
+            if(resize_x is not None):
+                resized_image = cv2.resize(img_arr,(resize_x,resize_y))
+                resized_label = cv2.resize(label_arr,(resize_x,resize_y))
+                if resized_image is not None and resized_label is not None:
+                    img_arr = resized_image
+                    label_arr = resized_label
+                else:
+                    logging.warning('resize failed')
+                    continue  #didnt do good resize
+            h=img_arr.shape[0]
+            w=img_arr.shape[1]
+        #            print('img {} after resize w:{} h:{} (before was {}x{} name:{}'.format(image_number, h,w,h_orig,w_orig,fullname))
+            if use_visual_output is True:
+                cv2.imshow('img',img_arr)
+#                cv2.imshow('label',label_arr)
+                cv2.waitKey(0)
+                imutils.show_mask_with_labels(label_arr,labels=label_strings)
+            #these pixel value offsets can be removed using caffe (in the test/train protobuf)- so currently these are None and this part is not entered
+            if avg_B is not None and avg_G is not None and avg_R is not None:
+                img_arr[:,:,0] = img_arr[:,:,0]-avg_B
+                img_arr[:,:,1] = img_arr[:,:,1]-avg_G
+                img_arr[:,:,2] = img_arr[:,:,2]-avg_R
+
+            datum = caffe.proto.caffe_pb2.Datum()
+            datum.height = img_arr.shape[0]
+            datum.width = img_arr.shape[1]
+
+            if n_channels == 1:  #for grayscale img
+                datum.channels = 1
+                blue_chan = img_arr[:,:,0]  #this doesnt look like it should work
+                datum.data = blue_chan.tobytes()  # or .tostring() if numpy < 1.9
+            else:
+                datum.channels = img_arr.shape[2]
+        #see https://github.com/BVLC/caffe/issues/1698 -
+            #reverse order of channels  - BGR -> RGB (and vice versa)
+                # no actual need for this as a. cv2 has BGR as default like caffe and
+                # b. this order is irrelevant unless you are trying to fine-tune trained net.
+#            img_arr = img_arr[:,:,::-1]
+        # and reorder with channel first, channel x  height x width
+            img_arr = img_arr.transpose((2,0,1))
+
+#                    img_reshaped = img_arr.reshape((datum.channels,datum.height,datum.width))
+#            print('reshaped size: '+str(img_arr.shape))
+            datum.data = img_arr.tobytes()  # or .tostring() if numpy < 1.9
+            padded_label = copy.copy(label_arr[np.newaxis, ...])
+            datum.label = padded_label.tobytes()
+            str_id = '{:08}'.format(image_number)
+            print('db: {} strid:{} imgshape {} labelshape {} imgname {} lblname {}'.format(dbname,str_id,img_arr.shape,label_arr.shape,a_file,label_name))
+            # The encode is only essential in Python 3
+            try:
+                txn.put(str_id.encode('ascii'), datum.SerializeToString())
+    #            in_txn.put('{:0>10d}'.format(in_idx), im_dat.SerializeToString())
+                image_number += 1
+                got_image = True
+            except:
+                e = sys.exc_info()[0]
+                logging.warning('some problem with lmdb:'+str(e))
+            print
+    env.close()
+    return image_number
+
+
+
 def inspect_db(dbname,show_visual_output=True,B=0,G=0,R=0):
     env = lmdb.open(dbname, readonly=True)
     with env.begin() as txn:
@@ -430,6 +546,68 @@ def inspect_db(dbname,show_visual_output=True,B=0,G=0,R=0):
 #            print(key, value)
    #         n=n+1
 
+def inspect_fcn_db(dbname,show_visual_output=True,B=0,G=0,R=0):
+    env = lmdb.open(dbname, readonly=True)
+    with env.begin() as txn:
+        n=0
+        while(1):
+            try:
+                str_id = '{:08}'.format(n)
+#                print('strid:{} '.format(str_id))
+             # The encode is only essential in Python 3
+             #   txn.put(str_id.encode('ascii'), datum.SerializeToString())
+                raw_datum = txn.get(str_id.encode('ascii'))
+                print('strid {} rawdat size {}'.format(str_id,len(raw_datum)))
+#                raw_datum = txn.get(b'00000000')
+                datum = caffe.proto.caffe_pb2.Datum()
+                datum.ParseFromString(raw_datum)
+                flat_x = np.fromstring(datum.data, dtype=np.uint8)
+                print('db {} strid {} channels {} width {} height {} datumsize {} flatxsize {}'.format(dbname,str_id,datum.channels,datum.width,datum.height,len(raw_datum),len(flat_x)))
+
+
+                orig_x = flat_x.reshape(datum.channels, datum.height, datum.width)
+
+                flat_label = np.fromstring(datum.label, dtype=np.uint8)
+                print('label flatsize {}'.format(len(flat_label)))
+                orig_label = flat_label.reshape(datum.channels, datum.height, 1)   #maybe try wout 3rd arg
+
+                if datum.channels == 3:
+                    logging.debug('before transpose shape:'+str(orig_x.shape))
+# as the input is transposed to c,h,w  by transpose(2,0,1) we have to undo it with transpose(1,2,0)
+#h w c  transpose(2,0,1) -> c h w
+#c h w  transpose(1,2,0) -> h w c
+                    x = orig_x.transpose((1,2,0))
+                    logging.debug('after transpose shape:'+str(x.shape))
+      #              x = flat_x.reshape(datum.height, datum.width,datum.channels)
+                    x[:,:,0] = x[:,:,0]+B
+                    x[:,:,1] = x[:,:,1]+G
+                    x[:,:,2] = x[:,:,2]+R
+                elif datum.channels == 1:
+   #                 print('reshaping 1 chan')
+                    x = flat_x.reshape(datum.height, datum.width)
+                    x[:,:] = x[:,:]+B
+                y = datum.label
+                print('db {} image# {} datasize {} labelshape {} w {} h {} ch {} rawsize {} flatsize {} labelsize {}'
+                      .format(dbname,n,x.shape,y,datum.width,datum.height,datum.channels,len(raw_datum),len(flat_x),orig_label))
+
+                n+=1
+                if show_visual_output is True:
+                    cv2.imshow(dbname,x)
+                    if cv2.waitKey(0) == ord('q'):
+                        break
+                    imutils.show_mask_with_labels(orig_label,constants.fashionista_categories_augmented)
+            except:
+                print('error getting record {} from db'.format(n))
+                break
+
+#    with env.begin() as txn:
+ #       cursor = txn.cursor()
+  #      n=0
+   #     for key, value in cursor:
+    #        print('img {}  class {}'.format(n,value))
+#            print(key, value)
+   #         n=n+1
+
 def crude_lmdb():
     in_db = lmdb.open('image-lmdb', map_size=int(1e12))
     with in_db.begin(write=True) as in_txn:
@@ -474,29 +652,34 @@ if __name__ == "__main__":
     B=142
     G=151
     R=162
-    B=0
-    G=0
-    R=0
+    B= 104
+    G = 116
+    R = 122
     resize_x=150
     resize_y=200
     resize_x=None
     resize_y=None
 #    kill_db('testdb.test')
  #   kill_db('testdb.train')
-    db_name = 'binary_dresses'
-    use_visual_output = False
-    n_test_classes,test_populations,test_imageno = interleaved_dir_of_dirs_to_lmdb(db_name,dir_of_dirs,max_images_per_class =3000,
-                                                                                   positive_filtern='test',use_visual_output=use_visual_output,
-                                                                                   n_channels=3,resize_x=resize_x,resize_y=resize_y,
-                                                                                   binary_class_filter='dresses')
-    print('n_test classes {} pops {} test_imageno {}'.format(n_test_classes,test_populations,test_imageno))
+    db_name = 'fcnn_fullsize_allcats'
+    image_dir = '/home/jeremy/image_dbs/colorful_fashion_parsing_data/images/train'
+    label_dir = '/home/jeremy/image_dbs/colorful_fashion_parsing_data/labels'
 
-    n_test_classes,test_populations,test_imageno = interleaved_dir_of_dirs_to_lmdb(db_name,dir_of_dirs,max_images_per_class =13000,
-                                                                                   positive_filter='train',use_visual_output=use_visual_output,
-                                                                                   n_channels=3,resize_x=resize_x,resize_y=resize_y,
-                                                                                   binary_class_filter='dresses')
-    print('n_test classes {} populationss {} test_imageno {}'.format(n_test_classes,test_populations,test_imageno))
-    inspect_db(db_name+'.test')
+    fcn_dirs_to_lmdb(db_name,image_dir,label_dir,resize_x=None,resize_y=None,avg_B=B,avg_G=G,avg_R=R,
+                     use_visual_output=True,imgfilter='.jpg',labelsuffix='.png',shuffle=True,label_strings=constants.fashionista_categories_augmented)
+    inspect_db(db_name)
+
+#    n_test_classes,test_populations,test_imageno = interleaved_dir_of_dirs_to_lmdb(db_name,dir_of_dirs,max_images_per_class =3000,
+#                                                                                   positive_filtern='test',use_visual_output=use_visual_output,
+#                                                                                  n_channels=3,resize_x=resize_x,resize_y=resize_y,
+#                                                                                  binary_class_filter='dresses')
+#    print('n_test classes {} pops {} test_imageno {}'.format(n_test_classes,test_populations,test_imageno))
+
+ #   n_test_classes,test_populations,test_imageno = interleaved_dir_of_dirs_to_lmdb(db_name,dir_of_dirs,max_images_per_class =13000,
+ #                                                                                  positive_filter='train',use_visual_output=use_visual_output,
+ #                                                                                  n_channels=3,resize_x=resize_x,resize_y=resize_y,
+ #                                                                                  binary_class_filter='dresses')
+ #   print('n_test classes {} populationss {} test_imageno {}'.format(n_test_classes,test_populations,test_imageno))
 
 #    n_test_classes,test_populations,test_imageno = interleaved_dir_of_dirs_to_lmdb('todel',dir_of_dirs,max_images_per_class =150000,test_or_train='test',resize_x=resize_x,resize_y=resize_y,
 #                                                                                   avg_B=B,avg_G=G,avg_R=R,use_visual_output=use_visual_output,n_channels=1)

@@ -645,11 +645,13 @@ def resize_and_crop_maintain_bb_on_dir(dir, output_width = 150, output_height = 
 
 def show_mask_with_labels(mask_filename,labels):
     colormap = cv2.COLORMAP_JET
+    img_arr = Utils.get_cv2_img_array(mask_filename)
     img_arr = cv2.imread(mask_filename, cv2.IMREAD_GRAYSCALE)
     s = img_arr.shape
     print(s)
     if len(s) != 2:
         logging.warning('got a multichannel image, using chan 0')
+        img_arr = img_arr[:,:,0]
     h,w = img_arr.shape[0:2]
     uniques = np.unique(img_arr)
     print('number of unique mask values:'+str(len(uniques)))
@@ -785,8 +787,6 @@ if __name__ == "__main__":
     indir = '/home/jeremy/image_dbs/colorful_fashion_parsing_data/labels_200x150'
     outdir = '/home/jeremy/image_dbs/colorful_fashion_parsing_data/labels_200x150/reduced_cats'
     defenestrate_directory(indir,outdir,filter='.png',keep_these_cats=[1,55,56,57],labels=constants.fashionista_categories_augmented)
-
-
 
     if host == 'jr-ThinkPad-X1-Carbon' or host == 'jr':
         dir_of_dirs = '/home/jeremy/tg/train_pairs_dresses'
