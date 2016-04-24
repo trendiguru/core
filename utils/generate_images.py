@@ -261,19 +261,32 @@ def add_noise(image, noise_typ,level):
 
 if __name__=="__main__":
     img_filename = '../images/female1.jpg'
-    generate_images_for_directory('home/jr/core/classifier_stuff/caffe_nns/dataset',
-                    max_angle = 3,n_angles=2,
-                    max_offset_x = 10,n_offsets_x=0,
-                    max_offset_y = 10, n_offsets_y=0,
-                    max_scale=1.2, n_scales=2,
+    image_dir = '/home/jeremy/image_dbs/colorful_fashion_parsing_data/images/train'
+    label_dir = '/home/jeremy/image_dbs/colorful_fashion_parsing_data/labels'
+
+    generate_images_for_directory(image_dir,
+                    max_angle = 10,n_angles=5,
+                    max_offset_x = 10,n_offsets_x=2,
+                    max_offset_y = 10, n_offsets_y=2,
+                    max_scale=1.3, n_scales=5,
                     noise_level=0.1,noise_type='gauss',n_noises=0,
-                    max_blur=5, n_blurs=2,
+                    max_blur=5, n_blurs=0,
                     do_mirror_lr=True,do_mirror_ud=False)
 
-    generate_images(img_filename, max_angle = 3,n_angles=2,
-                    max_offset_x = 50,n_offsets_x=2,
-                    max_offset_y = 50, n_offsets_y=2,
-                    max_scale=1.2, n_scales=2,
-                    noise_level=0.1,noise_type='gauss',n_noises=2,
-                    max_blur=5, n_blurs=2,
-                    do_mirror_lr=True,do_mirror_ud=False,output_dir='snorb')
+    generate_images_for_directory(label_dir,
+                    max_angle = 10,n_angles=5,
+                    max_offset_x = 10,n_offsets_x=2,
+                    max_offset_y = 10, n_offsets_y=2,
+                    max_scale=1.3, n_scales=5,
+                    noise_level=0.1,noise_type='gauss',n_noises=0,
+                    max_blur=5, n_blurs=0,
+                    do_mirror_lr=True,do_mirror_ud=False)
+
+
+#    generate_images(img_filename, max_angle = 3,n_angles=2,
+#                    max_offset_x = 50,n_offsets_x=2,
+#                   max_offset_y = 50, n_offsets_y=2,
+#                   max_scale=1.2, n_scales=2,
+#                   noise_level=0.1,noise_type='gauss',n_noises=2,
+#                    max_blur=5, n_blurs=2,
+#                    do_mirror_lr=True,do_mirror_ud=False,output_dir='snorb')
