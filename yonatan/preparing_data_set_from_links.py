@@ -83,15 +83,18 @@ width = 115
 height = 115
 
 
-sets = {'train', 'cv'}
+sets = {'train', 'cv', 'test'}
 
 for set in sets:
     if set == 'train':
         file = open('Stan_train.txt', 'r')
         text_file = open("55k_face_train_list.txt", "w")
-    else:
+    elif set == 'cv':
         file = open('Stan_cv.txt', 'r')
         text_file = open("55k_face_cv_list.txt", "w")
+    else:
+        file = open('Stan_test.txt', 'r')
+        text_file = open("55k_face_test_list.txt", "w")
 
     counter = 0
 
@@ -111,7 +114,7 @@ for set in sets:
 
         cv2.imwrite(os.path.join('/home/yonatan/55k_' + set + '_set', image_file_name), resized_image)
 
-        text_file.write('/home/yonatan/55k_face_' + set + '_list.txt/' + image_file_name + ' ' + words[1] + '\n')
+        text_file.write('/home/yonatan/55k_' + set + '_set/' + image_file_name + ' ' + words[1] + '\n')
 
         print counter
 
