@@ -645,11 +645,13 @@ def resize_and_crop_maintain_bb_on_dir(dir, output_width = 150, output_height = 
 
 def show_mask_with_labels(mask_filename,labels):
     colormap = cv2.COLORMAP_JET
-    img_arr = cv2.imread(mask_filename, cv2.IMREAD_GRAYSCALE)
+    img_arr = Utils.get_cv2_img_array(mask_filename)
+#    img_arr = cv2.imread(mask_filename, cv2.IMREAD_GRAYSCALE)
     s = img_arr.shape
     print(s)
     if len(s) != 2:
         logging.warning('got a multichannel image, using chan 0')
+        img_arr = img_arr[:,:,0]
     h,w = img_arr.shape[0:2]
     uniques = np.unique(img_arr)
     print('number of unique mask values:'+str(len(uniques)))
@@ -685,6 +687,49 @@ def show_mask_with_labels(mask_filename,labels):
         cv2.destroyAllWindows()
 #        return dest
 
+def show_mask_with_labels_from_img_arr(mask,labels):
+    colormap = cv2.COLORMAP_JET
+    img_arr = mask
+    s = img_arr.shape
+    print(s)
+    if len(s) != 2:
+        logging.warning('got a multichannel image, using chan 0')
+        img_arr = img_arr[:,:,0]
+    h,w = img_arr.shape[0:2]
+    uniques = np.unique(img_arr)
+    print('number of unique mask values:'+str(len(uniques)))
+    if len(uniques)>len(labels):
+        logging.warning('number of unique mask values > number of labels!!!')
+        return
+    if img_arr is not None:
+        # minVal, maxVal, minLoc, maxLoc = cv2.minMaxLoc(img_array)
+        maxVal = len(labels)
+        scaled = np.uint8(np.multiply(img_arr, 255.0 / maxVal))
+        dest = cv2.applyColorMap(scaled,colormap)
+        bar_height = int(float(h)/len(uniques))
+        bar_width = 100
+        colorbar = np.zeros([bar_height*len(uniques),bar_width])
+        i = 0
+        print('len labels:'+str(len(labels)))
+        for unique in uniques:
+            if unique > len(labels):
+                logging.warning('pixel value out of label range')
+                continue
+            print('unique:'+str(unique)+':'+labels[unique])
+            colorbar[i*bar_height:i*bar_height+bar_height,:] = unique
+
+#        cv2.putText(colorbar,labels[unique],(5,i*bar_height+bar_height/2-10),cv2.FONT_HERSHEY_PLAIN,1,[i*255/len(uniques),i*255/len(uniques),100],thickness=2)
+            cv2.putText(colorbar,labels[unique],(5,i*bar_height+bar_height/2-10),cv2.FONT_HERSHEY_PLAIN,1,[100,100,100],thickness=2)
+            i=i+1
+
+        scaled_colorbar = np.uint8(np.multiply(colorbar, 255.0 / maxVal))
+        dest_colorbar = cv2.applyColorMap(scaled_colorbar, colormap)
+        cv2.imshow('map',dest)
+        cv2.imshow('colorbar',dest_colorbar)
+        cv2.waitKey(0)
+        cv2.destroyAllWindows()
+
+
 def resize_dir(dir,out_dir,factor=4,filter='.jpg'):
     imfiles = [f for f in os.listdir(dir) if os.path.isfile(os.path.join(dir,f)) and filter in f]
     for f in imfiles:
@@ -699,7 +744,8 @@ def resize_dir(dir,out_dir,factor=4,filter='.jpg'):
         actualh,actualw = output_arr.shape[0:2]
         outfile = os.path.join(out_dir,f)
         cv2.imwrite(outfile,output_arr)
-        print('orig w,h {},{} new {},{} infile {} outfile {} shape {}'.format(w,h,actualw,actualh,infile,outfile,output_arr.shape))
+        print('orig w,h {},{} new {},{} '.format(w,h,actualw,actualh))
+        print('infile {} outfile {}'.format(infile,outfile))
 
 
 def nms_detections(dets, overlap=0.3):
@@ -784,8 +830,6 @@ if __name__ == "__main__":
     indir = '/home/jeremy/image_dbs/colorful_fashion_parsing_data/labels_200x150'
     outdir = '/home/jeremy/image_dbs/colorful_fashion_parsing_data/labels_200x150/reduced_cats'
     defenestrate_directory(indir,outdir,filter='.png',keep_these_cats=[1,55,56,57],labels=constants.fashionista_categories_augmented)
-
-
 
     if host == 'jr-ThinkPad-X1-Carbon' or host == 'jr':
         dir_of_dirs = '/home/jeremy/tg/train_pairs_dresses'
