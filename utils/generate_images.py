@@ -191,7 +191,8 @@ def generate_masks(img_filename, **kwargs):
     if img_arr is None:
         logging.warning('didnt get input image '+str(img_filename))
         return
-    if len(img_arr.shape) ==3:
+    print('shape:'+str(img_arr.shape))
+    if len(img_arr.shape) == 3:
         logging.warning('got 3 channel image '+str(img_filename)+', using first chan')
         img_arr = img_arr[:,:,0]
     if img_arr is None:
@@ -201,9 +202,11 @@ def generate_masks(img_filename, **kwargs):
     uniques = np.unique(img_arr)
     n_uniques=len(uniques)
     binary_masks = np.zeros([h,w,n_uniques])
-    for i in range(0,uniques):
+    for i in range(0,n_uniques):
         binary_masks[:,:,i] = img_arr[:,:]==uniques[i]
         cv2.imshow('mask'+str(i),binary_masks[:,:,i])
+        transformed_mask = transform_image(binary_masks[:,:,i],kwargs)
+
     cv2.waitKey(0)
 
 
