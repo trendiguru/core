@@ -46,13 +46,13 @@ class SBDDSegDataLayer(caffe.Layer):
         self.random = params.get('randomize', True)
         self.seed = params.get('seed', None)
         self.labels_dir = params.get('labels_dir',self.images_dir)
-    self.imagesfile = params.get('imagesfile',os.path.join(self.images_dir,self.split+'images.txt'))
-    self.labelsfile = params.get('labelsfile',None)
-    #if there is no labelsfile specified then rename imagefiles to make labelfile names
-    self.labelfile_suffix = params.get('labelfile_suffix','.png')
+        self.imagesfile = params.get('imagesfile',os.path.join(self.images_dir,self.split+'images.txt'))
+        self.labelsfile = params.get('labelsfile',None)
+        #if there is no labelsfile specified then rename imagefiles to make labelfile names
+        self.labelfile_suffix = params.get('labelfile_suffix','.png')
 
-    print('PRINTlabeldir {} imagedir {} labelfile {} imagefile {}'.format(self.labels_dir,self.images_dir,self.labelsfile,self.imagesfile))
-    logging.debug('LOGGINGlabeldir {} imagedir {} labelfile {} imagefile {}'.format(self.labels_dir,self.images_dir,self.labelsfile,self.imagesfile))
+        print('PRINTlabeldir {} imagedir {} labelfile {} imagefile {}'.format(self.labels_dir,self.images_dir,self.labelsfile,self.imagesfile))
+        logging.debug('LOGGINGlabeldir {} imagedir {} labelfile {} imagefile {}'.format(self.labels_dir,self.images_dir,self.labelsfile,self.imagesfile))
         # two tops: data and label
         if len(top) != 2:
             raise Exception("Need to define two tops: data and label.")
@@ -66,13 +66,10 @@ class SBDDSegDataLayer(caffe.Layer):
         self.imagesfile = os.path.join(self.images_dir,self.imagesfile)
     if not os.path.isfile(self.imagesfile):
         print('COULD NOT OPEN IMAGES FILE '+str(self.imagesfile))
-        self.imagefiles = open(self.imagesfile, 'r').read().splitlines()
 
+    self.imagefiles = open(self.imagesfile, 'r').read().splitlines()
     self.n_files = len(self.imagefiles)
-
 #        self.indices = open(split_f, 'r').read().splitlines()
-
-
     if self.labelsfile is not None:  #if labels flie is none then get labels from images
         if not os.path.isfile(self.labelsfile) and not '/' in self.labelsfile:
             self.labelsfile = os.path.join(self.labels_dir,self.labelsfile)
