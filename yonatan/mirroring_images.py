@@ -34,4 +34,4 @@ for set in sets:
 
                 counter += 1
                 print counter
-                print root
+                print os.path.join(root, words[0] + '-mirrored.' + words[1]), mirrored_image
