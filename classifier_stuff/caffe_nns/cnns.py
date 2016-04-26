@@ -1501,6 +1501,19 @@ def run_net(net_builder,nn_dir,train_db,test_db,batch_size = 64,n_classes=11,mea
         f.close()
 
 
+import sys
+#sys.path.insert(0, 'python/')
+import caffe
+from caffe.proto import caffe_pb2
+
+def inspect_net(caffemodel):
+    net_param = caffe_pb2.NetParameter()
+    net_str = open(caffemodel, 'r').read()
+    net_param.ParseFromString(net_str)
+    for l in net.param.layer:
+        print net_param.layer[l].name  # first layer
+
+
 
 host = socket.gethostname()
 print('host:'+str(host))

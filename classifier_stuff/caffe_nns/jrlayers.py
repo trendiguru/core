@@ -150,11 +150,11 @@ class SBDDSegDataLayer(caffe.Layer):
             - transpose to channel x height x width order
             """
     #	print('IN LOAD IMAGE self idx is :'+str(idx)+' type:'+str(type(idx)))
-            filename = self.imagefiles[idx]
+            filename = self.imagefiles[self.idx]
         full_filename=os.path.join(self.images_dir,filename)
         print('imagefile:'+full_filename)
         while(1):
-            filename = self.imagefiles[idx]
+            filename = self.imagefiles[self.idx]
             full_filename=os.path.join(self.images_dir,filename)
             label_filename=self.determine_label_filename(self.idx)
             if not(os.path.isfile(label_filename) and os.path.isfile(full_filename)):
