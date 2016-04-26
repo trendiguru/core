@@ -83,18 +83,18 @@ width = 115
 height = 115
 
 
-sets = {'train', 'cv', 'test'}
+sets = {'train', 'cv'}
 
 for set in sets:
     if set == 'train':
         file = open('Stan_train.txt', 'r')
         text_file = open("55k_face_train_list.txt", "w")
-    elif set == 'cv':
+    else:
         file = open('Stan_cv.txt', 'r')
         text_file = open("55k_face_cv_list.txt", "w")
-    else:
-        file = open('Stan_test.txt', 'r')
-        text_file = open("55k_face_test_list.txt", "w")
+    #else:
+     #   file = open('Stan_test.txt', 'r')
+      #  text_file = open("55k_face_test_list.txt", "w")
 
     counter = 0
 
