@@ -34,3 +34,4 @@ for set in sets:
 
                 counter += 1
                 print counter
+                print root
