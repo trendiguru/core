@@ -83,7 +83,7 @@ width = 115
 height = 115
 
 
-sets = {'train', 'cv', 'test'}
+sets = {'train', 'cv'}
 
 for set in sets:
     if set == 'train':
