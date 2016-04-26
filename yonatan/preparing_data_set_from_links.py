@@ -22,14 +22,17 @@ def cv2_image_to_caffe(image):
 
 
 def url_to_image(url):
-	# download the image, convert it to a NumPy array, and then read
+    # download the image, convert it to a NumPy array, and then read
 	# it into OpenCV format
 	resp = urllib.urlopen(url)
 	image = np.asarray(bytearray(resp.read()), dtype="uint8")
-	image = cv2.imdecode(image, cv2.IMREAD_COLOR)
+        if image.size == 0:
+            print url
+            return 'Fail'
+	new_image = cv2.imdecode(image, cv2.IMREAD_COLOR)
 
 	# return the image
-	return image
+	return new_image
 
 def cv2_image_to_caffe(image):
     return skimage.img_as_float(cv2.cvtColor(image, cv2.COLOR_BGR2RGB)).astype(np.float32)
@@ -39,6 +42,8 @@ def find_face(raw_image):
 
     #image = url_to_image(url)
     image = url_to_image(raw_image)
+    if image == 'Fail':
+         return 'Fail'
 
     gray = cv2.cvtColor(image, constants.BGR2GRAYCONST)
     face_cascades = [
@@ -83,15 +88,18 @@ width = 115
 height = 115
 
 
-sets = {'train', 'cv'}
+sets = {'train', 'cv', 'test'}
 
 for set in sets:
     if set == 'train':
         file = open('Stan_train.txt', 'r')
         text_file = open("55k_face_train_list.txt", "w")
-    else:
+    elif set == 'cv':
         file = open('Stan_cv.txt', 'r')
         text_file = open("55k_face_cv_list.txt", "w")
+    else:
+        file = open('Stan_test.txt', 'r')
+        text_file = open("55k_face_test_list.txt", "w")
 
     counter = 0
 
@@ -111,7 +119,7 @@ for set in sets:
 
         cv2.imwrite(os.path.join('/home/yonatan/55k_' + set + '_set', image_file_name), resized_image)
 
-        text_file.write('/home/yonatan/55k_face_' + set + '_list.txt/' + image_file_name + ' ' + words[1] + '\n')
+        text_file.write('/home/yonatan/55k_' + set + '_set/' + image_file_name + ' ' + words[1] + '\n')
 
         print counter
 

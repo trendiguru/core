@@ -157,7 +157,7 @@ def generate_images(img_filename, max_angle = 5,n_angles=10,
                                 if do_bb:
                                     xformed_bb_points  = np.dot(bb_points,M)
                                 name = filename[0:-4]+'_ref{0}dx{1}dy{2}rot{3}scl{4}n{5}b{6}'.format(n_reflection,offset_x,offset_y,angle,scale,i,blur)+suffix
-                                name = filename[0:-4]+'_ref%ddx%ddy%drot%.2fscl%.2fn%db%.2f' % (n_reflection,offset_x,offset_y,angle,scale,i,blur)+suffix
+                                name = filename[0:-4]+'_m%dx%dy%dr%.2fs%.2fn%db%.2f' % (n_reflection,offset_x,offset_y,angle,scale,i,blur)+suffix
                                 if output_dir is not None:
                                     full_name = os.path.join(output_dir,name)
                                 else:
@@ -185,6 +185,33 @@ def generate_images_for_directory(fulldir,**args):
         full_filename = os.path.join(fulldir,a_file)
         generate_images(full_filename,**args)
 
+def generate_masks(img_filename, **kwargs):
+
+    img_arr = cv2.imread(img_filename,cv2.IMREAD_GRAYSCALE)
+    if img_arr is None:
+        logging.warning('didnt get input image '+str(img_filename))
+        return
+    print('shape:'+str(img_arr.shape))
+    if len(img_arr.shape) == 3:
+        logging.warning('got 3 channel image '+str(img_filename)+', using first chan')
+        img_arr = img_arr[:,:,0]
+    if img_arr is None:
+        logging.warning('didnt get input image '+str(img_filename))
+        return
+    h,w = img_arr.shape[0:2]
+    uniques = np.unique(img_arr)
+    n_uniques=len(uniques)
+    binary_masks = np.zeros([h,w,n_uniques])
+    for i in range(0,n_uniques):
+        binary_masks[:,:,i] = img_arr[:,:]==uniques[i]
+        cv2.imshow('mask'+str(i),binary_masks[:,:,i])
+        transformed_mask = transform_image(binary_masks[:,:,i],kwargs)
+
+    cv2.waitKey(0)
+
+
+
+
 def generate_images_for_directory_of_directories(dir_of_dirs,filter= None,**args):
     only_dirs = [dir for dir in os.listdir(dir_of_dirs) if os.path.isdir(os.path.join(dir_of_dirs,dir))  ]
     logging.debug(str(only_dirs))
@@ -195,6 +222,10 @@ def generate_images_for_directory_of_directories(dir_of_dirs,filter= None,**args
         full_dir = os.path.join(dir_of_dirs,a_dir)
         generate_images_for_directory(full_dir,**args)
 
+
+def clear_underutilized_bins(img_arr):
+    h = np.histogram(img_arr,bins=57)
+    print h
 
 def add_noise(image, noise_typ,level):
     '''
@@ -261,18 +292,19 @@ def add_noise(image, noise_typ,level):
 
 
 if __name__=="__main__":
+    print('running main')
     img_filename = '../images/female1.jpg'
-    image_dir = '/home/jeremy/image_dbs/colorful_fashion_parsing_data/images/train'
-    label_dir = '/home/jeremy/image_dbs/colorful_fashion_parsing_data/labels'
+    image_dir = '/home/jeremy/image_dbs/colorful_fashion_parsing_data/images/train_200x150'
+    label_dir = '/home/jeremy/image_dbs/colorful_fashion_parsing_data/labels_200x150'
 
-#    generate_images_for_directory(image_dir,
-#                    max_angle = 10,n_angles=2,
-#                    max_offset_x = 10,n_offsets_x=2,
-#                    max_offset_y = 10, n_offsets_y=2,
-#                    max_scale=1.3, n_scales=2,
-#                    noise_level=0.1,noise_type='gauss',n_noises=0,
-#                    max_blur=5, n_blurs=0,
-#                    do_mirror_lr=True,do_mirror_ud=False,do_bb=False,suffix='.jpg')
+    generate_images_for_directory(image_dir,
+                    max_angle = 10,n_angles=2,
+                    max_offset_x = 10,n_offsets_x=2,
+                    max_offset_y = 10, n_offsets_y=2,
+                    max_scale=1.3, n_scales=2,
+                    noise_level=0.1,noise_type='gauss',n_noises=0,
+                    max_blur=5, n_blurs=0,
+                    do_mirror_lr=True,do_mirror_ud=False,do_bb=False,suffix='.jpg')
 
     generate_images_for_directory(label_dir,
                     max_angle = 10,n_angles=2,
