@@ -652,7 +652,7 @@ def show_mask_with_labels(mask_filename,labels):
     img_arr = Utils.get_cv2_img_array(mask_filename)
 #    img_arr = cv2.imread(mask_filename, cv2.IMREAD_GRAYSCALE)
     s = img_arr.shape
-    print(s)
+    print('file:'+mask_filename+',size'+s)
     if len(s) != 2:
         logging.warning('got a multichannel image, using chan 0')
         img_arr = img_arr[:,:,0]
@@ -665,8 +665,15 @@ def show_mask_with_labels(mask_filename,labels):
     if img_arr is not None:
         # minVal, maxVal, minLoc, maxLoc = cv2.minMaxLoc(img_array)
         maxVal = len(labels)
-        scaled = np.uint8(np.multiply(img_arr, 255.0 / maxVal))
-        dest = cv2.applyColorMap(scaled,colormap)
+        max_huelevel = 160.0
+        scaled = np.uint8(np.multiply(img_arr, max_huelevel / maxVal))
+#        dest = cv2.applyColorMap(scaled,colormap)
+        dest = np.zeros(h,w,3)
+        dest(:,:,0) = scaled  #hue
+        dest(:,:,1) = 100   #saturation
+        dest(:,:,2) = 100   #value
+        dest =  cv2.cvtColor(dest,cv2.COLOR_HSV2BGR)
+
         bar_height = int(float(h)/len(uniques))
         bar_width = 100
         colorbar = np.zeros([bar_height*len(uniques),bar_width])
@@ -683,8 +690,14 @@ def show_mask_with_labels(mask_filename,labels):
             cv2.putText(colorbar,labels[unique],(5,i*bar_height+bar_height/2-10),cv2.FONT_HERSHEY_PLAIN,1,[100,100,100],thickness=2)
             i=i+1
 
-        scaled_colorbar = np.uint8(np.multiply(colorbar, 255.0 / maxVal))
-        dest_colorbar = cv2.applyColorMap(scaled_colorbar, colormap)
+        scaled_colorbar = np.uint8(np.multiply(colorbar, max_huelevel / maxVal))
+        h_colorbar,w_colorbar = scaled_colorbar.shape[0:2]
+        dest_colorbar = np.zeros(h_colorbar,w_colorbar,3)
+        dest_colorbar(:,:,0) = scaled_colorbar  #hue
+        dest_colorbar(:,:,1) = 100   #saturation
+        dest_colorbar(:,:,2) = 100   #value
+        dest_colorbar = cv2.cvtColor(dest_colorbar,cv2.COLOR_HSV2BGR)
+        #dest_colorbar = cv2.applyColorMap(scaled_colorbar, colormap)
         cv2.imshow('map',dest)
         cv2.imshow('colorbar',dest_colorbar)
         cv2.waitKey(0)
