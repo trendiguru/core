@@ -738,6 +738,9 @@ def show_mask_with_labels(mask_filename,labels,original_image=None):
     if original_image is not None:
         orig_arr = cv2.imread(original_image)
         if orig_arr is not None:
+            height, width = orig_arr.shape[:2]
+            if height>400:
+                orig_arr = cv2.resize(orig_arr,400,int(width*400.0/height))
             cv2.imshow('original',orig_arr)
         else:
             logging.warning('could not get image '+original_image)
