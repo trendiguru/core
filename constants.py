@@ -260,8 +260,7 @@ fashionista_categories_augmented_zero_based = ['bk','tights','shorts','blazer','
                                     'ring','flats','tie','romper','sandals','earrings','gloves','sneakers','clogs','watch',
                                     'pumps','wallet','bodysuit','loafers','hair','skin','face']
 
-colorful_fashion_parsing_categories =tamara_berg_improved_categories = ['bag','belt','dress','eyewear','footwear','hat','legging','outerwear','pants','skirts','top',
- ['bk','T-shirt','bag','belt','blazer','blouse','coat','dress','face','hair','hat',
+colorful_fashion_parsing_categories = ['bk','T-shirt','bag','belt','blazer','blouse','coat','dress','face','hair','hat',
 'jeans','legging','pants','scarf','shoe','shorts','skin','skirt','socks','stocking','sunglass','sweater']
 
 colorful_fashion_to_fashionista = {'bk':'null','T-shirt':'t-shirt','bag':'bag','belt':'belt','blazer':'blazer','blouse':'blouse',
@@ -276,6 +275,8 @@ colorful_fashion_to_fashionista_index_conversion = [(0,0),(1,4),(2,5),(3,27),(4,
 
 tamara_berg_categories = ['bag', 'belt', 'dress', 'eyewear', 'footwear', 'hat', 'legging', 'outerwear', 'pants',
                           'skirts', 'top', 'skin', 'background']   # orig t.b. cats don't have skin or bg
+
+tamara_berg_improved_categories = ['bag','belt','dress','eyewear','footwear','hat','legging','outerwear','pants','skirts','top',
                                    'skin','background','tights','shorts','blouse','bra','vest','suit','jeans','necklace','sweatshirt','tie']
 
 pascal_context_labels = ['background','aeroplane','bicycle','bird','boat','bottle','bus','car','cat','chair','cow','table','dog','horse','motorbike','person','pottedplant',\
