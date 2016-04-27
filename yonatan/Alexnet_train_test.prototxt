@@ -16,7 +16,7 @@ layer {
   }
   image_data_param {
     source: "/home/yonatan/55k_face_train_list.txt"
-    batch_size: 50
+    batch_size: 31
     shuffle: true
   }
 }
@@ -37,7 +37,7 @@ layer {
   }
   image_data_param {
     source: "/home/yonatan/55k_face_cv_list.txt"
-    batch_size: 45
+    batch_size: 100
     shuffle: true
   }
 }
