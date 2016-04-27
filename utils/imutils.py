@@ -697,7 +697,7 @@ def show_mask_with_labels(mask_filename,labels,original_image=None):
     n_tot = h*w
     frac = float(n_nonzero)/n_tot
     uniques = np.unique(img_arr)
-    print('number of unique mask values:'+str(len(uniques)))
+    print('number of unique mask values:'+str(len(uniques))+' frac nonzero:'+str(frac))
     if len(uniques)>len(labels):
         logging.warning('number of unique mask values > number of labels!!!')
         return
