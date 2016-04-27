@@ -642,10 +642,20 @@ def resize_and_crop_maintain_bb_on_dir(dir, output_width = 150, output_height = 
         fullfile = os.path.join(dir,a_file)
         retval = resize_and_crop_maintain_bb(fullfile, output_width = 150, output_height = 200,use_visual_output=True,bb=None)
 
-def show_mask_with_labels_dir(dir,filter='.bmp',labels=constants.fashionista_categories_augmented_zero_based):
-    files = [os.path.join(dir,f) for f in os.listdir(dir) if filter in f]
-    for f in files:
-        show_mask_with_labels(f,labels)
+def show_mask_with_labels_dir(dir,filter='.bmp',labels=constants.fashionista_categories_augmented_zero_based,original_images_dir=None):
+    files = [f for f in os.listdir(dir) if filter in f]
+    files = [os.path.join(dir,f) for f in files]
+    if original_images_dir:
+        original_images = [f.split(filter)[0]+'.jpg' for f in files]
+        for x in range(0,len(files)):
+            if os.path.exists(files[x]) and os.path.exists(original_images[x]):
+                show_mask_with_labels(files[x],labels,original_image=original_images[x])
+            else:
+                logging.warning('one of these does not exist:'+files[x]+','+original_images[x])
+    else:
+        for f in files,:
+            show_mask_with_labels(f,labels)
+
 
 def show_mask_with_labels(mask_filename,labels,original_image=None):
     colormap = cv2.COLORMAP_JET
