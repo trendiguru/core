@@ -682,7 +682,7 @@ def show_mask_with_labels(mask_filename,labels,original_image=None):
     if len(img_arr.shape) != 2:
         logging.warning('got a multichannel image, using chan 0')
         img_arr = img_arr[:,:,0]
-    print('hist'+str(np.histogram(img_arr,bins=57)))
+    print('hist'+str(np.histogram(img_arr,bins=56)))
     h,w = img_arr.shape[0:2]
     uniques = np.unique(img_arr)
     print('number of unique mask values:'+str(len(uniques)))
@@ -740,6 +740,7 @@ def show_mask_with_labels(mask_filename,labels,original_image=None):
         if orig_arr is not None:
             height, width = orig_arr.shape[:2]
             if height>400:
+                print('got a big one, resizing')
                 orig_arr = cv2.resize(orig_arr,400,int(width*400.0/height))
             cv2.imshow('original',orig_arr)
         else:
