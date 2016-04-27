@@ -12,7 +12,7 @@ import glob
 import time
 
 counter = 0
-ext = ["-mirrored.jpg", "-mirrored.png"]
+ext = ["_m1x0y0r0.00s1.00n0b0.00.jpg", "_m1x0y0r0.00s1.00n0b0.00.png"]
 mother_path = '/home/jeremy/image_dbs/colorful_fashion_parsing_data'
 
 sets = {'images', 'labels', 'labels_200x150'}

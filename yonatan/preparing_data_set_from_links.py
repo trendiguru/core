@@ -88,7 +88,8 @@ width = 115
 height = 115
 
 
-sets = {'train', 'cv', 'test'}
+#sets = {'train', 'cv', 'test'}
+sets = {'cv'}
 
 for set in sets:
     if set == 'train':
@@ -108,6 +109,9 @@ for set in sets:
         file_as_array_by_lines = line
         #split line to link and label
         words = file_as_array_by_lines.split()
+        print words
+        print words[0]
+        print words[1]
 
         face_image = find_face(words[0])
         if face_image == 'Fail':
