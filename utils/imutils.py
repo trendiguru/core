@@ -661,12 +661,12 @@ def show_mask_with_labels_dir(dir,filter=None,labels=None,original_images_dir=No
         if original_images_dir_alt:
             original_altfullpaths = [os.path.join(original_images_dir_alt,f) for f in original_images]
         for x in range(0,len(files)):
-            if  os.path.exists(original_fullpaths[x]):
+            if os.path.exists(original_fullpaths[x]):
                 show_mask_with_labels(fullpaths[x],labels,original_image=original_fullpaths[x])
             elif original_images_dir_alt and os.path.exists(original_altfullpaths[x]):
                 show_mask_with_labels(fullpaths[x],labels,original_image=original_altfullpaths[x])
             else:
-                logging.warning('one of these does not exist:'+original_fullpaths[x]+','+original_altfullpaths[x])
+                logging.warning(' does not exist:'+original_fullpaths[x])
     else:
         for f in files,:
             show_mask_with_labels(f,labels)
