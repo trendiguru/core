@@ -647,7 +647,7 @@ def show_mask_with_labels_dir(dir,filter='.bmp',labels=constants.fashionista_cat
     for f in files:
         show_mask_with_labels(f,labels)
 
-def show_mask_with_labels(mask_filename,labels):
+def show_mask_with_labels(mask_filename,labels,original_image=None):
     colormap = cv2.COLORMAP_JET
     img_arr = Utils.get_cv2_img_array(mask_filename)
     if img_arr is None:
@@ -692,7 +692,7 @@ def show_mask_with_labels(mask_filename,labels):
         colorbar[i*bar_height:i*bar_height+bar_height,:] = unique
 
 #        cv2.putText(colorbar,labels[unique],(5,i*bar_height+bar_height/2-10),cv2.FONT_HERSHEY_PLAIN,1,[i*255/len(uniques),i*255/len(uniques),100],thickness=2)
-        cv2.putText(colorbar,labels[unique],(5,i*bar_height+bar_height/2-5),cv2.FONT_HERSHEY_PLAIN,1,[100,100,100],thickness=2)
+        cv2.putText(colorbar,labels[unique],(5,i*bar_height+bar_height/2-5),cv2.FONT_HERSHEY_PLAIN,1,[0,0,0],thickness=2)
         i=i+1
 
     scaled_colorbar = np.uint8(np.multiply(colorbar, max_huelevel / maxVal))
@@ -711,6 +711,8 @@ def show_mask_with_labels(mask_filename,labels):
     cv2.imshow('map',dest)
     cv2.imshow('colorbar',dest_colorbar)
     cv2.imshow('combined',combined)
+    if original_image is not None:
+
     cv2.waitKey(0)
 #        cv2.destroyAllWindows()
 #        return dest
