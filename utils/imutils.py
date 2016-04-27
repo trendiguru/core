@@ -673,7 +673,7 @@ def show_mask_with_labels_dir(dir,filter=None,labels=None,original_images_dir=No
                 fraclist.append(frac)
                 totfrac = totfrac + frac
                 n=n+1
-        else:
+            else:
                 logging.warning(' does not exist:'+original_fullpaths[x])
     else:
         for f in files:
