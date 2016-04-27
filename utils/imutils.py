@@ -643,6 +643,15 @@ def resize_and_crop_maintain_bb_on_dir(dir, output_width = 150, output_height = 
         retval = resize_and_crop_maintain_bb(fullfile, output_width = 150, output_height = 200,use_visual_output=True,bb=None)
 
 def show_mask_with_labels_dir(dir,filter='.bmp',labels=constants.fashionista_categories_augmented_zero_based,original_images_dir=None,original_images_dir_alt=None):
+    '''
+
+    :param dir:
+    :param filter:  take only images with this substring in name
+    :param labels: list of test labels for categories
+    :param original_images_dir: dir of image (not labels)
+    :param original_images_dir_alt: alternate dir of images (to deal with test/train directories)
+    :return:
+    '''
     files = [f for f in os.listdir(dir) if filter in f]
     fullpaths = [os.path.join(dir,f) for f in files]
 
@@ -653,7 +662,7 @@ def show_mask_with_labels_dir(dir,filter='.bmp',labels=constants.fashionista_cat
         for x in range(0,len(files)):
             if  os.path.exists(original_fullpaths[x]):
                 show_mask_with_labels(files[x],labels,original_image=original_fullpaths[x])
-            elif os.path.exists(original_altfullpaths[x])
+            elif os.path.exists(original_altfullpaths[x]):
                 show_mask_with_labels(files[x],labels,original_image=original_altfullpaths[x])
             else:
                 logging.warning('one of these does not exist:'+original_fullpaths[x]+','+original_altfullpaths[x])
