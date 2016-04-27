@@ -196,6 +196,10 @@ class SBDDSegDataLayer(caffe.Layer):
         if im is None:
             print(' COULD NOT LOAD FILE '+full_filename)
             in_ = np.array(im, dtype=np.uint8)
+
+        if len(in_.shape) == 3:
+            logging.warning('got 3 layer img as mask, taking first layer')
+            in_ = in_[:,:,0]
         in_ = in_ - 1
         print('uniques of label:'+str(np.unique(in_))+' shape:'+str(in_.shape))
             label = copy.copy(in_[np.newaxis, ...])
