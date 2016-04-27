@@ -7,6 +7,8 @@ import os
 
 def infer(images,prototxt,caffemodel):
     # load net
+    caffe.set_mode_gpu();
+    caffe.set_device(0);
     net = caffe.Net(prototxt,caffemodel, caffe.TEST)
     for imagename in images:
         print('working on:'+imagename)
@@ -43,7 +45,7 @@ def tileimages(dir,suffix='.bmp'):
 
 if __name__ == "__main__":
     print('starting')
-    test_dir = '/root/imgdbs/image_dbs/colorful_fashion_parsing_data/images/test_200x150/'
+    test_dir = '/root/imgdbs/image_dbs/colorful_fashion_parsing_data/images/test'
 #    label_dir = '/root/imgdbs/image_dbs/colorful_fashion_parsing_data/labels/'
     images = [os.path.join(test_dir,f) for f in os.listdir(test_dir) if '.jpg' in f]
     print('nimages:'+str(len(images)))
@@ -52,6 +54,6 @@ if __name__ == "__main__":
 #    images = [os.path.join(label_dir,f) for f in images]
 #    print('images:'+str(images))
     prototxt = 'deploy.prototxt'
-    caffemodel = 'snapshot/train_iter_88000.caffemodel'
+    caffemodel = 'snapshot/train_iter_75000.caffemodel'
     infer(images,prototxt,caffemodel)
 
