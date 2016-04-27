@@ -693,7 +693,8 @@ def show_mask_with_labels_dir(dir,filter=None,labels=None,original_images_dir=No
     plt.bar(center, hist, align='center', width=width,labels='nonzero pixelcount')
     plt.show()
     plt.legend()
-    print('fraction histogram:'+str(np.histogram(fraclist,bins=20))
+    plt.imsave('outhist.jpg')
+    print('fraction histogram:'+str(np.histogram(fraclist,bins=20)))
 
 
 
