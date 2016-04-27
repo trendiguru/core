@@ -697,7 +697,7 @@ def show_mask_with_labels(mask_filename,labels):
     h_colorbar,w_colorbar = scaled_colorbar.shape[0:2]
     dest_colorbar = np.zeros([h_colorbar,w_colorbar,3])
     dest_colorbar[:,:,0] = scaled_colorbar  #hue
-    dest_colorbar[:,:,1] = 100   #saturation
+    dest_colorbar[:,:,1] = 200   #saturation
     dest_colorbar[:,:,2] = 100   #value
     dest_colorbar = dest_colorbar.astype(np.uint8)
     dest_colorbar = cv2.cvtColor(dest_colorbar,cv2.COLOR_HSV2BGR)
