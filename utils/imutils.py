@@ -642,18 +642,21 @@ def resize_and_crop_maintain_bb_on_dir(dir, output_width = 150, output_height = 
         fullfile = os.path.join(dir,a_file)
         retval = resize_and_crop_maintain_bb(fullfile, output_width = 150, output_height = 200,use_visual_output=True,bb=None)
 
-def show_mask_with_labels_dir(dir,filter='.bmp',labels=constants.fashionista_categories_augmented_zero_based,original_images_dir=None):
+def show_mask_with_labels_dir(dir,filter='.bmp',labels=constants.fashionista_categories_augmented_zero_based,original_images_dir=None,original_images_dir_alt=None):
     files = [f for f in os.listdir(dir) if filter in f]
     fullpaths = [os.path.join(dir,f) for f in files]
 
     if original_images_dir:
         original_images = [f.split(filter)[0]+'.jpg' for f in files]
         original_fullpaths = [os.path.join(original_images_dir,f) for f in original_images]
+        original_altfullpaths = [os.path.join(original_images_dir_alt,f) for f in original_images]
         for x in range(0,len(files)):
-            if os.path.exists(files[x]) and os.path.exists(original_images[x]):
-                show_mask_with_labels(files[x],labels,original_image=original_images[x])
+            if  os.path.exists(original_fullpaths[x]):
+                show_mask_with_labels(files[x],labels,original_image=original_fullpaths[x])
+            elif os.path.exists(original_altfullpaths[x])
+                show_mask_with_labels(files[x],labels,original_image=original_altfullpaths[x])
             else:
-                logging.warning('one of these does not exist:'+files[x]+','+original_images[x])
+                logging.warning('one of these does not exist:'+original_fullpaths[x]+','+original_altfullpaths[x])
     else:
         for f in files,:
             show_mask_with_labels(f,labels)
