@@ -16,7 +16,7 @@ def genderator(image):
     #input_image = sys.argv[1]
     input_image = image
     MODLE_FILE = "/home/yonatan/trendi/yonatan/Alexnet_deploy.prototxt"
-    PRETRAINED = "/home/yonatan/alexnet_first_try/caffe_alexnet_train_iter_10000.caffemodel"
+    PRETRAINED = "/home/yonatan/alexnet_imdb_first_try/caffe_alexnet_train_faces_iter_10000.caffemodel"
     caffe.set_mode_gpu()
     image_dims = [115, 115]
     mean, input_scale = None, None
@@ -63,10 +63,10 @@ def genderator(image):
 
     #print predictions
     #print np.array(inputs).shape
-    predictions_array = predictions
+    #predictions_array = predictions
 
-    text_file = open("face_testing.txt", "a")
-    text_file.write("predictions: %s sum: %f\n" % (np.array2string(predictions, separator=', '), sum))
-    text_file.flush()
+    #text_file = open("face_testing.txt", "a")
+    #text_file.write("predictions: %s sum: %f\n" % (np.array2string(predictions, separator=', '), sum))
+    #text_file.flush()
 
-    return predictions_array
+    return predictions
