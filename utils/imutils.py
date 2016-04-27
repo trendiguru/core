@@ -669,7 +669,7 @@ def show_mask_with_labels(mask_filename,labels):
     max_huelevel = 160.0
     scaled = np.uint8(np.multiply(img_arr, max_huelevel / maxVal))
 #        dest = cv2.applyColorMap(scaled,colormap)
-    dest = np.zeros(h,w,3)
+    dest = np.zeros([h,w,3])
     dest[:,:,0] = scaled  #hue
     dest[:,:,1] = 100   #saturation
     dest[:,:,2] = 100   #value
@@ -693,7 +693,7 @@ def show_mask_with_labels(mask_filename,labels):
 
     scaled_colorbar = np.uint8(np.multiply(colorbar, max_huelevel / maxVal))
     h_colorbar,w_colorbar = scaled_colorbar.shape[0:2]
-    dest_colorbar = np.zeros(h_colorbar,w_colorbar,3)
+    dest_colorbar = np.zeros([h_colorbar,w_colorbar,3])
     dest_colorbar[:,:,0] = scaled_colorbar  #hue
     dest_colorbar[:,:,1] = 100   #saturation
     dest_colorbar[:,:,2] = 100   #value
