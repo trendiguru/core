@@ -693,7 +693,7 @@ def show_mask_with_labels_dir(dir,filter=None,labels=None,original_images_dir=No
     plt.bar(center, hist, align='center', width=width,label='nonzero pixelcount')
     plt.show()
     plt.legend()
-    plt.imsave('outhist.jpg')
+    plt.savefig('outhist.jpg')
     print('fraction histogram:'+str(np.histogram(fraclist,bins=20)))
 
 
@@ -760,8 +760,8 @@ def show_mask_with_labels(mask_filename,labels,original_image=None):
     dest_colorbar = cv2.cvtColor(dest_colorbar,cv2.COLOR_HSV2BGR)
     #dest_colorbar = cv2.applyColorMap(scaled_colorbar, colormap)
     combined = np.zeros([h,w+w_colorbar,3])
-    combined[:,0:w_colorbar,:]=dest_colorbar
-    combined[:,w_colorbar:w_colorbar+w,:]=dest
+    combined[:,0:w_colorbar,:]=dest_colorbar[:,:,:]
+    combined[:,w_colorbar:w_colorbar+w,:]=dest[:,:,:]
     cv2.imshow('map',dest)
     cv2.imshow('colorbar',dest_colorbar)
     cv2.imshow('combined',combined)
