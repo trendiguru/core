@@ -644,9 +644,11 @@ def resize_and_crop_maintain_bb_on_dir(dir, output_width = 150, output_height = 
 
 def show_mask_with_labels_dir(dir,filter='.bmp',labels=constants.fashionista_categories_augmented_zero_based,original_images_dir=None):
     files = [f for f in os.listdir(dir) if filter in f]
-    files = [os.path.join(dir,f) for f in files]
+    fullpaths = [os.path.join(dir,f) for f in files]
+
     if original_images_dir:
         original_images = [f.split(filter)[0]+'.jpg' for f in files]
+        original_fullpaths = [os.path.join(original_images_dir,f) for f in original_images]
         for x in range(0,len(files)):
             if os.path.exists(files[x]) and os.path.exists(original_images[x]):
                 show_mask_with_labels(files[x],labels,original_image=original_images[x])
