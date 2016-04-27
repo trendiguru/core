@@ -699,11 +699,15 @@ def show_mask_with_labels(mask_filename,labels):
     dest_colorbar[:,:,0] = scaled_colorbar  #hue
     dest_colorbar[:,:,1] = 100   #saturation
     dest_colorbar[:,:,2] = 100   #value
-    dest_colorbar = dest.astype(np.uint8)
+    dest_colorbar = dest_colorbar.astype(np.uint8)
     dest_colorbar = cv2.cvtColor(dest_colorbar,cv2.COLOR_HSV2BGR)
     #dest_colorbar = cv2.applyColorMap(scaled_colorbar, colormap)
+    combined = np.zeros[h,w+w_colorbar,3]
+    combined[:,0:w_colorbar,:]=dest_colorbar
+    combined[:,w_colorbar:,:]=dest
     cv2.imshow('map',dest)
     cv2.imshow('colorbar',dest_colorbar)
+    cv2.imshow('combined',combined)
     cv2.waitKey(0)
 #        cv2.destroyAllWindows()
 #        return dest
