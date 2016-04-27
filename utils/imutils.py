@@ -667,19 +667,21 @@ def show_mask_with_labels(mask_filename,labels):
     # minVal, maxVal, minLoc, maxLoc = cv2.minMaxLoc(img_array)
     maxVal = len(labels)
     max_huelevel = 160.0
+    satlevel = 200
+    vallevel = 200
     scaled = np.uint8(np.multiply(img_arr, max_huelevel / maxVal))
 #        dest = cv2.applyColorMap(scaled,colormap)
     dest = np.zeros([h,w,3])
     dest[:,:,0] = scaled  #hue
-    dest[:,:,1] = 100   #saturation
-    dest[:,:,2] = 100   #value
+    dest[:,:,1] = satlevel   #saturation
+    dest[:,:,2] = vallevel   #value
     print('type:'+str(type(dest)))
     dest = dest.astype(np.uint8)
     dest =  cv2.cvtColor(dest,cv2.COLOR_HSV2BGR)
 
     bar_height = int(float(h)/len(uniques))
     bar_width = 100
-    colorbar = np.zeros([bar_height*len(uniques),bar_width])
+    colorbar = np.zeros([h,bar_width])
     i = 0
     print('len labels:'+str(len(labels)))
     for unique in uniques:
@@ -690,15 +692,15 @@ def show_mask_with_labels(mask_filename,labels):
         colorbar[i*bar_height:i*bar_height+bar_height,:] = unique
 
 #        cv2.putText(colorbar,labels[unique],(5,i*bar_height+bar_height/2-10),cv2.FONT_HERSHEY_PLAIN,1,[i*255/len(uniques),i*255/len(uniques),100],thickness=2)
-        cv2.putText(colorbar,labels[unique],(5,i*bar_height+bar_height/2-10),cv2.FONT_HERSHEY_PLAIN,1,[100,100,100],thickness=2)
+        cv2.putText(colorbar,labels[unique],(5,i*bar_height+bar_height/2-5),cv2.FONT_HERSHEY_PLAIN,1,[100,100,100],thickness=2)
         i=i+1
 
     scaled_colorbar = np.uint8(np.multiply(colorbar, max_huelevel / maxVal))
     h_colorbar,w_colorbar = scaled_colorbar.shape[0:2]
     dest_colorbar = np.zeros([h_colorbar,w_colorbar,3])
     dest_colorbar[:,:,0] = scaled_colorbar  #hue
-    dest_colorbar[:,:,1] = 200   #saturation
-    dest_colorbar[:,:,2] = 200   #value
+    dest_colorbar[:,:,1] = satlevel   #saturation
+    dest_colorbar[:,:,2] = vallevel  #value
     dest_colorbar = dest_colorbar.astype(np.uint8)
     dest_colorbar = cv2.cvtColor(dest_colorbar,cv2.COLOR_HSV2BGR)
     #dest_colorbar = cv2.applyColorMap(scaled_colorbar, colormap)
