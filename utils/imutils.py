@@ -722,6 +722,8 @@ def show_mask_with_labels(mask_filename,labels,original_image=None):
     cv2.imshow('colorbar',dest_colorbar)
     cv2.imshow('combined',combined)
     if original_image is not None:
+        orig_arr = cv2.imread(original_image)
+        cv2.imshow('original',combined)
 
     cv2.waitKey(0)
 #        cv2.destroyAllWindows()
