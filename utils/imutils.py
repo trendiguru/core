@@ -698,13 +698,14 @@ def show_mask_with_labels(mask_filename,labels):
     dest_colorbar = np.zeros([h_colorbar,w_colorbar,3])
     dest_colorbar[:,:,0] = scaled_colorbar  #hue
     dest_colorbar[:,:,1] = 200   #saturation
-    dest_colorbar[:,:,2] = 100   #value
+    dest_colorbar[:,:,2] = 200   #value
     dest_colorbar = dest_colorbar.astype(np.uint8)
     dest_colorbar = cv2.cvtColor(dest_colorbar,cv2.COLOR_HSV2BGR)
     #dest_colorbar = cv2.applyColorMap(scaled_colorbar, colormap)
     combined = np.zeros([h,w+w_colorbar,3])
     combined[:,0:w_colorbar,:]=dest_colorbar
-    combined[:,w_colorbar:,:]=dest
+    combined[:,w_colorbar:w_colorbar+w,:]=dest
+    print('hist'+str(np.histogram(combined)))
     cv2.imshow('map',dest)
     cv2.imshow('colorbar',dest_colorbar)
     cv2.imshow('combined',combined)
