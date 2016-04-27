@@ -37,14 +37,14 @@ for line in file:
     predictions = gender_detector.genderator(line)
 
     #if the gender_detector is right
-    if (predictions[0][0] > predictions[0][1]) && (file_name[1] == 0):
+    if (predictions[0][0] > predictions[0][1]) and (file_name[1] == 0):
         array_success = np.append(array_success, predictions[0][0])
-    elif (predictions[0][1] > predictions[0][0]) && (file_name[1] == 1):
+    elif (predictions[0][1] > predictions[0][0]) and (file_name[1] == 1):
         array_success = np.append(array_success, predictions[0][1])
     # if the gender_detector is wrong
-    if (predictions[0][0] > predictions[0][1]) & & (file_name[1] == 1):
+    if (predictions[0][0] > predictions[0][1]) and (file_name[1] == 1):
         array_failure = np.append(array_failure, predictions[0][0])
-    elif (predictions[0][1] > predictions[0][0]) & & (file_name[1] == 0):
+    elif (predictions[0][1] > predictions[0][0]) and (file_name[1] == 0):
         array_failure = np.append(array_failure, predictions[0][1])
 
 print counter
