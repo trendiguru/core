@@ -26,6 +26,8 @@ counter = 0
 
 for line in text_file:
     counter += 1
+
+    path = line.split()
     #split line to link and label
     words = line.split("/")
 
@@ -34,7 +36,7 @@ for line in text_file:
 
     file_name = words[3].split()
 
-    predictions = gender_detector.genderator(line)
+    predictions = gender_detector.genderator(path)
 
     #if the gender_detector is right
     if (predictions[0][0] > predictions[0][1]) and (file_name[1] == 0):
