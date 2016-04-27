@@ -642,7 +642,7 @@ def resize_and_crop_maintain_bb_on_dir(dir, output_width = 150, output_height = 
         fullfile = os.path.join(dir,a_file)
         retval = resize_and_crop_maintain_bb(fullfile, output_width = 150, output_height = 200,use_visual_output=True,bb=None)
 
-def show_mask_with_labels_dir(dir,filter='.bmp',labels=constants.fashionista_categories_augmented_zero_based,original_images_dir=None,original_images_dir_alt=None):
+def show_mask_with_labels_dir(dir,filter=None,labels=None,original_images_dir=None,original_images_dir_alt=None):
     '''
 
     :param dir:
@@ -658,14 +658,15 @@ def show_mask_with_labels_dir(dir,filter='.bmp',labels=constants.fashionista_cat
     if original_images_dir:
         original_images = [f.split(filter)[0]+'.jpg' for f in files]
         original_fullpaths = [os.path.join(original_images_dir,f) for f in original_images]
-        original_altfullpaths = [os.path.join(original_images_dir_alt,f) for f in original_images]
+        if original_images_dir_alt:
+            original_altfullpaths = [os.path.join(original_images_dir_alt,f) for f in original_images]
         for x in range(0,len(files)):
-            if  os.path.exists(original_fullpaths[x]):
+            if os.path.exists(original_fullpaths[x]):
                 show_mask_with_labels(fullpaths[x],labels,original_image=original_fullpaths[x])
-            elif os.path.exists(original_altfullpaths[x]):
+            elif original_images_dir_alt and os.path.exists(original_altfullpaths[x]):
                 show_mask_with_labels(fullpaths[x],labels,original_image=original_altfullpaths[x])
             else:
-                logging.warning('one of these does not exist:'+original_fullpaths[x]+','+original_altfullpaths[x])
+                logging.warning(' does not exist:'+original_fullpaths[x])
     else:
         for f in files,:
             show_mask_with_labels(f,labels)
@@ -673,15 +674,15 @@ def show_mask_with_labels_dir(dir,filter='.bmp',labels=constants.fashionista_cat
 
 def show_mask_with_labels(mask_filename,labels,original_image=None):
     colormap = cv2.COLORMAP_JET
-    img_arr = Utils.get_cv2_img_array(mask_filename)
+    img_arr = Utils.get_cv2_img_array(mask_filename,cv2.IMREAD_GRAYSCALE)
     if img_arr is None:
         logging.warning('trouble with file '+mask_filename)
         return
-#    img_arr = cv2.imread(mask_filename, cv2.IMREAD_GRAYSCALE)
     print('file:'+mask_filename+',size'+str(img_arr.shape))
     if len(img_arr.shape) != 2:
         logging.warning('got a multichannel image, using chan 0')
         img_arr = img_arr[:,:,0]
+    print('hist'+str(np.histogram(img_arr,bins=57)))
     h,w = img_arr.shape[0:2]
     uniques = np.unique(img_arr)
     print('number of unique mask values:'+str(len(uniques)))
@@ -731,7 +732,6 @@ def show_mask_with_labels(mask_filename,labels,original_image=None):
     combined = np.zeros([h,w+w_colorbar,3])
     combined[:,0:w_colorbar,:]=dest_colorbar
     combined[:,w_colorbar:w_colorbar+w,:]=dest
-    print('hist'+str(np.histogram(combined)))
     cv2.imshow('map',dest)
     cv2.imshow('colorbar',dest_colorbar)
     cv2.imshow('combined',combined)
