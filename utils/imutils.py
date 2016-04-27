@@ -716,7 +716,7 @@ def show_mask_with_labels(mask_filename,labels,original_image=None):
         colorbar[i*bar_height:i*bar_height+bar_height,:] = unique
 
 #        cv2.putText(colorbar,labels[unique],(5,i*bar_height+bar_height/2-10),cv2.FONT_HERSHEY_PLAIN,1,[i*255/len(uniques),i*255/len(uniques),100],thickness=2)
-        cv2.putText(colorbar,labels[unique],(5,i*bar_height+bar_height/2-5),cv2.FONT_HERSHEY_PLAIN,1,[0,0,0],thickness=2)
+        cv2.putText(colorbar,labels[unique],(5,i*bar_height+bar_height/2-5),cv2.FONT_HERSHEY_PLAIN,1,[100,200,0],thickness=2)
         i=i+1
 
     scaled_colorbar = np.uint8(np.multiply(colorbar, max_huelevel / maxVal))
@@ -737,8 +737,10 @@ def show_mask_with_labels(mask_filename,labels,original_image=None):
     cv2.imshow('combined',combined)
     if original_image is not None:
         orig_arr = cv2.imread(original_image)
-        cv2.imshow('original',combined)
-
+        if orig_arr is not None:
+            cv2.imshow('original',orig_arr)
+        else:
+            logging.warning('could not get image '+original_image)
     cv2.waitKey(0)
 #        cv2.destroyAllWindows()
 #        return dest
