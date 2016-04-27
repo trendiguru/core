@@ -15,6 +15,7 @@ import multiprocessing
 import socket
 import copy
 from trendi import constants
+import matplotlib.pyplot as plt
 
 os.environ['REDIS_HOST']='10'
 os.environ['MONGO_HOST']='10'
@@ -665,25 +666,36 @@ def show_mask_with_labels_dir(dir,filter=None,labels=None,original_images_dir=No
         for x in range(0,len(files)):
             if os.path.exists(original_fullpaths[x]):
                 frac = show_mask_with_labels(fullpaths[x],labels,original_image=original_fullpaths[x])
-                fraclist.append(frac)
-                totfrac = totfrac + frac
-                n=n+1
+                if frac is not None:
+                    fraclist.append(frac)
+                    totfrac = totfrac + frac
+                    n=n+1
             elif original_images_dir_alt and os.path.exists(original_altfullpaths[x]):
                 frac = show_mask_with_labels(fullpaths[x],labels,original_image=original_altfullpaths[x])
-                fraclist.append(frac)
-                totfrac = totfrac + frac
-                n=n+1
+                if frac is not None:
+                    fraclist.append(frac)
+                    totfrac = totfrac + frac
+                    n=n+1
             else:
                 logging.warning(' does not exist:'+original_fullpaths[x])
     else:
         for f in files:
             frac = show_mask_with_labels(f,labels)
-            fraclist.append(frac)
-            totfrac = totfrac + frac
-            n=n+1
+            if frac is not None:
+                fraclist.append(frac)
+                totfrac = totfrac + frac
+                n=n+1
     if totfrac:
         print('avg frac of image w nonzero pixels:'+str(totfrac/n))
-    print('fraction histogram:'+str(np.histogram(fraclist)))
+    hist, bins = np.histogram(fraclist, bins=30)
+    width = 0.7 * (bins[1] - bins[0])
+    center = (bins[:-1] + bins[1:]) / 2
+    plt.bar(center, hist, align='center', width=width,labels='nonzero pixelcount')
+    plt.show()
+    plt.legend()
+    print('fraction histogram:'+str(np.histogram(fraclist,bins=20))
+
+
 
 def show_mask_with_labels(mask_filename,labels,original_image=None):
     colormap = cv2.COLORMAP_JET
