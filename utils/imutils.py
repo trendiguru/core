@@ -658,11 +658,12 @@ def show_mask_with_labels_dir(dir,filter=None,labels=None,original_images_dir=No
     if original_images_dir:
         original_images = [f.split(filter)[0]+'.jpg' for f in files]
         original_fullpaths = [os.path.join(original_images_dir,f) for f in original_images]
-        original_altfullpaths = [os.path.join(original_images_dir_alt,f) for f in original_images]
+        if original_images_dir_alt:
+            original_altfullpaths = [os.path.join(original_images_dir_alt,f) for f in original_images]
         for x in range(0,len(files)):
             if  os.path.exists(original_fullpaths[x]):
                 show_mask_with_labels(fullpaths[x],labels,original_image=original_fullpaths[x])
-            elif os.path.exists(original_altfullpaths[x]):
+            elif original_images_dir_alt and os.path.exists(original_altfullpaths[x]):
                 show_mask_with_labels(fullpaths[x],labels,original_image=original_altfullpaths[x])
             else:
                 logging.warning('one of these does not exist:'+original_fullpaths[x]+','+original_altfullpaths[x])
