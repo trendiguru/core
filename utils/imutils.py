@@ -690,7 +690,7 @@ def show_mask_with_labels_dir(dir,filter=None,labels=None,original_images_dir=No
     hist, bins = np.histogram(fraclist, bins=30)
     width = 0.7 * (bins[1] - bins[0])
     center = (bins[:-1] + bins[1:]) / 2
-    plt.bar(center, hist, align='center', width=width,labels='nonzero pixelcount')
+    plt.bar(center, hist, align='center', width=width,label='nonzero pixelcount')
     plt.show()
     plt.legend()
     plt.imsave('outhist.jpg')
