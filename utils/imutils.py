@@ -702,7 +702,7 @@ def show_mask_with_labels(mask_filename,labels):
     dest_colorbar = dest_colorbar.astype(np.uint8)
     dest_colorbar = cv2.cvtColor(dest_colorbar,cv2.COLOR_HSV2BGR)
     #dest_colorbar = cv2.applyColorMap(scaled_colorbar, colormap)
-    combined = np.zeros[h,w+w_colorbar,3]
+    combined = np.zeros([h,w+w_colorbar,3])
     combined[:,0:w_colorbar,:]=dest_colorbar
     combined[:,w_colorbar:,:]=dest
     cv2.imshow('map',dest)
