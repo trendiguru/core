@@ -683,7 +683,7 @@ def show_mask_with_labels_dir(dir,filter=None,labels=None,original_images_dir=No
             n=n+1
     if totfrac:
         print('avg frac of image w nonzero pixels:'+str(totfrac/n))
-    print('fraction histogram:'+str(np.hist(fraclist)))
+    print('fraction histogram:'+str(np.histogram(fraclist)))
 
 def show_mask_with_labels(mask_filename,labels,original_image=None):
     colormap = cv2.COLORMAP_JET
