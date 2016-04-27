@@ -662,15 +662,18 @@ def show_mask_with_labels_dir(dir,filter=None,labels=None,original_images_dir=No
             original_altfullpaths = [os.path.join(original_images_dir_alt,f) for f in original_images]
         for x in range(0,len(files)):
             if os.path.exists(original_fullpaths[x]):
-                show_mask_with_labels(fullpaths[x],labels,original_image=original_fullpaths[x])
+                frac = show_mask_with_labels(fullpaths[x],labels,original_image=original_fullpaths[x])
             elif original_images_dir_alt and os.path.exists(original_altfullpaths[x]):
-                show_mask_with_labels(fullpaths[x],labels,original_image=original_altfullpaths[x])
+                frac = show_mask_with_labels(fullpaths[x],labels,original_image=original_altfullpaths[x])
             else:
                 logging.warning(' does not exist:'+original_fullpaths[x])
+            totfrac = totfrac + frac
     else:
-        for f in files,:
-            show_mask_with_labels(f,labels)
-
+        for f in files:
+            frac = show_mask_with_labels(f,labels)
+            totfrac = totfrac + frac
+    if totfrac:
+        print('avg frac of image w nonzero pixels:'+str(totfrac/len(files)))
 
 def show_mask_with_labels(mask_filename,labels,original_image=None):
     colormap = cv2.COLORMAP_JET
@@ -682,9 +685,12 @@ def show_mask_with_labels(mask_filename,labels,original_image=None):
     if len(img_arr.shape) != 2:
         logging.warning('got a multichannel image, using chan 0')
         img_arr = img_arr[:,:,0]
-    h = np.histogram(img_arr,bins=56)
-    print('hist'+str(h[0]))
+    histo = np.histogram(img_arr,bins=56)
+    print('hist'+str(histo[0]))
     h,w = img_arr.shape[0:2]
+    n_nonzero = np.count_nonzero(img_arr)
+    n_tot = h*w
+    frac = float(n_nonzero)/n_tot
     uniques = np.unique(img_arr)
     print('number of unique mask values:'+str(len(uniques)))
     if len(uniques)>len(labels):
@@ -747,6 +753,7 @@ def show_mask_with_labels(mask_filename,labels,original_image=None):
         else:
             logging.warning('could not get image '+original_image)
     cv2.waitKey(100)
+    return frac
 #        cv2.destroyAllWindows()
 #        return dest
 
