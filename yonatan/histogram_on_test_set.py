@@ -24,7 +24,7 @@ text_file = open("55k_face_test_list.txt", "r")
 
 counter = 0
 
-for line in file:
+for line in text_file:
     counter += 1
     #split line to link and label
     words = line.split("/")
