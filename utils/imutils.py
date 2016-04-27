@@ -655,7 +655,7 @@ def show_mask_with_labels(mask_filename,labels):
         return
 #    img_arr = cv2.imread(mask_filename, cv2.IMREAD_GRAYSCALE)
     print('file:'+mask_filename+',size'+str(img_arr.shape))
-    if len(s) != 2:
+    if len(img_arr.shape) != 2:
         logging.warning('got a multichannel image, using chan 0')
         img_arr = img_arr[:,:,0]
     h,w = img_arr.shape[0:2]
