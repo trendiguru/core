@@ -748,7 +748,7 @@ def show_mask_with_labels(mask_filename,labels,original_image=None):
             height, width = orig_arr.shape[:2]
             if height>400:
                 print('got a big one, resizing')
-                orig_arr = cv2.resize(orig_arr,(400,int(width*400.0/height)))
+                orig_arr = cv2.resize(orig_arr,(int(width*400.0/height),400))
             cv2.imshow('original',orig_arr)
         else:
             logging.warning('could not get image '+original_image)
