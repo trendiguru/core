@@ -94,7 +94,7 @@ cv2.waitKey(0)
 def the_detector(face):
 
     MODLE_FILE = "/home/yonatan/trendi/yonatan/Alexnet_deploy.prototxt"
-    PRETRAINED = "/home/yonatan/alexnet_first_try/caffe_alexnet_train_iter_10000.caffemodel"
+    PRETRAINED = "/home/yonatan/alexnet_imdb_first_try/caffe_alexnet_train_iter_10000.caffemodel"
     caffe.set_mode_gpu()
     image_dims = (115, 115)
     mean, input_scale = None, None
@@ -122,7 +122,7 @@ def the_detector(face):
     # Save
     #print("Saving results into %s" % args.output_file)
     #np.save(args.output_file, predictions)
-    if predictions[0][0] > predictions[0][1]:
+    if predictions[0][1] > predictions[0][0]:
         print "it's a boy!"
     else:
         print "it's a girl!"
