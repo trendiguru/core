@@ -654,7 +654,8 @@ def show_mask_with_labels_dir(dir,filter=None,labels=None,original_images_dir=No
     '''
     files = [f for f in os.listdir(dir) if filter in f]
     fullpaths = [os.path.join(dir,f) for f in files]
-
+    totfrac = 0
+    n=0
     if original_images_dir:
         original_images = [f.split(filter)[0]+'.jpg' for f in files]
         original_fullpaths = [os.path.join(original_images_dir,f) for f in original_images]
@@ -663,17 +664,21 @@ def show_mask_with_labels_dir(dir,filter=None,labels=None,original_images_dir=No
         for x in range(0,len(files)):
             if os.path.exists(original_fullpaths[x]):
                 frac = show_mask_with_labels(fullpaths[x],labels,original_image=original_fullpaths[x])
+                totfrac = totfrac + frac
+                n=n+1
             elif original_images_dir_alt and os.path.exists(original_altfullpaths[x]):
                 frac = show_mask_with_labels(fullpaths[x],labels,original_image=original_altfullpaths[x])
-            else:
+                totfrac = totfrac + frac
+                n=n+1
+        else:
                 logging.warning(' does not exist:'+original_fullpaths[x])
-            totfrac = totfrac + frac
     else:
         for f in files:
             frac = show_mask_with_labels(f,labels)
             totfrac = totfrac + frac
+            n=n+1
     if totfrac:
-        print('avg frac of image w nonzero pixels:'+str(totfrac/len(files)))
+        print('avg frac of image w nonzero pixels:'+str(totfrac/n))
 
 def show_mask_with_labels(mask_filename,labels,original_image=None):
     colormap = cv2.COLORMAP_JET
