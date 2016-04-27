@@ -650,10 +650,12 @@ def show_mask_with_labels_dir(dir,filter='.bmp',labels=constants.fashionista_cat
 def show_mask_with_labels(mask_filename,labels):
     colormap = cv2.COLORMAP_JET
     img_arr = Utils.get_cv2_img_array(mask_filename)
+    if img_arr is None:
+        logging.warning('trouble with file '+mask_filename)
+        return
 #    img_arr = cv2.imread(mask_filename, cv2.IMREAD_GRAYSCALE)
-    s = img_arr.shape
-    print(s)
-    if len(s) != 2:
+    print('file:'+mask_filename+',size'+str(img_arr.shape))
+    if len(img_arr.shape) != 2:
         logging.warning('got a multichannel image, using chan 0')
         img_arr = img_arr[:,:,0]
     h,w = img_arr.shape[0:2]
@@ -662,32 +664,52 @@ def show_mask_with_labels(mask_filename,labels):
     if len(uniques)>len(labels):
         logging.warning('number of unique mask values > number of labels!!!')
         return
-    if img_arr is not None:
-        # minVal, maxVal, minLoc, maxLoc = cv2.minMaxLoc(img_array)
-        maxVal = len(labels)
-        scaled = np.uint8(np.multiply(img_arr, 255.0 / maxVal))
-        dest = cv2.applyColorMap(scaled,colormap)
-        bar_height = int(float(h)/len(uniques))
-        bar_width = 100
-        colorbar = np.zeros([bar_height*len(uniques),bar_width])
-        i = 0
-        print('len labels:'+str(len(labels)))
-        for unique in uniques:
-            if unique > len(labels):
-                logging.warning('pixel value out of label range')
-                continue
-            print('unique:'+str(unique)+':'+labels[unique])
-            colorbar[i*bar_height:i*bar_height+bar_height,:] = unique
+    # minVal, maxVal, minLoc, maxLoc = cv2.minMaxLoc(img_array)
+    maxVal = len(labels)
+    max_huelevel = 160.0
+    scaled = np.uint8(np.multiply(img_arr, max_huelevel / maxVal))
+#        dest = cv2.applyColorMap(scaled,colormap)
+    dest = np.zeros([h,w,3])
+    dest[:,:,0] = scaled  #hue
+    dest[:,:,1] = 100   #saturation
+    dest[:,:,2] = 100   #value
+    print('type:'+str(type(dest)))
+    dest = dest.astype(np.uint8)
+    dest =  cv2.cvtColor(dest,cv2.COLOR_HSV2BGR)
+
+    bar_height = int(float(h)/len(uniques))
+    bar_width = 100
+    colorbar = np.zeros([bar_height*len(uniques),bar_width])
+    i = 0
+    print('len labels:'+str(len(labels)))
+    for unique in uniques:
+        if unique > len(labels):
+            logging.warning('pixel value out of label range')
+            continue
+        print('unique:'+str(unique)+':'+labels[unique])
+        colorbar[i*bar_height:i*bar_height+bar_height,:] = unique
 
 #        cv2.putText(colorbar,labels[unique],(5,i*bar_height+bar_height/2-10),cv2.FONT_HERSHEY_PLAIN,1,[i*255/len(uniques),i*255/len(uniques),100],thickness=2)
-            cv2.putText(colorbar,labels[unique],(5,i*bar_height+bar_height/2-10),cv2.FONT_HERSHEY_PLAIN,1,[100,100,100],thickness=2)
-            i=i+1
+        cv2.putText(colorbar,labels[unique],(5,i*bar_height+bar_height/2-10),cv2.FONT_HERSHEY_PLAIN,1,[100,100,100],thickness=2)
+        i=i+1
 
-        scaled_colorbar = np.uint8(np.multiply(colorbar, 255.0 / maxVal))
-        dest_colorbar = cv2.applyColorMap(scaled_colorbar, colormap)
-        cv2.imshow('map',dest)
-        cv2.imshow('colorbar',dest_colorbar)
-        cv2.waitKey(0)
+    scaled_colorbar = np.uint8(np.multiply(colorbar, max_huelevel / maxVal))
+    h_colorbar,w_colorbar = scaled_colorbar.shape[0:2]
+    dest_colorbar = np.zeros([h_colorbar,w_colorbar,3])
+    dest_colorbar[:,:,0] = scaled_colorbar  #hue
+    dest_colorbar[:,:,1] = 200   #saturation
+    dest_colorbar[:,:,2] = 200   #value
+    dest_colorbar = dest_colorbar.astype(np.uint8)
+    dest_colorbar = cv2.cvtColor(dest_colorbar,cv2.COLOR_HSV2BGR)
+    #dest_colorbar = cv2.applyColorMap(scaled_colorbar, colormap)
+    combined = np.zeros([h,w+w_colorbar,3])
+    combined[:,0:w_colorbar,:]=dest_colorbar
+    combined[:,w_colorbar:w_colorbar+w,:]=dest
+    print('hist'+str(np.histogram(combined)))
+    cv2.imshow('map',dest)
+    cv2.imshow('colorbar',dest_colorbar)
+    cv2.imshow('combined',combined)
+    cv2.waitKey(0)
 #        cv2.destroyAllWindows()
 #        return dest
 
