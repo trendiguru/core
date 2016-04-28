@@ -37,7 +37,7 @@ for line in text_file:
     file_name = words[3].split()
 
     print path[0]
-    print words[3]
+    print words[4]
     print file_name[1]
     break
 
