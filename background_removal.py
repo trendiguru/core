@@ -30,19 +30,17 @@ def image_is_relevant(image, use_caffe=False, image_url=None):
     - "for face in image_is_relevant(image).faces:"
     """
     Relevance = collections.namedtuple('relevance', 'is_relevant faces')
-    faces_dict = find_face_cascade(image, 10)
-    if len(faces_dict['faces']) == 0:
-        faces_dict = find_face_ccv(image, 10)
+    faces_dict - find_face_dlib(image, 10)
+    # faces_dict = find_face_cascade(image, 10)
+    # if len(faces_dict['faces']) == 0:
+    #     faces_dict = find_face_ccv(image, 10)
     if not faces_dict['are_faces']:
         # if use_caffe:
         # return Relevance(caffeDocker_test.is_person_in_img('url', image_url).is_person, [])
         # else:
         return Relevance(False, [])
     else:
-        if len(faces_dict['faces']) > 0:
-            return Relevance(True, faces_dict['faces'])
-        else:
-            return Relevance(False, [])
+        return Relevance(True, faces_dict['faces'])
 
 
 def find_face_ccv(image_arr, max_num_of_faces=100):
