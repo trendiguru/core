@@ -75,6 +75,7 @@ for line in text_file:
         array_failure = np.append(array_failure, predictions[0][1])
 
     print counter
+    print type(path[1])
     print predictions[0][0]
     print predictions[0][1]
     print array_failure
