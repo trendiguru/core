@@ -60,17 +60,17 @@ for line in text_file:
     print("Done in %.2f s." % (time.time() - start))
 
     #if the gender_detector is right
-    if (predictions[0][0] > predictions[0][1]) and (path[1] == 0):
+    if (predictions[0][0] > predictions[0][1]) and (path[1] == '0'):
         print '1111111111111'
         array_success = np.append(array_success, predictions[0][0])
-    elif (predictions[0][1] > predictions[0][0]) and (path[1] == 1):
+    elif (predictions[0][1] > predictions[0][0]) and (path[1] == '1'):
         print '22222222222222'
         array_success = np.append(array_success, predictions[0][1])
     # if the gender_detector is wrong
-    elif (predictions[0][0] > predictions[0][1]) and (path[1] == 1):
+    elif (predictions[0][0] > predictions[0][1]) and (path[1] == '1'):
         print '333333333333333'
         array_failure = np.append(array_failure, predictions[0][0])
-    elif (predictions[0][1] > predictions[0][0]) and (path[1] == 0):
+    elif (predictions[0][1] > predictions[0][0]) and (path[1] == '0'):
         print '444444444444444'
         array_failure = np.append(array_failure, predictions[0][1])
 
