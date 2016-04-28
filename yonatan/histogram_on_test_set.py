@@ -14,7 +14,6 @@ from PIL import Image
 from . import gender_detector
 import random
 import matplotlib.pyplot as plt
-import numpy as np
 
 
 #path = '/home/yonatan/55k_test_set'
