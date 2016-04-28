@@ -15,6 +15,7 @@ import multiprocessing
 import socket
 import copy
 from trendi import constants
+import matplotlib.pyplot as plt
 
 os.environ['REDIS_HOST']='10'
 os.environ['MONGO_HOST']='10'
@@ -654,7 +655,9 @@ def show_mask_with_labels_dir(dir,filter=None,labels=None,original_images_dir=No
     '''
     files = [f for f in os.listdir(dir) if filter in f]
     fullpaths = [os.path.join(dir,f) for f in files]
-
+    totfrac = 0
+    fraclist=[]
+    n=0
     if original_images_dir:
         original_images = [f.split(filter)[0]+'.jpg' for f in files]
         original_fullpaths = [os.path.join(original_images_dir,f) for f in original_images]
@@ -662,14 +665,37 @@ def show_mask_with_labels_dir(dir,filter=None,labels=None,original_images_dir=No
             original_altfullpaths = [os.path.join(original_images_dir_alt,f) for f in original_images]
         for x in range(0,len(files)):
             if os.path.exists(original_fullpaths[x]):
-                show_mask_with_labels(fullpaths[x],labels,original_image=original_fullpaths[x])
+                frac = show_mask_with_labels(fullpaths[x],labels,original_image=original_fullpaths[x])
+                if frac is not None:
+                    fraclist.append(frac)
+                    totfrac = totfrac + frac
+                    n=n+1
             elif original_images_dir_alt and os.path.exists(original_altfullpaths[x]):
-                show_mask_with_labels(fullpaths[x],labels,original_image=original_altfullpaths[x])
+                frac = show_mask_with_labels(fullpaths[x],labels,original_image=original_altfullpaths[x])
+                if frac is not None:
+                    fraclist.append(frac)
+                    totfrac = totfrac + frac
+                    n=n+1
             else:
                 logging.warning(' does not exist:'+original_fullpaths[x])
     else:
-        for f in files,:
-            show_mask_with_labels(f,labels)
+        for f in files:
+            frac = show_mask_with_labels(f,labels)
+            if frac is not None:
+                fraclist.append(frac)
+                totfrac = totfrac + frac
+                n=n+1
+    if totfrac:
+        print('avg frac of image w nonzero pixels:'+str(totfrac/n))
+    hist, bins = np.histogram(fraclist, bins=30)
+    width = 0.7 * (bins[1] - bins[0])
+    center = (bins[:-1] + bins[1:]) / 2
+    plt.bar(center, hist, align='center', width=width,label='nonzero pixelcount')
+    plt.show()
+    plt.legend()
+    plt.savefig('outhist.jpg')
+    print('fraction histogram:'+str(np.histogram(fraclist,bins=20)))
+
 
 
 def show_mask_with_labels(mask_filename,labels,original_image=None):
@@ -682,10 +708,14 @@ def show_mask_with_labels(mask_filename,labels,original_image=None):
     if len(img_arr.shape) != 2:
         logging.warning('got a multichannel image, using chan 0')
         img_arr = img_arr[:,:,0]
-    print('hist'+str(np.histogram(img_arr,bins=57)))
+    histo = np.histogram(img_arr,bins=56)
+    print('hist'+str(histo[0]))
     h,w = img_arr.shape[0:2]
+    n_nonzero = np.count_nonzero(img_arr)
+    n_tot = h*w
+    frac = float(n_nonzero)/n_tot
     uniques = np.unique(img_arr)
-    print('number of unique mask values:'+str(len(uniques)))
+    print('number of unique mask values:'+str(len(uniques))+' frac nonzero:'+str(frac))
     if len(uniques)>len(labels):
         logging.warning('number of unique mask values > number of labels!!!')
         return
@@ -730,8 +760,8 @@ def show_mask_with_labels(mask_filename,labels,original_image=None):
     dest_colorbar = cv2.cvtColor(dest_colorbar,cv2.COLOR_HSV2BGR)
     #dest_colorbar = cv2.applyColorMap(scaled_colorbar, colormap)
     combined = np.zeros([h,w+w_colorbar,3])
-    combined[:,0:w_colorbar,:]=dest_colorbar
-    combined[:,w_colorbar:w_colorbar+w,:]=dest
+    combined[:,0:w_colorbar,:]=dest_colorbar[:,:,:]
+    combined[:,w_colorbar:w_colorbar+w,:]=dest[:,:,:]
     cv2.imshow('map',dest)
     cv2.imshow('colorbar',dest_colorbar)
     cv2.imshow('combined',combined)
@@ -740,11 +770,13 @@ def show_mask_with_labels(mask_filename,labels,original_image=None):
         if orig_arr is not None:
             height, width = orig_arr.shape[:2]
             if height>400:
-                orig_arr = cv2.resize(orig_arr,400,int(width*400.0/height))
+                print('got a big one, resizing')
+                orig_arr = cv2.resize(orig_arr,(int(width*400.0/height),400))
             cv2.imshow('original',orig_arr)
         else:
             logging.warning('could not get image '+original_image)
-    cv2.waitKey(0)
+    cv2.waitKey(100)
+    return frac
 #        cv2.destroyAllWindows()
 #        return dest
 
