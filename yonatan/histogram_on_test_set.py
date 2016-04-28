@@ -39,7 +39,6 @@ for line in text_file:
     print path[0]
     print words[4]
     print file_name[1]
-    break
 
     predictions = gender_detector.genderator(path[0])
 
