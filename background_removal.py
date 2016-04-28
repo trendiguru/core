@@ -7,13 +7,15 @@ from Tkinter import Tk
 from tkFileDialog import askopenfilename
 import collections
 import os
-
+import dlib
 import cv2
 import numpy as np
 
 from . import constants
 from . import Utils
 from . import ccv_facedetector as ccv
+
+detector = dlib.get_frontal_face_detector()
 
 
 def image_is_relevant(image, use_caffe=False, image_url=None):
@@ -79,6 +81,14 @@ def find_face_cascade(image, max_num_of_faces=10):
         )
         if len(faces) > 0:
             break
+    if len(faces) == 0:
+        return {'are_faces': False, 'faces': []}
+    return {'are_faces': True, 'faces': choose_faces(image, faces, max_num_of_faces)}
+
+
+def find_face_dlib(image, max_num_of_faces=10):
+    faces = detector(image, 1)
+    faces = [[rect.left(), rect.top(), rect.width(), rect.height()] for rect in list(faces)]
     if len(faces) == 0:
         return {'are_faces': False, 'faces': []}
     return {'are_faces': True, 'faces': choose_faces(image, faces, max_num_of_faces)}
