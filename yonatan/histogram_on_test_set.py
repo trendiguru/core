@@ -34,7 +34,7 @@ for line in text_file:
     if words == []:
         continue
 
-    file_name = words[3].split()
+    file_name = words[4].split()
 
     print path[0]
     print words[4]
