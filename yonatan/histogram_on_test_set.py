@@ -27,30 +27,34 @@ counter = 0
 for line in text_file:
     counter += 1
 
+    # split line to full path and label
     path = line.split()
-    #split line to link and label
+
+
     words = line.split("/")
 
     if words == []:
         continue
 
-    file_name = words[4].split()
+    #file_name = words[4].split()
 
     print path[0]
-    print words[4]
-    print file_name[1]
+    print path[1]
+    #print words[4]
+    #print file_name[1]
+    break
 
     predictions = gender_detector.genderator(path[0])
 
     #if the gender_detector is right
-    if (predictions[0][0] > predictions[0][1]) and (file_name[1] == 0):
+    if (predictions[0][0] > predictions[0][1]) and (path[1] == 0):
         array_success = np.append(array_success, predictions[0][0])
-    elif (predictions[0][1] > predictions[0][0]) and (file_name[1] == 1):
+    elif (predictions[0][1] > predictions[0][0]) and (path[1] == 1):
         array_success = np.append(array_success, predictions[0][1])
     # if the gender_detector is wrong
-    if (predictions[0][0] > predictions[0][1]) and (file_name[1] == 1):
+    if (predictions[0][0] > predictions[0][1]) and (path[1] == 1):
         array_failure = np.append(array_failure, predictions[0][0])
-    elif (predictions[0][1] > predictions[0][0]) and (file_name[1] == 0):
+    elif (predictions[0][1] > predictions[0][0]) and (path[1] == 0):
         array_failure = np.append(array_failure, predictions[0][1])
 
     print counter
