@@ -643,7 +643,7 @@ def resize_and_crop_maintain_bb_on_dir(dir, output_width = 150, output_height = 
         fullfile = os.path.join(dir,a_file)
         retval = resize_and_crop_maintain_bb(fullfile, output_width = 150, output_height = 200,use_visual_output=True,bb=None)
 
-def show_mask_with_labels_dir(dir,filter=None,labels=None,original_images_dir=None,original_images_dir_alt=None):
+def show_mask_with_labels_dir(dir,filter=None,labels=constants.fashionista_categories_augmented_zero_based,original_images_dir=None,original_images_dir_alt=None):
     '''
 
     :param dir:
@@ -653,13 +653,18 @@ def show_mask_with_labels_dir(dir,filter=None,labels=None,original_images_dir=No
     :param original_images_dir_alt: alternate dir of images (to deal with test/train directories)
     :return:
     '''
-    files = [f for f in os.listdir(dir) if filter in f]
+    if filter:
+        print('using filter:'+filter)
+        files = [f for f in os.listdir(dir) if filter in f]
+    else:
+        files = [f for f in os.listdir(dir) ]
     fullpaths = [os.path.join(dir,f) for f in files]
     totfrac = 0
     fraclist=[]
     n=0
     if original_images_dir:
-        original_images = [f.split(filter)[0]+'.jpg' for f in files]
+        original_images = ['.'.join(f.split('.')[:-1])+'.jpg' for f in files]
+#        original_images = [f.split('.')[-2]+'.jpg' for f in files]
         original_fullpaths = [os.path.join(original_images_dir,f) for f in original_images]
         if original_images_dir_alt:
             original_altfullpaths = [os.path.join(original_images_dir_alt,f) for f in original_images]
@@ -679,7 +684,7 @@ def show_mask_with_labels_dir(dir,filter=None,labels=None,original_images_dir=No
             else:
                 logging.warning(' does not exist:'+original_fullpaths[x])
     else:
-        for f in files:
+        for f in fullpaths:
             frac = show_mask_with_labels(f,labels)
             if frac is not None:
                 fraclist.append(frac)
@@ -708,7 +713,7 @@ def show_mask_with_labels(mask_filename,labels,original_image=None):
     if len(img_arr.shape) != 2:
         logging.warning('got a multichannel image, using chan 0')
         img_arr = img_arr[:,:,0]
-    histo = np.histogram(img_arr,bins=56)
+    histo = np.histogram(img_arr,bins=len(labels)-1)
     print('hist'+str(histo[0]))
     h,w = img_arr.shape[0:2]
     n_nonzero = np.count_nonzero(img_arr)
@@ -747,7 +752,7 @@ def show_mask_with_labels(mask_filename,labels,original_image=None):
         colorbar[i*bar_height:i*bar_height+bar_height,:] = unique
 
 #        cv2.putText(colorbar,labels[unique],(5,i*bar_height+bar_height/2-10),cv2.FONT_HERSHEY_PLAIN,1,[i*255/len(uniques),i*255/len(uniques),100],thickness=2)
-        cv2.putText(colorbar,labels[unique],(5,i*bar_height+bar_height/2-5),cv2.FONT_HERSHEY_PLAIN,1,[100,200,0],thickness=2)
+        cv2.putText(colorbar,labels[unique],(5,i*bar_height+bar_height/2-5),cv2.FONT_HERSHEY_PLAIN,1,[50,200,200],thickness=2)
         i=i+1
 
     scaled_colorbar = np.uint8(np.multiply(colorbar, max_huelevel / maxVal))
@@ -760,8 +765,8 @@ def show_mask_with_labels(mask_filename,labels,original_image=None):
     dest_colorbar = cv2.cvtColor(dest_colorbar,cv2.COLOR_HSV2BGR)
     #dest_colorbar = cv2.applyColorMap(scaled_colorbar, colormap)
     combined = np.zeros([h,w+w_colorbar,3])
-    combined[:,0:w_colorbar,:]=dest_colorbar[:,:,:]
-    combined[:,w_colorbar:w_colorbar+w,:]=dest[:,:,:]
+    combined[:,0:w_colorbar]=dest_colorbar
+    combined[:,w_colorbar:w_colorbar+w]=dest
     cv2.imshow('map',dest)
     cv2.imshow('colorbar',dest_colorbar)
     cv2.imshow('combined',combined)
@@ -775,7 +780,7 @@ def show_mask_with_labels(mask_filename,labels,original_image=None):
             cv2.imshow('original',orig_arr)
         else:
             logging.warning('could not get image '+original_image)
-    cv2.waitKey(100)
+    cv2.waitKey(0)
     return frac
 #        cv2.destroyAllWindows()
 #        return dest
