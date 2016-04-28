@@ -713,7 +713,7 @@ def show_mask_with_labels(mask_filename,labels,original_image=None):
     if len(img_arr.shape) != 2:
         logging.warning('got a multichannel image, using chan 0')
         img_arr = img_arr[:,:,0]
-    histo = np.histogram(img_arr,bins=56)
+    histo = np.histogram(img_arr,bins=len(labels)-1)
     print('hist'+str(histo[0]))
     h,w = img_arr.shape[0:2]
     n_nonzero = np.count_nonzero(img_arr)
