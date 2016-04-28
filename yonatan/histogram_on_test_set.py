@@ -30,19 +30,8 @@ for line in text_file:
     # split line to full path and label
     path = line.split()
 
-
-    words = line.split("/")
-
-    if words == []:
+    if path == []:
         continue
-
-    #file_name = words[4].split()
-
-    print path[0]
-    print path[1]
-    #print words[4]
-    #print file_name[1]
-    break
 
     predictions = gender_detector.genderator(path[0])
 
