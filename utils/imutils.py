@@ -282,6 +282,57 @@ def resize_and_crop_image( input_file_or_np_arr, output_file=None, output_side_l
         cv2.imwrite(output_file, cropped_img)
     return cropped_img
 
+def resize_keep_aspect(input_file_or_np_arr, output_file=None, output_size = (300,200),use_visual_output=False):
+    '''
+    Takes an image name/arr, resize keeping aspect ratio, filling extra areas with edge values
+    :param input_file_or_np_arr:
+    :param output_file:name for output
+    :param output_size:size of output image (height,width)
+    :param use_visual_output:
+    :return:
+    '''
+
+    if isinstance(input_file_or_np_arr,basestring):
+        input_file_or_np_arr = cv2.imread(input_file_or_np_arr)
+
+    inheight, inwidth = input_file_or_np_arr.shape[0:2]
+    outheight, outwidth = output_size[:]
+    out_ar = float(outheight)/outwidth
+    in_ar = float(inheight)/inwidth
+    if len(input_file_or_np_arr.shape) == 3:
+        indepth = input_file_or_np_arr.shape[2]
+        output_img = np.ones([outheight,outwidth,indepth],dtype=np.uint8)
+    else:
+        indepth = 1
+        output_img = np.ones([outheight,outwidth],dtype=np.uint8)
+    print('input:{}x{}x{}'.format(inheight,inwidth,indepth))
+    actual_outheight, actual_outwidth = output_img.shape[0:2]
+    print('output<:{}x{}'.format(actual_outheight,actual_outwidth))
+    if out_ar < in_ar:  #resize height to output height and fill left/right
+        factor = float(inheight)/outheight
+        new_width = int(float(inwidth) / factor)
+        resized_img = cv2.resize(input_file_or_np_arr, (new_width, outheight))
+        width_offset = (outwidth - new_width ) / 2
+        output_img[:,width_offset:width_offset+new_width] = resized_img
+    else:   #resize width to output width and fill top/bottom
+        factor = float(inwidth)/outwidth
+        new_height = int(float(inheight) / factor)
+        resized_img = cv2.resize(input_file_or_np_arr, (outwidth, new_height))
+        print('resize size:'+str(resized_img.shape))
+        height_offset = (outheight - new_height) / 2
+        output_img[height_offset:height_offset+new_height,:,:] = resized_img[:,:,:]
+
+    if use_visual_output is True:
+        cv2.imshow('output', output_img)
+        cv2.imshow('orig',input_file_or_np_arr)
+        cv2.imshow('res',resized_img)
+        cv2.waitKey(0)
+    if output_file is not None:
+        cv2.imwrite(output_file, output_img)
+    return output_img
+#dst = cv2.inpaint(img,mask,3,cv2.INPAINT_TELEA)
+
+
 def resize_and_crop_maintain_bb( input_file_or_np_arr, output_file=None, output_width = 150, output_height = 200,use_visual_output=False,bb=None):
     '''Takes an image name, resize it and crop the center square
     '''
@@ -927,18 +978,20 @@ if __name__ == "__main__":
 
     indir = '/home/jeremy/image_dbs/colorful_fashion_parsing_data/labels_200x150'
     outdir = '/home/jeremy/image_dbs/colorful_fashion_parsing_data/labels_200x150/reduced_cats'
-    defenestrate_directory(indir,outdir,filter='.png',keep_these_cats=[1,55,56,57],labels=constants.fashionista_categories_augmented)
+#    defenestrate_directory(indir,outdir,filter='.png',keep_these_cats=[1,55,56,57],labels=constants.fashionista_categories_augmented)
 
     if host == 'jr-ThinkPad-X1-Carbon' or host == 'jr':
         dir_of_dirs = '/home/jeremy/tg/train_pairs_dresses'
         output_dir = '/home/jeremy/tg/curated_train_pairs_dresses'
         sourcedir = '/home/jeremy/projects/core/d1'
         targetdir = '/home/jeremy/projects/core/d2'
+        infile =  '/home/jeremy/projects/core/images/female1.jpg'
     else:
         dir_of_dirs = '/home/jeremy/core/classifier_stuff/caffe_nns/dataset/cropped'
         output_dir = '/home/jeremy/core/classifier_stuff/caffe_nns/curated_dataset'
 
  #   kill_the_missing(sourcedir, targetdir)
+    resize_keep_aspect(infile, output_file=None, output_size = (300,200),use_visual_output=True)
 
 
 
