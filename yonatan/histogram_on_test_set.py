@@ -71,7 +71,8 @@ for line in text_file:
         array_failure = np.append(array_failure, predictions[0][1])
 
     print counter
-    print predictions
+    print predictions[0][0]
+    print predictions[0][1]
     print array_failure
     print array_success
 
