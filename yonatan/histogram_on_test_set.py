@@ -70,8 +70,8 @@ for line in text_file:
     elif (predictions[0][0] > predictions[0][1]) and (path[1] == 1):
         print '333333333333333'
         array_failure = np.append(array_failure, predictions[0][0])
-    elif (predictions[0][1] > predictions[0][0]) and (path[1] == 0)
-        print '44444444444444'
+    elif (predictions[0][1] > predictions[0][0]) and (path[1] == 0):
+        print '444444444444444'
         array_failure = np.append(array_failure, predictions[0][1])
 
     print counter
