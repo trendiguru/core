@@ -654,6 +654,7 @@ def show_mask_with_labels_dir(dir,filter=None,labels=constants.fashionista_categ
     :return:
     '''
     if filter:
+        print('using filter:'+filter)
         files = [f for f in os.listdir(dir) if filter in f]
     else:
         files = [f for f in os.listdir(dir) ]
