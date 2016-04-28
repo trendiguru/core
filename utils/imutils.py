@@ -780,7 +780,7 @@ def show_mask_with_labels(mask_filename,labels,original_image=None):
             cv2.imshow('original',orig_arr)
         else:
             logging.warning('could not get image '+original_image)
-    cv2.waitKey(100)
+    cv2.waitKey(0)
     return frac
 #        cv2.destroyAllWindows()
 #        return dest
