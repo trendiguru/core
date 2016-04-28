@@ -7,13 +7,15 @@ from Tkinter import Tk
 from tkFileDialog import askopenfilename
 import collections
 import os
-
+import dlib
 import cv2
 import numpy as np
 
 from . import constants
 from . import Utils
 from . import ccv_facedetector as ccv
+
+detector = dlib.get_frontal_face_detector()
 
 
 def image_is_relevant(image, use_caffe=False, image_url=None):
@@ -28,19 +30,17 @@ def image_is_relevant(image, use_caffe=False, image_url=None):
     - "for face in image_is_relevant(image).faces:"
     """
     Relevance = collections.namedtuple('relevance', 'is_relevant faces')
-    faces_dict = find_face_cascade(image, 10)
-    if len(faces_dict['faces']) == 0:
-        faces_dict = find_face_ccv(image, 10)
+    faces_dict - find_face_dlib(image, 10)
+    # faces_dict = find_face_cascade(image, 10)
+    # if len(faces_dict['faces']) == 0:
+    #     faces_dict = find_face_ccv(image, 10)
     if not faces_dict['are_faces']:
         # if use_caffe:
         # return Relevance(caffeDocker_test.is_person_in_img('url', image_url).is_person, [])
         # else:
         return Relevance(False, [])
     else:
-        if len(faces_dict['faces']) > 0:
-            return Relevance(True, faces_dict['faces'])
-        else:
-            return Relevance(False, [])
+        return Relevance(True, faces_dict['faces'])
 
 
 def find_face_ccv(image_arr, max_num_of_faces=100):
@@ -79,6 +79,14 @@ def find_face_cascade(image, max_num_of_faces=10):
         )
         if len(faces) > 0:
             break
+    if len(faces) == 0:
+        return {'are_faces': False, 'faces': []}
+    return {'are_faces': True, 'faces': choose_faces(image, faces, max_num_of_faces)}
+
+
+def find_face_dlib(image, max_num_of_faces=10):
+    faces = detector(image, 1)
+    faces = [[rect.left(), rect.top(), rect.width(), rect.height()] for rect in list(faces)]
     if len(faces) == 0:
         return {'are_faces': False, 'faces': []}
     return {'are_faces': True, 'faces': choose_faces(image, faces, max_num_of_faces)}
