@@ -49,7 +49,7 @@ for line in text_file:
     elif (predictions[0][1] > predictions[0][0]) and (file_name[1] == 0):
         array_failure = np.append(array_failure, predictions[0][1])
 
-print counter
+    print counter
 
 
 histogram=plt.figure(1)
