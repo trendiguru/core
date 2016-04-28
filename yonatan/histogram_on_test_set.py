@@ -36,6 +36,8 @@ for line in text_file:
 
     file_name = words[3].split()
 
+    print path
+
     predictions = gender_detector.genderator(path)
 
     #if the gender_detector is right
