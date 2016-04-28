@@ -14,6 +14,7 @@ from PIL import Image
 from . import gender_detector
 import random
 import matplotlib.pyplot as plt
+import numpy as np
 
 
 #path = '/home/yonatan/55k_test_set'
@@ -24,6 +25,21 @@ text_file = open("55k_face_test_list.txt", "r")
 
 counter = 0
 
+MODLE_FILE = "/home/yonatan/trendi/yonatan/Alexnet_deploy.prototxt"
+PRETRAINED = "/home/yonatan/alexnet_imdb_first_try/caffe_alexnet_train_faces_iter_10000.caffemodel"
+caffe.set_mode_gpu()
+image_dims = [115, 115]
+mean, input_scale = None, None
+channel_swap = [2, 1, 0]
+raw_scale = 255.0
+ext = 'jpg'
+
+# Make classifier.
+classifier = caffe.Classifier(MODLE_FILE, PRETRAINED,
+                              image_dims=image_dims, mean=mean,
+                              input_scale=input_scale, raw_scale=raw_scale,
+                              channel_swap=channel_swap)
+
 for line in text_file:
     counter += 1
 
@@ -33,7 +49,16 @@ for line in text_file:
     if path == []:
         continue
 
-    predictions = gender_detector.genderator(path[0])
+    # Load numpy array (.npy), directory glob (*.jpg), or image file.
+    input_file = os.path.expanduser(path[0])
+    inputs = [caffe.io.load_image(input_file)]
+
+    print("Classifying %d inputs." % len(inputs))
+
+    # Classify.
+    start = time.time()
+    predictions = classifier.predict(inputs)
+    print("Done in %.2f s." % (time.time() - start))
 
     #if the gender_detector is right
     if (predictions[0][0] > predictions[0][1]) and (path[1] == 0):
