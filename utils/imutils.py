@@ -643,7 +643,7 @@ def resize_and_crop_maintain_bb_on_dir(dir, output_width = 150, output_height = 
         fullfile = os.path.join(dir,a_file)
         retval = resize_and_crop_maintain_bb(fullfile, output_width = 150, output_height = 200,use_visual_output=True,bb=None)
 
-def show_mask_with_labels_dir(dir,filter=None,labels=None,original_images_dir=None,original_images_dir_alt=None):
+def show_mask_with_labels_dir(dir,filter=None,labels=constants.fashionista_categories_augmented_zero_based,original_images_dir=None,original_images_dir_alt=None):
     '''
 
     :param dir:
@@ -653,13 +653,17 @@ def show_mask_with_labels_dir(dir,filter=None,labels=None,original_images_dir=No
     :param original_images_dir_alt: alternate dir of images (to deal with test/train directories)
     :return:
     '''
-    files = [f for f in os.listdir(dir) if filter in f]
+    if filter:
+        files = [f for f in os.listdir(dir) if filter in f]
+    else:
+        files = [f for f in os.listdir(dir) ]
     fullpaths = [os.path.join(dir,f) for f in files]
     totfrac = 0
     fraclist=[]
     n=0
     if original_images_dir:
-        original_images = [f.split(filter)[0]+'.jpg' for f in files]
+        original_images = ['.'.join(f.split('.')[:-1])+'.jpg' for f in files]
+#        original_images = [f.split('.')[-2]+'.jpg' for f in files]
         original_fullpaths = [os.path.join(original_images_dir,f) for f in original_images]
         if original_images_dir_alt:
             original_altfullpaths = [os.path.join(original_images_dir_alt,f) for f in original_images]
@@ -679,7 +683,7 @@ def show_mask_with_labels_dir(dir,filter=None,labels=None,original_images_dir=No
             else:
                 logging.warning(' does not exist:'+original_fullpaths[x])
     else:
-        for f in files:
+        for f in fullpaths:
             frac = show_mask_with_labels(f,labels)
             if frac is not None:
                 fraclist.append(frac)
