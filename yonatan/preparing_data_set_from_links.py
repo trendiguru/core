@@ -109,6 +109,9 @@ for set in sets:
         #split line to link and label
         words = file_as_array_by_lines.split()
 
+        if words == []:
+            continue
+
         face_image = find_face(words[0])
         if face_image == 'Fail':
             continue

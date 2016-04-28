@@ -30,8 +30,8 @@ for set in sets:
 
                 words = file.split('.')
 
-                cv2.imwrite(os.path.join(root, words[0] + '-mirrored.' + words[1]), mirrored_image)
+                cv2.imwrite(os.path.join(root, str(words[0]) + '-mirrored.' + str(words[1])), mirrored_image)
 
                 counter += 1
                 print counter
-                print root
+                print os.path.join(root, words[0] + '-mirrored.' + words[1])

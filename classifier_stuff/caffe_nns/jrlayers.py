@@ -150,11 +150,11 @@ class SBDDSegDataLayer(caffe.Layer):
             - transpose to channel x height x width order
             """
     #	print('IN LOAD IMAGE self idx is :'+str(idx)+' type:'+str(type(idx)))
-            filename = self.imagefiles[idx]
+            filename = self.imagefiles[self.idx]
         full_filename=os.path.join(self.images_dir,filename)
         print('imagefile:'+full_filename)
         while(1):
-            filename = self.imagefiles[idx]
+            filename = self.imagefiles[self.idx]
             full_filename=os.path.join(self.images_dir,filename)
             label_filename=self.determine_label_filename(self.idx)
             if not(os.path.isfile(label_filename) and os.path.isfile(full_filename)):
@@ -196,6 +196,10 @@ class SBDDSegDataLayer(caffe.Layer):
         if im is None:
             print(' COULD NOT LOAD FILE '+full_filename)
             in_ = np.array(im, dtype=np.uint8)
+
+        if len(in_.shape) == 3:
+            logging.warning('got 3 layer img as mask, taking first layer')
+            in_ = in_[:,:,0]
         in_ = in_ - 1
         print('uniques of label:'+str(np.unique(in_))+' shape:'+str(in_.shape))
             label = copy.copy(in_[np.newaxis, ...])

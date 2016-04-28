@@ -15,6 +15,7 @@ import multiprocessing
 import socket
 import copy
 from trendi import constants
+import matplotlib.pyplot as plt
 
 os.environ['REDIS_HOST']='10'
 os.environ['MONGO_HOST']='10'
@@ -642,52 +643,140 @@ def resize_and_crop_maintain_bb_on_dir(dir, output_width = 150, output_height = 
         fullfile = os.path.join(dir,a_file)
         retval = resize_and_crop_maintain_bb(fullfile, output_width = 150, output_height = 200,use_visual_output=True,bb=None)
 
-def show_mask_with_labels_dir(dir,filter='.bmp',labels=constants.fashionista_categories_augmented_zero_based):
-    files = [os.path.join(dir,f) for f in os.listdir(dir) if filter in f]
-    for f in files:
-        show_mask_with_labels(f,labels)
+def show_mask_with_labels_dir(dir,filter=None,labels=None,original_images_dir=None,original_images_dir_alt=None):
+    '''
 
-def show_mask_with_labels(mask_filename,labels):
+    :param dir:
+    :param filter:  take only images with this substring in name
+    :param labels: list of test labels for categories
+    :param original_images_dir: dir of image (not labels)
+    :param original_images_dir_alt: alternate dir of images (to deal with test/train directories)
+    :return:
+    '''
+    files = [f for f in os.listdir(dir) if filter in f]
+    fullpaths = [os.path.join(dir,f) for f in files]
+    totfrac = 0
+    fraclist=[]
+    n=0
+    if original_images_dir:
+        original_images = [f.split(filter)[0]+'.jpg' for f in files]
+        original_fullpaths = [os.path.join(original_images_dir,f) for f in original_images]
+        if original_images_dir_alt:
+            original_altfullpaths = [os.path.join(original_images_dir_alt,f) for f in original_images]
+        for x in range(0,len(files)):
+            if os.path.exists(original_fullpaths[x]):
+                frac = show_mask_with_labels(fullpaths[x],labels,original_image=original_fullpaths[x])
+                if frac is not None:
+                    fraclist.append(frac)
+                    totfrac = totfrac + frac
+                    n=n+1
+            elif original_images_dir_alt and os.path.exists(original_altfullpaths[x]):
+                frac = show_mask_with_labels(fullpaths[x],labels,original_image=original_altfullpaths[x])
+                if frac is not None:
+                    fraclist.append(frac)
+                    totfrac = totfrac + frac
+                    n=n+1
+            else:
+                logging.warning(' does not exist:'+original_fullpaths[x])
+    else:
+        for f in files:
+            frac = show_mask_with_labels(f,labels)
+            if frac is not None:
+                fraclist.append(frac)
+                totfrac = totfrac + frac
+                n=n+1
+    if totfrac:
+        print('avg frac of image w nonzero pixels:'+str(totfrac/n))
+    hist, bins = np.histogram(fraclist, bins=30)
+    width = 0.7 * (bins[1] - bins[0])
+    center = (bins[:-1] + bins[1:]) / 2
+    plt.bar(center, hist, align='center', width=width,label='nonzero pixelcount')
+    plt.show()
+    plt.legend()
+    plt.savefig('outhist.jpg')
+    print('fraction histogram:'+str(np.histogram(fraclist,bins=20)))
+
+
+
+def show_mask_with_labels(mask_filename,labels,original_image=None):
     colormap = cv2.COLORMAP_JET
-    img_arr = Utils.get_cv2_img_array(mask_filename)
-#    img_arr = cv2.imread(mask_filename, cv2.IMREAD_GRAYSCALE)
-    s = img_arr.shape
-    print(s)
-    if len(s) != 2:
+    img_arr = Utils.get_cv2_img_array(mask_filename,cv2.IMREAD_GRAYSCALE)
+    if img_arr is None:
+        logging.warning('trouble with file '+mask_filename)
+        return
+    print('file:'+mask_filename+',size'+str(img_arr.shape))
+    if len(img_arr.shape) != 2:
         logging.warning('got a multichannel image, using chan 0')
         img_arr = img_arr[:,:,0]
+    histo = np.histogram(img_arr,bins=56)
+    print('hist'+str(histo[0]))
     h,w = img_arr.shape[0:2]
+    n_nonzero = np.count_nonzero(img_arr)
+    n_tot = h*w
+    frac = float(n_nonzero)/n_tot
     uniques = np.unique(img_arr)
-    print('number of unique mask values:'+str(len(uniques)))
+    print('number of unique mask values:'+str(len(uniques))+' frac nonzero:'+str(frac))
     if len(uniques)>len(labels):
         logging.warning('number of unique mask values > number of labels!!!')
         return
-    if img_arr is not None:
-        # minVal, maxVal, minLoc, maxLoc = cv2.minMaxLoc(img_array)
-        maxVal = len(labels)
-        scaled = np.uint8(np.multiply(img_arr, 255.0 / maxVal))
-        dest = cv2.applyColorMap(scaled,colormap)
-        bar_height = int(float(h)/len(uniques))
-        bar_width = 100
-        colorbar = np.zeros([bar_height*len(uniques),bar_width])
-        i = 0
-        print('len labels:'+str(len(labels)))
-        for unique in uniques:
-            if unique > len(labels):
-                logging.warning('pixel value out of label range')
-                continue
-            print('unique:'+str(unique)+':'+labels[unique])
-            colorbar[i*bar_height:i*bar_height+bar_height,:] = unique
+    # minVal, maxVal, minLoc, maxLoc = cv2.minMaxLoc(img_array)
+    maxVal = len(labels)
+    max_huelevel = 160.0
+    satlevel = 200
+    vallevel = 200
+    scaled = np.uint8(np.multiply(img_arr, max_huelevel / maxVal))
+#        dest = cv2.applyColorMap(scaled,colormap)
+    dest = np.zeros([h,w,3])
+    dest[:,:,0] = scaled  #hue
+    dest[:,:,1] = satlevel   #saturation
+    dest[:,:,2] = vallevel   #value
+    print('type:'+str(type(dest)))
+    dest = dest.astype(np.uint8)
+    dest =  cv2.cvtColor(dest,cv2.COLOR_HSV2BGR)
+
+    bar_height = int(float(h)/len(uniques))
+    bar_width = 100
+    colorbar = np.zeros([h,bar_width])
+    i = 0
+    print('len labels:'+str(len(labels)))
+    for unique in uniques:
+        if unique > len(labels):
+            logging.warning('pixel value out of label range')
+            continue
+        print('unique:'+str(unique)+':'+labels[unique])
+        colorbar[i*bar_height:i*bar_height+bar_height,:] = unique
 
 #        cv2.putText(colorbar,labels[unique],(5,i*bar_height+bar_height/2-10),cv2.FONT_HERSHEY_PLAIN,1,[i*255/len(uniques),i*255/len(uniques),100],thickness=2)
-            cv2.putText(colorbar,labels[unique],(5,i*bar_height+bar_height/2-10),cv2.FONT_HERSHEY_PLAIN,1,[100,100,100],thickness=2)
-            i=i+1
+        cv2.putText(colorbar,labels[unique],(5,i*bar_height+bar_height/2-5),cv2.FONT_HERSHEY_PLAIN,1,[100,200,0],thickness=2)
+        i=i+1
 
-        scaled_colorbar = np.uint8(np.multiply(colorbar, 255.0 / maxVal))
-        dest_colorbar = cv2.applyColorMap(scaled_colorbar, colormap)
-        cv2.imshow('map',dest)
-        cv2.imshow('colorbar',dest_colorbar)
-        cv2.waitKey(0)
+    scaled_colorbar = np.uint8(np.multiply(colorbar, max_huelevel / maxVal))
+    h_colorbar,w_colorbar = scaled_colorbar.shape[0:2]
+    dest_colorbar = np.zeros([h_colorbar,w_colorbar,3])
+    dest_colorbar[:,:,0] = scaled_colorbar  #hue
+    dest_colorbar[:,:,1] = satlevel   #saturation
+    dest_colorbar[:,:,2] = vallevel  #value
+    dest_colorbar = dest_colorbar.astype(np.uint8)
+    dest_colorbar = cv2.cvtColor(dest_colorbar,cv2.COLOR_HSV2BGR)
+    #dest_colorbar = cv2.applyColorMap(scaled_colorbar, colormap)
+    combined = np.zeros([h,w+w_colorbar,3])
+    combined[:,0:w_colorbar,:]=dest_colorbar[:,:,:]
+    combined[:,w_colorbar:w_colorbar+w,:]=dest[:,:,:]
+    cv2.imshow('map',dest)
+    cv2.imshow('colorbar',dest_colorbar)
+    cv2.imshow('combined',combined)
+    if original_image is not None:
+        orig_arr = cv2.imread(original_image)
+        if orig_arr is not None:
+            height, width = orig_arr.shape[:2]
+            if height>400:
+                print('got a big one, resizing')
+                orig_arr = cv2.resize(orig_arr,(int(width*400.0/height),400))
+            cv2.imshow('original',orig_arr)
+        else:
+            logging.warning('could not get image '+original_image)
+    cv2.waitKey(100)
+    return frac
 #        cv2.destroyAllWindows()
 #        return dest
 

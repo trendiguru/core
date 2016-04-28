@@ -16,17 +16,17 @@ import random
 import matplotlib.pyplot as plt
 
 
-mypath_female = '/home/yonatan/test_set/female'
+path = '/home/yonatan/55k_test_set'
 array_boys_success = np.array([])
 array_girls_success = np.array([])
 array_boys_failure = np.array([])
 array_girls_failure = np.array([])
 
 female_count = 0
-text_file = open("face_testing.txt", "w")
-for root, dirs, files in os.walk(mypath_female):
+#text_file = open("face_testing.txt", "w")
+for root, dirs, files in os.walk(path):
     for file in files:
-        if file.startswith("face-"):
+        #if file.startswith("face-"):
             predictions = gender_detector.genderator(root + "/" + file)
             if predictions[0][0] > predictions[0][1]:
                 array_boys_failure = np.append(array_boys_failure, predictions[0][0])
