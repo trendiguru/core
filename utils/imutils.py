@@ -270,8 +270,8 @@ def resize_and_crop_image( input_file_or_np_arr, output_file=None, output_side_l
     else:
         new_width = output_side_length * width / height
     resized_img = cv2.resize(input_file_or_np_arr, (new_width, new_height))
-    height_offset = (new_height - output_side_length) / 2
-    width_offset = (new_width - output_side_length) / 2
+    height_offset = int((new_height - output_side_length) / 2)
+    width_offset = int((new_width - output_side_length) / 2)
     cropped_img = resized_img[height_offset:height_offset + output_side_length,
                               width_offset:width_offset + output_side_length]
     if use_visual_output is True:
@@ -318,11 +318,12 @@ def resize_keep_aspect(input_file_or_np_arr, output_file=None, output_size = (30
         output_img = np.ones([outheight,outwidth],dtype=np.uint8)
     print('input:{}x{}x{}'.format(inheight,inwidth,indepth))
     actual_outheight, actual_outwidth = output_img.shape[0:2]
-    print('output<:{}x{}'.format(actual_outheight,actual_outwidth))
+    print('output:{}x{}'.format(actual_outheight,actual_outwidth))
     if out_ar < in_ar:  #resize height to output height and fill left/right
         factor = float(inheight)/outheight
         new_width = int(float(inwidth) / factor)
         resized_img = cv2.resize(input_file_or_np_arr, (new_width, outheight))
+        print('<resize size:'+str(resized_img.shape)+' outw:'+str(outwidth)+' neww:'+str(new_width))
         width_offset = (outwidth - new_width ) / 2
         output_img[:,width_offset:width_offset+new_width] = resized_img
         output_img[:,0:width_offset] = resized_img[:,0]
@@ -331,7 +332,7 @@ def resize_keep_aspect(input_file_or_np_arr, output_file=None, output_size = (30
         factor = float(inwidth)/outwidth
         new_height = int(float(inheight) / factor)
         resized_img = cv2.resize(input_file_or_np_arr, (outwidth, new_height))
-        print('resize size:'+str(resized_img.shape))
+        print('<resize size:'+str(resized_img.shape)+' outh:'+str(outheight)+' neww:'+str(new_height))
         height_offset = (outheight - new_height) / 2
         output_img[height_offset:height_offset+new_height,:,:] = resized_img[:,:,:]
         output_img[0:height_offset,:] = resized_img[0,:]
