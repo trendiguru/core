@@ -325,7 +325,7 @@ def resize_keep_aspect(input_file_or_np_arr, output_file=None, output_size = (30
         resized_img = cv2.resize(input_file_or_np_arr, (new_width, outheight))
         print('<resize size:'+str(resized_img.shape)+' outw:'+str(outwidth)+' neww:'+str(new_width))
         width_offset = (outwidth - new_width ) / 2
-        output_img[:,width_offset:width_offset+new_width] = resized_img
+        output_img[:,width_offset:width_offset+new_width,:] = resized_img[:,:,:]
         output_img[:,0:width_offset] = resized_img[:,0]
         output_img[:,width_offset+new_width:] = resized_img[:,-1]
     else:   #resize width to output width and fill top/bottom
