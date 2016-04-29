@@ -314,6 +314,8 @@ def resize_keep_aspect(input_file_or_np_arr, output_file=None, output_size = (30
         resized_img = cv2.resize(input_file_or_np_arr, (new_width, outheight))
         width_offset = (outwidth - new_width ) / 2
         output_img[:,width_offset:width_offset+new_width] = resized_img
+        output_img[:,0:width_offset] = resized_img[:,0]
+        output_img[:,width_offset+new_width:] = resized_img[:,-1]
     else:   #resize width to output width and fill top/bottom
         factor = float(inwidth)/outwidth
         new_height = int(float(inheight) / factor)
@@ -321,6 +323,8 @@ def resize_keep_aspect(input_file_or_np_arr, output_file=None, output_size = (30
         print('resize size:'+str(resized_img.shape))
         height_offset = (outheight - new_height) / 2
         output_img[height_offset:height_offset+new_height,:,:] = resized_img[:,:,:]
+        output_img[0:height_offset,:] = resized_img[0,:]
+        output_img[height_offset+new_height:,:] = resized_img[-1,:]
 
     if use_visual_output is True:
         cv2.imshow('output', output_img)
@@ -815,22 +819,35 @@ def show_mask_with_labels(mask_filename,labels,original_image=None):
     dest_colorbar = dest_colorbar.astype(np.uint8)
     dest_colorbar = cv2.cvtColor(dest_colorbar,cv2.COLOR_HSV2BGR)
     #dest_colorbar = cv2.applyColorMap(scaled_colorbar, colormap)
-    combined = np.zeros([h,w+w_colorbar,3])
+    combined = np.zeros([h,w+w_colorbar,3],dtype=np.uint8)
     combined[:,0:w_colorbar]=dest_colorbar
     combined[:,w_colorbar:w_colorbar+w]=dest
-    cv2.imshow('map',dest)
-    cv2.imshow('colorbar',dest_colorbar)
-    cv2.imshow('combined',combined)
     if original_image is not None:
         orig_arr = cv2.imread(original_image)
         if orig_arr is not None:
             height, width = orig_arr.shape[:2]
             if height>400:
                 print('got a big one, resizing')
-                orig_arr = cv2.resize(orig_arr,(int(width*400.0/height),400))
+                factor = 400.0/height
+                orig_arr = cv2.resize(orig_arr,(int(width*factor),400))
+                colorbar_w,colorbar_h = dest_colorbar.shape[0:2]
+                dest_colorbar = cv2.resize(dest_colorbar,(int(colorbar_w*factor),int(colorbar_h*factor)))
+                dest_w,dest_h = dest.shape[0:2]
+                dest = cv2.resize(dest,(int(dest_w*factor),int(dest_h*factor)))
             cv2.imshow('original',orig_arr)
+            colorbar_w,colorbar_h = dest_colorbar.shape[0:2]
+            dest_w,dest_h = dest.shape[0:2]
+
+            combined = np.zeros([dest_h,dest_w*2+colorbar_w,3],dtype=np.uint8)
+            combined[:,0:colorbar_w]=dest_colorbar
+            combined[:,w_colorbar:w_colorbar+w]=dest
+            combined[:,w_colorbar+w:]=orig_arr
+
         else:
             logging.warning('could not get image '+original_image)
+    cv2.imshow('map',dest)
+    cv2.imshow('colorbar',dest_colorbar)
+    cv2.imshow('combined',combined)
     cv2.waitKey(0)
     return frac
 #        cv2.destroyAllWindows()
