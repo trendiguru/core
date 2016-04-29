@@ -289,7 +289,7 @@ def resize_keep_aspect_dir(dir,overwrite=False,output_size=(250,250),use_visual_
         if overwrite:
             newname = fullname
         else:
-            newname = file.split(filefilter)[0]+'resized_'+filefilter
+            newname = file.split(filefilter)[0]+'_resized'+filefilter
             newname = os.path.join(dir,newname)
         resize_keep_aspect(fullname, output_file=newname, output_size = output_size,use_visual_output=use_visual_output)
 
