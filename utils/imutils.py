@@ -282,6 +282,11 @@ def resize_and_crop_image( input_file_or_np_arr, output_file=None, output_side_l
         cv2.imwrite(output_file, cropped_img)
     return cropped_img
 
+def resize_keep_aspect_dir(dir,overwrite=False,output_size=(250,250),use_visual_output=False,filefilter='.jpg'):
+    files = [os.path.join(dir,f) for f in os.listdir(dir) if filter in f]
+    for file in files:
+        resize_keep_aspect(file, output_file=file, output_size = output_size,use_visual_output=use_visual_output)
+
 def resize_keep_aspect(input_file_or_np_arr, output_file=None, output_size = (300,200),use_visual_output=False):
     '''
     Takes an image name/arr, resize keeping aspect ratio, filling extra areas with edge values
