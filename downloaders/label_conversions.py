@@ -23,6 +23,13 @@ def color_fashion_to_fashionista():
         i=i+1
 
 def tamara_berg_improved_to_ultimate_21(dir_of_masks,overwrite=False,outdir=None,filter=None):
+    for ind in range(0,len(constants.tamara_berg_improved_categories)):
+        tup = constants.tamara_berg_improved_to_ultimate_21_index_conversion[ind]
+        ultimate21_index=tup[1]
+        if ultimate21_index <0:
+            print('unhandled category:'+str(ind)+' berg label:'+str(constants.tamara_berg_improved_categories[ind]))
+        else:
+            print('oldcat {} {} newcat {} {} '.format(ind,constants.tamara_berg_improved_categories[ind],ultimate21_index,constants.ultimate_21[ultimate21_index]))
     replace_labels_dir(dir_of_masks,constants.tamara_berg_improved_to_ultimate_21_index_conversion,overwrite=overwrite,outdir=outdir,filter=filter)
 
 def replace_labels_dir(dir_of_masks,index_conversion,overwrite=False,outdir=None,filter=None):
@@ -34,14 +41,6 @@ def replace_labels_dir(dir_of_masks,index_conversion,overwrite=False,outdir=None
     :param dir_of_masks:
     :return:
     '''
-    i=0
-    for ind in range(0,len(constants.tamara_berg_improved_categories)):
-        tup = constants.tamara_berg_improved_to_ultimate_21_index_conversion[ind]
-        ultimate21_index=tup[1]
-        if ultimate21_index <0:
-            print('unhandled category:'+str(ind)+' berg label:'+str(constants.tamara_berg_improved_categories[ind]))
-        else:
-            print('oldcat {} {} newcat {} {} '.format(ind,constants.tamara_berg_improved_categories[ind],ultimate21_index,constants.ultimate_21[ultimate21_index]))
     if filter:
         masks = [os.path.join(dir_of_masks,f) for f in os.listdir(dir_of_masks) if filter in f]
     else:
@@ -66,6 +65,12 @@ def replace_labels_dir(dir_of_masks,index_conversion,overwrite=False,outdir=None
 
 def replace_labels(file,index_conversion):
     mask=cv2.imread(file,cv2.IMREAD_GRAYSCALE)
+    if mask is None:
+        logging.warning('could not get file:'+file)
+        return None
+    if len(mask.shape)==3:
+        logging.warning('multichannel mask, taking chan 0')
+        mask=mask[:,:,0]
     uniques = np.unique(file)
     for u in uniques:
         newvals = [v[1] for v in index_conversion if v[0]==u] #find indice(s) of vals matching unique
