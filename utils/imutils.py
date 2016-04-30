@@ -853,11 +853,12 @@ def show_mask_with_labels(mask_filename,labels,original_image=None):
             cv2.imshow('original',orig_arr)
             colorbar_h,colorbar_w = dest_colorbar.shape[0:2]
             dest_h,dest_w = dest.shape[0:2]
+            orig_h,orig_w = orig_arr.shape[0:2]
             print('colobar size {} supposedly {}'.format(dest_colorbar.shape,colorbar_w))
             combined = np.zeros([dest_h,dest_w*2+colorbar_w,3],dtype=np.uint8)
             combined[:,0:colorbar_w]=dest_colorbar
-            combined[:,w_colorbar:w_colorbar+w]=dest
-            combined[:,w_colorbar+w:]=orig_arr
+            combined[:,colorbar_w:colorbar_w+dest_w]=dest
+            combined[:,colorbar_w+dest_w+orig_w:]=orig_arr
 
         else:
             logging.warning('could not get image '+original_image)
