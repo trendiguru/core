@@ -883,21 +883,29 @@ def show_mask_with_labels(mask_filename,labels,original_image=None,cut_the_crap=
 
         else:
             logging.warning('could not get image '+original_image)
-    cv2.imshow('map',dest)
-    cv2.imshow('colorbar',dest_colorbar)
+ #   cv2.imshow('map',dest)
+ #   cv2.imshow('colorbar',dest_colorbar)
     cv2.imshow('combined',combined)
     k = cv2.waitKey(0)
-    if cut_the_crap:
+    if cut_the_crap:  #move selected to dir_removed, move rest to dir_kept
         print('(d)elete anything else keeps')
+        indir = os.path.dirname(mask_filename)
+        parentdir = os.path.abspath(os.path.join(indir, os.pardir))
+        curdir = os.path.split(dir)[1]
         if k == ord('d'):
-            indir = os.path.dirname(mask_filename)
-            parentdir = os.path.abspath(os.path.join(indir, os.pardir))
-            curdir = os.path.split(dir)[1]
             newdir = curdir+'_removed'
             dest_dir = os.path.join(parentdir,newdir)
             Utils.ensure_dir(dest_dir)
-            print('moving {} to {}'.format(mask_filename,dest_dir))
+            print('REMOVING moving {} to {}'.format(mask_filename,dest_dir))
             shutil.move(mask_filename,dest_dir)
+
+        else:
+            newdir = curdir+'_kept'
+            dest_dir = os.path.join(parentdir,newdir)
+            Utils.ensure_dir(dest_dir)
+            print('KEEPING moving {} to {}'.format(mask_filename,dest_dir))
+            shutil.move(mask_filename,dest_dir)
+
 
     return frac,k
 #        cv2.destroyAllWindows()
