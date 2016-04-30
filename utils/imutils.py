@@ -723,6 +723,7 @@ def show_mask_with_labels_dir(dir,labels,filter=None,original_images_dir=None,or
     :param labels: list of test labels for categories
     :param original_images_dir: dir of image (not labels)
     :param original_images_dir_alt: alternate dir of images (to deal with test/train directories)
+    :param cut_the_crap: sort images to keepers and tossers
     :return:
     '''
     if filter:
@@ -859,23 +860,23 @@ def show_mask_with_labels(mask_filename,labels,original_image=None,cut_the_crap=
                 print('got a big one (hxw {}x{}) resizing'.format(height,width))
                 factor = 400.0/height
                 orig_arr = cv2.resize(orig_arr,(int(round(width*factor)),400))
-                print('factor {} newsize {}'.format(factor,orig_arr.shape) )
+#                print('factor {} newsize {}'.format(factor,orig_arr.shape) )
 
                 colorbar_h,colorbar_w = dest_colorbar.shape[0:2]
                 factor = 400.0/colorbar_h
                 dest_colorbar = cv2.resize(dest_colorbar,(int(round(colorbar_w*factor)),int(round(colorbar_h*factor))))
-                print('cbarfactor {} newsize {}'.format(factor,dest_colorbar.shape) )
+#                print('cbarfactor {} newsize {}'.format(factor,dest_colorbar.shape) )
 
                 dest_h,dest_w = dest.shape[0:2]
                 factor = 400.0/dest_h
                 dest = cv2.resize(dest,(int(round(dest_w*factor)),int(round(dest_h*factor))))
-                print('maskfactor {} newsize {}'.format(factor,dest.shape) )
+#                print('maskfactor {} newsize {}'.format(factor,dest.shape) )
 
         #    cv2.imshow('original',orig_arr)
             colorbar_h,colorbar_w = dest_colorbar.shape[0:2]
             dest_h,dest_w = dest.shape[0:2]
             orig_h,orig_w = orig_arr.shape[0:2]
-            print('colobar size {} masksize {} imsize {}'.format(dest_colorbar.shape,dest.shape,orig_arr.shape))
+#            print('colobar size {} masksize {} imsize {}'.format(dest_colorbar.shape,dest.shape,orig_arr.shape))
             combined = np.zeros([dest_h,dest_w+orig_w+colorbar_w,3],dtype=np.uint8)
             combined[:,0:colorbar_w]=dest_colorbar
             combined[:,colorbar_w:colorbar_w+dest_w]=dest
@@ -888,7 +889,7 @@ def show_mask_with_labels(mask_filename,labels,original_image=None,cut_the_crap=
     cv2.imshow('combined',combined)
     k = cv2.waitKey(0)
     if cut_the_crap:  #move selected to dir_removed, move rest to dir_kept
-        print('(d)elete anything else keeps')
+        print('(d)elete (c)lose anything else keeps')
         indir = os.path.dirname(mask_filename)
         parentdir = os.path.abspath(os.path.join(indir, os.pardir))
         curdir = os.path.split(indir)[1]
@@ -898,6 +899,13 @@ def show_mask_with_labels(mask_filename,labels,original_image=None,cut_the_crap=
             dest_dir = os.path.join(parentdir,newdir)
             Utils.ensure_dir(dest_dir)
             print('REMOVING moving {} to {}'.format(mask_filename,dest_dir))
+            shutil.move(mask_filename,dest_dir)
+
+        elif k == ord('c'):
+            newdir = curdir+'_needwork'
+            dest_dir = os.path.join(parentdir,newdir)
+            Utils.ensure_dir(dest_dir)
+            print('CLOSE so moving {} to {}'.format(mask_filename,dest_dir))
             shutil.move(mask_filename,dest_dir)
 
         else:
