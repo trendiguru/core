@@ -823,7 +823,7 @@ def show_mask_with_labels(mask_filename,labels,original_image=None):
         colorbar[i*bar_height:i*bar_height+bar_height,:] = unique
 
 #        cv2.putText(colorbar,labels[unique],(5,i*bar_height+bar_height/2-10),cv2.FONT_HERSHEY_PLAIN,1,[i*255/len(uniques),i*255/len(uniques),100],thickness=2)
-        cv2.putText(colorbar,labels[unique],(5,i*bar_height+bar_height/2-5),cv2.FONT_HERSHEY_PLAIN,1,[0,10,50],thickness=2)
+#        cv2.putText(colorbar,labels[unique],(5,i*bar_height+bar_height/2-5),cv2.FONT_HERSHEY_PLAIN,1,[0,10,50],thickness=2)
         i=i+1
 
     scaled_colorbar = np.uint8(np.multiply(colorbar, max_huelevel / maxVal))
@@ -834,6 +834,15 @@ def show_mask_with_labels(mask_filename,labels,original_image=None):
     dest_colorbar[:,:,2] = vallevel  #value
     dest_colorbar = dest_colorbar.astype(np.uint8)
     dest_colorbar = cv2.cvtColor(dest_colorbar,cv2.COLOR_HSV2BGR)
+
+ #have to do labels here to get black
+    for unique in uniques:
+        if unique > len(labels):
+            logging.warning('pixel value out of label range')
+            continue
+        cv2.putText(colorbar,labels[unique],(5,i*bar_height+bar_height/2-5),cv2.FONT_HERSHEY_PLAIN,1,[0,10,50],thickness=2)
+        i=i+1
+
     #dest_colorbar = cv2.applyColorMap(scaled_colorbar, colormap)
     combined = np.zeros([h,w+w_colorbar,3],dtype=np.uint8)
     combined[:,0:w_colorbar]=dest_colorbar
