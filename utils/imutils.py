@@ -847,8 +847,10 @@ def show_mask_with_labels(mask_filename,labels,original_image=None):
                 factor = 400.0/height
                 orig_arr = cv2.resize(orig_arr,(int(width*factor),400))
                 colorbar_h,colorbar_w = dest_colorbar.shape[0:2]
+                factor = 400.0/colorbar_h
                 dest_colorbar = cv2.resize(dest_colorbar,(int(colorbar_w*factor),int(colorbar_h*factor)))
                 dest_h,dest_w = dest.shape[0:2]
+                factor = 400.0/dest_h
                 dest = cv2.resize(dest,(int(dest_w*factor),int(dest_h*factor)))
             cv2.imshow('original',orig_arr)
             colorbar_h,colorbar_w = dest_colorbar.shape[0:2]
