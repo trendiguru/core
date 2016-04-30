@@ -896,6 +896,7 @@ def show_mask_with_labels(mask_filename,labels,original_image=None,cut_the_crap=
             newdir = curdir+'_removed'
             dest_dir = os.path.join(parentdir,newdir)
             Utils.ensure_dir(dest_dir)
+            print('moving {} to {}'.format(mask_filename,dest_dir))
             shutil.move(mask_filename,dest_dir)
 
     return frac,k
