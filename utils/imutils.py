@@ -823,7 +823,7 @@ def show_mask_with_labels(mask_filename,labels,original_image=None):
         colorbar[i*bar_height:i*bar_height+bar_height,:] = unique
 
 #        cv2.putText(colorbar,labels[unique],(5,i*bar_height+bar_height/2-10),cv2.FONT_HERSHEY_PLAIN,1,[i*255/len(uniques),i*255/len(uniques),100],thickness=2)
-        cv2.putText(colorbar,labels[unique],(5,i*bar_height+bar_height/2-5),cv2.FONT_HERSHEY_PLAIN,1,[10,50,50],thickness=2)
+        cv2.putText(colorbar,labels[unique],(5,i*bar_height+bar_height/2-5),cv2.FONT_HERSHEY_PLAIN,1,[0,10,50],thickness=2)
         i=i+1
 
     scaled_colorbar = np.uint8(np.multiply(colorbar, max_huelevel / maxVal))
@@ -846,17 +846,17 @@ def show_mask_with_labels(mask_filename,labels,original_image=None):
                 print('got a big one (hxw {}x{}) resizing'.format(height,width))
                 factor = 400.0/height
                 orig_arr = cv2.resize(orig_arr,(int(width*factor),400))
-                print('factor {} newsize {}'.format(factor,orig_arr.size) )
+                print('factor {} newsize {}'.format(factor,orig_arr.shape) )
 
                 colorbar_h,colorbar_w = dest_colorbar.shape[0:2]
                 factor = 400.0/colorbar_h
                 dest_colorbar = cv2.resize(dest_colorbar,(int(colorbar_w*factor),int(colorbar_h*factor)))
-                print('cbarfactor {} newsize {}'.format(factor,dest_colorbar.size) )
+                print('cbarfactor {} newsize {}'.format(factor,dest_colorbar.shape) )
 
                 dest_h,dest_w = dest.shape[0:2]
                 factor = 400.0/dest_h
                 dest = cv2.resize(dest,(int(dest_w*factor),int(dest_h*factor)))
-                print('maskfactor {} newsize {}'.format(factor,dest.size) )
+                print('maskfactor {} newsize {}'.format(factor,dest.shape) )
 
             cv2.imshow('original',orig_arr)
             colorbar_h,colorbar_w = dest_colorbar.shape[0:2]
