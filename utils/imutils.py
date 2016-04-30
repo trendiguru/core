@@ -860,7 +860,7 @@ def show_mask_with_labels(mask_filename,labels,original_image=None):
             combined = np.zeros([dest_h,dest_w*2+colorbar_w,3],dtype=np.uint8)
             combined[:,0:colorbar_w]=dest_colorbar
             combined[:,colorbar_w:colorbar_w+dest_w]=dest
-            combined[:,colorbar_w+dest_w+orig_w:]=orig_arr
+            combined[:,colorbar_w+dest_w:]=orig_arr
 
         else:
             logging.warning('could not get image '+original_image)
