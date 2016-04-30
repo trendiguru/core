@@ -284,14 +284,13 @@ tamara_berg_improved_categories = ['bag','belt','dress','eyewear','footwear','ha
 #21 cats for direct replacement of VOC systems
 #lose the necklace,
 #combine tights and leggings
-#combine blazer and vest
 ultimate_21 = ['background','bag','belt','blouse','bra','dress','eyewear','footwear','hat','jeans',
                              'legging','outerwear','pants','shorts','skin','skirts','suit','sweatshirt', 'tie','top',
                              'vest']
 
 tamara_berg_improved_to_ultimate_21_index_conversion = [(0,1),(1,2),(2,5),(3,6),(4,7),(5,8),(6,10),(7,11),(8,12),(9,15),
-                                               (10,19),(11,14),(12,0),(13,10),(14,13),(15,19),(16,4),(17,20),(18,16),(19,9),
-                                               (20,-1),(21,19),(22,18),(23,19)]
+                  (10,19),(11,14),(12,0),(13,10),(14,13),(15,19),(16,4),(17,20),(18,16),(19,9),
+                  (20,0),(21,19),(22,18),(23,19)]
 
 fashionista_to_ultimate_21_index_conversion = []
 
