@@ -891,7 +891,8 @@ def show_mask_with_labels(mask_filename,labels,original_image=None,cut_the_crap=
         print('(d)elete anything else keeps')
         indir = os.path.dirname(mask_filename)
         parentdir = os.path.abspath(os.path.join(indir, os.pardir))
-        curdir = os.path.split(dir)[1]
+        curdir = os.path.split(indir)[1]
+        print('in {} parent {} cur {}'.format(indir,parentdir,curdir))
         if k == ord('d'):
             newdir = curdir+'_removed'
             dest_dir = os.path.join(parentdir,newdir)
