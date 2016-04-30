@@ -47,6 +47,9 @@ def replace_labels_dir(dir_of_masks,index_conversion,overwrite=False,outdir=None
         masks = [os.path.join(dir_of_masks,f) for f in os.listdir(dir_of_masks)]
     for f in masks:
         mask_arr=replace_labels(f,index_conversion)
+        if mask_arr is None:
+            logging.warning('got no file')
+            continue
         if len(mask_arr.shape)==3:
             logging.warning('multichannel mask, taking chan 0')
             mask_arr=mask_arr[:,:,0]
