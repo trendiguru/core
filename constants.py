@@ -276,8 +276,8 @@ colorful_fashion_to_fashionista_index_conversion = [(0,0),(1,4),(2,5),(3,27),(4,
 tamara_berg_categories = ['bag', 'belt', 'dress', 'eyewear', 'footwear', 'hat', 'legging', 'outerwear', 'pants',
                           'skirts', 'top', 'skin', 'background']   # orig t.b. cats don't have skin or bg
 
-tamara_berg_improved_categories = ['bag','belt','dress','eyewear','footwear','hat','legging','outerwear','pants','skirts',
-                                   'top','skin','background','tights','shorts','blouse','bra','vest','suit','jeans',
+tamara_berg_improved_categories = ['background','belt','dress','eyewear','footwear','hat','legging','outerwear','pants','skirts',
+                                   'top','skin','BAG????','tights','shorts','blouse','bra','vest','suit','jeans',
                                    'necklace','sweatshirt','tie']
 #I think nadav used 'baground' ie bag actually means background, so maybe background (label 12) means bag
 
