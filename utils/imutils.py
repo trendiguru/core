@@ -871,7 +871,7 @@ def show_mask_with_labels(mask_filename,labels,original_image=None,cut_the_crap=
                 dest = cv2.resize(dest,(int(round(dest_w*factor)),int(round(dest_h*factor))))
                 print('maskfactor {} newsize {}'.format(factor,dest.shape) )
 
-            cv2.imshow('original',orig_arr)
+        #    cv2.imshow('original',orig_arr)
             colorbar_h,colorbar_w = dest_colorbar.shape[0:2]
             dest_h,dest_w = dest.shape[0:2]
             orig_h,orig_w = orig_arr.shape[0:2]
