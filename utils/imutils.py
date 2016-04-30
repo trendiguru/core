@@ -873,7 +873,7 @@ def show_mask_with_labels(mask_filename,labels,original_image=None):
             dest_h,dest_w = dest.shape[0:2]
             orig_h,orig_w = orig_arr.shape[0:2]
             print('colobar size {} masksize {} imsize {}'.format(dest_colorbar.shape,dest.shape,orig_arr.shape))
-            combined = np.zeros([dest_h,dest_w*2+colorbar_w,3],dtype=np.uint8)
+            combined = np.zeros([dest_h,dest_w+orig_w+colorbar_w,3],dtype=np.uint8)
             combined[:,0:colorbar_w]=dest_colorbar
             combined[:,colorbar_w:colorbar_w+dest_w]=dest
             combined[:,colorbar_w+dest_w:]=orig_arr
