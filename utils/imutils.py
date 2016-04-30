@@ -836,11 +836,12 @@ def show_mask_with_labels(mask_filename,labels,original_image=None):
     dest_colorbar = cv2.cvtColor(dest_colorbar,cv2.COLOR_HSV2BGR)
 
  #have to do labels here to get black
+    i = 0
     for unique in uniques:
         if unique > len(labels):
             logging.warning('pixel value out of label range')
             continue
-        cv2.putText(colorbar,labels[unique],(5,i*bar_height+bar_height/2-5),cv2.FONT_HERSHEY_PLAIN,1,[0,10,50],thickness=2)
+        cv2.putText(dest_colorbar,labels[unique],(5,i*bar_height+bar_height/2-5),cv2.FONT_HERSHEY_PLAIN,1,[0,10,50],thickness=2)
         i=i+1
 
     #dest_colorbar = cv2.applyColorMap(scaled_colorbar, colormap)
