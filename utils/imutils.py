@@ -851,8 +851,8 @@ def show_mask_with_labels(mask_filename,labels,original_image=None):
                 dest_w,dest_h = dest.shape[0:2]
                 dest = cv2.resize(dest,(int(dest_w*factor),int(dest_h*factor)))
             cv2.imshow('original',orig_arr)
-            colorbar_w,colorbar_h = dest_colorbar.shape[0:2]
-            dest_w,dest_h = dest.shape[0:2]
+            colorbar_h,colorbar_w = dest_colorbar.shape[0:2]
+            dest_h,dest_w = dest.shape[0:2]
 
             combined = np.zeros([dest_h,dest_w*2+colorbar_w,3],dtype=np.uint8)
             combined[:,0:colorbar_w]=dest_colorbar
