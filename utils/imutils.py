@@ -1044,6 +1044,33 @@ def nms_detections(dets, overlap=0.3):
     return dets[pick, :]
 
 
+def img_dir_to_html(img_dir,filter='.jpg',htmlname=None):
+    imglist = [i for i in os.listdir(img_dir) if filter in i]
+    line_no=0
+    lines=[]
+    lines.append('<HTML><HEAD><TITLE>results '+img_dir+' </TITLE></HEAD>\n')
+    for img in imglist:
+        lines.append('<br>\n')
+        link = '"'+img_dir+'/'+img+'"'
+        lines.append('<a href='+link+'>'+img+'</a>\n')
+    lines.append('</HTML>\n')
+
+
+    if htmlname is None:
+        parentdir = os.path.abspath(os.path.join(img_dir, os.pardir))
+        htmlname=parentdir+'.html'
+        htmlname=img_dir.replace('/','_')+'.html'
+    with open(htmlname,'w') as f
+        f.write(lines)
+
+'''
+<HTML><HEAD><TITLE>classifier, fingerprint results</TITLE>
+<br>
+<a href="classifier_results/600x400_output_010516.html">fcnn 600x400 results 010516 </a>
+ accuracy = 0.842419 loss=0.58 tpi:0.38593655467
+'''
+
+
 host = socket.gethostname()
 print('host:'+str(host))
 
