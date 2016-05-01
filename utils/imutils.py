@@ -892,7 +892,7 @@ def show_mask_with_labels(mask_filename,labels,original_image=None,cut_the_crap=
     k = cv2.waitKey(0)
     if save_images:
         relative_name = os.path.basename(mask_filename)
-        outname=relative_name.split('.jpg')[0]
+        outname=relative_name.split('.bmp')[0]
         outname=outname+'_legend.jpg'
         full_outname=os.path.join(os.path.dirname(mask_filename),outname)
         print(full_outname)
