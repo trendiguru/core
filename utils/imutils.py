@@ -925,9 +925,9 @@ def show_mask_with_labels(mask_filename,labels,original_image=None,cut_the_crap=
             print('KEEPING moving {} to {}'.format(mask_filename,dest_dir))
             shutil.move(mask_filename,dest_dir)
 
+    cv2.destroyAllWindows()
 
     return frac,k
-#        cv2.destroyAllWindows()
 #        return dest
 
 def show_mask_with_labels_from_img_arr(mask,labels):
