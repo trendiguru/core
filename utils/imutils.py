@@ -846,7 +846,7 @@ def show_mask_with_labels(mask_filename,labels,original_image=None,cut_the_crap=
             continue
         pixelcount = len(img_arr[img_arr==unique])
         print('unique:'+str(unique)+':'+labels[unique]+' pixcount:'+str(pixelcount))
-        cv2.putText(dest_colorbar,labels[unique]+' '+str(pixelcount),(5,i*bar_height+bar_height/2-5),cv2.FONT_HERSHEY_PLAIN,1,[0,10,50],thickness=2)
+        cv2.putText(dest_colorbar,labels[unique]+' '+str(pixelcount),(5,int(i*bar_height+float(bar_height)/2),cv2.FONT_HERSHEY_PLAIN,1,[0,10,50],thickness=1)
         i=i+1
 
     #dest_colorbar = cv2.applyColorMap(scaled_colorbar, colormap)
@@ -888,10 +888,10 @@ def show_mask_with_labels(mask_filename,labels,original_image=None,cut_the_crap=
             logging.warning('could not get image '+original_image)
  #   cv2.imshow('map',dest)
  #   cv2.imshow('colorbar',dest_colorbar)
-    cv2.imshow('combined',combined)
+    relative_name = os.path.basename(mask_filename)
+    cv2.imshow(relative_name,combined)
     k = cv2.waitKey(0)
     if save_images:
-        relative_name = os.path.basename(mask_filename)
         outname=relative_name.split('.bmp')[0]
         outname=outname+'_legend.jpg'
         full_outname=os.path.join(os.path.dirname(mask_filename),outname)
