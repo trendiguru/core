@@ -87,7 +87,7 @@ def find_face_cascade(image, max_num_of_faces=10):
 def find_face_dlib(image, max_num_of_faces=10):
     faces = detector(image, 1)
     faces = [[rect.left(), rect.top(), rect.width(), rect.height()] for rect in list(faces)]
-    if len(faces) == 0:
+    if not len(faces):
         return {'are_faces': False, 'faces': []}
     return {'are_faces': True, 'faces': choose_faces(image, faces, max_num_of_faces)}
 
