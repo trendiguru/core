@@ -1053,6 +1053,7 @@ def img_dir_to_html(img_dir,filter='.jpg',htmlname=None):
         parentdir = os.path.abspath(os.path.join(img_dir, os.pardir))
         htmlname=parentdir+'.html'
         htmlname=img_dir.replace('/','_')+'.html'
+        htmlname=img_dir.replace('/','')+'.html'
     with open(htmlname,'w') as f:
         lines.append('<HTML><HEAD><TITLE>results '+img_dir+' </TITLE></HEAD>\n')
         for img in imglist:
@@ -1060,7 +1061,6 @@ def img_dir_to_html(img_dir,filter='.jpg',htmlname=None):
             link = '"'+img_dir+'/'+img+'"'
             f.write('<a href='+link+'>'+img+'</a>\n')
         f.write('</HTML>\n')
-        f.write(lines)
         f.close()
 
 '''
