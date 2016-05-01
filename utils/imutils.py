@@ -715,7 +715,7 @@ def resize_and_crop_maintain_bb_on_dir(dir, output_width = 150, output_height = 
         fullfile = os.path.join(dir,a_file)
         retval = resize_and_crop_maintain_bb(fullfile, output_width = 150, output_height = 200,use_visual_output=True,bb=None)
 
-def show_mask_with_labels_dir(dir,labels,filter=None,original_images_dir=None,original_images_dir_alt=None,cut_the_crap=False):
+def show_mask_with_labels_dir(dir,labels,filter=None,original_images_dir=None,original_images_dir_alt=None,cut_the_crap=False,save_images=False):
     '''
 
     :param dir:
@@ -743,13 +743,13 @@ def show_mask_with_labels_dir(dir,labels,filter=None,original_images_dir=None,or
             original_altfullpaths = [os.path.join(original_images_dir_alt,f) for f in original_images]
         for x in range(0,len(files)):
             if os.path.exists(original_fullpaths[x]):
-                frac,k = show_mask_with_labels(fullpaths[x],labels,original_image=original_fullpaths[x],cut_the_crap=cut_the_crap)
+                frac,k = show_mask_with_labels(fullpaths[x],labels,original_image=original_fullpaths[x],cut_the_crap=cut_the_crap,save_images=save_images)
                 if frac is not None:
                     fraclist.append(frac)
                     totfrac = totfrac + frac
                     n=n+1
             elif original_images_dir_alt and os.path.exists(original_altfullpaths[x]):
-                frac,k = show_mask_with_labels(fullpaths[x],labels,original_image=original_altfullpaths[x],cut_the_crap=cut_the_crap)
+                frac,k = show_mask_with_labels(fullpaths[x],labels,original_image=original_altfullpaths[x],cut_the_crap=cut_the_crap,save_images=save_images)
                 if frac is not None:
                     fraclist.append(frac)
                     totfrac = totfrac + frac
@@ -760,7 +760,7 @@ def show_mask_with_labels_dir(dir,labels,filter=None,original_images_dir=None,or
 
     else:
         for f in fullpaths:
-            frac,k = show_mask_with_labels(f,labels,cut_the_crap=cut_the_crap)
+            frac,k = show_mask_with_labels(f,labels,cut_the_crap=cut_the_crap,save_images=save_images)
             if frac is not None:
                 fraclist.append(frac)
                 totfrac = totfrac + frac
@@ -778,7 +778,7 @@ def show_mask_with_labels_dir(dir,labels,filter=None,original_images_dir=None,or
 
 
 
-def show_mask_with_labels(mask_filename,labels,original_image=None,cut_the_crap=False):
+def show_mask_with_labels(mask_filename,labels,original_image=None,cut_the_crap=False,save_images=False):
     colormap = cv2.COLORMAP_JET
     img_arr = Utils.get_cv2_img_array(mask_filename,cv2.IMREAD_GRAYSCALE)
     if img_arr is None:
@@ -890,6 +890,14 @@ def show_mask_with_labels(mask_filename,labels,original_image=None,cut_the_crap=
  #   cv2.imshow('colorbar',dest_colorbar)
     cv2.imshow('combined',combined)
     k = cv2.waitKey(0)
+    if save_images:
+        relative_name = os.path.basename(mask_filename)
+        outname=relative_name.split('.jpg')[0]
+        outname=outname+'_legend.jpg'
+        full_outname=os.path.join(os.path.dirname(mask_filename),outname)
+        print('outname:'full_outname)
+        cv2.imwrite(full_outname)
+
     if cut_the_crap:  #move selected to dir_removed, move rest to dir_kept
         print('(d)elete (c)lose anything else keeps')
         indir = os.path.dirname(mask_filename)
