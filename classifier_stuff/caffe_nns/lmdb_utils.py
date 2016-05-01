@@ -426,7 +426,7 @@ def fcn_individual_dirs_to_lmdb(image_dbname,label_dbname,image_dir,label_dir,re
                 label_file = a_file.split(imgsuffix)[0]+labelsuffix
                 full_image_name = os.path.join(image_dir,a_file)
                 full_label_name = os.path.join(label_dir,label_file)
-                label_name = a_file.split(imgfilter)[0]
+                label_name = a_file.split(imgsuffix)[0]
                 #img_arr = mpimg.imread(fullname)  #if you don't have cv2 handy use matplotlib
                 print('imagefile:'+full_image_name)
                 print('labelfile:'+full_label_name)
