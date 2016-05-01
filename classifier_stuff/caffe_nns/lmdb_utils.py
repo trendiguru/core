@@ -401,7 +401,7 @@ def fcn_individual_dirs_to_lmdb(image_dbname,label_dbname,image_dir,label_dir,re
         imagefiles = [f for f in os.listdir(image_dir)]
     imagefiles.sort()
     imagefiles=imagefiles[0:maxfiles]
-    print(str(len(imagefiles))+' relevant images in '+dir_of_dirs)
+    print(str(len(imagefiles))+' relevant images in '+image_dir)
 #    if shuffle:
 #        print('shuffling images')
 #        random.shuffle(imagefiles)  #this gets confusing as now the class labels change every time
