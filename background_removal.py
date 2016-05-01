@@ -30,7 +30,7 @@ def image_is_relevant(image, use_caffe=False, image_url=None):
     - "for face in image_is_relevant(image).faces:"
     """
     Relevance = collections.namedtuple('relevance', 'is_relevant faces')
-    faces_dict - find_face_dlib(image, 10)
+    faces_dict = find_face_dlib(image, 10)
     # faces_dict = find_face_cascade(image, 10)
     # if len(faces_dict['faces']) == 0:
     #     faces_dict = find_face_ccv(image, 10)
