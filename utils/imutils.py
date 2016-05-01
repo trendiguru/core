@@ -1059,7 +1059,7 @@ def img_dir_to_html(img_dir,filter='.jpg',htmlname=None):
         for img in imglist:
             f.write('<br>\n')
             link = '"'+os.path.join(img_dir,img)+'"'
-            f.write('<img src='+link+'>'
+            f.write('<img src='+link+'>')
             #f.write('<a href='+link+'>'+img+'</a>\n')
         f.write('</HTML>\n')
         f.close()
