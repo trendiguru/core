@@ -715,7 +715,7 @@ def resize_and_crop_maintain_bb_on_dir(dir, output_width = 150, output_height = 
         fullfile = os.path.join(dir,a_file)
         retval = resize_and_crop_maintain_bb(fullfile, output_width = 150, output_height = 200,use_visual_output=True,bb=None)
 
-def show_mask_with_labels_dir(dir,labels,filter=None,original_images_dir=None,original_images_dir_alt=None,cut_the_crap=False):
+def show_mask_with_labels_dir(dir,labels,filter=None,original_images_dir=None,original_images_dir_alt=None,cut_the_crap=False,save_images=False):
     '''
 
     :param dir:
@@ -743,13 +743,13 @@ def show_mask_with_labels_dir(dir,labels,filter=None,original_images_dir=None,or
             original_altfullpaths = [os.path.join(original_images_dir_alt,f) for f in original_images]
         for x in range(0,len(files)):
             if os.path.exists(original_fullpaths[x]):
-                frac,k = show_mask_with_labels(fullpaths[x],labels,original_image=original_fullpaths[x],cut_the_crap=cut_the_crap)
+                frac,k = show_mask_with_labels(fullpaths[x],labels,original_image=original_fullpaths[x],cut_the_crap=cut_the_crap,save_images=save_images)
                 if frac is not None:
                     fraclist.append(frac)
                     totfrac = totfrac + frac
                     n=n+1
             elif original_images_dir_alt and os.path.exists(original_altfullpaths[x]):
-                frac,k = show_mask_with_labels(fullpaths[x],labels,original_image=original_altfullpaths[x],cut_the_crap=cut_the_crap)
+                frac,k = show_mask_with_labels(fullpaths[x],labels,original_image=original_altfullpaths[x],cut_the_crap=cut_the_crap,save_images=save_images)
                 if frac is not None:
                     fraclist.append(frac)
                     totfrac = totfrac + frac
@@ -760,7 +760,7 @@ def show_mask_with_labels_dir(dir,labels,filter=None,original_images_dir=None,or
 
     else:
         for f in fullpaths:
-            frac,k = show_mask_with_labels(f,labels,cut_the_crap=cut_the_crap)
+            frac,k = show_mask_with_labels(f,labels,cut_the_crap=cut_the_crap,save_images=save_images)
             if frac is not None:
                 fraclist.append(frac)
                 totfrac = totfrac + frac
@@ -778,7 +778,7 @@ def show_mask_with_labels_dir(dir,labels,filter=None,original_images_dir=None,or
 
 
 
-def show_mask_with_labels(mask_filename,labels,original_image=None,cut_the_crap=False):
+def show_mask_with_labels(mask_filename,labels,original_image=None,cut_the_crap=False,save_images=False):
     colormap = cv2.COLORMAP_JET
     img_arr = Utils.get_cv2_img_array(mask_filename,cv2.IMREAD_GRAYSCALE)
     if img_arr is None:
@@ -823,8 +823,6 @@ def show_mask_with_labels(mask_filename,labels,original_image=None,cut_the_crap=
         if unique > len(labels):
             logging.warning('pixel value out of label range')
             continue
-        pixelcount = len(img_arr[img_arr==unique])
-        print('unique:'+str(unique)+':'+labels[unique]+' pixcount:'+str(pixelcount))
         colorbar[i*bar_height:i*bar_height+bar_height,:] = unique
 
 #        cv2.putText(colorbar,labels[unique],(5,i*bar_height+bar_height/2-10),cv2.FONT_HERSHEY_PLAIN,1,[i*255/len(uniques),i*255/len(uniques),100],thickness=2)
@@ -846,7 +844,9 @@ def show_mask_with_labels(mask_filename,labels,original_image=None,cut_the_crap=
         if unique > len(labels):
             logging.warning('pixel value out of label range')
             continue
-        cv2.putText(dest_colorbar,labels[unique],(5,i*bar_height+bar_height/2-5),cv2.FONT_HERSHEY_PLAIN,1,[0,10,50],thickness=2)
+        pixelcount = len(img_arr[img_arr==unique])
+        print('unique:'+str(unique)+':'+labels[unique]+' pixcount:'+str(pixelcount))
+        cv2.putText(dest_colorbar,labels[unique]+' '+str(pixelcount),(5,int(i*bar_height+float(bar_height)/2+5)),cv2.FONT_HERSHEY_PLAIN,1,[0,10,50],thickness=1)
         i=i+1
 
     #dest_colorbar = cv2.applyColorMap(scaled_colorbar, colormap)
@@ -888,8 +888,16 @@ def show_mask_with_labels(mask_filename,labels,original_image=None,cut_the_crap=
             logging.warning('could not get image '+original_image)
  #   cv2.imshow('map',dest)
  #   cv2.imshow('colorbar',dest_colorbar)
-    cv2.imshow('combined',combined)
+    relative_name = os.path.basename(mask_filename)
+    cv2.imshow(relative_name,combined)
     k = cv2.waitKey(0)
+    if save_images:
+        outname=relative_name.split('.bmp')[0]
+        outname=outname+'_legend.jpg'
+        full_outname=os.path.join(os.path.dirname(mask_filename),outname)
+        print(full_outname)
+        cv2.imwrite(full_outname,combined)
+
     if cut_the_crap:  #move selected to dir_removed, move rest to dir_kept
         print('(d)elete (c)lose anything else keeps')
         indir = os.path.dirname(mask_filename)
@@ -917,9 +925,9 @@ def show_mask_with_labels(mask_filename,labels,original_image=None,cut_the_crap=
             print('KEEPING moving {} to {}'.format(mask_filename,dest_dir))
             shutil.move(mask_filename,dest_dir)
 
+    cv2.destroyAllWindows()
 
     return frac,k
-#        cv2.destroyAllWindows()
 #        return dest
 
 def show_mask_with_labels_from_img_arr(mask,labels):
@@ -1034,6 +1042,34 @@ def nms_detections(dets, overlap=0.3):
         ind = ind[np.nonzero(o <= overlap)[0]]
 
     return dets[pick, :]
+
+
+def img_dir_to_html(img_dir,filter='.jpg',htmlname=None):
+    imglist = [i for i in os.listdir(img_dir) if filter in i]
+    line_no=0
+    lines=[]
+
+    if htmlname is None:
+        parentdir = os.path.abspath(os.path.join(img_dir, os.pardir))
+        htmlname=parentdir+'.html'
+        htmlname=img_dir.replace('/','_')+'.html'
+        htmlname=img_dir.replace('/','')+'.html'
+    with open(htmlname,'w') as f:
+        lines.append('<HTML><HEAD><TITLE>results '+img_dir+' </TITLE></HEAD>\n')
+        for img in imglist:
+            f.write('<br>\n')
+            link = '"'+os.path.join(img_dir,img)+'"'
+            f.write('<img src='+link+'>')
+            #f.write('<a href='+link+'>'+img+'</a>\n')
+        f.write('</HTML>\n')
+        f.close()
+
+'''
+<HTML><HEAD><TITLE>classifier, fingerprint results</TITLE>
+<br>
+<a href="classifier_results/600x400_output_010516.html">fcnn 600x400 results 010516 </a>
+ accuracy = 0.842419 loss=0.58 tpi:0.38593655467
+'''
 
 
 host = socket.gethostname()
