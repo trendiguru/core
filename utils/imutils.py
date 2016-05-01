@@ -895,7 +895,7 @@ def show_mask_with_labels(mask_filename,labels,original_image=None,cut_the_crap=
         outname=relative_name.split('.jpg')[0]
         outname=outname+'_legend.jpg'
         full_outname=os.path.join(os.path.dirname(mask_filename),outname)
-        print('outname:'full_outname)
+        print(+full_outname)
         cv2.imwrite(full_outname)
 
     if cut_the_crap:  #move selected to dir_removed, move rest to dir_kept
