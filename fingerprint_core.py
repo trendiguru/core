@@ -4,14 +4,13 @@ all the old fingerprint testing functions were moved
 to old_fingerprint_stuff
 '''
 import logging
-
+import hashlib
 import cv2
 import numpy as np
 
 import background_removal
 import Utils
 import constants
-import page_results
 fingerprint_length = constants.fingerprint_length
 histograms_length = constants.histograms_length
 db = constants.db
@@ -79,7 +78,7 @@ def generate_mask_and_insert(doc, image_url=None, fp_date=None, coll="products")
     if not Utils.is_valid_image(image):
         logging.warning("image is None. url: {url}".format(url=image_url))
         return
-    img_hash = page_results.get_hash(image)
+    img_hash = get_hash(image)
     if db[coll].find_one({'img_hash': img_hash}):
         return
     small_image, resize_ratio = background_removal.standard_resize(image, 400)
@@ -107,4 +106,12 @@ def generate_mask_and_insert(doc, image_url=None, fp_date=None, coll="products")
         print "error inserting"
 
     return fp_as_list
+
+
+def get_hash(image):
+    m = hashlib.md5()
+    m.update(image)
+    url_hash = m.hexdigest()
+    return url_hash
+
 
