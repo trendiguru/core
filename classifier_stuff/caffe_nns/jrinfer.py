@@ -37,7 +37,7 @@ def infer(images,prototxt,caffemodel,out_dir='./'):
         result = Image.fromarray(out.astype(np.uint8))
     #        outname = im.strip('.png')[0]+'out.bmp'
             outname = os.path.basename(imagename)
-        outname = outname.split('.jpg')[0]+'out.bmp'
+        outname = outname.split('.jpg')[0]+'.bmp'
         outname = os.path.join(out_dir,outname)
         print('outname:'+outname)
             result.save(outname)

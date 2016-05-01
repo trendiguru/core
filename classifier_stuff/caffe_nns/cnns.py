@@ -1659,7 +1659,25 @@ if __name__ == "__main__":
 
 
 #to test
+        #make sure you have accuracy layer
+'''
+        layer {
+  name: "accuracy"
+  type: "Accuracy"
+  bottom: "score"
+  bottom: "label"
+  top: "accuracy"
+  include {
+    phase: TEST
+  }
+}
+'''
+
 #caffe test -model test.prototxt -weights model.caffemodel -gpu 0 -iterations 100
+#        /root/caffe/build/tools/caffe test -model val.prototxt -weights snapshot_nn2/train_iter_164620.caffemodel -gpu 0 -iterations 200
+
+
+
 #/opt/caffe/build/tools/caffe test -model cropped_dataset/my_solver.test.prototxt -weights cropped_dataset_iter_3000.caffemodel  -gpu 0 -iterations 500
 
 #run of googLeNet_1_inception started at 61G used 71G free mem
