@@ -376,7 +376,7 @@ def interleaved_dir_of_dirs_to_lmdb(dbname,dir_of_dirs,positive_filter=None,max_
     #You can also open up and inspect an existing LMDB database from Python:
 # assuming here that dataum.data, datum.channels, datum.width etc all exist as in dir_of_dirs_to_lmdb
 def fcn_individual_dirs_to_lmdb(image_dbname,label_dbname,image_dir,label_dir,resize_x=None,resize_y=None,avg_B=None,avg_G=None,avg_R=None,
-                     use_visual_output=False,imgsuffix='.jpg',labelsuffix='.png',shuffle=False):
+                     use_visual_output=False,imgsuffix='.jpg',labelsuffix='.png',shuffle=False,maxfiles=100):
     '''
     this puts data images and label images into separate dbs
     :param dbname:
@@ -400,6 +400,7 @@ def fcn_individual_dirs_to_lmdb(image_dbname,label_dbname,image_dir,label_dir,re
     else:
         imagefiles = [f for f in os.listdir(image_dir)]
     imagefiles.sort()
+    imagefiles=imagefiles[0:maxfiles]
     print(str(len(imagefiles))+' relevant images in '+dir_of_dirs)
 #    if shuffle:
 #        print('shuffling images')
