@@ -499,7 +499,7 @@ def fcn_individual_dirs_to_lmdb(image_dbname,label_dbname,image_dir,label_dir,re
                 print('img arr size:'+str(img_arr.shape)+ ' type:'+str(type(img_arr)))
                 datum.data = img_arr.tobytes()  # or .tostring() if numpy < 1.9
                 str_id = '{:08}'.format(image_number)
-                print('db: {} strid:{} imgshape {} labelshape {} imgname {} lblname {}'.format(dbname,str_id,img_arr.shape,label_arr.shape,a_file,label_name))
+                print('db: {} strid:{} imgshape {} labelshape {} imgname {} lblname {}'.format(image_dbname,str_id,img_arr.shape,label_arr.shape,a_file,label_name))
                 try:
                     txn_image.put(str_id.encode('ascii'), datum.SerializeToString())
         #            in_txn.put('{:0>10d}'.format(in_idx), im_dat.SerializeToString())
