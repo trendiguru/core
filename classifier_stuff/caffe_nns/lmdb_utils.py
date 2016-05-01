@@ -420,7 +420,7 @@ def fcn_individual_dirs_to_lmdb(image_dbname,label_dbname,image_dir,label_dir,re
     env_label = lmdb.open(label_dbname, map_size=map_size)
 
     with env_image.begin(write=True) as txn_image:      # txn is a Transaction object
-        with env_image.begin(write=True) as txn_label:      # txn is a Transaction object
+        with env_label.begin(write=True) as txn_label:      # txn is a Transaction object
             for a_file in imagefiles:
                 label_file = a_file.split(imgsuffix)[0]+labelsuffix
                 full_image_name = os.path.join(image_dir,a_file)
