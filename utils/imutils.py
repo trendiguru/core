@@ -857,19 +857,20 @@ def show_mask_with_labels(mask_filename,labels,original_image=None,cut_the_crap=
         orig_arr = cv2.imread(original_image)
         if orig_arr is not None:
             height, width = orig_arr.shape[:2]
-            if height>400:
+            minheight=500
+            if height>minheight:
                 print('got a big one (hxw {}x{}) resizing'.format(height,width))
-                factor = 400.0/height
-                orig_arr = cv2.resize(orig_arr,(int(round(width*factor)),400))
+                factor = float(minheight)/height
+                orig_arr = cv2.resize(orig_arr,(int(round(width*factor)),minheight))
 #                print('factor {} newsize {}'.format(factor,orig_arr.shape) )
 
                 colorbar_h,colorbar_w = dest_colorbar.shape[0:2]
-                factor = 400.0/colorbar_h
+                factor = float(minheight)/colorbar_h
                 dest_colorbar = cv2.resize(dest_colorbar,(int(round(colorbar_w*factor)),int(round(colorbar_h*factor))))
 #                print('cbarfactor {} newsize {}'.format(factor,dest_colorbar.shape) )
 
                 dest_h,dest_w = dest.shape[0:2]
-                factor = 400.0/dest_h
+                factor = float(minheight)/dest_h
                 dest = cv2.resize(dest,(int(round(dest_w*factor)),int(round(dest_h*factor))))
 #                print('maskfactor {} newsize {}'.format(factor,dest.shape) )
 
