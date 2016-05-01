@@ -1048,21 +1048,21 @@ def img_dir_to_html(img_dir,filter='.jpg',htmlname=None):
     imglist = [i for i in os.listdir(img_dir) if filter in i]
     line_no=0
     lines=[]
-    lines.append('<HTML><HEAD><TITLE>results '+img_dir+' </TITLE></HEAD>\n')
-    for img in imglist:
-        lines.append('<br>\n')
-        link = '"'+img_dir+'/'+img+'"'
-        lines.append('<a href='+link+'>'+img+'</a>\n')
-    lines.append('</HTML>\n')
-
 
     if htmlname is None:
         parentdir = os.path.abspath(os.path.join(img_dir, os.pardir))
         htmlname=parentdir+'.html'
         htmlname=img_dir.replace('/','_')+'.html'
     with open(htmlname,'w') as f:
+        lines.append('<HTML><HEAD><TITLE>results '+img_dir+' </TITLE></HEAD>\n')
+        for img in imglist:
+            f.write('<br>\n')
+            link = '"'+img_dir+'/'+img+'"'
+            f.write('<a href='+link+'>'+img+'</a>\n')
+        f.write('</HTML>\n')
         f.write(lines)
         f.close()
+
 '''
 <HTML><HEAD><TITLE>classifier, fingerprint results</TITLE>
 <br>
