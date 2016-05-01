@@ -12,19 +12,19 @@ def infer(images,prototxt,caffemodel,out_dir='./'):
     dims = [150,100]
     start_time = time.time()
     for imagename in images:
-	print('working on:'+imagename)
-        # load image, switch to BGR, subtract mean, and make dims C x H x W for Caffe
+        print('working on:'+imagename)
+            # load image, switch to BGR, subtract mean, and make dims C x H x W for Caffe
         im = Image.open(imagename)
-	im = im.resize(dims,Image.ANTIALIAS)
+        im = im.resize(dims,Image.ANTIALIAS)
         in_ = np.array(im, dtype=np.float32)
-	if len(in_.shape) != 3:
-	    print('got 1-chan image, skipping')
-	    continue
-	elif in_.shape[2] != 3:
-	    print('got n-chan image, skipping - shape:'+str(in_.shape))
-	    continue
+        if len(in_.shape) != 3:
+            print('got 1-chan image, skipping')
+            continue
+        elif in_.shape[2] != 3:
+            print('got n-chan image, skipping - shape:'+str(in_.shape))
+            continue
 
-	print('size:'+str(in_.shape))
+        print('size:'+str(in_.shape))
         in_ = in_[:,:,::-1]
         in_ -= np.array((104.00698793,116.66876762,122.67891434))
         in_ = in_.transpose((2,0,1))
@@ -35,13 +35,13 @@ def infer(images,prototxt,caffemodel,out_dir='./'):
         net.forward()
         out = net.blobs['score'].data[0].argmax(axis=0)
         result = Image.fromarray(out.astype(np.uint8))
-#        outname = im.strip('.png')[0]+'out.bmp'
-        outname = os.path.basename(imagename)
-	outname = outname.split('.jpg')[0]+'out.bmp'
-	outname = os.path.join(out_dir,outname)
-	print('outname:'+outname)
-        result.save(outname)
-#        fullout = net.blobs['score'].data[0]
+    #        outname = im.strip('.png')[0]+'out.bmp'
+            outname = os.path.basename(imagename)
+        outname = outname.split('.jpg')[0]+'out.bmp'
+        outname = os.path.join(out_dir,outname)
+        print('outname:'+outname)
+            result.save(outname)
+    #        fullout = net.blobs['score'].data[0]
     elapsed_time=time.time()-start_time
     print('elapsed time:'+str(elapsed_time)+' tpi:'+str(elapsed_time/len(images)))
 
