@@ -11,7 +11,7 @@ import sys
 import requests
 
 from rq import Queue
-
+from . import dl_excel
 from ..constants import db, redis_conn
 from ..fingerprint_core import generate_mask_and_insert
 from .flipkart_constants import flipkart_relevant_categories, flipkart_paperdoll_women
@@ -31,24 +31,25 @@ def inter2paperdole(inter_list):
 
 
 if __name__ == "__main__":
-    criteria = "flipkart" + sys.argv[1]
-    if db.download_data.find({"criteria": criteria}).count() > 0:
-        db.download_data.delete_one({"criteria": criteria})
-    db.download_data.insert_one({"criteria": criteria,
-                                 "current_dl": today_date,
-                                 "start_time": datetime.datetime.now(),
-                                 "items_downloaded": 0,
-                                 "new_items": 0,
-                                 "errors": 0,
-                                 "end_time": "still in process",
-                                 "total_dl_time(min)": "still in process",
-                                 "last_request": time.time(),
-                                 "total_items": 0,
-                                 "instock": 0,
-                                 "out": 0})
-    db.drop_collection("fp_in_process")
-    db.fp_in_process.insert_one({})
-    db.fp_in_process.create_index("id")
+    start_time=datetime.datetime.now()
+    # criteria = "flipkart" + sys.argv[1]
+    # if db.download_data.find({"criteria": criteria}).count() > 0:
+    #     db.download_data.delete_one({"criteria": criteria})
+    # db.download_data.insert_one({"criteria": criteria,
+    #                              "current_dl": today_date,
+    #                              "start_time": datetime.datetime.now(),
+    #                              "items_downloaded": 0,
+    #                              "new_items": 0,
+    #                              "errors": 0,
+    #                              "end_time": "still in process",
+    #                              "total_dl_time(min)": "still in process",
+    #                              "last_request": time.time(),
+    #                              "total_items": 0,
+    #                              "instock": 0,
+    #                              "out": 0})
+    # db.drop_collection("fp_in_process")
+    # db.fp_in_process.insert_one({})
+    # db.fp_in_process.create_index("id")
 
     r1 = requests.get(url=url, headers=headers)
 
@@ -59,14 +60,14 @@ if __name__ == "__main__":
     r2 = requests.get(url=url2, headers=headers)
     r2zip = zipfile.ZipFile(StringIO.StringIO(r2.content))
     csv_file = r2zip.open(r2zip.namelist()[0])
-
+    print("csv downloaded")
     time.sleep(60)
     DB = csv.reader(csv_file)
     time.sleep(60)
-
+    print("loop through items in file")
     for x, row in enumerate(DB):
-        if divmod(x, 10000) == 0:
-            print ("row #" + str(x))
+        # if divmod(x, 10000) == 0:
+        print ("row #" + str(x))
         tmp_prod = {}
         tmp = row[1]
         catgoriz = re.split(" ", tmp)
@@ -75,7 +76,7 @@ if __name__ == "__main__":
             continue
         if len(inter) > 0:
             tmp_prod["id"] = row[0]
-            db.fp_in_process.insert_one({"id": tmp_prod["id"]})
+            # db.fp_in_process.insert_one({"id": tmp_prod["id"]})
             tmp_prod["categories"] = inter2paperdole(inter)
             tmp_prod["clickUrl"] = row[6] + affiliate_data
             imgUrl = re.split(';', row[3])
@@ -104,13 +105,16 @@ if __name__ == "__main__":
             tmp_prod["brand"] = row[8]
             tmp_prod["download_data"] = {"dl_version": None, "first_dl": None, "fp_version": None}
             prev = db.flipkart.find_one({'id': tmp_prod["id"]})
-            db.download_data.update_one({"criteria": criteria},
-                                                 {'$inc': {"items_downloaded": 1}})
+            # db.download_data.update_one({"criteria": criteria},
+            #                                      {'$inc': {"items_downloaded": 1}})
             if prev is None:
+                while q.count > 250000:
+                    print( "Q full - stolling")
+                    time.sleep(600)
                 q.enqueue(generate_mask_and_insert, doc=tmp_prod, image_url=tmp_prod["images"]["XLarge"],
                           fp_date=today_date, coll="flipkart")
-                db.download_data.update_one({"criteria": criteria},
-                                                     {'$inc': {"new_items": 1}})
+                # db.download_data.update_one({"criteria": criteria},
+                #                                      {'$inc': {"new_items": 1}})
             else:
                 tmp_prod["fingerprint"] = prev["fingerprint"]
                 tmp_prod["download_data"] = prev["download_data"]
@@ -121,11 +125,11 @@ if __name__ == "__main__":
                     db.flipkart.delete_one({'id': tmp_prod['id']})
                     db.flipkart.insert_one(tmp_prod)
                     # print "prod inserted successfully"
-                    db.fp_in_process.delete_one({"id": tmp_prod["id"]})
+                    # db.fp_in_process.delete_one({"id": tmp_prod["id"]})
 
                 except:
-                    db.download_data.update_one({"criteria": criteria},
-                                                         {'$inc': {"errors": 1}})
+                    # db.download_data.update_one({"criteria": criteria},
+                    #                                      {'$inc': {"errors": 1}})
                     print "error inserting"
 
     old = db.flipkart.find({"download_data.dl_version": {"$ne": today_date}})
@@ -135,21 +139,26 @@ if __name__ == "__main__":
         days_out = 365*(y_new-y_old)+30*(m_new-m_old)+(d_new-d_old)
         db.flipkart.update_one({'id': item['id']}, {"$set": {"status.days_out": days_out,
                                                                      "status.instock": False}})
-    db.download_data.update_one({"criteria": criteria},
-                                         {'$set': {"end_time": datetime.datetime.now()}})
-    total = db.download_data.find({"criteria": criteria})[0]
-    total_time = abs(total["end_time"] - total["start_time"]).total_seconds()
-    total_items = db.flipkart.count()
-    instock = db.flipkart.find({"status.instock": True}).count()
-    out = db.flipkart.find({"status.instock": False}).count()
-    db.download_data.update_one({"criteria": criteria},
-                                         {'$set': {"total_dl_time(min)": str(total_time / 60)[:5],
-                                                   "end_time": datetime.datetime.now(),
-                                                   "total_items": str(total_items),
-                                                   "instock": str(instock),
-                                                   "out": str(out)}})
+    # db.download_data.update_one({"criteria": criteria},
+    #                                      {'$set': {"end_time": datetime.datetime.now()}})
+    # total = db.download_data.find({"criteria": criteria})[0]
+    end_time=datetime.datetime.now()
+    total_time = abs(end_time- start_time).total_seconds()
+    # total_items = db.flipkart.count()
+    # instock = db.flipkart.find({"status.instock": True}).count()
+    # out = db.flipkart.find({"status.instock": False}).count()
+    # db.download_data.update_one({"criteria": criteria},
+    #                                      {'$set': {"total_dl_time(min)": str(total_time / 60)[:5],
+    #                                                "end_time": datetime.datetime.now(),
+    #                                                "total_items": str(total_items),
+    #                                                "instock": str(instock),
+    #                                                "out": str(out)}})
 
+    dl_info = {"date": today_date,
+           "dl_duration": total_time,
+           "store_info": []}
 
+    dl_excel.mongo2xl('flipkart', dl_info)
     print ("flipkart finished!!!")
 
 """

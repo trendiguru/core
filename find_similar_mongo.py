@@ -6,13 +6,12 @@ import subprocess
 import cv2
 import numpy as np
 
-from . import fingerprint_core as fp
-from . import NNSearch
-from . import background_removal
-from . import Utils
-from . import kassper
-from . import constants
-
+from trendi import NNSearch
+from trendi import Utils
+from trendi import background_removal
+from trendi import constants
+from trendi import fingerprint_core as fp
+from trendi import kassper
 
 fingerprint_length = constants.fingerprint_length
 histograms_length = constants.histograms_length
@@ -63,9 +62,9 @@ def mask2svg(mask, filename, save_in_folder):
     return filename + '.svg'
 
 
-def find_top_n_results(image, mask, number_of_results=10, category_id=None, collection="products",
+def find_top_n_results(image=None, mask=None, number_of_results=10, category_id=None, collection="products",
                        fp_category=FP_KEY, fp_len=fingerprint_length, distance_function=None,
-                       bins=histograms_length):
+                       bins=histograms_length, fingerprint=None):
     '''
     for comparing 2 fp call the function twice, both times with collection_name ='fp_testing' :
       - for the control group leave fp_category as is
@@ -87,8 +86,9 @@ def find_top_n_results(image, mask, number_of_results=10, category_id=None, coll
         {"_id": 1, "id": 1, "fingerprint": 1, "images.XLarge": 1, "clickUrl": 1}).batch_size(100)
 
     print "amount of docs in cursor: {0}".format(potential_matches_cursor.count())
-    color_fp = fp.fp(image, bins, fp_len, mask)
-    target_dict = {"clothingClass": category_id, "fingerprint": color_fp}
+    if not fingerprint:
+        fingerprint = fp.fp(image, bins, fp_len, mask)
+    target_dict = {"clothingClass": category_id, "fingerprint": fingerprint}
     print "calling find_n_nearest.."
     closest_matches = NNSearch.find_n_nearest_neighbors(target_dict, potential_matches_cursor, number_of_results,
                                                         fp_weights, bins, fp_category, distance_function)
@@ -96,7 +96,7 @@ def find_top_n_results(image, mask, number_of_results=10, category_id=None, coll
     print "done with find_n_nearest.. num of closest_matches: {0}".format(len(closest_matches))
     # get only the object itself, not the distance
 
-    return color_fp.tolist(), closest_matches
+    return fingerprint.tolist(), closest_matches
 
 
 def got_bb(image_url, post_id, item_id, bb=None, number_of_results=10, category_id=None):

@@ -5,7 +5,21 @@ import pymongo
 from redis import Redis
 from rq import Queue
 
-redis_conn = Redis(host=os.environ["REDIS_HOST"], port=int(os.environ["REDIS_PORT"]))
+redis_conn = Redis(host=os.getenv("REDIS_HOST", "redis1-redis-1-vm"), port=int(os.getenv("REDIS_PORT", "6379")))
+
+# getting redis /mongo going: do the tunnels
+# ssh -f -N -L 6379:redis1-redis-1-vm:6379 root@extremeli.trendi.guru
+# ssh -f -N -L 27017:mongodb1-instance-1:27017 root@extremeli.trendi.guru
+# and export the environment variables (better yet put the export in .bashrc)
+# export REDIS_HOST=localhost
+# export REDIS_PORT=6379
+# export MONGO_PORT=27017
+# export MONGO_HOST=localhost
+
+manual_gender_domains = ['fashionseoul.com', 'haaretz.co.il']
+products_per_site = {'default': 'ShopStyle', 'fashionseoul.com': 'GangnamStyle', 'fazz.co': 'ShopStyle'}
+                     # , 'mako.co.il': 'ebay'}
+products_per_country = {'default': 'ebay', 'ebay': ['US'], 'GangnhamStyle': ['KR']}
 # file containing constants for general TG use
 # fingerprint related consts
 
@@ -27,6 +41,7 @@ minimum_im_height = 50
 
 pd_worker_command =  'cd /home/jeremy/paperdoll3/paperdoll-v1.0/ && /usr/bin/python /usr/local/bin/rqworker -w trendi.matlab_wrapper.tgworker.TgWorker -u redis://redis1-redis-1-vm:6379 pd &'
 pd_worker_command_braini1 =  'cd /home/pd_user/paperdoll  && /usr/bin/python /usr/local/bin/rqworker  -w trendi.matlab_wrapper.tgworker.TgWorker  pd &'
+pd_worker_command_braini =  'cd /home/pd_user/paperdoll  && /usr/bin/python /usr/local/bin/rqworker  -w trendi.matlab_wrapper.tgworker.TgWorker  pd &'
 string_to_look_for_in_pd_command = 'tgworker'
 q1 = Queue('start_pipeline', connection=redis_conn)
 q2 = Queue('person_job', connection=redis_conn)
@@ -83,7 +98,8 @@ upper_threshold = 85
 parallel_matlab_queuename = 'pd'
 nonparallel_matlab_queuename = 'pd_nonparallel'
 caffe_path_in_container = '/opt/caffe'
-db = pymongo.MongoClient(host=os.environ["MONGO_HOST"], port=int(os.environ["MONGO_PORT"])).mydb
+db = pymongo.MongoClient(host=os.getenv("MONGO_HOST", "mongodb1-instance-1"),
+                         port=int(os.getenv("MONGO_PORT", "27017"))).mydb
 
 #db = pymongo.MongoClient(host="mongodb1-instance-1").mydb
 #redis_conn = Redis(host="redis1-redis-1-vm")
@@ -98,6 +114,7 @@ update_collection_name = 'products'
 caffeRelevantLabels = [601, 608, 610, 614, 617, 638, 639, 655, 689, 697, 735, 775, 834, 841, 264, 401, 400]
 
 # fp rating related constants
+nn_img_minimum_sidelength = 10  #for traiing cnn's , min width and height
 min_image_area = 400
 min_images_per_doc = 10  # item has to have at least this number of pics
 max_images_per_doc = 18  # item has to have less than this number of pics
@@ -185,13 +202,16 @@ paperdoll_shopstyle_women_jp_categories = {
             'name': u'\u30d1\u30fc\u30c6\u30a3\u30c9\u30ec\u30b9'},
     'vest': {'id': u'\u30d9\u30b9\u30c8', 'name': u'\u30d9\u30b9\u30c8'}}
 
-paperdoll_shopstyle_men = {'top': 'mens-shirts', 'pants': 'mens-pants', 'shorts': 'mens-shorts',
-                           'jeans': 'mens-jeans', 'jacket': 'mens-outerwear', 'blazer': 'mens-outerwear',
-                           'shirt': 'mens-shirts', 'skirt': 'mens-shorts', 'blouse': 'mens-shirts',
-                           'dress': 'mens-suits', 'sweater': 'mens-sweaters', 't-shirt': 'mens-tees-and-tshirts',
-                           'cardigan': 'mens-cardigan-sweaters', 'coat': 'mens-overcoats-and-trenchcoats',
-                           'suit': 'mens-suits', 'vest': 'vests', 'sweatshirt': 'mens-sweatshirts',
-                           'leggings': 'mens-pants', 'stockings': 'mens-pants', 'tights': 'mens-pants'}
+paperdoll_relevant_categories = ['top', 'pants', 'shorts', 'jeans', 'jacket', 'blazer', 'shirt', 'skirt', 'blouse',
+                                 'dress', 'bodysuit', 'vest', 'cardigan', 'leggings', 'sweater', 't-shirt', 'coat',
+                                 'suit', 'tights', 'sweatshirt', 'stockings']
+
+
+paperdoll_paperdoll_men = {'top': 'shirt', 'pants': 'pants', 'shorts': 'shorts', 'jeans': 'jeans', 'jacket': 'jacket',
+                           'blazer': 'jacket', 'shirt': 'shirt', 'skirt': 'pants', 'blouse': 'shirt',
+                           'dress': 'suit', 'sweater': 'sweater', 't-shirt': 'shirt', 'bodysuit': 'suit',
+                           'cardigan': 'sweater', 'coat': 'coat', 'suit': 'suit', 'vest': 'vest',
+                           'sweatshirt': 'sweatshirt', 'leggings': 'pants', 'stockings': 'pants', 'tights': 'pants'}
 
 paperdoll_categories = {"whole_body": ['bodysuit', 'dress', 'jumper', 'suit', 'romper'],
                         "upper_cover": ['blazer', 'cape', 'jacket', 'cardigan', 'coat', 'vest', 'sweatshirt'],
@@ -217,18 +237,69 @@ caffe_relevant_strings = ['hoopskirt', 'jean', 'blue_jean', 'denim', 'jersey', '
                           'lab coat', 'tank suit', 'maillot', 'miniskirt', 'mini', 'overskirt', 'pajama', 'pyjama',
                           "pj's", 'jammies', 'poncho', 'sarong', 'suit', 'suit of clothes', 'sweatshirt']
 
-
-paperdoll_relevant_categories = {'top', 'pants', 'shorts', 'jeans', 'jacket', 'blazer', 'shirt', 'skirt', 'blouse',
-                                 'dress',
-                                 'sweater', 't-shirt', 'cardigan', 'coat', 'suit', 'tights', 'sweatshirt', 'stockings'}
-
-# these are the fashionista db cats in order , e.g. the mask will have 1 for null (unknown) and 56 for skin
-fashionista_categories = ['null','tights','shorts','blazer','t-shirt','bag','shoes','coat','skirt','purse','boots',
+# these are the fashionista db cats in order , e.g. the mask will have 1 for null (bkgnd) and 56 for skin
+#the first '' value is to keep mask=1 -> null, mask=2->tights etc
+fashionista_categories = ['','null','tights','shorts','blazer','t-shirt','bag','shoes','coat','skirt','purse','boots',
                           'blouse','jacket','bra','dress','pants','sweater','shirt','jeans','leggings','scarf','hat',
                           'top','cardigan','accessories','vest','sunglasses','belt','socks','glasses','intimate',
                           'stockings','necklace','cape','jumper','sweatshirt','suit','bracelet','heels','wedges','ring',
                           'flats','tie','romper','sandals','earrings','gloves','sneakers','clogs','watch','pumps','wallet',
                           'bodysuit','loafers','hair','skin']
+
+fashionista_categories_augmented = ['','null','tights','shorts','blazer','t-shirt','bag','shoes','coat','skirt','purse',
+                                    'boots','blouse','jacket','bra','dress','pants','sweater','shirt','jeans','leggings',
+                                    'scarf','hat','top','cardigan','accessories','vest','sunglasses','belt','socks','glasses',
+                                    'intimate','stockings','necklace','cape','jumper','sweatshirt','suit','bracelet','heels','wedges',
+                                    'ring','flats','tie','romper','sandals','earrings','gloves','sneakers','clogs','watch',
+                                    'pumps','wallet','bodysuit','loafers','hair','skin','face']
+
+fashionista_categories_augmented_zero_based = ['bk','tights','shorts','blazer','t-shirt','bag','shoes','coat','skirt','purse',
+                                    'boots','blouse','jacket','bra','dress','pants','sweater','shirt','jeans','leggings',
+                                    'scarf','hat','top','cardigan','accessories','vest','sunglasses','belt','socks','glasses',
+                                    'intimate','stockings','necklace','cape','jumper','sweatshirt','suit','bracelet','heels','wedges',
+                                    'ring','flats','tie','romper','sandals','earrings','gloves','sneakers','clogs','watch',
+                                    'pumps','wallet','bodysuit','loafers','hair','skin','face']
+
+colorful_fashion_parsing_categories = ['bk','T-shirt','bag','belt','blazer','blouse','coat','dress','face','hair','hat',
+'jeans','legging','pants','scarf','shoe','shorts','skin','skirt','socks','stocking','sunglass','sweater']
+
+colorful_fashion_to_fashionista = {'bk':'null','T-shirt':'t-shirt','bag':'bag','belt':'belt','blazer':'blazer','blouse':'blouse',
+            'coat':'coat','dress':'dress','face':None,'hair':'hair','hat':'hat','jeans':'jeans','legging':'leggings',
+            'pants':'pants','scarf':'scarf','shoe':'shoes','shorts':'shorts','skin':'skin','skirt':'skirt','socks':'socks',
+            'stocking':'stockings','sunglass':'sunglasses','sweater':'sweater'}
+
+#all the cf stuff maps directly to fashionista except skin (index 8) which I map to 56 (end of fashionista list)
+#currently off by one
+colorful_fashion_to_fashionista_index_conversion = [(0,0),(1,4),(2,5),(3,27),(4,3),(5,11),(6,7),(7,14),(8,56),
+        (9,54),(10,21),(11,18),(12,19),(13,15),(14,20),(15,6),(16,2),(17,55),(18,8),(19,28),(20,31),(21,26),(22,16)]
+
+tamara_berg_categories = ['bag', 'belt', 'dress', 'eyewear', 'footwear', 'hat', 'legging', 'outerwear', 'pants',
+                          'skirts', 'top', 'skin', 'background']   # orig t.b. cats don't have skin or bg
+
+tamara_berg_improved_categories = ['background','belt','dress','eyewear','footwear','hat','legging','outerwear','pants','skirts',
+                                   'top','skin','BAG????','tights','shorts','blouse','bra','vest','suit','jeans',
+                                   'necklace','sweatshirt','tie']
+#I think nadav used 'baground' ie bag actually means background, so maybe background (label 12) means bag
+
+#21 cats for direct replacement of VOC systems
+#lose the necklace,
+#combine tights and leggings
+ultimate_21 = ['background','bag','belt','blouse','bra','dress','eyewear','footwear','hat','jeans',
+                             'legging','outerwear','pants','shorts','skin','skirts','suit','sweatshirt', 'tie','top',
+                             'vest']
+
+tamara_berg_improved_to_ultimate_21_index_conversion = [(0,1),(1,2),(2,5),(3,6),(4,7),(5,8),(6,10),(7,11),(8,12),(9,15),
+                  (10,19),(11,14),(12,0),(13,10),(14,13),(15,19),(16,4),(17,20),(18,16),(19,9),
+                  (20,0),(21,19),(22,18),(23,19)]
+
+fashionista_to_ultimate_21_index_conversion = []
+
+
+pascal_context_labels = ['background','aeroplane','bicycle','bird','boat','bottle','bus','car','cat','chair','cow','table','dog','horse','motorbike','person','pottedplant',\
+'sheep','sofa','train','tvmonitor','bag','bed','bench','book','building','cabinet','ceiling','cloth','computer','cup','door','fence',\
+'floor','flower','food','grass','ground','keyboard','light','mountain','mouse','curtain','platform','sign','plate','road','rock',\
+'shelves','sidewalk','sky','snow','bedclothes','track','tree','truck','wall','water','window','wood']
+
 
 pd_output_savedir = '/home/jeremy/pd_output'
 # for web bounding box interface
@@ -264,7 +335,7 @@ N_category_votes_required = 2
 
 bb_iou_threshold = 0.5  # how much overlap there must be between bbs
 
-if cv2.__version__ == '3.0.0' or cv2.__version__ == '3.0.0-dev':
+if cv2.__version__ == '3.0.0' or cv2.__version__ == '3.0.0-dev' or cv2.__version__ == '3.1.0':
     scale_flag = cv2.CASCADE_SCALE_IMAGE
     BGR2GRAYCONST = cv2.COLOR_BGR2GRAY
 #    FACECONST = cv2.face

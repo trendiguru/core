@@ -11,17 +11,17 @@ import requests
 from rq import Queue
 
 from .. import constants
-from .shopstyle_constants import shopstyle_relevant_items
+from .shopstyle_constants import shopstyle_relevant_items_Female
 from .shopstyle2generic import convert2generic
 from ..fingerprint_core import generate_mask_and_insert
+from . import dl_excel
 
 q = Queue('fingerprint_new', connection=constants.redis_conn)
-relevant = shopstyle_relevant_items
+relevant = shopstyle_relevant_items_Female
 
 BASE_URL = "http://api.shopstyle.com/api/v2/"
 BASE_URL_PRODUCTS = BASE_URL + "products/"
 PID = "uid900-25284470-95"
-TG_FIELDS = ["fp_version", "fingerprint", "fp_date", "human_bb", "bounding_box"]
 # ideally, get filter list from DB. for now:
 # removed "Category" for now because its results  are not disjoint (sum of subsets > set)
 FILTERS = ["Brand", "Retailer", "Price", "Color", "Size", "Discount"]
@@ -39,21 +39,21 @@ class ShopStyleDownloader():
         self.last_request_time = time.time()
 
     def db_download(self, collection):
-        if self.db.download_data.find({"criteria": collection}).count() > 0:
-            self.db.download_data.delete_one({"criteria": collection})
-        self.db.download_data.insert_one({"criteria": collection,
-                                          "current_dl": self.current_dl_date,
-                                          "start_time": datetime.datetime.now(),
-                                          "items_downloaded": 0,
-                                          "new_items": 0,
-                                          "errors": 0,
-                                          "end_time": "still in process",
-                                          "total_dl_time(min)": "still in process",
-                                          "last_request": time.time(),
-                                          "total_items": 0,
-                                          "instock": 0,
-                                          "out": 0})
-
+        # if self.db.download_data.find({"criteria": collection}).count() > 0:
+        #     self.db.download_data.delete_one({"criteria": collection})
+        # self.db.download_data.insert_one({"criteria": collection,
+        #                                   "current_dl": self.current_dl_date,
+        #                                   "start_time": datetime.datetime.now(),
+        #                                   "items_downloaded": 0,
+        #                                   "new_items": 0,
+        #                                   "errors": 0,
+        #                                   "end_time": "still in process",
+        #                                   "total_dl_time(min)": "still in process",
+        #                                   "last_request": time.time(),
+        #                                   "total_items": 0,
+        #                                   "instock": 0,
+        #                                   "out": 0})
+        start_time = time.time()
         self.db.dl_cache.delete_many({})
         self.db.dl_cache.create_index("filter_params")
         root_category, ancestors = self.build_category_tree(collection)
@@ -63,13 +63,15 @@ class ShopStyleDownloader():
             self.download_category(cat, collection)
 
         self.wait_for(collection)
-        self.db.download_data.update_one({"criteria": collection},
-                                                  {'$set': {"end_time": datetime.datetime.now()}})
-        tmp = self.db.download_data.find({"criteria": collection})[0]
-        total_time = abs(tmp["end_time"] - tmp["start_time"]).total_seconds()
+        end_time= time.time()
+        # self.db.download_data.update_one({"criteria": collection},
+        #                                           {'$set': {"end_time": datetime.datetime.now()}})
+        # tmp = self.db.download_data.find({"criteria": collection})[0]
+        # total_time = abs(tmp["end_time"] - tmp["start_time"]).total_seconds()
+        total_time = (end_time - start_time)/3600
         del_items = self.db[collection].delete_many({'fingerprint': {"$exists": False}})
         # print str(del_items.deleted_count) + ' items without fingerprint were deleted!\n'
-        total_items = self.db[collection].count()
+        # total_items = self.db[collection].count()
         old = self.db[collection].find({"download_data.dl_version": {"$ne": self.current_dl_date}})
         y_new, m_new, d_new = map(int, self.current_dl_date.split("-"))
         for item in old:
@@ -77,34 +79,40 @@ class ShopStyleDownloader():
             days_out = 365*(y_new-y_old)+30*(m_new-m_old)+(d_new-d_old)
             self.db[collection].update_one({'id': item['id']}, {"$set": {"status.days_out": days_out,
                                                                          "status.instock": False}})
+        #
+        # instock = self.db[collection].find({"status.instock": True}).count()
+        # out = self.db[collection].find({"status.instock": False}).count()
+        # self.db.download_data.update_one({"criteria": collection},
+        #                                           {'$set': {"total_dl_time(min)": str(total_time / 60)[:5],
+        #                                                     "end_time": datetime.datetime.now(),
+        #                                                     "total_items": str(total_items),
+        #                                                     "instock": str(instock),
+        #                                                     "out": str(out)}})
+        dl_info = {"date": self.current_dl_date,
+           "dl_duration": total_time,
+           "store_info": []}
 
-        instock = self.db[collection].find({"status.instock": True}).count()
-        out = self.db[collection].find({"status.instock": False}).count()
-        self.db.download_data.update_one({"criteria": collection},
-                                                  {'$set': {"total_dl_time(min)": str(total_time / 60)[:5],
-                                                            "end_time": datetime.datetime.now(),
-                                                            "total_items": str(total_items),
-                                                            "instock": str(instock),
-                                                            "out": str(out)}})
+        dl_excel.mongo2xl('shopstyle', dl_info)
         print collection + " DOWNLOAD DONE!!!!!\n"
 
 
     def wait_for(self, collection):
         # print "Waiting for 45 min before first check"
-        total_items_before = self.db[collection].count()
-        time.sleep(2700)
-        total_items_after = self.db[collection].count()
+        # total_items_before = self.db[collection].count()
+        # time.sleep(2700)
+        # total_items_after = self.db[collection].count()
         check = 0
         # checking if there is still change in the total items count
-        while total_items_before != total_items_after:
+        # while total_items_before != total_items_after:
+        while q.count>1:
             if check > 36:
                 break
             # print "\ncheck number " + str(check)
             # print "\nfp workers didn't finish yet\nWaiting 5 min before checking again\n"
             check += 1
             time.sleep(300)
-            total_items_before = total_items_after
-            total_items_after = self.db[collection].count()
+            # total_items_before = total_items_after
+            # total_items_after = self.db[collection].count()
 
     def build_category_tree(self, collection):
         parameters = {"pid": PID, "filters": "Category"}
@@ -119,6 +127,7 @@ class ShopStyleDownloader():
         self.db.categories.remove({})
         self.db.categories.insert(category_list)
         # find all the children
+
         for cat in self.db.categories.find():
             self.db.categories.update_one({"id": cat["parentId"]}, {"$addToSet": {"childrenIds": cat["id"]}})
         # get list of all categories under root - "ancestors"
@@ -145,10 +154,10 @@ class ShopStyleDownloader():
         parameters["cat"] = category["id"]
         if "count" in category and category["count"] <= MAX_SET_SIZE:
             print("Attempting to download: {0} products".format(category["count"]))
-            print("Category: " + category_id)
+            #print("Category: " + category_id)
             self.download_products(parameters, coll=collection)
         elif "childrenIds" in category.keys():
-            print("Splitting {0} products".format(category["count"]))
+            #print("Splitting {0} products".format(category["count"]))
             print("Category: " + category_id)
             for child_id in category["childrenIds"]:
                 self.download_category(child_id, collection)
@@ -197,8 +206,8 @@ class ShopStyleDownloader():
                     # pdb.set_trace()
                     self.download_products(subset_filter_params, coll=coll)
                 else:
-                    print "Splitting: {0} products".format(subset["count"])
-                    print "Params: {0}".format(subset_filter_params.encoded())
+                    # print "Splitting: {0} products".format(subset["count"])
+                    # print "Params: {0}".format(subset_filter_params.encoded())
                     self.divide_and_conquer(subset_filter_params, filter_index + 1)
 
     def download_products(self, filter_params, total=MAX_SET_SIZE, coll="products"):
@@ -235,7 +244,7 @@ class ShopStyleDownloader():
         # Write down that we did this
         self.db.dl_cache.insert(dl_query)
 
-        print "Batch Done. Total Product count: {0}".format(self.db[coll].count())
+        # print "Batch Done. Total Product count: {0}".format(self.db[coll].count())
 
     def delayed_requests_get(self, url, params):
         sleep_time = max(0, 0.1 - (time.time() - self.last_request_time))
@@ -249,44 +258,48 @@ class ShopStyleDownloader():
         :param prod: dictionary of shopstyle product
         :return: Nothing, void function
         """
+        while q.count>250000:
+            print ("Q full - stolling")
+            time.sleep(600)
+
         q.enqueue(generate_mask_and_insert, doc=prod, image_url=prod["images"]["XLarge"],
                   fp_date=self.current_dl_date, coll=collection)
-        print "inserting,",
+        # print "inserting,",
 
     def db_update(self, prod, collection):
-        print ""
-        print "Updating product {0}. ".format(prod["id"]),
+        # print ""
+        # print "Updating product {0}. ".format(prod["id"]),
 
         # requests package can't handle https - temp fix
         prod["image"] = json.loads(json.dumps(prod["image"]).replace("https://", "http://"))
-        self.db.download_data.update_one({"criteria": collection},
-                                                  {'$inc': {"items_downloaded": 1}})
+        # self.db.download_data.update_one({"criteria": collection},
+        #                                           {'$inc': {"items_downloaded": 1}})
         prod["download_data"] = {"dl_version": self.current_dl_date}
 
         # case 1: new product - try to update, if does not exists, insert a new product and add our fields
         prod_in_coll = self.db[collection].find_one({"id": prod["id"]})
 
         if prod_in_coll is None:
-            print "Product not in db." + collection
+            # print "Product not in db." + collection
             # case 1.1: try finding this product in the products
             if collection != "products":
                 prod_in_prod = self.db.products.find_one({"id": prod["id"]})
                 if prod_in_prod is not None:
-                    print "but new product is already in db.products"
+                    # print "but new product is already in db.products"
                     prod["download_data"] = prod_in_prod["download_data"]
                     prod = convert2generic(prod)
                     prod["fingerprint"] = prod_in_prod["fingerprint"]
                     prod["download_data"]["dl_version"] = self.current_dl_date
                     self.db[collection].insert_one(prod)
                     return
-            self.db.download_data.update_one({"criteria": collection},
-                                                      {'$inc': {"new_items": 1}})
+            # self.db.download_data.update_one({"criteria": collection},
+            #                                           {'$inc': {"new_items": 1}})
             prod = convert2generic(prod)
             self.insert_and_fingerprint(prod, collection)
 
         else:
             # case 2: the product was found in our db, and maybe should be modified
-            print "Found existing prod in db,",
+            # print "Found existing prod in db,",
             # Thus - update only shopstyle's fields
             status_new = prod["inStock"]
             status_old = prod_in_coll["status"]["instock"]

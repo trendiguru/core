@@ -7,13 +7,15 @@ from Tkinter import Tk
 from tkFileDialog import askopenfilename
 import collections
 import os
-
+import dlib
 import cv2
 import numpy as np
 
 from . import constants
 from . import Utils
 from . import ccv_facedetector as ccv
+
+detector = dlib.get_frontal_face_detector()
 
 
 def image_is_relevant(image, use_caffe=False, image_url=None):
@@ -28,19 +30,17 @@ def image_is_relevant(image, use_caffe=False, image_url=None):
     - "for face in image_is_relevant(image).faces:"
     """
     Relevance = collections.namedtuple('relevance', 'is_relevant faces')
-    faces_dict = find_face_cascade(image, 10)
-    if len(faces_dict['faces']) == 0:
-        faces_dict = find_face_ccv(image, 10)
+    faces_dict = find_face_dlib(image, 10)
+    # faces_dict = find_face_cascade(image, 10)
+    # if len(faces_dict['faces']) == 0:
+    #     faces_dict = find_face_ccv(image, 10)
     if not faces_dict['are_faces']:
         # if use_caffe:
         # return Relevance(caffeDocker_test.is_person_in_img('url', image_url).is_person, [])
         # else:
         return Relevance(False, [])
     else:
-        if len(faces_dict['faces']) > 0:
-            return Relevance(True, faces_dict['faces'])
-        else:
-            return Relevance(False, [])
+        return Relevance(True, faces_dict['faces'])
 
 
 def find_face_ccv(image_arr, max_num_of_faces=100):
@@ -84,6 +84,14 @@ def find_face_cascade(image, max_num_of_faces=10):
     return {'are_faces': True, 'faces': choose_faces(image, faces, max_num_of_faces)}
 
 
+def find_face_dlib(image, max_num_of_faces=10):
+    faces = detector(image, 1)
+    faces = [[rect.left(), rect.top(), rect.width(), rect.height()] for rect in list(faces)]
+    if not len(faces):
+        return {'are_faces': False, 'faces': []}
+    return {'are_faces': True, 'faces': choose_faces(image, faces, max_num_of_faces)}
+
+
 def choose_faces(image, faces_list, max_num_of_faces):
     h, w, d = image.shape
     x_origin = int(w / 2)
@@ -112,7 +120,7 @@ def face_is_relevant(image, face):
     # threshold = face + 4 faces down = 5 faces
     ycrcb = cv2.cvtColor(image, cv2.COLOR_BGR2YCR_CB)
     face_ycrcb = ycrcb[y:y + h, x:x + w, :]
-    if 0.08 * image.shape[0] < h < 0.25 * image.shape[0] \
+    if 0.05 * image.shape[0] < h < 0.25 * image.shape[0] \
             and y < (image.shape[0] / 2) - h \
             and is_skin_color(face_ycrcb):
         return True
@@ -364,13 +372,19 @@ def face_skin_color_estimation(image, face_rect):
     return skin_hue_list
 
 
-def simple_mask_grabcut(image, mask):
-    rect = (0, 0, image.shape[1] - 1, image.shape[0] - 1)
+def simple_mask_grabcut(image, rect=None, mask=None):
+    if rect is None:
+        rect = (0, 0, image.shape[1] - 1, image.shape[0] - 1)
+        mode = cv2.GC_INIT_WITH_MASK
+    else:
+        rect = tuple(rect)
+        mask = np.zeros(image.shape[:2], dtype=np.uint8)
+        mode = cv2.GC_INIT_WITH_RECT
     bgdmodel = np.zeros((1, 65), np.float64)
     fgdmodel = np.zeros((1, 65), np.float64)
-    cv2.grabCut(image, mask, rect, bgdmodel, fgdmodel, 1, cv2.GC_INIT_WITH_MASK)
-    mask2 = np.where((mask == 1) + (mask == 3), 255, 0).astype('uint8')
-    return mask2
+    cv2.grabCut(image, mask, rect, bgdmodel, fgdmodel, 1, mode)
+    outmask = np.where((mask == 1) + (mask == 3), 255, 0)
+    return outmask
 
 
 def person_isolation(image, face):

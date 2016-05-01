@@ -1,25 +1,40 @@
 __author__ = 'yonatan'
 
+import sys
 from .. import constants
-from .shopstyle_constants import shopstyle_paperdoll_women, shopstyle_relevant_items
+from . import shopstyle_constants
 db = constants.db
 
 collections = ["products", "products_jp"]
 
 
-def convert2generic(prod):
+def convert2generic(prod, gender):
     tmp_prod = {}
     id = prod["id"]
     tmp_prod["id"] = id
     tmp = [i["id"] for i in prod["categories"]]
-    cat = [cat for cat in tmp if cat in shopstyle_relevant_items]
-    if "women" in cat:
-        cat.remove("women")
-    if "womens-clothes" in cat:
-        cat.remove("womens-clothes")
-    if len(cat) == 0:
-        return None
-    tmp_prod["categories"] = shopstyle_paperdoll_women[cat[0]]
+    if gender == 'Female':
+        cat = [cat for cat in tmp if cat in shopstyle_constants.shopstyle_relevant_items_Female]
+        if "women" in cat:
+            cat.remove("women")
+        if "womens-clothes" in cat:
+            cat.remove("womens-clothes")
+        if len(cat) == 0:
+            return None
+        tmp_prod["categories"] = shopstyle_constants.shopstyle_paperdoll_female[cat[0]]
+    elif gender == 'Male':
+        cat = [cat for cat in tmp if cat in shopstyle_constants.shopstyle_relevant_items_Male]
+        if "women" in cat:
+            cat.remove("women")
+        if "womens-clothes" in cat:
+            cat.remove("womens-clothes")
+        if len(cat) == 0:
+            return None
+        tmp_prod["categories"] = shopstyle_constants.shopstyle_paperdoll_male[cat[0]]
+    else:
+        print('bad gender')
+        sys.exit(1)
+
     tmp_prod["clickUrl"] = prod["clickUrl"]
     tmp_prod["images"] = {'Original': prod['image']['sizes']['Original']['url'],
                           'Best': prod['image']['sizes']['Best']['url'],

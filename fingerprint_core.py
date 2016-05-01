@@ -11,7 +11,7 @@ import numpy as np
 import background_removal
 import Utils
 import constants
-
+import page_results
 fingerprint_length = constants.fingerprint_length
 histograms_length = constants.histograms_length
 db = constants.db
@@ -79,6 +79,9 @@ def generate_mask_and_insert(doc, image_url=None, fp_date=None, coll="products")
     if not Utils.is_valid_image(image):
         logging.warning("image is None. url: {url}".format(url=image_url))
         return
+    img_hash = page_results.get_hash(image)
+    if db[coll].find_one({'img_hash': img_hash}):
+        return
     small_image, resize_ratio = background_removal.standard_resize(image, 400)
     del image
 
@@ -96,11 +99,11 @@ def generate_mask_and_insert(doc, image_url=None, fp_date=None, coll="products")
     doc["download_data"]["fp_version"] = constants.fingerprint_version
     try:
         db[collection].insert_one(doc)
-        print "prod inserted successfully"
-        db.fp_in_process.delete_one({"id": doc["id"]})
+        # print "prod inserted successfully"
+        # db.fp_in_process.delete_one({"id": doc["id"]})
     except:
-        db.download_data.find_one_and_update({"criteria": collection},
-                                             {'$inc': {"errors": 1}})
+        # db.download_data.find_one_and_update({"criteria": collection},
+        #                                      {'$inc': {"errors": 1}})
         print "error inserting"
 
     return fp_as_list

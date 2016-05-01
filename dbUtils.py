@@ -6,19 +6,24 @@ __author__ = 'jeremy'
 
 # builtin
 import logging
+import rq
 import cv2
-from bson import objectid
+from bson import objectid, ObjectId
 import matplotlib.pyplot as plt
 import numpy as np
-
+import pymongo
+import time
 # ours
 import constants
-from find_similar_mongo import get_all_subcategories
-import Utils
-from .constants import db
-
+import page_results
+from trendi.find_similar_mongo import get_all_subcategories
+from trendi import Utils
+from trendi.constants import db, redis_conn
+rq.push_connection(redis_conn)
 min_images_per_doc = constants.min_images_per_doc
 max_image_val = constants.max_image_val
+
+hash_q = rq.Queue("hash_q")
 
 
 def lookfor_next_bounded_in_db(current_item=0, current_image=0, only_get_boxed_images=True):
@@ -957,6 +962,43 @@ def generate_id():
     id = objectid.ObjectId()
     return id
 
+
+def clean_duplicates(collection, field):
+    collection = db[collection]
+    before = collection.count()
+    sorted = collection.find().sort(field, pymongo.ASCENDING)
+    print('starting, total {0} docs'.format(before))
+    current_url = ""
+    i = deleted = 0
+    for doc in sorted:
+        i += 1
+        if i % 1000 == 0:
+            print("deleted {0} docs after running on {1}".format(deleted, i))
+        if doc['image_urls'][0] != current_url:
+            current_url = doc['image_urls'][0]
+            deleted += collection.delete_many({'$and': [{'image_urls': doc['image_urls'][0]}, {'_id': {'$ne': doc['_id']}}]}).deleted_count
+
+    print("total {0} docs were deleted".format(deleted))
+
+
+def hash_all_products():
+
+    for gender in ['Female', 'Male']:
+        collection = db['ebay_' + gender]
+        for doc in collection.find({'img_hash': {'$exists': 0}}):
+            while hash_q.count > 10000:
+                time.sleep(5)
+            hash_q.enqueue_call(func=hash_the_image, args=(doc['_id'], doc['images']['XLarge'], collection.name))
+
+
+def hash_the_image(id, image_url, collection):
+        collection = db[collection]
+        image = Utils.get_cv2_img_array(image_url)
+        if image is not None:
+            img_hash = page_results.get_hash(image)
+            collection.update_one({'_id': id}, {'$set': {'img_hash': img_hash}})
+
+
 if __name__ == '__main__':
     print('starting')
     id = generate_id()
@@ -974,3 +1016,16 @@ if __name__ == '__main__':
     # lookfor_next_unbounded_feature_from_db_category(current_item=0, skip_if_marked_to_skip=False,
     # which_to_show='showAll', filter_type='byCategoryID',
     # category_id='dresses', word_in_description=None, db=None)
+
+
+def clean_duplicates_aggregate(collection, key):
+    pipeline = [{"$group": {"_id": "$"+key, "dups": {'$addToSet': "$_id"}, "count": {"$sum": 1}}}]
+    for group in list(db[collection].aggregate(pipeline)):
+        first = True
+        if group['count'] > 1:
+            for dup in group['dups']:
+                if first:
+                    first = False
+                    continue
+                else:
+                    db[collection].delete_one({'_id': ObjectId(dup)})

@@ -25,31 +25,29 @@ import pymongo
 from . import tmpGuard
 
 db = pymongo.MongoClient(host="mongodb1-instance-1", port=27017).mydb
-MAX_PER_DOMAIN = 5000
+MAX_PER_DOMAIN = 1
 
-whitelist = ["stylebook.de"]
-
-
-# "manrepeller.com", "wishwishwish.net", "parkandcube.com", "stellaswardrobe.com",
-#              "cocosteaparty.com",
-#              "5inchandup.blogspot.co.uk", "garypeppergirl.com", "camilleovertherainbow.com", "streetpeeper.com",
-#              "the-frugality.com", "disneyrollergirl.net", "weworewhat.com", "wearingittoday.co.uk",
-#              "ella-lapetiteanglaise.com",
-#              "advancedstyle.blogspot.co.uk", "indtl.com", "redcarpet-fashionawards.com", "nadiaaboulhosn.com",
-#              "enbrogue.com",
-#              "peonylim.com", "vanessajackman.blogspot.co.uk", "alltheprettybirds.com", "lisegrendene.com.br",
-#              "nataliehartleywears.blogspot.co.uk", "tommyton.com", "stylebubble.co.uk", "pandorasykes.com",
-#              "theblondesalad.com", 'notorious-mag.com',
-#              "thesartorialist.com", "bryanboy.com", "bunte.de", "gala.fr",
-#              "pudelek.pl", "tmz.com", "super.cz", "ew.com", "entretenimento.r7.com", "hollywoodlife.com",
-#              "kapanlagi.com", "zimbio.com", "jezebel.com", "purepeople.com", "jeanmarcmorandini.com",
-#              "radaronline.com", "etonline.com", "voici.fr", "topito.com", "ciudad.com.ar", "perezhilton.com",
-#              "koreaboo.com", "cztv.com", "virgula.uol.com.br", "suggest.com", "justjared.com", "therichest.com",
-#              "pressroomvip.com", "dagospia.com", "closermag.fr", "kiskegyed.hu", "pagesix.com", "spynews.ro",
-#              "digitalspy.com", "purepeople.com.br", "thepiratebay.uk.net", "sopitas.com", "deadline.com",
-#              "starpulse.com", "multikino.pl", "zakzak.co.jp", "primiciasya.com", "celebuzz.com", "luckstars.co",
-#              "ratingcero.com", "non-stop-people.com", "tochka.net", "toofab.com", "extra.cz", "kozaczek.pl",
-#              "huabian.com", "bossip.com", "spletnik.ru", "wetpaint.com"]
+whitelist =      ["stylebook.de",
+"manrepeller.com", "wishwishwish.net", "parkandcube.com", "stellaswardrobe.com",
+             "cocosteaparty.com",
+             "5inchandup.blogspot.co.uk", "garypeppergirl.com", "camilleovertherainbow.com", "streetpeeper.com",
+             "the-frugality.com", "disneyrollergirl.net", "weworewhat.com", "wearingittoday.co.uk",
+             "ella-lapetiteanglaise.com",
+             "advancedstyle.blogspot.co.uk", "indtl.com", "redcarpet-fashionawards.com", "nadiaaboulhosn.com",
+             "enbrogue.com",
+             "peonylim.com", "vanessajackman.blogspot.co.uk", "alltheprettybirds.com", "lisegrendene.com.br",
+             "nataliehartleywears.blogspot.co.uk", "tommyton.com", "stylebubble.co.uk", "pandorasykes.com",
+             "theblondesalad.com", 'notorious-mag.com',
+             "thesartorialist.com", "bryanboy.com", "bunte.de", "gala.fr",
+             "pudelek.pl", "tmz.com", "super.cz", "ew.com", "entretenimento.r7.com", "hollywoodlife.com",
+             "kapanlagi.com", "zimbio.com", "jezebel.com", "purepeople.com", "jeanmarcmorandini.com",
+             "radaronline.com", "etonline.com", "voici.fr", "topito.com", "ciudad.com.ar", "perezhilton.com",
+             "koreaboo.com", "cztv.com", "virgula.uol.com.br", "suggest.com", "justjared.com", "therichest.com",
+             "pressroomvip.com", "dagospia.com", "closermag.fr", "kiskegyed.hu", "pagesix.com", "spynews.ro",
+             "digitalspy.com", "purepeople.com.br", "thepiratebay.uk.net", "sopitas.com", "deadline.com",
+             "starpulse.com", "multikino.pl", "zakzak.co.jp", "primiciasya.com", "celebuzz.com", "luckstars.co",
+             "ratingcero.com", "non-stop-people.com", "tochka.net", "toofab.com", "extra.cz", "kozaczek.pl",
+             "huabian.com", "bossip.com", "spletnik.ru", "wetpaint.com"]
 
 
 def insertDomains():
@@ -72,7 +70,7 @@ def screen(workers):
     tmpGuard.mainDelete("xvfb")
     tmpGuard.mainDelete("tmp")
     insertDomains()
-    cmd = "screen -S scraper python -m trendi.shakeNbake -f processes -w " + str(workers)
+    cmd = "screen -S scraper python -m trendi.Yonti.shakeNbake -f processes -w " + str(workers)
     print colored("opening screen", "green", attrs=["bold"])
     subprocess.call([cmd], shell=True)
     print colored("screen detached", "yellow", attrs=["bold"])
@@ -82,13 +80,21 @@ def processes(w):
     sleep(5)
     for i in range(int(w)):
         sleep(1)
-        browseme = subprocess.Popen(["sudo ./xvfb-run-safe.sh python -m trendi.shakeNbake -f firefox"],
+        browseme = subprocess.Popen(["sudo ./xvfb-run-safe.sh python -m trendi.Yonti.shakeNbake -f firefox"],
                                     shell=True)
         print colored("firefox %s is opened" % (str(i)), 'green')
 
-    sleep(30)
-    subprocess.Popen(["screen -d"], shell=True)
-
+    sleep(60)
+    # subprocess.Popen(["screen -d"], shell=True)
+    # get permission for tmp files
+    ret = subprocess.call(["sudo chmod -R /tmp/tmp*" ], shell=True)
+    sleep(5)
+    ret = subprocess.call(["sudo rm -r /tmp/tmp*/cache2/entries/" ], shell=True)
+    ret = subprocess.call(["sudo rm -r /tmp/tmp*/thumbnails/" ], shell=True)
+    if not ret:
+        print colored("removed succeeded", "yellow")
+    else:
+        print colored("removing failed", "red")
     while True:
         sleep(1000)
 
@@ -154,7 +160,7 @@ def firefox():
     driver.implicitly_wait(10)
     # driver.set_page_load_timeout(2)
 
-    scr = open("/var/www/latest/b_main.js").read()
+    scr = open("/var/www/latest/run_ext.js").read()
     while True:
         domains = db.scraped_urls.find({"locked": False, "paused": False})
         domains_count = domains.count()

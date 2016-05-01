@@ -1,7 +1,7 @@
 __author__ = 'jeremy'
 
 # NOTE - THE VERSION WHICH IS ON EXTREMELY IS NOT ACTUALLY USED
-# the real pd.py is   on mightili , and this one is here only so that I can enqueue the right function name
+# the real pd.py is   on braini , and this one is here only so that I can enqueue the right function name
 # the mightili version should be pulled from our repo using git pull , so actually the files are identical.
 # but don't expect changes to pd.py on extremeli to hchange anything until you do a git pull on mightili
 # (or wherever pd.py is actually running)
@@ -9,7 +9,7 @@ __author__ = 'jeremy'
 # paperdoll run from matlab
 # this needs to run on server that
 # has matlab running w. 2opencv3
-# which is currently 'mightili.trendi.guru'
+# which is currently 'mightili'
 
 import subprocess
 import imghdr
@@ -93,6 +93,14 @@ def get_parse_from_matlab_parallel(image_filename, matlab_engine, use_parfor=Fal
 #>>> eng.eval('exception = MException.last;', nargout=0)
 #>>> eng.eval('getReport(exception)')
 
+    with open('pd_ml_log.log','a') as f:
+        f.write('starting analysis of image: '+image_filename+'\n')
+        f.close()
+
+    with open(image_filename+'.log','a') as g:
+        g.write('starting pd.py analysis of image: '+image_filename+'\n')
+        g.close()
+
 
     logging.debug('get_parse_from_ml_parallel is using name:' + image_filename+' and use_parfor='+str(use_parfor))
     out = StringIO.StringIO()
@@ -108,13 +116,15 @@ def get_parse_from_matlab_parallel(image_filename, matlab_engine, use_parfor=Fal
     with open('pd_ml_log.log','a') as f:
         f.write('image: '+image_filename+'\n')
         f.write('output: '+outstring+'\n')
-        f.write('err: '+errstring+'\n')
+        if errstring is not None and errstring is not '':
+            f.write('err: '+errstring+'\n')
+        f.close()
     if errstring is not None and errstring is not '':
         with open('pd_ml_errlog.log','a') as f:
             f.write('image: '+image_filename+'\n')
             f.write('output: '+outstring+'\n')
             f.write('err: '+errstring+'\n')
-
+            f.close()
 #    logging.debug('ml output:'+str(out.getvalue()))
  #   logging.debug('ml stderr:'+str(err.getvalue()))
 
@@ -128,6 +138,12 @@ def get_parse_from_matlab_parallel(image_filename, matlab_engine, use_parfor=Fal
         save_fail_image(image_filename)
         raise Exception('paperdoll failed on this file:',image_filename)
         return None, None, None
+
+    with open(image_filename+'.log','a') as g:
+        g.write('finished analysis of image: '+image_filename+'\n')
+        g.close()
+
+
     return mask, label_dict, pose
 
 def save_fail_image(img_filename):

@@ -614,9 +614,10 @@ def show_parse(filename=None, img_array=None):
         maxVal = np.amax(img_array)
         scaled = np.multiply(img_array, int(255 / maxVal))
         dest = cv2.applyColorMap(scaled, cv2.COLORMAP_RAINBOW)
+        return dest
         cv2.imshow("dest", dest)
         cv2.waitKey(0)
-
+    logging.warning('got None as image array from:'+filename)
 
 def shorten_url_googl(long_url):
     url = "https://www.googleapis.com/urlshortener/v1/url"
@@ -720,6 +721,44 @@ def git_pull(**kwargs):
         #        logging.warning("git_pull failed with exception: {0}\ngit output:{1}".format(e))   #needs the second field
         logging.warning("git_pull failed with exception: {0}".format(e))
     return
+
+def map_function_on_dir(func,dirname,**arglist):
+    '''
+    takes a function that has a filename as first arg and maps it onto files in dirname
+    :param func: function to map
+    :param dirname: dir of files to do function on
+    :param arglist: args to func
+    :return:
+    '''
+    logging.debug('applying function {} to files in directory {} with arguments {}'.format(func,dirname,str(arglist)))
+    only_files = [f for f in os.listdir(dirname) if os.path.isfile(os.path.join(dirname, f))]
+    for a_file in only_files:
+        fullpath = os.path.join(dirname,a_file)
+        func(fullpath,arglist)
+
+def map_function_on_dir_of_dirs(func,dir_of_dirs,**arglist):
+    '''
+    takes a function that has a filename as first arg and maps it onto files in directory of directories
+    :param func: function to map
+    :param dir_of_dirs: dir of dirs to do function on
+    :param arglist: args to func
+    :return:
+    '''
+    logging.debug('applying function {} to files in directories under directory {} with arguments {}'.format(func,dir_of_dirs,str(arglist)))
+    only_dirs = [dir for dir in os.listdir(dir_of_dirs) if os.path.isdir(os.path.join(dir_of_dirs,dir))]
+    for a_dir in only_dirs:
+        fullpath = os.path.join(dir_of_dirs,a_dir)
+        map_function_on_dir(func,fullpath,**arglist)
+
+
+def parent_dir(path):
+    '''
+    returns parent of file or dir pointed to by path
+    :param path:
+    :return: parent
+    '''
+    return os.path.abspath(os.path.join(path, os.pardir))
+
 
 
 ############################

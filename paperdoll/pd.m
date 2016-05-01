@@ -4,6 +4,12 @@ function [mask,label_names,pose] = pd(image_filename)
 disp(['the image sent to pd in matlab is:' image_filename])
 %todo - check if we cant load this once only (when engine is created)
 
+logname = strcat(image_filename,'.log')
+fid = fopen(logname, 'a+');
+s = sprintf('starting pd.m analysis of %s\n',image_filename)
+fprintf(fid, s);
+fclose(fid);
+
 mask = [] ;
 label_names = [] ;
 pose = [] ;
@@ -47,7 +53,7 @@ disp('debug6')
 
 result = feature_calculator.apply(config, input_sample)
 disp('debug7')
-result = feature_calculator.apply(config, input_sample)
+%result = feature_calculator.apply(config, input_sample)
 
 if ~ isfield(result, 'final_labeling')
     % paperdoll failed to return result
@@ -89,6 +95,14 @@ disp('debug16')
 %profsave(profile('info'),'myprofile_results')
 toc
 disp('debug17')
+
+logname = strcat(image_filename,'.log')
+fid = fopen(logname, 'a+');
+s = sprintf('finished pd.m analysis of %s\n',image_filename)
+fprintf(fid, s);
+fclose(fid);
+
+
 return
 
 

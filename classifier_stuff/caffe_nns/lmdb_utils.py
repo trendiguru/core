@@ -6,12 +6,16 @@ import matplotlib.image as mpimg
 import numpy as np
 import cv2
 import os
+import socket
 import lmdb
 from PIL import Image
-from trendi.utils import imutils
-from trendi import Utils
 import random
 import logging
+import copy
+
+from trendi.utils import imutils
+from trendi import Utils
+from trendi import constants
 
 logging.basicConfig(level=logging.WARNING)
 
@@ -32,6 +36,14 @@ logging.basicConfig(level=logging.WARNING)
 
 ################LMDB FUN (originally) RIPPED FROM http://deepdish.io/2015/04/28/creating-lmdb-in-python/
 #############changes by awesome d.j. jazzy jer  awesomest hAckz0r evarr
+def db_size(dbname):
+    env = lmdb.open(dbname)
+    db_stats=env.stat()
+    #print db_stats
+    db_size = db_stats['entries']
+    print('size of db {}:{}'.format(dbname,db_size))
+    return db_size
+
 def dir_of_dirs_to_lmdb(dbname,dir_of_dirs,test_or_train=None,max_images_per_class = 1000,resize_x=128,resize_y=128,avg_B=None,avg_G=None,avg_R=None,resize_w_bb=True,use_visual_output=False,shuffle=True):
     print('writing to lmdb {} test/train {} max {} new_x {} new_y {} avgB {} avg G {} avgR {}'.format(dbname,test_or_train,max_images_per_class,resize_x,resize_y,avg_B,avg_G,avg_R))
     initial_only_dirs = [dir for dir in os.listdir(dir_of_dirs) if os.path.isdir(os.path.join(dir_of_dirs,dir))]
@@ -45,7 +57,6 @@ def dir_of_dirs_to_lmdb(dbname,dir_of_dirs,test_or_train=None,max_images_per_cla
             #maybe this is irrelevant and we can do this once
             only_dirs.append(a_dir)
     print(str(len(only_dirs))+' relevant dirs:'+str(only_dirs)+' in '+dir_of_dirs)
-
 
     map_size = 1e13  #size of db in bytes, can also be done by 10X actual size  as in:
     # We need to prepare the database for the size. We'll set it 10 times
@@ -140,35 +151,111 @@ def dir_of_dirs_to_lmdb(dbname,dir_of_dirs,test_or_train=None,max_images_per_cla
     return classno, n_for_each_class,image_number
 
 
-def interleaved_dir_of_dirs_to_lmdb(dbname,dir_of_dirs,test_or_train=None,max_images_per_class = 1000,resize_x=None,resize_y=100,avg_B=None,avg_G=None,avg_R=None,
-                                    resize_w_bb=True,use_visual_output=False,shuffle=True,use_bb_from_name=False,n_channels=3):
+def crop_dir(dir_to_crop,resize_x,resize_y,save_cropped=False,use_bb_from_name=True):
+#fix this up to make it work
+    all_files = [f for f in os.listdir(dir_to_crop) if os.path.isfile(f)]
+    cropped_dir = os.path.join(dir_to_crop,'cropped')
+    Utils.ensure_dir(cropped_dir)
+
+    for a_file in all_files:
+        cropped_name = os.path.join(cropped_dir,'cropped_'+a_file)
+        fullname = os.path.join(dir_to_crop,a_file)
+        if use_bb_from_name:
+            resized = imutils.resize_and_crop_image_using_bb(fullname, output_file=cropped_name,output_w=resize_x,output_h=resize_y,use_visual_output=use_visual_output)
+        else:
+            resized = cv2.resize(img_arr,(resize_x,resize_y))
+        if resized is not None:
+            img_arr = resized
+        else:
+            logging.warning('resize failed')
+            continue  #didnt do good resize
+        h=img_arr.shape[0]
+        w=img_arr.shape[1]
+
+def generate_binary_dbs(dir_of_dirs,filter='test'):
+    '''
+    This will generate all binary combos from a directory, e.g. dir_a,dir_b,dir_c will lead to db_a_vs_b, db_a_vs_c, db_b_vs_c
+    :param dir_of_dirs:
+    :param filter: required word in dirs , e.g. 'train' to limit dirs to those that have 'train' in the name
+    :return:list of db locations
+    '''
+    if filter is not None:
+        only_dirs = [dir for dir in os.listdir(dir_of_dirs) if os.path.isdir(os.path.join(dir_of_dirs,dir)) and filter in dir]
+    else:
+        only_dirs = [dir for dir in os.listdir(dir_of_dirs) if os.path.isdir(os.path.join(dir_of_dirs,dir)) ]
+    only_dirs.sort()
+    print(str(len(only_dirs))+' relevant dirs in '+dir_of_dirs)
+
+    for dir1 in only_dirs:
+        remaining_dirs = only_dirs.de
+
+def interleaved_dir_of_dirs_to_lmdb(dbname,dir_of_dirs,positive_filter=None,max_images_per_class = 15000,
+                                    resize_x=None,resize_y=None,write_cropped=False,
+                                    avg_B=None,avg_G=None,avg_R=None,
+                                    use_visual_output=False,use_bb_from_name=True,n_channels=3,binary_class_filter=None):
 # maybe try randomize instead of interleave, cn use del list[index]
-    print('writing to lmdb {} test/train {} max {} new_x {} new_y {} avgB {} avg G {} avgR {}'.format(dbname,test_or_train,max_images_per_class,resize_x,resize_y,avg_B,avg_G,avg_R))
+    print('writing to lmdb {} filter {} max {} new_x {} new_y {} avgB {} avg G {} avgR {} binfilt {}'.format(dbname,positive_filter,max_images_per_class,resize_x,resize_y,avg_B,avg_G,avg_R,binary_class_filter))
     initial_only_dirs = [dir for dir in os.listdir(dir_of_dirs) if os.path.isdir(os.path.join(dir_of_dirs,dir))]
     initial_only_dirs.sort()
  #   print(str(len(initial_only_dirs))+' dirs:'+str(initial_only_dirs)+' in '+dir_of_dirs)
     # txn is a Transaction object
+    #prepare directories
     only_dirs = []
     for a_dir in initial_only_dirs:
-        if (not test_or_train) or a_dir[0:4]==test_or_train[0:4]:
-            #open and close db every class to cut down on memory
-            #maybe this is irrelevant and we can do this once
+        #only take 'test' or 'train' dirs, if test_or_train is specified
+        if (not positive_filter or positive_filter in a_dir):
             only_dirs.append(a_dir)
     only_dirs.sort()
     print(str(len(only_dirs))+' relevant dirs in '+dir_of_dirs)
+   # print only_dirs
 
+    #prepare files
 #    random.shuffle(only_dirs)  #this gets confusing as now the class labels change every time
-    n_classes = len(only_dirs)
-    print('{} classes'.format(n_classes))
-    all_files = {}
+    all_files = []
     classno = 0
-    for a_dir in only_dirs:
-        # do only test or train dirs if this param was sent
-        fulldir = os.path.join(dir_of_dirs,a_dir)
-        print('class:'+str(classno)+' dir:'+str(fulldir))
-        only_files = [f for f in os.listdir(fulldir) if os.path.isfile(os.path.join(fulldir, f))]
-        all_files[a_dir] = only_files
-        classno += 1
+    # setup db for binary (yes or no) classes - any dirs with filter word are class 0, everything else class 1
+    if binary_class_filter is not None:
+        n_classes = 2
+        all_files.append([])  #init the empty classes with empty lists
+        all_files.append([])
+        for a_dir in only_dirs:
+            # do only test or train dirs if this param was sent
+            fulldir = os.path.join(dir_of_dirs,a_dir)
+            only_files = [os.path.join(fulldir,f) for f in os.listdir(fulldir) if os.path.isfile(os.path.join(fulldir, f))]
+            if binary_class_filter in a_dir: #class 0 (usu. will be positives)
+                print('class 0: dir:'+str(fulldir))
+                all_files[0] += only_files  #add only_files to all_files[0] (concatenates lists)
+            else:               #class 1 (usu will be negatives)
+                print('class 1: dir:'+str(fulldir))
+                all_files[1] += only_files
+    #shuffle the entries in the two classes since one (the second) is made of grouped cats
+        random.shuffle(all_files[0])
+        random.shuffle(all_files[1])
+    #keep same number of positives and negatives
+        n_positives = len(all_files[0])
+        n_negatives = len(all_files[1])
+        n_min = min(n_positives,n_negatives)
+        n_min = min(n_min,max_images_per_class)
+
+        all_files[0] = all_files[0][0:n_min-1]
+        all_files[1] = all_files[1][0:n_min-1]
+        print('positives {} negatives {} after pos {} neg {}'.format(n_positives,n_negatives,len(all_files[0]),len(all_files[1])))
+# setup db for multiple classes in alphabetical order of directory
+    else:
+        n_classes = len(only_dirs)
+        classno=0
+        for a_dir in only_dirs:
+            # do only test or train dirs if this param was sent
+            fulldir = os.path.join(dir_of_dirs,a_dir)
+            print('class:'+str(classno)+' dir:'+str(fulldir))
+            only_files = [os.path.join(fulldir,f) for f in os.listdir(fulldir) if os.path.isfile(os.path.join(fulldir, f))]
+            random.shuffle(only_files)
+            n_min = min(len(only_files),max_images_per_class)
+            truncated_files = only_files[0:n_min]
+            print('len of {} is {} truncated to {}'.format(a_dir,len(only_files),len(truncated_files)))
+            all_files.append(truncated_files)
+            classno += 1
+    print('{} classes, binary filter is {}'.format(n_classes,binary_class_filter))
 
     map_size = 1e13  #size of db in bytes, can also be done by 10X actual size  as in:
     # We need to prepare the database for the size. We'll set it 10 times
@@ -178,8 +265,6 @@ def interleaved_dir_of_dirs_to_lmdb(dbname,dir_of_dirs,test_or_train=None,max_im
     # transaction.
 #    map_size = X.nbytes * 10
 
-    if test_or_train:
-        dbname = dbname+'.'+test_or_train
     print('writing to db:'+dbname)
     got_image = False
     classno = -1
@@ -194,25 +279,23 @@ def interleaved_dir_of_dirs_to_lmdb(dbname,dir_of_dirs,test_or_train=None,max_im
             if classno == n_classes:
                 classno = 0
                 image_number_in_class += 1
-                if got_image == False:
+                if got_image == False: #Will only be false if we got thru all classes but processed no images
                     print('no images left in any dirs')
                     break  #no images left
                 got_image = False
-            # do only test or train dirs if this param was sent
-            a_dir = only_dirs[classno]
-            fulldir = os.path.join(dir_of_dirs,a_dir)
+
+#            a_dir = only_dirs[classno]
+#            fulldir = os.path.join(dir_of_dirs,a_dir)
 #            print('fulldir:'+str(fulldir))
-            only_files = all_files[a_dir]
+            only_files = all_files[classno]
             n = len(only_files)
             if image_number_in_class >= n:
-#                print('reached end of images in '+a_dir+' which has '+str(n)+' files, skipping to next class')
+ #               print('reached end of images in class'+str(classno)+' which has '+str(n)+' files, skipping to next class')
                 continue
    #         print('n files {} in {} current {} class {}'.format(n,a_dir,image_number_in_class,classno),end='')
             a_file =only_files[image_number_in_class]
-            fullname = os.path.join(fulldir,a_file)
-            cropped_dir= os.path.join(fulldir,'cropped')
-            Utils.ensure_dir(cropped_dir)
-            cropped_name= os.path.join(cropped_dir,'cropped_'+a_file)
+#            fullname = os.path.join(fulldir,a_file)
+            fullname = a_file
             #img_arr = mpimg.imread(fullname)  #if you don't have cv2 handy use matplotlib
             img_arr = cv2.imread(fullname)
             if img_arr is  None:
@@ -220,10 +303,17 @@ def interleaved_dir_of_dirs_to_lmdb(dbname,dir_of_dirs,test_or_train=None,max_im
                 continue
             h_orig=img_arr.shape[0]
             w_orig=img_arr.shape[1]
-            if h_orig ==0 or w_orig == 0:
-                logging.warning('skipping due to zero width or height:'+fullname)
+            if h_orig < constants.nn_img_minimum_sidelength or w_orig < constants.nn_img_minimum_sidelength:
+                logging.warning('skipping {} due to  width {} or height {} being less than {}:'.format(fullname,w_orig,h_orig,constants.nn_img_minimum_sidelength))
                 continue
             if(resize_x is not None):
+                cropped_name = None
+                if write_cropped is True:
+                    base_dir = os.path.dirname(a_file)
+                    base_name = os.path.basename(a_file)
+                    cropped_dir = os.path.join(base_dir,'cropped')
+                    Utils.ensure_dir(cropped_dir)
+                    cropped_name = os.path.join(cropped_dir,'cropped_'+base_name)
                 if use_bb_from_name:
                     resized = imutils.resize_and_crop_image_using_bb(fullname, output_file=cropped_name,output_w=resize_x,output_h=resize_y,use_visual_output=use_visual_output)
                 else:
@@ -235,10 +325,11 @@ def interleaved_dir_of_dirs_to_lmdb(dbname,dir_of_dirs,test_or_train=None,max_im
                     continue  #didnt do good resize
             h=img_arr.shape[0]
             w=img_arr.shape[1]
-#            print('img {} after resize w:{} h:{} (before was {}x{} name:{}'.format(image_number, h,w,h_orig,w_orig,fullname))
+        #            print('img {} after resize w:{} h:{} (before was {}x{} name:{}'.format(image_number, h,w,h_orig,w_orig,fullname))
             if use_visual_output is True:
                 cv2.imshow('img',img_arr)
                 cv2.waitKey(0)
+            #these pixel value offsets can be removed using caffe (in the test/train protobuf)- so currently these are None and this part is not entered
             if avg_B is not None and avg_G is not None and avg_R is not None:
                 img_arr[:,:,0] = img_arr[:,:,0]-avg_B
                 img_arr[:,:,1] = img_arr[:,:,1]-avg_G
@@ -262,11 +353,11 @@ def interleaved_dir_of_dirs_to_lmdb(dbname,dir_of_dirs,test_or_train=None,max_im
             img_arr = img_arr.transpose((2,0,1))
 
 #                    img_reshaped = img_arr.reshape((datum.channels,datum.height,datum.width))
-            print('reshaped size: '+str(img_arr.shape))
+#            print('reshaped size: '+str(img_arr.shape))
             datum.data = img_arr.tobytes()  # or .tostring() if numpy < 1.9
             datum.label = classno
             str_id = '{:08}'.format(image_number)
-            print('db: {} strid:{} w:{} h:{} d:{} class:{} name {}'.format(dbname,str_id,datum.width,datum.height,datum.channels,datum.label,a_file)),
+            print('db: {} strid:{} w:{} h:{} d:{} shape {} class:{} name {}'.format(dbname,str_id,datum.width,datum.height,datum.channels,img_arr.shape,datum.label,a_file)),
             # The encode is only essential in Python 3
             try:
                 txn.put(str_id.encode('ascii'), datum.SerializeToString())
@@ -284,6 +375,129 @@ def interleaved_dir_of_dirs_to_lmdb(dbname,dir_of_dirs,test_or_train=None,max_im
 
     #You can also open up and inspect an existing LMDB database from Python:
 # assuming here that dataum.data, datum.channels, datum.width etc all exist as in dir_of_dirs_to_lmdb
+
+def fcn_dirs_to_lmdb(dbname,image_dir,label_dir,resize_x=None,resize_y=None,avg_B=None,avg_G=None,avg_R=None,
+                     use_visual_output=False,imgfilter='.jpg',labelsuffix='.png',shuffle=True,label_strings=constants.fashionista_categories_augmented):
+# maybe try randomize instead of interleave, cn use del list[index]
+    print('writing to lmdb {} filter {} lblsuffix {} new_x {} new_y {} avgB {} avg G {} avgR {}'.format(dbname,imgfilter,labelsuffix,resize_x,resize_y,avg_B,avg_G,avg_R))
+    imagefiles = [f for f in os.listdir(image_dir) if imgfilter in f]
+    imagefiles.sort()
+    print(str(len(imagefiles))+' relevant images in '+dir_of_dirs)
+    if shuffle:
+        print('shuffling images')
+        random.shuffle(imagefiles)  #this gets confusing as now the class labels change every time
+
+    map_size = 1e13  #size of db in bytes, can also be done by 10X actual size  as in: map_size = X.nbytes * 10
+
+    got_image = False
+    image_number =0
+    env = lmdb.open(dbname, map_size=map_size)
+
+    with env.begin(write=True) as txn:      # txn is a Transaction object
+        for a_file in imagefiles:
+            full_image_name = os.path.join(image_dir,a_file)
+            label_name = a_file.split(imgfilter)[0]
+            label_name = label_name + labelsuffix
+            full_label_name = os.path.join(label_dir,label_name)
+            #img_arr = mpimg.imread(fullname)  #if you don't have cv2 handy use matplotlib
+            print('imagefile:'+full_image_name)
+            print('labelfile:'+full_label_name)
+            if not os.path.exists(full_image_name):
+                logging.warning('could not find image file '+full_image_name)
+                continue
+            if not os.path.exists(full_label_name):
+                logging.warning('could not find label file '+full_label_name)
+                continue
+            img_arr = cv2.imread(full_image_name)
+            if img_arr is  None:
+                logging.warning('could not read:'+full_image_name)
+                continue
+            label_arr = cv2.imread(full_label_name,cv2.IMREAD_GRAYSCALE)
+            if label_arr is  None:
+                logging.warning('could not read:'+full_label_name)
+                continue
+            if len(label_arr.shape) == 3:
+                print('read multichann label, using chan 0')
+                label_arr = label_arr[:,:,0]
+
+            h_orig=img_arr.shape[0]
+            w_orig=img_arr.shape[1]
+            h_label_orig=label_arr.shape[0]
+            w_label_orig=label_arr.shape[1]
+            if len(img_arr.shape) == 2:
+                n_channels = 1
+            else:
+                n_channels = 3
+            if h_orig < constants.nn_img_minimum_sidelength or w_orig < constants.nn_img_minimum_sidelength:
+                logging.warning('skipping {} due to  width {} or height {} being less than {}:'.format(full_image_name,w_orig,h_orig,constants.nn_img_minimum_sidelength))
+                continue
+            if h_label_orig < constants.nn_img_minimum_sidelength or w_label_orig < constants.nn_img_minimum_sidelength:
+                logging.warning('skipping {} due to  width {} or height {} being less than {}:'.format(full_label_name,w_label_orig,h_label_orig,constants.nn_img_minimum_sidelength))
+                continue
+            if(resize_x is not None):
+                resized_image = cv2.resize(img_arr,(resize_x,resize_y))
+                resized_label = cv2.resize(label_arr,(resize_x,resize_y))
+                if resized_image is not None and resized_label is not None:
+                    img_arr = resized_image
+                    label_arr = resized_label
+                else:
+                    logging.warning('resize failed')
+                    continue  #didnt do good resize
+            h=img_arr.shape[0]
+            w=img_arr.shape[1]
+        #            print('img {} after resize w:{} h:{} (before was {}x{} name:{}'.format(image_number, h,w,h_orig,w_orig,fullname))
+            if use_visual_output is True:
+                cv2.imshow('img',img_arr)
+#                cv2.imshow('label',label_arr)
+                cv2.waitKey(0)
+                imutils.show_mask_with_labels_from_img_arr(label_arr,labels=label_strings)
+            #these pixel value offsets can be removed using caffe (in the test/train protobuf)- so currently these are None and this part is not entered
+            if avg_B is not None and avg_G is not None and avg_R is not None:
+                img_arr[:,:,0] = img_arr[:,:,0]-avg_B
+                img_arr[:,:,1] = img_arr[:,:,1]-avg_G
+                img_arr[:,:,2] = img_arr[:,:,2]-avg_R
+
+            datum = caffe.proto.caffe_pb2.Datum()
+            datum.height = img_arr.shape[0]
+            datum.width = img_arr.shape[1]
+
+            if n_channels == 1:  #for grayscale img
+                datum.channels = 1
+                blue_chan = img_arr[:,:,0]  #this doesnt look like it should work
+                datum.data = blue_chan.tobytes()  # or .tostring() if numpy < 1.9
+            else:
+                datum.channels = img_arr.shape[2]
+        #see https://github.com/BVLC/caffe/issues/1698 -       #reverse order of channels  - BGR -> RGB (and vice versa)
+                # no actual need for this as a. cv2 has BGR as default like caffe and
+                # b. this order is irrelevant unless you are trying to fine-tune trained net.
+#            img_arr = img_arr[:,:,::-1]     # and reorder with channel first, channel x  height x width
+            img_arr = img_arr.transpose((2,0,1))
+#           img_reshaped = img_arr.reshape((datum.channels,datum.height,datum.width))
+#            print('reshaped size: '+str(img_arr.shape))
+            print('img arr size:'+str(img_arr.shape)+ ' class:'+str(type(img_arr)))
+
+            datum.data = img_arr.tobytes()  # or .tostring() if numpy < 1.9
+
+            padded_label = copy.copy(label_arr[np.newaxis, ...])
+            print('padded label size:'+str(padded_label.shape)+' type:'+str(type(padded_label)))
+            datum.data = padded_label.tobytes()
+            str_id = '{:08}'.format(image_number)
+            print('db: {} strid:{} imgshape {} labelshape {} imgname {} lblname {}'.format(dbname,str_id,img_arr.shape,label_arr.shape,a_file,label_name))
+            # The encode is only essential in Python 3
+            try:
+                txn.put(str_id.encode('ascii'), datum.SerializeToString())
+    #            in_txn.put('{:0>10d}'.format(in_idx), im_dat.SerializeToString())
+                image_number += 1
+                got_image = True
+            except:
+                e = sys.exc_info()[0]
+                logging.warning('some problem with lmdb:'+str(e))
+            print
+    env.close()
+    return image_number
+
+
+
 def inspect_db(dbname,show_visual_output=True,B=0,G=0,R=0):
     env = lmdb.open(dbname, readonly=True)
     with env.begin() as txn:
@@ -326,9 +540,71 @@ def inspect_db(dbname,show_visual_output=True,B=0,G=0,R=0):
 
                 n+=1
                 if show_visual_output is True:
-                    cv2.imshow('lmdbout',x)
+                    cv2.imshow(dbname,x)
                     if cv2.waitKey(0) == ord('q'):
                         break
+            except:
+                print('error getting record {} from db'.format(n))
+                break
+
+#    with env.begin() as txn:
+ #       cursor = txn.cursor()
+  #      n=0
+   #     for key, value in cursor:
+    #        print('img {}  class {}'.format(n,value))
+#            print(key, value)
+   #         n=n+1
+
+def inspect_fcn_db(dbname,show_visual_output=True,mean=(0,0,0)):
+    env = lmdb.open(dbname, readonly=True)
+    with env.begin() as txn:
+        n=0
+        while(1):
+            try:
+                str_id = '{:08}'.format(n)
+#                print('strid:{} '.format(str_id))
+             # The encode is only essential in Python 3
+             #   txn.put(str_id.encode('ascii'), datum.SerializeToString())
+                raw_datum = txn.get(str_id.encode('ascii'))
+                print('strid {} rawdat size {}'.format(str_id,len(raw_datum)))
+#                raw_datum = txn.get(b'00000000')
+                datum = caffe.proto.caffe_pb2.Datum()
+                datum.ParseFromString(raw_datum)
+                flat_x = np.fromstring(datum.data, dtype=np.uint8)
+                print('db {} strid {} channels {} width {} height {} datumsize {} flatxsize {}'.format(dbname,str_id,datum.channels,datum.width,datum.height,len(raw_datum),len(flat_x)))
+
+
+                orig_x = flat_x.reshape(datum.channels, datum.height, datum.width)
+
+                flat_label = np.fromstring(datum.label, dtype=np.uint8)
+                print('label flatsize {}'.format(len(flat_label)))
+                orig_label = flat_label.reshape(datum.channels, datum.height, 1)   #maybe try wout 3rd arg
+
+                if datum.channels == 3:
+                    logging.debug('before transpose shape:'+str(orig_x.shape))
+# as the input is transposed to c,h,w  by transpose(2,0,1) we have to undo it with transpose(1,2,0)
+#h w c  transpose(2,0,1) -> c h w
+#c h w  transpose(1,2,0) -> h w c
+                    x = orig_x.transpose((1,2,0))
+                    logging.debug('after transpose shape:'+str(x.shape))
+      #              x = flat_x.reshape(datum.height, datum.width,datum.channels)
+                    x[:,:,0] = x[:,:,0]+mean[0]
+                    x[:,:,1] = x[:,:,1]+mean[1]
+                    x[:,:,2] = x[:,:,2]+mean[2]
+                elif datum.channels == 1:
+   #                 print('reshaping 1 chan')
+                    x = flat_x.reshape(datum.height, datum.width)
+                    x[:,:] = x[:,:]+B
+                y = datum.label
+                print('db {} image# {} datasize {} labelshape {} w {} h {} ch {} rawsize {} flatsize {} labelsize {}'
+                      .format(dbname,n,x.shape,y,datum.width,datum.height,datum.channels,len(raw_datum),len(flat_x),orig_label))
+
+                n+=1
+                if show_visual_output is True:
+                    cv2.imshow(dbname,x)
+                    if cv2.waitKey(0) == ord('q'):
+                        break
+                    imutils.show_mask_with_labels(orig_label,constants.fashionista_categories_augmented)
             except:
                 print('error getting record {} from db'.format(n))
                 break
@@ -370,34 +646,57 @@ def kill_db(db_name):
         in_txn.drop(db)
         print in_txn.stat()
 
+host = socket.gethostname()
+print('host:'+str(host))
+
 if __name__ == "__main__":
-    dir_of_dirs = '/home/jeremy/core/classifier_stuff/caffe_nns/dataset'
-    dir_of_dirs = '/home/jr/python-packages/trendi/classifier_stuff/caffe_nns/dataset'
+    if host == 'jr-ThinkPad-X1-Carbon':
+        dir_of_dirs = '/home/jr/core/classifier_stuff/caffe_nns/dataset'
+        binary_class_filter = 'dresses'
+    else:
+        dir_of_dirs = '/home/jeremy/core/classifier_stuff/caffe_nns/dataset/cropped'
+#    dir_of_dirs = '/home/jr/python-packages/trendi/classifier_stuff/caffe_nns/dataset'
     print('dir:'+dir_of_dirs)
 #    h,w,d,B,G,R,n = imutils.image_stats_from_dir_of_ditestrs(dir_of_dirs)
-    resize_x = 200
-    #resize_y = int(h*128/w)
-    resize_y= 100
-   # B=int(B)
-   # G=int(G)
-    #R=int(R)
     B=142
     G=151
     R=162
-    B=0
-    G=0
-    R=0
+    B= 104
+    G = 116
+    R = 122
+    resize_x=150
+    resize_y=200
+    resize_x=None
+    resize_y=None
 #    kill_db('testdb.test')
  #   kill_db('testdb.train')
-    db = 'mydb2'
-    use_visual_output = False
- #   n_test_classes,test_populations,test_imageno = interleaved_dir_of_dirs_to_lmdb('mydb2',dir_of_dirs,max_images_per_class =150,test_or_train='test',resize_x=resize_x,resize_y=resize_y,
-   #                                                                                avg_B=B,avg_G=G,avg_R=R,use_visual_output=use_visual_output,n_channels=1)
+    db_name = 'fcnn_fullsize_allcats'
+    image_dir = '/home/jeremy/image_dbs/colorful_fashion_parsing_data/images/train'
+    label_dir = '/home/jeremy/image_dbs/colorful_fashion_parsing_data/labels'
+
+    fcn_dirs_to_lmdb(db_name,image_dir,label_dir,resize_x=None,resize_y=None,avg_B=B,avg_G=G,avg_R=R,
+                     use_visual_output=True,imgfilter='.jpg',labelsuffix='.png',shuffle=True,label_strings=constants.fashionista_categories_augmented)
+    inspect_db(db_name,mean=(B,G,R))
+
+#    n_test_classes,test_populations,test_imageno = interleaved_dir_of_dirs_to_lmdb(db_name,dir_of_dirs,max_images_per_class =3000,
+#                                                                                   positive_filter='test',use_visual_output=use_visual_output,
+#                                                                                  n_channels=3,resize_x=resize_x,resize_y=resize_y,
+#                                                                                  binary_class_filter='dresses')
+#    print('n_test classes {} pops {} test_imageno {}'.format(n_test_classes,test_populations,test_imageno))
+
+ #   n_test_classes,test_populations,test_imageno = interleaved_dir_of_dirs_to_lmdb(db_name,dir_of_dirs,max_images_per_class =13000,
+ #                                                                                  positive_filter='train',use_visual_output=use_visual_output,
+ #                                                                                  n_channels=3,resize_x=resize_x,resize_y=resize_y,
+ #                                                                                  binary_class_filter='dresses')
+ #   print(yp'n_test classes {} populationss {} test_imageno {}'.format(n_test_classes,test_populations,test_imageno))
+
+#    n_test_classes,test_populations,test_imageno = interleaved_dir_of_dirs_to_lmdb('todel',dir_of_dirs,max_images_per_class =150000,test_or_train='test',resize_x=resize_x,resize_y=resize_y,
+#                                                                                   avg_B=B,avg_G=G,avg_R=R,use_visual_output=use_visual_output,n_channels=1)
 #    n_train_classes,train_populations,train_imageno = interleaved_dir_of_dirs_to_lmdb('mydb2',dir_of_dirs,max_images_per_class =150,test_or_train='train',resize_x=resize_x,resize_y=resize_y,avg_B=B,avg_G=G,avg_R=R)
    # print('{} test classes with {} files'.format(n_test_classes,test_populations))
    # print('{} train classes with {} files'.format(n_train_classes,train_populations))
-    inspect_db('highly_populated_cropped.test',show_visual_output=True,B=B,G=G,R=R)
-    inspect_db('highly_populated_cropped.train',show_visual_output=True,B=B,G=G,R=R)
+#    inspect_db('highly_populated_cropped.test',show_visual_output=True,B=B,G=G,R=R)
+#    inspect_db('highly_populated_cropped.train',show_visual_output=True,B=B,G=G,R=R)
    # inspect_db('mydb.train',show_visual_output=False,B=B,G=G,R=R)
 
 #  weighted averages of 16 directories: h:1742.51040222 w1337.66435506 d3.0 B 142.492848614 G 151.617458606 R 162.580921717 totfiles 1442
