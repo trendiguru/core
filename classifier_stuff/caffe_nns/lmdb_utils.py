@@ -394,7 +394,7 @@ def fcn_individual_dirs_to_lmdb(image_dbname,label_dbname,image_dir,label_dir,re
     :return:
     '''
 # maybe try randomize instead of interleave, cn use del list[index]
-    print('writing to lmdb {} filter {} lblsuffix {} new_x {} new_y {} avgB {} avg G {} avgR {}'.format(dbname,imgsuffix,labelsuffix,resize_x,resize_y,avg_B,avg_G,avg_R))
+    print('writing to lmdb {} filter {} lblsuffix {} new_x {} new_y {} avgB {} avg G {} avgR {}'.format(image_dbname,imgsuffix,labelsuffix,resize_x,resize_y,avg_B,avg_G,avg_R))
     if imgsuffix:
         imagefiles = [f for f in os.listdir(image_dir) if imgsuffix in f]
     else:
