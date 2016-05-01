@@ -1060,9 +1060,9 @@ def img_dir_to_html(img_dir,filter='.jpg',htmlname=None):
         parentdir = os.path.abspath(os.path.join(img_dir, os.pardir))
         htmlname=parentdir+'.html'
         htmlname=img_dir.replace('/','_')+'.html'
-    with open(htmlname,'w') as f
+    with open(htmlname,'w') as f:
         f.write(lines)
-
+        f.close()
 '''
 <HTML><HEAD><TITLE>classifier, fingerprint results</TITLE>
 <br>
