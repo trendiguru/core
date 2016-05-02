@@ -503,16 +503,15 @@ def fcn_individual_dirs_to_lmdb(image_dbname,label_dbname,image_dir,label_dir,re
         #redoing thiws with  3 channels due to cafe complaint - 240K vs 720 K
         #obviously misguided attempt being redone:
 #   F0502 10:10:28.617626 15482 softmax_loss_layer.cpp:42] Check failed: outer_num_ * inner_num_ == bottom[1]->count() (240000 vs. 720000) Number of labels must match number of predictions; e.g., if softmax axis == 1 and prediction shape is (N, C, H, W), label count (number of labels) must be N*H*W, with integer values in {0, 1, ..., C-1}.
-#ok now wrapping inner dimension
                 print('label array shape:'+str(label_arr.shape))
                 if len(label_arr.shape) != 2:
                     print('read multichann label, taking first layer')
 #                    label_arr = np.array([label_arr[:,:],label_arr[:,:],label_arr[:,:]])
                     label_arr = label_arr[:,:,0]
-                    label_arr = np.array([label_arr])
+#                    label_arr = np.array([label_arr])
                 else:
-                    print('read singlechann label, expanding')
-                    label_arr = np.array([label_arr])
+                    print('read singlechann label')
+#                    label_arr = np.array([label_arr])
 #                    label_arr = label_arr.transpose((2,0,1))
                 print('db: {} strid:{} imgshape {} lblshape {} imgname {} lblname {}'.format(image_dbname,str_id,img_arr.shape,label_arr.shape,a_file,label_name))
 
