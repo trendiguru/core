@@ -728,9 +728,6 @@ def inspect_fcn_db(dbname,show_visual_output=True,mean=(0,0,0)):
 
                 orig_x = flat_x.reshape(datum.channels, datum.height, datum.width)
 
-                flat_label = np.fromstring(datum.label, dtype=np.uint8)
-                print('label flatsize {}'.format(len(flat_label)))
-                orig_label = flat_label.reshape(datum.channels, datum.height, 1)   #maybe try wout 3rd arg
 
                 if datum.channels == 3:
                     logging.debug('before transpose shape:'+str(orig_x.shape))
@@ -747,16 +744,15 @@ def inspect_fcn_db(dbname,show_visual_output=True,mean=(0,0,0)):
    #                 print('reshaping 1 chan')
                     x = flat_x.reshape(datum.height, datum.width)
                     x[:,:] = x[:,:]+B
-                y = datum.label
-                print('db {} image# {} datasize {} labelshape {} w {} h {} ch {} rawsize {} flatsize {} labelsize {}'
-                      .format(dbname,n,x.shape,y,datum.width,datum.height,datum.channels,len(raw_datum),len(flat_x),orig_label))
 
+                print('db {} image# {} datasize {} w {} h {} ch {} rawsize {} flatsize {} labelsize {}'
+                      .format(dbname,n,x.shape,y,datum.width,datum.height,datum.channels,len(raw_datum),len(flat_x)))
                 n+=1
                 if show_visual_output is True:
                     cv2.imshow(dbname,x)
                     if cv2.waitKey(0) == ord('q'):
                         break
-                    imutils.show_mask_with_labels(orig_label,constants.fashionista_categories_augmented)
+ #                   imutils.show_mask_with_labels(orig_label,constants.fashionista_categories_augmented)
             except:
                 print('error getting record {} from db'.format(n))
                 break
@@ -839,7 +835,7 @@ if __name__ == "__main__":
 
     #fcn_dirs_to_lmdb(db_name,image_dir,label_dir,resize_x=None,resize_y=None,avg_B=B,avg_G=G,avg_R=R,
     #                 use_visual_output=True,imgfilter='.jpg',labelsuffix='.png',shuffle=True,label_strings=constants.fashionista_categories_augmented)
-    inspect_db(db_name,mean=(B,G,R))
+    inspect_fcn_db(label_dbname,mean=(B,G,R))
 
 #    n_test_classes,test_populations,test_imageno = interleaved_dir_of_dirs_to_lmdb(db_name,dir_of_dirs,max_images_per_class =3000,
 #                                                                                   positive_filter='test',use_visual_output=use_visual_output,
