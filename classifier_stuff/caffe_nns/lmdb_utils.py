@@ -508,7 +508,8 @@ def fcn_individual_dirs_to_lmdb(image_dbname,label_dbname,image_dir,label_dir,re
                 if len(label_arr.shape) != 2:
                     print('read multichann label, taking first layer')
 #                    label_arr = np.array([label_arr[:,:],label_arr[:,:],label_arr[:,:]])
-                    label_arr = np.array([label_arr[:,:,0]])
+                    label_arr = label_arr[:,:,0]
+                    label_arr = np.array([label_arr])
 #                else:
   #                  print('read singlechann label, expanding')
     #                label_arr = label_arr.transpose((2,0,1))
