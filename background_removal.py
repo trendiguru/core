@@ -130,6 +130,8 @@ def face_is_relevant(image, face):
 
 def is_skin_color(face_ycrcb):
     h, w, d = face_ycrcb.shape
+    if not w*h:
+        return False
     num_of_skin_pixels = 0
     for i in range(0, h):
         for j in range(0, w):
