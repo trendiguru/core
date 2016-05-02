@@ -821,8 +821,8 @@ if __name__ == "__main__":
     db_name = 'fcnn_fullsize_allcats'
     image_dir = '/home/jeremy/image_dbs/colorful_fashion_parsing_data/images/test'
     label_dir = '/home/jeremy/image_dbs/colorful_fashion_parsing_data/labels'
-    image_dbname='/root/imgdbs/image_dbs/lmdb/images_test'
-    label_dbname='/root/imgdbs/image_dbs/lmdb/labels_test'
+    image_dbname='/home/jeremy/image_dbs/lmdb/images_test'
+    label_dbname='/home/jeremy/image_dbs/lmdb/labels_test'
     fcn_individual_dirs_to_lmdb(image_dbname,label_dbname,image_dir,label_dir,resize_x=None,resize_y=None,avg_B=None,avg_G=None,avg_R=None,
                      use_visual_output=False,imgsuffix='.jpg',labelsuffix='.png',shuffle=False)
 
