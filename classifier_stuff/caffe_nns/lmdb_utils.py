@@ -519,7 +519,7 @@ def fcn_individual_dirs_to_lmdb(image_dbname,label_dbname,image_dir,label_dir,re
                 labeldatum.width = label_arr.shape[1]
                 labeldatum.data = label_arr.tobytes()  # or .tostring() if numpy < 1.9
                 try:
-                    txn_label.put(str_id.encode('ascii'), datum.SerializeToString())
+                    txn_label.put(str_id.encode('ascii'), labeldatum.SerializeToString())
                 except:
                     e = sys.exc_info()[0]
                     logging.warning('some problem with label lmdb:'+str(e))
