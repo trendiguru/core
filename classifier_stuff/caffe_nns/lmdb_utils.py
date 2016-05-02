@@ -514,8 +514,9 @@ def fcn_individual_dirs_to_lmdb(image_dbname,label_dbname,image_dir,label_dir,re
                 print('db: {} strid:{} imgshape {} lblshape {} imgname {} lblname {}'.format(image_dbname,str_id,img_arr.shape,label_arr.shape,a_file,label_name))
 
                 labeldatum = caffe.proto.caffe_pb2.Datum()
-                labeldatum.height = img_arr.shape[0]
-                labeldatum.width = img_arr.shape[1]
+                labeldatum.channels = 1
+                labeldatum.height = label_arr.shape[0]
+                labeldatum.width = label_arr.shape[1]
                 labeldatum.data = label_arr.tobytes()  # or .tostring() if numpy < 1.9
                 try:
                     txn_label.put(str_id.encode('ascii'), datum.SerializeToString())
