@@ -1656,6 +1656,8 @@ if __name__ == "__main__":
 # caffe train -solver=solver_prototxt
 # resume training
 # /opt/caffe/build/tools/caffe train --solver=solver.prototxt --snapshot=caffenet_train_iter_10000.solverstate
+#finetune
+# build/tools/caffe train  -solver models/finetune_flickr_style/solver.prototxt -weights models/bvlc_reference_caffenet/bvlc_reference_caffenet.caffemodel     -gpu 0
 
 
 #to test

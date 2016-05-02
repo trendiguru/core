@@ -444,10 +444,14 @@ def fcn_individual_dirs_to_lmdb(image_dbname,label_dbname,image_dir,label_dir,re
                 if label_arr is  None:
                     logging.warning('could not read:'+full_label_name)
                     continue
-                if len(label_arr.shape) == 3:
+        #redoing thiws with  3 channels due to cafe complaint - 240K vs 720 K
+#   F0502 10:10:28.617626 15482 softmax_loss_layer.cpp:42] Check failed: outer_num_ * inner_num_ == bottom[1]->count() (240000 vs. 720000) Number of labels must match number of predictions; e.g., if softmax axis == 1 and prediction shape is (N, C, H, W), label count (number of labels) must be N*H*W, with integer values in {0, 1, ..., C-1}.
+                if len(label_arr.shape) != 3:
                     print('read multichann label, using chan 0')
-                    label_arr = label_arr[:,:,0]
-
+                    label_arr = [label_arr[:,:],label_arr[:,:],label_arr[:,:]]
+                else:
+                    label_arr = label_arr.transpose((2,0,1))
+                print('label arr shape:'+str(label_arr.shape))
                 h_orig=img_arr.shape[0]
                 w_orig=img_arr.shape[1]
                 h_label_orig=label_arr.shape[0]
@@ -819,11 +823,17 @@ if __name__ == "__main__":
 #    kill_db('testdb.test')
  #   kill_db('testdb.train')
     db_name = 'fcnn_fullsize_allcats'
-    image_dir = '/home/jeremy/image_dbs/colorful_fashion_parsing_data/images/train'
+    image_dir = '/home/jeremy/image_dbs/colorful_fashion_parsing_data/images/test'
     label_dir = '/home/jeremy/image_dbs/colorful_fashion_parsing_data/labels'
     image_dbname='images_test'
     label_dbname='labels_test'
+    fcn_individual_dirs_to_lmdb(image_dbname,label_dbname,image_dir,label_dir,resize_x=None,resize_y=None,avg_B=None,avg_G=None,avg_R=None,
+                     use_visual_output=False,imgsuffix='.jpg',labelsuffix='.png',shuffle=False)
 
+    image_dir = '/home/jeremy/image_dbs/colorful_fashion_parsing_data/images/train'
+    label_dir = '/home/jeremy/image_dbs/colorful_fashion_parsing_data/labels'
+    image_dbname='images_train'
+    label_dbname='labels_train'
     fcn_individual_dirs_to_lmdb(image_dbname,label_dbname,image_dir,label_dir,resize_x=None,resize_y=None,avg_B=None,avg_G=None,avg_R=None,
                      use_visual_output=False,imgsuffix='.jpg',labelsuffix='.png',shuffle=False)
 
