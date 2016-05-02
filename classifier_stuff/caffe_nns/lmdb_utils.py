@@ -440,31 +440,14 @@ def fcn_individual_dirs_to_lmdb(image_dbname,label_dbname,image_dir,label_dir,re
                 if img_arr is  None:
                     logging.warning('could not read:'+full_image_name)
                     continue
-                label_arr = cv2.imread(full_label_name,cv2.IMREAD_GRAYSCALE)
-                if label_arr is  None:
-                    logging.warning('could not read:'+full_label_name)
-                    continue
-        #redoing thiws with  3 channels due to cafe complaint - 240K vs 720 K
-#   F0502 10:10:28.617626 15482 softmax_loss_layer.cpp:42] Check failed: outer_num_ * inner_num_ == bottom[1]->count() (240000 vs. 720000) Number of labels must match number of predictions; e.g., if softmax axis == 1 and prediction shape is (N, C, H, W), label count (number of labels) must be N*H*W, with integer values in {0, 1, ..., C-1}.
-                if len(label_arr.shape) != 3:
-                    print('read multichann label, using chan 0')
-                    label_arr = np.array([label_arr[:,:],label_arr[:,:],label_arr[:,:]])
-                else:
-                    label_arr = label_arr.transpose((2,0,1))
-                print('label arr shape:'+str(label_arr.shape))
                 h_orig=img_arr.shape[0]
                 w_orig=img_arr.shape[1]
-                h_label_orig=label_arr.shape[0]
-                w_label_orig=label_arr.shape[1]
                 if len(img_arr.shape) == 2:
                     n_channels = 1
                 else:
                     n_channels = 3
                 if h_orig < constants.nn_img_minimum_sidelength or w_orig < constants.nn_img_minimum_sidelength:
                     logging.warning('skipping {} due to  width {} or height {} being less than {}:'.format(full_image_name,w_orig,h_orig,constants.nn_img_minimum_sidelength))
-                    continue
-                if h_label_orig < constants.nn_img_minimum_sidelength or w_label_orig < constants.nn_img_minimum_sidelength:
-                    logging.warning('skipping {} due to  width {} or height {} being less than {}:'.format(full_label_name,w_label_orig,h_label_orig,constants.nn_img_minimum_sidelength))
                     continue
                 if(resize_x is not None):
                     resized_image = cv2.resize(img_arr,(resize_x,resize_y))
@@ -513,7 +496,20 @@ def fcn_individual_dirs_to_lmdb(image_dbname,label_dbname,image_dir,label_dir,re
                     e = sys.exc_info()[0]
                     logging.warning('some problem with lmdb:'+str(e))
 
-            ###write label
+            ###get, write label
+                label_arr = cv2.imread(full_label_name,cv2.IMREAD_GRAYSCALE)
+                if label_arr is  None:
+                    logging.warning('could not read:'+full_label_name)
+                    continue
+        #redoing thiws with  3 channels due to cafe complaint - 240K vs 720 K
+#   F0502 10:10:28.617626 15482 softmax_loss_layer.cpp:42] Check failed: outer_num_ * inner_num_ == bottom[1]->count() (240000 vs. 720000) Number of labels must match number of predictions; e.g., if softmax axis == 1 and prediction shape is (N, C, H, W), label count (number of labels) must be N*H*W, with integer values in {0, 1, ..., C-1}.
+                if len(label_arr.shape) != 3:
+                    print('read multichann label, using chan 0')
+                    label_arr = np.array([label_arr[:,:],label_arr[:,:],label_arr[:,:]])
+                else:
+                    label_arr = label_arr.transpose((2,0,1))
+                print('label arr shape:'+str(label_arr.shape))
+
                 labeldatum = caffe.proto.caffe_pb2.Datum()
                 labeldatum.height = img_arr.shape[0]
                 labeldatum.width = img_arr.shape[1]
