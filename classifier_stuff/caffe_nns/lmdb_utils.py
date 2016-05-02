@@ -513,6 +513,8 @@ def fcn_individual_dirs_to_lmdb(image_dbname,label_dbname,image_dir,label_dir,re
                     print('read singlechann label')
 #                    label_arr = np.array([label_arr])
 #                    label_arr = label_arr.transpose((2,0,1))
+                uniques = np.unique(label_arr)
+                print('unqies'+str(uniques))
                 print('db: {} strid:{} imgshape {} lblshape {} imgname {} lblname {}'.format(image_dbname,str_id,img_arr.shape,label_arr.shape,a_file,label_name))
 
                 labeldatum = caffe.proto.caffe_pb2.Datum()
