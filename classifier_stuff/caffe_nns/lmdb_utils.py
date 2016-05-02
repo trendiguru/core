@@ -504,6 +504,7 @@ def fcn_individual_dirs_to_lmdb(image_dbname,label_dbname,image_dir,label_dir,re
         #obviously misguided attempt being redone:
 #   F0502 10:10:28.617626 15482 softmax_loss_layer.cpp:42] Check failed: outer_num_ * inner_num_ == bottom[1]->count() (240000 vs. 720000) Number of labels must match number of predictions; e.g., if softmax axis == 1 and prediction shape is (N, C, H, W), label count (number of labels) must be N*H*W, with integer values in {0, 1, ..., C-1}.
                 print('label array shape:'+str(label_arr.shape))
+                label_arr = label_arr - 1
                 if len(label_arr.shape) != 2:
                     print('read multichann label, taking first layer')
 #                    label_arr = np.array([label_arr[:,:],label_arr[:,:],label_arr[:,:]])
