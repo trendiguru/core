@@ -30,13 +30,11 @@ text_file = open("live_data_set_links.txt", "w")
 for m_counter in xrange(male_count):
     # writing to txt file
     text_file.write(str(male_curser[m_counter]['url']) + ' 1 ' + str(male_curser[m_counter]['face']) + '\n')
-    print male_curser[m_counter]['url'][1]
     print m_counter
 
 for f_counter in xrange(male_count):
     # writing to txt file
     text_file.write(str(female_curser[f_counter]['url']) + ' 0 ' + str(female_curser[f_counter]['face']) + '\n')
-    print female_curser[f_counter]['url'][1]
     print f_counter
 
 text_file.flush()
