@@ -44,10 +44,10 @@ def crop_face(raw_image, x_dirty, y_dirty, w_dirty, h_dirty):
     if image == 'Fail':
         return 'Fail'
 
-    x = filter(lambda x: x.isdigit(), x_dirty)
-    y = filter(lambda x: x.isdigit(), y_dirty)
-    w = filter(lambda x: x.isdigit(), w_dirty)
-    h = filter(lambda x: x.isdigit(), h_dirty)
+    x = int(filter(lambda x: x.isdigit(), x_dirty))
+    y = int(filter(lambda x: x.isdigit(), y_dirty))
+    w = int(filter(lambda x: x.isdigit(), w_dirty))
+    h = int(filter(lambda x: x.isdigit(), h_dirty))
 
     face_image = image[y: y + h, x: x + w]
 
