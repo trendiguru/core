@@ -49,7 +49,7 @@ def crop_face(raw_image, coordinates):
     w = coordinates[2]
     h = coordinates[3]
 
-    face_image = image[y:(y + h), x:(x + w)]
+    face_image = image[y: y + h, x: x + w]
 
     return face_image
 
