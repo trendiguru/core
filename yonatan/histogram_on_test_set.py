@@ -20,7 +20,7 @@ import matplotlib.pyplot as plt
 array_success = np.array([])
 array_failure = np.array([])
 
-text_file = open("55k_face_test_list.txt", "r")
+text_file = open("live_data_set_ready.txt", "r")
 
 counter = 0
 
@@ -83,4 +83,4 @@ plt.legend()
 plt.hist(array_failure, alpha=0.5, label='array_failure')
 plt.legend()
 
-histogram.savefig('imdb_test_image.png')
+histogram.savefig('live_test_image.png')
