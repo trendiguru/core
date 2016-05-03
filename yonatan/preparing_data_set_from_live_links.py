@@ -72,11 +72,12 @@ for line in file:
     words = file_as_array_by_lines.split()
 
     if words == []:
-        print 'empty string!!!!!!!!'
+        print 'empty string!'
         continue
 
     face_image = crop_face(words[0], words[2], words[3], words[4], words[5])
     if face_image == 'Fail':
+        print 'face_image not found!'
         continue
     # Resize it.
     resized_image = cv2.resize(face_image, (width, height))
