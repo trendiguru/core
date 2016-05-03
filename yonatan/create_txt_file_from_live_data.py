@@ -39,5 +39,5 @@ text_file.flush()
 
 lines = open('live_data_set_links.txt').readlines()
 random.shuffle(lines)
-#open('live_data_set_links.txt', 'w').writelines(lines)
+open('live_data_set_links.txt', 'w').writelines(lines)
 
