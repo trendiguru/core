@@ -50,6 +50,8 @@ def crop_face(raw_image, x_dirty, y_dirty, w_dirty, h_dirty):
     w = int(filter(lambda x: x.isdigit(), w_dirty))
     h = int(filter(lambda x: x.isdigit(), h_dirty))
 
+    print type(image)
+
     face_image = image[y: y + h, x: x + w]
 
     return face_image
