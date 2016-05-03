@@ -24,6 +24,7 @@ def cv2_image_to_caffe(image):
 def url_to_image(url):
     # download the image, convert it to a NumPy array, and then read
     # it into OpenCV format
+    print url
     resp = urllib.urlopen(url)
     image = np.asarray(bytearray(resp.read()), dtype="uint8")
     if image.size == 0:
