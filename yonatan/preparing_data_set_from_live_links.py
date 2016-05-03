@@ -39,22 +39,15 @@ def cv2_image_to_caffe(image):
     return skimage.img_as_float(cv2.cvtColor(image, cv2.COLOR_BGR2RGB)).astype(np.float32)
 
 
-def crop_face(raw_image, coordinates):
+def crop_face(raw_image, x_dirty, y_dirty, w_dirty, h_dirty):
     image = url_to_image(raw_image)
     if image == 'Fail':
         return 'Fail'
 
-    filter(lambda x: x.isdigit(), coordinates)
-
-    print filter(lambda x: x.isdigit(), coordinates)
-    print coordinates[0]
-    print coordinates[0][0]
-    print coordinates[0,0]
-
-    x = coordinates[0][0]
-    y = coordinates[0][1]
-    w = coordinates[0][2]
-    h = coordinates[0][3]
+    x = filter(lambda x: x.isdigit(), x_dirty)
+    y = filter(lambda x: x.isdigit(), y_dirty)
+    w = filter(lambda x: x.isdigit(), w_dirty)
+    h = filter(lambda x: x.isdigit(), h_dirty)
 
     face_image = image[y: y + h, x: x + w]
 
