@@ -24,19 +24,22 @@ female_count = db.yonatan_gender.count({'gender': 'Female'})
 male_curser = db.yonatan_gender.find({'gender': 'Male'})
 female_curser = db.yonatan_gender.find({'gender': 'Female'})
 
-
+# open txt file
 text_file = open("live_data_set_links.txt", "w")
 
 for m_counter in xrange(male_count):
+    # writing to txt file
     text_file.write(str(male_curser[m_counter]['url']) + ' 1 ' + str(male_curser[m_counter]['face']) + '\n')
     print m_counter
 
 for f_counter in xrange(male_count):
+    # writing to txt file
     text_file.write(str(female_curser[f_counter]['url']) + ' 0 ' + str(female_curser[f_counter]['face']) + '\n')
     print f_counter
 
 text_file.flush()
 
+# shuffle the txt file
 lines = open('live_data_set_links.txt').readlines()
 random.shuffle(lines)
 open('live_data_set_links.txt', 'w').writelines(lines)
