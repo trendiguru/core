@@ -44,10 +44,10 @@ def crop_face(raw_image, coordinates):
     if image == 'Fail':
         return 'Fail'
 
-    x = int(coordinates[0])
-    y = int(coordinates[1])
-    w = int(coordinates[2])
-    h = int(coordinates[3])
+    x = coordinates[0][0]
+    y = coordinates[0][1]
+    w = coordinates[0][2]
+    h = coordinates[0][3]
 
     face_image = image[y: y + h, x: x + w]
 
