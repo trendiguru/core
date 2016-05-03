@@ -73,7 +73,7 @@ for line in file:
     if words == []:
         continue
 
-    face_image = crop_face(words[0], words[2])
+    face_image = crop_face(words[0], words[2], words[3], words[4], words[5])
     if face_image == 'Fail':
         continue
     # Resize it.
