@@ -28,13 +28,19 @@ female_curser = db.yonatan_gender.find({'gender': 'Female'})
 text_file = open("live_data_set_links.txt", "w")
 
 for m_counter in xrange(male_count):
+    url = male_curser[m_counter]['url']
+    if isinstance(url, list):
+        url = url[0]
     # writing to txt file
-    text_file.write(str(male_curser[m_counter]['url']) + ' 1 ' + str(male_curser[m_counter]['face']) + '\n')
+    text_file.write(str(url) + ' 1 ' + str(male_curser[m_counter]['face']) + '\n')
     print m_counter
 
 for f_counter in xrange(male_count):
+    url = female_curser[f_counter]['url']
+    if isinstance(url, list):
+        url = url[0]
     # writing to txt file
-    text_file.write(str(female_curser[f_counter]['url']) + ' 0 ' + str(female_curser[f_counter]['face']) + '\n')
+    text_file.write(str(url) + ' 0 ' + str(female_curser[f_counter]['face']) + '\n')
     print f_counter
 
 text_file.flush()
