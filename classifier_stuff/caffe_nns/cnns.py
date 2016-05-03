@@ -1656,10 +1656,30 @@ if __name__ == "__main__":
 # caffe train -solver=solver_prototxt
 # resume training
 # /opt/caffe/build/tools/caffe train --solver=solver.prototxt --snapshot=caffenet_train_iter_10000.solverstate
+#finetune
+# build/tools/caffe train  -solver models/finetune_flickr_style/solver.prototxt -weights models/bvlc_reference_caffenet/bvlc_reference_caffenet.caffemodel     -gpu 0
 
 
 #to test
+        #make sure you have accuracy layer
+'''
+        layer {
+  name: "accuracy"
+  type: "Accuracy"
+  bottom: "score"
+  bottom: "label"
+  top: "accuracy"
+  include {
+    phase: TEST
+  }
+}
+'''
+
 #caffe test -model test.prototxt -weights model.caffemodel -gpu 0 -iterations 100
+#        /root/caffe/build/tools/caffe test -model val.prototxt -weights snapshot_nn2/train_iter_164620.caffemodel -gpu 0 -iterations 200
+
+
+
 #/opt/caffe/build/tools/caffe test -model cropped_dataset/my_solver.test.prototxt -weights cropped_dataset_iter_3000.caffemodel  -gpu 0 -iterations 500
 
 #run of googLeNet_1_inception started at 61G used 71G free mem

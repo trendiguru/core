@@ -4,17 +4,27 @@ import numpy as np
 from PIL import Image
 import caffe
 import os
+import time
 
-def infer(images,prototxt,caffemodel):
+def infer(images,prototxt,caffemodel,out_dir='./'):
     # load net
-    caffe.set_mode_gpu();
-    caffe.set_device(0);
     net = caffe.Net(prototxt,caffemodel, caffe.TEST)
+    dims = [150,100]
+    start_time = time.time()
     for imagename in images:
         print('working on:'+imagename)
-        # load image, switch to BGR, subtract mean, and make dims C x H x W for Caffe
+            # load image, switch to BGR, subtract mean, and make dims C x H x W for Caffe
         im = Image.open(imagename)
+        im = im.resize(dims,Image.ANTIALIAS)
         in_ = np.array(im, dtype=np.float32)
+        if len(in_.shape) != 3:
+            print('got 1-chan image, skipping')
+            continue
+        elif in_.shape[2] != 3:
+            print('got n-chan image, skipping - shape:'+str(in_.shape))
+            continue
+
+        print('size:'+str(in_.shape))
         in_ = in_[:,:,::-1]
         in_ -= np.array((104.00698793,116.66876762,122.67891434))
         in_ = in_.transpose((2,0,1))
@@ -25,35 +35,33 @@ def infer(images,prototxt,caffemodel):
         net.forward()
         out = net.blobs['score'].data[0].argmax(axis=0)
         result = Image.fromarray(out.astype(np.uint8))
-#        outname = im.strip('.png')[0]+'out.bmp'
-        outname = os.path.basename(imagename)
-        outname = outname.split('.jpg')[0]+'out.bmp'
+    #        outname = im.strip('.png')[0]+'out.bmp'
+            outname = os.path.basename(imagename)
+        outname = outname.split('.jpg')[0]+'.bmp'
+        outname = os.path.join(out_dir,outname)
         print('outname:'+outname)
-        result.save(outname)
-        fullout = net.blobs['score'].data[0]
-
-def tileimages(dir,suffix='.bmp'):
-    images = [os.path.join(dir,f) for f in os.listdir(test_dir) if '.jpg' in f]
-    im1=images[0]
-    n=len(images)
-    pics_on_a_side = np.ceil(np.sqrt(n))
-    tot_img=np.zeros()
-    for i in images:
-        fullname = os.path.join(dir,i)
-        img_arr=
-
+            result.save(outname)
+    #        fullout = net.blobs['score'].data[0]
+    elapsed_time=time.time()-start_time
+    print('elapsed time:'+str(elapsed_time)+' tpi:'+str(elapsed_time/len(images)))
 
 if __name__ == "__main__":
+    caffe.set_mode_gpu();
+    caffe.set_device(0);
     print('starting')
-    test_dir = '/root/imgdbs/image_dbs/colorful_fashion_parsing_data/images/test'
+    test_dir = '/root/imgdbs/image_dbs/doorman/irrelevant/'
+    out_dir = '/root/imgdbs/image_dbs/doorman/irrelevant_output'
+    test_dir = '/root/imgdbs/image_dbs/colorful_fashion_parsing_data/images/test_200x150/'
+    out_dir = '/root/imgdbs/image_dbs/150x100output_010516/'
 #    label_dir = '/root/imgdbs/image_dbs/colorful_fashion_parsing_data/labels/'
-    images = [os.path.join(test_dir,f) for f in os.listdir(test_dir) if '.jpg' in f]
+#    images = [os.path.join(test_dir,f) for f in os.listdir(test_dir) if '.jpg' in f or 'jpeg' in f or '.bmp' in f]
+    images = [os.path.join(test_dir,f) for f in os.listdir(test_dir) if '.jpg' in f ]
     print('nimages:'+str(len(images)))
 #    images = [f.strip('.jpg')[0]+'.png' for f in images]
 #    print('images:'+str(images))
 #    images = [os.path.join(label_dir,f) for f in images]
 #    print('images:'+str(images))
     prototxt = 'deploy.prototxt'
-    caffemodel = 'snapshot/train_iter_75000.caffemodel'
-    infer(images,prototxt,caffemodel)
-
+    caffemodel = 'snapshot_nn2/train_iter_183534.caffemodel'
+    caffemodel = 'snapshot_nn2/train_iter_164620.caffemodel'  #010516 saved
+    infer(images,prototxt,caffemodel,out_dir=out_dir)

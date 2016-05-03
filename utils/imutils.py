@@ -16,6 +16,7 @@ import socket
 import copy
 from trendi import constants
 import matplotlib.pyplot as plt
+import shutil
 
 os.environ['REDIS_HOST']='10'
 os.environ['MONGO_HOST']='10'
@@ -270,8 +271,8 @@ def resize_and_crop_image( input_file_or_np_arr, output_file=None, output_side_l
     else:
         new_width = output_side_length * width / height
     resized_img = cv2.resize(input_file_or_np_arr, (new_width, new_height))
-    height_offset = (new_height - output_side_length) / 2
-    width_offset = (new_width - output_side_length) / 2
+    height_offset = int((new_height - output_side_length) / 2)
+    width_offset = int((new_width - output_side_length) / 2)
     cropped_img = resized_img[height_offset:height_offset + output_side_length,
                               width_offset:width_offset + output_side_length]
     if use_visual_output is True:
@@ -281,6 +282,77 @@ def resize_and_crop_image( input_file_or_np_arr, output_file=None, output_side_l
     if output_file is not None:
         cv2.imwrite(output_file, cropped_img)
     return cropped_img
+
+def resize_keep_aspect_dir(dir,overwrite=False,output_size=(250,250),use_visual_output=False,filefilter='.jpg'):
+    files = [ f for f in os.listdir(dir) if filefilter in f]
+    for file in files:
+        fullname = os.path.join(dir,file)
+        if overwrite:
+            newname = fullname
+        else:
+            newname = file.split(filefilter)[0]+'_resized'+filefilter
+            newname = os.path.join(dir,newname)
+        print('infile:{} desired size:{}'.format(fullname,output_size))
+        resize_keep_aspect(fullname, output_file=newname, output_size = output_size,use_visual_output=use_visual_output)
+
+def resize_keep_aspect(input_file_or_np_arr, output_file=None, output_size = (300,200),use_visual_output=False):
+    '''
+    Takes an image name/arr, resize keeping aspect ratio, filling extra areas with edge values
+    :param input_file_or_np_arr:
+    :param output_file:name for output
+    :param output_size:size of output image (height,width)
+    :param use_visual_output:
+    :return:
+    '''
+
+    if isinstance(input_file_or_np_arr,basestring):
+        input_file_or_np_arr = cv2.imread(input_file_or_np_arr)
+
+    inheight, inwidth = input_file_or_np_arr.shape[0:2]
+    outheight, outwidth = output_size[:]
+    out_ar = float(outheight)/outwidth
+    in_ar = float(inheight)/inwidth
+    if len(input_file_or_np_arr.shape) == 3:
+        indepth = input_file_or_np_arr.shape[2]
+        output_img = np.ones([outheight,outwidth,indepth],dtype=np.uint8)
+    else:
+        indepth = 1
+        output_img = np.ones([outheight,outwidth],dtype=np.uint8)
+    print('input:{}x{}x{}'.format(inheight,inwidth,indepth))
+    actual_outheight, actual_outwidth = output_img.shape[0:2]
+    print('output:{}x{}'.format(actual_outheight,actual_outwidth))
+    if out_ar < in_ar:  #resize height to output height and fill left/right
+        factor = float(inheight)/outheight
+        new_width = int(float(inwidth) / factor)
+        resized_img = cv2.resize(input_file_or_np_arr, (new_width, outheight))
+        print('<resize size:'+str(resized_img.shape)+' outw:'+str(outwidth)+' neww:'+str(new_width))
+        width_offset = (outwidth - new_width ) / 2
+        output_img[:,width_offset:width_offset+new_width,:] = resized_img[:,:,:]
+        for n in range(0,width_offset):  #doing this like the below runs into a broadcast problem which could prob be solved by reshaping
+#            output_img[:,0:width_offset] = resized_img[:,0]
+#            output_img[:,width_offset+new_width:] = resized_img[:,-1]
+            output_img[:,n] = resized_img[:,0]
+            output_img[:,n+new_width+width_offset] = resized_img[:,-1]
+    else:   #resize width to output width and fill top/bottom
+        factor = float(inwidth)/outwidth
+        new_height = int(float(inheight) / factor)
+        resized_img = cv2.resize(input_file_or_np_arr, (outwidth, new_height))
+        print('<resize size:'+str(resized_img.shape)+' outh:'+str(outheight)+' neww:'+str(new_height))
+        height_offset = (outheight - new_height) / 2
+        output_img[height_offset:height_offset+new_height,:,:] = resized_img[:,:,:]
+        output_img[0:height_offset,:] = resized_img[0,:]
+        output_img[height_offset+new_height:,:] = resized_img[-1,:]
+
+    if use_visual_output is True:
+        cv2.imshow('output', output_img)
+        cv2.imshow('orig',input_file_or_np_arr)
+#        cv2.imshow('res',resized_img)
+        cv2.waitKey(50)
+    if output_file is not None:
+        cv2.imwrite(output_file, output_img)
+    return output_img
+#dst = cv2.inpaint(img,mask,3,cv2.INPAINT_TELEA)
+
 
 def resize_and_crop_maintain_bb( input_file_or_np_arr, output_file=None, output_width = 150, output_height = 200,use_visual_output=False,bb=None):
     '''Takes an image name, resize it and crop the center square
@@ -643,7 +715,7 @@ def resize_and_crop_maintain_bb_on_dir(dir, output_width = 150, output_height = 
         fullfile = os.path.join(dir,a_file)
         retval = resize_and_crop_maintain_bb(fullfile, output_width = 150, output_height = 200,use_visual_output=True,bb=None)
 
-def show_mask_with_labels_dir(dir,filter=None,labels=constants.fashionista_categories_augmented_zero_based,original_images_dir=None,original_images_dir_alt=None):
+def show_mask_with_labels_dir(dir,labels,filter=None,original_images_dir=None,original_images_dir_alt=None,cut_the_crap=False,save_images=False):
     '''
 
     :param dir:
@@ -651,6 +723,7 @@ def show_mask_with_labels_dir(dir,filter=None,labels=constants.fashionista_categ
     :param labels: list of test labels for categories
     :param original_images_dir: dir of image (not labels)
     :param original_images_dir_alt: alternate dir of images (to deal with test/train directories)
+    :param cut_the_crap: sort images to keepers and tossers
     :return:
     '''
     if filter:
@@ -670,22 +743,24 @@ def show_mask_with_labels_dir(dir,filter=None,labels=constants.fashionista_categ
             original_altfullpaths = [os.path.join(original_images_dir_alt,f) for f in original_images]
         for x in range(0,len(files)):
             if os.path.exists(original_fullpaths[x]):
-                frac = show_mask_with_labels(fullpaths[x],labels,original_image=original_fullpaths[x])
+                frac,k = show_mask_with_labels(fullpaths[x],labels,original_image=original_fullpaths[x],cut_the_crap=cut_the_crap,save_images=save_images)
                 if frac is not None:
                     fraclist.append(frac)
                     totfrac = totfrac + frac
                     n=n+1
             elif original_images_dir_alt and os.path.exists(original_altfullpaths[x]):
-                frac = show_mask_with_labels(fullpaths[x],labels,original_image=original_altfullpaths[x])
+                frac,k = show_mask_with_labels(fullpaths[x],labels,original_image=original_altfullpaths[x],cut_the_crap=cut_the_crap,save_images=save_images)
                 if frac is not None:
                     fraclist.append(frac)
                     totfrac = totfrac + frac
                     n=n+1
             else:
                 logging.warning(' does not exist:'+original_fullpaths[x])
+                continue
+
     else:
         for f in fullpaths:
-            frac = show_mask_with_labels(f,labels)
+            frac,k = show_mask_with_labels(f,labels,cut_the_crap=cut_the_crap,save_images=save_images)
             if frac is not None:
                 fraclist.append(frac)
                 totfrac = totfrac + frac
@@ -703,7 +778,7 @@ def show_mask_with_labels_dir(dir,filter=None,labels=constants.fashionista_categ
 
 
 
-def show_mask_with_labels(mask_filename,labels,original_image=None):
+def show_mask_with_labels(mask_filename,labels,original_image=None,cut_the_crap=False,save_images=False):
     colormap = cv2.COLORMAP_JET
     img_arr = Utils.get_cv2_img_array(mask_filename,cv2.IMREAD_GRAYSCALE)
     if img_arr is None:
@@ -714,13 +789,13 @@ def show_mask_with_labels(mask_filename,labels,original_image=None):
         logging.warning('got a multichannel image, using chan 0')
         img_arr = img_arr[:,:,0]
     histo = np.histogram(img_arr,bins=len(labels)-1)
-    print('hist'+str(histo[0]))
+#    print('hist'+str(histo[0]))
     h,w = img_arr.shape[0:2]
     n_nonzero = np.count_nonzero(img_arr)
     n_tot = h*w
     frac = float(n_nonzero)/n_tot
     uniques = np.unique(img_arr)
-    print('number of unique mask values:'+str(len(uniques))+' frac nonzero:'+str(frac))
+    print('number of unique mask values:'+str(len(uniques))+' frac nonzero:'+str(frac) +' hxw:'+str(h)+','+str(w))
     if len(uniques)>len(labels):
         logging.warning('number of unique mask values > number of labels!!!')
         return
@@ -748,11 +823,10 @@ def show_mask_with_labels(mask_filename,labels,original_image=None):
         if unique > len(labels):
             logging.warning('pixel value out of label range')
             continue
-        print('unique:'+str(unique)+':'+labels[unique])
         colorbar[i*bar_height:i*bar_height+bar_height,:] = unique
 
 #        cv2.putText(colorbar,labels[unique],(5,i*bar_height+bar_height/2-10),cv2.FONT_HERSHEY_PLAIN,1,[i*255/len(uniques),i*255/len(uniques),100],thickness=2)
-        cv2.putText(colorbar,labels[unique],(5,i*bar_height+bar_height/2-5),cv2.FONT_HERSHEY_PLAIN,1,[50,200,200],thickness=2)
+#        cv2.putText(colorbar,labels[unique],(5,i*bar_height+bar_height/2-5),cv2.FONT_HERSHEY_PLAIN,1,[0,10,50],thickness=2)
         i=i+1
 
     scaled_colorbar = np.uint8(np.multiply(colorbar, max_huelevel / maxVal))
@@ -763,26 +837,97 @@ def show_mask_with_labels(mask_filename,labels,original_image=None):
     dest_colorbar[:,:,2] = vallevel  #value
     dest_colorbar = dest_colorbar.astype(np.uint8)
     dest_colorbar = cv2.cvtColor(dest_colorbar,cv2.COLOR_HSV2BGR)
+
+ #have to do labels here to get black
+    i = 0
+    for unique in uniques:
+        if unique > len(labels):
+            logging.warning('pixel value out of label range')
+            continue
+        pixelcount = len(img_arr[img_arr==unique])
+        print('unique:'+str(unique)+':'+labels[unique]+' pixcount:'+str(pixelcount))
+        cv2.putText(dest_colorbar,labels[unique]+' '+str(pixelcount),(5,int(i*bar_height+float(bar_height)/2+5)),cv2.FONT_HERSHEY_PLAIN,1,[0,10,50],thickness=1)
+        i=i+1
+
     #dest_colorbar = cv2.applyColorMap(scaled_colorbar, colormap)
-    combined = np.zeros([h,w+w_colorbar,3])
+    combined = np.zeros([h,w+w_colorbar,3],dtype=np.uint8)
     combined[:,0:w_colorbar]=dest_colorbar
     combined[:,w_colorbar:w_colorbar+w]=dest
-    cv2.imshow('map',dest)
-    cv2.imshow('colorbar',dest_colorbar)
-    cv2.imshow('combined',combined)
     if original_image is not None:
         orig_arr = cv2.imread(original_image)
         if orig_arr is not None:
             height, width = orig_arr.shape[:2]
-            if height>400:
-                print('got a big one, resizing')
-                orig_arr = cv2.resize(orig_arr,(int(width*400.0/height),400))
-            cv2.imshow('original',orig_arr)
+            minheight=500
+            if height>minheight:
+                print('got a big one (hxw {}x{}) resizing'.format(height,width))
+                factor = float(minheight)/height
+                orig_arr = cv2.resize(orig_arr,(int(round(width*factor)),minheight))
+#                print('factor {} newsize {}'.format(factor,orig_arr.shape) )
+
+                colorbar_h,colorbar_w = dest_colorbar.shape[0:2]
+                factor = float(minheight)/colorbar_h
+                dest_colorbar = cv2.resize(dest_colorbar,(int(round(colorbar_w*factor)),int(round(colorbar_h*factor))))
+#                print('cbarfactor {} newsize {}'.format(factor,dest_colorbar.shape) )
+
+                dest_h,dest_w = dest.shape[0:2]
+                factor = float(minheight)/dest_h
+                dest = cv2.resize(dest,(int(round(dest_w*factor)),int(round(dest_h*factor))))
+#                print('maskfactor {} newsize {}'.format(factor,dest.shape) )
+
+        #    cv2.imshow('original',orig_arr)
+            colorbar_h,colorbar_w = dest_colorbar.shape[0:2]
+            dest_h,dest_w = dest.shape[0:2]
+            orig_h,orig_w = orig_arr.shape[0:2]
+#            print('colobar size {} masksize {} imsize {}'.format(dest_colorbar.shape,dest.shape,orig_arr.shape))
+            combined = np.zeros([dest_h,dest_w+orig_w+colorbar_w,3],dtype=np.uint8)
+            combined[:,0:colorbar_w]=dest_colorbar
+            combined[:,colorbar_w:colorbar_w+dest_w]=dest
+            combined[:,colorbar_w+dest_w:]=orig_arr
+
         else:
             logging.warning('could not get image '+original_image)
-    cv2.waitKey(0)
-    return frac
-#        cv2.destroyAllWindows()
+ #   cv2.imshow('map',dest)
+ #   cv2.imshow('colorbar',dest_colorbar)
+    relative_name = os.path.basename(mask_filename)
+    cv2.imshow(relative_name,combined)
+    k = cv2.waitKey(0)
+    if save_images:
+        outname=relative_name.split('.bmp')[0]
+        outname=outname+'_legend.jpg'
+        full_outname=os.path.join(os.path.dirname(mask_filename),outname)
+        print(full_outname)
+        cv2.imwrite(full_outname,combined)
+
+    if cut_the_crap:  #move selected to dir_removed, move rest to dir_kept
+        print('(d)elete (c)lose anything else keeps')
+        indir = os.path.dirname(mask_filename)
+        parentdir = os.path.abspath(os.path.join(indir, os.pardir))
+        curdir = os.path.split(indir)[1]
+        print('in {} parent {} cur {}'.format(indir,parentdir,curdir))
+        if k == ord('d'):
+            newdir = curdir+'_removed'
+            dest_dir = os.path.join(parentdir,newdir)
+            Utils.ensure_dir(dest_dir)
+            print('REMOVING moving {} to {}'.format(mask_filename,dest_dir))
+            shutil.move(mask_filename,dest_dir)
+
+        elif k == ord('c'):
+            newdir = curdir+'_needwork'
+            dest_dir = os.path.join(parentdir,newdir)
+            Utils.ensure_dir(dest_dir)
+            print('CLOSE so moving {} to {}'.format(mask_filename,dest_dir))
+            shutil.move(mask_filename,dest_dir)
+
+        else:
+            newdir = curdir+'_kept'
+            dest_dir = os.path.join(parentdir,newdir)
+            Utils.ensure_dir(dest_dir)
+            print('KEEPING moving {} to {}'.format(mask_filename,dest_dir))
+            shutil.move(mask_filename,dest_dir)
+
+    cv2.destroyAllWindows()
+
+    return frac,k
 #        return dest
 
 def show_mask_with_labels_from_img_arr(mask,labels):
@@ -899,6 +1044,34 @@ def nms_detections(dets, overlap=0.3):
     return dets[pick, :]
 
 
+def img_dir_to_html(img_dir,filter='.jpg',htmlname=None):
+    imglist = [i for i in os.listdir(img_dir) if filter in i]
+    line_no=0
+    lines=[]
+
+    if htmlname is None:
+        parentdir = os.path.abspath(os.path.join(img_dir, os.pardir))
+        htmlname=parentdir+'.html'
+        htmlname=img_dir.replace('/','_')+'.html'
+        htmlname=img_dir.replace('/','')+'.html'
+    with open(htmlname,'w') as f:
+        lines.append('<HTML><HEAD><TITLE>results '+img_dir+' </TITLE></HEAD>\n')
+        for img in imglist:
+            f.write('<br>\n')
+            link = '"'+os.path.join(img_dir,img)+'"'
+            f.write('<img src='+link+'>')
+            #f.write('<a href='+link+'>'+img+'</a>\n')
+        f.write('</HTML>\n')
+        f.close()
+
+'''
+<HTML><HEAD><TITLE>classifier, fingerprint results</TITLE>
+<br>
+<a href="classifier_results/600x400_output_010516.html">fcnn 600x400 results 010516 </a>
+ accuracy = 0.842419 loss=0.58 tpi:0.38593655467
+'''
+
+
 host = socket.gethostname()
 print('host:'+str(host))
 
@@ -927,18 +1100,20 @@ if __name__ == "__main__":
 
     indir = '/home/jeremy/image_dbs/colorful_fashion_parsing_data/labels_200x150'
     outdir = '/home/jeremy/image_dbs/colorful_fashion_parsing_data/labels_200x150/reduced_cats'
-    defenestrate_directory(indir,outdir,filter='.png',keep_these_cats=[1,55,56,57],labels=constants.fashionista_categories_augmented)
+#    defenestrate_directory(indir,outdir,filter='.png',keep_these_cats=[1,55,56,57],labels=constants.fashionista_categories_augmented)
 
     if host == 'jr-ThinkPad-X1-Carbon' or host == 'jr':
         dir_of_dirs = '/home/jeremy/tg/train_pairs_dresses'
         output_dir = '/home/jeremy/tg/curated_train_pairs_dresses'
         sourcedir = '/home/jeremy/projects/core/d1'
         targetdir = '/home/jeremy/projects/core/d2'
+        infile =  '/home/jeremy/projects/core/images/female1.jpg'
     else:
         dir_of_dirs = '/home/jeremy/core/classifier_stuff/caffe_nns/dataset/cropped'
         output_dir = '/home/jeremy/core/classifier_stuff/caffe_nns/curated_dataset'
 
  #   kill_the_missing(sourcedir, targetdir)
+    resize_keep_aspect(infile, output_file=None, output_size = (300,200),use_visual_output=True)
 
 
 

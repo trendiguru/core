@@ -30,7 +30,7 @@ def image_is_relevant(image, use_caffe=False, image_url=None):
     - "for face in image_is_relevant(image).faces:"
     """
     Relevance = collections.namedtuple('relevance', 'is_relevant faces')
-    faces_dict - find_face_dlib(image, 10)
+    faces_dict = find_face_dlib(image, 10)
     # faces_dict = find_face_cascade(image, 10)
     # if len(faces_dict['faces']) == 0:
     #     faces_dict = find_face_ccv(image, 10)
@@ -87,7 +87,7 @@ def find_face_cascade(image, max_num_of_faces=10):
 def find_face_dlib(image, max_num_of_faces=10):
     faces = detector(image, 1)
     faces = [[rect.left(), rect.top(), rect.width(), rect.height()] for rect in list(faces)]
-    if len(faces) == 0:
+    if not len(faces):
         return {'are_faces': False, 'faces': []}
     return {'are_faces': True, 'faces': choose_faces(image, faces, max_num_of_faces)}
 
@@ -130,6 +130,8 @@ def face_is_relevant(image, face):
 
 def is_skin_color(face_ycrcb):
     h, w, d = face_ycrcb.shape
+    if not w*h:
+        return False
     num_of_skin_pixels = 0
     for i in range(0, h):
         for j in range(0, w):

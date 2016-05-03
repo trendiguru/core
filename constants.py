@@ -273,11 +273,27 @@ colorful_fashion_to_fashionista = {'bk':'null','T-shirt':'t-shirt','bag':'bag','
 colorful_fashion_to_fashionista_index_conversion = [(0,0),(1,4),(2,5),(3,27),(4,3),(5,11),(6,7),(7,14),(8,56),
         (9,54),(10,21),(11,18),(12,19),(13,15),(14,20),(15,6),(16,2),(17,55),(18,8),(19,28),(20,31),(21,26),(22,16)]
 
-tamara_berg_categories = ['backgnd', 'belt', 'dress', 'eyewear', 'footwear', 'hat', 'legging', 'outerwear', 'pants',
+tamara_berg_categories = ['bag', 'belt', 'dress', 'eyewear', 'footwear', 'hat', 'legging', 'outerwear', 'pants',
                           'skirts', 'top', 'skin', 'background']   # orig t.b. cats don't have skin or bg
 
-tamara_berg_improved_categories = ['backgnd','belt','dress','eyewear','footwear','hat','legging','outerwear','pants','skirts','top',
-                                   'skin','background','tights','shorts','blouse','bra','vest','suit','jeans','necklace','sweatshirt','tie']
+tamara_berg_improved_categories = ['background','belt','dress','eyewear','footwear','hat','legging','outerwear','pants','skirts',
+                                   'top','skin','BAG????','tights','shorts','blouse','bra','vest','suit','jeans',
+                                   'necklace','sweatshirt','tie']
+#I think nadav used 'baground' ie bag actually means background, so maybe background (label 12) means bag
+
+#21 cats for direct replacement of VOC systems
+#lose the necklace,
+#combine tights and leggings
+ultimate_21 = ['background','bag','belt','blouse','bra','dress','eyewear','footwear','hat','jeans',
+                             'legging','outerwear','pants','shorts','skin','skirts','suit','sweatshirt', 'tie','top',
+                             'vest']
+
+tamara_berg_improved_to_ultimate_21_index_conversion = [(0,1),(1,2),(2,5),(3,6),(4,7),(5,8),(6,10),(7,11),(8,12),(9,15),
+                  (10,19),(11,14),(12,0),(13,10),(14,13),(15,19),(16,4),(17,20),(18,16),(19,9),
+                  (20,0),(21,19),(22,18),(23,19)]
+
+fashionista_to_ultimate_21_index_conversion = []
+
 
 pascal_context_labels = ['background','aeroplane','bicycle','bird','boat','bottle','bus','car','cat','chair','cow','table','dog','horse','motorbike','person','pottedplant',\
 'sheep','sofa','train','tvmonitor','bag','bed','bench','book','building','cabinet','ceiling','cloth','computer','cup','door','fence',\
