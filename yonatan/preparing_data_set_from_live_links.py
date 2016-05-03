@@ -25,6 +25,10 @@ def url_to_image(url):
     # download the image, convert it to a NumPy array, and then read
     # it into OpenCV format
     print url
+
+    if url.count('jpg') > 1:
+        return 'Fail'
+
     resp = urllib.urlopen(url)
     image = np.asarray(bytearray(resp.read()), dtype="uint8")
     if image.size == 0:
