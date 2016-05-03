@@ -44,7 +44,9 @@ def crop_face(raw_image, coordinates):
     if image == 'Fail':
         return 'Fail'
 
-    print int(coordinates)
+    filter(lambda x: x.isdigit(), coordinates)
+
+    print filter(lambda x: x.isdigit(), coordinates)
     print coordinates[0]
     print coordinates[0][0]
     print coordinates[0,0]
