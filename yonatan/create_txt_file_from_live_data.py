@@ -16,6 +16,7 @@ import skimage
 import urllib
 from PIL import Image
 import pymongo; db = constants.db
+import random
 
 male_count = db.yonatan_gender.count({'gender': 'Male'})
 female_count = db.yonatan_gender.count({'gender': 'Female'})
@@ -35,4 +36,8 @@ for f_counter in xrange(male_count):
     print f_counter
 
 text_file.flush()
+
+lines = open('live_data_set_links.txt').readlines()
+random.shuffle(lines)
+#open('live_data_set_links.txt', 'w').writelines(lines)
 
