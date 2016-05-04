@@ -44,8 +44,8 @@ def theDetector(image):
     #inputs = np.load(input_file)
     #inputs = [caffe.io.load_image(input_file)]
 
-    print type(inputs)
-    print inputs.shape
+    #print type(inputs)
+    #print inputs.shape
 
     if not len(inputs):
         return 'None'
