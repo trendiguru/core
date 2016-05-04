@@ -27,23 +27,25 @@ classifier = caffe.Classifier(MODLE_FILE, PRETRAINED,
                               channel_swap=channel_swap)
 
 
-#def genderator(argv):
 def theDetector(image):
 #def theDetector(image, coordinates):
 
-    #input_image = sys.argv[1]
     #input_image = image[coordinates[1]: coordinates[1] + coordinates[3], coordinates[0]: coordinates[0] + coordinates[2]]
     input_image = image
 
 
     # Load numpy array (.npy), directory glob (*.jpg), or image file.
     input_file = os.path.expanduser(input_image)
-    #print("Loading file: %s" % input_file)
 
-    #inputs = Utils.get_cv2_img_array(input_file)
+    print type(input_file)
+
+    inputs = Utils.get_cv2_img_array(image)
 
     #inputs = np.load(input_file)
-    inputs = [caffe.io.load_image(input_file)]
+    #inputs = [caffe.io.load_image(input_file)]
+
+    print type(inputs)
+    print inputs.shape
 
     if not len(inputs):
         return 'None'

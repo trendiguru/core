@@ -26,7 +26,7 @@ def infer(images,prototxt,caffemodel,out_dir='./'):
 
         print('size:'+str(in_.shape))
         in_ = in_[:,:,::-1]
-        in_ -= np.array((104.00698793,116.66876762,122.67891434))
+        in_ -= np.array((104.0,116.7,122.7))
         in_ = in_.transpose((2,0,1))
         # shape for input (data blob is N x C x H x W), set data
         net.blobs['data'].reshape(1, *in_.shape)
