@@ -8,7 +8,7 @@ import cv2
 import time
 from trendi import constants
 from trendi import Utils
-from trendi.utils import imutils
+#from trendi.utils import imutils
 
 redis_conn = constants.redis_conn
 TTL = constants.general_ttl
@@ -32,14 +32,14 @@ MODEL_FILE = "/home/jeremy/caffenets/neuro_doorman/deploy.prototxt"
 PRETRAINED = "/home/jeremy/caffenets/neuro_doorman/_iter_8078.caffemodel"
 caffe.set_mode_gpu()
 image_dims = [227, 227]
-mean = [107,117,123], None
+mean = np.array([107,117,123])
 input_scale = None
 channel_swap = [2, 1, 0]
 raw_scale = 255.0
 # ext = 'jpg'
 
 # Make classifier.
-classifier = caffe.Classifier(MODE_FILE, PRETRAINED,
+classifier = caffe.Classifier(MODEL_FILE, PRETRAINED,
                               image_dims=image_dims, mean=mean,
                               input_scale=input_scale, raw_scale=raw_scale,
                               channel_swap=channel_swap)
@@ -122,7 +122,7 @@ def none_may_pass(caffenet, img_url_or_cv2_array):
     dims = [227,227]
 
     if img_ok:
-        img = imutils.resize_keep_aspect(img, output_file=None, output_size = dims,use_visual_output=False)
+#        img = imutils.resize_keep_aspect(img, output_file=None, output_size = dims,use_visual_output=False)
         print('image size:'+str(img.shape))
         if len(img.shape) != 3:
             print('got 1-chan image, skipping')
