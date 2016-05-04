@@ -35,7 +35,7 @@ ext = 'jpg'
 
 # Make classifier.
 classifier = caffe.Classifier(MODLE_FILE, PRETRAINED,
-                              image_dims=image_dims, mean=mean,
+                              image_dims=image_dims, mean=120,
                               input_scale=input_scale, raw_scale=raw_scale,
                               channel_swap=channel_swap)
 
