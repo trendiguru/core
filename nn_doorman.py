@@ -126,10 +126,10 @@ def none_may_pass(caffenet, img_url_or_cv2_array):
         print('image size:'+str(img.shape))
         if len(img.shape) != 3:
             print('got 1-chan image, skipping')
-            continue
+            return
         elif img.shape[2] != 3:
             print('got n-chan image, skipping - shape:'+str(in_.shape))
-            continue
+            return
         img = img[:,:,::-1]
         img -= np.array((104.0,116.7,122.7))
         img = img.transpose((2,0,1))
