@@ -50,7 +50,6 @@ def theDetector(image):
 
     print type(inputs)
     print inputs[0].shape
-    print inputs.shape
 
     #print type(inputs)
     #print inputs.shape
