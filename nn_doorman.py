@@ -32,7 +32,7 @@ MODEL_FILE = "/home/jeremy/caffenets/neuro_doorman/deploy.prototxt"
 PRETRAINED = "/home/jeremy/caffenets/neuro_doorman/_iter_8078.caffemodel"
 caffe.set_mode_gpu()
 image_dims = [227, 227]
-mean = [107,117,123], None
+mean = [107,117,123]
 input_scale = None
 channel_swap = [2, 1, 0]
 raw_scale = 255.0
