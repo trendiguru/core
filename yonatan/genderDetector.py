@@ -42,8 +42,8 @@ def theDetector(image):
 
     #inputs = Utils.get_cv2_img_array(input_file)
 
-    inputs = np.load(input_file)
-    #inputs = [caffe.io.load_image(input_file)]
+    #inputs = np.load(input_file)
+    inputs = [caffe.io.load_image(input_file)]
 
     if not len(inputs):
         return 'None'
