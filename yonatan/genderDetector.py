@@ -7,6 +7,8 @@ import sys
 import argparse
 import glob
 import time
+from trendi import background_removal, Utils, constants
+import cv2
 
 
 MODLE_FILE = "/home/yonatan/trendi/yonatan/Alexnet_deploy.prototxt"
@@ -31,15 +33,17 @@ def theDetector(image):
 
     #input_image = sys.argv[1]
     #input_image = image[coordinates[1]: coordinates[1] + coordinates[3], coordinates[0]: coordinates[0] + coordinates[2]]
-    input_image = image
+    #input_image = image
 
 
     # Load numpy array (.npy), directory glob (*.jpg), or image file.
-    input_file = os.path.expanduser(input_image)
-    print("Loading file: %s" % input_file)
+    #input_file = os.path.expanduser(input_image)
+    #print("Loading file: %s" % input_file)
+
+    inputs = Utils.get_cv2_img_array(image)
 
     #inputs = np.load(input_file)
-    inputs = [caffe.io.load_image(input_file)]
+    #inputs = [caffe.io.load_image(input_file)]
 
     if not len(inputs):
         return 'None'
