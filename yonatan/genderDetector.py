@@ -41,11 +41,11 @@ def theDetector(image):
     print type(input_file)
 
     #inputs = [Utils.get_cv2_img_array(image)]
-    inputs = [cv2.imread(input_file)]
+    #inputs = [cv2.imread(input_file)]
 
 
 
-    #inputs = [caffe.io.load_image(input_file)]
+    inputs = [caffe.io.load_image(input_file)]
 
     print inputs
     print type(inputs)
