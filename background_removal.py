@@ -89,7 +89,8 @@ def find_face_dlib(image, max_num_of_faces=10):
     faces = [[rect.left(), rect.top(), rect.width(), rect.height()] for rect in list(faces)]
     if not len(faces):
         return {'are_faces': False, 'faces': []}
-    return {'are_faces': True, 'faces': choose_faces(image, faces, max_num_of_faces)}
+    final_faces = choose_faces(image, faces, max_num_of_faces)
+    return {'are_faces': len(final_faces) > 0, 'faces': final_faces}
 
 
 def choose_faces(image, faces_list, max_num_of_faces):
