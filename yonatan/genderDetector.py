@@ -26,12 +26,12 @@ classifier = caffe.Classifier(MODLE_FILE, PRETRAINED,
 
 
 #def genderator(argv):
-#def theDetector(image):
-def theDetector(image, coordinates):
+def theDetector(image):
+#def theDetector(image, coordinates):
 
     #input_image = sys.argv[1]
-    input_image = image[coordinates[1]: coordinates[1] + coordinates[3], coordinates[0]: coordinates[0] + coordinates[2]]
-    #input_image = image
+    #input_image = image[coordinates[1]: coordinates[1] + coordinates[3], coordinates[0]: coordinates[0] + coordinates[2]]
+    input_image = image
 
 
     # Load numpy array (.npy), directory glob (*.jpg), or image file.
