@@ -14,6 +14,68 @@ redis_conn = constants.redis_conn
 TTL = constants.general_ttl
 # Tell RQ what Redis connection to use
 
+
+#!/usr/bin/env python
+
+import numpy as np
+import os
+import caffe
+import sys
+import argparse
+import glob
+import time
+from trendi import background_removal, Utils, constants
+import cv2
+
+
+MODEL_FILE = "/home/jeremy/caffenets/neuro_doorman/deploy.prototxt"
+PRETRAINED = "/home/jeremy/caffenets/neuro_doorman/_iter_8078.caffemodel"
+caffe.set_mode_gpu()
+image_dims = [227, 227]
+mean = [107,117,123], None
+input_scale = None
+channel_swap = [2, 1, 0]
+raw_scale = 255.0
+# ext = 'jpg'
+
+# Make classifier.
+classifier = caffe.Classifier(MODE_FILE, PRETRAINED,
+                              image_dims=image_dims, mean=mean,
+                              input_scale=input_scale, raw_scale=raw_scale,
+                              channel_swap=channel_swap)
+
+
+#def genderator(argv):
+def theDetector(image):
+#def theDetector(image, coordinates):
+
+    #input_image = sys.argv[1]
+    #input_image = image[coordinates[1]: coordinates[1] + coordinates[3], coordinates[0]: coordinates[0] + coordinates[2]]
+    input_file = os.path.expanduser(image)
+    #print("Loading file: %s" % input_file)
+    #inputs = Utils.get_cv2_img_array(input_file)
+    inputs = [caffe.io.load_image(input_file)]
+
+    if not len(inputs):
+        return 'None'
+
+    # Classify.
+    start = time.time()
+    predictions = classifier.predict(inputs)
+
+    print("predictions %s Done in %.2f s." % (str(predictions),(time.time() - start)))
+
+    if predictions[0][1] > 0.7:
+        print predictions[0][1]
+        print "irrelevant!"
+        return 'irrelevant'
+    else:
+        print predictions[0][0]
+        print "it's relevant!"
+        return 'relevant'
+
+
+
 def nn_doorman_enqueue(img_url_or_cv2_array,async=False):
     """
     The 'doorman queue' which starts engines and keeps them warm is 'neurodoor'.  This worker should be running somewhere (ideally in a screen named something like 'doorman').
