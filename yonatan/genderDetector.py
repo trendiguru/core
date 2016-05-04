@@ -39,6 +39,7 @@ def theDetector(image):
 
     print type(input_file)
 
+    input_file = Utils.get_cv2_img_array(image)
 
     inputs = np.load(input_file)
     #inputs = [caffe.io.load_image(input_file)]
