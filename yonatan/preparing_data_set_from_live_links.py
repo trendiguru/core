@@ -25,6 +25,10 @@ def url_to_image(url):
     # download the image, convert it to a NumPy array, and then read
     # it into OpenCV format
     print url
+
+    if url.count('jpg') > 1:
+        return 'Fail'
+
     resp = urllib.urlopen(url)
     image = np.asarray(bytearray(resp.read()), dtype="uint8")
     if image.size == 0:
@@ -50,6 +54,11 @@ def crop_face(raw_image, x_dirty, y_dirty, w_dirty, h_dirty):
     w = int(filter(lambda x: x.isdigit(), w_dirty))
     h = int(filter(lambda x: x.isdigit(), h_dirty))
 
+    if image is None:
+        return 'Fail'
+
+    print type(image)
+
     face_image = image[y: y + h, x: x + w]
 
     return face_image
@@ -72,11 +81,12 @@ for line in file:
     words = file_as_array_by_lines.split()
 
     if words == []:
-        print 'empty string!!!!!!!!'
+        print 'empty string!'
         continue
 
     face_image = crop_face(words[0], words[2], words[3], words[4], words[5])
     if face_image == 'Fail':
+        print 'face_image not found!'
         continue
     # Resize it.
     resized_image = cv2.resize(face_image, (width, height))
