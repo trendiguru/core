@@ -39,7 +39,7 @@ raw_scale = 255.0
 # ext = 'jpg'
 
 # Make classifier.
-classifier = caffe.Classifier(MODE_FILE, PRETRAINED,
+classifier = caffe.Classifier(MODEL_FILE, PRETRAINED,
                               image_dims=image_dims, mean=mean,
                               input_scale=input_scale, raw_scale=raw_scale,
                               channel_swap=channel_swap)
