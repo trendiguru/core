@@ -44,7 +44,8 @@ pd_worker_command_braini1 =  'cd /home/pd_user/paperdoll  && /usr/bin/python /us
 pd_worker_command_braini =  'cd /home/pd_user/paperdoll  && /usr/bin/python /usr/local/bin/rqworker  -w trendi.matlab_wrapper.tgworker.TgWorker  pd &'
 string_to_look_for_in_pd_command = 'tgworker'
 q1 = Queue('start_pipeline', connection=redis_conn)
-q2 = Queue('manual_gender', connection=redis_conn)
+q2 = Queue('check_if_relevant', connection=redis_conn)
+q3 = Queue('manual_gender', connection=redis_conn)
 
 
 N_expected_pd_workers_per_server = 15
@@ -70,7 +71,7 @@ N_expected_workers_by_server={'braini1':45,'brain2':45,'brain3':90,'braini4':90,
 N_max_workers = 120
 lower_threshold = 70
 upper_threshold = 85
-
+neurodoorman_queuename = 'neurodoor'
 #########
 # DB stuff
 #########
