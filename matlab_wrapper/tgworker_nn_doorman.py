@@ -1,8 +1,8 @@
-__author__ = 'jeremy'
-# -*- coding: utf-8 -*-
 from __future__ import (absolute_import, division,
                         unicode_literals)
 
+__author__ = 'jeremy'
+# -*- coding: utf-8 -*-
 import logging
 import sys
 import time
