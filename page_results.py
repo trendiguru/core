@@ -4,15 +4,20 @@ __author__ = 'jeremy'
 # theirs
 import hashlib
 import logging
+import datetime
 # import maxminddb
 import tldextract
+import bson
 # ours
 import Utils
 import constants
 import find_similar_mongo
+from .background_removal import image_is_relevant
 # logging.basicConfig(format='%(levelname)s:%(message)s', level=logging.DEBUG)
 db = constants.db
 start_pipeline = constants.q1
+relevancy = constants.q2
+manual_gender = constants.q3
 lang = ""
 image_coll_name = "images"
 prod_coll_name = "products"
@@ -55,7 +60,52 @@ def get_collection_from_ip_and_domain(ip, domain):
     # return constants.products_per_country['default']
 
 
-# def route(ip, images_list, page_url):
+def route_by_url(image_url, page_url, lang):
+    domain = tldextract.extract(page_url).registered_domain
+    if not db.whitelist.find_one({'domain': domain}):
+        return False
+
+    if image_url[:4] == "data":
+        return False
+    else:
+        if db.iip.find_one({'image_url': image_url}) or db.irrelevant_images.find_one({'image_urls': image_url}):
+            return False
+        if is_image_relevant(image_url, set_lang(lang)):
+            return True
+        relevancy.enqueue_call(func=check_if_relevant, args=(image_url, page_url, lang), ttl=2000, result_ttl=2000,
+                               timeout=2000)
+
+        if db.irrelevant_images.find_one({'image_urls': image_url}):
+            pass
+        return False
+
+
+def check_if_relevant(image_url, page_url, lang):
+    image = Utils.get_cv2_img_array(image_url)
+    if image is None:
+        return False
+
+    relevance = image_is_relevant(image, use_caffe=False, image_url=image_url)
+    if not relevance.is_relevant:
+        hashed = get_hash(image)
+        image_obj = {'image_hash': hashed, 'image_urls': [image_url], 'page_urls': [page_url], 'people': [],
+                     'relevant': False, 'saved_date': str(datetime.datetime.etcnow()), 'views': 1}
+        db.irrelevant_images.insert_one(image_obj)
+        return
+
+    image_obj = {'image_url': image_url, 'page_url': page_url,
+                 'people': [{'person_id': bson.ObjectId(), 'face': face.tolist()} for face in relevance.faces]}
+    db.genderator.insert_one(image_obj)
+    domain = tldextract.extract(page_url).registered_domain
+    if domain in constants.manual_gender_domains:
+        manual_gender.enqueue_call(func="", args=(image_url,), ttl=2000, result_ttl=2000,
+                                   timeout=2000)
+    else:
+        start_pipeline.enqueue_call(func="", args=(page_url, image_url, lang), ttl=2000, result_ttl=2000,
+                                    timeout=2000)
+
+
+# def route_by_ip(ip, images_list, page_url):
 #     ret = {}
 #     for image_url in images_list:
 #         # IF IMAGE IS IN DB.IMAGES:
