@@ -33,6 +33,7 @@ PRETRAINED = "/home/jeremy/caffenets/neuro_doorman/_iter_8078.caffemodel"
 caffe.set_mode_gpu()
 image_dims = [227, 227]
 mean = np.array([107,117,123])
+mean = None
 input_scale = None
 channel_swap = [2, 1, 0]
 raw_scale = 255.0
@@ -67,12 +68,12 @@ def theDetector(image):
 
     if predictions[0][1] > 0.7:
         print predictions[0][1]
-        print "irrelevant!"
-        return 'irrelevant'
+        print "relevant!"
+        return 'relevant'
     else:
         print predictions[0][0]
-        print "it's relevant!"
-        return 'relevant'
+        print "it's irrelevant!"
+        return 'irrelevant'
 
 
 
