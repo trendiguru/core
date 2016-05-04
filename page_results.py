@@ -89,7 +89,7 @@ def check_if_relevant(image_url, page_url, lang):
     if not relevance.is_relevant:
         hashed = get_hash(image)
         image_obj = {'image_hash': hashed, 'image_urls': [image_url], 'page_urls': [page_url], 'people': [],
-                     'relevant': False, 'saved_date': str(datetime.datetime.etcnow()), 'views': 1}
+                     'relevant': False, 'saved_date': str(datetime.datetime.utcnow()), 'views': 1}
         db.irrelevant_images.insert_one(image_obj)
         return
 
