@@ -122,7 +122,7 @@ def none_may_pass(caffenet, img_url_or_cv2_array):
     dims = [227,227]
 
     if img_ok:
-        img = imutils.resize_keep_aspect(img, output_file=None, output_size = dims,use_visual_output=False):
+        img = imutils.resize_keep_aspect(img, output_file=None, output_size = dims,use_visual_output=False)
         print('image size:'+str(img.shape))
         if len(img.shape) != 3:
             print('got 1-chan image, skipping')
