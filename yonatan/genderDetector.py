@@ -39,13 +39,13 @@ def theDetector(image):
 
     print type(input_file)
 
-    inputs = Utils.get_cv2_img_array(image)
+    #inputs = Utils.get_cv2_img_array(image)
 
     #inputs = np.load(input_file)
-    #inputs = [caffe.io.load_image(input_file)]
+    inputs = [caffe.io.load_image(input_file)]
 
     print type(inputs)
-    print inputs.shape
+    #print inputs.shape
 
     if not len(inputs):
         return 'None'
