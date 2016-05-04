@@ -41,8 +41,8 @@ def theDetector(image):
     print type(input_file)
 
     #inputs = [Utils.get_cv2_img_array(image)]
-    inputs = [cv2.imread(input_file)]
-    inputs = inputs.astype(np.float32)
+    inputs = cv2.imread(input_file)
+    inputs = [inputs.astype(np.float32)]
 
 
 
