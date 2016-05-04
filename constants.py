@@ -71,7 +71,7 @@ N_expected_workers_by_server={'braini1':45,'brain2':45,'brain3':90,'braini4':90,
 N_max_workers = 120
 lower_threshold = 70
 upper_threshold = 85
-
+neurodoorman_queuename = 'neurodoor'
 #########
 # DB stuff
 #########
