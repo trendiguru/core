@@ -18,7 +18,7 @@ image_dims = [115, 115]
 mean, input_scale = np.array([120, 120, 120]), None
 channel_swap = [2, 1, 0]
 #channel_swap = None
-raw_scale = 255.0
+raw_scale = 1
 # ext = 'jpg'
 
 # Make classifier.
@@ -41,8 +41,8 @@ def theDetector(image):
     print type(input_file)
 
     #inputs = Utils.get_cv2_img_array(image)
-    inputs = cv2.imread(input_file)
-    inputs = [inputs.arange(0, 1, 1/255, np.float32)]
+    inputs = [cv2.imread(input_file)]
+    #inputs = [inputs.arange(0, 1, 1/255, np.float32)]
 
 
 
