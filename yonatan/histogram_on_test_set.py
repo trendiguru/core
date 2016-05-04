@@ -96,4 +96,4 @@ plt.legend()
 plt.hist(array_failure, alpha=0.5, label='array_failure')
 plt.legend()
 
-histogram.savefig('live_test_image.png')
+histogram.savefig('live_test_image_mean_120.png')
