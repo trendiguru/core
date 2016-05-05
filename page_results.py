@@ -95,6 +95,7 @@ def check_if_relevant(image_url, page_url, lang):
 
     image_obj = {'image_url': image_url, 'page_url': page_url,
                  'people': [{'person_id': str(bson.ObjectId()), 'face': face.tolist()} for face in relevance.faces]}
+    db.iip.insert_one({'image_url': image_url, 'insert_time': datetime.datetime.utcnow()})
     db.genderator.insert_one(image_obj)
     domain = tldextract.extract(page_url).registered_domain
     if domain in constants.manual_gender_domains:
@@ -283,6 +284,7 @@ def image_exists(image_url, collection_name=None):
 
 def merge_items(doc):
     # doc['items'] = [item for person in doc['people'] for item in person["items"] if 'items' in person.keys()]
+    doc['items'] = []
     for person in doc['people']:
         if 'items' in person.keys():
             for item in person['items']:
