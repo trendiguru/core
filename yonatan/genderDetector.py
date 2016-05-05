@@ -52,16 +52,26 @@ def theDetector(url_image, face_coordinates):
 
     full_image = url_to_image(url_image)
 
-    img = cv2.imread(full_image)
-    height, width, channels = img.shape
-    print height, width, channels
-    break
-    face_image = full_image[face_coordinates[1]: face_coordinates[1] + face_coordinates[3], face_coordinates[0]: face_coordinates[0] + face_coordinates[2]]
+    #checks if the face coordinates are inside the image
+    height, width, channels = full_image.shape
+
+    x = face_coordinates[0]
+    y = face_coordinates[1]
+    w = face_coordinates[2]
+    h = face_coordinates[3]
+
+    if x > width or x + w > width or y > height or y + h > height:
+        return None
+
+    face_image = full_image[y: y + h, x: x + w]
     #input_image = image
+    print face_image
+    print type(face_image)
 
     # Load numpy array (.npy), directory glob (*.jpg), or image file.
     face_file = os.path.expanduser(face_image)
 
+    print face_file
     print type(face_file)
 
     #inputs = Utils.get_cv2_img_array(image)
