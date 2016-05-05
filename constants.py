@@ -274,11 +274,11 @@ fashionista_categories_augmented_zero_based = ['bk','tights','shorts','blazer','
                                     'ring','flats','tie','romper','sandals','earrings','gloves','sneakers','clogs','watch',
                                     'pumps','wallet','bodysuit','loafers','hair','skin','face']
 
-fashionista_categories_for_conclusions = {'background':1,'tights':2,'shorts':3,'blazer':4,'t-shirt':5,'bag':6,'shoes':7,'coat':8,'skirt':9,'purse':10,
-                                    'boots':11,'blouse':12,'jacket':13,'bra':14,'dress':15,'pants':16,'sweater':17,'shirt':18,'jeans':19,'leggings':20,
-                                    'scarf':21,'hat':22,'top':23,'cardigan':24,'accessories':25,'vest':26,'sunglasses':27,'belt':28,'socks':29,'glasses':30,
-                                    'intimate':31,'stockings':32,'necklace':33,'cape':34,'jumper':35,'sweatshirt':36,'suit':37,'bracelet':38,'heels':39,'wedges':40,
-                                    'ring':41,'flats':42,'tie':42,'romper':43,'sandals':44,'earrings':45,'gloves':46,'sneakers':47,'clogs':48,'watch':49,
+fashionista_categories_for_conclusions = {'background':0,'tights':1,'shorts':2,'blazer':3,'t-shirt':4,'bag':5,'shoes':6,'coat':7,'skirt':8,'purse':9,
+                                    'boots':10,'blouse':11,'jacket':12,'bra':13,'dress':14,'pants':15,'sweater':16,'shirt':17,'jeans':18,'leggings':19,
+                                    'scarf':20,'hat':21,'top':22,'cardigan':23,'accessories':24,'vest':25,'sunglasses':26,'belt':27,'socks':28,'glasses':29,
+                                    'intimate':30,'stockings':31,'necklace':32,'cape':33,'jumper':34,'sweatshirt':35,'suit':36,'bracelet':37,'heels':38,'wedges':39,
+                                    'ring':40,'flats':41,'tie':42,'romper':43,'sandals':44,'earrings':45,'gloves':46,'sneakers':47,'clogs':48,'watch':49,
                                     'pumps':50,'wallet':51,'bodysuit':52,'loafers':53,'hair':54,'skin':55,'face':56}
 
 
