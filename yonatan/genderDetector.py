@@ -82,7 +82,7 @@ def theDetector(url_image, face_coordinates):
     #inputs = Utils.get_cv2_img_array(image)
     #inputs = [cv2.imread(input_file)]
 
-    face_for_caffe = cv2_image_to_caffe(face_image)
+    face_for_caffe = [cv2_image_to_caffe(face_image)]
     #face_for_caffe = [caffe.io.load_image(face_image)]
 
     print face_for_caffe
