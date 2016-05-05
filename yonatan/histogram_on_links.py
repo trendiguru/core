@@ -81,6 +81,9 @@ for line in text_file:
 
     full_image = url_to_image(words[0])
 
+    if full_image is None:
+        continue
+
     # checks if the face coordinates are inside the image
     height, width, channels = full_image.shape
 
@@ -98,8 +101,6 @@ for line in text_file:
     if face_image == 'Fail':
         print 'face_image not found!'
         continue
-    print face_image
-    print type(face_image)
 
     # Load numpy array (.npy), directory glob (*.jpg), or image file.
     # face_file = os.path.expanduser(face_image)
@@ -112,10 +113,6 @@ for line in text_file:
 
     face_for_caffe = [cv2_image_to_caffe(face_image)]
     # face_for_caffe = [caffe.io.load_image(face_image)]
-
-    print face_for_caffe
-    print type(face_for_caffe)
-    print face_for_caffe[0].shape
 
     if face_for_caffe is None:
         continue
