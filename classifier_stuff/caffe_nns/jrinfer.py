@@ -17,6 +17,7 @@ def infer_many(images,prototxt,caffemodel,out_dir='./'):
     net = caffe.Net(prototxt,caffemodel, caffe.TEST)
     dims = [150,100]
     start_time = time.time()
+    masks=[]
     for imagename in images:
         print('working on:'+imagename)
             # load image, switch to BGR, subtract mean, and make dims C x H x W for Caffe
@@ -46,9 +47,10 @@ def infer_many(images,prototxt,caffemodel,out_dir='./'):
         outname = os.path.join(out_dir,outname)
         print('outname:'+outname)
         result.save(outname)
+        masks.append(out.astype(np.uint8))
     elapsed_time=time.time()-start_time
     print('elapsed time:'+str(elapsed_time)+' tpi:'+str(elapsed_time/len(images)))
-    return out.astype(np.uint8)
+    return masks
     #fullout = net.blobs['score'].data[0]
 
 def infer_one(imagename,prototxt,caffemodel,out_dir='./'):
