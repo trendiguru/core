@@ -149,7 +149,7 @@ def after_nn_conclusions(mask, labels, face=None):
                     final_mask = np.where(mask == num, item_num, final_mask)
             return final_mask
     # 2, 2.1
-    sections = {"upper_cover": 0, "upper_under": 0, "lower_cover": 0, "lower_under": 0}
+    sections = {"upper_cover": 0, "upper_under": 0, "lower_cover": 0, "lower_under": 0, "feet_cover":0,"feet_under":0}
     max_item_count = 0
     max_cat = 9
     print "W2P: That's a 2-part clothing item!"
