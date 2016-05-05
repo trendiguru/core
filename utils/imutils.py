@@ -836,7 +836,7 @@ def show_mask_with_labels(mask_filename,labels,original_image=None,cut_the_crap=
     dest_colorbar[:,:,2] = vallevel  #value
     dest_colorbar = dest_colorbar.astype(np.uint8)
     dest_colorbar = cv2.cvtColor(dest_colorbar,cv2.COLOR_HSV2BGR)
-    print('size of colrbar:'+dest_colorbar.shape)
+    print('size of colrbar:'+str(dest_colorbar.shape))
  #have to do labels here to get black
     i = 0
     for unique in uniques:
