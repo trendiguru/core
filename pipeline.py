@@ -118,6 +118,7 @@ def after_nn_conclusions(mask, labels, face=None):
         2.2 upper-body: decide whether it's a one-part or under & cover
     3. return new mask
     """
+    print('mask shape:'+str(mask.shape))
     if face:
         ref_area = face[2] * face[3]
         y_split = face[1] + 3 * face[3]
