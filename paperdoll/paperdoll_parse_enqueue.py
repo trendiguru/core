@@ -61,7 +61,7 @@ def paperdoll_enqueue(img_url_or_cv2_array, person_id=None, async=True, queue_na
         print('running asynchronously (not waiting for result)')
     return job1
 
-def show_parse(filename=None, img_array = None):
+def show_parse(filename=None, img_array = None,save=False):
     if filename is not None:
         img_array = cv2.imread(filename)
     if img_array is not None:
@@ -78,6 +78,8 @@ def show_parse(filename=None, img_array = None):
 #        new_image = np.zeros([h,2*w])
         cv2.imshow("orig", img_array)
         cv2.imshow("dest", dest)
+        newfilename = filename.split("pdniceout.bmp")[0]+'.jpg'
+        cv2.imwrite(newfilename,dest)
         cv2.waitKey(0)
 
 def colorbars(max=55):
