@@ -125,7 +125,7 @@ def after_nn_conclusions(mask, labels, face=None):
         ref_area = (np.mean((mask.shape[0], mask.shape[1])) / 10) ** 2
         y_split = np.round(0.4 * mask.shape[0])
     final_mask = mask[:, :]
-    mask_sizes = {"upper_cover": [], "upper_under": [], "lower_cover": [], "lower_under": [], "whole_body": []}
+    mask_sizes = {"upper_cover": [], "upper_under": [], "lower_cover": [], "lower_under": [], "whole_body": [],"feet_cover":[],"feet_under":[]}
     for num in np.unique(mask):
         item_mask = 255 * np.array(mask == num, dtype=np.uint8)
         category = list(labels.keys())[list(labels.values()).index(num)]
