@@ -15,8 +15,9 @@ MODLE_FILE = "/home/yonatan/trendi/yonatan/Alexnet_deploy.prototxt"
 PRETRAINED = "/home/yonatan/alexnet_imdb_first_try/caffe_alexnet_train_faces_iter_10000.caffemodel"
 caffe.set_mode_gpu()
 image_dims = [115, 115]
-mean, input_scale = None, None
+mean, input_scale = np.array([120, 120, 120]), None
 channel_swap = [2, 1, 0]
+#channel_swap = None
 raw_scale = 255.0
 # ext = 'jpg'
 
@@ -39,13 +40,20 @@ def theDetector(image):
 
     print type(input_file)
 
-    inputs = Utils.get_cv2_img_array(image)
+    #inputs = Utils.get_cv2_img_array(image)
+    #inputs = [cv2.imread(input_file)]
+    #inputs = [inputs.arange(0, 1, 1/255, np.float32)]
 
-    #inputs = np.load(input_file)
-    #inputs = [caffe.io.load_image(input_file)]
 
+
+    inputs = [caffe.io.load_image(input_file)]
+
+    print inputs
     print type(inputs)
-    print inputs.shape
+    print inputs[0].shape
+
+    #print type(inputs)
+    #print inputs.shape
 
     if not len(inputs):
         return 'None'

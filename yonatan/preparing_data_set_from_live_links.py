@@ -40,10 +40,6 @@ def url_to_image(url):
     return new_image
 
 
-def cv2_image_to_caffe(image):
-    return skimage.img_as_float(cv2.cvtColor(image, cv2.COLOR_BGR2RGB)).astype(np.float32)
-
-
 def crop_face(raw_image, x_dirty, y_dirty, w_dirty, h_dirty):
     image = url_to_image(raw_image)
     if image == 'Fail':

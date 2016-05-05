@@ -35,10 +35,6 @@ def url_to_image(url):
     return new_image
 
 
-def cv2_image_to_caffe(image):
-    return skimage.img_as_float(cv2.cvtColor(image, cv2.COLOR_BGR2RGB)).astype(np.float32)
-
-
 def find_face(raw_image):
     #image = url_to_image(url)
     image = url_to_image(raw_image)
