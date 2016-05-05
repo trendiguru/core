@@ -9,6 +9,7 @@ import glob
 import time
 from trendi import background_removal, Utils, constants
 import cv2
+import urllib
 
 
 MODLE_FILE = "/home/yonatan/trendi/yonatan/Alexnet_deploy.prototxt"
@@ -19,7 +20,6 @@ mean, input_scale = np.array([120, 120, 120]), None
 channel_swap = [2, 1, 0]
 #channel_swap = None
 raw_scale = 255.0
-# ext = 'jpg'
 
 # Make classifier.
 classifier = caffe.Classifier(MODLE_FILE, PRETRAINED,
@@ -28,39 +28,57 @@ classifier = caffe.Classifier(MODLE_FILE, PRETRAINED,
                               channel_swap=channel_swap)
 
 
-def theDetector(image):
-#def theDetector(image, coordinates):
+def url_to_image(url):
+    # download the image, convert it to a NumPy array, and then read
+    # it into OpenCV format
+    print url
 
-    #input_image = image[coordinates[1]: coordinates[1] + coordinates[3], coordinates[0]: coordinates[0] + coordinates[2]]
-    input_image = image
+    if url.count('jpg') > 1:
+        return None
 
+    resp = urllib.urlopen(url)
+    image = np.asarray(bytearray(resp.read()), dtype="uint8")
+    if image.size == 0:
+        print url
+        return None
+    new_image = cv2.imdecode(image, cv2.IMREAD_COLOR)
+
+    # return the image
+    return new_image
+
+
+#def theDetector(image):
+def theDetector(url_image, face_coordinates):
+
+    full_image = url_to_image(url_image)
+
+    img = cv2.imread(full_image)
+    height, width, channels = img.shape
+    print height, width, channels
+    break
+    face_image = full_image[face_coordinates[1]: face_coordinates[1] + face_coordinates[3], face_coordinates[0]: face_coordinates[0] + face_coordinates[2]]
+    #input_image = image
 
     # Load numpy array (.npy), directory glob (*.jpg), or image file.
-    input_file = os.path.expanduser(input_image)
+    face_file = os.path.expanduser(face_image)
 
-    print type(input_file)
+    print type(face_file)
 
     #inputs = Utils.get_cv2_img_array(image)
     #inputs = [cv2.imread(input_file)]
-    #inputs = [inputs.arange(0, 1, 1/255, np.float32)]
 
+    face_for_caffe = [caffe.io.load_image(face_file)]
 
+    print face_for_caffe
+    print type(face_for_caffe)
+    print face_for_caffe[0].shape
 
-    inputs = [caffe.io.load_image(input_file)]
-
-    print inputs
-    print type(inputs)
-    print inputs[0].shape
-
-    #print type(inputs)
-    #print inputs.shape
-
-    if not len(inputs):
-        return 'None'
+    if face_for_caffe is None:
+        return None
 
     # Classify.
     start = time.time()
-    predictions = classifier.predict(inputs)
+    predictions = classifier.predict(face_for_caffe)
     print("Done in %.2f s." % (time.time() - start))
 
     if predictions[0][1] > 0.7:

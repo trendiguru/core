@@ -165,7 +165,12 @@ def has_items(image_dict):
     # Easier to ask forgiveness than permission
     # http://stackoverflow.com/questions/1835756/using-try-vs-if-in-python
     try:
-        res = len(image_dict["people"][0]["items"]) > 0
+        for person in image_dict['people']:
+            if 'items' in person.keys():
+                for item in person['items']:
+                    if 'similar_results' in item.keys():
+                        if len(item['similar_results']) > 0:
+                            return True
     except:
         pass
     return res
@@ -253,14 +258,15 @@ def load_similar_results(sparse, projection_dict, product_collection_name):
             collection = db[product_collection_name + '_' + person['gender']]
         else:
             collection = db[product_collection_name + "_Female"]
-        for item in person["items"]:
-            similar_results = []
-            for result in item["similar_results"]:
-                full_result = collection.find_one({"id": result["id"]}, projection_dict)
-                if full_result:
-                    # full_result["clickUrl"] = Utils.shorten_url_bitly(full_result["clickUrl"])
-                    similar_results.append(full_result)
-            item["similar_results"] = similar_results
+        if 'items' in person.keys():
+            for item in person["items"]:
+                similar_results = []
+                for result in item["similar_results"]:
+                    full_result = collection.find_one({"id": result["id"]}, projection_dict)
+                    if full_result:
+                        # full_result["clickUrl"] = Utils.shorten_url_bitly(full_result["clickUrl"])
+                        similar_results.append(full_result)
+                item["similar_results"] = similar_results
     return sparse
 
 
@@ -276,12 +282,11 @@ def image_exists(image_url, collection_name=None):
 
 
 def merge_items(doc):
-    # doc['items'] = []
-    # for person in doc['people']:
-    #     for item in person['items']:
-    #         item['person_bb'] = person['person_bb']
-    #         doc['items'].append(item)
-    doc['items'] = [item for person in doc['people'] for item in person["items"]]
+    # doc['items'] = [item for person in doc['people'] for item in person["items"] if 'items' in person.keys()]
+    for person in doc['people']:
+        if 'items' in person.keys():
+            for item in person['items']:
+                doc['items'].append(item)
     del doc["people"]
     return doc
 
