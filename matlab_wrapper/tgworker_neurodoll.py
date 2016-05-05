@@ -2,7 +2,10 @@ from __future__ import (absolute_import, division,
                         unicode_literals)
 
 __author__ = 'jeremy'
-# -*- coding: utf-8 -*-
+#start the worker (in a screen) by:
+#cd /home/jeremy/core  && /usr/bin/python /usr/local/bin/rqworker  -w trendi.matlab_wrapper.tgworker_neurodoll.TgNeuroDoll neurodoll &
+
+#  -*- coding: utf-8 -*-
 import logging
 import sys
 import time
@@ -18,19 +21,14 @@ from rq.worker import Worker
 import caffe
 logging.basicConfig(level=logging.DEBUG)
 
-
-green = make_colorizer('darkgreen')
-yellow = make_colorizer('darkyellow')
-blue = make_colorizer('darkblue')
-
-
-class TgNNDoormanWorker(Worker):
+class TgNeuroDoll(Worker):
 
     def main_work_horse(self, *args, **kwargs):
         raise NotImplementedError("Test worker does not implement this method")
 
     def execute_job(self, *args, **kwargs):
         """Execute job in same thread/process, do not fork()"""
+
         logging.debug('executing from tgworker')
         DEFAULT_WORKER_TTL = 1000
         DEFAULT_RESULT_TTL = 1000
@@ -42,10 +40,21 @@ class TgNNDoormanWorker(Worker):
             prototxt = '/home/jeremy/caffenets/voc-fcn8s/solver.prototxt'
             caffemodel = '/home/jeremy/caffenets/voc-fcn8s/train_iter_457644.caffemodel'
             logging.debug('tring to get new caffe net')
-            caffenet = caffe.Net(prototxt, caffemodel, caffe.TEST)
-#            eng = matlab.engine.start_matlab()
-#            engine_name = eng.engineName
+#            caffe_net = caffe.Net(prototxt, caffemodel, caffe.TEST)
             logging.debug('new caffe net obtained')
+            caffe.set_mode_gpu()
+            image_dims = [150, 100]
+            mean = np.array([107,117,123])
+#            mean = None
+            input_scale = None
+            channel_swap = [2, 1, 0]
+            raw_scale = 255.0
+            # Make classifier.
+            classifier = caffe.Classifier(caffemodel, prototxt,
+                                          image_dims=image_dims, mean=mean,
+                                         input_scale=input_scale, raw_scale=raw_scale,
+                                          channel_swap=channel_swap)
+            self.classifier = classifier
         else:
             logger.info('found extant caffemodel in ej')
 
@@ -62,23 +71,19 @@ class TgNNDoormanWorker(Worker):
 
             try:
                 logging.debug('perform_job')
-#                job.matlab_engine = self.matlab_engine
-                job.caffenet = self.caffebet   #not sure this is needed
-           #     logging.debug('pj engine:'+str(self.matlab_engine))
                 logging.debug('pj args,kwargs:'+str(job._args)+','+str(job._kwargs))
                 if len(job._args) > 0:  #got regular args not kwargs
-                    new_args = (self.caffenet,)+job._args
+                    new_args = (self.classifier,)+job._args
                     logging.debug('tg pj new args:'+str(new_args))
                     job._args = new_args
                 elif len(job._kwargs) > 0:  #got kwargs
-                    job._kwargs['caffenet']=self.caffenet
+                    job._kwargs['classifier']=self.classifer
                     logging.debug('tg/pj new kwargs:'+str(job._kwargs))
                 with self.death_penalty_class(job.timeout or self.queue_class.DEFAULT_TIMEOUT):
                     rv = job.perform()
         # Pickle the result in the same try-except block since we need
         # to use the same exc handling when pickling fails
                 job._result = rv
-
                 self.set_current_job_id(None, pipeline=pipeline)
 
                 result_ttl = job.get_result_ttl(self.default_result_ttl)

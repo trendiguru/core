@@ -3,6 +3,10 @@ import numpy as np
 # import scipy as sp
 import os
 import logging
+import cv2
+import numpy as np
+import os
+import h5py
 
 logging.basicConfig(level=logging.DEBUG)
 
@@ -289,6 +293,234 @@ def add_noise(image, noise_typ,level):
         gauss = gauss.reshape(row,col,ch)
         noisy = image + image * gauss
         return noisy
+
+def test():
+    pass
+
+#########################################################################################
+#one timers:
+def output_masks_creator(path_to_HDF5):
+    data = h5py.File(path_to_HDF5)
+    keys = data.keys()
+    category_label = np.array(data[keys[0]], dtype='int')-1
+    # color_label = np.array(data[keys[1]], dtype='int')
+    segmentation = np.array(data[keys[2]], dtype='int').T
+    output_masks = np.zeros((segmentation.shape[0], segmentation.shape[1], 23), dtype='uint8')
+    # TODO: indexwise optimizes loop...    output_masks[]
+    for i in range(len(category_label)):
+        p = (segmentation == i)
+        output_masks[:, :, category_label[i]] = output_masks[:, :, category_label[i]] + p
+    return output_masks
+
+def ground_truth_masks_converter():
+    current_directory_name = os.getcwd()
+    path_to_images = current_directory_name + '/_data_images/'
+    path_to_images_data = current_directory_name + '/image_data/'
+    images = [f for f in os.listdir(path_to_images) if os.path.isfile(os.path.join(path_to_images, f))]
+    images_data = [f for f in os.listdir(path_to_images_data) if os.path.isfile(os.path.join(path_to_images_data, f))]
+​
+    # creating HDF5 for training:
+    hdf5_dataset_file_name = 'cloths_parsing_dataset'
+    with h5py.File(hdf5_dataset_file_name + '.hdf5', 'w') as f:
+        for image_data in images_data:
+            output_masks = output_masks_creator(path_to_images_data + image_data)
+            f.create_dataset(image_data[:-5], data=output_masks)
+            print image_data[:-5] + '   done!'
+​
+# converting yamaguchi's dataset from 56 classes to 21 classes:
+def slim_down_class_matrixes_from_56_to_21(_56_maskoid):
+​
+    # _56_maskoid: a cv2.imread() result (3 identical channles)
+    _56_maskoid = _56_maskoid[:, :, 0] - 1
+    output_masks = np.zeros((_56_maskoid.shape[0], _56_maskoid.shape[1], 23), dtype='uint8')
+​
+    ## base lineclasses:
+    _categories =['bk', 'T-shirt', 'bag', 'belt', 'blazer', 'shirt', 'coat', 'dress', 'face',
+                  'hair', 'hat', 'jeans', 'legging', 'pants', 'scarf', 'shoe', 'shorts', 'skin',
+                  'skirt', 'socks', 'stocking', 'sunglass', 'sweater']
+​
+ultimate_21 = ['background','bag','belt','shirt','dress','eyewear',
+               'footwear','hat','legging','outerwear','pants','shorts','skin','skirts','suit','sweatshirt', 'tie','top',
+                             'vest']
+#'bra',
+#'jeans',
+
+    ## fashionista classes:
+    fashionista_categories = ['null','tights','shorts','blazer','t-shirt','bag','shoes','coat','skirt','purse',
+                            'boots','blouse','jacket','bra','dress','pants','sweater','shirt','jeans','leggings',
+                            'scarf','hat','top','cardigan','accessories','vest','sunglasses','belt','socks','glasses',
+                            'intimate','stockings','necklace','cape','jumper','sweatshirt','suit','bracelet','heels','wedges',
+                            'ring','flats','tie','romper','sandals','earrings','gloves','sneakers','clogs','watch',
+                            'pumps','wallet','bodysuit','loafers','hair','skin','face']
+​
+    conversion_dictionary_strings = {'bk': ['null'],
+                                    'T-shirt': ['t-shirt', 'shirt'],
+                                    'bag': ['bag', 'purse', 'accessories', 'ring', 'necklace', 'bracelet', 'wallet', 'tie', 'earrings', 'gloves', 'watch'],
+                                    'belt': ['belt'],
+                                    'blazer': ['blazer', 'jacket', 'vest'],
+                                    'shirt': ['blouse', 'top', 'sweatshirt'],
+                                    'coat': ['coat', 'cape'],
+                                    'dress': ['dress', 'suit', 'bodysuit', 'romper'],
+                                    'face': ['face'],
+                                    'hair': ['hair'],
+                                    'hat': ['hat'],
+                                    'jeans': ['jeans'],
+                                    'legging': ['tights', 'leggings'],
+                                    'pants': ['pants'],
+                                    'scarf': ['scarf'],
+                                    'shoe': ['shoes', 'boots', 'heels', 'wedges', 'pumps', 'loafers', 'flats', 'sandals', 'sneakers', 'clogs'],
+                                    'shorts': ['shorts'],
+                                    'skin': ['skin'],
+                                    'skirt': ['skirt'],
+                                    'socks': ['socks'],
+                                    'stocking': ['intimate', 'stockings'],
+                                    'sunglass': ['sunglasses', 'glasses'],
+                                    'sweater': ['sweater', 'cardigan', 'jumper']}
+​
+    for i in range(output_masks.shape[2]):
+        list_56_class_match = conversion_dictionary_strings[_categories[i]]
+        # print '\n category :: ' + _categories[i] + ':'
+        for _56_class_match in list_56_class_match:
+            # print '   # ' + _56_class_match
+            output_masks[:, :, i][_56_maskoid == fashionista_categories.index(_56_class_match)] = 1
+​
+    # cv2.imshow('p', np.hstack([cv2.imread('fashionista_images_and_masks/1_photo.jpg'), (cv2.imread('fashionista_images_and_masks/1_mask.png')-1)*8, cv2.merge([p, p, p])*15]))
+    # cv2.waitKey(0)
+​
+    _21_maskoid = output_masks.astype('uint8')
+    return _21_maskoid
+​
+def fashionista_ground_truth_masks_converter():
+    current_directory_name = os.getcwd()
+    path_to_images = current_directory_name + '/fashionista_images_and_masks/'
+    path_to_images_data = current_directory_name + '/fashionista_images_and_masks/'
+    images = [f for f in os.listdir(path_to_images) if os.path.isfile(os.path.join(path_to_images, f)) and f[-3:]=='jpg']
+    # images_data = [f for f in os.listdir(path_to_images_data) if os.path.isfile(os.path.join(path_to_images_data, f)) and f[-3:]=='png']
+    print images
+    # creating HDF5 for training:
+    hdf5_dataset_file_name = 'fashionista_cloths_parsing_dataset'
+    with h5py.File(hdf5_dataset_file_name + '.hdf5', 'w') as f:
+        for image_name in images:
+            _56_maskoid = cv2.imread(path_to_images_data + image_name.split('_')[0] + '_mask.png')
+            output_masks = slim_down_class_matrixes_from_56_to_21(_56_maskoid)
+            f.create_dataset(image_name, data=output_masks)
+            print image_name + '   done!'
+​
+#########################################################################################
+​
+def load_XandY():
+​
+    _data_images_path = '_data_images/'
+    fashionista_data_images_path = 'fashionista_images_and_masks/'
+    _data = h5py.File('cloths_parsing_dataset.hdf5')
+    fashionista_data = h5py.File('fashionista_cloths_parsing_dataset.hdf5')
+    _images_file_names = _data.keys()
+    fashionista_images_file_names = fashionista_data.keys()
+​
+    X = []
+    Y = []
+​
+    # first aquier _data and then concatenate the fashionista_data:
+    for image_name in _images_file_names:
+        X.append(cv2.imread(_data_images_path + image_name))
+        Y.append(_data[image_name])
+        break
+    print 'dont forget to remove break and unlock fashionista!!! (lines 149-153)'
+    # for image_name in fashionista_images_file_names:
+    #     X.append(cv2.imread(fashionista_data_images_path + image_name))
+    #     Y.append(fashionista_data[image_name])
+​
+    return np.array(X, dtype='uint8'), np.array(Y, dtype='uint8')
+​
+​
+def relevant_cuts_of_Xi_and_Yi(Xi, Yi, output_shape=(150, 150)):
+​
+    image0 = Xi
+    masks0 = Yi
+​
+    # bbox for speed slicing:
+    face_mask = masks0[:, :, 8] # index=8 is face blob mask
+    print face_mask.shape
+    face_x0, face_y0, face_dx, face_dy = cv2.boundingRect(face_mask.astype('uint8'))
+    human_mask = (masks0[:, :, 0]-1)**2 # index=0 is background to human blob mask
+    body_x0, body_y0, body_dx, body_dy = cv2.boundingRect(human_mask.astype('uint8'))
+    Xi_list = []
+    Yi_list = []
+    margine_pixels = 30
+    border_type = cv2.BORDER_REPLICATE
+    image1 = image0[body_y0-margine_pixels:body_y0+body_dy+margine_pixels,
+                    body_x0-margine_pixels:body_x0+body_dx+margine_pixels, :]
+    masks1 = masks0[body_y0-margine_pixels:body_y0+body_dy+margine_pixels,
+                    body_x0-margine_pixels:body_x0+body_dx+margine_pixels, :]
+​
+​
+    # first - non resized square cuts:
+    ##################################
+    DX_smallest = min(image0.shape[:2])
+    scale_XY = 1.0*DX_smallest/max(image0.shape[:2])
+    if max(image0.shape[:2]) >= 1.5*max(output_shape):
+        if scale_XY <= 2./3:
+            if image0.shape[0] >= image0.shape[1]:
+                # up:
+                Xi_list.append(image0[:DX_smallest, :, :])
+                Yi_list.append(masks0[:DX_smallest, :, :])
+                # down:
+                Xi_list.append(image0[-DX_smallest:, :, :])
+                Yi_list.append(masks0[-DX_smallest:, :, :])
+            if image0.shape[0] < image0.shape[1]:
+                # left:
+                Xi_list.append(image0[:, :DX_smallest, :])
+                Yi_list.append(masks0[:, :DX_smallest, :])
+                #right:
+                Xi_list.append(image0[:, -DX_smallest:, :])
+                Yi_list.append(masks0[:, -DX_smallest:, :])
+​
+            if 2./3 > scale_XY >= 1. / 3:
+                if image0.shape[0] >= image0.shape[1]:
+                    # up:
+                    Xi_list.append(image0[:image0.shape[1], :, :])
+                    Yi_list.append(masks0[:masks0.shape[1], :, :])
+                    # midway:
+                    Xi_list.append(image0[image0.shape[0]/2-image0.shape[1]/2:image0.shape[0]/2+image0.shape[1]/2, :, :])
+                    Yi_list.append(masks0[masks0.shape[0]/2-masks0.shape[1]/2:masks0.shape[0]/2+masks0.shape[1]/2, :, :])
+                    # down:
+                    Xi_list.append(image0[-image0.shape[1]:, :, :])
+                    Yi_list.append(masks0[-masks0.shape[1]:, :, :])
+                if image0.shape[0] < image0.shape[1]:
+                    # up:
+                    Xi_list.append(image0[:, image0.shape[0], :])
+                    Yi_list.append(masks0[:, masks0.shape[0], :])
+                    # midway:
+                    Xi_list.append(image0[:, image0.shape[1]/2-image0.shape[0]/2:image0.shape[1]/2+image0.shape[0]/2, :])
+                    Yi_list.append(masks0[:, masks0.shape[1]/2-masks0.shape[0]/2:masks0.shape[1]/2+masks0.shape[0]/2, :])
+                    # down:
+                    Xi_list.append(image0[:, -image0.shape[0]:, :])
+                    Yi_list.append(masks0[:, -masks0.shape[0]:, :])
+​
+            # TODO: ...
+            # if scale_XY < 1. / 3:
+            #     if image0.shape[0] > image0.shape[1]:
+            #     if image0.shape[0] < image0.shape[1]:
+​
+        else:
+            ## two steps:
+            if image0.shape[0] >= image0.shape[1]:
+                # upper left corner:
+                Xi_list.append(image0[:2*image0.shape[0]/3, :2*image0.shape[0]/3, :])
+                Yi_list.append(masks0[:2*masks0.shape[0]/3, :2*masks0.shape[0]/3, :])
+                # upper right corner:
+                Xi_list.append(image0[:2*image0.shape[0]/3, -2*image0.shape[0]/3:, :])
+                Yi_list.append(masks0[:2*masks0.shape[0]/3, -2*masks0.shape[0]/3:, :])
+                # middle:
+                Xi_list.append(image0[image0.shape[0]/6:5*image0.shape[0]/6, image0.shape[0]/6 - (image0.shape[0]-image0.shape[1])/2:5*image0.shape[0]/6 - (image0.shape[0]-image0.shape[1]), :])
+                Yi_list.append(masks0[masks0.shape[0]/6:5*masks0.shape[0]/6, masks0.shape[0]/6 - (masks0.shape[0]-masks0.shape[1])/2:5*masks0.shape[0]/6 - (masks0.shape[0]-masks0.shape[1]), :])
+                # lower left corner:
+                Xi_list.append(image0[-2*image0.shape[0]/3:, :2*image0.shape[0]/3, :])
+                Yi_list.append(masks0[-2*masks0.shape[0]/3:, :2*masks0.shape[0]/3, :])
+                # lower right corner:
+                Xi_list.append(image0[-2 * image0.shape[0]/3:, -2 * image0.shape[0]/3:, :])
+
+
 
 
 if __name__=="__main__":
