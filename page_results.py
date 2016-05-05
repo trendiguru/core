@@ -165,7 +165,12 @@ def has_items(image_dict):
     # Easier to ask forgiveness than permission
     # http://stackoverflow.com/questions/1835756/using-try-vs-if-in-python
     try:
-        res = len(image_dict["people"][0]["items"]) > 0
+        for person in image_dict['people']:
+            if 'items' in person.keys():
+                for item in person['items']:
+                    if 'similar_results' in item.keys():
+                        if len(item['similar_results']) > 0:
+                            return True
     except:
         pass
     return res
