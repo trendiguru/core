@@ -40,10 +40,6 @@ def url_to_image(url):
     return new_image
 
 
-def cv2_image_to_caffe(image):
-    return skimage.img_as_float(cv2.cvtColor(image, cv2.COLOR_BGR2RGB)).astype(np.float32)
-
-
 def crop_face(raw_image, x_dirty, y_dirty, w_dirty, h_dirty):
     image = url_to_image(raw_image)
     if image == 'Fail':
@@ -88,8 +84,10 @@ for line in file:
     if face_image == 'Fail':
         print 'face_image not found!'
         continue
+    caffe_face_image = cv2_image_to_caffe(face_image)
+
     # Resize it.
-    resized_image = cv2.resize(face_image, (width, height))
+    resized_image = cv2.resize(caffe_face_image, (width, height))
 
     image_file_name = 'resized_face-' + str(counter) + '.jpg'
 
