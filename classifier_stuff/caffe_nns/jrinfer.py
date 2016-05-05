@@ -89,8 +89,9 @@ def infer_one(imagename,prototxt,caffemodel,out_dir='./'):
     return out.astype(np.uint8)
 
 def test_pd_conclusions():
-    test_dir = '/home/jeremy/image_dbs/colorful_fashion_parsing_data/images/train_200x150/'
+    test_dir = '/home/jeremy/image_dbs/colorful_fashion_parsing_data/images/test_200x150/'
     images = [os.path.join(test_dir,f) for f in os.listdir(test_dir) if '.jpg' in f ]
+    images = images[0:10]
     image = '/home/jeremy/core/images/vneck.jpg'
     prototxt = '/home/jeremy/caffenets/voc-fcn8s/deploy.prototxt'
     caffemodel = 'snapshot_nn2/train_iter_183534.caffemodel'

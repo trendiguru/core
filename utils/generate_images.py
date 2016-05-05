@@ -339,7 +339,7 @@ def slim_down_class_matrixes_from_56_to_21(_56_maskoid):
                   'hair', 'hat', 'jeans', 'legging', 'pants', 'scarf', 'shoe', 'shorts', 'skin',
                   'skirt', 'socks', 'stocking', 'sunglass', 'sweater']
 ​
-ultimate_21 = ['background','bag','belt','shirt','dress','eyewear',
+    ultimate_21 = ['background','bag','belt','shirt','dress','eyewear',
                'footwear','hat','legging','outerwear','pants','shorts','skin','skirts','suit','sweatshirt', 'tie','top',
                              'vest']
 #'bra',
@@ -353,30 +353,32 @@ ultimate_21 = ['background','bag','belt','shirt','dress','eyewear',
                             'ring','flats','tie','romper','sandals','earrings','gloves','sneakers','clogs','watch',
                             'pumps','wallet','bodysuit','loafers','hair','skin','face']
 ​
-    conversion_dictionary_strings = {'bk': ['null'],
-                                    'T-shirt': ['t-shirt', 'shirt'],
-                                    'bag': ['bag', 'purse', 'accessories', 'ring', 'necklace', 'bracelet', 'wallet', 'tie', 'earrings', 'gloves', 'watch'],
-                                    'belt': ['belt'],
+    conversion_dictionary_strings = {'background': ['null'],
+                                    'bag': ['bag', 'purse'],
                                     'blazer': ['blazer', 'jacket', 'vest'],
-                                    'shirt': ['blouse', 'top', 'sweatshirt'],
+                                    'top': ['t-shirt', 'shirt','blouse', 'top', 'sweatshirt'],
                                     'coat': ['coat', 'cape'],
-                                    'dress': ['dress', 'suit', 'bodysuit', 'romper'],
+                                    'dress': ['dress',  'romper'],
+                                    'suit': ['suit'],
                                     'face': ['face'],
                                     'hair': ['hair'],
                                     'hat': ['hat'],
                                     'jeans': ['jeans'],
                                     'legging': ['tights', 'leggings'],
                                     'pants': ['pants'],
-                                    'scarf': ['scarf'],
                                     'shoe': ['shoes', 'boots', 'heels', 'wedges', 'pumps', 'loafers', 'flats', 'sandals', 'sneakers', 'clogs'],
                                     'shorts': ['shorts'],
                                     'skin': ['skin'],
                                     'skirt': ['skirt'],
                                     'socks': ['socks'],
                                     'stocking': ['intimate', 'stockings'],
-                                    'sunglass': ['sunglasses', 'glasses'],
+                                    'eyewear': ['sunglasses', 'glasses'],
                                     'sweater': ['sweater', 'cardigan', 'jumper']}
-​
+#tossed,'bodysuit'
+#tossed​, 'accessories', 'ring', 'necklace', 'bracelet', 'wallet', 'tie', 'earrings', 'gloves', 'watch']
+#tossed                  'scarf': ['scarf'],
+#tossed                  'belt': ['belt'],
+
     for i in range(output_masks.shape[2]):
         list_56_class_match = conversion_dictionary_strings[_categories[i]]
         # print '\n category :: ' + _categories[i] + ':'
