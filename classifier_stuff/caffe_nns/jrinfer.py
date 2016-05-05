@@ -90,7 +90,7 @@ def test_pd_conclusions():
     caffemodel = 'snapshot_nn2/train_iter_183534.caffemodel'
     caffemodel = 'snapshot_nn2/train_iter_164620.caffemodel'  #010516 saved
     caffemodel = '/home/jeremy/caffenets/voc-fcn8s/train_iter_457644.caffemodel'  #040516 saved
-    infer_one(image,prototxt,caffemodel,out_dir=out_dir)
+    infer_one(image,prototxt,caffemodel)
 
   #after_nn_conclusions(mask, labels, face=None):
 
