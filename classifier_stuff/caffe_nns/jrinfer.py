@@ -94,24 +94,25 @@ def test_pd_conclusions():
     test_dir = '/home/jeremy/image_dbs/colorful_fashion_parsing_data/images/test_200x150/'
     images = [os.path.join(test_dir,f) for f in os.listdir(test_dir) if '.jpg' in f ]
     images = images[0:10]
-    for filename in images:
-        img_arr = cv2.imread(filename)
-        retval = paperdoll_parse_enqueue.paperdoll_enqueue(img_arr, async=False,use_parfor=False)  #True,queue_name='pd_parfor')
-        pdmask,pdlabels = retval.result[0:2]
-        pdmask_after = pipeline.after_pd_conclusions(pdmask, constants.paperdoll_categories, face=None)
-        h,w=pdmask.shape[0:2]
-        pdmasks=np.zeros([h,2*w])
-        pdmasks[:,0:w]=pdmask
-        pdmasks[:,w:]=pdmask_after
-        outfilename=filename.split('.jpg')[0]+'pd_masks.bmp'
-        print('filename:'+str(outfilename))
-        cv2.imwrite(outfilename,pdmasks)
-        print('pdlabels:'+str(pdlabels))
-        labellist = [x.key() for x in pdlabels]
-        indexlist = [x.value() for x in pdlabels]
-        print('labellist:'+str(labellist))
-        print('indexlist:'+str(indexlist))
-        paperdoll_parse_enqueue.show_parse('pd_masks.bmp',save=True)
+    if(0):
+        for filename in images:
+            img_arr = cv2.imread(filename)
+            retval = paperdoll_parse_enqueue.paperdoll_enqueue(img_arr, async=False,use_parfor=False)  #True,queue_name='pd_parfor')
+            pdmask,pdlabels = retval.result[0:2]
+            pdmask_after = pipeline.after_pd_conclusions(pdmask, constants.paperdoll_categories, face=None)
+            h,w=pdmask.shape[0:2]
+            pdmasks=np.zeros([h,2*w])
+            pdmasks[:,0:w]=pdmask
+            pdmasks[:,w:]=pdmask_after
+            outfilename=filename.split('.jpg')[0]+'pd_masks.bmp'
+            print('filename:'+str(outfilename))
+            cv2.imwrite(outfilename,pdmasks)
+            print('pdlabels:'+str(pdlabels))
+            labellist = [x.key() for x in pdlabels]
+            indexlist = [x.value() for x in pdlabels]
+            print('labellist:'+str(labellist))
+            print('indexlist:'+str(indexlist))
+            paperdoll_parse_enqueue.show_parse('pd_masks.bmp',save=True)
 
     image = '/home/jeremy/core/images/vneck.jpg'
     prototxt = '/home/jeremy/caffenets/voc-fcn8s/deploy.prototxt'
@@ -135,8 +136,6 @@ def test_pd_conclusions():
         print('outfilename:'+str(outfilename))
         cv2.imwrite(outfilename,nnmasks)
         nice_display=imutils.show_mask_with_labels(filename,constants.fashionista_categories_augmented_zero_based,save_images=True,visual_output=True)
-        cv2.imwrite(outfilename,nnmask_after )
-
 #    imutils.show_mask_with_labels('concout.bmp',constants.fashionista_categories_augmented)
 
 
