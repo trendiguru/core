@@ -28,14 +28,14 @@ MODLE_FILE = "/home/yonatan/trendi/yonatan/Alexnet_deploy.prototxt"
 PRETRAINED = "/home/yonatan/alexnet_imdb_first_try/caffe_alexnet_train_faces_iter_10000.caffemodel"
 caffe.set_mode_gpu()
 image_dims = [115, 115]
-mean, input_scale = None, None
+mean, input_scale = np.array([120, 120, 120]), None
 channel_swap = [2, 1, 0]
 raw_scale = 255.0
 ext = 'jpg'
 
 # Make classifier.
 classifier = caffe.Classifier(MODLE_FILE, PRETRAINED,
-                              image_dims=image_dims, mean=120,
+                              image_dims=image_dims, mean=mean,
                               input_scale=input_scale, raw_scale=raw_scale,
                               channel_swap=channel_swap)
 
@@ -56,6 +56,7 @@ for line in text_file:
     # Load numpy array (.npy), directory glob (*.jpg), or image file.
     input_file = os.path.expanduser(path[0])
     inputs = [caffe.io.load_image(input_file)]
+    #inputs = [Utils.get_cv2_img_array(input_file)]
 
     print("Classifying %d inputs." % len(inputs))
 
@@ -96,4 +97,4 @@ plt.legend()
 plt.hist(array_failure, alpha=0.5, label='array_failure')
 plt.legend()
 
-histogram.savefig('live_test_image_mean_120.png')
+histogram.savefig('live_test_image_mean_120_np-array.png')
