@@ -862,17 +862,17 @@ def show_mask_with_labels(mask_filename,labels,original_image=None,cut_the_crap=
                 print('got a big one (hxw {}x{}) resizing'.format(height,width))
                 newheight=(height>maxheight)*maxheight+(height<minheight)*minheight
 
-                factor = float(minheight)/height
+                factor = float(newheight)/height
                 orig_arr = cv2.resize(orig_arr,(int(round(width*factor)),minheight))
 #                print('factor {} newsize {}'.format(factor,orig_arr.shape) )
 
                 colorbar_h,colorbar_w = dest_colorbar.shape[0:2]
-                factor = float(minheight)/colorbar_h
+                factor = float(newheight)/colorbar_h
                 dest_colorbar = cv2.resize(dest_colorbar,(int(round(colorbar_w*factor)),int(round(colorbar_h*factor))))
 #                print('cbarfactor {} newsize {}'.format(factor,dest_colorbar.shape) )
 
                 dest_h,dest_w = dest.shape[0:2]
-                factor = float(minheight)/dest_h
+                factor = float(newheight)/dest_h
                 dest = cv2.resize(dest,(int(round(dest_w*factor)),int(round(dest_h*factor))))
 #                print('maskfactor {} newsize {}'.format(factor,dest.shape) )
 
