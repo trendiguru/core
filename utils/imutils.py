@@ -778,7 +778,7 @@ def show_mask_with_labels_dir(dir,labels,filter=None,original_images_dir=None,or
 
 
 
-def show_mask_with_labels(mask_filename,labels,original_image=None,cut_the_crap=False,save_images=False):
+def show_mask_with_labels(mask_filename,labels,original_image=None,cut_the_crap=False,save_images=False,visual_output=False):
     colormap = cv2.COLORMAP_JET
     img_arr = Utils.get_cv2_img_array(mask_filename,cv2.IMREAD_GRAYSCALE)
     if img_arr is None:
@@ -889,8 +889,9 @@ def show_mask_with_labels(mask_filename,labels,original_image=None,cut_the_crap=
  #   cv2.imshow('map',dest)
  #   cv2.imshow('colorbar',dest_colorbar)
     relative_name = os.path.basename(mask_filename)
-    cv2.imshow(relative_name,combined)
-    k = cv2.waitKey(0)
+    if visual_output:
+        cv2.imshow(relative_name,combined)
+        k = cv2.waitKey(0)
     if save_images:
         outname=relative_name.split('.bmp')[0]
         outname=outname+'_legend.jpg'
@@ -927,7 +928,7 @@ def show_mask_with_labels(mask_filename,labels,original_image=None,cut_the_crap=
 
     cv2.destroyAllWindows()
 
-    return frac,k
+    return combined,frac,k
 #        return dest
 
 def show_mask_with_labels_from_img_arr(mask,labels):

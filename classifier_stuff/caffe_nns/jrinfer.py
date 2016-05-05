@@ -10,6 +10,8 @@ import cv2
 from trendi import pipeline
 from trendi.utils import imutils
 from trendi import constants
+from trendi.paperdoll import paperdoll_parse_enqueue
+
 
 def infer_many(images,prototxt,caffemodel,out_dir='./'):
     net = caffe.Net(prototxt,caffemodel, caffe.TEST)
@@ -87,17 +89,40 @@ def infer_one(imagename,prototxt,caffemodel,out_dir='./'):
     return out.astype(np.uint8)
 
 def test_pd_conclusions():
-#    images = [os.path.join(test_dir,f) for f in os.listdir(test_dir) if '.jpg' in f ]
+    test_dir = '/home/jeremy/image_dbs/colorful_fashion_parsing_data/images/train_200x150/'
+    images = [os.path.join(test_dir,f) for f in os.listdir(test_dir) if '.jpg' in f ]
     image = '/home/jeremy/core/images/vneck.jpg'
     prototxt = '/home/jeremy/caffenets/voc-fcn8s/deploy.prototxt'
     caffemodel = 'snapshot_nn2/train_iter_183534.caffemodel'
     caffemodel = 'snapshot_nn2/train_iter_164620.caffemodel'  #010516 saved
     caffemodel = '/home/jeremy/caffenets/voc-fcn8s/train_iter_457644.caffemodel'  #040516 saved
-    mask = infer_one(image,prototxt,caffemodel)
-    imutils.show_mask_with_labels('vneck.bmp',constants.fashionista_categories_augmented)
-    mask2 = pipeline.after_nn_conclusions(mask, constants.fashionista_categories_for_conclusions, face=None)
-    cv2.imwrite('concout.bmp',mask2    )
-    imutils.show_mask_with_labels('concout.bmp',constants.fashionista_categories_augmented)
+    #mask = infer_one(image,prototxt,caffemodel)
+    masks = infer_many(images,prototxt,caffemodel)
+#    imutils.show_mask_with_labels('vneck.bmp',constants.fashionista_categories_augmented)
+    i=0
+    for nnmask in masks:
+        nnmask_after = pipeline.after_nn_conclusions(nnmask, constants.fashionista_categories_for_conclusions, face=None)
+        cv2.imwrite(filename+'after_pd_mask.bmp',nnmask_after )
+        filename=images[i]
+        img_arr = cv2.imread(filename)
+        retval = paperdoll_parse_enqueue.paperdoll_enqueue(img_arr, async=False,use_parfor=False)  #True,queue_name='pd_parfor')
+        pdmask,labels = retval.result[0:2]
+        pdmask_after = pipeline.after_pd_conclusions(pdmask, constants.paperdoll_categories, face=None)
+        i=i+1
+        h,w=nnmask.shape[0:2]
+        nnmasks=np.zeros([h,2*w])
+        pdmasks=np.zeros([h,2*w])
+        nnmasks[:,0:w]=nnmask
+        nnmasks[:,w:]=nnmask_after
+        filename=filename.split('.jpg')[0]+'nn_masks.bmp'
+        cv2.imwrite(filename,nnmasks)
+        nice_display=imutils.show_mask_with_labels(filename,)
+        pdmasks[:,0:w]=pdmask
+        pdmasks[:,w:]=pdmask_after
+        cv2.imwrite(filename+'pd_masks.bmp',nnmask_after )
+
+#    imutils.show_mask_with_labels('concout.bmp',constants.fashionista_categories_augmented)
+
 
 if __name__ == "__main__":
     caffe.set_mode_gpu();
