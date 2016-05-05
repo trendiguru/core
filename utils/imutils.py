@@ -777,7 +777,6 @@ def show_mask_with_labels_dir(dir,labels,filter=None,original_images_dir=None,or
     print('fraction histogram:'+str(np.histogram(fraclist,bins=20)))
 
 
-
 def show_mask_with_labels(mask_filename,labels,original_image=None,cut_the_crap=False,save_images=False,visual_output=False):
     colormap = cv2.COLORMAP_JET
     img_arr = Utils.get_cv2_img_array(mask_filename,cv2.IMREAD_GRAYSCALE)
