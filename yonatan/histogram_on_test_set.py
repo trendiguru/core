@@ -16,6 +16,10 @@ import random
 import matplotlib.pyplot as plt
 
 
+def cv2_image_to_caffe(image):
+    return skimage.img_as_float(cv2.cvtColor(image, cv2.COLOR_BGR2RGB)).astype(np.float32)
+
+
 #path = '/home/yonatan/55k_test_set'
 array_success = np.array([])
 array_failure = np.array([])
@@ -55,7 +59,8 @@ for line in text_file:
 
     # Load numpy array (.npy), directory glob (*.jpg), or image file.
     input_file = os.path.expanduser(path[0])
-    inputs = [caffe.io.load_image(input_file)]
+    #inputs = [caffe.io.load_image(input_file)]
+    inputs = [cv2_image_to_caffe(input_file)]
     #inputs = [Utils.get_cv2_img_array(input_file)]
 
     print("Classifying %d inputs." % len(inputs))

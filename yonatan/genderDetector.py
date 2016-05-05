@@ -10,6 +10,7 @@ import time
 from trendi import background_removal, Utils, constants
 import cv2
 import urllib
+import skimage
 
 
 MODLE_FILE = "/home/yonatan/trendi/yonatan/Alexnet_deploy.prototxt"
@@ -26,6 +27,10 @@ classifier = caffe.Classifier(MODLE_FILE, PRETRAINED,
                               image_dims=image_dims, mean=mean,
                               input_scale=input_scale, raw_scale=raw_scale,
                               channel_swap=channel_swap)
+
+
+def cv2_image_to_caffe(image):
+    return skimage.img_as_float(cv2.cvtColor(image, cv2.COLOR_BGR2RGB)).astype(np.float32)
 
 
 def url_to_image(url):
@@ -52,22 +57,33 @@ def theDetector(url_image, face_coordinates):
 
     full_image = url_to_image(url_image)
 
-    img = cv2.imread(full_image)
-    height, width, channels = img.shape
-    print height, width, channels
-    break
-    face_image = full_image[face_coordinates[1]: face_coordinates[1] + face_coordinates[3], face_coordinates[0]: face_coordinates[0] + face_coordinates[2]]
+    #checks if the face coordinates are inside the image
+    height, width, channels = full_image.shape
+
+    x = face_coordinates[0]
+    y = face_coordinates[1]
+    w = face_coordinates[2]
+    h = face_coordinates[3]
+
+    if x > width or x + w > width or y > height or y + h > height:
+        return None
+
+    face_image = full_image[y: y + h, x: x + w]
     #input_image = image
+    print face_image
+    print type(face_image)
 
     # Load numpy array (.npy), directory glob (*.jpg), or image file.
-    face_file = os.path.expanduser(face_image)
+    #face_file = os.path.expanduser(face_image)
 
-    print type(face_file)
+    #print face_file
+    #print type(face_file)
 
     #inputs = Utils.get_cv2_img_array(image)
     #inputs = [cv2.imread(input_file)]
 
-    face_for_caffe = [caffe.io.load_image(face_file)]
+    face_for_caffe = [cv2_image_to_caffe(face_image)]
+    #face_for_caffe = [caffe.io.load_image(face_image)]
 
     print face_for_caffe
     print type(face_for_caffe)

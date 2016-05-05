@@ -58,7 +58,7 @@ def after_pd_conclusions(mask, labels, face=None):
         item_mask = 255 * np.array(mask == num, dtype=np.uint8)
         category = list(labels.keys())[list(labels.values()).index(num)]
         print "W2P: checking {0}".format(category)
-        for key, item in constants.nn_categories.iteritems():
+        for key, item in constants.paperdoll_categories.iteritems():
             if category in item:
                 mask_sizes[key].append({num: cv2.countNonZero(item_mask)})
     # 1
