@@ -777,7 +777,6 @@ def show_mask_with_labels_dir(dir,labels,filter=None,original_images_dir=None,or
     print('fraction histogram:'+str(np.histogram(fraclist,bins=20)))
 
 
-
 def show_mask_with_labels(mask_filename,labels,original_image=None,cut_the_crap=False,save_images=False,visual_output=False):
     colormap = cv2.COLORMAP_JET
     img_arr = Utils.get_cv2_img_array(mask_filename,cv2.IMREAD_GRAYSCALE)
@@ -837,7 +836,7 @@ def show_mask_with_labels(mask_filename,labels,original_image=None,cut_the_crap=
     dest_colorbar[:,:,2] = vallevel  #value
     dest_colorbar = dest_colorbar.astype(np.uint8)
     dest_colorbar = cv2.cvtColor(dest_colorbar,cv2.COLOR_HSV2BGR)
-
+    print('size of colrbar:'+str(dest_colorbar.shape))
  #have to do labels here to get black
     i = 0
     for unique in uniques:
@@ -857,9 +856,12 @@ def show_mask_with_labels(mask_filename,labels,original_image=None,cut_the_crap=
         orig_arr = cv2.imread(original_image)
         if orig_arr is not None:
             height, width = orig_arr.shape[:2]
-            minheight=500
-            if height>minheight:
+            maxheight=600
+            minheight=300
+            if height>minheight or height < minheight:
                 print('got a big one (hxw {}x{}) resizing'.format(height,width))
+                newheight=(height>maxheight)*maxheight+(height<minheight)*minheight
+
                 factor = float(minheight)/height
                 orig_arr = cv2.resize(orig_arr,(int(round(width*factor)),minheight))
 #                print('factor {} newsize {}'.format(factor,orig_arr.shape) )
@@ -876,8 +878,11 @@ def show_mask_with_labels(mask_filename,labels,original_image=None,cut_the_crap=
 
         #    cv2.imshow('original',orig_arr)
             colorbar_h,colorbar_w = dest_colorbar.shape[0:2]
+            print('dest colorbar w {} h {} shape {}'.format(colorbar_w,colorbar_h,colorbar.shape))
             dest_h,dest_w = dest.shape[0:2]
+            print('dest w {} h {} shape {}'.format(dest_w,dest_h,dest.shape))
             orig_h,orig_w = orig_arr.shape[0:2]
+            print('orig w {} h {} shape {}'.format(orig_w,orig_h,orig_arr.shape))
 #            print('colobar size {} masksize {} imsize {}'.format(dest_colorbar.shape,dest.shape,orig_arr.shape))
             combined = np.zeros([dest_h,dest_w+orig_w+colorbar_w,3],dtype=np.uint8)
             combined[:,0:colorbar_w]=dest_colorbar
