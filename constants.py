@@ -279,7 +279,7 @@ fashionista_categories_for_conclusions = {'background':1,'tights':2,'shorts':3,'
                                     'scarf':21,'hat':22,'top':23,'cardigan':24,'accessories':25,'vest':26,'sunglasses':27,'belt':28,'socks':29,'glasses':30,
                                     'intimate':31,'stockings':32,'necklace':33,'cape':34,'jumper':35,'sweatshirt':36,'suit':37,'bracelet':38,'heels':39,'wedges':40,
                                     'ring':41,'flats':42,'tie':42,'romper':43,'sandals':44,'earrings':45,'gloves':46,'sneakers':47,'clogs':48,'watch':49,
-                                    'pumps':50,'wallet':51,'bodysuit':52,'loafers':53,'hair':54,'skin':55,'face':56]
+                                    'pumps':50,'wallet':51,'bodysuit':52,'loafers':53,'hair':54,'skin':55,'face':56}
 
 
 colorful_fashion_parsing_categories = ['bk','T-shirt','bag','belt','blazer','blouse','coat','dress','face','hair','hat',
