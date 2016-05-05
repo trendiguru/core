@@ -46,7 +46,7 @@ def infer_many(images,prototxt,caffemodel,out_dir='./'):
         result.save(outname)
     elapsed_time=time.time()-start_time
     print('elapsed time:'+str(elapsed_time)+' tpi:'+str(elapsed_time/len(images)))
-    return result
+    return out.astype(np.uint8)
     #fullout = net.blobs['score'].data[0]
 
 def infer_one(imagename,prototxt,caffemodel,out_dir='./'):
@@ -84,7 +84,7 @@ def infer_one(imagename,prototxt,caffemodel,out_dir='./'):
     #        fullout = net.blobs['score'].data[0]
     elapsed_time=time.time()-start_time
     print('elapsed time:'+str(elapsed_time))
-    return result
+    return out.astype(np.uint8)
 
 def test_pd_conclusions():
 #    images = [os.path.join(test_dir,f) for f in os.listdir(test_dir) if '.jpg' in f ]
