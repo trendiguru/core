@@ -58,7 +58,7 @@ def after_pd_conclusions(mask, labels, face=None):
         item_mask = 255 * np.array(mask == num, dtype=np.uint8)
         category = list(labels.keys())[list(labels.values()).index(num)]
         print "W2P: checking {0}".format(category)
-        for key, item in constants.paperdoll_categories.iteritems():
+        for key, item in constants.nn_categories.iteritems():
             if category in item:
                 mask_sizes[key].append({num: cv2.countNonZero(item_mask)})
     # 1
@@ -130,7 +130,7 @@ def after_nn_conclusions(mask, labels, face=None):
         item_mask = 255 * np.array(mask == num, dtype=np.uint8)
         category = list(labels.keys())[list(labels.values()).index(num)]
         print "W2P: checking {0}".format(category)
-        for key, item in constants.paperdoll_categories.iteritems():
+        for key, item in constants.nn_categories.iteritems():
             if category in item:
                 mask_sizes[key].append({num: cv2.countNonZero(item_mask)})
     # 1
@@ -143,9 +143,9 @@ def after_nn_conclusions(mask, labels, face=None):
             for num in np.unique(mask):
                 cat = list(labels.keys())[list(labels.values()).index(num)]
                 # 1.1, 1.2
-                if cat in constants.paperdoll_categories["lower_cover"] or \
-                                cat in constants.paperdoll_categories["lower_under"] or \
-                                cat in constants.paperdoll_categories["upper_under"]:
+                if cat in constants.nn_categories["lower_cover"] or \
+                                cat in constants.nn_categories["lower_under"] or \
+                                cat in constants.nn_categories["upper_under"]:
                     final_mask = np.where(mask == num, item_num, final_mask)
             return final_mask
     # 2, 2.1
@@ -164,7 +164,7 @@ def after_nn_conclusions(mask, labels, face=None):
             for item in mask_sizes[section]:
                 cat = list(labels.keys())[list(labels.values()).index(item.keys()[0])]
                 # 2.1, 2.2
-                if cat in constants.paperdoll_categories[section]:
+                if cat in constants.nn_categories[section]:
                     final_mask = np.where(mask == item.keys()[0], max_cat, final_mask)
             max_item_count = 0
 
