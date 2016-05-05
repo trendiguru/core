@@ -84,10 +84,8 @@ for line in file:
     if face_image == 'Fail':
         print 'face_image not found!'
         continue
-    caffe_face_image = cv2_image_to_caffe(face_image)
-
     # Resize it.
-    resized_image = cv2.resize(caffe_face_image, (width, height))
+    resized_image = cv2.resize(face_image, (width, height))
 
     image_file_name = 'resized_face-' + str(counter) + '.jpg'
 
