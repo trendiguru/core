@@ -72,6 +72,7 @@ N_max_workers = 120
 lower_threshold = 70
 upper_threshold = 85
 neurodoorman_queuename = 'neurodoor'
+neurodooll_queuename = 'neurodoll'
 #########
 # DB stuff
 #########
@@ -217,6 +218,27 @@ paperdoll_categories = {"whole_body": ['bodysuit', 'dress', 'jumper', 'suit', 'r
                         "lower_cover": ['shorts', 'skirt', 'jeans', 'pants'],
                         "lower_under": ['stockings', 'tights', 'leggings']}
 
+nn_categories = {"whole_body": ['bodysuit', 'dress', 'jumper', 'suit', 'romper'],
+                        "upper_cover": ['blazer', 'cape', 'jacket', 'cardigan', 'coat', 'vest','tie','sweatshirt'],
+                        "upper_under": ['t-shirt', 'blouse', 'shirt', 'top','bra','sweatshirt','intimate'],
+                        "lower_cover": ['shorts', 'skirt', 'jeans', 'pants','belt'],
+                        "lower_under": ['stockings', 'tights', 'leggings','intimate'],
+                        "feet_cover" :['shoes','boots','loafers','flats','sneakers','clogs','heels','wedges','pumps','sandals'],
+                        "feet_under" :['socks']}
+
+fash_augmented_that_didnt_get_into_nn_categories = ['bag','purse','scarf','hat','accessories','sunglasses','glasses',
+                                    'intimate','necklace','bracelet','ring','earrings','gloves','watch',
+                                    'wallet','hair','skin','face']
+
+fashionista_categories = ['','null','tights','shorts','blazer','t-shirt','bag','shoes','coat','skirt','purse','boots',
+                          'blouse','jacket','bra','dress','pants','sweater','shirt','jeans','leggings','scarf','hat',
+                          'top','cardigan','accessories','vest','sunglasses','belt','socks','glasses','intimate',
+                          'stockings','necklace','cape','jumper','sweatshirt','suit','bracelet','heels','wedges','ring',
+                          'flats','tie','romper','sandals','earrings','gloves','sneakers','clogs','watch','pumps','wallet',
+                          'bodysuit','loafers','hair','skin']
+
+
+
 paperdoll_whole_body = ['bodysuit', 'dress', 'jumper', 'suit', 'romper', 'intimate']
 paperdoll_upper = ['blazer', 'cape', 'jacket', 't-shirt', 'blouse', 'cardigan', 'shirt', 'coat', 'top', 'bra',
                    'sweater', 'vest', 'sweatshirt']
@@ -282,7 +304,7 @@ tamara_berg_improved_categories = ['background','belt','dress','eyewear','footwe
 #21 cats for direct replacement of VOC systems
 #lose the necklace,
 #combine tights and leggings
-ultimate_21 = ['background','bag','belt','blouse','bra','dress','eyewear','footwear','hat','jeans',
+ultimate = ['background','bag','belt','blouse','bra','dress','eyewear','footwear','hat','jeans',
                              'legging','outerwear','pants','shorts','skin','skirts','suit','sweatshirt', 'tie','top',
                              'vest']
 
