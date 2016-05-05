@@ -135,7 +135,10 @@ def test_pd_conclusions():
         outfilename=filename.split('.jpg')[0]+'nn_masks.bmp'
         print('outfilename:'+str(outfilename))
         cv2.imwrite(outfilename,nnmasks)
-        nice_display=imutils.show_mask_with_labels(filename,constants.fashionista_categories_augmented_zero_based,save_images=True,visual_output=True)
+        nice_display=imutils.show_mask_with_labels(outfilename,constants.fashionista_categories_augmented_zero_based,save_images=True,visual_output=True)
+ #       displayname = outfilename.split('.bmp')[0]+'_display.jpg'
+ #       cv2.imwrite(displayname,nice_display)
+
 #    imutils.show_mask_with_labels('concout.bmp',constants.fashionista_categories_augmented)
 
 
