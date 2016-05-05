@@ -284,6 +284,7 @@ def image_exists(image_url, collection_name=None):
 
 def merge_items(doc):
     # doc['items'] = [item for person in doc['people'] for item in person["items"] if 'items' in person.keys()]
+    doc['items'] = []
     for person in doc['people']:
         if 'items' in person.keys():
             for item in person['items']:
