@@ -879,7 +879,7 @@ def show_mask_with_labels(mask_filename,labels,original_image=None,cut_the_crap=
             dest_h,dest_w = dest.shape[0:2]
             print('dest w {} h {} shape {}'.format(dest_w,dest_h,dest.shape))
             orig_h,orig_w = orig_arr.shape[0:2]
-            print('orig w {} h {} shape {}'.format(orig_w,orig_h,orig.shape))
+            print('orig w {} h {} shape {}'.format(orig_w,orig_h,orig_arr.shape))
 #            print('colobar size {} masksize {} imsize {}'.format(dest_colorbar.shape,dest.shape,orig_arr.shape))
             combined = np.zeros([dest_h,dest_w+orig_w+colorbar_w,3],dtype=np.uint8)
             combined[:,0:colorbar_w]=dest_colorbar
