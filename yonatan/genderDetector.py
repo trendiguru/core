@@ -69,15 +69,15 @@ def theDetector(url_image, face_coordinates):
     print type(face_image)
 
     # Load numpy array (.npy), directory glob (*.jpg), or image file.
-    face_file = os.path.expanduser(face_image)
+    #face_file = os.path.expanduser(face_image)
 
-    print face_file
-    print type(face_file)
+    #print face_file
+    #print type(face_file)
 
     #inputs = Utils.get_cv2_img_array(image)
     #inputs = [cv2.imread(input_file)]
 
-    face_for_caffe = [caffe.io.load_image(face_file)]
+    face_for_caffe = [caffe.io.load_image(face_image)]
 
     print face_for_caffe
     print type(face_for_caffe)
