@@ -95,9 +95,9 @@ def test_pd_conclusions():
     caffemodel = '/home/jeremy/caffenets/voc-fcn8s/train_iter_457644.caffemodel'  #040516 saved
     mask = infer_one(image,prototxt,caffemodel)
     imutils.show_mask_with_labels('vneck.bmp',constants.fashionista_categories_augmented)
-    mask2 = pipeline.after_nn_conclusions(mask, constants.fashionista_categories_augmented, face=None)
+    mask2 = pipeline.after_nn_conclusions(mask, constants.fashionista_categories_for_conclusions, face=None)
     cv2.imwrite('concout.bmp',mask2    )
-    imutils.show_mask_with_labels('concout.bmp',constants.fashionista_categories_for_conclusions)
+    imutils.show_mask_with_labels('concout.bmp',constants.fashionista_categories_augmented)
 
 if __name__ == "__main__":
     caffe.set_mode_gpu();
