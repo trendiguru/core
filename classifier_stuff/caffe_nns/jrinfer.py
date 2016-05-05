@@ -106,7 +106,7 @@ def test_pd_conclusions():
         filename=images[i]
         img_arr = cv2.imread(filename)
         retval = paperdoll_parse_enqueue.paperdoll_enqueue(img_arr, async=False,use_parfor=False)  #True,queue_name='pd_parfor')
-        pdmask,labels = retval.result[0:2]
+        pdmask,pdlabels = retval.result[0:2]
         pdmask_after = pipeline.after_pd_conclusions(pdmask, constants.paperdoll_categories, face=None)
         i=i+1
         h,w=nnmask.shape[0:2]
@@ -114,12 +114,21 @@ def test_pd_conclusions():
         pdmasks=np.zeros([h,2*w])
         nnmasks[:,0:w]=nnmask
         nnmasks[:,w:]=nnmask_after
-        filename=filename.split('.jpg')[0]+'nn_masks.bmp'
+        outfilename=filename.split('.jpg')[0]+'nn_masks.bmp'
+        print('filename:'+str(outfilename))
         cv2.imwrite(filename,nnmasks)
-        nice_display=imutils.show_mask_with_labels(filename,)
+        nice_display=imutils.show_mask_with_labels(filename,constants.fashionista_categories_augmented_zero_based,save_images=True,visual_output=True)
         pdmasks[:,0:w]=pdmask
         pdmasks[:,w:]=pdmask_after
-        cv2.imwrite(filename+'pd_masks.bmp',nnmask_after )
+        outfilename=filename.split('.jpg')[0]+'pd_masks.bmp'
+        cv2.imwrite(outfilename,nnmask_after )
+        print('pdlabels:'+str(pdlabels))
+        labellist = [x.key() for x in pdlabels]
+        indexlist = [x.value() for x in pdlabels]
+        print('labellist:'+str(labellist))
+        print('indexlist:'+str(indexlist))
+#        nice_display=imutils.show_mask_with_labels(filename,constants.fashionista_categories_augmented_zero_based)
+        paperdoll_parse_enqueue.show_parse('pd_masks.bmp',save=True)
 
 #    imutils.show_mask_with_labels('concout.bmp',constants.fashionista_categories_augmented)
 
