@@ -60,8 +60,9 @@ for line in text_file:
     # Load numpy array (.npy), directory glob (*.jpg), or image file.
     input_file = os.path.expanduser(path[0])
     #inputs = [caffe.io.load_image(input_file)]
-    inputs = [cv2_image_to_caffe(input_file)]
-    #inputs = [Utils.get_cv2_img_array(input_file)]
+
+    inputs0 = [Utils.get_cv2_img_array(input_file)]
+    inputs = [cv2_image_to_caffe(inputs0)]
 
     print("Classifying %d inputs." % len(inputs))
 
