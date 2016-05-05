@@ -93,7 +93,7 @@ def infer_one(imagename,prototxt,caffemodel,out_dir='./'):
 def test_pd_conclusions():
     test_dir = '/home/jeremy/image_dbs/colorful_fashion_parsing_data/images/test_200x150/'
     images = [os.path.join(test_dir,f) for f in os.listdir(test_dir) if '.jpg' in f ]
-    images = images[0:10]
+    images = images[0:1]
     image = '/home/jeremy/core/images/vneck.jpg'
     prototxt = '/home/jeremy/caffenets/voc-fcn8s/deploy.prototxt'
     caffemodel = 'snapshot_nn2/train_iter_183534.caffemodel'
@@ -105,8 +105,8 @@ def test_pd_conclusions():
     i=0
     for nnmask in masks:
         nnmask_after = pipeline.after_nn_conclusions(nnmask, constants.fashionista_categories_for_conclusions, face=None)
-        cv2.imwrite(filename+'after_pd_mask.bmp',nnmask_after )
         filename=images[i]
+        cv2.imwrite(filename+'after_pd_mask.bmp',nnmask_after )
         img_arr = cv2.imread(filename)
         retval = paperdoll_parse_enqueue.paperdoll_enqueue(img_arr, async=False,use_parfor=False)  #True,queue_name='pd_parfor')
         pdmask,pdlabels = retval.result[0:2]
