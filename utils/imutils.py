@@ -858,9 +858,9 @@ def show_mask_with_labels(mask_filename,labels,original_image=None,cut_the_crap=
             height, width = orig_arr.shape[:2]
             maxheight=600
             minheight=300
-            if height>minheight or height < minheight:
+            if height>minheight:  # or height < minheight:
                 print('got a big one (hxw {}x{}) resizing'.format(height,width))
-                newheight=(height>maxheight)*maxheight+(height<minheight)*minheight
+                newheight=(height>maxheight)*maxheight   #+(height<minheight)*minheight
 
                 factor = float(newheight)/height
                 orig_arr = cv2.resize(orig_arr,(int(round(width*factor)),minheight))
@@ -878,7 +878,7 @@ def show_mask_with_labels(mask_filename,labels,original_image=None,cut_the_crap=
 
         #    cv2.imshow('original',orig_arr)
             colorbar_h,colorbar_w = dest_colorbar.shape[0:2]
-            print('dest colorbar w {} h {} shape {}'.format(colorbar_w,colorbar_h,colorbar.shape))
+            print('dest colorbar w {} h {} shape {}'.format(colorbar_w,colorbar_h,dest_colorbar.shape))
             dest_h,dest_w = dest.shape[0:2]
             print('dest w {} h {} shape {}'.format(dest_w,dest_h,dest.shape))
             orig_h,orig_w = orig_arr.shape[0:2]
@@ -888,6 +888,11 @@ def show_mask_with_labels(mask_filename,labels,original_image=None,cut_the_crap=
             combined[:,0:colorbar_w]=dest_colorbar
             combined[:,colorbar_w:colorbar_w+dest_w]=dest
             combined[:,colorbar_w+dest_w:]=orig_arr
+            combined_h,combined_w = combined.shape[0:2]
+            print('comb w {} h {} shape {}'.format(combined_w,combiend_h,combined.shape))
+            if combined_h<minheight:
+                factor = float(minheight)/combined_h
+                combined = cv2.resize(combined,(int(round(combined_w*factor)),minheight))
 
         else:
             logging.warning('could not get image '+original_image)

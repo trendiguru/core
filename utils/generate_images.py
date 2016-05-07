@@ -6,8 +6,9 @@ import logging
 import cv2
 import numpy as np
 import os
-import h5py
 
+from trendi.utils import imutils
+from trendi.constants import fashionista_categories_augmented
 logging.basicConfig(level=logging.DEBUG)
 
 def generate_images(img_filename, max_angle = 5,n_angles=10,
@@ -213,9 +214,6 @@ def generate_masks(img_filename, **kwargs):
 
     cv2.waitKey(0)
 
-
-
-
 def generate_images_for_directory_of_directories(dir_of_dirs,filter= None,**args):
     only_dirs = [dir for dir in os.listdir(dir_of_dirs) if os.path.isdir(os.path.join(dir_of_dirs,dir))  ]
     logging.debug(str(only_dirs))
@@ -225,7 +223,6 @@ def generate_images_for_directory_of_directories(dir_of_dirs,filter= None,**args
     for a_dir in only_dirs:
         full_dir = os.path.join(dir_of_dirs,a_dir)
         generate_images_for_directory(full_dir,**args)
-
 
 def clear_underutilized_bins(img_arr):
     h = np.histogram(img_arr,bins=57)
@@ -294,260 +291,170 @@ def add_noise(image, noise_typ,level):
         noisy = image + image * gauss
         return noisy
 
-def test():
-    pass
+def binary_masks_from_indexed_mask(indexed_mask, n_binaries=None):
+    '''
+    Take mask indexed by category, and turn into binary masks . nth mask is for index n
+    :param indexed_mask:
+    :return: n binary masks
+    '''
+    if n_binaries == None:
+        n_binaries = np.max(indexed_mask)
+    binary_masks = np.zeros((indexed_mask.shape[0], indexed_mask.shape[1], n_binaries), dtype='uint8')
+    concatenated=np.zeros([indexed_mask.shape[0],1])
+    for i in range(n_binaries):
+        binary_masks[:, :, i][indexed_mask == i] = 1
 
-#########################################################################################
-#one timers:
-def output_masks_creator(path_to_HDF5):
-    data = h5py.File(path_to_HDF5)
-    keys = data.keys()
-    category_label = np.array(data[keys[0]], dtype='int')-1
-    # color_label = np.array(data[keys[1]], dtype='int')
-    segmentation = np.array(data[keys[2]], dtype='int').T
-    output_masks = np.zeros((segmentation.shape[0], segmentation.shape[1], 23), dtype='uint8')
-    # TODO: indexwise optimizes loop...    output_masks[]
-    for i in range(len(category_label)):
-        p = (segmentation == i)
-        output_masks[:, :, category_label[i]] = output_masks[:, :, category_label[i]] + p
-    return output_masks
+#        cv2.imshow('mask '+str(i),(binary_masks[:,:,i]*255).astype('uint8'))
+        concatenated=np.concatenate((concatenated,binary_masks[:,:,i]),1)
+    cv2.imshow('conc',concatenated)
+    cv2.imshow('indexed',indexed_mask)
+    cv2.waitKey(0)
+    binary_masks = binary_masks.astype('uint8')
+    return binary_masks
 
-def ground_truth_masks_converter():
-    current_directory_name = os.getcwd()
-    path_to_images = current_directory_name + '/_data_images/'
-    path_to_images_data = current_directory_name + '/image_data/'
-    images = [f for f in os.listdir(path_to_images) if os.path.isfile(os.path.join(path_to_images, f))]
-    images_data = [f for f in os.listdir(path_to_images_data) if os.path.isfile(os.path.join(path_to_images_data, f))]
-​
-    # creating HDF5 for training:
-    hdf5_dataset_file_name = 'cloths_parsing_dataset'
-    with h5py.File(hdf5_dataset_file_name + '.hdf5', 'w') as f:
-        for image_data in images_data:
-            output_masks = output_masks_creator(path_to_images_data + image_data)
-            f.create_dataset(image_data[:-5], data=output_masks)
-            print image_data[:-5] + '   done!'
-​
-# converting yamaguchi's dataset from 56 classes to 21 classes:
-def slim_down_class_matrixes_from_56_to_21(_56_maskoid):
-​
-    # _56_maskoid: a cv2.imread() result (3 identical channles)
-    _56_maskoid = _56_maskoid[:, :, 0] - 1
-    output_masks = np.zeros((_56_maskoid.shape[0], _56_maskoid.shape[1], 23), dtype='uint8')
-​
-    ## base lineclasses:
-    _categories =['bk', 'T-shirt', 'bag', 'belt', 'blazer', 'shirt', 'coat', 'dress', 'face',
-                  'hair', 'hat', 'jeans', 'legging', 'pants', 'scarf', 'shoe', 'shorts', 'skin',
-                  'skirt', 'socks', 'stocking', 'sunglass', 'sweater']
-​
-    ultimate_21 = ['background','bag','belt','shirt','dress','eyewear',
-               'footwear','hat','legging','outerwear','pants','shorts','skin','skirts','suit','sweatshirt', 'tie','top',
-                             'vest']
-#'bra',
-#'jeans',
+def indexed_mask_from_binary_masks(binary_masks):
+    '''
+    Take mask indexed by category, and turn into binary masks . nth mask is for index n
+    :param indexed_mask:
+    :return: n binary masks
+    '''
+    h,w = binary_masks.shape[0:2]
+    indexed_mask = np.zeros((h, w), dtype='uint8')
+    for i in range(n_binaries):
+        indexed_mask[:, :][binary_masks[:,:,i] == 1] = i
+#        cv2.imshow('mask '+str(i),(binary_masks[:,:,i]*255).astype('uint8'))
+        concatenated=np.concatenate((concatenated,binary_masks[:,:,i]),1)
+    return indexed_mask
 
-    ## fashionista classes:
-    fashionista_categories = ['null','tights','shorts','blazer','t-shirt','bag','shoes','coat','skirt','purse',
-                            'boots','blouse','jacket','bra','dress','pants','sweater','shirt','jeans','leggings',
-                            'scarf','hat','top','cardigan','accessories','vest','sunglasses','belt','socks','glasses',
-                            'intimate','stockings','necklace','cape','jumper','sweatshirt','suit','bracelet','heels','wedges',
-                            'ring','flats','tie','romper','sandals','earrings','gloves','sneakers','clogs','watch',
-                            'pumps','wallet','bodysuit','loafers','hair','skin','face']
-​
-    conversion_dictionary_strings = {'background': ['null'],
-                                    'bag': ['bag', 'purse'],
-                                    'blazer': ['blazer', 'jacket', 'vest'],
-                                    'top': ['t-shirt', 'shirt','blouse', 'top', 'sweatshirt'],
-                                    'coat': ['coat', 'cape'],
-                                    'dress': ['dress',  'romper'],
-                                    'suit': ['suit'],
-                                    'face': ['face'],
-                                    'hair': ['hair'],
-                                    'hat': ['hat'],
-                                    'jeans': ['jeans'],
-                                    'legging': ['tights', 'leggings'],
-                                    'pants': ['pants'],
-                                    'shoe': ['shoes', 'boots', 'heels', 'wedges', 'pumps', 'loafers', 'flats', 'sandals', 'sneakers', 'clogs'],
-                                    'shorts': ['shorts'],
-                                    'skin': ['skin'],
-                                    'skirt': ['skirt'],
-                                    'socks': ['socks'],
-                                    'stocking': ['intimate', 'stockings'],
-                                    'eyewear': ['sunglasses', 'glasses'],
-                                    'sweater': ['sweater', 'cardigan', 'jumper']}
-#tossed,'bodysuit'
-#tossed​, 'accessories', 'ring', 'necklace', 'bracelet', 'wallet', 'tie', 'earrings', 'gloves', 'watch']
-#tossed                  'scarf': ['scarf'],
-#tossed                  'belt': ['belt'],
+def show_binary_mask(binary_masks, n_binaries=None):
+    '''
+    Take mask indexed by category, and turn into binary masks . nth mask is for index n
+    :param indexed_mask:
+    :return: n binary masks
+    '''
+    if n_binaries == None:
+        n_binaries = np.max(indexed_mask)
+    h,w=binary_masks.shape[0:2]
+    concatenated=np.zeros([h,1  ])
+    print('conc shape:'+str(concatenated.shape))
+    for i in range(n_binaries):
+        scaled = binary_masks[:, :, i]*255
+        print('scaled shape:'+str(scaled.shape))
+        concatenated=np.concatenate((concatenated,scaled),1)
+    cv2.imshow('conc',concatenated)
+    cv2.waitKey(0)
 
-    for i in range(output_masks.shape[2]):
-        list_56_class_match = conversion_dictionary_strings[_categories[i]]
-        # print '\n category :: ' + _categories[i] + ':'
-        for _56_class_match in list_56_class_match:
-            # print '   # ' + _56_class_match
-            output_masks[:, :, i][_56_maskoid == fashionista_categories.index(_56_class_match)] = 1
-​
-    # cv2.imshow('p', np.hstack([cv2.imread('fashionista_images_and_masks/1_photo.jpg'), (cv2.imread('fashionista_images_and_masks/1_mask.png')-1)*8, cv2.merge([p, p, p])*15]))
-    # cv2.waitKey(0)
-​
-    _21_maskoid = output_masks.astype('uint8')
-    return _21_maskoid
-​
-def fashionista_ground_truth_masks_converter():
-    current_directory_name = os.getcwd()
-    path_to_images = current_directory_name + '/fashionista_images_and_masks/'
-    path_to_images_data = current_directory_name + '/fashionista_images_and_masks/'
-    images = [f for f in os.listdir(path_to_images) if os.path.isfile(os.path.join(path_to_images, f)) and f[-3:]=='jpg']
-    # images_data = [f for f in os.listdir(path_to_images_data) if os.path.isfile(os.path.join(path_to_images_data, f)) and f[-3:]=='png']
-    print images
-    # creating HDF5 for training:
-    hdf5_dataset_file_name = 'fashionista_cloths_parsing_dataset'
-    with h5py.File(hdf5_dataset_file_name + '.hdf5', 'w') as f:
-        for image_name in images:
-            _56_maskoid = cv2.imread(path_to_images_data + image_name.split('_')[0] + '_mask.png')
-            output_masks = slim_down_class_matrixes_from_56_to_21(_56_maskoid)
-            f.create_dataset(image_name, data=output_masks)
-            print image_name + '   done!'
-​
-#########################################################################################
-​
-def load_XandY():
-​
-    _data_images_path = '_data_images/'
-    fashionista_data_images_path = 'fashionista_images_and_masks/'
-    _data = h5py.File('cloths_parsing_dataset.hdf5')
-    fashionista_data = h5py.File('fashionista_cloths_parsing_dataset.hdf5')
-    _images_file_names = _data.keys()
-    fashionista_images_file_names = fashionista_data.keys()
-​
-    X = []
-    Y = []
-​
-    # first aquier _data and then concatenate the fashionista_data:
-    for image_name in _images_file_names:
-        X.append(cv2.imread(_data_images_path + image_name))
-        Y.append(_data[image_name])
-        break
-    print 'dont forget to remove break and unlock fashionista!!! (lines 149-153)'
-    # for image_name in fashionista_images_file_names:
-    #     X.append(cv2.imread(fashionista_data_images_path + image_name))
-    #     Y.append(fashionista_data[image_name])
-​
-    return np.array(X, dtype='uint8'), np.array(Y, dtype='uint8')
-​
-​
-def relevant_cuts_of_Xi_and_Yi(Xi, Yi, output_shape=(150, 150)):
-​
-    image0 = Xi
-    masks0 = Yi
-​
-    # bbox for speed slicing:
-    face_mask = masks0[:, :, 8] # index=8 is face blob mask
-    print face_mask.shape
-    face_x0, face_y0, face_dx, face_dy = cv2.boundingRect(face_mask.astype('uint8'))
-    human_mask = (masks0[:, :, 0]-1)**2 # index=0 is background to human blob mask
-    body_x0, body_y0, body_dx, body_dy = cv2.boundingRect(human_mask.astype('uint8'))
-    Xi_list = []
-    Yi_list = []
-    margine_pixels = 30
-    border_type = cv2.BORDER_REPLICATE
-    image1 = image0[body_y0-margine_pixels:body_y0+body_dy+margine_pixels,
-                    body_x0-margine_pixels:body_x0+body_dx+margine_pixels, :]
-    masks1 = masks0[body_y0-margine_pixels:body_y0+body_dy+margine_pixels,
-                    body_x0-margine_pixels:body_x0+body_dx+margine_pixels, :]
-​
-​
-    # first - non resized square cuts:
-    ##################################
-    DX_smallest = min(image0.shape[:2])
-    scale_XY = 1.0*DX_smallest/max(image0.shape[:2])
-    if max(image0.shape[:2]) >= 1.5*max(output_shape):
-        if scale_XY <= 2./3:
-            if image0.shape[0] >= image0.shape[1]:
-                # up:
-                Xi_list.append(image0[:DX_smallest, :, :])
-                Yi_list.append(masks0[:DX_smallest, :, :])
-                # down:
-                Xi_list.append(image0[-DX_smallest:, :, :])
-                Yi_list.append(masks0[-DX_smallest:, :, :])
-            if image0.shape[0] < image0.shape[1]:
-                # left:
-                Xi_list.append(image0[:, :DX_smallest, :])
-                Yi_list.append(masks0[:, :DX_smallest, :])
-                #right:
-                Xi_list.append(image0[:, -DX_smallest:, :])
-                Yi_list.append(masks0[:, -DX_smallest:, :])
-​
-            if 2./3 > scale_XY >= 1. / 3:
-                if image0.shape[0] >= image0.shape[1]:
-                    # up:
-                    Xi_list.append(image0[:image0.shape[1], :, :])
-                    Yi_list.append(masks0[:masks0.shape[1], :, :])
-                    # midway:
-                    Xi_list.append(image0[image0.shape[0]/2-image0.shape[1]/2:image0.shape[0]/2+image0.shape[1]/2, :, :])
-                    Yi_list.append(masks0[masks0.shape[0]/2-masks0.shape[1]/2:masks0.shape[0]/2+masks0.shape[1]/2, :, :])
-                    # down:
-                    Xi_list.append(image0[-image0.shape[1]:, :, :])
-                    Yi_list.append(masks0[-masks0.shape[1]:, :, :])
-                if image0.shape[0] < image0.shape[1]:
-                    # up:
-                    Xi_list.append(image0[:, image0.shape[0], :])
-                    Yi_list.append(masks0[:, masks0.shape[0], :])
-                    # midway:
-                    Xi_list.append(image0[:, image0.shape[1]/2-image0.shape[0]/2:image0.shape[1]/2+image0.shape[0]/2, :])
-                    Yi_list.append(masks0[:, masks0.shape[1]/2-masks0.shape[0]/2:masks0.shape[1]/2+masks0.shape[0]/2, :])
-                    # down:
-                    Xi_list.append(image0[:, -image0.shape[0]:, :])
-                    Yi_list.append(masks0[:, -masks0.shape[0]:, :])
-​
-            # TODO: ...
-            # if scale_XY < 1. / 3:
-            #     if image0.shape[0] > image0.shape[1]:
-            #     if image0.shape[0] < image0.shape[1]:
-​
-        else:
-            ## two steps:
-            if image0.shape[0] >= image0.shape[1]:
-                # upper left corner:
-                Xi_list.append(image0[:2*image0.shape[0]/3, :2*image0.shape[0]/3, :])
-                Yi_list.append(masks0[:2*masks0.shape[0]/3, :2*masks0.shape[0]/3, :])
-                # upper right corner:
-                Xi_list.append(image0[:2*image0.shape[0]/3, -2*image0.shape[0]/3:, :])
-                Yi_list.append(masks0[:2*masks0.shape[0]/3, -2*masks0.shape[0]/3:, :])
-                # middle:
-                Xi_list.append(image0[image0.shape[0]/6:5*image0.shape[0]/6, image0.shape[0]/6 - (image0.shape[0]-image0.shape[1])/2:5*image0.shape[0]/6 - (image0.shape[0]-image0.shape[1]), :])
-                Yi_list.append(masks0[masks0.shape[0]/6:5*masks0.shape[0]/6, masks0.shape[0]/6 - (masks0.shape[0]-masks0.shape[1])/2:5*masks0.shape[0]/6 - (masks0.shape[0]-masks0.shape[1]), :])
-                # lower left corner:
-                Xi_list.append(image0[-2*image0.shape[0]/3:, :2*image0.shape[0]/3, :])
-                Yi_list.append(masks0[-2*masks0.shape[0]/3:, :2*masks0.shape[0]/3, :])
-                # lower right corner:
-                Xi_list.append(image0[-2 * image0.shape[0]/3:, -2 * image0.shape[0]/3:, :])
+def generate_images_from_binary_mask(mask,filename,suffix='.png',
+                                     max_angle=10,n_angles=2,
+                                     max_offset_x=None,n_offsets_x=2,
+                                     max_offset_y=None,n_offsets_y=2,
+                                     max_scale=1.3,min_scale=0.7,n_scales=2):
+    height=mask.shape[0]
+    width=mask.shape[1]
+    center = (width/2,height/2)
+    eps = 10**-6
+    angles = np.arange(-max_angle, max_angle+eps, max_angle*2 / (n_angles-1))
+    if max_offset_x == None:
+        max_offset_x = int(float(width)/5) #left,right 20% of image
+    if max_offset_y == None:
+        max_offset_y = int(float(height)/5) #up,down 20% of image
+    offsets_x = np.arange(-max_offset_x, max_offset_x+eps, max_offset_x*2/(n_offsets_x-1))
+    offsets_y = np.arange(-max_offset_y, max_offset_y+eps, max_offset_y*2/(n_offsets_y-1))
+    scales = np.arange(1, max_scale+eps, (max_scale-1)/(n_scales-1))
+    print('shape {}\n angles {} \noffsets_x {} \noffsets_y {} \nscales {}'.format(binmask.shape,angles,offsets_x,offsets_y,scales))
 
+    mirror_image = cv2.flip(mask,1)
+    reflections=[mask,mirror_image]
 
+    n_reflection=-1
+    for img_arr in reflections:
+        n_reflection=n_reflection+1
+        for offset_x in offsets_x:
+            for offset_y in offsets_y:
+                for angle in angles:
+                    for scale in scales:
+                        M = cv2.getRotationMatrix2D(center, angle,scale)
+#                                print('M='+str(M))
+                        M[0,2]=M[0,2]+offset_x
+                        M[1,2]=M[1,2]+offset_y
+                        print('M='+str(M))
+                        xformed_img_arr  = cv2.warpAffine(img_arr,  M, (width,height),borderMode=cv2.BORDER_REPLICATE)
+                        name = filename[0:-4]+'_ref{0}dx{1}dy{2}rot{3}scl{4}'.format(n_reflection,offset_x,offset_y,angle,scale)+suffix
+                        print('writing:'+name)
+                        yield(xformed_img_arr)
+#                                cv2.imwrite(name,xformed_img_arr)
+#                        cv2.imshow('xf',xformed_img_arr)
+#                        cv2.waitKey(0)
 
+def maskname_from_imgname(maskdir,imgname,imgsuffix='.jpg',masksuffix='.png'):
+    imgonly=os.path.basename(imgname)
+    newname = imgonly.split(imgsuffix)[0]+masksuffix
+    newfullpath = os.path.join(maskdir,newname)
+    print('origname {1} newname {1}'.format(imgname,newfullpath))
 
 if __name__=="__main__":
     print('running main')
     img_filename = '../images/female1.jpg'
-    image_dir = '/home/jeremy/image_dbs/colorful_fashion_parsing_data/images/train_200x150'
+    image_dir = '/home/jeremy/image_dbs/colorful_fashion_parsing_data/images/test_200x150'
     label_dir = '/home/jeremy/image_dbs/colorful_fashion_parsing_data/labels_200x150'
+    imgs =  [os.path.join(image_dir,f) for f in os.listdir(image_dir)]
+    imgname=imgs[0]
+    print('image:'+imgname)
+    img_arr = cv2.imread(imgname)
+#    masks = [os.path.join(label_dir,f) for f in os.listdir(label_dir)]
+#    maskname = masks[0]
+    maskname = maskname_from_imgname(label_dir,imgname)
+    mask = cv2.imread(maskname)
+    if len(mask.shape)==3:
+        print('got 3chan mask')
+        mask = mask[:,:,0]
+    mask=mask-1  #fashionista are 1-indexed
+    binmask = binary_masks_from_indexed_mask(mask, n_binaries=56)
 
-    generate_images_for_directory(image_dir,
-                    max_angle = 10,n_angles=2,
-                    max_offset_x = 10,n_offsets_x=2,
-                    max_offset_y = 10, n_offsets_y=2,
-                    max_scale=1.3, n_scales=2,
-                    noise_level=0.1,noise_type='gauss',n_noises=0,
-                    max_blur=5, n_blurs=0,
-                    do_mirror_lr=True,do_mirror_ud=False,do_bb=False,suffix='.jpg')
+    maskvariations = generate_images_from_binary_mask(binmask,maskname,
+                                     max_angle=10,n_angles=2,
+                                     max_offset_x=10,n_offsets_x=2,
+                                     max_offset_y=10,n_offsets_y=2,
+                                     max_scale=1.3,min_scale=0.7,n_scales=2)
+    indexed_variations = []
 
-    generate_images_for_directory(label_dir,
-                    max_angle = 10,n_angles=2,
-                    max_offset_x = 10,n_offsets_x=2,
-                    max_offset_y = 10, n_offsets_y=2,
-                    max_scale=1.3, n_scales=2,
-                    noise_level=0.1,noise_type='gauss',n_noises=0,
-                    max_blur=5, n_blurs=0,
-                    do_mirror_lr=True,do_mirror_ud=False,do_bb=False,suffix='.png')
+    for variation in maskvariations:
+#        show_binary_mask(variation, n_binaries=56)
+        indexed = indexed_mask_from_binary_masks(variation)
+        indexed_variations.append(binmask)
+
+    origvariations = generate_images_from_binary_mask(img_arr,maskname,
+                                     max_angle=10,n_angles=2,
+                                         max_offset_x=10,n_offsets_x=2,
+                                     max_offset_y=10,n_offsets_y=2,
+                                     max_scale=1.3,min_scale=0.7,n_scales=2)
+
+    var_no = 0
+    for mask,orig in zip(indexed_variations,origvariations):
+        newname = maskname.split('.jpg')[0]+str(var_no)+'.jpg'
+        cv2.imshow('orig',orig)
+        cv2.imwrite(newname,mask)
+        print('wrote new mask to :'+newname)
+        imutils.show_mask_with_labels(newname,fashionista_categories_augmented)
+        var_no=var_no+1
+
+#    generate_images_for_directory(image_dir,
+#                    max_angle = 10,n_angles=2,
+#                    max_offset_x = 10,n_offsets_x=2,
+#                    max_offset_y = 10, n_offsets_y=2,
+#                    max_scale=1.3, n_scales=2,
+#                    noise_level=0.1,noise_type='gauss',n_noises=0,
+#                    max_blur=5, n_blurs=0,
+#                    do_mirror_lr=True,do_mirror_ud=False,do_bb=False,suffix='.jpg')
+
+#    generate_images_for_directory(label_dir,
+#                    max_angle = 10,n_angles=2,
+#                    max_offset_x = 10,n_offsets_x=2,
+#                    max_offset_y = 10, n_offsets_y=2,
+#                    max_scale=1.3, n_scales=2,
+ #                   noise_level=0.1,noise_type='gauss',n_noises=0,
+  #                  max_blur=5, n_blurs=0,
+#                    do_mirror_lr=True,do_mirror_ud=False,do_bb=False,suffix='.png')
 
 
 #    generate_images(img_filename, max_angle = 3,n_angles=2,
