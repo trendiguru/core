@@ -464,7 +464,7 @@ def generate_simultaneous_masks_and_images(imgname,label_dir,
     if len(mask.shape)==3:
         print('got 3chan mask')
         mask = mask[:,:,0]
-    mask=mask-1  #fashionista are 1-indexed
+#    mask=mask-1  #fashionista are 1-indexed, rest are not
     binmask = binary_masks_from_indexed_mask(mask, n_binaries=56)
 
     maskvariations = generate_images_from_binary_mask(binmask,maskname,
@@ -508,6 +508,7 @@ def generate_random_pair_mask_and_image_dir(imgdir,label_dir,max_angle=7,max_off
                                      max_scale=1.2,n_tot=100,filter='.jpg',labels=ultimate_21):
 
     imgfiles = [os.path.join(imgdir,f) for f in os.listdir(imgdir) if filter in f]
+    print(str(len(imgfiles))+' imagefiles in '+imgdir)
     for imgfile in imgfiles:
         for i in range(n_tot):
             generate_random_pair_mask_and_image(imgfile,label_dir,max_angle=max_angle,max_offset_x=max_offset_x,
