@@ -543,7 +543,7 @@ def generate_random_pair_mask_and_image(imgname,label_dir,max_angle=7,max_offset
     if len(mask.shape)==3:
         print('got 3chan mask')
         mask = mask[:,:,0]
-    mask=mask-1  #fashionista are 1-indexed
+#    mask=mask-1  #fashionista are 1-indexed , others not
     binmask = binary_masks_from_indexed_mask(mask, n_binaries=56)
     #randomly flip
     ref = np.random.randint(2)
