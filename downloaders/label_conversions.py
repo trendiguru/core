@@ -84,8 +84,9 @@ def fashionista_to_ultimate_21(file):
     ultimate_21 = ['bgnd','bag','belt','blazer','coat','dress','eyewear','face','hair','hat',
                    'jeans','legging','pants','shoe','shorts','skin','skirt','stocking','suit','sweater',
                    'top']
-#tossed,'bodysuit', 'scarf', 'socks','bra'
+#tossed,'bodysuit', 'socks','bra'
 #tossed​, 'accessories', 'ring', 'necklace', 'bracelet', 'wallet', 'tie', 'earrings', 'gloves', 'watch']
+#scarf aded to shirt since it mostly shows up there
 
 # ## fashionista classes:
     fashionista_categories_augmented = ['','null','tights','shorts','blazer','t-shirt','bag','shoes','coat','skirt','purse',
@@ -96,11 +97,11 @@ def fashionista_to_ultimate_21(file):
                                     'pumps','wallet','bodysuit','loafers','hair','skin','face']  #0='',1='null'(bgnd) 57='face'
 
     #CONVERSION FROM FASH 57 TO ULTIMATE21
-    conversion_dictionary_strings = {'background': ['null'],
+    conversion_dictionary_strings = {'bgnd': ['null'],
                                     'bag': ['bag', 'purse'],
                                     'belt': ['belt'],
                                     'blazer': ['blazer', 'jacket', 'vest'],
-                                    'top': ['t-shirt', 'shirt','blouse', 'top', 'sweatshirt'],
+                                    'top': ['t-shirt', 'shirt','blouse', 'top', 'sweatshirt', 'scarf'],
                                     'coat': ['coat', 'cape'],
                                     'dress': ['dress',  'romper'],
                                     'suit': ['suit'],
@@ -134,7 +135,7 @@ def fashionista_to_ultimate_21(file):
 #        if index_conversion[i] == -666:
 #            print('unmapped fashcat:'+str(i)+fashionista_categories_augmented[i])
 
-       mask=cv2.imread(file,cv2.IMREAD_GRAYSCALE)
+    mask=cv2.imread(file,cv2.IMREAD_GRAYSCALE)
     if mask is None:
         logging.warning('could not get file:'+file)
         return None
