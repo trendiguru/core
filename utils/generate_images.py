@@ -585,7 +585,7 @@ if __name__=="__main__":
     image_dir = '/home/jeremy/image_dbs/colorful_fashion_parsing_data/images/train'
     label_dir = '/home/jeremy/image_dbs/colorful_fashion_parsing_data/labels_u21'
 
-    generate_random_pair_mask_and_image_dir(image_dir,label_dir,max_angle=7,max_offset_x=10, max_offset_y=10,
+    generate_random_pair_mask_and_image_dir(image_dir,label_dir,max_angle=7,max_offset_x=20, max_offset_y=20,
                                      max_scale=1.2,n_tot=100,filter='.jpg',labels=ultimate_21)
 
 
