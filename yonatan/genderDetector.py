@@ -1,5 +1,7 @@
 #!/usr/bin/env python
 
+__author__ = 'yonatan_guy'
+
 import numpy as np
 import os
 import caffe
@@ -19,7 +21,6 @@ caffe.set_mode_gpu()
 image_dims = [115, 115]
 mean, input_scale = np.array([120, 120, 120]), None
 channel_swap = [2, 1, 0]
-#channel_swap = None
 raw_scale = 255.0
 
 # Make classifier.
