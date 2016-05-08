@@ -309,10 +309,10 @@ def binary_masks_from_indexed_mask(indexed_mask, n_binaries=None):
     conc_h,conc_w = concatenated.shape
     if conc_w > 2000:
         factor = 2000.0/conc_w
-        concatenated = cv2.resize(concatenated,(round(factor*conc_w),round(factor*conc_w)))
-    cv2.imshow('conc',concatenated)
-    cv2.imshow('indexed',indexed_mask)
-    cv2.waitKey(0)
+        concatenated = cv2.resize(concatenated,(int(round(factor*conc_w)),int(round(factor*conc_h))))
+#    cv2.imshow('conc',concatenated)
+#    cv2.imshow('indexed',indexed_mask)
+#    cv2.waitKey(0)
     binary_masks = binary_masks.astype('uint8')
     return binary_masks
 
@@ -353,7 +353,7 @@ def generate_images_from_binary_mask(mask,filename,suffix='.png',
                                      max_angle=10,n_angles=2,
                                      max_offset_x=None,n_offsets_x=2,
                                      max_offset_y=None,n_offsets_y=2,
-                                     max_scale=1.3,min_scale=0.7,n_scales=2):
+                                     max_scale=1.3,min_scale=0.7,n_scales=2,randomize=True,n_tot=100):
     height=mask.shape[0]
     width=mask.shape[1]
     center = (width/2,height/2)
@@ -372,23 +372,43 @@ def generate_images_from_binary_mask(mask,filename,suffix='.png',
     reflections=[mask,mirror_image]
 
     n_reflection=-1
-    for img_arr in reflections:
-        n_reflection=n_reflection+1
-        for offset_x in offsets_x:
-            for offset_y in offsets_y:
-                for angle in angles:
-                    for scale in scales:
-                        M = cv2.getRotationMatrix2D(center, angle,scale)
-#                                print('M='+str(M))
-                        M[0,2]=M[0,2]+offset_x
-                        M[1,2]=M[1,2]+offset_y
-                        print('ref {} offx {} offy {} angle {} scale {}'.format(n_reflection,offset_x,offset_y,angle,scale))
-#                        print('M='+str(M))
-                        xformed_img_arr  = cv2.warpAffine(img_arr,  M, (width,height),borderMode=cv2.BORDER_REPLICATE)
-                        yield(xformed_img_arr)
-#                                cv2.imwrite(name,xformed_img_arr)
-#                        cv2.imshow('xf',xformed_img_arr)
-#                        cv2.waitKey(0)
+    if(0):
+        for img_arr in reflections:
+            n_reflection=n_reflection+1
+            for i in range(n_tot/2):
+                angle = np.random.normal(loc=0, scale=max_angle-1.0)
+                offset_x = int(np.random.normal(loc=0, scale=max_offset_x))
+                offset_y = int(np.random.normal(loc=0, scale=max_offset_x))
+                scale = np.random.normal(loc=1.0, scale=max_scale-1.0)
+                M = cv2.getRotationMatrix2D(center, angle,scale)
+        #                                print('M='+str(M))
+                M[0,2]=M[0,2]+offset_x
+                M[1,2]=M[1,2]+offset_y
+                print('ref {} offx {} offy {} angle {} scale {}'.format(n_reflection,offset_x,offset_y,angle,scale))
+        #                        print('M='+str(M))
+                xformed_img_arr  = cv2.warpAffine(img_arr,  M, (width,height),borderMode=cv2.BORDER_REPLICATE)
+                yield(xformed_img_arr)
+
+    else:
+        for img_arr in reflections:
+            n_reflection=n_reflection+1
+            for offset_x in offsets_x:
+                for offset_y in offsets_y:
+                    for angle in angles:
+                        for scale in scales:
+                            theangle = np.random.normal(loc=1.0, scale=max_scale-1.0)
+
+                            M = cv2.getRotationMatrix2D(center, angle,scale)
+    #                                print('M='+str(M))
+                            M[0,2]=M[0,2]+offset_x
+                            M[1,2]=M[1,2]+offset_y
+                            print('ref {} offx {} offy {} angle {} scale {}'.format(n_reflection,offset_x,offset_y,angle,scale))
+    #                        print('M='+str(M))
+                            xformed_img_arr  = cv2.warpAffine(img_arr,  M, (width,height),borderMode=cv2.BORDER_REPLICATE)
+                            yield(xformed_img_arr)
+    #                                cv2.imwrite(name,xformed_img_arr)
+    #                        cv2.imshow('xf',xformed_img_arr)
+    #                        cv2.waitKey(0)
 
 def maskname_from_imgname(maskdir,imgname,imgsuffix='.jpg',masksuffix='.png'):
     imgonly=os.path.basename(imgname)
@@ -397,7 +417,23 @@ def maskname_from_imgname(maskdir,imgname,imgsuffix='.jpg',masksuffix='.png'):
 #    print('origname {}\nnewname {}\nmaskdir{}'.format(imgname,newfullpath,maskdir))
     return newfullpath
 
-def generate_simultaneous_masks_and_images(image_dir,label_dir,
+
+def generate_simultaneous_masks_and_images_dir(imgdir,label_dir,
+                                    max_angle=10,n_angles=2,
+                                     max_offset_x=10,n_offsets_x=2,
+                                     max_offset_y=10,n_offsets_y=2,
+                                     max_scale=1.3,min_scale=0.7,n_scales=2):
+
+    imgs =  [os.path.join(image_dir,f) for f in os.listdir(imgdir) if '.jpg' in f]
+
+    for imgname in imgs:
+        generate_simultaneous_masks_and_images(imgname,label_dir,
+                                        max_angle=max_angle,n_angles=n_angles,
+                                         max_offset_x=max_offset_x,n_offsets_x=n_offsets_x,
+                                         max_offset_y=max_offset_y,n_offsets_y=n_offsets_y,
+                                         max_scale=max_scale,min_scale=min_scale,n_scales=n_scales)
+
+def generate_simultaneous_masks_and_images(imgname,label_dir,
                                     max_angle=10,n_angles=2,
                                      max_offset_x=10,n_offsets_x=2,
                                      max_offset_y=10,n_offsets_y=2,
@@ -418,8 +454,6 @@ def generate_simultaneous_masks_and_images(image_dir,label_dir,
     :return:
     '''
 
-    imgs =  [os.path.join(image_dir,f) for f in os.listdir(image_dir)]
-    imgname=imgs[0]
     print('imagename:'+imgname)
     img_arr = cv2.imread(imgname)
 #    masks = [os.path.join(label_dir,f) for f in os.listdir(label_dir)]
@@ -431,7 +465,7 @@ def generate_simultaneous_masks_and_images(image_dir,label_dir,
         print('got 3chan mask')
         mask = mask[:,:,0]
     mask=mask-1  #fashionista are 1-indexed
-    binmask = binary_masks_from_indexed_mask(mask, n_binaries=57)
+    binmask = binary_masks_from_indexed_mask(mask, n_binaries=56)
 
     maskvariations = generate_images_from_binary_mask(binmask,maskname,
                                      max_angle=max_angle,n_angles=n_angles,
@@ -453,12 +487,12 @@ def generate_simultaneous_masks_and_images(image_dir,label_dir,
 
     var_no = 0
     for mask,orig in zip(indexed_variations,origvariations):
-        print('masksize:'+str(mask.shape)+' max:'+str(np.max(mask)))
+#        print('masksize:'+str(mask.shape)+' max:'+str(np.max(mask)))
         newmaskname = maskname.split('.png')[0]+'_var'+str(var_no)+'.png'
-        print('writing new mask to :'+newmaskname)
+#        print('writing new mask to :'+newmaskname)
         cv2.imwrite(newmaskname,mask)
         neworigname = imgname.split('.jpg')[0]+'_var'+str(var_no)+'.jpg'
-        print('writing new img to :'+neworigname)
+        print('writing new img to :'+neworigname+', new mask to '+newmaskname)
         cv2.imwrite(neworigname,orig)
 
             #   show_mask_with_labels(mask_filename,labels,original_image=None,cut_the_crap=False,save_images=False,visual_output=False):
@@ -469,15 +503,100 @@ def generate_simultaneous_masks_and_images(image_dir,label_dir,
         var_no=var_no+1
 
 
+#==========
+def generate_random_pair_mask_and_image_dir(imgdir,label_dir,max_angle=7,max_offset_x=10, max_offset_y=10,
+                                     max_scale=1.2,n_tot=100,filter='.jpg'):
+
+    imgfiles = [os.path.join(imgdir,f) for f in os.listdir(imgdir) if filter in f]
+    for imgfile in imgfiles:
+        for i in range(n_tot):
+            generate_random_pair_mask_and_image(imgfile,label_dir,max_angle=max_angle,max_offset_x=max_offset_x,
+                                                max_offset_y=max_offset_y,max_scale=max_scale,n_tot=n_tot)
+
+
+def generate_random_pair_mask_and_image(imgname,label_dir,max_angle=7,max_offset_x=10, max_offset_y=10,
+                                     max_scale=1.2,n_tot=100):
+    '''
+    Generate randomly warped img and mask using same params
+    :param imgname:
+    :param label_dir:
+    :param max_angle:
+    :param max_offset_x:
+    :param max_offset_y:
+    :param max_scale:
+    :param n_tot:
+    :return:
+    '''
+    global variation_count
+
+    print('imagename:'+imgname)
+    img_arr = cv2.imread(imgname)
+#    masks = [os.path.join(label_dir,f) for f in os.listdir(label_dir)]
+#    maskname = masks[0]
+    maskname = maskname_from_imgname(label_dir,imgname)
+    print('maskname '+maskname)
+    mask = cv2.imread(maskname)
+    height=mask.shape[0]
+    width=mask.shape[1]
+    center = (width/2,height/2)
+    if len(mask.shape)==3:
+        print('got 3chan mask')
+        mask = mask[:,:,0]
+    mask=mask-1  #fashionista are 1-indexed
+    binmask = binary_masks_from_indexed_mask(mask, n_binaries=56)
+    #randomly flip
+    ref = np.random.randint(2)
+    reflected=False
+    if ref == 1:
+        binmask = cv2.flip(binmask,1)
+        img_arr = cv2.flip(img_arr,1)
+        reflected = True
+    angle = np.random.normal(loc=0, scale=max_angle)
+    offset_x = int(np.random.normal(loc=0, scale=max_offset_x))
+    offset_y = int(np.random.normal(loc=0, scale=max_offset_y))
+    scale = np.random.normal(loc=1.0, scale=max_scale-1.0)
+    M = cv2.getRotationMatrix2D(center, angle,scale)
+#                                print('M='+str(M))
+    M[0,2]=M[0,2]+offset_x
+    M[1,2]=M[1,2]+offset_y
+    print('ref {} offx {} offy {} angle {} scale {}'.format(reflected,offset_x,offset_y,angle,scale))
+#                        print('M='+str(M))
+    xformed_mask  = cv2.warpAffine(binmask,  M, (width,height),borderMode=cv2.BORDER_REPLICATE)
+    xformed_img_arr  = cv2.warpAffine(img_arr,  M, (width,height),borderMode=cv2.BORDER_REPLICATE)
+
+    indexed_xformed_mask = indexed_mask_from_binary_masks(xformed_mask)
+    newmaskname = maskname.split('.png')[0]+'_var'+str(variation_count)+'.png'
+    cv2.imwrite(newmaskname,indexed_xformed_mask)
+    neworigname = imgname.split('.jpg')[0]+'_var'+str(variation_count)+'.jpg'
+    print('writing new img to :'+neworigname+', new mask to '+newmaskname)
+    cv2.imwrite(neworigname,xformed_img_arr)
+    imutils.show_mask_with_labels(newmaskname,fashionista_categories_augmented_zero_based,visual_output=True,original_image=neworigname)
+    variation_count = variation_count + 1
+
+
+
+global variation_count  #is this possible with a generator?
+variation_count = 0
+
 if __name__=="__main__":
     print('running main')
+    image  = '/home/jeremy/image_dbs/colorful_fashion_parsing_data/images/test/91692.jpg'
     image_dir = '/home/jeremy/image_dbs/colorful_fashion_parsing_data/images/test'
     label_dir = '/home/jeremy/image_dbs/colorful_fashion_parsing_data/labels'
-    generate_simultaneous_masks_and_images(image_dir,label_dir,
-                            max_angle = 10,n_angles=3,
-                            max_offset_x = 10,n_offsets_x=2,
-                            max_offset_y = 10, n_offsets_y=2,
-                            max_scale=1.3, min_scale=0.7,n_scales=4)
+
+    generate_random_pair_mask_and_image_dir(image_dir,label_dir,max_angle=7,max_offset_x=10, max_offset_y=10,
+                                     max_scale=1.2,n_tot=2,filter='.jpg')
+
+
+#    for i in range(0,10):
+#        generate_random_pair_mask_and_image(image,label_dir,max_angle=7,max_offset_x=10, max_offset_y=10,
+#                                         max_scale=1.2,n_tot=100)
+
+#    generate_simultaneous_masks_and_images_dir(image_dir,label_dir,
+#                            max_angle = 10,n_angles=2,
+#                            max_offset_x = 10,n_offsets_x=2,
+#                            max_offset_y = 10, n_offsets_y=2,
+#                            max_scale=1.2, min_scale=0.8,n_scales=2           )#
 
 
 

@@ -265,7 +265,7 @@ fashionista_categories_augmented = ['','null','tights','shorts','blazer','t-shir
                                     'scarf','hat','top','cardigan','accessories','vest','sunglasses','belt','socks','glasses',
                                     'intimate','stockings','necklace','cape','jumper','sweatshirt','suit','bracelet','heels','wedges',
                                     'ring','flats','tie','romper','sandals','earrings','gloves','sneakers','clogs','watch',
-                                    'pumps','wallet','bodysuit','loafers','hair','skin','face']  #0='', 57='face'
+                                    'pumps','wallet','bodysuit','loafers','hair','skin','face']  #0='',1='null', 57='face'
 
 fashionista_categories_augmented_zero_based = ['null','tights','shorts','blazer','t-shirt','bag','shoes','coat','skirt','purse',
                                     'boots','blouse','jacket','bra','dress','pants','sweater','shirt','jeans','leggings',
