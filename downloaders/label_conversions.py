@@ -76,7 +76,7 @@ def fashionista_to_ultimate_21_dir(dir):
         newname = maskfile[:-4]+'_u21'+maskfile[-4:]
         cv2.imwrite(newname,newmask)
         print('new maskname:'+newname)
-        imutils.show_mask_with_labels(newname,constants.ultimate_21,visual_output=True)
+#        imutils.show_mask_with_labels(newname,constants.ultimate_21,visual_output=True)
 
 def fashionista_to_ultimate_21(file):
     ##########warning not finished #################3
