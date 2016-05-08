@@ -32,8 +32,7 @@ MODEL_FILE = "/home/jeremy/caffenets/neuro_doorman/deploy.prototxt"
 PRETRAINED = "/home/jeremy/caffenets/neuro_doorman/_iter_8078.caffemodel"
 caffe.set_mode_gpu()
 image_dims = [227, 227]
-#mean = np.array([107,117,123])
-# the training was without mean subtraction
+mean = np.array([107,117,123])
 mean = None
 input_scale = None
 channel_swap = [2, 1, 0]
@@ -116,3 +115,54 @@ def nn_doorman_enqueue(img_url_or_cv2_array,async=False):
     else:
         print('running asynchronously (not waiting for result)')
     return job1
+
+
+def none_may_pass(caffenet, img_url_or_cv2_array):
+    start_time=time.time()
+    img = Utils.get_cv2_img_array(img_url_or_cv2_array)
+    img_ok = Utils.image_big_enough(img)
+    dims = [227,227]
+
+    if img_ok:
+#        img = imutils.resize_keep_aspect(img, output_file=None, output_size = dims,use_visual_output=False)
+        print('image size:'+str(img.shape))
+        if len(img.shape) != 3:
+            print('got 1-chan image, skipping')
+            return
+        elif img.shape[2] != 3:
+            print('got n-chan image, skipping - shape:'+str(in_.shape))
+            return
+        img = img[:,:,::-1]
+        img -= np.array((104.0,116.7,122.7))
+        img = img.transpose((2,0,1))
+        # shape for input (data blob is N x C x H x W), set data
+  #      caffenet.blobs['data'].reshape(1, *in_.shape)
+  #      caffenet.blobs['data'].data[...] = in_
+        # run net and take argmax for prediction
+
+
+        out = caffenet.forward_all(data=np.asarray([img]))
+        results = int(out['prob'][0])
+        plabel = int(out['prob'][0].argmax(axis=0))
+        print('results {} label {}'.format(results,plabel))
+
+#        net.forward()
+#        out = net.blobs['score'].data[0].argmax(axis=0)
+#        result = Image.fromarray(out.astype(np.uint8))
+    #        outname = im.strip('.png')[0]+'out.bmp'
+#            outname = os.path.basename(imagename)
+ #       outname = outname.split('.jpg')[0]+'.bmp'
+  #      outname = os.path.join(out_dir,outname)
+   #     print('outname:'+outname)
+    #        result.save(outname)
+    #        fullout = net.blobs['score'].data[0]
+        elapsed_time=time.time()-start_time
+        print('elapsed time:'+str(elapsed_time)+' tpi:'+str(elapsed_time/len(images)))
+        return {''}
+    else:
+        if img is None:
+            raise ValueError("input image is empty")
+        elif not img_ok:
+            raise ValueError("input image is  too small")
+        else:
+            raise ValueError("problem writing "+str(filename)+" in get_parse_mask_parallel")
