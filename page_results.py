@@ -1,19 +1,19 @@
-__author__ = 'jeremy'
-# MD5 in javascript http://www.myersdaily.org/joseph/javascript/md5-speed-test-1.html?script=jkm-md5.js#calculations
-# after reading a bit i decided not to use named tuple for the image structure
-# theirs
+
 import hashlib
 import logging
 import datetime
 # import maxminddb
 import tldextract
 import bson
+from jaweson import msgpack
+import requests
+
 # ours
 import Utils
 import constants
 import find_similar_mongo
 from .background_removal import image_is_relevant
-# logging.basicConfig(format='%(levelname)s:%(message)s', level=logging.DEBUG)
+
 db = constants.db
 start_pipeline = constants.q1
 relevancy = constants.q2
@@ -22,6 +22,7 @@ lang = ""
 image_coll_name = "images"
 prod_coll_name = "products"
 geo_db_path = '/usr/local/lib/python2.7/dist-packages/maxminddb'
+CLASSIFIER_ADDRESS = "http://37.58.101.173:8357/genderize"
 
 
 def has_results_from_collection(image_obj, collection):
@@ -67,25 +68,28 @@ def route_by_url(image_url, page_url, lang):
 
     if image_url[:4] == "data":
         return False
-    else:
-        if db.iip.find_one({'image_url': image_url}) or db.irrelevant_images.find_one({'image_urls': image_url}):
-            return False
-        if is_image_relevant(image_url, set_lang(lang)):
-            return True
-        relevancy.enqueue_call(func=check_if_relevant, args=(image_url, page_url, lang), ttl=2000, result_ttl=2000,
-                               timeout=2000)
 
-        if db.irrelevant_images.find_one({'image_urls': image_url}):
-            pass
+    if db.iip.find_one({'image_url': image_url}) or db.irrelevant_images.find_one({'image_urls': image_url}):
         return False
+
+    if is_image_relevant(image_url, set_lang(lang)):
+        return True
+
+    relevancy.enqueue_call(func=check_if_relevant, args=(image_url, page_url, lang), ttl=2000, result_ttl=2000,
+                           timeout=2000)
+
+    return False
 
 
 def check_if_relevant(image_url, page_url, lang):
     image = Utils.get_cv2_img_array(image_url)
     if image is None:
-        return False
+        return
+
+    # Jeremy's neural-doorman
 
     relevance = image_is_relevant(image, use_caffe=False, image_url=image_url)
+
     if not relevance.is_relevant:
         hashed = get_hash(image)
         image_obj = {'image_hash': hashed, 'image_urls': [image_url], 'page_urls': [page_url], 'people': [],
@@ -93,17 +97,26 @@ def check_if_relevant(image_url, page_url, lang):
         db.irrelevant_images.insert_one(image_obj)
         return
 
-    image_obj = {'image_url': image_url, 'page_url': page_url,
-                 'people': [{'person_id': str(bson.ObjectId()), 'face': face.tolist()} for face in relevance.faces]}
+    image_obj = {'people': [{'person_id': str(bson.ObjectId()), 'face': face.tolist(),
+                             'gender': genderize(image, face.tolist())} for face in relevance.faces],
+                 'image_url': image_url, 'page_url': page_url}
     db.iip.insert_one({'image_url': image_url, 'insert_time': datetime.datetime.utcnow()})
     db.genderator.insert_one(image_obj)
-    domain = tldextract.extract(page_url).registered_domain
-    if domain in constants.manual_gender_domains:
-        manual_gender.enqueue_call(func="", args=(image_url,), ttl=2000, result_ttl=2000,
-                                   timeout=2000)
-    else:
-        start_pipeline.enqueue_call(func="", args=(page_url, image_url, lang), ttl=2000, result_ttl=2000,
-                                    timeout=2000)
+    start_pipeline.enqueue_call(func="", args=(page_url, image_url, lang), ttl=2000, result_ttl=2000, timeout=2000)
+
+    # if domain in constants.manual_gender_domains:
+    #     manual_gender.enqueue_call(func="", args=(image_url,), ttl=2000, result_ttl=2000,
+    #                                timeout=2000)
+    # else:
+    #     start_pipeline.enqueue_call(func="", args=(page_url, image_url, lang), ttl=2000, result_ttl=2000,
+    #                                 timeout=2000)
+
+
+def genderize(image_or_url, face):
+    data = msgpack.dumps({"image": image_or_url, "face": face})
+    resp = requests.post(CLASSIFIER_ADDRESS, data)
+    return msgpack.loads(resp.content)
+    # returns {'success': bool, 'gender': Female/Male, ['error': the error as string if success is False]}
 
 
 # def route_by_ip(ip, images_list, page_url):
@@ -153,7 +166,14 @@ def is_image_relevant(image_url, collection_name=None):
         query = {"image_urls": image_url}
         image_dict = db[collection_name].find_one(query, {'relevant': 1, 'people.items.similar_results': 1})
         if not image_dict:
-            return False
+            image = Utils.get_cv2_img_array(image_url)
+            if not image:
+                return False
+            hash = get_hash(image)
+            image_dict = db[collection_name].find_one({'image_hash': hash})
+            if image_dict:
+                db.images.update_one({'image_hash': hash}, {'$inc': {'views': 1}})
+                return has_items(image_dict)
         else:
             db.images.update_one(query, {'$inc': {'views': 1}})
             return has_items(image_dict)
