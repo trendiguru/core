@@ -265,14 +265,14 @@ fashionista_categories_augmented = ['','null','tights','shorts','blazer','t-shir
                                     'scarf','hat','top','cardigan','accessories','vest','sunglasses','belt','socks','glasses',
                                     'intimate','stockings','necklace','cape','jumper','sweatshirt','suit','bracelet','heels','wedges',
                                     'ring','flats','tie','romper','sandals','earrings','gloves','sneakers','clogs','watch',
-                                    'pumps','wallet','bodysuit','loafers','hair','skin','face']
+                                    'pumps','wallet','bodysuit','loafers','hair','skin','face']  #0='', 57='face'
 
-fashionista_categories_augmented_zero_based = ['bk','tights','shorts','blazer','t-shirt','bag','shoes','coat','skirt','purse',
+fashionista_categories_augmented_zero_based = ['null','tights','shorts','blazer','t-shirt','bag','shoes','coat','skirt','purse',
                                     'boots','blouse','jacket','bra','dress','pants','sweater','shirt','jeans','leggings',
                                     'scarf','hat','top','cardigan','accessories','vest','sunglasses','belt','socks','glasses',
                                     'intimate','stockings','necklace','cape','jumper','sweatshirt','suit','bracelet','heels','wedges',
                                     'ring','flats','tie','romper','sandals','earrings','gloves','sneakers','clogs','watch',
-                                    'pumps','wallet','bodysuit','loafers','hair','skin','face']
+                                    'pumps','wallet','bodysuit','loafers','hair','skin','face']  #0='bk', 56='face'
 
 fashionista_categories_for_conclusions = {'background':0,'tights':1,'shorts':2,'blazer':3,'t-shirt':4,'bag':5,'shoes':6,'coat':7,'skirt':8,'purse':9,
                                     'boots':10,'blouse':11,'jacket':12,'bra':13,'dress':14,'pants':15,'sweater':16,'shirt':17,'jeans':18,'leggings':19,
@@ -306,9 +306,11 @@ tamara_berg_improved_categories = ['background','belt','dress','eyewear','footwe
 #21 cats for direct replacement of VOC systems
 #lose the necklace,
 #combine tights and leggings
-ultimate = ['background','bag','belt','blouse','bra','dress','eyewear','footwear','hat','jeans',
-                             'legging','outerwear','pants','shorts','skin','skirts','suit','sweatshirt', 'tie','top',
-                             'vest']
+
+ultimate_21 = ['bgnd','bag','belt','blazer','coat','dress','eyewear','face','hair','hat',
+                   'jeans','legging','pants','shoe','shorts','skin','skirt','stocking','suit','sweater',
+                   'top']
+
 
 tamara_berg_improved_to_ultimate_21_index_conversion = [(0,1),(1,2),(2,5),(3,6),(4,7),(5,8),(6,10),(7,11),(8,12),(9,15),
                   (10,19),(11,14),(12,0),(13,10),(14,13),(15,19),(16,4),(17,20),(18,16),(19,9),
