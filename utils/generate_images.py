@@ -9,6 +9,7 @@ import os
 from multiprocessing import Pool
 import multiprocessing
 import itertools
+import socket
 
 from trendi.utils import imutils
 from trendi.constants import fashionista_categories_augmented,fashionista_categories_augmented_zero_based,ultimate_21
@@ -628,12 +629,21 @@ def generate_random_pair_mask_and_image(imgname,label_dir,max_angle=7,max_offset
 global variation_count  #is this possible with a generator?
 variation_count = 0
 
+
+host = socket.gethostname()
+print('host:'+str(host))
+
+
 if __name__=="__main__":
-    print('running main')
-    image  = '/home/jeremy/image_dbs/colorful_fashion_parsing_data/images/test/91692.jpg'
-    image_dir = '/home/jeremy/image_dbs/colorful_fashion_parsing_data/images/test'
-    label_dir = '/home/jeremy/image_dbs/colorful_fashion_parsing_data/labels_u21'
-    label_dir = '/home/jeremy/image_dbs/colorful_fashion_parsing_data/labels'
+    if host == 'jr':
+        image  = '/home/jeremy/image_dbs/colorful_fashion_parsing_data/images/test/91692.jpg'
+        image_dir = '/home/jeremy/image_dbs/colorful_fashion_parsing_data/images/test'
+        label_dir = '/home/jeremy/image_dbs/colorful_fashion_parsing_data/labels'
+    else:
+        image  = '/home/jeremy/image_dbs/colorful_fashion_parsing_data/images/test/91692.jpg'
+        image_dir = '/home/jeremy/image_dbs/colorful_fashion_parsing_data/images/train'
+        label_dir = '/home/jeremy/image_dbs/colorful_fashion_parsing_data/labels_u21'
+#        label_dir = '/home/jeremy/image_dbs/colorful_fashion_parsing_data/labels'
 
     generate_random_pair_mask_and_image_dir(image_dir,label_dir,max_angle=7,max_offset_x=20, max_offset_y=20,
                                      max_scale=1.2,n_tot=100,filter='.jpg',labels=ultimate_21)
