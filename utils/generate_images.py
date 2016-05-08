@@ -571,7 +571,7 @@ def generate_random_pair_mask_and_image(imgname,label_dir,max_angle=7,max_offset
     neworigname = imgname.split('.jpg')[0]+'_var'+str(variation_count)+'.jpg'
     print('writing new img to :'+neworigname+', new mask to '+newmaskname)
     cv2.imwrite(neworigname,xformed_img_arr)
-    imutils.show_mask_with_labels(newmaskname,labels,visual_output=True,original_image=neworigname)
+#    imutils.show_mask_with_labels(newmaskname,labels,visual_output=True,original_image=neworigname)
     variation_count = variation_count + 1
 
 
@@ -582,11 +582,11 @@ variation_count = 0
 if __name__=="__main__":
     print('running main')
     image  = '/home/jeremy/image_dbs/colorful_fashion_parsing_data/images/test/91692.jpg'
-    image_dir = '/home/jeremy/image_dbs/colorful_fashion_parsing_data/images/test'
+    image_dir = '/home/jeremy/image_dbs/colorful_fashion_parsing_data/images/train'
     label_dir = '/home/jeremy/image_dbs/colorful_fashion_parsing_data/labels_u21'
 
     generate_random_pair_mask_and_image_dir(image_dir,label_dir,max_angle=7,max_offset_x=10, max_offset_y=10,
-                                     max_scale=1.2,n_tot=2,filter='.jpg',labels=ultimate_21)
+                                     max_scale=1.2,n_tot=100,filter='.jpg',labels=ultimate_21)
 
 
 #    for i in range(0,10):
