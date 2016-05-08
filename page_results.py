@@ -167,7 +167,7 @@ def is_image_relevant(image_url, collection_name=None):
         image_dict = db[collection_name].find_one(query, {'relevant': 1, 'people.items.similar_results': 1})
         if not image_dict:
             image = Utils.get_cv2_img_array(image_url)
-            if not image:
+            if image is None:
                 return False
             hash = get_hash(image)
             image_dict = db[collection_name].find_one({'image_hash': hash})
