@@ -16,7 +16,7 @@ from trendi import nn_doorman
 import random
 import matplotlib.pyplot as plt
 
-
+#
 #path = '/home/yonatan/55k_test_set'
 array_success = np.array([])
 array_failure = np.array([])
