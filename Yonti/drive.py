@@ -3,11 +3,11 @@ from apiclient.discovery import build
 from apiclient import errors
 from httplib2 import Http
 from oauth2client import file, client, tools
-# try:
-#     import argparse
-#     flags = argparse.ArgumentParser(parents=[tools.argparser]).parse_args()
-# except ImportError:
-flags = None
+try:
+    import argparse
+    flags = argparse.ArgumentParser(parents=[tools.argparser]).parse_args('--noauth_local_webserver'.split())
+except ImportError:
+    flags = None
 ebay_id = '1JMRyLEf4jeEIH7Af07brOQStLxK-o4Bquho0JlsHttE'
 parent_folder = "0B-fDiFA73MH_N1ZCNVNYcW0tRFk"
 
@@ -30,14 +30,13 @@ def is_file_in_folder(service, folder_id, file_name):
 def upload2drive(FILE2INSERT):
 #FILES = [(filename, path2file, True/False),...]
     try:
-        SCOPES = 'https://www.googleapis.com/auth/drive'
         store = file.Storage('/home/developer/python-packages/trendi/Yonti/storage.json')
         creds = store.get()
         if not creds or creds.invalid:
+            SCOPES = 'https://www.googleapis.com/auth/drive'
             flow = client.flow_from_clientsecrets('/home/developer/python-packages/trendi/Yonti/client_secret.json',
                                                   SCOPES)
-            creds = tools.run_flow(flow, store, flags) \
-                    if flags else tools.run(flow, store)
+            creds = tools.run_flow(flow, store, flags)
         DRIVE = build('drive', 'v2', http=creds.authorize(Http()))
 
         filename,path2file,convert = FILE2INSERT
