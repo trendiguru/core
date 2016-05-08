@@ -513,6 +513,7 @@ def generate_random_pair_mask_and_image_dir(imgdir,label_dir,max_angle=7,max_off
     print(str(len(imgfiles))+' imagefiles in '+imgdir)
     parallel = True
     if parallel:
+        jobs = []
         for imgfile in imgfiles:
   #        print(p.map(f, [1, 2, 3]))#
             for i in range(n_tot):
@@ -520,6 +521,7 @@ def generate_random_pair_mask_and_image_dir(imgdir,label_dir,max_angle=7,max_off
 #                                                    max_offset_y=max_offset_y,max_scale=max_scale,n_tot=n_tot,labels=labels)
                 p = multiprocessing.Process(target=generate_random_pair_mask_and_image, args=(imgfile,label_dir,max_angle=max_angle,max_offset_x=max_offset_x,max_offset_y=max_offset_y,max_scale=max_scale,n_tot=n_tot,labels=labels))
 
+                p = multiprocessing.Process(target=worker, args=(i,))
                 jobs.append(p)
                 p.start()
 
