@@ -5,7 +5,7 @@ from httplib2 import Http
 from oauth2client import file, client, tools
 try:
     import argparse
-    flags = argparse.ArgumentParser(parents=[tools.argparser]).parse_args('--noauth_local_webserver True')
+    flags = argparse.ArgumentParser(parents=[tools.argparser]).parse_args('--noauth_local_webserver')
 except ImportError:
     flags = None
 ebay_id = '1JMRyLEf4jeEIH7Af07brOQStLxK-o4Bquho0JlsHttE'
