@@ -37,7 +37,7 @@ def upload2drive(FILE2INSERT):
             flow = client.flow_from_clientsecrets('/home/developer/python-packages/trendi/Yonti/client_secret.json',
                                                   SCOPES)
             creds = tools.run_flow(flow, store, flags) \
-                    if flags else tools.run_flow(flow, store)
+                    if flags else tools.run_flow(flow, store, None)
         DRIVE = build('drive', 'v2', http=creds.authorize(Http()))
 
         filename,path2file,convert = FILE2INSERT
