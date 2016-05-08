@@ -811,10 +811,10 @@ def show_mask_with_labels(mask_filename,labels,original_image=None,cut_the_crap=
     dest[:,:,2] = vallevel   #value
     print('type:'+str(type(dest)))
     dest = dest.astype(np.uint8)
-    dest =  cv2.cvtColor(dest,cv2.COLOR_HSV2BGR)
+    dest = cv2.cvtColor(dest,cv2.COLOR_HSV2BGR)
 
     bar_height = int(float(h)/len(uniques))
-    bar_width = 100
+    bar_width = 120
     colorbar = np.zeros([h,bar_width])
     i = 0
     print('len labels:'+str(len(labels)))
@@ -839,13 +839,15 @@ def show_mask_with_labels(mask_filename,labels,original_image=None,cut_the_crap=
     print('size of colrbar:'+str(dest_colorbar.shape))
  #have to do labels here to get black
     i = 0
+    totpixels = h*w
     for unique in uniques:
         if unique > len(labels):
             logging.warning('pixel value out of label range')
             continue
         pixelcount = len(img_arr[img_arr==unique])
-        print('unique:'+str(unique)+':'+labels[unique]+' pixcount:'+str(pixelcount))
-        cv2.putText(dest_colorbar,labels[unique]+' '+str(pixelcount),(5,int(i*bar_height+float(bar_height)/2+5)),cv2.FONT_HERSHEY_PLAIN,1,[0,10,50],thickness=1)
+        print('unique:'+str(unique)+':'+labels[unique]+' pixcount:'+str(pixelcount)+' fraction'+str(float(pixelcount)/totpixels))
+        frac_string='{:.4f}'.format(float(pixelcount)/totpixels)
+        cv2.putText(dest_colorbar,labels[unique]+' '+str(frac_string),(5,int(i*bar_height+float(bar_height)/2+5)),cv2.FONT_HERSHEY_PLAIN,1,[0,10,50],thickness=1)
         i=i+1
 
     #dest_colorbar = cv2.applyColorMap(scaled_colorbar, colormap)
@@ -858,12 +860,12 @@ def show_mask_with_labels(mask_filename,labels,original_image=None,cut_the_crap=
             height, width = orig_arr.shape[:2]
             maxheight=600
             minheight=300
-            if height>minheight:  # or height < minheight:
+            if height>maxheight:  # or height < minheight:
                 print('got a big one (hxw {}x{}) resizing'.format(height,width))
                 newheight=(height>maxheight)*maxheight   #+(height<minheight)*minheight
 
                 factor = float(newheight)/height
-                orig_arr = cv2.resize(orig_arr,(int(round(width*factor)),minheight))
+                orig_arr = cv2.resize(orig_arr,(int(round(width*factor)),int(round(height*factor))))
 #                print('factor {} newsize {}'.format(factor,orig_arr.shape) )
 
                 colorbar_h,colorbar_w = dest_colorbar.shape[0:2]
@@ -889,7 +891,7 @@ def show_mask_with_labels(mask_filename,labels,original_image=None,cut_the_crap=
             combined[:,colorbar_w:colorbar_w+dest_w]=dest
             combined[:,colorbar_w+dest_w:]=orig_arr
             combined_h,combined_w = combined.shape[0:2]
-            print('comb w {} h {} shape {}'.format(combined_w,combiend_h,combined.shape))
+            print('comb w {} h {} shape {}'.format(combined_w,combined_h,combined.shape))
             if combined_h<minheight:
                 factor = float(minheight)/combined_h
                 combined = cv2.resize(combined,(int(round(combined_w*factor)),minheight))
@@ -938,7 +940,7 @@ def show_mask_with_labels(mask_filename,labels,original_image=None,cut_the_crap=
 
     cv2.destroyAllWindows()
 
-    return combined,frac,k
+    return combined,frac
 #        return dest
 
 def show_mask_with_labels_from_img_arr(mask,labels):
