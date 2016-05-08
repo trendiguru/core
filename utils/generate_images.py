@@ -8,6 +8,7 @@ import numpy as np
 import os
 from multiprocessing import Pool
 import multiprocessing
+import itertools
 
 from trendi.utils import imutils
 from trendi.constants import fashionista_categories_augmented,fashionista_categories_augmented_zero_based,ultimate_21
@@ -507,23 +508,52 @@ def generate_simultaneous_masks_and_images(imgname,label_dir,
 
 #==========
 def generate_random_pair_mask_and_image_dir(imgdir,label_dir,max_angle=7,max_offset_x=10, max_offset_y=10,
-                                     max_scale=1.2,n_tot=100,filter='.jpg',labels=ultimate_21):
+                                     max_scale=1.2,n_tot=3,filter='.jpg',labels=ultimate_21):
+
 
     imgfiles = [os.path.join(imgdir,f) for f in os.listdir(imgdir) if filter in f]
+  #  imgfiles = imgfiles[0:2]
     print(str(len(imgfiles))+' imagefiles in '+imgdir)
     parallel = True
     if parallel:
         jobs = []
-        for imgfile in imgfiles:
-  #        print(p.map(f, [1, 2, 3]))#
-            for i in range(n_tot):
-#                p.map(generate_random_pair_mask_and_image,imgfiles,args=(imgfile,label_dir,max_angle=max_angle,max_offset_x=max_offset_x,
-#                                                    max_offset_y=max_offset_y,max_scale=max_scale,n_tot=n_tot,labels=labels)
-                p = multiprocessing.Process(target=generate_random_pair_mask_and_image, args=(imgfile,label_dir,max_angle=max_angle,max_offset_x=max_offset_x,max_offset_y=max_offset_y,max_scale=max_scale,n_tot=n_tot,labels=labels))
+        pool = Pool()
+        further_args = [label_dir,{'max_angle':max_angle,'max_offset_x':max_offset_x,'max_offset_y':max_offset_y,'max_scale':max_scale,'n_tot':n_tot,'labels':labels}]
 
-           #     p = multiprocessing.Process(target=worker, args=(i,))
-                jobs.append(p)
-                p.start()
+        further_args = [label_dir,{'max_angle':max_angle,'max_offset_x':max_offset_x,'max_offset_y':max_offset_y,'max_scale':max_scale,'n_tot':n_tot,'labels':labels}]
+#        x = itertools.izip(imgfiles, itertools.repeat(further_args))
+        x = [(img,label_dir) for img in imgfiles]
+        print(x)
+   #     func_star(x)
+
+        if(1):
+            for imgfile in imgfiles:
+      #        print(p.map(f, [1, 2, 3]))#
+
+                for i in range(n_tot):
+#                     p.map(generate_random_pair_mask_and_image,imgfiles,args=(imgfile,label_dir))
+#                     pool.map(generate_random_pair_mask_and_image,*x)
+                     pool.map(func_star,x)
+                           #,max_angle=max_angle,max_offset_x=max_offset_x,
+    #                                                    max_offset_y=max_offset_y,max_scale=max_scale,n_tot=n_tot,labels=labels)
+#                    p = multiprocessing.Process(target=generate_random_pair_mask_and_image, args=(imgfile,label_dir,max_angle=max_angle,max_offset_x=max_offset_x,max_offset_y=max_offset_y,max_scale=max_scale,n_tot=n_tot,labels=labels))
+
+               #     p = multiprocessing.Process(target=worker, args=(i,))
+                     #jobs.append(pool)
+                     #pool.start()
+
+def func_star(a_b):
+    """Convert `f([1,2])` to `f(1,2)` call."""
+#    print('*ab:'+(*a_b))
+    return generate_random_pair_mask_and_image(*a_b)
+
+##def main():
+#    pool = Pool()
+#    a_args = [1,2,3]
+#    second_arg = 1
+#    pool.map(func_star, itertools.izip(a_args, itertools.repeat(second_arg)))
+
+
 
 
 #    for imgfile in imgfiles:
@@ -534,8 +564,8 @@ def generate_random_pair_mask_and_image_dir(imgdir,label_dir,max_angle=7,max_off
  #                                               max_offset_y=max_offset_y,max_scale=max_scale,n_tot=n_tot,labels=labels)
 
 
-def generate_random_pair_mask_and_image(imgname,label_dir,max_angle=7,max_offset_x=10, max_offset_y=10,
-                                     max_scale=1.2,n_tot=100,labels=ultimate_21):
+def generate_random_pair_mask_and_image(imgname,label_dir,max_angle=7,max_offset_x=20, max_offset_y=20,
+                                     max_scale=1.2,labels=ultimate_21):
     '''
     Generate randomly warped img and mask using same params
     :param imgname:
@@ -579,7 +609,7 @@ def generate_random_pair_mask_and_image(imgname,label_dir,max_angle=7,max_offset
 #                                print('M='+str(M))
     M[0,2]=M[0,2]+offset_x
     M[1,2]=M[1,2]+offset_y
-    print('ref {} offx {} offy {} angle {} scale {}'.format(reflected,offset_x,offset_y,angle,scale))
+    print('ref {} offx {} offy {} angle {} scale {} file {}'.format(reflected,offset_x,offset_y,angle,scale,imgname))
 #                        print('M='+str(M))
     xformed_mask  = cv2.warpAffine(binmask,  M, (width,height),borderMode=cv2.BORDER_REPLICATE)
     xformed_img_arr  = cv2.warpAffine(img_arr,  M, (width,height),borderMode=cv2.BORDER_REPLICATE)
@@ -601,8 +631,9 @@ variation_count = 0
 if __name__=="__main__":
     print('running main')
     image  = '/home/jeremy/image_dbs/colorful_fashion_parsing_data/images/test/91692.jpg'
-    image_dir = '/home/jeremy/image_dbs/colorful_fashion_parsing_data/images/train'
+    image_dir = '/home/jeremy/image_dbs/colorful_fashion_parsing_data/images/test'
     label_dir = '/home/jeremy/image_dbs/colorful_fashion_parsing_data/labels_u21'
+    label_dir = '/home/jeremy/image_dbs/colorful_fashion_parsing_data/labels'
 
     generate_random_pair_mask_and_image_dir(image_dir,label_dir,max_angle=7,max_offset_x=20, max_offset_y=20,
                                      max_scale=1.2,n_tot=100,filter='.jpg',labels=ultimate_21)
