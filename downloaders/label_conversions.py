@@ -66,7 +66,8 @@ def replace_labels_dir(dir_of_masks,index_conversion,overwrite=False,outdir=None
         print('in {} out {}'.format(f,outname))
         cv2.imwrite(mask_arr)
 
-def replace_labels(file,index_conversion):
+def fashionista_to_ultimate_21(file,index_conversion):
+    ##########warning not finished #################3
     mask=cv2.imread(file,cv2.IMREAD_GRAYSCALE)
     if mask is None:
         logging.warning('could not get file:'+file)
@@ -87,7 +88,44 @@ def replace_labels(file,index_conversion):
         newval = index_conversion[newindex]
         print('replacing index {} with newindex {}'.format(u,newval))
         mask[mask==u] = newval
+
+    _categories =['bk', 'T-shirt', 'bag', 'belt', 'blazer', 'shirt', 'coat', 'dress', 'face',
+                  'hair', 'hat', 'jeans', 'legging', 'pants', 'scarf', 'shoe', 'shorts', 'skin',
+                  'skirt', 'socks', 'stocking', 'sunglass', 'sweater']
+    ## fashionista classes:
+    fashionista_categories = ['null','tights','shorts','blazer','t-shirt','bag','shoes','coat','skirt','purse',
+                            'boots','blouse','jacket','bra','dress','pants','sweater','shirt','jeans','leggings',
+                            'scarf','hat','top','cardigan','accessories','vest','sunglasses','belt','socks','glasses',
+                            'intimate','stockings','necklace','cape','jumper','sweatshirt','suit','bracelet','heels','wedges',
+                            'ring','flats','tie','romper','sandals','earrings','gloves','sneakers','clogs','watch',
+                            'pumps','wallet','bodysuit','loafers','hair','skin','face']
+    conversion_dictionary_strings = {'background': ['null'],
+                                    'bag': ['bag', 'purse'],
+                                    'belt': ['belt'],
+                                    'blazer': ['blazer', 'jacket', 'vest'],
+                                    'top': ['t-shirt', 'shirt','blouse', 'top', 'sweatshirt'],
+                                    'coat': ['coat', 'cape'],
+                                    'dress': ['dress',  'romper'],
+                                    'suit': ['suit'],
+                                    'face': ['face'],
+                                    'hair': ['hair'],
+                                    'hat': ['hat'],
+                                    'jeans': ['jeans'],
+                                    'legging': ['tights', 'leggings'],
+                                    'pants': ['pants'],
+                                    'shoe': ['shoes', 'boots', 'heels', 'wedges', 'pumps', 'loafers', 'flats', 'sandals', 'sneakers', 'clogs'],
+                                    'shorts': ['shorts'],
+                                    'skin': ['skin'],
+                                    'skirt': ['skirt'],
+                                    'stocking': ['intimate', 'stockings'],
+                                    'eyewear': ['sunglasses', 'glasses'],
+                                    'sweater': ['sweater', 'cardigan', 'jumper']}
+#tossed'socks': ['socks'],
+#tossed,'bodysuit'
+#tossed​, 'accessories', 'ring', 'necklace', 'bracelet', 'wallet', 'tie', 'earrings', 'gloves', 'watch']
+#tossed                                    'scarf': ['scarf']
     return mask
+
 
 if __name__=="__main__":
     tamara_berg_improved_to_ultimate_21()
