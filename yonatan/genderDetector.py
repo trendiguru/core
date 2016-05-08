@@ -1,5 +1,7 @@
 #!/usr/bin/env python
 
+__author__ = 'yonatan_guy'
+
 import numpy as np
 import os
 import caffe
@@ -19,7 +21,6 @@ caffe.set_mode_gpu()
 image_dims = [115, 115]
 mean, input_scale = np.array([120, 120, 120]), None
 channel_swap = [2, 1, 0]
-#channel_swap = None
 raw_scale = 255.0
 
 # Make classifier.
@@ -36,7 +37,6 @@ def cv2_image_to_caffe(image):
 def url_to_image(url):
     # download the image, convert it to a NumPy array, and then read
     # it into OpenCV format
-    print url
 
     if url.count('jpg') > 1:
         return None
@@ -44,7 +44,6 @@ def url_to_image(url):
     resp = urllib.urlopen(url)
     image = np.asarray(bytearray(resp.read()), dtype="uint8")
     if image.size == 0:
-        print url
         return None
     new_image = cv2.imdecode(image, cv2.IMREAD_COLOR)
 
@@ -53,41 +52,28 @@ def url_to_image(url):
 
 
 #def theDetector(image):
-def theDetector(url_image, face_coordinates):
+def theDetector(url_or_np_array, face_coordinates):
 
-    full_image = url_to_image(url_image)
+    # check if i get a url (= string) or np.ndarray
+    if isinstance(url_or_np_array, basestring):
+        full_image = url_to_image(url_or_np_array)
+    elif type(url_or_np_array) == np.ndarray:
+        full_image = url_or_np_array
+    else:
+        return None
 
     #checks if the face coordinates are inside the image
     height, width, channels = full_image.shape
 
-    x = face_coordinates[0]
-    y = face_coordinates[1]
-    w = face_coordinates[2]
-    h = face_coordinates[3]
+    x, y, w, h = face_coordinates
 
     if x > width or x + w > width or y > height or y + h > height:
         return None
 
     face_image = full_image[y: y + h, x: x + w]
-    #input_image = image
-    print face_image
-    print type(face_image)
-
-    # Load numpy array (.npy), directory glob (*.jpg), or image file.
-    #face_file = os.path.expanduser(face_image)
-
-    #print face_file
-    #print type(face_file)
-
-    #inputs = Utils.get_cv2_img_array(image)
-    #inputs = [cv2.imread(input_file)]
 
     face_for_caffe = [cv2_image_to_caffe(face_image)]
     #face_for_caffe = [caffe.io.load_image(face_image)]
-
-    print face_for_caffe
-    print type(face_for_caffe)
-    print face_for_caffe[0].shape
 
     if face_for_caffe is None:
         return None
@@ -99,9 +85,7 @@ def theDetector(url_image, face_coordinates):
 
     if predictions[0][1] > 0.7:
         print predictions[0][1]
-        print "it's a boy!"
-        return 'male'
+        return 'Male'
     else:
         print predictions[0][0]
-        print "it's a girl!"
-        return 'female'
+        return 'Female'
