@@ -3,11 +3,11 @@ from apiclient.discovery import build
 from apiclient import errors
 from httplib2 import Http
 from oauth2client import file, client, tools
-# try:
-#     import argparse
-#     flags = argparse.ArgumentParser(parents=[tools.argparser]).parse_args()
-# except ImportError:
-flags = None
+try:
+    import argparse
+    flags = argparse.ArgumentParser(parents=[tools.argparser]).parse_args()
+except ImportError:
+    flags = None
 ebay_id = '1JMRyLEf4jeEIH7Af07brOQStLxK-o4Bquho0JlsHttE'
 parent_folder = "0B-fDiFA73MH_N1ZCNVNYcW0tRFk"
 
