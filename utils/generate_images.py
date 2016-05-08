@@ -8,7 +8,7 @@ import numpy as np
 import os
 
 from trendi.utils import imutils
-from trendi.constants import fashionista_categories_augmented,fashionista_categories_augmented_zero_based
+from trendi.constants import fashionista_categories_augmented,fashionista_categories_augmented_zero_based,ultimate_21
 logging.basicConfig(level=logging.DEBUG)
 
 def generate_images(img_filename, max_angle = 5,n_angles=10,
@@ -505,17 +505,17 @@ def generate_simultaneous_masks_and_images(imgname,label_dir,
 
 #==========
 def generate_random_pair_mask_and_image_dir(imgdir,label_dir,max_angle=7,max_offset_x=10, max_offset_y=10,
-                                     max_scale=1.2,n_tot=100,filter='.jpg'):
+                                     max_scale=1.2,n_tot=100,filter='.jpg',labels=ultimate_21):
 
     imgfiles = [os.path.join(imgdir,f) for f in os.listdir(imgdir) if filter in f]
     for imgfile in imgfiles:
         for i in range(n_tot):
             generate_random_pair_mask_and_image(imgfile,label_dir,max_angle=max_angle,max_offset_x=max_offset_x,
-                                                max_offset_y=max_offset_y,max_scale=max_scale,n_tot=n_tot)
+                                                max_offset_y=max_offset_y,max_scale=max_scale,n_tot=n_tot,labels=labels)
 
 
 def generate_random_pair_mask_and_image(imgname,label_dir,max_angle=7,max_offset_x=10, max_offset_y=10,
-                                     max_scale=1.2,n_tot=100):
+                                     max_scale=1.2,n_tot=100,labels=ultimate_21):
     '''
     Generate randomly warped img and mask using same params
     :param imgname:
@@ -570,7 +570,7 @@ def generate_random_pair_mask_and_image(imgname,label_dir,max_angle=7,max_offset
     neworigname = imgname.split('.jpg')[0]+'_var'+str(variation_count)+'.jpg'
     print('writing new img to :'+neworigname+', new mask to '+newmaskname)
     cv2.imwrite(neworigname,xformed_img_arr)
-    imutils.show_mask_with_labels(newmaskname,fashionista_categories_augmented_zero_based,visual_output=True,original_image=neworigname)
+    imutils.show_mask_with_labels(newmaskname,labels,visual_output=True,original_image=neworigname)
     variation_count = variation_count + 1
 
 
@@ -582,10 +582,10 @@ if __name__=="__main__":
     print('running main')
     image  = '/home/jeremy/image_dbs/colorful_fashion_parsing_data/images/test/91692.jpg'
     image_dir = '/home/jeremy/image_dbs/colorful_fashion_parsing_data/images/test'
-    label_dir = '/home/jeremy/image_dbs/colorful_fashion_parsing_data/labels'
+    label_dir = '/home/jeremy/image_dbs/colorful_fashion_parsing_data/labels_u21'
 
     generate_random_pair_mask_and_image_dir(image_dir,label_dir,max_angle=7,max_offset_x=10, max_offset_y=10,
-                                     max_scale=1.2,n_tot=2,filter='.jpg')
+                                     max_scale=1.2,n_tot=2,filter='.jpg',labels=ultimate_21)
 
 
 #    for i in range(0,10):
