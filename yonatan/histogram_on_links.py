@@ -111,7 +111,9 @@ for line in text_file:
     # inputs = Utils.get_cv2_img_array(image)
     # inputs = [cv2.imread(input_file)]
 
-    face_for_caffe = [cv2_image_to_caffe(face_image)]
+    #face_for_caffe = [cv2_image_to_caffe(face_image)]
+    face_for_caffe = [face_image]
+
     # face_for_caffe = [caffe.io.load_image(face_image)]
 
     if face_for_caffe is None:
@@ -155,4 +157,4 @@ plt.legend()
 plt.hist(array_failure, alpha=0.5, label='array_failure')
 plt.legend()
 
-histogram.savefig('live_test_links_bgr2rgb.png')
+histogram.savefig('live_test_links_bgr.png')
