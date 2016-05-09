@@ -169,4 +169,4 @@ plt.legend()
 plt.hist(array_failure, alpha=0.5, label='array_failure')
 plt.legend()
 
-histogram.savefig('only_relevant_images.png')
+histogram.savefig('only_relevant_images_with_mean_sub.png')
