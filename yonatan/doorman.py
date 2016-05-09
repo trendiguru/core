@@ -19,9 +19,9 @@ MODEL_FILE = "/home/yonatan/neuro_doorman/deploy.prototxt"
 PRETRAINED = "/home/yonatan/neuro_doorman/_iter_8078.caffemodel"
 caffe.set_mode_gpu()
 image_dims = [227, 227]
-#m ean = np.array([107,117,123])
+mean = np.array([107,117,123])
 # the training was without mean subtraction
-mean = None
+#mean = None
 input_scale = None
 channel_swap = [2, 1, 0]
 raw_scale = 255.0
