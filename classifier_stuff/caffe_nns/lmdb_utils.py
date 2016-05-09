@@ -530,7 +530,7 @@ def label_images_and_images_to_lmdb(image_dbname,label_dbname,image_dir,label_di
                     e = sys.exc_info()[0]
                     logging.warning('some problem with label lmdb:'+str(e))
                 print
-        env_ label.close()
+        env_label.close()
     env_image.close()
     return image_number
 
