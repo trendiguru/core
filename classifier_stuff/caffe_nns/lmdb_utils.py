@@ -805,7 +805,7 @@ def inspect_fcn_db(img_dbname,label_dbname,show_visual_output=True,mean=(0,0,0))
                     print('error getting record {} from image db'.format(n))
                     break
 
-                try:
+                try:  #get label mask
                     print('doing label db')
                     str_id = '{:08}'.format(n)
     #                print('strid:{} '.format(str_id))
@@ -816,13 +816,19 @@ def inspect_fcn_db(img_dbname,label_dbname,show_visual_output=True,mean=(0,0,0))
     #                raw_datum = txn.get(b'00000000')
                     datum = caffe.proto.caffe_pb2.Datum()
                     datum.ParseFromString(raw_datum)
-                    flat_x = np.fromstring(datum.data, dtype=np.uint8)
+                    flat_y = np.fromstring(datum.data, dtype=np.uint8)
                     print('db {} strid {} channels {} width {} height {} datumsize {} flatxsize {}'.format(label_dbname,str_id,datum.channels,datum.width,datum.height,len(raw_datum),len(flat_x)))
-                    orig_x = flat_x.reshape(datum.channels, datum.height, datum.width)
+                    orig_y = flat_y.reshape(datum.channels, datum.height, datum.width)
                     if datum.channels == 3:
-                        print('got a 3 chan image as label , thats not right')
+                        y = orig_y.transpose((1,2,0))
+                        print('got a 3 chan image as label , thats not right but taking chan 0 anyway')
+                        logging.debug('after transpose shape:'+str(y.shape))
+          #              x = flat_x.reshape(datum.height, datum.width,datum.channels)
+                        y=y[:,:,0]
+                    else:
+                        y = flat_y.reshape(datum.height, datum.width)
                     if show_visual_output is True:
-                        cv2.imshow(label_dbname,x)
+                        cv2.imshow(label_dbname,y)
                         if cv2.waitKey(0) == ord('q'):
                             break
      #                   imutils.show_mask_with_labels(orig_label,constants.fashionista_categories_augmented)
