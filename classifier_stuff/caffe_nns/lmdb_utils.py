@@ -505,7 +505,7 @@ def label_images_and_images_to_lmdb(image_dbname,label_dbname,image_dir,label_di
         #obviously misguided attempt being redone:
 #   F0502 10:10:28.617626 15482 softmax_loss_layer.cpp:42] Check failed: outer_num_ * inner_num_ == bottom[1]->count() (240000 vs. 720000) Number of labels must match number of predictions; e.g., if softmax axis == 1 and prediction shape is (N, C, H, W), label count (number of labels) must be N*H*W, with integer values in {0, 1, ..., C-1}.
                 print('label array shape:'+str(label_arr.shape))
-                label_arr = label_arr - 1
+#                label_arr = label_arr - 1  #!@)(#*@! MATLAB DIE DIE
                 if len(label_arr.shape) != 2:
                     print('read multichann label, taking first layer')
 #                    label_arr = np.array([label_arr[:,:],label_arr[:,:],label_arr[:,:]])
@@ -731,16 +731,11 @@ def inspect_fcn_db(dbname,show_visual_output=True,mean=(0,0,0)):
                 datum.ParseFromString(raw_datum)
                 flat_x = np.fromstring(datum.data, dtype=np.uint8)
                 print('db {} strid {} channels {} width {} height {} datumsize {} flatxsize {}'.format(dbname,str_id,datum.channels,datum.width,datum.height,len(raw_datum),len(flat_x)))
-
-
                 orig_x = flat_x.reshape(datum.channels, datum.height, datum.width)
-
 
                 if datum.channels == 3:
                     logging.debug('before transpose shape:'+str(orig_x.shape))
-# as the input is transposed to c,h,w  by transpose(2,0,1) we have to undo it with transpose(1,2,0)
-#h w c  transpose(2,0,1) -> c h w
-#c h w  transpose(1,2,0) -> h w c
+# as the input is transposed to c,h,w  by transpose(2,0,1) we have to undo it with transpose(1,2,0) #h w c  transpose(2,0,1) -> c h w ,  c h w  transpose(1,2,0) -> h w c
                     x = orig_x.transpose((1,2,0))
                     logging.debug('after transpose shape:'+str(x.shape))
       #              x = flat_x.reshape(datum.height, datum.width,datum.channels)
@@ -764,7 +759,7 @@ def inspect_fcn_db(dbname,show_visual_output=True,mean=(0,0,0)):
                 print('error getting record {} from db'.format(n))
                 break
 
-def inspect_fcn_db(img_dbname,label_dbname,show_visual_output=True,mean=(0,0,0)):
+def inspect_fcn_db(img_dbname,label_dbname,show_visual_output=True,mean=(0,0,0),labels=constants.ultimate_21):
     print('looking at fcn db')
     env_1 = lmdb.open(img_dbname, readonly=True)
     env_2 = lmdb.open(label_dbname, readonly=True)
@@ -828,7 +823,10 @@ def inspect_fcn_db(img_dbname,label_dbname,show_visual_output=True,mean=(0,0,0))
                     else:
                         y = flat_y.reshape(datum.height, datum.width)
                     if show_visual_output is True:
-                        cv2.imshow(label_dbname,y)
+                        tmpfilename = '/tmp/tmpout.bmp'
+                        cv2.imwrite(tmpfilename,y)
+#                        cv2.imshow(label_dbname,y)
+                        imutils.show_mask_with_labels(tmpfilename,labels,visual_output=True)
                         if cv2.waitKey(0) == ord('q'):
                             break
      #                   imutils.show_mask_with_labels(orig_label,constants.fashionista_categories_augmented)
@@ -871,7 +869,7 @@ def kill_db(db_name):
 
 host = socket.gethostname()
 print('host:'+str(host))
-
+#
 if __name__ == "__main__":
     if host == 'jr-ThinkPad-X1-Carbon':
         dir_of_dirs = '/home/jr/core/classifier_stuff/caffe_nns/dataset'
@@ -899,14 +897,14 @@ if __name__ == "__main__":
     image_dbname='/home/jeremy/image_dbs/lmdb/images_u21_test'
     label_dbname='/home/jeremy/image_dbs/lmdb/labels_u21_test'
     label_images_and_images_to_lmdb(image_dbname,label_dbname,image_dir,label_dir,resize_x=None,resize_y=None,avg_B=B,avg_G=G,avg_R=R,
-                     use_visual_output=False,imgsuffix='.jpg',labelsuffix='.png',shuffle=False,maxfiles=10)
+                     use_visual_output=False,imgsuffix='.jpg',labelsuffix='.png',shuffle=False)
 
     image_dir = '/home/jeremy/image_dbs/colorful_fashion_parsing_data/images/train'
     label_dir = '/home/jeremy/image_dbs/colorful_fashion_parsing_data/labels_u21'
     image_dbname='/home/jeremy/image_dbs/lmdb/images_u21_train'
     label_dbname='/home/jeremy/image_dbs/lmdb/labels_u21_train'
     label_images_and_images_to_lmdb(image_dbname,label_dbname,image_dir,label_dir,resize_x=None,resize_y=None,avg_B=B,avg_G=G,avg_R=R,
-                     use_visual_output=False,imgsuffix='.jpg',labelsuffix='.png',shuffle=False,maxfiles=20)
+                     use_visual_output=False,imgsuffix='.jpg',labelsuffix='.png',shuffle=False)
 
     #fcn_dirs_to_lmdb(db_name,image_dir,label_dir,resize_x=None,resize_y=None,avg_B=B,avg_G=G,avg_R=R,
     #                 use_visual_output=True,imgfilter='.jpg',labelsuffix='.png',shuffle=True,label_strings=constants.fashionista_categories_augmented)

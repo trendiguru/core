@@ -22,7 +22,8 @@ lang = ""
 image_coll_name = "images"
 prod_coll_name = "products"
 geo_db_path = '/usr/local/lib/python2.7/dist-packages/maxminddb'
-CLASSIFIER_ADDRESS = "http://37.58.101.173:8357/genderize"
+GENDER_ADDRESS = "http://37.58.101.173:8357/neural/gender"
+DOORMAN_ADDRESS = "http://37.58.101.173:8357/neural/doorman"
 
 
 def has_results_from_collection(image_obj, collection):
@@ -113,7 +114,7 @@ def check_if_relevant(image_url, page_url, lang):
 
 def genderize(image_or_url, face):
     data = msgpack.dumps({"image": image_or_url, "face": face})
-    resp = requests.post(CLASSIFIER_ADDRESS, data)
+    resp = requests.post(GENDER_ADDRESS, data)
     return msgpack.loads(resp.content)
     # returns {'success': bool, 'gender': Female/Male, ['error': the error as string if success is False]}
 
