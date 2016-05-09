@@ -12,6 +12,8 @@ import time
 from trendi import background_removal, Utils, constants
 import cv2
 import urllib
+import skimage
+
 
 MODEL_FILE = "/home/yonatan/neuro_doorman/deploy.prototxt"
 PRETRAINED = "/home/yonatan/neuro_doorman/_iter_8078.caffemodel"
@@ -29,6 +31,10 @@ classifier = caffe.Classifier(MODEL_FILE, PRETRAINED,
                               image_dims=image_dims, mean=mean,
                               input_scale=input_scale, raw_scale=raw_scale,
                               channel_swap=channel_swap)
+
+
+def cv2_image_to_caffe(image):
+    return skimage.img_as_float(cv2.cvtColor(image, cv2.COLOR_BGR2RGB)).astype(np.float32)
 
 
 def url_to_image(url):
@@ -62,9 +68,16 @@ def theDetector(url_or_np_array):
     if not len(image):
         return 'None'
 
+    image_for_caffe = [cv2_image_to_caffe(image)]
+    # face_for_caffe = [caffe.io.load_image(face_image)]
+
+    if image_for_caffe is None:
+        return None
+
+
     # Classify.
     start = time.time()
-    predictions = classifier.predict(image)
+    predictions = classifier.predict(image_for_caffe)
 
     print("predictions %s Done in %.2f s." % (str(predictions), (time.time() - start)))
 
