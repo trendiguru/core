@@ -14,7 +14,6 @@ redis_conn = constants.redis_conn
 TTL = constants.general_ttl
 # Tell RQ what Redis connection to use
 
-
 #!/usr/bin/env python
 
 import numpy as np
@@ -27,18 +26,18 @@ import time
 from trendi import background_removal, Utils, constants
 import cv2
 
+import urllib
 
-MODEL_FILE = "/home/jeremy/caffenets/neuro_doorman/deploy.prototxt"
-PRETRAINED = "/home/jeremy/caffenets/neuro_doorman/_iter_8078.caffemodel"
+MODEL_FILE = "/home/jyonatanneuro_doorman/deploy.prototxt"
+PRETRAINED = "/home/jyonatanneuro_doorman/_iter_8078.caffemodel"
 caffe.set_mode_gpu()
 image_dims = [227, 227]
-#mean = np.array([107,117,123])
+#m ean = np.array([107,117,123])
 # the training was without mean subtraction
 mean = None
 input_scale = None
 channel_swap = [2, 1, 0]
 raw_scale = 255.0
-# ext = 'jpg'
 
 # Make classifier.
 classifier = caffe.Classifier(MODEL_FILE, PRETRAINED,
@@ -47,39 +46,55 @@ classifier = caffe.Classifier(MODEL_FILE, PRETRAINED,
                               channel_swap=channel_swap)
 
 
-#def genderator(argv):
-def theDetector(image):
-#def theDetector(image, coordinates):
+def url_to_image(url):
+    # download the image, convert it to a NumPy array, and then read
+    # it into OpenCV format
 
-    #input_image = sys.argv[1]
-    #input_image = image[coordinates[1]: coordinates[1] + coordinates[3], coordinates[0]: coordinates[0] + coordinates[2]]
-    input_file = os.path.expanduser(image)
-    #print("Loading file: %s" % input_file)
-    #inputs = Utils.get_cv2_img_array(input_file)
-    inputs = [caffe.io.load_image(input_file)]
+    if url.count('jpg') > 1:
+        return None
 
-    print('shape: '+str(inputs.shape))
-    if not len(inputs):
+    resp = urllib.urlopen(url)
+    image = np.asarray(bytearray(resp.read()), dtype="uint8")
+    if image.size == 0:
+        return None
+    new_image = cv2.imdecode(image, cv2.IMREAD_COLOR)
+
+    # return the image
+    return new_image
+
+
+def theDetector(url_or_np_array):
+
+    # check if i get a url (= string) or np.ndarray
+    if isinstance(url_or_np_array, basestring):
+        image = url_to_image(url_or_np_array)
+    elif type(url_or_np_array) == np.ndarray:
+        image = url_or_np_array
+    else:
+        return None
+
+    print('shape: '+str(image.shape))
+    if not len(image):
         return 'None'
 
     # Classify.
     start = time.time()
-    predictions = classifier.predict(inputs)
+    predictions = classifier.predict(image)
 
-    print("predictions %s Done in %.2f s." % (str(predictions),(time.time() - start)))
+    print("predictions %s Done in %.2f s." % (str(predictions), (time.time() - start)))
 
-    if predictions[0][1] > 0.7:
+    if predictions[0][1] > predictions[0][0]:
         print predictions[0][1]
-        print "relevant!"
-        return 'relevant'
+        # relevant
+        return True
     else:
         print predictions[0][0]
-        print "it's irrelevant!"
-        return 'irrelevant'
+        # irrelevant
+        return False
 
 
 
-def nn_doorman_enqueue(img_url_or_cv2_array,async=False):
+def nn_doorman_enqueue(img_url_or_cv2_array, async=False):
     """
     The 'doorman queue' which starts engines and keeps them warm is 'neurodoor'.  This worker should be running somewhere (ideally in a screen named something like 'doorman').
     :param img_url_or_cv2_array: the image/url
