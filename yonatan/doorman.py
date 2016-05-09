@@ -64,10 +64,6 @@ def theDetector(url_or_np_array):
     else:
         return None
 
-    print('shape: '+str(image.shape))
-    if not len(image):
-        return 'None'
-
     image_for_caffe = [cv2_image_to_caffe(image)]
     #image_for_caffe = [caffe.io.load_image(image)]
 
