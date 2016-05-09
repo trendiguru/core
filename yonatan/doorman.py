@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 
-__author__ = 'jeremy'
+__author__ = 'jeremy, yonatan guy'
 
 import numpy as np
 import os
@@ -73,7 +73,6 @@ def theDetector(url_or_np_array):
 
     if image_for_caffe is None:
         return None
-
 
     # Classify.
     start = time.time()
