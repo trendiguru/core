@@ -13,8 +13,8 @@ from trendi import background_removal, Utils, constants
 import cv2
 import urllib
 
-MODEL_FILE = "/home/jyonatanneuro_doorman/deploy.prototxt"
-PRETRAINED = "/home/jyonatanneuro_doorman/_iter_8078.caffemodel"
+MODEL_FILE = "/home/yonatan/neuro_doorman/deploy.prototxt"
+PRETRAINED = "/home/yonatan/neuro_doorman/_iter_8078.caffemodel"
 caffe.set_mode_gpu()
 image_dims = [227, 227]
 #m ean = np.array([107,117,123])
