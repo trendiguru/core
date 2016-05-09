@@ -426,7 +426,7 @@ def label_images_and_images_to_lmdb(image_dbname,label_dbname,image_dir,label_di
                 label_file = a_file.split(imgsuffix)[0]+labelsuffix
                 full_image_name = os.path.join(image_dir,a_file)
                 full_label_name = os.path.join(label_dir,label_file)
-                label_name = a_file.split(imgsuffix)[0]
+                #label_name = a_file.split(imgsuffix)[0]
                 #img_arr = mpimg.imread(fullname)  #if you don't have cv2 handy use matplotlib
                 print('imagefile:'+full_image_name)
                 print('labelfile:'+full_label_name)
@@ -517,7 +517,7 @@ def label_images_and_images_to_lmdb(image_dbname,label_dbname,image_dir,label_di
 #                    label_arr = label_arr.transpose((2,0,1))
                 uniques = np.unique(label_arr)
                 print('unqies'+str(uniques))
-                print('db: {} strid:{} imgshape {} lblshape {} imgname {} lblname {}'.format(image_dbname,str_id,img_arr.shape,label_arr.shape,a_file,label_name))
+                print('db: {} strid:{} imgshape {} lblshape {} imgname {} lblname {}'.format(image_dbname,str_id,img_arr.shape,label_arr.shape,a_file,label_file))
 
                 labeldatum = caffe.proto.caffe_pb2.Datum()
                 labeldatum.channels = 1
@@ -714,6 +714,7 @@ def inspect_db(dbname,show_visual_output=True,B=0,G=0,R=0):
    #         n=n+1
 
 def inspect_fcn_db(dbname,show_visual_output=True,mean=(0,0,0)):
+    print('looking at fcn db')
     env = lmdb.open(dbname, readonly=True)
     with env.begin() as txn:
         n=0
@@ -751,8 +752,8 @@ def inspect_fcn_db(dbname,show_visual_output=True,mean=(0,0,0)):
                     x = flat_x.reshape(datum.height, datum.width)
                     x[:,:] = x[:,:]+B
 
-                print('db {} image# {} datasize {} w {} h {} ch {} rawsize {} flatsize {} labelsize {}'
-                      .format(dbname,n,x.shape,y,datum.width,datum.height,datum.channels,len(raw_datum),len(flat_x)))
+                print('db {} image# {} datasize {} w {} h {} ch {} rawsize {} flatsize {}'
+                      .format(dbname,n,x.shape,datum.width,datum.height,datum.channels,len(raw_datum),len(flat_x)))
                 n+=1
                 if show_visual_output is True:
                     cv2.imshow(dbname,x)
@@ -826,22 +827,23 @@ if __name__ == "__main__":
  #   kill_db('testdb.train')
     db_name = 'fcnn_fullsize_allcats'
     image_dir = '/home/jeremy/image_dbs/colorful_fashion_parsing_data/images/test'
-    label_dir = '/home/jeremy/image_dbs/colorful_fashion_parsing_data/labels'
-    image_dbname='/home/jeremy/image_dbs/lmdb/images_test'
-    label_dbname='/home/jeremy/image_dbs/lmdb/labels_test'
+    label_dir = '/home/jeremy/image_dbs/colorful_fashion_parsing_data/labels_u21'
+    image_dbname='/home/jeremy/image_dbs/lmdb/images_u21_test'
+    label_dbname='/home/jeremy/image_dbs/lmdb/labels_u21_test'
     label_images_and_images_to_lmdb(image_dbname,label_dbname,image_dir,label_dir,resize_x=None,resize_y=None,avg_B=B,avg_G=G,avg_R=R,
                      use_visual_output=False,imgsuffix='.jpg',labelsuffix='.png',shuffle=False,maxfiles=10)
 
     image_dir = '/home/jeremy/image_dbs/colorful_fashion_parsing_data/images/train'
-    label_dir = '/home/jeremy/image_dbs/colorful_fashion_parsing_data/labels'
-    image_dbname='/home/jeremy/image_dbs/lmdb/images_train'
-    label_dbname='/home/jeremy/image_dbs/lmdb/labels_train'
+    label_dir = '/home/jeremy/image_dbs/colorful_fashion_parsing_data/labels_u21'
+    image_dbname='/home/jeremy/image_dbs/lmdb/images_u21_train'
+    label_dbname='/home/jeremy/image_dbs/lmdb/labels_u21_train'
     label_images_and_images_to_lmdb(image_dbname,label_dbname,image_dir,label_dir,resize_x=None,resize_y=None,avg_B=B,avg_G=G,avg_R=R,
-                     use_visual_output=False,imgsuffix='.jpg',labelsuffix='.png',shuffle=False,maxfiles=10)
+                     use_visual_output=False,imgsuffix='.jpg',labelsuffix='.png',shuffle=False,maxfiles=20)
 
     #fcn_dirs_to_lmdb(db_name,image_dir,label_dir,resize_x=None,resize_y=None,avg_B=B,avg_G=G,avg_R=R,
     #                 use_visual_output=True,imgfilter='.jpg',labelsuffix='.png',shuffle=True,label_strings=constants.fashionista_categories_augmented)
-    inspect_fcn_db(label_dbname,mean=(B,G,R))
+    inspect_fcn_db(label_dbname,mean=(0,0,0))
+    inspect_fcn_db(image_dbname,mean=(0,0,0))
 
 #    n_test_classes,test_populations,test_imageno = interleaved_dir_of_dirs_to_lmdb(db_name,dir_of_dirs,max_images_per_class =3000,
 #                                                                                   positive_filter='test',use_visual_output=use_visual_output,
