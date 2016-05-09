@@ -904,8 +904,7 @@ if __name__ == "__main__":
 
     #fcn_dirs_to_lmdb(db_name,image_dir,label_dir,resize_x=None,resize_y=None,avg_B=B,avg_G=G,avg_R=R,
     #                 use_visual_output=True,imgfilter='.jpg',labelsuffix='.png',shuffle=True,label_strings=constants.fashionista_categories_augmented)
-    inspect_fcn_db(label_dbname,mean=(0,0,0))
-    inspect_fcn_db(image_dbname,mean=(0,0,0))
+    inspect_fcn_db(image_dbname,label_dbname,mean=(B,G,R))
 
 #    n_test_classes,test_populations,test_imageno = interleaved_dir_of_dirs_to_lmdb(db_name,dir_of_dirs,max_images_per_class =3000,
 #                                                                                   positive_filter='test',use_visual_output=use_visual_output,
