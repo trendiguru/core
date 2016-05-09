@@ -16,7 +16,7 @@ import skimage
 
 #MODLE_FILE = "/home/yonatan/trendi/yonatan/Alexnet_deploy.prototxt"
 #PRETRAINED = "/home/yonatan/alexnet_imdb_first_try/caffe_alexnet_train_faces_iter_10000.caffemodel"
-MODEL_FILE = "/home/yonatan/neuro_doorman/deploy.prototxt"
+MODLE_FILE = "/home/yonatan/neuro_doorman/deploy.prototxt"
 PRETRAINED = "/home/yonatan/neuro_doorman/_iter_8078.caffemodel"
 caffe.set_mode_gpu()
 #image_dims = [115, 115]
