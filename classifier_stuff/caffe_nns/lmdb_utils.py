@@ -413,7 +413,7 @@ def label_images_and_images_to_lmdb(image_dbname,label_dbname,image_dir,label_di
     labelfiles.sort()
 
 
-    map_size = 1e14  #size of db in bytes, can also be done by 10X actual size  as in: map_size = X.nbytes * 10
+    map_size = 1e12  #size of db in bytes, can also be done by 10X actual size  as in: map_size = X.nbytes * 10
 
     got_image = False
     image_number =0
