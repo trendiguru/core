@@ -764,13 +764,81 @@ def inspect_fcn_db(dbname,show_visual_output=True,mean=(0,0,0)):
                 print('error getting record {} from db'.format(n))
                 break
 
-#    with env.begin() as txn:
- #       cursor = txn.cursor()
-  #      n=0
-   #     for key, value in cursor:
-    #        print('img {}  class {}'.format(n,value))
-#            print(key, value)
-   #         n=n+1
+def inspect_fcn_db(img_dbname,label_dbname,show_visual_output=True,mean=(0,0,0)):
+    print('looking at fcn db')
+    env_1 = lmdb.open(img_dbname, readonly=True)
+    env_2 = lmdb.open(label_dbname, readonly=True)
+    with env_1.begin() as txn1:
+        with env_2.begin() as txn2:
+            n=0
+            while(1):
+                try:
+                    print('doing image db')
+                    str_id = '{:08}'.format(n)
+                    raw_datum = txn1.get(str_id.encode('ascii'))
+                    print('strid {} rawdat size {}'.format(str_id,len(raw_datum)))
+    #                raw_datum = txn.get(b'00000000')
+                    datum = caffe.proto.caffe_pb2.Datum()
+                    datum.ParseFromString(raw_datum)
+                    flat_x = np.fromstring(datum.data, dtype=np.uint8)
+                    print('db {} strid {} channels {} width {} height {} datumsize {} flatxsize {}'
+                          .format(img_dbname,str_id,datum.channels,datum.width,datum.height,len(raw_datum),len(flat_x)))
+                    orig_x = flat_x.reshape(datum.channels, datum.height, datum.width)
+                    if datum.channels == 3:
+                        logging.debug('before transpose shape:'+str(orig_x.shape))
+# as the input is transposed to c,h,w  by transpose(2,0,1) we have to undo it with transpose(1,2,0)    #h w c  transpose(2,0,1) -> c h w  #c h w  transpose(1,2,0) -> h w c
+                        x = orig_x.transpose((1,2,0))
+                        logging.debug('after transpose shape:'+str(x.shape))
+          #              x = flat_x.reshape(datum.height, datum.width,datum.channels)
+                        x[:,:,0] = x[:,:,0]+mean[0]
+                        x[:,:,1] = x[:,:,1]+mean[1]
+                        x[:,:,2] = x[:,:,2]+mean[2]
+                    elif datum.channels == 1:
+       #                 print('reshaping 1 chan')
+                        x = flat_x.reshape(datum.height, datum.width)
+                        x[:,:] = x[:,:]+mean[0]
+
+                    if show_visual_output is True:
+                        cv2.imshow(img_dbname,x)
+     #                   imutils.show_mask_with_labels(orig_label,constants.fashionista_categories_augmented)
+                except:
+                    print('error getting record {} from image db'.format(n))
+                    break
+
+                try:  #get label mask
+                    print('doing label db')
+                    str_id = '{:08}'.format(n)
+    #                print('strid:{} '.format(str_id))
+                 # The encode is only essential in Python 3
+                 #   txn.put(str_id.encode('ascii'), datum.SerializeToString())
+                    raw_datum = txn2.get(str_id.encode('ascii'))
+                    print('strid {} rawdat size {}'.format(str_id,len(raw_datum)))
+    #                raw_datum = txn.get(b'00000000')
+                    datum = caffe.proto.caffe_pb2.Datum()
+                    datum.ParseFromString(raw_datum)
+                    flat_y = np.fromstring(datum.data, dtype=np.uint8)
+                    print('db {} strid {} channels {} width {} height {} datumsize {} flatxsize {}'.format(label_dbname,str_id,datum.channels,datum.width,datum.height,len(raw_datum),len(flat_x)))
+                    orig_y = flat_y.reshape(datum.channels, datum.height, datum.width)
+                    if datum.channels == 3:
+                        y = orig_y.transpose((1,2,0))
+                        print('got a 3 chan image as label , thats not right but taking chan 0 anyway')
+                        logging.debug('after transpose shape:'+str(y.shape))
+          #              x = flat_x.reshape(datum.height, datum.width,datum.channels)
+                        y=y[:,:,0]
+                    else:
+                        y = flat_y.reshape(datum.height, datum.width)
+                    if show_visual_output is True:
+                        cv2.imshow(label_dbname,y)
+                        if cv2.waitKey(0) == ord('q'):
+                            break
+     #                   imutils.show_mask_with_labels(orig_label,constants.fashionista_categories_augmented)
+                    n+=1
+
+                except:
+                    print('error getting record {} from db'.format(n))
+                    break
+
+
 
 def crude_lmdb():
     in_db = lmdb.open('image-lmdb', map_size=int(1e12))
@@ -842,8 +910,7 @@ if __name__ == "__main__":
 
     #fcn_dirs_to_lmdb(db_name,image_dir,label_dir,resize_x=None,resize_y=None,avg_B=B,avg_G=G,avg_R=R,
     #                 use_visual_output=True,imgfilter='.jpg',labelsuffix='.png',shuffle=True,label_strings=constants.fashionista_categories_augmented)
-    inspect_fcn_db(label_dbname,mean=(0,0,0))
-    inspect_fcn_db(image_dbname,mean=(0,0,0))
+    inspect_fcn_db(image_dbname,label_dbname,mean=(B,G,R))
 
 #    n_test_classes,test_populations,test_imageno = interleaved_dir_of_dirs_to_lmdb(db_name,dir_of_dirs,max_images_per_class =3000,
 #                                                                                   positive_filter='test',use_visual_output=use_visual_output,
