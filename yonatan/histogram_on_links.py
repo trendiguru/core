@@ -158,7 +158,6 @@ for line in text_file:
 #print guessed_m_instead_f
 
 
-
 histogram=plt.figure(1)
 
 bins = np.linspace(-1000, 1000, 50)
