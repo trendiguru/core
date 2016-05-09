@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 
-__author__ = 'yonatan_guy'
+__author__ = 'jeremy'
 
 import numpy as np
 import os
@@ -12,26 +12,23 @@ import time
 from trendi import background_removal, Utils, constants
 import cv2
 import urllib
-import skimage
 
-
-MODLE_FILE = "/home/yonatan/trendi/yonatan/Alexnet_deploy.prototxt"
-PRETRAINED = "/home/yonatan/alexnet_imdb_first_try/caffe_alexnet_train_faces_iter_10000.caffemodel"
+MODEL_FILE = "/home/jyonatanneuro_doorman/deploy.prototxt"
+PRETRAINED = "/home/jyonatanneuro_doorman/_iter_8078.caffemodel"
 caffe.set_mode_gpu()
-image_dims = [115, 115]
-mean, input_scale = np.array([120, 120, 120]), None
+image_dims = [227, 227]
+#m ean = np.array([107,117,123])
+# the training was without mean subtraction
+mean = None
+input_scale = None
 channel_swap = [2, 1, 0]
 raw_scale = 255.0
 
 # Make classifier.
-classifier = caffe.Classifier(MODLE_FILE, PRETRAINED,
+classifier = caffe.Classifier(MODEL_FILE, PRETRAINED,
                               image_dims=image_dims, mean=mean,
                               input_scale=input_scale, raw_scale=raw_scale,
                               channel_swap=channel_swap)
-
-
-def cv2_image_to_caffe(image):
-    return skimage.img_as_float(cv2.cvtColor(image, cv2.COLOR_BGR2RGB)).astype(np.float32)
 
 
 def url_to_image(url):
@@ -51,41 +48,31 @@ def url_to_image(url):
     return new_image
 
 
-#def theDetector(image):
-def theDetector(url_or_np_array, face_coordinates):
+def theDetector(url_or_np_array):
 
     # check if i get a url (= string) or np.ndarray
     if isinstance(url_or_np_array, basestring):
-        full_image = url_to_image(url_or_np_array)
+        image = url_to_image(url_or_np_array)
     elif type(url_or_np_array) == np.ndarray:
-        full_image = url_or_np_array
+        image = url_or_np_array
     else:
         return None
 
-    #checks if the face coordinates are inside the image
-    height, width, channels = full_image.shape
-
-    x, y, w, h = face_coordinates
-
-    if x > width or x + w > width or y > height or y + h > height:
-        return None
-
-    face_image = full_image[y: y + h, x: x + w]
-
-    face_for_caffe = [cv2_image_to_caffe(face_image)]
-    #face_for_caffe = [caffe.io.load_image(face_image)]
-
-    if face_for_caffe is None:
-        return None
+    print('shape: '+str(image.shape))
+    if not len(image):
+        return 'None'
 
     # Classify.
     start = time.time()
-    predictions = classifier.predict(face_for_caffe)
-    print("Done in %.2f s." % (time.time() - start))
+    predictions = classifier.predict(image)
 
-    if predictions[0][1] > 0.7:
+    print("predictions %s Done in %.2f s." % (str(predictions), (time.time() - start)))
+
+    if predictions[0][1] > predictions[0][0]:
         print predictions[0][1]
-        return 'Male'
+        # relevant
+        return True
     else:
         print predictions[0][0]
-        return 'Female'
+        # irrelevant
+        return False
