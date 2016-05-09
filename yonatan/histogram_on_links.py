@@ -155,4 +155,4 @@ plt.legend()
 plt.hist(array_failure, alpha=0.5, label='array_failure')
 plt.legend()
 
-histogram.savefig('live_test_links_with_GD.png')
+histogram.savefig('live_test_links_bgr2rgb.png')
