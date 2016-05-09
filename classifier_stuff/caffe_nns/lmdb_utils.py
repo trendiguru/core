@@ -869,7 +869,7 @@ def kill_db(db_name):
 
 host = socket.gethostname()
 print('host:'+str(host))
-
+#
 if __name__ == "__main__":
     if host == 'jr-ThinkPad-X1-Carbon':
         dir_of_dirs = '/home/jr/core/classifier_stuff/caffe_nns/dataset'
