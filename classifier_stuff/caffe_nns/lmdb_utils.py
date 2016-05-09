@@ -413,7 +413,7 @@ def label_images_and_images_to_lmdb(image_dbname,label_dbname,image_dir,label_di
     labelfiles.sort()
 
 
-    map_size = 1e13  #size of db in bytes, can also be done by 10X actual size  as in: map_size = X.nbytes * 10
+    map_size = 1e14  #size of db in bytes, can also be done by 10X actual size  as in: map_size = X.nbytes * 10
 
     got_image = False
     image_number =0
@@ -530,7 +530,7 @@ def label_images_and_images_to_lmdb(image_dbname,label_dbname,image_dir,label_di
                     e = sys.exc_info()[0]
                     logging.warning('some problem with label lmdb:'+str(e))
                 print
-        env_label.close()
+        env_ label.close()
     env_image.close()
     return image_number
 
@@ -897,14 +897,14 @@ if __name__ == "__main__":
     image_dbname='/home/jeremy/image_dbs/lmdb/images_u21_test'
     label_dbname='/home/jeremy/image_dbs/lmdb/labels_u21_test'
     label_images_and_images_to_lmdb(image_dbname,label_dbname,image_dir,label_dir,resize_x=None,resize_y=None,avg_B=B,avg_G=G,avg_R=R,
-                     use_visual_output=False,imgsuffix='.jpg',labelsuffix='.png',shuffle=False)
+                     use_visual_output=False,imgsuffix='.jpg',labelsuffix='.png',shuffle=False,maxfiles=100000)
 
     image_dir = '/home/jeremy/image_dbs/colorful_fashion_parsing_data/images/train'
     label_dir = '/home/jeremy/image_dbs/colorful_fashion_parsing_data/labels_u21'
     image_dbname='/home/jeremy/image_dbs/lmdb/images_u21_train'
     label_dbname='/home/jeremy/image_dbs/lmdb/labels_u21_train'
     label_images_and_images_to_lmdb(image_dbname,label_dbname,image_dir,label_dir,resize_x=None,resize_y=None,avg_B=B,avg_G=G,avg_R=R,
-                     use_visual_output=False,imgsuffix='.jpg',labelsuffix='.png',shuffle=False)
+                     use_visual_output=False,imgsuffix='.jpg',labelsuffix='.png',shuffle=False,maxfiles=100000)
 
     #fcn_dirs_to_lmdb(db_name,image_dir,label_dir,resize_x=None,resize_y=None,avg_B=B,avg_G=G,avg_R=R,
     #                 use_visual_output=True,imgfilter='.jpg',labelsuffix='.png',shuffle=True,label_strings=constants.fashionista_categories_augmented)
