@@ -731,16 +731,11 @@ def inspect_fcn_db(dbname,show_visual_output=True,mean=(0,0,0)):
                 datum.ParseFromString(raw_datum)
                 flat_x = np.fromstring(datum.data, dtype=np.uint8)
                 print('db {} strid {} channels {} width {} height {} datumsize {} flatxsize {}'.format(dbname,str_id,datum.channels,datum.width,datum.height,len(raw_datum),len(flat_x)))
-
-
                 orig_x = flat_x.reshape(datum.channels, datum.height, datum.width)
-
 
                 if datum.channels == 3:
                     logging.debug('before transpose shape:'+str(orig_x.shape))
-# as the input is transposed to c,h,w  by transpose(2,0,1) we have to undo it with transpose(1,2,0)
-#h w c  transpose(2,0,1) -> c h w
-#c h w  transpose(1,2,0) -> h w c
+# as the input is transposed to c,h,w  by transpose(2,0,1) we have to undo it with transpose(1,2,0) #h w c  transpose(2,0,1) -> c h w ,  c h w  transpose(1,2,0) -> h w c
                     x = orig_x.transpose((1,2,0))
                     logging.debug('after transpose shape:'+str(x.shape))
       #              x = flat_x.reshape(datum.height, datum.width,datum.channels)
@@ -764,7 +759,7 @@ def inspect_fcn_db(dbname,show_visual_output=True,mean=(0,0,0)):
                 print('error getting record {} from db'.format(n))
                 break
 
-def inspect_fcn_db(img_dbname,label_dbname,show_visual_output=True,mean=(0,0,0)):
+def inspect_fcn_db(img_dbname,label_dbname,show_visual_output=True,mean=(0,0,0),labels=constants.ultimate_21):
     print('looking at fcn db')
     env_1 = lmdb.open(img_dbname, readonly=True)
     env_2 = lmdb.open(label_dbname, readonly=True)
@@ -828,7 +823,10 @@ def inspect_fcn_db(img_dbname,label_dbname,show_visual_output=True,mean=(0,0,0))
                     else:
                         y = flat_y.reshape(datum.height, datum.width)
                     if show_visual_output is True:
-                        cv2.imshow(label_dbname,y)
+                        tmpfilename = '/tmp/tmpout.bmp'
+                        cv2.imwrite(tmpfilename,y)
+#                        cv2.imshow(label_dbname,y)
+                        imutils.show_mask_with_labels(tmpfilename,labels,visual_output=True)
                         if cv2.waitKey(0) == ord('q'):
                             break
      #                   imutils.show_mask_with_labels(orig_label,constants.fashionista_categories_augmented)
