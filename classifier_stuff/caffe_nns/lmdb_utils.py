@@ -752,8 +752,8 @@ def inspect_fcn_db(dbname,show_visual_output=True,mean=(0,0,0)):
                     x = flat_x.reshape(datum.height, datum.width)
                     x[:,:] = x[:,:]+B
 
-                print('db {} image# {} datasize {} w {} h {} ch {} rawsize {} flatsize {} labelsize {}'
-                      .format(dbname,n,x.shape,y,datum.width,datum.height,datum.channels,len(raw_datum),len(flat_x)))
+                print('db {} image# {} datasize {} w {} h {} ch {} rawsize {} flatsize {}'
+                      .format(dbname,n,x.shape,datum.width,datum.height,datum.channels,len(raw_datum),len(flat_x)))
                 n+=1
                 if show_visual_output is True:
                     cv2.imshow(dbname,x)
