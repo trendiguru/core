@@ -97,7 +97,7 @@ for root, dirs, files in os.walk(path):
             '''
             #face_for_caffe = [full_image]
 
-            face_for_caffe = [caffe.io.load_image(file)]
+            face_for_caffe = [caffe.io.load_image(root + "/" + file)]
 
             if face_for_caffe is None:
                 continue
