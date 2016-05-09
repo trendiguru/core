@@ -375,7 +375,7 @@ def interleaved_dir_of_dirs_to_lmdb(dbname,dir_of_dirs,positive_filter=None,max_
 
     #You can also open up and inspect an existing LMDB database from Python:
 # assuming here that dataum.data, datum.channels, datum.width etc all exist as in dir_of_dirs_to_lmdb
-def fcn_individual_dirs_to_lmdb(image_dbname,label_dbname,image_dir,label_dir,resize_x=None,resize_y=None,avg_B=None,avg_G=None,avg_R=None,
+def label_images_and_images_to_lmdb(image_dbname,label_dbname,image_dir,label_dir,resize_x=None,resize_y=None,avg_B=None,avg_G=None,avg_R=None,
                      use_visual_output=False,imgsuffix='.jpg',labelsuffix='.png',shuffle=False,maxfiles=1000000000):
     '''
     this puts data images and label images into separate dbs
@@ -438,8 +438,13 @@ def fcn_individual_dirs_to_lmdb(image_dbname,label_dbname,image_dir,label_dir,re
                     continue
                 img_arr = cv2.imread(full_image_name)
                 if img_arr is  None:
-                    logging.warning('could not read:'+full_image_name)
+                    logging.warning('could not read image:'+full_image_name)
                     continue
+                label_arr = cv2.imread(full_label_name,cv2.IMREAD_GRAYSCALE)
+                if label_arr is  None:
+                    logging.warning('could not read label:'+full_label_name)
+                    continue
+
                 h_orig=img_arr.shape[0]
                 w_orig=img_arr.shape[1]
                 if len(img_arr.shape) == 2:
@@ -495,11 +500,7 @@ def fcn_individual_dirs_to_lmdb(image_dbname,label_dbname,image_dir,label_dir,re
                     e = sys.exc_info()[0]
                     logging.warning('some problem with lmdb:'+str(e))
 
-            ###get, write label
-                label_arr = cv2.imread(full_label_name,cv2.IMREAD_GRAYSCALE)
-                if label_arr is  None:
-                    logging.warning('could not read:'+full_label_name)
-                    continue
+            ###, write label
         #redoing thiws with  3 channels due to cafe complaint - 240K vs 720 K
         #obviously misguided attempt being redone:
 #   F0502 10:10:28.617626 15482 softmax_loss_layer.cpp:42] Check failed: outer_num_ * inner_num_ == bottom[1]->count() (240000 vs. 720000) Number of labels must match number of predictions; e.g., if softmax axis == 1 and prediction shape is (N, C, H, W), label count (number of labels) must be N*H*W, with integer values in {0, 1, ..., C-1}.
@@ -828,15 +829,15 @@ if __name__ == "__main__":
     label_dir = '/home/jeremy/image_dbs/colorful_fashion_parsing_data/labels'
     image_dbname='/home/jeremy/image_dbs/lmdb/images_test'
     label_dbname='/home/jeremy/image_dbs/lmdb/labels_test'
-    fcn_individual_dirs_to_lmdb(image_dbname,label_dbname,image_dir,label_dir,resize_x=None,resize_y=None,avg_B=None,avg_G=None,avg_R=None,
-                     use_visual_output=False,imgsuffix='.jpg',labelsuffix='.png',shuffle=False)
+    label_images_and_images_to_lmdb(image_dbname,label_dbname,image_dir,label_dir,resize_x=None,resize_y=None,avg_B=B,avg_G=G,avg_R=R,
+                     use_visual_output=False,imgsuffix='.jpg',labelsuffix='.png',shuffle=False,maxfiles=10)
 
     image_dir = '/home/jeremy/image_dbs/colorful_fashion_parsing_data/images/train'
     label_dir = '/home/jeremy/image_dbs/colorful_fashion_parsing_data/labels'
     image_dbname='/home/jeremy/image_dbs/lmdb/images_train'
     label_dbname='/home/jeremy/image_dbs/lmdb/labels_train'
-    fcn_individual_dirs_to_lmdb(image_dbname,label_dbname,image_dir,label_dir,resize_x=None,resize_y=None,avg_B=None,avg_G=None,avg_R=None,
-                     use_visual_output=False,imgsuffix='.jpg',labelsuffix='.png',shuffle=False)
+    label_images_and_images_to_lmdb(image_dbname,label_dbname,image_dir,label_dir,resize_x=None,resize_y=None,avg_B=B,avg_G=G,avg_R=R,
+                     use_visual_output=False,imgsuffix='.jpg',labelsuffix='.png',shuffle=False,maxfiles=10)
 
     #fcn_dirs_to_lmdb(db_name,image_dir,label_dir,resize_x=None,resize_y=None,avg_B=B,avg_G=G,avg_R=R,
     #                 use_visual_output=True,imgfilter='.jpg',labelsuffix='.png',shuffle=True,label_strings=constants.fashionista_categories_augmented)
