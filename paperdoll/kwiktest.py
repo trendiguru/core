@@ -36,7 +36,7 @@ for f in filenames:
     while not retval.is_finished:
         time.sleep(1)
         print('waiting...')
-    mask, labels,pose = retval.result[:2]
+    mask, labels = retval.result[:2]
     end_time = time.time()
     dt=end_time-start_time
     dts.append(dt)
