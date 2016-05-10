@@ -56,9 +56,6 @@ for f in filenames:
     print('labsonly '+str(labs_only))
 
     imutils.show_mask_with_labels(parse_name,labs_only,save_images=True)
-
-    with open(labeloutname,'w') as labelfile:
-        labelfile.write(labels)
     if retval is not None:
         print('retval:' + str(retval.result)+' time:'+str(dt))
     else:
