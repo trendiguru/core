@@ -36,8 +36,9 @@ def show_pd_results(dir):
 if __name__ =="__main__":
     dir ='/home/jeremy/image_dbs/colorful_fashion_parsing_data/output/nn2'
     files = [os.path.join(dir,f) for f in dir if '.bmp' in f]
-
+    print('found {} files in {}'.format(len(files,dir)))
     for f in files:
+        print after_nn_conclusions_name
         mask = cv2.imread(f)  #have to worry abt 3chan masks?
         after_mask = pipeline.after_nn_conclusions(mask, fashionista_categories_augmented_zero_based)
         after_nn_conclusions_name = f.split('.bmp')[0]+'_after_nn_conclusions.png'
