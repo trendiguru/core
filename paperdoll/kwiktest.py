@@ -50,7 +50,7 @@ for f in filenames:
     print('labels:'+str(labels))
     sorted_labels=sorted(labels.items(),key=operator.itemgetter(1))
     print('sorted labels :'+str(sorted_labels))
-    labs_only = [i[0] for i in sorted()]
+    labs_only = [i[0] for i in sorted_labels]
     print('labsonly '+str(labs_only))
 
     imutils.show_mask_with_labels(parse_name,labs_only,save_images=True)
