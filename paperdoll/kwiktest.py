@@ -1,10 +1,10 @@
+from __future__ import print_function
 __author__ = 'jeremy'
 from trendi.paperdoll import paperdoll_parse_enqueue
 import time
 import numpy as np
 import cv2
 import os
-from __future__ import print_function
 import operator
 
 from trendi.utils import imutils
