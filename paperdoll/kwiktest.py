@@ -81,8 +81,6 @@ if(0):
         else:
             print('no return val (None)')
 
-
-
     for url in urls:
         start_time = time.time()
         retval = paperdoll_parse_enqueue.paperdoll_enqueue(url, async=False,use_parfor=False)  #True,queue_name='pd_parfor')

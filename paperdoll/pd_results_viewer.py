@@ -4,7 +4,7 @@ import cv2
 
 from trendi import pipeline
 from trendi import imutils
-
+from trendi.constants import fashionista_categories_augmented_zero_based
 
 def show_pd_results(dir):
     ########WARNING NOT FINISHED
@@ -34,6 +34,13 @@ def show_pd_results(dir):
 
 
 if __name__ =="__main__":
-    files = [os.path.join(dir,f) for f in dir if '.png']
+    dir ='/home/jeremy/image_dbs/colorful_fashion_parsing_data/output/nn2'
+    files = [os.path.join(dir,f) for f in dir if '.bmp' in f]
 
-    pipeline.after_nn_conclusions(mask, labels)
+    for f in files:
+        mask = cv2.imread(f)  #have to worry abt 3chan masks?
+        after_mask = pipeline.after_nn_conclusions(mask, fashionista_categories_augmented_zero_based)
+        after_nn_conclusions_name = f.split('.bmp')[0]+'_after_nn_conclusions.png'
+        cv2.imwrite(after_nn_conclusions_name,after_mask)
+        imutils.show_mask_with_labels(after_nn_conclusions_name,fashionista_categories_augmented_zero_based,save_images=True)
+
