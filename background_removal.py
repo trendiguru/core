@@ -14,7 +14,7 @@ import rq
 from . import constants
 from . import Utils
 from . import ccv_facedetector as ccv
-from .trendi import kassper
+from . import kassper
 
 detector = dlib.get_frontal_face_detector()
 db = constants.db
