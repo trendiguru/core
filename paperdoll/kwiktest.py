@@ -9,6 +9,8 @@ import operator
 import sys
 
 from trendi.utils import imutils
+from trendi import pipeline
+
 urls=[]
 dts=[]
 #urls.append('http://notapicture.jpg')
@@ -48,18 +50,23 @@ for f in filenames:
     dts.append(dt)
     parse_name = f.split('.jpg')[0]+'_parse.png'
     cv2.imwrite(parse_name,mask)
-    labeloutname = f.split('.jpg')[0]+'_labels.txt'
     print('labels:'+str(labels))
     sorted_labels=sorted(labels.items(),key=operator.itemgetter(1))
     print('sorted labels :'+str(sorted_labels))
     labs_only = [i[0] for i in sorted_labels]
     print('labsonly '+str(labs_only))
-
     imutils.show_mask_with_labels(parse_name,labs_only,save_images=True)
+
+    aftermask = pipeline.after_pd_conclusions(mask, labels, face=None)
+    after_pd_conclusions_name = parse_name.split('.parse.png')[0]+'_after_pd_conclusions.png'
+    cv2.imwrite(after_pd_conclusions_name,aftermask)
+    imutils.show_mask_with_labels(after_pd_conclusions_name,labs_only,save_images=True)
+
     if retval is not None:
         print('retval:' + str(retval.result)+' time:'+str(dt))
     else:
         print('no return val (None)')
+
 
 if(0):
     for f in filenames:
