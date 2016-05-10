@@ -55,7 +55,7 @@ def url_to_image(url):
 
 
 def theDetector(url_or_np_array):
-    '''
+
     # check if i get a url (= string) or np.ndarray
     if isinstance(url_or_np_array, basestring):
         image = url_to_image(url_or_np_array)
@@ -66,9 +66,6 @@ def theDetector(url_or_np_array):
 
     image_for_caffe = [cv2_image_to_caffe(image)]
     #image_for_caffe = [caffe.io.load_image(image)]
-    '''
-
-    image_for_caffe = [caffe.io.load_image('/home/yonatan/Gingerbread_House_Essex_CT.jpg')]
 
     if image_for_caffe is None:
         return None
