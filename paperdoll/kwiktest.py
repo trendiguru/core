@@ -19,7 +19,7 @@ filenames =  []
 filenames.append( '/home/netanel/meta/dataset/test1/product_9415_photo_3295_bbox_336_195_339_527.jpg')
 dir = '/home/jeremy/image_dbs/colorful_fashion_parsing_data/images/test'
 filenames = [os.path.join(dir,f) for f in os.listdir(dir) if '.jpg' in f]
-
+filenames=filenames[100:]
 
 urls.append('http://i.imgur.com/ahFOgkm.jpg')
 urls.append('http://40.media.tumblr.com/b81282b59ab467eab299801875bc3670/tumblr_mhc692qtpq1r647c2o1_500.jpg')
@@ -58,7 +58,7 @@ for f in filenames:
     imutils.show_mask_with_labels(parse_name,labs_only,save_images=True)
 
     aftermask = pipeline.after_pd_conclusions(mask, labels, face=None)
-    after_pd_conclusions_name = parse_name.split('.parse.png')[0]+'_after_pd_conclusions.png'
+    after_pd_conclusions_name = parse_name.split('_parse.png')[0]+'_after_pd_conclusions.png'
     cv2.imwrite(after_pd_conclusions_name,aftermask)
     imutils.show_mask_with_labels(after_pd_conclusions_name,labs_only,save_images=True)
 
