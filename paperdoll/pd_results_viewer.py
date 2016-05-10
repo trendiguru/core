@@ -38,7 +38,7 @@ if __name__ =="__main__":
     files = [os.path.join(dir,f) for f in os.listdir(dir) if '.bmp' in f]
     print('found {} files in {}'.format(len(files),dir))
     for f in files:
-        print after_nn_conclusions_name
+        print f
         mask = cv2.imread(f)  #have to worry abt 3chan masks?
         after_mask = pipeline.after_nn_conclusions(mask, fashionista_categories_augmented_zero_based)
         after_nn_conclusions_name = f.split('.bmp')[0]+'_after_nn_conclusions.png'
