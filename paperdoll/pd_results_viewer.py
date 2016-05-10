@@ -37,10 +37,13 @@ if __name__ =="__main__":
     dir ='/home/jeremy/image_dbs/colorful_fashion_parsing_data/output/nn2'
     files = [os.path.join(dir,f) for f in os.listdir(dir) if '.bmp' in f]
     print('found {} files in {}'.format(len(files),dir))
+    label_dict = {fashionista_categories_augmented_zero_based[i]:i for i in range(len(fashionista_categories_augmented_zero_based))}
+    print label_dict
+
     for f in files:
         print f
         mask = cv2.imread(f)  #have to worry abt 3chan masks?
-        after_mask = pipeline.after_nn_conclusions(mask, fashionista_categories_augmented_zero_based)
+        after_mask = pipeline.after_nn_conclusions(mask, label_dict)
         after_nn_conclusions_name = f.split('.bmp')[0]+'_after_nn_conclusions.png'
         cv2.imwrite(after_nn_conclusions_name,after_mask)
         imutils.show_mask_with_labels(after_nn_conclusions_name,fashionista_categories_augmented_zero_based,save_images=True)
