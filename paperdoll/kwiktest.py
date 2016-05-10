@@ -53,7 +53,7 @@ for f in filenames:
     labs_only = [i[0] for i in sorted()]
     print('labsonly '+str(labs_only))
 
-    imutils.show_mask_with_labels(parse_name,labels,save_images=True)
+    imutils.show_mask_with_labels(parse_name,labs_only,save_images=True)
 
     with open(labeloutname,'w') as labelfile:
         labelfile.write(labels)
