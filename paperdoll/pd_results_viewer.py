@@ -33,21 +33,31 @@ def show_pd_results(dir):
     #    else:
     #        print('no return val (None)')
 
+def generate_groundtruth_legends(imgdir,labeldir):
+    files = [os.path.join(imgdir,f) for f in os.listdir(imgdir) if '.jpg' in f]
+    print('{} files in {}'.format(len(files),imgdir))
+    for f in files:
+        corresponding_label = os.path.basename(f).split('.jpg')[0]+'.png'
+        full_label_path = os.path.join(labeldir,corresponding_label)
+        imutils.show_mask_with_labels(full_label_path,fashionista_categories_augmented_zero_based,save_images=True)
+
 
 if __name__ =="__main__":
-    dir ='/home/jeremy/image_dbs/colorful_fashion_parsing_data/output/nn2'
-    files = [os.path.join(dir,f) for f in os.listdir(dir) if '.bmp' in f]
-    print('found {} files in {}'.format(len(files),dir))
-    label_dict = {fashionista_categories_augmented_zero_based[i]:i for i in range(len(fashionista_categories_augmented_zero_based))}
-    print label_dict
+    generate_groundtruth_legends('/home/jeremy/image_dbs/colorful_fashion_parsing_data/images/test','/home/jeremy/image_dbs/colorful_fashion_parsing_data/labels')
+    if(0):
+        dir ='/home/jeremy/image_dbs/colorful_fashion_parsing_data/output/nn2'
+        files = [os.path.join(dir,f) for f in os.listdir(dir) if '.bmp' in f]
+        print('found {} files in {}'.format(len(files),dir))
+        label_dict = {fashionista_categories_augmented_zero_based[i]:i for i in range(len(fashionista_categories_augmented_zero_based))}
+        print label_dict
 
-    for f in files:
-        print f
-        mask = cv2.imread(f)  #have to worry abt 3chan masks?
-        if len(mask.shape) == 3:
-            mask = mask[:,:,0]
-        after_mask = pipeline.after_nn_conclusions(mask, label_dict)
-        after_nn_conclusions_name = f.split('.bmp')[0]+'_after_nn_conclusions.png'
-        cv2.imwrite(after_nn_conclusions_name,after_mask)
-        imutils.show_mask_with_labels(after_nn_conclusions_name,fashionista_categories_augmented_zero_based,save_images=True)
+        for f in files:
+            print f
+            mask = cv2.imread(f)  #have to worry abt 3chan masks?
+            if len(mask.shape) == 3:
+                mask = mask[:,:,0]
+            after_mask = pipeline.after_nn_conclusions(mask, label_dict)
+            after_nn_conclusions_name = f.split('.bmp')[0]+'_after_nn_conclusions.png'
+            cv2.imwrite(after_nn_conclusions_name,after_mask)
+            imutils.show_mask_with_labels(after_nn_conclusions_name,fashionista_categories_augmented_zero_based,save_images=True)
 
