@@ -6,6 +6,7 @@ import numpy as np
 from trendi import pipeline
 from trendi.utils import imutils
 from trendi.constants import fashionista_categories_augmented_zero_based
+from trendi.constants import fashionista_categories_augmented
 
 def show_pd_results(dir):
     ########WARNING NOT FINISHED
@@ -39,7 +40,7 @@ def generate_groundtruth_legends(imgdir,labeldir):
     for f in files:
         corresponding_label = os.path.basename(f).split('.jpg')[0]+'.png'
         full_label_path = os.path.join(labeldir,corresponding_label)
-        imutils.show_mask_with_labels(full_label_path,fashionista_categories_augmented_zero_based,save_images=True)
+        imutils.show_mask_with_labels(full_label_path,fashionista_categories_augmented,save_images=True)
 
 
 if __name__ =="__main__":
