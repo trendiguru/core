@@ -6,6 +6,7 @@ import numpy as np
 import cv2
 import os
 import operator
+import sys
 
 from trendi.utils import imutils
 urls=[]
@@ -39,7 +40,8 @@ for f in filenames:
     print('waiting',end='',flush=True)
     while not retval.is_finished:
         time.sleep(1)
-        print('.', end="",flush=True)
+        print('.', end="")
+        sys.stdout.flush()
     mask, labels = retval.result[:2]
     end_time = time.time()
     dt=end_time-start_time
