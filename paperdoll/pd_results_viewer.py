@@ -43,6 +43,8 @@ if __name__ =="__main__":
     for f in files:
         print f
         mask = cv2.imread(f)  #have to worry abt 3chan masks?
+        if len(mask(shape)) == 3:
+            mask = mask[:,:,0]
         after_mask = pipeline.after_nn_conclusions(mask, label_dict)
         after_nn_conclusions_name = f.split('.bmp')[0]+'_after_nn_conclusions.png'
         cv2.imwrite(after_nn_conclusions_name,after_mask)
