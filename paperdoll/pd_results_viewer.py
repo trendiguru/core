@@ -3,7 +3,7 @@ import os
 import cv2
 
 from trendi import pipeline
-from trendi import imutils
+from trendi.utils import imutils
 from trendi.constants import fashionista_categories_augmented_zero_based
 
 def show_pd_results(dir):
