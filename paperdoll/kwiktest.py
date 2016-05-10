@@ -3,6 +3,7 @@ from trendi.paperdoll import paperdoll_parse_enqueue
 import time
 import numpy as np
 import cv2
+import os
 
 urls=[]
 dts=[]
@@ -10,6 +11,8 @@ dts=[]
 
 filenames =  []
 filenames.append( '/home/netanel/meta/dataset/test1/product_9415_photo_3295_bbox_336_195_339_527.jpg')
+dir = '/home/jeremy/image_dbs/colorful_fashion_parsing_data/images/test'
+filenames = [os.path.join(dir,f) for f in os.listdir(dir) if '.jpg' in f]
 
 
 urls.append('http://i.imgur.com/ahFOgkm.jpg')
@@ -26,42 +29,53 @@ urls.append('http://media2.popsugar-assets.com/files/2010/08/34/5/192/1922153/96
 
 
 for f in filenames:
-    print('sending filenames')
-    start_time = time.time()
-    retval = paperdoll_parse_enqueue.paperdoll_enqueue(f, async=False,use_parfor=False)  #True,queue_name='pd_parfor')
-    end_time = time.time()
-    dt=end_time-start_time
-    dts.append(dt)
-    if retval is not None:
-        print('retval:' + str(retval.result)+' time:'+str(dt))
-    else:
-        print('no return val (None)')
-
-for f in filenames:
-    print('sending img arrays')
+    print('sending img '+f)
     im = cv2.imread(f)
     start_time = time.time()
-    retval = paperdoll_parse_enqueue.paperdoll_enqueue(im, async=False,use_parfor=False)  #True,queue_name='pd_parfor')
+    retval = paperdoll_parse_enqueue.paperdoll_enqueue(im)
+    while not retval.is_finished:
+        time.sleep(1)
+        print('waiting...')
+    mask, labels,pose = retval.result[:2]
     end_time = time.time()
     dt=end_time-start_time
     dts.append(dt)
+    imgoutname = f.split('.jpg')[0]+'_parse.jpg'
+    cv2.imwrite(imgoutname,mask)
+    labeloutname = f.split('.jpg')[0]+'_labels.txt'
+    with open(labeloutname,'w') as labelfile:
+        labelfile.write(labels)
     if retval is not None:
         print('retval:' + str(retval.result)+' time:'+str(dt))
     else:
         print('no return val (None)')
 
+if(0):
+    for f in filenames:
+        print('sending filenames')
+        start_time = time.time()
+        retval = paperdoll_parse_enqueue.paperdoll_enqueue(f, async=False,use_parfor=False)  #True,queue_name='pd_parfor')
+        end_time = time.time()
+        dt=end_time-start_time
+        dts.append(dt)
+        if retval is not None:
+            print('retval:' + str(retval.result)+' time:'+str(dt))
+        else:
+            print('no return val (None)')
 
-for url in urls:
-    start_time = time.time()
-    retval = paperdoll_parse_enqueue.paperdoll_enqueue(url, async=False,use_parfor=False)  #True,queue_name='pd_parfor')
-    end_time = time.time()
-    dt=end_time-start_time
-    dts.append(dt)
-    if retval is not None:
-        print('retval:' + str(retval.result)+' time:'+str(dt))
-    else:
-        print('no return val (None)')
 
-means=np.mean(dts)
-std=np.std(dts)
-print('mean:' + str(means)+' std:'+str(std))
+
+    for url in urls:
+        start_time = time.time()
+        retval = paperdoll_parse_enqueue.paperdoll_enqueue(url, async=False,use_parfor=False)  #True,queue_name='pd_parfor')
+        end_time = time.time()
+        dt=end_time-start_time
+        dts.append(dt)
+        if retval is not None:
+            print('retval:' + str(retval.result)+' time:'+str(dt))
+        else:
+            print('no return val (None)')
+
+    means=np.mean(dts)
+    std=np.std(dts)
+    print('mean:' + str(means)+' std:'+str(std))

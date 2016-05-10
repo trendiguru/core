@@ -512,7 +512,8 @@ def label_images_and_images_to_lmdb(image_dbname,label_dbname,image_dir,label_di
                     label_arr = label_arr[:,:,0]
 #                    label_arr = np.array([label_arr])
                 else:
-                    print('read singlechann label')
+                    pass
+                    #print('read singlechann label')
 #                    label_arr = np.array([label_arr])
 #                    label_arr = label_arr.transpose((2,0,1))
                 uniques = np.unique(label_arr)
