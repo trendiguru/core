@@ -36,10 +36,10 @@ for f in filenames:
     im = cv2.imread(f)
     start_time = time.time()
     retval = paperdoll_parse_enqueue.paperdoll_enqueue(im)
-    print('waiting',end='')
+    print('waiting',end='',flush=True)
     while not retval.is_finished:
         time.sleep(1)
-        print('.', end="")
+        print('.', end="",flush=True)
     mask, labels = retval.result[:2]
     end_time = time.time()
     dt=end_time-start_time
