@@ -5,6 +5,7 @@ import numpy as np
 import cv2
 import os
 
+from trendi.utils import imutils
 urls=[]
 dts=[]
 #urls.append('http://notapicture.jpg')
@@ -40,9 +41,12 @@ for f in filenames:
     end_time = time.time()
     dt=end_time-start_time
     dts.append(dt)
-    imgoutname = f.split('.jpg')[0]+'_parse.jpg'
-    cv2.imwrite(imgoutname,mask)
+    parse_name = f.split('.jpg')[0]+'_parse.png'
+    cv2.imwrite(parse_name,mask)
     labeloutname = f.split('.jpg')[0]+'_labels.txt'
+    print('mask:'+str(mask))
+    imutils.show_mask_with_labels(parse_name,labels,save_images=True)
+
     with open(labeloutname,'w') as labelfile:
         labelfile.write(labels)
     if retval is not None:
