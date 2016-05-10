@@ -4,6 +4,8 @@ import time
 import numpy as np
 import cv2
 import os
+from __future__ import print_function
+import operator
 
 from trendi.utils import imutils
 urls=[]
@@ -34,9 +36,10 @@ for f in filenames:
     im = cv2.imread(f)
     start_time = time.time()
     retval = paperdoll_parse_enqueue.paperdoll_enqueue(im)
+    print('waiting',end='')
     while not retval.is_finished:
         time.sleep(1)
-        print('waiting...')
+        print('.', end="")
     mask, labels = retval.result[:2]
     end_time = time.time()
     dt=end_time-start_time
@@ -44,7 +47,12 @@ for f in filenames:
     parse_name = f.split('.jpg')[0]+'_parse.png'
     cv2.imwrite(parse_name,mask)
     labeloutname = f.split('.jpg')[0]+'_labels.txt'
-    print('mask:'+str(mask))
+    print('labels:'+str(labels))
+    sorted_labels=sorted(labels.items(),key=operator.itemgetter(1))
+    print('sorted labels :'+str(sorted_labels))
+    labs_only = [i[0] for i in sorted()]
+    print('labsonly '+str(labs_only))
+
     imutils.show_mask_with_labels(parse_name,labels,save_images=True)
 
     with open(labeloutname,'w') as labelfile:
