@@ -14,11 +14,15 @@ import urllib
 import skimage
 
 
-MODLE_FILE = "/home/yonatan/trendi/yonatan/Alexnet_deploy.prototxt"
-PRETRAINED = "/home/yonatan/alexnet_imdb_first_try/caffe_alexnet_train_faces_iter_10000.caffemodel"
+#MODLE_FILE = "/home/yonatan/trendi/yonatan/Alexnet_deploy.prototxt"
+#PRETRAINED = "/home/yonatan/alexnet_imdb_first_try/caffe_alexnet_train_faces_iter_10000.caffemodel"
+MODLE_FILE = "/home/yonatan/neuro_doorman/deploy.prototxt"
+PRETRAINED = "/home/yonatan/neuro_doorman/_iter_8078.caffemodel"
 caffe.set_mode_gpu()
-image_dims = [115, 115]
-mean, input_scale = np.array([120, 120, 120]), None
+#image_dims = [115, 115]
+mean, input_scale = np.array([107,117,123]), None
+image_dims = [227, 227]
+#mean, input_scale = None, None
 channel_swap = [2, 1, 0]
 #channel_swap = None
 raw_scale = 255.0
@@ -83,7 +87,7 @@ for line in text_file:
 
     if full_image is None:
         continue
-
+    '''
     # checks if the face coordinates are inside the image
     height, width, channels = full_image.shape
 
@@ -101,7 +105,7 @@ for line in text_file:
     if face_image == 'Fail':
         print 'face_image not found!'
         continue
-
+    '''
     # Load numpy array (.npy), directory glob (*.jpg), or image file.
     # face_file = os.path.expanduser(face_image)
 
@@ -112,7 +116,9 @@ for line in text_file:
     # inputs = [cv2.imread(input_file)]
 
     #face_for_caffe = [cv2_image_to_caffe(face_image)]
-    face_for_caffe = [face_image]
+
+    #face_for_caffe = [cv2_image_to_caffe(full_image)]
+    face_for_caffe = [full_image]
 
     # face_for_caffe = [caffe.io.load_image(face_image)]
 
@@ -124,7 +130,7 @@ for line in text_file:
     predictions = classifier.predict(face_for_caffe)
     print("Done in %.2f s." % (time.time() - start))
 
-
+    '''
     #if the gender_detector is right
     if (predictions[0][0] > predictions[0][1]) and (words[1] == '0'):
         array_success = np.append(array_success, predictions[0][0])
@@ -141,10 +147,18 @@ for line in text_file:
         guessed_m_instead_f += 1
 
     print counter
+    '''
 
-print guessed_f_instead_m
-print guessed_m_instead_f
+    if (predictions[0][1] > predictions[0][0]):
+        array_success = np.append(array_success, predictions[0][1])
+    # if the gender_detector is wrong
+    elif (predictions[0][0] > predictions[0][1]):
+        array_failure = np.append(array_failure, predictions[0][0])
 
+
+    print counter
+#print guessed_f_instead_m
+#print guessed_m_instead_f
 
 
 histogram=plt.figure(1)
@@ -157,4 +171,4 @@ plt.legend()
 plt.hist(array_failure, alpha=0.5, label='array_failure')
 plt.legend()
 
-histogram.savefig('live_test_links_bgr.png')
+histogram.savefig('only_relevant_images_with_mean_sub_no_rgb.png')
