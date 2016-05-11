@@ -78,6 +78,9 @@ def after_pd_processdir(indir,outdir):
         cv2.imwrite(after_pd_conclusions_name,after_mask)
         imutils.show_mask_with_labels(after_pd_conclusions_name,fashionista_categories_augmented,save_images=True)
 
+def html_generator(nndir,nn_afterdir,pddir,pd_afterdir):
+    pass
+
 if __name__ =="__main__":
 #    generate_groundtruth_legends('/home/jeremy/image_dbs/colorful_fashion_parsing_data/images/test','/home/jeremy/image_dbs/colorful_fashion_parsing_data/labels')
     indir ='/home/jeremy/image_dbs/colorful_fashion_parsing_data/output/600x400_nn1_output_010516'
@@ -87,3 +90,4 @@ if __name__ =="__main__":
     indir ='/home/jeremy/image_dbs/colorful_fashion_parsing_data/output/150x100_nn2_output_010516'
     outdir = indir+'_afterconclusions'
     after_nn_processdir(indir,outdir)
+

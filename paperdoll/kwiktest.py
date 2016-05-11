@@ -17,9 +17,7 @@ dts=[]
 
 filenames =  []
 filenames.append( '/home/netanel/meta/dataset/test1/product_9415_photo_3295_bbox_336_195_339_527.jpg')
-dir = '/home/jeremy/image_dbs/colorful_fashion_parsing_data/images/test'
-filenames = [os.path.join(dir,f) for f in os.listdir(dir) if '.jpg' in f]
-filenames=filenames[100:]
+#filenames=filenames[100:]
 
 urls.append('http://i.imgur.com/ahFOgkm.jpg')
 urls.append('http://40.media.tumblr.com/b81282b59ab467eab299801875bc3670/tumblr_mhc692qtpq1r647c2o1_500.jpg')
@@ -34,38 +32,44 @@ urls.append('http://gingerparrot.co.uk/wp/wp-content/uploads/2014/04/Katy-B-Red-
 urls.append('http://media2.popsugar-assets.com/files/2010/08/34/5/192/1922153/9621f2d8749ddac7_red-main/i/What-Kind-Makeup-Wear-Youre-Redhead-Wearing-Red-Dress.jpg')
 
 
-for f in filenames:
-    print('sending img '+f)
-    im = cv2.imread(f)
-    start_time = time.time()
-    retval = paperdoll_parse_enqueue.paperdoll_enqueue(im)
-    print('waiting',end='')
-    while not retval.is_finished:
-        time.sleep(1)
-        print('.', end="")
-        sys.stdout.flush()
-    mask, labels = retval.result[:2]
-    end_time = time.time()
-    dt=end_time-start_time
-    dts.append(dt)
-    parse_name = f.split('.jpg')[0]+'_parse.png'
-    cv2.imwrite(parse_name,mask)
-    print('labels:'+str(labels))
-    sorted_labels=sorted(labels.items(),key=operator.itemgetter(1))
-    print('sorted labels :'+str(sorted_labels))
-    labs_only = [i[0] for i in sorted_labels]
-    print('labsonly '+str(labs_only))
-    imutils.show_mask_with_labels(parse_name,labs_only,save_images=True)
 
-    aftermask = pipeline.after_pd_conclusions(mask, labels, face=None)
-    after_pd_conclusions_name = parse_name.split('_parse.png')[0]+'_after_pd_conclusions.png'
-    cv2.imwrite(after_pd_conclusions_name,aftermask)
-    imutils.show_mask_with_labels(after_pd_conclusions_name,labs_only,save_images=True)
+def get_pd_masks_for_dir(indir,outdir):
+    filenames = [f for f in os.listdir(indir) if '.jpg' in f]
+    print('found {} files in {}'.format(len(filenames),indir))
+    for f in filenames:
+        print('sending img '+f)
+        full_imgname = os.path.join(indir,f)
+        im = cv2.imread(full_imgname)
+        start_time = time.time()
+        retval = paperdoll_parse_enqueue.paperdoll_enqueue(im)
+        print('waiting',end='')
+        while not retval.is_finished:
+            time.sleep(1)
+            print('.', end="")
+            sys.stdout.flush()
+        mask, labels = retval.result[:2]
+        end_time = time.time()
+        dt=end_time-start_time
+        dts.append(dt)
+        parse_name = f.split('.jpg')[0]+'_pdparse.bmp'
+        full_parse_name = os.path.join(outdir,parse_name)
+        cv2.imwrite(full_parse_name,mask)
+        print('labels:'+str(labels))
+        sorted_labels=sorted(labels.items(),key=operator.itemgetter(1))
+        print('sorted labels :'+str(sorted_labels))
+        labs_only = [i[0] for i in sorted_labels]
+        print('labsonly '+str(labs_only))
+        imutils.show_mask_with_labels(full_parse_name,labs_only,save_images=True)
 
-    if retval is not None:
-        print('retval:' + str(retval.result)+' time:'+str(dt))
-    else:
-        print('no return val (None)')
+        aftermask = pipeline.after_pd_conclusions(mask, labels, face=None)
+        after_pd_conclusions_name = full_parse_name.split('_pdparse.bmp')[0]+'_pdconclusions.bmp'
+        cv2.imwrite(after_pd_conclusions_name,aftermask)
+        imutils.show_mask_with_labels(after_pd_conclusions_name,labs_only,save_images=True)
+
+        if retval is not None:
+            print('retval:' + str(retval.result)+' time:'+str(dt))
+        else:
+            print('no return val (None)')
 
 
 if(0):
@@ -95,3 +99,8 @@ if(0):
     means=np.mean(dts)
     std=np.std(dts)
     print('mean:' + str(means)+' std:'+str(std))
+
+if __name__ =="__main__":
+    indir = '/home/jeremy/image_dbs/colorful_fashion_parsing_data/images/test'
+    outdir = '/home/jeremy/image_dbs/colorful_fashion_parsing_data/output/pd'
+    get_pd_masks_for_dir(indir,outdir)
