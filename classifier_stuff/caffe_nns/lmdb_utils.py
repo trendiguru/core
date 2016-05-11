@@ -12,6 +12,7 @@ from PIL import Image
 import random
 import logging
 import copy
+import random
 
 from trendi.utils import imutils
 from trendi import Utils
@@ -376,7 +377,7 @@ def interleaved_dir_of_dirs_to_lmdb(dbname,dir_of_dirs,positive_filter=None,max_
     #You can also open up and inspect an existing LMDB database from Python:
 # assuming here that dataum.data, datum.channels, datum.width etc all exist as in dir_of_dirs_to_lmdb
 def label_images_and_images_to_lmdb(image_dbname,label_dbname,image_dir,label_dir,resize_x=None,resize_y=None,avg_B=None,avg_G=None,avg_R=None,
-                     use_visual_output=False,imgsuffix='.jpg',labelsuffix='.png',shuffle=False,maxfiles=1000000000):
+                     use_visual_output=False,imgsuffix='.jpg',labelsuffix='.png',do_shuffle=False,maxfiles=1000000000):
     '''
     this puts data images and label images into separate dbs
     :param dbname:
@@ -394,23 +395,20 @@ def label_images_and_images_to_lmdb(image_dbname,label_dbname,image_dir,label_di
     :return:
     '''
 # maybe try randomize instead of interleave, cn use del list[index]
+    print
     print('writing to lmdb {} filter {} lblsuffix {} new_x {} new_y {} avgB {} avg G {} avgR {}'.format(image_dbname,imgsuffix,labelsuffix,resize_x,resize_y,avg_B,avg_G,avg_R))
     if imgsuffix:
         imagefiles = [f for f in os.listdir(image_dir) if imgsuffix in f]
     else:
         imagefiles = [f for f in os.listdir(image_dir)]
     imagefiles.sort()
+    if do_shuffle:
+        random.shuffle(imagefiles)
     imagefiles=imagefiles[0:maxfiles]
     print(str(len(imagefiles))+' relevant images in '+image_dir)
 #    if shuffle:
 #        print('shuffling images')
 #        random.shuffle(imagefiles)  #this gets confusing as now the class labels change every time
-
-    if labelsuffix:
-        labelfiles = [f for f in os.listdir(label_dir) if labelsuffix in f]
-    else:
-        labelfiles = [f for f in os.listdir(label_dir)]
-    labelfiles.sort()
 
 
     map_size = 1e12  #size of db in bytes, can also be done by 10X actual size  as in: map_size = X.nbytes * 10
@@ -898,14 +896,14 @@ if __name__ == "__main__":
     image_dbname='/home/jeremy/image_dbs/lmdb/images_u21_test'
     label_dbname='/home/jeremy/image_dbs/lmdb/labels_u21_test'
     label_images_and_images_to_lmdb(image_dbname,label_dbname,image_dir,label_dir,resize_x=None,resize_y=None,avg_B=B,avg_G=G,avg_R=R,
-                     use_visual_output=False,imgsuffix='.jpg',labelsuffix='.png',shuffle=False,maxfiles=100000)
+                     use_visual_output=False,imgsuffix='.jpg',labelsuffix='.png',do_shuffle=True,maxfiles=100000)
 
     image_dir = '/home/jeremy/image_dbs/colorful_fashion_parsing_data/images/train'
     label_dir = '/home/jeremy/image_dbs/colorful_fashion_parsing_data/labels_u21'
     image_dbname='/home/jeremy/image_dbs/lmdb/images_u21_train'
     label_dbname='/home/jeremy/image_dbs/lmdb/labels_u21_train'
     label_images_and_images_to_lmdb(image_dbname,label_dbname,image_dir,label_dir,resize_x=None,resize_y=None,avg_B=B,avg_G=G,avg_R=R,
-                     use_visual_output=False,imgsuffix='.jpg',labelsuffix='.png',shuffle=False,maxfiles=100000)
+                     use_visual_output=False,imgsuffix='.jpg',labelsuffix='.png',do_shuffle=True,maxfiles=100000)
 
     #fcn_dirs_to_lmdb(db_name,image_dir,label_dir,resize_x=None,resize_y=None,avg_B=B,avg_G=G,avg_R=R,
     #                 use_visual_output=True,imgfilter='.jpg',labelsuffix='.png',shuffle=True,label_strings=constants.fashionista_categories_augmented)
