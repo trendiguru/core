@@ -125,8 +125,8 @@ def skin_detection_with_grabcut(gc_image, image, face=None, skin_or_clothes='clo
                 else:
                     mask[i][j] = 2
     print "countNonZero is {0}".format(cv2.countNonZero(mask))
-    if cv2.countNonZero(mask) == 0:
-        return mask
+    if (mask == 2).all():
+        return np.zeros(gc_image.shape[:2], dtype=np.uint8)
     else:
         cv2.grabCut(gc_image, mask, rect, bgdmodel, fgdmodel, 1, cv2.GC_INIT_WITH_MASK)
         mask2 = np.where((mask == 1) + (mask == 3), 255, 0)
