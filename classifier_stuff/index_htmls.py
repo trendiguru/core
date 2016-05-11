@@ -43,6 +43,7 @@ def generate_html_allresults(orig,gt,nnbefore,nnafter,pdbefore,pdafter):
     for a_file in origfiles:
         f.write('<br>\n')
         origfile = os.path.join(orig,a_file)
+        origfile = origfile[1:]  #remove initial / and use link since html cannot reference abs path
         print('making html for file:'+a_file)
         gtfile = os.path.join(gt,a_file[:-4]+'.png_legend.jpg')
         gtfile = gtfile[1:]  #remove initial / and use link since html cannot reference abs path
