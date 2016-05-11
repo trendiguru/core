@@ -413,11 +413,7 @@ def create_non_face_dresses(kw):
                                          {'$and': [{'longDescription': {'$regex': 'mini-'}}, {'categories': 'dress'}]}]})
         skin_thresh = 0.05
     elif kw == 'maxi':
-        curs = db.ShopStyle_Female.find({'$or':
-                                         [{'$and': [{'longDescription': {'$regex': ' maxi'}}, {'categories': 'dress'}]},
-                                         {'$and': [{'longDescription': {'$regex': 'Maxi'}}, {'categories': 'dress'}]},
-                                         {'$and': [{'longDescription': {'$regex': 'Maxi-'}}, {'categories': 'dress'}]},
-                                         {'$and': [{'longDescription': {'$regex': 'maxi-'}}, {'categories': 'dress'}]}]})
+        curs = db.ShopStyle_Female.find({'$and': [{'longDescription': {'$regex': ' maxi '}}, {'categories': 'dress'}]})
         skin_thresh = 0.02
     cnt = 0
     inserted = 0
