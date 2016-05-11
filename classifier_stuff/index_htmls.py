@@ -39,7 +39,7 @@ def generate_html_allresults(orig,gt,nnbefore,nnafter,pdbefore,pdafter):
     # write html file
     f.write('<HTML><HEAD><TITLE>classifier, fingerprint results</TITLE></HEAD>\n')
     # <a href="http://www.w3schools.com">Visit W3Schools</a>
-    origfiles=[f for f in os.listdir(orig) if '.jpg' in f]
+    origfiles=[af for af in os.listdir(orig) if '.jpg' in af]
     for a_file in origfiles:
         f.write('<br>\n')
         origfile = os.path.join(orig,a_file)
