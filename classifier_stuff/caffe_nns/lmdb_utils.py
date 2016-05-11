@@ -905,8 +905,8 @@ if __name__ == "__main__":
     label_dir = '/home/jeremy/image_dbs/colorful_fashion_parsing_data/labels_u21'
     image_dbname='/home/jeremy/image_dbs/lmdb/images_u21_train'
     label_dbname='/home/jeremy/image_dbs/lmdb/labels_u21_train'
-    label_images_and_images_to_lmdb(image_dbname,label_dbname,image_dir,label_dir,resize_x=None,resize_y=None,avg_B=B,avg_G=G,avg_R=R,
-                     use_visual_output=False,imgsuffix='.jpg',labelsuffix='.png',do_shuffle=True,maxfiles=100000)
+#    label_images_and_images_to_lmdb(image_dbname,label_dbname,image_dir,label_dir,resize_x=None,resize_y=None,avg_B=B,avg_G=G,avg_R=R,
+#                     use_visual_output=False,imgsuffix='.jpg',labelsuffix='.png',do_shuffle=True,maxfiles=100000)
 
     #fcn_dirs_to_lmdb(db_name,image_dir,label_dir,resize_x=None,resize_y=None,avg_B=B,avg_G=G,avg_R=R,
     #                 use_visual_output=True,imgfilter='.jpg',labelsuffix='.png',shuffle=True,label_strings=constants.fashionista_categories_augmented)
