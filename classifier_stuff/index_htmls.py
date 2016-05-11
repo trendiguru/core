@@ -44,11 +44,16 @@ def generate_html_allresults(orig,gt,nnbefore,nnafter,pdbefore,pdafter):
         f.write('<br>\n')
         origfile = os.path.join(orig,a_file)
         print('making html for file:'+a_file)
-        gtfile = os.path.join(gt,a_file[:-4]+'.png_legend.jpg')[1:]  #remove initial / and use link since html cannot reference abs path
-        nnb4file = os.path.join(nnbefore,a_file[:-4]+'_legend.jpg')[1:]
-        nnafterfile = os.path.join(nnafter,a_file[:-4]+'_nnconclusions_legend.jpg')[1:]
-        pdb4file = os.path.join(pdbefore,a_file[:-4]+'_pdparse_legend.jpg')[1:]
-        pdafterfile = os.path.join(pdafter,a_file[:-4]+'_pdconclusions_legend.jpg')[1:]
+        gtfile = os.path.join(gt,a_file[:-4]+'.png_legend.jpg')
+        gtfile = gtfile[1:]  #remove initial / and use link since html cannot reference abs path
+        nnb4file = os.path.join(nnbefore,a_file[:-4]+'_legend.jpg')
+        nnb4file = nnb4file[1:]
+        nnafterfile = os.path.join(nnafter,a_file[:-4]+'_nnconclusions_legend.jpg')
+        nnafterfile = nnafterfile[1:]
+        pdb4file = os.path.join(pdbefore,a_file[:-4]+'_pdparse_legend.jpg')
+        pdb4file = pdb4file[1:]
+        pdafterfile = os.path.join(pdafter,a_file[:-4]+'_pdconclusions_legend.jpg')
+        pdafterfile = pdafterfile[1:]
         line = 'orig<img height="400" src="'+origfile+'">\n'
         print line
         f.write(line)
