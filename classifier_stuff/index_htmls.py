@@ -92,8 +92,8 @@ if __name__ == "__main__":
 
     origdir = '/home/jeremy/image_dbs/colorful_fashion_parsing_data/images/test/'
     gt = '/home/jeremy/image_dbs/colorful_fashion_parsing_data/output/groundtruth'
-    nnb4 = '/home/jeremy/image_dbs/colorful_fashion_parsing_data/output/600x400_nn2_output_010516'
-    nnafter = '/home/jeremy/image_dbs/colorful_fashion_parsing_data/output/600x400_nn2_output_010516_afterconclusions'
+    nnb4 = '/home/jeremy/image_dbs/colorful_fashion_parsing_data/output/600x400_nn1_output_010516'
+    nnafter = '/home/jeremy/image_dbs/colorful_fashion_parsing_data/output/600x400_nn1_output_010516_afterconclusions'
     pdb4 = '/home/jeremy/image_dbs/colorful_fashion_parsing_data/output/pd'
     pdafter = '/home/jeremy/image_dbs/colorful_fashion_parsing_data/output/pd'
     generate_html_allresults(origdir,gt,nnb4,nnafter,pdb4,pdafter)
