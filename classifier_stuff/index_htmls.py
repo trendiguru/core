@@ -66,7 +66,7 @@ def generate_html_allresults(orig,gt,nnbefore,nnafter,pdbefore,pdafter):
 
 if __name__ == "__main__":
     print('start')
-    make_index('classifier_results')
+#    make_index('classifier_results')
 
     origdir = '/home/jeremy/image_dbs/colorful_fashion_parsing_data/images/test/'
     gt = '/home/jeremy/image_dbs/colorful_fashion_parsing_data/output/groundtruth'
