@@ -55,9 +55,26 @@ def after_nn_processdir(indir,outdir):
         if len(mask.shape) == 3:
             mask = mask[:,:,0]
         after_mask = pipeline.after_nn_conclusions(mask, label_dict)
-        after_nn_conclusions_name = os.path.join(outdir,f[:-4]+'_nnconclusions.bmp'
+        after_nn_conclusions_name = os.path.join(outdir,f[:-4]+'_nnconclusions.bmp')
         cv2.imwrite(after_nn_conclusions_name,after_mask)
         imutils.show_mask_with_labels(after_nn_conclusions_name,fashionista_categories_augmented_zero_based,save_images=True)
+
+def after_pd_processdir(indir,outdir):
+    masks = [f for f in os.listdir(dir) if '.bmp' in f]
+    print('found {} files in {}'.format(len(masks),dir))
+    label_dict = {fashionista_categories_augmented_zero_based[i]:i for i in range(len(fashionista_categories_augmented_zero_based))}
+    print label_dict
+
+    for f in masks:
+        print f
+        fullname = os.path.join(dir,f)
+        mask = cv2.imread(fullname)  #have to worry abt 3chan masks?
+        if len(mask.shape) == 3:
+            mask = mask[:,:,0]
+        after_mask = pipeline.after_pd_conclusions(mask, label_dict)
+        after_pd_conclusions_name = os.path.join(outdir,f[:-4]+'_pdconclusions.bmp')
+        cv2.imwrite(after_pd_conclusions_name,after_mask)
+        imutils.show_mask_with_labels(after_pd_conclusions_name,fashionista_categories_augmented,save_images=True)
 
 if __name__ =="__main__":
 #    generate_groundtruth_legends('/home/jeremy/image_dbs/colorful_fashion_parsing_data/images/test','/home/jeremy/image_dbs/colorful_fashion_parsing_data/labels')
