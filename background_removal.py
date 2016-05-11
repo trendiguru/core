@@ -402,25 +402,38 @@ def person_isolation(image, face):
     return image_copy
 
 
-def create_non_face_dresses():
-    db.create_collection('mini')
-    mini = db.ShopStyle_Female.find({'$or':
+def create_non_face_dresses(kw):
+    if kw not in db.collection_names():
+        db.create_collection(kw)
+    if kw == 'mini':
+        curs = db.ShopStyle_Female.find({'$or':
                                          [{'$and': [{'longDescription': {'$regex': ' mini'}}, {'categories': 'dress'}]},
                                          {'$and': [{'longDescription': {'$regex': 'Mini'}}, {'categories': 'dress'}]},
                                          {'$and': [{'longDescription': {'$regex': 'Mini-'}}, {'categories': 'dress'}]},
                                          {'$and': [{'longDescription': {'$regex': 'mini-'}}, {'categories': 'dress'}]}]})
+        skin_thresh = 0.05
+    elif kw == 'maxi':
+        curs = db.ShopStyle_Female.find({'$or':
+                                         [{'$and': [{'longDescription': {'$regex': ' maxi'}}, {'categories': 'dress'}]},
+                                         {'$and': [{'longDescription': {'$regex': 'Maxi'}}, {'categories': 'dress'}]},
+                                         {'$and': [{'longDescription': {'$regex': 'Maxi-'}}, {'categories': 'dress'}]},
+                                         {'$and': [{'longDescription': {'$regex': 'maxi-'}}, {'categories': 'dress'}]}]})
+        skin_thresh = 0.02
     cnt = 0
     inserted = 0
-    print "total docs = {0}".format(mini.count())
-    for doc in mini:
+    print "total docs = {0}".format(curs.count())
+    for doc in curs:
         cnt += 1
         image = Utils.get_cv2_img_array(doc['images']['XLarge'])
         if image is not None:
-            faces = find_face_dlib(image)
-            if not faces['are_faces'] and check_skin_percentage(image) < 0.05:
-                db.mini.insert_one({'image_url': doc['images']['XLarge']})
-                inserted += 1
-                print float(inserted)/cnt
+            try:
+                faces = find_face_dlib(image)
+                if not faces['are_faces'] and check_skin_percentage(image) < skin_thresh:
+                    db[kw].insert_one({'image_url': doc['images']['XLarge']})
+                    inserted += 1
+                    print "inserted {0}/{1}".format(inserted, cnt)
+            except Exception as e:
+                print str(e)
 
 
 def check_skin_percentage(image):
