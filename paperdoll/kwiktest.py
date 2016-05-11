@@ -33,7 +33,7 @@ urls.append('http://media2.popsugar-assets.com/files/2010/08/34/5/192/1922153/96
 
 
 
-def get_pd_for_dir(indir,outdir):
+def get_pd_masks_for_dir(indir,outdir):
     filenames = [f for f in os.listdir(outdir) if '.jpg' in f]
 
     for f in filenames:
