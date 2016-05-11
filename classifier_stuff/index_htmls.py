@@ -34,10 +34,10 @@ def write_index_html(dir, files):
     f.write('</html>\n')
     f.close
 
-def allresults(orig,gt,nnbefore,nnafter,pdbefore,pdafter):
+def generate_html_allresults(orig,gt,nnbefore,nnafter,pdbefore,pdafter):
     f = open('index.html', 'w')
     # write html file
-    f.write('<HTML><HEAD><TITLE>classifier, fingerprint results</TITLE>\n')
+    f.write('<HTML><HEAD><TITLE>classifier, fingerprint results</TITLE></HEAD>\n')
     # <a href="http://www.w3schools.com">Visit W3Schools</a>
     origfiles=[f for f in os.listdir(orig) if '.jpg' in f]
     for a_file in origfiles:
@@ -61,7 +61,6 @@ def allresults(orig,gt,nnbefore,nnafter,pdbefore,pdafter):
         line = 'pdafterfile<img height="400" src="'+pdafterfile+'">'
         f.write(line)
 
-
     f.write('</html>\n')
     f.close
 
@@ -75,3 +74,4 @@ if __name__ == "__main__":
     nnafter = '/home/jeremy/image_dbs/colorful_fashion_parsing_data/output/150x100_nn2_output_010516_afterconclusions'
     pdb4 = '/home/jeremy/image_dbs/colorful_fashion_parsing_data/output/pd'
     pdafter = '/home/jeremy/image_dbs/colorful_fashion_parsing_data/output/pd'
+    generate_html_allresults(origdir,gt,nnb4,nnafter,pdb4,pdafter)
