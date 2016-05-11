@@ -34,8 +34,8 @@ urls.append('http://media2.popsugar-assets.com/files/2010/08/34/5/192/1922153/96
 
 
 def get_pd_masks_for_dir(indir,outdir):
-    filenames = [f for f in os.listdir(outdir) if '.jpg' in f]
-
+    filenames = [f for f in os.listdir(indir) if '.jpg' in f]
+    print('found {} files in {}'.format(len(filenames),indir))
     for f in filenames:
         print('sending img '+f)
         full_imgname = os.path.join(indir,f)
