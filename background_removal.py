@@ -403,7 +403,8 @@ def person_isolation(image, face):
 
 
 def create_non_face_dresses(kw):
-    db.create_collection(kw)
+    if kw not in db.collection_names():
+        db.create_collection(kw)
     if kw == 'mini':
         curs = db.ShopStyle_Female.find({'$or':
                                          [{'$and': [{'longDescription': {'$regex': ' mini'}}, {'categories': 'dress'}]},
@@ -429,7 +430,7 @@ def create_non_face_dresses(kw):
             if not faces['are_faces'] and check_skin_percentage(image) < skin_thresh:
                 db[kw].insert_one({'image_url': doc['images']['XLarge']})
                 inserted += 1
-                print float(inserted)/cnt
+                print "inserted" + str(float(inserted)/cnt)
 
 
 def check_skin_percentage(image):
