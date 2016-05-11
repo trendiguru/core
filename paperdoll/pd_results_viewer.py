@@ -43,14 +43,15 @@ def generate_groundtruth_legends(imgdir,labeldir):
         imutils.show_mask_with_labels(full_label_path,fashionista_categories_augmented,save_images=True)
 
 def after_nn_processdir(indir,outdir):
-    masks = [f for f in os.listdir(dir) if '.bmp' in f]
-    print('found {} files in {}'.format(len(masks),dir))
+    masks = [f for f in os.listdir(indir) if '.bmp' in f]
+    print('found {} files in {}'.format(len(masks),indir))
+
     label_dict = {fashionista_categories_augmented_zero_based[i]:i for i in range(len(fashionista_categories_augmented_zero_based))}
     print label_dict
 
     for f in masks:
         print f
-        fullname = os.path.join(dir,f)
+        fullname = os.path.join(indir,f)
         mask = cv2.imread(fullname)  #have to worry abt 3chan masks?
         if len(mask.shape) == 3:
             mask = mask[:,:,0]
@@ -60,14 +61,14 @@ def after_nn_processdir(indir,outdir):
         imutils.show_mask_with_labels(after_nn_conclusions_name,fashionista_categories_augmented_zero_based,save_images=True)
 
 def after_pd_processdir(indir,outdir):
-    masks = [f for f in os.listdir(dir) if '.bmp' in f]
-    print('found {} files in {}'.format(len(masks),dir))
+    masks = [f for f in os.listdir(indir) if '.bmp' in f]
+    print('found {} files in {}'.format(len(masks),indir))
     label_dict = {fashionista_categories_augmented_zero_based[i]:i for i in range(len(fashionista_categories_augmented_zero_based))}
     print label_dict
 
     for f in masks:
         print f
-        fullname = os.path.join(dir,f)
+        fullname = os.path.join(indir,f)
         mask = cv2.imread(fullname)  #have to worry abt 3chan masks?
         if len(mask.shape) == 3:
             mask = mask[:,:,0]
