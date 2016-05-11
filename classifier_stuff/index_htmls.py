@@ -64,13 +64,13 @@ def generate_html_allresults(orig,gt,nnbefore,nnafter,pdbefore,pdafter):
         line = 'nnb4<img height="400" src="'+nnb4file+'">\n'
         print line
         f.write(line)
-        line = 'nnafter<img height="400" src="'+nnafterfile+'">\n'
+        line = 'nnaft<img height="400" src="'+nnafterfile+'">\n'
         print line
         f.write(line)
         line = 'pdb4<img height="400" src="'+pdb4file+'">\n'
         print line
         f.write(line)
-        line = 'pdafterfile<img height="400" src="'+pdafterfile+'">\n'
+        line = 'pdaft<img height="400" src="'+pdafterfile+'">\n'
         print line
         f.write(line)
 
