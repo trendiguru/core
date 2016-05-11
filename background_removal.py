@@ -10,12 +10,15 @@ import os
 import dlib
 import cv2
 import numpy as np
-
+import rq
 from . import constants
 from . import Utils
 from . import ccv_facedetector as ccv
+from . import kassper
 
 detector = dlib.get_frontal_face_detector()
+db = constants.db
+redis_conn = constants.redis_conn
 
 
 def image_is_relevant(image, use_caffe=False, image_url=None):
@@ -30,7 +33,7 @@ def image_is_relevant(image, use_caffe=False, image_url=None):
     - "for face in image_is_relevant(image).faces:"
     """
     Relevance = collections.namedtuple('relevance', 'is_relevant faces')
-    faces_dict = find_face_dlib(image, 10)
+    faces_dict = find_face_dlib(image, 4)
     # faces_dict = find_face_cascade(image, 10)
     # if len(faces_dict['faces']) == 0:
     #     faces_dict = find_face_ccv(image, 10)
@@ -397,3 +400,24 @@ def person_isolation(image, face):
     x_ahead = np.min([x + 2.5 * w, image.shape[1] - 2])
     image_copy[:, int(x_back):int(x_ahead), :] = image[:, int(x_back):int(x_ahead), :]
     return image_copy
+
+
+def create_non_face_dresses():
+    db.create_collection('mini')
+    mini = db.ShopStyle_Female.find({'$or':
+                                         [{'$and': [{'longDescription': {'$regex': ' mini'}}, {'categories': 'dress'}]},
+                                         {'$and': [{'longDescription': {'$regex': 'Mini'}}, {'categories': 'dress'}]},
+                                         {'$and': [{'longDescription': {'$regex': 'Mini-'}}, {'categories': 'dress'}]},
+                                         {'$and': [{'longDescription': {'$regex': 'mini-'}}, {'categories': 'dress'}]}]})
+    for doc in mini:
+
+        image = Utils.get_cv2_img_array(doc['images']['XLarge'])
+        if image is not None:
+            faces = find_face_dlib(image)
+            if not faces['are_faces']:
+                db.mini.insert_one({'image_url': doc['images']['XLarge']})
+
+
+def check_skin_percentage(image):
+    skin_mask = kassper.skin_detection_with_grabcut(image, image, skin_or_clothes='skin')
+    return float(cv2.countNonZero(skin_mask))/(image.shape[0]*image.shape[1])
