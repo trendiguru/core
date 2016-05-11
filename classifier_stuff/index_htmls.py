@@ -43,22 +43,23 @@ def generate_html_allresults(orig,gt,nnbefore,nnafter,pdbefore,pdafter):
     for a_file in origfiles:
         f.write('<br>\n')
         origfile = os.path.join(orig,a_file)
+        print('making html for file:'+a_file)
         gtfile = os.path.join(gt,a_file[:-4]+'.png_legend.jpg')
         nnb4file = os.path.join(nnbefore,a_file[:-4]+'_legend.jpg')
         nnafterfile = os.path.join(nnafter,a_file[:-4]+'_nnconclusions_legend.jpg')
         pdb4file = os.path.join(pdbefore,a_file[:-4]+'_pdparse_legend.jpg')
         pdafterfile = os.path.join(pdafter,a_file[:-4]+'_pdconclusions_legend.jpg')
-        line = 'orig<img height="400" src="'+origfile+'">'
+        line = 'orig<img height="400" src="'+origfile+'">\n'
         f.write(line)
-        line = 'gt<img height="400" src="'+gtfile+'">'
+        line = 'gt<img height="400" src="'+gtfile+'">\n'
         f.write(line)
-        line = 'nnb4<img height="400" src="'+nnb4file+'">'
+        line = 'nnb4<img height="400" src="'+nnb4file+'">\n'
         f.write(line)
-        line = 'nnafter<img height="400" src="'+nnafterfile+'">'
+        line = 'nnafter<img height="400" src="'+nnafterfile+'">\n'
         f.write(line)
-        line = 'pdb4<img height="400" src="'+pdb4file+'">'
+        line = 'pdb4<img height="400" src="'+pdb4file+'">\n'
         f.write(line)
-        line = 'pdafterfile<img height="400" src="'+pdafterfile+'">'
+        line = 'pdafterfile<img height="400" src="'+pdafterfile+'">\n'
         f.write(line)
 
     f.write('</html>\n')
