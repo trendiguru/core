@@ -409,13 +409,18 @@ def create_non_face_dresses():
                                          {'$and': [{'longDescription': {'$regex': 'Mini'}}, {'categories': 'dress'}]},
                                          {'$and': [{'longDescription': {'$regex': 'Mini-'}}, {'categories': 'dress'}]},
                                          {'$and': [{'longDescription': {'$regex': 'mini-'}}, {'categories': 'dress'}]}]})
+    cnt = 0
+    inserted = 0
+    print "total docs = {0}".format(mini.count())
     for doc in mini:
-
+        cnt += 1
         image = Utils.get_cv2_img_array(doc['images']['XLarge'])
         if image is not None:
             faces = find_face_dlib(image)
-            if not faces['are_faces']:
+            if not faces['are_faces'] and check_skin_percentage(image) < 0.05:
                 db.mini.insert_one({'image_url': doc['images']['XLarge']})
+                inserted += 1
+                print float(inserted)/cnt
 
 
 def check_skin_percentage(image):
