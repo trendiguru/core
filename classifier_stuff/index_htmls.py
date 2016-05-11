@@ -2,7 +2,7 @@ __author__ = 'jeremy'
 
 import os
 
-import Utils
+from trendi import Utils
 
 
 def make_index(dir):
