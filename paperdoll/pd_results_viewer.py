@@ -43,6 +43,7 @@ def generate_groundtruth_legends(imgdir,labeldir):
         imutils.show_mask_with_labels(full_label_path,fashionista_categories_augmented,save_images=True)
 
 def after_nn_processdir(indir,outdir):
+    os.listdir(indir)
     masks = [f for f in os.listdir(indir) if '.bmp' in f]
     print('found {} files in {}'.format(len(masks),indir))
 
@@ -79,10 +80,10 @@ def after_pd_processdir(indir,outdir):
 
 if __name__ =="__main__":
 #    generate_groundtruth_legends('/home/jeremy/image_dbs/colorful_fashion_parsing_data/images/test','/home/jeremy/image_dbs/colorful_fashion_parsing_data/labels')
-    indir ='/home/jeremy/image_dbs/colorful_fashion_parsing_data/600x400_nn1_output_010516'
+    indir ='/home/jeremy/image_dbs/colorful_fashion_parsing_data/output/600x400_nn1_output_010516'
     outdir = indir+'_afterconclusions'
     after_nn_processdir(indir,outdir)
 
-    indir ='/home/jeremy/image_dbs/colorful_fashion_parsing_data/150x100_nn2_output_010516'
+    indir ='/home/jeremy/image_dbs/colorful_fashion_parsing_data/output/150x100_nn2_output_010516'
     outdir = indir+'_afterconclusions'
     after_nn_processdir(indir,outdir)
