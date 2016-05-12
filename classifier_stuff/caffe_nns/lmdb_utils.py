@@ -627,14 +627,21 @@ def inspect_fcn_db(img_dbname,label_dbname,show_visual_output=True,avg_pixval=(0
                         x = orig_x.transpose((1,2,0))
                         logging.debug('after transpose shape:'+str(x.shape))
           #              x = flat_x.reshape(datum.height, datum.width,datum.channels)
+                        imgmean=np.average(x)
+                        imgstd=np.std(x)
+                        print('mean {} std {} shape {}'.format(imgmean,imgstd,x.shape))
+
                         x[:,:,0] = x[:,:,0]+avg_pixval[0]
                         x[:,:,1] = x[:,:,1]+avg_pixval[1]
                         x[:,:,2] = x[:,:,2]+avg_pixval[2]
+
                     elif datum.channels == 1:
        #                 print('reshaping 1 chan')
                         x = flat_x.reshape(datum.height, datum.width)
-                        x[:,:] = x[:,:]+mean[0]
+                        x[:,:] = x[:,:]+avg_pixval[0]
 
+
+                    x=x.astype(np.uint8)
                     if show_visual_output is True:
                         cv2.imshow(img_dbname,x)
      #                   imutils.show_mask_with_labels(orig_label,constants.fashionista_categories_augmented)
