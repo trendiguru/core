@@ -472,7 +472,7 @@ def label_images_and_images_to_lmdb(image_dbname,label_dbname,image_dir,label_di
                 #these pixel value offsets can be removed using caffe (in the test/train protobuf)- so currently these are None and this part is not entered
                 imgmean=np.average(img_arr)
                 imgstd=np.std(img_arr)
-                imgmeanBGR = [np.average(img_arr[:,:,0],np.average(img_arr[:,:,1],np.average(img_arr[:,:,2]]
+                imgmeanBGR = [np.average(img_arr[:,:,0]),np.average(img_arr[:,:,1]),np.average(img_arr[:,:,2])]
                 print('mean {} std {} imgmeanvals {}'.format(imgmean,imgstd,imgmeanBGR))
                 if avg_pixval is not None:
                     img_arr[:,:,0] = img_arr[:,:,0]-avg_pixval[0]
