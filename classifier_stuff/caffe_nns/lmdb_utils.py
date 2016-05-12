@@ -620,6 +620,9 @@ def inspect_fcn_db(img_dbname,label_dbname,show_visual_output=True,avg_pixval=(0
                     print('db {} strid {} channels {} width {} height {} datumsize {} flatxsize {}'
                           .format(img_dbname,str_id,datum.channels,datum.width,datum.height,len(raw_datum),len(flat_x)))
                     orig_x = flat_x.reshape(datum.channels, datum.height, datum.width)
+                    imgmean=np.average(orig_x)
+                    imgstd=np.std(orig_x)
+                    print('mean {} std {} shape {}'.format(imgmean,imgstd,orig_x.shape))
                     orig_x = np.multiply(orig_x,max_pixval)
                     if datum.channels == 3:
                         logging.debug('before transpose shape:'+str(orig_x.shape))
@@ -627,13 +630,13 @@ def inspect_fcn_db(img_dbname,label_dbname,show_visual_output=True,avg_pixval=(0
                         x = orig_x.transpose((1,2,0))
                         logging.debug('after transpose shape:'+str(x.shape))
           #              x = flat_x.reshape(datum.height, datum.width,datum.channels)
-                        imgmean=np.average(x)
-                        imgstd=np.std(x)
-                        print('mean {} std {} shape {}'.format(imgmean,imgstd,x.shape))
 
                         x[:,:,0] = x[:,:,0]+avg_pixval[0]
                         x[:,:,1] = x[:,:,1]+avg_pixval[1]
                         x[:,:,2] = x[:,:,2]+avg_pixval[2]
+                        imgmean=np.average(x)
+                        imgstd=np.std(x)
+                        print('mean {} std {} shape {}'.format(imgmean,imgstd,x.shape))
 
                     elif datum.channels == 1:
        #                 print('reshaping 1 chan')
