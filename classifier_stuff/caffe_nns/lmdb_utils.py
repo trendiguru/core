@@ -376,7 +376,7 @@ def interleaved_dir_of_dirs_to_lmdb(dbname,dir_of_dirs,positive_filter=None,max_
 
     #You can also open up and inspect an existing LMDB database from Python:
 # assuming here that dataum.data, datum.channels, datum.width etc all exist as in dir_of_dirs_to_lmdb
-def label_images_and_images_to_lmdb(image_dbname,label_dbname,image_dir,label_dir,resize_x=None,resize_y=None,avg_B=None,avg_G=None,avg_R=None,
+def label_images_and_images_to_lmdb(image_dbname,label_dbname,image_dir,label_dir,resize_x=None,resize_y=None,avg_pixval=(120,120,120),max_pixval=255,avg_B=None,avg_G=None,avg_R=None,
                      use_visual_output=False,imgsuffix='.jpg',labelsuffix='.png',do_shuffle=False,maxfiles=1000000000):
     '''
     this puts data images and label images into separate dbs
@@ -470,12 +470,14 @@ def label_images_and_images_to_lmdb(image_dbname,label_dbname,image_dir,label_di
                     cv2.waitKey(0)
                     imutils.show_mask_with_labels_from_img_arr(label_arr,labels=label_strings)
                 #these pixel value offsets can be removed using caffe (in the test/train protobuf)- so currently these are None and this part is not entered
-                if avg_B is not None and avg_G is not None and avg_R is not None:
-                    img_arr[:,:,0] = img_arr[:,:,0]-avg_B
-                    img_arr[:,:,1] = img_arr[:,:,1]-avg_G
-                    img_arr[:,:,2] = img_arr[:,:,2]-avg_R
-
+                if avg_pixval is not None:
+                    img_arr[:,:,0] = img_arr[:,:,0]-avg_pixval[0]
+                    img_arr[:,:,1] = img_arr[:,:,1]-avg_pixval[1]
+                    img_arr[:,:,2] = img_arr[:,:,2]-avg_pixval[2]
             ###write image
+                imgmean=np.mean(img_arr)
+                imgstd=np.std(img_arr)
+                print('mean {} std {}'.format(imgmean,imgstd))
                 datum = caffe.proto.caffe_pb2.Datum()
                 datum.height = img_arr.shape[0]
                 datum.width = img_arr.shape[1]
@@ -486,7 +488,7 @@ def label_images_and_images_to_lmdb(image_dbname,label_dbname,image_dir,label_di
                 else:
                     datum.channels = img_arr.shape[2]
                 img_arr = img_arr.transpose((2,0,1))
-                print('img arr size:'+str(img_arr.shape)+ ' type:'+str(type(img_arr)))
+                print('img arr shape:'+str(img_arr.shape)+ ' type:'+str(type(img_arr)))
                 datum.data = img_arr.tobytes()  # or .tostring() if numpy < 1.9
                 str_id = '{:08}'.format(image_number)
                 try:
@@ -502,7 +504,7 @@ def label_images_and_images_to_lmdb(image_dbname,label_dbname,image_dir,label_di
         #redoing thiws with  3 channels due to cafe complaint - 240K vs 720 K
         #obviously misguided attempt being redone:
 #   F0502 10:10:28.617626 15482 softmax_loss_layer.cpp:42] Check failed: outer_num_ * inner_num_ == bottom[1]->count() (240000 vs. 720000) Number of labels must match number of predictions; e.g., if softmax axis == 1 and prediction shape is (N, C, H, W), label count (number of labels) must be N*H*W, with integer values in {0, 1, ..., C-1}.
-                print('label array shape:'+str(label_arr.shape))
+                print('label array shape:'+str(label_arr.shape)+' type:'+str(type(label_arr)))
 #                label_arr = label_arr - 1  #!@)(#*@! MATLAB DIE DIE
                 if len(label_arr.shape) != 2:
                     print('read multichann label, taking first layer')
@@ -515,7 +517,7 @@ def label_images_and_images_to_lmdb(image_dbname,label_dbname,image_dir,label_di
 #                    label_arr = np.array([label_arr])
 #                    label_arr = label_arr.transpose((2,0,1))
                 uniques = np.unique(label_arr)
-                print('unqies'+str(uniques))
+                print('uniques'+str(uniques))
                 print('db: {} strid:{} imgshape {} lblshape {} imgname {} lblname {}'.format(image_dbname,str_id,img_arr.shape,label_arr.shape,a_file,label_file))
 
                 labeldatum = caffe.proto.caffe_pb2.Datum()
@@ -712,53 +714,8 @@ def inspect_db(dbname,show_visual_output=True,B=0,G=0,R=0):
 #            print(key, value)
    #         n=n+1
 
-def inspect_fcn_db(dbname,show_visual_output=True,mean=(0,0,0)):
-    print('looking at fcn db')
-    env = lmdb.open(dbname, readonly=True)
-    with env.begin() as txn:
-        n=0
-        while(1):
-            try:
-                str_id = '{:08}'.format(n)
-#                print('strid:{} '.format(str_id))
-             # The encode is only essential in Python 3
-             #   txn.put(str_id.encode('ascii'), datum.SerializeToString())
-                raw_datum = txn.get(str_id.encode('ascii'))
-                print('strid {} rawdat size {}'.format(str_id,len(raw_datum)))
-#                raw_datum = txn.get(b'00000000')
-                datum = caffe.proto.caffe_pb2.Datum()
-                datum.ParseFromString(raw_datum)
-                flat_x = np.fromstring(datum.data, dtype=np.uint8)
-                print('db {} strid {} channels {} width {} height {} datumsize {} flatxsize {}'.format(dbname,str_id,datum.channels,datum.width,datum.height,len(raw_datum),len(flat_x)))
-                orig_x = flat_x.reshape(datum.channels, datum.height, datum.width)
 
-                if datum.channels == 3:
-                    logging.debug('before transpose shape:'+str(orig_x.shape))
-# as the input is transposed to c,h,w  by transpose(2,0,1) we have to undo it with transpose(1,2,0) #h w c  transpose(2,0,1) -> c h w ,  c h w  transpose(1,2,0) -> h w c
-                    x = orig_x.transpose((1,2,0))
-                    logging.debug('after transpose shape:'+str(x.shape))
-      #              x = flat_x.reshape(datum.height, datum.width,datum.channels)
-                    x[:,:,0] = x[:,:,0]+mean[0]
-                    x[:,:,1] = x[:,:,1]+mean[1]
-                    x[:,:,2] = x[:,:,2]+mean[2]
-                elif datum.channels == 1:
-   #                 print('reshaping 1 chan')
-                    x = flat_x.reshape(datum.height, datum.width)
-                    x[:,:] = x[:,:]+B
-
-                print('db {} image# {} datasize {} w {} h {} ch {} rawsize {} flatsize {}'
-                      .format(dbname,n,x.shape,datum.width,datum.height,datum.channels,len(raw_datum),len(flat_x)))
-                n+=1
-                if show_visual_output is True:
-                    cv2.imshow(dbname,x)
-                    if cv2.waitKey(0) == ord('q'):
-                        break
- #                   imutils.show_mask_with_labels(orig_label,constants.fashionista_categories_augmented)
-            except:
-                print('error getting record {} from db'.format(n))
-                break
-
-def inspect_fcn_db(img_dbname,label_dbname,show_visual_output=True,mean=(0,0,0),labels=constants.ultimate_21):
+def inspect_fcn_db(img_dbname,label_dbname,show_visual_output=True,mean=(0,0,0),max=255,labels=constants.ultimate_21):
     print('looking at fcn db')
     env_1 = lmdb.open(img_dbname, readonly=True)
     env_2 = lmdb.open(label_dbname, readonly=True)
@@ -778,6 +735,7 @@ def inspect_fcn_db(img_dbname,label_dbname,show_visual_output=True,mean=(0,0,0),
                     print('db {} strid {} channels {} width {} height {} datumsize {} flatxsize {}'
                           .format(img_dbname,str_id,datum.channels,datum.width,datum.height,len(raw_datum),len(flat_x)))
                     orig_x = flat_x.reshape(datum.channels, datum.height, datum.width)
+                    orig_x = np.multiply(orig_x,max)
                     if datum.channels == 3:
                         logging.debug('before transpose shape:'+str(orig_x.shape))
 # as the input is transposed to c,h,w  by transpose(2,0,1) we have to undo it with transpose(1,2,0)    #h w c  transpose(2,0,1) -> c h w  #c h w  transpose(1,2,0) -> h w c
@@ -895,8 +853,8 @@ if __name__ == "__main__":
     label_dir = '/home/jeremy/image_dbs/colorful_fashion_parsing_data/labels_u21'
     image_dbname='/home/jeremy/image_dbs/lmdb/images_u21_test'
     label_dbname='/home/jeremy/image_dbs/lmdb/labels_u21_test'
-    label_images_and_images_to_lmdb(image_dbname,label_dbname,image_dir,label_dir,resize_x=None,resize_y=None,avg_B=B,avg_G=G,avg_R=R,
-                     use_visual_output=False,imgsuffix='.jpg',labelsuffix='.png',do_shuffle=True,maxfiles=100000)
+    label_images_and_images_to_lmdb(image_dbname,label_dbname,image_dir,label_dir,resize_x=None,resize_y=None,avg_pixval=(B,G,R),max_pixval=255,
+                                    use_visual_output=True,imgsuffix='.jpg',labelsuffix='.png',do_shuffle=True,maxfiles=100000)
 
     inspect_fcn_db(image_dbname,label_dbname,mean=(B,G,R))
 
