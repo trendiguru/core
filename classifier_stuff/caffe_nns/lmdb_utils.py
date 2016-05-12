@@ -854,7 +854,7 @@ if __name__ == "__main__":
     image_dbname='/home/jeremy/image_dbs/lmdb/images_u21_test'
     label_dbname='/home/jeremy/image_dbs/lmdb/labels_u21_test'
     label_images_and_images_to_lmdb(image_dbname,label_dbname,image_dir,label_dir,resize_x=None,resize_y=None,avg_pixval=(B,G,R),max_pixval=255,
-                                    use_visual_output=True,imgsuffix='.jpg',labelsuffix='.png',do_shuffle=True,maxfiles=100000)
+                                    use_visual_output=False,imgsuffix='.jpg',labelsuffix='.png',do_shuffle=True,maxfiles=100000)
 
     inspect_fcn_db(image_dbname,label_dbname,mean=(B,G,R))
 
