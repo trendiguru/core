@@ -738,7 +738,7 @@ if __name__ == "__main__":
     label_dir = '/home/jeremy/image_dbs/colorful_fashion_parsing_data/labels_u21'
     image_dbname='/home/jeremy/image_dbs/lmdb/images_u21_test'
     label_dbname='/home/jeremy/image_dbs/lmdb/labels_u21_test'
-    label_images_and_images_to_lmdb(image_dbname,label_dbname,image_dir,label_dir,resize_x=None,resize_y=None,avg_pixval=(B,G,R),max_pixval=255,
+    label_images_and_images_to_lmdb(image_dbname,label_dbname,image_dir,label_dir,resize_x=None,resize_y=None,avg_pixval=(B,G,R),max_pixval=12.7,
                                     use_visual_output=False,imgsuffix='.jpg',labelsuffix='.png',do_shuffle=True,maxfiles=100000)
 
     inspect_fcn_db(image_dbname,label_dbname,mean=(B,G,R))
