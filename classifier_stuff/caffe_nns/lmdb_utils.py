@@ -478,7 +478,7 @@ def label_images_and_images_to_lmdb(image_dbname,label_dbname,image_dir,label_di
                     img_arr[:,:,1] = img_arr[:,:,1]-avg_pixval[1]
                     img_arr[:,:,2] = img_arr[:,:,2]-avg_pixval[2]
                 if max_pixval is not None:
-                    img_arr = np.divide(float(img_arr),float(max_pixval))
+                    img_arr = np.divide(img_arr.astype(np.float),float(max_pixval))
             ###write image
                 imgmean=np.average(img_arr)
                 imgstd=np.std(img_arr)
