@@ -32,7 +32,7 @@ if __name__ == "__main__":
   check_test = False
   check_test2 = False
   for line in f:
-
+    print('checking line:'+line)
     if check_test:
       test_accuracy.append(float(line.strip().split(' = ')[-1]))
       check_test = False
