@@ -600,7 +600,7 @@ def inspect_db(dbname,show_visual_output=True,B=0,G=0,R=0):
    #         n=n+1
 
 
-def inspect_fcn_db(img_dbname,label_dbname,show_visual_output=True,mean=(0,0,0),max=255,labels=constants.ultimate_21):
+def inspect_fcn_db(img_dbname,label_dbname,show_visual_output=True,avg_pixval=(0,0,0),max_pixval=255,labels=constants.ultimate_21):
     print('looking at fcn db')
     env_1 = lmdb.open(img_dbname, readonly=True)
     env_2 = lmdb.open(label_dbname, readonly=True)
@@ -620,16 +620,16 @@ def inspect_fcn_db(img_dbname,label_dbname,show_visual_output=True,mean=(0,0,0),
                     print('db {} strid {} channels {} width {} height {} datumsize {} flatxsize {}'
                           .format(img_dbname,str_id,datum.channels,datum.width,datum.height,len(raw_datum),len(flat_x)))
                     orig_x = flat_x.reshape(datum.channels, datum.height, datum.width)
-                    orig_x = np.multiply(orig_x,max)
+                    orig_x = np.multiply(orig_x,max_pixval)
                     if datum.channels == 3:
                         logging.debug('before transpose shape:'+str(orig_x.shape))
 # as the input is transposed to c,h,w  by transpose(2,0,1) we have to undo it with transpose(1,2,0)    #h w c  transpose(2,0,1) -> c h w  #c h w  transpose(1,2,0) -> h w c
                         x = orig_x.transpose((1,2,0))
                         logging.debug('after transpose shape:'+str(x.shape))
           #              x = flat_x.reshape(datum.height, datum.width,datum.channels)
-                        x[:,:,0] = x[:,:,0]+mean[0]
-                        x[:,:,1] = x[:,:,1]+mean[1]
-                        x[:,:,2] = x[:,:,2]+mean[2]
+                        x[:,:,0] = x[:,:,0]+avg_pixval[0]
+                        x[:,:,1] = x[:,:,1]+avg_pixval[1]
+                        x[:,:,2] = x[:,:,2]+avg_pixval[2]
                     elif datum.channels == 1:
        #                 print('reshaping 1 chan')
                         x = flat_x.reshape(datum.height, datum.width)
@@ -741,7 +741,7 @@ if __name__ == "__main__":
     label_images_and_images_to_lmdb(image_dbname,label_dbname,image_dir,label_dir,resize_x=None,resize_y=None,avg_pixval=(B,G,R),max_pixval=255,
                                     use_visual_output=False,imgsuffix='.jpg',labelsuffix='.png',do_shuffle=True,maxfiles=100000)
 
-    inspect_fcn_db(image_dbname,label_dbname,mean=(B,G,R))
+    inspect_fcn_db(image_dbname,label_dbname,avg_pixval=(B,G,R),max_pixval=255)
 
 
     image_dir = '/home/jeremy/image_dbs/colorful_fashion_parsing_data/images/train'
