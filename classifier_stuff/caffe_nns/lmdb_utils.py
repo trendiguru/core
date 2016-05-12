@@ -470,7 +470,7 @@ def label_images_and_images_to_lmdb(image_dbname,label_dbname,image_dir,label_di
                     cv2.waitKey(0)
                     imutils.show_mask_with_labels_from_img_arr(label_arr,labels=label_strings)
                 #these pixel value offsets can be removed using caffe (in the test/train protobuf)- so currently these are None and this part is not entered
-                imgmean=np.mean(img_arr)
+                imgmean=np.average(img_arr)
                 imgstd=np.std(img_arr)
                 print('mean {} std {}'.format(imgmean,imgstd))
                 if avg_pixval is not None:
@@ -480,7 +480,7 @@ def label_images_and_images_to_lmdb(image_dbname,label_dbname,image_dir,label_di
                 if max_pixval is not None:
                     img_arr = np.divide(img_arr,max_pixval)
             ###write image
-                imgmean=np.mean(img_arr)
+                imgmean=np.average(img_arr)
                 imgstd=np.std(img_arr)
                 print('mean {} std {}'.format(imgmean,imgstd))
                 datum = caffe.proto.caffe_pb2.Datum()
@@ -738,7 +738,7 @@ if __name__ == "__main__":
     label_dir = '/home/jeremy/image_dbs/colorful_fashion_parsing_data/labels_u21'
     image_dbname='/home/jeremy/image_dbs/lmdb/images_u21_test'
     label_dbname='/home/jeremy/image_dbs/lmdb/labels_u21_test'
-    label_images_and_images_to_lmdb(image_dbname,label_dbname,image_dir,label_dir,resize_x=None,resize_y=None,avg_pixval=(B,G,R),max_pixval=12.7,
+    label_images_and_images_to_lmdb(image_dbname,label_dbname,image_dir,label_dir,resize_x=None,resize_y=None,avg_pixval=(B,G,R),max_pixval=255,
                                     use_visual_output=False,imgsuffix='.jpg',labelsuffix='.png',do_shuffle=True,maxfiles=100000)
 
     inspect_fcn_db(image_dbname,label_dbname,mean=(B,G,R))
