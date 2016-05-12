@@ -617,7 +617,8 @@ def inspect_fcn_db(img_dbname,label_dbname,show_visual_output=True,avg_pixval=(0
     #                raw_datum = txn.get(b'00000000')
                     datum = caffe.proto.caffe_pb2.Datum()
                     datum.ParseFromString(raw_datum)
-                    flat_x = np.fromstring(datum.data, dtype=np.uint8)
+             #       flat_x = np.fromstring(datum.data, dtype=np.uint8)
+                    flat_x = np.fromstring(datum.data, dtype=np.float)
                     print('imdb {} lbldb {} strid {} channels {} width {} height {} datumsize {} flatxsize {}'
                           .format(img_dbname,label_dbname,str_id,datum.channels,datum.width,datum.height,len(raw_datum),len(flat_x)))
                     orig_x = flat_x.reshape(datum.channels, datum.height, datum.width)
