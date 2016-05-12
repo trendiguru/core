@@ -618,8 +618,8 @@ def inspect_fcn_db(img_dbname,label_dbname,show_visual_output=True,avg_pixval=(0
                     datum = caffe.proto.caffe_pb2.Datum()
                     datum.ParseFromString(raw_datum)
                     flat_x = np.fromstring(datum.data, dtype=np.uint8)
-                    print('db {} strid {} channels {} width {} height {} datumsize {} flatxsize {}'
-                          .format(img_dbname,str_id,datum.channels,datum.width,datum.height,len(raw_datum),len(flat_x)))
+                    print('imdb {} lbldb {} strid {} channels {} width {} height {} datumsize {} flatxsize {}'
+                          .format(img_dbname,label_dbname,str_id,datum.channels,datum.width,datum.height,len(raw_datum),len(flat_x)))
                     orig_x = flat_x.reshape(datum.channels, datum.height, datum.width)
                     imgmean=np.average(orig_x)
                     imgstd=np.std(orig_x)
@@ -650,7 +650,7 @@ def inspect_fcn_db(img_dbname,label_dbname,show_visual_output=True,avg_pixval=(0
                         cv2.imshow(img_dbname,x)
      #                   imutils.show_mask_with_labels(orig_label,constants.fashionista_categories_augmented)
                 except:
-                    print('error getting record {} from image db'.format(n))
+                    print('error getting image {} from image db'.format(n))
                     break
 
                 try:  #get label mask
@@ -686,7 +686,7 @@ def inspect_fcn_db(img_dbname,label_dbname,show_visual_output=True,avg_pixval=(0
                     n+=1
 
                 except:
-                    print('error getting record {} from db'.format(n))
+                    print('error getting label {} from db'.format(n))
                     break
 
 
@@ -764,7 +764,7 @@ if __name__ == "__main__":
 
     #fcn_dirs_to_lmdb(db_name,image_dir,label_dir,resize_x=None,resize_y=None,avg_B=B,avg_G=G,avg_R=R,
     #                 use_visual_output=True,imgfilter='.jpg',labelsuffix='.png',shuffle=True,label_strings=constants.fashionista_categories_augmented)
-    inspect_fcn_db(image_dbname,label_dbname,mean=(B,G,R))
+    inspect_fcn_db(image_dbname,label_dbname,avg_pixval=(B,G,R),max_pixval=255)
 
 #    n_test_classes,test_populations,test_imageno = interleaved_dir_of_dirs_to_lmdb(db_name,dir_of_dirs,max_images_per_class =3000,
 #                                                                                   positive_filter='test',use_visual_output=use_visual_output,
