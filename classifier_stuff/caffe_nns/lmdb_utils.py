@@ -478,7 +478,7 @@ def label_images_and_images_to_lmdb(image_dbname,label_dbname,image_dir,label_di
                     img_arr[:,:,1] = img_arr[:,:,1]-avg_pixval[1]
                     img_arr[:,:,2] = img_arr[:,:,2]-avg_pixval[2]
                 if max_pixval is not None:
-                    img_arr = np.divide(img_arr,max_pixval)
+                    img_arr = np.divide(float(img_arr),float(max_pixval))
             ###write image
                 imgmean=np.average(img_arr)
                 imgstd=np.std(img_arr)
@@ -623,7 +623,7 @@ def inspect_fcn_db(img_dbname,label_dbname,show_visual_output=True,avg_pixval=(0
                     imgmean=np.average(orig_x)
                     imgstd=np.std(orig_x)
                     print('mean {} std {} shape {}'.format(imgmean,imgstd,orig_x.shape))
-                    orig_x = np.multiply(orig_x,max_pixval)
+                    orig_x = np.multiply(orig_x,float(max_pixval))
                     if datum.channels == 3:
                         logging.debug('before transpose shape:'+str(orig_x.shape))
 # as the input is transposed to c,h,w  by transpose(2,0,1) we have to undo it with transpose(1,2,0)    #h w c  transpose(2,0,1) -> c h w  #c h w  transpose(1,2,0) -> h w c
