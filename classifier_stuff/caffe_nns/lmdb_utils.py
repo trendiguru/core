@@ -470,10 +470,15 @@ def label_images_and_images_to_lmdb(image_dbname,label_dbname,image_dir,label_di
                     cv2.waitKey(0)
                     imutils.show_mask_with_labels_from_img_arr(label_arr,labels=label_strings)
                 #these pixel value offsets can be removed using caffe (in the test/train protobuf)- so currently these are None and this part is not entered
+                imgmean=np.mean(img_arr)
+                imgstd=np.std(img_arr)
+                print('mean {} std {}'.format(imgmean,imgstd))
                 if avg_pixval is not None:
                     img_arr[:,:,0] = img_arr[:,:,0]-avg_pixval[0]
                     img_arr[:,:,1] = img_arr[:,:,1]-avg_pixval[1]
                     img_arr[:,:,2] = img_arr[:,:,2]-avg_pixval[2]
+                if max_pixval is not None:
+                    img_arr = np.divide(img_arr,max_pixval)
             ###write image
                 imgmean=np.mean(img_arr)
                 imgstd=np.std(img_arr)
