@@ -76,8 +76,9 @@ if __name__ == "__main__":
 
   print 'train iterations len: ', len(training_iterations)
   print 'train loss len: ', len(training_loss)
-  print 'test loss len: ', len(test_loss)
+  print 'train accuracy len: ', len(training_accuracy)
   print 'test iterations len: ', len(test_iterations)
+  print 'test loss len: ', len(test_loss)
   print 'test accuracy len: ', len(test_accuracy)
 
   if len(test_iterations) != len(test_accuracy): #awaiting test...
@@ -102,7 +103,8 @@ if __name__ == "__main__":
   p1, = host.plot(training_iterations, training_loss, label="training log loss")
   p3, = host.plot(test_iterations, test_loss, label="valdation log loss")
   p2, = par1.plot(test_iterations, test_accuracy, label="validation accuracy")
-  p4, = par1.plot(training_iterations, training_accuracy, label="training accuracy")
+  if len(training_accuracy)>0:
+    p4, = par1.plot(training_iterations, training_accuracy, label="training accuracy")
 
   host.legend(loc=2)
 
