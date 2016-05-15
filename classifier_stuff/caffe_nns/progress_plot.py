@@ -37,7 +37,7 @@ if __name__ == "__main__":
 
   for line in f:
 #    print('checking line:'+line)
-    if check_test and 'Test net output' in line and accuracy in line:
+    if check_test and 'Test net output' in line and 'accuracy' in line:
       print('checking line for test output 0: '+line)
       test_accuracy.append(float(line.strip().split(' = ')[-1]))
       print('got test accuracy :'+str(float(line.strip().split(' = ')[-1])))
