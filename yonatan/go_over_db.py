@@ -21,7 +21,7 @@ text_file = open("mini_maxi_1800_dresses.txt", "w")
 counter = 0
 
 for mini_dress in mini_dresses.find()[900]:
-    text_file.write(mini_dresses['image_url'] + ' 0' + '\n')
+    text_file.write(mini_dresses[mini_dress]['image_url'] + ' 0' + '\n')
     print counter
     counter += 1
 
