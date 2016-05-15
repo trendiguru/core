@@ -77,7 +77,7 @@ for kind in dresses:
 
         print counter
 
-        if counter < train_set_number:
+        if counter <= train_set_number:
             cv2.imwrite(os.path.join('/home/yonatan/small_dresses_train_set', image_file_name), resized_image)
             text_file_train.write('/home/yonatan/small_dresses_train_set/' + image_file_name + ' ' + words[1] + '\n')
         elif counter >= train_set_number and counter < train_set_number + cv_set_number:
