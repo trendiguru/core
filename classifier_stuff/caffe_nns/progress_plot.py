@@ -109,4 +109,6 @@ if __name__ == "__main__":
   par1.axis["right"].label.set_color(p2.get_color())
 
   plt.draw()
+  savename = args.output_file+'.jpg'
+  plt.savefig(savename)
   plt.show()
