@@ -37,7 +37,7 @@ if __name__ == "__main__":
 
   for line in f:
 #    print('checking line:'+line)
-    if check_test and 'Test net output #0' in line:
+    if check_test and 'Test net output' in line and accuracy in line:
       print('checking line for test output 0: '+line)
       test_accuracy.append(float(line.strip().split(' = ')[-1]))
       print('got test accuracy :'+str(float(line.strip().split(' = ')[-1])))
@@ -45,19 +45,19 @@ if __name__ == "__main__":
       check_test2 = True
     elif check_test2:
       print('checking line for test output1:'+line)
-      if 'Test net output #1' in line and 'loss' in line:
+      if 'Test net output' in line and 'loss' in line:
         #print line
         test_loss.append(float(line.strip().split(' ')[-2]))
-        print('got loss:'+str(line.strip().split(' ')[-2]))
+        print('got test loss:'+str(line.strip().split(' ')[-2]))
         check_test2 = False
       else:
         test_loss.append(0)
         check_test2 = False
 
-    if check_train  and 'Train net output #0' in line:
-      print('checking line for train output 0:'+line)
+    if check_train  and 'Train net output' in line and 'accuracy' in line:
+      print('checking line for train output acc:'+line)
       training_accuracy.append(float(line.strip().split(' = ')[-1]))
-      print('got train naccuracy :'+str(float(line.strip().split(' = ')[-1])))
+      print('got train acc :'+str(float(line.strip().split(' = ')[-1])))
       check_train = False
       check_train2 = True
 
