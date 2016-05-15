@@ -18,7 +18,7 @@ maxi_dresses = db.maxi
 
 text_file = open("mini_maxi_1800_dresses.txt", "w")
 
-for mini_dress in mini_dresses.find():
+for mini_dress in mini_dresses:
     text_file.write(mini_dress({'image_url'}) + ' 0' + '\n')
 
 
