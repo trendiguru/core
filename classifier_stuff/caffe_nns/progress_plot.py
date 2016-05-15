@@ -106,7 +106,7 @@ if __name__ == "__main__":
   if len(training_accuracy)>0:
     p4, = par1.plot(training_iterations, training_accuracy, label="training accuracy")
 
-  host.legend(loc=2)
+  host.legend(loc=3)
 
   host.axis["left"].label.set_color(p1.get_color())
   par1.axis["right"].label.set_color(p2.get_color())
