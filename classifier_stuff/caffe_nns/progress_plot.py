@@ -33,24 +33,34 @@ if __name__ == "__main__":
   check_test2 = False
   for line in f:
     print('checking line:'+line)
-    if check_test:
+    if check_test and 'Test net output #0' in line:
       test_accuracy.append(float(line.strip().split(' = ')[-1]))
+      print('got test accuracy :'+str(float(line.strip().split(' = ')[-1])))
       check_test = False
       check_test2 = True
     elif check_test2:
-      if 'Test net output' in line and 'valid_log_loss' in line:
+      if 'Test net output #1' in line and 'loss' in line:
         #print line
-        #print line.strip().split(' ')
         test_loss.append(float(line.strip().split(' ')[-2]))
+        print('got loss:'+str(line.strip().split(' ')[-2]))
         check_test2 = False
       else:
         test_loss.append(0)
         check_test2 = False
 
+    if check_train  and 'Train net output #0' in line:
+      test_accuracy.append(float(line.strip().split(' = ')[-1]))
+      print('got trai naccuracy :'+str(float(line.strip().split(' = ')[-1])))
+      check_train = False
+      check_train2 = True
+
+
     if '] Iteration ' in line and 'loss = ' in line:
       arr = re.findall(r'ion \b\d+\b,', line)
       training_iterations.append(int(arr[0].strip(',')[4:]))
       training_loss.append(float(line.strip().split(' = ')[-1]))
+      check_train = True
+
 
     if '] Iteration ' in line and 'Testing net' in line:
       arr = re.findall(r'ion \b\d+\b,', line)
