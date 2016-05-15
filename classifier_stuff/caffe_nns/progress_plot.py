@@ -108,8 +108,8 @@ if __name__ == "__main__":
 
 #  host.legend(loc=2)
 
-  host.legend(bbox_to_anchor=(0., 1.02, 1., .102), loc=3,
-           ncol=2, mode="expand", borderaxespad=0.)
+  host.legend(bbox_to_anchor=(0., 1.00, 1., .100), loc=3,
+           ncol=2, mode="expand", borderaxespad=0.1)
 
   host.axis["left"].label.set_color(p1.get_color())
   par1.axis["right"].label.set_color(p2.get_color())
