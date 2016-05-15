@@ -102,6 +102,7 @@ if __name__ == "__main__":
   p1, = host.plot(training_iterations, training_loss, label="training log loss")
   p3, = host.plot(test_iterations, test_loss, label="valdation log loss")
   p2, = par1.plot(test_iterations, test_accuracy, label="validation accuracy")
+  p4, = par1.plot(training_iterations, training_accuracy, label="training accuracy")
 
   host.legend(loc=2)
 
