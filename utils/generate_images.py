@@ -645,8 +645,12 @@ if __name__=="__main__":
         label_dir = '/home/jeremy/image_dbs/colorful_fashion_parsing_data/labels_u21'
 #        label_dir = '/home/jeremy/image_dbs/colorful_fashion_parsing_data/labels'
 
+        image_dir = '/home/jeremy/image_dbs/colorful_fashion_parsing_data/images/test'
+        label_dir = '/home/jeremy/image_dbs/colorful_fashion_parsing_data/labels_u21'
+
+
     generate_random_pair_mask_and_image_dir(image_dir,label_dir,max_angle=7,max_offset_x=20, max_offset_y=20,
-                                     max_scale=1.2,n_tot=100,filter='.jpg',labels=ultimate_21)
+                                     max_scale=1.2,n_tot=5,filter='.jpg',labels=ultimate_21)
 
 
 #    for i in range(0,10):
