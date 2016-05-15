@@ -18,6 +18,8 @@ from trendi import constants
 
 logging.basicConfig(level=logging.DEBUG)
 
+#json files are in this format:
+#  {"photo": 417, "product": 2400, "bbox": {"width": 145, "top": 405, "left": 390, "height": 235}}
 
 # getting the links and image numbers to web links to list from the text:
 #example line for product #23  , url starts at char 11
@@ -38,8 +40,6 @@ def rename_bbox_files(dir):
         dest = os.path.join(dir,dest_base)
         shutil.copy(full_source, dest)
 
-
-
 def get_product_photos(images_files_path):
     images_links = open(images_files_path)
     listing = []
@@ -50,7 +50,6 @@ def get_product_photos(images_files_path):
             listing.append(line[10:])
     print len(listing)
     return listing
-
 
 # for json_file in only_files:
 # instead of a for loop, lets parallelize! :
@@ -338,10 +337,12 @@ if __name__ == "__main__":
     num_cores = multiprocessing.cpu_count()
   #  num_cores = 1
     json_files_path = os.path.dirname(os.path.abspath(__file__)) + '/meta/json/'
-    json_dir = '/home/jeremy/dataset/json/'
+    json_dir = '/home/jeremy/street2shop/meta/json/'
     json_file = '/home/jeremy/dataset/json/test_pairs_bags.json'
-    bb_dir = '/home/jeremy/dataset/bbs'
+    json_file = '/home/jeremy/street2shop/meta/json/test_pairs_bags.json'
+    bb_dir = '/home/jeremy/'
     imagefiles_dir = '/home/jeremy/dataset/test_pairs_bags'
+    imagefiles_dir = '/home/jeremy/street2shop/photos/'
     generate_bbfiles_from_json_dir_of_dirs(json_dir,imagefiles_dir,bb_dir,darknet=True,positive_filter='train')
     generate_bbfiles_from_json_dir_of_dirs(json_dir,imagefiles_dir,bb_dir,darknet=True,positive_filter='test')
 #    generate_bbfiles_from_json(json_file,imagefiles_dir,darknet=True,class_number=66)
