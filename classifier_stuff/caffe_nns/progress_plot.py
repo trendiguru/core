@@ -23,6 +23,7 @@ if __name__ == "__main__":
   f = open(args.output_file, 'r')
 
   training_iterations = []
+  training_accuracy = []
   training_loss = []
 
   test_iterations = []
@@ -31,6 +32,9 @@ if __name__ == "__main__":
 
   check_test = False
   check_test2 = False
+  check_train = False
+  check_train2 = False
+
   for line in f:
     print('checking line:'+line)
     if check_test and 'Test net output #0' in line:
@@ -49,8 +53,8 @@ if __name__ == "__main__":
         check_test2 = False
 
     if check_train  and 'Train net output #0' in line:
-      test_accuracy.append(float(line.strip().split(' = ')[-1]))
-      print('got trai naccuracy :'+str(float(line.strip().split(' = ')[-1])))
+      training_accuracy.append(float(line.strip().split(' = ')[-1]))
+      print('got train naccuracy :'+str(float(line.strip().split(' = ')[-1])))
       check_train = False
       check_train2 = True
 
