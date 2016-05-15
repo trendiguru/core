@@ -49,6 +49,7 @@ text_file_cv = open("100_dresses_cv_list.txt", "w")
 text_file_test = open("100_dresses_test_list.txt", "w")
 
 counter = 0
+check_counter = 0
 
 for kind in dresses:
     if kind == 'mini':
@@ -56,8 +57,12 @@ for kind in dresses:
     else:
         file_for_read = open('maxi_900_dresses.txt', 'r')
 
+    if counter > train_set_number:
+        check_counter = 0
+
     for line in file_for_read:
         counter += 1
+        check_counter +=1
         #split line to link and label
         words = line.split()
 
@@ -75,13 +80,13 @@ for kind in dresses:
 
         print counter
 
-        if counter <= train_set_number:
+        if check_counter <= train_set_number:
             cv2.imwrite(os.path.join('/home/yonatan/small_dresses_train_set', image_file_name), resized_image)
             text_file_train.write('/home/yonatan/small_dresses_train_set/' + image_file_name + ' ' + words[1] + '\n')
-        elif counter > train_set_number and counter <= train_set_number + cv_set_number:
+        elif check_counter > train_set_number and check_counter <= train_set_number + cv_set_number:
             cv2.imwrite(os.path.join('/home/yonatan/small_dresses_cv_set', image_file_name), resized_image)
             text_file_cv.write('/home/yonatan/small_dresses_cv_set/' + image_file_name + ' ' + words[1] + '\n')
-        elif counter > train_set_number + cv_set_number:
+        elif check_counter > train_set_number + cv_set_number:
             cv2.imwrite(os.path.join('/home/yonatan/small_dresses_test_set', image_file_name), resized_image)
             text_file_test.write('/home/yonatan/small_dresses_test_set/' + image_file_name + ' ' + words[1] + '\n')
 
