@@ -56,8 +56,6 @@ for kind in dresses:
     else:
         file_for_read = open('maxi_900_dresses.txt', 'r')
 
-    counter = 0
-
     for line in file_for_read:
         counter += 1
         #split line to link and label
