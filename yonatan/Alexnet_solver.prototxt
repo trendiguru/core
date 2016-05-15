@@ -1,4 +1,4 @@
-net: "/home/yonatan/trendi/yonatan/Alexnet_train_test_dresses.prototxt"
+net: "/home/yonatan/trendi/yonatan/Alexnet_train_test.prototxt"
 test_iter: 100
 test_interval: 500
 base_lr: 0.01
@@ -10,5 +10,5 @@ max_iter: 100000
 momentum: 0.9
 weight_decay: 0.0005
 snapshot: 10000
-snapshot_prefix: "/home/yonatan/caffe_alexnet_train_dresses"
+snapshot_prefix: "/home/yonatan/caffe_alexnet_train_faces"
 solver_mode: GPU
