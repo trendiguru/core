@@ -20,11 +20,11 @@ text_file = open("mini_maxi_1800_dresses.txt", "w")
 
 counter = 0
 
-for mini_dress in mini_dresses.find()[900]:
-    #text_file.write(mini_dress['image_url'] + ' 0' + '\n')
-    mini_dress
-    print counter
+for doc in mini_dresses.find().limit(900):
+    # text_file.write(doc['image_url'] + ' 0' + '\n')
+    print doc['image_url']
     counter += 1
-
+    if counter % 100 == 0:
+        print "after {0} docs".format(counter)
 
 text_file.flush()
