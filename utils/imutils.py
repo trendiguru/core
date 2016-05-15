@@ -749,7 +749,7 @@ def show_mask_with_labels_dir(dir,labels,filter=None,original_images_dir=None,or
                     totfrac = totfrac + frac
                     n=n+1
             elif original_images_dir_alt and os.path.exists(original_altfullpaths[x]):
-                frac,k = show_mask_with_labels(fullpaths[x],labels,original_image=original_altfullpaths[x],cut_the_crap=cut_the_crap,save_images=save_images,,visual_output=visual_output)
+                frac,k = show_mask_with_labels(fullpaths[x],labels,original_image=original_altfullpaths[x],cut_the_crap=cut_the_crap,save_images=save_images,visual_output=visual_output)
                 if frac is not None:
                     fraclist.append(frac)
                     totfrac = totfrac + frac
