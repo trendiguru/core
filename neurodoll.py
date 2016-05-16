@@ -84,21 +84,21 @@ def pixelparse(url_or_np_array):
         return None
 
     start_time = time.time()
-    cv2.imshow('image',image)
-    cv2.waitKey(0)
     in_ = np.array(image, dtype=np.float32)
 #    possibly check size and resize if big
-#    dims = [150,100]
-#    in_ = cv2.resize(in_,dims)
+    dims = [150,100]
+    in_ = cv2.resize(in_,dims)
+    cv2.imshow('image',np.array(in_,dtype=np.uint8))
+    cv2.waitKey(0)
     if len(in_.shape) != 3:
         logging.warning('got 1-chan image in neurodoll, making into 3chan')
         in_ = [in_,in_,in_]
     elif in_.shape[2] != 3:
         print('got n-chan image, skipping - shape is:'+str(in_.shape))
         return
-    print('image shape:'+str(in_.shape))
     in_ = in_[:,:,::-1]
     in_ -= np.array((104.0,116.7,122.7))
+    print('image shape:'+str(in_.shape))
 #    in_ = in_.transpose((2,0,1))   # dont need RGB->BGR if img is coming from cv2
     # shape for input (data blob is N x C x H x W), set data
     net.blobs['data'].reshape(1, *in_.shape)

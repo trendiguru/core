@@ -68,10 +68,11 @@ def infer_one(imagename,prototxt,caffemodel,out_dir='./'):
     elif in_.shape[2] != 3:
         print('got n-chan image, skipping - shape:'+str(in_.shape))
         return
-    print('size:'+str(in_.shape))
+    print('shape before:'+str(in_.shape))
     in_ = in_[:,:,::-1]
     in_ -= np.array((104.0,116.7,122.7))
     in_ = in_.transpose((2,0,1))
+    print('shape after:'+str(in_.shape))
     # shape for input (data blob is N x C x H x W), set data
     net.blobs['data'].reshape(1, *in_.shape)
     net.blobs['data'].data[...] = in_
