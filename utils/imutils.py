@@ -760,7 +760,7 @@ def show_mask_with_labels_dir(dir,labels,filter=None,original_images_dir=None,or
 
     else:
         for f in fullpaths:
-            frac,k = show_mask_with_labels(f,labels,cut_the_crap=cut_the_crap,save_images=save_imagesz=,visual_output=visual_output)
+            frac,k = show_mask_with_labels(f,labels,cut_the_crap=cut_the_crap,save_images=save_images,visual_output=visual_output)
             if frac is not None:
                 fraclist.append(frac)
                 totfrac = totfrac + frac

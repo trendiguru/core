@@ -15,6 +15,7 @@ import shutil
 from trendi import Utils
 from trendi.classifier_stuff import darknet_convert
 from trendi import constants
+import numpy as np
 
 logging.basicConfig(level=logging.DEBUG)
 
@@ -331,6 +332,16 @@ def generate_bbfiles_from_json_dir_of_dirs(dir_of_jsons,imagefiles_dir,bb_dir,da
         category_number += 1
 #def generate_bbfiles_from_json(json_file,imagefiles_dir,bb_dir,darknet=True,class_number=None,clobber=False):
 
+def multi_class_labels_from_bbfiles(dir_of_bbfiles):
+    with open('classlabels.txt','w') as classfile:
+        files = [f for f in os.listdir(dir_of_bbfiles) if '.txt' in f]
+        for a_file in files:
+            for line in a_file:
+                berg_class = line[]
+                u21_class = constants.tamara_berg_to_ultimate_21_index_conversion[berg_class]
+                print('berg class {} label {} u21 class {} label {}'.format(berg_class,constants.tamara_berg_categories[berg_class],u21_class,constants.ultimate_21[u21_class]))
+                outvec = np.zeros(len(constants.ultimate_21))
+            classfile.write()
 
 if __name__ == "__main__":
 # opening the JSONs structure files:
