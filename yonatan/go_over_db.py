@@ -22,13 +22,14 @@ counter = 0
 
 for doc in mini_dresses.find().limit(6000):
     mini_text_file.write(doc['image_url'] + ' 0' + '\n')
-    print counter
     counter += 1
+    print counter
+
 
 for doc in maxi_dresses.find().limit(6000):
     maxi_text_file.write(doc['image_url'] + ' 1' + '\n')
-    print counter
     counter += 1
+    print counter
 
 mini_text_file.flush()
 maxi_text_file.flush()
