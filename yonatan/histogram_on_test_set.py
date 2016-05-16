@@ -25,7 +25,7 @@ text_file = open("100_dresses_test_list.txt", "r")
 counter = 0
 
 MODLE_FILE = "/home/yonatan/trendi/yonatan/Alexnet_deploy_for_dresses.prototxt"
-PRETRAINED = "/home/yonatan/alexnet_imdb_first_try/caffe_alexnet_train_faces_iter_10000.caffemodel"
+PRETRAINED = "/home/yonatan/alexnet_imdb_first_try/caffe_alexnet_train_dresses_iter_2000.caffemodel"
 caffe.set_mode_gpu()
 image_dims = [115, 115]
 mean, input_scale = np.array([120, 120, 120]), None
