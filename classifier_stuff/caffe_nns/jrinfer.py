@@ -6,6 +6,7 @@ import caffe
 import os
 import time
 import cv2
+import argparse
 
 from trendi import pipeline
 from trendi.utils import imutils
@@ -144,22 +145,33 @@ def test_pd_conclusions():
 
 
 if __name__ == "__main__":
+
+    print('starting')
     caffe.set_mode_gpu();
     caffe.set_device(0);
-    print('starting')
+
     test_dir = '/root/imgdbs/image_dbs/doorman/irrelevant/'
     out_dir = '/root/imgdbs/image_dbs/doorman/irrelevant_output'
     test_dir = '/root/imgdbs/image_dbs/colorful_fashion_parsing_data/images/test_200x150/'
     out_dir = '/root/imgdbs/image_dbs/150x100output_010516/'
-#    label_dir = '/root/imgdbs/image_dbs/colorful_fashion_parsing_data/labels/'
-#    images = [os.path.join(test_dir,f) for f in os.listdir(test_dir) if '.jpg' in f or 'jpeg' in f or '.bmp' in f]
-    images = [os.path.join(test_dir,f) for f in os.listdir(test_dir) if '.jpg' in f ]
-    print('nimages:'+str(len(images)))
-#    images = [f.strip('.jpg')[0]+'.png' for f in images]
-#    print('images:'+str(images))
-#    images = [os.path.join(label_dir,f) for f in images]
-#    print('images:'+str(images))
     prototxt = 'deploy.prototxt'
     caffemodel = 'snapshot_nn2/train_iter_183534.caffemodel'
     caffemodel = 'snapshot_nn2/train_iter_164620.caffemodel'  #010516 saved
-    infer_many(images,prototxt,caffemodel,out_dir=out_dir)
+
+    parser = argparse.ArgumentParser(description='get Caffe output')
+    parser.add_argument('caffemodel',dest=cmodel, help='caffemodel', default=caffemodel)
+    parser.add_argument('prototxt', dest = proto, help='prototxt',default=prototxt)
+    parser.add_argument('--image', dest = image_file, help='image file',default=None)
+    parser.add_argument('--dir', dest = image_directory, help='image directory',default=None)
+    parser.add_argument('--outdir', dest = out_directory, help='result directory',default=None)
+    args = parser.parse_args()
+
+#    label_dir = '/root/imgdbs/image_dbs/colorful_fashion_parsing_data/labels/'
+
+    if args.image_file:
+        infer_one(args.image_file,args.proto,args.cmodel,out_dir=args.out_directory)
+    elif args.image_directory:
+        images = [os.path.join(args.image_directory,f) for f in os.listdir(args.image_directory) if '.jpg' in f ]
+        print('nimages:'+str(len(images)))
+        infer_many(images,args.proto,args.cmodel,out_dir=args.out_directory)
+
