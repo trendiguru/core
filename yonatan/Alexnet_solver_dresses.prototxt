@@ -1,11 +1,11 @@
 net: "/home/yonatan/trendi/yonatan/Alexnet_train_test_dresses.prototxt"
 test_iter: 20
-test_interval: 10
-base_lr: 0.03
+test_interval: 100
+base_lr: 0.01
 lr_policy: "step"
 gamma: 0.1
 stepsize: 150
-display: 10
+display: 20
 max_iter: 10000
 momentum: 0.9
 weight_decay: 0.0005
