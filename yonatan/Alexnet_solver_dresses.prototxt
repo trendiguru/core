@@ -10,5 +10,5 @@ max_iter: 2000
 momentum: 0.9
 weight_decay: 0.0005
 snapshot: 10000
-snapshot_prefix: "/home/yonatan/caffe_alexnet_train_dresses"
+snapshot_prefix: "/home/yonatan/caffe_alexnet_train_on_9000_dresses"
 solver_mode: GPU

@@ -15,8 +15,8 @@ db = constants.db
 mini_dresses = db["mini"]
 maxi_dresses = db["maxi"]
 
-mini_text_file = open("mini_900_dresses.txt", "w")
-maxi_text_file = open("maxi_900_dresses.txt", "w")
+mini_text_file = open("mini_6000_dresses.txt", "w")
+maxi_text_file = open("maxi_6000_dresses.txt", "w")
 
 counter = 0
 
