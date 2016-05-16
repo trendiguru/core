@@ -20,11 +20,11 @@ import matplotlib.pyplot as plt
 array_success = np.array([])
 array_failure = np.array([])
 
-text_file = open("live_data_set_ready.txt", "r")
+text_file = open("100_dresses_test_list.txt", "r")
 
 counter = 0
 
-MODLE_FILE = "/home/yonatan/trendi/yonatan/Alexnet_deploy.prototxt"
+MODLE_FILE = "/home/yonatan/trendi/yonatan/Alexnet_deploy_for_dresses.prototxt"
 PRETRAINED = "/home/yonatan/alexnet_imdb_first_try/caffe_alexnet_train_faces_iter_10000.caffemodel"
 caffe.set_mode_gpu()
 image_dims = [115, 115]
