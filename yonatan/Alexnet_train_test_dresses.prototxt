@@ -35,7 +35,7 @@ layer {
   }
   image_data_param {
     source: "/home/yonatan/1500_dresses_cv_list.txt"
-    batch_size: 20
+    batch_size: 30
     shuffle: true
   }
 }
