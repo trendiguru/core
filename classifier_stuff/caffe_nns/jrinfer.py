@@ -154,6 +154,8 @@ if __name__ == "__main__":
     out_dir = '/root/imgdbs/image_dbs/doorman/irrelevant_output'
     test_dir = '/root/imgdbs/image_dbs/colorful_fashion_parsing_data/images/test_200x150/'
     out_dir = '/root/imgdbs/image_dbs/150x100output_010516/'
+    test_dir = '/root/imgdbs/image_dbs/colorful_fashion_parsing_data/images/test'
+    out_dir = './'
     prototxt = 'deploy.prototxt'
     caffemodel = 'snapshot_nn2/train_iter_183534.caffemodel'
     caffemodel = 'snapshot_nn2/train_iter_164620.caffemodel'  #010516 saved
@@ -162,7 +164,7 @@ if __name__ == "__main__":
     parser.add_argument('caffemodel',dest=cmodel, help='caffemodel', default=caffemodel)
     parser.add_argument('prototxt', dest = proto, help='prototxt',default=prototxt)
     parser.add_argument('--image', dest = image_file, help='image file',default=None)
-    parser.add_argument('--dir', dest = image_directory, help='image directory',default=None)
+    parser.add_argument('--dir', dest = image_directory, help='image directory',default='./')
     parser.add_argument('--outdir', dest = out_directory, help='result directory',default=None)
     args = parser.parse_args()
 
@@ -171,7 +173,7 @@ if __name__ == "__main__":
     if args.image_file:
         infer_one(args.image_file,args.proto,args.cmodel,out_dir=args.out_directory)
     elif args.image_directory:
-        images = [os.path.join(args.image_directory,f) for f in os.listdir(args.image_directory) if '.jpg' in f ]
-        print('nimages:'+str(len(images)))
-        infer_many(images,args.proto,args.cmodel,out_dir=args.out_directory)
 
+        images = [os.path.join(args.image_directory,f) for f in os.listdir(args.image_directory) if '.jpg' in f ]
+        print('nimages:'+str(len(images)) + ' in directory '+args.image_directory)
+        infer_many(images,args.proto,args.cmodel,out_dir=args.out_directory)
