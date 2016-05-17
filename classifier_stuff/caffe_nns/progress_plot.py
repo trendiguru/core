@@ -115,7 +115,7 @@ if __name__ == "__main__":
   if len(training_accuracy)>0:
     p4, = par1.plot(training_iterations, training_accuracy, label="training accuracy")
 
-  par1.ylim((0,1))
+#  par1.ylim((0,1))
 #  host.legend(loc=2)
 
   host.legend(bbox_to_anchor=(0., 1.00, 1., .100), loc=3,
