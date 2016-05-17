@@ -118,14 +118,18 @@ if __name__ == "__main__":
 #  par1.ylim((0,1))
 #  host.legend(loc=2)
 
-  host.legend(bbox_to_anchor=(0., 1.00, 1., .100), loc=3,
-           ncol=2, mode="expand", borderaxespad=0.1)
+#top legend
+#  host.legend(bbox_to_anchor=(0., 1.00, 1., .100), loc=3,
+#           ncol=2, mode="expand", borderaxespad=0.1)
+
+#right legend
+  host.legend(bbox_to_anchor=(1.05, 1), loc=2,borderaxespad=0.)
 
   host.axis["left"].label.set_color(p1.get_color())
   par1.axis["right"].label.set_color(p2.get_color())
 
-  plt.title('test')
-  plt.suptitle('test')
+  plt.title(net_name)
+  plt.suptitle(net_name)
   plt.draw()
   savename = args.output_file+'.jpg'
   plt.savefig(savename)
