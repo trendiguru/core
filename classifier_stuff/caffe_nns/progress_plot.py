@@ -35,6 +35,8 @@ if __name__ == "__main__":
   check_train = False
   check_train2 = False
 
+  past_beginning = False
+
   for line in f:
 #    print('checking line:'+line)
     if check_test and 'Test net output' in line and 'accuracy' in line:
@@ -74,6 +76,13 @@ if __name__ == "__main__":
       test_iterations.append(int(arr[0].strip(',')[4:]))
       check_test = True
 
+    if '{' in line:
+      past_beginning = True
+    if not past_beginning and 'name' in line:
+      net_name_arr = line.split('"')
+      net_name = net_name_arr[-2]
+      print('net name:'+net_name)
+
   print 'train iterations len: ', len(training_iterations)
   print 'train loss len: ', len(training_loss)
   print 'train accuracy len: ', len(training_accuracy)
@@ -98,14 +107,15 @@ if __name__ == "__main__":
 
   host.set_xlabel("iterations")
   host.set_ylabel("log loss")
-  par1.set_ylabel("validation accuracy")
+  par1.set_ylabel("test accuracy")
 
   p1, = host.plot(training_iterations, training_loss, label="training log loss")
-  p3, = host.plot(test_iterations, test_loss, label="valdation log loss")
-  p2, = par1.plot(test_iterations, test_accuracy, label="validation accuracy")
+  p3, = host.plot(test_iterations, test_loss, label="test log loss")
+  p2, = par1.plot(test_iterations, test_accuracy, label="test accuracy")
   if len(training_accuracy)>0:
     p4, = par1.plot(training_iterations, training_accuracy, label="training accuracy")
 
+  par1.ylim((0,1))
 #  host.legend(loc=2)
 
   host.legend(bbox_to_anchor=(0., 1.00, 1., .100), loc=3,
@@ -114,6 +124,8 @@ if __name__ == "__main__":
   host.axis["left"].label.set_color(p1.get_color())
   par1.axis["right"].label.set_color(p2.get_color())
 
+  plt.title('test')
+  plt.suptitle('test')
   plt.draw()
   savename = args.output_file+'.jpg'
   plt.savefig(savename)
