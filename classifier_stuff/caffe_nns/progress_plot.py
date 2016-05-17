@@ -79,8 +79,9 @@ if __name__ == "__main__":
     if '{' in line:
       past_beginning = True
     if not past_beginning and 'name' in line:
-      net_name = line.strip('"')[-2]
-      print('checking for name:'+line)
+      net_name_arr = line.strip('"')
+      print('checking for name:'+line+' '+net_name_arr
+      net_name = net_name_arr[-1]
       print('net name:'+net_name)
 
   print 'train iterations len: ', len(training_iterations)
