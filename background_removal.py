@@ -423,8 +423,9 @@ def create_non_face_dresses(kw):
         image = Utils.get_cv2_img_array(doc['images']['XLarge'])
         if image is not None:
             try:
-                #faces = find_face_dlib(image)
+                faces = find_face_dlib(image)
                 #if not faces['are_faces'] and check_skin_percentage(image) < skin_thresh:
+                if faces['are_faces']:
                     db[kw].insert_one({'image_url': doc['images']['XLarge']})
                     inserted += 1
                     print "inserted {0}/{1}".format(inserted, cnt)
