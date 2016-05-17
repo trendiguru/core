@@ -71,7 +71,7 @@ if name == 'Bob':
 from .. import NNSearch
 def find_occlusion(name):
     collection = db[name]
-    items = collection.find({}, {'fp': 1, '_id':1})
+    items = collection.find({}, {'fingerprint': 1, '_id':1})
     for item in items:
         enteries = db.GangnamStyle_Female.find({'categories':'dress'})
         bhat = NNSearch.find_n_nearest_neighbors(item,enteries,100,fp_weights,fp_len,"fingerprint")
