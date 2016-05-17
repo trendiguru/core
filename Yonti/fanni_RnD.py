@@ -14,7 +14,7 @@ def create_test_collection(name, amount):
         if img['image_urls'][0][0:27] == 'http://www.fashionseoul.com':
             for item in img['people'][1]['items']:
                 if item['category']=='dress':
-                    dict = {'img_url':item['image_urls'][0],
+                    dict = {'img_url':img['image_urls'][0],
                             'category': 'dress',
                             'fp': item['fp']}
                     count+=1
