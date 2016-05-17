@@ -345,16 +345,16 @@ def multi_class_labels_from_bbfiles(dir_of_bbfiles):
         for a_file in files:
             outvec = np.zeros(len(constants.ultimate_21))
             with open(a_file,'r') as lines:
-            for line in lines:
-                print('file:'+a_file+' line:'+str(line))
-                line_arr = line.split()
-                berg_class = int(line_arr[0])
-                u21_class = tamara_berg_to_ultimate_21(berg_class)
-                if u21_class is None:
-                    logging.warning('no matching class found')
-                    continue
-                print('berg class {} label {} u21 class {} label {} line {}'.format(berg_class,constants.tamara_berg_categories[berg_class],u21_class,constants.ultimate_21[u21_class],line_arr))
-                outvec[u21_class] = 1
+                for line in lines:
+                    print('file:'+a_file+' line:'+str(line))
+                    line_arr = line.split()
+                    berg_class = int(line_arr[0])
+                    u21_class = tamara_berg_to_ultimate_21(berg_class)
+                    if u21_class is None:
+                        logging.warning('no matching class found')
+                        continue
+                    print('berg class {} label {} u21 class {} label {} line {}'.format(berg_class,constants.tamara_berg_categories[berg_class],u21_class,constants.ultimate_21[u21_class],line_arr))
+                    outvec[u21_class] = 1
             writeline = a_file+' '
             for i in len(outvec):
                 writeline = writeline+str(outvec[i])+' '
