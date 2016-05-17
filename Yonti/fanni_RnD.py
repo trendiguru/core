@@ -62,7 +62,7 @@ def review_collection(name):
         cv2.destroyAllWindows()
 
 # review_collection('fanni')
-if name != 'Bob':
+if name == 'Bob':
     sys.exit()
 
 from .. import NNSearch
