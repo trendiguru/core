@@ -81,7 +81,7 @@ def find_occlusion(name):
                                                        hist_length=bins,fp_key="fingerprint")
             clickList = [e["clickUrl"] for e in euclid]
             score = [m for m in bhat if m["clickUrl"] in clickList ]
-            print score/100
+            print len(score)/100
 
         break
 
