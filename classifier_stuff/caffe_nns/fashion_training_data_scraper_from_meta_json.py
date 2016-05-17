@@ -334,7 +334,7 @@ def tamara_berg_to_ultimate_21(tb_index):
     if len(u21s) != 1:
         logging.warning('could not get u21 index for tamaraberg index '+str(tb_index))
         return None
-    return u21s[0]
+    return int(u21s[0])
 
 def multi_class_labels_from_bbfiles(dir_of_bbfiles):
 #json files are in this format:
@@ -343,23 +343,35 @@ def multi_class_labels_from_bbfiles(dir_of_bbfiles):
         files = [f for f in os.listdir(dir_of_bbfiles) if '.txt' in f]
         print(str(len(files))+' files in '+dir_of_bbfiles)
         for a_file in files:
-            outvec = np.zeros(len(constants.ultimate_21))
-            for line in a_file:
-                line_arr = line.split()
-                berg_class = int(line_arr[0])
-                u21_class = tamara_berg_to_ultimate_21(berg_class)
-                if u21_class is None:
-                    logging.warning('no matching class found')
-                    continue
-                print('berg class {} label {} u21 class {} label {} line {}'.format(berg_class,constants.tamara_berg_categories[berg_class],u21_class,constants.ultimate_21[u21_class],line))
-                outvec[u21_class] = 1
+            with open(os.path.join(dir_of_bbfiles,a_file),'r') as lines:
+                outvec = np.zeros(len(constants.ultimate_21))
+                for line in lines:
+      #              print('file:'+a_file+' line:'+str(line))
+                    line_arr = line.split()
+                    berg_class = int(line_arr[0])
+                    u21_class = tamara_berg_to_ultimate_21(berg_class)
+                    if u21_class is None:
+                        logging.warning('no matching class found')
+                        continue
+                    print('berg_class {} ({}) u21_class {} ({}) line {}'.format(berg_class,constants.tamara_berg_categories[berg_class],u21_class,constants.ultimate_21[u21_class],line_arr))
+                    outvec[u21_class] = 1
+            imgname = '/home/jeremy/image_dbs/tamara_berg/images/photo_'+a_file[:-4]+'.jpg'
+            print('imgname:'+imgname)
+            if os.path.exists(imgname):
+                img_arr = cv2.imread(imgname)
+                h,w=img_arr.shape[0:2]
+                factor = float(h)/400.0
+                resized = cv2.resize(img_arr,(int(w/factor),400))
+                cv2.imshow('win',resized)
+                cv2.waitKey(0)
+            else:
+                print('image not found')
             writeline = a_file+' '
-            for i in len(outvec):
-                writeline = writeline+str(outvec[i])+' '
+            for i in range(len(outvec)):
+                writeline = writeline+str(int(outvec[i]))+' '
             print('writing line:'+str(writeline))
             classfile.write(writeline)
-            raw_input('enter to continue)')
-            classfile.write()
+#            raw_input('enter to continue)')
 
 if __name__ == "__main__":
 # opening the JSONs structure files:

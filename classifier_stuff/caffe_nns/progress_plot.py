@@ -109,23 +109,27 @@ if __name__ == "__main__":
   host.set_ylabel("log loss")
   par1.set_ylabel("test accuracy")
 
-  p1, = host.plot(training_iterations, training_loss, label="training log loss")
-  p3, = host.plot(test_iterations, test_loss, label="test log loss")
-  p2, = par1.plot(test_iterations, test_accuracy, label="test accuracy")
+  p1, = host.plot(training_iterations, training_loss, label="train logloss")
+  p3, = host.plot(test_iterations, test_loss, label="test logloss")
+  p2, = par1.plot(test_iterations, test_accuracy, label="test acc.")
   if len(training_accuracy)>0:
-    p4, = par1.plot(training_iterations, training_accuracy, label="training accuracy")
+    p4, = par1.plot(training_iterations, training_accuracy, label="train acc.")
 
-  par1.ylim((0,1))
+#  par1.ylim((0,1))
 #  host.legend(loc=2)
 
-  host.legend(bbox_to_anchor=(0., 1.00, 1., .100), loc=3,
-           ncol=2, mode="expand", borderaxespad=0.1)
+#top legend
+#  host.legend(bbox_to_anchor=(0., 1.00, 1., .100), loc=3,
+#           ncol=2, mode="expand", borderaxespad=0.1)
+
+#right legend
+  host.legend(bbox_to_anchor=(1.05, 1), loc=2,borderaxespad=0.)
 
   host.axis["left"].label.set_color(p1.get_color())
   par1.axis["right"].label.set_color(p2.get_color())
 
-  plt.title('test')
-  plt.suptitle('test')
+  plt.title(net_name)
+  plt.suptitle(net_name)
   plt.draw()
   savename = args.output_file+'.jpg'
   plt.savefig(savename)
