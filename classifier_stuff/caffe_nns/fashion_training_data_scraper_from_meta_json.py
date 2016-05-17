@@ -361,7 +361,7 @@ def multi_class_labels_from_bbfiles(dir_of_bbfiles):
                 img_arr = cv2.imread(imgname)
                 h,w=img_arr.shape[0:2]
                 factor = float(h)/400.0
-                resized = cv2.resize(img_arr,(400,int(w/factor)))
+                resized = cv2.resize(img_arr,(int(w/factor),400))
                 cv2.imshow('win',resized)
                 cv2.waitKey(0)
             else:
