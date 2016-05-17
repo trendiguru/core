@@ -35,6 +35,8 @@ if __name__ == "__main__":
   check_train = False
   check_train2 = False
 
+  past_beginning = False
+
   for line in f:
 #    print('checking line:'+line)
     if check_test and 'Test net output' in line and 'accuracy' in line:
@@ -73,6 +75,12 @@ if __name__ == "__main__":
       arr = re.findall(r'ion \b\d+\b,', line)
       test_iterations.append(int(arr[0].strip(',')[4:]))
       check_test = True
+
+    if '{' in line:
+      past_beginning = True
+    if not past_beginning and 'name' in line:
+      net_name = line.strip[-1]
+      print('net name:'+net_name)
 
   print 'train iterations len: ', len(training_iterations)
   print 'train loss len: ', len(training_loss)
