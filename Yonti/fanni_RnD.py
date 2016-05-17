@@ -74,11 +74,11 @@ def find_occlusion(name):
     items = collection.find({}, {'fingerprint': 1, '_id':1})
     for item in items:
         enteries = db.GangnamStyle_Female.find({'categories':'dress'})
-        bhat = NNSearch.find_n_nearest_neighbors(item,enteries,100,fp_weights,fp_len,"fingerprint")
+        bhat = NNSearch.find_n_nearest_neighbors(item,enteries,100,fp_weights,bins,"fingerprint")
         for num in [100.200,300,400,500]:
             euclid = NNSearch.find_n_nearest_neighbors(item,enteries,number_of_matches=num,
                                                        distance_function=NNSearch.distance_1_k,fp_weights=fp_weights,
-                                                       hist_length=fp_len,fp_key="fingerprint")
+                                                       hist_length=bins,fp_key="fingerprint")
             clickList = [e["clickUrl"] for e in euclid]
             score = [m for m in bhat if m["clickUrl"] in clickList ]
             print score/100
