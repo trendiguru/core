@@ -10,6 +10,7 @@ else:
     name = 'not Bob'
     from .. import constants
     db = constants.db
+import sys
 import cv2
 from skimage import io
 
@@ -62,7 +63,7 @@ def review_collection(name):
 
 # review_collection('fanni')
 if name != 'Bob':
-    exit()
+    sys.exit()
 
 from .. import NNSearch
 def find_occlusion():
