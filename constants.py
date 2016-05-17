@@ -312,7 +312,7 @@ ultimate_21 = ['bgnd','bag','belt','blazer','coat','dress','eyewear','face','hai
                'top']
 
 
-tamara_berg_to_ultimate_21_index_conversion = [(0,1),(1,2),(2,5),(3,6),(4,13),(5,9),(6,11),(7,4),(8,12),(9,15),(10,20)]
+tamara_berg_to_ultimate_21_index_conversion = [(0,1),(1,2),(2,5),(3,6),(4,13),(5,9),(6,11),(7,4),(8,12),(9,16),(10,20)]
 
 tamara_berg_improved_to_ultimate_21_index_conversion = [(0,1),(1,2),(2,5),(3,6),(4,7),(5,8),(6,10),(7,11),(8,12),(9,15),
                   (10,19),(11,14),(12,0),(13,10),(14,13),(15,19),(16,4),(17,20),(18,16),(19,9),
