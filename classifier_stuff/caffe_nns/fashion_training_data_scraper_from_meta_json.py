@@ -362,7 +362,6 @@ def multi_class_labels_from_bbfiles(dir_of_bbfiles):
             print('writing line:'+str(writeline))
             classfile.write(writeline)
             raw_input('enter to continue)')
-            classfile.write()
 
 if __name__ == "__main__":
 # opening the JSONs structure files:
