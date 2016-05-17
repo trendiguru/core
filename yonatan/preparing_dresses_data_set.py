@@ -35,27 +35,27 @@ def url_to_image(url):
     return new_image
 
 
-train_set_number = 700
-cv_set_number = 100
-test_set_number = 100
+train_set_number = 4500
+cv_set_number = 750
+test_set_number = 750
 
 width = 100
 height = 200
 
 dresses = {'mini', 'maxi'}
 
-text_file_train = open("700_dresses_train_list.txt", "w")
-text_file_cv = open("100_dresses_cv_list.txt", "w")
-text_file_test = open("100_dresses_test_list.txt", "w")
+text_file_train = open("9000_dresses_train_list.txt", "w")
+text_file_cv = open("1500_dresses_cv_list.txt", "w")
+text_file_test = open("1500_dresses_test_list.txt", "w")
 
 counter = 0
 check_counter = 0
 
 for kind in dresses:
     if kind == 'mini':
-        file_for_read = open('mini_900_dresses.txt', 'r')
+        file_for_read = open('mini_6000_dresses.txt', 'r')
     else:
-        file_for_read = open('maxi_900_dresses.txt', 'r')
+        file_for_read = open('maxi_6000_dresses.txt', 'r')
 
     if counter > train_set_number:
         check_counter = 0
@@ -81,14 +81,14 @@ for kind in dresses:
         print counter
 
         if check_counter <= train_set_number:
-            cv2.imwrite(os.path.join('/home/yonatan/small_dresses_train_set', image_file_name), resized_image)
-            text_file_train.write('/home/yonatan/small_dresses_train_set/' + image_file_name + ' ' + words[1] + '\n')
+            cv2.imwrite(os.path.join('/home/yonatan/all_db_dresses_train_set', image_file_name), resized_image)
+            text_file_train.write('/home/yonatan/all_db_dresses_train_set/' + image_file_name + ' ' + words[1] + '\n')
         elif check_counter > train_set_number and check_counter <= train_set_number + cv_set_number:
-            cv2.imwrite(os.path.join('/home/yonatan/small_dresses_cv_set', image_file_name), resized_image)
-            text_file_cv.write('/home/yonatan/small_dresses_cv_set/' + image_file_name + ' ' + words[1] + '\n')
+            cv2.imwrite(os.path.join('/home/yonatan/all_db_dresses_cv_set', image_file_name), resized_image)
+            text_file_cv.write('/home/yonatan/all_db_dresses_cv_set/' + image_file_name + ' ' + words[1] + '\n')
         elif check_counter > train_set_number + cv_set_number:
-            cv2.imwrite(os.path.join('/home/yonatan/small_dresses_test_set', image_file_name), resized_image)
-            text_file_test.write('/home/yonatan/small_dresses_test_set/' + image_file_name + ' ' + words[1] + '\n')
+            cv2.imwrite(os.path.join('/home/yonatan/all_db_dresses_test_set', image_file_name), resized_image)
+            text_file_test.write('/home/yonatan/all_db_dresses_test_set/' + image_file_name + ' ' + words[1] + '\n')
 
 text_file_train.flush()
 text_file_cv.flush()
