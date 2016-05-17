@@ -28,8 +28,8 @@ MODLE_FILE = "/home/yonatan/trendi/yonatan/Alexnet_deploy_for_dresses.prototxt"
 PRETRAINED = "/home/yonatan/caffe_alexnet_train_on_2600_dresses_with_faces_iter_613.caffemodel"
 caffe.set_mode_gpu()
 image_dims = [300, 150]
-#mean, input_scale = np.array([120, 120, 120]), None
-mean, input_scale = None, None
+mean, input_scale = np.array([120, 120, 120]), None
+#mean, input_scale = None, None
 channel_swap = None
 #channel_swap = [2, 1, 0]
 raw_scale = 255.0
