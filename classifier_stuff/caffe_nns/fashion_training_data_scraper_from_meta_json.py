@@ -329,6 +329,13 @@ def generate_bbfiles_from_json_dir_of_dirs(dir_of_jsons,imagefiles_dir,bb_dir,da
         category_number += 1
 #def generate_bbfiles_from_json(json_file,imagefiles_dir,bb_dir,darknet=True,class_number=None,clobber=False):
 
+def tamara_berg_to_ultimate_21(tb_index):
+    u21s = [conv[1] for conv in constants.tamara_berg_to_ultimate_21_index_conversion[tb_index]]
+    if len(u21s) != 1:
+        logging.warning('could not get u21 index for tamaraberg index '+str(tb_index))
+        return None
+    return u21s[0]
+
 def multi_class_labels_from_bbfiles(dir_of_bbfiles):
 #json files are in this format:
 #  {"photo": 417, "product": 2400, "bbox": {"width": 145, "top": 405, "left": 390, "height": 235}}
@@ -339,9 +346,12 @@ def multi_class_labels_from_bbfiles(dir_of_bbfiles):
             outvec = np.zeros(len(constants.ultimate_21))
             for line in a_file:
                 line_arr = line.split()
-                berg_class = int(line_arr(0))
-                u21_class = constants.tamara_berg_to_ultimate_21_index_conversion[berg_class]
-                print('berg class {} label {} u21 class {} label {}'.format(berg_class,constants.tamara_berg_categories[berg_class],u21_class,constants.ultimate_21[u21_class]))
+                berg_class = int(line_arr[0])
+                u21_class = tamara_berg_to_ultimate_21(berg_class)
+                if u21_class is None:
+                    logging.warning('no matching class found')
+                    continue
+                print('berg class {} label {} u21 class {} label {} line {}'.format(berg_class,constants.tamara_berg_categories[berg_class],u21_class,constants.ultimate_21[u21_class],line))
                 outvec[u21_class] = 1
             writeline = a_file+' '
             for i in len(outvec):
