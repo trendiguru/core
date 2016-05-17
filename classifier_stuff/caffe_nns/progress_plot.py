@@ -80,7 +80,7 @@ if __name__ == "__main__":
       past_beginning = True
     if not past_beginning and 'name' in line:
       net_name_arr = line.strip('"')
-      print('checking for name:'+line+' '+net_name_arr
+      print('checking for name:'+line+' '+net_name_arr)
       net_name = net_name_arr[-1]
       print('net name:'+net_name)
 
