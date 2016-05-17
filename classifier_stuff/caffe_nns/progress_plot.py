@@ -80,6 +80,7 @@ if __name__ == "__main__":
       past_beginning = True
     if not past_beginning and 'name' in line:
       net_name = line.strip('"')[-2]
+      print('checking for name:'+line)
       print('net name:'+net_name)
 
   print 'train iterations len: ', len(training_iterations)
@@ -122,6 +123,7 @@ if __name__ == "__main__":
   host.axis["left"].label.set_color(p1.get_color())
   par1.axis["right"].label.set_color(p2.get_color())
 
+  plt.title(net_name)
   plt.draw()
   savename = args.output_file+'.jpg'
   plt.savefig(savename)
