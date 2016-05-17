@@ -334,7 +334,7 @@ def tamara_berg_to_ultimate_21(tb_index):
     if len(u21s) != 1:
         logging.warning('could not get u21 index for tamaraberg index '+str(tb_index))
         return None
-    return u21s[0]
+    return int(u21s[0])
 
 def multi_class_labels_from_bbfiles(dir_of_bbfiles):
 #json files are in this format:
@@ -357,7 +357,7 @@ def multi_class_labels_from_bbfiles(dir_of_bbfiles):
                     outvec[u21_class] = 1
             writeline = a_file+' '
             for i in range(len(outvec)):
-                writeline = writeline+str(outvec[i])+' '
+                writeline = writeline+str(int(outvec[i]))+' '
             print('writing line:'+str(writeline))
             classfile.write(writeline)
             raw_input('enter to continue)')
