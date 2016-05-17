@@ -344,7 +344,7 @@ def multi_class_labels_from_bbfiles(dir_of_bbfiles):
         print(str(len(files))+' files in '+dir_of_bbfiles)
         for a_file in files:
             outvec = np.zeros(len(constants.ultimate_21))
-            with open(a_file,'r') as lines:
+            with open(os.path.join(dir_of_bbfiles,a_file),'r') as lines:
                 for line in lines:
                     print('file:'+a_file+' line:'+str(line))
                     line_arr = line.split()
