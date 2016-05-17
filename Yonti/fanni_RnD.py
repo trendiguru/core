@@ -66,7 +66,7 @@ if name == 'Bob':
     sys.exit()
 
 from .. import NNSearch
-def find_occlusion():
+def find_occlusion(name):
     collection = db[name]
     items = collection.find({}, {'fp': 1, '_id':1})
     for item in items:
@@ -80,4 +80,4 @@ def find_occlusion():
 
         break
 
-find_occlusion()
+find_occlusion('fanni')
