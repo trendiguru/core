@@ -344,7 +344,7 @@ def multi_class_labels_from_bbfiles(dir_of_bbfiles):
                 print('berg class {} label {} u21 class {} label {}'.format(berg_class,constants.tamara_berg_categories[berg_class],u21_class,constants.ultimate_21[u21_class]))
                 outvec[u21_class] = 1
             writeline = a_file+' '
-            for i in len(outvec):
+            for i in len(outvec):   #
                 writeline = writeline+str(outvec[i])+' '
             print('writing line:'+str(writeline))
             classfile.write(writeline)
