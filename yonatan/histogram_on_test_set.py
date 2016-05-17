@@ -20,12 +20,12 @@ import matplotlib.pyplot as plt
 array_success = np.array([])
 array_failure = np.array([])
 
-text_file = open("1500_dresses_test_list.txt", "r")
+text_file = open("1500_dresses_cv_list.txt", "r")
 
 counter = 0
 
 MODLE_FILE = "/home/yonatan/trendi/yonatan/Alexnet_deploy_for_dresses.prototxt"
-PRETRAINED = "/home/yonatan/caffe_alexnet_train_on_9000_dresses_iter_10000.caffemodel"
+PRETRAINED = "/home/yonatan/caffe_alexnet_train_on_9000_dresses_iter_973.caffemodel"
 caffe.set_mode_gpu()
 image_dims = [100, 200]
 mean, input_scale = np.array([120, 120, 120]), None
