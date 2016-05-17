@@ -79,7 +79,7 @@ if __name__ == "__main__":
     if '{' in line:
       past_beginning = True
     if not past_beginning and 'name' in line:
-      net_name = line.strip[-1]
+      net_name = line.strip()[-1]
       print('net name:'+net_name)
 
   print 'train iterations len: ', len(training_iterations)
