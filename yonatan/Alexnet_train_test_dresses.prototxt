@@ -9,9 +9,6 @@ layer {
   }
   transform_param {
     mirror: true
-    mean_value: 120
-    mean_value: 120
-    mean_value: 120
   }
   image_data_param {
     source: "/home/yonatan/2600_dresses_with_faces_train_list.txt"
@@ -29,9 +26,6 @@ layer {
   }
   transform_param {
     mirror: false
-    mean_value: 120
-    mean_value: 120
-    mean_value: 120
   }
   image_data_param {
     source: "/home/yonatan/600_dresses_with_faces_cv_list.txt"
