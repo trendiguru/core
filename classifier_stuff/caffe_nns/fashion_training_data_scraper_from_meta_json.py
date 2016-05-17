@@ -360,6 +360,7 @@ def multi_class_labels_from_bbfiles(dir_of_bbfiles):
             if os.path.exists(imgname):
                 img_arr = cv2.imread(imgname)
                 cv2.imshow('win',img_arr)
+                cv2.waitKey(0)
             else:
                 print('image not found')
             writeline = a_file+' '
