@@ -19,8 +19,6 @@ import numpy as np
 
 logging.basicConfig(level=logging.DEBUG)
 
-#json files are in this format:
-#  {"photo": 417, "product": 2400, "bbox": {"width": 145, "top": 405, "left": 390, "height": 235}}
 
 # getting the links and image numbers to web links to list from the text:
 #example line for product #23  , url starts at char 11
@@ -233,7 +231,6 @@ def generate_bbfiles_from_json(json_file,imagefiles_dir,bb_dir,darknet=True,clas
             raise
     f.close()
 
-
 def library_with_cropping(json_file, json_files_path, photos_path, listing,max_items, docrop=False):
     # finds only dresses dataset:
     data = []
@@ -333,14 +330,25 @@ def generate_bbfiles_from_json_dir_of_dirs(dir_of_jsons,imagefiles_dir,bb_dir,da
 #def generate_bbfiles_from_json(json_file,imagefiles_dir,bb_dir,darknet=True,class_number=None,clobber=False):
 
 def multi_class_labels_from_bbfiles(dir_of_bbfiles):
+#json files are in this format:
+#  {"photo": 417, "product": 2400, "bbox": {"width": 145, "top": 405, "left": 390, "height": 235}}
     with open('classlabels.txt','w') as classfile:
         files = [f for f in os.listdir(dir_of_bbfiles) if '.txt' in f]
+        print(str(len(files))+' files in '+dir_of_bbfiles)
         for a_file in files:
+            outvec = np.zeros(len(constants.ultimate_21))
             for line in a_file:
-                berg_class = line[]
+                line_arr = line.split()
+                berg_class = int(line_arr(0))
                 u21_class = constants.tamara_berg_to_ultimate_21_index_conversion[berg_class]
                 print('berg class {} label {} u21 class {} label {}'.format(berg_class,constants.tamara_berg_categories[berg_class],u21_class,constants.ultimate_21[u21_class]))
-                outvec = np.zeros(len(constants.ultimate_21))
+                outvec[u21_class] = 1
+            writeline = a_file+' '
+            for i in len(outvec):
+                writeline = writeline+str(outvec[i])+' '
+            print('writing line:'+str(writeline))
+            classfile.write(writeline)
+            raw_input('enter to continue)')
             classfile.write()
 
 if __name__ == "__main__":
@@ -354,6 +362,12 @@ if __name__ == "__main__":
     bb_dir = '/home/jeremy/'
     imagefiles_dir = '/home/jeremy/dataset/test_pairs_bags'
     imagefiles_dir = '/home/jeremy/street2shop/photos/'
+
+#    dir_of_bbfiles = '/home/jeremy/image_dbs/tamara_berg/'
+#    multi_class_labels_from_bbfiles(dir_of_bbfiles)
+
+
+
     generate_bbfiles_from_json_dir_of_dirs(json_dir,imagefiles_dir,bb_dir,darknet=True,positive_filter='train')
     generate_bbfiles_from_json_dir_of_dirs(json_dir,imagefiles_dir,bb_dir,darknet=True,positive_filter='test')
 #    generate_bbfiles_from_json(json_file,imagefiles_dir,darknet=True,class_number=66)
