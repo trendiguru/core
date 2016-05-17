@@ -359,7 +359,10 @@ def multi_class_labels_from_bbfiles(dir_of_bbfiles):
             print('imgname:'+imgname)
             if os.path.exists(imgname):
                 img_arr = cv2.imread(imgname)
-                cv2.imshow('win',img_arr)
+                h,w=img_arr.shape[0:2]
+                factor = float(h)/400.0
+                resized = cv2.resize(img_arr,(400,int(w/factor)))
+                cv2.imshow('win',resized)
                 cv2.waitKey(0)
             else:
                 print('image not found')
@@ -368,7 +371,7 @@ def multi_class_labels_from_bbfiles(dir_of_bbfiles):
                 writeline = writeline+str(int(outvec[i]))+' '
             print('writing line:'+str(writeline))
             classfile.write(writeline)
-            raw_input('enter to continue)')
+#            raw_input('enter to continue)')
 
 if __name__ == "__main__":
 # opening the JSONs structure files:
