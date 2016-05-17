@@ -10,7 +10,7 @@ import constants
 
 K = constants.K  # .5 is the same as Euclidean
 
-def distance_1_k(fp1, fp2, k=K):
+def distance_1_k(fp1, fp2,mis, take ,k=K):
     """This calculates distance between to arrays. When k = .5 this is the same as Euclidean."""
     if fp1 is not None and fp2 is not None:
         f12 = np.abs(np.array(fp1) - np.array(fp2))
@@ -69,6 +69,7 @@ def find_n_nearest_neighbors(target_dict, entries, number_of_matches, fp_weights
             tar = target_dict["fingerprint"]
             d = distance_function(ent, tar, fp_weights, hist_length)
             nearest_n.append((entry, d))
+            farthest_nearest = 1
         else:
             if i == number_of_matches:
                 # sort by distance
