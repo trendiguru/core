@@ -7,9 +7,8 @@ db = constants.db
 
 def create_test_collection(name, amount):
     img_list = db.images.find({'num_of_people': 1})
+    db.drop_collection(name)
     collection = db[name]
-    collection.drop_collection()
-
     count=0
     for img in img_list:
         if img['image_urls'][0][0:27] == 'http://www.fashionseoul.com':
