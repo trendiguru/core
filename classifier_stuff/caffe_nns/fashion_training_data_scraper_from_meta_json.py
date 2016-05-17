@@ -330,7 +330,7 @@ def generate_bbfiles_from_json_dir_of_dirs(dir_of_jsons,imagefiles_dir,bb_dir,da
 #def generate_bbfiles_from_json(json_file,imagefiles_dir,bb_dir,darknet=True,class_number=None,clobber=False):
 
 def tamara_berg_to_ultimate_21(tb_index):
-    u21s = [conv[1] for conv in constants.tamara_berg_to_ultimate_21_index_conversion if conv[0]==tb_index/home]
+    u21s = [conv[1] for conv in constants.tamara_berg_to_ultimate_21_index_conversion if conv[0]==tb_index]
     if len(u21s) != 1:
         logging.warning('could not get u21 index for tamaraberg index '+str(tb_index))
         return None
