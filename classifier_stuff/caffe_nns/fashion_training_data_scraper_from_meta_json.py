@@ -353,13 +353,15 @@ def multi_class_labels_from_bbfiles(dir_of_bbfiles):
                     if u21_class is None:
                         logging.warning('no matching class found')
                         continue
-                    print('berg class {} label {} u21 class {} label {} line {}'.format(berg_class,constants.tamara_berg_categories[berg_class],u21_class,constants.ultimate_21[u21_class],line_arr))
+                    print('berg_class {} ({}) u21_class {} ({}) line {}'.format(berg_class,constants.tamara_berg_categories[berg_class],u21_class,constants.ultimate_21[u21_class],line_arr))
                     outvec[u21_class] = 1
             imgname = '/home/jeremy/image_dbs/tamara_berg/images/photo_'+a_file[:-4]+'.jpg'
             print('imgname:'+imgname)
             if os.path.exists(imgname):
                 img_arr = cv2.imread(imgname)
                 cv2.imshow('win',img_arr)
+            else:
+                print('image not found')
             writeline = a_file+' '
             for i in range(len(outvec)):
                 writeline = writeline+str(int(outvec[i]))+' '
