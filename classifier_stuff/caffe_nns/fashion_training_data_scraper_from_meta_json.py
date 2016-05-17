@@ -345,9 +345,8 @@ def multi_class_labels_from_bbfiles(dir_of_bbfiles):
         for a_file in files:
             with open(os.path.join(dir_of_bbfiles,a_file),'r') as lines:
                 outvec = np.zeros(len(constants.ultimate_21))
-                print('outvec'+str(outvec))
                 for line in lines:
-                    print('file:'+a_file+' line:'+str(line))
+      #              print('file:'+a_file+' line:'+str(line))
                     line_arr = line.split()
                     berg_class = int(line_arr[0])
                     u21_class = tamara_berg_to_ultimate_21(berg_class)
