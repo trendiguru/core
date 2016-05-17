@@ -107,7 +107,7 @@ if __name__ == "__main__":
 
   host.set_xlabel("iterations")
   host.set_ylabel("log loss")
-  par1.set_ylabel("test accuracy")
+  par1.set_ylabel("accuracy")
 
   p1, = host.plot(training_iterations, training_loss, label="train logloss")
   p3, = host.plot(test_iterations, test_loss, label="test logloss")
