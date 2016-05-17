@@ -29,8 +29,8 @@ PRETRAINED = "/home/yonatan/caffe_alexnet_train_on_2600_dresses_with_faces_iter_
 caffe.set_mode_gpu()
 image_dims = [150, 300]
 mean, input_scale = np.array([120, 120, 120]), None
-channel_swap = None
-#channel_swap = [2, 1, 0]
+#channel_swap = None
+channel_swap = [2, 1, 0]
 raw_scale = 255.0
 ext = 'jpg'
 
