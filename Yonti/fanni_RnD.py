@@ -78,7 +78,7 @@ def find_occlusion(name):
         print bhat
         for num in [100.200,300,400,500]:
             euclid = NNSearch.find_n_nearest_neighbors(item,enteries,number_of_matches=num,
-                                                       distance_function=NNSearch.distance_1_k,fp_weights=fp_weights,
+                                                       distance_function=distance_1_k,fp_weights=fp_weights,
                                                        hist_length=bins,fp_key="fingerprint")
             print euclid
             clickList = [e["clickUrl"] for e in euclid]
