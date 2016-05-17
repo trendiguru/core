@@ -68,16 +68,16 @@ def review_collection(name):
 if name == 'Bob':
     sys.exit()
 
-from .. import NNSearch
+from ..NNSearch import find_n_nearest_neighbors,distance_1_k
 def find_occlusion(name):
     collection = db[name]
     items = collection.find({}, {'fingerprint': 1, '_id':1})
     for item in items:
         enteries = db.GangnamStyle_Female.find({'categories':'dress'})
-        bhat = NNSearch.find_n_nearest_neighbors(item,enteries,100,fp_weights,bins,"fingerprint")
+        bhat = find_n_nearest_neighbors(item,enteries,100,fp_weights,bins,"fingerprint")
         print bhat
         for num in [100.200,300,400,500]:
-            euclid = NNSearch.find_n_nearest_neighbors(item,enteries,number_of_matches=num,
+            euclid = find_n_nearest_neighbors(item,enteries,number_of_matches=num,
                                                        distance_function=distance_1_k,fp_weights=fp_weights,
                                                        hist_length=bins,fp_key="fingerprint")
             print euclid
