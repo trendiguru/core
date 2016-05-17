@@ -75,7 +75,7 @@ def find_occlusion(name):
     for item in items:
         enteries = db.GangnamStyle_Female.find({'categories':'dress'})
         bhat = find_n_nearest_neighbors(item,enteries,100,fp_weights,bins,"fingerprint")
-        print bhat
+        # print bhat
         for num in [100.200,300,400,500]:
             enteries = db.GangnamStyle_Female.find({'categories': 'dress'})
             euclid = find_n_nearest_neighbors(item,enteries,number_of_matches=num,
