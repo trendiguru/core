@@ -69,6 +69,7 @@ def find_n_nearest_neighbors(target_dict, entries, number_of_matches, fp_weights
             tar = target_dict["fingerprint"]
             d = distance_function(ent, tar, fp_weights, hist_length)
             nearest_n.append((entry, d))
+            farthest_nearest = 1
         else:
             if i == number_of_matches:
                 # sort by distance
