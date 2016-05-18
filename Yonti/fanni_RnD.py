@@ -14,9 +14,100 @@ else:
     bins = constants.histograms_length
     fp_len = constants.fingerprint_length
 import sys
-import cv2
 from skimage import io
 
+import logging
+
+import numpy as np
+import cv2
+
+import constants
+
+K = constants.K  # .5 is the same as Euclidean
+
+def euclidean(fp1, fp2):
+    """This calculates distance between to arrays using Euclidean distance."""
+    if fp1 is not None and fp2 is not None:
+        f12 = np.abs(np.array(fp1) - np.array(fp2))
+        f12_p = np.power(f12, 2)
+        return np.power(np.sum(f12_p), 0.5)
+    else:
+        print("null fingerprint sent to distance_1_k ")
+        logging.warning("null fingerprint sent to distance_1_k ")
+        return None
+
+
+def distance_Bhattacharyya(fp1, fp2):
+    """
+    This calculates distance between to arrays.
+    the first 6 elements are calculated using euclidean distance (When k = .5 this is the same as Euclidean)
+    the next elements are the hue, saturation and value histograms - their distances are measured separately
+    using the Bhattacharyya distance.
+    later all the 4 components are combined with different weights:
+    - the first 6 elements get 5%
+    - the hue histogram gets 50%
+    - the saturation and value histograms share the other 45% equally
+    """
+    Bhattacharyya = 3
+    weights = [0.05, 0.5, 0.225, 0.225]
+    hist_length = [180, 255, 255]
+    fp_division = [6, 6 + hist_length[0], 6 + hist_length[0] + hist_length[1],
+                   6 + hist_length[0] + hist_length[1] + hist_length[2]]
+
+    if fp1 is not None and fp2 is not None:
+        first6 = np.abs(np.array(fp1[:fp_division[0]]) - np.array(fp2[:fp_division[0]]))
+        first6 = np.power(np.sum(np.power(first6, 1 / 0.5)), 0.5)
+        hue_hist1 = np.float32(fp1[fp_division[0]:fp_division[1]])
+        hue_hist2 = np.float32(fp2[fp_division[0]:fp_division[1]])
+        hue = float(cv2.compareHist(hue_hist1, hue_hist2, Bhattacharyya))
+        sat_hist1 = np.float32(fp1[fp_division[1]:fp_division[2]])
+        sat_hist2 = np.float32(fp2[fp_division[1]:fp_division[2]])
+        sat = float(cv2.compareHist(sat_hist1, sat_hist2, Bhattacharyya))
+        val_hist1 = np.float32(fp1[fp_division[2]:])
+        val_hist2 = np.float32(fp2[fp_division[2]:])
+        val = float(cv2.compareHist(val_hist1, val_hist2, Bhattacharyya))
+        score = weights[0] * first6 + weights[1] * hue + weights[2] * sat + weights[3] * val
+        return score
+
+    else:
+        print("null fingerprint sent to Bhattacharyya ")
+        logging.warning("null fingerprint sent to Bhattacharyya ")
+        return None
+
+
+def find_n_nearest_neighbors(target_dict, entries, number_of_matches, distance_function=None):
+    distance_function = distance_function or distance_Bhattacharyya
+    # list of tuples with (entry,distance). Initialize with first n distance values
+    nearest_n = []
+    for i, entry in enumerate(entries):
+        if i < number_of_matches:
+            ent = entry["fingerprint"]
+            tar = target_dict["fingerprint"]
+            d = distance_function(ent, tar)
+            nearest_n.append((entry, d))
+        else:
+            if i == number_of_matches:
+                # sort by distance
+                nearest_n.sort(key=lambda tup: tup[1])
+                # last item in the list (index -1, go python!)
+                farthest_nearest = nearest_n[-1][1]
+
+            # Loop through remaining entries, if one of them is better, insert it in the correct location and remove last item
+            ent = entry["fingerprint"]
+            tar = target_dict["fingerprint"]
+            d = distance_function(ent, tar)
+            if d < farthest_nearest:
+                insert_at = number_of_matches-2
+                while d < nearest_n[insert_at][1]:
+                    insert_at -= 1
+                    if insert_at == -1:
+                        break
+                nearest_n.insert(insert_at + 1, (entry, d))
+                nearest_n.pop()
+                farthest_nearest = nearest_n[-1][1]
+    [result[0].pop('fingerprint') for result in nearest_n]
+    nearest_n = [result[0] for result in nearest_n]
+    return nearest_n
 
 def create_test_collection(name, amount=200):
     img_list = db.images.find({'num_of_people': 1})
@@ -68,24 +159,22 @@ def review_collection(name):
 if name == 'Bob':
     sys.exit()
 
-from ..NNSearch import find_n_nearest_neighbors,distance_1_k
 def find_occlusion(name):
     collection = db[name]
     items = collection.find({}, {'fingerprint': 1, '_id':1})
     for item in items:
-        enteries = db.GangnamStyle_Female.find({'categories':'dress'})
-        bhat = find_n_nearest_neighbors(item,enteries,100,fp_weights,bins,"fingerprint")
+        enteries = db.GangnamStyle_Female.find({'categories':'dress'},{"fingerprint":1, "_id":1,"image.XLarge":1})
+        bhat = find_n_nearest_neighbors(item,enteries,100)
         # print bhat
         for num in [100,200,300,400,500]:
-            enteries = db.GangnamStyle_Female.find({'categories': 'dress'})
+            enteries = db.GangnamStyle_Female.find({'categories': 'dress'},{"fingerprint":1, "_id":1,"image.XLarge":1})
             euclid = find_n_nearest_neighbors(item,enteries,number_of_matches=num,
-                                                       distance_function=distance_1_k,fp_weights=fp_weights,
-                                                       hist_length=bins,fp_key="fingerprint")
-            print euclid
-            clickList = [e["clickUrl"] for e in euclid]
-            score = [m for m in bhat if m["clickUrl"] in clickList ]
+                                                       distance_function=euclidean)
+            #print euclid
+            clickList = [e["_id"] for e in euclid]
+            score = [m for m in bhat if m["_id"] in clickList ]
             print len(score)/100
 
         break
 
-find_occlusion('fanni')
+# find_occlusion('fanni')
