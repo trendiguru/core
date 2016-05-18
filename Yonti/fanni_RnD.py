@@ -160,13 +160,13 @@ def find_occlusion(name):
 
     results = []
     b = {'name': 'bhat',
-         'range': 100,
+         'range': 25,
          'processTime': 0}
     results.append(b)
 
     for r in range(1,11):
         dict = {'name': 'euclid ' +str(r),
-                'range':r*100,
+                'range':r*25,
                 'processTime':0,
                 'score':0}
         results.append(dict)
@@ -176,14 +176,14 @@ def find_occlusion(name):
         print (x)
         enteries = db.GangnamStyle_Female.find({'categories':'dress'},{"fingerprint":1})#,"image.XLarge":1})
         b1 = time.time()
-        bhat = find_n_nearest_neighbors(item,enteries,100)
+        bhat = find_n_nearest_neighbors(item,enteries,25)
         b2 = time.time()
         b2_1 = b2-b1
         results[0]["processTime"] += b2_1
 
         # print ("bhat length = %d" % len(bhat))
         for num in range(1,11):
-            matches= num * 100
+            matches= num * 25
             enteries = db.GangnamStyle_Female.find({'categories': 'dress'},{"fingerprint":1})#,"image.XLarge":1})
             e1 = time.time()
             euclid = find_n_nearest_neighbors(item,enteries,number_of_matches=matches, distance_function=euclidean)
@@ -198,9 +198,6 @@ def find_occlusion(name):
 
 
     for i in range (11):
-        results[num]["processTime"] = results[num]["processTime"] / 50
-        if i>0:
-            results[num]["score"] = results[num]["score"]/50
         print (results[i])
 
 
