@@ -13,12 +13,12 @@ from ftplib import FTP
 from StringIO import StringIO
 import gzip
 import sys
-
+import hashlib
 import time
 import datetime
 import re
 import sys
-from .. import constants, Utils, page_results
+from .. import constants, Utils
 from . import ebay_constants
 from . import dl_excel
 from rq import Queue
@@ -45,6 +45,11 @@ db = constants.db
 status = db.download_status
 today_date = str(datetime.datetime.date(datetime.datetime.now()))
 
+def get_hash(image):
+    m = hashlib.md5()
+    m.update(image)
+    url_hash = m.hexdigest()
+    return url_hash
 
 def getStoreStatus(store_id,files):
     store_int = int(store_id)
@@ -112,7 +117,7 @@ def ebay2generic(item, gender, subcat):
         if image is None:
             generic = None
         else:
-            img_hash = page_results.get_hash(image)
+            img_hash = get_hash(image)
             generic["img_hash"] = img_hash
 
     except:
