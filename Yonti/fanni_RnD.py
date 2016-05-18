@@ -2,28 +2,20 @@
 function fot testing fanni
 """
 import platform
+import sys
+from skimage import io
+import logging
+import numpy as np
+import cv2
 if platform.node()=='Bob':
-    name =  'Bob'
+    name = 'Bob'
     import pymongo
     db = pymongo.MongoClient().mydb
 else:
     name = 'not Bob'
     from .. import constants
     db = constants.db
-    fp_weights = constants.fingerprint_weights
-    bins = constants.histograms_length
-    fp_len = constants.fingerprint_length
-import sys
-from skimage import io
 
-import logging
-
-import numpy as np
-import cv2
-
-import constants
-
-K = constants.K  # .5 is the same as Euclidean
 
 def euclidean(fp1, fp2):
     """This calculates distance between to arrays using Euclidean distance."""
@@ -109,6 +101,7 @@ def find_n_nearest_neighbors(target_dict, entries, number_of_matches, distance_f
     nearest_n = [result[0] for result in nearest_n]
     return nearest_n
 
+
 def create_test_collection(name, amount=200):
     img_list = db.images.find({'num_of_people': 1})
     # db.drop_collection(name)
@@ -158,6 +151,7 @@ def review_collection(name):
 # review_collection('fanni')
 if name == 'Bob':
     sys.exit()
+
 
 def find_occlusion(name):
     collection = db[name]
