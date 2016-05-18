@@ -224,6 +224,7 @@ def annoy_search(name,n, dis_func,fingerprint):
     return result
 
 def annoy_timings():
+    f = open('annoy_results.txt')
     for trees in [1,10,50,100]:
         for method in ['euclidean', 'angular']:
             name = '/home/yonti/test' + str(trees) + method + '.ann'
@@ -270,6 +271,11 @@ def annoy_timings():
                         score = [m for m in oneByone if m["index"] in ann]
                         results[num]["score"] += len(score)
                         # print len(score)
-
+                    for i in range(11):
+                        print (results[i])
+                        f.write(results[i])
+                    f.close()
+                    sys.exit()
                 for i in range(11):
                     print (results[i])
+                    f.write(results[i])
