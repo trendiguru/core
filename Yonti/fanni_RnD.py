@@ -207,13 +207,66 @@ def find_occlusion(name):
 
 # find_occlusion('fanni')
 
-def build_forest(tree_count=1):
-    t = annoy.AnnoyIndex(696)
+def build_forest(name, dis_func, tree_count):
+    t = annoy.AnnoyIndex(696, dis_func)
     items = db.fanni_testing_db.find({})
     for x,item in enumerate(items):
         v= item['fingerprint']
         t.add_item(x,v)
-
+        db.fanni_testing_db.update_one({'_id':item['_id']},{'$set':{"index":x}})
     t.build(tree_count)
-    t.save('/home/yonti/test.ann')
+    t.save(name)
 
+def annoy_search(name,n, dis_func,fingerprint):
+    t = annoy.AnnoyIndex(696, dis_func)
+    t.load(name)
+    result = t.get_nns_by_vector(fingerprint,n)
+    return result
+
+def annoy_timings():
+    for trees in [1,10,50,100]:
+        for method in ['euclidean', 'angular']:
+            name = '/home/yonti/test' + str(trees) + method + '.ann'
+            t1 = time.time()
+            build_forest(name, method, trees )
+            t2 = time.time()
+            t3 = t2-t1
+            print('trees: %d  method: %s  build_time: %d' %(trees, method, t3))
+            for dis in [ 'bhat','euclid']:
+                items = db.fanni.find({}, {'fingerprint': 1})
+                results = []
+                b = {'name': dis,
+                    'range': 100,
+                    'processTime': 0}
+                results.append(b)
+
+                for r in range(1, 11):
+                    dict = {'name': 'euclid ' + str(r),
+                            'range': r * 100,
+                            'processTime': 0,
+                            'score': 0}
+                    results.append(dict)
+
+                for x, item in enumerate(items):
+
+                    enteries = db.fanni_testing_db.find({},{"fingerprint": 1})
+                    b1 = time.time()
+                    bhat = find_n_nearest_neighbors(item, enteries, 25)
+                    b2 = time.time()
+                    b2_1 = b2 - b1
+                    results[0]["processTime"] += b2_1
+
+                    for num in range(1, 11):
+                        matches = num * 100
+                        a1 = time.time()
+                        ann = annoy_search(name,matches,method,item['fingerprint'])
+                        a2 = time.time()
+                        a2_1 = a2 - a1
+                        results[num]["processTime"] += a2_1
+                        # print ("euclid %d length = %d" %(matches, len(euclid)))
+                        score = [m for m in bhat if m["index"] in ann]
+                        results[num]["score"] += len(score)
+                        # print len(score)
+
+                for i in range(11):
+                    print (results[i])
