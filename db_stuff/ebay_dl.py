@@ -12,7 +12,8 @@ import gc
 from ftplib import FTP
 from StringIO import StringIO
 import gzip
-import csv
+import sys
+
 import time
 import datetime
 import re
@@ -23,6 +24,20 @@ from . import dl_excel
 from rq import Queue
 from ..fingerprint_core import generate_mask_and_insert
 from time import sleep
+import csv
+maxInt = sys.maxsize
+decrement = True
+
+while decrement:
+    # decrease the maxInt value by factor 10
+    # as long as the OverflowError occurs.
+
+    decrement = False
+    try:
+        csv.field_size_limit(maxInt)
+    except OverflowError:
+        maxInt = int(maxInt/10)
+        decrement = True
 
 q = Queue('fingerprint_new', connection=constants.redis_conn)
 
@@ -94,12 +109,14 @@ def ebay2generic(item, gender, subcat):
         if item["STOCK"] != "In Stock":
             generic["status"]["instock"] = False
         image = Utils.get_cv2_img_array(item["IMAGE_URL"])
-        if image is not None:
+        if image is None:
+            generic = None
+        else:
             img_hash = page_results.get_hash(image)
             generic["img_hash"] = img_hash
     except:
         print item
-        generic = item
+        generic = None
     return generic
 
 us_params = {"url": "partnersw.ftp.ebaycommercenetwork.com",
@@ -289,6 +306,8 @@ for filename in files:
             continue
         itemCount +=1
         generic_dict = ebay2generic(item, gender, subCategory)
+        if generic_dict is None:
+            continue
         exists = db[collection_name].find_one({'id':generic_dict['id']})
         if exists and exists["fingerprint"] is not None:
             db[collection_name].update_one({'id':exists['id']}, {"$set": {"download_data.dl_version":today_date,
