@@ -270,8 +270,6 @@ def annoy_timings():
                         score = [m for m in oneByone if m["index"] in ann]
                         results[num]["score"] += len(score)
                         # print len(score)
-                    for i in range(11):
-                        print (results[i])
-                    sys.exit()
+
                 for i in range(11):
                     print (results[i])
