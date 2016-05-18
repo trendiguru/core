@@ -224,7 +224,7 @@ def annoy_search(name,n, dis_func,fingerprint):
     return result
 
 def annoy_timings():
-    f = open('annoy_results.txt')
+    f = open('annoy_results.txt','w')
     for trees in [1,10,50,100]:
         for method in ['euclidean', 'angular']:
             name = '/home/yonti/test' + str(trees) + method + '.ann'
