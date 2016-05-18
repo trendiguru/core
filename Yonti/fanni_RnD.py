@@ -164,7 +164,7 @@ def find_occlusion(name):
          'processTime': 0}
     results.append(b)
 
-    for r in range(1,11):
+    for r in range(1,21):
         dict = {'name': 'euclid ' +str(r),
                 'range':r*25,
                 'processTime':0,
