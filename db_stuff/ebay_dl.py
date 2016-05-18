@@ -114,6 +114,7 @@ def ebay2generic(item, gender, subcat):
         else:
             img_hash = page_results.get_hash(image)
             generic["img_hash"] = img_hash
+
     except:
         print item
         generic = None
