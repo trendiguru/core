@@ -184,7 +184,7 @@ def find_occlusion(name):
         results[0]["processTime"] += b2_1
 
         # print ("bhat length = %d" % len(bhat))
-        for num in range(1,11):
+        for num in range(1,21):
             matches= num * 25
             enteries = db.GangnamStyle_Female.find({'categories': 'dress'},{"fingerprint":1})#,"image.XLarge":1})
             e1 = time.time()
