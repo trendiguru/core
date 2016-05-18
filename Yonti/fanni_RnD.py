@@ -251,7 +251,10 @@ def annoy_timings():
 
                     enteries = db.fanni_testing_db.find({},{"fingerprint": 1,"index":1})
                     b1 = time.time()
-                    bhat = find_n_nearest_neighbors(item, enteries, 25)
+                    if dis is 'bhat':
+                        oneByone = find_n_nearest_neighbors(item, enteries, 100)
+                    else:
+                        oneByone = find_n_nearest_neighbors(item, enteries, 100,distance_function=euclidean)
                     b2 = time.time()
                     b2_1 = b2 - b1
                     results[0]["processTime"] += b2_1
@@ -264,9 +267,11 @@ def annoy_timings():
                         a2_1 = a2 - a1
                         results[num]["processTime"] += a2_1
                         # print ("euclid %d length = %d" %(matches, len(euclid)))
-                        score = [m for m in bhat if m["index"] in ann]
+                        score = [m for m in oneByone if m["index"] in ann]
                         results[num]["score"] += len(score)
                         # print len(score)
-
+                    for i in range(11):
+                        print (results[i])
+                    sys.exit()
                 for i in range(11):
                     print (results[i])
