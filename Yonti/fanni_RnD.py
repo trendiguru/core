@@ -233,7 +233,7 @@ def annoy_timings():
             t2 = time.time()
             t3 = t2-t1
             print('trees: %d  method: %s  build_time: %d' %(trees, method, t3))
-            f.write('trees: %d  method: %s  build_time: %d' %(trees, method, t3))
+            f.write('trees: %d  method: %s  build_time: %d \n' %(trees, method, t3))
             for dis in [ 'bhat','euclid']:
                 items = db.fanni.find({}, {'fingerprint': 1})
                 results = []
@@ -272,13 +272,10 @@ def annoy_timings():
                         score = [m for m in oneByone if m["index"] in ann]
                         results[num]["score"] += len(score)
                         # print len(score)
-                    for i in range(11):
-                        print (results[i])
-                        f.write(str(results[i]))
-                    f.close()
-                    sys.exit()
+
                 for i in range(11):
                     print (results[i])
-                    f.write(results[i])
+                    f.write(str(results[i]))
+                    f.write('\n')
                 f.write('\n\n')
     f.close()
