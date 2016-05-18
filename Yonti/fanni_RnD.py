@@ -156,7 +156,7 @@ if name == 'Bob':
 
 def find_occlusion(name):
     collection = db[name]
-    items = collection.find({}, {'fingerprint': 1, '_id':1})
+    items = collection.find({}, {'fingerprint': 1})
 
     results = []
     b = {'name': 'bhat',
@@ -174,7 +174,7 @@ def find_occlusion(name):
 
     for x,item in enumerate(items):
         print (x)
-        enteries = db.GangnamStyle_Female.find({'categories':'dress'},{"fingerprint":1, "_id":1,"image.XLarge":1})
+        enteries = db.GangnamStyle_Female.find({'categories':'dress'},{"fingerprint":1})#,"image.XLarge":1})
         b1 = time.time()
         bhat = find_n_nearest_neighbors(item,enteries,100)
         b2 = time.time()
@@ -184,7 +184,7 @@ def find_occlusion(name):
         # print ("bhat length = %d" % len(bhat))
         for num in range(1,11):
             matches= num * 100
-            enteries = db.GangnamStyle_Female.find({'categories': 'dress'},{"fingerprint":1, "_id":1,"image.XLarge":1})
+            enteries = db.GangnamStyle_Female.find({'categories': 'dress'},{"fingerprint":1})#,"image.XLarge":1})
             e1 = time.time()
             euclid = find_n_nearest_neighbors(item,enteries,number_of_matches=matches, distance_function=euclidean)
             e2 = time.time()
@@ -196,8 +196,13 @@ def find_occlusion(name):
             results[num]["score"] += len(score)
             # print len(score)
 
-        print results
 
-    print results
+    for i in range (11):
+        results[num]["processTime"] = results[num]["processTime"] / 50
+        if i>0:
+            results[num]["score"] = results[num]["score"]/50
+        print (results[i])
+
 
 # find_occlusion('fanni')
+
