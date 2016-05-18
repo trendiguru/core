@@ -164,10 +164,10 @@ def find_occlusion(name):
             enteries = db.GangnamStyle_Female.find({'categories': 'dress'},{"fingerprint":1, "_id":1,"image.XLarge":1})
             euclid = find_n_nearest_neighbors(item,enteries,number_of_matches=num,
                                                        distance_function=euclidean)
-            print ("euclid %d length = %d" %(num, len(bhat)))
+            print ("euclid %d length = %d" %(num, len(euclid)))
             clickList = [e["_id"] for e in euclid]
             score = [m for m in bhat if m["_id"] in clickList ]
-            print len(score)/100
+            print len(score)
 
         break
 
