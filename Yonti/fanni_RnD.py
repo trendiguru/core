@@ -17,6 +17,7 @@ else:
     db = constants.db
 
 import time
+import annoy
 
 def euclidean(fp1, fp2):
     """This calculates distance between to arrays using Euclidean distance."""
@@ -205,4 +206,14 @@ def find_occlusion(name):
 
 
 # find_occlusion('fanni')
+
+def build_forest(tree_count=1):
+    t = annoy.AnnoyIndex(696)
+    items = db.fanni_testing_db.find({})
+    for x,item in enumerate(items):
+        v= item['fingerprint']
+        t.add_item(x,v)
+
+    t.build(tree_count)
+    t.save('/home/yonti/test.ann')
 
