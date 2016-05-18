@@ -129,7 +129,7 @@ if __name__ == "__main__":
   par1.axis["right"].label.set_color(p2.get_color())
 
   plt.title(net_name)
-  plt.suptitle(net_name)
+  plt.suptitle(args.output_file)
   plt.draw()
   savename = args.output_file+'.jpg'
   plt.savefig(savename)
