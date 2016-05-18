@@ -16,6 +16,7 @@ else:
     from .. import constants
     db = constants.db
 
+import time
 
 def euclidean(fp1, fp2):
     """This calculates distance between to arrays using Euclidean distance."""
@@ -156,19 +157,44 @@ if name == 'Bob':
 def find_occlusion(name):
     collection = db[name]
     items = collection.find({}, {'fingerprint': 1, '_id':1})
-    for item in items:
+
+    results = []
+    b = {'name': 'bhat',
+         'range': 100,
+         'processTime': 0}
+    results.append(b)
+
+    for r in range(1,11):
+        dict = {'name': 'euclid ' +str(r),
+                'range':r*100,
+                'processTime':0,
+                'score':0}
+        results.append(dict)
+
+
+    for x,item in enumerate(items):
+        print (x)
         enteries = db.GangnamStyle_Female.find({'categories':'dress'},{"fingerprint":1, "_id":1,"image.XLarge":1})
+        b1 = time.time()
         bhat = find_n_nearest_neighbors(item,enteries,100)
-        print ("bhat length = %d" % len(bhat))
-        for num in [100,200,300,400,500]:
+        b2 = time.time()
+        b2_1 = b2-b1
+        results[0]["processTime"] += b2_1
+
+        # print ("bhat length = %d" % len(bhat))
+        for num in range(1,11):
+            matches= num * 100
             enteries = db.GangnamStyle_Female.find({'categories': 'dress'},{"fingerprint":1, "_id":1,"image.XLarge":1})
-            euclid = find_n_nearest_neighbors(item,enteries,number_of_matches=num,
-                                                       distance_function=euclidean)
-            print ("euclid %d length = %d" %(num, len(euclid)))
+            e1 = time.time()
+            euclid = find_n_nearest_neighbors(item,enteries,number_of_matches=matches, distance_function=euclidean)
+            e2 = time.time(0)
+            e2_1 = e2-e1
+            results[num]["processTime"]+=e2_1
+            # print ("euclid %d length = %d" %(matches, len(euclid)))
             clickList = [e["_id"] for e in euclid]
             score = [m for m in bhat if m["_id"] in clickList ]
-            print len(score)
-
-        break
+            results[num]["score"] += len(score)
+            # print len(score)
+    print results
 
 # find_occlusion('fanni')
