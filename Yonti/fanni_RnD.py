@@ -174,6 +174,8 @@ def find_occlusion(name):
 
     for x,item in enumerate(items):
         print (x)
+        if divmod(x-1, 5)[1] == 0:
+            print(results)
         enteries = db.GangnamStyle_Female.find({'categories':'dress'},{"fingerprint":1})#,"image.XLarge":1})
         b1 = time.time()
         bhat = find_n_nearest_neighbors(item,enteries,25)
