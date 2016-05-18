@@ -274,7 +274,7 @@ def annoy_timings():
                         # print len(score)
                     for i in range(11):
                         print (results[i])
-                        f.write(results[i])
+                        f.write(str(results[i]))
                     f.close()
                     sys.exit()
                 for i in range(11):
