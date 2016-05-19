@@ -12,13 +12,14 @@ from trendi import pipeline
 from trendi.utils import imutils
 from trendi import constants
 from trendi.paperdoll import paperdoll_parse_enqueue
-
+from trendi import Utils
 
 def infer_many(images,prototxt,caffemodel,out_dir='./'):
     net = caffe.Net(prototxt,caffemodel, caffe.TEST)
     dims = [150,100]
     start_time = time.time()
     masks=[]
+    Utils.ensure_dir(out_dir)
     for imagename in images:
         print('working on:'+imagename)
             # load image, switch to BGR, subtract mean, and make dims C x H x W for Caffe
@@ -161,8 +162,8 @@ if __name__ == "__main__":
     caffemodel = 'snapshot_nn2/train_iter_164620.caffemodel'  #010516 saved
 
     parser = argparse.ArgumentParser(description='get Caffe output')
-    parser.add_argument('caffemodel',dest=cmodel, help='caffemodel', default=caffemodel)
-    parser.add_argument('prototxt', dest = proto, help='prototxt',default=prototxt)
+    parser.add_argument('caffemodel', help='caffemodel', default=caffemodel)
+    parser.add_argument('prototxt', help='prototxt',default=prototxt)
     parser.add_argument('--image', dest = image_file, help='image file',default=None)
     parser.add_argument('--dir', dest = image_directory, help='image directory',default='./')
     parser.add_argument('--outdir', dest = out_directory, help='result directory',default=None)
@@ -171,9 +172,12 @@ if __name__ == "__main__":
 #    label_dir = '/root/imgdbs/image_dbs/colorful_fashion_parsing_data/labels/'
 
     if args.image_file:
-        infer_one(args.image_file,args.proto,args.cmodel,out_dir=args.out_directory)
+        infer_one(args.image_file,args.prototxt,args.caffemodel,out_dir=args.out_directory)
     elif args.image_directory:
 
         images = [os.path.join(args.image_directory,f) for f in os.listdir(args.image_directory) if '.jpg' in f ]
         print('nimages:'+str(len(images)) + ' in directory '+args.image_directory)
-        infer_many(images,args.proto,args.cmodel,out_dir=args.out_directory)
+        infer_many(images,args.prototxt,args.caffemodel,out_dir=args.out_directory)
+
+    else:
+        print('gave neither image nor directory as input')

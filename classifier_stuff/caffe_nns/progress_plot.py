@@ -109,11 +109,11 @@ if __name__ == "__main__":
   host.set_ylabel("log loss")
   par1.set_ylabel("accuracy")
 
-  p1, = host.plot(training_iterations, training_loss, label="train logloss")
-  p3, = host.plot(test_iterations, test_loss, label="test logloss")
-  p2, = par1.plot(test_iterations, test_accuracy, label="test acc.")
+  p1, = host.plot(training_iterations, training_loss, label="train logloss",'o')
+  p3, = host.plot(test_iterations, test_loss, label="test logloss",'go')
+  p2, = par1.plot(test_iterations, test_accuracy, label="test acc.",'ro')
   if len(training_accuracy)>0:
-    p4, = par1.plot(training_iterations, training_accuracy, label="train acc.")
+    p4, = par1.plot(training_iterations, training_accuracy, label="train acc.",'co')
 
 #  par1.ylim((0,1))
 #  host.legend(loc=2)
