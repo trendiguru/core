@@ -224,8 +224,8 @@ def annoy_search(name,n, dis_func,fingerprint):
     return result
 
 def annoy_timings():
-    f = open('annoy_results_25.txt','w')
-    for trees in [1,10,50,100,250,500]:
+    f = open('annoy_results_25.txt','a')
+    for trees in [100,250,500]:
         for method in ['euclidean', 'angular']:
             name = '/home/yonti/test' + str(trees) + method + '25.ann'
             t1 = time.time()
@@ -233,7 +233,7 @@ def annoy_timings():
             t2 = time.time()
             t3 = t2-t1
             print('trees: %d  method: %s  build_time: %d' %(trees, method, t3))
-            f.write('trees: %d  method: %s  build_time: %d \n' %(trees, method, t3))
+            f.write('\ntrees: %d  method: %s  build_time: %d \n' %(trees, method, t3))
             for dis in [ 'bhat','euclid']:
                 items = db.fanni.find({}, {'fingerprint': 1})
                 results = []
@@ -277,5 +277,5 @@ def annoy_timings():
                     print (results[i])
                     f.write(str(results[i]))
                     f.write('\n')
-                f.write('\n\n')
+                f.write('\n')
     f.close()
