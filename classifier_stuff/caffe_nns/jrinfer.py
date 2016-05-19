@@ -24,7 +24,7 @@ def infer_many(images,prototxt,caffemodel,out_dir='./'):
         print('working on:'+imagename)
             # load image, switch to BGR, subtract mean, and make dims C x H x W for Caffe
         im = Image.open(imagename)
-        im = im.resize(dims,Image.ANTIALIAS)
+#        im = im.resize(dims,Image.ANTIALIAS)
         in_ = np.array(im, dtype=np.float32)
         if len(in_.shape) != 3:
             print('got 1-chan image, skipping')
