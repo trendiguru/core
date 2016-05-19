@@ -224,10 +224,10 @@ def annoy_search(name,n, dis_func,fingerprint):
     return result
 
 def annoy_timings():
-    f = open('annoy_results.txt','w')
-    for trees in [1,10,50,100]:
+    f = open('annoy_results_25.txt','w')
+    for trees in [1,10,50,100,250,500]:
         for method in ['euclidean', 'angular']:
-            name = '/home/yonti/test' + str(trees) + method + '.ann'
+            name = '/home/yonti/test' + str(trees) + method + '25.ann'
             t1 = time.time()
             build_forest(name, method, trees )
             t2 = time.time()
@@ -238,13 +238,13 @@ def annoy_timings():
                 items = db.fanni.find({}, {'fingerprint': 1})
                 results = []
                 b = {'name': dis,
-                    'range': 100,
+                    'range': 25,
                     'processTime': 0}
                 results.append(b)
 
-                for r in range(1, 11):
-                    dict = {'name': 'euclid ' + str(r),
-                            'range': r * 100,
+                for r in range(1, 41):
+                    dict = {'name': 'annoy_ ' + str(r),
+                            'range': r * 25,
                             'processTime': 0,
                             'score': 0}
                     results.append(dict)
@@ -254,15 +254,15 @@ def annoy_timings():
                     enteries = db.fanni_testing_db.find({},{"fingerprint": 1,"index":1})
                     b1 = time.time()
                     if dis is 'bhat':
-                        oneByone = find_n_nearest_neighbors(item, enteries, 100)
+                        oneByone = find_n_nearest_neighbors(item, enteries, 25)
                     else:
-                        oneByone = find_n_nearest_neighbors(item, enteries, 100,distance_function=euclidean)
+                        oneByone = find_n_nearest_neighbors(item, enteries, 25,distance_function=euclidean)
                     b2 = time.time()
                     b2_1 = b2 - b1
                     results[0]["processTime"] += b2_1
 
-                    for num in range(1, 11):
-                        matches = num * 100
+                    for num in range(1, 41):
+                        matches = num * 25
                         a1 = time.time()
                         ann = annoy_search(name,matches,method,item['fingerprint'])
                         a2 = time.time()
@@ -273,7 +273,7 @@ def annoy_timings():
                         results[num]["score"] += len(score)
                         # print len(score)
 
-                for i in range(11):
+                for i in range(41):
                     print (results[i])
                     f.write(str(results[i]))
                     f.write('\n')
