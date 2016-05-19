@@ -165,8 +165,8 @@ if __name__ == "__main__":
     parser.add_argument('caffemodel', help='caffemodel', default=caffemodel)
     parser.add_argument('prototxt', help='prototxt',default=prototxt)
     parser.add_argument('--image', dest = 'image_file', help='image file',default=None)
-    parser.add_argument('--dir', dest = 'image_directory', help='image directory',default='./')
-    parser.add_argument('--outdir', dest = 'out_directory', help='result directory',default=None)
+    parser.add_argument('--dir', dest = 'image_directory', help='image directory',default=None)
+    parser.add_argument('--outdir', dest = 'out_directory', help='result directory',default='.')
     args = parser.parse_args()
 
 #    label_dir = '/root/imgdbs/image_dbs/colorful_fashion_parsing_data/labels/'
