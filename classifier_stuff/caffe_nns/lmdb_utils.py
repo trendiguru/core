@@ -547,8 +547,6 @@ def label_images_and_images_to_lmdb(image_dbname,label_dbname,image_dir,label_di
                     #print('read singlechann label')
 #                    label_arr = np.array([label_arr])
 #                    label_arr = label_arr.transpose((2,0,1))
-                uniques = np.unique(label_arr)
-                print('uniques'+str(uniques))
                 print('db: {} strid:{} imgshape {} lblshape {} imgname {} lblname {}'.format(image_dbname,str_id,img_arr.shape,label_arr.shape,a_file,label_file))
 
                 labeldatum = caffe.proto.caffe_pb2.Datum()
@@ -781,7 +779,7 @@ if __name__ == "__main__":
                                     use_visual_output=False,imgsuffix='.jpg',labelsuffix='.png',do_shuffle=True,maxfiles=100000)
 
     raw_input('enter to continue checking db')
-    inspect_fcn_db(image_dbname,label_dbname,avg_pixval=(B,G,R),max_pixval=1.0,show_visual_output=False)
+    inspect_fcn_db(image_dbname,label_dbname,avg_pixval=(B,G,R),show_visual_output=False)
 
 
     image_dir = '/home/jeremy/image_dbs/colorful_fashion_parsing_data/images/train'
