@@ -335,6 +335,8 @@ def finals():
                     a1 = time.time()
                     ann = annoy_search(name, matches, method, item['fingerprint'])
                     batch = db.fanni_testing_db.find({"AnnoyIndex":{"$in": ann}},{"fingerprint": 1, "AnnoyIndex": 1})
+                    a3 = time.time()
+                    print (str(batch.count())+" : "+str(a3-a1))
                     twoSteps25 = find_n_nearest_neighbors(item, batch, 25)
                     # twoSteps100 = find_n_nearest_neighbors(item, enteries, 100)
                     a2 = time.time()
