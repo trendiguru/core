@@ -291,6 +291,7 @@ def resize_keep_aspect_dir(dir,outdir=None,overwrite=False,output_size=(250,250)
             newname = fullname
         else:
             if outdir:
+                Utils.ensure_dir(outdir)
                 newname = os.path.join(outdir,file)
             else:
                 newname = file.split(filefilter)[0]+'_resized'+filefilter
