@@ -231,7 +231,7 @@ class JrLayer(caffe.Layer):
         if len(in_.shape) == 3:
             logging.warning('got 3 layer img as mask, taking first layer')
             in_ = in_[:,:,0]
-#        in_ = in_ - 1
+    #        in_ = in_ - 1
         print('uniques of label:'+str(np.unique(in_))+' shape:'+str(in_.shape))
             label = copy.copy(in_[np.newaxis, ...])
         print('after extradim shape:'+str(label.shape))
