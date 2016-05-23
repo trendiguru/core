@@ -102,7 +102,7 @@ class JrLayer(caffe.Layer):
         good_label_files = []
         print('checking image files')
         for ind in range(len(self.imagefiles)):
-            img_file = self.imagefiles(ind)
+            img_file = self.imagefiles[ind]
             img_arr = cv2.imread(img_file)
             if img_arr is not None:
                 label_file = self.determine_label_filename(ind)
