@@ -283,7 +283,7 @@ def resize_and_crop_image( input_file_or_np_arr, output_file=None, output_side_l
         cv2.imwrite(output_file, cropped_img)
     return cropped_img
 
-def resize_keep_aspect_dir(dir,outdir=None,overwrite=False,output_size=(250,250),use_visual_output=False,filefilter='.jpg',careful_with_thlabels=False):
+def resize_keep_aspect_dir(dir,outdir=None,overwrite=False,output_size=(250,250),use_visual_output=False,filefilter='.jpg',careful_with_the_labels=False):
     files = [ f for f in os.listdir(dir) if filefilter in f]
     for file in files:
         fullname = os.path.join(dir,file)
