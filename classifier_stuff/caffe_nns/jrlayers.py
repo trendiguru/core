@@ -121,7 +121,7 @@ class JrLayer(caffe.Layer):
         self.n_files = len(self.imagefiles)
         print(str(self.n_files)+' good files in image dir '+str(self.images_dir))
 
-    def reshape(self, bottom, top):
+    def do_reshape(self, bottom, top):
         # load image + label image pair
 #	logging.debug('self.idx is :'+str(self.idx)+' type:'+str(type(self.idx)))
         self.data = self.load_image(self.idx)
@@ -192,6 +192,10 @@ class JrLayer(caffe.Layer):
             else:
                 break
             im = Image.open(full_filename)
+            if im is None:
+                logging.warning('could not get image '+full_filename)
+                return None
+
             in_ = np.array(im, dtype=np.float32)
             in_ = in_[:,:,::-1]
     #        in_ -= self.mean
