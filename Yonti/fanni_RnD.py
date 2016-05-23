@@ -342,10 +342,10 @@ def finals():
                     score = [m for m in oneByone if m["_id"] in twoSteps25]
                     f.write('batchsize: %d  method: %s query_time: %f accuracy: %f %% \n' % (matches, method, a2_1,4*len(score)))
                     if method == 'euclidean':
-                        totalScoreEuclid[r-2] +=score
+                        totalScoreEuclid[r-2] += len(score)
                         totalTimeEuclid[r-2] += a2_1
                     else:
-                        totalScoreAng[r-2] +=score
+                        totalScoreAng[r-2] +=len(score)
                         totalTimeAng[r-2] +=a2_1
 
 
