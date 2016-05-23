@@ -5,7 +5,7 @@ import logging
 logging.basicConfig(level=logging.DEBUG)
 import numpy as np
 from PIL import Image
-
+import cv2
 import random
 
 class JrLayer(caffe.Layer):
