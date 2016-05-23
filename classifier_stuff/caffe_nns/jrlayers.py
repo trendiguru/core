@@ -118,7 +118,8 @@ class JrLayer(caffe.Layer):
         self.n_files = len(self.imagefiles)
         print(str(self.n_files)+' good files in image dir '+str(self.images_dir))
 
-    def do_reshape(self, bottom, top):
+    def reshape(self, bottom, top):
+        print('reshaping')
         # load image + label image pair
 #	logging.debug('self.idx is :'+str(self.idx)+' type:'+str(type(self.idx)))
         self.data = self.load_image(self.idx)
