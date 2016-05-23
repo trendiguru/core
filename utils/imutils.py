@@ -230,7 +230,7 @@ def image_stats(filename):
         logging.warning('could not open {}'.format(filename))
         return None
 
-def test_or_training_textfile(dir_of_dirs,teresize_keep_aspect_dir(st_or_train=None):
+def test_or_training_textfile(dir_of_dirs,test_or_train=None):
     '''
     takes dir of dirs each with different class, makes textfile suitable for training/test set
     :param dir_of_dirs:
