@@ -64,7 +64,7 @@ class JrLayer(caffe.Layer):
 
         # load indices for images and labels
         #if file not found and its not a path then tack on the training dir as a default locaiton for the trainingimages file
-        if self.imagesfile:
+        if self.imagesfile is not None:
             if not os.path.isfile(self.imagesfile) and not '/' in self.imagesfile:
                 self.imagesfile = os.path.join(self.images_dir,self.imagesfile)
             if not os.path.isfile(self.imagesfile):
@@ -73,7 +73,7 @@ class JrLayer(caffe.Layer):
             self.n_files = len(self.imagefiles)
     #        self.indices = open(split_f, 'r').read().splitlines()
         else:
-            self.imagefiles = [f for f in os.path.listdir(self.images_dir) if self.imagefile_suffix in f]
+            self.imagefiles = [f for f in os.listdir(self.images_dir) if self.imagefile_suffix in f]
             self.n_files = len(self.imagefiles)
         print(str(self.n_files)+' files in image dir '+str(self.images_dir))
 
@@ -84,7 +84,7 @@ class JrLayer(caffe.Layer):
                 print('COULD NOT OPEN labelS FILE '+str(self.labelsfile))
                 self.labelfiles = open(self.labelsfile, 'r').read().splitlines()
         else:
-            self.labelfiles = [f for f in os.path.listdir(self.labels_dir) if self.labelfile_suffix in f]
+            self.labelfiles = [f for f in os.listdir(self.labels_dir) if self.labelfile_suffix in f]
             self.n_files = len(self.imagefiles)
         print(str(self.n_files)+' label files in label dir '+str(self.labels_dir))
 
