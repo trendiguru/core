@@ -23,27 +23,23 @@ def cv2_image_to_caffe(image):
 
 def url_to_image(url):
     # download the image, convert it to a NumPy array, and then read
-	# it into OpenCV format
-	resp = urllib.urlopen(url)
-	image = np.asarray(bytearray(resp.read()), dtype="uint8")
-        if image.size == 0:
-            print url
-            return 'Fail'
-	new_image = cv2.imdecode(image, cv2.IMREAD_COLOR)
+    # it into OpenCV format
+    resp = urllib.urlopen(url)
+    image = np.asarray(bytearray(resp.read()), dtype="uint8")
+    if image.size == 0:
+        print url
+        return 'Fail'
+    new_image = cv2.imdecode(image, cv2.IMREAD_COLOR)
 
-	# return the image
-	return new_image
-
-def cv2_image_to_caffe(image):
-    return skimage.img_as_float(cv2.cvtColor(image, cv2.COLOR_BGR2RGB)).astype(np.float32)
+    # return the image
+    return new_image
 
 
 def find_face(raw_image):
-
     #image = url_to_image(url)
     image = url_to_image(raw_image)
     if image == 'Fail':
-         return 'Fail'
+        return 'Fail'
 
     gray = cv2.cvtColor(image, constants.BGR2GRAYCONST)
     face_cascades = [

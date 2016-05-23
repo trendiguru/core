@@ -44,11 +44,9 @@ pd_worker_command_braini1 =  'cd /home/pd_user/paperdoll  && /usr/bin/python /us
 pd_worker_command_braini =  'cd /home/pd_user/paperdoll  && /usr/bin/python /usr/local/bin/rqworker  -w trendi.matlab_wrapper.tgworker.TgWorker  pd &'
 string_to_look_for_in_pd_command = 'tgworker'
 q1 = Queue('start_pipeline', connection=redis_conn)
-q2 = Queue('person_job', connection=redis_conn)
-q3 = Queue('item_job', connection=redis_conn)
-q4 = Queue('merge_items', connection=redis_conn)
-q5 = Queue('merge_people', connection=redis_conn)
-q6 = Queue('wait_for_person_ids', connection=redis_conn)
+q2 = Queue('check_if_relevant', connection=redis_conn)
+q3 = Queue('manual_gender', connection=redis_conn)
+
 
 N_expected_pd_workers_per_server = 15
 N_expected_pd_workers_per_server_braini1 = 47
@@ -73,7 +71,8 @@ N_expected_workers_by_server={'braini1':45,'brain2':45,'brain3':90,'braini4':90,
 N_max_workers = 120
 lower_threshold = 70
 upper_threshold = 85
-
+neurodoorman_queuename = 'neurodoor'
+neurodooll_queuename = 'neurodoll'
 #########
 # DB stuff
 #########
@@ -219,6 +218,21 @@ paperdoll_categories = {"whole_body": ['bodysuit', 'dress', 'jumper', 'suit', 'r
                         "lower_cover": ['shorts', 'skirt', 'jeans', 'pants'],
                         "lower_under": ['stockings', 'tights', 'leggings']}
 
+nn_categories = {"whole_body": ['bodysuit', 'dress', 'jumper', 'suit', 'romper'],
+                        "upper_cover": ['blazer', 'cape', 'jacket', 'cardigan', 'coat', 'vest','tie','sweatshirt'],
+                        "upper_under": ['t-shirt', 'blouse', 'shirt', 'top','bra','sweatshirt','intimate'],
+                        "lower_cover": ['shorts', 'skirt', 'jeans', 'pants','belt'],
+                        "lower_under": ['stockings', 'tights', 'leggings','intimate'],
+                        "feet_cover" :['shoes','boots','loafers','flats','sneakers','clogs','heels','wedges','pumps','sandals'],
+                        "feet_under" :['socks']}
+
+fash_augmented_that_didnt_get_into_nn_categories = ['bag','purse','scarf','hat','accessories','sunglasses','glasses',
+                                    'intimate','necklace','bracelet','ring','earrings','gloves','watch',
+                                    'wallet','hair','skin','face']
+
+
+
+
 paperdoll_whole_body = ['bodysuit', 'dress', 'jumper', 'suit', 'romper', 'intimate']
 paperdoll_upper = ['blazer', 'cape', 'jacket', 't-shirt', 'blouse', 'cardigan', 'shirt', 'coat', 'top', 'bra',
                    'sweater', 'vest', 'sweatshirt']
@@ -251,14 +265,22 @@ fashionista_categories_augmented = ['','null','tights','shorts','blazer','t-shir
                                     'scarf','hat','top','cardigan','accessories','vest','sunglasses','belt','socks','glasses',
                                     'intimate','stockings','necklace','cape','jumper','sweatshirt','suit','bracelet','heels','wedges',
                                     'ring','flats','tie','romper','sandals','earrings','gloves','sneakers','clogs','watch',
-                                    'pumps','wallet','bodysuit','loafers','hair','skin','face']
+                                    'pumps','wallet','bodysuit','loafers','hair','skin','face']  #0='',1='null', 57='face'
 
-fashionista_categories_augmented_zero_based = ['bk','tights','shorts','blazer','t-shirt','bag','shoes','coat','skirt','purse',
+fashionista_categories_augmented_zero_based = ['null','tights','shorts','blazer','t-shirt','bag','shoes','coat','skirt','purse',
                                     'boots','blouse','jacket','bra','dress','pants','sweater','shirt','jeans','leggings',
                                     'scarf','hat','top','cardigan','accessories','vest','sunglasses','belt','socks','glasses',
                                     'intimate','stockings','necklace','cape','jumper','sweatshirt','suit','bracelet','heels','wedges',
                                     'ring','flats','tie','romper','sandals','earrings','gloves','sneakers','clogs','watch',
-                                    'pumps','wallet','bodysuit','loafers','hair','skin','face']
+                                    'pumps','wallet','bodysuit','loafers','hair','skin','face']  #0='bk', 56='face'
+
+fashionista_categories_for_conclusions = {'background':0,'tights':1,'shorts':2,'blazer':3,'t-shirt':4,'bag':5,'shoes':6,'coat':7,'skirt':8,'purse':9,
+                                    'boots':10,'blouse':11,'jacket':12,'bra':13,'dress':14,'pants':15,'sweater':16,'shirt':17,'jeans':18,'leggings':19,
+                                    'scarf':20,'hat':21,'top':22,'cardigan':23,'accessories':24,'vest':25,'sunglasses':26,'belt':27,'socks':28,'glasses':29,
+                                    'intimate':30,'stockings':31,'necklace':32,'cape':33,'jumper':34,'sweatshirt':35,'suit':36,'bracelet':37,'heels':38,'wedges':39,
+                                    'ring':40,'flats':41,'tie':42,'romper':43,'sandals':44,'earrings':45,'gloves':46,'sneakers':47,'clogs':48,'watch':49,
+                                    'pumps':50,'wallet':51,'bodysuit':52,'loafers':53,'hair':54,'skin':55,'face':56}
+
 
 colorful_fashion_parsing_categories = ['bk','T-shirt','bag','belt','blazer','blouse','coat','dress','face','hair','hat',
 'jeans','legging','pants','scarf','shoe','shorts','skin','skirt','socks','stocking','sunglass','sweater']
@@ -284,9 +306,11 @@ tamara_berg_improved_categories = ['background','belt','dress','eyewear','footwe
 #21 cats for direct replacement of VOC systems
 #lose the necklace,
 #combine tights and leggings
-ultimate_21 = ['background','bag','belt','blouse','bra','dress','eyewear','footwear','hat','jeans',
-                             'legging','outerwear','pants','shorts','skin','skirts','suit','sweatshirt', 'tie','top',
-                             'vest']
+
+ultimate_21 = ['bgnd','bag','belt','blazer','coat','dress','eyewear','face','hair','hat',
+                   'jeans','legging','pants','shoe','shorts','skin','skirt','stocking','suit','sweater',
+                   'top']
+
 
 tamara_berg_improved_to_ultimate_21_index_conversion = [(0,1),(1,2),(2,5),(3,6),(4,7),(5,8),(6,10),(7,11),(8,12),(9,15),
                   (10,19),(11,14),(12,0),(13,10),(14,13),(15,19),(16,4),(17,20),(18,16),(19,9),

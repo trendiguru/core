@@ -1,22 +1,29 @@
-__author__ = 'jeremy'
-# MD5 in javascript http://www.myersdaily.org/joseph/javascript/md5-speed-test-1.html?script=jkm-md5.js#calculations
-# after reading a bit i decided not to use named tuple for the image structure
-# theirs
+
 import hashlib
 import logging
+import datetime
 # import maxminddb
 import tldextract
+import bson
+from jaweson import msgpack
+import requests
+
 # ours
 import Utils
 import constants
 import find_similar_mongo
-# logging.basicConfig(format='%(levelname)s:%(message)s', level=logging.DEBUG)
+from .background_removal import image_is_relevant
+
 db = constants.db
 start_pipeline = constants.q1
+relevancy = constants.q2
+manual_gender = constants.q3
 lang = ""
 image_coll_name = "images"
 prod_coll_name = "products"
 geo_db_path = '/usr/local/lib/python2.7/dist-packages/maxminddb'
+GENDER_ADDRESS = "http://37.58.101.173:8357/neural/gender"
+DOORMAN_ADDRESS = "http://37.58.101.173:8357/neural/doorman"
 
 
 def has_results_from_collection(image_obj, collection):
@@ -55,7 +62,64 @@ def get_collection_from_ip_and_domain(ip, domain):
     # return constants.products_per_country['default']
 
 
-# def route(ip, images_list, page_url):
+def route_by_url(image_url, page_url, lang):
+    domain = tldextract.extract(page_url).registered_domain
+    if not db.whitelist.find_one({'domain': domain}):
+        return False
+
+    if image_url[:4] == "data":
+        return False
+
+    if db.iip.find_one({'image_url': image_url}) or db.irrelevant_images.find_one({'image_urls': image_url}):
+        return False
+
+    if is_image_relevant(image_url, set_lang(lang)):
+        return True
+
+    relevancy.enqueue_call(func=check_if_relevant, args=(image_url, page_url, lang), ttl=2000, result_ttl=2000,
+                           timeout=2000)
+
+    return False
+
+
+def check_if_relevant(image_url, page_url, lang):
+    image = Utils.get_cv2_img_array(image_url)
+    if image is None:
+        return
+
+    # Jeremy's neural-doorman
+
+    relevance = image_is_relevant(image, use_caffe=False, image_url=image_url)
+
+    if not relevance.is_relevant:
+        hashed = get_hash(image)
+        image_obj = {'image_hash': hashed, 'image_urls': [image_url], 'page_urls': [page_url], 'people': [],
+                     'relevant': False, 'saved_date': str(datetime.datetime.utcnow()), 'views': 1}
+        db.irrelevant_images.insert_one(image_obj)
+        return
+    image_obj = {'people': [{'person_id': str(bson.ObjectId()), 'face': face.tolist(),
+                             'gender': genderize(image, face.tolist())['gender']} for face in relevance.faces],
+                 'image_url': image_url, 'page_url': page_url}
+    db.iip.insert_one({'image_url': image_url, 'insert_time': datetime.datetime.utcnow()})
+    db.genderator.insert_one(image_obj)
+    start_pipeline.enqueue_call(func="", args=(page_url, image_url, lang), ttl=2000, result_ttl=2000, timeout=2000)
+
+    # if domain in constants.manual_gender_domains:
+    #     manual_gender.enqueue_call(func="", args=(image_url,), ttl=2000, result_ttl=2000,
+    #                                timeout=2000)
+    # else:
+    #     start_pipeline.enqueue_call(func="", args=(page_url, image_url, lang), ttl=2000, result_ttl=2000,
+    #                                 timeout=2000)
+
+
+def genderize(image_or_url, face):
+    data = msgpack.dumps({"image": image_or_url, "face": face})
+    resp = requests.post(GENDER_ADDRESS, data)
+    return msgpack.loads(resp.content)
+    # returns {'success': bool, 'gender': Female/Male, ['error': the error as string if success is False]}
+
+
+# def route_by_ip(ip, images_list, page_url):
 #     ret = {}
 #     for image_url in images_list:
 #         # IF IMAGE IS IN DB.IMAGES:
@@ -102,7 +166,14 @@ def is_image_relevant(image_url, collection_name=None):
         query = {"image_urls": image_url}
         image_dict = db[collection_name].find_one(query, {'relevant': 1, 'people.items.similar_results': 1})
         if not image_dict:
-            return False
+            image = Utils.get_cv2_img_array(image_url)
+            if image is None:
+                return False
+            hash = get_hash(image)
+            image_dict = db[collection_name].find_one({'image_hash': hash})
+            if image_dict:
+                db.images.update_one({'image_hash': hash}, {'$inc': {'views': 1}})
+                return has_items(image_dict)
         else:
             db.images.update_one(query, {'$inc': {'views': 1}})
             return has_items(image_dict)
@@ -115,7 +186,12 @@ def has_items(image_dict):
     # Easier to ask forgiveness than permission
     # http://stackoverflow.com/questions/1835756/using-try-vs-if-in-python
     try:
-        res = len(image_dict["people"][0]["items"]) > 0
+        for person in image_dict['people']:
+            if 'items' in person.keys():
+                for item in person['items']:
+                    if 'similar_results' in item.keys():
+                        if len(item['similar_results']) > 0:
+                            return True
     except:
         pass
     return res
@@ -203,14 +279,15 @@ def load_similar_results(sparse, projection_dict, product_collection_name):
             collection = db[product_collection_name + '_' + person['gender']]
         else:
             collection = db[product_collection_name + "_Female"]
-        for item in person["items"]:
-            similar_results = []
-            for result in item["similar_results"]:
-                full_result = collection.find_one({"id": result["id"]}, projection_dict)
-                if full_result:
-                    # full_result["clickUrl"] = Utils.shorten_url_bitly(full_result["clickUrl"])
-                    similar_results.append(full_result)
-            item["similar_results"] = similar_results
+        if 'items' in person.keys():
+            for item in person["items"]:
+                similar_results = []
+                for result in item["similar_results"]:
+                    full_result = collection.find_one({"id": result["id"]}, projection_dict)
+                    if full_result:
+                        # full_result["clickUrl"] = Utils.shorten_url_bitly(full_result["clickUrl"])
+                        similar_results.append(full_result)
+                item["similar_results"] = similar_results
     return sparse
 
 
@@ -226,12 +303,12 @@ def image_exists(image_url, collection_name=None):
 
 
 def merge_items(doc):
-    # doc['items'] = []
-    # for person in doc['people']:
-    #     for item in person['items']:
-    #         item['person_bb'] = person['person_bb']
-    #         doc['items'].append(item)
-    doc['items'] = [item for person in doc['people'] for item in person["items"]]
+    # doc['items'] = [item for person in doc['people'] for item in person["items"] if 'items' in person.keys()]
+    doc['items'] = []
+    for person in doc['people']:
+        if 'items' in person.keys():
+            for item in person['items']:
+                doc['items'].append(item)
     del doc["people"]
     return doc
 
