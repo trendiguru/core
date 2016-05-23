@@ -8,7 +8,7 @@ from PIL import Image
 
 import random
 
-class SBDDSegDataLayer(caffe.Layer):
+class JrLayer(caffe.Layer):
     """
     Load (input image, label image) pairs from the SBDD extended labeling
     of PASCAL VOC for semantic segmentation
@@ -43,13 +43,16 @@ class SBDDSegDataLayer(caffe.Layer):
         self.images_dir = params['images_dir']
         self.split = params['split']
         self.mean = np.array(params['mean'])
-        self.random = params.get('randomize', True)
-        self.seed = params.get('seed', None)
+        self.random_init = params.get('random_initialization', True)
+        self.random_pick = params.get('random_pick', False)
+        self.seed = params.get('seed', 1337)
         self.labels_dir = params.get('labels_dir',self.images_dir)
         self.imagesfile = params.get('imagesfile',os.path.join(self.images_dir,self.split+'images.txt'))
+        self.imagesfile = params.get('imagesfile',None)
         self.labelsfile = params.get('labelsfile',None)
         #if there is no labelsfile specified then rename imagefiles to make labelfile names
         self.labelfile_suffix = params.get('labelfile_suffix','.png')
+        self.imagefile_suffix = params.get('labelfile_suffix','.jpg')
 
         print('PRINTlabeldir {} imagedir {} labelfile {} imagefile {}'.format(self.labels_dir,self.images_dir,self.labelsfile,self.imagesfile))
         logging.debug('LOGGINGlabeldir {} imagedir {} labelfile {} imagefile {}'.format(self.labels_dir,self.images_dir,self.labelsfile,self.imagesfile))
@@ -61,33 +64,58 @@ class SBDDSegDataLayer(caffe.Layer):
             raise Exception("Do not define a bottom.")
 
         # load indices for images and labels
-    #if file not found and its not a path then tack on the training dir as a default locaiton for the trainingimages file
-    if not os.path.isfile(self.imagesfile) and not '/' in self.imagesfile:
-        self.imagesfile = os.path.join(self.images_dir,self.imagesfile)
-    if not os.path.isfile(self.imagesfile):
-        print('COULD NOT OPEN IMAGES FILE '+str(self.imagesfile))
+        #if file not found and its not a path then tack on the training dir as a default locaiton for the trainingimages file
+        if self.imagesfile:
+            if not os.path.isfile(self.imagesfile) and not '/' in self.imagesfile:
+                self.imagesfile = os.path.join(self.images_dir,self.imagesfile)
+            if not os.path.isfile(self.imagesfile):
+                print('COULD NOT OPEN IMAGES FILE '+str(self.imagesfile))
+            self.imagefiles = open(self.imagesfile, 'r').read().splitlines()
+            self.n_files = len(self.imagefiles)
+    #        self.indices = open(split_f, 'r').read().splitlines()
+        else:
+            self.imagefiles = [os.path.join(self.images_dir,f) for f in os.path.listdir(self.images_dir) if self.imagefile_suffix in f]
+            self.n_files = len(self.imagefiles)
+        print(str(self.n_files)+' files in image dir '+str(self.images_dir))
 
-    self.imagefiles = open(self.imagesfile, 'r').read().splitlines()
-    self.n_files = len(self.imagefiles)
-#        self.indices = open(split_f, 'r').read().splitlines()
-    if self.labelsfile is not None:  #if labels flie is none then get labels from images
-        if not os.path.isfile(self.labelsfile) and not '/' in self.labelsfile:
-            self.labelsfile = os.path.join(self.labels_dir,self.labelsfile)
-        if not os.path.isfile(self.labelsfile):
-            print('COULD NOT OPEN labelS FILE '+str(self.labelsfile))
-            self.labelfiles = open(self.labelsfile, 'r').read().splitlines()
+        if self.labelsfile is not None:  #if labels flie is none then get labels from images
+            if not os.path.isfile(self.labelsfile) and not '/' in self.labelsfile:
+                self.labelsfile = os.path.join(self.labels_dir,self.labelsfile)
+            if not os.path.isfile(self.labelsfile):
+                print('COULD NOT OPEN labelS FILE '+str(self.labelsfile))
+                self.labelfiles = open(self.labelsfile, 'r').read().splitlines()
 
-    self.idx = 0
-
-        # make eval deterministic
-        if 'train' not in self.split:
-            self.random = False
-
+        self.idx = 0
         # randomization: seed and pick
-        if self.random:
+        if self.random_init:
             random.seed(self.seed)
             self.idx = random.randint(0, len(self.imagefiles)-1)
-        logging.debug('self.idx is :'+str(self.idx)+' type:'+str(type(self.idx)))
+        if self.random_pick:
+            random.shuffle(self.imagefiles)
+        logging.debug('initial self.idx is :'+str(self.idx)+' type:'+str(type(self.idx)))
+
+        ##check that all images are openable and have labels
+        good_img_files = []
+        good_label_files = []
+        print('checking image files')
+        for ind in len(self.imagefiles):
+            img_file = self.imagefiles(ind)
+            img_arr = cv2.imread(img_file)
+            if img_arr is not None:
+                label_file = self.determine_label_filename(ind)
+                label_arr = cv2.imread(label_file)
+                if label_arr is not None:
+                    if label_arr.shape[0:2] == img_arr.shape[0:2]:
+                        good_img_files.append(img_file)
+                        good_label_files.append(label_file)
+                    else:
+                        print('shape mismatch , image {} and label {}'+str(img_arr.shape,label_arr.shape))
+            else:
+                print('got bad image:'+img_file)
+        self.imagefiles = good_img_files
+        self.labelfiles = good_label_files
+        assert(len(self.imagefiles) == len(self.labelfiles))
+        print('{} images and {} labels'.format(len(self.imagefiles),len(self.labelfiles)))
 
     def reshape(self, bottom, top):
         # load image + label image pair
