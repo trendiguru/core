@@ -108,7 +108,7 @@ class JrLayer(caffe.Layer):
                         good_img_files.append(self.imagefiles[ind])
                         good_label_files.append(self.labelfiles[ind])
                     else:
-                        print('shape mismatch , image {} and label {}'+str(img_arr.shape,label_arr.shape))
+                        print('shape mismatch , image {} and label {}'.format(img_arr.shape,label_arr.shape))
             else:
                 print('got bad image:'+self.imagefiles[ind])
         self.imagefiles = good_img_files
