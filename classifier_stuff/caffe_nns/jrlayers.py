@@ -74,7 +74,6 @@ class JrLayer(caffe.Layer):
     #        self.indices = open(split_f, 'r').read().splitlines()
         else:
             self.imagefiles = [f for f in os.listdir(self.images_dir) if self.imagefile_suffix in f]
-            self.n_files = len(self.imagefiles)
         print(str(self.n_files)+' files in image dir '+str(self.images_dir))
 
         if self.labelsfile is not None:  #if labels flie is none then get labels from images
@@ -103,7 +102,8 @@ class JrLayer(caffe.Layer):
         print('checking image files')
         for ind in range(len(self.imagefiles)):
             img_file = self.imagefiles[ind]
-            img_arr = cv2.imread(img_file)
+            full_img_name = os.path.join(self.images_dir,img_file)
+            img_arr = cv2.imread(full_img_name)
             if img_arr is not None:
                 label_file = self.determine_label_filename(ind)
                 label_arr = cv2.imread(label_file)
@@ -119,6 +119,7 @@ class JrLayer(caffe.Layer):
         self.labelfiles = good_label_files
         assert(len(self.imagefiles) == len(self.labelfiles))
         print('{} images and {} labels'.format(len(self.imagefiles),len(self.labelfiles)))
+        self.n_files = len(self.imagefiles)
 
     def reshape(self, bottom, top):
         # load image + label image pair
@@ -133,7 +134,7 @@ class JrLayer(caffe.Layer):
         top[1].reshape(1, *self.label.shape)
 
     def next_idx(self):
-        if self.random:
+        if self.random_pick:
             self.idx = random.randint(0, len(self.imagefiles)-1)
         else:
             self.idx += 1
