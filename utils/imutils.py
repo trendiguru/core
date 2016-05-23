@@ -336,7 +336,7 @@ def resize_keep_aspect(input_file_or_np_arr, output_file=None, output_size = (30
 #            output_img[:,0:width_offset] = resized_img[:,0]
 #            output_img[:,width_offset+new_width:] = resized_img[:,-1]
             output_img[:,n] = resized_img[:,0]
-            output_img[:,n+new_width+width_offset] = resized_img[:,-1]input_file_or_np_arr
+            output_img[:,n+new_width+width_offset] = resized_img[:,-1]
     else:   #resize width to output width and fill top/bottom
         factor = float(inwidth)/outwidth
         new_height = int(float(inheight) / factor)
