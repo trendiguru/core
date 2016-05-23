@@ -285,9 +285,9 @@ def finals():
     test the conclusions
     linear search top 25/100 vs annoy+linear (100-1000) for both euclidean and angular
     '''
-    f = open('finals.txt', 'a')
+    f = open('finals_new.txt', 'a')
 
-    for trees in [50,100, 250, 500]:
+    for trees in [100, 250, 500]:
 
         for method in ['euclidean', 'angular']:
             name = '/home/yonti/test' + str(trees) + method + '25.ann'
@@ -339,7 +339,8 @@ def finals():
                     # twoSteps100 = find_n_nearest_neighbors(item, enteries, 100)
                     a2 = time.time()
                     a2_1 =a2-a1
-                    score = [m for m in oneByone if m["_id"] in twoSteps25]
+                    top25 = [t["_id"] for t in twoSteps25]
+                    score = [m for m in oneByone if m["_id"] in top25]
                     f.write('batchsize: %d  method: %s query_time: %f accuracy: %f %% \n' % (matches, method, a2_1,4*len(score)))
                     if method == 'euclidean':
                         totalScoreEuclid[r-2] += len(score)
@@ -352,10 +353,10 @@ def finals():
         for r in range(2, 11):
             matches = r * 100
             f.write(
-            'method: Euclidean , batchsize: %d   query_time: %f accuracy: %f %% \n' % ( matches,  totalTimeEuclid[r-2]/50,
+            '\nmethod: Euclidean , batchsize: %d   query_time: %f accuracy: %f %% \n' % ( matches,  totalTimeEuclid[r-2]/50,
                                                                                         4*totalScoreEuclid[r-2]/50))
             f.write(
-                'method: Angular , batchsize: %d   query_time: %f accuracy: %f %% \n' % (
+                'method: Angular , batchsize: %d   query_time: %f accuracy: %f %% ' % (
                 matches, totalTimeAng[r - 2] / 50,
                 4 * totalScoreAng[r - 2] / 50))
 
