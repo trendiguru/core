@@ -487,20 +487,26 @@ def label_images_and_images_to_lmdb(image_dbname,label_dbname,image_dir,label_di
                     cv2.waitKey(0)
                     imutils.show_mask_with_labels_from_img_arr(label_arr,labels=labels)
                 #these pixel value offsets can be removed using caffe (in the test/train protobuf)- so currently these are None and this part is not entered
-                imgmean=np.average(img_arr)
-                imgstd=np.std(img_arr)
-                imgmeanBGR = [np.average(img_arr[:,:,0]),np.average(img_arr[:,:,1]),np.average(img_arr[:,:,2])]
-                print('mean {} std {} imgmeanvals {}'.format(imgmean,imgstd,imgmeanBGR))
+            #FORCE TYPE TO UINT8
+                img_arr=img_arr.astpye(np.uint8)
+                label_arr=label_arr.astpye(np.uint8)
                 if avg_pixval is not None:
+                    imgmean=np.average(img_arr)
+                    imgstd=np.std(img_arr)
+                    imgmeanBGR = [np.average(img_arr[:,:,0]),np.average(img_arr[:,:,1]),np.average(img_arr[:,:,2])]
+                    print('mean {} std {} imgmeanvals {}'.format(imgmean,imgstd,imgmeanBGR))
                     img_arr[:,:,0] = img_arr[:,:,0]-avg_pixval[0]
                     img_arr[:,:,1] = img_arr[:,:,1]-avg_pixval[1]
                     img_arr[:,:,2] = img_arr[:,:,2]-avg_pixval[2]
+                    imgmean=np.average(img_arr)
+                    imgstd=np.std(img_arr)
+                    print('after subtraction mean {} std {}'.format(imgmean,imgstd))
                 if max_pixval is not None:
                     img_arr = np.divide(img_arr.astype(np.float),float(max_pixval))
+                    imgmean=np.average(img_arr)
+                    imgstd=np.std(img_arr)
+                    print('after norm mean {} std {}'.format(imgmean,imgstd))
             ###write image
-                imgmean=np.average(img_arr)
-                imgstd=np.std(img_arr)
-                print('mean {} std {}'.format(imgmean,imgstd))
                 datum = caffe.proto.caffe_pb2.Datum()
                 datum.height = img_arr.shape[0]
                 datum.width = img_arr.shape[1]
@@ -511,7 +517,7 @@ def label_images_and_images_to_lmdb(image_dbname,label_dbname,image_dir,label_di
                 else:
                     datum.channels = img_arr.shape[2]
                 img_arr = img_arr.transpose((2,0,1))
-                print('img arr shape:'+str(img_arr.shape)+ ' type:'+str(type(img_arr)))
+                print('img arr shape:'+str(img_arr.shape)+ ' type:'+str(img_arr.dtype))
                 datum.data = img_arr.tobytes()  # or .tostring() if numpy < 1.9
                 str_id = '{:08}'.format(image_number)
                 try:
@@ -527,7 +533,7 @@ def label_images_and_images_to_lmdb(image_dbname,label_dbname,image_dir,label_di
         #redoing thiws with  3 channels due to cafe complaint - 240K vs 720 K
         #obviously misguided attempt being redone:
 #   F0502 10:10:28.617626 15482 softmax_loss_layer.cpp:42] Check failed: outer_num_ * inner_num_ == bottom[1]->count() (240000 vs. 720000) Number of labels must match number of predictions; e.g., if softmax axis == 1 and prediction shape is (N, C, H, W), label count (number of labels) must be N*H*W, with integer values in {0, 1, ..., C-1}.
-                print('label array shape:'+str(label_arr.shape)+' type:'+str(type(label_arr)))
+                print('label array shape:'+str(label_arr.shape)+' type:'+str(label_arr.dtype))
 #                label_arr = label_arr - 1  #!@)(#*@! MATLAB DIE DIE
                 if len(label_arr.shape) != 2:
                     print('read multichann label, taking first layer')
