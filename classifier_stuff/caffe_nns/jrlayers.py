@@ -222,15 +222,16 @@ class JrLayer(caffe.Layer):
 #        mat = scipy.io.loadmat('{}/cls/{}.mat'.format(self.sbdd_dir, idx))
         full_filename = self.determine_label_filename(idx)
         print('labelfile:'+full_filename)
-            im = Image.open(full_filename)
+        im = Image.open(full_filename)
         if im is None:
             print(' COULD NOT LOAD FILE '+full_filename)
-            in_ = np.array(im, dtype=np.uint8)
+            logging.warning('couldnt load file '+full_filename)
+        in_ = np.array(im, dtype=np.uint8)
 
         if len(in_.shape) == 3:
             logging.warning('got 3 layer img as mask, taking first layer')
             in_ = in_[:,:,0]
-        in_ = in_ - 1
+#        in_ = in_ - 1
         print('uniques of label:'+str(np.unique(in_))+' shape:'+str(in_.shape))
             label = copy.copy(in_[np.newaxis, ...])
         print('after extradim shape:'+str(label.shape))
