@@ -172,15 +172,14 @@ class JrLayer(caffe.Layer):
 
         full_filename=os.path.join(self.labels_dir,filename)
         return full_filename
-
     def load_image(self,idx):
-            """
-            Load input image and preprocess for Caffe:
-            - cast to float
-            - switch channels RGB -> BGR
-            - subtract mean
-            - transpose to channel x height x width order
-            """
+        """
+        Load input image and preprocess for Caffe:
+        - cast to float
+        - switch channels RGB -> BGR
+        - subtract mean
+        - transpose to channel x height x width order
+        """
         filename = self.imagefiles[self.idx]
         full_filename=os.path.join(self.images_dir,filename)
         print('imagefile:'+full_filename)
