@@ -181,7 +181,6 @@ class JrLayer(caffe.Layer):
             - subtract mean
             - transpose to channel x height x width order
             """
-    #	print('IN LOAD IMAGE self idx is :'+str(idx)+' type:'+str(type(idx)))
         filename = self.imagefiles[self.idx]
         full_filename=os.path.join(self.images_dir,filename)
         print('imagefile:'+full_filename)
