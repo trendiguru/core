@@ -453,8 +453,8 @@ def label_images_and_images_to_lmdb(image_dbname,label_dbname,image_dir,label_di
                     logging.warning('skipping {} due to  width {} or height {} being less than {}:'.format(full_image_name,w_orig,h_orig,constants.nn_img_minimum_sidelength))
                     continue
                 if(resize is not None):
-                    resized_image = imutils.resize_keep_aspect(img_arr, output_file=None, output_size = resize,use_visual_output=True)
-                    resized_label = imutils.resize_keep_aspect(label_arr, output_file=None, output_size = resize,use_visual_output=True)
+                    resized_image = imutils.resize_keep_aspect(img_arr, output_file=None, output_size = resize,use_visual_output=use_visual_output)
+                    resized_label = imutils.resize_keep_aspect(label_arr, output_file=None, output_size = resize,use_visual_output=use_visual_output)
 #                    resized_image = cv2.resize(img_arr,(resize_x,resize_y))
 #                    resized_label = cv2.resize(label_arr,(resize_x,resize_y))
                     if resized_image is not None and resized_label is not None:
