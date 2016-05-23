@@ -307,13 +307,13 @@ def finals():
         totalScoreAng = []
 
         for r in range(2, 11):
-            totalTimeEuclid.appand(0)
+            totalTimeEuclid.append(0)
             totalTimeAng.append(0)
             totalScoreEuclid.append(0)
             totalScoreAng.append(0)
 
         for x, item in enumerate(items):
-
+            print(x)
             enteries = db.fanni_testing_db.find({}, {"fingerprint": 1, "AnnoyIndex": 1})
             #25
             b1 = time.time()
