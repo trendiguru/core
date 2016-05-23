@@ -461,6 +461,7 @@ def label_images_and_images_to_lmdb(image_dbname,label_dbname,image_dir,label_di
                         uniques = np.unique(label_arr)
                         resized_uniques = np.unique(resized_label)
                         print('orig uniques:'+str(uniques)+' resized:'+str(resized_uniques))
+                        print('orig bincount:'+str(np.bincount(label_arr))+' resized:'+str(np.bincount(resized_label)))
                         img_arr = resized_image
                         label_arr = resized_label
                         assert(img_arr.shape[0:2]==resize)
