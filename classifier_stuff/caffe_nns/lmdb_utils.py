@@ -458,6 +458,9 @@ def label_images_and_images_to_lmdb(image_dbname,label_dbname,image_dir,label_di
 #                    resized_image = cv2.resize(img_arr,(resize_x,resize_y))
 #                    resized_label = cv2.resize(label_arr,(resize_x,resize_y))
                     if resized_image is not None and resized_label is not None:
+                        uniques = np.unique(label_arr)
+                        resized_uniques = np.unique(resized_label)
+                        print('orig uniques:'+str(uniques)+' resized:'+str(resized_uniques))
                         img_arr = resized_image
                         label_arr = resized_label
                         assert(img_arr.shape[0:2]==resize)
