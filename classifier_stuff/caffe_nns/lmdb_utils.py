@@ -646,6 +646,7 @@ def inspect_fcn_db(img_dbname,label_dbname,show_visual_output=True,avg_pixval=(0
                         x[:,:] = x[:,:]+avg_pixval[0]
 
                     if expected_size:
+                        print('')
                         assert(x.shape[0:2]==expected_size)
                     x=x.astype(np.uint8)
                     if show_visual_output is True:
@@ -653,7 +654,8 @@ def inspect_fcn_db(img_dbname,label_dbname,show_visual_output=True,avg_pixval=(0
      #                   imutils.show_mask_with_labels(orig_label,constants.fashionista_categories_augmented)
                 except:
                     print('error getting image {} from image db'.format(n))
-                    break
+                    raw_input('enter to continue')
+
 
                 try:  #get label mask
                     print('doing label db')
@@ -691,7 +693,7 @@ def inspect_fcn_db(img_dbname,label_dbname,show_visual_output=True,avg_pixval=(0
 
                 except:
                     print('error getting label {} from db'.format(n))
-                    break
+                    raw_input('enter to continue')
 
 
 
