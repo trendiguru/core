@@ -376,7 +376,7 @@ def interleaved_dir_of_dirs_to_lmdb(dbname,dir_of_dirs,positive_filter=None,max_
 
     #You can also open up and inspect an existing LMDB database from Python:
 # assuming here that dataum.data, datum.channels, datum.width etc all exist as in dir_of_dirs_to_lmdb
-def label_images_and_images_to_lmdb(image_dbname,label_dbname,image_dir,label_dir,resize_x=None,resize_y=None,avg_pixval=(120,120,120),max_pixval=255,
+def label_images_and_images_to_lmdb(image_dbname,label_dbname,image_dir,label_dir,resize=None,avg_pixval=(120,120,120),max_pixval=255,
                      use_visual_output=False,imgsuffix='.jpg',labelsuffix='.png',do_shuffle=False,maxfiles=1000000000):
     '''
     this puts data images and label images into separate dbs
@@ -452,12 +452,17 @@ def label_images_and_images_to_lmdb(image_dbname,label_dbname,image_dir,label_di
                 if h_orig < constants.nn_img_minimum_sidelength or w_orig < constants.nn_img_minimum_sidelength:
                     logging.warning('skipping {} due to  width {} or height {} being less than {}:'.format(full_image_name,w_orig,h_orig,constants.nn_img_minimum_sidelength))
                     continue
-                if(resize_x is not None):
-                    resized_image = cv2.resize(img_arr,(resize_x,resize_y))
-                    resized_label = cv2.resize(label_arr,(resize_x,resize_y))
+                if(resize is not None):
+                    resized_image = imutils.resize_keep_aspect(img_arr, output_file=None, output_size = resize,use_visual_output=True)
+                    resized_label = imutils.resize_keep_aspect(label_arr, output_file=None, output_size = resize,use_visual_output=True)
+#                    resized_image = cv2.resize(img_arr,(resize_x,resize_y))
+#                    resized_label = cv2.resize(label_arr,(resize_x,resize_y))
                     if resized_image is not None and resized_label is not None:
                         img_arr = resized_image
                         label_arr = resized_label
+                        assert(img_arr.shape[0:2]==resize)
+                        assert(label_arr.shape[0:2]==resize)
+                        print('img shape {} lbl shape {}'.format(img_arr.shape,label_arr.shape))
                     else:
                         logging.warning('resize failed')
                         continue  #didnt do good resize
@@ -550,13 +555,7 @@ def inspect_db(dbname,show_visual_output=True,B=0,G=0,R=0):
         while(1):
             try:
                 str_id = '{:08}'.format(n)
-   #             print('strid:{} '.format(str_id))
-             # The encode is only essential in Python 3
-             #   txn.put(str_id.encode('ascii'), datum.SerializeToString())
                 raw_datum = txn.get(str_id.encode('ascii'))
-#                print('rawdat size {}'.format(len(raw_datum)))
-
-#                raw_datum = txn.get(b'00000000')
                 datum = caffe.proto.caffe_pb2.Datum()
                 datum.ParseFromString(raw_datum)
                 flat_x = np.fromstring(datum.data, dtype=np.uint8)
@@ -603,6 +602,7 @@ def inspect_db(dbname,show_visual_output=True,B=0,G=0,R=0):
 
 def inspect_fcn_db(img_dbname,label_dbname,show_visual_output=True,avg_pixval=(0,0,0),max_pixval=255,labels=constants.ultimate_21,expected_size=None):
     print('looking at fcn db')
+    print('imdb {} lbldb {} '.format(img_dbname,label_dbname))
     env_1 = lmdb.open(img_dbname, readonly=True)
     env_2 = lmdb.open(label_dbname, readonly=True)
     with env_1.begin() as txn1:
@@ -619,8 +619,9 @@ def inspect_fcn_db(img_dbname,label_dbname,show_visual_output=True,avg_pixval=(0
                     datum.ParseFromString(raw_datum)
              #       flat_x = np.fromstring(datum.data, dtype=np.uint8)
                     flat_x = np.fromstring(datum.data, dtype=np.float)
-                    print('imdb {} lbldb {} strid {} channels {} width {} height {} datumsize {} flatxsize {}'
-                          .format(img_dbname,label_dbname,str_id,datum.channels,datum.width,datum.height,len(raw_datum),len(flat_x)))
+                    print('strid {} channels {} width {} height {} datumsize {} flatxsize {}'
+                          .format(str_id,datum.channels,datum.width,datum.height,len(raw_datum),len(flat_x)))
+                    assert(len(flat_x) == datum.height*datum.width*datum.channels)
                     orig_x = flat_x.reshape(datum.channels, datum.height, datum.width)
                     imgmean=np.average(orig_x)
                     imgstd=np.std(orig_x)
@@ -670,6 +671,7 @@ def inspect_fcn_db(img_dbname,label_dbname,show_visual_output=True,avg_pixval=(0
                     datum.ParseFromString(raw_datum)
                     flat_y = np.fromstring(datum.data, dtype=np.uint8)
                     print('db {} strid {} channels {} width {} height {} datumsize {} flatxsize {}'.format(label_dbname,str_id,datum.channels,datum.width,datum.height,len(raw_datum),len(flat_x)))
+                    assert(len(flat_y) == datum.height*datum.width*datum.channels)
                     orig_y = flat_y.reshape(datum.channels, datum.height, datum.width)
                     if datum.channels == 3:
                         y = orig_y.transpose((1,2,0))
