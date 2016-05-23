@@ -488,8 +488,8 @@ def label_images_and_images_to_lmdb(image_dbname,label_dbname,image_dir,label_di
                     imutils.show_mask_with_labels_from_img_arr(label_arr,labels=labels)
                 #these pixel value offsets can be removed using caffe (in the test/train protobuf)- so currently these are None and this part is not entered
             #FORCE TYPE TO UINT8
-                img_arr=img_arr.astpye(np.uint8)
-                label_arr=label_arr.astpye(np.uint8)
+                img_arr=img_arr.astype(np.uint8)
+                label_arr=label_arr.astype(np.uint8)
                 if avg_pixval is not None:
                     imgmean=np.average(img_arr)
                     imgstd=np.std(img_arr)
