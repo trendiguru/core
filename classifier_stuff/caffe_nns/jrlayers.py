@@ -181,24 +181,24 @@ class JrLayer(caffe.Layer):
         while(1):
             filename = self.imagefiles[self.idx]
             full_filename=os.path.join(self.images_dir,filename)
-            print('imagefile:'+full_filename)
+            print('the imagefile:'+full_filename)
             label_filename=self.determine_label_filename(self.idx)
             if not(os.path.isfile(label_filename) and os.path.isfile(full_filename)):
                 print('ONE OF THESE IS NOT A FILE:'+str(label_filename)+','+str(full_filename))
                 self.next_idx()
             else:
                 break
-            im = Image.open(full_filename)
-            in_ = np.array(im, dtype=np.float32)
-            if in_ is None:
-                logging.warning('could not get image '+full_filename)
-                return None
-            print('got image w dims '+str(in_.shape))
-            in_ = in_[:,:,::-1]
-    #        in_ -= self.mean
-            in_ = in_.transpose((2,0,1))
-    #	print('uniques of img:'+str(np.unique(in_))+' shape:'+str(in_.shape))
-            return in_
+        im = Image.open(full_filename)
+        in_ = np.array(im, dtype=np.float32)
+        if in_ is None:
+            logging.warning('could not get image '+full_filename)
+            return None
+        print('got image w dims '+str(in_.shape))
+        in_ = in_[:,:,::-1]
+#        in_ -= self.mean
+        in_ = in_.transpose((2,0,1))
+#	print('uniques of img:'+str(np.unique(in_))+' shape:'+str(in_.shape))
+        return in_
 
 
     def load_label(self, idx):
