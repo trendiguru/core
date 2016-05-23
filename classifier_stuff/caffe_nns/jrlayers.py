@@ -189,15 +189,16 @@ class JrLayer(caffe.Layer):
             else:
                 break
             im = Image.open(full_filename)
+            in_ = np.array(im, dtype=np.float32)
             if im is None:
                 logging.warning('could not get image '+full_filename)
                 return None
-
-            in_ = np.array(im, dtype=np.float32)
+            print('got image '+str(in_.shape))
             in_ = in_[:,:,::-1]
     #        in_ -= self.mean
             in_ = in_.transpose((2,0,1))
     #	print('uniques of img:'+str(np.unique(in_))+' shape:'+str(in_.shape))
+            if
             return in_
 
 
