@@ -230,7 +230,7 @@ def image_stats(filename):
         logging.warning('could not open {}'.format(filename))
         return None
 
-def test_or_training_textfile(dir_of_dirs,test_or_train=None):
+def test_or_training_textfile(dir_of_dirs,teresize_keep_aspect_dir(st_or_train=None):
     '''
     takes dir of dirs each with different class, makes textfile suitable for training/test set
     :param dir_of_dirs:
@@ -283,16 +283,19 @@ def resize_and_crop_image( input_file_or_np_arr, output_file=None, output_side_l
         cv2.imwrite(output_file, cropped_img)
     return cropped_img
 
-def resize_keep_aspect_dir(dir,overwrite=False,output_size=(250,250),use_visual_output=False,filefilter='.jpg'):
+def resize_keep_aspect_dir(dir,outdir=None,overwrite=False,output_size=(250,250),use_visual_output=False,filefilter='.jpg'):
     files = [ f for f in os.listdir(dir) if filefilter in f]
     for file in files:
         fullname = os.path.join(dir,file)
         if overwrite:
             newname = fullname
         else:
-            newname = file.split(filefilter)[0]+'_resized'+filefilter
-            newname = os.path.join(dir,newname)
-        print('infile:{} desired size:{}'.format(fullname,output_size))
+            if outdir:
+                newname = os.path.join(outdir,file)
+            else:
+                newname = file.split(filefilter)[0]+'_resized'+filefilter
+                newname = os.path.join(dir,newname)
+        print('infile:{} desired size:{} outfile {}'.format(fullname,output_size,newname))
         resize_keep_aspect(fullname, output_file=newname, output_size = output_size,use_visual_output=use_visual_output)
 
 def resize_keep_aspect(input_file_or_np_arr, output_file=None, output_size = (300,200),use_visual_output=False):
