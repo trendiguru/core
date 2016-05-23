@@ -336,13 +336,14 @@ def finals():
                     ann = annoy_search(name, matches, method, item['fingerprint'])
                     batch = db.fanni_testing_db.find({"AnnoyIndex":{"$in": ann}},{"fingerprint": 1, "AnnoyIndex": 1})
                     a3 = time.time()
-                    print (str(batch.count())+" : "+str(a3-a1))
                     twoSteps25 = find_n_nearest_neighbors(item, batch, 25)
                     # twoSteps100 = find_n_nearest_neighbors(item, enteries, 100)
                     a2 = time.time()
                     a2_1 =a2-a1
                     top25 = [t["_id"] for t in twoSteps25]
                     score = [m for m in oneByone if m["_id"] in top25]
+                    print (str(batch.count())+" : "+str(a3-a1)+" , linear : "+str(a2-a3)+" ,score : "+str(len(score)))
+
                     # f.write('batchsize: %d  method: %s query_time: %f accuracy: %f %% \n' % (matches, method, a2_1,4*len(score)))
                     if method == 'euclidean':
                         totalScoreEuclid[r-2] += len(score)
