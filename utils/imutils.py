@@ -356,7 +356,7 @@ def resize_keep_aspect(input_file_or_np_arr, output_file=None, output_size = (30
 #                print('found new val in target:'+str(u))
                 output_img[output_img==u] = 0
 #        print('uniques in dest:'+str(np.unique(output_img)))
-        assert(np.unique(output_img)==np.unique(input_file_or_np_arr))
+        assert((np.unique(output_img)==np.unique(input_file_or_np_arr)).all())
     if use_visual_output is True:
         cv2.imshow('output', output_img)
         cv2.imshow('orig',input_file_or_np_arr)
