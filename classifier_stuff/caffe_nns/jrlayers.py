@@ -233,7 +233,7 @@ class JrLayer(caffe.Layer):
             in_ = in_[:,:,0]
     #        in_ = in_ - 1
         print('uniques of label:'+str(np.unique(in_))+' shape:'+str(in_.shape))
-            label = copy.copy(in_[np.newaxis, ...])
+        label = copy.copy(in_[np.newaxis, ...])
         print('after extradim shape:'+str(label.shape))
 
         return label
