@@ -396,7 +396,7 @@ def label_images_and_images_to_lmdb(image_dbname,label_dbname,image_dir,label_di
     '''
 # maybe try randomize instead of interleave, cn use del list[index]
     print
-    print('writing to lmdb {} lbldb {}filter {} lblsuffix {} new_x {} new_y {} avgPixval {} max {}'.format(image_dbname,label_dbname,imgsuffix,labelsuffix,resize_x,resize_y,avg_pixval,max_pixval))
+    print('writing to lmdb {} lbldb {} filter {} lblsuffix {} new_x {} new_y {} avgPixval {} max {}'.format(image_dbname,label_dbname,imgsuffix,labelsuffix,resize_x,resize_y,avg_pixval,max_pixval))
     if imgsuffix:
         imagefiles = [f for f in os.listdir(image_dir) if imgsuffix in f]
     else:
