@@ -777,7 +777,7 @@ if __name__ == "__main__":
     label_dir = '/home/jeremy/image_dbs/colorful_fashion_parsing_data/labels_u21'
     image_dbname='/home/jeremy/image_dbs/lmdb/images_u21_test_256x256'
     label_dbname='/home/jeremy/image_dbs/lmdb/labels_u21_test_256x256'
-    label_images_and_images_to_lmdb(image_dbname,label_dbname,image_dir,label_dir,resize=(256,256),avg_pixval=(B,G,R),max_pixval=1.0,
+    label_images_and_images_to_lmdb(image_dbname,label_dbname,image_dir,label_dir,resize=(256,256),
                                     use_visual_output=False,imgsuffix='.jpg',labelsuffix='.png',do_shuffle=True,maxfiles=100000)
 
     raw_input('enter to continue checking db')
@@ -788,8 +788,8 @@ if __name__ == "__main__":
     label_dir = '/home/jeremy/image_dbs/colorful_fashion_parsing_data/labels_u21'
     image_dbname='/home/jeremy/image_dbs/lmdb/images_u21_train_256x256'
     label_dbname='/home/jeremy/image_dbs/lmdb/labels_u21_train_256x256'
-    label_images_and_images_to_lmdb(image_dbname,label_dbname,image_dir,label_dir,resize=(256,256),avg_pixval=(B,G,R),max_pixval=1.0,
-                     use_visual_output=False,imgsuffix='.jpg',labelsuffix='.png',do_shuffle=True,maxfiles=100000)
+    label_images_and_images_to_lmdb(image_dbname,label_dbname,image_dir,label_dir,resize=(256,256),
+                                    use_visual_output=False,imgsuffix='.jpg',labelsuffix='.png',do_shuffle=True,maxfiles=100000)
 
     raw_input('enter to continue checking db')
 #    fcn_dirs_to_lmdb(db_name,image_dir,label_dir,resize_x=None,resize_y=None,avg_B=B,avg_G=G,avg_R=R,
