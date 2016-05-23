@@ -376,7 +376,7 @@ def interleaved_dir_of_dirs_to_lmdb(dbname,dir_of_dirs,positive_filter=None,max_
 
     #You can also open up and inspect an existing LMDB database from Python:
 # assuming here that dataum.data, datum.channels, datum.width etc all exist as in dir_of_dirs_to_lmdb
-def label_images_and_images_to_lmdb(image_dbname,label_dbname,image_dir,label_dir,resize=None,avg_pixval=(120,120,120),max_pixval=255,
+def label_images_and_images_to_lmdb(image_dbname,label_dbname,image_dir,label_dir,resize=None,avg_pixval=None,max_pixval=None,
                      use_visual_output=False,imgsuffix='.jpg',labelsuffix='.png',do_shuffle=False,maxfiles=1000000000,labels=None):
     '''
     this puts data images and label images into separate dbs
