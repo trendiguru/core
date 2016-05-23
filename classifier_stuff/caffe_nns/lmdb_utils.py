@@ -377,7 +377,7 @@ def interleaved_dir_of_dirs_to_lmdb(dbname,dir_of_dirs,positive_filter=None,max_
     #You can also open up and inspect an existing LMDB database from Python:
 # assuming here that dataum.data, datum.channels, datum.width etc all exist as in dir_of_dirs_to_lmdb
 def label_images_and_images_to_lmdb(image_dbname,label_dbname,image_dir,label_dir,resize=None,avg_pixval=(120,120,120),max_pixval=255,
-                     use_visual_output=False,imgsuffix='.jpg',labelsuffix='.png',do_shuffle=False,maxfiles=1000000000):
+                     use_visual_output=False,imgsuffix='.jpg',labelsuffix='.png',do_shuffle=False,maxfiles=1000000000,labels=None):
     '''
     this puts data images and label images into separate dbs
     :param dbname:
@@ -485,7 +485,7 @@ def label_images_and_images_to_lmdb(image_dbname,label_dbname,image_dir,label_di
                     cv2.imshow('img',img_arr)
     #                cv2.imshow('label',label_arr)
                     cv2.waitKey(0)
-                    imutils.show_mask_with_labels_from_img_arr(label_arr,labels=label_strings)
+                    imutils.show_mask_with_labels_from_img_arr(label_arr,labels=labels)
                 #these pixel value offsets can be removed using caffe (in the test/train protobuf)- so currently these are None and this part is not entered
                 imgmean=np.average(img_arr)
                 imgstd=np.std(img_arr)
