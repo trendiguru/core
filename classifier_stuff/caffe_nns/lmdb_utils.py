@@ -489,7 +489,9 @@ def label_images_and_images_to_lmdb(image_dbname,label_dbname,image_dir,label_di
                 #these pixel value offsets can be removed using caffe (in the test/train protobuf)- so currently these are None and this part is not entered
             #FORCE TYPE TO UINT8
                 img_arr=img_arr.astype(np.uint8)
+                print('img arr shape:'+str(img_arr.shape)+ ' type:'+str(img_arr.dtype))
                 label_arr=label_arr.astype(np.uint8)
+                print('label arr shape:'+str(label_arr.shape)+ ' type:'+str(label_arr.dtype))
                 if avg_pixval is not None:
                     imgmean=np.average(img_arr)
                     imgstd=np.std(img_arr)
