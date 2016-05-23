@@ -213,7 +213,7 @@ def build_forest(name, dis_func, tree_count):
     for x,item in enumerate(items):
         v= item['fingerprint']
         t.add_item(x,v)
-        db.fanni_testing_db.update_one({'_id':item['_id']},{'$set':{"index":x}})
+        db.fanni_testing_db.update_one({'_id':item['_id']},{'$set':{"AnnoyIndex":x}})
     t.build(tree_count)
     t.save(name)
 
@@ -251,7 +251,7 @@ def annoy_timings():
 
                 for x, item in enumerate(items):
 
-                    enteries = db.fanni_testing_db.find({},{"fingerprint": 1,"index":1})
+                    enteries = db.fanni_testing_db.find({},{"fingerprint": 1,"iAnnoyIndex":1})
                     b1 = time.time()
                     if dis is 'bhat':
                         oneByone = find_n_nearest_neighbors(item, enteries, 25)
@@ -269,7 +269,7 @@ def annoy_timings():
                         a2_1 = a2 - a1
                         results[num]["processTime"] += a2_1
                         # print ("euclid %d length = %d" %(matches, len(euclid)))
-                        score = [m for m in oneByone if m["index"] in ann]
+                        score = [m for m in oneByone if m["AnnoyIndex"] in ann]
                         results[num]["score"] += len(score)
                         # print len(score)
 
@@ -278,4 +278,85 @@ def annoy_timings():
                     f.write(str(results[i]))
                     f.write('\n')
                 f.write('\n')
+    f.close()
+
+def finals():
+    '''
+    test the conclusions
+    linear search top 25/100 vs annoy+linear (100-1000) for both euclidean and angular
+    '''
+    f = open('finals.txt', 'a')
+
+    for trees in [50,100, 250, 500]:
+
+        for method in ['euclidean', 'angular']:
+            name = '/home/yonti/test' + str(trees) + method + '25.ann'
+            t1 = time.time()
+            build_forest(name, method, trees)
+            t2 = time.time()
+            t3 = t2 - t1
+            print('trees: %d  method: %s  build_time: %d' % (trees, method, t3))
+            f.write('\n\ntrees: %d  method: %s  build_time: %d \n' % (trees, method, t3))
+
+        items = db.fanni.find({}, {'fingerprint': 1})
+
+        totalTimeLinear = 0
+        totalTimeEuclid = []
+        totalTimeAng = []
+        totalScoreEuclid = []
+        totalScoreAng = []
+
+        for r in range(2, 11):
+            totalTimeEuclid.append(0)
+            totalTimeAng.append(0)
+            totalScoreEuclid.append(0)
+            totalScoreAng.append(0)
+
+        for x, item in enumerate(items):
+            print(x)
+            enteries = db.fanni_testing_db.find({}, {"fingerprint": 1, "AnnoyIndex": 1})
+            #25
+            b1 = time.time()
+            oneByone = find_n_nearest_neighbors(item, enteries, 25)
+            b2 = time.time()
+            b2_1 = b2 - b1
+            # # 100
+            # b1 = time.time()
+            # oneByone100 = find_n_nearest_neighbors(item, enteries, 100)
+            # b2 = time.time()
+            # b2_1_100 = b2 - b1
+            f.write('\nitem: %d  query_time: %f \n' % (x, b2_1))
+            totalTimeLinear +=b2_1
+
+            for r in range(2,11):
+                matches = r*100
+                for method in ['euclidean', 'angular']:
+                    name = '/home/yonti/test' + str(trees) + method + '25.ann'
+                    a1 = time.time()
+                    ann = annoy_search(name, matches, method, item['fingerprint'])
+                    batch = db.fanni_testing_db.find({"AnnoyIndex":{"$in": ann}},{"fingerprint": 1, "AnnoyIndex": 1})
+                    twoSteps25 = find_n_nearest_neighbors(item, batch, 25)
+                    # twoSteps100 = find_n_nearest_neighbors(item, enteries, 100)
+                    a2 = time.time()
+                    a2_1 =a2-a1
+                    score = [m for m in oneByone if m["_id"] in twoSteps25]
+                    f.write('batchsize: %d  method: %s query_time: %f accuracy: %f %% \n' % (matches, method, a2_1,4*len(score)))
+                    if method == 'euclidean':
+                        totalScoreEuclid[r-2] += len(score)
+                        totalTimeEuclid[r-2] += a2_1
+                    else:
+                        totalScoreAng[r-2] +=len(score)
+                        totalTimeAng[r-2] +=a2_1
+
+
+        for r in range(2, 11):
+            matches = r * 100
+            f.write(
+            'method: Euclidean , batchsize: %d   query_time: %f accuracy: %f %% \n' % ( matches,  totalTimeEuclid[r-2]/50,
+                                                                                        4*totalScoreEuclid[r-2]/50))
+            f.write(
+                'method: Angular , batchsize: %d   query_time: %f accuracy: %f %% \n' % (
+                matches, totalTimeAng[r - 2] / 50,
+                4 * totalScoreAng[r - 2] / 50))
+
     f.close()
