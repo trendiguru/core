@@ -74,7 +74,6 @@ class JrLayer(caffe.Layer):
     #        self.indices = open(split_f, 'r').read().splitlines()
         else:
             self.imagefiles = [f for f in os.listdir(self.images_dir) if self.imagefile_suffix in f]
-        print(str(self.n_files)+' files in image dir '+str(self.images_dir))
 
         if self.labelsfile is not None:  #if labels flie is none then get labels from images
             if not os.path.isfile(self.labelsfile) and not '/' in self.labelsfile:
@@ -120,6 +119,7 @@ class JrLayer(caffe.Layer):
         assert(len(self.imagefiles) == len(self.labelfiles))
         print('{} images and {} labels'.format(len(self.imagefiles),len(self.labelfiles)))
         self.n_files = len(self.imagefiles)
+        print(str(self.n_files)+' good files in image dir '+str(self.images_dir))
 
     def reshape(self, bottom, top):
         # load image + label image pair
