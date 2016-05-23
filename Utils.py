@@ -542,6 +542,9 @@ def ensure_dir(f):
     :param f: file or directory name
     :return: no return val, creates dir if it doesnt exist
     '''
+    if f is None:
+        logging.warning('cannot create directory for None!')
+        return
     logging.debug('f:' + f)
     # d = os.path.dirname(f)
     if not os.path.exists(f):

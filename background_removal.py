@@ -405,14 +405,14 @@ def person_isolation(image, face):
 def create_non_face_dresses(kw):
     if kw not in db.collection_names():
         db.create_collection(kw)
-    if kw == 'mini':
+    if kw == 'mini_with_face':
         curs = db.ShopStyle_Female.find({'$or':
                                          [{'$and': [{'longDescription': {'$regex': ' mini'}}, {'categories': 'dress'}]},
                                          {'$and': [{'longDescription': {'$regex': 'Mini'}}, {'categories': 'dress'}]},
                                          {'$and': [{'longDescription': {'$regex': 'Mini-'}}, {'categories': 'dress'}]},
                                          {'$and': [{'longDescription': {'$regex': 'mini-'}}, {'categories': 'dress'}]}]})
         skin_thresh = 0.05
-    elif kw == 'maxi':
+    elif kw == 'maxi_with_face':
         curs = db.ShopStyle_Female.find({'$and': [{'longDescription': {'$regex': ' maxi '}}, {'categories': 'dress'}]})
         skin_thresh = 0.02
     cnt = 0
@@ -424,7 +424,8 @@ def create_non_face_dresses(kw):
         if image is not None:
             try:
                 faces = find_face_dlib(image)
-                if not faces['are_faces'] and check_skin_percentage(image) < skin_thresh:
+                #if not faces['are_faces'] and check_skin_percentage(image) < skin_thresh:
+                if faces['are_faces']:
                     db[kw].insert_one({'image_url': doc['images']['XLarge']})
                     inserted += 1
                     print "inserted {0}/{1}".format(inserted, cnt)

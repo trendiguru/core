@@ -295,8 +295,8 @@ colorful_fashion_to_fashionista = {'bk':'null','T-shirt':'t-shirt','bag':'bag','
 colorful_fashion_to_fashionista_index_conversion = [(0,0),(1,4),(2,5),(3,27),(4,3),(5,11),(6,7),(7,14),(8,56),
         (9,54),(10,21),(11,18),(12,19),(13,15),(14,20),(15,6),(16,2),(17,55),(18,8),(19,28),(20,31),(21,26),(22,16)]
 
-tamara_berg_categories = ['bag', 'belt', 'dress', 'eyewear', 'footwear', 'hat', 'legging', 'outerwear', 'pants',
-                          'skirts', 'top', 'skin', 'background']   # orig t.b. cats don't have skin or bg
+tamara_berg_categories = ['bag', 'belt', 'dress', 'eyewear', 'footwear', 'hat', 'legging', 'outerwear', 'pants','skirts',
+                          'top', 'skin', 'background']   # orig t.b. cats don't have skin or bg
 
 tamara_berg_improved_categories = ['background','belt','dress','eyewear','footwear','hat','legging','outerwear','pants','skirts',
                                    'top','skin','BAG????','tights','shorts','blouse','bra','vest','suit','jeans',
@@ -308,9 +308,11 @@ tamara_berg_improved_categories = ['background','belt','dress','eyewear','footwe
 #combine tights and leggings
 
 ultimate_21 = ['bgnd','bag','belt','blazer','coat','dress','eyewear','face','hair','hat',
-                   'jeans','legging','pants','shoe','shorts','skin','skirt','stocking','suit','sweater',
-                   'top']
+               'jeans','legging','pants','shoe','shorts','skin','skirt','stocking','suit','sweater',
+               'top']
 
+
+tamara_berg_to_ultimate_21_index_conversion = [(0,1),(1,2),(2,5),(3,6),(4,13),(5,9),(6,11),(7,4),(8,12),(9,16),(10,20)]
 
 tamara_berg_improved_to_ultimate_21_index_conversion = [(0,1),(1,2),(2,5),(3,6),(4,7),(5,8),(6,10),(7,11),(8,12),(9,15),
                   (10,19),(11,14),(12,0),(13,10),(14,13),(15,19),(16,4),(17,20),(18,16),(19,9),

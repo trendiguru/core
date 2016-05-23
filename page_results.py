@@ -172,7 +172,8 @@ def is_image_relevant(image_url, collection_name=None):
             hash = get_hash(image)
             image_dict = db[collection_name].find_one({'image_hash': hash})
             if image_dict:
-                db.images.update_one({'image_hash': hash}, {'$inc': {'views': 1}})
+                db.images.update_one({'image_hash': hash}, {'$inc': {'views': 1},
+                                                            '$addToSet': {'image_urls': image_url}})
                 return has_items(image_dict)
         else:
             db.images.update_one(query, {'$inc': {'views': 1}})

@@ -20,15 +20,17 @@ import matplotlib.pyplot as plt
 array_success = np.array([])
 array_failure = np.array([])
 
-text_file = open("live_data_set_ready.txt", "r")
+text_file = open("1500_dresses_test_list.txt", "r")
 
 counter = 0
 
-MODLE_FILE = "/home/yonatan/trendi/yonatan/Alexnet_deploy.prototxt"
-PRETRAINED = "/home/yonatan/alexnet_imdb_first_try/caffe_alexnet_train_faces_iter_10000.caffemodel"
+MODLE_FILE = "/home/yonatan/trendi/yonatan/Alexnet_deploy_for_dresses.prototxt"
+PRETRAINED = "/home/yonatan/caffe_alexnet_train_on_9000_dresses_iter_10000.caffemodel"
 caffe.set_mode_gpu()
-image_dims = [115, 115]
+image_dims = [200, 100]
 mean, input_scale = np.array([120, 120, 120]), None
+#mean, input_scale = None, None
+#channel_swap = None
 channel_swap = [2, 1, 0]
 raw_scale = 255.0
 ext = 'jpg'
@@ -97,4 +99,4 @@ plt.legend()
 plt.hist(array_failure, alpha=0.5, label='array_failure')
 plt.legend()
 
-histogram.savefig('live_test_image_mean_120_np-array.png')
+histogram.savefig('9000_train_dresses_histogram.png')

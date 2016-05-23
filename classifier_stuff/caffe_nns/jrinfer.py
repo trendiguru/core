@@ -6,23 +6,28 @@ import caffe
 import os
 import time
 import cv2
+import argparse
+from __future__ import division
+from datetime import datetime
+
 
 from trendi import pipeline
 from trendi.utils import imutils
 from trendi import constants
 from trendi.paperdoll import paperdoll_parse_enqueue
-
+from trendi import Utils
 
 def infer_many(images,prototxt,caffemodel,out_dir='./'):
     net = caffe.Net(prototxt,caffemodel, caffe.TEST)
     dims = [150,100]
     start_time = time.time()
     masks=[]
+    Utils.ensure_dir(out_dir)
     for imagename in images:
         print('working on:'+imagename)
             # load image, switch to BGR, subtract mean, and make dims C x H x W for Caffe
         im = Image.open(imagename)
-        im = im.resize(dims,Image.ANTIALIAS)
+#        im = im.resize(dims,Image.ANTIALIAS)
         in_ = np.array(im, dtype=np.float32)
         if len(in_.shape) != 3:
             print('got 1-chan image, skipping')
@@ -68,10 +73,11 @@ def infer_one(imagename,prototxt,caffemodel,out_dir='./'):
     elif in_.shape[2] != 3:
         print('got n-chan image, skipping - shape:'+str(in_.shape))
         return
-    print('size:'+str(in_.shape))
+    print('shape before:'+str(in_.shape))
     in_ = in_[:,:,::-1]
     in_ -= np.array((104.0,116.7,122.7))
     in_ = in_.transpose((2,0,1))
+    print('shape after:'+str(in_.shape))
     # shape for input (data blob is N x C x H x W), set data
     net.blobs['data'].reshape(1, *in_.shape)
     net.blobs['data'].data[...] = in_
@@ -139,26 +145,94 @@ def test_pd_conclusions():
  #       displayname = outfilename.split('.bmp')[0]+'_display.jpg'
  #       cv2.imwrite(displayname,nice_display)
 
+
+
+def fast_hist(a, b, n):
+    k = (a >= 0) & (a < n)
+    return np.bincount(n * a[k].astype(int) + b[k], minlength=n**2).reshape(n, n)
+
+def compute_hist(net, save_dir, dataset, layer='score', gt='label'):
+    n_cl = net.blobs[layer].channels
+    if save_dir:
+        os.mkdir(save_dir)
+    hist = np.zeros((n_cl, n_cl))
+    loss = 0
+    for idx in dataset:
+        net.forward()
+        hist += fast_hist(net.blobs[gt].data[0, 0].flatten(),
+                                net.blobs[layer].data[0].argmax(0).flatten(),
+                                n_cl)
+
+        if save_dir:
+            im = Image.fromarray(net.blobs[layer].data[0].argmax(0).astype(np.uint8), mode='P')
+            im.save(os.path.join(save_dir, idx + '.png'))
+        # compute the loss as well
+        loss += net.blobs['loss'].data.flat[0]
+    return hist, loss / len(dataset)
+
+def seg_tests(solver, save_format, dataset, layer='score', gt='label'):
+    print '>>>', datetime.now(), 'Begin seg tests'
+    solver.test_nets[0].share_with(solver.net)
+    do_seg_tests(solver.test_nets[0], solver.iter, save_format, dataset, layer, gt)
+
+def do_seg_tests(net, iter, save_format, dataset, layer='score', gt='label'):
+    n_cl = net.blobs[layer].channels
+    if save_format:
+        save_format = save_format.format(iter)
+    hist, loss = compute_hist(net, save_format, dataset, layer, gt)
+    # mean loss
+    print '>>>', datetime.now(), 'Iteration', iter, 'loss', loss
+    # overall accuracy
+    acc = np.diag(hist).sum() / hist.sum()
+    print '>>>', datetime.now(), 'Iteration', iter, 'overall accuracy', acc
+    # per-class accuracy
+    acc = np.diag(hist) / hist.sum(1)
+    print '>>>', datetime.now(), 'Iteration', iter, 'mean accuracy', np.nanmean(acc)
+    # per-class IU
+    iu = np.diag(hist) / (hist.sum(1) + hist.sum(0) - np.diag(hist))
+    print '>>>', datetime.now(), 'Iteration', iter, 'mean IU', np.nanmean(iu)
+    freq = hist.sum(1) / hist.sum()
+    print '>>>', datetime.now(), 'Iteration', iter, 'fwavacc', \
+            (freq[freq > 0] * iu[freq > 0]).sum()
+    return hist
+
+
 #    imutils.show_mask_with_labels('concout.bmp',constants.fashionista_categories_augmented)
 
 
 if __name__ == "__main__":
+
+    print('starting')
     caffe.set_mode_gpu();
     caffe.set_device(0);
-    print('starting')
+
     test_dir = '/root/imgdbs/image_dbs/doorman/irrelevant/'
     out_dir = '/root/imgdbs/image_dbs/doorman/irrelevant_output'
     test_dir = '/root/imgdbs/image_dbs/colorful_fashion_parsing_data/images/test_200x150/'
     out_dir = '/root/imgdbs/image_dbs/150x100output_010516/'
-#    label_dir = '/root/imgdbs/image_dbs/colorful_fashion_parsing_data/labels/'
-#    images = [os.path.join(test_dir,f) for f in os.listdir(test_dir) if '.jpg' in f or 'jpeg' in f or '.bmp' in f]
-    images = [os.path.join(test_dir,f) for f in os.listdir(test_dir) if '.jpg' in f ]
-    print('nimages:'+str(len(images)))
-#    images = [f.strip('.jpg')[0]+'.png' for f in images]
-#    print('images:'+str(images))
-#    images = [os.path.join(label_dir,f) for f in images]
-#    print('images:'+str(images))
+    test_dir = '/root/imgdbs/image_dbs/colorful_fashion_parsing_data/images/test'
+    out_dir = './'
     prototxt = 'deploy.prototxt'
     caffemodel = 'snapshot_nn2/train_iter_183534.caffemodel'
     caffemodel = 'snapshot_nn2/train_iter_164620.caffemodel'  #010516 saved
-    infer_many(images,prototxt,caffemodel,out_dir=out_dir)
+
+    parser = argparse.ArgumentParser(description='get Caffe output')
+    parser.add_argument('caffemodel', help='caffemodel', default=caffemodel)
+    parser.add_argument('prototxt', help='prototxt',default=prototxt)
+    parser.add_argument('--image', dest = 'image_file', help='image file',default=None)
+    parser.add_argument('--dir', dest = 'image_directory', help='image directory',default=None)
+    parser.add_argument('--outdir', dest = 'out_directory', help='result directory',default='.')
+    args = parser.parse_args()
+
+#    label_dir = '/root/imgdbs/image_dbs/colorful_fashion_parsing_data/labels/'
+
+    if args.image_file:
+        infer_one(args.image_file,args.prototxt,args.caffemodel,out_dir=args.out_directory)
+    elif args.image_directory:
+
+        images = [os.path.join(args.image_directory,f) for f in os.listdir(args.image_directory) if '.jpg' in f ]
+        print('nimages:'+str(len(images)) + ' in directory '+args.image_directory)
+        infer_many(images,args.prototxt,args.caffemodel,out_dir=args.out_directory)
+
+    else:
+        print('gave neither image nor directory as input')

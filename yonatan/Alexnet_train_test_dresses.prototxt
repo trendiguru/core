@@ -9,14 +9,13 @@ layer {
   }
   transform_param {
     mirror: true
-    crop_size: 115
     mean_value: 120
     mean_value: 120
     mean_value: 120
   }
   image_data_param {
-    source: "/home/yonatan/700_dresses_train_list.txt"
-    batch_size: 31
+    source: "/home/yonatan/2600_dresses_with_faces_train_list.txt"
+    batch_size: 30
     shuffle: true
   }
 }
@@ -30,14 +29,13 @@ layer {
   }
   transform_param {
     mirror: false
-    crop_size: 115
     mean_value: 120
     mean_value: 120
     mean_value: 120
   }
   image_data_param {
-    source: "/home/yonatan/700_dresses_cv_list.txt"
-    batch_size: 100
+    source: "/home/yonatan/600_dresses_with_faces_cv_list.txt"
+    batch_size: 30
     shuffle: true
   }
 }

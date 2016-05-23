@@ -15,6 +15,7 @@ import shutil
 from trendi import Utils
 from trendi.classifier_stuff import darknet_convert
 from trendi import constants
+import numpy as np
 
 logging.basicConfig(level=logging.DEBUG)
 
@@ -38,8 +39,6 @@ def rename_bbox_files(dir):
         dest = os.path.join(dir,dest_base)
         shutil.copy(full_source, dest)
 
-
-
 def get_product_photos(images_files_path):
     images_links = open(images_files_path)
     listing = []
@@ -50,7 +49,6 @@ def get_product_photos(images_files_path):
             listing.append(line[10:])
     print len(listing)
     return listing
-
 
 # for json_file in only_files:
 # instead of a for loop, lets parallelize! :
@@ -233,7 +231,6 @@ def generate_bbfiles_from_json(json_file,imagefiles_dir,bb_dir,darknet=True,clas
             raise
     f.close()
 
-
 def library_with_cropping(json_file, json_files_path, photos_path, listing,max_items, docrop=False):
     # finds only dresses dataset:
     data = []
@@ -332,16 +329,67 @@ def generate_bbfiles_from_json_dir_of_dirs(dir_of_jsons,imagefiles_dir,bb_dir,da
         category_number += 1
 #def generate_bbfiles_from_json(json_file,imagefiles_dir,bb_dir,darknet=True,class_number=None,clobber=False):
 
+def tamara_berg_to_ultimate_21(tb_index):
+    u21s = [conv[1] for conv in constants.tamara_berg_to_ultimate_21_index_conversion if conv[0]==tb_index]
+    if len(u21s) != 1:
+        logging.warning('could not get u21 index for tamaraberg index '+str(tb_index))
+        return None
+    return int(u21s[0])
+
+def multi_class_labels_from_bbfiles(dir_of_bbfiles):
+#json files are in this format:
+#  {"photo": 417, "product": 2400, "bbox": {"width": 145, "top": 405, "left": 390, "height": 235}}
+    with open('classlabels.txt','w') as classfile:
+        files = [f for f in os.listdir(dir_of_bbfiles) if '.txt' in f]
+        print(str(len(files))+' files in '+dir_of_bbfiles)
+        for a_file in files:
+            with open(os.path.join(dir_of_bbfiles,a_file),'r') as lines:
+                outvec = np.zeros(len(constants.ultimate_21))
+                for line in lines:
+      #              print('file:'+a_file+' line:'+str(line))
+                    line_arr = line.split()
+                    berg_class = int(line_arr[0])
+                    u21_class = tamara_berg_to_ultimate_21(berg_class)
+                    if u21_class is None:
+                        logging.warning('no matching class found')
+                        continue
+                    print('berg_class {} ({}) u21_class {} ({}) line {}'.format(berg_class,constants.tamara_berg_categories[berg_class],u21_class,constants.ultimate_21[u21_class],line_arr))
+                    outvec[u21_class] = 1
+            imgname = '/home/jeremy/image_dbs/tamara_berg/images/photo_'+a_file[:-4]+'.jpg'
+            print('imgname:'+imgname)
+            if os.path.exists(imgname):
+                img_arr = cv2.imread(imgname)
+                h,w=img_arr.shape[0:2]
+                factor = float(h)/400.0
+                resized = cv2.resize(img_arr,(int(w/factor),400))
+                cv2.imshow('win',resized)
+                cv2.waitKey(0)
+            else:
+                print('image not found')
+            writeline = a_file+' '
+            for i in range(len(outvec)):
+                writeline = writeline+str(int(outvec[i]))+' '
+            print('writing line:'+str(writeline))
+            classfile.write(writeline)
+#            raw_input('enter to continue)')
 
 if __name__ == "__main__":
 # opening the JSONs structure files:
     num_cores = multiprocessing.cpu_count()
   #  num_cores = 1
     json_files_path = os.path.dirname(os.path.abspath(__file__)) + '/meta/json/'
-    json_dir = '/home/jeremy/dataset/json/'
+    json_dir = '/home/jeremy/street2shop/meta/json/'
     json_file = '/home/jeremy/dataset/json/test_pairs_bags.json'
-    bb_dir = '/home/jeremy/dataset/bbs'
+    json_file = '/home/jeremy/street2shop/meta/json/test_pairs_bags.json'
+    bb_dir = '/home/jeremy/'
     imagefiles_dir = '/home/jeremy/dataset/test_pairs_bags'
+    imagefiles_dir = '/home/jeremy/street2shop/photos/'
+
+#    dir_of_bbfiles = '/home/jeremy/image_dbs/tamara_berg/'
+#    multi_class_labels_from_bbfiles(dir_of_bbfiles)
+
+
+
     generate_bbfiles_from_json_dir_of_dirs(json_dir,imagefiles_dir,bb_dir,darknet=True,positive_filter='train')
     generate_bbfiles_from_json_dir_of_dirs(json_dir,imagefiles_dir,bb_dir,darknet=True,positive_filter='test')
 #    generate_bbfiles_from_json(json_file,imagefiles_dir,darknet=True,class_number=66)
