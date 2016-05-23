@@ -41,13 +41,12 @@ class JrLayer(caffe.Layer):
         # config
         params = eval(self.param_str)
         self.images_dir = params['images_dir']
-        self.split = params['split']
+        self.labels_dir = params.get('labels_dir',self.images_dir)
         self.mean = np.array(params['mean'])
         self.random_init = params.get('random_initialization', True)
         self.random_pick = params.get('random_pick', False)
         self.seed = params.get('seed', 1337)
-        self.labels_dir = params.get('labels_dir',self.images_dir)
-        self.imagesfile = params.get('imagesfile',os.path.join(self.images_dir,self.split+'images.txt'))
+#        self.imagesfile = params.get('imagesfile',os.path.join(self.images_dir,self.split+'images.txt'))
         self.imagesfile = params.get('imagesfile',None)
         self.labelsfile = params.get('labelsfile',None)
         #if there is no labelsfile specified then rename imagefiles to make labelfile names
