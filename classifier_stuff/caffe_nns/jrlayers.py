@@ -74,7 +74,7 @@ class JrLayer(caffe.Layer):
             self.n_files = len(self.imagefiles)
     #        self.indices = open(split_f, 'r').read().splitlines()
         else:
-            self.imagefiles = [os.path.join(self.images_dir,f) for f in os.path.listdir(self.images_dir) if self.imagefile_suffix in f]
+            self.imagefiles = [f for f in os.path.listdir(self.images_dir) if self.imagefile_suffix in f]
             self.n_files = len(self.imagefiles)
         print(str(self.n_files)+' files in image dir '+str(self.images_dir))
 
@@ -84,6 +84,10 @@ class JrLayer(caffe.Layer):
             if not os.path.isfile(self.labelsfile):
                 print('COULD NOT OPEN labelS FILE '+str(self.labelsfile))
                 self.labelfiles = open(self.labelsfile, 'r').read().splitlines()
+        else:
+            self.labelfiles = [f for f in os.path.listdir(self.labels_dir) if self.labelfile_suffix in f]
+            self.n_files = len(self.imagefiles)
+        print(str(self.n_files)+' label files in label dir '+str(self.labels_dir))
 
         self.idx = 0
         # randomization: seed and pick
@@ -178,7 +182,7 @@ class JrLayer(caffe.Layer):
             - transpose to channel x height x width order
             """
     #	print('IN LOAD IMAGE self idx is :'+str(idx)+' type:'+str(type(idx)))
-            filename = self.imagefiles[self.idx]
+        filename = self.imagefiles[self.idx]
         full_filename=os.path.join(self.images_dir,filename)
         print('imagefile:'+full_filename)
         while(1):
