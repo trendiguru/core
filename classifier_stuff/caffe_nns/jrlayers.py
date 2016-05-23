@@ -172,6 +172,7 @@ class JrLayer(caffe.Layer):
 
         full_filename=os.path.join(self.labels_dir,filename)
         return full_filename
+
     def load_image(self,idx):
         """
         Load input image and preprocess for Caffe:
@@ -180,12 +181,10 @@ class JrLayer(caffe.Layer):
         - subtract mean
         - transpose to channel x height x width order
         """
-        filename = self.imagefiles[self.idx]
-        full_filename=os.path.join(self.images_dir,filename)
-        print('imagefile:'+full_filename)
         while(1):
             filename = self.imagefiles[self.idx]
             full_filename=os.path.join(self.images_dir,filename)
+            print('imagefile:'+full_filename)
             label_filename=self.determine_label_filename(self.idx)
             if not(os.path.isfile(label_filename) and os.path.isfile(full_filename)):
                 print('ONE OF THESE IS NOT A FILE:'+str(label_filename)+','+str(full_filename))
