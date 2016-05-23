@@ -461,8 +461,14 @@ def label_images_and_images_to_lmdb(image_dbname,label_dbname,image_dir,label_di
                         uniques = np.unique(label_arr)
                         resized_uniques = np.unique(resized_label)
                         print('orig uniques:'+str(uniques))
-                        print('resized unqiues:'+str(resized_uniques))
+ #                       print('resized unqiues:'+str(resized_uniques))
                         print('orig bincount:'+str(np.bincount(label_arr.flatten())))
+#                        print('resized bincount:'+str(np.bincount(resized_label.flatten())))
+                        extras = [i for i in resized_uniques if not i in uniques]
+                        for i in extras:
+                            resized_label[resized_label==i] = 0
+                        resized_uniques = np.unique(resized_label)
+                        print('resized unqiues:'+str(resized_uniques))
                         print('resized bincount:'+str(np.bincount(resized_label.flatten())))
                         img_arr = resized_image
                         label_arr = resized_label
