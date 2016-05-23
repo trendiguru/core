@@ -341,7 +341,7 @@ def finals():
                     a2_1 =a2-a1
                     top25 = [t["_id"] for t in twoSteps25]
                     score = [m for m in oneByone if m["_id"] in top25]
-                    f.write('batchsize: %d  method: %s query_time: %f accuracy: %f %% \n' % (matches, method, a2_1,4*len(score)))
+                    # f.write('batchsize: %d  method: %s query_time: %f accuracy: %f %% \n' % (matches, method, a2_1,4*len(score)))
                     if method == 'euclidean':
                         totalScoreEuclid[r-2] += len(score)
                         totalTimeEuclid[r-2] += a2_1
@@ -353,10 +353,13 @@ def finals():
         for r in range(2, 11):
             matches = r * 100
             f.write(
-            '\nmethod: Euclidean , batchsize: %d   query_time: %f accuracy: %f %% \n' % ( matches,  totalTimeEuclid[r-2]/50,
+            '\nmethod: Euclidean , batchsize: %d   query_time: %f accuracy: %f %% ' % ( matches,  totalTimeEuclid[r-2]/50,
                                                                                         4*totalScoreEuclid[r-2]/50))
+        f.write('\n')
+        for r in range(2, 11):
+            matches = r * 100
             f.write(
-                'method: Angular , batchsize: %d   query_time: %f accuracy: %f %% ' % (
+                '\nmethod: Angular , batchsize: %d   query_time: %f accuracy: %f %% ' % (
                 matches, totalTimeAng[r - 2] / 50,
                 4 * totalScoreAng[r - 2] / 50))
 
