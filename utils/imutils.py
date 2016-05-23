@@ -347,7 +347,7 @@ def resize_keep_aspect(input_file_or_np_arr, output_file=None, output_size = (30
         cv2.imshow('output', output_img)
         cv2.imshow('orig',input_file_or_np_arr)
 #        cv2.imshow('res',resized_img)
-        cv2.waitKey(50)
+        cv2.waitKey(0)
     if output_file is not None:
         cv2.imwrite(output_file, output_img)
     return output_img
