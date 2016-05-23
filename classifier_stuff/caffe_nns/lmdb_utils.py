@@ -601,7 +601,7 @@ def inspect_db(dbname,show_visual_output=True,B=0,G=0,R=0):
    #         n=n+1
 
 
-def inspect_fcn_db(img_dbname,label_dbname,show_visual_output=True,avg_pixval=(0,0,0),max_pixval=255,labels=constants.ultimate_21):
+def inspect_fcn_db(img_dbname,label_dbname,show_visual_output=True,avg_pixval=(0,0,0),max_pixval=255,labels=constants.ultimate_21,expected_size=None):
     print('looking at fcn db')
     env_1 = lmdb.open(img_dbname, readonly=True)
     env_2 = lmdb.open(label_dbname, readonly=True)
@@ -645,7 +645,8 @@ def inspect_fcn_db(img_dbname,label_dbname,show_visual_output=True,avg_pixval=(0
                         x = flat_x.reshape(datum.height, datum.width)
                         x[:,:] = x[:,:]+avg_pixval[0]
 
-
+                    if expected_size:
+                        assert(x.shape[0:2]==expected_size)
                     x=x.astype(np.uint8)
                     if show_visual_output is True:
                         cv2.imshow(img_dbname,x)
@@ -676,6 +677,8 @@ def inspect_fcn_db(img_dbname,label_dbname,show_visual_output=True,avg_pixval=(0
                         y=y[:,:,0]
                     else:
                         y = flat_y.reshape(datum.height, datum.width)
+                    if expected_size:
+                        assert(y.shape[0:2]==expected_size)
                     if show_visual_output is True:
                         tmpfilename = '/tmp/tmpout.bmp'
                         cv2.imwrite(tmpfilename,y)

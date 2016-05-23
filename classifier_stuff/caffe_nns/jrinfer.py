@@ -145,8 +145,6 @@ def test_pd_conclusions():
  #       displayname = outfilename.split('.bmp')[0]+'_display.jpg'
  #       cv2.imwrite(displayname,nice_display)
 
-
-
 def fast_hist(a, b, n):
     k = (a >= 0) & (a < n)
     return np.bincount(n * a[k].astype(int) + b[k], minlength=n**2).reshape(n, n)
@@ -187,6 +185,7 @@ def do_seg_tests(net, iter, save_format, dataset, layer='score', gt='label'):
     print '>>>', datetime.now(), 'Iteration', iter, 'overall accuracy', acc
     # per-class accuracy
     acc = np.diag(hist) / hist.sum(1)
+    print '>>>', datetime.now(), 'Iteration', iter, 'acc per class', str(acc)
     print '>>>', datetime.now(), 'Iteration', iter, 'mean accuracy', np.nanmean(acc)
     # per-class IU
     iu = np.diag(hist) / (hist.sum(1) + hist.sum(0) - np.diag(hist))
