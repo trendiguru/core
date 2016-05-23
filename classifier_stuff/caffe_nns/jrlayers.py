@@ -100,20 +100,17 @@ class JrLayer(caffe.Layer):
         good_label_files = []
         print('checking image files')
         for ind in range(len(self.imagefiles)):
-            img_file = self.imagefiles[ind]
-            full_img_name = os.path.join(self.images_dir,img_file)
-            img_arr = cv2.imread(full_img_name)
+            img_arr = self.load_image(ind)
             if img_arr is not None:
-                label_file = self.determine_label_filename(ind)
-                label_arr = cv2.imread(label_file)
+                label_arr = self.load_label_image(ind)
                 if label_arr is not None:
                     if label_arr.shape[0:2] == img_arr.shape[0:2]:
-                        good_img_files.append(img_file)
-                        good_label_files.append(label_file)
+                        good_img_files.append(self.imagefiles[ind])
+                        good_label_files.append(self.labelfiles[ind])
                     else:
                         print('shape mismatch , image {} and label {}'+str(img_arr.shape,label_arr.shape))
             else:
-                print('got bad image:'+img_file)
+                print('got bad image:'+self.imagefiles[ind])
         self.imagefiles = good_img_files
         self.labelfiles = good_label_files
         assert(len(self.imagefiles) == len(self.labelfiles))
