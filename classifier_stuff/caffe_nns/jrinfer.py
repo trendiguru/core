@@ -1,5 +1,6 @@
 __author__ = 'jeremy'
 #get output images for given input
+from __future__ import division
 import numpy as np
 from PIL import Image
 import caffe
@@ -7,7 +8,6 @@ import os
 import time
 import cv2
 import argparse
-from __future__ import division
 from datetime import datetime
 
 
