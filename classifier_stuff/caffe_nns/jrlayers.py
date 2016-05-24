@@ -96,27 +96,29 @@ class JrLayer(caffe.Layer):
         logging.debug('initial self.idx is :'+str(self.idx)+' type:'+str(type(self.idx)))
 
         ##check that all images are openable and have labels
-        good_img_files = []
-        good_label_files = []
-        print('checking image files')
-        for ind in range(len(self.imagefiles)):
-            img_arr = self.load_image(ind)
-            if img_arr is not None:
-                label_arr = self.load_label_image(ind)
-                if label_arr is not None:
-                    if label_arr.shape[1:3] == img_arr.shape[1:3]:  #the first dim is # channels (3 for img and 1 for label
-                        good_img_files.append(self.imagefiles[ind])
-                        good_label_files.append(self.labelfiles[ind])
-                    else:
-                        print('match , image {} and label {}'.format(img_arr.shape,label_arr.shape))
-            else:
-                print('got bad image:'+self.imagefiles[ind])
-        self.imagefiles = good_img_files
-        self.labelfiles = good_label_files
-        assert(len(self.imagefiles) == len(self.labelfiles))
-        print('{} images and {} labels'.format(len(self.imagefiles),len(self.labelfiles)))
-        self.n_files = len(self.imagefiles)
-        print(str(self.n_files)+' good files in image dir '+str(self.images_dir))
+        check_files = false
+        if(check_files):
+            good_img_files = []
+            good_label_files = []
+            print('checking image files')
+            for ind in range(len(self.imagefiles)):
+                img_arr = self.load_image(ind)
+                if img_arr is not None:
+                    label_arr = self.load_label_image(ind)
+                    if label_arr is not None:
+                        if label_arr.shape[1:3] == img_arr.shape[1:3]:  #the first dim is # channels (3 for img and 1 for label
+                            good_img_files.append(self.imagefiles[ind])
+                            good_label_files.append(self.labelfiles[ind])
+                        else:
+                            print('match , image {} and label {}'.format(img_arr.shape,label_arr.shape))
+                else:
+                    print('got bad image:'+self.imagefiles[ind])
+            self.imagefiles = good_img_files
+            self.labelfiles = good_label_files
+            assert(len(self.imagefiles) == len(self.labelfiles))
+            print('{} images and {} labels'.format(len(self.imagefiles),len(self.labelfiles)))
+            self.n_files = len(self.imagefiles)
+            print(str(self.n_files)+' good files in image dir '+str(self.images_dir))
 
     def reshape(self, bottom, top):
         print('reshaping')
