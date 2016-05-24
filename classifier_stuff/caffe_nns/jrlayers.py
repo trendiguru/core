@@ -108,7 +108,7 @@ class JrLayer(caffe.Layer):
                         good_img_files.append(self.imagefiles[ind])
                         good_label_files.append(self.labelfiles[ind])
                     else:
-                        print('shape mismatch , image {} and label {}'.format(img_arr.shape,label_arr.shape))
+                        print('match , image {} and label {}'.format(img_arr.shape,label_arr.shape))
             else:
                 print('got bad image:'+self.imagefiles[ind])
         self.imagefiles = good_img_files
@@ -180,10 +180,10 @@ class JrLayer(caffe.Layer):
         - transpose to channel x height x width order
         """
         while(1):
-            filename = self.imagefiles[self.idx]
+            filename = self.imagefiles[idx]
             full_filename=os.path.join(self.images_dir,filename)
             print('the imagefile:'+full_filename+' index:'+str(idx))
-            label_filename=self.determine_label_filename(self.idx)
+            label_filename=self.determine_label_filename(idx)
             if not(os.path.isfile(label_filename) and os.path.isfile(full_filename)):
                 print('ONE OF THESE IS NOT A FILE:'+str(label_filename)+','+str(full_filename))
                 self.next_idx()
