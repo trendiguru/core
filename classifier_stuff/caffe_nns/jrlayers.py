@@ -182,7 +182,7 @@ class JrLayer(caffe.Layer):
         while(1):
             filename = self.imagefiles[self.idx]
             full_filename=os.path.join(self.images_dir,filename)
-            print('the imagefile:'+full_filename+' index:'+idx)
+            print('the imagefile:'+full_filename+' index:'+str(idx))
             label_filename=self.determine_label_filename(self.idx)
             if not(os.path.isfile(label_filename) and os.path.isfile(full_filename)):
                 print('ONE OF THESE IS NOT A FILE:'+str(label_filename)+','+str(full_filename))
