@@ -1,6 +1,6 @@
+from __future__ import division
 __author__ = 'jeremy'
 #get output images for given input
-from __future__ import division
 import numpy as np
 from PIL import Image
 import caffe
