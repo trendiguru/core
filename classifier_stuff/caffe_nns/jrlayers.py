@@ -194,7 +194,7 @@ class JrLayer(caffe.Layer):
         if in_ is None:
             logging.warning('could not get image '+full_filename)
             return None
-        print(full_filename+ ' has dims '+str(in_.shape))
+#        print(full_filename+ ' has dims '+str(in_.shape))
         in_ = in_[:,:,::-1]
 #        in_ -= self.mean
         in_ = in_.transpose((2,0,1))
@@ -233,7 +233,7 @@ class JrLayer(caffe.Layer):
             in_ = in_[:,:,0]
     #        in_ = in_ - 1
  #       print('uniques of label:'+str(np.unique(in_))+' shape:'+str(in_.shape))
-        print(full_filename+' has dims '+str(in_.shape))
+ #       print(full_filename+' has dims '+str(in_.shape))
         label = copy.copy(in_[np.newaxis, ...])
 #        print('after extradim shape:'+str(label.shape))
 
