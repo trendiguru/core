@@ -229,7 +229,7 @@ class JrLayer(caffe.Layer):
         in_ = np.array(im, dtype=np.uint8)
 
         if len(in_.shape) == 3:
-            logging.warning('got 3 layer img as mask, taking first layer')
+#            logging.warning('got 3 layer img as mask, taking first layer')
             in_ = in_[:,:,0]
     #        in_ = in_ - 1
  #       print('uniques of label:'+str(np.unique(in_))+' shape:'+str(in_.shape))
