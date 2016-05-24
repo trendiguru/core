@@ -182,7 +182,7 @@ class JrLayer(caffe.Layer):
         while(1):
             filename = self.imagefiles[self.idx]
             full_filename=os.path.join(self.images_dir,filename)
-            print('the imagefile:'+full_filename)
+#            print('the imagefile:'+full_filename)
             label_filename=self.determine_label_filename(self.idx)
             if not(os.path.isfile(label_filename) and os.path.isfile(full_filename)):
                 print('ONE OF THESE IS NOT A FILE:'+str(label_filename)+','+str(full_filename))
@@ -194,7 +194,7 @@ class JrLayer(caffe.Layer):
         if in_ is None:
             logging.warning('could not get image '+full_filename)
             return None
-        print('got image w dims '+str(in_.shape))
+        print(full_filename+ ' has dims '+str(in_.shape))
         in_ = in_[:,:,::-1]
 #        in_ -= self.mean
         in_ = in_.transpose((2,0,1))
@@ -222,7 +222,6 @@ class JrLayer(caffe.Layer):
 #        import scipy.io
 #        mat = scipy.io.loadmat('{}/cls/{}.mat'.format(self.sbdd_dir, idx))
         full_filename = self.determine_label_filename(idx)
-        print('labelfile:'+full_filename)
         im = Image.open(full_filename)
         if im is None:
             print(' COULD NOT LOAD FILE '+full_filename)
@@ -233,8 +232,9 @@ class JrLayer(caffe.Layer):
             logging.warning('got 3 layer img as mask, taking first layer')
             in_ = in_[:,:,0]
     #        in_ = in_ - 1
-        print('uniques of label:'+str(np.unique(in_))+' shape:'+str(in_.shape))
+ #       print('uniques of label:'+str(np.unique(in_))+' shape:'+str(in_.shape))
+        print(full_filename+' has dims '+str(in_.shape))
         label = copy.copy(in_[np.newaxis, ...])
-        print('after extradim shape:'+str(label.shape))
+#        print('after extradim shape:'+str(label.shape))
 
         return label
