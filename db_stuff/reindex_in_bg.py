@@ -9,6 +9,7 @@ def getIndexesNames(coll):
     keys.remove('_id_')
     #removes the '_1' from the key names
     keys = [k[:-2] for k in keys]
+    print (keys)
     return keys
 
 
@@ -20,5 +21,6 @@ def reIndex(collection_name):
     collection.drop_indexes()
     #build new indexes
     for index in oldIndexes:
+        print (index)
         collection.create_index(index, background=True)
     print('Index done!')
