@@ -43,8 +43,8 @@ class JrLayer(caffe.Layer):
         self.images_dir = params['images_dir']
         self.labels_dir = params.get('labels_dir',self.images_dir)
         self.mean = np.array(params['mean'])
-        self.random_init = params.get('random_initialization', True)
-        self.random_pick = params.get('random_pick', False)
+        self.random_init = params.get('random_initialization', True) #start from random point in image list
+        self.random_pick = params.get('random_pick', True) #pick random image from list every time
         self.seed = params.get('seed', 1337)
 #        self.imagesfile = params.get('imagesfile',os.path.join(self.images_dir,self.split+'images.txt'))
         self.imagesfile = params.get('imagesfile',None)
