@@ -193,6 +193,14 @@ def do_seg_tests(net, iter, save_format, dataset, layer='score', gt='label'):
     freq = hist.sum(1) / hist.sum()
     print '>>>', datetime.now(), 'Iteration', iter, 'fwavacc', \
             (freq[freq > 0] * iu[freq > 0]).sum()
+    with open('net_output.txt',w+) as f:
+        f.write('>>>'+ datetime.now()+'Iteration'+ iter+ 'loss'+ loss)
+#    print '>>>', datetime.now(), 'Iteration', iter, 'acc per class', str(acc)
+#    print '>>>', datetime.now(), 'Iteration', iter, 'mean accuracy', np.nanmean(acc)
+#    print '>>>', datetime.now(), 'Iteration', iter, 'mean IU', np.nanmean(iu)
+#    print '>>>', datetime.now(), 'Iteration', iter, 'fwavacc', \
+ #           (freq[freq > 0] * iu[freq > 0]).sum()
+
     return hist
 
 
