@@ -146,7 +146,7 @@ class JrLayer(caffe.Layer):
         top[1].data[...] = self.label
 
         # pick next input
-        if self.random:
+        if self.random_pick:
             self.idx = random.randint(0, len(self.imagefiles)-1)
         else:
             self.idx += 1
@@ -182,7 +182,7 @@ class JrLayer(caffe.Layer):
         while(1):
             filename = self.imagefiles[idx]
             full_filename=os.path.join(self.images_dir,filename)
-            print('the imagefile:'+full_filename+' index:'+str(idx))
+#            print('the imagefile:'+full_filename+' index:'+str(idx))
             label_filename=self.determine_label_filename(idx)
             if not(os.path.isfile(label_filename) and os.path.isfile(full_filename)):
                 print('ONE OF THESE IS NOT A FILE:'+str(label_filename)+','+str(full_filename))
