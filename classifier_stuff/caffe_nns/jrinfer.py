@@ -1,5 +1,6 @@
 __author__ = 'jeremy'
 #get output images for given input
+from __future__ import division
 import numpy as np
 from PIL import Image
 import caffe
@@ -7,7 +8,6 @@ import os
 import time
 import cv2
 import argparse
-from __future__ import division
 from datetime import datetime
 
 
@@ -145,8 +145,6 @@ def test_pd_conclusions():
  #       displayname = outfilename.split('.bmp')[0]+'_display.jpg'
  #       cv2.imwrite(displayname,nice_display)
 
-
-
 def fast_hist(a, b, n):
     k = (a >= 0) & (a < n)
     return np.bincount(n * a[k].astype(int) + b[k], minlength=n**2).reshape(n, n)
@@ -187,6 +185,7 @@ def do_seg_tests(net, iter, save_format, dataset, layer='score', gt='label'):
     print '>>>', datetime.now(), 'Iteration', iter, 'overall accuracy', acc
     # per-class accuracy
     acc = np.diag(hist) / hist.sum(1)
+    print '>>>', datetime.now(), 'Iteration', iter, 'acc per class', str(acc)
     print '>>>', datetime.now(), 'Iteration', iter, 'mean accuracy', np.nanmean(acc)
     # per-class IU
     iu = np.diag(hist) / (hist.sum(1) + hist.sum(0) - np.diag(hist))
@@ -194,6 +193,12 @@ def do_seg_tests(net, iter, save_format, dataset, layer='score', gt='label'):
     freq = hist.sum(1) / hist.sum()
     print '>>>', datetime.now(), 'Iteration', iter, 'fwavacc', \
             (freq[freq > 0] * iu[freq > 0]).sum()
+    with open('net_output.txt','a') as f:
+        f.write('>>>'+ datetime.now()+'Iteration'+ iter+ 'loss'+ loss)
+        f.write('acc per class', str(acc))
+        f.write('mean acc', str(np.nanmean(acc)))
+        f.write('mean IU', str(np.nanmean(iu)))
+        f.write('fwavacc', str((freq[freq > 0] * iu[freq > 0]).sum()))
     return hist
 
 

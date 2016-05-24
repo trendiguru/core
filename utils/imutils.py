@@ -283,19 +283,24 @@ def resize_and_crop_image( input_file_or_np_arr, output_file=None, output_side_l
         cv2.imwrite(output_file, cropped_img)
     return cropped_img
 
-def resize_keep_aspect_dir(dir,overwrite=False,output_size=(250,250),use_visual_output=False,filefilter='.jpg'):
+def resize_keep_aspect_dir(dir,outdir=None,overwrite=False,output_size=(250,250),use_visual_output=False,filefilter='.jpg',careful_with_the_labels=False):
     files = [ f for f in os.listdir(dir) if filefilter in f]
+    print(str(len(files))+' files in '+dir)
     for file in files:
         fullname = os.path.join(dir,file)
         if overwrite:
             newname = fullname
         else:
-            newname = file.split(filefilter)[0]+'_resized'+filefilter
-            newname = os.path.join(dir,newname)
-        print('infile:{} desired size:{}'.format(fullname,output_size))
-        resize_keep_aspect(fullname, output_file=newname, output_size = output_size,use_visual_output=use_visual_output)
+            if outdir:
+                Utils.ensure_dir(outdir)
+                newname = os.path.join(outdir,file)
+            else:
+                newname = file.split(filefilter)[0]+'_resized'+filefilter
+                newname = os.path.join(dir,newname)
+        print('infile:{} desired size:{} outfile {}'.format(fullname,output_size,newname))
+        resize_keep_aspect(fullname, output_file=newname, output_size = output_size,use_visual_output=use_visual_output,careful_with_the_labels=careful_with_the_labels)
 
-def resize_keep_aspect(input_file_or_np_arr, output_file=None, output_size = (300,200),use_visual_output=False):
+def resize_keep_aspect(input_file_or_np_arr, output_file=None, output_size = (300,200),use_visual_output=False,careful_with_the_labels=False):
     '''
     Takes an image name/arr, resize keeping aspect ratio, filling extra areas with edge values
     :param input_file_or_np_arr:
@@ -327,7 +332,7 @@ def resize_keep_aspect(input_file_or_np_arr, output_file=None, output_size = (30
         resized_img = cv2.resize(input_file_or_np_arr, (new_width, outheight))
         print('<resize size:'+str(resized_img.shape)+' outw:'+str(outwidth)+' neww:'+str(new_width))
         width_offset = (outwidth - new_width ) / 2
-        output_img[:,width_offset:width_offset+new_width,:] = resized_img[:,:,:]
+        output_img[:,width_offset:width_offset+new_width] = resized_img[:,:]
         for n in range(0,width_offset):  #doing this like the below runs into a broadcast problem which could prob be solved by reshaping
 #            output_img[:,0:width_offset] = resized_img[:,0]
 #            output_img[:,width_offset+new_width:] = resized_img[:,-1]
@@ -339,15 +344,24 @@ def resize_keep_aspect(input_file_or_np_arr, output_file=None, output_size = (30
         resized_img = cv2.resize(input_file_or_np_arr, (outwidth, new_height))
         print('<resize size:'+str(resized_img.shape)+' outh:'+str(outheight)+' neww:'+str(new_height))
         height_offset = (outheight - new_height) / 2
-        output_img[height_offset:height_offset+new_height,:,:] = resized_img[:,:,:]
+        output_img[height_offset:height_offset+new_height,:] = resized_img[:,:]
         output_img[0:height_offset,:] = resized_img[0,:]
         output_img[height_offset+new_height:,:] = resized_img[-1,:]
 
+    if careful_with_the_labels:
+#        print('uniques in source:'+str(np.unique(input_file_or_np_arr)))
+#        print('uniques in dest:'+str(np.unique(output_img)))
+        for u in np.unique(output_img):
+            if not u in input_file_or_np_arr:
+#                print('found new val in target:'+str(u))
+                output_img[output_img==u] = 0
+#        print('uniques in dest:'+str(np.unique(output_img)))
+        # assert((np.unique(output_img)==np.unique(input_file_or_np_arr)).all())   this fails , bool attr has no all()
     if use_visual_output is True:
         cv2.imshow('output', output_img)
         cv2.imshow('orig',input_file_or_np_arr)
 #        cv2.imshow('res',resized_img)
-        cv2.waitKey(50)
+        cv2.waitKey(0)
     if output_file is not None:
         cv2.imwrite(output_file, output_img)
     return output_img
