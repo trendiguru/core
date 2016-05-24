@@ -9,7 +9,7 @@ def getIndexesNames(coll):
     keys.remove('_id_')
     #removes the '_1' from the key names
     keys = [k[:-2] for k in keys]
-
+    return keys
 
 
 
