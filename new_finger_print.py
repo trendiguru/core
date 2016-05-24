@@ -1,3 +1,4 @@
+__author__ = 'jeremy'
 import numpy as np
 import cv2
 
