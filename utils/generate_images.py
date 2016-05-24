@@ -3,16 +3,7 @@ import numpy as np
 # import scipy as sp
 import os
 import logging
-import cv2
-import numpy as np
-import os
-from multiprocessing import Pool
-import multiprocessing
-import itertools
-import socket
 
-from trendi.utils import imutils
-from trendi.constants import fashionista_categories_augmented,fashionista_categories_augmented_zero_based,ultimate_21
 logging.basicConfig(level=logging.DEBUG)
 
 def generate_images(img_filename, max_angle = 5,n_angles=10,
@@ -218,6 +209,9 @@ def generate_masks(img_filename, **kwargs):
 
     cv2.waitKey(0)
 
+
+
+
 def generate_images_for_directory_of_directories(dir_of_dirs,filter= None,**args):
     only_dirs = [dir for dir in os.listdir(dir_of_dirs) if os.path.isdir(os.path.join(dir_of_dirs,dir))  ]
     logging.debug(str(only_dirs))
@@ -227,6 +221,7 @@ def generate_images_for_directory_of_directories(dir_of_dirs,filter= None,**args
     for a_dir in only_dirs:
         full_dir = os.path.join(dir_of_dirs,a_dir)
         generate_images_for_directory(full_dir,**args)
+
 
 def clear_underutilized_bins(img_arr):
     h = np.histogram(img_arr,bins=57)
@@ -295,393 +290,30 @@ def add_noise(image, noise_typ,level):
         noisy = image + image * gauss
         return noisy
 
-def binary_masks_from_indexed_mask(indexed_mask, n_binaries=None):
-    '''
-    Take mask indexed by category, and turn into binary masks . nth mask is for index n
-    :param indexed_mask:
-    :return: n binary masks
-    '''
-    if n_binaries == None:
-        n_binaries = np.max(indexed_mask)
-    binary_masks = np.zeros((indexed_mask.shape[0], indexed_mask.shape[1], n_binaries), dtype='uint8')
-    concatenated=np.zeros([indexed_mask.shape[0],1])
-    for i in range(n_binaries):
-        binary_masks[:, :, i][indexed_mask == i] = 1
-
-#        cv2.imshow('mask '+str(i),(binary_masks[:,:,i]*255).astype('uint8'))
-        concatenated=np.concatenate((concatenated,binary_masks[:,:,i]),1)
-    conc_h,conc_w = concatenated.shape
-    if conc_w > 2000:
-        factor = 2000.0/conc_w
-        concatenated = cv2.resize(concatenated,(int(round(factor*conc_w)),int(round(factor*conc_h))))
-#    cv2.imshow('conc',concatenated)
-#    cv2.imshow('indexed',indexed_mask)
-#    cv2.waitKey(0)
-    binary_masks = binary_masks.astype('uint8')
-    return binary_masks
-
-def indexed_mask_from_binary_masks(binary_masks):
-    '''
-    Take mask indexed by category, and turn into binary masks . nth mask is for index n
-    :param indexed_mask:
-    :return: n binary masks
-    '''
-    print('maskshape:'+str(binary_masks.shape))
-    h,w,d = binary_masks.shape[0:3]
-    indexed_mask = np.zeros((h, w), dtype='uint8')
-    for i in range(d):
-        indexed_mask[:, :][binary_masks[:,:,i] == 1] = i
-
-    print('indexedshape:'+str(indexed_mask.shape))
-    return indexed_mask
-
-def show_binary_mask(binary_masks, n_binaries=None):
-    '''
-    Take mask indexed by category, and turn into binary masks . nth mask is for index n
-    :param indexed_mask:
-    :return: n binary masks
-    '''
-    if n_binaries == None:
-        n_binaries = np.max(indexed_mask)
-    h,w=binary_masks.shape[0:2]
-    concatenated=np.zeros([h,1  ])
-    print('conc shape:'+str(concatenated.shape))
-    for i in range(n_binaries):
-        scaled = binary_masks[:, :, i]*255
-        print('scaled shape:'+str(scaled.shape))
-        concatenated=np.concatenate((concatenated,scaled),1)
-    cv2.imshow('conc',concatenated)
-    cv2.waitKey(0)
-
-def generate_images_from_binary_mask(mask,filename,suffix='.png',
-                                     max_angle=10,n_angles=2,
-                                     max_offset_x=None,n_offsets_x=2,
-                                     max_offset_y=None,n_offsets_y=2,
-                                     max_scale=1.3,min_scale=0.7,n_scales=2,randomize=True,n_tot=100):
-    height=mask.shape[0]
-    width=mask.shape[1]
-    center = (width/2,height/2)
-    eps = 10**-6
-    angles = np.arange(-max_angle, max_angle+eps, max_angle*2 / (n_angles-1))
-    if max_offset_x == None:
-        max_offset_x = int(float(width)/5) #left,right 20% of image
-    if max_offset_y == None:
-        max_offset_y = int(float(height)/5) #up,down 20% of image
-    offsets_x = np.arange(-max_offset_x, max_offset_x+eps, max_offset_x*2/(n_offsets_x-1))
-    offsets_y = np.arange(-max_offset_y, max_offset_y+eps, max_offset_y*2/(n_offsets_y-1))
-    scales = np.arange(min_scale, max_scale+eps, (max_scale-min_scale)/(n_scales-1))
-    print('shape {}\n angles {} \noffsets_x {} \noffsets_y {} \nscales {}'.format(mask.shape,angles,offsets_x,offsets_y,scales))
-
-    mirror_image = cv2.flip(mask,1)
-    reflections=[mask,mirror_image]
-
-    n_reflection=-1
-    if(0):
-        for img_arr in reflections:
-            n_reflection=n_reflection+1
-            for i in range(n_tot/2):
-                angle = np.random.normal(loc=0, scale=max_angle-1.0)
-                offset_x = int(np.random.normal(loc=0, scale=max_offset_x))
-                offset_y = int(np.random.normal(loc=0, scale=max_offset_x))
-                scale = np.random.normal(loc=1.0, scale=max_scale-1.0)
-                M = cv2.getRotationMatrix2D(center, angle,scale)
-        #                                print('M='+str(M))
-                M[0,2]=M[0,2]+offset_x
-                M[1,2]=M[1,2]+offset_y
-                print('ref {} offx {} offy {} angle {} scale {}'.format(n_reflection,offset_x,offset_y,angle,scale))
-        #                        print('M='+str(M))
-                xformed_img_arr  = cv2.warpAffine(img_arr,  M, (width,height),borderMode=cv2.BORDER_REPLICATE)
-                yield(xformed_img_arr)
-
-    else:
-        for img_arr in reflections:
-            n_reflection=n_reflection+1
-            for offset_x in offsets_x:
-                for offset_y in offsets_y:
-                    for angle in angles:
-                        for scale in scales:
-                            theangle = np.random.normal(loc=1.0, scale=max_scale-1.0)
-
-                            M = cv2.getRotationMatrix2D(center, angle,scale)
-    #                                print('M='+str(M))
-                            M[0,2]=M[0,2]+offset_x
-                            M[1,2]=M[1,2]+offset_y
-                            print('ref {} offx {} offy {} angle {} scale {}'.format(n_reflection,offset_x,offset_y,angle,scale))
-    #                        print('M='+str(M))
-                            xformed_img_arr  = cv2.warpAffine(img_arr,  M, (width,height),borderMode=cv2.BORDER_REPLICATE)
-                            yield(xformed_img_arr)
-    #                                cv2.imwrite(name,xformed_img_arr)
-    #                        cv2.imshow('xf',xformed_img_arr)
-    #                        cv2.waitKey(0)
-
-def maskname_from_imgname(maskdir,imgname,imgsuffix='.jpg',masksuffix='.png'):
-    imgonly=os.path.basename(imgname)
-    newname = imgonly.split(imgsuffix)[0]+masksuffix
-    newfullpath = os.path.join(maskdir,newname)
-#    print('origname {}\nnewname {}\nmaskdir{}'.format(imgname,newfullpath,maskdir))
-    return newfullpath
-
-
-def generate_simultaneous_masks_and_images_dir(imgdir,label_dir,
-                                    max_angle=10,n_angles=2,
-                                     max_offset_x=10,n_offsets_x=2,
-                                     max_offset_y=10,n_offsets_y=2,
-                                     max_scale=1.3,min_scale=0.7,n_scales=2):
-
-    imgs =  [os.path.join(image_dir,f) for f in os.listdir(imgdir) if '.jpg' in f]
-
-    for imgname in imgs:
-        generate_simultaneous_masks_and_images(imgname,label_dir,
-                                        max_angle=max_angle,n_angles=n_angles,
-                                         max_offset_x=max_offset_x,n_offsets_x=n_offsets_x,
-                                         max_offset_y=max_offset_y,n_offsets_y=n_offsets_y,
-                                         max_scale=max_scale,min_scale=min_scale,n_scales=n_scales)
-
-def generate_simultaneous_masks_and_images(imgname,label_dir,
-                                    max_angle=10,n_angles=2,
-                                     max_offset_x=10,n_offsets_x=2,
-                                     max_offset_y=10,n_offsets_y=2,
-                                     max_scale=1.3,min_scale=0.7,n_scales=2):
-
-    '''
-    :param image_dir:
-    :param label_dir:
-    :param max_angle:
-    :param n_angles:
-    :param max_offset_x:
-    :param n_offsets_x:
-    :param max_offset_y:
-    :param n_offsets_y:
-    :param max_scale:
-    :param min_scale:
-    :param n_scales:
-    :return:
-    '''
-
-    print('imagename:'+imgname)
-    img_arr = cv2.imread(imgname)
-#    masks = [os.path.join(label_dir,f) for f in os.listdir(label_dir)]
-#    maskname = masks[0]
-    maskname = maskname_from_imgname(label_dir,imgname)
-    print('reading '+maskname)
-    mask = cv2.imread(maskname)
-    if len(mask.shape)==3:
-        print('got 3chan mask')
-        mask = mask[:,:,0]
-#    mask=mask-1  #fashionista are 1-indexed, rest are not
-    binmask = binary_masks_from_indexed_mask(mask, n_binaries=56)
-
-    maskvariations = generate_images_from_binary_mask(binmask,maskname,
-                                     max_angle=max_angle,n_angles=n_angles,
-                                     max_offset_x=max_offset_x,n_offsets_x=n_offsets_x,
-                                     max_offset_y=max_offset_y,n_offsets_y=n_offsets_y,
-                                     max_scale=max_scale,min_scale=min_scale,n_scales=n_scales)
-    indexed_variations = []
-
-    for variation in maskvariations:
-#        show_binary_mask(variation, n_binaries=56)
-        indexed = indexed_mask_from_binary_masks(variation)
-        indexed_variations.append(indexed)
-
-    origvariations = generate_images_from_binary_mask(img_arr,maskname,
-                                     max_angle=max_angle,n_angles=n_angles,
-                                     max_offset_x=max_offset_x,n_offsets_x=n_offsets_x,
-                                     max_offset_y=max_offset_y,n_offsets_y=n_offsets_y,
-                                     max_scale=max_scale,min_scale=min_scale,n_scales=n_scales)
-
-    var_no = 0
-    for mask,orig in zip(indexed_variations,origvariations):
-#        print('masksize:'+str(mask.shape)+' max:'+str(np.max(mask)))
-        newmaskname = maskname.split('.png')[0]+'_var'+str(var_no)+'.png'
-#        print('writing new mask to :'+newmaskname)
-        cv2.imwrite(newmaskname,mask)
-        neworigname = imgname.split('.jpg')[0]+'_var'+str(var_no)+'.jpg'
-        print('writing new img to :'+neworigname+', new mask to '+newmaskname)
-        cv2.imwrite(neworigname,orig)
-
-            #   show_mask_with_labels(mask_filename,labels,original_image=None,cut_the_crap=False,save_images=False,visual_output=False):
-
-        imutils.show_mask_with_labels(newmaskname,fashionista_categories_augmented_zero_based,visual_output=True,original_image=neworigname)
-#        cv2.imshow('orig',orig)
-#        cv2.waitKey(0)
-        var_no=var_no+1
-
-
-#==========
-def generate_random_pair_mask_and_image_dir(imgdir,label_dir,max_angle=7,max_offset_x=10, max_offset_y=10,
-                                     max_scale=1.2,n_tot=3,filter='.jpg',labels=ultimate_21):
-
-
-    imgfiles = [os.path.join(imgdir,f) for f in os.listdir(imgdir) if filter in f]
-  #  imgfiles = imgfiles[0:2]
-    print(str(len(imgfiles))+' imagefiles in '+imgdir)
-    parallel = True
-    if parallel:
-        jobs = []
-        pool = Pool()
-        further_args = [label_dir,{'max_angle':max_angle,'max_offset_x':max_offset_x,'max_offset_y':max_offset_y,'max_scale':max_scale,'n_tot':n_tot,'labels':labels}]
-
-        further_args = [label_dir,{'max_angle':max_angle,'max_offset_x':max_offset_x,'max_offset_y':max_offset_y,'max_scale':max_scale,'n_tot':n_tot,'labels':labels}]
-#        x = itertools.izip(imgfiles, itertools.repeat(further_args))
-        x = [(img,label_dir) for img in imgfiles]
-        print(x)
-   #     func_star(x)
-
-        if(1):
-            for imgfile in imgfiles:
-      #        print(p.map(f, [1, 2, 3]))#
-
-                for i in range(n_tot):
-#                     p.map(generate_random_pair_mask_and_image,imgfiles,args=(imgfile,label_dir))
-#                     pool.map(generate_random_pair_mask_and_image,*x)
-                     pool.map(func_star,x)
-                           #,max_angle=max_angle,max_offset_x=max_offset_x,
-    #                                                    max_offset_y=max_offset_y,max_scale=max_scale,n_tot=n_tot,labels=labels)
-#                    p = multiprocessing.Process(target=generate_random_pair_mask_and_image, args=(imgfile,label_dir,max_angle=max_angle,max_offset_x=max_offset_x,max_offset_y=max_offset_y,max_scale=max_scale,n_tot=n_tot,labels=labels))
-
-               #     p = multiprocessing.Process(target=worker, args=(i,))
-                     #jobs.append(pool)
-                     #pool.start()
-
-def func_star(a_b):
-    """Convert `f([1,2])` to `f(1,2)` call."""
-#    print('*ab:'+(*a_b))
-    return generate_random_pair_mask_and_image(*a_b)
-
-##def main():
-#    pool = Pool()
-#    a_args = [1,2,3]
-#    second_arg = 1
-#    pool.map(func_star, itertools.izip(a_args, itertools.repeat(second_arg)))
-
-
-
-
-#    for imgfile in imgfiles:
-#        print(p.map(f, [1, 2, 3]))#
-
-#        for i in range(n_tot):
-#            generate_random_pair_mask_and_image(imgfile,label_dir,max_angle=max_angle,max_offset_x=max_offset_x,
- #                                               max_offset_y=max_offset_y,max_scale=max_scale,n_tot=n_tot,labels=labels)
-
-
-def generate_random_pair_mask_and_image(imgname,label_dir,max_angle=7,max_offset_x=20, max_offset_y=20,
-                                     max_scale=1.2,labels=ultimate_21):
-    '''
-    Generate randomly warped img and mask using same params
-    :param imgname:
-    :param label_dir:
-    :param max_angle:
-    :param max_offset_x:
-    :param max_offset_y:
-    :param max_scale:
-    :param n_tot:
-    :return:
-    '''
-    global variation_count
-
-    print('imagename:'+imgname)
-    img_arr = cv2.imread(imgname)
-#    masks = [os.path.join(label_dir,f) for f in os.listdir(label_dir)]
-#    maskname = masks[0]
-    maskname = maskname_from_imgname(label_dir,imgname)
-    print('maskname '+maskname)
-    mask = cv2.imread(maskname)
-    height=mask.shape[0]
-    width=mask.shape[1]
-    center = (width/2,height/2)
-    if len(mask.shape)==3:
-        print('got 3chan mask')
-        mask = mask[:,:,0]
-#    mask=mask-1  #fashionista are 1-indexed , others not
-    binmask = binary_masks_from_indexed_mask(mask, n_binaries=56)
-    #randomly flip
-    ref = np.random.randint(2)
-    reflected=False
-    if ref == 1:
-        binmask = cv2.flip(binmask,1)
-        img_arr = cv2.flip(img_arr,1)
-        reflected = True
-    angle = np.random.normal(loc=0, scale=max_angle)
-    offset_x = int(np.random.normal(loc=0, scale=max_offset_x))
-    offset_y = int(np.random.normal(loc=0, scale=max_offset_y))
-    scale = np.random.normal(loc=1.0, scale=max_scale-1.0)
-    M = cv2.getRotationMatrix2D(center, angle,scale)
-#                                print('M='+str(M))
-    M[0,2]=M[0,2]+offset_x
-    M[1,2]=M[1,2]+offset_y
-    print('ref {} offx {} offy {} angle {} scale {} file {}'.format(reflected,offset_x,offset_y,angle,scale,imgname))
-#                        print('M='+str(M))
-    xformed_mask  = cv2.warpAffine(binmask,  M, (width,height),borderMode=cv2.BORDER_REPLICATE)
-    xformed_img_arr  = cv2.warpAffine(img_arr,  M, (width,height),borderMode=cv2.BORDER_REPLICATE)
-
-    indexed_xformed_mask = indexed_mask_from_binary_masks(xformed_mask)
-    newmaskname = maskname.split('.png')[0]+'_var'+str(variation_count)+'.png'
-    cv2.imwrite(newmaskname,indexed_xformed_mask)
-    neworigname = imgname.split('.jpg')[0]+'_var'+str(variation_count)+'.jpg'
-    print('writing new img to :'+neworigname+', new mask to '+newmaskname)
-    cv2.imwrite(neworigname,xformed_img_arr)
-#    imutils.show_mask_with_labels(newmaskname,labels,visual_output=True,original_image=neworigname)
-    variation_count = variation_count + 1
-
-
-
-global variation_count  #is this possible with a generator?
-variation_count = 0
-
-
-host = socket.gethostname()
-print('host:'+str(host))
-
 
 if __name__=="__main__":
-    if host == 'jr':
-        image  = '/home/jeremy/image_dbs/colorful_fashion_parsing_data/images/test/91692.jpg'
-        image_dir = '/home/jeremy/image_dbs/colorful_fashion_parsing_data/images/test'
-        label_dir = '/home/jeremy/image_dbs/colorful_fashion_parsing_data/labels'
-    else:
-        image  = '/home/jeremy/image_dbs/colorful_fashion_parsing_data/images/test/91692.jpg'
-        image_dir = '/home/jeremy/image_dbs/colorful_fashion_parsing_data/images/train'
-        label_dir = '/home/jeremy/image_dbs/colorful_fashion_parsing_data/labels_u21'
-#        label_dir = '/home/jeremy/image_dbs/colorful_fashion_parsing_data/labels'
+    print('running main')
+    img_filename = '../images/female1.jpg'
+    image_dir = '/home/jeremy/image_dbs/colorful_fashion_parsing_data/images/train_200x150'
+    label_dir = '/home/jeremy/image_dbs/colorful_fashion_parsing_data/labels_200x150'
 
-        image_dir = '/home/jeremy/image_dbs/colorful_fashion_parsing_data/images/test'
-        label_dir = '/home/jeremy/image_dbs/colorful_fashion_parsing_data/labels_u21'
+    generate_images_for_directory(image_dir,
+                    max_angle = 10,n_angles=2,
+                    max_offset_x = 10,n_offsets_x=2,
+                    max_offset_y = 10, n_offsets_y=2,
+                    max_scale=1.3, n_scales=2,
+                    noise_level=0.1,noise_type='gauss',n_noises=0,
+                    max_blur=5, n_blurs=0,
+                    do_mirror_lr=True,do_mirror_ud=False,do_bb=False,suffix='.jpg')
 
-
-    generate_random_pair_mask_and_image_dir(image_dir,label_dir,max_angle=7,max_offset_x=20, max_offset_y=20,
-                                     max_scale=1.2,n_tot=5,filter='.jpg',labels=ultimate_21)
-
-
-#    for i in range(0,10):
-#        generate_random_pair_mask_and_image(image,label_dir,max_angle=7,max_offset_x=10, max_offset_y=10,
-#                                         max_scale=1.2,n_tot=100)
-
-#    generate_simultaneous_masks_and_images_dir(image_dir,label_dir,
-#                            max_angle = 10,n_angles=2,
-#                            max_offset_x = 10,n_offsets_x=2,
-#                            max_offset_y = 10, n_offsets_y=2,
-#                            max_scale=1.2, min_scale=0.8,n_scales=2           )#
-
-
-
-#    generate_images_for_directory(image_dir,
-#                    max_angle = 10,n_angles=2,
-#                    max_offset_x = 10,n_offsets_x=2,
-#                    max_offset_y = 10, n_offsets_y=2,
-#                    max_scale=1.3, n_scales=2,
-#                    noise_level=0.1,noise_type='gauss',n_noises=0,
-#                    max_blur=5, n_blurs=0,
-#                    do_mirror_lr=True,do_mirror_ud=False,do_bb=False,suffix='.jpg')
-
-#    generate_images_for_directory(label_dir,
-#                    max_angle = 10,n_angles=2,
-#                    max_offset_x = 10,n_offsets_x=2,
-#                    max_offset_y = 10, n_offsets_y=2,
-#                    max_scale=1.3, n_scales=2,
- #                   noise_level=0.1,noise_type='gauss',n_noises=0,
-  #                  max_blur=5, n_blurs=0,
-#                    do_mirror_lr=True,do_mirror_ud=False,do_bb=False,suffix='.png')
+    generate_images_for_directory(label_dir,
+                    max_angle = 10,n_angles=2,
+                    max_offset_x = 10,n_offsets_x=2,
+                    max_offset_y = 10, n_offsets_y=2,
+                    max_scale=1.3, n_scales=2,
+                    noise_level=0.1,noise_type='gauss',n_noises=0,
+                    max_blur=5, n_blurs=0,
+                    do_mirror_lr=True,do_mirror_ud=False,do_bb=False,suffix='.png')
 
 
 #    generate_images(img_filename, max_angle = 3,n_angles=2,
