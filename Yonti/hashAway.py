@@ -23,7 +23,6 @@ def hashCollection(collection_name):
     total_count = items.count()
     print (total_count)
     for x, item in enumerate(items):
-        print (x)
         q.enqueue(get_hash, collection_name=collection_name, item_count = x, item_id = item["_id"],
                   item_url=item["images"]["XLarge"])
         progress_bar(x, total_count)

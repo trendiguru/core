@@ -294,7 +294,8 @@ for filename in files:
         gender, subCategory = title2category(item["GENDER"], item["OFFER_TITLE"])
         if len(subCategory)<1:
             continue
-
+        if gender == 'Unisex':
+            continue
         #needs to add search for id and etc...
         collection_name = "ebay_"+gender
         if subCategory == "t-shirt":
