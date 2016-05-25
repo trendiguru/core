@@ -137,15 +137,11 @@ for col in ["Female","Male","Unisex"]:#,"Tees"]:
 
 print(len(files))
 for x,file in enumerate(files):
-    print(x)
     filename = file['name']
     filesize = int(file['size'])/(64*1024*1024.0)
-    print(filesize)
     usage = db.ebay_download_info.find_one({'type':'usage'})['ram_usage']
-    print (usage)
     new_usage =usage + filesize
     print(new_usage)
-    raw_input('enter')
     while new_usage >20:
         print ("stalling")
         sleep(300)
