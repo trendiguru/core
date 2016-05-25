@@ -8,63 +8,37 @@ description: this program downloads all relevant items from ebay through ftp
     - TODO: nlp on description
             run on non english ebay databases
 """
-import gc
-from ftplib import FTP
+from ..db_stuff import ebay_dl_utils
 from StringIO import StringIO
-import gzip
-import sys
-import hashlib
-import time
 import datetime
 import re
 import sys
 from .. import constants, Utils
 from . import ebay_constants
 from . import dl_excel
+from .ebay_dl_worker import ebay_downloader
 from rq import Queue
-from ..fingerprint_core import generate_mask_and_insert
-from time import sleep
-import csv
-maxInt = sys.maxsize
-decrement = True
+from time import sleep,time
 
-while decrement:
-    # decrease the maxInt value by factor 10
-    # as long as the OverflowError occurs.
-
-    decrement = False
-    try:
-        csv.field_size_limit(maxInt)
-    except OverflowError:
-        maxInt = int(maxInt/10)
-        decrement = True
-
-q = Queue('fingerprint_new', connection=constants.redis_conn)
-
+q = Queue('ebay_worker', connection=constants.redis_conn)
 db = constants.db
 status = db.download_status
 today_date = str(datetime.datetime.date(datetime.datetime.now()))
 
-def get_hash(image):
-    m = hashlib.md5()
-    m.update(image)
-    url_hash = m.hexdigest()
-    return url_hash
 
 def getStoreStatus(store_id,files):
     store_int = int(store_id)
     if store_int in ebay_constants.ebay_blacklist:
         fullname= store_id +".txt.gz"
-        files.remove(fullname)
-        return "blacklisted"
+        files = filter(lambda x:x.get('name')==fullname)
+        return files, "blacklisted"
     elif store_int in ebay_constants.ebay_whitelist:
-        return "whitelisted"
+        return files, "whitelisted"
     else:
-        return "new item"
+        return files, "new item"
 
 
-def getStoreInfo(ftp, files):
-    store_info = []
+def StoreInfo(ftp, files):
     sio = StringIO()
     def handle_binary(more_data):
         sio.write(more_data)
@@ -74,135 +48,24 @@ def getStoreInfo(ftp, files):
     split= re.split('</store><store id=',xml)
     split2 = re.split("<store id=|<name><!|></name>|<url><!|></url>",  split[0])
     store_id = split2[1][1:-2]
-    status = getStoreStatus(store_id,files)
-
-    item = {'id': store_id,'name': split2[2][7:-2],'link':split2[4][7:-2],
-            'dl_duration':0,'items_downloaded':0, 'B/W': 'black', 'modified':"",'status':status}
-    store_info.append(item)
+    files, status = getStoreStatus(store_id,files)
+    last_modified = (item for item in files if item["name"] == store_id+".txt.gz").next()["last_modified"]
+    item = {'type':'store','id': store_id,'name': split2[2][7:-2],'link':split2[4][7:-2],
+            'dl_duration':0,'items_downloaded':0, 'B/W': 'black','status':status,
+            'modified': last_modified}
+    db.ebay_download_info.insert_one(item)
     for line in split[1:]:
         split2 = re.split("<name><!|></name>|<url><!|></url>",  line)
         store_id = split2[0][1:-2]
-        status = getStoreStatus(store_id,files)
-        item = {'id': store_id, 'name': split2[1][7:-2], 'link':split2[3][7:-2],
-                'dl_duration':0,'items_downloaded':0, 'B/W': 'black','modified':"",'status':status}
-        store_info.append(item)
-    files.remove("status.txt")
-    files.remove("StoreInformation.xml")
-    return store_info
-
-
-# fills our generic dictionary with the info from ebay
-def ebay2generic(item, gender, subcat):
-    try:
-        generic = {"id": item["\xef\xbb\xbfOFFER_ID"],
-                   "categories": subcat,
-                   "clickUrl": item["OFFER_URL_MIN_CATEGORY_BID"],
-                   "images": {"XLarge": item["IMAGE_URL"]},
-                   "status": {"instock" : True, "days_out" : 0},
-                   "shortDescription": item["OFFER_TITLE"],
-                   "longDescription": item["OFFER_DESCRIPTION"],
-                   "price": {'price': item["PRICE"],
-                             'priceLabel': "USD"   },
-                   "Brand" : item["MANUFACTURER"],
-                   "Site" : item["MERCHANT_NAME"],
-                   "download_data": {'dl_version': today_date,
-                                     'first_dl': today_date,
-                                     'fp_version': constants.fingerprint_version},
-                   "fingerprint": None,
-                   "gender": gender,
-                   "ebay_raw": item}
-        if item["STOCK"] != "In Stock":
-            generic["status"]["instock"] = False
-        image = Utils.get_cv2_img_array(item["IMAGE_URL"])
-        if image is None:
-            generic = None
-        else:
-            img_hash = get_hash(image)
-            generic["img_hash"] = img_hash
-
-    except:
-        print item
-        generic = None
-    return generic
-
-us_params = {"url": "partnersw.ftp.ebaycommercenetwork.com",
-             "user": 'p1129643',
-             'password': '6F2lqCf4'}
-
-
-def ftp_connection(params):
-    ftp = FTP(params["url"])
-    ftp.login(user=params["user"], passwd=params["password"])
-    return ftp
-
-
-def fromCats2ppdCats(gender, cats):
-    ppd_cats = []
-    for cat in cats:
-        ppd_cats.append(ebay_constants.ebay_paperdoll_women[cat])
-    cat_count = len(ppd_cats)
-    if gender == '':
-        gender = 'Unisex'
-    if cat_count>1:
-        if 'polo' in ppd_cats:
-            cat = 'polo'
-        elif 't-shirt' in ppd_cats:
-            cat = 't-shirt'
-        elif 'shirt' in ppd_cats:
-            cat = 'shirt'
-        elif 'blazer' in ppd_cats:
-            cat = 'blazer'
-        elif 'bikini' in ppd_cats:
-            cat =  'bikini'
-        elif 'swimsuit' in ppd_cats:
-            cat =  'swimsuit'
-        elif 'sweater' in ppd_cats:
-            cat = 'sweater'
-        elif 'sweatshirt' in ppd_cats:
-            cat =  'sweatshirt'
-        elif 'pants' in ppd_cats:
-            cat =  'pants'
-        elif 'belt' in ppd_cats:
-            cat = 'belt'
-        elif 'dress' in ppd_cats and gender == 'Male':
-            ppd_cats.remove('dress')
-            cat = ppd_cats[0]
-        else:
-            cat = ppd_cats[0]
-    elif cat_count==0:
-        return "Androgyny", []
-    else:
-        cat =  ppd_cats[0]
-    if any(x == cat for x in ['dress', 'stockings','bikini']) and gender=='Male':
-        return "Androgyny", []
-    if cat == 'skirt' and gender == 'Male':
-        cat = 'shirt'
-
-    return gender, cat
-
-
-def title2category(gender, title):
-    TITLE= title.upper()
-    split1 = re.split(' |-|,', TITLE)
-    cats = []
-    genderAlert = None
-    if any(x in TITLE for x in ['BELT BUCKLE','BELT STRAP']):
-        return gender, []
-    for s in split1:
-        if s in ebay_constants.categories_keywords:
-            cats.append(s)
-        elif s in ebay_constants.categories_badwords:
-            return gender, []
-        else:
-            pass
-        if s in ['WOMAN','WOMAN\'S', 'WOMEN','WOMEN\'S']:
-            genderAlert = 'Female'
-        if s in ['MAN','MAN\'S', 'MEN','MEN\'S']:
-            genderAlert = 'Male'
-
-    gender, ppd_cats = fromCats2ppdCats(gender, cats)
-    gender = genderAlert or gender
-    return gender, ppd_cats
+        files, status = getStoreStatus(store_id,files)
+        last_modified = (item for item in files if item["name"] == store_id + ".txt.gz").next()["last_modified"]
+        item = {'type':'store','id': store_id, 'name': split2[1][7:-2], 'link':split2[3][7:-2],
+                'dl_duration':0,'items_downloaded':0, 'B/W': 'black','status':status,
+                'modified': last_modified}
+        db.ebay_download_info.insert_one(item)
+    files = filter(lambda x: x.get('name') == "status.txt",files)
+    files = filter(lambda x: x.get('name') == "StoreInformation.xml",files)
+    return files
 
 
 def theArchiveDoorman():
@@ -241,129 +104,55 @@ def theArchiveDoorman():
         archive.reindex()
 
 
-start_time = time.time()
+db.ebay_download_info.delete_many({})
+usage_item = {'type':'usage','ram_usage':0}
+db.ebay_download_info.insert_one(usage_item)
+start_time = time()
+
 #connecting to FTP
-# username, passwd are for the US - for other countries check the bottom
-ftp = ftp_connection(us_params)
+ftp = ebay_dl_utils.ftp_connection(ebay_dl_utils.us_params)
 
 # get a list of all files in the directory
 data = []
 files = []
 ftp.dir(data.append)
 
-for line in data:
+for line in data[:-2]:
     elements = line.split()
     filename = elements[8]
-    files.append(filename)
+    filesize = elements[4]
+    modified = elements[5] + " " + elements[6] + " at " + elements[7]
+    files.append({'name':filename, 'size':filesize,'last_modified':modified})
 
-store_info = getStoreInfo(ftp,files)
+files = StoreInfo(ftp,files)
+ftp.quit()
 
 for col in ["Female","Male","Unisex"]:#,"Tees"]:
     col_name = "ebay_"+col
     status_full_path = "collections." + col_name + ".status"
     status.update_one({"date": today_date}, {"$set": {status_full_path: "Working"}})
 
-for filename in files:
-    start = time.time()
-    sio = StringIO()
-    gc.collect()
-    def handle_binary(more_data):
-        sio.write(more_data)
-    try:
-        resp = ftp.retrbinary('RETR '+filename, callback=handle_binary)
-    except:
-        try:
-            ftp = ftp_connection(us_params)
-            resp = ftp.retrbinary('RETR '+filename, callback=handle_binary)
-        except:
-            continue
-    sio.seek(0)
-    zipfile = gzip.GzipFile(fileobj = sio)
-    unzipped = zipfile.read()
-    # each item is arranged in a dict according to the keys of the first item
-    # all items are gathered in a list
-    items = csv.DictReader(unzipped.splitlines(), delimiter='\t')
-    itemCount = 0
-    new_items = 0
-    stoll = 0
-    for item in items:
-        # verify right category
-        mainCategory = item["CATEGORY_NAME"]
-        if mainCategory != "Clothing":
-            continue
-        gender, subCategory = title2category(item["GENDER"], item["OFFER_TITLE"])
-        if len(subCategory)<1:
-            continue
-        if gender == 'Unisex':
-            continue
-        #needs to add search for id and etc...
-        collection_name = "ebay_"+gender
-        if subCategory == "t-shirt":
-            # collection_name ="ebay_Tees"
-            # exists = db[collection_name].find({'id':item["\xef\xbb\xbfOFFER_ID"]})
-            # if exists.count()>1:
-            #     db[collection_name].delete_many({'id':item["\xef\xbb\xbfOFFER_ID"]})
-            #     exists=[]
-            # if exists.count()==0:
-            #     generic_dict = ebay2generic(item, gender, subCategory)
-            #     db[collection_name].insert_one(generic_dict)
-            #     itemCount +=1
-            # else:
-            #     pass
-            continue
-        itemCount +=1
-        print (itemCount)
-        generic_dict = ebay2generic(item, gender, subCategory)
-        if generic_dict is None:
-            continue
-        exists = db[collection_name].find_one({'id':generic_dict['id']})
-        if exists and exists["fingerprint"] is not None:
-            db[collection_name].update_one({'id':exists['id']}, {"$set": {"download_data.dl_version":today_date,
-                                                                              "price": generic_dict["price"]}})
-            if exists["status"]["instock"] != generic_dict["status"]["instock"] :
-                db[collection_name].update_one({'id':exists['id']}, {"$set": {"status":generic_dict["status"]}})
-            elif exists["status"]["instock"] is False and generic_dict["status"]["instock"] is False:
-                db[collection_name].update_one({'id':exists['id']}, {"$inc": {"status.days_out":1}})
-            else:
-                pass
-        else:
-            if exists:
-                db[collection_name].delete_many({'id':exists['id']})
-            else:
-                new_items+=1
+for file in files:
+    filename = file['name']
+    filesize = file['size']/1073741824.0
+    usage = db.ebay_download_info.find_one({'type':'usage'})['ram_usage']
+    new_usage =usage + filesize
+    print(new_usage)
+    while new_usage >20:
+        print ("stalling")
+        sleep(300)
+        usage = db.ebay_download_info.find_one({'type': 'usage'})['ram_usage']
+        new_usage = usage + filesize
+        print (new_usage)
 
-            while q.count > 250000:
-                print( "Q full - stolling")
-                sleep(600)
-                stoll+=1
+    print ('started working on %s' %(filename) )
+    db.ebay_download_info.update_one({'type':'usage'},{"$inc":{'ram_usage':filesize}})
 
+    q.enqueue(ebay_downloader, filename=filename)
 
-            q.enqueue(generate_mask_and_insert, doc=generic_dict, image_url=generic_dict["images"]["XLarge"],
-                  fp_date=today_date, coll=collection_name)
-            # db[collection_name].insert_one(generic_dict)
-
-    stop = time.time()
-
-    if itemCount < 1:
-        print("%s = %s is not relevant!" %(filename, item["MERCHANT_NAME"]))
-    else:
-        try:
-            idx = [x["id"] == filename[:-7] for x in store_info].index(True)
-            store_info[idx]['dl_duration']=stop- start - 600*stoll
-            store_info[idx]['items_downloaded']=itemCount
-            store_info[idx]['B/W']= 'white'
-            print("%s (%s) potiential items for %s = %s" % (str(itemCount), str(new_items), item["MERCHANT_NAME"],filename))
-        except:
-            print ('%s not found in store info' %filename)
-            continue
-
-ftp.quit()
-stop_time = time.time()
+stop_time = time()
 total_time = (stop_time-start_time)/3600
-for line in data[:-2]:
-    s=line.split()
-    idx = [x["id"] == s[8][:-7] for x in store_info].index(True)
-    store_info[idx]['modified'] = s[5] + " " + s[6] + " at " + s[7]
+store_info = db.ebay_download_info.find({'type':'store'})
 
 dl_info = {"date": today_date,
            "dl_duration": total_time,
@@ -394,9 +183,6 @@ sys.exit(0)
 
 
 '''
-ftp codes per country:
-can be found in our google drive
-
 extended generic dictionary -
     has all the categories from the generic db + extra key which contains all the raw info from ebay
 ebay dictionary:
