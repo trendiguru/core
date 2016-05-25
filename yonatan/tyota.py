@@ -12,8 +12,7 @@ counter = 0
 
 for dress in dresses:
 
-    # source_dir = '/home/yonatan/all_' + dress + '_dresses'
-    source_dir = '/home/yonatan/tyota_dresses'
+    source_dir = '/home/yonatan/all_' + dress + '_dresses'
 
     for root, dirs, files in os.walk(source_dir):
         for file in files:
@@ -22,8 +21,6 @@ for dress in dresses:
                 old_file_name = source_dir + '/' + file
                 new_file_name = source_dir + '/' + file + '.jpg'
                 os.rename(old_file_name, new_file_name)
-                #cv2.imwrite(os.path.join(source_dir, file_name), file)
-                #os.remove(file)
                 counter += 1
                 print counter
 
