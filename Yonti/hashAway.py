@@ -18,7 +18,7 @@ def progress_bar(val, end_val, bar_length=50):
 
 def hashCollection(collection_name):
     collection = db[collection_name]
-    items = collection.find({"img_hash":{"exists":0}},{'images.XLarge':1})
+    items = collection.find({'img_hash': {'$exists': 0}}, {'images.XLarge': 1})
     total_count = items.count()
     print (total_count)
     for x, item in enumerate(items):
