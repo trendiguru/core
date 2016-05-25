@@ -134,7 +134,7 @@ for col in ["Female","Male","Unisex"]:#,"Tees"]:
     col_name = "ebay_"+col
     status_full_path = "collections." + col_name + ".status"
     status.update_one({"date": today_date}, {"$set": {status_full_path: "Working"}})
-
+print(len(files))
 for x,file in enumerate(files):
     print(x)
     filename = file['name']
