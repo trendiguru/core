@@ -133,10 +133,12 @@ ftp.quit()
 
 for col in ["Female","Male","Unisex"]:#,"Tees"]:
     col_name = "ebay_"+col
+    print(col_name)
     status_full_path = "collections." + col_name + ".status"
     status.update_one({"date": today_date}, {"$set": {status_full_path: "Working"}})
 
-for file in files:
+for x,file in enumerate(files):
+    print(x)
     filename = file['name']
     filesize = file['size']/1073741824.0
     usage = db.ebay_download_info.find_one({'type':'usage'})['ram_usage']
