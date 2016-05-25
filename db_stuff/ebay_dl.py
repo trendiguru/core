@@ -12,17 +12,32 @@ import gc
 from ftplib import FTP
 from StringIO import StringIO
 import gzip
-import csv
+import sys
+import hashlib
 import time
 import datetime
 import re
 import sys
-from .. import constants, Utils, page_results
+from .. import constants, Utils
 from . import ebay_constants
 from . import dl_excel
 from rq import Queue
 from ..fingerprint_core import generate_mask_and_insert
 from time import sleep
+import csv
+maxInt = sys.maxsize
+decrement = True
+
+while decrement:
+    # decrease the maxInt value by factor 10
+    # as long as the OverflowError occurs.
+
+    decrement = False
+    try:
+        csv.field_size_limit(maxInt)
+    except OverflowError:
+        maxInt = int(maxInt/10)
+        decrement = True
 
 q = Queue('fingerprint_new', connection=constants.redis_conn)
 
@@ -30,6 +45,11 @@ db = constants.db
 status = db.download_status
 today_date = str(datetime.datetime.date(datetime.datetime.now()))
 
+def get_hash(image):
+    m = hashlib.md5()
+    m.update(image)
+    url_hash = m.hexdigest()
+    return url_hash
 
 def getStoreStatus(store_id,files):
     store_int = int(store_id)
@@ -94,12 +114,15 @@ def ebay2generic(item, gender, subcat):
         if item["STOCK"] != "In Stock":
             generic["status"]["instock"] = False
         image = Utils.get_cv2_img_array(item["IMAGE_URL"])
-        if image is not None:
-            img_hash = page_results.get_hash(image)
+        if image is None:
+            generic = None
+        else:
+            img_hash = get_hash(image)
             generic["img_hash"] = img_hash
+
     except:
         print item
-        generic = item
+        generic = None
     return generic
 
 us_params = {"url": "partnersw.ftp.ebaycommercenetwork.com",
@@ -271,7 +294,8 @@ for filename in files:
         gender, subCategory = title2category(item["GENDER"], item["OFFER_TITLE"])
         if len(subCategory)<1:
             continue
-
+        if gender == 'Unisex':
+            continue
         #needs to add search for id and etc...
         collection_name = "ebay_"+gender
         if subCategory == "t-shirt":
@@ -288,7 +312,10 @@ for filename in files:
             #     pass
             continue
         itemCount +=1
+        print (itemCount)
         generic_dict = ebay2generic(item, gender, subCategory)
+        if generic_dict is None:
+            continue
         exists = db[collection_name].find_one({'id':generic_dict['id']})
         if exists and exists["fingerprint"] is not None:
             db[collection_name].update_one({'id':exists['id']}, {"$set": {"download_data.dl_version":today_date,
@@ -304,6 +331,7 @@ for filename in files:
                 db[collection_name].delete_many({'id':exists['id']})
             else:
                 new_items+=1
+
             while q.count > 250000:
                 print( "Q full - stolling")
                 sleep(600)

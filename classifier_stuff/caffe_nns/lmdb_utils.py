@@ -376,8 +376,8 @@ def interleaved_dir_of_dirs_to_lmdb(dbname,dir_of_dirs,positive_filter=None,max_
 
     #You can also open up and inspect an existing LMDB database from Python:
 # assuming here that dataum.data, datum.channels, datum.width etc all exist as in dir_of_dirs_to_lmdb
-def label_images_and_images_to_lmdb(image_dbname,label_dbname,image_dir,label_dir,resize_x=None,resize_y=None,avg_pixval=(120,120,120),max_pixval=255,
-                     use_visual_output=False,imgsuffix='.jpg',labelsuffix='.png',do_shuffle=False,maxfiles=1000000000):
+def label_images_and_images_to_lmdb(image_dbname,label_dbname,image_dir,label_dir,resize=None,avg_pixval=None,max_pixval=None,
+                     use_visual_output=False,imgsuffix='.jpg',labelsuffix='.png',do_shuffle=False,maxfiles=1000000000,labels=None):
     '''
     this puts data images and label images into separate dbs
     :param dbname:
@@ -396,7 +396,7 @@ def label_images_and_images_to_lmdb(image_dbname,label_dbname,image_dir,label_di
     '''
 # maybe try randomize instead of interleave, cn use del list[index]
     print
-    print('writing to lmdb {} lbldb {}filter {} lblsuffix {} new_x {} new_y {} avgPixval {} max {}'.format(image_dbname,label_dbname,imgsuffix,labelsuffix,resize_x,resize_y,avg_pixval,max_pixval))
+    print('writing to lmdb {} lbldb {} filter {} lblsuffix {} resize {} avgPixval {} max {}'.format(image_dbname,label_dbname,imgsuffix,labelsuffix,resize,avg_pixval,max_pixval))
     if imgsuffix:
         imagefiles = [f for f in os.listdir(image_dir) if imgsuffix in f]
     else:
@@ -452,12 +452,29 @@ def label_images_and_images_to_lmdb(image_dbname,label_dbname,image_dir,label_di
                 if h_orig < constants.nn_img_minimum_sidelength or w_orig < constants.nn_img_minimum_sidelength:
                     logging.warning('skipping {} due to  width {} or height {} being less than {}:'.format(full_image_name,w_orig,h_orig,constants.nn_img_minimum_sidelength))
                     continue
-                if(resize_x is not None):
-                    resized_image = cv2.resize(img_arr,(resize_x,resize_y))
-                    resized_label = cv2.resize(label_arr,(resize_x,resize_y))
+                if(resize is not None):
+                    resized_image = imutils.resize_keep_aspect(img_arr, output_file=None, output_size = resize,use_visual_output=False)
+                    resized_label = imutils.resize_keep_aspect(label_arr, output_file=None, output_size = resize,use_visual_output=False)
+#                    resized_image = cv2.resize(img_arr,(resize_x,resize_y))
+#                    resized_label = cv2.resize(label_arr,(resize_x,resize_y))
                     if resized_image is not None and resized_label is not None:
+                        uniques = np.unique(label_arr)
+                        resized_uniques = np.unique(resized_label)
+                        print('orig uniques:'+str(uniques))
+ #                       print('resized unqiues:'+str(resized_uniques))
+                        print('orig bincount:'+str(np.bincount(label_arr.flatten())))
+#                        print('resized bincount:'+str(np.bincount(resized_label.flatten())))
+                        extras = [i for i in resized_uniques if not i in uniques]
+                        for i in extras:
+                            resized_label[resized_label==i] = 0
+                        resized_uniques = np.unique(resized_label)
+                        print('resized unqiues:'+str(resized_uniques))
+                        print('resized bincount:'+str(np.bincount(resized_label.flatten())))
                         img_arr = resized_image
                         label_arr = resized_label
+                        assert(img_arr.shape[0:2]==resize)
+                        assert(label_arr.shape[0:2]==resize)
+                        print('img shape {} lbl shape {}'.format(img_arr.shape,label_arr.shape))
                     else:
                         logging.warning('resize failed')
                         continue  #didnt do good resize
@@ -468,22 +485,30 @@ def label_images_and_images_to_lmdb(image_dbname,label_dbname,image_dir,label_di
                     cv2.imshow('img',img_arr)
     #                cv2.imshow('label',label_arr)
                     cv2.waitKey(0)
-                    imutils.show_mask_with_labels_from_img_arr(label_arr,labels=label_strings)
+                    imutils.show_mask_with_labels_from_img_arr(label_arr,labels=labels)
                 #these pixel value offsets can be removed using caffe (in the test/train protobuf)- so currently these are None and this part is not entered
-                imgmean=np.average(img_arr)
-                imgstd=np.std(img_arr)
-                imgmeanBGR = [np.average(img_arr[:,:,0]),np.average(img_arr[:,:,1]),np.average(img_arr[:,:,2])]
-                print('mean {} std {} imgmeanvals {}'.format(imgmean,imgstd,imgmeanBGR))
+            #FORCE TYPE TO UINT8
+                img_arr=img_arr.astype(np.uint8)
+                print('img arr shape:'+str(img_arr.shape)+ ' type:'+str(img_arr.dtype))
+                label_arr=label_arr.astype(np.uint8)
+                print('label arr shape:'+str(label_arr.shape)+ ' type:'+str(label_arr.dtype))
                 if avg_pixval is not None:
+                    imgmean=np.average(img_arr)
+                    imgstd=np.std(img_arr)
+                    imgmeanBGR = [np.average(img_arr[:,:,0]),np.average(img_arr[:,:,1]),np.average(img_arr[:,:,2])]
+                    print('mean {} std {} imgmeanvals {}'.format(imgmean,imgstd,imgmeanBGR))
                     img_arr[:,:,0] = img_arr[:,:,0]-avg_pixval[0]
                     img_arr[:,:,1] = img_arr[:,:,1]-avg_pixval[1]
                     img_arr[:,:,2] = img_arr[:,:,2]-avg_pixval[2]
+                    imgmean=np.average(img_arr)
+                    imgstd=np.std(img_arr)
+                    print('after subtraction mean {} std {}'.format(imgmean,imgstd))
                 if max_pixval is not None:
                     img_arr = np.divide(img_arr.astype(np.float),float(max_pixval))
+                    imgmean=np.average(img_arr)
+                    imgstd=np.std(img_arr)
+                    print('after norm mean {} std {}'.format(imgmean,imgstd))
             ###write image
-                imgmean=np.average(img_arr)
-                imgstd=np.std(img_arr)
-                print('mean {} std {}'.format(imgmean,imgstd))
                 datum = caffe.proto.caffe_pb2.Datum()
                 datum.height = img_arr.shape[0]
                 datum.width = img_arr.shape[1]
@@ -494,7 +519,7 @@ def label_images_and_images_to_lmdb(image_dbname,label_dbname,image_dir,label_di
                 else:
                     datum.channels = img_arr.shape[2]
                 img_arr = img_arr.transpose((2,0,1))
-                print('img arr shape:'+str(img_arr.shape)+ ' type:'+str(type(img_arr)))
+                print('img arr shape:'+str(img_arr.shape)+ ' type:'+str(img_arr.dtype))
                 datum.data = img_arr.tobytes()  # or .tostring() if numpy < 1.9
                 str_id = '{:08}'.format(image_number)
                 try:
@@ -510,7 +535,7 @@ def label_images_and_images_to_lmdb(image_dbname,label_dbname,image_dir,label_di
         #redoing thiws with  3 channels due to cafe complaint - 240K vs 720 K
         #obviously misguided attempt being redone:
 #   F0502 10:10:28.617626 15482 softmax_loss_layer.cpp:42] Check failed: outer_num_ * inner_num_ == bottom[1]->count() (240000 vs. 720000) Number of labels must match number of predictions; e.g., if softmax axis == 1 and prediction shape is (N, C, H, W), label count (number of labels) must be N*H*W, with integer values in {0, 1, ..., C-1}.
-                print('label array shape:'+str(label_arr.shape)+' type:'+str(type(label_arr)))
+                print('label array shape:'+str(label_arr.shape)+' type:'+str(label_arr.dtype))
 #                label_arr = label_arr - 1  #!@)(#*@! MATLAB DIE DIE
                 if len(label_arr.shape) != 2:
                     print('read multichann label, taking first layer')
@@ -522,8 +547,6 @@ def label_images_and_images_to_lmdb(image_dbname,label_dbname,image_dir,label_di
                     #print('read singlechann label')
 #                    label_arr = np.array([label_arr])
 #                    label_arr = label_arr.transpose((2,0,1))
-                uniques = np.unique(label_arr)
-                print('uniques'+str(uniques))
                 print('db: {} strid:{} imgshape {} lblshape {} imgname {} lblname {}'.format(image_dbname,str_id,img_arr.shape,label_arr.shape,a_file,label_file))
 
                 labeldatum = caffe.proto.caffe_pb2.Datum()
@@ -550,13 +573,7 @@ def inspect_db(dbname,show_visual_output=True,B=0,G=0,R=0):
         while(1):
             try:
                 str_id = '{:08}'.format(n)
-   #             print('strid:{} '.format(str_id))
-             # The encode is only essential in Python 3
-             #   txn.put(str_id.encode('ascii'), datum.SerializeToString())
                 raw_datum = txn.get(str_id.encode('ascii'))
-#                print('rawdat size {}'.format(len(raw_datum)))
-
-#                raw_datum = txn.get(b'00000000')
                 datum = caffe.proto.caffe_pb2.Datum()
                 datum.ParseFromString(raw_datum)
                 flat_x = np.fromstring(datum.data, dtype=np.uint8)
@@ -601,8 +618,9 @@ def inspect_db(dbname,show_visual_output=True,B=0,G=0,R=0):
    #         n=n+1
 
 
-def inspect_fcn_db(img_dbname,label_dbname,show_visual_output=True,avg_pixval=(0,0,0),max_pixval=255,labels=constants.ultimate_21):
+def inspect_fcn_db(img_dbname,label_dbname,show_visual_output=True,avg_pixval=(0,0,0),max_pixval=255,labels=constants.ultimate_21,expected_size=None):
     print('looking at fcn db')
+    print('imdb {} lbldb {} '.format(img_dbname,label_dbname))
     env_1 = lmdb.open(img_dbname, readonly=True)
     env_2 = lmdb.open(label_dbname, readonly=True)
     with env_1.begin() as txn1:
@@ -613,14 +631,15 @@ def inspect_fcn_db(img_dbname,label_dbname,show_visual_output=True,avg_pixval=(0
                     print('doing image db')
                     str_id = '{:08}'.format(n)
                     raw_datum = txn1.get(str_id.encode('ascii'))
-                    print('strid {} rawdat size {}'.format(str_id,len(raw_datum)))
+   #                 print('strid {} rawdat size {}'.format(str_id,len(raw_datum)))
     #                raw_datum = txn.get(b'00000000')
                     datum = caffe.proto.caffe_pb2.Datum()
                     datum.ParseFromString(raw_datum)
              #       flat_x = np.fromstring(datum.data, dtype=np.uint8)
                     flat_x = np.fromstring(datum.data, dtype=np.float)
-                    print('imdb {} lbldb {} strid {} channels {} width {} height {} datumsize {} flatxsize {}'
-                          .format(img_dbname,label_dbname,str_id,datum.channels,datum.width,datum.height,len(raw_datum),len(flat_x)))
+                    print('strid {} channels {} width {} height {} datumsize {} flatxsize {}'
+                          .format(str_id,datum.channels,datum.width,datum.height,len(raw_datum),len(flat_x)))
+                    assert(len(flat_x) == datum.height*datum.width*datum.channels)
                     orig_x = flat_x.reshape(datum.channels, datum.height, datum.width)
                     imgmean=np.average(orig_x)
                     imgstd=np.std(orig_x)
@@ -645,14 +664,17 @@ def inspect_fcn_db(img_dbname,label_dbname,show_visual_output=True,avg_pixval=(0
                         x = flat_x.reshape(datum.height, datum.width)
                         x[:,:] = x[:,:]+avg_pixval[0]
 
-
+                    if expected_size:
+                        print('')
+                        assert(x.shape[0:2]==expected_size)
                     x=x.astype(np.uint8)
                     if show_visual_output is True:
                         cv2.imshow(img_dbname,x)
      #                   imutils.show_mask_with_labels(orig_label,constants.fashionista_categories_augmented)
                 except:
                     print('error getting image {} from image db'.format(n))
-                    break
+                    raw_input('enter to continue')
+
 
                 try:  #get label mask
                     print('doing label db')
@@ -667,6 +689,7 @@ def inspect_fcn_db(img_dbname,label_dbname,show_visual_output=True,avg_pixval=(0
                     datum.ParseFromString(raw_datum)
                     flat_y = np.fromstring(datum.data, dtype=np.uint8)
                     print('db {} strid {} channels {} width {} height {} datumsize {} flatxsize {}'.format(label_dbname,str_id,datum.channels,datum.width,datum.height,len(raw_datum),len(flat_x)))
+                    assert(len(flat_y) == datum.height*datum.width*datum.channels)
                     orig_y = flat_y.reshape(datum.channels, datum.height, datum.width)
                     if datum.channels == 3:
                         y = orig_y.transpose((1,2,0))
@@ -676,6 +699,8 @@ def inspect_fcn_db(img_dbname,label_dbname,show_visual_output=True,avg_pixval=(0
                         y=y[:,:,0]
                     else:
                         y = flat_y.reshape(datum.height, datum.width)
+                    if expected_size:
+                        assert(y.shape[0:2]==expected_size)
                     if show_visual_output is True:
                         tmpfilename = '/tmp/tmpout.bmp'
                         cv2.imwrite(tmpfilename,y)
@@ -688,7 +713,7 @@ def inspect_fcn_db(img_dbname,label_dbname,show_visual_output=True,avg_pixval=(0
 
                 except:
                     print('error getting label {} from db'.format(n))
-                    break
+                    raw_input('enter to continue')
 
 
 
@@ -748,24 +773,26 @@ if __name__ == "__main__":
     db_name = 'fcnn_fullsize_allcats'
     image_dir = '/home/jeremy/image_dbs/colorful_fashion_parsing_data/images/test'
     label_dir = '/home/jeremy/image_dbs/colorful_fashion_parsing_data/labels_u21'
-    image_dbname='/home/jeremy/image_dbs/lmdb/images_u21_test'
-    label_dbname='/home/jeremy/image_dbs/lmdb/labels_u21_test'
-    label_images_and_images_to_lmdb(image_dbname,label_dbname,image_dir,label_dir,resize_x=None,resize_y=None,avg_pixval=(B,G,R),max_pixval=1.0,
+    image_dbname='/home/jeremy/image_dbs/lmdb/images_u21_test_256x256'
+    label_dbname='/home/jeremy/image_dbs/lmdb/labels_u21_test_256x256'
+    label_images_and_images_to_lmdb(image_dbname,label_dbname,image_dir,label_dir,resize=(256,256),
                                     use_visual_output=False,imgsuffix='.jpg',labelsuffix='.png',do_shuffle=True,maxfiles=100000)
 
- #   inspect_fcn_db(image_dbname,label_dbname,avg_pixval=(B,G,R),max_pixval=1.0)
+    raw_input('enter to continue checking db')
+    inspect_fcn_db(image_dbname,label_dbname,avg_pixval=(B,G,R),show_visual_output=False)
 
 
     image_dir = '/home/jeremy/image_dbs/colorful_fashion_parsing_data/images/train'
     label_dir = '/home/jeremy/image_dbs/colorful_fashion_parsing_data/labels_u21'
-    image_dbname='/home/jeremy/image_dbs/lmdb/images_u21_train'
-    label_dbname='/home/jeremy/image_dbs/lmdb/labels_u21_train'
-    label_images_and_images_to_lmdb(image_dbname,label_dbname,image_dir,label_dir,resize_x=None,resize_y=None,avg_pixval=(B,G,R),max_pixval=1.0,
-                     use_visual_output=False,imgsuffix='.jpg',labelsuffix='.png',do_shuffle=True,maxfiles=100000)
+    image_dbname='/home/jeremy/image_dbs/lmdb/images_u21_train_256x256'
+    label_dbname='/home/jeremy/image_dbs/lmdb/labels_u21_train_256x256'
+    label_images_and_images_to_lmdb(image_dbname,label_dbname,image_dir,label_dir,resize=(256,256),
+                                    use_visual_output=False,imgsuffix='.jpg',labelsuffix='.png',do_shuffle=True,maxfiles=100000)
 
-    #fcn_dirs_to_lmdb(db_name,image_dir,label_dir,resize_x=None,resize_y=None,avg_B=B,avg_G=G,avg_R=R,
+    raw_input('enter to continue checking db')
+#    fcn_dirs_to_lmdb(db_name,image_dir,label_dir,resize_x=None,resize_y=None,avg_B=B,avg_G=G,avg_R=R,
     #                 use_visual_output=True,imgfilter='.jpg',labelsuffix='.png',shuffle=True,label_strings=constants.fashionista_categories_augmented)
-#    inspect_fcn_db(image_dbname,label_dbname,avg_pixval=(B,G,R),max_pixval=255)
+    inspect_fcn_db(image_dbname,label_dbname,avg_pixval=(B,G,R),max_pixval=1.0,show_visual_output=False)
 
 #    n_test_classes,test_populations,test_imageno = interleaved_dir_of_dirs_to_lmdb(db_name,dir_of_dirs,max_images_per_class =3000,
 #                                                                                   positive_filter='test',use_visual_output=use_visual_output,

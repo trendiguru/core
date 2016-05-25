@@ -107,13 +107,13 @@ if __name__ == "__main__":
 
   host.set_xlabel("iterations")
   host.set_ylabel("log loss")
-  par1.set_ylabel("test accuracy")
+  par1.set_ylabel("accuracy")
 
-  p1, = host.plot(training_iterations, training_loss, label="train logloss")
-  p3, = host.plot(test_iterations, test_loss, label="test logloss")
-  p2, = par1.plot(test_iterations, test_accuracy, label="test acc.")
+  p1, = host.plot(training_iterations, training_loss,'bo:', label="train logloss")
+  p3, = host.plot(test_iterations, test_loss,'go:', label="test logloss")
+  p2, = par1.plot(test_iterations, test_accuracy,'ro:', label="test acc.")
   if len(training_accuracy)>0:
-    p4, = par1.plot(training_iterations, training_accuracy, label="train acc.")
+    p4, = par1.plot(training_iterations, training_accuracy,'co:', label="train acc.")
 
 #  par1.ylim((0,1))
 #  host.legend(loc=2)
@@ -129,7 +129,7 @@ if __name__ == "__main__":
   par1.axis["right"].label.set_color(p2.get_color())
 
   plt.title(net_name)
-  plt.suptitle(net_name)
+  plt.suptitle(args.output_file)
   plt.draw()
   savename = args.output_file+'.jpg'
   plt.savefig(savename)

@@ -22,12 +22,12 @@ from keras.optimizers import SGD, Adagrad, Adadelta, RMSprop, Adam
 def build_sequential_net_from_weights_filename(weights_filename):
     '''
     :param weights_filename: string of weights file - type HDF5, or will trigger error.
-    :return: Keras sequential net collar_net_object object - neural net object
+    :return: Keras sequential net net_object object - neural net object
     '''
 
     '''
     key to build by weights_filename's string (up to *.hdf5):
-    NOTE: collar_net_object layers are sequentially listed from left to right!
+    NOTE: net_object layers are sequentially listed from left to right!
     1. slicing the layers is by a '_'
     2. slicing each layer data is by a 'x'
     3. 'C2D' = Sequential.add(Convolution2D())
@@ -77,7 +77,7 @@ def build_sequential_net_from_weights_filename(weights_filename):
     layers = net_composition.split('X')
 
     # case assembly:
-    collar_net_object = Sequential()
+    net_object = Sequential()
     #
     print layers
     print len(layers)-1
@@ -94,32 +94,32 @@ def build_sequential_net_from_weights_filename(weights_filename):
         #
         if layer_data[0] == 'C2D': # len(layer_data) should be 8
             if len(layer_data) > 5:
-                collar_net_object.add(Convolution2D(int(layer_data[1]), int(layer_data[2]),
+                net_object.add(Convolution2D(int(layer_data[1]), int(layer_data[2]),
                                          int(layer_data[3]), border_mode=layer_data[4],
                                          input_shape=(int(layer_data[5]), int(layer_data[6]), int(layer_data[7]))))
             else:
-                collar_net_object.add(Convolution2D(int(layer_data[1]), int(layer_data[2]),
+                net_object.add(Convolution2D(int(layer_data[1]), int(layer_data[2]),
                                              int(layer_data[3]), border_mode=layer_data[4]))
 
         elif layer_data[0] == 'MP': # len(layer_data) should be 3
-            collar_net_object.add(MaxPooling2D(pool_size=(int(layer_data[1]), int(layer_data[2]))))
+            net_object.add(MaxPooling2D(pool_size=(int(layer_data[1]), int(layer_data[2]))))
 
         elif layer_data[0] == 'AP': # len(layer_data) should be 3
-            collar_net_object.add(AveragePooling2D(pool_size=(int(layer_data[1]), int(layer_data[2]))))
+            net_object.add(AveragePooling2D(pool_size=(int(layer_data[1]), int(layer_data[2]))))
 
         elif layer_data[0] == 'F': # len(layer_data) should be 1
-            collar_net_object.add(Flatten())
+            net_object.add(Flatten())
 
         elif layer_data[0] == 'A': # len(layer_data) should be 2
             if layer_data[1] == 'softma':
                 layer_data[1] = 'softmax'
-            collar_net_object.add(Activation(layer_data[1]))
+            net_object.add(Activation(layer_data[1]))
 
         elif layer_data[0] == 'DO': # len(layer_data) should be 2
-            collar_net_object.add(Dropout(float(layer_data[1])))
+            net_object.add(Dropout(float(layer_data[1])))
 
         elif layer_data[0] == 'D': # len(layer_data) should be 2
-            collar_net_object.add(Dense(int(layer_data[1])))
+            net_object.add(Dense(int(layer_data[1])))
 
         elif layer_data[0] == 'OP': # len(layer_data) should be 2 to 5
             optimizer_method = layer_data[1]
@@ -180,15 +180,14 @@ def build_sequential_net_from_weights_filename(weights_filename):
             elif layer_data[1] == 'cc':
                 loss_method = 'categorical_crossentropy'
 
-            collar_net_object.compile(loss=loss_method, optimizer=optimizer_method)
+            net_object.compile(loss=loss_method, optimizer=optimizer_method)
             if layer != layers[-1]:
                 print 'Error: compilation of neural net is not issued at the end of *weights_filename* string!'
-
         else:
             print 'Error: no layer identifier (C2D / F / A / DO / OP / CO)'
 
-    collar_net_object.load_weights(weights_filename)
-    return collar_net_object
+    net_object.load_weights(weights_filename)
+    return net_object
 
 def collar_images_maker_for_testing(image, face_box):
     '''
@@ -248,7 +247,7 @@ def collar_classifier_net():
     :param weights_filename: string of weights file - type HDF5, or will trigger error.
     :return ccollar_net_object: Keras sequential net collar_net_object object - neural net object
     '''
-    collar_net_weights_filename = 'collar_net_weights_filename'
+    collar_net_weights_filename = 'C2Dx8x3x3xvalidx3x32x32XAxreluXC2Dx8x3x3xvalidXAxreluXMPx2x2XC2Dx16x3x3xvalidXAxreluXC2Dx16x3x3xvalidXAxreluXMPx2x2XFXDx256XAxreluXDx64XAxreluXDx5XAxsoftmaxXOPxsgdx4e-6x1e-6x0.9x1XCOxcc.hdf5'
     ccollar_net_object = build_sequential_net_from_weights_filename(collar_net_weights_filename)
     return ccollar_net_object
 
@@ -313,5 +312,5 @@ def collar_lab():
 
     print results
 
-
+collar_lab()
 # build_sequential_net_from_weights_filename('C2Dx32x3x3xvalidx3x32x32XAxreluXMPx2x2XC2Dx16x3x3xvalidXAxreluXDOx0.25XC2Dx8x3x3xvalidXAxreluXDOx0.25XFXDx1152XAxreluXDOx05XDx5XAxsoftmaxXOPxsgdx1e-6x1e-6x0.9x1XCOxcc.hdf5')
