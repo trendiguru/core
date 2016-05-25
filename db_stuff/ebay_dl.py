@@ -30,7 +30,7 @@ def getStoreStatus(store_id,files):
     store_int = int(store_id)
     if store_int in ebay_constants.ebay_blacklist:
         fullname= store_id +".txt.gz"
-        files = filter(lambda x:x.get('name')==fullname)
+        files = filter(lambda x:x.get('name')==fullname,files)
         return files, "blacklisted"
     elif store_int in ebay_constants.ebay_whitelist:
         return files, "whitelisted"
@@ -63,8 +63,8 @@ def StoreInfo(ftp, files):
                 'dl_duration':0,'items_downloaded':0, 'B/W': 'black','status':status,
                 'modified': last_modified}
         db.ebay_download_info.insert_one(item)
-    files = filter(lambda x: x.get('name') == "status.txt",files)
-    files = filter(lambda x: x.get('name') == "StoreInformation.xml",files)
+    # files = filter(lambda x: x.get('name') == "status.txt",files)
+    # files = filter(lambda x: x.get('name') == "StoreInformation.xml",files)
     return files
 
 
