@@ -139,7 +139,7 @@ print(len(files))
 for x,file in enumerate(files):
     print(x)
     filename = file['name']
-    filesize = int(file['size'])/(8*1024*1024.0)
+    filesize = int(file['size'])/(64*1024*1024.0)
     print(filesize)
     usage = db.ebay_download_info.find_one({'type':'usage'})['ram_usage']
     print (usage)
