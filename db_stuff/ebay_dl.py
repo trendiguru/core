@@ -153,7 +153,7 @@ for x,file in enumerate(files):
     print ('started working on %s' %(filename) )
     db.ebay_download_info.update_one({'type':'usage'},{"$inc":{'ram_usage':filesize}})
 
-    q.enqueue(ebay_downloader, filename=filename)
+    q.enqueue(ebay_downloader, filename=filename, filesize=filesize)
 
 stop_time = time()
 total_time = (stop_time-start_time)/3600
