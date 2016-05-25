@@ -18,7 +18,7 @@ for dress in dresses:
     for root, dirs, files in os.walk(source_dir):
         for file in files:
             if not file.endswith(".jpg"):
-                cv2.imwrite(os.path.join(source_dir, file + '.jpg'), file)
+                cv2.imwrite(os.path.join(source_dir, os.path.basename(file) + '.jpg'), file)
                 os.remove(file)
                 counter += 1
                 print counter
