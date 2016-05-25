@@ -29,13 +29,15 @@ today_date = str(datetime.datetime.date(datetime.datetime.now()))
 def getStoreStatus(store_id,files):
     store_int = int(store_id)
     fullname = store_id + ".txt.gz"
+    last_modified = filter(lambda store: store['name'] == fullname, files)
+    last_modified=last_modified[0]['last_modified']
     if store_int in ebay_constants.ebay_blacklist:
         files = filter(lambda x:x.get('name')==fullname,files)
-        return fullname, files, "blacklisted"
+        return last_modified, files, "blacklisted"
     elif store_int in ebay_constants.ebay_whitelist:
-        return fullname, files, "whitelisted"
+        return last_modified, files, "whitelisted"
     else:
-        return fullname, files, "new item"
+        return last_modified, files, "new item"
 
 
 def StoreInfo(ftp, files):
@@ -48,20 +50,18 @@ def StoreInfo(ftp, files):
     split= re.split('</store><store id=',xml)
     split2 = re.split("<store id=|<name><!|></name>|<url><!|></url>",  split[0])
     store_id = split2[1][1:-2]
-    fullname ,files, status = getStoreStatus(store_id,files)
-    last_modified =filter(lambda store: store['name'] ==  fullname, files)
+    last_modified ,files, status = getStoreStatus(store_id,files)
     item = {'type':'store','id': store_id,'name': split2[2][7:-2],'link':split2[4][7:-2],
             'dl_duration':0,'items_downloaded':0, 'B/W': 'black','status':status,
-            'modified': last_modified[0]["last_modified"]}
+            'modified': last_modified}
     db.ebay_download_info.insert_one(item)
     for line in split[1:]:
         split2 = re.split("<name><!|></name>|<url><!|></url>",  line)
         store_id = split2[0][1:-2]
-        fullname, files, status = getStoreStatus(store_id,files)
-        last_modified = filter(lambda store: store['name'] == fullname, files)
+        last_modified, files, status = getStoreStatus(store_id,files)
         item = {'type':'store','id': store_id, 'name': split2[1][7:-2], 'link':split2[3][7:-2],
                 'dl_duration':0,'items_downloaded':0, 'B/W': 'black','status':status,
-                'modified': last_modified[0]["last_modified"]}
+                'modified': last_modified}
         db.ebay_download_info.insert_one(item)
     # files = filter(lambda x: x.get('name') == "status.txt",files)
     # files = filter(lambda x: x.get('name') == "StoreInformation.xml",files)
