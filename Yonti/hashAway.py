@@ -2,9 +2,10 @@
 parallel hashing of a collection
 '''
 import sys
+import argparse
 from .. import constants
 from rq import Queue
-from ..Yonti import hash_worker
+from ..Yonti.hash_worker import get_hash
 q = Queue('hash_q', connection=constants.redis_conn)
 db = constants.db
 
@@ -23,9 +24,23 @@ def hashCollection(collection_name):
     print (total_count)
     for x, item in enumerate(items):
         print (x)
-        q.enqueue(hash_worker.get_hash, collection_name=collection_name, item_count = x, item_id = item["_id"],
+        q.enqueue(get_hash, collection_name=collection_name, item_count = x, item_id = item["_id"],
                   item_url=item["images"]["XLarge"])
         progress_bar(x, total_count)
 
     print ('all items sent to hash')
-    sys.exit()
+    return
+
+
+def getUserInput():
+    parser = argparse.ArgumentParser(description='hash master')
+    parser.add_argument("-c", dest="collection_name", help="The collection to be hashed")
+    args = parser.parse_args()
+    return args
+
+
+if __name__ == "__main__":
+    user_input = getUserInput()
+    print user_input
+    hashCollection(user_input.collection_name)
+    sys.exit(0)
