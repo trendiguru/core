@@ -49,19 +49,19 @@ def StoreInfo(ftp, files):
     split2 = re.split("<store id=|<name><!|></name>|<url><!|></url>",  split[0])
     store_id = split2[1][1:-2]
     fullname ,files, status = getStoreStatus(store_id,files)
-    last_modified = (i for i in files if i["name"] == fullname).next()
+    last_modified =filter(lambda store: store['name'] ==  fullname, files)
     item = {'type':'store','id': store_id,'name': split2[2][7:-2],'link':split2[4][7:-2],
             'dl_duration':0,'items_downloaded':0, 'B/W': 'black','status':status,
-            'modified': last_modified["last_modified"]}
+            'modified': last_modified[0]["last_modified"]}
     db.ebay_download_info.insert_one(item)
     for line in split[1:]:
         split2 = re.split("<name><!|></name>|<url><!|></url>",  line)
         store_id = split2[0][1:-2]
         fullname, files, status = getStoreStatus(store_id,files)
-        last_modified = (i for i in files if i["name"] == fullname).next()
+        last_modified = filter(lambda store: store['name'] == fullname, files)
         item = {'type':'store','id': store_id, 'name': split2[1][7:-2], 'link':split2[3][7:-2],
                 'dl_duration':0,'items_downloaded':0, 'B/W': 'black','status':status,
-                'modified': last_modified["last_modified"]}
+                'modified': last_modified[0]["last_modified"]}
         db.ebay_download_info.insert_one(item)
     # files = filter(lambda x: x.get('name') == "status.txt",files)
     # files = filter(lambda x: x.get('name') == "StoreInformation.xml",files)
