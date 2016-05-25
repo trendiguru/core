@@ -28,14 +28,14 @@ today_date = str(datetime.datetime.date(datetime.datetime.now()))
 
 def getStoreStatus(store_id,files):
     store_int = int(store_id)
+    fullname = store_id + ".txt.gz"
     if store_int in ebay_constants.ebay_blacklist:
-        fullname= store_id +".txt.gz"
         files = filter(lambda x:x.get('name')==fullname,files)
-        return files, "blacklisted"
+        return fullname, files, "blacklisted"
     elif store_int in ebay_constants.ebay_whitelist:
-        return files, "whitelisted"
+        return fullname, files, "whitelisted"
     else:
-        return files, "new item"
+        return fullname, files, "new item"
 
 
 def StoreInfo(ftp, files):
@@ -48,8 +48,8 @@ def StoreInfo(ftp, files):
     split= re.split('</store><store id=',xml)
     split2 = re.split("<store id=|<name><!|></name>|<url><!|></url>",  split[0])
     store_id = split2[1][1:-2]
-    files, status = getStoreStatus(store_id,files)
-    last_modified = (item for item in files if item["name"] == store_id+".txt.gz").next()
+    fullname ,files, status = getStoreStatus(store_id,files)
+    last_modified = (item for item in files if item["name"] == fullname).next()
     item = {'type':'store','id': store_id,'name': split2[2][7:-2],'link':split2[4][7:-2],
             'dl_duration':0,'items_downloaded':0, 'B/W': 'black','status':status,
             'modified': last_modified["last_modified"]}
@@ -57,8 +57,8 @@ def StoreInfo(ftp, files):
     for line in split[1:]:
         split2 = re.split("<name><!|></name>|<url><!|></url>",  line)
         store_id = split2[0][1:-2]
-        files, status = getStoreStatus(store_id,files)
-        last_modified = (item for item in files if item["name"] == store_id + ".txt.gz").next()
+        fullname, files, status = getStoreStatus(store_id,files)
+        last_modified = (item for item in files if item["name"] == fullname).next()
         item = {'type':'store','id': store_id, 'name': split2[1][7:-2], 'link':split2[3][7:-2],
                 'dl_duration':0,'items_downloaded':0, 'B/W': 'black','status':status,
                 'modified': last_modified["last_modified"]}
