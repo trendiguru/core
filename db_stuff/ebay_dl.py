@@ -62,6 +62,7 @@ def StoreInfo(ftp, files):
         split2 = re.split("<name><!|></name>|<url><!|></url>",  line)
         store_id = split2[0][1:-2]
         last_modified, files, status = getStoreStatus(store_id,files)
+        print(store_id)
         item = {'type':'store','id': store_id, 'name': split2[1][7:-2], 'link':split2[3][7:-2],
                 'dl_duration':0,'items_downloaded':0, 'B/W': 'black','status':status,
                 'modified': last_modified}
