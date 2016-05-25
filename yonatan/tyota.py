@@ -19,8 +19,9 @@ for dress in dresses:
         for file in files:
             if not file.endswith(".jpg"):
                 file_name = file + '.jpg'
-                cv2.imwrite(os.path.join(source_dir, file_name), file)
-                os.remove(file)
+                os.rename(file, file_name)
+                #cv2.imwrite(os.path.join(source_dir, file_name), file)
+                #os.remove(file)
                 counter += 1
                 print counter
 
