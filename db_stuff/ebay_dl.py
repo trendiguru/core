@@ -35,7 +35,7 @@ def getStoreStatus(store_id,files):
     else:
         last_modified=last_modified[0]['last_modified']
     if store_int in ebay_constants.ebay_blacklist:
-        files = filter(lambda x:x.get('name')==fullname,files)
+        files = filter(lambda x:x.get('name')!=fullname,files)
         return last_modified, files, "blacklisted"
     elif store_int in ebay_constants.ebay_whitelist:
         return last_modified, files, "whitelisted"
@@ -134,6 +134,7 @@ for col in ["Female","Male","Unisex"]:#,"Tees"]:
     col_name = "ebay_"+col
     status_full_path = "collections." + col_name + ".status"
     status.update_one({"date": today_date}, {"$set": {status_full_path: "Working"}})
+
 print(len(files))
 for x,file in enumerate(files):
     print(x)
