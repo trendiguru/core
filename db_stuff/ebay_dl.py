@@ -143,6 +143,7 @@ for x,file in enumerate(files):
     usage = db.ebay_download_info.find_one({'type':'usage'})['ram_usage']
     new_usage =usage + filesize
     print(new_usage)
+    raw_input('enter')
     while new_usage >20:
         print ("stalling")
         sleep(300)
