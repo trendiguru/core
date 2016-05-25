@@ -30,7 +30,10 @@ def getStoreStatus(store_id,files):
     store_int = int(store_id)
     fullname = store_id + ".txt.gz"
     last_modified = filter(lambda store: store['name'] == fullname, files)
-    last_modified=last_modified[0]['last_modified']
+    if len(last_modified)== 0 :
+        last_modified = 'check for error'
+    else:
+        last_modified=last_modified[0]['last_modified']
     if store_int in ebay_constants.ebay_blacklist:
         files = filter(lambda x:x.get('name')==fullname,files)
         return last_modified, files, "blacklisted"
