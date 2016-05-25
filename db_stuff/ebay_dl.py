@@ -312,6 +312,7 @@ for filename in files:
             #     pass
             continue
         itemCount +=1
+        print (itemCount)
         generic_dict = ebay2generic(item, gender, subCategory)
         if generic_dict is None:
             continue
@@ -330,7 +331,6 @@ for filename in files:
                 db[collection_name].delete_many({'id':exists['id']})
             else:
                 new_items+=1
-                print (new_items)
 
             while q.count > 250000:
                 print( "Q full - stolling")
