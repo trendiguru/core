@@ -18,6 +18,7 @@ for dress in dresses:
     for root, dirs, files in os.walk(source_dir):
         for file in files:
             if not file.endswith(".jpg"):
+                print file
                 file_name = file + '.jpg'
                 os.rename(file, file_name)
                 #cv2.imwrite(os.path.join(source_dir, file_name), file)
