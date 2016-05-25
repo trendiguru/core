@@ -62,7 +62,6 @@ def StoreInfo(ftp, files):
         split2 = re.split("<name><!|></name>|<url><!|></url>",  line)
         store_id = split2[0][1:-2]
         last_modified, files, status = getStoreStatus(store_id,files)
-        print(store_id)
         item = {'type':'store','id': store_id, 'name': split2[1][7:-2], 'link':split2[3][7:-2],
                 'dl_duration':0,'items_downloaded':0, 'B/W': 'black','status':status,
                 'modified': last_modified}
@@ -133,14 +132,13 @@ ftp.quit()
 
 for col in ["Female","Male","Unisex"]:#,"Tees"]:
     col_name = "ebay_"+col
-    print(col_name)
     status_full_path = "collections." + col_name + ".status"
     status.update_one({"date": today_date}, {"$set": {status_full_path: "Working"}})
 
 for x,file in enumerate(files):
     print(x)
     filename = file['name']
-    filesize = file['size']/1073741824.0
+    filesize = int(file['size'])/1073741824.0
     usage = db.ebay_download_info.find_one({'type':'usage'})['ram_usage']
     new_usage =usage + filesize
     print(new_usage)
