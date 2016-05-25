@@ -330,6 +330,8 @@ for filename in files:
                 db[collection_name].delete_many({'id':exists['id']})
             else:
                 new_items+=1
+                print (new_items)
+
             while q.count > 250000:
                 print( "Q full - stolling")
                 sleep(600)
