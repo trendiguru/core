@@ -771,7 +771,7 @@ def add_dir_listing_to_caffe_textfile(filename,dirname,class_label,filter='.jpg'
         files = [f for f in os.listdir(dirname)]
     with open(filename,'a') as f:
         for filename in files:
-            f.write(os.path.join(dirname,filename)+' ' + str(class_label))
+            f.write(os.path.join(dirname,filename)+' ' + str(class_label)+'\n')
 
 exclusion_relations = {'dress':['skirt','pants','top'],'pants':['dress','skirt'], 'skirt':['dress','pants'],'top':['dress'],  'outerwear':[]}
 
