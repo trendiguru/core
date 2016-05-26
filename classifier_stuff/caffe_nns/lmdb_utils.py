@@ -748,11 +748,12 @@ def kill_db(db_name):
 #
 def generate_textfile_for_binary_classifiers(test_or_train):
     sure_negatives_dict = constants.exclusion_relations
-    dirs_from_cats = {'dress':'/home/jeremy/image_dbs/tamara_berg/dataset/retrieval/retrieval_dresses_'+test_or_train,
-                      'skirt':'/home/jeremy/image_dbs/tamara_berg/dataset/retrieval/retrieval_skirts_'+test_or_train,
-                      'pants':'/home/jeremy/image_dbs/tamara_berg/dataset/retrieval/retrieval_pants_'+test_or_train,
-                      'top':'/home/jeremy/image_dbs/tamara_berg/dataset/retrieval/retrieval_tops_'+test_or_train,
-                      'outerwear':'/home/jeremy/image_dbs/tamara_berg/dataset/retrieval/retrieval_outerwear_'+test_or_train}
+
+    dirs_from_cats = {'dress':'/home/jeremy/image_dbs/tamara_berg/dataset/resized_256x256/dresses_'+test_or_train,
+                      'skirt':'/home/jeremy/image_dbs/tamara_berg/dataset/resized_256x256/skirts_'+test_or_train,
+                      'pants':'/home/jeremy/image_dbs/tamara_berg/dataset/resized_256x256/pants_'+test_or_train,
+                      'top':'/home/jeremy/image_dbs/tamara_berg/dataset/resized_256x256/tops_'+test_or_train,
+                      'outerwear':'/home/jeremy/image_dbs/tamara_berg/dataset/resized_256x256/outerwear_'+test_or_train}
     more_negatives_dir = '/home/jeremy/image_dbs/doorman/irrelevant'
     for cat in sure_negatives_dict:
         textfilename = cat+'.'+test_or_train+'.txt'
