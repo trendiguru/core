@@ -313,6 +313,9 @@ def resize_keep_aspect(input_file_or_np_arr, output_file=None, output_size = (30
     if isinstance(input_file_or_np_arr,basestring):
         input_file_or_np_arr = cv2.imread(input_file_or_np_arr)
 
+    if input_file_or_np_arr is None:
+        logging.warning('got a bad image')
+        return
     inheight, inwidth = input_file_or_np_arr.shape[0:2]
     outheight, outwidth = output_size[:]
     out_ar = float(outheight)/outwidth
@@ -1069,7 +1072,6 @@ def nms_detections(dets, overlap=0.3):
         ind = ind[np.nonzero(o <= overlap)[0]]
 
     return dets[pick, :]
-
 
 def img_dir_to_html(img_dir,filter='.jpg',htmlname=None):
     imglist = [i for i in os.listdir(img_dir) if filter in i]

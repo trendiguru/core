@@ -195,12 +195,20 @@ def do_seg_tests(net, iter, save_format, dataset, layer='score', gt='label'):
             (freq[freq > 0] * iu[freq > 0]).sum()
     with open('net_output.txt','a') as f:
         f.write('>>>'+ str(datetime.now())+' Iteration:'+ str(iter)+ ' loss:'+ str(loss)+'\n')
+        f.write('<br>\n')
         f.write('acc per class:'+ str(acc)+'\n')
+        f.write('<br>\n')
         f.write('overall acc:'+ str(overall_acc)+'\n')
+        f.write('<br>\n')
         f.write('mean acc:'+ str(np.nanmean(acc))+'\n')
+        f.write('<br>\n')
         f.write('IU per class:'+ str(iu)+'\n')
+        f.write('<br>\n')
         f.write('mean IU:'+ str(np.nanmean(iu))+'\n')
+        f.write('<br>\n')
         f.write('fwavacc:'+ str((freq[freq > 0] * iu[freq > 0]).sum())+'\n')
+        f.write('<br>\n')
+        f.write('<br>\n')
     return hist
 
 
