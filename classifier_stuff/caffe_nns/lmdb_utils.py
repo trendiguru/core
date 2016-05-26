@@ -759,7 +759,6 @@ def generate_textfile_for_binary_classifiers():
         add_dir_listing_to_caffe_textfile(textfilename,more_negatives_dir,1)
         posdir = dirs_from_cats[cat]
         add_dir_listing_to_caffe_textfile(textfilename,posdir,0)
-        add_dir_listing_to_caffe_textfile(textfilename,negdir,1)
         for neg in sure_negatives_dict[cat]:
             negdir = dirs_from_cats[neg]
             add_dir_listing_to_caffe_textfile(textfilename,negdir,1)
