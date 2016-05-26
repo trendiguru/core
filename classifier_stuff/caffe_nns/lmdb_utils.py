@@ -753,10 +753,15 @@ def generate_textfile_for_binary_classifiers():
                       'pants':'/home/jeremy/image_dbs/tamara_berg/dataset/retrieval/retrieval_pants_train',
                       'top':'/home/jeremy/image_dbs/tamara_berg/dataset/retrieval/retrieval_tops_train',
                       'outerwear':'/home/jeremy/image_dbs/tamara_berg/dataset/retrieval/retrieval_outerwear_train',}
+    dirs_from_cats = {'dress':'/home/jeremy/image_dbs/tamara_berg/dataset/retrieval/retrieval_dresses_test',
+                      'skirt':'/home/jeremy/image_dbs/tamara_berg/dataset/retrieval/retrieval_skirts_test',
+                      'pants':'/home/jeremy/image_dbs/tamara_berg/dataset/retrieval/retrieval_pants_test',
+                      'top':'/home/jeremy/image_dbs/tamara_berg/dataset/retrieval/retrieval_tops_test',
+                      'outerwear':'/home/jeremy/image_dbs/tamara_berg/dataset/retrieval/retrieval_outerwear_test',}
     more_negatives_dir = '/home/jeremy/image_dbs/doorman/irrelevant'
     for cat in sure_negatives_dict:
         textfilename = cat+'trainingfile.txt'
-        add_dir_listing_to_caffe_textfile(textfilename,more_negatives_dir,1)
+#        add_dir_listing_to_caffe_textfile(textfilename,more_negatives_dir,1)
         posdir = dirs_from_cats[cat]
         add_dir_listing_to_caffe_textfile(textfilename,posdir,0)
         for neg in sure_negatives_dict[cat]:
