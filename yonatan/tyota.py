@@ -27,19 +27,17 @@ for dress in dresses:
             if counter < counter_train:
                 new_file_location = '/home/yonatan/dresses_train_set/' + file
                 os.rename(old_file_location, new_file_location)
-                counter_train += 1
-                print counter_train
+                counter += 1
             elif counter >= counter_train and counter < counter_train + counter_cv:
                 new_file_location = '/home/yonatan/dresses_cv_set/' + file
                 os.rename(old_file_location, new_file_location)
-                counter_cv += 1
-                print counter_cv
+                counter += 1
             elif counter >= counter_train + counter_cv and counter < counter_train + counter_cv + counter_test:
                 new_file_location = '/home/yonatan/dresses_test_set/' + file
                 os.rename(old_file_location, new_file_location)
-                counter_test += 1
-                print counter_test
+                counter += 1
             else:
+                print counter
                 break
 
-print 'counter_mini = {0}, counter_midi = {1}, counter_maxi = {2}'.format(counter_train, counter_cv, counter_test)
+print 'counter_train = {0}, counter_cv = {1}, counter_test = {2}, counter = {3}'.format(counter_train, counter_cv, counter_test, counter)
