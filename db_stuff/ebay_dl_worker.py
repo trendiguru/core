@@ -46,8 +46,7 @@ def ebay2generic(item, info):
                    "status": info["status"],
                    "shortDescription": item["OFFER_TITLE"],
                    "longDescription": item["OFFER_DESCRIPTION"],
-                   "price": {'price': info["price"],
-                             'priceLabel': "USD"   },
+                   "price":  info["price"],
                    "Brand" : item["MANUFACTURER"],
                    "Site" : item["MERCHANT_NAME"],
                    "download_data": {'dl_version': today_date,
@@ -144,7 +143,8 @@ def getImportantInfoOnly(item):
     info = {"id": item_id,
             "gender": gender,
             "categories": subCategory,
-            "price":price,
+            "price": {'price': price,
+                      'priceLabel': "USD"},
             "status": {"instock": True, "days_out": 0}}
     if status != "In Stock":
         info["status"]["instock"] = False
@@ -228,18 +228,34 @@ def ebay_downloader(filename, filesize):
                     db[collection_name].update_one({'id': exists['id']}, {"$set": {"img_hash": img_hash}})
                     continue
             else:
-                new_items += 1
+            #check if in archive and has hash
+                archive = collection_name+"_archive"
+                existsInArchive = db[archive].find_one({'id': minimal_info['id'],"img_hash":{"$exists":1}})
+                if existsInArchive and existsInArchive["fingerprint"] is not None:
+                    existsInArchive["download_data"]["dl_version"]=today_date
+                    existsInArchive["price"] = minimal_info["price"]
+                    if minimal_info["status"]["instock"]:
+                        existsInArchive["status"] = minimal_info["status"]
+                        db[archive].delete_one({'id': minimal_info['id']})
+                        db[collection_name].insert_one(existsInArchive)
+                    else:
+                        db[archive].update_one({"_id":existsInArchive['_id']},{"$set":{"download_data.dl_version": today_date}})
+                    continue
+                elif existsInArchive:
+                    db[archive].delete_one({"_id": existsInArchive['_id']})
+                else:
+                    new_items += 1
 
-            while q.count > 250000:
-                print("Q full - stolling")
-                sleep(600)
-                stall += 1
+                while q.count > 250000:
+                    print("Q full - stolling")
+                    sleep(600)
+                    stall += 1
 
-            generic_dict = ebay2generic(item, minimal_info)
-            if generic_dict is None:
-                continue
-            q.enqueue(generate_mask_and_insert, doc=generic_dict, image_url=generic_dict["images"]["XLarge"],
-                      fp_date=today_date, coll=collection_name)
+                generic_dict = ebay2generic(item, minimal_info)
+                if generic_dict is None:
+                    continue
+                q.enqueue(generate_mask_and_insert, doc=generic_dict, image_url=generic_dict["images"]["XLarge"],
+                          fp_date=today_date, coll=collection_name)
 
     stop = time()
     db.ebay_download_info.update_one({'type': 'usage'},{"$inc":{'ram_usage':-filesize}})
