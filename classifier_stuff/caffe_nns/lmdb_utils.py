@@ -745,7 +745,7 @@ def kill_db(db_name):
         db = in_db.open_db()
         in_txn.drop(db)
         print in_txn.stat()
-
+#
 def generate_textfile_for_binary_classifiers():
     sure_negatives_dict = constants.exclusion_relations
     dirs_from_cats = {'dress':'/home/jeremy/image_dbs/tamara_berg/dataset/retrieval/retrieval_dresses_train',
