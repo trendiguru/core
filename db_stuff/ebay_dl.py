@@ -153,6 +153,10 @@ for x,file in enumerate(files):
     db.ebay_download_info.update_one({'type':'usage'},{"$inc":{'ram_usage':filesize}})
 
     q.enqueue(ebay_downloader, filename=filename, filesize=filesize)
+#wait for workers
+while q.count>0:
+    sleep(1000)
+    print("waiting for workers to finish")
 
 stop_time = time()
 total_time = (stop_time-start_time)/3600
