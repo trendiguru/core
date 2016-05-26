@@ -37,16 +37,16 @@ def get_hash(image):
     return url_hash
 
 
-def ebay2generic(item, gender, subcat):
+def ebay2generic(item, info):
     try:
-        generic = {"id": item["\xef\xbb\xbfOFFER_ID"],
-                   "categories": subcat,
+        generic = {"id": info["id"],
+                   "categories": info["categories"],
                    "clickUrl": item["OFFER_URL_MIN_CATEGORY_BID"],
                    "images": {"XLarge": item["IMAGE_URL"]},
-                   "status": {"instock" : True, "days_out" : 0},
+                   "status": info["status"],
                    "shortDescription": item["OFFER_TITLE"],
                    "longDescription": item["OFFER_DESCRIPTION"],
-                   "price": {'price': item["PRICE"],
+                   "price": {'price': info["price"],
                              'priceLabel': "USD"   },
                    "Brand" : item["MANUFACTURER"],
                    "Site" : item["MERCHANT_NAME"],
@@ -54,10 +54,9 @@ def ebay2generic(item, gender, subcat):
                                      'first_dl': today_date,
                                      'fp_version': constants.fingerprint_version},
                    "fingerprint": None,
-                   "gender": gender,
+                   "gender": info["gender"],
                    "ebay_raw": item}
-        if item["STOCK"] != "In Stock":
-            generic["status"]["instock"] = False
+
         image = Utils.get_cv2_img_array(item["IMAGE_URL"])
         if image is None:
             generic = None
@@ -137,6 +136,19 @@ def title2category(gender, title):
     gender = genderAlert or gender
     return gender, ppd_cats
 
+def getImportantInfoOnly(item):
+    gender, subCategory = title2category(item["GENDER"], item["OFFER_TITLE"])
+    item_id = item["\xef\xbb\xbfOFFER_ID"]
+    price = item["PRICE"]
+    status = item["STOCK"]
+    info = {"id": item_id,
+            "gender": gender,
+            "categories": subCategory,
+            "price":price,
+            "status": {"instock": True, "days_out": 0}}
+    if status != "In Stock":
+        info["status"]["instock"] = False
+    return info
 
 def ebay_downloader(filename, filesize):
     ftp = ebay_dl_utils.ftp_connection(ebay_dl_utils.us_params)
@@ -145,10 +157,8 @@ def ebay_downloader(filename, filesize):
     sio = StringIO()
     gc.collect()
 
-
     def handle_binary(more_data):
         sio.write(more_data)
-
 
     try:
         resp = ftp.retrbinary('RETR ' + filename, callback=handle_binary)
@@ -175,14 +185,12 @@ def ebay_downloader(filename, filesize):
         mainCategory = item["CATEGORY_NAME"]
         if mainCategory != "Clothing":
             continue
-        gender, subCategory = title2category(item["GENDER"], item["OFFER_TITLE"])
-        if len(subCategory) < 1:
-            continue
-        if gender == 'Unisex':
+        minimal_info = getImportantInfoOnly(item)
+        if len(minimal_info["categories"]) < 1:
             continue
         # needs to add search for id and etc...
-        collection_name = "ebay_" + gender
-        if subCategory == "t-shirt":
+        collection_name = "ebay_" + minimal_info["gender"]
+        if minimal_info["categories"] == "t-shirt":
             # collection_name ="ebay_Tees"
             # exists = db[collection_name].find({'id':item["\xef\xbb\xbfOFFER_ID"]})
             # if exists.count()>1:
@@ -197,22 +205,28 @@ def ebay_downloader(filename, filesize):
             continue
         itemCount += 1
         print (itemCount)
-        generic_dict = ebay2generic(item, gender, subCategory)
-        if generic_dict is None:
-            continue
-        exists = db[collection_name].find_one({'id': generic_dict['id']})
-        if exists and exists["fingerprint"] is not None:
+        exists = db[collection_name].find_one({'id': minimal_info['id']})
+        existsPlusHash = db[collection_name].find_one({'id': minimal_info['id'], "img_hash":{"$exists":1}})
+        if exists and existsPlusHash and exists["fingerprint"] is not None:
             db[collection_name].update_one({'id': exists['id']}, {"$set": {"download_data.dl_version": today_date,
-                                                                           "price": generic_dict["price"]}})
-            if exists["status"]["instock"] != generic_dict["status"]["instock"]:
-                db[collection_name].update_one({'id': exists['id']}, {"$set": {"status": generic_dict["status"]}})
-            elif exists["status"]["instock"] is False and generic_dict["status"]["instock"] is False:
+                                                                           "price": minimal_info["price"]}})
+            if exists["status"]["instock"] != minimal_info["status"]["instock"]:
+                db[collection_name].update_one({'id': exists['id']}, {"$set": {"status": minimal_info["status"]}})
+            elif exists["status"]["instock"] is False and minimal_info["status"]["instock"] is False:
                 db[collection_name].update_one({'id': exists['id']}, {"$inc": {"status.days_out": 1}})
             else:
                 pass
         else:
-            if exists:
+            if exists and existsPlusHash:
                 db[collection_name].delete_many({'id': exists['id']})
+            elif exists and not existsPlusHash:
+                image = Utils.get_cv2_img_array(item["IMAGE_URL"])
+                if image is None:
+                    db[collection_name].delete_many({'id': exists['id']})
+                else:
+                    img_hash = get_hash(image)
+                    db[collection_name].update_one({'id': exists['id']}, {"$set": {"img_hash": img_hash}})
+                    continue
             else:
                 new_items += 1
 
@@ -221,9 +235,11 @@ def ebay_downloader(filename, filesize):
                 sleep(600)
                 stall += 1
 
+            generic_dict = ebay2generic(item, minimal_info)
+            if generic_dict is None:
+                continue
             q.enqueue(generate_mask_and_insert, doc=generic_dict, image_url=generic_dict["images"]["XLarge"],
                       fp_date=today_date, coll=collection_name)
-            # db[collection_name].insert_one(generic_dict)
 
     stop = time()
     db.ebay_download_info.update_one({'type': 'usage'},{"$inc":{'ram_usage':-filesize}})
