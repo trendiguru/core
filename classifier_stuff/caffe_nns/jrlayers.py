@@ -33,7 +33,16 @@ class JrLayer(caffe.Layer):
         Find it here: https://gist.github.com/shelhamer/edb330760338892d511e.
 
         example
-
+        layer {
+            name: "data"
+            type: "Python"
+            top: "data"
+            top: "label"
+            python_param {
+            module: "jrlayers"
+            layer: "JrLayer"
+            param_str: "{\'images_dir\': \'/home/jeremy/image_dbs/colorful_fashion_parsing_data/images/train_u21_256x256\', \'labels_dir\':\'/home/jeremy/image_dbs/colorful_fashion_parsing_data/labels_256x256/\', \'mean\': (104.00699, 116.66877, 122.67892)}"
+            }
         params = dict(sbdd_dir="/path/to/SBDD/dataset",
             mean=(104.00698793, 116.66876762, 122.67891434),
             split="valid")

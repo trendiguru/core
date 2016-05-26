@@ -181,8 +181,8 @@ def do_seg_tests(net, iter, save_format, dataset, layer='score', gt='label'):
     # mean loss
     print '>>>', datetime.now(), 'Iteration', iter, 'loss', loss
     # overall accuracy
-    acc = np.diag(hist).sum() / hist.sum()
-    print '>>>', datetime.now(), 'Iteration', iter, 'overall accuracy', acc
+    overall_acc = np.diag(hist).sum() / hist.sum()
+    print '>>>', datetime.now(), 'Iteration', iter, 'overall accuracy', overall_acc
     # per-class accuracy
     acc = np.diag(hist) / hist.sum(1)
     print '>>>', datetime.now(), 'Iteration', iter, 'acc per class', str(acc)
@@ -196,6 +196,7 @@ def do_seg_tests(net, iter, save_format, dataset, layer='score', gt='label'):
     with open('net_output.txt','a') as f:
         f.write('>>>'+ str(datetime.now())+' Iteration:'+ str(iter)+ ' loss:'+ str(loss)+'\n')
         f.write('acc per class:'+ str(acc)+'\n')
+        f.write('overall acc:'+ str(overall_acc)+'\n')
         f.write('mean acc:'+ str(np.nanmean(acc))+'\n')
         f.write('IU per class:'+ str(iu)+'\n')
         f.write('mean IU:'+ str(np.nanmean(iu))+'\n')

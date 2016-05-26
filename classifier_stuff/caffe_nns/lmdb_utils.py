@@ -746,6 +746,36 @@ def kill_db(db_name):
         in_txn.drop(db)
         print in_txn.stat()
 
+def generate_textfile_for_binary_classifiers():
+    sure_negatives_dict = constants.exclusion_relations
+    dirs_from_cats = {'dress':'/home/jeremy/image_dbs/tamara_berg/dataset/retrieval/retrieval_dresses_train',
+                      'skirt':'/home/jeremy/image_dbs/tamara_berg/dataset/retrieval/retrieval_skirts_train',
+                      'pants':'/home/jeremy/image_dbs/tamara_berg/dataset/retrieval/retrieval_pants_train',
+                      'top':'/home/jeremy/image_dbs/tamara_berg/dataset/retrieval/retrieval_tops_train',
+                      'outerwear':'/home/jeremy/image_dbs/tamara_berg/dataset/retrieval/retrieval_outerwear_train',}
+    more_negatives_dir = '/home/jeremy/image_dbs/doorman/irrelevant'
+    for cat in sure_negatives_dict:
+        textfilename = cat+'trainingfile.txt'
+        add_dir_listing_to_caffe_textfile(textfilename,more_negatives_dir,1)
+        posdir = dirs_from_cats[cat]
+        add_dir_listing_to_caffe_textfile(textfilename,posdir,0)
+        add_dir_listing_to_caffe_textfile(textfilename,negdir,1)
+        for neg in sure_negatives_dict[cat]:
+            negdir = dirs_from_cats[neg]
+            add_dir_listing_to_caffe_textfile(textfilename,negdir,1)
+
+def add_dir_listing_to_caffe_textfile(filename,dirname,class_label,filter='.jpg'):
+    if filter:
+        files = [f for f in os.listdir(dirname) if filter in f]
+    else:
+        files = [f for f in os.listdir(dirname)]
+    with open(filename,'a') as f:
+        for filename in files:
+            f.write(os.path.join(dirname,filename)+' ' +class_label)
+
+exclusion_relations = {'dress':['skirt','pants','top'],'pants':['dress','skirt'], 'skirt':['dress','pants'],'top':['dress'],  'outerwear':[]}
+
+
 host = socket.gethostname()
 print('host:'+str(host))
 #
