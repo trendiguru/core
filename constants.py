@@ -326,6 +326,10 @@ pascal_context_labels = ['background','aeroplane','bicycle','bird','boat','bottl
 'floor','flower','food','grass','ground','keyboard','light','mountain','mouse','curtain','platform','sign','plate','road','rock',\
 'shelves','sidewalk','sky','snow','bedclothes','track','tree','truck','wall','water','window','wood']
 
+#In a universe of outerwear, dress, pants, skirt, top, what can't be worn together (dont bug me about shorts under skirt)
+#and yes this contains redundant information,  if a cant be worn with b then opp is true
+exclusion_relations = {'dress':['skirt','pants','top'],'pants':['dress','skirt'], 'skirt':['dress','pants'],'top':['dress'],  'outerwear':[]}
+
 
 pd_output_savedir = '/home/jeremy/pd_output'
 # for web bounding box interface
