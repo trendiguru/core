@@ -13,7 +13,7 @@ counter_train = 750
 counter_cv = 150
 counter_test = 150
 
-for sets in set:
+for set in sets:
     dir = '/home/yonatan/dresses_' + set + '_set'
 
     counter = 0
