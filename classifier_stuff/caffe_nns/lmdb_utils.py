@@ -765,13 +765,14 @@ def generate_textfile_for_binary_classifiers():
             add_dir_listing_to_caffe_textfile(textfilename,negdir,1)
 
 def add_dir_listing_to_caffe_textfile(filename,dirname,class_label,filter='.jpg'):
+    print('processing dir {} into file {} with cat {}'.format(dirname,filename,class_label))
     if filter:
         files = [f for f in os.listdir(dirname) if filter in f]
     else:
         files = [f for f in os.listdir(dirname)]
     with open(filename,'a') as f:
         for filename in files:
-            f.write(os.path.join(dirname,filename)+' ' +class_label)
+            f.write(os.path.join(dirname,filename)+' ' + str(class_label))
 
 exclusion_relations = {'dress':['skirt','pants','top'],'pants':['dress','skirt'], 'skirt':['dress','pants'],'top':['dress'],  'outerwear':[]}
 
