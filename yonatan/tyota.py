@@ -8,21 +8,25 @@ import matplotlib.pyplot as plt
 
 dresses = {'mini', 'midi', 'maxi'}
 
-counter = 0
+counter_mini = 0
+counter_midi = 0
+counter_maxi = 0
 
 for dress in dresses:
 
-    source_dir = '/home/yonatan/all_' + dress + '_dresses'
+    source_dir = '/home/yonatan/resized_' + dress + '_dresses'
 
     for root, dirs, files in os.walk(source_dir):
         for file in files:
-            if not file.endswith(".jpg"):
-                print file
-                old_file_name = source_dir + '/' + file
-                new_file_name = source_dir + '/' + file + '.jpg'
-                os.rename(old_file_name, new_file_name)
-                counter += 1
-                print counter
+            if file.endswith(".jpg"):
+                if dress == 'mini':
+                    counter_mini += 1
+                    print counter_mini
+                elif dress == 'midi':
+                    counter_midi += 1
+                    print counter_midi
+                elif dress == 'maxi':
+                    counter_maxi += 1
+                    print counter_maxi
 
-
-
+print 'counter_mini = {0}, counter_midi = {1}, counter_maxi = {2}'.format(counter_mini, counter_midi, counter_maxi)
