@@ -7,7 +7,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 dresses = {'mini', 'midi', 'maxi'}
-sets = {'train', 'cv', 'test'}
+#sets = {'train', 'cv', 'test'}
 
 counter = 0
 counter_train = 750
