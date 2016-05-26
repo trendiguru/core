@@ -746,21 +746,16 @@ def kill_db(db_name):
         in_txn.drop(db)
         print in_txn.stat()
 #
-def generate_textfile_for_binary_classifiers():
+def generate_textfile_for_binary_classifiers(test_or_train):
     sure_negatives_dict = constants.exclusion_relations
-    dirs_from_cats = {'dress':'/home/jeremy/image_dbs/tamara_berg/dataset/retrieval/retrieval_dresses_train',
-                      'skirt':'/home/jeremy/image_dbs/tamara_berg/dataset/retrieval/retrieval_skirts_train',
-                      'pants':'/home/jeremy/image_dbs/tamara_berg/dataset/retrieval/retrieval_pants_train',
-                      'top':'/home/jeremy/image_dbs/tamara_berg/dataset/retrieval/retrieval_tops_train',
-                      'outerwear':'/home/jeremy/image_dbs/tamara_berg/dataset/retrieval/retrieval_outerwear_train',}
-    dirs_from_cats = {'dress':'/home/jeremy/image_dbs/tamara_berg/dataset/retrieval/retrieval_dresses_test',
-                      'skirt':'/home/jeremy/image_dbs/tamara_berg/dataset/retrieval/retrieval_skirts_test',
-                      'pants':'/home/jeremy/image_dbs/tamara_berg/dataset/retrieval/retrieval_pants_test',
-                      'top':'/home/jeremy/image_dbs/tamara_berg/dataset/retrieval/retrieval_tops_test',
-                      'outerwear':'/home/jeremy/image_dbs/tamara_berg/dataset/retrieval/retrieval_outerwear_test',}
+    dirs_from_cats = {'dress':'/home/jeremy/image_dbs/tamara_berg/dataset/retrieval/retrieval_dresses_'+test_or_train,
+                      'skirt':'/home/jeremy/image_dbs/tamara_berg/dataset/retrieval/retrieval_skirts_'+test_or_train,
+                      'pants':'/home/jeremy/image_dbs/tamara_berg/dataset/retrieval/retrieval_pants_'+test_or_train,
+                      'top':'/home/jeremy/image_dbs/tamara_berg/dataset/retrieval/retrieval_tops_'+test_or_train,
+                      'outerwear':'/home/jeremy/image_dbs/tamara_berg/dataset/retrieval/retrieval_outerwear_'+test_or_train}
     more_negatives_dir = '/home/jeremy/image_dbs/doorman/irrelevant'
     for cat in sure_negatives_dict:
-        textfilename = cat+'trainingfile.txt'
+        textfilename = cat+'.'+test_or_train+'.txt'
 #        add_dir_listing_to_caffe_textfile(textfilename,more_negatives_dir,1)
         posdir = dirs_from_cats[cat]
         add_dir_listing_to_caffe_textfile(textfilename,posdir,0)
