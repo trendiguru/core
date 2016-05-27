@@ -29,8 +29,8 @@ caffe.set_mode_gpu()
 image_dims = [256, 256]
 mean, input_scale = np.array([120, 120, 120]), None
 #mean, input_scale = None, None
-channel_swap = None
-#channel_swap = [2, 1, 0]
+#channel_swap = None
+channel_swap = [2, 1, 0]
 raw_scale = 255.0
 ext = 'jpg'
 
@@ -125,4 +125,4 @@ plt.legend()
 plt.hist(array_failure, alpha=0.5, label='array_failure')
 plt.legend()
 
-histogram.savefig('75000_train_dresses_histogram.png')
+histogram.savefig('75000_train_dresses_with_channel_swap_histogram.png')
