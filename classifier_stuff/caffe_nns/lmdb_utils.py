@@ -762,7 +762,7 @@ def generate_textfile_for_deconvnet(d1,d2,textfile,d1filter='.jpg',d2filter=None
 
     random.shuffle(imagefiles)
     imagefiles = imagefiles[0:maxfiles]
-    print(str(len(imagefiles))+ ' imagefiles in '+d1)
+    print(str(len(imagefiles))+ ' imagefiles to process in '+d1)
     with open(textfile,'a') as thefile:
         for f in imagefiles:
             full_imgfile = os.path.join(d1,f)
@@ -772,7 +772,7 @@ def generate_textfile_for_deconvnet(d1,d2,textfile,d1filter='.jpg',d2filter=None
                 labelfile = f[:-4] + d2filter
             full_labelfile = os.path.join(d2,labelfile)
             if os.path.exists(full_imgfile) and os.path.exists(full_labelfile):
-                line = full_imgfile+' '+full_labelfile
+                line = full_imgfile+' '+full_labelfile+'\n'
                 thefile.write(line)
             else:
                 print('one of these does not exist:'+full_imgfile+','+full_labelfile)
