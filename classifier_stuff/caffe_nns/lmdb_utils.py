@@ -756,9 +756,9 @@ def generate_textfile_for_deconvnet(d1,d2,textfile,d1filter='.jpg',d2filter=None
     '''
 
     if d1filter:
-        imagefiles = [f for f in d1 if d1filter in f]
+        imagefiles = [f for f in os.listdir(d1) if d1filter in f]
     else:
-        imagefiles = [f for f in d1]
+        imagefiles = [f for f in os.listdir(d1)]
 
     random.shuffle(imagefiles)
     imagefiles = imagefiles[0:maxfiles]
