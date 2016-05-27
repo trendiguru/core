@@ -746,7 +746,7 @@ def kill_db(db_name):
         in_txn.drop(db)
         print in_txn.stat()
 #
-def generate_textfile_for_deconvnet(d1,d2,d1filter='.jpg',d2filter=None,textfile):
+def generate_textfile_for_deconvnet(d1,d2,textfile,d1filter='.jpg',d2filter=None):
     '''
     textfile with imagepath, corresponding labelpath per line
     for this thing https://github.com/HyeonwooNoh/DeconvNet
