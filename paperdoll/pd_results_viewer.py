@@ -7,6 +7,7 @@ from trendi import pipeline
 from trendi.utils import imutils
 from trendi.constants import fashionista_categories_augmented_zero_based
 from trendi.constants import fashionista_categories_augmented
+from trendi import Utils
 
 def show_pd_results(dir):
     ########WARNING NOT FINISHED
@@ -44,6 +45,7 @@ def generate_groundtruth_legends(imgdir,labeldir):
 
 def after_nn_processdir(indir,outdir):
     os.listdir(indir)
+    Utils.ensure_dir(outdir)
     masks = [f for f in os.listdir(indir) if '.bmp' in f]
     print('found {} files in {}'.format(len(masks),indir))
 

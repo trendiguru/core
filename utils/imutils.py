@@ -313,6 +313,9 @@ def resize_keep_aspect(input_file_or_np_arr, output_file=None, output_size = (30
     if isinstance(input_file_or_np_arr,basestring):
         input_file_or_np_arr = cv2.imread(input_file_or_np_arr)
 
+    if input_file_or_np_arr is None:
+        logging.warning('got a bad image')
+        return
     inheight, inwidth = input_file_or_np_arr.shape[0:2]
     outheight, outwidth = output_size[:]
     out_ar = float(outheight)/outwidth
@@ -745,6 +748,7 @@ def show_mask_with_labels_dir(dir,labels,filter=None,original_images_dir=None,or
         files = [f for f in os.listdir(dir) if filter in f]
     else:
         files = [f for f in os.listdir(dir) ]
+    print(str(len(files))+ ' files to process in '+dir)
     fullpaths = [os.path.join(dir,f) for f in files]
     totfrac = 0
     fraclist=[]
@@ -779,8 +783,7 @@ def show_mask_with_labels_dir(dir,labels,filter=None,original_images_dir=None,or
                 fraclist.append(frac)
                 totfrac = totfrac + frac
                 n=n+1
-    if totfrac:
-        print('avg frac of image w nonzero pixels:'+str(totfrac/n))
+#    print('avg frac of image w nonzero pixels:'+str(totfrac/n))
     hist, bins = np.histogram(fraclist, bins=30)
     width = 0.7 * (bins[1] - bins[0])
     center = (bins[:-1] + bins[1:]) / 2
@@ -871,6 +874,7 @@ def show_mask_with_labels(mask_filename,labels,original_image=None,cut_the_crap=
     if original_image is not None:
         orig_arr = cv2.imread(original_image)
         if orig_arr is not None:
+            print('original image:'+str(original_image))
             height, width = orig_arr.shape[:2]
             maxheight=600
             minheight=300
@@ -1069,7 +1073,6 @@ def nms_detections(dets, overlap=0.3):
         ind = ind[np.nonzero(o <= overlap)[0]]
 
     return dets[pick, :]
-
 
 def img_dir_to_html(img_dir,filter='.jpg',htmlname=None):
     imglist = [i for i in os.listdir(img_dir) if filter in i]
