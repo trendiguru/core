@@ -42,8 +42,9 @@ classifier = caffe.Classifier(MODLE_FILE, PRETRAINED,
 
 success_counter = 0
 failure_counter = 0
-guessed_f_instead_m = 0
-guessed_m_instead_f = 0
+guessed_wrong_mini = 0
+guessed_wrong_midi = 0
+guessed_wrong_maxi = 0
 
 for line in text_file:
     counter += 1
@@ -81,33 +82,32 @@ for line in text_file:
     elif (mini_predict > midi_predict) and (mini_predict > maxi_predict) and (path[1] == '1'):
         array_failure = np.append(array_failure, mini_predict)
         print predictions
-        guessed_f_instead_m += 1
+        guessed_wrong_mini += 1
     elif (maxi_predict > midi_predict) and (maxi_predict > mini_predict) and (path[1] == '1'):
-        array_failure = np.append(array_failure, mini_predict)
+        array_failure = np.append(array_failure, maxi_predict)
         print predictions
-        guessed_f_instead_m += 1
+        guessed_wrong_maxi += 1
     elif (midi_predict > mini_predict) and (midi_predict > maxi_predict) and (path[1] == '0'):
         array_failure = np.append(array_failure, midi_predict)
         print predictions
-        guessed_m_instead_f += 1
+        guessed_wrong_midi += 1
     elif (maxi_predict > midi_predict) and (maxi_predict > mini_predict) and (path[1] == '0'):
-        array_failure = np.append(array_failure, midi_predict)
+        array_failure = np.append(array_failure, maxi_predict)
         print predictions
-        guessed_m_instead_f += 1
+        guessed_wrong_maxi += 1
     elif (midi_predict > mini_predict) and (midi_predict > maxi_predict) and (path[1] == '2'):
         array_failure = np.append(array_failure, midi_predict)
         print predictions
-        guessed_m_instead_f += 1
+        guessed_wrong_midi += 1
     elif (mini_predict > midi_predict) and (mini_predict > maxi_predict) and (path[1] == '2'):
-        array_failure = np.append(array_failure, midi_predict)
+        array_failure = np.append(array_failure, mini_predict)
         print predictions
-        guessed_m_instead_f += 1
+        guessed_wrong_mini += 1
     print counter
 
-print guessed_f_instead_m
-print guessed_m_instead_f
-
-
+print guessed_wrong_mini
+print guessed_wrong_midi
+print guessed_wrong_maxi
 
 histogram=plt.figure(1)
 
