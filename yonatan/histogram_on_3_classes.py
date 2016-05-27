@@ -108,12 +108,12 @@ for line in text_file:
         guessed_mini_instead_maxi += 1
     print counter
 
-print guessed_mini_instead_midi
-print guessed_maxi_instead_midi
-print guessed_midi_instead_mini
-print guessed_maxi_instead_mini
-print guessed_midi_instead_maxi
-print guessed_mini_instead_maxi
+print 'guessed_mini_instead_midi {0}'.format(guessed_mini_instead_midi)
+print 'guessed_maxi_instead_midi {0}'.format(guessed_maxi_instead_midi)
+print 'guessed_midi_instead_mini {0}'.format(guessed_midi_instead_mini)
+print 'guessed_maxi_instead_mini {0}'.format(guessed_maxi_instead_mini)
+print 'guessed_midi_instead_maxi {0}'.format(guessed_midi_instead_maxi)
+print 'guessed_mini_instead_maxi {0}'.format(guessed_mini_instead_maxi)
 
 histogram = plt.figure(1)
 
