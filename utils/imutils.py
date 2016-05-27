@@ -748,6 +748,7 @@ def show_mask_with_labels_dir(dir,labels,filter=None,original_images_dir=None,or
         files = [f for f in os.listdir(dir) if filter in f]
     else:
         files = [f for f in os.listdir(dir) ]
+    print(str(len(files))+ ' files to process in '+dir)
     fullpaths = [os.path.join(dir,f) for f in files]
     totfrac = 0
     fraclist=[]
