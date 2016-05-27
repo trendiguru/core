@@ -746,6 +746,37 @@ def kill_db(db_name):
         in_txn.drop(db)
         print in_txn.stat()
 #
+def generate_textfile_for_deconvnet(d1,d2,d1filter='.jpg',d2filter=None,textfile):
+    '''
+    textfile with imagepath, corresponding labelpath per line
+    for this thing https://github.com/HyeonwooNoh/DeconvNet
+    d1 - directory of imagefiles
+    d2 - directory of labelfiles
+    :return:
+    '''
+
+    if d1filter:
+        imagefiles = [f for f in d1 if d1filter in f]
+    else:
+        imagefiles = [f for f in d1]
+    with open(textfile,'a') as thefile:
+        for f in imagefiles:
+            full_imgfile = os.path.join(d1,f)
+            if d2filter == None:
+                labelfile = f
+            else:
+                labelfile = f[:-4] + d2filter
+            full_labelfile = os.path.join(d2,labelfile)
+            if os.path.exists(full_imgfile) and os.path.exists(full_labelfile):
+                line = full_imgfile+' '+full_labelfile
+                thefile.write(line)
+            else:
+                print('one of these does not exist:'+full_imgfile+','+full_labelfile)
+
+
+
+
+
 def generate_textfile_for_binary_classifiers(test_or_train):
     sure_negatives_dict = constants.exclusion_relations
 
