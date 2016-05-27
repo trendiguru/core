@@ -45,7 +45,7 @@ def generate_groundtruth_legends(imgdir,labeldir):
 
 def after_nn_processdir(indir,outdir):
     os.listdir(indir)
-    Utils.ensuredir(outdir)
+    Utils.ensure_dir(outdir)
     masks = [f for f in os.listdir(indir) if '.bmp' in f]
     print('found {} files in {}'.format(len(masks),indir))
 
