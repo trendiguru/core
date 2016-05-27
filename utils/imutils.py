@@ -783,8 +783,7 @@ def show_mask_with_labels_dir(dir,labels,filter=None,original_images_dir=None,or
                 fraclist.append(frac)
                 totfrac = totfrac + frac
                 n=n+1
-    if totfrac:
-        print('avg frac of image w nonzero pixels:'+str(totfrac/n))
+    print('avg frac of image w nonzero pixels:'+str(totfrac/n))
     hist, bins = np.histogram(fraclist, bins=30)
     width = 0.7 * (bins[1] - bins[0])
     center = (bins[:-1] + bins[1:]) / 2
