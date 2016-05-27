@@ -42,9 +42,12 @@ classifier = caffe.Classifier(MODLE_FILE, PRETRAINED,
 
 success_counter = 0
 failure_counter = 0
-guessed_wrong_mini = 0
-guessed_wrong_midi = 0
-guessed_wrong_maxi = 0
+guessed_mini_instead_midi = 0
+guessed_maxi_instead_midi = 0
+guessed_midi_instead_mini = 0
+guessed_maxi_instead_mini = 0
+guessed_midi_instead_maxi = 0
+guessed_mini_instead_maxi = 0
 
 for line in text_file:
     counter += 1
@@ -82,34 +85,37 @@ for line in text_file:
     elif (mini_predict > midi_predict) and (mini_predict > maxi_predict) and (path[1] == '1'):
         array_failure = np.append(array_failure, mini_predict)
         print predictions
-        guessed_wrong_mini += 1
+        guessed_mini_instead_midi += 1
     elif (maxi_predict > midi_predict) and (maxi_predict > mini_predict) and (path[1] == '1'):
         array_failure = np.append(array_failure, maxi_predict)
         print predictions
-        guessed_wrong_maxi += 1
+        guessed_maxi_instead_midi += 1
     elif (midi_predict > mini_predict) and (midi_predict > maxi_predict) and (path[1] == '0'):
         array_failure = np.append(array_failure, midi_predict)
         print predictions
-        guessed_wrong_midi += 1
+        guessed_midi_instead_mini += 1
     elif (maxi_predict > midi_predict) and (maxi_predict > mini_predict) and (path[1] == '0'):
         array_failure = np.append(array_failure, maxi_predict)
         print predictions
-        guessed_wrong_maxi += 1
+        guessed_maxi_instead_mini += 1
     elif (midi_predict > mini_predict) and (midi_predict > maxi_predict) and (path[1] == '2'):
         array_failure = np.append(array_failure, midi_predict)
         print predictions
-        guessed_wrong_midi += 1
+        guessed_midi_instead_maxi += 1
     elif (mini_predict > midi_predict) and (mini_predict > maxi_predict) and (path[1] == '2'):
         array_failure = np.append(array_failure, mini_predict)
         print predictions
-        guessed_wrong_mini += 1
+        guessed_mini_instead_maxi += 1
     print counter
 
-print guessed_wrong_mini
-print guessed_wrong_midi
-print guessed_wrong_maxi
+print guessed_mini_instead_midi
+print guessed_maxi_instead_midi
+print guessed_midi_instead_mini
+print guessed_maxi_instead_mini
+print guessed_midi_instead_maxi
+print guessed_mini_instead_maxi
 
-histogram=plt.figure(1)
+histogram = plt.figure(1)
 
 bins = np.linspace(-1000, 1000, 50)
 
