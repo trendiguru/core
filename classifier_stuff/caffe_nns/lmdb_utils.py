@@ -759,6 +759,7 @@ def generate_textfile_for_deconvnet(d1,d2,textfile,d1filter='.jpg',d2filter=None
         imagefiles = [f for f in d1 if d1filter in f]
     else:
         imagefiles = [f for f in d1]
+    print(len(imagefiles)+ ' imagefiles in '+d1)
     with open(textfile,'a') as thefile:
         for f in imagefiles:
             full_imgfile = os.path.join(d1,f)
