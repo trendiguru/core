@@ -746,7 +746,7 @@ def kill_db(db_name):
         in_txn.drop(db)
         print in_txn.stat()
 #
-def generate_textfile_for_deconvnet(d1,d2,textfile,d1filter='.jpg',d2filter=None):
+def generate_textfile_for_deconvnet(d1,d2,textfile,d1filter='.jpg',d2filter=None,maxfiles=10000000):
     '''
     textfile with imagepath, corresponding labelpath per line
     for this thing https://github.com/HyeonwooNoh/DeconvNet
@@ -759,6 +759,9 @@ def generate_textfile_for_deconvnet(d1,d2,textfile,d1filter='.jpg',d2filter=None
         imagefiles = [f for f in d1 if d1filter in f]
     else:
         imagefiles = [f for f in d1]
+
+    random.shuffle(imagefiles)
+    imagefiles = imagefiles[0:maxfiles]
     print(str(len(imagefiles))+ ' imagefiles in '+d1)
     with open(textfile,'a') as thefile:
         for f in imagefiles:
