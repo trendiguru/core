@@ -874,6 +874,7 @@ def show_mask_with_labels(mask_filename,labels,original_image=None,cut_the_crap=
     if original_image is not None:
         orig_arr = cv2.imread(original_image)
         if orig_arr is not None:
+            print('original image:'+str(original_image))
             height, width = orig_arr.shape[:2]
             maxheight=600
             minheight=300
