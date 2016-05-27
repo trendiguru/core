@@ -223,13 +223,20 @@ if __name__ == "__main__":
 
     test_dir = '/root/imgdbs/image_dbs/doorman/irrelevant/'
     out_dir = '/root/imgdbs/image_dbs/doorman/irrelevant_output'
-    test_dir = '/root/imgdbs/image_dbs/colorful_fashion_parsing_data/images/test_200x150/'
+    caffemodel = 'snapshot_nn2/train_iter_183534.caffemodel'
+
+    test_dir = '/root/imgdbs/image_dbs/colorful_fashion_parsing_data/images'
     out_dir = '/root/imgdbs/image_dbs/150x100output_010516/'
+    caffemodel = 'snapshot_nn2/train_iter_164620.caffemodel'  #010516 saved
+
     test_dir = '/root/imgdbs/image_dbs/colorful_fashion_parsing_data/images/test'
     out_dir = './'
+
+    test_dir = '/root/imgdbs/image_dbs/colorful_fashion_parsing_data/test_256x256'
+    out_dir = '/home/jeremy/caffenets/pixlevel/voc-fcn8s/voc8.15/output'
+    caffemodel = '/home/jeremy/caffenets/pixlevel/voc-fcn8s/voc8.15/snapshot/train_iter_120000.caffemodel'
+
     prototxt = 'deploy.prototxt'
-    caffemodel = 'snapshot_nn2/train_iter_183534.caffemodel'
-    caffemodel = 'snapshot_nn2/train_iter_164620.caffemodel'  #010516 saved
 
     parser = argparse.ArgumentParser(description='get Caffe output')
     parser.add_argument('caffemodel', help='caffemodel', default=caffemodel)
