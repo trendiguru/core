@@ -138,7 +138,7 @@ for col in ["Female","Male","Unisex"]:#,"Tees"]:
 print(len(files))
 for x,file in enumerate(files):
     filename = file['name']
-    filesize = int(file['size'])/(64*1024*1024.0)
+    filesize = int(file['size'])/(8*1024*1024.0)
     usage = db.ebay_download_info.find_one({'type':'usage'})['ram_usage']
     new_usage =usage + filesize
     print(new_usage)
