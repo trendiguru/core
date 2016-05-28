@@ -225,7 +225,7 @@ def parse_solveoutput(f):
 
   p1, = host.plot(training_iterations, training_loss,'bo:', label="train logloss")
   p3, = par1.plot(training_iterations, mean_acc,'go:', label="mean acc")
-  p4, = par1.plot(training_iterations, overall_accuracy,'ko:', label="overall_acc")
+#  p4, = par1.plot(training_iterations, overall_accuracy,'ko:', label="overall_acc")
   p2, = par1.plot(training_iterations, fwavacc,'ro:', label="fwavacc")
   p5, = par1.plot(training_iterations, mean_iou,'co:', label="mean_iou")
 #  if len(training_accuracy)>0:
