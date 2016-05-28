@@ -158,6 +158,7 @@ def parse_solveoutput(f):
       epochtime = time.mktime(dt.timetuple())
       if first_report:
         initial_time = epochtime
+        first_report = False
       times.append(epochtime - initial_time)
       print('epoch:'+str(epochtime))
       iteration = thesplit[2].strip('Iteration:')
@@ -211,6 +212,9 @@ def parse_solveoutput(f):
 
   elapsed_days = [float(t)/(3600.0*24) for t in times]
 
+  print times
+  print elapsed_days
+
   f.close()
 #  plt.plot(training_iterations, training_loss, '-', linewidth=2)
 #  plt.plot(test_iterations, test_accuracy, '-', linewidth=2)
@@ -222,8 +226,8 @@ def parse_solveoutput(f):
   par1 = host.twinx()
 
   host.set_xlabel("iterations")
-  host.set_ylabel("log loss")
-  par1.set_ylabel("accuracy")
+  host.set_ylabel("log loss, days elapsed")
+  par1.set_ylabel("accuracy, iou")
 
 
   p1, = host.plot(training_iterations, training_loss,'bo:', label="train logloss")
@@ -231,7 +235,7 @@ def parse_solveoutput(f):
 #  p4, = par1.plot(training_iterations, overall_accuracy,'ko:', label="overall_acc")
   p2, = par1.plot(training_iterations, fwavacc,'ro:', label="fwavacc")
   p5, = par1.plot(training_iterations, mean_iou,'co:', label="mean_iou")
-  p6, = par1.plot(training_iterations, elapsed_days,'mo:', label="days_elapsed")
+  p6, = host.plot(training_iterations, elapsed_days,'mo:', label="days_elapsed")
 #  if len(training_accuracy)>0:
 #    p4, = par1.plot(training_iterations, training_accuracy,'co:', label="train acc.")
 
