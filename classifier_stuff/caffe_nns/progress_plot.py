@@ -212,8 +212,8 @@ def parse_solveoutput(f):
 
   elapsed_days = [float(t)/(3600.0*24) for t in times]
 
-  print times
-  print elapsed_days
+ # print times
+ # print elapsed_days
 
   f.close()
 #  plt.plot(training_iterations, training_loss, '-', linewidth=2)
@@ -235,7 +235,7 @@ def parse_solveoutput(f):
 #  p4, = par1.plot(training_iterations, overall_accuracy,'ko:', label="overall_acc")
   p2, = par1.plot(training_iterations, fwavacc,'ro:', label="fwavacc")
   p5, = par1.plot(training_iterations, mean_iou,'co:', label="mean_iou")
-  p6, = host.plot(training_iterations, elapsed_days,'mo:', label="days_elapsed")
+#  p6, = host.plot(training_iterations, elapsed_days,'mo:', label="days_elapsed")
 #  if len(training_accuracy)>0:
 #    p4, = par1.plot(training_iterations, training_accuracy,'co:', label="train acc.")
 
