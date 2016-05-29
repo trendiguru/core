@@ -3,12 +3,12 @@ __author__ = 'jeremy'
 #get output images for given input
 import numpy as np
 from PIL import Image
-import caffe
 import os
 import time
 import cv2
 import argparse
 from datetime import datetime
+import caffe
 
 
 from trendi import pipeline
@@ -17,7 +17,7 @@ from trendi import constants
 from trendi.paperdoll import paperdoll_parse_enqueue
 from trendi import Utils
 
-def infer_many(images,prototxt,caffemodel,out_dir='./'):
+def infer_many(images,prototxt,caffemodel,out_dir='./',caffe_variant=None):
     net = caffe.Net(prototxt,caffemodel, caffe.TEST)
     dims = [150,100]
     start_time = time.time()
@@ -58,7 +58,11 @@ def infer_many(images,prototxt,caffemodel,out_dir='./'):
     return masks
     #fullout = net.blobs['score'].data[0]
 
-def infer_one(imagename,prototxt,caffemodel,out_dir='./'):
+def infer_one(imagename,prototxt,caffemodel,out_dir='./',caffe_variant=None):
+    if caffe_variant == None:
+        import caffe
+    else:
+        pass
     net = caffe.Net(prototxt,caffemodel, caffe.TEST)
     dims = [150,100]
     start_time = time.time()
@@ -84,6 +88,45 @@ def infer_one(imagename,prototxt,caffemodel,out_dir='./'):
     # run net and take argmax for prediction
     net.forward()
     out = net.blobs['score'].data[0].argmax(axis=0)
+    result = Image.fromarray(out.astype(np.uint8))
+#        outname = im.strip('.png')[0]+'out.bmp'
+    outname = os.path.basename(imagename)
+    outname = outname.split('.jpg')[0]+'.bmp'
+    outname = os.path.join(out_dir,outname)
+    print('outname:'+outname)
+    result.save(outname)
+    #        fullout = net.blobs['score'].data[0]
+    elapsed_time=time.time()-start_time
+    print('elapsed time:'+str(elapsed_time))
+    return out.astype(np.uint8)
+
+# make sure you have imported the right (nonstandard) version of caffe, e..g by changing pythonpath
+def infer_one_deconvnet(imagename,prototxt,caffemodel,out_dir='./',caffe_variant=None):
+    net = caffe.Net(prototxt,caffemodel)
+    dims = [224,224]
+    start_time = time.time()
+    print('working on:'+imagename)
+        # load image, switch to BGR, subtract mean, and make dims C x H x W for Caffe
+    im = Image.open(imagename)
+    im = im.resize(dims,Image.ANTIALIAS)
+    in_ = np.array(im, dtype=np.float32)
+    if len(in_.shape) != 3:
+        print('got 1-chan image, skipping')
+        return
+    elif in_.shape[2] != 3:
+        print('got n-chan image, skipping - shape:'+str(in_.shape))
+        return
+    print('shape before:'+str(in_.shape))
+    in_ = in_[:,:,::-1]
+    in_ -= np.array((104.0,116.7,122.7))
+    in_ = in_.transpose((2,0,1))
+    print('shape after:'+str(in_.shape))
+    # shape for input (data blob is N x C x H x W), set data
+    net.blobs['data'].reshape(1, *in_.shape)
+    net.blobs['data'].data[...] = in_
+    # run net and take argmax for prediction
+    net.forward()
+    out = net.blobs['seg-score'].data[0].argmax(axis=0)
     result = Image.fromarray(out.astype(np.uint8))
 #        outname = im.strip('.png')[0]+'out.bmp'
     outname = os.path.basename(imagename)
@@ -244,6 +287,8 @@ if __name__ == "__main__":
     parser.add_argument('--outdir', dest = 'out_directory', help='result directory',default='.')
     parser.add_argument('--gpu', help='use gpu',default='True')
     parser.add_argument('--Ngpu', help='gpu #',default='0')
+    parser.add_argument('--caffe_variant', help='caffe variant',default=None)
+
     args = parser.parse_args()
     print('args:'+str(args))
 
@@ -259,11 +304,11 @@ if __name__ == "__main__":
 #    label_dir = '/root/imgdbs/image_dbs/colorful_fashion_parsing_data/labels/'
 
     if args.image_file:
-        infer_one(args.image_file,args.prototxt,args.caffemodel,out_dir=args.out_directory)
+        infer_one(args.image_file,args.prototxt,args.caffemodel,out_dir=args.out_directory,args.caffe_variant)
     elif args.image_directory:
         images = [os.path.join(args.image_directory,f) for f in os.listdir(args.image_directory) if '.jpg' in f ]
         print('nimages:'+str(len(images)) + ' in directory '+args.image_directory)
-        infer_many(images,args.prototxt,args.caffemodel,out_dir=args.out_directory)
+        infer_many(images,args.prototxt,args.caffemodel,out_dir=args.out_directory,args.caffe_variant)
 
     else:
         print('gave neither image nor directory as input')
