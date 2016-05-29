@@ -242,11 +242,11 @@ if __name__ == "__main__":
     parser.add_argument('--image', dest = 'image_file', help='image file',default=None)
     parser.add_argument('--dir', dest = 'image_directory', help='image directory',default=None)
     parser.add_argument('--outdir', dest = 'out_directory', help='result directory',default='.')
-    parser.add_argument('--gpu', help='use gpu',default=True)
+    parser.add_argument('--gpu', help='use gpu',default='True')
     parser.add_argument('--Ngpu', help='gpu #',default='0')
     args = parser.parse_args()
 
-    if args.gpu:
+    if args.gpu == 'True' :
         caffe.set_mode_gpu();
         if args.Ngpu == '0':
             caffe.set_device(0);
