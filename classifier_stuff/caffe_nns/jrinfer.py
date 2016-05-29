@@ -245,6 +245,7 @@ if __name__ == "__main__":
     parser.add_argument('--gpu', help='use gpu',default='True')
     parser.add_argument('--Ngpu', help='gpu #',default='0')
     args = parser.parse_args()
+    print('args:'+str(args))
 
     if args.gpu == 'True' :
         caffe.set_mode_gpu();
