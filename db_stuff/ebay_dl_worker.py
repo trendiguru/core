@@ -256,7 +256,8 @@ def ebay_downloader(filename, filesize):
                     continue
                 #check if hash already exists:
                 hashexists  = db[collection_name].find_one({'img_hash':generic_dict['img_hash']})
-                if hashexists:
+                hashexistsInArchive = db[archive].find_one({'img_hash': generic_dict['img_hash']})
+                if hashexists or hashexistsInArchive:
                     continue
                 q.enqueue(generate_mask_and_insert, doc=generic_dict, image_url=generic_dict["images"]["XLarge"],
                           fp_date=today_date, coll=collection_name)
