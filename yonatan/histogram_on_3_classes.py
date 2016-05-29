@@ -19,7 +19,7 @@ import matplotlib.pyplot as plt
 array_success = np.array([])
 array_failure = np.array([])
 
-text_file = open("dresses_test.txt", "r")
+text_file = open("dresses_train.txt", "r")
 
 counter = 0
 
