@@ -218,8 +218,6 @@ def do_seg_tests(net, iter, save_format, dataset, layer='score', gt='label'):
 if __name__ == "__main__":
 
     print('starting')
-    caffe.set_mode_gpu();
-    caffe.set_device(0);
 
     test_dir = '/root/imgdbs/image_dbs/doorman/irrelevant/'
     out_dir = '/root/imgdbs/image_dbs/doorman/irrelevant_output'
@@ -244,14 +242,24 @@ if __name__ == "__main__":
     parser.add_argument('--image', dest = 'image_file', help='image file',default=None)
     parser.add_argument('--dir', dest = 'image_directory', help='image directory',default=None)
     parser.add_argument('--outdir', dest = 'out_directory', help='result directory',default='.')
+    parser.add_argument('--gpu', help='use gpu',default=True)
+    parser.add_argument('--Ngpu', help='gpu #',default='0')
     args = parser.parse_args()
+
+    if args.gpu:
+        caffe.set_mode_gpu();
+        if args.Ngpu == '0':
+            caffe.set_device(0);
+        if args.Ngpu == '1':
+            caffe.set_device(1);
+    else:
+        caffe.set_mode_cpu()
 
 #    label_dir = '/root/imgdbs/image_dbs/colorful_fashion_parsing_data/labels/'
 
     if args.image_file:
         infer_one(args.image_file,args.prototxt,args.caffemodel,out_dir=args.out_directory)
     elif args.image_directory:
-
         images = [os.path.join(args.image_directory,f) for f in os.listdir(args.image_directory) if '.jpg' in f ]
         print('nimages:'+str(len(images)) + ' in directory '+args.image_directory)
         infer_many(images,args.prototxt,args.caffemodel,out_dir=args.out_directory)
