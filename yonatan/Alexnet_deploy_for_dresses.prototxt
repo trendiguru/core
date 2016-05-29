@@ -253,10 +253,10 @@ layer {
   }
 }
 layer {
-  name: "fc8"
+  name: "my_fc8"
   type: "InnerProduct"
   bottom: "fc7"
-  top: "fc8"
+  top: "my_fc8"
   param {
     lr_mult: 1
     decay_mult: 1
@@ -272,6 +272,6 @@ layer {
 layer {
   name: "prob"
   type: "Softmax"
-  bottom: "fc8"
+  bottom: "my_fc8"
   top: "prob"
 }
