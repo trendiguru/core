@@ -8,7 +8,7 @@ layer {
     phase: TRAIN
   }
   transform_param {
-    mirror: true
+    mirror: false
     mean_value: 120
     mean_value: 120
     mean_value: 120
