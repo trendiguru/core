@@ -302,13 +302,15 @@ if __name__ == "__main__":
         caffe.set_mode_cpu()
 
 #    label_dir = '/root/imgdbs/image_dbs/colorful_fashion_parsing_data/labels/'
+    if args.caffe_variant:
+        infer_one_deconvnet(args.image_file,args.prototxt,args.caffemodel,out_dir=args.out_directory)
 
     if args.image_file:
-        infer_one(args.image_file,args.prototxt,args.caffemodel,out_dir=args.out_directory,args.caffe_variant)
+        infer_one(args.image_file,args.prototxt,args.caffemodel,out_dir=args.out_directory)
     elif args.image_directory:
         images = [os.path.join(args.image_directory,f) for f in os.listdir(args.image_directory) if '.jpg' in f ]
         print('nimages:'+str(len(images)) + ' in directory '+args.image_directory)
-        infer_many(images,args.prototxt,args.caffemodel,out_dir=args.out_directory,args.caffe_variant)
+        infer_many(images,args.prototxt,args.caffemodel,out_dir=args.out_directory)
 
     else:
         print('gave neither image nor directory as input')
