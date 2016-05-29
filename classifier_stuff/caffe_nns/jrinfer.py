@@ -101,7 +101,7 @@ def infer_one(imagename,prototxt,caffemodel,out_dir='./',caffe_variant=None):
     return out.astype(np.uint8)
 
 # make sure you have imported the right (nonstandard) version of caffe, e..g by changing pythonpath
-def infer_one_deconvnet(imagename,prototxt,caffemodel,out_dir='./',caffe_variant=None):
+def infer_one_deconvnet(imagename,prototxt,caffemodel,out_dir='./',caffe_variant=None,dims=(224,224)):
     net = caffe.Net(prototxt,caffemodel)
     dims = [224,224]
     start_time = time.time()
@@ -288,9 +288,14 @@ if __name__ == "__main__":
     parser.add_argument('--gpu', help='use gpu',default='True')
     parser.add_argument('--Ngpu', help='gpu #',default='0')
     parser.add_argument('--caffe_variant', help='caffe variant',default=None)
+    parser.add_argument('--dims', help='dims for net',default=None)
 
     args = parser.parse_args()
     print('args:'+str(args))
+
+#    label_dir = '/root/imgdbs/image_dbs/colorful_fashion_parsing_data/labels/'
+    if args.caffe_variant:
+        infer_one_deconvnet(args.image_file,args.prototxt,args.caffemodel,out_dir=args.out_directory)
 
     if args.gpu == 'True' :
         caffe.set_mode_gpu();
@@ -300,10 +305,6 @@ if __name__ == "__main__":
             caffe.set_device(1);
     else:
         caffe.set_mode_cpu()
-
-#    label_dir = '/root/imgdbs/image_dbs/colorful_fashion_parsing_data/labels/'
-    if args.caffe_variant:
-        infer_one_deconvnet(args.image_file,args.prototxt,args.caffemodel,out_dir=args.out_directory)
 
     if args.image_file:
         infer_one(args.image_file,args.prototxt,args.caffemodel,out_dir=args.out_directory)
