@@ -243,6 +243,7 @@ class JrLayer(caffe.Layer):
             logging.warning('couldnt load file '+full_filename)
         if self.new_size:
             im = im.resize(self.new_size,Image.ANTIALIAS)
+
         in_ = np.array(im, dtype=np.uint8)
 
         if len(in_.shape) == 3:
