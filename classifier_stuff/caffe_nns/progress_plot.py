@@ -264,7 +264,7 @@ if __name__ == "__main__":
   print('starting')
   parser = argparse.ArgumentParser(description='makes a plot from Caffe output')
   parser.add_argument('output_file', help='file of captured stdout and stderr')
-  parser.add_argument('--type', help='logfile or solve.py output',default=0)
+  parser.add_argument('--type', help='logfile or solve.py output',default='0')
   args = parser.parse_args()
   print('args:'+str(args))
   f = open(args.output_file, 'r')
