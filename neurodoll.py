@@ -145,7 +145,7 @@ def pixelparse(url_or_np_array,dims=[256,256],mean=np.array([120,120,120])):
 
 
 
-MODEL_FILE = "/home/jeremy/voc8_15_pixlevel.deploy.prototxt"
+MODEL_FILE = "/home/jeremy/voc8_15_pixlevel_deploy.prototxt"
 PRETRAINED = "/home/jeremy/voc8_15_pixlevel_iter120000.caffemodel"
 caffe.set_mode_gpu()
 caffe.set_device(0)
