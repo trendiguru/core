@@ -117,7 +117,7 @@ def infer_one(url_or_np_array,net,required_image_size=(256,256)):
 #    im = im.resize(required_imagesize,Image.ANTIALIAS)
 
     in_ = np.array(image, dtype=np.float32)
-    in_ = imutils.resize_keep_aspect(in_,required_image_size)
+    in_ = imutils.resize_keep_aspect(in_,output_size=required_image_size,output_file=None)
     if len(in_.shape) != 3:
         print('got 1-chan image, skipping')
         return
