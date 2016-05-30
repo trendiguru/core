@@ -270,7 +270,6 @@ def ebay_downloader(filename, filesize):
                           fp_date=today_date, coll=collection_name)
 
     stop = time()
-    db.ebay_download_info.update_one({'type': 'usage'},{"$inc":{'ram_usage':-filesize}})
     if itemCount < 1 and item is not None:
         print("%s = %s is not relevant!" % (filename, item["MERCHANT_NAME"]))
     else:

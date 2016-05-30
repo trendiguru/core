@@ -62,20 +62,20 @@ def after_pd_conclusions(mask, labels, face=None):
             if category in item:
                 mask_sizes[key].append({num: cv2.countNonZero(item_mask)})
     # 1
-    for item in mask_sizes["whole_body"]:
-        if (float(item.values()[0]) / (ref_area) > 2) or \
-                (len(mask_sizes["upper_cover"]) == 0 and len(mask_sizes["upper_under"]) == 0) or \
-                (len(mask_sizes["lower_cover"]) == 0 and len(mask_sizes["lower_under"]) == 0):
-            print "W2P: That's a {0}".format(list(labels.keys())[list(labels.values()).index((item.keys()[0]))])
-            item_num = item.keys()[0]
-            for num in np.unique(mask):
-                cat = list(labels.keys())[list(labels.values()).index(num)]
-                # 1.1, 1.2
-                if cat in constants.paperdoll_categories["lower_cover"] or \
-                                cat in constants.paperdoll_categories["lower_under"] or \
-                                cat in constants.paperdoll_categories["upper_under"]:
-                    final_mask = np.where(mask == num, item_num, final_mask)
-            return final_mask
+    whole_sum = np.sum([item.values()[0] for item in mask_sizes['whole_body']])
+    partly_sum = np.sum([item.values()[0] for item in mask_sizes['upper_under']]) +\
+                 np.sum([item.values()[0] for item in mask_sizes['lower_cover']])
+    if whole_sum > partly_sum:
+        print "W2P: That's a {0}".format(list(labels.keys())[list(labels.values()).index((item.keys()[0]))])
+        item_num = item.keys()[0]
+        for num in np.unique(mask):
+            cat = list(labels.keys())[list(labels.values()).index(num)]
+            # 1.1, 1.2
+            if cat in constants.paperdoll_categories["lower_cover"] or \
+               cat in constants.paperdoll_categories["lower_under"] or \
+               cat in constants.paperdoll_categories["upper_under"]:
+                final_mask = np.where(mask == num, item_num, final_mask)
+        return final_mask
     # 2, 2.1
     sections = {"upper_cover": 0, "upper_under": 0, "lower_cover": 0, "lower_under": 0}
     max_item_count = 0
@@ -108,6 +108,7 @@ def after_pd_conclusions(mask, labels, face=None):
                         final_mask[i][j] = sections["lower_cover"] or sections["lower_under"] or 0
     return final_mask
 
+
 def after_nn_conclusions(mask, labels, face=None):
     """
     1. if there's a full-body clothing:
@@ -126,7 +127,8 @@ def after_nn_conclusions(mask, labels, face=None):
         ref_area = (np.mean((mask.shape[0], mask.shape[1])) / 10) ** 2
         y_split = np.round(0.4 * mask.shape[0])
     final_mask = mask[:, :]
-    mask_sizes = {"upper_cover": [], "upper_under": [], "lower_cover": [], "lower_under": [], "whole_body": [],"feet_cover":[],"feet_under":[]}
+    mask_sizes = {"upper_cover": [], "upper_under": [], "lower_cover": [], "lower_under": [], "whole_body": [],
+                  "feet_cover": [], "feet_under": []}
     for num in np.unique(mask):
         item_mask = 255 * np.array(mask == num, dtype=np.uint8)
         category = list(labels.keys())[list(labels.values()).index(num)]
@@ -145,8 +147,8 @@ def after_nn_conclusions(mask, labels, face=None):
                 cat = list(labels.keys())[list(labels.values()).index(num)]
                 # 1.1, 1.2
                 if cat in constants.nn_categories["lower_cover"] or \
-                                cat in constants.nn_categories["lower_under"] or \
-                                cat in constants.nn_categories["upper_under"]:
+                   cat in constants.nn_categories["lower_under"] or \
+                   cat in constants.nn_categories["upper_under"]:
                     final_mask = np.where(mask == num, item_num, final_mask)
             return final_mask
     # 2, 2.1
