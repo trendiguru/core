@@ -23,7 +23,7 @@ text_file = open("dresses_test.txt", "r")
 
 counter = 0
 
-MODLE_FILE = "/home/yonatan/trendi/yonatan/Alexnet_deploy.prototxt"
+MODLE_FILE = "/home/yonatan/trendi/yonatan/Alexnet_deploy_for_dresse.prototxt"
 PRETRAINED = "/home/yonatan/caffe_alexnet_train_on_74250_dresses_with_finetuning_iter_45000.caffemodel"
 caffe.set_mode_gpu()
 image_dims = [256, 256]
