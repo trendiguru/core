@@ -119,7 +119,7 @@ def infer_one(url_or_np_array,net,required_image_size=(256,256)):
 #    in_ = in_.astype(float)
     print('shape before:'+str(in_.shape)+' type:'+str(in_.dtype)+' pixtype:'+str(in_[0,0,0].dtype))
     in_ = imutils.resize_keep_aspect(in_,output_size=required_image_size,output_file=None)
-    in_ = np.array(in,dtype=np.float32)   #.astype(float)
+    in_ = np.array(in_, dtype=np.float32)   #.astype(float)
     print('shape after resize:'+str(in_.shape)+' type:'+str(in_.dtype)+' pixtype:'+str(in_[0,0,0].dtype))
     if len(in_.shape) != 3:
         print('got 1-chan image, skipping')
