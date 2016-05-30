@@ -129,7 +129,7 @@ def infer_one(url_or_np_array,net,required_image_size=(256,256)):
     cv2.imshow('test',in_)
     in_ -= np.array((104.0,116.7,122.7))
     in_ = in_.transpose((2,0,1))
-    print('shape after:'+str(in_.shape))
+    print('shape after:'+str(in_.shape)+' type:'+str(in_.dtype)+' pixtype:'+str(in_[0,0,0].dtype))
     # shape for input (data blob is N x C x H x W), set data
     net.blobs['data'].reshape(1, *in_.shape)
     net.blobs['data'].data[...] = in_
