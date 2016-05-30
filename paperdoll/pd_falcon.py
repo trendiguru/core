@@ -25,7 +25,8 @@ class PaperResource:
 
             img = data.get("image")
 
-            ret["mask"], ret["label_dict"], ret["pose"] = pd.get_parse_mask_parallel(eng, img)
+            # mask_np, label_dict, pose_np, filename
+            ret["mask"], ret["label_dict"], ret["pose"], ret["filename"] = pd.get_parse_mask_parallel(eng, img)
             if ret["mask"] is not None:
                 ret["success"] = True
             else:
