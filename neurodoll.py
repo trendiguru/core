@@ -141,14 +141,15 @@ def infer_one(url_or_np_array,net,required_image_size=(256,256)):
     out = net.blobs['score'].data[0].argmax(axis=0)
     result = Image.fromarray(out.astype(np.uint8))
 #        outname = im.strip('.png')[0]+'out.bmp'
-    outname = os.path.basename(imagename)
-    outname = outname.split('.jpg')[0]+'.bmp'
-    outname = os.path.join(out_dir,outname)
-    print('outname:'+outname)
-    result.save(outname)
+#    outname = os.path.basename(imagename)
+#    outname = outname.split('.jpg')[0]+'.bmp'
+#    outname = os.path.join(out_dir,outname)
+#    print('outname:'+outname)
+#    result.save(outname)
     #        fullout = net.blobs['score'].data[0]
     elapsed_time=time.time()-start_time
     print('elapsed time:'+str(elapsed_time))
+    cv2.imshow('out',out.astype(np.uint8))
     return out.astype(np.uint8)
 
 
