@@ -61,6 +61,7 @@ class JrLayer(caffe.Layer):
         #if there is no labelsfile specified then rename imagefiles to make labelfile names
         self.labelfile_suffix = params.get('labelfile_suffix','.png')
         self.imagefile_suffix = params.get('labelfile_suffix','.jpg')
+        self.new_size = params.get('new_size',None)
 
         print('PRINTlabeldir {} imagedir {} labelfile {} imagefile {}'.format(self.labels_dir,self.images_dir,self.labelsfile,self.imagesfile))
         logging.debug('LOGGINGlabeldir {} imagedir {} labelfile {} imagefile {}'.format(self.labels_dir,self.images_dir,self.labelsfile,self.imagesfile))
@@ -201,6 +202,9 @@ class JrLayer(caffe.Layer):
             else:
                 break
         im = Image.open(full_filename)
+        if self.new_size:
+            im = im.resize(self.new_size,Image.ANTIALIAS)
+
         in_ = np.array(im, dtype=np.float32)
         if in_ is None:
             logging.warning('could not get image '+full_filename)
@@ -237,6 +241,9 @@ class JrLayer(caffe.Layer):
         if im is None:
             print(' COULD NOT LOAD FILE '+full_filename)
             logging.warning('couldnt load file '+full_filename)
+        if self.new_size:
+            im = im.resize(self.new_size,Image.ANTIALIAS)
+
         in_ = np.array(im, dtype=np.uint8)
 
         if len(in_.shape) == 3:

@@ -142,7 +142,7 @@ for x,file in enumerate(files):
     usage = db.ebay_download_info.find_one({'type':'usage'})['ram_usage']
     new_usage =usage + filesize
     print(new_usage)
-    while new_usage >10:
+    while new_usage >16:
         print ("stalling")
         sleep(300)
         usage = db.ebay_download_info.find_one({'type': 'usage'})['ram_usage']
@@ -153,6 +153,7 @@ for x,file in enumerate(files):
     db.ebay_download_info.update_one({'type':'usage'},{"$inc":{'ram_usage':filesize}})
 
     q.enqueue(ebay_downloader, filename=filename, filesize=filesize)
+    
 #wait for workers
 while q.count>0:
     sleep(1000)
