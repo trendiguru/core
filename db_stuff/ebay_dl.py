@@ -147,7 +147,7 @@ for x,file in enumerate(files):
 
     print ('started working on %s' %(filename) )
     q.enqueue(ebay_downloader, filename=filename, filesize=filesize)
-    sleep(15)
+    sleep(90)
 
 #wait for workers
 while q.count>0:
