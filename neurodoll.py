@@ -105,7 +105,7 @@ def infer_many(images,prototxt,caffemodel,out_dir='./'):
     #fullout = net.blobs['score'].data[0]
 
 
-def pixelparse(url_or_np_array,dims=(256,256),mean=np.array([120,120,120])):
+def pixelparse(url_or_np_array,dims=(256,256),mean=np.array([120.0,120.0,120.0])):
     # check if i get a url (= string) or np.ndarray
     if isinstance(url_or_np_array, basestring):
         image = url_to_image(url_or_np_array)
@@ -131,7 +131,7 @@ def pixelparse(url_or_np_array,dims=(256,256),mean=np.array([120,120,120])):
 #    in_ -= np.array((104.0,116.7,122.7))
     if mean is not None:
         in_ -= mean
-    print('image shape:'+str(in_.shape))
+    print('image shape:'+str(in_.shape)+' type:'+in_.dtype)
 #    in_ = in_.transpose((2,0,1))   # dont need RGB->BGR if img is coming from cv2
     # shape for input (data blob is N x C x H x W), set data
     net.blobs['data'].reshape(1, *in_.shape)
@@ -153,7 +153,7 @@ caffe.set_device(0)
 net = caffe.Net(MODEL_FILE,PRETRAINED, caffe.TEST)
 
 image_dims = (256, 256)
-image_mean = np.array([107,117,123])
+image_mean = np.array([107.0,117.0,123.0])
 input_scale = None
 channel_swap = [2, 1, 0]
 raw_scale = 255.0
