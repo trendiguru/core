@@ -13,7 +13,7 @@ import time
 import urllib
 
 from trendi import background_removal, Utils, constants
-
+from trendi.utils import imutils
 
 
 def url_to_image(url):
@@ -105,7 +105,7 @@ def infer_many(images,prototxt,caffemodel,out_dir='./'):
     #fullout = net.blobs['score'].data[0]
 
 
-def pixelparse(url_or_np_array,dims=(256,256),mean=np.array([120,120,120])):
+def pixelparse(url_or_np_array,dims=(256,256),mean=np.array([120.0,120.0,120.0])):
     # check if i get a url (= string) or np.ndarray
     if isinstance(url_or_np_array, basestring):
         image = url_to_image(url_or_np_array)
@@ -117,7 +117,8 @@ def pixelparse(url_or_np_array,dims=(256,256),mean=np.array([120,120,120])):
     start_time = time.time()
     in_ = np.array(image, dtype=np.float32)
 #    possibly check size and resize if big
-    in_ = cv2.resize(in_,dims)
+    in_ = imutils.resize_keep_aspect(in_,output_size=dims)
+    #cv2.resize(in_,dims)
     cv2.imshow('image',np.array(in_,dtype=np.uint8))
     cv2.waitKey(0)
     if len(in_.shape) != 3:
@@ -128,9 +129,10 @@ def pixelparse(url_or_np_array,dims=(256,256),mean=np.array([120,120,120])):
         return
     in_ = in_[:,:,::-1]
 #    in_ -= np.array((104.0,116.7,122.7))
-    if mean:
+    print('image shape:'+str(in_.shape)+' type:'+in_.dtype)
+    print('mean shape:'+str(mean.shape)+' mean type:'+mean.dtype)
+    if mean is not None:
         in_ -= mean
-    print('image shape:'+str(in_.shape))
 #    in_ = in_.transpose((2,0,1))   # dont need RGB->BGR if img is coming from cv2
     # shape for input (data blob is N x C x H x W), set data
     net.blobs['data'].reshape(1, *in_.shape)
@@ -152,7 +154,7 @@ caffe.set_device(0)
 net = caffe.Net(MODEL_FILE,PRETRAINED, caffe.TEST)
 
 image_dims = (256, 256)
-image_mean = np.array([107,117,123])
+image_mean = np.array([107.0,117.0,123.0])
 input_scale = None
 channel_swap = [2, 1, 0]
 raw_scale = 255.0
@@ -169,5 +171,6 @@ print('loading caffemodel for neurodoll')
 
 
 if __name__ == "__main__":
+
 
     pixelparse('http://diamondfilms.com.au/wp-content/uploads/2014/08/Fashion-Photography-Sydney-1.jpg',dims=image_dims,mean=image_mean)
