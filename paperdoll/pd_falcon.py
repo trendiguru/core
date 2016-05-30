@@ -23,7 +23,7 @@ class PaperResource:
         try:
             data = msgpack.loads(req.stream.read())
 
-            img = data.get("image_url") or data.get("image")
+            img = data.get("image")
 
             ret["mask"], ret["label_dict"], ret["pose"] = pd.get_parse_mask_parallel(eng, img)
             if ret["mask"] is not None:
