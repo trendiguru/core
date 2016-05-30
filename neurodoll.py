@@ -33,77 +33,6 @@ def url_to_image(url):
     return new_image
 
 
-def theDetector(url_or_np_array):
-
-    # check if i get a url (= string) or np.ndarray
-    if isinstance(url_or_np_array, basestring):
-        image = url_to_image(url_or_np_array)
-    elif type(url_or_np_array) == np.ndarray:
-        image = url_or_np_array
-    else:
-        return None
-
-    print('shape: '+str(image.shape))
-    if not len(image):
-        return 'None'
-
-    # Classify.
-    start = time.time()
-    predictions = classifier.predict(image)
-
-    print("predictions %s Done in %.2f s." % (str(predictions), (time.time() - start)))
-
-    if predictions[0][1] > predictions[0][0]:
-        print predictions[0][1]
-        # relevant
-        return True
-    else:
-        print predictions[0][0]
-        # irrelevant
-        return False
-
-
-
-def infer_many(images,prototxt,caffemodel,out_dir='./'):
-    net = caffe.Net(prototxt,caffemodel, caffe.TEST)
-    dims = [150,100]
-    start_time = time.time()
-    masks=[]
-    for imagename in images:
-        print('working on:'+imagename)
-            # load image, switch to BGR, subtract mean, and make dims C x H x W for Caffe
-        im = Image.open(imagename)
-        im = im.resize(dims,Image.ANTIALIAS)
-        in_ = np.array(im, dtype=np.float32)
-        if len(in_.shape) != 3:
-            print('got 1-chan image, skipping')
-            continue
-        elif in_.shape[2] != 3:
-            print('got n-chan image, skipping - shape:'+str(in_.shape))
-            continue
-        print('size:'+str(in_.shape))
-        in_ = in_[:,:,::-1]
-        in_ -= np.array((104.0,116.7,122.7))
-        in_ = in_.transpose((2,0,1))
-        # shape for input (data blob is N x C x H x W), set data
-        net.blobs['data'].reshape(1, *in_.shape)
-        net.blobs['data'].data[...] = in_
-        # run net and take argmax for prediction
-        net.forward()
-        out = net.blobs['score'].data[0].argmax(axis=0)
-        result = Image.fromarray(out.astype(np.uint8))
-    #        outname = im.strip('.png')[0]+'out.bmp'
-        outname = os.path.basename(imagename)
-        outname = outname.split('.jpg')[0]+'.bmp'
-        outname = os.path.join(out_dir,outname)
-        print('outname:'+outname)
-        result.save(outname)
-        masks.append(out.astype(np.uint8))
-    elapsed_time=time.time()-start_time
-    print('elapsed time:'+str(elapsed_time)+' tpi:'+str(elapsed_time/len(images)))
-    return masks
-    #fullout = net.blobs['score'].data[0]
-
 
 def infer_one(url_or_np_array,net,required_image_size=(256,256)):
     start_time = time.time()
@@ -129,7 +58,7 @@ def infer_one(url_or_np_array,net,required_image_size=(256,256)):
         return
     print('shape before:'+str(in_.shape)+' type:'+str(in_.dtype)+' pixtype:'+str(in_[0,0,0].dtype))
 #    in_ = in_[:,:,::-1]  for doing RGB -> BGR
-    cv2.imshow('test',in_)
+#    cv2.imshow('test',in_)
     in_ -= np.array((104,116,122.0))
     in_ = in_.transpose((2,0,1))
     print('shape after:'+str(in_.shape)+' type:'+str(in_.dtype)+' pixtype:'+str(in_[0,0,0].dtype))
@@ -182,6 +111,7 @@ if __name__ == "__main__":
 
     url = 'http://diamondfilms.com.au/wp-content/uploads/2014/08/Fashion-Photography-Sydney-1.jpg'
     result = infer_one(url,net,required_image_size=required_image_size)
+
     cv2.imwrite('output.png',result)
     labels=constants.ultimate_21
     imutils.show_mask_with_labels('output.png',labels,visual_output=True)
