@@ -124,7 +124,7 @@ def infer_one(url_or_np_array,net,required_image_size=(256,256)):
     elif in_.shape[2] != 3:
         print('got n-chan image, skipping - shape:'+str(in_.shape))
         return
-    print('shape before:'+str(in_.shape))
+    print('shape before:'+str(in_.shape)+' type:'+str(in_.dtype)+' pixtype:'+str(in_[0,0,0].dtype))
 #    in_ = in_[:,:,::-1]  for doing RGB -> BGR
     cv2.imshow('test',in_)
     in_ -= np.array((104.0,116.7,122.7))
