@@ -39,10 +39,11 @@ def get_hash(image):
 
 def ebay2generic(item, info):
     try:
+        full_img_url = item["IMAGE_URL"]
         generic = {"id": info["id"],
                    "categories": info["categories"],
                    "clickUrl": item["OFFER_URL_MIN_CATEGORY_BID"],
-                   "images": {"XLarge": item["IMAGE_URL"]},
+                   "images": {"XLarge": full_img_url},
                    "status": info["status"],
                    "shortDescription": item["OFFER_TITLE"],
                    "longDescription": item["OFFER_DESCRIPTION"],
@@ -56,7 +57,13 @@ def ebay2generic(item, info):
                    "gender": info["gender"],
                    "ebay_raw": item}
 
-        image = Utils.get_cv2_img_array(item["IMAGE_URL"])
+        if 'https' in full_img_url:
+            img_url = full_img_url[8:]
+        elif 'http' in full_img_url:
+            img_url = full_img_url[7:]
+        else:
+            pass
+        image = Utils.get_cv2_img_array(img_url)
         if image is None:
             generic = None
         else:
