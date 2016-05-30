@@ -115,6 +115,10 @@ print 'guessed_maxi_instead_mini {0}'.format(guessed_maxi_instead_mini)
 print 'guessed_midi_instead_maxi {0}'.format(guessed_midi_instead_maxi)
 print 'guessed_mini_instead_maxi {0}'.format(guessed_mini_instead_maxi)
 
+success = len(array_success)
+failure = len(array_failure)
+print 'accuracy percent: {0}'.format(success / success + failure)
+
 histogram = plt.figure(1)
 
 bins = np.linspace(-1000, 1000, 50)
