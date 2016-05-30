@@ -343,7 +343,7 @@ layer {
   }
 }
 layer {
-  name: "my_my_fc8"
+  name: "my_fc8"
   type: "InnerProduct"
   bottom: "my_fc7"
   top: "my_fc8"
