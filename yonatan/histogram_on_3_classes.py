@@ -19,7 +19,7 @@ import matplotlib.pyplot as plt
 array_success = np.array([])
 array_failure = np.array([])
 
-text_file = open("dresses_cv.txt", "r")
+text_file = open("dresses_test.txt", "r")
 
 counter = 0
 
@@ -29,8 +29,8 @@ caffe.set_mode_gpu()
 image_dims = [256, 256]
 mean, input_scale = np.array([120, 120, 120]), None
 #mean, input_scale = None, None
-channel_swap = None
-#channel_swap = [2, 1, 0]
+#channel_swap = None
+channel_swap = [2, 1, 0]
 raw_scale = 255.0
 ext = 'jpg'
 
@@ -73,6 +73,10 @@ for line in text_file:
     mini_predict = predictions[0][0]
     midi_predict = predictions[0][1]
     maxi_predict = predictions[0][2]
+
+    print mini_predict
+    print midi_predict
+    print maxi_predict
 
     #if the gender_detector is right
     if (mini_predict > midi_predict) and (mini_predict > maxi_predict) and (path[1] == '0'):
@@ -129,4 +133,4 @@ plt.legend()
 plt.hist(array_failure, alpha=0.5, label='array_failure')
 plt.legend()
 
-histogram.savefig('75000_train_dresses_with_fine_tuning_histogram_on_cv_set.png')
+histogram.savefig('75000_train_dresses_with_fine_tuning_histogram.png')
