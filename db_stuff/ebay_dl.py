@@ -151,7 +151,7 @@ for x,file in enumerate(files):
     if usage > 0.75:
         sleep(90)
     elif usage > 0.5:
-        sleep(30)
+        sleep(45)
     else:
         sleep(15)
 
