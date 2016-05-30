@@ -108,7 +108,7 @@ def infer_many(images,prototxt,caffemodel,out_dir='./'):
 def infer_one(url_or_np_array,net,required_imagesize=(256,256)):
     start_time = time.time()
     if isinstance(url_or_np_array, basestring):
-        print('working on:'+imagename)
+        print('working on:'+url_or_np_array)
         image = url_to_image(url_or_np_array)
     elif type(url_or_np_array) == np.ndarray:
         image = url_or_np_array
@@ -125,7 +125,8 @@ def infer_one(url_or_np_array,net,required_imagesize=(256,256)):
         print('got n-chan image, skipping - shape:'+str(in_.shape))
         return
     print('shape before:'+str(in_.shape))
-    in_ = in_[:,:,::-1]
+#    in_ = in_[:,:,::-1]  for doing RGB -> BGR
+    cv2.imshow('test',in_)
     in_ -= np.array((104.0,116.7,122.7))
     in_ = in_.transpose((2,0,1))
     print('shape after:'+str(in_.shape))
