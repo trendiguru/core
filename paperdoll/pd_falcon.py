@@ -35,9 +35,9 @@ class PaperResource:
         except Exception as e:
             ret["error"] = str(e)
 
-            resp.data = msgpack.dumps(ret)
-            resp.content_type = 'application/x-msgpack'
-            resp.status = falcon.HTTP_200
+        resp.data = msgpack.dumps(ret)
+        resp.content_type = 'application/x-msgpack'
+        resp.status = falcon.HTTP_200
 
 
 api = falcon.API()
