@@ -19,7 +19,7 @@ import matplotlib.pyplot as plt
 array_success = np.array([])
 array_failure = np.array([])
 
-text_file = open("dresses_test.txt", "r")
+text_file = open("dresses_cv.txt", "r")
 
 counter = 0
 
@@ -129,4 +129,4 @@ plt.legend()
 plt.hist(array_failure, alpha=0.5, label='array_failure')
 plt.legend()
 
-histogram.savefig('75000_train_dresses_with_fine_tuning_histogram.png')
+histogram.savefig('75000_train_dresses_with_fine_tuning_histogram_on_cv_set.png')
