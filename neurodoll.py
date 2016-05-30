@@ -116,7 +116,7 @@ def infer_one(url_or_np_array,net,required_image_size=(256,256)):
 #    im = Image.open(imagename)
 #    im = im.resize(required_imagesize,Image.ANTIALIAS)
 
-    in_ = np.array(image, dtype=np.float32)
+    in_ = image.astype(np.float64)
     in_ = imutils.resize_keep_aspect(in_,output_size=required_image_size,output_file=None)
     if len(in_.shape) != 3:
         print('got 1-chan image, skipping')
@@ -127,7 +127,7 @@ def infer_one(url_or_np_array,net,required_image_size=(256,256)):
     print('shape before:'+str(in_.shape)+' type:'+str(in_.dtype)+' pixtype:'+str(in_[0,0,0].dtype))
 #    in_ = in_[:,:,::-1]  for doing RGB -> BGR
     cv2.imshow('test',in_)
-    in_ -= np.array((104.0,116.7,122.7))
+    in_ -= np.array((104,116,122.0))
     in_ = in_.transpose((2,0,1))
     print('shape after:'+str(in_.shape)+' type:'+str(in_.dtype)+' pixtype:'+str(in_[0,0,0].dtype))
     # shape for input (data blob is N x C x H x W), set data
