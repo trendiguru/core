@@ -13,7 +13,7 @@ import time
 import urllib
 
 from trendi import background_removal, Utils, constants
-
+from trendi.utils import imutils
 
 
 def url_to_image(url):
@@ -117,7 +117,8 @@ def pixelparse(url_or_np_array,dims=(256,256),mean=np.array([120,120,120])):
     start_time = time.time()
     in_ = np.array(image, dtype=np.float32)
 #    possibly check size and resize if big
-    in_ = cv2.resize(in_,dims)
+    in_ = imutils.resize_keep_aspect(in_,output_size=dims)
+    #cv2.resize(in_,dims)
     cv2.imshow('image',np.array(in_,dtype=np.uint8))
     cv2.waitKey(0)
     if len(in_.shape) != 3:
@@ -169,5 +170,6 @@ print('loading caffemodel for neurodoll')
 
 
 if __name__ == "__main__":
+
 
     pixelparse('http://diamondfilms.com.au/wp-content/uploads/2014/08/Fashion-Photography-Sydney-1.jpg',dims=image_dims,mean=image_mean)
