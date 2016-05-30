@@ -117,7 +117,7 @@ def infer_one(url_or_np_array,net,required_image_size=(256,256)):
 #    im = im.resize(required_imagesize,Image.ANTIALIAS)
 
 #    in_ = in_.astype(float)
-    in_ = imutils.resize_keep_aspect(in_,output_size=required_image_size,output_file=None)
+    in_ = imutils.resize_keep_aspect(image,output_size=required_image_size,output_file=None)
     print('shape after resize:'+str(in_.shape)+' type:'+str(in_.dtype)+' pixtype:'+str(in_[0,0,0].dtype))
     in_ = np.array(in_, dtype=np.float32)   #.astype(float)
     print('shape after retype:'+str(in_.shape)+' type:'+str(in_.dtype)+' pixtype:'+str(in_[0,0,0].dtype))
