@@ -153,7 +153,7 @@ for x,file in enumerate(files):
     elif usage > 0.5:
         sleep(30)
     else:
-        pass
+        sleep(15)
 
 #wait for workers
 while q.count>0:
