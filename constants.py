@@ -219,12 +219,13 @@ paperdoll_categories = {"whole_body": ['bodysuit', 'dress', 'jumper', 'suit', 'r
                         "lower_under": ['stockings', 'tights', 'leggings']}
 
 nn_categories = {"whole_body": ['bodysuit', 'dress', 'jumper', 'suit', 'romper'],
-                        "upper_cover": ['blazer', 'cape', 'jacket', 'cardigan', 'coat', 'vest','tie','sweatshirt'],
-                        "upper_under": ['t-shirt', 'blouse', 'shirt', 'top','bra','sweatshirt','intimate'],
-                        "lower_cover": ['shorts', 'skirt', 'jeans', 'pants','belt'],
-                        "lower_under": ['stockings', 'tights', 'leggings','intimate'],
-                        "feet_cover" :['shoes','boots','loafers','flats','sneakers','clogs','heels','wedges','pumps','sandals'],
-                        "feet_under" :['socks']}
+                 "upper_cover": ['blazer', 'cape', 'jacket', 'cardigan', 'coat', 'vest', 'tie', 'sweatshirt'],
+                 "upper_under": ['t-shirt', 'blouse', 'shirt', 'top', 'bra', 'sweatshirt', 'intimate'],
+                 "lower_cover": ['shorts', 'skirt', 'jeans', 'pants', 'belt'],
+                 "lower_under": ['stockings', 'tights', 'leggings', 'intimate'],
+                 "feet_cover": ['shoes', 'boots', 'loafers', 'flats', 'sneakers', 'clogs', 'heels', 'wedges',
+                                'pumps', 'sandals'],
+                 "feet_under": ['socks']}
 
 fash_augmented_that_didnt_get_into_nn_categories = ['bag','purse','scarf','hat','accessories','sunglasses','glasses',
                                     'intimate','necklace','bracelet','ring','earrings','gloves','watch',

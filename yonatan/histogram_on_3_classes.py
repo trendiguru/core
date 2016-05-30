@@ -19,12 +19,12 @@ import matplotlib.pyplot as plt
 array_success = np.array([])
 array_failure = np.array([])
 
-text_file = open("dresses_train.txt", "r")
+text_file = open("dresses_test.txt", "r")
 
 counter = 0
 
 MODLE_FILE = "/home/yonatan/trendi/yonatan/Alexnet_deploy_for_dresses.prototxt"
-PRETRAINED = "/home/yonatan/caffe_alexnet_train_on_74250_dresses_iter_45000.caffemodel"
+PRETRAINED = "/home/yonatan/caffe_alexnet_train_on_74250_dresses_with_finetuning_iter_45000.caffemodel"
 caffe.set_mode_gpu()
 image_dims = [256, 256]
 mean, input_scale = np.array([120, 120, 120]), None
@@ -74,6 +74,10 @@ for line in text_file:
     midi_predict = predictions[0][1]
     maxi_predict = predictions[0][2]
 
+    print mini_predict
+    print midi_predict
+    print maxi_predict
+
     #if the gender_detector is right
     if (mini_predict > midi_predict) and (mini_predict > maxi_predict) and (path[1] == '0'):
         array_success = np.append(array_success, mini_predict)
@@ -115,6 +119,13 @@ print 'guessed_maxi_instead_mini {0}'.format(guessed_maxi_instead_mini)
 print 'guessed_midi_instead_maxi {0}'.format(guessed_midi_instead_maxi)
 print 'guessed_mini_instead_maxi {0}'.format(guessed_mini_instead_maxi)
 
+success = len(array_success)
+failure = len(array_failure)
+if success == 0 or failure == 0:
+    print "wrong!"
+else:
+    print 'accuracy percent: {0}'.format(success / success + failure)
+
 histogram = plt.figure(1)
 
 bins = np.linspace(-1000, 1000, 50)
@@ -125,4 +136,4 @@ plt.legend()
 plt.hist(array_failure, alpha=0.5, label='array_failure')
 plt.legend()
 
-histogram.savefig('75000_train_dresses_with_channel_swap_histogram.png')
+histogram.savefig('75000_train_dresses_with_fine_tuning_histogram.png')
