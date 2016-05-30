@@ -105,7 +105,7 @@ def infer_many(images,prototxt,caffemodel,out_dir='./'):
     #fullout = net.blobs['score'].data[0]
 
 
-def infer_one(url_or_np_array,net,required_imagesize=(256,256)):
+def infer_one(url_or_np_array,net,required_image_size=(256,256)):
     start_time = time.time()
     if isinstance(url_or_np_array, basestring):
         print('working on:'+url_or_np_array)
@@ -176,4 +176,4 @@ print('loading caffemodel for neurodoll')
 if __name__ == "__main__":
 
     url = 'http://diamondfilms.com.au/wp-content/uploads/2014/08/Fashion-Photography-Sydney-1.jpg'
-    infer_one(url,net,required_imagesize=required_image_size)
+    infer_one(url,net,required_image_size=required_image_size)
