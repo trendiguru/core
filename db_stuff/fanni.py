@@ -46,9 +46,8 @@ def plantForests4AllCategories(col_name):
     else:
         print('ERROR - Bad collection name')
         return
-
+    print ("planting %s" % (col_name))
     for cat in categories:
-        print ("planting %s" %(cat))
         plantAnnoyForest(col_name,cat,250)
 
 def plantTheFuckingAmazon():
