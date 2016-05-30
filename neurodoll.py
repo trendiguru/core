@@ -150,6 +150,7 @@ def infer_one(url_or_np_array,net,required_image_size=(256,256)):
     elapsed_time=time.time()-start_time
     print('elapsed time:'+str(elapsed_time))
     cv2.imshow('out',out.astype(np.uint8))
+    cv2.waitKey(0)
     return out.astype(np.uint8)
 
 
