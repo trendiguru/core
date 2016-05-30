@@ -19,6 +19,7 @@ from . import dl_excel
 from .ebay_dl_worker import ebay_downloader
 from rq import Queue
 from time import sleep,time
+import psutil
 
 q = Queue('ebay_worker', connection=constants.redis_conn)
 db = constants.db
@@ -108,8 +109,6 @@ def theArchiveDoorman():
 
 
 db.ebay_download_info.delete_many({})
-usage_item = {'type':'usage','ram_usage':0}
-db.ebay_download_info.insert_one(usage_item)
 start_time = time()
 
 #connecting to FTP
@@ -136,24 +135,20 @@ for col in ["Female","Male","Unisex"]:#,"Tees"]:
     status.update_one({"date": today_date}, {"$set": {status_full_path: "Working"}})
 
 print(len(files))
+total_ram = int(psutil.virtual_memory()[0])
 for x,file in enumerate(files):
     filename = file['name']
-    filesize = int(file['size'])/(64*1024*1024.0)
-    usage = db.ebay_download_info.find_one({'type':'usage'})['ram_usage']
-    new_usage =usage + filesize
-    print(new_usage)
-    while new_usage >16:
+    filesize = int(file['size'])
+    available_ram = int(psutil.virtual_memory()[1])
+    while filesize > available_ram:
         print ("stalling")
-        sleep(300)
-        usage = db.ebay_download_info.find_one({'type': 'usage'})['ram_usage']
-        new_usage = usage + filesize
-        print (new_usage)
+        sleep(60)
+        available_ram = int(psutil.virtual_memory()[1])
 
     print ('started working on %s' %(filename) )
-    db.ebay_download_info.update_one({'type':'usage'},{"$inc":{'ram_usage':filesize}})
-
     q.enqueue(ebay_downloader, filename=filename, filesize=filesize)
-    
+    sleep(15)
+
 #wait for workers
 while q.count>0:
     sleep(1000)
