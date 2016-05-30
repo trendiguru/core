@@ -62,21 +62,20 @@ def after_pd_conclusions(mask, labels, face=None):
             if category in item:
                 mask_sizes[key].append({num: cv2.countNonZero(item_mask)})
     # 1
-    for item in mask_sizes["whole_body"]:
-        whole_sum = np.sum([item.values()[0] for item in mask_sizes['whole_body']])
-        partly_sum = np.sum([item.values()[0] for item in mask_sizes['upper_under']]) +\
-                     np.sum([item.values()[0] for item in mask_sizes['lower_cover']])
-        if whole_sum > partly_sum:
-            print "W2P: That's a {0}".format(list(labels.keys())[list(labels.values()).index((item.keys()[0]))])
-            item_num = item.keys()[0]
-            for num in np.unique(mask):
-                cat = list(labels.keys())[list(labels.values()).index(num)]
-                # 1.1, 1.2
-                if cat in constants.paperdoll_categories["lower_cover"] or \
-                   cat in constants.paperdoll_categories["lower_under"] or \
-                   cat in constants.paperdoll_categories["upper_under"]:
-                    final_mask = np.where(mask == num, item_num, final_mask)
-            return final_mask
+    whole_sum = np.sum([item.values()[0] for item in mask_sizes['whole_body']])
+    partly_sum = np.sum([item.values()[0] for item in mask_sizes['upper_under']]) +\
+                 np.sum([item.values()[0] for item in mask_sizes['lower_cover']])
+    if whole_sum > partly_sum:
+        print "W2P: That's a {0}".format(list(labels.keys())[list(labels.values()).index((item.keys()[0]))])
+        item_num = item.keys()[0]
+        for num in np.unique(mask):
+            cat = list(labels.keys())[list(labels.values()).index(num)]
+            # 1.1, 1.2
+            if cat in constants.paperdoll_categories["lower_cover"] or \
+               cat in constants.paperdoll_categories["lower_under"] or \
+               cat in constants.paperdoll_categories["upper_under"]:
+                final_mask = np.where(mask == num, item_num, final_mask)
+        return final_mask
     # 2, 2.1
     sections = {"upper_cover": 0, "upper_under": 0, "lower_cover": 0, "lower_under": 0}
     max_item_count = 0
