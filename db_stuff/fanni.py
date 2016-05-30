@@ -26,7 +26,7 @@ def plantAnnoyForest(col_name, category, num_of_trees, distance_function='angula
     """
     name = '/home/developer/annoyJungle/' + col_name+"/"+category+'_forest.ann'
     forest.save(name)
-    print ("%s forest in planted! come here for picnics...")
+    print ("%s forest in planted! come here for picnics..." %(category))
 
 
 def plantForests4AllCategories(col_name):
@@ -48,6 +48,7 @@ def plantForests4AllCategories(col_name):
         return
 
     for cat in categories:
+        print ("planting %s" %(cat))
         plantAnnoyForest(col_name,cat,250)
 
 def plantTheFuckingAmazon():
