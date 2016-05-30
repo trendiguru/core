@@ -56,7 +56,7 @@ def plantTheFuckingAmazon():
     '''
     for collection_main in ["ebay", "ShopStyle", "GangnamStyle"]:
         for gender in ["Male", "Female"]:
-            collection_name = collection_name +'_'+gender
+            collection_name = collection_main +'_'+gender
             plantForests4AllCategories(collection_name)
 
     plantForests4AllCategories('ebay_Unisex')
