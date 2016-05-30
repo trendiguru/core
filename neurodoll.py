@@ -149,8 +149,8 @@ def infer_one(url_or_np_array,net,required_image_size=(256,256)):
     #        fullout = net.blobs['score'].data[0]
     elapsed_time=time.time()-start_time
     print('elapsed time:'+str(elapsed_time))
-    cv2.imshow('out',out.astype(np.uint8))
-    cv2.waitKey(0)
+ #   cv2.imshow('out',out.astype(np.uint8))
+ #   cv2.waitKey(0)
     return out.astype(np.uint8)
 
 
@@ -181,4 +181,7 @@ print('loading caffemodel for neurodoll')
 if __name__ == "__main__":
 
     url = 'http://diamondfilms.com.au/wp-content/uploads/2014/08/Fashion-Photography-Sydney-1.jpg'
-    infer_one(url,net,required_image_size=required_image_size)
+    result = infer_one(url,net,required_image_size=required_image_size)
+    cv2.imwrite('output.png',result)
+    labels=constants.ultimate_21
+    imutils.show_mask_with_labels('output.png',labels,visual_output=True)
