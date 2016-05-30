@@ -130,7 +130,7 @@ def pixelparse(url_or_np_array,dims=(256,256),mean=np.array([120.0,120.0,120.0])
     in_ = in_[:,:,::-1]
 #    in_ -= np.array((104.0,116.7,122.7))
     print('image shape:'+str(in_.shape)+' type:'+str(in_.dtype)+' pixeltype '+str(in_[0,0,0].dtype))
-    print('mean shape:'+str(mean.shape)+' mean type:'+str(mean.dtype)
+    print('mean shape:'+str(mean.shape)+' mean type:'+str(mean.dtype))
     if mean is not None:
         in_ -= mean
 #    in_ = in_.transpose((2,0,1))   # dont need RGB->BGR if img is coming from cv2
