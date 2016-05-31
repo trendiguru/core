@@ -8,15 +8,14 @@ layer {
     phase: TRAIN
   }
   transform_param {
-    mirror: true
-    crop_size: 115
+    mirror: false
     mean_value: 120
     mean_value: 120
     mean_value: 120
   }
   image_data_param {
     source: "/home/yonatan/dresses_train.txt"
-    batch_size: 31
+    batch_size: 64
     shuffle: true
   }
 }
@@ -30,14 +29,13 @@ layer {
   }
   transform_param {
     mirror: false
-    crop_size: 115
     mean_value: 120
     mean_value: 120
     mean_value: 120
   }
   image_data_param {
     source: "/home/yonatan/dresses_cv.txt"
-    batch_size: 100
+    batch_size: 50
     shuffle: true
   }
 }
