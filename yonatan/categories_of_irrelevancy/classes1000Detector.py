@@ -15,7 +15,7 @@ import urllib
 import skimage
 
 
-MODLE_FILE = "/home/yonatan/trendi/yonatan/1000_categories_of_irrelevancy/Alexnet_1000_deploy.prototxt"
+MODLE_FILE = "/home/yonatan/trendi/yonatan/categories_of_irrelevancy/Alexnet_1000_deploy.prototxt"
 PRETRAINED = "/home/yonatan/bvlc_alexnet.caffemodel"
 caffe.set_mode_gpu()
 image_dims = [227, 227]
