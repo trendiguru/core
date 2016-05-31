@@ -1,6 +1,8 @@
 
 import annoy
 from ..constants import db
+from time import time
+
 
 def plantAnnoyForest(col_name, category, num_of_trees, distance_function='angular'):
     """"
@@ -68,9 +70,11 @@ def lumberjack(col_name,category,fingerprint, distance_function='angular', num_o
     use annoy to quickly chop down the database and return only the top 1000 trees
     """
     print('searching for top 1000 items in %s' %(col_name))
+    s = time()
     forest = annoy.AnnoyIndex(696, distance_function)
     name = '/home/developer/annoyJungle/' + col_name + "/" + category + '_forest.ann'
     forest.load(name)
     result = forest.get_nns_by_vector(fingerprint,num_of_results)
-    print("got it!")
+    f = time()
+    print("got it in %d secs!"%(float(f-s)))
     return result

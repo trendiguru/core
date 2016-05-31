@@ -99,13 +99,12 @@ def distance_Bhattacharyya(fp1, fp2, weights, hist_length):
 def find_n_nearest_neighbors(target_dict, collection, category, number_of_matches, fp_weights,
                                  hist_length, fp_key, distance_function=None):
 
-
     distance_function = distance_function or distance_Bhattacharyya
     # list of tuples with (entry,distance). Initialize with first n distance values
     fingerprint = target_dict["fingerprint"]
     annoy_job = q.enqueue(lumberjack, args=(collection,category, fingerprint))
     while not annoy_job.is_finished or annoy_job.is_failed:
-        sleep(0.5)
+        sleep(0.1)
     if annoy_job.is_failed:
         return []
     top1000 = annoy_job.result
