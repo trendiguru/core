@@ -73,8 +73,7 @@ def theDetector(url_or_np_array):
     predictions = classifier.predict(img_for_caffe)
     print("Done in %.2f s." % (time.time() - start))
 
-    if predictions[0][0] > 0:
-        print max(predictions)
-        print np.argmax(predictions)
-        print predictions
+    print 'maximum guess value: {0}, located in index: {1}'.format(max(predictions[0]), np.argmax(predictions[0]))
+
+
 
