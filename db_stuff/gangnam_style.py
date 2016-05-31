@@ -9,7 +9,7 @@ import sys
 import argparse
 import requests
 from rq import Queue
-
+from fanni import plantForests4AllCategories
 from .. import constants
 from . import shopstyle_constants
 from .shopstyle2generic import convert2generic
@@ -18,6 +18,7 @@ from . import dl_excel
 
 
 q = Queue('fingerprint_new', connection=constants.redis_conn)
+forest = Queue('annoy_forest', connection=constants.redis_conn)
 
 BASE_URL = "http://api.shopstyle.com/api/v2/"
 BASE_URL_PRODUCTS = BASE_URL + "products/"
@@ -461,6 +462,6 @@ if __name__ == "__main__":
     print ("@@@ Shopstyle Download @@@\n you choose to update the " + col + " collection")
     update_db = ShopStyleDownloader(col,gender)
     update_db.db_download()
+    forest.enqueue(plantForests4AllCategories, args=(col+'_'+gender), timeout=2000)
 
     print (col + "Update Finished!!!")
-    sys.exit(0)

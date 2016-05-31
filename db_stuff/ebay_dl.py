@@ -20,8 +20,10 @@ from .ebay_dl_worker import ebay_downloader
 from rq import Queue
 from time import sleep,time
 import psutil
+from fanni import plantForests4AllCategories
 
 q = Queue('ebay_worker', connection=constants.redis_conn)
+forest = Queue('annoy_forest', connection=constants.redis_conn)
 db = constants.db
 status = db.download_status
 today_date = str(datetime.datetime.date(datetime.datetime.now()))
@@ -189,10 +191,11 @@ for col in ["Female","Male","Unisex"]:#,"Tees"]:
     status.update_one({"date": today_date}, {"$set": {status_full_path: "Done",
                                                       notes_full_path: new_items}})
 
+
+for gender in ['Male', 'Female', 'Unisex']:
+    forest.enqueue(plantForests4AllCategories, args=('ebay_'+gender), timeout=2000)
+
 print("ebay Download is Done")
-sys.exit(0)
-
-
 '''
 extended generic dictionary -
     has all the categories from the generic db + extra key which contains all the raw info from ebay
