@@ -140,13 +140,13 @@ for x,file in enumerate(files):
     filename = file['name']
     filesize = int(file['size'])
     available_ram = int(psutil.virtual_memory()[1])
-    while filesize > available_ram:
+    while filesize > 0.9*available_ram:
         print ("stalling")
         sleep(60)
         available_ram = int(psutil.virtual_memory()[1])
 
     print ('started working on %s' %(filename) )
-    q.enqueue(ebay_downloader, filename=filename, filesize=filesize)
+    q.enqueue(ebay_downloader, args=(filename, filesize), timeout=900)
     usage = (filesize+available_ram)/total_ram
     if usage > 0.75:
         sleep(90)
