@@ -32,6 +32,7 @@ def testing():
             a = time()
             print (spatiogram_fingerprints_distance(query, target))
             b= time()
+            print b-a
     f = time()
     print ('comparing 100 times took %d secs' % (int(f - s)))
 
