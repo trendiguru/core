@@ -4,7 +4,6 @@ import falcon
 from .. import neurodoll
 from .. import constants
 
-
 from jaweson import json, msgpack
 
 
@@ -29,7 +28,7 @@ class PaperResource:
             if ret["mask"] is not None:
                 ret["success"] = True
             else:
-                ret["error"] = "No mask from PD"
+                ret["error"] = "No mask from ND"
 
         except Exception as e:
             ret["error"] = str(e)
@@ -40,4 +39,4 @@ class PaperResource:
 
 
 api = falcon.API()
-api.add_route('/pd/', PaperResource())
+api.add_route('/nd/', PaperResource())
