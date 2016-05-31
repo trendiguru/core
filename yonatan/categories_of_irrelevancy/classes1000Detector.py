@@ -73,6 +73,6 @@ def theDetector(url_or_np_array):
     predictions = classifier.predict(img_for_caffe)
     print("Done in %.2f s." % (time.time() - start))
 
-    if predictions[0][1] > 0:
-        print predictions[0][1]
+    if predictions[0][0] > 0:
+        print predictions[0][0]
 
