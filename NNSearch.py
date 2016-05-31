@@ -5,9 +5,12 @@ import logging
 
 import numpy as np
 import cv2
-
+from db_stuff.fanni import lumberjack
 import constants
-
+from rq import Queue
+from time import sleep
+q = Queue('annoy', connection=constants.redis_conn)
+db = constants.db
 K = constants.K  # .5 is the same as Euclidean
 
 def distance_1_k(fp1, fp2,mis, take ,k=K):
@@ -57,17 +60,63 @@ def distance_Bhattacharyya(fp1, fp2, weights, hist_length):
         logging.warning("null fingerprint sent to Bhattacharyya ")
         return None
 
+#
+# def find_n_nearest_neighbors(target_dict, entries, number_of_matches, fp_weights,
+#                              hist_length, fp_key, distance_function=None):
+#     distance_function = distance_function or distance_Bhattacharyya
+#     # list of tuples with (entry,distance). Initialize with first n distance values
+#     nearest_n = []
+#     for i, entry in enumerate(entries):
+#         if i < number_of_matches:
+#             ent = entry[fp_key]
+#             tar = target_dict["fingerprint"]
+#             d = distance_function(ent, tar, fp_weights, hist_length)
+#             nearest_n.append((entry, d))
+#             farthest_nearest = 1
+#         else:
+#             if i == number_of_matches:
+#                 # sort by distance
+#                 nearest_n.sort(key=lambda tup: tup[1])
+#                 # last item in the list (index -1, go python!)
+#                 farthest_nearest = nearest_n[-1][1]
+#
+#             # Loop through remaining entries, if one of them is better, insert it in the correct location and remove last item
+#             d = distance_function(entry[fp_key], target_dict["fingerprint"], fp_weights, hist_length)
+#             if d < farthest_nearest:
+#                 insert_at = number_of_matches-2
+#                 while d < nearest_n[insert_at][1]:
+#                     insert_at -= 1
+#                     if insert_at == -1:
+#                         break
+#                 nearest_n.insert(insert_at + 1, (entry, d))
+#                 nearest_n.pop()
+#                 farthest_nearest = nearest_n[-1][1]
+#     [result[0].pop('fingerprint') for result in nearest_n]
+#     [result[0].pop('_id') for result in nearest_n]
+#     nearest_n = [result[0] for result in nearest_n]
+#     return nearest_n
 
-def find_n_nearest_neighbors(target_dict, entries, number_of_matches, fp_weights,
-                             hist_length, fp_key, distance_function=None):
+def find_n_nearest_neighbors(target_dict, collection, category, number_of_matches, fp_weights,
+                                 hist_length, fp_key, distance_function=None):
+
     distance_function = distance_function or distance_Bhattacharyya
     # list of tuples with (entry,distance). Initialize with first n distance values
+    fingerprint = target_dict["fingerprint"]
+    annoy_job = q.enqueue(lumberjack, args=(collection,category, fingerprint))
+    while not annoy_job.is_finished or annoy_job.is_failed:
+        sleep(0.1)
+    if annoy_job.is_failed:
+        return []
+    top1000 = annoy_job.result
+    entries = db[collection].find({"AnnoyIndex": {"$in": top1000}}, {"id": 1, "fingerprint": 1, "images.XLarge": 1,
+                                                                     "clickUrl": 1})
+    farthest_nearest = 1
     nearest_n = []
     for i, entry in enumerate(entries):
         if i < number_of_matches:
             ent = entry[fp_key]
-            tar = target_dict["fingerprint"]
-            d = distance_function(ent, tar, fp_weights, hist_length)
+
+            d = distance_function(ent, fingerprint, fp_weights, hist_length)
             nearest_n.append((entry, d))
             farthest_nearest = 1
         else:
@@ -78,9 +127,9 @@ def find_n_nearest_neighbors(target_dict, entries, number_of_matches, fp_weights
                 farthest_nearest = nearest_n[-1][1]
 
             # Loop through remaining entries, if one of them is better, insert it in the correct location and remove last item
-            d = distance_function(entry[fp_key], target_dict["fingerprint"], fp_weights, hist_length)
+            d = distance_function(entry[fp_key], fingerprint, fp_weights, hist_length)
             if d < farthest_nearest:
-                insert_at = number_of_matches-2
+                insert_at = number_of_matches - 2
                 while d < nearest_n[insert_at][1]:
                     insert_at -= 1
                     if insert_at == -1:

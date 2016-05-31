@@ -66,15 +66,17 @@ def after_pd_conclusions(mask, labels, face=None):
     partly_sum = np.sum([item.values()[0] for item in mask_sizes['upper_under']]) +\
                  np.sum([item.values()[0] for item in mask_sizes['lower_cover']])
     if whole_sum > partly_sum:
-        print "W2P: That's a {0}".format(list(labels.keys())[list(labels.values()).index((item.keys()[0]))])
-        item_num = item.keys()[0]
+        max_amount = np.max([item.values()[0] for item in mask_sizes['whole_body']])
+        max_item_num = [item.keys()[0] for item in mask_sizes['whole_body'] if item.values()[0] == max_amount][0]
+        max_item_cat = list(labels.keys())[list(labels.values()).index(max_item_num)]
+        print "W2P: That's a {0}".format(max_item_cat)
         for num in np.unique(mask):
             cat = list(labels.keys())[list(labels.values()).index(num)]
             # 1.1, 1.2
             if cat in constants.paperdoll_categories["lower_cover"] or \
                cat in constants.paperdoll_categories["lower_under"] or \
                cat in constants.paperdoll_categories["upper_under"]:
-                final_mask = np.where(mask == num, item_num, final_mask)
+                final_mask = np.where(mask == num, max_item_num, final_mask)
         return final_mask
     # 2, 2.1
     sections = {"upper_cover": 0, "upper_under": 0, "lower_cover": 0, "lower_under": 0}
