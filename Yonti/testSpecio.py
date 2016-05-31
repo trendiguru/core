@@ -1,8 +1,41 @@
 
 import numpy as np
 import cv2
-
+from ..constants import db
+from ..Utils import get_cv2_img_array as get_img
+from ..background_removal import get_fg_mask
+from time import time
 # ------------------ FINGERPRINTS FUNCTIONS --------------------- #
+
+
+def testing():
+    items = db.ShopStyle_Female.find({'categories':"dress"}).limit(10)
+    sp_list = []
+    s= time()
+    for item in items:
+        a = time()
+        img = get_img(item['image']['XLarge'])
+        mask = get_fg_mask(img)
+        sp = fingerprint_3D_spatiogram(img,mask)
+        sp_list.append(sp)
+        b= time()
+        print (b-a)
+    f = time()
+
+    print ('creating of 10 spaciograms took %d secs' %(int(f-s)))
+
+    print ('\nstarting comparison')
+
+    s = time()
+    for query in sp_list:
+        for target in sp_list:
+            a = time()
+            print (spatiogram_fingerprints_distance(query, target))
+            b= time()
+    f = time()
+    print ('comparing 100 times took %d secs' % (int(f - s)))
+
+
 
 def fingerprint_3D_spatiogram(image, mask):
     bins = [8,12,8]
