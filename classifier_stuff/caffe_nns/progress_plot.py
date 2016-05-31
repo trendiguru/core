@@ -14,6 +14,7 @@ from pylab import figure, show, legend, ylabel
 from mpl_toolkits.axes_grid1 import host_subplot
 import datetime
 import time
+import datetime
 
 def parse_logfile(f):
   print('parsing logfile')
@@ -123,7 +124,8 @@ def parse_logfile(f):
   host.axis["left"].label.set_color(p1.get_color())
   par1.axis["right"].label.set_color(p2.get_color())
 
-  plt.title(net_name)
+  dt=datetime.datetime.today()
+  plt.title(net_name+' '+dt.isoformat())
   plt.suptitle(args.output_file)
   plt.draw()
   savename = args.output_file+'.jpg'
@@ -258,6 +260,8 @@ def parse_solveoutput(f):
   par1.axis["right"].label.set_color(p2.get_color())
 
 #  plt.title(net_name)
+  dt=datetime.datetime.today()
+  plt.title(dt.isoformat())
   plt.suptitle(args.output_file)
   plt.draw()
   savename = args.output_file+'.jpg'
