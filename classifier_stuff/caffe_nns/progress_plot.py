@@ -164,7 +164,7 @@ def parse_solveoutput(f):
       times.append(epochtime - initial_time)
       print('epoch:'+str(epochtime))
       iteration = int(thesplit[2].strip('Iteration:')) + extra_iters
-      if iteration < training_iterations[-1]:
+      if len(training_iterations)>0 and iteration < training_iterations[-1]:
         extra_iters = training_iterations[-1]
         iteration = iteration + extra_iters
       training_iterations.append(float(iteration))
