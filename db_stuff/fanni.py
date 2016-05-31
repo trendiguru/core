@@ -4,7 +4,7 @@ from ..constants import db
 from time import time
 
 
-def plantAnnoyForest(col_name, category, num_of_trees, distance_function='angular'):
+def plantAnnoyForest(col_name, category, num_of_trees, hold=True,distance_function='angular'):
     """"
     create forest for collection
     """
@@ -19,9 +19,17 @@ def plantAnnoyForest(col_name, category, num_of_trees, distance_function='angula
         when searching the forest - the item index is returned back
         thts why we need to match between items in the database and their annoy index
         """
-        db[col_name].update_one({'_id':item['_id']},{'$set':{"AnnoyIndex":x}})
+        if hold:
+            db[col_name].update_one({'_id':item['_id']},{'$set':{"AnnoyIndex_tmp":x}})
+        else:
+            db[col_name].update_one({'_id':item['_id']},{'$set':{"AnnoyIndex":x}})
 
     forest.build(num_of_trees)
+
+    if hold:
+        db[col_name].update_many({}, {'$unset': {"AnnoyIndex": 1}})
+        db[col_name].update_many({}, {'$rename': {"AnnoyIndex_tmp": "AnnoyIndex"}})
+
     """
     for now the tree is saved only on the database server
     >>> the search can only run on database!!!
