@@ -76,5 +76,5 @@ def lumberjack(col_name,category,fingerprint, distance_function='angular', num_o
     forest.load(name)
     result = forest.get_nns_by_vector(fingerprint,num_of_results)
     f = time()
-    print("got it in %d secs!"%(float(f-s)))
+    print("got it in %s secs!"%(str(f-s)))
     return result
