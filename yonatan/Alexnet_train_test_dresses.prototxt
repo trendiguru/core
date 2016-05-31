@@ -269,7 +269,7 @@ layer {
   top: "my_fc6"
   param {
     lr_mult: 10
-    decay_mult: 1
+    decay_mult: 10
   }
   param {
     lr_mult: 20
@@ -309,7 +309,7 @@ layer {
   top: "my_fc7"
   param {
     lr_mult: 10
-    decay_mult: 1
+    decay_mult: 10
   }
   param {
     lr_mult: 20
@@ -318,12 +318,12 @@ layer {
   inner_product_param {
     num_output: 4096
     weight_filler {
-      type: "gaussian"
+      type: "xavier"
       std: 0.005
     }
     bias_filler {
       type: "constant"
-      value: 0.1
+      value: 0.0
     }
   }
 }
@@ -343,12 +343,12 @@ layer {
   }
 }
 layer {
-  name: "my_my_fc8"
+  name: "my_fc8"
   type: "InnerProduct"
   bottom: "my_fc7"
   top: "my_fc8"
   param {
-    lr_mult: 1
+    lr_mult: 10
     decay_mult: 10
   }
   param {
@@ -358,7 +358,7 @@ layer {
   inner_product_param {
     num_output: 3
     weight_filler {
-      type: "gaussian"
+      type: "xavier"
       std: 0.01
     }
     bias_filler {
