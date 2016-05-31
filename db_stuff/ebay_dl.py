@@ -150,13 +150,12 @@ for x,file in enumerate(files):
 
     print ('started working on %s' %(filename) )
     q.enqueue(ebay_downloader, args=(filename, filesize), timeout=2000)
-    usage = (filesize+available_ram)/total_ram
-    if usage > 0.70:
-        sleep(90)
-    elif usage > 0.5:
-        sleep(45)
+    percentOfTotal = filesize/total_ram
+    percentOfAvi = (filesize+available_ram)/total_ram
+    if percentOfTotal > 0.30 or percentOfAvi > 0.6 :
+        sleep(150)
     else:
-        sleep(10)
+        sleep(15)
 
 #wait for workers
 while q.count>0:
