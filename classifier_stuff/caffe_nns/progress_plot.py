@@ -142,6 +142,8 @@ def parse_solveoutput(f):
   fwavacc = []
   training_loss = []
   first_report = True
+  extra_iters = 0
+
   for line in f:
 #    print('checking line:'+line)
     if '>>>' in line:
@@ -161,7 +163,10 @@ def parse_solveoutput(f):
         first_report = False
       times.append(epochtime - initial_time)
       print('epoch:'+str(epochtime))
-      iteration = thesplit[2].strip('Iteration:')
+      iteration = thesplit[2].strip('Iteration:') + extra_iters
+      if iteration < training_iterations[-1]:
+        extra_iters = training_iterations[-1]
+        iteration = iteration + extra_iters
       training_iterations.append(float(iteration))
       loss = thesplit[3].strip('loss:')
       training_loss.append(float(loss))

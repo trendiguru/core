@@ -112,6 +112,8 @@ def after_pd_conclusions(mask, labels, face=None):
 
 
 def after_nn_conclusions(mask, labels, face=None):
+    #Possible to add - remove coat from bottom of body
+    # remove holes in items
     """
     1. if there's a full-body clothing:
         1.1 add to its' mask - all the rest lower body items' masks.
