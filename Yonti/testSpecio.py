@@ -49,7 +49,7 @@ def sp_worker(item,url):
 
 
 def create_test_group():
-    db.testSpacio.delete_many()
+    db.testSpacio.delete_many({})
     items = db.ShopStyle_Female.find({'categories': "dress"})
     for item in items:
         url = item['images']['XLarge']
