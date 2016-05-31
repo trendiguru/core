@@ -1,11 +1,13 @@
 
 import numpy as np
 import cv2
-from ..constants import db
+from ..constants import db, redis_conn
 from ..Utils import get_cv2_img_array as get_img
 from ..background_removal import get_fg_mask
 from time import time
+from rq import Queue
 # ------------------ FINGERPRINTS FUNCTIONS --------------------- #
+q = Queue('sp_worker', connection=redis_conn)
 
 
 def testing():
@@ -14,7 +16,7 @@ def testing():
     s= time()
     for item in items:
         a = time()
-        img = get_img(item['image']['XLarge'])
+        img = get_img(item['images']['XLarge'])
         mask = get_fg_mask(img)
         sp = fingerprint_3D_spatiogram(img,mask)
         sp_list.append(sp)
@@ -32,9 +34,26 @@ def testing():
             a = time()
             print (spatiogram_fingerprints_distance(query, target))
             b= time()
+            print b-a
     f = time()
     print ('comparing 100 times took %d secs' % (int(f - s)))
 
+
+def sp_worker(item,url):
+    img = get_img(url)
+    mask = get_fg_mask(img)
+    sp = fingerprint_3D_spatiogram(img, mask)
+    dict = item
+    dict['sp'] = sp
+    db.testSpacio.insert_one(dict)
+
+
+def create_test_group():
+    db.testSpacio.delete_many({})
+    items = db.ShopStyle_Female.find({'categories': "dress"})
+    for item in items:
+        url = item['images']['XLarge']
+        q.enqueue(sp_worker, args=(item,url))
 
 
 def fingerprint_3D_spatiogram(image, mask):
@@ -61,9 +80,9 @@ def fingerprint_3D_spatiogram(image, mask):
     hist_list = []
     for mask in masks:
         hist = cv2.calcHist([hsv], [0, 1, 2], mask, bins, [0, 180, 0, 256, 0, 256])
-        hist_list.append(cv2.normalize(hist, hist).flatten())
-    return np.array(hist_list)
-
+        hist_list.append(cv2.normalize(hist, hist).flatten().tolist())
+    # return np.array(hist_list)
+    return hist_list
 
 def circumfrence_distance(blob_mask):
     '''
