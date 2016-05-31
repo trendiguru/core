@@ -163,7 +163,7 @@ def parse_solveoutput(f):
         first_report = False
       times.append(epochtime - initial_time)
       print('epoch:'+str(epochtime))
-      iteration = thesplit[2].strip('Iteration:') + extra_iters
+      iteration = int(thesplit[2].strip('Iteration:')) + extra_iters
       if iteration < training_iterations[-1]:
         extra_iters = training_iterations[-1]
         iteration = iteration + extra_iters
