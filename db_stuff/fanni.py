@@ -27,8 +27,8 @@ def plantAnnoyForest(col_name, category, num_of_trees, hold=True,distance_functi
     forest.build(num_of_trees)
 
     if hold:
-        db[col_name].update_many({}, {'$unset': {"AnnoyIndex": 1}})
-        db[col_name].update_many({}, {'$rename': {"AnnoyIndex_tmp": "AnnoyIndex"}})
+        db[col_name].update_many({'categories':category}, {'$unset': {"AnnoyIndex": 1}})
+        db[col_name].update_many({'categories':category}, {'$rename': {"AnnoyIndex_tmp": "AnnoyIndex"}})
 
     """
     for now the tree is saved only on the database server
