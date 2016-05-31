@@ -124,6 +124,7 @@ def after_nn_conclusions(mask, labels, face=None):
     if face:
         y_split = face[1] + 3 * face[3]
     else:
+        # BETTER TO SEND A FACE
         y_split = np.round(0.4 * mask.shape[0])
     final_mask = mask[:, :]
     mask_sizes = {"upper_cover": [], "upper_under": [], "lower_cover": [], "lower_under": [], "whole_body": []}

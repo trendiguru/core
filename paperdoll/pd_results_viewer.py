@@ -62,7 +62,7 @@ def after_nn_processdir(indir,outdir,labels=constants.ultimate_21,filter='.bmp')
         after_mask = pipeline.after_nn_conclusions(mask, label_dict)
         after_nn_conclusions_name = os.path.join(outdir,f[:-4]+'_nnconclusions.bmp')
         cv2.imwrite(after_nn_conclusions_name,after_mask)
-        imutils.show_mask_with_labels(after_nn_conclusions_name,fashionista_categories_augmented_zero_based,save_images=True)
+        imutils.show_mask_with_labels(after_nn_conclusions_name,labels,save_images=True)
 
 def after_pd_processdir(indir,outdir):
     masks = [f for f in os.listdir(indir) if '.bmp' in f]
