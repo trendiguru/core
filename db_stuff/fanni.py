@@ -1,8 +1,10 @@
 
 import annoy
 from ..constants import db
+from time import time
 
-def plantAnnoyForest(col_name, category, num_of_trees, distance_function='angular'):
+
+def plantAnnoyForest(col_name, category, num_of_trees, hold=True,distance_function='angular'):
     """"
     create forest for collection
     """
@@ -17,9 +19,17 @@ def plantAnnoyForest(col_name, category, num_of_trees, distance_function='angula
         when searching the forest - the item index is returned back
         thts why we need to match between items in the database and their annoy index
         """
-        db[col_name].update_one({'_id':item['_id']},{'$set':{"AnnoyIndex":x}})
+        if hold:
+            db[col_name].update_one({'_id':item['_id']},{'$set':{"AnnoyIndex_tmp":x}})
+        else:
+            db[col_name].update_one({'_id':item['_id']},{'$set':{"AnnoyIndex":x}})
 
     forest.build(num_of_trees)
+
+    if hold:
+        db[col_name].update_many({}, {'$unset': {"AnnoyIndex": 1}})
+        db[col_name].update_many({}, {'$rename': {"AnnoyIndex_tmp": "AnnoyIndex"}})
+
     """
     for now the tree is saved only on the database server
     >>> the search can only run on database!!!
@@ -68,9 +78,11 @@ def lumberjack(col_name,category,fingerprint, distance_function='angular', num_o
     use annoy to quickly chop down the database and return only the top 1000 trees
     """
     print('searching for top 1000 items in %s' %(col_name))
+    s = time()
     forest = annoy.AnnoyIndex(696, distance_function)
     name = '/home/developer/annoyJungle/' + col_name + "/" + category + '_forest.ann'
     forest.load(name)
     result = forest.get_nns_by_vector(fingerprint,num_of_results)
-    print("got it!")
+    f = time()
+    print("got it in %s secs!"%(str(f-s)))
     return result

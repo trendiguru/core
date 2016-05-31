@@ -218,14 +218,18 @@ paperdoll_categories = {"whole_body": ['bodysuit', 'dress', 'jumper', 'suit', 'r
                         "lower_cover": ['shorts', 'skirt', 'jeans', 'pants'],
                         "lower_under": ['stockings', 'tights', 'leggings']}
 
-nn_categories = {"whole_body": ['bodysuit', 'dress', 'jumper', 'suit', 'romper'],
-                 "upper_cover": ['blazer', 'cape', 'jacket', 'cardigan', 'coat', 'vest', 'tie', 'sweatshirt'],
-                 "upper_under": ['t-shirt', 'blouse', 'shirt', 'top', 'bra', 'sweatshirt', 'intimate'],
+ultimate_21 = ['bgnd','bag','belt','blazer','coat','dress','eyewear','face','hair','hat',
+               'jeans','legging','pants','shoe','shorts','skin','skirt','stocking','suit','sweater',
+               'top']
+
+nn_categories = {"whole_body": ['dress', 'suit'],
+                 "upper_cover": ['blazer', 'coat'],
+                 "upper_under": ['top', 'sweater'],
                  "lower_cover": ['shorts', 'skirt', 'jeans', 'pants', 'belt'],
-                 "lower_under": ['stockings', 'tights', 'leggings', 'intimate'],
-                 "feet_cover": ['shoes', 'boots', 'loafers', 'flats', 'sneakers', 'clogs', 'heels', 'wedges',
-                                'pumps', 'sandals'],
-                 "feet_under": ['socks']}
+                 "lower_under": ['stocking', 'legging']}
+                 # "feet_cover": ['shoes', 'boots', 'loafers', 'flats', 'sneakers', 'clogs', 'heels', 'wedges',
+                 #                'pumps', 'sandals'],
+                 # "feet_under": ['socks']}
 
 fash_augmented_that_didnt_get_into_nn_categories = ['bag','purse','scarf','hat','accessories','sunglasses','glasses',
                                     'intimate','necklace','bracelet','ring','earrings','gloves','watch',
@@ -307,10 +311,6 @@ tamara_berg_improved_categories = ['background','belt','dress','eyewear','footwe
 #21 cats for direct replacement of VOC systems
 #lose the necklace,
 #combine tights and leggings
-
-ultimate_21 = ['bgnd','bag','belt','blazer','coat','dress','eyewear','face','hair','hat',
-               'jeans','legging','pants','shoe','shorts','skin','skirt','stocking','suit','sweater',
-               'top']
 
 
 tamara_berg_to_ultimate_21_index_conversion = [(0,1),(1,2),(2,5),(3,6),(4,13),(5,9),(6,11),(7,4),(8,12),(9,16),(10,20)]

@@ -20,11 +20,14 @@ from .ebay_dl_worker import ebay_downloader
 from rq import Queue
 from time import sleep,time
 import psutil
+from fanni import plantForests4AllCategories
 
 q = Queue('ebay_worker', connection=constants.redis_conn)
+forest = Queue('annoy_forest', connection=constants.redis_conn)
 db = constants.db
 status = db.download_status
 today_date = str(datetime.datetime.date(datetime.datetime.now()))
+yesterday = str(datetime.datetime.date(datetime.datetime.now() - datetime.timedelta(days=1)))
 
 
 def getStoreStatus(store_id,files):
@@ -87,8 +90,8 @@ def theArchiveDoorman():
             else:
                 archive.delete_one({'id': item['id']})
 
-        # add to the archive items which were not downloaded today but were instock yesterday
-        notUpdated = collection.find({"download_data.dl_version": {"$ne": today_date}})
+        # add to the archive items which were not downloaded today or yesterday but were instock yesterday
+        notUpdated = collection.find({"download_data.dl_version": {"$nin": [today_date,yesterday]}})
         for item in notUpdated:
             y_old, m_old, d_old = map(int, item["download_data"]["dl_version"].split("-"))
             days_out = 365 * (y_new - y_old) + 30 * (m_new - m_old) + (d_new - d_old)
@@ -140,20 +143,20 @@ for x,file in enumerate(files):
     filename = file['name']
     filesize = int(file['size'])
     available_ram = int(psutil.virtual_memory()[1])
-    while filesize > available_ram:
+    while filesize > 0.8*available_ram:
         print ("stalling")
         sleep(60)
         available_ram = int(psutil.virtual_memory()[1])
 
     print ('started working on %s' %(filename) )
-    q.enqueue(ebay_downloader, filename=filename, filesize=filesize)
+    q.enqueue(ebay_downloader, args=(filename, filesize), timeout=2000)
     usage = (filesize+available_ram)/total_ram
-    if usage > 0.75:
+    if usage > 0.70:
         sleep(90)
     elif usage > 0.5:
         sleep(45)
     else:
-        sleep(15)
+        sleep(10)
 
 #wait for workers
 while q.count>0:
@@ -188,10 +191,11 @@ for col in ["Female","Male","Unisex"]:#,"Tees"]:
     status.update_one({"date": today_date}, {"$set": {status_full_path: "Done",
                                                       notes_full_path: new_items}})
 
+
+for gender in ['Male', 'Female', 'Unisex']:
+    forest.enqueue(plantForests4AllCategories, args=('ebay_'+gender), timeout=2000)
+
 print("ebay Download is Done")
-sys.exit(0)
-
-
 '''
 extended generic dictionary -
     has all the categories from the generic db + extra key which contains all the raw info from ebay
