@@ -14,7 +14,7 @@ def testing():
     s= time()
     for item in items:
         a = time()
-        img = get_img(item['image']['XLarge'])
+        img = get_img(item['images']['XLarge'])
         mask = get_fg_mask(img)
         sp = fingerprint_3D_spatiogram(img,mask)
         sp_list.append(sp)
