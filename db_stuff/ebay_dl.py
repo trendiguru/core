@@ -147,7 +147,7 @@ for x,file in enumerate(files):
         available_ram = int(psutil.virtual_memory()[1])
 
     print ('started working on %s' %(filename) )
-    q.enqueue(ebay_downloader, args=(filename, filesize), timeout=900)
+    q.enqueue(ebay_downloader, args=(filename, filesize), timeout=1500)
     usage = (filesize+available_ram)/total_ram
     if usage > 0.75:
         sleep(90)
