@@ -37,7 +37,7 @@ def url_to_image(url):
 def infer_one(url_or_np_array,required_image_size=(256,256)):
     start_time = time.time()
     if isinstance(url_or_np_array, basestring):
-        print('working on:'+url_or_np_array)
+        print('infer_one working on url:'+url_or_np_array)
         image = url_to_image(url_or_np_array)
     elif type(url_or_np_array) == np.ndarray:
         image = url_or_np_array
@@ -47,21 +47,18 @@ def infer_one(url_or_np_array,required_image_size=(256,256)):
 
 #    in_ = in_.astype(float)
     in_ = imutils.resize_keep_aspect(image,output_size=required_image_size,output_file=None)
-    print('shape after resize:'+str(in_.shape)+' type:'+str(in_.dtype)+' pixtype:'+str(in_[0,0,0].dtype))
     in_ = np.array(in_, dtype=np.float32)   #.astype(float)
-    print('shape after retype:'+str(in_.shape)+' type:'+str(in_.dtype)+' pixtype:'+str(in_[0,0,0].dtype))
     if len(in_.shape) != 3:
-        print('got 1-chan image, skipping')
-        return
+        print('got 1-chan image, turning into 3 channel')
+        #DEBUG THIS , ORDER MAY BE WRONG
+        in_ = np.array([in_,in_,in_])
     elif in_.shape[2] != 3:
         print('got n-chan image, skipping - shape:'+str(in_.shape))
         return
-    print('shape before:'+str(in_.shape)+' type:'+str(in_.dtype)+' pixtype:'+str(in_[0,0,0].dtype))
 #    in_ = in_[:,:,::-1]  for doing RGB -> BGR
 #    cv2.imshow('test',in_)
     in_ -= np.array((104,116,122.0))
     in_ = in_.transpose((2,0,1))
-    print('shape after:'+str(in_.shape)+' type:'+str(in_.dtype)+' pixtype:'+str(in_[0,0,0].dtype))
     # shape for input (data blob is N x C x H x W), set data
     net.blobs['data'].reshape(1, *in_.shape)
     net.blobs['data'].data[...] = in_
@@ -77,7 +74,7 @@ def infer_one(url_or_np_array,required_image_size=(256,256)):
 #    result.save(outname)
     #        fullout = net.blobs['score'].data[0]
     elapsed_time=time.time()-start_time
-    print('elapsed time:'+str(elapsed_time))
+    print('infer_one elapsed time:'+str(elapsed_time))
  #   cv2.imshow('out',out.astype(np.uint8))
  #   cv2.waitKey(0)
     return out.astype(np.uint8)
