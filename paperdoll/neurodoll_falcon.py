@@ -1,12 +1,11 @@
 __author__ = 'liorsabag'
 
 import falcon
-import matlab
+from .. import neurodoll
+from .. import constants
 
 from jaweson import json, msgpack
-from . import pd
 
-eng = matlab.engine.start_matlab('nodesktop')
 
 class PaperResource:
     def on_get(self, req, resp):
@@ -22,15 +21,14 @@ class PaperResource:
         ret = {"success": False}
         try:
             data = msgpack.loads(req.stream.read())
-
             img = data.get("image")
 
-            # mask_np, label_dict, pose_np, filename
-            ret["mask"], ret["label_dict"], ret["pose"], ret["filename"] = pd.get_parse_mask_parallel(eng, img)
+            ret["mask"] = neurodoll.infer_one(img)
+            ret["label_dict"] = constants.ultimate_21
             if ret["mask"] is not None:
                 ret["success"] = True
             else:
-                ret["error"] = "No mask from PD"
+                ret["error"] = "No mask from ND"
 
         except Exception as e:
             ret["error"] = str(e)
@@ -41,4 +39,4 @@ class PaperResource:
 
 
 api = falcon.API()
-api.add_route('/pd/', PaperResource())
+api.add_route('/nd/', PaperResource())

@@ -1,61 +1,20 @@
+#!/usr/bin/env python
 __author__ = 'jeremy'
 
-__author__ = 'jeremy'
-#get output images for given input
-import numpy as np
 from PIL import Image
-import caffe
-import os
-import time
 import cv2
-import urllib
+import caffe
 import logging
 logging.basicConfig(level=logging.DEBUG)
 
-from trendi import pipeline
-from trendi.utils import imutils
-from trendi import constants
-from trendi.paperdoll import paperdoll_parse_enqueue
+import numpy as np
+import os
+import time
+import urllib
 
-def infer_many(images,prototxt,caffemodel,out_dir='./'):
-    net = caffe.Net(prototxt,caffemodel, caffe.TEST)
-    dims = [150,100]
-    start_time = time.time()
-    masks=[]
-    for imagename in images:
-        print('working on:'+imagename)
-            # load image, switch to BGR, subtract mean, and make dims C x H x W for Caffe
-        im = Image.open(imagename)
-        im = im.resize(dims,Image.ANTIALIAS)
-        in_ = np.array(im, dtype=np.float32)
-        if len(in_.shape) != 3:
-            print('got 1-chan image, skipping')
-            continue
-        elif in_.shape[2] != 3:
-            print('got n-chan image, skipping - shape:'+str(in_.shape))
-            continue
-        print('size:'+str(in_.shape))
-        in_ = in_[:,:,::-1]
-        in_ -= np.array((104.0,116.7,122.7))
-        in_ = in_.transpose((2,0,1))
-        # shape for input (data blob is N x C x H x W), set data
-        net.blobs['data'].reshape(1, *in_.shape)
-        net.blobs['data'].data[...] = in_
-        # run net and take argmax for prediction
-        net.forward()
-        out = net.blobs['score'].data[0].argmax(axis=0)
-        result = Image.fromarray(out.astype(np.uint8))
-    #        outname = im.strip('.png')[0]+'out.bmp'
-        outname = os.path.basename(imagename)
-        outname = outname.split('.jpg')[0]+'.bmp'
-        outname = os.path.join(out_dir,outname)
-        print('outname:'+outname)
-        result.save(outname)
-        masks.append(out.astype(np.uint8))
-    elapsed_time=time.time()-start_time
-    print('elapsed time:'+str(elapsed_time)+' tpi:'+str(elapsed_time/len(images)))
-    return masks
-    #fullout = net.blobs['score'].data[0]
+from trendi import background_removal, Utils, constants
+from trendi.utils import imutils
+
 
 def url_to_image(url):
     # download the image, convert it to a NumPy array, and then read
@@ -73,56 +32,83 @@ def url_to_image(url):
     # return the image
     return new_image
 
-def pixelparse(url_or_np_array):
 
-    # check if i get a url (= string) or np.ndarray
+
+def infer_one(url_or_np_array,required_image_size=(256,256)):
+    start_time = time.time()
     if isinstance(url_or_np_array, basestring):
+        print('infer_one working on url:'+url_or_np_array)
         image = url_to_image(url_or_np_array)
     elif type(url_or_np_array) == np.ndarray:
         image = url_or_np_array
-    else:
-        return None
+        # load image, switch to BGR, subtract mean, and make dims C x H x W for Caffe
+#    im = Image.open(imagename)
+#    im = im.resize(required_imagesize,Image.ANTIALIAS)
 
-    start_time = time.time()
-    in_ = np.array(image, dtype=np.float32)
-#    possibly check size and resize if big
-    dims = [150,100]
-    in_ = cv2.resize(in_,dims)
-    cv2.imshow('image',np.array(in_,dtype=np.uint8))
-    cv2.waitKey(0)
+#    in_ = in_.astype(float)
+    in_ = imutils.resize_keep_aspect(image,output_size=required_image_size,output_file=None)
+    in_ = np.array(in_, dtype=np.float32)   #.astype(float)
     if len(in_.shape) != 3:
-        logging.warning('got 1-chan image in neurodoll, making into 3chan')
-        in_ = [in_,in_,in_]
+        print('got 1-chan image, turning into 3 channel')
+        #DEBUG THIS , ORDER MAY BE WRONG
+        in_ = np.array([in_,in_,in_])
     elif in_.shape[2] != 3:
-        print('got n-chan image, skipping - shape is:'+str(in_.shape))
+        print('got n-chan image, skipping - shape:'+str(in_.shape))
         return
-    in_ = in_[:,:,::-1]
-    in_ -= np.array((104.0,116.7,122.7))
-    print('image shape:'+str(in_.shape))
-#    in_ = in_.transpose((2,0,1))   # dont need RGB->BGR if img is coming from cv2
+#    in_ = in_[:,:,::-1]  for doing RGB -> BGR
+#    cv2.imshow('test',in_)
+    in_ -= np.array((104,116,122.0))
+    in_ = in_.transpose((2,0,1))
     # shape for input (data blob is N x C x H x W), set data
     net.blobs['data'].reshape(1, *in_.shape)
     net.blobs['data'].data[...] = in_
     # run net and take argmax for prediction
     net.forward()
     out = net.blobs['score'].data[0].argmax(axis=0)
+    result = Image.fromarray(out.astype(np.uint8))
+#        outname = im.strip('.png')[0]+'out.bmp'
+#    outname = os.path.basename(imagename)
+#    outname = outname.split('.jpg')[0]+'.bmp'
+#    outname = os.path.join(out_dir,outname)
+#    print('outname:'+outname)
+#    result.save(outname)
+    #        fullout = net.blobs['score'].data[0]
     elapsed_time=time.time()-start_time
-    print('elapsed time:'+str(elapsed_time))
-
+    print('infer_one elapsed time:'+str(elapsed_time))
+ #   cv2.imshow('out',out.astype(np.uint8))
+ #   cv2.waitKey(0)
     return out.astype(np.uint8)
 
 
 
+MODEL_FILE = "/home/jeremy/voc8_15_pixlevel_deploy.prototxt"
+PRETRAINED = "/home/jeremy/voc8_15_pixlevel_iter120000.caffemodel"
 caffe.set_mode_gpu()
 caffe.set_device(0)
+net = caffe.Net(MODEL_FILE,PRETRAINED, caffe.TEST)
+
+required_image_size = (256, 256)
+image_mean = np.array([107.0,117.0,123.0])
+input_scale = None
+channel_swap = [2, 1, 0]
+raw_scale = 255.0
+
 print('loading caffemodel for neurodoll')
-prototxt = '/home/jeremy/caffenets/pixlevel/voc-fcn8s/deploy.prototxt'
-#caffemodel = 'snapshot_nn2/train_iter_183534.caffemodel'
-#caffemodel = '/home/jeremy/caffenets/pixlevel/voc-fcn8s/train_iter_164620.caffemodel'  #010516 saved
-caffemodel = '/home/jeremy/caffenets/pixlevel/voc-fcn8s/train_iter_457644.caffemodel'  #040516 saved
-net = caffe.Net(prototxt,caffemodel, caffe.TEST)
+
+
+# Make classifier.
+#classifier = caffe.Classifier(MODEL_FILE, PRETRAINED,
+#                              image_dims=image_dims, mean=mean,
+##                              input_scale=input_scale, raw_scale=raw_scale,
+ #                             channel_swap=channel_swap)
+
 
 
 if __name__ == "__main__":
 
-    pixelparse('http://diamondfilms.com.au/wp-content/uploads/2014/08/Fashion-Photography-Sydney-1.jpg')
+    url = 'http://diamondfilms.com.au/wp-content/uploads/2014/08/Fashion-Photography-Sydney-1.jpg'
+    result = infer_one(url,required_image_size=required_image_size)
+
+    cv2.imwrite('output.png',result)
+    labels=constants.ultimate_21
+    imutils.show_mask_with_labels('output.png',labels,visual_output=True)

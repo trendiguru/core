@@ -13,6 +13,7 @@ import random
 import logging
 import copy
 import random
+import shutil
 
 from trendi.utils import imutils
 from trendi import Utils
@@ -808,6 +809,63 @@ def add_dir_listing_to_caffe_textfile(filename,dirname,class_label,filter='.jpg'
     with open(filename,'a') as f:
         for filename in files:
             f.write(os.path.join(dirname,filename)+' ' + str(class_label)+'\n')
+
+def make_negatives_dir(source_dir,dest_dir,negfile=None):
+    '''
+    copies images from source into dest by user choice - good eg for making negatives (e.g. all images not containing outerwear)
+    :param source_dir:
+    :param dest_dir:
+    :return:
+    '''
+    Utils.ensure_dir(dest_dir)
+    print('dest dir:'+dest_dir)
+ #   BASE_PATH = os.getcwd()
+ #   BASE_PATH2 = os.path.join(BASE_PATH, 'unknown')
+ #   print('basepath:' + BASE_PATH2)
+#    males = []
+    dest_dir_base=os.path.basename(dest_dir)
+    delete_dir = os.path.join(Utils.parent_dir(source_dir),os.path.basename(source_dir)+'_deleted')
+    print('delete dir:'+delete_dir)
+    Utils.ensure_dir(delete_dir)
+    if not negfile:
+        negfile = os.path.join(source_dir,dest_dir_base+'negs.txt')
+    print('negs file:'+negfile)
+    with open(negfile,'a+') as negfile_p:
+        files = os.listdir(source_dir)
+        files.sort()
+        for f in files:
+            src = os.path.join(source_dir, f)
+            print('path:' + src)
+            img_arr = cv2.imread(src)
+            if img_arr is None:
+                continue
+            showsize=400.0
+            if img_arr.shape[0]>showsize:
+                factor = showsize/img_arr.shape[0]
+                img_arr = cv2.resize(img_arr,(int(factor*img_arr.shape[1]),int(showsize)))
+            if img_arr.shape[1]>showsize:
+                factor = showsize/img_arr.shape[1]
+                img_arr = cv2.resize(img_arr,(int(showsize), int(factor*img_arr.shape[1])))
+            cv2.imshow('file', img_arr)
+            a = cv2.waitKey(0)
+            print a
+            print('(n)ext, (c)opy, (d)elete')
+            if a == ord('c') or a == ord('C'):
+                dst = os.path.join(dest_dir,f)
+                print('not actuall moving ' + f + ' to ' + dst)
+#                shutil.move(src, dst)
+                line = src+' 1\n'
+                print('writing:'+line)
+                negfile_p.write(line)
+            elif a == ord('n') or a == ord('N'):
+                print('next')
+            elif a == ord('D') or a == ord('d'):
+                print('delete')
+                dst = os.path.join(delete_dir, f)
+                print('"deleting" ' + src + ' to ' + dst)
+                shutil.move(src, dst)
+    negfile_p.close()
+
 
 host = socket.gethostname()
 print('host:'+str(host))
