@@ -150,13 +150,12 @@ for x,file in enumerate(files):
 
     print ('started working on %s' %(filename) )
     q.enqueue(ebay_downloader, args=(filename, filesize), timeout=2000)
-    usage = (filesize+available_ram)/total_ram
-    if usage > 0.70:
-        sleep(90)
-    elif usage > 0.5:
-        sleep(45)
+    percentOfTotal = filesize/total_ram
+    percentOfAvi = (filesize+available_ram)/total_ram
+    if percentOfTotal > 0.30 or percentOfAvi > 0.6 :
+        sleep(150)
     else:
-        sleep(10)
+        sleep(15)
 
 #wait for workers
 while q.count>0:
@@ -190,10 +189,9 @@ for col in ["Female","Male","Unisex"]:#,"Tees"]:
     new_items = db[col_name].find({'download_data.first_dl': today_date}).count()
     status.update_one({"date": today_date}, {"$set": {status_full_path: "Done",
                                                       notes_full_path: new_items}})
+    forest.enqueue(plantForests4AllCategories, args=col_name, timeout=2000)
 
 
-for gender in ['Male', 'Female', 'Unisex']:
-    forest.enqueue(plantForests4AllCategories, args=('ebay_'+gender), timeout=2000)
 
 print("ebay Download is Done")
 '''
