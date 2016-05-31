@@ -25,6 +25,7 @@ q = Queue('ebay_worker', connection=constants.redis_conn)
 db = constants.db
 status = db.download_status
 today_date = str(datetime.datetime.date(datetime.datetime.now()))
+yesterday = str(datetime.datetime.date(datetime.datetime.now() - datetime.timedelta(days=1)))
 
 
 def getStoreStatus(store_id,files):
@@ -87,8 +88,8 @@ def theArchiveDoorman():
             else:
                 archive.delete_one({'id': item['id']})
 
-        # add to the archive items which were not downloaded today but were instock yesterday
-        notUpdated = collection.find({"download_data.dl_version": {"$ne": today_date}})
+        # add to the archive items which were not downloaded today or yesterday but were instock yesterday
+        notUpdated = collection.find({"download_data.dl_version": {"$nin": [today_date,yesterday]}})
         for item in notUpdated:
             y_old, m_old, d_old = map(int, item["download_data"]["dl_version"].split("-"))
             days_out = 365 * (y_new - y_old) + 30 * (m_new - m_old) + (d_new - d_old)
