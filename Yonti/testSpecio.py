@@ -1,11 +1,13 @@
 
 import numpy as np
 import cv2
-from ..constants import db
+from ..constants import db, redis_conn
 from ..Utils import get_cv2_img_array as get_img
 from ..background_removal import get_fg_mask
 from time import time
+from rq import Queue
 # ------------------ FINGERPRINTS FUNCTIONS --------------------- #
+q = Queue('sp_worker', connection=redis_conn)
 
 
 def testing():
@@ -36,6 +38,22 @@ def testing():
     f = time()
     print ('comparing 100 times took %d secs' % (int(f - s)))
 
+
+def sp_worker(item,url):
+    img = get_img(url)
+    mask = get_fg_mask(img)
+    sp = fingerprint_3D_spatiogram(img, mask)
+    dict = item
+    dict['sp'] = sp
+    db.testSpacio.insert_one(dict)
+
+
+def create_test_group():
+    db.testSpacio.delete_many()
+    items = db.ShopStyle_Female.find({'categories': "dress"})
+    for item in items:
+        url = item['images']['XLarge']
+        q.enqueue(sp_worker, args=(item,url))
 
 
 def fingerprint_3D_spatiogram(image, mask):
