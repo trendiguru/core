@@ -79,8 +79,8 @@ def fingerprint_3D_spatiogram(image, mask):
 
     hist_list = []
     for mask in masks:
-        hist = cv2.calcHist([hsv], [0, 1, 2], mask, bins, [0, 180, 0, 256, 0, 256]).tolist()
-        hist_list.append(cv2.normalize(hist, hist))
+        hist = cv2.calcHist([hsv], [0, 1, 2], mask, bins, [0, 180, 0, 256, 0, 256])
+        hist_list.append(cv2.normalize(hist, hist).flatten().tolist())
     # return np.array(hist_list)
     return hist_list
 
