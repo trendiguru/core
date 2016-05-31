@@ -75,5 +75,6 @@ def theDetector(url_or_np_array):
 
     if predictions[0][0] > 0:
         print max(predictions[0])
-        print predictions[0].index(max(predictions[0]))
+        print np.argmax(predictions[0])
+        print predictions
 
