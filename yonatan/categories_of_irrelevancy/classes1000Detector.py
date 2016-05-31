@@ -74,7 +74,7 @@ def theDetector(url_or_np_array):
     print("Done in %.2f s." % (time.time() - start))
 
     if predictions[0][0] > 0:
-        print max(predictions[0])
-        print np.argmax(predictions[0])
+        print max(predictions)
+        print np.argmax(predictions)
         print predictions
 
