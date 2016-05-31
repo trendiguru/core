@@ -2,7 +2,7 @@ from jaweson import msgpack
 import requests
 
 #
-CLASSIFIER_ADDRESS = "http://37.58.101.173:8080/pd"
+CLASSIFIER_ADDRESS = "http://37.58.101.173:8080/nd"
 
 
 def pd(image_array_or_url):
