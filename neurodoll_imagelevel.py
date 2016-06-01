@@ -136,7 +136,7 @@ def old_detect_many(imgdir):
     raw_scale = 255.0
 
     filelist = [os.path.join(dir,f) for f in os.listdir(imgdir) if 'jpg' in f]
-
+    filelist.sort()
     print('loading caffemodel for neurodoll')
     for cpm in caffe_protos_models:
         print('proto {} model {}'.format(cpm[0],cpm[1]))
@@ -155,6 +155,7 @@ if __name__ == "__main__":
     url = 'http://diamondfilms.com.au/wp-content/uploads/2014/08/Fashion-Photography-Sydney-1.jpg'
     dir = '/home/jeremy/image_dbs/colorful_fashion_parsing_data/test_256x256_novariations'
     filelist = [os.path.join(dir,f) for f in os.listdir(dir) if 'jpg' in f]
+    filelist.sort()
     n = len(filelist)
     allresults = np.zeros([n,4])
     agg = []
@@ -163,11 +164,13 @@ if __name__ == "__main__":
 
         results = detect_many(dir,cpm[0],cpm[1])
         allresults[:,i] = results
-        agg.append(results)
+#        agg.append(results)
         i=i+1
 
     print allresults
-    print agg
+    for i in range(n)
+        print(filelist[i],' ',allresults[i,:])
+#    print agg
 
 #    result = infer_one(url,required_image_size=required_image_size)
 #    cv2.imwrite('output.png',result)
