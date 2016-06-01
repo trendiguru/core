@@ -156,7 +156,7 @@ if __name__ == "__main__":
     dir = '/home/jeremy/image_dbs/colorful_fashion_parsing_data/test_256x256_novariations'
     filelist = [os.path.join(dir,f) for f in os.listdir(dir) if 'jpg' in f]
     n = len(filelist)
-    allresults = np.zeros(n,4)
+    allresults = np.zeros([n,4])
     agg = []
     i=0
     for cpm in caffe_protos_models:
