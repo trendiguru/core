@@ -220,8 +220,14 @@ def build_forest(name, dis_func, tree_count):
     t.build(tree_count)
     t.save(name)
 
-def annoy_search(name,n, dis_func,fingerprint):
+def annoy_search_sp(name,n, dis_func,fingerprint):
     t = annoy.AnnoyIndex(4608, dis_func)
+    t.load(name)
+    result = t.get_nns_by_vector(fingerprint,n)
+    return result
+
+def annoy_search(name,n, dis_func,fingerprint):
+    t = annoy.AnnoyIndex(696, dis_func)
     t.load(name)
     result = t.get_nns_by_vector(fingerprint,n)
     return result
