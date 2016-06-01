@@ -1074,15 +1074,17 @@ def theDetector(url_or_np_array, percent_threshold=0.95):
 
     items_value_sum = 0
     counter = 0
-    results_list = []
+    results_dict = {}
     while items_value_sum < percent_threshold:
         print '{0} : {1}'.format(dictionary[str(top5_indexes[counter])], top5_values[counter])
 
         items_value_sum += top5_values[counter]
         counter += 1
 
-        results_list[counter][0] = dictionary[str(top5_indexes[counter])]
-        results_list[counter][1] = top5_values[counter]
+        results_dict[dictionary[str(top5_indexes[counter])]] = top5_values[counter]
+
+        #results_list[counter][0] = dictionary[str(top5_indexes[counter])]
+        #results_list[counter][1] = top5_values[counter]
 
     return 'Done!'
     #return dictionary[str(np.argmax(predictions[0]))]
