@@ -18,8 +18,7 @@ import skimage
 MODLE_FILE = "/home/yonatan/trendi/yonatan/categories_of_irrelevancy/Alexnet_1000_deploy.prototxt"
 PRETRAINED = "/home/yonatan/bvlc_alexnet.caffemodel"
 caffe.set_mode_gpu()
-#image_dims = [227, 227]
-image_dims = None
+image_dims = [227, 227]
 mean, input_scale = np.array([120, 120, 120]), None
 channel_swap = [2, 1, 0]
 raw_scale = 255.0
@@ -1054,7 +1053,6 @@ def url_to_image(url):
     return new_image
 
 
-#def theDetector(image):
 def theDetector(url_or_np_array):
 
     # check if i get a url (= string) or np.ndarray
@@ -1065,9 +1063,7 @@ def theDetector(url_or_np_array):
     else:
         return None
 
-    resized_image = cv2.resize(full_image, (227, 227))
-
-    img_for_caffe = [cv2_image_to_caffe(resized_image)]
+    img_for_caffe = [cv2_image_to_caffe(full_image)]
     #face_for_caffe = [caffe.io.load_image(face_image)]
 
     if img_for_caffe is None:
@@ -1077,7 +1073,5 @@ def theDetector(url_or_np_array):
     start = time.time()
     predictions = classifier.predict(img_for_caffe)
     print("Done in %.2f s." % (time.time() - start))
-
-    print max(predictions[0])
 
     return dictionary[str(np.argmax(predictions[0]))]
