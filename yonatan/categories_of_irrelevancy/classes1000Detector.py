@@ -1076,7 +1076,8 @@ def theDetector(url_or_np_array, percent_threshold=0.95):
     while (items_value_sum < percent_threshold):
         print 'here you go:', top5[counter]
 
-        items_value_sum += max(predictions[0])
+        items_value_sum += top5[counter]
+        print items_value_sum
         counter += 1
 
     return 'Done!'
