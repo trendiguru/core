@@ -24,7 +24,7 @@ text_file = open("dresses_test.txt", "r")
 counter = 0
 
 MODLE_FILE = "/home/yonatan/trendi/yonatan/Alexnet_deploy_for_dresses.prototxt"
-PRETRAINED = "/home/yonatan/caffe_alexnet_train_on_74250_dresses_with_finetuning_iter_45000.caffemodel"
+PRETRAINED = "/home/yonatan/caffe_alexnet_train_on_74250_dresses_with_finetuning_hopefull80_iter_20000.caffemodel"
 caffe.set_mode_gpu()
 image_dims = [256, 256]
 mean, input_scale = np.array([120, 120, 120]), None
@@ -136,4 +136,4 @@ plt.legend()
 plt.hist(array_failure, alpha=0.5, label='array_failure')
 plt.legend()
 
-histogram.savefig('75000_train_dresses_with_fine_tuning_histogram_iter_45000.png')
+histogram.savefig('75000_train_dresses_with_fine_tuning_histogram_iter_20000_hope.png')
