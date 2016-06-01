@@ -152,8 +152,8 @@ for x,file in enumerate(files):
     q.enqueue(ebay_downloader, args=(filename, filesize), timeout=2000)
     percentOfTotal = filesize/total_ram
     percentOfAvi = (filesize+available_ram)/total_ram
-    if percentOfTotal > 0.30 or percentOfAvi > 0.6 :
-        sleep(150)
+    if percentOfTotal > 0.2 or percentOfAvi > 0.6 :
+        sleep(300)
     else:
         sleep(15)
 
