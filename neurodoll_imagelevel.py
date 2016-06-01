@@ -101,6 +101,7 @@ def detect_many(imgdir):
 
     print('loading caffemodel for neurodoll')
     for cpm in caffe_protos_models:
+        print('proto {} model {}'.format(cpm[0],cpm[1]))
 #        net = caffe.Net(cpm[0],cpm[1], caffe.TEST)
         classifier = caffe.Classifier(cpm[0],cpm[1],
                                   image_dims=image_dims, mean=mean,
@@ -108,7 +109,7 @@ def detect_many(imgdir):
                                   channel_swap=channel_swap)
 
         for f in filelist:
-            res = theDetector(f,classifier)
+            res,probs = theDetector(f,classifier)
             print res
 
 if __name__ == "__main__":
