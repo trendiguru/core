@@ -63,7 +63,9 @@ def theDetector(url_or_np_array):
     else:
         return None
 
-    img_for_caffe = [cv2_image_to_caffe(full_image)]
+    resized_image = cv2.resize(full_image, (227, 227))
+
+    img_for_caffe = [cv2_image_to_caffe(resized_image)]
     #face_for_caffe = [caffe.io.load_image(face_image)]
 
     if img_for_caffe is None:
