@@ -124,7 +124,7 @@ failure = len(array_failure)
 if success == 0 or failure == 0:
     print "wrong!"
 else:
-    print 'accuracy percent: {0}'.format(success / success + failure)
+    print 'accuracy percent: {0}'.format(success / (success + failure))
 
 histogram = plt.figure(1)
 
