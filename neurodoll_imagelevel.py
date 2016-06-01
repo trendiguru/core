@@ -48,11 +48,14 @@ def url_or_np_array_or_filename_to_np_array(url_or_np_array_or_filename):
 
     if isinstance(url_or_np_array_or_filename, basestring):
         if 'http://' in url_or_np_array_or_filename: #its a url
+            logging.debug('getting image from url:'+url_or_np_array_or_filename)
             image = url_to_image(url_or_np_array_or_filename)
         else:
+            logging.debug('getting image from file:'+url_or_np_array_or_filename)
             image = cv2.imread(url_or_np_array_or_filename)
         return image
     elif type(url_or_np_array_or_filename) == np.ndarray:
+        logging.debug('getting image from array')
         image = url_or_np_array_or_filename
         return image
     else:
@@ -62,6 +65,8 @@ def url_or_np_array_or_filename_to_np_array(url_or_np_array_or_filename):
 def theDetector(url_or_np_array,classifier):
 
     image = url_or_np_array_or_filename_to_np_array(url_or_np_array)
+    if image is None:
+        logging.warning('couldnt get image')
     #image_for_caffe = [caffe.io.load_image(image)]
 #    image_for_caffe = [cv2_image_to_caffe(image)]   #skip the double channelswap
     image_for_caffe = [image]
