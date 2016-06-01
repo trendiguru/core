@@ -1048,7 +1048,7 @@ def url_to_image(url):
     return new_image
 
 
-def theDetector(url_or_np_array, percent_threshold=0.95, max_num_of_items=1):
+def theDetector(url_or_np_array, percent_threshold=0.80, max_num_of_items=5):
 
     # check if i get a url (= string) or np.ndarray
     if isinstance(url_or_np_array, basestring):
@@ -1076,10 +1076,6 @@ def theDetector(url_or_np_array, percent_threshold=0.95, max_num_of_items=1):
     counter = 0
     results_dict = {}
     while items_value_sum < percent_threshold and counter < max_num_of_items:
-        print top_values
-        print top_indexes
-
-        print '{0} : {1}'.format(dictionary[str(top_indexes[counter])], top_values[counter])
 
         results_dict[dictionary[str(top_indexes[counter])]] = top_values[counter]
 
@@ -1088,5 +1084,3 @@ def theDetector(url_or_np_array, percent_threshold=0.95, max_num_of_items=1):
 
     return results_dict
 
-    return 'Done!'
-    #return dictionary[str(np.argmax(predictions[0]))]
