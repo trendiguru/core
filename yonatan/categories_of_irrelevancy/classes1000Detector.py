@@ -18,7 +18,8 @@ import skimage
 MODLE_FILE = "/home/yonatan/trendi/yonatan/categories_of_irrelevancy/Alexnet_1000_deploy.prototxt"
 PRETRAINED = "/home/yonatan/bvlc_alexnet.caffemodel"
 caffe.set_mode_gpu()
-image_dims = [227, 227]
+#image_dims = [227, 227]
+image_dims = None
 mean, input_scale = np.array([120, 120, 120]), None
 channel_swap = [2, 1, 0]
 raw_scale = 255.0
@@ -62,7 +63,9 @@ def theDetector(url_or_np_array):
     else:
         return None
 
-    img_for_caffe = [cv2_image_to_caffe(full_image)]
+    resized_image = cv2.resize(full_image, (227, 227))
+
+    img_for_caffe = [cv2_image_to_caffe(resized_image)]
     #face_for_caffe = [caffe.io.load_image(face_image)]
 
     if img_for_caffe is None:
