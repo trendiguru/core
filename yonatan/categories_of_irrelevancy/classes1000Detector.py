@@ -1069,14 +1069,15 @@ def theDetector(url_or_np_array, percent_threshold=0.95):
     predictions = classifier.predict(img_for_caffe)
     print("Done in %.2f s." % (time.time() - start))
 
-    top5 = (sorted(predictions[0], reverse=True)[:5])
+    top5_values = (sorted(predictions[0], reverse=True)[:5])
+    top5_indexes = (-predictions[0]).argsort()[:5]
 
     items_value_sum = 0
     counter = 0
     while (items_value_sum < percent_threshold):
-        print 'here you go:', top5[counter]
+        print '{0} : {1}'.format(dictionary[str(top5_indexes[counter])], top5_values[counter])
 
-        items_value_sum += top5[counter]
+        items_value_sum += top5_values[counter]
         print items_value_sum
         counter += 1
 
