@@ -1048,7 +1048,7 @@ def url_to_image(url):
     return new_image
 
 
-def theDetector(url_or_np_array):
+def theDetector(url_or_np_array, percent_threshold=0.95):
 
     # check if i get a url (= string) or np.ndarray
     if isinstance(url_or_np_array, basestring):
@@ -1069,4 +1069,17 @@ def theDetector(url_or_np_array):
     predictions = classifier.predict(img_for_caffe)
     print("Done in %.2f s." % (time.time() - start))
 
-    return dictionary[str(np.argmax(predictions[0]))]
+    top5 = (sorted(predictions[0], reverse=True)[:5])
+
+    items_value_sum = 0
+    counter = 0
+    while (items_value_sum < percent_threshold):
+        print 'here you go:', top5[counter]
+
+        items_value_sum += max(predictions[0])
+        counter += 1
+
+    return 'Done!'
+    #return dictionary[str(np.argmax(predictions[0]))]
+
+#print 'accuracy percent: {0}'.format(success / success + failure)
