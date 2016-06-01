@@ -97,7 +97,7 @@ def detect_many(imgdir):
     channel_swap = None
     raw_scale = 255.0
 
-    filelist = [f for f in os.listdir(imgdir) if 'jpg' in f]
+    filelist = [os.path.join(dir,f) for f in os.listdir(imgdir) if 'jpg' in f]
 
     print('loading caffemodel for neurodoll')
     for cpm in caffe_protos_models:
