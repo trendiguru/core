@@ -62,7 +62,7 @@ def url_or_np_array_or_filename_to_np_array(url_or_np_array_or_filename):
         return None
 
 
-def theDetector(url_or_np_array,classifier):
+def theOldDetector(url_or_np_array,classifier):
 
     image = url_or_np_array_or_filename_to_np_array(url_or_np_array)
     if image is None:
@@ -88,7 +88,41 @@ def theDetector(url_or_np_array,classifier):
         # irrelevant
         return False,  [predictions[0][0],predictions[0][1]]
 
-def detect_many(imgdir):
+
+def detect_many(image_dir,prototxt,caffemodel,dims=(224,224)):
+#    image = url_or_np_array_or_filename_to_np_array(imagename)
+#    if image is None:
+#        logging.warning('couldnt get image')
+    net = caffe.Net(prototxt,caffemodel, caffe.TEST)
+    filelist = [os.path.join(dir,f) for f in os.listdir(image_dir) if 'jpg' in f]
+    for imagename in filelist:
+        start_time = time.time()
+        print('working on:'+imagename)
+            # load image, switch to BGR, subtract mean, and make dims C x H x W for Caffe
+        im = Image.open(imagename)
+        im = im.resize(dims,Image.ANTIALIAS)
+        in_ = np.array(im, dtype=np.float32)
+        if len(in_.shape) != 3:
+            print('got 1-chan image, skipping')
+            return
+        elif in_.shape[2] != 3:
+            print('got n-chan image, skipping - shape:'+str(in_.shape))
+            return
+        in_ = in_[:,:,::-1]
+        in_ -= np.array((104.0,116.7,122.7))
+        in_ = in_.transpose((2,0,1))
+        print('shape after:'+str(in_.shape))
+        # shape for input (data blob is N x C x H x W), set data
+        net.blobs['data'].reshape(1, *in_.shape)
+        net.blobs['data'].data[...] = in_
+        # run net and take argmax for prediction
+        net.forward()
+        out = net.blobs['score'].data[0].argmax(axis=0)
+        print('shape:'+str(out.shape))
+        print('out:'+str(out))
+        print('elapsed time:'+str(time.time()-start_time))
+
+def old_detect_many(imgdir):
     image_dims = [227, 227]
     mean = np.array([107, 117, 123])
     image_mean = np.array([107.0,117.0,123.0])
@@ -116,7 +150,8 @@ if __name__ == "__main__":
 
     url = 'http://diamondfilms.com.au/wp-content/uploads/2014/08/Fashion-Photography-Sydney-1.jpg'
     dir = '/home/jeremy/image_dbs/colorful_fashion_parsing_data/test_256x256_novariations'
-    detect_many(dir)
+    for cpm in caffe_protos_models:
+    detect_many(dir,cpm[0],cpm[1])
 #    result = infer_one(url,required_image_size=required_image_size)
 #    cv2.imwrite('output.png',result)
 #    labels=constants.ultimate_21
