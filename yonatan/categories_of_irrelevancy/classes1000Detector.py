@@ -3,13 +3,8 @@
 __author__ = 'yonatan_guy'
 
 import numpy as np
-import os
 import caffe
-import sys
-import argparse
-import glob
 import time
-from trendi import background_removal, Utils, constants
 import cv2
 import urllib
 import skimage
@@ -18,8 +13,7 @@ import skimage
 MODLE_FILE = "/home/yonatan/trendi/yonatan/categories_of_irrelevancy/Alexnet_1000_deploy.prototxt"
 PRETRAINED = "/home/yonatan/bvlc_alexnet.caffemodel"
 caffe.set_mode_gpu()
-#image_dims = [227, 227]
-image_dims = None
+image_dims = [227, 227]
 mean, input_scale = np.array([120, 120, 120]), None
 channel_swap = [2, 1, 0]
 raw_scale = 255.0
@@ -1054,8 +1048,7 @@ def url_to_image(url):
     return new_image
 
 
-#def theDetector(image):
-def theDetector(url_or_np_array):
+def theDetector(url_or_np_array, percent_threshold=0.80, max_num_of_items=5):
 
     # check if i get a url (= string) or np.ndarray
     if isinstance(url_or_np_array, basestring):
@@ -1065,9 +1058,7 @@ def theDetector(url_or_np_array):
     else:
         return None
 
-    resized_image = cv2.resize(full_image, (227, 227))
-
-    img_for_caffe = [cv2_image_to_caffe(resized_image)]
+    img_for_caffe = [cv2_image_to_caffe(full_image)]
     #face_for_caffe = [caffe.io.load_image(face_image)]
 
     if img_for_caffe is None:
@@ -1078,6 +1069,18 @@ def theDetector(url_or_np_array):
     predictions = classifier.predict(img_for_caffe)
     print("Done in %.2f s." % (time.time() - start))
 
-    item = dictionary[str(np.argmax(predictions[0]))]
-    print 'That\'s probably a... {0}'.format(item)
-    return item
+    top_values = (sorted(predictions[0], reverse=True)[:max_num_of_items])
+    top_indexes = (-predictions[0]).argsort()[:max_num_of_items]
+
+    items_value_sum = 0
+    counter = 0
+    results_dict = {}
+    while items_value_sum < percent_threshold and counter < max_num_of_items:
+
+        results_dict[dictionary[str(top_indexes[counter])]] = top_values[counter]
+
+        items_value_sum += top_values[counter]
+        counter += 1
+
+    return results_dict
+

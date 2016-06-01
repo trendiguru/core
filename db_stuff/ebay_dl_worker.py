@@ -50,9 +50,9 @@ def ebay2generic(item, info):
                    "price":  info["price"],
                    "Brand" : item["MANUFACTURER"],
                    "Site" : item["MERCHANT_NAME"],
-                   "download_data": {'dl_version': today_date,
-                                     'first_dl': today_date,
-                                     'fp_version': constants.fingerprint_version},
+                   # "download_data": {'dl_version': today_date,
+                   #                   'first_dl': today_date,
+                   #                   'fp_version': constants.fingerprint_version},
                    "fingerprint": None,
                    "gender": info["gender"],
                    "ebay_raw": item}
@@ -62,7 +62,7 @@ def ebay2generic(item, info):
         elif 'http' in full_img_url:
             img_url = full_img_url[7:]
         else:
-            pass
+            img_url = full_img_url
         image = Utils.get_cv2_img_array(img_url)
         if image is None:
             generic = None
@@ -266,6 +266,7 @@ def ebay_downloader(filename, filesize):
                 hashexistsInArchive = db[archive].find_one({'img_hash': generic_dict['img_hash']})
                 if hashexists or hashexistsInArchive:
                     continue
+                print('new item')
                 q.enqueue(generate_mask_and_insert, doc=generic_dict, image_url=generic_dict["images"]["XLarge"],
                           fp_date=today_date, coll=collection_name)
 
