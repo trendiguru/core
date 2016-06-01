@@ -59,6 +59,8 @@ def plantForests4AllCategories(col_name):
     print ("planting %s" % (col_name))
     for cat in categories:
         plantAnnoyForest(col_name,cat,250)
+    db[col_name].drop_index('AnnoyIndex')
+    db[col_name].create_Index('AnnoyIndex', background=True)
 
 def plantTheFuckingAmazon():
     '''
