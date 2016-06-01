@@ -16,8 +16,8 @@ from trendi import background_removal, Utils, constants
 from trendi.utils import imutils
 
 caffe_protos_models = [["/home/jeremy/caffenets/binary_imagelevel/caf/dressdeploy.prototxt","/home/jeremy/caffenets/binary_imagelevel/caf/caffe_binary_dress_iter_30000.caffemodel"],
-               ["/home/jeremy/caffenets/binary_imagelevel/caf/pantsdeploy.prototxt","/home/jeremy/caffenets/binary_imagelevel/caf/caffe_binary_pants_iter_11638.caffemodel",]
-               ["/home/jeremy/caffenets/binary_imagelevel/caf/skirtdeploy.prototxt", "/home/jeremy/caffenets/binary_imagelevel/caf/caffe_binary_skirt_iter_12395.caffemodel"]
+               ["/home/jeremy/caffenets/binary_imagelevel/caf/pantsdeploy.prototxt","/home/jeremy/caffenets/binary_imagelevel/caf/caffe_binary_pants_iter_11638.caffemodel"],
+               ["/home/jeremy/caffenets/binary_imagelevel/caf/skirtdeploy.prototxt", "/home/jeremy/caffenets/binary_imagelevel/caf/caffe_binary_skirt_iter_12395.caffemodel"],
                ["/home/jeremy/caffenets/binary_imagelevel/caf/topdeploy.prototxt", "/home/jeremy/caffenets/binary_imagelevel/caf/caffe_binary_top_iter_21891.caffemodel"]]
 
 caffe.set_mode_gpu()
