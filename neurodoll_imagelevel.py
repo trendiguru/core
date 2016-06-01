@@ -95,8 +95,9 @@ def detect_many(image_dir,prototxt,caffemodel,dims=(224,224)):
 #        logging.warning('couldnt get image')
     net = caffe.Net(prototxt,caffemodel, caffe.TEST)
     filelist = [os.path.join(dir,f) for f in os.listdir(image_dir) if 'jpg' in f]
+    results = []
+    start_time = time.time()
     for imagename in filelist:
-        start_time = time.time()
         print('working on:'+imagename)
             # load image, switch to BGR, subtract mean, and make dims C x H x W for Caffe
         im = Image.open(imagename)
@@ -121,7 +122,9 @@ def detect_many(image_dir,prototxt,caffemodel,dims=(224,224)):
         print('shape of prob:'+str(net.blobs['prob'].shape))
         print('shape:'+str(out.shape))
         print('out:'+str(out))
-        print('elapsed time:'+str(time.time()-start_time))
+        results.append(out)
+    print('elapsed time:'+str(time.time()-start_time))
+    return results
 
 def old_detect_many(imgdir):
     image_dims = [227, 227]
@@ -151,8 +154,11 @@ if __name__ == "__main__":
 
     url = 'http://diamondfilms.com.au/wp-content/uploads/2014/08/Fashion-Photography-Sydney-1.jpg'
     dir = '/home/jeremy/image_dbs/colorful_fashion_parsing_data/test_256x256_novariations'
+    allresults = []
     for cpm in caffe_protos_models:
-        detect_many(dir,cpm[0],cpm[1])
+        results = detect_many(dir,cpm[0],cpm[1])
+        allresults.append(results)
+        print allresults
 #    result = infer_one(url,required_image_size=required_image_size)
 #    cv2.imwrite('output.png',result)
 #    labels=constants.ultimate_21
