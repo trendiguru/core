@@ -1048,7 +1048,7 @@ def url_to_image(url):
     return new_image
 
 
-def theDetector(url_or_np_array, percent_threshold=0.95):
+def theDetector(url_or_np_array, percent_threshold=0.95, max_num_of_items=1):
 
     # check if i get a url (= string) or np.ndarray
     if isinstance(url_or_np_array, basestring):
@@ -1069,22 +1069,19 @@ def theDetector(url_or_np_array, percent_threshold=0.95):
     predictions = classifier.predict(img_for_caffe)
     print("Done in %.2f s." % (time.time() - start))
 
-    top5_values = (sorted(predictions[0], reverse=True)[:5])
-    top5_indexes = (-predictions[0]).argsort()[:5]
+    top_values = (sorted(predictions[0], reverse=True)[:max_num_of_items])
+    top_indexes = (-predictions[0]).argsort()[:max_num_of_items]
 
     items_value_sum = 0
     counter = 0
     results_dict = {}
     while items_value_sum < percent_threshold:
-        print '{0} : {1}'.format(dictionary[str(top5_indexes[counter])], top5_values[counter])
+        print '{0} : {1}'.format(dictionary[str(top_indexes[counter])], top_values[counter])
 
-        items_value_sum += top5_values[counter]
+        items_value_sum += top_values[counter]
         counter += 1
 
-        results_dict[dictionary[str(top5_indexes[counter])]] = top5_values[counter]
-
-        #results_list[counter][0] = dictionary[str(top5_indexes[counter])]
-        #results_list[counter][1] = top5_values[counter]
+        results_dict[dictionary[str(top_indexes[counter])]] = top_values[counter]
 
     return 'Done!'
     #return dictionary[str(np.argmax(predictions[0]))]
