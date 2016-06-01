@@ -1083,7 +1083,7 @@ def theDetector(url_or_np_array, percent_threshold=0.95, max_num_of_items=1):
         items_value_sum += top_values[counter]
         counter += 1
 
-        return results_dict
+    return results_dict
 
     return 'Done!'
     #return dictionary[str(np.argmax(predictions[0]))]
