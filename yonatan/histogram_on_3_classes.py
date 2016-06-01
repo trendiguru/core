@@ -136,4 +136,4 @@ plt.legend()
 plt.hist(array_failure, alpha=0.5, label='array_failure')
 plt.legend()
 
-histogram.savefig('75000_train_dresses_with_fine_tuning_histogram.png')
+histogram.savefig('75000_train_dresses_with_fine_tuning_histogram_iter_40000.png')
