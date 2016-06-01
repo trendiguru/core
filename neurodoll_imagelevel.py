@@ -168,7 +168,7 @@ if __name__ == "__main__":
         i=i+1
 
     print allresults
-    for i in range(n)
+    for i in range(n):
         print(filelist[i],' ',allresults[i,:])
 #    print agg
 
