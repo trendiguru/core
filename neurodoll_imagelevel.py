@@ -151,7 +151,7 @@ if __name__ == "__main__":
     url = 'http://diamondfilms.com.au/wp-content/uploads/2014/08/Fashion-Photography-Sydney-1.jpg'
     dir = '/home/jeremy/image_dbs/colorful_fashion_parsing_data/test_256x256_novariations'
     for cpm in caffe_protos_models:
-    detect_many(dir,cpm[0],cpm[1])
+        detect_many(dir,cpm[0],cpm[1])
 #    result = infer_one(url,required_image_size=required_image_size)
 #    cv2.imwrite('output.png',result)
 #    labels=constants.ultimate_21
