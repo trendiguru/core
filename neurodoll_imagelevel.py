@@ -122,7 +122,7 @@ def detect_many(image_dir,prototxt,caffemodel,dims=(224,224)):
         print('shape of prob:'+str(net.blobs['prob'].shape))
         print('shape:'+str(out.shape))
         print('out:'+str(out))
-        results.append(out)
+        results.append(out[0])
     print('elapsed time:'+str(time.time()-start_time))
     return results
 
@@ -154,11 +154,20 @@ if __name__ == "__main__":
 
     url = 'http://diamondfilms.com.au/wp-content/uploads/2014/08/Fashion-Photography-Sydney-1.jpg'
     dir = '/home/jeremy/image_dbs/colorful_fashion_parsing_data/test_256x256_novariations'
-    allresults = []
+    filelist = [os.path.join(dir,f) for f in os.listdir(imgdir) if 'jpg' in f]
+    n = len(filelist)
+    allresults = np.zeros(n,4)
+    agg = []
+    i=0
     for cpm in caffe_protos_models:
+
         results = detect_many(dir,cpm[0],cpm[1])
-        allresults.append(results)
-        print allresults
+        allresults[:,i] = results
+        agg.append(results)
+        i=i+1
+    print allresults
+    print agg
+
 #    result = infer_one(url,required_image_size=required_image_size)
 #    cv2.imwrite('output.png',result)
 #    labels=constants.ultimate_21
