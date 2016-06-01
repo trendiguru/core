@@ -1077,4 +1077,6 @@ def theDetector(url_or_np_array):
     predictions = classifier.predict(img_for_caffe)
     print("Done in %.2f s." % (time.time() - start))
 
+    print max(predictions[0])
+
     return dictionary[str(np.argmax(predictions[0]))]
