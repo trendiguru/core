@@ -118,6 +118,7 @@ def detect_many(image_dir,prototxt,caffemodel,dims=(224,224)):
         # run net and take argmax for prediction
         net.forward()
         out = net.blobs['prob'].data[0]
+        print('shape of prob:'+str(net.blobs['prob'].shape))
         print('shape:'+str(out.shape))
         print('out:'+str(out))
         print('elapsed time:'+str(time.time()-start_time))
