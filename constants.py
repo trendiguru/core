@@ -222,6 +222,10 @@ ultimate_21 = ['bgnd','bag','belt','blazer','coat','dress','eyewear','face','hai
                'jeans','legging','pants','shoe','shorts','skin','skirt','stocking','suit','sweater',
                'top']
 
+ultimate_21_dict = {'bag': 1, 'belt': 2, 'bgnd': 0, 'blazer': 3, 'coat': 4, 'dress': 5, 'eyewear': 6, 'face': 7, 'hair': 8, 'hat': 9,
+    'jeans': 10, 'legging': 11, 'pants': 12, 'shoe': 13, 'shorts': 14, 'skin': 15,  'skirt': 16, 'stocking': 17, 'suit': 18, 'sweater': 19, 'top': 20}
+
+
 nn_categories = {"whole_body": ['dress', 'suit'],
                  "upper_cover": ['blazer', 'coat'],
                  "upper_under": ['top', 'sweater'],
