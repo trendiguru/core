@@ -169,7 +169,7 @@ def parse_solveoutput(f):
       if len(training_iterations)>0 and iteration < training_iterations[-1]:
         extra_iters = extra_iters+ training_iterations[-1]
         iteration = iteration + extra_iters
-        print('extra iters:'+str(extra_iters))
+        print('iteration {} extra iters {}'.format(iteration,extra_iters))
       training_iterations.append(float(iteration))
       loss = thesplit[3].strip('loss:')
       training_loss.append(float(loss))
