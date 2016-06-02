@@ -35,7 +35,7 @@ layer {
   }
   image_data_param {
     source: "/home/yonatan/dresses_cv.txt"
-    batch_size: 50
+    batch_size: 110
     shuffle: true
   }
 }
@@ -235,6 +235,22 @@ layer {
     pad: 1
     kernel_size: 3
     group: 2
+  bottom: "conv5"
+  top: "pool5"
+  pooling_param {
+    pool: MAX
+    kernel_size: 3
+    stride: 2
+  }
+}
+layer {
+  name: "my_fc6"
+  type: "InnerProduct"
+  bottom: "pool5"
+  top: "my_fc6"
+  param {
+    lr_mult: 10
+    decay_mult: 1
     weight_filler {
       type: "gaussian"
       std: 0.01
@@ -254,22 +270,6 @@ layer {
 layer {
   name: "pool5"
   type: "Pooling"
-  bottom: "conv5"
-  top: "pool5"
-  pooling_param {
-    pool: MAX
-    kernel_size: 3
-    stride: 2
-  }
-}
-layer {
-  name: "my_fc6"
-  type: "InnerProduct"
-  bottom: "pool5"
-  top: "my_fc6"
-  param {
-    lr_mult: 10
-    decay_mult: 1
   }
   param {
     lr_mult: 20
