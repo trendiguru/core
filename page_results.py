@@ -83,7 +83,10 @@ def route_by_url(image_url, page_url, lang):
     return False
 
 
-def check_if_relevant(image_url, page_url, lang):
+def check_if_relevant(image_url, page_url, lang, custom_start_pipeline=None):
+    if custom_start_pipeline:
+        start_pipeline = constants.Queue(custom_start_pipeline)
+
     image = Utils.get_cv2_img_array(image_url)
     if image is None:
         return
@@ -121,10 +124,14 @@ def genderize(image_or_url, face):
     return msgpack.loads(resp.content)
     # returns {'success': bool, 'gender': Female/Male, ['error': the error as string if success is False]}
 
+
 def labelize(image_or_url):
-    data = msgpack.dumps({"image": image_or_url})
-    resp = requests.post(LABEL_ADDRESS, data)
-    return msgpack.loads(resp.content)["labels"]
+    try:
+        data = msgpack.dumps({"image": image_or_url})
+        resp = requests.post(LABEL_ADDRESS, data)
+        return msgpack.loads(resp.content)["labels"]
+    except:
+        return []
 
 # def route_by_ip(ip, images_list, page_url):
 #     ret = {}
