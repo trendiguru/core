@@ -2,7 +2,7 @@
 import hashlib
 import logging
 import datetime
-# import maxminddb
+import maxminddb
 import tldextract
 import bson
 from jaweson import msgpack
@@ -24,6 +24,7 @@ prod_coll_name = "products"
 geo_db_path = '/usr/local/lib/python2.7/dist-packages/maxminddb'
 GENDER_ADDRESS = "http://37.58.101.173:8357/neural/gender"
 DOORMAN_ADDRESS = "http://37.58.101.173:8357/neural/doorman"
+reader = maxminddb.open_database(geo_db_path + '/GeoLite2-Country.mmdb')
 
 
 def has_results_from_collection(image_obj, collection):
@@ -45,21 +46,37 @@ def add_results_from_collection(image_obj, collection):
     return True
 
 
-def get_collection_from_ip_and_domain(ip, domain):
-    if domain in constants.products_per_site.keys():
-        return constants.products_per_site[domain]
+def get_country_from_ip(ip):
+    user_info = reader.get(ip)
+    if user_info:
+        if 'country' in user_info.keys():
+            return user_info['country']['iso_code']
+        elif 'registered_country' in user_info.keys():
+            return user_info['registered_country']['iso_code']
     else:
-        return constants.products_per_site['default']
-    # reader = maxminddb.open_database(geo_db_path + '/GeoLite2-Country.mmdb')
-    # user_info = reader.get(ip)
-    # if user_info:
-    #     if 'country' in user_info.keys():
-    #         country_iso_code = user_info['country']['iso_code']
-    #         return next((k for k, v in constants.products_per_country.items() if country_iso_code in v), None)
-    #     elif 'registered_country' in user_info.keys():
-    #         country_iso_code = user_info['registered_country']['iso_code']
-    #         return next((k for k, v in constants.products_per_country.items() if country_iso_code in v), None)
-    # return constants.products_per_country['default']
+        return None
+
+
+def get_collection_from_ip_and_domain(ip, domain):
+    country = get_country_from_ip(ip)
+    default_map = constants.which_products_collection['default']
+    if domain in constants.which_products_collection.keys():
+        domain_map = constants.which_products_collection[domain]
+        if country:
+            if country in domain_map.keys():
+                return domain_map[country]
+            elif 'default' in domain_map.keys():
+                return domain_map['default']
+            else:
+                if country in default_map.keys():
+                    return default_map[country]
+                else:
+                    return default_map['default']
+    else:
+        if country in default_map.keys():
+            return default_map[country]
+        else:
+            return default_map['default']
 
 
 def route_by_url(image_url, page_url, lang):
@@ -119,28 +136,33 @@ def genderize(image_or_url, face):
     # returns {'success': bool, 'gender': Female/Male, ['error': the error as string if success is False]}
 
 
-# def route_by_ip(ip, images_list, page_url):
-#     ret = {}
-#     for image_url in images_list:
-#         # IF IMAGE IS IN DB.IMAGES:
-#         image_obj = db.images.find_one({'image_urls': image_url})
-#         if image_obj:
-#             domain = tldextract.extract(page_url).registered_domain
-#             collection = get_collection_from_ip_and_domain(ip, domain)
-#             # IF IMAGE HAS RESULTS FROM THIS IP:
-#             if has_results_from_collection(image_obj, collection):
-#                 # APPEND URL TO RELEVANT LIST
-#                 ret[image_url] = True
-#             else:
-#                 ret[image_url] = False
-#                 # GET RESULTS TO THIS GEO
-#                 add_results_from_collection(image_obj, collection)
-#         else:
-#             ret[image_url] = False
-#             start_pipeline.enqueue_call(func=pipeline.start_pipeline,
-#                                         args=(page_url, image_url),
-#                                         ttl=2000, result_ttl=2000, timeout=2000)
-#     return ret
+def route_by_ip(ip, image_url, page_url, lang):
+    domain = tldextract.extract(page_url).registered_domain
+    if not db.whitelist.find_one({'domain': domain}):
+        return False
+
+    if image_url[:4] == "data":
+        return False
+
+    if db.iip.find_one({'image_url': image_url}) or db.irrelevant_images.find_one({'image_urls': image_url}):
+        return False
+
+    # IF IMAGE IS IN DB.IMAGES:
+    image_obj = db.images.find_one({'image_urls': image_url})
+    if image_obj:
+        collection = get_collection_from_ip_and_domain(ip, domain)
+        # IF IMAGE HAS RESULTS FROM THIS IP:
+        if has_results_from_collection(image_obj, collection):
+            return True
+        else:
+            # ADD RESULTS FROM THIS PRODUCTS-COLLECTION
+            add_results_from_collection(image_obj, collection)
+            return False
+
+    else:
+        relevancy.enqueue_call(func=check_if_relevant, args=(page_url, image_url),
+                               ttl=2000, result_ttl=2000, timeout=2000)
+        return False
 
 
 def set_lang(new_lang):
