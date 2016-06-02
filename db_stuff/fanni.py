@@ -60,7 +60,7 @@ def plantForests4AllCategories(col_name):
     for cat in categories:
         plantAnnoyForest(col_name,cat,250)
     try:
-        db[col_name].drop_index('AnnoyIndex')
+        db[col_name].drop_index('AnnoyIndex_1')
     except:
         pass
     db[col_name].create_Index('AnnoyIndex', background=True)
