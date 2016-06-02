@@ -214,7 +214,7 @@ ultimate_21_to_paperdoll = [None,None,None,5,16,9,None,None,None,None,3,13,1,Non
 
 
 ultimate_21 = ['bgnd','bag','belt','blazer','coat','dress','eyewear','face','hair','hat',
-               'jeans','legging','pants','shoe','shorts','skin','skirt','stocking','suit','sweater',
+               'jeans','leggings','pants','shoe','shorts','skin','skirt','stockings','suit','sweater',
                'top']
 
 paperdoll_paperdoll_men = {'top': 'shirt', 'pants': 'pants', 'shorts': 'shorts', 'jeans': 'jeans', 'jacket': 'jacket',
