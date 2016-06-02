@@ -10,9 +10,9 @@ dresses = {'mini', 'midi', 'maxi'}
 #sets = {'train', 'cv', 'test'}
 
 counter = 0
-counter_train = 750
-counter_cv = 150
-counter_test = 150
+counter_train = 680
+counter_cv = 140
+counter_test = 140
 
 for dress in dresses:
     source_dir = '/home/yonatan/resized_' + dress + '_dresses'
