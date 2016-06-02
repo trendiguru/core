@@ -169,6 +169,8 @@ def route_by_ip(ip, image_url, page_url, lang):
         relevancy.enqueue_call(func=check_if_relevant, args=(page_url, image_url),
                                ttl=2000, result_ttl=2000, timeout=2000)
         return False
+
+
 def labelize(image_or_url):
     try:
         data = msgpack.dumps({"image": image_or_url})
