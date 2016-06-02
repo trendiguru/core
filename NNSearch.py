@@ -103,7 +103,7 @@ def find_n_nearest_neighbors(target_dict, collection, category, number_of_matche
     # list of tuples with (entry,distance). Initialize with first n distance values
     fingerprint = target_dict["fingerprint"]
     annoy_job = q.enqueue(lumberjack, args=(collection,category, fingerprint))
-    while not annoy_job.is_finished or annoy_job.is_failed:
+    while not annoy_job.is_finished and not annoy_job.is_failed:
         sleep(0.1)
     if annoy_job.is_failed:
         return []

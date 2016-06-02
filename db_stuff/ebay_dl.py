@@ -189,8 +189,11 @@ for col in ["Female","Male","Unisex"]:#,"Tees"]:
     new_items = db[col_name].find({'download_data.first_dl': today_date}).count()
     status.update_one({"date": today_date}, {"$set": {status_full_path: "Done",
                                                       notes_full_path: new_items}})
-    forest.enqueue(plantForests4AllCategories, col_name=col_name, timeout=2000)
-
+    forest_job = forest.enqueue(plantForests4AllCategories, col_name=col_name, timeout=3600)
+    while not forest_job.is_finished and not forest_job.is_failed:
+        sleep(300)
+    if forest_job.is_failed:
+        print ('annoy plant forest failed')
 
 
 print("ebay Download is Done")
