@@ -462,6 +462,10 @@ if __name__ == "__main__":
     print ("@@@ Shopstyle Download @@@\n you choose to update the " + col + " collection")
     update_db = ShopStyleDownloader(col,gender)
     update_db.db_download()
-    forest.enqueue(plantForests4AllCategories, col_name=col, timeout=2000)
+    forest_job = forest.enqueue(plantForests4AllCategories, col_name=col, timeout=3600)
+    while not forest_job.is_finished and not forest_job.is_failed:
+        time.sleep(300)
+    if forest_job.is_failed:
+        print ('annoy plant forest failed')
 
     print (col + "Update Finished!!!")
