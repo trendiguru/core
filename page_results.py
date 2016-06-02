@@ -7,7 +7,7 @@ import tldextract
 import bson
 from jaweson import msgpack
 import requests
-
+from rq import push_connection
 # ours
 import Utils
 import constants
@@ -26,6 +26,7 @@ GENDER_ADDRESS = "http://37.58.101.173:8357/neural/gender"
 DOORMAN_ADDRESS = "http://37.58.101.173:8357/neural/doorman"
 LABEL_ADDRESS = "http://37.58.101.173:8357/neural/label"
 reader = maxminddb.open_database(geo_db_path + '/GeoLite2-Country.mmdb')
+push_connection(constants.redis_conn)
 
 
 def has_results_from_collection(image_obj, collection):
