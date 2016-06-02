@@ -170,7 +170,7 @@ def parse_solveoutput(f):
         print('iteration {} last in list {} extra iters {}'.format(iteration,training_iterations[-1],extra_iters))
         extra_iters = extra_iters+ training_iterations[-1]
         iteration = iteration + extra_iters
-      training_iterations.append(float(iteration))
+      training_iterations.append(iteration)
       loss = thesplit[3].strip('loss:')
       training_loss.append(float(loss))
 #      print('split :'+str(thesplit))
