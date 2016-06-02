@@ -24,6 +24,7 @@ prod_coll_name = "products"
 geo_db_path = '/usr/local/lib/python2.7/dist-packages/maxminddb'
 GENDER_ADDRESS = "http://37.58.101.173:8357/neural/gender"
 DOORMAN_ADDRESS = "http://37.58.101.173:8357/neural/doorman"
+LABEL_ADDRESS = "http://37.58.101.173:8357/neural/label"
 
 
 def has_results_from_collection(image_obj, collection):
@@ -82,7 +83,10 @@ def route_by_url(image_url, page_url, lang):
     return False
 
 
-def check_if_relevant(image_url, page_url, lang):
+def check_if_relevant(image_url, page_url, lang, custom_start_pipeline=None):
+    if custom_start_pipeline:
+        start_pipeline = constants.Queue(custom_start_pipeline)
+
     image = Utils.get_cv2_img_array(image_url)
     if image is None:
         return
@@ -94,9 +98,11 @@ def check_if_relevant(image_url, page_url, lang):
     if not relevance.is_relevant:
         hashed = get_hash(image)
         image_obj = {'image_hash': hashed, 'image_urls': [image_url], 'page_urls': [page_url], 'people': [],
-                     'relevant': False, 'saved_date': str(datetime.datetime.utcnow()), 'views': 1}
+                     'relevant': False, 'saved_date': str(datetime.datetime.utcnow()), 'views': 1,
+                     'labels': labelize(image)}
         db.irrelevant_images.insert_one(image_obj)
-        return
+        db.labeled_irrelevant.innsert_one(image_obj)
+        return image_obj
     image_obj = {'people': [{'person_id': str(bson.ObjectId()), 'face': face.tolist(),
                              'gender': genderize(image, face.tolist())['gender']} for face in relevance.faces],
                  'image_url': image_url, 'page_url': page_url}
@@ -118,6 +124,14 @@ def genderize(image_or_url, face):
     return msgpack.loads(resp.content)
     # returns {'success': bool, 'gender': Female/Male, ['error': the error as string if success is False]}
 
+
+def labelize(image_or_url):
+    try:
+        data = msgpack.dumps({"image": image_or_url})
+        resp = requests.post(LABEL_ADDRESS, data)
+        return msgpack.loads(resp.content)["labels"]
+    except:
+        return []
 
 # def route_by_ip(ip, images_list, page_url):
 #     ret = {}

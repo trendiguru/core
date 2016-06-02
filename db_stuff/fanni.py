@@ -39,6 +39,14 @@ def plantAnnoyForest(col_name, category, num_of_trees, hold=True,distance_functi
     print ("%s forest in planted! come here for picnics..." %(category))
 
 
+def reindex_forest(col_name):
+    try:
+        db[col_name].drop_index('AnnoyIndex_1')
+    except:
+        pass
+    db[col_name].create_Index('AnnoyIndex', background=True)
+
+
 def plantForests4AllCategories(col_name):
     if 'ShopStyle'in col_name or 'GangnamStyle' in col_name:
         from ..db_stuff import shopstyle_constants
@@ -59,11 +67,7 @@ def plantForests4AllCategories(col_name):
     print ("planting %s" % (col_name))
     for cat in categories:
         plantAnnoyForest(col_name,cat,250)
-    try:
-        db[col_name].drop_index('AnnoyIndex')
-    except:
-        pass
-    db[col_name].create_Index('AnnoyIndex', background=True)
+    reindex_forest(col_name)
 
 def plantTheFuckingAmazon():
     '''
