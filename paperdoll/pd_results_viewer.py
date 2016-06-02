@@ -5,6 +5,7 @@ import numpy as np
 
 from trendi import pipeline
 from trendi.utils import imutils
+from trendi import constants
 from trendi.constants import fashionista_categories_augmented_zero_based
 from trendi.constants import fashionista_categories_augmented
 from trendi import Utils
@@ -43,13 +44,13 @@ def generate_groundtruth_legends(imgdir,labeldir):
         full_label_path = os.path.join(labeldir,corresponding_label)
         imutils.show_mask_with_labels(full_label_path,fashionista_categories_augmented,save_images=True)
 
-def after_nn_processdir(indir,outdir):
+def after_nn_processdir(indir,outdir,labels=constants.ultimate_21,filter='.bmp'):
     os.listdir(indir)
     Utils.ensure_dir(outdir)
-    masks = [f for f in os.listdir(indir) if '.bmp' in f]
+    masks = [f for f in os.listdir(indir) if filter in f]
     print('found {} files in {}'.format(len(masks),indir))
 
-    label_dict = {fashionista_categories_augmented_zero_based[i]:i for i in range(len(fashionista_categories_augmented_zero_based))}
+    label_dict = {labels[i]:i for i in range(len(labels))}
     print label_dict
 
     for f in masks:
@@ -61,7 +62,7 @@ def after_nn_processdir(indir,outdir):
         after_mask = pipeline.after_nn_conclusions(mask, label_dict)
         after_nn_conclusions_name = os.path.join(outdir,f[:-4]+'_nnconclusions.bmp')
         cv2.imwrite(after_nn_conclusions_name,after_mask)
-        imutils.show_mask_with_labels(after_nn_conclusions_name,fashionista_categories_augmented_zero_based,save_images=True)
+        imutils.show_mask_with_labels(after_nn_conclusions_name,labels,save_images=True)
 
 def after_pd_processdir(indir,outdir):
     masks = [f for f in os.listdir(indir) if '.bmp' in f]

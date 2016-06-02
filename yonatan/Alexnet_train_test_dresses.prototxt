@@ -269,7 +269,7 @@ layer {
   top: "my_fc6"
   param {
     lr_mult: 10
-    decay_mult: 10
+    decay_mult: 1
   }
   param {
     lr_mult: 20
@@ -283,7 +283,7 @@ layer {
     }
     bias_filler {
       type: "constant"
-      value: 0.0
+      value: 0.1
     }
   }
 }
@@ -309,7 +309,7 @@ layer {
   top: "my_fc7"
   param {
     lr_mult: 10
-    decay_mult: 10
+    decay_mult: 1
   }
   param {
     lr_mult: 20
@@ -323,7 +323,7 @@ layer {
     }
     bias_filler {
       type: "constant"
-      value: 0.0
+      value: 0.1
     }
   }
 }
@@ -349,7 +349,7 @@ layer {
   top: "my_fc8"
   param {
     lr_mult: 10
-    decay_mult: 10
+    decay_mult: 1
   }
   param {
     lr_mult: 20

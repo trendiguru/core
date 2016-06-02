@@ -27,8 +27,8 @@ def plantAnnoyForest(col_name, category, num_of_trees, hold=True,distance_functi
     forest.build(num_of_trees)
 
     if hold:
-        db[col_name].update_many({}, {'$unset': {"AnnoyIndex": 1}})
-        db[col_name].update_many({}, {'$rename': {"AnnoyIndex_tmp": "AnnoyIndex"}})
+        db[col_name].update_many({'categories':category}, {'$unset': {"AnnoyIndex": 1}})
+        db[col_name].update_many({'categories':category}, {'$rename': {"AnnoyIndex_tmp": "AnnoyIndex"}})
 
     """
     for now the tree is saved only on the database server
@@ -37,6 +37,14 @@ def plantAnnoyForest(col_name, category, num_of_trees, hold=True,distance_functi
     name = '/home/developer/annoyJungle/' + col_name+"/"+category+'_forest.ann'
     forest.save(name)
     print ("%s forest in planted! come here for picnics..." %(category))
+
+
+def reindex_forest(col_name):
+    try:
+        db[col_name].drop_index('AnnoyIndex_1')
+    except:
+        pass
+    db[col_name].create_Index('AnnoyIndex', background=True)
 
 
 def plantForests4AllCategories(col_name):
@@ -59,6 +67,7 @@ def plantForests4AllCategories(col_name):
     print ("planting %s" % (col_name))
     for cat in categories:
         plantAnnoyForest(col_name,cat,250)
+    reindex_forest(col_name)
 
 def plantTheFuckingAmazon():
     '''

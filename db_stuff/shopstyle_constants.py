@@ -75,7 +75,7 @@ shopstyle_paperdoll_female = {'belts': 'belt',
                              'neckless-jackets': 'jacket',
                              'casual-jackets': 'jacket',
                              'leather-jackets': 'jacket',
-                             'vests': 'vests',
+                             'vests': 'vest',
                              'coats': 'coat',
                              'womens-outerwear': 'coat',
                              'plus-size-outerwear': 'coat',
@@ -84,7 +84,7 @@ shopstyle_paperdoll_female = {'belts': 'belt',
                              'puffer-coats': 'coat',
                              'raincoats-and-trenchcoats': 'coat',
                              'wool-coats': 'coat',
-                             'leggings': 'tights'}
+                             'leggings': 'leggings'}
 
 shopstyle_paperdoll_male = {'mens-belts' : 'belt',
                              'mens-jackets': 'jacket',

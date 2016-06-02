@@ -208,14 +208,23 @@ def find_occlusion(name):
 # find_occlusion('fanni')
 
 def build_forest(name, dis_func, tree_count):
-    t = annoy.AnnoyIndex(696, dis_func)
-    items = db.fanni_testing_db.find({})
+    t = annoy.AnnoyIndex(4608, dis_func)
+    items = db.testSpacio.find({})
     for x,item in enumerate(items):
-        v= item['fingerprint']
-        t.add_item(x,v)
-        db.fanni_testing_db.update_one({'_id':item['_id']},{'$set':{"AnnoyIndex":x}})
+        v= item['sp']
+        vector = []
+        for i in range(6):
+            vector+=v[i]
+        t.add_item(x,vector)
+        db.sp.update_one({'_id':item['_id']},{'$set':{"AnnoyIndex":x}})
     t.build(tree_count)
     t.save(name)
+
+def annoy_search_sp(name,n, dis_func,fingerprint):
+    t = annoy.AnnoyIndex(4608, dis_func)
+    t.load(name)
+    result = t.get_nns_by_vector(fingerprint,n)
+    return result
 
 def annoy_search(name,n, dis_func,fingerprint):
     t = annoy.AnnoyIndex(696, dis_func)
@@ -224,10 +233,10 @@ def annoy_search(name,n, dis_func,fingerprint):
     return result
 
 def annoy_timings():
-    f = open('annoy_results_25.txt','a')
-    for trees in [100,250,500]:
+    f = open('annoy_results_spacio.txt','a')
+    for trees in [250]:
         for method in ['euclidean', 'angular']:
-            name = '/home/yonti/test' + str(trees) + method + '25.ann'
+            name = '/home/yonti/test' + str(trees) + method + 'specio.ann'
             t1 = time.time()
             build_forest(name, method, trees )
             t2 = time.time()

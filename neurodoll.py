@@ -14,7 +14,7 @@ import urllib
 
 from trendi import background_removal, Utils, constants
 from trendi.utils import imutils
-
+from trendi import pipeline
 
 def url_to_image(url):
     # download the image, convert it to a NumPy array, and then read
@@ -108,7 +108,11 @@ if __name__ == "__main__":
 
     url = 'http://diamondfilms.com.au/wp-content/uploads/2014/08/Fashion-Photography-Sydney-1.jpg'
     result = infer_one(url,required_image_size=required_image_size)
-
     cv2.imwrite('output.png',result)
     labels=constants.ultimate_21
     imutils.show_mask_with_labels('output.png',labels,visual_output=True)
+
+    after_nn_result = pipeline.after_nn_conclusions(result,constants.ultimate_21_dict)
+    cv2.imwrite('output_afternn.png',after_nn_result)
+    labels=constants.ultimate_21
+    imutils.show_mask_with_labels('output_afternn.png',labels,visual_output=True)

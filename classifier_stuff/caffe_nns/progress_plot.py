@@ -14,6 +14,7 @@ from pylab import figure, show, legend, ylabel
 from mpl_toolkits.axes_grid1 import host_subplot
 import datetime
 import time
+import datetime
 
 def parse_logfile(f):
   print('parsing logfile')
@@ -123,7 +124,8 @@ def parse_logfile(f):
   host.axis["left"].label.set_color(p1.get_color())
   par1.axis["right"].label.set_color(p2.get_color())
 
-  plt.title(net_name)
+  dt=datetime.datetime.today()
+  plt.title(net_name+' '+dt.isoformat())
   plt.suptitle(args.output_file)
   plt.draw()
   savename = args.output_file+'.jpg'
@@ -142,6 +144,8 @@ def parse_solveoutput(f):
   fwavacc = []
   training_loss = []
   first_report = True
+  extra_iters = 0
+
   for line in f:
 #    print('checking line:'+line)
     if '>>>' in line:
@@ -161,7 +165,10 @@ def parse_solveoutput(f):
         first_report = False
       times.append(epochtime - initial_time)
       print('epoch:'+str(epochtime))
-      iteration = thesplit[2].strip('Iteration:')
+      iteration = int(thesplit[2].strip('Iteration:')) + extra_iters
+      if len(training_iterations)>0 and iteration < training_iterations[-1]:
+        extra_iters = training_iterations[-1]
+        iteration = iteration + extra_iters
       training_iterations.append(float(iteration))
       loss = thesplit[3].strip('loss:')
       training_loss.append(float(loss))
@@ -253,6 +260,8 @@ def parse_solveoutput(f):
   par1.axis["right"].label.set_color(p2.get_color())
 
 #  plt.title(net_name)
+  dt=datetime.datetime.today()
+  plt.title(dt.isoformat())
   plt.suptitle(args.output_file)
   plt.draw()
   savename = args.output_file+'.jpg'
