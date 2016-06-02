@@ -177,7 +177,8 @@ def labelize(image_or_url):
     try:
         data = msgpack.dumps({"image": image_or_url})
         resp = requests.post(LABEL_ADDRESS, data)
-        return msgpack.loads(resp.content)["labels"]
+        labels = msgpack.loads(resp.content)["labels"]
+        return {key: float(val) for key, val in labels}
     except:
         return []
 
