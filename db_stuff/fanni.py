@@ -44,7 +44,7 @@ def reindex_forest(col_name):
         db[col_name].drop_index('AnnoyIndex_1')
     except:
         pass
-    db[col_name].create_Index('AnnoyIndex', background=True)
+    db[col_name].create_index('AnnoyIndex', background=True)
 
 
 def plantForests4AllCategories(col_name):
