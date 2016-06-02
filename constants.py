@@ -17,6 +17,10 @@ redis_conn = Redis(host=os.getenv("REDIS_HOST", "redis1-redis-1-vm"), port=int(o
 # export MONGO_HOST=localhost
 
 manual_gender_domains = ['fashionseoul.com', 'haaretz.co.il']
+which_products_collection = {'default':
+                                 {'default': 'ShopStyle', 'US': 'ebay', 'KR': 'GangnamStyle'},
+                             'fashionseoul.com':
+                                 {'KR': 'GangnamStyle'}}
 products_per_site = {'default': 'ShopStyle', 'fashionseoul.com': 'GangnamStyle', 'fazz.co': 'ShopStyle'}
                      # , 'mako.co.il': 'ebay'}
 products_per_country = {'default': 'ebay', 'ebay': ['US'], 'GangnhamStyle': ['KR']}
@@ -210,7 +214,7 @@ ultimate_21_to_paperdoll = [None,None,None,5,16,9,None,None,None,None,3,13,1,Non
 
 
 ultimate_21 = ['bgnd','bag','belt','blazer','coat','dress','eyewear','face','hair','hat',
-               'jeans','legging','pants','shoe','shorts','skin','skirt','stocking','suit','sweater',
+               'jeans','leggings','pants','shoe','shorts','skin','skirt','stockings','suit','sweater',
                'top']
 
 paperdoll_paperdoll_men = {'top': 'shirt', 'pants': 'pants', 'shorts': 'shorts', 'jeans': 'jeans', 'jacket': 'jacket',
