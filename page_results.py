@@ -102,8 +102,9 @@ def route_by_url(image_url, page_url, lang):
 
 def check_if_relevant(image_url, page_url, lang, custom_start_pipeline=None):
     if custom_start_pipeline:
-        start_pipeline = constants.Queue(custom_start_pipeline)
-
+        start_q = constants.Queue(custom_start_pipeline)
+    else:
+        start_q = start_pipeline
     image = Utils.get_cv2_img_array(image_url)
     if image is None:
         return
@@ -125,7 +126,7 @@ def check_if_relevant(image_url, page_url, lang, custom_start_pipeline=None):
                  'image_url': image_url, 'page_url': page_url}
     db.iip.insert_one({'image_url': image_url, 'insert_time': datetime.datetime.utcnow()})
     db.genderator.insert_one(image_obj)
-    start_pipeline.enqueue_call(func="", args=(page_url, image_url, lang), ttl=2000, result_ttl=2000, timeout=2000)
+    start_q.enqueue_call(func="", args=(page_url, image_url, lang), ttl=2000, result_ttl=2000, timeout=2000)
 
     # if domain in constants.manual_gender_domains:
     #     manual_gender.enqueue_call(func="", args=(image_url,), ttl=2000, result_ttl=2000,
