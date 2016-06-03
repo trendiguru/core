@@ -167,8 +167,9 @@ def parse_solveoutput(f):
       print('epoch:'+str(epochtime))
       iteration = int(thesplit[2].strip('Iteration:')) + extra_iters
       if len(training_iterations)>0 and iteration < training_iterations[-1]:
-        print('iteration {} last in list {} extra iters {}'.format(iteration,training_iterations[-1],extra_iters))
+        print('iteration {} last in list {} extra iters before{}'.format(iteration,training_iterations[-1],extra_iters))
         extra_iters = extra_iters+ training_iterations[-1]
+        print('iteration {} last in list {} extra iters after {}'.format(iteration,training_iterations[-1],extra_iters))
         iteration = iteration + extra_iters
       training_iterations.append(iteration)
       loss = thesplit[3].strip('loss:')
