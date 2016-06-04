@@ -11,7 +11,7 @@ shopstyle_relevant_items_Female = ['women', 'womens-clothes', 'womens-suits', 's
                      'jackets', 'casual-jackets', 'leather-jackets', 'vests',
                      'coats', 'womens-outerwear', 'fur-and-shearling-coats', 'leather-and-suede-coats',
                      'puffer-coats', 'raincoats-and-trenchcoats', 'wool-coats',
-                     'leggings']
+                     'leggings','tights']
 
 shopstyle_relevant_items_Male= ['men', 'mens-clothes', 'mens-belts', 'mens-jackets', 'mens-denim-jacket',
                      'mens-jeans', 'mens-bootcut-jeans', 'mens-low-rise-jeans', 'mens-distressed-jeans',
@@ -84,7 +84,8 @@ shopstyle_paperdoll_female = {'belts': 'belt',
                              'puffer-coats': 'coat',
                              'raincoats-and-trenchcoats': 'coat',
                              'wool-coats': 'coat',
-                             'leggings': 'leggings'}
+                             'leggings': 'leggings',
+                              'tights': 'tights'}
 
 shopstyle_paperdoll_male = {'mens-belts' : 'belt',
                              'mens-jackets': 'jacket',

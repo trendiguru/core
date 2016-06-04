@@ -270,7 +270,9 @@ def ebay_downloader(filename, filesize):
                 q.enqueue(generate_mask_and_insert, doc=generic_dict, image_url=generic_dict["images"]["XLarge"],
                           fp_date=today_date, coll=collection_name)
 
+    print(' new items = %d' %(new_items))
     stop = time()
+
     if itemCount < 1 and item is not None:
         print("%s = %s is not relevant!" % (filename, item["MERCHANT_NAME"]))
     else:
