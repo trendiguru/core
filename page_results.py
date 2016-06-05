@@ -25,7 +25,7 @@ geo_db_path = '/usr/local/lib/python2.7/dist-packages/maxminddb'
 GENDER_ADDRESS = "http://37.58.101.173:8357/neural/gender"
 DOORMAN_ADDRESS = "http://37.58.101.173:8357/neural/doorman"
 LABEL_ADDRESS = "http://37.58.101.173:8357/neural/label"
-reader = maxminddb.open_database(geo_db_path + '/GeoLite2-Country.mmdb')
+geo_reader = maxminddb.open_database(geo_db_path + '/GeoLite2-Country.mmdb')
 push_connection(constants.redis_conn)
 
 
@@ -45,11 +45,10 @@ def add_results_from_collection(image_obj, collection):
                                                                         collection=collection)
             item['similar_results'][collection] = similar_results
     db.images.replace_one({'_id': image_obj['_id']}, image_obj)
-    return True
 
 
 def get_country_from_ip(ip):
-    user_info = reader.get(ip)
+    user_info = geo_reader.get(ip)
     if user_info:
         if 'country' in user_info.keys():
             return user_info['country']['iso_code']
@@ -74,6 +73,11 @@ def get_collection_from_ip_and_domain(ip, domain):
                     return default_map[country]
                 else:
                     return default_map['default']
+        else:
+            if 'default' in domain_map.keys():
+                return domain_map['default']
+            else:
+                return default_map['default']
     else:
         if country in default_map.keys():
             return default_map[country]
@@ -144,8 +148,9 @@ def genderize(image_or_url, face):
     # returns {'success': bool, 'gender': Female/Male, ['error': the error as string if success is False]}
 
 
-def route_by_ip(ip, image_url, page_url, lang):
+def handel_post(ip, image_url, page_url, lang):
     domain = tldextract.extract(page_url).registered_domain
+    # QUICK FILTERS
     if not db.whitelist.find_one({'domain': domain}):
         return False
 
@@ -159,7 +164,7 @@ def route_by_ip(ip, image_url, page_url, lang):
     image_obj = db.images.find_one({'image_urls': image_url})
     if image_obj:
         collection = get_collection_from_ip_and_domain(ip, domain)
-        # IF IMAGE HAS RESULTS FROM THIS IP:
+        # IF IMAGE HAS RESULTS FROM THIS COLLECTION:
         if has_results_from_collection(image_obj, collection):
             return True
         else:
