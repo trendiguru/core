@@ -203,6 +203,14 @@ layer {
   }
   inner_product_param {
     num_output: 4096
+    weight_filler {
+      type: "gaussian"
+      std: 0.005
+    }
+    bias_filler {
+      type: "constant"
+      value: 0.1
+    }
   }
 }
 layer {
@@ -235,6 +243,14 @@ layer {
   }
   inner_product_param {
     num_output: 4096
+    weight_filler {
+      type: "gaussian"
+      std: 0.005
+    }
+    bias_filler {
+      type: "constant"
+      value: 0.1
+    }
   }
 }
 layer {
@@ -267,6 +283,14 @@ layer {
   }
   inner_product_param {
     num_output: 3
+    weight_filler {
+      type: "gaussian"
+      std: 0.01
+    }
+    bias_filler {
+      type: "constant"
+      value: 0
+    }
   }
 }
 layer {
