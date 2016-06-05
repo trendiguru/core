@@ -232,12 +232,6 @@ web_tool_categories = ['bag', 'belt', 'blazer','cardigan','coat','dress', 'eyewe
 tamara_berg_to_web_tool = [0,1,5,6,8,9,15,4,12,14,18,None,None]
 #missing from webtool compared ot tamara_berg - 'legging', 'outerwear','skin',
 
-
-
-tamara_berg_to_web_tool = []
-
-#missing from webtool compared ot tamara_berg - 'legging', 'outerwear','skin',
-
 paperdoll_paperdoll_men = {'top': 'shirt', 'pants': 'pants', 'shorts': 'shorts', 'jeans': 'jeans', 'jacket': 'jacket',
                            'blazer': 'jacket', 'shirt': 'shirt', 'skirt': 'pants', 'blouse': 'shirt',
                            'dress': 'suit', 'sweater': 'sweater', 't-shirt': 'shirt', 'bodysuit': 'suit',
