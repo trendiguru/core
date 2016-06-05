@@ -194,22 +194,15 @@ layer {
   bottom: "pool5"
   top: "my_fc6"
   param {
-    lr_mult: 10
+    lr_mult: 1
     decay_mult: 1
   }
   param {
-    lr_mult: 20
+    lr_mult: 2
     decay_mult: 0
   }
   inner_product_param {
     num_output: 4096
-    weight_filler {
-      type: "xavier" # initialize the filters from a Gaussian
-   }
-   bias_filler {
-     type: "constant" # initialize the biases to zero (0)
-     value: 0.0  #this is what googlenet had
-   }
   }
 }
 layer {
@@ -233,11 +226,11 @@ layer {
   bottom: "my_fc6"
   top: "my_fc7"
   param {
-    lr_mult: 10
+    lr_mult: 1
     decay_mult: 1
   }
   param {
-    lr_mult: 20
+    lr_mult: 2
     decay_mult: 0
   }
   inner_product_param {
@@ -265,11 +258,11 @@ layer {
   bottom: "my_fc7"
   top: "my_fc8"
   param {
-    lr_mult: 10
+    lr_mult: 1
     decay_mult: 1
   }
   param {
-    lr_mult: 20
+    lr_mult: 2
     decay_mult: 0
   }
   inner_product_param {
