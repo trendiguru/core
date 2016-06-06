@@ -60,7 +60,7 @@ def ebay2generic(item, info):
 
         image = Utils.get_cv2_img_array(full_img_url)
         if image is None:
-            generic = None, None
+            generic = None
         else:
             img_hash = get_hash(image)
             generic["img_hash"] = img_hash
@@ -68,6 +68,7 @@ def ebay2generic(item, info):
     except:
         print item
         generic = None
+        image = None
     return image, generic
 
 def fromCats2ppdCats(gender, cats):
@@ -271,12 +272,12 @@ def ebay_downloader(filename, filesize):
                     sleep(600)
                     stall += 1
 
-                img,generic_dict = ebay2generic(item, minimal_info)
-                if generic_dict is None:
-                    print ('gen is none')
+                img ,generic_dict = ebay2generic(item, minimal_info)
+                if generic_dict is None or img is None:
+                    print ('img download failed!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!')
                     continue
                 #check if hash already exists:
-                hashexists  = db[collection_name].find_one({'img_hash':generic_dict['img_hash']})
+                hashexists  = db[collection_name].find_one({'img_hash': generic_dict['img_hash']})
                 hashexistsInArchive = db[archive].find_one({'img_hash': generic_dict['img_hash']})
                 if hashexists:
                     id_list = hashexists['id'] + generic_dict['id']
