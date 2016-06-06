@@ -64,7 +64,7 @@ def fp(img, bins=histograms_length, fp_length=fingerprint_length, mask=None):
     return result_vector[:fp_length]
 
 
-def generate_mask_and_insert(doc, image_url=None, fp_date=None, coll="products"):
+def generate_mask_and_insert(doc, image_url=None, fp_date=None, coll="products", img=None):
     """
     Takes an image + whatever else you give it, and handles all the logic (using/finding/creating a bb, then a mask)
     Work in progress...
@@ -74,14 +74,10 @@ def generate_mask_and_insert(doc, image_url=None, fp_date=None, coll="products")
     """
     image_url = image_url or doc["image"]["sizes"]["XLarge"]["url"]
     collection = coll
-    # if 'ebay' in coll:
-    #     if 'https' in image_url:
-    #         image_url = image_url[8:]
-    #     elif 'http' in image_url:
-    #         image_url = image_url[7:]
-    #     else:
-    #         pass
-    image = Utils.get_cv2_img_array(image_url)
+    if 'ebay' in coll and img is not None:
+        image = img
+    else:
+        image = Utils.get_cv2_img_array(image_url)
     if not Utils.is_valid_image(image):
         logging.warning("image is None. url: {url}".format(url=image_url))
         return

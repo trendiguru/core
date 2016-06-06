@@ -50,22 +50,16 @@ def ebay2generic(item, info):
                    "price":  info["price"],
                    "Brand" : item["MANUFACTURER"],
                    "Site" : item["MERCHANT_NAME"],
-                   # "download_data": {'dl_version': today_date,
-                   #                   'first_dl': today_date,
-                   #                   'fp_version': constants.fingerprint_version},
+                   "download_data": {'dl_version': today_date,
+                                     'first_dl': today_date,
+                                     'fp_version': constants.fingerprint_version},
                    "fingerprint": None,
                    "gender": info["gender"],
                    "ebay_raw": item}
 
-        # if 'https' in full_img_url:
-        #     img_url = full_img_url[8:]
-        # elif 'http' in full_img_url:
-        #     img_url = full_img_url[7:]
-        # else:
-        #     img_url = full_img_url
         image = Utils.get_cv2_img_array(full_img_url)
         if image is None:
-            generic = None
+            generic = None, None
         else:
             img_hash = get_hash(image)
             generic["img_hash"] = img_hash
@@ -73,7 +67,7 @@ def ebay2generic(item, info):
     except:
         print item
         generic = None
-    return generic
+    return image, generic
 
 def fromCats2ppdCats(gender, cats):
     ppd_cats = []
@@ -258,7 +252,7 @@ def ebay_downloader(filename, filesize):
                     sleep(600)
                     stall += 1
 
-                generic_dict = ebay2generic(item, minimal_info)
+                img,generic_dict = ebay2generic(item, minimal_info)
                 if generic_dict is None:
                     print ('gen is none')
                     continue
@@ -270,7 +264,7 @@ def ebay_downloader(filename, filesize):
                     continue
                 print('new item')
                 q.enqueue(generate_mask_and_insert, doc=generic_dict, image_url=generic_dict["images"]["XLarge"],
-                          fp_date=today_date, coll=collection_name)
+                          fp_date=today_date, coll=collection_name, img=img)
 
     print(' new items = %d' %(new_items))
     stop = time()
