@@ -151,9 +151,10 @@ def findTop():
         vector = []
         for i in range(6):
             vector += sp[i]
+        print (len(vector))
         annResults = annoy_search('sp', topN, vector)
         batch = db.testSpacio.find({"AnnoyIndex.sp": {"$in": annResults}}, {"sp": 1})
-        topSP = find_n_nearest_neighbors(item, batch, 16, spatiogram_fingerprints_distance(), 'sp')
+        topSP = find_n_nearest_neighbors(item, batch, 16, spatiogram_fingerprints_distance, 'sp')
 
         tmp = {'img_url': item['images']['XLarge'],
                'fp': topFP,
