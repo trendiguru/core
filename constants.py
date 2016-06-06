@@ -228,7 +228,7 @@ tamara_berg_categories = ['bag', 'belt', 'dress', 'eyewear', 'footwear', 'hat', 
                           'top', 'skin', 'background']   # orig t.b. cats don't have skin or bg
 
 web_tool_categories = ['bag', 'belt', 'blazer','cardigan','coat','dress', 'eyewear', 'footwear', 'hat','jacket',
-                       'jeans','pants','shorts', 'skirt','stocking','suit','sweater','top','womens_swimwear_bikini','womens_swimwear_nonbikini','scarf']
+                       'jeans','pants','shorts', 'skirt','stocking','suit','sweater','top','scarf','womens_swimwear_bikini','womens_swimwear_nonbikini']
 
 tamara_berg_to_web_tool = [0,1,5,6,7,8,14,4,11,13,17,None,None]
 tamara_berg_to_web_tool_dict = {'bag':'bag','belt':'belt','dress':'dress','eyewear':'eyewear','footwear':'footwear',
