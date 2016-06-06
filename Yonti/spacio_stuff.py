@@ -124,7 +124,7 @@ def annoy_search(method,topN,signature):
         atoms = 696
     else:
         name = path+'spacio250.ann'
-        atoms = 4068
+        atoms = 4608
     t = annoy.AnnoyIndex(atoms, 'angular')
     t.load(name)
     result = t.get_nns_by_vector(signature,topN)
@@ -151,7 +151,6 @@ def findTop():
         vector = []
         for i in range(6):
             vector += sp[i]
-        print (len(vector))
         annResults = annoy_search('sp', topN, vector)
         batch = db.testSpacio.find({"AnnoyIndex.sp": {"$in": annResults}}, {"sp": 1})
         topSP = find_n_nearest_neighbors(item, batch, 16, spatiogram_fingerprints_distance, 'sp')
