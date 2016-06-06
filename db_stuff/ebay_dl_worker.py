@@ -264,7 +264,7 @@ def ebay_downloader(filename, filesize):
                 elif existsInArchive:
                     db[archive].delete_one({"_id": existsInArchive['_id']})
                 else:
-                    new_items += 1
+                    pass
 
                 while q.count > 250000:
                     print("Q full - stolling")
@@ -294,6 +294,7 @@ def ebay_downloader(filename, filesize):
                         print('hash exists in archive but out of stock')
 
                 else:
+                    new_items+=1
                     print('new item')
                     q.enqueue(generate_mask_and_insert, doc=generic_dict, image_url=generic_dict["images"]["XLarge"],
                           fp_date=today_date, coll=collection_name, img=img)
