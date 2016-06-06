@@ -260,6 +260,7 @@ def ebay_downloader(filename, filesize):
 
                 generic_dict = ebay2generic(item, minimal_info)
                 if generic_dict is None:
+                    print ('gen is none')
                     continue
                 #check if hash already exists:
                 hashexists  = db[collection_name].find_one({'img_hash':generic_dict['img_hash']})
