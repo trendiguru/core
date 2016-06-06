@@ -260,7 +260,7 @@ def annoy_timings():
 
                 for x, item in enumerate(items):
 
-                    enteries = db.fanni_testing_db.find({},{"fingerprint": 1,"iAnnoyIndex":1})
+                    enteries = db.fanni_testing_db.find({},{"fingerprint": 1,"AnnoyIndex":1})
                     b1 = time.time()
                     if dis is 'bhat':
                         oneByone = find_n_nearest_neighbors(item, enteries, 25)
