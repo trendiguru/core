@@ -84,11 +84,10 @@ def find_n_nearest_neighbors(target_dict, entries, number_of_matches, distance_f
     return nearest_n
 
 
-def build_forests():
+def build_forests(tree_count=250):
     path = '/home/developer/spaciotesting/'
     db.testSpacio.update_many({}, {'$unset': {"AnnoyIndex": 1}})
     dis_func = 'angular'
-    tree_count = 250
 
     """
     forest for histogram
