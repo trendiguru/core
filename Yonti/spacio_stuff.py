@@ -136,12 +136,10 @@ def findTop():
     find top results for the fanni image base
     both for histogram and spaciogram
     """
-    results = []
-
     topN = 1000
     col = db.fanni
     items = col.find()
-    for item in items:
+    for i,item in enumerate(items):
         fp = item['fingerprint']
         annResults = annoy_search('fp', topN, fp)
         batch = db.testSpacio.find({"AnnoyIndex.fp": {"$in": annResults}}, {"fingerprint": 1})
@@ -155,9 +153,9 @@ def findTop():
         batch = db.testSpacio.find({"AnnoyIndex.sp": {"$in": annResults}}, {"sp": 1})
         topSP = find_n_nearest_neighbors(item, batch, 16, spatiogram_fingerprints_distance, 'sp')
 
-        tmp = {'img_url': item['images']['XLarge'],
+        tmp = {'img_url': item['img_url'],
                'fp': topFP,
                'sp': topSP}
-        results.append(tmp)
-    return results
+        col.update_one({'_id':item['_id']},{'$set':{'topresults':tmp}})
+        print (i)
 
