@@ -236,8 +236,10 @@ def has_items(image_dict):
             if 'items' in person.keys():
                 for item in person['items']:
                     if 'similar_results' in item.keys():
-                        if len(item['similar_results']) > 0:
-                            return True
+                        if isinstance(item['similar_results'], list):
+                            res = len(item['similar_results']) > 0
+                        elif isinstance(item['similar_results'], dict):
+                            res = bool(item['similar_results'])
     except:
         pass
     return res
@@ -257,7 +259,6 @@ def get_data_for_specific_image(image_url=None, image_hash=None, image_projectio
     # domain = tldextract.extract(page_url).registered_domain
     # products_collection = get_collection_from_ip_and_domain(ip, domain)
     print "##### image_coll_name: " + image_coll_name + " #####"
-
     # REMEMBER, image_obj is sparse, similar_results have very few fields.
     image_projection = image_projection or {
         '_id': 1,
@@ -269,9 +270,9 @@ def get_data_for_specific_image(image_url=None, image_hash=None, image_projectio
         'people.items.category_name': 1,
         'people.items.item_id': 1,
         'people.items.item_idx': 1,
-        'people.items.similar_results.': {'$slice': max_results},
-        'people.items.similar_results._id': 1,
-        'people.items.similar_results.id': 1,
+        'people.items.similar_results.{0}'.format(products_collection): {'$slice': max_results},
+        'people.items.similar_results.{0}._id'.format(products_collection): 1,
+        'people.items.similar_results.{0}.id'.format(products_collection): 1,
         # 'people.items.svg_url': 1,
         'relevant': 1}
 
@@ -328,7 +329,7 @@ def load_similar_results(sparse, projection_dict, product_collection_name):
         if 'items' in person.keys():
             for item in person["items"]:
                 similar_results = []
-                for result in item["similar_results"]:
+                for result in item["similar_results"][product_collection_name]:
                     full_result = collection.find_one({"id": result["id"]}, projection_dict)
                     if full_result:
                         # full_result["clickUrl"] = Utils.shorten_url_bitly(full_result["clickUrl"])

@@ -1046,9 +1046,11 @@ def rebuild_similar_results():
             products_coll = constants.products_per_site['default']
         try:
             for person in image_obj['people']:
-                for item in person['items']:
-                    similar_dict = {products_coll: item['similar_results']}
-                    item['similar_results'] = similar_dict
+                if 'items' in person.keys():
+                    for item in person['items']:
+                        if isinstance(item['similar_results'], list):
+                            similar_dict = {products_coll: item['similar_results']}
+                            item['similar_results'] = similar_dict
             db.images.replace_one({'_id': image_obj['_id']}, image_obj)
         except Exception as e:
             print(e)

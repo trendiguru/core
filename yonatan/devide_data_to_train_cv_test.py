@@ -11,8 +11,8 @@ dresses = {'mini', 'midi', 'maxi'}
 
 counter = 0
 counter_train = 680
-counter_cv = 140
-counter_test = 140
+counter_cv = 135
+counter_test = 135
 
 for dress in dresses:
     source_dir = '/home/yonatan/resized_' + dress + '_dresses'
