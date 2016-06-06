@@ -80,6 +80,7 @@ def find_n_nearest_neighbors(target_dict, entries, number_of_matches, distance_f
                 nearest_n.pop()
                 farthest_nearest = nearest_n[-1][1]
     [result[0].pop(key) for result in nearest_n]
+    [result[0].pop('_id') for result in nearest_n]
     nearest_n = [result[0] for result in nearest_n]
     return nearest_n
 
@@ -138,11 +139,12 @@ def findTop():
     """
     topN = 1000
     col = db.fanni
+    col.update_one({}, {'$unset': {'topresults': 1}})
     items = col.find()
-    for i,item in enumerate(items):
+    for z,item in enumerate(items):
         fp = item['fingerprint']
         annResults = annoy_search('fp', topN, fp)
-        batch = db.testSpacio.find({"AnnoyIndex.fp": {"$in": annResults}}, {"fingerprint": 1})
+        batch = db.testSpacio.find({"AnnoyIndex.fp": {"$in": annResults}}, {"fingerprint": 1,'images.XLarge':1})
         topFP = find_n_nearest_neighbors(item,batch,16,distance_Bhattacharyya,'fingerprint')
 
         sp = item['sp']
@@ -150,12 +152,12 @@ def findTop():
         for i in range(6):
             vector += sp[i]
         annResults = annoy_search('sp', topN, vector)
-        batch = db.testSpacio.find({"AnnoyIndex.sp": {"$in": annResults}}, {"sp": 1})
+        batch = db.testSpacio.find({"AnnoyIndex.sp": {"$in": annResults}}, {"sp": 1,'images.XLarge':1})
         topSP = find_n_nearest_neighbors(item, batch, 16, spatiogram_fingerprints_distance, 'sp')
 
         tmp = {'img_url': item['img_url'],
                'fp': topFP,
                'sp': topSP}
         col.update_one({'_id':item['_id']},{'$set':{'topresults':tmp}})
-        print (i)
+        print (z)
 
