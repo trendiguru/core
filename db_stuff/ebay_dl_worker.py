@@ -41,7 +41,7 @@ def get_hash(image):
 def ebay2generic(item, info):
     try:
         full_img_url = item["IMAGE_URL"]
-        generic = {"id": info["id"],
+        generic = {"id": [info["id"]],
                    "categories": info["categories"],
                    "clickUrl": item["OFFER_URL_MIN_CATEGORY_BID"],
                    "images": {"XLarge": full_img_url},
@@ -222,38 +222,41 @@ def ebay_downloader(filename, filesize):
             continue
         itemCount += 1
         print (itemCount)
-        exists = db[collection_name].find_one({'id': minimal_info['id']})
-        existsPlusHash = db[collection_name].find_one({'id': minimal_info['id'], "img_hash":{"$exists":1}})
+        exists = db[collection_name].find_one({'id': {'$in':[minimal_info['id']]}})
+        existsPlusHash = db[collection_name].find_one({'id': {'$in':[minimal_info['id']]}, "img_hash":{"$exists":1}})
         if exists and existsPlusHash and exists["fingerprint"] is not None:
-            db[collection_name].update_one({'id': exists['id']}, {"$set": {"download_data.dl_version": today_date,
+            if not exists['download_data']['dl_version']== today_date:
+                db[collection_name].update_one({'_id': exists['_id']}, {"$set": {"download_data.dl_version": today_date,
                                                                            "price": minimal_info["price"]}})
-            if exists["status"]["instock"] != minimal_info["status"]["instock"]:
-                db[collection_name].update_one({'id': exists['id']}, {"$set": {"status": minimal_info["status"]}})
-            elif exists["status"]["instock"] is False and minimal_info["status"]["instock"] is False:
-                db[collection_name].update_one({'id': exists['id']}, {"$inc": {"status.days_out": 1}})
+                if exists["status"]["instock"] != minimal_info["status"]["instock"]:
+                    db[collection_name].update_one({'_id': exists['_id']}, {"$set": {"status": minimal_info["status"]}})
+                elif exists["status"]["instock"] is False and minimal_info["status"]["instock"] is False:
+                    db[collection_name].update_one({'_id': exists['_id']}, {"$inc": {"status.days_out": 1}})
+                else:
+                    pass
             else:
                 pass
         else:
-            if exists and existsPlusHash:
-                db[collection_name].delete_many({'id': exists['id']})
-            elif exists and not existsPlusHash:
+            if exists and existsPlusHash: #but fingerprint is none!
+                db[collection_name].delete_many({'_id': exists['_id']})
+            elif exists and not existsPlusHash: #got no hash!
                 image = Utils.get_cv2_img_array(item["IMAGE_URL"])
                 if image is None:
                     db[collection_name].delete_many({'id': exists['id']})
                 else:
                     img_hash = get_hash(image)
-                    db[collection_name].update_one({'id': exists['id']}, {"$set": {"img_hash": img_hash}})
+                    db[collection_name].update_one({'_id': exists['_id']}, {"$set": {"img_hash": img_hash}})
                     continue
             else:
             #check if in archive and has hash
                 archive = collection_name+"_archive"
-                existsInArchive = db[archive].find_one({'id': minimal_info['id'],"img_hash":{"$exists":1}})
+                existsInArchive = db[archive].find_one({'id': {'$in':[minimal_info['id']]},"img_hash":{"$exists":1}})
                 if existsInArchive and existsInArchive["fingerprint"] is not None:
                     existsInArchive["download_data"]["dl_version"]=today_date
                     existsInArchive["price"] = minimal_info["price"]
                     if minimal_info["status"]["instock"]:
                         existsInArchive["status"] = minimal_info["status"]
-                        db[archive].delete_one({'id': minimal_info['id']})
+                        db[archive].delete_one({'_id': existsInArchive['_id']})
                         db[collection_name].insert_one(existsInArchive)
                     else:
                         db[archive].update_one({"_id":existsInArchive['_id']},{"$set":{"download_data.dl_version": today_date}})
@@ -261,7 +264,7 @@ def ebay_downloader(filename, filesize):
                 elif existsInArchive:
                     db[archive].delete_one({"_id": existsInArchive['_id']})
                 else:
-                    new_items += 1
+                    pass
 
                 while q.count > 250000:
                     print("Q full - stolling")
@@ -275,11 +278,25 @@ def ebay_downloader(filename, filesize):
                 #check if hash already exists:
                 hashexists  = db[collection_name].find_one({'img_hash':generic_dict['img_hash']})
                 hashexistsInArchive = db[archive].find_one({'img_hash': generic_dict['img_hash']})
-                if hashexists or hashexistsInArchive:
-                    print('hash exists')
-                    continue
-                print('new item')
-                q.enqueue(generate_mask_and_insert, doc=generic_dict, image_url=generic_dict["images"]["XLarge"],
+                if hashexists:
+                    id_list = hashexists['id'] + generic_dict['id']
+                    db[collection_name].update_one({'_id': hashexists['_id']},{'$set':{'id':id_list}})
+                    print ('hash exists')
+                elif hashexistsInArchive :
+                    id_list = hashexistsInArchive['id'] + generic_dict['id']
+                    hashexistsInArchive = db[archive].find_one_and_update({'_id': hashexistsInArchive['_id']}, {'$set': {'id': id_list}})
+                    if minimal_info["status"]["instock"]:
+                        print ('hash exists in archive and is now instock')
+                        hashexistsInArchive["status"] = minimal_info["status"]
+                        db[archive].delete_one({'_id': hashexistsInArchive['_id']})
+                        db[collection_name].insert_one(hashexistsInArchive)
+                    else:
+                        print('hash exists in archive but out of stock')
+
+                else:
+                    new_items+=1
+                    print('new item')
+                    q.enqueue(generate_mask_and_insert, doc=generic_dict, image_url=generic_dict["images"]["XLarge"],
                           fp_date=today_date, coll=collection_name, img=img)
 
     print(' new items = %d' %(new_items))
