@@ -12,6 +12,7 @@ from ..fingerprint_core import generate_mask_and_insert
 from rq import Queue
 import datetime
 import sys
+import psutil
 maxInt = sys.maxsize
 decrement = True
 while decrement:
@@ -151,7 +152,22 @@ def getImportantInfoOnly(item):
         info["status"]["instock"] = False
     return info
 
+
+def startORstall(filesize):
+    total_ram = int(psutil.virtual_memory()[0])
+    available_ram = int(psutil.virtual_memory()[1])
+    if filesize < 0.75 * available_ram:
+        return True
+    else:
+        return False
+
+
 def ebay_downloader(filename, filesize):
+    if not startORstall(filesize):
+        q.enqueue(ebay_downloader, args=(filename, filesize), timeout=3600)
+        sleep(30)
+        return
+
     ftp = ebay_dl_utils.ftp_connection(ebay_dl_utils.us_params)
 
     start = time()
