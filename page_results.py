@@ -25,7 +25,7 @@ geo_db_path = '/usr/local/lib/python2.7/dist-packages/maxminddb'
 GENDER_ADDRESS = "http://37.58.101.173:8357/neural/gender"
 DOORMAN_ADDRESS = "http://37.58.101.173:8357/neural/doorman"
 LABEL_ADDRESS = "http://37.58.101.173:8357/neural/label"
-reader = maxminddb.open_database(geo_db_path + '/GeoLite2-Country.mmdb')
+geo_reader = maxminddb.open_database(geo_db_path + '/GeoLite2-Country.mmdb')
 push_connection(constants.redis_conn)
 
 
@@ -45,11 +45,10 @@ def add_results_from_collection(image_obj, collection):
                                                                         collection=collection)
             item['similar_results'][collection] = similar_results
     db.images.replace_one({'_id': image_obj['_id']}, image_obj)
-    return True
 
 
 def get_country_from_ip(ip):
-    user_info = reader.get(ip)
+    user_info = geo_reader.get(ip)
     if user_info:
         if 'country' in user_info.keys():
             return user_info['country']['iso_code']
@@ -74,6 +73,11 @@ def get_collection_from_ip_and_domain(ip, domain):
                     return default_map[country]
                 else:
                     return default_map['default']
+        else:
+            if 'default' in domain_map.keys():
+                return domain_map['default']
+            else:
+                return default_map['default']
     else:
         if country in default_map.keys():
             return default_map[country]
@@ -144,8 +148,9 @@ def genderize(image_or_url, face):
     # returns {'success': bool, 'gender': Female/Male, ['error': the error as string if success is False]}
 
 
-def route_by_ip(ip, image_url, page_url, lang):
+def handel_post(ip, image_url, page_url, lang):
     domain = tldextract.extract(page_url).registered_domain
+    # QUICK FILTERS
     if not db.whitelist.find_one({'domain': domain}):
         return False
 
@@ -159,7 +164,7 @@ def route_by_ip(ip, image_url, page_url, lang):
     image_obj = db.images.find_one({'image_urls': image_url})
     if image_obj:
         collection = get_collection_from_ip_and_domain(ip, domain)
-        # IF IMAGE HAS RESULTS FROM THIS IP:
+        # IF IMAGE HAS RESULTS FROM THIS COLLECTION:
         if has_results_from_collection(image_obj, collection):
             return True
         else:
@@ -231,8 +236,10 @@ def has_items(image_dict):
             if 'items' in person.keys():
                 for item in person['items']:
                     if 'similar_results' in item.keys():
-                        if len(item['similar_results']) > 0:
-                            return True
+                        if isinstance(item['similar_results'], list):
+                            res = len(item['similar_results']) > 0
+                        elif isinstance(item['similar_results'], dict):
+                            res = bool(item['similar_results'])
     except:
         pass
     return res
@@ -252,7 +259,6 @@ def get_data_for_specific_image(image_url=None, image_hash=None, image_projectio
     # domain = tldextract.extract(page_url).registered_domain
     # products_collection = get_collection_from_ip_and_domain(ip, domain)
     print "##### image_coll_name: " + image_coll_name + " #####"
-
     # REMEMBER, image_obj is sparse, similar_results have very few fields.
     image_projection = image_projection or {
         '_id': 1,
@@ -264,9 +270,9 @@ def get_data_for_specific_image(image_url=None, image_hash=None, image_projectio
         'people.items.category_name': 1,
         'people.items.item_id': 1,
         'people.items.item_idx': 1,
-        'people.items.similar_results.': {'$slice': max_results},
-        'people.items.similar_results._id': 1,
-        'people.items.similar_results.id': 1,
+        'people.items.similar_results.{0}'.format(products_collection): {'$slice': max_results},
+        'people.items.similar_results.{0}._id'.format(products_collection): 1,
+        'people.items.similar_results.{0].id'.format(products_collection): 1,
         # 'people.items.svg_url': 1,
         'relevant': 1}
 
@@ -323,7 +329,7 @@ def load_similar_results(sparse, projection_dict, product_collection_name):
         if 'items' in person.keys():
             for item in person["items"]:
                 similar_results = []
-                for result in item["similar_results"]:
+                for result in item["similar_results"][product_collection_name]:
                     full_result = collection.find_one({"id": result["id"]}, projection_dict)
                     if full_result:
                         # full_result["clickUrl"] = Utils.shorten_url_bitly(full_result["clickUrl"])

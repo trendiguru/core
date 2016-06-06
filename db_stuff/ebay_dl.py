@@ -19,7 +19,6 @@ from . import dl_excel
 from .ebay_dl_worker import ebay_downloader
 from rq import Queue
 from time import sleep,time
-import psutil
 from fanni import plantForests4AllCategories
 
 q = Queue('ebay_worker', connection=constants.redis_conn)
@@ -137,25 +136,13 @@ for col in ["Female","Male","Unisex"]:#,"Tees"]:
     status_full_path = "collections." + col_name + ".status"
     status.update_one({"date": today_date}, {"$set": {status_full_path: "Working"}})
 
-print(len(files))
-total_ram = int(psutil.virtual_memory()[0])
+print('total number of stores to download = %s' %(len(files)))
+
 for x,file in enumerate(files):
     filename = file['name']
     filesize = int(file['size'])
-    available_ram = int(psutil.virtual_memory()[1])
-    while filesize > 0.8*available_ram:
-        print ("stalling")
-        sleep(60)
-        available_ram = int(psutil.virtual_memory()[1])
-
-    print ('started working on %s' %(filename) )
-    q.enqueue(ebay_downloader, args=(filename, filesize), timeout=2000)
-    percentOfTotal = filesize/total_ram
-    percentOfAvi = (filesize+available_ram)/total_ram
-    if percentOfTotal > 0.2 or percentOfAvi > 0.6 :
-        sleep(300)
-    else:
-        sleep(15)
+    print ('enqueued store id = %s' %(filename) )
+    q.enqueue(ebay_downloader, args=(filename, filesize), timeout=3600)
 
 #wait for workers
 while q.count>0:

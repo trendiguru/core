@@ -13,6 +13,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 import pymongo
 import time
+import tldextract
 # ours
 import constants
 import page_results
@@ -1029,3 +1030,27 @@ def clean_duplicates_aggregate(collection, key):
                     continue
                 else:
                     db[collection].delete_one({'_id': ObjectId(dup)})
+
+
+def rebuild_similar_results():
+    i = 0
+    print("gonna do {0} images".format(db.images.count()))
+    for image_obj in db.images.find():
+        i += 1
+        if i % 100 == 0:
+            print("done {0} images".format(i))
+        domain = tldextract.extract(image_obj['page_urls'][0]).registered_domain
+        if domain in constants.products_per_site.keys():
+            products_coll = constants.products_per_site[domain]
+        else:
+            products_coll = constants.products_per_site['default']
+        try:
+            for person in image_obj['people']:
+                if 'items' in person.keys():
+                    for item in person['items']:
+                        if isinstance(item['similar_results'], list):
+                            similar_dict = {products_coll: item['similar_results']}
+                            item['similar_results'] = similar_dict
+            db.images.replace_one({'_id': image_obj['_id']}, image_obj)
+        except Exception as e:
+            print(e)
