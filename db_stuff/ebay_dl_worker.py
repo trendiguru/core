@@ -12,6 +12,7 @@ from ..fingerprint_core import generate_mask_and_insert
 from rq import Queue
 import datetime
 import sys
+import psutil
 maxInt = sys.maxsize
 decrement = True
 while decrement:
@@ -50,22 +51,16 @@ def ebay2generic(item, info):
                    "price":  info["price"],
                    "Brand" : item["MANUFACTURER"],
                    "Site" : item["MERCHANT_NAME"],
-                   # "download_data": {'dl_version': today_date,
-                   #                   'first_dl': today_date,
-                   #                   'fp_version': constants.fingerprint_version},
+                   "download_data": {'dl_version': today_date,
+                                     'first_dl': today_date,
+                                     'fp_version': constants.fingerprint_version},
                    "fingerprint": None,
                    "gender": info["gender"],
                    "ebay_raw": item}
 
-        if 'https' in full_img_url:
-            img_url = full_img_url[8:]
-        elif 'http' in full_img_url:
-            img_url = full_img_url[7:]
-        else:
-            img_url = full_img_url
-        image = Utils.get_cv2_img_array(img_url)
+        image = Utils.get_cv2_img_array(full_img_url)
         if image is None:
-            generic = None
+            generic = None, None
         else:
             img_hash = get_hash(image)
             generic["img_hash"] = img_hash
@@ -73,7 +68,7 @@ def ebay2generic(item, info):
     except:
         print item
         generic = None
-    return generic
+    return image, generic
 
 def fromCats2ppdCats(gender, cats):
     ppd_cats = []
@@ -157,7 +152,22 @@ def getImportantInfoOnly(item):
         info["status"]["instock"] = False
     return info
 
+
+def startORstall(filesize):
+    total_ram = int(psutil.virtual_memory()[0])
+    available_ram = int(psutil.virtual_memory()[1])
+    if filesize < 0.75 * available_ram:
+        return True
+    else:
+        return False
+
+
 def ebay_downloader(filename, filesize):
+    if not startORstall(filesize):
+        q.enqueue(ebay_downloader, args=(filename, filesize), timeout=3600)
+        sleep(30)
+        return
+
     ftp = ebay_dl_utils.ftp_connection(ebay_dl_utils.us_params)
 
     start = time()
@@ -258,17 +268,19 @@ def ebay_downloader(filename, filesize):
                     sleep(600)
                     stall += 1
 
-                generic_dict = ebay2generic(item, minimal_info)
+                img,generic_dict = ebay2generic(item, minimal_info)
                 if generic_dict is None:
+                    print ('gen is none')
                     continue
                 #check if hash already exists:
                 hashexists  = db[collection_name].find_one({'img_hash':generic_dict['img_hash']})
                 hashexistsInArchive = db[archive].find_one({'img_hash': generic_dict['img_hash']})
                 if hashexists or hashexistsInArchive:
+                    print('hash exists')
                     continue
                 print('new item')
                 q.enqueue(generate_mask_and_insert, doc=generic_dict, image_url=generic_dict["images"]["XLarge"],
-                          fp_date=today_date, coll=collection_name)
+                          fp_date=today_date, coll=collection_name, img=img)
 
     print(' new items = %d' %(new_items))
     stop = time()
