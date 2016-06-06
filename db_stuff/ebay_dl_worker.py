@@ -57,13 +57,13 @@ def ebay2generic(item, info):
                    "gender": info["gender"],
                    "ebay_raw": item}
 
-        if 'https' in full_img_url:
-            img_url = full_img_url[8:]
-        elif 'http' in full_img_url:
-            img_url = full_img_url[7:]
-        else:
-            img_url = full_img_url
-        image = Utils.get_cv2_img_array(img_url)
+        # if 'https' in full_img_url:
+        #     img_url = full_img_url[8:]
+        # elif 'http' in full_img_url:
+        #     img_url = full_img_url[7:]
+        # else:
+        #     img_url = full_img_url
+        image = Utils.get_cv2_img_array(full_img_url)
         if image is None:
             generic = None
         else:
