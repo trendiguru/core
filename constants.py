@@ -219,17 +219,18 @@ ultimate_21 = ['bgnd','bag','belt','blazer','coat','dress','eyewear','face','hai
 
 
 
-tamara_berg_categories = ['bag', 'belt', 'dress', 'eyewear', 'footwear', 'hat', 'legging', 'outerwear', 'pants','skirts',
-                          'top', 'skin', 'background']   # orig t.b. cats don't have skin or bg
 
 tamara_berg_improved_categories = ['background','belt','dress','eyewear','footwear','hat','legging','outerwear','pants','skirts',
                                    'top','skin','BAG????','tights','shorts','blouse','bra','vest','suit','jeans',
                                    'necklace','sweatshirt','tie']
 
-web_tool_categories = ['bag', 'belt', 'blazer','cardigan','coat','dress', 'eyewear','face', 'footwear', 'hat',
-                       'jacket','jeans','pants','shorts', 'skirt','stocking','suit','sweater','top','womens_swimwear']
+tamara_berg_categories = ['bag', 'belt', 'dress', 'eyewear', 'footwear', 'hat', 'legging', 'outerwear', 'pants','skirts',
+                          'top', 'skin', 'background']   # orig t.b. cats don't have skin or bg
 
-tamara_berg_to_web_tool = [0,1,5,6,8,9,15,4,12,14,18,None,None]
+web_tool_categories = ['bag', 'belt', 'blazer','cardigan','coat','dress', 'eyewear', 'footwear', 'hat','jacket',
+                       'jeans','pants','shorts', 'skirt','stocking','suit','sweater','top','womens_swimwear']
+
+tamara_berg_to_web_tool = [0,1,5,6,7,8,14,4,11,13,17,None,None]
 #missing from webtool compared ot tamara_berg - 'legging', 'outerwear','skin',
 
 paperdoll_paperdoll_men = {'top': 'shirt', 'pants': 'pants', 'shorts': 'shorts', 'jeans': 'jeans', 'jacket': 'jacket',
