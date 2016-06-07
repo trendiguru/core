@@ -168,7 +168,7 @@ def getImportantInfoOnly(item):
 def startORstall(filesize):
     total_ram = int(psutil.virtual_memory()[0])
     available_ram = int(psutil.virtual_memory()[1])
-    if filesize < 0.75 * available_ram:
+    if filesize < 0.65 * available_ram:
         return True
     else:
         return False
