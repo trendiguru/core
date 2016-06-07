@@ -2,12 +2,17 @@ __author__ = 'yonatan'
 
 import annoy
 import datetime
+from .. import Utils
 import logging
 import bson
 import numpy as np
 import cv2
+from .. import paperdoll
+from .. import paperdolls
+from .. import background_removal
+
 from .. import constants
-from testSpecio import spatiogram_fingerprints_distance
+from testSpecio import spatiogram_fingerprints_distance, fingerprint_3D_spatiogram
 db = constants.db
 
 def distance_Bhattacharyya(fp1, fp2):
@@ -160,4 +165,25 @@ def findTop():
                'sp': topSP}
         col.update_one({'_id':item['_id']},{'$set':{'topresults':tmp}})
         print (z)
+
+def get_sp(image_url):
+    image = Utils.get_cv2_img_array(image_url)
+
+    mask, labels, pose = paperdoll.paperdoll_parse_enqueue.paperdoll_enqueue(image, async=False,
+                                                                   at_front=True).result[:3]
+    final_mask = paperdolls.after_pd_conclusions(mask, labels)
+    for num in np.unique(final_mask):
+        # convert numbers to labels
+        category = list(labels.keys())[list(labels.values()).index(num)]
+        if category == "dress":
+            item_mask = 255 * np.array(final_mask == num, dtype=np.uint8)
+            small_image, resize_ratio = background_removal.standard_resize(image, 400)
+            mask2 = background_removal.get_fg_mask(small_image)
+
+            item_bb = paperdolls.bb_from_mask(item_mask)
+            after_gc_mask = background_removal.get_fg_mask(image, item_bb)  # (255, 0) mask
+            specio = fingerprint_3D_spatiogram(image, after_gc_mask)
+            return specio
+
+    return None
 
