@@ -330,10 +330,10 @@ def load_similar_results(sparse, projection_dict, product_collection_name):
                 for result in item["similar_results"][product_collection_name]:
                     full_result = collection.find_one({"id": result["id"]}, projection_dict)
                     if full_result:
-                        # full_result["clickUrl"] = Utils.shorten_url_bitly(full_result["clickUrl"])
+                        result['rediraction_path'] = '/link_shortener/' + product_collection_name + '_' +\
+                                                     person['gender'] + '/' + str(full_result['_id'])
                         similar_results.append(full_result)
                 item["similar_results"] = similar_results
-    sparse['rediraction_path'] = '/link_shortener/' + product_collection_name + '/' + str(sparse['_id'])
     return sparse
 
 
