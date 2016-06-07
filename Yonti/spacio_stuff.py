@@ -1,5 +1,6 @@
 __author__ = 'yonatan'
 
+from time import sleep
 import annoy
 import datetime
 from .. import Utils
@@ -7,7 +8,7 @@ import logging
 import bson
 import numpy as np
 import cv2
-from .. import paperdoll
+from ..paperdoll import paperdoll_parse_enqueue
 from .. import paperdolls
 from .. import background_removal
 
@@ -166,19 +167,23 @@ def findTop():
         col.update_one({'_id':item['_id']},{'$set':{'topresults':tmp}})
         print (z)
 
-def get_sp(image_url):
+def get_sp(image_url,x):
     image = Utils.get_cv2_img_array(image_url)
 
-    mask, labels, pose = paperdoll.paperdoll_parse_enqueue.paperdoll_enqueue(image, async=False,
-                                                                   at_front=True).result[:3]
+    paper_job = paperdoll_parse_enqueue.paperdoll_enqueue(image, str(x))
+    while not paper_job.is_finished or not paper_job.is_failed:
+        sleep(10)
+    if paper_job.is_failed:
+        return None
+    mask, labels = paper_job.result[:2]
     final_mask = paperdolls.after_pd_conclusions(mask, labels)
     for num in np.unique(final_mask):
         # convert numbers to labels
         category = list(labels.keys())[list(labels.values()).index(num)]
         if category == "dress":
             item_mask = 255 * np.array(final_mask == num, dtype=np.uint8)
-            small_image, resize_ratio = background_removal.standard_resize(image, 400)
-            mask2 = background_removal.get_fg_mask(small_image)
+            # small_image, resize_ratio = background_removal.standard_resize(image, 400)
+            # mask2 = background_removal.get_fg_mask(small_image)
 
             item_bb = paperdolls.bb_from_mask(item_mask)
             after_gc_mask = background_removal.get_fg_mask(image, item_bb)  # (255, 0) mask
