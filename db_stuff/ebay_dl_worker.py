@@ -60,14 +60,25 @@ def ebay2generic(item, info):
 
         image = Utils.get_cv2_img_array(full_img_url)
         if image is None:
-            generic = None, None
-        else:
-            img_hash = get_hash(image)
-            generic["img_hash"] = img_hash
+            #try again
+            if 'https://' in full_img_url:
+                image = Utils.get_cv2_img_array(full_img_url[8:])
+            elif 'http://' in full_img_url:
+                image = Utils.get_cv2_img_array(full_img_url[7:])
+            else:
+                image,generic = None, None
+
+            if image is None:
+                generic = None
+                return image,generic
+
+        img_hash = get_hash(image)
+        generic["img_hash"] = img_hash
 
     except:
         print item
         generic = None
+        image = None
     return image, generic
 
 def fromCats2ppdCats(gender, cats):
@@ -109,9 +120,10 @@ def fromCats2ppdCats(gender, cats):
         cat =  ppd_cats[0]
     if any(x == cat for x in ['dress', 'stockings','bikini']) and gender=='Male':
         return "Androgyny", []
+    if any(x == cat for x in ['dress', 'stockings', 'bikini']) and gender == 'Unisex':
+        return "Female", 'dress'
     if cat == 'skirt' and gender == 'Male':
         cat = 'shirt'
-
     return gender, cat
 
 def title2category(gender, title):
@@ -271,12 +283,12 @@ def ebay_downloader(filename, filesize):
                     sleep(600)
                     stall += 1
 
-                img,generic_dict = ebay2generic(item, minimal_info)
-                if generic_dict is None:
-                    print ('gen is none')
+                img ,generic_dict = ebay2generic(item, minimal_info)
+                if generic_dict is None or img is None:
+                    print ('img download failed!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!')
                     continue
                 #check if hash already exists:
-                hashexists  = db[collection_name].find_one({'img_hash':generic_dict['img_hash']})
+                hashexists  = db[collection_name].find_one({'img_hash': generic_dict['img_hash']})
                 hashexistsInArchive = db[archive].find_one({'img_hash': generic_dict['img_hash']})
                 if hashexists:
                     id_list = hashexists['id'] + generic_dict['id']
