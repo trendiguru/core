@@ -28,61 +28,9 @@ LABEL_ADDRESS = "http://37.58.101.173:8357/neural/label"
 geo_reader = maxminddb.open_database(geo_db_path + '/GeoLite2-Country.mmdb')
 push_connection(constants.redis_conn)
 
+# -------------------------------------- *** ASYNC-MODE *** ----------------------------------------------
 
-def has_results_from_collection(image_obj, collection):
-    for results in image_obj['people'][0]['items'][0]['similar_results']:
-        if collection in results.keys():
-            return True
-    return False
-
-
-def add_results_from_collection(image_obj, collection):
-    for person in image_obj:
-        for item in person:
-            fp, similar_results = find_similar_mongo.find_top_n_results(number_of_results=100,
-                                                                        category_id=item['category'],
-                                                                        fingerprint=item['fp'],
-                                                                        collection=collection)
-            item['similar_results'][collection] = similar_results
-    db.images.replace_one({'_id': image_obj['_id']}, image_obj)
-
-
-def get_country_from_ip(ip):
-    user_info = geo_reader.get(ip)
-    if user_info:
-        if 'country' in user_info.keys():
-            return user_info['country']['iso_code']
-        elif 'registered_country' in user_info.keys():
-            return user_info['registered_country']['iso_code']
-    else:
-        return None
-
-
-def get_collection_from_ip_and_domain(ip, domain):
-    country = get_country_from_ip(ip)
-    default_map = constants.which_products_collection['default']
-    if domain in constants.which_products_collection.keys():
-        domain_map = constants.which_products_collection[domain]
-        if country:
-            if country in domain_map.keys():
-                return domain_map[country]
-            elif 'default' in domain_map.keys():
-                return domain_map['default']
-            else:
-                if country in default_map.keys():
-                    return default_map[country]
-                else:
-                    return default_map['default']
-        else:
-            if 'default' in domain_map.keys():
-                return domain_map['default']
-            else:
-                return default_map['default']
-    else:
-        if country in default_map.keys():
-            return default_map[country]
-        else:
-            return default_map['default']
+# ----------------------------------------- MAIN-FUNCTIONS -----------------------------------------------
 
 
 def route_by_url(image_url, page_url, lang):
@@ -103,49 +51,6 @@ def route_by_url(image_url, page_url, lang):
                            timeout=2000)
 
     return False
-
-
-def check_if_relevant(image_url, page_url, lang, custom_start_pipeline=None):
-    if custom_start_pipeline:
-        start_q = constants.Queue(custom_start_pipeline)
-    else:
-        start_q = start_pipeline
-    image = Utils.get_cv2_img_array(image_url)
-    if image is None:
-        return
-
-    # Jeremy's neural-doorman
-
-    relevance = image_is_relevant(image, use_caffe=False, image_url=image_url)
-
-    if not relevance.is_relevant:
-        hashed = get_hash(image)
-        image_obj = {'image_hash': hashed, 'image_urls': [image_url], 'page_urls': [page_url], 'people': [],
-                     'relevant': False, 'saved_date': str(datetime.datetime.utcnow()), 'views': 1,
-                     'labels': labelize(image)}
-        db.irrelevant_images.insert_one(image_obj)
-        db.labeled_irrelevant.insert_one(image_obj)
-        return image_obj
-    image_obj = {'people': [{'person_id': str(bson.ObjectId()), 'face': face.tolist(),
-                             'gender': genderize(image, face.tolist())['gender']} for face in relevance.faces],
-                 'image_url': image_url, 'page_url': page_url}
-    db.iip.insert_one({'image_url': image_url, 'insert_time': datetime.datetime.utcnow()})
-    db.genderator.insert_one(image_obj)
-    start_q.enqueue_call(func="", args=(page_url, image_url, lang), ttl=2000, result_ttl=2000, timeout=2000)
-
-    # if domain in constants.manual_gender_domains:
-    #     manual_gender.enqueue_call(func="", args=(image_url,), ttl=2000, result_ttl=2000,
-    #                                timeout=2000)
-    # else:
-    #     start_pipeline.enqueue_call(func="", args=(page_url, image_url, lang), ttl=2000, result_ttl=2000,
-    #                                 timeout=2000)
-
-
-def genderize(image_or_url, face):
-    data = msgpack.dumps({"image": image_or_url, "face": face})
-    resp = requests.post(GENDER_ADDRESS, data)
-    return msgpack.loads(resp.content)
-    # returns {'success': bool, 'gender': Female/Male, ['error': the error as string if success is False]}
 
 
 def handel_post(ip, image_url, page_url, lang):
@@ -178,31 +83,13 @@ def handel_post(ip, image_url, page_url, lang):
         return False
 
 
-def labelize(image_or_url):
-    try:
-        data = msgpack.dumps({"image": image_or_url})
-        resp = requests.post(LABEL_ADDRESS, data)
-        labels = msgpack.loads(resp.content)["labels"]
-        return {key: float(val) for key, val in labels.items()}
-    except:
-        return []
+# ---------------------------------------- FILTER-FUNCTIONS ----------------------------------------------
 
-
-def set_lang(new_lang):
-    global lang
-    global image_coll_name
-    global prod_coll_name
-
-    if not new_lang:
-        image_coll_name = "images"
-        prod_coll_name = "products"
-        return image_coll_name
-    else:
-        lang = new_lang
-        lang_suffix = "_" + new_lang
-        image_coll_name = "images{0}".format(lang_suffix)
-        prod_coll_name = "products{0}".format(lang_suffix)
-        return image_coll_name
+def has_results_from_collection(image_obj, collection):
+    for results in image_obj['people'][0]['items'][0]['similar_results']:
+        if collection in results.keys():
+            return True
+    return False
 
 
 def is_image_relevant(image_url, collection_name=None):
@@ -244,6 +131,117 @@ def has_items(image_dict):
         pass
     return res
 
+
+# ----------------------------------------- ROUTE-FUNCTIONS ----------------------------------------------
+
+def get_country_from_ip(ip):
+    user_info = geo_reader.get(ip)
+    if user_info:
+        if 'country' in user_info.keys():
+            return user_info['country']['iso_code']
+        elif 'registered_country' in user_info.keys():
+            return user_info['registered_country']['iso_code']
+    else:
+        return None
+
+
+def get_collection_from_ip_and_domain(ip, domain):
+    country = get_country_from_ip(ip)
+    default_map = constants.which_products_collection['default']
+    if domain in constants.which_products_collection.keys():
+        domain_map = constants.which_products_collection[domain]
+        if country:
+            if country in domain_map.keys():
+                return domain_map[country]
+            elif 'default' in domain_map.keys():
+                return domain_map['default']
+            else:
+                if country in default_map.keys():
+                    return default_map[country]
+                else:
+                    return default_map['default']
+        else:
+            if 'default' in domain_map.keys():
+                return domain_map['default']
+            else:
+                return default_map['default']
+    else:
+        if country in default_map.keys():
+            return default_map[country]
+        else:
+            return default_map['default']
+
+
+# ---------------------------------------- PROCESS-FUNCTIONS ---------------------------------------------
+
+def add_results_from_collection(image_obj, collection):
+    for person in image_obj:
+        for item in person:
+            fp, similar_results = find_similar_mongo.find_top_n_results(number_of_results=100,
+                                                                        category_id=item['category'],
+                                                                        fingerprint=item['fp'],
+                                                                        collection=collection)
+            item['similar_results'][collection] = similar_results
+    db.images.replace_one({'_id': image_obj['_id']}, image_obj)
+
+
+def check_if_relevant(image_url, page_url, lang, custom_start_pipeline=None):
+    if custom_start_pipeline:
+        start_q = constants.Queue(custom_start_pipeline)
+    else:
+        start_q = start_pipeline
+    image = Utils.get_cv2_img_array(image_url)
+    if image is None:
+        return
+
+    # Jeremy's neural-doorman
+
+    relevance = image_is_relevant(image, use_caffe=False, image_url=image_url)
+
+    if not relevance.is_relevant:
+        hashed = get_hash(image)
+        image_obj = {'image_hash': hashed, 'image_urls': [image_url], 'page_urls': [page_url], 'people': [],
+                     'relevant': False, 'saved_date': str(datetime.datetime.utcnow()), 'views': 1,
+                     'labels': labelize(image)}
+        db.irrelevant_images.insert_one(image_obj)
+        db.labeled_irrelevant.insert_one(image_obj)
+        return image_obj
+    image_obj = {'people': [{'person_id': str(bson.ObjectId()), 'face': face.tolist(),
+                             'gender': genderize(image, face.tolist())['gender']} for face in relevance.faces],
+                 'image_url': image_url, 'page_url': page_url}
+    db.iip.insert_one({'image_url': image_url, 'insert_time': datetime.datetime.utcnow()})
+    db.genderator.insert_one(image_obj)
+    start_q.enqueue_call(func="", args=(page_url, image_url, lang), ttl=2000, result_ttl=2000, timeout=2000)
+
+    # if domain in constants.manual_gender_domains:
+    #     manual_gender.enqueue_call(func="", args=(image_url,), ttl=2000, result_ttl=2000,
+    #                                timeout=2000)
+    # else:
+    #     start_pipeline.enqueue_call(func="", args=(page_url, image_url, lang), ttl=2000, result_ttl=2000,
+    #                                 timeout=2000)
+
+
+# --------------------------------------------- NNs -----------------------------------------------------
+
+
+def genderize(image_or_url, face):
+    data = msgpack.dumps({"image": image_or_url, "face": face})
+    resp = requests.post(GENDER_ADDRESS, data)
+    return msgpack.loads(resp.content)
+    # returns {'success': bool, 'gender': Female/Male, ['error': the error as string if success is False]}
+
+
+def labelize(image_or_url):
+    try:
+        data = msgpack.dumps({"image": image_or_url})
+        resp = requests.post(LABEL_ADDRESS, data)
+        labels = msgpack.loads(resp.content)["labels"]
+        return {key: float(val) for key, val in labels.items()}
+    except:
+        return []
+
+
+# ----------------------------------------- GET-FUNCTIONS -----------------------------------------------
 
 def get_data_for_specific_image(image_url=None, image_hash=None, image_projection=None, product_projection=None,
                                 max_results=20, lang=None, products_collection='ShopStyle'):
@@ -338,17 +336,6 @@ def load_similar_results(sparse, projection_dict, product_collection_name):
     return sparse
 
 
-def image_exists(image_url, collection_name=None):
-    collection_name = collection_name or image_coll_name
-    image_collection = db[collection_name]
-    image_dict = image_collection.find_one({"image_urls": image_url}, {"_id": 1})
-    if image_dict is None:
-        im_hash = get_hash_of_image_from_url(image_url)
-        if im_hash:
-            image_dict = image_collection.find_one({"image_hash": im_hash}, {"_id": 1})
-    return bool(image_dict)
-
-
 def merge_items(doc):
     # doc['items'] = [item for person in doc['people'] for item in person["items"] if 'items' in person.keys()]
     doc['items'] = []
@@ -360,6 +347,32 @@ def merge_items(doc):
     return doc
 
 
+# -------------------------------------------- OTHERS ---------------------------------------------------
+
+def set_lang(new_lang):
+    global lang
+    global image_coll_name
+    global prod_coll_name
+
+    if not new_lang:
+        image_coll_name = "images"
+        prod_coll_name = "products"
+        return image_coll_name
+    else:
+        lang = new_lang
+        lang_suffix = "_" + new_lang
+        image_coll_name = "images{0}".format(lang_suffix)
+        prod_coll_name = "products{0}".format(lang_suffix)
+        return image_coll_name
+
+
+def get_hash(image):
+    m = hashlib.md5()
+    m.update(image)
+    url_hash = m.hexdigest()
+    return url_hash
+
+
 def get_hash_of_image_from_url(image_url):
     if image_url is None:
         logging.warning("Bad image url!")
@@ -369,10 +382,3 @@ def get_hash_of_image_from_url(image_url):
         logging.warning('couldnt get img_arr from url:' + image_url + ' in get_hash_of_image')
         return None
     return get_hash(img_arr)
-
-
-def get_hash(image):
-    m = hashlib.md5()
-    m.update(image)
-    url_hash = m.hexdigest()
-    return url_hash
