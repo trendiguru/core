@@ -171,7 +171,7 @@ def get_sp(image_url,x):
     image = Utils.get_cv2_img_array(image_url)
 
     paper_job = paperdoll_parse_enqueue.paperdoll_enqueue(image, str(x))
-    while not paper_job.is_finished or not paper_job.is_failed:
+    while not paper_job.is_finished and not paper_job.is_failed:
         sleep(10)
     if paper_job.is_failed:
         return None
