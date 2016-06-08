@@ -24,7 +24,7 @@ text_file = open("dresses_test.txt", "r")
 counter = 0
 
 MODLE_FILE = "/home/yonatan/trendi/yonatan/Alexnet_deploy_for_dresses.prototxt"
-PRETRAINED = "/home/yonatan/caffe_alexnet_train_on_67320_dresses_no_sitting_iter_45000.caffemodel"
+PRETRAINED = "/home/yonatan/caffe_alexnet_train_on_67320_dresses_no_sitting_iter_20000.caffemodel"
 caffe.set_mode_gpu()
 image_dims = [256, 256]
 mean, input_scale = np.array([120, 120, 120]), None
@@ -48,6 +48,11 @@ guessed_midi_instead_mini = 0
 guessed_maxi_instead_mini = 0
 guessed_midi_instead_maxi = 0
 guessed_mini_instead_maxi = 0
+
+counter_99_percent = 0
+counter_97_percent = 0
+counter_95_percent = 0
+counter_90_percent = 0
 
 for line in text_file:
     counter += 1
@@ -73,6 +78,26 @@ for line in text_file:
     mini_predict = predictions[0][0]
     midi_predict = predictions[0][1]
     maxi_predict = predictions[0][2]
+
+    max_result = max(predictions[0])
+
+    if 0.90 <= max_result < 0.95:
+        counter_90_percent += 1
+        counter_95_percent += 1
+        counter_97_percent += 1
+        counter_99_percent += 1
+    elif 0.95 <= max_result < 0.97:
+        counter_90_percent += 1
+        counter_95_percent += 1
+    elif 0.97 <= max_result < 0.99:
+        counter_90_percent += 1
+        counter_95_percent += 1
+        counter_97_percent += 1
+    elif max_result >= 0.99:
+        counter_90_percent += 1
+        counter_95_percent += 1
+        counter_97_percent += 1
+        counter_99_percent += 1
 
     print mini_predict
     print midi_predict
@@ -119,6 +144,10 @@ print 'guessed_maxi_instead_mini {0}'.format(guessed_maxi_instead_mini)
 print 'guessed_midi_instead_maxi {0}'.format(guessed_midi_instead_maxi)
 print 'guessed_mini_instead_maxi {0}'.format(guessed_mini_instead_maxi)
 
+print 'results equal or above 95%: {0}'.format(float(counter_95_percent) / counter)
+print 'results equal or above 97%: {0}'.format(float(counter_97_percent) / counter)
+print 'results equal or above 99%: {0}'.format(float(counter_99_percent) / counter)
+
 success = len(array_success)
 failure = len(array_failure)
 if success == 0 or failure == 0:
@@ -128,12 +157,10 @@ else:
 
 histogram = plt.figure(1)
 
-bins = np.linspace(-1000, 1000, 50)
-
-plt.hist(array_success, alpha=0.5, label='array_success')
+plt.hist(array_success, bins=20, range=(0.96, 1), color='blue', label='array_success')
 plt.legend()
 
-plt.hist(array_failure, alpha=0.5, label='array_failure')
+plt.hist(array_failure, bins=20, range=(0.96, 1), color='red', label='array_failure')
 plt.legend()
 
-histogram.savefig('67000_train_dresses_histogram_iter_45000_no_sitting.png')
+histogram.savefig('67000_train_dresses_histogram_iter_20000_no_sitting_20_bins.png')
