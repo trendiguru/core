@@ -80,14 +80,14 @@ for line in text_file:
 
     max_result = max(predictions[0])
 
-    if max_result >= 0.95:
+    if 0.95 <= max_result < 0.97:
+        counter_95_percent += 1
+    elif 0.97 <= max_result < 0.99:
         counter_95_percent += 1
         counter_97_percent += 1
-        counter_99_percent += 1
-    elif max_result >= 0.97:
-        counter_97_percent += 1
-        counter_99_percent += 1
     elif max_result >= 0.99:
+        counter_95_percent += 1
+        counter_97_percent += 1
         counter_99_percent += 1
 
     print mini_predict
