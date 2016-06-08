@@ -130,10 +130,10 @@ histogram = plt.figure(1)
 
 bins = np.linspace(0, 1, 100)
 
-plt.hist(array_success, alpha=0.5, label='array_success')
+plt.hist(array_success, bins=100, label='array_success')
 plt.legend()
 
-plt.hist(array_failure, alpha=0.5, label='array_failure')
+plt.hist(array_failure, bins=100, label='array_failure')
 plt.legend()
 
 histogram.savefig('67000_train_dresses_histogram_iter_20000_no_sitting_100_bins.png')
