@@ -359,11 +359,11 @@ exclusion_relations = {'dress':['skirt','pants','top'],'pants':['dress','skirt']
 
 #ebay shop the look
 #ebay clothing categories
-#http://wwd.com/fashion-dictionary/
+#http://wwd.com/fashion-dictionary/#
 #http://www.modcloth.com/style_glossary
 #see e.g. http://s1073.photobucket.com/user/Sofialiciel/media/Fashion%20Dictionary/fashion-ill-10.jpg.html?sort=3&o=9
 taxonomy_leaves = ['mini_dress','midi_dress','maxi_dress','cocktail_dress','strapless_dress','sari_dress','pencil_dress','bustle_dress',
-                   ,'empire_dress','tunic_dress','dropped-waist_dress','shirtwaist_dress','sheath_dress','A-line_dress','tent_dress',
+                   'empire_dress','tunic_dress','dropped-waist_dress','shirtwaist_dress','sheath_dress','A-line_dress','tent_dress',
                     'mini_skirt','midi_skirt','maxi_skirt','bustle_skirt','bubble_skirt','broomstick_skirt','pencil_skirt','cowl-drape_skirt','sarong-wrap_skirt','tulip_skirt'
                    'full_skirt','A-line_skirt','fitted_skirt','dirndl_skirt','trumpet_skirt','wrap_skirt','gore_skirt','godet_skirt','tiered_skirt','handkerchief_skirt','layered_skirt',
                     'classic_jeans','cropped_jeans','distressed_jeans','flare_jeans','relaxed-jeans','skinny_jeans','straight-leg_jeans',
