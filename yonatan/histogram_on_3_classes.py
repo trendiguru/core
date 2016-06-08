@@ -52,6 +52,7 @@ guessed_mini_instead_maxi = 0
 counter_99_percent = 0
 counter_97_percent = 0
 counter_95_percent = 0
+counter_90_percent = 0
 
 for line in text_file:
     counter += 1
@@ -80,12 +81,20 @@ for line in text_file:
 
     max_result = max(predictions[0])
 
-    if 0.95 <= max_result < 0.97:
+    if 0.90 <= max_result < 0.95:
+        counter_90_percent += 1
+        counter_95_percent += 1
+        counter_97_percent += 1
+        counter_99_percent += 1
+    elif 0.95 <= max_result < 0.97:
+        counter_90_percent += 1
         counter_95_percent += 1
     elif 0.97 <= max_result < 0.99:
+        counter_90_percent += 1
         counter_95_percent += 1
         counter_97_percent += 1
     elif max_result >= 0.99:
+        counter_90_percent += 1
         counter_95_percent += 1
         counter_97_percent += 1
         counter_99_percent += 1
@@ -148,10 +157,10 @@ else:
 
 histogram = plt.figure(1)
 
-plt.hist(array_success, bins=100, color='blue', label='array_success')
+plt.hist(array_success, bins=30, range=(0.9, 1), color='blue', label='array_success')
 plt.legend()
 
-plt.hist(array_failure, bins=100, color='red', label='array_failure')
+plt.hist(array_failure, bins=30, range=(0.9, 1), color='red', label='array_failure')
 plt.legend()
 
-histogram.savefig('67000_train_dresses_histogram_iter_20000_no_sitting_100_bins.png')
+histogram.savefig('67000_train_dresses_histogram_iter_20000_no_sitting_40_bins.png')
