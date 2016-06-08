@@ -60,10 +60,20 @@ def ebay2generic(item, info):
 
         image = Utils.get_cv2_img_array(full_img_url)
         if image is None:
-            generic = None
-        else:
-            img_hash = get_hash(image)
-            generic["img_hash"] = img_hash
+            #try again
+            if 'https://' in full_img_url:
+                image = Utils.get_cv2_img_array(full_img_url[8:])
+            elif 'http://' in full_img_url:
+                image = Utils.get_cv2_img_array(full_img_url[7:])
+            else:
+                image,generic = None, None
+
+            if image is None:
+                generic = None
+                return image,generic
+
+        img_hash = get_hash(image)
+        generic["img_hash"] = img_hash
 
     except:
         print item
@@ -110,9 +120,10 @@ def fromCats2ppdCats(gender, cats):
         cat =  ppd_cats[0]
     if any(x == cat for x in ['dress', 'stockings','bikini']) and gender=='Male':
         return "Androgyny", []
+    if any(x == cat for x in ['dress', 'stockings', 'bikini']) and gender == 'Unisex':
+        return "Female", 'dress'
     if cat == 'skirt' and gender == 'Male':
         cat = 'shirt'
-
     return gender, cat
 
 def title2category(gender, title):
@@ -157,7 +168,7 @@ def getImportantInfoOnly(item):
 def startORstall(filesize):
     total_ram = int(psutil.virtual_memory()[0])
     available_ram = int(psutil.virtual_memory()[1])
-    if filesize < 0.75 * available_ram:
+    if filesize < 0.65 * available_ram:
         return True
     else:
         return False
