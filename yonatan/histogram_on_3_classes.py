@@ -54,6 +54,11 @@ counter_97_percent = 0
 counter_95_percent = 0
 counter_90_percent = 0
 
+failure_above_98_percent = 0
+
+#failure_current_result = 0
+#success_current_result = 0
+
 for line in text_file:
     counter += 1
 
@@ -99,6 +104,8 @@ for line in text_file:
         counter_97_percent += 1
         counter_99_percent += 1
 
+
+
     print mini_predict
     print midi_predict
     print maxi_predict
@@ -127,9 +134,9 @@ for line in text_file:
         array_failure = np.append(array_failure, maxi_predict)
         print predictions
         guessed_maxi_instead_mini += 1
-        img = cv2.imread(input_file)
-        cv2.imshow('guessed_maxi_instead_mini', img)
-        cv2.waitKey(0)
+        #img = cv2.imread(input_file)
+        #cv2.imshow('guessed_maxi_instead_mini', img)
+        #cv2.waitKey(0)
     elif (midi_predict > mini_predict) and (midi_predict > maxi_predict) and (path[1] == '2'):
         array_failure = np.append(array_failure, midi_predict)
         print predictions
@@ -138,9 +145,9 @@ for line in text_file:
         array_failure = np.append(array_failure, mini_predict)
         print predictions
         guessed_mini_instead_maxi += 1
-        img = cv2.imread(input_file)
-        cv2.imshow('guessed_mini_instead_maxi', img)
-        cv2.waitKey(0)
+        #img = cv2.imread(input_file)
+        #cv2.imshow('guessed_mini_instead_maxi', img)
+        #cv2.waitKey(0)
     print counter
 
 print 'guessed_mini_instead_midi {0}'.format(guessed_mini_instead_midi)
@@ -150,6 +157,7 @@ print 'guessed_maxi_instead_mini {0}'.format(guessed_maxi_instead_mini)
 print 'guessed_midi_instead_maxi {0}'.format(guessed_midi_instead_maxi)
 print 'guessed_mini_instead_maxi {0}'.format(guessed_mini_instead_maxi)
 
+print 'results equal or above 90%: {0}'.format(float(counter_90_percent) / counter)
 print 'results equal or above 95%: {0}'.format(float(counter_95_percent) / counter)
 print 'results equal or above 97%: {0}'.format(float(counter_97_percent) / counter)
 print 'results equal or above 99%: {0}'.format(float(counter_99_percent) / counter)
@@ -160,6 +168,12 @@ if success == 0 or failure == 0:
     print "wrong!"
 else:
     print 'accuracy percent: {0}'.format(float(success) / (success + failure))
+
+for cell in array_failure:
+    if cell >= 0.98:
+        failure_above_98_percent += 1
+
+print 'failure_above_98_percent: {0}'.format(float(failure_above_98_percent) / failure)
 
 histogram = plt.figure(1)
 
