@@ -127,8 +127,8 @@ for line in text_file:
         array_failure = np.append(array_failure, maxi_predict)
         print predictions
         guessed_maxi_instead_mini += 1
-        img = cv2.imread('image', 0)
-        cv2.imshow('image', input_file)
+        img = cv2.imread('image')
+        cv2.imshow('image', inputs)
         cv2.waitKey(0)
     elif (midi_predict > mini_predict) and (midi_predict > maxi_predict) and (path[1] == '2'):
         array_failure = np.append(array_failure, midi_predict)
@@ -138,8 +138,8 @@ for line in text_file:
         array_failure = np.append(array_failure, mini_predict)
         print predictions
         guessed_mini_instead_maxi += 1
-        img = cv2.imread('image', 0)
-        cv2.imshow('image', input_file)
+        img = cv2.imread('image')
+        cv2.imshow('image', inputs)
         cv2.waitKey(0)
     print counter
 
