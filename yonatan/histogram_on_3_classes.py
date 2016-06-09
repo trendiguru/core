@@ -130,7 +130,6 @@ for line in text_file:
         img = cv2.imread(input_file)
         cv2.imshow('guessed_maxi_instead_mini', img)
         cv2.waitKey(0)
-        cv2.destroyAllWindows()
     elif (midi_predict > mini_predict) and (midi_predict > maxi_predict) and (path[1] == '2'):
         array_failure = np.append(array_failure, midi_predict)
         print predictions
@@ -142,7 +141,6 @@ for line in text_file:
         img = cv2.imread(input_file)
         cv2.imshow('guessed_mini_instead_maxi', img)
         cv2.waitKey(0)
-        cv2.destroyAllWindows()
     print counter
 
 print 'guessed_mini_instead_midi {0}'.format(guessed_mini_instead_midi)
