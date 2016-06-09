@@ -127,7 +127,7 @@ for line in text_file:
         array_failure = np.append(array_failure, maxi_predict)
         print predictions
         guessed_maxi_instead_mini += 1
-        img = cv2.imread(inputs)
+        img = cv2.imread(input_file)
         cv2.imshow('image', img)
         cv2.waitKey(0)
     elif (midi_predict > mini_predict) and (midi_predict > maxi_predict) and (path[1] == '2'):
@@ -138,7 +138,7 @@ for line in text_file:
         array_failure = np.append(array_failure, mini_predict)
         print predictions
         guessed_mini_instead_maxi += 1
-        img = cv2.imread(inputs)
+        img = cv2.imread(input_file)
         cv2.imshow('image', img)
         cv2.waitKey(0)
     print counter
@@ -170,7 +170,3 @@ plt.hist(array_failure, bins=100, range=(0, 1), color='red', label='array_failur
 plt.legend()
 
 histogram.savefig('67000_train_dresses_histogram_iter_20000_only_dresses_on_models.png')
-
-img = cv2.imread('messi5.jpg',0)
-cv2.imshow('image',img)
-cv2.waitKey(0)
