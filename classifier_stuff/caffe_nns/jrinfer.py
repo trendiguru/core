@@ -11,7 +11,7 @@ from datetime import datetime
 import caffe
 
 
-from trendi import pipeline
+# from trendi import pipeline
 from trendi.utils import imutils
 from trendi import constants
 from trendi.paperdoll import paperdoll_parse_enqueue
