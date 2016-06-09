@@ -168,7 +168,7 @@ def getImportantInfoOnly(item):
 def startORstall(filesize):
     total_ram = int(psutil.virtual_memory()[0])
     available_ram = int(psutil.virtual_memory()[1])
-    if filesize < 0.65 * available_ram:
+    if filesize < 0.5 * available_ram:
         return True
     else:
         return False
@@ -177,7 +177,7 @@ def startORstall(filesize):
 def ebay_downloader(filename, filesize):
     if not startORstall(filesize):
         q.enqueue(ebay_downloader, args=(filename, filesize), timeout=3600)
-        sleep(30)
+        sleep(120)
         return
 
     ftp = ebay_dl_utils.ftp_connection(ebay_dl_utils.us_params)
