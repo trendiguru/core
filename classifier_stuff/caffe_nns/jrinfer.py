@@ -276,12 +276,11 @@ if __name__ == "__main__":
     test_dir = '/root/imgdbs/image_dbs/colorful_fashion_parsing_data/test_256x256'
     out_dir = '/home/jeremy/caffenets/pixlevel/voc-fcn8s/voc8.15/output'
     caffemodel = '/home/jeremy/caffenets/pixlevel/voc-fcn8s/voc8.15/snapshot/train_iter_120000.caffemodel'
-
-    prototxt = 'deploy.prototxt'
+    prototxt = '/home/jeremy/caffenets/pixlevel/voc-fcn8s/voc8.15/deploy.prototxt'
 
     parser = argparse.ArgumentParser(description='get Caffe output')
-    parser.add_argument('caffemodel', help='caffemodel', default=caffemodel)
-    parser.add_argument('prototxt', help='prototxt',default=prototxt)
+    parser.add_argument('--caffemodel', help='caffemodel', default=caffemodel)
+    parser.add_argument('--prototxt', help='prototxt',default=prototxt)
     parser.add_argument('--image', dest = 'image_file', help='image file',default=None)
     parser.add_argument('--dir', dest = 'image_directory', help='image directory',default=None)
     parser.add_argument('--outdir', dest = 'out_directory', help='result directory',default='.')
