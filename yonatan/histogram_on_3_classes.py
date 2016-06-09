@@ -157,10 +157,10 @@ else:
 
 histogram = plt.figure(1)
 
-plt.hist(array_success, bins=20, range=(0.96, 1), color='blue', label='array_success')
+plt.hist(array_success, bins=100, range=(0, 1), color='blue', label='array_success')
 plt.legend()
 
-plt.hist(array_failure, bins=20, range=(0.96, 1), color='red', label='array_failure')
+plt.hist(array_failure, bins=100, range=(0, 1), color='red', label='array_failure')
 plt.legend()
 
 histogram.savefig('67000_train_dresses_histogram_iter_20000_only_dresses_on_models.png')
