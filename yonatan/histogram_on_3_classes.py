@@ -24,7 +24,7 @@ text_file = open("dresses_test.txt", "r")
 counter = 0
 
 MODLE_FILE = "/home/yonatan/trendi/yonatan/Alexnet_deploy_for_dresses.prototxt"
-PRETRAINED = "/home/yonatan/caffe_alexnet_train_on_67320_dresses_no_sitting_iter_20000.caffemodel"
+PRETRAINED = "/home/yonatan/caffe_alexnet_only_dresses_on_models_iter_20000.caffemodel"
 caffe.set_mode_gpu()
 image_dims = [256, 256]
 mean, input_scale = np.array([120, 120, 120]), None
@@ -127,6 +127,10 @@ for line in text_file:
         array_failure = np.append(array_failure, maxi_predict)
         print predictions
         guessed_maxi_instead_mini += 1
+        img = cv2.imread(input_file)
+        cv2.imshow('guessed_maxi_instead_mini', img)
+        cv2.waitKey(0)
+        cv2.destroyAllWindows()
     elif (midi_predict > mini_predict) and (midi_predict > maxi_predict) and (path[1] == '2'):
         array_failure = np.append(array_failure, midi_predict)
         print predictions
@@ -135,6 +139,10 @@ for line in text_file:
         array_failure = np.append(array_failure, mini_predict)
         print predictions
         guessed_mini_instead_maxi += 1
+        img = cv2.imread(input_file)
+        cv2.imshow('guessed_mini_instead_maxi', img)
+        cv2.waitKey(0)
+        cv2.destroyAllWindows()
     print counter
 
 print 'guessed_mini_instead_midi {0}'.format(guessed_mini_instead_midi)
@@ -157,10 +165,10 @@ else:
 
 histogram = plt.figure(1)
 
-plt.hist(array_success, bins=20, range=(0.96, 1), color='blue', label='array_success')
+plt.hist(array_success, bins=100, range=(0, 1), color='blue', label='array_success')
 plt.legend()
 
-plt.hist(array_failure, bins=20, range=(0.96, 1), color='red', label='array_failure')
+plt.hist(array_failure, bins=100, range=(0, 1), color='red', label='array_failure')
 plt.legend()
 
-histogram.savefig('67000_train_dresses_histogram_iter_20000_no_sitting_20_bins.png')
+histogram.savefig('67000_train_dresses_histogram_iter_20000_only_dresses_on_models.png')
