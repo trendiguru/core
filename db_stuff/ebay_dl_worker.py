@@ -168,16 +168,19 @@ def getImportantInfoOnly(item):
 def startORstall(filesize):
     total_ram = int(psutil.virtual_memory()[0])
     available_ram = int(psutil.virtual_memory()[1])
-    if filesize > 0.5*total_ram:
-        if filesize < 0.7*available_ram:
-            return True
-        else:
-            return False
-    else:
-        if filesize < 0.5*available_ram:
-            return True
-        else:
-            return False
+    # if filesize > 0.5*total_ram:
+    #     if filesize < 0.7*available_ram:
+    #         return True
+    #     else:
+    #         return False
+    # else:
+    #     if filesize < 0.5*available_ram:
+    #         return True
+    #     else:
+    #         return False
+    if filesize>(0.75*available_ram):
+        return False
+    return True
 
 
 def ebay_downloader(filename, filesize):
