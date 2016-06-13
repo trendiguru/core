@@ -16,7 +16,7 @@ def cats_from_db(image_dir='/home/jeremy/image_dbs/tamara_berg_images'):
             url = document['url']
             filename = os.path.basename(url)
             full_path = os.path.join(image_dir,filename)
-            items_list = document['items']
+            items_list = document['items'] #
             hotlist = np.zeros(len(constants.web_tool_categories))
             for item in items_list:
                 cat = item['category']
