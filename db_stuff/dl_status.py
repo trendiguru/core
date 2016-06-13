@@ -31,7 +31,7 @@ from datetime import datetime,timedelta
 now = datetime.now()
 now_date = datetime.date(now)
 current_date = str(now_date)
-last2weeks = datetime(now)-timedelta(days=15)
+last2weeks = str(now_date-timedelta(days=15))
 db = constants.db
 dl_status=db.download_status
 
