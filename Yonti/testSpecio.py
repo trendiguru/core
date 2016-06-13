@@ -59,7 +59,7 @@ def create_test_group():
 def fingerprint_3D_spatiogram(image, mask):
     bins = [8,12,8]
     # bins = [12, 12, 6]
-    levelnum = 6
+    levelnum = 3
     hsv = cv2.cvtColor(image, cv2.COLOR_BGR2HSV)
     weights_circumfrance = circumfrence_distance(mask)
     gradient_mask0, gradient_mask1 = gradient_boxes(mask)
