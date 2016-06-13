@@ -27,10 +27,10 @@ from .. import constants
 
 import argparse
 import sys
-import datetime
-now = datetime.datetime.now()
-current_date = str(datetime.datetime.date(now))
-
+from datetime import datetime,timedelta
+now = datetime.now()
+current_date = str(datetime.date(now))
+last2weeks = current_date-timedelta(days=15)
 db = constants.db
 dl_status=db.download_status
 
@@ -89,7 +89,7 @@ def checkStatus():
     workbook = xlsxwriter.Workbook(path2file)
     bold = workbook.add_format({'bold': True})
 
-    lasts_days_info = dl_status.find()
+    lasts_days_info = dl_status.find({'date':{'$gte':last2weeks}}).reverse()
     todays = workbook.add_worksheet('today')
     for daily_info in lasts_days_info:
         dl_date = daily_info['date']
