@@ -24,7 +24,7 @@ note that Xlsxwriter can only create new files - it cannot read or modify existi
 import xlsxwriter
 from ..Yonti import drive
 from .. import constants
-
+import pymongo
 import argparse
 import sys
 from datetime import datetime,timedelta
@@ -90,7 +90,7 @@ def checkStatus():
     workbook = xlsxwriter.Workbook(path2file)
     bold = workbook.add_format({'bold': True})
 
-    lasts_days_info = dl_status.find({'date':{'$gte':last2weeks}}).sort({'date': 'descending'})
+    lasts_days_info = dl_status.find({'date':{'$gte':last2weeks}}).sort({'date': pymongo.DESCENDING})
     todays = workbook.add_worksheet('today')
     for daily_info in lasts_days_info:
         dl_date = daily_info['date']
