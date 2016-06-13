@@ -10,7 +10,7 @@ def cats_from_db():
     for i in range(n_done):
         document = cursor.next()
         url = document['url']
-        items_list = document[items]
+        items_list = document['items']
         hotlist = np.zeros(len(constants.web_tool_categories))
         for item in items_list:
             cat = item['category']
