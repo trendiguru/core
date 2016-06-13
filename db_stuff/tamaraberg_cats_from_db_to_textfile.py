@@ -5,7 +5,7 @@ import cv2
 
 from trendi import constants
 
-def cats_from_db(image_dir='/home/jeremy/image_dbs/tamara_berg_images'):
+def cats_from_db(image_dir='/home/jeremy/image_dbs/tamara_berg/images'):
     db = constants.db
     cursor = db.training_images.find({'already_done':True})
     n_done = cursor.count()
