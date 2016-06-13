@@ -4,6 +4,7 @@ import os
 import cv2
 
 from trendi import constants
+from trendi.utils import imutils
 
 def cats_from_db(image_dir='/home/jeremy/image_dbs/tamara_berg/images'):
     db = constants.db
@@ -45,8 +46,7 @@ def inspect_textfile(filename = 'tb_cats_from_webtool.txt'):
                     cats = cats + constants.web_tool_categories[i]
                     print(cats)
             img_arr = cv2.imread(path)
-            cv2.imshow('file',img_arr)
-            cv2.waitKey(0)
+            imutils.resize_to_max_sidelength(img_arr, max_sidelength=250,use_visual_output=True)
 
 if __name__ == "__main__": #
     cats_from_db()
