@@ -90,7 +90,7 @@ def checkStatus():
     workbook = xlsxwriter.Workbook(path2file)
     bold = workbook.add_format({'bold': True})
 
-    lasts_days_info = dl_status.find({'date':{'$gte':last2weeks}}).sort({'_id':-1})
+    lasts_days_info = dl_status.find({'date':{'$gte':last2weeks}}).sort({'_id': -1})
     todays = workbook.add_worksheet('today')
     for daily_info in lasts_days_info:
         dl_date = daily_info['date']
