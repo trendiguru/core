@@ -306,8 +306,8 @@ def resize_to_max_sidelength(img_arr, max_sidelength=250,use_visual_output=True)
             img_arr=cv2.resize(img_arr,(new_w,new_h))
         else:  #longest side is still under limit , show orig without resize
             pass
-    if(use_visual_output):
-        cv2.imshow('image',img_arr))
+    if (use_visual_output):
+        cv2.imshow('image',img_arr)
         cv2.waitKey(0)
     return img_arr
 
