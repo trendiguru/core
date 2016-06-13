@@ -141,10 +141,10 @@ print('total number of stores to download = %s' %(len(files)))
 for x,file in enumerate(files):
     filename = file['name']
     filesize = int(file['size'])
-    while q.count>5:
+    while q.count>2:
         sleep(300)
     print ('enqueued store id = %s' %(filename) )
-    q.enqueue(ebay_downloader, args=(filename, filesize), timeout=3600)
+    q.enqueue(ebay_downloader, args=(filename, filesize), timeout=5400)
 
 #wait for workers
 while q.count>0:
