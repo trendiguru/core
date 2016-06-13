@@ -41,10 +41,11 @@ def inspect_textfile(filename = 'tb_cats_from_webtool.txt'):
             cats = ''
             for i in range(len(constants.web_tool_categories)):
                 current_val = int(line.split()[i+1])
-                print('cur digit {} val {}'.format(i,current_val))
+#                print('cur digit {} val {}'.format(i,current_val))
                 if current_val:
-                    cats = cats + constants.web_tool_categories[i]
-                    print(cats)
+                    cats = cats + ',' + constants.web_tool_categories[i]
+            print(cats)
+            print()
             img_arr = cv2.imread(path)
             imutils.resize_to_max_sidelength(img_arr, max_sidelength=250,use_visual_output=True)
 
