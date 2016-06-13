@@ -45,5 +45,5 @@ def inspect_textfile(filename = 'tb_cats_from_webtool.txt'):
             cv2.imshow(img_arr)
             cv2.waitKey(0)
 
-if __name__ == "__main__":
+if __name__ == "__main__": #
     cats_from_db()
