@@ -29,8 +29,9 @@ import argparse
 import sys
 from datetime import datetime,timedelta
 now = datetime.now()
-current_date = str(datetime.date(now))
-last2weeks = current_date-timedelta(days=15)
+now_date = datetime.date(now)
+current_date = str(now_date)
+last2weeks = now_date-timedelta(days=15)
 db = constants.db
 dl_status=db.download_status
 
