@@ -14,7 +14,12 @@ def cats_from_db():
         hotlist = np.zeros(len(constants.web_tool_categories))
         for item in items_list:
             cat = item['category']
-            index = constants.web_tool_categories.index(cat)
+            if cat in constants.web_tool_categories:
+                index = constants.web_tool_categories.index(cat)
+            else:
+                if cat in constants.tamara_berg_to_web_tool_dict:
+                    cat = constants.tamara_berg_to_web_tool_dict[cat]
+                    index = constants.web_tool_categories.index(cat)
             hotlist[index] = 1
             print('item:'+str(cat))
         print('hotlist:'+str(hotlist))
