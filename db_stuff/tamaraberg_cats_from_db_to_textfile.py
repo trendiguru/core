@@ -37,13 +37,16 @@ def inspect_textfile(filename = 'tb_cats_from_webtool.txt'):
         for line in fp:
             print line
             path = line.split()[0]
+            cats = ''
             for i in range(len(constants.web_tool_categories)):
+                print('cur dig {} val {}'.format(i,line.split()[i+1]))
                 if line.split()[i+1]:
                     cats = cats + constants.web_tool_categories[i]
-            print(cats)
+                    print(cats)
             img_arr = cv2.imread(path)
             cv2.imshow(img_arr)
             cv2.waitKey(0)
 
 if __name__ == "__main__": #
     cats_from_db()
+    inspect_textfile()
