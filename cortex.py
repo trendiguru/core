@@ -1,4 +1,4 @@
-__author__ = 'Natanel Davidovits'
+__author__ = 'Natanel'
 
 import os
 import pickle
@@ -248,8 +248,8 @@ def collar_classifier_net():
     :return ccollar_net_object: Keras sequential net collar_net_object object - neural net object
     '''
     collar_net_weights_filename = 'C2Dx8x3x3xvalidx3x32x32XAxreluXC2Dx8x3x3xvalidXAxreluXMPx2x2XC2Dx16x3x3xvalidXAxreluXC2Dx16x3x3xvalidXAxreluXMPx2x2XFXDx256XAxreluXDx64XAxreluXDx5XAxsoftmaxXOPxsgdx4e-6x1e-6x0.9x1XCOxcc.hdf5'
-    ccollar_net_object = build_sequential_net_from_weights_filename(collar_net_weights_filename)
-    return ccollar_net_object
+    collar_net_object = build_sequential_net_from_weights_filename(collar_net_weights_filename)
+    return collar_net_object
 
 def collar_classifier(collar_images, collar_net_object):
     '''
@@ -312,5 +312,5 @@ def collar_lab():
 
     print results
 
-collar_lab()
+# collar_lab()
 # build_sequential_net_from_weights_filename('C2Dx32x3x3xvalidx3x32x32XAxreluXMPx2x2XC2Dx16x3x3xvalidXAxreluXDOx0.25XC2Dx8x3x3xvalidXAxreluXDOx0.25XFXDx1152XAxreluXDOx05XDx5XAxsoftmaxXOPxsgdx1e-6x1e-6x0.9x1XCOxcc.hdf5')
