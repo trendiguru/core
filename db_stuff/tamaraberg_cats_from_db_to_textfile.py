@@ -45,7 +45,7 @@ def inspect_textfile(filename = 'tb_cats_from_webtool.txt'):
                     cats = cats + constants.web_tool_categories[i]
                     print(cats)
             img_arr = cv2.imread(path)
-            cv2.imshow(img_arr)
+            cv2.imshow('file',img_arr)
             cv2.waitKey(0)
 
 if __name__ == "__main__": #
