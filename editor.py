@@ -18,7 +18,7 @@ def cancel(image_id, person_id, item_id):
         res = db.images.update_one({'_id': image_id}, {'$pull': {'people': {'person_id': person_id}}})
         return bool(res.modified_count)
     else:
-        # CANCEL IMAGE (INSERTY TO IRRELEVANT_IMAGES BEFORE)
+        # CANCEL IMAGE (INSERT TO IRRELEVANT_IMAGES BEFORE)
         sparse_obj = shrink_image_object(image_obj)
         db.irrelevant_images.insert_one(sparse_obj)
         db.images.delete_one({'_id': image_id})
