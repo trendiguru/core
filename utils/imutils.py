@@ -283,6 +283,34 @@ def resize_and_crop_image( input_file_or_np_arr, output_file=None, output_side_l
         cv2.imwrite(output_file, cropped_img)
     return cropped_img
 
+def resize_to_max_sidelength(img_arr, max_sidelength=250,use_visual_output=True):
+    '''
+    resizes to a maximum sidelength keeping orig. aspect ratio
+    :param img_arr:
+    :param max_sidelength:
+    :param use_visual_output:
+    :return:resized image
+    '''
+    h,w,c = img_arr.shape
+    if h>w:
+        if h>max_sidelength:
+            new_h = max_sidelength
+            new_w = int(w*float(max_sidelength)/h)
+            img_arr=cv2.resize(img_arr,(new_w,new_h))
+        else:  #longest side is still under limit , show orig without resize
+            pass
+    else:
+        if w>max_sidelength:
+            new_w = max_sidelength
+            new_h = int(h*float(max_sidelength)/w)
+            img_arr=cv2.resize(img_arr,(new_w,new_h))
+        else:  #longest side is still under limit , show orig without resize
+            pass
+    if (use_visual_output):
+        cv2.imshow('image',img_arr)
+        cv2.waitKey(0)
+    return img_arr
+
 def resize_keep_aspect_dir(dir,outdir=None,overwrite=False,output_size=(250,250),use_visual_output=False,filefilter='.jpg',careful_with_the_labels=False):
     files = [ f for f in os.listdir(dir) if filefilter in f]
     print(str(len(files))+' files in '+dir)
