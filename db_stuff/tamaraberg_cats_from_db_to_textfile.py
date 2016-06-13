@@ -39,8 +39,9 @@ def inspect_textfile(filename = 'tb_cats_from_webtool.txt'):
             path = line.split()[0]
             cats = ''
             for i in range(len(constants.web_tool_categories)):
-                print('cur dig {} val {}'.format(i,line.split()[i+1]))
-                if line.split()[i+1]:
+                current_val = int(line.split()[i+1])
+                print('cur digit {} val {}'.format(i,current_val))
+                if current_val:
                     cats = cats + constants.web_tool_categories[i]
                     print(cats)
             img_arr = cv2.imread(path)
