@@ -90,10 +90,9 @@ def checkStatus():
     workbook = xlsxwriter.Workbook(path2file)
     bold = workbook.add_format({'bold': True})
 
-    lasts_days_info = dl_status.find({'date':{'$gte':last2weeks}})
+    lasts_days_info = dl_status.find({'date':{'$gte':last2weeks}}).sort({'date':-1})
     todays = workbook.add_worksheet('today')
-    reverse_list = [day for day in lasts_days_info].reverse()
-    for daily_info in reverse_list:
+    for daily_info in lasts_days_info:
         dl_date = daily_info['date']
         if  dl_date == current_date:
             current_worksheet = todays
