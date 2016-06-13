@@ -24,7 +24,7 @@ def cats_from_db():
                 hotlist[index] = 1
                 print('item:'+str(cat))
             print('hotlist:'+str(hotlist))
-            line = str(url) + ' '.join(str(n) for n in x)
+            line = str(url) + ' '.join(str(n) for n in hotlist)
             fp.write(line+'\n')
 
 if __name__ == "__main__":
