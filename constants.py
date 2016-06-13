@@ -364,39 +364,67 @@ exclusion_relations = {'dress':['skirt','pants','top'],'pants':['dress','skirt']
 #see e.g. http://s1073.photobucket.com/user/Sofialiciel/media/Fashion%20Dictionary/fashion-ill-10.jpg.html?sort=3&o=9
 taxonomy_leaves = ['mini_dress','midi_dress','maxi_dress','cocktail_dress','strapless_dress','sari_dress','pencil_dress','bustle_dress',
                    'empire_dress','tunic_dress','dropped-waist_dress','shirtwaist_dress','sheath_dress','A-line_dress','tent_dress',
+
                     'mini_skirt','midi_skirt','maxi_skirt','bustle_skirt','bubble_skirt','broomstick_skirt','pencil_skirt','cowl-drape_skirt','sarong-wrap_skirt','tulip_skirt'
                    'full_skirt','A-line_skirt','fitted_skirt','dirndl_skirt','trumpet_skirt','wrap_skirt','gore_skirt','godet_skirt','tiered_skirt','handkerchief_skirt','layered_skirt',
+
                     'classic_jeans','cropped_jeans','distressed_jeans','flare_jeans','relaxed-jeans','skinny_jeans','straight-leg_jeans',
                     'stretch_jeans','bootcut_jeans','classic_jeans',
+
                     'dress_pants','trouser_pants','harem_pants','overall_pants','pegged_pants','dhoti_pants','jodhpur_pants','sailor_pants','bell-bottom_pants','sweatpants',
+
                     'oxford_top','blouse_top','sweat-shirt_top', #longsleeve
                     'tank_top','spaghetti-strap_top','halter_top', 'tube_top','bandeau_top' #sleeveless
                     't-shirt_top','polo_shirt','henley_shirt',  #short sleeve
                     'bustier_top','vest_top','camp_top','cossack_top',
                    'tuxedo_top','artists-smock_top','surplice-wrap_top','gypsy_top','shell_top','sailor_top',
+
                     'pump_shoe','tennis_shoe','sandal_shoe','flats_shoe','boots_shoe','hiking_shoe',
                     'thigh-high_shoe','knee-high_shoe','wellington_boot_shoe','cowboy_boot_shoe','timberland_boot_shoe',
                     'wedge_shoe','loafer_shoe','converse_shoe','oxford_shoe','docksider_shoe','pump_shoe','high-heel_shoe',
+
                     'trunks_swimwear','one-piece_swimwear','bikini_swimwear',
+
                     'hat_accessory','belt_accessory','scarf_accessory','tie_accessory','necklace_accessory','purse_accessory',
+
                     'evening_glove','mitten_glove','gauntlet_glove','short_glove','wrist-length_glove',
+
                     'winter_coat','trench_coat','cape_coat','tent_coat','cocoon_coat','coachman_coat','stadium_coat','trench_coat',
                    'redingote_coat','wrap_coat','chesterfield_coat','parka_coat','duffel_coat','polo_coat','chesterfield_coat',
+
                     'suit_jacket','skiing_jacket','blazer_jacket','cardigan_jacket','smoking_jacket','bellboy_jacket','eisenhower_jacket',
                    'bolero_jacket','norfolk_jacket','pea_jacket','safari_jacket','motorcycle_jacket','baseball_jacket','cricket_jacket','regency_jacket',
+
                     'cardigan_sweater','sweater',
+
+                   'hats',
+
+                   'shoes',
+
                    'windsor_collar','spread_collar','point_collar','rounded_collar','open_tab_collar','closed_tab_collar',
                    'pin_collar','button-down_collar',
+
                    'peaked_lapel','peaked_shawl_lapel','cloverleaf_lapel','rounded-shoulder_lapel','squared-shoulder_lapel',
                    'dropped_shoulder_lapel','built-up-shoulder_lapel','fish-mouth_lapel','t-shaped_lapel',
+
                    'french_cuff','rollback_cuff','shirt_tailored_cuff','wrapped_cuff','button_loops_cuff','split_cuff','wrapped_cuff','button-tab_cuff',
                    'gauntlet_cuff','zipper_cuff','ribcasing_cuff','adjustable-tab_cuff','belted_cuff','buccaneer_cuff','western-snapped_cuff',
+
                    'elastic_sewing','smocking_sewing','drawstring_sewing','lacing_sewing',
+
                    'waistlines',
+
                    'pockets',
-                   'hats',
+
+
                    'handbags',
-                   'shoes']
+
+                   'edges',
+
+                   'pleats',
+                   'collars',
+                   'sewing_treatments','elastic_band_treatment','smocking_treatment','drawstring_treatment','lacing_treatment'     ,
+                    ]
 
 #from shopstyle categories
 mega_categories = ['handbag',
