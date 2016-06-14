@@ -116,7 +116,7 @@ def build_forests(tree_count=250):
     for x,item in enumerate(items):
         v= item['sp']
         vector = []
-        for i in range(6):
+        for i in range(len(sp)):
             vector+=v[i]
         t.add_item(x,vector)
         db.testSpacio.update_one({'_id':item['_id']},{'$set':{"AnnoyIndex.sp":x}})
@@ -155,7 +155,7 @@ def findTop():
 
         sp = item['sp']
         vector = []
-        for i in range(6):
+        for i in range(len(sp)):
             vector += sp[i]
         annResults = annoy_search('sp', topN, vector)
         batch = db.testSpacio.find({"AnnoyIndex.sp": {"$in": annResults}}, {"sp": 1,'images.XLarge':1})
