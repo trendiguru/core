@@ -111,7 +111,7 @@ def build_forests(tree_count=250):
     """
     forest for spacio
     """
-    t = annoy.AnnoyIndex(4608, dis_func)
+    t = annoy.AnnoyIndex(2304, dis_func)
     items = db.testSpacio.find({})
     for x,item in enumerate(items):
         v= item['sp']
@@ -131,7 +131,7 @@ def annoy_search(method,topN,signature):
         atoms = 696
     else:
         name = path+'spacio250.ann'
-        atoms = 4608
+        atoms = 2304
     t = annoy.AnnoyIndex(atoms, 'angular')
     t.load(name)
     result = t.get_nns_by_vector(signature,topN)
