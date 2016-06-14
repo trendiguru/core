@@ -116,7 +116,7 @@ def build_forests(tree_count=250):
     for x,item in enumerate(items):
         v= item['sp']
         vector = []
-        for i in range(len(sp)):
+        for i in range(len(v)):
             vector+=v[i]
         t.add_item(x,vector)
         db.testSpacio.update_one({'_id':item['_id']},{'$set':{"AnnoyIndex.sp":x}})
