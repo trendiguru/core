@@ -178,7 +178,7 @@ def download(allCatsandBrands):
                 for brand in cat['brands']:
                     startT= time()
                     print(brand)
-                    if brand['@count']=='0':
+                    if brand['count']=='0':
                         print ('no items')
                         continue
                     getItemsbyBrand(category,idx, brand['brand'], gender,col, 1)
