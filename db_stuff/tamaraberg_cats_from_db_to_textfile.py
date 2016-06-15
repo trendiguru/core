@@ -2,6 +2,7 @@ __author__ = 'jeremy'
 import numpy as np
 import os
 import cv2
+import random
 
 from trendi import constants
 from trendi.utils import imutils
@@ -49,6 +50,25 @@ def inspect_textfile(filename = 'tb_cats_from_webtool.txt'):
             img_arr = cv2.imread(path)
             imutils.resize_to_max_sidelength(img_arr, max_sidelength=250,use_visual_output=True)
 
+
+def split_to_trainfile_and_testfile(filename='tb_cats_from_webtool.txt', fraction=0.05)
+    with open(filename,'r') as fp:
+        lines = fp.read()
+        print lines[0]
+        random.shuffle(lines)
+        print lines[0]
+        n_lines = len(lines)
+        train_lines = lines[0:round(n_lines*(1-frac))]
+        test_lines = lines[round(n_lines*(1-frac):]
+        print('{} trainingfiles and {} testingfiles'.format(len(train_lines),len(test_lines)))
+        train_name = filename[0:-4] + '_train.txt'
+        test_name = filename[0:-4] + '_test.txt'
+        with open(train_name,'w') as trfp:
+            trfp.write(train_lines)
+        with open(test_name,'w') as trfp:
+            trfp.write(test_lines)
+
 if __name__ == "__main__": #
     cats_from_db()
+    split_to_trainfile_and_testfile()
     inspect_textfile()

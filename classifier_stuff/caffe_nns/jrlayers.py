@@ -294,8 +294,6 @@ class JrMultilabel(caffe.Layer):
     def setup(self, bottom, top):
         """
         Setup data layer according to parameters:
-
-        - split: train / test
         - mean: tuple of mean values to subtract
         - randomize: load in random order (default: True)
         - seed: seed for randomization (default: None / current time)
@@ -309,20 +307,18 @@ class JrMultilabel(caffe.Layer):
             python_param {
             module: "jrlayers"
             layer: "JrMultilabel"
-            param_str: "{\'images_dir\': \'/home/jeremy/image_dbs/colorful_fashion_parsing_data/images/train_u21_256x256\', \'labels_dir\':\'/home/jeremy/image_dbs/colorful_fashion_parsing_data/labels_256x256/\', \'mean\': (104.00699, 116.66877, 122.67892)}"
+            param_str: "{\'images_and_labels_file\': \'/home/jeremy/image_dbs/tamara_berg/web1\', \'mean\': (104.00699, 116.66877, 122.67892)}"
             }
-        params = dict(sbdd_dir="/path/to/SBDD/dataset",
-            mean=(104.00698793, 116.66876762, 122.67891434),
-            split="valid")
         """
         # config
         params = eval(self.param_str)
-        self.images_dir = params.get('images_dir')
+        self.images_and_labels_file = params['images_and_labels_file']
         self.mean = np.array(params['mean'])
+        self.images_and_labels_file = params.get('images_and_labels',None)
+        self.images_dir = params.get('images_dir')
         self.random_init = params.get('random_initialization', True) #start from random point in image list
         self.random_pick = params.get('random_pick', True) #pick random image from list every time
         self.seed = params.get('seed', 1337)
-        self.images_and_labels_file = params.get('images_and_labels',None)
         self.new_size = params.get('new_size',None)
 
         print('imagesdir {} imglabelfile {}'.format(self.images_dir,self.images_and_labels_file))
