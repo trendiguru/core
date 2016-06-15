@@ -54,6 +54,8 @@ def inspect_textfile(filename = 'tb_cats_from_webtool.txt'):
 def split_to_trainfile_and_testfile(filename='tb_cats_from_webtool.txt', fraction=0.05):
     with open(filename,'r') as fp:
         lines = fp.readlines()
+        for line in lines:
+            print line
         print lines[0]
         random.shuffle(lines)
         print lines[0]
