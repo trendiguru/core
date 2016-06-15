@@ -116,7 +116,7 @@ def getItemsbyBrand(category,category_idx,brand,gender,collection,pageNumber):
     response = xmltodict.parse(res.text)
 
     items = response['findItemsAdvancedResponse']['searchResult']
-    # print (items)
+    print (items)
     for item in items['item']:
         try:
             price = {'price':item['sellingStatus']['currentPrice']['#text'],
@@ -130,7 +130,7 @@ def getItemsbyBrand(category,category_idx,brand,gender,collection,pageNumber):
                        "shortDescription": item['title'],
                        "longDescription": [],
                        "price": price,
-                       "Brand": brand,
+                       "brand": brand,
                        "download_data": {'dl_version': today_date,
                                          'first_dl': today_date,
                                          'fp_version': constants.fingerprint_version},
@@ -183,6 +183,8 @@ def download(allCatsandBrands):
                     print (stopT-startT)
 
 if __name__=='__main__':
+    db.ebay_global_Female.delete_many()
+    db.ebay_global_Male.delete_many()
     start = time()
     top_categories = getTopCategories()
     stage1 = time()
