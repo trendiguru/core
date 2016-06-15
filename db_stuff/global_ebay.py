@@ -120,7 +120,7 @@ def getItemsbyBrand(category,category_idx,brand,gender,collection,pageNumber):
     for item in items['item']:
         price = {'price':item['sellingStatus']['currentPrice']['#text'],
                  'currency': item['sellingStatus']['currentPrice']['@currencyId']}
-
+        print(item)
         generic = {"id": [item['itemId']],
                    "categories":category,
                    "clickUrl": item['viewItemURL'],
