@@ -216,11 +216,11 @@ def get_sp(image_url,x,update=False, id=None):
     return False, []
 
 def workOnfanni():
-    items = db.fanni.find({'mask':{'$exists':0}})
+    items = db.fanni.find({'ppd_mask':{'$exists':0}})
     for x, item in enumerate(items):
         url = item['img_url']
         success, sp = get_sp(url, 123456 + x,update=True, id=item['_id'] )
         if success is True:
             db.fanni.update_one({'_id': item['_id']}, {'$set': {'sp': sp}})
 
-    print (db.fanni.find({'mask':{'$exists':0}}).count())
+    print (db.fanni.find({'ppd_mask':{'$exists':0}}).count())

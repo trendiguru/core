@@ -5,7 +5,7 @@ from constants import db
 
 # ------------------------------------------------ IMAGE-LEVEL ---------------------------------------------------------
 
-def cancel(image_id, person_id, item_category):
+def cancel_image(image_id):
     """
     Robust cancel something function.
     Returns bool of success or fail to cancel.
@@ -17,23 +17,22 @@ def cancel(image_id, person_id, item_category):
     image_obj = db.images.find_one({'_id': image_id})
     if not image_obj:
         return False
-    if item_category:
-        # CANCEL ITEM
-        res = db.images.update_one({'_id': image_id}, {'$pull': {'people': {'items': {'$elemMatch': {'category': item_category}}}}})
-        return bool(res.modified_count)
-    elif person_id:
-        # CANCEL PERSON
-        res = db.images.update_one({'_id': image_id}, {'$pull': {'people': {'_id': person_id}}})
-        return bool(res.modified_count)
-    else:
-        # CANCEL IMAGE (INSERT TO IRRELEVANT_IMAGES BEFORE)
-        sparse_obj = shrink_image_object(image_obj)
-        db.irrelevant_images.insert_one(sparse_obj)
-        db.images.delete_one({'_id': image_id})
-        return True
+    # CANCEL IMAGE (INSERT TO IRRELEVANT_IMAGES BEFORE)
+    sparse_obj = shrink_image_object(image_obj)
+    db.irrelevant_images.insert_one(sparse_obj)
+    db.images.delete_one({'_id': image_id})
+    return True
 
 
 # ----------------------------------------------- PERSON-LEVEL ---------------------------------------------------------
+
+def cancel_person(image_id, person_id):
+    image_obj = db.images.find_one({'_id': image_id})
+    if not image_obj:
+        return False
+    res = db.images.update_one({'_id': image_id}, {'$pull': {'people': {'_id': person_id}}})
+    return bool(res.modified_count)
+
 
 def change_gender_and_rebuild_person(image_id, person_id):
     image_obj = db.images.find_one({'_id': image_id})
@@ -59,6 +58,24 @@ def change_gender_and_rebuild_person(image_id, person_id):
 
 
 # ------------------------------------------------ ITEM-LEVEL ----------------------------------------------------------
+
+def cancel_item(image_id, person_id, item_category):
+    image_obj = db.images.find_one({'_id': image_id})
+    if not image_obj:
+        return False
+    for person in image_obj['people']:
+        if person['_id'] == person_id:
+            for item in person['items']:
+                if item['category'] == item_category:
+                    person.remove(item)
+    res = db.images.replace_one({'_id': image_id}, image_obj)
+    return bool(res.modified_count)
+
+
+def re_order_results(image_id, person_id, item_category, ordered_results, results_collection):
+    image_obj = db.images.find_one({'_id': image_id})
+    if not image_obj:
+        return False
 
 
 
