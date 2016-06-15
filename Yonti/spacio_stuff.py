@@ -223,4 +223,4 @@ def workOnfanni():
         if success is True:
             db.fanni.update_one({'_id': item['_id']}, {'$set': {'sp': sp}})
 
-    print (db.fanni.find({'mask':{'$exists':0}}).count())
+    print (db.fanni.find({'ppd_mask':{'$exists':0}}).count())
