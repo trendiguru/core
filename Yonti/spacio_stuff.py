@@ -207,7 +207,11 @@ def get_sp(image_url,x,update=False, id=None):
             after_gc_mask = background_removal.get_fg_mask(image, item_bb)  # (255, 0) mask
             spacio = fingerprint_3D_spatiogram(image, after_gc_mask)
             if update:
-                db.fanni.update_one({'_id':id},{'$set':{'ppd_mask':after_gc_mask.tolist(), 'sp': spacio}})
+                try:
+                    db.fanni.update_one({'_id':id},{'$set':{'ppd_mask':after_gc_mask.tolist(), 'sp': spacio}})
+                except:
+                    db.fanni.delete_one({'_id': id})
+                    return False, []
                 findTopSP41Only(id,x)
                 return False,[]
             else:
