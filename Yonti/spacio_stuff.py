@@ -184,26 +184,6 @@ def findTopSP41Only(id,z):
     col.update_one({'_id': id}, {'$set': {'topresults.sp': topSP}})
     print (z)
 
-    items = col.find()
-    for z,item in enumerate(items):
-        # fp = item['fingerprint']
-        # annResults = annoy_search('fp', topN, fp)
-        # batch = db.testSpacio.find({"AnnoyIndex.fp": {"$in": annResults}}, {"fingerprint": 1,'images.XLarge':1})
-        # topFP = find_n_nearest_neighbors(item,batch,16,distance_Bhattacharyya,'fingerprint')
-
-        sp = item['sp']
-        vector = []
-        for i in range(len(sp)):
-            vector += sp[i]
-        annResults = annoy_search('sp', topN, vector)
-        batch = db.testSpacio.find({"AnnoyIndex.sp": {"$in": annResults}}, {"sp": 1,'images.XLarge':1})
-        topSP = find_n_nearest_neighbors(item, batch, 16, spatiogram_fingerprints_distance, 'sp')
-
-        # tmp = {'img_url': item['img_url'],
-        #        'fp': topFP,
-        #        'sp': topSP}
-        col.update_one({'_id':item['_id']},{'$set':{'topresults.sp':topSP}})
-        print (z)
 
 def get_sp(image_url,x,update=False, id=None):
     image = Utils.get_cv2_img_array(image_url)
