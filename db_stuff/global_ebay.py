@@ -127,7 +127,7 @@ def getItemsbyBrand(category,category_idx,brand,gender,collection,pageNumber):
                    "images": {"XLarge": item['galleryURL']},
                    "status": item['sellingStatus']['sellingState'],
                    "shortDescription": item['title'],
-                   "longDescription": item["OFFER_DESCRIPTION"],
+                   "longDescription": [],
                    "price": price,
                    "Brand": brand,
                    "download_data": {'dl_version': today_date,
