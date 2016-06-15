@@ -113,7 +113,8 @@ def getItemsbyBrand(category,category_idx,brand,gender,collection,pageNumber):
                        "&itemFilter(2).name=Condition&itemFilter(2).value=New"
                        "&paginationInput.pageNumber="+str(pageNumber)+ \
                        "&aspectFilter.aspectName=Brand&aspectFilter.aspectValueName="+brand)
-    if res != '200':
+
+    if res.status_code != 200:
         print ('bad response')
         return
 
