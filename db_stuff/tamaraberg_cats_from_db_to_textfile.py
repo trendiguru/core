@@ -51,7 +51,7 @@ def inspect_textfile(filename = 'tb_cats_from_webtool.txt'):
             imutils.resize_to_max_sidelength(img_arr, max_sidelength=250,use_visual_output=True)
 
 
-def split_to_trainfile_and_testfile(filename='tb_cats_from_webtool.txt', fraction=0.05)
+def split_to_trainfile_and_testfile(filename='tb_cats_from_webtool.txt', fraction=0.05):
     with open(filename,'r') as fp:
         lines = fp.read()
         print lines[0]
