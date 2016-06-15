@@ -118,26 +118,29 @@ def getItemsbyBrand(category,category_idx,brand,gender,collection,pageNumber):
     items = response['findItemsAdvancedResponse']['searchResult']
     # print (items)
     for item in items['item']:
-        price = {'price':item['sellingStatus']['currentPrice']['#text'],
-                 'currency': item['sellingStatus']['currentPrice']['@currencyId']}
-        print(item)
-        generic = {"id": [item['itemId']],
-                   "categories":category,
-                   "clickUrl": item['viewItemURL'],
-                   "images": {"XLarge": item['galleryURL']},
-                   "status": item['sellingStatus']['sellingState'],
-                   "shortDescription": item['title'],
-                   "longDescription": [],
-                   "price": price,
-                   "Brand": brand,
-                   "download_data": {'dl_version': today_date,
-                                     'first_dl': today_date,
-                                     'fp_version': constants.fingerprint_version},
-                   "fingerprint": None,
-                   "gender": gender,
-                   "shippingInfo": item['shippingInfo'],
-                   "ebay_raw": item}
-        collection.insert_one(generic)
+        try:
+            price = {'price':item['sellingStatus']['currentPrice']['#text'],
+                     'currency': item['sellingStatus']['currentPrice']['@currencyId']}
+
+            generic = {"id": [item['itemId']],
+                       "categories":category,
+                       "clickUrl": item['viewItemURL'],
+                       "images": {"XLarge": item['galleryURL']},
+                       "status": item['sellingStatus']['sellingState'],
+                       "shortDescription": item['title'],
+                       "longDescription": [],
+                       "price": price,
+                       "Brand": brand,
+                       "download_data": {'dl_version': today_date,
+                                         'first_dl': today_date,
+                                         'fp_version': constants.fingerprint_version},
+                       "fingerprint": None,
+                       "gender": gender,
+                       "shippingInfo": item['shippingInfo'],
+                       "ebay_raw": item}
+            collection.insert_one(generic)
+        except:
+            print ('something wrong with the item dict')
 
 
     p =  response['findItemsAdvancedResponse']['paginationOutput']
