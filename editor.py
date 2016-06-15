@@ -76,7 +76,13 @@ def re_order_results(image_id, person_id, item_category, ordered_results, result
     image_obj = db.images.find_one({'_id': image_id})
     if not image_obj:
         return False
-
+    for person in image_obj['people']:
+        if person['_id'] == person_id:
+            for item in person['items']:
+                if item['category'] == item_category:
+                    item['similar_results'][results_collection] = ordered_results
+    res = db.images.replace_one({'_id': image_id}, image_obj)
+    return bool(res.modified_count)
 
 
 # ----------------------------------------------- CO-FUNCTIONS ---------------------------------------------------------
