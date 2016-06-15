@@ -5,11 +5,11 @@ playground for testing the ebay API
 import requests
 import xmltodict
 import collections
-from core.db_stuff.ebay_global_constants import APPID, ebay_male_relevant_categories, \
+from ebay_global_constants import APPID, ebay_male_relevant_categories, \
     ebay_female_relevant_categories,ebay_not_relevant_categories, MAIN_CATEGORY,VERSION, \
     ebay_paperdoll_men,ebay_paperdoll_women
 import datetime
-from core import constants
+from .. import constants
 from time import time
 db = constants.db
 today_date = str(datetime.datetime.date(datetime.datetime.now()))
