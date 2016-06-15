@@ -358,9 +358,11 @@ class JrMultilabel(caffe.Layer):
         good_img_files = []
         good_label_vecs = []
         print('checking image files')
-        for ind in range(self.n_files):
-            imgfilename, img_arr, label_vec = self.load_image_and_label(ind)
+        for line in self.images_and_labels_list:
+            imgfilename = line.split[0]
+            img_arr = Image.open(imgfilename)
             if img_arr is not None:
+       #         label_vec =#
                 if label_vec is not None:
                     if len(label_vec.shape) == 1:  #got a vec
                         good_img_files.append(imgfilename)
