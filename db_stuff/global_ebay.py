@@ -5,10 +5,14 @@ playground for testing the ebay API
 import requests
 import xmltodict
 import collections
-
-APPID = 'trendigu-trendigu-PRD-82f871c7c-d6bc287d'
-VERSION = '963'
-MAIN_CATEGORY = '11450'
+from core.db_stuff.ebay_global_constants import APPID, ebay_male_relevant_categories, \
+    ebay_female_relevant_categories,ebay_not_relevant_categories, MAIN_CATEGORY,VERSION, \
+    ebay_paperdoll_men,ebay_paperdoll_women
+import datetime
+from core import constants
+from time import time
+db = constants.db
+today_date = str(datetime.datetime.date(datetime.datetime.now()))
 
 
 def GET(CAT_ID):
@@ -83,14 +87,20 @@ def fill_brand_info(dictlist):
     for topCat in dictlist:
         tmp = {'name':topCat['name'],'idx':topCat['idx'], 'children':[]}
         for child in topCat['children']:
-            print(child['name'])
-            brands_info = getBrandHistogram(child['idx'])
-            tmp_child = {'childName':child['name'], 'brands':brands_info}
+            name = child['name']
+            idx = child['idx']
+            # print(name)
+            if name in ebay_not_relevant_categories:
+                continue
+            brands_info = getBrandHistogram(idx)
+            tmp_child = {'idx':idx, 'childName':name, 'brands':brands_info}
             tmp['children'].append(tmp_child)
         dictwithbrands.append(tmp)
     return dictwithbrands
 
-def getItemsbyBrand(category_idx,brand,pageNumber):
+def getItemsbyBrand(category,category_idx,brand,gender,collection,pageNumber):
+    if pageNumber> 100:
+        return
     res = requests.get("http://svcs.ebay.com/services/search/FindingService/v1?"
                        "OPERATION-NAME=findItemsAdvanced&SERVICE-VERSION=1.12.0"
                        "&SECURITY-APPNAME="+APPID+ \
@@ -103,21 +113,97 @@ def getItemsbyBrand(category_idx,brand,pageNumber):
                        "&itemFilter(2).name=Condition&itemFilter(2).value=New"
                        "&paginationInput.pageNumber="+str(pageNumber)+ \
                        "&aspectFilter.aspectName=Brand&aspectFilter.aspectValueName="+brand)
-    allitems = xmltodict.parse(res.text)
+    response = xmltodict.parse(res.text)
+
+    items = response['findItemsAdvancedResponse']['searchResult']
+    # print (items)
+    for item in items['item']:
+        price = {'price':item['sellingStatus']['currentPrice']['#text'],
+                 'currency': item['sellingStatus']['currentPrice']['@currencyId']}
+
+        generic = {"id": [item['itemId']],
+                   "categories":category,
+                   "clickUrl": item['viewItemURL'],
+                   "images": {"XLarge": item['galleryURL']},
+                   "status": item['sellingStatus']['sellingState'],
+                   "shortDescription": item['title'],
+                   "longDescription": item["OFFER_DESCRIPTION"],
+                   "price": price,
+                   "Brand": brand,
+                   "download_data": {'dl_version': today_date,
+                                     'first_dl': today_date,
+                                     'fp_version': constants.fingerprint_version},
+                   "fingerprint": None,
+                   "gender": gender,
+                   "shippingInfo": item['shippingInfo'],
+                   "ebay_raw": item}
+        collection.insert_one(generic)
+
+
+    p =  response['findItemsAdvancedResponse']['paginationOutput']
+    pagination =  { 'pageNumber': int(p['pageNumber']),
+                    'totalPages': int(p['totalPages']),
+                    'totalEntries': int(p['totalEntries'])}
+
+    if pagination['pageNumber'] < pagination['totalPages']:
+        return getItemsbyBrand(category,category_idx,brand,gender,collection,pagination['pageNumber'] + 1)
+    else:
+        return
+
 
 def download(allCatsandBrands):
+    for TopCat in allCatsandBrands:
+        print (TopCat['name'])
+        if 'Women' in TopCat['name']:
+            gender = 'Female'
+            relevant = ebay_female_relevant_categories
+            category_convertor = ebay_paperdoll_women
+            col = db.ebay_global_Female
+        else:
+            gender = 'Male'
+            relevant = ebay_male_relevant_categories
+            category_convertor = ebay_paperdoll_men
+            col = db.ebay_global_Male
 
+        for cat in TopCat['children']:
+            if cat['childName'] in relevant:
+                idx = cat['idx']
+                c = cat['childName']
+                print(c)
+                category = category_convertor[c]
 
+                for brand in cat['brands']:
+                    startT= time()
+                    print(brand)
+                    getItemsbyBrand(category,idx, brand['brand'], gender,col, 1)
+                    stopT = time()
+                    print (stopT-startT)
 
 if __name__=='__main__':
+    start = time()
     top_categories = getTopCategories()
+    stage1 = time()
+    print ('getTopCategories duration = %s' %(str(stage1-start)))
     brand_info = fill_brand_info(top_categories)
+    stage2 = time()
+    print ('fiil_brand_info duration = %s' % (str(stage2 - stage1)))
     download(brand_info)
+    stage3 = time()
+    print ('download duration = %s' % (str(stage3 - stage1)))
+
     print ('done!')
 else:
+    start = time()
     top_categories = getTopCategories()
+    stage1 = time()
+    print ('getTopCategories duration = %s' % (str(stage1 - start)))
     brand_info = fill_brand_info(top_categories)
-
+    stage2 = time()
+    print ('fiil_brand_info duration = %s' % (str(stage2 - stage1)))
+    download(brand_info)
+    stage3 = time()
+    print ('download duration = %s' % (str(stage3 - stage1)))
+    print ('done!')
 
 # for x in brand_info:
 #     for y in x['children']:
@@ -131,101 +217,6 @@ else:
 4. use all info
 ** there are items with no brand / homemade
 
-ebay_not_relevant_categories = ['Belts','Scarves', 'Ties',
-ebay_not_relevant_categories = ['Backpacks, Bags & Briefcases', 'Belt Buckles', 'Canes & Walking Sticks','Collar Tips',
-                                'Gloves & Mittens', 'Handkerchiefs', 'Hats', 'ID & Document Holders',
-                                'Key Chains, Rings & Cases', 'Money Clips', 'Organizers & Day Planners',
-                                'Sunglasses & Fashion Eyewear', 'Suspenders, Braces', 'Umbrellas',
-Wallets
-Wristbands
-Mixed Items & Lots
-break
-Other Men's Accessories
-Casual Shirts
-Dress Shirts
-T-Shirts
-Athletic Apparel
-Blazers & Sport Coats
-Coats & Jackets
-Jeans
-Pants
-Shorts
-Sleepwear & Robes
-Socks
-Suits
-Sweaters
-Sweats & Hoodies
-Swimwear
-Underwear
-Vests
-Mixed Items & Lots
-Other Men's Clothing
-continue
-continue
-Athletic
-Boots
-Casual
-Dress/Formal
-Occupational
-Sandals & Flip Flops
-Slippers
-Mixed Items & Lots
-Belt Buckles
-Belts
-Collar Tips
-Fascinators & Headpieces
-Gloves & Mittens
-Hair Accessories
-Handkerchiefs
-Hats
-ID & Document Holders
-Key Chains, Rings & Finders
-Organizers & Day Planners
-Scarves & Wraps
-Shoe Charms
-Sunglasses & Fashion Eyewear
-Ties
-Umbrellas
-Wallets
-Wristbands
-Mixed Items & Lots
-continue
-continue
-Other Women's Accessories
-Athletic Apparel
-Coats & Jackets
-Dresses
-Hosiery & Socks
-Intimates & Sleep
-Jeans
-Jumpsuits & Rompers
-Leggings
-Maternity
-Pants
-Shorts
-Skirts
-Suits & Blazers
-Sweaters
-Sweats & Hoodies
-Swimwear
-T-Shirts
-Tops & Blouses
-Vests
-Mixed Items & Lots
-Other Women's Clothing
-Handbags & Purses
-Backpacks & Bookbags
-Briefcases & Laptop Bags
-Diaper Bags
-Travel & Shopping Bags
-Handbag Accessories
-Mixed Items & Lots
-Athletic
-Boots
-Flats & Oxfords
-Heels
-Occupational
-Sandals & Flip Flops
-Slippers
-Mixed Items & Lots
+[u'@xmlns', u'ack', u'version', u'timestamp', u'searchResult', u'paginationOutput', u'itemSearchURL']
+
 """
