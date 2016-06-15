@@ -5,12 +5,14 @@ playground for testing the ebay API
 import requests
 import xmltodict
 import collections
+import hashlib
 from ebay_global_constants import APPID, ebay_male_relevant_categories, \
     ebay_female_relevant_categories,ebay_not_relevant_categories, MAIN_CATEGORY,VERSION, \
     ebay_paperdoll_men,ebay_paperdoll_women
 import datetime
 from .. import constants
 from time import time
+from .. import Utils
 db = constants.db
 today_date = str(datetime.datetime.date(datetime.datetime.now()))
 
@@ -98,6 +100,14 @@ def fill_brand_info(dictlist):
         dictwithbrands.append(tmp)
     return dictwithbrands
 
+
+def get_hash(image):
+    m = hashlib.md5()
+    m.update(image)
+    url_hash = m.hexdigest()
+    return url_hash
+
+
 def getItemsbyBrand(category,category_idx,brand,gender,collection,pageNumber):
     if pageNumber> 100:
         return
@@ -126,19 +136,33 @@ def getItemsbyBrand(category,category_idx,brand,gender,collection,pageNumber):
     pagination = {'pageNumber': int(p['pageNumber']),
                   'totalPages': int(p['totalPages']),
                   'totalEntries': int(p['totalEntries'])}
-    if pagination['totalEntries']==0:
+
+    if pagination['totalEntries']<2:
         return
 
     for item in items['item']:
         try:
+            itemId = item['itemId']
+            exists = collection.find_one({'id':itemId})
+            if exists:
+                print ('item already exists')
+                continue
+
             price = {'price':item['sellingStatus']['currentPrice']['#text'],
                      'currency': item['sellingStatus']['currentPrice']['@currencyId']}
+            s = item['sellingStatus']['sellingState']
+            if s == 'Active':
+                status = 'instock'
+            else:
+                status = 'outOfStock'
+
+            img_url = item['galleryURL']
 
             generic = {"id": [item['itemId']],
                        "categories":category,
                        "clickUrl": item['viewItemURL'],
-                       "images": {"XLarge": item['galleryURL']},
-                       "status": item['sellingStatus']['sellingState'],
+                       "images": {"XLarge": img_url},
+                       "status": status,
                        "shortDescription": item['title'],
                        "longDescription": [],
                        "price": price,
@@ -150,6 +174,21 @@ def getItemsbyBrand(category,category_idx,brand,gender,collection,pageNumber):
                        "gender": gender,
                        "shippingInfo": item['shippingInfo'],
                        "ebay_raw": item}
+
+            image = Utils.get_cv2_img_array(img_url)
+            if image is None:
+                print ('bad img url')
+                continue
+
+            img_hash = get_hash(image)
+
+            hash_exists = collection.find_one({'img_hash': img_hash})
+            if hash_exists:
+                print ('hash already exists')
+                continue
+
+            generic["img_hash"] = img_hash
+
             collection.insert_one(generic)
         except:
             print ('something wrong with the item dict')
