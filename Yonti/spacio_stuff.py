@@ -111,12 +111,12 @@ def build_forests(tree_count=250):
     """
     forest for spacio
     """
-    t = annoy.AnnoyIndex(4608, dis_func)
+    t = annoy.AnnoyIndex(2304, dis_func)
     items = db.testSpacio.find({})
     for x,item in enumerate(items):
         v= item['sp']
         vector = []
-        for i in range(6):
+        for i in range(len(v)):
             vector+=v[i]
         t.add_item(x,vector)
         db.testSpacio.update_one({'_id':item['_id']},{'$set':{"AnnoyIndex.sp":x}})
@@ -131,12 +131,11 @@ def annoy_search(method,topN,signature):
         atoms = 696
     else:
         name = path+'spacio250.ann'
-        atoms = 4608
+        atoms = 2304
     t = annoy.AnnoyIndex(atoms, 'angular')
     t.load(name)
     result = t.get_nns_by_vector(signature,topN)
     return result
-
 
 def findTop():
     """
@@ -155,7 +154,7 @@ def findTop():
 
         sp = item['sp']
         vector = []
-        for i in range(6):
+        for i in range(len(sp)):
             vector += sp[i]
         annResults = annoy_search('sp', topN, vector)
         batch = db.testSpacio.find({"AnnoyIndex.sp": {"$in": annResults}}, {"sp": 1,'images.XLarge':1})
@@ -167,7 +166,26 @@ def findTop():
         col.update_one({'_id':item['_id']},{'$set':{'topresults.sp':topSP}})
         print (z)
 
-def get_sp(image_url,x):
+def findTopSP41Only(id,z):
+    """
+    find top results using SP for one item only
+    """
+    topN = 1000
+    col = db.fanni
+    item = col.find_one_and_update({'_id':id}, {'$unset': {'topresults.sp': 1}})
+    sp = item['sp']
+    vector = []
+    for i in range(len(sp)):
+        vector += sp[i]
+    annResults = annoy_search('sp', topN, vector)
+    batch = db.testSpacio.find({"AnnoyIndex.sp": {"$in": annResults}}, {"sp": 1, 'images.XLarge': 1})
+    topSP = find_n_nearest_neighbors(item, batch, 16, spatiogram_fingerprints_distance, 'sp')
+
+    col.update_one({'_id': id}, {'$set': {'topresults.sp': topSP}})
+    print (z)
+
+
+def get_sp(image_url,x,update=False, id=None):
     image = Utils.get_cv2_img_array(image_url)
 
     paper_job = paperdoll_parse_enqueue.paperdoll_enqueue(image, str(x))
@@ -187,8 +205,22 @@ def get_sp(image_url,x):
 
             item_bb = paperdolls.bb_from_mask(item_mask)
             after_gc_mask = background_removal.get_fg_mask(image, item_bb)  # (255, 0) mask
-            specio = fingerprint_3D_spatiogram(image, after_gc_mask)
-            return specio
+            spacio = fingerprint_3D_spatiogram(image, after_gc_mask)
+            if update:
+                db.fanni.update_one({'_id':id},{'$set':{'ppd_mask':after_gc_mask.tolist(), 'sp': spacio}})
+                findTopSP41Only(id,x)
+                return False,[]
+            else:
+                return True, spacio
 
-    return None
+    return False, []
 
+def workOnfanni():
+    items = db.fanni.find({'mask':{'$exists':0}})
+    for x, item in enumerate(items):
+        url = item['img_url']
+        success, sp = get_sp(url, 123456 + x,update=True, id=item['_id'] )
+        if success is True:
+            db.fanni.update_one({'_id': item['_id']}, {'$set': {'sp': sp}})
+
+    print (db.fanni.find({'mask':{'$exists':0}}).count())

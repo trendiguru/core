@@ -213,13 +213,6 @@ def check_if_relevant(image_url, page_url, lang, custom_start_pipeline=None):
     db.genderator.insert_one(image_obj)
     start_q.enqueue_call(func="", args=(page_url, image_url, lang), ttl=2000, result_ttl=2000, timeout=2000)
 
-    # if domain in constants.manual_gender_domains:
-    #     manual_gender.enqueue_call(func="", args=(image_url,), ttl=2000, result_ttl=2000,
-    #                                timeout=2000)
-    # else:
-    #     start_pipeline.enqueue_call(func="", args=(page_url, image_url, lang), ttl=2000, result_ttl=2000,
-    #                                 timeout=2000)
-
 
 # --------------------------------------------- NNs -----------------------------------------------------
 
