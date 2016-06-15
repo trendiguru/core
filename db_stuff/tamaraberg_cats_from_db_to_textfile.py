@@ -60,8 +60,8 @@ def split_to_trainfile_and_testfile(filename='tb_cats_from_webtool.txt', fractio
         random.shuffle(lines)
         print lines[0]
         n_lines = len(lines)
-        train_lines = lines[0:round(n_lines*(1-fraction))]
-        test_lines = lines[round(n_lines*(1-fraction)):]
+        train_lines = lines[0:int(n_lines*(1-fraction))]
+        test_lines = lines[int(n_lines*(1-fraction)):]
         print('{} trainingfiles and {} testingfiles'.format(len(train_lines),len(test_lines)))
         train_name = filename[0:-4] + '_train.txt'
         test_name = filename[0:-4] + '_test.txt'
