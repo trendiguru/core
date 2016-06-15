@@ -256,3 +256,194 @@ class JrLayer(caffe.Layer):
 #        print('after extradim shape:'+str(label.shape))
 
         return label
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+######################################################################################3
+# MULTILABEL
+#######################################################################################
+
+class JrMultilabel(caffe.Layer):
+    """
+    Load (input image, label vector) pairs where label vector is like [0 1 0 0 0 1 ... ]
+
+    """
+
+    def setup(self, bottom, top):
+        """
+        Setup data layer according to parameters:
+
+        - split: train / test
+        - mean: tuple of mean values to subtract
+        - randomize: load in random order (default: True)
+        - seed: seed for randomization (default: None / current time)
+
+        example
+        layer {
+            name: "data"
+            type: "Python"
+            top: "data"
+            top: "label"
+            python_param {
+            module: "jrlayers"
+            layer: "JrMultilabel"
+            param_str: "{\'images_dir\': \'/home/jeremy/image_dbs/colorful_fashion_parsing_data/images/train_u21_256x256\', \'labels_dir\':\'/home/jeremy/image_dbs/colorful_fashion_parsing_data/labels_256x256/\', \'mean\': (104.00699, 116.66877, 122.67892)}"
+            }
+        params = dict(sbdd_dir="/path/to/SBDD/dataset",
+            mean=(104.00698793, 116.66876762, 122.67891434),
+            split="valid")
+        """
+        # config
+        params = eval(self.param_str)
+        self.images_dir = params.get('images_dir')
+        self.mean = np.array(params['mean'])
+        self.random_init = params.get('random_initialization', True) #start from random point in image list
+        self.random_pick = params.get('random_pick', True) #pick random image from list every time
+        self.seed = params.get('seed', 1337)
+        self.images_and_labels_file = params.get('images_and_labels',None)
+        self.new_size = params.get('new_size',None)
+
+        print('imagesdir {} imglabelfile {}'.format(self.images_dir,self.images_and_labels_file))
+        # two tops: data and label
+        if len(top) != 2:
+            raise Exception("Need to define two tops: data and label.")
+        # data layers have no bottoms
+        if len(bottom) != 0:
+            raise Exception("Do not define a bottom.")
+
+        # load indices for images and labels
+        #if file not found and its not a path then tack on the training dir as a default locaiton for the trainingimages file
+        if self.images_and_labels_file is not None:
+            if not os.path.isfile(self.images_and_labels_file) and not '/' in self.images_and_labels_file:
+                self.images_and_labels_file = os.path.join(self.images_dir,self.images_and_labels_file)
+            if not os.path.isfile(self.imagesfile):
+                print('COULD NOT OPEN IMAGES FILE '+str(self.imagesfile))
+                return
+            self.images_and_labels_list = open(self.images_and_labels_file, 'r').read().splitlines()
+            self.n_files = len(self.images_and_labels_list)
+    #        self.indices = open(split_f, 'r').read().splitlines()
+        else:
+            print('option not supported')
+            return
+#            self.imagefiles = [f for f in os.listdir(self.images_dir) if self.imagefile_suffix in f]
+
+        self.idx = 0
+        # randomization: seed and pick
+        if self.random_init:
+            random.seed(self.seed)
+            self.idx = random.randint(0, self.n_files-1)
+        if self.random_pick:
+            random.shuffle(self.images_and_labels)
+        logging.debug('initial self.idx is :'+str(self.idx)+' type:'+str(type(self.idx)))
+
+        ##check that all images are openable and have labels
+        good_img_files = []
+        good_label_vecs = []
+        print('checking image files')
+        for ind in range(self.n_files):
+            imgfilename, img_arr, label_vec = self.load_image_and_label(ind)
+            if img_arr is not None:
+                if label_vec is not None:
+                    if len(label_vec.shape) == 1:  #got a vec
+                        good_img_files.append(imgfilename)
+                        good_label_vecs.append(label_vec)
+                    else:
+                        print('got good image of size {} and label of size {}'.format(img_arr.shape,label_vec.shape))
+            else:
+                print('got bad image:'+self.imagefiles[ind])
+        self.imagefiles = good_img_files
+        self.label_vecs = good_label_vecs
+        assert(len(self.imagefiles) == len(self.label_vecs))
+        print('{} images and {} labels'.format(len(self.imagefiles),len(self.label_vecs)))
+        self.n_files = len(self.imagefiles)
+        print(str(self.n_files)+' good files in image dir '+str(self.images_dir))
+
+    def reshape(self, bottom, top):
+        print('reshaping')
+#	logging.debug('self.idx is :'+str(self.idx)+' type:'+str(type(self.idx)))
+        imgfilename, self.data, self.label = self.load_image_and_label(self.idx)
+        # reshape tops to fit (leading 1 is for batch dimension)
+        top[0].reshape(1, *self.data.shape)
+        top[1].reshape(1, *self.label.shape)
+        print('top 0 shape {} top 1 shape {}'.format(top[0].shape,top[1].shape))
+
+    def next_idx(self):
+        if self.random_pick:
+            self.idx = random.randint(0, len(self.imagefiles)-1)
+        else:
+            self.idx += 1
+            if self.idx == len(self.imagefiles):
+                print('hit end of labels, going back to first')
+                self.idx = 0
+
+    def forward(self, bottom, top):
+        # assign output
+        top[0].data[...] = self.data
+        top[1].data[...] = self.label
+        # pick next input
+        if self.random_pick:
+            self.idx = random.randint(0, len(self.imagefiles)-1)
+        else:
+            self.idx += 1
+            if self.idx == len(self.imagefiles):
+                self.idx = 0
+
+    def backward(self, top, propagate_down, bottom):
+        pass
+
+    def load_image_and_label(self,idx):
+        """
+        Load input image and preprocess for Caffe:
+        - cast to float
+        - switch channels RGB -> BGR
+        - subtract mean
+        - transpose to channel x height x width order
+        """
+        while(1):
+            filename = self.imagefiles[idx]
+            label_vec = self.label_vecs[idx]
+            if self.images_dir:
+                filename=os.path.join(self.images_dir,filename)
+            print('the imagefile:'+filename+' index:'+str(idx))
+            if not(os.path.isfile(filename)):
+                print('NOT A FILE:'+str(filename))
+                self.next_idx()
+            else:
+                break
+        im = Image.open(filename)
+        if self.new_size:
+            im = im.resize(self.new_size,Image.ANTIALIAS)
+
+        in_ = np.array(im, dtype=np.float32)
+        if in_ is None:
+            logging.warning('could not get image '+full_filename)
+            return None
+#        print(full_filename+ ' has dims '+str(in_.shape))
+        in_ = in_[:,:,::-1]
+#        in_ -= self.mean
+        in_ = in_.transpose((2,0,1))
+#	print('uniques of img:'+str(np.unique(in_))+' shape:'+str(in_.shape))
+        return filename, in_, label_vec
+
