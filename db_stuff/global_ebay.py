@@ -117,6 +117,13 @@ def getItemsbyBrand(category,category_idx,brand,gender,collection,pageNumber):
 
     items = response['findItemsAdvancedResponse']['searchResult']
 
+    p = response['findItemsAdvancedResponse']['paginationOutput']
+    pagination = {'pageNumber': int(p['pageNumber']),
+                  'totalPages': int(p['totalPages']),
+                  'totalEntries': int(p['totalEntries'])}
+    if pagination['totalEntries']==0:
+        return
+
     for item in items['item']:
         try:
             price = {'price':item['sellingStatus']['currentPrice']['#text'],
