@@ -66,9 +66,9 @@ def split_to_trainfile_and_testfile(filename='tb_cats_from_webtool.txt', fractio
         train_name = filename[0:-4] + '_train.txt'
         test_name = filename[0:-4] + '_test.txt'
         with open(train_name,'w') as trfp:
-            trfp.write(train_lines)
+            trfp.writelines(train_lines)
         with open(test_name,'w') as trfp:
-            trfp.write(test_lines)
+            trfp.writelines(test_lines)
 
 if __name__ == "__main__": #
     cats_from_db()
