@@ -372,6 +372,9 @@ class JrMultilabel(caffe.Layer):
                 vals = line.split()[1:]
                 label_vec = [int(i) for i in vals]
                 label_vec = np.array(label_vec)
+                label_vec = label_vec[np.newaxis, ...]  #this is required by loss whihc otherwise throws:
+#                F0616 10:54:30.921106 43184 accuracy_layer.cpp:31] Check failed: outer_num_ * inner_num_ == bottom[1]->count() (1 vs. 21) Number of labels must match number of predictions; e.g., if label axis == 1 and prediction shape is (N, C, H, W), label count (number of labels) must be N*H*W, with integer values in {0, 1, ..., C-1}.
+
                 if label_vec is not None:
                     if len(label_vec) > 0:  #got a vec
                         good_img_files.append(imgfilename)
