@@ -237,6 +237,7 @@ def get_sp(image_url,x,update=False, id=None):
 
     return False, []
 
+
 def workOnfanni():
     items = db.fanni.find({'ppd_mask':{'$exists':0}})
     for x, item in enumerate(items):
@@ -246,3 +247,17 @@ def workOnfanni():
             db.fanni.update_one({'_id': item['_id']}, {'$set': {'sp': sp}})
 
     print (db.fanni.find({'ppd_mask':{'$exists':0}}).count())
+
+def sp4fanni():
+    items = db.fanni.find()
+    for x, item in enumerate(items):
+        try:
+            url = item['img_url']
+            mask = np.array(item['ppd_mask']).astype('uint8')
+            image = Utils.get_cv2_img_array(url)
+            spacio = fingerprint_3D_spatiogram(image, mask)
+
+            db.fanni.update_one({'_id': item['_id']}, {'$set': {'sp': spacio}})
+            print(x)
+        except:
+            db.fanni.update_one({'_id': item['_id']}, {'$unset': {'sp': 1}})
