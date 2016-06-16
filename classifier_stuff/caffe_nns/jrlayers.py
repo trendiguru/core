@@ -312,16 +312,16 @@ class JrMultilabel(caffe.Layer):
         """
         # config
         params = eval(self.param_str)
+
         self.images_and_labels_file = params['images_and_labels_file']
         self.mean = np.array(params['mean'])
-        self.images_and_labels_file = params.get('images_and_labels',None)
         self.images_dir = params.get('images_dir')
         self.random_init = params.get('random_initialization', True) #start from random point in image list
         self.random_pick = params.get('random_pick', True) #pick random image from list every time
         self.seed = params.get('seed', 1337)
         self.new_size = params.get('new_size',None)
 
-        print('imagesdir {} imglabelfile {}'.format(self.images_dir,self.images_and_labels_file))
+        print('images+labelsfile {} mean {}'.format(self.images_and_labels_file,self.mean))
         # two tops: data and label
         if len(top) != 2:
             raise Exception("Need to define two tops: data and label.")
@@ -342,7 +342,7 @@ class JrMultilabel(caffe.Layer):
     #        self.indices = open(split_f, 'r').read().splitlines()
         else:
             print('option not supported')
-            return
+#            return
 #            self.imagefiles = [f for f in os.listdir(self.images_dir) if self.imagefile_suffix in f]
 
         self.idx = 0
@@ -355,6 +355,7 @@ class JrMultilabel(caffe.Layer):
         logging.debug('initial self.idx is :'+str(self.idx)+' type:'+str(type(self.idx)))
 
         ##check that all images are openable and have labels
+        ## and ge t
         good_img_files = []
         good_label_vecs = []
         print('checking image files')
