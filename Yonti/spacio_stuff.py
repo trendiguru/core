@@ -252,7 +252,7 @@ def sp4fanni():
     items = db.fanni.find()
     for x, item in enumerate(items):
         url = item['img_url']
-        mask = np.asarray(item['ppd_mask'])
+        mask = item['ppd_mask']
         image = Utils.get_cv2_img_array(url)
         spacio = fingerprint_3D_spatiogram(image, mask)
 
