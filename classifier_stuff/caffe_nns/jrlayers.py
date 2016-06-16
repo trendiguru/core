@@ -369,13 +369,14 @@ class JrMultilabel(caffe.Layer):
             if img_arr is not None:
                 vals = line.split()[1:]
                 label_vec = [int(i) for i in vals]
+                label_vec = np.array(label_vec)
                 if label_vec is not None:
                     if len(label_vec) > 0:  #got a vec
                         good_img_files.append(imgfilename)
                         good_label_vecs.append(label_vec)
-                        print('got good image of size {} and label of size {}'.format(in_.shape,len(label_vec)))
+                        print('got good image of size {} and label of size {}'.format(in_.shape,label_vec.shape))
                     else:
-                        print('something wrong w. image of size {} and label of size {}'.format(in_.shape,len(label_vec)))
+                        print('something wrong w. image of size {} and label of size {}'.format(in_.shape,label_vec.shape))
             else:
                 print('got bad image:'+self.imagefiles[ind])
         self.imagefiles = good_img_files
