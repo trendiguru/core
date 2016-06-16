@@ -171,7 +171,7 @@ def findTopFP2SP():
     search annoy using fp
     fine tune using sp
     """
-    topN = 1000
+    topN = 2000
     col = db.fanni
     col.update_one({}, {'$unset': {'topresults.sp': 1}})
     items = col.find()
