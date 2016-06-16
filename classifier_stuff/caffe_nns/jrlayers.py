@@ -312,16 +312,16 @@ class JrMultilabel(caffe.Layer):
         """
         # config
         params = eval(self.param_str)
+
         self.images_and_labels_file = params['images_and_labels_file']
         self.mean = np.array(params['mean'])
-        self.images_and_labels_file = params.get('images_and_labels',None)
         self.images_dir = params.get('images_dir')
         self.random_init = params.get('random_initialization', True) #start from random point in image list
         self.random_pick = params.get('random_pick', True) #pick random image from list every time
         self.seed = params.get('seed', 1337)
         self.new_size = params.get('new_size',None)
 
-        print('imagesdir {} imglabelfile {}'.format(self.images_dir,self.images_and_labels_file))
+        print('images+labelsfile {} mean {}'.format(self.images_and_labels_file,self.mean))
         # two tops: data and label
         if len(top) != 2:
             raise Exception("Need to define two tops: data and label.")
@@ -334,42 +334,48 @@ class JrMultilabel(caffe.Layer):
         if self.images_and_labels_file is not None:
             if not os.path.isfile(self.images_and_labels_file) and not '/' in self.images_and_labels_file:
                 self.images_and_labels_file = os.path.join(self.images_dir,self.images_and_labels_file)
-            if not os.path.isfile(self.imagesfile):
-                print('COULD NOT OPEN IMAGES FILE '+str(self.imagesfile))
+            if not os.path.isfile(self.images_and_labels_file):
+                print('COULD NOT OPEN IMAGES/LABELS FILE '+str(self.images_and_labels_file))
                 return
             self.images_and_labels_list = open(self.images_and_labels_file, 'r').read().splitlines()
             self.n_files = len(self.images_and_labels_list)
     #        self.indices = open(split_f, 'r').read().splitlines()
         else:
             print('option not supported')
-            return
+#            return
 #            self.imagefiles = [f for f in os.listdir(self.images_dir) if self.imagefile_suffix in f]
 
         self.idx = 0
         # randomization: seed and pick
+#        print('imgslbls [0] {} [1] {}'.format(self.images_and_labels_list[0],self.images_and_labels_list[1]))
         if self.random_init:
             random.seed(self.seed)
             self.idx = random.randint(0, self.n_files-1)
         if self.random_pick:
-            random.shuffle(self.images_and_labels)
+            random.shuffle(self.images_and_labels_list)
+#        print('imgslbls [0] {} [1] {}'.format(self.images_and_labels_list[0],self.images_and_labels_list[1]))
         logging.debug('initial self.idx is :'+str(self.idx)+' type:'+str(type(self.idx)))
 
         ##check that all images are openable and have labels
+        ## and ge t
         good_img_files = []
         good_label_vecs = []
         print('checking image files')
         for line in self.images_and_labels_list:
             imgfilename = line.split()[0]
             img_arr = Image.open(imgfilename)
+            in_ = np.array(img_arr, dtype=np.float32)
+
             if img_arr is not None:
-                label_vec = [int(i) for i in line.split() if i>0 ]
+                vals = line.split()[1:]
+                label_vec = [int(i) for i in vals]
                 if label_vec is not None:
-                    if len(label_vec.shape) == 1:  #got a vec
+                    if len(label_vec) > 0:  #got a vec
                         good_img_files.append(imgfilename)
                         good_label_vecs.append(label_vec)
-                        print('got good image of size {} and label of size {}'.format(img_arr.shape,label_vec.shape))
+                        print('got good image of size {} and label of size {}'.format(in_.shape,len(label_vec)))
                     else:
-                        print('something wrong w. image of size {} and label of size {}'.format(img_arr.shape,label_vec.shape))
+                        print('something wrong w. image of size {} and label of size {}'.format(in_.shape,len(label_vec)))
             else:
                 print('got bad image:'+self.imagefiles[ind])
         self.imagefiles = good_img_files
