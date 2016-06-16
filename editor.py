@@ -14,13 +14,13 @@ def cancel_image(image_id):
     :param item_category: str category of the item
     :return: success boolean
     """
-    image_obj = db.images.find_one({'_id': image_id})
+    image_obj = db.test.find_one({'_id': image_id})
     if not image_obj:
         return False
     # CANCEL IMAGE (INSERT TO IRRELEVANT_IMAGES BEFORE)
     sparse_obj = shrink_image_object(image_obj)
-    db.irrelevant_images.insert_one(sparse_obj)
-    db.images.delete_one({'_id': image_id})
+    # db.irrelevant_images.insert_one(sparse_obj)
+    db.test.delete_one({'_id': image_id})
     return True
 
 
