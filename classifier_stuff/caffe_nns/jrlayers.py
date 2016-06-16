@@ -321,6 +321,7 @@ class JrMultilabel(caffe.Layer):
         self.seed = params.get('seed', 1337)
         self.new_size = params.get('new_size',None)
 
+        self.idx = 0
         print('images+labelsfile {} mean {}'.format(self.images_and_labels_file,self.mean))
         # two tops: data and label
         if len(top) != 2:
@@ -356,14 +357,7 @@ class JrMultilabel(caffe.Layer):
 #        print('imgslbls [0] {} [1] {}'.format(self.images_and_labels_list[0],self.images_and_labels_list[1]))
         logging.debug('initial self.idx is :'+str(self.idx)+' type:'+str(type(self.idx)))
 
-
-
-
-
-
-
         spinner = spinning_cursor()
-
         ##check that all images are openable and have labels
         ## and ge t
         good_img_files = []
@@ -396,10 +390,11 @@ class JrMultilabel(caffe.Layer):
         print('{} images and {} labels'.format(len(self.imagefiles),len(self.label_vecs)))
         self.n_files = len(self.imagefiles)
         print(str(self.n_files)+' good files in image dir '+str(self.images_dir))
+ 	    logging.debug('self.idx is :'+str(self.idx)+' type:'+str(type(self.idx)))
 
     def reshape(self, bottom, top):
         print('reshaping')
-#	logging.debug('self.idx is :'+str(self.idx)+' type:'+str(type(self.idx)))
+ 	    logging.debug('self.idx is :'+str(self.idx)+' type:'+str(type(self.idx)))
         imgfilename, self.data, self.label = self.load_image_and_label(self.idx)
         # reshape tops to fit (leading 1 is for batch dimension)
         top[0].reshape(1, *self.data.shape)
