@@ -368,7 +368,7 @@ class JrMultilabel(caffe.Layer):
                 vals = line.split()[1:]
                 label_vec = [int(i) for i in vals]
                 if label_vec is not None:
-                    if len(label_vec.shape) == 1:  #got a vec
+                    if len(label_vec) > 0:  #got a vec
                         good_img_files.append(imgfilename)
                         good_label_vecs.append(label_vec)
                         print('got good image of size {} and label of size {}'.format(img_arr.shape,label_vec.shape))
