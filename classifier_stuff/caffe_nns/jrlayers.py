@@ -313,7 +313,7 @@ class JrMultilabel(caffe.Layer):
         # config
         params = eval(self.param_str)
 
-        self.images_and_labels_file = params['images_and_labels_file']
+        self.images_and_labels_file = params['image/home/s_and_labels_file']
         self.mean = np.array(params['mean'])
         self.images_dir = params.get('images_dir')
         self.random_init = params.get('random_initialization', True) #start from random point in image list
@@ -334,8 +334,8 @@ class JrMultilabel(caffe.Layer):
         if self.images_and_labels_file is not None:
             if not os.path.isfile(self.images_and_labels_file) and not '/' in self.images_and_labels_file:
                 self.images_and_labels_file = os.path.join(self.images_dir,self.images_and_labels_file)
-            if not os.path.isfile(self.imagesfile):
-                print('COULD NOT OPEN IMAGES FILE '+str(self.imagesfile))
+            if not os.path.isfile(self.images_and_labels_file):
+                print('COULD NOT OPEN IMAGES/LABELS FILE '+str(self.images_and_labels_file))
                 return
             self.images_and_labels_list = open(self.images_and_labels_file, 'r').read().splitlines()
             self.n_files = len(self.images_and_labels_list)
