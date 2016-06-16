@@ -253,7 +253,7 @@ def sp4fanni():
     for x, item in enumerate(items):
         try:
             url = item['img_url']
-            mask = np.array(item['ppd_mask']).astype(int)
+            mask = np.array(item['ppd_mask']).astype('uint8')
             image = Utils.get_cv2_img_array(url)
             spacio = fingerprint_3D_spatiogram(image, mask)
 
