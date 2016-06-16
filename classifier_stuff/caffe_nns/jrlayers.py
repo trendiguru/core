@@ -347,13 +347,13 @@ class JrMultilabel(caffe.Layer):
 
         self.idx = 0
         # randomization: seed and pick
-        print('imgslbls [0] {} [1] {}'.format(self.images_and_labels_list[0],self.images_and_labels_list[1]))
+#        print('imgslbls [0] {} [1] {}'.format(self.images_and_labels_list[0],self.images_and_labels_list[1]))
         if self.random_init:
             random.seed(self.seed)
             self.idx = random.randint(0, self.n_files-1)
         if self.random_pick:
             random.shuffle(self.images_and_labels_list)
-        print('imgslbls [0] {} [1] {}'.format(self.images_and_labels_list[0],self.images_and_labels_list[1]))
+#        print('imgslbls [0] {} [1] {}'.format(self.images_and_labels_list[0],self.images_and_labels_list[1]))
         logging.debug('initial self.idx is :'+str(self.idx)+' type:'+str(type(self.idx)))
 
         ##check that all images are openable and have labels
@@ -365,7 +365,8 @@ class JrMultilabel(caffe.Layer):
             imgfilename = line.split()[0]
             img_arr = Image.open(imgfilename)
             if img_arr is not None:
-                label_vec = [int(i) for i in line.split() if i>0 ]
+                vals = line.split()[1:]
+                label_vec = [int(i) for i in vals]
                 if label_vec is not None:
                     if len(label_vec.shape) == 1:  #got a vec
                         good_img_files.append(imgfilename)
