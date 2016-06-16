@@ -313,7 +313,7 @@ class JrMultilabel(caffe.Layer):
         # config
         params = eval(self.param_str)
 
-        self.images_and_labels_file = params['image/home/s_and_labels_file']
+        self.images_and_labels_file = params['images_and_labels_file']
         self.mean = np.array(params['mean'])
         self.images_dir = params.get('images_dir')
         self.random_init = params.get('random_initialization', True) #start from random point in image list
