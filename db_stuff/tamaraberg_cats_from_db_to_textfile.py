@@ -53,20 +53,22 @@ def inspect_textfile(filename = 'tb_cats_from_webtool.txt'):
 
 def split_to_trainfile_and_testfile(filename='tb_cats_from_webtool.txt', fraction=0.05):
     with open(filename,'r') as fp:
-        lines = fp.read()
+        lines = fp.readlines()
+        for line in lines:
+            print line
         print lines[0]
         random.shuffle(lines)
         print lines[0]
         n_lines = len(lines)
-        train_lines = lines[0:round(n_lines*(1-frac))]
-        test_lines = lines[round(n_lines*(1-frac)):]
+        train_lines = lines[0:int(n_lines*(1-fraction))]
+        test_lines = lines[int(n_lines*(1-fraction)):]
         print('{} trainingfiles and {} testingfiles'.format(len(train_lines),len(test_lines)))
         train_name = filename[0:-4] + '_train.txt'
         test_name = filename[0:-4] + '_test.txt'
         with open(train_name,'w') as trfp:
-            trfp.write(train_lines)
+            trfp.writelines(train_lines)
         with open(test_name,'w') as trfp:
-            trfp.write(test_lines)
+            trfp.writelines(test_lines)
 
 if __name__ == "__main__": #
     cats_from_db()
