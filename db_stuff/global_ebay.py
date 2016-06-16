@@ -175,19 +175,19 @@ def getItemsbyBrand(category,category_idx,brand,gender,collection,pageNumber):
                        "shippingInfo": item['shippingInfo'],
                        "ebay_raw": item}
 
-            image = Utils.get_cv2_img_array(img_url)
-            if image is None:
-                print ('bad img url')
-                continue
+            # image = Utils.get_cv2_img_array(img_url)
+            # if image is None:
+            #     print ('bad img url')
+            #     continue
 
-            img_hash = get_hash(image)
-
-            hash_exists = collection.find_one({'img_hash': img_hash})
-            if hash_exists:
-                print ('hash already exists')
-                continue
-
-            generic["img_hash"] = img_hash
+            # img_hash = get_hash(image)
+            #
+            # hash_exists = collection.find_one({'img_hash': img_hash})
+            # if hash_exists:
+            #     print ('hash already exists')
+            #     continue
+            #
+            # generic["img_hash"] = img_hash
 
             collection.insert_one(generic)
         except:
