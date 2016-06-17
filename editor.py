@@ -27,10 +27,10 @@ def cancel_image(image_id):
 # ----------------------------------------------- PERSON-LEVEL ---------------------------------------------------------
 
 def cancel_person(image_id, person_id):
-    image_obj = db.test.find_one({'_id': image_id})
+    image_obj = db.test.find_one({'image_id': image_id})
     if not image_obj:
         return False
-    res = db.test.update_one({'_id': image_id}, {'$pull': {'people': {'_id': person_id}}})
+    res = db.test.update_one({'image_id': image_id}, {'$pull': {'people': {'_id': person_id}}})
     return bool(res.modified_count)
 
 
