@@ -361,7 +361,7 @@ def resize_keep_aspect(input_file_or_np_arr, output_file=None, output_size = (30
         factor = float(inheight)/outheight
         new_width = int(float(inwidth) / factor)
         resized_img = cv2.resize(input_file_or_np_arr, (new_width, outheight))
-        print('<resize size:'+str(resized_img.shape)+' outw:'+str(outwidth)+' neww:'+str(new_width))
+        print('<resize size:'+str(resized_img.shape)+' desired width:'+str(outwidth)+' orig width resized:'+str(new_width))
         width_offset = (outwidth - new_width ) / 2
         output_img[:,width_offset:width_offset+new_width] = resized_img[:,:]
         for n in range(0,width_offset):  #doing this like the below runs into a broadcast problem which could prob be solved by reshaping
@@ -373,7 +373,7 @@ def resize_keep_aspect(input_file_or_np_arr, output_file=None, output_size = (30
         factor = float(inwidth)/outwidth
         new_height = int(float(inheight) / factor)
         resized_img = cv2.resize(input_file_or_np_arr, (outwidth, new_height))
-        print('<resize size:'+str(resized_img.shape)+' outh:'+str(outheight)+' neww:'+str(new_height))
+        print('<resize size:'+str(resized_img.shape)+' desired height:'+str(outheight)+' orig height resized:'+str(new_height))
         height_offset = (outheight - new_height) / 2
         output_img[height_offset:height_offset+new_height,:] = resized_img[:,:]
         output_img[0:height_offset,:] = resized_img[0,:]

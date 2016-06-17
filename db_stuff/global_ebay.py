@@ -225,7 +225,10 @@ def download(allCatsandBrands):
                 c = cat['childName']
                 print(c)
                 category = category_convertor[c]
-
+                #tmp
+                catexists = col.find_one({'categories':category})
+                if catexists:
+                    continue
                 for brand in cat['brands']:
                     startT= time()
                     print(brand)
@@ -237,8 +240,8 @@ def download(allCatsandBrands):
                     print (stopT-startT)
 
 if __name__=='__main__':
-    db.ebay_global_Female.delete_many({})
-    db.ebay_global_Male.delete_many({})
+    # db.ebay_global_Female.delete_many({})
+    # db.ebay_global_Male.delete_many({})
     start = time()
     top_categories = getTopCategories()
     stage1 = time()

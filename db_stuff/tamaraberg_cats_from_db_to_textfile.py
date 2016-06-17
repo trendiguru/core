@@ -7,12 +7,12 @@ import random
 from trendi import constants
 from trendi.utils import imutils
 
-def cats_from_db(image_dir='/home/jeremy/image_dbs/tamara_berg/images'):
+def write_cats_from_db_to_textfile(image_dir='/home/jeremy/image_dbs/tamara_berg/images',catsfile = 'tb_cats_from_webtool.txt'):
     db = constants.db
     cursor = db.training_images.find({'already_done':True})
     n_done = cursor.count()
     print(str(n_done)+' docs done')
-    with open('tb_cats_from_webtool.txt','w') as fp:
+    with open(catsfile,'w') as fp:
         for i in range(n_done):
             document = cursor.next()
             url = document['url']
@@ -67,10 +67,14 @@ def split_to_trainfile_and_testfile(filename='tb_cats_from_webtool.txt', fractio
         test_name = filename[0:-4] + '_test.txt'
         with open(train_name,'w') as trfp:
             trfp.writelines(train_lines)
+
         with open(test_name,'w') as trfp:
             trfp.writelines(test_lines)
 
+
+
+
 if __name__ == "__main__": #
-    cats_from_db()
+    write_cats_from_db_to_textfile()
     split_to_trainfile_and_testfile()
     inspect_textfile()

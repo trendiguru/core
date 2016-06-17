@@ -2,6 +2,8 @@ import copy
 import os
 import caffe
 import logging
+import sys
+
 logging.basicConfig(level=logging.DEBUG)
 import numpy as np
 from PIL import Image
@@ -279,8 +281,6 @@ class JrLayer(caffe.Layer):
 
 
 
-
-
 ######################################################################################3
 # MULTILABEL
 #######################################################################################
@@ -321,6 +321,7 @@ class JrMultilabel(caffe.Layer):
         self.seed = params.get('seed', 1337)
         self.new_size = params.get('new_size',None)
 
+        self.idx = 0
         print('images+labelsfile {} mean {}'.format(self.images_and_labels_file,self.mean))
         # two tops: data and label
         if len(top) != 2:
@@ -356,6 +357,7 @@ class JrMultilabel(caffe.Layer):
 #        print('imgslbls [0] {} [1] {}'.format(self.images_and_labels_list[0],self.images_and_labels_list[1]))
         logging.debug('initial self.idx is :'+str(self.idx)+' type:'+str(type(self.idx)))
 
+        spinner = spinning_cursor()
         ##check that all images are openable and have labels
         ## and ge t
         good_img_files = []
@@ -370,11 +372,18 @@ class JrMultilabel(caffe.Layer):
                 vals = line.split()[1:]
                 label_vec = [int(i) for i in vals]
                 label_vec = np.array(label_vec)
+#                label_vec = label_vec[np.newaxis,...]  #this is required by loss whihc otherwise throws:
+                label_vec = label_vec[...,np.newaxis,np.newaxis]  #this is required by loss whihc otherwise throws:
+#                F0616 10:54:30.921106 43184 accuracy_layer.cpp:31] Check failed: outer_num_ * inner_num_ == bottom[1]->count() (1 vs. 21) Number of labels must match number of predictions; e.g., if label axis == 1 and prediction shape is (N, C, H, W), label count (number of labels) must be N*H*W, with integer values in {0, 1, ..., C-1}.
+
                 if label_vec is not None:
                     if len(label_vec) > 0:  #got a vec
                         good_img_files.append(imgfilename)
                         good_label_vecs.append(label_vec)
-                        print('got good image of size {} and label of size {}'.format(in_.shape,label_vec.shape))
+                        sys.stdout.write(spinner.next())
+                        sys.stdout.flush()
+                        sys.stdout.write('\b')
+                  #      print('got good image of size {} and label of size {}'.format(in_.shape,label_vec.shape))
                     else:
                         print('something wrong w. image of size {} and label of size {}'.format(in_.shape,label_vec.shape))
             else:
@@ -385,10 +394,11 @@ class JrMultilabel(caffe.Layer):
         print('{} images and {} labels'.format(len(self.imagefiles),len(self.label_vecs)))
         self.n_files = len(self.imagefiles)
         print(str(self.n_files)+' good files in image dir '+str(self.images_dir))
+        logging.debug('self.idx is :'+str(self.idx)+' type:'+str(type(self.idx)))
 
     def reshape(self, bottom, top):
         print('reshaping')
-#	logging.debug('self.idx is :'+str(self.idx)+' type:'+str(type(self.idx)))
+        logging.debug('self.idx is :'+str(self.idx)+' type:'+str(type(self.idx)))
         imgfilename, self.data, self.label = self.load_image_and_label(self.idx)
         # reshape tops to fit (leading 1 is for batch dimension)
         top[0].reshape(1, *self.data.shape)
@@ -452,4 +462,11 @@ class JrMultilabel(caffe.Layer):
         in_ = in_.transpose((2,0,1))
 #	print('uniques of img:'+str(np.unique(in_))+' shape:'+str(in_.shape))
         return filename, in_, label_vec
+
+
+
+def spinning_cursor():
+    while True:
+        for cursor in '|/-\\':
+            yield cursor
 
