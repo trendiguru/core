@@ -911,7 +911,7 @@ def show_mask_with_labels(mask_filename,labels,original_image=None,cut_the_crap=
                 newheight=(height>maxheight)*maxheight   #+(height<minheight)*minheight
 
                 factor = float(newheight)/height
-                orig_arr = cv2.resize(orig_arr,(int(round(width*dddddddcdcddcfactor)),int(round(height*factor))))
+                orig_arr = cv2.resize(orig_arr,(int(round(width*factor)),int(round(height*factor))))
 #                print('factor {} newsize {}'.format(factor,orig_arr.shape) )
 
                 colorbar_h,colorbar_w = dest_colorbar.shape[0:2]

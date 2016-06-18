@@ -325,7 +325,8 @@ class JrMultilabel(caffe.Layer):
         print('images+labelsfile {} mean {}'.format(self.images_and_labels_file,self.mean))
         # two tops: data and label
         if len(top) != 2:
-            raise Exception("Need to define two tops: data and label.")
+            print('len of top is '+str(len(top)))
+#            raise Exception("Need to define two tops: data and label.")
         # data layers have no bottoms
         if len(bottom) != 0:
             raise Exception("Do not define a bottom.")
@@ -402,7 +403,7 @@ class JrMultilabel(caffe.Layer):
         imgfilename, self.data, self.label = self.load_image_and_label(self.idx)
         # reshape tops to fit (leading 1 is for batch dimension)
         top[0].reshape(1, *self.data.shape)
-        top[1].reshape(1, *self.label.shape)
+ #       top[1].reshape(1, *self.label.shape)
         print('top 0 shape {} top 1 shape {}'.format(top[0].shape,top[1].shape))
 
     def next_idx(self):
