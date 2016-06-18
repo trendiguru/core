@@ -86,9 +86,16 @@ def parse_logfile(f):
   print 'test loss len: ', len(test_loss)
   print 'test accuracy len: ', len(test_accuracy)
 
+
   if len(test_iterations) != len(test_accuracy): #awaiting test...
+    new_test_accuracy = []
     print 'mis-match'
-    print len(test_iterations[0:-1])
+    for i in range(0,len(test_accuracy))
+      new_test_accuracy.append(test_accuracy[i])
+    for i in range(len(test_accuracy),len(test_iterations))
+      new_test_accuracy.append(-1)
+    test_accuracy = new_test_accuracy
+
     test_iterations = test_iterations[0:-1]
 
   f.close()
