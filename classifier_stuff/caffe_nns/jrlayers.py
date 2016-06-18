@@ -403,7 +403,7 @@ class JrMultilabel(caffe.Layer):
         imgfilename, self.data, self.label = self.load_image_and_label(self.idx)
         # reshape tops to fit (leading 1 is for batch dimension)
         top[0].reshape(1, *self.data.shape)
- #       top[1].reshape(1, *self.label.shape)
+        top[1].reshape(1, *self.label.shape)
         print('top 0 shape {} top 1 shape {}'.format(top[0].shape,top[1].shape))
 
     def next_idx(self):
