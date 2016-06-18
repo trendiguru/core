@@ -14,23 +14,23 @@ def cancel_image(image_id):
     :param item_category: str category of the item
     :return: success boolean
     """
-    image_obj = db.test.find_one({'_id': image_id})
+    image_obj = db.test.find_one({'image_id': image_id})
     if not image_obj:
         return False
     # CANCEL IMAGE (INSERT TO IRRELEVANT_IMAGES BEFORE)
     sparse_obj = shrink_image_object(image_obj)
     # db.irrelevant_images.insert_one(sparse_obj)
-    db.test.delete_one({'_id': image_id})
+    db.test.delete_one({'image_id': image_id})
     return True
 
 
 # ----------------------------------------------- PERSON-LEVEL ---------------------------------------------------------
 
 def cancel_person(image_id, person_id):
-    image_obj = db.test.find_one({'_id': image_id})
+    image_obj = db.test.find_one({'image_id': image_id})
     if not image_obj:
         return False
-    res = db.test.update_one({'_id': image_id}, {'$pull': {'people': {'_id': person_id}}})
+    res = db.test.update_one({'image_id': image_id}, {'$pull': {'people': {'_id': person_id}}})
     return bool(res.modified_count)
 
 
