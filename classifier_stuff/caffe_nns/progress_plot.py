@@ -96,7 +96,7 @@ def parse_logfile(f):
       new_test_accuracy.append(-1)
     test_accuracy = new_test_accuracy
 
-    test_iterations = test_iterations[0:-1]
+#    test_iterations = test_iterations[0:-1]
 
   f.close()
 #  plt.plot(training_iterations, training_loss, '-', linewidth=2)
