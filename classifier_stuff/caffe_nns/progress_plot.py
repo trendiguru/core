@@ -96,7 +96,7 @@ def parse_logfile(f):
       new_test_accuracy.append(-1)
 
     test_accuracy = new_test_accuracy
-    print('len test acc:'+str(len(test_accuracy))
+    print('len test acc:'+str(len(test_accuracy)))
 #    test_iterations = test_iterations[0:-1]
 
   f.close()
