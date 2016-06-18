@@ -886,7 +886,7 @@ def show_mask_with_labels(mask_filename,labels,original_image=None,cut_the_crap=
     i = 0
     totpixels = h*w
     for unique in uniques:
-        if unique > len(labels):
+        if unique >= len(labels):
             logging.warning('pixel value out of label range')
             continue
         pixelcount = len(img_arr[img_arr==unique])
