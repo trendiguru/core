@@ -61,6 +61,7 @@ def parse_logfile(f):
 
     if '] Iteration ' in line and 'loss = ' in line:
 #    if '] Iteration ' in line and 'loss = ' in line:
+      print('getting loss:'+line)
       arr = re.findall(r'ion \b\d+\b,', line)
       training_iterations.append(int(arr[0].strip(',')[4:]))
       training_loss.append(float(line.strip().split(' = ')[-1]))
@@ -68,6 +69,7 @@ def parse_logfile(f):
 
 
     if '] Iteration ' in line and 'Testing net' in line:
+      print('getting test:'+line)
       arr = re.findall(r'ion \b\d+\b,', line)
       test_iterations.append(int(arr[0].strip(',')[4:]))
       check_test = True
@@ -75,6 +77,7 @@ def parse_logfile(f):
     if '{' in line:
       past_beginning = True
     if not past_beginning and 'name' in line:
+      print('getting name:'+line)
       net_name_arr = line.split('"')
       net_name = net_name_arr[-2]
       print('net name:'+net_name)
@@ -110,6 +113,10 @@ def parse_logfile(f):
 
     test_loss = new_test_loss
     print('len test loss len:'+str(len(test_loss)))
+
+# for times as ax labels try something like
+#        ax.annotate(str(count), xy=(x, 0), xycoords=('data', 'axes fraction'),
+#        xytext=(0, -18), textcoords='offset points', va='top', ha='center')
 
 #  plt.plot(training_iterations, training_loss, '-', linewidth=2)
 #  plt.plot(test_iterations, test_accuracy, '-', linewidth=2)
