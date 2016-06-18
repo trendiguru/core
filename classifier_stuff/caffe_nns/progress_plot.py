@@ -86,6 +86,7 @@ def parse_logfile(f):
   print 'test loss len: ', len(test_loss)
   print 'test accuracy len: ', len(test_accuracy)
 
+  f.close()
 
   if len(test_iterations) != len(test_accuracy): #awaiting test...
     new_test_accuracy = []
@@ -99,7 +100,17 @@ def parse_logfile(f):
     print('len test acc:'+str(len(test_accuracy)))
 #    test_iterations = test_iterations[0:-1]
 
-  f.close()
+  if len(test_iterations) != len(test_loss): #awaiting test...
+    new_test_loss = []
+    print 'mis-match'
+    for i in range(0,len(test_loss)):
+      new_test_accuracy.append(test_loss[i])
+    for i in range(len(test_loss),len(test_iterations)):
+      new_test_loss.append(-1)
+
+    test_loss = new_test_loss
+    print('len test loss len:'+str(len(test_loss)))
+
 #  plt.plot(training_iterations, training_loss, '-', linewidth=2)
 #  plt.plot(test_iterations, test_accuracy, '-', linewidth=2)
 #  plt.show()
