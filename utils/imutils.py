@@ -854,7 +854,7 @@ def show_mask_with_labels(mask_filename,labels,original_image=None,cut_the_crap=
     dest[:,:,0] = scaled  #hue
     dest[:,:,1] = satlevel   #saturation
     dest[:,:,2] = vallevel   #value
-    print('type:'+str(type(dest)))
+ #   print('type:'+str(type(dest)))
     dest = dest.astype(np.uint8)
     dest = cv2.cvtColor(dest,cv2.COLOR_HSV2BGR)
 
@@ -881,16 +881,16 @@ def show_mask_with_labels(mask_filename,labels,original_image=None,cut_the_crap=
     dest_colorbar[:,:,2] = vallevel  #value
     dest_colorbar = dest_colorbar.astype(np.uint8)
     dest_colorbar = cv2.cvtColor(dest_colorbar,cv2.COLOR_HSV2BGR)
-    print('size of colrbar:'+str(dest_colorbar.shape))
+ #   print('size of colrbar:'+str(dest_colorbar.shape))
  #have to do labels here to get black
     i = 0
     totpixels = h*w
     for unique in uniques:
-        if unique > len(labels):
+        if unique >= len(labels):
             logging.warning('pixel value out of label range')
             continue
         pixelcount = len(img_arr[img_arr==unique])
-        print('unique:'+str(unique)+':'+labels[unique]+' pixcount:'+str(pixelcount)+' fraction'+str(float(pixelcount)/totpixels))
+   #     print('unique:'+str(unique)+':'+labels[unique]+' pixcount:'+str(pixelcount)+' fraction'+str(float(pixelcount)/totpixels))
         frac_string='{:.4f}'.format(float(pixelcount)/totpixels)
         cv2.putText(dest_colorbar,labels[unique]+' '+str(frac_string),(5,int(i*bar_height+float(bar_height)/2+5)),cv2.FONT_HERSHEY_PLAIN,1,[0,10,50],thickness=1)
         i=i+1
@@ -1012,7 +1012,7 @@ def show_mask_with_labels_from_img_arr(mask,labels):
         bar_width = 100
         colorbar = np.zeros([bar_height*len(uniques),bar_width])
         i = 0
-        print('len labels:'+str(len(labels)))
+   #     print('len labels:'+str(len(labels)))
         for unique in uniques:
             if unique > len(labels):
                 logging.warning('pixel value out of label range')

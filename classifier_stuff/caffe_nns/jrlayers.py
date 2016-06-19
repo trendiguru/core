@@ -325,7 +325,8 @@ class JrMultilabel(caffe.Layer):
         print('images+labelsfile {} mean {}'.format(self.images_and_labels_file,self.mean))
         # two tops: data and label
         if len(top) != 2:
-            raise Exception("Need to define two tops: data and label.")
+            print('len of top is '+str(len(top)))
+#            raise Exception("Need to define two tops: data and label.")
         # data layers have no bottoms
         if len(bottom) != 0:
             raise Exception("Do not define a bottom.")
@@ -373,6 +374,7 @@ class JrMultilabel(caffe.Layer):
                 label_vec = [int(i) for i in vals]
                 label_vec = np.array(label_vec)
 #                label_vec = label_vec[np.newaxis,...]  #this is required by loss whihc otherwise throws:
+#                label_vec = label_vec[...,np.newaxis]  #this is required by loss whihc otherwise throws:
                 label_vec = label_vec[...,np.newaxis,np.newaxis]  #this is required by loss whihc otherwise throws:
 #                F0616 10:54:30.921106 43184 accuracy_layer.cpp:31] Check failed: outer_num_ * inner_num_ == bottom[1]->count() (1 vs. 21) Number of labels must match number of predictions; e.g., if label axis == 1 and prediction shape is (N, C, H, W), label count (number of labels) must be N*H*W, with integer values in {0, 1, ..., C-1}.
 
@@ -403,7 +405,8 @@ class JrMultilabel(caffe.Layer):
         # reshape tops to fit (leading 1 is for batch dimension)
         top[0].reshape(1, *self.data.shape)
         top[1].reshape(1, *self.label.shape)
-        print('top 0 shape {} top 1 shape {}'.format(top[0].shape,top[1].shape))
+#        print('top 0 shape {} top 1 shape {}'.format(top[0].shape,top[1].shape))
+#       the above just shows objects , top[0].shape is an object apparently
 
     def next_idx(self):
         if self.random_pick:
