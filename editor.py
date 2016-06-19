@@ -71,7 +71,7 @@ def cancel_item(image_id, person_id, item_category):
             for item in person['items']:
                 if item['category'] == item_category:
                     person['items'].remove(item)
-    res = db.test.replace_one({'_id': image_id}, image_obj)
+    res = db.test.replace_one({'image_id': image_id}, image_obj)
     return bool(res.modified_count)
 
 
