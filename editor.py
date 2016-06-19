@@ -35,7 +35,7 @@ def cancel_person(image_id, person_id):
 
 
 def change_gender_and_rebuild_person(image_id, person_id):
-    image_obj = db.images.find_one({'_id': image_id})
+    image_obj = db.test.find_one({'image_id': image_id})
     if not image_obj:
         return False
 
@@ -52,8 +52,8 @@ def change_gender_and_rebuild_person(image_id, person_id):
                                                                                                   category_id=item['category'],
                                                                                                   fingerprint=item['fp'],
                                                                                                   collection=res_coll_gen)
-    res1 = db.images.update_one({'_id': image_id}, {'$pull': {'people': {'_id': person_id}}})
-    res2 = db.images.update_one({'_id': image_id}, {'$push': {'people': new_person}})
+    res1 = db.test.update_one({'image_id': image_id}, {'$pull': {'people': {'_id': person_id}}})
+    res2 = db.test.update_one({'image_id': image_id}, {'$push': {'people': new_person}})
     return bool(res1.modified_count*res2.modified_count)
 
 
