@@ -37,7 +37,7 @@ def cancel_person(image_id, person_id):
 def change_gender_and_rebuild_person(image_id, person_id):
     image_obj = db.test.find_one({'image_id': image_id})
     if not image_obj:
-        return False
+        return "image_obj haven't found"
 
     new_person = [person for person in image_obj['people'] if person['_id'] == person_id][0]
     new_person['gender'] = 'Female'*bool(new_person['gender'] == 'Male') or 'Male'
@@ -54,7 +54,8 @@ def change_gender_and_rebuild_person(image_id, person_id):
                                                                                                   collection=res_coll_gen)
     res1 = db.test.update_one({'image_id': image_id}, {'$pull': {'people': {'_id': person_id}}})
     res2 = db.test.update_one({'image_id': image_id}, {'$push': {'people': new_person}})
-    return bool(res1.modified_count*res2.modified_count)
+    return "pull success: {0}, push success: {1}".format(bool(res1.modified_count), bool(res2.modified_count))
+    #return bool(res1.modified_count*res2.modified_count)
 
 
 # ------------------------------------------------ ITEM-LEVEL ----------------------------------------------------------
