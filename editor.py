@@ -41,6 +41,7 @@ def change_gender_and_rebuild_person(image_id, person_id):
 
     new_person = [person for person in image_obj['people'] if person['_id'] == person_id][0]
     new_person['gender'] = 'Female'*bool(new_person['gender'] == 'Male') or 'Male'
+    print "switching gender to {0}".format(new_person['gender'])
     for item in new_person['items']:
         if new_person['gender'] == 'Male':
             item['category'] = constants.paperdoll_paperdoll_men[item['category']]
@@ -52,6 +53,7 @@ def change_gender_and_rebuild_person(image_id, person_id):
                                                                                                   category_id=item['category'],
                                                                                                   fingerprint=item['fp'],
                                                                                                   collection=res_coll_gen)
+    print "done with find_top_n"
     res1 = db.test.update_one({'image_id': image_id}, {'$pull': {'people': {'_id': person_id}}})
     res2 = db.test.update_one({'image_id': image_id}, {'$push': {'people': new_person}})
     return "pull success: {0}, push success: {1}".format(bool(res1.modified_count), bool(res2.modified_count))
