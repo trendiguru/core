@@ -63,7 +63,7 @@ def change_gender_and_rebuild_person(image_id, person_id):
 # ------------------------------------------------ ITEM-LEVEL ----------------------------------------------------------
 
 def cancel_item(image_id, person_id, item_category):
-    image_obj = db.images.find_one({'_id': image_id})
+    image_obj = db.test.find_one({'image_id': image_id})
     if not image_obj:
         return False
     for person in image_obj['people']:
@@ -71,7 +71,7 @@ def cancel_item(image_id, person_id, item_category):
             for item in person['items']:
                 if item['category'] == item_category:
                     person.remove(item)
-    res = db.images.replace_one({'_id': image_id}, image_obj)
+    res = db.test.replace_one({'_id': image_id}, image_obj)
     return bool(res.modified_count)
 
 
