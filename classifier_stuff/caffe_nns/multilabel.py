@@ -10,7 +10,7 @@ import matplotlib.pyplot as plt
 
 from copy import copy
 
-% matplotlib inline
+# matplotlib inline
 plt.rcParams['figure.figsize'] = (6, 6)
 
 caffe_root = '../'  # this file is expected to be in {caffe_root}/examples
