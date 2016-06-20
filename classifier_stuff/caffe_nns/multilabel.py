@@ -33,7 +33,7 @@ classes = np.asarray(['aeroplane', 'bicycle', 'bird', 'boat', 'bottle', 'bus', '
 # make sure we have the caffenet weight downloaded.
 if not os.path.isfile(caffe_root + 'models/bvlc_reference_caffenet/bvlc_reference_caffenet.caffemodel'):
     print("Downloading pre-trained CaffeNet model...")
-    !../scripts/download_model_binary.py ../models/bvlc_reference_caffenet
+#    !../scripts/download_model_binary.py ../models/bvlc_reference_caffenet
 
 # initialize caffe for gpu mode
 caffe.set_mode_gpu()
