@@ -125,8 +125,9 @@ def find_top_n_results(image=None, mask=None, number_of_results=10, category_id=
 
     print "done with find_n_nearest.. num of closest_matches: {0}".format(len(closest_matches))
     # get only the object itself, not the distance
-
-    return fingerprint.tolist(), closest_matches
+    if not isinstance(fingerprint, list):
+        fingerprint = fingerprint.tolist()
+    return fingerprint, closest_matches
 
 def got_bb(image_url, post_id, item_id, bb=None, number_of_results=10, category_id=None):
     svg_folder = constants.svg_folder

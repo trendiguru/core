@@ -35,12 +35,13 @@ def cancel_person(image_id, person_id):
 
 
 def change_gender_and_rebuild_person(image_id, person_id):
-    image_obj = db.images.find_one({'_id': image_id})
+    image_obj = db.test.find_one({'image_id': image_id})
     if not image_obj:
-        return False
+        return "image_obj haven't found"
 
     new_person = [person for person in image_obj['people'] if person['_id'] == person_id][0]
     new_person['gender'] = 'Female'*bool(new_person['gender'] == 'Male') or 'Male'
+    print "switching gender to {0}".format(new_person['gender'])
     for item in new_person['items']:
         if new_person['gender'] == 'Male':
             item['category'] = constants.paperdoll_paperdoll_men[item['category']]
@@ -52,23 +53,25 @@ def change_gender_and_rebuild_person(image_id, person_id):
                                                                                                   category_id=item['category'],
                                                                                                   fingerprint=item['fp'],
                                                                                                   collection=res_coll_gen)
-    res1 = db.images.update_one({'_id': image_id}, {'$pull': {'people': {'_id': person_id}}})
-    res2 = db.images.update_one({'_id': image_id}, {'$push': {'people': new_person}})
-    return bool(res1.modified_count*res2.modified_count)
+    print "done with find_top_n"
+    res1 = db.test.update_one({'image_id': image_id}, {'$pull': {'people': {'_id': person_id}}})
+    res2 = db.test.update_one({'image_id': image_id}, {'$push': {'people': new_person}})
+    return "pull success: {0}, push success: {1}".format(bool(res1.modified_count), bool(res2.modified_count))
+    #return bool(res1.modified_count*res2.modified_count)
 
 
 # ------------------------------------------------ ITEM-LEVEL ----------------------------------------------------------
 
 def cancel_item(image_id, person_id, item_category):
-    image_obj = db.images.find_one({'_id': image_id})
+    image_obj = db.test.find_one({'image_id': image_id})
     if not image_obj:
         return False
     for person in image_obj['people']:
         if person['_id'] == person_id:
             for item in person['items']:
                 if item['category'] == item_category:
-                    person.remove(item)
-    res = db.images.replace_one({'_id': image_id}, image_obj)
+                    person['items'].remove(item)
+    res = db.test.replace_one({'image_id': image_id}, image_obj)
     return bool(res.modified_count)
 
 
