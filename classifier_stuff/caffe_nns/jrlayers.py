@@ -459,6 +459,7 @@ class JrMultilabel(caffe.Layer):
             if not(os.path.isfile(filename)):
                 print('NOT A FILE:'+str(filename))
                 self.next_idx()   #bad file, goto next
+                idx = self.idx
             else:
                 im = Image.open(filename)
                 if self.new_size:
@@ -467,9 +468,11 @@ class JrMultilabel(caffe.Layer):
                 if in_ is None:
                     logging.warning('could not get image '+filename)
                     self.next_idx()
+                    idx = self.idx
                 elif len(in_.shape) != 3 or in_.shape[0] != self.new_size[0] or in_.shape[1] != self.new_size[1]:
                     print('got bad img of size '+str(in_.shape) + '= when expected shape is 3x'+str(in_.shape))
                     self.next_idx()  #goto next
+                    idx = self.idx
                 else:
                     break #got good img, get out of while
 #        print(full_filename+ ' has dims '+str(in_.shape))
