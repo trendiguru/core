@@ -320,6 +320,7 @@ class JrMultilabel(caffe.Layer):
         self.random_pick = params.get('random_pick', True) #pick random image from list every time
         self.seed = params.get('seed', 1337)
         self.new_size = params.get('new_size',None)
+        self.batch_size = params.get('batch_size',1)  #######Not implemented, batchsize = 1
 
         self.idx = 0
         print('images+labelsfile {} mean {}'.format(self.images_and_labels_file,self.mean))
