@@ -401,7 +401,7 @@ class JrMultilabel(caffe.Layer):
 
         if self.new_size == None:
             print('uh i got no size so using 227x227')
-            self.new_size = (224,224)
+            self.new_size = (227,227)
         top[0].reshape(self.batch_size, 3, self.new_size[0], self.new_size[1])
         # Note the 20 channels (because PASCAL has 20 classes.)
         top[1].reshape(self.batch_size, 21)
