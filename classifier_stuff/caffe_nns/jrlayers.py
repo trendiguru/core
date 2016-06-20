@@ -458,17 +458,20 @@ class JrMultilabel(caffe.Layer):
             print('the imagefile:'+filename+' index:'+str(idx))
             if not(os.path.isfile(filename)):
                 print('NOT A FILE:'+str(filename))
-                self.next_idx()
+                self.next_idx()   #bad file, goto next
             else:
-                break
-        im = Image.open(filename)
-        if self.new_size:
-            im = im.resize(self.new_size,Image.ANTIALIAS)
-
-        in_ = np.array(im, dtype=np.float32)
-        if in_ is None:
-            logging.warning('could not get image '+full_filename)
-            return None
+                im = Image.open(filename)
+                if self.new_size:
+                    im = im.resize(self.new_size,Image.ANTIALIAS)
+                in_ = np.array(im, dtype=np.float32)
+                if in_ is None:
+                    logging.warning('could not get image '+filename)
+                    self.next_idx()
+                elif len(in_.shape) != 3 or in_.shape[0] != self.new_size[0] or in_.shape[1] != self.new_size[1]:
+                    print('got bad img of size '+str(in_.shape)"= when expected shape is 3x"+str(in_.shape))
+                    self.next_idx()  #goto next
+                else:
+                    break #got good img, get out of while
 #        print(full_filename+ ' has dims '+str(in_.shape))
         in_ = in_[:,:,::-1]
 #        in_ -= self.mean
