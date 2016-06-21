@@ -1,3 +1,4 @@
+import pymongo
 from . import constants
 from . import find_similar_mongo
 from constants import db
@@ -38,6 +39,11 @@ def cancel_image(image_id):
     # db.irrelevant_images.insert_one(sparse_obj)
     db.test.delete_one({'image_id': image_id})
     return True
+
+
+def get_latest_images(num=10):
+    curs = db.images.find().sort('saved_date', pymongo.DESCENDING).limit(num)
+    return [doc['image_urls'][0] for doc in curs]
 
 
 # ----------------------------------------------- PERSON-LEVEL ---------------------------------------------------------
