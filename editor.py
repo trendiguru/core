@@ -2,8 +2,24 @@ from . import constants
 from . import find_similar_mongo
 from constants import db
 
+EDITOR_PROJECTION = {'image_id': 1,
+                     'saved_date': 1,
+                     'num_of_people': 1,
+                     'people.face': 1,
+                     'people.person_bb': 1,
+                     'people.num_of_items': 1,
+                     'people.gender': 1,
+                     'people._id': 1,
+                     'people.items.category': 1,
+                     'people.items.similar_results': 1}
+
 
 # ------------------------------------------------ IMAGE-LEVEL ---------------------------------------------------------
+
+def get_image_obj_for_editor(image_url):
+    sparse = db.images.find_one({'image_urls': image_url}, EDITOR_PROJECTION)
+    return sparse
+
 
 def cancel_image(image_id):
     """
