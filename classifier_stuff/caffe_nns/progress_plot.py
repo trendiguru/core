@@ -61,6 +61,7 @@ def parse_logfile(f):
 
     if '] Iteration ' in line and 'loss = ' in line:
 #    if '] Iteration ' in line and 'loss = ' in line:
+      print('getting loss:'+line)
       arr = re.findall(r'ion \b\d+\b,', line)
       training_iterations.append(int(arr[0].strip(',')[4:]))
       training_loss.append(float(line.strip().split(' = ')[-1]))
@@ -68,6 +69,7 @@ def parse_logfile(f):
 
 
     if '] Iteration ' in line and 'Testing net' in line:
+      print('getting test:'+line)
       arr = re.findall(r'ion \b\d+\b,', line)
       test_iterations.append(int(arr[0].strip(',')[4:]))
       check_test = True
@@ -75,6 +77,7 @@ def parse_logfile(f):
     if '{' in line:
       past_beginning = True
     if not past_beginning and 'name' in line:
+      print('getting name:'+line)
       net_name_arr = line.split('"')
       net_name = net_name_arr[-2]
       print('net name:'+net_name)
@@ -86,12 +89,35 @@ def parse_logfile(f):
   print 'test loss len: ', len(test_loss)
   print 'test accuracy len: ', len(test_accuracy)
 
-  if len(test_iterations) != len(test_accuracy): #awaiting test...
-    print 'mis-match'
-    print len(test_iterations[0:-1])
-    test_iterations = test_iterations[0:-1]
-
   f.close()
+
+  if len(test_iterations) != len(test_accuracy): #awaiting test...
+    new_test_accuracy = []
+    print 'mis-match'
+    for i in range(0,len(test_accuracy)):
+      new_test_accuracy.append(test_accuracy[i])
+    for i in range(len(test_accuracy),len(test_iterations)):
+      new_test_accuracy.append(-1)
+
+    test_accuracy = new_test_accuracy
+    print('len test acc:'+str(len(test_accuracy)))
+#    test_iterations = test_iterations[0:-1]
+
+  if len(test_iterations) != len(test_loss): #awaiting test...
+    new_test_loss = []
+    print 'mis-match'
+    for i in range(0,len(test_loss)):
+      new_test_accuracy.append(test_loss[i])
+    for i in range(len(test_loss),len(test_iterations)):
+      new_test_loss.append(-1)
+
+    test_loss = new_test_loss
+    print('len test loss len:'+str(len(test_loss)))
+
+# for times as ax labels try something like
+#        ax.annotate(str(count), xy=(x, 0), xycoords=('data', 'axes fraction'),
+#        xytext=(0, -18), textcoords='offset points', va='top', ha='center')
+
 #  plt.plot(training_iterations, training_loss, '-', linewidth=2)
 #  plt.plot(test_iterations, test_accuracy, '-', linewidth=2)
 #  plt.show()

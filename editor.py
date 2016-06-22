@@ -1,9 +1,26 @@
+import pymongo
 from . import constants
 from . import find_similar_mongo
 from constants import db
 
+EDITOR_PROJECTION = {'image_id': 1,
+                     'saved_date': 1,
+                     'num_of_people': 1,
+                     'people.face': 1,
+                     'people.person_bb': 1,
+                     'people.num_of_items': 1,
+                     'people.gender': 1,
+                     'people._id': 1,
+                     'people.items.category': 1,
+                     'people.items.similar_results': 1}
+
 
 # ------------------------------------------------ IMAGE-LEVEL ---------------------------------------------------------
+
+def get_image_obj_for_editor(image_url):
+    sparse = db.images.find_one({'image_urls': image_url}, EDITOR_PROJECTION)
+    return sparse
+
 
 def cancel_image(image_id):
     """
@@ -14,33 +31,39 @@ def cancel_image(image_id):
     :param item_category: str category of the item
     :return: success boolean
     """
-    image_obj = db.test.find_one({'_id': image_id})
+    image_obj = db.test.find_one({'image_id': image_id})
     if not image_obj:
         return False
     # CANCEL IMAGE (INSERT TO IRRELEVANT_IMAGES BEFORE)
     sparse_obj = shrink_image_object(image_obj)
     # db.irrelevant_images.insert_one(sparse_obj)
-    db.test.delete_one({'_id': image_id})
+    db.test.delete_one({'image_id': image_id})
     return True
+
+
+def get_latest_images(num=10):
+    curs = db.images.find().sort('saved_date', pymongo.DESCENDING).limit(num)
+    return [doc['image_urls'][0] for doc in curs]
 
 
 # ----------------------------------------------- PERSON-LEVEL ---------------------------------------------------------
 
 def cancel_person(image_id, person_id):
-    image_obj = db.test.find_one({'_id': image_id})
+    image_obj = db.test.find_one({'image_id': image_id})
     if not image_obj:
         return False
-    res = db.test.update_one({'_id': image_id}, {'$pull': {'people': {'_id': person_id}}})
+    res = db.test.update_one({'image_id': image_id}, {'$pull': {'people': {'_id': person_id}}})
     return bool(res.modified_count)
 
 
 def change_gender_and_rebuild_person(image_id, person_id):
-    image_obj = db.images.find_one({'_id': image_id})
+    image_obj = db.test.find_one({'image_id': image_id})
     if not image_obj:
-        return False
+        return "image_obj haven't found"
 
     new_person = [person for person in image_obj['people'] if person['_id'] == person_id][0]
     new_person['gender'] = 'Female'*bool(new_person['gender'] == 'Male') or 'Male'
+    print "switching gender to {0}".format(new_person['gender'])
     for item in new_person['items']:
         if new_person['gender'] == 'Male':
             item['category'] = constants.paperdoll_paperdoll_men[item['category']]
@@ -52,23 +75,23 @@ def change_gender_and_rebuild_person(image_id, person_id):
                                                                                                   category_id=item['category'],
                                                                                                   fingerprint=item['fp'],
                                                                                                   collection=res_coll_gen)
-    res1 = db.images.update_one({'_id': image_id}, {'$pull': {'people': {'_id': person_id}}})
-    res2 = db.images.update_one({'_id': image_id}, {'$push': {'people': new_person}})
+    res1 = db.test.update_one({'image_id': image_id}, {'$pull': {'people': {'_id': person_id}}})
+    res2 = db.test.update_one({'image_id': image_id}, {'$push': {'people': new_person}})
     return bool(res1.modified_count*res2.modified_count)
 
 
 # ------------------------------------------------ ITEM-LEVEL ----------------------------------------------------------
 
 def cancel_item(image_id, person_id, item_category):
-    image_obj = db.images.find_one({'_id': image_id})
+    image_obj = db.test.find_one({'image_id': image_id})
     if not image_obj:
         return False
     for person in image_obj['people']:
         if person['_id'] == person_id:
             for item in person['items']:
                 if item['category'] == item_category:
-                    person.remove(item)
-    res = db.images.replace_one({'_id': image_id}, image_obj)
+                    person['items'].remove(item)
+    res = db.test.replace_one({'image_id': image_id}, image_obj)
     return bool(res.modified_count)
 
 
@@ -81,7 +104,24 @@ def reorder_results(image_id, person_id, item_category, ordered_results, results
             for item in person['items']:
                 if item['category'] == item_category:
                     item['similar_results'][results_collection] = ordered_results
-    res = db.images.replace_one({'_id': image_id}, image_obj)
+    res = db.images.replace_one({'image_id': image_id}, image_obj)
+    return bool(res.modified_count)
+
+
+# ----------------------------------------------- RESULT-LEVEL ---------------------------------------------------------
+
+def cancel_result(image_id, person_id, item_category, results_collection, result_id):
+    image_obj = db.images.find_one({'_id': image_id})
+    if not image_obj:
+        return False
+    for person in image_obj['people']:
+        if person['_id'] == person_id:
+            for item in person['items']:
+                if item['category'] == item_category:
+                    for result in item['similar_results'][results_collection]:
+                        if result['id'] == result_id:
+                            item['similar_results'][results_collection].remove(result)
+    res = db.images.replace_one({'image_id': image_id}, image_obj)
     return bool(res.modified_count)
 
 

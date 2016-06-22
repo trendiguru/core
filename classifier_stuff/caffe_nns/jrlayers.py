@@ -320,12 +320,14 @@ class JrMultilabel(caffe.Layer):
         self.random_pick = params.get('random_pick', True) #pick random image from list every time
         self.seed = params.get('seed', 1337)
         self.new_size = params.get('new_size',None)
+        self.batch_size = params.get('batch_size',1)  #######Not implemented, batchsize = 1
 
         self.idx = 0
         print('images+labelsfile {} mean {}'.format(self.images_and_labels_file,self.mean))
         # two tops: data and label
         if len(top) != 2:
-            raise Exception("Need to define two tops: data and label.")
+            print('len of top is '+str(len(top)))
+#            raise Exception("Need to define two tops: data and label.")
         # data layers have no bottoms
         if len(bottom) != 0:
             raise Exception("Do not define a bottom.")
@@ -373,7 +375,8 @@ class JrMultilabel(caffe.Layer):
                 label_vec = [int(i) for i in vals]
                 label_vec = np.array(label_vec)
 #                label_vec = label_vec[np.newaxis,...]  #this is required by loss whihc otherwise throws:
-                label_vec = label_vec[...,np.newaxis,np.newaxis]  #this is required by loss whihc otherwise throws:
+#                label_vec = label_vec[...,np.newaxis]  #this is required by loss whihc otherwise throws:
+#                label_vec = label_vec[...,np.newaxis,np.newaxis]  #this is required by loss whihc otherwise throws:
 #                F0616 10:54:30.921106 43184 accuracy_layer.cpp:31] Check failed: outer_num_ * inner_num_ == bottom[1]->count() (1 vs. 21) Number of labels must match number of predictions; e.g., if label axis == 1 and prediction shape is (N, C, H, W), label count (number of labels) must be N*H*W, with integer values in {0, 1, ..., C-1}.
 
                 if label_vec is not None:
@@ -396,14 +399,24 @@ class JrMultilabel(caffe.Layer):
         print(str(self.n_files)+' good files in image dir '+str(self.images_dir))
         logging.debug('self.idx is :'+str(self.idx)+' type:'+str(type(self.idx)))
 
+        if self.new_size == None:
+            print('uh i got no size so using 227x227')
+            self.new_size = (227,227)
+        top[0].reshape(self.batch_size, 3, self.new_size[0], self.new_size[1])
+        # Note the 20 channels (because PASCAL has 20 classes.)
+        top[1].reshape(self.batch_size, 21)
+
+
     def reshape(self, bottom, top):
-        print('reshaping')
-        logging.debug('self.idx is :'+str(self.idx)+' type:'+str(type(self.idx)))
+        pass
+#        print('reshaping')
+#        logging.debug('self.idx is :'+str(self.idx)+' type:'+str(type(self.idx)))
         imgfilename, self.data, self.label = self.load_image_and_label(self.idx)
-        # reshape tops to fit (leading 1 is for batch dimension)
-        top[0].reshape(1, *self.data.shape)
-        top[1].reshape(1, *self.label.shape)
-        print('top 0 shape {} top 1 shape {}'.format(top[0].shape,top[1].shape))
+        ## reshape tops to fit (leading 1 is for batch dimension)
+ #       top[0].reshape(1, *self.data.shape)
+ #       top[1].reshape(1, *self.label.shape)
+#        print('top 0 shape {} top 1 shape {}'.format(top[0].shape,top[1].shape))
+##       the above just shows objects , top[0].shape is an object apparently
 
     def next_idx(self):
         if self.random_pick:
@@ -445,17 +458,23 @@ class JrMultilabel(caffe.Layer):
             print('the imagefile:'+filename+' index:'+str(idx))
             if not(os.path.isfile(filename)):
                 print('NOT A FILE:'+str(filename))
-                self.next_idx()
+                self.next_idx()   #bad file, goto next
+                idx = self.idx
             else:
-                break
-        im = Image.open(filename)
-        if self.new_size:
-            im = im.resize(self.new_size,Image.ANTIALIAS)
-
-        in_ = np.array(im, dtype=np.float32)
-        if in_ is None:
-            logging.warning('could not get image '+full_filename)
-            return None
+                im = Image.open(filename)
+                if self.new_size:
+                    im = im.resize(self.new_size,Image.ANTIALIAS)
+                in_ = np.array(im, dtype=np.float32)
+                if in_ is None:
+                    logging.warning('could not get image '+filename)
+                    self.next_idx()
+                    idx = self.idx
+                elif len(in_.shape) != 3 or in_.shape[0] != self.new_size[0] or in_.shape[1] != self.new_size[1] or in_.shape[2]!=3:
+                    print('got bad img of size '+str(in_.shape) + '= when expected shape is 3x'+str(in_.shape))
+                    self.next_idx()  #goto next
+                    idx = self.idx
+                else:
+                    break #got good img, get out of while
 #        print(full_filename+ ' has dims '+str(in_.shape))
         in_ = in_[:,:,::-1]
 #        in_ -= self.mean
