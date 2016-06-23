@@ -111,7 +111,7 @@ def download_recruit():
         q.enqueue(genreDownloader, args=([genreId]), timeout=5400)
         print(genreId + ' sent to download worker')
         while q.count > 5:
-            sleep(300)
+            sleep(30)
 
 if __name__=='__main__':
     download_recruit()
