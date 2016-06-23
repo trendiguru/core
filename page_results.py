@@ -35,8 +35,10 @@ push_connection(constants.redis_conn)
 
 def route_by_url(image_url, page_url, lang):
     domain = tldextract.extract(page_url).registered_domain
-    if not db.whitelist.find_one({'domain': domain}):
-        return False
+
+    # Temporarily remove whitelist for Recruit Test -- LS 22/06/2016.
+    # if not db.whitelist.find_one({'domain': domain}):
+    #     return False
 
     if image_url[:4] == "data":
         return False
