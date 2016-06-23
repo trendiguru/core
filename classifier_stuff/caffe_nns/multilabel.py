@@ -175,4 +175,4 @@ if __name__ =="__main__":
     caffemodel =  '/home/jeremy/caffenets/multilabel/vgg_ilsvrc_16_multilabel_2/snapshot/train_iter_40069.caffemodel'
     solverproto = '/home/jeremy/caffenets/multilabel/vgg_ilsvrc_16_multilabel_2/solver.prototxt'
     check_acc(solverproto,caffemodel)
-    print 'Baseline accuracy:{0:.4f}'.format(check_baseline_accuracy(solver.test_nets[0], 10,batch_size = 20))
+  #  print 'Baseline accuracy:{0:.4f}'.format(check_baseline_accuracy(solver.test_nets[0], 10,batch_size = 20))
