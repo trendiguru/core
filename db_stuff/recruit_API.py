@@ -12,6 +12,7 @@ today_date = str(datetime.date(datetime.now()))
 
 
 def log2file(LOG_FILENAME):
+    logging.basicConfig(filemode='w')
     logger = logging.getLogger(__name__)
     logger.setLevel(logging.INFO)
     handler = logging.FileHandler(LOG_FILENAME)
