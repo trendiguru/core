@@ -10,8 +10,14 @@ cd <installpath>
     Add <installpath> to your build and link process by adding -I<installpath> to your compile
     line and -L<installpath> -lcudnn to your link line.
 
+get cunddn tar
+tar -xvf
+sudo cp cudnn.h /usr/local/cuda-7.0/include
+sudo cp libcudnn* /usr/local/cuda-7.0/lib64
     
 apt-get install git
+apt-get install ipython
+#install pip
 
 #caffe
 git clone https://github.com/BVLC/caffe.git
@@ -19,17 +25,31 @@ sudo apt-get install libprotobuf-dev libleveldb-dev libsnappy-dev libopencv-dev 
 sudo apt-get install --no-install-recommends libboost-all-dev
 #blas
 sudo apt-get install libatlas-base-dev
+pip install protobuf, glog, gflags, hdf5
+wget https://sourceforge.net/projects/boost/files/boost/1.61.0/boost_1_61_0.tar.bz2
+sudo apt-get install libprotobuf-dev libleveldb-dev libsnappy-dev libopencv-dev libboost-all-dev libhdf5-serial-dev
+sudo apt-get install libgflags-dev libgoogle-glog-dev liblmdb-dev protobuf-compiler
+sudo apt-get install libatlas-base-dev
 
-apt-get install ipython
+sudo apt-get install libgflags-dev
+
+glog
+wget https://google-glog.googlecode.com/files/glog-0.3.3.tar.gz
+tar zxvf glog-0.3.3.tar.gz
+cd glog-0.3.3
+./configure
+make && make install
 
 #numpy/scipy
 sudo apt-get install python-numpy python-scipy python-matplotlib ipython ipython-notebook python-pandas python-sympy python-nose
 
 #theano/keras
 sudo apt-get install python-numpy python-scipy python-dev python-pip python-nose g++ libopenblas-dev git
-
+sudo pip install nose_parameterized
 
 sudo pip install Theano
 
 pip install h5py
 pip install keras
+
+#############
