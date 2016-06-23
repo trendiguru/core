@@ -6,7 +6,14 @@ import json
 from datetime import datetime
 from recruit_constants import api_stock, recruitID2generalCategory
 from ..constants import db, fingerprint_version
+import logging
+
 today_date = str(datetime.date(datetime.now()))
+
+
+def log2file(LOG_FILENAME):
+    logging.basicConfig(filename=LOG_FILENAME,
+                    level=logging.INFO)
 
 def generate_genreid(gender, main_category, sub_category):
     if gender is 'Female':
@@ -42,7 +49,7 @@ def GET_ByGenreId( genreId, page=1,limit=1, instock = False):
         return False, []
 
 
-def API4printing(genreId, gender, category_name, skip):
+def API4printing(genreId, gender, category_name, skip, useLog=False):
     success, dic = GET_ByGenreId(genreId, instock=False)
     if not success:
         skip += 1
@@ -60,8 +67,12 @@ def API4printing(genreId, gender, category_name, skip):
             sec_cat = japanese_name = dic["itemInfoList"][0]["genreInfoList"][0]['genreName']
     instock_only = dic['count']
 
-    print( 'gender: %s, genreId: %s, category_name: %s , total_count: %s, instock: %s, , japanese: %s , %s , %s'
-        % (gender, genreId, category_name, allitems, instock_only, japanese_name, sec_cat, top_cat))
+    summery = 'gender: %s, genreId: %s, category_name: %s , total_count: %s, instock: %s, , japanese: %s , %s , %s'\
+              % (gender, genreId, category_name, allitems, instock_only, japanese_name, sec_cat, top_cat)
+    if useLog:
+        logging.info(summery)
+    else:
+        print(summery)
     return skip
 
 
@@ -74,13 +85,15 @@ def getCategoryName(genreId):
     return category_name
 
 
-def printCategories(only_known=True):
+def printCategories(only_known=True, useLog=False):
+    if useLog:
+        log2file('/home/developer/yonti/recruit_categories.log')
     if only_known:
         for cat in api_stock:
             genreId = cat['genreId']
             category_name = cat['category_name']
             gender = cat['gender']
-            API4printing(genreId, gender, category_name, 0)
+            API4printing(genreId, gender, category_name, 0, useLog=useLog)
         print('xoxoxoxoxoxoxoxoxoxoxoxoxoxoxoxoxoxoxoxoxoxoxoxoxoxoxoxoxoxoxoxoxoxoxox')
     else:
         for gender in ['Female', 'Male']:
@@ -89,7 +102,7 @@ def printCategories(only_known=True):
                 for s in range(99):
                     genreId = generate_genreid(gender, m, s)
                     category_name = getCategoryName(genreId)
-                    skip = API4printing(genreId, gender, category_name, skip)
+                    skip = API4printing(genreId, gender, category_name, skip,useLog=useLog)
                     if skip == 3:
                         break
                 print('xoxoxoxoxoxoxoxoxoxoxoxoxoxoxoxoxoxoxoxoxoxoxoxoxoxoxoxoxoxoxoxoxoxoxox')
@@ -159,7 +172,7 @@ def process_items(item_list, gender,category):
 def download_recruit():
     db.recruit_Female.delete_many({})
     db.recruit_Male.delete_many({})
-
+    log2file('/home/developer/yonti/recruit_downloads_stats.log')
     for genreId in recruitID2generalCategory.keys():
         success, response_dict = GET_ByGenreId(genreId, limit=100, instock=True)
         if not success:
@@ -170,6 +183,7 @@ def download_recruit():
             gender='Male'
         new_items = total_items = 0
         category = recruitID2generalCategory[genreId]
+        sub = [x for x in api_stock if x['genreId']==genreId][0]['category_name']
         new_inserts, total = process_items(response_dict["itemInfoList"], gender, category)
         new_items += new_inserts
         total_items += total
@@ -184,8 +198,10 @@ def download_recruit():
             new_items += new_inserts
             total_items += total
 
-        print ('genreId: %s, categoryName: %s, total: %s, new: %s'
-               %(genreId, category, str(total_items), str(new_items)))
+        summery = 'genreId: %s, Topcategory: %s, Subcategory:%s, total: %s, new: %s'\
+                  %(genreId, category, sub,  str(total_items), str(new_items))
+        logging.info(summery)
+        print(sub + ' Done!')
 
 if __name__=='__main__':
     download_recruit()
