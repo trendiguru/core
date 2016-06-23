@@ -4,12 +4,12 @@ playground for testing the recruit API
 import requests
 import json
 from datetime import datetime
-from recruit_constants import api_stock, recruitID2generalCategory
+from .recruit_constants import api_stock, recruitID2generalCategory
 from ..constants import db, fingerprint_version, redis_conn
 import logging
 from rq import Queue
 from time import sleep
-from recruit_worker import genreDownloader
+from .recruit_worker import genreDownloader
 
 q = Queue('recruit_worker', connection=redis_conn)
 today_date = str(datetime.date(datetime.now()))

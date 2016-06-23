@@ -1,5 +1,5 @@
-from recruit_API import GET_ByGenreId, process_items
-from recruit_constants import recruitID2generalCategory, api_stock
+from .recruit_API import GET_ByGenreId, process_items
+from .recruit_constants import recruitID2generalCategory, api_stock
 from time import time
 
 def genreDownloader(genreId, loghandler):
