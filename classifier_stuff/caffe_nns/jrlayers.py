@@ -492,7 +492,8 @@ class JrMultilabel(caffe.Layer):
                 idx = self.idx
                 continue
             break #got good img, get out of while
-#        print(full_filename+ ' has dims '+str(in_.shape))
+        print(full_filename+ ' has dims '+str(in_.shape)+' label:'+label_vec+' idex')
+
         in_ = in_[:,:,::-1]
 #        in_ -= self.mean
         in_ = in_.transpose((2,0,1))
