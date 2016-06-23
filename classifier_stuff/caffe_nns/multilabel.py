@@ -130,9 +130,10 @@ def check_accuracy(net, num_batches, batch_size = 128):
     return acc / (num_batches * batch_size)
 
 #train
-for itt in range(6):
-    solver.step(100)
-    print 'itt:{:3d}'.format((itt + 1) * 100), 'accuracy:{0:.4f}'.format(check_accuracy(solver.test_nets[0], 50))
+def train():
+    for itt in range(6):
+        solver.step(100)
+        print 'itt:{:3d}'.format((itt + 1) * 100), 'accuracy:{0:.4f}'.format(check_accuracy(solver.test_nets[0], 50))
 
 def check_baseline_accuracy(net, num_batches, batch_size = 128):
     acc = 0.0
