@@ -2,11 +2,14 @@ from .recruit_constants import recruitID2generalCategory, api_stock
 from time import time
 import requests
 import json
-from ..constants import db, fingerprint_version
+from ..constants import db, fingerprint_version, redis_conn
 from datetime import datetime
 import logging
+from rq import Queue
 
+q = Queue('recruit_worker', connection=redis_conn)
 today_date = str(datetime.date(datetime.now()))
+
 
 def log2file(LOG_FILENAME='/home/developer/yonti/recruit_download_stats.log'):
     logger = logging.getLogger(__name__)
@@ -15,6 +18,7 @@ def log2file(LOG_FILENAME='/home/developer/yonti/recruit_download_stats.log'):
     handler.setLevel(logging.INFO)
     logger.addHandler(handler)
     return logger
+
 
 def GET_ByGenreId( genreId, page=1,limit=1, instock = False):
     res = requests.get('http://itemsearch.api.ponparemall.com/1_0_0/search/'
@@ -90,9 +94,9 @@ def process_items(item_list, gender,category):
     return new_items, len(item_list)
 
 
-def genreDownloader(genreId):
+def genreDownloader(genreId, start_page=1):
     start_time = time()
-    success, response_dict = GET_ByGenreId(genreId, limit=100, instock=True)
+    success, response_dict = GET_ByGenreId(genreId, page=start_page, limit=100, instock=True)
     if not success:
         print ('GET failed')
         return
@@ -107,9 +111,12 @@ def genreDownloader(genreId):
     new_items += new_inserts
     total_items += total
     pageCount = int(response_dict['pageCount'])
-    if pageCount > 999:
-        pageCount = 999
-    for i in range(2, pageCount + 1):
+    if pageCount-start_page > 100:
+        end_page = start_page+100
+        if end_page>999:
+            end_page=999
+        q.enqueue(genreDownloader, args=(genreId, end_page), timeout=5400)
+    for i in range(start_page+1, end_page + 1):
         success, response_dict = GET_ByGenreId(genreId, page=i, limit=100, instock=True)
         if not success:
             continue
@@ -118,7 +125,7 @@ def genreDownloader(genreId):
         total_items += total
     end_time = time()
     logger = log2file()
-    summery = 'genreId: %s, Topcategory: %s, Subcategory:%s, total: %d, new: %d, download_time: %d' \
-              % (genreId, category, sub, total_items, new_items, (end_time-start_time))
+    summery = 'genreId: %s,start_page: %d, end_page: %d Topcategory: %s, Subcategory: %s, total: %d, new: %d, download_time: %d' \
+              % (genreId, start_page, end_page,category, sub, total_items, new_items, (end_time-start_time))
     logger.info(summery)
     print(sub + ' Done!')
