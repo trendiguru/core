@@ -164,7 +164,7 @@ def check_acc(solverproto,caffemodel):
     solver.net.copy_from(caffemodel)
     solver.test_nets[0].share_with(solver.net)
     solver.step(1)
-    print 'Baseline accuracy:{0:.4f}'.format(check_baseline_accuracy(solver.test_nets[0], 10,batch_size = 20))
+    print 'Baseline accuracy:{0:.4f}'.format(check_accuracy(solver.test_nets[0], 10,batch_size = 20))
 
 
 caffe.set_mode_gpu()
