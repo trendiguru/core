@@ -1,18 +1,14 @@
 """
 playground for testing the recruit API
 """
-import requests
-import json
-from datetime import datetime
 from .recruit_constants import api_stock, recruitID2generalCategory
-from ..constants import db, fingerprint_version, redis_conn
+from ..constants import db, redis_conn
 import logging
 from rq import Queue
 from time import sleep
-from .recruit_worker import genreDownloader
+from .recruit_worker import genreDownloader, GET_ByGenreId
 
 q = Queue('recruit_worker', connection=redis_conn)
-today_date = str(datetime.date(datetime.now()))
 
 
 def log2file(LOG_FILENAME):
@@ -41,21 +37,7 @@ def generate_genreid(gender, main_category, sub_category):
     return genreid
 
 
-def GET_ByGenreId( genreId, page=1,limit=1, instock = False):
-    res = requests.get('http://itemsearch.api.ponparemall.com/1_0_0/search/'
-                       '?key=731d157cb0cdd4146397ef279385d833'
-                       '&genreId='+genreId +
-                       '&format=json'
-                       '&limit='+str(limit) +
-                       '&page='+str(page) +
-                       '&inStockFlg='+str(int(instock)))
-    if res.status_code != 200:
-        return False, []
-    dic = json.loads(res.text)
-    if 'itemInfoList' in dic.keys():
-        return True, dic
-    else:
-        return False, []
+
 
 
 def API4printing(genreId, gender, category_name, skip, useLog=False, logger=logging):
@@ -121,61 +103,6 @@ use printCategories to scan the api and print all categories under ladies' and m
 #printCategories(False)
 """
 
-def process_items(item_list, gender,category):
-    col_name = 'recruit_'+gender
-    collection = db[col_name]
-    new_items = 0
-    for item in item_list:
-        itemId = item['itemId']
-        exists = collection.find_one({'id': itemId})
-        if exists:
-            #TODO: add checks
-            # print ('item already exists')
-            continue
-
-        price = {'price': item['salePriceIncTax'],
-                 'currency': 'Yen'}
-
-        status = 'instock'
-        img_url = []
-        if 'itemDescriptionText' in item.keys():
-            description = item['itemDescriptionText']
-        else:
-            description = []
-        generic = {"id": [itemId],
-                   "categories": category,
-                   "clickUrl": item['itemUrl'],#TODO: add tracking_id
-                   "images": {"XLarge": img_url},
-                   "status": status,
-                   "shortDescription": item['itemName'],
-                   "longDescription": description,
-                   "price": price,
-                   "brand": item['shopName'],
-                   "download_data": {'dl_version': today_date,
-                                     'first_dl': today_date,
-                                     'fp_version': fingerprint_version},
-                   "fingerprint": None,
-                   "gender": gender,
-                   "shippingInfo": [],
-                   "raw_info": item}
-
-        # image = Utils.get_cv2_img_array(img_url)
-        # if image is None:
-        #     print ('bad img url')
-        #     continue
-
-        # img_hash = get_hash(image)
-        #
-        # hash_exists = collection.find_one({'img_hash': img_hash})
-        # if hash_exists:
-        #     print ('hash already exists')
-        #     continue
-        #
-        # generic["img_hash"] = img_hash
-
-        collection.insert_one(generic)
-        new_items+=1
-    return new_items, len(item_list)
 
 
 def download_recruit():
