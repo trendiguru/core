@@ -12,9 +12,12 @@ today_date = str(datetime.date(datetime.now()))
 
 
 def log2file(LOG_FILENAME):
+    logger = logging.getLogger(__name__)
+    logger.setLevel(logging.INFO)
     handler = logging.FileHandler(LOG_FILENAME)
     handler.setLevel(logging.INFO)
-    return handler
+    logger.addHandler(handler)
+    return logger
 
 
 def generate_genreid(gender, main_category, sub_category):
@@ -51,7 +54,7 @@ def GET_ByGenreId( genreId, page=1,limit=1, instock = False):
         return False, []
 
 
-def API4printing(genreId, gender, category_name, skip, useLog=False, handler=logging):
+def API4printing(genreId, gender, category_name, skip, useLog=False, logger=logging):
     success, dic = GET_ByGenreId(genreId, instock=False)
     if not success:
         skip += 1
@@ -72,7 +75,7 @@ def API4printing(genreId, gender, category_name, skip, useLog=False, handler=log
     summery = 'gender: %s, genreId: %s, category_name: %s , total_count: %s, instock: %s, , japanese: %s , %s , %s'\
               % (gender, genreId, category_name, allitems, instock_only, japanese_name, sec_cat, top_cat)
     if useLog:
-        handler.info(summery)
+        logger.info(summery)
     else:
         print(summery)
     return skip
@@ -89,13 +92,13 @@ def getCategoryName(genreId):
 
 def printCategories(only_known=True, useLog=False):
     if useLog:
-        handler =log2file('/home/developer/yonti/recruit_categories.log')
+        logger =log2file('/home/developer/yonti/recruit_categories.log')
     if only_known:
         for cat in api_stock:
             genreId = cat['genreId']
             category_name = cat['category_name']
             gender = cat['gender']
-            API4printing(genreId, gender, category_name, 0, useLog=useLog, handler=handler)
+            API4printing(genreId, gender, category_name, 0, useLog=useLog, logger=logger)
         print('xoxoxoxoxoxoxoxoxoxoxoxoxoxoxoxoxoxoxoxoxoxoxoxoxoxoxoxoxoxoxoxoxoxoxox')
     else:
         for gender in ['Female', 'Male']:
@@ -104,7 +107,7 @@ def printCategories(only_known=True, useLog=False):
                 for s in range(99):
                     genreId = generate_genreid(gender, m, s)
                     category_name = getCategoryName(genreId)
-                    skip = API4printing(genreId, gender, category_name, skip,useLog=useLog, handler=handler)
+                    skip = API4printing(genreId, gender, category_name, skip,useLog=useLog, logger=logger)
                     if skip == 3:
                         break
                 print('xoxoxoxoxoxoxoxoxoxoxoxoxoxoxoxoxoxoxoxoxoxoxoxoxoxoxoxoxoxoxoxoxoxoxox')
