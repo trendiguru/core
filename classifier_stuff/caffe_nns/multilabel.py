@@ -126,6 +126,7 @@ def check_accuracy(net, num_batches, batch_size = 128):
         gts = net.blobs['label'].data
         ests = net.blobs['score'].data > 0
         for gt, est in zip(gts, ests): #for each ground truth and estimated label vector
+            print('gt {} est {} '.format(gt,est))
             acc += hamming_distance(gt, est)
     return acc / (num_batches * batch_size)
 
