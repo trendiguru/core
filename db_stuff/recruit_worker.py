@@ -90,7 +90,7 @@ def process_items(item_list, gender,category):
     return new_items, len(item_list)
 
 
-def genreDownloader(genreId, loghandler):
+def genreDownloader(genreId):
     start_time = time()
     success, response_dict = GET_ByGenreId(genreId, limit=100, instock=True)
     if not success:
