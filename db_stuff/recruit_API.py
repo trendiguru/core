@@ -108,7 +108,7 @@ def process_items(item_list, gender,category):
         exists = collection.find_one({'id': itemId})
         if exists:
             #TODO: add checks
-            print ('item already exists')
+            # print ('item already exists')
             continue
 
         price = {'price': item['salePriceIncTax'],
@@ -157,6 +157,9 @@ def process_items(item_list, gender,category):
 
 
 def download_recruit():
+    db.recruit_Female.delete_many()
+    db.recruit_Male.delete_many()
+
     for genreId in recruitID2generalCategory.keys():
         success, response_dict = GET_ByGenreId(genreId, limit=100, instock=True)
         if not success:
