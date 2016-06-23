@@ -7,7 +7,7 @@ import logging
 from rq import Queue
 from time import sleep
 from .recruit_worker import genreDownloader, GET_ByGenreId
-
+from time import time
 q = Queue('recruit_worker', connection=redis_conn)
 
 
@@ -101,8 +101,8 @@ use printCategories to scan the api and print all categories under ladies' and m
 """
 
 
-
 def download_recruit():
+    s = time()
     db.recruit_Female.delete_many({})
     db.recruit_Male.delete_many({})
     handler = log2file('/home/developer/yonti/recruit_download_stats.log')
@@ -112,6 +112,9 @@ def download_recruit():
         print(genreId + ' sent to download worker')
         while q.count > 5:
             sleep(30)
+    e =time()
+    print ('download time : %d' %(e-s) )
+
 
 if __name__=='__main__':
     download_recruit()
