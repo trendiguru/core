@@ -178,9 +178,11 @@ def findTopFP2SP():
     for z,item in enumerate(items):
         fp = item['fingerprint']
         annResults = annoy_search('fp', topN, fp)
-        batch = db.testSpacio.find({"AnnoyIndex.fp": {"$in": annResults}}, {"sp": 1,'images.XLarge':1})
+        print (len(annResults))
+        batch = db.testSpacio.find({"AnnoyIndex": {"$in": annResults}}, {"sp": 1,'images.XLarge':1})
+        print (batch.count())
         topSP = find_n_nearest_neighbors(item, batch, 16, spatiogram_fingerprints_distance, 'sp')
-
+        print(len(topSP))
         col.update_one({'_id':item['_id']},{'$set':{'topresults.sp':topSP}})
         print (z)
 

@@ -57,7 +57,7 @@ def create_test_group():
 
 
 def fingerprint_3D_spatiogram(image, mask):
-    bins = [8,12,8]
+    bins = [18,18,18]
     # bins = [12, 12, 6]
     levelnum = 3
     hsv = cv2.cvtColor(image, cv2.COLOR_BGR2HSV)
