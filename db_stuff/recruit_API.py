@@ -105,7 +105,7 @@ use printCategories to scan the api and print all categories under ladies' and m
 def download_recruit():
     db.recruit_Female.delete_many({})
     db.recruit_Male.delete_many({})
-    handler = log2file('/home/developer/yonti/recruit_downloads_stats.log')
+    handler = log2file('/home/developer/yonti/recruit_download_stats.log')
     handler.info('download started')
     for genreId in recruitID2generalCategory.keys():
         q.enqueue(genreDownloader, args=([genreId]), timeout=5400)
