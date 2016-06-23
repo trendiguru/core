@@ -181,7 +181,8 @@ def download_recruit():
         print ('genreId: %s, categoryName: %s, total: %s, new: %s'
                %(genreId, category, str(total_items), str(new_items)))
 
-
+if __name__=='__main__':
+    download_recruit()
 
 
 # GET_gnereid(generate_genreid('Female',0,0))
