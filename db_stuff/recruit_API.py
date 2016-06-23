@@ -5,9 +5,12 @@ import requests
 import json
 from datetime import datetime
 from recruit_constants import api_stock, recruitID2generalCategory
-from ..constants import db, fingerprint_version
+from ..constants import db, fingerprint_version, redis_conn
 import logging
+from rq import Queue
+from time import sleep,time
 
+q = Queue('recruit_worker', connection=redis_conn)
 today_date = str(datetime.date(datetime.now()))
 
 
@@ -174,39 +177,48 @@ def process_items(item_list, gender,category):
     return new_items, len(item_list)
 
 
+def genreDownloader(genreId, loghandler):
+    start_time = time()
+    success, response_dict = GET_ByGenreId(genreId, limit=100, instock=True)
+    if not success:
+        print ('GET failed')
+        return
+    if genreId[1] == '1':
+        gender = 'Female'
+    else:
+        gender = 'Male'
+    new_items = total_items = 0
+    category = recruitID2generalCategory[genreId]
+    sub = [x for x in api_stock if x['genreId'] == genreId][0]['category_name']
+    new_inserts, total = process_items(response_dict["itemInfoList"], gender, category)
+    new_items += new_inserts
+    total_items += total
+    pageCount = int(response_dict['pageCount'])
+    if pageCount > 999:
+        pageCount = 999
+    for i in range(2, pageCount + 1):
+        success, response_dict = GET_ByGenreId(genreId, page=i, limit=100, instock=True)
+        if not success:
+            continue
+        new_inserts, total = process_items(response_dict["itemInfoList"], gender, category)
+        new_items += new_inserts
+        total_items += total
+    end_time = time()
+    summery = 'genreId: %s, Topcategory: %s, Subcategory:%s, total: %d, new: %d, download_time: %d' \
+              % (genreId, category, sub, total_items, new_items, (end_time-start_time))
+    loghandler.info(summery)
+    print(sub + ' Done!')
+
+
 def download_recruit():
     db.recruit_Female.delete_many({})
     db.recruit_Male.delete_many({})
     handler = log2file('/home/developer/yonti/recruit_downloads_stats.log')
     for genreId in recruitID2generalCategory.keys():
-        success, response_dict = GET_ByGenreId(genreId, limit=100, instock=True)
-        if not success:
-            continue
-        if genreId[1]=='1':
-            gender = 'Female'
-        else:
-            gender='Male'
-        new_items = total_items = 0
-        category = recruitID2generalCategory[genreId]
-        sub = [x for x in api_stock if x['genreId']==genreId][0]['category_name']
-        new_inserts, total = process_items(response_dict["itemInfoList"], gender, category)
-        new_items += new_inserts
-        total_items += total
-        pageCount = int(response_dict['pageCount'])
-        if pageCount>999:
-            pageCount=999
-        for i in range(2,pageCount+1):
-            success, response_dict = GET_ByGenreId(genreId,page=i, limit=100, instock=True)
-            if not success:
-                continue
-            new_inserts, total = process_items(response_dict["itemInfoList"], gender, category)
-            new_items += new_inserts
-            total_items += total
-
-        summery = 'genreId: %s, Topcategory: %s, Subcategory:%s, total: %s, new: %s'\
-                  %(genreId, category, sub,  str(total_items), str(new_items))
-        handler.info(summery)
-        print(sub + ' Done!')
+        q.enqueue(genreDownloader, args=(genreId, handler), timeout=5400)
+        print(genreId + ' sent to download worker')
+        while q.count > 5:
+            sleep(300)
 
 if __name__=='__main__':
     download_recruit()
