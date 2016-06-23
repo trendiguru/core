@@ -110,8 +110,8 @@ def genreDownloader(genreId, start_page=1):
     new_inserts, total = process_items(response_dict["itemInfoList"], gender, category)
     new_items += new_inserts
     total_items += total
-    pageCount = int(response_dict['pageCount'])
-    if pageCount-start_page > 100:
+    end_page = int(response_dict['pageCount'])
+    if end_page-start_page > 100:
         end_page = start_page+100
         if end_page>999:
             end_page=999
