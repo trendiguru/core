@@ -37,9 +37,6 @@ def generate_genreid(gender, main_category, sub_category):
     return genreid
 
 
-
-
-
 def API4printing(genreId, gender, category_name, skip, useLog=False, logger=logging):
     success, dic = GET_ByGenreId(genreId, instock=False)
     if not success:
@@ -109,8 +106,9 @@ def download_recruit():
     db.recruit_Female.delete_many({})
     db.recruit_Male.delete_many({})
     handler = log2file('/home/developer/yonti/recruit_downloads_stats.log')
+    handler.info('download started')
     for genreId in recruitID2generalCategory.keys():
-        q.enqueue(genreDownloader, args=(genreId, handler), timeout=5400)
+        q.enqueue(genreDownloader, args=(genreId), timeout=5400)
         print(genreId + ' sent to download worker')
         while q.count > 5:
             sleep(300)

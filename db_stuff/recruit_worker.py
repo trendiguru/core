@@ -4,10 +4,17 @@ import requests
 import json
 from ..constants import db, fingerprint_version
 from datetime import datetime
+import logging
 
 today_date = str(datetime.date(datetime.now()))
 
-
+def log2file(LOG_FILENAME='/home/developer/yonti/recruit_download_stats.log'):
+    logger = logging.getLogger(__name__)
+    logger.setLevel(logging.INFO)
+    handler = logging.FileHandler(LOG_FILENAME, mode= 'a')
+    handler.setLevel(logging.INFO)
+    logger.addHandler(handler)
+    return logger
 
 def GET_ByGenreId( genreId, page=1,limit=1, instock = False):
     res = requests.get('http://itemsearch.api.ponparemall.com/1_0_0/search/'
@@ -110,7 +117,8 @@ def genreDownloader(genreId, loghandler):
         new_items += new_inserts
         total_items += total
     end_time = time()
+    logger = log2file()
     summery = 'genreId: %s, Topcategory: %s, Subcategory:%s, total: %d, new: %d, download_time: %d' \
               % (genreId, category, sub, total_items, new_items, (end_time-start_time))
-    loghandler.info(summery)
+    logger.info(summery)
     print(sub + ' Done!')
