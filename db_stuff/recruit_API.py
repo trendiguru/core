@@ -8,7 +8,8 @@ from recruit_constants import api_stock, recruitID2generalCategory
 from ..constants import db, fingerprint_version, redis_conn
 import logging
 from rq import Queue
-from time import sleep,time
+from time import sleep
+from recruit_worker import genreDownloader
 
 q = Queue('recruit_worker', connection=redis_conn)
 today_date = str(datetime.date(datetime.now()))
@@ -175,39 +176,6 @@ def process_items(item_list, gender,category):
         collection.insert_one(generic)
         new_items+=1
     return new_items, len(item_list)
-
-
-def genreDownloader(genreId, loghandler):
-    start_time = time()
-    success, response_dict = GET_ByGenreId(genreId, limit=100, instock=True)
-    if not success:
-        print ('GET failed')
-        return
-    if genreId[1] == '1':
-        gender = 'Female'
-    else:
-        gender = 'Male'
-    new_items = total_items = 0
-    category = recruitID2generalCategory[genreId]
-    sub = [x for x in api_stock if x['genreId'] == genreId][0]['category_name']
-    new_inserts, total = process_items(response_dict["itemInfoList"], gender, category)
-    new_items += new_inserts
-    total_items += total
-    pageCount = int(response_dict['pageCount'])
-    if pageCount > 999:
-        pageCount = 999
-    for i in range(2, pageCount + 1):
-        success, response_dict = GET_ByGenreId(genreId, page=i, limit=100, instock=True)
-        if not success:
-            continue
-        new_inserts, total = process_items(response_dict["itemInfoList"], gender, category)
-        new_items += new_inserts
-        total_items += total
-    end_time = time()
-    summery = 'genreId: %s, Topcategory: %s, Subcategory:%s, total: %d, new: %d, download_time: %d' \
-              % (genreId, category, sub, total_items, new_items, (end_time-start_time))
-    loghandler.info(summery)
-    print(sub + ' Done!')
 
 
 def download_recruit():
