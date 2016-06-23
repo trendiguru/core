@@ -116,14 +116,17 @@ def process_items(item_list, gender,category):
 
         status = 'instock'
         img_url = []
-
+        if 'itemDescriptionText' in item.keys():
+            description = item['itemDescriptionText']
+        else:
+            description = []
         generic = {"id": [itemId],
                    "categories": category,
                    "clickUrl": item['itemUrl'],#TODO: add tracking_id
                    "images": {"XLarge": img_url},
                    "status": status,
                    "shortDescription": item['itemName'],
-                   "longDescription": item['itemDescriptionText'],
+                   "longDescription": description,
                    "price": price,
                    "brand": item['shopName'],
                    "download_data": {'dl_version': today_date,
