@@ -141,7 +141,7 @@ def parse_logfile(f,logy):
     host.set_ylabel("log(log loss)")
 
   p1, = host.plot(training_iterations, training_loss,'bo:', label=train_label)
-  p3, = host.a(test_iterations, test_loss,'go:', label=test_label)
+  p3, = host.plot(test_iterations, test_loss,'go:', label=test_label)
   p2, = par1.plot(test_iterations, test_accuracy,'ro:', label="test acc.")
   if len(training_accuracy)>0:
     p4, = par1.plot(training_iterations, training_accuracy,'co:', label="train acc.")
