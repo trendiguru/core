@@ -120,7 +120,7 @@ def hamming_distance(gt, est):
     return sum([1 for (g, e) in zip(gt, est) if g == e]) / float(len(gt))
 
 def check_accuracy(net, num_batches, batch_size = 128):
-    acc = 0.0
+    acc = 0.0 #
     for t in range(num_batches):
         net.forward()
         gts = net.blobs['label'].data
