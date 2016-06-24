@@ -109,7 +109,7 @@ def parse_logfile(f):
     for i in range(0,len(test_loss)):
       new_test_accuracy.append(test_loss[i])
     for i in range(len(test_loss),len(test_iterations)):
-      new_test_loss.append(-1)
+      new_test_loss.append(0)
 
     test_loss = new_test_loss
     print('len test loss len:'+str(len(test_loss)))
