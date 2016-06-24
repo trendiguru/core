@@ -134,11 +134,11 @@ def parse_logfile(f,logy):
   train_label = "train logloss"
   test_label = "test logloss"
   if logy == 'True':
-    training_loss = log(training_loss)
-    test_loss = log(test_loss)
-    train_label = "log(train logloss)"
-    test_label = "log(test logloss)"
-    host.set_ylabel("log(log loss)")
+    training_loss = np.log10(training_loss)
+    test_loss = np.log10(test_loss)
+    train_label = "log10(train logloss)"
+    test_label = "log10(test logloss)"
+    host.set_ylabel("log10(log loss)")
 
   p1, = host.plot(training_iterations, training_loss,'bo:', label=train_label)
   p3, = host.plot(test_iterations, test_loss,'go:', label=test_label)
