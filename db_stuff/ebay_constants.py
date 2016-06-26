@@ -112,7 +112,8 @@ ebay_paperdoll_women = { 'BELT': 'belt', 'BELTS': 'belt',
                          'SHORTS': 'shorts',
                          'SKIRTS': 'skirt', 'SKIRT': 'skirt',
                          'STOCKINGS': 'stockings',
-                         'LEGGINGS': 'leggings', 'LEGGING': 'leggings', 'TIGHTS': 'leggings',
+                         'LEGGINGS': 'leggings', 'LEGGING': 'leggings',
+                         'TIGHTS': 'tights',
                          'SUITS': 'suit', 'SUIT': 'suit', 'JUMPSUIT': 'suit','JUMPSUITS': 'suit',
                          'SWEATERS': 'sweater', 'SWEATER': 'sweater',
                          'SWEATSHIRTS': 'sweatshirt', 'SWEATSHIRT': 'sweatshirt',
@@ -122,3 +123,17 @@ ebay_paperdoll_women = { 'BELT': 'belt', 'BELTS': 'belt',
                          'T': 't-shirt', 'TSHIRTS': 't-shirt', 'TSHIRT': 't-shirt', 'TEES': 't-shirt', 'TEE': 't-shirt',
                          'TOPS': 'top', 'TOP': 'top',
                          'VESTS':'vest', 'VEST':'vest'}
+
+######################################################################################################################
+
+ebay_account_info = {"DE": {'API_Key': '5f95c2ae-3f38-4981-912c-298effb6cf8a', 'Tracking_ID': '8094794'},
+                     "US": {'API_Key': '0dbc38c7-8afa-4de3-9174-3c422645f81e', 'Tracking_ID': '8097275'},
+                     "UK": {'API_Key': '309711fd-6712-4738-a947-e94e4953e672', 'Tracking_ID': '8097276'},
+                     "FR": {'API_Key': '0fa1cc26-a9f5-4bf2-b2e1-2fad5f2d2f24', 'Tracking_ID': '8097278'},
+                     "AU": {'API_Key': 'ce7ce31b-38e0-496d-8996-e6cffbb02c16', 'Tracking_ID': '8097277'}}
+
+ebay_gender = {'Male': '71816_men', 'Female': '71816_women'}
+
+sub_attributes = ['dresses', '71827_shirts_and_tops', 'pants', '71827_jackets_vests', '71827_sweaters_and_sweatshirts',
+                  '71827_jeans', '71827_shorts', '71827_dresses_and_skirts', '71827_skirts', '71827_swimwear',
+                  '71827_coats', '71827_outerwear']

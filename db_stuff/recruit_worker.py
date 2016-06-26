@@ -115,8 +115,8 @@ def genreDownloader(genreId, start_page=1):
         end_page = start_page+25
         if end_page>999:
             end_page=999
-        q.enqueue(genreDownloader, args=(genreId, end_page+1), timeout=5400)
-    for i in range(start_page+1, end_page + 1):
+        q.enqueue(genreDownloader, args=(genreId, end_page), timeout=5400)
+    for i in range(start_page+1, end_page):
         success, response_dict = GET_ByGenreId(genreId, page=i, limit=100, instock=True)
         if not success:
             continue
