@@ -117,19 +117,24 @@ def makenet():
 
 
 def hamming_distance(gt, est):
+    #this is actually hamming similarity not distance
     return sum([1 for (g, e) in zip(gt, est) if g == e]) / float(len(gt))
 
-def check_accuracy(net, num_batches, batch_size = 128):
+def check_acc(net, num_batches, batch_size = 128):
     acc = 0.0 #
+    n = 0
     for t in range(num_batches):
         net.forward()
         gts = net.blobs['label'].data
 #        ests = net.blobs['score'].data > 0  ##why 0????
         ests = net.blobs['score'].data > 0.5
         for gt, est in zip(gts, ests): #for each ground truth and estimated label vector
-            print('gt {} est {} '.format(gt,est))
-            acc += hamming_distance(gt, est)
-    return acc / (num_batches * batch_size)
+            h = hamming_distance(gt, est)
+            print('gt {} est {} (1-hamming) {}'.format(gt,est,h))
+            acc += h
+            n += 1
+    print('len(gts) {} len(ests) {} numbatches {} batchsize {} acc {}'.format(len(gts),len(ests),num_batches,batch_size,acc/n))
+    return acc / n
 
 #train
 def train():
@@ -149,7 +154,6 @@ def check_baseline_accuracy(net, num_batches, batch_size = 128):
     return acc / (num_batches * batch_size)
 
 
-
 def results():#prediction results
     test_net = solver.test_nets[0]
     for image_index in range(5):
@@ -161,12 +165,12 @@ def results():#prediction results
         plt.axis('off')
 
 
-def check_acc(solverproto,caffemodel):
-    solver = caffe.SGDSolver(osp.join(workdir, solverproto))
+def check_accuracy(solverproto,caffemodel):
+    solver = caffe.SGDSolver(solverproto)
     solver.net.copy_from(caffemodel)
     solver.test_nets[0].share_with(solver.net)
     solver.step(1)
-    print 'accuracy:{0:.4f}'.format(check_accuracy(solver.test_nets[0], 10,batch_size = 20))
+    print 'accuracy:{0:.4f}'.format(check_acc(solver.test_nets[0], 20,batch_size = 20))
 
 
 caffe.set_mode_gpu()
