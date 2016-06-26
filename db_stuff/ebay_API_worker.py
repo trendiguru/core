@@ -204,10 +204,12 @@ def downloader(GEO, gender, sub_attribute, price_bottom=0, price_top=10000):
                %(sub_attribute, price_bottom, price_top))
         return
 
-    if item_count >1500 and price_top > price_bottom:
+    if item_count > 1500 and price_top > price_bottom:
         middle = int((price_top-price_bottom)/2)
-        q.enqueue(downloader, args=(GEO, gender, sub_attribute, price_bottom, middle), timeout=5400)
-        q.enqueue(downloader, args=(GEO, gender, sub_attribute, middle, price_top), timeout=5400)
+        if middle > price_bottom:
+            q.enqueue(downloader, args=(GEO, gender, sub_attribute, price_bottom, middle), timeout=5400)
+        if price_top > middle:
+            q.enqueue(downloader, args=(GEO, gender, sub_attribute, middle, price_top), timeout=5400)
         return
 
     end_page = item_count/100 +2
@@ -219,10 +221,10 @@ def downloader(GEO, gender, sub_attribute, price_bottom=0, price_top=10000):
     total_items += total
     if end_page>2:
         for i in range(2, end_page):
-            success, response_dict = GET_call(GEO, gender, sub_attribute, price_bottom, price_top, page=i, num=100)
+            success, item_count, items = GET_call(GEO, gender, sub_attribute, price_bottom, price_top, page=i, num=100)
             if not success:
                 continue
-            new_inserts, total = process_items(response_dict["itemInfoList"], gender, GEO, sub_attribute)
+            new_inserts, total = process_items(items, gender, GEO, sub_attribute)
             new_items += new_inserts
             total_items += total
     end_time = time()
