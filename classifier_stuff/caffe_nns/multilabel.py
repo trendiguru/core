@@ -121,6 +121,7 @@ def hamming_distance(gt, est):
     return sum([1 for (g, e) in zip(gt, est) if g == e]) / float(len(gt))
 
 def check_acc(net, num_batches, batch_size = 128):
+    #this is not working foir batchsize!=1, maybe needs to be defined in net
     acc = 0.0 #
     n = 0
     for t in range(num_batches):
@@ -165,12 +166,12 @@ def results():#prediction results
         plt.axis('off')
 
 
-def check_accuracy(solverproto,caffemodel):
+def check_accuracy(solverproto,caffemodel,n_batches=200,batch_size=1):
     solver = caffe.SGDSolver(solverproto)
     solver.net.copy_from(caffemodel)
     solver.test_nets[0].share_with(solver.net)
     solver.step(1)
-    print 'accuracy:{0:.4f}'.format(check_acc(solver.test_nets[0], 20,batch_size = 20))
+    print 'accuracy:{0:.4f}'.format(check_acc(solver.test_nets[0], n_batches=n_batches,batch_size = batch_size))
 
 
 caffe.set_mode_gpu()
@@ -181,5 +182,5 @@ if __name__ =="__main__":
     snapshot = 'snapshot'
     caffemodel =  '/home/jeremy/caffenets/multilabel/vgg_ilsvrc_16_multilabel_2/snapshot/train_iter_40069.caffemodel'
     solverproto = '/home/jeremy/caffenets/multilabel/vgg_ilsvrc_16_multilabel_2/solver.prototxt'
-    check_acc(solverproto,caffemodel)
+    check_accuracy(solverproto,caffemodel)
   #  print 'Baseline accuracy:{0:.4f}'.format(check_baseline_accuracy(solver.test_nets[0], 10,batch_size = 20))
