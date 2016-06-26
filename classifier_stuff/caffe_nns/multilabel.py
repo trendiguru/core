@@ -122,6 +122,7 @@ def hamming_distance(gt, est):
 
 def check_acc(net, num_batches, batch_size = 128):
     acc = 0.0 #
+    n = 0
     for t in range(num_batches):
         net.forward()
         gts = net.blobs['label'].data
@@ -131,8 +132,9 @@ def check_acc(net, num_batches, batch_size = 128):
             h = hamming_distance(gt, est)
             print('gt {} est {} (1-hamming) {}'.format(gt,est,h))
             acc += h
-    print('len(gts) {} len(ests) {} numbatches {} batchsize {}'.format(len(gts),len(ests),num_batches,batch_size))
-    return acc / (num_batches * batch_size)
+            n += 1
+    print('len(gts) {} len(ests) {} numbatches {} batchsize {} acc {}'.format(len(gts),len(ests),num_batches,batch_size,acc/n))
+    return acc / n
 
 #train
 def train():
