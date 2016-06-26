@@ -108,7 +108,7 @@ def get_category_graylevel(url_or_np_array,category_index,required_image_size=(2
     # run net and take argmax for prediction
     net.forward()
 #    out = net.blobs['score'].data[0].argmax(axis=0) #for a parse with per-pixel max
-    out = net.blobs['siggy'].data[0][category_index] #for the nth class layer
+    out = net.blobs['siggy'].data[0][category_index] #for the nth class layer #siggy is after sigmoid
     min = np.min(out)
     max = np.max(out)
     print('min {} max {} out shape {}'.format(min,max,out.shape))
