@@ -123,18 +123,23 @@ def hamming_distance(gt, est):
 def check_acc(net, num_batches, batch_size = 128):
     #this is not working foir batchsize!=1, maybe needs to be defined in net
     acc = 0.0 #
+    baseline_acc = 0.0
     n = 0
     for t in range(num_batches):
         net.forward()
         gts = net.blobs['label'].data
 #        ests = net.blobs['score'].data > 0  ##why 0????
         ests = net.blobs['score'].data > 0.5
+        baseline_est = np.zeros((batch_size, len(gts)))
         for gt, est in zip(gts, ests): #for each ground truth and estimated label vector
             h = hamming_distance(gt, est)
+            baseline_h = hamming_distance(gt,baseline_est)
             print('gt {} est {} (1-hamming) {}'.format(gt,est,h))
+            sum = np.sum(gt)
             acc += h
+            baseline_acc += baseline_h
             n += 1
-    print('len(gts) {} len(ests) {} numbatches {} batchsize {} acc {}'.format(len(gts),len(ests),num_batches,batch_size,acc/n))
+    print('len(gts) {} len(ests) {} numbatches {} batchsize {} acc {} baseline {}'.format(len(gts),len(ests),num_batches,batch_size,acc/n,baseline_acc/n))
     return acc / n
 
 #train
