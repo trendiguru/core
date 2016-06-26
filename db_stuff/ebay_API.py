@@ -30,7 +30,7 @@ def download_ebay_API(GEO, gender):
     for sub_attribute in sub_attributes:
         q.enqueue(downloader, args=(GEO, gender, sub_attribute), timeout=5400)
         print(sub_attribute + ' sent to download worker')
-        while q.count > 5:
+        while q.count > 0:
             sleep(30)
     e = time()
     print ('%s download time : %d' % (gender, e-s))

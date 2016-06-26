@@ -12,7 +12,7 @@ q = Queue('ebay_API_worker', connection=redis_conn)
 today_date = str(datetime.date(datetime.now()))
 
 
-def log2file(log_filename='/home/developer/yonti/ebay_download_stats.log'):
+def log2file(log_filename):
     logger = logging.getLogger(__name__)
     logger.setLevel(logging.INFO)
     handler = logging.FileHandler(log_filename, mode= 'a')
@@ -21,7 +21,7 @@ def log2file(log_filename='/home/developer/yonti/ebay_download_stats.log'):
     return logger
 
 
-def GET_call(GEO, gender, sub_attribute, price_bottom=0, price_top=0, page=1, num=1):
+def GET_call(GEO, gender, sub_attribute, price_bottom=0, price_top=10000, page=1, num=1):
     account_info = ebay_account_info[GEO]
     gender_attribute = ebay_gender[gender]
     api_call =  'http://sandbox.api.ebaycommercenetwork.com/publisher/3.0/json/GeneralSearch?' \
@@ -168,7 +168,7 @@ def process_items(items, gender,GEO , sub_attribute):
                                      'fp_version': fingerprint_version},
                    "fingerprint": None,
                    "gender": gender,
-                   "shippingInfo": offer['shippingCost'],
+                   # "shippingInfo": offer['shippingCost'],
                    "raw_info": offer}
 
         # image = Utils.get_cv2_img_array(img_url)
@@ -204,7 +204,7 @@ def downloader(GEO, gender, sub_attribute, price_bottom=0, price_top=10000):
                %(sub_attribute, price_bottom, price_top))
         return
 
-    if item_count >1500 and price_bottom != price_top:
+    if item_count >1500 and price_top > price_bottom:
         middle = int((price_top-price_bottom)/2)
         q.enqueue(downloader, args=(GEO, gender, sub_attribute, price_bottom, middle), timeout=5400)
         q.enqueue(downloader, args=(GEO, gender, sub_attribute, middle, price_top), timeout=5400)
@@ -226,7 +226,7 @@ def downloader(GEO, gender, sub_attribute, price_bottom=0, price_top=10000):
             new_items += new_inserts
             total_items += total
     end_time = time()
-    logger = log2file()
+    logger = log2file('/home/developer/yonti/ebay_'+gender+'_download_stats.log')
     summery = 'attribute: %s_%s ,price: %d to %d , item Count: %d, new: %d, download_time: %d' \
               % (gender, sub_attribute, price_bottom, price_top, total_items, new_items, (end_time-start_time))
     logger.info(summery)
