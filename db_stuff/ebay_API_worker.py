@@ -204,8 +204,8 @@ def downloader(GEO, gender, sub_attribute, price_bottom=0, price_top=10000):
                %(sub_attribute, price_bottom, price_top))
         return
 
-    if item_count > 1500 and price_top > price_bottom:
-        middle = int((price_top-price_bottom)/2)
+    if item_count > 1499 and price_top > price_bottom:
+        middle = int((price_top+price_bottom)/2)
         if middle > price_bottom:
             q.enqueue(downloader, args=(GEO, gender, sub_attribute, price_bottom, middle), timeout=5400)
         if price_top > middle:
@@ -219,7 +219,7 @@ def downloader(GEO, gender, sub_attribute, price_bottom=0, price_top=10000):
     new_inserts, total = process_items(items, gender, GEO, sub_attribute)
     new_items += new_inserts
     total_items += total
-    if end_page>2:
+    if end_page > 2:
         for i in range(2, end_page):
             success, item_count, items = GET_call(GEO, gender, sub_attribute, price_bottom, price_top, page=i, num=100)
             if not success:
@@ -232,4 +232,4 @@ def downloader(GEO, gender, sub_attribute, price_bottom=0, price_top=10000):
     summery = 'attribute: %s_%s ,price: %d to %d , item Count: %d, new: %d, download_time: %d' \
               % (gender, sub_attribute, price_bottom, price_top, total_items, new_items, (end_time-start_time))
     logger.info(summery)
-    print('batch Done!')
+    print(summery)
