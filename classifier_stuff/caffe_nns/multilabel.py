@@ -119,7 +119,7 @@ def makenet():
 def hamming_distance(gt, est):
     return sum([1 for (g, e) in zip(gt, est) if g == e]) / float(len(gt))
 
-def check_accuracy(net, num_batches, batch_size = 128):
+def check_acc(net, num_batches, batch_size = 128):
     acc = 0.0 #
     for t in range(num_batches):
         net.forward()
@@ -161,12 +161,12 @@ def results():#prediction results
         plt.axis('off')
 
 
-def check_acc(solverproto,caffemodel):
-    solver = caffe.SGDSolver(osp.join(workdir, solverproto))
+def check_accuracy(solverproto,caffemodel):
+    solver = caffe.SGDSolver(solverproto)
     solver.net.copy_from(caffemodel)
     solver.test_nets[0].share_with(solver.net)
     solver.step(1)
-    print 'accuracy:{0:.4f}'.format(check_accuracy(solver.test_nets[0], 10,batch_size = 20))
+    print 'accuracy:{0:.4f}'.format(check_acc(solver.test_nets[0], 20,batch_size = 20))
 
 
 caffe.set_mode_gpu()
