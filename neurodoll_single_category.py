@@ -159,7 +159,7 @@ if __name__ == "__main__":
 
     do_category = True
     if(do_category):
-        outmat = np.zeros(256,256*21)
+        outmat = np.zeros([256,256*21],dtype=np.uint8)
         url = 'http://diamondfilms.com.au/wp-content/uploads/2014/08/Fashion-Photography-Sydney-1.jpg'
         for index_to_show in range(0,21):
             result = get_category_graylevel(url,index_to_show)
