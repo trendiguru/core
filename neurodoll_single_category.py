@@ -112,6 +112,8 @@ def get_category_graylevel(url_or_np_array,category_index,required_image_size=(2
     min = np.min(out)
     max = np.max(out)
     print('min {} max {} out shape {}'.format(min,max,out.shape))
+    out = out*255
+    print('min {} max {} out shape {}'.format(min,max,out.shape))
     result = Image.fromarray(out.astype(np.uint8))
 #        outname = im.strip('.png')[0]+'out.bmp'
 #    outname = os.path.basename(imagename)
