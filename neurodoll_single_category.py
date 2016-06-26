@@ -1,5 +1,4 @@
 #!/usr/bin/env python
-__author__ = 'jeremy'
 
 from PIL import Image
 import cv2
@@ -133,7 +132,7 @@ SINGLE_CLASS_LAYER_DEPLOY = "/home/jeremy/voc8_15_pixlevel_deploy_with_sigmoid.p
 PRETRAINED = "/home/jeremy/voc8_15_pixlevel_iter120000.caffemodel"
 caffe.set_mode_gpu()
 caffe.set_device(0)
-net = caffe.Net(MODEL_FILE,PRETRAINED, caffe.TEST)
+net = caffe.Net(SINGLE_CLASS_LAYER_DEPLOY,PRETRAINED, caffe.TEST)
 
 required_image_size = (256, 256)
 image_mean = np.array([107.0,117.0,123.0])
@@ -157,10 +156,13 @@ if __name__ == "__main__":
     do_category = True
     if(do_category):
         url = 'http://diamondfilms.com.au/wp-content/uploads/2014/08/Fashion-Photography-Sydney-1.jpg'
-        result = get_category_graylevel(url,5)  #index 5 is dress
+        result = get_category_graylevel(url,0)
         cv2.imwrite('output.png',result)
+        cv2.imshow(result)
+        cv2.waitKey(0)
         labels=constants.ultimate_21
         imutils.show_mask_with_labels('output.png',labels,visual_output=True)
+        image = url_to_image(url_or_np_array)
 
     else:
         url = 'http://diamondfilms.com.au/wp-content/uploads/2014/08/Fashion-Photography-Sydney-1.jpg'
