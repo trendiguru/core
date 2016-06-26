@@ -24,6 +24,7 @@ def log2file(log_filename):
 def GET_call(GEO, gender, sub_attribute, price_bottom=0, price_top=10000, page=1, num=1):
     account_info = ebay_account_info[GEO]
     gender_attribute = ebay_gender[gender]
+    price_attribute = 'price_range_' + str(price_bottom) + '_' + str(price_top)
     api_call =  'http://sandbox.api.ebaycommercenetwork.com/publisher/3.0/json/GeneralSearch?' \
                 'apiKey='+account_info['API_Key'] + \
                 '&visitorUserAgent=""' \
@@ -35,11 +36,8 @@ def GET_call(GEO, gender, sub_attribute, price_bottom=0, price_top=10000, page=1
                 '&pageNumber=' + str(page) + \
                 '&numItems=' + str(num) + \
                 '&attributeValue=' + gender_attribute + \
-                '&attributeValue=' + sub_attribute
-
-    if not price_top:
-        price_attribute = 'price_range_'+str(price_bottom)+'_'+str(price_top)
-        api_call += '&attributeValue=' + price_attribute
+                '&attributeValue=' + sub_attribute + \
+                '&attributeValue=' + price_attribute
 
     res = requests.get(api_call)
 
