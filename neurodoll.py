@@ -79,6 +79,53 @@ def infer_one(url_or_np_array,required_image_size=(256,256)):
  #   cv2.waitKey(0)
     return out.astype(np.uint8)
 
+def get_category_graylevel(url_or_np_array,category_index,required_image_size=(256,256)):
+    start_time = time.time()
+    if isinstance(url_or_np_array, basestring):
+        print('infer_one working on url:'+url_or_np_array)
+        image = url_to_image(url_or_np_array)
+    elif type(url_or_np_array) == np.ndarray:
+        image = url_or_np_array
+# load image, switch to BGR, subtract mean, and make dims C x H x W for Caffe
+#    im = Image.open(imagename)
+#    im = im.resize(required_imagesize,Image.ANTIALIAS)
+#    in_ = in_.astype(float)
+    in_ = imutils.resize_keep_aspect(image,output_size=required_image_size,output_file=None)
+    in_ = np.array(in_, dtype=np.float32)   #.astype(float)
+    if len(in_.shape) != 3:  #h x w x channels, will be 2 if only h x w
+        print('got 1-chan image, turning into 3 channel')
+        #DEBUG THIS , ORDER MAY BE WRONG [what order? what was i thinking???]
+        in_ = np.array([in_,in_,in_])
+    elif in_.shape[2] != 3:  #for rgb/bgr, some imgages have 4 chan for alpha i guess
+        print('got n-chan image, skipping - shape:'+str(in_.shape))
+        return
+#    in_ = in_[:,:,::-1]  for doing RGB -> BGR
+#    cv2.imshow('test',in_)
+    in_ -= np.array((104,116,122.0))
+    in_ = in_.transpose((2,0,1))
+    # shape for input (data blob is N x C x H x W), set data
+    net.blobs['data'].reshape(1, *in_.shape)
+    net.blobs['data'].data[...] = in_
+    # run net and take argmax for prediction
+    net.forward()
+#    out = net.blobs['score'].data[0].argmax(axis=0) #for a parse with per-pixel max
+    out = net.blobs['score'].data[0][category_index] #for the nth class layer
+    min = np.min(out)
+    max = np.max(out)
+    print('min {} max {} out shape {}'.format(min,max,out.shape))
+    result = Image.fromarray(out.astype(np.uint8))
+#        outname = im.strip('.png')[0]+'out.bmp'
+#    outname = os.path.basename(imagename)
+#    outname = outname.split('.jpg')[0]+'.bmp'
+#    outname = os.path.join(out_dir,outname)
+#    print('outname:'+outname)
+#    result.save(outname)
+    #        fullout = net.blobs['score'].data[0]
+    elapsed_time=time.time()-start_time
+    print('infer_one elapsed time:'+str(elapsed_time))
+ #   cv2.imshow('out',out.astype(np.uint8))
+ #   cv2.waitKey(0)
+    return out.astype(np.uint8)
 
 
 MODEL_FILE = "/home/jeremy/voc8_15_pixlevel_deploy.prototxt"
@@ -107,12 +154,13 @@ print('loading caffemodel for neurodoll')
 if __name__ == "__main__":
 
     url = 'http://diamondfilms.com.au/wp-content/uploads/2014/08/Fashion-Photography-Sydney-1.jpg'
-    result = infer_one(url,required_image_size=required_image_size)
+    result = get_category_graylevel(url,0)
+#    result = infer_one(url,required_image_size=required_image_size)
     cv2.imwrite('output.png',result)
     labels=constants.ultimate_21
     imutils.show_mask_with_labels('output.png',labels,visual_output=True)
 
-    after_nn_result = pipeline.after_nn_conclusions(result,constants.ultimate_21_dict)
-    cv2.imwrite('output_afternn.png',after_nn_result)
-    labels=constants.ultimate_21
-    imutils.show_mask_with_labels('output_afternn.png',labels,visual_output=True)
+#    after_nn_result = pipeline.after_nn_conclusions(result,constants.ultimate_21_dict)
+#    cv2.imwrite('output_afternn.png',after_nn_result)
+#   labels=constants.ultimate_21
+#    imutils.show_mask_with_labels('output_afternn.png',labels,visual_output=True)
