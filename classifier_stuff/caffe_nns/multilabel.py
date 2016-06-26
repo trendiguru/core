@@ -166,12 +166,12 @@ def results():#prediction results
         plt.axis('off')
 
 
-def check_accuracy(solverproto,caffemodel,n_batches=200,batch_size=1):
+def check_accuracy(solverproto,caffemodel,num_batches=200,batch_size=1):
     solver = caffe.SGDSolver(solverproto)
     solver.net.copy_from(caffemodel)
     solver.test_nets[0].share_with(solver.net)
     solver.step(1)
-    print 'accuracy:{0:.4f}'.format(check_acc(solver.test_nets[0], n_batches=n_batches,batch_size = batch_size))
+    print 'accuracy:{0:.4f}'.format(check_acc(solver.test_nets[0], num_batches=num_batches,batch_size = batch_size))
 
 
 caffe.set_mode_gpu()
