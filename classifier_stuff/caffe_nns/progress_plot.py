@@ -16,7 +16,7 @@ import datetime
 import time
 import datetime
 
-def parse_logfile(f):
+def parse_logfile(f,logy):
   print('parsing logfile')
   training_iterations = []
   training_accuracy = []
@@ -109,7 +109,7 @@ def parse_logfile(f):
     for i in range(0,len(test_loss)):
       new_test_accuracy.append(test_loss[i])
     for i in range(len(test_loss),len(test_iterations)):
-      new_test_loss.append(-1)
+      new_test_loss.append(0)
 
     test_loss = new_test_loss
     print('len test loss len:'+str(len(test_loss)))
@@ -131,8 +131,17 @@ def parse_logfile(f):
   host.set_ylabel("log loss")
   par1.set_ylabel("accuracy")
 
-  p1, = host.plot(training_iterations, training_loss,'bo:', label="train logloss")
-  p3, = host.plot(test_iterations, test_loss,'go:', label="test logloss")
+  train_label = "train logloss"
+  test_label = "test logloss"
+  if logy == 'True':
+    training_loss = np.log10(training_loss)
+    test_loss = np.log10(test_loss)
+    train_label = "log10(train logloss)"
+    test_label = "log10(test logloss)"
+    host.set_ylabel("log10(log loss)")
+
+  p1, = host.plot(training_iterations, training_loss,'bo:', label=train_label)
+  p3, = host.plot(test_iterations, test_loss,'go:', label=test_label)
   p2, = par1.plot(test_iterations, test_accuracy,'ro:', label="test acc.")
   if len(training_accuracy)>0:
     p4, = par1.plot(training_iterations, training_accuracy,'co:', label="train acc.")
@@ -302,10 +311,11 @@ if __name__ == "__main__":
   parser = argparse.ArgumentParser(description='makes a plot from Caffe output')
   parser.add_argument('output_file', help='file of captured stdout and stderr')
   parser.add_argument('--type', help='logfile or solve.py output',default='0')
+  parser.add_argument('--logy', help='log of logloss',default=None)
   args = parser.parse_args()
   print('args:'+str(args))
   f = open(args.output_file, 'r')
   if args.type == '0':
-    parse_logfile(f)
+    parse_logfile(f,args.logy)
   elif args.type =='1':
     parse_solveoutput(f)

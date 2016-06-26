@@ -42,7 +42,7 @@ def cancel_image(image_id):
 
 
 def get_latest_images(num=10):
-    curs = db.images.find().sort('saved_date', pymongo.DESCENDING).limit(num)
+    curs = db.images.find().sort('saved_date', pymongo.DESCENDING).limit(int(num))
     return [doc['image_urls'][0] for doc in curs]
 
 
@@ -111,7 +111,7 @@ def reorder_results(image_id, person_id, item_category, ordered_results, results
 # ----------------------------------------------- RESULT-LEVEL ---------------------------------------------------------
 
 def cancel_result(image_id, person_id, item_category, results_collection, result_id):
-    image_obj = db.images.find_one({'_id': image_id})
+    image_obj = db.images.find_one({'image_id': image_id})
     if not image_obj:
         return False
     for person in image_obj['people']:

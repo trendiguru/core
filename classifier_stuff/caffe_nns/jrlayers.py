@@ -364,33 +364,44 @@ class JrMultilabel(caffe.Layer):
         ## and ge t
         good_img_files = []
         good_label_vecs = []
-        print('checking image files')
-        for line in self.images_and_labels_list:
-            imgfilename = line.split()[0]
-            img_arr = Image.open(imgfilename)
-            in_ = np.array(img_arr, dtype=np.float32)
+        check_files = False
+        if check_files:
+            print('checking image files')
+            for line in self.images_and_labels_list:
+                imgfilename = line.split()[0]
+                img_arr = Image.open(imgfilename)
+                in_ = np.array(img_arr, dtype=np.float32)
 
-            if img_arr is not None:
+                if img_arr is not None:
+                    vals = line.split()[1:]
+                    label_vec = [int(i) for i in vals]
+                    label_vec = np.array(label_vec)
+    #                label_vec = label_vec[np.newaxis,...]  #this is required by loss whihc otherwise throws:
+    #                label_vec = label_vec[...,np.newaxis]  #this is required by loss whihc otherwise throws:
+    #                label_vec = label_vec[...,np.newaxis,np.newaxis]  #this is required by loss whihc otherwise throws:
+    #                F0616 10:54:30.921106 43184 accuracy_layer.cpp:31] Check failed: outer_num_ * inner_num_ == bottom[1]->count() (1 vs. 21) Number of labels must match number of predictions; e.g., if label axis == 1 and prediction shape is (N, C, H, W), label count (number of labels) must be N*H*W, with integer values in {0, 1, ..., C-1}.
+
+                    if label_vec is not None:
+                        if len(label_vec) > 0:  #got a vec
+                            good_img_files.append(imgfilename)
+                            good_label_vecs.append(label_vec)
+                            sys.stdout.write(spinner.next())
+                            sys.stdout.flush()
+                            sys.stdout.write('\b')
+                      #      print('got good image of size {} and label of size {}'.format(in_.shape,label_vec.shape))
+                        else:
+                            print('something wrong w. image of size {} and label of size {}'.format(in_.shape,label_vec.shape))
+                else:
+                    print('got bad image:'+self.imagefiles[ind])
+        else:
+            for line in self.images_and_labels_list:
+                imgfilename = line.split()[0]
                 vals = line.split()[1:]
                 label_vec = [int(i) for i in vals]
                 label_vec = np.array(label_vec)
-#                label_vec = label_vec[np.newaxis,...]  #this is required by loss whihc otherwise throws:
-#                label_vec = label_vec[...,np.newaxis]  #this is required by loss whihc otherwise throws:
-#                label_vec = label_vec[...,np.newaxis,np.newaxis]  #this is required by loss whihc otherwise throws:
-#                F0616 10:54:30.921106 43184 accuracy_layer.cpp:31] Check failed: outer_num_ * inner_num_ == bottom[1]->count() (1 vs. 21) Number of labels must match number of predictions; e.g., if label axis == 1 and prediction shape is (N, C, H, W), label count (number of labels) must be N*H*W, with integer values in {0, 1, ..., C-1}.
+                good_img_files.append(imgfilename)
+                good_label_vecs.append(label_vec)
 
-                if label_vec is not None:
-                    if len(label_vec) > 0:  #got a vec
-                        good_img_files.append(imgfilename)
-                        good_label_vecs.append(label_vec)
-                        sys.stdout.write(spinner.next())
-                        sys.stdout.flush()
-                        sys.stdout.write('\b')
-                  #      print('got good image of size {} and label of size {}'.format(in_.shape,label_vec.shape))
-                    else:
-                        print('something wrong w. image of size {} and label of size {}'.format(in_.shape,label_vec.shape))
-            else:
-                print('got bad image:'+self.imagefiles[ind])
         self.imagefiles = good_img_files
         self.label_vecs = good_label_vecs
         assert(len(self.imagefiles) == len(self.label_vecs))
@@ -460,22 +471,29 @@ class JrMultilabel(caffe.Layer):
                 print('NOT A FILE:'+str(filename))
                 self.next_idx()   #bad file, goto next
                 idx = self.idx
-            else:
-                im = Image.open(filename)
-                if self.new_size:
-                    im = im.resize(self.new_size,Image.ANTIALIAS)
-                in_ = np.array(im, dtype=np.float32)
-                if in_ is None:
-                    logging.warning('could not get image '+filename)
-                    self.next_idx()
-                    idx = self.idx
-                elif len(in_.shape) != 3 or in_.shape[0] != self.new_size[0] or in_.shape[1] != self.new_size[1] or in_.shape[2]!=3:
-                    print('got bad img of size '+str(in_.shape) + '= when expected shape is 3x'+str(in_.shape))
-                    self.next_idx()  #goto next
-                    idx = self.idx
-                else:
-                    break #got good img, get out of while
-#        print(full_filename+ ' has dims '+str(in_.shape))
+                continue
+            im = Image.open(filename)
+            if im is None:
+                logging.warning('could not get image '+filename)
+                self.next_idx()
+                idx = self.idx
+                continue
+            if self.new_size:
+                im = im.resize(self.new_size,Image.ANTIALIAS)
+            in_ = np.array(im, dtype=np.float32)
+            if in_ is None:
+                logging.warning('could not get image '+filename)
+                self.next_idx()
+                idx = self.idx
+                continue
+            if len(in_.shape) != 3 or in_.shape[0] != self.new_size[0] or in_.shape[1] != self.new_size[1] or in_.shape[2]!=3:
+                print('got bad img of size '+str(in_.shape) + '= when expected shape is 3x'+str(in_.shape))
+                self.next_idx()  #goto next
+                idx = self.idx
+                continue
+            break #got good img, get out of while
+        print(str(filename) + ' has dims '+str(in_.shape)+' label:'+str(label_vec)+' idex'+str(idx))
+
         in_ = in_[:,:,::-1]
 #        in_ -= self.mean
         in_ = in_.transpose((2,0,1))
