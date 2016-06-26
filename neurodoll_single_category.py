@@ -163,7 +163,7 @@ if __name__ == "__main__":
         url = 'http://diamondfilms.com.au/wp-content/uploads/2014/08/Fashion-Photography-Sydney-1.jpg'
         for index_to_show in range(0,21):
             result = get_category_graylevel(url,index_to_show)
-            outmat[:,256*i:256*(i+1)] = result
+            outmat[:,256*index_to_show:256*(index_to_show+1)] = result
             cv2.imwrite('output.png',result)
 #            cv2.imshow('output layer'+str(index_to_show),result)
 #            cv2.waitKey(0)
