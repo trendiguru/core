@@ -108,7 +108,7 @@ def get_category_graylevel(url_or_np_array,category_index,required_image_size=(2
     # run net and take argmax for prediction
     net.forward()
 #    out = net.blobs['score'].data[0].argmax(axis=0) #for a parse with per-pixel max
-    out = net.blobs['score'].data[0][category_index] #for the nth class layer
+    out = net.blobs['siggy'].data[0][category_index] #for the nth class layer
     min = np.min(out)
     max = np.max(out)
     print('min {} max {} out shape {}'.format(min,max,out.shape))
@@ -156,13 +156,13 @@ if __name__ == "__main__":
     do_category = True
     if(do_category):
         url = 'http://diamondfilms.com.au/wp-content/uploads/2014/08/Fashion-Photography-Sydney-1.jpg'
-        result = get_category_graylevel(url,0)
+        index_to_show = 5
+        result = get_category_graylevel(url,index_to_show)
         cv2.imwrite('output.png',result)
-        cv2.imshow(result)
+        cv2.imshow('output layer'+str(index_to_show),result)
         cv2.waitKey(0)
         labels=constants.ultimate_21
         imutils.show_mask_with_labels('output.png',labels,visual_output=True)
-        image = url_to_image(url_or_np_array)
 
     else:
         url = 'http://diamondfilms.com.au/wp-content/uploads/2014/08/Fashion-Photography-Sydney-1.jpg'
