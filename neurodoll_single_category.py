@@ -113,6 +113,8 @@ def get_category_graylevel(url_or_np_array,category_index,required_image_size=(2
     max = np.max(out)
     print('min {} max {} out shape {}'.format(min,max,out.shape))
     out = out*255
+    min = np.min(out)
+    max = np.max(out)
     print('min {} max {} out after scaling  {}'.format(min,max,out.shape))
     result = Image.fromarray(out.astype(np.uint8))
 #        outname = im.strip('.png')[0]+'out.bmp'
@@ -157,14 +159,19 @@ if __name__ == "__main__":
 
     do_category = True
     if(do_category):
+        outmat = np.zeros(256,256*21)
         url = 'http://diamondfilms.com.au/wp-content/uploads/2014/08/Fashion-Photography-Sydney-1.jpg'
-        index_to_show = 5
-        result = get_category_graylevel(url,index_to_show)
-        cv2.imwrite('output.png',result)
-        cv2.imshow('output layer'+str(index_to_show),result)
+        for index_to_show in range(0,21):
+            result = get_category_graylevel(url,index_to_show)
+            outmat[:,256*i:256*(i+1)] = result
+            cv2.imwrite('output.png',result)
+#            cv2.imshow('output layer'+str(index_to_show),result)
+#            cv2.waitKey(0)
+        cv2.imshow('output layers',outmat)
         cv2.waitKey(0)
-        labels=constants.ultimate_21
-        imutils.show_mask_with_labels('output.png',labels,visual_output=True)
+#            labels=constants.ultimate_21
+#            imutils.show_mask_with_labels('output.png',labels,visual_output=True)
+
 
     else:
         url = 'http://diamondfilms.com.au/wp-content/uploads/2014/08/Fashion-Photography-Sydney-1.jpg'
