@@ -8,7 +8,7 @@ from rq import Queue
 from time import sleep
 from .ebay_API_worker import downloader
 from time import time
-q = Queue('recruit_worker', connection=redis_conn)
+q = Queue('ebay_API_worker', connection=redis_conn)
 
 
 def log2file(LOG_FILENAME):

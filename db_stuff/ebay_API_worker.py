@@ -8,7 +8,7 @@ from datetime import datetime
 import logging
 from rq import Queue
 import re
-q = Queue('recruit_worker', connection=redis_conn)
+q = Queue('ebay_API_worker', connection=redis_conn)
 today_date = str(datetime.date(datetime.now()))
 
 
