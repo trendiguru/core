@@ -1,6 +1,6 @@
 from .ebay_constants import ebay_account_info, ebay_gender, categories_badwords, \
     categories_keywords, ebay_paperdoll_women
-from time import time
+from time import time, sleep
 import requests
 import json
 from ..constants import db, fingerprint_version, redis_conn
@@ -206,6 +206,8 @@ def downloader(GEO, gender, sub_attribute, price_bottom=0, price_top=10000):
 
     if item_count >1500 and price_top > price_bottom:
         middle = int((price_top-price_bottom)/2)
+        while q.count>5:
+            sleep(15)
         q.enqueue(downloader, args=(GEO, gender, sub_attribute, price_bottom, middle), timeout=5400)
         q.enqueue(downloader, args=(GEO, gender, sub_attribute, middle, price_top), timeout=5400)
         return
