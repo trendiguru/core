@@ -104,17 +104,20 @@ def name2category(gender, name, sub_attribute):
     cats = []
 
     if any(x in NAME for x in ['BELT BUCKLE','BELT STRAP']):
+        print('BELT BUCKLE')
         return False , []
     for s in split1:
         if s in categories_keywords:
             cats.append(s)
         elif s in categories_badwords:
+            print('BADDDDDDDDDDDDDDDDDDDDDDD')
             return False, []
         else:
             pass
 
     ppd_cats = fromCats2ppdCats(gender,cats, sub_attribute)
     if len(ppd_cats):
+        print('00000000000000000000000000')
         return False, []
     return True, ppd_cats
 
