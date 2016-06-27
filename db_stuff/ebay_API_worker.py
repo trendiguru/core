@@ -104,7 +104,7 @@ def fromCats2ppdCats(gender, cats, sub_attribute):
 def name2category(gender, name, sub_attribute):
 
     NAME= name.upper()
-    split1 = re.split(' |-|,|;', NAME)
+    split1 = re.split(' |-|,|;|:', NAME)
     cats = []
 
     if any(x in NAME for x in ['BELT BUCKLE','BELT STRAP']):
