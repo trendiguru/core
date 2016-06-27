@@ -161,6 +161,8 @@ if __name__ == "__main__":
     if(do_category):
         outmat = np.zeros([256*3,256*21],dtype=np.uint8)
         url = 'http://diamondfilms.com.au/wp-content/uploads/2014/08/Fashion-Photography-Sydney-1.jpg'
+        url = 'http://pinmakeuptips.com/wp-content/uploads/2015/02/1.4.jpg'
+
         for index_to_show in range(0,21):
             result = get_category_graylevel(url,index_to_show)
             t1,thresh1 = cv2.threshold(result,60,255,cv2.THRESH_BINARY)
@@ -170,6 +172,8 @@ if __name__ == "__main__":
             outmat[256:256*2,256*index_to_show:256*(index_to_show+1)] = t1
             outmat[256*2:256*3,256*index_to_show:256*(index_to_show+1)] = t2
             outmat[256*3:256*4,256*index_to_show:256*(index_to_show+1)] = t3
+            cv2.adaptiveThreshold(result,255)
+
             cv2.imwrite('output.png',result)
 #            cv2.imshow('output layer'+str(index_to_show),result)
 #            cv2.waitKey(0)
