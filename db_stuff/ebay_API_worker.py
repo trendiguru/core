@@ -77,6 +77,8 @@ def fromCats2ppdCats(gender, cats, sub_attribute):
             cat = 'bikini'
         elif 'swimsuit' in ppd_cats:
             cat =  'swimsuit'
+        elif 'dress' in ppd_cats:
+            cat = 'dress'
         elif 'sweater' in ppd_cats:
             cat = 'sweater'
         elif 'sweatshirt' in ppd_cats:
@@ -100,33 +102,42 @@ def fromCats2ppdCats(gender, cats, sub_attribute):
     return cat
 
 
-def name2category(gender, name, sub_attribute):
-
-    NAME= name.upper()
-    split1 = re.split(' |-|,|;|:', NAME)
+def find_keywords(desc):
+    DESC = desc.upper()
+    split1 = re.split(' |-|,|;|:', desc)
     cats = []
 
-    if any(x in NAME for x in ['BELT BUCKLE','BELT STRAP']):
-        return False, []
+    if any(x in DESC for x in ['BELT BUCKLE', 'BELT STRAP']):
+        return []
     for s in split1:
         if s in categories_keywords:
             cats.append(s)
         elif s in categories_badwords:
             # print ('%s in badwords' % s)
-            return False, []
+            return []
         else:
             pass
+
+    return cats
+
+def name2category(gender, name, sub_attribute, desc):
+
+    cats = find_keywords( name )
     if not len(cats):
-        print ('%s not in keywords' % NAME)
-        logger_keywords = log2file('/home/developer/yonti/keywords_' + gender + '.log', 'keyword')
-        logger_keywords.info(NAME)
-        return False, []
+        print ('%s not in keywords' % name)
+        if len(desc)>0:
+            cats = find_keywords(desc)
+        if not len(cats):
+            logger_keywords = log2file('/home/developer/yonti/keywords_' + gender + '.log', 'keyword')
+            logger_keywords.info(name)
+            logger_keywords.info(desc)
+            return False, []
+
     ppd_cats = fromCats2ppdCats(gender,cats, sub_attribute)
     if len(ppd_cats):
         return True, ppd_cats
     else:
         return False, []
-
 
 
 def process_items(items, gender,GEO , sub_attribute):
@@ -174,7 +185,7 @@ def process_items(items, gender,GEO , sub_attribute):
         else:
             shipping = ""
 
-        success, category = name2category(gender, offer['name'], sub_attribute)
+        success, category = name2category(gender, offer['name'], sub_attribute, desc)
         if not success:
             # print ('NOT SUCCESS NOT SUCCESS')
             continue
