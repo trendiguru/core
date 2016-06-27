@@ -144,7 +144,7 @@ input_scale = None
 channel_swap = [2, 1, 0]
 raw_scale = 255.0
 
-print('loading caffemodel for neurodoll')
+print('loading caffemodel for neurodoll (single class layers)')
 
 
 # Make classifier.
@@ -159,12 +159,26 @@ if __name__ == "__main__":
 
     do_category = True
     if(do_category):
-        outmat = np.zeros([256,256*21],dtype=np.uint8)
+        outmat = np.zeros([256*4,256*21],dtype=np.uint8)
         url = 'http://diamondfilms.com.au/wp-content/uploads/2014/08/Fashion-Photography-Sydney-1.jpg'
+        url = 'http://pinmakeuptips.com/wp-content/uploads/2015/02/1.4.jpg'
+
         for index_to_show in range(0,21):
             result = get_category_graylevel(url,index_to_show)
-            outmat[:,256*index_to_show:256*(index_to_show+1)] = result
-            cv2.imwrite('output.png',result)
+
+            t1,im1 = cv2.threshold(result,60,255,cv2.THRESH_BINARY)
+            t2,im2 = cv2.threshold(result,127,255,cv2.THRESH_BINARY)
+            t3,im3 = cv2.threshold(result,180,255,cv2.THRESH_BINARY)
+
+            t4 = cv2.adaptiveThreshold(result,255,cv2.ADAPTIVE_THRESH_GAUSSIAN_C,cv2.THRESH_BINARY,11,2)
+            t5,im5 = cv2.threshold(result,128,255,cv2.THRESH_BINARY|cv2.THRESH_OTSU)
+
+            outmat[0:256,256*index_to_show:256*(index_to_show+1)] = result
+            outmat[256:256*2,256*index_to_show:256*(index_to_show+1)] = im1
+            outmat[256*2:256*3,256*index_to_show:256*(index_to_show+1)] = im2
+            outmat[256*3:256*4,256*index_to_show:256*(index_to_show+1)] = im3
+
+            cv2.imwrite('output.png',outmat)
 #            cv2.imshow('output layer'+str(index_to_show),result)
 #            cv2.waitKey(0)
         cv2.imshow('output layers',outmat)
@@ -175,6 +189,7 @@ if __name__ == "__main__":
 
     else:
         url = 'http://diamondfilms.com.au/wp-content/uploads/2014/08/Fashion-Photography-Sydney-1.jpg'
+        url = 'http://pinmakeuptips.com/wp-content/uploads/2015/02/1.4.jpg'
         result = infer_one(url,required_image_size=required_image_size)
         cv2.imwrite('output.png',result)
         labels=constants.ultimate_21
