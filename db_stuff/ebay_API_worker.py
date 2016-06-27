@@ -150,6 +150,7 @@ def process_items(items, gender,GEO , sub_attribute):
     new_items = 0
     for item in items:
         offer = item['offer']
+        keys = offer.keys()
         itemId = offer['id']
         sku = offer['sku']
         id_exists = collection.find_one({'id': itemId})
@@ -179,12 +180,12 @@ def process_items(items, gender,GEO , sub_attribute):
         '''
         img_url = img_list[-1]
 
-        if 'description' in offer.keys():
+        if 'description' in keys:
             desc = offer['description']
         else:
             desc = ""
 
-        if 'shippingCost' in offer.keys():
+        if 'shippingCost' in keys:
             shipping = offer['shippingCost']
         else:
             shipping = ""
@@ -193,6 +194,10 @@ def process_items(items, gender,GEO , sub_attribute):
         if not success:
             # print ('NOT SUCCESS NOT SUCCESS')
             continue
+        if 'manufacturer' in keys:
+            brand = offer['manufacturer']
+        else:
+            brand = offer['store']['name']
 
         generic = {"id": [itemId],
                    "categories": category,
@@ -202,7 +207,7 @@ def process_items(items, gender,GEO , sub_attribute):
                    "shortDescription": offer['name'],
                    "longDescription": desc,
                    "price": price,
-                   "brand": offer['store']['name'],
+                   "brand": brand,
                    "download_data": {'dl_version': today_date,
                                      'first_dl': today_date,
                                      'fp_version': fingerprint_version},
