@@ -27,7 +27,7 @@ def download_ebay_API(GEO, gender):
     download_log = '/home/developer/yonti/ebay_'+gender+'_download_stats.log'
     handler = log2file(download_log, 'download')
     handler.info('download started')
-    keywords_log = '/home/developer/yonti/keywords.log'
+    keywords_log = '/home/developer/yonti/keywords_'+gender+'.log'
     handler = log2file(keywords_log, 'keyword')
     handler.info('keyword started')
     for sub_attribute in sub_attributes:
