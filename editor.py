@@ -109,7 +109,7 @@ def reorder_results(image_id, person_id, item_category, collection, new_results)
                     print "Found item"
                     ret = True
                     item['similar_results'][collection] = new_results
-    # res = db.test.replace_one({'image_id': image_id}, image_obj)
+    db.test.replace_one({'image_id': image_id}, image_obj)
     return ret
 
 
