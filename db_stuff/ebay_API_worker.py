@@ -65,6 +65,8 @@ def fromCats2ppdCats(gender, cats, sub_attribute):
     cat_count = len(ppd_cats)
     #TODO: use sub_attribute
     if cat_count>1:
+        if 'shorts' in ppd_cats:
+            ppd_cats.remove('shorts')
         if 'polo' in ppd_cats:
             cat = 'polo'
         elif 't-shirt' in ppd_cats:

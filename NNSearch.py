@@ -108,8 +108,8 @@ def find_n_nearest_neighbors(target_dict, collection, category, number_of_matche
     if annoy_job.is_failed:
         return []
     top1000 = annoy_job.result
-    entries = db[collection].find({"AnnoyIndex": {"$in": top1000}}, {"id": 1, "fingerprint": 1, "images.XLarge": 1,
-                                                                     "clickUrl": 1})
+    entries = db[collection].find({"AnnoyIndex": {"$in": top1000}, 'categories': category},
+                                  {"id": 1, "fingerprint": 1, "images.XLarge": 1, "clickUrl": 1})
     farthest_nearest = 1
     nearest_n = []
     for i, entry in enumerate(entries):
