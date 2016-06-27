@@ -159,7 +159,7 @@ if __name__ == "__main__":
 
     do_category = True
     if(do_category):
-        outmat = np.zeros([256*3,256*21],dtype=np.uint8)
+        outmat = np.zeros([256*4,256*21],dtype=np.uint8)
         url = 'http://diamondfilms.com.au/wp-content/uploads/2014/08/Fashion-Photography-Sydney-1.jpg'
         url = 'http://pinmakeuptips.com/wp-content/uploads/2015/02/1.4.jpg'
 
