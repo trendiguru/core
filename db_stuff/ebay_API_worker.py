@@ -91,9 +91,11 @@ def fromCats2ppdCats(gender, cats, sub_attribute):
         return []
     else:
         cat = ppd_cats[0]
-
+    print 'cat = %s' % cat
     if cat in ['dress', 'bikini', 'stocking', 'leggings', 'skirt'] and gender is 'Male':
+        print 'genderRRRRRRRRRRRRRRRRRRRRRRRRR'
         return []
+
     return cat
 
 
@@ -107,17 +109,14 @@ def name2category(gender, name, sub_attribute):
         print('BELT BUCKLE')
         return False , []
     for s in split1:
-        print (s)
         if s in categories_keywords:
-            print 'found'
+            print  s+ 'found'
             sleep(1)
             cats.append(s)
         elif s in categories_badwords:
             print('BADDDDDDDDDDDDDDDDDDDDDDD')
             return False, []
         else:
-            print 'not found'
-            sleep(1)
             pass
 
     ppd_cats = fromCats2ppdCats(gender,cats, sub_attribute)
