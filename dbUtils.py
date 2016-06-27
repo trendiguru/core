@@ -1059,6 +1059,7 @@ def rebuild_similar_results():
 def update_similar_results():
     i = 0
     for image_obj in db.images.find():
+        i += 1
         print("done {0} images".format(i))
         for person in image_obj['people']:
             for item in person['items']:
