@@ -20,6 +20,7 @@ def log2file(log_filename):
     logger.addHandler(handler)
     return logger
 
+logger_keywords = log2file('/home/developer/yonti/keywords.log')
 
 def GET_call(GEO, gender, sub_attribute, price_bottom=0, price_top=10000, page=1, num=100):
     account_info = ebay_account_info[GEO]
@@ -118,6 +119,7 @@ def name2category(gender, name, sub_attribute):
             pass
     if not len(cats):
         print ('%s not in keywords' % NAME)
+        logger_keywords.info(NAME)
         return False, []
     ppd_cats = fromCats2ppdCats(gender,cats, sub_attribute)
     if len(ppd_cats):
