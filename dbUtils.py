@@ -25,7 +25,7 @@ min_images_per_doc = constants.min_images_per_doc
 max_image_val = constants.max_image_val
 
 hash_q = rq.Queue("hash_q")
-
+results_q = rq.Queue("update_results")
 
 def lookfor_next_bounded_in_db(current_item=0, current_image=0, only_get_boxed_images=True):
     """
@@ -1059,9 +1059,7 @@ def rebuild_similar_results():
 def update_similar_results():
     i = 0
     for image_obj in db.images.find():
-        i += 1
-        if i % 100 == 0:
-            print("done {0} images".format(i))
+        print("done {0} images".format(i))
         for person in image_obj['people']:
             for item in person['items']:
                 for collection in item['similar_results'].keys():
