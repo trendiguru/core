@@ -77,6 +77,8 @@ def fromCats2ppdCats(gender, cats, sub_attribute):
             cat = 'bikini'
         elif 'swimsuit' in ppd_cats:
             cat =  'swimsuit'
+        elif 'dress' in ppd_cats:
+            cat = 'dress'
         elif 'sweater' in ppd_cats:
             cat = 'sweater'
         elif 'sweatshirt' in ppd_cats:
@@ -100,13 +102,12 @@ def fromCats2ppdCats(gender, cats, sub_attribute):
     return cat
 
 
-def name2category(gender, name, sub_attribute):
-
-    NAME= name.upper()
-    split1 = re.split(' |-|,|;|:', NAME)
+def find_keywords(desc):
+    DESC = desc.upper()
+    split1 = re.split(' |-|,|;|:', DESC)
     cats = []
 
-    if any(x in NAME for x in ['BELT BUCKLE','BELT STRAP']):
+    if any(x in DESC for x in ['BELT BUCKLE', 'BELT STRAP']):
         return False, []
     for s in split1:
         if s in categories_keywords:
@@ -116,17 +117,31 @@ def name2category(gender, name, sub_attribute):
             return False, []
         else:
             pass
-    if not len(cats):
-        print ('%s not in keywords' % NAME)
-        logger_keywords = log2file('/home/developer/yonti/keywords_' + gender + '.log', 'keyword')
-        logger_keywords.info(NAME)
+
+    return True, cats
+
+
+def name2category(gender, name, sub_attribute, desc):
+    status, cats = find_keywords(name)
+    if not status:
         return False, []
+
+    if not len(cats):
+        print ('%s not in keywords' % name)
+        if len(desc)>0:
+            status, cats = find_keywords(desc)
+            if not status:
+                return False, []
+        if not len(cats):
+            logger_keywords = log2file('/home/developer/yonti/keywords_' + gender + '.log', 'keyword')
+            logger_keywords.info(name)
+            return False, []
+
     ppd_cats = fromCats2ppdCats(gender,cats, sub_attribute)
     if len(ppd_cats):
         return True, ppd_cats
     else:
         return False, []
-
 
 
 def process_items(items, gender,GEO , sub_attribute):
@@ -135,6 +150,7 @@ def process_items(items, gender,GEO , sub_attribute):
     new_items = 0
     for item in items:
         offer = item['offer']
+        keys = offer.keys()
         itemId = offer['id']
         sku = offer['sku']
         id_exists = collection.find_one({'id': itemId})
@@ -164,20 +180,24 @@ def process_items(items, gender,GEO , sub_attribute):
         '''
         img_url = img_list[-1]
 
-        if 'description' in offer.keys():
+        if 'description' in keys:
             desc = offer['description']
         else:
             desc = ""
 
-        if 'shippingCost' in offer.keys():
+        if 'shippingCost' in keys:
             shipping = offer['shippingCost']
         else:
             shipping = ""
 
-        success, category = name2category(gender, offer['name'], sub_attribute)
+        success, category = name2category(gender, offer['name'], sub_attribute, desc)
         if not success:
             # print ('NOT SUCCESS NOT SUCCESS')
             continue
+        if 'manufacturer' in keys:
+            brand = offer['manufacturer']
+        else:
+            brand = offer['store']['name']
 
         generic = {"id": [itemId],
                    "categories": category,
@@ -187,7 +207,7 @@ def process_items(items, gender,GEO , sub_attribute):
                    "shortDescription": offer['name'],
                    "longDescription": desc,
                    "price": price,
-                   "brand": offer['store']['name'],
+                   "brand": brand,
                    "download_data": {'dl_version': today_date,
                                      'first_dl': today_date,
                                      'fp_version': fingerprint_version},
