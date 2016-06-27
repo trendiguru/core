@@ -122,12 +122,17 @@ def find_keywords(desc):
 
 
 def name2category(gender, name, sub_attribute, desc):
-    status,cats = find_keywords(name)
-    if not len(cats) and status:
+    status, cats = find_keywords(name)
+    if not status:
+        return False, []
+
+    if not len(cats):
         print ('%s not in keywords' % name)
         if len(desc)>0:
             status, cats = find_keywords(desc)
-        if not len(cats) and status:
+            if not status:
+                return False, []
+        if not len(cats):
             logger_keywords = log2file('/home/developer/yonti/keywords_' + gender + '.log', 'keyword')
             logger_keywords.info(name)
             return False, []
