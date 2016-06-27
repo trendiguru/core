@@ -144,7 +144,7 @@ input_scale = None
 channel_swap = [2, 1, 0]
 raw_scale = 255.0
 
-print('loading caffemodel for neurodoll')
+print('loading caffemodel for neurodoll (single class layers)')
 
 
 # Make classifier.
@@ -163,9 +163,9 @@ if __name__ == "__main__":
         url = 'http://diamondfilms.com.au/wp-content/uploads/2014/08/Fashion-Photography-Sydney-1.jpg'
         for index_to_show in range(0,21):
             result = get_category_graylevel(url,index_to_show)
-            t1,thresh1 = cv2.threshold(img,60,255,cv2.THRESH_BINARY)
-            t2,thresh2 = cv2.threshold(img,127,255,cv2.THRESH_BINARY)
-            t3,thresh3 = cv2.threshold(img,180,255,cv2.THRESH_BINARY)
+            t1,thresh1 = cv2.threshold(result,60,255,cv2.THRESH_BINARY)
+            t2,thresh2 = cv2.threshold(result,127,255,cv2.THRESH_BINARY)
+            t3,thresh3 = cv2.threshold(result,180,255,cv2.THRESH_BINARY)
             outmat[0:256,256*index_to_show:256*(index_to_show+1)] = result
             outmat[256:256*2,256*index_to_show:256*(index_to_show+1)] = t1
             outmat[256*2:256*3,256*index_to_show:256*(index_to_show+1)] = t2
