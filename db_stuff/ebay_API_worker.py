@@ -91,9 +91,8 @@ def fromCats2ppdCats(gender, cats, sub_attribute):
         return []
     else:
         cat = ppd_cats[0]
-    print 'cat = %s' % cat
+
     if cat in ['dress', 'bikini', 'stocking', 'leggings', 'skirt'] and gender is 'Male':
-        print 'genderRRRRRRRRRRRRRRRRRRRRRRRRR'
         return []
 
     return cat
@@ -106,26 +105,21 @@ def name2category(gender, name, sub_attribute):
     cats = []
 
     if any(x in NAME for x in ['BELT BUCKLE','BELT STRAP']):
-        print('BELT BUCKLE')
         return False , []
     for s in split1:
         if s in categories_keywords:
-            print  s+ 'found'
-            sleep(1)
             cats.append(s)
         elif s in categories_badwords:
-            print('BADDDDDDDDDDDDDDDDDDDDDDD')
             return False, []
         else:
             pass
 
     ppd_cats = fromCats2ppdCats(gender,cats, sub_attribute)
     if len(ppd_cats):
-        print('00000000000000000000000000')
-        print(NAME)
-        sleep(2)
+        return True, ppd_cats
+    else:
         return False, []
-    return True, ppd_cats
+
 
 
 def process_items(items, gender,GEO , sub_attribute):
