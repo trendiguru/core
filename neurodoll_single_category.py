@@ -159,11 +159,17 @@ if __name__ == "__main__":
 
     do_category = True
     if(do_category):
-        outmat = np.zeros([256,256*21],dtype=np.uint8)
+        outmat = np.zeros([256*3,256*21],dtype=np.uint8)
         url = 'http://diamondfilms.com.au/wp-content/uploads/2014/08/Fashion-Photography-Sydney-1.jpg'
         for index_to_show in range(0,21):
             result = get_category_graylevel(url,index_to_show)
-            outmat[:,256*index_to_show:256*(index_to_show+1)] = result
+            t1,thresh1 = cv2.threshold(img,60,255,cv2.THRESH_BINARY)
+            t2,thresh2 = cv2.threshold(img,127,255,cv2.THRESH_BINARY)
+            t3,thresh3 = cv2.threshold(img,180,255,cv2.THRESH_BINARY)
+            outmat[0:256,256*index_to_show:256*(index_to_show+1)] = result
+            outmat[256:256*2,256*index_to_show:256*(index_to_show+1)] = t1
+            outmat[256*2:256*3,256*index_to_show:256*(index_to_show+1)] = t2
+            outmat[256*3:256*4,256*index_to_show:256*(index_to_show+1)] = t3
             cv2.imwrite('output.png',result)
 #            cv2.imshow('output layer'+str(index_to_show),result)
 #            cv2.waitKey(0)
@@ -175,6 +181,7 @@ if __name__ == "__main__":
 
     else:
         url = 'http://diamondfilms.com.au/wp-content/uploads/2014/08/Fashion-Photography-Sydney-1.jpg'
+        url = 'http://pinmakeuptips.com/wp-content/uploads/2015/02/1.4.jpg'
         result = infer_one(url,required_image_size=required_image_size)
         cv2.imwrite('output.png',result)
         labels=constants.ultimate_21
