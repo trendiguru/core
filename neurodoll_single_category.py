@@ -174,7 +174,7 @@ if __name__ == "__main__":
             t5,im5 = cv2.threshold(result,128,255,cv2.THRESH_BINARY|cv2.THRESH_OTSU)
 
             outmat[0:256,256*index_to_show:256*(index_to_show+1)] = result
-            outmat[256:256*2,256*index_to_show:256*(index_to_show+1)] = im1
+            outmat[256:256*2,256*index_to_show:256*(index_to_show+1)] = im2
             outmat[256*2:256*3,256*index_to_show:256*(index_to_show+1)] = t4
             outmat[256*3:256*4,256*index_to_show:256*(index_to_show+1)] = im5
 
