@@ -109,12 +109,15 @@ def name2category(gender, name, sub_attribute):
     for s in split1:
         print (s)
         if s in categories_keywords:
+            print 'found'
+            sleep(1)
             cats.append(s)
         elif s in categories_badwords:
             print('BADDDDDDDDDDDDDDDDDDDDDDD')
             return False, []
         else:
-            print('not found')
+            print 'not found'
+            sleep(1)
             pass
 
     ppd_cats = fromCats2ppdCats(gender,cats, sub_attribute)
