@@ -113,7 +113,7 @@ def name2category(gender, name, sub_attribute):
         if s in categories_keywords:
             cats.append(s)
         elif s in categories_badwords:
-            print ('%s in badwords' % s)
+            # print ('%s in badwords' % s)
             return False, []
         else:
             pass
