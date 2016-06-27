@@ -118,6 +118,7 @@ def name2category(gender, name, sub_attribute):
             pass
     if not len(cats):
         print ('%s not in keywords' % NAME)
+        sleep(2)
         return False, []
     ppd_cats = fromCats2ppdCats(gender,cats, sub_attribute)
     if len(ppd_cats):

@@ -90,7 +90,7 @@ categories_keywords = ['BELT', 'BELTS', 'BIKINI', 'BIKINIS', 'BLAZER', 'BLAZERS'
                        'SHIRT','SHIRTS', 'SHOES', 'SHORTS', 'SKIRT', 'SKIRTS','SNIKERS', 'STOCKINGS', 'SUIT', 'SUITS',
                        'SWEATERS', 'SWEATSHIRT', 'SWEATSHIRTS', 'SWIM', 'SWIMING','SWIMINGSUIT',
                        'SWEATER','SWIMINGSUITS', 'SWIMSUIT', 'SWIMSUITS', 'T', 'TEE', 'TEES', 'TIGHTS','TOP', 'TOPS',
-                       'TROUSER', 'TROUSERS', 'TSHIRT', 'TSHIRTS', 'TUNIC', 'TUNICS', 'VEST', 'VESTS']
+                       'TROUSER', 'TROUSERS', 'TSHIRT', 'TSHIRTS', 'TUNIC', 'TUNICS', 'VEST', 'VESTS', 'MAXIDRESS']
 
 ebay_paperdoll_women = { 'BELT': 'belt', 'BELTS': 'belt',
                          'BIKINIS': 'bikini', 'BIKINI': 'bikini',
@@ -99,7 +99,7 @@ ebay_paperdoll_women = { 'BELT': 'belt', 'BELTS': 'belt',
                          'CAPRIS': 'capris',
                          'CARDIGANS': 'cardigan', 'CARDIGAN': 'cardigan',
                          'COATS': 'coat', 'COAT': 'coat',
-                         'DRESSES': 'dress', 'DRESS': 'dress',
+                         'DRESSES': 'dress', 'DRESS': 'dress', 'MAXIDRESS': 'dress',
                          'JACKETS': 'jacket', 'JACKET': 'jacket',
                          'JEANS': 'jeans',
                          'KNITS': 'knits', 'KNIT': 'knits',
