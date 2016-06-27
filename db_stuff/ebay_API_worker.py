@@ -106,7 +106,7 @@ def fromCats2ppdCats(gender, cats, sub_attribute):
 
 def find_keywords(desc):
     DESC = desc.upper()
-    split1 = re.split(' |-|,|;|:|.', DESC)
+    split1 = re.split(' |-|,|;|:|\.', DESC)
     cats = []
 
     if any(x in DESC for x in ['BELT BUCKLE', 'BELT STRAP']):
