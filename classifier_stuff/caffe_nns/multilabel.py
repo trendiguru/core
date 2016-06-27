@@ -130,7 +130,7 @@ def check_acc(net, num_batches, batch_size = 128):
         gts = net.blobs['label'].data
 #        ests = net.blobs['score'].data > 0  ##why 0????
         ests = net.blobs['score'].data > 0.5
-        baseline_est = np.zeros((batch_size, len(gts)))
+        baseline_est = np.zeros_like(ests)
         for gt, est in zip(gts, ests): #for each ground truth and estimated label vector
             h = hamming_distance(gt, est)
             baseline_h = hamming_distance(gt,baseline_est)
