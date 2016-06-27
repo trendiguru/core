@@ -94,7 +94,7 @@ categories_keywords = ['BELT', 'BELTS', 'BIKINI', 'BIKINIS', 'BLAZER', 'BLAZERS'
                        'MAXI', 'SHIRTDRESS', 'SHEATH','SWEATERDRESS', 'SUNDRESS','LOUNG', 'LOUNGER', 'SHRUG', 'SLACKS',
                        'SLITDRESS','SWIMDRESS', 'JUMPER','TANK', 'POULOVER', 'PIECEDRESS', 'HOODY', 'TIE', 'CHINOS',
                        'PULLOVER','PULLOVERS', 'CHINO', 'BOARDSHORT', 'BOARDSHORTS','PANTSUIT', 'CAPTOE', 'TROTTERS',
-                       'FLATS', 'DRES', 'MINIDRESS', 'SWEATPANTS', 'JOGGER', 'JEGGINGS']
+                       'FLATS', 'DRES', 'MINIDRESS', 'SWEATPANTS', 'JOGGER', 'JEGGINGS', 'JERSEY']
 
 ebay_paperdoll_women = { 'BELT': 'belt', 'BELTS': 'belt',
                          'BIKINIS': 'bikini', 'BIKINI': 'bikini',
