@@ -108,26 +108,26 @@ def find_keywords(desc):
     cats = []
 
     if any(x in DESC for x in ['BELT BUCKLE', 'BELT STRAP']):
-        return []
+        return False, []
     for s in split1:
         if s in categories_keywords:
             cats.append(s)
         elif s in categories_badwords:
             # print ('%s in badwords' % s)
-            return []
+            return False, []
         else:
             pass
 
-    return cats
+    return True, cats
+
 
 def name2category(gender, name, sub_attribute, desc):
-
-    cats = find_keywords( name )
-    if not len(cats):
+    status,cats = find_keywords(name)
+    if not len(cats) and status:
         print ('%s not in keywords' % name)
         if len(desc)>0:
-            cats = find_keywords(desc)
-        if not len(cats):
+            status, cats = find_keywords(desc)
+        if not len(cats) and status:
             logger_keywords = log2file('/home/developer/yonti/keywords_' + gender + '.log', 'keyword')
             logger_keywords.info(name)
             return False, []
