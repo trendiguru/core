@@ -169,7 +169,7 @@ if __name__ == "__main__":
             t1,thresh1 = cv2.threshold(result,60,255,cv2.THRESH_BINARY)
             t2,thresh2 = cv2.threshold(result,127,255,cv2.THRESH_BINARY)
             t3,thresh3 = cv2.threshold(result,180,255,cv2.THRESH_BINARY)
-            t4 = cv2.adaptiveThreshold(result,255,adaptiveMethod=cv2.ADAPTIVE_THRESH_GAUSSIAN_C)
+            t4 = cv2.adaptiveThreshold(result,255,cv2.ADAPTIVE_THRESH_GAUSSIAN_C,cv2.THRESH_BINARY,11,2)
 
             outmat[0:256,256*index_to_show:256*(index_to_show+1)] = result
             outmat[256:256*2,256*index_to_show:256*(index_to_show+1)] = t1
