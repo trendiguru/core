@@ -89,6 +89,7 @@ def fromCats2ppdCats(gender, cats, sub_attribute):
             cat = ppd_cats[0]
     elif cat_count == 0:
         print ('count = 0 for %s' % ppd_cats)
+        sleep(2)
         return []
     else:
         cat = ppd_cats[0]
@@ -176,7 +177,7 @@ def process_items(items, gender,GEO , sub_attribute):
 
         success, category = name2category(gender, offer['name'], sub_attribute)
         if not success:
-            print ('NOT SUCCESS NOT SUCCESS')
+            # print ('NOT SUCCESS NOT SUCCESS')
             continue
 
         generic = {"id": [itemId],
