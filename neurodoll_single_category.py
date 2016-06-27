@@ -178,7 +178,7 @@ if __name__ == "__main__":
             outmat[256*2:256*3,256*index_to_show:256*(index_to_show+1)] = t4
             outmat[256*3:256*4,256*index_to_show:256*(index_to_show+1)] = im5
 
-            cv2.imwrite('output.png',result)
+            cv2.imwrite('output.png',outmat)
 #            cv2.imshow('output layer'+str(index_to_show),result)
 #            cv2.waitKey(0)
         cv2.imshow('output layers',outmat)
