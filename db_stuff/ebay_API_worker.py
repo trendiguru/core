@@ -89,7 +89,6 @@ def fromCats2ppdCats(gender, cats, sub_attribute):
             cat = ppd_cats[0]
     elif cat_count == 0:
         print ('count = 0 for %s' % ppd_cats)
-        sleep(2)
         return []
     else:
         cat = ppd_cats[0]
@@ -119,7 +118,6 @@ def name2category(gender, name, sub_attribute):
             pass
     if not len(cats):
         print ('%s not in keywords' % NAME)
-        sleep(2)
         return False, []
     ppd_cats = fromCats2ppdCats(gender,cats, sub_attribute)
     if len(ppd_cats):
@@ -141,9 +139,8 @@ def process_items(items, gender,GEO , sub_attribute):
         sku_exists = collection.find_one({'sku': sku})
         if id_exists :
             #TODO: add checks
-            print ('ID ID ID ID')
+            # print ('ID ID ID ID')
             continue
-
 
         if sku_exists:
             # TODO: add checks
