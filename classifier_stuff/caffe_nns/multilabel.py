@@ -121,19 +121,25 @@ def hamming_distance(gt, est):
     return sum([1 for (g, e) in zip(gt, est) if g == e]) / float(len(gt))
 
 def check_acc(net, num_batches, batch_size = 128):
+    #this is not working foir batchsize!=1, maybe needs to be defined in net
     acc = 0.0 #
+    baseline_acc = 0.0
     n = 0
     for t in range(num_batches):
         net.forward()
         gts = net.blobs['label'].data
 #        ests = net.blobs['score'].data > 0  ##why 0????
         ests = net.blobs['score'].data > 0.5
+        baseline_est = np.zeros_like(ests)
         for gt, est in zip(gts, ests): #for each ground truth and estimated label vector
             h = hamming_distance(gt, est)
+            baseline_h = hamming_distance(gt,baseline_est)
             print('gt {} est {} (1-hamming) {}'.format(gt,est,h))
+            sum = np.sum(gt)
             acc += h
+            baseline_acc += baseline_h
             n += 1
-    print('len(gts) {} len(ests) {} numbatches {} batchsize {} acc {}'.format(len(gts),len(ests),num_batches,batch_size,acc/n))
+    print('len(gts) {} len(ests) {} numbatches {} batchsize {} acc {} baseline {}'.format(len(gts),len(ests),num_batches,batch_size,acc/n,baseline_acc/n))
     return acc / n
 
 #train
@@ -165,12 +171,12 @@ def results():#prediction results
         plt.axis('off')
 
 
-def check_accuracy(solverproto,caffemodel):
+def check_accuracy(solverproto,caffemodel,num_batches=200,batch_size=1):
     solver = caffe.SGDSolver(solverproto)
     solver.net.copy_from(caffemodel)
     solver.test_nets[0].share_with(solver.net)
     solver.step(1)
-    print 'accuracy:{0:.4f}'.format(check_acc(solver.test_nets[0], 20,batch_size = 20))
+    print 'accuracy:{0:.4f}'.format(check_acc(solver.test_nets[0], num_batches=num_batches,batch_size = batch_size))
 
 
 caffe.set_mode_gpu()
@@ -181,5 +187,5 @@ if __name__ =="__main__":
     snapshot = 'snapshot'
     caffemodel =  '/home/jeremy/caffenets/multilabel/vgg_ilsvrc_16_multilabel_2/snapshot/train_iter_40069.caffemodel'
     solverproto = '/home/jeremy/caffenets/multilabel/vgg_ilsvrc_16_multilabel_2/solver.prototxt'
-    check_acc(solverproto,caffemodel)
+    check_accuracy(solverproto,caffemodel)
   #  print 'Baseline accuracy:{0:.4f}'.format(check_baseline_accuracy(solver.test_nets[0], 10,batch_size = 20))
