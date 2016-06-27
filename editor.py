@@ -99,13 +99,17 @@ def reorder_results(image_id, person_id, item_category, collection, new_results)
     image_obj = db.test.find_one({'image_id': image_id})
     if not image_obj:
         return False
+    ret = False
     for person in image_obj['people']:
         if person['_id'] == person_id:
+            print "Found person"
             for item in person['items']:
                 if item['category'] == item_category:
+                    print "Found item"
+                    ret = True
                     item['similar_results'][collection] = new_results
-    res = db.test.replace_one({'image_id': image_id}, image_obj)
-    return bool(res.modified_count)
+    # res = db.test.replace_one({'image_id': image_id}, image_obj)
+    return ret
 
 
 # ----------------------------------------------- RESULT-LEVEL ---------------------------------------------------------
