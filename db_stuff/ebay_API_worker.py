@@ -88,11 +88,13 @@ def fromCats2ppdCats(gender, cats, sub_attribute):
         else:
             cat = ppd_cats[0]
     elif cat_count == 0:
+        print ('count = 0 for %s' % ppd_cats)
         return []
     else:
         cat = ppd_cats[0]
 
     if cat in ['dress', 'bikini', 'stocking', 'leggings', 'skirt'] and gender is 'Male':
+        print ('Male X female cat')
         return []
 
     return cat
@@ -228,7 +230,7 @@ def downloader(GEO, gender, sub_attribute, price_bottom=0, price_top=10000):
         middle = int((price_top+price_bottom)/2)
         if middle >= price_bottom:
             q.enqueue(downloader, args=(GEO, gender, sub_attribute, price_bottom, middle), timeout=5400)
-        if price_top >= middle:
+        if price_top > middle != price_bottom:
             q.enqueue(downloader, args=(GEO, gender, sub_attribute, middle, price_top), timeout=5400)
         print ('price range %d to %d divided to %d - %d  &  %d - %d'
                % (price_bottom, price_top, price_bottom, middle, middle, price_top))
