@@ -96,6 +96,7 @@ def cancel_item(image_id, person_id, item_category):
 
 
 def reorder_results(image_id, person_id, item_category, collection, new_results):
+    print "got into the function!"
     image_obj = db.test.find_one({'image_id': image_id})
     if not image_obj:
         return False
