@@ -104,7 +104,7 @@ def fromCats2ppdCats(gender, cats, sub_attribute):
 
 def find_keywords(desc):
     DESC = desc.upper()
-    split1 = re.split(' |-|,|;|:', desc)
+    split1 = re.split(' |-|,|;|:', DESC)
     cats = []
 
     if any(x in DESC for x in ['BELT BUCKLE', 'BELT STRAP']):
@@ -130,7 +130,6 @@ def name2category(gender, name, sub_attribute, desc):
         if not len(cats):
             logger_keywords = log2file('/home/developer/yonti/keywords_' + gender + '.log', 'keyword')
             logger_keywords.info(name)
-            logger_keywords.info(desc)
             return False, []
 
     ppd_cats = fromCats2ppdCats(gender,cats, sub_attribute)
