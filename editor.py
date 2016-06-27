@@ -117,8 +117,10 @@ def cancel_result(image_id, person_id, item_category, results_collection, result
     ret = False
     for person in image_obj['people']:
         if person['_id'] == person_id:
+            ret = 'found person'
             for item in person['items']:
                 if item['category'] == item_category:
+                    ret = 'found_item'
                     for result in item['similar_results'][results_collection]:
                         if result['id'] == int(result_id):
                             item['similar_results'][results_collection].remove(result)
