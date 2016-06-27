@@ -119,7 +119,7 @@ def cancel_result(image_id, person_id, item_category, results_collection, result
             for item in person['items']:
                 if item['category'] == item_category:
                     for result in item['similar_results'][results_collection]:
-                        if result['id'] == result_id:
+                        if result['id'] == int(result_id):
                             item['similar_results'][results_collection].remove(result)
     res = db.test.replace_one({'image_id': image_id}, image_obj)
     return bool(res.modified_count)
