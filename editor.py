@@ -96,7 +96,7 @@ def cancel_item(image_id, person_id, item_category):
 
 
 def reorder_results(image_id, person_id, item_category, collection, new_results):
-    image_obj = db.test.find_one({'_id': image_id})
+    image_obj = db.test.find_one({'image_id': image_id})
     if not image_obj:
         return False
     for person in image_obj['people']:
