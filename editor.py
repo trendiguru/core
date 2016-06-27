@@ -18,7 +18,7 @@ EDITOR_PROJECTION = {'image_id': 1,
 # ------------------------------------------------ IMAGE-LEVEL ---------------------------------------------------------
 
 def get_image_obj_for_editor(image_url):
-    sparse = db.images.find_one({'image_urls': image_url}, EDITOR_PROJECTION)
+    sparse = db.test.find_one({'image_urls': image_url}, EDITOR_PROJECTION)
     return sparse
 
 
@@ -96,7 +96,7 @@ def cancel_item(image_id, person_id, item_category):
 
 
 def reorder_results(image_id, person_id, item_category, collection, new_results):
-    image_obj = db.images.find_one({'_id': image_id})
+    image_obj = db.test.find_one({'_id': image_id})
     if not image_obj:
         return False
     for person in image_obj['people']:
@@ -104,14 +104,14 @@ def reorder_results(image_id, person_id, item_category, collection, new_results)
             for item in person['items']:
                 if item['category'] == item_category:
                     item['similar_results'][collection] = new_results
-    res = db.images.replace_one({'image_id': image_id}, image_obj)
+    res = db.test.replace_one({'image_id': image_id}, image_obj)
     return bool(res.modified_count)
 
 
 # ----------------------------------------------- RESULT-LEVEL ---------------------------------------------------------
 
 def cancel_result(image_id, person_id, item_category, results_collection, result_id):
-    image_obj = db.images.find_one({'image_id': image_id})
+    image_obj = db.test.find_one({'image_id': image_id})
     if not image_obj:
         return False
     for person in image_obj['people']:
@@ -121,7 +121,7 @@ def cancel_result(image_id, person_id, item_category, results_collection, result
                     for result in item['similar_results'][results_collection]:
                         if result['id'] == result_id:
                             item['similar_results'][results_collection].remove(result)
-    res = db.images.replace_one({'image_id': image_id}, image_obj)
+    res = db.test.replace_one({'image_id': image_id}, image_obj)
     return bool(res.modified_count)
 
 
