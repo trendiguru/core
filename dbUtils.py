@@ -17,7 +17,7 @@ import tldextract
 # ours
 import constants
 import page_results
-from trendi.find_similar_mongo import get_all_subcategories
+from trendi.find_similar_mongo import get_all_subcategories, find_top_n_results
 from trendi import Utils
 from trendi.constants import db, redis_conn
 rq.push_connection(redis_conn)
@@ -1054,3 +1054,23 @@ def rebuild_similar_results():
             db.images.replace_one({'_id': image_obj['_id']}, image_obj)
         except Exception as e:
             print(e)
+
+
+def update_similar_results():
+    i = 0
+    for image_obj in db.images.find():
+        i += 1
+        if i % 100 == 0:
+            print("done {0} images".format(i))
+        for person in image_obj['people']:
+            for item in person['items']:
+                for collection in item['similar_results'].keys():
+                    res_coll = collection + '_' + person['gender']
+                    fp, item['similar_results'][collection] = find_top_n_results(number_of_results=100,
+                                                                                 category_id=item['category'],
+                                                                                 fingerprint=item['fp'],
+                                                                                 collection=res_coll)
+        res = db.images.replace_one({'_id': image_obj['_id']}, image_obj)
+        if not res.modified_count:
+            print(str(image_obj['_id']) + ' not inserted..')
+    print("Done!!")
