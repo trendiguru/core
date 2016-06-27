@@ -12,15 +12,15 @@ q = Queue('ebay_API_worker', connection=redis_conn)
 today_date = str(datetime.date(datetime.now()))
 
 
-def log2file(log_filename):
-    logger = logging.getLogger(__name__)
+def log2file(log_filename, name):
+    logger = logging.getLogger(name)
     logger.setLevel(logging.INFO)
     handler = logging.FileHandler(log_filename, mode= 'a')
     handler.setLevel(logging.INFO)
     logger.addHandler(handler)
     return logger
 
-logger_keywords = log2file('/home/developer/yonti/keywords.log')
+logger_keywords = log2file('/home/developer/yonti/keywords.log', 'keyword')
 
 def GET_call(GEO, gender, sub_attribute, price_bottom=0, price_top=10000, page=1, num=100):
     account_info = ebay_account_info[GEO]
@@ -104,7 +104,7 @@ def fromCats2ppdCats(gender, cats, sub_attribute):
 def name2category(gender, name, sub_attribute):
 
     NAME= name.upper()
-    split1 = re.split(' |-|,', NAME)
+    split1 = re.split(' |-|,|;', NAME)
     cats = []
 
     if any(x in NAME for x in ['BELT BUCKLE','BELT STRAP']):
@@ -256,7 +256,7 @@ def downloader(GEO, gender, sub_attribute, price_bottom=0, price_top=10000):
         new_items += new_inserts
         total_items += total
     end_time = time()
-    logger = log2file('/home/developer/yonti/ebay_'+gender+'_download_stats.log')
+    logger = log2file('/home/developer/yonti/ebay_'+gender+'_download_stats.log', 'download')
     summery = 'attribute: %s_%s ,price: %d to %d , item Count: %d, new: %d, download_time: %d' \
               % (gender, sub_attribute, price_bottom, price_top, total_items, new_items, (end_time-start_time))
     logger.info(summery)
