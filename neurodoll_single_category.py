@@ -165,14 +165,16 @@ if __name__ == "__main__":
 
         for index_to_show in range(0,21):
             result = get_category_graylevel(url,index_to_show)
+
             t1,thresh1 = cv2.threshold(result,60,255,cv2.THRESH_BINARY)
             t2,thresh2 = cv2.threshold(result,127,255,cv2.THRESH_BINARY)
             t3,thresh3 = cv2.threshold(result,180,255,cv2.THRESH_BINARY)
+            t4 = cv2.adaptiveThreshold(result,255,adaptiveMethod=cv2.ADAPTIVE_THRESH_GAUSSIAN_C)
+
             outmat[0:256,256*index_to_show:256*(index_to_show+1)] = result
             outmat[256:256*2,256*index_to_show:256*(index_to_show+1)] = t1
             outmat[256*2:256*3,256*index_to_show:256*(index_to_show+1)] = t2
-            outmat[256*3:256*4,256*index_to_show:256*(index_to_show+1)] = t3
-            cv2.adaptiveThreshold(result,255)
+            outmat[256*3:256*4,256*index_to_show:256*(index_to_show+1)] = t4
 
             cv2.imwrite('output.png',result)
 #            cv2.imshow('output layer'+str(index_to_show),result)
