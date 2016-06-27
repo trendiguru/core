@@ -95,7 +95,7 @@ def cancel_item(image_id, person_id, item_category):
     return bool(res.modified_count)
 
 
-def reorder_results(image_id, person_id, item_category, ordered_results, results_collection):
+def reorder_results(image_id, person_id, item_category, collection, new_results):
     image_obj = db.images.find_one({'_id': image_id})
     if not image_obj:
         return False
@@ -103,7 +103,7 @@ def reorder_results(image_id, person_id, item_category, ordered_results, results
         if person['_id'] == person_id:
             for item in person['items']:
                 if item['category'] == item_category:
-                    item['similar_results'][results_collection] = ordered_results
+                    item['similar_results'][collection] = new_results
     res = db.images.replace_one({'image_id': image_id}, image_obj)
     return bool(res.modified_count)
 
