@@ -1,7 +1,8 @@
 from ..constants import db
 import re
 
-common = ['','AND','A','IS','ARE', 'THE', 'WITH']
+common = ['','AND','A','IS','ARE', 'THE', 'WITH', 'IN', 'THIS', 'BE', 'TO', 'OF', 'THAT', 'HAVE', 'IT', 'FOR', 'FROM',
+          'BY', 'ON', 'AS', 'AT', 'MADE', 'OTHER', 'ONLY']
 
 def word_counter(collection, delete = False):
     '''
