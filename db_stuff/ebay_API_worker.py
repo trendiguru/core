@@ -305,7 +305,7 @@ def total_items(GEO):
                 if not success:
                     continue
                 item_count += count
-                print ('%s / %s / %s ->> total count = %d ->> new = %d' % (GEO, gender, sub, item_count, count))
+                print ('%d : %s / %s / %s ->> total count = %d ->> new = %d' % (i, GEO, gender, sub, item_count, count))
             tmp = {'name':GEO+'_'+gender+'_'+sub,
                    'count': item_count}
             total.append(tmp)
