@@ -12,9 +12,6 @@ import hashlib
 from .. import Utils
 from ..fingerprint_core import generate_mask_and_insert
 
-api_q = Queue('ebay_API_worker', connection=redis_conn)
-fp_q = Queue('fingerprint_new', connection=redis_conn)
-
 today_date = str(datetime.date(datetime.now()))
 
 
@@ -24,10 +21,11 @@ def get_hash(image):
     url_hash = m.hexdigest()
     return url_hash
 
+
 def log2file(log_filename, name):
     logger = logging.getLogger(name)
     logger.setLevel(logging.INFO)
-    handler = logging.FileHandler(log_filename, mode= 'a')
+    handler = logging.FileHandler(log_filename, mode='a')
     handler.setLevel(logging.INFO)
     logger.addHandler(handler)
     return logger
@@ -159,7 +157,7 @@ def name2category(gender, name, sub_attribute, desc):
         return False, []
 
 
-def process_items(items, gender,GEO , sub_attribute):
+def process_items(items, gender,GEO , sub_attribute, q):
     col_name = 'ebay_'+gender+'_'+GEO
     collection = db[col_name]
     new_items = 0
@@ -240,7 +238,7 @@ def process_items(items, gender,GEO , sub_attribute):
                    "img_hash": img_hash}
 
         collection.insert_one(generic)
-        fp_q.enqueue(generate_mask_and_insert, args=(generic, img_url, today_date, collection, image), timeout=1200)
+        q.enqueue(generate_mask_and_insert, args=(generic, img_url, today_date, collection, image), timeout=1200)
         new_items += 1
     return new_items, len(items)
 
@@ -261,6 +259,7 @@ def downloader(GEO, gender, sub_attribute, price_bottom=0, price_top=10000, mode
         return
 
     if item_count > 1490 and price_top > price_bottom:
+        api_q = Queue('ebay_API_worker', connection=redis_conn)
         middle = int((price_top+price_bottom)/2)
         if middle >= price_bottom:
             api_q.enqueue(downloader, args=(GEO, gender, sub_attribute, price_bottom, middle, mode), timeout=1200)
@@ -270,6 +269,7 @@ def downloader(GEO, gender, sub_attribute, price_bottom=0, price_top=10000, mode
                % (price_bottom, price_top, price_bottom, middle, middle, price_top))
         return
 
+    fp_q = Queue('fingerprint_new', connection=redis_conn)
     end_page = item_count/100 +2
     if end_page == 17:
         end_page = 16
@@ -281,7 +281,7 @@ def downloader(GEO, gender, sub_attribute, price_bottom=0, price_top=10000, mode
                                               page=i, num=100, mode=mode)
         if not success:
             continue
-        new_inserts, total = process_items(items, gender, GEO, sub_attribute)
+        new_inserts, total = process_items(items, gender, GEO, sub_attribute, fp_q)
         new_items += new_inserts
         total_items += total
     end_time = time()
