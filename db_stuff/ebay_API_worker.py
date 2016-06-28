@@ -290,3 +290,16 @@ def downloader(GEO, gender, sub_attribute, price_bottom=0, price_top=10000, mode
               % (gender, sub_attribute, price_bottom, price_top, total_items, new_items, (end_time-start_time))
     logger.info(summery)
     print(summery)
+
+
+def total_items(GEO, gender, sub_attribute):
+    item_count=0
+    for i in range(10000):
+        success, count, items = \
+            GET_call(GEO, gender, sub_attribute, i, i+1, num=1, mode=True)
+        if not success:
+            continue
+        print (count)
+        item_count +=count
+
+    print ('total count = %d' %item_count)
