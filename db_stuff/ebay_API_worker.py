@@ -56,6 +56,8 @@ def GET_call(GEO, gender, sub_attribute, price_bottom=0, price_top=10000, page=1
         return False, 0, []
 
     dic = json.loads(res.text)
+    if 'categories' not in dic.key():
+        return True, 0, []
     categories = dic['categories']['category']
     if not len(categories) or 'items' not in categories[0].keys():
         return True, 0, []
@@ -294,12 +296,13 @@ def downloader(GEO, gender, sub_attribute, price_bottom=0, price_top=10000, mode
 
 def total_items(GEO, gender, sub_attribute):
     item_count=0
-    for i in range(10000):
+    for i in range(5000):
         success, count, items = \
             GET_call(GEO, gender, sub_attribute, i, i+1, num=1, mode=True)
         if not success:
             continue
-        print (count)
         item_count +=count
+        print ('total count = %d, new = %d' % (item_count, count))
+
 
     print ('total count = %d' %item_count)
