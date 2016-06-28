@@ -1,5 +1,5 @@
 from .ebay_constants import ebay_account_info, ebay_gender, categories_badwords, \
-    categories_keywords, ebay_paperdoll_women
+    categories_keywords, ebay_paperdoll_women, sub_attributes
 from time import time, sleep
 import requests
 import json
@@ -294,15 +294,21 @@ def downloader(GEO, gender, sub_attribute, price_bottom=0, price_top=10000, mode
     print(summery)
 
 
-def total_items(GEO, gender, sub_attribute):
-    item_count=0
-    for i in range(5000):
-        success, count, items = \
-            GET_call(GEO, gender, sub_attribute, i, i+1, num=1, mode=True)
-        if not success:
-            continue
-        item_count +=count
-        print ('total count = %d, new = %d' % (item_count, count))
+def total_items(GEO):
+    total = []
+    for gender in ['Male', 'Female']:
+        for sub in sub_attributes:
+            item_count = 0
+            for i in range(5000):
+                success, count, items = \
+                    GET_call(GEO, gender, sub, i, i+1, num=1, mode=True)
+                if not success:
+                    continue
+                item_count += count
+                print ('%s / %s / %s ->> total count = %d ->> new = %d' % (GEO, gender, sub, item_count, count))
+            tmp = {'name':GEO+'_'+gender+'_'+sub,
+                   'count': item_count}
+            total.append(tmp)
 
-
-    print ('total count = %d' %item_count)
+    for item in total:
+        print ('%s -> %d' %( item['name'], item['count']))
