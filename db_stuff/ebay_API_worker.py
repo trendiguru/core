@@ -8,9 +8,20 @@ from datetime import datetime
 import logging
 from rq import Queue
 import re
-q = Queue('ebay_API_worker', connection=redis_conn)
+import hashlib
+from .. import Utils
+from ..fingerprint_core import generate_mask_and_insert
+api_q = Queue('ebay_API_worker', connection=redis_conn)
+fp_q = Queue('fingerprint_new', connection=redis_conn)
+
 today_date = str(datetime.date(datetime.now()))
 
+
+def get_hash(image):
+    m = hashlib.md5()
+    m.update(image)
+    url_hash = m.hexdigest()
+    return url_hash
 
 def log2file(log_filename, name):
     logger = logging.getLogger(name)
@@ -21,11 +32,11 @@ def log2file(log_filename, name):
     return logger
 
 
-def GET_call(GEO, gender, sub_attribute, price_bottom=0, price_top=10000, page=1, num=100, testing=True):
+def GET_call(GEO, gender, sub_attribute, price_bottom=0, price_top=10000, page=1, num=100, mode=False):
     account_info = ebay_account_info[GEO]
     gender_attribute = ebay_gender[gender]
     price_attribute = 'price_range_' + str(price_bottom) + '_' + str(price_top)
-    if testing:
+    if mode:
         host = 'http://sandbox.api.ebaycommercenetwork.com/publisher/3.0/json/GeneralSearch?'
     else:
         host = 'http://api.ebaycommercenetwork.com/publisher/3.0/json/GeneralSearch?'
@@ -154,34 +165,35 @@ def process_items(items, gender,GEO , sub_attribute):
     for item in items:
         offer = item['offer']
         keys = offer.keys()
+
         itemId = offer['id']
         sku = offer['sku']
         id_exists = collection.find_one({'id': itemId})
         sku_exists = collection.find_one({'sku': sku})
-        if id_exists :
-            #TODO: add checks
+        if id_exists or sku_exists:
+            #TODO: add checks - fp:exists
             # print ('ID ID ID ID')
             continue
 
-        if sku_exists:
-            # TODO: add checks
-            print ('SKU SKU SKU')
+        success, category = name2category(gender, offer['name'], sub_attribute, desc)
+        if not success:
+            # print ('NOT SUCCESS NOT SUCCESS')
             continue
 
-        price = {'price': offer['basePrice']['value'],
-                 'currency': offer['basePrice']['currency']}
-
-        offer_status = offer['stockStatus']
-        if offer_status == 'in-stock':
-            status = {"instock": True, "days_out": 0}
-        else:
-            status = {"instock": False, "days_out": 0}
-
         img_list = offer['imageList']['image']
-        '''
-        take highest res img
-        '''
-        img_url = img_list[-1]
+        img_url = img_list[-1]  # take highest res img
+
+        image = Utils.get_cv2_img_array(img_url)
+        if image is None:
+            print ('bad img url')
+            continue
+
+        img_hash = get_hash(image)
+
+        hash_exists = collection.find_one({'img_hash': img_hash})
+        if hash_exists:
+            print ('hash already exists')
+            continue
 
         if 'description' in keys:
             desc = offer['description']
@@ -193,14 +205,19 @@ def process_items(items, gender,GEO , sub_attribute):
         else:
             shipping = ""
 
-        success, category = name2category(gender, offer['name'], sub_attribute, desc)
-        if not success:
-            # print ('NOT SUCCESS NOT SUCCESS')
-            continue
         if 'manufacturer' in keys:
             brand = offer['manufacturer']
         else:
             brand = offer['store']['name']
+
+        price = {'price': offer['basePrice']['value'],
+                 'currency': offer['basePrice']['currency']}
+
+        offer_status = offer['stockStatus']
+        if offer_status == 'in-stock':
+            status = {"instock": True, "days_out": 0}
+        else:
+            status = {"instock": False, "days_out": 0}
 
         generic = {"id": [itemId],
                    "categories": category,
@@ -217,32 +234,21 @@ def process_items(items, gender,GEO , sub_attribute):
                    "fingerprint": None,
                    "gender": gender,
                    "shippingInfo": shipping,
-                   "raw_info": offer}
-
-        # image = Utils.get_cv2_img_array(img_url)
-        # if image is None:
-        #     print ('bad img url')
-        #     continue
-
-        # img_hash = get_hash(image)
-        #
-        # hash_exists = collection.find_one({'img_hash': img_hash})
-        # if hash_exists:
-        #     print ('hash already exists')
-        #     continue
-        #
-        # generic["img_hash"] = img_hash
+                   "raw_info": offer,
+                   "img_hash": img_hash}
 
         collection.insert_one(generic)
-        new_items+=1
+        fp_q.enqueue(generate_mask_and_insert, doc=generic, image_url=img_url,
+                     fp_date=today_date, coll=collection, img=image)
+        new_items += 1
     return new_items, len(items)
 
 
-def downloader(GEO, gender, sub_attribute, price_bottom=0, price_top=10000):
+def downloader(GEO, gender, sub_attribute, price_bottom=0, price_top=10000, mode=False):
     start_time = time()
     sleep(1)
     success, item_count, items = \
-        GET_call(GEO, gender, sub_attribute, price_bottom, price_top, num=1)
+        GET_call(GEO, gender, sub_attribute, price_bottom, price_top, num=1, mode=mode)
 
     if not success:
         print ('GET failed')
@@ -256,9 +262,9 @@ def downloader(GEO, gender, sub_attribute, price_bottom=0, price_top=10000):
     if item_count > 1490 and price_top > price_bottom:
         middle = int((price_top+price_bottom)/2)
         if middle >= price_bottom:
-            q.enqueue(downloader, args=(GEO, gender, sub_attribute, price_bottom, middle), timeout=5400)
+            api_q.enqueue(downloader, args=(GEO, gender, sub_attribute, price_bottom, middle, mode), timeout=1200)
         if price_top > middle != price_bottom:
-            q.enqueue(downloader, args=(GEO, gender, sub_attribute, middle, price_top), timeout=5400)
+            api_q.enqueue(downloader, args=(GEO, gender, sub_attribute, middle, price_top, mode), timeout=1200)
         print ('price range %d to %d divided to %d - %d  &  %d - %d'
                % (price_bottom, price_top, price_bottom, middle, middle, price_top))
         return
@@ -272,7 +278,8 @@ def downloader(GEO, gender, sub_attribute, price_bottom=0, price_top=10000):
     # total_items += total
     for i in range(1, end_page):
         sleep(1)
-        success, item_count, items = GET_call(GEO, gender, sub_attribute, price_bottom, price_top, page=i, num=100)
+        success, item_count, items = GET_call(GEO, gender, sub_attribute, price_bottom, price_top, 
+                                              page=i, num=100, mode=mode)
         if not success:
             continue
         new_inserts, total = process_items(items, gender, GEO, sub_attribute)

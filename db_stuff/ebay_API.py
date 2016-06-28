@@ -20,7 +20,7 @@ def log2file(log_filename, name):
     return logger
 
 
-def download_ebay_API(GEO, gender):
+def download_ebay_API(GEO, gender,price_bottom=0, price_top=10000, mode=False):
     s = time()
     col = 'ebay_'+gender+'_'+GEO
     db[col].delete_many({})
@@ -31,7 +31,7 @@ def download_ebay_API(GEO, gender):
     handler = log2file(keywords_log, 'keyword')
     handler.info('keyword started')
     for sub_attribute in sub_attributes:
-        q.enqueue(downloader, args=(GEO, gender, sub_attribute), timeout=5400)
+        q.enqueue(downloader, args=(GEO, gender, sub_attribute, price_bottom, price_top, mode), timeout=1200)
         print(sub_attribute + ' sent to download worker')
         sleep(30)
         while q.count > 0:

@@ -292,7 +292,7 @@ def ebay_downloader(filename, filesize):
                     sleep(600)
                     stall += 1
 
-                img ,generic_dict = ebay2generic(item, minimal_info)
+                img, generic_dict = ebay2generic(item, minimal_info)
                 if generic_dict is None or img is None:
                     print ('img download failed!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!')
                     continue
