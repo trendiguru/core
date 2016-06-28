@@ -187,8 +187,17 @@ def process_items(items, gender,GEO , sub_attribute):
 
         img_list = offer['imageList']['image']
         img_url = img_list[-1]  # take highest res img
-
+        print(img_url)
         image = Utils.get_cv2_img_array(img_url)
+        # if image is None:
+            # # try again
+            # if 'https://' in img_url:
+            #     image = Utils.get_cv2_img_array(img_url[8:])
+            # elif 'http://' in img_url:
+            #     image = Utils.get_cv2_img_array(img_url[7:])
+            # else:
+            #     image= None
+
         if image is None:
             print ('bad img url')
             continue
