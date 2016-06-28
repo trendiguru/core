@@ -1,6 +1,8 @@
 from ..constants import db
 import re
 
+common = ['','AND','A','IS','ARE']
+
 def word_counter(collection, delete = False):
     '''
     scrap all the descriptions in shopstyle collection and insert them into a new collection
@@ -23,6 +25,8 @@ def word_counter(collection, delete = False):
             capital_d = d.upper()
             word_list = re.split(r' |-|,|;|:|\.', capital_d)
             for word in word_list:
+                if word in common:
+                    continue
                 exists = db.words.find_one({'word': word})
                 if exists:
                     db.words.update_one({'_id': exists['_id']}, {'$inc':{'count':1}})
