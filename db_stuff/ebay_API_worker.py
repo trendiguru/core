@@ -237,7 +237,8 @@ def process_items(items, gender,GEO , sub_attribute, q):
                    "img_hash": img_hash}
 
         collection.insert_one(generic)
-        # q.enqueue(generate_mask_and_insert, args=(generic, img_url, today_date, collection, image), timeout=1200)
+        q.enqueue(generate_mask_and_insert, doc=generic, image_url=img_url,
+                  fp_date=today_date, coll=col_name, img=image)
         new_items += 1
     return new_items, len(items)
 

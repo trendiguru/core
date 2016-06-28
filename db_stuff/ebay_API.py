@@ -30,7 +30,7 @@ def download_ebay_API(GEO, gender,price_bottom=0, price_top=10000, mode=False):
     for idx in ['id','sku','img_hash','categories']:
         idx_1 = idx+'_1'
         if idx_1 not in indexes:
-            collection.create_index(idx_1, background=True)
+            collection.create_index(idx, background=True)
 
     download_log = '/home/developer/yonti/ebay_'+gender+'_download_stats.log'
     handler = log2file(download_log, 'download')
