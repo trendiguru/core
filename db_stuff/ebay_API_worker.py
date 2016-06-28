@@ -299,13 +299,21 @@ def total_items(GEO):
     for gender in ['Male', 'Female']:
         for sub in sub_attributes:
             item_count = 0
-            for i in range(1500):
+            for i in range(250):
                 success, count, items = \
                     GET_call(GEO, gender, sub, i, i+1, num=1, mode=True)
                 if not success:
                     continue
                 item_count += count
                 print ('%d : %s / %s / %s ->> total count = %d ->> new = %d' % (i, GEO, gender, sub, item_count, count))
+            for i in [250,500,750,1000,1250]:
+                success, count, items = \
+                    GET_call(GEO, gender, sub, i, i + 250, num=1, mode=True)
+                if not success:
+                    continue
+                item_count += count
+                print ('%d : %s / %s / %s ->> total count = %d ->> new = %d' % (i, GEO, gender, sub, item_count, count))
+
             tmp = {'name':GEO+'_'+gender+'_'+sub,
                    'count': item_count}
             total.append(tmp)
