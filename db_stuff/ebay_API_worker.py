@@ -186,7 +186,6 @@ def process_items(items, gender,GEO , sub_attribute, q):
 
         img_list = offer['imageList']['image']
         img_url = img_list[-1]["sourceURL"]  # take highest res img
-        print(img_url)
         image = Utils.get_cv2_img_array(img_url)
 
         if image is None:
