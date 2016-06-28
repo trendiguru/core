@@ -81,6 +81,7 @@ def ebay2generic(item, info):
         image = None
     return image, generic
 
+
 def fromCats2ppdCats(gender, cats):
     ppd_cats = []
     for cat in cats:
