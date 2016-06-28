@@ -242,7 +242,7 @@ def process_items(items, gender,GEO , sub_attribute):
 
         collection.insert_one(generic)
         fp_q.enqueue(generate_mask_and_insert, doc=generic, image_url=img_url,
-                     fp_date=today_date, coll=collection, img=image)
+                     fp_date=today_date, coll=collection)
         new_items += 1
     return new_items, len(items)
 
