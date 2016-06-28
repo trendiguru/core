@@ -23,7 +23,15 @@ def log2file(log_filename, name):
 def download_ebay_API(GEO, gender,price_bottom=0, price_top=10000, mode=False):
     s = time()
     col = 'ebay_'+gender+'_'+GEO
-    db[col].delete_many({})
+    collection = db[col]
+    collection.delete_many({})
+    indexes = collection.index_information().keys()
+
+    for idx in ['id','sku','img_hash','categories']:
+        idx_1 = idx+'_1'
+        if idx_1 not in indexes:
+            collection.create_index(idx_1, background=True)
+
     download_log = '/home/developer/yonti/ebay_'+gender+'_download_stats.log'
     handler = log2file(download_log, 'download')
     handler.info('download started')
