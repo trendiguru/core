@@ -165,7 +165,7 @@ def process_items(items, gender,GEO , sub_attribute):
     for item in items:
         offer = item['offer']
         keys = offer.keys()
-
+        name = offer['name']
         itemId = offer['id']
         sku = offer['sku']
         id_exists = collection.find_one({'id': itemId})
@@ -175,7 +175,12 @@ def process_items(items, gender,GEO , sub_attribute):
             # print ('ID ID ID ID')
             continue
 
-        success, category = name2category(gender, offer['name'], sub_attribute, desc)
+        if 'description' in keys:
+            desc = offer['description']
+        else:
+            desc = ""
+
+        success, category = name2category(gender, name, sub_attribute, desc)
         if not success:
             # print ('NOT SUCCESS NOT SUCCESS')
             continue
@@ -195,10 +200,7 @@ def process_items(items, gender,GEO , sub_attribute):
             print ('hash already exists')
             continue
 
-        if 'description' in keys:
-            desc = offer['description']
-        else:
-            desc = ""
+
 
         if 'shippingCost' in keys:
             shipping = offer['shippingCost']
@@ -224,7 +226,7 @@ def process_items(items, gender,GEO , sub_attribute):
                    "clickUrl": offer['offerURL'],
                    "images": {"XLarge": img_url},
                    "status": status,
-                   "shortDescription": offer['name'],
+                   "shortDescription": name,
                    "longDescription": desc,
                    "price": price,
                    "brand": brand,
@@ -272,10 +274,8 @@ def downloader(GEO, gender, sub_attribute, price_bottom=0, price_top=10000, mode
     end_page = item_count/100 +2
     if end_page == 17:
         end_page = 16
+
     new_items = total_items = 0
-    # new_inserts, total = process_items(items, gender, GEO, sub_attribute)
-    # new_items += new_inserts
-    # total_items += total
     for i in range(1, end_page):
         sleep(1)
         success, item_count, items = GET_call(GEO, gender, sub_attribute, price_bottom, price_top, 
