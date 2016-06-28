@@ -299,7 +299,7 @@ def total_items(GEO):
     for gender in ['Male', 'Female']:
         for sub in sub_attributes:
             item_count = 0
-            for i in range(5000):
+            for i in range(1500):
                 success, count, items = \
                     GET_call(GEO, gender, sub, i, i+1, num=1, mode=True)
                 if not success:
