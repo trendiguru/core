@@ -294,21 +294,21 @@ def downloader(GEO, gender, sub_attribute, price_bottom=0, price_top=10000, mode
     print(summery)
 
 
-def total_items(GEO):
+def total_items(GEO, mode = True):
     total = []
     for gender in ['Male', 'Female']:
         for sub in sub_attributes:
             item_count = 0
             for i in range(250):
                 success, count, items = \
-                    GET_call(GEO, gender, sub, i, i+1, num=1, mode=True)
+                    GET_call(GEO, gender, sub, i, i+1, num=1, mode=mode)
                 if not success:
                     continue
                 item_count += count
                 print ('%d : %s / %s / %s ->> total count = %d ->> new = %d' % (i, GEO, gender, sub, item_count, count))
             for i in [250,500,750,1000,1250]:
                 success, count, items = \
-                    GET_call(GEO, gender, sub, i, i + 250, num=1, mode=True)
+                    GET_call(GEO, gender, sub, i, i + 250, num=1, mode=mode)
                 if not success:
                     continue
                 item_count += count
@@ -317,6 +317,9 @@ def total_items(GEO):
             tmp = {'name':GEO+'_'+gender+'_'+sub,
                    'count': item_count}
             total.append(tmp)
-
+    t = 0
     for item in total:
+        t += item['count']
         print ('%s -> %d' %( item['name'], item['count']))
+
+    print ('all-in-all : %d' % t)
