@@ -21,12 +21,15 @@ def log2file(log_filename, name):
     return logger
 
 
-def GET_call(GEO, gender, sub_attribute, price_bottom=0, price_top=10000, page=1, num=100):
+def GET_call(GEO, gender, sub_attribute, price_bottom=0, price_top=10000, page=1, num=100, testing=True):
     account_info = ebay_account_info[GEO]
     gender_attribute = ebay_gender[gender]
     price_attribute = 'price_range_' + str(price_bottom) + '_' + str(price_top)
-    api_call =  'http://sandbox.api.ebaycommercenetwork.com/publisher/3.0/json/GeneralSearch?' \
-                'apiKey='+account_info['API_Key'] + \
+    if testing:
+        host = 'http://sandbox.api.ebaycommercenetwork.com/publisher/3.0/json/GeneralSearch?'
+    else:
+        host = 'http://api.ebaycommercenetwork.com/publisher/3.0/json/GeneralSearch?'
+    api_call = host+ 'apiKey='+account_info['API_Key'] + \
                 '&visitorUserAgent=""' \
                 '&visitorIPAddress=""' \
                 '&trackingId='+account_info['Tracking_ID'] + \
@@ -35,9 +38,9 @@ def GET_call(GEO, gender, sub_attribute, price_bottom=0, price_top=10000, page=1
                 '&numItems=' + str(num) + \
                 '&attributeValue=' + gender_attribute + \
                 '&attributeValue=' + sub_attribute + \
-                '&attributeValue=' + price_attribute
-    # 'showProductOffers = true' \
-    # '&numOffersPerProduct=1' \
+                '&attributeValue=' + price_attribute +\
+                'showProductOffers = true' \
+                '&numOffersPerProduct=1' \
 
     res = requests.get(api_call)
 
@@ -106,7 +109,7 @@ def fromCats2ppdCats(gender, cats, sub_attribute):
 
 def find_keywords(desc):
     DESC = desc.upper()
-    split1 = re.split(' |-|,|;|:|\.', DESC)
+    split1 = re.split(r' |-|,|;|:|\.', DESC)
     cats = []
 
     if any(x in DESC for x in ['BELT BUCKLE', 'BELT STRAP']):
@@ -252,7 +255,7 @@ def downloader(GEO, gender, sub_attribute, price_bottom=0, price_top=10000):
                %(sub_attribute, price_bottom, price_top))
         return
 
-    if item_count > 1499 and price_top > price_bottom:
+    if item_count > 1490 and price_top > price_bottom:
         middle = int((price_top+price_bottom)/2)
         if middle >= price_bottom:
             q.enqueue(downloader, args=(GEO, gender, sub_attribute, price_bottom, middle), timeout=5400)
