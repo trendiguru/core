@@ -56,7 +56,7 @@ def GET_call(GEO, gender, sub_attribute, price_bottom=0, price_top=10000, page=1
         return False, 0, []
 
     dic = json.loads(res.text)
-    if 'categories' not in dic.key():
+    if 'categories' not in dic.keys():
         return True, 0, []
     categories = dic['categories']['category']
     if not len(categories) or 'items' not in categories[0].keys():
