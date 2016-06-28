@@ -11,6 +11,7 @@ import re
 import hashlib
 from .. import Utils
 from ..fingerprint_core import generate_mask_and_insert
+
 api_q = Queue('ebay_API_worker', connection=redis_conn)
 fp_q = Queue('fingerprint_new', connection=redis_conn)
 
@@ -201,8 +202,6 @@ def process_items(items, gender,GEO , sub_attribute):
             print ('hash already exists')
             continue
 
-
-
         if 'shippingCost' in keys:
             shipping = offer['shippingCost']
         else:
@@ -241,8 +240,7 @@ def process_items(items, gender,GEO , sub_attribute):
                    "img_hash": img_hash}
 
         collection.insert_one(generic)
-        fp_q.enqueue(generate_mask_and_insert, doc=generic, image_url=img_url,
-                     fp_date=today_date, coll=collection)
+        fp_q.enqueue(generate_mask_and_insert, args=(generic, img_url, today_date, collection, image), timeout=1200)
         new_items += 1
     return new_items, len(items)
 
