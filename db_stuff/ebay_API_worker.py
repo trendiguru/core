@@ -38,9 +38,7 @@ def GET_call(GEO, gender, sub_attribute, price_bottom=0, price_top=10000, page=1
                 '&numItems=' + str(num) + \
                 '&attributeValue=' + gender_attribute + \
                 '&attributeValue=' + sub_attribute + \
-                '&attributeValue=' + price_attribute +\
-                'showProductOffers = true' \
-                '&numOffersPerProduct=1' \
+                '&attributeValue=' + price_attribute
 
     res = requests.get(api_call)
 
