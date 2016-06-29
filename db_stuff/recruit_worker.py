@@ -20,14 +20,15 @@ def log2file(LOG_FILENAME='/home/developer/yonti/recruit_download_stats.log'):
     return logger
 
 
-def GET_ByGenreId( genreId, page=1,limit=1, instock = False):
+def GET_ByGenreId( genreId, page=1,limit=1, img_size=500, instock = False):
     res = requests.get('http://itemsearch.api.ponparemall.com/1_0_0/search/'
                        '?key=731d157cb0cdd4146397ef279385d833'
                        '&genreId='+genreId +
                        '&format=json'
                        '&limit='+str(limit) +
                        '&page='+str(page) +
-                       '&inStockFlg='+str(int(instock)))
+                       '&inStockFlg='+str(int(instock)) +
+                       '&imgSize=' + str(img_size))
     if res.status_code != 200:
         return False, []
     dic = json.loads(res.text)
