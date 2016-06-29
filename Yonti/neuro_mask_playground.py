@@ -62,8 +62,7 @@ def middleman(imgs, category, fg=0.75, neurodoll=True):
             continue
         tmp = {'sortOrder':sortOrder,
                'itemImgUrl': url,
-               'success': True,
-               'fg':fg}
+               'success': True}
 
         masks.append(tmp)
     return masks
@@ -90,7 +89,8 @@ def fresh_meat(gender,item_id, fg=0.75):
     masks = middleman(imgs, category,fg, do_neuro)
     ret = {'item_id': item_id,
            'category': category,
-           'mask': masks}
+           'mask': masks,
+           'fg': fg}
     return ret
 
 
