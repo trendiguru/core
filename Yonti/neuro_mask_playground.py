@@ -14,14 +14,16 @@ def grabcut_neuro(img_url, neuro_mask, fg, sortOrder):
         print ('bad img url')
         return False, []
 
-    rect = (0, 0, image.shape[1] - 1, image.shape[0] - 1)
+    # rect = (0, 0, image.shape[1] - 1, image.shape[0] - 1)
     bgdmodel = np.zeros((1, 65), np.float64)
     fgdmodel = np.zeros((1, 65), np.float64)
 
     mask = np.zeros(image.shape[:2], np.uint8)
-    mask[neuro_mask>255*fg]=3
-    mask[neuro_mask<255*fg]=2
-    cv2.grabCut(image, mask, rect, bgdmodel, fgdmodel, 3, cv2.GC_INIT_WITH_MASK)
+    mask[neuro_mask>200*fg]=2
+    mask[neuro_mask>255*fg]=1
+    mask[neuro_mask <200 * fg] = 3
+    mask[neuro_mask <55 * fg] = 0
+    cv2.grabCut(image, mask, None, bgdmodel, fgdmodel, 3, cv2.GC_INIT_WITH_MASK)
 
     mask2 = np.where((mask == 1) + (mask == 3), 255, 0).astype(np.uint8)
     image[mask2==0]=0
