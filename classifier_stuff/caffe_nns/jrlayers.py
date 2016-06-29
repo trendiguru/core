@@ -410,9 +410,9 @@ class JrMultilabel(caffe.Layer):
         print(str(self.n_files)+' good files in image dir '+str(self.images_dir))
         logging.debug('self.idx is :'+str(self.idx)+' type:'+str(type(self.idx)))
 
-        if self.new_size == None:
-            print('uh i got no size so using 227x227')
-            self.new_size = (227,227)
+        if self.new_size == None:   #the old size of 227 is not actually correct, original vgg/resnet wants 224
+            print('uh i got no size so using 224x224')
+            self.new_size = (224,224)
         top[0].reshape(self.batch_size, 3, self.new_size[0], self.new_size[1])
         # Note the 20 channels (because PASCAL has 20 classes.)
         top[1].reshape(self.batch_size, 21)
