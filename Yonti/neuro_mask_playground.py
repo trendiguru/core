@@ -65,12 +65,12 @@ def middleman(imgs, category, fg=0.75, neurodoll=True):
         masks.append(tmp)
     return masks
 
-def fresh_meat(gender,item_id=None, fg=0.75):
+def fresh_meat(gender,item_id=0, fg=0.75):
     col_name= 'recruit_'+gender
     collection = db[col_name]
     do_neuro = True
 
-    if item_id is not None:
+    if item_id != 0:
         exists = collection.find_one({'_id': item_id})
         if exists:
             do_neuro = False
