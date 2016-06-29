@@ -6,7 +6,7 @@ from ..paperdoll import neurodoll_falcon_client as nfc
 from ..Utils import get_cv2_img_array
 import numpy as np
 import cv2
-
+from random import randint
 
 def grabcut_neuro(img_url, neuro_mask, fg):
     image = get_cv2_img_array(img_url)
@@ -27,9 +27,8 @@ def grabcut_neuro(img_url, neuro_mask, fg):
     return True, mask2
 
 
-def middleman(col_name,idx, imgs, category, fg=0.75, neurodoll=True):
+def middleman(imgs, category, fg=0.75, neurodoll=True):
     category_idx = ultimate_21_dict[category]
-    collection = db[col_name]
     masks = []
     for img in imgs:
         sortOrder = img['sortOrder']
@@ -37,57 +36,55 @@ def middleman(col_name,idx, imgs, category, fg=0.75, neurodoll=True):
         if neurodoll:
             dic = nfc.pd(url, category_idx)
             if not dic['success']:
+                tmp = {'sortOrder': sortOrder,
+                       'itemImgUrl': url,
+                       'success':False}
+                masks.append(tmp)
                 continue
             mask = dic['mask']
+            filename = '/var/www/neuro_mask/neuro_' + str(sortOrder) + '.jpg'
+            cv2.imwrite(filename, mask)
         else:
-            mask = img['neuro_mask']
+            filename = '/var/www/neuro_mask/neuro_' + str(sortOrder) + '.jpg'
+            mask = cv2.imread(filename)
+
         success, grabcut_mask = grabcut_neuro(url, mask,fg)
         if not success:
+            tmp = {'sortOrder': sortOrder,
+                   'itemImgUrl': url,
+                   'success': False}
+            masks.append(tmp)
             continue
-        bg = 1- fg
         tmp = {'sortOrder':sortOrder,
                'itemImgUrl': url,
-               'neuro_mask': mask.tolist(),
-               'fg': fg,
-               'bg': bg,
-               'grabcut_mask': grabcut_mask.tolist()}
+               'success': True}
+        filename = '/var/www/neuro_mask/grabcut_'+str(sortOrder)+'.jpg'
+        cv2.imwrite(filename,grabcut_mask)
         masks.append(tmp)
-    collection.update_one({'_id': idx},{'$set':{'images.processed' : masks}})
     return masks
 
-def fresh_meat(gender):
+def fresh_meat(gender,item_id=None, fg=0.75):
     col_name= 'recruit_'+gender
     collection = db[col_name]
-    item =  collection.find_one({'images.processed': {'$exists': 0}})
-    imgs = item['raw_info']['itemImgInfoList']
-    item_id = item['_id']
-    category = item['categories']
-    masks = middleman(col_name, item_id, imgs, category)
+    do_neuro = True
+
+    if item_id is not None:
+        exists = collection.find_one({'id': item_id})
+        if exists:
+            do_neuro = False
+            imgs = exists['raw_info']['itemImgInfoList']
+            category = exists['categories']
+
+    if do_neuro:
+        r = randint(0,1000)
+        item =  collection.find()[r]
+        imgs = item['raw_info']['itemImgInfoList']
+        category = item['categories']
+
+    masks = middleman(imgs, category,fg, do_neuro)
     ret = {'item_id': item_id,
-           'imgs': imgs,
            'category': category,
            'mask': masks}
     return ret
 
 
-def grabcut_only(item_id,gender, fg):
-    col_name= 'recruit_'+gender
-    collection = db[col_name]
-    id_exists =  collection.find_one({'id': item_id})
-    if not id_exists:
-        ret = fresh_meat(gender)
-        return ret
-    mask_exists = collection.find_one({'id': item_id, 'images.processed':{'$exists':1}})
-    if mask_exists:
-        do_neuro = False
-    else:
-        do_neuro = True
-    imgs = mask_exists['images']['precessed']
-    category = mask_exists['categories']
-    masks = middleman(col_name, item_id, imgs, category, fg, do_neuro)
-    ret = {'item_id': item_id,
-           'imgs': imgs,
-           'category': category,
-           'mask': masks}
-
-    return ret
