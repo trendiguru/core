@@ -81,7 +81,7 @@ def fresh_meat(gender,item_id, fg=0.75):
         r = randint(0,1000)
         item =  collection.find({'categories':{'$in':ultimate_21_dict.keys()}})[r]
         imgs = item['raw_info']['itemImgInfoList']
-        item_id = item['id']
+        item_id = item['id'][0]
         category = item['categories']
 
     masks = middleman(imgs, category,fg, do_neuro)
