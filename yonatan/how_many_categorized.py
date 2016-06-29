@@ -25,7 +25,7 @@ sleeve_dict = {
 'short_sleeve' : db.yonatan_dresses.count({'sleeve_length': ['false', 'false', 'false', 'false', 'false', 'true', 'false', 'false', 'false']}),
 'midi_sleeve' : db.yonatan_dresses.count({'sleeve_length': ['false', 'false', 'false', 'false', 'false', 'false', 'true', 'false', 'false']}),
 'long_sleeve' : db.yonatan_dresses.count({'sleeve_length': ['false', 'false', 'false', 'false', 'false', 'false', 'false', 'true', 'false']}),
-'asymmetry' : db.yonatan_dresses.count({'sleeve_length': ['false', 'false', 'false', 'false', 'false', 'false', 'false', 'false', 'true']}),
+'asymmetry' : db.yonatan_dresses.count({'sleeve_length': ['false', 'false', 'false', 'false', 'false', 'false', 'false', 'false', 'true']})
 }
 
 sum_of_all = sleeve_dict['strapless'] + sleeve_dict['spaghetti_straps'] + sleeve_dict['straps + sleeveless'] + \
