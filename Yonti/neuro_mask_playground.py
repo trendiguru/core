@@ -79,7 +79,7 @@ def fresh_meat(gender,item_id=None, fg=0.75):
 
     if do_neuro:
         r = randint(0,1000)
-        item =  collection.find()[r]
+        item =  collection.find({'categories':{'$in':ultimate_21_dict.keys()}})[r]
         imgs = item['raw_info']['itemImgInfoList']
         category = item['categories']
 
