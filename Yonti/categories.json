@@ -1,0 +1,1322 @@
+{
+  "categories": [
+    {
+      "name": "Women",
+      "description": "Women's clothing and accessories",
+      "image": "http://fun.funfunforeveryone.com",
+      "children": [
+        {
+          "name": "Women's Clothes",
+          "description": "All women's clothing",
+          "image": "www",
+          "children": [
+            {
+              "name": "dresses",
+              "attributes": [
+                {
+                  "name": "length",
+                  "description": "dress length",
+                  "children": [
+                    {
+                      "name": "mini",
+                      "desc": "short and sweet",
+                      "image": "Lenght_SHORT.png"
+                    },
+                    {
+                      "name": "midi",
+                      "description": "mid length, knee area to calf",
+                      "image": "Lenght_MIDI.png"
+                    },
+                    {
+                      "name": "maxi",
+                      "description": "long length, ankle to floor",
+                      "image": "Lenght_LONG.png"
+                    }
+                  ]
+                },
+                {
+                  "name": "neckline",
+                  "description": "shape of the dress at the neck/chest",
+                  "children": [
+                    {
+                      "name": "turtle",
+                      "desc": "covered neck",
+                      "image": "Neckline_GOLF.png"
+                    },
+                    {
+                      "name": "collar",
+                      "desc": "folded piece at neck",
+                      "image": "Neckline_COLLAR.png"
+                    },
+                    {
+                      "name": "jewel",
+                      "desc": "round and close to the base of the neck",
+                      "image": "Neckline_CLOSED.png"
+                    },
+                    {
+                      "name": "scoop neck",
+                      "desc": "deep curve hits mid chest",
+                      "image": "http://www.sugarpetals.com/harem.htg/crop_top.jpg"
+                    },
+                    {
+                      "name": "v_neck",
+                      "desc": "v-shape, hits below neck and along chest",
+                      "image": "Neckline_V.png"
+                    },
+                    {
+                      "name": "off_shoulder",
+                      "desc": "one edge extending below the shoulder and collarbone",
+                      "image": "Neckline_WIDE.png"
+                    },
+                    {
+                      "name": "sweetheart",
+                      "desc": "two connecting curves at bust",
+                      "image": "Neckline_HEART.png"
+                    },
+                    {
+                      "name": "square",
+                      "desc": "3 edges that create square-shape at a point below the neck",
+                      "image": "Neckline_SQUARE.png"
+                    }
+                  ]
+                },
+                {
+                  "name": "silhouette",
+                  "desc": "the overall shape of the dress",
+                  "children": [
+                    {
+                      "name": "a_line",
+                      "desc": "fitted top, flares outward towards bottom",
+                      "image": "https://d336s8nt4p00c3.cloudfront.net/tags/de/res/60/10377.1.png"
+                    },
+                    {
+                      "name": "bodycon",
+                      "desc": "tight fitting along full length of dress",
+                      "image": "https://d336s8nt4p00c3.cloudfront.net/tags/de/res/60/10378.1.png"
+                    },
+                    {
+                      "name": "mermaid",
+                      "desc": "fitted torso to thigh/knee then flares out to hem",
+                      "image": "http://pre15.deviantart.net/fd15/th/pre/i/2011/132/e/0/mermaid_gown_template_by_earthquakes123-d3g605p.jpg"
+                    },
+                    {
+                      "name": "sheath",
+                      "desc": "fitted close to body with straight skirt, hits around knee",
+                      "image": "https://0.s3.envato.com/files/47683860/KneeLength_Sheath_Pleats_preview.jpg"
+                    },
+                    {
+                      "name": "shift",
+                      "desc": "flares away from body, not tight fitting; short dress",
+                      "image": "http://www.tkmaxx.com/content/ebiz/tkmaxx/page/demystify-dress-styles/06shift_dress_style.gif"
+                    }
+                  ]
+                },
+                {
+                  "name": "sleeves",
+                  "description": "amount of coverage on the arm",
+                  "children": [
+                    {
+                      "name": "one_shoulder",
+                      "description": "asymmetric with one shoulder covered, the other bare",
+                      "image": "Sleeves_ASYMMETRIC.png"
+                    },
+                    {
+                      "name": "halter_closed",
+                      "description": "bare shoulders, straps wrap around neck",
+                      "image": "Sleeves_halter_closed.png"
+                    },
+                    {
+                      "name": "halter_open",
+                      "description": "bare shoulders, straps are wide apart, wrap around neck",
+                      "image": "Sleeves_halter_open.png"
+                    },
+                    {
+                      "name": "strapless",
+                      "description": "bare shoulders + collar; no sleeves or arm covering",
+                      "image": "Sleeves_STRAPLESS.png"
+                    },
+                    {
+                      "name": "strap",
+                      "description": "thin straps over the shoulder/collar; sleeveless",
+                      "image": "Sleeves_STRAP.png"
+                    },
+                    {
+                      "name": "sleeveless",
+                      "description": "partially bare shoulders, thick straps but no sleeves on arm",
+                      "image": "Sleeves_SLEEVELESS.png"
+                    },
+                    {
+                      "name": "short sleeve",
+                      "description": "covered shoulders and covered upper portion of upper arm",
+                      "image": "Sleeves_SHORT.png"
+                    },
+                    {
+                      "name": "three-quarter sleeves",
+                      "description": "covered shoulders and upper arm; bare lower arm",
+                      "image": "Sleeves_THIRD_QUARTER.png"
+                    },
+                    {
+                      "name": "long sleeve",
+                      "description": "Shoulders + entire length of arm is covered",
+                      "image": "Sleeves_LONG.png"
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "name": "tops",
+              "children": [
+                {
+                  "name": "blouse",
+                  "description": "women's dress shirt",
+                  "attributes": [
+                    {
+                      "name": "collar",
+                      "desc": "folded piece at neck",
+                      "image": "Neckline_COLLAR.png"
+                    }
+                  ]
+                },
+                {
+                  "name": "tee shirt",
+                  "attributes": [
+                    {
+                      "name": "neckline",
+                      "description": "shape of the dress at the neck/chest",
+                      "children": [
+                        {
+                          "name": "turtle",
+                          "desc": "covered neck",
+                          "image": "Neckline_GOLF.png"
+                        },
+                        {
+                          "name": "collar",
+                          "desc": "folded piece at neck",
+                          "image": "Neckline_COLLAR.png"
+                        },
+                        {
+                          "name": "jewel",
+                          "desc": "round and close to the base of the neck",
+                          "image": "Neckline_CLOSED.png"
+                        },
+                        {
+                          "name": "scoop",
+                          "desc": "deep curve hits mid chest",
+                          "image": "http://www.sugarpetals.com/harem.htg/crop_top.jpg"
+                        },
+                        {
+                          "name": "v_neck",
+                          "desc": "v-shape, hits below neck and along chest",
+                          "image": "Neckline_V.png"
+                        },
+                        {
+                          "name": "off_shoulder",
+                          "desc": "one edge extending below the shoulder and collarbone",
+                          "image": "Neckline_WIDE.png"
+                        },
+                        {
+                          "name": "sweetheart",
+                          "desc": "two connecting curves at bust",
+                          "image": "Neckline_HEART.png"
+                        },
+                        {
+                          "name": "square",
+                          "desc": "3 edges that create square-shape at a point below the neck",
+                          "image": "Neckline_SQUARE.png"
+                        }
+                      ]
+                    },
+                    {
+                      "name": "sleeves",
+                      "description": "amount of coverage on the arm",
+                      "children": [
+                        {
+                          "name": "one_shoulder",
+                          "description": "asymmetric with one shoulder covered, the other bare",
+                          "image": "Sleeves_ASYMMETRIC.png"
+                        },
+                        {
+                          "name": "halter_closed",
+                          "description": "bare shoulders, straps wrap around neck",
+                          "image": "Sleeves_halter_closed.png"
+                        },
+                        {
+                          "name": "halter_open",
+                          "description": "bare shoulders, straps are wide apart, wrap around neck",
+                          "image": "Sleeves_halter_open.png"
+                        },
+                        {
+                          "name": "strapless",
+                          "description": "bare shoulders + collar; no sleeves or arm covering",
+                          "image": "Sleeves_STRAPLESS.png"
+                        },
+                        {
+                          "name": "strap",
+                          "description": "thin straps over the shoulder/collar; sleeveless",
+                          "image": "Sleeves_STRAP.png"
+                        },
+                        {
+                          "name": "sleeveless",
+                          "description": "partially bare shoulders, thick straps but no sleeves on arm",
+                          "image": "Sleeves_SLEEVELESS.png"
+                        },
+                        {
+                          "name": "short sleeve",
+                          "description": "covered shoulders and covered upper portion of upper arm",
+                          "image": "Sleeves_SHORT.png"
+                        },
+                        {
+                          "name": "three-quarter sleeves",
+                          "description": "covered shoulders and upper arm; bare lower arm",
+                          "image": "Sleeves_THIRD_QUARTER.png"
+                        },
+                        {
+                          "name": "long sleeve",
+                          "description": "Shoulders and entire length of arm is covered",
+                          "image": "Sleeves_LONG.png"
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "name": "polo shirt",
+                  "attributes": [
+                    {
+                      "name": "sleeve length",
+                      "children": [
+                        {
+                          "name": "sleeveless",
+                          "description": "partially bare shoulders, thick straps but no sleeves on arm"
+                        },
+                        {
+                          "name": "short sleeve",
+                          "description": "covered shoulders and covered upper portion of upper arm",
+                          "image": "Sleeves_SHORT.png"
+                        },
+                        {
+                          "name": "three-quarter sleeves",
+                          "description": "covered shoulders and upper arm; bare lower arm",
+                          "image": "Sleeves_THIRD_QUARTER.png"
+                        },
+                        {
+                          "name": "long sleeve",
+                          "description": "Shoulders and entire length of arm is covered",
+                          "image": "Sleeves_LONG.png"
+                        }
+                      ]
+                    },
+                    {
+                      "name": "collar",
+                      "desc": "folded piece at neck",
+                      "image": "Neckline_COLLAR.png"
+                    }
+                  ]
+                },
+                {
+                  "name": "sweaters",
+                  "attributes": [
+                    {
+                      "name": "style/opening",
+                      "children": [
+                        {
+                          "name": "cardigan",
+                          "desc": "front opening",
+                          "image": "https://d336s8nt4p00c3.cloudfront.net/tags/de/res/60/10488.1.png"
+                        },
+                        {
+                          "name": "pullover",
+                          "description": "no front opening",
+                          "image": "https://d336s8nt4p00c3.cloudfront.net/tags/de/res/60/10442.1.png"
+                        }
+                      ]
+                    },
+                    {
+                      "name": "sleeve length",
+                      "children": [
+                        {
+                          "name": "three-quarter sleeves",
+                          "description": "covered shoulders and upper arm; bare lower arm",
+                          "image": "Sleeves_THIRD_QUARTER.png"
+                        },
+                        {
+                          "name": "long sleeve",
+                          "description": "Shoulders + entire length of arm is covered",
+                          "image": "Sleeves_LONG.png"
+                        }
+                      ]
+                    },
+                    {
+                      "name": "neckline",
+                      "description": "shape of the sweater at the neck/chest",
+                      "children": [
+                        {
+                          "name": "turtle",
+                          "desc": "covered neck",
+                          "image": "Neckline_GOLF.png"
+                        },
+                        {
+                          "name": "jewel",
+                          "desc": "round and close to the base of the neck",
+                          "image": "Neckline_CLOSED.png"
+                        },
+                        {
+                          "name": "scoop",
+                          "desc": "deep curve hits mid chest",
+                          "image": "http://www.sugarpetals.com/harem.htg/crop_top.jpg"
+                        },
+                        {
+                          "name": "v_neck",
+                          "desc": "v-shape, hits below neck and along chest",
+                          "image": "Neckline_V.png"
+                        },
+                        {
+                          "name": "square",
+                          "desc": "3 edges that create square-shape at a point below the neck",
+                          "image": "Neckline_SQUARE.png"
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "name": "sweatshirts",
+                  "attributes": [
+                    {
+                      "name": "style/opening",
+                      "children": [
+                        {
+                          "name": "full-zip",
+                          "description": "has full length opening",
+                          "image": "https://d336s8nt4p00c3.cloudfront.net/tags/de/res/60/10433.2.png"
+                        },
+                        {
+                          "name": "pullover",
+                          "description": "has no opening",
+                          "image": "https://d336s8nt4p00c3.cloudfront.net/tags/de/res/60/10446.1.png"
+                        }
+                      ]
+                    },
+                    {
+                      "name": "hood",
+                      "description": "head covering in the back of sweatchirt",
+                      "children": [
+                        {
+                          "name": "hood",
+                          "description": "with hood",
+                          "image": "https://d336s8nt4p00c3.cloudfront.net/tags/de/res/60/10433.2.png"
+                        },
+                        {
+                          "name": "no hood",
+                          "description": "without hood",
+                          "image": "http://www.ceogolfshop.com/images/Descente/LSSweater-drawing2.jpg"
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "name": "bottoms",
+              "children": [
+                {
+                  "name": "pants",
+                  "attributes": [
+                    {
+                      "name": "fit",
+                      "children": [
+                        {
+                          "name": "skinny",
+                          "description": "tight fitting to leg",
+                          "image": "https://d336s8nt4p00c3.cloudfront.net/tags/de/res/60/10325.1.png"
+                        },
+                        {
+                          "name": "flare",
+                          "description": "fitted to knee, then widen toward the hem",
+                          "image": "https://d336s8nt4p00c3.cloudfront.net/tags/de/res/60/10302.1.png"
+                        },
+                        {
+                          "name": "loose",
+                          "description": "pants are wider from the leg for the whole length",
+                          "image": "https://d336s8nt4p00c3.cloudfront.net/tags/de/res/60/10333.1.png"
+                        }
+                      ]
+                    },
+                    {
+                      "name": "waist",
+                      "children": [
+                        {
+                          "name": "high waist",
+                          "description": "waist line above the hip",
+                          "image": "https://d336s8nt4p00c3.cloudfront.net/tags/de/res/60/10325.1.png"
+                        },
+                        {
+                          "name": "low waist",
+                          "description": "hits at hip",
+                          "image": "https://d336s8nt4p00c3.cloudfront.net/tags/de/res/60/10303.1.png"
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "name": "jeans",
+                  "attributes": [
+                    {
+                      "name": "fit",
+                      "children": [
+                        {
+                          "name": "skinny",
+                          "description": "tight fitting to leg",
+                          "image": "https://d336s8nt4p00c3.cloudfront.net/tags/de/res/60/10374.1.png"
+                        },
+                        {
+                          "name": "bootcut",
+                          "description": "fitted to knee, then widen toward the hem",
+                          "image": "https://d336s8nt4p00c3.cloudfront.net/tags/de/res/60/10364.1.png"
+                        },
+                        {
+                          "name": "boyfriend",
+                          "description": "loose fitting throughout length",
+                          "image": "https://d336s8nt4p00c3.cloudfront.net/tags/de/res/60/10365.1.png"
+                        }
+                      ]
+                    },
+                    {
+                      "name": "waist",
+                      "children": [
+                        {
+                          "name": "high waist",
+                          "desc": "waist line above the hip",
+                          "image": "hhttps://d336s8nt4p00c3.cloudfront.net/tags/de/res/60/10366.1.png"
+                        },
+                        {
+                          "name": "low waist",
+                          "description": "hits at hip",
+                          "image": "https://d336s8nt4p00c3.cloudfront.net/tags/de/res/60/10367.1.png"
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "name": "skirt",
+              "attributes": [
+                {
+                  "name": "length",
+                  "children": [
+                    {
+                      "name": "mini",
+                      "description": "hem above the knee",
+                      "image": "Lenght_SHORT.png"
+                    },
+                    {
+                      "name": "midi",
+                      "description": "hem between knee and calf-length",
+                      "image": "Lenght_MIDI.png"
+                    },
+                    {
+                      "name": "maxi",
+                      "description": "full length, hem from ankle to floor",
+                      "image": "Lenght_LONG.png"
+                    }
+                  ]
+                },
+                {
+                  "name": "shape",
+                  "description": "shape of overall skirt and distance from leg",
+                  "children": [
+                    {
+                      "name": "pencil",
+                      "description": "straight but fitted line (usually to knee)",
+                      "image": "https://d336s8nt4p00c3.cloudfront.net/tags/de/res/60/10451.1.png"
+                    },
+                    {
+                      "name": "bodycon",
+                      "description": "tight fitting to body throughout length",
+                      "image": "http://i.ytimg.com/vi/FFcDbb26VlA/maxresdefault.jpg"
+                    },
+                    {
+                      "name": "pleated",
+                      "description": "vertical folds along skirt",
+                      "image": "https://d336s8nt4p00c3.cloudfront.net/tags/de/res/60/10453.1.png"
+                    },
+                    {
+                      "name": "a_line",
+                      "description": "fitted at hips and widens to hem, any length",
+                      "image": "https://d336s8nt4p00c3.cloudfront.net/tags/de/res/60/10467.1.png"
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "name": "shorts",
+              "attributes": [
+                {
+                  "name": "length",
+                  "children": [
+                    {
+                      "name": "mini",
+                      "description": "extra short-shorts",
+                      "image": "https://d336s8nt4p00c3.cloudfront.net/tags/de/res/60/10312.1.png"
+                    },
+                    {
+                      "name": "midi",
+                      "description": "longer shorts, length from mid-thigh to knee",
+                      "image": "https://d336s8nt4p00c3.cloudfront.net/tags/de/res/60/10309.1.png"
+                    }
+                  ]
+                },
+                {
+                  "name": "waist",
+                  "children": [
+                    {
+                      "name": "high waist",
+                      "desc": "waist line above the hip",
+                      "image": "https://d336s8nt4p00c3.cloudfront.net/tags/de/res/60/10311.1.png"
+                    },
+                    {
+                      "name": "low waist",
+                      "desc": "hits at hip",
+                      "image": "https://d336s8nt4p00c3.cloudfront.net/tags/de/res/60/10315.1.png"
+                    }
+                  ]
+                },
+                {
+                  "name": "material",
+                  "children": [
+                    {
+                      "name": "jean shorts",
+                      "description": "shorts made out of denim",
+                      "image": "https://d336s8nt4p00c3.cloudfront.net/tags/de/res/60/10313.1.png"
+                    },
+                    {
+                      "name": "non-jean shorts",
+                      "description": "not made of denim",
+                      "image": "https://d336s8nt4p00c3.cloudfront.net/tags/de/res/60/10315.1.png"
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "name": "outerwear",
+              "children": [
+                {
+                  "name": "jackets",
+                  "description": "has sleeves",
+                  "attributes": [
+                    {
+                      "name": "material",
+                      "children": [
+                        {
+                          "name": "ski jacket",
+                          "description": "outergarment with sleeves; puffy look",
+                          "image": "https://d336s8nt4p00c3.cloudfront.net/tags/de/res/60/10360.1.png"
+                        },
+                        {
+                          "name": "wool coat",
+                          "description": "outergarment with sleeves; made of wool",
+                          "image": "https://d336s8nt4p00c3.cloudfront.net/tags/de/res/60/10361.1.png"
+                        },
+                        {
+                          "name": "leather jacket",
+                          "description": "outergarment with sleeves; made of leather",
+                          "image": "https://d336s8nt4p00c3.cloudfront.net/tags/de/res/60/10349.1.png"
+                        },
+                        {
+                          "name": "fur coat",
+                          "description": "material is fur",
+                          "image": "https://d336s8nt4p00c3.cloudfront.net/tags/de/res/60/10343.1.png"
+                        },
+                        {
+                          "name": "jean jacket",
+                          "description": "made of denim",
+                          "image": "https://d336s8nt4p00c3.cloudfront.net/tags/de/res/60/10345.1.png"
+                        }
+                      ]
+                    },
+                    {
+                      "children": [
+                        {
+                          "name": "hood",
+                          "description": "head covering at the back",
+                          "image": "https://d336s8nt4p00c3.cloudfront.net/tags/de/res/60/10346.1.png"
+                        },
+                        {
+                          "name": "no hood",
+                          "description": "no head covering at the back",
+                          "image": "https://d336s8nt4p00c3.cloudfront.net/tags/de/res/60/10356.1.png"
+                        }
+                      ]
+                    },
+                    {
+                      "name": "length",
+                      "children": [
+                        {
+                          "name": "short",
+                          "description": "jacket hits from hip to mid-thigh",
+                          "image": "https://d336s8nt4p00c3.cloudfront.net/tags/de/res/60/10340.1.png"
+                        },
+                        {
+                          "name": "long",
+                          "description": "jacket hits anywhere below mid-thigh to ankle",
+                          "image": "https://d336s8nt4p00c3.cloudfront.net/tags/de/res/60/10342.1.png"
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "name": "vests",
+                  "description": "outer garment without sleeves, has open shoulders",
+                  "image": "https://d336s8nt4p00c3.cloudfront.net/tags/de/res/60/10578.2.png"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "name": "Women's Accessories",
+          "description": "Women's Accessories",
+          "image": "www",
+          "children": [
+            {
+              "name": "shoes",
+              "children": [
+                {
+                  "name": "pumps and high heels",
+                  "attributes": [
+                    {
+                      "name": "heel type",
+                      "children": [
+                        {
+                          "name": "kitten heel",
+                          "description": "low heel",
+                          "image": "https://d336s8nt4p00c3.cloudfront.net/tags/de/res/60/10608.1.png"
+                        }
+                      ]
+                    }
+                  ]
+                },
+                null,
+                {
+                  "name": "boots",
+                  "attributes": [
+                    {
+                      "name": "heel height",
+                      "children": [
+                        {
+                          "name": "flat",
+                          "description": "flat heel",
+                          "image": "https://d336s8nt4p00c3.cloudfront.net/tags/de/res/60/10656.1.png"
+                        },
+                        {
+                          "name": "high heel",
+                          "description": "high heeled boot",
+                          "image": "https://d336s8nt4p00c3.cloudfront.net/tags/de/res/60/10667.1.png"
+                        }
+                      ]
+                    },
+                    {
+                      "name": "shaft height",
+                      "description": "vertical portion of boot",
+                      "children": [
+                        {
+                          "name": "short",
+                          "description": "near-ankle boot",
+                          "image": "https://d336s8nt4p00c3.cloudfront.net/tags/de/res/60/10652.1.png"
+                        },
+                        {
+                          "name": "mid",
+                          "description": "medium height, with the top at mid calf",
+                          "image": "https://d336s8nt4p00c3.cloudfront.net/tags/de/res/60/10651.1.png"
+                        },
+                        {
+                          "name": "knee boot",
+                          "description": "top of boot reaches the knee",
+                          "image": "https://d336s8nt4p00c3.cloudfront.net/tags/de/res/60/10662.1.png"
+                        },
+                        {
+                          "name": "over-the-knee",
+                          "description": "boot covers the knee, to mid-thigh",
+                          "image": "https://d336s8nt4p00c3.cloudfront.net/tags/de/res/60/10661.1.png"
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "name": "sneakers",
+                  "children": [
+                    {
+                      "name": "high tops",
+                      "description": "covers ankles",
+                      "image": "https://d336s8nt4p00c3.cloudfront.net/tags/de/res/60/10646.1.png"
+                    },
+                    {
+                      "name": "low top",
+                      "description": "below the ankle",
+                      "image": "https://d336s8nt4p00c3.cloudfront.net/tags/de/res/60/10647.2.png"
+                    }
+                  ]
+                },
+                {
+                  "name": "sandals",
+                  "children": [
+                    {
+                      "name": "flip flops",
+                      "description": "backless, flat shoes",
+                      "image": "https://d336s8nt4p00c3.cloudfront.net/tags/de/res/60/10691.1.png"
+                    },
+                    {
+                      "name": "other sandals",
+                      "children": [
+                        {
+                          "name": "flat",
+                          "description": "no significant heel height",
+                          "image": "https://d336s8nt4p00c3.cloudfront.net/tags/de/res/60/10630.1.png"
+                        },
+                        {
+                          "name": "high heel",
+                          "desc": "strappy, open shoes with a tall heel",
+                          "image": "https://d336s8nt4p00c3.cloudfront.net/tags/de/res/60/10637.1.png"
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "name": "bags",
+              "children": [
+                {
+                  "name": "backpack",
+                  "description": "bag worm on the back, with 2 shoulder straps",
+                  "image": "https://d336s8nt4p00c3.cloudfront.net/tags/de/res/60/10178.1.png"
+                },
+                {
+                  "name": "handbags",
+                  "children": [
+                    {
+                      "name": "satchel/shoulder bag",
+                      "desc": "bag with strap that goes over the shoulder",
+                      "image": "https://d336s8nt4p00c3.cloudfront.net/tags/de/res/60/10160.1.png"
+                    },
+                    {
+                      "name": "tote bag",
+                      "description": "large bag with short handles",
+                      "image": "https://d336s8nt4p00c3.cloudfront.net/tags/de/res/60/10181.2.png"
+                    },
+                    {
+                      "name": "clutch",
+                      "description": "small pouch-like bag, without handles or strap",
+                      "image": "https://d336s8nt4p00c3.cloudfront.net/tags/de/res/60/10156.1.png"
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "name": "jewelry",
+              "children": [
+                {
+                  "name": "rings",
+                  "description": "worn around the finger",
+                  "attributes": [
+                    {
+                      "name": "band",
+                      "desc": "plain, no detailing",
+                      "image": "https://d336s8nt4p00c3.cloudfront.net/tags/de/res/60/10132.1.png"
+                    },
+                    {
+                      "name": "cocktail ring",
+                      "desc": "jewels in addition to metal band",
+                      "image": "https://d336s8nt4p00c3.cloudfront.net/tags/de/res/60/10131.1.png"
+                    }
+                  ]
+                },
+                {
+                  "name": "bracelets",
+                  "description": "worn around the wrist",
+                  "children": [
+                    {
+                      "name": "metal chain",
+                      "description": "chain made of metal links",
+                      "image": "https://d336s8nt4p00c3.cloudfront.net/tags/de/res/60/10084.1.png"
+                    },
+                    {
+                      "name": "beaded",
+                      "description": "bracelet length consists of beads",
+                      "image": "https://d336s8nt4p00c3.cloudfront.net/tags/de/res/60/10090.1.png"
+                    },
+                    {
+                      "name": "leather",
+                      "description": "leather band",
+                      "image": "https://d336s8nt4p00c3.cloudfront.net/tags/de/res/60/10089.1.png"
+                    },
+                    {
+                      "name": "bangle",
+                      "desc": "thick metal band",
+                      "image": "https://d336s8nt4p00c3.cloudfront.net/tags/de/res/60/10085.1.png"
+                    }
+                  ]
+                },
+                {
+                  "name": "necklaces",
+                  "description": "worn around the neck",
+                  "attributes": [
+                    {
+                      "name": "chain style",
+                      "children": [
+                        {
+                          "name": "metal chain",
+                          "description": "chain made of metal links",
+                          "image": "https://d336s8nt4p00c3.cloudfront.net/tags/de/res/60/10118.1.png"
+                        },
+                        {
+                          "name": "beaded",
+                          "description": "length of necklace consists of beads",
+                          "image": "https://d336s8nt4p00c3.cloudfront.net/tags/de/res/60/10117.1.png"
+                        }
+                      ]
+                    },
+                    {
+                      "name": "pendant",
+                      "description": "piece that hangs down from the chain",
+                      "image": "https://d336s8nt4p00c3.cloudfront.net/tags/de/res/60/10115.1.png"
+                    }
+                  ]
+                },
+                {
+                  "name": "earrings",
+                  "children": [
+                    {
+                      "name": "studs",
+                      "description": "small piece at earlobe (variable material)",
+                      "image": "https://sandbox-hgv4.clickworker.com/en/clickworker/jobs/19363/edit"
+                    },
+                    {
+                      "name": "hoops",
+                      "desc": "round band that hangs from the ear",
+                      "image": "https://sandbox-hgv4.clickworker.com/en/clickworker/jobs/19363/edit"
+                    },
+                    {
+                      "name": "drop earrings",
+                      "desc": "hanging piece of jewelry extends from earrings",
+                      "image": "https://sandbox-hgv4.clickworker.com/en/clickworker/jobs/19363/edit"
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Men",
+      "description": "Men's clothing and accessories",
+      "image": "www",
+      "children": [
+        {
+          "name": "Men's clothing",
+          "description": "All men's clothing",
+          "image": "www",
+          "children": [
+            {
+              "name": "tops",
+              "children": [
+                {
+                  "name": "sweaters",
+                  "description": "knitted garment worn on upper body",
+                  "attributes": [
+                    {
+                      "name": "style/opening",
+                      "children": [
+                        {
+                          "name": "cardigan",
+                          "desc": "front opening",
+                          "image": "https://d336s8nt4p00c3.cloudfront.net/tags/de/res/60/10488.1.png"
+                        },
+                        {
+                          "name": "pullover",
+                          "description": "no front opening",
+                          "image": "https://d336s8nt4p00c3.cloudfront.net/tags/de/res/60/10442.1.png"
+                        }
+                      ]
+                    },
+                    {
+                      "name": "neckline",
+                      "description": "shape of the sweater at the neck/chest",
+                      "children": [
+                        {
+                          "name": "turtle",
+                          "desc": "covered neck",
+                          "image": "Neckline_GOLF.png"
+                        },
+                        {
+                          "name": "crewneck",
+                          "desc": "round and close to the base of the neck",
+                          "image": "Neckline_CLOSED.png"
+                        },
+                        {
+                          "name": "v_neck",
+                          "desc": "v-shape, hits below neck and along chest",
+                          "image": "Neckline_V.png"
+                        },
+                        {
+                          "name": "square",
+                          "desc": "3 edges that create square-shape at a point below the neck",
+                          "image": "Neckline_SQUARE.png"
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "name": "sweatshirts",
+                  "description": "a loose, heavy shirt",
+                  "attributes": [
+                    {
+                      "name": "style",
+                      "children": [
+                        {
+                          "name": "zip sweatshirt",
+                          "description": "full length zipper closure",
+                          "image": "https://d336s8nt4p00c3.cloudfront.net/tags/de/res/60/10445.1.png"
+                        },
+                        {
+                          "name": "pullover",
+                          "description": "fully closed, no zipper",
+                          "image": "https://d336s8nt4p00c3.cloudfront.net/tags/de/res/60/10446.1.png"
+                        }
+                      ]
+                    },
+                    {
+                      "children": [
+                        {
+                          "name": "hood",
+                          "description": "covering for the head, attached to the back",
+                          "image": "https://d336s8nt4p00c3.cloudfront.net/tags/de/res/60/10446.1.png"
+                        },
+                        {
+                          "name": "crewneck",
+                          "description": "does not have a hood",
+                          "image": "https://webstores.activenetwork.com/school-software/raiders_cove_online/images/products/detail_343_raiders_cove_online_crew_neck_sweatshirt.jpg"
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "name": "tee shirts",
+                  "description": "casual shirt, no collar or buttons",
+                  "children": [
+                    {
+                      "name": "sleeveless",
+                      "desc": "bare shoulders",
+                      "image": "https://d336s8nt4p00c3.cloudfront.net/tags/de/res/60/10475.1.png"
+                    },
+                    {
+                      "name": "short sleeve",
+                      "desc": "sleeve along upper arm",
+                      "image": "https://d336s8nt4p00c3.cloudfront.net/tags/de/res/60/10478.1.png"
+                    },
+                    {
+                      "name": "long sleeve",
+                      "desc": "fully covered arm",
+                      "image": "https://d336s8nt4p00c3.cloudfront.net/tags/de/res/60/10474.1.p"
+                    }
+                  ]
+                },
+                {
+                  "name": "polo shirts",
+                  "description": "collared shirt with buttons at neck",
+                  "image": "https://d336s8nt4p00c3.cloudfront.net/tags/de/res/60/10476.1.png",
+                  "attributes": [
+                    {
+                      "name": "sleeve length",
+                      "children": [
+                        {
+                          "name": "short sleeve",
+                          "description": "covered shoulders and covered upper portion of upper arm",
+                          "image": "Sleeves_SHORT.png"
+                        },
+                        {
+                          "name": "long sleeve",
+                          "description": "Shoulders + entire length of arm is covered",
+                          "image": "Sleeves_LONG.png"
+                        }
+                      ]
+                    },
+                    {
+                      "name": "shirt collar",
+                      "description": "covered neck",
+                      "image": "Neckline_COLLAR.png"
+                    }
+                  ]
+                },
+                {
+                  "name": "dress shirt",
+                  "description": "button-down shirt with a collar",
+                  "image": "https://d336s8nt4p00c3.cloudfront.net/tags/de/res/60/10269.1.png",
+                  "children": [
+                    {
+                      "name": "short sleeve dress shirt",
+                      "desc": "dress shirt with sleeve to mid-upper arm",
+                      "image": "https://d336s8nt4p00c3.cloudfront.net/tags/de/res/60/10281.1.png"
+                    },
+                    {
+                      "name": "long sleeve dress shirt",
+                      "desc": "dress shirt with sleeve extending the full arm length",
+                      "image": "https://d336s8nt4p00c3.cloudfront.net/tags/de/res/60/10269.1.png"
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "name": "bottoms",
+              "children": [
+                {
+                  "name": "jeans",
+                  "description": "denim pants",
+                  "children": [
+                    {
+                      "name": "skinny",
+                      "description": "narrow fitting",
+                      "image": "https://d336s8nt4p00c3.cloudfront.net/tags/de/res/60/10367.1.png"
+                    },
+                    {
+                      "name": "straight leg",
+                      "description": "medium width leg",
+                      "image": "https://d336s8nt4p00c3.cloudfront.net/tags/de/res/60/10372.1.png"
+                    },
+                    {
+                      "name": "baggy",
+                      "description": "loose-fitting, wide leg width",
+                      "image": "https://d336s8nt4p00c3.cloudfront.net/tags/de/res/60/10370.1.png"
+                    }
+                  ]
+                },
+                {
+                  "name": "trousers",
+                  "description": "non-denim pants",
+                  "image": "https://d336s8nt4p00c3.cloudfront.net/tags/de/res/60/10326.1.png"
+                },
+                {
+                  "name": "shorts",
+                  "description": "short, knee-length pants",
+                  "image": "https://d336s8nt4p00c3.cloudfront.net/tags/de/res/60/10309.1.png"
+                }
+              ]
+            },
+            {
+              "name": "suits",
+              "description": "matching jacket/pants",
+              "children": [
+                {
+                  "name": "jacket",
+                  "description": "jacket with buttons and lapels, matching pants",
+                  "image": "https://d336s8nt4p00c3.cloudfront.net/tags/de/res/60/10210.1.png"
+                },
+                {
+                  "name": "pants",
+                  "description": "trousers matching the jacket",
+                  "image": "https://d336s8nt4p00c3.cloudfront.net/tags/de/res/60/10205.1.png"
+                }
+              ]
+            },
+            {
+              "name": "outerwear",
+              "children": [
+                {
+                  "name": "jackets",
+                  "description": "outer garment with sleeves",
+                  "attributes": [
+                    {
+                      "name": "type/material",
+                      "children": [
+                        {
+                          "name": "ski jacket",
+                          "description": "puffy look",
+                          "image": "https://d336s8nt4p00c3.cloudfront.net/tags/de/res/60/10360.1.png"
+                        },
+                        {
+                          "name": "wool coat",
+                          "description": "made of wool",
+                          "image": "https://d336s8nt4p00c3.cloudfront.net/tags/de/res/60/10361.1.png"
+                        },
+                        {
+                          "name": "leather jacket",
+                          "description": "made of leather",
+                          "image": "https://d336s8nt4p00c3.cloudfront.net/tags/de/res/60/10349.1.png"
+                        },
+                        {
+                          "name": "fur coat",
+                          "description": "made of fur",
+                          "image": "https://d336s8nt4p00c3.cloudfront.net/tags/de/res/60/10343.1.png"
+                        },
+                        {
+                          "name": "jean jacket",
+                          "description": "made of denim",
+                          "image": "https://d336s8nt4p00c3.cloudfront.net/tags/de/res/60/10345.1.png"
+                        }
+                      ]
+                    },
+                    {
+                      "children": [
+                        {
+                          "name": "hood",
+                          "description": "headcovering at the back",
+                          "image": "https://d336s8nt4p00c3.cloudfront.net/tags/de/res/60/10346.1.png"
+                        },
+                        {
+                          "name": "no hood",
+                          "description": "no headcovering at the back",
+                          "image": "https://d336s8nt4p00c3.cloudfront.net/tags/de/res/60/10356.1.png"
+                        }
+                      ]
+                    },
+                    {
+                      "name": "length",
+                      "children": [
+                        {
+                          "name": "short",
+                          "description": "jacket hits from hip to mid-thigh",
+                          "image": "https://d336s8nt4p00c3.cloudfront.net/tags/de/res/60/10340.1.png"
+                        },
+                        {
+                          "name": "long",
+                          "description": "jacket hits anywhere below mid-thigh to ankle",
+                          "image": "https://d336s8nt4p00c3.cloudfront.net/tags/de/res/60/10342.1.png"
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "name": "vests",
+                  "description": "outer garment without sleeves, has open shoulders",
+                  "image": "https://d336s8nt4p00c3.cloudfront.net/tags/de/res/60/10578.2.png"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "name": "Men's accessories",
+          "children": [
+            {
+              "name": "suit accessories",
+              "children": [
+                {
+                  "name": "tie",
+                  "description": "worn around the neck, with a suit or dress shirt",
+                  "image": "https://d336s8nt4p00c3.cloudfront.net/tags/de/res/60/10048.1.png"
+                },
+                {
+                  "name": "bowtie",
+                  "description": "worn around the neck, tied in a bow",
+                  "image": "https://d336s8nt4p00c3.cloudfront.net/tags/de/res/60/10008.1.png"
+                }
+              ]
+            },
+            {
+              "name": "belts",
+              "description": "worn around the waist of pants",
+              "image": "https://d336s8nt4p00c3.cloudfront.net/tags/de/res/60/10020.1.png"
+            },
+            {
+              "name": "bags",
+              "children": [
+                {
+                  "name": "briefcase",
+                  "description": "small-med sized man's bag with handles",
+                  "image": "https://d336s8nt4p00c3.cloudfront.net/tags/de/res/60/10163.1.png"
+                },
+                {
+                  "name": "backpack",
+                  "description": "has shoulder straps",
+                  "image": "https://d336s8nt4p00c3.cloudfront.net/tags/de/res/60/10178.1.png"
+                }
+              ]
+            },
+            {
+              "name": "outerwear accessories",
+              "children": [
+                {
+                  "name": "scarf",
+                  "description": "worn around the neck",
+                  "image": "https://d336s8nt4p00c3.cloudfront.net/tags/de/res/60/10075.1.png"
+                },
+                {
+                  "name": "hat",
+                  "description": "worn on head",
+                  "image": "https://d336s8nt4p00c3.cloudfront.net/tags/de/res/60/10053.1.png"
+                },
+                {
+                  "name": "gloves",
+                  "description": "hand coverings, with individually separated fingers",
+                  "image": "https://d336s8nt4p00c3.cloudfront.net/tags/de/res/60/10025.1.png"
+                }
+              ]
+            },
+            {
+              "name": "watches",
+              "children": [
+                {
+                  "name": "metal",
+                  "description": "watch chain is metal",
+                  "image": "https://d336s8nt4p00c3.cloudfront.net/tags/de/res/60/10200.1.png"
+                },
+                {
+                  "name": "leather",
+                  "description": "leather",
+                  "image": "https://d336s8nt4p00c3.cloudfront.net/tags/de/res/60/10200.1.png"
+                }
+              ]
+            },
+            {
+              "name": "shoes",
+              "children": [
+                {
+                  "name": "boots",
+                  "description": "closed-toe shoe with a tall shaft",
+                  "image": "https://d336s8nt4p00c3.cloudfront.net/tags/de/res/60/10650.1.png"
+                },
+                {
+                  "name": "sneakers",
+                  "description": "closed toe shoes",
+                  "image": "https://d336s8nt4p00c3.cloudfront.net/tags/de/res/60/10644.1.png"
+                },
+                {
+                  "name": "dress shoes",
+                  "description": "usually leather",
+                  "image": "https://d336s8nt4p00c3.cloudfront.net/tags/de/res/60/10596.1.png"
+                },
+                {
+                  "name": "loafers",
+                  "description": "closed-toe shoes",
+                  "image": "https://d336s8nt4p00c3.cloudfront.net/tags/de/res/60/10589.1.png"
+                },
+                {
+                  "name": "flip flops",
+                  "description": "open-toed shoes, no backs",
+                  "image": "https://d336s8nt4p00c3.cloudfront.net/tags/de/res/60/10691.1.png"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

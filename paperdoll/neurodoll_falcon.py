@@ -1,7 +1,7 @@
 __author__ = 'liorsabag'
 
 import falcon
-from .. import neurodoll
+from .. import neurodoll, neurodoll_single_category
 from .. import constants
 
 from jaweson import json, msgpack
@@ -18,12 +18,19 @@ class PaperResource:
         resp.body = json.dumps(quote)
 
     def on_post(self, req, resp):
+        category_index = req.get_param('categoryIndex')
+        category_index = category_index and int(category_index)
+
         ret = {"success": False}
         try:
             data = msgpack.loads(req.stream.read())
             img = data.get("image")
 
-            ret["mask"] = neurodoll.infer_one(img)
+            if category_index:
+                ret["mask"] = neurodoll_single_category.get_category_graylevel(img, category_index) 
+            else:
+                ret["mask"] = neurodoll.infer_one(img)
+            
             ret["label_dict"] = constants.ultimate_21
             if ret["mask"] is not None:
                 ret["success"] = True
