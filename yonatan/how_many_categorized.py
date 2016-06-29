@@ -38,9 +38,9 @@ sleeve_dict = {
 'asymmetry' : asymmetry
 }
 
-sum_of_all = sleeve_dict['strapless'] + sleeve_dict['spaghetti_straps'] + sleeve_dict['straps + sleeveless'] + \
-             sleeve_dict['cap_sleeve'] + sleeve_dict['short_sleeve'] + sleeve_dict['midi_sleeve'] + \
-             sleeve_dict['long_sleeve'] + sleeve_dict['asymmetry']
+sum_of_all = sleeve_dict['strapless'] + sleeve_dict['spaghetti_straps'] + sleeve_dict['straps'] + \
+             sleeve_dict['sleeveless'] + sleeve_dict['cap_sleeve'] + sleeve_dict['short_sleeve'] + \
+             sleeve_dict['midi_sleeve'] + sleeve_dict['long_sleeve'] + sleeve_dict['asymmetry']
 
 for key, value in sleeve_dict.iteritems():
     print '{0}: {1}, percent: {2}\n'.format(key, value, float(value) / sum_of_all)
