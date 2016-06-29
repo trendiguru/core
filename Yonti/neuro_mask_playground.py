@@ -47,10 +47,10 @@ def middleman(col_name,idx, imgs, category, fg=0.75, neurodoll=True):
         bg = 1- fg
         tmp = {'sortOrder':sortOrder,
                'itemImgUrl': url,
-               'neuro_mask': mask,
+               'neuro_mask': mask.tolist(),
                'fg': fg,
                'bg': bg,
-               'grabcut_mask': grabcut_mask}
+               'grabcut_mask': grabcut_mask.tolist()}
         masks.append(tmp)
     collection.update_one({'_id': idx},{'$set':{'images.processed' : masks}})
     return masks
