@@ -71,7 +71,7 @@ def fresh_meat(gender,item_id=None, fg=0.75):
     do_neuro = True
 
     if item_id is not None:
-        exists = collection.find_one({'id': item_id})
+        exists = collection.find_one({'_id': item_id})
         if exists:
             do_neuro = False
             imgs = exists['raw_info']['itemImgInfoList']
