@@ -2,6 +2,8 @@ import copy
 import os
 import caffe
 import logging
+import sys
+
 logging.basicConfig(level=logging.DEBUG)
 import numpy as np
 from PIL import Image
@@ -256,3 +258,252 @@ class JrLayer(caffe.Layer):
 #        print('after extradim shape:'+str(label.shape))
 
         return label
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+######################################################################################3
+# MULTILABEL
+#######################################################################################
+
+class JrMultilabel(caffe.Layer):
+    """
+    Load (input image, label vector) pairs where label vector is like [0 1 0 0 0 1 ... ]
+
+    """
+
+    def setup(self, bottom, top):
+        """
+        Setup data layer according to parameters:
+        - mean: tuple of mean values to subtract
+        - randomize: load in random order (default: True)
+        - seed: seed for randomization (default: None / current time)
+
+        example
+        layer {
+            name: "data"
+            type: "Python"
+            top: "data"
+            top: "label"
+            python_param {
+            module: "jrlayers"
+            layer: "JrMultilabel"
+            param_str: "{\'images_and_labels_file\': \'/home/jeremy/image_dbs/tamara_berg/web1\', \'mean\': (104.00699, 116.66877, 122.67892)}"
+            }
+        """
+        # config
+        params = eval(self.param_str)
+
+        self.images_and_labels_file = params['images_and_labels_file']
+        self.mean = np.array(params['mean'])
+        self.images_dir = params.get('images_dir')
+        self.random_init = params.get('random_initialization', True) #start from random point in image list
+        self.random_pick = params.get('random_pick', True) #pick random image from list every time
+        self.seed = params.get('seed', 1337)
+        self.new_size = params.get('new_size',None)
+        self.batch_size = params.get('batch_size',1)  #######Not implemented, batchsize = 1
+
+        self.idx = 0
+        print('images+labelsfile {} mean {}'.format(self.images_and_labels_file,self.mean))
+        # two tops: data and label
+        if len(top) != 2:
+            print('len of top is '+str(len(top)))
+#            raise Exception("Need to define two tops: data and label.")
+        # data layers have no bottoms
+        if len(bottom) != 0:
+            raise Exception("Do not define a bottom.")
+
+        # load indices for images and labels
+        #if file not found and its not a path then tack on the training dir as a default locaiton for the trainingimages file
+        if self.images_and_labels_file is not None:
+            if not os.path.isfile(self.images_and_labels_file) and not '/' in self.images_and_labels_file:
+                self.images_and_labels_file = os.path.join(self.images_dir,self.images_and_labels_file)
+            if not os.path.isfile(self.images_and_labels_file):
+                print('COULD NOT OPEN IMAGES/LABELS FILE '+str(self.images_and_labels_file))
+                return
+            self.images_and_labels_list = open(self.images_and_labels_file, 'r').read().splitlines()
+            self.n_files = len(self.images_and_labels_list)
+    #        self.indices = open(split_f, 'r').read().splitlines()
+        else:
+            print('option not supported')
+#            return
+#            self.imagefiles = [f for f in os.listdir(self.images_dir) if self.imagefile_suffix in f]
+
+        self.idx = 0
+        # randomization: seed and pick
+#        print('imgslbls [0] {} [1] {}'.format(self.images_and_labels_list[0],self.images_and_labels_list[1]))
+        if self.random_init:
+            random.seed(self.seed)
+            self.idx = random.randint(0, self.n_files-1)
+        if self.random_pick:
+            random.shuffle(self.images_and_labels_list)
+#        print('imgslbls [0] {} [1] {}'.format(self.images_and_labels_list[0],self.images_and_labels_list[1]))
+        logging.debug('initial self.idx is :'+str(self.idx)+' type:'+str(type(self.idx)))
+
+        spinner = spinning_cursor()
+        ##check that all images are openable and have labels
+        ## and ge t
+        good_img_files = []
+        good_label_vecs = []
+        check_files = False
+        if check_files:
+            print('checking image files')
+            for line in self.images_and_labels_list:
+                imgfilename = line.split()[0]
+                img_arr = Image.open(imgfilename)
+                in_ = np.array(img_arr, dtype=np.float32)
+
+                if img_arr is not None:
+                    vals = line.split()[1:]
+                    label_vec = [int(i) for i in vals]
+                    label_vec = np.array(label_vec)
+    #                label_vec = label_vec[np.newaxis,...]  #this is required by loss whihc otherwise throws:
+    #                label_vec = label_vec[...,np.newaxis]  #this is required by loss whihc otherwise throws:
+    #                label_vec = label_vec[...,np.newaxis,np.newaxis]  #this is required by loss whihc otherwise throws:
+    #                F0616 10:54:30.921106 43184 accuracy_layer.cpp:31] Check failed: outer_num_ * inner_num_ == bottom[1]->count() (1 vs. 21) Number of labels must match number of predictions; e.g., if label axis == 1 and prediction shape is (N, C, H, W), label count (number of labels) must be N*H*W, with integer values in {0, 1, ..., C-1}.
+
+                    if label_vec is not None:
+                        if len(label_vec) > 0:  #got a vec
+                            good_img_files.append(imgfilename)
+                            good_label_vecs.append(label_vec)
+                            sys.stdout.write(spinner.next())
+                            sys.stdout.flush()
+                            sys.stdout.write('\b')
+                      #      print('got good image of size {} and label of size {}'.format(in_.shape,label_vec.shape))
+                        else:
+                            print('something wrong w. image of size {} and label of size {}'.format(in_.shape,label_vec.shape))
+                else:
+                    print('got bad image:'+self.imagefiles[ind])
+        else:
+            for line in self.images_and_labels_list:
+                imgfilename = line.split()[0]
+                vals = line.split()[1:]
+                label_vec = [int(i) for i in vals]
+                label_vec = np.array(label_vec)
+                good_img_files.append(imgfilename)
+                good_label_vecs.append(label_vec)
+
+        self.imagefiles = good_img_files
+        self.label_vecs = good_label_vecs
+        assert(len(self.imagefiles) == len(self.label_vecs))
+        print('{} images and {} labels'.format(len(self.imagefiles),len(self.label_vecs)))
+        self.n_files = len(self.imagefiles)
+        print(str(self.n_files)+' good files in image dir '+str(self.images_dir))
+        logging.debug('self.idx is :'+str(self.idx)+' type:'+str(type(self.idx)))
+
+        if self.new_size == None:
+            print('uh i got no size so using 227x227')
+            self.new_size = (227,227)
+        top[0].reshape(self.batch_size, 3, self.new_size[0], self.new_size[1])
+        # Note the 20 channels (because PASCAL has 20 classes.)
+        top[1].reshape(self.batch_size, 21)
+
+
+    def reshape(self, bottom, top):
+        pass
+#        print('reshaping')
+#        logging.debug('self.idx is :'+str(self.idx)+' type:'+str(type(self.idx)))
+        imgfilename, self.data, self.label = self.load_image_and_label(self.idx)
+        ## reshape tops to fit (leading 1 is for batch dimension)
+ #       top[0].reshape(1, *self.data.shape)
+ #       top[1].reshape(1, *self.label.shape)
+#        print('top 0 shape {} top 1 shape {}'.format(top[0].shape,top[1].shape))
+##       the above just shows objects , top[0].shape is an object apparently
+
+    def next_idx(self):
+        if self.random_pick:
+            self.idx = random.randint(0, len(self.imagefiles)-1)
+        else:
+            self.idx += 1
+            if self.idx == len(self.imagefiles):
+                print('hit end of labels, going back to first')
+                self.idx = 0
+
+    def forward(self, bottom, top):
+        # assign output
+        top[0].data[...] = self.data
+        top[1].data[...] = self.label
+        # pick next input
+        if self.random_pick:
+            self.idx = random.randint(0, len(self.imagefiles)-1)
+        else:
+            self.idx += 1
+            if self.idx == len(self.imagefiles):
+                self.idx = 0
+
+    def backward(self, top, propagate_down, bottom):
+        pass
+
+    def load_image_and_label(self,idx):
+        """
+        Load input image and preprocess for Caffe:
+        - cast to float
+        - switch channels RGB -> BGR
+        - subtract mean
+        - transpose to channel x height x width order
+        """
+        while(1):
+            filename = self.imagefiles[idx]
+            label_vec = self.label_vecs[idx]
+            if self.images_dir:
+                filename=os.path.join(self.images_dir,filename)
+            print('the imagefile:'+filename+' index:'+str(idx))
+            if not(os.path.isfile(filename)):
+                print('NOT A FILE:'+str(filename))
+                self.next_idx()   #bad file, goto next
+                idx = self.idx
+                continue
+            im = Image.open(filename)
+            if im is None:
+                logging.warning('could not get image '+filename)
+                self.next_idx()
+                idx = self.idx
+                continue
+            if self.new_size:
+                im = im.resize(self.new_size,Image.ANTIALIAS)
+            in_ = np.array(im, dtype=np.float32)
+            if in_ is None:
+                logging.warning('could not get image '+filename)
+                self.next_idx()
+                idx = self.idx
+                continue
+            if len(in_.shape) != 3 or in_.shape[0] != self.new_size[0] or in_.shape[1] != self.new_size[1] or in_.shape[2]!=3:
+                print('got bad img of size '+str(in_.shape) + '= when expected shape is 3x'+str(in_.shape))
+                self.next_idx()  #goto next
+                idx = self.idx
+                continue
+            break #got good img, get out of while
+        print(str(filename) + ' has dims '+str(in_.shape)+' label:'+str(label_vec)+' idex'+str(idx))
+
+        in_ = in_[:,:,::-1]
+#        in_ -= self.mean
+        in_ = in_.transpose((2,0,1))
+#	print('uniques of img:'+str(np.unique(in_))+' shape:'+str(in_.shape))
+        return filename, in_, label_vec
+
+
+
+def spinning_cursor():
+    while True:
+        for cursor in '|/-\\':
+            yield cursor
+

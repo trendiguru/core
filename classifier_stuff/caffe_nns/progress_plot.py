@@ -16,7 +16,7 @@ import datetime
 import time
 import datetime
 
-def parse_logfile(f):
+def parse_logfile(f,logy):
   print('parsing logfile')
   training_iterations = []
   training_accuracy = []
@@ -61,6 +61,7 @@ def parse_logfile(f):
 
     if '] Iteration ' in line and 'loss = ' in line:
 #    if '] Iteration ' in line and 'loss = ' in line:
+      print('getting loss:'+line)
       arr = re.findall(r'ion \b\d+\b,', line)
       training_iterations.append(int(arr[0].strip(',')[4:]))
       training_loss.append(float(line.strip().split(' = ')[-1]))
@@ -68,6 +69,7 @@ def parse_logfile(f):
 
 
     if '] Iteration ' in line and 'Testing net' in line:
+      print('getting test:'+line)
       arr = re.findall(r'ion \b\d+\b,', line)
       test_iterations.append(int(arr[0].strip(',')[4:]))
       check_test = True
@@ -75,6 +77,7 @@ def parse_logfile(f):
     if '{' in line:
       past_beginning = True
     if not past_beginning and 'name' in line:
+      print('getting name:'+line)
       net_name_arr = line.split('"')
       net_name = net_name_arr[-2]
       print('net name:'+net_name)
@@ -86,12 +89,35 @@ def parse_logfile(f):
   print 'test loss len: ', len(test_loss)
   print 'test accuracy len: ', len(test_accuracy)
 
-  if len(test_iterations) != len(test_accuracy): #awaiting test...
-    print 'mis-match'
-    print len(test_iterations[0:-1])
-    test_iterations = test_iterations[0:-1]
-
   f.close()
+
+  if len(test_iterations) != len(test_accuracy): #awaiting test...
+    new_test_accuracy = []
+    print 'mis-match'
+    for i in range(0,len(test_accuracy)):
+      new_test_accuracy.append(test_accuracy[i])
+    for i in range(len(test_accuracy),len(test_iterations)):
+      new_test_accuracy.append(-1)
+
+    test_accuracy = new_test_accuracy
+    print('len test acc:'+str(len(test_accuracy)))
+#    test_iterations = test_iterations[0:-1]
+
+  if len(test_iterations) != len(test_loss): #awaiting test...
+    new_test_loss = []
+    print 'mis-match'
+    for i in range(0,len(test_loss)):
+      new_test_accuracy.append(test_loss[i])
+    for i in range(len(test_loss),len(test_iterations)):
+      new_test_loss.append(0)
+
+    test_loss = new_test_loss
+    print('len test loss len:'+str(len(test_loss)))
+
+# for times as ax labels try something like
+#        ax.annotate(str(count), xy=(x, 0), xycoords=('data', 'axes fraction'),
+#        xytext=(0, -18), textcoords='offset points', va='top', ha='center')
+
 #  plt.plot(training_iterations, training_loss, '-', linewidth=2)
 #  plt.plot(test_iterations, test_accuracy, '-', linewidth=2)
 #  plt.show()
@@ -105,8 +131,17 @@ def parse_logfile(f):
   host.set_ylabel("log loss")
   par1.set_ylabel("accuracy")
 
-  p1, = host.plot(training_iterations, training_loss,'bo:', label="train logloss")
-  p3, = host.plot(test_iterations, test_loss,'go:', label="test logloss")
+  train_label = "train logloss"
+  test_label = "test logloss"
+  if logy == 'True':
+    training_loss = np.log10(training_loss)
+    test_loss = np.log10(test_loss)
+    train_label = "log10(train logloss)"
+    test_label = "log10(test logloss)"
+    host.set_ylabel("log10(log loss)")
+
+  p1, = host.plot(training_iterations, training_loss,'bo:', label=train_label)
+  p3, = host.plot(test_iterations, test_loss,'go:', label=test_label)
   p2, = par1.plot(test_iterations, test_accuracy,'ro:', label="test acc.")
   if len(training_accuracy)>0:
     p4, = par1.plot(training_iterations, training_accuracy,'co:', label="train acc.")
@@ -276,10 +311,11 @@ if __name__ == "__main__":
   parser = argparse.ArgumentParser(description='makes a plot from Caffe output')
   parser.add_argument('output_file', help='file of captured stdout and stderr')
   parser.add_argument('--type', help='logfile or solve.py output',default='0')
+  parser.add_argument('--logy', help='log of logloss',default=None)
   args = parser.parse_args()
   print('args:'+str(args))
   f = open(args.output_file, 'r')
   if args.type == '0':
-    parse_logfile(f)
+    parse_logfile(f,args.logy)
   elif args.type =='1':
     parse_solveoutput(f)

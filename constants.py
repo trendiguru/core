@@ -231,7 +231,7 @@ web_tool_categories = ['bag', 'belt', 'blazer','cardigan','coat','dress', 'eyewe
                        'jeans','pants','shorts', 'skirt','stocking','suit','sweater','top','scarf','womens_swimwear_bikini',
                        'womens_swimwear_nonbikini']
 
-tamara_berg_to_web_tool = [0,1,5,6,7,8,14,4,11,13,17,None,None]
+tamara_berg_to_web_tool = [0, 1, 5, 6, 7, 8, 14, 4, 11, 13, 17, None, None]
 tamara_berg_to_web_tool_dict = {'bag':'bag','belt':'belt','dress':'dress','eyewear':'eyewear','footwear':'footwear',
                                 'hat':'hat','legging':'stocking','outerwear':'coat','pants':'pants','skirts':'skirt','top':'top'}
 #missing from webtool compared ot tamara_berg - 'legging', 'outerwear','skin',
@@ -290,12 +290,12 @@ caffe_relevant_strings = ['hoopskirt', 'jean', 'blue_jean', 'denim', 'jersey', '
 
 # these are the fashionista db cats in order , e.g. the mask will have 1 for null (bkgnd) and 56 for skin
 #the first '' value is to keep mask=1 -> null, mask=2->tights etc
-fashionista_categories = ['','null','tights','shorts','blazer','t-shirt','bag','shoes','coat','skirt','purse','boots',
-                          'blouse','jacket','bra','dress','pants','sweater','shirt','jeans','leggings','scarf','hat',
-                          'top','cardigan','accessories','vest','sunglasses','belt','socks','glasses','intimate',
-                          'stockings','necklace','cape','jumper','sweatshirt','suit','bracelet','heels','wedges','ring',
-                          'flats','tie','romper','sandals','earrings','gloves','sneakers','clogs','watch','pumps','wallet',
-                          'bodysuit','loafers','hair','skin']
+fashionista_categories = ['','null','tights','shorts','blazer','t-shirt','bag','shoes','coat','skirt',
+                          'purse','boots','blouse','jacket','bra','dress','pants','sweater','shirt','jeans',
+                          'leggings','scarf','hat','top','cardigan','accessories','vest','sunglasses','belt','socks',
+                          'glasses','intimate','stockings','necklace','cape','jumper','sweatshirt','suit','bracelet','heels',
+                          'wedges','ring','flats','tie','romper','sandals','earrings','gloves','sneakers','clogs',
+                          'watch','pumps','wallet','bodysuit','loafers','hair','skin']
 
 fashionista_categories_augmented = ['','null','tights','shorts','blazer','t-shirt','bag','shoes','coat','skirt','purse',
                                     'boots','blouse','jacket','bra','dress','pants','sweater','shirt','jeans','leggings',

@@ -35,8 +35,10 @@ push_connection(constants.redis_conn)
 
 def route_by_url(image_url, page_url, lang):
     domain = tldextract.extract(page_url).registered_domain
-    if not db.whitelist.find_one({'domain': domain}):
-        return False
+
+    # Temporarily remove whitelist for Recruit Test -- LS 22/06/2016.
+    # if not db.whitelist.find_one({'domain': domain}):
+    #     return False
 
     if image_url[:4] == "data":
         return False
@@ -212,13 +214,6 @@ def check_if_relevant(image_url, page_url, lang, custom_start_pipeline=None):
     db.iip.insert_one({'image_url': image_url, 'insert_time': datetime.datetime.utcnow()})
     db.genderator.insert_one(image_obj)
     start_q.enqueue_call(func="", args=(page_url, image_url, lang), ttl=2000, result_ttl=2000, timeout=2000)
-
-    # if domain in constants.manual_gender_domains:
-    #     manual_gender.enqueue_call(func="", args=(image_url,), ttl=2000, result_ttl=2000,
-    #                                timeout=2000)
-    # else:
-    #     start_pipeline.enqueue_call(func="", args=(page_url, image_url, lang), ttl=2000, result_ttl=2000,
-    #                                 timeout=2000)
 
 
 # --------------------------------------------- NNs -----------------------------------------------------

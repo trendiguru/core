@@ -283,6 +283,34 @@ def resize_and_crop_image( input_file_or_np_arr, output_file=None, output_side_l
         cv2.imwrite(output_file, cropped_img)
     return cropped_img
 
+def resize_to_max_sidelength(img_arr, max_sidelength=250,use_visual_output=True):
+    '''
+    resizes to a maximum sidelength keeping orig. aspect ratio
+    :param img_arr:
+    :param max_sidelength:
+    :param use_visual_output:
+    :return:resized image
+    '''
+    h,w,c = img_arr.shape
+    if h>w:
+        if h>max_sidelength:
+            new_h = max_sidelength
+            new_w = int(w*float(max_sidelength)/h)
+            img_arr=cv2.resize(img_arr,(new_w,new_h))
+        else:  #longest side is still under limit , show orig without resize
+            pass
+    else:
+        if w>max_sidelength:
+            new_w = max_sidelength
+            new_h = int(h*float(max_sidelength)/w)
+            img_arr=cv2.resize(img_arr,(new_w,new_h))
+        else:  #longest side is still under limit , show orig without resize
+            pass
+    if (use_visual_output):
+        cv2.imshow('image',img_arr)
+        cv2.waitKey(0)
+    return img_arr
+
 def resize_keep_aspect_dir(dir,outdir=None,overwrite=False,output_size=(250,250),use_visual_output=False,filefilter='.jpg',careful_with_the_labels=False):
     files = [ f for f in os.listdir(dir) if filefilter in f]
     print(str(len(files))+' files in '+dir)
@@ -333,7 +361,7 @@ def resize_keep_aspect(input_file_or_np_arr, output_file=None, output_size = (30
         factor = float(inheight)/outheight
         new_width = int(float(inwidth) / factor)
         resized_img = cv2.resize(input_file_or_np_arr, (new_width, outheight))
-        print('<resize size:'+str(resized_img.shape)+' outw:'+str(outwidth)+' neww:'+str(new_width))
+        print('<resize size:'+str(resized_img.shape)+' desired width:'+str(outwidth)+' orig width resized:'+str(new_width))
         width_offset = (outwidth - new_width ) / 2
         output_img[:,width_offset:width_offset+new_width] = resized_img[:,:]
         for n in range(0,width_offset):  #doing this like the below runs into a broadcast problem which could prob be solved by reshaping
@@ -345,7 +373,7 @@ def resize_keep_aspect(input_file_or_np_arr, output_file=None, output_size = (30
         factor = float(inwidth)/outwidth
         new_height = int(float(inheight) / factor)
         resized_img = cv2.resize(input_file_or_np_arr, (outwidth, new_height))
-        print('<resize size:'+str(resized_img.shape)+' outh:'+str(outheight)+' neww:'+str(new_height))
+        print('<resize size:'+str(resized_img.shape)+' desired height:'+str(outheight)+' orig height resized:'+str(new_height))
         height_offset = (outheight - new_height) / 2
         output_img[height_offset:height_offset+new_height,:] = resized_img[:,:]
         output_img[0:height_offset,:] = resized_img[0,:]
@@ -826,7 +854,7 @@ def show_mask_with_labels(mask_filename,labels,original_image=None,cut_the_crap=
     dest[:,:,0] = scaled  #hue
     dest[:,:,1] = satlevel   #saturation
     dest[:,:,2] = vallevel   #value
-    print('type:'+str(type(dest)))
+ #   print('type:'+str(type(dest)))
     dest = dest.astype(np.uint8)
     dest = cv2.cvtColor(dest,cv2.COLOR_HSV2BGR)
 
@@ -853,16 +881,16 @@ def show_mask_with_labels(mask_filename,labels,original_image=None,cut_the_crap=
     dest_colorbar[:,:,2] = vallevel  #value
     dest_colorbar = dest_colorbar.astype(np.uint8)
     dest_colorbar = cv2.cvtColor(dest_colorbar,cv2.COLOR_HSV2BGR)
-    print('size of colrbar:'+str(dest_colorbar.shape))
+ #   print('size of colrbar:'+str(dest_colorbar.shape))
  #have to do labels here to get black
     i = 0
     totpixels = h*w
     for unique in uniques:
-        if unique > len(labels):
+        if unique >= len(labels):
             logging.warning('pixel value out of label range')
             continue
         pixelcount = len(img_arr[img_arr==unique])
-        print('unique:'+str(unique)+':'+labels[unique]+' pixcount:'+str(pixelcount)+' fraction'+str(float(pixelcount)/totpixels))
+   #     print('unique:'+str(unique)+':'+labels[unique]+' pixcount:'+str(pixelcount)+' fraction'+str(float(pixelcount)/totpixels))
         frac_string='{:.4f}'.format(float(pixelcount)/totpixels)
         cv2.putText(dest_colorbar,labels[unique]+' '+str(frac_string),(5,int(i*bar_height+float(bar_height)/2+5)),cv2.FONT_HERSHEY_PLAIN,1,[0,10,50],thickness=1)
         i=i+1
@@ -984,7 +1012,7 @@ def show_mask_with_labels_from_img_arr(mask,labels):
         bar_width = 100
         colorbar = np.zeros([bar_height*len(uniques),bar_width])
         i = 0
-        print('len labels:'+str(len(labels)))
+   #     print('len labels:'+str(len(labels)))
         for unique in uniques:
             if unique > len(labels):
                 logging.warning('pixel value out of label range')

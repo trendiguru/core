@@ -1,0 +1,77 @@
+APPID = 'trendigu-trendigu-PRD-82f871c7c-d6bc287d'
+VERSION = '963'
+MAIN_CATEGORY = '11450'
+
+ebay_male_relevant_categories = ['Belts', 'Scarves', 'Ties', 'Casual Shirts', 'Dress Shirts',
+                                 'T-Shirts', 'Blazers & Sport Coats', 'Coats & Jackets', 'Jeans', 'Pants', 'Shorts',
+                                 'Suits', 'Sweaters', 'Sweats & Hoodies', 'Swimwear', 'Vests', 'Athletic', 'Boots',
+                                 'Casual', 'Dress/Formal', 'Occupational', 'Sandals & Flip Flops', 'Slippers']
+
+ebay_female_relevant_categories = ['Belts', 'Ties', 'T-Shirts', 'Coats & Jackets', 'Jeans', 'Pants', 'Shorts',
+                                   'Sweaters', 'Sweats & Hoodies', 'Swimwear', 'Vests', 'Athletic', 'Boots',
+                                   'Occupational', 'Sandals & Flip Flops', 'Slippers',
+                                   'Scarves & Wraps', 'Dresses', 'Jumpsuits & Rompers', 'Leggings', 'Skirts',
+                                   'Suits & Blazers', 'Tops & Blouses', 'Flats & Oxfords', 'Heels']
+
+ebay_not_relevant_categories = ['Backpacks, Bags & Briefcases', 'Belt Buckles', 'Canes & Walking Sticks', 'Collar Tips',
+                                'Gloves & Mittens', 'Handkerchiefs', 'Hats', 'ID & Document Holders',
+                                'Key Chains, Rings & Cases', 'Money Clips', 'Organizers & Day Planners',
+                                'Sunglasses & Fashion Eyewear', 'Suspenders, Braces', 'Umbrellas', 'Wallets',
+                                'Wristbands', 'Mixed Items & Lots', "Other Men's Accessories",'Athletic Apparel',
+                                'Sleepwear & Robes','Socks', 'Underwear', "Other Men's Clothing",
+                                'Fascinators & Headpieces','Hair Accessories', 'Key Chains, Rings & Finders',
+                                'Organizers & Day Planners', "Other Women's Accessories", 'Hosiery & Socks',
+                                'Intimates & Sleep','Maternity', "other Women's Clothing", 'Handbags & Purses',
+                                'Backpacks & Bookbags', 'Briefcases & Laptop Bags', 'Diaper Bags',
+                                'Travel & Shopping Bags', 'Handbag Accessories']
+
+ebay_paperdoll_women ={'Belts':'belt',
+                       'Ties': 'ties',
+                       'T-Shirts': 't-shirt',
+                       'Coats & Jackets': 'coat',
+                       'Jeans': 'jeans',
+                       'Pants': 'pants',
+                       'Shorts': 'shorts',
+                       'Sweaters': 'sweater',
+                       'Sweats & Hoodies': 'sweatshirt',
+                       'Swimwear': 'swimsuit',
+                       'Vests': 'vest',
+                       'Athletic': 'shoes',
+                       'Boots': 'shoes',
+                       'Occupational': 'shoes',
+                       'Sandals & Flip Flops': 'shoes',
+                       'Slippers': 'shoes',
+                       'Scarves & Wraps': 'scarf',
+                       'Dresses': 'dress',
+                       'Jumpsuits & Rompers': 'rompers',
+                       'Leggings': 'leggings',
+                       'Skirts': 'skirt',
+                       'Suits & Blazers': 'blazer',
+                       'Tops & Blouses': 'top',
+                       'Flats & Oxfords': 'shoes',
+                       'Heels': 'shoes'}
+
+ebay_paperdoll_men = {  'Belts': 'belt',
+                        'Ties': 'ties',
+                        'T-Shirts': 't-shirt',
+                        'Coats & Jackets': 'coat',
+                        'Jeans': 'jeans',
+                        'Pants': 'pants',
+                        'Shorts': 'shorts',
+                        'Sweaters': 'sweater',
+                        'Sweats & Hoodies': 'sweatshirt',
+                        'Swimwear': 'swimsuit',
+                        'Vests': 'vest',
+                        'Athletic': 'shoes',
+                        'Boots': 'shoes',
+                        'Occupational': 'shoes',
+                        'Sandals & Flip Flops': 'shoes',
+                        'Slippers': 'shoes',
+                        'Scarves': 'scarf',
+                        'Suits': 'suit',
+                        'Casual Shirts': 'shirt',
+                        'Dress Shirts': 'shirt',
+                        'Casual': 'shoes',
+                        'Blazers & Sport Coats': 'blazer',
+                        'Dress/Formal': 'shoes'}
+
