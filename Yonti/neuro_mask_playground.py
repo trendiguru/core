@@ -8,7 +8,7 @@ import numpy as np
 import cv2
 from random import randint
 
-def grabcut_neuro(img_url, neuro_mask, fg):
+def grabcut_neuro(img_url, neuro_mask, fg, sortOrder):
     image = get_cv2_img_array(img_url)
     if image is None:
         print ('bad img url')
@@ -24,6 +24,9 @@ def grabcut_neuro(img_url, neuro_mask, fg):
     cv2.grabCut(image, mask, rect, bgdmodel, fgdmodel, 1, cv2.GC_INIT_WITH_MASK)
 
     mask2 = np.where((mask == 1) + (mask == 3), 255, 0).astype(np.uint8)
+    image[mask2==0]=0
+    filename = '/var/www/neuro_mask/grabcut_' + str(sortOrder) + '.jpg'
+    cv2.imwrite(filename, image)
     return True, mask2
 
 
@@ -48,7 +51,7 @@ def middleman(imgs, category, fg=0.75, neurodoll=True):
             filename = '/var/www/neuro_mask/neuro_' + str(sortOrder) + '.jpg'
             mask = cv2.imread(filename)
 
-        success, grabcut_mask = grabcut_neuro(url, mask,fg)
+        success, grabcut_mask = grabcut_neuro(url, mask,fg, sortOrder)
         if not success:
             tmp = {'sortOrder': sortOrder,
                    'itemImgUrl': url,
@@ -58,8 +61,7 @@ def middleman(imgs, category, fg=0.75, neurodoll=True):
         tmp = {'sortOrder':sortOrder,
                'itemImgUrl': url,
                'success': True}
-        filename = '/var/www/neuro_mask/grabcut_'+str(sortOrder)+'.jpg'
-        cv2.imwrite(filename,grabcut_mask)
+
         masks.append(tmp)
     return masks
 
