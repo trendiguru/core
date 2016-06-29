@@ -8,7 +8,7 @@ import numpy as np
 import cv2
 
 
-def grabcut_neuro(img_url, neuro_mask, fg, bg):
+def grabcut_neuro(img_url, neuro_mask, fg):
     image = get_cv2_img_array(img_url)
     if image is None:
         print ('bad img url')
@@ -41,7 +41,7 @@ def middleman(col_name,idx, imgs, category, fg=0.75, neurodoll=True):
             mask = dic['mask']
         else:
             mask = img['neuro_mask']
-        success, grabcut_mask = grabcut_neuro(url, mask)
+        success, grabcut_mask = grabcut_neuro(url, mask,fg)
         if not success:
             continue
         bg = 1- fg
