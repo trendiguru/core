@@ -49,7 +49,7 @@ def middleman(imgs, category, fg=0.75, neurodoll=True):
             cv2.imwrite(filename, mask)
         else:
             filename = '/var/www/neuro_mask/neuro_' + str(sortOrder) + '.jpg'
-            mask = cv2.imread(filename)
+            mask = cv2.imread(filename,0)
 
         success, grabcut_mask = grabcut_neuro(url, mask,fg, sortOrder)
         if not success:
