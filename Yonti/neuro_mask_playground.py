@@ -53,7 +53,7 @@ def middleman(imgs, category, fg=0.75, neurodoll=True):
             filename = '/var/www/neuro_mask/neuro_' + str(sortOrder) + '.jpg'
             mask = cv2.imread(filename,0)
 
-        success, grabcut_mask = grabcut_neuro(url, mask,fg, sortOrder)
+        success, grabcut_mask = grabcut_neuro(url, mask,float(fg), sortOrder)
         if not success:
             tmp = {'sortOrder': sortOrder,
                    'itemImgUrl': url,
