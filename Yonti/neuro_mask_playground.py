@@ -62,7 +62,8 @@ def middleman(imgs, category, fg=0.75, neurodoll=True):
             continue
         tmp = {'sortOrder':sortOrder,
                'itemImgUrl': url,
-               'success': True}
+               'success': True,
+               'fg':fg}
 
         masks.append(tmp)
     return masks
