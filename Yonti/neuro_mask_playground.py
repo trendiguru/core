@@ -27,7 +27,7 @@ def grabcut_neuro(img_url, neuro_mask, fg, sortOrder):
 
     mask2 = np.where((mask == 1) + (mask == 3), 255, 0).astype(np.uint8)
     img[mask2==0]=0
-    image cv2.resize(img,(500,500))
+    image =  cv2.resize(img,(500,500))
     filename = '/var/www/neuro_mask/grabcut_' + str(sortOrder) + '.jpg'
     cv2.imwrite(filename, image)
     return True, mask2
