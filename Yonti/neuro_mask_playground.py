@@ -71,7 +71,7 @@ def fresh_meat(gender,item_id, fg=0.75):
     col_name= 'recruit_'+gender
     collection = db[col_name]
     do_neuro = True
-
+    fg=float(fg)
     if item_id:
         exists = collection.find_one({'id': item_id})
         if exists:
@@ -86,7 +86,7 @@ def fresh_meat(gender,item_id, fg=0.75):
         item_id = item['id'][0]
         category = item['categories']
 
-    masks = middleman(imgs, category,float(fg), do_neuro)
+    masks = middleman(imgs, category,fg, do_neuro)
     ret = {'item_id': item_id,
            'category': category,
            'mask': masks,
