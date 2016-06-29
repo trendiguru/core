@@ -19,9 +19,9 @@ def grabcut_neuro(img_url, neuro_mask, fg, sortOrder):
     fgdmodel = np.zeros((1, 65), np.float64)
 
     mask = np.zeros(image.shape[:2], np.uint8)
-    mask[neuro_mask<255*fg]=2
+    mask[neuro_mask>255*fg]=2
     mask[neuro_mask<255*fg]=3
-    cv2.grabCut(image, mask, rect, bgdmodel, fgdmodel, 1, cv2.GC_INIT_WITH_MASK)
+    cv2.grabCut(image, mask, rect, bgdmodel, fgdmodel, 3, cv2.GC_INIT_WITH_MASK)
 
     mask2 = np.where((mask == 1) + (mask == 3), 255, 0).astype(np.uint8)
     image[mask2==0]=0
