@@ -2,7 +2,7 @@ from ..constants import db
 import re
 
 common = ['','AND','A','IS','ARE', 'THE', 'WITH', 'IN', 'THIS', 'BE', 'TO', 'OF', 'THAT', 'HAVE', 'IT', 'FOR', 'FROM',
-          'BY', 'ON', 'AS', 'AT', 'MADE', 'OTHER', 'ONLY']
+          'BY', 'ON', 'AS', 'AT', 'MADE', 'OTHER', 'ONLY', 'LI','UL',]
 
 def word_counter(collection, delete = False):
     '''
@@ -24,7 +24,7 @@ def word_counter(collection, delete = False):
         long_d  = item['longDescription' ]
         for d in [short_d, long_d]:
             capital_d = d.upper()
-            word_list = re.split(r' |-|,|;|:|\.', capital_d)
+            word_list = re.split(r' |-|,|;|:|\.|<|>|\\|/|"|#|\?|\||!|@|$|\(|\)|\[|]|}|\{|_|\*|', capital_d)
             for word in word_list:
                 if word in common:
                     continue
