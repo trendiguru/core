@@ -18,7 +18,8 @@ class PaperResource:
         resp.body = json.dumps(quote)
 
     def on_post(self, req, resp):
-        category_index = int(req.get_param('categoryIndex'))
+        category_index = req.get_param('categoryIndex')
+        category_index = category_index and int(category_index)
 
         ret = {"success": False}
         try:
