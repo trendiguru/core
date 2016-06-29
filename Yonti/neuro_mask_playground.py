@@ -71,7 +71,7 @@ def fresh_meat(gender,item_id, fg=0.75):
     do_neuro = True
 
     if item_id:
-        exists = collection.find_one({'_id': item_id})
+        exists = collection.find_one({'id': item_id})
         if exists:
             do_neuro = False
             imgs = exists['raw_info']['itemImgInfoList']
@@ -81,7 +81,7 @@ def fresh_meat(gender,item_id, fg=0.75):
         r = randint(0,1000)
         item =  collection.find({'categories':{'$in':ultimate_21_dict.keys()}})[r]
         imgs = item['raw_info']['itemImgInfoList']
-        item_id = item['_id']
+        item_id = item['id']
         category = item['categories']
 
     masks = middleman(imgs, category,fg, do_neuro)
