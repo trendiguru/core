@@ -86,7 +86,7 @@ def fresh_meat(gender,item_id, fg=0.75):
         item_id = item['id'][0]
         category = item['categories']
 
-    masks = middleman(imgs, category,fg, do_neuro)
+    masks = middleman(imgs, category,float(fg), do_neuro)
     ret = {'item_id': item_id,
            'category': category,
            'mask': masks,
