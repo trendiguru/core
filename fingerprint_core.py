@@ -37,7 +37,7 @@ def neurodoll(image, category_idx, fg):
     cv2.grabCut(img, mask, None, bgdmodel, fgdmodel, 3, cv2.GC_INIT_WITH_MASK)
 
     mask2 = np.where((mask == 1) + (mask == 3), 255, 0).astype(np.uint8)
-    return mask2
+    return True, mask2
 
 
 def fp(img, bins=histograms_length, fp_length=fingerprint_length, mask=None):
@@ -114,7 +114,7 @@ def generate_mask_and_insert(doc, image_url=None, fp_date=None, coll="products",
     if neuro:
         category = doc['categories']
         category_idx = recruit2category_idx[category]
-        success, neuro_mask = neurodoll(image,category_idx,0.75)
+        success, neuro_mask = neurodoll(image, category_idx, 0.75)
         if not success:
             print "error neurodolling"
             return []
