@@ -118,10 +118,12 @@ def generate_mask_and_insert(doc, image_url=None, fp_date=None, coll="products",
         if not success:
             print "error neurodolling"
             return []
-        mask, resize_ratio = background_removal.standard_resize(neuro_mask, 400)
+        mask = cv2.resize(neuro_mask, (400, 400))
+
     else:
         mask = background_removal.get_fg_mask(small_image)
-
+    print(small_image.shape)
+    print(mask.shape)
     fingerprint = fp(small_image, mask=mask)
 
     fp_as_list = fingerprint.tolist()
