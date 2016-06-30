@@ -106,7 +106,7 @@ def generate_mask_and_insert(doc, image_url=None, fp_date=None, coll="products",
     # if db[coll].find_one({'img_hash': img_hash}):
     #     return
     small_image, resize_ratio = background_removal.standard_resize(image, 400)
-    del image
+    # del image
 
     if not Utils.is_valid_image(small_image):
         logging.warning("small_image is Bad. {img}".format(img=small_image))
