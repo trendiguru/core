@@ -118,7 +118,7 @@ def generate_mask_and_insert(doc, image_url=None, fp_date=None, coll="products",
         if not success:
             print "error neurodolling"
             return []
-        mask=cv2.resize(neuro_mask,(400,400))
+        mask, resize_ratio = background_removal.standard_resize(neuro_mask, 400)
     else:
         mask = background_removal.get_fg_mask(small_image)
 
