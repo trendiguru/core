@@ -102,7 +102,7 @@ def process_items(item_list, gender,category):
 
         generic["img_hash"] = img_hash
 
-        collection.insert_one(generic)
+        # collection.insert_one(generic)
         while fp_q.count>2500:
             sleep(30)
 
