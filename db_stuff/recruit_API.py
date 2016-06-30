@@ -105,6 +105,10 @@ def download_recruit():
     s = time()
     db.recruit_Female.delete_many({})
     db.recruit_Male.delete_many({})
+    if 'img_hash' not in db.recruit_Female.index_information().keys():
+        db.recruit_Female.create_index('img_hash', background=True)
+    if 'img_hash' not in db.recruit_Male.index_information().keys():
+        db.recruit_Male.create_index('img_hash', background=True)
     handler = log2file('/home/developer/yonti/recruit_download_stats.log')
     handler.info('download started')
     for genreId in recruitID2generalCategory.keys():

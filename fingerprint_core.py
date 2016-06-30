@@ -7,16 +7,37 @@ import logging
 import hashlib
 import cv2
 import numpy as np
-
+from .paperdoll import neurodoll_falcon_client as nfc
 import background_removal
 import Utils
 import constants
+from db_stuff.recruit_constants import recruit2category_idx
 fingerprint_length = constants.fingerprint_length
 histograms_length = constants.histograms_length
 db = constants.db
 
 
 # collection = constants.update_collection_name
+
+def neurodoll(image, category_idx, fg):
+    dic = nfc.pd(image, category_idx)
+    if not dic['success']:
+        return False , []
+    neuro_mask = dic['mask']
+    img = cv2.resize(image,(256,256))
+    # rect = (0, 0, image.shape[1] - 1, image.shape[0] - 1)
+    bgdmodel = np.zeros((1, 65), np.float64)
+    fgdmodel = np.zeros((1, 65), np.float64)
+
+    mask = np.zeros(img.shape[:2], np.uint8)
+    mask[neuro_mask>200*fg]=3
+    # mask[neuro_mask>255*fg]=1
+    mask[neuro_mask <200 * fg] = 2
+    # mask[neuro_mask <55 * fg] = 0
+    cv2.grabCut(img, mask, None, bgdmodel, fgdmodel, 3, cv2.GC_INIT_WITH_MASK)
+
+    mask2 = np.where((mask == 1) + (mask == 3), 255, 0).astype(np.uint8)
+    return mask2
 
 
 def fp(img, bins=histograms_length, fp_length=fingerprint_length, mask=None):
@@ -64,7 +85,7 @@ def fp(img, bins=histograms_length, fp_length=fingerprint_length, mask=None):
     return result_vector[:fp_length]
 
 
-def generate_mask_and_insert(doc, image_url=None, fp_date=None, coll="products", img=None):
+def generate_mask_and_insert(doc, image_url=None, fp_date=None, coll="products", img=None, neuro=False):
     """
     Takes an image + whatever else you give it, and handles all the logic (using/finding/creating a bb, then a mask)
     Work in progress...
@@ -74,7 +95,7 @@ def generate_mask_and_insert(doc, image_url=None, fp_date=None, coll="products",
     """
     image_url = image_url or doc["image"]["sizes"]["XLarge"]["url"]
     collection = coll
-    if 'ebay' in coll and img is not None:
+    if neuro:
         image = img
     else:
         image = Utils.get_cv2_img_array(image_url)
@@ -90,8 +111,17 @@ def generate_mask_and_insert(doc, image_url=None, fp_date=None, coll="products",
     if not Utils.is_valid_image(small_image):
         logging.warning("small_image is Bad. {img}".format(img=small_image))
         return
+    if neuro:
+        category = doc['categories']
+        category_idx = recruit2category_idx[category]
+        success, neuro_mask = neurodoll(image,category_idx,0.75)
+        if not success:
+            print "error neurodolling"
+            return []
+        mask , resize_ratio= background_removal.standard_resize(neuro_mask, 400)
+    else:
+        mask = background_removal.get_fg_mask(small_image)
 
-    mask = background_removal.get_fg_mask(small_image)
     fingerprint = fp(small_image, mask=mask)
 
     fp_as_list = fingerprint.tolist()
