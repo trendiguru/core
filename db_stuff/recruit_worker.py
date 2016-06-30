@@ -65,7 +65,8 @@ def process_items(item_list, gender,category):
                  'currency': 'Yen'}
 
         status = 'instock'
-        img_url = []
+        img=item['itemImgInfoList'][0]
+        img_url = 'http:' + img['itemImgUrl']
         if 'itemDescriptionText' in item.keys():
             description = item['itemDescriptionText']
         else:
