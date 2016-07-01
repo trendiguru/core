@@ -23,7 +23,8 @@ def grabcut_neuro(img_url, neuro_mask, fg, sortOrder):
     # # mask[neuro_mask>255*fg]=1
     # mask[neuro_mask <200 * fg] = 2
     # # mask[neuro_mask <55 * fg] = 0
-    mask2, th3 = cv2.threshold(neuro_mask, 0, 255, cv2.THRESH_BINARY + cv2.THRESH_OTSU)
+    blur = cv2.GaussianBlur(neuro_mask, (5, 5), 0)
+    mask2, th3 = cv2.threshold(blur, 0, 255, cv2.THRESH_BINARY + cv2.THRESH_OTSU)
     # mask[ret>127]=3
     # # # mask[neuro_mask>255*fg]=1
     # mask[ret <127] = 2
