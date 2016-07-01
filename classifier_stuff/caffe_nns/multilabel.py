@@ -132,7 +132,8 @@ def check_acc(net, num_batches, batch_size = 128):
 #        ests = net.blobs['score'].data > 0  ##why 0????  this was previously not after a sigmoid apparently
         ests = net.blobs['score'].data > 0.5
         print('before:size gt {} size est {}'.format(gts.shape,ests.shape))
-        ests = ests.flatten()
+        if ests.shape != gts.shape:
+            ests = ests.reshape(gts.shape)
         print('after:size gt {} size est {}'.format(gts.shape,ests.shape))
         baseline_est = np.zeros_like(ests)
         for gt, est in zip(gts, ests): #for each ground truth and estimated label vector
