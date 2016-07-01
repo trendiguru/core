@@ -103,7 +103,7 @@ def process_items(item_list, gender,category):
         generic["img_hash"] = img_hash
 
         # collection.insert_one(generic)
-        while fp_q.count>2500:
+        while fp_q.count>5000:
             sleep(30)
 
         fp_q.enqueue(generate_mask_and_insert, doc=generic, image_url=img_url,
