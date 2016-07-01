@@ -186,6 +186,8 @@ def check_acc(net, num_batches, batch_size = 1):
             print('after reshape in check_acc:size gt {} size est {}'.format(gts.shape,ests.shape))
         baseline_est = np.zeros_like(ests)
         for gt, est in zip(gts, ests): #for each ground truth and estimated label vector
+            if est.shape != gt.shape:
+                continue
             if first_time == True:
                 first_time = False
                 tp = np.zeros_like(gt)
