@@ -68,11 +68,11 @@ def process_items(item_list, gender,category):
         status = 'instock'
         image = None
         for i in range(3):
-            img=item['itemImgInfoList'][i]
+            img =item['itemImgInfoList'][i]['itemImgUrl']
             split1 = re.split(r'\?,&', img)
             if 'var=1' not in split1:
                 continue
-            img_url = 'http:' + img['itemImgUrl']
+            img_url = 'http:' + img
             image = get_cv2_img_array(img_url)
             if image is not None:
                 break
