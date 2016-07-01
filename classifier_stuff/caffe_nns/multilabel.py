@@ -9,7 +9,7 @@ import os.path as osp
 import matplotlib.pyplot as plt
 
 from copy import copy
-import caffe # If you get "No module named _caffe", either you have not built pycaffe or you have the wrong path.
+#import caffe # If you get "No module named _caffe", either you have not built pycaffe or you have the wrong path.
 
 from caffe import layers as L, params as P # Shortcuts to define the net prototxt.
 
@@ -124,6 +124,50 @@ def hamming_distance(gt, est):
         print('after reshape:size gt {} size est {}'.format(gt.shape,est.shape))
     return sum([1 for (g, e) in zip(gt, est) if g == e]) / float(len(gt))
 
+def update_confmat(gt,est,tp,tn,fp,fn):
+    print('gt {} est {}'.format(gt,est))
+    for i in range(len(gt)):
+        if gt[i]==1:
+            if est[i]: # true positive
+                tp[i] += 1
+            else:   # false negative
+                fn[i] += 1
+        else:
+            if est[i]: # false positive
+                fp[i] += 1
+            else:   # true negative
+                tn[i] += 1
+#        print('tp {} tn {} fp {} fn {}'.format(tp,tn,fp,fn))
+    return tp,tn,fp,fn
+
+def test_confmat():
+    gt=[True,False,1,0]
+    ests=[[True,False,0,0],
+          [0,0,1,0],
+          [1,0,0,1],
+        [ True,0,True,0]]
+    tp = [0,0,0,0]
+    tn = [0,0,0,0]
+    fp = [0,0,0,0]
+    fn = [0,0,0,0]
+    tp_sum = tn_sum = fp_sum = fn_sum = [0,0,0,0]
+    for e in ests:
+        #update_confmat(gt,e,tp,tn,fp,fn)
+        tp,tn,fp,fn = update_confmat(gt,e,tp,tn,fp,fn)
+    print('tp {} tn {} fp {} fn {}'.format(tp,tn,fp,fn))
+    gt=[0,1,1,0]
+    ests=[[0,1,0,1],
+          [0,1,1,1],
+          [1,0,0,1],
+          [1,0,1,0]]
+    tp_sum = tn_sum = fp_sum = fn_sum = [0,0,0,0]
+    for e in ests:
+        #update_confmat(gt,e,tp,tn,fp,fn)
+        tp,tn,fp,fn = update_confmat(gt,e,tp,tn,fp,fn)
+    print('tp {} tn {} fp {} fn {}'.format(tp,tn,fp,fn))
+
+
+
 def check_acc(net, num_batches, batch_size = 128):
     #this is not working foir batchsize!=1, maybe needs to be defined in net
     acc = 0.0 #
@@ -140,6 +184,7 @@ def check_acc(net, num_batches, batch_size = 128):
         baseline_est = np.zeros_like(ests)
         for gt, est in zip(gts, ests): #for each ground truth and estimated label vector
             h = hamming_distance(gt, est)
+
             baseline_h = hamming_distance(gt,baseline_est)
             print('gt {} est {} (1-hamming) {}'.format(gt,est,h))
             sum = np.sum(gt)
@@ -182,14 +227,15 @@ def check_accuracy(solverproto,caffemodel,num_batches=200,batch_size=1):
     solver = caffe.SGDSolver(solverproto)
     solver.net.copy_from(caffemodel)
     solver.test_nets[0].share_with(solver.net)
-    solver.step(1)
+#    solver.step(1)
     print 'accuracy:{0:.4f}'.format(check_acc(solver.test_nets[0], num_batches=num_batches,batch_size = batch_size))
 
 
-caffe.set_mode_gpu()
-caffe.set_device(0)
 
 if __name__ =="__main__":
+    caffe.set_mode_gpu()
+    caffe.set_device(0)
+
     workdir = './'
     snapshot = 'snapshot'
     caffemodel =  '/home/jeremy/caffenets/multilabel/vgg_ilsvrc_16_multilabel_2/snapshot/train_iter_40069.caffemodel'
