@@ -9,6 +9,7 @@ from rq import Queue
 from ..Utils import get_cv2_img_array
 import hashlib
 from ..fingerprint_core import generate_mask_and_insert
+import re
 recruit_q = Queue('recruit_worker', connection=redis_conn)
 fp_q = Queue('fingerprint_new', connection=redis_conn)
 
@@ -65,8 +66,29 @@ def process_items(item_list, gender,category):
                  'currency': 'Yen'}
 
         status = 'instock'
-        img=item['itemImgInfoList'][0]
-        img_url = 'http:' + img['itemImgUrl']
+        image = None
+        imgs = item['itemImgInfoList']
+        for i in range(len(imgs)):
+            img =imgs[i]['itemImgUrl']
+            split1 = re.split(r'\?|&', img)
+            if 'ver=1' not in split1:
+                continue
+            img_url = 'http:' + img
+            image = get_cv2_img_array(img_url)
+            if image is not None:
+                break
+
+        if image is None:
+            print ('bad img url')
+            continue
+
+        img_hash = get_hash(image)
+
+        hash_exists = collection.find_one({'img_hash': img_hash})
+        if hash_exists:
+            print ('hash already exists')
+            continue
+
         if 'itemDescriptionText' in item.keys():
             description = item['itemDescriptionText']
         else:
@@ -86,24 +108,12 @@ def process_items(item_list, gender,category):
                    "fingerprint": None,
                    "gender": gender,
                    "shippingInfo": [],
-                   "raw_info": item}
+                   "raw_info": item,
+                   "img_hash": img_hash}
 
-        image = get_cv2_img_array(img_url)
-        if image is None:
-            print ('bad img url')
-            continue
-
-        img_hash = get_hash(image)
-
-        hash_exists = collection.find_one({'img_hash': img_hash})
-        if hash_exists:
-            print ('hash already exists')
-            continue
-
-        generic["img_hash"] = img_hash
 
         # collection.insert_one(generic)
-        while fp_q.count>2500:
+        while fp_q.count>5000:
             sleep(30)
 
         fp_q.enqueue(generate_mask_and_insert, doc=generic, image_url=img_url,

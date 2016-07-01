@@ -23,11 +23,15 @@ def grabcut_neuro(img_url, neuro_mask, fg, sortOrder):
     # # mask[neuro_mask>255*fg]=1
     # mask[neuro_mask <200 * fg] = 2
     # # mask[neuro_mask <55 * fg] = 0
-    ret, mask3 = cv2.threshold(neuro_mask, 0, 255, cv2.THRESH_BINARY + cv2.THRESH_OTSU)
-    mask[mask3>127]=3
+    # ret, mask3 = cv2.threshold(neuro_mask, 0, 255, cv2.THRESH_BINARY + cv2.THRESH_OTSU)
+    # mask[mask3>127]=3
+    # # # mask[neuro_mask>255*fg]=1
+    # mask[mask3 <127] = 2
+    med = np.median(neuro_mask)
+    mask[neuro_mask>med]=3
     # # mask[neuro_mask>255*fg]=1
-    mask[mask3 <127] = 2
-    cv2.grabCut(img, mask, None, bgdmodel, fgdmodel, 3, cv2.GC_INIT_WITH_MASK)
+    mask[neuro_mask <med] = 2
+    cv2.grabCut(img, mask, None, bgdmodel, fgdmodel, 1, cv2.GC_INIT_WITH_MASK)
     #
     mask2 = np.where((mask == 1) + (mask == 3), 255, 0).astype(np.uint8)
     img[mask2==0]=0
