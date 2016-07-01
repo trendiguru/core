@@ -9,6 +9,7 @@ from rq import Queue
 from ..Utils import get_cv2_img_array
 import hashlib
 from ..fingerprint_core import generate_mask_and_insert
+import re
 recruit_q = Queue('recruit_worker', connection=redis_conn)
 fp_q = Queue('fingerprint_new', connection=redis_conn)
 
@@ -65,8 +66,12 @@ def process_items(item_list, gender,category):
                  'currency': 'Yen'}
 
         status = 'instock'
+        image = None
         for i in range(3):
             img=item['itemImgInfoList'][i]
+            split1 = re.split(r'\?,&', img)
+            if 'var=1' not in split1:
+                continue
             img_url = 'http:' + img['itemImgUrl']
             image = get_cv2_img_array(img_url)
             if image is not None:
