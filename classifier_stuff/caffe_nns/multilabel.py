@@ -9,7 +9,7 @@ import os.path as osp
 import matplotlib.pyplot as plt
 
 from copy import copy
-#import caffe # If you get "No module named _caffe", either you have not built pycaffe or you have the wrong path.
+import caffe # If you get "No module named _caffe", either you have not built pycaffe or you have the wrong path.
 
 from caffe import layers as L, params as P # Shortcuts to define the net prototxt.
 
@@ -168,11 +168,16 @@ def test_confmat():
 
 
 
-def check_acc(net, num_batches, batch_size = 128):
+def check_acc(net, num_batches, batch_size = 1):
     #this is not working foir batchsize!=1, maybe needs to be defined in net
     acc = 0.0 #
     baseline_acc = 0.0
     n = 0
+    tp = [0,0,0,0]
+    tn = [0,0,0,0]
+    fp = [0,0,0,0]
+    fn = [0,0,0,0]
+
     for t in range(num_batches):
         net.forward()
         gts = net.blobs['label'].data
@@ -180,18 +185,23 @@ def check_acc(net, num_batches, batch_size = 128):
         ests = net.blobs['score'].data > 0.5
         if ests.shape != gts.shape:
             ests = ests.reshape(gts.shape)
-            print('after reshape:size gt {} size est {}'.format(gts.shape,ests.shape))
+            print('after reshape in check_acc:size gt {} size est {}'.format(gts.shape,ests.shape))
         baseline_est = np.zeros_like(ests)
         for gt, est in zip(gts, ests): #for each ground truth and estimated label vector
+            tp,tn,fp,fn = update_confmat(gt,est,tp,tn,fp,fn)
             h = hamming_distance(gt, est)
 
             baseline_h = hamming_distance(gt,baseline_est)
-            print('gt {} est {} (1-hamming) {}'.format(gt,est,h))
+#            print('gt {} est {} (1-hamming) {}'.format(gt,est,h))
             sum = np.sum(gt)
             acc += h
             baseline_acc += baseline_h
             n += 1
     print('len(gts) {} len(ests) {} numbatches {} batchsize {} acc {} baseline {}'.format(len(gts),len(ests),num_batches,batch_size,acc/n,baseline_acc/n))
+    print('tp {} tn {} fp {} fn {}'.format(tp,tn,fp,fn))
+    full_rec = [float(tp[i])/(tp[i]+fn[i]) for i in range(len(tp))]
+    full_prec = [float(tp[i])/(tp[i]+fp[i]) for i in range(len(tp))]
+    print('precision {} recall {} acc {}'.format(full_prec,full_rec,acc/n))
     return acc / n
 
 #train
