@@ -125,9 +125,9 @@ def hamming_distance(gt, est):
     return sum([1 for (g, e) in zip(gt, est) if g == e]) / float(len(gt))
 
 def update_confmat(gt,est,tp,tn,fp,fn):
-    print('gt {} \nest {}'.format(gt,est))
+    print('gt {} \nest {} sizes tp {} tn {} fp {} fn {} '.format(gt,est,tp.shape,tn.shape,fp.shape,fn.shape))
     for i in range(len(gt)):
-        if gt[i]==1:
+        if gt[i] == 1:
             if est[i]: # true positive
                 tp[i] += 1
             else:   # false negative
