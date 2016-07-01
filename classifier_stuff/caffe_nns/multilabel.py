@@ -173,16 +173,20 @@ def check_acc(net, num_batches, batch_size = 1):
     acc = 0.0 #
     baseline_acc = 0.0
     n = 0
-    tp = [0,0,0,0]
-    tn = [0,0,0,0]
-    fp = [0,0,0,0]
-    fn = [0,0,0,0]
 
+    first_time = True
     for t in range(num_batches):
         net.forward()
         gts = net.blobs['label'].data
 #        ests = net.blobs['score'].data > 0  ##why 0????  this was previously not after a sigmoid apparently
         ests = net.blobs['score'].data > 0.5
+        if first_time == True:
+            first_time = False
+            tp = np.zeros_like(gts)
+            tn = np.zeros_like(gts)
+            fp = np.zeros_like(gts)
+            fn = np.zeros_like(gts)
+
         if ests.shape != gts.shape:
             ests = ests.reshape(gts.shape)
             print('after reshape in check_acc:size gt {} size est {}'.format(gts.shape,ests.shape))
