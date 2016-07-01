@@ -119,6 +119,9 @@ def makenet():
 def hamming_distance(gt, est):
     #this is actually hamming similarity not distance
     print('calculating hamming for \ngt :'+str(gt)+'\nest:'+str(est))
+    if est.shape != gt.shape:
+        est = est.reshape(gt.shape)
+        print('after reshape:size gt {} size est {}'.format(gt.shape,est.shape))
     return sum([1 for (g, e) in zip(gt, est) if g == e]) / float(len(gt))
 
 def check_acc(net, num_batches, batch_size = 128):
@@ -131,9 +134,9 @@ def check_acc(net, num_batches, batch_size = 128):
         gts = net.blobs['label'].data
 #        ests = net.blobs['score'].data > 0  ##why 0????  this was previously not after a sigmoid apparently
         ests = net.blobs['score'].data > 0.5
-        print('before:size gt {} size est {}'.format(gts.shape,ests.shape))
-        ests = ests.flatten()
-        print('after:size gt {} size est {}'.format(gts.shape,ests.shape))
+        if ests.shape != gts.shape:
+            ests = ests.reshape(gts.shape)
+            print('after reshape:size gt {} size est {}'.format(gts.shape,ests.shape))
         baseline_est = np.zeros_like(ests)
         for gt, est in zip(gts, ests): #for each ground truth and estimated label vector
             h = hamming_distance(gt, est)
