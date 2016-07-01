@@ -34,7 +34,7 @@ def rename_bbox_files(dir):
         product = elements[1]
         photo = elements[3]
         dest_base = 'photo_'+photo+'.jpg'
-        print('photo {} prod {} dest {} name {}'.format(photo,product,dest_base,a_file))
+        print('photo {} prod {} dest {} name {}'.format(photo, product, dest_base, a_file))
 #        shutil.move(full_source, dest)
         dest = os.path.join(dir,dest_base)
         shutil.copy(full_source, dest)
@@ -73,8 +73,8 @@ def library_for_dataset_scraping(json_file,json_files_path, photos_path,max_item
             if len(data_pack) > 2:
                 bbox_dict = data_pack['bbox']
                 bbox = [int(bbox_dict['left']), int(bbox_dict['top']), int(bbox_dict['width']), int(bbox_dict['height'])]
-                file_name = 'product_%s_photo_%s_bbox_%s_%s_%s_%s.jpg' % (product_id, photo_id, bbox[0], bbox[1], bbox[2], bbox[3])
-#                file_name = 'product_%s_photo_%s.jpg' % (product_id, photo_id)
+#                file_name = 'product_%s_photo_%s_bbox_%s_%s_%s_%s.jpg' % (product_id, photo_id, bbox[0], bbox[1], bbox[2], bbox[3])
+                file_name = 'product_%s_photo_%s.jpg' % (product_id, photo_id)
             else:
                 file_name = 'product_%s_photo_%s.jpg' % (product_id, photo_id) #
             # downloading the images from the web:
@@ -388,11 +388,18 @@ if __name__ == "__main__":
 #    dir_of_bbfiles = '/home/jeremy/image_dbs/tamara_berg/'
 #    multi_class_labels_from_bbfiles(dir_of_bbfiles)
 
+    json_files_path = '/home/jeremy/image_dbs/tamara_berg/dataset/json'
+    photos_path = 'new_photos'
+    jsons = [f for f in os.listdir(json_files_path) if 'json' in f]
+    for json_file in jsons:
+        library_for_dataset_scraping(json_file,json_files_path, photos_path,max_items=1000000)
+
+    if(0):
+        generate_bbfiles_from_json_dir_of_dirs(json_dir,imagefiles_dir,bb_dir,darknet=True,positive_filter='train')
+        generate_bbfiles_from_json_dir_of_dirs(json_dir,imagefiles_dir,bb_dir,darknet=True,positive_filter='test')
+    #    generate_bbfiles_from_json(json_file,imagefiles_dir,darknet=True,class_number=66)
 
 
-    generate_bbfiles_from_json_dir_of_dirs(json_dir,imagefiles_dir,bb_dir,darknet=True,positive_filter='train')
-    generate_bbfiles_from_json_dir_of_dirs(json_dir,imagefiles_dir,bb_dir,darknet=True,positive_filter='test')
-#    generate_bbfiles_from_json(json_file,imagefiles_dir,darknet=True,class_number=66)
 
     if(0):
         images_files_path = os.path.dirname(os.path.abspath(__file__)) + '/photos/photos.txt'
@@ -401,10 +408,8 @@ if __name__ == "__main__":
                 os.mkdir(dl_path)
 
         listing = get_product_photos(images_files_path)
-
         max_items = 5000000
         only_files = [f for f in os.listdir(json_files_path) if os.path.isfile(os.path.join(json_files_path, f))]
     #    only_files = ['test_pairs_footwear.json']
         print only_files
-
         Parallel(n_jobs=num_cores)(delayed(library_with_cropping)(json_file,json_files_path,dl_path,listing,max_items) for json_file in only_files)
