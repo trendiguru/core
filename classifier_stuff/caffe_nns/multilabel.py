@@ -180,18 +180,18 @@ def check_acc(net, num_batches, batch_size = 1):
         gts = net.blobs['label'].data
 #        ests = net.blobs['score'].data > 0  ##why 0????  this was previously not after a sigmoid apparently
         ests = net.blobs['score'].data > 0.5
-        if first_time == True:
-            first_time = False
-            tp = np.zeros_like(gts)
-            tn = np.zeros_like(gts)
-            fp = np.zeros_like(gts)
-            fn = np.zeros_like(gts)
 
         if ests.shape != gts.shape:
             ests = ests.reshape(gts.shape)
             print('after reshape in check_acc:size gt {} size est {}'.format(gts.shape,ests.shape))
         baseline_est = np.zeros_like(ests)
         for gt, est in zip(gts, ests): #for each ground truth and estimated label vector
+            if first_time == True:
+                first_time = False
+                tp = np.zeros_like(gt)
+                tn = np.zeros_like(gt)
+                fp = np.zeros_like(gt)
+                fn = np.zeros_like(gt)
             tp,tn,fp,fn = update_confmat(gt,est,tp,tn,fp,fn)
             h = hamming_distance(gt, est)
 
