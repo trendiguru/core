@@ -71,7 +71,7 @@ def process_items(item_list, gender,category):
         for i in range(len(imgs)):
             img =imgs[i]['itemImgUrl']
             split1 = re.split(r'\?|&', img)
-            if 'var=1' not in split1:
+            if 'ver=1' not in split1:
                 continue
             img_url = 'http:' + img
             image = get_cv2_img_array(img_url)
