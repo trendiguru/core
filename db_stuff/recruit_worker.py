@@ -67,9 +67,10 @@ def process_items(item_list, gender,category):
 
         status = 'instock'
         image = None
-        for i in range(3):
-            img =item['itemImgInfoList'][i]['itemImgUrl']
-            split1 = re.split(r'\?,&', img)
+        imgs = item['itemImgInfoList']
+        for i in range(len(imgs)):
+            img =imgs[i]['itemImgUrl']
+            split1 = re.split(r'\?|&', img)
             if 'var=1' not in split1:
                 continue
             img_url = 'http:' + img
