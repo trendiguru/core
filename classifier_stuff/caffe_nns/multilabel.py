@@ -118,6 +118,7 @@ def makenet():
 
 def hamming_distance(gt, est):
     #this is actually hamming similarity not distance
+    print('calculating hamming for \ngt :'+str(gt)+'\nest:'+str(est))
     return sum([1 for (g, e) in zip(gt, est) if g == e]) / float(len(gt))
 
 def check_acc(net, num_batches, batch_size = 128):
