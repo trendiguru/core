@@ -224,7 +224,7 @@ recruitID2generalCategory = {
     "0111010000" : "t-shirt" ,
     "0111020000" : "top" ,
     "0111030000" : "cardigan" ,
-    "0111040000" : "tops" ,
+    "0111040000" : "top" ,
     "0111060000" : "shirt" ,
     "0111070000" : "top" ,
     "0111080000" : "blouse" ,
@@ -316,5 +316,30 @@ recruitID2generalCategory = {
     "0211070000": "kimono",
     "0213000000": "swimwear",
     "0213030000": "swimwear"}
-    
 
+recruit2category_idx={'blouse':20,
+                      't-shirt':20,
+                      'vest':3,
+                      'cardigan':3,
+                      'blazer':3,
+                      'shirt':20,
+                      'shorts':14,
+                      'coat':4,
+                      'sweater':19,
+                      'top':20,
+                      'jeans':10,
+                      'swimwear':5,
+                      'jacket':3,
+                      'kimono':5,
+                      'leggings':11,
+                      'suit':18,
+                      'skirt':16,
+                      'dress':5,
+                      'sweatshirt':19,
+                      'pants':12}
+
+
+
+# v = recruitID2generalCategory.values()
+# vv = set(v)
+# print vv

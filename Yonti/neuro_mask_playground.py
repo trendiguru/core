@@ -8,22 +8,28 @@ import numpy as np
 import cv2
 from random import randint
 
-def grabcut_neuro(img_url, neuro_mask, fg):
+def grabcut_neuro(img_url, neuro_mask, fg, sortOrder):
     image = get_cv2_img_array(img_url)
     if image is None:
         print ('bad img url')
         return False, []
-
-    rect = (0, 0, image.shape[1] - 1, image.shape[0] - 1)
+    img = cv2.resize(image,(256,256))
+    # rect = (0, 0, image.shape[1] - 1, image.shape[0] - 1)
     bgdmodel = np.zeros((1, 65), np.float64)
     fgdmodel = np.zeros((1, 65), np.float64)
 
-    mask = np.zeros(image.shape[:2], np.uint8)
-    mask[neuro_mask<255*fg]=2
-    mask[neuro_mask<255*fg]=3
-    cv2.grabCut(image, mask, rect, bgdmodel, fgdmodel, 1, cv2.GC_INIT_WITH_MASK)
+    mask = np.zeros(img.shape[:2], np.uint8)
+    mask[neuro_mask>200*fg]=3
+    # mask[neuro_mask>255*fg]=1
+    mask[neuro_mask <200 * fg] = 2
+    # mask[neuro_mask <55 * fg] = 0
+    cv2.grabCut(img, mask, None, bgdmodel, fgdmodel, 3, cv2.GC_INIT_WITH_MASK)
 
     mask2 = np.where((mask == 1) + (mask == 3), 255, 0).astype(np.uint8)
+    img[mask2==0]=0
+    image =  cv2.resize(img,(500,500))
+    filename = '/var/www/neuro_mask/grabcut_' + str(sortOrder) + '.jpg'
+    cv2.imwrite(filename, image)
     return True, mask2
 
 
@@ -46,9 +52,9 @@ def middleman(imgs, category, fg=0.75, neurodoll=True):
             cv2.imwrite(filename, mask)
         else:
             filename = '/var/www/neuro_mask/neuro_' + str(sortOrder) + '.jpg'
-            mask = cv2.imread(filename)
+            mask = cv2.imread(filename,0)
 
-        success, grabcut_mask = grabcut_neuro(url, mask,fg)
+        success, grabcut_mask = grabcut_neuro(url, mask,fg, sortOrder)
         if not success:
             tmp = {'sortOrder': sortOrder,
                    'itemImgUrl': url,
@@ -58,17 +64,16 @@ def middleman(imgs, category, fg=0.75, neurodoll=True):
         tmp = {'sortOrder':sortOrder,
                'itemImgUrl': url,
                'success': True}
-        filename = '/var/www/neuro_mask/grabcut_'+str(sortOrder)+'.jpg'
-        cv2.imwrite(filename,grabcut_mask)
+
         masks.append(tmp)
     return masks
 
-def fresh_meat(gender,item_id=None, fg=0.75):
+def fresh_meat(gender,item_id, fg=0.75):
     col_name= 'recruit_'+gender
     collection = db[col_name]
     do_neuro = True
-
-    if item_id is not None:
+    fg=float(fg)
+    if item_id:
         exists = collection.find_one({'id': item_id})
         if exists:
             do_neuro = False
@@ -77,14 +82,16 @@ def fresh_meat(gender,item_id=None, fg=0.75):
 
     if do_neuro:
         r = randint(0,1000)
-        item =  collection.find()[r]
+        item =  collection.find({'categories':{'$in':ultimate_21_dict.keys()}})[r]
         imgs = item['raw_info']['itemImgInfoList']
+        item_id = item['id'][0]
         category = item['categories']
 
     masks = middleman(imgs, category,fg, do_neuro)
     ret = {'item_id': item_id,
            'category': category,
-           'mask': masks}
+           'mask': masks,
+           'fg': fg}
     return ret
 
 
