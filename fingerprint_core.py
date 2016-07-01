@@ -22,7 +22,7 @@ db = constants.db
 def neurodoll(image, category_idx):
     dic = nfc.pd(image, category_idx)
     if not dic['success']:
-        return False , []
+        return False, []
     neuro_mask = dic['mask']
     img = cv2.resize(image,(256,256))
     # rect = (0, 0, image.shape[1] - 1, image.shape[0] - 1)
@@ -33,8 +33,10 @@ def neurodoll(image, category_idx):
     med = np.median(neuro_mask)
     mask[neuro_mask > med] = 3
     mask[neuro_mask < med] = 2
-    cv2.grabCut(img, mask, None, bgdmodel, fgdmodel, 3, cv2.GC_INIT_WITH_MASK)
-
+    try:
+        cv2.grabCut(img, mask, None, bgdmodel, fgdmodel, 1, cv2.GC_INIT_WITH_MASK)
+    except:
+        return False, []
     mask2 = np.where((mask == 1) + (mask == 3), 255, 0).astype(np.uint8)
     return True, mask2
 

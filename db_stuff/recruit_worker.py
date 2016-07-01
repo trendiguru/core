@@ -65,8 +65,24 @@ def process_items(item_list, gender,category):
                  'currency': 'Yen'}
 
         status = 'instock'
-        img=item['itemImgInfoList'][0]
-        img_url = 'http:' + img['itemImgUrl']
+        for i in range(3):
+            img=item['itemImgInfoList'][i]
+            img_url = 'http:' + img['itemImgUrl']
+            image = get_cv2_img_array(img_url)
+            if image is not None:
+                break
+
+        if image is None:
+            print ('bad img url')
+            continue
+
+        img_hash = get_hash(image)
+
+        hash_exists = collection.find_one({'img_hash': img_hash})
+        if hash_exists:
+            print ('hash already exists')
+            continue
+
         if 'itemDescriptionText' in item.keys():
             description = item['itemDescriptionText']
         else:
@@ -86,21 +102,9 @@ def process_items(item_list, gender,category):
                    "fingerprint": None,
                    "gender": gender,
                    "shippingInfo": [],
-                   "raw_info": item}
+                   "raw_info": item,
+                   "img_hash": img_hash}
 
-        image = get_cv2_img_array(img_url)
-        if image is None:
-            print ('bad img url')
-            continue
-
-        img_hash = get_hash(image)
-
-        hash_exists = collection.find_one({'img_hash': img_hash})
-        if hash_exists:
-            print ('hash already exists')
-            continue
-
-        generic["img_hash"] = img_hash
 
         # collection.insert_one(generic)
         while fp_q.count>5000:
