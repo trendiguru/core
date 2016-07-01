@@ -205,7 +205,8 @@ def check_acc(net, num_batches, batch_size = 1):
     print('tp {} tn {} fp {} fn {}'.format(tp,tn,fp,fn))
     full_rec = [float(tp[i])/(tp[i]+fn[i]) for i in range(len(tp))]
     full_prec = [float(tp[i])/(tp[i]+fp[i]) for i in range(len(tp))]
-    print('precision {} recall {} acc {}'.format(full_prec,full_rec,acc/n))
+    full_acc = [float(tp[i]+tn[i])/(tp[i]+tn[i]+fp[i]+fn[i]) for i in range(len(tp))]
+    print('precision {} recall {} acc {} nacc {}'.format(full_prec,full_rec,full_acc,acc/n))
     return acc / n
 
 #train
