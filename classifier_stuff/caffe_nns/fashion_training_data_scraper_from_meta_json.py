@@ -59,8 +59,8 @@ def library_for_dataset_scraping(json_file, photos_path,max_items):
     # folder creation for each json file packet:
     set_name = json_file[:-5]
     print('jsonfile: {0} photopath: {1}'.format(json_file,photos_path))
-    if not os.path.exists(photos_path + set_name):
-        os.mkdir(photos_path + set_name)
+    if not os.path.exists(photos_path ):
+        os.mkdir(photos_path)
 
     # making sure only json files are read:
     if json_file[-4:] == 'json':
