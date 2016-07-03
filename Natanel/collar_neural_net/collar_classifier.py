@@ -7,7 +7,7 @@ import cv2
 # theano.config.device = 'gpu'
 # theano.config.floatX = 'float32'
 from keras.models import Model, Sequential
-from keras.layers import Dense, Dropout, Activation, Flatten
+from keras.layers import Dense, Dropout, Input, Activation, Flatten
 from keras.layers.convolutional import Convolution2D, MaxPooling2D
 from keras.optimizers import SGD, Adagrad, Adadelta, RMSprop, Adam
 import time
