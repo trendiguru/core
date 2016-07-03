@@ -74,10 +74,13 @@ def library_for_dataset_scraping(json_file, photos_path,max_items):
                 bbox_dict = data_pack['bbox']
                 bbox = [int(bbox_dict['left']), int(bbox_dict['top']), int(bbox_dict['width']), int(bbox_dict['height'])]
 #                file_name = 'product_%s_photo_%s_bbox_%s_%s_%s_%s.jpg' % (product_id, photo_id, bbox[0], bbox[1], bbox[2], bbox[3])
-                file_name = 'product_%s_photo_%s.jpg' % (product_id, photo_id)
+#                file_name = 'product_%s_photo_%s.jpg' % (product_id, photo_id)
+                file_name = 'photo_%s.jpg' % (photo_id)
             else:
-                file_name = 'product_%s_photo_%s.jpg' % (product_id, photo_id) #
+                file_name = 'photo_%s.jpg' % (photo_id) #
+ #               file_name = 'product_%s_photo_%s.jpg' % (product_id, photo_id)
             # downloading the images from the web:
+            fname = os.path.join(photos_path,file_name)
             f = open(photos_path + set_name + '/' + file_name, 'wb')
             try:
                 url_call = urllib.urlopen(listing[photo_id-1])
