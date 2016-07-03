@@ -3,6 +3,7 @@ __author__ = 'natanel'
 import os
 import json
 import urllib
+import urllib2
 from joblib import Parallel, delayed
 import multiprocessing
 import cv2
@@ -64,7 +65,7 @@ def dl_photos(photosfile,images_savedir,start_from=0):
 
 
 def get_file(url,n_photo,write_dir):
-    url_call = urllib.urlopen(url,data='',timeout = 1000)
+    url_call = urllib2.urlopen(url,data='',timeout = 1000)
     fname = 'photo_'+str(n_photo)+'.jpg'
     fname = os.path.join(write_dir,fname)
     try:
