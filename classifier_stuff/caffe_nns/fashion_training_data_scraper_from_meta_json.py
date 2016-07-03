@@ -50,11 +50,11 @@ def get_product_photos(images_files_path):
     print len(listing)
     return listing
 
-def dl_photos(photosfile,images_savedir):
+def dl_photos(photosfile,images_savedir,start_from=0):
     listings = get_product_photos(photosfile)
     max_items = 5000000
     Utils.ensure_dir(images_savedir)
-    Parallel(n_jobs=num_cores)(delayed(get_file)(listings[i],i+1,images_savedir) for i in range(len(listings)))
+    Parallel(n_jobs=num_cores)(delayed(get_file)(listings[i],i+1,images_savedir) for i in range(start_from,len(listings)))
 
 #    for i in range(len(listings)):
 
