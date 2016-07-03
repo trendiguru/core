@@ -388,10 +388,10 @@ if __name__ == "__main__":
 #    multi_class_labels_from_bbfiles(dir_of_bbfiles)
 
     json_files_path = '/home/jeremy/image_dbs/tamara_berg/dataset/json'
-    photos_path = 'new_photos'
+    photos_path = '/home/jeremy/image_dbs/tamara_berg/new_photos'
     jsons = [f for f in os.listdir(json_files_path) if 'json' in f]
     for json_file in jsons:
-        library_for_dataset_scraping(json_file, photos_path,max_items=1000000)
+        library_for_dataset_scraping(os.path.join(json_files_path,json_file), photos_path,max_items=1000000)
 
     if(0):
         generate_bbfiles_from_json_dir_of_dirs(json_dir,imagefiles_dir,bb_dir,darknet=True,positive_filter='train')
