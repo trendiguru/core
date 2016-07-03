@@ -52,7 +52,7 @@ def get_product_photos(images_files_path):
 
 # for json_file in only_files:
 # instead of a for loop, lets parallelize! :
-def library_for_dataset_scraping(json_file,json_files_path, photos_path,max_items):
+def library_for_dataset_scraping(json_file, photos_path,max_items):
     # finds only dresses dataset:
     data = []
 
@@ -62,9 +62,9 @@ def library_for_dataset_scraping(json_file,json_files_path, photos_path,max_item
     if not os.path.exists(photos_path + set_name):
         os.mkdir(photos_path + set_name)
 
-    # making sure onlu json files are read:
+    # making sure only json files are read:
     if json_file[-4:] == 'json':
-        data = json.load(open(json_files_path + json_file))
+        data = json.load(open(json_file))
         n = 0
         for data_pack in data:
             photo_id = data_pack['photo']
@@ -157,7 +157,6 @@ def generate_bbfiles_from_json(json_file,imagefiles_dir,bb_dir,darknet=True,clas
     either in darknet (percent) or pixel format.
     Currently all bbs of a given image are entered into the same bbfile
     :param json_file:
-    :param json_files_path:
     :param listing:
     :param max_items:
     :param docrop:
@@ -392,7 +391,7 @@ if __name__ == "__main__":
     photos_path = 'new_photos'
     jsons = [f for f in os.listdir(json_files_path) if 'json' in f]
     for json_file in jsons:
-        library_for_dataset_scraping(json_file,json_files_path, photos_path,max_items=1000000)
+        library_for_dataset_scraping(json_file, photos_path,max_items=1000000)
 
     if(0):
         generate_bbfiles_from_json_dir_of_dirs(json_dir,imagefiles_dir,bb_dir,darknet=True,positive_filter='train')
