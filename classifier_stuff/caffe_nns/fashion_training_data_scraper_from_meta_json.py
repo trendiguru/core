@@ -81,7 +81,7 @@ def library_for_dataset_scraping(json_file, photos_path,max_items):
  #               file_name = 'product_%s_photo_%s.jpg' % (product_id, photo_id)
             # downloading the images from the web:
             fname = os.path.join(photos_path,file_name)
-            f = open(photos_path + set_name + '/' + file_name, 'wb')
+            f = open(fname, 'wb')
             try:
                 url_call = urllib.urlopen(listing[photo_id-1])
                 f.write(url_call.read())
