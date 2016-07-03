@@ -17,10 +17,10 @@ import constants, background_removal
 def collar_images_maker_for_testing(image, face_box):
 
     collar_images = []
-    a = 1.25 # scalar for increasing collar box in relation to face box (1==100%)
+    a = 1.5 # scalar for increasing collar box in relation to face box (1==100%)
     max_angle = 15 # tilt angle of the image for diversification
     angle_offset = 5 # tilt angle of the image for diversification
-    output_images_size = (32, 32) # pixels^2
+    output_images_size = (48, 48) # pixels^2
 
     a = (a-1)/2
     # checking if the face (ancore) is present / detected:
@@ -37,9 +37,8 @@ def collar_images_maker_for_testing(image, face_box):
         rotated_image_matrix = cv2.getRotationMatrix2D(collar_image_center_point, angle, 1.0)
         image_of_rotated_collar = cv2.warpAffine(image, rotated_image_matrix,(row, col))
         if len(image_of_rotated_collar) > 0:
-            image_of_collar = image_of_rotated_collar[(offsetted_face[1]+offsetted_face[3])*(1-a):
-                                (offsetted_face[1]+2.1*offsetted_face[3])*(1+a),
-                                (offsetted_face[0])*(1-a):(offsetted_face[0]+offsetted_face[2])*(1+a)]
+            image_of_collar = image_of_rotated_collar[(face[1]+face[3])*(1-a):(face[1]+2.1*face[3])*(1+a),
+                                (face[0])*(1-a):(face[0]+face[2])*(1+a)]
             resized_image_of_collar = cv2.resize(image_of_collar, output_images_size)
             collar_images.append(resized_image_of_collar)
 
@@ -49,9 +48,8 @@ def collar_images_maker_for_testing(image, face_box):
         rotated_image_matrix = cv2.getRotationMatrix2D(flipped_collar_image_center_point, angle, 1.0)
         image_of_rotated_collar = cv2.warpAffine(image, rotated_image_matrix,(row, col))
         if len(image_of_rotated_collar) > 0:
-            image_of_collar = image_of_rotated_collar[(offsetted_face[1]+offsetted_face[3])*(1-a):
-                                (offsetted_face[1]+2.1*offsetted_face[3])*(1+a),
-                                (offsetted_face[0])*(1-a):(offsetted_face[0]+offsetted_face[2])*(1+a)]
+            image_of_collar = image_of_rotated_collar[(face[1]+face[3])*(1-a):(face[1]+2.1*face[3])*(1+a),
+                                (face[0])*(1-a):(face[0]+face[2])*(1+a)]
             resized_image_of_collar = cv2.resize(image_of_collar, output_images_size)
             collar_images.append(resized_image_of_collar)
 
