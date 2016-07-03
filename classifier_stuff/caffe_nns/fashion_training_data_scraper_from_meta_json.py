@@ -54,7 +54,7 @@ def dl_photos(photosfile,images_savedir):
     listings = get_product_photos(photosfile)
     max_items = 5000000
     Utils.ensure_dir(images_savedir)
-    for i in  len(listings):
+    for i in range(len(listings)):
         get_file(listings[i],i,images_savedir)
 
 #    Parallel(n_jobs=num_cores)(delayed(get_file)(url) for url in listing)
