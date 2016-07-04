@@ -214,7 +214,7 @@ def findToprecruit():
     items = col.find()
     for z, item in enumerate(items):
         id = item['_id']
-        batch = db.recruit_Female.find({'categories':'dress'}, {"fp": 1, 'images.XLarge': 1})
+        batch = db.recruit_Female.find({'categories':'dress'}, {"fingerprint": 1, 'images.XLarge': 1})
         topSP = find_n_nearest_neighbors(item, batch, 16)
 
         col.update_one({'_id': id}, {'$set': {'topresults.sp': topSP}})
