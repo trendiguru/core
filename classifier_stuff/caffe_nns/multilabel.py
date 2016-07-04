@@ -13,6 +13,7 @@ import caffe # If you get "No module named _caffe", either you have not built py
 
 from caffe import layers as L, params as P # Shortcuts to define the net prototxt.
 
+from trendi import constants
 
 # matplotlib inline
 def setup():
@@ -206,8 +207,9 @@ def check_acc(net, num_batches, batch_size = 1,threshold = 0.5):
     full_rec = [float(tp[i])/(tp[i]+fn[i]) for i in range(len(tp))]
     full_prec = [float(tp[i])/(tp[i]+fp[i]) for i in range(len(tp))]
     full_acc = [float(tp[i]+tn[i])/(tp[i]+tn[i]+fp[i]+fn[i]) for i in range(len(tp))]
+    print('THRESHOLD '+str(threshold))
     print('precision {}\nrecall {}\nacc {}\navgacc {}'.format(full_prec,full_rec,full_acc,acc/n))
-    return full_prec,full_rec,full_acc
+    return full_prec,full_rec,full_acc,tp,tn,fp,fn
 
 #train
 def train():
@@ -243,11 +245,12 @@ def check_accuracy(solverproto,caffemodel,num_batches=200,batch_size=1,threshold
     solver.net.copy_from(caffemodel)
     solver.test_nets[0].share_with(solver.net)
 #    solver.step(1)
-    precision,recall,accuracy = check_acc(solver.test_nets[0], num_batches=num_batches,batch_size = batch_size, threshold=threshold)
-    return precision,recall,accuracy
+    precision,recall,accuracy,tp,tn,fp,fn = check_acc(solver.test_nets[0], num_batches=num_batches,batch_size = batch_size, threshold=threshold)
+    return precision,recall,accuracy,tp,tn,fp,fn
 
 
 if __name__ =="__main__":
+    #TODO dont use solver to get inferences , no need for solver for that
     caffe.set_mode_gpu()
     caffe.set_device(0)
 
@@ -255,7 +258,23 @@ if __name__ =="__main__":
     snapshot = 'snapshot'
     caffemodel =  '/home/jeremy/caffenets/multilabel/vgg_ilsvrc_16_multilabel_2/snapshot/train_iter_240000.caffemodel'
     solverproto = '/home/jeremy/caffenets/multilabel/vgg_ilsvrc_16_multilabel_2/solver.prototxt'
-    for t in range(5,9):
-        thresh = float(t)/10
-        check_accuracy(solverproto,caffemodel,threshold=thresh,num_batches=1000)
+    for t in [0.5,0.6,0.7,0.8,0.85,0.9,0.92,0.95,0.98]:
+        p,r,a,tp,tn,fp,fn = check_accuracy(solverproto,caffemodel,threshold=t,num_batches=1000)
+        with open('multilabel_accuracy_results.txt','a') as f:
+            f.write('vgg_ilsvrc16_multilabel_2, threshold = '+str(t)+'\n')
+            f.write('categories: '+constants.web_tool_categories+ '\n')
+            f.write('precision\n')
+            f.write(str(p)+'\n')
+            f.write('recall\n')
+            f.write(str(r)+'\n')
+            f.write('accuracy\n')
+            f.write(str(a)+'\n')
+            f.write('true positives\n')
+            f.write(str(tp)+'\n')
+            f.write('true negatives\n')
+            f.write(str(tn)+'\n')
+            f.write('false positives\n')
+            f.write(str(fp)+'\n')
+            f.write('false negatives\n')
+            f.write(str(fn)+'\n')
   #  print 'Baseline accuracy:{0:.4f}'.format(check_baseline_accuracy(solver.test_nets[0], 10,batch_size = 20))
