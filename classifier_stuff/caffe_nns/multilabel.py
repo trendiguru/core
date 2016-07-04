@@ -126,7 +126,7 @@ def hamming_distance(gt, est):
     return hamming_similarity
 
 def update_confmat(gt,est,tp,tn,fp,fn):
-    print('gt {} \nest {} sizes tp {} tn {} fp {} fn {} '.format(gt,est,tp.shape,tn.shape,fp.shape,fn.shape))
+#    print('gt {} \nest {} sizes tp {} tn {} fp {} fn {} '.format(gt,est,tp.shape,tn.shape,fp.shape,fn.shape))
     for i in range(len(gt)):
         if gt[i] == 1:
             if est[i]: # true positive
@@ -257,5 +257,5 @@ if __name__ =="__main__":
     solverproto = '/home/jeremy/caffenets/multilabel/vgg_ilsvrc_16_multilabel_2/solver.prototxt'
     for t in range(5,9):
         thresh = float(t)/10
-        check_accuracy(solverproto,caffemodel,threshold=thresh)
+        check_accuracy(solverproto,caffemodel,threshold=thresh,num_batches=1000)
   #  print 'Baseline accuracy:{0:.4f}'.format(check_baseline_accuracy(solver.test_nets[0], 10,batch_size = 20))
