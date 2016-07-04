@@ -263,3 +263,4 @@ def spatiogram_fingerprints_distance(query_fp, target_fp):
     # print rating
     # rating = emd(query_fp, target_fp)
     return rating
+
