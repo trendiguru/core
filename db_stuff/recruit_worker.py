@@ -184,6 +184,6 @@ def deleteDuplicates(delete=True):
                         if item['_id'] == e['_id']:
                             continue
                         dup = e['images']['XLarge']
-                        print ("url = %s , _id = %s , item_id = %s" % (dup, e['_id'], e['id'])
+                        print ("url = %s , _id = %s , item_id = %s" % (dup, e['_id'], e['id']))
                     raw_input()
 
