@@ -207,4 +207,4 @@ def deleteDuplicates(delete=True):
                 after_count = items.count()
             else:
                 after_count = delete_count
-            print ('%s : before-> %d, after-> %d' %(cat, before_count, after_count))
+            print ('%s : before-> %d, after-> %d' %(cat, before_count, before_count - after_count))
