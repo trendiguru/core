@@ -79,5 +79,5 @@ for key, value in sleeve_dict.iteritems():
         text_file.write('/home/yonatan/db_' + key + '_dresses/' + image_file_name + ' ' + str(value[1]) + '\n')
 
         print '/home/yonatan/db_' + key + '_dresses/'
-        type(key)
+        print type(key)
     text_file.flush()
