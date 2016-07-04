@@ -1,4 +1,4 @@
-from .recruit_constants import recruitID2generalCategory, api_stock
+from .recruit_constants import recruitID2generalCategory, api_stock, recruit2category_idx
 from time import time, sleep
 import requests
 import json
@@ -159,3 +159,26 @@ def genreDownloader(genreId, start_page=1):
               % (genreId, start_page, end_page,category, sub, total_items, new_items, (end_time-start_time))
     logger.info(summery)
     print(sub + ' Done!')
+
+def deleteDuplicates(delete=True):
+    '''
+    true for deleting
+    false for only printing out
+    '''
+    for gender in ['Male','Female']:
+        col = db['recruit_'+gender]
+        print ('\n #### %s ######' % gender)
+        for cat in recruit2category_idx.keys():
+            items = col.find({'categories':cat})
+            count = items.count()
+            for item in items:
+                img_url = item['images']['XLarge']
+                exists = col.find({'categories':cat, 'images.XLarge':img_url})
+                if exists:
+                    print (img_url)
+                    print ('dups:')
+                    for e in exists:
+                        dup = e['images']['XLarge']
+                        print (dup)
+                    raw_input()
+
