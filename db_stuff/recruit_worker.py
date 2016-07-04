@@ -12,7 +12,7 @@ from ..fingerprint_core import generate_mask_and_insert
 import re
 recruit_q = Queue('recruit_worker', connection=redis_conn)
 fp_q = Queue('fingerprint_new', connection=redis_conn)
-
+tracking_id = '?vos=fcppmpcncapcone01'
 today_date = str(datetime.date(datetime.now()))
 
 
@@ -58,6 +58,10 @@ def process_items(item_list, gender,category):
         itemId = item['itemId']
         exists = collection.find_one({'id': itemId})
         if exists:
+            clickUrl = exists['clickUrl']
+            if tracking_id not in clickUrl:
+                clickUrl += tracking_id
+                collection.update_one({'_id':exists['_id']}, {'$set':{'clickUrl':clickUrl}})
             #TODO: add checks
             # print ('item already exists')
             continue
@@ -98,9 +102,10 @@ def process_items(item_list, gender,category):
             description = item['itemDescriptionText']
         else:
             description = []
+
         generic = {"id": [itemId],
                    "categories": category,
-                   "clickUrl": item['itemUrl'],#TODO: add tracking_id
+                   "clickUrl": item['itemUrl']+tracking_id,
                    "images": {"XLarge": img_url},
                    "status": status,
                    "shortDescription": item['itemName'],
@@ -206,5 +211,5 @@ def deleteDuplicates(delete=True):
             if delete:
                 after_count = items.count()
             else:
-                after_count = delete_count
-            print ('%s : before-> %d, after-> %d' %(cat, before_count, before_count - after_count))
+                after_count = before_count - delete_count
+            print ('%s : before-> %d, after-> %d' %(cat, before_count, after_count))

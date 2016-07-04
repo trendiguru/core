@@ -48,7 +48,7 @@ def mongo2xl(collection_name, dl_info):
             [filename, gender] = re.split("_", collection_name)
         except:
             fail = True
-        if filename not in ["ShopStyle", "GangnamStyle"] or fail:
+        if fail:#filename not in ["ShopStyle", "GangnamStyle"] or
             print ('error in collection name')
             return
 
@@ -131,23 +131,29 @@ def mongo2xl(collection_name, dl_info):
             for line in store_info:
                 f.write(str(line.values())+'\n')
             f.close()
-
     else:
-        from . import shopstyle_constants
-        categories = list(set(shopstyle_constants.shopstyle_paperdoll_female.values()))
-        categories.sort()
+        if filename == 'recruit':
+            from .recruit_constants import recruit2category_idx
+            categories_Female=categories_Male = list(set(recruit2category_idx.keys()))
+        else:
+            from .shopstyle_constants import shopstyle_paperdoll_female, shopstyle_paperdoll_male
+            categories_Female = list(set(shopstyle_paperdoll_female.values()))
+            categories_Male = list(set(shopstyle_paperdoll_male.values()))
+        categories_Female.sort()
+        categories_Male.sort()
+
         for gender in ['Female', 'Male']:
             tmp = filename +"_"+ gender
             print("working on " + tmp)
             collection = db[tmp]
             archive = db[tmp+"_archive"]
             if gender is 'Female':
-                categories = list(set(shopstyle_constants.shopstyle_paperdoll_female.values()))
+                categories = categories_Female
                 current_worksheet = workbook.add_worksheet('Female')
             else :
-                categories = list(set(shopstyle_constants.shopstyle_paperdoll_male.values()))
+                categories = categories_Male
                 current_worksheet = workbook.add_worksheet('Male')
-            categories.sort()
+
             fillTable(current_worksheet, categories, collection, archive, bold, today)
             instock_items += collection.count()
             archived_items += archive.count()

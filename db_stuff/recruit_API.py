@@ -8,6 +8,10 @@ from rq import Queue
 from time import sleep
 from .recruit_worker import genreDownloader, GET_ByGenreId
 from time import time
+from datetime import datetime
+from .dl_excel import mongo2xl
+today_date = str(datetime.date(datetime.now()))
+
 q = Queue('recruit_worker', connection=redis_conn)
 
 
@@ -101,24 +105,30 @@ use printCategories to scan the api and print all categories under ladies' and m
 """
 
 
-def download_recruit():
+def download_recruit(delete=False):
     s = time()
-    db.recruit_Female.delete_many({})
-    db.recruit_Male.delete_many({})
-    if 'img_hash' not in db.recruit_Female.index_information().keys():
-        db.recruit_Female.create_index('img_hash', background=True)
-    if 'img_hash' not in db.recruit_Male.index_information().keys():
-        db.recruit_Male.create_index('img_hash', background=True)
+    if delete:
+        db.recruit_Female.delete_many({})
+        db.recruit_Male.delete_many({})
+        if 'img_hash' not in db.recruit_Female.index_information().keys():
+            db.recruit_Female.create_index('img_hash', background=True)
+        if 'img_hash' not in db.recruit_Male.index_information().keys():
+            db.recruit_Male.create_index('img_hash', background=True)
     handler = log2file('/home/developer/yonti/recruit_download_stats.log')
     handler.info('download started')
-    for genreId in recruitID2generalCategory.keys():
+    id_count = len(recruitID2generalCategory)
+    for x,genreId in enumerate(recruitID2generalCategory.keys()):
         q.enqueue(genreDownloader, args=([genreId]), timeout=5400)
-        print(genreId + ' sent to download worker')
+        print('%d/%d -> %s sent to download worker' %(x,id_count,genreId))
         while q.count > 5:
-            sleep(30)
+            sleep(60)
     e =time()
-    print ('download time : %d' %(e-s) )
-
+    duration = e-s
+    print ('download time : %d' % duration )
+    dl_info = {"date": today_date,
+               "dl_duration": duration,
+               "store_info": []}
+    mongo2xl('recruit', dl_info)
 
 if __name__=='__main__':
     download_recruit()
