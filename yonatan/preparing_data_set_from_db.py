@@ -78,5 +78,6 @@ for key, value in sleeve_dict.iteritems():
         cv2.imwrite(os.path.join('/home/yonatan/db_' + key + '_dresses', image_file_name), resized_image)
         text_file.write('/home/yonatan/db_' + key + '_dresses/' + image_file_name + ' ' + str(value[1]) + '\n')
 
-        print '/home/yonatan/yonatan/db_' + key + '_dresses/'
+        print '/home/yonatan/db_' + key + '_dresses/'
+        type(key)
     text_file.flush()
