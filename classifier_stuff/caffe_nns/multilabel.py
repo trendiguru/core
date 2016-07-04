@@ -259,5 +259,5 @@ if __name__ =="__main__":
     solverproto = '/home/jeremy/caffenets/multilabel/vgg_ilsvrc_16_multilabel_2/solver.prototxt'
     for t in range(5,9):
         thresh = float(t)/10
-    check_accuracy(solverproto,caffemodel,threshold=thresh)
+        check_accuracy(solverproto,caffemodel,threshold=thresh)
   #  print 'Baseline accuracy:{0:.4f}'.format(check_baseline_accuracy(solver.test_nets[0], 10,batch_size = 20))
