@@ -168,7 +168,7 @@ def test_confmat():
 
 
 
-def check_acc(net, num_batches, batch_size = 1):
+def check_acc(net, num_batches, batch_size = 1,threshold = 0.5):
     #this is not working foir batchsize!=1, maybe needs to be defined in net
     acc = 0.0 #
     baseline_acc = 0.0
@@ -179,7 +179,7 @@ def check_acc(net, num_batches, batch_size = 1):
         net.forward()
         gts = net.blobs['label'].data
 #        ests = net.blobs['score'].data > 0  ##why 0????  this was previously not after a sigmoid apparently
-        ests = net.blobs['score'].data > 0.5
+        ests = net.blobs['score'].data > threshold
 
         if ests.shape != gts.shape:
             ests = ests.reshape(gts.shape)
@@ -208,8 +208,8 @@ def check_acc(net, num_batches, batch_size = 1):
     full_rec = [float(tp[i])/(tp[i]+fn[i]) for i in range(len(tp))]
     full_prec = [float(tp[i])/(tp[i]+fp[i]) for i in range(len(tp))]
     full_acc = [float(tp[i]+tn[i])/(tp[i]+tn[i]+fp[i]+fn[i]) for i in range(len(tp))]
-    print('precision {} recall {} acc {} nacc {}'.format(full_prec,full_rec,full_acc,acc/n))
-    return acc / n
+    print('precision {}\nrecall {}\nacc {}\navgacc {}'.format(full_prec,full_rec,full_acc,acc/n))
+    return full_prec,full_rec,full_acc
 
 #train
 def train():
@@ -240,13 +240,13 @@ def results():#prediction results
         plt.axis('off')
 
 
-def check_accuracy(solverproto,caffemodel,num_batches=200,batch_size=1):
+def check_accuracy(solverproto,caffemodel,num_batches=200,batch_size=1,threshold = 0.5):
     solver = caffe.SGDSolver(solverproto)
     solver.net.copy_from(caffemodel)
     solver.test_nets[0].share_with(solver.net)
 #    solver.step(1)
-    print 'accuracy:{0:.4f}'.format(check_acc(solver.test_nets[0], num_batches=num_batches,batch_size = batch_size))
-
+    precision,recall,accuracy = check_acc(solver.test_nets[0], num_batches=num_batches,batch_size = batch_size, threshold=threshold)
+    return precision,recall,accuracy
 
 
 if __name__ =="__main__":
@@ -255,7 +255,9 @@ if __name__ =="__main__":
 
     workdir = './'
     snapshot = 'snapshot'
-    caffemodel =  '/home/jeremy/caffenets/multilabel/vgg_ilsvrc_16_multilabel_2/snapshot/train_iter_40069.caffemodel'
+    caffemodel =  '/home/jeremy/caffenets/multilabel/vgg_ilsvrc_16_multilabel_2/snapshot/train_iter_240000.caffemodel'
     solverproto = '/home/jeremy/caffenets/multilabel/vgg_ilsvrc_16_multilabel_2/solver.prototxt'
-    check_accuracy(solverproto,caffemodel)
+    for t in range(5,9):
+        thresh = float(t)/10
+    check_accuracy(solverproto,caffemodel,threshold=thresh)
   #  print 'Baseline accuracy:{0:.4f}'.format(check_baseline_accuracy(solver.test_nets[0], 10,batch_size = 20))
