@@ -68,6 +68,10 @@ for key, value in sleeve_dict.iteritems():
         if dress_image is None:
             continue
 
+        img = cv2.imread(dress_image)
+        cv2.imshow('here_we_go', img)
+        cv2.waitKey(0)
+
         # Resize it.
         resized_image = cv2.resize(dress_image, (width, height))
 
@@ -79,5 +83,5 @@ for key, value in sleeve_dict.iteritems():
         text_file.write('/home/yonatan/db_' + key + '_dresses/' + image_file_name + ' ' + str(value[1]) + '\n')
 
         print '/home/yonatan/db_' + key + '_dresses/'
-        print type(key)
+
     text_file.flush()
