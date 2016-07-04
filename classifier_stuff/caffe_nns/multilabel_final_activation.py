@@ -69,7 +69,7 @@ def multilabel_infer_one(url):
 #    im = Image.open(imagename)
 #    im = im.resize(required_imagesize,Image.ANTIALIAS)
 #    in_ = in_.astype(float)
-    in_ = imutils.resize_keep_aspect(image,output_size=required_image_size,output_file=None)
+    in_ = imutils.resize_keep_aspect(image,output_size=required_image_size,output_file=None)   #
     in_ = np.array(in_, dtype=np.float32)   #.astype(float)
     if len(in_.shape) != 3:  #h x w x channels, will be 2 if only h x w
         print('got 1-chan image, turning into 3 channel')
