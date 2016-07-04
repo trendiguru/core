@@ -170,20 +170,24 @@ def deleteDuplicates(delete=True):
         print ('\n #### %s ######' % gender)
         for cat in recruit2category_idx.keys():
             items = col.find({'categories':cat})
+            idx1 = item['_id']
+            item_id = item['id']
             count = items.count()
             for item in items:
                 img_url = item['images']['XLarge']
                 exists = col.find({'categories':cat, 'images.XLarge':img_url})
                 if exists:
-                    if exists.count()==1 and item['_id'] == exists[0]['_id']:
+                    idx2 = exists[0]['_id']
+                    item_id2 = exists[0]['id']
+                    if exists.count()==1 and idx1 == idx2 and item_id == item_id2 :
                         continue
 
-                    print ("url = %s , _id = %s , item_id = %s " %(img_url, item['_id'], item['id']))
+                    print ("url = %s , _id = %s , item_id = %s , butURL = %s" %(img_url, idx1, item_id, item['clickUrl']))
                     print ('dups:')
                     for e in exists:
-                        if item['_id'] == e['_id']:
+                        if idx1 == e['_id']:
                             continue
                         dup = e['images']['XLarge']
-                        print ("url = %s , _id = %s , item_id = %s" % (dup, e['_id'], e['id']))
+                        print ("url = %s , _id = %s , item_id = %s , buyURL = %s" % (dup, e['_id'], e['id'], e['clickUrl']))
                     raw_input()
 
