@@ -12,7 +12,7 @@ from ..fingerprint_core import generate_mask_and_insert
 import re
 recruit_q = Queue('recruit_worker', connection=redis_conn)
 fp_q = Queue('fingerprint_new', connection=redis_conn)
-
+tracking_id = '?vos=fcppmpcncapcone01'
 today_date = str(datetime.date(datetime.now()))
 
 
@@ -58,6 +58,10 @@ def process_items(item_list, gender,category):
         itemId = item['itemId']
         exists = collection.find_one({'id': itemId})
         if exists:
+            clickUrl = exists['clickUrl']
+            if tracking_id not in clickUrl:
+                clickUrl += tracking_id
+                collection.update_one({'_id':exists['_id']}, {'$set':{'clickUrl':clickUrl}})
             #TODO: add checks
             # print ('item already exists')
             continue
@@ -74,6 +78,11 @@ def process_items(item_list, gender,category):
             if 'ver=1' not in split1:
                 continue
             img_url = 'http:' + img
+            url_exists = collection.find_one({'images.XLarge': img_url})
+            if url_exists:
+                print ('url already exists')
+                image = None
+                break
             image = get_cv2_img_array(img_url)
             if image is not None:
                 break
@@ -93,9 +102,10 @@ def process_items(item_list, gender,category):
             description = item['itemDescriptionText']
         else:
             description = []
+
         generic = {"id": [itemId],
                    "categories": category,
-                   "clickUrl": item['itemUrl'],#TODO: add tracking_id
+                   "clickUrl": item['itemUrl']+tracking_id,
                    "images": {"XLarge": img_url},
                    "status": status,
                    "shortDescription": item['itemName'],
@@ -169,21 +179,37 @@ def deleteDuplicates(delete=True):
         col = db['recruit_'+gender]
         print ('\n #### %s ######' % gender)
         for cat in recruit2category_idx.keys():
+            delete_count = 0
             items = col.find({'categories':cat})
-            count = items.count()
+            before_count = items.count()
+            tmp = []
             for item in items:
+                idx1 = item['_id']
+                if idx1 in tmp:
+                    continue
+                item_id = item['id']
                 img_url = item['images']['XLarge']
                 exists = col.find({'categories':cat, 'images.XLarge':img_url})
                 if exists:
-                    if exists.count()==1 and item['_id'] == exists[0]['_id']:
-                        continue
-
-                    print ("url = %s , _id = %s , item_id = %s " %(img_url, item['_id'], item['id']))
-                    print ('dups:')
-                    for e in exists:
-                        if item['_id'] == e['_id']:
+                    if exists.count()==1 :
+                        idx2 = exists[0]['_id']
+                        item_id2 = exists[0]['id']
+                        if idx1 == idx2 and item_id == item_id2 :
                             continue
-                        dup = e['images']['XLarge']
-                        print ("url = %s , _id = %s , item_id = %s" % (dup, e['_id'], e['id']))
-                    raw_input()
+                    else:
+                        for e in exists:
+                            idx2del = e['_id']
+                            if idx1 == idx2del:
+                                continue
+                            tmp.append(idx2del)
+                            if delete:
+                                col.delete_one({'_id':idx2del})
+                            else:
+                                delete_count+=1
 
+            items = col.find({'categories':cat})
+            if delete:
+                after_count = items.count()
+            else:
+                after_count = before_count - delete_count
+            print ('%s : before-> %d, after-> %d' %(cat, before_count, after_count))
