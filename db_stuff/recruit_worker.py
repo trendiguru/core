@@ -175,9 +175,14 @@ def deleteDuplicates(delete=True):
                 img_url = item['images']['XLarge']
                 exists = col.find({'categories':cat, 'images.XLarge':img_url})
                 if exists:
+                    if exists.count()==1 and item['_id'] == exists['_id']:
+                        continue
+
                     print (img_url)
                     print ('dups:')
                     for e in exists:
+                        if item['_id'] == e['_id']:
+                            continue
                         dup = e['images']['XLarge']
                         print (dup)
                     raw_input()
