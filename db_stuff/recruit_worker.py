@@ -178,12 +178,12 @@ def deleteDuplicates(delete=True):
                     if exists.count()==1 and item['_id'] == exists[0]['_id']:
                         continue
 
-                    print ("url = %s , id = %s " %(img_url, item['_id']))
+                    print ("url = %s , _id = %s , item_id = %s " %(img_url, item['_id'], item['id']))
                     print ('dups:')
                     for e in exists:
                         if item['_id'] == e['_id']:
                             continue
                         dup = e['images']['XLarge']
-                        print ("url = %s , id = %s " % (dup, e['_id']))
+                        print ("url = %s , _id = %s , item_id = %s" % (dup, e['_id'], e['id'])
                     raw_input()
 
