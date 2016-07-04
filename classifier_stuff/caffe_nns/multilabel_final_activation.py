@@ -133,11 +133,12 @@ def multilabel_infer_one(url):
 
 
 caffemodel = '/home/jeremy/caffenets/multilabel/vgg_ilsvrc_16_multilabel_2/snapshot/train_iter_240000.caffemodel'
-solverproto = '/home/jeremy/caffenets/multilabel/vgg_ilsvrc_16_multilabel_2/solver.prototxt'
-net = caffe.Net(solverproto,caffemodel, caffe.TEST)
+deployproto = '/home/jeremy/caffenets/multilabel/vgg_ilsvrc_16_multilabel_2/deploy.prototxt'
+net = caffe.Net(deployproto,caffemodel, caffe.TEST)
 required_image_size = (227, 227)
 caffe.set_mode_gpu()
 caffe.set_device(0)
+
 
 
 if __name__ == "__main__":
