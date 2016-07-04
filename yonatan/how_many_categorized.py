@@ -32,6 +32,11 @@ sum_of_all = sleeve_dict['strapless'] + sleeve_dict['spaghetti_straps'] + sleeve
              sleeve_dict['sleeveless'] + sleeve_dict['cap_sleeve'] + sleeve_dict['short_sleeve'] + \
              sleeve_dict['midi_sleeve'] + sleeve_dict['long_sleeve'] + sleeve_dict['asymmetry']
 
+sum_of_all_already_seen = db.yonatan_dresses.count({'already_seen_dress_sleeve': True})
+
+deleted = sum_of_all_already_seen - sum_of_all
+
 for key, value in sleeve_dict.iteritems():
     print '{0}: {1}, percent: {2}'.format(key, value, round(float(value) / sum_of_all, 2))
 print 'sum of all: {0}'.format(sum_of_all)
+print 'deleted: {0}'.format(deleted)
