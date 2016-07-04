@@ -156,5 +156,5 @@ if __name__ == "__main__":
     url = 'http://diamondfilms.com.au/wp-content/uploads/2014/08/Fashion-Photography-Sydney-1.jpg'
     url = 'http://n2.sdlcdn.com/imgs/a/r/y/Kuki-Fashion-Pink-Cotton-Printed-SDL220959396-1-bec69.jpg'
 
-    result = multilabel_get_final_activation(url)
+    result = multilabel_get_final_activations(url)
     print('result:'+str(result))
