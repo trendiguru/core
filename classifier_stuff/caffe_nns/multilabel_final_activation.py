@@ -7,6 +7,7 @@ import time
 import urllib
 import cv2
 import numpy as np
+from PIL import Image
 
 from trendi.utils import imutils
 
@@ -63,8 +64,8 @@ def multilabel_get_final_activation(url_or_np_array):
     # run net and take argmax for prediction
     net.forward()
 #    out = net.blobs['score'].data[0].argmax(axis=0) #for a parse with per-pixel max
-    out = net.blobs['my_fc7'].data[0] #for the nth class layer #siggy is after sigmoid
-    print('shape of my_fc7:'+str(out.shape))
+    out = net.blobs['myfc7'].data[0] #for the nth class layer #siggy is after sigmoid
+    print('shape of myfc7:'+str(out.shape))
     min = np.min(out)
     max = np.max(out)
     print('min {} max {} out shape {}'.format(min,max,out.shape))
