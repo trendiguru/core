@@ -74,6 +74,11 @@ def process_items(item_list, gender,category):
             if 'ver=1' not in split1:
                 continue
             img_url = 'http:' + img
+            url_exists = collection.find_one({'images.XLarge': img_url})
+            if url_exists:
+                print ('url already exists')
+                image = None
+                break
             image = get_cv2_img_array(img_url)
             if image is not None:
                 break
@@ -169,25 +174,33 @@ def deleteDuplicates(delete=True):
         col = db['recruit_'+gender]
         print ('\n #### %s ######' % gender)
         for cat in recruit2category_idx.keys():
+            delete_count = 0
             items = col.find({'categories':cat})
-            count = items.count()
+            before_count = items.count()
             for item in items:
                 idx1 = item['_id']
                 item_id = item['id']
                 img_url = item['images']['XLarge']
                 exists = col.find({'categories':cat, 'images.XLarge':img_url})
                 if exists:
-                    idx2 = exists[0]['_id']
-                    item_id2 = exists[0]['id']
-                    if exists.count()==1 and idx1 == idx2 and item_id == item_id2 :
-                        continue
-
-                    print ("url = %s , _id = %s , item_id = %s , butURL = %s" %(img_url, idx1, item_id, item['clickUrl']))
-                    print ('dups:')
-                    for e in exists:
-                        if idx1 == e['_id']:
+                    if exists.count()==1 :
+                        idx2 = exists[0]['_id']
+                        item_id2 = exists[0]['id']
+                        if idx1 == idx2 and item_id == item_id2 :
                             continue
-                        dup = e['images']['XLarge']
-                        print ("url = %s , _id = %s , item_id = %s , buyURL = %s" % (dup, e['_id'], e['id'], e['clickUrl']))
-                    raw_input()
+                    else:
+                        for e in exists:
+                            idx2del = e['_id']
+                            if idx1 == idx2del:
+                                continue
+                            if delete:
+                                col.delete_one({'_id':idx2del})
+                            else:
+                                delete_count+=1
 
+            items = col.find({'categories':cat})
+            if delete:
+                after_count = items.count()
+            else:
+                after_count = delete_count
+            print ('%s : before-> %d, after-> %d' %(cat, before_count, after_count))
