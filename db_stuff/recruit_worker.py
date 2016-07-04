@@ -170,10 +170,10 @@ def deleteDuplicates(delete=True):
         print ('\n #### %s ######' % gender)
         for cat in recruit2category_idx.keys():
             items = col.find({'categories':cat})
-            idx1 = item['_id']
-            item_id = item['id']
             count = items.count()
             for item in items:
+                idx1 = item['_id']
+                item_id = item['id']
                 img_url = item['images']['XLarge']
                 exists = col.find({'categories':cat, 'images.XLarge':img_url})
                 if exists:
