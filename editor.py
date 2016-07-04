@@ -56,16 +56,16 @@ def cancel_person(image_id, person_id):
     return bool(res.modified_count)
 
 
-def change_gender_and_rebuild_person(image_id, person_id):
+def change_gender_and_rebuild_person(image_id, person_id, new_gender):
     image_obj = db.images.find_one({'image_id': image_id})
     if not image_obj:
         return "image_obj haven't found"
 
     new_person = [person for person in image_obj['people'] if person['_id'] == person_id][0]
-    new_person['gender'] = 'Female'*bool(new_person['gender'] == 'Male') or 'Male'
-    print "switching gender to {0}".format(new_person['gender'])
+    new_person['gender'] = new_gender
+    print "switching gender to {0}".format(new_gender)
     for item in new_person['items']:
-        if new_person['gender'] == 'Male':
+        if new_gender == 'Male':
             item['category'] = constants.paperdoll_paperdoll_men[item['category']]
         else:
             item['category'] = constants.paperdoll_paperdoll_men.keys()[constants.paperdoll_paperdoll_men.values().index(item['category'])]
