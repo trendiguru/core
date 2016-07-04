@@ -4,6 +4,27 @@
 
 import caffe
 import time
+import urllib
+import cv2
+import numpy as np
+
+from trendi.utils import imutils
+
+def url_to_image(url):
+    # download the image, convert it to a NumPy array, and then read
+    # it into OpenCV format
+
+    if url.count('jpg') > 1:
+        return None
+
+    resp = urllib.urlopen(url)
+    image = np.asarray(bytearray(resp.read()), dtype="uint8")
+    if image.size == 0:
+        return None
+    new_image = cv2.imdecode(image, cv2.IMREAD_COLOR)
+
+    # return the image
+    return new_image
 
 def multilabel_get_final_activation(url_or_np_array):
     image_mean = np.array([107.0,117.0,123.0])
