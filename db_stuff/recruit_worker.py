@@ -1,14 +1,26 @@
 from .recruit_constants import recruitID2generalCategory, api_stock
-from time import time
+from time import time, sleep
 import requests
 import json
 from ..constants import db, fingerprint_version, redis_conn
 from datetime import datetime
 import logging
 from rq import Queue
+from ..Utils import get_cv2_img_array
+import hashlib
+from ..fingerprint_core import generate_mask_and_insert
+import re
+recruit_q = Queue('recruit_worker', connection=redis_conn)
+fp_q = Queue('fingerprint_new', connection=redis_conn)
 
-q = Queue('recruit_worker', connection=redis_conn)
 today_date = str(datetime.date(datetime.now()))
+
+
+def get_hash(image):
+    m = hashlib.md5()
+    m.update(image)
+    url_hash = m.hexdigest()
+    return url_hash
 
 
 def log2file(LOG_FILENAME='/home/developer/yonti/recruit_download_stats.log'):
@@ -20,14 +32,15 @@ def log2file(LOG_FILENAME='/home/developer/yonti/recruit_download_stats.log'):
     return logger
 
 
-def GET_ByGenreId( genreId, page=1,limit=1, instock = False):
+def GET_ByGenreId( genreId, page=1,limit=1, img_size=500, instock = False):
     res = requests.get('http://itemsearch.api.ponparemall.com/1_0_0/search/'
                        '?key=731d157cb0cdd4146397ef279385d833'
                        '&genreId='+genreId +
                        '&format=json'
                        '&limit='+str(limit) +
                        '&page='+str(page) +
-                       '&inStockFlg='+str(int(instock)))
+                       '&inStockFlg='+str(int(instock)) +
+                       '&imgSize=' + str(img_size))
     if res.status_code != 200:
         return False, []
     dic = json.loads(res.text)
@@ -53,7 +66,29 @@ def process_items(item_list, gender,category):
                  'currency': 'Yen'}
 
         status = 'instock'
-        img_url = []
+        image = None
+        imgs = item['itemImgInfoList']
+        for i in range(len(imgs)):
+            img =imgs[i]['itemImgUrl']
+            split1 = re.split(r'\?|&', img)
+            if 'ver=1' not in split1:
+                continue
+            img_url = 'http:' + img
+            image = get_cv2_img_array(img_url)
+            if image is not None:
+                break
+
+        if image is None:
+            print ('bad img url')
+            continue
+
+        img_hash = get_hash(image)
+
+        hash_exists = collection.find_one({'img_hash': img_hash})
+        if hash_exists:
+            print ('hash already exists')
+            continue
+
         if 'itemDescriptionText' in item.keys():
             description = item['itemDescriptionText']
         else:
@@ -73,23 +108,16 @@ def process_items(item_list, gender,category):
                    "fingerprint": None,
                    "gender": gender,
                    "shippingInfo": [],
-                   "raw_info": item}
+                   "raw_info": item,
+                   "img_hash": img_hash}
 
-        # image = Utils.get_cv2_img_array(img_url)
-        # if image is None:
-        #     print ('bad img url')
-        #     continue
 
-        # img_hash = get_hash(image)
-        #
-        # hash_exists = collection.find_one({'img_hash': img_hash})
-        # if hash_exists:
-        #     print ('hash already exists')
-        #     continue
-        #
-        # generic["img_hash"] = img_hash
+        # collection.insert_one(generic)
+        while fp_q.count>5000:
+            sleep(30)
 
-        collection.insert_one(generic)
+        fp_q.enqueue(generate_mask_and_insert, doc=generic, image_url=img_url,
+                  fp_date=today_date, coll=col_name, img=image, neuro=True)
         new_items+=1
     return new_items, len(item_list)
 
@@ -115,7 +143,9 @@ def genreDownloader(genreId, start_page=1):
         end_page = start_page+25
         if end_page>999:
             end_page=999
-        q.enqueue(genreDownloader, args=(genreId, end_page), timeout=5400)
+        while recruit_q.count>50:
+            sleep(30)
+        recruit_q.enqueue(genreDownloader, args=(genreId, end_page), timeout=5400)
     for i in range(start_page+1, end_page):
         success, response_dict = GET_ByGenreId(genreId, page=i, limit=100, instock=True)
         if not success:
