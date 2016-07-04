@@ -6,16 +6,18 @@ from PIL import Image
 import numpy as np
 import matplotlib.pyplot as plt
 
-dresses = {'mini', 'midi', 'maxi'}
+sleeve_dress = {'strapless', 'spaghetti_straps', 'straps', 'sleeveless',
+                'cap_sleeve', 'short_sleeve', 'midi_sleeve', 'long_sleeve'}
+
 #sets = {'train', 'cv', 'test'}
 
 counter = 0
-counter_train = 680
-counter_cv = 135
-counter_test = 135
+counter_train = 640
+counter_cv = 130
+counter_test = 130
 
-for dress in dresses:
-    source_dir = '/home/yonatan/resized_' + dress + '_dresses'
+for dress in sleeve_dress:
+    source_dir = '/home/yonatan/db_' + sleeve_dress + '_dresses'
 
     counter = 0
 
@@ -25,15 +27,15 @@ for dress in dresses:
             old_file_location = source_dir + '/' + file
 
             if counter < counter_train:
-                new_file_location = '/home/yonatan/dresses_train_set/' + file
+                new_file_location = '/home/yonatan/db_dresses_train_set/' + file
                 os.rename(old_file_location, new_file_location)
                 counter += 1
             elif counter >= counter_train and counter < counter_train + counter_cv:
-                new_file_location = '/home/yonatan/dresses_cv_set/' + file
+                new_file_location = '/home/yonatan/db_dresses_cv_set/' + file
                 os.rename(old_file_location, new_file_location)
                 counter += 1
             elif counter >= counter_train + counter_cv and counter < counter_train + counter_cv + counter_test:
-                new_file_location = '/home/yonatan/dresses_test_set/' + file
+                new_file_location = '/home/yonatan/db_dresses_test_set/' + file
                 os.rename(old_file_location, new_file_location)
                 counter += 1
             else:
