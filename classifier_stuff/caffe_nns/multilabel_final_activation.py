@@ -27,7 +27,7 @@ def url_to_image(url):
     # return the image
     return new_image
 
-def multilabel_get_final_activation(url_or_np_array):
+def multilabel_get_final_activations(url_or_np_array):
     image_mean = np.array([107.0,117.0,123.0])
     input_scale = None
     channel_swap = [2, 1, 0]
@@ -63,15 +63,25 @@ def multilabel_get_final_activation(url_or_np_array):
     net.blobs['data'].data[...] = in_
     # run net and take argmax for prediction
     net.forward()
+
 #    out = net.blobs['score'].data[0].argmax(axis=0) #for a parse with per-pixel max
-    out = net.blobs['myfc7'].data[0] #for the nth class layer #siggy is after sigmoid
+    out = net.blobs['myfc7'].data[0] #penultimate
     print('shape of myfc7:'+str(out.shape))
     min = np.min(out)
     max = np.max(out)
-    print('min {} max {} out shape {}'.format(min,max,out.shape))
+    print('fc7 min {} max {} out shape {}'.format(min,max,out.shape))
+
+    out2 = net.blobs['myfc8'].data[0] #final
+    print('shape of myfc8:'+str(out2.shape))
+    min = np.min(out2)
+    max = np.max(out2)
+    print('fc8 min {} max {} out shape {}'.format(min,max,out2.shape))
+
+    cat = np.concatenate((out,out2))
+    print('shape of cat:'+str(cat.shape))
     elapsed_time=time.time()-start_time
     print('infer_one elapsed time:'+str(elapsed_time))
-    return out
+    return cat
 
 
 def multilabel_infer_one(url):
@@ -144,5 +154,7 @@ caffe.set_device(0)
 
 if __name__ == "__main__":
     url = 'http://diamondfilms.com.au/wp-content/uploads/2014/08/Fashion-Photography-Sydney-1.jpg'
+    url = 'http://n2.sdlcdn.com/imgs/a/r/y/Kuki-Fashion-Pink-Cotton-Printed-SDL220959396-1-bec69.jpg'
+
     result = multilabel_get_final_activation(url)
     print('result:'+str(result))
