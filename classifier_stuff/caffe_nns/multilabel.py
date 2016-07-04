@@ -118,11 +118,12 @@ def makenet():
 
 def hamming_distance(gt, est):
     #this is actually hamming similarity not distance
-    print('calculating hamming for \ngt :'+str(gt)+'\nest:'+str(est))
+#    print('calculating hamming for \ngt :'+str(gt)+'\nest:'+str(est))
     if est.shape != gt.shape:
         print('shapes dont match')
         return 0
-    return sum([1 for (g, e) in zip(gt, est) if g == e]) / float(len(gt))
+    hamming_similarity = sum([1 for (g, e) in zip(gt, est) if g == e]) / float(len(gt))
+    return hamming_similarity
 
 def update_confmat(gt,est,tp,tn,fp,fn):
     print('gt {} \nest {} sizes tp {} tn {} fp {} fn {} '.format(gt,est,tp.shape,tn.shape,fp.shape,fn.shape))
