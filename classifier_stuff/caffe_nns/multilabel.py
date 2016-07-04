@@ -13,6 +13,7 @@ import caffe # If you get "No module named _caffe", either you have not built py
 
 from caffe import layers as L, params as P # Shortcuts to define the net prototxt.
 
+from trendi import constants
 
 # matplotlib inline
 def setup():
@@ -118,29 +119,97 @@ def makenet():
 
 def hamming_distance(gt, est):
     #this is actually hamming similarity not distance
-    return sum([1 for (g, e) in zip(gt, est) if g == e]) / float(len(gt))
+#    print('calculating hamming for \ngt :'+str(gt)+'\nest:'+str(est))
+    if est.shape != gt.shape:
+        print('shapes dont match')
+        return 0
+    hamming_similarity = sum([1 for (g, e) in zip(gt, est) if g == e]) / float(len(gt))
+    return hamming_similarity
 
-def check_acc(net, num_batches, batch_size = 128):
+def update_confmat(gt,est,tp,tn,fp,fn):
+#    print('gt {} \nest {} sizes tp {} tn {} fp {} fn {} '.format(gt,est,tp.shape,tn.shape,fp.shape,fn.shape))
+    for i in range(len(gt)):
+        if gt[i] == 1:
+            if est[i]: # true positive
+                tp[i] += 1
+            else:   # false negative
+                fn[i] += 1
+        else:
+            if est[i]: # false positive
+                fp[i] += 1
+            else:   # true negative
+                tn[i] += 1
+#        print('tp {} tn {} fp {} fn {}'.format(tp,tn,fp,fn))
+    return tp,tn,fp,fn
+
+def test_confmat():
+    gt=[True,False,1,0]
+    ests=[[True,False,0,0],
+          [0,0,1,0],
+          [1,0,0,1],
+        [ True,0,True,0]]
+    tp = [0,0,0,0]
+    tn = [0,0,0,0]
+    fp = [0,0,0,0]
+    fn = [0,0,0,0]
+    tp_sum = tn_sum = fp_sum = fn_sum = [0,0,0,0]
+    for e in ests:
+        #update_confmat(gt,e,tp,tn,fp,fn)
+        tp,tn,fp,fn = update_confmat(gt,e,tp,tn,fp,fn)
+    print('tp {} tn {} fp {} fn {}'.format(tp,tn,fp,fn))
+    gt=[0,1,1,0]
+    ests=[[0,1,0,1],
+          [0,1,1,1],
+          [1,0,0,1],
+          [1,0,1,0]]
+    tp_sum = tn_sum = fp_sum = fn_sum = [0,0,0,0]
+    for e in ests:
+        #update_confmat(gt,e,tp,tn,fp,fn)
+        tp,tn,fp,fn = update_confmat(gt,e,tp,tn,fp,fn)
+    print('tp {} tn {} fp {} fn {}'.format(tp,tn,fp,fn))
+
+
+
+def check_acc(net, num_batches, batch_size = 1,threshold = 0.5):
     #this is not working foir batchsize!=1, maybe needs to be defined in net
     acc = 0.0 #
     baseline_acc = 0.0
     n = 0
+
+    first_time = True
     for t in range(num_batches):
         net.forward()
         gts = net.blobs['label'].data
-#        ests = net.blobs['score'].data > 0  ##why 0????
-        ests = net.blobs['score'].data > 0.5
+#        ests = net.blobs['score'].data > 0  ##why 0????  this was previously not after a sigmoid apparently
+        ests = net.blobs['score'].data > threshold
         baseline_est = np.zeros_like(ests)
         for gt, est in zip(gts, ests): #for each ground truth and estimated label vector
+            if est.shape != gt.shape:
+                print('shape mismatch')
+                continue
+            if first_time == True:
+                first_time = False
+                tp = np.zeros_like(gt)
+                tn = np.zeros_like(gt)
+                fp = np.zeros_like(gt)
+                fn = np.zeros_like(gt)
+            tp,tn,fp,fn = update_confmat(gt,est,tp,tn,fp,fn)
             h = hamming_distance(gt, est)
+
             baseline_h = hamming_distance(gt,baseline_est)
-            print('gt {} est {} (1-hamming) {}'.format(gt,est,h))
+#            print('gt {} est {} (1-hamming) {}'.format(gt,est,h))
             sum = np.sum(gt)
             acc += h
             baseline_acc += baseline_h
             n += 1
     print('len(gts) {} len(ests) {} numbatches {} batchsize {} acc {} baseline {}'.format(len(gts),len(ests),num_batches,batch_size,acc/n,baseline_acc/n))
-    return acc / n
+    print('tp {} tn {} fp {} fn {}'.format(tp,tn,fp,fn))
+    full_rec = [float(tp[i])/(tp[i]+fn[i]) for i in range(len(tp))]
+    full_prec = [float(tp[i])/(tp[i]+fp[i]) for i in range(len(tp))]
+    full_acc = [float(tp[i]+tn[i])/(tp[i]+tn[i]+fp[i]+fn[i]) for i in range(len(tp))]
+    print('THRESHOLD '+str(threshold))
+    print('precision {}\nrecall {}\nacc {}\navgacc {}'.format(full_prec,full_rec,full_acc,acc/n))
+    return full_prec,full_rec,full_acc,tp,tn,fp,fn
 
 #train
 def train():
@@ -171,21 +240,43 @@ def results():#prediction results
         plt.axis('off')
 
 
-def check_accuracy(solverproto,caffemodel,num_batches=200,batch_size=1):
+def check_accuracy(solverproto,caffemodel,num_batches=200,batch_size=1,threshold = 0.5):
     solver = caffe.SGDSolver(solverproto)
     solver.net.copy_from(caffemodel)
     solver.test_nets[0].share_with(solver.net)
-    solver.step(1)
-    print 'accuracy:{0:.4f}'.format(check_acc(solver.test_nets[0], num_batches=num_batches,batch_size = batch_size))
+#    solver.step(1)
+    precision,recall,accuracy,tp,tn,fp,fn = check_acc(solver.test_nets[0], num_batches=num_batches,batch_size = batch_size, threshold=threshold)
+    return precision,recall,accuracy,tp,tn,fp,fn
 
-
-caffe.set_mode_gpu()
-caffe.set_device(0)
 
 if __name__ =="__main__":
+    #TODO dont use solver to get inferences , no need for solver for that
+    caffe.set_mode_gpu()
+    caffe.set_device(0)
+
     workdir = './'
     snapshot = 'snapshot'
-    caffemodel =  '/home/jeremy/caffenets/multilabel/vgg_ilsvrc_16_multilabel_2/snapshot/train_iter_40069.caffemodel'
+    caffemodel =  '/home/jeremy/caffenets/multilabel/vgg_ilsvrc_16_multilabel_2/snapshot/train_iter_240000.caffemodel'
     solverproto = '/home/jeremy/caffenets/multilabel/vgg_ilsvrc_16_multilabel_2/solver.prototxt'
-    check_accuracy(solverproto,caffemodel)
+    for t in [0.5,0.6,0.7,0.8,0.85,0.9,0.92,0.95,0.98]:
+        p,r,a,tp,tn,fp,fn = check_accuracy(solverproto,caffemodel,threshold=t,num_batches=1000)
+        with open('multilabel_accuracy_results.txt','a') as f:
+            f.write('vgg_ilsvrc16_multilabel_2, threshold = '+str(t)+'\n')
+            f.write('solver:'+solverproto+'\n')
+            f.write('model:'+caffemodel+'\n')
+            f.write('categories: '+str(constants.web_tool_categories)+ '\n')
+            f.write('precision\n')
+            f.write(str(p)+'\n')
+            f.write('recall\n')
+            f.write(str(r)+'\n')
+            f.write('accuracy\n')
+            f.write(str(a)+'\n')
+            f.write('true positives\n')
+            f.write(str(tp)+'\n')
+            f.write('true negatives\n')
+            f.write(str(tn)+'\n')
+            f.write('false positives\n')
+            f.write(str(fp)+'\n')
+            f.write('false negatives\n')
+            f.write(str(fn)+'\n')
   #  print 'Baseline accuracy:{0:.4f}'.format(check_baseline_accuracy(solver.test_nets[0], 10,batch_size = 20))

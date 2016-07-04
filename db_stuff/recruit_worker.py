@@ -1,14 +1,26 @@
-from .recruit_constants import recruitID2generalCategory, api_stock
-from time import time
+from .recruit_constants import recruitID2generalCategory, api_stock, recruit2category_idx
+from time import time, sleep
 import requests
 import json
 from ..constants import db, fingerprint_version, redis_conn
 from datetime import datetime
 import logging
 from rq import Queue
+from ..Utils import get_cv2_img_array
+import hashlib
+from ..fingerprint_core import generate_mask_and_insert
+import re
+recruit_q = Queue('recruit_worker', connection=redis_conn)
+fp_q = Queue('fingerprint_new', connection=redis_conn)
 
-q = Queue('recruit_worker', connection=redis_conn)
 today_date = str(datetime.date(datetime.now()))
+
+
+def get_hash(image):
+    m = hashlib.md5()
+    m.update(image)
+    url_hash = m.hexdigest()
+    return url_hash
 
 
 def log2file(LOG_FILENAME='/home/developer/yonti/recruit_download_stats.log'):
@@ -54,7 +66,29 @@ def process_items(item_list, gender,category):
                  'currency': 'Yen'}
 
         status = 'instock'
-        img_url = []
+        image = None
+        imgs = item['itemImgInfoList']
+        for i in range(len(imgs)):
+            img =imgs[i]['itemImgUrl']
+            split1 = re.split(r'\?|&', img)
+            if 'ver=1' not in split1:
+                continue
+            img_url = 'http:' + img
+            image = get_cv2_img_array(img_url)
+            if image is not None:
+                break
+
+        if image is None:
+            print ('bad img url')
+            continue
+
+        img_hash = get_hash(image)
+
+        hash_exists = collection.find_one({'img_hash': img_hash})
+        if hash_exists:
+            print ('hash already exists')
+            continue
+
         if 'itemDescriptionText' in item.keys():
             description = item['itemDescriptionText']
         else:
@@ -74,23 +108,16 @@ def process_items(item_list, gender,category):
                    "fingerprint": None,
                    "gender": gender,
                    "shippingInfo": [],
-                   "raw_info": item}
+                   "raw_info": item,
+                   "img_hash": img_hash}
 
-        # image = Utils.get_cv2_img_array(img_url)
-        # if image is None:
-        #     print ('bad img url')
-        #     continue
 
-        # img_hash = get_hash(image)
-        #
-        # hash_exists = collection.find_one({'img_hash': img_hash})
-        # if hash_exists:
-        #     print ('hash already exists')
-        #     continue
-        #
-        # generic["img_hash"] = img_hash
+        # collection.insert_one(generic)
+        while fp_q.count>5000:
+            sleep(30)
 
-        collection.insert_one(generic)
+        fp_q.enqueue(generate_mask_and_insert, doc=generic, image_url=img_url,
+                  fp_date=today_date, coll=col_name, img=image, neuro=True)
         new_items+=1
     return new_items, len(item_list)
 
@@ -116,7 +143,9 @@ def genreDownloader(genreId, start_page=1):
         end_page = start_page+25
         if end_page>999:
             end_page=999
-        q.enqueue(genreDownloader, args=(genreId, end_page), timeout=5400)
+        while recruit_q.count>50:
+            sleep(30)
+        recruit_q.enqueue(genreDownloader, args=(genreId, end_page), timeout=5400)
     for i in range(start_page+1, end_page):
         success, response_dict = GET_ByGenreId(genreId, page=i, limit=100, instock=True)
         if not success:
@@ -130,3 +159,31 @@ def genreDownloader(genreId, start_page=1):
               % (genreId, start_page, end_page,category, sub, total_items, new_items, (end_time-start_time))
     logger.info(summery)
     print(sub + ' Done!')
+
+def deleteDuplicates(delete=True):
+    '''
+    true for deleting
+    false for only printing out
+    '''
+    for gender in ['Male','Female']:
+        col = db['recruit_'+gender]
+        print ('\n #### %s ######' % gender)
+        for cat in recruit2category_idx.keys():
+            items = col.find({'categories':cat})
+            count = items.count()
+            for item in items:
+                img_url = item['images']['XLarge']
+                exists = col.find({'categories':cat, 'images.XLarge':img_url})
+                if exists:
+                    if exists.count()==1 and item['_id'] == exists[0]['_id']:
+                        continue
+
+                    print ("url = %s , _id = %s , item_id = %s " %(img_url, item['_id'], item['id']))
+                    print ('dups:')
+                    for e in exists:
+                        if item['_id'] == e['_id']:
+                            continue
+                        dup = e['images']['XLarge']
+                        print ("url = %s , _id = %s , item_id = %s" % (dup, e['_id'], e['id']))
+                    raw_input()
+
