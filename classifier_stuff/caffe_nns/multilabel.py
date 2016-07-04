@@ -262,7 +262,9 @@ if __name__ =="__main__":
         p,r,a,tp,tn,fp,fn = check_accuracy(solverproto,caffemodel,threshold=t,num_batches=1000)
         with open('multilabel_accuracy_results.txt','a') as f:
             f.write('vgg_ilsvrc16_multilabel_2, threshold = '+str(t)+'\n')
-            f.write('categories: '+constants.web_tool_categories+ '\n')
+            f.write('solver:'+solverproto+'\n')
+            f.write('model:'+caffemodel+'\n')
+            f.write('categories: '+str(constants.web_tool_categories)+ '\n')
             f.write('precision\n')
             f.write(str(p)+'\n')
             f.write('recall\n')
