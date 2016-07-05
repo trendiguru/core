@@ -13,9 +13,8 @@ test_text_file = open("db_dresses_test.txt", "w")
 
 counter = 0
 
-
 for set in sets:
-    dir_path = '/home/yonatan/dresses_' + set + '_set'
+    dir_path = '/home/yonatan/db_dresses_' + set + '_set'
 
     for root, dirs, files in os.walk(dir_path):
         for file in files:
@@ -46,39 +45,39 @@ for set in sets:
                     test_text_file.write(root + "/" + file + " 2\n")
             elif 'sleeveless' in file:
                 if set == 'train':
-                    train_text_file.write(root + "/" + file + " 2\n")
+                    train_text_file.write(root + "/" + file + " 3\n")
                 elif set == 'cv':
-                    cv_text_file.write(root + "/" + file + " 2\n")
+                    cv_text_file.write(root + "/" + file + " 3\n")
                 elif set == 'test':
-                    test_text_file.write(root + "/" + file + " 2\n")
+                    test_text_file.write(root + "/" + file + " 3\n")
             elif 'cap_sleeve' in file:
                 if set == 'train':
-                    train_text_file.write(root + "/" + file + " 2\n")
+                    train_text_file.write(root + "/" + file + " 4\n")
                 elif set == 'cv':
-                    cv_text_file.write(root + "/" + file + " 2\n")
+                    cv_text_file.write(root + "/" + file + " 4\n")
                 elif set == 'test':
-                    test_text_file.write(root + "/" + file + " 2\n")
+                    test_text_file.write(root + "/" + file + " 4\n")
             elif 'short_sleeve' in file:
                 if set == 'train':
-                    train_text_file.write(root + "/" + file + " 2\n")
+                    train_text_file.write(root + "/" + file + " 5\n")
                 elif set == 'cv':
-                    cv_text_file.write(root + "/" + file + " 2\n")
+                    cv_text_file.write(root + "/" + file + " 5\n")
                 elif set == 'test':
-                    test_text_file.write(root + "/" + file + " 2\n")
+                    test_text_file.write(root + "/" + file + " 5\n")
             elif 'midi_sleeve' in file:
                 if set == 'train':
-                    train_text_file.write(root + "/" + file + " 2\n")
+                    train_text_file.write(root + "/" + file + " 6\n")
                 elif set == 'cv':
-                    cv_text_file.write(root + "/" + file + " 2\n")
+                    cv_text_file.write(root + "/" + file + " 6\n")
                 elif set == 'test':
-                    test_text_file.write(root + "/" + file + " 2\n")
+                    test_text_file.write(root + "/" + file + " 6\n")
             elif 'long_sleeve' in file:
                 if set == 'train':
-                    train_text_file.write(root + "/" + file + " 2\n")
+                    train_text_file.write(root + "/" + file + " 7\n")
                 elif set == 'cv':
-                    cv_text_file.write(root + "/" + file + " 2\n")
+                    cv_text_file.write(root + "/" + file + " 7\n")
                 elif set == 'test':
-                    test_text_file.write(root + "/" + file + " 2\n")
+                    test_text_file.write(root + "/" + file + " 7\n")
 
             counter += 1
             print counter
