@@ -6,6 +6,7 @@ from trendi import constants
 from trendi import Utils
 from gcloud import storage
 from oauth2client.client import GoogleCredentials
+import sys
 
 import urllib2
 
