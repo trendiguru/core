@@ -78,9 +78,9 @@ def bucket_to_training_set(collection):
     print(str(total)+' images in collection '+collection)
     start = time.time()
     for i in range(0,500000):
-        photo_name = '\nphoto_'+str(i)+'.jpg'
+        photo_name = 'photo_'+str(i)+'.jpg'
         img_url = 'https://tg-training.storage.googleapis.com/tamara_berg_street2shop_dataset/images/'+photo_name
-        print('attempting to open '+img_url)
+        print('\nattempting to open '+img_url)
         try:
             ret = urllib2.urlopen(img_url)
             if ret.code == 200:
