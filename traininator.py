@@ -1,9 +1,9 @@
 import numpy as np
 import time
 import cv2
-from . import background_removal
-from . import constants
-from . import Utils
+from trendi import background_removal
+from trendi import constants
+from trendi import Utils
 from gcloud import storage
 from oauth2client.client import GoogleCredentials
 
