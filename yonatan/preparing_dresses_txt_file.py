@@ -13,7 +13,6 @@ test_text_file = open("db_dresses_test.txt", "w")
 
 counter = 0
 
-
 for set in sets:
     dir_path = '/home/yonatan/dresses_' + set + '_set'
 
