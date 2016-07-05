@@ -96,7 +96,7 @@ def generate_mask_and_insert(doc, image_url=None, fp_date=None, coll="products",
     """
     image_url = image_url or doc["image"]["sizes"]["XLarge"]["url"]
     collection = coll
-    if neuro:
+    if neuro or img is not None:
         image = img
     else:
         image = Utils.get_cv2_img_array(image_url)
@@ -133,7 +133,7 @@ def generate_mask_and_insert(doc, image_url=None, fp_date=None, coll="products",
     doc["download_data"]["fp_version"] = constants.fingerprint_version
     try:
         db[collection].insert_one(doc)
-        # print "prod inserted successfully"
+        print "prod inserted successfully"
         # db.fp_in_process.delete_one({"id": doc["id"]})
     except:
         # db.download_data.find_one_and_update({"criteria": collection},

@@ -170,10 +170,13 @@ def process_items(items, gender,GEO , sub_attribute, q):
         itemId = offer['id']
         sku = offer['sku']
         id_exists = collection.find_one({'id': itemId})
-        sku_exists = collection.find_one({'sku': sku})
-        if id_exists or sku_exists:
-            #TODO: add checks - fp:exists
-            # print ('ID ID ID ID')
+        # sku_exists = collection.find_one({'sku': sku})
+        if id_exists: #or sku_exists:
+            dl_version = id_exists['download_data']['dl_version']
+            if dl_version != today_date:
+                collection.update_one({'_id':id_exists['_id']}, {'$set':{'download_data.dl_version':today_date}})
+
+            print ('item already exists')
             continue
 
         if 'description' in keys:
