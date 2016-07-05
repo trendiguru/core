@@ -107,7 +107,7 @@ def bucket_to_training_set(collection):
                             already_seen_image_level = doc['already_seen_image_level']
                         if 'user_name' in doc:
                             user_name = doc['user_name']
-                        print('id {} ad {} adil {} asil {} un {}'.format(id,already_done,already_done_image_level,already_seen_image_level))
+                        print('id {} ad {} adil {} asil {} un {}'.format(id,already_done,already_done_image_level,already_seen_image_level,user_name))
 #                        res = coll.update_one({'_id':id}, {"$set":{'already_seen_image_level':1,'user_name':user}})
 
                     else:
