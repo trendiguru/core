@@ -130,7 +130,7 @@ def checkStatus():
         keys = daily_info["collections"].keys()
         count = len(keys)
         current_worksheet.set_column('B:E', 30)
-        tablesize = 'B3:E'+str(count)
+        tablesize = 'B3:E'+str(count+3)
         current_worksheet.add_table(tablesize,
                                     {'data': dict2list,
                                      'columns': [{'header': 'Collection Name'},
