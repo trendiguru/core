@@ -164,10 +164,12 @@ def download_recruit(delete=False):
         if delete:
             collection.delete_many({})
         indexes = collection.index_information().keys()
-        for idx in ['id', 'img_hash', 'categories', 'images.XLarge']:
+        for idx in ['id', 'img_hash', 'categories', 'images.XLarge', 'download_data.dl_version']:
             idx_1 = idx + '_1'
             if idx_1 not in indexes:
                 collection.create_index(idx, background=True)
+        status_full_path = 'collections.'+col_name+'.status'
+        db.download_status.update_one({"date": today_date}, {"$set": {status_full_path: "Working"}})
 
     handler = log2file('/home/developer/yonti/recruit_download_stats.log')
     handler.info('download started')
@@ -185,10 +187,12 @@ def download_recruit(delete=False):
     deleteDuplicates()
     for gender in ['Male', 'Female']:
         col_name = 'recruit_' + gender
+        status_full_path = 'collections.' + col_name + '.status'
+        db.download_status.update_one({"date": today_date}, {"$set": {status_full_path: "Finishing"}})
         theArchiveDoorman(col_name)
         forest_job = forest.enqueue(plantForests4AllCategories, col_name=col_name, timeout=3600)
         while not forest_job.is_finished and not forest_job.is_failed:
-            time.sleep(300)
+            sleep(300)
         if forest_job.is_failed:
             print ('annoy plant forest failed')
 
@@ -201,10 +205,6 @@ def download_recruit(delete=False):
 
 if __name__=='__main__':
     download_recruit()
-
-
-
-    print (col + "Update Finished!!!")
 
 
 # GET_gnereid(generate_genreid('Female',0,0))
