@@ -63,7 +63,7 @@ def process_items(item_list, gender,category):
             if tracking_id not in clickUrl:
                 clickUrl += tracking_id
                 collection.update_one({'_id':exists_id}, {'$set':{'clickUrl':clickUrl}})
-            dl_version = exists['download_data.dl_version']
+            dl_version = exists['download_data']['dl_version']
             if dl_version != today_date:
                 collection.update_one({'_id': exists_id}, {'$set': {'download_data.dl_version': today_date}})
             print ('item already exists')
