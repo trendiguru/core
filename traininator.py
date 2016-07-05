@@ -89,7 +89,7 @@ def bucket_to_training_set(collection):
                 print('doc for '+str(photo_name)+' not found, add to db')
 
         else:
-            print('image '+photo_name +' not found'))
+            print('image '+photo_name +' not found')
 
 if __name__ == "__main__":
     bucket_to_training_set('training_images')
