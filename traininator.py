@@ -85,12 +85,15 @@ def bucket_to_training_set(collection):
             ret = urllib2.urlopen(img_url)
             if ret.code == 200:
                 print(photo_name+" exists, checking if in db")
-                doc = coll.find({'url','/home/jeremy/dataset/images/'+photo_name})
-                print('doc '+str(doc))
-                if doc :
-                    print('found doc for '+str(photo_name)+' in db already')
-                else:
-                    print('doc for '+str(photo_name)+' not found, add to db')
+                try:
+                    doc = coll.find({'url':'/home/jeremy/dataset/images/'+photo_name})
+                    print('doc '+str(doc))
+                    if doc :
+                        print('found doc for '+str(photo_name)+' in db already')
+                    else:
+                        print('doc for '+str(photo_name)+' not found, add to db')
+                except:
+                    print('error trying to get doc , err:'+str(sys.exc_info()[0]))
 
             else:
                 print('image '+photo_name +' not found')
