@@ -4,9 +4,12 @@ import cv2
 from . import background_removal
 from . import constants
 from . import Utils
-from . import kassper
 from gcloud import storage
 from oauth2client.client import GoogleCredentials
+
+import urllib2
+
+
 
 db = constants.db
 cats = constants.tamara_berg_categories
@@ -66,3 +69,27 @@ def create_training_set_with_grabcut(collection):
         save_to_storage(bucket, mask, filename)
         coll.update_one({'_id': doc['_id']}, {'$set': {'mask_url': 'https://tg-training.storage.googleapis.com/' + filename}})
     print "Done masking! took {0} seconds".format(time.time()-start)
+
+def bucket_to_training_set(collection):
+    coll = db[collection]
+    i = 1
+    total = db.training_images.count()
+    print(str(total)+' images in collection '+collection)
+    start = time.time()
+    for i in range(0,500000):
+        photo_name = 'photo_'+i+'.jpg'
+        img_url = 'https://tg-training.storage.googleapis.com/tamara_berg_street2shop_dataset/images/'+photo_name
+        ret = urllib2.urlopen(img_url)
+        if ret.code == 200:
+            print(img_url+" exists, checking if in db")
+            doc = coll.find_one({'url','/home/jeremy/dataset/images/'+photo_name})
+            if doc :
+                print('found doc for '+str(photo_name)+' in db already')
+            else:
+                print('doc for '+str(photo_name)+' not found, add to db')
+
+        else:
+            print('image '+photo_name +' not found'))
+
+if __name__ == "__main__":
+    bucket_to_training_set('training_images')
