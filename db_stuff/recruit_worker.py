@@ -1,4 +1,4 @@
-from .recruit_constants import recruitID2generalCategory, api_stock
+from .recruit_constants import recruitID2generalCategory, api_stock, recruit2category_idx
 from time import time, sleep
 import requests
 import json
@@ -12,7 +12,7 @@ from ..fingerprint_core import generate_mask_and_insert
 import re
 recruit_q = Queue('recruit_worker', connection=redis_conn)
 fp_q = Queue('fingerprint_new', connection=redis_conn)
-
+tracking_id = '?vos=fcppmpcncapcone01'
 today_date = str(datetime.date(datetime.now()))
 
 
@@ -58,22 +58,47 @@ def process_items(item_list, gender,category):
         itemId = item['itemId']
         exists = collection.find_one({'id': itemId})
         if exists:
-            #TODO: add checks
-            # print ('item already exists')
+            exists_id = exists['_id']
+            clickUrl = exists['clickUrl']
+            if tracking_id not in clickUrl:
+                clickUrl += tracking_id
+                collection.update_one({'_id':exists_id}, {'$set':{'clickUrl':clickUrl}})
+            dl_version = exists['download_data']['dl_version']
+            if dl_version != today_date:
+                collection.update_one({'_id': exists_id}, {'$set': {'download_data.dl_version': today_date}})
+            print ('item already exists')
             continue
+
+        else:
+            archive = db[col_name+'_archive']
+            exists = archive.find_one({'id': itemId})
+            if exists:
+                exists_id = exists['_id']
+                exists['download_data']['dl_version'] = today_date
+                exists['status']= {"instock": True, "days_out": 0}
+                archive.delete_one({'_id':exists_id})
+                collection.insert_one(exists)
+                # TODO: add checks
+                print ('item found in archive - returned to collection')
+                continue
 
         price = {'price': item['salePriceIncTax'],
                  'currency': 'Yen'}
 
-        status = 'instock'
+        status = {"instock": True, "days_out": 0}
         image = None
         imgs = item['itemImgInfoList']
         for i in range(len(imgs)):
-            img =imgs[i]['itemImgUrl']
+            img = imgs[i]['itemImgUrl']
             split1 = re.split(r'\?|&', img)
             if 'ver=1' not in split1:
                 continue
             img_url = 'http:' + img
+            url_exists = collection.find_one({'images.XLarge': img_url})
+            if url_exists:
+                print ('url already exists')
+                image = None
+                break
             image = get_cv2_img_array(img_url)
             if image is not None:
                 break
@@ -93,9 +118,10 @@ def process_items(item_list, gender,category):
             description = item['itemDescriptionText']
         else:
             description = []
+
         generic = {"id": [itemId],
                    "categories": category,
-                   "clickUrl": item['itemUrl'],#TODO: add tracking_id
+                   "clickUrl": item['itemUrl']+tracking_id,
                    "images": {"XLarge": img_url},
                    "status": status,
                    "shortDescription": item['itemName'],
@@ -111,14 +137,13 @@ def process_items(item_list, gender,category):
                    "raw_info": item,
                    "img_hash": img_hash}
 
-
-        # collection.insert_one(generic)
         while fp_q.count>5000:
             sleep(30)
 
         fp_q.enqueue(generate_mask_and_insert, doc=generic, image_url=img_url,
-                  fp_date=today_date, coll=col_name, img=image, neuro=True)
-        new_items+=1
+                     fp_date=today_date, coll=col_name, img=image, neuro=True)
+
+        new_items += 1
     return new_items, len(item_list)
 
 
@@ -143,9 +168,10 @@ def genreDownloader(genreId, start_page=1):
         end_page = start_page+25
         if end_page>999:
             end_page=999
-        while recruit_q.count>50:
-            sleep(30)
-        recruit_q.enqueue(genreDownloader, args=(genreId, end_page), timeout=5400)
+        else:
+            while recruit_q.count>50:
+                sleep(30)
+            recruit_q.enqueue(genreDownloader, args=(genreId, end_page), timeout=5400)
     for i in range(start_page+1, end_page):
         success, response_dict = GET_ByGenreId(genreId, page=i, limit=100, instock=True)
         if not success:
@@ -159,3 +185,47 @@ def genreDownloader(genreId, start_page=1):
               % (genreId, start_page, end_page,category, sub, total_items, new_items, (end_time-start_time))
     logger.info(summery)
     print(sub + ' Done!')
+
+def deleteDuplicates(delete=True):
+    '''
+    true for deleting
+    false for only printing out
+    '''
+    for gender in ['Male','Female']:
+        col = db['recruit_'+gender]
+        print ('\n #### %s ######' % gender)
+        for cat in recruit2category_idx.keys():
+            delete_count = 0
+            items = col.find({'categories':cat})
+            before_count = items.count()
+            tmp = []
+            for item in items:
+                idx1 = item['_id']
+                if idx1 in tmp:
+                    continue
+                item_id = item['id']
+                img_url = item['images']['XLarge']
+                exists = col.find({'categories':cat, 'images.XLarge':img_url})
+                if exists:
+                    if exists.count()==1 :
+                        idx2 = exists[0]['_id']
+                        item_id2 = exists[0]['id']
+                        if idx1 == idx2 and item_id == item_id2 :
+                            continue
+                    else:
+                        for e in exists:
+                            idx2del = e['_id']
+                            if idx1 == idx2del:
+                                continue
+                            tmp.append(idx2del)
+                            if delete:
+                                col.delete_one({'_id':idx2del})
+                            else:
+                                delete_count+=1
+
+            items = col.find({'categories':cat})
+            if delete:
+                after_count = items.count()
+            else:
+                after_count = before_count - delete_count
+            print ('%s : before-> %d, after-> %d' %(cat, before_count, after_count))

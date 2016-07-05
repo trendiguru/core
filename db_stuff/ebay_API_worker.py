@@ -170,10 +170,13 @@ def process_items(items, gender,GEO , sub_attribute, q):
         itemId = offer['id']
         sku = offer['sku']
         id_exists = collection.find_one({'id': itemId})
-        sku_exists = collection.find_one({'sku': sku})
-        if id_exists or sku_exists:
-            #TODO: add checks - fp:exists
-            # print ('ID ID ID ID')
+        # sku_exists = collection.find_one({'sku': sku})
+        if id_exists: #or sku_exists:
+            dl_version = id_exists['download_data']['dl_version']
+            if dl_version != today_date:
+                collection.update_one({'_id':id_exists['_id']}, {'$set':{'download_data.dl_version':today_date}})
+
+            print ('item already exists')
             continue
 
         if 'description' in keys:
@@ -192,6 +195,11 @@ def process_items(items, gender,GEO , sub_attribute, q):
 
         if image is None:
             print ('bad img url')
+            continue
+
+        url_exists = collection.find_one({'images.XLarge': img_url})
+        if url_exists:
+            print ('img_url already exists')
             continue
 
         img_hash = get_hash(image)
@@ -239,8 +247,11 @@ def process_items(items, gender,GEO , sub_attribute, q):
                    "img_hash": img_hash}
 
         collection.insert_one(generic)
+
+        while q.count > 5000:
+            sleep(30)
         q.enqueue(generate_mask_and_insert, doc=generic, image_url=img_url,
-                  fp_date=today_date, coll=col_name)
+                  fp_date=today_date, coll=col_name, img=image)
         new_items += 1
     return new_items, len(items)
 
