@@ -98,6 +98,8 @@ for line in text_file:
     else:
         array_failure = np.append(array_failure, max_result)
 
+    print counter
+
 
 success = len(array_success)
 failure = len(array_failure)
