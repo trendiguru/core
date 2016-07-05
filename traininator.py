@@ -109,6 +109,8 @@ def bucket_to_training_set(collection):
                             already_seen_image_level = doc['already_seen_image_level']
                         if 'user_name' in doc:
                             user_name = doc['user_name']
+                            if isinstance(user_name,basestring):
+                                doc['user_name'] = [user_name]
                         url = doc['url']
                         doc['url'] = img_url
                         print('id {} ad {} asil {} un {}'.format(id,already_done,already_seen_image_level,user_name))
