@@ -61,6 +61,9 @@ def plantForests4AllCategories(col_name):
         else:
             from ..db_stuff import ebay_constants
             categories = list(set(ebay_constants.ebay_paperdoll_women.values()))
+    elif 'recruit' in col_name:
+        from ..db_stuff import recruit_constants
+        categories = list(set(recruit_constants.recruit2category_idx.keys()))
     else:
         print('ERROR - Bad collection name')
         return
@@ -68,6 +71,7 @@ def plantForests4AllCategories(col_name):
     for cat in categories:
         plantAnnoyForest(col_name,cat,250)
     reindex_forest(col_name)
+
 
 def plantTheFuckingAmazon():
     '''

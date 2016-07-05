@@ -20,14 +20,16 @@ def log2file(log_filename, name):
     return logger
 
 
-def download_ebay_API(GEO, gender,price_bottom=0, price_top=10000, mode=False):
+def download_ebay_API(GEO, gender,price_bottom=0, price_top=10000, mode=False, reset=False):
     s = time()
     col = 'ebay_'+gender+'_'+GEO
     collection = db[col]
-    collection.delete_many({})
+    if reset:
+        collection.delete_many({})
+
     indexes = collection.index_information().keys()
 
-    for idx in ['id','sku','img_hash','categories']:
+    for idx in ['id','sku','img_hash','categories', 'images.XLarge']:
         idx_1 = idx+'_1'
         if idx_1 not in indexes:
             collection.create_index(idx, background=True)
@@ -50,8 +52,15 @@ def download_ebay_API(GEO, gender,price_bottom=0, price_top=10000, mode=False):
 
 if __name__=='__main__':
     #TODO: use argsparse to select GEO
+
     download_ebay_API("US", 'Female')
     download_ebay_API("US", 'Male')
+    forest_job = forest.enqueue(plantForests4AllCategories, col_name=col, timeout=3600)
+    while not forest_job.is_finished and not forest_job.is_failed:
+        time.sleep(300)
+    if forest_job.is_failed:
+        print ('annoy plant forest failed')
 
+    print (col + "Update Finished!!!")
 
 
