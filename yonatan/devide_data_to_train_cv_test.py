@@ -17,7 +17,7 @@ counter_cv = 130
 counter_test = 130
 
 for dress in sleeve_dress:
-    source_dir = '/home/yonatan/db_' + dress + '_dresses'
+    source_dir = '/home/yonatan/resized_db_' + dress + '_dresses'
 
     counter = 0
 
