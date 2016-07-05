@@ -79,17 +79,21 @@ def bucket_to_training_set(collection):
     for i in range(0,500000):
         photo_name = 'photo_'+str(i)+'.jpg'
         img_url = 'https://tg-training.storage.googleapis.com/tamara_berg_street2shop_dataset/images/'+photo_name
-        ret = urllib2.urlopen(img_url)
-        if ret.code == 200:
-            print(img_url+" exists, checking if in db")
-            doc = coll.find_one({'url','/home/jeremy/dataset/images/'+photo_name})
-            if doc :
-                print('found doc for '+str(photo_name)+' in db already')
-            else:
-                print('doc for '+str(photo_name)+' not found, add to db')
+        print('attempting to open '+img_url)
+        try:
+            ret = urllib2.urlopen(img_url)
+            if ret.code == 200:
+                print(img_url+" exists, checking if in db")
+                doc = coll.find_one({'url','/home/jeremy/dataset/images/'+photo_name})
+                if doc :
+                    print('found doc for '+str(photo_name)+' in db already')
+                else:
+                    print('doc for '+str(photo_name)+' not found, add to db')
 
-        else:
-            print('image '+photo_name +' not found')
+            else:
+                print('image '+photo_name +' not found')
+        except:
+            print('error trying to open')
 
 if __name__ == "__main__":
     bucket_to_training_set('training_images')
