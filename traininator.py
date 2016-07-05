@@ -91,7 +91,8 @@ def bucket_to_training_set(collection):
                     doc = coll.find({'url':'/home/jeremy/dataset/images/'+photo_name})
                     if doc :
                         print('found doc for '+str(photo_name)+' in db already')
-                        print(doc[0])
+                        doc = doc[0]
+                        print(doc)
                         id = None
                         already_done = None
                         already_done_image_level = None
