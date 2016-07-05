@@ -43,16 +43,14 @@ def createItem():
     else:
         item = {"date": current_date,
                 "collections":{
-                "ebay_Female": {"status":"Starting on 15:00", "notes":"","EFT":"midnight"},
-                "ebay_Male": {"status":"Starting on 15:00", "notes":"","EFT":"midnight"},
-                "ebay_Unisex": {"status": "Starting on 12:00", "notes": "", "EFT": "midnight"},
+                "ebay_Female_US": {"status":"Starting on 15:00", "notes":"","EFT":"midnight"},
+                "ebay_Male_US": {"status":"Starting on 15:00", "notes":"","EFT":"midnight"},
                 "recruit_Female": {"status": "Starting on 20:00", "notes": "", "EFT": "midnight"},
                 "recruit_Male": {"status": "Starting on 20:00", "notes": "", "EFT": "midnight"},
-                # "ebay_Tees": {"status":"Starting on 12:00", "notes":""},
                 "ShopStyle_Female": {"status":"Starting on 03:05", "notes":"","EFT":"7:00 AM"},
                 "ShopStyle_Male": {"status":"Starting on 09:00", "notes":"","EFT":"9:00 AM"},
                 "GangnamStyle_Female": {"status":"Starting on 06:00", "notes":"","EFT":"10:00 AM"},
-                "GangnamStyle_Male": {"status":"Starting on 012:00", "notes":"","EFT":"12:00 AM"}}}
+                "GangnamStyle_Male": {"status":"Starting on 12:00", "notes":"","EFT":"12:00 AM"}}}
 
     dl_status.insert_one(item)
     print("new item inserted")
@@ -61,6 +59,7 @@ def createItem():
 def flatenDict(info):
     infoList = []
     keys = info["collections"].keys()
+    keys.sort()
     for key in keys:
         status = info["collections"][key]["status"]
         if status == "Working":

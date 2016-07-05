@@ -8,7 +8,13 @@ from rq import Queue
 from time import sleep
 from .ebay_API_worker import downloader
 from time import time
+from .fanni import plantForests4AllCategories
+from datetime import datetime
+from dl_excel import mongo2xl
+today_date = str(datetime.date(datetime.now()))
+
 q = Queue('ebay_API_worker', connection=redis_conn)
+forest = Queue('annoy_forest', connection=redis_conn)
 
 
 def log2file(log_filename, name):
@@ -19,10 +25,56 @@ def log2file(log_filename, name):
     logger.addHandler(handler)
     return logger
 
+def theArchiveDoorman(col_name):
+    """
+    clean the archive from items older than a week
+    send items to archive
+    """
+    collection = db[col_name]
+    collection_archive = db[col_name+'_archive']
+    archiver_indexes = collection_archive.index_information().keys()
+    if 'id_1' not in archiver_indexes:
+        collection_archive.create_index('id', background=True)
+    archivers = collection_archive.find()
+    y_new, m_new, d_new = map(int, today_date.split("-"))
+    for item in archivers:
+        y_old, m_old, d_old = map(int, item["download_data"]["dl_version"].split("-"))
+        days_out = 365 * (y_new - y_old) + 30 * (m_new - m_old) + (d_new - d_old)
+        if days_out < 7:
+            collection_archive.update_one({'id': item['id']}, {"$set": {"status.days_out": days_out}})
+        else:
+            collection_archive.delete_one({'id': item['id']})
 
-def download_ebay_API(GEO, gender,price_bottom=0, price_top=10000, mode=False, reset=False):
+    # add to the archive items which were not downloaded in the last 2 days
+    notUpdated = collection.find({"download_data.dl_version": {"$ne": today_date}})
+    for item in notUpdated:
+        y_old, m_old, d_old = map(int, item["download_data"]["dl_version"].split("-"))
+        days_out = 365 * (y_new - y_old) + 30 * (m_new - m_old) + (d_new - d_old)
+        if days_out>2:
+            collection.delete_one({'id': item['id']})
+            existing = collection_archive.find_one({"id": item["id"]})
+            if existing:
+                continue
+
+            if days_out < 7:
+                item['status']['instock'] = False
+                item['status']['days_out'] = days_out
+                collection_archive.insert_one(item)
+
+    # move to the archive all the items which were downloaded today but are out of stock
+    outStockers = collection.find({'status.instock': False})
+    for item in outStockers:
+        collection.delete_one({'id': item['id']})
+        existing = collection_archive.find_one({"id": item["id"]})
+        if existing:
+            continue
+        collection_archive.insert_one(item)
+
+    collection_archive.reindex()
+
+
+def download_ebay_API(col, gender,price_bottom=0, price_top=10000, mode=False, reset=False):
     s = time()
-    col = 'ebay_'+gender+'_'+GEO
     collection = db[col]
     if reset:
         collection.delete_many({})
@@ -47,20 +99,31 @@ def download_ebay_API(GEO, gender,price_bottom=0, price_top=10000, mode=False, r
         while q.count > 0:
             sleep(30)
     e = time()
-    print ('%s download time : %d' % (gender, e-s))
-
+    duration = e-s
+    print ('%s download time : %d' % (gender, duration))
+    return duration
 
 if __name__=='__main__':
     #TODO: use argsparse to select GEO
+    GEO='US'
+    duration = 0
+    for gender in ['Male', 'Female']:
+        col = 'ebay_' + gender + '_' + GEO
+        status_full_path = 'collections.' + col + '.status'
+        db.download_status.update_one({"date": today_date}, {"$set": {status_full_path: "Working"}})
+        duration += download_ebay_API(col, gender)
+        db.download_status.update_one({"date": today_date}, {"$set": {status_full_path: "Finishing"}})
+        theArchiveDoorman(col)
+        forest_job = forest.enqueue(plantForests4AllCategories, col_name=col, timeout=3600)
+        while not forest_job.is_finished and not forest_job.is_failed:
+            sleep(300)
+        if forest_job.is_failed:
+            print ('annoy plant forest failed')
 
-    download_ebay_API("US", 'Female')
-    download_ebay_API("US", 'Male')
-    forest_job = forest.enqueue(plantForests4AllCategories, col_name=col, timeout=3600)
-    while not forest_job.is_finished and not forest_job.is_failed:
-        time.sleep(300)
-    if forest_job.is_failed:
-        print ('annoy plant forest failed')
+        print (col + "Update Finished!!!")
 
-    print (col + "Update Finished!!!")
+    dl_info = {"date": today_date,
+               "dl_duration": duration,
+               "store_info": []}
 
-
+    mongo2xl('ebay_me', dl_info)
