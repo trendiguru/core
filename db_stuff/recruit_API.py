@@ -6,14 +6,64 @@ from ..constants import db, redis_conn
 import logging
 from rq import Queue
 from time import sleep
-from .recruit_worker import genreDownloader, GET_ByGenreId
+from .recruit_worker import genreDownloader, GET_ByGenreId, deleteDuplicates
 from time import time
 from datetime import datetime
 from .dl_excel import mongo2xl
+from .fanni import plantForests4AllCategories
+
 today_date = str(datetime.date(datetime.now()))
 
 q = Queue('recruit_worker', connection=redis_conn)
+forest = Queue('annoy_forest', connection=redis_conn)
 
+
+def theArchiveDoorman(col_name):
+    """
+    clean the archive from items older than a week
+    send items to archive
+    """
+    collection = db[col_name]
+    collection_archive = db[col_name+'_archive']
+    archiver_indexes = collection_archive.index_information().keys()
+    if 'id_1' not in archiver_indexes:
+        collection_archive.create_index('id', background=True)
+    archivers = collection_archive.find()
+    y_new, m_new, d_new = map(int, today_date.split("-"))
+    for item in archivers:
+        y_old, m_old, d_old = map(int, item["download_data"]["dl_version"].split("-"))
+        days_out = 365 * (y_new - y_old) + 30 * (m_new - m_old) + (d_new - d_old)
+        if days_out < 7:
+            collection_archive.update_one({'id': item['id']}, {"$set": {"status.days_out": days_out}})
+        else:
+            collection_archive.delete_one({'id': item['id']})
+
+    # add to the archive items which were not downloaded in the last 2 days
+    notUpdated = collection.find({"download_data.dl_version": {"$ne": today_date}})
+    for item in notUpdated:
+        y_old, m_old, d_old = map(int, item["download_data"]["dl_version"].split("-"))
+        days_out = 365 * (y_new - y_old) + 30 * (m_new - m_old) + (d_new - d_old)
+        if days_out>2:
+            collection.delete_one({'id': item['id']})
+            existing = collection_archive.find_one({"id": item["id"]})
+            if existing:
+                continue
+
+            if days_out < 7:
+                item['status']['instock'] = False
+                item['status']['days_out'] = days_out
+                collection_archive.insert_one(item)
+
+    # move to the archive all the items which were downloaded today but are out of stock
+    outStockers = collection.find({'status.instock': False})
+    for item in outStockers:
+        collection.delete_one({'id': item['id']})
+        existing = collection_archive.find_one({"id": item["id"]})
+        if existing:
+            continue
+        collection_archive.insert_one(item)
+
+    collection_archive.reindex()
 
 def log2file(LOG_FILENAME):
     logger = logging.getLogger(__name__)
@@ -107,32 +157,54 @@ use printCategories to scan the api and print all categories under ladies' and m
 
 def download_recruit(delete=False):
     s = time()
-    if delete:
-        db.recruit_Female.delete_many({})
-        db.recruit_Male.delete_many({})
-        if 'img_hash' not in db.recruit_Female.index_information().keys():
-            db.recruit_Female.create_index('img_hash', background=True)
-        if 'img_hash' not in db.recruit_Male.index_information().keys():
-            db.recruit_Male.create_index('img_hash', background=True)
+
+    for gender in ['Male', 'Female']:
+        col_name = 'recruit_'+gender
+        collection = db[col_name]
+        if delete:
+            collection.delete_many({})
+        indexes = collection.index_information().keys()
+        for idx in ['id', 'img_hash', 'categories', 'images.XLarge']:
+            idx_1 = idx + '_1'
+            if idx_1 not in indexes:
+                collection.create_index(idx, background=True)
+
     handler = log2file('/home/developer/yonti/recruit_download_stats.log')
     handler.info('download started')
     id_count = len(recruitID2generalCategory)
-    for x,genreId in enumerate(recruitID2generalCategory.keys()):
+    for x, genreId in enumerate(recruitID2generalCategory.keys()):
         q.enqueue(genreDownloader, args=([genreId]), timeout=5400)
-        print('%d/%d -> %s sent to download worker' %(x,id_count,genreId))
+        print('%d/%d -> %s sent to download worker' %(x,id_count, genreId))
         while q.count > 5:
             sleep(60)
-    e =time()
+
+    e = time()
     duration = e-s
     print ('download time : %d' % duration )
+
+    deleteDuplicates()
+    for gender in ['Male', 'Female']:
+        col_name = 'recruit_' + gender
+        theArchiveDoorman(col_name)
+        forest_job = forest.enqueue(plantForests4AllCategories, col_name=col_name, timeout=3600)
+        while not forest_job.is_finished and not forest_job.is_failed:
+            time.sleep(300)
+        if forest_job.is_failed:
+            print ('annoy plant forest failed')
+
     dl_info = {"date": today_date,
                "dl_duration": duration,
                "store_info": []}
-    mongo2xl('recruit', dl_info)
+
+    mongo2xl('recruit_me', dl_info)
+
 
 if __name__=='__main__':
     download_recruit()
 
+
+
+    print (col + "Update Finished!!!")
 
 
 # GET_gnereid(generate_genreid('Female',0,0))

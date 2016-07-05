@@ -58,22 +58,38 @@ def process_items(item_list, gender,category):
         itemId = item['itemId']
         exists = collection.find_one({'id': itemId})
         if exists:
+            exists_id = exists['_id']
             clickUrl = exists['clickUrl']
             if tracking_id not in clickUrl:
                 clickUrl += tracking_id
-                collection.update_one({'_id':exists['_id']}, {'$set':{'clickUrl':clickUrl}})
-            #TODO: add checks
-            # print ('item already exists')
+                collection.update_one({'_id':exists_id}, {'$set':{'clickUrl':clickUrl}})
+            dl_version = exists['download_data.dl_version']
+            if dl_version != today_date:
+                collection.update_one({'_id': exists_id}, {'$set': {'download_data.dl_version': today_date}})
+            print ('item already exists')
             continue
+
+        else:
+            archive = db[col_name+'_archive']
+            exists = archive.find_one({'id': itemId})
+            if exists:
+                exists_id = exists['_id']
+                exists['download_data']['dl_version'] = today_date
+                exists['status']= {"instock": True, "days_out": 0}
+                archive.delete_one({'_id':exists_id})
+                collection.insert_one(exists)
+                # TODO: add checks
+                print ('item found in archive - returned to collection')
+                continue
 
         price = {'price': item['salePriceIncTax'],
                  'currency': 'Yen'}
 
-        status = 'instock'
+        status = {"instock": True, "days_out": 0}
         image = None
         imgs = item['itemImgInfoList']
         for i in range(len(imgs)):
-            img =imgs[i]['itemImgUrl']
+            img = imgs[i]['itemImgUrl']
             split1 = re.split(r'\?|&', img)
             if 'ver=1' not in split1:
                 continue
@@ -121,14 +137,13 @@ def process_items(item_list, gender,category):
                    "raw_info": item,
                    "img_hash": img_hash}
 
-
-        # collection.insert_one(generic)
         while fp_q.count>5000:
             sleep(30)
 
         fp_q.enqueue(generate_mask_and_insert, doc=generic, image_url=img_url,
-                  fp_date=today_date, coll=col_name, img=image, neuro=True)
-        new_items+=1
+                     fp_date=today_date, coll=col_name, img=image, neuro=True)
+
+        new_items += 1
     return new_items, len(item_list)
 
 

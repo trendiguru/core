@@ -194,6 +194,11 @@ def process_items(items, gender,GEO , sub_attribute, q):
             print ('bad img url')
             continue
 
+        url_exists = collection.find_one({'images.XLarge': img_url})
+        if url_exists:
+            print ('img_url already exists')
+            continue
+
         img_hash = get_hash(image)
 
         hash_exists = collection.find_one({'img_hash': img_hash})
@@ -239,8 +244,11 @@ def process_items(items, gender,GEO , sub_attribute, q):
                    "img_hash": img_hash}
 
         collection.insert_one(generic)
+
+        while q.count > 5000:
+            sleep(30)
         q.enqueue(generate_mask_and_insert, doc=generic, image_url=img_url,
-                  fp_date=today_date, coll=col_name)
+                  fp_date=today_date, coll=col_name, img=image)
         new_items += 1
     return new_items, len(items)
 
