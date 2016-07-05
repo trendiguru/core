@@ -33,7 +33,7 @@ push_connection(constants.redis_conn)
 # ----------------------------------------- MAIN-FUNCTIONS -----------------------------------------------
 
 
-def route_by_url(image_url, page_url, lang):
+def route_by_url(image_url, page_url, method):
     domain = tldextract.extract(page_url).registered_domain
 
     # Temporarily remove whitelist for Recruit Test -- LS 22/06/2016.
@@ -46,10 +46,10 @@ def route_by_url(image_url, page_url, lang):
     if db.iip.find_one({'image_url': image_url}) or db.irrelevant_images.find_one({'image_urls': image_url}):
         return False
 
-    if is_image_relevant(image_url, set_lang(lang)):
+    if is_image_relevant(image_url):
         return True
 
-    relevancy.enqueue_call(func=check_if_relevant, args=(image_url, page_url, lang), ttl=2000, result_ttl=2000,
+    relevancy.enqueue_call(func=check_if_relevant, args=(image_url, page_url, method), ttl=2000, result_ttl=2000,
                            timeout=2000)
 
     return False
