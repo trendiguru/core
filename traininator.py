@@ -72,6 +72,8 @@ def create_training_set_with_grabcut(collection):
     print "Done masking! took {0} seconds".format(time.time()-start)
 
 def bucket_to_training_set(collection):
+    #if not in db, add
+    #if in db, fix url, make user a list, already_done is counter
     coll = db[collection]
     i = 1
     total = db.training_images.count()
@@ -90,6 +92,24 @@ def bucket_to_training_set(collection):
                     if doc :
                         print('found doc for '+str(photo_name)+' in db already')
                         print(doc[0])
+                        id = None
+                        already_done = None
+                        already_done_image_level = None
+                        already_seen_image_level = None
+                        user_name = None
+                        if '_id' in doc:
+                            id = doc['_id']
+                        if 'already_done' in doc:
+                            already_done = doc['already_done']
+                        if 'already_done_image_level' in doc:
+                            already_done_image_level = doc['already_done_image_level']
+                        if 'already_seen_image_level' in doc:
+                            already_seen_image_level = doc['already_seen_image_level']
+                        if 'user_name' in doc:
+                            user_name = doc['user_name']
+                        print('id {} ad {} adil {} asil {} un {}'.format(id,already_done,already_done_image_level,already_seen_image_level))
+#                        res = coll.update_one({'_id':id}, {"$set":{'already_seen_image_level':1,'user_name':user}})
+
                     else:
                         print('doc for '+str(photo_name)+' not found, add to db')
                 except:
@@ -99,7 +119,7 @@ def bucket_to_training_set(collection):
                 print('image '+photo_name +' not found')
         except:
             print('error trying to open '+photo_name+' err:'+str(sys.exc_info()[0]))
-
+        raw_input('ret to cont')
 
 if __name__ == "__main__":
     bucket_to_training_set('training_images')
