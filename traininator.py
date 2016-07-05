@@ -87,9 +87,9 @@ def bucket_to_training_set(collection):
                 print(photo_name+" exists, checking if in db")
                 try:
                     doc = coll.find({'url':'/home/jeremy/dataset/images/'+photo_name})
-                    print('doc '+str(doc))
                     if doc :
                         print('found doc for '+str(photo_name)+' in db already')
+                        print(doc[0])
                     else:
                         print('doc for '+str(photo_name)+' not found, add to db')
                 except:
