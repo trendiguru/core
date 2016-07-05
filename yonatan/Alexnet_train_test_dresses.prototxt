@@ -15,7 +15,7 @@ layer {
   }
   image_data_param {
     source: "/home/yonatan/db_dresses_train.txt"
-    batch_size: 64
+    batch_size: 128
     shuffle: true
   }
 }
@@ -35,7 +35,7 @@ layer {
   }
   image_data_param {
     source: "/home/yonatan/db_dresses_cv.txt"
-    batch_size: 99
+    batch_size: 160
     shuffle: true
   }
 }
