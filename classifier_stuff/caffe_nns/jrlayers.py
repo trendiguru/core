@@ -506,41 +506,45 @@ class JrMultilabel(caffe.Layer):
                 self.next_idx()   #bad file, goto next
                 idx = self.idx
                 continue
-            im = Image.open(filename)
-            if im is None:
-                logging.warning('could not get image '+filename)
-                self.next_idx()
-                idx = self.idx
-                continue
-            if self.new_size:
-                im = im.resize(self.new_size,Image.ANTIALIAS)
-            in_ = np.array(im, dtype=np.float32)
+
+            in_ = generate_images.generate_image_onthefly(filename, gaussian_or_uniform_distributions='uniform',
+               max_angle = self.augment_max_angle,
+               max_offset_x = self.augment_max_offset_x,max_offset_y = self.augment_max_offset_y,
+               max_scale=self.augment_max_scale,
+               max_noise_level=self.augment_max_noise_level,noise_type='gauss',
+               max_blur=self.augment_max_blur,
+               do_mirror_lr=self.augment_do_mirror_lr,
+               do_mirror_ud=self.augment_do_mirror_ud,
+               crop_size=self.augment_crop_size,
+               show_visual_output=True)
+
+            #im = Image.open(filename)
+            #if im is None:
+            #    logging.warning('could not get image '+filename)
+            #    self.next_idx()
+            #    idx = self.idx
+            #    continue
+            #if self.new_size:
+            #    im = im.resize(self.new_size,Image.ANTIALIAS)
             if in_ is None:
                 logging.warning('could not get image '+filename)
                 self.next_idx()
                 idx = self.idx
                 continue
+            in_ = np.array(in_, dtype=np.float32)
             if len(in_.shape) != 3 or in_.shape[0] != self.new_size[0] or in_.shape[1] != self.new_size[1] or in_.shape[2]!=3:
                 print('got bad img of size '+str(in_.shape) + '= when expected shape is 3x'+str(in_.shape))
                 self.next_idx()  #goto next
                 idx = self.idx
                 continue
             break #got good img, get out of while
-        in_ = generate_images.generate_image_onthefly(in_, gaussian_or_uniform_distributions='gaussian',
-               max_angle = 5,
-               max_offset_x = 10,max_offset_y = 10,
-               max_scale=1.2,
-               max_noise_level=0,noise_type='gauss',
-               max_blur=0,
-               do_mirror_lr=True,do_mirror_ud=False,
-               crop_size=(224,224),
-               show_visual_output=True)
+
 
         print(str(filename) + ' has dims '+str(in_.shape)+' label:'+str(label_vec)+' idex'+str(idx))
 
-        in_ = in_[:,:,::-1]
-#        in_ -= self.mean
-        in_ = in_.transpose((2,0,1))
+#        in_ = in_[:,:,::-1]  #RGB->BGR - since we're using cv2 no need
+        in_ -= self.mean
+        in_ = in_.transpose((2,0,1))  #Row Column Channel -> Channel Row Column
 #	print('uniques of img:'+str(np.unique(in_))+' shape:'+str(in_.shape))
         return filename, in_, label_vec
 
