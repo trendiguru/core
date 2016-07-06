@@ -180,7 +180,7 @@ def generate_images(img_filename, max_angle = 5,n_angles=10,
                                     k = cv2.waitKey(0)
                           #  raw_input('enter to cont')
 
-def generate_image_onthefly(img_filename_or_nparray, gaussian_or_uniform_distributions='gaussian',
+def generate_image_onthefly(img_filename_or_nparray, gaussian_or_uniform_distributions='uniform',
                    max_angle = 5,
                    max_offset_x = 5,max_offset_y = 5,
                    max_scale=1.2,
