@@ -3,8 +3,6 @@ __author__ = 'Nadav Paz'
 # TODO - combine pose-estimation face detection as a backup to the cascades face detection
 
 import string
-from Tkinter import Tk
-from tkFileDialog import askopenfilename
 import collections
 import os
 import dlib
@@ -354,13 +352,6 @@ def get_binary_bb_mask(image, bb=None):
     bb_masked = np.zeros((image.shape[0], image.shape[1]), np.uint8)
     bb_masked[y:y+h, x:x+w] = 255
     return bb_masked
-
-
-def get_image():
-    Tk().withdraw()
-    filename = askopenfilename()
-    big_image = cv2.imread(filename)
-    return big_image
 
 
 def face_skin_color_estimation(image, face_rect):
