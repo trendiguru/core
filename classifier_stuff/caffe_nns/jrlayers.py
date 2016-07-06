@@ -332,6 +332,18 @@ class JrMultilabel(caffe.Layer):
         self.seed = params.get('seed', 1337)
         self.new_size = params.get('new_size',None)
         self.batch_size = params.get('batch_size',1)  #######Not implemented, batchsize = 1
+        self.augment_images = params.get('augment',False)
+        self.augment_max_angle = params.get('augment_max_angle',5)
+        self.augment_max_offset_x = params.get('augment_max_offset_x',10)
+        self.augment_max_offset_y = params.get('augment_max_offset_y',10)
+        self.augment_max_scale = params.get('augment_max_scale',1.2)
+        self.augment_max_noise_level = params.get('augment_max_noise_level',0)
+        self.augment_max_blur = params.get('augment_max_blur',0)
+        self.augment_do_mirror_lr = params.get('augment_do_mirror_lr',True)
+        self.augment_do_mirror_ud = params.get('augment_do_mirror_ud',False)
+        self.augment_crop_size = params.get('augment_crop_size',(227,227))
+        self.augment_show_visual_output = params.get('show_visual_output',False)
+
 
         self.idx = 0
         print('images+labelsfile {} mean {}'.format(self.images_and_labels_file,self.mean))
@@ -421,11 +433,16 @@ class JrMultilabel(caffe.Layer):
         print(str(self.n_files)+' good files in image dir '+str(self.images_dir))
         logging.debug('self.idx is :'+str(self.idx)+' type:'+str(type(self.idx)))
 
-        if self.new_size == None:   #the old size of 227 is not actually correct, original vgg/resnet wants 224
-            print('uh i got no size so using 224x224')
-            self.new_size = (224,224)
-        top[0].reshape(self.batch_size, 3, self.new_size[0], self.new_size[1])
-        # Note the 20 channels (because PASCAL has 20 classes.)
+        #if images are being augmented then dont do this resize
+        if self.augment_images == False:
+
+            if self.new_size == None:   #the old size of 227 is not actually correct, original vgg/resnet wants 224
+                print('uh i got no size so using 224x224')
+                self.new_size = (224,224)
+            top[0].reshape(self.batch_size, 3, self.new_size[0], self.new_size[1])
+        else:
+            top[0].reshape(self.batch_size, 3, self.augment_crop_size[0], self.augment_crop_size[1])
+
         top[1].reshape(self.batch_size, 21)
 
 
