@@ -217,7 +217,7 @@ def generate_image_onthefly(img_filename_or_nparray, gaussian_or_uniform_distrib
     else:
         img_arr = img_filename_or_nparray
     if img_arr is None:
-        logging.warning('didnt get input image '+str(img_filename))
+        logging.warning('didnt get input image '+str(img_filename_or_nparray))
         return
 
     height=img_arr.shape[0]
