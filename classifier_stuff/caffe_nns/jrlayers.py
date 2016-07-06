@@ -344,12 +344,10 @@ class JrMultilabel(caffe.Layer):
         self.augment_crop_size = params.get('augment_crop_size',(227,227)) #
         self.augment_show_visual_output = params.get('show_visual_output',False)
 
-        print('imfile {} mean {} imagesdir {} randinit {} randpick {} see {} newsize {} batchsize {} augment {} augmaxangle {} augmaxdx {} augmaxdy {} augmaxscale {} augmaxnoise {} augmirrorlr {} augmirrorud {} augcrop {} augvis {}'.format(
-                self.images_and_labels_file, self.mean,self.images_dir,self.random_init, self.random_pick,
-                self.seed,self.new_size,self.batch_size,self.augment_images,self.augment_max_angle,
-                self.augment_max_offset_x,self.augment_max_offset_y,self.augment_max_scale,
-                self.augment_max_noise_level,self.augment_max_blur,self.augment_do_mirror_lr,
-                self.augment_do_mirror_ud,self.augment_crop_size,self.augment_show_visual_output))
+        print('imfile {} mean {} imagesdir {} randinit {} randpick {} '.format(self.images_and_labels_file, self.mean,self.images_dir,self.random_init, self.random_pick))
+        print('see {} newsize {} batchsize {} augment {} augmaxangle {} '.format(self.seed,self.new_size,self.batch_size,self.augment_images,self.augment_max_angle))
+        print('augmaxdx {} augmaxdy {} augmaxscale {} augmaxnoise {} augmaxblur {} '.format(self.augment_max_offset_x,self.augment_max_offset_y,self.augment_max_scale,self.augment_max_noise_level,self.augment_max_blur))
+        print('augmirrorlr {} augmirrorud {} augcrop {} augvis {}'.format(self.augment_do_mirror_lr,self.augment_do_mirror_ud,self.augment_crop_size,self.augment_show_visual_output))
 
         self.idx = 0
         print('images+labelsfile {} mean {}'.format(self.images_and_labels_file,self.mean))
