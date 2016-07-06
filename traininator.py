@@ -1,12 +1,20 @@
 import numpy as np
 import time
 import cv2
-from . import background_removal
-from . import constants
-from . import Utils
-from . import kassper
+from trendi import background_removal
+from trendi import constants
+from trendi import Utils
 from gcloud import storage
 from oauth2client.client import GoogleCredentials
+import sys
+
+import urllib2
+
+#TO UPLOAD IMAGES TO BUCKET:
+# gsutil -m cp -r new_photos_512x512/ gs://tg-training/tamara_berg_street2shop_dataset/images
+
+# TO GRANT PERMISSION TO WORLD TO SEE:
+#gsutil acl ch -u AllUsers:R gs://tg-training/tamara_berg_street2shop_dataset/images/*
 
 db = constants.db
 cats = constants.tamara_berg_categories
@@ -66,3 +74,69 @@ def create_training_set_with_grabcut(collection):
         save_to_storage(bucket, mask, filename)
         coll.update_one({'_id': doc['_id']}, {'$set': {'mask_url': 'https://tg-training.storage.googleapis.com/' + filename}})
     print "Done masking! took {0} seconds".format(time.time()-start)
+
+def bucket_to_training_set(collection):
+    '''
+    Takes a bucket of data and adds to db collection
+    if not in db, add
+    if in db, fix url, make user a list, already_done is counter
+
+    :param collection: mongodb colleciton
+    :return:
+    '''
+    coll = db[collection]
+    i = 1
+    total = db.training_images.count()
+    print(str(total)+' images in collection '+collection)
+    start = time.time()
+    for i in range(0,500000):
+        photo_name = 'photo_'+str(i)+'.jpg'
+        img_url = 'https://tg-training.storage.googleapis.com/tamara_berg_street2shop_dataset/images/'+photo_name
+        print('\nattempting to open '+img_url)
+        try:
+            ret = urllib2.urlopen(img_url)
+            if ret.code == 200:
+                print(photo_name+" exists, checking if in db")
+                try:
+                    doc = coll.find({'url':'/home/jeremy/dataset/images/'+photo_name})
+                    if doc :
+                        print('found doc for '+str(photo_name)+' in db already')
+                        doc = doc[0]
+                        print(doc)
+                        id = None
+                        already_done = None
+                        already_done_image_level = None
+                        already_seen_image_level = None
+                        user_name = None
+                        if '_id' in doc:
+                            id = doc['_id']
+                        if 'already_done' in doc:
+                            already_done = doc['already_done']
+                            del doc['already_done']
+                            doc['already_seen_image_level'] = 1
+                        if 'already_seen_image_level' in doc:
+                            already_seen_image_level = doc['already_seen_image_level']
+                            doc['already_seen_image_level'] = 1
+                        if 'user_name' in doc:
+                            user_name = doc['user_name']
+                            if isinstance(user_name,basestring):
+                                doc['user_name'] = [user_name]
+                        url = doc['url']
+                        doc['url'] = img_url
+                        print('id {} ad {} asil {} un {}'.format(id,already_done,already_seen_image_level,user_name))
+                        print('new doc:\n'+str(doc))
+#                        res = coll.update_one({'_id':id}, {"$set":{'already_seen_image_level':1,'user_name':user}})
+
+                    else:
+                        print('doc for '+str(photo_name)+' not found, add to db')
+                except:
+                    print('error trying to get doc , err:'+str(sys.exc_info()[0]))
+
+            else:
+                print('image '+photo_name +' not found')
+        except:
+            print('error trying to open '+photo_name+' err:'+str(sys.exc_info()[0]))
+        raw_input('ret to cont')
+
+if __name__ == "__main__":
+    bucket_to_training_set('training_images')

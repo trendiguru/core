@@ -3,6 +3,7 @@ import numpy as np
 # import scipy as sp
 import os
 import logging
+import time
 
 logging.basicConfig(level=logging.DEBUG)
 
@@ -179,6 +180,160 @@ def generate_images(img_filename, max_angle = 5,n_angles=10,
                                     k = cv2.waitKey(0)
                           #  raw_input('enter to cont')
 
+def generate_image_onthefly(img_filename_or_nparray, gaussian_or_uniform_distributions='gaussian',
+                   max_angle = 5,
+                   max_offset_x = 100,max_offset_y = 100,
+                   max_scale=1.2,
+                   max_noise_level=0.05,noise_type='gauss',
+                   max_blur=2,
+                   do_mirror_lr=True,do_mirror_ud=False,
+                   crop_size=None,
+                    show_visual_output=False):
+    '''
+    generates a bunch of variations of image by rotating, translating, noising etc
+    total # images generated is n_angles*n_offsets_x*n_offsets_y*n_noises*n_scales*etc, these are done in nested loops
+    if you don't want a particular xform set n_whatever = 0
+    original image dimensions are preserved
+
+    :param img_filename:
+    :param gaussian_or_uniform_distributions:
+    :param max_angle:
+    :param max_offset_x:
+    :param max_offset_y:
+    :param max_scale: this is percent to enlarge/shrink image
+    :param max_noise_level:
+    :param noise_type:
+    :param max_blur:
+    :param do_mirror_lr:
+    :param do_mirror_ud:
+    :param output_dir:
+    :param show_visual_output:
+    :param suffix:
+    :return:
+    '''
+
+    if isinstance(img_filename_or_nparray,basestring):
+        img_arr = cv2.imread(img_filename)
+    else:
+        img_arr = img_filename_or_nparray
+    if img_arr is None:
+        logging.warning('didnt get input image '+str(img_filename))
+        return
+
+    height=img_arr.shape[0]
+    width=img_arr.shape[1]
+
+    angle = 0
+    offset_x = 0
+    offset_y = 0
+    scale = 0
+    noise_level = 0
+    blur = 0
+    crop_dx = 0
+    crop_dy = 0
+    x_room = 0
+    y_room = 0
+
+    if crop_size:
+        x_room = width - crop_size[1]
+        y_room = height - crop_size[0]
+        if x_room<0 or y_room<0:
+            print('crop is larger than incoming image so I refuse to crop')
+            x_room = 0
+            y_room = 0
+
+    eps = 0.1
+
+    if gaussian_or_uniform_distributions == 'gaussian':
+        if max_angle:
+            angle = np.random.normal(0,max_angle)
+        if max_offset_x:
+            offset_x = np.random.normal(0,max_offset_x)
+        if max_offset_y:
+            offset_y = np.random.normal(0,max_offset_y)
+        if max_scale:
+            print('gscale limits {} {}'.format(1,np.abs(1.0-max_scale)/2))
+            scale = max(eps,np.random.normal(1,np.abs(1.0-max_scale)/2)) #make sure scale >= eps
+        if max_noise_level:
+            noise_level = max(0,np.random.normal(0,max_noise_level)) #noise >= 0
+        if max_blur:
+            blur = max(0,np.random.normal(0,max_blur)) #blur >= 0
+        if x_room:
+            crop_dx = max(-float(x_room)/2,int(np.random.normal(0,float(x_room)/2)))
+            crop_dx = min(crop_dx,float(x_room)/2)
+        if y_room:
+            crop_dy = max(-float(y_room)/2,int(np.random.normal(0,float(y_room)/2)))
+            crop_dy = min(crop_dy,float(y_room)/2)
+
+    else:  #uniform distributed random numbers
+        if max_angle:
+            angle = np.random.uniform(-max_angle,max_angle)
+        if max_offset_x:
+            offset_x = np.random.uniform(-max_offset_x,max_offset_x)
+        if max_offset_y:
+            offset_y = np.random.uniform(-max_offset_y,max_offset_y)
+        if max_scale:
+            print('uscale limits {} {}'.format(1-np.abs(1-max_scale),1+np.abs(1-max_scale)))
+            scale = np.random.uniform(1-np.abs(1-max_scale),1+np.abs(1-max_scale))
+        if max_noise_level:
+            noise_level = np.random.uniform(0,max_noise_level)
+        if max_blur:
+            blur = np.random.uniform(0,max_blur)
+        if x_room:
+            crop_dx = int(np.random.uniform(0,float(x_room)/2))
+        if y_room:
+            crop_dy = int(np.random.uniform(0,float(y_room)/2))
+
+    if len(img_arr.shape) == 3:
+        depth = img_arr.shape[2]
+    else:
+        depth = 1
+    center = (width/2,height/2)
+    if do_mirror_lr:
+        if np.random.randint(2):
+            img_arr = cv2.flip(img_arr,1)
+    if do_mirror_ud:
+        if np.random.randint(2):
+            img_arr = cv2.flip(img_arr,0)
+
+# Python: cv2.transform(src, m[, dst]) -> dst
+#http://docs.opencv.org/2.4/modules/core/doc/operations_on_arrays.html#void%20transform%28InputArray%20src,%20OutputArray%20dst,%20InputArray%20m%29
+    if blur:  #untested
+        img_arr = cv2.blur(img_arr,(int(blur),int(blur)))   #fails if blur is nonint or 0
+    if noise_level:  #untested
+        noised = add_noise(img_arr,noise_type,noise_level)
+
+    print('center {0} angle {1} scale {2} h {3} w {4} dx {5} dy {6} noise {7} blur {8}'.format(center,angle, scale,height,width,offset_x,offset_y,noise_level,blur))
+    M = cv2.getRotationMatrix2D(center, angle,scale)
+    M[0,2]=M[0,2]+offset_x
+    M[1,2]=M[1,2]+offset_y
+    print('M='+str(M))
+#                                xformed_img_arr  = cv2.warpAffine(noised,  M, (width,height),dst=dest,borderMode=cv2.BORDER_TRANSPARENT)
+    img_arr  = cv2.warpAffine(img_arr,  M, (width,height),borderMode=cv2.BORDER_REPLICATE)
+
+
+    if crop_dx or crop_dy:
+        left = round(max(0,round(float(width-crop_size[1])/2) - crop_dx))
+        right = round(left + crop_size[1])
+        top = round(max(0,round(float(height-crop_size[0])/2) - crop_dy))
+        bottom = round(top + crop_size[0])
+        print('left {} right {} top {} bottom {} crop_dx {} crop_dy {} csize {} xroom {} yroom {}'.format(left,right,top,bottom,crop_dx,crop_dy,crop_size,x_room,y_room))
+        if depth!=1:
+            img_arr = img_arr[top:bottom,left:right,:]
+            print img_arr.shape
+        else:
+            img_arr = img_arr[top:bottom,left:right]
+
+    if show_visual_output:
+        cv2.imshow('xformed',img_arr)
+        k = cv2.waitKey(0)
+
+    cv2.imwrite(img_arr,'out'+str(round(time.time))+'.jpg')
+    return img_arr
+
+#  raw_input('enter to cont')
+
+
 def generate_images_for_directory(fulldir,**args):
     only_files = [f for f in os.listdir(fulldir) if os.path.isfile(os.path.join(fulldir, f))]
     for a_file in only_files:
@@ -294,10 +449,23 @@ def add_noise(image, noise_typ,level):
 if __name__=="__main__":
     print('running main')
     img_filename = '../images/female1.jpg'
+    img_filename = '../images/female1_256x256.jpg'
     image_dir = '/home/jeremy/image_dbs/colorful_fashion_parsing_data/images/train_200x150'
     label_dir = '/home/jeremy/image_dbs/colorful_fashion_parsing_data/labels_200x150'
 
-    generate_images_for_directory(image_dir,
+    while(1):
+        generate_image_onthefly(img_filename, gaussian_or_uniform_distributions='gaussian',
+                   max_angle = 5,
+                    max_offset_x = 10,max_offset_y = 10,
+                   max_scale=1.2,
+                   max_noise_level=0,noise_type='gauss',
+                   max_blur=0,
+                   do_mirror_lr=True,do_mirror_ud=False,
+                   crop_size=(224,224),
+                   show_visual_output=True)
+
+    if 0:
+        generate_images_for_directory(image_dir,
                     max_angle = 10,n_angles=2,
                     max_offset_x = 10,n_offsets_x=2,
                     max_offset_y = 10, n_offsets_y=2,
@@ -306,7 +474,7 @@ if __name__=="__main__":
                     max_blur=5, n_blurs=0,
                     do_mirror_lr=True,do_mirror_ud=False,do_bb=False,suffix='.jpg')
 
-    generate_images_for_directory(label_dir,
+        generate_images_for_directory(label_dir,
                     max_angle = 10,n_angles=2,
                     max_offset_x = 10,n_offsets_x=2,
                     max_offset_y = 10, n_offsets_y=2,
