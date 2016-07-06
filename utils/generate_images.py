@@ -3,6 +3,7 @@ import numpy as np
 # import scipy as sp
 import os
 import logging
+import time
 
 logging.basicConfig(level=logging.DEBUG)
 
@@ -327,6 +328,7 @@ def generate_image_onthefly(img_filename_or_nparray, gaussian_or_uniform_distrib
         cv2.imshow('xformed',img_arr)
         k = cv2.waitKey(0)
 
+    cv2.imwrite(img_arr,'out'+str(round(time.time))+'.jpg')
     return img_arr
 
 #  raw_input('enter to cont')
