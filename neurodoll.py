@@ -47,8 +47,8 @@ def infer_one(url_or_np_array,required_image_size=None):
 
 #    in_ = in_.astype(float)
     if required_image_size:
-        in_ = imutils.resize_keep_aspect(image,output_size=required_image_size,output_file=None)
-    in_ = np.array(in_, dtype=np.float32)   #.astype(float)
+        image = imutils.resize_keep_aspect(image,output_size=required_image_size,output_file=None)
+    in_ = np.array(image, dtype=np.float32)   #.astype(float)
     if len(in_.shape) != 3:
         print('got 1-chan image, turning into 3 channel')
         #DEBUG THIS , ORDER MAY BE WRONG
