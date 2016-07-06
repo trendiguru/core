@@ -330,7 +330,7 @@ def generate_image_onthefly(img_filename_or_nparray, gaussian_or_uniform_distrib
         k = cv2.waitKey(0)
 
 #    cv2.imwrite('out'+str(round(time.time()))+'.jpg',img_arr)
-    print('time taken for image manips:'+str(time.time()-start_time))
+ #   print('time taken for image manips:'+str(time.time()-start_time))
 
     return img_arr
 
