@@ -180,14 +180,14 @@ def generate_images(img_filename, max_angle = 5,n_angles=10,
                                     k = cv2.waitKey(0)
                           #  raw_input('enter to cont')
 
-def generate_image_onthefly(img_filename_or_nparray, gaussian_or_uniform_distributions='gaussian',
+def generate_image_onthefly(img_filename_or_nparray, gaussian_or_uniform_distributions='uniform',
                    max_angle = 5,
-                   max_offset_x = 100,max_offset_y = 100,
+                   max_offset_x = 5,max_offset_y = 5,
                    max_scale=1.2,
-                   max_noise_level=0.05,noise_type='gauss',
-                   max_blur=2,
+                   max_noise_level= 0,noise_type='gauss',
+                   max_blur=0,
                    do_mirror_lr=True,do_mirror_ud=False,
-                   crop_size=None,
+                   crop_size=(224,224),
                     show_visual_output=False):
     '''
     generates a bunch of variations of image by rotating, translating, noising etc
@@ -328,7 +328,7 @@ def generate_image_onthefly(img_filename_or_nparray, gaussian_or_uniform_distrib
         cv2.imshow('xformed',img_arr)
         k = cv2.waitKey(0)
 
-    cv2.imwrite(img_arr,'out'+str(round(time.time))+'.jpg')
+    cv2.imwrite('out'+str(round(time.time()))+'.jpg',img_arr)
     return img_arr
 
 #  raw_input('enter to cont')
@@ -454,7 +454,7 @@ if __name__=="__main__":
     label_dir = '/home/jeremy/image_dbs/colorful_fashion_parsing_data/labels_200x150'
 
     while(1):
-        generate_image_onthefly(img_filename, gaussian_or_uniform_distributions='gaussian',
+        generate_image_onthefly(img_filename, gaussian_or_uniform_distributions='uniform',
                    max_angle = 5,
                     max_offset_x = 10,max_offset_y = 10,
                    max_scale=1.2,
