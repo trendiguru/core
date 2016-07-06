@@ -342,7 +342,8 @@ class JrMultilabel(caffe.Layer):
         self.augment_do_mirror_lr = params.get('augment_do_mirror_lr',True)
         self.augment_do_mirror_ud = params.get('augment_do_mirror_ud',False)
         self.augment_crop_size = params.get('augment_crop_size',(227,227)) #
-        self.augment_show_visual_output = params.get('show_visual_output',False)
+        self.augment_show_visual_output = params.get('augment_show_visual_output',False)
+        self.augment_distribution = params.get('augment_distribution','uniform')
 
         print('imfile {} mean {} imagesdir {} randinit {} randpick {} '.format(self.images_and_labels_file, self.mean,self.images_dir,self.random_init, self.random_pick))
         print('see {} newsize {} batchsize {} augment {} augmaxangle {} '.format(self.seed,self.new_size,self.batch_size,self.augment_images,self.augment_max_angle))
@@ -507,7 +508,7 @@ class JrMultilabel(caffe.Layer):
                 idx = self.idx
                 continue
 
-            in_ = generate_images.generate_image_onthefly(filename, gaussian_or_uniform_distributions='uniform',
+            in_ = generate_images.generate_image_onthefly(filename, gaussian_or_uniform_distributions=self.augment_distribution,
                max_angle = self.augment_max_angle,
                max_offset_x = self.augment_max_offset_x,max_offset_y = self.augment_max_offset_y,
                max_scale=self.augment_max_scale,
@@ -516,7 +517,7 @@ class JrMultilabel(caffe.Layer):
                do_mirror_lr=self.augment_do_mirror_lr,
                do_mirror_ud=self.augment_do_mirror_ud,
                crop_size=self.augment_crop_size,
-               show_visual_output=True)
+               show_visual_output=self.augment_show_visual_output)
 
             #im = Image.open(filename)
             #if im is None:
