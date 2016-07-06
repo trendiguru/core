@@ -341,7 +341,7 @@ class JrMultilabel(caffe.Layer):
         self.augment_max_blur = params.get('augment_max_blur',0)
         self.augment_do_mirror_lr = params.get('augment_do_mirror_lr',True)
         self.augment_do_mirror_ud = params.get('augment_do_mirror_ud',False)
-        self.augment_crop_size = params.get('augment_crop_size',(227,227))
+        self.augment_crop_size = params.get('augment_crop_size',(227,227)) #
         self.augment_show_visual_output = params.get('show_visual_output',False)
 
         print('imfile {} mean {} imagesdir {} randinit {} randpick {} see {} newsize {} batchsize {} augment {} augmaxangle {} augmaxdx {} augmaxdy {} augmaxscale {} augmaxnoise {} augmirrorlr {} augmirrorud {} augcrop {} augvis {}'.format(
