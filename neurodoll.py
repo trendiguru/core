@@ -34,7 +34,7 @@ def url_to_image(url):
 
 
 
-def infer_one(url_or_np_array,required_image_size=(256,256)):
+def infer_one(url_or_np_array,required_image_size=None):
     start_time = time.time()
     if isinstance(url_or_np_array, basestring):
         print('infer_one working on url:'+url_or_np_array)
@@ -46,7 +46,8 @@ def infer_one(url_or_np_array,required_image_size=(256,256)):
 #    im = im.resize(required_imagesize,Image.ANTIALIAS)
 
 #    in_ = in_.astype(float)
-    in_ = imutils.resize_keep_aspect(image,output_size=required_image_size,output_file=None)
+    if required_image_size:
+        in_ = imutils.resize_keep_aspect(image,output_size=required_image_size,output_file=None)
     in_ = np.array(in_, dtype=np.float32)   #.astype(float)
     if len(in_.shape) != 3:
         print('got 1-chan image, turning into 3 channel')
@@ -87,7 +88,8 @@ caffe.set_mode_gpu()
 caffe.set_device(0)
 net = caffe.Net(MODEL_FILE,PRETRAINED, caffe.TEST)
 
-required_image_size = (256, 256)
+#required_image_size = (256, 256)
+required_image_size = None
 image_mean = np.array([107.0,117.0,123.0])
 input_scale = None
 channel_swap = [2, 1, 0]
@@ -107,7 +109,7 @@ print('loading caffemodel for neurodoll')
 if __name__ == "__main__":
 
     url = 'http://diamondfilms.com.au/wp-content/uploads/2014/08/Fashion-Photography-Sydney-1.jpg'
-    result = infer_one(url,required_image_size=required_image_size)
+    result = infer_one(url,required_image_size=None)
     cv2.imwrite('output.png',result)
     labels=constants.ultimate_21
     imutils.show_mask_with_labels('output.png',labels,visual_output=True)

@@ -10,7 +10,11 @@ import sys
 
 import urllib2
 
+#TO UPLOAD IMAGES TO BUCKET:
+# gsutil -m cp -r new_photos_512x512/ gs://tg-training/tamara_berg_street2shop_dataset/images
 
+# TO GRANT PERMISSION TO WORLD TO SEE:
+#gsutil acl ch -u AllUsers:R gs://tg-training/tamara_berg_street2shop_dataset/images/*
 
 db = constants.db
 cats = constants.tamara_berg_categories
@@ -72,8 +76,14 @@ def create_training_set_with_grabcut(collection):
     print "Done masking! took {0} seconds".format(time.time()-start)
 
 def bucket_to_training_set(collection):
-    #if not in db, add
-    #if in db, fix url, make user a list, already_done is counter
+    '''
+    Takes a bucket of data and adds to db collection
+    if not in db, add
+    if in db, fix url, make user a list, already_done is counter
+
+    :param collection: mongodb colleciton
+    :return:
+    '''
     coll = db[collection]
     i = 1
     total = db.training_images.count()
@@ -105,8 +115,8 @@ def bucket_to_training_set(collection):
                             del doc['already_done']
                             doc['already_seen_image_level'] = 1
                         if 'already_seen_image_level' in doc:
-                            doc['already_seen_image_level'] = 1
                             already_seen_image_level = doc['already_seen_image_level']
+                            doc['already_seen_image_level'] = 1
                         if 'user_name' in doc:
                             user_name = doc['user_name']
                             if isinstance(user_name,basestring):

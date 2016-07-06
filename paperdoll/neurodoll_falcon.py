@@ -31,7 +31,7 @@ class PaperResource:
             else:
                 ret["mask"] = neurodoll.infer_one(img)
             
-            ret["label_dict"] = constants.ultimate_21
+            ret["label_dict"] = constants.ultimate_21_dict
             if ret["mask"] is not None:
                 ret["success"] = True
             else:
