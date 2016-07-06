@@ -213,7 +213,7 @@ def generate_image_onthefly(img_filename_or_nparray, gaussian_or_uniform_distrib
     '''
 
     if isinstance(img_filename_or_nparray,basestring):
-        img_arr = cv2.imread(img_filename)
+        img_arr = cv2.imread(img_filename_or_nparray)
     else:
         img_arr = img_filename_or_nparray
     if img_arr is None:
