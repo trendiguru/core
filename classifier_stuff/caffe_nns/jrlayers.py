@@ -10,6 +10,8 @@ from PIL import Image
 import cv2
 import random
 
+from trendi.utils import generate_images
+
 class JrLayer(caffe.Layer):
     """
     Load (input image, label image) pairs from the SBDD extended labeling
@@ -281,6 +283,15 @@ class JrLayer(caffe.Layer):
 
 
 
+
+
+
+
+
+
+
+
+
 ######################################################################################3
 # MULTILABEL
 #######################################################################################
@@ -492,6 +503,16 @@ class JrMultilabel(caffe.Layer):
                 idx = self.idx
                 continue
             break #got good img, get out of while
+        in_ = generate_images.generate_image_onthefly(in_, gaussian_or_uniform_distributions='gaussian',
+               max_angle = 5,
+               max_offset_x = 10,max_offset_y = 10,
+               max_scale=1.2,
+               max_noise_level=0,noise_type='gauss',
+               max_blur=0,
+               do_mirror_lr=True,do_mirror_ud=False,
+               crop_size=(224,224),
+               show_visual_output=True)
+
         print(str(filename) + ' has dims '+str(in_.shape)+' label:'+str(label_vec)+' idex'+str(idx))
 
         in_ = in_[:,:,::-1]
