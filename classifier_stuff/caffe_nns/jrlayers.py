@@ -445,7 +445,8 @@ class JrMultilabel(caffe.Layer):
                 self.new_size = (224,224)
             top[0].reshape(self.batch_size, 3, self.new_size[0], self.new_size[1])
         else:
-            top[0].reshape(self.batch_size, 3, self.augment_crop_size[0], self.augment_crop_size[1])
+            self.new_size=(self.augment_crop_size[0],self.augment_crop_size[1])
+#            top[0].reshape(self.batch_size, 3, self.augment_crop_size[0], self.augment_crop_size[1])
 
         top[1].reshape(self.batch_size, 21)
 
