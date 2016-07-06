@@ -321,7 +321,7 @@ def generate_image_onthefly(img_filename_or_nparray, gaussian_or_uniform_distrib
 #        print('left {} right {} top {} bottom {} crop_dx {} crop_dy {} csize {} xroom {} yroom {}'.format(left,right,top,bottom,crop_dx,crop_dy,crop_size,x_room,y_room))
         if depth!=1:
             img_arr = img_arr[top:bottom,left:right,:]
-            print img_arr.shape
+            #print img_arr.shape
         else:
             img_arr = img_arr[top:bottom,left:right]
 
