@@ -212,6 +212,7 @@ def generate_image_onthefly(img_filename_or_nparray, gaussian_or_uniform_distrib
     :return:
     '''
 
+    start_time = time.time()
     if isinstance(img_filename_or_nparray,basestring):
         img_arr = cv2.imread(img_filename_or_nparray)
     else:
@@ -252,7 +253,7 @@ def generate_image_onthefly(img_filename_or_nparray, gaussian_or_uniform_distrib
         if max_offset_y:
             offset_y = np.random.normal(0,max_offset_y)
         if max_scale:
-            print('gscale limits {} {}'.format(1,np.abs(1.0-max_scale)/2))
+   #         print('gscale limits {} {}'.format(1,np.abs(1.0-max_scale)/2))
             scale = max(eps,np.random.normal(1,np.abs(1.0-max_scale)/2)) #make sure scale >= eps
         if max_noise_level:
             noise_level = max(0,np.random.normal(0,max_noise_level)) #noise >= 0
@@ -273,7 +274,7 @@ def generate_image_onthefly(img_filename_or_nparray, gaussian_or_uniform_distrib
         if max_offset_y:
             offset_y = np.random.uniform(-max_offset_y,max_offset_y)
         if max_scale:
-            print('uscale limits {} {}'.format(1-np.abs(1-max_scale),1+np.abs(1-max_scale)))
+    #        print('uscale limits {} {}'.format(1-np.abs(1-max_scale),1+np.abs(1-max_scale)))
             scale = np.random.uniform(1-np.abs(1-max_scale),1+np.abs(1-max_scale))
         if max_noise_level:
             noise_level = np.random.uniform(0,max_noise_level)
@@ -303,11 +304,11 @@ def generate_image_onthefly(img_filename_or_nparray, gaussian_or_uniform_distrib
     if noise_level:  #untested
         noised = add_noise(img_arr,noise_type,noise_level)
 
-    print('center {0} angle {1} scale {2} h {3} w {4} dx {5} dy {6} noise {7} blur {8}'.format(center,angle, scale,height,width,offset_x,offset_y,noise_level,blur))
+  #  print('center {0} angle {1} scale {2} h {3} w {4} dx {5} dy {6} noise {7} blur {8}'.format(center,angle, scale,height,width,offset_x,offset_y,noise_level,blur))
     M = cv2.getRotationMatrix2D(center, angle,scale)
     M[0,2]=M[0,2]+offset_x
     M[1,2]=M[1,2]+offset_y
-    print('M='+str(M))
+ #   print('M='+str(M))
 #                                xformed_img_arr  = cv2.warpAffine(noised,  M, (width,height),dst=dest,borderMode=cv2.BORDER_TRANSPARENT)
     img_arr  = cv2.warpAffine(img_arr,  M, (width,height),borderMode=cv2.BORDER_REPLICATE)
 
@@ -317,7 +318,7 @@ def generate_image_onthefly(img_filename_or_nparray, gaussian_or_uniform_distrib
         right = round(left + crop_size[1])
         top = round(max(0,round(float(height-crop_size[0])/2) - crop_dy))
         bottom = round(top + crop_size[0])
-        print('left {} right {} top {} bottom {} crop_dx {} crop_dy {} csize {} xroom {} yroom {}'.format(left,right,top,bottom,crop_dx,crop_dy,crop_size,x_room,y_room))
+#        print('left {} right {} top {} bottom {} crop_dx {} crop_dy {} csize {} xroom {} yroom {}'.format(left,right,top,bottom,crop_dx,crop_dy,crop_size,x_room,y_room))
         if depth!=1:
             img_arr = img_arr[top:bottom,left:right,:]
             print img_arr.shape
@@ -329,6 +330,8 @@ def generate_image_onthefly(img_filename_or_nparray, gaussian_or_uniform_distrib
         k = cv2.waitKey(0)
 
 #    cv2.imwrite('out'+str(round(time.time()))+'.jpg',img_arr)
+    print('time taken for image manips:'+str(time.time()-start_time))
+
     return img_arr
 
 #  raw_input('enter to cont')
