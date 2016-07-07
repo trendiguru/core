@@ -89,7 +89,7 @@ def bucket_to_training_set(collection):
     total = db.training_images.count()
     print(str(total)+' images in collection '+collection)
     start = time.time()
-    for i in range(0,500000):
+    for i in range(0,600000):
         photo_name = 'photo_'+str(i)+'.jpg'
         img_url = 'https://tg-training.storage.googleapis.com/tamara_berg_street2shop_dataset/images/'+photo_name
         print('\nattempting to open '+img_url)
