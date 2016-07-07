@@ -321,11 +321,18 @@ def load_similar_results(sparse, projection_dict, product_collection_name):
             collection = db[product_collection_name + "_Female"]
         if 'items' in person.keys():
             for item in person["items"]:
+                # similar_results = []
                 ids = [result['id'] for result in item["similar_results"][product_collection_name]]
-                similar_results = collection.find({"id": {"$in": ids}}, projection_dict)
+                similar_results = list(collection.find({"id": {"$in": ids}}, projection_dict))
                 for full_result in similar_results:
                     full_result['redirection_path'] = '/' + product_collection_name + '_' +\
                                                      person['gender'] + '/' + str(full_result['_id'])
+                # for result in item["similar_results"][product_collection_name]:
+                #     full_result = collection.find_one({"id": result["id"]}, projection_dict)
+                #     if full_result:
+                #         full_result['redirection_path'] = '/' + product_collection_name + '_' +\
+                #                                      person['gender'] + '/' + str(full_result['_id'])
+                #         similar_results.append(full_result)
                 item["similar_results"] = similar_results
     return sparse
 
