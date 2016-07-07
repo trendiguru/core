@@ -91,63 +91,22 @@ for line in text_file:
 
     max_result = max(predictions[0])
 
-    print predictions[0]
-    print max_result
-    print path[1]
-    print type(path[1])
-
     max_result_index = np.argmax(predictions[0])
+
+    true_label = int(path[1])
+    predict_label = int(max_result_index)
 
     if max_result_index == path[1]:
         array_success = np.append(array_success, max_result)
+    elif max_result_index == '0' and path[1] == '1':
+        array_success = np.append(array_success, max_result)
+    elif max_result_index == '7' and path[1] == '6':
+        array_success = np.append(array_success, max_result)
+    elif predict_label == (true_label + 1) or predict_label == (true_label - 1):
+        array_success = np.append(array_success, max_result)
     else:
         array_failure = np.append(array_failure, max_result)
-    '''
-    if max_result_index == '0':
-        ????
-    elif max_result_index == '7':
-        ????
-    else:
-        if max_result_index ==
-
-
-
-    #if the gender_detector is right
-    if (mini_predict > midi_predict) and (mini_predict > maxi_predict) and (path[1] == '0'):
-        array_success = np.append(array_success, mini_predict)
-    elif (midi_predict > mini_predict) and (midi_predict > maxi_predict) and (path[1] == '1'):
-        array_success = np.append(array_success, midi_predict)
-    elif (maxi_predict > mini_predict) and (maxi_predict > midi_predict) and (path[1] == '2'):
-        array_success = np.append(array_success, maxi_predict)
-    # if the gender_detector is wrong
-    elif (mini_predict > midi_predict) and (mini_predict > maxi_predict) and (path[1] == '1'):
-        array_failure = np.append(array_failure, mini_predict)
-        print predictions
-        guessed_mini_instead_midi += 1
-    elif (maxi_predict > midi_predict) and (maxi_predict > mini_predict) and (path[1] == '1'):
-        array_failure = np.append(array_failure, maxi_predict)
-        print predictions
-        guessed_maxi_instead_midi += 1
-    elif (midi_predict > mini_predict) and (midi_predict > maxi_predict) and (path[1] == '0'):
-        array_failure = np.append(array_failure, midi_predict)
-        print predictions
-        guessed_midi_instead_mini += 1
-    elif (maxi_predict > midi_predict) and (maxi_predict > mini_predict) and (path[1] == '0'):
-        array_failure = np.append(array_failure, maxi_predict)
-        print predictions
-        guessed_maxi_instead_mini += 1
-        #img = cv2.imread(input_file)
-        #cv2.imshow('guessed_maxi_instead_mini', img)
-        #cv2.waitKey(0)
-    elif (midi_predict > mini_predict) and (midi_predict > maxi_predict) and (path[1] == '2'):
-        array_failure = np.append(array_failure, midi_predict)
-        print predictions
-        guessed_midi_instead_maxi += 1
-    elif (mini_predict > midi_predict) and (mini_predict > maxi_predict) and (path[1] == '2'):
-        array_failure = np.append(array_failure, mini_predict)
-        print predictions
-        guessed_mini_instead_maxi += 1
-    '''
+        print max_result
 
     print counter
 
