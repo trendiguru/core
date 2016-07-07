@@ -137,7 +137,7 @@ def bucket_to_training_set(collection):
                         print('db10')
                         doc['items'] = []
                         print('db11')
-                        res = coll.replace_one({'_id':id},doc,{upsert:True})
+                        res = coll.replace_one({'_id':id},doc,upsert=True)
                         print('db12')
                         print('replace result:'+str(res))
 
