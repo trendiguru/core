@@ -98,15 +98,12 @@ def bucket_to_training_set(collection):
             if ret.code == 200:
                 print(photo_name+" exists, checking if in db")
                 try:
-                    doc = coll.find({'url':'/home/jeremy/dataset/images/'+photo_name})
+                    doc = coll.find_one({'url':'/home/jeremy/dataset/images/'+photo_name})
                     print('type:' +str(type(doc)))
                     print('doc:'+str(doc))
                     if doc :
                         print('found doc for '+str(photo_name)+' in db already')
-                        if isinstance(doc,list):
-                            doc = doc[0]
-                        else:
-                            continue
+                        #doc = doc[0]
                         print(doc)
                         id = None
                         already_done = None
