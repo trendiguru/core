@@ -45,6 +45,7 @@ class Images(object):
         if image_url:
             start = time.time()
             ret = page_results.get_data_for_specific_image(image_url=image_url, products_collection=products)
+            ret['time'] = time.time()-start
             # while not ret:
             #     if time.time()-start > 3:
             #         break
