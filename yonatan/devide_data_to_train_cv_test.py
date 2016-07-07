@@ -20,7 +20,7 @@ for dress in sleeve_dress:
     counter = 0
 
     for root, dirs, files in os.walk(source_dir):
-        file_count = len(files)
+        file_count = len(dirs)
         print file_count
         '''
         for file in files:
