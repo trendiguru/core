@@ -127,7 +127,9 @@ def bucket_to_training_set(collection):
                                 doc['user_name'] = [user_name]
                         print('db4')
                         if 'url' in doc:
+                            print('db4.4')
                             url = doc['url']
+                            print('db4.6')
                         doc['url'] = img_url
                         print('db5')
                         print('id {} ad {} asil {} un {}'.format(id,already_done,already_seen_image_level,user_name))
