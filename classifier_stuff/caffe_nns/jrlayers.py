@@ -10,6 +10,8 @@ from PIL import Image
 import cv2
 import random
 
+from trendi.utils import generate_images
+
 class JrLayer(caffe.Layer):
     """
     Load (input image, label image) pairs from the SBDD extended labeling
@@ -281,6 +283,15 @@ class JrLayer(caffe.Layer):
 
 
 
+
+
+
+
+
+
+
+
+
 ######################################################################################3
 # MULTILABEL
 #######################################################################################
@@ -321,6 +332,23 @@ class JrMultilabel(caffe.Layer):
         self.seed = params.get('seed', 1337)
         self.new_size = params.get('new_size',None)
         self.batch_size = params.get('batch_size',1)  #######Not implemented, batchsize = 1
+        self.augment_images = params.get('augment',False)
+        self.augment_max_angle = params.get('augment_max_angle',5)
+        self.augment_max_offset_x = params.get('augment_max_offset_x',10)
+        self.augment_max_offset_y = params.get('augment_max_offset_y',10)
+        self.augment_max_scale = params.get('augment_max_scale',1.2)
+        self.augment_max_noise_level = params.get('augment_max_noise_level',0)
+        self.augment_max_blur = params.get('augment_max_blur',0)
+        self.augment_do_mirror_lr = params.get('augment_do_mirror_lr',True)
+        self.augment_do_mirror_ud = params.get('augment_do_mirror_ud',False)
+        self.augment_crop_size = params.get('augment_crop_size',(227,227)) #
+        self.augment_show_visual_output = params.get('augment_show_visual_output',False)
+        self.augment_distribution = params.get('augment_distribution','uniform')
+
+        print('imfile {} mean {} imagesdir {} randinit {} randpick {} '.format(self.images_and_labels_file, self.mean,self.images_dir,self.random_init, self.random_pick))
+        print('see {} newsize {} batchsize {} augment {} augmaxangle {} '.format(self.seed,self.new_size,self.batch_size,self.augment_images,self.augment_max_angle))
+        print('augmaxdx {} augmaxdy {} augmaxscale {} augmaxnoise {} augmaxblur {} '.format(self.augment_max_offset_x,self.augment_max_offset_y,self.augment_max_scale,self.augment_max_noise_level,self.augment_max_blur))
+        print('augmirrorlr {} augmirrorud {} augcrop {} augvis {}'.format(self.augment_do_mirror_lr,self.augment_do_mirror_ud,self.augment_crop_size,self.augment_show_visual_output))
 
         self.idx = 0
         print('images+labelsfile {} mean {}'.format(self.images_and_labels_file,self.mean))
@@ -410,11 +438,18 @@ class JrMultilabel(caffe.Layer):
         print(str(self.n_files)+' good files in image dir '+str(self.images_dir))
         logging.debug('self.idx is :'+str(self.idx)+' type:'+str(type(self.idx)))
 
-        if self.new_size == None:   #the old size of 227 is not actually correct, original vgg/resnet wants 224
-            print('uh i got no size so using 224x224')
-            self.new_size = (224,224)
-        top[0].reshape(self.batch_size, 3, self.new_size[0], self.new_size[1])
-        # Note the 20 channels (because PASCAL has 20 classes.)
+        #if images are being augmented then dont do this resize
+        if self.augment_images == False:
+
+            if self.new_size == None:   #the old size of 227 is not actually correct, original vgg/resnet wants 224
+                print('uh i got no size so using 224x224')
+                self.new_size = (224,224)
+            top[0].reshape(self.batch_size, 3, self.new_size[0], self.new_size[1])
+        else:
+            self.new_size=(self.augment_crop_size[0],self.augment_crop_size[1])
+            top[0].reshape(self.batch_size, 3, self.new_size[0], self.new_size[1])
+#            top[0].reshape(self.batch_size, 3, self.augment_crop_size[0], self.augment_crop_size[1])
+
         top[1].reshape(self.batch_size, 21)
 
 
@@ -466,37 +501,51 @@ class JrMultilabel(caffe.Layer):
             label_vec = self.label_vecs[idx]
             if self.images_dir:
                 filename=os.path.join(self.images_dir,filename)
-            print('the imagefile:'+filename+' index:'+str(idx))
+     #       print('the imagefile:'+filename+' index:'+str(idx))
             if not(os.path.isfile(filename)):
                 print('NOT A FILE:'+str(filename))
                 self.next_idx()   #bad file, goto next
                 idx = self.idx
                 continue
-            im = Image.open(filename)
-            if im is None:
-                logging.warning('could not get image '+filename)
-                self.next_idx()
-                idx = self.idx
-                continue
-            if self.new_size:
-                im = im.resize(self.new_size,Image.ANTIALIAS)
-            in_ = np.array(im, dtype=np.float32)
+
+            in_ = generate_images.generate_image_onthefly(filename, gaussian_or_uniform_distributions=self.augment_distribution,
+               max_angle = self.augment_max_angle,
+               max_offset_x = self.augment_max_offset_x,max_offset_y = self.augment_max_offset_y,
+               max_scale=self.augment_max_scale,
+               max_noise_level=self.augment_max_noise_level,noise_type='gauss',
+               max_blur=self.augment_max_blur,
+               do_mirror_lr=self.augment_do_mirror_lr,
+               do_mirror_ud=self.augment_do_mirror_ud,
+               crop_size=self.augment_crop_size,
+               show_visual_output=self.augment_show_visual_output)
+
+            #im = Image.open(filename)
+            #if im is None:
+            #    logging.warning('could not get image '+filename)
+            #    self.next_idx()
+            #    idx = self.idx
+            #    continue
+            #if self.new_size:
+            #    im = im.resize(self.new_size,Image.ANTIALIAS)
             if in_ is None:
                 logging.warning('could not get image '+filename)
                 self.next_idx()
                 idx = self.idx
                 continue
+            in_ = np.array(in_, dtype=np.float32)
             if len(in_.shape) != 3 or in_.shape[0] != self.new_size[0] or in_.shape[1] != self.new_size[1] or in_.shape[2]!=3:
-                print('got bad img of size '+str(in_.shape) + '= when expected shape is 3x'+str(in_.shape))
+                print('got bad img of size '+str(in_.shape) + '= when expected shape is 3x'+str(new_size.shape))
                 self.next_idx()  #goto next
                 idx = self.idx
                 continue
             break #got good img, get out of while
+
+
         print(str(filename) + ' has dims '+str(in_.shape)+' label:'+str(label_vec)+' idex'+str(idx))
 
-        in_ = in_[:,:,::-1]
-#        in_ -= self.mean
-        in_ = in_.transpose((2,0,1))
+#        in_ = in_[:,:,::-1]  #RGB->BGR - since we're using cv2 no need
+        in_ -= self.mean
+        in_ = in_.transpose((2,0,1))  #Row Column Channel -> Channel Row Column
 #	print('uniques of img:'+str(np.unique(in_))+' shape:'+str(in_.shape))
         return filename, in_, label_vec
 
