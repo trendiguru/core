@@ -10,9 +10,9 @@ sleeve_dress = {'strapless', 'spaghetti_straps', 'straps', 'sleeveless',
                 'cap_sleeve', 'short_sleeve', 'midi_sleeve', 'long_sleeve'}
 
 counter = 0
-counter_train = 640
-counter_cv = 130
-counter_test = 130
+#counter_train = 640
+#counter_cv = 130
+#counter_test = 130
 
 for dress in sleeve_dress:
     source_dir = '/home/yonatan/resized_db_' + dress + '_dresses'
@@ -23,7 +23,10 @@ for dress in sleeve_dress:
         file_count = len(files)
         print "count: {0}, type: {1}".format(file_count, type(file_count))
 
-        '''
+        counter_train = file_count * 0.7
+        counter_cv = file_count * 0.15
+        counter_test = file_count * 0.15
+
         for file in files:
 
             old_file_location = source_dir + '/' + file
@@ -45,4 +48,3 @@ for dress in sleeve_dress:
                 break
 
 print 'counter_train = {0}, counter_cv = {1}, counter_test = {2}, counter = {3}'.format(counter_train, counter_cv, counter_test, counter)
-'''
