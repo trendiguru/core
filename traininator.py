@@ -99,7 +99,7 @@ def bucket_to_training_set(collection):
                 print(photo_name+" exists, checking if in db")
                 try:
                     doc = coll.find({'url':'/home/jeremy/dataset/images/'+photo_name})
-                    if doc :
+                    if doc is not None :
                         print('found doc for '+str(photo_name)+' in db already')
                         if isinstance(doc,list):
                             doc = doc[0]
@@ -130,6 +130,7 @@ def bucket_to_training_set(collection):
                             print('db4.4')
                             url = doc['url']
                             print('db4.6')
+                        print('db4.9')
                         doc['url'] = img_url
                         print('db5')
                         print('id {} ad {} asil {} un {}'.format(id,already_done,already_seen_image_level,user_name))
