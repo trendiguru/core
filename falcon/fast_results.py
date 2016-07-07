@@ -10,7 +10,7 @@ from ..page_results import genderize
 
 db = constants.db
 push_connection(constants.redis_conn)
-start_q = Queue('star_pipeline', connection=constants.redis_conn)
+start_q = Queue('start_pipeline', connection=constants.redis_conn)
 
 
 def fast_route(image_url, page_url):
