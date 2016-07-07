@@ -137,7 +137,7 @@ def bucket_to_training_set(collection):
                 print('image '+photo_name +' not found (ret code not 200)')
         except:
             print('error trying to open '+photo_name+' err:'+str(sys.exc_info()[0]))
-        raw_input('ret to cont')
+   #     raw_input('ret to cont')
 
 if __name__ == "__main__":
     bucket_to_training_set('training_images')
