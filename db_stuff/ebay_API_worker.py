@@ -142,7 +142,10 @@ def name2category(gender, name, sub_attribute, desc):
         return False, []
 
     if not len(cats):
-        print ('%s not in keywords' % name)
+        try:
+            print ('%s not in keywords' % name)
+        except:
+            pass
         if len(desc)>0:
             status, cats = find_keywords(desc)
             if not status:
