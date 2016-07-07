@@ -127,11 +127,13 @@ def bucket_to_training_set(collection):
                         print('items:'+str(doc['items']))
                         print('new doc:\n'+str(doc))
                         res = coll.replace_one({'_id':id},doc)
+                        print('replace result:'+str(res))
                     else:
                         print('doc for '+str(photo_name)+' not found, add to db')
                         doc['url'] = img_url
                         doc['items'] = []
                         res = coll.replace_one({'_id':id},doc,{upsert:True})
+                        print('replace result:'+str(res))
 
                 except:
                     print('error trying to get doc , err:'+str(sys.exc_info()[0]))
