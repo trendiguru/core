@@ -143,9 +143,6 @@ def multilabel_infer_one(url):
     return out.astype(np.uint8)
 
 
-def fp_db():
-    url = 'http://diamondfilms.com.au/wp-content/uploads/2014/08/Fashion-Photography-Sydney-1.jpg'
-    result = multilabel_get_final_activations(url)
 
 
 caffemodel = '/home/jeremy/caffenets/multilabel/vgg_ilsvrc_16_multilabel_2/snapshot/train_iter_240000.caffemodel'
@@ -153,7 +150,7 @@ deployproto = '/home/jeremy/caffenets/multilabel/vgg_ilsvrc_16_multilabel_2/depl
 net = caffe.Net(deployproto,caffemodel, caffe.TEST)
 required_image_size = (227, 227)
 caffe.set_mode_gpu()
-caffe.set_device(0)
+caffe.set_device(1)
 
 
 

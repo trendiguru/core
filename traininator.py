@@ -89,7 +89,7 @@ def bucket_to_training_set(collection):
     total = db.training_images.count()
     print(str(total)+' images in collection '+collection)
     start = time.time()
-    for i in range(0,500000):
+    for i in range(0,600000):
         photo_name = 'photo_'+str(i)+'.jpg'
         img_url = 'https://tg-training.storage.googleapis.com/tamara_berg_street2shop_dataset/images/'+photo_name
         print('\nattempting to open '+img_url)
@@ -126,7 +126,7 @@ def bucket_to_training_set(collection):
                         print('id {} ad {} asil {} un {}'.format(id,already_done,already_seen_image_level,user_name))
                         print('items:'+str(doc['items']))
                         print('new doc:\n'+str(doc))
-#                        res = coll.update_one({'_id':id}, {"$set":{'already_seen_image_level':1,'user_name':user}})
+#                        res = coll.replace_one({'_id':id},doc)
 
                     else:
                         print('doc for '+str(photo_name)+' not found, add to db')
@@ -137,7 +137,7 @@ def bucket_to_training_set(collection):
                 print('image '+photo_name +' not found (ret code not 200)')
         except:
             print('error trying to open '+photo_name+' err:'+str(sys.exc_info()[0]))
-        raw_input('ret to cont')
+   #     raw_input('ret to cont')
 
 if __name__ == "__main__":
     bucket_to_training_set('training_images')
