@@ -6,11 +6,11 @@ from rq import push_connection, Queue
 from .. import Utils
 from .. import constants
 from .. import background_removal
-from .. import genderize
+from ..page_results import genderize
 
 db = constants.db
 push_connection(constants.redis_conn)
-start_q = Queue('star_pipeline', connection=constants.redis_conn)
+start_q = Queue('start_synced_pipeline', connection=constants.redis_conn)
 
 
 def fast_route(image_url, page_url):
