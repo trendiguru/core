@@ -21,7 +21,8 @@ for dress in sleeve_dress:
 
     for root, dirs, files in os.walk(source_dir):
         file_count = len(files)
-        print file_count
+        print "count: {0}, type: {1}".format(file_count, type(file_count))
+
         '''
         for file in files:
 
