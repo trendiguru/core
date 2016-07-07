@@ -16,8 +16,10 @@ import random
 import matplotlib.pyplot as plt
 
 
-array_success = np.array([])
-array_failure = np.array([])
+array_success_with_plus_minus_category = np.array([])
+array_failure_with_plus_minus_category = np.array([])
+array_success_without = np.array([])
+array_failure_without = np.array([])
 
 text_file = open("db_dresses_test.txt", "r")
 
@@ -93,27 +95,44 @@ for line in text_file:
 
     max_result_index = np.argmax(predictions[0])
 
-    if max_result_index == path[1]:
-        array_success = np.append(array_success, max_result)
+    true_label = int(path[1])
+    predict_label = int(max_result_index)
+
+    if predict_label == true_label:
+        array_success_with_plus_minus_category = np.append(array_success_with_plus_minus_category, max_result)
+        array_success_without = np.append(array_success_without, max_result)
+    elif predict_label == 0 and true_label == 1:
+        array_success_with_plus_minus_category = np.append(array_success_with_plus_minus_category, max_result)
+    elif predict_label == 7 and true_label == 6:
+        array_success_with_plus_minus_category = np.append(array_success_with_plus_minus_category, max_result)
+    elif predict_label == (true_label + 1) or predict_label == (true_label - 1):
+        array_success_with_plus_minus_category = np.append(array_success_with_plus_minus_category, max_result)
     else:
-        array_failure = np.append(array_failure, max_result)
+        array_failure_with_plus_minus_category = np.append(array_failure_with_plus_minus_category, max_result)
+        array_failure_without = np.append(array_failure_without, max_result)
+        print max_result
 
     print counter
 
 
-success = len(array_success)
-failure = len(array_failure)
-if success == 0 or failure == 0:
+success_with = len(array_success_with_plus_minus_category)
+failure_with = len(array_failure_with_plus_minus_category)
+
+success_without = len(array_success_without)
+failure_without = len(array_failure_without)
+
+if success_with == 0 or failure_with == 0:
     print "wrong!"
 else:
-    print 'accuracy percent: {0}'.format(float(success) / (success + failure))
+    print 'accuracy percent with +-category: {0}'.format(float(success_with) / (success_with + failure_with))
+    print 'accuracy percent without: {0}'.format(float(success_without) / (success_without + failure_without))
 
 histogram = plt.figure(1)
 
-plt.hist(array_success, bins=100, range=(0, 1), color='blue', label='array_success')
+plt.hist(array_success_with_plus_minus_category, bins=100, range=(0, 1), color='blue', label='array_success_with_plus_minus_category')
 plt.legend()
 
-plt.hist(array_failure, bins=100, range=(0, 1), color='red', label='array_failure')
+plt.hist(array_failure_with_plus_minus_category, bins=100, range=(0, 1), color='red', label='array_failure_with_plus_minus_category')
 plt.legend()
 
 histogram.savefig('db_dresses_histogram_iter_5000.png')
