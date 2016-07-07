@@ -99,7 +99,9 @@ def bucket_to_training_set(collection):
                 print(photo_name+" exists, checking if in db")
                 try:
                     doc = coll.find({'url':'/home/jeremy/dataset/images/'+photo_name})
-                    if doc is not None :
+                    print('type:' +str(type(doc)))
+                    print('doc:'+str(doc))
+                    if doc :
                         print('found doc for '+str(photo_name)+' in db already')
                         if isinstance(doc,list):
                             doc = doc[0]
