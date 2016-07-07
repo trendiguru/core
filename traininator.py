@@ -126,7 +126,7 @@ def bucket_to_training_set(collection):
                         print('id {} ad {} asil {} un {}'.format(id,already_done,already_seen_image_level,user_name))
                         print('items:'+str(doc['items']))
                         print('new doc:\n'+str(doc))
-#                        res = coll.update_one({'_id':id}, {"$set":{'already_seen_image_level':1,'user_name':user}})
+#                        res = coll.replace_one({'_id':id},doc)
 
                     else:
                         print('doc for '+str(photo_name)+' not found, add to db')
