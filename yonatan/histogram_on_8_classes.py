@@ -97,7 +97,9 @@ for line in text_file:
     predict_label = int(max_result_index)
 
     print type(max_result_index)
-
+    print max_result_index
+    print type(predict_label)
+    print predict_label
 
     if max_result_index == path[1]:
         array_success = np.append(array_success, max_result)
