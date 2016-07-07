@@ -101,7 +101,8 @@ def bucket_to_training_set(collection):
                     doc = coll.find({'url':'/home/jeremy/dataset/images/'+photo_name})
                     if doc :
                         print('found doc for '+str(photo_name)+' in db already')
-                        doc = doc[0]
+                        if isinstance(doc,list):
+                            doc = doc[0]
                         print(doc)
                         id = None
                         already_done = None
