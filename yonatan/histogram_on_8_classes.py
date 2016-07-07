@@ -96,22 +96,18 @@ for line in text_file:
     true_label = int(path[1])
     predict_label = int(max_result_index)
 
-    print type(max_result_index)
-    print max_result_index
-    print type(predict_label)
-    print predict_label
-
-    if max_result_index == path[1]:
+    if predict_label == true_label:
         array_success = np.append(array_success, max_result)
-    elif max_result_index == '0' and path[1] == '1':
+    elif predict_label == 0 and true_label == 1:
         array_success = np.append(array_success, max_result)
-    elif max_result_index == '7' and path[1] == '6':
+    elif predict_label == 7 and true_label == 6:
         array_success = np.append(array_success, max_result)
     elif predict_label == (true_label + 1) or predict_label == (true_label - 1):
         array_success = np.append(array_success, max_result)
     else:
         array_failure = np.append(array_failure, max_result)
         print max_result
+
 
     print counter
 
