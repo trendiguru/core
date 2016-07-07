@@ -124,7 +124,7 @@ def bucket_to_training_set(collection):
                         url = doc['url']
                         doc['url'] = img_url
                         print('id {} ad {} asil {} un {}'.format(id,already_done,already_seen_image_level,user_name))
-                        print('items:'+str(doc[items]))
+                        print('items:'+str(doc['items']))
                         print('new doc:\n'+str(doc))
 #                        res = coll.update_one({'_id':id}, {"$set":{'already_seen_image_level':1,'user_name':user}})
 
