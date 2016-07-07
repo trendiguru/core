@@ -29,7 +29,7 @@ def fast_route(image_url, page_url):
     if db.iip.find_one({'image_url': image_url}, {'_id': 1}):
         return True
 
-    if db.irrelevant_images.find_one({'image_urls': image_url}, {'_id': 1}):
+    if db.images.find_one({'image_urls': image_url}, {'_id': 1}):
         return True
 
     # Check Relevancy
