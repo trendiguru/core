@@ -19,7 +19,7 @@ import matplotlib.pyplot as plt
 array_success = np.array([])
 array_failure = np.array([])
 
-text_file = open("db_dresses_test.txt", "r")
+text_file = open("db_dresses_train.txt", "r")
 
 counter = 0
 
@@ -107,7 +107,6 @@ for line in text_file:
     else:
         array_failure = np.append(array_failure, max_result)
         print max_result
-
 
     print counter
 
