@@ -110,29 +110,41 @@ def bucket_to_training_set(collection):
                         user_name = None
                         if '_id' in doc:
                             id = doc['_id']
+                        print('db1')
                         if 'already_done' in doc:
                             already_done = doc['already_done']
                             del doc['already_done']
                             doc['already_seen_image_level'] = 1
+                        print('db2')
                         if 'already_seen_image_level' in doc:
                             already_seen_image_level = doc['already_seen_image_level']
                             doc['already_seen_image_level'] = 1
+                        print('db3')
                         if 'user_name' in doc:
                             user_name = doc['user_name']
                             if isinstance(user_name,basestring):
                                 doc['user_name'] = [user_name]
+                        print('db4')
                         url = doc['url']
                         doc['url'] = img_url
+                        print('db5')
                         print('id {} ad {} asil {} un {}'.format(id,already_done,already_seen_image_level,user_name))
+                        print('db6')
                         print('items:'+str(doc['items']))
+                        print('db7')
                         print('new doc:\n'+str(doc))
+                        print('db8')
                         res = coll.replace_one({'_id':id},doc)
+                        print('db9')
                         print('replace result:'+str(res))
                     else:
                         print('doc for '+str(photo_name)+' not found, add to db')
                         doc['url'] = img_url
+                        print('db10')
                         doc['items'] = []
+                        print('db11')
                         res = coll.replace_one({'_id':id},doc,{upsert:True})
+                        print('db12')
                         print('replace result:'+str(res))
 
                 except:
