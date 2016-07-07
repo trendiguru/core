@@ -126,10 +126,13 @@ def bucket_to_training_set(collection):
                         print('id {} ad {} asil {} un {}'.format(id,already_done,already_seen_image_level,user_name))
                         print('items:'+str(doc['items']))
                         print('new doc:\n'+str(doc))
-#                        res = coll.replace_one({'_id':id},doc)
-
+                        res = coll.replace_one({'_id':id},doc)
                     else:
                         print('doc for '+str(photo_name)+' not found, add to db')
+                        doc['url'] = img_url
+                        doc['items'] = []
+                        res = coll.replace_one({'_id':id},doc,{upsert:True})
+
                 except:
                     print('error trying to get doc , err:'+str(sys.exc_info()[0]))
 
@@ -137,7 +140,7 @@ def bucket_to_training_set(collection):
                 print('image '+photo_name +' not found (ret code not 200)')
         except:
             print('error trying to open '+photo_name+' err:'+str(sys.exc_info()[0]))
-   #     raw_input('ret to cont')
+        raw_input('ret to cont')
 
 if __name__ == "__main__":
     bucket_to_training_set('training_images')
