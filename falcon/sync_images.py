@@ -33,7 +33,7 @@ class Images(object):
             if type(images) is list and page_url is not None:
                 fast_route_partial = partial(fast_results.fast_route, page_url=page_url)
                 fast_route_results = self.process_pool.map(fast_route_partial, images)
-                relevancy_dict = {images[i]: fast_route_results[i] for i in len(images)}
+                relevancy_dict = {images[i]: fast_route_results[i] for i in xrange(len(images))}
                 ret["success"] = True
                 ret["relevancy_dict"] = relevancy_dict
             else:
