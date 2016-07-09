@@ -10,6 +10,8 @@ from . import fast_results
 from .. import constants
 from .. import page_results
 
+import traceback
+
 # Patch db for multiprocessing http://api.mongodb.com/python/current/faq.html#using-pymongo-with-multiprocessing
 fast_results.db = pymongo.MongoClient(host=os.getenv("MONGO_HOST", "mongodb1-instance-1"),
                          port=int(os.getenv("MONGO_PORT", "27017")),
@@ -39,7 +41,7 @@ class Images(object):
                 ret["error"] = "Missing image list and/or page url"
 
         except Exception as e:
-            ret["error"] = str(e)
+            ret["error"] = traceback.format_exc()
 
         resp.data = json_util.dumps(ret)
         resp.content_type = 'application/json'
