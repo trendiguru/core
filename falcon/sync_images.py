@@ -1,3 +1,4 @@
+import pymongo
 from bson import json_util
 from rq import Queue
 import falcon
@@ -8,6 +9,11 @@ from . import fast_results
 from .. import constants
 from .. import page_results
 
+# Patch db for multiprocessing http://api.mongodb.com/python/current/faq.html#using-pymongo-with-multiprocessing
+fast_results.db = pymongo.MongoClient(host=os.getenv("MONGO_HOST", "mongodb1-instance-1"),
+                         port=int(os.getenv("MONGO_PORT", "27017")),
+                         connect=False).mydb
+                         
 storm_q = Queue('star_pipeline', connection=constants.redis_conn)
 
 class Images(object):
