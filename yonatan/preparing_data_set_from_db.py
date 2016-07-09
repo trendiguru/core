@@ -57,10 +57,10 @@ height = 300
 
 
 for key, value in sleeve_dict.iteritems():
-    text_file = open("850_dresses_" + key + "_list.txt", "w")
+    text_file = open("all_dresses_" + key + "_list.txt", "w")
     for i in range(1, value[0].count()):
-        if i > num_of_each_category:
-            break
+        #if i > num_of_each_category:
+         #   break
 
         link_to_image = value[0][i]['images']['XLarge']
 
@@ -69,13 +69,13 @@ for key, value in sleeve_dict.iteritems():
             continue
 
         # Resize it.
-        resized_image = cv2.resize(dress_image, (width, height))
+        #resized_image = cv2.resize(dress_image, (width, height))
 
         image_file_name = key + '_dress-' + str(i) + '.jpg'
 
         print i
 
-        cv2.imwrite(os.path.join('/home/yonatan/db_' + key + '_dresses', image_file_name), resized_image)
+        cv2.imwrite(os.path.join('/home/yonatan/db_' + key + '_dresses', image_file_name), dress_image)
         text_file.write('/home/yonatan/db_' + key + '_dresses/' + image_file_name + ' ' + str(value[1]) + '\n')
 
         print '/home/yonatan/db_' + key + '_dresses/'
