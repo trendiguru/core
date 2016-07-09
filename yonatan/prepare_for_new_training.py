@@ -23,7 +23,6 @@ sleeve_dress = {'strapless', 'spaghetti_straps', 'straps', 'sleeveless',
 
 sets = {'train', 'cv', 'test'}
 
-
 for dress_type in sleeve_dress:
     shutil.rmtree('/home/yonatan/db_' + dress_type + '_dresses')
     shutil.rmtree('/home/yonatan/resized_db_' + dress_type + '_dresses')
