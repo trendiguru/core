@@ -33,6 +33,6 @@ for dress_type in sleeve_dress:
 for set in sets:
     shutil.rmtree('/home/yonatan/dresses_' + set + '_set')
     os.mkdir('/home/yonatan/dresses_' + set + '_set')
-    os.remove('/home/yonatan/db_dresses_' + set + '.txt')
+    #os.remove('/home/yonatan/db_dresses_' + set + '.txt')
 
 
