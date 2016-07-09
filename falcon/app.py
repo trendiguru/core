@@ -1,6 +1,7 @@
 import falcon
 from falcon_cors import CORS
 from . import sync_images
+from .sample import QuoteResource
 from multiprocessing import Pool
 
 process_pool = Pool(10)
@@ -12,3 +13,4 @@ api = falcon.API(middleware=[cors.middleware])
 images = sync_images.Images(process_pool)
 
 api.add_route('/images', images)
+api.add_route('/quote', QuoteResource())
