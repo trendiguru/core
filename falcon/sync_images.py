@@ -1,16 +1,16 @@
-import pymongo
 import os
+import traceback
+import time
+from functools import partial
+
+import pymongo
 from bson import json_util
 from rq import Queue
 import falcon
-import time
-from functools import partial
 
 from . import fast_results
 from .. import constants
 from .. import page_results
-
-import traceback
 
 # Patch db for multiprocessing http://api.mongodb.com/python/current/faq.html#using-pymongo-with-multiprocessing
 fast_results.db = pymongo.MongoClient(host=os.getenv("MONGO_HOST", "mongodb1-instance-1"),
@@ -50,23 +50,22 @@ class Images(object):
     def on_get(self, req, resp):
         ret = {}
         image_url = req.get_param("imageUrl")
+        if not image_url:
+          raise falcon.HTTPMissingParam('imageUrl')
 
         if 'fashionseoul' in image_url:
             products = "GangnamStyle"
         else:
             products = "ShopStyle"
-
-        if image_url:
-            start = time.time()
+        
+        start = time.time()
+        ret = page_results.get_data_for_specific_image(image_url=image_url, products_collection=products)
+        while not ret:
+            if time.time()-start > 10:
+                break
+            time.sleep(0.25)
             ret = page_results.get_data_for_specific_image(image_url=image_url, products_collection=products)
-            while not ret:
-                if time.time()-start > 10:
-                    break
-                time.sleep(0.3)
-                ret = page_results.get_data_for_specific_image(image_url=image_url, products_collection=products)
-            resp.status = falcon.HTTP_200*bool(ret) or falcon.HTTP_400
-        else:
-            resp.status = falcon.HTTP_400
-
-        resp.data = json_util.dumps(ret) + "\n"
+        
+        resp.status = falcon.HTTP_200 if ret else falcon.HTTP_400
+        resp.data = json_util.dumps(ret) # + "\n"
         resp.content_type = 'application/json'
