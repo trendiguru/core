@@ -136,8 +136,11 @@ def bucket_to_training_set(collection):
                         print('doc for '+str(photo_name)+' not found, add to db')
                         doc['url'] = img_url
                         doc['items'] = []
-                        res = coll.insert(doc)
-                        print('replace result:'+str(res))
+                        try:
+                            res = coll.insert(doc)
+                            print('replace result:'+str(res))
+                        except:
+                            print('error trying to insert doc , err:'+str(sys.exc_info()[0]))
 
                 except:
                     print('error trying to get doc , err:'+str(sys.exc_info()[0]))
