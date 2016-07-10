@@ -134,12 +134,9 @@ def bucket_to_training_set(collection):
                     else:
                         doc = {}
                         print('doc for '+str(photo_name)+' not found, adding to db')
-                        print('db1')
-                        print('url:'+str(img_url))
                         doc['url'] = img_url
-                        print('db2')
+                        doc['round'] = 'v2'
                         doc['items'] = []
-                        print('db3')
                         try:
                             res = coll.insert(doc)
                             print('replace result:'+str(res))
