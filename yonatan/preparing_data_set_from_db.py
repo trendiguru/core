@@ -6,7 +6,7 @@ from scipy.ndimage import zoom
 from skimage.transform import resize
 import os
 import caffe
-from .. import background_removal, utils, constants
+from .. import background_removal, Utils, constants
 import cv2
 import sys
 import argparse
@@ -70,7 +70,7 @@ for key, value in sleeve_dict.iteritems():
 
         # Resize it.
         #resized_image = cv2.resize(dress_image, (width, height))
-        resized_image = utils.imutils.resize_keep_aspect(dress_image, (256, 256))
+        resized_image = Utils.imutils.resize_keep_aspect(dress_image, (256, 256))
 
         image_file_name = key + '_dress-' + str(i) + '.jpg'
 
