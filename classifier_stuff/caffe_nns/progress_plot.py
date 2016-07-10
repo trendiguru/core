@@ -88,7 +88,7 @@ def parse_logfile(f,logy):
 #    if '] Iteration ' in line and 'loss = ' in line:
       print('getting loss:'+line)
       arr = re.findall(r'ion \b\d+\b,', line)
-      training_iterations.append(int(arr[0].strip(',')[4:]))
+      training_iterations.append(int(arr[0].strip(',')[4:])/1000)
       training_loss.append(float(line.strip().split(' = ')[-1]))
       check_train = True
 
@@ -96,7 +96,7 @@ def parse_logfile(f,logy):
     if '] Iteration ' in line and 'Testing net' in line:
       print('getting test:'+line)
       arr = re.findall(r'ion \b\d+\b,', line)
-      test_iterations.append(int(arr[0].strip(',')[4:]))
+      test_iterations.append(int(arr[0].strip(',')[4:])/1000)
       check_test = True
 
     if '{' in line:
@@ -152,12 +152,12 @@ def parse_logfile(f,logy):
 
   par1 = host.twinx()
 
-  host.set_xlabel("iterations")
-  host.set_ylabel("log loss")
+  host.set_xlabel("iterations/1000")
+  host.set_ylabel("loss")
   par1.set_ylabel("accuracy")
 
-  train_label = "train logloss"
-  test_label = "test logloss"
+  train_label = "train loss"
+  test_label = "test loss"
   if logy == 'True':
     training_loss = np.log10(training_loss)
     test_loss = np.log10(test_loss)
@@ -188,7 +188,7 @@ def parse_logfile(f,logy):
   plt.title(net_name+' '+dt.isoformat())
   subtitle = args.output_file+'\n'+train_net+test_net+base_lr+lr_policy+type+ momentum+gamma
 
-  plt.suptitle(subtitle)
+  plt.suptitle(subtitle,fontsize=8)
   plt.draw()
   savename = args.output_file+'.jpg'
   plt.savefig(savename)
