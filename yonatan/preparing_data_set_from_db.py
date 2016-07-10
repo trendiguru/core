@@ -71,7 +71,7 @@ for key, value in sleeve_dict.iteritems():
 
         # Resize it.
         #resized_image = cv2.resize(dress_image, (width, height))
-        resized_image = imutils.resize_keep_aspect(dress_image, (256, 256))
+        resized_image = imutils.resize_keep_aspect(dress_image, output_size = (256, 256))
 
         image_file_name = key + '_dress-' + str(i) + '.jpg'
 
