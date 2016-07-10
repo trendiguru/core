@@ -136,7 +136,7 @@ def bucket_to_training_set(collection):
                         print('doc for '+str(photo_name)+' not found, add to db')
                         doc['url'] = img_url
                         doc['items'] = []
-                        res = coll.replace_one({'_id':id},doc,upsert=True)
+                        res = coll.insert(doc)
                         print('replace result:'+str(res))
 
                 except:
