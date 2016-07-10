@@ -98,10 +98,11 @@ def bucket_to_training_set(collection):
             if ret.code == 200:
                 print(photo_name+" exists, checking if in db")
                 try:
-                    doc = coll.find_one({'url':'/home/jeremy/dataset/images/'+photo_name})
+                    doc1 = coll.find_one({'url':'/home/jeremy/dataset/images/'+photo_name})
+                    doc2 = coll.find_one({'url':'https://tg-training.storage.googleapis.com/tamara_berg_street2shop_dataset/images/'+photo_name})
                     print('type:' +str(type(doc)))
                     print('doc:'+str(doc))
-                    if doc :
+                    if doc1 :
                         print('found doc for '+str(photo_name)+' in db already')
                         #doc = doc[0]
                         print(doc)
@@ -131,6 +132,9 @@ def bucket_to_training_set(collection):
                         print('new doc:\n'+str(doc))
                         res = coll.replace_one({'_id':id},doc)
                         print('replace result:'+str(res))
+                    elif doc2:
+                        print('doc already replaced')
+                        continue
                     else:
                         doc = {}
                         print('doc for '+str(photo_name)+' not found, adding to db')
