@@ -126,9 +126,9 @@ def bucket_to_training_set(collection):
                         if 'url' in doc:
                             url = doc['url']
                         doc['url'] = img_url
-                        print('id {} ad {} asil {} un {}'.format(id,already_done,already_seen_image_level,user_name))
-                        print('items:'+str(doc['items']))
-                        print('new doc:\n'+str(doc))
+#                        print('id {} ad {} asil {} un {}'.format(id,already_done,already_seen_image_level,user_name))
+#                        print('items:'+str(doc['items']))
+#                        print('new doc:\n'+str(doc))
                         res = coll.replace_one({'_id':id},doc)
                         print('replace result:'+str(res))
                     elif doc2:
