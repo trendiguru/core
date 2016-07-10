@@ -21,7 +21,7 @@ array_failure_with_plus_minus_category = np.array([])
 array_success_without = np.array([])
 array_failure_without = np.array([])
 
-text_file = open("db_dresses_test.txt", "r")
+text_file = open("db_dresses_train.txt", "r")
 
 counter = 0
 
@@ -103,10 +103,13 @@ for line in text_file:
         array_success_without = np.append(array_success_without, max_result)
     elif predict_label == 0 and true_label == 1:
         array_success_with_plus_minus_category = np.append(array_success_with_plus_minus_category, max_result)
+        array_failure_without = np.append(array_failure_without, max_result)
     elif predict_label == 7 and true_label == 6:
         array_success_with_plus_minus_category = np.append(array_success_with_plus_minus_category, max_result)
+        array_failure_without = np.append(array_failure_without, max_result)
     elif predict_label == (true_label + 1) or predict_label == (true_label - 1):
         array_success_with_plus_minus_category = np.append(array_success_with_plus_minus_category, max_result)
+        array_failure_without = np.append(array_failure_without, max_result)
     else:
         array_failure_with_plus_minus_category = np.append(array_failure_with_plus_minus_category, max_result)
         array_failure_without = np.append(array_failure_without, max_result)
