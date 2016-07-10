@@ -26,7 +26,7 @@ for dress in sleeve_dress:
         counter_train = file_count * 0.7
         counter_cv = file_count * 0.15
         counter_test = file_count * 0.15
-
+    '''
         for file in files:
 
             old_file_location = source_dir + '/' + file
@@ -46,5 +46,5 @@ for dress in sleeve_dress:
             else:
                 print counter
                 break
-
+    '''
 print 'counter_train = {0}, counter_cv = {1}, counter_test = {2}, counter = {3}'.format(counter_train, counter_cv, counter_test, counter)
