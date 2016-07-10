@@ -132,13 +132,11 @@ def bucket_to_training_set(collection):
                         res = coll.replace_one({'_id':id},doc)
                         print('replace result:'+str(res))
                     else:
+                        doc = []
                         print('doc for '+str(photo_name)+' not found, add to db')
                         doc['url'] = img_url
-                        print('db10')
                         doc['items'] = []
-                        print('db11')
                         res = coll.replace_one({'_id':id},doc,upsert=True)
-                        print('db12')
                         print('replace result:'+str(res))
 
                 except:

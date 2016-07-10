@@ -34,6 +34,23 @@ def parse_logfile(f,logy):
   past_beginning = False
   for line in f:
 #    print('checking line:'+line)
+
+    if 'train_net' in line:
+      train_net = line.split()[-1]
+    if 'test_net' in line:
+      test_net = line.split()[-1]
+    if 'base_lr' in line:
+      base_lr = line.split()[-1]
+    if 'lr_policy' in line:
+      lr_policy = line.split()[-1]
+
+    if 'type' in line:
+      type = line.split()[-1]
+    if 'momentum' in line:
+      type = line.split()[-1]
+    if 'gamma' in line:
+      gamma = line.split()[-1]
+
     if check_test and 'Test net output' in line and 'accuracy' in line:
       print('checking line for test output 0: '+line)
       test_accuracy.append(float(line.strip().split(' = ')[-1]))
@@ -161,6 +178,7 @@ def parse_logfile(f,logy):
 
   dt=datetime.datetime.today()
   plt.title(net_name+' '+dt.isoformat())
+  subtitle =
   plt.suptitle(args.output_file)
   plt.draw()
   savename = args.output_file+'.jpg'
