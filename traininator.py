@@ -186,7 +186,7 @@ def clean_training(collection):
                 print('replace result:'+str(res))
             except:
                 print('error trying to replace doc , err:'+str(sys.exc_info()[0]))
-        raw_input('ret to cont')
+#        raw_input('ret to cont')
         doc = cursor.next()
 
 if __name__ == "__main__":
