@@ -186,9 +186,9 @@ def parse_logfile(f,logy):
 
   dt=datetime.datetime.today()
   plt.title(net_name+' '+dt.isoformat())
-  subtitle = args.output_file+' '+train_net+test_net+base_lr+lr_policy+type+ momentum+gamma
+  subtitle = args.output_file+'\n'+train_net+test_net+base_lr+lr_policy+type+ momentum+gamma
 
-  plt.suptitle(args.output_file)
+  plt.suptitle(subtitle)
   plt.draw()
   savename = args.output_file+'.jpg'
   plt.savefig(savename)
