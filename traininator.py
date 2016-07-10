@@ -100,11 +100,11 @@ def bucket_to_training_set(collection):
                 try:
                     doc = coll.find_one({'url':'/home/jeremy/dataset/images/'+photo_name})
                     doc2 = coll.find_one({'url':'https://tg-training.storage.googleapis.com/tamara_berg_street2shop_dataset/images/'+photo_name})
-                    print('doc1:'+str(doc))
+#                    print('doc1:'+str(doc))
                     if doc :
                         print('found doc for '+str(photo_name)+' in db already')
                         #doc = doc[0]
-                        print(doc)
+ #                       print(doc)
                         id = None
                         already_done = None
                         already_done_image_level = None
