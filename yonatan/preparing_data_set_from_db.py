@@ -6,7 +6,7 @@ from scipy.ndimage import zoom
 from skimage.transform import resize
 import os
 import caffe
-from .. import background_removal, Utils, constants
+from .. import background_removal, utils, constants
 import cv2
 import sys
 import argparse
@@ -70,14 +70,15 @@ for key, value in sleeve_dict.iteritems():
 
         # Resize it.
         #resized_image = cv2.resize(dress_image, (width, height))
+        resized_image = utils.imutils.resize_keep_aspect(dress_image, (256, 256))
 
         image_file_name = key + '_dress-' + str(i) + '.jpg'
 
         print i
 
-        cv2.imwrite(os.path.join('/home/yonatan/db_' + key + '_dresses', image_file_name), dress_image)
-        text_file.write('/home/yonatan/db_' + key + '_dresses/' + image_file_name + ' ' + str(value[1]) + '\n')
+        cv2.imwrite(os.path.join('/home/yonatan/resized_db_' + key + '_dresses', image_file_name), resized_image)
+        text_file.write('/home/yonatan/resized_db_' + key + '_dresses/' + image_file_name + ' ' + str(value[1]) + '\n')
 
-        print '/home/yonatan/db_' + key + '_dresses/'
+        print '/home/yonatan/resized_db_' + key + '_dresses/'
 
     text_file.flush()
