@@ -132,7 +132,7 @@ def bucket_to_training_set(collection):
                         res = coll.replace_one({'_id':id},doc)
                         print('replace result:'+str(res))
                     else:
-                        doc = []
+                        doc = {}
                         print('doc for '+str(photo_name)+' not found, adding to db')
                         print('db1')
                         print('url:'+str(img_url))
