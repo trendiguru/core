@@ -130,7 +130,7 @@ def bucket_to_training_set(collection):
 #                        print('items:'+str(doc['items']))
 #                        print('new doc:\n'+str(doc))
                         res = coll.replace_one({'_id':id},doc)
-                        print('replace result:'+str(res))
+#                        print('replace result:'+str(res))
                     elif doc2:
                         print('doc already replaced')
                         continue
@@ -142,7 +142,7 @@ def bucket_to_training_set(collection):
                         doc['items'] = []
                         try:
                             res = coll.insert(doc)
-                            print('replace result:'+str(res))
+#                            print('replace result:'+str(res))
                         except:
                             print('error trying to insert doc , err:'+str(sys.exc_info()[0]))
 
