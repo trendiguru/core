@@ -7,7 +7,7 @@ from skimage.transform import resize
 import os
 import caffe
 from .. import background_removal, Utils, constants
-from .. import Utils.imutils
+from ..Utils import imutils
 import cv2
 import sys
 import argparse
