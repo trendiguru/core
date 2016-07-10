@@ -52,7 +52,7 @@ def parse_logfile(f,logy):
     if 'lr_policy' in line:
       lr_policy = line.split()[-1]+' '
 
-    if 'type' in line:
+    if type == ''  and 'type' in line:  #only take first 'type' which is in solver.proto (type of learning)
       type = line.split()[-1]+' '
     if 'momentum' in line:
       momentum = line.split()[-1]+' '
@@ -185,9 +185,9 @@ def parse_logfile(f,logy):
   par1.axis["right"].label.set_color(p2.get_color())
 
   dt=datetime.datetime.today()
-  plt.title(net_name+' '+dt.isoformat())
-  subtitle = args.output_file+'\n'+train_net+test_net+base_lr+lr_policy+type+ momentum+gamma
+  plt.title(net_name+' '+dt.isoformat(),fontsize=10)
 
+  subtitle = args.output_file+'\n'+train_net+test_net+'base_lr'+base_lr+lr_policy+type+ 'mom:'+momentum+'gama'+gamma
   plt.suptitle(subtitle,fontsize=8)
   plt.draw()
   savename = args.output_file+'.jpg'
