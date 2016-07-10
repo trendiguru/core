@@ -88,7 +88,7 @@ def parse_logfile(f,logy):
 #    if '] Iteration ' in line and 'loss = ' in line:
       print('getting loss:'+line)
       arr = re.findall(r'ion \b\d+\b,', line)
-      training_iterations.append(int(arr[0].strip(',')[4:])/1000)
+      training_iterations.append(int(arr[0].strip(',')[4:])/1000.0)
       training_loss.append(float(line.strip().split(' = ')[-1]))
       check_train = True
 
@@ -96,7 +96,7 @@ def parse_logfile(f,logy):
     if '] Iteration ' in line and 'Testing net' in line:
       print('getting test:'+line)
       arr = re.findall(r'ion \b\d+\b,', line)
-      test_iterations.append(int(arr[0].strip(',')[4:])/1000)
+      test_iterations.append(int(arr[0].strip(',')[4:])/1000.0)
       check_test = True
 
     if '{' in line:
