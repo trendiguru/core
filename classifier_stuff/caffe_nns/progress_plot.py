@@ -30,10 +30,35 @@ def parse_logfile(f,logy):
   check_test2 = False
   check_train = False
   check_train2 = False
+  train_net = ''
+  test_net = ''
+  base_lr = ''
+  lr_policy = ''
+  type = ''
+  momentum = ''
+  gamma = ''
 
   past_beginning = False
+
   for line in f:
 #    print('checking line:'+line)
+
+    if 'train_net' in line:
+      train_net = line.split()[-1]+' '
+    if 'test_net' in line:
+      test_net = line.split()[-1]+' '
+    if 'base_lr' in line:
+      base_lr = line.split()[-1]+' '
+    if 'lr_policy' in line:
+      lr_policy = line.split()[-1]+' '
+
+    if type == ''  and 'type' in line:  #only take first 'type' which is in solver.proto (type of learning)
+      type = line.split()[-1]+' '
+    if 'momentum' in line:
+      momentum = line.split()[-1]+' '
+    if 'gamma' in line:
+      gamma = line.split()[-1]+' '
+
     if check_test and 'Test net output' in line and 'accuracy' in line:
       print('checking line for test output 0: '+line)
       test_accuracy.append(float(line.strip().split(' = ')[-1]))
@@ -63,7 +88,7 @@ def parse_logfile(f,logy):
 #    if '] Iteration ' in line and 'loss = ' in line:
       print('getting loss:'+line)
       arr = re.findall(r'ion \b\d+\b,', line)
-      training_iterations.append(int(arr[0].strip(',')[4:]))
+      training_iterations.append(int(arr[0].strip(',')[4:])/1000.0)
       training_loss.append(float(line.strip().split(' = ')[-1]))
       check_train = True
 
@@ -71,7 +96,7 @@ def parse_logfile(f,logy):
     if '] Iteration ' in line and 'Testing net' in line:
       print('getting test:'+line)
       arr = re.findall(r'ion \b\d+\b,', line)
-      test_iterations.append(int(arr[0].strip(',')[4:]))
+      test_iterations.append(int(arr[0].strip(',')[4:])/1000.0)
       check_test = True
 
     if '{' in line:
@@ -127,12 +152,12 @@ def parse_logfile(f,logy):
 
   par1 = host.twinx()
 
-  host.set_xlabel("iterations")
-  host.set_ylabel("log loss")
+  host.set_xlabel("iterations/1000")
+  host.set_ylabel("loss")
   par1.set_ylabel("accuracy")
 
-  train_label = "train logloss"
-  test_label = "test logloss"
+  train_label = "train loss"
+  test_label = "test loss"
   if logy == 'True':
     training_loss = np.log10(training_loss)
     test_loss = np.log10(test_loss)
@@ -160,8 +185,10 @@ def parse_logfile(f,logy):
   par1.axis["right"].label.set_color(p2.get_color())
 
   dt=datetime.datetime.today()
-  plt.title(net_name+' '+dt.isoformat())
-  plt.suptitle(args.output_file)
+  plt.title(net_name+' '+dt.isoformat(),fontsize=10)
+
+  subtitle = args.output_file+'\n'+train_net+test_net+'base_lr'+base_lr+lr_policy+type+ 'mom:'+momentum+'gama'+gamma
+  plt.suptitle(subtitle,fontsize=8)
   plt.draw()
   savename = args.output_file+'.jpg'
   plt.savefig(savename)
