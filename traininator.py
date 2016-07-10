@@ -155,5 +155,38 @@ def bucket_to_training_set(collection):
             print('error trying to open '+photo_name+' err:'+str(sys.exc_info()[0]))
    #     raw_input('ret to cont')
 
+def clean_training(collection):
+    '''
+    Takes a bucket of data and adds to db collection
+    if not in db, add
+    if in db, fix url, make user a list, already_done is counter
+
+    :param collection: mongodb colleciton
+    :return:
+    '''
+    coll = db[collection]
+    i = 1
+    total = db.training_images.count()
+    print(str(total)+' images in collection '+collection)
+    start = time.time()
+    cursor = db.training_images.find()
+    doc = cursor.next()
+    while doc is not None:
+#        img_url = 'https://tg-training.storage.googleapis.com/tamara_berg_street2shop_dataset/images/'+photo_name
+        url = doc['url']
+        print('url:'+str(url))
+        if '/home/jeremy' in url: #   'home/jeremy/dataset/images/'+photo_name
+            photo_name = url.split('/')[-1]
+            new_url = 'https://tg-training.storage.googleapis.com/tamara_berg_street2shop_dataset/images/'+photo_name
+            print('photoname:'+str(photo_name)+' newurl:'+str(new_url))
+            try:
+                id = doc['_id']
+                res = coll.replace_one({'_id':id},doc)
+#                    print('replace result:'+str(res))
+            except:
+                print('error trying to replace doc , err:'+str(sys.exc_info()[0]))
+        raw_input('ret to cont')
+
 if __name__ == "__main__":
-    bucket_to_training_set('training_images')
+    clean_training('training_images')
+#    bucket_to_training_set('training_images')
