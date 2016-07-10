@@ -135,6 +135,7 @@ def bucket_to_training_set(collection):
                         doc = []
                         print('doc for '+str(photo_name)+' not found, adding to db')
                         print('db1')
+                        print('url:'+str(img_url))
                         doc['url'] = img_url
                         print('db2')
                         doc['items'] = []
