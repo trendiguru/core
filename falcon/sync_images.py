@@ -14,10 +14,11 @@ from .. import page_results
 
 # Patch db for multiprocessing http://api.mongodb.com/python/current/faq.html#using-pymongo-with-multiprocessing
 fast_results.db = pymongo.MongoClient(host=os.getenv("MONGO_HOST", "mongodb1-instance-1"),
-                         port=int(os.getenv("MONGO_PORT", "27017")),
-                         connect=False).mydb
+                                      port=int(os.getenv("MONGO_PORT", "27017")),
+                                      connect=False).mydb
                          
 storm_q = Queue('star_pipeline', connection=constants.redis_conn)
+
 
 class Images(object):
     
@@ -67,5 +68,5 @@ class Images(object):
             ret = page_results.get_data_for_specific_image(image_url=image_url, products_collection=products)
         
         resp.status = falcon.HTTP_200 if ret else falcon.HTTP_400
-        resp.data = json_util.dumps(ret) # + "\n"
+        resp.data = json_util.dumps(ret)  # + "\n"
         resp.content_type = 'application/json'
