@@ -179,10 +179,11 @@ def clean_training(collection):
             photo_name = url.split('/')[-1]
             new_url = 'https://tg-training.storage.googleapis.com/tamara_berg_street2shop_dataset/images/'+photo_name
             print('photoname:'+str(photo_name)+' newurl:'+str(new_url))
+            doc['url'] = new_url
             try:
                 id = doc['_id']
                 res = coll.replace_one({'_id':id},doc)
-#                    print('replace result:'+str(res))
+                print('replace result:'+str(res))
             except:
                 print('error trying to replace doc , err:'+str(sys.exc_info()[0]))
         raw_input('ret to cont')
