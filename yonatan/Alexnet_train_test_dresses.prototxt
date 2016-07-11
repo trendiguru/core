@@ -35,7 +35,7 @@ layer {
   }
   image_data_param {
     source: "/home/yonatan/db_dresses_cv.txt"
-    batch_size: 160
+    batch_size: 118
     shuffle: true
   }
 }

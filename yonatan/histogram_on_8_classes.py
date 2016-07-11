@@ -21,12 +21,12 @@ array_failure_with_plus_minus_category = np.array([])
 array_success_without = np.array([])
 array_failure_without = np.array([])
 
-text_file = open("db_dresses_train.txt", "r")
+text_file = open("db_dresses_test.txt", "r")
 
 counter = 0
 
 MODLE_FILE = "/home/yonatan/trendi/yonatan/Alexnet_deploy_for_dresses.prototxt"
-PRETRAINED = "/home/yonatan/caffe_alexnet_db_dresses_sleeve_iter_4749.caffemodel"
+PRETRAINED = "/home/yonatan/caffe_alexnet_db_dresses_sleeve_iter_10000.caffemodel"
 caffe.set_mode_gpu()
 image_dims = [256, 256]
 mean, input_scale = np.array([120, 120, 120]), None
