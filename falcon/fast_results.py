@@ -26,10 +26,10 @@ def fast_route(image_url, page_url):
 
     if db.irrelevant_images.find_one({'image_urls': image_url}, {'_id': 1}):
         return False
-
+    print "after db.irr checks: {0}".format(time.time()-start)
     if db.iip.find_one({'image_url': image_url}, {'_id': 1}):
         return True
-
+    print "after db.iip checks: {0}".format(time.time()-start)
     if db.images.find_one({'image_urls': image_url}, {'_id': 1}):
         return True
     print "after db checks: {0}".format(time.time()-start)
@@ -45,6 +45,7 @@ def fast_route(image_url, page_url):
                      # 'gender': genderize(image, face.tolist())['gender']} for face in relevance.faces],
                      'image_url': image_url, 'page_url': page_url}
         db.iip.insert_one({'image_url': image_url, 'insert_time': datetime.datetime.utcnow()})
+        print "after db.iip insert checks: {0}".format(time.time()-start)
         db.genderator.insert_one(image_obj)
         start_q.enqueue_call(func="", args=(page_url, image_url, 'nd'), ttl=2000, result_ttl=2000, timeout=2000)
         print "total fast_results: {0}".format(time.time()-start)
