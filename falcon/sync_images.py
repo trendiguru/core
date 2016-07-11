@@ -26,6 +26,7 @@ class Images(object):
         self.process_pool = process_pool
     
     def on_post(self, req, resp):
+        start = time.time()
         ret = {"success": False}
         try:
             data = json_util.loads(req.stream.read())
@@ -47,6 +48,7 @@ class Images(object):
         resp.data = json_util.dumps(ret)
         resp.content_type = 'application/json'
         resp.status = falcon.HTTP_200
+        print "on_post took {0} seconds".format(time.time()-start)
 
     def on_get(self, req, resp):
         ret = {}
