@@ -1,6 +1,5 @@
 __author__ = 'jeremy' #ripped from tutorial at http://nbviewer.jupyter.org/github/BVLC/caffe/blob/master/examples/pascal-multilabel-with-datalayer.ipynb
 
-
 import sys
 import os
 
@@ -12,9 +11,19 @@ from copy import copy
 import caffe # If you get "No module named _caffe", either you have not built pycaffe or you have the wrong path.
 
 from caffe import layers as L, params as P # Shortcuts to define the net prototxt.
+import cv2
+
 
 from trendi import constants
 from trendi.utils import imutils
+
+
+
+caffemodel =  '/home/jeremy/caffenets/multilabel/vgg_ilsvrc_16_multilabel_2/snapshot/train_iter_340000.caffemodel'
+deployproto = '/home/jeremy/caffenets/multilabel/vgg_ilsvrc_16_multilabel_2/deploy.prototxt'
+caffe.set_mode_gpu()
+caffe.set_device(0)
+
 
 # matplotlib inline
 def setup():
@@ -267,10 +276,7 @@ def url_to_image(url):
     return new_image
 
 def get_multilabel_output(url_or_np_array,required_image_size=(227,227)):
-    caffemodel =  '/home/jeremy/caffenets/multilabel/vgg_ilsvrc_16_multilabel_2/snapshot/train_iter_340000.caffemodel'
-    deployproto = '/home/jeremy/caffenets/multilabel/vgg_ilsvrc_16_multilabel_2/deploy.prototxt'
-    caffe.set_mode_gpu()
-    caffe.set_device(0)
+
     net = caffe.Net(deployproto,caffemodel, caffe.TEST)
 
     if isinstance(url_or_np_array, basestring):
@@ -291,7 +297,7 @@ def get_multilabel_output(url_or_np_array,required_image_size=(227,227)):
     elif in_.shape[2] != 3:  #for rgb/bgr, some imgages have 4 chan for alpha i guess
         print('got n-chan image, skipping - shape:'+str(in_.shape))
         return
-#    in_ = in_[:,:,::-1]  for doing RGB -> BGR
+#    in_ = in_[:,:,::-1]  for doing RGB -> BGR : since this is loaded nby cv2 its unecessary
 #    cv2.imshow('test',in_)
     in_ -= np.array((104,116,122.0))
     in_ = in_.transpose((2,0,1))
