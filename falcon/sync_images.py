@@ -32,10 +32,14 @@ class Images(object):
             data = json_util.loads(req.stream.read())
             page_url = data.get("pageUrl")
             images = data.get("imageList")
+            print "after data gets: {0}".format(time.time()-start)
             if type(images) is list and page_url is not None:
                 fast_route_partial = partial(fast_results.fast_route, page_url=page_url)
+                print "after partial: {0}".format(time.time()-start)
                 fast_route_results = self.process_pool.map(fast_route_partial, images)
+                print "after process_pool_mapping: {0}".format(time.time()-start)
                 relevancy_dict = {images[i]: fast_route_results[i] for i in xrange(len(images))}
+                print "after multiprocessing execution: {0}".format(time.time()-start)
                 ret["success"] = True
                 ret["relevancy_dict"] = relevancy_dict
             else:
