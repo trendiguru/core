@@ -16,6 +16,9 @@ import datetime
 import time
 import datetime
 
+#TODO - run this automatically every eg 6hrs on any net showing up in /tmp/caffe* in the last  6 hrs
+#then throw the jpgs onto a results website
+
 def parse_logfile(f,logy):
   print('parsing logfile')
   training_iterations = []
@@ -132,7 +135,7 @@ def parse_logfile(f,logy):
     new_test_loss = []
     print 'mis-match'
     for i in range(0,len(test_loss)):
-      new_test_accuracy.append(test_loss[i])
+      new_test_loss.append(test_loss[i])
     for i in range(len(test_loss),len(test_iterations)):
       new_test_loss.append(0)
 
