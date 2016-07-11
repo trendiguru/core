@@ -194,6 +194,7 @@ def check_acc(net, num_batches, batch_size = 1,threshold = 0.5):
                 fp = np.zeros_like(gt)
                 fn = np.zeros_like(gt)
             tp,tn,fp,fn = update_confmat(gt,est,tp,tn,fp,fn)
+            print('tp {} tn {} fp {} fn {}'.format(tp,tn,fp,fn))
             h = hamming_distance(gt, est)
 
             baseline_h = hamming_distance(gt,baseline_est)

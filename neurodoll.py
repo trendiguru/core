@@ -34,7 +34,7 @@ def url_to_image(url):
 
 
 
-def infer_one(url_or_np_array,required_image_size=None):
+def infer_one(url_or_np_array,required_image_size=None,threshold = 0.01):
     start_time = time.time()
     if isinstance(url_or_np_array, basestring):
         print('infer_one working on url:'+url_or_np_array)
@@ -66,6 +66,20 @@ def infer_one(url_or_np_array,required_image_size=None):
     # run net and take argmax for prediction
     net.forward()
     out = net.blobs['score'].data[0].argmax(axis=0)
+
+
+#TODO - make the threshold per item ,e.g. small shoes are ok and should be left in
+    uniques = np.unique(out)
+    image_size = out.shape[0]*out.shape[1]
+    for unique in uniques:
+        pixelcount = len(out[out==unique])
+        if float(pixelcount)/image_size < threshold:
+            out[out==unique] = 0  #set label with small number of pixels to 0 (background)
+
+
+   # cv2.countNonZero(item_mask)
+
+
     result = Image.fromarray(out.astype(np.uint8))
 #        outname = im.strip('.png')[0]+'out.bmp'
 #    outname = os.path.basename(imagename)
@@ -109,7 +123,7 @@ print('loading caffemodel for neurodoll')
 if __name__ == "__main__":
 
     url = 'http://diamondfilms.com.au/wp-content/uploads/2014/08/Fashion-Photography-Sydney-1.jpg'
-    result = infer_one(url,required_image_size=None)
+    result = infer_one(url,required_image_size=None,threshold=0)
     cv2.imwrite('output.png',result)
     labels=constants.ultimate_21
     imutils.show_mask_with_labels('output.png',labels,visual_output=True)
