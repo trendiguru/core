@@ -40,8 +40,8 @@ def fast_route(image_url, page_url):
     relevance = background_removal.image_is_relevant(image, use_caffe=False, image_url=image_url)
 
     if relevance.is_relevant:
-        image_obj = {'people': [{'person_id': str(bson.ObjectId()), 'face': face.tolist(),
-                     'gender': genderize(image, face.tolist())['gender']} for face in relevance.faces],
+        image_obj = {'people': [{'person_id': str(bson.ObjectId()), 'face': face.tolist()} for face in relevance.faces],
+                     # 'gender': genderize(image, face.tolist())['gender']} for face in relevance.faces],
                      'image_url': image_url, 'page_url': page_url}
         db.iip.insert_one({'image_url': image_url, 'insert_time': datetime.datetime.utcnow()})
         db.genderator.insert_one(image_obj)
