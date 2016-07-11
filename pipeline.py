@@ -115,6 +115,7 @@ def after_nn_conclusions(mask, labels, face=None):
     #Possible to add - remove coat from bottom of body
     # remove holes in items
     """
+    0. threshold out small items
     1. if there's a full-body clothing:
         1.1 add to its' mask - all the rest lower body items' masks.
         1.2 add other upper cover items if they pass the pixel-amount condition/
@@ -123,6 +124,8 @@ def after_nn_conclusions(mask, labels, face=None):
         2.2 upper-body: decide whether it's a one-part or under & cover
     3. return new mask
     """
+
+
     if face:
         y_split = face[1] + 3 * face[3]
     else:

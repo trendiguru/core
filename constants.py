@@ -231,6 +231,11 @@ web_tool_categories = ['bag', 'belt', 'blazer','cardigan','coat','dress', 'eyewe
                        'jeans','pants','shorts', 'skirt','stocking','suit','sweater','top','scarf','womens_swimwear_bikini',
                        'womens_swimwear_nonbikini']
 
+#removed blazer and added 'overalls','sweatshirt', 'bracelet','necklace','earrings','watch',
+web_tool_categories_v2 = ['bag', 'belt',       'cardigan','coat','dress', 'eyewear', 'footwear', 'hat','jacket',
+                         'jeans','pants','shorts', 'skirt','stocking','suit','sweater','top','scarf','womens_swimwear_bikini',
+                       'womens_swimwear_nonbikini', 'overalls','sweatshirt' , 'bracelet','necklace','earrings','watch' ]
+
 tamara_berg_to_web_tool = [0, 1, 5, 6, 7, 8, 14, 4, 11, 13, 17, None, None]
 tamara_berg_to_web_tool_dict = {'bag':'bag','belt':'belt','dress':'dress','eyewear':'eyewear','footwear':'footwear',
                                 'hat':'hat','legging':'stocking','outerwear':'coat','pants':'pants','skirts':'skirt','top':'top'}
