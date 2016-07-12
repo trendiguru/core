@@ -304,6 +304,8 @@ class ShopStyleDownloader:
                     return
 
             prod = convert2generic(prod, self.gender)
+            if prod is None:
+                return
             self.insert_and_fingerprint(prod)
 
         else:
