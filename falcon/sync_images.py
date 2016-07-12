@@ -53,7 +53,8 @@ class Images(object):
                         relevancy_dict[url] = green.value
                     else:
                         images_to_rel_check.append(url)
-                print "POST: after deviation: {0}, {1}".format(time.time()-start, exists)
+                print "POST: after deviation: {0}, {1}".format(time.time()-start)
+                print "POST: rel_dict: {0}\n images to check: {1}".format(relevancy_dict, images_to_rel_check)
 
                 # RELEVANCY CHECK POOLING
                 # check_relevancy_partial = partial(fast_results.check_if_relevant_and_enqueue, page_url=page_url)
