@@ -3,34 +3,46 @@ __author__ = 'yonatan'
 import sys
 from .. import constants
 from . import shopstyle_constants
+from .fat_and_beautiful import fat2paperdoll_Female,fat2paperdoll_Male
 db = constants.db
 
 collections = ["products", "products_jp"]
 
 
-def convert2generic(prod, gender):
+def convert2generic(prod, gender, col_name='ShopStyle'):
     tmp_prod = {}
     id = prod["id"]
     tmp_prod["id"] = id
     tmp = [i["id"] for i in prod["categories"]]
+    female_relevant = shopstyle_constants.shopstyle_relevant_items_Female
+    male_relevant = shopstyle_constants.shopstyle_relevant_items_Male
+    female_converter = shopstyle_constants.shopstyle_paperdoll_female
+    male_converter = shopstyle_constants.shopstyle_paperdoll_male
+    if col_name=='Fat&Beauty':
+        female_relevant = fat2paperdoll_Female.keys()
+        male_relevant = fat2paperdoll_Male.keys()
+        female_converter = fat2paperdoll_Female
+        male_converter = fat2paperdoll_Male
     if gender == 'Female':
-        cat = [cat for cat in tmp if cat in shopstyle_constants.shopstyle_relevant_items_Female]
+        cat = [cat for cat in tmp if cat in female_relevant]
         if "women" in cat:
             cat.remove("women")
         if "womens-clothes" in cat:
             cat.remove("womens-clothes")
+        if "plus-size" in cat:
+            cat.remove("plus-size")
         if len(cat) == 0:
             return None
-        tmp_prod["categories"] = shopstyle_constants.shopstyle_paperdoll_female[cat[0]]
+        tmp_prod["categories"] = female_converter[cat[0]]
     elif gender == 'Male':
-        cat = [cat for cat in tmp if cat in shopstyle_constants.shopstyle_relevant_items_Male]
-        if "women" in cat:
-            cat.remove("women")
-        if "womens-clothes" in cat:
-            cat.remove("womens-clothes")
+        cat = [cat for cat in tmp if cat in male_relevant]
+        if "men" in cat:
+            cat.remove("men")
+        if "mens-clothes" in cat:
+            cat.remove("mens-clothes")
         if len(cat) == 0:
             return None
-        tmp_prod["categories"] = shopstyle_constants.shopstyle_paperdoll_male[cat[0]]
+        tmp_prod["categories"] = male_converter[cat[0]]
     else:
         print('bad gender')
         sys.exit(1)
