@@ -61,7 +61,7 @@ def get_category_graylevel(url_or_np_array,category_index,required_image_size=(2
         image = url_to_image(url_or_np_array)
     elif type(url_or_np_array) == np.ndarray:
         image = url_or_np_array
-    print('get_category_graylevel working on image of shape:'+image.shape)
+    print('get_category_graylevel working on image of shape:'+str(image.shape))
 # load image, switch to BGR, subtract mean, and make dims C x H x W for Caffe
 #    im = Image.open(imagename)
 #    im = im.resize(required_imagesize,Image.ANTIALIAS)
@@ -113,7 +113,7 @@ def get_multilabel_output(url_or_np_array,required_image_size=(227,227)):
         image = url_to_image(url_or_np_array)
     elif type(url_or_np_array) == np.ndarray:
         image = url_or_np_array
-    print('multilabel working on image of shape:'+image.shape)
+    print('multilabel working on image of shape:'+str(image.shape))
 # load image, switch to BGR, subtract mean, and make dims C x H x W for Caffe
 #    im = Image.open(imagename)
 #    im = im.resize(required_imagesize,Image.ANTIALIAS)
@@ -148,7 +148,7 @@ def grabcut_using_neurodoll_output(url_or_np_array,category_index):
         image = url_to_image(url_or_np_array)
     elif type(url_or_np_array) == np.ndarray:
         image = url_or_np_array
-    print('grabcut working on image of shape:'+image.shape)
+    print('grabcut working on image of shape:'+str(image.shape))
 
         #def neurodoll(image, category_idx):
     neuro_mask = get_category_graylevel(url_or_np_array,category_index)
