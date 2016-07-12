@@ -37,7 +37,7 @@ def fast_route(image_url, page_url):
     image = Utils.get_cv2_img_array(image_url)
     if image is None:
         return
-    small_img, rr = background_removal.standard_resize(image, 400)
+    small_img, rr = background_removal.standard_resize(image, 600)
     print "after image_DL: {0}".format(time.time()-start)
     relevance = background_removal.image_is_relevant(small_img, use_caffe=False, image_url=image_url)
     print "after image is relevant: {0}".format(time.time()-start)
