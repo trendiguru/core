@@ -3,7 +3,6 @@ __author__ = 'yonatan'
 import sys
 from .. import constants
 from . import shopstyle_constants
-from .fat_and_beautiful import fat2paperdoll_Female,fat2paperdoll_Male
 db = constants.db
 
 collections = ["products", "products_jp"]
@@ -19,10 +18,10 @@ def convert2generic(prod, gender, col_name='ShopStyle'):
     female_converter = shopstyle_constants.shopstyle_paperdoll_female
     male_converter = shopstyle_constants.shopstyle_paperdoll_male
     if col_name=='Fat&Beauty':
-        female_relevant = fat2paperdoll_Female.keys()
-        male_relevant = fat2paperdoll_Male.keys()
-        female_converter = fat2paperdoll_Female
-        male_converter = fat2paperdoll_Male
+        female_relevant = shopstyle_constants.fat2paperdoll_Female.keys()
+        male_relevant = shopstyle_constants.fat2paperdoll_Male.keys()
+        female_converter = shopstyle_constants.fat2paperdoll_Female
+        male_converter = shopstyle_constants.fat2paperdoll_Male
     if gender == 'Female':
         cat = [cat for cat in tmp if cat in female_relevant]
         if "women" in cat:

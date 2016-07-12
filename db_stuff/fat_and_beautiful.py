@@ -56,35 +56,6 @@ MAX_RESULTS_PER_PAGE = 50
 MAX_OFFSET = 5000
 MAX_SET_SIZE = MAX_OFFSET + MAX_RESULTS_PER_PAGE
 
-fat2paperdoll_Female = {
-    'women': 'women',
-    'womens-clothes': 'womens-clothes',
-    'plus-sizes': 'plus-sizes',
-    'plus-size-jeans': 'jeans',
-    'plus-size-dresses': 'dress',
-    'plus-size-jackets': 'jacket',
-    'plus-size-outerwear': 'coat',
-    'plus-size-pants': 'pants',
-    'plus-size-shorts': 'shorts',
-    'plus-size-skirts': 'skirt',
-    'plus-size-sweatshirts': 'sweatshirt',
-    'plus-size-sweaters': 'sweater',
-    'plus-size-swimsuits': 'swimsuit',
-    'plus-size-tops': 'top'}
-
-fat2paperdoll_Male = {
-    'men': 'men',
-    'mens-clothes': 'mens-clothes',
-    'mens-big-and-tall': 'plus-sizes',
-    'mens-big-and-tall-coats-and-jackets': 'coat',
-    'mens-big-and-tall-jeans': 'jeans',
-    'mens-big-and-tall-blazers': 'coat',
-    'mens-big-and-tall-pants': 'pants',
-    'mens-big-and-tall-shorts': 'shorts',
-    'mens-big-and-tall-sweaters': 'sweater',
-    'mens-big-and-tall-suits': 'suit',
-    'mens-big-and-tall-shirts': 'shirt'}
-
 
 class ShopStyleDownloader:
 
@@ -101,10 +72,10 @@ class ShopStyleDownloader:
         self.last_request_time = time.time()
         if gender == 'Female':
             self.gender = 'Female'
-            self.relevant = fat2paperdoll_Female.keys()
+            self.relevant = shopstyle_constants.fat2paperdoll_Female.keys()
         else:
             self.gender = 'Male'
-            self.relevant = fat2paperdoll_Male.keys()
+            self.relevant = shopstyle_constants.fat2paperdoll_Male.keys()
         self.status = self.db.download_status
         self.status_full_path = "collections." + self.collection_name + ".status"
         self.notes_full_path = "collections." + self.collection_name + ".notes"
