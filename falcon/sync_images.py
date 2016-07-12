@@ -1,11 +1,11 @@
-import os
+# import os
 import traceback
 import time
-from functools import partial
+# from functools import partial
 import gevent
 from gevent import Greenlet, monkey
 monkey.patch_all()
-# import pymongo
+import pymongo
 from bson import json_util
 from rq import Queue
 import falcon
@@ -24,8 +24,11 @@ storm_q = Queue('star_pipeline', connection=constants.redis_conn)
 
 class Images(object):
     
-    def __init__(self,  process_pool):
-        self.process_pool = process_pool
+    # def __init__(self,  process_pool):
+    #     self.process_pool = process_pool
+    #     print "created Images"
+
+    def __init__(self):
         print "created Images"
 
     def on_post(self, req, resp):
