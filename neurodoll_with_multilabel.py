@@ -140,7 +140,8 @@ def get_multilabel_output(url_or_np_array,required_image_size=(227,227)):
     out = multilabel_net.blobs['score'].data[0] #for the nth class layer #siggy is after sigmoid
     min = np.min(out)
     max = np.max(out)
-    print('out  {}'.format(out))
+    print('multilabel:  {}'.format(out))
+    return out
 
 def grabcut_using_neurodoll_output(url_or_np_array,category_index):
     if isinstance(url_or_np_array, basestring):
