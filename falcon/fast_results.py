@@ -53,15 +53,15 @@ def check_if_relevant_and_enqueue(image_url, page_url):
     small_img, rr = background_removal.standard_resize(image, 600)
     print "Thread {1}: after image_DL: {0}".format(time.time()-start, pid)
     relevance = background_removal.image_is_relevant(small_img, use_caffe=False, image_url=image_url)
-    print "Thread {1}: after image is relevant: {0}".format(time.time()-start)
+    print "Thread {1}: after image is relevant: {0}".format(time.time()-start, pid)
     if relevance.is_relevant:
         image_obj = {'people': [{'person_id': str(bson.ObjectId()), 'face': face.tolist()} for face in relevance.faces],
                      'image_urls': image_url, 'page_url': page_url}
         db.iip.insert_one(image_obj)
-        print "Thread {1}: after db.iip insert checks: {0}".format(time.time()-start)
+        print "Thread {1}: after db.iip insert checks: {0}".format(time.time()-start, pid)
         start_q.enqueue_call(func="", args=(page_url, image_url, 'nd'), ttl=2000, result_ttl=2000, timeout=2000)
-        print "Thread {1}: total fast_results: {0}".format(time.time()-start)
+        print "Thread {1}: total fast_results: {0}".format(time.time()-start, pid)
         return True
     else:
-        print "Thread {1}: total fast_results: {0}".format(time.time()-start)
+        print "Thread {1}: total fast_results: {0}".format(time.time()-start, pid)
         return False
