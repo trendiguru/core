@@ -186,6 +186,7 @@ def parse_logfile(f,logy):
   else:
     fig, ax1 = plt.subplots()
     if logy == True:
+      print('LOG Y AXIS')
       ax1.semilogy(training_iterations, training_loss, 'bo:', label=train_label)
       ax1.semilogy(test_iterations, test_loss, 'go:', label=test_label)
     else:
