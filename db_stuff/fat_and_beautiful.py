@@ -266,6 +266,7 @@ class ShopStyleDownloader:
         :param prod: dictionary of shopstyle product
         :return: Nothing, void function
         """
+
         while q.count>250000:
             print ("Q full - stolling")
             time.sleep(600)
@@ -437,7 +438,7 @@ class UrlParams(collections.MutableMapping):
 
 def getUserInput():
     parser = argparse.ArgumentParser(description='"@@@ Fat&Beauty Download @@@')
-    parser.add_argument('-n', '--name',default="Fat&Beauty", dest= "name",
+    parser.add_argument('-n', '--name',default="Fat_Beauty", dest= "name",
                         help='collection name')
     parser.add_argument('-g', '--gender', dest= "gender",
                         help='specify which gender to download. (Female or Male - case sensitive)', required=True)
