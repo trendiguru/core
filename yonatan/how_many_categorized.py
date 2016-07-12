@@ -13,14 +13,25 @@ import time
 import skimage
 import urllib
 import pymongo
+import argparse
 
 
 def how_many(argv):
 
+    parser = argparse.ArgumentParser()
+    # Required arguments: input and output files.
+    parser.add_argument(
+        "input_file",
+        help="the argument should be one of those:"
+             "\ndress_sleeve\ndress_length\nmen_shirt_sleeve\npants_length\nwomen_shirt_sleeve"
+    )
+
     db = constants.db
 
+    args = parser.parse_args()
+
     # dress sleeve #
-    if argv == 'dress_sleeve':
+    if args.input_file == 'dress_sleeve':
         dress_sleeve_dict = {
         'strapless' : db.yonatan_dresses.count({'sleeve_length': ['true', 'false', 'false', 'false', 'false', 'false', 'false', 'false', 'false']}),
         'spaghetti_straps' : db.yonatan_dresses.count({'sleeve_length': ['false', 'true', 'false', 'false', 'false', 'false', 'false', 'false', 'false']}),
@@ -46,7 +57,7 @@ def how_many(argv):
 
 
     # dress length #
-    elif argv == 'dress_length':
+    elif args.input_file == 'dress_length':
         dress_length_dict = {
         'mini_length' : db.yonatan_dresses.count({'dress_length': ['true', 'false', 'false', 'false', 'false', 'false']}),
         'above_knee' : db.yonatan_dresses.count({'dress_length': ['false', 'true', 'false', 'false', 'false', 'false']}),
@@ -68,7 +79,7 @@ def how_many(argv):
 
 
     # men shirt sleeve #
-    elif argv == 'men_shirt_sleeve':
+    elif args.input_file == 'men_shirt_sleeve':
         men_shirt_sleeve_dict = {
         'straps' : db.yonatan_men_shirts.count({'shirt_sleeve_length': ['true', 'false', 'false', 'false', 'false']}),
         'sleeveless' : db.yonatan_men_shirts.count({'shirt_sleeve_length': ['false', 'true', 'false', 'false', 'false']}),
@@ -89,7 +100,7 @@ def how_many(argv):
 
 
     # pants length #
-    elif argv == 'pants_length':
+    elif args.input_file == 'pants_length':
         pants_length_dict = {
         'bermuda' : db.yonatan_pants.count({'pants_length': ['true', 'false', 'false', 'false']}),
         'knee' : db.yonatan_pants.count({'pants_length': ['false', 'true', 'false', 'false']}),
@@ -109,7 +120,7 @@ def how_many(argv):
 
 
     # women shirt sleeve #
-    elif argv == 'women_shirt_sleeve':
+    elif args.input_file == 'women_shirt_sleeve':
         women_shirt_sleeve_dict = {
         'strapless' : db.yonatan_women_shirts.count({'shirt_sleeve_length': ['true', 'false', 'false', 'false', 'false', 'false', 'false', 'false', 'false']}),
         'spaghetti_straps' : db.yonatan_women_shirts.count({'shirt_sleeve_length': ['false', 'true', 'false', 'false', 'false', 'false', 'false', 'false', 'false']}),
