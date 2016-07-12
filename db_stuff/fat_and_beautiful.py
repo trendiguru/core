@@ -1,3 +1,29 @@
+"""
+126. plus-sizes
+127. plus-size-jeans
+128. plus-size-dresses
+129. plus-size-intimates
+130. plus-size-jackets
+131. plus-size-outerwear
+132. plus-size-pants
+133. plus-size-shorts
+134. plus-size-skirts
+135. plus-size-sweatshirts
+136. plus-size-sweaters
+137. plus-size-swimsuits
+138. plus-size-tops
+343. mens-big-and-tall
+344. mens-big-and-tall-coats-and-jackets
+345. mens-big-and-tall-jeans
+346. mens-big-and-tall-pants
+347. mens-big-and-tall-shirts
+348. mens-big-and-tall-shorts
+349. mens-big-and-tall-blazers
+350. mens-big-and-tall-suits
+351. mens-big-and-tall-sweaters
+"""
+
+
 __author__ = 'yonatan'
 
 import collections
@@ -10,15 +36,15 @@ import argparse
 import requests
 from rq import Queue
 from fanni import plantForests4AllCategories
-from .. import constants
+from ..constants import db, fingerprint_version as fp_version, redis_conn
 from . import shopstyle_constants
 from .shopstyle2generic import convert2generic
 from ..fingerprint_core import generate_mask_and_insert
 from . import dl_excel
 
 
-q = Queue('fingerprint_new', connection=constants.redis_conn)
-forest = Queue('annoy_forest', connection=constants.redis_conn)
+q = Queue('fingerprint_new', connection=redis_conn)
+forest = Queue('annoy_forest', connection=redis_conn)
 
 BASE_URL = "http://api.shopstyle.com/api/v2/"
 BASE_URL_PRODUCTS = BASE_URL + "products/"
@@ -29,22 +55,13 @@ FILTERS = ["Brand", "Retailer", "Price", "Color", "Size", "Discount"]
 MAX_RESULTS_PER_PAGE = 50
 MAX_OFFSET = 5000
 MAX_SET_SIZE = MAX_OFFSET + MAX_RESULTS_PER_PAGE
-fp_version = constants.fingerprint_version
 
 
-def zip_through_all_categories():
-    c= constants.db.categories.find()
-    for i, cat in enumerate(c):
-        print ('%d. %s' % (i, cat['name']))
-        if not divmod(i, 50)[1]:
-            raw_input('continue')
+class ShopStyleDownloader:
 
-
-class ShopStyleDownloader():
-    def __init__(self,collection,gender):
-        # connect to db
-        dl_cache =  collection +'_cache'
-        self.db = constants.db
+    def __init__(self, collection, gender):
+        dl_cache = collection +'_cache'
+        self.db = db
         self.collection_name = collection
         self.collection = self.db[collection]
         self.collection_archive = self.db[collection+'_archive']
@@ -55,27 +72,27 @@ class ShopStyleDownloader():
         self.last_request_time = time.time()
         if gender == 'Female':
             self.gender = 'Female'
-            self.relevant = shopstyle_constants.shopstyle_relevant_items_Female
+            self.relevant = shopstyle_constants.fat2paperdoll_Female.keys()
         else:
             self.gender = 'Male'
-            self.relevant = shopstyle_constants.shopstyle_relevant_items_Male
+            self.relevant = shopstyle_constants.fat2paperdoll_Male.keys()
         self.status = self.db.download_status
         self.status_full_path = "collections." + self.collection_name + ".status"
         self.notes_full_path = "collections." + self.collection_name + ".notes"
-        self.status.update_one({"date":self.current_dl_date},{"$set":{self.status_full_path: "Working"}})
+        self.status.update_one({"date": self.current_dl_date}, {"$set": {self.status_full_path: "Working"}})
 
     def db_download(self):
         start_time = time.time()
 
         self.cache.create_index("filter_params")
         self.cache.create_index("dl_version")
-        root_category, ancestors = self.build_category_tree()
+        ancestors = self.categories.find()
 
         cats_to_dl = [anc["id"] for anc in ancestors]
         for cat in cats_to_dl:
             self.download_category(cat)
 
-        self.wait_for()
+        self.wait_for_fingerprint_q_to_be_empty()
         end_time= time.time()
         total_time = (end_time - start_time)/3600
         self.status.update_one({"date": self.current_dl_date}, {"$set": {self.status_full_path: "Finishing Up"}})
@@ -131,7 +148,7 @@ class ShopStyleDownloader():
 
         self.collection_archive.reindex()
 
-    def wait_for(self):
+    def wait_for_fingerprint_q_to_be_empty(self):
         check = 0
         while q.count>1:
             if check > 36:
@@ -139,55 +156,23 @@ class ShopStyleDownloader():
             check += 1
             time.sleep(300)
 
-    def build_category_tree(self):
-        parameters = {"pid": PID, "filters": "Category"}
-
-        # download all categories
-        category_list_response = requests.get(BASE_URL + "categories", params=parameters)
-        category_list_response_json = category_list_response.json()
-        root_category = category_list_response_json["metadata"]["root"]["id"]
-        category_list = category_list_response_json["categories"]
-        self.categories.remove({})
-        self.categories.insert(category_list)
-        # find all the children
-        for cat in self.categories.find():
-            self.categories.update_one({"id": cat["parentId"]}, {"$addToSet": {"childrenIds": cat["id"]}})
-        # get list of all categories under root - "ancestors"
-        ancestors = []
-        for c in self.categories.find({"parentId": root_category}):
-            ancestors.append(c)
-        # let's get some numbers in there - get a histogram for each ancestor
-        for anc in ancestors:
-            parameters["cat"] = anc["id"]
-            response = self.delayed_requests_get(BASE_URL_PRODUCTS + "histogram", parameters)
-            hist = response.json()["categoryHistogram"]
-            # save count for each category
-            for cat in hist:
-                self.categories.update_one({"id": cat["id"]}, {"$set": {"count": cat["count"]}})
-        return root_category, ancestors
-
     def download_category(self, category_id):
         if category_id not in self.relevant:
             return
         parameters = {"pid": PID}
-        if self.collection_name in ["GangnamStyle_Female","GangnamStyle_Male"]:
-            parameters["shipping"]= "KR" # , "filters": "Category"}
 
         category = self.categories.find_one({"id": category_id})
-        parameters["cat"] = category["id"]
+        parameters["cat"] = category_id
         if "count" in category and category["count"] <= MAX_SET_SIZE:
             print("Attempting to download: {0} products".format(category["count"]))
-            #print("Category: " + category_id)
             self.download_products(parameters)
         elif "childrenIds" in category.keys():
-            #print("Splitting {0} products".format(category["count"]))
             print("Category: " + category_id)
             for child_id in category["childrenIds"]:
                 self.download_category(child_id)
         else:
             initial_filter_params = UrlParams(params_dict=parameters)
             self.divide_and_conquer(initial_filter_params, 0)
-
 
     def divide_and_conquer(self, filter_params, filter_index):
         """Keep branching until we find disjoint subsets which have less then MAX_SET_SIZE items"""
@@ -281,6 +266,7 @@ class ShopStyleDownloader():
         :param prod: dictionary of shopstyle product
         :return: Nothing, void function
         """
+
         while q.count>250000:
             print ("Q full - stolling")
             time.sleep(600)
@@ -318,6 +304,8 @@ class ShopStyleDownloader():
                     return
 
             prod = convert2generic(prod, self.gender)
+            if prod is None:
+                return
             self.insert_and_fingerprint(prod)
 
         else:
@@ -449,9 +437,9 @@ class UrlParams(collections.MutableMapping):
         return self.__class__.encode_params(self)
 
 def getUserInput():
-    parser = argparse.ArgumentParser(description='"@@@ Shopstyle Download @@@')
-    parser.add_argument('-n', '--name',default="ShopStyle", dest= "name",
-                        help='collection name - currently only ShopStyle or GangnamStyle')
+    parser = argparse.ArgumentParser(description='"@@@ Fat&Beauty Download @@@')
+    parser.add_argument('-n', '--name',default="Fat_Beauty", dest= "name",
+                        help='collection name')
     parser.add_argument('-g', '--gender', dest= "gender",
                         help='specify which gender to download. (Female or Male - case sensitive)', required=True)
     args = parser.parse_args()
@@ -462,13 +450,13 @@ if __name__ == "__main__":
     col = user_input.name
     gender = user_input.gender
 
-    if gender in ['Female','Male'] and col in ["ShopStyle","GangnamStyle"]:
+    if gender in ['Female','Male'] :
         col = col + "_" +gender
     else:
         print("bad input - gender should be only Female or Male (case sensitive)")
         sys.exit(1)
 
-    print ("@@@ Shopstyle Download @@@\n you choose to update the " + col + " collection")
+    print ("@@@ ShopStyle Download @@@\n you choose to update the " + col + " collection")
     update_db = ShopStyleDownloader(col,gender)
     update_db.db_download()
     forest_job = forest.enqueue(plantForests4AllCategories, col_name=col, timeout=3600)
@@ -478,3 +466,5 @@ if __name__ == "__main__":
         print ('annoy plant forest failed')
 
     print (col + "Update Finished!!!")
+
+
