@@ -1,6 +1,5 @@
 import gevent
 from gevent import Greenlet, monkey
-monkey.patch_all()
 
 import datetime
 import tldextract
