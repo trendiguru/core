@@ -58,10 +58,10 @@ def url_to_image(url):
 def get_category_graylevel(url_or_np_array,category_index,required_image_size=(256,256)):
     start_time = time.time()
     if isinstance(url_or_np_array, basestring):
-        print('infer_one working on url:'+url_or_np_array)
         image = url_to_image(url_or_np_array)
     elif type(url_or_np_array) == np.ndarray:
         image = url_or_np_array
+    print('get_category_graylevel working on image of shape:'+image.shape)
 # load image, switch to BGR, subtract mean, and make dims C x H x W for Caffe
 #    im = Image.open(imagename)
 #    im = im.resize(required_imagesize,Image.ANTIALIAS)
@@ -110,10 +110,10 @@ def get_category_graylevel(url_or_np_array,category_index,required_image_size=(2
 
 def get_multilabel_output(url_or_np_array,required_image_size=(227,227)):
     if isinstance(url_or_np_array, basestring):
-        print('infer_one working on url:'+url_or_np_array)
         image = url_to_image(url_or_np_array)
     elif type(url_or_np_array) == np.ndarray:
         image = url_or_np_array
+    print('multilabel working on image of shape:'+image.shape)
 # load image, switch to BGR, subtract mean, and make dims C x H x W for Caffe
 #    im = Image.open(imagename)
 #    im = im.resize(required_imagesize,Image.ANTIALIAS)
@@ -145,10 +145,10 @@ def get_multilabel_output(url_or_np_array,required_image_size=(227,227)):
 
 def grabcut_using_neurodoll_output(url_or_np_array,category_index):
     if isinstance(url_or_np_array, basestring):
-        print('infer_one working on url:'+url_or_np_array)
         image = url_to_image(url_or_np_array)
     elif type(url_or_np_array) == np.ndarray:
         image = url_or_np_array
+    print('grabcut working on image of shape:'+image.shape)
 
         #def neurodoll(image, category_idx):
     neuro_mask = get_category_graylevel(url_or_np_array,category_index)
@@ -182,7 +182,7 @@ def combine_neurodoll_and_multilabel(url_or_np_array,multilabel_threshold=0.9):
     #take only labels above a threshold on the multilabel result
     #possible other way to do this: multiply the neurodoll mask by the multilabel result and threshold that product
     thresholded_multilabel = [ml>multilabel_threshold for ml in multilabel]
-    print('orig label:'+str(multilabel))
+#    print('orig label:'+str(multilabel))
     print('thrs label:'+str(thresholded_multilabel))
     for i in range(len(thresholded_multilabel)):
         if thresholded_multilabel[i]:
