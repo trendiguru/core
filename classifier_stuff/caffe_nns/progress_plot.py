@@ -156,10 +156,10 @@ def parse_logfile(f,logy):
   train_label = "train loss"
   test_label = "test loss"
   if logy == 'True':
-    training_loss = np.log10(training_loss)
-    test_loss = np.log10(test_loss)
     train_label = "log10(train logloss)"
     test_label = "log10(test logloss)"
+#    training_loss = np.log10(training_loss)
+#    test_loss = np.log10(test_loss)
 #    host.set_ylabel("log10(log loss)")
 
   if (0):
@@ -185,7 +185,8 @@ def parse_logfile(f,logy):
     plt.draw()
   else:
     fig, ax1 = plt.subplots()
-    if logy == True:
+    if logy == 'True':
+      print('LOG Y AXIS')
       ax1.semilogy(training_iterations, training_loss, 'bo:', label=train_label)
       ax1.semilogy(test_iterations, test_loss, 'go:', label=test_label)
     else:
@@ -198,6 +199,7 @@ def parse_logfile(f,logy):
         tl.set_color('b')
     if len(training_accuracy)>0 or len(test_accuracy)>0:
       ax2 = ax1.twinx()
+      ax2.set_ylabel('accuracy', color='b')
     if len(training_accuracy)>0:
       ax2.plot(training_iterations, training_accuracy, 'co:',label="train_acc")
       for tl in ax2.get_yticklabels():
@@ -206,6 +208,10 @@ def parse_logfile(f,logy):
       ax2.plot(test_iterations, test_accuracy, 'ro:',label="test_acc")
       for tl in ax2.get_yticklabels():
         tl.set_color('r')
+#    ax1.legend(loc='upper center', bbox_to_anchor=(0.5, -0.05),
+#          fancybox=True, shadow=True, ncol=5)
+    plt.legend(bbox_to_anchor=(0., 1.02, 1., .102), loc='lower center',
+            mode="expand", borderaxespad=0.)  #ncol=2,
     dt=datetime.datetime.today()
     plt.title(net_name+' '+dt.isoformat(),fontsize=10)
     subtitle = args.output_file+'\n'+train_net+test_net+'base_lr'+base_lr+lr_policy+type+ 'mom:'+momentum+'gama'+gamma
