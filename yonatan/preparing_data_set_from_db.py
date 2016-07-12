@@ -6,7 +6,8 @@ from scipy.ndimage import zoom
 from skimage.transform import resize
 import os
 import caffe
-from .. import background_removal, Utils, constants
+from .. import background_removal, utils, constants
+from ..utils import imutils
 import cv2
 import sys
 import argparse
@@ -57,10 +58,10 @@ height = 300
 
 
 for key, value in sleeve_dict.iteritems():
-    text_file = open("850_dresses_" + key + "_list.txt", "w")
+    text_file = open("all_dresses_" + key + "_list.txt", "w")
     for i in range(1, value[0].count()):
-        if i > num_of_each_category:
-            break
+        #if i > num_of_each_category:
+         #   break
 
         link_to_image = value[0][i]['images']['XLarge']
 
@@ -69,15 +70,16 @@ for key, value in sleeve_dict.iteritems():
             continue
 
         # Resize it.
-        resized_image = cv2.resize(dress_image, (width, height))
+        #resized_image = cv2.resize(dress_image, (width, height))
+        resized_image = imutils.resize_keep_aspect(dress_image, output_size = (256, 256))
 
         image_file_name = key + '_dress-' + str(i) + '.jpg'
 
         print i
 
-        cv2.imwrite(os.path.join('/home/yonatan/db_' + key + '_dresses', image_file_name), resized_image)
-        text_file.write('/home/yonatan/db_' + key + '_dresses/' + image_file_name + ' ' + str(value[1]) + '\n')
+        cv2.imwrite(os.path.join('/home/yonatan/resized_db_' + key + '_dresses', image_file_name), resized_image)
+        text_file.write('/home/yonatan/resized_db_' + key + '_dresses/' + image_file_name + ' ' + str(value[1]) + '\n')
 
-        print '/home/yonatan/db_' + key + '_dresses/'
+        print '/home/yonatan/resized_db_' + key + '_dresses/'
 
     text_file.flush()

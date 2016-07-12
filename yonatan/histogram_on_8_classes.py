@@ -21,12 +21,12 @@ array_failure_with_plus_minus_category = np.array([])
 array_success_without = np.array([])
 array_failure_without = np.array([])
 
-text_file = open("db_dresses_test.txt", "r")
+text_file = open("db_dresses_train.txt", "r")
 
 counter = 0
 
 MODLE_FILE = "/home/yonatan/trendi/yonatan/Alexnet_deploy_for_dresses.prototxt"
-PRETRAINED = "/home/yonatan/caffe_alexnet_db_dresses_sleeve_iter_4749.caffemodel"
+PRETRAINED = "/home/yonatan/caffe_alexnet_db_dresses_sleeve_iter_10000.caffemodel"
 caffe.set_mode_gpu()
 image_dims = [256, 256]
 mean, input_scale = np.array([120, 120, 120]), None
@@ -103,10 +103,13 @@ for line in text_file:
         array_success_without = np.append(array_success_without, max_result)
     elif predict_label == 0 and true_label == 1:
         array_success_with_plus_minus_category = np.append(array_success_with_plus_minus_category, max_result)
+        array_failure_without = np.append(array_failure_without, max_result)
     elif predict_label == 7 and true_label == 6:
         array_success_with_plus_minus_category = np.append(array_success_with_plus_minus_category, max_result)
+        array_failure_without = np.append(array_failure_without, max_result)
     elif predict_label == (true_label + 1) or predict_label == (true_label - 1):
         array_success_with_plus_minus_category = np.append(array_success_with_plus_minus_category, max_result)
+        array_failure_without = np.append(array_failure_without, max_result)
     else:
         array_failure_with_plus_minus_category = np.append(array_failure_with_plus_minus_category, max_result)
         array_failure_without = np.append(array_failure_without, max_result)
@@ -133,6 +136,12 @@ plt.hist(array_success_with_plus_minus_category, bins=100, range=(0, 1), color='
 plt.legend()
 
 plt.hist(array_failure_with_plus_minus_category, bins=100, range=(0, 1), color='red', label='array_failure_with_plus_minus_category')
+plt.legend()
+
+plt.hist(array_success_without, bins=100, range=(0, 1), color='green', label='array_success_without')
+plt.legend()
+
+plt.hist(array_failure_without, bins=100, range=(0, 1), color='pink', label='array_failure_without')
 plt.legend()
 
 histogram.savefig('db_dresses_histogram_iter_5000.png')

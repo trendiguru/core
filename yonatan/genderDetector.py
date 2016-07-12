@@ -29,6 +29,7 @@ classifier = caffe.Classifier(MODLE_FILE, PRETRAINED,
                               input_scale=input_scale, raw_scale=raw_scale,
                               channel_swap=channel_swap)
 
+print "Done initializing!"
 
 def cv2_image_to_caffe(image):
     return skimage.img_as_float(cv2.cvtColor(image, cv2.COLOR_BGR2RGB)).astype(np.float32)
@@ -54,6 +55,7 @@ def url_to_image(url):
 #def theDetector(image):
 def theDetector(url_or_np_array, face_coordinates):
 
+    print "Starting the genderism!"
     # check if i get a url (= string) or np.ndarray
     if isinstance(url_or_np_array, basestring):
         full_image = url_to_image(url_or_np_array)

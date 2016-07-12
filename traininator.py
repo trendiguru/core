@@ -99,12 +99,12 @@ def bucket_to_training_set(collection):
                 print(photo_name+" exists, checking if in db")
                 try:
                     doc = coll.find_one({'url':'/home/jeremy/dataset/images/'+photo_name})
-                    print('type:' +str(type(doc)))
-                    print('doc:'+str(doc))
+                    doc2 = coll.find_one({'url':'https://tg-training.storage.googleapis.com/tamara_berg_street2shop_dataset/images/'+photo_name})
+#                    print('doc1:'+str(doc))
                     if doc :
                         print('found doc for '+str(photo_name)+' in db already')
                         #doc = doc[0]
-                        print(doc)
+ #                       print(doc)
                         id = None
                         already_done = None
                         already_done_image_level = None
@@ -126,20 +126,25 @@ def bucket_to_training_set(collection):
                         if 'url' in doc:
                             url = doc['url']
                         doc['url'] = img_url
-                        print('id {} ad {} asil {} un {}'.format(id,already_done,already_seen_image_level,user_name))
-                        print('items:'+str(doc['items']))
-                        print('new doc:\n'+str(doc))
+#                        print('id {} ad {} asil {} un {}'.format(id,already_done,already_seen_image_level,user_name))
+#                        print('items:'+str(doc['items']))
+#                        print('new doc:\n'+str(doc))
                         res = coll.replace_one({'_id':id},doc)
-                        print('replace result:'+str(res))
+#                        print('replace result:'+str(res))
+                    elif doc2:
+                        print('doc already replaced')
+                        continue
                     else:
-                        print('doc for '+str(photo_name)+' not found, add to db')
+                        doc = {}
+                        print('doc for '+str(photo_name)+' not found, adding to db')
                         doc['url'] = img_url
-                        print('db10')
+                        doc['round'] = 'v2'
                         doc['items'] = []
-                        print('db11')
-                        res = coll.replace_one({'_id':id},doc,upsert=True)
-                        print('db12')
-                        print('replace result:'+str(res))
+                        try:
+                            res = coll.insert(doc)
+#                            print('replace result:'+str(res))
+                        except:
+                            print('error trying to insert doc , err:'+str(sys.exc_info()[0]))
 
                 except:
                     print('error trying to get doc , err:'+str(sys.exc_info()[0]))
@@ -148,7 +153,42 @@ def bucket_to_training_set(collection):
                 print('image '+photo_name +' not found (ret code not 200)')
         except:
             print('error trying to open '+photo_name+' err:'+str(sys.exc_info()[0]))
-        raw_input('ret to cont')
+   #     raw_input('ret to cont')
+
+def clean_training(collection):
+    '''
+    Takes a bucket of data and adds to db collection
+    if not in db, add
+    if in db, fix url, make user a list, already_done is counter
+
+    :param collection: mongodb colleciton
+    :return:
+    '''
+    coll = db[collection]
+    i = 1
+    total = db.training_images.count()
+    print(str(total)+' images in collection '+collection)
+    start = time.time()
+    cursor = db.training_images.find()
+    doc = cursor.next()
+    while doc is not None:
+#        img_url = 'https://tg-training.storage.googleapis.com/tamara_berg_street2shop_dataset/images/'+photo_name
+        url = doc['url']
+        print('url:'+str(url))
+        if '/home/jeremy' in url: #   'home/jeremy/dataset/images/'+photo_name
+            photo_name = url.split('/')[-1]
+            new_url = 'https://tg-training.storage.googleapis.com/tamara_berg_street2shop_dataset/images/'+photo_name
+            print('photoname:'+str(photo_name)+' newurl:'+str(new_url))
+            doc['url'] = new_url
+            try:
+                id = doc['_id']
+                res = coll.replace_one({'_id':id},doc)
+                print('replace result:'+str(res))
+            except:
+                print('error trying to replace doc , err:'+str(sys.exc_info()[0]))
+#        raw_input('ret to cont')
+        doc = cursor.next()
 
 if __name__ == "__main__":
-    bucket_to_training_set('training_images')
+    clean_training('training_images')
+#    bucket_to_training_set('training_images')
