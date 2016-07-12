@@ -23,7 +23,7 @@ MODEL_FILE = "/home/jeremy/voc8_15_pixlevel_deploy.prototxt"
 SINGLE_CLASS_LAYER_DEPLOY = "/home/jeremy/voc8_15_pixlevel_deploy_with_sigmoid.prototxt"
 PRETRAINED = "/home/jeremy/voc8_15_pixlevel_iter120000.caffemodel"
 caffe.set_mode_gpu()
-caffe.set_device(0)
+caffe.set_device(1)
 print('loading caffemodel for neurodoll (single class layers)')
 neurodoll_per_class_net = caffe.Net(SINGLE_CLASS_LAYER_DEPLOY,PRETRAINED, caffe.TEST)
 neurodoll_required_image_size = (256, 256)
