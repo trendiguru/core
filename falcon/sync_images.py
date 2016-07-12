@@ -5,7 +5,7 @@ from functools import partial
 import gevent
 from gevent import Greenlet, monkey
 monkey.patch_all()
-import pymongo
+# import pymongo
 from bson import json_util
 from rq import Queue
 import falcon
@@ -18,7 +18,7 @@ from .. import page_results
 # fast_results.db = pymongo.MongoClient(host=os.getenv("MONGO_HOST", "mongodb1-instance-1"),
 #                                       port=int(os.getenv("MONGO_PORT", "27017")),
 #                                       connect=False).mydb
-                         
+
 storm_q = Queue('star_pipeline', connection=constants.redis_conn)
 
 
@@ -52,12 +52,18 @@ class Images(object):
                         images_to_rel_check.append(url)
                 print "POST: after deviation: {0}".format(time.time()-start)
 
-                # RELEVANCY CHECK
-                check_relevancy_partial = partial(fast_results.check_if_relevant_and_enqueue, page_url=page_url)
-                print "after partial: {0}".format(time.time()-start)
-                fast_route_results = self.process_pool.map(check_relevancy_partial, images_to_rel_check)
-                print "after process_pool_mapping: {0}".format(time.time()-start)
-                relevancy_dict.update({images[i]: fast_route_results[i] for i in xrange(len(images_to_rel_check))})
+                # RELEVANCY CHECK POOLING
+                # check_relevancy_partial = partial(fast_results.check_if_relevant_and_enqueue, page_url=page_url)
+                # print "after partial: {0}".format(time.time()-start)
+                # fast_route_results = self.process_pool.map(check_relevancy_partial, images_to_rel_check)
+                # print "after process_pool_mapping: {0}".format(time.time()-start)
+                # relevancy_dict.update({images[i]: fast_route_results[i] for i in xrange(len(images_to_rel_check))})
+
+                # RELEVANCY CHECK GEVENT
+                relevant = {url: Greenlet.spawn(fast_results.check_if_exists, url) for url in images_to_rel_check}
+                gevent.joinall(relevant.values())
+                relevancy_dict.update({url: green.value for url, green in relevant.iteritems()})
+
                 print "POST: after multiprocessing execution: {0}".format(time.time()-start)
                 ret["success"] = True
                 ret["relevancy_dict"] = relevancy_dict
