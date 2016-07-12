@@ -4,7 +4,7 @@ import time
 from functools import partial
 import gevent
 from gevent import Greenlet, monkey
-monkey.patch_all(thread=False, socket=False)
+monkey.patch_all()
 import pymongo
 from bson import json_util
 from rq import Queue
