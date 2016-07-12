@@ -156,6 +156,13 @@ def collar_classifier(image, face_box):
     return collar_classifier_neural_net(collar_images)
 
 
+def collar_distance(collar1_vec, collar2_vec, weights_vec):
+    # alll inputs must be of similar shape numpy float32 arrays
+    dC12 = cv2.compareHist(collar1_vec * weights_vec,
+                           collar2_vec * weights_vec, cv2.HISTCMP_CHISQR)
+    return dC12
+
+
 
 
 if __name__ == "__main__":

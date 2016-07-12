@@ -124,6 +124,36 @@ shopstyle_paperdoll_male = {'mens-belts' : 'belt',
                              'mens-vests' : 'vest',
                              'mens-suits': 'suit'}
 
+
+fat2paperdoll_Female = {
+    'women': 'women',
+    'womens-clothes': 'womens-clothes',
+    'plus-sizes': 'plus-sizes',
+    'plus-size-jeans': 'jeans',
+    'plus-size-dresses': 'dress',
+    'plus-size-jackets': 'jacket',
+    'plus-size-outerwear': 'coat',
+    'plus-size-pants': 'pants',
+    'plus-size-shorts': 'shorts',
+    'plus-size-skirts': 'skirt',
+    'plus-size-sweatshirts': 'sweatshirt',
+    'plus-size-sweaters': 'sweater',
+    'plus-size-swimsuits': 'swimsuit',
+    'plus-size-tops': 'top'}
+
+fat2paperdoll_Male = {
+    'men': 'men',
+    'mens-clothes': 'mens-clothes',
+    'mens-big-and-tall': 'plus-sizes',
+    'mens-big-and-tall-coats-and-jackets': 'coat',
+    'mens-big-and-tall-jeans': 'jeans',
+    'mens-big-and-tall-blazers': 'coat',
+    'mens-big-and-tall-pants': 'pants',
+    'mens-big-and-tall-shorts': 'shorts',
+    'mens-big-and-tall-sweaters': 'sweater',
+    'mens-big-and-tall-suits': 'suit',
+    'mens-big-and-tall-shirts': 'shirt'}
+
 '''
 this is a list of categories under womens-clothing and mens-clothing in case its needed
 TOP LEVEL CLOTHES:
