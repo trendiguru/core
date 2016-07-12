@@ -144,4 +144,4 @@ plt.legend()
 plt.hist(array_failure_without, bins=100, range=(0, 1), color='pink', label='array_failure_without')
 plt.legend()
 
-histogram.savefig('db_dresses_histogram_iter_5000.png')
+histogram.savefig('db_dresses_histogram_iter_5000_cv.png')
