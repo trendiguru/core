@@ -150,15 +150,6 @@ def parse_logfile(f,logy):
 #  plt.plot(test_iterations, test_accuracy, '-', linewidth=2)
 #  plt.show()
 
-  host = host_subplot(111)#, axes_class=AA.Axes)
-  plt.subplots_adjust(right=0.75)
-
-  par1 = host.twinx()
-
-  host.set_xlabel("iterations/1000")
-  host.set_ylabel("loss")
-  par1.set_ylabel("accuracy")
-
   train_label = "train loss"
   test_label = "test loss"
   if logy == 'True':
@@ -169,17 +160,18 @@ def parse_logfile(f,logy):
     host.set_ylabel("log10(log loss)")
 
   if (0):
+    host = host_subplot(111)#, axes_class=AA.Axes)
+    plt.subplots_adjust(right=0.75)
+    par1 = host.twinx()
+    host.set_xlabel("iterations/1000")
+    host.set_ylabel("loss")
+    par1.set_ylabel("accuracy")
+
     p1, = host.plot.se(training_iterations, training_loss,'bo:', label=train_label)
     p3, = host.plot(test_iterations, test_loss,'go:', label=test_label)
     p2, = par1.plot(test_iterations, test_accuracy,'ro:', label="test acc.")
     if len(training_accuracy)>0:
       p4, = par1.plot(training_iterations, training_accuracy,'co:', label="train acc.")
-    #  par1.ylim((0,1))
-  #  host.legend(loc=2)
-    #top legend
-  #  host.legend(bbox_to_anchor=(0., 1.00, 1., .100), loc=3,
-  #           ncol=2, mode="expand", borderaxespad=0.1)
-    #right legend
     host.legend(bbox_to_anchor=(1.05, 1), loc=2,borderaxespad=0.)
     host.axis["left"].label.set_color(p1.get_color())
     par1.axis["right"].label.set_color(p2.get_color())
@@ -190,21 +182,27 @@ def parse_logfile(f,logy):
     plt.draw()
   else:
     fig, ax1 = plt.subplots()
-    t = np.arange(0.01, 10.0, 0.01)
-    s1 = np.exp(t)
-    ax1.semilogy(t, s1, 'b-')
-    ax1.set_xlabel('time (s)')
+    if logy == True:
+      ax1.semilogy(training_iterations, training_loss, 'bo:', label=train_label)
+      ax1.semilogy(test_iterations, test_loss, 'go:', label=test_label)
+    else:
+      ax1.plot(training_iterations, training_loss, 'bo:', label=train_label)
+      ax1.plot(test_iterations, test_loss, 'go:', label=test_label)
+    ax1.set_xlabel('iterations/1000')
     # Make the y-axis label and tick labels match the line color.
-    ax1.set_ylabel('exp', color='b')
+    ax1.set_ylabel('loss', color='b')
     for tl in ax1.get_yticklabels():
         tl.set_color('b')
-    ax2 = ax1.twinx()
-    s2 = np.sin(2*np.pi*t)
-    ax2.plot(t, s2, 'r.')
-    ax2.set_ylabel('sin', color='r')
-    for tl in ax2.get_yticklabels():
+    if len(training_accuracy)>0 or len(test_accuracy)>0:
+      ax2 = ax1.twinx()
+    if len(training_accuracy)>0:
+      ax2.plot(training_iterations, training_accuracy, 'co:',label="train_acc")
+      for tl in ax2.get_yticklabels():
+        tl.set_color('c')
+    if len(test_accuracy)>0:
+      ax2.plot(test_iterations, test_accuracy, 'ro:',label="test_acc")
+      for tl in ax2.get_yticklabels():
         tl.set_color('r')
-    plt.show()
 
   savename = args.output_file+'.jpg'
   plt.savefig(savename)
