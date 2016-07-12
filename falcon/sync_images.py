@@ -64,7 +64,8 @@ class Images(object):
                 # relevancy_dict.update({images[i]: fast_route_results[i] for i in xrange(len(images_to_rel_check))})
 
                 # RELEVANCY CHECK GEVENT
-                relevant = {url: Greenlet.spawn(fast_results.check_if_relevant_and_enqueue, url) for url in images_to_rel_check}
+                relevant = {url: Greenlet.spawn(fast_results.check_if_relevant_and_enqueue, url, page_url)
+                            for url in images_to_rel_check}
                 gevent.joinall(relevant.values())
                 relevancy_dict.update({url: green.value for url, green in relevant.iteritems()})
 
