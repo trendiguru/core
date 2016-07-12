@@ -57,9 +57,9 @@ class Images(object):
 
                 # RELEVANCY CHECK POOLING
                 check_relevancy_partial = partial(fast_results.check_if_relevant_and_enqueue, page_url=page_url)
-                print "after partial: {0}".format(time.time()-start)
+                print "POST: after partial: {0}".format(time.time()-start)
                 fast_route_results = self.process_pool.map(check_relevancy_partial, images_to_rel_check)
-                print "after process_pool_mapping: {0}".format(time.time()-start)
+                print "POST: after process_pool_mapping: {0}".format(time.time()-start)
                 relevancy_dict.update({images[i]: fast_route_results[i] for i in xrange(len(images_to_rel_check))})
 
                 # RELEVANCY CHECK GEVENT
