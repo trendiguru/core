@@ -40,6 +40,7 @@ def parse_logfile(f,logy):
   type = ''
   momentum = ''
   gamma = ''
+  stepsize = ''
 
   past_beginning = False
 
@@ -54,6 +55,8 @@ def parse_logfile(f,logy):
       base_lr = line.split()[-1]+' '
     if 'lr_policy' in line:
       lr_policy = line.split()[-1]+' '
+    if 'stepsize' in line:
+      stepsize = line.split()[-1]+' '
 
     if type == ''  and 'type' in line:  #only take first 'type' which is in solver.proto (type of learning)
       type = line.split()[-1]+' '
@@ -203,6 +206,11 @@ def parse_logfile(f,logy):
       ax2.plot(test_iterations, test_accuracy, 'ro:',label="test_acc")
       for tl in ax2.get_yticklabels():
         tl.set_color('r')
+    dt=datetime.datetime.today()
+    plt.title(net_name+' '+dt.isoformat(),fontsize=10)
+    subtitle = args.output_file+'\n'+train_net+test_net+'base_lr'+base_lr+lr_policy+type+ 'mom:'+momentum+'gama'+gamma
+    plt.suptitle(subtitle,fontsize=8)
+    plt.draw()
 
   savename = args.output_file+'.jpg'
   plt.savefig(savename)
