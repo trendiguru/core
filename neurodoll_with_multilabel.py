@@ -141,7 +141,7 @@ def combine_neurodoll_and_multilabel(url_or_np_array,multilabel_threshold=0.9):
         if thresholded_multilabel[i]:
             item_mask = grabcut_using_neurodoll_output(url_or_np_array,i)
             cv2.imshow('mask '+str(i),item_mask)
-            cv2.waitkey(0)
+            cv2.waitKey(0)
 
 # Make classifier.
 #classifier = caffe.Classifier(MODEL_FILE, PRETRAINED,
