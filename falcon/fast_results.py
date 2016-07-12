@@ -46,9 +46,9 @@ def fast_route(image_url, page_url):
         image_obj = {'people': [{'person_id': str(bson.ObjectId()), 'face': face.tolist()} for face in relevance.faces],
                      # 'gender': genderize(image, face.tolist())['gender']} for face in relevance.faces],
                      'image_url': image_url, 'page_url': page_url}
-        db.iip.insert_one({'image_url': image_url, 'insert_time': datetime.datetime.utcnow()})
+        db.iip.insert_one(image_obj)
         print "after db.iip insert checks: {0}".format(time.time()-start)
-        db.genderator.insert_one(image_obj)
+        # db.genderator.insert_one(image_obj)
         start_q.enqueue_call(func="", args=(page_url, image_url, 'nd'), ttl=2000, result_ttl=2000, timeout=2000)
         print "total fast_results: {0}".format(time.time()-start)
         return True
