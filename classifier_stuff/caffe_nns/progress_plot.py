@@ -160,7 +160,7 @@ def parse_logfile(f,logy):
     test_loss = np.log10(test_loss)
     train_label = "log10(train logloss)"
     test_label = "log10(test logloss)"
-    host.set_ylabel("log10(log loss)")
+#    host.set_ylabel("log10(log loss)")
 
   if (0):
     host = host_subplot(111)#, axes_class=AA.Axes)
