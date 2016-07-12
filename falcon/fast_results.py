@@ -58,7 +58,7 @@ def check_if_relevant_and_enqueue(image_url, page_url):
     print "after image is relevant: {0}".format(time.time()-start)
     if relevance.is_relevant:
         image_obj = {'people': [{'person_id': str(bson.ObjectId()), 'face': face.tolist()} for face in relevance.faces],
-                     'image_url': image_url, 'page_url': page_url}
+                     'image_urls': image_url, 'page_url': page_url}
         db.iip.insert_one(image_obj)
         print "after db.iip insert checks: {0}".format(time.time()-start)
         start_q.enqueue_call(func="", args=(page_url, image_url, 'nd'), ttl=2000, result_ttl=2000, timeout=2000)
