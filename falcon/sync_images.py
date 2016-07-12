@@ -35,13 +35,14 @@ class Images(object):
             data = json_util.loads(req.stream.read())
             page_url = data.get("pageUrl")
             images = data.get("imageList")
-            print "after data gets: {0}".format(time.time()-start)
+            print "POST: after data gets: {0}".format(time.time()-start)
             if type(images) is list and page_url is not None:
                 # db CHECK PARALLEL WITH gevent
                 exists = {url: Greenlet.spawn(fast_results.check_if_exists, url) for url in images}
                 gevent.joinall(exists.values())
                 relevancy_dict = {}
                 images_to_rel_check = []
+                print "POST: after db_checks: {0}".format(time.time()-start)
 
                 # DIVIDE RESULTS TO "HAS AN ANSWER" AND "WE DON'T KNOW THIS IMAGE"
                 for url, green in exists.iteritems():
@@ -49,6 +50,7 @@ class Images(object):
                         relevancy_dict[url] = green.value
                     else:
                         images_to_rel_check.append(url)
+                print "POST: after deviation: {0}".format(time.time()-start)
 
                 # RELEVANCY CHECK
                 check_relevancy_partial = partial(fast_results.check_if_relevant_and_enqueue, page_url=page_url)
@@ -56,7 +58,7 @@ class Images(object):
                 fast_route_results = self.process_pool.map(check_relevancy_partial, images_to_rel_check)
                 print "after process_pool_mapping: {0}".format(time.time()-start)
                 relevancy_dict.update({images[i]: fast_route_results[i] for i in xrange(len(images_to_rel_check))})
-                print "after multiprocessing execution: {0}".format(time.time()-start)
+                print "POST: after multiprocessing execution: {0}".format(time.time()-start)
                 ret["success"] = True
                 ret["relevancy_dict"] = relevancy_dict
             else:
@@ -69,7 +71,7 @@ class Images(object):
         resp.data = json_util.dumps(ret)
         resp.content_type = 'application/json'
         resp.status = falcon.HTTP_200
-        print "on_post took {0} seconds".format(time.time()-start)
+        print "ON_POST took {0} seconds".format(time.time()-start)
 
     def on_get(self, req, resp):
         ret = {}
