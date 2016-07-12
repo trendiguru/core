@@ -32,6 +32,15 @@ but each page return 10 results at max
 for example, under women's shirts there are 100,000 pages for 1 million items
 therefore, we need to divide the requests in a way that less then 100 results will return per search
 
+hierarchy:
+7141123011 -> Clothing, Shoes & Jewelry
+    7141124011 -> Departments
+        7147440011-> Women
+            1040660     -> Clothing
+                1045024     -> dresses
+                    2346727011 -> Casual
+                2368343011  -> Tops & Tees
+            679337011   -> Shoes
 
 '''
 

@@ -45,7 +45,7 @@ def create_signature(parameters, aws_secret_access_key, get_or_post):
     params=''
     for key in keys:
         value = parameters[key]
-        if key in ['Timestamp','ResponseGroup']:
+        if key in ['Timestamp','ResponseGroup','Keywords']:
             value = encode_me(value)
         params += "%s=%s" % (key, value)+'&'
     message += params[:-1]  # to remove unwanted & sign in the end of the string
@@ -90,7 +90,7 @@ parameters = {
     'AWSAccessKeyId': 'AKIAIQJZVKJKJUUC4ETA',
     'AssociateTag': 'fazz0b-20',
     'Availability': 'Available',
-    'Keywords': 'shirts',
+    'Keywords': 'Clothing,dress,casual',
     'Operation': 'ItemSearch',
     'SearchIndex': 'FashionWomen',
     'Service': 'AWSECommerceService',
@@ -98,7 +98,10 @@ parameters = {
     'ItemPage': '1',
     'MaximumPrice':'3100',
     'MinimumPrice':'3099',
-    'ResponseGroup': 'ItemAttributes,Offers,Images,Reviews'}
+    'ResponseGroup': 'ItemAttributes,OfferSummary,Large,SearchBins'}
 
+# parameters['Operation'] = 'BrowseNodeLookup'
+#parameters['ResponseGroup'] = 'SearchBins'  # 'BrowseNodeInfo'
+#parameters['BrowseNodeId'] = '2346727011'
 get_amazon_signed_url(parameters, 'GET')
 

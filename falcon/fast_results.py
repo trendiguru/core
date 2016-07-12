@@ -1,10 +1,13 @@
+import gevent
+from gevent import Greenlet, monkey
+monkey.patch_all()
+
 import datetime
 import tldextract
 import bson
 import time
 from rq import push_connection, Queue
-import gevent
-from gevent import Greenlet
+
 # ours
 from .. import Utils
 from .. import constants
