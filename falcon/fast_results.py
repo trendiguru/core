@@ -34,14 +34,7 @@ def check_if_exists(image_url):
             return True
         else:
             return False
-        # if db.irrelevant_images.find_one({'image_urls': image_url}, {'_id': 1}):
-        #     return False
-        # print "after db.irr checks: {0}".format(time.time()-start)
-        # if db.iip.find_one({'image_url': image_url}, {'_id': 1}):
-        #     return True
-        # print "after db.iip checks: {0}".format(time.time()-start)
-        # if db.images.find_one({'image_urls': image_url}, {'_id': 1}):
-        #     return True
+
     greens = {collection: Greenlet.spawn(check_db, collection) for collection in ['images', 'irrelevant_images', 'iip']}
     gevent.joinall(greens.values())
     if greens['images'].value or greens['iip'].value:

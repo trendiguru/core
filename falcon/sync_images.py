@@ -2,7 +2,9 @@ import os
 import traceback
 import time
 from functools import partial
-
+import gevent
+from gevent import Greenlet, monkey
+monkey.patch_all()
 import pymongo
 from bson import json_util
 from rq import Queue
@@ -35,11 +37,25 @@ class Images(object):
             images = data.get("imageList")
             print "after data gets: {0}".format(time.time()-start)
             if type(images) is list and page_url is not None:
-                fast_route_partial = partial(fast_results.fast_route, page_url=page_url)
+                # db CHECK PARALLEL WITH gevent
+                exists = {url: Greenlet.spawn(fast_results.check_if_exists, url) for url in images}
+                gevent.joinall(exists.values())
+                relevancy_dict = {}
+                images_to_rel_check = []
+
+                # DIVIDE RESULTS TO "HAS AN ANSWER" AND "WE DON'T KNOW THIS IMAGE"
+                for url, green in exists.iteritems():
+                    if green.value is not None:
+                        relevancy_dict[url] = green.value
+                    else:
+                        images_to_rel_check.append(url)
+
+                # RELEVANCY CHECK
+                check_relevancy_partial = partial(fast_results.check_if_relevant_and_enqueue, page_url=page_url)
                 print "after partial: {0}".format(time.time()-start)
-                fast_route_results = self.process_pool.map(fast_route_partial, images)
+                fast_route_results = self.process_pool.map(check_relevancy_partial, images_to_rel_check)
                 print "after process_pool_mapping: {0}".format(time.time()-start)
-                relevancy_dict = {images[i]: fast_route_results[i] for i in xrange(len(images))}
+                relevancy_dict.update({images[i]: fast_route_results[i] for i in xrange(len(images_to_rel_check))})
                 print "after multiprocessing execution: {0}".format(time.time()-start)
                 ret["success"] = True
                 ret["relevancy_dict"] = relevancy_dict
