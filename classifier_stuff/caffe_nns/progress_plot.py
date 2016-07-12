@@ -210,7 +210,7 @@ def parse_logfile(f,logy):
         tl.set_color('r')
 #    ax1.legend(loc='upper center', bbox_to_anchor=(0.5, -0.05),
 #          fancybox=True, shadow=True, ncol=5)
-    plt.legend(bbox_to_anchor=(0., 1.02, 1., .102), loc=1,
+    plt.legend(bbox_to_anchor=(0., 1.02, 1., .102), loc='lower center',
            ncol=2, mode="expand", borderaxespad=0.)
     dt=datetime.datetime.today()
     plt.title(net_name+' '+dt.isoformat(),fontsize=10)
