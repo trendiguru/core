@@ -53,7 +53,7 @@ def how_many(argv):
         deleted = sum_of_all_already_seen - sum_of_all
 
         for key, value in dress_sleeve_dict.iteritems():
-            print '{0}: {1}, percent: {2}%'.format(key, value, round(float(value) / sum_of_all, 1) * 100)
+            print '{0}: {1}, percent: {2}%'.format(key, value, round(float(value) / sum_of_all, 2) * 100)
 
     # dress length #
     elif args.input_file == 'dress_length':
