@@ -15,12 +15,12 @@ import urllib
 import pymongo
 
 
-def how_many(category):
+def how_many(argv):
 
     db = constants.db
 
     # dress sleeve #
-    if category == 'dress_sleeve':
+    if argv == 'dress_sleeve':
         dress_sleeve_dict = {
         'strapless' : db.yonatan_dresses.count({'sleeve_length': ['true', 'false', 'false', 'false', 'false', 'false', 'false', 'false', 'false']}),
         'spaghetti_straps' : db.yonatan_dresses.count({'sleeve_length': ['false', 'true', 'false', 'false', 'false', 'false', 'false', 'false', 'false']}),
@@ -46,7 +46,7 @@ def how_many(category):
 
 
     # dress length #
-    elif category == 'dress_length':
+    elif argv == 'dress_length':
         dress_length_dict = {
         'mini_length' : db.yonatan_dresses.count({'dress_length': ['true', 'false', 'false', 'false', 'false', 'false']}),
         'above_knee' : db.yonatan_dresses.count({'dress_length': ['false', 'true', 'false', 'false', 'false', 'false']}),
@@ -68,7 +68,7 @@ def how_many(category):
 
 
     # men shirt sleeve #
-    elif category == 'men_shirt_sleeve':
+    elif argv == 'men_shirt_sleeve':
         men_shirt_sleeve_dict = {
         'straps' : db.yonatan_men_shirts.count({'shirt_sleeve_length': ['true', 'false', 'false', 'false', 'false']}),
         'sleeveless' : db.yonatan_men_shirts.count({'shirt_sleeve_length': ['false', 'true', 'false', 'false', 'false']}),
@@ -89,7 +89,7 @@ def how_many(category):
 
 
     # pants length #
-    elif category == 'pants_length':
+    elif argv == 'pants_length':
         pants_length_dict = {
         'bermuda' : db.yonatan_pants.count({'pants_length': ['true', 'false', 'false', 'false']}),
         'knee' : db.yonatan_pants.count({'pants_length': ['false', 'true', 'false', 'false']}),
@@ -109,7 +109,7 @@ def how_many(category):
 
 
     # women shirt sleeve #
-    elif category == 'women_shirt_sleeve':
+    elif argv == 'women_shirt_sleeve':
         women_shirt_sleeve_dict = {
         'strapless' : db.yonatan_women_shirts.count({'shirt_sleeve_length': ['true', 'false', 'false', 'false', 'false', 'false', 'false', 'false', 'false']}),
         'spaghetti_straps' : db.yonatan_women_shirts.count({'shirt_sleeve_length': ['false', 'true', 'false', 'false', 'false', 'false', 'false', 'false', 'false']}),
@@ -135,9 +135,12 @@ def how_many(category):
 
     else:
         print "wrong input!"
-        print "the argument should be one of those:/n{0}/n{1}/n{2}/n{3}/n{4}".format('dress_sleeve',
+        print "the argument should be one of those:\n{0}\n{1}\n{2}\n{3}\n{4}".format('dress_sleeve',
                                                                                      'dress_length', 'men_shirt_sleeve', 'pants_length', 'women_shirt_sleeve')
         return
 
     print 'sum of all: {0}'.format(sum_of_all)
     print 'deleted: {0}'.format(deleted)
+
+if __name__ == '__main__':
+    how_many(sys.argv)
