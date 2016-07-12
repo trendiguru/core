@@ -218,8 +218,6 @@ ultimate_21 = ['bgnd','bag','belt','blazer','coat','dress','eyewear','face','hai
                'top']
 
 
-
-
 tamara_berg_improved_categories = ['background','belt','dress','eyewear','footwear','hat','legging','outerwear','pants','skirts',
                                    'top','skin','BAG????','tights','shorts','blouse','bra','vest','suit','jeans',
                                    'necklace','sweatshirt','tie']

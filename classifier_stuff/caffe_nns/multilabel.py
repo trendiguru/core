@@ -23,6 +23,7 @@ caffemodel =  '/home/jeremy/caffenets/multilabel/vgg_ilsvrc_16_multilabel_2/snap
 deployproto = '/home/jeremy/caffenets/multilabel/vgg_ilsvrc_16_multilabel_2/deploy.prototxt'
 caffe.set_mode_gpu()
 caffe.set_device(0)
+multilabel_net = caffe.Net(deployproto,caffemodel, caffe.TEST)
 
 
 # matplotlib inline
@@ -277,7 +278,6 @@ def url_to_image(url):
 
 def get_multilabel_output(url_or_np_array,required_image_size=(227,227)):
 
-    net = caffe.Net(deployproto,caffemodel, caffe.TEST)
 
     if isinstance(url_or_np_array, basestring):
         print('infer_one working on url:'+url_or_np_array)
@@ -302,12 +302,12 @@ def get_multilabel_output(url_or_np_array,required_image_size=(227,227)):
     in_ -= np.array((104,116,122.0))
     in_ = in_.transpose((2,0,1))
     # shape for input (data blob is N x C x H x W), set data
-    net.blobs['data'].reshape(1, *in_.shape)
-    net.blobs['data'].data[...] = in_
+    multilabel_net.blobs['data'].reshape(1, *in_.shape)
+    multilabel_net.blobs['data'].data[...] = in_
     # run net and take argmax for prediction
-    net.forward()
+    multilabel_net.forward()
 #    out = net.blobs['score'].data[0].argmax(axis=0) #for a parse with per-pixel max
-    out = net.blobs['score'].data[0] #for the nth class layer #siggy is after sigmoid
+    out = multilabel_net.blobs['score'].data[0] #for the nth class layer #siggy is after sigmoid
     min = np.min(out)
     max = np.max(out)
     print('out  {}'.format(out))
