@@ -53,8 +53,7 @@ def how_many(argv):
         deleted = sum_of_all_already_seen - sum_of_all
 
         for key, value in dress_sleeve_dict.iteritems():
-            print '{0}: {1}, percent: {2}'.format(key, value, round(float(value) / sum_of_all, 2))
-
+            print '{0}: {1}, percent: {2}%'.format(key, value, round(float(value) / sum_of_all, 2) * 100)
 
     # dress length #
     elif args.input_file == 'dress_length':
@@ -75,8 +74,7 @@ def how_many(argv):
         deleted = sum_of_all_already_seen - sum_of_all
 
         for key, value in dress_length_dict.iteritems():
-            print '{0}: {1}, percent: {2}'.format(key, value, round(float(value) / sum_of_all, 2))
-
+            print '{0}: {1}, percent: {2}%'.format(key, value, round(float(value) / sum_of_all, 2) * 100)
 
     # men shirt sleeve #
     elif args.input_file == 'men_shirt_sleeve':
@@ -96,8 +94,7 @@ def how_many(argv):
         deleted = sum_of_all_already_seen - sum_of_all
 
         for key, value in men_shirt_sleeve_dict.iteritems():
-            print '{0}: {1}, percent: {2}'.format(key, value, round(float(value) / sum_of_all, 2))
-
+            print '{0}: {1}, percent: {2}%'.format(key, value, round(float(value) / sum_of_all, 2) * 100)
 
     # pants length #
     elif args.input_file == 'pants_length':
@@ -116,8 +113,7 @@ def how_many(argv):
         deleted = sum_of_all_already_seen - sum_of_all
 
         for key, value in pants_length_dict.iteritems():
-            print '{0}: {1}, percent: {2}'.format(key, value, round(float(value) / sum_of_all, 2))
-
+            print '{0}: {1}, percent: {2}%'.format(key, value, round(float(value) / sum_of_all, 2) * 100)
 
     # women shirt sleeve #
     elif args.input_file == 'women_shirt_sleeve':
@@ -142,7 +138,7 @@ def how_many(argv):
         deleted = sum_of_all_already_seen - sum_of_all
 
         for key, value in women_shirt_sleeve_dict.iteritems():
-            print '{0}: {1}, percent: {2}'.format(key, value, round(float(value) / sum_of_all, 2))
+            print '{0}: {1}, percent: {2}%'.format(key, value, round(float(value) / sum_of_all, 2)*100)
 
     else:
         print "wrong input!"
