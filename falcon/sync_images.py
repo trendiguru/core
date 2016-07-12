@@ -66,10 +66,12 @@ class Images(object):
                 # RELEVANCY CHECK GEVENT
                 relevant = {url: Greenlet.spawn(fast_results.check_if_relevant_and_enqueue, url, page_url)
                             for url in images_to_rel_check}
+                print "POST: before join_all: {0}".format(time.time()-start)
                 gevent.joinall(relevant.values())
+                print "POST: after join_all: {0}".format(time.time()-start)
                 relevancy_dict.update({url: green.value for url, green in relevant.iteritems()})
+                print "POST: after dictionary update: {0}".format(time.time()-start)
 
-                print "POST: after multiprocessing execution: {0}".format(time.time()-start)
                 ret["success"] = True
                 ret["relevancy_dict"] = relevancy_dict
             else:
