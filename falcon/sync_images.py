@@ -24,7 +24,8 @@ class Images(object):
     
     def __init__(self,  process_pool):
         self.process_pool = process_pool
-    
+        print "created Images"
+
     def on_post(self, req, resp):
         start = time.time()
         ret = {"success": False}

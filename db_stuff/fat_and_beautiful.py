@@ -438,7 +438,7 @@ class UrlParams(collections.MutableMapping):
 
 def getUserInput():
     parser = argparse.ArgumentParser(description='"@@@ Fat&Beauty Download @@@')
-    parser.add_argument('-n', '--name',default="Fat_Beauty", dest= "name",
+    parser.add_argument('-n', '--name', default="Fat_Beauty", dest= "name",
                         help='collection name')
     parser.add_argument('-g', '--gender', dest= "gender",
                         help='specify which gender to download. (Female or Male - case sensitive)', required=True)
@@ -459,11 +459,11 @@ if __name__ == "__main__":
     print ("@@@ ShopStyle Download @@@\n you choose to update the " + col + " collection")
     update_db = ShopStyleDownloader(col,gender)
     update_db.db_download()
-    forest_job = forest.enqueue(plantForests4AllCategories, col_name=col, timeout=3600)
-    while not forest_job.is_finished and not forest_job.is_failed:
-        time.sleep(300)
-    if forest_job.is_failed:
-        print ('annoy plant forest failed')
+    # forest_job = forest.enqueue(plantForests4AllCategories, col_name=col, timeout=3600)
+    # while not forest_job.is_finished and not forest_job.is_failed:
+    #     time.sleep(300)
+    # if forest_job.is_failed:
+    #     print ('annoy plant forest failed')
 
     print (col + "Update Finished!!!")
 

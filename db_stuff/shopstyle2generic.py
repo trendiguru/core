@@ -17,7 +17,7 @@ def convert2generic(prod, gender, col_name='ShopStyle'):
     male_relevant = shopstyle_constants.shopstyle_relevant_items_Male
     female_converter = shopstyle_constants.shopstyle_paperdoll_female
     male_converter = shopstyle_constants.shopstyle_paperdoll_male
-    if col_name=='Fat&Beauty':
+    if 'Fat_Beauty' in col_name:
         female_relevant = shopstyle_constants.fat2paperdoll_Female.keys()
         male_relevant = shopstyle_constants.fat2paperdoll_Male.keys()
         female_converter = shopstyle_constants.fat2paperdoll_Female
@@ -28,8 +28,8 @@ def convert2generic(prod, gender, col_name='ShopStyle'):
             cat.remove("women")
         if "womens-clothes" in cat:
             cat.remove("womens-clothes")
-        if "plus-sizes" in cat:
-            cat.remove("plus-sizes")
+        # if "plus-sizes" in cat:
+        #     cat.remove("plus-sizes")
         if len(cat) == 0:
             return None
         tmp_prod["categories"] = female_converter[cat[0]]
@@ -39,8 +39,8 @@ def convert2generic(prod, gender, col_name='ShopStyle'):
             cat.remove("men")
         if "mens-clothes" in cat:
             cat.remove("mens-clothes")
-        if "'mens-big-and-tall'" in cat:
-            cat.remove("'mens-big-and-tall'")
+        # if "'mens-big-and-tall'" in cat:
+        #     cat.remove("'mens-big-and-tall'")
         if len(cat) == 0:
             return None
         tmp_prod["categories"] = male_converter[cat[0]]
