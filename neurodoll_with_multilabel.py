@@ -180,7 +180,7 @@ def combine_neurodoll_and_multilabel(url_or_np_array,multilabel_threshold=0.9):
     multilabel = get_multilabel_output(url_or_np_array)
     #take only labels above a threshold on the multilabel result
     #possible other way to do this: multiply the neurodoll mask by the multilabel result and threshold that product
-    thresholded_multilabel = multilabel*multilabel>multilabel_threshold
+    thresholded_multilabel = [ml>multilabel_threshold for ml in multilabel]
     print('orig label:'+str(multilabel))
     print('thrs label:'+str(thresholded_multilabel))
     for i in range(len(thresholded_multilabel)):
