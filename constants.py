@@ -21,7 +21,8 @@ which_products_collection = {'default':
                                  {'default': 'ShopStyle', 'US': 'ebay', 'KR': 'GangnamStyle'},
                              'fashionseoul.com':
                                  {'KR': 'GangnamStyle'}}
-products_per_site = {'default': 'ShopStyle', 'fashionseoul.com': 'GangnamStyle', 'fazz.co': 'ShopStyle'}
+products_per_site = {'default': 'ShopStyle', 'fashionseoul.com': 'GangnamStyle', 'fazz.co': 'ShopStyle',
+                     'plus-model-mag.com': 'Fat_Beauty'}
                      # , 'mako.co.il': 'ebay'}
 products_per_country = {'default': 'ebay', 'ebay': ['US'], 'GangnhamStyle': ['KR']}
 # file containing constants for general TG use
