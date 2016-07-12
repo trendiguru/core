@@ -1,13 +1,15 @@
+import gevent
+from gevent import Greenlet, monkey
+monkey.patch_all()
+
 import datetime
 import tldextract
 import bson
 import time
 from rq import push_connection, Queue
-import gevent
-from gevent import Greenlet
+import constants
 # ours
 from .. import Utils
-from .. import constants
 from .. import background_removal
 from ..page_results import genderize
 
