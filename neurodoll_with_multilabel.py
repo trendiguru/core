@@ -1,6 +1,5 @@
 __author__ = 'jeremy'
 
-
 #!/usr/bin/env python
 
 from PIL import Image
@@ -17,189 +16,7 @@ import urllib
 from trendi import background_removal, Utils, constants
 from trendi.utils import imutils
 from trendi import pipeline
-
-def url_to_image(url):
-    # download the image, convert it to a NumPy array, and then read
-    # it into OpenCV format
-
-    if url.count('jpg') > 1:
-        return None
-
-    resp = urllib.urlopen(url)
-    image = np.asarray(bytearray(resp.read()), dtype="uint8")
-    if image.size == 0:
-        return None
-    new_image = cv2.imdecode(image, cv2.IMREAD_COLOR)
-
-    # return the image
-    return new_image
-
-
-
-def infer_one(url_or_np_array,required_image_size=(256,256)):
-    start_time = time.time()
-    if isinstance(url_or_np_array, basestring):
-        print('infer_one working on url:'+url_or_np_array)
-        image = url_to_image(url_or_np_array)
-    elif type(url_or_np_array) == np.ndarray:
-        image = url_or_np_array
-        # load image, switch to BGR, subtract mean, and make dims C x H x W for Caffe
-#    im = Image.open(imagename)
-#    im = im.resize(required_imagesize,Image.ANTIALIAS)
-
-#    in_ = in_.astype(float)
-    in_ = imutils.resize_keep_aspect(image,output_size=required_image_size,output_file=None)
-    in_ = np.array(in_, dtype=np.float32)   #.astype(float)
-    if len(in_.shape) != 3:
-        print('got 1-chan image, turning into 3 channel')
-        #DEBUG THIS , ORDER MAY BE WRONG
-        in_ = np.array([in_,in_,in_])
-    elif in_.shape[2] != 3:
-        print('got n-chan image, skipping - shape:'+str(in_.shape))
-        return
-#    in_ = in_[:,:,::-1]  for doing RGB -> BGR
-#    cv2.imshow('test',in_)
-    in_ -= np.array((104,116,122.0))
-    in_ = in_.transpose((2,0,1))
-    # shape for input (data blob is N x C x H x W), set data
-    net.blobs['data'].reshape(1, *in_.shape)
-    net.blobs['data'].data[...] = in_
-    # run net and take argmax for prediction
-    net.forward()
-
-
-    out = net.blobs['score'].data[0].argmax(axis=0)
-
-
-    result = Image.fromarray(out.astype(np.uint8))
-#        outname = im.strip('.png')[0]+'out.bmp'
-#    outname = os.path.basename(imagename)
-#    outname = outname.split('.jpg')[0]+'.bmp'
-#    outname = os.path.join(out_dir,outname)
-#    print('outname:'+outname)
-#    result.save(outname)
-    #        fullout = net.blobs['score'].data[0]
-    elapsed_time=time.time()-start_time
-    print('infer_one elapsed time:'+str(elapsed_time))
- #   cv2.imshow('out',out.astype(np.uint8))
- #   cv2.waitKey(0)
-    return out.astype(np.uint8)
-
-def get_category_graylevel(url_or_np_array,category_index,required_image_size=(256,256)):
-    start_time = time.time()
-    if isinstance(url_or_np_array, basestring):
-        print('infer_one working on url:'+url_or_np_array)
-        image = url_to_image(url_or_np_array)
-    elif type(url_or_np_array) == np.ndarray:
-        image = url_or_np_array
-# load image, switch to BGR, subtract mean, and make dims C x H x W for Caffe
-#    im = Image.open(imagename)
-#    im = im.resize(required_imagesize,Image.ANTIALIAS)
-#    in_ = in_.astype(float)
-    in_ = imutils.resize_keep_aspect(image,output_size=required_image_size,output_file=None)
-    in_ = np.array(in_, dtype=np.float32)   #.astype(float)
-    if len(in_.shape) != 3:  #h x w x channels, will be 2 if only h x w
-        print('got 1-chan image, turning into 3 channel')
-        #DEBUG THIS , ORDER MAY BE WRONG [what order? what was i thinking???]
-        in_ = np.array([in_,in_,in_])
-    elif in_.shape[2] != 3:  #for rgb/bgr, some imgages have 4 chan for alpha i guess
-        print('got n-chan image, skipping - shape:'+str(in_.shape))
-        return
-#    in_ = in_[:,:,::-1]  for doing RGB -> BGR
-#    cv2.imshow('test',in_)
-    in_ -= np.array((104,116,122.0))
-    in_ = in_.transpose((2,0,1))
-    # shape for input (data blob is N x C x H x W), set data
-    net.blobs['data'].reshape(1, *in_.shape)
-    net.blobs['data'].data[...] = in_
-    # run net and take argmax for prediction
-    net.forward()
-#    out = net.blobs['score'].data[0].argmax(axis=0) #for a parse with per-pixel max
-    out = net.blobs['siggy'].data[0][category_index] #for the nth class layer #siggy is after sigmoid
-    min = np.min(out)
-    max = np.max(out)
-    print('min {} max {} out shape {}'.format(min,max,out.shape))
-    out = out*255
-    min = np.min(out)
-    max = np.max(out)
-    print('min {} max {} out after scaling  {}'.format(min,max,out.shape))
-    result = Image.fromarray(out.astype(np.uint8))
-#        outname = im.strip('.png')[0]+'out.bmp'
-#    outname = os.path.basename(imagename)
-#    outname = outname.split('.jpg')[0]+'.bmp'
-#    outname = os.path.join(out_dir,outname)
-#    print('outname:'+outname)
-#    result.save(outname)
-    #        fullout = net.blobs['score'].data[0]
-    elapsed_time=time.time()-start_time
-    print('infer_one elapsed time:'+str(elapsed_time))
- #   cv2.imshow('out',out.astype(np.uint8))
- #   cv2.waitKey(0)
-    return out.astype(np.uint8)
-
-def get_final_activation(url_or_np_array,category_index,required_image_size=(256,256)):
-    #NOTE THIS IS NOT FINISHED , get correct layer if you want to continue - moving to multilabel instead
-    start_time = time.time()
-    if isinstance(url_or_np_array, basestring):
-        print('infer_one working on url:'+url_or_np_array)
-        image = url_to_image(url_or_np_array)
-    elif type(url_or_np_array) == np.ndarray:
-        image = url_or_np_array
-# load image, switch to BGR, subtract mean, and make dims C x H x W for Caffe
-#    im = Image.open(imagename)
-#    im = im.resize(required_imagesize,Image.ANTIALIAS)
-#    in_ = in_.astype(float)
-    in_ = imutils.resize_keep_aspect(image,output_size=required_image_size,output_file=None)
-    in_ = np.array(in_, dtype=np.float32)   #.astype(float)
-    if len(in_.shape) != 3:  #h x w x channels, will be 2 if only h x w
-        print('got 1-chan image, turning into 3 channel')
-        #DEBUG THIS , ORDER MAY BE WRONG [what order? what was i thinking???]
-        in_ = np.array([in_,in_,in_])
-    elif in_.shape[2] != 3:  #for rgb/bgr, some imgages have 4 chan for alpha i guess
-        print('got n-chan image, skipping - shape:'+str(in_.shape))
-        return
-#    in_ = in_[:,:,::-1]  for doing RGB -> BGR
-#    cv2.imshow('test',in_)
-    in_ -= np.array((104,116,122.0))
-    in_ = in_.transpose((2,0,1))
-    # shape for input (data blob is N x C x H x W), set data
-    net.blobs['data'].reshape(1, *in_.shape)
-    net.blobs['data'].data[...] = in_
-    # run net and take argmax for prediction
-    net.forward()
-#    out = net.blobs['score'].data[0].argmax(axis=0) #for a parse with per-pixel max
-    out = net.blobs['siggy'].data[0][category_index] #for the nth class layer #siggy is after sigmoid
-    min = np.min(out)
-    max = np.max(out)
-    print('min {} max {} out shape {}'.format(min,max,out.shape))
-    out = out*255
-    min = np.min(out)
-    max = np.max(out)
-    print('min {} max {} out after scaling  {}'.format(min,max,out.shape))
-    result = Image.fromarray(out.astype(np.uint8))
-#        outname = im.strip('.png')[0]+'out.bmp'
-#    outname = os.path.basename(imagename)
-#    outname = outname.split('.jpg')[0]+'.bmp'
-#    outname = os.path.join(out_dir,outname)
-#    print('outname:'+outname)
-#    result.save(outname)
-    #        fullout = net.blobs['score'].data[0]
-    elapsed_time=time.time()-start_time
-    print('infer_one elapsed time:'+str(elapsed_time))
- #   cv2.imshow('out',out.astype(np.uint8))
- #   cv2.waitKey(0)
-    return out.astype(np.uint8)
-
-def check_accuracy(solverproto,caffemodel,num_batches=200,batch_size=1,threshold = 0.5):
-    solver = caffe.SGDSolver(solverproto)
-    solver.net.copy_from(caffemodel)
-    solver.test_nets[0].share_with(solver.net)
-#    solver.step(1)
-    precision,recall,accuracy,tp,tn,fp,fn = check_acc(solver.test_nets[0], num_batches=num_batches,batch_size = batch_size, threshold=threshold)
-    return precision,recall,accuracy,tp,tn,fp,fn
-
-def get_multilabel()
-    p,r,a,tp,tn,fp,fn = check_accuracy(solverproto,caffemodel,threshold=t,num_batches=1000)
+from trendi.paperdoll import neurodoll_falcon_client as nfc
 
 
 #LOAD NEURODOLL
@@ -207,22 +24,124 @@ MODEL_FILE = "/home/jeremy/voc8_15_pixlevel_deploy.prototxt"
 SINGLE_CLASS_LAYER_DEPLOY = "/home/jeremy/voc8_15_pixlevel_deploy_with_sigmoid.prototxt"
 PRETRAINED = "/home/jeremy/voc8_15_pixlevel_iter120000.caffemodel"
 caffe.set_mode_gpu()
-caffe.set_device(0)
+caffe.set_device(1)
 print('loading caffemodel for neurodoll (single class layers)')
-net = caffe.Net(SINGLE_CLASS_LAYER_DEPLOY,PRETRAINED, caffe.TEST)
-required_image_size = (256, 256)
+neurodoll_per_class_net = caffe.Net(SINGLE_CLASS_LAYER_DEPLOY,PRETRAINED, caffe.TEST)
+neurodoll_required_image_size = (256, 256)
 image_mean = np.array([107.0,117.0,123.0])
 input_scale = None
 channel_swap = [2, 1, 0]
 raw_scale = 255.0
 
-#LOAD MULTILABELLER
+###########LOAD MULTILABELLER
 caffemodel =  '/home/jeremy/caffenets/multilabel/vgg_ilsvrc_16_multilabel_2/snapshot/train_iter_340000.caffemodel'
-solverproto = '/home/jeremy/caffenets/multilabel/vgg_ilsvrc_16_multilabel_2/solver.prototxt'
-solver = caffe.SGDSolver(solverproto)
-solver.net.copy_from(caffemodel)
-solver.test_nets[0].share_with(solver.net)
+deployproto = '/home/jeremy/caffenets/multilabel/vgg_ilsvrc_16_multilabel_2/deploy.prototxt'
+caffe.set_mode_gpu()
+caffe.set_device(0)
+multilabel_net = caffe.Net(deployproto,caffemodel, caffe.TEST)
+multilabel_required_image_size = (227,227)
 
+
+def url_to_image(url):
+    # download the image, convert it to a NumPy array, and then read
+    # it into OpenCV format
+    if url.count('jpg') > 1:
+        return None
+    resp = urllib.urlopen(url)
+    image = np.asarray(bytearray(resp.read()), dtype="uint8")
+    if image.size == 0:
+        return None
+    new_image = cv2.imdecode(image, cv2.IMREAD_COLOR)
+    # return the image
+    return new_image
+
+
+
+def get_multilabel_output(url_or_np_array,required_image_size=(227,227)):
+    if isinstance(url_or_np_array, basestring):
+        image = url_to_image(url_or_np_array)
+    elif type(url_or_np_array) == np.ndarray:
+        image = url_or_np_array
+    print('multilabel working on image of shape:'+str(image.shape))
+# load image, switch to BGR, subtract mean, and make dims C x H x W for Caffe
+#    im = Image.open(imagename)
+#    im = im.resize(required_imagesize,Image.ANTIALIAS)
+#    in_ = in_.astype(float)
+    in_ = imutils.resize_keep_aspect(image,output_size=required_image_size,output_file=None)
+    in_ = np.array(in_, dtype=np.float32)   #.astype(float)
+    if len(in_.shape) != 3:  #h x w x channels, will be 2 if only h x w
+        print('got 1-chan image, turning into 3 channel')
+        #DEBUG THIS , ORDER MAY BE WRONG [what order? what was i thinking???]
+        in_ = np.array([in_,in_,in_])
+    elif in_.shape[2] != 3:  #for rgb/bgr, some imgages have 4 chan for alpha i guess
+        print('got n-chan image, skipping - shape:'+str(in_.shape))
+        return
+#    in_ = in_[:,:,::-1]  for doing RGB -> BGR : since this is loaded nby cv2 its unecessary
+#    cv2.imshow('test',in_)
+    in_ -= np.array((104,116,122.0))
+    in_ = in_.transpose((2,0,1))
+    # shape for input (data blob is N x C x H x W), set data
+    multilabel_net.blobs['data'].reshape(1, *in_.shape)
+    multilabel_net.blobs['data'].data[...] = in_
+    # run net and take argmax for prediction
+    multilabel_net.forward()
+#    out = net.blobs['score'].data[0].argmax(axis=0) #for a parse with per-pixel max
+    out = multilabel_net.blobs['score'].data[0] #for the nth class layer #siggy is after sigmoid
+    min = np.min(out)
+    max = np.max(out)
+    print('multilabel:  {}'.format(out))
+    return out
+
+def grabcut_using_neurodoll_output(url_or_np_array,category_index):
+    if isinstance(url_or_np_array, basestring):
+        image = url_to_image(url_or_np_array)
+    elif type(url_or_np_array) == np.ndarray:
+        image = url_or_np_array
+    print('grabcut working on image of shape:'+str(image.shape))
+
+        #def neurodoll(image, category_idx):
+    dic = nfc.pd(image, category_index)
+    if not dic['success']:
+        return False, []
+    neuro_mask = dic['mask']
+
+    nm_size = neuro_mask.shape[0:2]
+    image_size = image.shape[0:2]
+    if image_size != nm_size:
+        image = cv2.resize(image,(nm_size[1],nm_size[0]))
+    # rect = (0, 0, image.shape[1] - 1, image.shape[0] - 1)
+    bgdmodel = np.zeros((1, 65), np.float64)
+    fgdmodel = np.zeros((1, 65), np.float64)
+
+    mask = np.zeros(image.shape[:2], np.uint8)
+    #TODO - maybe find something better than median as the threshold
+    med = np.median(neuro_mask)
+    mask[neuro_mask > med] = 3
+    mask[neuro_mask < med] = 2
+    try:
+        #TODO - try more than 1 grabcut call in itr
+        itr = 1
+        cv2.grabCut(image, mask, None, bgdmodel, fgdmodel, itr, cv2.GC_INIT_WITH_MASK)
+    except:
+        print('grabcut exception')
+        return False, []
+    mask2 = np.where((mask == 1) + (mask == 3), 255, 0).astype(np.uint8)
+    return mask2
+
+
+
+def combine_neurodoll_and_multilabel(url_or_np_array,multilabel_threshold=0.9):
+    multilabel = get_multilabel_output(url_or_np_array)
+    #take only labels above a threshold on the multilabel result
+    #possible other way to do this: multiply the neurodoll mask by the multilabel result and threshold that product
+    thresholded_multilabel = [ml>multilabel_threshold for ml in multilabel]
+#    print('orig label:'+str(multilabel))
+    print('thrs label:'+str(thresholded_multilabel))
+    for i in range(len(thresholded_multilabel)):
+        if thresholded_multilabel[i]:
+            item_mask = grabcut_using_neurodoll_output(url_or_np_array,i)
+            cv2.imshow('mask '+str(i),item_mask)
+            cv2.waitKey(0)
 
 # Make classifier.
 #classifier = caffe.Classifier(MODEL_FILE, PRETRAINED,
@@ -233,46 +152,8 @@ solver.test_nets[0].share_with(solver.net)
 
 
 if __name__ == "__main__":
+    outmat = np.zeros([256*4,256*21],dtype=np.uint8)
+    url = 'http://diamondfilms.com.au/wp-content/uploads/2014/08/Fashion-Photography-Sydney-1.jpg'
+    url = 'http://pinmakeuptips.com/wp-content/uploads/2015/02/1.4.jpg'
 
-    do_category = True
-    if(do_category):
-        outmat = np.zeros([256*4,256*21],dtype=np.uint8)
-        url = 'http://diamondfilms.com.au/wp-content/uploads/2014/08/Fashion-Photography-Sydney-1.jpg'
-        url = 'http://pinmakeuptips.com/wp-content/uploads/2015/02/1.4.jpg'
-
-        for index_to_show in range(0,21):
-            result = get_category_graylevel(url,index_to_show)
-
-            t1,im1 = cv2.threshold(result,60,255,cv2.THRESH_BINARY)
-            t2,im2 = cv2.threshold(result,127,255,cv2.THRESH_BINARY)
-            t3,im3 = cv2.threshold(result,180,255,cv2.THRESH_BINARY)
-
-            t4 = cv2.adaptiveThreshold(result,255,cv2.ADAPTIVE_THRESH_GAUSSIAN_C,cv2.THRESH_BINARY,11,2)
-            t5,im5 = cv2.threshold(result,128,255,cv2.THRESH_BINARY|cv2.THRESH_OTSU)
-
-            outmat[0:256,256*index_to_show:256*(index_to_show+1)] = result
-            outmat[256:256*2,256*index_to_show:256*(index_to_show+1)] = im1
-            outmat[256*2:256*3,256*index_to_show:256*(index_to_show+1)] = t4
-            outmat[256*3:256*4,256*index_to_show:256*(index_to_show+1)] = im5
-
-            cv2.imwrite('output.png',outmat)
-#            cv2.imshow('output layer'+str(index_to_show),result)
-#            cv2.waitKey(0)
-        cv2.imshow('output layers',outmat)
-        cv2.waitKey(0)
-#            labels=constants.ultimate_21
-#            imutils.show_mask_with_labels('output.png',labels,visual_output=True)
-
-
-    else:
-        url = 'http://diamondfilms.com.au/wp-content/uploads/2014/08/Fashion-Photography-Sydney-1.jpg'
-        url = 'http://pinmakeuptips.com/wp-content/uploads/2015/02/1.4.jpg'
-        result = infer_one(url,required_image_size=required_image_size)
-        cv2.imwrite('output.png',result)
-        labels=constants.ultimate_21
-        imutils.show_mask_with_labels('output.png',labels,visual_output=True)
-
-#    after_nn_result = pipeline.after_nn_conclusions(result,constants.ultimate_21_dict)
-#    cv2.imwrite('output_afternn.png',after_nn_result)
-#   labels=constants.ultimate_21
-
+    combine_neurodoll_and_multilabel(url)

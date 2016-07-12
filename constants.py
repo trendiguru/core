@@ -21,7 +21,8 @@ which_products_collection = {'default':
                                  {'default': 'ShopStyle', 'US': 'ebay', 'KR': 'GangnamStyle'},
                              'fashionseoul.com':
                                  {'KR': 'GangnamStyle'}}
-products_per_site = {'default': 'ShopStyle', 'fashionseoul.com': 'GangnamStyle', 'fazz.co': 'ShopStyle'}
+products_per_site = {'default': 'ShopStyle', 'fashionseoul.com': 'GangnamStyle', 'fazz.co': 'ShopStyle',
+                     'plus-model-mag.com': 'Fat_Beauty'}
                      # , 'mako.co.il': 'ebay'}
 products_per_country = {'default': 'ebay', 'ebay': ['US'], 'GangnhamStyle': ['KR']}
 # file containing constants for general TG use
@@ -216,8 +217,6 @@ ultimate_21_to_paperdoll = [None,None,None,5,16,9,None,None,None,None,3,13,1,Non
 ultimate_21 = ['bgnd','bag','belt','blazer','coat','dress','eyewear','face','hair','hat',
                'jeans','leggings','pants','shoe','shorts','skin','skirt','stockings','suit','sweater',
                'top']
-
-
 
 
 tamara_berg_improved_categories = ['background','belt','dress','eyewear','footwear','hat','legging','outerwear','pants','skirts',
