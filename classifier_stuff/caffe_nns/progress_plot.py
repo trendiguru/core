@@ -185,7 +185,6 @@ def parse_logfile(f,logy):
     plt.draw()
   else:
     fig, ax1 = plt.subplots()
-    fig.asdas
     if logy == True:
       ax1.semilogy(training_iterations, training_loss, 'bo:', label=train_label)
       ax1.semilogy(test_iterations, test_loss, 'go:', label=test_label)
@@ -211,8 +210,7 @@ def parse_logfile(f,logy):
     plt.title(net_name+' '+dt.isoformat(),fontsize=10)
     subtitle = args.output_file+'\n'+train_net+test_net+'base_lr'+base_lr+lr_policy+type+ 'mom:'+momentum+'gama'+gamma
     plt.suptitle(subtitle,fontsize=8)
-#    plt.draw()
-
+    #plt.draw()
 
   savename = args.output_file+'.jpg'
   plt.savefig(savename)
