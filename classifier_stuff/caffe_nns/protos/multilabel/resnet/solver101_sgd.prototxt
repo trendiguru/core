@@ -16,7 +16,7 @@ test_initialization: false
 solver_mode : GPU
 
 type: "SGD"
-base_lr: 0.01     # begin training at a learning rate of 0.01 = 1e-2
+base_lr: 0.0001     # begin training at a learning rate of 0.01 = 1e-2
 lr_policy: "step" # learning rate policy: drop the learning rate in "steps"
 gamma: 0.1        # drop the learning rate by a factor of 10
 stepsize: 100000  # drop the learning rate every 100K iterations
