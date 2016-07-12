@@ -156,10 +156,10 @@ def parse_logfile(f,logy):
   train_label = "train loss"
   test_label = "test loss"
   if logy == 'True':
-    training_loss = np.log10(training_loss)
-    test_loss = np.log10(test_loss)
     train_label = "log10(train logloss)"
     test_label = "log10(test logloss)"
+#    training_loss = np.log10(training_loss)
+#    test_loss = np.log10(test_loss)
 #    host.set_ylabel("log10(log loss)")
 
   if (0):
