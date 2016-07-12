@@ -28,8 +28,8 @@ def convert2generic(prod, gender, col_name='ShopStyle'):
             cat.remove("women")
         if "womens-clothes" in cat:
             cat.remove("womens-clothes")
-        if "plus-size" in cat:
-            cat.remove("plus-size")
+        if "plus-sizes" in cat:
+            cat.remove("plus-sizes")
         if len(cat) == 0:
             return None
         tmp_prod["categories"] = female_converter[cat[0]]
@@ -39,6 +39,8 @@ def convert2generic(prod, gender, col_name='ShopStyle'):
             cat.remove("men")
         if "mens-clothes" in cat:
             cat.remove("mens-clothes")
+        if "'mens-big-and-tall'" in cat:
+            cat.remove("'mens-big-and-tall'")
         if len(cat) == 0:
             return None
         tmp_prod["categories"] = male_converter[cat[0]]
