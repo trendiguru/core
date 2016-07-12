@@ -1,6 +1,10 @@
 #!/usr/bin/env bash
 #script to produce plots from recent caffe logfiles , send them to extremeli
 # accessable at http://extremeli.trendi.guru/demo/results/progress_plots/
+#currently this script runs on braini2 through crontab
+#crontab line (made using crontab -e) is
+#0,10,20,30,40,50 * * * * /root/auto_progress_plots.sh
+#meaning every 10 minutes, for every hr/day/etc run this script
 
 #produce the plots from any logfile updated in last 100 minutes
 counter = 0

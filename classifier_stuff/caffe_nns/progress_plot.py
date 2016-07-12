@@ -216,7 +216,11 @@ def parse_logfile(f,logy):
             mode="expand", borderaxespad=0.) #bbox_to_anchor=(0., 1.02, 1., .102), #ncol=2,
     dt=datetime.datetime.today()
     plt.title(net_name+' '+dt.isoformat(),fontsize=10)
-    subtitle = args.output_file+'\n'+train_net+test_net+'base_lr'+base_lr+lr_policy+type+ 'mom:'+momentum+'gama'+gamma
+    subtitle = args.output_file+'\n'+train_net+test_net+'base_lr'+base_lr+lr_policy+type
+    if momentum is not '':
+      subtitle = subtitle + 'mom:'+momentum
+    if gamma is not '':
+      subtitle=subtitle+'gama'+gamma
     plt.suptitle(subtitle,fontsize=8)
     #plt.draw()
 
