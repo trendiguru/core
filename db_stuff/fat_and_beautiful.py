@@ -303,7 +303,7 @@ class ShopStyleDownloader:
                     self.collection.insert_one(prod)
                     return
 
-            prod = convert2generic(prod, self.gender)
+            prod = convert2generic(prod, self.gender, self.collection_name)
             if prod is None:
                 return
             self.insert_and_fingerprint(prod)
