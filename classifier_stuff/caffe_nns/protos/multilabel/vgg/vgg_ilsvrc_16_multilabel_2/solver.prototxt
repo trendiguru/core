@@ -19,8 +19,8 @@ snapshot: 10000
 snapshot_prefix: "snapshot/train"
 test_initialization: false
 #type: "SGD" #this is default
-#type: "AdaGrad"
-type: "AdaDelta"
+type: "AdaGrad"
+#type: "AdaDelta"
 #delta: 0.1 
 #momentum: 0.95
 #type: "Adam"
