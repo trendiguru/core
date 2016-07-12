@@ -21,7 +21,7 @@ array_failure_with_plus_minus_category = np.array([])
 array_success_without = np.array([])
 array_failure_without = np.array([])
 
-text_file = open("db_dresses_test.txt", "r")
+text_file = open("db_dresses_train.txt", "r")
 
 counter = 0
 
@@ -136,6 +136,12 @@ plt.hist(array_success_with_plus_minus_category, bins=100, range=(0, 1), color='
 plt.legend()
 
 plt.hist(array_failure_with_plus_minus_category, bins=100, range=(0, 1), color='red', label='array_failure_with_plus_minus_category')
+plt.legend()
+
+plt.hist(array_success_without, bins=100, range=(0, 1), color='green', label='array_success_without')
+plt.legend()
+
+plt.hist(array_failure_without, bins=100, range=(0, 1), color='pink', label='array_failure_without')
 plt.legend()
 
 histogram.savefig('db_dresses_histogram_iter_5000.png')
