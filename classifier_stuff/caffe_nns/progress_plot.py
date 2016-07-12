@@ -199,6 +199,7 @@ def parse_logfile(f,logy):
         tl.set_color('b')
     if len(training_accuracy)>0 or len(test_accuracy)>0:
       ax2 = ax1.twinx()
+      ax2.set_ylabel('accuracy', color='b')
     if len(training_accuracy)>0:
       ax2.plot(training_iterations, training_accuracy, 'co:',label="train_acc")
       for tl in ax2.get_yticklabels():
@@ -207,6 +208,10 @@ def parse_logfile(f,logy):
       ax2.plot(test_iterations, test_accuracy, 'ro:',label="test_acc")
       for tl in ax2.get_yticklabels():
         tl.set_color('r')
+#    ax1.legend(loc='upper center', bbox_to_anchor=(0.5, -0.05),
+#          fancybox=True, shadow=True, ncol=5)
+    plt.legend(bbox_to_anchor=(0., 1.02, 1., .102), loc=1,
+           ncol=2, mode="expand", borderaxespad=0.)
     dt=datetime.datetime.today()
     plt.title(net_name+' '+dt.isoformat(),fontsize=10)
     subtitle = args.output_file+'\n'+train_net+test_net+'base_lr'+base_lr+lr_policy+type+ 'mom:'+momentum+'gama'+gamma
