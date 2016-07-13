@@ -60,7 +60,8 @@ from ..constants import db
 blacklist = ['Jewelry', 'Watches', 'Handbags', 'Accessories', 'Lingerie, Sleep & Lounge', 'Socks & Hosiery',
              'Handbags & Wallets', 'Shops', 'Girls', 'Boys', 'Shoes', 'Underwear', 'Baby', 'Sleep & Lounge',
              'Socks', 'Novelty & More', 'Luggage & Travel Gear', 'Uniforms, Work & Safety', 'Costumes & Accessories',
-             'hoe, Jewelry & Watch Accessories', 'Traditional & Cultural Wear']
+             'Shoe, Jewelry & Watch Accessories', 'Traditional & Cultural Wear', ' Active Underwear', ' Active Socks',
+             ' Active Supporters', ' Active Base Layers', 'Sport Bras']
 
 base_parameters = {
     'AWSAccessKeyId': 'AKIAIQJZVKJKJUUC4ETA',
@@ -73,12 +74,34 @@ base_parameters = {
     'ResponseGroup': 'ItemAttributes, OfferSummary,Images'}
 
 
-def get_result_count(node_id):
+def format_price(price_float):
+    """
+    input - float
+    output - string
+    """
+    pricex100 = price_float*100
+    price_int = int(pricex100)
+    price_str = str(price_int)
+
+    # verify 4 character string
+    while len(price_str)<4:
+        price_str ='0'+price_str
+
+    return price_str
+
+
+def get_results(node_id, price_flag=True, max_price=1000.0, min_price=0.0, results_count_only=False, name='moshe'):
     parameters = base_parameters.copy()
     parameters['Timestamp'] = strftime("%Y-%m-%dT%H:%M:%SZ", gmtime())
     parameters['SearchIndex'] = 'FashionWomen'
-    parameters['ResponseGroup'] = 'SearchBins'
     parameters['BrowseNode'] = node_id
+    if not price_flag:
+        parameters['ResponseGroup'] = 'SearchBins'
+    else:
+        parameters['MinimumPrice'] = format_price(min_price)
+        parameters['MaximumPrice'] = format_price(max_price)
+
+    sleep(1.1)
     res = get(get_amazon_signed_url(parameters, 'GET', False))
 
     if res.status_code != 200:
@@ -92,14 +115,31 @@ def get_result_count(node_id):
 
     res_dict = dict(res_dict['ItemSearchResponse']['Items'])
     if 'TotalResults' in res_dict.keys():
-        return int(res_dict['TotalResults'])
+        results_count = int(res_dict['TotalResults'])
+        if results_count_only:
+            return results_count
     else:
         print ('bad query')
         return 0
 
+    if results_count > 100:
+        mid_price = (max_price+min_price)/2
+        if (mid_price-min_price) >= 0.01:
+            get_results(node_id, min_price=mid_price, max_price=max_price, name=name)
+        if (max_price - mid_price) >= 0.01:
+            get_results(node_id, min_price=min_price, max_price=mid_price, name=name)
+        return 0
 
-def build_category_tree(root = '7141124011', tab=0, parent='orphan'):
+    print ('Name: %s, %s -> %s => %d' %(name, min_price, max_price, results_count))
+
+
+def build_category_tree(root='7141124011', tab=0, parent='orphan', delete_collection=False):
+
+    if delete_collection:
+        db.amazon_category_tree.delete_many({})
+
     parameters = base_parameters.copy()
+    parameters['Timestamp'] = strftime("%Y-%m-%dT%H:%M:%SZ", gmtime())
     parameters['Operation'] = 'BrowseNodeLookup'
     parameters['ResponseGroup'] = 'BrowseNodeInfo'
     parameters['BrowseNodeId'] = root
@@ -125,7 +165,7 @@ def build_category_tree(root = '7141124011', tab=0, parent='orphan'):
         return name
 
     node_id = res_dict['BrowseNodeId']
-    result_count = get_result_count(node_id)
+    result_count = get_results(node_id,price_flag=False, results_count_only=True)
     leaf = {'Name': name,
             'BrowseNodeId': node_id,
             'Parent': parent,
@@ -134,7 +174,7 @@ def build_category_tree(root = '7141124011', tab=0, parent='orphan'):
             'TotalResults': result_count}
 
     tab_space = '\t' * tab
-    print('%sname: %s,  NodeId: %s,  Children: %d , result_count: %d'
+    print('%sName: %s,  NodeId: %s,  Children: %d , result_count: %d'
           % (tab_space, name, leaf['BrowseNodeId'], leaf['Children']['count'], result_count))
 
     tab += 1
@@ -150,8 +190,16 @@ def build_category_tree(root = '7141124011', tab=0, parent='orphan'):
 
         leaf['Children']['names'].append((child_id,child_name))
 
+    db.amazon_category_tree.delete_one({'BrowseNodeId': node_id})
     db.amazon_category_tree.insert_one(leaf)
     return name
 
-db.amazon_category_tree.delete_many({})
-build_category_tree()
+
+build_category_tree(delete_collection=True)
+leafs = db.amazon_category_tree.find({'Children.count': 0})
+for leaf in leafs:
+    leaf_name = leaf['Name']
+    node_id = leaf['BrowseNodeId']
+    get_results(node_id, results_count_only=False, name=leaf_name)
+
+
