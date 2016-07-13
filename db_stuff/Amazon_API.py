@@ -141,11 +141,13 @@ def process_results(pagenum, node_id, min_price, max_price, res_dict=None):
                         'shortDescription': atttibutes['Title'],
                         'longDescription': ' '.join(atttibutes['Feature'])}
 
+            print('##################################')
             asin_exists = db.amazon_all.find_one({'asin': asin})
             if asin_exists:
                 print('item exists already!')
                 continue
 
+            print('ooooooooooooooooooooooooooooooooooo')
             parent_asin_exists = db.amazon_all.find_one({'parent_asin': parent_asin, 'features.color': features['color']})
             if parent_asin_exists:
                 print ('parent_asin + color already exists')
@@ -157,7 +159,7 @@ def process_results(pagenum, node_id, min_price, max_price, res_dict=None):
                 else:
                     print ('+ size already exists ----- %s->%s' % (features['color'], clothing_size))
                 continue
-
+            print('????????????????????????????????????')
             new_item = {'asin': asin,
                         'parent_asin': parent_asin,
                         'clickUrl': click_url,
