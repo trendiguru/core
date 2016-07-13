@@ -3,7 +3,7 @@ import ctypes
 
 # Go here to determine output_ctype:
 # https://docs.python.org/2/library/ctypes.html#fundamental-data-types
-def run_parallel(f, inputs, num_processes=None, ouput_ctype=None):
+def map(f, inputs, num_processes=None, ouput_ctype=None):
 	ouput_ctype = ouput_ctype or ctypes.c_bool
 	num_processes = num_processes or int(0.75 * cpu_count())
 	outputs = [Value(ctypes.c_bool) for i in xrange(num_processes)]
@@ -32,7 +32,7 @@ def run_test():
 	start = time.time()
 	image_and_page_urls = [(random.random(), random.random()) for i in xrange(20)]
 
-	outs = run_parallel(check_small, image_and_page_urls)
+	outs = map(check_small, image_and_page_urls)
 
 	print "outs: "
 	print outs
