@@ -190,6 +190,7 @@ def build_category_tree(root = '7141124011', tab=0, parent='orphan', delete_coll
 
         leaf['Children']['names'].append((child_id,child_name))
 
+    db.amazon_category_tree.delete_one({'BrowseNodeId': node_id})
     db.amazon_category_tree.insert_one(leaf)
     return name
 
