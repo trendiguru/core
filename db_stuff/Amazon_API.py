@@ -72,7 +72,7 @@ def get_result_count(node_id):
     parameters = base_parameters.copy()
     # parameters['SearchIndex']: 'FashionWomen',
     parameters['ResponseGroup'] = 'SearchBins'
-    parameters['BrowseNodeId'] = node_id
+    parameters['BrowseNode'] = node_id
     res = get(get_amazon_signed_url(parameters, 'GET', True))
 
     if res.status_code != 200:
