@@ -260,19 +260,20 @@ def build_category_tree(root='7141124011', tab=0, parents=[], delete_collection=
 
     tab += 1
     if len(parents) == 0:
-        parents = [name]
+        p = [name]
     else:
-        parents.append(name)
+        p = [x for x in parents]
+        p.append(name)
 
     for child in children:
         sleep(1.5)
         if 'BrowseNodeId' not in child.keys():
             continue
         child_id = child['BrowseNodeId']
-        child_name = build_category_tree(child_id, tab, parents)
+        child_name = build_category_tree(child_id, tab, p)
         if child_name is None:  # try again
             print ('##################################################################################################')
-            child_name = build_category_tree(child_id, tab,  parents)
+            child_name = build_category_tree(child_id, tab,  p)
 
         leaf['Children']['names'].append((child_id,child_name))
 
