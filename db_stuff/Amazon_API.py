@@ -133,7 +133,7 @@ def get_results(node_id, price_flag=True, max_price=1000.0, min_price=0.0, resul
     print ('Name: %s, %s -> %s => %d' %(name, min_price, max_price, results_count))
 
 
-def build_category_tree(root = '7141124011', tab=0, parent='orphan', delete_collection=False):
+def build_category_tree(root='7141124011', tab=0, parent='orphan', delete_collection=False):
 
     if delete_collection:
         db.amazon_category_tree.delete_many({})
@@ -195,7 +195,7 @@ def build_category_tree(root = '7141124011', tab=0, parent='orphan', delete_coll
     return name
 
 
-build_category_tree()
+build_category_tree(delete_collection=True)
 leafs = db.amazon_category_tree.find({'Children.count': 0})
 for leaf in leafs:
     leaf_name = leaf['Name']
