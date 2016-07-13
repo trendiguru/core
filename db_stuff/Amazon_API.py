@@ -121,36 +121,60 @@ def process_results(pagenum, node_id, min_price, max_price, res_dict=None):
     item_list = res_dict['Item']
     new_item_count = 0
     for item in item_list:
+        asin = 0
+        parent_asin = 0
+        click_url = 0
+        image = 0
+        price = 0
+        atttibutes=0
+        color = 0
+        sizes = 0
+        short_d = 0
+        long_d = 0
+        features = 0
         try:
+            item_keys = item.keys()
             asin = item['ASIN']
-            parent_asin = item['ParentASIN']
+            if 'ParentASIN' not in item_keys:
+                parent_asin = asin
+            else:
+                parent_asin = item['ParentASIN']
             click_url = item['DetailPageURL']
-            image = item['LargeImage']
+            image = item['LargeImage']['URL']
             offer = item['OfferSummary']['LowestNewPrice']
-            price = {'price':float(offer['Amount'])/100,
+            price = {'price': float(offer['Amount'])/100,
                      'currency': offer['CurrencyCode'],
                      'priceLabel': offer['FormattedPrice']}
             atttibutes = item['ItemAttributes']
             clothing_size = atttibutes['ClothingSize']
-            features = {'color': atttibutes['Color'],
-                        'sizes': [clothing_size],
-                        'shortDescription': atttibutes['Title'],
-                        'longDescription': ' '.join(atttibutes['Feature'])}
+            color = atttibutes['Color']
+            sizes = [clothing_size]
+            short_d = atttibutes['Title']
+            long_d = ' '.join(atttibutes['Feature'])
+            features = {'color': color,
+                        'sizes': sizes,
+                        'shortDescription': short_d,
+                        'longDescription': long_d}
 
+            print('##################################')
             asin_exists = db.amazon_all.find_one({'asin': asin})
             if asin_exists:
                 print('item exists already!')
                 continue
 
+            print('ooooooooooooooooooooooooooooooooooo')
             parent_asin_exists = db.amazon_all.find_one({'parent_asin': parent_asin, 'features.color': features['color']})
             if parent_asin_exists:
+                print ('parent_asin + color already exists')
                 sizes = parent_asin_exists['features']['sizes']
                 if clothing_size not in sizes:
                     sizes.append(clothing_size)
                     db.amazon_all.update_one({'_id':parent_asin_exists['_id']}, {'$set':{'features.sizes':sizes}})
                     print ('added another size to existing item')
+                else:
+                    print ('+ size already exists ----- %s->%s' % (features['color'], clothing_size))
                 continue
-
+            print('????????????????????????????????????')
             new_item = {'asin': asin,
                         'parent_asin': parent_asin,
                         'clickUrl': click_url,
@@ -158,10 +182,25 @@ def process_results(pagenum, node_id, min_price, max_price, res_dict=None):
                         'price': price,
                         'features': features}
 
+            print 'inserting'
             db.amazon_all.insert_one(new_item)
+            print 'item inserted\n'
             new_item_count +=1
 
         except:
+            print ('---------------problem in the way-------------')
+            print (asin)
+            print(parent_asin)
+            print(click_url)
+            print(image)
+            print(price)
+            print(features)
+            print (atttibutes)
+            print(color)
+            print(sizes)
+            print(short_d)
+            print(long_d)
+            raw_input()
             pass
 
     return new_item_count
@@ -201,7 +240,7 @@ def get_results(node_id, price_flag=True, max_price=10000.0, min_price=0.0, resu
         return 0
 
     if 'Errors' in res_dict.keys() or results_count == 0:
-        print('Error / no results \n checkout the request: \n %s' % request_url)
+        print('\n Error / no results \n checkout the request: \n %s \n' % request_url)
         return 0
 
     if results_count > 100:
@@ -290,12 +329,24 @@ def build_category_tree(root='7141124011', tab=0, parents=[], delete_collection=
     return name
 
 
-# build_category_tree(delete_collection=True)
-print('starting to download')
-leafs = db.amazon_category_tree.find({'Children.count': 0})
-for leaf in leafs:
-    leaf_name = '->'.join(leaf['Parents']) + '->' + leaf['Name']
-    node_id = leaf['BrowseNodeId']
-    get_results(node_id, results_count_only=False, name=leaf_name)
+def download_all(delete_collection=False):
+    collection = db.amazon_all
+    # build_category_tree(delete_collection=delete_collection)
+    print('starting to download')
 
+    if delete_collection:
+        collection.delete_many({})
+        indexes = collection.index_information().keys()
+        for idx in ['id', 'img_hash', 'categories', 'images.XLarge', 'download_data.dl_version', 'asin', 'parent_asin',
+                    'features.color']:
+            idx_1 = idx + '_1'
+            if idx_1 not in indexes:
+                collection.create_index(idx, background=True)
 
+    leafs = db.amazon_category_tree.find({'Children.count': 0})
+    for leaf in leafs:
+        leaf_name = '->'.join(leaf['Parents']) + '->' + leaf['Name']
+        node_id = leaf['BrowseNodeId']
+        get_results(node_id, results_count_only=False, name=leaf_name)
+
+download_all(True)
