@@ -70,10 +70,10 @@ base_parameters = {
 
 def get_result_count(node_id):
     parameters = base_parameters.copy()
-    # parameters['SearchIndex']: 'FashionWomen',
+    parameters['SearchIndex']= 'FashionWomen'
     parameters['ResponseGroup'] = 'SearchBins'
     parameters['BrowseNode'] = node_id
-    res = get(get_amazon_signed_url(parameters, 'GET', True))
+    res = get(get_amazon_signed_url(parameters, 'GET', False))
 
     if res.status_code != 200:
         # print ('Bad request!!!')
@@ -85,8 +85,11 @@ def get_result_count(node_id):
         return 0
 
     res_dict = dict(res_dict['ItemSearchResponse']['Items'])
-    print res_dict.keys()
-    return int(res_dict['TotalResults'])
+    if 'TotalResults' in res_dict.keys():
+        return int(res_dict['TotalResults'])
+    else:
+        print ('bad query')
+        return 0
 
 
 def build_category_tree(root = '7141124011', tab=0, parent='orphan'):
