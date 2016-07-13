@@ -126,6 +126,11 @@ def process_results(pagenum, node_id, min_price, max_price, res_dict=None):
         click_url = 0
         image = 0
         price = 0
+        atttibutes=0
+        color = 0
+        sizes = 0
+        short_d = 0
+        long_d = 0
         features = 0
         try:
             item_keys = item.keys()
@@ -142,10 +147,14 @@ def process_results(pagenum, node_id, min_price, max_price, res_dict=None):
                      'priceLabel': offer['FormattedPrice']}
             atttibutes = item['ItemAttributes']
             clothing_size = atttibutes['ClothingSize']
-            features = {'color': atttibutes['Color'],
-                        'sizes': [clothing_size],
-                        'shortDescription': atttibutes['Title'],
-                        'longDescription': ' '.join(atttibutes['Feature'])}
+            color = atttibutes['Color']
+            sizes = [clothing_size]
+            short_d = atttibutes['Title']
+            long_d = ' '.join(atttibutes['Feature'])
+            features = {'color': color,
+                        'sizes': sizes,
+                        'shortDescription': short_d,
+                        'longDescription': long_d}
 
             print('##################################')
             asin_exists = db.amazon_all.find_one({'asin': asin})
@@ -186,6 +195,11 @@ def process_results(pagenum, node_id, min_price, max_price, res_dict=None):
             print(image)
             print(price)
             print(features)
+            print (atttibutes)
+            print(color)
+            print(sizes)
+            print(short_d)
+            print(long_d)
             raw_input()
             pass
 
