@@ -68,6 +68,26 @@ base_parameters = {
     'ResponseGroup': 'ItemAttributes, OfferSummary,Images'}
 
 
+def get_result_count(node_id):
+    parameters = base_parameters.copy()
+    parameters['ResponseGroup'] = 'SearchBins'
+    parameters['BrowseNodeId'] = node_id
+    res = get(get_amazon_signed_url(parameters, 'GET', False))
+
+    if res.status_code != 200:
+        # print ('Bad request!!!')
+        return 0
+
+    res_dict = dict(xmltodict.parse(res.text))
+    if 'ItemSearchResponse' not in res_dict.keys():
+        print ('No ItemSearchResponse')
+        return 0
+
+    res_dict = dict(res_dict['ItemSearchResponse']['Items'])
+
+    return int(res_dict['TotalResults'])
+
+
 def build_category_tree(root = '7141124011', tab=0, parent='orphan'):
     parameters = base_parameters.copy()
     parameters['Operation'] = 'BrowseNodeLookup'
@@ -91,16 +111,18 @@ def build_category_tree(root = '7141124011', tab=0, parent='orphan'):
         children = []
 
     name = res_dict['Name']
-
+    node_id = res_dict['BrowseNodeId']
+    result_count = get_result_count(node_id)
     leaf = {'Name': name,
-            'BrowseNodeId': res_dict['BrowseNodeId'],
+            'BrowseNodeId': node_id,
             'Parent': parent,
             'Children': {'count': len(children),
-                         'names': []}}
+                         'names': []},
+            'TotalResults': result_count}
 
     tab_space = '\t' * tab
-    print('%sname: %s,  ItemId: %s,  Children: %d'
-          % (tab_space, name, leaf['BrowseNodeId'], leaf['Children']['count']))
+    print('%sname: %s,  ItemId: %s,  Children: %d , result_count: %d'
+          % (tab_space, name, leaf['BrowseNodeId'], leaf['Children']['count'], result_count))
 
     tab += 1
     for child in children:
