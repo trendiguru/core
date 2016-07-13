@@ -18,6 +18,7 @@ import urllib
 from PIL import Image
 import pymongo
 import argparse
+import shutil
 
 
 def cv2_image_to_caffe(image):
