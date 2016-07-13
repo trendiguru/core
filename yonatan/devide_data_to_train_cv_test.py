@@ -21,6 +21,7 @@ for dress in sleeve_dress:
 
     #working_path = '/home/yonatan/resized_db_' + args.input_file + '_' + key
 
+
     for root, dirs, files in os.walk(source_dir):
         file_count = len(files)
         print '/home/yonatan/resized_db_' + dress + '_dresses'
