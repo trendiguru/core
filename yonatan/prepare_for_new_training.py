@@ -24,10 +24,13 @@ sleeve_dress = {'strapless', 'spaghetti_straps', 'straps', 'sleeveless',
 sets = {'train', 'cv', 'test'}
 
 for dress_type in sleeve_dress:
-    #shutil.rmtree('/home/yonatan/db_' + dress_type + '_dresses')
-    shutil.rmtree('/home/yonatan/resized_db_' + dress_type + '_dresses')
-    #os.mkdir('/home/yonatan/db_' + dress_type + '_dresses')
-    os.mkdir('/home/yonatan/resized_db_' + dress_type + '_dresses')
+    if os.path.isdir('/home/yonatan/db_' + dress_type + '_dresses'):
+        shutil.rmtree('/home/yonatan/db_' + dress_type + '_dresses')
+    else:
+        #shutil.rmtree('/home/yonatan/db_' + dress_type + '_dresses')
+        shutil.rmtree('/home/yonatan/resized_db_' + dress_type + '_dresses')
+        #os.mkdir('/home/yonatan/db_' + dress_type + '_dresses')
+        os.mkdir('/home/yonatan/resized_db_' + dress_type + '_dresses')
 
 for set in sets:
     shutil.rmtree('/home/yonatan/db_dresses_' + set + '_set')
