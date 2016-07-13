@@ -47,9 +47,7 @@ def how_many(argv):
     elif args.input_file == 'dress_length':
         dress_length_dict = yonatan_constants.dress_length_dict
 
-        sum_of_all = dress_length_dict['mini_length'] + dress_length_dict['above_knee'] + dress_length_dict['knee_length'] + \
-                     dress_length_dict['tea_length'] + dress_length_dict['ankle_length'] + dress_length_dict['floor_length']
-
+        sum_of_all = sum(dress_length_dict.itervalues())
         sum_of_all_already_seen = db.yonatan_dresses.count({'already_seen_dress_length': True})
 
         deleted = sum_of_all_already_seen - sum_of_all
