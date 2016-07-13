@@ -80,7 +80,7 @@ def log2file(mode='w', LOG_FILENAME='/home/developer/yonti/amazon_download_stats
     handler = logging.FileHandler(LOG_FILENAME, mode=mode)
     handler.setLevel(logging.INFO)
     logger.addHandler(handler)
-    return logger
+    return logger, handler
 
 
 def format_price(price_float, period=False):
@@ -298,8 +298,9 @@ def get_results(node_id, price_flag=True, max_price=10000.0, min_price=0.0, resu
 
     summary = 'Name: %s, PriceRange: %s -> %s , ResultCount: %d (%d)'\
               % (name, format_price(min_price, True), format_price(max_price, True), results_count, new_items_count)
-    handler = log2file(mode='a')
-    handler.info(summary)
+    logger, handler = log2file(mode='a')
+    logger.info(summary)
+    logger.removeHandler(handler)
     print (summary)
 
 
@@ -375,8 +376,9 @@ def build_category_tree(root='7141124011', tab=0, parents=[], delete_collection=
 def download_all(delete_collection=False):
     collection = db.amazon_all
     # build_category_tree(delete_collection=delete_collection)
-    handler = log2file(mode='w')
-    handler.info('download started')
+    logger, handler = log2file(mode='w')
+    logger.info('download started')
+    logger.removeHandler(handler)
     print('starting to download')
 
     if delete_collection:
@@ -392,6 +394,9 @@ def download_all(delete_collection=False):
     for leaf in leafs:
         leaf_name = '->'.join(leaf['Parents']) + '->' + leaf['Name']
         node_id = leaf['BrowseNodeId']
-        get_results(node_id, results_count_only=False, name=leaf_name)
+        try:
+            get_results(node_id, results_count_only=False, name=leaf_name)
+        except:
+            continue
 
 download_all(True)
