@@ -33,13 +33,27 @@ def how_many(argv):
 
     # dress sleeve #
     if args.input_file == 'dress_sleeve':
-        x = 'yonatan_constants.' + args.input_file + '_dict'
-        dress_sleeve_dict = x
+        dress_sleeve_dict = {
+    'strapless': [db.yonatan_dresses.find(
+        {'sleeve_length': ['true', 'false', 'false', 'false', 'false', 'false', 'false', 'false', 'false']}), 0],
+    'spaghetti_straps': [db.yonatan_dresses.find(
+        {'sleeve_length': ['false', 'true', 'false', 'false', 'false', 'false', 'false', 'false', 'false']}), 1],
+    'straps': [db.yonatan_dresses.find(
+        {'sleeve_length': ['false', 'false', 'true', 'false', 'false', 'false', 'false', 'false', 'false']}), 2],
+    'sleeveless': [db.yonatan_dresses.find(
+        {'sleeve_length': ['false', 'false', 'false', 'true', 'false', 'false', 'false', 'false', 'false']}), 3],
+    'cap_sleeve': [db.yonatan_dresses.find(
+        {'sleeve_length': ['false', 'false', 'false', 'false', 'true', 'false', 'false', 'false', 'false']}), 4],
+    'short_sleeve': [db.yonatan_dresses.find(
+        {'sleeve_length': ['false', 'false', 'false', 'false', 'false', 'true', 'false', 'false', 'false']}), 5],
+    'midi_sleeve': [db.yonatan_dresses.find(
+        {'sleeve_length': ['false', 'false', 'false', 'false', 'false', 'false', 'true', 'false', 'false']}), 6],
+    'long_sleeve': [db.yonatan_dresses.find(
+        {'sleeve_length': ['false', 'false', 'false', 'false', 'false', 'false', 'false', 'true', 'false']}), 7]
+    # 'asymmetry' : [db.yonatan_dresses.find({'sleeve_length': ['false', 'false', 'false', 'false', 'false', 'false', 'false', 'false', 'true']}), 8]
+    }
 
-        sum_of_all = dress_sleeve_dict['strapless'] + dress_sleeve_dict['spaghetti_straps'] + dress_sleeve_dict['straps'] + \
-                     dress_sleeve_dict['sleeveless'] + dress_sleeve_dict['cap_sleeve'] + dress_sleeve_dict['short_sleeve']
-                    # dress_sleeve_dict['midi_sleeve'] + dress_sleeve_dict['long_sleeve'] + dress_sleeve_dict['asymmetry']
-
+        sum_of_all = sum(dress_sleeve_dict.itervalues())
         sum_of_all_already_seen = db.yonatan_dresses.count({'already_seen_dress_sleeve': True})
 
         deleted = sum_of_all_already_seen - sum_of_all
