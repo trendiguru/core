@@ -90,7 +90,81 @@ def format_price(price_float):
     return price_str
 
 
-def get_results(node_id, price_flag=True, max_price=1000.0, min_price=0.0, results_count_only=False, name='moshe'):
+def process_results(pagenum, node_id, min_price, max_price, res_dict=None):
+
+    if pagenum is not 1:
+        parameters = base_parameters.copy()
+        parameters['Timestamp'] = strftime("%Y-%m-%dT%H:%M:%SZ", gmtime())
+        parameters['SearchIndex'] = 'FashionWomen'
+        parameters['BrowseNode'] = node_id
+        parameters['ItemPage'] = str(pagenum)
+        parameters['MinimumPrice'] = format_price(min_price)
+        parameters['MaximumPrice'] = format_price(max_price)
+
+        sleep(1.1)
+        res = get(get_amazon_signed_url(parameters, 'GET', False))
+
+        if res.status_code != 200:
+            # print ('Bad request!!!')
+            return 0
+
+        res_dict = dict(xmltodict.parse(res.text))
+        if 'ItemSearchResponse' not in res_dict.keys():
+            print ('No ItemSearchResponse')
+            return 0
+
+        res_dict = dict(res_dict['ItemSearchResponse']['Items'])
+
+    item_list = res_dict['Item']
+    new_item_count = 0
+    for item in item_list:
+        try:
+            asin = item['ASIN']
+            parent_asin = item['ParentASIN']
+            click_url = item['DetailPageURL']
+            image = item['LargeImage']
+            offer = item['OfferSummary']['LowestNewPrice']
+            price = {'price':float(offer['Amount'])/100,
+                     'currency': offer['CurrencyCode'],
+                     'priceLabel': offer['FormattedPrice']}
+            atttibutes = item['ItemAttributes']
+            clothing_size = atttibutes['ClothingSize']
+            features = {'color': atttibutes['Color'],
+                        'sizes': [clothing_size],
+                        'shortDescription': atttibutes['Title'],
+                        'longDescription': ' '.join(atttibutes['Feature'])}
+
+            asin_exists = db.amazon_all.find_one({'asin': asin})
+            if asin_exists:
+                print('item exists already!')
+                continue
+
+            parent_asin_exists = db.amazon_all.find_one({'parent_asin': parent_asin, 'features.color': features['color']})
+            if parent_asin_exists:
+                sizes = parent_asin_exists['features']['sizes']
+                if clothing_size not in sizes:
+                    sizes.append(clothing_size)
+                    db.amazon_all.update_one({'_id':parent_asin_exists['_id']}, {'$set':{'features.sizes':sizes}})
+                    print ('added another size to existing item')
+                continue
+
+            new_item = {'asin': asin,
+                        'parent_asin': parent_asin,
+                        'clickUrl': click_url,
+                        'images':{'XLarge':image},
+                        'price': price,
+                        'features': features}
+
+            db.amazon_all.insert_one(new_item)
+            new_item_count +=1
+
+        except:
+            pass
+
+    return new_item_count
+
+
+def get_results(node_id, price_flag=True, max_price=10000.0, min_price=0.0, results_count_only=False, name='moshe'):
     parameters = base_parameters.copy()
     parameters['Timestamp'] = strftime("%Y-%m-%dT%H:%M:%SZ", gmtime())
     parameters['SearchIndex'] = 'FashionWomen'
@@ -130,10 +204,16 @@ def get_results(node_id, price_flag=True, max_price=1000.0, min_price=0.0, resul
             get_results(node_id, min_price=min_price, max_price=mid_price, name=name)
         return 0
 
-    print ('Name: %s, %s -> %s => %d' %(name, min_price, max_price, results_count))
+    total_pages = int(res_dict['TotalPages'])
+    new_items_count = process_results(1,node_id, min_price, max_price,res_dict)
+    for pagenum in range(2,total_pages):
+        new_items_count += process_results(pagenum, node_id, min_price, max_price)
+
+    print ('Name: %s, PriceRange: %s -> %s , ResultCount: %d (%d)'
+           % (name, format_price(min_price), format_price(max_price), results_count, new_items_count))
 
 
-def build_category_tree(root='7141124011', tab=0, parent='orphan', delete_collection=False):
+def build_category_tree(root='7141124011', tab=0, parents=[], delete_collection=False):
 
     if delete_collection:
         db.amazon_category_tree.delete_many({})
@@ -166,9 +246,10 @@ def build_category_tree(root='7141124011', tab=0, parent='orphan', delete_collec
 
     node_id = res_dict['BrowseNodeId']
     result_count = get_results(node_id,price_flag=False, results_count_only=True)
+
     leaf = {'Name': name,
             'BrowseNodeId': node_id,
-            'Parent': parent,
+            'Parents': parents,
             'Children': {'count': len(children),
                          'names': []},
             'TotalResults': result_count}
@@ -178,15 +259,20 @@ def build_category_tree(root='7141124011', tab=0, parent='orphan', delete_collec
           % (tab_space, name, leaf['BrowseNodeId'], leaf['Children']['count'], result_count))
 
     tab += 1
+    if len(parents) == 0:
+        parents = [name]
+    else:
+        parents.append(name)
+
     for child in children:
         sleep(1.5)
         if 'BrowseNodeId' not in child.keys():
             continue
         child_id = child['BrowseNodeId']
-        child_name = build_category_tree(child_id, tab, name)
+        child_name = build_category_tree(child_id, tab, parents)
         if child_name is None:  # try again
             print ('##################################################################################################')
-            child_name = build_category_tree(child_id, tab, name)
+            child_name = build_category_tree(child_id, tab,  parents)
 
         leaf['Children']['names'].append((child_id,child_name))
 
@@ -198,7 +284,7 @@ def build_category_tree(root='7141124011', tab=0, parent='orphan', delete_collec
 build_category_tree(delete_collection=True)
 leafs = db.amazon_category_tree.find({'Children.count': 0})
 for leaf in leafs:
-    leaf_name = leaf['Name']
+    leaf_name = '->'.join(leaf['Parents']) + '->' + leaf['Name']
     node_id = leaf['BrowseNodeId']
     get_results(node_id, results_count_only=False, name=leaf_name)
 
