@@ -89,7 +89,7 @@ def how_many(argv):
         sum_of_all = men_shirt_sleeve_dict['straps'] + men_shirt_sleeve_dict['sleeveless'] + men_shirt_sleeve_dict['short_sleeve'] + \
                      men_shirt_sleeve_dict['midi_sleeve'] + men_shirt_sleeve_dict['long_sleeve']
 
-        sum_of_all_already_seen = db.yonatan_men_shirts.count({'already_seen_men_shirt_sleeve': True})
+        sum_of_all_already_seen = db.yonatan_men_shirts.count({'already_seen_shirt_sleeve': True})
 
         deleted = sum_of_all_already_seen - sum_of_all
 
