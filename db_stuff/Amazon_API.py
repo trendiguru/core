@@ -57,7 +57,8 @@ import xmltodict
 from ..constants import db
 
 
-blacklist = ['Jewelry', 'Watches', 'Handbags', 'Accessories']
+blacklist = ['Jewelry', 'Watches', 'Handbags', 'Accessories', 'Lingerie, Sleep & Lounge', 'Socks & Hosiery',
+             'Handbags & Wallets', 'Shops']
 
 base_parameters = {
     'AWSAccessKeyId': 'AKIAIQJZVKJKJUUC4ETA',
@@ -136,6 +137,8 @@ def build_category_tree(root = '7141124011', tab=0, parent='orphan'):
     tab += 1
     for child in children:
         sleep(1.5)
+        if 'BrowseNodeId' not in child.keys():
+            continue
         child_id = child['BrowseNodeId']
         child_name = build_category_tree(child_id, tab, name)
         leaf['Children']['names'].append((child_id,child_name))
