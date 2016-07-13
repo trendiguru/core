@@ -301,6 +301,7 @@ def get_results(node_id, price_flag=True, max_price=10000.0, min_price=0.0, resu
     logger, handler = log2file(mode='a')
     logger.info(summary)
     logger.removeHandler(handler)
+    del logger, handler
     print (summary)
 
 
@@ -379,6 +380,7 @@ def download_all(delete_collection=False):
     logger, handler = log2file(mode='w')
     logger.info('download started')
     logger.removeHandler(handler)
+    del logger, handler
     print('starting to download')
 
     if delete_collection:
