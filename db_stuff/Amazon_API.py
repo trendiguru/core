@@ -164,6 +164,7 @@ def process_results(pagenum, node_id, min_price, max_price, res_dict=None):
             new_item_count +=1
 
         except:
+            print ('problem in the way')
             pass
 
     return new_item_count
