@@ -25,12 +25,12 @@ relevancy_q = Queue(connection=r)
 
 class Images(object):
     
-    def __init__(self,  process_pool):
-        self.process_pool = process_pool
-        print "created Images"
-
-    # def __init__(self):
+    # def __init__(self,  process_pool):
+    #     self.process_pool = process_pool
     #     print "created Images"
+
+    def __init__(self):
+        print "created Images"
 
     def on_post(self, req, resp):
         start = time.time()
