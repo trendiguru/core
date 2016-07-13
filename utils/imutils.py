@@ -790,16 +790,16 @@ def show_mask_with_labels_dir(dir,labels,filter=None,original_images_dir=None,or
         for x in range(0,len(files)):
             if os.path.exists(original_fullpaths[x]):
                 frac,k = show_mask_with_labels(fullpaths[x],labels,original_image=original_fullpaths[x],cut_the_crap=cut_the_crap,save_images=save_images,visual_output=visual_output)
-                if frac is not None:
-                    fraclist.append(frac)
-                    totfrac = totfrac + frac
-                    n=n+1
+#                if frac is not None:
+#                    fraclist.append(frac)
+#                    totfrac = totfrac + frac
+#                    n=n+1
             elif original_images_dir_alt and os.path.exists(original_altfullpaths[x]):
                 frac,k = show_mask_with_labels(fullpaths[x],labels,original_image=original_altfullpaths[x],cut_the_crap=cut_the_crap,save_images=save_images,visual_output=visual_output)
-                if frac is not None:
-                    fraclist.append(frac)
-                    totfrac = totfrac + frac
-                    n=n+1
+ #               if frac is not None:
+ #                   fraclist.append(frac)
+ ##                   totfrac = totfrac + frac
+   #                 n=n+1
             else:
                 logging.warning(' does not exist:'+original_fullpaths[x])
                 continue
@@ -807,10 +807,10 @@ def show_mask_with_labels_dir(dir,labels,filter=None,original_images_dir=None,or
     else:
         for f in fullpaths:
             frac,k = show_mask_with_labels(f,labels,cut_the_crap=cut_the_crap,save_images=save_images,visual_output=visual_output)
-            if frac is not None:
-                fraclist.append(frac)
-                totfrac = totfrac + frac
-                n=n+1
+#            if frac is not None:
+#                fraclist.append(frac)
+#                totfrac = totfrac + frac
+#                n=n+1
 #    print('avg frac of image w nonzero pixels:'+str(totfrac/n))
     hist, bins = np.histogram(fraclist, bins=30)
     width = 0.7 * (bins[1] - bins[0])
@@ -819,7 +819,7 @@ def show_mask_with_labels_dir(dir,labels,filter=None,original_images_dir=None,or
     plt.show()
     plt.legend()
     plt.savefig('outhist.jpg')
-    print('fraction histogram:'+str(np.histogram(fraclist,bins=20)))
+#    print('fraction histogram:'+str(np.histogram(fraclist,bins=20)))
 
 
 def show_mask_with_labels(mask_filename,labels,original_image=None,cut_the_crap=False,save_images=False,visual_output=False):
