@@ -14,6 +14,7 @@ import skimage
 import urllib
 import pymongo
 import argparse
+import yonatan_constants
 
 
 def how_many(argv):
@@ -32,17 +33,8 @@ def how_many(argv):
 
     # dress sleeve #
     if args.input_file == 'dress_sleeve':
-        dress_sleeve_dict = {
-        'strapless' : db.yonatan_dresses.count({'sleeve_length': ['true', 'false', 'false', 'false', 'false', 'false', 'false', 'false', 'false']}),
-        'spaghetti_straps' : db.yonatan_dresses.count({'sleeve_length': ['false', 'true', 'false', 'false', 'false', 'false', 'false', 'false', 'false']}),
-        'straps' : db.yonatan_dresses.count({'sleeve_length': ['false', 'false', 'true', 'false', 'false', 'false', 'false', 'false', 'false']}),
-        'sleeveless' : db.yonatan_dresses.count({'sleeve_length': ['false', 'false', 'false', 'true', 'false', 'false', 'false', 'false', 'false']}),
-        'cap_sleeve' : db.yonatan_dresses.count({'sleeve_length': ['false', 'false', 'false', 'false', 'true', 'false', 'false', 'false', 'false']}),
-        'short_sleeve' : db.yonatan_dresses.count({'sleeve_length': ['false', 'false', 'false', 'false', 'false', 'true', 'false', 'false', 'false']}),
-        'midi_sleeve' : db.yonatan_dresses.count({'sleeve_length': ['false', 'false', 'false', 'false', 'false', 'false', 'true', 'false', 'false']}),
-        'long_sleeve' : db.yonatan_dresses.count({'sleeve_length': ['false', 'false', 'false', 'false', 'false', 'false', 'false', 'true', 'false']}),
-        'asymmetry' : db.yonatan_dresses.count({'sleeve_length': ['false', 'false', 'false', 'false', 'false', 'false', 'false', 'false', 'true']})
-        }
+        x = 'yonatan_constants.' + args.input_file + '_dict'
+        dress_sleeve_dict = x
 
         sum_of_all = dress_sleeve_dict['strapless'] + dress_sleeve_dict['spaghetti_straps'] + dress_sleeve_dict['straps'] + \
                      dress_sleeve_dict['sleeveless'] + dress_sleeve_dict['cap_sleeve'] + dress_sleeve_dict['short_sleeve'] + \
@@ -57,14 +49,7 @@ def how_many(argv):
 
     # dress length #
     elif args.input_file == 'dress_length':
-        dress_length_dict = {
-        'mini_length' : db.yonatan_dresses.count({'dress_length': ['true', 'false', 'false', 'false', 'false', 'false']}),
-        'above_knee' : db.yonatan_dresses.count({'dress_length': ['false', 'true', 'false', 'false', 'false', 'false']}),
-        'knee_length' : db.yonatan_dresses.count({'dress_length': ['false', 'false', 'true', 'false', 'false', 'false']}),
-        'tea_length' : db.yonatan_dresses.count({'dress_length': ['false', 'false', 'false', 'true', 'false', 'false']}),
-        'ankle_length' : db.yonatan_dresses.count({'dress_length': ['false', 'false', 'false', 'false', 'true', 'false']}),
-        'floor_length' : db.yonatan_dresses.count({'dress_length': ['false', 'false', 'false', 'false', 'false', 'true']})
-        }
+        dress_length_dict = yonatan_constants.dress_length_dict
 
         sum_of_all = dress_length_dict['mini_length'] + dress_length_dict['above_knee'] + dress_length_dict['knee_length'] + \
                      dress_length_dict['tea_length'] + dress_length_dict['ankle_length'] + dress_length_dict['floor_length']
@@ -78,13 +63,7 @@ def how_many(argv):
 
     # men shirt sleeve #
     elif args.input_file == 'men_shirt_sleeve':
-        men_shirt_sleeve_dict = {
-        'straps' : db.yonatan_men_shirts.count({'shirt_sleeve_length': ['true', 'false', 'false', 'false', 'false']}),
-        'sleeveless' : db.yonatan_men_shirts.count({'shirt_sleeve_length': ['false', 'true', 'false', 'false', 'false']}),
-        'short_sleeve' : db.yonatan_men_shirts.count({'shirt_sleeve_length': ['false', 'false', 'true', 'false', 'false']}),
-        'midi_sleeve' : db.yonatan_men_shirts.count({'shirt_sleeve_length': ['false', 'false', 'false', 'true', 'false']}),
-        'long_sleeve' : db.yonatan_men_shirts.count({'shirt_sleeve_length': ['false', 'false', 'false', 'false', 'true']})
-        }
+        men_shirt_sleeve_dict = yonatan_constants.men_shirt_sleeve_dict
 
         sum_of_all = men_shirt_sleeve_dict['straps'] + men_shirt_sleeve_dict['sleeveless'] + men_shirt_sleeve_dict['short_sleeve'] + \
                      men_shirt_sleeve_dict['midi_sleeve'] + men_shirt_sleeve_dict['long_sleeve']
@@ -98,12 +77,7 @@ def how_many(argv):
 
     # pants length #
     elif args.input_file == 'pants_length':
-        pants_length_dict = {
-        'bermuda' : db.yonatan_pants.count({'pants_length': ['true', 'false', 'false', 'false']}),
-        'knee' : db.yonatan_pants.count({'pants_length': ['false', 'true', 'false', 'false']}),
-        'capri' : db.yonatan_pants.count({'pants_length': ['false', 'false', 'true', 'false']}),
-        'floor' : db.yonatan_pants.count({'pants_length': ['false', 'false', 'false', 'true']})
-        }
+        pants_length_dict = yonatan_constants.pants_length_dict
 
         sum_of_all = pants_length_dict['bermuda'] + pants_length_dict['knee'] + \
                      pants_length_dict['capri'] + pants_length_dict['floor']
@@ -117,17 +91,7 @@ def how_many(argv):
 
     # women shirt sleeve #
     elif args.input_file == 'women_shirt_sleeve':
-        women_shirt_sleeve_dict = {
-        'strapless' : db.yonatan_women_shirts.count({'shirt_sleeve_length': ['true', 'false', 'false', 'false', 'false', 'false', 'false', 'false', 'false']}),
-        'spaghetti_straps' : db.yonatan_women_shirts.count({'shirt_sleeve_length': ['false', 'true', 'false', 'false', 'false', 'false', 'false', 'false', 'false']}),
-        'straps' : db.yonatan_women_shirts.count({'shirt_sleeve_length': ['false', 'false', 'true', 'false', 'false', 'false', 'false', 'false', 'false']}),
-        'sleeveless' : db.yonatan_women_shirts.count({'shirt_sleeve_length': ['false', 'false', 'false', 'true', 'false', 'false', 'false', 'false', 'false']}),
-        'cap_sleeve' : db.yonatan_women_shirts.count({'shirt_sleeve_length': ['false', 'false', 'false', 'false', 'true', 'false', 'false', 'false', 'false']}),
-        'short_sleeve' : db.yonatan_women_shirts.count({'shirt_sleeve_length': ['false', 'false', 'false', 'false', 'false', 'true', 'false', 'false', 'false']}),
-        'midi_sleeve' : db.yonatan_women_shirts.count({'shirt_sleeve_length': ['false', 'false', 'false', 'false', 'false', 'false', 'true', 'false', 'false']}),
-        'long_sleeve' : db.yonatan_women_shirts.count({'shirt_sleeve_length': ['false', 'false', 'false', 'false', 'false', 'false', 'false', 'true', 'false']}),
-        'asymmetry' : db.yonatan_women_shirts.count({'shirt_sleeve_length': ['false', 'false', 'false', 'false', 'false', 'false', 'false', 'false', 'true']})
-        }
+        women_shirt_sleeve_dict = yonatan_constants.women_shirt_sleeve_dict
 
         sum_of_all = women_shirt_sleeve_dict['strapless'] + women_shirt_sleeve_dict['spaghetti_straps'] + women_shirt_sleeve_dict['straps'] + \
                      women_shirt_sleeve_dict['sleeveless'] + women_shirt_sleeve_dict['cap_sleeve'] + women_shirt_sleeve_dict['short_sleeve'] + \
