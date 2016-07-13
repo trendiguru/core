@@ -1,11 +1,5 @@
-import os
-import sys
-import time
-import gevent
-from gevent import server, event, socket
-from multiprocessing import Process, Value, current_process, cpu_count
+from multiprocessing import Process, Value, cpu_count
 import ctypes
-import random
 
 # Go here to determine output_ctype:
 # https://docs.python.org/2/library/ctypes.html#fundamental-data-types
@@ -33,8 +27,8 @@ def check_small(input1, input2):
 	return bool(input1*input2 < 0.25)
 
 
-
 def run_test():
+	import random
 	start = time.time()
 	image_and_page_urls = [(random.random(), random.random()) for i in xrange(20)]
 
@@ -47,9 +41,8 @@ def run_test():
 	print time.time() - start
 
 
-	
-
 if __name__ == '__main__':
+	import time
 	tstart = time.time()
 	run_test()
 	print "Run time: " + str(time.time()-tstart)
