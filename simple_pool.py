@@ -7,7 +7,8 @@ from multiprocessing import Process, Value, current_process, cpu_count
 import ctypes
 import random
 
-
+# Go here to determine output_ctype:
+# https://docs.python.org/2/library/ctypes.html#fundamental-data-types
 def run_parallel(f, inputs, num_processes=None, ouput_ctype=None):
 	ouput_ctype = ouput_ctype or ctypes.c_bool
 	num_processes = num_processes or int(0.75 * cpu_count())
