@@ -169,8 +169,8 @@ def process_results(pagenum, node_id, min_price, max_price, res_dict=None):
             print(parent_asin)
             print(click_url)
             print(image)
-            print(offer)
-            print(atttibutes)
+            print(price)
+            print(features)
             raw_input()
             pass
 
