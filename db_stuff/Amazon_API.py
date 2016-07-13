@@ -57,6 +57,8 @@ import xmltodict
 from ..constants import db
 
 
+blacklist = ['Jewelry', 'Watches', 'Handbags', 'Accessories']
+
 base_parameters = {
     'AWSAccessKeyId': 'AKIAIQJZVKJKJUUC4ETA',
     'AssociateTag': 'fazz0b-20',
@@ -115,6 +117,9 @@ def build_category_tree(root = '7141124011', tab=0, parent='orphan'):
         children = []
 
     name = res_dict['Name']
+    if name in blacklist:
+        return name
+
     node_id = res_dict['BrowseNodeId']
     result_count = get_result_count(node_id)
     leaf = {'Name': name,
