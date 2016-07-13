@@ -123,19 +123,21 @@ def process_results(pagenum, node_id, min_price, max_price, res_dict=None, items
     for x,item in enumerate(item_list):
         if (x+1)>items_in_page:
             break
-        asin = 0
-        parent_asin = 0
-        click_url = 0
-        image = 0
-        price = 0
-        atttibutes=0
-        color = 0
-        sizes = 0
-        short_d = 0
-        long_d = 0
-        features = 0
+        # asin = 0
+        # parent_asin = 0
+        # click_url = 0
+        # image = 0
+        # price = 0
+        # atttibutes=0
+        # color = 0
+        # sizes = 0
+        # short_d = 0
+        # long_d = 0
+        # features = 0
         try:
             item_keys = item.keys()
+            if 'ASIN' not in item_keys:
+                continue
             asin = item['ASIN']
             if 'ParentASIN' not in item_keys:
                 parent_asin = asin
@@ -185,14 +187,14 @@ def process_results(pagenum, node_id, min_price, max_price, res_dict=None, items
             # print('ooooooooooooooooooooooooooooooooooo')
             parent_asin_exists = db.amazon_all.find_one({'parent_asin': parent_asin, 'features.color': features['color']})
             if parent_asin_exists:
-                print ('parent_asin + color already exists')
+                # print ('parent_asin + color already exists')
                 sizes = parent_asin_exists['features']['sizes']
                 if clothing_size not in sizes:
                     sizes.append(clothing_size)
                     db.amazon_all.update_one({'_id':parent_asin_exists['_id']}, {'$set':{'features.sizes':sizes}})
                     print ('added another size to existing item')
                 else:
-                    print ('+ size already exists ----- %s->%s' % (features['color'], clothing_size))
+                    print ('parent_asin + color + size already exists ----- %s->%s' % (features['color'], clothing_size))
                 continue
             # print('????????????????????????????????????')
             new_item = {'asin': asin,
@@ -209,18 +211,18 @@ def process_results(pagenum, node_id, min_price, max_price, res_dict=None, items
 
         except:
             print ('---------------problem in the way-------------')
-            print (asin)
-            print(parent_asin)
-            print(click_url)
-            print(image)
-            print(price)
-            print(features)
-            print (atttibutes)
-            print(color)
-            print(sizes)
-            print(short_d)
-            print(long_d)
-            raw_input()
+            # print (asin)
+            # print(parent_asin)
+            # print(click_url)
+            # print(image)
+            # print(price)
+            # print(features)
+            # print (atttibutes)
+            # print(color)
+            # print(sizes)
+            # print(short_d)
+            # print(long_d)
+            # raw_input()
             pass
 
     return new_item_count
