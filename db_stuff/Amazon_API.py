@@ -140,7 +140,15 @@ def process_results(pagenum, node_id, min_price, max_price, res_dict=None):
             else:
                 parent_asin = item['ParentASIN']
             click_url = item['DetailPageURL']
-            image = item['LargeImage']['URL']
+            if 'LargeImage' in item_keys:
+                image = item['LargeImage']['URL']
+            elif 'MediumImage' in item_keys:
+                image = item['MediumImage']['URL']
+            elif 'SmallImage' in item_keys:
+                image = item['SmallImage']['URL']
+            else:
+                print('No image')
+                continue
             offer = item['OfferSummary']['LowestNewPrice']
             price = {'price': float(offer['Amount'])/100,
                      'currency': offer['CurrencyCode'],
