@@ -176,7 +176,7 @@ def get_results(node_id, price_flag=True, max_price=10000.0, min_price=0.0, resu
         parameters['MaximumPrice'] = format_price(max_price)
 
     sleep(1.1)
-    res = get(get_amazon_signed_url(parameters, 'GET', False))
+    res = get(get_amazon_signed_url(parameters, 'GET', True))
 
     if res.status_code != 200:
         # print ('Bad request!!!')
