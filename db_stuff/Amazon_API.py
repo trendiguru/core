@@ -165,7 +165,12 @@ def process_results(pagenum, node_id, min_price, max_price, res_dict=None):
 
         except:
             print ('problem in the way')
-            print (item)
+            print (asin)
+            print(parent_asin)
+            print(click_url)
+            print(image)
+            print(offer)
+            print(atttibutes)
             raw_input()
             pass
 
