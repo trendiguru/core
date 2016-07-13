@@ -65,14 +65,18 @@ class Images(object):
                 # relevancy_dict.update({images[i]: fast_route_results[i] for i in xrange(len(images_to_rel_check))})
 
                 # RELEVANCY CHECK REDIS
-                jobs = {image_url: relevancy_q.enqueue_call(func="trendi.falcon.fast_results.check_if_relevant_and_enqueue",
-                                                            args=(image_url, page_url, time.time()))
-                        for image_url in images_to_rel_check}
-                print "POST : after enqueing: {0}".format(time.time()-start)
-                while not all([job.is_finished for job in jobs.values()]):
-                    time.sleep(0.01)
-                print "POST : after jobs finished: {0}".format(time.time()-start)
-                relevancy_dict.update({image_url: job.result for image_url, job in jobs.iteritems()})
+                if len(images_to_rel_check) > 3:
+                    jobs = {image_url: relevancy_q.enqueue_call(func="trendi.falcon.fast_results.check_if_relevant_and_enqueue",
+                                                                args=(image_url, page_url, time.time()))
+                            for image_url in images_to_rel_check}
+                    print "POST : after enqueing: {0}".format(time.time()-start)
+                    while not all([job.is_finished for job in jobs.values()]):
+                        time.sleep(0.01)
+                    print "POST : after jobs finished: {0}".format(time.time()-start)
+                    relevancy_dict.update({image_url: job.result for image_url, job in jobs.iteritems()})
+                else:
+                    relevancy_dict.update({image_url: fast_results.check_if_relevant_and_enqueue(image_url, page_url, time.time())
+                                           for image_url in images_to_rel_check})
                 print "POST: after dictionary update: {0}".format(time.time()-start)
 
                 ret["success"] = True
