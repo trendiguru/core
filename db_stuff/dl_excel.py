@@ -46,7 +46,7 @@ def mongo2xl(collection_name, dl_info):
     #     filename = 'empty'
 
     try:
-        [filename, gender] = re.split("_", collection_name)
+        filename = re.split("_", collection_name)[0]
     except:
         print ('error in collection name')
         return
@@ -145,6 +145,8 @@ def mongo2xl(collection_name, dl_info):
 
     for gender in ['Female', 'Male']:
         tmp = filename +"_"+ gender
+        if filename is 'ebay':
+            tmp += '_US'
         print("working on " + tmp)
         collection = db[tmp]
         archive = db[tmp+"_archive"]

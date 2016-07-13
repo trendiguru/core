@@ -42,5 +42,116 @@ hierarchy:
                 2368343011  -> Tops & Tees
             679337011   -> Shoes
 
-'''
 
+clickUrl -> Item.DetailPageURL
+
+1. query in itemsearch
+2. find unique parentASIN
+3. use these ParentASIN to do ItemLookup
+
+'''
+from Amazon_signature import get_amazon_signed_url
+from time import strftime,gmtime,sleep
+from requests import get
+import xmltodict
+from ..constants import db
+
+
+blacklist = ['Jewelry', 'Watches', 'Handbags', 'Accessories', 'Lingerie, Sleep & Lounge', 'Socks & Hosiery',
+             'Handbags & Wallets', 'Shops', 'Girls', 'Boys', 'Shoes', 'Underwear', 'Baby', 'Sleep & Lounge',
+             'Socks', 'Novelty & More', 'Luggage & Travel Gear', 'Uniforms, Work & Safety', 'Costumes & Accessories',
+             'hoe, Jewelry & Watch Accessories', 'Traditional & Cultural Wear']
+
+base_parameters = {
+    'AWSAccessKeyId': 'AKIAIQJZVKJKJUUC4ETA',
+    'AssociateTag': 'fazz0b-20',
+    'Version':'2013-08-01',
+    'Availability': 'Available',
+    'Operation': 'ItemSearch',
+    'Service': 'AWSECommerceService',
+    'Timestamp': strftime("%Y-%m-%dT%H:%M:%SZ", gmtime()),
+    'ResponseGroup': 'ItemAttributes, OfferSummary,Images'}
+
+
+def get_result_count(node_id):
+    parameters = base_parameters.copy()
+    parameters['Timestamp'] = strftime("%Y-%m-%dT%H:%M:%SZ", gmtime())
+    parameters['SearchIndex'] = 'FashionWomen'
+    parameters['ResponseGroup'] = 'SearchBins'
+    parameters['BrowseNode'] = node_id
+    res = get(get_amazon_signed_url(parameters, 'GET', False))
+
+    if res.status_code != 200:
+        # print ('Bad request!!!')
+        return 0
+
+    res_dict = dict(xmltodict.parse(res.text))
+    if 'ItemSearchResponse' not in res_dict.keys():
+        print ('No ItemSearchResponse')
+        return 0
+
+    res_dict = dict(res_dict['ItemSearchResponse']['Items'])
+    if 'TotalResults' in res_dict.keys():
+        return int(res_dict['TotalResults'])
+    else:
+        print ('bad query')
+        return 0
+
+
+def build_category_tree(root = '7141124011', tab=0, parent='orphan'):
+    parameters = base_parameters.copy()
+    parameters['Operation'] = 'BrowseNodeLookup'
+    parameters['ResponseGroup'] = 'BrowseNodeInfo'
+    parameters['BrowseNodeId'] = root
+    res = get(get_amazon_signed_url(parameters, 'GET', False))
+
+    if res.status_code != 200 :
+        # print ('Bad request!!!')
+        return None
+
+    res_dict = dict(xmltodict.parse(res.text))
+    if 'BrowseNodeLookupResponse' not in res_dict.keys():
+        print ('No BrowseNodeLookupResponse')
+        return None
+
+    res_dict = dict(res_dict['BrowseNodeLookupResponse']['BrowseNodes']['BrowseNode'])
+    if 'Children' in res_dict.keys():
+        children = res_dict['Children']['BrowseNode']
+    else:
+        children = []
+
+    name = res_dict['Name']
+    if name in blacklist:
+        return name
+
+    node_id = res_dict['BrowseNodeId']
+    result_count = get_result_count(node_id)
+    leaf = {'Name': name,
+            'BrowseNodeId': node_id,
+            'Parent': parent,
+            'Children': {'count': len(children),
+                         'names': []},
+            'TotalResults': result_count}
+
+    tab_space = '\t' * tab
+    print('%sname: %s,  NodeId: %s,  Children: %d , result_count: %d'
+          % (tab_space, name, leaf['BrowseNodeId'], leaf['Children']['count'], result_count))
+
+    tab += 1
+    for child in children:
+        sleep(1.5)
+        if 'BrowseNodeId' not in child.keys():
+            continue
+        child_id = child['BrowseNodeId']
+        child_name = build_category_tree(child_id, tab, name)
+        if child_name is None:  # try again
+            print ('##################################################################################################')
+            child_name = build_category_tree(child_id, tab, name)
+
+        leaf['Children']['names'].append((child_id,child_name))
+
+    db.amazon_category_tree.insert_one(leaf)
+    return name
+
+db.amazon_category_tree.delete_many({})
+build_category_tree()

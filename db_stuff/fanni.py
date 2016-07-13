@@ -11,13 +11,13 @@ def plantAnnoyForest(col_name, category, num_of_trees, hold=True,distance_functi
     forest = annoy.AnnoyIndex(696, distance_function)
 
     items = db[col_name].find({'categories':category})
-    for x,item in enumerate(items):
-        v= item['fingerprint']
-        forest.add_item(x,v)
+    for x, item in enumerate(items):
+        v = item['fingerprint']
+        forest.add_item(x, v)
         """
         annoy index the items in the order the are inserted to the tree
         when searching the forest - the item index is returned back
-        thts why we need to match between items in the database and their annoy index
+        thats why we need to match between items in the database and their annoy index
         """
         if hold:
             db[col_name].update_one({'_id':item['_id']},{'$set':{"AnnoyIndex_tmp":x}})

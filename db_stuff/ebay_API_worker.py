@@ -3,7 +3,7 @@ from .ebay_constants import ebay_account_info, ebay_gender, categories_badwords,
 from time import time, sleep
 import requests
 import json
-from ..constants import db, fingerprint_version, redis_conn
+from ..constants import db, fingerprint_version, redis_conn, fingerprint_length
 from datetime import datetime
 import logging
 from rq import Queue
@@ -171,16 +171,19 @@ def process_items(items, gender,GEO , sub_attribute, q):
         keys = offer.keys()
         name = offer['name']
         itemId = offer['id']
-        sku = offer['sku']
         id_exists = collection.find_one({'id': itemId})
-        # sku_exists = collection.find_one({'sku': sku})
-        if id_exists: #or sku_exists:
-            dl_version = id_exists['download_data']['dl_version']
-            if dl_version != today_date:
-                collection.update_one({'_id':id_exists['_id']}, {'$set':{'download_data.dl_version':today_date}})
 
-            print ('item already exists')
-            continue
+        if id_exists:
+            if 'fingerprint' in id_exists.keys() and len(id_exists['fingerprint']) == fingerprint_length:
+                dl_version = id_exists['download_data']['dl_version']
+                if dl_version != today_date:
+                    collection.update_one({'_id': id_exists['_id']}, {'$set': {'download_data.dl_version': today_date}})
+
+                print ('item already exists')
+                continue
+            else:
+                collection.delete_one({'_id': id_exists['_id']})
+
 
         if 'description' in keys:
             desc = offer['description']
@@ -202,15 +205,21 @@ def process_items(items, gender,GEO , sub_attribute, q):
 
         url_exists = collection.find_one({'images.XLarge': img_url})
         if url_exists:
-            print ('img_url already exists')
-            continue
+            if 'fingerprint' in url_exists.keys() and len(url_exists['fingerprint'])==fingerprint_length:
+                print ('img_url already exists')
+                continue
+            else:
+                collection.delete_one({'_id': url_exists['_id']})
 
         img_hash = get_hash(image)
 
         hash_exists = collection.find_one({'img_hash': img_hash})
         if hash_exists:
-            print ('hash already exists')
-            continue
+            if 'fingerprint' in hash_exists.keys() and len(hash_exists['fingerprint'])==fingerprint_length:
+                print ('hash already exists')
+                continue
+            else:
+                collection.delete_one({'_id': hash_exists['_id']})
 
         if 'shippingCost' in keys:
             shipping = offer['shippingCost']
