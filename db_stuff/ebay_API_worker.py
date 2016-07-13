@@ -174,7 +174,7 @@ def process_items(items, gender,GEO , sub_attribute, q):
         id_exists = collection.find_one({'id': itemId})
 
         if id_exists:
-            if 'fingerprint' in id_exists.keys() and len(id_exists['fingerprint']) == fingerprint_length:
+            if 'fingerprint' in id_exists.keys() and id_exists['fingerprint']is not None:
                 dl_version = id_exists['download_data']['dl_version']
                 if dl_version != today_date:
                     collection.update_one({'_id': id_exists['_id']}, {'$set': {'download_data.dl_version': today_date}})
@@ -205,7 +205,7 @@ def process_items(items, gender,GEO , sub_attribute, q):
 
         url_exists = collection.find_one({'images.XLarge': img_url})
         if url_exists:
-            if 'fingerprint' in url_exists.keys() and len(url_exists['fingerprint'])==fingerprint_length:
+            if 'fingerprint' in url_exists.keys() and url_exists['fingerprint'] is not None:
                 print ('img_url already exists')
                 continue
             else:
@@ -215,7 +215,7 @@ def process_items(items, gender,GEO , sub_attribute, q):
 
         hash_exists = collection.find_one({'img_hash': img_hash})
         if hash_exists:
-            if 'fingerprint' in hash_exists.keys() and len(hash_exists['fingerprint'])==fingerprint_length:
+            if 'fingerprint' in hash_exists.keys() and hash_exists['fingerprint'] is not None:
                 print ('hash already exists')
                 continue
             else:
