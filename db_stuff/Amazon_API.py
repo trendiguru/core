@@ -121,6 +121,12 @@ def process_results(pagenum, node_id, min_price, max_price, res_dict=None):
     item_list = res_dict['Item']
     new_item_count = 0
     for item in item_list:
+        asin = 0
+        parent_asin = 0
+        click_url = 0
+        image = 0
+        price = 0
+        features = 0
         try:
             item_keys = item.keys()
             asin = item['ASIN']
@@ -129,7 +135,7 @@ def process_results(pagenum, node_id, min_price, max_price, res_dict=None):
             else:
                 parent_asin = item['ParentASIN']
             click_url = item['DetailPageURL']
-            image = item['LargeImage']
+            image = item['LargeImage']['URL']
             offer = item['OfferSummary']['LowestNewPrice']
             price = {'price': float(offer['Amount'])/100,
                      'currency': offer['CurrencyCode'],
