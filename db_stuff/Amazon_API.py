@@ -60,8 +60,8 @@ from ..constants import db
 blacklist = ['Jewelry', 'Watches', 'Handbags', 'Accessories', 'Lingerie, Sleep & Lounge', 'Socks & Hosiery',
              'Handbags & Wallets', 'Shops', 'Girls', 'Boys', 'Shoes', 'Underwear', 'Baby', 'Sleep & Lounge',
              'Socks', 'Novelty & More', 'Luggage & Travel Gear', 'Uniforms, Work & Safety', 'Costumes & Accessories',
-             'Shoe, Jewelry & Watch Accessories', 'Traditional & Cultural Wear', ' Active Underwear', ' Active Socks',
-             ' Active Supporters', ' Active Base Layers', 'Sport Bras']
+             'Shoe, Jewelry & Watch Accessories', 'Traditional & Cultural Wear', 'Active Underwear', 'Active Socks',
+             'Active Supporters', 'Active Base Layers', 'Sports Bras']
 
 base_parameters = {
     'AWSAccessKeyId': 'AKIAIQJZVKJKJUUC4ETA',
