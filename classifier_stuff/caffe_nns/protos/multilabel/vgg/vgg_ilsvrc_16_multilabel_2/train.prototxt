@@ -503,11 +503,11 @@ layer {
     }
   }
   param {
-    lr_mult: 100
-    decay_mult: 100
+    lr_mult: 1
+    decay_mult: 1
   }
   param {
-    lr_mult: 200
+    lr_mult: 2
     decay_mult: 0
   }
 }
