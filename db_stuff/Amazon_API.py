@@ -399,4 +399,4 @@ def download_all(delete_collection=False):
         except:
             continue
 
-download_all(True)
+download_all(False)
