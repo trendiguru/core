@@ -24,7 +24,7 @@ def sort_by_ascii_value(left, right):
 
 
 def encode_me(string_2_encode):
-    for pair in [(r'/', '%2F'), (r'\+', '%2B'), (r'=', '%3D'), (r'\:', '%3A'), (r',', '%2C')]:
+    for pair in [(r'/', '%2F'), (r'\+', '%2B'), (r'=', '%3D'), (r'\:', '%3A'), (r',', '%2C'), (r' ', '%20')]:
         split_slash = re.split(pair[0],string_2_encode)
         string_2_encode = split_slash[0]
         for i in range(1, len(split_slash)):
@@ -45,7 +45,7 @@ def create_signature(parameters, aws_secret_access_key, get_or_post):
     params=''
     for key in keys:
         value = parameters[key]
-        if key in ['Timestamp','ResponseGroup','Keywords']:
+        if key in ['Timestamp','ResponseGroup','Keywords','Title']:
             value = encode_me(value)
         params += "%s=%s" % (key, value)+'&'
     message += params[:-1]  # to remove unwanted & sign in the end of the string
@@ -55,7 +55,7 @@ def create_signature(parameters, aws_secret_access_key, get_or_post):
     return params, signature_encoded
 
 
-def get_amazon_signed_url(parameters, get_or_post='GET'):
+def get_amazon_signed_url(parameters, get_or_post='GET', print_flag=True):
     """
     example parameters:
         aws_access_key = 'your_aws_access_key'  # DONT FORGET
@@ -82,26 +82,29 @@ def get_amazon_signed_url(parameters, get_or_post='GET'):
     parameters, signature = create_signature(parameters, aws_secret_access_key, get_or_post)
     url = 'http://webservices.amazon.com/onca/xml?'
     amazon_signed_url = url+parameters+'Signature='+signature
-    print(amazon_signed_url)
+    if print_flag:
+        print(amazon_signed_url)
     return amazon_signed_url
 
 
-parameters = {
-    'AWSAccessKeyId': 'AKIAIQJZVKJKJUUC4ETA',
-    'AssociateTag': 'fazz0b-20',
-    'Availability': 'Available',
-    'Keywords': 'Clothing,dress,casual',
-    'Operation': 'ItemSearch',
-    'SearchIndex': 'FashionWomen',
-    'Service': 'AWSECommerceService',
-    'Timestamp': time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()),
-    'ItemPage': '1',
-    'MaximumPrice':'3100',
-    'MinimumPrice':'3099',
-    'ResponseGroup': 'ItemAttributes,OfferSummary,Large,SearchBins'}
-
-# parameters['Operation'] = 'BrowseNodeLookup'
-#parameters['ResponseGroup'] = 'SearchBins'  # 'BrowseNodeInfo'
-#parameters['BrowseNodeId'] = '2346727011'
-get_amazon_signed_url(parameters, 'GET')
+# parameters = {
+#     'AWSAccessKeyId': 'AKIAIQJZVKJKJUUC4ETA',
+#     'AssociateTag': 'fazz0b-20',
+#     'Availability': 'Available',
+#     # 'Title': 'mini dress',
+#     # 'Operation': 'ItemLookup',
+#     'Operation': 'ItemSearch',
+#     'SearchIndex': 'FashionWomen',
+#     'Service': 'AWSECommerceService',
+#     'Timestamp': time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()),
+#     # 'IdType': 'ASIN',
+#     # 'ItemId': 'B01CT51MXC',
+#     # 'MaximumPrice':'3100',
+#     # 'MinimumPrice':'3099',
+#     'ResponseGroup': 'ItemAttributes, OfferSummary,Images'}
+#
+# # parameters['Operation'] = 'BrowseNodeLookup'
+# parameters['ResponseGroup'] = 'SearchBins'# 'BrowseNodeInfo'
+# parameters['BrowseNode'] = '2368384011'
+# get_amazon_signed_url(parameters, 'GET')
 

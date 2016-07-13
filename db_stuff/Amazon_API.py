@@ -42,5 +42,60 @@ hierarchy:
                 2368343011  -> Tops & Tees
             679337011   -> Shoes
 
-'''
 
+clickUrl -> Item.DetailPageURL
+
+1. query in itemsearch
+2. find unique parentASIN
+3. use these ParentASIN to do ItemLookup
+
+'''
+from Amazon_signature import get_amazon_signed_url
+from time import strftime,gmtime,sleep
+from requests import get
+import xmltodict
+
+
+base_parameters = {
+    'AWSAccessKeyId': 'AKIAIQJZVKJKJUUC4ETA',
+    'AssociateTag': 'fazz0b-20',
+    'Version':'2013-08-01',
+    'Availability': 'Available',
+    'Operation': 'ItemSearch',
+    'Service': 'AWSECommerceService',
+    'Timestamp': strftime("%Y-%m-%dT%H:%M:%SZ", gmtime()),
+    'ResponseGroup': 'ItemAttributes, OfferSummary,Images'}
+
+
+def build_category_tree(root = '7141124011', tab=0):
+    parameters = base_parameters.copy()
+    parameters['Operation'] = 'BrowseNodeLookup'
+    parameters['ResponseGroup'] = 'BrowseNodeInfo'
+    parameters['BrowseNodeId'] = root
+    res = get(get_amazon_signed_url(parameters, 'GET', False))
+
+    if res.status_code != 200 :
+        # print ('Bad request!!!')
+        return
+
+    res_dict = dict(xmltodict.parse(res.text))
+    if 'BrowseNodeLookupResponse' not in res_dict.keys():
+        print ('No BrowseNodeLookupResponse')
+        return
+
+    res_dict = dict(res_dict['BrowseNodeLookupResponse']['BrowseNodes']['BrowseNode'])
+    if 'Children' in res_dict.keys():
+        children = res_dict['Children']['BrowseNode']
+    else:
+        children = []
+
+    tab_space = '\t'*tab
+    print('%sname: %s,  ItemId: %s,  Children: %d' %(tab_space, res_dict['Name'], res_dict['BrowseNodeId'], len(children)))
+
+    tab +=1
+    for child in children:
+        sleep(1)
+        build_category_tree(child['BrowseNodeId'], tab)
+
+
+build_category_tree()
