@@ -67,7 +67,7 @@ class Images(object):
                 # RELEVANCY CHECK REDIS
                 if len(images_to_rel_check) > 3:
                     jobs = {image_url: relevancy_q.enqueue_call(func="trendi.falcon.fast_results.check_if_relevant_and_enqueue",
-                                                                args=(image_url, page_url, time.time()))
+                                                                args=(image_url, page_url, start))
                             for image_url in images_to_rel_check}
                     print "POST : after enqueing: {0}".format(time.time()-start)
                     while not all([job.is_finished for job in jobs.values()]):
@@ -75,7 +75,7 @@ class Images(object):
                     print "POST : after jobs finished: {0}".format(time.time()-start)
                     relevancy_dict.update({image_url: job.result for image_url, job in jobs.iteritems()})
                 else:
-                    relevancy_dict.update({image_url: fast_results.check_if_relevant_and_enqueue(image_url, page_url, time.time())
+                    relevancy_dict.update({image_url: fast_results.check_if_relevant_and_enqueue(image_url, page_url, start)
                                            for image_url in images_to_rel_check})
                 print "POST: after dictionary update: {0}".format(time.time()-start)
 
