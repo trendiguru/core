@@ -86,7 +86,7 @@ def get_amazon_signed_url(parameters, get_or_post='GET', print_flag=True):
         print(amazon_signed_url)
     return amazon_signed_url
 
-
+#
 # parameters = {
 #     'AWSAccessKeyId': 'AKIAIQJZVKJKJUUC4ETA',
 #     'AssociateTag': 'fazz0b-20',
@@ -103,8 +103,10 @@ def get_amazon_signed_url(parameters, get_or_post='GET', print_flag=True):
 #     # 'MinimumPrice':'3099',
 #     'ResponseGroup': 'ItemAttributes, OfferSummary,Images'}
 #
-# # parameters['Operation'] = 'BrowseNodeLookup'
-# parameters['ResponseGroup'] = 'SearchBins'# 'BrowseNodeInfo'
-# parameters['BrowseNode'] = '2368384011'
+# parameters['Operation'] = 'BrowseNodeLookup'
+# # parameters['ResponseGroup'] = 'SearchBins'# 'BrowseNodeInfo'
+# # parameters['BrowseNode'] = '7147443011'
+# parameters['ResponseGroup'] = 'BrowseNodeInfo'
+# parameters['BrowseNodeId'] = '7141124011'
 # get_amazon_signed_url(parameters, 'GET')
 

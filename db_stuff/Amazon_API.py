@@ -58,7 +58,9 @@ from ..constants import db
 
 
 blacklist = ['Jewelry', 'Watches', 'Handbags', 'Accessories', 'Lingerie, Sleep & Lounge', 'Socks & Hosiery',
-             'Handbags & Wallets', 'Shops']
+             'Handbags & Wallets', 'Shops', 'Girls', 'Boys', 'Shoes', 'Underwear', 'Baby', 'Sleep & Lounge',
+             'Socks', 'Novelty & More', 'Luggage & Travel Gear', 'Uniforms, Work & Safety', 'Costumes & Accessories',
+             'hoe, Jewelry & Watch Accessories', 'Traditional & Cultural Wear']
 
 base_parameters = {
     'AWSAccessKeyId': 'AKIAIQJZVKJKJUUC4ETA',
@@ -73,7 +75,8 @@ base_parameters = {
 
 def get_result_count(node_id):
     parameters = base_parameters.copy()
-    parameters['SearchIndex']= 'FashionWomen'
+    parameters['Timestamp'] = strftime("%Y-%m-%dT%H:%M:%SZ", gmtime())
+    parameters['SearchIndex'] = 'FashionWomen'
     parameters['ResponseGroup'] = 'SearchBins'
     parameters['BrowseNode'] = node_id
     res = get(get_amazon_signed_url(parameters, 'GET', False))
@@ -131,7 +134,7 @@ def build_category_tree(root = '7141124011', tab=0, parent='orphan'):
             'TotalResults': result_count}
 
     tab_space = '\t' * tab
-    print('%sname: %s,  ItemId: %s,  Children: %d , result_count: %d'
+    print('%sname: %s,  NodeId: %s,  Children: %d , result_count: %d'
           % (tab_space, name, leaf['BrowseNodeId'], leaf['Children']['count'], result_count))
 
     tab += 1
@@ -141,6 +144,10 @@ def build_category_tree(root = '7141124011', tab=0, parent='orphan'):
             continue
         child_id = child['BrowseNodeId']
         child_name = build_category_tree(child_id, tab, name)
+        if child_name is None:  # try again
+            print ('##################################################################################################')
+            child_name = build_category_tree(child_id, tab, name)
+
         leaf['Children']['names'].append((child_id,child_name))
 
     db.amazon_category_tree.insert_one(leaf)
