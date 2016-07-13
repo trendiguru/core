@@ -54,6 +54,7 @@ from Amazon_signature import get_amazon_signed_url
 from time import strftime,gmtime,sleep
 from requests import get
 import xmltodict
+from ..constants import db
 
 
 base_parameters = {
@@ -67,7 +68,7 @@ base_parameters = {
     'ResponseGroup': 'ItemAttributes, OfferSummary,Images'}
 
 
-def build_category_tree(root = '7141124011', tab=0):
+def build_category_tree(root = '7141124011', tab=0, parent='orphan'):
     parameters = base_parameters.copy()
     parameters['Operation'] = 'BrowseNodeLookup'
     parameters['ResponseGroup'] = 'BrowseNodeInfo'
@@ -89,13 +90,26 @@ def build_category_tree(root = '7141124011', tab=0):
     else:
         children = []
 
-    tab_space = '\t'*tab
-    print('%sname: %s,  ItemId: %s,  Children: %d' %(tab_space, res_dict['Name'], res_dict['BrowseNodeId'], len(children)))
+    name = res_dict['Name']
 
-    tab +=1
+    leaf = {'Name': name,
+            'BrowseNodeId': res_dict['BrowseNodeId'],
+            'Parent': parent,
+            'Children': {'count': len(children),
+                         'names': []}}
+
+    tab_space = '\t' * tab
+    print('%sname: %s,  ItemId: %s,  Children: %d'
+          % (tab_space, name, leaf['BrowseNodeId'], leaf['Children']['count']))
+
+    tab += 1
     for child in children:
-        sleep(1)
-        build_category_tree(child['BrowseNodeId'], tab)
+        sleep(1.5)
+        child_name = build_category_tree(child['BrowseNodeId'], tab, name)
+        leaf['Children']['names'].append(child_name)
 
+    db.amazon_category_tree.insert_one(leaf)
+    return name
 
+db.amazon_category_tree.delete_many({})
 build_category_tree()
