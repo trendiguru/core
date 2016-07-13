@@ -33,7 +33,8 @@ def how_many(argv):
 
     # dress sleeve #
     if args.input_file == 'dress_sleeve':
-        dress_sleeve_dict = yonatan_constants.args.input_file+'_dict'
+        x = 'yonatan_constants.' + args.input_file + '_dict'
+        dress_sleeve_dict = x
 
         sum_of_all = dress_sleeve_dict['strapless'] + dress_sleeve_dict['spaghetti_straps'] + dress_sleeve_dict['straps'] + \
                      dress_sleeve_dict['sleeveless'] + dress_sleeve_dict['cap_sleeve'] + dress_sleeve_dict['short_sleeve'] + \
