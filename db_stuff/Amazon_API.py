@@ -149,6 +149,8 @@ def process_results(pagenum, node_id, min_price, max_price, res_dict=None):
                     sizes.append(clothing_size)
                     db.amazon_all.update_one({'_id':parent_asin_exists['_id']}, {'$set':{'features.sizes':sizes}})
                     print ('added another size to existing item')
+                else:
+                    print ('parent_asin + color + size already exists ----- %s->%s' % (features['color'], clothing_size))
                 continue
 
             new_item = {'asin': asin,
@@ -201,7 +203,7 @@ def get_results(node_id, price_flag=True, max_price=10000.0, min_price=0.0, resu
         return 0
 
     if 'Errors' in res_dict.keys() or results_count == 0:
-        print('Error / no results \n checkout the request: \n %s' % request_url)
+        print('\n Error / no results \n checkout the request: \n %s \n' % request_url)
         return 0
 
     if results_count > 100:
