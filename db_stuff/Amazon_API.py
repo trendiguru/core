@@ -279,7 +279,7 @@ def get_results(node_id, price_flag=True, max_price=10000.0, min_price=0.0, resu
     new_items_count = process_results(1,node_id, min_price, max_price, res_dict, items_in_page=num_of_items_in_page)
     for pagenum in range(2,total_pages):
         if pagenum==(total_pages-1):
-            num_of_items_in_page = results_count-10*pagenum
+            num_of_items_in_page = results_count-10*(pagenum-1)
         new_items_count += process_results(pagenum, node_id, min_price, max_price,
                                            items_in_page=num_of_items_in_page)
 
