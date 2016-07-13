@@ -93,7 +93,7 @@ def format_price(price_float, period=False):
     return price_str
 
 
-def process_results(pagenum, node_id, min_price, max_price, res_dict=None):
+def process_results(pagenum, node_id, min_price, max_price, res_dict=None, items_in_page=10):
 
     if pagenum is not 1:
         parameters = base_parameters.copy()
@@ -120,7 +120,9 @@ def process_results(pagenum, node_id, min_price, max_price, res_dict=None):
 
     item_list = res_dict['Item']
     new_item_count = 0
-    for item in item_list:
+    for x,item in enumerate(item_list):
+        if (x+1)>items_in_page:
+            break
         asin = 0
         parent_asin = 0
         click_url = 0
@@ -165,7 +167,10 @@ def process_results(pagenum, node_id, min_price, max_price, res_dict=None):
             color = atttibutes['Color']
             sizes = [clothing_size]
             short_d = atttibutes['Title']
-            long_d = ' '.join(atttibutes['Feature'])
+            if 'Feature' in attr_keys:
+                long_d = ' '.join(atttibutes['Feature'])
+            else:
+                long_d = ''
             features = {'color': color,
                         'sizes': sizes,
                         'shortDescription': short_d,
@@ -267,9 +272,16 @@ def get_results(node_id, price_flag=True, max_price=10000.0, min_price=0.0, resu
         return 0
 
     total_pages = int(res_dict['TotalPages'])+1
-    new_items_count = process_results(1,node_id, min_price, max_price, res_dict)
+    if total_pages==2:
+        num_of_items_in_page = results_count
+    else:
+        num_of_items_in_page=10
+    new_items_count = process_results(1,node_id, min_price, max_price, res_dict, items_in_page=num_of_items_in_page)
     for pagenum in range(2,total_pages):
-        new_items_count += process_results(pagenum, node_id, min_price, max_price)
+        if pagenum==(total_pages-1):
+            num_of_items_in_page = results_count-10*pagenum
+        new_items_count += process_results(pagenum, node_id, min_price, max_price,
+                                           items_in_page=num_of_items_in_page)
 
     print ('Name: %s, PriceRange: %s -> %s , ResultCount: %d (%d)'
            % (name, format_price(min_price, True), format_price(max_price, True), results_count, new_items_count))
