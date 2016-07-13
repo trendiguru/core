@@ -33,27 +33,9 @@ def how_many(argv):
 
     # dress sleeve #
     if args.input_file == 'dress_sleeve':
-        dress_sleeve_dict = {
-    'strapless': [db.yonatan_dresses.find(
-        {'sleeve_length': ['true', 'false', 'false', 'false', 'false', 'false', 'false', 'false', 'false']}), 0],
-    'spaghetti_straps': [db.yonatan_dresses.find(
-        {'sleeve_length': ['false', 'true', 'false', 'false', 'false', 'false', 'false', 'false', 'false']}), 1],
-    'straps': [db.yonatan_dresses.find(
-        {'sleeve_length': ['false', 'false', 'true', 'false', 'false', 'false', 'false', 'false', 'false']}), 2],
-    'sleeveless': [db.yonatan_dresses.find(
-        {'sleeve_length': ['false', 'false', 'false', 'true', 'false', 'false', 'false', 'false', 'false']}), 3],
-    'cap_sleeve': [db.yonatan_dresses.find(
-        {'sleeve_length': ['false', 'false', 'false', 'false', 'true', 'false', 'false', 'false', 'false']}), 4],
-    'short_sleeve': [db.yonatan_dresses.find(
-        {'sleeve_length': ['false', 'false', 'false', 'false', 'false', 'true', 'false', 'false', 'false']}), 5],
-    'midi_sleeve': [db.yonatan_dresses.find(
-        {'sleeve_length': ['false', 'false', 'false', 'false', 'false', 'false', 'true', 'false', 'false']}), 6],
-    'long_sleeve': [db.yonatan_dresses.find(
-        {'sleeve_length': ['false', 'false', 'false', 'false', 'false', 'false', 'false', 'true', 'false']}), 7]
-    # 'asymmetry' : [db.yonatan_dresses.find({'sleeve_length': ['false', 'false', 'false', 'false', 'false', 'false', 'false', 'false', 'true']}), 8]
-    }
+        dress_sleeve_dict = yonatan_constants.dress_sleeve_dict
 
-        sum_of_all = sum(dress_sleeve_dict.itervalues())
+        sum_of_all = sum(dress_sleeve_dict.iteritems().count())
         sum_of_all_already_seen = db.yonatan_dresses.count({'already_seen_dress_sleeve': True})
 
         deleted = sum_of_all_already_seen - sum_of_all
@@ -65,9 +47,7 @@ def how_many(argv):
     elif args.input_file == 'dress_length':
         dress_length_dict = yonatan_constants.dress_length_dict
 
-        sum_of_all = dress_length_dict['mini_length'] + dress_length_dict['above_knee'] + dress_length_dict['knee_length'] + \
-                     dress_length_dict['tea_length'] + dress_length_dict['ankle_length'] + dress_length_dict['floor_length']
-
+        sum_of_all = sum(dress_length_dict.itervalues())
         sum_of_all_already_seen = db.yonatan_dresses.count({'already_seen_dress_length': True})
 
         deleted = sum_of_all_already_seen - sum_of_all
