@@ -65,7 +65,7 @@ class Images(object):
                 # relevancy_dict.update({images[i]: fast_route_results[i] for i in xrange(len(images_to_rel_check))})
 
                 # RELEVANCY CHECK REDIS
-                jobs = {image_url: relevancy_q.enqueue_call(func="fast_results.check_if_relevant_and_enqueue",
+                jobs = {image_url: relevancy_q.enqueue_call(func="trendi.falcon.fast_results.check_if_relevant_and_enqueue",
                                                             args=(image_url, page_url)) for image_url in images_to_rel_check}
                 while not all([job.is_finished for job in jobs.values()]):
                     time.sleep(0.01)
