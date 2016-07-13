@@ -25,8 +25,10 @@ sets = {'train', 'cv', 'test'}
 
 for dress_type in sleeve_dress:
     print dress_type
-    if os.path.isdir('/home/yonatan/db_' + dress_type + '_dresses'):
-        shutil.rmtree('/home/yonatan/db_' + dress_type + '_dresses')
+    if os.path.isdir('/home/yonatan/resized_db_' + dress_type + '_dresses'):
+        if not os.listdir('/home/yonatan/resized_db_' + dress_type + '_dresses'):
+            print '\nempty'
+        #shutil.rmtree('/home/yonatan/db_' + dress_type + '_dresses')
     else:
         #shutil.rmtree('/home/yonatan/db_' + dress_type + '_dresses')
         shutil.rmtree('/home/yonatan/resized_db_' + dress_type + '_dresses')

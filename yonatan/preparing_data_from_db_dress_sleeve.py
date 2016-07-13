@@ -130,6 +130,15 @@ def preparing_data_from_db(argv):
         num_of_each_category = 900
 
     for key, value in dictionary.iteritems():
+
+        if os.path.isdir('/home/yonatan/db_' + dress_type + '_dresses'):
+            shutil.rmtree('/home/yonatan/db_' + dress_type + '_dresses')
+        else:
+            # shutil.rmtree('/home/yonatan/db_' + dress_type + '_dresses')
+            shutil.rmtree('/home/yonatan/resized_db_' + dress_type + '_dresses')
+            # os.mkdir('/home/yonatan/db_' + dress_type + '_dresses')
+            os.mkdir('/home/yonatan/resized_db_' + dress_type + '_dresses')
+
         #text_file = open("all_dresses_" + key + "_list.txt", "w")
         for i in range(1, value[0].count()):
             #if i > num_of_each_category:
