@@ -151,7 +151,7 @@ def process_results(pagenum, node_id, min_price, max_price, res_dict=None, items
             elif 'SmallImage' in item_keys:
                 image = item['SmallImage']['URL']
             else:
-                print('No image')
+                # print('No image')
                 continue
             offer = item['OfferSummary']['LowestNewPrice']
             price = {'price': float(offer['Amount'])/100,
@@ -165,7 +165,8 @@ def process_results(pagenum, node_id, min_price, max_price, res_dict=None, items
                 clothing_size = atttibutes['Size']
             else:
                 print (attr_keys)
-                raw_input()
+                continue
+                # raw_input()
             color = atttibutes['Color']
             sizes = [clothing_size]
             short_d = atttibutes['Title']
@@ -181,7 +182,7 @@ def process_results(pagenum, node_id, min_price, max_price, res_dict=None, items
             # print('##################################')
             asin_exists = db.amazon_all.find_one({'asin': asin})
             if asin_exists:
-                print('item exists already!')
+                # print('item exists already!')
                 continue
 
             # print('ooooooooooooooooooooooooooooooooooo')
@@ -192,9 +193,10 @@ def process_results(pagenum, node_id, min_price, max_price, res_dict=None, items
                 if clothing_size not in sizes:
                     sizes.append(clothing_size)
                     db.amazon_all.update_one({'_id':parent_asin_exists['_id']}, {'$set':{'features.sizes':sizes}})
-                    print ('added another size to existing item')
+                    # print ('added another size to existing item')
                 else:
-                    print ('parent_asin + color + size already exists ----- %s->%s' % (features['color'], clothing_size))
+                    pass
+                    # print ('parent_asin + color + size already exists ----- %s->%s' % (features['color'], clothing_size))
                 continue
             # print('????????????????????????????????????')
             new_item = {'asin': asin,
@@ -262,7 +264,7 @@ def get_results(node_id, price_flag=True, max_price=10000.0, min_price=0.0, resu
         return 0
 
     if 'Errors' in res_dict.keys() or results_count == 0:
-        print('\n Error / no results \n checkout the request: \n %s \n' % request_url)
+        # print('\nError / no results \n checkout the request: \n %s \n' % request_url)
         return 0
 
     if results_count > 100:
