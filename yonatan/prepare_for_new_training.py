@@ -35,5 +35,3 @@ for set in sets:
     #os.mkdir('/home/yonatan/dresses_' + set + '_set')
     os.mkdir('/home/yonatan/db_dresses_' + set + '_set')
     #os.remove('/home/yonatan/db_dresses_' + set + '.txt')
-
-
