@@ -290,12 +290,24 @@ def build_category_tree(root='7141124011', tab=0, parents=[], delete_collection=
     return name
 
 
-# build_category_tree(delete_collection=True)
-print('starting to download')
-leafs = db.amazon_category_tree.find({'Children.count': 0})
-for leaf in leafs:
-    leaf_name = '->'.join(leaf['Parents']) + '->' + leaf['Name']
-    node_id = leaf['BrowseNodeId']
-    get_results(node_id, results_count_only=False, name=leaf_name)
+def download_all(delete_collection=False):
+    collection = db.amazon_all
+    # build_category_tree(delete_collection=delete_collection)
+    print('starting to download')
 
+    if delete_collection:
+        collection.delete_many({})
+        indexes = collection.index_information().keys()
+        for idx in ['id', 'img_hash', 'categories', 'images.XLarge', 'download_data.dl_version', 'asin', 'parent_asin',
+                    'features.color']:
+            idx_1 = idx + '_1'
+            if idx_1 not in indexes:
+                collection.create_index(idx, background=True)
 
+    leafs = db.amazon_category_tree.find({'Children.count': 0})
+    for leaf in leafs:
+        leaf_name = '->'.join(leaf['Parents']) + '->' + leaf['Name']
+        node_id = leaf['BrowseNodeId']
+        get_results(node_id, results_count_only=False, name=leaf_name)
+
+download_all(True)
