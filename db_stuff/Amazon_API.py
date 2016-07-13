@@ -101,12 +101,12 @@ def build_category_tree(root = '7141124011', tab=0, parent='orphan'):
 
     if res.status_code != 200 :
         # print ('Bad request!!!')
-        return
+        return None
 
     res_dict = dict(xmltodict.parse(res.text))
     if 'BrowseNodeLookupResponse' not in res_dict.keys():
         print ('No BrowseNodeLookupResponse')
-        return
+        return None
 
     res_dict = dict(res_dict['BrowseNodeLookupResponse']['BrowseNodes']['BrowseNode'])
     if 'Children' in res_dict.keys():
@@ -131,8 +131,9 @@ def build_category_tree(root = '7141124011', tab=0, parent='orphan'):
     tab += 1
     for child in children:
         sleep(1.5)
-        child_name = build_category_tree(child['BrowseNodeId'], tab, name)
-        leaf['Children']['names'].append(child_name)
+        child_id = child['BrowseNodeId']
+        child_name = build_category_tree(child_id, tab, name)
+        leaf['Children']['names'].append((child_id,child_name))
 
     db.amazon_category_tree.insert_one(leaf)
     return name
