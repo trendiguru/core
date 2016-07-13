@@ -122,8 +122,12 @@ def process_results(pagenum, node_id, min_price, max_price, res_dict=None):
     new_item_count = 0
     for item in item_list:
         try:
+            item_keys = item.keys()
             asin = item['ASIN']
-            parent_asin = item['ParentASIN']
+            if 'ParentASIN' not in item_keys:
+                parent_asin = asin
+            else:
+                parent_asin = item['ParentASIN']
             click_url = item['DetailPageURL']
             image = item['LargeImage']
             offer = item['OfferSummary']['LowestNewPrice']
@@ -144,13 +148,14 @@ def process_results(pagenum, node_id, min_price, max_price, res_dict=None):
 
             parent_asin_exists = db.amazon_all.find_one({'parent_asin': parent_asin, 'features.color': features['color']})
             if parent_asin_exists:
+                print ('parent_asin + color already exists')
                 sizes = parent_asin_exists['features']['sizes']
                 if clothing_size not in sizes:
                     sizes.append(clothing_size)
                     db.amazon_all.update_one({'_id':parent_asin_exists['_id']}, {'$set':{'features.sizes':sizes}})
                     print ('added another size to existing item')
                 else:
-                    print ('parent_asin + color + size already exists ----- %s->%s' % (features['color'], clothing_size))
+                    print ('+ size already exists ----- %s->%s' % (features['color'], clothing_size))
                 continue
 
             new_item = {'asin': asin,
