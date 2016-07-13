@@ -84,7 +84,7 @@ def get_result_count(node_id):
         return 0
 
     res_dict = dict(res_dict['ItemSearchResponse']['Items'])
-
+    print res_dict.keys()
     return int(res_dict['TotalResults'])
 
 
