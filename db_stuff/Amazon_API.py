@@ -175,8 +175,9 @@ def get_results(node_id, price_flag=True, max_price=10000.0, min_price=0.0, resu
         parameters['MinimumPrice'] = format_price(min_price)
         parameters['MaximumPrice'] = format_price(max_price)
 
-    sleep(1.1)
-    res = get(get_amazon_signed_url(parameters, 'GET', True))
+    sleep(1)
+    request_url = get_amazon_signed_url(parameters, 'GET', False)
+    res = get(request_url)
 
     if res.status_code != 200:
         # print ('Bad request!!!')
@@ -194,6 +195,10 @@ def get_results(node_id, price_flag=True, max_price=10000.0, min_price=0.0, resu
             return results_count
     else:
         print ('bad query')
+        return 0
+
+    if 'Errors' in res_dict.keys() or results_count == 0:
+        print('Error / no results \n checkout the request: \n %s' % request_url)
         return 0
 
     if results_count > 100:
