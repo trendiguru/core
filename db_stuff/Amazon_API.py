@@ -55,7 +55,7 @@ from time import strftime,gmtime,sleep
 from requests import get
 import xmltodict
 from ..constants import db
-
+import logging
 
 blacklist = ['Jewelry', 'Watches', 'Handbags', 'Accessories', 'Lingerie, Sleep & Lounge', 'Socks & Hosiery',
              'Handbags & Wallets', 'Shops', 'Girls', 'Boys', 'Shoes', 'Underwear', 'Baby', 'Sleep & Lounge',
@@ -72,6 +72,15 @@ base_parameters = {
     'Service': 'AWSECommerceService',
     'Timestamp': strftime("%Y-%m-%dT%H:%M:%SZ", gmtime()),
     'ResponseGroup': 'ItemAttributes, OfferSummary,Images'}
+
+
+def log2file(mode='w', LOG_FILENAME='/home/developer/yonti/amazon_download_stats.log'):
+    logger = logging.getLogger(__name__)
+    logger.setLevel(logging.INFO)
+    handler = logging.FileHandler(LOG_FILENAME, mode=mode)
+    handler.setLevel(logging.INFO)
+    logger.addHandler(handler)
+    return logger
 
 
 def format_price(price_float, period=False):
@@ -287,8 +296,11 @@ def get_results(node_id, price_flag=True, max_price=10000.0, min_price=0.0, resu
         new_items_count += process_results(pagenum, node_id, min_price, max_price,
                                            items_in_page=num_of_items_in_page)
 
-    print ('Name: %s, PriceRange: %s -> %s , ResultCount: %d (%d)'
-           % (name, format_price(min_price, True), format_price(max_price, True), results_count, new_items_count))
+    summary = 'Name: %s, PriceRange: %s -> %s , ResultCount: %d (%d)'\
+              % (name, format_price(min_price, True), format_price(max_price, True), results_count, new_items_count)
+    handler = log2file(mode='a')
+    handler.info(summary)
+    print (summary)
 
 
 def build_category_tree(root='7141124011', tab=0, parents=[], delete_collection=False):
@@ -363,6 +375,8 @@ def build_category_tree(root='7141124011', tab=0, parents=[], delete_collection=
 def download_all(delete_collection=False):
     collection = db.amazon_all
     # build_category_tree(delete_collection=delete_collection)
+    handler = log2file(mode='w')
+    handler.info('download started')
     print('starting to download')
 
     if delete_collection:
