@@ -146,7 +146,14 @@ def process_results(pagenum, node_id, min_price, max_price, res_dict=None):
                      'currency': offer['CurrencyCode'],
                      'priceLabel': offer['FormattedPrice']}
             atttibutes = item['ItemAttributes']
-            clothing_size = atttibutes['ClothingSize']
+            attr_keys = atttibutes.keys()
+            if 'ClothingSize' in attr_keys:
+                clothing_size = atttibutes['ClothingSize']
+            elif 'Size' in attr_keys:
+                clothing_size = atttibutes['Size']
+            else:
+                print (attr_keys)
+                raw_input()
             color = atttibutes['Color']
             sizes = [clothing_size]
             short_d = atttibutes['Title']
