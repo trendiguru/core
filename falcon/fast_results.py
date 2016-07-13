@@ -50,6 +50,7 @@ def check_if_relevant_and_enqueue(image_url, page_url, start_time):
     if image is None:
         return False
 
+    print "Thread {1}: before image_DL: {0}".format(time.time()-start, pid)
     small_img, rr = background_removal.standard_resize(image, 600)
     print "Thread {1}: after image_DL: {0}".format(time.time()-start, pid)
     relevance = background_removal.image_is_relevant(small_img, use_caffe=False, image_url=image_url)
