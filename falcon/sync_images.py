@@ -1,15 +1,14 @@
 # import os
 import traceback
 import time
-# from functools import partial
+from functools import partial
 import gevent
 from gevent import Greenlet, monkey
-monkey.patch_all()
-import pymongo
+monkey.patch_all(thread=False)
 from bson import json_util
 from rq import Queue
 import falcon
-
+from redis import Redis
 from . import fast_results
 from .. import constants
 from .. import page_results
@@ -20,16 +19,18 @@ from .. import page_results
 #                                       connect=False).mydb
 
 storm_q = Queue('star_pipeline', connection=constants.redis_conn)
+r = Redis()
+relevancy_q = Queue(connection=r)
 
 
 class Images(object):
     
-    # def __init__(self,  process_pool):
-    #     self.process_pool = process_pool
-    #     print "created Images"
-
-    def __init__(self):
+    def __init__(self,  process_pool):
+        self.process_pool = process_pool
         print "created Images"
+
+    # def __init__(self):
+    #     print "created Images"
 
     def on_post(self, req, resp):
         start = time.time()
@@ -58,18 +59,17 @@ class Images(object):
 
                 # RELEVANCY CHECK POOLING
                 # check_relevancy_partial = partial(fast_results.check_if_relevant_and_enqueue, page_url=page_url)
-                # print "after partial: {0}".format(time.time()-start)
+                # print "POST: after partial: {0}".format(time.time()-start)
                 # fast_route_results = self.process_pool.map(check_relevancy_partial, images_to_rel_check)
-                # print "after process_pool_mapping: {0}".format(time.time()-start)
+                # print "POST: after process_pool_mapping: {0}".format(time.time()-start)
                 # relevancy_dict.update({images[i]: fast_route_results[i] for i in xrange(len(images_to_rel_check))})
 
-                # RELEVANCY CHECK GEVENT
-                relevant = {url: Greenlet.spawn(fast_results.check_if_relevant_and_enqueue, url, page_url)
-                            for url in images_to_rel_check}
-                print "POST: before join_all: {0}".format(time.time()-start)
-                gevent.joinall(relevant.values())
-                print "POST: after join_all: {0}".format(time.time()-start)
-                relevancy_dict.update({url: green.value for url, green in relevant.iteritems()})
+                # RELEVANCY CHECK REDIS
+                jobs = {image_url: relevancy_q.enqueue_call(func="fast_results.check_if_relevant_and_enqueue",
+                                                            args=(image_url, page_url)) for image_url in images_to_rel_check}
+                while not all([job.is_finished for job in jobs.values()]):
+                    time.sleep(0.01)
+                relevancy_dict.update({image_url: job.result for image_url, job in jobs.iteritems()})
                 print "POST: after dictionary update: {0}".format(time.time()-start)
 
                 ret["success"] = True
