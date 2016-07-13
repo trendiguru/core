@@ -140,13 +140,28 @@ def process_results(pagenum, node_id, min_price, max_price, res_dict=None):
             else:
                 parent_asin = item['ParentASIN']
             click_url = item['DetailPageURL']
-            image = item['LargeImage']['URL']
+            if 'LargeImage' in item_keys:
+                image = item['LargeImage']['URL']
+            elif 'MediumImage' in item_keys:
+                image = item['MediumImage']['URL']
+            elif 'SmallImage' in item_keys:
+                image = item['SmallImage']['URL']
+            else:
+                print('No image')
+                continue
             offer = item['OfferSummary']['LowestNewPrice']
             price = {'price': float(offer['Amount'])/100,
                      'currency': offer['CurrencyCode'],
                      'priceLabel': offer['FormattedPrice']}
             atttibutes = item['ItemAttributes']
-            clothing_size = atttibutes['ClothingSize']
+            attr_keys = atttibutes.keys()
+            if 'ClothingSize' in attr_keys:
+                clothing_size = atttibutes['ClothingSize']
+            elif 'Size' in attr_keys:
+                clothing_size = atttibutes['Size']
+            else:
+                print (attr_keys)
+                raw_input()
             color = atttibutes['Color']
             sizes = [clothing_size]
             short_d = atttibutes['Title']
@@ -156,13 +171,13 @@ def process_results(pagenum, node_id, min_price, max_price, res_dict=None):
                         'shortDescription': short_d,
                         'longDescription': long_d}
 
-            print('##################################')
+            # print('##################################')
             asin_exists = db.amazon_all.find_one({'asin': asin})
             if asin_exists:
                 print('item exists already!')
                 continue
 
-            print('ooooooooooooooooooooooooooooooooooo')
+            # print('ooooooooooooooooooooooooooooooooooo')
             parent_asin_exists = db.amazon_all.find_one({'parent_asin': parent_asin, 'features.color': features['color']})
             if parent_asin_exists:
                 print ('parent_asin + color already exists')
@@ -174,7 +189,7 @@ def process_results(pagenum, node_id, min_price, max_price, res_dict=None):
                 else:
                     print ('+ size already exists ----- %s->%s' % (features['color'], clothing_size))
                 continue
-            print('????????????????????????????????????')
+            # print('????????????????????????????????????')
             new_item = {'asin': asin,
                         'parent_asin': parent_asin,
                         'clickUrl': click_url,
@@ -182,9 +197,9 @@ def process_results(pagenum, node_id, min_price, max_price, res_dict=None):
                         'price': price,
                         'features': features}
 
-            print 'inserting'
+            # print 'inserting'
             db.amazon_all.insert_one(new_item)
-            print 'item inserted\n'
+            # print 'item inserted\n'
             new_item_count +=1
 
         except:
@@ -251,7 +266,7 @@ def get_results(node_id, price_flag=True, max_price=10000.0, min_price=0.0, resu
             get_results(node_id, min_price=min_price, max_price=mid_price, name=name)
         return 0
 
-    total_pages = int(res_dict['TotalPages'])
+    total_pages = int(res_dict['TotalPages'])+1
     new_items_count = process_results(1,node_id, min_price, max_price, res_dict)
     for pagenum in range(2,total_pages):
         new_items_count += process_results(pagenum, node_id, min_price, max_price)
