@@ -35,7 +35,7 @@ def how_many(argv):
     if args.input_file == 'dress_sleeve':
         dress_sleeve_dict = yonatan_constants.dress_sleeve_dict
 
-        sum_of_all = sum(dress_sleeve_dict.iteritems().count())
+        sum_of_all = sum(for key, value in dress_sleeve_dict.iteritems(): value[0].count())
         sum_of_all_already_seen = db.yonatan_dresses.count({'already_seen_dress_sleeve': True})
 
         deleted = sum_of_all_already_seen - sum_of_all
