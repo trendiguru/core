@@ -131,13 +131,16 @@ def preparing_data_from_db(argv):
 
     for key, value in dictionary.iteritems():
 
-        if os.path.isdir('/home/yonatan/db_' + dress_type + '_dresses'):
-            shutil.rmtree('/home/yonatan/db_' + dress_type + '_dresses')
+        working_path = '/home/yonatan/resized_db_' + args.input_file + '_' + key
+
+        if os.path.isdir(working_path):
+            if not os.listdir(working_path):
+                print '\nfolder is empty'
+            else:
+                shutil.rmtree(working_path)
+                os.mkdir(working_path)
         else:
-            # shutil.rmtree('/home/yonatan/db_' + dress_type + '_dresses')
-            shutil.rmtree('/home/yonatan/resized_db_' + dress_type + '_dresses')
-            # os.mkdir('/home/yonatan/db_' + dress_type + '_dresses')
-            os.mkdir('/home/yonatan/resized_db_' + dress_type + '_dresses')
+            os.mkdir(working_path)
 
         #text_file = open("all_dresses_" + key + "_list.txt", "w")
         for i in range(1, value[0].count()):
