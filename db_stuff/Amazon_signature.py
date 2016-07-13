@@ -86,27 +86,27 @@ def get_amazon_signed_url(parameters, get_or_post='GET', print_flag=True):
         print(amazon_signed_url)
     return amazon_signed_url
 
-#
-# parameters = {
-#     'AWSAccessKeyId': 'AKIAIQJZVKJKJUUC4ETA',
-#     'AssociateTag': 'fazz0b-20',
-#     'Availability': 'Available',
-#     # 'Title': 'mini dress',
-#     # 'Operation': 'ItemLookup',
-#     'Operation': 'ItemSearch',
-#     'SearchIndex': 'FashionWomen',
-#     'Service': 'AWSECommerceService',
-#     'Timestamp': time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()),
-#     # 'IdType': 'ASIN',
-#     # 'ItemId': 'B01CT51MXC',
-#     # 'MaximumPrice':'3100',
-#     # 'MinimumPrice':'3099',
-#     'ResponseGroup': 'ItemAttributes, OfferSummary,Images'}
-#
-# parameters['Operation'] = 'BrowseNodeLookup'
-# # parameters['ResponseGroup'] = 'SearchBins'# 'BrowseNodeInfo'
-# # parameters['BrowseNode'] = '7147443011'
-# parameters['ResponseGroup'] = 'BrowseNodeInfo'
-# parameters['BrowseNodeId'] = '7147443011'
-# get_amazon_signed_url(parameters, 'GET')
+
+parameters = {
+    'AWSAccessKeyId': 'AKIAIQJZVKJKJUUC4ETA',
+    'AssociateTag': 'fazz0b-20',
+    'Availability': 'Available',
+    # 'Title': 'mini dress',
+    # 'Operation': 'ItemLookup',
+    'Operation': 'ItemSearch',
+    'SearchIndex': 'FashionWomen',
+    'Service': 'AWSECommerceService',
+    'Timestamp': time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()),
+    # 'IdType': 'ASIN',
+    # 'ItemId': 'B01CT51MXC',
+    # 'MaximumPrice':'3100',
+    # 'MinimumPrice':'3099',
+    'ResponseGroup': 'ItemAttributes, OfferSummary,Images'}
+
+parameters['Operation'] = 'BrowseNodeLookup'
+# parameters['ResponseGroup'] = 'SearchBins'# 'BrowseNodeInfo'
+# parameters['BrowseNode'] = '7147443011'
+parameters['ResponseGroup'] = 'BrowseNodeInfo'
+parameters['BrowseNodeId'] = '7141124011'
+get_amazon_signed_url(parameters, 'GET')
 

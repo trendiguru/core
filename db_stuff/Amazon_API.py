@@ -58,7 +58,9 @@ from ..constants import db
 
 
 blacklist = ['Jewelry', 'Watches', 'Handbags', 'Accessories', 'Lingerie, Sleep & Lounge', 'Socks & Hosiery',
-             'Handbags & Wallets', 'Shops', 'Girls', 'Boys']
+             'Handbags & Wallets', 'Shops', 'Girls', 'Boys', 'Shoes', 'Underwear', 'Baby', 'Sleep & Lounge',
+             'Socks', 'Novelty & More', 'Luggage & Travel Gear', 'Uniforms, Work & Safety', 'Costumes & Accessories',
+             'hoe, Jewelry & Watch Accessories', 'Traditional & Cultural Wear']
 
 base_parameters = {
     'AWSAccessKeyId': 'AKIAIQJZVKJKJUUC4ETA',
@@ -132,7 +134,7 @@ def build_category_tree(root = '7141124011', tab=0, parent='orphan'):
             'TotalResults': result_count}
 
     tab_space = '\t' * tab
-    print('%sname: %s,  ItemId: %s,  Children: %d , result_count: %d'
+    print('%sname: %s,  NodeId: %s,  Children: %d , result_count: %d'
           % (tab_space, name, leaf['BrowseNodeId'], leaf['Children']['count'], result_count))
 
     tab += 1
@@ -142,7 +144,8 @@ def build_category_tree(root = '7141124011', tab=0, parent='orphan'):
             continue
         child_id = child['BrowseNodeId']
         child_name = build_category_tree(child_id, tab, name)
-        if child_name is None: # try again
+        if child_name is None:  # try again
+            print ('##################################################################################################')
             child_name = build_category_tree(child_id, tab, name)
 
         leaf['Children']['names'].append((child_id,child_name))
