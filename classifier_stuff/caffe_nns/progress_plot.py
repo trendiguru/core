@@ -40,6 +40,7 @@ def parse_logfile(f,logy):
   type = ''
   momentum = ''
   gamma = ''
+  stepsize = ''
 
   past_beginning = False
 
@@ -54,6 +55,8 @@ def parse_logfile(f,logy):
       base_lr = line.split()[-1]+' '
     if 'lr_policy' in line:
       lr_policy = line.split()[-1]+' '
+    if 'stepsize' in line:
+      stepsize = line.split()[-1]+' '
 
     if type == ''  and 'type' in line:  #only take first 'type' which is in solver.proto (type of learning)
       type = line.split()[-1]+' '
@@ -150,49 +153,77 @@ def parse_logfile(f,logy):
 #  plt.plot(test_iterations, test_accuracy, '-', linewidth=2)
 #  plt.show()
 
-  host = host_subplot(111)#, axes_class=AA.Axes)
-  plt.subplots_adjust(right=0.75)
-
-  par1 = host.twinx()
-
-  host.set_xlabel("iterations/1000")
-  host.set_ylabel("loss")
-  par1.set_ylabel("accuracy")
-
   train_label = "train loss"
   test_label = "test loss"
   if logy == 'True':
-    training_loss = np.log10(training_loss)
-    test_loss = np.log10(test_loss)
     train_label = "log10(train logloss)"
     test_label = "log10(test logloss)"
-    host.set_ylabel("log10(log loss)")
+#    training_loss = np.log10(training_loss)
+#    test_loss = np.log10(test_loss)
+#    host.set_ylabel("log10(log loss)")
 
-  p1, = host.plot(training_iterations, training_loss,'bo:', label=train_label)
-  p3, = host.plot(test_iterations, test_loss,'go:', label=test_label)
-  p2, = par1.plot(test_iterations, test_accuracy,'ro:', label="test acc.")
-  if len(training_accuracy)>0:
-    p4, = par1.plot(training_iterations, training_accuracy,'co:', label="train acc.")
+  if (0):
+    host = host_subplot(111)#, axes_class=AA.Axes)
+    plt.subplots_adjust(right=0.75)
+    par1 = host.twinx()
+    host.set_xlabel("iterations/1000")
+    host.set_ylabel("loss")
+    par1.set_ylabel("accuracy")
 
-#  par1.ylim((0,1))
-#  host.legend(loc=2)
+    p1, = host.plot.se(training_iterations, training_loss,'bo:', label=train_label)
+    p3, = host.plot(test_iterations, test_loss,'go:', label=test_label)
+    p2, = par1.plot(test_iterations, test_accuracy,'ro:', label="test acc.")
+    if len(training_accuracy)>0:
+      p4, = par1.plot(training_iterations, training_accuracy,'co:', label="train acc.")
+    host.legend(bbox_to_anchor=(1.05, 1), loc=2,borderaxespad=0.)
+    host.axis["left"].label.set_color(p1.get_color())
+    par1.axis["right"].label.set_color(p2.get_color())
+    dt=datetime.datetime.today()
+    plt.title(net_name+' '+dt.isoformat(),fontsize=10)
+    subtitle = args.output_file+'\n'+train_net+test_net+'base_lr'+base_lr+lr_policy+type+ 'mom:'+momentum+'gama'+gamma
+    plt.suptitle(subtitle,fontsize=8)
+    plt.draw()
+  else:
+    fig, ax1 = plt.subplots()
+    if logy == 'True':
+      print('LOG Y AXIS')
+      ax1.semilogy(training_iterations, training_loss, 'bo:', label=train_label)
+      ax1.semilogy(test_iterations, test_loss, 'go:', label=test_label)
+    else:
+      ax1.plot(training_iterations, training_loss, 'bo:', label=train_label)
+      ax1.plot(test_iterations, test_loss, 'go:', label=test_label)
+    ax1.set_xlabel('iterations/1000')
+    # Make the y-axis label and tick labels match the line color.
+    ax1.set_ylabel('loss', color='b')
+    for tl in ax1.get_yticklabels():
+        tl.set_color('b')
+    if len(training_accuracy)>0 or len(test_accuracy)>0:
+      ax2 = ax1.twinx()
+      ax2.set_ylabel('accuracy', color='b')
+    if len(training_accuracy)>0:
+      ax2.plot(training_iterations, training_accuracy, 'co:',label="train_acc")
+      for tl in ax2.get_yticklabels():
+        tl.set_color('c')
+    if len(test_accuracy)>0:
+      ax2.plot(test_iterations, test_accuracy, 'ro:',label="test_acc")
+      for tl in ax2.get_yticklabels():
+        tl.set_color('r')
+#    ax1.legend(loc='upper center', bbox_to_anchor=(0.5, -0.05),
+#          fancybox=True, shadow=True, ncol=5)
 
-#top legend
-#  host.legend(bbox_to_anchor=(0., 1.00, 1., .100), loc=3,
-#           ncol=2, mode="expand", borderaxespad=0.1)
 
-#right legend
-  host.legend(bbox_to_anchor=(1.05, 1), loc=2,borderaxespad=0.)
+    plt.legend(bbox_to_anchor=(0., 0.0, 0., .102), loc='lower center',
+            mode="expand", borderaxespad=0.) #bbox_to_anchor=(0., 1.02, 1., .102), #ncol=2,
+    dt=datetime.datetime.today()
+    plt.title(net_name+' '+dt.isoformat(),fontsize=10)
+    subtitle = args.output_file+'\n'+train_net+test_net+'base_lr'+base_lr+lr_policy+type
+    if momentum is not '':
+      subtitle = subtitle + 'mom:'+momentum
+    if gamma is not '':
+      subtitle=subtitle+'gama'+gamma
+    plt.suptitle(subtitle,fontsize=8)
+    #plt.draw()
 
-  host.axis["left"].label.set_color(p1.get_color())
-  par1.axis["right"].label.set_color(p2.get_color())
-
-  dt=datetime.datetime.today()
-  plt.title(net_name+' '+dt.isoformat(),fontsize=10)
-
-  subtitle = args.output_file+'\n'+train_net+test_net+'base_lr'+base_lr+lr_policy+type+ 'mom:'+momentum+'gama'+gamma
-  plt.suptitle(subtitle,fontsize=8)
-  plt.draw()
   savename = args.output_file+'.jpg'
   plt.savefig(savename)
   plt.show()
