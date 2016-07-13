@@ -24,16 +24,24 @@ sleeve_dress = {'strapless', 'spaghetti_straps', 'straps', 'sleeveless',
 sets = {'train', 'cv', 'test'}
 
 for dress_type in sleeve_dress:
-    shutil.rmtree('/home/yonatan/db_' + dress_type + '_dresses')
-    shutil.rmtree('/home/yonatan/resized_db_' + dress_type + '_dresses')
-    os.mkdir('/home/yonatan/db_' + dress_type + '_dresses')
-    os.mkdir('/home/yonatan/resized_db_' + dress_type + '_dresses')
+    print dress_type
+    if os.path.isdir('/home/yonatan/resized_db_' + dress_type + '_dresses'):
+        #if not os.listdir('/home/yonatan/resized_db_' + dress_type + '_dresses'):
+        #    print '\nempty'
+        shutil.rmtree('/home/yonatan/resized_db_' + dress_type + '_dresses')
+    '''else:
+        #shutil.rmtree('/home/yonatan/db_' + dress_type + '_dresses')
+        shutil.rmtree('/home/yonatan/resized_db_' + dress_type + '_dresses')
+        #os.mkdir('/home/yonatan/db_' + dress_type + '_dresses')
+        os.mkdir('/home/yonatan/resized_db_' + dress_type + '_dresses')
+    '''
 
 for set in sets:
-    shutil.rmtree('/home/yonatan/db_dresses_' + set + '_set')
-    shutil.rmtree('/home/yonatan/dresses_' + set + '_set')
-    os.mkdir('/home/yonatan/dresses_' + set + '_set')
-    os.mkdir('/home/yonatan/db_dresses_' + set + '_set')
-    #os.remove('/home/yonatan/db_dresses_' + set + '.txt')
-
+    print set
+    if os.path.isdir('/home/yonatan/db_dresses_' + set + '_set'):
+        shutil.rmtree('/home/yonatan/db_dresses_' + set + '_set')
+        #shutil.rmtree('/home/yonatan/dresses_' + set + '_set')
+        #os.mkdir('/home/yonatan/dresses_' + set + '_set')
+        #os.mkdir('/home/yonatan/db_dresses_' + set + '_set')
+        #os.remove('/home/yonatan/db_dresses_' + set + '.txt')
 

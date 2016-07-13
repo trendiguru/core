@@ -18,6 +18,7 @@ import urllib
 from PIL import Image
 import pymongo
 import argparse
+import shutil
 
 
 def cv2_image_to_caffe(image):
@@ -129,32 +130,46 @@ def preparing_data_from_db(argv):
 
         num_of_each_category = 900
 
-        for key, value in dictionary.iteritems():
-            #text_file = open("all_dresses_" + key + "_list.txt", "w")
-            for i in range(1, value[0].count()):
-                #if i > num_of_each_category:
-                 #   break
+    for key, value in dictionary.iteritems():
 
-                link_to_image = value[0][i]['images']['XLarge']
+        working_path = '/home/yonatan/resized_db_' + args.input_file + '_' + key
 
-                fresh_image = url_to_image(link_to_image)
-                if fresh_image is None:
-                    continue
+        if os.path.isdir(working_path):
+            if not os.listdir(working_path):
+                print '\nfolder is empty'
+            else:
+                print "deleting directory content"
+                shutil.rmtree(working_path)
+                os.mkdir(working_path)
+        else:
+            print "creating new directory"
+            os.mkdir(working_path)
 
-                # Resize it.
-                #resized_image = cv2.resize(fresh_image, (width, height))
-                resized_image = imutils.resize_keep_aspect(fresh_image, output_size = (256, 256))
+        #text_file = open("all_dresses_" + key + "_list.txt", "w")
+        for i in range(1, value[0].count()):
+            #if i > num_of_each_category:
+             #   break
 
-                image_file_name = key + '_' + args.input_file + '-' + str(i) + '.jpg'
+            link_to_image = value[0][i]['images']['XLarge']
 
-                print i
+            fresh_image = url_to_image(link_to_image)
+            if fresh_image is None:
+                continue
 
-                cv2.imwrite(os.path.join('/home/yonatan/resized_db_' + args.input_file + key, image_file_name), resized_image)
-                #text_file.write('/home/yonatan/resized_db_' + args.input_file + key + '/' + image_file_name + ' ' + str(value[1]) + '\n')
+            # Resize it.
+            #resized_image = cv2.resize(fresh_image, (width, height))
+            resized_image = imutils.resize_keep_aspect(fresh_image, output_size = (256, 256))
 
-                print '/home/yonatan/resized_db_' + args.input_file + key
+            image_file_name = key + '_' + args.input_file + '-' + str(i) + '.jpg'
 
-            #text_file.flush()
+            print i
+
+            cv2.imwrite(os.path.join(working_path, image_file_name), resized_image)
+            #text_file.write(working_path + '/' + image_file_name + ' ' + str(value[1]) + '\n')
+
+            print working_path
+
+        #text_file.flush()
 
 
 if __name__ == '__main__':
