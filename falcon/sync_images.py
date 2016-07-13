@@ -12,6 +12,7 @@ from redis import Redis
 from . import fast_results
 from .. import constants
 from .. import page_results
+from .. import simple_pool
 
 # Patch db for multiprocessing http://api.mongodb.com/python/current/faq.html#using-pymongo-with-multiprocessing
 # fast_results.db = pymongo.MongoClient(host=os.getenv("MONGO_HOST", "mongodb1-instance-1"),
@@ -25,12 +26,12 @@ relevancy_q = Queue(connection=r)
 
 class Images(object):
     
-    def __init__(self,  process_pool):
-        self.process_pool = process_pool
-        print "created Images"
-
-    # def __init__(self):
+    # def __init__(self,  process_pool):
+    #     self.process_pool = process_pool
     #     print "created Images"
+
+    def __init__(self):
+        print "created Images"
 
     def on_post(self, req, resp):
         start = time.time()
@@ -65,12 +66,23 @@ class Images(object):
                 # relevancy_dict.update({images[i]: fast_route_results[i] for i in xrange(len(images_to_rel_check))})
 
                 # RELEVANCY CHECK REDIS
-                jobs = {image_url: relevancy_q.enqueue_call(func="trendi.falcon.fast_results.check_if_relevant_and_enqueue",
-                                                            args=(image_url, page_url, time.time()))
-                        for image_url in images_to_rel_check}
-                while not all([job.is_finished for job in jobs.values()]):
-                    time.sleep(0.01)
-                relevancy_dict.update({image_url: job.result for image_url, job in jobs.iteritems()})
+                # if len(images_to_rel_check) > 3:
+                #     jobs = {image_url: relevancy_q.enqueue_call(func="trendi.falcon.fast_results.check_if_relevant_and_enqueue",
+                #                                                 args=(image_url, page_url, start))
+                #             for image_url in images_to_rel_check}
+                #     print "POST : after enqueing: {0}".format(time.time()-start)
+                #     while not all([job.is_finished for job in jobs.values()]):
+                #         time.sleep(0.01)
+                #     print "POST : after jobs finished: {0}".format(time.time()-start)
+                #     relevancy_dict.update({image_url: job.result for image_url, job in jobs.iteritems()})
+                # else:
+                #     relevancy_dict.update({image_url: fast_results.check_if_relevant_and_enqueue(image_url, page_url, start)
+                #                            for image_url in images_to_rel_check})
+
+                # RELEVANCY CHECK LIOR'S POOLING
+                check_relevancy_partial = partial(fast_results.check_if_relevant_and_enqueue, page_url=page_url, start_time=start)
+                outs = simple_pool.map(check_relevancy_partial, images_to_rel_check)
+                relevancy_dict.update({images_to_rel_check[i]: outs[i] for i in xrange(len(images_to_rel_check))})
                 print "POST: after dictionary update: {0}".format(time.time()-start)
 
                 ret["success"] = True

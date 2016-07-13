@@ -10,7 +10,6 @@ from rq import push_connection, Queue
 from .. import Utils
 from .. import constants
 from .. import background_removal
-from ..page_results import genderize
 
 db = constants.db
 push_connection(constants.redis_conn)
@@ -46,12 +45,12 @@ def check_if_exists(image_url):
 def check_if_relevant_and_enqueue(image_url, page_url, start_time):
     pid = os.getpid()
     start = start_time
+    print "Thread {1}: before image_DL: {0}".format(time.time()-start, pid)
     image = Utils.get_cv2_img_array(image_url)
     if image is None:
         return False
-
-    small_img, rr = background_removal.standard_resize(image, 600)
     print "Thread {1}: after image_DL: {0}".format(time.time()-start, pid)
+    small_img, rr = background_removal.standard_resize(image, 600)
     relevance = background_removal.image_is_relevant(small_img, use_caffe=False, image_url=image_url)
     print "Thread {1}: after image is relevant: {0}".format(time.time()-start, pid)
     if relevance.is_relevant:
