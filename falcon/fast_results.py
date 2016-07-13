@@ -43,9 +43,9 @@ def check_if_exists(image_url):
     return None
 
 
-def check_if_relevant_and_enqueue(image_url, page_url):
+def check_if_relevant_and_enqueue(image_url, page_url, start_time):
     pid = os.getpid()
-    start = time.time()
+    start = start_time
     image = Utils.get_cv2_img_array(image_url)
     if image is None:
         return False
