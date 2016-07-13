@@ -160,11 +160,13 @@ def process_results(pagenum, node_id, min_price, max_price, res_dict=None):
                         'price': price,
                         'features': features}
 
+            print 'inserting'
             db.amazon_all.insert_one(new_item)
+            print 'item inserted\n'
             new_item_count +=1
 
         except:
-            print ('problem in the way')
+            print ('---------------problem in the way-------------')
             print (asin)
             print(parent_asin)
             print(click_url)
