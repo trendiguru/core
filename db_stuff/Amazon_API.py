@@ -61,7 +61,7 @@ blacklist = ['Jewelry', 'Watches', 'Handbags', 'Accessories', 'Lingerie, Sleep &
              'Handbags & Wallets', 'Shops', 'Girls', 'Boys', 'Shoes', 'Underwear', 'Baby', 'Sleep & Lounge',
              'Socks', 'Novelty & More', 'Luggage & Travel Gear', 'Uniforms, Work & Safety', 'Costumes & Accessories',
              'Shoe, Jewelry & Watch Accessories', 'Traditional & Cultural Wear', 'Active Underwear', 'Active Socks',
-             'Active Supporters', 'Active Base Layers', 'Sports Bras']
+             'Active Supporters', 'Active Base Layers', 'Sports Bras', 'Athletic Socks', 'Athletic Supporters']
 
 base_parameters = {
     'AWSAccessKeyId': 'AKIAIQJZVKJKJUUC4ETA',
@@ -205,7 +205,7 @@ def get_results(node_id, price_flag=True, max_price=10000.0, min_price=0.0, resu
         return 0
 
     total_pages = int(res_dict['TotalPages'])
-    new_items_count = process_results(1,node_id, min_price, max_price,res_dict)
+    new_items_count = process_results(1,node_id, min_price, max_price, res_dict)
     for pagenum in range(2,total_pages):
         new_items_count += process_results(pagenum, node_id, min_price, max_price)
 
@@ -282,7 +282,8 @@ def build_category_tree(root='7141124011', tab=0, parents=[], delete_collection=
     return name
 
 
-build_category_tree(delete_collection=True)
+# build_category_tree(delete_collection=True)
+print('starting to download')
 leafs = db.amazon_category_tree.find({'Children.count': 0})
 for leaf in leafs:
     leaf_name = '->'.join(leaf['Parents']) + '->' + leaf['Name']
