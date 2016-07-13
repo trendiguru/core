@@ -129,32 +129,32 @@ def preparing_data_from_db(argv):
 
         num_of_each_category = 900
 
-        for key, value in dictionary.iteritems():
-            #text_file = open("all_dresses_" + key + "_list.txt", "w")
-            for i in range(1, value[0].count()):
-                #if i > num_of_each_category:
-                 #   break
+    for key, value in dictionary.iteritems():
+        #text_file = open("all_dresses_" + key + "_list.txt", "w")
+        for i in range(1, value[0].count()):
+            #if i > num_of_each_category:
+             #   break
 
-                link_to_image = value[0][i]['images']['XLarge']
+            link_to_image = value[0][i]['images']['XLarge']
 
-                fresh_image = url_to_image(link_to_image)
-                if fresh_image is None:
-                    continue
+            fresh_image = url_to_image(link_to_image)
+            if fresh_image is None:
+                continue
 
-                # Resize it.
-                #resized_image = cv2.resize(fresh_image, (width, height))
-                resized_image = imutils.resize_keep_aspect(fresh_image, output_size = (256, 256))
+            # Resize it.
+            #resized_image = cv2.resize(fresh_image, (width, height))
+            resized_image = imutils.resize_keep_aspect(fresh_image, output_size = (256, 256))
 
-                image_file_name = key + '_' + args.input_file + '-' + str(i) + '.jpg'
+            image_file_name = key + '_' + args.input_file + '-' + str(i) + '.jpg'
 
-                print i
+            print i
 
-                cv2.imwrite(os.path.join('/home/yonatan/resized_db_' + args.input_file + key, image_file_name), resized_image)
-                #text_file.write('/home/yonatan/resized_db_' + args.input_file + key + '/' + image_file_name + ' ' + str(value[1]) + '\n')
+            cv2.imwrite(os.path.join('/home/yonatan/resized_db_' + args.input_file + key, image_file_name), resized_image)
+            #text_file.write('/home/yonatan/resized_db_' + args.input_file + key + '/' + image_file_name + ' ' + str(value[1]) + '\n')
 
-                print '/home/yonatan/resized_db_' + args.input_file + key
+            print '/home/yonatan/resized_db_' + args.input_file + key
 
-            #text_file.flush()
+        #text_file.flush()
 
 
 if __name__ == '__main__':
