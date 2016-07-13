@@ -137,9 +137,11 @@ def preparing_data_from_db(argv):
             if not os.listdir(working_path):
                 print '\nfolder is empty'
             else:
+                print "deleting directory content"
                 shutil.rmtree(working_path)
                 os.mkdir(working_path)
         else:
+            print "creating new directory"
             os.mkdir(working_path)
 
         #text_file = open("all_dresses_" + key + "_list.txt", "w")
@@ -161,10 +163,10 @@ def preparing_data_from_db(argv):
 
             print i
 
-            cv2.imwrite(os.path.join('/home/yonatan/resized_db_' + args.input_file + '_' + key, image_file_name), resized_image)
-            #text_file.write('/home/yonatan/resized_db_' + args.input_file + '_' + key + '/' + image_file_name + ' ' + str(value[1]) + '\n')
+            cv2.imwrite(os.path.join(working_path, image_file_name), resized_image)
+            #text_file.write(working_path + '/' + image_file_name + ' ' + str(value[1]) + '\n')
 
-            print '/home/yonatan/resized_db_' + args.input_file + '_' + key
+            print working_path
 
         #text_file.flush()
 
