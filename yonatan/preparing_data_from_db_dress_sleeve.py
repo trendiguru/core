@@ -149,10 +149,10 @@ def preparing_data_from_db(argv):
 
             print i
 
-            cv2.imwrite(os.path.join('/home/yonatan/resized_db_' + args.input_file + key, image_file_name), resized_image)
-            #text_file.write('/home/yonatan/resized_db_' + args.input_file + key + '/' + image_file_name + ' ' + str(value[1]) + '\n')
+            cv2.imwrite(os.path.join('/home/yonatan/resized_db_' + args.input_file + '_' + key, image_file_name), resized_image)
+            #text_file.write('/home/yonatan/resized_db_' + args.input_file + '_' + key + '/' + image_file_name + ' ' + str(value[1]) + '\n')
 
-            print '/home/yonatan/resized_db_' + args.input_file + key
+            print '/home/yonatan/resized_db_' + args.input_file + '_' + key
 
         #text_file.flush()
 
