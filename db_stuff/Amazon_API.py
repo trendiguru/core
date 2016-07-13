@@ -58,7 +58,7 @@ from ..constants import db
 
 
 blacklist = ['Jewelry', 'Watches', 'Handbags', 'Accessories', 'Lingerie, Sleep & Lounge', 'Socks & Hosiery',
-             'Handbags & Wallets', 'Shops']
+             'Handbags & Wallets', 'Shops', 'Girls', 'Boys']
 
 base_parameters = {
     'AWSAccessKeyId': 'AKIAIQJZVKJKJUUC4ETA',
@@ -73,7 +73,8 @@ base_parameters = {
 
 def get_result_count(node_id):
     parameters = base_parameters.copy()
-    parameters['SearchIndex']= 'FashionWomen'
+    parameters['Timestamp'] = strftime("%Y-%m-%dT%H:%M:%SZ", gmtime())
+    parameters['SearchIndex'] = 'FashionWomen'
     parameters['ResponseGroup'] = 'SearchBins'
     parameters['BrowseNode'] = node_id
     res = get(get_amazon_signed_url(parameters, 'GET', False))
@@ -141,6 +142,9 @@ def build_category_tree(root = '7141124011', tab=0, parent='orphan'):
             continue
         child_id = child['BrowseNodeId']
         child_name = build_category_tree(child_id, tab, name)
+        if child_name is None: # try again
+            child_name = build_category_tree(child_id, tab, name)
+
         leaf['Children']['names'].append((child_id,child_name))
 
     db.amazon_category_tree.insert_one(leaf)
