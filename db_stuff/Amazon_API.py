@@ -127,7 +127,7 @@ def process_results(pagenum, node_id, min_price, max_price, res_dict=None):
             click_url = item['DetailPageURL']
             image = item['LargeImage']
             offer = item['OfferSummary']['LowestNewPrice']
-            price = {'price':float(offer['Amount'])/100,
+            price = {'price': float(offer['Amount'])/100,
                      'currency': offer['CurrencyCode'],
                      'priceLabel': offer['FormattedPrice']}
             atttibutes = item['ItemAttributes']
@@ -165,6 +165,8 @@ def process_results(pagenum, node_id, min_price, max_price, res_dict=None):
 
         except:
             print ('problem in the way')
+            print (item)
+            raw_input()
             pass
 
     return new_item_count
