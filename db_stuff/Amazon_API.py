@@ -74,7 +74,7 @@ base_parameters = {
     'ResponseGroup': 'ItemAttributes, OfferSummary,Images'}
 
 
-def format_price(price_float):
+def format_price(price_float, period=False):
     """
     input - float
     output - string
@@ -86,6 +86,9 @@ def format_price(price_float):
     # verify 4 character string
     while len(price_str)<4:
         price_str ='0'+price_str
+
+    if period:
+        price_str = price_str[:-2]+'.'+price_str[-2:]
 
     return price_str
 
@@ -215,7 +218,7 @@ def get_results(node_id, price_flag=True, max_price=10000.0, min_price=0.0, resu
         new_items_count += process_results(pagenum, node_id, min_price, max_price)
 
     print ('Name: %s, PriceRange: %s -> %s , ResultCount: %d (%d)'
-           % (name, format_price(min_price), format_price(max_price), results_count, new_items_count))
+           % (name, format_price(min_price, True), format_price(max_price, True), results_count, new_items_count))
 
 
 def build_category_tree(root='7141124011', tab=0, parents=[], delete_collection=False):
