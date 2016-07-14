@@ -231,7 +231,7 @@ def parse_logfile(f,logy):
     print('params:'+str(params))
     k,a,b = params[0]
     fit_y = fit_exp(training_iterations,k,a,b)
-    ax1.plot(training_iterations,fit_y,'b -')
+    ax1.plot(training_iterations,fit_y,'k.-')
 
   savename = args.output_file+'.jpg'
   plt.savefig(savename)
