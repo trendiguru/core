@@ -230,8 +230,12 @@ def parse_logfile(f,logy):
     params = curve_fit(fit_exp,training_iterations,training_loss)
     print('params:'+str(params))
     k,a,b = params[0]
-    fit_y = fit_exp(training_iterations,k,a,b)
-    ax1.plot(training_iterations,fit_y,linestyle='--',color='b')
+    cov = params[1]
+    if cov[0][0] == np.inf:
+        print('bad fit')
+    else:
+        fit_y = fit_exp(training_iterations,k,a,b)
+        ax1.plot(training_iterations,fit_y,linestyle='--',color='b')
 
   savename = args.output_file+'.jpg'
   plt.savefig(savename)
