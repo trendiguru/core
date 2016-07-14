@@ -210,9 +210,9 @@ def parse_logfile(f,logy):
     if len(test_accuracy)>0:
       ax2.plot(test_iterations, test_accuracy, 'ro:',label="test_acc")
       for tl in ax2.get_yticklabels():
-        tl.set_color('r')
-#    ax1.legend(loc='upper center', bbox_to_anchor=(0.5, -0.05),
-#          fancybox=True, shadow=True, ncol=5)
+     #   tl.set_color('r')
+    #    ax1.legend(loc='upper center', bbox_to_anchor=(0.5, -0.05),
+    #          fancybox=True, shadow=True, ncol=5)
 
 
     plt.legend(bbox_to_anchor=(0., 0.0, 0., .102), loc='lower center',
