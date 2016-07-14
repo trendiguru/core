@@ -57,9 +57,16 @@ def divide_data(argv):
     #counter_test = 130
 
 
-
     for key in dictionary.iteritems():
         source_dir = '/home/yonatan/resized_db_' + args.input_file + '_' + key
+
+        if os.path.isdir(source_dir):
+            if not os.listdir(source_dir):
+                print '\nfolder is empty'
+                break
+        else:
+            print '\nfolder doesn\'t exist'
+            break
 
         counter = 0
 
