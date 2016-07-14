@@ -52,6 +52,7 @@ def divide_data(argv):
                                                                                      'women_shirt_sleeve')
         return
 
+    counter = 0
     counter_train = 0
     counter_cv = 0
     counter_test = 0
