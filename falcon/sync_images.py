@@ -81,7 +81,7 @@ class Images(object):
 
                 # RELEVANCY CHECK LIOR'S POOLING
                 # check_relevancy_partial = partial(fast_results.check_if_relevant_and_enqueue, page_url=page_url, start_time=start)
-                inputs = [(image_url, page_url) for image_url in images_to_rel_check]
+                inputs = [(image_url, page_url, start) for image_url in images_to_rel_check]
                 outs = simple_pool.map(fast_results.check_if_relevant_and_enqueue, inputs)
                 relevancy_dict.update({images_to_rel_check[i]: outs[i] for i in xrange(len(images_to_rel_check))})
                 print "POST: after dictionary update: {0}".format(time.time()-start)

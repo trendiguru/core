@@ -27,6 +27,7 @@ def how_many(argv):
              "\ndress_sleeve\ndress_length\nmen_shirt_sleeve\npants_length\nwomen_shirt_sleeve"
     )
 
+
     db = constants.db
 
     args = parser.parse_args()
@@ -35,13 +36,14 @@ def how_many(argv):
     if args.input_file == 'dress_sleeve':
         dress_sleeve_dict = yonatan_constants.dress_sleeve_dict
 
-        sum_of_all = sum(dress_sleeve_dict.iteritems().count())
+        sum_of_all = sum(value[0].count() for key, value in dress_sleeve_dict.iteritems())
         sum_of_all_already_seen = db.yonatan_dresses.count({'already_seen_dress_sleeve': True})
 
         deleted = sum_of_all_already_seen - sum_of_all
 
         for key, value in dress_sleeve_dict.iteritems():
-            print '{0}: {1}, percent: {2}%'.format(key, value, int(round(float(value) / sum_of_all, 2) * 100))
+            category_value = value[0].count()
+            print '{0}: {1}, percent: {2}%'.format(key, category_value, int(round(float(category_value) / sum_of_all, 2) * 100))
 
     # dress length #
     elif args.input_file == 'dress_length':

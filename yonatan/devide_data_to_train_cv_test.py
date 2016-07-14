@@ -19,16 +19,16 @@ for dress in sleeve_dress:
 
     counter = 0
 
-    working_path = '/home/yonatan/resized_db_' + args.input_file + '_' + key
+    #working_path = '/home/yonatan/resized_db_' + args.input_file + '_' + key
 
     for root, dirs, files in os.walk(source_dir):
         file_count = len(files)
         print '/home/yonatan/resized_db_' + dress + '_dresses'
         print "count: {0}, type: {1}".format(file_count, type(file_count))
 
-        counter_train = file_count * 0.7
-        counter_cv = file_count * 0.15
-        counter_test = file_count * 0.15
+        counter_train = file_count * 0.9
+        counter_cv = file_count * 0.05
+        counter_test = file_count * 0.05
 
         for file in files:
 
