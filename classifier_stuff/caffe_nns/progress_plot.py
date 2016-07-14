@@ -15,6 +15,7 @@ from mpl_toolkits.axes_grid1 import host_subplot
 import datetime
 import time
 import datetime
+from scipy.optimize import curve_fit
 
 #TODO - run this automatically every eg 6hrs on any net showing up in /tmp/caffe* in the last  6 hrs
 #then throw the jpgs onto a results website
@@ -58,11 +59,11 @@ def parse_logfile(f,logy):
     if 'stepsize' in line:
       stepsize = line.split()[-1]+' '
 
-    if type == ''  and 'type' in line:  #only take first 'type' which is in solver.proto (type of learning)
+    if 'type' in line and not '#type' in line and not '# type' in line:  #only take first 'type' which is in solver.proto (type of learning)
       type = line.split()[-1]+' '
-    if 'momentum' in line:
+    if 'momentum' in line and not '#momentum' in line and not '# momentum' in line:
       momentum = line.split()[-1]+' '
-    if 'gamma' in line:
+    if 'gamma' in line and not '#gamma' in line and not '# gamma' in line:
       gamma = line.split()[-1]+' '
 
     if check_test and 'Test net output' in line and 'accuracy' in line:
@@ -193,6 +194,8 @@ def parse_logfile(f,logy):
       ax1.plot(training_iterations, training_loss, 'bo:', label=train_label)
       ax1.plot(test_iterations, test_loss, 'go:', label=test_label)
     ax1.set_xlabel('iterations/1000')
+    ax1.grid(True)
+
     # Make the y-axis label and tick labels match the line color.
     ax1.set_ylabel('loss', color='b')
     for tl in ax1.get_yticklabels():
@@ -224,9 +227,30 @@ def parse_logfile(f,logy):
     plt.suptitle(subtitle,fontsize=8)
     #plt.draw()
 
+    params = curve_fit(fit_exp,k,  a,b)
+    print('params:'+params)
+    fit_y = fit_exp(training_iterations,*params)
+    ax1.plot(training_iterations,fit_y,'b -')
+
   savename = args.output_file+'.jpg'
   plt.savefig(savename)
   plt.show()
+
+
+x = np.array([1, 2, 3, 9])
+y = np.array([1, 4, 1, 3])
+
+def fit_exp(x, k,a, b):
+    return k*np.exp(np.multiply(a,x)) + b
+
+def fit_log(x, k,a, b):
+    return k*np.log(np.multiply(a,x)) + b
+
+
+[a, b] = params[0]
+
+
+
 
 def parse_solveoutput(f):
   print('parsing solve.py (jrinference) output')

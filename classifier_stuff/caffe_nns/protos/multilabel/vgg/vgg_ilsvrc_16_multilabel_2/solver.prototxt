@@ -18,8 +18,8 @@ weight_decay: 0.0005
 snapshot: 10000
 snapshot_prefix: "snapshot/train"
 test_initialization: false
-#type: "SGD" #this is default
-type: "AdaGrad"
+type: "SGD" #this is default
+#type: "AdaGrad"
 #type: "AdaDelta"
 #delta: 0.1 
 #momentum: 0.95
