@@ -212,7 +212,7 @@ def add_results_from_collection(image_obj, collection):
     db.images.replace_one({'_id': image_obj['_id']}, image_obj)
 
 
-def check_if_relevant(image_url, page_url, products_collection):
+def check_if_relevant(image_url, page_url, products_collection, method):
 
     image = Utils.get_cv2_img_array(image_url)
     if image is None:
@@ -235,7 +235,7 @@ def check_if_relevant(image_url, page_url, products_collection):
                  'image_url': image_url, 'page_url': page_url}
     db.iip.insert_one({'image_url': image_url, 'insert_time': datetime.datetime.utcnow()})
     db.genderator.insert_one(image_obj)
-    start_pipeline.enqueue_call(func="", args=(page_url, image_url, products_collection),
+    start_pipeline.enqueue_call(func="", args=(page_url, image_url, products_collection, method),
                                 ttl=2000, result_ttl=2000, timeout=2000)
 
 
