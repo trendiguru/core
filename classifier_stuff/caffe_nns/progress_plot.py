@@ -209,10 +209,10 @@ def parse_logfile(f,logy):
         tl.set_color('c')
     if len(test_accuracy)>0:
       ax2.plot(test_iterations, test_accuracy, 'ro:',label="test_acc")
-      for tl in ax2.get_yticklabels():
-        tl.set_color('r')
-#    ax1.legend(loc='upper center', bbox_to_anchor=(0.5, -0.05),
-#          fancybox=True, shadow=True, ncol=5)
+#      for tl in ax2.get_yticklabels():
+     #   tl.set_color('r')
+    #    ax1.legend(loc='upper center', bbox_to_anchor=(0.5, -0.05),
+    #          fancybox=True, shadow=True, ncol=5)
 
 
     plt.legend(bbox_to_anchor=(0., 0.0, 0., .102), loc='lower center',
@@ -227,11 +227,15 @@ def parse_logfile(f,logy):
     plt.suptitle(subtitle,fontsize=8)
     #plt.draw()
 
-    params = curve_fit(fit_exp,k,  a,b)
-    print('params:'+params)
+    params = curve_fit(fit_exp,training_iterations,training_loss)
+    print('params:'+str(params))
     k,a,b = params[0]
-    fit_y = fit_exp(training_iterations,k,a,b)
-    ax1.plot(training_iterations,fit_y,'b -')
+    cov = params[1]
+    if cov[0][0] == np.inf:
+        print('bad fit')
+    else:
+        fit_y = fit_exp(training_iterations,k,a,b)
+        ax1.plot(training_iterations,fit_y,linestyle='--',color='b')
 
   savename = args.output_file+'.jpg'
   plt.savefig(savename)
