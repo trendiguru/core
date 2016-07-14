@@ -63,7 +63,7 @@ def handle_post(image_url, page_url, products_collection):
     if image_url[:4] == "data":
         return False
 
-    if db.iip.find_one({'image_urls': image_url}) or db.irrelevant_images.find_one({'image_urls': image_url}):
+    if db.iip.find_one({'image_url': image_url}) or db.irrelevant_images.find_one({'image_urls': image_url}):
         return False
 
     # IF IMAGE IS IN DB.IMAGES:
@@ -78,7 +78,7 @@ def handle_post(image_url, page_url, products_collection):
             return False
 
     else:
-        relevancy.enqueue_call(func=check_if_relevant, args=(page_url, image_url, products_collection),
+        relevancy.enqueue_call(func=check_if_relevant, args=(image_url, page_url, products_collection),
                                ttl=2000, result_ttl=2000, timeout=2000)
         return False
 
