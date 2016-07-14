@@ -27,7 +27,6 @@ def how_many(argv):
              "\ndress_sleeve\ndress_length\nmen_shirt_sleeve\npants_length\nwomen_shirt_sleeve"
     )
 
-
     db = constants.db
 
     args = parser.parse_args()
@@ -49,56 +48,53 @@ def how_many(argv):
     elif args.input_file == 'dress_length':
         dress_length_dict = yonatan_constants.dress_length_dict
 
-        sum_of_all = sum(dress_length_dict.itervalues())
+        sum_of_all = sum(value[0].count() for key, value in dress_length_dict.iteritems())
         sum_of_all_already_seen = db.yonatan_dresses.count({'already_seen_dress_length': True})
 
         deleted = sum_of_all_already_seen - sum_of_all
 
         for key, value in dress_length_dict.iteritems():
-            print '{0}: {1}, percent: {2}%'.format(key, value, int(round(float(value) / sum_of_all, 2) * 100))
+            category_value = value[0].count()
+            print '{0}: {1}, percent: {2}%'.format(key, category_value, int(round(float(category_value) / sum_of_all, 2) * 100))
 
     # men shirt sleeve #
     elif args.input_file == 'men_shirt_sleeve':
         men_shirt_sleeve_dict = yonatan_constants.men_shirt_sleeve_dict
 
-        sum_of_all = men_shirt_sleeve_dict['straps'] + men_shirt_sleeve_dict['sleeveless'] + men_shirt_sleeve_dict['short_sleeve'] + \
-                     men_shirt_sleeve_dict['midi_sleeve'] + men_shirt_sleeve_dict['long_sleeve']
-
+        sum_of_all = sum(value[0].count() for key, value in men_shirt_sleeve_dict.iteritems())
         sum_of_all_already_seen = db.yonatan_men_shirts.count({'already_seen_shirt_sleeve': True})
 
         deleted = sum_of_all_already_seen - sum_of_all
 
         for key, value in men_shirt_sleeve_dict.iteritems():
-            print '{0}: {1}, percent: {2}%'.format(key, value, int(round(float(value) / sum_of_all, 2) * 100))
+            category_value = value[0].count()
+            print '{0}: {1}, percent: {2}%'.format(key, category_value, int(round(float(category_value) / sum_of_all, 2) * 100))
 
     # pants length #
     elif args.input_file == 'pants_length':
         pants_length_dict = yonatan_constants.pants_length_dict
 
-        sum_of_all = pants_length_dict['bermuda'] + pants_length_dict['knee'] + \
-                     pants_length_dict['capri'] + pants_length_dict['floor']
-
+        sum_of_all = sum(value[0].count() for key, value in pants_length_dict.iteritems())
         sum_of_all_already_seen = db.yonatan_pants.count({'already_seen_pants_length': True})
 
         deleted = sum_of_all_already_seen - sum_of_all
 
         for key, value in pants_length_dict.iteritems():
-            print '{0}: {1}, percent: {2}%'.format(key, value, int(round(float(value) / sum_of_all, 2) * 100))
+            category_value = value[0].count()
+            print '{0}: {1}, percent: {2}%'.format(key, category_value, int(round(float(category_value) / sum_of_all, 2) * 100))
 
     # women shirt sleeve #
     elif args.input_file == 'women_shirt_sleeve':
         women_shirt_sleeve_dict = yonatan_constants.women_shirt_sleeve_dict
 
-        sum_of_all = women_shirt_sleeve_dict['strapless'] + women_shirt_sleeve_dict['spaghetti_straps'] + women_shirt_sleeve_dict['straps'] + \
-                     women_shirt_sleeve_dict['sleeveless'] + women_shirt_sleeve_dict['cap_sleeve'] + women_shirt_sleeve_dict['short_sleeve'] + \
-                     women_shirt_sleeve_dict['midi_sleeve'] + women_shirt_sleeve_dict['long_sleeve'] + women_shirt_sleeve_dict['asymmetry']
-
+        sum_of_all = sum(value[0].count() for key, value in women_shirt_sleeve_dict.iteritems())
         sum_of_all_already_seen = db.yonatan_women_shirts.count({'already_seen_shirt_sleeve': True})
 
         deleted = sum_of_all_already_seen - sum_of_all
 
         for key, value in women_shirt_sleeve_dict.iteritems():
-            print '{0}: {1}, percent: {2}%'.format(key, value, int(round(float(value) / sum_of_all, 2)*100))
+            category_value = value[0].count()
+            print '{0}: {1}, percent: {2}%'.format(key, category_value, int(round(float(category_value) / sum_of_all, 2) * 100))
 
     else:
         print "wrong input!"
