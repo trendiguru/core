@@ -229,16 +229,13 @@ def parse_logfile(f,logy):
 
     params = curve_fit(fit_exp,k,  a,b)
     print('params:'+params)
-    fit_y = fit_exp(training_iterations,*params)
+    k,a,b = params[0]
+    fit_y = fit_exp(training_iterations,k,a,b)
     ax1.plot(training_iterations,fit_y,'b -')
 
   savename = args.output_file+'.jpg'
   plt.savefig(savename)
   plt.show()
-
-
-x = np.array([1, 2, 3, 9])
-y = np.array([1, 4, 1, 3])
 
 def fit_exp(x, k,a, b):
     return k*np.exp(np.multiply(a,x)) + b
@@ -247,7 +244,6 @@ def fit_log(x, k,a, b):
     return k*np.log(np.multiply(a,x)) + b
 
 
-[a, b] = params[0]
 
 
 
