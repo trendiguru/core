@@ -52,11 +52,6 @@ def create_txt_files(argv):
                                                                                      'women_shirt_sleeve')
         return
 
-    counter = 0
-    counter_train = 0
-    counter_cv = 0
-    counter_test = 0
-
     train_dir_path = '/home/yonatan/db_' + args.input_file + '_train_set/'
     cv_dir_path = '/home/yonatan/db_' + args.input_file + '_cv_set/'
     test_dir_path = '/home/yonatan/db_' + args.input_file + '_test_set/'
