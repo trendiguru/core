@@ -86,10 +86,10 @@ def handle_post(image_url, page_url, products_collection):
 # ---------------------------------------- FILTER-FUNCTIONS ----------------------------------------------
 
 def has_results_from_collection(image_obj, collection):
-    for results in image_obj['people'][0]['items'][0]['similar_results']:
-        if collection in results.keys():
-            return True
-    return False
+    if collection in image_obj['people'][0]['items'][0]['similar_results']:
+        return True
+    else:
+        return False
 
 
 def is_image_relevant(image_url, collection_name=None):
