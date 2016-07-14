@@ -10,7 +10,7 @@ lr_policy: "fixed"
 gamma: 0.001
 stepsize: 1000
 # lr for unnormalized softmax
-base_lr: 0.001
+base_lr: 0.0001
 # no gradient accumulation
 iter_size: 20
 max_iter: 3000000
@@ -18,8 +18,8 @@ weight_decay: 0.0005
 snapshot: 10000
 snapshot_prefix: "snapshot/train"
 test_initialization: false
-#type: "SGD" #this is default
-type: "AdaGrad"
+type: "SGD" #this is default
+#type: "AdaGrad"
 #type: "AdaDelta"
 #delta: 0.1 
 #momentum: 0.95
