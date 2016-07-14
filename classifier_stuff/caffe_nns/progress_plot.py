@@ -236,6 +236,19 @@ def parse_logfile(f,logy):
     else:
         fit_y = fit_exp(training_iterations,k,a,b)
         ax1.plot(training_iterations,fit_y,linestyle='--',color='b')
+        ax1.text(2, 6, r'$y= b + k exp(ax)$', fontsize=15)
+        ax1.text(2, 4, 'b='+str(b), fontsize=15)
+
+    params = curve_fit(fit_exp,training_iterations,training_loss)
+    print('params:'+str(params))
+    k,a,b = params[0]
+    cov = params[1]
+    if cov[0][0] == np.inf:
+        print('bad fit')
+    else:
+        fit_y = fit_exp(training_iterations,k,a,b)
+        ax1.plot(training_iterations,fit_y,linestyle='--',color='b')
+
 
   savename = args.output_file+'.jpg'
   plt.savefig(savename)
@@ -246,10 +259,6 @@ def fit_exp(x, k,a, b):
 
 def fit_log(x, k,a, b):
     return k*np.log(np.multiply(a,x)) + b
-
-
-
-
 
 
 def parse_solveoutput(f):
@@ -265,7 +274,6 @@ def parse_solveoutput(f):
   training_loss = []
   first_report = True
   extra_iters = 0
-
   for line in f:
 #    print('checking line:'+line)
     if '>>>' in line:
