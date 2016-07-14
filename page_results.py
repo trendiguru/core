@@ -55,32 +55,30 @@ def route_by_url(image_url, page_url, method):
     return False
 
 
-def handel_post(ip, image_url, page_url, lang):
-    domain = tldextract.extract(page_url).registered_domain
+def handle_post(image_url, page_url, products_collection):
     # QUICK FILTERS
-    if not db.whitelist.find_one({'domain': domain}):
-        return False
+    # if not db.whitelist.find_one({'domain': domain}):
+    #     return False
 
     if image_url[:4] == "data":
         return False
 
-    if db.iip.find_one({'image_url': image_url}) or db.irrelevant_images.find_one({'image_urls': image_url}):
+    if db.iip.find_one({'image_urls': image_url}) or db.irrelevant_images.find_one({'image_urls': image_url}):
         return False
 
     # IF IMAGE IS IN DB.IMAGES:
     image_obj = db.images.find_one({'image_urls': image_url})
     if image_obj:
-        collection = get_collection_from_ip_and_domain(ip, domain)
         # IF IMAGE HAS RESULTS FROM THIS COLLECTION:
-        if has_results_from_collection(image_obj, collection):
+        if has_results_from_collection(image_obj, products_collection):
             return True
         else:
             # ADD RESULTS FROM THIS PRODUCTS-COLLECTION
-            add_results_from_collection(image_obj, collection)
+            add_results_from_collection(image_obj, products_collection)
             return False
 
     else:
-        relevancy.enqueue_call(func=check_if_relevant, args=(page_url, image_url),
+        relevancy.enqueue_call(func=check_if_relevant, args=(page_url, image_url, products_collection),
                                ttl=2000, result_ttl=2000, timeout=2000)
         return False
 
@@ -174,6 +172,32 @@ def get_collection_from_ip_and_domain(ip, domain):
             return default_map['default']
 
 
+def get_collection_from_ip_and_pid(ip, pid='default'):
+    country = get_country_from_ip(ip)
+    default_map = constants.products_per_ip_pid['default']
+    if pid in constants.products_per_ip_pid.keys():
+        pid_map = constants.products_per_ip_pid[pid]
+        if country:
+            if country in pid_map.keys():
+                return pid_map[country]
+            elif 'default' in pid_map.keys():
+                return pid_map['default']
+            else:
+                if country in default_map.keys():
+                    return default_map[country]
+                else:
+                    return default_map['default']
+        else:
+            if 'default' in pid_map.keys():
+                return pid_map['default']
+            else:
+                return default_map['default']
+    else:
+        if country in default_map.keys():
+            return default_map[country]
+        else:
+            return default_map['default']
+
 # ---------------------------------------- PROCESS-FUNCTIONS ---------------------------------------------
 
 def add_results_from_collection(image_obj, collection):
@@ -187,11 +211,8 @@ def add_results_from_collection(image_obj, collection):
     db.images.replace_one({'_id': image_obj['_id']}, image_obj)
 
 
-def check_if_relevant(image_url, page_url, lang, custom_start_pipeline=None):
-    if custom_start_pipeline:
-        start_q = constants.Queue(custom_start_pipeline)
-    else:
-        start_q = start_pipeline
+def check_if_relevant(image_url, page_url, products_collection):
+
     image = Utils.get_cv2_img_array(image_url)
     if image is None:
         return
@@ -213,7 +234,8 @@ def check_if_relevant(image_url, page_url, lang, custom_start_pipeline=None):
                  'image_url': image_url, 'page_url': page_url}
     db.iip.insert_one({'image_url': image_url, 'insert_time': datetime.datetime.utcnow()})
     db.genderator.insert_one(image_obj)
-    start_q.enqueue_call(func="", args=(page_url, image_url, lang), ttl=2000, result_ttl=2000, timeout=2000)
+    start_pipeline.enqueue_call(func="", args=(page_url, image_url, products_collection),
+                                ttl=2000, result_ttl=2000, timeout=2000)
 
 
 # --------------------------------------------- NNs -----------------------------------------------------
