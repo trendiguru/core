@@ -9,6 +9,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 import yonatan_constants
 import argparse
+import shutil
 
 
 def divide_data(argv):
@@ -57,6 +58,24 @@ def divide_data(argv):
     counter_cv = 0
     counter_test = 0
 
+    train_dir_path = '/home/yonatan/db_' + args.input_file + '_train_set/'
+    cv_dir_path = '/home/yonatan/db_' + args.input_file + '_cv_set/'
+    test_dir_path = '/home/yonatan/db_' + args.input_file + '_test_set/'
+
+    if os.path.isdir(train_dir_path):
+        print "deleting directories content"
+        shutil.rmtree(train_dir_path)
+        shutil.rmtree(cv_dir_path)
+        shutil.rmtree(test_dir_path)
+        os.mkdir(train_dir_path)
+        os.mkdir(cv_dir_path)
+        os.mkdir(test_dir_path)
+    else:
+        print "creating new directories"
+        os.mkdir(train_dir_path)
+        os.mkdir(cv_dir_path)
+        os.mkdir(test_dir_path)
+
     for key, value in dictionary.iteritems():
         source_dir = '/home/yonatan/resized_db_' + args.input_file + '_' + key
 
@@ -84,15 +103,15 @@ def divide_data(argv):
                 old_file_location = source_dir + '/' + file
 
                 if counter < counter_train:
-                    new_file_location = '/home/yonatan/db_' + args.input_file + '_train_set/' + file
+                    new_file_location = train_dir_path + file
                     os.rename(old_file_location, new_file_location)
                     counter += 1
                 elif counter >= counter_train and counter < counter_train + counter_cv:
-                    new_file_location = '/home/yonatan/db_' + args.input_file + '_cv_set/' + file
+                    new_file_location = cv_dir_path + file
                     os.rename(old_file_location, new_file_location)
                     counter += 1
                 elif counter >= counter_train + counter_cv and counter < counter_train + counter_cv + counter_test:
-                    new_file_location = '/home/yonatan/db_' + args.input_file + '_test_set/' + file
+                    new_file_location = test_dir_path + file
                     os.rename(old_file_location, new_file_location)
                     counter += 1
                 else:
