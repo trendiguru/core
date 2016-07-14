@@ -55,7 +55,7 @@ def route_by_url(image_url, page_url, method):
     return False
 
 
-def handle_post(image_url, page_url, products_collection):
+def handle_post(image_url, page_url, products_collection, method):
     # QUICK FILTERS
     # if not db.whitelist.find_one({'domain': domain}):
     #     return False
@@ -63,7 +63,7 @@ def handle_post(image_url, page_url, products_collection):
     if image_url[:4] == "data":
         return False
 
-    if db.iip.find_one({'image_urls': image_url}) or db.irrelevant_images.find_one({'image_urls': image_url}):
+    if db.iip.find_one({'image_url': image_url}) or db.irrelevant_images.find_one({'image_urls': image_url}):
         return False
 
     # IF IMAGE IS IN DB.IMAGES:
@@ -78,7 +78,7 @@ def handle_post(image_url, page_url, products_collection):
             return False
 
     else:
-        relevancy.enqueue_call(func=check_if_relevant, args=(page_url, image_url, products_collection),
+        relevancy.enqueue_call(func=check_if_relevant, args=(image_url, page_url, products_collection, method),
                                ttl=2000, result_ttl=2000, timeout=2000)
         return False
 
@@ -203,15 +203,16 @@ def get_collection_from_ip_and_pid(ip, pid='default'):
 def add_results_from_collection(image_obj, collection):
     for person in image_obj['people']:
         for item in person['items']:
+            prod = collection + '_' + person['gender']
             fp, similar_results = find_similar_mongo.find_top_n_results(number_of_results=100,
                                                                         category_id=item['category'],
                                                                         fingerprint=item['fp'],
-                                                                        collection=collection)
+                                                                        collection=prod)
             item['similar_results'][collection] = similar_results
     db.images.replace_one({'_id': image_obj['_id']}, image_obj)
 
 
-def check_if_relevant(image_url, page_url, products_collection):
+def check_if_relevant(image_url, page_url, products_collection, method):
 
     image = Utils.get_cv2_img_array(image_url)
     if image is None:
@@ -234,7 +235,7 @@ def check_if_relevant(image_url, page_url, products_collection):
                  'image_url': image_url, 'page_url': page_url}
     db.iip.insert_one({'image_url': image_url, 'insert_time': datetime.datetime.utcnow()})
     db.genderator.insert_one(image_obj)
-    start_pipeline.enqueue_call(func="", args=(page_url, image_url, products_collection),
+    start_pipeline.enqueue_call(func="", args=(page_url, image_url, products_collection, method),
                                 ttl=2000, result_ttl=2000, timeout=2000)
 
 
