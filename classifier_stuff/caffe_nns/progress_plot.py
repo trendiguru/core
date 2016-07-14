@@ -227,7 +227,7 @@ def parse_logfile(f,logy):
     plt.suptitle(subtitle,fontsize=8)
     #plt.draw()
 
-    params = curve_fit(fit_exp,k,  a,b)
+    params = curve_fit(fit_exp,training_iterations,training_loss)
     print('params:'+params)
     k,a,b = params[0]
     fit_y = fit_exp(training_iterations,k,a,b)
