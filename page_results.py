@@ -203,10 +203,11 @@ def get_collection_from_ip_and_pid(ip, pid='default'):
 def add_results_from_collection(image_obj, collection):
     for person in image_obj['people']:
         for item in person['items']:
+            prod = collection + '_' + person['gender']
             fp, similar_results = find_similar_mongo.find_top_n_results(number_of_results=100,
                                                                         category_id=item['category'],
                                                                         fingerprint=item['fp'],
-                                                                        collection=collection)
+                                                                        collection=prod)
             item['similar_results'][collection] = similar_results
     db.images.replace_one({'_id': image_obj['_id']}, image_obj)
 
