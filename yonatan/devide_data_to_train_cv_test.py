@@ -5,6 +5,8 @@ import cv2
 from PIL import Image
 import numpy as np
 import matplotlib.pyplot as plt
+import yonatan_constants
+import argparse
 
 sleeve_dress = {'strapless', 'spaghetti_straps', 'straps', 'sleeveless',
                 'cap_sleeve', 'short_sleeve', 'midi_sleeve', 'long_sleeve'}
