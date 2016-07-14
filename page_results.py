@@ -55,7 +55,7 @@ def route_by_url(image_url, page_url, method):
     return False
 
 
-def handle_post(image_url, page_url, products_collection):
+def handle_post(image_url, page_url, products_collection, method):
     # QUICK FILTERS
     # if not db.whitelist.find_one({'domain': domain}):
     #     return False
@@ -78,7 +78,7 @@ def handle_post(image_url, page_url, products_collection):
             return False
 
     else:
-        relevancy.enqueue_call(func=check_if_relevant, args=(image_url, page_url, products_collection),
+        relevancy.enqueue_call(func=check_if_relevant, args=(image_url, page_url, products_collection, method),
                                ttl=2000, result_ttl=2000, timeout=2000)
         return False
 
