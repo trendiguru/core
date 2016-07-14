@@ -56,8 +56,7 @@ def divide_data(argv):
     #counter_cv = 130
     #counter_test = 130
 
-
-    for key in dictionary.iteritems():
+    for key, value in dictionary.iteritems():
         source_dir = '/home/yonatan/resized_db_' + args.input_file + '_' + key
 
         if os.path.isdir(source_dir):

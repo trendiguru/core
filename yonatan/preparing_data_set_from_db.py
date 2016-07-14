@@ -82,7 +82,7 @@ def preparing_data_from_db(argv):
         return
 
 
-        num_of_each_category = 900
+    num_of_each_category = 900
 
     for key, value in dictionary.iteritems():
 
