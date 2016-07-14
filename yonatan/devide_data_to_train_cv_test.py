@@ -52,9 +52,9 @@ def divide_data(argv):
                                                                                      'women_shirt_sleeve')
         return
 
-    #counter_train = 640
-    #counter_cv = 130
-    #counter_test = 130
+    counter_train = 0
+    counter_cv = 0
+    counter_test = 0
 
     for key, value in dictionary.iteritems():
         source_dir = '/home/yonatan/resized_db_' + args.input_file + '_' + key
