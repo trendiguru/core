@@ -4,80 +4,94 @@ import os
 import cv2
 import numpy as np
 import matplotlib.pyplot as plt
+import argparse
+import shutil
+import yonatan_constants
+from .. import background_removal, utils, constants
+import sys
 
-sets = {'train', 'cv', 'test'}
 
-train_text_file = open("db_dresses_train.txt", "w")
-cv_text_file = open("db_dresses_cv.txt", "w")
-test_text_file = open("db_dresses_test.txt", "w")
+def create_txt_files(argv):
 
-counter = 0
+    parser = argparse.ArgumentParser()
+    # Required arguments: input and output files.
+    parser.add_argument(
+        "input_file",
+        help="the argument should be one of those:"
+             "\ndress_sleeve\ndress_length\nmen_shirt_sleeve\npants_length\nwomen_shirt_sleeve"
+    )
 
-for set in sets:
-    dir_path = '/home/yonatan/db_dresses_' + set + '_set'
+    db = constants.db
 
-    for root, dirs, files in os.walk(dir_path):
-        for file in files:
+    args = parser.parse_args()
 
-            sleeve_dress = {'strapless', 'spaghetti_straps', 'straps', 'sleeveless',
-                            'cap_sleeve', 'short_sleeve', 'midi_sleeve', 'long_sleeve'}
+    # dress sleeve #
+    if args.input_file == 'dress_sleeve':
+        dictionary = yonatan_constants.dress_sleeve_dict
 
-            if 'strapless' in file:
-                if set == 'train':
-                    train_text_file.write(root + "/" + file + " 0\n")
-                elif set == 'cv':
-                    cv_text_file.write(root + "/" + file + " 0\n")
-                elif set == 'test':
-                    test_text_file.write(root + "/" + file + " 0\n")
-            elif 'spaghetti_straps' in file:
-                if set == 'train':
-                    train_text_file.write(root + "/" + file + " 1\n")
-                elif set == 'cv':
-                    cv_text_file.write(root + "/" + file + " 1\n")
-                elif set == 'test':
-                    test_text_file.write(root + "/" + file + " 1\n")
-            elif 'straps' in file:
-                if set == 'train':
-                    train_text_file.write(root + "/" + file + " 2\n")
-                elif set == 'cv':
-                    cv_text_file.write(root + "/" + file + " 2\n")
-                elif set == 'test':
-                    test_text_file.write(root + "/" + file + " 2\n")
-            elif 'sleeveless' in file:
-                if set == 'train':
-                    train_text_file.write(root + "/" + file + " 3\n")
-                elif set == 'cv':
-                    cv_text_file.write(root + "/" + file + " 3\n")
-                elif set == 'test':
-                    test_text_file.write(root + "/" + file + " 3\n")
-            elif 'cap_sleeve' in file:
-                if set == 'train':
-                    train_text_file.write(root + "/" + file + " 4\n")
-                elif set == 'cv':
-                    cv_text_file.write(root + "/" + file + " 4\n")
-                elif set == 'test':
-                    test_text_file.write(root + "/" + file + " 4\n")
-            elif 'short_sleeve' in file:
-                if set == 'train':
-                    train_text_file.write(root + "/" + file + " 5\n")
-                elif set == 'cv':
-                    cv_text_file.write(root + "/" + file + " 5\n")
-                elif set == 'test':
-                    test_text_file.write(root + "/" + file + " 5\n")
-            elif 'midi_sleeve' in file:
-                if set == 'train':
-                    train_text_file.write(root + "/" + file + " 6\n")
-                elif set == 'cv':
-                    cv_text_file.write(root + "/" + file + " 6\n")
-                elif set == 'test':
-                    test_text_file.write(root + "/" + file + " 6\n")
-            elif 'long_sleeve' in file:
-                if set == 'train':
-                    train_text_file.write(root + "/" + file + " 7\n")
-                elif set == 'cv':
-                    cv_text_file.write(root + "/" + file + " 7\n")
-                elif set == 'test':
-                    test_text_file.write(root + "/" + file + " 7\n")
+    # dress length #
+    elif args.input_file == 'dress_length':
+        dictionary = yonatan_constants.dress_length_dict
 
-            counter += 1
-            print counter
+    # men shirt sleeve #
+    elif args.input_file == 'men_shirt_sleeve':
+        dictionary = yonatan_constants.men_shirt_sleeve_dict
+
+    # pants length #
+    elif args.input_file == 'pants_length':
+        dictionary = yonatan_constants.pants_length_dict
+
+    # women shirt sleeve #
+    elif args.input_file == 'women_shirt_sleeve':
+        dictionary = yonatan_constants.women_shirt_sleeve_dict
+
+    else:
+        print "wrong input!"
+        print "the argument should be one of those:\n{0}\n{1}\n{2}\n{3}\n{4}".format('dress_sleeve',
+                                                                                     'dress_length', 'men_shirt_sleeve',                                                                           'pants_length',
+                                                                                     'women_shirt_sleeve')
+        return
+
+    counter = 0
+    counter_train = 0
+    counter_cv = 0
+    counter_test = 0
+
+    train_dir_path = '/home/yonatan/db_' + args.input_file + '_train_set/'
+    cv_dir_path = '/home/yonatan/db_' + args.input_file + '_cv_set/'
+    test_dir_path = '/home/yonatan/db_' + args.input_file + '_test_set/'
+
+    if os.path.isdir(train_dir_path) and os.path.isdir(cv_dir_path) and os.path.isdir(test_dir_path):
+        print "all good"
+    else:
+        print "no training set directory"
+        return
+
+    sets = {'train', 'cv', 'test'}
+
+    train_text_file = open("db_" + args.input_file + "_train.txt", "w")
+    cv_text_file = open("db_" + args.input_file + "_cv.txt", "w")
+    test_text_file = open("db_" + args.input_file + "_test.txt", "w")
+
+    counter = 0
+
+    for set in sets:
+        dir_path = '/home/yonatan/db_' + args.input_file + '_' + set + '_set'
+
+        for root, dirs, files in os.walk(dir_path):
+            for file in files:
+                for key, value in dictionary.iteritems():
+                    if key in file:
+                        if set == 'train':
+                            train_text_file.write(root + "/" + file + " " + str(value[1]) + "\n")
+                        elif set == 'cv':
+                            cv_text_file.write(root + "/" + file + " " + str(value[1]) + "\n")
+                        elif set == 'test':
+                            test_text_file.write(root + "/" + file + " " + str(value[1]) + "\n")
+                        break
+
+                counter += 1
+                print counter
+
+if __name__ == '__main__':
+    create_txt_files(sys.argv)
