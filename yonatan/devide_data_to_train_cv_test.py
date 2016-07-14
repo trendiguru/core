@@ -2,54 +2,95 @@
 
 import os
 import cv2
+import sys
 from PIL import Image
+from .. import background_removal, utils, constants
 import numpy as np
 import matplotlib.pyplot as plt
 import yonatan_constants
 import argparse
 
-sleeve_dress = {'strapless', 'spaghetti_straps', 'straps', 'sleeveless',
-                'cap_sleeve', 'short_sleeve', 'midi_sleeve', 'long_sleeve'}
 
-counter = 0
-#counter_train = 640
-#counter_cv = 130
-#counter_test = 130
+def divide_data(argv):
 
-for dress in sleeve_dress:
-    source_dir = '/home/yonatan/resized_db_' + dress + '_dresses'
+    parser = argparse.ArgumentParser()
+    # Required arguments: input and output files.
+    parser.add_argument(
+        "input_file",
+        help="the argument should be one of those:"
+             "\ndress_sleeve\ndress_length\nmen_shirt_sleeve\npants_length\nwomen_shirt_sleeve"
+    )
 
-    counter = 0
+    db = constants.db
 
-    #working_path = '/home/yonatan/resized_db_' + args.input_file + '_' + key
+    args = parser.parse_args()
 
-    for root, dirs, files in os.walk(source_dir):
-        file_count = len(files)
-        print '/home/yonatan/resized_db_' + dress + '_dresses'
-        print "count: {0}, type: {1}".format(file_count, type(file_count))
+    # dress sleeve #
+    if args.input_file == 'dress_sleeve':
+        dictionary = yonatan_constants.dress_sleeve_dict
 
-        counter_train = file_count * 0.9
-        counter_cv = file_count * 0.05
-        counter_test = file_count * 0.05
+    # dress length #
+    elif args.input_file == 'dress_length':
+        dictionary = yonatan_constants.dress_length_dict
 
-        for file in files:
+    # men shirt sleeve #
+    elif args.input_file == 'men_shirt_sleeve':
+        dictionary = yonatan_constants.men_shirt_sleeve_dict
 
-            old_file_location = source_dir + '/' + file
+    # pants length #
+    elif args.input_file == 'pants_length':
+        dictionary = yonatan_constants.pants_length_dict
 
-            if counter < counter_train:
-                new_file_location = '/home/yonatan/db_dresses_train_set/' + file
-                os.rename(old_file_location, new_file_location)
-                counter += 1
-            elif counter >= counter_train and counter < counter_train + counter_cv:
-                new_file_location = '/home/yonatan/db_dresses_cv_set/' + file
-                os.rename(old_file_location, new_file_location)
-                counter += 1
-            elif counter >= counter_train + counter_cv and counter < counter_train + counter_cv + counter_test:
-                new_file_location = '/home/yonatan/db_dresses_test_set/' + file
-                os.rename(old_file_location, new_file_location)
-                counter += 1
-            else:
-                print counter
-                break
+    # women shirt sleeve #
+    elif args.input_file == 'women_shirt_sleeve':
+        dictionary = yonatan_constants.women_shirt_sleeve_dict
 
-print 'counter_train = {0}, counter_cv = {1}, counter_test = {2}, counter = {3}'.format(counter_train, counter_cv, counter_test, counter)
+    else:
+        print "wrong input!"
+        print "the argument should be one of those:\n{0}\n{1}\n{2}\n{3}\n{4}".format('dress_sleeve',
+                                                                                     'dress_length', 'men_shirt_sleeve',                                                                           'pants_length',
+                                                                                     'women_shirt_sleeve')
+        return
+
+    #counter_train = 640
+    #counter_cv = 130
+    #counter_test = 130
+
+    for key in dictionary.iteritems():
+        source_dir = '/home/yonatan/resized_db_' + args.input_file + '_' + key
+
+        counter = 0
+
+        for root, dirs, files in os.walk(source_dir):
+            file_count = len(files)
+            print '/home/yonatan/resized_db_' + args.input_file + '_' + key
+            print "count: {0}, type: {1}".format(file_count, type(file_count))
+
+            counter_train = file_count * 0.9
+            counter_cv = file_count * 0.05
+            counter_test = file_count * 0.05
+
+            for file in files:
+
+                old_file_location = source_dir + '/' + file
+
+                if counter < counter_train:
+                    new_file_location = '/home/yonatan/db_' + args.input_file + '_train_set/' + file
+                    os.rename(old_file_location, new_file_location)
+                    counter += 1
+                elif counter >= counter_train and counter < counter_train + counter_cv:
+                    new_file_location = '/home/yonatan/db_' + args.input_file + '_cv_set/' + file
+                    os.rename(old_file_location, new_file_location)
+                    counter += 1
+                elif counter >= counter_train + counter_cv and counter < counter_train + counter_cv + counter_test:
+                    new_file_location = '/home/yonatan/db_' + args.input_file + '_test_set/' + file
+                    os.rename(old_file_location, new_file_location)
+                    counter += 1
+                else:
+                    print counter
+                    break
+
+    print 'counter_train = {0}, counter_cv = {1}, counter_test = {2}, counter = {3}'.format(counter_train, counter_cv, counter_test, counter)
+
+if __name__ == '__main__':
+    divide_data(sys.argv)
