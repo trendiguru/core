@@ -194,7 +194,8 @@ def parse_logfile(f,logy):
       ax1.plot(training_iterations, training_loss, 'bo:', label=train_label)
       ax1.plot(test_iterations, test_loss, 'go:', label=test_label)
     ax1.set_xlabel('iterations/1000')
-    ax1.grid(True)
+    ax1.grid(True,which='both')
+    ax1.minorticks_on
 
     # Make the y-axis label and tick labels match the line color.
     ax1.set_ylabel('loss', color='b')
