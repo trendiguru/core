@@ -9,6 +9,7 @@ import numpy as np
 import urllib
 from trendi.utils import imutils
 
+from trendi import constants
 
 ###########LOAD MULTILABELLER
 #these are on braini2
@@ -69,3 +70,12 @@ def get_multilabel_output(url_or_np_array,required_image_size=(224,224)):
     max = np.max(out)
     print('multilabel:  {}'.format(out))
     return out
+
+if __name__ == "__main__":
+    url = 'http://diamondfilms.com.au/wp-content/uploads/2014/08/Fashion-Photography-Sydney-1.jpg'
+    url = 'http://pinmakeuptips.com/wp-content/uploads/2015/02/1.4.jpg'
+
+    output = get_multilabel_output(url)
+    print('output:'+str(output))
+    for i in range(len(output)):
+        print('label:' + constants.web_tool_categories[i]+' value:'+str(output[i]))
