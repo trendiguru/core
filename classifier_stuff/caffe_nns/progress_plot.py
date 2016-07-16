@@ -247,7 +247,7 @@ def parse_logfile(f,logy):
         print('params:'+str(params))
         k,a,b,x0 = params[0]
         cov = params[1]
-        if cov[0][0] == np.inf:
+        if cov[0][0] > 1e4:
             print('bad fit')
         else:
             fit_y = fit_exp(training_iterations,k,a,b)
