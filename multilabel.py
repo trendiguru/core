@@ -65,7 +65,7 @@ def get_multilabel_output(url_or_np_array,required_image_size=(224,224)):
     # run net and take argmax for prediction
     multilabel_net.forward()
 #    out = net.blobs['score'].data[0].argmax(axis=0) #for a parse with per-pixel max
-    out = multilabel_net.blobs['score'].data[0] #for the nth class layer #siggy is after sigmoid
+    out = multilabel_net.blobs['prob'].data[0] #for the nth class layer #siggy is after sigmoid
     min = np.min(out)
     max = np.max(out)
     print('multilabel:  {}'.format(out))
