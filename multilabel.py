@@ -14,7 +14,7 @@ from trendi import constants
 ###########LOAD MULTILABELLER
 #these are on braini2
 caffemodel = '/home/jeremy/caffenets/production/multilabel_resnet50_sgd_iter_110000.caffemodel'
-deployproto = '/home/jeremy/caffenets/production/ResNet-50-deploy.prototxt'
+deployproto = '/home/jeremy/core/classifier_stuff/caffe_nns/protos/multilabel/resnet/ResNet-50-deploy.prototxt'
 caffe.set_mode_gpu()
 caffe.set_device(1)
 multilabel_net = caffe.Net(deployproto,caffemodel, caffe.TEST)
