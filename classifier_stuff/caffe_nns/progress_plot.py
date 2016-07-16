@@ -258,11 +258,11 @@ def parse_logfile(f,logy):
   plt.savefig(savename)
   plt.show()
 
-def fit_exp(x, k,a, b):
-    return k*np.exp(np.multiply(a,x)) + b
+def fit_exp(x, k,a, b, x0):
+    return k*np.exp(np.multiply(a,x-x0)) + b
 
-def fit_log(x, k,a, b):
-    return k*np.log(np.multiply(a,x)) + b
+def fit_log(x, k,a, b, x0):
+    return k*np.log(np.multiply(a,x-x0)) + b
 
 def parse_solveoutput(f):
   print('parsing solve.py (jrinference) output')
