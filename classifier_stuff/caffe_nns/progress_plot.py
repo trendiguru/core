@@ -228,7 +228,12 @@ def parse_logfile(f,logy):
     plt.suptitle(subtitle,fontsize=8)
     #plt.draw()
     try:
-      params = curve_fit(fit_exp,training_iterations,training_loss)
+      k = 1
+      a = -1
+      b = 1
+      x0 = 1000
+      guess = (k,a,b,x0)
+      params = curve_fit(fit_exp,training_iterations,training_loss,guess)
       print('params:'+str(params))
       k,a,b,x0 = params[0]
       cov = params[1]
