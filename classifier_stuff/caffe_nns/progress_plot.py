@@ -230,7 +230,7 @@ def parse_logfile(f,logy):
 
     params = curve_fit(fit_exp,training_iterations,training_loss)
     print('params:'+str(params))
-    k,a,b = params[0]
+    k,a,b,x0 = params[0]
     cov = params[1]
     if cov[0][0] == np.inf:
         print('bad fit')
@@ -245,7 +245,7 @@ def parse_logfile(f,logy):
     if(0):
         params = curve_fit(fit_log,training_iterations,training_loss)
         print('params:'+str(params))
-        k,a,b = params[0]
+        k,a,b,x0 = params[0]
         cov = params[1]
         if cov[0][0] == np.inf:
             print('bad fit')
