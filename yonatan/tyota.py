@@ -52,7 +52,6 @@ def url_to_image(url):
     # return the image
     return new_image
 
-
 #def theDetector(image):
 def theDetector(url_or_np_array, face_coordinates):
 
