@@ -28,7 +28,7 @@ dress_sleeve_dict = {
         {'sleeve_length': ['true', 'false', 'false', 'false', 'false', 'false', 'false', 'false', 'false']}), 0],
     'spaghetti_straps': [db.yonatan_dresses.find(
         {'sleeve_length': ['false', 'true', 'false', 'false', 'false', 'false', 'false', 'false', 'false']}), 1],
-    'straps': [db.yonatan_dresses.find(
+    'regular_straps': [db.yonatan_dresses.find(
         {'sleeve_length': ['false', 'false', 'true', 'false', 'false', 'false', 'false', 'false', 'false']}), 2],
     'sleeveless': [db.yonatan_dresses.find(
         {'sleeve_length': ['false', 'false', 'false', 'true', 'false', 'false', 'false', 'false', 'false']}), 3],
@@ -62,7 +62,7 @@ dress_length_dict = {
 
 # men shirt sleeve #
 men_shirt_sleeve_dict = {
-    'straps': [db.yonatan_men_shirts.find(
+    'regular_straps': [db.yonatan_men_shirts.find(
         {'shirt_sleeve_length': ['true', 'false', 'false', 'false', 'false']}), 0],
     'sleeveless': [db.yonatan_men_shirts.find(
         {'shirt_sleeve_length': ['false', 'true', 'false', 'false', 'false']}), 1],
@@ -88,7 +88,7 @@ women_shirt_sleeve_dict = {
         {'shirt_sleeve_length': ['true', 'false', 'false', 'false', 'false', 'false', 'false', 'false', 'false']}), 0],
     'spaghetti_straps': [db.yonatan_women_shirts.find(
         {'shirt_sleeve_length': ['false', 'true', 'false', 'false', 'false', 'false', 'false', 'false', 'false']}), 1],
-    'straps': [db.yonatan_women_shirts.find(
+    'regular_straps': [db.yonatan_women_shirts.find(
         {'shirt_sleeve_length': ['false', 'false', 'true', 'false', 'false', 'false', 'false', 'false', 'false']}), 2],
     'sleeveless': [db.yonatan_women_shirts.find(
         {'shirt_sleeve_length': ['false', 'false', 'false', 'true', 'false', 'false', 'false', 'false', 'false']}), 3],
