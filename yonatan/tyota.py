@@ -88,7 +88,7 @@ def theDetector(url_or_np_array, face_coordinates):
 
     # Classify.
     start = time.time()
-    predictions = yonatan_classifier.predict(full_image)
+    predictions = classifier.predict(full_image)
     print("Done in %.2f s." % (time.time() - start))
 
     for i in range(1, len(predictions[:])):
