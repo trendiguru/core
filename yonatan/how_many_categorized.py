@@ -69,11 +69,11 @@ def how_many(argv):
         check_how_many(yonatan_constants.women_shirt_sleeve_dict, db.yonatan_women_shirts, args.input_file)
 
     elif args.input_file == 'check_all':
-        check_how_many(yonatan_constants.dress_sleeve_dict, db.yonatan_dresses, args.input_file)
-        check_how_many(yonatan_constants.dress_length_dict, db.yonatan_dresses, args.input_file)
-        check_how_many(yonatan_constants.men_shirt_sleeve_dict, db.yonatan_men_shirts, args.input_file)
-        check_how_many(yonatan_constants.pants_length_dict, db.yonatan_pants, args.input_file)
-        check_how_many(yonatan_constants.women_shirt_sleeve_dict, db.yonatan_women_shirts, args.input_file)
+        check_how_many(yonatan_constants.dress_sleeve_dict, db.yonatan_dresses, 'dress_sleeve')
+        check_how_many(yonatan_constants.dress_length_dict, db.yonatan_dresses, 'dress_length')
+        check_how_many(yonatan_constants.men_shirt_sleeve_dict, db.yonatan_men_shirts, 'men_shirt_sleeve')
+        check_how_many(yonatan_constants.pants_length_dict, db.yonatan_pants, 'pants_length')
+        check_how_many(yonatan_constants.women_shirt_sleeve_dict, db.yonatan_women_shirts, 'women_shirt_sleeve')
 
     else:
         print "wrong input!"
