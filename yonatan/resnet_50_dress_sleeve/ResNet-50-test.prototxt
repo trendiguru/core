@@ -2425,6 +2425,14 @@ layer {
 }
 
 layer {
+  name: "accuracy"
+  type: "Accuracy"
+  bottom: "myfc8"
+  bottom: "label"
+  top: "accuracy"
+}
+
+layer {
 	bottom: "myfc8"
 	top: "prob"
 	name: "prob"
