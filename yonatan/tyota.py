@@ -94,10 +94,10 @@ def theDetector(url_or_np_array, face_coordinates):
     for i in range(1, len(predictions[:])):
         if predictions[i][1] > 0.7:
             print predictions[i][1]
-            return 'Male'
+            print 'Male'
         else:
             print predictions[i][0]
-            return 'Female'
+            print 'Female'
 
     print predictions[1]
     print predictions[0]
