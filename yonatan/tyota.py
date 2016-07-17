@@ -83,7 +83,7 @@ def theDetector(url_or_np_array, face_coordinates):
 
     # Classify.
     start = time.time()
-    predictions = classifier.predict(face_for_caffe)
+    predictions = yonatan_classifier.predict(face_for_caffe)
     print("Done in %.2f s." % (time.time() - start))
 
     for i in range(1, len(predictions[:])):
