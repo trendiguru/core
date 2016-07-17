@@ -17,12 +17,12 @@ import argparse
 import yonatan_constants
 
 
-def check_how_many(category_dict, yonatan_category_db):
+def check_how_many(category_dict, yonatan_category_db, item_type):
 
     dress_sleeve_dict = category_dict
 
     sum_of_all = sum(value[0].count() for key, value in dress_sleeve_dict.iteritems())
-    sum_of_all_already_seen = yonatan_category_db.count({'already_seen_dress_sleeve': True})
+    sum_of_all_already_seen = yonatan_category_db.count({'already_seen_' + item_type: True})
 
     deleted = sum_of_all_already_seen - sum_of_all
 
@@ -50,30 +50,30 @@ def how_many(argv):
 
     # dress sleeve #
     if args.input_file == 'dress_sleeve':
-        check_how_many(yonatan_constants.dress_sleeve_dict, db.yonatan_dresses)
+        check_how_many(yonatan_constants.dress_sleeve_dict, db.yonatan_dresses, args.input_file)
 
     # dress length #
     elif args.input_file == 'dress_length':
-        check_how_many(yonatan_constants.dress_length_dict, db.yonatan_dresses)
+        check_how_many(yonatan_constants.dress_length_dict, db.yonatan_dresses, args.input_file)
 
     # men shirt sleeve #
     elif args.input_file == 'men_shirt_sleeve':
-        check_how_many(yonatan_constants.men_shirt_sleeve_dict, db.yonatan_men_shirts)
+        check_how_many(yonatan_constants.men_shirt_sleeve_dict, db.yonatan_men_shirts, args.input_file)
 
     # pants length #
     elif args.input_file == 'pants_length':
-        check_how_many(yonatan_constants.pants_length_dict, db.yonatan_pants)
+        check_how_many(yonatan_constants.pants_length_dict, db.yonatan_pants, args.input_file)
 
     # women shirt sleeve #
     elif args.input_file == 'women_shirt_sleeve':
-        check_how_many(yonatan_constants.women_shirt_sleeve_dict, db.yonatan_women_shirts)
+        check_how_many(yonatan_constants.women_shirt_sleeve_dict, db.yonatan_women_shirts, args.input_file)
 
     elif args.input_file == 'check_all':
-        check_how_many(yonatan_constants.dress_sleeve_dict, db.yonatan_dresses)
-        check_how_many(yonatan_constants.dress_length_dict, db.yonatan_dresses)
-        check_how_many(yonatan_constants.men_shirt_sleeve_dict, db.yonatan_men_shirts)
-        check_how_many(yonatan_constants.pants_length_dict, db.yonatan_pants)
-        check_how_many(yonatan_constants.women_shirt_sleeve_dict, db.yonatan_women_shirts)
+        check_how_many(yonatan_constants.dress_sleeve_dict, db.yonatan_dresses, args.input_file)
+        check_how_many(yonatan_constants.dress_length_dict, db.yonatan_dresses, args.input_file)
+        check_how_many(yonatan_constants.men_shirt_sleeve_dict, db.yonatan_men_shirts, args.input_file)
+        check_how_many(yonatan_constants.pants_length_dict, db.yonatan_pants, args.input_file)
+        check_how_many(yonatan_constants.women_shirt_sleeve_dict, db.yonatan_women_shirts, args.input_file)
 
     else:
         print "wrong input!"
