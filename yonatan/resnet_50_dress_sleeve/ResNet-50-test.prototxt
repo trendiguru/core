@@ -12,7 +12,6 @@ layer {
       }
 }
 
-
 layer {
 	bottom: "data"
 	top: "conv1"
