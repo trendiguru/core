@@ -9,7 +9,7 @@ weight_decay: 0.0005
 # no gradient accumulation
 iter_size: 20
 snapshot: 5000
-snapshot_prefix: "snapshot_50_sgd/train"
+snapshot_prefix: "/home/yonatan/caffe_resnet50_snapshot_50_sgd"
 test_initialization: false
 solver_mode : GPU
 
