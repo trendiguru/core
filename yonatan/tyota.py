@@ -61,6 +61,10 @@ def theDetector(url_or_np_array, face_coordinates):
         full_image = url_to_image(url_or_np_array)
     elif type(url_or_np_array) == np.ndarray:
         full_image = url_or_np_array
+    elif os.path.isdir(url_or_np_array):
+        print("Loading folder: %s" % url_or_np_array)
+        full_image = [caffe.io.load_image(im_f)
+                  for im_f in glob.glob(url_or_np_array + '/*.jpg')]
     else:
         print("Loading file")
         full_image = caffe.io.load_image(url_or_np_array)
@@ -75,7 +79,7 @@ def theDetector(url_or_np_array, face_coordinates):
 
     # face_image = full_image[y: y + h, x: x + w]
 
-    face_for_caffe = [cv2_image_to_caffe(full_image)]
+    #face_for_caffe = [cv2_image_to_caffe(full_image)]
     #face_for_caffe = [caffe.io.load_image(face_image)]
 
     if face_for_caffe is None:
@@ -83,7 +87,7 @@ def theDetector(url_or_np_array, face_coordinates):
 
     # Classify.
     start = time.time()
-    predictions = yonatan_classifier.predict(face_for_caffe)
+    predictions = yonatan_classifier.predict(full_image)
     print("Done in %.2f s." % (time.time() - start))
 
     for i in range(1, len(predictions[:])):
