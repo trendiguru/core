@@ -15,6 +15,7 @@ from mpl_toolkits.axes_grid1 import host_subplot
 import datetime
 import time
 import datetime
+from scipy.optimize import curve_fit
 
 #TODO - run this automatically every eg 6hrs on any net showing up in /tmp/caffe* in the last  6 hrs
 #then throw the jpgs onto a results website
@@ -58,11 +59,11 @@ def parse_logfile(f,logy):
     if 'stepsize' in line:
       stepsize = line.split()[-1]+' '
 
-    if type == ''  and 'type' in line:  #only take first 'type' which is in solver.proto (type of learning)
+    if 'type' in line and not '#type' in line and not '# type' in line:  #only take first 'type' which is in solver.proto (type of learning)
       type = line.split()[-1]+' '
-    if 'momentum' in line:
+    if 'momentum' in line and not '#momentum' in line and not '# momentum' in line:
       momentum = line.split()[-1]+' '
-    if 'gamma' in line:
+    if 'gamma' in line and not '#gamma' in line and not '# gamma' in line:
       gamma = line.split()[-1]+' '
 
     if check_test and 'Test net output' in line and 'accuracy' in line:
@@ -193,6 +194,9 @@ def parse_logfile(f,logy):
       ax1.plot(training_iterations, training_loss, 'bo:', label=train_label)
       ax1.plot(test_iterations, test_loss, 'go:', label=test_label)
     ax1.set_xlabel('iterations/1000')
+    ax1.grid(True,which='both')
+    ax1.minorticks_on
+
     # Make the y-axis label and tick labels match the line color.
     ax1.set_ylabel('loss', color='b')
     for tl in ax1.get_yticklabels():
@@ -206,10 +210,10 @@ def parse_logfile(f,logy):
         tl.set_color('c')
     if len(test_accuracy)>0:
       ax2.plot(test_iterations, test_accuracy, 'ro:',label="test_acc")
-      for tl in ax2.get_yticklabels():
-        tl.set_color('r')
-#    ax1.legend(loc='upper center', bbox_to_anchor=(0.5, -0.05),
-#          fancybox=True, shadow=True, ncol=5)
+#      for tl in ax2.get_yticklabels():
+     #   tl.set_color('r')
+    #    ax1.legend(loc='upper center', bbox_to_anchor=(0.5, -0.05),
+    #          fancybox=True, shadow=True, ncol=5)
 
 
     plt.legend(bbox_to_anchor=(0., 0.0, 0., .102), loc='lower center',
@@ -223,10 +227,49 @@ def parse_logfile(f,logy):
       subtitle=subtitle+'gama'+gamma
     plt.suptitle(subtitle,fontsize=8)
     #plt.draw()
+    try:
+      k = 1
+      a = -1
+      b = 1
+      x0 = 1000
+      guess = (k,a,b,x0)
+      params = curve_fit(fit_exp,training_iterations,training_loss,guess)
+      print('params:'+str(params))
+      k,a,b,x0 = params[0]
+      cov = params[1]
+      if cov[0][0] == np.inf:
+          print('bad fit')
+      else:
+          fit_y = fit_exp(training_iterations,k,a,b,x0)
+          ax1.plot(training_iterations,fit_y,linestyle='--',color='b')
+          middlex = training_iterations[len(training_iterations)/2]
+          middley = (np.max(training_loss)-np.min(training_loss))/2.0
+          ax1.text(middlex, middley, r'$y= b + k exp(a(x-x0)$', fontsize=15)
+          ax1.text(middlex, middley+1, 'b='+str(b), fontsize=15)
+    except:
+      print('trouble fitting')
+    if(0):
+
+        params = curve_fit(fit_log,training_iterations,training_loss)
+        print('params:'+str(params))
+        k,a,b,x0 = params[0]
+        cov = params[1]
+        if cov[0][0] > 1e4:
+            print('bad fit')
+        else:
+            fit_y = fit_exp(training_iterations,k,a,b)
+            ax1.plot(training_iterations,fit_y,linestyle='--',color='b')
+
 
   savename = args.output_file+'.jpg'
   plt.savefig(savename)
   plt.show()
+
+def fit_exp(x, k,a, b, x0):
+    return k*np.exp(np.multiply(a,x-x0)) + b
+
+def fit_log(x, k,a, b, x0):
+    return k*np.log(np.multiply(a,x-x0)) + b
 
 def parse_solveoutput(f):
   print('parsing solve.py (jrinference) output')
@@ -241,7 +284,6 @@ def parse_solveoutput(f):
   training_loss = []
   first_report = True
   extra_iters = 0
-
   for line in f:
 #    print('checking line:'+line)
     if '>>>' in line:

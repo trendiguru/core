@@ -21,9 +21,20 @@ which_products_collection = {'default':
                                  {'default': 'ShopStyle', 'US': 'ebay', 'KR': 'GangnamStyle'},
                              'fashionseoul.com':
                                  {'KR': 'GangnamStyle'}}
+products_per_ip_pid = {'default':
+                                 {'default': 'ShopStyle', 'US': 'ebay', 'KR': 'GangnamStyle'},
+                       'fashionseoul':
+                                 {'KR': 'GangnamStyle'},
+                       'RecruitPilot':
+                                 {'default': 'recruit'},
+                       'xuSiNIs695acaHPE':
+                                 {'default': 'ShopStyle'},
+                       "Rob's Shelter":
+                                 {'default': 'ShopStyle'}
+                       }
 products_per_site = {'default': 'ShopStyle', 'fashionseoul.com': 'GangnamStyle', 'fazz.co': 'ShopStyle',
-                     'plus-model-mag.com': 'Fat_Beauty'}
-                     # , 'mako.co.il': 'ebay'}
+                     'plus-model-mag.com': 'Fat_Beauty', 'recruit-lifestyle.co.jp': 'recruit'}
+products_per_pid = {}
 products_per_country = {'default': 'ebay', 'ebay': ['US'], 'GangnhamStyle': ['KR']}
 # file containing constants for general TG use
 # fingerprint related consts

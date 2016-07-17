@@ -55,11 +55,10 @@ def route_by_url(image_url, page_url, method):
     return False
 
 
-def handel_post(ip, image_url, page_url, lang):
-    domain = tldextract.extract(page_url).registered_domain
+def handle_post(image_url, page_url, products_collection, method):
     # QUICK FILTERS
-    if not db.whitelist.find_one({'domain': domain}):
-        return False
+    # if not db.whitelist.find_one({'domain': domain}):
+    #     return False
 
     if image_url[:4] == "data":
         return False
@@ -70,17 +69,16 @@ def handel_post(ip, image_url, page_url, lang):
     # IF IMAGE IS IN DB.IMAGES:
     image_obj = db.images.find_one({'image_urls': image_url})
     if image_obj:
-        collection = get_collection_from_ip_and_domain(ip, domain)
         # IF IMAGE HAS RESULTS FROM THIS COLLECTION:
-        if has_results_from_collection(image_obj, collection):
+        if has_results_from_collection(image_obj, products_collection):
             return True
         else:
             # ADD RESULTS FROM THIS PRODUCTS-COLLECTION
-            add_results_from_collection(image_obj, collection)
+            add_results_from_collection(image_obj, products_collection)
             return False
 
     else:
-        relevancy.enqueue_call(func=check_if_relevant, args=(page_url, image_url),
+        relevancy.enqueue_call(func=check_if_relevant, args=(image_url, page_url, products_collection, method),
                                ttl=2000, result_ttl=2000, timeout=2000)
         return False
 
@@ -88,10 +86,10 @@ def handel_post(ip, image_url, page_url, lang):
 # ---------------------------------------- FILTER-FUNCTIONS ----------------------------------------------
 
 def has_results_from_collection(image_obj, collection):
-    for results in image_obj['people'][0]['items'][0]['similar_results']:
-        if collection in results.keys():
-            return True
-    return False
+    if collection in image_obj['people'][0]['items'][0]['similar_results']:
+        return True
+    else:
+        return False
 
 
 def is_image_relevant(image_url, collection_name=None):
@@ -174,24 +172,48 @@ def get_collection_from_ip_and_domain(ip, domain):
             return default_map['default']
 
 
+def get_collection_from_ip_and_pid(ip, pid='default'):
+    country = get_country_from_ip(ip)
+    default_map = constants.products_per_ip_pid['default']
+    if pid in constants.products_per_ip_pid.keys():
+        pid_map = constants.products_per_ip_pid[pid]
+        if country:
+            if country in pid_map.keys():
+                return pid_map[country]
+            elif 'default' in pid_map.keys():
+                return pid_map['default']
+            else:
+                if country in default_map.keys():
+                    return default_map[country]
+                else:
+                    return default_map['default']
+        else:
+            if 'default' in pid_map.keys():
+                return pid_map['default']
+            else:
+                return default_map['default']
+    else:
+        if country in default_map.keys():
+            return default_map[country]
+        else:
+            return default_map['default']
+
 # ---------------------------------------- PROCESS-FUNCTIONS ---------------------------------------------
 
 def add_results_from_collection(image_obj, collection):
-    for person in image_obj:
-        for item in person:
+    for person in image_obj['people']:
+        for item in person['items']:
+            prod = collection + '_' + person['gender']
             fp, similar_results = find_similar_mongo.find_top_n_results(number_of_results=100,
                                                                         category_id=item['category'],
                                                                         fingerprint=item['fp'],
-                                                                        collection=collection)
+                                                                        collection=prod)
             item['similar_results'][collection] = similar_results
     db.images.replace_one({'_id': image_obj['_id']}, image_obj)
 
 
-def check_if_relevant(image_url, page_url, lang, custom_start_pipeline=None):
-    if custom_start_pipeline:
-        start_q = constants.Queue(custom_start_pipeline)
-    else:
-        start_q = start_pipeline
+def check_if_relevant(image_url, page_url, products_collection, method):
+
     image = Utils.get_cv2_img_array(image_url)
     if image is None:
         return
@@ -213,7 +235,8 @@ def check_if_relevant(image_url, page_url, lang, custom_start_pipeline=None):
                  'image_url': image_url, 'page_url': page_url}
     db.iip.insert_one({'image_url': image_url, 'insert_time': datetime.datetime.utcnow()})
     db.genderator.insert_one(image_obj)
-    start_q.enqueue_call(func="", args=(page_url, image_url, lang), ttl=2000, result_ttl=2000, timeout=2000)
+    start_pipeline.enqueue_call(func="", args=(page_url, image_url, products_collection, method),
+                                ttl=2000, result_ttl=2000, timeout=2000)
 
 
 # --------------------------------------------- NNs -----------------------------------------------------

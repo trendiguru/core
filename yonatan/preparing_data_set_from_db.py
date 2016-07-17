@@ -6,7 +6,8 @@ from scipy.ndimage import zoom
 from skimage.transform import resize
 import os
 import caffe
-from .. import background_removal, Utils, constants
+from .. import background_removal, utils, constants
+from ..utils import imutils
 import cv2
 import sys
 import argparse
@@ -16,20 +17,9 @@ import skimage
 import urllib
 from PIL import Image
 import pymongo
-
-db = constants.db
-
-sleeve_dict = {
-'strapless' : [db.yonatan_dresses.find({'sleeve_length': ['true', 'false', 'false', 'false', 'false', 'false', 'false', 'false', 'false']}), 0],
-'spaghetti_straps' : [db.yonatan_dresses.find({'sleeve_length': ['false', 'true', 'false', 'false', 'false', 'false', 'false', 'false', 'false']}), 1],
-'straps' : [db.yonatan_dresses.find({'sleeve_length': ['false', 'false', 'true', 'false', 'false', 'false', 'false', 'false', 'false']}), 2],
-'sleeveless' : [db.yonatan_dresses.find({'sleeve_length': ['false', 'false', 'false', 'true', 'false', 'false', 'false', 'false', 'false']}), 3],
-'cap_sleeve' : [db.yonatan_dresses.find({'sleeve_length': ['false', 'false', 'false', 'false', 'true', 'false', 'false', 'false', 'false']}), 4],
-'short_sleeve' : [db.yonatan_dresses.find({'sleeve_length': ['false', 'false', 'false', 'false', 'false', 'true', 'false', 'false', 'false']}), 5],
-'midi_sleeve' : [db.yonatan_dresses.find({'sleeve_length': ['false', 'false', 'false', 'false', 'false', 'false', 'true', 'false', 'false']}), 6],
-'long_sleeve' : [db.yonatan_dresses.find({'sleeve_length': ['false', 'false', 'false', 'false', 'false', 'false', 'false', 'true', 'false']}), 7]
-# 'asymmetry' : [db.yonatan_dresses.find({'sleeve_length': ['false', 'false', 'false', 'false', 'false', 'false', 'false', 'false', 'true']}), 8]
-}
+import argparse
+import shutil
+import yonatan_constants
 
 
 def cv2_image_to_caffe(image):
@@ -50,34 +40,91 @@ def url_to_image(url):
     return new_image
 
 
-num_of_each_category = 900
+def preparing_data_from_db(argv):
 
-width = 150
-height = 300
+    parser = argparse.ArgumentParser()
+    # Required arguments: input and output files.
+    parser.add_argument(
+        "input_file",
+        help="the argument should be one of those:"
+             "\ndress_sleeve\ndress_length\nmen_shirt_sleeve\npants_length\nwomen_shirt_sleeve"
+    )
+
+    db = constants.db
+
+    args = parser.parse_args()
+
+    # dress sleeve #
+    if args.input_file == 'dress_sleeve':
+        dictionary = yonatan_constants.dress_sleeve_dict
+
+    # dress length #
+    elif args.input_file == 'dress_length':
+        dictionary = yonatan_constants.dress_length_dict
+
+    # men shirt sleeve #
+    elif args.input_file == 'men_shirt_sleeve':
+        dictionary = yonatan_constants.men_shirt_sleeve_dict
+
+    # pants length #
+    elif args.input_file == 'pants_length':
+        dictionary = yonatan_constants.pants_length_dict
+
+    # women shirt sleeve #
+    elif args.input_file == 'women_shirt_sleeve':
+        dictionary = yonatan_constants.women_shirt_sleeve_dict
+
+    else:
+        print "wrong input!"
+        print "the argument should be one of those:\n{0}\n{1}\n{2}\n{3}\n{4}".format('dress_sleeve',
+                                                                                     'dress_length', 'men_shirt_sleeve',                                                                           'pants_length',
+                                                                                     'women_shirt_sleeve')
+        return
 
 
-for key, value in sleeve_dict.iteritems():
-    text_file = open("850_dresses_" + key + "_list.txt", "w")
-    for i in range(1, value[0].count()):
-        if i > num_of_each_category:
-            break
+    num_of_each_category = 900
 
-        link_to_image = value[0][i]['images']['XLarge']
+    for key, value in dictionary.iteritems():
 
-        dress_image = url_to_image(link_to_image)
-        if dress_image is None:
-            continue
+        working_path = '/home/yonatan/resized_db_' + args.input_file + '_' + key
 
-        # Resize it.
-        resized_image = cv2.resize(dress_image, (width, height))
+        if os.path.isdir(working_path):
+            if not os.listdir(working_path):
+                print '\nfolder is empty'
+            else:
+                print "deleting directory content"
+                shutil.rmtree(working_path)
+                os.mkdir(working_path)
+        else:
+            print "creating new directory"
+            os.mkdir(working_path)
 
-        image_file_name = key + '_dress-' + str(i) + '.jpg'
+        #text_file = open("all_dresses_" + key + "_list.txt", "w")
+        for i in range(1, value[0].count()):
+            #if i > num_of_each_category:
+             #   break
 
-        print i
+            link_to_image = value[0][i]['images']['XLarge']
 
-        cv2.imwrite(os.path.join('/home/yonatan/db_' + key + '_dresses', image_file_name), resized_image)
-        text_file.write('/home/yonatan/db_' + key + '_dresses/' + image_file_name + ' ' + str(value[1]) + '\n')
+            fresh_image = url_to_image(link_to_image)
+            if fresh_image is None:
+                continue
 
-        print '/home/yonatan/db_' + key + '_dresses/'
+            # Resize it.
+            #resized_image = cv2.resize(fresh_image, (width, height))
+            resized_image = imutils.resize_keep_aspect(fresh_image, output_size = (256, 256))
 
-    text_file.flush()
+            image_file_name = key + '_' + args.input_file + '-' + str(i) + '.jpg'
+
+            print i
+
+            cv2.imwrite(os.path.join(working_path, image_file_name), resized_image)
+            #text_file.write(working_path + '/' + image_file_name + ' ' + str(value[1]) + '\n')
+
+            print working_path
+
+        #text_file.flush()
+
+
+if __name__ == '__main__':
+    preparing_data_from_db(sys.argv)
