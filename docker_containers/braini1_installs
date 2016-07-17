@@ -1,3 +1,16 @@
+#braini servers:
+#cuda, cudnn
+#theano/keras on netanels'
+#caffe
+#gunicorn
+#gender-falcon
+#IPs need to be set at
+#neurodoll: trendi.paperdoll @ neurodoll_falcon_client.py
+#paperdoll: trendi.paperdoll @ paperdoll_falcon_client.py
+#gender      : trendi                       @ page_results.py
+#labeler      : trendi                       @ page_results.py
+
+
 #cuda
 wget http://developer.download.nvidia.com/compute/cuda/repos/ubuntu1404/x86_64/cuda-repo-ubuntu1404_7.5-18_amd64.de
  sudo dpkg -i cuda-repo-ubuntu1404_7.5-18_amd64.deb

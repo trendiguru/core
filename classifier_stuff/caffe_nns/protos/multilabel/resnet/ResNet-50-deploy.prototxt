@@ -2301,18 +2301,35 @@ layer {
 	}
 }
 
-layer {
-	bottom: "pool5"
-	top: "fc1000"
-	name: "fc1000"
-	type: "InnerProduct"
-	inner_product_param {
-		num_output: 1000
-	}
-}
 
 layer {
-	bottom: "fc1000"
+	bottom: "pool5"
+	top: "myfc21"
+	name: "myfc21"
+	type: "InnerProduct"
+	inner_product_param {
+		num_output: 21
+	}
+         param {
+                  lr_mult: 1
+                  decay_mult: 1
+                }
+         param {
+                  lr_mult: 2
+                  decay_mult: 0
+                }
+}
+
+#layer {
+#	bottom: "myfc21"#
+#	bottom: "labels"#
+#	top: "loss"
+#	name: "loss"
+#	type: "SigmoidCrossEntropyLoss"
+#}
+
+layer {
+	bottom: "myfc21"
 	top: "prob"
 	name: "prob"
 	type: "Softmax"
