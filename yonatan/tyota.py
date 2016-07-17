@@ -57,11 +57,11 @@ def theDetector(url_or_np_array, face_coordinates):
 
     print "Starting the genderism!"
     # check if i get a url (= string) or np.ndarray
-    if isinstance(url_or_np_array, basestring):
-        full_image = url_to_image(url_or_np_array)
-    elif type(url_or_np_array) == np.ndarray:
-        full_image = url_or_np_array
-    elif os.path.isdir(url_or_np_array):
+    #if isinstance(url_or_np_array, basestring):
+    #    full_image = url_to_image(url_or_np_array)
+    #elif type(url_or_np_array) == np.ndarray:
+    #    full_image = url_or_np_array
+    if os.path.isdir(url_or_np_array):
         print("Loading folder: %s" % url_or_np_array)
         full_image = [caffe.io.load_image(im_f)
                   for im_f in glob.glob(url_or_np_array + '/*.jpg')]
