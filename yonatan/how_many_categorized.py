@@ -17,6 +17,22 @@ import argparse
 import yonatan_constants
 
 
+def check_how_many(category_dict, yonatan_category_db):
+
+    dress_sleeve_dict = category_dict
+
+    sum_of_all = sum(value[0].count() for key, value in dress_sleeve_dict.iteritems())
+    sum_of_all_already_seen = yonatan_category_db.count({'already_seen_dress_sleeve': True})
+
+    deleted = sum_of_all_already_seen - sum_of_all
+
+    for key, value in dress_sleeve_dict.iteritems():
+        category_value = value[0].count()
+        print '{0}: {1}, percent: {2}%'.format(key, category_value,
+                                               int(round(float(category_value) / sum_of_all, 2) * 100))
+    print 'sum of all: {0}'.format(sum_of_all)
+    print 'deleted: {0}'.format(deleted)
+
 def how_many(argv):
 
     parser = argparse.ArgumentParser()
@@ -33,16 +49,7 @@ def how_many(argv):
 
     # dress sleeve #
     if args.input_file == 'dress_sleeve':
-        dress_sleeve_dict = yonatan_constants.dress_sleeve_dict
-
-        sum_of_all = sum(value[0].count() for key, value in dress_sleeve_dict.iteritems())
-        sum_of_all_already_seen = db.yonatan_dresses.count({'already_seen_dress_sleeve': True})
-
-        deleted = sum_of_all_already_seen - sum_of_all
-
-        for key, value in dress_sleeve_dict.iteritems():
-            category_value = value[0].count()
-            print '{0}: {1}, percent: {2}%'.format(key, category_value, int(round(float(category_value) / sum_of_all, 2) * 100))
+        check_how_many(yonatan_constants.dress_sleeve_dict, db.yonatan_dresses)
 
     # dress length #
     elif args.input_file == 'dress_length':
