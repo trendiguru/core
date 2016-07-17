@@ -404,6 +404,7 @@ class JrMultilabel(caffe.Layer):
                     vals = line.split()[1:]
                     label_vec = [int(i) for i in vals]
                     label_vec = np.array(label_vec)
+                    self.n_labels = len(label_vec)
     #                label_vec = label_vec[np.newaxis,...]  #this is required by loss whihc otherwise throws:
     #                label_vec = label_vec[...,np.newaxis]  #this is required by loss whihc otherwise throws:
     #                label_vec = label_vec[...,np.newaxis,np.newaxis]  #this is required by loss whihc otherwise throws:
@@ -427,6 +428,7 @@ class JrMultilabel(caffe.Layer):
                 vals = line.split()[1:]
                 label_vec = [int(i) for i in vals]
                 label_vec = np.array(label_vec)
+                self.n_labels = len(label_vec)
                 good_img_files.append(imgfilename)
                 good_label_vecs.append(label_vec)
 
@@ -450,7 +452,7 @@ class JrMultilabel(caffe.Layer):
             top[0].reshape(self.batch_size, 3, self.new_size[0], self.new_size[1])
 #            top[0].reshape(self.batch_size, 3, self.augment_crop_size[0], self.augment_crop_size[1])
 
-        top[1].reshape(self.batch_size, 21)
+        top[1].reshape(self.batch_size, self.n_labels)
 
 
     def reshape(self, bottom, top):
