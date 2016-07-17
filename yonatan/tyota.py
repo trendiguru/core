@@ -99,5 +99,6 @@ def theDetector(url_or_np_array, face_coordinates):
             print predictions[i][0]
             return 'Female'
 
+    print predictions[1]
     print predictions[0]
     print predictions
