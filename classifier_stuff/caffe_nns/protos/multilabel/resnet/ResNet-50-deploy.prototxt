@@ -1,4 +1,4 @@
-name: "ResNet-50"
+#name: "ResNet-50"
 layer {
   name: "data"
   type: "Input"
