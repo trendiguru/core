@@ -2654,6 +2654,7 @@ layer {
 
 layer {
 	bottom: "myfc21"
+	bottom: "label"
 	top: "prob"
 	name: "prob"
 	type: "SoftmaxWithLoss"
