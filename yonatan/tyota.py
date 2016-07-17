@@ -77,6 +77,7 @@ def theDetector(url_or_np_array, face_coordinates):
     #if x > width or x + w > width or y > height or y + h > height:
     #    return None
 
+
     # face_image = full_image[y: y + h, x: x + w]
 
     #face_for_caffe = [cv2_image_to_caffe(full_image)]
