@@ -18,6 +18,7 @@ layer {
 	}
 }
 
+
 layer {
 	bottom: "conv1"
 	top: "conv1"
