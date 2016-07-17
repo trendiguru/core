@@ -327,7 +327,7 @@ if __name__ =="__main__":
     caffemodel = '/home/jeremy/caffenets/multilabel_resnet50_sgd_iter_120000.caffemodel'
     solverproto = '/home/jeremy/caffenets/ResNet-50-deploy.prototxt'
     for t in [0.1,0.2,0.3,0.4,0.5,0.6,0.7,0.8,0.85,0.9,0.92,0.95,0.98]:
-        p,r,a,tp,tn,fp,fn = check_accuracy(solverproto,caffemodel,threshold=t,num_batches=1000)
+        p,r,a,tp,tn,fp,fn = check_accuracy(solverproto, caffemodel, threshold=t, num_batches=800)
         with open('multilabel_accuracy_results.txt','a') as f:
             f.write('vgg_ilsvrc16_multilabel_2, threshold = '+str(t)+'\n')
             f.write('solver:'+solverproto+'\n')
