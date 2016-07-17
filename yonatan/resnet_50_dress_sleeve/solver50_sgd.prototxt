@@ -1,6 +1,6 @@
 #net: "train_val.prototxt"
-train_net: "ResNet-50-train.prototxt"
-test_net: "ResNet-50-test.prototxt"
+train_net: "/home/yonatan/trendi/yonatan/resnet_50_dress_sleeve/ResNet-50-train.prototxt"
+test_net: "/home/yonatan/trendi/yonatan/resnet_50_dress_sleeve/ResNet-50-test.prototxt"
 test_iter: 150
 test_interval: 200
 display: 20
@@ -9,7 +9,7 @@ weight_decay: 0.0005
 # no gradient accumulation
 iter_size: 20
 snapshot: 5000
-snapshot_prefix: "snapshot_50_sgd/train"
+snapshot_prefix: "/home/yonatan/resnet50_caffemodels/caffe_resnet50_snapshot_50_sgd"
 test_initialization: false
 solver_mode : GPU
 

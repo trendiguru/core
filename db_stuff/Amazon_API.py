@@ -277,12 +277,16 @@ def get_results(node_id, price_flag=True, max_price=10000.0, min_price=0.0, resu
         return 0
 
     if results_count > 100:
-        mid_price = (max_price+min_price)/2
-        if (mid_price-min_price) >= 0.01:
+        mid_price = (max_price+min_price)/2.00
+        divided_flag = False
+        if (max_price-mid_price) >= 0.005:
             get_results(node_id, min_price=mid_price, max_price=max_price, name=name)
-        if (max_price - mid_price) >= 0.01:
+            divided_flag = True
+        if (mid_price - min_price) >= 0.005:
             get_results(node_id, min_price=min_price, max_price=mid_price, name=name)
-        return 0
+            divided_flag = True
+        if divided_flag:
+            return 0
 
     total_pages = int(res_dict['TotalPages'])+1
     if total_pages==2:
@@ -392,7 +396,7 @@ def download_all(delete_collection=False):
             if idx_1 not in indexes:
                 collection.create_index(idx, background=True)
 
-    leafs = db.amazon_category_tree.find({'Children.count': 0})
+    leafs = db.amazon_category_tree.find({'Children.count': 0, 'Parents': 'Men'})
     for leaf in leafs:
         leaf_name = '->'.join(leaf['Parents']) + '->' + leaf['Name']
         node_id = leaf['BrowseNodeId']

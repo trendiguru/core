@@ -1,4 +1,4 @@
-#!/usr/bin/env pythonself.blobs[in_].data.shape
+#!/usr/bin/env python
 """
 Classifier is an image classifier specialization of Net.
 """
@@ -27,14 +27,9 @@ class Classifier(caffe.Net):
 
         # configure pre-processing
         in_ = self.inputs[0]
-        print self.blobs[in_].data.shape
-        print mean
-        print mean.shape
-        print in_
         self.transformer = caffe.io.Transformer(
             {in_: self.blobs[in_].data.shape})
         self.transformer.set_transpose(in_, (2, 0, 1))
-        mean = None
         if mean is not None:
             self.transformer.set_mean(in_, mean)
         if input_scale is not None:
@@ -84,7 +79,6 @@ class Classifier(caffe.Net):
                 -self.crop_dims / 2.0,
                 self.crop_dims / 2.0
             ])
-            crop = crop.astype(int)
             input_ = input_[:, crop[0]:crop[2], crop[1]:crop[3], :]
 
         # Classify
@@ -101,4 +95,5 @@ class Classifier(caffe.Net):
             predictions = predictions.mean(1)
 
         return predictions
+
 
