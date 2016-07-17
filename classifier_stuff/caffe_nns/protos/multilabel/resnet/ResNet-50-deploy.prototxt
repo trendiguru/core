@@ -2330,10 +2330,12 @@ layer {
 #	type: "SigmoidCrossEntropyLoss"
 #}
 
+
 layer {
-	bottom: "myfc21"
-	top: "prob"
-	name: "prob"
-	type: "Softmax"
+  name: "score"
+  type: "Sigmoid"
+  bottom: "myfc21"
+  top: "score"
 }
+
 
