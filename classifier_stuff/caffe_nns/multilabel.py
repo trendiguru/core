@@ -268,7 +268,7 @@ def check_accuracy(deployproto,caffemodel,num_batches=200,batch_size=1,threshold
 #    solver.test_nets[0].share_with(solver.net)
 #    solver.step(1)
 #    precision,recall,accuracy,tp,tn,fp,fn = check_acc(solver.test_nets[0], num_batches=num_batches,batch_size = batch_size, threshold=threshold)
-    precision,recall,accuracy,tp,tn,fp,fn = check_acc(solver.net, num_batches=num_batches,batch_size = batch_size, threshold=threshold)
+    precision,recall,accuracy,tp,tn,fp,fn = check_acc(net, num_batches=num_batches,batch_size = batch_size, threshold=threshold)
     return precision,recall,accuracy,tp,tn,fp,fn
 
 def multilabel_infer_one(url):
