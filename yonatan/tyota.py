@@ -83,8 +83,8 @@ def theDetector(url_or_np_array, face_coordinates):
     #face_for_caffe = [cv2_image_to_caffe(full_image)]
     #face_for_caffe = [caffe.io.load_image(face_image)]
 
-    if face_for_caffe is None:
-        return None
+    #if face_for_caffe is None:
+    #    return None
 
     # Classify.
     start = time.time()
