@@ -5,6 +5,8 @@ input_dim: 3
 input_dim: 224
 input_dim: 224
 
+#
+
 layer {
 	bottom: "data"
 	top: "conv1"
