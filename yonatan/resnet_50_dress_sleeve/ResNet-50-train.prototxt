@@ -2644,18 +2644,18 @@ layer {
                 }
 }
 
-layer {
-	bottom: "myfc21"
-	bottom: "labels"
-	top: "loss"
-	name: "loss"
-	type: "SoftmaxWithLoss"
-}
-
 #layer {
 #	bottom: "myfc21"
-#	top: "prob"
-#	name: "prob"
+#	bottom: "labels"
+#	top: "loss"
+#	name: "loss"
 #	type: "SoftmaxWithLoss"
 #}
+
+layer {
+	bottom: "myfc21"
+	top: "prob"
+	name: "prob"
+	type: "SoftmaxWithLoss"
+}
 
