@@ -48,8 +48,6 @@ def url_to_image(url):
     if image.size == 0:
         return None
     new_image = cv2.imdecode(image, cv2.IMREAD_COLOR)
-    print type(new_image)
-    print new_image.shape()
 
     # return the image
     return new_image
