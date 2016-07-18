@@ -254,8 +254,7 @@ def process_results(collection_name, pagenum, node_id, min_price, max_price, res
             features = {'color': color,
                         'sizes': sizes,
                         'shortDescription': short_d,
-                        'longDescription': long_d,
-                        'attributes': attributes}
+                        'longDescription': long_d}
 
             # print('##################################')
             asin_exists = collection.find_one({'asin': asin})
@@ -282,7 +281,10 @@ def process_results(collection_name, pagenum, node_id, min_price, max_price, res
                         'clickUrl': click_url,
                         'images': {'XLarge': image},
                         'price': price,
-                        'features': features,
+                        'color': color,
+                        'sizes': sizes,
+                        'shortDescription': short_d,
+                        'longDescription': long_d,
                         'brand': brand,
                         'categories': category}
 
