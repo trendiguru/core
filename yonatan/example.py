@@ -237,7 +237,14 @@ if __name__ == '__main__':
 
     args = vars(parser.parse_args())
 
-    classify(args['caffemodel'], args['deploy_file'], args['image_file'],
-            args['mean'], args['labels'], args['batch_size'], not args['nogpu'])
+    MODLE_FILE = "/home/yonatan/trendi/yonatan/Alexnet_deploy.prototxt"
+    PRETRAINED = "/home/yonatan/alexnet_imdb_first_try/caffe_alexnet_train_faces_iter_10000.caffemodel"
+    caffe.set_mode_gpu()
+    image_dims = [115, 115]
+    mean, input_scale = np.array([120, 120, 120]), None
+    channel_swap = [2, 1, 0]
+    raw_scale = 255.0
+
+    classify(PRETRAINED, MODLE_FILE, args['image_file'])
 
     print 'Script took %f seconds.' % (time.time() - script_start_time,)
