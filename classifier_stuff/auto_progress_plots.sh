@@ -8,7 +8,7 @@
 
 #produce the plots from any logfile updated in last 100 minutes
 counter = 0
-logfiles="$(find /tmp caffe* -mmin -100|grep -v jpg|grep -v caffe.INFO)"
+logfiles="$(find /tmp caffe* -mmin -100|grep -v jpg|grep -v caffe.INFO|grep caffe.)"
 echo $logfiles
 for log in $logfiles;
    do echo $log;
