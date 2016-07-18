@@ -47,7 +47,7 @@ def url_to_image(url):
     print image
     if image.size == 0:
         return None
-    new_image = cv2.cv.fromarray(image)
+    new_image = cv2.fromarray(image)
     #new_image = cv2.imdecode(image, cv2.IMREAD_COLOR)
     print new_image
 
