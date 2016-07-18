@@ -4,9 +4,9 @@ from ..constants import db
 def delete_or_and_index(collection_name, index_list, delete_flag=False):
     does_exists = verify_collection_exists(collection_name)
     if does_exists:
-        print('%s collection already exists')
+        print('%s collection already exists' % collection_name)
     else:
-        print('%s collection was created')
+        print('%s collection was created' % collection_name)
 
     collection = db[collection_name]
     if delete_flag:
