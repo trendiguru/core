@@ -291,7 +291,7 @@ def process_results(pagenum, node_id, min_price, max_price, res_dict=None, items
 
 def get_results(node_id, price_flag=True, max_price=10000.0, min_price=0.0, results_count_only=False, name='moshe'):
 
-    res_dict, results_count, req = make_itemsearch_request(1, node_id, 0.0, 100000.0, price_flag=True)
+    res_dict, results_count = make_itemsearch_request(1, node_id, min_price, max_price, price_flag=price_flag)
     if results_count < 0:
         return 0
 
