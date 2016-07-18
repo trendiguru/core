@@ -81,8 +81,8 @@ def proper_wait(print_flag=False):
     global last_time
     current_time = time()
     time_diff = current_time - last_time
-    if time_diff < 1.005:
-        sleep(1.005 - time_diff)
+    if time_diff < 1.001:
+        sleep(1.001 - time_diff)
         current_time = time()
     if print_flag:
         print ('time diff: %f' % (current_time - last_time))
@@ -147,7 +147,7 @@ def make_itemsearch_request(pagenum, node_id, min_price, max_price, price_flag=T
         parameters['MaximumPrice'] = format_price(max_price)
 
     req = get_amazon_signed_url(parameters, 'GET', False)
-    proper_wait(True)
+    proper_wait()
     res = get(req)
     if res.status_code != 200:
         print_error('Bad request', req)
@@ -171,7 +171,7 @@ def make_itemsearch_request(pagenum, node_id, min_price, max_price, price_flag=T
 
     if results_count == 0:
         price_range = 'PriceRange: %s -> %s ' % (format_price(min_price, True), format_price(max_price, True))
-        print_error('no results', price_range)
+        print_error('no results for %s' % price_range, '')
         return [], -1
 
     return res_dict, results_count
@@ -234,6 +234,16 @@ def process_results(collection_name, pagenum, node_id, min_price, max_price, res
                 print_error('No Size', attr_keys)
                 continue
 
+            if 'Brand' in attr_keys:
+                brand = attributes['Brand']
+            else:
+                brand = 'unknown'
+
+            if 'ProductTypeName' in attr_keys:
+                category = attributes['ProductTypeName']
+            else:
+                category='2BDtermind'
+
             color = attributes['Color']
             sizes = [clothing_size]
             short_d = attributes['Title']
@@ -244,8 +254,7 @@ def process_results(collection_name, pagenum, node_id, min_price, max_price, res
             features = {'color': color,
                         'sizes': sizes,
                         'shortDescription': short_d,
-                        'longDescription': long_d,
-                        'attributes': attributes}
+                        'longDescription': long_d}
 
             # print('##################################')
             asin_exists = collection.find_one({'asin': asin})
@@ -270,9 +279,14 @@ def process_results(collection_name, pagenum, node_id, min_price, max_price, res
             new_item = {'asin': asin,
                         'parent_asin': parent_asin,
                         'clickUrl': click_url,
-                        'images': {'XLarge':image},
+                        'images': {'XLarge': image},
                         'price': price,
-                        'features': features}
+                        'color': color,
+                        'sizes': sizes,
+                        'shortDescription': short_d,
+                        'longDescription': long_d,
+                        'brand': brand,
+                        'categories': category}
 
             # print 'inserting'
             collection.insert_one(new_item)
@@ -298,7 +312,7 @@ def process_results(collection_name, pagenum, node_id, min_price, max_price, res
     return new_item_count
 
 
-def get_results(collection_name, node_id, price_flag=True, max_price=10000.0, min_price=0.0, results_count_only=False, name='moshe'):
+def get_results(collection_name, node_id, price_flag=True, max_price=100000.0, min_price=0.0, results_count_only=False, name='moshe'):
 
     res_dict, results_count = make_itemsearch_request(1, node_id, min_price, max_price, price_flag=price_flag)
     if results_count < 0:
