@@ -55,7 +55,7 @@ from Amazon_signature import get_amazon_signed_url
 from time import strftime, gmtime, sleep, time
 from requests import get
 import xmltodict
-import logging
+from db_utils import log2file, print_error, theArchiveDoorman
 from ..Yonti import pymongo_utils
 from ..constants import db, redis_conn
 from rq import Queue
@@ -84,7 +84,7 @@ base_parameters = {
     'ResponseGroup': 'ItemAttributes, OfferSummary,Images'}
 
 last_time = time()
-
+log_name = '/home/developer/yonti/amazon_download_stats.log'
 
 def proper_wait(print_flag=False):
     global last_time
@@ -96,26 +96,6 @@ def proper_wait(print_flag=False):
     if print_flag:
         print ('time diff: %f' % (current_time - last_time))
     last_time = current_time
-
-
-def print_error(title, message=''):
-    dotted_line = '------------------------------------%s-----------------------------------------' % title
-
-    if len(message) > 0:
-        print ('\n%s' % dotted_line)
-        print (message)
-        print ('%s\n' % dotted_line)
-    else:
-        print ('\n%s\n' % dotted_line)
-
-
-def log2file(mode='w', log_filename='/home/developer/yonti/amazon_download_stats.log'):
-    logger = logging.getLogger(__name__)
-    logger.setLevel(logging.INFO)
-    handler = logging.FileHandler(log_filename, mode=mode)
-    handler.setLevel(logging.INFO)
-    logger.addHandler(handler)
-    return logger, handler
 
 
 def truncate_float_to_2_decimal_places(float2round, true_4_str=False):
@@ -214,7 +194,7 @@ def process_results(collection_name, pagenum, node_id, min_price, max_price, fam
 def log2file_and_print(name, min_price, max_price, results_count, new_items_count):
     summary = 'Name: %s, PriceRange: %s -> %s , ResultCount: %d (%d)' \
               % (name, format_price(min_price, True), format_price(max_price, True), results_count, new_items_count)
-    logger, handler = log2file(mode='a')
+    logger, handler = log2file(mode='a', log_filename=log_name)
     logger.info(summary)
     logger.removeHandler(handler)
     del logger, handler
@@ -348,23 +328,13 @@ def build_category_tree(root='7141124011', tab=0, parents=[], delete_collection=
     return name
 
 
-def delete_and_index(collection_name, index_list):
-    collection = db[collection_name]
-    collection.delete_many({})
-    indexes = collection.index_information().keys()
-    for idx in index_list:
-        idx_1 = idx + '_1'
-        if idx_1 not in indexes:
-            collection.create_index(idx, background=True)
-
-
 def download_all(country_code='US', gender='Female', delete_collection=False, delete_cache=False):
 
     collection_name = 'amazon_%s_%s' % (country_code, gender)
     cache_name = collection_name+'_cache'
     collection_cache = db[cache_name]
     # build_category_tree(delete_collection=delete_collection)
-    logger, handler = log2file(mode='w')
+    logger, handler = log2file(mode='w', log_filename=log_name)
     logger.info('download started')
     logger.removeHandler(handler)
     del logger, handler
@@ -411,6 +381,8 @@ def download_all(country_code='US', gender='Female', delete_collection=False, de
 
         except Exception as e:
             print_error('ERROR', 'node id: %s failed!\n %s' % (node_id, e))
+
+    theArchiveDoorman(collection_name)
 
 
 for gender in ['Female', 'Male']:
