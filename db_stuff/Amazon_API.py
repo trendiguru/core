@@ -89,10 +89,10 @@ def proper_wait(print_flag=False):
     last_time = current_time
 
 
-def print_error(title,message):
+def print_error(title, message=''):
     dotted_line = '------------------------------------%s-----------------------------------------' % title
 
-    if len(message)>0:
+    if len(message) > 0:
         print ('\n%s' % dotted_line)
         print (message)
         print ('%s\n' % dotted_line)
@@ -167,11 +167,11 @@ def make_itemsearch_request(pagenum, node_id, min_price, max_price, price_flag=T
 
     if results_count == 0:
         price_range = 'PriceRange: %s -> %s ' % (format_price(min_price, True), format_price(max_price, True))
-        print_error('no results for %s' % price_range, '')
+        print_error('no results for %s' % price_range)
         return [], -1
 
     if 'TotalPages' not in res_dict.keys():
-        print_error('no TotalPages in dict keys', '')
+        print_error('no TotalPages in dict keys')
         return [], -1
 
     if 'Errors' in res_dict.keys():
@@ -221,7 +221,7 @@ def process_results(collection_name, pagenum, node_id, min_price, max_price, res
             elif 'SmallImage' in item_keys:
                 image = item['SmallImage']['URL']
             else:
-                print_error('No image', '')
+                print_error('No image')
                 continue
 
             offer = item['OfferSummary']['LowestNewPrice']
