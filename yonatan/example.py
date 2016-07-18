@@ -46,7 +46,7 @@ def get_transformer(deploy_file, mean_file=None):
     print network
     with open(deploy_file) as infile:
         text_format.Merge(infile.read(), network)
-
+    print network
     if network.input_shape:
         dims = network.input_shape[0].dim
         print "i'm in the if"
