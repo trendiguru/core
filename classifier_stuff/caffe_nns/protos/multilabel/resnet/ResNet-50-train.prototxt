@@ -4,7 +4,7 @@ layer {
       name: "data"
       type: "Python"
       top: "data"
-      top: "labels"
+      top: "label"
       python_param {
       module: "jrlayers"
       layer: "JrMultilabel"
@@ -2646,7 +2646,7 @@ layer {
 
 layer {
 	bottom: "myfc21"
-	bottom: "labels"
+	bottom: "label"
 	top: "loss"
 	name: "loss"
 	type: "SigmoidCrossEntropyLoss"

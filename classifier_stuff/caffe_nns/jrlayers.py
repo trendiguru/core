@@ -404,7 +404,9 @@ class JrMultilabel(caffe.Layer):
                     vals = line.split()[1:]
                     label_vec = [int(i) for i in vals]
                     label_vec = np.array(label_vec)
-    #                label_vec = label_vec[np.newaxis,...]  #this is required by loss whihc otherwise throws:
+                    self.n_labels = len(label_vec)
+                    if self.n_labels == 1:
+                        label_vec = label_vec[0]    #                label_vec = label_vec[np.newaxis,...]  #this is required by loss whihc otherwise throws:
     #                label_vec = label_vec[...,np.newaxis]  #this is required by loss whihc otherwise throws:
     #                label_vec = label_vec[...,np.newaxis,np.newaxis]  #this is required by loss whihc otherwise throws:
     #                F0616 10:54:30.921106 43184 accuracy_layer.cpp:31] Check failed: outer_num_ * inner_num_ == bottom[1]->count() (1 vs. 21) Number of labels must match number of predictions; e.g., if label axis == 1 and prediction shape is (N, C, H, W), label count (number of labels) must be N*H*W, with integer values in {0, 1, ..., C-1}.
@@ -427,6 +429,9 @@ class JrMultilabel(caffe.Layer):
                 vals = line.split()[1:]
                 label_vec = [int(i) for i in vals]
                 label_vec = np.array(label_vec)
+                self.n_labels = len(label_vec)
+                if self.n_labels == 1:
+                    label_vec = label_vec[0]
                 good_img_files.append(imgfilename)
                 good_label_vecs.append(label_vec)
 
@@ -450,8 +455,8 @@ class JrMultilabel(caffe.Layer):
             top[0].reshape(self.batch_size, 3, self.new_size[0], self.new_size[1])
 #            top[0].reshape(self.batch_size, 3, self.augment_crop_size[0], self.augment_crop_size[1])
 
-        top[1].reshape(self.batch_size, 21)
-
+        top[1].reshape(self.batch_size, self.n_labels)
+        print('label length:'+str(self.n_labels))
 
     def reshape(self, bottom, top):
         pass

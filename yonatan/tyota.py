@@ -1,147 +1,101 @@
 #!/usr/bin/env python
 
-import caffe
+__author__ = 'yonatan_guy'
+
 import numpy as np
-from .. import background_removal, Utils, constants
-import cv2
 import os
+import caffe
 import sys
 import argparse
 import glob
 import time
+from trendi import background_removal, Utils, constants
+import cv2
+import urllib
 import skimage
-from PIL import Image
-from . import gender_detector
-import random
-import matplotlib.pyplot as plt
+import yonatan_classifier
 
 
-array_success_with_plus_minus_category = np.array([])
-array_failure_with_plus_minus_category = np.array([])
-array_success_without = np.array([])
-array_failure_without = np.array([])
-
-text_file = open("db_dresses_cv.txt", "r")
-
-counter = 0
-
-MODLE_FILE = "/home/yonatan/trendi/yonatan/Alexnet_deploy_for_dresses.prototxt"
-PRETRAINED = "/home/yonatan/caffe_alexnet_db_dresses_sleeve_iter_10000.caffemodel"
+MODLE_FILE = "/home/yonatan/trendi/yonatan/Alexnet_deploy.prototxt"
+PRETRAINED = "/home/yonatan/alexnet_imdb_first_try/caffe_alexnet_train_faces_iter_10000.caffemodel"
 caffe.set_mode_gpu()
-image_dims = [256, 256]
+image_dims = [115, 115]
 mean, input_scale = np.array([120, 120, 120]), None
-#mean, input_scale = None, None
-#channel_swap = None
 channel_swap = [2, 1, 0]
 raw_scale = 255.0
-ext = 'jpg'
 
 # Make classifier.
-classifier = caffe.Classifier(MODLE_FILE, PRETRAINED,
+classifier = yonatan_classifier.Classifier(MODLE_FILE, PRETRAINED,
                               image_dims=image_dims, mean=mean,
                               input_scale=input_scale, raw_scale=raw_scale,
                               channel_swap=channel_swap)
 
-success_counter = 0
-failure_counter = 0
-guessed_mini_instead_midi = 0
-guessed_maxi_instead_midi = 0
-guessed_midi_instead_mini = 0
-guessed_maxi_instead_mini = 0
-guessed_midi_instead_maxi = 0
-guessed_mini_instead_maxi = 0
+print "Done initializing!"
 
-counter_99_percent = 0
-counter_97_percent = 0
-counter_95_percent = 0
-counter_90_percent = 0
+def cv2_image_to_caffe(image):
+    return skimage.img_as_float(cv2.cvtColor(image, cv2.COLOR_BGR2RGB)).astype(np.float32)
 
-failure_above_98_percent = 0
 
-#failure_current_result = 0
-#success_current_result = 0
+def url_to_image(url):
+    # download the image, convert it to a NumPy array, and then read
+    # it into OpenCV format
 
-for line in text_file:
-    counter += 1
+    if url.count('jpg') > 1:
+        return None
 
-    # split line to full path and label
-    path = line.split()
+    resp = urllib.urlopen(url)
+    image = np.asarray(bytearray(resp.read()), dtype="uint8")
+    if image.size == 0:
+        return None
+    new_image = cv2.imdecode(image, cv2.IMREAD_COLOR)
 
-    if path == []:
-        continue
+    # return the image
+    return new_image
 
-    # Load numpy array (.npy), directory glob (*.jpg), or image file.
-    input_file = os.path.expanduser(path[0])
-    inputs = [caffe.io.load_image(input_file)]
-    #inputs = [Utils.get_cv2_img_array(input_file)]
+#def theDetector(image):
+def theDetector(url_or_np_array, face_coordinates):
 
-    print("Classifying %d inputs." % len(inputs))
+    print "Starting the genderism!"
+    # check if i get a url (= string) or np.ndarray
+    #if isinstance(url_or_np_array, basestring):
+    #    full_image = url_to_image(url_or_np_array)
+    #elif type(url_or_np_array) == np.ndarray:
+    #    full_image = url_or_np_array
+    if os.path.isdir(url_or_np_array):
+        print("Loading folder: %s" % url_or_np_array)
+        full_image = [caffe.io.load_image(im_f)
+                  for im_f in glob.glob(url_or_np_array + '/*.jpg')]
+    else:
+        print("Loading file")
+        full_image = caffe.io.load_image(url_or_np_array)
+
+    #checks if the face coordinates are inside the image
+    #height, width, channels = full_image.shape
+
+    #x, y, w, h = face_coordinates
+
+    #if x > width or x + w > width or y > height or y + h > height:
+    #    return None
+
+
+    # face_image = full_image[y: y + h, x: x + w]
+
+    #face_for_caffe = [cv2_image_to_caffe(full_image)]
+    #face_for_caffe = [caffe.io.load_image(face_image)]
+
+    #if face_for_caffe is None:
+    #    return None
 
     # Classify.
     start = time.time()
-    predictions = classifier.predict(inputs)
+    predictions = classifier.predict(full_image)
     print("Done in %.2f s." % (time.time() - start))
 
-    strapless_predict = predictions[0][0]
-    spaghetti_straps_predict = predictions[0][1]
-    straps_predict = predictions[0][2]
-    sleeveless_predict = predictions[0][3]
-    cap_sleeve_predict = predictions[0][4]
-    short_sleeve_predict = predictions[0][5]
-    midi_sleeve_predict = predictions[0][6]
-    long_sleeve_predict = predictions[0][7]
+    for i in range(1, len(predictions[:])):
+        if predictions[i][1] > 0.7:
+            print predictions[i][1]
+            print 'Male'
+        else:
+            print predictions[i][0]
+            print 'Female'
 
-    max_result = max(predictions[0])
-
-    max_result_index = np.argmax(predictions[0])
-
-    true_label = int(path[1])
-    predict_label = int(max_result_index)
-
-    if predict_label == true_label:
-        array_success_with_plus_minus_category = np.append(array_success_with_plus_minus_category, max_result)
-        array_success_without = np.append(array_success_without, max_result)
-    elif predict_label == 0 and true_label == 1:
-        array_success_with_plus_minus_category = np.append(array_success_with_plus_minus_category, max_result)
-        array_failure_without = np.append(array_failure_without, max_result)
-    elif predict_label == 7 and true_label == 6:
-        array_success_with_plus_minus_category = np.append(array_success_with_plus_minus_category, max_result)
-        array_failure_without = np.append(array_failure_without, max_result)
-    elif predict_label == (true_label + 1) or predict_label == (true_label - 1):
-        array_success_with_plus_minus_category = np.append(array_success_with_plus_minus_category, max_result)
-        array_failure_without = np.append(array_failure_without, max_result)
-    else:
-        array_failure_with_plus_minus_category = np.append(array_failure_with_plus_minus_category, max_result)
-        array_failure_without = np.append(array_failure_without, max_result)
-        print max_result
-
-    print counter
-
-
-success_with = len(array_success_with_plus_minus_category)
-failure_with = len(array_failure_with_plus_minus_category)
-
-success_without = len(array_success_without)
-failure_without = len(array_failure_without)
-
-if success_with == 0 or failure_with == 0:
-    print "wrong!"
-else:
-    print 'accuracy percent with +-category: {0}'.format(float(success_with) / (success_with + failure_with))
-    print 'accuracy percent without: {0}'.format(float(success_without) / (success_without + failure_without))
-
-histogram = plt.figure(1)
-
-plt.hist(array_success_with_plus_minus_category, bins=100, range=(0, 1), color='blue', label='array_success_with_plus_minus_category')
-plt.legend()
-
-plt.hist(array_failure_with_plus_minus_category, bins=100, range=(0, 1), color='red', label='array_failure_with_plus_minus_category')
-plt.legend()
-
-plt.hist(array_success_without, bins=100, range=(0, 1), color='green', label='array_success_without')
-plt.legend()
-
-plt.hist(array_failure_without, bins=100, range=(0, 1), color='pink', label='array_failure_without')
-plt.legend()
-
-histogram.savefig('db_dresses_histogram_iter_5000_cv.png')

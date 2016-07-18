@@ -194,7 +194,8 @@ def parse_logfile(f,logy):
       ax1.plot(training_iterations, training_loss, 'bo:', label=train_label)
       ax1.plot(test_iterations, test_loss, 'go:', label=test_label)
     ax1.set_xlabel('iterations/1000')
-    ax1.grid(True)
+    ax1.grid(True,which='both')
+    ax1.minorticks_on
 
     # Make the y-axis label and tick labels match the line color.
     ax1.set_ylabel('loss', color='b')
@@ -226,31 +227,49 @@ def parse_logfile(f,logy):
       subtitle=subtitle+'gama'+gamma
     plt.suptitle(subtitle,fontsize=8)
     #plt.draw()
+    try:
+      k = 1
+      a = -1
+      b = 1
+      x0 = 1000
+      guess = (k,a,b,x0)
+      params = curve_fit(fit_exp,training_iterations,training_loss,guess)
+      print('params:'+str(params))
+      k,a,b,x0 = params[0]
+      cov = params[1]
+      if cov[0][0] == np.inf:
+          print('bad fit')
+      else:
+          fit_y = fit_exp(training_iterations,k,a,b,x0)
+          ax1.plot(training_iterations,fit_y,linestyle='--',color='b')
+          middlex = training_iterations[len(training_iterations)/2]
+          middley = (np.max(training_loss)-np.min(training_loss))/2.0
+          ax1.text(middlex, middley, r'$y= b + k exp(a(x-x0)$', fontsize=15)
+          ax1.text(middlex, middley+1, 'b='+str(b), fontsize=15)
+    except:
+      print('trouble fitting')
+    if(0):
 
-    params = curve_fit(fit_exp,training_iterations,training_loss)
-    print('params:'+str(params))
-    k,a,b = params[0]
-    cov = params[1]
-    if cov[0][0] == np.inf:
-        print('bad fit')
-    else:
-        fit_y = fit_exp(training_iterations,k,a,b)
-        ax1.plot(training_iterations,fit_y,linestyle='--',color='b')
+        params = curve_fit(fit_log,training_iterations,training_loss)
+        print('params:'+str(params))
+        k,a,b,x0 = params[0]
+        cov = params[1]
+        if cov[0][0] > 1e4:
+            print('bad fit')
+        else:
+            fit_y = fit_exp(training_iterations,k,a,b)
+            ax1.plot(training_iterations,fit_y,linestyle='--',color='b')
+
 
   savename = args.output_file+'.jpg'
   plt.savefig(savename)
   plt.show()
 
-def fit_exp(x, k,a, b):
-    return k*np.exp(np.multiply(a,x)) + b
+def fit_exp(x, k,a, b, x0):
+    return k*np.exp(np.multiply(a,x-x0)) + b
 
-def fit_log(x, k,a, b):
-    return k*np.log(np.multiply(a,x)) + b
-
-
-
-
-
+def fit_log(x, k,a, b, x0):
+    return k*np.log(np.multiply(a,x-x0)) + b
 
 def parse_solveoutput(f):
   print('parsing solve.py (jrinference) output')
@@ -265,7 +284,6 @@ def parse_solveoutput(f):
   training_loss = []
   first_report = True
   extra_iters = 0
-
   for line in f:
 #    print('checking line:'+line)
     if '>>>' in line:

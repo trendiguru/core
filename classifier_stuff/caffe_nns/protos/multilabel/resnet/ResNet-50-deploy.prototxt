@@ -1,9 +1,11 @@
-name: "ResNet-50"
-input: "data"
-input_dim: 1
-input_dim: 3
-input_dim: 224
-input_dim: 224
+
+
+layer {
+  name: "data"
+  type: "Input"
+  top: "data"
+  input_param { shape: { dim: 1 dim: 3 dim: 224 dim: 224 } }
+}
 
 layer {
 	bottom: "data"
@@ -2301,20 +2303,39 @@ layer {
 	}
 }
 
-layer {
-	bottom: "pool5"
-	top: "fc1000"
-	name: "fc1000"
-	type: "InnerProduct"
-	inner_product_param {
-		num_output: 1000
-	}
-}
 
 layer {
-	bottom: "fc1000"
-	top: "prob"
-	name: "prob"
-	type: "Softmax"
+	bottom: "pool5"
+	top: "myfc21"
+	name: "myfc21"
+	type: "InnerProduct"
+	inner_product_param {
+		num_output: 21
+	}
+         param {
+                  lr_mult: 1
+                  decay_mult: 1
+                }
+         param {
+                  lr_mult: 2
+                  decay_mult: 0
+                }
 }
+
+#layer {
+#	bottom: "myfc21"#
+#	bottom: "labels"#
+#	top: "loss"
+#	name: "loss"
+#	type: "SigmoidCrossEntropyLoss"
+#}
+
+
+layer {
+  name: "score"
+  type: "Sigmoid"
+  bottom: "myfc21"
+  top: "score"
+}
+
 

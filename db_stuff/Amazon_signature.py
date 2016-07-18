@@ -99,8 +99,8 @@ def get_amazon_signed_url(parameters, get_or_post='GET', print_flag=True):
 #     'Timestamp': time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()),
 #     # 'IdType': 'ASIN',
 #     'ItemPage': '10',
-#     # 'MaximumPrice':'3100',
-#     # 'MinimumPrice':'3099',
+#     'MaximumPrice':'3099',
+#     'MinimumPrice':'3099',
 #     'ResponseGroup': 'ItemAttributes, OfferSummary,Images'}
 #
 # # parameters['Operation'] = 'BrowseNodeLookup'
