@@ -51,7 +51,7 @@ clickUrl -> Item.DetailPageURL
 
 '''
 from Amazon_signature import get_amazon_signed_url
-from time import strftime,gmtime,sleep
+from time import strftime,gmtime,sleep,time
 from requests import get
 import xmltodict
 from ..constants import db
@@ -73,6 +73,25 @@ base_parameters = {
     'Timestamp': strftime("%Y-%m-%dT%H:%M:%SZ", gmtime()),
     'ResponseGroup': 'ItemAttributes, OfferSummary,Images'}
 
+last_time = time()
+
+
+def proper_wait(print_flag=False):
+    global last_time
+    current_time = time()
+    time_diff = current_time - last_time
+    if time_diff < 1.001:
+        sleep(1.001 - time_diff)
+        current_time = time()
+    if print_flag:
+        print ('time diff: %f' % (current_time - last_time))
+    last_time = current_time
+
+def print_error(title,message):
+    print ('\n------------------------------------%s-----------------------------------------' % title)
+    print (message)
+    print ('------------------------------------%s-----------------------------------------\n' % title)
+
 
 def log2file(mode='w', LOG_FILENAME='/home/developer/yonti/amazon_download_stats.log'):
     logger = logging.getLogger(__name__)
@@ -83,14 +102,20 @@ def log2file(mode='w', LOG_FILENAME='/home/developer/yonti/amazon_download_stats
     return logger, handler
 
 
+def truncate_float_to_2_decimal_places(float2round,true_4_str=False):
+    float_as_int = int(float2round*100)
+    if true_4_str:
+        return str(float_as_int)
+
+    return float_as_int/100.00
+
+
 def format_price(price_float, period=False):
     """
     input - float
     output - string
     """
-    pricex100 = price_float*100
-    price_int = int(pricex100)
-    price_str = str(price_int)
+    price_str = truncate_float_to_2_decimal_places(price_float, true_4_str=True)
 
     # verify 4 character string
     while len(price_str)<4:
@@ -102,30 +127,55 @@ def format_price(price_float, period=False):
     return price_str
 
 
-def process_results(pagenum, node_id, min_price, max_price, res_dict=None, items_in_page=10):
-
-    if pagenum is not 1:
-        parameters = base_parameters.copy()
-        parameters['Timestamp'] = strftime("%Y-%m-%dT%H:%M:%SZ", gmtime())
-        parameters['SearchIndex'] = 'FashionWomen'
-        parameters['BrowseNode'] = node_id
+def make_itemsearch_request(pagenum, node_id, min_price, max_price, price_flag=True):
+    parameters = base_parameters.copy()
+    parameters['Timestamp'] = strftime("%Y-%m-%dT%H:%M:%SZ", gmtime())
+    parameters['SearchIndex'] = 'FashionWomen'
+    parameters['BrowseNode'] = node_id
+    if not price_flag:
+        parameters['ResponseGroup'] = 'SearchBins'
+    else:
         parameters['ItemPage'] = str(pagenum)
         parameters['MinimumPrice'] = format_price(min_price)
         parameters['MaximumPrice'] = format_price(max_price)
 
-        sleep(1.1)
-        res = get(get_amazon_signed_url(parameters, 'GET', False))
+    req = get_amazon_signed_url(parameters, 'GET', False)
+    proper_wait(True)
+    res = get(req)
 
-        if res.status_code != 200:
-            # print ('Bad request!!!')
+    if res.status_code != 200:
+        print_error('Bad request', req)
+        return [], -1
+
+    res_dict = dict(xmltodict.parse(res.text))
+    if 'ItemSearchResponse' not in res_dict.keys():
+        print_error('No ItemSearchResponse', req)
+        return [], -1
+
+    res_dict = dict(res_dict['ItemSearchResponse']['Items'])
+    if 'TotalResults' in res_dict.keys():
+        results_count = int(res_dict['TotalResults'])
+    else:
+        print_error('bad query', req)
+        return [], -1
+
+    if 'Errors' in res_dict.keys():
+        print_error('Error', req)
+        return [], -1
+
+    if results_count == 0:
+        price_range = 'PriceRange: %s -> %s ' % (format_price(min_price, True), format_price(max_price, True))
+        print_error('no results', price_range)
+        return [], -1
+
+    return res_dict, results_count
+
+
+def process_results(pagenum, node_id, min_price, max_price, res_dict=None, items_in_page=10):
+    if pagenum is not 1:
+        res_dict, new_item_count = make_itemsearch_request(pagenum, node_id, min_price, max_price)
+        if new_item_count < 0:
             return 0
-
-        res_dict = dict(xmltodict.parse(res.text))
-        if 'ItemSearchResponse' not in res_dict.keys():
-            print ('No ItemSearchResponse')
-            return 0
-
-        res_dict = dict(res_dict['ItemSearchResponse']['Items'])
 
     item_list = res_dict['Item']
     new_item_count = 0
@@ -240,63 +290,41 @@ def process_results(pagenum, node_id, min_price, max_price, res_dict=None, items
 
 
 def get_results(node_id, price_flag=True, max_price=10000.0, min_price=0.0, results_count_only=False, name='moshe'):
-    parameters = base_parameters.copy()
-    parameters['Timestamp'] = strftime("%Y-%m-%dT%H:%M:%SZ", gmtime())
-    parameters['SearchIndex'] = 'FashionWomen'
-    parameters['BrowseNode'] = node_id
-    if not price_flag:
-        parameters['ResponseGroup'] = 'SearchBins'
-    else:
-        parameters['MinimumPrice'] = format_price(min_price)
-        parameters['MaximumPrice'] = format_price(max_price)
 
-    sleep(1)
-    request_url = get_amazon_signed_url(parameters, 'GET', False)
-    res = get(request_url)
-
-    if res.status_code != 200:
-        # print ('Bad request!!!')
+    res_dict, results_count = make_itemsearch_request(1, node_id, min_price, max_price, price_flag=price_flag)
+    if results_count < 0:
         return 0
 
-    res_dict = dict(xmltodict.parse(res.text))
-    if 'ItemSearchResponse' not in res_dict.keys():
-        print ('No ItemSearchResponse')
-        return 0
+    if results_count_only:
+        return results_count
 
-    res_dict = dict(res_dict['ItemSearchResponse']['Items'])
-    if 'TotalResults' in res_dict.keys():
-        results_count = int(res_dict['TotalResults'])
-        if results_count_only:
-            return results_count
-    else:
-        print ('bad query')
-        return 0
-
-    if 'Errors' in res_dict.keys() or results_count == 0:
-        # print('\nError / no results \n checkout the request: \n %s \n' % request_url)
-        return 0
-
+    total_pages = None
     if results_count > 100:
-        mid_price = (max_price+min_price)/2.00
-        divided_flag = False
-        if (max_price-mid_price) >= 0.005:
-            get_results(node_id, min_price=mid_price, max_price=max_price, name=name)
-            divided_flag = True
-        if (mid_price - min_price) >= 0.005:
-            get_results(node_id, min_price=min_price, max_price=mid_price, name=name)
-            divided_flag = True
-        if divided_flag:
+        if min_price == max_price:
+            total_pages=10
+        elif (max_price-min_price) == 0.01:
+            get_results(node_id, min_price=min_price, max_price=min_price, name=name)
+            get_results(node_id, min_price=max_price, max_price=max_price, name=name)
+            return 0
+        else:
+            mid_price = (max_price+min_price)/2.00
+            mid_price_rounded = truncate_float_to_2_decimal_places(mid_price)
+            get_results(node_id, min_price=mid_price_rounded, max_price=max_price, name=name)
+            get_results(node_id, min_price=min_price, max_price=mid_price_rounded, name=name)
             return 0
 
-    total_pages = int(res_dict['TotalPages'])+1
-    if total_pages==2:
+    total_pages = total_pages or int(res_dict['TotalPages'])
+    if total_pages == 1:
         num_of_items_in_page = results_count
     else:
-        num_of_items_in_page=10
-    new_items_count = process_results(1,node_id, min_price, max_price, res_dict, items_in_page=num_of_items_in_page)
-    for pagenum in range(2,total_pages):
-        if pagenum==(total_pages-1):
+        num_of_items_in_page = 10
+    new_items_count = process_results(1, node_id, min_price, max_price, res_dict, items_in_page=num_of_items_in_page)
+
+    for pagenum in range(2, total_pages+1):
+        if pagenum == total_pages:
             num_of_items_in_page = results_count-10*(pagenum-1)
+            if num_of_items_in_page < 2:
+                break
         new_items_count += process_results(pagenum, node_id, min_price, max_price,
                                            items_in_page=num_of_items_in_page)
 
@@ -319,15 +347,16 @@ def build_category_tree(root='7141124011', tab=0, parents=[], delete_collection=
     parameters['Operation'] = 'BrowseNodeLookup'
     parameters['ResponseGroup'] = 'BrowseNodeInfo'
     parameters['BrowseNodeId'] = root
-    res = get(get_amazon_signed_url(parameters, 'GET', False))
+    req = get_amazon_signed_url(parameters, 'GET', False)
+    res = get(req)
 
     if res.status_code != 200 :
-        # print ('Bad request!!!')
+        print_error('Bad request', req)
         return None
 
     res_dict = dict(xmltodict.parse(res.text))
     if 'BrowseNodeLookupResponse' not in res_dict.keys():
-        print ('No BrowseNodeLookupResponse')
+        print_error('No BrowseNodeLookupResponse', req)
         return None
 
     res_dict = dict(res_dict['BrowseNodeLookupResponse']['BrowseNodes']['BrowseNode'])
@@ -362,7 +391,7 @@ def build_category_tree(root='7141124011', tab=0, parents=[], delete_collection=
         p.append(name)
 
     for child in children:
-        sleep(1.5)
+        sleep(1.01)
         if 'BrowseNodeId' not in child.keys():
             continue
         child_id = child['BrowseNodeId']
@@ -396,7 +425,7 @@ def download_all(delete_collection=False):
             if idx_1 not in indexes:
                 collection.create_index(idx, background=True)
 
-    leafs = db.amazon_category_tree.find({'Children.count': 0, 'Parents': 'Men'})
+    leafs = db.amazon_category_tree.find({'Children.count': 0})  # , 'Parents': 'Men'})
     for leaf in leafs:
         leaf_name = '->'.join(leaf['Parents']) + '->' + leaf['Name']
         node_id = leaf['BrowseNodeId']
