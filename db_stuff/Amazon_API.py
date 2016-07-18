@@ -479,8 +479,8 @@ def download_all(country_code='US', gender='Female', delete_collection=False, de
             cache = {'node_id': node_id}
             collection_cache.insert_one(cache)
 
-        except:
-            print_error('ERROR', 'node id: %s failed!' % node_id)
+        except Exception as e:
+            print_error('ERROR', 'node id: %s failed!\n %s' % (node_id,e))
             continue
 
 for gender in ['Female', 'Male']:
