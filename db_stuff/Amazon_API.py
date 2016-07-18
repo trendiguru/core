@@ -340,7 +340,7 @@ def get_results(collection_name, node_id, price_flag=True, max_price=100000.0, m
                                            min_price=max_price, max_price=max_price, name=name)
             return new_items_count
         else:
-            print_error('diff > 0.02')
+            print_error('diff > 0.02 for price range: %d -> %d' % (min_price, max_price))
             mid_price = (max_price+min_price)/2.0
             mid_price_rounded = truncate_float_to_2_decimal_places(mid_price)
             new_items_count += get_results(collection_name, node_id,
