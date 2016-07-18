@@ -446,7 +446,12 @@ def download_all(country_code='US', gender='Female', delete_collection=False, de
     if delete_cache:
         pymongo_utils.delete_or_and_index(cache_name, ['node_id'], delete_flag=True)
 
-    leafs = db.amazon_category_tree.find({'Children.count': 0, 'Parents': gender})
+    if gender is 'Female':
+        parent_gender = 'Women'
+    else:
+        parent_gender = 'Men'
+
+    leafs = db.amazon_category_tree.find({'Children.count': 0, 'Parents': parent_gender})
     for leaf in leafs:
         leaf_name = '->'.join(leaf['Parents']) + '->' + leaf['Name']
         node_id = leaf['BrowseNodeId']
@@ -463,6 +468,6 @@ def download_all(country_code='US', gender='Female', delete_collection=False, de
         except:
             continue
 
-for gender in ['Female', 'Men']:
-    download_all(country_code='US', gender=gender)
+for gender in ['Female', 'Male']:
+    download_all(country_code='US', gender=gender, delete_collection=True, delete_cache=True)
 
