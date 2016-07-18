@@ -13,6 +13,7 @@ from trendi import background_removal, Utils, constants
 import cv2
 import urllib
 import skimage
+import requests
 
 
 MODLE_FILE = "/home/yonatan/trendi/yonatan/Alexnet_deploy.prototxt"
@@ -47,8 +48,7 @@ def url_to_image(url):
     print image
     if image.size == 0:
         return None
-    #new_image = image
-    #new_image = image.fromarray()
+
     new_image = cv2.imdecode(image, cv2.IMREAD_COLOR)
     print new_image
 
@@ -62,7 +62,9 @@ def theDetector(url_or_np_array, face_coordinates):
     print "Starting the genderism!"
     # check if i get a url (= string) or np.ndarray
     if isinstance(url_or_np_array, basestring):
-        full_image = url_to_image(url_or_np_array)
+        #full_image = url_to_image(url_or_np_array)
+        response = requests.get(url_or_np_array)  # download
+        full_image = cv2.imdecode(np.asarray(bytearray(response.content)), 1)
     elif type(url_or_np_array) == np.ndarray:
         full_image = url_or_np_array
     else:
