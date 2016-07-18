@@ -329,7 +329,7 @@ def get_results(collection_name, node_id, price_flag=True, max_price=100000.0, m
     total_pages = int(res_dict['TotalPages'])
 
     if results_count > 100:
-        if min_price == max_price:
+        if (max_price - min_price) < 0.01:
             total_pages=10
             print_error('same')
         elif (max_price-min_price) < 0.02:
