@@ -149,7 +149,6 @@ def make_itemsearch_request(pagenum, node_id, min_price, max_price, price_flag=T
     req = get_amazon_signed_url(parameters, 'GET', False)
     proper_wait(True)
     res = get(req)
-    print ('get succeded')
     if res.status_code != 200:
         print_error('Bad request', req)
         return [], -1
@@ -307,7 +306,7 @@ def get_results(collection_name, node_id, price_flag=True, max_price=10000.0, mi
 
     if results_count_only:
         return results_count
-
+    print('1')
     total_pages = None
     if results_count > 100:
         if min_price == max_price:
@@ -322,6 +321,7 @@ def get_results(collection_name, node_id, price_flag=True, max_price=10000.0, mi
             get_results(node_id, min_price=mid_price_rounded, max_price=max_price, name=name)
             get_results(node_id, min_price=min_price, max_price=mid_price_rounded, name=name)
             return 0
+    print('2')
 
     total_pages = total_pages or int(res_dict['TotalPages'])
     if total_pages == 1:
