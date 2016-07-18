@@ -5,7 +5,7 @@ __author__ = 'yonatan_guy'
 import numpy as np
 import os
 import caffe
-from caffe_batch_infer import caffe
+import caffe_batch_infer
 import sys
 import argparse
 import glob
