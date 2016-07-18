@@ -48,10 +48,11 @@ clickUrl -> Item.DetailPageURL
 1. query in itemsearch
 2. find unique parentASIN
 3. use these ParentASIN to do ItemLookup
-
 '''
+
+
 from Amazon_signature import get_amazon_signed_url
-from time import strftime,gmtime,sleep,time
+from time import strftime, gmtime, sleep, time
 from requests import get
 import xmltodict
 from ..constants import db
@@ -67,7 +68,7 @@ blacklist = ['Jewelry', 'Watches', 'Handbags', 'Accessories', 'Lingerie, Sleep &
 base_parameters = {
     'AWSAccessKeyId': 'AKIAIQJZVKJKJUUC4ETA',
     'AssociateTag': 'fazz0b-20',
-    'Version':'2013-08-01',
+    'Version': '2013-08-01',
     'Availability': 'Available',
     'Operation': 'ItemSearch',
     'Service': 'AWSECommerceService',
@@ -100,16 +101,16 @@ def print_error(title, message=''):
         print ('\n%s\n' % dotted_line)
 
 
-def log2file(mode='w', LOG_FILENAME='/home/developer/yonti/amazon_download_stats.log'):
+def log2file(mode='w', log_filename='/home/developer/yonti/amazon_download_stats.log'):
     logger = logging.getLogger(__name__)
     logger.setLevel(logging.INFO)
-    handler = logging.FileHandler(LOG_FILENAME, mode=mode)
+    handler = logging.FileHandler(log_filename, mode=mode)
     handler.setLevel(logging.INFO)
     logger.addHandler(handler)
     return logger, handler
 
 
-def truncate_float_to_2_decimal_places(float2round,true_4_str=False):
+def truncate_float_to_2_decimal_places(float2round, true_4_str=False):
     float_as_int = int(float2round*100)
     if true_4_str:
         return str(float_as_int)
@@ -125,7 +126,7 @@ def format_price(price_float, period=False):
     price_str = truncate_float_to_2_decimal_places(price_float, true_4_str=True)
 
     # verify 4 character string
-    while len(price_str)<4:
+    while len(price_str) < 4:
         price_str = '0'+price_str
 
     if period:
@@ -134,7 +135,7 @@ def format_price(price_float, period=False):
     return price_str
 
 
-def make_itemsearch_request(pagenum, node_id, min_price, max_price, price_flag=True):
+def make_itemsearch_request(pagenum, node_id, min_price, max_price, price_flag=True, print_flag=False):
     parameters = base_parameters.copy()
     parameters['Timestamp'] = strftime("%Y-%m-%dT%H:%M:%SZ", gmtime())
     parameters['SearchIndex'] = 'FashionWomen'
@@ -150,41 +151,49 @@ def make_itemsearch_request(pagenum, node_id, min_price, max_price, price_flag=T
     proper_wait()
     res = get(req)
     if res.status_code != 200:
-        print_error('Bad request', req)
+        if print_flag:
+            print_error('Bad request', req)
         return [], -1
 
     res_dict = dict(xmltodict.parse(res.text))
     if 'ItemSearchResponse' not in res_dict.keys():
-        print_error('No ItemSearchResponse', req)
-        return [], -1
+        if print_flag:
+            print_error('No ItemSearchResponse', req)
+        return [], -2
 
     res_dict = dict(res_dict['ItemSearchResponse']['Items'])
     if 'TotalResults' in res_dict.keys():
         results_count = int(res_dict['TotalResults'])
     else:
-        print_error('bad query', req)
-        return [], -1
+        if print_flag:
+            print_error('bad query', req)
+        return [], -3
 
     if results_count == 0:
-        price_range = 'PriceRange: %s -> %s ' % (format_price(min_price, True), format_price(max_price, True))
-        print_error('no results for %s' % price_range)
-        return [], -1
+        if print_flag:
+            price_range = 'PriceRange: %s -> %s ' % (format_price(min_price, True), format_price(max_price, True))
+            print_error('no results for %s' % price_range)
+        return [], -4
 
     if 'TotalPages' not in res_dict.keys():
-        print_error('no TotalPages in dict keys')
-        return [], -1
+        if print_flag:
+            print_error('no TotalPages in dict keys')
+        return [], -5
 
     if 'Errors' in res_dict.keys():
-        print_error('Error', req)
-        return [], -1
+        if print_flag:
+            print_error('Error', req)
+        return [], -6
 
     return res_dict, results_count
 
 
-def process_results(collection_name, pagenum, node_id, min_price, max_price, res_dict=None, items_in_page=10):
+def process_results(collection_name, pagenum, node_id, min_price, max_price, family_tree, res_dict=None,
+                    items_in_page=10, print_flag=False):
     if pagenum is not 1:
-        res_dict, new_item_count = make_itemsearch_request(pagenum, node_id, min_price, max_price)
-        if new_item_count < 0:
+        res_dict, new_item_count = make_itemsearch_request(pagenum, node_id, min_price, max_price,
+                                                           print_flag=print_flag)
+        if new_item_count < 2:
             return 0
 
     item_list = res_dict['Item']
@@ -193,17 +202,7 @@ def process_results(collection_name, pagenum, node_id, min_price, max_price, res
     for x, item in enumerate(item_list):
         if (x+1) > items_in_page:
             break
-        # asin = 0
-        # parent_asin = 0
-        # click_url = 0
-        # image = 0
-        # price = 0
-        # atttibutes=0
-        # color = 0
-        # sizes = 0
-        # short_d = 0
-        # long_d = 0
-        # features = 0
+
         try:
             item_keys = item.keys()
             if 'ASIN' not in item_keys:
@@ -221,7 +220,8 @@ def process_results(collection_name, pagenum, node_id, min_price, max_price, res
             elif 'SmallImage' in item_keys:
                 image = item['SmallImage']['URL']
             else:
-                print_error('No image')
+                if print_flag:
+                    print_error('No image')
                 continue
 
             offer = item['OfferSummary']['LowestNewPrice']
@@ -235,7 +235,8 @@ def process_results(collection_name, pagenum, node_id, min_price, max_price, res
             elif 'Size' in attr_keys:
                 clothing_size = attributes['Size']
             else:
-                print_error('No Size', attr_keys)
+                if print_flag:
+                    print_error('No Size', attr_keys)
                 continue
 
             if 'Brand' in attr_keys:
@@ -246,7 +247,7 @@ def process_results(collection_name, pagenum, node_id, min_price, max_price, res
             if 'ProductTypeName' in attr_keys:
                 category = attributes['ProductTypeName']
             else:
-                category='2BDtermind'
+                category = '2BDtermind'
 
             color = attributes['Color']
             sizes = [clothing_size]
@@ -273,11 +274,12 @@ def process_results(collection_name, pagenum, node_id, min_price, max_price, res
                 sizes = parent_asin_exists['features']['sizes']
                 if clothing_size not in sizes:
                     sizes.append(clothing_size)
-                    collection.update_one({'_id': parent_asin_exists['_id']}, {'$set':{'features.sizes': sizes}})
+                    collection.update_one({'_id': parent_asin_exists['_id']}, {'$set': {'features.sizes': sizes}})
                     # print ('added another size to existing item')
                 else:
                     pass
-                    # print ('parent_asin + color + size already exists ----- %s->%s' % (features['color'], clothing_size))
+                    # print ('parent_asin + color + size already exists ----- %s->%s' % (features['color'],
+                    #  clothing_size))
                 continue
             # print('????????????????????????????????????')
             new_item = {'asin': asin,
@@ -290,36 +292,42 @@ def process_results(collection_name, pagenum, node_id, min_price, max_price, res
                         'shortDescription': short_d,
                         'longDescription': long_d,
                         'brand': brand,
-                        'categories': category}
+                        'categories': category,
+                        'raw_info': attributes,
+                        'tree': family_tree}
 
             # print 'inserting'
             collection.insert_one(new_item)
             # print 'item inserted\n'
             new_item_count += 1
 
-        except:
-            print ('---------------problem in the way-------------')
-            # print (asin)
-            # print(parent_asin)
-            # print(click_url)
-            # print(image)
-            # print(price)
-            # print(features)
-            # print (atttibutes)
-            # print(color)
-            # print(sizes)
-            # print(short_d)
-            # print(long_d)
-            # raw_input()
+        except Exception as e:
+            print_error('ERROR', str(e))
             pass
 
     return new_item_count
 
 
-def get_results(collection_name, node_id, price_flag=True, max_price=100000.0, min_price=0.0, results_count_only=False, name='moshe'):
+def log2file_and_print(name, min_price, max_price, results_count, new_items_count):
+    summary = 'Name: %s, PriceRange: %s -> %s , ResultCount: %d (%d)' \
+              % (name, format_price(min_price, True), format_price(max_price, True), results_count, new_items_count)
+    logger, handler = log2file(mode='a')
+    logger.info(summary)
+    logger.removeHandler(handler)
+    del logger, handler
+    print (summary)
+
+
+def get_results(collection_name, node_id, price_flag=True, max_price=3000.0, min_price=0.0, results_count_only=False,
+                family_tree='moshe'):
+
+    cache_name = collection_name+'_cache'
+    collection_cache = db[cache_name]
+    collection_cache.update_one({'node_id':node_id}, {'$set':{'last_max':max_price}})
 
     res_dict, results_count = make_itemsearch_request(1, node_id, min_price, max_price, price_flag=price_flag)
-    if results_count < 0:
+    if results_count < 2:
+        log2file_and_print(family_tree, min_price, max_price, results_count, 0)
         return 0
 
     if results_count_only:
@@ -329,32 +337,33 @@ def get_results(collection_name, node_id, price_flag=True, max_price=100000.0, m
     total_pages = int(res_dict['TotalPages'])
 
     if results_count > 100:
-        if min_price == max_price:
-            total_pages=10
-            print_error('same')
-        elif (max_price-min_price) < 0.02:
-            print_error('diff == 0.01')
+        if (max_price - min_price) <= 0.01:
+            total_pages = 10
+            # print_error('same')
+        elif (max_price-min_price) <= 0.02:
+            # print_error('diff == 0.01')
             new_items_count += get_results(collection_name, node_id,
-                                           min_price=min_price, max_price=min_price, name=name)
+                                           min_price=max_price, max_price=max_price, family_tree=family_tree)
             new_items_count += get_results(collection_name, node_id,
-                                           min_price=max_price, max_price=max_price, name=name)
+                                           min_price=min_price, max_price=min_price, family_tree=family_tree)
+
             return new_items_count
         else:
-            print_error('more than 100 results for price range: %f -> %f' % (min_price,
-                                                                             max_price))
+            # print_error('more than 100 results for price range: %f -> %f' % (min_price, max_price))
             mid_price = (max_price+min_price)/2.0
             mid_price_rounded = truncate_float_to_2_decimal_places(mid_price)
             new_items_count += get_results(collection_name, node_id,
-                                           min_price=mid_price_rounded, max_price=max_price, name=name)
+                                           min_price=mid_price_rounded, max_price=max_price, family_tree=family_tree)
             new_items_count += get_results(collection_name, node_id,
-                                           min_price=min_price, max_price=mid_price_rounded, name=name)
+                                           min_price=min_price, max_price=mid_price_rounded, family_tree=family_tree)
             return new_items_count
 
     if total_pages == 1:
         num_of_items_in_page = results_count
     else:
         num_of_items_in_page = 10
-    new_items_count += process_results(collection_name, 1, node_id, min_price, max_price, res_dict, items_in_page=num_of_items_in_page)
+    new_items_count += process_results(collection_name, 1, node_id, min_price, max_price, family_tree=family_tree,
+                                       res_dict=res_dict, items_in_page=num_of_items_in_page)
 
     for pagenum in range(2, total_pages+1):
         if pagenum == total_pages:
@@ -362,16 +371,11 @@ def get_results(collection_name, node_id, price_flag=True, max_price=100000.0, m
             if num_of_items_in_page < 2:
                 break
         new_items_count += process_results(collection_name, pagenum, node_id, min_price, max_price,
-                                           items_in_page=num_of_items_in_page)
+                                           family_tree=family_tree, items_in_page=num_of_items_in_page)
 
-    summary = 'Name: %s, PriceRange: %s -> %s , ResultCount: %d (%d)'\
-              % (name, format_price(min_price, True), format_price(max_price, True), results_count, new_items_count)
-    logger, handler = log2file(mode='a')
-    logger.info(summary)
-    logger.removeHandler(handler)
-    del logger, handler
-    print (summary)
+    log2file_and_print(family_tree, min_price, max_price, results_count, new_items_count)
     return new_items_count
+
 
 def build_category_tree(root='7141124011', tab=0, parents=[], delete_collection=False):
 
@@ -454,7 +458,8 @@ def delete_and_index(collection_name, index_list):
 
 
 def download_all(country_code='US', gender='Female', delete_collection=False, delete_cache=False):
-    collection_name = 'amazon_%s_%s' %(country_code, gender)
+
+    collection_name = 'amazon_%s_%s' % (country_code, gender)
     cache_name = collection_name+'_cache'
     collection_cache = db[cache_name]
     # build_category_tree(delete_collection=delete_collection)
@@ -478,20 +483,30 @@ def download_all(country_code='US', gender='Female', delete_collection=False, de
         parent_gender = 'Men'
 
     leafs = db.amazon_category_tree.find({'Children.count': 0, 'Parents': parent_gender})
+
     for leaf in leafs:
         leaf_name = '->'.join(leaf['Parents']) + '->' + leaf['Name']
         node_id = leaf['BrowseNodeId']
         cache_exists = collection_cache.find_one({'node_id': node_id})
+        max_price = 3000.0
         if cache_exists:
-            print ('node id: %s already downloaded!')
-            continue
+            if cache_exists['last_max'] > 0.00:
+                max_price = cache_exists['last_max']
+            else:
+                print ('node id: %s already downloaded!')
+                continue
+        else:
+            cache = {'node_id': node_id,
+                     'item_count': 0,
+                     'last_max': max_price}
+            collection_cache.insert_one(cache)
 
         try:
-            new_items_count = get_results(collection_name, node_id, results_count_only=False, name=leaf_name)
+            new_items_count = get_results(collection_name, node_id, max_price=max_price, results_count_only=False,
+                                          family_tree=leaf_name)
             print('node id: %s download done -> %d new_items downloaded' % (node_id, new_items_count))
-            cache = {'node_id': node_id,
-                     'item_count': new_items_count}
-            collection_cache.insert_one(cache)
+            collection_cache.update_one({'node_id': node_id},
+                                        {'$set': {'item_count': new_items_count, 'last_max': 0.00}})
 
         except Exception as e:
             print_error('ERROR', 'node id: %s failed!\n %s' % (node_id, e))
@@ -499,4 +514,3 @@ def download_all(country_code='US', gender='Female', delete_collection=False, de
 
 for gender in ['Female', 'Male']:
     download_all(country_code='US', gender=gender, delete_collection=True, delete_cache=True)
-
