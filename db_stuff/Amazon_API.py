@@ -76,6 +76,7 @@ base_parameters = {
     'ResponseGroup': 'ItemAttributes, OfferSummary,Images'}
 
 last_time = time()
+last_max = 3000.0
 
 
 def proper_wait(print_flag=False):
@@ -318,9 +319,10 @@ def log2file_and_print(name, min_price, max_price, results_count, new_items_coun
     print (summary)
 
 
-def get_results(collection_name, node_id, price_flag=True, max_price=2500.0, min_price=0.0, results_count_only=False,
+def get_results(collection_name, node_id, price_flag=True, max_price=3000.0, min_price=0.0, results_count_only=False,
                 family_tree='moshe'):
-
+    global last_max
+    last_max = max_price
     res_dict, results_count = make_itemsearch_request(1, node_id, min_price, max_price, price_flag=price_flag)
     if results_count < 2:
         log2file_and_print(family_tree, min_price, max_price, results_count, 0)
@@ -454,6 +456,8 @@ def delete_and_index(collection_name, index_list):
 
 
 def download_all(country_code='US', gender='Female', delete_collection=False, delete_cache=False):
+    global last_max
+
     collection_name = 'amazon_%s_%s' % (country_code, gender)
     cache_name = collection_name+'_cache'
     collection_cache = db[cache_name]
@@ -478,24 +482,33 @@ def download_all(country_code='US', gender='Female', delete_collection=False, de
         parent_gender = 'Men'
 
     leafs = db.amazon_category_tree.find({'Children.count': 0, 'Parents': parent_gender})
+
     for leaf in leafs:
         leaf_name = '->'.join(leaf['Parents']) + '->' + leaf['Name']
         node_id = leaf['BrowseNodeId']
         cache_exists = collection_cache.find_one({'node_id': node_id})
+        max_price = 3000.0
+        last_max = max_price
         if cache_exists:
-            print ('node id: %s already downloaded!')
-            continue
+            if cache_exists['last_max'] > 0:
+                max_price = cache_exists['last_max']
+            else:
+                print ('node id: %s already downloaded!')
+                continue
 
         try:
-            new_items_count = get_results(collection_name, node_id, results_count_only=False, family_tree=leaf_name)
+            new_items_count = get_results(collection_name, node_id, max_price=max_price, results_count_only=False,
+                                          family_tree=leaf_name)
             print('node id: %s download done -> %d new_items downloaded' % (node_id, new_items_count))
-            cache = {'node_id': node_id,
-                     'item_count': new_items_count}
-            collection_cache.insert_one(cache)
+            last_max = 0.00
 
         except Exception as e:
             print_error('ERROR', 'node id: %s failed!\n %s' % (node_id, e))
 
+        cache = {'node_id': node_id,
+                 'item_count': new_items_count,
+                 'last_max': last_max}
+        collection_cache.insert_one(cache)
 
 for gender in ['Female', 'Male']:
     download_all(country_code='US', gender=gender, delete_collection=True, delete_cache=True)
