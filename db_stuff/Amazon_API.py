@@ -78,7 +78,7 @@ base_parameters = {
 last_time = time()
 
 
-def proper_wait(print_flag=False):
+def proper_wait(print_flag=True):
     global last_time
     current_time = time()
     time_diff = current_time - last_time
@@ -489,7 +489,6 @@ def download_all(country_code='US', gender='Female', delete_collection=False, de
         node_id = leaf['BrowseNodeId']
         cache_exists = collection_cache.find_one({'node_id': node_id})
         max_price = 3000.0
-        last_max = max_price
         if cache_exists:
             if cache_exists['last_max'] > 0.00:
                 max_price = cache_exists['last_max']
@@ -514,4 +513,4 @@ def download_all(country_code='US', gender='Female', delete_collection=False, de
 
 
 for gender in ['Female', 'Male']:
-    download_all(country_code='US', gender=gender, delete_collection=True, delete_cache=False)
+    download_all(country_code='US', gender=gender, delete_collection=True, delete_cache=True)
