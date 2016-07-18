@@ -313,7 +313,9 @@ def log2file_and_print(name, min_price, max_price, results_count, new_items_coun
     del logger, handler
     print (summary)
 
-def get_results(collection_name, node_id, price_flag=True, max_price=100000.0, min_price=0.0, results_count_only=False, name='moshe'):
+
+def get_results(collection_name, node_id, price_flag=True, max_price=2500.0, min_price=0.0, results_count_only=False,
+                name='moshe'):
 
     res_dict, results_count = make_itemsearch_request(1, node_id, min_price, max_price, price_flag=price_flag)
     if results_count < 2:
