@@ -78,7 +78,7 @@ base_parameters = {
 last_time = time()
 
 
-def proper_wait(print_flag=True):
+def proper_wait(print_flag=False):
     global last_time
     current_time = time()
     time_diff = current_time - last_time
