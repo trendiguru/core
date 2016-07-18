@@ -44,9 +44,13 @@ def url_to_image(url):
 
     resp = urllib.urlopen(url)
     image = np.asarray(bytearray(resp.read()), dtype="uint8")
+    print image
     if image.size == 0:
         return None
+    #new_image = image
+    #new_image = image.fromarray()
     new_image = cv2.imdecode(image, cv2.IMREAD_COLOR)
+    print new_image
 
     # return the image
     return new_image
