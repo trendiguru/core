@@ -65,14 +65,14 @@ def theDetector(url_or_np_array, face_coordinates):
         full_image = url_to_image(url_or_np_array)
     elif type(url_or_np_array) == np.ndarray:
         full_image = url_or_np_array
-    elif os.path.isdir(url_or_np_array):
-        print("Loading folder: %s" % url_or_np_array)
-        full_image =[caffe.io.load_image(im_f)
-                 for im_f in glob.glob(url_or_np_array + '/*.jpg')]
     else:
         return None
 
     #checks if the face coordinates are inside the image
+    if full_image is None:
+        print "not a good image"
+        return None
+
     height, width, channels = full_image.shape
 
     x, y, w, h = face_coordinates
