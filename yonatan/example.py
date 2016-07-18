@@ -45,7 +45,8 @@ def get_transformer(deploy_file, mean_file=None):
     network = caffe_pb2.NetParameter()
     with open(deploy_file) as infile:
         text_format.Merge(infile.read(), network)
-    print network.input_shape
+    print "network.input_shape: " + network.input_shape
+    print "network.input_dim: " + network.input_dim
     if network.input_shape:
         dims = network.input_shape[0].dim
         print "i'm in the if"
