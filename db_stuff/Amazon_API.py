@@ -158,7 +158,7 @@ def make_itemsearch_request(pagenum, node_id, min_price, max_price, price_flag=T
     if 'ItemSearchResponse' not in res_dict.keys():
         if print_flag:
             print_error('No ItemSearchResponse', req)
-        return [], -1
+        return [], -2
 
     res_dict = dict(res_dict['ItemSearchResponse']['Items'])
     if 'TotalResults' in res_dict.keys():
@@ -166,23 +166,23 @@ def make_itemsearch_request(pagenum, node_id, min_price, max_price, price_flag=T
     else:
         if print_flag:
             print_error('bad query', req)
-        return [], -1
+        return [], -3
 
     if results_count == 0:
         if print_flag:
             price_range = 'PriceRange: %s -> %s ' % (format_price(min_price, True), format_price(max_price, True))
             print_error('no results for %s' % price_range)
-        return [], -1
+        return [], -4
 
     if 'TotalPages' not in res_dict.keys():
         if print_flag:
             print_error('no TotalPages in dict keys')
-        return [], -1
+        return [], -5
 
     if 'Errors' in res_dict.keys():
         if print_flag:
             print_error('Error', req)
-        return [], -1
+        return [], -6
 
     return res_dict, results_count
 
