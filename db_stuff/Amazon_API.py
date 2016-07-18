@@ -165,13 +165,17 @@ def make_itemsearch_request(pagenum, node_id, min_price, max_price, price_flag=T
         print_error('bad query', req)
         return [], -1
 
-    if 'Errors' in res_dict.keys():
-        print_error('Error', req)
-        return [], -1
-
     if results_count == 0:
         price_range = 'PriceRange: %s -> %s ' % (format_price(min_price, True), format_price(max_price, True))
         print_error('no results for %s' % price_range, '')
+        return [], -1
+
+    if 'TotalPages' not in res_dict.keys():
+        print_error('no TotalPages in dict keys', '')
+        return [], -1
+
+    if 'Errors' in res_dict.keys():
+        print_error('Error', req)
         return [], -1
 
     return res_dict, results_count
@@ -321,27 +325,32 @@ def get_results(collection_name, node_id, price_flag=True, max_price=100000.0, m
     if results_count_only:
         return results_count
 
-    total_pages = None
+    new_items_count = 0
+    total_pages = int(res_dict['TotalPages'])
+
     if results_count > 100:
         if min_price == max_price:
             total_pages=10
         elif (max_price-min_price) == 0.01:
-            get_results(collection_name, node_id, min_price=min_price, max_price=min_price, name=name)
-            get_results(collection_name, node_id, min_price=max_price, max_price=max_price, name=name)
-            return 0
+            new_items_count += get_results(collection_name, node_id,
+                                           min_price=min_price, max_price=min_price, name=name)
+            new_items_count += get_results(collection_name, node_id,
+                                           min_price=max_price, max_price=max_price, name=name)
+            return new_items_count
         else:
-            mid_price = (max_price+min_price)/2.00
+            mid_price = (max_price+min_price)/2.0
             mid_price_rounded = truncate_float_to_2_decimal_places(mid_price)
-            get_results(collection_name, node_id, min_price=mid_price_rounded, max_price=max_price, name=name)
-            get_results(collection_name, node_id, min_price=min_price, max_price=mid_price_rounded, name=name)
-            return 0
+            new_items_count += get_results(collection_name, node_id,
+                                           min_price=mid_price_rounded, max_price=max_price, name=name)
+            new_items_count += get_results(collection_name, node_id,
+                                           min_price=min_price, max_price=mid_price_rounded, name=name)
+            return new_items_count
 
-    total_pages = total_pages or int(res_dict['TotalPages'])
     if total_pages == 1:
         num_of_items_in_page = results_count
     else:
         num_of_items_in_page = 10
-    new_items_count = process_results(collection_name, 1, node_id, min_price, max_price, res_dict, items_in_page=num_of_items_in_page)
+    new_items_count += process_results(collection_name, 1, node_id, min_price, max_price, res_dict, items_in_page=num_of_items_in_page)
 
     for pagenum in range(2, total_pages+1):
         if pagenum == total_pages:
@@ -358,7 +367,7 @@ def get_results(collection_name, node_id, price_flag=True, max_price=100000.0, m
     logger.removeHandler(handler)
     del logger, handler
     print (summary)
-
+    return new_items_count
 
 def build_category_tree(root='7141124011', tab=0, parents=[], delete_collection=False):
 
@@ -474,14 +483,15 @@ def download_all(country_code='US', gender='Female', delete_collection=False, de
             continue
 
         try:
-            get_results(collection_name, node_id, results_count_only=False, name=leaf_name)
-            print('node id: %s done!' % node_id)
-            cache = {'node_id': node_id}
+            new_items_count = get_results(collection_name, node_id, results_count_only=False, name=leaf_name)
+            print('node id: %s download done -> %d new_items downloaded' % (node_id, new_items_count))
+            cache = {'node_id': node_id,
+                     'item_count': new_items_count}
             collection_cache.insert_one(cache)
 
         except Exception as e:
-            print_error('ERROR', 'node id: %s failed!\n %s' % (node_id,e))
-            continue
+            print_error('ERROR', 'node id: %s failed!\n %s' % (node_id, e))
+
 
 for gender in ['Female', 'Male']:
     download_all(country_code='US', gender=gender, delete_collection=True, delete_cache=True)
