@@ -55,9 +55,17 @@ from Amazon_signature import get_amazon_signed_url
 from time import strftime, gmtime, sleep, time
 from requests import get
 import xmltodict
-from ..constants import db
 import logging
 from ..Yonti import pymongo_utils
+from ..constants import db, redis_conn
+from rq import Queue
+from datetime import datetime
+from amazon_worker import insert_items
+
+
+today_date = str(datetime.date(datetime.now()))
+
+q = Queue('amazon_worker', connection=redis_conn)
 
 blacklist = ['Jewelry', 'Watches', 'Handbags', 'Accessories', 'Lingerie, Sleep & Lounge', 'Socks & Hosiery',
              'Handbags & Wallets', 'Shops', 'Girls', 'Boys', 'Shoes', 'Underwear', 'Baby', 'Sleep & Lounge',
@@ -197,115 +205,10 @@ def process_results(collection_name, pagenum, node_id, min_price, max_price, fam
             return 0
 
     item_list = res_dict['Item']
-    new_item_count = 0
-    collection = db[collection_name]
-    for x, item in enumerate(item_list):
-        if (x+1) > items_in_page:
-            break
+    item_count = len(item_list)
+    q.enqueue(insert_items, args=(collection_name, item_list, items_in_page, print_flag, family_tree), timeout=5400)
 
-        try:
-            item_keys = item.keys()
-            if 'ASIN' not in item_keys:
-                continue
-            asin = item['ASIN']
-            if 'ParentASIN' not in item_keys:
-                parent_asin = asin
-            else:
-                parent_asin = item['ParentASIN']
-            click_url = item['DetailPageURL']
-            if 'LargeImage' in item_keys:
-                image = item['LargeImage']['URL']
-            elif 'MediumImage' in item_keys:
-                image = item['MediumImage']['URL']
-            elif 'SmallImage' in item_keys:
-                image = item['SmallImage']['URL']
-            else:
-                if print_flag:
-                    print_error('No image')
-                continue
-
-            offer = item['OfferSummary']['LowestNewPrice']
-            price = {'price': float(offer['Amount'])/100,
-                     'currency': offer['CurrencyCode'],
-                     'priceLabel': offer['FormattedPrice']}
-            attributes = item['ItemAttributes']
-            attr_keys = attributes.keys()
-            if 'ClothingSize' in attr_keys:
-                clothing_size = attributes['ClothingSize']
-            elif 'Size' in attr_keys:
-                clothing_size = attributes['Size']
-            else:
-                if print_flag:
-                    print_error('No Size', attr_keys)
-                continue
-
-            if 'Brand' in attr_keys:
-                brand = attributes['Brand']
-            else:
-                brand = 'unknown'
-
-            if 'ProductTypeName' in attr_keys:
-                category = attributes['ProductTypeName']
-            else:
-                category = '2BDtermind'
-
-            color = attributes['Color']
-            sizes = [clothing_size]
-            short_d = attributes['Title']
-            if 'Feature' in attr_keys:
-                long_d = ' '.join(attributes['Feature'])
-            else:
-                long_d = ''
-            features = {'color': color,
-                        'sizes': sizes,
-                        'shortDescription': short_d,
-                        'longDescription': long_d}
-
-            # print('##################################')
-            asin_exists = collection.find_one({'asin': asin})
-            if asin_exists:
-                # print('item exists already!')
-                continue
-
-            # print('ooooooooooooooooooooooooooooooooooo')
-            parent_asin_exists = collection.find_one({'parent_asin': parent_asin, 'features.color': features['color']})
-            if parent_asin_exists:
-                # print ('parent_asin + color already exists')
-                sizes = parent_asin_exists['features']['sizes']
-                if clothing_size not in sizes:
-                    sizes.append(clothing_size)
-                    collection.update_one({'_id': parent_asin_exists['_id']}, {'$set': {'features.sizes': sizes}})
-                    # print ('added another size to existing item')
-                else:
-                    pass
-                    # print ('parent_asin + color + size already exists ----- %s->%s' % (features['color'],
-                    #  clothing_size))
-                continue
-            # print('????????????????????????????????????')
-            new_item = {'asin': asin,
-                        'parent_asin': parent_asin,
-                        'clickUrl': click_url,
-                        'images': {'XLarge': image},
-                        'price': price,
-                        'color': color,
-                        'sizes': sizes,
-                        'shortDescription': short_d,
-                        'longDescription': long_d,
-                        'brand': brand,
-                        'categories': category,
-                        'raw_info': attributes,
-                        'tree': family_tree}
-
-            # print 'inserting'
-            collection.insert_one(new_item)
-            # print 'item inserted\n'
-            new_item_count += 1
-
-        except Exception as e:
-            print_error('ERROR', str(e))
-            pass
-
-    return new_item_count
+    return item_count
 
 
 def log2file_and_print(name, min_price, max_price, results_count, new_items_count):
