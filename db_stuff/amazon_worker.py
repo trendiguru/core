@@ -1,4 +1,4 @@
-from ..constants import db, redis_conn
+from ..constants import db, redis_conn, fingerprint_version
 from ..Utils import get_cv2_img_array
 from rq import Queue
 from datetime import datetime
@@ -131,7 +131,11 @@ def insert_items(collection_name, item_list, items_in_page, print_flag, family_t
                         'status': {'instock': True, 'days_out': 0},
                         'fingerprint': None,
                         'gender': gender,
-                        'img_hash': img_hash}
+                        'img_hash': img_hash,
+                        'download_data': {'dl_version': today_date,
+                                          'first_dl': today_date,
+                                          'fp_version': fingerprint_version},
+                        }
 
             while q.count > 5000:
                 sleep(30)
