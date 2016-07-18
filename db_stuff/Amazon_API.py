@@ -149,7 +149,7 @@ def make_itemsearch_request(pagenum, node_id, min_price, max_price, price_flag=T
     req = get_amazon_signed_url(parameters, 'GET', False)
     proper_wait(True)
     res = get(req)
-
+    print ('get succeded')
     if res.status_code != 200:
         print_error('Bad request', req)
         return [], -1
