@@ -76,6 +76,17 @@ base_parameters = {
 last_time = time()
 
 
+def proper_wait(print_flag=False):
+    global last_time
+    current_time = time()
+    time_diff = current_time - last_time
+    if time_diff < 1.001:
+        sleep(1.001 - time_diff)
+        current_time = time()
+    if print_flag:
+        print ('time diff: %f' % (current_time - last_time))
+    last_time = current_time
+
 def print_error(title,message):
     print ('\n------------------------------------%s-----------------------------------------' % title)
     print (message)
@@ -117,7 +128,6 @@ def format_price(price_float, period=False):
 
 
 def process_results(pagenum, node_id, min_price, max_price, res_dict=None, items_in_page=10):
-    global last_time
     if pagenum is not 1:
         parameters = base_parameters.copy()
         parameters['Timestamp'] = strftime("%Y-%m-%dT%H:%M:%SZ", gmtime())
@@ -128,14 +138,8 @@ def process_results(pagenum, node_id, min_price, max_price, res_dict=None, items
         parameters['MaximumPrice'] = format_price(max_price)
 
         req = get_amazon_signed_url(parameters, 'GET', False)
-        current_time = time()
-        time_diff = current_time - last_time
-        if time_diff<1.01:
-            sleep(1.01-time_diff)
-            current_time = time()
-        print ('time diff: %f' % (current_time - last_time))
+        proper_wait(True)
         res = get(req)
-        last_time = current_time
 
         if res.status_code != 200:
             print_error('Bad request', req)
@@ -261,7 +265,6 @@ def process_results(pagenum, node_id, min_price, max_price, res_dict=None, items
 
 
 def get_results(node_id, price_flag=True, max_price=10000.0, min_price=0.0, results_count_only=False, name='moshe'):
-    global last_time
     parameters = base_parameters.copy()
     parameters['Timestamp'] = strftime("%Y-%m-%dT%H:%M:%SZ", gmtime())
     parameters['SearchIndex'] = 'FashionWomen'
@@ -273,14 +276,8 @@ def get_results(node_id, price_flag=True, max_price=10000.0, min_price=0.0, resu
         parameters['MaximumPrice'] = format_price(max_price)
 
     req = get_amazon_signed_url(parameters, 'GET', False)
-    current_time = time()
-    time_diff = current_time - last_time
-    if time_diff < 1.01:
-        sleep(1.01 - time_diff)
-        current_time = time()
-    print ('time diff: %f' % (current_time - last_time))
+    proper_wait(True)
     res = get(req)
-    last_time = current_time
 
     if res.status_code != 200:
         print_error('Bad request', req)
