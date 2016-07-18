@@ -134,7 +134,7 @@ def format_price(price_float, period=False):
     return price_str
 
 
-def make_itemsearch_request(pagenum, node_id, min_price, max_price, price_flag=True):
+def make_itemsearch_request(pagenum, node_id, min_price, max_price, price_flag=True, print_flag=False):
     parameters = base_parameters.copy()
     parameters['Timestamp'] = strftime("%Y-%m-%dT%H:%M:%SZ", gmtime())
     parameters['SearchIndex'] = 'FashionWomen'
@@ -150,41 +150,49 @@ def make_itemsearch_request(pagenum, node_id, min_price, max_price, price_flag=T
     proper_wait()
     res = get(req)
     if res.status_code != 200:
-        print_error('Bad request', req)
+        if print_flag:
+            print_error('Bad request', req)
         return [], -1
 
     res_dict = dict(xmltodict.parse(res.text))
     if 'ItemSearchResponse' not in res_dict.keys():
-        print_error('No ItemSearchResponse', req)
+        if print_flag:
+            print_error('No ItemSearchResponse', req)
         return [], -1
 
     res_dict = dict(res_dict['ItemSearchResponse']['Items'])
     if 'TotalResults' in res_dict.keys():
         results_count = int(res_dict['TotalResults'])
     else:
-        print_error('bad query', req)
+        if print_flag:
+            print_error('bad query', req)
         return [], -1
 
     if results_count == 0:
-        price_range = 'PriceRange: %s -> %s ' % (format_price(min_price, True), format_price(max_price, True))
-        print_error('no results for %s' % price_range)
+        if print_flag:
+            price_range = 'PriceRange: %s -> %s ' % (format_price(min_price, True), format_price(max_price, True))
+            print_error('no results for %s' % price_range)
         return [], -1
 
     if 'TotalPages' not in res_dict.keys():
-        print_error('no TotalPages in dict keys')
+        if print_flag:
+            print_error('no TotalPages in dict keys')
         return [], -1
 
     if 'Errors' in res_dict.keys():
-        print_error('Error', req)
+        if print_flag:
+            print_error('Error', req)
         return [], -1
 
     return res_dict, results_count
 
 
-def process_results(collection_name, pagenum, node_id, min_price, max_price, res_dict=None, items_in_page=10):
+def process_results(collection_name, pagenum, node_id, min_price, max_price, res_dict=None, items_in_page=10,
+                    print_flag=False):
     if pagenum is not 1:
-        res_dict, new_item_count = make_itemsearch_request(pagenum, node_id, min_price, max_price)
-        if new_item_count < 0:
+        res_dict, new_item_count = make_itemsearch_request(pagenum, node_id, min_price, max_price,
+                                                           print_flag=print_flag)
+        if new_item_count < 2:
             return 0
 
     item_list = res_dict['Item']
@@ -221,7 +229,8 @@ def process_results(collection_name, pagenum, node_id, min_price, max_price, res
             elif 'SmallImage' in item_keys:
                 image = item['SmallImage']['URL']
             else:
-                print_error('No image')
+                if print_flag:
+                    print_error('No image')
                 continue
 
             offer = item['OfferSummary']['LowestNewPrice']
@@ -297,8 +306,8 @@ def process_results(collection_name, pagenum, node_id, min_price, max_price, res
             # print 'item inserted\n'
             new_item_count += 1
 
-        except:
-            print ('---------------problem in the way-------------')
+        except Exception as e:
+            print_error('ERROR', e)
             # print (asin)
             # print(parent_asin)
             # print(click_url)
@@ -319,7 +328,7 @@ def process_results(collection_name, pagenum, node_id, min_price, max_price, res
 def get_results(collection_name, node_id, price_flag=True, max_price=100000.0, min_price=0.0, results_count_only=False, name='moshe'):
 
     res_dict, results_count = make_itemsearch_request(1, node_id, min_price, max_price, price_flag=price_flag)
-    if results_count < 0:
+    if results_count < 2:
         return 0
 
     if results_count_only:
