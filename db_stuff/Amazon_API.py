@@ -242,9 +242,7 @@ def get_results(collection_name, node_id, price_flag=True, max_price=3000.0, min
     if results_count > 100:
         if (max_price - min_price) <= 0.01:
             total_pages = 10
-            # print_error('same')
         elif (max_price-min_price) <= 0.02:
-            # print_error('diff == 0.01')
             new_items_count += get_results(collection_name, node_id,
                                            min_price=max_price, max_price=max_price, family_tree=family_tree)
             new_items_count += get_results(collection_name, node_id,
@@ -252,13 +250,13 @@ def get_results(collection_name, node_id, price_flag=True, max_price=3000.0, min
 
             return new_items_count
         else:
-            # print_error('more than 100 results for price range: %f -> %f' % (min_price, max_price))
             mid_price = (max_price+min_price)/2.0
             mid_price_rounded = truncate_float_to_2_decimal_places(mid_price)
             new_items_count += get_results(collection_name, node_id,
                                            min_price=mid_price_rounded, max_price=max_price, family_tree=family_tree)
+            new_min_price = max_price-0.01
             new_items_count += get_results(collection_name, node_id,
-                                           min_price=min_price, max_price=mid_price_rounded, family_tree=family_tree)
+                                           min_price=new_min_price, max_price=new_min_price, family_tree=family_tree)
             return new_items_count
 
     if total_pages == 1:
