@@ -127,30 +127,50 @@ def format_price(price_float, period=False):
     return price_str
 
 
-def process_results(pagenum, node_id, min_price, max_price, res_dict=None, items_in_page=10):
-    if pagenum is not 1:
-        parameters = base_parameters.copy()
-        parameters['Timestamp'] = strftime("%Y-%m-%dT%H:%M:%SZ", gmtime())
-        parameters['SearchIndex'] = 'FashionWomen'
-        parameters['BrowseNode'] = node_id
+def make_itemsearch_request(pagenum, node_id, min_price, max_price, price_flag=True):
+    parameters = base_parameters.copy()
+    parameters['Timestamp'] = strftime("%Y-%m-%dT%H:%M:%SZ", gmtime())
+    parameters['SearchIndex'] = 'FashionWomen'
+    parameters['BrowseNode'] = node_id
+    if not price_flag:
+        parameters['ResponseGroup'] = 'SearchBins'
+    else:
         parameters['ItemPage'] = str(pagenum)
         parameters['MinimumPrice'] = format_price(min_price)
         parameters['MaximumPrice'] = format_price(max_price)
 
-        req = get_amazon_signed_url(parameters, 'GET', False)
-        proper_wait(True)
-        res = get(req)
+    req = get_amazon_signed_url(parameters, 'GET', False)
+    proper_wait(True)
+    res = get(req)
 
-        if res.status_code != 200:
-            print_error('Bad request', req)
+    if res.status_code != 200:
+        print_error('Bad request', req)
+        return [], -1
+
+    res_dict = dict(xmltodict.parse(res.text))
+    if 'ItemSearchResponse' not in res_dict.keys():
+        print_error('No ItemSearchResponse', req)
+        return [], -1
+
+    res_dict = dict(res_dict['ItemSearchResponse']['Items'])
+    if 'TotalResults' in res_dict.keys():
+        results_count = int(res_dict['TotalResults'])
+    else:
+        print_error('bad query', req)
+        return [], -1
+
+    if 'Errors' in res_dict.keys() or results_count == 0:
+        print_error('Error', req)
+        return [], -1
+
+    return res_dict, results_count
+
+
+def process_results(pagenum, node_id, min_price, max_price, res_dict=None, items_in_page=10):
+    if pagenum is not 1:
+        res_dict, new_item_count = make_itemsearch_request(pagenum, node_id, min_price, max_price)
+        if new_item_count < 0:
             return 0
-
-        res_dict = dict(xmltodict.parse(res.text))
-        if 'ItemSearchResponse' not in res_dict.keys():
-            print_error('No ItemSearchResponse', req)
-            return 0
-
-        res_dict = dict(res_dict['ItemSearchResponse']['Items'])
 
     item_list = res_dict['Item']
     new_item_count = 0
@@ -265,41 +285,13 @@ def process_results(pagenum, node_id, min_price, max_price, res_dict=None, items
 
 
 def get_results(node_id, price_flag=True, max_price=10000.0, min_price=0.0, results_count_only=False, name='moshe'):
-    parameters = base_parameters.copy()
-    parameters['Timestamp'] = strftime("%Y-%m-%dT%H:%M:%SZ", gmtime())
-    parameters['SearchIndex'] = 'FashionWomen'
-    parameters['BrowseNode'] = node_id
-    if not price_flag:
-        parameters['ResponseGroup'] = 'SearchBins'
-    else:
-        parameters['MinimumPrice'] = format_price(min_price)
-        parameters['MaximumPrice'] = format_price(max_price)
 
-    req = get_amazon_signed_url(parameters, 'GET', False)
-    proper_wait(True)
-    res = get(req)
-
-    if res.status_code != 200:
-        print_error('Bad request', req)
+    res_dict, results_count, req = make_itemsearch_request(1, node_id, 0.0, 100000.0, price_flag=True)
+    if results_count < 0:
         return 0
 
-    res_dict = dict(xmltodict.parse(res.text))
-    if 'ItemSearchResponse' not in res_dict.keys():
-        print_error('No ItemSearchResponse', req)
-        return 0
-
-    res_dict = dict(res_dict['ItemSearchResponse']['Items'])
-    if 'TotalResults' in res_dict.keys():
-        results_count = int(res_dict['TotalResults'])
-        if results_count_only:
-            return results_count
-    else:
-        print_error('bad query', req)
-        return 0
-
-    if 'Errors' in res_dict.keys() or results_count == 0:
-        print_error('Error', req)
-        return 0
+    if results_count_only:
+        return results_count
 
     total_pages = None
     if results_count > 100:
