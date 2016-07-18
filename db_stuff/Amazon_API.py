@@ -511,4 +511,4 @@ def download_all(country_code='US', gender='Female', delete_collection=False, de
         collection_cache.insert_one(cache)
 
 for gender in ['Female', 'Male']:
-    download_all(country_code='US', gender=gender, delete_collection=True, delete_cache=True)
+    download_all(country_code='US', gender=gender, delete_collection=True, delete_cache=False)
