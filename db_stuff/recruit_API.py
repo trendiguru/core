@@ -3,74 +3,17 @@ playground for testing the recruit API
 """
 from .recruit_constants import api_stock, recruitID2generalCategory
 from ..constants import db, redis_conn
-import logging
 from rq import Queue
 from time import sleep,time
 from .recruit_worker import genreDownloader, GET_ByGenreId, deleteDuplicates
 from datetime import datetime
 from .dl_excel import mongo2xl
 from .fanni import plantForests4AllCategories
-
+from db_utils import log2file, theArchiveDoorman
 today_date = str(datetime.date(datetime.now()))
 
 q = Queue('recruit_worker', connection=redis_conn)
 forest = Queue('annoy_forest', connection=redis_conn)
-
-
-def theArchiveDoorman(col_name):
-    """
-    clean the archive from items older than a week
-    send items to archive
-    """
-    collection = db[col_name]
-    collection_archive = db[col_name+'_archive']
-    archiver_indexes = collection_archive.index_information().keys()
-    if 'id_1' not in archiver_indexes:
-        collection_archive.create_index('id', background=True)
-    archivers = collection_archive.find()
-    y_new, m_new, d_new = map(int, today_date.split("-"))
-    for item in archivers:
-        y_old, m_old, d_old = map(int, item["download_data"]["dl_version"].split("-"))
-        days_out = 365 * (y_new - y_old) + 30 * (m_new - m_old) + (d_new - d_old)
-        if days_out < 7:
-            collection_archive.update_one({'id': item['id']}, {"$set": {"status.days_out": days_out}})
-        else:
-            collection_archive.delete_one({'id': item['id']})
-
-    # add to the archive items which were not downloaded in the last 2 days
-    notUpdated = collection.find({"download_data.dl_version": {"$ne": today_date}})
-    for item in notUpdated:
-        y_old, m_old, d_old = map(int, item["download_data"]["dl_version"].split("-"))
-        days_out = 365 * (y_new - y_old) + 30 * (m_new - m_old) + (d_new - d_old)
-        if days_out>2:
-            collection.delete_one({'id': item['id']})
-            existing = collection_archive.find_one({"id": item["id"]})
-            if existing:
-                continue
-
-            if days_out < 7:
-                item['status']['instock'] = False
-                item['status']['days_out'] = days_out
-                collection_archive.insert_one(item)
-
-    # move to the archive all the items which were downloaded today but are out of stock
-    outStockers = collection.find({'status.instock': False})
-    for item in outStockers:
-        collection.delete_one({'id': item['id']})
-        existing = collection_archive.find_one({"id": item["id"]})
-        if existing:
-            continue
-        collection_archive.insert_one(item)
-
-    collection_archive.reindex()
-
-def log2file(LOG_FILENAME):
-    logger = logging.getLogger(__name__)
-    logger.setLevel(logging.INFO)
-    handler = logging.FileHandler(LOG_FILENAME, mode= 'w')
-    handler.setLevel(logging.INFO)
-    logger.addHandler(handler)
-    return logger
 
 
 def generate_genreid(gender, main_category, sub_category):
@@ -90,7 +33,7 @@ def generate_genreid(gender, main_category, sub_category):
     return genreid
 
 
-def API4printing(genreId, gender, category_name, skip, useLog=False, logger=logging):
+def API4printing(genreId, gender, category_name, skip):
     success, dic = GET_ByGenreId(genreId, instock=False)
     if not success:
         skip += 1
@@ -110,10 +53,8 @@ def API4printing(genreId, gender, category_name, skip, useLog=False, logger=logg
 
     summery = 'gender: %s, genreId: %s, category_name: %s , total_count: %s, instock: %s, , japanese: %s , %s , %s'\
               % (gender, genreId, category_name, allitems, instock_only, japanese_name, sec_cat, top_cat)
-    if useLog:
-        logger.info(summery)
-    else:
-        print(summery)
+
+    print(summery)
     return skip
 
 
@@ -128,13 +69,13 @@ def getCategoryName(genreId):
 
 def printCategories(only_known=True, useLog=False):
     if useLog:
-        logger =log2file('/home/developer/yonti/recruit_categories.log')
+        logger =log2file(mode='w', log_filename='/home/developer/yonti/recruit_categories.log')
     if only_known:
         for cat in api_stock:
             genreId = cat['genreId']
             category_name = cat['category_name']
             gender = cat['gender']
-            API4printing(genreId, gender, category_name, 0, useLog=useLog, logger=logger)
+            API4printing(genreId, gender, category_name, 0)
         print('xoxoxoxoxoxoxoxoxoxoxoxoxoxoxoxoxoxoxoxoxoxoxoxoxoxoxoxoxoxoxoxoxoxoxox')
     else:
         for gender in ['Female', 'Male']:
@@ -170,7 +111,7 @@ def download_recruit(delete=False):
         status_full_path = 'collections.'+col_name+'.status'
         db.download_status.update_one({"date": today_date}, {"$set": {status_full_path: "Working"}})
 
-    handler = log2file('/home/developer/yonti/recruit_download_stats.log')
+    handler = log2file(mode='w', log_filename='/home/developer/yonti/recruit_download_stats.log')
     handler.info('download started')
     id_count = len(recruitID2generalCategory)
     for x, genreId in enumerate(recruitID2generalCategory.keys()):

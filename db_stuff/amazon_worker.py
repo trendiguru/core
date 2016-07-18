@@ -1,23 +1,15 @@
-from ..constants import db, redis_conn
-from Amazon_API import print_error
+from ..constants import db, redis_conn, fingerprint_version
 from ..Utils import get_cv2_img_array
-import hashlib
 from rq import Queue
 from datetime import datetime
 from ..fingerprint_core import generate_mask_and_insert
 from time import sleep
 import re
+from db_utils import print_error, get_hash
 
 today_date = str(datetime.date(datetime.now()))
 
 q = Queue('new_collection_fp', connection=redis_conn)
-
-
-def get_hash(image):
-    m = hashlib.md5()
-    m.update(image)
-    url_hash = m.hexdigest()
-    return url_hash
 
 
 def insert_items(collection_name, item_list, items_in_page, print_flag, family_tree):
@@ -30,7 +22,7 @@ def insert_items(collection_name, item_list, items_in_page, print_flag, family_t
 
         try:
             item_keys = item.keys()
-            if any(x for x in ['ASIN', 'DetailPageURL', 'OfferSummary','ItemAttributes'] if x not in item_keys):
+            if any(x for x in ['ASIN', 'DetailPageURL', 'OfferSummary', 'ItemAttributes'] if x not in item_keys):
                 if print_flag:
                     print_error('%s not in item keys' % x)
                 continue
@@ -139,7 +131,11 @@ def insert_items(collection_name, item_list, items_in_page, print_flag, family_t
                         'status': {'instock': True, 'days_out': 0},
                         'fingerprint': None,
                         'gender': gender,
-                        'img_hash': img_hash}
+                        'img_hash': img_hash,
+                        'download_data': {'dl_version': today_date,
+                                          'first_dl': today_date,
+                                          'fp_version': fingerprint_version},
+                        }
 
             while q.count > 5000:
                 sleep(30)
