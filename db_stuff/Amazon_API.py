@@ -306,22 +306,21 @@ def get_results(collection_name, node_id, price_flag=True, max_price=10000.0, mi
 
     if results_count_only:
         return results_count
-    print('1')
+
     total_pages = None
     if results_count > 100:
         if min_price == max_price:
             total_pages=10
         elif (max_price-min_price) == 0.01:
-            get_results(node_id, min_price=min_price, max_price=min_price, name=name)
-            get_results(node_id, min_price=max_price, max_price=max_price, name=name)
+            get_results(collection_name, node_id, min_price=min_price, max_price=min_price, name=name)
+            get_results(collection_name, node_id, min_price=max_price, max_price=max_price, name=name)
             return 0
         else:
             mid_price = (max_price+min_price)/2.00
             mid_price_rounded = truncate_float_to_2_decimal_places(mid_price)
-            get_results(node_id, min_price=mid_price_rounded, max_price=max_price, name=name)
-            get_results(node_id, min_price=min_price, max_price=mid_price_rounded, name=name)
+            get_results(collection_name, node_id, min_price=mid_price_rounded, max_price=max_price, name=name)
+            get_results(collection_name, node_id, min_price=min_price, max_price=mid_price_rounded, name=name)
             return 0
-    print('2')
 
     total_pages = total_pages or int(res_dict['TotalPages'])
     if total_pages == 1:
