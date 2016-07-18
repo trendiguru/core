@@ -69,7 +69,7 @@ def theDetector(url_or_np_array, face_coordinates):
         return None
 
     #checks if the face coordinates are inside the image
-    if not type(full_image):
+    if full_image is None:
         print "not a good image"
         return None
 
