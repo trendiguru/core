@@ -217,8 +217,8 @@ if __name__ == '__main__':
 
     ### Positional arguments
 
-    parser.add_argument('caffemodel',   help='Path to a .caffemodel')
-    parser.add_argument('deploy_file',  help='Path to the deploy file')
+    #parser.add_argument('caffemodel',   help='Path to a .caffemodel')
+    #parser.add_argument('deploy_file',  help='Path to the deploy file')
     parser.add_argument('image_file',
                         nargs='+',
                         help='Path[s] to an image')
