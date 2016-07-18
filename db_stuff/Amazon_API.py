@@ -198,7 +198,7 @@ def log2file_and_print(name, min_price, max_price, results_count, new_items_coun
     logger.info(summary)
     logger.removeHandler(handler)
     del logger, handler
-    print (summary)
+    # print (summary)
 
 
 def get_results(collection_name, node_id, price_flag=True, max_price=3000.0, min_price=0.0, results_count_only=False,
