@@ -81,8 +81,8 @@ def proper_wait(print_flag=False):
     global last_time
     current_time = time()
     time_diff = current_time - last_time
-    if time_diff < 1.001:
-        sleep(1.001 - time_diff)
+    if time_diff < 1.005:
+        sleep(1.005 - time_diff)
         current_time = time()
     if print_flag:
         print ('time diff: %f' % (current_time - last_time))
@@ -149,7 +149,6 @@ def make_itemsearch_request(pagenum, node_id, min_price, max_price, price_flag=T
     req = get_amazon_signed_url(parameters, 'GET', False)
     proper_wait(True)
     res = get(req)
-
     if res.status_code != 200:
         print_error('Bad request', req)
         return [], -1
@@ -313,14 +312,14 @@ def get_results(collection_name, node_id, price_flag=True, max_price=10000.0, mi
         if min_price == max_price:
             total_pages=10
         elif (max_price-min_price) == 0.01:
-            get_results(node_id, min_price=min_price, max_price=min_price, name=name)
-            get_results(node_id, min_price=max_price, max_price=max_price, name=name)
+            get_results(collection_name, node_id, min_price=min_price, max_price=min_price, name=name)
+            get_results(collection_name, node_id, min_price=max_price, max_price=max_price, name=name)
             return 0
         else:
             mid_price = (max_price+min_price)/2.00
             mid_price_rounded = truncate_float_to_2_decimal_places(mid_price)
-            get_results(node_id, min_price=mid_price_rounded, max_price=max_price, name=name)
-            get_results(node_id, min_price=min_price, max_price=mid_price_rounded, name=name)
+            get_results(collection_name, node_id, min_price=mid_price_rounded, max_price=max_price, name=name)
+            get_results(collection_name, node_id, min_price=min_price, max_price=mid_price_rounded, name=name)
             return 0
 
     total_pages = total_pages or int(res_dict['TotalPages'])
@@ -446,7 +445,12 @@ def download_all(country_code='US', gender='Female', delete_collection=False, de
     if delete_cache:
         pymongo_utils.delete_or_and_index(cache_name, ['node_id'], delete_flag=True)
 
-    leafs = db.amazon_category_tree.find({'Children.count': 0, 'Parents': gender})
+    if gender is 'Female':
+        parent_gender = 'Women'
+    else:
+        parent_gender = 'Men'
+
+    leafs = db.amazon_category_tree.find({'Children.count': 0, 'Parents': parent_gender})
     for leaf in leafs:
         leaf_name = '->'.join(leaf['Parents']) + '->' + leaf['Name']
         node_id = leaf['BrowseNodeId']
@@ -457,12 +461,14 @@ def download_all(country_code='US', gender='Female', delete_collection=False, de
 
         try:
             get_results(collection_name, node_id, results_count_only=False, name=leaf_name)
+            print('node id: %s done!' % node_id)
             cache = {'node_id': node_id}
             collection_cache.insert_one(cache)
 
         except:
+            print_error('ERROR', 'node id: %s failed!' % node_id)
             continue
 
-for gender in ['Female', 'Men']:
-    download_all(country_code='US', gender=gender)
+for gender in ['Female', 'Male']:
+    download_all(country_code='US', gender=gender, delete_collection=True, delete_cache=True)
 
