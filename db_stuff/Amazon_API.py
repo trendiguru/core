@@ -201,17 +201,7 @@ def process_results(collection_name, pagenum, node_id, min_price, max_price, res
     for x, item in enumerate(item_list):
         if (x+1) > items_in_page:
             break
-        # asin = 0
-        # parent_asin = 0
-        # click_url = 0
-        # image = 0
-        # price = 0
-        # atttibutes=0
-        # color = 0
-        # sizes = 0
-        # short_d = 0
-        # long_d = 0
-        # features = 0
+
         try:
             item_keys = item.keys()
             if 'ASIN' not in item_keys:
@@ -244,7 +234,8 @@ def process_results(collection_name, pagenum, node_id, min_price, max_price, res
             elif 'Size' in attr_keys:
                 clothing_size = attributes['Size']
             else:
-                print_error('No Size', attr_keys)
+                if print_flag:
+                    print_error('No Size', attr_keys)
                 continue
 
             if 'Brand' in attr_keys:
@@ -307,28 +298,26 @@ def process_results(collection_name, pagenum, node_id, min_price, max_price, res
             new_item_count += 1
 
         except Exception as e:
-            print_error('ERROR', e)
-            # print (asin)
-            # print(parent_asin)
-            # print(click_url)
-            # print(image)
-            # print(price)
-            # print(features)
-            # print (atttibutes)
-            # print(color)
-            # print(sizes)
-            # print(short_d)
-            # print(long_d)
-            # raw_input()
+            print_error('ERROR', str(e))
             pass
 
     return new_item_count
 
 
+def log2file_and_print(name, min_price, max_price, results_count, new_items_count):
+    summary = 'Name: %s, PriceRange: %s -> %s , ResultCount: %d (%d)' \
+              % (name, format_price(min_price, True), format_price(max_price, True), results_count, new_items_count)
+    logger, handler = log2file(mode='a')
+    logger.info(summary)
+    logger.removeHandler(handler)
+    del logger, handler
+    print (summary)
+
 def get_results(collection_name, node_id, price_flag=True, max_price=100000.0, min_price=0.0, results_count_only=False, name='moshe'):
 
     res_dict, results_count = make_itemsearch_request(1, node_id, min_price, max_price, price_flag=price_flag)
     if results_count < 2:
+        log2file_and_print(name, min_price, max_price, results_count, 0)
         return 0
 
     if results_count_only:
@@ -372,13 +361,7 @@ def get_results(collection_name, node_id, price_flag=True, max_price=100000.0, m
         new_items_count += process_results(collection_name, pagenum, node_id, min_price, max_price,
                                            items_in_page=num_of_items_in_page)
 
-    summary = 'Name: %s, PriceRange: %s -> %s , ResultCount: %d (%d)'\
-              % (name, format_price(min_price, True), format_price(max_price, True), results_count, new_items_count)
-    logger, handler = log2file(mode='a')
-    logger.info(summary)
-    logger.removeHandler(handler)
-    del logger, handler
-    print (summary)
+    log2file_and_print(name, min_price, max_price, results_count, new_items_count)
     return new_items_count
 
 def build_category_tree(root='7141124011', tab=0, parents=[], delete_collection=False):
