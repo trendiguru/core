@@ -43,10 +43,9 @@ def get_transformer(deploy_file, mean_file=None):
     mean_file -- path to a .binaryproto file (optional)
     """
     network = caffe_pb2.NetParameter()
-    print network
     with open(deploy_file) as infile:
         text_format.Merge(infile.read(), network)
-    print network
+    print network.input_shape
     if network.input_shape:
         dims = network.input_shape[0].dim
         print "i'm in the if"
