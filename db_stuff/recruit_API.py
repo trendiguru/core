@@ -5,9 +5,8 @@ from .recruit_constants import api_stock, recruitID2generalCategory
 from ..constants import db, redis_conn
 import logging
 from rq import Queue
-from time import sleep
+from time import sleep,time
 from .recruit_worker import genreDownloader, GET_ByGenreId, deleteDuplicates
-from time import time
 from datetime import datetime
 from .dl_excel import mongo2xl
 from .fanni import plantForests4AllCategories
