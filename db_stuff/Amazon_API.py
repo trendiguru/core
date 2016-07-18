@@ -98,6 +98,7 @@ def truncate_float_to_2_decimal_places(float2round,true_4_str=False):
 
     return float_as_int/100.00
 
+
 def format_price(price_float, period=False):
     """
     input - float
@@ -126,13 +127,16 @@ def process_results(pagenum, node_id, min_price, max_price, res_dict=None, items
         parameters['MinimumPrice'] = format_price(min_price)
         parameters['MaximumPrice'] = format_price(max_price)
 
-        sleep(1.1)
-
         req = get_amazon_signed_url(parameters, 'GET', False)
         current_time = time()
+        time_diff = current_time - last_time
+        if time_diff<1.01:
+            sleep(1.01-time_diff)
+            current_time = time()
         print ('time diff: %f' % (current_time - last_time))
         res = get(req)
         last_time = current_time
+
         if res.status_code != 200:
             print_error('Bad request', req)
             return 0
@@ -420,7 +424,7 @@ def download_all(delete_collection=False):
             if idx_1 not in indexes:
                 collection.create_index(idx, background=True)
 
-    leafs = db.amazon_category_tree.find({'Children.count': 0, 'Parents': 'Men'})
+    leafs = db.amazon_category_tree.find({'Children.count': 0})  # , 'Parents': 'Men'})
     for leaf in leafs:
         leaf_name = '->'.join(leaf['Parents']) + '->' + leaf['Name']
         node_id = leaf['BrowseNodeId']
