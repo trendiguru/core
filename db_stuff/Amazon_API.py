@@ -462,10 +462,12 @@ def download_all(country_code='US', gender='Female', delete_collection=False, de
 
         try:
             get_results(collection_name, node_id, results_count_only=False, name=leaf_name)
+            print('node id: %s done!' % node_id)
             cache = {'node_id': node_id}
             collection_cache.insert_one(cache)
 
         except:
+            print_error('ERROR', 'node id: %s failed!' % node_id)
             continue
 
 for gender in ['Female', 'Male']:
