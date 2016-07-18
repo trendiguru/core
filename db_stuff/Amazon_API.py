@@ -261,6 +261,7 @@ def process_results(pagenum, node_id, min_price, max_price, res_dict=None, items
 
 
 def get_results(node_id, price_flag=True, max_price=10000.0, min_price=0.0, results_count_only=False, name='moshe'):
+    global last_time
     parameters = base_parameters.copy()
     parameters['Timestamp'] = strftime("%Y-%m-%dT%H:%M:%SZ", gmtime())
     parameters['SearchIndex'] = 'FashionWomen'
@@ -271,17 +272,23 @@ def get_results(node_id, price_flag=True, max_price=10000.0, min_price=0.0, resu
         parameters['MinimumPrice'] = format_price(min_price)
         parameters['MaximumPrice'] = format_price(max_price)
 
-    sleep(1)
-    request_url = get_amazon_signed_url(parameters, 'GET', False)
-    res = get(request_url)
+    req = get_amazon_signed_url(parameters, 'GET', False)
+    current_time = time()
+    time_diff = current_time - last_time
+    if time_diff < 1.01:
+        sleep(1.01 - time_diff)
+        current_time = time()
+    print ('time diff: %f' % (current_time - last_time))
+    res = get(req)
+    last_time = current_time
 
     if res.status_code != 200:
-        # print ('Bad request!!!')
+        print_error('Bad request', req)
         return 0
 
     res_dict = dict(xmltodict.parse(res.text))
     if 'ItemSearchResponse' not in res_dict.keys():
-        print ('No ItemSearchResponse')
+        print_error('No ItemSearchResponse', req)
         return 0
 
     res_dict = dict(res_dict['ItemSearchResponse']['Items'])
@@ -290,11 +297,11 @@ def get_results(node_id, price_flag=True, max_price=10000.0, min_price=0.0, resu
         if results_count_only:
             return results_count
     else:
-        print ('bad query')
+        print_error('bad query', req)
         return 0
 
     if 'Errors' in res_dict.keys() or results_count == 0:
-        # print('\nError / no results \n checkout the request: \n %s \n' % request_url)
+        print_error('Error', req)
         return 0
 
     total_pages = None
@@ -390,7 +397,7 @@ def build_category_tree(root='7141124011', tab=0, parents=[], delete_collection=
         p.append(name)
 
     for child in children:
-        sleep(1.5)
+        sleep(1.01)
         if 'BrowseNodeId' not in child.keys():
             continue
         child_id = child['BrowseNodeId']
