@@ -52,10 +52,11 @@ def get_transformer(deploy_file, mean_file=None):
         print "i'm in the if"
         print dims
     else:
-        #dims = network.input_dim[:4]
-        dims = network.input_dim[:]
+        dims = network.input_dim[:4]
+        #dims = network.input_dim[:]
         print "i'm in the else"
-        print dims
+        for i in range(0, 3):
+            print dims[i]
 
     t = caffe.io.Transformer(
             inputs = {'data': dims}
