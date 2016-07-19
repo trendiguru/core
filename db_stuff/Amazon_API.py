@@ -354,9 +354,9 @@ def download_all(country_code='US', gender='Female', delete_collection=False, de
     else:
         parent_gender = 'Men'
 
-    leafs = db.amazon_category_tree.find({'Children.count': 0, 'Parents': parent_gender})
-
-    iteration=0
+    leafs_cursor = db.amazon_category_tree.find({'Children.count': 0, 'Parents': parent_gender})
+    leafs = [x for x in leafs_cursor]
+    iteration = 0
     while len(leafs):
         if iteration > 5:
             break
