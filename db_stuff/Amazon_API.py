@@ -445,7 +445,7 @@ def download_all(country_code='US', gender='Female', del_collection=False, del_c
         iteration += 1
 
     clear_duplicates(collection_name)
-    theArchiveDoorman(collection_name)
+    theArchiveDoorman(collection_name, instock_limit=7, archive_limit=14)
     collection_cache.delete_many({})
     message = 'amazon %s %s is Done!' % (country_code, gender)
     log2file(mode='a', log_filename=log_name, message=message, print_flag=True)

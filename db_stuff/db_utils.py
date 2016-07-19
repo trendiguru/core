@@ -44,7 +44,7 @@ def get_hash(image):
     return url_hash
 
 
-def theArchiveDoorman(col_name):
+def theArchiveDoorman(col_name, instock_limit=2, archive_limit=7):
     """
     clean the archive from items older than a week
     send items to archive
@@ -58,7 +58,7 @@ def theArchiveDoorman(col_name):
     for item in archivers:
         y_old, m_old, d_old = map(int, item["download_data"]["dl_version"].split("-"))
         days_out = 365 * (y_new - y_old) + 30 * (m_new - m_old) + (d_new - d_old)
-        if days_out < 7:
+        if days_out < archive_limit:
             collection_archive.update_one({'id': item['id']}, {"$set": {"status.days_out": days_out}})
         else:
             collection_archive.delete_one({'id': item['id']})
@@ -68,13 +68,13 @@ def theArchiveDoorman(col_name):
     for item in notUpdated:
         y_old, m_old, d_old = map(int, item["download_data"]["dl_version"].split("-"))
         days_out = 365 * (y_new - y_old) + 30 * (m_new - m_old) + (d_new - d_old)
-        if days_out>2:
+        if days_out > instock_limit:
             collection.delete_one({'id': item['id']})
             existing = collection_archive.find_one({"id": item["id"]})
             if existing:
                 continue
 
-            if days_out < 7:
+            if days_out < archive_limit:
                 item['status']['instock'] = False
                 item['status']['days_out'] = days_out
                 collection_archive.insert_one(item)
