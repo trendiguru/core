@@ -86,7 +86,7 @@ base_parameters = {
 last_time = time()
 log_name = '/home/developer/yonti/amazon_download_stats.log'
 
-def proper_wait(print_flag=False):
+def proper_wait(print_flag=True):
     global last_time
     current_time = time()
     time_diff = current_time - last_time
@@ -328,6 +328,11 @@ def build_category_tree(root='7141124011', tab=0, parents=[], delete_collection=
     db.amazon_category_tree.insert_one(leaf)
     return name
 
+# def clear_duplicates(col_name):
+#     collection = db[col_name]
+#     all_items = collection.find()
+#     for item in all_items:
+#         asin_exists
 
 def download_all(country_code='US', gender='Female', delete_collection=False, delete_cache=False):
 
