@@ -206,8 +206,8 @@ def get_results(collection_name, node_id, price_flag=True, max_price=3000.0, min
 
     res_dict, results_count = make_itemsearch_request(1, node_id, min_price, max_price, price_flag=price_flag)
     if results_count < 2:
-        summary = 'Name: %s, PriceRange: %s -> %s , ResultCount: %d (%d)' \
-                  % (family_tree, format_price(min_price, True), format_price(max_price, True), results_count, 0)
+        summary = 'Name: %s, PriceRange: %s -> %s , ResultCount: %d' \
+                  % (family_tree, format_price(min_price, True), format_price(max_price, True), results_count)
         log2file(mode='a', log_filename=log_name, message=summary)
         return 0
 
@@ -235,7 +235,8 @@ def get_results(collection_name, node_id, price_flag=True, max_price=3000.0, min
             new_items_count += get_results(collection_name, node_id,
                                            min_price=mid_price_rounded, max_price=max_price, family_tree=family_tree)
             new_items_count += get_results(collection_name, node_id,
-                                           min_price=min_price, max_price=mid_price_rounded, family_tree=family_tree)
+                                           min_price=min_price, max_price=mid_price_rounded-0.01,
+                                           family_tree=family_tree)
             return new_items_count
 
     if total_pages == 1:
@@ -252,9 +253,8 @@ def get_results(collection_name, node_id, price_flag=True, max_price=3000.0, min
                 break
         new_items_count += process_results(collection_name, pagenum, node_id, min_price, max_price,
                                            family_tree=family_tree, items_in_page=num_of_items_in_page)
-    summary = 'Name: %s, PriceRange: %s -> %s , ResultCount: %d (%d)' \
-              % (family_tree, format_price(min_price, True), format_price(max_price, True), results_count,
-                 new_items_count)
+    summary = 'Name: %s, PriceRange: %s -> %s , ResultCount: %d ' \
+              % (family_tree, format_price(min_price, True), format_price(max_price, True), results_count)
     log2file(mode='a', log_filename=log_name, message=summary)
     return new_items_count
 
