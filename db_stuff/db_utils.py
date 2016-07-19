@@ -10,7 +10,9 @@ today_date = str(datetime.date(datetime.now()))
 
 def print_error(title, message=''):
     dotted_line = '------------------------------------%s-----------------------------------------' % title
-    message_len = len(str(message))
+    if type(message) != str:
+        message = str(message)
+    message_len = len(message)
     if message_len > 0:
         print ('\n%s' % dotted_line)
         print (message)
