@@ -220,7 +220,7 @@ def get_results(collection_name, node_id, price_flag=True, max_price=3000.0, min
     total_pages = int(res_dict['TotalPages'])
 
     if results_count > 100:
-        print ('min : %.4f -> max : %.4f' %(min_price, max_price))
+        # print ('min : %.4f -> max : %.4f' %(min_price, max_price))
         diff = truncate_float_to_2_decimal_places(max_price-min_price)
         if diff <= 0.01:
             total_pages = 10
@@ -356,33 +356,45 @@ def download_all(country_code='US', gender='Female', delete_collection=False, de
 
     leafs = db.amazon_category_tree.find({'Children.count': 0, 'Parents': parent_gender})
 
-    for leaf in leafs:
-        leaf_name = '->'.join(leaf['Parents']) + '->' + leaf['Name']
-        node_id = leaf['BrowseNodeId']
-        cache_exists = collection_cache.find_one({'node_id': node_id})
-        max_price = 3000.0
-        if cache_exists:
-            if cache_exists['last_max'] > 0.00:
-                max_price = cache_exists['last_max']
-                print ('node id: %s didn\'t finish -> continuing from %.2f' % (node_id, max_price))
+    iteration=0
+    while len(leafs):
+        if iteration > 5:
+            break
+        not_finished = []
+
+        for leaf in leafs:
+            leaf_name = '->'.join(leaf['Parents']) + '->' + leaf['Name']
+            node_id = leaf['BrowseNodeId']
+            cache_exists = collection_cache.find_one({'node_id': node_id})
+            max_price = 3000.0
+            if cache_exists:
+                if cache_exists['last_max'] > 0.00:
+                    max_price = cache_exists['last_max']
+                    print ('node id: %s didn\'t finish -> continuing from %.2f' % (node_id, max_price))
+                else:
+                    print ('node id: %s already downloaded!' % node_id)
+                    continue
             else:
-                print ('node id: %s already downloaded!' % node_id)
-                continue
-        else:
-            cache = {'node_id': node_id,
-                     'item_count': 0,
-                     'last_max': max_price}
-            collection_cache.insert_one(cache)
+                cache = {'node_id': node_id,
+                         'item_count': 0,
+                         'last_max': max_price}
+                collection_cache.insert_one(cache)
 
-        try:
-            new_items_count = get_results(collection_name, node_id, max_price=max_price, results_count_only=False,
-                                          family_tree=leaf_name)
-            print('node id: %s download done -> %d new_items downloaded' % (node_id, new_items_count))
-            collection_cache.update_one({'node_id': node_id},
-                                        {'$set': {'item_count': new_items_count, 'last_max': 0.00}})
+            try:
+                new_items_count = get_results(collection_name, node_id, max_price=max_price, results_count_only=False,
+                                              family_tree=leaf_name)
+                print('node id: %s download done -> %d new_items downloaded' % (node_id, new_items_count))
+                collection_cache.update_one({'node_id': node_id},
+                                            {'$set': {'item_count': new_items_count, 'last_max': 0.00}})
 
-        except Exception as e:
-            print_error('ERROR', 'node id: %s failed!\n %s' % (node_id, e))
+            except Exception as e:
+                print_error('ERROR', 'node id: %s failed!\n %s' % (node_id, e))
+                not_finished.append(leaf)
+        leafs = not_finished
+        do_again = len(leafs)
+        if do_again:
+            print_error('%d leafs to do again!' % do_again)
+        iteration += 1
 
     theArchiveDoorman(collection_name)
 
