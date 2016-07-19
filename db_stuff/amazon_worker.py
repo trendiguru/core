@@ -39,30 +39,6 @@ def insert_items(collection_name, item_list, items_in_page, print_flag, family_t
             else:
                 parent_asin = item['ParentASIN']
 
-            if 'LargeImage' in item_keys:
-                image_url = item['LargeImage']['URL']
-            elif 'MediumImage' in item_keys:
-                image_url = item['MediumImage']['URL']
-            elif 'SmallImage' in item_keys:
-                image_url = item['SmallImage']['URL']
-            else:
-                if print_flag:
-                    print_error('No image')
-                continue
-
-            image = get_cv2_img_array(image_url)
-            if image is None:
-                if print_flag:
-                    print_error('bad img url')
-                continue
-
-            img_hash = get_hash(image)
-
-            hash_exists = collection.find_one({'img_hash': img_hash})
-            if hash_exists:
-                print ('hash already exists')
-                continue
-
             click_url = item['DetailPageURL']
             offer = item['OfferSummary']['LowestNewPrice']
             price = {'price': float(offer['Amount']) / 100,
@@ -96,12 +72,8 @@ def insert_items(collection_name, item_list, items_in_page, print_flag, family_t
                 long_d = ' '.join(attributes['Feature'])
             else:
                 long_d = ''
-            features = {'color': color,
-                        'sizes': sizes,
-                        'shortDescription': short_d,
-                        'longDescription': long_d}
 
-            parent_asin_exists = collection.find_one({'parent_asin': parent_asin, 'features.color': features['color']})
+            parent_asin_exists = collection.find_one({'parent_asin': parent_asin, 'features.color': color})
             if parent_asin_exists:
                 sizes = parent_asin_exists['features']['sizes']
                 if clothing_size not in sizes:
@@ -112,7 +84,31 @@ def insert_items(collection_name, item_list, items_in_page, print_flag, family_t
                 else:
                     if print_flag:
                         print_error('parent_asin + color + size already exists ----- %s->%s' %
-                                    (features['color'], clothing_size))
+                                    (color, clothing_size))
+                continue
+
+            if 'LargeImage' in item_keys:
+                image_url = item['LargeImage']['URL']
+            elif 'MediumImage' in item_keys:
+                image_url = item['MediumImage']['URL']
+            elif 'SmallImage' in item_keys:
+                image_url = item['SmallImage']['URL']
+            else:
+                if print_flag:
+                    print_error('No image')
+                continue
+
+            image = get_cv2_img_array(image_url)
+            if image is None:
+                if print_flag:
+                    print_error('bad img url')
+                continue
+
+            img_hash = get_hash(image)
+
+            hash_exists = collection.find_one({'img_hash': img_hash})
+            if hash_exists:
+                print ('hash already exists')
                 continue
 
             new_item = {'asin': asin,
@@ -140,8 +136,8 @@ def insert_items(collection_name, item_list, items_in_page, print_flag, family_t
             while q.count > 5000:
                 sleep(30)
 
-            q.enqueue(generate_mask_and_insert, doc=new_item, image_url=image_url,
-                      fp_date=today_date, coll=collection_name, img=image, neuro=False)
+            q.enqueue(generate_mask_and_insert, args=(new_item, image_url, today_date, collection_name, image, False),
+                      timeout=1800)
 
             new_items_count += 1
 
