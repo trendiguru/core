@@ -98,8 +98,10 @@ def insert_items(collection_name, item_list, items_in_page, print_flag, family_t
             elif 'SmallImage' in item_keys:
                 image_url = item['SmallImage']['URL']
             elif 'ImageSets' in item_keys:
-                keys = item['ImageSets'].keys()
-                print_error('ImageSets keys', keys)
+                img_keys = item['ImageSets'].keys()
+                if 'ImageSet' in img_keys:
+                    inner_keys = item['ImageSets']['ImageSet'].keys()
+                print_error('ImageSets keys', inner_keys)
                 raw_input()
                 continue
             else:
