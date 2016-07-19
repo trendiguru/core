@@ -220,6 +220,7 @@ def get_results(collection_name, node_id, price_flag=True, max_price=3000.0, min
     total_pages = int(res_dict['TotalPages'])
 
     if results_count > 100:
+        print ('min : %.2f -> max : %.2f' %( min_price, max_price))
         if (max_price - min_price) <= 0.01:
             total_pages = 10
         elif (max_price-min_price) <= 0.02:
@@ -362,7 +363,7 @@ def download_all(country_code='US', gender='Female', delete_collection=False, de
         if cache_exists:
             if cache_exists['last_max'] > 0.00:
                 max_price = cache_exists['last_max']
-                print ('node id: %s didn\'t finish -> continuing from %d' % (node_id, max_price))
+                print ('node id: %s didn\'t finish -> continuing from %.2f' % (node_id, max_price))
             else:
                 print ('node id: %s already downloaded!' % node_id)
                 continue
