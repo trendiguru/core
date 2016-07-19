@@ -48,15 +48,26 @@ clickUrl -> Item.DetailPageURL
 1. query in itemsearch
 2. find unique parentASIN
 3. use these ParentASIN to do ItemLookup
-
 '''
+import argparse
+
+import sys
+
 from Amazon_signature import get_amazon_signed_url
-from time import strftime,gmtime,sleep,time
+from time import strftime, gmtime, sleep, time
 from requests import get
 import xmltodict
-from ..constants import db
-import logging
+from db_utils import log2file, print_error, theArchiveDoorman
 from ..Yonti import pymongo_utils
+from ..constants import db, redis_conn
+from rq import Queue
+from datetime import datetime
+from amazon_worker import insert_items
+
+
+today_date = str(datetime.date(datetime.now()))
+
+q = Queue('amazon_worker', connection=redis_conn)
 
 blacklist = ['Jewelry', 'Watches', 'Handbags', 'Accessories', 'Lingerie, Sleep & Lounge', 'Socks & Hosiery',
              'Handbags & Wallets', 'Shops', 'Girls', 'Boys', 'Shoes', 'Underwear', 'Baby', 'Sleep & Lounge',
@@ -67,7 +78,7 @@ blacklist = ['Jewelry', 'Watches', 'Handbags', 'Accessories', 'Lingerie, Sleep &
 base_parameters = {
     'AWSAccessKeyId': 'AKIAIQJZVKJKJUUC4ETA',
     'AssociateTag': 'fazz0b-20',
-    'Version':'2013-08-01',
+    'Version': '2013-08-01',
     'Availability': 'Available',
     'Operation': 'ItemSearch',
     'Service': 'AWSECommerceService',
@@ -75,6 +86,7 @@ base_parameters = {
     'ResponseGroup': 'ItemAttributes, OfferSummary,Images'}
 
 last_time = time()
+log_name = '/home/developer/yonti/amazon_download_stats.log'
 
 
 def proper_wait(print_flag=False):
@@ -86,31 +98,11 @@ def proper_wait(print_flag=False):
         current_time = time()
     if print_flag:
         print ('time diff: %f' % (current_time - last_time))
-    last_time = current_time
+    last_time=current_time
 
 
-def print_error(title,message):
-    dotted_line = '------------------------------------%s-----------------------------------------' % title
-
-    if len(message)>0:
-        print ('\n%s' % dotted_line)
-        print (message)
-        print ('%s\n' % dotted_line)
-    else:
-        print ('\n%s\n' % dotted_line)
-
-
-def log2file(mode='w', LOG_FILENAME='/home/developer/yonti/amazon_download_stats.log'):
-    logger = logging.getLogger(__name__)
-    logger.setLevel(logging.INFO)
-    handler = logging.FileHandler(LOG_FILENAME, mode=mode)
-    handler.setLevel(logging.INFO)
-    logger.addHandler(handler)
-    return logger, handler
-
-
-def truncate_float_to_2_decimal_places(float2round,true_4_str=False):
-    float_as_int = int(float2round*100)
+def truncate_float_to_2_decimal_places(float2round, true_4_str=False):
+    float_as_int = int(float2round*100+0.5)
     if true_4_str:
         return str(float_as_int)
 
@@ -125,7 +117,7 @@ def format_price(price_float, period=False):
     price_str = truncate_float_to_2_decimal_places(price_float, true_4_str=True)
 
     # verify 4 character string
-    while len(price_str)<4:
+    while len(price_str) < 4:
         price_str = '0'+price_str
 
     if period:
@@ -134,7 +126,8 @@ def format_price(price_float, period=False):
     return price_str
 
 
-def make_itemsearch_request(pagenum, node_id, min_price, max_price, price_flag=True):
+def make_itemsearch_request(pagenum, node_id, min_price, max_price, price_flag=True, print_flag=False):
+    # global last_time
     parameters = base_parameters.copy()
     parameters['Timestamp'] = strftime("%Y-%m-%dT%H:%M:%SZ", gmtime())
     parameters['SearchIndex'] = 'FashionWomen'
@@ -149,177 +142,73 @@ def make_itemsearch_request(pagenum, node_id, min_price, max_price, price_flag=T
     req = get_amazon_signed_url(parameters, 'GET', False)
     proper_wait()
     res = get(req)
+    # last_time = time()
+
     if res.status_code != 200:
-        print_error('Bad request', req)
+        if print_flag:
+            print_error('Bad request', req)
         return [], -1
 
     res_dict = dict(xmltodict.parse(res.text))
     if 'ItemSearchResponse' not in res_dict.keys():
-        print_error('No ItemSearchResponse', req)
-        return [], -1
+        if print_flag:
+            print_error('No ItemSearchResponse', req)
+        return [], -2
 
     res_dict = dict(res_dict['ItemSearchResponse']['Items'])
     if 'TotalResults' in res_dict.keys():
         results_count = int(res_dict['TotalResults'])
     else:
-        print_error('bad query', req)
-        return [], -1
+        if print_flag:
+            print_error('bad query', req)
+        return [], -3
 
     if results_count == 0:
-        price_range = 'PriceRange: %s -> %s ' % (format_price(min_price, True), format_price(max_price, True))
-        print_error('no results for %s' % price_range, '')
-        return [], -1
+        if print_flag:
+            price_range = 'PriceRange: %s -> %s ' % (format_price(min_price, True), format_price(max_price, True))
+            print_error('no results for %s' % price_range)
+        return [], -4
 
     if 'TotalPages' not in res_dict.keys():
-        print_error('no TotalPages in dict keys', '')
-        return [], -1
+        if print_flag:
+            print_error('no TotalPages in dict keys')
+        return [], -5
 
     if 'Errors' in res_dict.keys():
-        print_error('Error', req)
-        return [], -1
+        if print_flag:
+            print_error('Error', req)
+        return [], -6
 
     return res_dict, results_count
 
 
-def process_results(collection_name, pagenum, node_id, min_price, max_price, res_dict=None, items_in_page=10):
+def process_results(collection_name, pagenum, node_id, min_price, max_price, family_tree, res_dict=None,
+                    items_in_page=10, print_flag=False):
     if pagenum is not 1:
-        res_dict, new_item_count = make_itemsearch_request(pagenum, node_id, min_price, max_price)
-        if new_item_count < 0:
+        res_dict, new_item_count = make_itemsearch_request(pagenum, node_id, min_price, max_price,
+                                                           print_flag=print_flag)
+        if new_item_count < 2:
             return 0
 
     item_list = res_dict['Item']
-    new_item_count = 0
-    collection = db[collection_name]
-    for x, item in enumerate(item_list):
-        if (x+1) > items_in_page:
-            break
-        # asin = 0
-        # parent_asin = 0
-        # click_url = 0
-        # image = 0
-        # price = 0
-        # atttibutes=0
-        # color = 0
-        # sizes = 0
-        # short_d = 0
-        # long_d = 0
-        # features = 0
-        try:
-            item_keys = item.keys()
-            if 'ASIN' not in item_keys:
-                continue
-            asin = item['ASIN']
-            if 'ParentASIN' not in item_keys:
-                parent_asin = asin
-            else:
-                parent_asin = item['ParentASIN']
-            click_url = item['DetailPageURL']
-            if 'LargeImage' in item_keys:
-                image = item['LargeImage']['URL']
-            elif 'MediumImage' in item_keys:
-                image = item['MediumImage']['URL']
-            elif 'SmallImage' in item_keys:
-                image = item['SmallImage']['URL']
-            else:
-                print_error('No image', '')
-                continue
+    item_count = len(item_list)
+    q.enqueue(insert_items, args=(collection_name, item_list, items_in_page, print_flag, family_tree), timeout=5400)
 
-            offer = item['OfferSummary']['LowestNewPrice']
-            price = {'price': float(offer['Amount'])/100,
-                     'currency': offer['CurrencyCode'],
-                     'priceLabel': offer['FormattedPrice']}
-            attributes = item['ItemAttributes']
-            attr_keys = attributes.keys()
-            if 'ClothingSize' in attr_keys:
-                clothing_size = attributes['ClothingSize']
-            elif 'Size' in attr_keys:
-                clothing_size = attributes['Size']
-            else:
-                print_error('No Size', attr_keys)
-                continue
-
-            if 'Brand' in attr_keys:
-                brand = attributes['Brand']
-            else:
-                brand = 'unknown'
-
-            if 'ProductTypeName' in attr_keys:
-                category = attributes['ProductTypeName']
-            else:
-                category='2BDtermind'
-
-            color = attributes['Color']
-            sizes = [clothing_size]
-            short_d = attributes['Title']
-            if 'Feature' in attr_keys:
-                long_d = ' '.join(attributes['Feature'])
-            else:
-                long_d = ''
-            features = {'color': color,
-                        'sizes': sizes,
-                        'shortDescription': short_d,
-                        'longDescription': long_d}
-
-            # print('##################################')
-            asin_exists = collection.find_one({'asin': asin})
-            if asin_exists:
-                # print('item exists already!')
-                continue
-
-            # print('ooooooooooooooooooooooooooooooooooo')
-            parent_asin_exists = collection.find_one({'parent_asin': parent_asin, 'features.color': features['color']})
-            if parent_asin_exists:
-                # print ('parent_asin + color already exists')
-                sizes = parent_asin_exists['features']['sizes']
-                if clothing_size not in sizes:
-                    sizes.append(clothing_size)
-                    collection.update_one({'_id': parent_asin_exists['_id']}, {'$set':{'features.sizes': sizes}})
-                    # print ('added another size to existing item')
-                else:
-                    pass
-                    # print ('parent_asin + color + size already exists ----- %s->%s' % (features['color'], clothing_size))
-                continue
-            # print('????????????????????????????????????')
-            new_item = {'asin': asin,
-                        'parent_asin': parent_asin,
-                        'clickUrl': click_url,
-                        'images': {'XLarge': image},
-                        'price': price,
-                        'color': color,
-                        'sizes': sizes,
-                        'shortDescription': short_d,
-                        'longDescription': long_d,
-                        'brand': brand,
-                        'categories': category}
-
-            # print 'inserting'
-            collection.insert_one(new_item)
-            # print 'item inserted\n'
-            new_item_count += 1
-
-        except:
-            print ('---------------problem in the way-------------')
-            # print (asin)
-            # print(parent_asin)
-            # print(click_url)
-            # print(image)
-            # print(price)
-            # print(features)
-            # print (atttibutes)
-            # print(color)
-            # print(sizes)
-            # print(short_d)
-            # print(long_d)
-            # raw_input()
-            pass
-
-    return new_item_count
+    return item_count
 
 
-def get_results(collection_name, node_id, price_flag=True, max_price=100000.0, min_price=0.0, results_count_only=False, name='moshe'):
+def get_results(collection_name, node_id, price_flag=True, max_price=3000.0, min_price=0.0, results_count_only=False,
+                family_tree='moshe'):
+
+    cache_name = collection_name+'_cache'
+    collection_cache = db[cache_name]
+    collection_cache.update_one({'node_id':node_id}, {'$set':{'last_max':max_price}})
 
     res_dict, results_count = make_itemsearch_request(1, node_id, min_price, max_price, price_flag=price_flag)
-    if results_count < 0:
+    if results_count < 2:
+        summary = 'Name: %s, PriceRange: %s -> %s , ResultCount: %d (%d)' \
+                  % (family_tree, format_price(min_price, True), format_price(max_price, True), results_count, 0)
+        log2file(mode='a', log_filename=log_name, message=summary)
         return 0
 
     if results_count_only:
@@ -329,31 +218,32 @@ def get_results(collection_name, node_id, price_flag=True, max_price=100000.0, m
     total_pages = int(res_dict['TotalPages'])
 
     if results_count > 100:
-        if min_price == max_price:
-            total_pages=10
-            print_error('same')
-        elif (max_price-min_price) == 0.01:
-            print_error('diff == 0.01')
+        # print ('min : %.4f -> max : %.4f' %(min_price, max_price))
+        diff = truncate_float_to_2_decimal_places(max_price-min_price)
+        if diff <= 0.01:
+            total_pages = 10
+        elif diff <= 0.02:
             new_items_count += get_results(collection_name, node_id,
-                                           min_price=min_price, max_price=min_price, name=name)
+                                           min_price=max_price, max_price=max_price, family_tree=family_tree)
+            new_min_price = max_price - 0.01
             new_items_count += get_results(collection_name, node_id,
-                                           min_price=max_price, max_price=max_price, name=name)
+                                           min_price=new_min_price, max_price=new_min_price, family_tree=family_tree)
             return new_items_count
         else:
-            print_error('diff > 0.02')
             mid_price = (max_price+min_price)/2.0
             mid_price_rounded = truncate_float_to_2_decimal_places(mid_price)
             new_items_count += get_results(collection_name, node_id,
-                                           min_price=mid_price_rounded, max_price=max_price, name=name)
+                                           min_price=mid_price_rounded, max_price=max_price, family_tree=family_tree)
             new_items_count += get_results(collection_name, node_id,
-                                           min_price=min_price, max_price=mid_price_rounded, name=name)
+                                           min_price=min_price, max_price=mid_price_rounded, family_tree=family_tree)
             return new_items_count
 
     if total_pages == 1:
         num_of_items_in_page = results_count
     else:
         num_of_items_in_page = 10
-    new_items_count += process_results(collection_name, 1, node_id, min_price, max_price, res_dict, items_in_page=num_of_items_in_page)
+    new_items_count += process_results(collection_name, 1, node_id, min_price, max_price, family_tree=family_tree,
+                                       res_dict=res_dict, items_in_page=num_of_items_in_page)
 
     for pagenum in range(2, total_pages+1):
         if pagenum == total_pages:
@@ -361,18 +251,15 @@ def get_results(collection_name, node_id, price_flag=True, max_price=100000.0, m
             if num_of_items_in_page < 2:
                 break
         new_items_count += process_results(collection_name, pagenum, node_id, min_price, max_price,
-                                           items_in_page=num_of_items_in_page)
-
-    summary = 'Name: %s, PriceRange: %s -> %s , ResultCount: %d (%d)'\
-              % (name, format_price(min_price, True), format_price(max_price, True), results_count, new_items_count)
-    logger, handler = log2file(mode='a')
-    logger.info(summary)
-    logger.removeHandler(handler)
-    del logger, handler
-    print (summary)
+                                           family_tree=family_tree, items_in_page=num_of_items_in_page)
+    summary = 'Name: %s, PriceRange: %s -> %s , ResultCount: %d (%d)' \
+              % (family_tree, format_price(min_price, True), format_price(max_price, True), results_count,
+                 new_items_count)
+    log2file(mode='a', log_filename=log_name, message=summary)
     return new_items_count
 
-def build_category_tree(root='7141124011', tab=0, parents=[], delete_collection=False):
+
+def build_category_tree(root='7141124011', tab=0, parents=[], delete_collection=True):
 
     if delete_collection:
         db.amazon_category_tree.delete_many({})
@@ -442,33 +329,72 @@ def build_category_tree(root='7141124011', tab=0, parents=[], delete_collection=
     return name
 
 
-def delete_and_index(collection_name, index_list):
-    collection = db[collection_name]
-    collection.delete_many({})
-    indexes = collection.index_information().keys()
-    for idx in index_list:
-        idx_1 = idx + '_1'
-        if idx_1 not in indexes:
-            collection.create_index(idx, background=True)
+def clear_duplicates(name):
+    collection = db[name]
+    before = collection.count()
+    all_items = collection.find()
+    for item in all_items:
+        item_id = item['_id']
+        asin= item['asin']
+        asin_exists = collection.find({'asin':asin})
+        if asin_exists.count()>1:
+            id_to_del = []
+            for tmp_item in asin_exists:
+                tmp_id = tmp_item['_id']
+                if tmp_id == item_id:
+                    continue
+                id_to_del.append(tmp_id)
+            if len(id_to_del):
+                collection.delete_many({'_id':{'$in':id_to_del}})
+
+        parent = item['parent_asin']
+        parent_exists = collection.find({'parent_asin': parent})
+        if parent_exists.count() > 1:
+            id_to_del = []
+            current_sizes = item['sizes']
+            current_color = item['color']
+            for tmp_item in parent_exists:
+                tmp_id = tmp_item['_id']
+                tmp_color = tmp_item['color']
+                if tmp_id == item_id or tmp_color != current_color:
+                    continue
+                tmp_sizes = tmp_item['sizes']
+                for size in tmp_sizes:
+                    if size not in current_sizes:
+                        current_sizes.append(size)
+                id_to_del.append(tmp_id)
+            if len(id_to_del):
+                collection.delete_many({'_id': {'$in': id_to_del}})
+
+        img_hash = item['img_hash']
+        hash_exists = collection.find({'img_hash': img_hash})
+        if hash_exists.count() > 1:
+            id_to_del = []
+            for tmp_item in parent_exists:
+                tmp_id = tmp_item['_id']
+                if tmp_id == item_id:
+                    continue
+                id_to_del.append(tmp_id)
+            if len(id_to_del):
+                collection.delete_many({'_id': {'$in': id_to_del}})
+
+    print_error('clear duplicates', 'count before : %d\ncount after : %d' % (before, collection.count()))
 
 
-def download_all(country_code='US', gender='Female', delete_collection=False, delete_cache=False):
-    collection_name = 'amazon_%s_%s' %(country_code, gender)
+def download_all(country_code='US', gender='Female', del_collection=False, del_cache=False, cat_tree=False):
+
+    collection_name = 'amazon_%s_%s' % (country_code, gender)
     cache_name = collection_name+'_cache'
     collection_cache = db[cache_name]
-    # build_category_tree(delete_collection=delete_collection)
-    logger, handler = log2file(mode='w')
-    logger.info('download started')
-    logger.removeHandler(handler)
-    del logger, handler
-    print('starting to download')
+    if cat_tree:
+        build_category_tree()
 
-    if delete_collection:
+    if del_collection:
         pymongo_utils.delete_or_and_index(collection_name, ['id', 'img_hash', 'categories', 'images.XLarge',
                                                             'download_data.dl_version', 'asin', 'parent_asin',
                                                             'features.color'], delete_flag=True)
 
-    if delete_cache:
+    if del_cache:
         pymongo_utils.delete_or_and_index(cache_name, ['node_id'], delete_flag=True)
 
     if gender is 'Female':
@@ -476,26 +402,118 @@ def download_all(country_code='US', gender='Female', delete_collection=False, de
     else:
         parent_gender = 'Men'
 
-    leafs = db.amazon_category_tree.find({'Children.count': 0, 'Parents': parent_gender})
-    for leaf in leafs:
-        leaf_name = '->'.join(leaf['Parents']) + '->' + leaf['Name']
-        node_id = leaf['BrowseNodeId']
-        cache_exists = collection_cache.find_one({'node_id': node_id})
-        if cache_exists:
-            print ('node id: %s already downloaded!')
-            continue
+    leafs_cursor = db.amazon_category_tree.find({'Children.count': 0, 'Parents': parent_gender})
+    leafs = [x for x in leafs_cursor]
+    iteration = 0
+    while len(leafs):
+        if iteration > 5:
+            break
+        not_finished = []
 
-        try:
-            new_items_count = get_results(collection_name, node_id, results_count_only=False, name=leaf_name)
-            print('node id: %s download done -> %d new_items downloaded' % (node_id, new_items_count))
-            cache = {'node_id': node_id,
-                     'item_count': new_items_count}
-            collection_cache.insert_one(cache)
+        for leaf in leafs:
+            leaf_name = '->'.join(leaf['Parents']) + '->' + leaf['Name']
+            node_id = leaf['BrowseNodeId']
+            cache_exists = collection_cache.find_one({'node_id': node_id})
+            max_price = 3000.0
+            if cache_exists:
+                if cache_exists['last_max'] > 0.00:
+                    max_price = cache_exists['last_max']
+                    print ('node id: %s didn\'t finish -> continuing from %.2f' % (node_id, max_price))
+                else:
+                    print ('node id: %s already downloaded!' % node_id)
+                    continue
+            else:
+                cache = {'node_id': node_id,
+                         'item_count': 0,
+                         'last_max': max_price}
+                collection_cache.insert_one(cache)
 
-        except Exception as e:
-            print_error('ERROR', 'node id: %s failed!\n %s' % (node_id, e))
+            try:
+                new_items_count = get_results(collection_name, node_id, max_price=max_price, results_count_only=False,
+                                              family_tree=leaf_name)
+                print('node id: %s download done -> %d new_items downloaded' % (node_id, new_items_count))
+                collection_cache.update_one({'node_id': node_id},
+                                            {'$set': {'item_count': new_items_count, 'last_max': 0.00}})
+
+            except Exception as e:
+                print_error('ERROR', 'node id: %s failed!\n %s' % (node_id, e))
+                not_finished.append(leaf)
+        leafs = not_finished
+        do_again = len(leafs)
+        if do_again:
+            print_error('%d leafs to do again!' % do_again)
+        iteration += 1
+
+    clear_duplicates(collection_name)
+    theArchiveDoorman(collection_name, instock_limit=7, archive_limit=14)
+    collection_cache.delete_many({})
+    message = 'amazon %s %s is Done!' % (country_code, gender)
+    log2file(mode='a', log_filename=log_name, message=message, print_flag=True)
 
 
-for gender in ['Female', 'Male']:
-    download_all(country_code='US', gender=gender, delete_collection=True, delete_cache=True)
+def getUserInput():
+    parser = argparse.ArgumentParser(description='"@@@ Amazon Download @@@')
+    parser.add_argument('-c', '--code', default="US", dest="country_code",
+                        help='country code - currently doing only US')
+    parser.add_argument('-g', '--gender', dest="gender",
+                        help='specify which gender to download', required=True)
+    parser.add_argument('-d', '--delete', dest="delete_all", default=False,
+                        help='delete all items in collection')
+    parser.add_argument('-f', '--fresh', dest="delete_cache", default=False,
+                        help='delete all cache and start a fresh download')
+    parser.add_argument('-t', '--tree', dest="tree", default=False,
+                        help='build category tree from scratch')
+    args = parser.parse_args()
+    return args
+
+
+if __name__ == "__main__":
+    user_input = getUserInput()
+    c_c = user_input.country_code
+    col_gender = user_input.gender
+    gender_upper = col_gender.upper()
+    if gender_upper == 'FEMALE':
+        col_gender= 'Female'
+    elif gender_upper == 'MALE':
+        col_gender= 'Male'
+    else:
+        print("bad input - gender should be only Female or Male ")
+        sys.exit(1)
+
+    cc_upper = c_c.upper()
+    if cc_upper != 'US':
+        print("bad input - for now only working on US")
+        sys.exit(1)
+
+    col_name = 'amazon_%s_%s' % (cc_upper, col_gender)
+    title = "@@@ amazon Download @@@"
+    title2 = "you choose to update the %s collection" % col_name
+    log2file(mode='w', log_filename=log_name, message=title, print_flag=True)
+    log2file(mode='a', log_filename=log_name, message=title2, print_flag=True)
+
+    delete_all = user_input.delete_all
+    if delete_all:
+        warning = 'you choose to delete all items!!!'
+        sure = 'are you sure? (yes/no)'
+        print_error(warning)
+        ans = raw_input(sure)
+        if ans != 'yes':
+            warning = 'you choose to continue WITHOUT deleting'
+            delete_all = False
+        else:
+            warning = 'you choose to DELETE all'
+        print_error(warning)
+
+    delete_cache = user_input.delete_cache
+    build_tree = user_input.tree
+    if build_tree:
+        delete_cache = True
+    download_all(country_code=cc_upper, gender=col_gender, del_collection=delete_all, del_cache=delete_cache,
+                 cat_tree=build_tree)
+
+    # forest_job = forest.enqueue(plantForests4AllCategories, col_name=col, timeout=3600)
+    # while not forest_job.is_finished and not forest_job.is_failed:
+    #     time.sleep(300)
+    # if forest_job.is_failed:
+    #     print ('annoy plant forest failed')
 
