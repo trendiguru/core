@@ -146,7 +146,7 @@ def insert_items(collection_name, item_list, items_in_page, print_flag, family_t
             new_items_count += 1
 
         except Exception as e:
-            print_error('ERROR', str(e))
+            print_error('ERROR', e)
             pass
 
     print('%d new items inserted to %s' % (new_items_count, collection_name))

@@ -86,7 +86,8 @@ base_parameters = {
 last_time = time()
 log_name = '/home/developer/yonti/amazon_download_stats.log'
 
-def proper_wait(print_flag=True):
+
+def proper_wait(print_flag=False):
     global last_time
     current_time = time()
     time_diff = current_time - last_time
@@ -193,16 +194,6 @@ def process_results(collection_name, pagenum, node_id, min_price, max_price, fam
     return item_count
 
 
-def log2file_and_print(name, min_price, max_price, results_count, new_items_count):
-    summary = 'Name: %s, PriceRange: %s -> %s , ResultCount: %d (%d)' \
-              % (name, format_price(min_price, True), format_price(max_price, True), results_count, new_items_count)
-    logger, handler = log2file(mode='a', log_filename=log_name)
-    logger.info(summary)
-    logger.removeHandler(handler)
-    del logger, handler
-    # print (summary)
-
-
 def get_results(collection_name, node_id, price_flag=True, max_price=3000.0, min_price=0.0, results_count_only=False,
                 family_tree='moshe'):
 
@@ -212,7 +203,9 @@ def get_results(collection_name, node_id, price_flag=True, max_price=3000.0, min
 
     res_dict, results_count = make_itemsearch_request(1, node_id, min_price, max_price, price_flag=price_flag)
     if results_count < 2:
-        log2file_and_print(family_tree, min_price, max_price, results_count, 0)
+        summary = 'Name: %s, PriceRange: %s -> %s , ResultCount: %d (%d)' \
+                  % (family_tree, format_price(min_price, True), format_price(max_price, True), results_count, 0)
+        log2file(mode='a', log_filename=log_name, message=summary, print_flag=True)
         return 0
 
     if results_count_only:
@@ -256,8 +249,10 @@ def get_results(collection_name, node_id, price_flag=True, max_price=3000.0, min
                 break
         new_items_count += process_results(collection_name, pagenum, node_id, min_price, max_price,
                                            family_tree=family_tree, items_in_page=num_of_items_in_page)
-
-    log2file_and_print(family_tree, min_price, max_price, results_count, new_items_count)
+    summary = 'Name: %s, PriceRange: %s -> %s , ResultCount: %d (%d)' \
+              % (family_tree, format_price(min_price, True), format_price(max_price, True), results_count,
+                 new_items_count)
+    log2file(mode='a', log_filename=log_name, message=summary, print_flag=True)
     return new_items_count
 
 
@@ -389,11 +384,7 @@ def download_all(country_code='US', gender='Female', delete_collection=False, de
     cache_name = collection_name+'_cache'
     collection_cache = db[cache_name]
     # build_category_tree(delete_collection=delete_collection)
-    logger, handler = log2file(mode='w', log_filename=log_name)
-    logger.info('download started')
-    logger.removeHandler(handler)
-    del logger, handler
-    print('starting to download')
+    log2file(mode='w', log_filename=log_name, message='download started', print_flag=True)
 
     if delete_collection:
         pymongo_utils.delete_or_and_index(collection_name, ['id', 'img_hash', 'categories', 'images.XLarge',
@@ -454,11 +445,8 @@ def download_all(country_code='US', gender='Female', delete_collection=False, de
     theArchiveDoorman(collection_name)
     collection_cache.delete_many({})
     message = 'amazon %s %s is Done!' % (country_code, gender)
-    print_error(message)
-    logger, handler = log2file(mode='a', log_filename=log_name)
-    logger.info(message)
-    logger.removeHandler(handler)
-    del logger, handler
+    log2file(mode='a', log_filename=log_name, message=message, print_flag=True)
+
 
 for gender in ['Female', 'Male']:
     download_all(country_code='US', gender=gender, delete_collection=False, delete_cache=False)

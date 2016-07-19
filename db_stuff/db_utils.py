@@ -19,13 +19,20 @@ def print_error(title, message=''):
         print ('\n%s\n' % dotted_line)
 
 
-def log2file(mode, log_filename):
+def log2file(mode, log_filename, message='', print_flag=False):
     logger = logging.getLogger(__name__)
     logger.setLevel(logging.INFO)
     handler = logging.FileHandler(log_filename, mode=mode)
     handler.setLevel(logging.INFO)
     logger.addHandler(handler)
-    return logger, handler
+    if len(message):
+        logger.info(message)
+        logger.removeHandler(handler)
+        del logger, handler
+        if print_flag:
+            print_error(message)
+    else:
+        return logger, handler
 
 
 def get_hash(image):
