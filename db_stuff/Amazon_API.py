@@ -49,7 +49,9 @@ clickUrl -> Item.DetailPageURL
 2. find unique parentASIN
 3. use these ParentASIN to do ItemLookup
 '''
+import argparse
 
+import sys
 
 from Amazon_signature import get_amazon_signed_url
 from time import strftime, gmtime, sleep, time
@@ -205,7 +207,7 @@ def get_results(collection_name, node_id, price_flag=True, max_price=3000.0, min
     if results_count < 2:
         summary = 'Name: %s, PriceRange: %s -> %s , ResultCount: %d (%d)' \
                   % (family_tree, format_price(min_price, True), format_price(max_price, True), results_count, 0)
-        log2file(mode='a', log_filename=log_name, message=summary, print_flag=True)
+        log2file(mode='a', log_filename=log_name, message=summary)
         return 0
 
     if results_count_only:
@@ -252,11 +254,11 @@ def get_results(collection_name, node_id, price_flag=True, max_price=3000.0, min
     summary = 'Name: %s, PriceRange: %s -> %s , ResultCount: %d (%d)' \
               % (family_tree, format_price(min_price, True), format_price(max_price, True), results_count,
                  new_items_count)
-    log2file(mode='a', log_filename=log_name, message=summary, print_flag=True)
+    log2file(mode='a', log_filename=log_name, message=summary)
     return new_items_count
 
 
-def build_category_tree(root='7141124011', tab=0, parents=[], delete_collection=False):
+def build_category_tree(root='7141124011', tab=0, parents=[], delete_collection=True):
 
     if delete_collection:
         db.amazon_category_tree.delete_many({})
@@ -326,8 +328,8 @@ def build_category_tree(root='7141124011', tab=0, parents=[], delete_collection=
     return name
 
 
-def clear_duplicates(col_name):
-    collection = db[col_name]
+def clear_duplicates(name):
+    collection = db[name]
     before = collection.count()
     all_items = collection.find()
     for item in all_items:
@@ -378,20 +380,20 @@ def clear_duplicates(col_name):
     print_error('clear duplicates', 'count before : %d\ncount after : %d' % (before, collection.count()))
 
 
-def download_all(country_code='US', gender='Female', delete_collection=False, delete_cache=False):
+def download_all(country_code='US', gender='Female', del_collection=False, del_cache=False, cat_tree=False):
 
     collection_name = 'amazon_%s_%s' % (country_code, gender)
     cache_name = collection_name+'_cache'
     collection_cache = db[cache_name]
-    # build_category_tree(delete_collection=delete_collection)
-    log2file(mode='w', log_filename=log_name, message='download started', print_flag=True)
+    if cat_tree:
+        build_category_tree()
 
-    if delete_collection:
+    if del_collection:
         pymongo_utils.delete_or_and_index(collection_name, ['id', 'img_hash', 'categories', 'images.XLarge',
                                                             'download_data.dl_version', 'asin', 'parent_asin',
                                                             'features.color'], delete_flag=True)
 
-    if delete_cache:
+    if del_cache:
         pymongo_utils.delete_or_and_index(cache_name, ['node_id'], delete_flag=True)
 
     if gender is 'Female':
@@ -448,5 +450,67 @@ def download_all(country_code='US', gender='Female', delete_collection=False, de
     log2file(mode='a', log_filename=log_name, message=message, print_flag=True)
 
 
-for gender in ['Female', 'Male']:
-    download_all(country_code='US', gender=gender, delete_collection=False, delete_cache=False)
+def getUserInput():
+    parser = argparse.ArgumentParser(description='"@@@ Amazon Download @@@')
+    parser.add_argument('-c', '--code', default="US", dest="country_code",
+                        help='country code - currently doing only US')
+    parser.add_argument('-g', '--gender', dest="gender",
+                        help='specify which gender to download', required=True)
+    parser.add_argument('-d', '--delete', dest="delete_all", default=False,
+                        help='delete all items in collection')
+    parser.add_argument('-f', '--fresh', dest="delete_cache", default=False,
+                        help='delete all cache and start a fresh download')
+    parser.add_argument('-t', '--tree', dest="tree", default=False,
+                        help='build category tree from scratch')
+    args = parser.parse_args()
+    return args
+
+
+if __name__ == "__main__":
+    user_input = getUserInput()
+    c_c = user_input.country_code
+    col_gender = user_input.gender
+    gender_upper = col_gender.upper()
+    if gender_upper == 'FEMALE':
+        col_gender= 'Female'
+    elif gender_upper == 'MALE':
+        col_gender= 'Male'
+    else:
+        print("bad input - gender should be only Female or Male ")
+        sys.exit(1)
+
+    cc_upper = c_c.upper()
+    if cc_upper != 'US':
+        print("bad input - for now only working on US")
+        sys.exit(1)
+
+    col_name = 'amazon_%s_%s' % (cc_upper, col_gender)
+    title = "@@@ amazon Download @@@\n you choose to update the %s collection" % col_name
+    log2file(mode='w', log_filename=log_name, message=title, print_flag=True)
+
+    delete_all = user_input.delete_all
+    if delete_all:
+        warning = 'you choose to delete all items!!!'
+        sure = 'are you sure? (yes/no)'
+        print_error(warning)
+        ans = raw_input(sure)
+        if ans != 'yes':
+            warning = 'you choose to continue WITHOUT deleting'
+            delete_all = False
+        else:
+            warning = 'you choose to DELETE all'
+        print_error(warning)
+
+    delete_cache = user_input.delete_cache
+    build_tree = user_input.tree
+    if build_tree:
+        delete_cache = True
+    download_all(country_code=cc_upper, gender=col_gender, del_collection=delete_all, del_cache=delete_cache,
+                 cat_tree=build_tree)
+
+    # forest_job = forest.enqueue(plantForests4AllCategories, col_name=col, timeout=3600)
+    # while not forest_job.is_finished and not forest_job.is_failed:
+    #     time.sleep(300)
+    # if forest_job.is_failed:
+    #     print ('annoy plant forest failed')
+
