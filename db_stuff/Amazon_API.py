@@ -95,7 +95,6 @@ def proper_wait(print_flag=True):
         current_time = time()
     if print_flag:
         print ('time diff: %f' % (current_time - last_time))
-    last_time = current_time
 
 
 def truncate_float_to_2_decimal_places(float2round, true_4_str=False):
@@ -124,6 +123,7 @@ def format_price(price_float, period=False):
 
 
 def make_itemsearch_request(pagenum, node_id, min_price, max_price, price_flag=True, print_flag=False):
+    global last_time
     parameters = base_parameters.copy()
     parameters['Timestamp'] = strftime("%Y-%m-%dT%H:%M:%SZ", gmtime())
     parameters['SearchIndex'] = 'FashionWomen'
@@ -138,6 +138,8 @@ def make_itemsearch_request(pagenum, node_id, min_price, max_price, price_flag=T
     req = get_amazon_signed_url(parameters, 'GET', False)
     proper_wait()
     res = get(req)
+    last_time = time()
+
     if res.status_code != 200:
         if print_flag:
             print_error('Bad request', req)
