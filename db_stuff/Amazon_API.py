@@ -93,8 +93,8 @@ def proper_wait(print_flag=False):
     global last_time
     current_time = time()
     time_diff = current_time - last_time
-    if time_diff < 1.001:
-        sleep(1.001 - time_diff)
+    if time_diff < 1.01:
+        sleep(1.01 - time_diff)
         current_time = time()
     if print_flag:
         print ('time diff: %f' % (current_time - last_time))
