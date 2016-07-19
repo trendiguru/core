@@ -93,13 +93,6 @@ def insert_items(collection_name, item_list, items_in_page, print_flag, family_t
                 image_url = item['MediumImage']['URL']
             elif 'SmallImage' in item_keys:
                 image_url = item['SmallImage']['URL']
-            elif 'ImageSets' in item_keys:
-                img_keys = item['ImageSets'].keys()
-                if 'ImageSet' in img_keys:
-                    inner_keys = item['ImageSets']['ImageSet']['@Category']
-                    print_error('ImageSets keys', inner_keys)
-                    raw_input()
-                continue
             else:
                 if print_flag:
                     print_error('No image')
