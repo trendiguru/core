@@ -100,6 +100,7 @@ def insert_items(collection_name, item_list, items_in_page, print_flag, family_t
             elif 'ImageSets' in item_keys:
                 keys = item['ImageSets'].keys()
                 print_error('ImageSets keys', keys)
+                raw_input()
                 continue
             else:
                 if print_flag:
