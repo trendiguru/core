@@ -220,7 +220,7 @@ def get_results(collection_name, node_id, price_flag=True, max_price=3000.0, min
     total_pages = int(res_dict['TotalPages'])
 
     if results_count > 100:
-        print ('min : %.2f -> max : %.2f' %( min_price, max_price))
+        print ('min : %.4f -> max : %.4f' %(min_price, max_price))
         if (max_price - min_price) <= 0.01:
             total_pages = 10
         elif (max_price-min_price) <= 0.02:
