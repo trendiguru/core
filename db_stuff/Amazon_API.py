@@ -330,11 +330,58 @@ def build_category_tree(root='7141124011', tab=0, parents=[], delete_collection=
     db.amazon_category_tree.insert_one(leaf)
     return name
 
-# def clear_duplicates(col_name):
-#     collection = db[col_name]
-#     all_items = collection.find()
-#     for item in all_items:
-#         asin_exists
+
+def clear_duplicates(col_name):
+    collection = db[col_name]
+    before = collection.count()
+    all_items = collection.find()
+    for item in all_items:
+        item_id = item['_id']
+        asin= item['asin']
+        asin_exists = collection.find({'asin':asin})
+        if asin_exists.count()>1:
+            id_to_del = []
+            for tmp_item in asin_exists:
+                tmp_id = tmp_item['_id']
+                if tmp_id == item_id:
+                    continue
+                id_to_del.append(tmp_id)
+            if len(id_to_del):
+                collection.delete_many({'_id':{'$in':id_to_del}})
+
+        parent = item['parent_asin']
+        parent_exists = collection.find({'parent_asin': parent})
+        if parent_exists.count() > 1:
+            id_to_del = []
+            current_sizes = item['sizes']
+            current_color = item['color']
+            for tmp_item in parent_exists:
+                tmp_id = tmp_item['_id']
+                tmp_color = tmp_item['color']
+                if tmp_id == item_id or tmp_color != current_color:
+                    continue
+                tmp_sizes = tmp_item['sizes']
+                for size in tmp_sizes:
+                    if size not in current_sizes:
+                        current_sizes.append(size)
+                id_to_del.append(tmp_id)
+            if len(id_to_del):
+                collection.delete_many({'_id': {'$in': id_to_del}})
+
+        img_hash = item['img_hash']
+        hash_exists = collection.find({'img_hash': img_hash})
+        if hash_exists.count() > 1:
+            id_to_del = []
+            for tmp_item in parent_exists:
+                tmp_id = tmp_item['_id']
+                if tmp_id == item_id:
+                    continue
+                id_to_del.append(tmp_id)
+            if len(id_to_del):
+                collection.delete_many({'_id': {'$in': id_to_del}})
+
+    print_error('clear duplicates', 'count before : %d\ncount after : %d' % (before, collection.count()))
+
 
 def download_all(country_code='US', gender='Female', delete_collection=False, delete_cache=False):
 
@@ -403,8 +450,15 @@ def download_all(country_code='US', gender='Female', delete_collection=False, de
             print_error('%d leafs to do again!' % do_again)
         iteration += 1
 
+    clear_duplicates(collection_name)
     theArchiveDoorman(collection_name)
-
+    collection_cache.delete_many({})
+    message = 'amazon %s %s is Done!' % (country_code, gender)
+    print_error(message)
+    logger, handler = log2file(mode='a', log_filename=log_name)
+    logger.info(message)
+    logger.removeHandler(handler)
+    del logger, handler
 
 for gender in ['Female', 'Male']:
     download_all(country_code='US', gender=gender, delete_collection=False, delete_cache=False)
