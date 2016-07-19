@@ -99,7 +99,7 @@ def proper_wait(print_flag=False):
 
 
 def truncate_float_to_2_decimal_places(float2round, true_4_str=False):
-    float_as_int = int(float2round*100)
+    float_as_int = int(float2round*100+0.5)
     if true_4_str:
         return str(float_as_int)
 
@@ -221,9 +221,10 @@ def get_results(collection_name, node_id, price_flag=True, max_price=3000.0, min
 
     if results_count > 100:
         print ('min : %.4f -> max : %.4f' %(min_price, max_price))
-        if (max_price - min_price) <= 0.01:
+        diff = truncate_float_to_2_decimal_places(max_price-min_price)
+        if diff <= 0.01:
             total_pages = 10
-        elif (max_price-min_price) <= 0.02:
+        elif diff <= 0.02:
             new_items_count += get_results(collection_name, node_id,
                                            min_price=max_price, max_price=max_price, family_tree=family_tree)
             new_min_price = max_price - 0.01
