@@ -485,8 +485,10 @@ if __name__ == "__main__":
         sys.exit(1)
 
     col_name = 'amazon_%s_%s' % (cc_upper, col_gender)
-    title = "@@@ amazon Download @@@\n you choose to update the %s collection" % col_name
+    title = "@@@ amazon Download @@@"
+    title2 = "you choose to update the %s collection" % col_name
     log2file(mode='w', log_filename=log_name, message=title, print_flag=True)
+    log2file(mode='a', log_filename=log_name, message=title2, print_flag=True)
 
     delete_all = user_input.delete_all
     if delete_all:
