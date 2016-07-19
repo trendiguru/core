@@ -385,4 +385,4 @@ def download_all(country_code='US', gender='Female', delete_collection=False, de
 
 
 for gender in ['Female', 'Male']:
-    download_all(country_code='US', gender=gender, delete_collection=True, delete_cache=True)
+    download_all(country_code='US', gender=gender, delete_collection=False, delete_cache=False)
