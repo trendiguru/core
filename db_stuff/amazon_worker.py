@@ -72,12 +72,8 @@ def insert_items(collection_name, item_list, items_in_page, print_flag, family_t
                 long_d = ' '.join(attributes['Feature'])
             else:
                 long_d = ''
-            features = {'color': color,
-                        'sizes': sizes,
-                        'shortDescription': short_d,
-                        'longDescription': long_d}
 
-            parent_asin_exists = collection.find_one({'parent_asin': parent_asin, 'features.color': features['color']})
+            parent_asin_exists = collection.find_one({'parent_asin': parent_asin, 'features.color': color})
             if parent_asin_exists:
                 sizes = parent_asin_exists['features']['sizes']
                 if clothing_size not in sizes:
@@ -88,7 +84,7 @@ def insert_items(collection_name, item_list, items_in_page, print_flag, family_t
                 else:
                     if print_flag:
                         print_error('parent_asin + color + size already exists ----- %s->%s' %
-                                    (features['color'], clothing_size))
+                                    (color, clothing_size))
                 continue
 
             if 'LargeImage' in item_keys:
