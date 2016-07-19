@@ -39,34 +39,6 @@ def insert_items(collection_name, item_list, items_in_page, print_flag, family_t
             else:
                 parent_asin = item['ParentASIN']
 
-            if 'LargeImage' in item_keys:
-                image_url = item['LargeImage']['URL']
-            elif 'MediumImage' in item_keys:
-                image_url = item['MediumImage']['URL']
-            elif 'SmallImage' in item_keys:
-                image_url = item['SmallImage']['URL']
-            elif 'ImageSets' in item_keys:
-                keys = item['ImageSets'].keys()
-                print_error('ImageSets keys', keys)
-                continue
-            else:
-                if print_flag:
-                    print_error('No image')
-                continue
-
-            image = get_cv2_img_array(image_url)
-            if image is None:
-                if print_flag:
-                    print_error('bad img url')
-                continue
-
-            img_hash = get_hash(image)
-
-            hash_exists = collection.find_one({'img_hash': img_hash})
-            if hash_exists:
-                print ('hash already exists')
-                continue
-
             click_url = item['DetailPageURL']
             offer = item['OfferSummary']['LowestNewPrice']
             price = {'price': float(offer['Amount']) / 100,
@@ -117,6 +89,34 @@ def insert_items(collection_name, item_list, items_in_page, print_flag, family_t
                     if print_flag:
                         print_error('parent_asin + color + size already exists ----- %s->%s' %
                                     (features['color'], clothing_size))
+                continue
+
+            if 'LargeImage' in item_keys:
+                image_url = item['LargeImage']['URL']
+            elif 'MediumImage' in item_keys:
+                image_url = item['MediumImage']['URL']
+            elif 'SmallImage' in item_keys:
+                image_url = item['SmallImage']['URL']
+            elif 'ImageSets' in item_keys:
+                keys = item['ImageSets'].keys()
+                print_error('ImageSets keys', keys)
+                continue
+            else:
+                if print_flag:
+                    print_error('No image')
+                continue
+
+            image = get_cv2_img_array(image_url)
+            if image is None:
+                if print_flag:
+                    print_error('bad img url')
+                continue
+
+            img_hash = get_hash(image)
+
+            hash_exists = collection.find_one({'img_hash': img_hash})
+            if hash_exists:
+                print ('hash already exists')
                 continue
 
             new_item = {'asin': asin,
