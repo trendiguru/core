@@ -140,8 +140,8 @@ def insert_items(collection_name, item_list, items_in_page, print_flag, family_t
             while q.count > 5000:
                 sleep(30)
 
-            q.enqueue(generate_mask_and_insert, doc=new_item, image_url=image_url,
-                      fp_date=today_date, coll=collection_name, img=image, neuro=False)
+            q.enqueue(generate_mask_and_insert, args=(new_item, image_url, today_date, collection_name, image, False),
+                      timeout=1800)
 
             new_items_count += 1
 
