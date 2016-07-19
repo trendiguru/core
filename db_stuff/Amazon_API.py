@@ -362,8 +362,9 @@ def download_all(country_code='US', gender='Female', delete_collection=False, de
         if cache_exists:
             if cache_exists['last_max'] > 0.00:
                 max_price = cache_exists['last_max']
+                print ('node id: %s didn\'t finish -> continuing from %d' % (node_id, max_price))
             else:
-                print ('node id: %s already downloaded!')
+                print ('node id: %s already downloaded!' % node_id)
                 continue
         else:
             cache = {'node_id': node_id,
