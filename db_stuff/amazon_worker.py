@@ -98,6 +98,11 @@ def insert_items(collection_name, item_list, items_in_page, print_flag, family_t
                     print_error('No image')
                 continue
 
+            img_url_exists = collection.find_one({'images.XLarge': image_url})
+            if img_url_exists:
+                print ('img url already exists')
+                continue
+
             image = get_cv2_img_array(image_url)
             if image is None:
                 if print_flag:

@@ -88,6 +88,9 @@ base_parameters = {
 last_time = time()
 log_name = '/home/developer/yonti/amazon_download_stats.log'
 
+colors = ['red', 'blue', 'green', 'black', 'white', 'yellow', 'pink','purple', 'magenta', 'cyan', 'grey', 'violet',
+          'gold', 'silver', 'khaki', 'turquoise'  ]
+
 
 def proper_wait(print_flag=False):
     global last_time
@@ -126,7 +129,7 @@ def format_price(price_float, period=False):
     return price_str
 
 
-def make_itemsearch_request(pagenum, node_id, min_price, max_price, price_flag=True, print_flag=False):
+def make_itemsearch_request(pagenum, node_id, min_price, max_price, price_flag=True, print_flag=False, color=''):
     # global last_time
     parameters = base_parameters.copy()
     parameters['Timestamp'] = strftime("%Y-%m-%dT%H:%M:%SZ", gmtime())
@@ -138,6 +141,8 @@ def make_itemsearch_request(pagenum, node_id, min_price, max_price, price_flag=T
         parameters['ItemPage'] = str(pagenum)
         parameters['MinimumPrice'] = format_price(min_price)
         parameters['MaximumPrice'] = format_price(max_price)
+    if len(color):
+        parameters['Keywords'] = color
 
     req = get_amazon_signed_url(parameters, 'GET', False)
     proper_wait()
@@ -183,10 +188,10 @@ def make_itemsearch_request(pagenum, node_id, min_price, max_price, price_flag=T
 
 
 def process_results(collection_name, pagenum, node_id, min_price, max_price, family_tree, res_dict=None,
-                    items_in_page=10, print_flag=False):
+                    items_in_page=10, print_flag=False, color=''):
     if pagenum is not 1:
         res_dict, new_item_count = make_itemsearch_request(pagenum, node_id, min_price, max_price,
-                                                           print_flag=print_flag)
+                                                           print_flag=print_flag, color=color)
         if new_item_count < 2:
             return 0
 
@@ -195,6 +200,38 @@ def process_results(collection_name, pagenum, node_id, min_price, max_price, fam
     q.enqueue(insert_items, args=(collection_name, item_list, items_in_page, print_flag, family_tree), timeout=5400)
 
     return item_count
+
+
+def filter_by_color(collection_name, node_id, price, family_tree):
+    for color in colors:
+        res_dict, results_count = make_itemsearch_request(1, node_id, price, price, color=color)
+        if results_count < 2:
+            summary = 'Name: %s, PriceRange: %s -> %s , ResultCount: %d (color -> %s)' \
+                      % (family_tree, format_price(price, True), format_price(price, True), results_count, color)
+            log2file(mode='a', log_filename=log_name, message=summary)
+            return 0
+
+        new_items_count=0
+        total_pages = int(res_dict['TotalPages'])
+        if total_pages == 1:
+            num_of_items_in_page = results_count
+        else:
+            num_of_items_in_page = 10
+        new_items_count += process_results(collection_name, 1, node_id, price, price, family_tree=family_tree,
+                                           res_dict=res_dict, items_in_page=num_of_items_in_page,color=color)
+
+        for pagenum in range(2, total_pages + 1):
+            if pagenum == total_pages:
+                num_of_items_in_page = results_count - 10 * (pagenum - 1)
+                if num_of_items_in_page < 2:
+                    break
+            new_items_count += process_results(collection_name, pagenum, node_id, price, price, family_tree=family_tree,
+                                               items_in_page=num_of_items_in_page, color=color)
+
+        summary = 'Name: %s, PriceRange: %s -> %s , ResultCount: %d (color -> %s)' \
+                  % (family_tree, format_price(price, True), format_price(price, True), results_count, color)
+        log2file(mode='a', log_filename=log_name, message=summary)
+        return new_items_count
 
 
 def get_results(collection_name, node_id, price_flag=True, max_price=3000.0, min_price=0.0, results_count_only=False,
@@ -221,6 +258,7 @@ def get_results(collection_name, node_id, price_flag=True, max_price=3000.0, min
         # print ('min : %.4f -> max : %.4f' %(min_price, max_price))
         diff = truncate_float_to_2_decimal_places(max_price-min_price)
         if diff <= 0.01:
+            filter_by_color(collection_name, node_id, max_price, family_tree=family_tree)
             total_pages = 10
         elif diff <= 0.02:
             new_items_count += get_results(collection_name, node_id,
@@ -370,7 +408,19 @@ def clear_duplicates(name):
         hash_exists = collection.find({'img_hash': img_hash})
         if hash_exists.count() > 1:
             id_to_del = []
-            for tmp_item in parent_exists:
+            for tmp_item in hash_exists:
+                tmp_id = tmp_item['_id']
+                if tmp_id == item_id:
+                    continue
+                id_to_del.append(tmp_id)
+            if len(id_to_del):
+                collection.delete_many({'_id': {'$in': id_to_del}})
+
+        img_url = item['images']['XLarge']
+        img_url_exists = collection.find({'images.XLarge': img_url})
+        if img_url_exists.count() > 1:
+            id_to_del = []
+            for tmp_item in img_url_exists:
                 tmp_id = tmp_item['_id']
                 if tmp_id == item_id:
                     continue
