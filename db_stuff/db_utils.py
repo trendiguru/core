@@ -9,7 +9,13 @@ today_date = str(datetime.date(datetime.now()))
 
 
 def print_error(title, message=''):
-    dotted_line = '------------------------------------%s-----------------------------------------' % title
+    title_len = len(title)
+    minus_len = int(40-title_len/2)
+    m = '-'
+    for i in range(minus_len):
+        m += '_'
+    dotted_line = '%s %s %s' % (m, title, m)
+
     if type(message) != str:
         message = str(message)
     message_len = len(message)
@@ -24,6 +30,7 @@ def print_error(title, message=''):
 def log2file(mode, log_filename, message='', print_flag=False):
     logger = logging.getLogger(__name__)
     logger.setLevel(logging.INFO)
+    logger.propagate = False
     handler = logging.FileHandler(log_filename, mode=mode)
     handler.setLevel(logging.INFO)
     logger.addHandler(handler)
