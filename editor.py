@@ -100,6 +100,7 @@ def add_people_to_image(image_url, page_url, faces, products_collection='ShopSty
                      'page_url': page_url}
         db.iip.insert_one({'image_url': image_url, 'insert_time': datetime.datetime.utcnow()})
         db.genderator.insert_one(image_obj)
+        db.irrelevant_images.delete_one({'image_urls': image_url})
         q1.enqueue_call(func="", args=(page_url, image_url, products_collection, method),
                         ttl=2000, result_ttl=2000, timeout=2000)
         return True
