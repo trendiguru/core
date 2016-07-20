@@ -63,7 +63,9 @@ def verify_plus_size(size_list):
 
 def insert_items(collection_name, item_list, items_in_page, print_flag, family_tree, plus_size_flag=False):
     collection = db[collection_name]
-    _, _, gender = re.split(r'_', collection_name)
+
+    col_name_parts= re.split(r'_', collection_name)
+    gender = col_name_parts[-1]
     new_items_count = 0
     for x, item in enumerate(item_list):
         if (x + 1) > items_in_page:
