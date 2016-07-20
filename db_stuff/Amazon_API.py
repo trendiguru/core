@@ -509,7 +509,7 @@ def getUserInput():
                         help='specify which gender to download', required=True)
     parser.add_argument('-d', '--delete', dest="delete_all", default=False,
                         help='delete all items in collection')
-    parser.add_argument('-f', '--fresh', dest="delete_cache", default=False,
+    parser.add_argument('-f', '--fresh', dest="delete_cache", default=False, action='store_true',
                         help='delete all cache and start a fresh download')
     parser.add_argument('-t', '--tree', dest="tree", default=False,
                         help='build category tree from scratch')
