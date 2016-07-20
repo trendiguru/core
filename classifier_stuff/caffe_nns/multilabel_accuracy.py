@@ -9,6 +9,7 @@ import matplotlib.pyplot as plt
 import urllib2,urllib
 from copy import copy
 import caffe # If you get "No module named _caffe", either you have not built pycaffe or you have the wrong path.
+import matplotlib.pyplot as plt
 
 from caffe import layers as L, params as P # Shortcuts to define the net prototxt.
 import cv2
@@ -127,7 +128,6 @@ def makenet():
     plt.title('GT: {}'.format(classes[np.where(gtlist)]))
     plt.axis('off');
 
-
 def hamming_distance(gt, est):
     #this is actually hamming similarity not distance
 #    print('calculating hamming for \ngt :'+str(gt)+'\nest:'+str(est))
@@ -178,8 +178,6 @@ def test_confmat():
         #update_confmat(gt,e,tp,tn,fp,fn)
         tp,tn,fp,fn = update_confmat(gt,e,tp,tn,fp,fn)
     print('tp {} tn {} fp {} fn {}'.format(tp,tn,fp,fn))
-
-
 
 def check_acc(net, num_batches, batch_size = 1,threshold = 0.5):
     #this is not working foir batchsize!=1, maybe needs to be defined in net
@@ -252,7 +250,7 @@ def results():#prediction results
         plt.axis('off')
 
 
-def check_accuracy(deployproto,caffemodel,num_batches=200,batch_size=1,threshold = 0.5):
+def check_accuracy(proto,caffemodel,num_batches=200,batch_size=1,threshold = 0.5):
     print('checking accuracy of net {} using proto {}'.format(caffemodel,solverproto))
 #    solver = caffe.SGDSolver(solverproto)
      # Make classifier.
@@ -260,7 +258,7 @@ def check_accuracy(deployproto,caffemodel,num_batches=200,batch_size=1,threshold
     #                          image_dims=image_dims, mean=mean,
     #                         input_scale=input_scale, raw_scale=raw_scale,
     #                          channel_swap=channel_swap)
-    net = caffe.Net(deployproto,caffemodel, caffe.TEST)
+    net = caffe.Net(proto,caffemodel, caffe.TEST)
     caffe.set_mode_gpu()
     caffe.set_device(1)
 
@@ -346,7 +344,7 @@ def url_to_image(url):
     # return the image
     return new_image
 
-def get_multilabel_output(url_or_np_array,required_image_size=(227,227)):
+def get_multilabel_output(url_or_np_array,required_image_size=(227,227),output_layer_name='prob'):
 
 
     if isinstance(url_or_np_array, basestring):
@@ -377,7 +375,7 @@ def get_multilabel_output(url_or_np_array,required_image_size=(227,227)):
     # run net and take argmax for prediction
     multilabel_net.forward()
 #    out = net.blobs['score'].data[0].argmax(axis=0) #for a parse with per-pixel max
-    out = multilabel_net.blobs['score'].data[0] #for the nth class layer #siggy is after sigmoid
+    out = multilabel_net.blobs[output_layer_name].data[0] #for the nth class layer #siggy is after sigmoid
     min = np.min(out)
     max = np.max(out)
     print('out  {}'.format(out))
@@ -395,9 +393,17 @@ if __name__ =="__main__":
 #    caffemodel = '/home/jeremy/caffenets/multilabel/vgg_ilsvrc_16_multilabel_2/snapshot/train_iter_240000.caffemodel'
 #    caffemodel = '/home/jeremy/caffenets/multilabel/vgg_ilsvrc_16_multilabel_2/snapshot/train_iter_340000.caffemodel'
     caffemodel = '/home/jeremy/caffenets/production/multilabel_resnet50_sgd_iter_120000.caffemodel'
-    solverproto = '/home/jeremy/caffenets/production/ResNet-50-deploy.prototxt'
-    for t in [0.1,0.2,0.3,0.4,0.5,0.6,0.7,0.8,0.85,0.9,0.92,0.95,0.98]:
+    solverproto = '/home/jeremy/caffenets/production/ResNet-50-test.prototxt'
+    p_all = []
+    r_all = []
+    a_all = []
+#    for t in [0.1,0.2,0.3,0.4,0.5,0.6,0.7,0.8,0.85,0.9,0.92,0.95,0.98]:
+    thresh = [0.5,0.9]
+    for t in thresh:
         p,r,a,tp,tn,fp,fn = check_accuracy(solverproto, caffemodel, threshold=t, num_batches=800)
+        p_all.append(p)
+        r_all.append(p)
+        a_all.append(p)
         with open('multilabel_accuracy_results.txt','a') as f:
             f.write('vgg_ilsvrc16_multilabel_2, threshold = '+str(t)+'\n')
             f.write('solver:'+solverproto+'\n')
@@ -417,4 +423,15 @@ if __name__ =="__main__":
             f.write(str(fp)+'\n')
             f.write('false negatives\n')
             f.write(str(fn)+'\n')
+    p_all_np = np.array(p_all)
+    r_all_np = np.array(p_all)
+    a_all_np = np.array(p_all)
+    thresh_all_np = np.array(thresh)
+    plt.plot(thresh_all_np,p_all_np,label='precision')
+    plt.plot(thresh_all_np,r_all_np,label='recall')
+    plt.plot(thresh_all_np,a_all_np,label='accuracy')
+    plt.legend()
+    plt.grid(True)
+
+    plt.show()#
   #  print 'Baseline accuracy:{0:.4f}'.format(check_baseline_accuracy(solver.test_nets[0], 10,batch_size = 20))

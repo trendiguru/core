@@ -28,7 +28,7 @@ products_per_ip_pid = {'default':
                        'RecruitPilot':
                                  {'default': 'recruit'},
                        'xuSiNIs695acaHPE':
-                                 {'default': 'ShopStyle'},
+                                 {'default': 'amaze'},
                        "Rob's Shelter":
                                  {'default': 'ShopStyle'}
                        }
