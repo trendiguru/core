@@ -369,11 +369,9 @@ def build_category_tree(root='7141124011', tab=0, parents=[], delete_collection=
             child_name = build_category_tree(child_id, tab,  p)
 
         leaf['Children']['names'].append((child_id,child_name))
-    try:
-        db.amazon_category_tree.delete_one({'BrowseNodeId': node_id})
-    except Exception as e:
-        print(e)
+    db.amazon_category_tree.delete_one({'BrowseNodeId': node_id})
     db.amazon_category_tree.insert_one(leaf)
+    print('insert one')
     return name
 
 
