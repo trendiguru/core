@@ -10,10 +10,10 @@ today_date = str(datetime.date(datetime.now()))
 
 def print_error(title, message=''):
     title_len = len(title)
-    if title_len>40:
-        m=''
+    if title_len > 50:
+        m = ''
     else:
-        minus_len = int(50 - title_len / 2)
+        minus_len = int(60 - title_len / 2)
         m = '-'
         for i in range(minus_len):
             m += '-'

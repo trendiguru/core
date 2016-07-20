@@ -552,16 +552,23 @@ def getUserInput():
 
 
 if __name__ == "__main__":
+    # get user input
     user_input = getUserInput()
     c_c = user_input.country_code
     col_gender = user_input.gender
+    plus_size = user_input.plus_size
+    delete_all = user_input.delete_all
+    delete_cache = user_input.delete_cache
+    build_tree = user_input.tree
+
+    #
     gender_upper = col_gender.upper()
-    if gender_upper == 'FEMALE':
-        col_gender= 'Female'
-    elif gender_upper == 'MALE':
+    if gender_upper in ['FEMALE', 'WOMEN', 'WOMAN']:
+        col_gender = 'Female'
+    elif gender_upper in ['MALE', 'MEN', 'MAN']:
         global FashionGender
-        FashionGender='FashionMen'
-        col_gender= 'Male'
+        FashionGender = 'FashionMen'
+        col_gender = 'Male'
     else:
         print("bad input - gender should be only Female or Male ")
         sys.exit(1)
@@ -571,19 +578,17 @@ if __name__ == "__main__":
         print("bad input - for now only working on US")
         sys.exit(1)
 
-    plus_size = user_input.plus_size
     if plus_size:
         col_name = 'amaze_%s' % (col_gender)
         title = "@@@ Amaze-Magazine Download @@@"
     else:
         col_name = 'amazon_%s_%s' % (cc_upper, col_gender)
-        title = "@@@ amazon Download @@@"
+        title = "@@@ Amazon Download @@@"
 
     title2 = "you choose to update the %s collection" % col_name
     log2file(mode='w', log_filename=log_name, message=title, print_flag=True)
     log2file(mode='a', log_filename=log_name, message=title2, print_flag=True)
 
-    delete_all = user_input.delete_all
     if delete_all:
         warning = 'you choose to delete all items!!!'
         sure = 'are you sure? (yes/no)'
@@ -596,8 +601,7 @@ if __name__ == "__main__":
             warning = 'you choose to DELETE all'
         print_error(warning)
 
-    delete_cache = user_input.delete_cache
-    build_tree = user_input.tree
+
     if build_tree:
         delete_cache = True
 
