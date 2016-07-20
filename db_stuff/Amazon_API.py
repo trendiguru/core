@@ -369,8 +369,10 @@ def build_category_tree(root='7141124011', tab=0, parents=[], delete_collection=
             child_name = build_category_tree(child_id, tab,  p)
 
         leaf['Children']['names'].append((child_id,child_name))
-
-    db.amazon_category_tree.delete_one({'BrowseNodeId': node_id})
+    try:
+        db.amazon_category_tree.delete_one({'BrowseNodeId': node_id})
+    except Exception as e:
+        print(e)
     db.amazon_category_tree.insert_one(leaf)
     return name
 
@@ -444,6 +446,7 @@ def download_all(country_code='US', gender='Female', del_collection=False, del_c
     collection_name = 'amazon_%s_%s' % (country_code, gender)
     cache_name = collection_name+'_cache'
     collection_cache = db[cache_name]
+
     if cat_tree:
         build_category_tree()
 
