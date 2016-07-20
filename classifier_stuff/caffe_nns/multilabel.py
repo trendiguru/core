@@ -252,7 +252,7 @@ def results():#prediction results
         plt.axis('off')
 
 
-def check_accuracy(deployproto,caffemodel,num_batches=200,batch_size=1,threshold = 0.5):
+def check_accuracy(proto,caffemodel,num_batches=200,batch_size=1,threshold = 0.5):
     print('checking accuracy of net {} using proto {}'.format(caffemodel,solverproto))
 #    solver = caffe.SGDSolver(solverproto)
      # Make classifier.
@@ -260,7 +260,7 @@ def check_accuracy(deployproto,caffemodel,num_batches=200,batch_size=1,threshold
     #                          image_dims=image_dims, mean=mean,
     #                         input_scale=input_scale, raw_scale=raw_scale,
     #                          channel_swap=channel_swap)
-    net = caffe.Net(deployproto,caffemodel, caffe.TEST)
+    net = caffe.Net(proto,caffemodel, caffe.TEST)
     caffe.set_mode_gpu()
     caffe.set_device(1)
 
@@ -395,7 +395,7 @@ if __name__ =="__main__":
 #    caffemodel = '/home/jeremy/caffenets/multilabel/vgg_ilsvrc_16_multilabel_2/snapshot/train_iter_240000.caffemodel'
 #    caffemodel = '/home/jeremy/caffenets/multilabel/vgg_ilsvrc_16_multilabel_2/snapshot/train_iter_340000.caffemodel'
     caffemodel = '/home/jeremy/caffenets/production/multilabel_resnet50_sgd_iter_120000.caffemodel'
-    solverproto = '/home/jeremy/caffenets/production/ResNet-50-deploy.prototxt'
+    solverproto = '/home/jeremy/caffenets/production/ResNet-50-test.prototxt'
     for t in [0.1,0.2,0.3,0.4,0.5,0.6,0.7,0.8,0.85,0.9,0.92,0.95,0.98]:
         p,r,a,tp,tn,fp,fn = check_accuracy(solverproto, caffemodel, threshold=t, num_batches=800)
         with open('multilabel_accuracy_results.txt','a') as f:
