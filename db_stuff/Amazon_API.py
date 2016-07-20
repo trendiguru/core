@@ -299,7 +299,7 @@ def get_results(node_id, collection_name='moshe',  price_flag=True, max_price=30
     if color_flag:
         max_rounded = format_price(max_price, True)
         min_rounded = format_price(min_price, True)
-        if max_rounded[-2]!='01':
+        if max_rounded[-2:]!='01':
             filter_by_color(collection_name, node_id, max_price, family_tree=family_tree)
 
         if max_rounded != min_rounded:
