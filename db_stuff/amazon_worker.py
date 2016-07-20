@@ -11,6 +11,8 @@ today_date = str(datetime.date(datetime.now()))
 
 q = Queue('new_collection_fp', connection=redis_conn)
 
+plus_sizes = ['XL', '1X', '2X', '3X', '4X', 'X', 'XX', 'XXX', 'XXXX', 'XXXXX', 'LARGE', 'PLUS']
+
 
 def find_paperdoll_cat(category, short_desc, long_desc):
     desc = '%s,%s' % (short_desc, long_desc)
@@ -48,7 +50,18 @@ def find_paperdoll_cat(category, short_desc, long_desc):
     return category
 
 
-def insert_items(collection_name, item_list, items_in_page, print_flag, family_tree):
+def verify_plus_size(size_list):
+    splited_list = []
+    for size in size_list:
+        size_upper = size.upper()
+        split = re.split(r'\(|\)| |-|,', size_upper)
+        for s in split:
+            splited_list.append(s)
+
+    return any(size for size in splited_list if size in plus_sizes)
+
+
+def insert_items(collection_name, item_list, items_in_page, print_flag, family_tree, plus_size_flag=False):
     collection = db[collection_name]
     _, _, gender = re.split(r'_', collection_name)
     new_items_count = 0
@@ -103,6 +116,12 @@ def insert_items(collection_name, item_list, items_in_page, print_flag, family_t
 
             color = attributes['Color']
             sizes = [clothing_size]
+            if plus_size_flag:
+                plus_size = verify_plus_size(sizes)
+                if not plus_size:
+                    if print_flag:
+                        print_error('Not a Plus Size', attr_keys)
+                    continue
 
             parent_asin_exists = collection.find_one({'parent_asin': parent_asin, 'features.color': color})
             if parent_asin_exists:

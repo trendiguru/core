@@ -96,12 +96,12 @@ def get_amazon_signed_url(parameters, get_or_post='GET', print_flag=True):
 #     'Operation': 'ItemSearch',
 #     'SearchIndex': 'FashionWomen',
 #     'Service': 'AWSECommerceService',
-#     'Keywords':'black',
+#     'Keywords':'plus-size',
 #     'Timestamp': time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()),
 #     # 'IdType': 'ASIN',
 #     'ItemPage': '1',
-#     'MaximumPrice':'14800',
-#     'MinimumPrice':'14800',
+#     # 'MaximumPrice':'14800',
+#     # 'MinimumPrice':'14800',
 #     'ResponseGroup': 'ItemAttributes, OfferSummary,Images'}
 #
 # # parameters['Operation'] = 'BrowseNodeLookup'
