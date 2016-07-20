@@ -234,12 +234,12 @@ def filter_by_color(collection_name, node_id, price, family_tree):
     return 0
 
 
-def get_results(collection_name, node_id, price_flag=True, max_price=3000.0, min_price=0.0, results_count_only=False,
+def get_results(node_id, collection_name='moshe',  price_flag=True, max_price=3000.0, min_price=0.0, results_count_only=False,
                 family_tree='moshe'):
-
-    cache_name = collection_name+'_cache'
-    collection_cache = db[cache_name]
-    collection_cache.update_one({'node_id':node_id}, {'$set':{'last_max':max_price}})
+    if not results_count_only:
+        cache_name = collection_name+'_cache'
+        collection_cache = db[cache_name]
+        collection_cache.update_one({'node_id':node_id}, {'$set':{'last_max':max_price}})
 
     res_dict, results_count = make_itemsearch_request(1, node_id, min_price, max_price, price_flag=price_flag)
     if results_count < 2:
@@ -261,18 +261,18 @@ def get_results(collection_name, node_id, price_flag=True, max_price=3000.0, min
             color_flag = True
             total_pages = 10
         elif diff <= 0.02:
-            new_items_count += get_results(collection_name, node_id,
+            new_items_count += get_results(node_id, collection_name,
                                            min_price=max_price, max_price=max_price, family_tree=family_tree)
             new_min_price = max_price - 0.01
-            new_items_count += get_results(collection_name, node_id,
+            new_items_count += get_results(node_id, collection_name,
                                            min_price=new_min_price, max_price=new_min_price, family_tree=family_tree)
             return new_items_count
         else:
             mid_price = (max_price+min_price)/2.0
             mid_price_rounded = truncate_float_to_2_decimal_places(mid_price)
-            new_items_count += get_results(collection_name, node_id,
+            new_items_count += get_results(node_id, collection_name,
                                            min_price=mid_price_rounded, max_price=max_price, family_tree=family_tree)
-            new_items_count += get_results(collection_name, node_id,
+            new_items_count += get_results(node_id, collection_name,
                                            min_price=min_price, max_price=mid_price_rounded-0.01,
                                            family_tree=family_tree)
             return new_items_count
@@ -336,7 +336,7 @@ def build_category_tree(root='7141124011', tab=0, parents=[], delete_collection=
         return name
 
     node_id = res_dict['BrowseNodeId']
-    result_count = get_results(node_id,price_flag=False, results_count_only=True)
+    result_count = get_results(node_id, price_flag=False, results_count_only=True)
 
     leaf = {'Name': name,
             'BrowseNodeId': node_id,
@@ -485,7 +485,7 @@ def download_all(country_code='US', gender='Female', del_collection=False, del_c
                 collection_cache.insert_one(cache)
 
             try:
-                new_items_count = get_results(collection_name, node_id, max_price=max_price, results_count_only=False,
+                new_items_count = get_results(node_id, collection_name, max_price=max_price, results_count_only=False,
                                               family_tree=leaf_name)
                 print('node id: %s download done -> %d new_items downloaded' % (node_id, new_items_count))
                 collection_cache.update_one({'node_id': node_id},
