@@ -209,7 +209,7 @@ def filter_by_color(collection_name, node_id, price, family_tree):
             summary = 'Name: %s, PriceRange: %s -> %s , ResultCount: %d (color -> %s)' \
                       % (family_tree, format_price(price, True), format_price(price, True), results_count, color)
             log2file(mode='a', log_filename=log_name, message=summary)
-            return 0
+            continue
 
         new_items_count=0
         total_pages = int(res_dict['TotalPages'])
@@ -231,7 +231,7 @@ def filter_by_color(collection_name, node_id, price, family_tree):
         summary = 'Name: %s, PriceRange: %s -> %s , ResultCount: %d (color -> %s)' \
                   % (family_tree, format_price(price, True), format_price(price, True), results_count, color)
         log2file(mode='a', log_filename=log_name, message=summary)
-    return new_items_count
+    return 0
 
 
 def get_results(collection_name, node_id, price_flag=True, max_price=3000.0, min_price=0.0, results_count_only=False,
@@ -511,7 +511,7 @@ def getUserInput():
                         help='specify which gender to download', required=True)
     parser.add_argument('-d', '--delete', dest="delete_all", default=False,
                         help='delete all items in collection')
-    parser.add_argument('-f', '--fresh', dest="delete_cache", default=False, action='store_true',
+    parser.add_argument('-f', '--fresh', dest="delete_cache", default=True, action='store_false',
                         help='delete all cache and start a fresh download')
     parser.add_argument('-t', '--tree', dest="tree", default=False,
                         help='build category tree from scratch')
