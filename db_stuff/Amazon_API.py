@@ -602,7 +602,7 @@ if __name__ == "__main__":
         delete_cache = True
 
     download_all(country_code=cc_upper, gender=col_gender, del_collection=delete_all, del_cache=delete_cache,
-                 cat_tree=build_tree, plus_size=plus_size)
+                 cat_tree=build_tree, plus_size_flag=plus_size)
 
     if plus_size:
         forest_job = forest.enqueue(plantForests4AllCategories, col_name=col_name, timeout=3600)
