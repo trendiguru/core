@@ -10,7 +10,7 @@ weight_decay: 0.0005
 iter_size: 20
 snapshot: 5000
 snapshot_prefix: "/home/yonatan/resnet50_caffemodels/caffe_resnet50_snapshot_50_sgd"
-test_initialization: false
+test_initialization: true
 solver_mode : GPU
 
 type: "AdaDelta"
