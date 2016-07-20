@@ -296,6 +296,10 @@ def get_results(collection_name, node_id, price_flag=True, max_price=3000.0, min
     log2file(mode='a', log_filename=log_name, message=summary)
     if color_flag:
         filter_by_color(collection_name, node_id, max_price, family_tree=family_tree)
+        max_rounded = format_price(max_price)
+        min_rounded = format_price(min_price)
+        if max_rounded != min_rounded:
+            filter_by_color(collection_name, node_id, min_price, family_tree=family_tree)
     return new_items_count
 
 
@@ -509,11 +513,11 @@ def getUserInput():
                         help='country code - currently doing only US')
     parser.add_argument('-g', '--gender', dest="gender",
                         help='specify which gender to download', required=True)
-    parser.add_argument('-d', '--delete', dest="delete_all", default=False,
+    parser.add_argument('-d', '--delete', dest="delete_all", default=False, action='store_true',
                         help='delete all items in collection')
-    parser.add_argument('-f', '--fresh', dest="delete_cache", default=True, action='store_false',
+    parser.add_argument('-f', '--fresh', dest="delete_cache", default=False, action='store_true',
                         help='delete all cache and start a fresh download')
-    parser.add_argument('-t', '--tree', dest="tree", default=False,
+    parser.add_argument('-t', '--tree', dest="tree", default=False, action='store_true',
                         help='build category tree from scratch')
     args = parser.parse_args()
     return args
