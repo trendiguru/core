@@ -363,15 +363,15 @@ def build_category_tree(root='7141124011', tab=0, parents=[], delete_collection=
         if 'BrowseNodeId' not in child.keys():
             continue
         child_id = child['BrowseNodeId']
-        child_name = build_category_tree(child_id, tab, p)
+        child_name = build_category_tree(child_id, tab, p, False)
         if child_name is None:  # try again
             print ('##################################################################################################')
-            child_name = build_category_tree(child_id, tab,  p)
+            child_name = build_category_tree(child_id, tab, p, False)
 
         leaf['Children']['names'].append((child_id,child_name))
+
     db.amazon_category_tree.delete_one({'BrowseNodeId': node_id})
     db.amazon_category_tree.insert_one(leaf)
-    print('insert one')
     return name
 
 
