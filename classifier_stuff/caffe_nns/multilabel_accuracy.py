@@ -346,7 +346,7 @@ def url_to_image(url):
     # return the image
     return new_image
 
-def get_multilabel_output(url_or_np_array,required_image_size=(227,227)):
+def get_multilabel_output(url_or_np_array,required_image_size=(227,227),output_layer_name='prob'):
 
 
     if isinstance(url_or_np_array, basestring):
@@ -377,7 +377,7 @@ def get_multilabel_output(url_or_np_array,required_image_size=(227,227)):
     # run net and take argmax for prediction
     multilabel_net.forward()
 #    out = net.blobs['score'].data[0].argmax(axis=0) #for a parse with per-pixel max
-    out = multilabel_net.blobs['score'].data[0] #for the nth class layer #siggy is after sigmoid
+    out = multilabel_net.blobs[output_layer_name].data[0] #for the nth class layer #siggy is after sigmoid
     min = np.min(out)
     max = np.max(out)
     print('out  {}'.format(out))
