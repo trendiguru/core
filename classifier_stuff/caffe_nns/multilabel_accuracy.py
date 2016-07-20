@@ -393,6 +393,7 @@ if __name__ =="__main__":
 #    caffemodel = '/home/jeremy/caffenets/multilabel/vgg_ilsvrc_16_multilabel_2/snapshot/train_iter_240000.caffemodel'
 #    caffemodel = '/home/jeremy/caffenets/multilabel/vgg_ilsvrc_16_multilabel_2/snapshot/train_iter_340000.caffemodel'
     caffemodel = '/home/jeremy/caffenets/production/multilabel_resnet50_sgd_iter_120000.caffemodel'
+    model_base = caffemodel.split('/')[-1]
     solverproto = '/home/jeremy/caffenets/production/ResNet-50-test.prototxt'
     p_all = []
     r_all = []
@@ -434,4 +435,9 @@ if __name__ =="__main__":
     plt.grid(True)
 
     plt.show()#
+    plt.set_xlabel('threshold')
+    plt.set_ylabel('percentage')
+    plt.title('results '+model_base)
+    plt.savefig('multilabel_results'+model_base+'.png', bbox_inches='tight')
+
   #  print 'Baseline accuracy:{0:.4f}'.format(check_baseline_accuracy(solver.test_nets[0], 10,batch_size = 20))
