@@ -224,7 +224,7 @@ def process_results(collection_name, pagenum, node_id, min_price, max_price, fam
 
 
 def iterate_over_pagenums(total_pages, results_count, collection_name, node_id, min_price, max_price, family_tree,
-                          res_dict, color, plus_size_flag):
+                          res_dict, plus_size_flag , color=''):
     if total_pages == 1:
         num_of_items_in_page = results_count
     else:
@@ -240,9 +240,9 @@ def iterate_over_pagenums(total_pages, results_count, collection_name, node_id, 
         ret = process_results(collection_name, pagenum, node_id, min_price, max_price, family_tree=family_tree,
                               items_in_page=num_of_items_in_page, color=color, plus_size_flag=plus_size_flag)
         if ret < 0:
-            break
+            return
 
-    summary = 'Name: %s, PriceRange: %.3f -> %.3f , ResultCount: %d ' \
+    summary = 'Name: %s, PriceRange: %.2f -> %.2f , ResultCount: %d ' \
               % (family_tree, min_price, max_price, results_count)
     if len(color):
         summary += '(color -> %s)' % color
@@ -258,7 +258,7 @@ def filter_by_color(collection_name, node_id, price, family_tree, plus_size_flag
 
         total_pages = int(res_dict['TotalPages'])
         iterate_over_pagenums(total_pages, results_count, collection_name, node_id, price, price, family_tree,
-                              res_dict, color, plus_size_flag)
+                              res_dict, plus_size_flag, color)
     return
 
 
@@ -266,7 +266,7 @@ def get_results(node_id, collection_name='moshe',  price_flag=True, max_price=30
                 results_count_only=False, family_tree='moshe', plus_size_flag=False):
 
     res_dict, results_count = make_itemsearch_request(1, node_id, min_price, max_price, price_flag=price_flag,
-                                                      plus_size_flag=plus_size_flag)
+                                                      plus_size_flag=plus_size_flag, family_tree=family_tree)
     if results_count_only:
         return results_count
 
@@ -283,7 +283,8 @@ def get_results(node_id, collection_name='moshe',  price_flag=True, max_price=30
         # divide more
         diff = truncate_float_to_2_decimal_places(max_price-min_price)
         if diff <= 0.01:
-            color_flag = True  # later we will farther divide by color
+            if results_count > 150:
+                color_flag = True  # later we will farther divide by color if it worth it(>150)
             total_pages = 10
         elif diff <= 0.02:
             get_results(node_id, collection_name, min_price=max_price, max_price=max_price, family_tree=family_tree,
