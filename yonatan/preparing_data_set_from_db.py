@@ -112,7 +112,7 @@ def preparing_data_from_db(argv):
 
             # Resize it.
             #resized_image = cv2.resize(fresh_image, (width, height))
-            resized_image = imutils.resize_keep_aspect(fresh_image, output_size = (256, 256))
+            resized_image = imutils.resize_keep_aspect(fresh_image, output_size = (224, 224))
 
             image_file_name = key + '_' + args.input_file + '-' + str(i) + '.jpg'
 
