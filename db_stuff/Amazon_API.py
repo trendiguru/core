@@ -240,9 +240,9 @@ def iterate_over_pagenums(total_pages, results_count, collection_name, node_id, 
         ret = process_results(collection_name, pagenum, node_id, min_price, max_price, family_tree=family_tree,
                               items_in_page=num_of_items_in_page, color=color, plus_size_flag=plus_size_flag)
         if ret < 0:
-            break
+            return
 
-    summary = 'Name: %s, PriceRange: %.3f -> %.3f , ResultCount: %d ' \
+    summary = 'Name: %s, PriceRange: %.2f -> %.2f , ResultCount: %d ' \
               % (family_tree, min_price, max_price, results_count)
     if len(color):
         summary += '(color -> %s)' % color
