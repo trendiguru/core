@@ -95,7 +95,7 @@ def add_people_to_image(image_url, page_url, faces, products_collection='ShopSty
     if not image_obj:
         # BUILD A NEW IMAGE WITH THE GIVEN FACES
         image_obj = {'people': [{'person_id': str(bson.ObjectId()), 'face': face,
-                                 'gender': genderize(image, face.tolist())['gender']} for face in faces],
+                                 'gender': genderize(image, face)['gender']} for face in faces],
                      'image_url': image_url,
                      'page_url': page_url}
         db.iip.insert_one({'image_url': image_url, 'insert_time': datetime.datetime.utcnow()})
