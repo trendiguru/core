@@ -10,21 +10,23 @@ today_date = str(datetime.date(datetime.now()))
 
 def print_error(title, message=''):
     title_len = len(title)
-    minus_len = int(50-title_len/2)
-    m = '-'
-    for i in range(minus_len):
-        m += '-'
+    if title_len>40:
+        m=''
+    else:
+        minus_len = int(50 - title_len / 2)
+        m = '-'
+        for i in range(minus_len):
+            m += '-'
+
     dotted_line = '%s %s %s' % (m, title, m)
 
     if type(message) != str:
         message = str(message)
     message_len = len(message)
     if message_len > 0:
-        print ('\n%s' % dotted_line)
+        print ('%s' % dotted_line)
         print (message)
-        print ('%s\n' % dotted_line)
-    else:
-        print ('\n%s\n' % dotted_line)
+    print ('%s' % dotted_line)
 
 
 def log2file(mode, log_filename, message='', print_flag=True):
