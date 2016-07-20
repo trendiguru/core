@@ -212,9 +212,9 @@ def process_results(collection_name, pagenum, node_id, min_price, max_price, fam
     if pagenum is not 1:
         res_dict, new_item_count = make_itemsearch_request(pagenum, node_id, min_price, max_price,
                                                            print_flag=print_flag, color=color,
-                                                           plus_size_flag=plus_size_flag)
+                                                           plus_size_flag=plus_size_flag, family_tree=family_tree)
         if new_item_count < 2:
-            return 0
+            return -1
 
     item_list = res_dict['Item']
     q.enqueue(insert_items, args=(collection_name, item_list, items_in_page, print_flag, family_tree,
@@ -237,8 +237,10 @@ def iterate_over_pagenums(total_pages, results_count, collection_name, node_id, 
             num_of_items_in_page = results_count - 10 * (pagenum - 1)
             if num_of_items_in_page < 2:
                 break
-        process_results(collection_name, pagenum, node_id, min_price, max_price, family_tree=family_tree,
-                        items_in_page=num_of_items_in_page, color=color, plus_size_flag=plus_size_flag)
+        ret = process_results(collection_name, pagenum, node_id, min_price, max_price, family_tree=family_tree,
+                              items_in_page=num_of_items_in_page, color=color, plus_size_flag=plus_size_flag)
+        if ret < 0:
+            break
 
     summary = 'Name: %s, PriceRange: %.3f -> %.3f , ResultCount: %d ' \
               % (family_tree, min_price, max_price, results_count)
