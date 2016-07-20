@@ -30,6 +30,10 @@ def find_paperdoll_cat(category, short_desc, long_desc):
     if len(categories) > 1:
         if 'dress' in categories:
             categories.remove('dress')
+        elif 'suit' in categories:
+            categories.remove('suit')
+        else:
+            pass
 
         if 'bikini' in categories:
             return 'bikini'
