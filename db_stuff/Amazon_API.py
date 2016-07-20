@@ -88,8 +88,10 @@ base_parameters = {
 last_time = time()
 log_name = '/home/developer/yonti/amazon_download_stats.log'
 
-colors = ['red', 'blue', 'green', 'black', 'white', 'yellow', 'pink','purple', 'magenta', 'cyan', 'grey', 'violet',
-          'gold', 'silver', 'khaki', 'turquoise'  ]
+colors = ['red', 'blue', 'green', 'black', 'white', 'yellow', 'pink', 'purple', 'magenta', 'cyan', 'grey', 'violet',
+          'gold', 'silver', 'khaki', 'turquoise', 'brown']
+
+FashionGender = 'FashionWomen'
 
 
 def proper_wait(print_flag=False):
@@ -130,10 +132,10 @@ def format_price(price_float, period=False):
 
 
 def make_itemsearch_request(pagenum, node_id, min_price, max_price, price_flag=True, print_flag=False, color=''):
-    # global last_time
+
     parameters = base_parameters.copy()
     parameters['Timestamp'] = strftime("%Y-%m-%dT%H:%M:%SZ", gmtime())
-    parameters['SearchIndex'] = 'FashionWomen'
+    parameters['SearchIndex'] = FashionGender
     parameters['BrowseNode'] = node_id
     if not price_flag:
         parameters['ResponseGroup'] = 'SearchBins'
@@ -531,6 +533,8 @@ if __name__ == "__main__":
     if gender_upper == 'FEMALE':
         col_gender= 'Female'
     elif gender_upper == 'MALE':
+        global FashionGender
+        FashionGender='FashionMen'
         col_gender= 'Male'
     else:
         print("bad input - gender should be only Female or Male ")
