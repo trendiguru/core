@@ -2337,5 +2337,3 @@ layer {
   bottom: "myfc21"
   top: "score"
 }
-
-
