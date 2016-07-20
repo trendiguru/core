@@ -266,7 +266,7 @@ def get_results(node_id, collection_name='moshe',  price_flag=True, max_price=30
                 results_count_only=False, family_tree='moshe', plus_size_flag=False):
 
     res_dict, results_count = make_itemsearch_request(1, node_id, min_price, max_price, price_flag=price_flag,
-                                                      plus_size_flag=plus_size_flag)
+                                                      plus_size_flag=plus_size_flag, family_tree=family_tree)
     if results_count_only:
         return results_count
 
