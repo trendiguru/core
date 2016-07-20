@@ -435,8 +435,8 @@ if __name__ =="__main__":
     plt.grid(True)
 
     plt.show()#
-    plt.set_xlabel('threshold')
-    plt.set_ylabel('percentage')
+    plt.xlabel('threshold')
+    plt.ylabel('percentage')
     plt.title('results '+model_base)
     plt.savefig('multilabel_results'+model_base+'.png', bbox_inches='tight')
 
