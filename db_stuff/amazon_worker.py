@@ -57,7 +57,8 @@ def verify_plus_size(size_list):
         split = re.split(r'\(|\)| |-|,', size_upper)
         for s in split:
             splited_list.append(s)
-
+    if 'SMALL' in splited_list:
+        return False
     return any(size for size in splited_list if size in plus_sizes)
 
 
