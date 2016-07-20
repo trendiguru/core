@@ -231,7 +231,7 @@ def filter_by_color(collection_name, node_id, price, family_tree):
         summary = 'Name: %s, PriceRange: %s -> %s , ResultCount: %d (color -> %s)' \
                   % (family_tree, format_price(price, True), format_price(price, True), results_count, color)
         log2file(mode='a', log_filename=log_name, message=summary)
-        return new_items_count
+    return new_items_count
 
 
 def get_results(collection_name, node_id, price_flag=True, max_price=3000.0, min_price=0.0, results_count_only=False,
@@ -253,12 +253,12 @@ def get_results(collection_name, node_id, price_flag=True, max_price=3000.0, min
 
     new_items_count = 0
     total_pages = int(res_dict['TotalPages'])
-
+    color_flag = False
     if results_count > 100:
         # print ('min : %.4f -> max : %.4f' %(min_price, max_price))
         diff = truncate_float_to_2_decimal_places(max_price-min_price)
         if diff <= 0.01:
-            filter_by_color(collection_name, node_id, max_price, family_tree=family_tree)
+            color_flag = True
             total_pages = 10
         elif diff <= 0.02:
             new_items_count += get_results(collection_name, node_id,
@@ -294,6 +294,8 @@ def get_results(collection_name, node_id, price_flag=True, max_price=3000.0, min
     summary = 'Name: %s, PriceRange: %s -> %s , ResultCount: %d ' \
               % (family_tree, format_price(min_price, True), format_price(max_price, True), results_count)
     log2file(mode='a', log_filename=log_name, message=summary)
+    if color_flag:
+        filter_by_color(collection_name, node_id, max_price, family_tree=family_tree)
     return new_items_count
 
 
