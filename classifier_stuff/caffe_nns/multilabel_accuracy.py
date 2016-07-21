@@ -441,9 +441,8 @@ if __name__ =="__main__":
 
     thresh_all_np = np.array(thresh)
     print('shape:'+str(p_all_np.shape))
+    print('len:'+str(len(p_important)))
 
-    print('len:'+str(len(p_important[:,0])))
-    print('nlen:'+str(len(p_important[0,:])))
     markers = [ '^','<','v','^','8','o',   '.','x','|',
                           '+', 0, '4', 3,4, 'H', '3', 'p', 'h', '*', 7,'', 5, ',', '2', 1, 6, 's', 'd', '1','_',  2,' ', 'D']
     markers = ['.','x','|', '^',
@@ -457,7 +456,7 @@ if __name__ =="__main__":
     markers_important = ['^','<','v','^', '8','o','H', '3', 'p',  '*','h']
 
 
-    for i in range(len(p_important[:,0])):
+    for i in range(len(p_important)):
         plt.subplot(311)
         print('plotting {} vs {}'.format(p_all_np[i,:],thresh_all_np))
         plt.plot(thresh_all_np,p_important[i,:],label=labels_important[i],linestyle='None',marker=markers_important[i])
