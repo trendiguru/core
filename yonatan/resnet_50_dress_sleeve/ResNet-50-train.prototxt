@@ -28,7 +28,7 @@ layer {
   }
   image_data_param {
     source: "/home/yonatan/db_dress_sleeve_train.txt"
-    batch_size: 128
+    batch_size: 32
     shuffle: true
   }
 }
