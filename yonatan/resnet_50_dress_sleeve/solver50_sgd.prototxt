@@ -13,7 +13,7 @@ snapshot_prefix: "/home/yonatan/resnet50_caffemodels/caffe_resnet50_snapshot_50_
 test_initialization: true
 solver_mode : GPU
 
-type: "AdaDelta"
+type: "SGD"
 base_lr: 0.01
 lr_policy: "step"
 #lr_policy: "fixed"
