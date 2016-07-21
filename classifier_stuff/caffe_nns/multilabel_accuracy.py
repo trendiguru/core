@@ -435,6 +435,15 @@ if __name__ =="__main__":
     print('shape:'+str(p_all_np.shape))
     markers = [ '^','<','v','^','8','o',   '.','x','|',
                           '+', 0, '4', 3,4, 'H', '3', 'p', 'h', '*', 7,'', 5, ',', '2', 1, 6, 's', 'd', '1','_',  2,' ', 'D']
+    markers = ['.','x','|', '^',
+                '+','<',
+                0,'v',
+               '4', 3,'^',
+                '8',
+                4,'o',
+                'H', '3', 'p',  '*','h',
+               7,'', 5, ',', '2', 1, 6, 's', 'd', '1','_',  2,' ', 'D']
+
     for i in range(p_all_np.shape[0]):
         plt.subplot(311)
         print('plotting {} vs {}'.format(p_all_np[i,:],thresh_all_np))
@@ -454,7 +463,7 @@ if __name__ =="__main__":
     plt.xlabel('threshold')
     plt.ylabel('accuracy')
 
-    plt.legend()
+    plt.legend(loc='center left', bbox_to_anchor=(1, 0.5))
     plt.grid(True)
     plt.show()#
     plt.savefig('multilabel_results'+model_base+'.png', bbox_inches='tight')
