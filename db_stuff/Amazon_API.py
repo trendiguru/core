@@ -131,7 +131,7 @@ def format_price(price_float, period=False):
     return price_str
 
 
-def make_itemsearch_request(pagenum, node_id, min_price, max_price, price_flag=True, print_flag=False, color='',
+def make_itemsearch_request(pagenum, node_id, min_price, max_price, price_flag=True, print_flag=True, color='',
                             plus_size_flag=False, family_tree='sequoia'):
 
     parameters = base_parameters.copy()
@@ -499,7 +499,7 @@ def download_all(collection_name, gender='Female', del_collection=False, del_cac
                             family_tree=leaf_name, plus_size_flag=plus_size_flag)
                 after_count = collection.count()
                 new_items_approx = after_count - before_count
-                if new_items_approx<50:
+                if new_items_approx < 10:
                     raise ValueError('probably bad request - will be sent for fresh try')
                 print('node id: %s download done -> %d new_items downloaded' % (node_id, new_items_approx))
                 collection_cache.update_one({'node_id': node_id},
