@@ -1,15 +1,36 @@
 name: "ResNet-50_dress_sleeve_length"
 
+#layer {
+#      name: "data"
+#      type: "Python"
+#      top: "data"
+#      top: "label"
+#      python_param {
+#      module: "jrlayers"
+#      layer: "JrMultilabel"
+#      param_str: "{\'images_and_labels_file\': \'/home/yonatan/db_dress_sleeve_train.txt\', \'mean\': (120, 120, 120),\'augment\':True,\'augment_crop_size\':(224,224)  }"
+#      }
+#}
+
 layer {
-      name: "data"
-      type: "Python"
-      top: "data"
-      top: "label"
-      python_param {
-      module: "jrlayers"
-      layer: "JrMultilabel"
-      param_str: "{\'images_and_labels_file\': \'/home/yonatan/db_dress_sleeve_train.txt\', \'mean\': (120, 120, 120),\'augment\':True,\'augment_crop_size\':(224,224)  }"
-      }
+  name: "data"
+  type: "ImageData"
+  top: "data"
+  top: "label"
+#  include {
+#    phase: TRAIN
+#  }
+  transform_param {
+    mirror: false
+    mean_value: 120
+    mean_value: 120
+    mean_value: 120
+  }
+  image_data_param {
+    source: "/home/yonatan/db_dress_sleeve_train.txt"
+    batch_size: 3
+    shuffle: true
+  }
 }
 
 layer {
@@ -2628,8 +2649,8 @@ layer {
 
 layer {
 	bottom: "pool5"
-	top: "myfc8"
-	name: "myfc8"
+	top: "fc1000"
+	name: "fc1000"
 	type: "InnerProduct"
 	inner_product_param {
 		num_output: 8
@@ -2645,7 +2666,7 @@ layer {
 }
 
 #layer {
-#	bottom: "myfc8"
+#	bottom: "fc1000"
 #	bottom: "labels"
 #	top: "loss"
 #	name: "loss"
@@ -2655,13 +2676,13 @@ layer {
 layer {
   name: "accuracy"
   type: "Accuracy"
-  bottom: "myfc8"
+  bottom: "fc1000"
   bottom: "label"
   top: "accuracy"
 }
 
 layer {
-	bottom: "myfc8"
+	bottom: "fc1000"
 	bottom: "label"
 	top: "loss"
 	name: "loss"

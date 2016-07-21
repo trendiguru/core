@@ -6,20 +6,16 @@ import datetime
 import yunomi
 import requests
 from rq import Queue
-import gevent
-from gevent import Greenlet, monkey
-monkey.patch_all(thread=False)
-
 
 db = constants.db
-prefix = 'https://storage.googleapis.com/'
+prefix = 'https://storage.googleapis.com/tg-training/'
 images_q = Queue('start_synced_pipeline', connection=constants.redis_conn)
 post_q = Queue('post_it', connection=constants.redis_conn)
 relevancy_relation = 0.1
 API_URL = 'https://api.trendi.guru/images'
 
 
-def overflow_test(batch_size):
+def overflow_test(batch_size=10):
     # create list of ir/relevant images urls from db.irrelevant_/images &
     relevant_urls = get_first_x_images_from_collection(2000, 'images') + \
                     get_urls_from_gs("gs://tg-training/doorman/relevant")
@@ -32,6 +28,9 @@ def overflow_test(batch_size):
     queue_file = open('/home/nadav/test_queue_log.txt', 'w')
     requests_file = open('/home/nadav/test_req_log.txt', 'w')
     # MaiN LooP
+    rel_cnt = yunomi.Meter()
+    irrel_cnt = yunomi.Meter()
+    inter = time.time()
     while len(relevant_urls) or len(irrelevant_urls):
         # create batch by the relations given
         urls_batch = []
@@ -46,7 +45,13 @@ def overflow_test(batch_size):
         time.sleep(1)
 
         # get a few measurements and print to log file:
-        queue_file.write("{0}: ".format(str(datetime.datetime.now()), ))
+        rel_cnt.mark(images_q.count())
+        irrel_cnt.mark(db.irrelevant_images.count())
+
+        if time.time()-inter > 10:
+            inter = time.time()
+            queue_file.write("{0}: total images on queue: {1}\n"
+                             "".format(str(datetime.datetime.now()), rel_cnt.count()))
     queue_file.close()
     requests_file.close()
 
