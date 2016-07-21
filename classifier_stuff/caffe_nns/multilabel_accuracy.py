@@ -437,7 +437,7 @@ if __name__ =="__main__":
     plt.legend()
     plt.grid(True)
 
-    plt.subplot(312)
+    plt.subplot(312)   #
     plt.plot(thresh_all_np,r_all_np,marker='o',label=rlabels)
     plt.legend()
     plt.grid(True)
