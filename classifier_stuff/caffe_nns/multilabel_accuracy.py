@@ -459,11 +459,11 @@ if __name__ =="__main__":
     for i in range(len(p_important)):
         plt.subplot(311)
         print('plotting {} vs {}'.format(p_all_np[i,:],thresh_all_np))
-        plt.plot(thresh_all_np,p_important[i,:],label=labels_important[i],linestyle='None',marker=markers_important[i])
+        plt.plot(thresh_all_np,p_important[i],label=labels_important[i],linestyle='None',marker=markers_important[i])
         plt.subplot(312)   #
-        plt.plot(thresh_all_np,r_important[i,:],label=labels_important[i],linestyle='None',marker=markers_important[i])
+        plt.plot(thresh_all_np,r_important[i],label=labels_important[i],linestyle='None',marker=markers_important[i])
         plt.subplot(313)
-        plt.plot(thresh_all_np,a_all_np[i,:],label=labels_important[i],linestyle='None',marker=markers_important[i])
+        plt.plot(thresh_all_np,a_all_np[i],label=labels_important[i],linestyle='None',marker=markers_important[i])
 #        plt.plot(thresh_all_np,p_all_np[i,:],label=labels[i],marker=markers[i])
 #        plt.subplot(312)   #
 #        plt.plot(thresh_all_np,r_all_np[i,:],label=labels[i],linestyle='None',marker=markers[i])
