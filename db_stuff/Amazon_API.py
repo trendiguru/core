@@ -134,7 +134,6 @@ def format_price(price_float, period=False):
 def make_itemsearch_request(pagenum, node_id, min_price, max_price, price_flag=True, print_flag=True, color='',
                             plus_size_flag=False, family_tree='sequoia'):
     global error_flag
-    error_flag = False
 
     parameters = base_parameters.copy()
     parameters['Timestamp'] = strftime("%Y-%m-%dT%H:%M:%SZ", gmtime())
@@ -451,7 +450,7 @@ def clear_duplicates(name):
 
 def download_all(collection_name, gender='Female', del_collection=False, del_cache=False,
                  cat_tree=False, plus_size_flag=False):
-
+    global error_flag
     collection = db[collection_name]
     cache_name = collection_name+'_cache'
     collection_cache = db[cache_name]
@@ -508,6 +507,7 @@ def download_all(collection_name, gender='Female', del_collection=False, del_cac
                 after_count = collection.count()
                 new_items_approx = after_count - before_count
                 if error_flag:
+                    error_flag = False
                     raise ValueError('probably bad request - will be sent for fresh try')
                 print('node id: %s download done -> %d new_items downloaded' % (node_id, new_items_approx))
                 collection_cache.update_one({'node_id': node_id},
@@ -524,8 +524,9 @@ def download_all(collection_name, gender='Female', del_collection=False, del_cac
         if do_again:
             print_error('%d leafs to do again!' % do_again)
         iteration += 1
-
+    print_error('DOWNLOAD FINISHED')
     clear_duplicates(collection_name)
+    print_error('CLEAR DUPLICATES FINISHED')
     theArchiveDoorman(collection_name, instock_limit=7, archive_limit=14)
     collection_cache.delete_many({})
     message = '%s is Done!' % col_name
