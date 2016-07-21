@@ -451,7 +451,7 @@ if __name__ =="__main__":
                 4,'o',
                 'H', '3', 'p',  '*','h',
                7,'', 5, ',', '2', 1, 6, 's', 'd', '1','_',  2,' ', 'D']
-    markers_important = '^','<','v','^', '8','o','H', '3', 'p',  '*','h']
+    markers_important = ['^','<','v','^', '8','o','H', '3', 'p',  '*','h']
 
 
     for i in range(p_important.shape[0]):
