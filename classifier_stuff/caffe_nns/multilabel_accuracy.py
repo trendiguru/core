@@ -399,7 +399,7 @@ if __name__ =="__main__":
     r_all = []
     a_all = []
 #    for t in [0.1,0.2,0.3,0.4,0.5,0.6,0.7,0.8,0.85,0.9,0.92,0.95,0.98]:
-    thresh = [0.5,0.9]
+    thresh = [0.1,0.5,0.9]
     for t in thresh:
         p,r,a,tp,tn,fp,fn = check_accuracy(solverproto, caffemodel, threshold=t, num_batches=800)
         p_all.append(p)
@@ -424,22 +424,53 @@ if __name__ =="__main__":
             f.write(str(fp)+'\n')
             f.write('false negatives\n')
             f.write(str(fn)+'\n')
-    p_all_np = np.array(p_all)
-    r_all_np = np.array(p_all)
-    a_all_np = np.array(p_all)
-    thresh_all_np = np.array(thresh)
+    p_all_np = np.transpose(np.array(p_all))
+    r_all_np = np.transpose(np.array(p_all))
+    a_all_np = np.transpose(np.array(p_all))
+
     labels = constants.web_tool_categories
     plabels = [label + 'precision' for label in labels]
     rlabels = [label + 'recall' for label in labels]
     alabels = [label + 'accuracy' for label in labels]
-    for i in range(p_all_np.shape[0]):
+
+    important_indices = [3,5,7,10,11,13,17]
+    p_important = [p_all_np[i] for i in important_indices]
+    r_important = [r_all_np[i] for i in important_indices]
+    a_important = [a_all_np[i] for i in important_indices]
+    labels_important = [labels[i] for i in important_indices]
+
+    thresh_all_np = np.array(thresh)
+    print('shape:'+str(p_all_np.shape))
+    print('len:'+str(len(p_important)))
+
+    markers = [ '^','<','v','^','8','o',   '.','x','|',
+                          '+', 0, '4', 3,4, 'H', '3', 'p', 'h', '*', 7,'', 5, ',', '2', 1, 6, 's', 'd', '1','_',  2,' ', 'D']
+    markers = ['.','x','|', '^',
+                '+','<',
+                0,'v',
+               '4', 3,'^',
+                '8',
+                4,'o',
+                'H', '3', 'p',  '*','h',
+               7,'', 5, ',', '2', 1, 6, 's', 'd', '1','_',  2,' ', 'D']
+    markers_important = ['^','<','v','^', '8','o','H', '3', 'p',  '*','h']
+
+
+    for i in range(len(p_important)):
         plt.subplot(311)
-        plt.plot(thresh_all_np,p_all_np[i],marker='.',label=labels[i])
+        print('plotting {} vs {}'.format(p_all_np[i,:],thresh_all_np))
+        plt.plot(thresh_all_np,p_important[i],label=labels_important[i],linestyle='None',marker=markers_important[i])
         plt.subplot(312)   #
-        plt.plot(thresh_all_np,r_all_np,marker='o',label=labels[i])
+        plt.plot(thresh_all_np,r_important[i],label=labels_important[i],linestyle='None',marker=markers_important[i])
         plt.subplot(313)
-        plt.plot(thresh_all_np,a_all_np,marker='v',label=labels[i])
+        plt.plot(thresh_all_np,a_all_np[i],label=labels_important[i],linestyle='None',marker=markers_important[i])
+#        plt.plot(thresh_all_np,p_all_np[i,:],label=labels[i],marker=markers[i])
+#        plt.subplot(312)   #
+#        plt.plot(thresh_all_np,r_all_np[i,:],label=labels[i],linestyle='None',marker=markers[i])
+#        plt.subplot(313)
+#        plt.plot(thresh_all_np,a_all_np[i,:],label=labels[i],linestyle='None',marker=markers[i])
     plt.subplot(311)
+    plt.title('results '+model_base)
     plt.xlabel('threshold')
     plt.ylabel('precision')
     plt.subplot(312)   #
@@ -449,10 +480,9 @@ if __name__ =="__main__":
     plt.xlabel('threshold')
     plt.ylabel('accuracy')
 
-    plt.legend()
+    plt.legend(loc='center left', bbox_to_anchor=(1, 0.5))
     plt.grid(True)
     plt.show()#
-    plt.title('results '+model_base)
     plt.savefig('multilabel_results'+model_base+'.png', bbox_inches='tight')
 
   #  print 'Baseline accuracy:{0:.4f}'.format(check_baseline_accuracy(solver.test_nets[0], 10,batch_size = 20))
