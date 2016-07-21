@@ -92,7 +92,7 @@ colors = ['red', 'blue', 'green', 'black', 'white', 'yellow', 'pink', 'purple', 
           'gold', 'silver', 'khaki', 'turquoise', 'brown']
 
 FashionGender = 'FashionWomen'
-
+error_flag = False
 
 def proper_wait(print_flag=False):
     global last_time
@@ -131,8 +131,10 @@ def format_price(price_float, period=False):
     return price_str
 
 
-def make_itemsearch_request(pagenum, node_id, min_price, max_price, price_flag=True, print_flag=False, color='',
+def make_itemsearch_request(pagenum, node_id, min_price, max_price, price_flag=True, print_flag=True, color='',
                             plus_size_flag=False, family_tree='sequoia'):
+    global error_flag
+    error_flag = False
 
     parameters = base_parameters.copy()
     parameters['Timestamp'] = strftime("%Y-%m-%dT%H:%M:%SZ", gmtime())
@@ -163,6 +165,7 @@ def make_itemsearch_request(pagenum, node_id, min_price, max_price, price_flag=T
         if res.status_code != 200:
             if print_flag:
                 print_error('Bad request', req)
+            error_flag = True
             raise ValueError('-1')
 
         res_dict = dict(xmltodict.parse(res.text))
@@ -182,6 +185,7 @@ def make_itemsearch_request(pagenum, node_id, min_price, max_price, price_flag=T
         if 'Errors' in res_dict.keys():
             if print_flag:
                 print_error('Error', req)
+            error_flag = True
             raise ValueError('-4')
 
         if results_count == 0:
@@ -404,6 +408,10 @@ def clear_duplicates(name):
     all_items = collection.find()
     for item in all_items:
         item_id = item['_id']
+        keys = item.keys()
+        if 'asin' not in keys:
+            collection.delete_one({'_id':item_id})
+            continue
         asin= item['asin']
         asin_exists = collection.find({'asin':asin})
         if asin_exists.count()>1:
@@ -499,7 +507,7 @@ def download_all(collection_name, gender='Female', del_collection=False, del_cac
                             family_tree=leaf_name, plus_size_flag=plus_size_flag)
                 after_count = collection.count()
                 new_items_approx = after_count - before_count
-                if new_items_approx<50:
+                if error_flag:
                     raise ValueError('probably bad request - will be sent for fresh try')
                 print('node id: %s download done -> %d new_items downloaded' % (node_id, new_items_approx))
                 collection_cache.update_one({'node_id': node_id},
