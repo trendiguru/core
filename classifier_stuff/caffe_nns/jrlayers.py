@@ -462,11 +462,22 @@ class JrMultilabel(caffe.Layer):
         pass
 #        print('reshaping')
 #        logging.debug('self.idx is :'+str(self.idx)+' type:'+str(type(self.idx)))
-        imgfilename, self.data, self.label = self.load_image_and_label(self.idx)
+        if self.batch_size == 1:
+            imgfilename, self.data, self.label = self.load_image_and_label(self.idx)
+        else:
+            all_data = np.zeros((self.batch_size,3,self.new_size[0],self.new_size[1]))
+            all_labels = np.zeros((self.batch_size,self.n_labels))
+            for i in range(self.batch_size):
+                imgfilename, data, label = self.load_image_and_label(self.idx)
+                all_data[i,...]=data
+                all_labels[i,...]=label
+            self.data = all_data
+            self.label = all_label
         ## reshape tops to fit (leading 1 is for batch dimension)
  #       top[0].reshape(1, *self.data.shape)
  #       top[1].reshape(1, *self.label.shape)
-#        print('top 0 shape {} top 1 shape {}'.format(top[0].shape,top[1].shape))
+        print('top 0 shape {} top 1 shape {}'.format(top[0].shape,top[1].shape))
+        print('data shape {} label shape {}'.format(self.data.shape,self.label.shape))
 ##       the above just shows objects , top[0].shape is an object apparently
 
     def next_idx(self):
@@ -483,12 +494,7 @@ class JrMultilabel(caffe.Layer):
         top[0].data[...] = self.data
         top[1].data[...] = self.label
         # pick next input
-        if self.random_pick:
-            self.idx = random.randint(0, len(self.imagefiles)-1)
-        else:
-            self.idx += 1
-            if self.idx == len(self.imagefiles):
-                self.idx = 0
+        self.next_idx(self)
 
     def backward(self, top, propagate_down, bottom):
         pass
