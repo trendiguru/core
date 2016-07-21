@@ -399,7 +399,7 @@ if __name__ =="__main__":
     r_all = []
     a_all = []
 #    for t in [0.1,0.2,0.3,0.4,0.5,0.6,0.7,0.8,0.85,0.9,0.92,0.95,0.98]:
-    thresh = [0.5,0.9]
+    thresh = [0.1,0.5,0.9]
     for t in thresh:
         p,r,a,tp,tn,fp,fn = check_accuracy(solverproto, caffemodel, threshold=t, num_batches=800)
         p_all.append(p)
@@ -433,13 +433,16 @@ if __name__ =="__main__":
     rlabels = [label + 'recall' for label in labels]
     alabels = [label + 'accuracy' for label in labels]
     print('shape:'+str(p_all_np.shape))
+    markers = [ '^','<','v','^','8','o',   '.','x','|',
+                          '+', 0, '4', 3,4, 'H', '3', 'p', 'h', '*', 7,'', 5, ',', '2', 1, 6, 's', 'd', '1','_',  2,' ', 'D']
     for i in range(p_all_np.shape[0]):
         plt.subplot(311)
-        plt.plot(thresh_all_np,p_all_np[i,:],label=labels[i],linestyle='None')
+        print('plotting {} vs {}'.format(p_all_np[i,:],thresh_all_np))
+        plt.plot(thresh_all_np,p_all_np[i,:],label=labels[i],marker=markers[i])
         plt.subplot(312)   #
-        plt.plot(thresh_all_np,r_all_np[i,:],label=labels[i],linestyle='None')
+        plt.plot(thresh_all_np,r_all_np[i,:],label=labels[i],linestyle='None',marker=markers[i])
         plt.subplot(313)
-        plt.plot(thresh_all_np,a_all_np[i,:],label=labels[i],linestyle='None')
+        plt.plot(thresh_all_np,a_all_np[i,:],label=labels[i],linestyle='None',marker=markers[i])
     plt.subplot(311)
     plt.title('results '+model_base)
     plt.xlabel('threshold')
