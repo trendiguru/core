@@ -432,24 +432,26 @@ if __name__ =="__main__":
     plabels = [label + 'precision' for label in labels]
     rlabels = [label + 'recall' for label in labels]
     alabels = [label + 'accuracy' for label in labels]
+    for i in range(p_all_np.shape[0]):
+        plt.subplot(311)
+        plt.plot(thresh_all_np,p_all_np[i],marker='.',label=labels[i])
+        plt.subplot(312)   #
+        plt.plot(thresh_all_np,r_all_np,marker='o',label=labels[i])
+        plt.subplot(313)
+        plt.plot(thresh_all_np,a_all_np,marker='v',label=labels[i])
     plt.subplot(311)
-    plt.plot(thresh_all_np,p_all_np,marker='.',label=plabels)
-    plt.legend()
-    plt.grid(True)
-
-    plt.subplot(312)   #
-    plt.plot(thresh_all_np,r_all_np,marker='o',label=rlabels)
-    plt.legend()
-    plt.grid(True)
-
-    plt.subplot(313)
-    plt.plot(thresh_all_np,a_all_np,marker='v',label=alabels)
-    plt.legend()
-    plt.grid(True)
-
-    plt.show()#
     plt.xlabel('threshold')
-    plt.ylabel('percentage')
+    plt.ylabel('precision')
+    plt.subplot(312)   #
+    plt.xlabel('threshold')
+    plt.ylabel('recall')
+    plt.subplot(313)
+    plt.xlabel('threshold')
+    plt.ylabel('accuracy')
+
+    plt.legend()
+    plt.grid(True)
+    plt.show()#
     plt.title('results '+model_base)
     plt.savefig('multilabel_results'+model_base+'.png', bbox_inches='tight')
 
