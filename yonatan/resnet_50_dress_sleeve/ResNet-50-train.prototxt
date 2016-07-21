@@ -2632,7 +2632,7 @@ layer {
 	name: "myfc8"
 	type: "InnerProduct"
 	inner_product_param {
-		num_output: 3
+		num_output: 8
 	}
          param {
                   lr_mult: 1
@@ -2655,8 +2655,8 @@ layer {
 layer {
 	bottom: "myfc8"
 	bottom: "label"
-	top: "prob"
-	name: "prob"
+	top: "loss"
+	name: "loss"
 	type: "SoftmaxWithLoss"
 }
 
