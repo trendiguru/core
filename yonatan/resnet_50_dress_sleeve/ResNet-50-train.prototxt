@@ -1,15 +1,36 @@
 name: "ResNet-50_dress_sleeve_length"
 
+#layer {
+#      name: "data"
+#      type: "Python"
+#      top: "data"
+#      top: "label"
+#      python_param {
+#      module: "jrlayers"
+#      layer: "JrMultilabel"
+#      param_str: "{\'images_and_labels_file\': \'/home/yonatan/db_dress_sleeve_train.txt\', \'mean\': (120, 120, 120),\'augment\':True,\'augment_crop_size\':(224,224)  }"
+#      }
+#}
+
 layer {
-      name: "data"
-      type: "Python"
-      top: "data"
-      top: "label"
-      python_param {
-      module: "jrlayers"
-      layer: "JrMultilabel"
-      param_str: "{\'images_and_labels_file\': \'/home/yonatan/db_dress_sleeve_train.txt\', \'mean\': (120, 120, 120),\'augment\':True,\'augment_crop_size\':(224,224)  }"
-      }
+  name: "data"
+  type: "ImageData"
+  top: "data"
+  top: "label"
+#  include {
+#    phase: TRAIN
+#  }
+  transform_param {
+    mirror: false
+    mean_value: 120
+    mean_value: 120
+    mean_value: 120
+  }
+  image_data_param {
+    source: "/home/yonatan/db_dress_sleeve_train.txt"
+    batch_size: 128
+    shuffle: true
+  }
 }
 
 layer {
