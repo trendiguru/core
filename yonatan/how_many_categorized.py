@@ -26,6 +26,8 @@ def check_how_many(category_dict, yonatan_category_db, item_type):
 
     deleted = sum_of_all_already_seen - sum_of_all
 
+    print "\n\n" + item_type + "\n"
+
     for key, value in dress_sleeve_dict.iteritems():
         category_value = value[0].count()
         print '{0}: {1}, percent: {2}%'.format(key, category_value,

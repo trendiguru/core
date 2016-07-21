@@ -428,15 +428,19 @@ if __name__ =="__main__":
     r_all_np = np.array(p_all)
     a_all_np = np.array(p_all)
     thresh_all_np = np.array(thresh)
-    plt.plot(thresh_all_np,p_all_np,label='precision')
-    plt.plot(thresh_all_np,r_all_np,label='recall')
-    plt.plot(thresh_all_np,a_all_np,label='accuracy')
+    labels = constants.web_tool_categories
+    plabels = [label + 'precision' for label in labels]
+    rlabels = [label + 'recall' for label in labels]
+    alabels = [label + 'accuracy' for label in labels]
+    plt.plot(thresh_all_np,p_all_np,marker='.',label='precision')
+    plt.plot(thresh_all_np,r_all_np,marker='o',label='recall')
+    plt.plot(thresh_all_np,a_all_np,marker='v',label='accuracy')
     plt.legend()
     plt.grid(True)
 
-    plt.show()#
-    plt.set_xlabel('threshold')
-    plt.set_ylabel('percentage')
+    plt.show()# 
+    plt.xlabel('threshold')
+    plt.ylabel('percentage')
     plt.title('results '+model_base)
     plt.savefig('multilabel_results'+model_base+'.png', bbox_inches='tight')
 
