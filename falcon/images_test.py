@@ -8,7 +8,7 @@ import requests
 from rq import Queue
 
 db = constants.db
-prefix = 'https://storage.googleapis.com/tg-training'
+prefix = 'https://storage.googleapis.com/tg-training/'
 images_q = Queue('start_synced_pipeline', connection=constants.redis_conn)
 post_q = Queue('post_it', connection=constants.redis_conn)
 relevancy_relation = 0.1
