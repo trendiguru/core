@@ -2416,8 +2416,8 @@ layer {
 
 layer {
 	bottom: "pool5"
-	top: "myfc8"
-	name: "myfc8"
+	top: "fc1000"
+	name: "fc1000"
 	type: "InnerProduct"
 	inner_product_param {
 		num_output: 8
@@ -2427,13 +2427,13 @@ layer {
 layer {
   name: "accuracy"
   type: "Accuracy"
-  bottom: "myfc8"
+  bottom: "fc1000"
   bottom: "label"
   top: "accuracy"
 }
 
 layer {
-	bottom: "myfc8"
+	bottom: "fc1000"
 	top: "loss"
 	name: "loss"
 	type: "Softmax"
