@@ -427,22 +427,48 @@ if __name__ =="__main__":
     p_all_np = np.transpose(np.array(p_all))
     r_all_np = np.transpose(np.array(p_all))
     a_all_np = np.transpose(np.array(p_all))
-    thresh_all_np = np.array(thresh)
+
     labels = constants.web_tool_categories
     plabels = [label + 'precision' for label in labels]
     rlabels = [label + 'recall' for label in labels]
     alabels = [label + 'accuracy' for label in labels]
+
+    important_indices = [3,5,7,10,11,13,17]
+    p_important = [p_all_np[i] for i in important_indices]
+    r_important = [r_all_np[i] for i in important_indices]
+    a_important = [a_all_np[i] for i in important_indices]
+    labels_important = [labels[i] for i in important_indices]
+
+    thresh_all_np = np.array(thresh)
     print('shape:'+str(p_all_np.shape))
+    print('len:'+str(len(p_important)))
+
     markers = [ '^','<','v','^','8','o',   '.','x','|',
                           '+', 0, '4', 3,4, 'H', '3', 'p', 'h', '*', 7,'', 5, ',', '2', 1, 6, 's', 'd', '1','_',  2,' ', 'D']
-    for i in range(p_all_np.shape[0]):
+    markers = ['.','x','|', '^',
+                '+','<',
+                0,'v',
+               '4', 3,'^',
+                '8',
+                4,'o',
+                'H', '3', 'p',  '*','h',
+               7,'', 5, ',', '2', 1, 6, 's', 'd', '1','_',  2,' ', 'D']
+    markers_important = ['^','<','v','^', '8','o','H', '3', 'p',  '*','h']
+
+
+    for i in range(len(p_important)):
         plt.subplot(311)
         print('plotting {} vs {}'.format(p_all_np[i,:],thresh_all_np))
-        plt.plot(thresh_all_np,p_all_np[i,:],label=labels[i],marker=markers[i])
+        plt.plot(thresh_all_np,p_important[i],label=labels_important[i],linestyle='None',marker=markers_important[i])
         plt.subplot(312)   #
-        plt.plot(thresh_all_np,r_all_np[i,:],label=labels[i],linestyle='None',marker=markers[i])
+        plt.plot(thresh_all_np,r_important[i],label=labels_important[i],linestyle='None',marker=markers_important[i])
         plt.subplot(313)
-        plt.plot(thresh_all_np,a_all_np[i,:],label=labels[i],linestyle='None',marker=markers[i])
+        plt.plot(thresh_all_np,a_all_np[i],label=labels_important[i],linestyle='None',marker=markers_important[i])
+#        plt.plot(thresh_all_np,p_all_np[i,:],label=labels[i],marker=markers[i])
+#        plt.subplot(312)   #
+#        plt.plot(thresh_all_np,r_all_np[i,:],label=labels[i],linestyle='None',marker=markers[i])
+#        plt.subplot(313)
+#        plt.plot(thresh_all_np,a_all_np[i,:],label=labels[i],linestyle='None',marker=markers[i])
     plt.subplot(311)
     plt.title('results '+model_base)
     plt.xlabel('threshold')
@@ -454,7 +480,7 @@ if __name__ =="__main__":
     plt.xlabel('threshold')
     plt.ylabel('accuracy')
 
-    plt.legend()
+    plt.legend(loc='center left', bbox_to_anchor=(1, 0.5))
     plt.grid(True)
     plt.show()#
     plt.savefig('multilabel_results'+model_base+'.png', bbox_inches='tight')
