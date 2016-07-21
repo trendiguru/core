@@ -51,7 +51,7 @@ layer {
 	bottom: "conv1"
 	top: "conv1"
 	name: "conv1_relu"
-	type: "Sigmoid"
+	type: "ReLU"
 }
 
 layer {
@@ -142,7 +142,7 @@ layer {
 	bottom: "res2a_branch2a"
 	top: "res2a_branch2a"
 	name: "res2a_branch2a_relu"
-	type: "Sigmoid"
+	type: "ReLU"
 }
 
 layer {
@@ -185,7 +185,7 @@ layer {
 	bottom: "res2a_branch2b"
 	top: "res2a_branch2b"
 	name: "res2a_branch2b_relu"
-	type: "Sigmoid"
+	type: "ReLU"
 }
 
 layer {
@@ -236,7 +236,7 @@ layer {
 	bottom: "res2a"
 	top: "res2a"
 	name: "res2a_relu"
-	type: "Sigmoid"
+	type: "ReLU"
 }
 
 layer {
@@ -279,7 +279,7 @@ layer {
 	bottom: "res2b_branch2a"
 	top: "res2b_branch2a"
 	name: "res2b_branch2a_relu"
-	type: "Sigmoid"
+	type: "ReLU"
 }
 
 layer {
@@ -322,7 +322,7 @@ layer {
 	bottom: "res2b_branch2b"
 	top: "res2b_branch2b"
 	name: "res2b_branch2b_relu"
-	type: "Sigmoid"
+	type: "ReLU"
 }
 
 layer {
@@ -373,7 +373,7 @@ layer {
 	bottom: "res2b"
 	top: "res2b"
 	name: "res2b_relu"
-	type: "Sigmoid"
+	type: "ReLU"
 }
 
 layer {
@@ -416,7 +416,7 @@ layer {
 	bottom: "res2c_branch2a"
 	top: "res2c_branch2a"
 	name: "res2c_branch2a_relu"
-	type: "Sigmoid"
+	type: "ReLU"
 }
 
 layer {
@@ -459,7 +459,7 @@ layer {
 	bottom: "res2c_branch2b"
 	top: "res2c_branch2b"
 	name: "res2c_branch2b_relu"
-	type: "Sigmoid"
+	type: "ReLU"
 }
 
 layer {
@@ -510,7 +510,7 @@ layer {
 	bottom: "res2c"
 	top: "res2c"
 	name: "res2c_relu"
-	type: "Sigmoid"
+	type: "ReLU"
 }
 
 layer {
@@ -589,7 +589,7 @@ layer {
 	bottom: "res3a_branch2a"
 	top: "res3a_branch2a"
 	name: "res3a_branch2a_relu"
-	type: "Sigmoid"
+	type: "ReLU"
 }
 
 layer {
@@ -632,7 +632,7 @@ layer {
 	bottom: "res3a_branch2b"
 	top: "res3a_branch2b"
 	name: "res3a_branch2b_relu"
-	type: "Sigmoid"
+	type: "ReLU"
 }
 
 layer {
@@ -683,7 +683,7 @@ layer {
 	bottom: "res3a"
 	top: "res3a"
 	name: "res3a_relu"
-	type: "Sigmoid"
+	type: "ReLU"
 }
 
 layer {
@@ -726,7 +726,7 @@ layer {
 	bottom: "res3b_branch2a"
 	top: "res3b_branch2a"
 	name: "res3b_branch2a_relu"
-	type: "Sigmoid"
+	type: "ReLU"
 }
 
 layer {
@@ -769,7 +769,7 @@ layer {
 	bottom: "res3b_branch2b"
 	top: "res3b_branch2b"
 	name: "res3b_branch2b_relu"
-	type: "Sigmoid"
+	type: "ReLU"
 }
 
 layer {
@@ -820,7 +820,7 @@ layer {
 	bottom: "res3b"
 	top: "res3b"
 	name: "res3b_relu"
-	type: "Sigmoid"
+	type: "ReLU"
 }
 
 layer {
@@ -863,7 +863,7 @@ layer {
 	bottom: "res3c_branch2a"
 	top: "res3c_branch2a"
 	name: "res3c_branch2a_relu"
-	type: "Sigmoid"
+	type: "ReLU"
 }
 
 layer {
@@ -906,7 +906,7 @@ layer {
 	bottom: "res3c_branch2b"
 	top: "res3c_branch2b"
 	name: "res3c_branch2b_relu"
-	type: "Sigmoid"
+	type: "ReLU"
 }
 
 layer {
@@ -957,7 +957,7 @@ layer {
 	bottom: "res3c"
 	top: "res3c"
 	name: "res3c_relu"
-	type: "Sigmoid"
+	type: "ReLU"
 }
 
 layer {
@@ -1000,7 +1000,7 @@ layer {
 	bottom: "res3d_branch2a"
 	top: "res3d_branch2a"
 	name: "res3d_branch2a_relu"
-	type: "Sigmoid"
+	type: "ReLU"
 }
 
 layer {
@@ -1043,7 +1043,7 @@ layer {
 	bottom: "res3d_branch2b"
 	top: "res3d_branch2b"
 	name: "res3d_branch2b_relu"
-	type: "Sigmoid"
+	type: "ReLU"
 }
 
 layer {
@@ -1094,7 +1094,7 @@ layer {
 	bottom: "res3d"
 	top: "res3d"
 	name: "res3d_relu"
-	type: "Sigmoid"
+	type: "ReLU"
 }
 
 layer {
@@ -1173,7 +1173,7 @@ layer {
 	bottom: "res4a_branch2a"
 	top: "res4a_branch2a"
 	name: "res4a_branch2a_relu"
-	type: "Sigmoid"
+	type: "ReLU"
 }
 
 layer {
@@ -1216,7 +1216,7 @@ layer {
 	bottom: "res4a_branch2b"
 	top: "res4a_branch2b"
 	name: "res4a_branch2b_relu"
-	type: "Sigmoid"
+	type: "ReLU"
 }
 
 layer {
@@ -1267,7 +1267,7 @@ layer {
 	bottom: "res4a"
 	top: "res4a"
 	name: "res4a_relu"
-	type: "Sigmoid"
+	type: "ReLU"
 }
 
 layer {
@@ -1310,7 +1310,7 @@ layer {
 	bottom: "res4b_branch2a"
 	top: "res4b_branch2a"
 	name: "res4b_branch2a_relu"
-	type: "Sigmoid"
+	type: "ReLU"
 }
 
 layer {
@@ -1353,7 +1353,7 @@ layer {
 	bottom: "res4b_branch2b"
 	top: "res4b_branch2b"
 	name: "res4b_branch2b_relu"
-	type: "Sigmoid"
+	type: "ReLU"
 }
 
 layer {
@@ -1404,7 +1404,7 @@ layer {
 	bottom: "res4b"
 	top: "res4b"
 	name: "res4b_relu"
-	type: "Sigmoid"
+	type: "ReLU"
 }
 
 layer {
@@ -1447,7 +1447,7 @@ layer {
 	bottom: "res4c_branch2a"
 	top: "res4c_branch2a"
 	name: "res4c_branch2a_relu"
-	type: "Sigmoid"
+	type: "ReLU"
 }
 
 layer {
@@ -1490,7 +1490,7 @@ layer {
 	bottom: "res4c_branch2b"
 	top: "res4c_branch2b"
 	name: "res4c_branch2b_relu"
-	type: "Sigmoid"
+	type: "ReLU"
 }
 
 layer {
@@ -1541,7 +1541,7 @@ layer {
 	bottom: "res4c"
 	top: "res4c"
 	name: "res4c_relu"
-	type: "Sigmoid"
+	type: "ReLU"
 }
 
 layer {
@@ -1584,7 +1584,7 @@ layer {
 	bottom: "res4d_branch2a"
 	top: "res4d_branch2a"
 	name: "res4d_branch2a_relu"
-	type: "Sigmoid"
+	type: "ReLU"
 }
 
 layer {
@@ -1627,7 +1627,7 @@ layer {
 	bottom: "res4d_branch2b"
 	top: "res4d_branch2b"
 	name: "res4d_branch2b_relu"
-	type: "Sigmoid"
+	type: "ReLU"
 }
 
 layer {
@@ -1678,7 +1678,7 @@ layer {
 	bottom: "res4d"
 	top: "res4d"
 	name: "res4d_relu"
-	type: "Sigmoid"
+	type: "ReLU"
 }
 
 layer {
@@ -1721,7 +1721,7 @@ layer {
 	bottom: "res4e_branch2a"
 	top: "res4e_branch2a"
 	name: "res4e_branch2a_relu"
-	type: "Sigmoid"
+	type: "ReLU"
 }
 
 layer {
@@ -1764,7 +1764,7 @@ layer {
 	bottom: "res4e_branch2b"
 	top: "res4e_branch2b"
 	name: "res4e_branch2b_relu"
-	type: "Sigmoid"
+	type: "ReLU"
 }
 
 layer {
@@ -1815,7 +1815,7 @@ layer {
 	bottom: "res4e"
 	top: "res4e"
 	name: "res4e_relu"
-	type: "Sigmoid"
+	type: "ReLU"
 }
 
 layer {
@@ -1858,7 +1858,7 @@ layer {
 	bottom: "res4f_branch2a"
 	top: "res4f_branch2a"
 	name: "res4f_branch2a_relu"
-	type: "Sigmoid"
+	type: "ReLU"
 }
 
 layer {
@@ -1901,7 +1901,7 @@ layer {
 	bottom: "res4f_branch2b"
 	top: "res4f_branch2b"
 	name: "res4f_branch2b_relu"
-	type: "Sigmoid"
+	type: "ReLU"
 }
 
 layer {
@@ -1952,7 +1952,7 @@ layer {
 	bottom: "res4f"
 	top: "res4f"
 	name: "res4f_relu"
-	type: "Sigmoid"
+	type: "ReLU"
 }
 
 layer {
@@ -2031,7 +2031,7 @@ layer {
 	bottom: "res5a_branch2a"
 	top: "res5a_branch2a"
 	name: "res5a_branch2a_relu"
-	type: "Sigmoid"
+	type: "ReLU"
 }
 
 layer {
@@ -2074,7 +2074,7 @@ layer {
 	bottom: "res5a_branch2b"
 	top: "res5a_branch2b"
 	name: "res5a_branch2b_relu"
-	type: "Sigmoid"
+	type: "ReLU"
 }
 
 layer {
@@ -2125,7 +2125,7 @@ layer {
 	bottom: "res5a"
 	top: "res5a"
 	name: "res5a_relu"
-	type: "Sigmoid"
+	type: "ReLU"
 }
 
 layer {
@@ -2168,7 +2168,7 @@ layer {
 	bottom: "res5b_branch2a"
 	top: "res5b_branch2a"
 	name: "res5b_branch2a_relu"
-	type: "Sigmoid"
+	type: "ReLU"
 }
 
 layer {
@@ -2211,7 +2211,7 @@ layer {
 	bottom: "res5b_branch2b"
 	top: "res5b_branch2b"
 	name: "res5b_branch2b_relu"
-	type: "Sigmoid"
+	type: "ReLU"
 }
 
 layer {
@@ -2262,7 +2262,7 @@ layer {
 	bottom: "res5b"
 	top: "res5b"
 	name: "res5b_relu"
-	type: "Sigmoid"
+	type: "ReLU"
 }
 
 layer {
@@ -2305,7 +2305,7 @@ layer {
 	bottom: "res5c_branch2a"
 	top: "res5c_branch2a"
 	name: "res5c_branch2a_relu"
-	type: "Sigmoid"
+	type: "ReLU"
 }
 
 layer {
@@ -2348,7 +2348,7 @@ layer {
 	bottom: "res5c_branch2b"
 	top: "res5c_branch2b"
 	name: "res5c_branch2b_relu"
-	type: "Sigmoid"
+	type: "ReLU"
 }
 
 layer {
@@ -2399,7 +2399,7 @@ layer {
 	bottom: "res5c"
 	top: "res5c"
 	name: "res5c_relu"
-	type: "Sigmoid"
+	type: "ReLU"
 }
 
 layer {
