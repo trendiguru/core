@@ -27,9 +27,13 @@ products_per_ip_pid = {'default':
                                  {'KR': 'GangnamStyle'},
                        'RecruitPilot':
                                  {'default': 'recruit'},
+                       '6t50LSJxeNEkQ42p':
+                                 {'default': 'recruit'},
                        'xuSiNIs695acaHPE':
                                  {'default': 'amaze'},
                        "Rob's Shelter":
+                                 {'default': 'ShopStyle'},
+                       "robsdemartino@yahoo.it":
                                  {'default': 'ShopStyle'}
                        }
 products_per_site = {'default': 'ShopStyle', 'fashionseoul.com': 'GangnamStyle', 'fazz.co': 'ShopStyle',
