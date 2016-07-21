@@ -435,12 +435,13 @@ if __name__ =="__main__":
     print('shape:'+str(p_all_np.shape))
     for i in range(p_all_np.shape[0]):
         plt.subplot(311)
-        plt.plot(thresh_all_np,p_all_np[i,:],marker='.',label=labels[i])
-#            plt.subplot(312)   #
-#            plt.plot(thresh_all_np,r_all_np,marker='o',label=labels[i])
-#            plt.subplot(313)
-#           plt.plot(thresh_all_np,a_all_np,marker='v',label=labels[i])
+        plt.plot(thresh_all_np,p_all_np[i,:],label=labels[i],linestyle='None')
+        plt.subplot(312)   #
+        plt.plot(thresh_all_np,r_all_np[i,:],label=labels[i],linestyle='None')
+        plt.subplot(313)
+        plt.plot(thresh_all_np,a_all_np[i,:],label=labels[i],linestyle='None')
     plt.subplot(311)
+    plt.title('results '+model_base)
     plt.xlabel('threshold')
     plt.ylabel('precision')
     plt.subplot(312)   #
@@ -453,7 +454,6 @@ if __name__ =="__main__":
     plt.legend()
     plt.grid(True)
     plt.show()#
-    plt.title('results '+model_base)
     plt.savefig('multilabel_results'+model_base+'.png', bbox_inches='tight')
 
   #  print 'Baseline accuracy:{0:.4f}'.format(check_baseline_accuracy(solver.test_nets[0], 10,batch_size = 20))
