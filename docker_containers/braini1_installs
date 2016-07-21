@@ -10,7 +10,6 @@
 #gender      : trendi                       @ page_results.py
 #labeler      : trendi                       @ page_results.py
 
-
 #cuda
 sudo apt-get update
 #get toolkit
