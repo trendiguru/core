@@ -2434,8 +2434,8 @@ layer {
 
 layer {
 	bottom: "myfc8"
-	top: "prob"
-	name: "prob"
+	top: "loss"
+	name: "loss"
 	type: "Softmax"
 }
 
