@@ -116,6 +116,7 @@ for line in text_file:
         print max_result
 
     print counter
+    print predictions[0]
 
 
 success_with = len(array_success_with_plus_minus_category)
