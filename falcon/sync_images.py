@@ -1,7 +1,5 @@
-# import os
 import traceback
 import time
-from functools import partial
 import gevent
 from gevent import Greenlet, monkey
 monkey.patch_all(thread=False)

@@ -10,5 +10,5 @@ max_iter: 100000
 momentum: 0.9
 weight_decay: 0.0005
 snapshot: 5000
-snapshot_prefix: "/home/yonatan/caffe_alexnet_db_dresses_sleeve"
+snapshot_prefix: "/home/yonatan/caffe_alexnet_db_dresses_sleeve_resnet50"
 solver_mode: GPU

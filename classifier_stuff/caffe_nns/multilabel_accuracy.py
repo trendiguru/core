@@ -2,7 +2,7 @@ __author__ = 'jeremy' #ripped from tutorial at http://nbviewer.jupyter.org/githu
 
 import sys
 import os
-
+import datetime
 import numpy as np
 import os.path as osp
 import matplotlib.pyplot as plt
@@ -13,7 +13,7 @@ import matplotlib.pyplot as plt
 
 from caffe import layers as L, params as P # Shortcuts to define the net prototxt.
 import cv2
-
+import argparse
 
 from trendi import constants
 from trendi.utils import imutils
@@ -382,9 +382,58 @@ def get_multilabel_output(url_or_np_array,required_image_size=(227,227),output_l
 
 
 
+def write_html(p,r,a):
+    with open(model_base+'results.html','a') as g:
+        g.write('<!DOCTYPE html>')
+        g.write('<html>')
+        g.write('<head>')
+        g.write('<title>')
+        dt=datetime.datetime.today()
+        g.write(model_base+' '+dt.isoformat())
+        g.write('</title>')
+        g.write('solver:'+solverproto+'\n'+'<br>')
+        g.write('model:'+caffemodel+'\n'+'<br>')
+        g.write('</head>')
 
-if __name__ =="__main__":
+        g.write('<table style=\"width:100%\">')
+        g.write('<tr>')
+        g.write('<th>')
+
+        g.write('</th>')
+        g.write('<th>Lastname</th>')
+        g.write('<th>Age</th>')
+        g.write('</tr>')
+        g.write('</table>')
+
+        g.write(threshold = '+str(t)+'\n')
+        g.write('categories: '+str(constants.web_tool_categories)+ '\n')
+
+def write_textfile(p,r,a):
+    with open(model_base+'results.txt','a') as f:
+        f.write(model_base+' threshold = '+str(t)+'\n')
+        f.write('solver:'+solverproto+'\n')
+        f.write('model:'+caffemodel+'\n')
+        f.write('categories: '+str(constants.web_tool_categories)+ '\n')
+        f.write('precision\n')
+        f.write(str(p)+'\n')
+        f.write('recall\n')
+        f.write(str(r)+'\n')
+        f.write('accuracy\n')
+        f.write(str(a)+'\n')
+        f.write('true positives\n')
+        f.write(str(tp)+'\n')
+        f.write('true negatives\n')
+        f.write(str(tn)+'\n')
+        f.write('false positives\n')
+        f.write(str(fp)+'\n')
+        f.write('false negatives\n')
+        f.write(str(fn)+'\n')
+        f.close()
+
+
+def precision_accuracy_recall(caffemodel,solverproto):
     #TODO dont use solver to get inferences , no need for solver for that
+
     caffe.set_mode_gpu()
     caffe.set_device(1)
 
@@ -392,67 +441,96 @@ if __name__ =="__main__":
     snapshot = 'snapshot'
 #    caffemodel = '/home/jeremy/caffenets/multilabel/vgg_ilsvrc_16_multilabel_2/snapshot/train_iter_240000.caffemodel'
 #    caffemodel = '/home/jeremy/caffenets/multilabel/vgg_ilsvrc_16_multilabel_2/snapshot/train_iter_340000.caffemodel'
-    caffemodel = '/home/jeremy/caffenets/production/multilabel_resnet50_sgd_iter_120000.caffemodel'
     model_base = caffemodel.split('/')[-1]
-    solverproto = '/home/jeremy/caffenets/production/ResNet-50-test.prototxt'
     p_all = []
     r_all = []
     a_all = []
 #    for t in [0.1,0.2,0.3,0.4,0.5,0.6,0.7,0.8,0.85,0.9,0.92,0.95,0.98]:
-    thresh = [0.5,0.9]
+    thresh = [0.1,0.5,0.9]
+
     for t in thresh:
         p,r,a,tp,tn,fp,fn = check_accuracy(solverproto, caffemodel, threshold=t, num_batches=800)
         p_all.append(p)
         r_all.append(p)
         a_all.append(p)
-        with open('multilabel_accuracy_results.txt','a') as f:
-            f.write('vgg_ilsvrc16_multilabel_2, threshold = '+str(t)+'\n')
-            f.write('solver:'+solverproto+'\n')
-            f.write('model:'+caffemodel+'\n')
-            f.write('categories: '+str(constants.web_tool_categories)+ '\n')
-            f.write('precision\n')
-            f.write(str(p)+'\n')
-            f.write('recall\n')
-            f.write(str(r)+'\n')
-            f.write('accuracy\n')
-            f.write(str(a)+'\n')
-            f.write('true positives\n')
-            f.write(str(tp)+'\n')
-            f.write('true negatives\n')
-            f.write(str(tn)+'\n')
-            f.write('false positives\n')
-            f.write(str(fp)+'\n')
-            f.write('false negatives\n')
-            f.write(str(fn)+'\n')
-    p_all_np = np.array(p_all)
-    r_all_np = np.array(p_all)
-    a_all_np = np.array(p_all)
-    thresh_all_np = np.array(thresh)
+
+    p_all_np = np.transpose(np.array(p_all))
+    r_all_np = np.transpose(np.array(p_all))
+    a_all_np = np.transpose(np.array(p_all))
+
+
     labels = constants.web_tool_categories
     plabels = [label + 'precision' for label in labels]
     rlabels = [label + 'recall' for label in labels]
     alabels = [label + 'accuracy' for label in labels]
-    for i in range(p_all_np.shape[0]):
+
+    important_indices = [3,5,7,10,11,13,17]
+    p_important = [p_all_np[i] for i in important_indices]
+    r_important = [r_all_np[i] for i in important_indices]
+    a_important = [a_all_np[i] for i in important_indices]
+    labels_important = [labels[i] for i in important_indices]
+
+    thresh_all_np = np.array(thresh)
+    print('shape:'+str(p_all_np.shape))
+    print('len:'+str(len(p_important)))
+
+    markers = [ '^','<','v','^','8','o',   '.','x','|',
+                          '+', 0, '4', 3,4, 'H', '3', 'p', 'h', '*', 7,'', 5, ',', '2', 1, 6, 's', 'd', '1','_',  2,' ', 'D']
+    markers = ['.','x','|', '^',
+                '+','<',
+                0,'v',
+               '4', 3,'^',
+                '8',
+                4,'o',
+                'H', '3', 'p',  '*','h',
+               7,'', 5, ',', '2', 1, 6, 's', 'd', '1','_',  2,' ', 'D']
+    markers_important = ['^','<','v','^', '8','o','H', '3', 'p',  '*','h']
+
+
+    for i in range(len(p_important)):
         plt.subplot(311)
-        plt.plot(thresh_all_np,p_all_np[i],marker='.',label=labels[i])
+        print('plotting {} vs {}'.format(p_all_np[i,:],thresh_all_np))
+        plt.plot(thresh_all_np,p_important[i],label=labels_important[i],linestyle='None',marker=markers_important[i])
         plt.subplot(312)   #
-        plt.plot(thresh_all_np,r_all_np,marker='o',label=labels[i])
+        plt.plot(thresh_all_np,r_important[i],label=labels_important[i],linestyle='None',marker=markers_important[i])
         plt.subplot(313)
-        plt.plot(thresh_all_np,a_all_np,marker='v',label=labels[i])
+        plt.plot(thresh_all_np,a_all_np[i],label=labels_important[i],linestyle='None',marker=markers_important[i])
+#        plt.plot(thresh_all_np,p_all_np[i,:],label=labels[i],marker=markers[i])
+#        plt.subplot(312)   #
+#        plt.plot(thresh_all_np,r_all_np[i,:],label=labels[i],linestyle='None',marker=markers[i])
+#        plt.subplot(313)
+#        plt.plot(thresh_all_np,a_all_np[i,:],label=labels[i],linestyle='None',marker=markers[i])
     plt.subplot(311)
+    plt.title('results '+model_base)
     plt.xlabel('threshold')
     plt.ylabel('precision')
+    plt.grid(True)
+    plt.ylim((0,1))
     plt.subplot(312)   #
     plt.xlabel('threshold')
     plt.ylabel('recall')
+    plt.grid(True)
+    plt.ylim((0,1))
     plt.subplot(313)
     plt.xlabel('threshold')
     plt.ylabel('accuracy')
-
-    plt.legend()
+    plt.ylim((0,1))
     plt.grid(True)
+
+    plt.legend(loc='center left', bbox_to_anchor=(1, 0.1))
     plt.show()#
-    plt.title('results '+model_base)
     plt.savefig('multilabel_results'+model_base+'.png', bbox_inches='tight')
 
   #  print 'Baseline accuracy:{0:.4f}'.format(check_baseline_accuracy(solver.test_nets[0], 10,batch_size = 20))
+
+if __name__ =="__main__":
+    parser = argparse.ArgumentParser(description='Process some integers.')
+    parser.add_argument('integers', metavar='N', type=int, nargs='+',help='an integer for the accumulator')
+    parser.add_argument('--sum', dest='accumulate', action='store_const',const=sum, default=max,help='sum the integers (default: find the max)')
+
+    args = parser.parse_args()
+    print(args.accumulate(args.integers))
+    caffemodel = '/home/jeremy/caffenets/production/multilabel_resnet50_sgd_iter_120000.caffemodel'
+    solverproto = '/home/jeremy/caffenets/production/ResNet-50-test.prototxt'
+    precision_accuracy_recall(caffemodel,solverproto)
+
