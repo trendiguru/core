@@ -1,37 +1,37 @@
 name: "ResNet-50_dress_sleeve_length"
 
-#layer {
-#      name: "data"
-#      type: "Python"
-#      top: "data"
-#      top: "label"
-#      python_param {
-#      module: "jrlayers"
-#      layer: "JrMultilabel"
-#      param_str: "{\'images_and_labels_file\': \'/home/yonatan/db_dress_sleeve_train.txt\', \'mean\': (120, 120, 120),\'augment\':True,\'augment_crop_size\':(224,224)  }"
-#      }
-#}
-
 layer {
-  name: "data"
-  type: "ImageData"
-  top: "data"
-  top: "label"
-#  include {
-#    phase: TRAIN
-#  }
-  transform_param {
-    mirror: false
-    mean_value: 120
-    mean_value: 120
-    mean_value: 120
-  }
-  image_data_param {
-    source: "/home/yonatan/db_dress_sleeve_train.txt"
-    batch_size: 3
-    shuffle: true
-  }
+      name: "data"
+      type: "Python"
+      top: "data"
+      top: "label"
+      python_param {
+      module: "jrlayers"
+      layer: "JrLayer"
+      param_str: "{\'images_and_labels_file\': \'/home/yonatan/db_dress_sleeve_train.txt\', \'mean\': (120, 120, 120),\'augment\':True,\'augment_crop_size\':(224,224)  }"
+      }
 }
+
+#layer {
+#  name: "data"
+#  type: "ImageData"
+#  top: "data"
+#  top: "label"
+##  include {
+##    phase: TRAIN
+##  }
+#  transform_param {
+#    mirror: false
+#    mean_value: 120
+#    mean_value: 120
+#    mean_value: 120
+#  }
+#  image_data_param {
+#    source: "/home/yonatan/db_dress_sleeve_train.txt"
+#    batch_size: 3
+#    shuffle: true
+#  }
+#}
 
 layer {
 	bottom: "data"
@@ -2649,24 +2649,24 @@ layer {
 
 layer {
 	bottom: "pool5"
-	top: "fc1000"
-	name: "fc1000"
+	top: "my_fc8"
+	name: "my_fc8"
 	type: "InnerProduct"
 	inner_product_param {
 		num_output: 8
 	}
          param {
-                  lr_mult: 1
-                  decay_mult: 1
+                  lr_mult: 10
+                  decay_mult: 10
                 }
          param {
-                  lr_mult: 2
+                  lr_mult: 20
                   decay_mult: 0
                 }
 }
 
 #layer {
-#	bottom: "fc1000"
+#	bottom: "my_fc8"
 #	bottom: "labels"
 #	top: "loss"
 #	name: "loss"
@@ -2676,13 +2676,13 @@ layer {
 layer {
   name: "accuracy"
   type: "Accuracy"
-  bottom: "fc1000"
+  bottom: "my_fc8"
   bottom: "label"
   top: "accuracy"
 }
 
 layer {
-	bottom: "fc1000"
+	bottom: "my_fc8"
 	bottom: "label"
 	top: "loss"
 	name: "loss"
