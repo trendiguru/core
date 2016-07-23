@@ -7082,6 +7082,10 @@ layer {
 	inner_product_param {
 		num_output: 21
 	}
+	 param {
+		  lr_mult: 100
+		  decay_mult: 100
+		}
 }
 
 #layer {
