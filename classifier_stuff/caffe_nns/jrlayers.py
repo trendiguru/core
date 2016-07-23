@@ -471,7 +471,7 @@ class JrMultilabel(caffe.Layer):
                 imgfilename, data, label = self.load_image_and_label(self.idx)
                 all_data[i,...]=data
                 all_labels[i,...]=label
-                self.next_idx(self)
+                self.next_idx()
             self.data = all_data
             self.label = all_labels
         ## reshape tops to fit (leading 1 is for batch dimension)
