@@ -18,9 +18,9 @@ weight_decay: 0.0005
 snapshot: 10000
 snapshot_prefix: "snapshot/train"
 test_initialization: false
-type: "Nesterov"
+type: "AdaGrad"
+#type: "Nesterov"
 #type: "SGD" #this is default
-#type: "AdaGrad"
 #type: "AdaDelta"
 #type: "Adam"
 #delta: 0.1
