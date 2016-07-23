@@ -69,7 +69,7 @@ def getCategoryName(genreId):
 
 def printCategories(only_known=True, useLog=False):
     if useLog:
-        logger =log2file(mode='w', log_filename='/home/developer/yonti/recruit_categories.log')
+        log2file(mode='w', log_filename='/home/developer/yonti/recruit_categories.log')
     if only_known:
         for cat in api_stock:
             genreId = cat['genreId']
@@ -111,8 +111,7 @@ def download_recruit(delete=False):
         status_full_path = 'collections.'+col_name+'.status'
         db.download_status.update_one({"date": today_date}, {"$set": {status_full_path: "Working"}})
 
-    handler = log2file(mode='w', log_filename='/home/developer/yonti/recruit_download_stats.log')
-    handler.info('download started')
+    log2file(mode='w', log_filename='/home/developer/yonti/recruit_download_stats.log', message='download started' )
     id_count = len(recruitID2generalCategory)
     for x, genreId in enumerate(recruitID2generalCategory.keys()):
         q.enqueue(genreDownloader, args=([genreId]), timeout=5400)

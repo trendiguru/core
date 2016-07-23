@@ -14,10 +14,10 @@ test_initialization: true
 solver_mode : GPU
 
 type: "SGD"
-base_lr: 0.0001
+base_lr: 0.001
 lr_policy: "step"
 #lr_policy: "fixed"
 gamma: 0.1
-stepsize: 5000
+stepsize: 3000
 max_iter: 100000
 momentum: 0.9

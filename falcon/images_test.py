@@ -4,6 +4,7 @@ import subprocess
 import time
 import datetime
 import yunomi
+from bson import json_util
 import requests
 from rq import Queue
 
@@ -12,7 +13,7 @@ prefix = 'https://storage.googleapis.com/tg-training/'
 images_q = Queue('start_synced_pipeline', connection=constants.redis_conn)
 post_q = Queue('post_it', connection=constants.redis_conn)
 relevancy_relation = 0.1
-API_URL = 'https://api.trendi.guru/images'
+API_URL = 'http://api.trendi.guru/images'
 
 
 def overflow_test(batch_size=10):
@@ -70,5 +71,5 @@ def get_urls_from_gs(storage_lib):
 
 def post_it(data, log_file):
     start = time.time()
-    requests.post(API_URL, data=data)
+    requests.post(API_URL, data=json_util.dumps(data))
     log_file.write("{0}: POST duration was {1} seconds\n".format(str(datetime.datetime.now()), time.time()-start))
