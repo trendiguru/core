@@ -139,10 +139,10 @@ plt.legend()
 plt.hist(array_failure_with_plus_minus_category, bins=100, range=(0, 1), color='red', label='array_failure_with_plus_minus_category')
 plt.legend()
 
-plt.hist(array_success_without, bins=100, range=(0, 1), color='green', label='array_success_without')
+plt.hist(array_success_without, bins=100, range=(0.9, 1), color='green', label='array_success_without')
 plt.legend()
 
-plt.hist(array_failure_without, bins=100, range=(0, 1), color='pink', label='array_failure_without')
+plt.hist(array_failure_without, bins=100, range=(0.9, 1), color='pink', label='array_failure_without')
 plt.legend()
 
 histogram.savefig('db_dresses_histogram_iter_5000.png')
