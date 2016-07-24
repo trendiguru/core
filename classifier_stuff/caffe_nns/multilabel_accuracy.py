@@ -185,7 +185,7 @@ def check_acc(net, num_batches, batch_size = 1,threshold = 0.5,outlayer='label')
         gts = net.blobs[outlayer].data
 #        ests = net.blobs['score'].data > 0  ##why 0????  this was previously not after a sigmoid apparently
         ests = net.blobs['score'].data > threshold
-        print('net output:'+str(net.blobs['score'].data)
+        print('net output:'+str(net.blobs['score'].data))
         baseline_est = np.zeros_like(ests)
         for gt, est in zip(gts, ests): #for each ground truth and estimated label vector
             if est.shape != gt.shape:
