@@ -20,12 +20,6 @@ from trendi.utils import imutils
 
 
 
-caffemodel =  '/home/jeremy/caffenets/multilabel/vgg_ilsvrc_16_multilabel_2/snapshot/train_iter_340000.caffemodel'
-deployproto = '/home/jeremy/caffenets/multilabel/vgg_ilsvrc_16_multilabel_2/deploy.prototxt'
-caffe.set_mode_gpu()
-caffe.set_device(0)
-multilabel_net = caffe.Net(deployproto,caffemodel, caffe.TEST)
-
 
 # matplotlib inline
 def setup():
@@ -251,7 +245,7 @@ def results():#prediction results
 
 
 def check_accuracy(proto,caffemodel,num_batches=200,batch_size=1,threshold = 0.5):
-    print('checking accuracy of net {} using proto {}'.format(caffemodel,solverproto))
+    print('checking accuracy of net {} using proto {}'.format(caffemodel,proto))
 #    solver = caffe.SGDSolver(solverproto)
      # Make classifier.
     #classifier = caffe.Classifier(MODLE_FILE, PRETRAINED,
@@ -523,6 +517,9 @@ def precision_accuracy_recall(caffemodel,solverproto):
 
   #  print 'Baseline accuracy:{0:.4f}'.format(check_baseline_accuracy(solver.test_nets[0], 10,batch_size = 20))
 
+caffe.set_mode_gpu()
+caffe.set_device(0)
+
 if __name__ =="__main__":
     parser = argparse.ArgumentParser(description='Process some integers.')
     parser.add_argument('integers', metavar='N', type=int, nargs='+',help='an integer for the accumulator')
@@ -532,7 +529,13 @@ if __name__ =="__main__":
     print(args.accumulate(args.integers))
     caffemodel = '/home/jeremy/caffenets/production/multilabel_resnet50_sgd_iter_120000.caffemodel'
     solverproto = '/home/jeremy/caffenets/production/ResNet-50-test.prototxt'
+#    caffemodel =  '/home/jeremy/caffenets/multilabel/vgg_ilsvrc_16_multilabel_2/snapshot/train_iter_340000.caffemodel'
+#    deployproto = '/home/jeremy/caffenets/multilabel/vgg_ilsvrc_16_multilabel_2/deploy.prototxt'
+    multilabel_net = caffe.Net(solverproto,caffemodel, caffe.TEST)
+
     precision_accuracy_recall(caffemodel,solverproto)
+
+
 
 
 #/home/jeremy/caffenets/production/multilabel_resnet101_sgd_iter_120000.caffemodel
