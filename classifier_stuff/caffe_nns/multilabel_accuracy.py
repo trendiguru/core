@@ -185,6 +185,7 @@ def check_acc(net, num_batches, batch_size = 1,threshold = 0.5,outlayer='label')
         gts = net.blobs[outlayer].data
 #        ests = net.blobs['score'].data > 0  ##why 0????  this was previously not after a sigmoid apparently
         ests = net.blobs['score'].data > threshold
+        print('net output:'+str(net.blobs['score'].data)
         baseline_est = np.zeros_like(ests)
         for gt, est in zip(gts, ests): #for each ground truth and estimated label vector
             if est.shape != gt.shape:
@@ -526,6 +527,7 @@ if __name__ =="__main__":
     parser.add_argument('--caffemodel', help='caffmodel')
     parser.add_argument('--gpu', help='gpu #',default=0)
     parser.add_argument('--output_layer_name', help='output layer name',default='label')
+    parser.add_argument('--n_tests', help='number of examples to test',default=100)
 
     args = parser.parse_args()
     print(args)
@@ -550,7 +552,7 @@ if __name__ =="__main__":
     caffemodel = '/home/jeremy/caffenets/production/multilabel_resnet101_sgd_iter_120000.caffemodel'
 #    multilabel_net = caffe.Net(solverproto,caffemodel, caffe.TEST)
 
-    precision_accuracy_recall(caffemodel,solverproto,outlayer=outlayer)
+    precision_accuracy_recall(caffemodel,solverproto,outlayer=outlayer,n_tests=n_tests)
 
 
 
