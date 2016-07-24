@@ -46,7 +46,7 @@ def overflow_test(batch_size=10):
         time.sleep(1)
 
         # get a few measurements and print to log file:
-        rel_cnt.mark(images_q.count())
+        rel_cnt.mark(images_q.count)
         irrel_cnt.mark(db.irrelevant_images.count())
 
         if time.time()-inter > 10:
