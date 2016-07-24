@@ -4,7 +4,7 @@ layer {
       name: "data"
       type: "Python"
       top: "data"
-      top: "labels"
+      top: "label"
       python_param {
       module: "jrlayers"
       layer: "JrMultilabel"
@@ -7078,8 +7078,8 @@ layer {
 
 layer {
 	bottom: "pool5"
-	top: "myfc21"
-	name: "myfc21"
+	top: "myfc1000"
+	name: "myfc1000"
 	type: "InnerProduct"
 	inner_product_param {
 		num_output: 21
@@ -7087,13 +7087,18 @@ layer {
 }
 
 layer {
-	bottom: "myfc21"
-	bottom: "labels"
-	top: "score"
-	name: "score"
-	type: "SigmoidCrossEntropyLoss"
+  name: "score"
+  bottom: "myfc1000"
+  top: "score"
+  type: "Sigmoid"
 }
 
-
+#layer {
+#	bottom: "myfc21"
+#	bottom: "labels"
+#	top: "score"
+#	name: "score"
+#	type: "SigmoidCrossEntropyLoss"
+#}
 
 
