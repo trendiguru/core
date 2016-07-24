@@ -411,7 +411,7 @@ def write_html(p,r,a,n,model_base):
         g.write('<tr>')
         for i in range(len(p)):
             g.write('<th>')
-            g.write(p[i])
+            g.write(str(p[i]))
             g.write('</th>')
         g.write('</tr>')
         g.write('</table>')
