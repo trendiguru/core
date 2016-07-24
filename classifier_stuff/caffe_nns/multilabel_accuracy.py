@@ -136,7 +136,7 @@ def update_confmat(gt,est,tp,tn,fp,fn):
     pantsindex = constants.web_tool_categories.index['pants']
     jeansindex = constants.web_tool_categories.index['jeans']
     for i in range(len(gt)):
-        #combine jeans and pants
+        #combine jeans and pants, consider also doing cardigan an sweater
         if i == pantsindex or i == jeansindex:
             if gt[pantsindex] == 1 or gt[jeansindex]==1:
                 if est[pantsindex]==1 or est[jeansindex] == 1: # true positive
@@ -148,19 +148,17 @@ def update_confmat(gt,est,tp,tn,fp,fn):
                     fp[i] += 1
                 else:   # true negative
                     tn[i] += 1
-
-        elif constants.web_tool_categories[i] == 'pants':
-
-        if gt[i] == 1:
-            if est[i]: # true positive
-                tp[i] += 1
-            else:   # false negative
-                fn[i] += 1
         else:
-            if est[i]: # false positive
-                fp[i] += 1
-            else:   # true negative
-                tn[i] += 1
+            if gt[i] == 1:
+                if est[i]: # true positive
+                    tp[i] += 1
+                else:   # false negative
+                    fn[i] += 1
+            else:
+                if est[i]: # false positive
+                    fp[i] += 1
+                else:   # true negative
+                    tn[i] += 1
 #        print('tp {} tn {} fp {} fn {}'.format(tp,tn,fp,fn))
     return tp,tn,fp,fn
 
