@@ -70,6 +70,6 @@ def get_urls_from_gs(storage_lib):
 
 
 def post_it(data, log_file):
-    start = time.time()
+    # start = time.time()
     requests.post(API_URL, data=json_util.dumps(data))
-    log_file.write("{0}: POST duration was {1} seconds\n".format(str(datetime.datetime.now()), time.time()-start))
+    # log_file.write("{0}: POST duration was {1} seconds\n".format(str(datetime.datetime.now()), time.time()-start))
