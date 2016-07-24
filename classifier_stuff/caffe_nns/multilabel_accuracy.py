@@ -459,7 +459,7 @@ def precision_accuracy_recall(caffemodel,solverproto,outlayer='label',n_tests=10
     n_all = []
 #    for t in [0.1,0.2,0.3,0.4,0.5,0.6,0.7,0.8,0.85,0.9,0.92,0.95,0.98]:
     thresh = [0.1,0.5,0.6,0.7,0.8,0.9,0.95]
-    thresh = [0.1,0.5,0.95]
+#    thresh = [0.1,0.5,0.95]
 
     for t in thresh:
         p,r,a,tp,tn,fp,fn = check_accuracy(solverproto, caffemodel, threshold=t, num_batches=n_tests,outlayer=outlayer)
