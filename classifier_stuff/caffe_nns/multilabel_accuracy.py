@@ -394,7 +394,7 @@ def get_multilabel_output(url_or_np_array,required_image_size=(227,227),output_l
 
 
 
-def write_html(p,r,a,model_base):
+def write_html(p,r,a,n,model_base):
     with open(model_base+'results.html','a') as g:
         g.write('<!DOCTYPE html>')
         g.write('<html>')
@@ -409,15 +409,14 @@ def write_html(p,r,a,model_base):
 
         g.write('<table style=\"width:100%\">')
         g.write('<tr>')
-        g.write('<th>')
-
-        g.write('</th>')
-        g.write('<th>Lastname</th>')
-        g.write('<th>Age</th>')
+        for i in range(len(p)):
+            g.write('<th>')
+            g.write(str(p[i]))
+            g.write('</th>')
         g.write('</tr>')
         g.write('</table>')
 
-        g.write('threshold = '+str(t)+'\n')
+#        g.write('threshold = '+str(t)+'\n')
         g.write('categories: '+str(constants.web_tool_categories)+ '\n')
 
 def write_textfile(p,r,a,tp,tn,fp,fn,threshold,model_base):
@@ -457,31 +456,42 @@ def precision_accuracy_recall(caffemodel,solverproto,outlayer='label',n_tests=10
     p_all = []
     r_all = []
     a_all = []
+    n_all = []
 #    for t in [0.1,0.2,0.3,0.4,0.5,0.6,0.7,0.8,0.85,0.9,0.92,0.95,0.98]:
     thresh = [0.1,0.5,0.6,0.7,0.8,0.9,0.95]
+#    thresh = [0.1,0.5,0.95]
 
     for t in thresh:
         p,r,a,tp,tn,fp,fn = check_accuracy(solverproto, caffemodel, threshold=t, num_batches=n_tests,outlayer=outlayer)
         p_all.append(p)
-        r_all.append(p)
-        a_all.append(p)
+        r_all.append(r)
+        a_all.append(a)
+        n_occurences = [tp[i]+fn[i] for i in range(len(tp))]
+        n_all.append(n_occurences)
         write_textfile(p,r,a,tp,tn,fp,fn,t,model_base)
+
 
     p_all_np = np.transpose(np.array(p_all))
     r_all_np = np.transpose(np.array(r_all))
     a_all_np = np.transpose(np.array(a_all))
-
+    write_html(p,r,a,n_all,model_base)
     labels = constants.web_tool_categories
     plabels = [label + 'precision' for label in labels]
     rlabels = [label + 'recall' for label in labels]
     alabels = [label + 'accuracy' for label in labels]
 
     important_indices = [3,5,7,10,11,13,17]
+    #cardigan  dress footwear jeans pants skirt top
+    #['bag', 'belt', 'blazer','cardigan','coat','dress', 'eyewear', 'footwear', 'hat','jacket',
+     #                  'jeans','pants','shorts', 'skirt','stocking','suit','sweater','top','scarf','womens_swimwear_bikini',
+      #                 'womens_swimwear_nonbikini']
+
     p_important = [p_all_np[i] for i in important_indices]
     r_important = [r_all_np[i] for i in important_indices]
     a_important = [a_all_np[i] for i in important_indices]
     labels_important = [labels[i] for i in important_indices]
-
+    for i in range(len(important_indices)):
+        print(constants.web_tool_categories[i]+' p:'+str(p_important[i])+' r:'+str(r_important[i])+' a:'+str(a_important[i]) )
     thresh_all_np = np.array(thresh)
     print('shape:'+str(p_all_np.shape))
     print('len:'+str(len(p_important)))
@@ -506,7 +516,7 @@ def precision_accuracy_recall(caffemodel,solverproto,outlayer='label',n_tests=10
         plt.subplot(312)   #
         plt.plot(thresh_all_np,r_important[i],label=labels_important[i],linestyle='None',marker=markers_important[i])
         plt.subplot(313)
-        plt.plot(thresh_all_np,a_important,label=labels_important[i],linestyle='None',marker=markers_important[i])
+        plt.plot(thresh_all_np,a_important[i],label=labels_important[i],linestyle='None',marker=markers_important[i])
 #        plt.plot(thresh_all_np,a_all_np[i],label=labels_important[i],linestyle='None',marker=markers_important[i])
 #        plt.plot(thresh_all_np,p_all_np[i,:],label=labels[i],marker=markers[i])
 #        plt.subplot(312)   #
