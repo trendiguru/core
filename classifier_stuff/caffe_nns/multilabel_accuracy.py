@@ -382,7 +382,7 @@ def get_multilabel_output(url_or_np_array,required_image_size=(227,227),output_l
 
 
 
-def write_html(p,r,a):
+def write_html(p,r,a,model_base):
     with open(model_base+'results.html','a') as g:
         g.write('<!DOCTYPE html>')
         g.write('<html>')
@@ -405,12 +405,12 @@ def write_html(p,r,a):
         g.write('</tr>')
         g.write('</table>')
 
-        g.write(threshold = '+str(t)+'\n')
+        g.write('threshold = '+str(t)+'\n')
         g.write('categories: '+str(constants.web_tool_categories)+ '\n')
 
-def write_textfile(p,r,a):
+def write_textfile(p,r,a,tp,tn,fp,fn,threshold,model_base):
     with open(model_base+'results.txt','a') as f:
-        f.write(model_base+' threshold = '+str(t)+'\n')
+        f.write(model_base+' threshold = '+str(threshold)+'\n')
         f.write('solver:'+solverproto+'\n')
         f.write('model:'+caffemodel+'\n')
         f.write('categories: '+str(constants.web_tool_categories)+ '\n')
@@ -453,11 +453,11 @@ def precision_accuracy_recall(caffemodel,solverproto):
         p_all.append(p)
         r_all.append(p)
         a_all.append(p)
+        write_textfile(p,r,a,tp,tn,fp,fn,t,model_base)
 
     p_all_np = np.transpose(np.array(p_all))
     r_all_np = np.transpose(np.array(p_all))
     a_all_np = np.transpose(np.array(p_all))
-
 
     labels = constants.web_tool_categories
     plabels = [label + 'precision' for label in labels]
@@ -534,3 +534,5 @@ if __name__ =="__main__":
     solverproto = '/home/jeremy/caffenets/production/ResNet-50-test.prototxt'
     precision_accuracy_recall(caffemodel,solverproto)
 
+
+#/home/jeremy/caffenets/production/multilabel_resnet101_sgd_iter_120000.caffemodel
