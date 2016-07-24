@@ -133,7 +133,24 @@ def hamming_distance(gt, est):
 
 def update_confmat(gt,est,tp,tn,fp,fn):
 #    print('gt {} \nest {} sizes tp {} tn {} fp {} fn {} '.format(gt,est,tp.shape,tn.shape,fp.shape,fn.shape))
+    pantsindex = constants.web_tool_categories.index['pants']
+    jeansindex = constants.web_tool_categories.index['jeans']
     for i in range(len(gt)):
+        #combine jeans and pants
+        if i == pantsindex or i == jeansindex:
+            if gt[pantsindex] == 1 or gt[jeansindex]==1:
+                if est[pantsindex]==1 or est[jeansindex] == 1: # true positive
+                    tp[i] += 1
+                else:   # false negative
+                    fn[i] += 1
+            else:
+                if est[pantsindex] or est[jeansindex]: # false positive
+                    fp[i] += 1
+                else:   # true negative
+                    tn[i] += 1
+
+        elif constants.web_tool_categories[i] == 'pants':
+
         if gt[i] == 1:
             if est[i]: # true positive
                 tp[i] += 1
@@ -453,8 +470,8 @@ def precision_accuracy_recall(caffemodel,solverproto,outlayer='label',n_tests=10
         write_textfile(p,r,a,tp,tn,fp,fn,t,model_base)
 
     p_all_np = np.transpose(np.array(p_all))
-    r_all_np = np.transpose(np.array(p_all))
-    a_all_np = np.transpose(np.array(p_all))
+    r_all_np = np.transpose(np.array(r_all))
+    a_all_np = np.transpose(np.array(a_all))
 
     labels = constants.web_tool_categories
     plabels = [label + 'precision' for label in labels]
@@ -491,7 +508,8 @@ def precision_accuracy_recall(caffemodel,solverproto,outlayer='label',n_tests=10
         plt.subplot(312)   #
         plt.plot(thresh_all_np,r_important[i],label=labels_important[i],linestyle='None',marker=markers_important[i])
         plt.subplot(313)
-        plt.plot(thresh_all_np,a_all_np[i],label=labels_important[i],linestyle='None',marker=markers_important[i])
+        plt.plot(thresh_all_np,a_important,label=labels_important[i],linestyle='None',marker=markers_important[i])
+#        plt.plot(thresh_all_np,a_all_np[i],label=labels_important[i],linestyle='None',marker=markers_important[i])
 #        plt.plot(thresh_all_np,p_all_np[i,:],label=labels[i],marker=markers[i])
 #        plt.subplot(312)   #
 #        plt.plot(thresh_all_np,r_all_np[i,:],label=labels[i],linestyle='None',marker=markers[i])
