@@ -526,7 +526,11 @@ if __name__ =="__main__":
     parser.add_argument('--caffemodel', help='caffmodel')
 
     args = parser.parse_args()
-    print(args.accumulate(args.integers))
+    print(args)
+    if args.testproto is not None:
+        solverproto = args.testproto
+    if args.caffemodel is not None:
+        caffemodel = args.caffemodel
     caffemodel = '/home/jeremy/caffenets/production/multilabel_resnet50_sgd_iter_120000.caffemodel'
     solverproto = '/home/jeremy/caffenets/production/ResNet-50-test.prototxt'
 #    caffemodel =  '/home/jeremy/caffenets/multilabel/vgg_ilsvrc_16_multilabel_2/snapshot/train_iter_340000.caffemodel'
