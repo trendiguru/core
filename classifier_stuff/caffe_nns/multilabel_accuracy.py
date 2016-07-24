@@ -539,7 +539,7 @@ if __name__ =="__main__":
     gpu = int(args.gpu)
 #    if args.output_layer_name is not None:
     outlayer = int(args.output_layer_name)
-    n_tests = (args.n_tests)
+    n_tests = int(args.n_tests)
  #   else:
  #       outlayer = 'label'
     caffe.set_mode_gpu()
