@@ -133,8 +133,8 @@ def hamming_distance(gt, est):
 
 def update_confmat(gt,est,tp,tn,fp,fn):
 #    print('gt {} \nest {} sizes tp {} tn {} fp {} fn {} '.format(gt,est,tp.shape,tn.shape,fp.shape,fn.shape))
-    pantsindex = constants.web_tool_categories.index['pants']
-    jeansindex = constants.web_tool_categories.index['jeans']
+    pantsindex = constants.web_tool_categories.index('pants')
+    jeansindex = constants.web_tool_categories.index('jeans')
     for i in range(len(gt)):
         #combine jeans and pants, consider also doing cardigan an sweater
         if i == pantsindex or i == jeansindex:
