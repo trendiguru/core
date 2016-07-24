@@ -532,12 +532,13 @@ if __name__ =="__main__":
     if args.caffemodel is not None:
         caffemodel = args.caffemodel
     if args.gpu is not None:
-        gpu = args.gpu
+        gpu = int(args.gpu)
+    else gpu = 0
     if args.output_layer_name is not None:
         outlayer = args.output_layer_name
 
     caffe.set_mode_gpu()
-    caffe.set_device(0)
+    caffe.set_device(gpu)
 
     caffemodel = '/home/jeremy/caffenets/production/multilabel_resnet50_sgd_iter_120000.caffemodel'
     solverproto = '/home/jeremy/caffenets/production/ResNet-50-test.prototxt'
