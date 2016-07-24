@@ -516,7 +516,7 @@ def precision_accuracy_recall(caffemodel,solverproto,outlayer='label',n_tests=10
         plt.subplot(312)   #
         plt.plot(thresh_all_np,r_important[i],label=labels_important[i],linestyle='None',marker=markers_important[i])
         plt.subplot(313)
-        plt.plot(thresh_all_np,a_important,label=labels_important[i],linestyle='None',marker=markers_important[i])
+        plt.plot(thresh_all_np,a_important[i],label=labels_important[i],linestyle='None',marker=markers_important[i])
 #        plt.plot(thresh_all_np,a_all_np[i],label=labels_important[i],linestyle='None',marker=markers_important[i])
 #        plt.plot(thresh_all_np,p_all_np[i,:],label=labels[i],marker=markers[i])
 #        plt.subplot(312)   #
