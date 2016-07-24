@@ -463,16 +463,17 @@ class JrMultilabel(caffe.Layer):
 #        print('reshaping')
 #        logging.debug('self.idx is :'+str(self.idx)+' type:'+str(type(self.idx)))
         if self.batch_size == 1:
-            imgfilename, self.data, self.label = self.load_image_and_label(self.idx)
+            imgfilename, self.data, self.label = self.load_image_and_label()
         else:
             all_data = np.zeros((self.batch_size,3,self.new_size[0],self.new_size[1]))
             all_labels = np.zeros((self.batch_size,self.n_labels))
             for i in range(self.batch_size):
-                imgfilename, data, label = self.load_image_and_label(self.idx)
+                imgfilename, data, label = self.load_image_and_label()
                 all_data[i,...]=data
                 all_labels[i,...]=label
+                self.next_idx()
             self.data = all_data
-            self.label = all_label
+            self.label = all_labels
         ## reshape tops to fit (leading 1 is for batch dimension)
  #       top[0].reshape(1, *self.data.shape)
  #       top[1].reshape(1, *self.label.shape)
@@ -494,12 +495,12 @@ class JrMultilabel(caffe.Layer):
         top[0].data[...] = self.data
         top[1].data[...] = self.label
         # pick next input
-        self.next_idx(self)
+        self.next_idx()
 
     def backward(self, top, propagate_down, bottom):
         pass
 
-    def load_image_and_label(self,idx):
+    def load_image_and_label(self,idx=None):
         """
         Load input image and preprocess for Caffe:
         - cast to float
@@ -507,6 +508,8 @@ class JrMultilabel(caffe.Layer):
         - subtract mean
         - transpose to channel x height x width order
         """
+        if idx is None:
+            idx = self.idx
         while(1):
             filename = self.imagefiles[idx]
             label_vec = self.label_vecs[idx]

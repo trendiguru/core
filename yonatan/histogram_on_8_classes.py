@@ -26,7 +26,7 @@ text_file = open("db_dress_sleeve_test.txt", "r")
 counter = 0
 
 MODLE_FILE = "/home/yonatan/trendi/yonatan/resnet_50_dress_sleeve/ResNet-50-deploy.prototxt"
-PRETRAINED = "/home/yonatan/resnet50_caffemodels/caffe_resnet50_snapshot_50_sgd_iter_5000.caffemodel"
+PRETRAINED = "/home/yonatan/resnet50_caffemodels/caffe_resnet50_snapshot_50_sgd_iter_10000.caffemodel"
 caffe.set_mode_gpu()
 image_dims = [224, 224]
 mean, input_scale = np.array([120, 120, 120]), None
@@ -133,16 +133,16 @@ else:
 
 histogram = plt.figure(1)
 
-plt.hist(array_success_with_plus_minus_category, bins=100, range=(0, 1), color='blue', label='array_success_with_plus_minus_category')
+plt.hist(array_success_with_plus_minus_category, bins=100, range=(0.9, 1), color='blue', label='array_success_with_plus_minus_category')
 plt.legend()
 
-plt.hist(array_failure_with_plus_minus_category, bins=100, range=(0, 1), color='red', label='array_failure_with_plus_minus_category')
+plt.hist(array_failure_with_plus_minus_category, bins=100, range=(0.9, 1), color='red', label='array_failure_with_plus_minus_category')
 plt.legend()
 
-plt.hist(array_success_without, bins=100, range=(0, 1), color='green', label='array_success_without')
+plt.hist(array_success_without, bins=100, range=(0.9, 1), color='green', label='array_success_without')
 plt.legend()
 
-plt.hist(array_failure_without, bins=100, range=(0, 1), color='pink', label='array_failure_without')
+plt.hist(array_failure_without, bins=100, range=(0.9, 1), color='pink', label='array_failure_without')
 plt.legend()
 
 histogram.savefig('db_dresses_histogram_iter_5000.png')
