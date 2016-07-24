@@ -531,6 +531,8 @@ if __name__ =="__main__":
     solverproto = '/home/jeremy/caffenets/production/ResNet-50-test.prototxt'
 #    caffemodel =  '/home/jeremy/caffenets/multilabel/vgg_ilsvrc_16_multilabel_2/snapshot/train_iter_340000.caffemodel'
 #    deployproto = '/home/jeremy/caffenets/multilabel/vgg_ilsvrc_16_multilabel_2/deploy.prototxt'
+    solverproto = '/home/jeremy/caffenets/multilabel/deep-residual-networks/prototxt/ResNet-101-test.prototxt'
+    caffemodel = '/home/jeremy/caffenets/production/multilabel_resnet101_sgd_iter_120000.caffemodel'
     multilabel_net = caffe.Net(solverproto,caffemodel, caffe.TEST)
 
     precision_accuracy_recall(caffemodel,solverproto)
@@ -538,4 +540,3 @@ if __name__ =="__main__":
 
 
 
-#/home/jeremy/caffenets/production/multilabel_resnet101_sgd_iter_120000.caffemodel
