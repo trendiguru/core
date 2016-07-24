@@ -533,7 +533,8 @@ if __name__ =="__main__":
         caffemodel = args.caffemodel
     if args.gpu is not None:
         gpu = int(args.gpu)
-    else gpu = 0
+    else:
+        gpu = 0
     if args.output_layer_name is not None:
         outlayer = args.output_layer_name
 
