@@ -7075,16 +7075,16 @@ layer {
 }
 
 layer {
-	name: "myfc21"
+	name: "myfc1000"
 	bottom: "pool5"
-	top: "myfc21"
+	top: "myfc1000"
 	type: "InnerProduct"
 	inner_product_param {
 		num_output: 21
 	}
 	 param {
-		  lr_mult: 100
-		  decay_mult: 100
+		  lr_mult: 10
+		  decay_mult: 10
 		}
 }
 
@@ -7096,13 +7096,9 @@ layer {
 #}
 
 layer {
-	bottom: "myfc21"
+	bottom: "myfc1000"
 	bottom: "labels"
 	top: "score"
 	name: "score"
 	type: "SigmoidCrossEntropyLoss"
 }
-
-
-
-
