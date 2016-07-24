@@ -519,7 +519,7 @@ def precision_accuracy_recall(caffemodel,solverproto,outlayer='label'):
 
 
 if __name__ =="__main__":
-#    parser = argparse.ArgumentParser(description='Process some integers.')
+    parser = argparse.ArgumentParser(description='multilabel accuracy tester')
     parser.add_argument('--testproto',  help='test prototxt')
     parser.add_argument('--caffemodel', help='caffmodel')
     parser.add_argument('--gpu', help='gpu #',default=0)
