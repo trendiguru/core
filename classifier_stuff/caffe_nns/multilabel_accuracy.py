@@ -519,11 +519,11 @@ def precision_accuracy_recall(caffemodel,solverproto,outlayer='label'):
 
 
 if __name__ =="__main__":
-    parser = argparse.ArgumentParser(description='Process some integers.')
+#    parser = argparse.ArgumentParser(description='Process some integers.')
     parser.add_argument('--testproto',  help='test prototxt')
     parser.add_argument('--caffemodel', help='caffmodel')
-    parser.add_argument('--gpu', help='gpu #')
-    parser.add_argument('--output_layer_name', help='output layer name')
+    parser.add_argument('--gpu', help='gpu #',default=0)
+    parser.add_argument('--output_layer_name', help='output layer name',default='label')
 
     args = parser.parse_args()
     print(args)
@@ -531,13 +531,12 @@ if __name__ =="__main__":
         solverproto = args.testproto
     if args.caffemodel is not None:
         caffemodel = args.caffemodel
-    if args.gpu is not None:
-        gpu = int(args.gpu)
-    else:
-        gpu = 0
-    if args.output_layer_name is not None:
-        outlayer = args.output_layer_name
-
+#    if args.gpu is not None:
+    gpu = int(args.gpu)
+#    if args.output_layer_name is not None:
+    outlayer = args.output_layer_name
+ #   else:
+ #       outlayer = 'label'
     caffe.set_mode_gpu()
     caffe.set_device(gpu)
 
