@@ -428,7 +428,7 @@ def write_textfile(p,r,a,tp,tn,fp,fn,threshold,model_base):
         f.close()
 
 
-def precision_accuracy_recall(caffemodel,solverproto,outlayer='label'):
+def precision_accuracy_recall(caffemodel,solverproto,outlayer='label',n_tests=100):
     #TODO dont use solver to get inferences , no need for solver for that
 
     caffe.set_mode_gpu()
@@ -446,7 +446,7 @@ def precision_accuracy_recall(caffemodel,solverproto,outlayer='label'):
     thresh = [0.1,0.5,0.9]
 
     for t in thresh:
-        p,r,a,tp,tn,fp,fn = check_accuracy(solverproto, caffemodel, threshold=t, num_batches=800,outlayer=outlayer)
+        p,r,a,tp,tn,fp,fn = check_accuracy(solverproto, caffemodel, threshold=t, num_batches=n_tests,outlayer=outlayer)
         p_all.append(p)
         r_all.append(p)
         a_all.append(p)
