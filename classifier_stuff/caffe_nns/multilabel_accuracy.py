@@ -173,7 +173,7 @@ def test_confmat():
         tp,tn,fp,fn = update_confmat(gt,e,tp,tn,fp,fn)
     print('tp {} tn {} fp {} fn {}'.format(tp,tn,fp,fn))
 
-def check_acc(net, num_batches, batch_size = 1,threshold = 0.5):
+def check_acc(net, num_batches, batch_size = 1,threshold = 0.5,outlayer='label'):
     #this is not working foir batchsize!=1, maybe needs to be defined in net
     acc = 0.0 #
     baseline_acc = 0.0
@@ -182,7 +182,7 @@ def check_acc(net, num_batches, batch_size = 1,threshold = 0.5):
     first_time = True
     for t in range(num_batches):
         net.forward()
-        gts = net.blobs['label'].data
+        gts = net.blobs[outlayer].data
 #        ests = net.blobs['score'].data > 0  ##why 0????  this was previously not after a sigmoid apparently
         ests = net.blobs['score'].data > threshold
         baseline_est = np.zeros_like(ests)
@@ -244,7 +244,7 @@ def results():#prediction results
         plt.axis('off')
 
 
-def check_accuracy(proto,caffemodel,num_batches=200,batch_size=1,threshold = 0.5):
+def check_accuracy(proto,caffemodel,num_batches=200,batch_size=1,threshold = 0.5,outlayer='label'):
     print('checking accuracy of net {} using proto {}'.format(caffemodel,proto))
 #    solver = caffe.SGDSolver(solverproto)
      # Make classifier.
@@ -425,7 +425,7 @@ def write_textfile(p,r,a,tp,tn,fp,fn,threshold,model_base):
         f.close()
 
 
-def precision_accuracy_recall(caffemodel,solverproto):
+def precision_accuracy_recall(caffemodel,solverproto,outlayer='label'):
     #TODO dont use solver to get inferences , no need for solver for that
 
     caffe.set_mode_gpu()
@@ -443,7 +443,7 @@ def precision_accuracy_recall(caffemodel,solverproto):
     thresh = [0.1,0.5,0.9]
 
     for t in thresh:
-        p,r,a,tp,tn,fp,fn = check_accuracy(solverproto, caffemodel, threshold=t, num_batches=800)
+        p,r,a,tp,tn,fp,fn = check_accuracy(solverproto, caffemodel, threshold=t, num_batches=800,outlayer=outlayer)
         p_all.append(p)
         r_all.append(p)
         a_all.append(p)
@@ -517,13 +517,13 @@ def precision_accuracy_recall(caffemodel,solverproto):
 
   #  print 'Baseline accuracy:{0:.4f}'.format(check_baseline_accuracy(solver.test_nets[0], 10,batch_size = 20))
 
-caffe.set_mode_gpu()
-caffe.set_device(0)
 
 if __name__ =="__main__":
     parser = argparse.ArgumentParser(description='Process some integers.')
     parser.add_argument('--testproto',  help='test prototxt')
     parser.add_argument('--caffemodel', help='caffmodel')
+    parser.add_argument('--gpu', help='gpu #')
+    parser.add_argument('--output_layer_name', help='output layer name')
 
     args = parser.parse_args()
     print(args)
@@ -531,15 +531,23 @@ if __name__ =="__main__":
         solverproto = args.testproto
     if args.caffemodel is not None:
         caffemodel = args.caffemodel
+    if args.gpu is not None:
+        gpu = args.gpu
+    if args.output_layer_name is not None:
+        outlayer = args.output_layer_name
+
+    caffe.set_mode_gpu()
+    caffe.set_device(0)
+
     caffemodel = '/home/jeremy/caffenets/production/multilabel_resnet50_sgd_iter_120000.caffemodel'
     solverproto = '/home/jeremy/caffenets/production/ResNet-50-test.prototxt'
 #    caffemodel =  '/home/jeremy/caffenets/multilabel/vgg_ilsvrc_16_multilabel_2/snapshot/train_iter_340000.caffemodel'
 #    deployproto = '/home/jeremy/caffenets/multilabel/vgg_ilsvrc_16_multilabel_2/deploy.prototxt'
     solverproto = '/home/jeremy/caffenets/multilabel/deep-residual-networks/prototxt/ResNet-101-test.prototxt'
     caffemodel = '/home/jeremy/caffenets/production/multilabel_resnet101_sgd_iter_120000.caffemodel'
-    multilabel_net = caffe.Net(solverproto,caffemodel, caffe.TEST)
+#    multilabel_net = caffe.Net(solverproto,caffemodel, caffe.TEST)
 
-    precision_accuracy_recall(caffemodel,solverproto)
+    precision_accuracy_recall(caffemodel,solverproto,outlayer=outlayer)
 
 
 
