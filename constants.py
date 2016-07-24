@@ -25,6 +25,8 @@ products_per_ip_pid = {'default':
                                  {'default': 'ShopStyle', 'US': 'ebay', 'KR': 'GangnamStyle'},
                        'fashionseoul':
                                  {'KR': 'GangnamStyle'},
+                       '5767jA8THOn2J0DD':
+                                 {'KR': 'GangnamStyle'},
                        'RecruitPilot':
                                  {'default': 'recruit'},
                        '6t50LSJxeNEkQ42p':
