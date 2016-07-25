@@ -98,7 +98,6 @@ def parse_logfile(f,logy):
       check_train = False
       check_train2 = True
 
-
     if '] Iteration ' in line and 'loss = ' in line:
 #    if '] Iteration ' in line and 'loss = ' in line:
       print('getting loss:'+line)
@@ -106,7 +105,6 @@ def parse_logfile(f,logy):
       training_iterations.append(int(arr[0].strip(',')[4:])/1000.0)
       training_loss.append(float(line.strip().split(' = ')[-1]))
       check_train = True
-
 
     if '] Iteration ' in line and 'Testing net' in line:
       print('getting test:'+line)
@@ -232,6 +230,8 @@ def parse_logfile(f,logy):
       subtitle = subtitle+'base_lr'+base_lr
     if lr_policy is not '':
       subtitle=subtitle+lr_policy
+    if stepsize is not '':
+      subtitle=subtitle+'stpsz:'+stepsize
     if momentum is not '':
       subtitle = subtitle + 'mom:'+momentum
     if gamma is not '':
