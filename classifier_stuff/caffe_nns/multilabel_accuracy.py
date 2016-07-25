@@ -473,7 +473,7 @@ def write_html(p,r,a,n,threshold,model_base,positives=False):
             g.write('n_positives')
             g.write('</td>\n')
             g.write('<td>')
-            g.write(fwavn)
+            g.write(str(fwavn))
             g.write('</td>\n')
             for i in range(len(p)):
                 g.write('<td>')
@@ -503,7 +503,7 @@ def write_html(p,r,a,n,threshold,model_base,positives=False):
         g.write('precision')
         g.write('</td>\n')
         g.write('<td>')
-        g.write(fwavp)
+        g.write(str(fwavp))
         g.write('</td>\n')
         for i in range(len(p)):
             g.write('<td>')
@@ -516,7 +516,7 @@ def write_html(p,r,a,n,threshold,model_base,positives=False):
         g.write('recall')
         g.write('</td>\n')
         g.write('<td>')
-        g.write(fwavr)
+        g.write(str(fwavr))
         g.write('</td>\n')
         for i in range(len(p)):
             g.write('<td>')
@@ -529,7 +529,7 @@ def write_html(p,r,a,n,threshold,model_base,positives=False):
         g.write('accuracy')
         g.write('</td>\n')
         g.write('<td>')
-        g.write(fwava)
+        g.write(str(fwava))
         g.write('</td>\n')
         for i in range(len(p)):
             g.write('<td>')
