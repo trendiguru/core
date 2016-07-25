@@ -433,29 +433,45 @@ def write_html(p,r,a,n,threshold,model_base):
  #       g.write('<table style=\"width:100%\">\n')
 
         g.write('<tr>\n')
+        g.write('<th>')
         g.write('threshold\n')
+        g.write('</th>')
         for i in range(len(p)):
+            g.write('<th>')
             g.write(str(round(threshold,2)))
+            g.write('</th>\n')
         g.write('</tr>\n')
 
 
         g.write('<tr>\n')
+        g.write('<th>')
         g.write('precision')
+        g.write('</th>\n')
         for i in range(len(p)):
+            g.write('<th>')
             g.write(str(round(p[i],3)))
+            g.write('</th>\n')
         g.write('</tr>\n')
 
         g.write('<tr>\n')
+        g.write('<th>')
         g.write('recall')
+        g.write('</th>\n')
         for i in range(len(p)):
+            g.write('<th>')
             g.write(str(round(r[i],3)))
+            g.write('</th>\n')
         g.write('</tr>\n')
 
         g.write('<tr>\n')
+        g.write('<th>')
         g.write('accuracy')
+        g.write('</th>\n')
         for i in range(len(p)):
+            g.write('<th>')
             g.write(str(round(a[i],3)))
-        g.write('</tr>\n')
+            g.write('</th>\n')
+        g.write('</tr>\n<br>\n')
 #        g.write('</table><br>')
 
 #        g.write('threshold = '+str(t)+'\n')
@@ -500,7 +516,7 @@ def precision_accuracy_recall(caffemodel,solverproto,outlayer='label',n_tests=10
     n_all = []
 #    for t in [0.1,0.2,0.3,0.4,0.5,0.6,0.7,0.8,0.85,0.9,0.92,0.95,0.98]:
     thresh = [0.1,0.5,0.6,0.7,0.8,0.9,0.95]
-#    thresh = [0.1,0.5,0.95]
+    thresh = [0.1,0.5,0.95]
 
     open_html(model_base)
     for t in thresh:
