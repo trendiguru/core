@@ -235,6 +235,8 @@ def parse_logfile(f,logy):
       guess = (k,a,b,x0)
       params = curve_fit(fit_exp,training_iterations,training_loss,guess)
       print('params:'+str(params))
+      params = curve_fit(fit_exp,training_iterations,training_loss)
+      print('params:'+str(params))
       k,a,b,x0 = params[0]
       cov = params[1]
       if cov[0][0] == np.inf:
