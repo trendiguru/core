@@ -412,6 +412,9 @@ def open_html(model_base):
         g.write('<th>')
         g.write('metric')
         g.write('</th>\n')
+        g.write('<th>')
+        g.write('freq weighted avg')
+        g.write('</th>\n')
         for i in range(len(constants.web_tool_categories)):
             g.write('<th>')
             g.write(constants.web_tool_categories[i])
@@ -449,10 +452,28 @@ def summary_html():
 
 def write_html(p,r,a,n,threshold,model_base,positives=False):
     with open(model_base+'results.html','a') as g:
+        fwavp = 0
+        fwavr = 0
+        fwava = 0
+        fwavn = 0
+        n_sum = 0
+        for i in len(p):
+            fwavp = fwavp + p[i]*n[i]
+            fwavr = fwavp + r[i]*n[i]
+            fwava = fwavp + a[i]*n[i]
+            n_sum=n_sum+n[i]
+        fwavp = fwavp/n_sum
+        fwavr = fwavp/n_sum
+        fwava = fwavp/n_sum
+        fwavn = n_sum/len(p)
+
         if(positives):
             g.write('<tr>\n')
             g.write('<td>')
             g.write('n_positives')
+            g.write('</td>\n')
+            g.write('<td>')
+            g.write(fwavn)
             g.write('</td>\n')
             for i in range(len(p)):
                 g.write('<td>')
@@ -466,6 +487,9 @@ def write_html(p,r,a,n,threshold,model_base,positives=False):
         g.write('<td>')
         g.write('threshold\n')
         g.write('</td>')
+        g.write('<td>')
+        g.write('')
+        g.write('</td>\n')
         for i in range(len(p)):
             g.write('<td>')
             g.write(str(round(threshold,2)))
@@ -478,6 +502,9 @@ def write_html(p,r,a,n,threshold,model_base,positives=False):
         g.write('<td>')
         g.write('precision')
         g.write('</td>\n')
+        g.write('<td>')
+        g.write(fwavp)
+        g.write('</td>\n')
         for i in range(len(p)):
             g.write('<td>')
             g.write(str(round(p[i],3)))
@@ -488,6 +515,9 @@ def write_html(p,r,a,n,threshold,model_base,positives=False):
         g.write('<td>')
         g.write('recall')
         g.write('</td>\n')
+        g.write('<td>')
+        g.write(fwavr)
+        g.write('</td>\n')
         for i in range(len(p)):
             g.write('<td>')
             g.write(str(round(r[i],3)))
@@ -497,6 +527,9 @@ def write_html(p,r,a,n,threshold,model_base,positives=False):
         g.write('<tr>\n')
         g.write('<td>')
         g.write('accuracy')
+        g.write('</td>\n')
+        g.write('<td>')
+        g.write(fwava)
         g.write('</td>\n')
         for i in range(len(p)):
             g.write('<td>')
