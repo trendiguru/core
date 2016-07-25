@@ -433,13 +433,13 @@ def write_html(p,r,a,n,threshold,model_base):
  #       g.write('<table style=\"width:100%\">\n')
 
         g.write('<tr>\n')
-        g.write('<th>')
+        g.write('<td>')
         g.write('threshold\n')
-        g.write('</th>')
+        g.write('</td>')
         for i in range(len(p)):
-            g.write('<th>')
+            g.write('<td>')
             g.write(str(round(threshold,2)))
-            g.write('</th>\n')
+            g.write('</td>\n')
         g.write('</tr>\n')
 
         g.write('<tr>\n')
