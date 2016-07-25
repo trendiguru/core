@@ -412,7 +412,7 @@ def open_html(model_base):
         g.write('<th>')
         g.write('threshold')
         g.write('</th>\n')
-        for i in range(len(p)):
+        for i in range(len(constants.web_tool_categories)):
             g.write('<th>')
             g.write(constants.web_tool_categories[i])
             g.write('</th>\n')
