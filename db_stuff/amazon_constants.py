@@ -75,8 +75,9 @@ amazon_categories = ['belt',
                              'sweater',
                              'sweatshirt',
                              't-shirt',
-                             'tanktops',
+                             'tanktop',
                              'tights',
                              'top',
                              'vest',
-                             'swimsuit']
+                             'swimsuit',
+                             'unknown']
