@@ -432,16 +432,16 @@ def close_html(model_base):
 def summary_html():
     htmlfiles = [f for f in os.listdir('./') if '.html' in f]
     with open('summary.html','w') as g:
-        g.write('<!DOCTYPE html>')
-        g.write('<html>')
-        g.write('<head>')
-        g.write('<title>')
+        g.write('<!DOCTYPE html><br>\n')
+        g.write('<html><br>\n')
+        g.write('<head><br>\n')
+        g.write('<title><br>\n')
         g.write('multilabel accuracy/precision/recall results')
-        g.write('</title>')
+        g.write('</title><br>\n')
         g.write('</head>\n')
         g.write('<br>\n')
         for h in htmlfiles:
-            g.write('<a href=\"'+ h+'\"> '+f+'</a>')
+            g.write('<a href=\"'+ h+'\"> '+f+'</a><br>\n')
         g.write('</html>')
 
 #        g.write('categories: '+str(constants.web_tool_categories)+'<br>'+'\n')
