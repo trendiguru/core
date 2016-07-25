@@ -226,16 +226,18 @@ def parse_logfile(f,logy):
     dt=datetime.datetime.today()
     plt.title(net_name+' '+dt.isoformat(),fontsize=10)
     subtitle = args.output_file+train_net+test_net+'\n'
+    if type is not '':
+      subtitle = subtitle+'type:'+type
     if base_lr is not '':
-      subtitle = subtitle+'base_lr'+base_lr
+      subtitle = subtitle+'baselr:'+base_lr
     if lr_policy is not '':
       subtitle=subtitle+lr_policy
     if stepsize is not '':
-      subtitle=subtitle+'stpsz:'+stepsize
+      subtitle=subtitle+'step:'+stepsize
     if momentum is not '':
       subtitle = subtitle + 'mom:'+momentum
     if gamma is not '':
-      subtitle=subtitle+'gama'+gamma
+      subtitle=subtitle+'gamma:'+gamma
     plt.suptitle(subtitle,fontsize=8)
     #plt.draw()
     try:
