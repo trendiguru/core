@@ -455,16 +455,25 @@ def write_html(p,r,a,n,threshold,model_base,positives=False):
         fwavp = 0
         fwavr = 0
         fwava = 0
+        n_p=0
+        n_r=0
+        n_a=0
         fwavn = 0
         n_sum = 0
         for i in range(len(p)):
-            fwavp = fwavp + p[i]*n[i]
-            fwavr = fwavr + r[i]*n[i]
-            fwava = fwava + a[i]*n[i]
+            if not np.isnan(p[i]):
+                fwavp = fwavp + p[i]*n[i]
+                n_p=n_p+n[i]
+            if not np.isnan(r[i]):
+                fwavr = fwavr + r[i]*n[i]
+                n_r=n_r+n[i]
+            if not np.isnan(a[i]):
+                fwava = fwava + p[i]*n[i]
+                n_a=n_a+n[i]
             n_sum=n_sum+n[i]
-        fwavp = fwavp/float(n_sum)
-        fwavr = fwavp/float(n_sum)
-        fwava = fwavp/float(n_sum)
+        fwavp = fwavp/float(n_p)
+        fwavr = fwavp/float(n_r)
+        fwava = fwavp/float(n_a)
         fwavn = n_sum/float(len(p))
         print('frequency weighted averages p {} r {} acc {} n {}'.format(fwavp,fwavr,fwava,fwavn))
 
