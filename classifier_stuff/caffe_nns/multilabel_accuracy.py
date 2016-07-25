@@ -456,7 +456,7 @@ def write_html(p,r,a,n,threshold,model_base,positives=False):
             g.write('</td>\n')
             for i in range(len(p)):
                 g.write('<td>')
-                g.write(str(n[i]))
+                g.write(str(int(n[i])))
                 g.write('</td>\n')
             g.write('</tr>\n<br>\n')
 
