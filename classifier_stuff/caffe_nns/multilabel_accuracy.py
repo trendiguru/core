@@ -406,7 +406,7 @@ def open_html(model_base):
         g.write('solver:'+solverproto+'\n'+'<br>')
         g.write('model:'+caffemodel+'\n'+'<br>')
         g.write('</head>')
-        g.write('categories: '+str(constants.web_tool_categories)+'<br>'+'\n')
+#        g.write('categories: '+str(constants.web_tool_categories)+'<br>'+'\n')
         g.write('<table style=\"width:100%\">\n')
         g.write('<tr>\n')
         g.write('<th>')
@@ -532,7 +532,7 @@ def precision_accuracy_recall(caffemodel,solverproto,outlayer='label',n_tests=10
     n_all = []
 #    for t in [0.1,0.2,0.3,0.4,0.5,0.6,0.7,0.8,0.85,0.9,0.92,0.95,0.98]:
     thresh = [0.1,0.5,0.6,0.7,0.8,0.9,0.95]
-    thresh = [0.1,0.5,0.95]
+#    thresh = [0.1,0.5,0.95]
 
     open_html(model_base)
     positives = True
