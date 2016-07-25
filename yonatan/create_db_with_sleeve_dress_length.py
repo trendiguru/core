@@ -41,6 +41,8 @@ def cv2_image_to_caffe(image):
 
 dresses = db.yonatan_dresses_test.find()
 
+delete = 0
+
 # text_file = open("all_dresses_" + key + "_list.txt", "w")
 for i in range(1, dresses.count()):
     # if i > num_of_each_category:
@@ -114,3 +116,5 @@ for i in range(1, dresses.count()):
 
     if db.yonatan_dresses_test.find({"_id": dresses[i]["_id"]}, {'dress_sleeve_length': {'$exists': True}}):
         db.yonatan_dresses_test.update({"_id": dresses[i]["_id"]}, {"$unset": {"dress_sleeve_length": ""}})
+        delete += 1
+        print delete
