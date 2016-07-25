@@ -80,4 +80,5 @@ amazon_categories = ['belt',
                              'top',
                              'vest',
                              'swimsuit',
-                             'unknown']
+                             'unknown',
+                             'stockings']
