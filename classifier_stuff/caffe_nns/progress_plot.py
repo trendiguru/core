@@ -50,21 +50,29 @@ def parse_logfile(f,logy):
 
     if 'train_net' in line:
       train_net = line.split()[-1]+' '
+      print('train net:'+train_net)
     if 'test_net' in line:
       test_net = line.split()[-1]+' '
+      print('test net:'+test_net)
     if 'base_lr' in line:
       base_lr = line.split()[-1]+' '
+      print('base_lr:'+base_lr)
     if 'lr_policy' in line:
       lr_policy = line.split()[-1]+' '
+      print('lr_policy:'+lr_policy)
     if 'stepsize' in line:
       stepsize = line.split()[-1]+' '
+      print('stepsize:'+stepsize)
 
     if 'type' in line and not '#type' in line and not '# type' in line:  #only take first 'type' which is in solver.proto (type of learning)
       type = line.split()[-1]+' '
+      print('type:'+type)
     if 'momentum' in line and not '#momentum' in line and not '# momentum' in line:
       momentum = line.split()[-1]+' '
+      print('mom:'+momentum)
     if 'gamma' in line and not '#gamma' in line and not '# gamma' in line:
       gamma = line.split()[-1]+' '
+      print('gamma:'+gamma)
 
     if check_test and 'Test net output' in line and 'accuracy' in line:
       print('checking line for test output 0: '+line)
@@ -220,7 +228,11 @@ def parse_logfile(f,logy):
             mode="expand", borderaxespad=0.) #bbox_to_anchor=(0., 1.02, 1., .102), #ncol=2,
     dt=datetime.datetime.today()
     plt.title(net_name+' '+dt.isoformat(),fontsize=10)
-    subtitle = args.output_file+'\n'+train_net+test_net+'base_lr'+base_lr+lr_policy+type
+    subtitle = args.output_file+'\n'+train_net+test_net\
+    if base_lr != '':
+      subtitle = subtitle+'base_lr'+base_lr
+    if lr_policy != '':
+      r_policy+type
     if momentum is not '':
       subtitle = subtitle + 'mom:'+momentum
     if gamma is not '':
