@@ -441,7 +441,7 @@ def summary_html():
         g.write('</head>\n')
         g.write('<br>\n')
         for h in htmlfiles:
-            g.write('<a href=\"'+ h+'\"> '+f+'</a><br>\n')
+            g.write('<a href=\"'+ h+'\"> '+h+'</a><br>\n')
         g.write('</html>')
 
 #        g.write('categories: '+str(constants.web_tool_categories)+'<br>'+'\n')
