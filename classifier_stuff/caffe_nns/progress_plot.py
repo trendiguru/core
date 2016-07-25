@@ -244,7 +244,7 @@ def parse_logfile(f,logy):
           print('bad fit')
       else:
           fit_y = fit_exp(training_iterations,k,a,b,x0)
-          ax1.plot(training_iterations,fit_y,linestyle='--',color='b')
+          ax1.plot(training_iterations,fit_y,linestyle='--',color='g',linewidth=2)
           middlex = training_iterations[len(training_iterations)/2]
           middley = (np.max(training_loss)-np.min(training_loss))/2.0
           ax1.text(middlex, middley, r'$y= b + k exp(a(x-x0)$', fontsize=15)
