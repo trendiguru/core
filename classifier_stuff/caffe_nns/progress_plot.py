@@ -231,13 +231,13 @@ def parse_logfile(f,logy):
       k = 100
       a = 0
       b = training_loss[0]
-      x0 = 100
+      x0 = training_iterations[0]
       guess = (k,a,b,x0)
       print('guess:'+str(guess))
       params = curve_fit(fit_exp,training_iterations,training_loss,guess,maxfev=10000)
       print('params:'+str(params))
-      params = curve_fit(fit_exp,training_iterations,training_loss)
-      print('params:'+str(params))
+#      params = curve_fit(fit_exp,training_iterations,training_loss)
+#      print('params:'+str(params))
       k,a,b,x0 = params[0]
       cov = params[1]
       if cov[0][0] == np.inf:
