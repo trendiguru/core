@@ -42,17 +42,17 @@ def overflow_test(batch_size=10):
 
         # simulate reasonable POST requests tempo to https://api.trendi.guru/images
         data = {"pageUrl": "overflow_test", "imageList": urls_batch}
-        post_q.enqueue_call(func='post_it', args=(data,))
+        post_q.enqueue_call(func=post_it, args=(data,))
         time.sleep(1)
 
         # get a few measurements and print to log file:
-        rel_cnt.mark(images_q.count())
+        rel_cnt.mark(images_q.count)
         irrel_cnt.mark(db.irrelevant_images.count())
 
         if time.time()-inter > 10:
             inter = time.time()
             queue_file.write("{0}: total images on queue: {1}\n"
-                             "".format(str(datetime.datetime.now()), rel_cnt.count()))
+                             "".format(str(datetime.datetime.now()), rel_cnt.get_count()))
     queue_file.close()
 
 
