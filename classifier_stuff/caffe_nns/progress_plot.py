@@ -248,7 +248,8 @@ def parse_logfile(f,logy):
           middlex = training_iterations[len(training_iterations)/2]
           middley = (np.max(training_loss)-np.min(training_loss))/2.0
 #          ax1.text(middlex, middley, r'$y= b + k exp(a(x-x0)$', fontsize=15)
-          st = 'y='+str(round(b,2))+'+'+str(round(k,2))+'exp('+str(round(a,2))+'(x-'+str(round(x0,2))+')'
+          a_str = str.format('{0:.2f}', a)
+          st = 'y='+str(round(b,2))+'+'+str(round(k,2))+'exp('+a_str+'(x-'+str(round(x0,2))+')'
           ax1.text(middlex, middley, r'$'+st+'$', fontsize=12)
 #          ax1.text(middlex, middley+1, 'b='+str(b), fontsize=15)
     except:
