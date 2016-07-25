@@ -423,7 +423,7 @@ def open_html(model_base):
 
 def close_html(model_base):
     with open(model_base+'results.html','a') as g:
-#        g.write('</table><br>')
+        g.write('</table><br>')
         plotfilename = 'multilabel_results'+model_base+'.png'
 
         g.write('<a href=\"'+plotfilename+'\">plot<img src = \"'+plotfilename+'\" style=\"width:300px\"></a>')
