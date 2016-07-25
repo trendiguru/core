@@ -278,6 +278,9 @@ def parse_logfile(f,logy):
         else:
             fit_y = fit_log(training_iterations,k,a,b,x0)
             ax1.plot(training_iterations,fit_y,linestyle='--',color='r',linewidth=2)
+            a_str = str.format('{0:.2e}', a)
+            st = 'y='+str(round(b,2))+'+'+str(round(k,2))+'log('+a_str+'(x-'+str(round(x0,2))+')'
+            ax1.text(training_iterations[0], middley, r'$'+st+'$', fontsize=12)
 
 
   savename = args.output_file+'.jpg'
