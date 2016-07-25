@@ -410,7 +410,7 @@ def open_html(model_base):
         g.write('<table style=\"width:100%\">\n')
         g.write('<tr>\n')
         g.write('<th>')
-        g.write('threshold')
+        g.write('metric')
         g.write('</th>\n')
         for i in range(len(constants.web_tool_categories)):
             g.write('<th>')
@@ -425,13 +425,37 @@ def close_html(model_base):
 
 def write_html(p,r,a,n,threshold,model_base):
     with open(model_base+'results.html','a') as g:
+        g.write('threshold\n')
+        g.write(str(round(threshold,2)))
+        g.write('<br>')
+
         g.write('<tr>\n')
         g.write('<th>')
-        g.write(str(round(threshold,2)))
+        g.write('precision')
         g.write('</th>\n')
         for i in range(len(p)):
             g.write('<th>')
             g.write(str(round(p[i],3)))
+            g.write('</th>\n')
+        g.write('</tr>\n')
+
+        g.write('<tr>\n')
+        g.write('<th>')
+        g.write('recall')
+        g.write('</th>\n')
+        for i in range(len(p)):
+            g.write('<th>')
+            g.write(str(round(r[i],3)))
+            g.write('</th>\n')
+        g.write('</tr>\n')
+
+        g.write('<tr>\n')
+        g.write('<th>')
+        g.write('accuracy')
+        g.write('</th>\n')
+        for i in range(len(p)):
+            g.write('<th>')
+            g.write(str(round(a[i],3)))
             g.write('</th>\n')
         g.write('</tr>\n')
 
