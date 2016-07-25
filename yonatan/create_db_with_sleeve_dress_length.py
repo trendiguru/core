@@ -39,74 +39,74 @@ def cv2_image_to_caffe(image):
     return skimage.img_as_float(cv2.cvtColor(image, cv2.COLOR_BGR2RGB)).astype(np.float32)
 
 
-def theDetector():
+dresses = db.yonatan_dresses_test.find()
 
-    dresses = db.yonatan_dresses_test.find()
+# text_file = open("all_dresses_" + key + "_list.txt", "w")
+for i in range(1, dresses.count()):
+    # if i > num_of_each_category:
+    #   break
 
-    # text_file = open("all_dresses_" + key + "_list.txt", "w")
-    for i in range(1, dresses.count()):
-        # if i > num_of_each_category:
-        #   break
+    url_or_np_array = dresses[i]['images']['XLarge']
 
-        url_or_np_array = dresses[i]['images']['XLarge']
+    print "Starting the genderism!"
+    # check if i get a url (= string) or np.ndarray
+    if isinstance(url_or_np_array, basestring):
+        #full_image = url_to_image(url_or_np_array)
+        response = requests.get(url_or_np_array)  # download
+        full_image = cv2.imdecode(np.asarray(bytearray(response.content)), 1)
+    elif type(url_or_np_array) == np.ndarray:
+        full_image = url_or_np_array
+    else:
+        print "bad picture"
+        break
 
-        print "Starting the genderism!"
-        # check if i get a url (= string) or np.ndarray
-        if isinstance(url_or_np_array, basestring):
-            #full_image = url_to_image(url_or_np_array)
-            response = requests.get(url_or_np_array)  # download
-            full_image = cv2.imdecode(np.asarray(bytearray(response.content)), 1)
-        elif type(url_or_np_array) == np.ndarray:
-            full_image = url_or_np_array
-        else:
-            return None
+    #checks if the face coordinates are inside the image
+    if full_image is None:
+        print "not a good image"
+        break
 
-        #checks if the face coordinates are inside the image
-        if full_image is None:
-            print "not a good image"
-            return None
+    face_for_caffe = [cv2_image_to_caffe(full_image)]
+    #face_for_caffe = [caffe.io.load_image(face_image)]
 
-        face_for_caffe = [cv2_image_to_caffe(full_image)]
-        #face_for_caffe = [caffe.io.load_image(face_image)]
+    if face_for_caffe is None:
+        print "bad picture"
+        break
 
-        if face_for_caffe is None:
-            return None
+    # Classify.
+    start = time.time()
+    predictions = classifier.predict(face_for_caffe)
+    print("Done in %.2f s." % (time.time() - start))
 
-        # Classify.
-        start = time.time()
-        predictions = classifier.predict(face_for_caffe)
-        print("Done in %.2f s." % (time.time() - start))
+    #max_result = max(predictions[0])
 
-        #max_result = max(predictions[0])
+    max_result_index = np.argmax(predictions[0])
 
-        max_result_index = np.argmax(predictions[0])
+    predict_label = int(max_result_index)
 
-        predict_label = int(max_result_index)
+    '''
+    if predict_label == 0:
+        type = 'strapless'
+    elif predict_label == 1:
+        type =  'spaghetti_straps'
+    elif predict_label == 2:
+        type =  'regular_straps'
+    elif predict_label == 3:
+        type = 'sleeveless'
+    elif predict_label == 4:
+        type = 'cap_sleeve'
+    elif predict_label == 5:
+        type = 'short_sleeve'
+    elif predict_label == 6:
+        type = 'midi_sleeve'
+    elif predict_label == 7:
+        type = 'long_sleeve'
+    '''
 
-        '''
-        if predict_label == 0:
-            type = 'strapless'
-        elif predict_label == 1:
-            type =  'spaghetti_straps'
-        elif predict_label == 2:
-            type =  'regular_straps'
-        elif predict_label == 3:
-            type = 'sleeveless'
-        elif predict_label == 4:
-            type = 'cap_sleeve'
-        elif predict_label == 5:
-            type = 'short_sleeve'
-        elif predict_label == 6:
-            type = 'midi_sleeve'
-        elif predict_label == 7:
-            type = 'long_sleeve'
-        '''
+    #print predictions[0][predict_label]
 
-        #print predictions[0][predict_label]
+    db.yonatan_dresses_test.update({"_id": dresses[i]["_id"]}, {"$set": {"dress_sleeve_length": predict_label}})
 
-        db.yonatan_dresses_test.update({"_id": dresses[i]["_id"]}, {"$set": {"dress_sleeve_length": predict_label}})
+    #and for delete a field from doc:
+    #db.yonatan_dresses_test.update({"_id": a[0]["_id"]}, {"$unset": {"dress_sleeve_length": 100}})
 
-        #and for delete a field from doc:
-        #db.yonatan_dresses_test.update({"_id": a[0]["_id"]}, {"$unset": {"dress_sleeve_length": 100}})
-
-        print i
+    print i
