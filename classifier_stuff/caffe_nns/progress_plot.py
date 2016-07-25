@@ -250,7 +250,7 @@ def parse_logfile(f,logy):
 #          ax1.text(middlex, middley, r'$y= b + k exp(a(x-x0)$', fontsize=15)
           a_str = str.format('{0:.2e}', a)
           st = 'y='+str(round(b,2))+'+'+str(round(k,2))+'exp('+a_str+'(x-'+str(round(x0,2))+')'
-          ax1.text(middlex, middley, r'$'+st+'$', fontsize=12)
+          ax1.text(0.1, middley, r'$'+st+'$', fontsize=12)
 #          ax1.text(middlex, middley+1, 'b='+str(b), fontsize=15)
     except:
       print('trouble fitting')
