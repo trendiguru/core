@@ -235,7 +235,7 @@ def parse_logfile(f,logy):
       guess = (k,a,b,x0)
       print('guess:'+str(guess))
       params = curve_fit(fit_exp,training_iterations,training_loss,guess,maxfev=10000)
-      print('params:'+str(params))
+      print('exp params:'+str(params))
 #      params = curve_fit(fit_exp,training_iterations,training_loss)
 #      print('params:'+str(params))
       k,a,b,x0 = params[0]
@@ -254,17 +254,17 @@ def parse_logfile(f,logy):
 #          ax1.text(middlex, middley+1, 'b='+str(b), fontsize=15)
     except:
       print('trouble fitting')
-    if(0):
+    if(1):
 
         params = curve_fit(fit_log,training_iterations,training_loss)
-        print('params:'+str(params))
+        print('log params:'+str(params))
         k,a,b,x0 = params[0]
         cov = params[1]
         if cov[0][0] > 1e4:
             print('bad fit')
         else:
-            fit_y = fit_exp(training_iterations,k,a,b)
-            ax1.plot(training_iterations,fit_y,linestyle='--',color='b')
+            fit_y = fit_log(training_iterations,k,a,b,x0)
+            ax1.plot(training_iterations,fit_y,linestyle='--',color='r',linewidth=2)
 
 
   savename = args.output_file+'.jpg'
