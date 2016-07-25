@@ -47,7 +47,7 @@ delete = 0
 for i in range(1, dresses.count()):
     # if i > num_of_each_category:
     #   break
-    '''
+
     url_or_np_array = dresses[i]['images']['XLarge']
 
     print "Starting the genderism!"
@@ -85,7 +85,7 @@ for i in range(1, dresses.count()):
 
     predict_label = int(max_result_index)
 
-
+    '''
     if predict_label == 0:
         type = 'strapless'
     elif predict_label == 1:
@@ -102,20 +102,24 @@ for i in range(1, dresses.count()):
         type = 'midi_sleeve'
     elif predict_label == 7:
         type = 'long_sleeve'
-
+    '''
 
     #print predictions[0][predict_label]
-
-    db.yonatan_dresses_test.update({"_id": dresses[i]["_id"]}, {"$set": {"dress_sleeve_length": predict_label}})
+    if db.yonatan_dresses_test.find({"_id": dresses[i]["_id"]}, {'dress_sleeve_length': {'$exists': False}}):
+        db.yonatan_dresses_test.update({"_id": dresses[i]["_id"]}, {"$set": {"dress_sleeve_length": predict_label}})
 
     #and for delete a field from doc:
     #db.yonatan_dresses_test.update({"_id": a[0]["_id"]}, {"$unset": {"dress_sleeve_length": 100}})
-    '''
+
     print i
 
 
-    if db.yonatan_dresses_test.find({"_id": dresses[i]["_id"]}, {'dress_sleeve_length': {'$exists': True}}):
-        db.yonatan_dresses_test.update({"_id": dresses[i]["_id"]}, {"$unset": {"dress_sleeve_length": ""}})
-        delete += 1
-        print delete
-print "delete_num: " + delete
+
+
+
+# how to delete the field "dress_sleeve_length" from all docs that have it:
+#    if db.yonatan_dresses_test.find({"_id": dresses[i]["_id"]}, {'dress_sleeve_length': {'$exists': True}}):
+#        db.yonatan_dresses_test.update({"_id": dresses[i]["_id"]}, {"$unset": {"dress_sleeve_length": ""}})
+#        delete += 1
+#        print delete
+#print "delete_num: " + delete
