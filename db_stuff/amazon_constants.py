@@ -45,3 +45,13 @@ amazon_categories = {'Dresses': {'childs': ['Cocktail', 'Casual', 'Wedding Party
                      # under 'Suit Separates' there are sub sub categories
                      }
 
+blacklist = ['Jewelry', 'Watches', 'Handbags', 'Accessories', 'Lingerie, Sleep & Lounge', 'Socks & Hosiery',
+             'Handbags & Wallets', 'Shops', 'Girls', 'Boys', 'Shoes', 'Underwear', 'Baby', 'Sleep & Lounge',
+             'Socks', 'Novelty & More', 'Luggage & Travel Gear', 'Uniforms, Work & Safety', 'Costumes & Accessories',
+             'Shoe, Jewelry & Watch Accessories', 'Traditional & Cultural Wear', 'Active Underwear', 'Active Socks',
+             'Active Supporters', 'Active Base Layers', 'Sports Bras', 'Athletic Socks', 'Athletic Supporters']
+
+log_name = '/home/developer/yonti/amazon_download_stats.log'
+
+colors = ['red', 'blue', 'green', 'black', 'white', 'yellow', 'pink', 'purple', 'magenta', 'cyan', 'grey', 'violet',
+          'gold', 'silver', 'khaki', 'turquoise', 'brown']

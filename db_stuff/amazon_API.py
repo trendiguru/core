@@ -53,7 +53,7 @@ import argparse
 
 import sys
 
-from Amazon_signature import get_amazon_signed_url
+from amazon_signature import get_amazon_signed_url
 from time import strftime, gmtime, sleep, time
 from requests import get
 import xmltodict
@@ -64,16 +64,13 @@ from rq import Queue
 from datetime import datetime
 from amazon_worker import insert_items
 from .fanni import plantForests4AllCategories
+from .amazon_constants import blacklist, log_name, colors
+from .dl_excel import mongo2xl
+
 
 forest = Queue('annoy_forest', connection=redis_conn)
 today_date = str(datetime.date(datetime.now()))
 q = Queue('amazon_worker', connection=redis_conn)
-
-blacklist = ['Jewelry', 'Watches', 'Handbags', 'Accessories', 'Lingerie, Sleep & Lounge', 'Socks & Hosiery',
-             'Handbags & Wallets', 'Shops', 'Girls', 'Boys', 'Shoes', 'Underwear', 'Baby', 'Sleep & Lounge',
-             'Socks', 'Novelty & More', 'Luggage & Travel Gear', 'Uniforms, Work & Safety', 'Costumes & Accessories',
-             'Shoe, Jewelry & Watch Accessories', 'Traditional & Cultural Wear', 'Active Underwear', 'Active Socks',
-             'Active Supporters', 'Active Base Layers', 'Sports Bras', 'Athletic Socks', 'Athletic Supporters']
 
 base_parameters = {
     'AWSAccessKeyId': 'AKIAIQJZVKJKJUUC4ETA',
@@ -85,14 +82,11 @@ base_parameters = {
     'Timestamp': strftime("%Y-%m-%dT%H:%M:%SZ", gmtime()),
     'ResponseGroup': 'ItemAttributes, OfferSummary,Images'}
 
+# globals
 last_time = time()
-log_name = '/home/developer/yonti/amazon_download_stats.log'
-
-colors = ['red', 'blue', 'green', 'black', 'white', 'yellow', 'pink', 'purple', 'magenta', 'cyan', 'grey', 'violet',
-          'gold', 'silver', 'khaki', 'turquoise', 'brown']
-
 FashionGender = 'FashionWomen'
 error_flag = False
+
 
 def proper_wait(print_flag=False):
     global last_time
@@ -103,7 +97,7 @@ def proper_wait(print_flag=False):
         current_time = time()
     if print_flag:
         print ('time diff: %f' % (current_time - last_time))
-    last_time=current_time
+    last_time = current_time
 
 
 def truncate_float_to_2_decimal_places(float2round, true_4_str=False):
@@ -162,46 +156,41 @@ def make_itemsearch_request(pagenum, node_id, min_price, max_price, price_flag=T
 
     try:
         if res.status_code != 200:
-            if print_flag:
-                print_error('Bad request', req)
+            msg = 'not 200!'
             error_flag = True
-            raise ValueError('-1')
+            raise ValueError(msg)
 
         res_dict = dict(xmltodict.parse(res.text))
         if 'ItemSearchResponse' not in res_dict.keys():
-            if print_flag:
-                print_error('No ItemSearchResponse', req)
-            raise ValueError('-2')
+            msg = 'No ItemSearchResponse'
+            raise ValueError(msg)
 
         res_dict = dict(res_dict['ItemSearchResponse']['Items'])
         if 'Errors' in res_dict.keys():
-            if print_flag:
-                print_error('Error', req)
+            msg = 'Error'
             error_flag = True
-            raise ValueError('-3')
+            raise ValueError(msg)
 
         if 'TotalResults' in res_dict.keys():
             results_count = int(res_dict['TotalResults'])
         else:
-            if print_flag:
-                print_error('bad query', req)
-            raise ValueError('-4')
+            msg = 'no TotalResualts'
+            raise ValueError(msg)
 
         if results_count == 0:
-            if print_flag:
-                price_range = 'PriceRange: %.2f -> %.2f' % (min_price, max_price)
-                print_error('no results for %s' % price_range)
-            raise ValueError('-5')
+            msg = 'no results for price_range'
+            raise ValueError(msg)
 
         if 'TotalPages' not in res_dict.keys():
-            if print_flag:
-                print_error('no TotalPages in dict keys')
-            raise ValueError('-6')
+            msg = 'no TotalPages in dict keys'
+            raise ValueError(msg)
 
     except Exception as e:
         results_count = 0
         summary = 'Name: %s, PriceRange: %.2f -> %.2f , ResultCount: %s '\
                   % (family_tree, min_price, max_price, e)
+        if print_flag:
+            print_error(e)
         if color_flag:
             summary += '(color -> %s)' % color
         log2file(mode='a', log_filename=log_name, message=summary)
@@ -253,15 +242,23 @@ def iterate_over_pagenums(total_pages, results_count, collection_name, node_id, 
 
 
 def filter_by_color(collection_name, node_id, price, family_tree, plus_size_flag=False):
+    no_results_seq = 0
     for color in colors:
+        if no_results_seq > 5:
+            break
         res_dict, results_count = make_itemsearch_request(1, node_id, price, price, color=color,
                                                           plus_size_flag=plus_size_flag, family_tree=family_tree)
-        if results_count < 2:
+        if results_count < 1:
+            no_results_seq+=1
             continue
 
         total_pages = int(res_dict['TotalPages'])
+        if total_pages < 1:
+            no_results_seq += 1
+            continue
         iterate_over_pagenums(total_pages, results_count, collection_name, node_id, price, price, family_tree,
                               res_dict, plus_size_flag, color)
+        no_results_seq = 0
     return
 
 
@@ -286,7 +283,7 @@ def get_results(node_id, collection_name='moshe',  price_flag=True, max_price=30
         # divide more
         diff = truncate_float_to_2_decimal_places(max_price-min_price)
         if diff <= 0.01:
-            if results_count > 150:
+            if results_count > 110:
                 color_flag = True  # later we will farther divide by color if it worth it(>150)
             total_pages = 10
         elif diff <= 0.02:
@@ -305,9 +302,8 @@ def get_results(node_id, collection_name='moshe',  price_flag=True, max_price=30
                         family_tree=family_tree, plus_size_flag=plus_size_flag)
             return 0
 
-    if not color_flag:
-        iterate_over_pagenums(total_pages, results_count, collection_name, node_id, min_price, max_price, family_tree,
-                              res_dict, plus_size_flag=plus_size_flag)
+    iterate_over_pagenums(total_pages, results_count, collection_name, node_id, min_price, max_price, family_tree,
+                          res_dict, plus_size_flag=plus_size_flag)
 
     if color_flag:
         max_rounded = format_price(max_price, True)
@@ -528,8 +524,18 @@ def download_all(collection_name, gender='Female', del_collection=False, del_cac
     clear_duplicates(collection_name)
     print_error('CLEAR DUPLICATES FINISHED')
     theArchiveDoorman(collection_name, instock_limit=7, archive_limit=14)
+
+    # here i duplicate legging to tights/stockings cause we need this category but we dont have items in it
+    leggings = collection.find({'categories':'leggings'})
+    for leg in leggings:
+        leg.pop('_id', None)
+        tmp1=tmp2 = leg
+        tmp1['categories'] = 'tights'
+        tmp2['categories'] = 'stockings'
+        collection.insert_many(tmp1, tmp2)
+
     collection_cache.delete_many({})
-    message = '%s is Done!' % col_name
+    message = '%s is Done!' % collection_name
     log2file(mode='a', log_filename=log_name, message=message, print_flag=True)
 
 
@@ -552,6 +558,7 @@ def getUserInput():
 
 
 if __name__ == "__main__":
+    start = time()
     # get user input
     user_input = getUserInput()
     c_c = user_input.country_code
@@ -609,10 +616,13 @@ if __name__ == "__main__":
         delete_cache = True
 
     # start the downloading process
+    status_full_path = 'collections.' + col_name + '.status'
+    db.download_status.update_one({"date": today_date}, {"$set": {status_full_path: "Working"}})
     download_all(collection_name=col_name, gender=col_gender, del_collection=delete_all,
                  del_cache=delete_cache, cat_tree=build_tree, plus_size_flag=plus_size)
 
     # after download finished its time to build a new annoy forest
+    db.download_status.update_one({"date": today_date}, {"$set": {status_full_path: "Finishing"}})
     forest_job = forest.enqueue(plantForests4AllCategories, col_name=col_name, timeout=3600)
     while not forest_job.is_finished and not forest_job.is_failed:
         sleep(300)
@@ -620,3 +630,16 @@ if __name__ == "__main__":
         print ('annoy plant forest failed')
 
     # to add download summery
+    end = time()
+    duration = end - start
+    dl_info = {"date": today_date,
+               "dl_duration": duration,
+               "store_info": []}
+
+    mongo2xl('amazon_US', dl_info)
+
+    collection = db[col_name]
+    notes_full_path = 'collections.' + col_name + '.notes'
+    new_items = collection.find({'download_data.first_dl': today_date}).count()
+    db.download_status.update_one({"date": today_date}, {"$set": {status_full_path: "Done",
+                                                                  notes_full_path: new_items}})

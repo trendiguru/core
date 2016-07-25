@@ -92,7 +92,7 @@ def swap_amazon_to_ppd(cat, sub_cat):
             return ''
     elif cat == 'Suiting & Blazers':
         if sub_cat == 'Blazers' or sub_cat == 'Separates':
-            return 'blazers'
+            return 'blazer'
         else:
             return 'suit'
     elif cat == 'Shirts':

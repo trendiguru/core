@@ -55,8 +55,8 @@ def createItem(force=False):
             "ShopStyle_Male": {"status":"Starting on 09:00", "notes":"","EFT":"9:00 AM"},
             "GangnamStyle_Female": {"status":"Starting on 06:00", "notes":"","EFT":"10:00 AM"},
             "GangnamStyle_Male": {"status":"Starting on 12:00", "notes":"","EFT":"12:00 AM"},
-            "Fat_Beauty_Female": {"status": "Starting on 12:00", "notes": "", "EFT": "12:00 AM"},
-            "Fat_Beauty_Male": {"status": "Starting on 12:00", "notes": "", "EFT": "12:00 AM"}}}
+            "amazon_US_Female": {"status": "Starting on 12:00", "notes": "", "EFT": "12:00 AM"},
+            "amazon_US_Male": {"status": "Starting on 12:00", "notes": "", "EFT": "12:00 AM"}}}
 
     dl_status.insert_one(item)
     print("new item inserted")
@@ -126,7 +126,7 @@ def checkStatus():
                 minute = "0"+str(minute)
             else:
                 minute=str(minute)
-            current_worksheet.write(11, 2, " %s:%s" %(hour,minute), bold)
+            current_worksheet.write(17, 2, " %s:%s" %(hour,minute), bold)
         else:
             current_worksheet= workbook.add_worksheet(dl_date)
         current_worksheet.write(0, 1, 'date', bold)
