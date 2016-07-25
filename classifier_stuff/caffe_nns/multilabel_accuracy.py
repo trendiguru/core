@@ -636,7 +636,7 @@ def precision_accuracy_recall(caffemodel,solverproto,outlayer='label',n_tests=10
     plt.legend(loc='center left', bbox_to_anchor=(1, 0.1))
     plt.show()#
     plt.savefig(model_base+'.png', bbox_inches='tight')
-
+#
     summary_html()
   #  print 'Baseline accuracy:{0:.4f}'.format(check_baseline_accuracy(solver.test_nets[0], 10,batch_size = 20))
 
