@@ -247,9 +247,9 @@ def parse_logfile(f,logy):
           ax1.plot(training_iterations,fit_y,linestyle='--',color='g',linewidth=2)
           middlex = training_iterations[len(training_iterations)/2]
           middley = (np.max(training_loss)-np.min(training_loss))/2.0
-          ax1.text(middlex, middley, r'$y= b + k exp(a(x-x0)$', fontsize=15)
+#          ax1.text(middlex, middley, r'$y= b + k exp(a(x-x0)$', fontsize=15)
           st = 'y='+str(round(b,2))+'+'+str(round(k,2))+'exp('+str(round(a,2))+'(x-'+str(round(x0,2))+')'
-          ax1.text(middlex, middley, r'$'+st+'$', fontsize=15)
+          ax1.text(middlex, middley, r'$'+st+'$', fontsize=12)
 #          ax1.text(middlex, middley+1, 'b='+str(b), fontsize=15)
     except:
       print('trouble fitting')
