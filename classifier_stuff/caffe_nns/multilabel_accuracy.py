@@ -394,7 +394,7 @@ def get_multilabel_output(url_or_np_array,required_image_size=(227,227),output_l
 
 
 
-def write_html(p,r,a,n,model_base):
+def open_html(model_base):
     with open(model_base+'results.html','a') as g:
         g.write('<!DOCTYPE html>')
         g.write('<html>')
@@ -406,18 +406,24 @@ def write_html(p,r,a,n,model_base):
         g.write('solver:'+solverproto+'\n'+'<br>')
         g.write('model:'+caffemodel+'\n'+'<br>')
         g.write('</head>')
-
+        g.write('categories: '+str(constants.web_tool_categories)+ '\n')
         g.write('<table style=\"width:100%\">')
-        g.write('<tr>')
-        for i in range(len(p)):
-            g.write('<th>')
-            g.write(str(p[i]))
-            g.write('</th>')
-        g.write('</tr>')
         g.write('</table>')
 
+def close_html(model_base):
+    with open(model_base+'results.html','a') as g:
+        g.write('</html>')
+
+def write_html(p,r,a,n,threshold,model_base):
+
+        g.write('<tr>\n')
+        for i in range(len(p)):
+            g.write('<th>')
+            g.write(str(round(p[i],3)))
+            g.write('</th>')
+        g.write('</tr>\n')
+
 #        g.write('threshold = '+str(t)+'\n')
-        g.write('categories: '+str(constants.web_tool_categories)+ '\n')
 
 def write_textfile(p,r,a,tp,tn,fp,fn,threshold,model_base):
     with open(model_base+'results.txt','a') as f:
