@@ -113,4 +113,4 @@ for i in range(1, dresses.count()):
 
 
     if db.yonatan_dresses_test.find({"_id": dresses[i]["_id"]}, {'dress_sleeve_length': {'$exists': True}}):
-        db.yonatan_dresses_test.update({"_id": dresses[i]["_id"]}, {"$unset": {"dress_sleeve_length"}})
+        db.yonatan_dresses_test.update({"_id": dresses[i]["_id"]}, {"$unset": {"dress_sleeve_length": ""}})
