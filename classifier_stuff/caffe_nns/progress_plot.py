@@ -50,21 +50,29 @@ def parse_logfile(f,logy):
 
     if 'train_net' in line:
       train_net = line.split()[-1]+' '
+      print('train net:'+train_net)
     if 'test_net' in line:
       test_net = line.split()[-1]+' '
+      print('test net:'+test_net)
     if 'base_lr' in line:
       base_lr = line.split()[-1]+' '
+      print('base_lr:'+base_lr)
     if 'lr_policy' in line:
       lr_policy = line.split()[-1]+' '
+      print('lr_policy:'+lr_policy)
     if 'stepsize' in line:
       stepsize = line.split()[-1]+' '
+      print('stepsize:'+stepsize)
 
-    if 'type' in line and not '#type' in line and not '# type' in line:  #only take first 'type' which is in solver.proto (type of learning)
+    if type=='' and 'type' in line and not '#type' in line and not '# type' in line:  #only take first 'type' which is in solver.proto (type of learning)
       type = line.split()[-1]+' '
+      print('type:'+type)
     if 'momentum' in line and not '#momentum' in line and not '# momentum' in line:
       momentum = line.split()[-1]+' '
+      print('mom:'+momentum)
     if 'gamma' in line and not '#gamma' in line and not '# gamma' in line:
       gamma = line.split()[-1]+' '
+      print('gamma:'+gamma)
 
     if check_test and 'Test net output' in line and 'accuracy' in line:
       print('checking line for test output 0: '+line)
@@ -90,7 +98,6 @@ def parse_logfile(f,logy):
       check_train = False
       check_train2 = True
 
-
     if '] Iteration ' in line and 'loss = ' in line:
 #    if '] Iteration ' in line and 'loss = ' in line:
       print('getting loss:'+line)
@@ -98,7 +105,6 @@ def parse_logfile(f,logy):
       training_iterations.append(int(arr[0].strip(',')[4:])/1000.0)
       training_loss.append(float(line.strip().split(' = ')[-1]))
       check_train = True
-
 
     if '] Iteration ' in line and 'Testing net' in line:
       print('getting test:'+line)
@@ -215,52 +221,65 @@ def parse_logfile(f,logy):
     #    ax1.legend(loc='upper center', bbox_to_anchor=(0.5, -0.05),
     #          fancybox=True, shadow=True, ncol=5)
 
-
     plt.legend(bbox_to_anchor=(0., 0.0, 0., .102), loc='lower center',
             mode="expand", borderaxespad=0.) #bbox_to_anchor=(0., 1.02, 1., .102), #ncol=2,
     dt=datetime.datetime.today()
     plt.title(net_name+' '+dt.isoformat(),fontsize=10)
-    subtitle = args.output_file+'\n'+train_net+test_net+'base_lr'+base_lr+lr_policy+type
+    subtitle = args.output_file+train_net+test_net+'\n'
+    if type is not '':
+      subtitle = subtitle+'type:'+type
+    if base_lr is not '':
+      subtitle = subtitle+'baselr:'+base_lr
+    if lr_policy is not '':
+      subtitle=subtitle+lr_policy
+    if stepsize is not '':
+      subtitle=subtitle+'step:'+stepsize
     if momentum is not '':
       subtitle = subtitle + 'mom:'+momentum
     if gamma is not '':
-      subtitle=subtitle+'gama'+gamma
+      subtitle=subtitle+'gamma:'+gamma
     plt.suptitle(subtitle,fontsize=8)
     #plt.draw()
     try:
-      k = 1
-      a = -1
-      b = 1
-      x0 = 1000
+      k = 100
+      a = 0
+      b = training_loss[0]
+      x0 = training_iterations[0]
       guess = (k,a,b,x0)
-      params = curve_fit(fit_exp,training_iterations,training_loss,guess)
-      print('params:'+str(params))
+      print('guess:'+str(guess))
+      params = curve_fit(fit_exp,training_iterations,training_loss,guess,maxfev=10000)
+      print('exp params:'+str(params))
+#      params = curve_fit(fit_exp,training_iterations,training_loss)
+#      print('params:'+str(params))
       k,a,b,x0 = params[0]
       cov = params[1]
       if cov[0][0] == np.inf:
           print('bad fit')
       else:
           fit_y = fit_exp(training_iterations,k,a,b,x0)
-          ax1.plot(training_iterations,fit_y,linestyle='--',color='b')
+          ax1.plot(training_iterations,fit_y,linestyle='--',color='g',linewidth=2)
           middlex = training_iterations[len(training_iterations)/2]
           middley = (np.max(training_loss)-np.min(training_loss))/2.0
-          ax1.text(middlex, middley, r'$y= b + k exp(a(x-x0)$', fontsize=15)
-          ax1.text(middlex, middley+1, 'b='+str(b), fontsize=15)
+#          ax1.text(middlex, middley, r'$y= b + k exp(a(x-x0)$', fontsize=15)
+          a_str = str.format('{0:.2e}', a)
+          st = 'y='+str(round(b,2))+'+'+str(round(k,2))+'exp('+a_str+'(x-'+str(round(x0,2))+')'
+          ax1.text(training_iterations[0], middley, r'$'+st+'$', fontsize=12)
+#          ax1.text(middlex, middley+1, 'b='+str(b), fontsize=15)
     except:
       print('trouble fitting')
-    if(0):
-
+    if(1):
         params = curve_fit(fit_log,training_iterations,training_loss)
-        print('params:'+str(params))
+        print('log params:'+str(params))
         k,a,b,x0 = params[0]
         cov = params[1]
         if cov[0][0] > 1e4:
             print('bad fit')
         else:
-            fit_y = fit_exp(training_iterations,k,a,b)
-            ax1.plot(training_iterations,fit_y,linestyle='--',color='b')
-
-
+            fit_y = fit_log(training_iterations,k,a,b,x0)
+            ax1.plot(training_iterations,fit_y,linestyle='--',color='r',linewidth=2)
+            a_str = str.format('{0:.2e}', a)
+            st = 'y='+str(round(b,2))+'+'+str(round(k,2))+'log('+a_str+'(x-'+str(round(x0,2))+')'
+            ax1.text(training_iterations[0], middley*1.2, r'$'+st+'$', fontsize=12)
   savename = args.output_file+'.jpg'
   plt.savefig(savename)
   plt.show()

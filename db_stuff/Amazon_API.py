@@ -174,17 +174,17 @@ def make_itemsearch_request(pagenum, node_id, min_price, max_price, price_flag=T
             raise ValueError('-2')
 
         res_dict = dict(res_dict['ItemSearchResponse']['Items'])
+        if 'Errors' in res_dict.keys():
+            if print_flag:
+                print_error('Error', req)
+            error_flag = True
+            raise ValueError('-3')
+
         if 'TotalResults' in res_dict.keys():
             results_count = int(res_dict['TotalResults'])
         else:
             if print_flag:
                 print_error('bad query', req)
-            raise ValueError('-3')
-
-        if 'Errors' in res_dict.keys():
-            if print_flag:
-                print_error('Error', req)
-            error_flag = True
             raise ValueError('-4')
 
         if results_count == 0:

@@ -133,17 +133,32 @@ def hamming_distance(gt, est):
 
 def update_confmat(gt,est,tp,tn,fp,fn):
 #    print('gt {} \nest {} sizes tp {} tn {} fp {} fn {} '.format(gt,est,tp.shape,tn.shape,fp.shape,fn.shape))
+    pantsindex = constants.web_tool_categories.index('pants')
+    jeansindex = constants.web_tool_categories.index('jeans')
     for i in range(len(gt)):
-        if gt[i] == 1:
-            if est[i]: # true positive
-                tp[i] += 1
-            else:   # false negative
-                fn[i] += 1
+        #combine jeans and pants, consider also doing cardigan an sweater
+        if i == pantsindex or i == jeansindex:
+            if gt[pantsindex] == 1 or gt[jeansindex]==1:
+                if est[pantsindex]==1 or est[jeansindex] == 1: # true positive
+                    tp[i] += 1
+                else:   # false negative
+                    fn[i] += 1
+            else:
+                if est[pantsindex] or est[jeansindex]: # false positive
+                    fp[i] += 1
+                else:   # true negative
+                    tn[i] += 1
         else:
-            if est[i]: # false positive
-                fp[i] += 1
-            else:   # true negative
-                tn[i] += 1
+            if gt[i] == 1:
+                if est[i]: # true positive
+                    tp[i] += 1
+                else:   # false negative
+                    fn[i] += 1
+            else:
+                if est[i]: # false positive
+                    fp[i] += 1
+                else:   # true negative
+                    tn[i] += 1
 #        print('tp {} tn {} fp {} fn {}'.format(tp,tn,fp,fn))
     return tp,tn,fp,fn
 
@@ -379,8 +394,8 @@ def get_multilabel_output(url_or_np_array,required_image_size=(227,227),output_l
 
 
 
-def write_html(p,r,a,model_base):
-    with open(model_base+'results.html','a') as g:
+def open_html(model_base):
+    with open(model_base+'results.html','w') as g:
         g.write('<!DOCTYPE html>')
         g.write('<html>')
         g.write('<head>')
@@ -391,19 +406,90 @@ def write_html(p,r,a,model_base):
         g.write('solver:'+solverproto+'\n'+'<br>')
         g.write('model:'+caffemodel+'\n'+'<br>')
         g.write('</head>')
-
-        g.write('<table style=\"width:100%\">')
-        g.write('<tr>')
+        g.write('categories: '+str(constants.web_tool_categories)+'<br>'+'\n')
+        g.write('<table style=\"width:100%\">\n')
+        g.write('<tr>\n')
         g.write('<th>')
+        g.write('metric')
+        g.write('</th>\n')
+        for i in range(len(constants.web_tool_categories)):
+            g.write('<th>')
+            g.write(constants.web_tool_categories[i])
+            g.write('</th>\n')
+        g.write('</tr>\n')
 
-        g.write('</th>')
-        g.write('<th>Lastname</th>')
-        g.write('<th>Age</th>')
-        g.write('</tr>')
-        g.write('</table>')
 
-        g.write('threshold = '+str(t)+'\n')
-        g.write('categories: '+str(constants.web_tool_categories)+ '\n')
+#        g.write('</table><br>')
+
+def close_html(model_base):
+    with open(model_base+'results.html','a') as g:
+        g.write('</table><br>')
+        plotfilename = 'multilabel_results'+model_base+'.png'
+
+        g.write('<a href=\"'+plotfilename+'\">plot<img src = \"'+plotfilename+'\" style=\"width:300px\"></a>')
+        g.write('</html>')
+
+def write_html(p,r,a,n,threshold,model_base,positives=False):
+    with open(model_base+'results.html','a') as g:
+
+ #       g.write('<table style=\"width:100%\">\n')
+        g.write('<b>')
+        g.write('<tr>\n')
+        g.write('<td>')
+        g.write('threshold\n')
+        g.write('</td>')
+        for i in range(len(p)):
+            g.write('<td>')
+            g.write(str(round(threshold,2)))
+            g.write('</td>\n')
+        g.write('</tr>\n')
+        g.write('</b>')
+
+        if(positives):
+            g.write('<tr>\n')
+            g.write('<td>')
+            g.write('n_positives')
+            g.write('</td>\n')
+            for i in range(len(p)):
+                g.write('<td>')
+                g.write(str(n[i]))
+                g.write('</td>\n')
+            g.write('</tr>\n<br>\n')
+
+        g.write('<tr>\n')
+        g.write('<td>')
+        g.write('precision')
+        g.write('</td>\n')
+        for i in range(len(p)):
+            g.write('<td>')
+            g.write(str(round(p[i],3)))
+            g.write('</td>\n')
+        g.write('</tr>\n')
+
+        g.write('<tr>\n')
+        g.write('<td>')
+        g.write('recall')
+        g.write('</td>\n')
+        for i in range(len(p)):
+            g.write('<td>')
+            g.write(str(round(r[i],3)))
+            g.write('</td>\n')
+        g.write('</tr>\n')
+
+        g.write('<tr>\n')
+        g.write('<td>')
+        g.write('accuracy')
+        g.write('</td>\n')
+        for i in range(len(p)):
+            g.write('<td>')
+            g.write(str(round(a[i],3)))
+            g.write('</td>\n')
+        g.write('</tr>\n<br>\n')
+
+        g.write('<tr><td><br/></td></tr>')  #blank row
+
+
+#        g.write('threshold = '+str(t)+'\n')
 
 def write_textfile(p,r,a,tp,tn,fp,fn,threshold,model_base):
     with open(model_base+'results.txt','a') as f:
@@ -442,31 +528,45 @@ def precision_accuracy_recall(caffemodel,solverproto,outlayer='label',n_tests=10
     p_all = []
     r_all = []
     a_all = []
+    n_all = []
 #    for t in [0.1,0.2,0.3,0.4,0.5,0.6,0.7,0.8,0.85,0.9,0.92,0.95,0.98]:
     thresh = [0.1,0.5,0.6,0.7,0.8,0.9,0.95]
+    thresh = [0.1,0.5,0.95]
 
+    open_html(model_base)
+    positives = True
     for t in thresh:
         p,r,a,tp,tn,fp,fn = check_accuracy(solverproto, caffemodel, threshold=t, num_batches=n_tests,outlayer=outlayer)
         p_all.append(p)
-        r_all.append(p)
-        a_all.append(p)
+        r_all.append(r)
+        a_all.append(a)
+        n_occurences = [tp[i]+fn[i] for i in range(len(tp))]
+        n_all.append(n_occurences)
         write_textfile(p,r,a,tp,tn,fp,fn,t,model_base)
+        write_html(p,r,a,n_occurences,t,model_base,positives=positives)
+        positives = False
+    close_html(model_base)
 
     p_all_np = np.transpose(np.array(p_all))
-    r_all_np = np.transpose(np.array(p_all))
-    a_all_np = np.transpose(np.array(p_all))
-
+    r_all_np = np.transpose(np.array(r_all))
+    a_all_np = np.transpose(np.array(a_all))
     labels = constants.web_tool_categories
     plabels = [label + 'precision' for label in labels]
     rlabels = [label + 'recall' for label in labels]
     alabels = [label + 'accuracy' for label in labels]
 
     important_indices = [3,5,7,10,11,13,17]
+    #cardigan  dress footwear jeans pants skirt top
+    #['bag', 'belt', 'blazer','cardigan','coat','dress', 'eyewear', 'footwear', 'hat','jacket',
+     #                  'jeans','pants','shorts', 'skirt','stocking','suit','sweater','top','scarf','womens_swimwear_bikini',
+      #                 'womens_swimwear_nonbikini']
+
     p_important = [p_all_np[i] for i in important_indices]
     r_important = [r_all_np[i] for i in important_indices]
     a_important = [a_all_np[i] for i in important_indices]
     labels_important = [labels[i] for i in important_indices]
-
+    for i in range(len(important_indices)):
+        print(constants.web_tool_categories[i]+' p:'+str(p_important[i])+' r:'+str(r_important[i])+' a:'+str(a_important[i]) )
     thresh_all_np = np.array(thresh)
     print('shape:'+str(p_all_np.shape))
     print('len:'+str(len(p_important)))
@@ -491,7 +591,8 @@ def precision_accuracy_recall(caffemodel,solverproto,outlayer='label',n_tests=10
         plt.subplot(312)   #
         plt.plot(thresh_all_np,r_important[i],label=labels_important[i],linestyle='None',marker=markers_important[i])
         plt.subplot(313)
-        plt.plot(thresh_all_np,a_all_np[i],label=labels_important[i],linestyle='None',marker=markers_important[i])
+        plt.plot(thresh_all_np,a_important[i],label=labels_important[i],linestyle='None',marker=markers_important[i])
+#        plt.plot(thresh_all_np,a_all_np[i],label=labels_important[i],linestyle='None',marker=markers_important[i])
 #        plt.plot(thresh_all_np,p_all_np[i,:],label=labels[i],marker=markers[i])
 #        plt.subplot(312)   #
 #        plt.plot(thresh_all_np,r_all_np[i,:],label=labels[i],linestyle='None',marker=markers[i])
@@ -529,6 +630,14 @@ if __name__ =="__main__":
     parser.add_argument('--output_layer_name', help='output layer name',default='label')
     parser.add_argument('--n_tests', help='number of examples to test',default=100)
 
+    caffemodel = '/home/jeremy/caffenets/production/multilabel_resnet50_sgd_iter_120000.caffemodel'
+    solverproto = '/home/jeremy/caffenets/production/ResNet-50-test.prototxt'
+#    caffemodel =  '/home/jeremy/caffenets/multilabel/vgg_ilsvrc_16_multilabel_2/snapshot/train_iter_340000.caffemodel'
+#    deployproto = '/home/jeremy/caffenets/multilabel/vgg_ilsvrc_16_multilabel_2/deploy.prototxt'
+    solverproto = '/home/jeremy/caffenets/multilabel/deep-residual-networks/prototxt/ResNet-101-test.prototxt'
+    caffemodel = '/home/jeremy/caffenets/production/multilabel_resnet101_sgd_iter_120000.caffemodel'
+#    multilabel_net = caffe.Net(solverproto,caffemodel, caffe.TEST)
+
     args = parser.parse_args()
     print(args)
     if args.testproto is not None:
@@ -545,13 +654,6 @@ if __name__ =="__main__":
     caffe.set_mode_gpu()
     caffe.set_device(gpu)
 
-    caffemodel = '/home/jeremy/caffenets/production/multilabel_resnet50_sgd_iter_120000.caffemodel'
-    solverproto = '/home/jeremy/caffenets/production/ResNet-50-test.prototxt'
-#    caffemodel =  '/home/jeremy/caffenets/multilabel/vgg_ilsvrc_16_multilabel_2/snapshot/train_iter_340000.caffemodel'
-#    deployproto = '/home/jeremy/caffenets/multilabel/vgg_ilsvrc_16_multilabel_2/deploy.prototxt'
-    solverproto = '/home/jeremy/caffenets/multilabel/deep-residual-networks/prototxt/ResNet-101-test.prototxt'
-    caffemodel = '/home/jeremy/caffenets/production/multilabel_resnet101_sgd_iter_120000.caffemodel'
-#    multilabel_net = caffe.Net(solverproto,caffemodel, caffe.TEST)
 
     precision_accuracy_recall(caffemodel,solverproto,outlayer=outlayer,n_tests=n_tests)
 

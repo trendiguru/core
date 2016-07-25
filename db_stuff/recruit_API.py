@@ -141,6 +141,14 @@ def download_recruit(delete=False):
 
     mongo2xl('recruit_me', dl_info)
 
+    for gender in ['Male', 'Female']:
+        col_name = 'recruit_' + gender
+        collection = db[col_name]
+        status_full_path = 'collections.' + col_name + '.status'
+        notes_full_path = 'collections.' + col_name + '.notes'
+        new_items = collection.find({'download_data.first_dl': today_date}).count()
+        db.download_status.update_one({"date": today_date}, {"$set": {status_full_path: "Done",
+                                                                      notes_full_path: new_items}})
 
 if __name__=='__main__':
     download_recruit()
