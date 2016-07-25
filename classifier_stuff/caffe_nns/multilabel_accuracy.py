@@ -432,6 +432,17 @@ def close_html(model_base):
 def write_html(p,r,a,n,threshold,model_base,positives=False):
     with open(model_base+'results.html','a') as g:
 
+        if(positives):
+            g.write('<tr>\n')
+            g.write('<td>')
+            g.write('n_positives')
+            g.write('</td>\n')
+            for i in range(len(p)):
+                g.write('<td>')
+                g.write(str(n[i]))
+                g.write('</td>\n')
+            g.write('</tr>\n<br>\n')
+
  #       g.write('<table style=\"width:100%\">\n')
         g.write('<b>')
         g.write('<tr>\n')
@@ -445,16 +456,6 @@ def write_html(p,r,a,n,threshold,model_base,positives=False):
         g.write('</tr>\n')
         g.write('</b>')
 
-        if(positives):
-            g.write('<tr>\n')
-            g.write('<td>')
-            g.write('n_positives')
-            g.write('</td>\n')
-            for i in range(len(p)):
-                g.write('<td>')
-                g.write(str(n[i]))
-                g.write('</td>\n')
-            g.write('</tr>\n<br>\n')
 
         g.write('<tr>\n')
         g.write('<td>')
