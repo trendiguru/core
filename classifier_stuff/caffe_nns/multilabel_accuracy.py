@@ -429,9 +429,26 @@ def close_html(model_base):
         g.write('<a href=\"'+plotfilename+'\">plot<img src = \"'+plotfilename+'\" style=\"width:300px\"></a>')
         g.write('</html>')
 
+def summary_html():
+    htmlfiles = [f for f in os.listdir('./') if '.html' in f]
+    with open('summary.html','w') as g:
+        g.write('<!DOCTYPE html>')
+        g.write('<html>')
+        g.write('<head>')
+        g.write('<title>')
+        g.write('multilabel accuracy/precision/recall results')
+        g.write('</title>')
+        g.write('</head>\n')
+        g.write('<br>\n')
+        for h in htmlfiles:
+            g.write('<a href=\"'+ h+'\"> '+f+'</a>')
+        g.write('</html>')
+
+#        g.write('categories: '+str(constants.web_tool_categories)+'<br>'+'\n')
+
+
 def write_html(p,r,a,n,threshold,model_base,positives=False):
     with open(model_base+'results.html','a') as g:
-
         if(positives):
             g.write('<tr>\n')
             g.write('<td>')
@@ -620,6 +637,7 @@ def precision_accuracy_recall(caffemodel,solverproto,outlayer='label',n_tests=10
     plt.show()#
     plt.savefig(model_base+'.png', bbox_inches='tight')
 
+    summary_html()
   #  print 'Baseline accuracy:{0:.4f}'.format(check_baseline_accuracy(solver.test_nets[0], 10,batch_size = 20))
 
 
