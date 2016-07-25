@@ -555,6 +555,14 @@ if __name__ =="__main__":
     parser.add_argument('--output_layer_name', help='output layer name',default='label')
     parser.add_argument('--n_tests', help='number of examples to test',default=100)
 
+    caffemodel = '/home/jeremy/caffenets/production/multilabel_resnet50_sgd_iter_120000.caffemodel'
+    solverproto = '/home/jeremy/caffenets/production/ResNet-50-test.prototxt'
+#    caffemodel =  '/home/jeremy/caffenets/multilabel/vgg_ilsvrc_16_multilabel_2/snapshot/train_iter_340000.caffemodel'
+#    deployproto = '/home/jeremy/caffenets/multilabel/vgg_ilsvrc_16_multilabel_2/deploy.prototxt'
+    solverproto = '/home/jeremy/caffenets/multilabel/deep-residual-networks/prototxt/ResNet-101-test.prototxt'
+    caffemodel = '/home/jeremy/caffenets/production/multilabel_resnet101_sgd_iter_120000.caffemodel'
+#    multilabel_net = caffe.Net(solverproto,caffemodel, caffe.TEST)
+
     args = parser.parse_args()
     print(args)
     if args.testproto is not None:
@@ -571,13 +579,6 @@ if __name__ =="__main__":
     caffe.set_mode_gpu()
     caffe.set_device(gpu)
 
-    caffemodel = '/home/jeremy/caffenets/production/multilabel_resnet50_sgd_iter_120000.caffemodel'
-    solverproto = '/home/jeremy/caffenets/production/ResNet-50-test.prototxt'
-#    caffemodel =  '/home/jeremy/caffenets/multilabel/vgg_ilsvrc_16_multilabel_2/snapshot/train_iter_340000.caffemodel'
-#    deployproto = '/home/jeremy/caffenets/multilabel/vgg_ilsvrc_16_multilabel_2/deploy.prototxt'
-    solverproto = '/home/jeremy/caffenets/multilabel/deep-residual-networks/prototxt/ResNet-101-test.prototxt'
-    caffemodel = '/home/jeremy/caffenets/production/multilabel_resnet101_sgd_iter_120000.caffemodel'
-#    multilabel_net = caffe.Net(solverproto,caffemodel, caffe.TEST)
 
     precision_accuracy_recall(caffemodel,solverproto,outlayer=outlayer,n_tests=n_tests)
 
