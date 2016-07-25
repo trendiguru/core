@@ -543,7 +543,7 @@ def precision_accuracy_recall(caffemodel,solverproto,outlayer='label',n_tests=10
         n_occurences = [tp[i]+fn[i] for i in range(len(tp))]
         n_all.append(n_occurences)
         write_textfile(p,r,a,tp,tn,fp,fn,t,model_base)
-        write_html(p,r,a,n_all,t,model_base)
+        write_html(p,r,a,n_occurences,t,model_base)
     close_html(model_base)
 
     p_all_np = np.transpose(np.array(p_all))
