@@ -406,7 +406,7 @@ def open_html(model_base):
         g.write('solver:'+solverproto+'\n'+'<br>')
         g.write('model:'+caffemodel+'\n'+'<br>')
         g.write('</head>')
-        g.write('categories: '+str(constants.web_tool_categories)+'<br>'+'\n')
+#        g.write('categories: '+str(constants.web_tool_categories)+'<br>'+'\n')
         g.write('<table style=\"width:100%\">\n')
         g.write('<tr>\n')
         g.write('<th>')
@@ -423,14 +423,25 @@ def open_html(model_base):
 
 def close_html(model_base):
     with open(model_base+'results.html','a') as g:
-#        g.write('</table><br>')
+        g.write('</table><br>')
         plotfilename = 'multilabel_results'+model_base+'.png'
 
         g.write('<a href=\"'+plotfilename+'\">plot<img src = \"'+plotfilename+'\" style=\"width:300px\"></a>')
         g.write('</html>')
 
-def write_html(p,r,a,n,threshold,model_base):
+def write_html(p,r,a,n,threshold,model_base,positives=False):
     with open(model_base+'results.html','a') as g:
+
+        if(positives):
+            g.write('<tr>\n')
+            g.write('<td>')
+            g.write('n_positives')
+            g.write('</td>\n')
+            for i in range(len(p)):
+                g.write('<td>')
+                g.write(str(n[i]))
+                g.write('</td>\n')
+            g.write('</tr>\n<br>\n')
 
  #       g.write('<table style=\"width:100%\">\n')
         g.write('<b>')
@@ -445,15 +456,6 @@ def write_html(p,r,a,n,threshold,model_base):
         g.write('</tr>\n')
         g.write('</b>')
 
-        g.write('<tr>\n')
-        g.write('<td>')
-        g.write('n_positives')
-        g.write('</td>\n')
-        for i in range(len(p)):
-            g.write('<td>')
-            g.write(str(n[i]))
-            g.write('</td>\n')
-        g.write('</tr>\n<br>\n')
 
         g.write('<tr>\n')
         g.write('<td>')
@@ -485,10 +487,8 @@ def write_html(p,r,a,n,threshold,model_base):
             g.write('</td>\n')
         g.write('</tr>\n<br>\n')
 
+        g.write('<tr><td><br/></td></tr>')  #blank row
 
-        g.write('<br>')
-
-#space
 
 #        g.write('threshold = '+str(t)+'\n')
 
@@ -532,9 +532,10 @@ def precision_accuracy_recall(caffemodel,solverproto,outlayer='label',n_tests=10
     n_all = []
 #    for t in [0.1,0.2,0.3,0.4,0.5,0.6,0.7,0.8,0.85,0.9,0.92,0.95,0.98]:
     thresh = [0.1,0.5,0.6,0.7,0.8,0.9,0.95]
-    thresh = [0.1,0.5,0.95]
+#    thresh = [0.1,0.5,0.95]
 
     open_html(model_base)
+    positives = True
     for t in thresh:
         p,r,a,tp,tn,fp,fn = check_accuracy(solverproto, caffemodel, threshold=t, num_batches=n_tests,outlayer=outlayer)
         p_all.append(p)
@@ -543,7 +544,8 @@ def precision_accuracy_recall(caffemodel,solverproto,outlayer='label',n_tests=10
         n_occurences = [tp[i]+fn[i] for i in range(len(tp))]
         n_all.append(n_occurences)
         write_textfile(p,r,a,tp,tn,fp,fn,t,model_base)
-        write_html(p,r,a,n_all,t,model_base)
+        write_html(p,r,a,n_occurences,t,model_base,positives=positives)
+        positives = False
     close_html(model_base)
 
     p_all_np = np.transpose(np.array(p_all))
