@@ -467,6 +467,7 @@ def precision_accuracy_recall(caffemodel,solverproto,outlayer='label',n_tests=10
     thresh = [0.1,0.5,0.6,0.7,0.8,0.9,0.95]
 #    thresh = [0.1,0.5,0.95]
 
+    open_html(model_base)
     for t in thresh:
         p,r,a,tp,tn,fp,fn = check_accuracy(solverproto, caffemodel, threshold=t, num_batches=n_tests,outlayer=outlayer)
         p_all.append(p)
@@ -475,12 +476,12 @@ def precision_accuracy_recall(caffemodel,solverproto,outlayer='label',n_tests=10
         n_occurences = [tp[i]+fn[i] for i in range(len(tp))]
         n_all.append(n_occurences)
         write_textfile(p,r,a,tp,tn,fp,fn,t,model_base)
-
+        write_html(p,r,a,n_all,t,model_base)
+    close_html(model_base)
 
     p_all_np = np.transpose(np.array(p_all))
     r_all_np = np.transpose(np.array(r_all))
     a_all_np = np.transpose(np.array(a_all))
-    write_html(p,r,a,n_all,model_base)
     labels = constants.web_tool_categories
     plabels = [label + 'precision' for label in labels]
     rlabels = [label + 'recall' for label in labels]
