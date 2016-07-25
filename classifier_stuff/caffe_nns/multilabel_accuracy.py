@@ -457,7 +457,7 @@ def write_html(p,r,a,n,threshold,model_base,positives=False):
         fwava = 0
         fwavn = 0
         n_sum = 0
-        for i in len(p):
+        for i in range(len(p)):
             fwavp = fwavp + p[i]*n[i]
             fwavr = fwavp + r[i]*n[i]
             fwava = fwavp + a[i]*n[i]
