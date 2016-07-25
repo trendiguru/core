@@ -145,9 +145,9 @@ def mongo2xl(collection_name, dl_info):
 
     for gender in ['Female', 'Male']:
         tmp = filename +"_"+ gender
-        if filename is 'ebay':
+        if filename == 'ebay':
             tmp += '_US'
-        if filename is 'amazon':
+        if filename == 'amazon':
             tmp = 'amazon_US_'+ gender
         print("working on " + tmp)
         collection = db[tmp]
