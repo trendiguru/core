@@ -415,7 +415,7 @@ def close_html(model_base):
         g.write('</html>')
 
 def write_html(p,r,a,n,threshold,model_base):
-
+    with open(model_base+'results.html','a') as g:
         g.write('<tr>\n')
         for i in range(len(p)):
             g.write('<th>')
