@@ -314,10 +314,10 @@ def generate_image_onthefly(img_filename_or_nparray, gaussian_or_uniform_distrib
 
 
     if crop_dx or crop_dy:
-        left = round(max(0,round(float(width-crop_size[1])/2) - crop_dx))
-        right = round(left + crop_size[1])
-        top = round(max(0,round(float(height-crop_size[0])/2) - crop_dy))
-        bottom = round(top + crop_size[0])
+        left = int(round(max(0,round(float(width-crop_size[1])/2) - crop_dx)))
+        right = int(round(left + crop_size[1]))
+        top = int(round(max(0,round(float(height-crop_size[0])/2) - crop_dy)))
+        bottom = int(round(top + crop_size[0]))
 #        print('left {} right {} top {} bottom {} crop_dx {} crop_dy {} csize {} xroom {} yroom {}'.format(left,right,top,bottom,crop_dx,crop_dy,crop_size,x_room,y_room))
         if depth!=1:
             img_arr = img_arr[top:bottom,left:right,:]
