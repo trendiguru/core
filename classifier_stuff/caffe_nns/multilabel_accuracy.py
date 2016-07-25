@@ -395,7 +395,7 @@ def get_multilabel_output(url_or_np_array,required_image_size=(227,227),output_l
 
 
 def open_html(model_base):
-    with open(model_base+'results.html','a') as g:
+    with open(model_base+'results.html','w') as g:
         g.write('<!DOCTYPE html>')
         g.write('<html>')
         g.write('<head>')
@@ -406,7 +406,7 @@ def open_html(model_base):
         g.write('solver:'+solverproto+'\n'+'<br>')
         g.write('model:'+caffemodel+'\n'+'<br>')
         g.write('</head>')
-        g.write('categories: '+str(constants.web_tool_categories)+ '\n')
+        g.write('categories: '+str(constants.web_tool_categories)+ +'<br>'+'\n')
         g.write('<table style=\"width:100%\">')
         g.write('</table>')
 
