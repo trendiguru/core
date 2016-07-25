@@ -148,7 +148,7 @@ def mongo2xl(collection_name, dl_info):
         if filename is 'ebay':
             tmp += '_US'
         if filename is 'amazon':
-            tmp = filename +"_US_"+ gender
+            tmp = 'amazon_US_'+ gender
         print("working on " + tmp)
         collection = db[tmp]
         archive = db[tmp+"_archive"]
