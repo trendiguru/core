@@ -406,12 +406,12 @@ def open_html(model_base):
         g.write('solver:'+solverproto+'\n'+'<br>')
         g.write('model:'+caffemodel+'\n'+'<br>')
         g.write('</head>')
-        g.write('categories: '+str(constants.web_tool_categories)+ +'<br>'+'\n')
-        g.write('<table style=\"width:100%\">')
-        g.write('</table>')
+        g.write('categories: '+str(constants.web_tool_categories)+'<br>'+'\n')
+        g.write('<table style=\"width:100%\">\n')
 
 def close_html(model_base):
     with open(model_base+'results.html','a') as g:
+        g.write('</table><br>')
         g.write('</html>')
 
 def write_html(p,r,a,n,threshold,model_base):
