@@ -227,11 +227,11 @@ def parse_logfile(f,logy):
             mode="expand", borderaxespad=0.) #bbox_to_anchor=(0., 1.02, 1., .102), #ncol=2,
     dt=datetime.datetime.today()
     plt.title(net_name+' '+dt.isoformat(),fontsize=10)
-    subtitle = args.output_file+'\n'+train_net+test_net\
-    if base_lr != '':
+    subtitle = args.output_file+train_net+test_net+'\n'
+    if base_lr is not '':
       subtitle = subtitle+'base_lr'+base_lr
-    if lr_policy != '':
-      r_policy+type
+    if lr_policy is not '':
+      subtitle=subtitle+lr_policy
     if momentum is not '':
       subtitle = subtitle + 'mom:'+momentum
     if gamma is not '':
