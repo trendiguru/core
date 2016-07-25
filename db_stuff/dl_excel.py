@@ -135,6 +135,9 @@ def mongo2xl(collection_name, dl_info):
     elif filename == 'recruit':
         from .recruit_constants import recruit2category_idx
         categories_Female=categories_Male = list(set(recruit2category_idx.keys()))
+    elif filename == 'amazon':
+        from .amazon_constants import amazon_categories
+        categories_Female = categories_Male = amazon_categories
     else:
         from .shopstyle_constants import shopstyle_paperdoll_female, shopstyle_paperdoll_male
         categories_Female = list(set(shopstyle_paperdoll_female.values()))

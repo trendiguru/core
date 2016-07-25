@@ -55,3 +55,28 @@ log_name = '/home/developer/yonti/amazon_download_stats.log'
 
 colors = ['red', 'blue', 'green', 'black', 'white', 'yellow', 'pink', 'purple', 'magenta', 'cyan', 'grey', 'violet',
           'gold', 'silver', 'khaki', 'turquoise', 'brown']
+
+amazon_categories = ['belt',
+                             'bikini',
+                             'blazer',
+                             'blouse',
+                             'cardigan',
+                             'coat',
+                             'dress',
+                             'jacket',
+                             'jeans',
+                             'leggings',
+                             'pants',
+                             'roampers',
+                             'shirt',
+                             'shorts',
+                             'skirt',
+                             'suit',
+                             'sweater',
+                             'sweatshirt',
+                             't-shirt',
+                             'tanktops',
+                             'tights',
+                             'top',
+                             'vest',
+                             'swimsuit']
