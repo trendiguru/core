@@ -431,7 +431,7 @@ def write_html(p,r,a,n,threshold,model_base):
     with open(model_base+'results.html','a') as g:
 
  #       g.write('<table style=\"width:100%\">\n')
-        g.write('<bold>')
+        g.write('<b>')
         g.write('<tr>\n')
         g.write('<td>')
         g.write('threshold\n')
@@ -441,7 +441,7 @@ def write_html(p,r,a,n,threshold,model_base):
             g.write(str(round(threshold,2)))
             g.write('</td>\n')
         g.write('</tr>\n')
-        g.write('</bold>')
+        g.write('</b>')
 
         g.write('<tr>\n')
         g.write('<td>')
@@ -472,7 +472,8 @@ def write_html(p,r,a,n,threshold,model_base):
             g.write(str(round(a[i],3)))
             g.write('</td>\n')
         g.write('</tr>\n<br>\n')
-#        g.write('</table><br>')
+        g.write('<br>')
+#space
 
 #        g.write('threshold = '+str(t)+'\n')
 
