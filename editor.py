@@ -1,7 +1,11 @@
 import pymongo
-from . import constants
-from . import find_similar_mongo
-from constants import db
+import bson
+import datetime
+import numpy as np
+from . import Utils, pipeline, constants, find_similar_mongo
+from .page_results import genderize
+from .constants import db, q1
+from .paperdoll import pd_falcon_client, neurodoll_falcon_client
 
 EDITOR_PROJECTION = {'image_id': 1,
                      'saved_date': 1,
@@ -80,6 +84,37 @@ def change_gender_and_rebuild_person(image_id, person_id, new_gender):
     return bool(res1.modified_count*res2.modified_count)
 
 
+def add_people_to_image(image_url, page_url, faces, products_collection='ShopStyle', method='pd'):
+    for index, face in enumerate(faces):
+        if not isinstance(face, list):
+            faces[index] = face.tolist()
+    image_obj = db.images.find_one({'image_urls': image_url})
+    image = Utils.get_cv2_img_array(image_url)
+    if image is None:
+        return False
+    if not image_obj:
+        # BUILD A NEW IMAGE WITH THE GIVEN FACES
+        image_obj = {'people': [{'person_id': str(bson.ObjectId()), 'face': face,
+                                 'gender': genderize(image, face)['gender']} for face in faces],
+                     'image_url': image_url,
+                     'page_url': page_url}
+        db.iip.insert_one({'image_url': image_url, 'insert_time': datetime.datetime.utcnow()})
+        db.genderator.insert_one(image_obj)
+        db.irrelevant_images.delete_one({'image_urls': image_url})
+        q1.enqueue_call(func="", args=(page_url, image_url, products_collection, method),
+                        ttl=2000, result_ttl=2000, timeout=2000)
+        return True
+    else:
+        # ADD PEOPLE TO AN EXISTING IMAGE
+        people_to_add = [build_new_person(image, face, products_collection, method) for face in faces]
+        if len(people_to_add):
+            db.test.update_one({'_id': image_obj['_id']}, {'$push': {'image_urls': {'$each': people_to_add}},
+                                                           '$set': {'num_of_people': len(people_to_add)}})
+            return True
+        else:
+            return False
+
+
 # ------------------------------------------------ ITEM-LEVEL ----------------------------------------------------------
 
 def cancel_item(image_id, person_id, item_category):
@@ -140,3 +175,47 @@ def shrink_image_object(image_obj):
     image_obj.pop('num_of_people')
     image_obj.pop('image_id')
     return image_obj
+
+
+def build_new_person(image, face, products_collection, method):
+        x, y, w, h = face
+        person_bb = [int(round(max(0, x - 1.5 * w))), str(y), int(round(min(image.shape[1], x + 2.5 * w))),
+                     min(image.shape[0], 8 * h)]
+        person = {'face': face, 'person_bb': person_bb, 'gender': genderize(image, face)['gender'],
+                  'products_collection': products_collection, 'segmentation_method': method, 'items': [],
+                  '_id': str(bson.ObjectId())}
+        try:
+            if person['segmentation_method'] == 'pd':
+                seg_res = pd_falcon_client.pd(image)
+            else:
+                seg_res = neurodoll_falcon_client.pd(image)
+        except Exception as e:
+            print e
+            return
+        if 'success' in seg_res and seg_res['success']:
+            mask = seg_res['mask']
+            if person['segmentation_method'] == 'pd':
+                labels = seg_res['label_dict']
+            else:
+                labels = constants.ultimate_21_dict
+        else:
+            return
+        final_mask = pipeline.after_pd_conclusions(mask, labels, person['face'])
+        for num in np.unique(final_mask):
+            pd_category = list(labels.keys())[list(labels.values()).index(num)]
+            if pd_category in constants.paperdoll_relevant_categories:
+                item_mask = 255 * np.array(final_mask == num, dtype=np.uint8)
+                if person['gender'] == 'Male':
+                    category = constants.paperdoll_paperdoll_men[pd_category]
+                else:
+                    category = pd_category
+            person['items'].append(bulid_new_item(category, item_mask, products_collection, image, person['gender']))
+        return person
+
+
+def bulid_new_item(category, item_mask, collection, image, gender):
+    prod = collection + '_' + gender
+    item = {'similar_results': {}, 'category': category}
+    item['fp'], item['similar_results'][collection] = find_similar_mongo.find_top_n_results(image, item_mask, 100,
+                                                                                            category, prod)
+    return item

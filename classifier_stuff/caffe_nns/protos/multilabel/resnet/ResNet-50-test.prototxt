@@ -2417,18 +2417,27 @@ layer {
 
 layer {
 	bottom: "pool5"
-	top: "fc1000"
-	name: "fc1000"
+	top: "myfc21"
+	name: "myfc21"
 	type: "InnerProduct"
 	inner_product_param {
-		num_output: 1000
+		num_output: 21
 	}
 }
 
+
+#layer {
+#	bottom: "myfc21"
+#	bottom: "label"
+#	top: "loss"
+#	name: "loss"
+#	type: "SigmoidCrossEntropyLoss"
+#}
+
 layer {
-	bottom: "fc1000"
-	top: "prob"
-	name: "prob"
-	type: "Softmax"
+  name: "score"
+  bottom: "myfc21"
+  top: "score"
+  type: "Sigmoid"
 }
 

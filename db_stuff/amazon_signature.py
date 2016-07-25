@@ -76,6 +76,9 @@ def get_amazon_signed_url(parameters, get_or_post='GET', print_flag=True):
     'AssociateTag'
     'Operation'
     'Timestamp'
+
+    remember the titans:
+    parameters['Operation'] = 'BrowseNodeLookup'
     """
 
     aws_secret_access_key = 'r82svvj4F8h6haYZd3jU+3HkChrW3j8RGcW7WXRK'
@@ -86,27 +89,34 @@ def get_amazon_signed_url(parameters, get_or_post='GET', print_flag=True):
         print(amazon_signed_url)
     return amazon_signed_url
 
-# #
-# parameters = {
-#     'AWSAccessKeyId': 'AKIAIQJZVKJKJUUC4ETA',
-#     'AssociateTag': 'fazz0b-20',
-#     'Availability': 'Available',
-#     # 'Title': 'mini dress',
-#     # 'Operation': 'ItemLookup',
-#     'Operation': 'ItemSearch',
-#     'SearchIndex': 'FashionWomen',
-#     'Service': 'AWSECommerceService',
-#     'Timestamp': time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()),
-#     # 'IdType': 'ASIN',
-#     'ItemPage': '10',
-#     # 'MaximumPrice':'3100',
-#     # 'MinimumPrice':'3099',
-#     'ResponseGroup': 'ItemAttributes, OfferSummary,Images'}
-#
-# # parameters['Operation'] = 'BrowseNodeLookup'
-# # parameters['ResponseGroup'] = 'SearchBins'# 'BrowseNodeInfo'
-# parameters['BrowseNode'] = '7147443011'
-# # parameters['ResponseGroup'] = 'BrowseNodeInfo'
-# # parameters['BrowseNodeId'] = '7141124011'
-# get_amazon_signed_url(parameters, 'GET')
+
+def test_run(operation='ItemSearch', searchindex= 'FashionWomen', itempage='1', true4onlynode=True,
+             node_id='2346727011', min_max=True, keywords=False):
+
+    base_params = {
+        'AWSAccessKeyId': 'AKIAIQJZVKJKJUUC4ETA',
+        'AssociateTag': 'fazz0b-20',
+        'Availability': 'Available',
+        'Timestamp': time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()),
+        'Service': 'AWSECommerceService',
+        'Operation': operation,
+        'SearchIndex': searchindex,
+        'ItemPage': itempage,
+        'ResponseGroup': 'ItemAttributes, OfferSummary,Images'}
+
+    parameters = base_params.copy()
+    if true4onlynode:
+        parameters['BrowseNode'] = node_id
+    else:
+        parameters['BrowseNodeId'] = 'node_id'
+        parameters['ResponseGroup'] = 'BrowseNodeInfo'
+
+    if min_max:
+        parameters['MaximumPrice']= raw_input( 'enter max price($10.00 -> 1000)')
+        parameters['MinimumPrice']= raw_input( 'enter min price($10.00 -> 1000)')
+
+    if keywords:
+        parameters['Keywords']=raw_input( 'enter keywords to filter by -> ')
+
+    get_amazon_signed_url(parameters, 'GET')
 

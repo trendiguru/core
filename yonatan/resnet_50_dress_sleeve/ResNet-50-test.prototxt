@@ -8,10 +8,30 @@ layer {
       python_param {
       module: "jrlayers"
       layer: "JrMultilabel"
-      param_str: "{\'images_and_labels_file\': \'/home/yonatan/db_dresses_cv.txt\', \'mean\': (104.00699, 116.66877, 122.67892)}"
+      param_str: "{\'images_and_labels_file\': \'/home/yonatan/db_dress_sleeve_cv.txt\', \'mean\': (104.00699, 116.66877, 122.67892),\'augment\':True,\'augment_crop_size\':(224,224)  }"
       }
 }
 
+#layer {
+#  name: "data"
+#  type: "ImageData"
+#  top: "data"
+#  top: "label"
+##  include {
+##    phase: TRAIN
+##  }
+#  transform_param {
+#    mirror: false
+#    mean_value: 120
+#    mean_value: 120
+#    mean_value: 120
+#  }
+#  image_data_param {
+#    source: "/home/yonatan/db_dress_sleeve_cv.txt"
+#    batch_size: 3
+#    shuffle: true
+#  }
+#}
 
 layer {
 	bottom: "data"
@@ -2417,8 +2437,8 @@ layer {
 
 layer {
 	bottom: "pool5"
-	top: "fc1000"
-	name: "fc1000"
+	top: "my_fc8"
+	name: "my_fc8"
 	type: "InnerProduct"
 	inner_product_param {
 		num_output: 8
@@ -2426,9 +2446,17 @@ layer {
 }
 
 layer {
-	bottom: "fc1000"
-	top: "prob"
-	name: "prob"
+  name: "accuracy"
+  type: "Accuracy"
+  bottom: "my_fc8"
+  bottom: "label"
+  top: "accuracy"
+}
+
+layer {
+	bottom: "my_fc8"
+	top: "loss"
+	name: "loss"
 	type: "Softmax"
 }
 

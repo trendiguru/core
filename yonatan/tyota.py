@@ -52,18 +52,22 @@ def url_to_image(url):
     # return the image
     return new_image
 
-
 #def theDetector(image):
 def theDetector(url_or_np_array, face_coordinates):
 
     print "Starting the genderism!"
     # check if i get a url (= string) or np.ndarray
-    if isinstance(url_or_np_array, basestring):
-        full_image = url_to_image(url_or_np_array)
-    elif type(url_or_np_array) == np.ndarray:
-        full_image = url_or_np_array
+    #if isinstance(url_or_np_array, basestring):
+    #    full_image = url_to_image(url_or_np_array)
+    #elif type(url_or_np_array) == np.ndarray:
+    #    full_image = url_or_np_array
+    if os.path.isdir(url_or_np_array):
+        print("Loading folder: %s" % url_or_np_array)
+        full_image = [caffe.io.load_image(im_f)
+                  for im_f in glob.glob(url_or_np_array + '/*.jpg')]
     else:
-        return None
+        print("Loading file")
+        full_image = caffe.io.load_image(url_or_np_array)
 
     #checks if the face coordinates are inside the image
     #height, width, channels = full_image.shape
@@ -73,23 +77,25 @@ def theDetector(url_or_np_array, face_coordinates):
     #if x > width or x + w > width or y > height or y + h > height:
     #    return None
 
+
     # face_image = full_image[y: y + h, x: x + w]
 
-    face_for_caffe = [cv2_image_to_caffe(full_image)]
+    #face_for_caffe = [cv2_image_to_caffe(full_image)]
     #face_for_caffe = [caffe.io.load_image(face_image)]
 
-    if face_for_caffe is None:
-        return None
+    #if face_for_caffe is None:
+    #    return None
 
     # Classify.
     start = time.time()
-    predictions = classifier.predict(face_for_caffe)
+    predictions = classifier.predict(full_image)
     print("Done in %.2f s." % (time.time() - start))
 
     for i in range(1, len(predictions[:])):
         if predictions[i][1] > 0.7:
             print predictions[i][1]
-            return 'Male'
+            print 'Male'
         else:
             print predictions[i][0]
-            return 'Female'
+            print 'Female'
+

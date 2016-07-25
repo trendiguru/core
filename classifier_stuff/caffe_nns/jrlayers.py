@@ -326,7 +326,7 @@ class JrMultilabel(caffe.Layer):
 
         self.images_and_labels_file = params['images_and_labels_file']
         self.mean = np.array(params['mean'])
-        self.images_dir = params.get('images_dir')
+        self.images_dir = params.get('images_dir',None)
         self.random_init = params.get('random_initialization', True) #start from random point in image list
         self.random_pick = params.get('random_pick', True) #pick random image from list every time
         self.seed = params.get('seed', 1337)
@@ -366,7 +366,8 @@ class JrMultilabel(caffe.Layer):
         #if file not found and its not a path then tack on the training dir as a default locaiton for the trainingimages file
         if self.images_and_labels_file is not None:
             if not os.path.isfile(self.images_and_labels_file) and not '/' in self.images_and_labels_file:
-                self.images_and_labels_file = os.path.join(self.images_dir,self.images_and_labels_file)
+                if self.images_dir is not None:
+                    self.images_and_labels_file = os.path.join(self.images_dir,self.images_and_labels_file)
             if not os.path.isfile(self.images_and_labels_file):
                 print('COULD NOT OPEN IMAGES/LABELS FILE '+str(self.images_and_labels_file))
                 return
@@ -407,7 +408,9 @@ class JrMultilabel(caffe.Layer):
                     label_vec = [int(i) for i in vals]
                     self.n_labels = len(vals)
                     label_vec = np.array(label_vec)
-    #                label_vec = label_vec[np.newaxis,...]  #this is required by loss whihc otherwise throws:
+                    self.n_labels = len(label_vec)
+                    if self.n_labels == 1:
+                        label_vec = label_vec[0]    #                label_vec = label_vec[np.newaxis,...]  #this is required by loss whihc otherwise throws:
     #                label_vec = label_vec[...,np.newaxis]  #this is required by loss whihc otherwise throws:
     #                label_vec = label_vec[...,np.newaxis,np.newaxis]  #this is required by loss whihc otherwise throws:
     #                F0616 10:54:30.921106 43184 accuracy_layer.cpp:31] Check failed: outer_num_ * inner_num_ == bottom[1]->count() (1 vs. 21) Number of labels must match number of predictions; e.g., if label axis == 1 and prediction shape is (N, C, H, W), label count (number of labels) must be N*H*W, with integer values in {0, 1, ..., C-1}.
@@ -431,6 +434,9 @@ class JrMultilabel(caffe.Layer):
                 self.n_labels = len(vals)
                 label_vec = [int(i) for i in vals]
                 label_vec = np.array(label_vec)
+                self.n_labels = len(label_vec)
+                if self.n_labels == 1:
+                    label_vec = label_vec[0]
                 good_img_files.append(imgfilename)
                 good_label_vecs.append(label_vec)
 
@@ -456,16 +462,27 @@ class JrMultilabel(caffe.Layer):
 
         top[1].reshape(self.batch_size, self.n_labels)
 
-
     def reshape(self, bottom, top):
         pass
 #        print('reshaping')
 #        logging.debug('self.idx is :'+str(self.idx)+' type:'+str(type(self.idx)))
-        imgfilename, self.data, self.label = self.load_image_and_label(self.idx)
+        if self.batch_size == 1:
+            imgfilename, self.data, self.label = self.load_image_and_label()
+        else:
+            all_data = np.zeros((self.batch_size,3,self.new_size[0],self.new_size[1]))
+            all_labels = np.zeros((self.batch_size,self.n_labels))
+            for i in range(self.batch_size):
+                imgfilename, data, label = self.load_image_and_label()
+                all_data[i,...]=data
+                all_labels[i,...]=label
+                self.next_idx()
+            self.data = all_data
+            self.label = all_labels
         ## reshape tops to fit (leading 1 is for batch dimension)
  #       top[0].reshape(1, *self.data.shape)
  #       top[1].reshape(1, *self.label.shape)
-#        print('top 0 shape {} top 1 shape {}'.format(top[0].shape,top[1].shape))
+        print('top 0 shape {} top 1 shape {}'.format(top[0].shape,top[1].shape))
+        print('data shape {} label shape {}'.format(self.data.shape,self.label.shape))
 ##       the above just shows objects , top[0].shape is an object apparently
 
     def next_idx(self):
@@ -482,17 +499,12 @@ class JrMultilabel(caffe.Layer):
         top[0].data[...] = self.data
         top[1].data[...] = self.label
         # pick next input
-        if self.random_pick:
-            self.idx = random.randint(0, len(self.imagefiles)-1)
-        else:
-            self.idx += 1
-            if self.idx == len(self.imagefiles):
-                self.idx = 0
+        self.next_idx()
 
     def backward(self, top, propagate_down, bottom):
         pass
 
-    def load_image_and_label(self,idx):
+    def load_image_and_label(self,idx=None):
         """
         Load input image and preprocess for Caffe:
         - cast to float
@@ -500,6 +512,8 @@ class JrMultilabel(caffe.Layer):
         - subtract mean
         - transpose to channel x height x width order
         """
+        if idx is None:
+            idx = self.idx
         while(1):
             filename = self.imagefiles[idx]
             label_vec = self.label_vecs[idx]

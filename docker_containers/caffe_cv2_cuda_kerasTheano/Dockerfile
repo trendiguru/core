@@ -43,7 +43,13 @@ RUN sudo apt-get install -y \
     ipython-notebook    \
     python-pandas     \
     python-sympy     \
-    python-nose
+    python-nose \
+    python-dev \
+    python-pip \
+    g++
+    libopenblas-dev \
+    git
+
 
 ###################
 # CUDA
@@ -54,17 +60,20 @@ RUN dpkg -i cuda-repo-ubuntu1404_7.5-18_amd64.deb
 RUN apt-get update
 RUN apt-get install -y cuda
 
+#get cudnn files from outside the container (on baremetal server)
+RUN cp cuda/include/cudnn.h /usr/local/cuda/include
+RUN cp cuda/lib64/libcudnn* /usr/local/cuda/lib64
+RUN chmod a+r /usr/local/cuda/lib64/libcudnn*
+
 
 ###############
-#Theano
+#Theano/keras
 ###############
+RUN pip install nose_parameterized
+RUN pip install Theano
+RUN pip install h5py
+RUN pip install keras
 RUN pip install git+git://github.com/Theano/Theano.git
-
-
-###############
-# Keras
-###############
-#numpy, scipy donen above
 
 #pyyaml
 RUN apt-get install -y libyaml-dev libpython2.7-dev
@@ -73,15 +82,6 @@ RUN pip install pyyaml
 #HDF5 and h5py (optional, required if you use model saving/loading functions)
 RUN apt-get install -y libhdf5-serial-dev
 RUN pip install h5py
-
-#Optional but recommended if you use CNNs: cuDNN.
-#When using the Theano backend: - Theano - See installation instructions.
-#Note: You should use the latest version of Theano, not the PyPI version.
-#Install it with:*sudo pip install git+git://github.com/Theano/Theano.git*
-#When using the TensorFlow backend: - TensorFlow - See installation instructions.
-#To install Keras, cd to the Keras folder and run the install command:​sudo python setup.py install
-
-RUN pip install keras
 
 
 

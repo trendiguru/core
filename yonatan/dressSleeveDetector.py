@@ -16,10 +16,10 @@ import skimage
 import requests
 
 
-MODLE_FILE = "/home/yonatan/trendi/yonatan/Alexnet_deploy.prototxt"
-PRETRAINED = "/home/yonatan/alexnet_imdb_first_try/caffe_alexnet_train_faces_iter_10000.caffemodel"
+MODLE_FILE = "/home/yonatan/trendi/yonatan/resnet_50_dress_sleeve/ResNet-50-deploy.prototxt"
+PRETRAINED = "/home/yonatan/resnet50_caffemodels/caffe_resnet50_snapshot_50_sgd_iter_5000.caffemodel"
 caffe.set_mode_gpu()
-image_dims = [115, 115]
+image_dims = [224, 224]
 mean, input_scale = np.array([120, 120, 120]), None
 channel_swap = [2, 1, 0]
 raw_scale = 255.0
@@ -55,7 +55,7 @@ def url_to_image(url):
 
 
 #def theDetector(image):
-def theDetector(url_or_np_array, face_coordinates):
+def theDetector(url_or_np_array):
 
     print "Starting the genderism!"
     # check if i get a url (= string) or np.ndarray
@@ -73,16 +73,16 @@ def theDetector(url_or_np_array, face_coordinates):
         print "not a good image"
         return None
 
-    height, width, channels = full_image.shape
+    #height, width, channels = full_image.shape
 
-    x, y, w, h = face_coordinates
+    #x, y, w, h = face_coordinates
 
-    if x > width or x + w > width or y > height or y + h > height:
-        return None
+    #if x > width or x + w > width or y > height or y + h > height:
+    #    return None
 
-    face_image = full_image[y: y + h, x: x + w]
+    #face_image = full_image[y: y + h, x: x + w]
 
-    face_for_caffe = [cv2_image_to_caffe(face_image)]
+    face_for_caffe = [cv2_image_to_caffe(full_image)]
     #face_for_caffe = [caffe.io.load_image(face_image)]
 
     if face_for_caffe is None:
@@ -93,9 +93,28 @@ def theDetector(url_or_np_array, face_coordinates):
     predictions = classifier.predict(face_for_caffe)
     print("Done in %.2f s." % (time.time() - start))
 
-    if predictions[0][1] > 0.7:
-        print predictions[0][1]
-        return 'Male'
-    else:
-        print predictions[0][0]
-        return 'Female'
+    #max_result = max(predictions[0])
+
+    max_result_index = np.argmax(predictions[0])
+
+    predict_label = int(max_result_index)
+
+    if predict_label == 0:
+        return 'strapless'
+    elif predict_label == 1:
+        return 'spaghetti_straps'
+    elif predict_label == 2:
+        return 'regular_straps'
+    elif predict_label == 3:
+        return 'sleeveless'
+    elif predict_label == 4:
+        return 'cap_sleeve'
+    elif predict_label == 5:
+        return 'short_sleeve'
+    elif predict_label == 6:
+        return 'midi_sleeve'
+    elif predict_label == 7:
+        return 'long_sleeve'
+
+    print predictions[0][predict_label]
+

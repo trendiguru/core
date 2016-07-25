@@ -25,12 +25,20 @@ products_per_ip_pid = {'default':
                                  {'default': 'ShopStyle', 'US': 'ebay', 'KR': 'GangnamStyle'},
                        'fashionseoul':
                                  {'KR': 'GangnamStyle'},
+                       '5767jA8THOn2J0DD':
+                                 {'KR': 'GangnamStyle'},
                        'RecruitPilot':
                                  {'default': 'recruit'},
+                       '6t50LSJxeNEkQ42p':
+                                 {'default': 'recruit'},
                        'xuSiNIs695acaHPE':
-                                 {'default': 'ShopStyle'},
+                                 {'default': 'amaze'},
                        "Rob's Shelter":
+                                 {'default': 'ShopStyle'},
+                       "robsdemartino@yahoo.it":
                                  {'default': 'ShopStyle'}
+                       # "mz1_ND":
+                       #           {'default': 'amazon_US', 'US': 'amazon_US'}
                        }
 products_per_site = {'default': 'ShopStyle', 'fashionseoul.com': 'GangnamStyle', 'fazz.co': 'ShopStyle',
                      'plus-model-mag.com': 'Fat_Beauty', 'recruit-lifestyle.co.jp': 'recruit'}

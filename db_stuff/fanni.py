@@ -48,7 +48,7 @@ def reindex_forest(col_name):
 
 
 def plantForests4AllCategories(col_name):
-    if 'ShopStyle'in col_name or 'GangnamStyle' in col_name:
+    if any(x for x in ['ShopStyle','GangnamStyle','amaze', 'amazon'] if x in col_name):
         from ..db_stuff import shopstyle_constants
         if 'Male' in col_name:
             categories = list(set(shopstyle_constants.shopstyle_paperdoll_male.values()))

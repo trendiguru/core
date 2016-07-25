@@ -14,7 +14,7 @@ layer {
     mean_value: 120
   }
   image_data_param {
-    source: "/home/yonatan/db_dresses_train.txt"
+    source: "/home/yonatan/db_dress_sleeve_train.txt"
     batch_size: 128
     shuffle: true
   }
@@ -34,7 +34,7 @@ layer {
     mean_value: 120
   }
   image_data_param {
-    source: "/home/yonatan/db_dresses_cv.txt"
+    source: "/home/yonatan/db_dress_sleeve_cv.txt"
     batch_size: 118
     shuffle: true
   }

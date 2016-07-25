@@ -67,14 +67,12 @@ def divide_data(argv):
         shutil.rmtree(train_dir_path)
         shutil.rmtree(cv_dir_path)
         shutil.rmtree(test_dir_path)
-        os.mkdir(train_dir_path)
-        os.mkdir(cv_dir_path)
-        os.mkdir(test_dir_path)
     else:
         print "creating new directories"
-        os.mkdir(train_dir_path)
-        os.mkdir(cv_dir_path)
-        os.mkdir(test_dir_path)
+
+    os.mkdir(train_dir_path)
+    os.mkdir(cv_dir_path)
+    os.mkdir(test_dir_path)
 
     for key, value in dictionary.iteritems():
         source_dir = '/home/yonatan/resized_db_' + args.input_file + '_' + key

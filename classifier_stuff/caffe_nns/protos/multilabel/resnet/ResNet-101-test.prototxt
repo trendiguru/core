@@ -9,7 +9,7 @@ layer {
       name: "data"
       type: "Python"
       top: "data"
-      top: "labels"
+      top: "label"
       python_param {
       module: "jrlayers"
       layer: "JrMultilabel"
@@ -4759,10 +4759,17 @@ layer {
 #}
 
 layer {
-	bottom: "myfc1000"
-	bottom: "labels"
-	top: "score"
-	name: "score"
-	type: "SigmoidCrossEntropyLoss"
+  name: "score"
+  bottom: "myfc1000"
+  top: "score"
+  type: "Sigmoid"
 }
+
+#layer {
+#	bottom: "myfc21"
+#	bottom: "labels"
+##	top: "score"
+#	name: "score"
+#	type: "SigmoidCrossEntropyLoss"
+#}
 
