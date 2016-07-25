@@ -118,3 +118,4 @@ for i in range(1, dresses.count()):
         db.yonatan_dresses_test.update({"_id": dresses[i]["_id"]}, {"$unset": {"dress_sleeve_length": ""}})
         delete += 1
         print delete
+print "delete_num: " + delete
