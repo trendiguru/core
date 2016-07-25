@@ -417,6 +417,8 @@ def open_html(model_base):
             g.write(constants.web_tool_categories[i])
             g.write('</th>\n')
         g.write('</tr>\n')
+
+
 #        g.write('</table><br>')
 
 def close_html(model_base):
@@ -442,6 +444,16 @@ def write_html(p,r,a,n,threshold,model_base):
             g.write('</td>\n')
         g.write('</tr>\n')
         g.write('</b>')
+
+        g.write('<tr>\n')
+        g.write('<td>')
+        g.write('n_positives')
+        g.write('</td>\n')
+        for i in range(len(p)):
+            g.write('<td>')
+            g.write(str(n[i]))
+            g.write('</td>\n')
+        g.write('</tr>\n<br>\n')
 
         g.write('<tr>\n')
         g.write('<td>')
@@ -472,7 +484,10 @@ def write_html(p,r,a,n,threshold,model_base):
             g.write(str(round(a[i],3)))
             g.write('</td>\n')
         g.write('</tr>\n<br>\n')
+
+
         g.write('<br>')
+
 #space
 
 #        g.write('threshold = '+str(t)+'\n')
