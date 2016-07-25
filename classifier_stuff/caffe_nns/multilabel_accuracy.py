@@ -429,7 +429,7 @@ def close_html(model_base):
         g.write('<a href=\"'+plotfilename+'\">plot<img src = \"'+plotfilename+'\" style=\"width:300px\"></a>')
         g.write('</html>')
 
-def write_html(p,r,a,n,threshold,model_base):
+def write_html(p,r,a,n,threshold,model_base,positives=False):
     with open(model_base+'results.html','a') as g:
 
  #       g.write('<table style=\"width:100%\">\n')
@@ -445,15 +445,16 @@ def write_html(p,r,a,n,threshold,model_base):
         g.write('</tr>\n')
         g.write('</b>')
 
-        g.write('<tr>\n')
-        g.write('<td>')
-        g.write('n_positives')
-        g.write('</td>\n')
-        for i in range(len(p)):
+        if(positives):
+            g.write('<tr>\n')
             g.write('<td>')
-            g.write(str(n[i]))
+            g.write('n_positives')
             g.write('</td>\n')
-        g.write('</tr>\n<br>\n')
+            for i in range(len(p)):
+                g.write('<td>')
+                g.write(str(n[i]))
+                g.write('</td>\n')
+            g.write('</tr>\n<br>\n')
 
         g.write('<tr>\n')
         g.write('<td>')
@@ -485,10 +486,8 @@ def write_html(p,r,a,n,threshold,model_base):
             g.write('</td>\n')
         g.write('</tr>\n<br>\n')
 
+        g.write('<tr><td><br/></td></tr>')  #blank row
 
-        g.write('<br>')
-
-#space
 
 #        g.write('threshold = '+str(t)+'\n')
 
@@ -535,6 +534,7 @@ def precision_accuracy_recall(caffemodel,solverproto,outlayer='label',n_tests=10
     thresh = [0.1,0.5,0.95]
 
     open_html(model_base)
+    positives = True
     for t in thresh:
         p,r,a,tp,tn,fp,fn = check_accuracy(solverproto, caffemodel, threshold=t, num_batches=n_tests,outlayer=outlayer)
         p_all.append(p)
@@ -543,7 +543,8 @@ def precision_accuracy_recall(caffemodel,solverproto,outlayer='label',n_tests=10
         n_occurences = [tp[i]+fn[i] for i in range(len(tp))]
         n_all.append(n_occurences)
         write_textfile(p,r,a,tp,tn,fp,fn,t,model_base)
-        write_html(p,r,a,n_occurences,t,model_base)
+        write_html(p,r,a,n_occurences,t,model_base,positives=positives)
+        positives = False
     close_html(model_base)
 
     p_all_np = np.transpose(np.array(p_all))
