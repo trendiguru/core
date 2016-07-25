@@ -64,7 +64,7 @@ def parse_logfile(f,logy):
       stepsize = line.split()[-1]+' '
       print('stepsize:'+stepsize)
 
-    if 'type' in line and not '#type' in line and not '# type' in line:  #only take first 'type' which is in solver.proto (type of learning)
+    if type=='' and 'type' in line and not '#type' in line and not '# type' in line:  #only take first 'type' which is in solver.proto (type of learning)
       type = line.split()[-1]+' '
       print('type:'+type)
     if 'momentum' in line and not '#momentum' in line and not '# momentum' in line:
