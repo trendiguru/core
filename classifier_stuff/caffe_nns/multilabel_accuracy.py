@@ -413,7 +413,7 @@ def open_html(model_base):
         g.write('metric')
         g.write('</th>\n')
         g.write('<th>')
-        g.write('freq weighted avg')
+        g.write('avg.')
         g.write('</th>\n')
         for i in range(len(constants.web_tool_categories)):
             g.write('<th>')
@@ -459,13 +459,14 @@ def write_html(p,r,a,n,threshold,model_base,positives=False):
         n_sum = 0
         for i in range(len(p)):
             fwavp = fwavp + p[i]*n[i]
-            fwavr = fwavp + r[i]*n[i]
-            fwava = fwavp + a[i]*n[i]
+            fwavr = fwavr + r[i]*n[i]
+            fwava = fwava + a[i]*n[i]
             n_sum=n_sum+n[i]
-        fwavp = fwavp/n_sum
-        fwavr = fwavp/n_sum
-        fwava = fwavp/n_sum
-        fwavn = n_sum/len(p)
+        fwavp = fwavp/float(n_sum)
+        fwavr = fwavp/float(n_sum)
+        fwava = fwavp/float(n_sum)
+        fwavn = n_sum/float(len(p))
+        print('frequency weighted averages p {} r {} acc {} n {}'.format(fwavp,fwavr,fwava,fwavn))
 
         if(positives):
             g.write('<tr>\n')
