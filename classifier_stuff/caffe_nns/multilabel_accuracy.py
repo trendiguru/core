@@ -18,7 +18,7 @@ import argparse
 from trendi import constants
 from trendi.utils import imutils
 
-
+import math
 
 
 # matplotlib inline
@@ -471,6 +471,7 @@ def write_html(p,r,a,n,threshold,model_base,positives=False):
                 fwava = fwava + p[i]*n[i]
                 n_a=n_a+n[i]
             n_sum=n_sum+n[i]
+            print('n sum'+str(n_sum))
         fwavp = fwavp/float(n_p)
         fwavr = fwavp/float(n_r)
         fwava = fwavp/float(n_a)
