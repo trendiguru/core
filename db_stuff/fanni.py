@@ -2,6 +2,7 @@
 import annoy
 from ..constants import db
 from time import time
+from .db_utils import log2file
 
 
 def plantAnnoyForest(col_name, category, num_of_trees, hold=True,distance_function='angular'):
@@ -90,6 +91,7 @@ def lumberjack(col_name,category,fingerprint, distance_function='angular', num_o
     """
     use annoy to quickly chop down the database and return only the top 1000 trees
     """
+    log_name = '/home/developer/yonti/annoy.log'
     print('searching for top 1000 items in %s' %(col_name))
     s = time()
     forest = annoy.AnnoyIndex(696, distance_function)
@@ -97,5 +99,8 @@ def lumberjack(col_name,category,fingerprint, distance_function='angular', num_o
     forest.load(name)
     result = forest.get_nns_by_vector(fingerprint,num_of_results)
     f = time()
-    print("got it in %s secs!"%(str(f-s)))
+    duration = str(f-s)
+    print("got it in %s secs!"% duration)
+    msg = 'collection: %s, category: %s, duration: %s' % (col_name, category, duration)
+    log2file(mode='a', log_filename=log_name, message=msg, print_flag=True)
     return result

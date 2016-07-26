@@ -64,7 +64,7 @@ from rq import Queue
 from datetime import datetime
 from amazon_worker import insert_items
 from .fanni import plantForests4AllCategories
-from .amazon_constants import blacklist, log_name, colors
+from .amazon_constants import blacklist, log_name, colors, status_log
 from .dl_excel import mongo2xl
 
 
@@ -470,23 +470,30 @@ def download_all(collection_name, gender='Female', del_collection=False, del_cac
     leafs_cursor = db.amazon_category_tree.find({'Children.count': 0, 'Parents': parent_gender})
     leafs = [x for x in leafs_cursor]  # change the cursor into a list
     iteration = 0
+    status_title = 'download started on %s' % today_date
+    log2file(mode='w', log_filename=status_log, message=status_title, print_flag=True)
+
     while len(leafs):
         # the while loop is for retrying failed downloads
         if iteration > 5:
             break
         not_finished = []
-
+        total_leafs = len(leafs)
         # iterate over all leafs and download them one by one
-        for leaf in leafs:
+        for x, leaf in enumerate(leafs):
             node_id = leaf['BrowseNodeId']
             cache_exists = collection_cache.find_one({'node_id': node_id})
             max_price = 3000.0
             if cache_exists:
                 if cache_exists['last_max'] > 0.00:
                     max_price = cache_exists['last_max']
-                    print ('node id: %s didn\'t finish -> continuing from %.2f' % (node_id, max_price))
+                    msg = '%d/%d) node id: %s didn\'t finish -> continuing from %.2f' \
+                          % (x, total_leafs, node_id, max_price)
+                    log2file(mode='a', log_filename=status_log, message=msg, print_flag=True)
+
                 else:
-                    print ('node id: %s already downloaded!' % node_id)
+                    msg = '%d/%d) node id: %s already downloaded!' % (x, total_leafs, node_id)
+                    log2file(mode='a', log_filename=status_log, message=msg, print_flag=True)
                     continue
             else:
                 cache = {'node_id': node_id,
@@ -505,22 +512,26 @@ def download_all(collection_name, gender='Female', del_collection=False, del_cac
                 if error_flag:
                     error_flag = False
                     raise ValueError('probably bad request - will be sent for fresh try')
-                print('node id: %s download done -> %d new_items downloaded' % (node_id, new_items_approx))
+                msg = 'node id: %s download done -> %d new_items downloaded' % (node_id, new_items_approx)
+                log2file(mode='a', log_filename=status_log, message=msg, print_flag=True)
                 collection_cache.update_one({'node_id': node_id},
                                             {'$set': {'item_count' : after_count,
                                                       'new_items': new_items_approx,
                                                       'last_max': 0.00}})
 
             except Exception as e:
-                print_error('ERROR', 'node id: %s failed!\n %s' % (node_id, e))
+                msg = 'ERROR', 'node id: %s failed!\n %s' % (node_id, e)
+                log2file(mode='a', log_filename=status_log, message=msg, print_flag=True)
                 not_finished.append(leaf)
 
         leafs = not_finished
         do_again = len(leafs)
         if do_again:
-            print_error('%d leafs to do again!' % do_again)
+            msg = '%d leafs to do again!' % do_again
+            log2file(mode='a', log_filename=status_log, message=msg, print_flag=True)
         iteration += 1
-    print_error('DOWNLOAD FINISHED')
+
+    log2file(mode='a', log_filename=status_log, message='DOWNLOAD FINISHED', print_flag=True)
     clear_duplicates(collection_name)
     print_error('CLEAR DUPLICATES FINISHED')
     theArchiveDoorman(collection_name, instock_limit=7, archive_limit=14)
