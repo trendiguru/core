@@ -96,11 +96,16 @@ def lumberjack(col_name,category,fingerprint, distance_function='angular', num_o
     s = time()
     forest = annoy.AnnoyIndex(696, distance_function)
     name = '/home/developer/annoyJungle/' + col_name + "/" + category + '_forest.ann'
+    t1= time()
     forest.load(name)
+    t2 = time()
     result = forest.get_nns_by_vector(fingerprint,num_of_results)
     f = time()
-    duration = str(f-s)
-    print("got it in %s secs!"% duration)
-    msg = 'collection: %s, category: %s, duration: %s' % (col_name, category, duration)
+    total_duration = str(f-s)
+    load_duration = str(t2-t1)
+    search_duration = str(f-t2)
+    print("got it in %s secs!"% total_duration)
+    msg = 'collection: %s, category: %s, duration: %s (load : %s, search: %s)' \
+          % (col_name, category, total_duration, load_duration, search_duration)
     log2file(mode='a', log_filename=log_name, message=msg, print_flag=True)
     return result
