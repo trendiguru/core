@@ -16,10 +16,13 @@ import urllib
 from trendi import background_removal, Utils, constants
 from trendi.utils import imutils
 from trendi import pipeline
+#from trendi.paperdoll import neurodoll_falcon_client as nfc
+
 from trendi.paperdoll import neurodoll_falcon_client as nfc
 
 
 #LOAD NEURODOLL
+'''
 MODEL_FILE = "/home/jeremy/voc8_15_pixlevel_deploy.prototxt"
 SINGLE_CLASS_LAYER_DEPLOY = "/home/jeremy/voc8_15_pixlevel_deploy_with_sigmoid.prototxt"
 PRETRAINED = "/home/jeremy/voc8_15_pixlevel_iter120000.caffemodel"
@@ -40,7 +43,7 @@ caffe.set_mode_gpu()
 caffe.set_device(0)
 multilabel_net = caffe.Net(deployproto,caffemodel, caffe.TEST)
 multilabel_required_image_size = (227,227)
-
+'''
 
 def url_to_image(url):
     # download the image, convert it to a NumPy array, and then read
@@ -128,10 +131,18 @@ def grabcut_using_neurodoll_output(url_or_np_array,category_index):
     mask2 = np.where((mask == 1) + (mask == 3), 255, 0).astype(np.uint8)
     return mask2
 
+def get_multilabel_output_using_nfc(url_or_np_array):
+    multilabel_dict = nfc.pd(url, getMultilabelResults=True)
+    if not multilabel_dict['success']:
+        print('did not get nfc pd result succesfully')
+        return
+    multilabel_output = multilabel_dict['multilabel_output']
+    print('multilabel output:'+str(multilabel_output))
+    return multilabel_output
 
-
-def combine_neurodoll_and_multilabel(url_or_np_array,multilabel_threshold=0.9):
-    multilabel = get_multilabel_output(url_or_np_array)
+def combine_neurodoll_and_multilabel(url_or_np_array,multilabel_threshold=0.7):
+#    multilabel = get_multilabel_output(url_or_np_array)
+    multilabel = get_multilabel_output_using_nfc(url_or_np_array)
     #take only labels above a threshold on the multilabel result
     #possible other way to do this: multiply the neurodoll mask by the multilabel result and threshold that product
     thresholded_multilabel = [ml>multilabel_threshold for ml in multilabel]
@@ -139,8 +150,14 @@ def combine_neurodoll_and_multilabel(url_or_np_array,multilabel_threshold=0.9):
     print('thrs label:'+str(thresholded_multilabel))
     for i in range(len(thresholded_multilabel)):
         if thresholded_multilabel[i]:
-            item_mask = grabcut_using_neurodoll_output(url_or_np_array,i)
+            neurodoll_index = constants.web_tool_categories_v1_to_ultimate_21[i]
+            print('index {} webtoollabel {} newindex {} neurodoll_label {} was above threshold {}'.format(
+                i,constants.web_tool_categories[i],neurodoll_index,constants.ultimate_21[neurodoll_index], multilabel_threshold))
+            item_mask = grabcut_using_neurodoll_output(url_or_np_array,neurodoll_index)
+            gc_mask = grabcut_using_neurodoll_output(url_or_np_array,category_index)
+
             cv2.imshow('mask '+str(i),item_mask)
+            cv2.imshow('gc_mask '+str(i),gc_mask)
             cv2.waitKey(0)
 
 # Make classifier.
@@ -155,5 +172,5 @@ if __name__ == "__main__":
     outmat = np.zeros([256*4,256*21],dtype=np.uint8)
     url = 'http://diamondfilms.com.au/wp-content/uploads/2014/08/Fashion-Photography-Sydney-1.jpg'
     url = 'http://pinmakeuptips.com/wp-content/uploads/2015/02/1.4.jpg'
-
+#    get_nd_and_multilabel_output_using_nfc(url_or_np_array)
     combine_neurodoll_and_multilabel(url)

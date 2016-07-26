@@ -4540,9 +4540,16 @@ layer {
 }
 
 layer {
-	bottom: "fc1000"
-	top: "prob"
-	name: "prob"
-	type: "Softmax"
+  name: "prob"
+  bottom: "myfc1000"
+  top: "prob"
+  type: "Sigmoid"
 }
+
+#layer {
+#	bottom: "fc1000"
+#	top: "prob"
+#	name: "prob"
+#	type: "Softmax"
+#}
 

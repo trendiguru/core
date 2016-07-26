@@ -24,6 +24,9 @@ class PaperResource:
         category_index = category_index and int(category_index)
 
         get_multilabel_results = req.get_param('getMultilabelResults')
+        print('get multi:'+str(get_multilabel_results))
+        get_multilabel_results = get_multilabel_results == "true" or get_multilabel_results == "True" or get_multilabel_results == True
+
 
         ret = {"success": False}
         try:
