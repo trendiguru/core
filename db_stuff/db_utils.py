@@ -100,26 +100,24 @@ def theArchiveDoorman(col_name, instock_limit=2, archive_limit=7):
     collection_archive.reindex()
 
 
-def refresh_similar_results(col_name):
-    col_name_parts = split(r'_', col_name)
-    name = col_name_parts[0]
+def refresh_similar_results(name):
     collection = db.images
     query = 'people.items.similar_results.%s' % name
-    relevant_imgs = collection.find({query:{'$exists': 1}})
+    relevant_imgs = collection.find({query: {'$exists': 1}})
     total = relevant_imgs.count()
     for current, img in enumerate(relevant_imgs):
-        tmp = img
-        for p,person in enumerate(img['people']):
-            for i,item in enumerate(person['items']):
+        for person in img['people']:
+            gender = person['gender']
+            col_name = name+'_'+gender
+            for item in person['items']:
                 similar_res = item['similar_results']
-                if name in similar_res.keys():
+                if name in similar_res:
                     fp = item['fp']
                     category = item['category']
                     new_similar_results = find_top_n_results(fingerprint=fp,collection=col_name, category_id=category,
                                                              number_of_results=100)
-                    tmp['people'][p]['items'][i]['similar_results']['name'] = new_similar_results
-        collection.delete_one({'_id': tmp['_id']})
-        collection.insert_one(tmp)
+                    similar_res[name] = new_similar_results
+        collection.replace_one({'_id': img['_id']}, img)
         print ('%d/%d replace' % (current, total))
 
 categories_badwords = ['SLEEPWEAR', 'SHAPEWEAR', 'SLIPS', 'BEDDING', 'LINGERIE', 'CAMISOLES', 'JEWELRY', 'SPORTS',
