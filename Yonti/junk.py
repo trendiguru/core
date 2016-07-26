@@ -3,17 +3,23 @@ from ..NNSearch import distance_Bhattacharyya
 
 collection = db.fanni
 
-def find_n_nearest_neighbors_copy(fingerprint, database, category, number_of_matches, filter_cat=None,
+def find_n_nearest_neighbors_copy(fingerprint, database, category, number_of_matches, field=None, rule='eq', val=0,
                                   fp_weights= fingerprint_weights, hist_length=histograms_length,
                                   fp_key='fingerprint'):
 
 
     distance_function = distance_Bhattacharyya
     # list of tuples with (entry,distance). Initialize with first n distance values
-    if filter_cat == None:
+    if field == None:
         entries = db[database].find({'categories': category},
                                       {"id": 1, "fingerprint": 1, "images.XLarge": 1, "clickUrl": 1})
     else:
+        if rule == 'eq':
+            entries = db[database].find({'categories': category, field: val},
+                                        {"id": 1, "fingerprint": 1, "images.XLarge": 1, "clickUrl": 1})
+        else:
+            entries = db[database].find({'categories': category, field:{'$lte':val+1, '$gte':val-1}},
+                                        {"id": 1, "fingerprint": 1, "images.XLarge": 1, "clickUrl": 1})
 
     farthest_nearest = 1
     nearest_n = []
@@ -56,7 +62,7 @@ def renew_top_results(database_name, field, rule, category_id='dress', number_of
         idx = item['_id']
         fp = item['fingerprint']
         top_fp = find_n_nearest_neighbors_copy(fp, database_name, category_id, number_of_results)
-        top_sp = find_n_nearest_neighbors_copy(fp, database_name, category_id, number_of_results, field)
+        top_sp = find_n_nearest_neighbors_copy(fp, database_name, category_id, number_of_results, field,rule)
         collection.update_one({'_id':idx},{'$set':{'topresults.fp': top_fp,
                                                    'topresults.sp': top_sp}})
         print ('%d/%d' %(x, total))

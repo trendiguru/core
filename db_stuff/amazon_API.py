@@ -86,7 +86,7 @@ base_parameters = {
 last_time = time()
 FashionGender = 'FashionWomen'
 error_flag = False
-
+last_price = 3000.00
 
 def proper_wait(print_flag=False):
     global last_time
@@ -127,7 +127,7 @@ def format_price(price_float, period=False):
 
 def make_itemsearch_request(pagenum, node_id, min_price, max_price, price_flag=True, print_flag=False, color='',
                             plus_size_flag=False, family_tree='sequoia'):
-    global error_flag
+    global error_flag, last_price
 
     parameters = base_parameters.copy()
     parameters['Timestamp'] = strftime("%Y-%m-%dT%H:%M:%SZ", gmtime())
@@ -153,7 +153,7 @@ def make_itemsearch_request(pagenum, node_id, min_price, max_price, price_flag=T
     proper_wait()
     res = get(req)
     # last_time = time()
-
+    last_price = min_price
     try:
         if res.status_code != 200:
             msg = 'not 200!'
@@ -272,7 +272,9 @@ def filter_by_color(collection_name, node_id, price, family_tree, plus_size_flag
 
 def get_results(node_id, collection_name='moshe',  price_flag=True, max_price=3000.0, min_price=0.0,
                 results_count_only=False, family_tree='moshe', plus_size_flag=False):
-
+    current_last_price = last_price-0.01
+    if max_price<current_last_price:
+        max_price = current_last_price
     res_dict, results_count = make_itemsearch_request(1, node_id, min_price, max_price, price_flag=price_flag,
                                                       plus_size_flag=plus_size_flag, family_tree=family_tree)
     if results_count_only:
@@ -454,7 +456,7 @@ def clear_duplicates(name):
 
 def download_all(collection_name, gender='Female', del_collection=False, del_cache=False,
                  cat_tree=False, plus_size_flag=False):
-    global error_flag
+    global error_flag, last_price
     collection = db[collection_name]
     cache_name = collection_name+'_cache'
     collection_cache = db[cache_name]
@@ -491,12 +493,12 @@ def download_all(collection_name, gender='Female', del_collection=False, del_cac
         for x, leaf in enumerate(leafs):
             node_id = leaf['BrowseNodeId']
             cache_exists = collection_cache.find_one({'node_id': node_id})
-            max_price = 3000.0
+            last_price = 3000.0
             if cache_exists:
                 if cache_exists['last_max'] > 0.00:
-                    max_price = cache_exists['last_max']
+                    last_price = cache_exists['last_max']
                     msg = '%d/%d) node id: %s didn\'t finish -> continuing from %.2f' \
-                          % (x, total_leafs, node_id, max_price)
+                          % (x, total_leafs, node_id, last_price)
                     log2file(mode='a', log_filename=status_log, message=msg, print_flag=True)
 
                 else:
@@ -507,13 +509,13 @@ def download_all(collection_name, gender='Female', del_collection=False, del_cac
                 cache = {'node_id': node_id,
                          'item_count': 0,
                          'new_items': 0,
-                         'last_max': max_price}
+                         'last_max': last_price}
                 collection_cache.insert_one(cache)
             leaf_name = '->'.join(leaf['Parents']) + '->' + leaf['Name']
 
             try:
                 before_count = collection.count()
-                get_results(node_id, collection_name, max_price=max_price, results_count_only=False,
+                get_results(node_id, collection_name, max_price=last_price, results_count_only=False,
                             family_tree=leaf_name, plus_size_flag=plus_size_flag)
                 after_count = collection.count()
                 new_items_approx = after_count - before_count
