@@ -17,7 +17,7 @@ YONTI = 'yontilevin@gmail.com'
 SENDER = 'Notifier@trendiguru.com'
 all = 'members@trendiguru.com'
 API_URL = 'http://api.trendi.guru/images'
-MINUTE_IMAGE_URL = 'https://upload.wikimedia.org/wikipedia/commons/d/d5/Mona_Lisa_(copy,_Hermitage).jpg'
+MINUTE_IMAGE_URL = 'https://upload.wikimedia.org/wikipedia/commons/thumb/c/ca/James_Corden_at_2015_PaleyFest.jpg/800px-James_Corden_at_2015_PaleyFest.jpg'
 
 
 def email(stats, title, recipients):
