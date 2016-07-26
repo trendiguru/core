@@ -5,7 +5,7 @@ import logging
 
 import numpy as np
 import cv2
-from db_stuff.fanni import lumberjack
+from db_stuff import fanni
 import constants
 from rq import Queue
 from time import sleep
@@ -105,7 +105,7 @@ def find_n_nearest_neighbors(target_dict, collection, category, number_of_matche
     entries = db[collection].find({'categories':category},
                                   {"id": 1, "fingerprint": 1, "images.XLarge": 1, "clickUrl": 1})
     if entries.count() > 2000:
-        annoy_job = q.enqueue(lumberjack, args=(collection,category, fingerprint))
+        annoy_job = q.enqueue(fanni.lumberjack, args=(collection,category, fingerprint))
         while not annoy_job.is_finished and not annoy_job.is_failed:
             sleep(0.1)
         if annoy_job.is_failed:
