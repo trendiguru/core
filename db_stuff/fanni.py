@@ -2,6 +2,7 @@
 import annoy
 from ..constants import db
 from time import time
+from .db_utils import log2file
 
 
 def plantAnnoyForest(col_name, category, num_of_trees, hold=True,distance_function='angular'):
@@ -48,7 +49,7 @@ def reindex_forest(col_name):
 
 
 def plantForests4AllCategories(col_name):
-    if any(x for x in ['ShopStyle','GangnamStyle','amaze'] if x in col_name):
+    if any(x for x in ['ShopStyle','GangnamStyle','amaze', 'amazon'] if x in col_name):
         from ..db_stuff import shopstyle_constants
         if 'Male' in col_name:
             categories = list(set(shopstyle_constants.shopstyle_paperdoll_male.values()))
@@ -90,12 +91,21 @@ def lumberjack(col_name,category,fingerprint, distance_function='angular', num_o
     """
     use annoy to quickly chop down the database and return only the top 1000 trees
     """
+    log_name = '/home/developer/yonti/annoy.log'
     print('searching for top 1000 items in %s' %(col_name))
     s = time()
     forest = annoy.AnnoyIndex(696, distance_function)
     name = '/home/developer/annoyJungle/' + col_name + "/" + category + '_forest.ann'
+    t1= time()
     forest.load(name)
+    t2 = time()
     result = forest.get_nns_by_vector(fingerprint,num_of_results)
     f = time()
-    print("got it in %s secs!"%(str(f-s)))
+    total_duration = str(f-s)
+    load_duration = str(t2-t1)
+    search_duration = str(f-t2)
+    print("got it in %s secs!"% total_duration)
+    msg = 'collection: %s, category: %s, duration: %s (load : %s, search: %s)' \
+          % (col_name, category, total_duration, load_duration, search_duration)
+    log2file(mode='a', log_filename=log_name, message=msg, print_flag=True)
     return result
