@@ -520,8 +520,10 @@ def download_all(collection_name, gender='Female', del_collection=False, del_cac
                                                       'last_max': 0.00}})
 
             except Exception as e:
-                msg = 'ERROR', 'node id: %s failed!\n %s' % (node_id, e)
+                msg = 'ERROR', 'node id: %s failed!' % node_id
                 log2file(mode='a', log_filename=status_log, message=msg, print_flag=True)
+                error_msg = str(e)
+                log2file(mode='a', log_filename=status_log, message=error_msg, print_flag=True)
                 not_finished.append(leaf)
 
         leafs = not_finished
