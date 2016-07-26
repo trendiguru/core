@@ -3,7 +3,6 @@ import hashlib
 from ..constants import db, redis_conn
 from datetime import datetime
 from ..Yonti import pymongo_utils
-from .. import find_similar_mongo
 from rq import Queue
 q = Queue('refresh', connection=redis_conn)
 today_date = str(datetime.date(datetime.now()))
@@ -102,6 +101,7 @@ def theArchiveDoorman(col_name, instock_limit=2, archive_limit=7):
 
 
 def refresh_worker(doc, name):
+    from .. import find_similar_mongo
     collection = db.images
     for person in doc['people']:
         gender = person['gender']
