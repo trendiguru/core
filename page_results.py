@@ -199,6 +199,7 @@ def get_collection_from_ip_and_pid(ip, pid='default'):
         else:
             return default_map['default']
 
+
 # ---------------------------------------- PROCESS-FUNCTIONS ---------------------------------------------
 
 def add_results_from_collection(image_obj, collection):
