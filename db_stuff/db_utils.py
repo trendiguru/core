@@ -3,7 +3,7 @@ import hashlib
 from ..constants import db, redis_conn
 from datetime import datetime
 from ..Yonti import pymongo_utils
-from ..find_similar_mongo import find_top_n_results
+from .. import find_similar_mongo
 from rq import Queue
 q = Queue('refresh', connection=redis_conn)
 today_date = str(datetime.date(datetime.now()))
@@ -111,7 +111,7 @@ def refresh_worker(doc, name):
             if name in similar_res:
                 fp = item['fp']
                 category = item['category']
-                _, new_similar_results = find_top_n_results(fingerprint=fp, collection=col_name, category_id=category,
+                _, new_similar_results = find_similar_mongo.find_top_n_results(fingerprint=fp, collection=col_name, category_id=category,
                                                             number_of_results=100)
                 similar_res[name] = new_similar_results
     collection.replace_one({'_id': doc['_id']}, doc)
@@ -127,7 +127,8 @@ def refresh_similar_results(name):
         print ('%d/%d sent' % (current, total))
 
     while q.count > 0:
-        print ('%.2f done' %(1-q.count/total))
+        msg = '%.2f done' % (1-q.count/float(total))
+        print (msg)
 
     print ('REFRESH DONE!')
 
