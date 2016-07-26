@@ -1,10 +1,11 @@
 import logging
 import hashlib
-from ..constants import db
+from ..constants import db, redis_conn
 from datetime import datetime
 from ..Yonti import pymongo_utils
 from ..find_similar_mongo import find_top_n_results
-from re import split
+from rq import Queue
+q = Queue('refresh', connection=redis_conn)
 today_date = str(datetime.date(datetime.now()))
 
 
@@ -100,25 +101,36 @@ def theArchiveDoorman(col_name, instock_limit=2, archive_limit=7):
     collection_archive.reindex()
 
 
+def refresh_worker(doc, name):
+    collection = db.images
+    for person in doc['people']:
+        gender = person['gender']
+        col_name = name + '_' + gender
+        for item in person['items']:
+            similar_res = item['similar_results']
+            if name in similar_res:
+                fp = item['fp']
+                category = item['category']
+                _, new_similar_results = find_top_n_results(fingerprint=fp, collection=col_name, category_id=category,
+                                                            number_of_results=100)
+                similar_res[name] = new_similar_results
+    collection.replace_one({'_id': doc['_id']}, doc)
+
+
 def refresh_similar_results(name):
     collection = db.images
     query = 'people.items.similar_results.%s' % name
     relevant_imgs = collection.find({query: {'$exists': 1}})
     total = relevant_imgs.count()
     for current, img in enumerate(relevant_imgs):
-        for person in img['people']:
-            gender = person['gender']
-            col_name = name+'_'+gender
-            for item in person['items']:
-                similar_res = item['similar_results']
-                if name in similar_res:
-                    fp = item['fp']
-                    category = item['category']
-                    new_similar_results = find_top_n_results(fingerprint=fp,collection=col_name, category_id=category,
-                                                             number_of_results=100)
-                    similar_res[name] = new_similar_results
-        collection.replace_one({'_id': img['_id']}, img)
-        print ('%d/%d replace' % (current, total))
+        q.enqueue(refresh_worker, doc=img, name=name, timeout=1800)
+        print ('%d/%d sent' % (current, total))
+
+    while q.count > 0:
+        print ('%.2f done' %(1-q.count/total))
+
+    print ('REFRESH DONE!')
+
 
 categories_badwords = ['SLEEPWEAR', 'SHAPEWEAR', 'SLIPS', 'BEDDING', 'LINGERIE', 'CAMISOLES', 'JEWELRY', 'SPORTS',
                        'WATCHES', 'PERFUMES', 'COLOGNES', 'HEALTH', 'TOYS', 'SUNGLASSES', 'COSMETICS', 'LUGGAGE',
