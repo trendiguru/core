@@ -109,6 +109,9 @@ def find_n_nearest_neighbors(target_dict, collection, category, number_of_matche
                                   {"id": 1, "fingerprint": 1, "images.XLarge": 1, "clickUrl": 1})
     t1= time()
     if entries.count() > 2000:
+        t= time()
+        msg= 'count->%f' %(t-t1)
+        db_utils.log2file(mode='a',log_filename=tmp_log, message=msg)
         annoy_job = q.enqueue(fanni.lumberjack, args=(collection,category, fingerprint))
         while not annoy_job.is_finished and not annoy_job.is_failed:
             sleep(0.1)
