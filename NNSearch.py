@@ -12,7 +12,7 @@ from time import sleep, time
 q = Queue('annoy', connection=constants.redis_conn)
 db = constants.db
 K = constants.K  # .5 is the same as Euclidean
-tmp_log= '/home/developer/NN.log'
+tmp_log= '/home/developer/logs/NN.log'
 
 def distance_1_k(fp1, fp2,mis, take ,k=K):
     """This calculates distance between to arrays. When k = .5 this is the same as Euclidean."""
