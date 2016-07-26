@@ -80,7 +80,8 @@ def process_items(item_list, gender,category):
         exists = collection.find_one({'id': itemId})
         if exists:
             exists_id = exists['_id']
-            image, _ = catch_img([exists['images']['XLarge']], col_name)
+            img_url = exists['images']['XLarge']
+            image = get_cv2_img_array(img_url)
             if image is None:
                 collection.delete_one({'_id':exists_id})
             else:
