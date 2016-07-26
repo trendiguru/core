@@ -112,7 +112,7 @@ def process_items(item_list, gender,category):
 
         status = {"instock": True, "days_out": 0}
         imgs = item['itemImgInfoList']
-        image, img_url = catch_img(imgs, collection)
+        image, img_url = catch_img(imgs, col_name)
 
         if image is None:
             print ('bad img url')
