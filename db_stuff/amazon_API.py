@@ -64,7 +64,7 @@ from rq import Queue
 from datetime import datetime
 from amazon_worker import insert_items
 from .fanni import plantForests4AllCategories
-from .amazon_constants import blacklist, log_name, colors
+from .amazon_constants import blacklist, log_name, colors, status_log
 from .dl_excel import mongo2xl
 
 
@@ -86,7 +86,7 @@ base_parameters = {
 last_time = time()
 FashionGender = 'FashionWomen'
 error_flag = False
-
+last_price = 3000.00
 
 def proper_wait(print_flag=False):
     global last_time
@@ -125,9 +125,9 @@ def format_price(price_float, period=False):
     return price_str
 
 
-def make_itemsearch_request(pagenum, node_id, min_price, max_price, price_flag=True, print_flag=True, color='',
+def make_itemsearch_request(pagenum, node_id, min_price, max_price, price_flag=True, print_flag=False, color='',
                             plus_size_flag=False, family_tree='sequoia'):
-    global error_flag
+    global error_flag, last_price
 
     parameters = base_parameters.copy()
     parameters['Timestamp'] = strftime("%Y-%m-%dT%H:%M:%SZ", gmtime())
@@ -153,7 +153,7 @@ def make_itemsearch_request(pagenum, node_id, min_price, max_price, price_flag=T
     proper_wait()
     res = get(req)
     # last_time = time()
-
+    last_price = min_price
     try:
         if res.status_code != 200:
             msg = 'not 200!'
@@ -188,12 +188,14 @@ def make_itemsearch_request(pagenum, node_id, min_price, max_price, price_flag=T
     except Exception as e:
         results_count = 0
         summary = 'Name: %s, PriceRange: %.2f -> %.2f , ResultCount: %s '\
-                  % (family_tree, min_price, max_price, e)
+                  % (family_tree, min_price, max_price, e.message)
         if print_flag:
-            print_error(e)
+            print_error(e.message)
         if color_flag:
             summary += '(color -> %s)' % color
         log2file(mode='a', log_filename=log_name, message=summary)
+        if e.message == 'no TotalResualts':
+            results_count=-1
         return [], results_count
 
     return res_dict, results_count
@@ -205,6 +207,12 @@ def process_results(collection_name, pagenum, node_id, min_price, max_price, fam
         res_dict, new_item_count = make_itemsearch_request(pagenum, node_id, min_price, max_price,
                                                            print_flag=print_flag, color=color,
                                                            plus_size_flag=plus_size_flag, family_tree=family_tree)
+        if new_item_count == -1:
+            print ('try again')
+            sleep(0.5)
+            res_dict, new_item_count = make_itemsearch_request(pagenum, node_id, min_price, max_price,
+                                                               print_flag=print_flag, color=color,
+                                                               plus_size_flag=plus_size_flag, family_tree=family_tree)
         if new_item_count < 2:
             return -1
 
@@ -264,7 +272,9 @@ def filter_by_color(collection_name, node_id, price, family_tree, plus_size_flag
 
 def get_results(node_id, collection_name='moshe',  price_flag=True, max_price=3000.0, min_price=0.0,
                 results_count_only=False, family_tree='moshe', plus_size_flag=False):
-
+    current_last_price = last_price-0.01
+    if max_price<current_last_price:
+        max_price = current_last_price
     res_dict, results_count = make_itemsearch_request(1, node_id, min_price, max_price, price_flag=price_flag,
                                                       plus_size_flag=plus_size_flag, family_tree=family_tree)
     if results_count_only:
@@ -446,7 +456,7 @@ def clear_duplicates(name):
 
 def download_all(collection_name, gender='Female', del_collection=False, del_cache=False,
                  cat_tree=False, plus_size_flag=False):
-    global error_flag
+    global error_flag, last_price
     collection = db[collection_name]
     cache_name = collection_name+'_cache'
     collection_cache = db[cache_name]
@@ -470,57 +480,70 @@ def download_all(collection_name, gender='Female', del_collection=False, del_cac
     leafs_cursor = db.amazon_category_tree.find({'Children.count': 0, 'Parents': parent_gender})
     leafs = [x for x in leafs_cursor]  # change the cursor into a list
     iteration = 0
+    status_title = 'download started on %s' % today_date
+    log2file(mode='w', log_filename=status_log, message=status_title, print_flag=True)
+
     while len(leafs):
         # the while loop is for retrying failed downloads
         if iteration > 5:
             break
         not_finished = []
-
+        total_leafs = len(leafs)
         # iterate over all leafs and download them one by one
-        for leaf in leafs:
+        for x, leaf in enumerate(leafs):
             node_id = leaf['BrowseNodeId']
             cache_exists = collection_cache.find_one({'node_id': node_id})
-            max_price = 3000.0
+            last_price = 3000.0
             if cache_exists:
                 if cache_exists['last_max'] > 0.00:
-                    max_price = cache_exists['last_max']
-                    print ('node id: %s didn\'t finish -> continuing from %.2f' % (node_id, max_price))
+                    last_price = cache_exists['last_max']
+                    msg = '%d/%d) node id: %s didn\'t finish -> continuing from %.2f' \
+                          % (x, total_leafs, node_id, last_price)
+                    log2file(mode='a', log_filename=status_log, message=msg, print_flag=True)
+
                 else:
-                    print ('node id: %s already downloaded!' % node_id)
+                    msg = '%d/%d) node id: %s already downloaded!' % (x, total_leafs, node_id)
+                    log2file(mode='a', log_filename=status_log, message=msg, print_flag=True)
                     continue
             else:
                 cache = {'node_id': node_id,
                          'item_count': 0,
                          'new_items': 0,
-                         'last_max': max_price}
+                         'last_max': last_price}
                 collection_cache.insert_one(cache)
             leaf_name = '->'.join(leaf['Parents']) + '->' + leaf['Name']
 
             try:
                 before_count = collection.count()
-                get_results(node_id, collection_name, max_price=max_price, results_count_only=False,
+                get_results(node_id, collection_name, max_price=last_price, results_count_only=False,
                             family_tree=leaf_name, plus_size_flag=plus_size_flag)
                 after_count = collection.count()
                 new_items_approx = after_count - before_count
                 if error_flag:
                     error_flag = False
                     raise ValueError('probably bad request - will be sent for fresh try')
-                print('node id: %s download done -> %d new_items downloaded' % (node_id, new_items_approx))
+                msg = 'node id: %s download done -> %d new_items downloaded' % (node_id, new_items_approx)
+                log2file(mode='a', log_filename=status_log, message=msg, print_flag=True)
                 collection_cache.update_one({'node_id': node_id},
                                             {'$set': {'item_count' : after_count,
                                                       'new_items': new_items_approx,
                                                       'last_max': 0.00}})
 
             except Exception as e:
-                print_error('ERROR', 'node id: %s failed!\n %s' % (node_id, e))
+                msg = 'ERROR', 'node id: %s failed!' % node_id
+                log2file(mode='a', log_filename=status_log, message=msg, print_flag=True)
+                error_msg = e.message
+                log2file(mode='a', log_filename=status_log, message=error_msg, print_flag=True)
                 not_finished.append(leaf)
 
         leafs = not_finished
         do_again = len(leafs)
         if do_again:
-            print_error('%d leafs to do again!' % do_again)
+            msg = '%d leafs to do again!' % do_again
+            log2file(mode='a', log_filename=status_log, message=msg, print_flag=True)
         iteration += 1
-    print_error('DOWNLOAD FINISHED')
+
+    log2file(mode='a', log_filename=status_log, message='DOWNLOAD FINISHED', print_flag=True)
     clear_duplicates(collection_name)
     print_error('CLEAR DUPLICATES FINISHED')
     theArchiveDoorman(collection_name, instock_limit=7, archive_limit=14)
