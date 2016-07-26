@@ -2,7 +2,7 @@
 import annoy
 from ..constants import db
 from time import time
-from .db_utils import log2file
+import db_utils
 import os
 
 def plantAnnoyForest(col_name, category, num_of_trees, hold=True,distance_function='angular'):
@@ -107,7 +107,7 @@ def lumberjack(col_name,category,fingerprint, distance_function='angular', num_o
     print("got it in %s secs!"% total_duration)
     msg = 'collection: %s, category: %s, duration: %s (load : %s, search: %s)' \
           % (col_name, category, total_duration, load_duration, search_duration)
-    log2file(mode='a', log_filename=log_name, message=msg, print_flag=True)
+    db_utils.log2file(mode='a', log_filename=log_name, message=msg, print_flag=True)
     return result
 
 
