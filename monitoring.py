@@ -3,9 +3,10 @@ import smtplib
 from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
 import requests
+import time
 from bson import json_util
 from rq import Queue
-from .constants import redis_conn
+from .constants import redis_conn, db
 
 
 failed = Queue('failed', connection=redis_conn)
@@ -56,6 +57,9 @@ def email(stats, title, recipients):
 def dummy_image():
     data = {"pageUrl": "dummy", "imageList": [MINUTE_IMAGE_URL]}
     requests.post(API_URL, data=json_util.dumps(data))
+    while not db.images.find_one({'image_urls': MINUTE_IMAGE_URL}):
+        time.sleep(1)
+    db.images.delete_one({'image_urls': MINUTE_IMAGE_URL})
 
 
 def log_failed():
