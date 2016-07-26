@@ -1,7 +1,9 @@
 __author__ = 'jeremy'
 
 import cv2
+print('d0')
 import caffe
+print('d1')
 import logging
 logging.basicConfig(level=logging.DEBUG)
 
@@ -25,8 +27,6 @@ print('starting multilabel.py')
 solverproto = '/home/jeremy/caffenets/multilabel/deep-residual-networks/prototxt/ResNet-101-test.prototxt'
 deployproto = '/home/jeremy/caffenets/multilabel/deep-residual-networks/prototxt/ResNet-101-deploy.prototxt'
 caffemodel = '/home/jeremy/caffenets/production/multilabel_resnet101_sgd_iter_120000.caffemodel'
-
-
 print('set_mode_gpu, device 1')
 caffe.set_mode_gpu()
 caffe.set_device(1)
