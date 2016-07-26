@@ -2,7 +2,7 @@
 
 __author__ = 'jeremy'
 import logging
-
+from .db_stuff import db_utils
 import numpy as np
 import cv2
 from db_stuff import fanni
@@ -12,6 +12,7 @@ from time import sleep, time
 q = Queue('annoy', connection=constants.redis_conn)
 db = constants.db
 K = constants.K  # .5 is the same as Euclidean
+tmp_log= '/home/developer/NN.log'
 
 def distance_1_k(fp1, fp2,mis, take ,k=K):
     """This calculates distance between to arrays. When k = .5 this is the same as Euclidean."""
@@ -99,6 +100,8 @@ def distance_Bhattacharyya(fp1, fp2, weights, hist_length):
 def find_n_nearest_neighbors(target_dict, collection, category, number_of_matches, fp_weights,
                                  hist_length, fp_key, distance_function=None):
 
+    msg = 'col: %s, cat: %s' %(collection, category)
+    db_utils.log2file(mode='a', log_filename=tmp_log, message=msg)
     distance_function = distance_function or distance_Bhattacharyya
     # list of tuples with (entry,distance). Initialize with first n distance values
     fingerprint = target_dict["fingerprint"]
@@ -112,12 +115,14 @@ def find_n_nearest_neighbors(target_dict, collection, category, number_of_matche
         if annoy_job.is_failed:
             return []
         t2= time()
-        print('annoy->%f' %(t2-t1))
+        msg= 'annoy->%f' %(t2-t1)
+        db_utils.log2file(mode='a',log_filename=tmp_log, message=msg)
         top1000 = annoy_job.result
         entries = db[collection].find({"AnnoyIndex": {"$in": top1000}, 'categories': category},
                                       {"id": 1, "fingerprint": 1, "images.XLarge": 1, "clickUrl": 1})
         t3= time()
-        print('query->%f' % (t3 - t2))
+        msg= 'query->%f' % (t3 - t2)
+        db_utils.log2file(mode='a', log_filename=tmp_log, message=msg)
 
     t4= time()
     farthest_nearest = 1
@@ -148,7 +153,8 @@ def find_n_nearest_neighbors(target_dict, collection, category, number_of_matche
                 nearest_n.pop()
                 farthest_nearest = nearest_n[-1][1]
     t5= time()
-    print('loop->%.f' %(t5-t4))
+    msg = 'loop->%.f' %(t5-t4)
+    db_utils.log2file(mode='a', log_filename=tmp_log, message=msg)
     [result[0].pop('fingerprint') for result in nearest_n]
     [result[0].pop('_id') for result in nearest_n]
     nearest_n = [result[0] for result in nearest_n]
