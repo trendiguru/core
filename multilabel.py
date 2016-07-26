@@ -32,7 +32,7 @@ caffe.set_mode_gpu()
 caffe.set_device(1)
 multilabel_net = caffe.Net(deployproto,caffemodel, caffe.TEST)
 multilabel_required_image_size = (224,224)
-
+#
 
 def url_to_image(url):
     # download the image, convert it to a NumPy array, and then read
