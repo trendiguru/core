@@ -188,9 +188,9 @@ def make_itemsearch_request(pagenum, node_id, min_price, max_price, price_flag=T
     except Exception as e:
         results_count = 0
         summary = 'Name: %s, PriceRange: %.2f -> %.2f , ResultCount: %s '\
-                  % (family_tree, min_price, max_price, e)
+                  % (family_tree, min_price, max_price, e.message)
         if print_flag:
-            print_error(e)
+            print_error(e.message)
         if color_flag:
             summary += '(color -> %s)' % color
         log2file(mode='a', log_filename=log_name, message=summary)
@@ -522,7 +522,7 @@ def download_all(collection_name, gender='Female', del_collection=False, del_cac
             except Exception as e:
                 msg = 'ERROR', 'node id: %s failed!' % node_id
                 log2file(mode='a', log_filename=status_log, message=msg, print_flag=True)
-                error_msg = str(e)
+                error_msg = e.message
                 log2file(mode='a', log_filename=status_log, message=error_msg, print_flag=True)
                 not_finished.append(leaf)
 
