@@ -21,10 +21,13 @@ from trendi import constants
 #    deployproto = '/home/jeremy/caffenets/multilabel/vgg_ilsvrc_16_multilabel_2/deploy.prototxt'
 
 #best as of 260716, see http://extremeli.trendi.guru/demo/results/ for updates
+print('starting multilabel.py')
 solverproto = '/home/jeremy/caffenets/multilabel/deep-residual-networks/prototxt/ResNet-101-test.prototxt'
 deployproto = '/home/jeremy/caffenets/multilabel/deep-residual-networks/prototxt/ResNet-101-deploy.prototxt'
 caffemodel = '/home/jeremy/caffenets/production/multilabel_resnet101_sgd_iter_120000.caffemodel'
 
+
+print('set_mode_gpu, device 1')
 caffe.set_mode_gpu()
 caffe.set_device(1)
 multilabel_net = caffe.Net(deployproto,caffemodel, caffe.TEST)
