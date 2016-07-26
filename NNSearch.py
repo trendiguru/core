@@ -8,7 +8,7 @@ import cv2
 from db_stuff import fanni
 import constants
 from rq import Queue
-from time import sleep
+from time import sleep, time
 q = Queue('annoy', connection=constants.redis_conn)
 db = constants.db
 K = constants.K  # .5 is the same as Euclidean
@@ -104,16 +104,22 @@ def find_n_nearest_neighbors(target_dict, collection, category, number_of_matche
     fingerprint = target_dict["fingerprint"]
     entries = db[collection].find({'categories':category},
                                   {"id": 1, "fingerprint": 1, "images.XLarge": 1, "clickUrl": 1})
+    t1= time()
     if entries.count() > 2000:
         annoy_job = q.enqueue(fanni.lumberjack, args=(collection,category, fingerprint))
         while not annoy_job.is_finished and not annoy_job.is_failed:
             sleep(0.1)
         if annoy_job.is_failed:
             return []
+        t2= time()
+        print('annoy->%f' %(t2-t1))
         top1000 = annoy_job.result
         entries = db[collection].find({"AnnoyIndex": {"$in": top1000}, 'categories': category},
                                       {"id": 1, "fingerprint": 1, "images.XLarge": 1, "clickUrl": 1})
+        t3= time()
+        print('query->%f' % (t3 - t2))
 
+    t4= time()
     farthest_nearest = 1
     nearest_n = []
     for i, entry in enumerate(entries):
@@ -141,6 +147,8 @@ def find_n_nearest_neighbors(target_dict, collection, category, number_of_matche
                 nearest_n.insert(insert_at + 1, (entry, d))
                 nearest_n.pop()
                 farthest_nearest = nearest_n[-1][1]
+    t5= time()
+    print('loop->%.f' %(t5-t4))
     [result[0].pop('fingerprint') for result in nearest_n]
     [result[0].pop('_id') for result in nearest_n]
     nearest_n = [result[0] for result in nearest_n]
