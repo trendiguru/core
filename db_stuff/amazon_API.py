@@ -194,6 +194,8 @@ def make_itemsearch_request(pagenum, node_id, min_price, max_price, price_flag=T
         if color_flag:
             summary += '(color -> %s)' % color
         log2file(mode='a', log_filename=log_name, message=summary)
+        if e.message == 'no TotalResualts':
+            results_count=-1
         return [], results_count
 
     return res_dict, results_count
@@ -205,6 +207,12 @@ def process_results(collection_name, pagenum, node_id, min_price, max_price, fam
         res_dict, new_item_count = make_itemsearch_request(pagenum, node_id, min_price, max_price,
                                                            print_flag=print_flag, color=color,
                                                            plus_size_flag=plus_size_flag, family_tree=family_tree)
+        if new_item_count == -1:
+            print ('try again')
+            sleep(0.5)
+            res_dict, new_item_count = make_itemsearch_request(pagenum, node_id, min_price, max_price,
+                                                               print_flag=print_flag, color=color,
+                                                               plus_size_flag=plus_size_flag, family_tree=family_tree)
         if new_item_count < 2:
             return -1
 
