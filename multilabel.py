@@ -27,8 +27,9 @@ print('starting multilabel.py')
 solverproto = '/home/jeremy/caffenets/multilabel/deep-residual-networks/prototxt/ResNet-101-test.prototxt'
 deployproto = '/home/jeremy/caffenets/multilabel/deep-residual-networks/prototxt/ResNet-101-deploy.prototxt'
 caffemodel = '/home/jeremy/caffenets/production/multilabel_resnet101_sgd_iter_120000.caffemodel'
-print('set_mode_gpu, device 1')
+print('set_mode_gpu()')
 caffe.set_mode_gpu()
+print('device 1')
 caffe.set_device(1)
 multilabel_net = caffe.Net(deployproto,caffemodel, caffe.TEST)
 multilabel_required_image_size = (224,224)
