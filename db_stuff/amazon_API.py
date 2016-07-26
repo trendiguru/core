@@ -125,7 +125,7 @@ def format_price(price_float, period=False):
     return price_str
 
 
-def make_itemsearch_request(pagenum, node_id, min_price, max_price, price_flag=True, print_flag=True, color='',
+def make_itemsearch_request(pagenum, node_id, min_price, max_price, price_flag=True, print_flag=False, color='',
                             plus_size_flag=False, family_tree='sequoia'):
     global error_flag
 
