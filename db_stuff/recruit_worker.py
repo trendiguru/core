@@ -49,8 +49,11 @@ def GET_ByGenreId( genreId, page=1,limit=1, img_size=500, instock = False):
     else:
         return False, []
 
-def catch_img(imgs, col):
+
+def catch_img(imgs, col_name):
+    col= db[col_name]
     image = None
+    img_url = None
     for i in range(len(imgs)):
         img = imgs[i]['itemImgUrl']
         split1 = re.split(r'\?|&', img)
@@ -65,7 +68,8 @@ def catch_img(imgs, col):
         image = get_cv2_img_array(img_url)
         if image is not None:
             break
-    return image
+    return image, img_url
+
 
 def process_items(item_list, gender,category):
     col_name = 'recruit_'+gender
@@ -76,15 +80,19 @@ def process_items(item_list, gender,category):
         exists = collection.find_one({'id': itemId})
         if exists:
             exists_id = exists['_id']
-            clickUrl = exists['clickUrl']
-            if tracking_id not in clickUrl:
-                clickUrl += tracking_id
-                collection.update_one({'_id':exists_id}, {'$set':{'clickUrl':clickUrl}})
-            dl_version = exists['download_data']['dl_version']
-            if dl_version != today_date:
-                collection.update_one({'_id': exists_id}, {'$set': {'download_data.dl_version': today_date}})
-            print ('item already exists')
-            continue
+            image, _ = catch_img([exists['images']['XLarge']], col_name)
+            if image is None:
+                collection.delete_one({'_id':exists_id})
+            else:
+                clickUrl = exists['clickUrl']
+                if tracking_id not in clickUrl:
+                    clickUrl += tracking_id
+                    collection.update_one({'_id':exists_id}, {'$set':{'clickUrl':clickUrl}})
+                dl_version = exists['download_data']['dl_version']
+                if dl_version != today_date:
+                    collection.update_one({'_id': exists_id}, {'$set': {'download_data.dl_version': today_date}})
+                print ('item already exists')
+                continue
 
         else:
             archive = db[col_name+'_archive']
@@ -104,7 +112,7 @@ def process_items(item_list, gender,category):
 
         status = {"instock": True, "days_out": 0}
         imgs = item['itemImgInfoList']
-        image = catch_img(imgs, collection)
+        image, img_url = catch_img(imgs, collection)
 
         if image is None:
             print ('bad img url')
