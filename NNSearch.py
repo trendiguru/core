@@ -100,34 +100,21 @@ def distance_Bhattacharyya(fp1, fp2, weights, hist_length):
 def find_n_nearest_neighbors(target_dict, collection, category, number_of_matches, fp_weights,
                                  hist_length, fp_key, distance_function=None):
 
-    msg = 'col: %s, cat: %s' %(collection, category)
-    db_utils.log2file(mode='a', log_filename=tmp_log, message=msg)
     distance_function = distance_function or distance_Bhattacharyya
     # list of tuples with (entry,distance). Initialize with first n distance values
     fingerprint = target_dict["fingerprint"]
     entries = db[collection].find({'categories':category},
                                   {"id": 1, "fingerprint": 1, "images.XLarge": 1, "clickUrl": 1})
-    t1= time()
     if entries.count() > 2000:
-        t= time()
-        msg= 'count->%f' %(t-t1)
-        db_utils.log2file(mode='a',log_filename=tmp_log, message=msg)
         annoy_job = q.enqueue(fanni.lumberjack, args=(collection,category, fingerprint))
         while not annoy_job.is_finished and not annoy_job.is_failed:
             sleep(0.1)
         if annoy_job.is_failed:
             return []
-        t2= time()
-        msg= 'annoy->%f' %(t2-t1)
-        db_utils.log2file(mode='a',log_filename=tmp_log, message=msg)
         top1000 = annoy_job.result
         entries = db[collection].find({"AnnoyIndex": {"$in": top1000}, 'categories': category},
                                       {"id": 1, "fingerprint": 1, "images.XLarge": 1, "clickUrl": 1})
-        t3= time()
-        msg= 'query->%f' % (t3 - t2)
-        db_utils.log2file(mode='a', log_filename=tmp_log, message=msg)
 
-    t4= time()
     farthest_nearest = 1
     nearest_n = []
     for i, entry in enumerate(entries):
@@ -155,9 +142,7 @@ def find_n_nearest_neighbors(target_dict, collection, category, number_of_matche
                 nearest_n.insert(insert_at + 1, (entry, d))
                 nearest_n.pop()
                 farthest_nearest = nearest_n[-1][1]
-    t5= time()
-    msg = 'loop->%.f' %(t5-t4)
-    db_utils.log2file(mode='a', log_filename=tmp_log, message=msg)
+
     [result[0].pop('fingerprint') for result in nearest_n]
     [result[0].pop('_id') for result in nearest_n]
     nearest_n = [result[0] for result in nearest_n]
