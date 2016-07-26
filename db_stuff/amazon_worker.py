@@ -5,54 +5,147 @@ from datetime import datetime
 from ..fingerprint_core import generate_mask_and_insert
 from time import sleep
 import re
-from db_utils import print_error, get_hash, categories_keywords, categories_swap
-
+from db_utils import print_error, get_hash
+from .amazon_constants import plus_sizes
 today_date = str(datetime.date(datetime.now()))
 
 q = Queue('new_collection_fp', connection=redis_conn)
 
-plus_sizes = ['XL', '1X', '2X', '3X', '4X', 'X', 'XX', 'XXX', 'XXXX', 'XXXXX', 'LARGE', 'PLUS']
 
-
-def find_paperdoll_cat(category, short_desc, long_desc):
-    desc = '%s,%s' % (short_desc, long_desc)
-    DESC = desc.upper()
-    all_possible_relevant_cats = re.split(r' |-|,|;|:|\.', DESC)
-    all_possible_relevant_cats.append(category)
-
-    categories = []
-    for cat in all_possible_relevant_cats:
-        if cat in categories_keywords:
-            relevant_cat = categories_swap[cat]
-            categories.append(relevant_cat)
-
-    if len(categories) < 1:
+def swap_amazon_to_ppd(cat, sub_cat):
+    if cat == 'Dresses':
+        return 'dress', sub_cat
+    elif cat == 'Tops & Tees':
+        if sub_cat == 'Blouses & Button-Down Shirts':
+            return 'blouse'
+        elif sub_cat == 'Henleys':
+            return 'sweater'
+        elif sub_cat == 'Knits & Tees':
+            return 't-shirt'
+        elif sub_cat == 'Polos':
+            return 'shirt'
+        elif sub_cat == 'Tanks & Camis':
+            return 'tanktop'
+        elif sub_cat == 'Tunics':
+            return 'top'
+        elif sub_cat == 'Vests':
+            return 'vest'
+        else:
+            return 'top'
+    elif cat == 'Sweaters':
+        if sub_cat == 'Cardigans':
+            return 'cardigan'
+        elif sub_cat== 'Pullovers':
+            return 'sweatshirt'
+        elif sub_cat == 'Shrugs':
+            return 'sweater'
+        elif sub_cat == 'Vests':
+            return 'vest'
+        else:
+            return 'sweater'
+    elif cat == 'Fashion Hoodies & Sweatshirts':
+        return 'sweatshirt'
+    elif cat == 'Jeans':
+        return 'jeans'
+    elif cat == 'Pants':
+        return 'pants'
+    elif cat == 'Skirts':
+        return 'skirt'
+    elif cat == 'Shorts':
+        return 'shorts'
+    elif cat == 'Leggings':
+        return 'leggings'
+    elif cat == 'Active':
+        if sub_cat == 'Active Hoodies' or sub_cat == 'Active Sweatshirts':
+            return 'sweatshirt'
+        elif 'Track & Active Jackets':
+            return 'jacket'
+        elif sub_cat == 'Active Top & Bottom Sets':
+            return ''
+        elif sub_cat =='Active Shirts & Tees':
+            return 'shirt'
+        elif sub_cat == 'Active Pants':
+            return 'pants'
+        elif sub_cat == 'Active Leggings':
+            return 'leggings'
+        elif sub_cat== 'Active Shorts':
+            return 'shorts'
+        elif sub_cat == 'Active Skirts' or sub_cat == 'Active Skorts':
+            return 'skirt'
+        else:
+            return ''
+    elif cat == 'Swimsuits & Cover Ups':
+        if sub_cat == 'Bikinis' or sub_cat == 'Tankini':
+            return 'bikini'
+        else:
+            return 'swimsuit'
+    elif cat == 'Jumpsuits, Rompers & Overalls':
+        return 'roampers'
+    elif cat == 'Coats, Jackets & Vests':
+        if sub_cat  in ['Down & Parkas', 'Wool & Pea Coats', 'Fur & Faux Fur'] :
+            return 'coat'
+        elif sub_cat in ['Denim Jackets', 'Quilted Lightweight Jackets', 'Casual Jackets', 'Leather & Faux Leather']:
+            return 'jacket'
+        elif sub_cat == 'Vests':
+            return 'vest'
+        else:
+            return ''
+    elif cat == 'Suiting & Blazers':
+        if sub_cat == 'Blazers' or sub_cat == 'Separates':
+            return 'blazer'
+        else:
+            return 'suit'
+    elif cat == 'Shirts':
+        if sub_cat == 'T-Shirts':
+            return 't-shirt'
+        elif sub_cat == 'Casual Button-Down Shirts':
+            return 'shirt'
+        elif sub_cat == 'Tank Tops':
+            return 'tanktop'
+        elif sub_cat == 'Henleys':
+            return 'sweater'
+        elif sub_cat == 'Polos':
+            return 'shirt'
+        else:
+            return 'top'
+    elif cat == 'Jackets & Coats':
+        if sub_cat in [ 'Down & Down Alternative', 'Outerwear', 'Trench & Rain', 'Wool & Blends']:
+            return 'coat'
+        elif sub_cat in ['Fleece', 'Leather & Faux Leather', 'Lightweight Jackets']:
+            return 'jacket'
+        elif sub_cat ==  'Vests':
+            return 'vest'
+        else:
+            return ''
+    elif cat == 'Swim':
+        return 'swimsuit'
+    elif cat == 'Suits & Sport Coats':
+        if sub_cat in ['Suits', 'Suit Separates', 'Tuxedos']:
+            return 'suit'
+        elif sub_cat == 'Sport Coats & Blazers':
+            return 'blazer'
+        elif sub_cat == 'Vests':
+             return 'vest'
+        else:
+            return ''
+    else:
         return ''
 
-    if len(categories) > 1:
-        if all(x for x in ['dress', 'shirt'] if x in categories):
-            return 'shirt'
-        if all(x for x in ['suit', 'shirt'] if x in categories):
-            return 'shirt'
-        if all(x for x in ['dress', 'pants'] if x in categories):
-            return 'pants'
-        if all(x for x in ['suit', 'pants'] if x in categories):
-            return 'pants'
 
-        if 'dress' in categories:
-            return 'dress'
+def find_paperdoll_cat(family):
+    leafs = re.split(r'->', family)
+    category = leafs[3]
+    sub_category = None
+    sub1=sub2=None
+    if len(leafs) > 4:
+        sub1 = leafs[4]
+        sub_category = '%s.%s' %(category, sub1)
+    if len(leafs) > 5:
+        sub2 = leafs[5]
+        sub_category = '%s.%s' % (sub_category, sub2)
 
-        if 'bikini' in categories:
-            return 'bikini'
-
-        if 'swimsuit' in categories:
-            return 'swimsuit'
-
-        if 'shirt' in categories:
-            return 'shirt'
-
-    category = categories[0]
-    return category
+    category = swap_amazon_to_ppd (category, sub1)
+    return category, sub_category
 
 
 def verify_plus_size(size_list):
@@ -117,10 +210,10 @@ def insert_items(collection_name, item_list, items_in_page, print_flag, family_t
             else:
                 brand = 'unknown'
 
-            if 'ProductTypeName' in attr_keys:
-                tmp_category = attributes['ProductTypeName']
-            else:
-                tmp_category = '2BDtermind'
+            # if 'ProductTypeName' in attr_keys:
+            #     tmp_category = attributes['ProductTypeName']
+            # else:
+            #     tmp_category = '2BDtermind'
 
             color = attributes['Color']
             sizes = [clothing_size]
@@ -180,9 +273,9 @@ def insert_items(collection_name, item_list, items_in_page, print_flag, family_t
             else:
                 long_d = ''
 
-            category = find_paperdoll_cat(tmp_category, short_d, long_d)
-            if len(category)==0:
-                category='unKnown'
+            category, sub_category = find_paperdoll_cat(family_tree)
+            if len(category) == 0:
+                category = 'unKnown'
 
             new_item = {'asin': asin,
                         'parent_asin': parent_asin,
@@ -195,6 +288,7 @@ def insert_items(collection_name, item_list, items_in_page, print_flag, family_t
                         'longDescription': long_d,
                         'brand': brand,
                         'categories': category,
+                        'sub_category': sub_category,
                         'raw_info': attributes,
                         'tree': family_tree,
                         'status': {'instock': True, 'days_out': 0},
@@ -219,3 +313,5 @@ def insert_items(collection_name, item_list, items_in_page, print_flag, family_t
             pass
 
     print('%d new items inserted to %s' % (new_items_count, collection_name))
+
+

@@ -18,7 +18,7 @@ import argparse
 from trendi import constants
 from trendi.utils import imutils
 
-
+import math
 
 
 # matplotlib inline
@@ -394,8 +394,8 @@ def get_multilabel_output(url_or_np_array,required_image_size=(227,227),output_l
 
 
 
-def write_html(p,r,a,n,model_base):
-    with open(model_base+'results.html','a') as g:
+def open_html(model_base):
+    with open(model_base+'results.html','w') as g:
         g.write('<!DOCTYPE html>')
         g.write('<html>')
         g.write('<head>')
@@ -406,18 +406,152 @@ def write_html(p,r,a,n,model_base):
         g.write('solver:'+solverproto+'\n'+'<br>')
         g.write('model:'+caffemodel+'\n'+'<br>')
         g.write('</head>')
-
-        g.write('<table style=\"width:100%\">')
-        g.write('<tr>')
-        for i in range(len(p)):
+#        g.write('categories: '+str(constants.web_tool_categories)+'<br>'+'\n')
+        g.write('<table style=\"width:100%\">\n')
+        g.write('<tr>\n')
+        g.write('<th>')
+        g.write('metric')
+        g.write('</th>\n')
+        g.write('<th>')
+        g.write('avg.')
+        g.write('</th>\n')
+        for i in range(len(constants.web_tool_categories)):
             g.write('<th>')
-            g.write(str(p[i]))
-            g.write('</th>')
-        g.write('</tr>')
-        g.write('</table>')
+            g.write(constants.web_tool_categories[i])
+            g.write('</th>\n')
+        g.write('</tr>\n')
+
+
+#        g.write('</table><br>')
+
+def close_html(model_base):
+    with open(model_base+'results.html','a') as g:
+        g.write('</table><br>')
+        plotfilename = 'multilabel_results'+model_base+'.png'
+
+        g.write('<a href=\"'+plotfilename+'\">plot<img src = \"'+plotfilename+'\" style=\"width:300px\"></a>')
+        g.write('</html>')
+
+def summary_html():
+    htmlfiles = [f for f in os.listdir('./') if '.html' in f]
+    with open('summary.html','w') as g:
+        g.write('<!DOCTYPE html><br>\n')
+        g.write('<html><br>\n')
+        g.write('<head><br>\n')
+        g.write('<title><br>\n')
+        g.write('multilabel accuracy/precision/recall results')
+        g.write('</title><br>\n')
+        g.write('</head>\n')
+        g.write('<br>\n')
+        for h in htmlfiles:
+            g.write('<a href=\"'+ h+'\"> '+h+'</a><br>\n')
+        g.write('</html>')
+
+#        g.write('categories: '+str(constants.web_tool_categories)+'<br>'+'\n')
+
+
+def write_html(p,r,a,n,threshold,model_base,positives=False):
+    with open(model_base+'results.html','a') as g:
+        fwavp = 0
+        fwavr = 0
+        fwava = 0
+        n_p=0
+        n_r=0
+        n_a=0
+        fwavn = 0
+        n_sum = 0
+        for i in range(len(p)):
+            if not np.isnan(p[i]):
+                fwavp = fwavp + p[i]*n[i]
+                n_p=n_p+n[i]
+            if not np.isnan(r[i]):
+                fwavr = fwavr + r[i]*n[i]
+                n_r=n_r+n[i]
+            if not np.isnan(a[i]):
+                fwava = fwava + p[i]*n[i]
+                n_a=n_a+n[i]
+            n_sum=n_sum+n[i]
+            print('n sum'+str(n_sum))
+        fwavp = fwavp/float(n_p)
+        fwavr = fwavp/float(n_r)
+        fwava = fwavp/float(n_a)
+        fwavn = n_sum/float(len(p))
+        print('frequency weighted averages p {} r {} acc {} n {}'.format(fwavp,fwavr,fwava,fwavn))
+
+        if(positives):
+            g.write('<tr>\n')
+            g.write('<td>')
+            g.write('n_positives')
+            g.write('</td>\n')
+            g.write('<td>')
+            g.write(str(fwavn))
+            g.write('</td>\n')
+            for i in range(len(p)):
+                g.write('<td>')
+                g.write(str(int(n[i])))
+                g.write('</td>\n')
+            g.write('</tr>\n<br>\n')
+
+ #       g.write('<table style=\"width:100%\">\n')
+        g.write('<b>')
+        g.write('<tr>\n')
+        g.write('<td>')
+        g.write('threshold\n')
+        g.write('</td>')
+        g.write('<td>')
+        g.write('')
+        g.write('</td>\n')
+        for i in range(len(p)):
+            g.write('<td>')
+            g.write(str(round(threshold,2)))
+            g.write('</td>\n')
+        g.write('</tr>\n')
+        g.write('</b>')
+
+
+        g.write('<tr>\n')
+        g.write('<td>')
+        g.write('precision')
+        g.write('</td>\n')
+        g.write('<td>')
+        g.write(str(fwavp))
+        g.write('</td>\n')
+        for i in range(len(p)):
+            g.write('<td>')
+            g.write(str(round(p[i],3)))
+            g.write('</td>\n')
+        g.write('</tr>\n')
+
+        g.write('<tr>\n')
+        g.write('<td>')
+        g.write('recall')
+        g.write('</td>\n')
+        g.write('<td>')
+        g.write(str(fwavr))
+        g.write('</td>\n')
+        for i in range(len(p)):
+            g.write('<td>')
+            g.write(str(round(r[i],3)))
+            g.write('</td>\n')
+        g.write('</tr>\n')
+
+        g.write('<tr>\n')
+        g.write('<td>')
+        g.write('accuracy')
+        g.write('</td>\n')
+        g.write('<td>')
+        g.write(str(fwava))
+        g.write('</td>\n')
+        for i in range(len(p)):
+            g.write('<td>')
+            g.write(str(round(a[i],3)))
+            g.write('</td>\n')
+        g.write('</tr>\n<br>\n')
+
+        g.write('<tr><td><br/></td></tr>')  #blank row
+
 
 #        g.write('threshold = '+str(t)+'\n')
-        g.write('categories: '+str(constants.web_tool_categories)+ '\n')
 
 def write_textfile(p,r,a,tp,tn,fp,fn,threshold,model_base):
     with open(model_base+'results.txt','a') as f:
@@ -461,6 +595,8 @@ def precision_accuracy_recall(caffemodel,solverproto,outlayer='label',n_tests=10
     thresh = [0.1,0.5,0.6,0.7,0.8,0.9,0.95]
 #    thresh = [0.1,0.5,0.95]
 
+    open_html(model_base)
+    positives = True
     for t in thresh:
         p,r,a,tp,tn,fp,fn = check_accuracy(solverproto, caffemodel, threshold=t, num_batches=n_tests,outlayer=outlayer)
         p_all.append(p)
@@ -469,12 +605,13 @@ def precision_accuracy_recall(caffemodel,solverproto,outlayer='label',n_tests=10
         n_occurences = [tp[i]+fn[i] for i in range(len(tp))]
         n_all.append(n_occurences)
         write_textfile(p,r,a,tp,tn,fp,fn,t,model_base)
-
+        write_html(p,r,a,n_occurences,t,model_base,positives=positives)
+        positives = False
+    close_html(model_base)
 
     p_all_np = np.transpose(np.array(p_all))
     r_all_np = np.transpose(np.array(r_all))
     a_all_np = np.transpose(np.array(a_all))
-    write_html(p,r,a,n_all,model_base)
     labels = constants.web_tool_categories
     plabels = [label + 'precision' for label in labels]
     rlabels = [label + 'recall' for label in labels]
@@ -542,8 +679,9 @@ def precision_accuracy_recall(caffemodel,solverproto,outlayer='label',n_tests=10
 
     plt.legend(loc='center left', bbox_to_anchor=(1, 0.1))
     plt.show()#
-    plt.savefig('multilabel_results'+model_base+'.png', bbox_inches='tight')
-
+    plt.savefig(model_base+'.png', bbox_inches='tight')
+#
+    summary_html()
   #  print 'Baseline accuracy:{0:.4f}'.format(check_baseline_accuracy(solver.test_nets[0], 10,batch_size = 20))
 
 
@@ -554,6 +692,14 @@ if __name__ =="__main__":
     parser.add_argument('--gpu', help='gpu #',default=0)
     parser.add_argument('--output_layer_name', help='output layer name',default='label')
     parser.add_argument('--n_tests', help='number of examples to test',default=100)
+
+    caffemodel = '/home/jeremy/caffenets/production/multilabel_resnet50_sgd_iter_120000.caffemodel'
+    solverproto = '/home/jeremy/caffenets/production/ResNet-50-test.prototxt'
+#    caffemodel =  '/home/jeremy/caffenets/multilabel/vgg_ilsvrc_16_multilabel_2/snapshot/train_iter_340000.caffemodel'
+#    deployproto = '/home/jeremy/caffenets/multilabel/vgg_ilsvrc_16_multilabel_2/deploy.prototxt'
+    solverproto = '/home/jeremy/caffenets/multilabel/deep-residual-networks/prototxt/ResNet-101-test.prototxt'
+    caffemodel = '/home/jeremy/caffenets/production/multilabel_resnet101_sgd_iter_120000.caffemodel'
+#    multilabel_net = caffe.Net(solverproto,caffemodel, caffe.TEST)
 
     args = parser.parse_args()
     print(args)
@@ -571,13 +717,6 @@ if __name__ =="__main__":
     caffe.set_mode_gpu()
     caffe.set_device(gpu)
 
-    caffemodel = '/home/jeremy/caffenets/production/multilabel_resnet50_sgd_iter_120000.caffemodel'
-    solverproto = '/home/jeremy/caffenets/production/ResNet-50-test.prototxt'
-#    caffemodel =  '/home/jeremy/caffenets/multilabel/vgg_ilsvrc_16_multilabel_2/snapshot/train_iter_340000.caffemodel'
-#    deployproto = '/home/jeremy/caffenets/multilabel/vgg_ilsvrc_16_multilabel_2/deploy.prototxt'
-    solverproto = '/home/jeremy/caffenets/multilabel/deep-residual-networks/prototxt/ResNet-101-test.prototxt'
-    caffemodel = '/home/jeremy/caffenets/production/multilabel_resnet101_sgd_iter_120000.caffemodel'
-#    multilabel_net = caffe.Net(solverproto,caffemodel, caffe.TEST)
 
     precision_accuracy_recall(caffemodel,solverproto,outlayer=outlayer,n_tests=n_tests)
 

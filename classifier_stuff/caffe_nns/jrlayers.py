@@ -326,7 +326,7 @@ class JrMultilabel(caffe.Layer):
 
         self.images_and_labels_file = params['images_and_labels_file']
         self.mean = np.array(params['mean'])
-        self.images_dir = params.get('images_dir')
+        self.images_dir = params.get('images_dir',None)
         self.random_init = params.get('random_initialization', True) #start from random point in image list
         self.random_pick = params.get('random_pick', True) #pick random image from list every time
         self.seed = params.get('seed', 1337)
@@ -364,7 +364,8 @@ class JrMultilabel(caffe.Layer):
         #if file not found and its not a path then tack on the training dir as a default locaiton for the trainingimages file
         if self.images_and_labels_file is not None:
             if not os.path.isfile(self.images_and_labels_file) and not '/' in self.images_and_labels_file:
-                self.images_and_labels_file = os.path.join(self.images_dir,self.images_and_labels_file)
+                if self.images_dir is not None:
+                    self.images_and_labels_file = os.path.join(self.images_dir,self.images_and_labels_file)
             if not os.path.isfile(self.images_and_labels_file):
                 print('COULD NOT OPEN IMAGES/LABELS FILE '+str(self.images_and_labels_file))
                 return

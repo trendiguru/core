@@ -135,6 +135,9 @@ def mongo2xl(collection_name, dl_info):
     elif filename == 'recruit':
         from .recruit_constants import recruit2category_idx
         categories_Female=categories_Male = list(set(recruit2category_idx.keys()))
+    elif filename == 'amazon':
+        from .amazon_constants import amazon_categories
+        categories_Female = categories_Male = amazon_categories
     else:
         from .shopstyle_constants import shopstyle_paperdoll_female, shopstyle_paperdoll_male
         categories_Female = list(set(shopstyle_paperdoll_female.values()))
@@ -145,8 +148,10 @@ def mongo2xl(collection_name, dl_info):
 
     for gender in ['Female', 'Male']:
         tmp = filename +"_"+ gender
-        if filename is 'ebay':
+        if filename == 'ebay':
             tmp += '_US'
+        if filename == 'amazon':
+            tmp = 'amazon_US_'+ gender
         print("working on " + tmp)
         collection = db[tmp]
         archive = db[tmp+"_archive"]
@@ -179,7 +184,7 @@ def mongo2xl(collection_name, dl_info):
 def getUserInput():
     parser = argparse.ArgumentParser(description='"@@@ create excel and upload to drive @@@')
     parser.add_argument('-n', '--name',default="ShopStyle", dest= "name",
-                        help='collection name - currently only ShopStyle or GangnamStyle')
+                        help='collection name - currently only ShopStyle, GangnamStyle or amazon')
     parser.add_argument('-g', '--gender', dest= "gender",
                         help='specify which gender to download. (Female or Male - case sensitive)', required=True)
     args = parser.parse_args()
@@ -196,6 +201,8 @@ if __name__ == "__main__":
 
     if gender in ['Female','Male'] and col in ["ShopStyle","GangnamStyle"]:
         col = col + "_" +gender
+    elif gender in ['Female','Male'] and col =='amazon':
+        col = col + "_US_" +gender
     else:
         print("bad input - gender should be only Female or Male (case sensitive)")
         sys.exit(1)
