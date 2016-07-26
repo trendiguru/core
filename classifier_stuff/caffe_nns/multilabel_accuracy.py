@@ -18,7 +18,7 @@ import argparse
 from trendi import constants
 from trendi.utils import imutils
 
-
+import math
 
 
 # matplotlib inline
@@ -412,6 +412,9 @@ def open_html(model_base):
         g.write('<th>')
         g.write('metric')
         g.write('</th>\n')
+        g.write('<th>')
+        g.write('avg.')
+        g.write('</th>\n')
         for i in range(len(constants.web_tool_categories)):
             g.write('<th>')
             g.write(constants.web_tool_categories[i])
@@ -429,17 +432,63 @@ def close_html(model_base):
         g.write('<a href=\"'+plotfilename+'\">plot<img src = \"'+plotfilename+'\" style=\"width:300px\"></a>')
         g.write('</html>')
 
+def summary_html():
+    htmlfiles = [f for f in os.listdir('./') if '.html' in f]
+    with open('summary.html','w') as g:
+        g.write('<!DOCTYPE html><br>\n')
+        g.write('<html><br>\n')
+        g.write('<head><br>\n')
+        g.write('<title><br>\n')
+        g.write('multilabel accuracy/precision/recall results')
+        g.write('</title><br>\n')
+        g.write('</head>\n')
+        g.write('<br>\n')
+        for h in htmlfiles:
+            g.write('<a href=\"'+ h+'\"> '+h+'</a><br>\n')
+        g.write('</html>')
+
+#        g.write('categories: '+str(constants.web_tool_categories)+'<br>'+'\n')
+
+
 def write_html(p,r,a,n,threshold,model_base,positives=False):
     with open(model_base+'results.html','a') as g:
+        fwavp = 0
+        fwavr = 0
+        fwava = 0
+        n_p=0
+        n_r=0
+        n_a=0
+        fwavn = 0
+        n_sum = 0
+        for i in range(len(p)):
+            if not np.isnan(p[i]):
+                fwavp = fwavp + p[i]*n[i]
+                n_p=n_p+n[i]
+            if not np.isnan(r[i]):
+                fwavr = fwavr + r[i]*n[i]
+                n_r=n_r+n[i]
+            if not np.isnan(a[i]):
+                fwava = fwava + p[i]*n[i]
+                n_a=n_a+n[i]
+            n_sum=n_sum+n[i]
+            print('n sum'+str(n_sum))
+        fwavp = fwavp/float(n_p)
+        fwavr = fwavp/float(n_r)
+        fwava = fwavp/float(n_a)
+        fwavn = n_sum/float(len(p))
+        print('frequency weighted averages p {} r {} acc {} n {}'.format(fwavp,fwavr,fwava,fwavn))
 
         if(positives):
             g.write('<tr>\n')
             g.write('<td>')
             g.write('n_positives')
             g.write('</td>\n')
+            g.write('<td>')
+            g.write(str(fwavn))
+            g.write('</td>\n')
             for i in range(len(p)):
                 g.write('<td>')
-                g.write(str(n[i]))
+                g.write(str(int(n[i])))
                 g.write('</td>\n')
             g.write('</tr>\n<br>\n')
 
@@ -449,6 +498,9 @@ def write_html(p,r,a,n,threshold,model_base,positives=False):
         g.write('<td>')
         g.write('threshold\n')
         g.write('</td>')
+        g.write('<td>')
+        g.write('')
+        g.write('</td>\n')
         for i in range(len(p)):
             g.write('<td>')
             g.write(str(round(threshold,2)))
@@ -461,6 +513,9 @@ def write_html(p,r,a,n,threshold,model_base,positives=False):
         g.write('<td>')
         g.write('precision')
         g.write('</td>\n')
+        g.write('<td>')
+        g.write(str(fwavp))
+        g.write('</td>\n')
         for i in range(len(p)):
             g.write('<td>')
             g.write(str(round(p[i],3)))
@@ -471,6 +526,9 @@ def write_html(p,r,a,n,threshold,model_base,positives=False):
         g.write('<td>')
         g.write('recall')
         g.write('</td>\n')
+        g.write('<td>')
+        g.write(str(fwavr))
+        g.write('</td>\n')
         for i in range(len(p)):
             g.write('<td>')
             g.write(str(round(r[i],3)))
@@ -480,6 +538,9 @@ def write_html(p,r,a,n,threshold,model_base,positives=False):
         g.write('<tr>\n')
         g.write('<td>')
         g.write('accuracy')
+        g.write('</td>\n')
+        g.write('<td>')
+        g.write(str(fwava))
         g.write('</td>\n')
         for i in range(len(p)):
             g.write('<td>')
@@ -619,7 +680,8 @@ def precision_accuracy_recall(caffemodel,solverproto,outlayer='label',n_tests=10
     plt.legend(loc='center left', bbox_to_anchor=(1, 0.1))
     plt.show()#
     plt.savefig(model_base+'.png', bbox_inches='tight')
-
+#
+    summary_html()
   #  print 'Baseline accuracy:{0:.4f}'.format(check_baseline_accuracy(solver.test_nets[0], 10,batch_size = 20))
 
 
