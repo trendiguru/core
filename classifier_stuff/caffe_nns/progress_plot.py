@@ -83,10 +83,12 @@ def parse_logfile(f,logy):
     elif check_test2:
       print('checking line for test output1:'+line)
       if 'Test net output' in line and 'loss' in line:
-        #print line
-        test_loss.append(float(line.strip().split(' ')[-2]))
-        print('got test loss:'+str(line.strip().split(' ')[-2]))
-        check_test2 = False
+#          val = line.strip().split(' ')[-2]
+          val = float(line.strip().split(' = ')[-1])
+          print('got test loss:'+str(val))
+          test_loss.append(val)
+          check_test2 = False
+
       else:
         test_loss.append(0)
         check_test2 = False
