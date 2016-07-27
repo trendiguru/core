@@ -65,9 +65,10 @@ def dummy_image():
 def log_failed():
     while failed.count():
         job = failed.dequeue()
+        print "failed at {0} ".format(str(job.created_at))
         print "job origin: {0}".format(job.to_dict()['origin'])
         print "execution info: {0}".format(job.to_dict()['exc_info'])
-
+        print '\n'
 
 if __name__ == "__main__":
     dummy_image()
