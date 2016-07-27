@@ -12,9 +12,9 @@ snapshot_prefix: "snapshot_152/train"
 test_initialization: false
 solver_mode : GPU
 
-type: "AdaDelta"
-#type: "SGD"
-base_lr: .01
+type: "SGD"
+#type: "AdaDelta"
+base_lr: .001
 lr_policy: "step"
 #lr_policy: "fixed"
 gamma: 0.1
