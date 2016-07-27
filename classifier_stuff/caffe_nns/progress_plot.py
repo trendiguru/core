@@ -121,6 +121,10 @@ def parse_logfile(f,logy):
       net_name = net_name_arr[-2]
       print('net name:'+net_name)
 
+    if 'lr_mult:' in line:
+	  lr_mult = int(line.split(':')[-1])
+      print('lr_mult:'+str(lr_mult))
+
   print 'train iterations len: ', len(training_iterations)
   print 'train loss len: ', len(training_loss)
   print 'train accuracy len: ', len(training_accuracy)
