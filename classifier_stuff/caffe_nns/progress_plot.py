@@ -124,11 +124,11 @@ def parse_logfile(f,logy):
       print('net name:'+net_name)
 
     if 'lr_mult:' in line:
-	  lr_mult = line.split(':')[-1]
+      lr_mult = line.split(':')[-1]
       print('lr_mult:'+str(lr_mult))
 
     if 'decay_mult:' in line:
-	  decay_mult = line.split(':')[-1]
+      decay_mult = line.split(':')[-1]
       print('decay_mult:'+str(decay_mult))
 
   print 'train iterations len: ', len(training_iterations)
