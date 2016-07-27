@@ -1,0 +1,24 @@
+#net: "train_val.prototxt"
+train_net: "ResNet-101-train.prototxt"
+test_net: "ResNet-101-test.prototxt"
+test_iter: 100
+# make test net, but don't invoke it from the solver itself
+test_interval: 5000 
+display: 20
+average_loss: 20
+lr_policy: "fixed"
+gamma: 0.001
+stepsize: 1000
+# lr for unnormalized softmax
+base_lr: 5e-4
+# high momentum
+momentum: 0.95
+weight_decay: 0.0005
+# no gradient accumulation
+iter_size: 20
+max_iter: 3000000
+snapshot: 10000
+snapshot_prefix: "snapshot/train"
+test_initialization: false
+solver_mode : GPU
+type: "AdaDelta"

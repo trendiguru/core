@@ -9,7 +9,7 @@ from .recruit_worker import genreDownloader, GET_ByGenreId, deleteDuplicates
 from datetime import datetime
 from .dl_excel import mongo2xl
 from .fanni import plantForests4AllCategories
-from db_utils import log2file, theArchiveDoorman
+from db_utils import log2file, theArchiveDoorman, refresh_similar_results
 today_date = str(datetime.date(datetime.now()))
 
 q = Queue('recruit_worker', connection=redis_conn)
@@ -149,6 +149,8 @@ def download_recruit(delete=False):
         new_items = collection.find({'download_data.first_dl': today_date}).count()
         db.download_status.update_one({"date": today_date}, {"$set": {status_full_path: "Done",
                                                                       notes_full_path: new_items}})
+
+    refresh_similar_results('recruit')
 
 if __name__=='__main__':
     download_recruit()
