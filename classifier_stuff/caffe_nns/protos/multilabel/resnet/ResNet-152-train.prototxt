@@ -7075,9 +7075,9 @@ layer {
 }
 
 layer {
-	name: "myfc1000"
+	name: "myfc21"
 	bottom: "pool5"
-	top: "myfc1000"
+	top: "myfc21"
 	type: "InnerProduct"
 	inner_product_param {
 		num_output: 21
@@ -7096,7 +7096,7 @@ layer {
 #}
 
 layer {
-	bottom: "myfc1000"
+	bottom: "myfc21"
 	bottom: "labels"
 	top: "score"
 	name: "score"
