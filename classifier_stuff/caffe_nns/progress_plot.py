@@ -234,7 +234,7 @@ def parse_logfile(f,logy):
 
 #bbox_to_anchor=(0., 0.0, 0., .102), loc='lower center',
 
-    plt.legend(bbox_to_anchor=(1.1, 0.0,0.4, 1.0), loc='lower center',
+    plt.legend(bbox_to_anchor=(0.1, 0.1,0.8, 0.1), loc='lower center',
             mode="expand", borderaxespad=0.) #bbox_to_anchor=(0., 1.02, 1., .102), #ncol=2,
     dt=datetime.datetime.today()
     plt.title(net_name+' '+dt.isoformat(),fontsize=10)
