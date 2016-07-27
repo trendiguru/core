@@ -60,19 +60,19 @@ for i in range(1, dresses.count()):
         full_image = url_or_np_array
     else:
         print "bad picture"
-        break
+        continue
 
     #checks if the face coordinates are inside the image
     if full_image is None:
         print "not a good image"
-        break
+        continue
 
     face_for_caffe = [cv2_image_to_caffe(full_image)]
     #face_for_caffe = [caffe.io.load_image(face_image)]
 
     if face_for_caffe is None:
         print "bad picture"
-        break
+        continue
 
     # Classify.
     start = time.time()

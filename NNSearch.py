@@ -2,16 +2,17 @@
 
 __author__ = 'jeremy'
 import logging
-
+from .db_stuff import db_utils
 import numpy as np
 import cv2
-from db_stuff.fanni import lumberjack
+from db_stuff import fanni
 import constants
 from rq import Queue
-from time import sleep
+from time import sleep, time
 q = Queue('annoy', connection=constants.redis_conn)
 db = constants.db
 K = constants.K  # .5 is the same as Euclidean
+tmp_log= '/home/developer/logs/NN.log'
 
 def distance_1_k(fp1, fp2,mis, take ,k=K):
     """This calculates distance between to arrays. When k = .5 this is the same as Euclidean."""
@@ -105,7 +106,7 @@ def find_n_nearest_neighbors(target_dict, collection, category, number_of_matche
     entries = db[collection].find({'categories':category},
                                   {"id": 1, "fingerprint": 1, "images.XLarge": 1, "clickUrl": 1})
     if entries.count() > 2000:
-        annoy_job = q.enqueue(lumberjack, args=(collection,category, fingerprint))
+        annoy_job = q.enqueue(fanni.lumberjack, args=(collection,category, fingerprint))
         while not annoy_job.is_finished and not annoy_job.is_failed:
             sleep(0.1)
         if annoy_job.is_failed:
@@ -141,6 +142,7 @@ def find_n_nearest_neighbors(target_dict, collection, category, number_of_matche
                 nearest_n.insert(insert_at + 1, (entry, d))
                 nearest_n.pop()
                 farthest_nearest = nearest_n[-1][1]
+
     [result[0].pop('fingerprint') for result in nearest_n]
     [result[0].pop('_id') for result in nearest_n]
     nearest_n = [result[0] for result in nearest_n]
