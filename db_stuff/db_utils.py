@@ -36,6 +36,8 @@ def log2file(mode, log_filename, message='', print_flag=True):
     handler = logging.FileHandler(log_filename, mode=mode)
     handler.setLevel(logging.INFO)
     logger.addHandler(handler)
+    if type(message) != str:
+        message = str(message)
     if len(message):
         logger.info(message)
         logger.removeHandler(handler)
