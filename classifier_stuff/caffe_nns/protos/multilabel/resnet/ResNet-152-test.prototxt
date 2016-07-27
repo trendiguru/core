@@ -7078,8 +7078,8 @@ layer {
 
 layer {
 	bottom: "pool5"
-	top: "myfc1000"
-	name: "myfc1000"
+	top: "myfc21"
+	name: "myfc21"
 	type: "InnerProduct"
 	inner_product_param {
 		num_output: 21
@@ -7088,7 +7088,7 @@ layer {
 
 layer {
   name: "score"
-  bottom: "myfc1000"
+  bottom: "myfc21"
   top: "score"
   type: "Sigmoid"
 }
