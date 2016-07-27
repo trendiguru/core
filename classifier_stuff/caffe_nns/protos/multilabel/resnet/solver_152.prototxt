@@ -14,7 +14,7 @@ solver_mode : GPU
 
 type: "SGD"
 #type: "AdaDelta"
-base_lr: .0001
+base_lr: .00001
 lr_policy: "step"
 #lr_policy: "fixed"
 gamma: 0.1
