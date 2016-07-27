@@ -63,7 +63,7 @@ def dummy_image():
 
 
 def log_failed():
-    while failed.count():
+    while failed.count:
         job = failed.dequeue()
         print "failed at {0} ".format(str(job.created_at))
         print "job origin: {0}".format(job.to_dict()['origin'])
