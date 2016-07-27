@@ -7083,8 +7083,8 @@ layer {
 		num_output: 21
 	}
 	 param {
-		  lr_mult: 50
-		  decay_mult: 50
+		  lr_mult: 10
+		  decay_mult: 10
 		}
 }
 
