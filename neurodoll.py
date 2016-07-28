@@ -98,9 +98,13 @@ def infer_one(url_or_np_array,required_image_size=None,threshold = 0.01):
 #MODEL_FILE = "/home/jeremy/voc8_15_pixlevel_deploy.prototxt"
 #SINGLE_CLASS_LAYER_DEPLOY = "/home/jeremy/voc8_15_pixlevel_deploy_with_sigmoid.prototxt"
 #PRETRAINED = "/home/jeremy/voc8_15_pixlevel_iter120000.caffemodel"
-MODEL_FILE = "/home/jeremy/caffenets/production/voc8_15_pixlevel_deploy.prototxt"
-SINGLE_CLASS_LAYER_DEPLOY = "/home/jeremy/caffenets/production/voc8_15_pixlevel_deploy_with_sigmoid.prototxt"
-PRETRAINED = "/home/jeremy/caffenets/production/voc8_15_pixlevel_iter120000.caffemodel"
+
+protopath = os.path.join(os.path.dirname(os.path.abspath( __file__ )), 'classifier_stuff/caffe_nns/protos')
+modelpath = '/home/jeremy/caffenets/production'
+
+MODEL_FILE = os.path.join(protopath,'pixel/voc8.15/voc8_15_pixlevel_deploy.prototxt')
+SINGLE_CLASS_LAYER_DEPLOY = os.path.join(protopath,'pixel/voc8.15/voc8_15_pixlevel_deploy_with_sigmoid.prototxt")
+PRETRAINED = os.path.join(modelpath,"voc8_15_pixlevel_iter120000.caffemodel")
 caffe.set_mode_gpu()
 caffe.set_device(0)
 net = caffe.Net(MODEL_FILE,PRETRAINED, caffe.TEST)
