@@ -69,13 +69,13 @@ def theDetector(argv):
     #    full_image = url_to_image(argv)
     #elif type(argv) == np.ndarray:
     #    full_image = argv
-    if os.path.isdir(argv):
-        print("Loading folder: %s" % argv)
+    if os.path.isdir(args.input_file):
+        print("Loading folder: %s" % args.input_file)
         full_image = [caffe.io.load_image(im_f)
-                  for im_f in glob.glob(argv + '/*.jpg')]
+                  for im_f in glob.glob(args.input_file + '/*.jpg')]
     else:
         print("Loading file")
-        full_image = caffe.io.load_image(argv)
+        full_image = caffe.io.load_image(args.input_file)
 
     #checks if the face coordinates are inside the image
     #height, width, channels = full_image.shape
