@@ -184,6 +184,14 @@ def get_final_activation(url_or_np_array,category_index,required_image_size=(256
     return out.astype(np.uint8)
 
 
+print('starting multilabel.py')
+protopath = os.path.join(os.path.dirname(os.path.abspath( __file__ )), 'classifier_stuff/caffe_nns/protos')
+modelpath = '/home/jeremy/caffenets/production'
+solverproto = os.path.join(modelpath,'ResNet-101-test.prototxt'
+deployproto = os.path.join(modelpath,'ResNet-101-deploy.prototxt'
+caffemodel = os.path.join(modelpath,'multilabel_resnet101_sgd_iter_120000.caffemodel'
+
+
 MODEL_FILE = "/home/jeremy/voc8_15_pixlevel_deploy.prototxt"
 SINGLE_CLASS_LAYER_DEPLOY = "/home/jeremy/voc8_15_pixlevel_deploy_with_sigmoid.prototxt"
 PRETRAINED = "/home/jeremy/voc8_15_pixlevel_iter120000.caffemodel"
