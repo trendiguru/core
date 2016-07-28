@@ -95,8 +95,10 @@ def infer_one(url_or_np_array,required_image_size=None,threshold = 0.01):
     return out.astype(np.uint8)
 
 
-MODEL_FILE = "/home/jeremy/voc8_15_pixlevel_deploy.prototxt"
-SINGLE_CLASS_LAYER_DEPLOY = "/home/jeremy/voc8_15_pixlevel_deploy_with_sigmoid.prototxt"
+#MODEL_FILE = "/home/jeremy/voc8_15_pixlevel_deploy.prototxt"
+#SINGLE_CLASS_LAYER_DEPLOY = "/home/jeremy/voc8_15_pixlevel_deploy_with_sigmoid.prototxt"
+MODEL_FILE = "/home/jeremy/caffenets/production/voc8_15_pixlevel_deploy.prototxt"
+SINGLE_CLASS_LAYER_DEPLOY = "/home/jeremy/caffenets/production/voc8_15_pixlevel_deploy_with_sigmoid.prototxt"
 PRETRAINED = "/home/jeremy/voc8_15_pixlevel_iter120000.caffemodel"
 caffe.set_mode_gpu()
 caffe.set_device(0)
