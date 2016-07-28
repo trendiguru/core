@@ -14,6 +14,8 @@ import cv2
 import urllib
 import skimage
 import yonatan_classifier
+import argparse
+
 
 
 MODLE_FILE = "/home/yonatan/trendi/yonatan/Alexnet_deploy.prototxt"
@@ -55,7 +57,9 @@ def url_to_image(url):
 #def theDetector(image):
 def theDetector(argv):
 
-    #args = parser.parse_args()
+    parser = argparse.ArgumentParser()
+
+    args = parser.parse_args()
 
     first_start = time.time()
 
