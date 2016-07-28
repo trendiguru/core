@@ -154,7 +154,7 @@ if __name__ == "__main__":
     combine_neurodoll_and_multilabel(url)
 
     #LOAD NEURODOLL
-'''
+''' #
 MODEL_FILE = "/home/jeremy/voc8_15_pixlevel_deploy.prototxt"
 SINGLE_CLASS_LAYER_DEPLOY = "/home/jeremy/voc8_15_pixlevel_deploy_with_sigmoid.prototxt"
 PRETRAINED = "/home/jeremy/voc8_15_pixlevel_iter120000.caffemodel"
