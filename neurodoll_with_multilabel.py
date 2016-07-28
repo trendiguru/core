@@ -112,6 +112,7 @@ def grabcut_using_neurodoll_output(url_or_np_array,category_index):
 
 def get_multilabel_output_using_nfc(url_or_np_array):
     multilabel_dict = nfc.pd(url, get_multilabel_results=True)
+    print('multilabel dict:'+str(multilabel_dict))
     if not multilabel_dict['success']:
         print('did not get nfc pd result succesfully')
         return
