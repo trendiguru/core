@@ -1,4 +1,6 @@
-
+import traceback
+import fluent.event
+import fluent.sender
 import smtplib
 from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
@@ -19,6 +21,7 @@ SENDER = 'Notifier@trendiguru.com'
 all = 'members@trendiguru.com'
 API_URL = 'http://api.trendi.guru/images'
 MINUTE_IMAGE_URL = 'https://upload.wikimedia.org/wikipedia/commons/thumb/c/ca/James_Corden_at_2015_PaleyFest.jpg/800px-James_Corden_at_2015_PaleyFest.jpg'
+fluent.sender.setup('google-fluentd', host='localhost', port=24224)
 
 
 def email(stats, title, recipients):
@@ -65,10 +68,16 @@ def dummy_image():
 def log_failed():
     while failed.count:
         job = failed.dequeue()
-        print "failed at {0} ".format(str(job.created_at))
-        print "job origin: {0}".format(job.to_dict()['origin'])
-        print "execution info: {0}".format(job.to_dict()['exc_info'])
-        print '\n'
+        data = {'created_at': str(job.created_at),
+                'origin': job.to_dict()['origin'],
+                'traceback': job.to_dict()['exc_info']}
+        report(data)
+
+
+def report(data):
+    data['serviceContext'] = {'service': 'google-fluentd'}
+    fluent.event.Event('errors', data)
+
 
 if __name__ == "__main__":
     dummy_image()
