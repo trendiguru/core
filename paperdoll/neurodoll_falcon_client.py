@@ -9,7 +9,7 @@ def pd(image_array_or_url, category_index=None,get_multilabel_results=None):
     params = None
     if category_index:
         params['categoryIndex'] = category_index
-    if get:
+    if get_multilabel_results:
         params['getMultilabelResults'] = get_multilabel_results
     print('params coming into pd:'+str(params))
         #params = params={"categoryIndex": category_index} if category_index else None
