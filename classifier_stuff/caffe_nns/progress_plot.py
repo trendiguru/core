@@ -124,11 +124,11 @@ def parse_logfile(f,logy):
       print('net name:'+net_name)
 
     if 'lr_mult:' in line:
-	  lr_mult = line.split(':')[-1]
+      lr_mult = line.split(':')[-1]
       print('lr_mult:'+str(lr_mult))
 
     if 'decay_mult:' in line:
-	  decay_mult = line.split(':')[-1]
+      decay_mult = line.split(':')[-1]
       print('decay_mult:'+str(decay_mult))
 
   print 'train iterations len: ', len(training_iterations)
@@ -234,7 +234,7 @@ def parse_logfile(f,logy):
 
 #bbox_to_anchor=(0., 0.0, 0., .102), loc='lower center',
 
-    plt.legend(bbox_to_anchor=(0., 1.02.1.0,  .102), loc='lower center',
+    plt.legend(bbox_to_anchor=(0.1, 0.05,0.5, 0.1), loc='lower center',
             mode="expand", borderaxespad=0.) #bbox_to_anchor=(0., 1.02, 1., .102), #ncol=2,
     dt=datetime.datetime.today()
     plt.title(net_name+' '+dt.isoformat(),fontsize=10)
