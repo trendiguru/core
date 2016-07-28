@@ -55,6 +55,8 @@ def url_to_image(url):
 #def theDetector(image):
 def theDetector(url_or_np_array):
 
+    first_start = time.time()
+
     print "Starting the genderism!"
     # check if i get a url (= string) or np.ndarray
     #if isinstance(url_or_np_array, basestring):
@@ -68,8 +70,6 @@ def theDetector(url_or_np_array):
     else:
         print("Loading file")
         full_image = caffe.io.load_image(url_or_np_array)
-
-    print full_image
 
     #checks if the face coordinates are inside the image
     #height, width, channels = full_image.shape
