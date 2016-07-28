@@ -74,8 +74,8 @@ def log_failed():
         report(data)
 
 
-def report(data):
-    data['serviceContext'] = {'service': 'google-fluentd'}
+def report(ex):
+    data = {'message': str(ex), 'serviceContext': {'service': 'google-fluentd'}}
     fluent.event.Event('errors', data)
 
 
