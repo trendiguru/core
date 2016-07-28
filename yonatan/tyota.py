@@ -71,8 +71,6 @@ def theDetector(url_or_np_array):
         print("Loading file")
         full_image = caffe.io.load_image(url_or_np_array)
 
-    print full_image
-
     #checks if the face coordinates are inside the image
     #height, width, channels = full_image.shape
 
