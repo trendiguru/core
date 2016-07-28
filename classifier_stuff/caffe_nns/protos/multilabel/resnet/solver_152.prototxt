@@ -21,3 +21,4 @@ gamma: 0.1
 stepsize: 100000
 max_iter: 3000000
 #momentum: 0.9
+

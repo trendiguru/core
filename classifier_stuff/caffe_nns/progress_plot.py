@@ -42,6 +42,8 @@ def parse_logfile(f,logy):
   momentum = ''
   gamma = ''
   stepsize = ''
+  lr_mult = ''
+  decay_mult = ''
 
   past_beginning = False
 
@@ -83,10 +85,11 @@ def parse_logfile(f,logy):
     elif check_test2:
       print('checking line for test output1:'+line)
       if 'Test net output' in line and 'loss' in line:
-        #print line
-        test_loss.append(float(line.strip().split(' ')[-2]))
-        print('got test loss:'+str(line.strip().split(' ')[-2]))
-        check_test2 = False
+#          val = line.strip().split(' ')[-2]
+          val = float(line.strip().split(' = ')[-1])
+          print('got test loss:'+str(val))
+          test_loss.append(val)
+          check_test2 = False
       else:
         test_loss.append(0)
         check_test2 = False
@@ -119,6 +122,14 @@ def parse_logfile(f,logy):
       net_name_arr = line.split('"')
       net_name = net_name_arr[-2]
       print('net name:'+net_name)
+
+    if 'lr_mult:' in line:
+      lr_mult = line.split(':')[-1]
+      print('lr_mult:'+str(lr_mult))
+
+    if 'decay_mult:' in line:
+      decay_mult = line.split(':')[-1]
+      print('decay_mult:'+str(decay_mult))
 
   print 'train iterations len: ', len(training_iterations)
   print 'train loss len: ', len(training_loss)
@@ -221,7 +232,9 @@ def parse_logfile(f,logy):
     #    ax1.legend(loc='upper center', bbox_to_anchor=(0.5, -0.05),
     #          fancybox=True, shadow=True, ncol=5)
 
-    plt.legend(bbox_to_anchor=(0., 0.0, 0., .102), loc='lower center',
+#bbox_to_anchor=(0., 0.0, 0., .102), loc='lower center',
+
+    plt.legend(bbox_to_anchor=(0.1, 0.05,0.5, 0.1), loc='lower center',
             mode="expand", borderaxespad=0.) #bbox_to_anchor=(0., 1.02, 1., .102), #ncol=2,
     dt=datetime.datetime.today()
     plt.title(net_name+' '+dt.isoformat(),fontsize=10)
@@ -238,6 +251,10 @@ def parse_logfile(f,logy):
       subtitle = subtitle + 'mom:'+momentum
     if gamma is not '':
       subtitle=subtitle+'gamma:'+gamma
+    if lr_mult is not '':
+      subtitle=subtitle+'lr_mult:'+str(lr_mult)
+    if decay_mult is not '':
+      subtitle=subtitle+'decay_mult:'+str(decay_mult)
     plt.suptitle(subtitle,fontsize=8)
     #plt.draw()
     try:

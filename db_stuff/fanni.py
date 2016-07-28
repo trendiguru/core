@@ -2,8 +2,8 @@
 import annoy
 from ..constants import db
 from time import time
-from .db_utils import log2file
-
+import db_utils
+import os
 
 def plantAnnoyForest(col_name, category, num_of_trees, hold=True,distance_function='angular'):
     """"
@@ -104,8 +104,35 @@ def lumberjack(col_name,category,fingerprint, distance_function='angular', num_o
     total_duration = str(f-s)
     load_duration = str(t2-t1)
     search_duration = str(f-t2)
+    forest.unload()
+    del forest
     print("got it in %s secs!"% total_duration)
     msg = 'collection: %s, category: %s, duration: %s (load : %s, search: %s)' \
           % (col_name, category, total_duration, load_duration, search_duration)
-    log2file(mode='a', log_filename=log_name, message=msg, print_flag=True)
+    db_utils.log2file(mode='a', log_filename=log_name, message=msg, print_flag=True)
     return result
+
+
+def load_all_forests():
+    base = '/home/developer/annpyJungle'
+    tmp = os.listdir(base)
+    fs = []
+    for dir_name in tmp:
+        path = base + '/' + dir_name
+        files = os.listdir(path)
+        for f in files:
+            if f[-4:] == '.ann':
+                t = path + '/' + f
+                key = dir_name+'.'+f
+                fs.append((key,t))
+
+    forests = {}
+    for f in fs:
+        k = f[0]
+        forest_handle = annoy.AnnoyIndex(696, 'angular')
+        forest_handle.load(f[1])
+        forests[k] = forest_handle
+
+    return forests
+
+

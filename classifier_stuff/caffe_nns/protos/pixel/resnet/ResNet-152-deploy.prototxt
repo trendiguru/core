@@ -1,18 +1,9 @@
 name: "ResNet-152_multilabel"
-
-layer {
-      name: "data"
-      type: "Python"
-      top: "data"
-      top: "label"
-      python_param {
-      module: "jrlayers"
-      layer: "JrMultilabel"
-      param_str: "{\'images_and_labels_file\': \'/home/jeremy/image_dbs/tamara_berg/tb_cats_from_webtool_256x256_test.txt\', \'mean\': (104.0, 116.7, 122.7),\'augment\':True,\'augment_crop_size\':(224,224), \'batch_size\':1 }"
-    #  param_str: "{\'images_and_labels_file\': \'tb_cats_from_webtool_256x256_train.txt\', \'mean\': (104.0, 116.7, 122.7), \'augment\':True,\'augment_crop_size\':(224,224)  }"
-
-      }
-}
+input: "data"
+input_dim: 1
+input_dim: 3
+input_dim: 224
+input_dim: 224
 
 
 layer {
@@ -21,8 +12,6 @@ layer {
 	name: "conv1"
 	type: "Convolution"
 	convolution_param {
-                weight_filler { type: "xavier"}
- #               bias_filler { type:"constant"}
 		num_output: 64
 		kernel_size: 7
 		pad: 3
@@ -76,8 +65,6 @@ layer {
 	name: "res2a_branch1"
 	type: "Convolution"
 	convolution_param {
-                weight_filler { type: "xavier"}
- #               bias_filler { type:"constant"}
 		num_output: 256
 		kernel_size: 1
 		pad: 0
@@ -112,8 +99,6 @@ layer {
 	name: "res2a_branch2a"
 	type: "Convolution"
 	convolution_param {
-                weight_filler { type: "xavier"}
- #               bias_filler { type:"constant"}
 		num_output: 64
 		kernel_size: 1
 		pad: 0
@@ -155,8 +140,6 @@ layer {
 	name: "res2a_branch2b"
 	type: "Convolution"
 	convolution_param {
-                weight_filler { type: "xavier"}
- #               bias_filler { type:"constant"}
 		num_output: 64
 		kernel_size: 3
 		pad: 1
@@ -198,8 +181,6 @@ layer {
 	name: "res2a_branch2c"
 	type: "Convolution"
 	convolution_param {
-                weight_filler { type: "xavier"}
- #               bias_filler { type:"constant"}
 		num_output: 256
 		kernel_size: 1
 		pad: 0
@@ -249,8 +230,6 @@ layer {
 	name: "res2b_branch2a"
 	type: "Convolution"
 	convolution_param {
-                weight_filler { type: "xavier"}
- #               bias_filler { type:"constant"}
 		num_output: 64
 		kernel_size: 1
 		pad: 0
@@ -292,8 +271,6 @@ layer {
 	name: "res2b_branch2b"
 	type: "Convolution"
 	convolution_param {
-                weight_filler { type: "xavier"}
- #               bias_filler { type:"constant"}
 		num_output: 64
 		kernel_size: 3
 		pad: 1
@@ -335,8 +312,6 @@ layer {
 	name: "res2b_branch2c"
 	type: "Convolution"
 	convolution_param {
-                weight_filler { type: "xavier"}
- #               bias_filler { type:"constant"}
 		num_output: 256
 		kernel_size: 1
 		pad: 0
@@ -386,8 +361,6 @@ layer {
 	name: "res2c_branch2a"
 	type: "Convolution"
 	convolution_param {
-                weight_filler { type: "xavier"}
- #               bias_filler { type:"constant"}
 		num_output: 64
 		kernel_size: 1
 		pad: 0
@@ -429,8 +402,6 @@ layer {
 	name: "res2c_branch2b"
 	type: "Convolution"
 	convolution_param {
-                weight_filler { type: "xavier"}
- #               bias_filler { type:"constant"}
 		num_output: 64
 		kernel_size: 3
 		pad: 1
@@ -472,8 +443,6 @@ layer {
 	name: "res2c_branch2c"
 	type: "Convolution"
 	convolution_param {
-                weight_filler { type: "xavier"}
- #               bias_filler { type:"constant"}
 		num_output: 256
 		kernel_size: 1
 		pad: 0
@@ -523,8 +492,6 @@ layer {
 	name: "res3a_branch1"
 	type: "Convolution"
 	convolution_param {
-                weight_filler { type: "xavier"}
- #               bias_filler { type:"constant"}
 		num_output: 512
 		kernel_size: 1
 		pad: 0
@@ -559,8 +526,6 @@ layer {
 	name: "res3a_branch2a"
 	type: "Convolution"
 	convolution_param {
-                weight_filler { type: "xavier"}
- #               bias_filler { type:"constant"}
 		num_output: 128
 		kernel_size: 1
 		pad: 0
@@ -602,8 +567,6 @@ layer {
 	name: "res3a_branch2b"
 	type: "Convolution"
 	convolution_param {
-                weight_filler { type: "xavier"}
- #               bias_filler { type:"constant"}
 		num_output: 128
 		kernel_size: 3
 		pad: 1
@@ -645,8 +608,6 @@ layer {
 	name: "res3a_branch2c"
 	type: "Convolution"
 	convolution_param {
-                weight_filler { type: "xavier"}
- #               bias_filler { type:"constant"}
 		num_output: 512
 		kernel_size: 1
 		pad: 0
@@ -696,8 +657,6 @@ layer {
 	name: "res3b1_branch2a"
 	type: "Convolution"
 	convolution_param {
-                weight_filler { type: "xavier"}
- #               bias_filler { type:"constant"}
 		num_output: 128
 		kernel_size: 1
 		pad: 0
@@ -739,8 +698,6 @@ layer {
 	name: "res3b1_branch2b"
 	type: "Convolution"
 	convolution_param {
-                weight_filler { type: "xavier"}
- #               bias_filler { type:"constant"}
 		num_output: 128
 		kernel_size: 3
 		pad: 1
@@ -782,8 +739,6 @@ layer {
 	name: "res3b1_branch2c"
 	type: "Convolution"
 	convolution_param {
-                weight_filler { type: "xavier"}
- #               bias_filler { type:"constant"}
 		num_output: 512
 		kernel_size: 1
 		pad: 0
@@ -833,8 +788,6 @@ layer {
 	name: "res3b2_branch2a"
 	type: "Convolution"
 	convolution_param {
-                weight_filler { type: "xavier"}
- #               bias_filler { type:"constant"}
 		num_output: 128
 		kernel_size: 1
 		pad: 0
@@ -876,8 +829,6 @@ layer {
 	name: "res3b2_branch2b"
 	type: "Convolution"
 	convolution_param {
-                weight_filler { type: "xavier"}
- #               bias_filler { type:"constant"}
 		num_output: 128
 		kernel_size: 3
 		pad: 1
@@ -919,8 +870,6 @@ layer {
 	name: "res3b2_branch2c"
 	type: "Convolution"
 	convolution_param {
-                weight_filler { type: "xavier"}
- #               bias_filler { type:"constant"}
 		num_output: 512
 		kernel_size: 1
 		pad: 0
@@ -970,8 +919,6 @@ layer {
 	name: "res3b3_branch2a"
 	type: "Convolution"
 	convolution_param {
-                weight_filler { type: "xavier"}
- #               bias_filler { type:"constant"}
 		num_output: 128
 		kernel_size: 1
 		pad: 0
@@ -1013,8 +960,6 @@ layer {
 	name: "res3b3_branch2b"
 	type: "Convolution"
 	convolution_param {
-                weight_filler { type: "xavier"}
- #               bias_filler { type:"constant"}
 		num_output: 128
 		kernel_size: 3
 		pad: 1
@@ -1056,8 +1001,6 @@ layer {
 	name: "res3b3_branch2c"
 	type: "Convolution"
 	convolution_param {
-                weight_filler { type: "xavier"}
- #               bias_filler { type:"constant"}
 		num_output: 512
 		kernel_size: 1
 		pad: 0
@@ -1107,8 +1050,6 @@ layer {
 	name: "res3b4_branch2a"
 	type: "Convolution"
 	convolution_param {
-                weight_filler { type: "xavier"}
- #               bias_filler { type:"constant"}
 		num_output: 128
 		kernel_size: 1
 		pad: 0
@@ -1150,8 +1091,6 @@ layer {
 	name: "res3b4_branch2b"
 	type: "Convolution"
 	convolution_param {
-                weight_filler { type: "xavier"}
- #               bias_filler { type:"constant"}
 		num_output: 128
 		kernel_size: 3
 		pad: 1
@@ -1193,8 +1132,6 @@ layer {
 	name: "res3b4_branch2c"
 	type: "Convolution"
 	convolution_param {
-                weight_filler { type: "xavier"}
- #               bias_filler { type:"constant"}
 		num_output: 512
 		kernel_size: 1
 		pad: 0
@@ -1244,8 +1181,6 @@ layer {
 	name: "res3b5_branch2a"
 	type: "Convolution"
 	convolution_param {
-                weight_filler { type: "xavier"}
- #               bias_filler { type:"constant"}
 		num_output: 128
 		kernel_size: 1
 		pad: 0
@@ -1287,8 +1222,6 @@ layer {
 	name: "res3b5_branch2b"
 	type: "Convolution"
 	convolution_param {
-                weight_filler { type: "xavier"}
- #               bias_filler { type:"constant"}
 		num_output: 128
 		kernel_size: 3
 		pad: 1
@@ -1330,8 +1263,6 @@ layer {
 	name: "res3b5_branch2c"
 	type: "Convolution"
 	convolution_param {
-                weight_filler { type: "xavier"}
- #               bias_filler { type:"constant"}
 		num_output: 512
 		kernel_size: 1
 		pad: 0
@@ -1381,8 +1312,6 @@ layer {
 	name: "res3b6_branch2a"
 	type: "Convolution"
 	convolution_param {
-                weight_filler { type: "xavier"}
- #               bias_filler { type:"constant"}
 		num_output: 128
 		kernel_size: 1
 		pad: 0
@@ -1424,8 +1353,6 @@ layer {
 	name: "res3b6_branch2b"
 	type: "Convolution"
 	convolution_param {
-                weight_filler { type: "xavier"}
- #               bias_filler { type:"constant"}
 		num_output: 128
 		kernel_size: 3
 		pad: 1
@@ -1467,8 +1394,6 @@ layer {
 	name: "res3b6_branch2c"
 	type: "Convolution"
 	convolution_param {
-                weight_filler { type: "xavier"}
- #               bias_filler { type:"constant"}
 		num_output: 512
 		kernel_size: 1
 		pad: 0
@@ -1518,8 +1443,6 @@ layer {
 	name: "res3b7_branch2a"
 	type: "Convolution"
 	convolution_param {
-                weight_filler { type: "xavier"}
- #               bias_filler { type:"constant"}
 		num_output: 128
 		kernel_size: 1
 		pad: 0
@@ -1561,8 +1484,6 @@ layer {
 	name: "res3b7_branch2b"
 	type: "Convolution"
 	convolution_param {
-                weight_filler { type: "xavier"}
- #               bias_filler { type:"constant"}
 		num_output: 128
 		kernel_size: 3
 		pad: 1
@@ -1604,8 +1525,6 @@ layer {
 	name: "res3b7_branch2c"
 	type: "Convolution"
 	convolution_param {
-                weight_filler { type: "xavier"}
- #               bias_filler { type:"constant"}
 		num_output: 512
 		kernel_size: 1
 		pad: 0
@@ -1655,8 +1574,6 @@ layer {
 	name: "res4a_branch1"
 	type: "Convolution"
 	convolution_param {
-                weight_filler { type: "xavier"}
- #               bias_filler { type:"constant"}
 		num_output: 1024
 		kernel_size: 1
 		pad: 0
@@ -1691,8 +1608,6 @@ layer {
 	name: "res4a_branch2a"
 	type: "Convolution"
 	convolution_param {
-                weight_filler { type: "xavier"}
- #               bias_filler { type:"constant"}
 		num_output: 256
 		kernel_size: 1
 		pad: 0
@@ -1734,8 +1649,6 @@ layer {
 	name: "res4a_branch2b"
 	type: "Convolution"
 	convolution_param {
-                weight_filler { type: "xavier"}
- #               bias_filler { type:"constant"}
 		num_output: 256
 		kernel_size: 3
 		pad: 1
@@ -1777,8 +1690,6 @@ layer {
 	name: "res4a_branch2c"
 	type: "Convolution"
 	convolution_param {
-                weight_filler { type: "xavier"}
- #               bias_filler { type:"constant"}
 		num_output: 1024
 		kernel_size: 1
 		pad: 0
@@ -1828,8 +1739,6 @@ layer {
 	name: "res4b1_branch2a"
 	type: "Convolution"
 	convolution_param {
-                weight_filler { type: "xavier"}
- #               bias_filler { type:"constant"}
 		num_output: 256
 		kernel_size: 1
 		pad: 0
@@ -1871,8 +1780,6 @@ layer {
 	name: "res4b1_branch2b"
 	type: "Convolution"
 	convolution_param {
-                weight_filler { type: "xavier"}
- #               bias_filler { type:"constant"}
 		num_output: 256
 		kernel_size: 3
 		pad: 1
@@ -1914,8 +1821,6 @@ layer {
 	name: "res4b1_branch2c"
 	type: "Convolution"
 	convolution_param {
-                weight_filler { type: "xavier"}
- #               bias_filler { type:"constant"}
 		num_output: 1024
 		kernel_size: 1
 		pad: 0
@@ -1965,8 +1870,6 @@ layer {
 	name: "res4b2_branch2a"
 	type: "Convolution"
 	convolution_param {
-                weight_filler { type: "xavier"}
- #               bias_filler { type:"constant"}
 		num_output: 256
 		kernel_size: 1
 		pad: 0
@@ -2008,8 +1911,6 @@ layer {
 	name: "res4b2_branch2b"
 	type: "Convolution"
 	convolution_param {
-                weight_filler { type: "xavier"}
- #               bias_filler { type:"constant"}
 		num_output: 256
 		kernel_size: 3
 		pad: 1
@@ -2051,8 +1952,6 @@ layer {
 	name: "res4b2_branch2c"
 	type: "Convolution"
 	convolution_param {
-                weight_filler { type: "xavier"}
- #               bias_filler { type:"constant"}
 		num_output: 1024
 		kernel_size: 1
 		pad: 0
@@ -2102,8 +2001,6 @@ layer {
 	name: "res4b3_branch2a"
 	type: "Convolution"
 	convolution_param {
-                weight_filler { type: "xavier"}
- #               bias_filler { type:"constant"}
 		num_output: 256
 		kernel_size: 1
 		pad: 0
@@ -2145,8 +2042,6 @@ layer {
 	name: "res4b3_branch2b"
 	type: "Convolution"
 	convolution_param {
-                weight_filler { type: "xavier"}
- #               bias_filler { type:"constant"}
 		num_output: 256
 		kernel_size: 3
 		pad: 1
@@ -2188,8 +2083,6 @@ layer {
 	name: "res4b3_branch2c"
 	type: "Convolution"
 	convolution_param {
-                weight_filler { type: "xavier"}
- #               bias_filler { type:"constant"}
 		num_output: 1024
 		kernel_size: 1
 		pad: 0
@@ -2239,8 +2132,6 @@ layer {
 	name: "res4b4_branch2a"
 	type: "Convolution"
 	convolution_param {
-                weight_filler { type: "xavier"}
- #               bias_filler { type:"constant"}
 		num_output: 256
 		kernel_size: 1
 		pad: 0
@@ -2282,8 +2173,6 @@ layer {
 	name: "res4b4_branch2b"
 	type: "Convolution"
 	convolution_param {
-                weight_filler { type: "xavier"}
- #               bias_filler { type:"constant"}
 		num_output: 256
 		kernel_size: 3
 		pad: 1
@@ -2325,8 +2214,6 @@ layer {
 	name: "res4b4_branch2c"
 	type: "Convolution"
 	convolution_param {
-                weight_filler { type: "xavier"}
- #               bias_filler { type:"constant"}
 		num_output: 1024
 		kernel_size: 1
 		pad: 0
@@ -2376,8 +2263,6 @@ layer {
 	name: "res4b5_branch2a"
 	type: "Convolution"
 	convolution_param {
-                weight_filler { type: "xavier"}
- #               bias_filler { type:"constant"}
 		num_output: 256
 		kernel_size: 1
 		pad: 0
@@ -2419,8 +2304,6 @@ layer {
 	name: "res4b5_branch2b"
 	type: "Convolution"
 	convolution_param {
-                weight_filler { type: "xavier"}
- #               bias_filler { type:"constant"}
 		num_output: 256
 		kernel_size: 3
 		pad: 1
@@ -2462,8 +2345,6 @@ layer {
 	name: "res4b5_branch2c"
 	type: "Convolution"
 	convolution_param {
-                weight_filler { type: "xavier"}
- #               bias_filler { type:"constant"}
 		num_output: 1024
 		kernel_size: 1
 		pad: 0
@@ -2513,8 +2394,6 @@ layer {
 	name: "res4b6_branch2a"
 	type: "Convolution"
 	convolution_param {
-                weight_filler { type: "xavier"}
- #               bias_filler { type:"constant"}
 		num_output: 256
 		kernel_size: 1
 		pad: 0
@@ -2556,8 +2435,6 @@ layer {
 	name: "res4b6_branch2b"
 	type: "Convolution"
 	convolution_param {
-                weight_filler { type: "xavier"}
- #               bias_filler { type:"constant"}
 		num_output: 256
 		kernel_size: 3
 		pad: 1
@@ -2599,8 +2476,6 @@ layer {
 	name: "res4b6_branch2c"
 	type: "Convolution"
 	convolution_param {
-                weight_filler { type: "xavier"}
- #               bias_filler { type:"constant"}
 		num_output: 1024
 		kernel_size: 1
 		pad: 0
@@ -2650,8 +2525,6 @@ layer {
 	name: "res4b7_branch2a"
 	type: "Convolution"
 	convolution_param {
-                weight_filler { type: "xavier"}
- #               bias_filler { type:"constant"}
 		num_output: 256
 		kernel_size: 1
 		pad: 0
@@ -2693,8 +2566,6 @@ layer {
 	name: "res4b7_branch2b"
 	type: "Convolution"
 	convolution_param {
-                weight_filler { type: "xavier"}
- #               bias_filler { type:"constant"}
 		num_output: 256
 		kernel_size: 3
 		pad: 1
@@ -2736,8 +2607,6 @@ layer {
 	name: "res4b7_branch2c"
 	type: "Convolution"
 	convolution_param {
-                weight_filler { type: "xavier"}
- #               bias_filler { type:"constant"}
 		num_output: 1024
 		kernel_size: 1
 		pad: 0
@@ -2787,8 +2656,6 @@ layer {
 	name: "res4b8_branch2a"
 	type: "Convolution"
 	convolution_param {
-                weight_filler { type: "xavier"}
- #               bias_filler { type:"constant"}
 		num_output: 256
 		kernel_size: 1
 		pad: 0
@@ -2830,8 +2697,6 @@ layer {
 	name: "res4b8_branch2b"
 	type: "Convolution"
 	convolution_param {
-                weight_filler { type: "xavier"}
- #               bias_filler { type:"constant"}
 		num_output: 256
 		kernel_size: 3
 		pad: 1
@@ -2873,8 +2738,6 @@ layer {
 	name: "res4b8_branch2c"
 	type: "Convolution"
 	convolution_param {
-                weight_filler { type: "xavier"}
- #               bias_filler { type:"constant"}
 		num_output: 1024
 		kernel_size: 1
 		pad: 0
@@ -2924,8 +2787,6 @@ layer {
 	name: "res4b9_branch2a"
 	type: "Convolution"
 	convolution_param {
-                weight_filler { type: "xavier"}
- #               bias_filler { type:"constant"}
 		num_output: 256
 		kernel_size: 1
 		pad: 0
@@ -2967,8 +2828,6 @@ layer {
 	name: "res4b9_branch2b"
 	type: "Convolution"
 	convolution_param {
-                weight_filler { type: "xavier"}
- #               bias_filler { type:"constant"}
 		num_output: 256
 		kernel_size: 3
 		pad: 1
@@ -3010,8 +2869,6 @@ layer {
 	name: "res4b9_branch2c"
 	type: "Convolution"
 	convolution_param {
-                weight_filler { type: "xavier"}
- #               bias_filler { type:"constant"}
 		num_output: 1024
 		kernel_size: 1
 		pad: 0
@@ -3061,8 +2918,6 @@ layer {
 	name: "res4b10_branch2a"
 	type: "Convolution"
 	convolution_param {
-                weight_filler { type: "xavier"}
- #               bias_filler { type:"constant"}
 		num_output: 256
 		kernel_size: 1
 		pad: 0
@@ -3104,8 +2959,6 @@ layer {
 	name: "res4b10_branch2b"
 	type: "Convolution"
 	convolution_param {
-                weight_filler { type: "xavier"}
- #               bias_filler { type:"constant"}
 		num_output: 256
 		kernel_size: 3
 		pad: 1
@@ -3147,8 +3000,6 @@ layer {
 	name: "res4b10_branch2c"
 	type: "Convolution"
 	convolution_param {
-                weight_filler { type: "xavier"}
- #               bias_filler { type:"constant"}
 		num_output: 1024
 		kernel_size: 1
 		pad: 0
@@ -3198,8 +3049,6 @@ layer {
 	name: "res4b11_branch2a"
 	type: "Convolution"
 	convolution_param {
-                weight_filler { type: "xavier"}
- #               bias_filler { type:"constant"}
 		num_output: 256
 		kernel_size: 1
 		pad: 0
@@ -3241,8 +3090,6 @@ layer {
 	name: "res4b11_branch2b"
 	type: "Convolution"
 	convolution_param {
-                weight_filler { type: "xavier"}
- #               bias_filler { type:"constant"}
 		num_output: 256
 		kernel_size: 3
 		pad: 1
@@ -3284,8 +3131,6 @@ layer {
 	name: "res4b11_branch2c"
 	type: "Convolution"
 	convolution_param {
-                weight_filler { type: "xavier"}
- #               bias_filler { type:"constant"}
 		num_output: 1024
 		kernel_size: 1
 		pad: 0
@@ -3335,8 +3180,6 @@ layer {
 	name: "res4b12_branch2a"
 	type: "Convolution"
 	convolution_param {
-                weight_filler { type: "xavier"}
- #               bias_filler { type:"constant"}
 		num_output: 256
 		kernel_size: 1
 		pad: 0
@@ -3378,8 +3221,6 @@ layer {
 	name: "res4b12_branch2b"
 	type: "Convolution"
 	convolution_param {
-                weight_filler { type: "xavier"}
- #               bias_filler { type:"constant"}
 		num_output: 256
 		kernel_size: 3
 		pad: 1
@@ -3421,8 +3262,6 @@ layer {
 	name: "res4b12_branch2c"
 	type: "Convolution"
 	convolution_param {
-                weight_filler { type: "xavier"}
- #               bias_filler { type:"constant"}
 		num_output: 1024
 		kernel_size: 1
 		pad: 0
@@ -3472,8 +3311,6 @@ layer {
 	name: "res4b13_branch2a"
 	type: "Convolution"
 	convolution_param {
-                weight_filler { type: "xavier"}
- #               bias_filler { type:"constant"}
 		num_output: 256
 		kernel_size: 1
 		pad: 0
@@ -3515,8 +3352,6 @@ layer {
 	name: "res4b13_branch2b"
 	type: "Convolution"
 	convolution_param {
-                weight_filler { type: "xavier"}
- #               bias_filler { type:"constant"}
 		num_output: 256
 		kernel_size: 3
 		pad: 1
@@ -3558,8 +3393,6 @@ layer {
 	name: "res4b13_branch2c"
 	type: "Convolution"
 	convolution_param {
-                weight_filler { type: "xavier"}
- #               bias_filler { type:"constant"}
 		num_output: 1024
 		kernel_size: 1
 		pad: 0
@@ -3609,8 +3442,6 @@ layer {
 	name: "res4b14_branch2a"
 	type: "Convolution"
 	convolution_param {
-                weight_filler { type: "xavier"}
- #               bias_filler { type:"constant"}
 		num_output: 256
 		kernel_size: 1
 		pad: 0
@@ -3652,8 +3483,6 @@ layer {
 	name: "res4b14_branch2b"
 	type: "Convolution"
 	convolution_param {
-                weight_filler { type: "xavier"}
- #               bias_filler { type:"constant"}
 		num_output: 256
 		kernel_size: 3
 		pad: 1
@@ -3695,8 +3524,6 @@ layer {
 	name: "res4b14_branch2c"
 	type: "Convolution"
 	convolution_param {
-                weight_filler { type: "xavier"}
- #               bias_filler { type:"constant"}
 		num_output: 1024
 		kernel_size: 1
 		pad: 0
@@ -3746,8 +3573,6 @@ layer {
 	name: "res4b15_branch2a"
 	type: "Convolution"
 	convolution_param {
-                weight_filler { type: "xavier"}
- #               bias_filler { type:"constant"}
 		num_output: 256
 		kernel_size: 1
 		pad: 0
@@ -3789,8 +3614,6 @@ layer {
 	name: "res4b15_branch2b"
 	type: "Convolution"
 	convolution_param {
-                weight_filler { type: "xavier"}
- #               bias_filler { type:"constant"}
 		num_output: 256
 		kernel_size: 3
 		pad: 1
@@ -3832,8 +3655,6 @@ layer {
 	name: "res4b15_branch2c"
 	type: "Convolution"
 	convolution_param {
-                weight_filler { type: "xavier"}
- #               bias_filler { type:"constant"}
 		num_output: 1024
 		kernel_size: 1
 		pad: 0
@@ -3883,8 +3704,6 @@ layer {
 	name: "res4b16_branch2a"
 	type: "Convolution"
 	convolution_param {
-                weight_filler { type: "xavier"}
- #               bias_filler { type:"constant"}
 		num_output: 256
 		kernel_size: 1
 		pad: 0
@@ -3926,8 +3745,6 @@ layer {
 	name: "res4b16_branch2b"
 	type: "Convolution"
 	convolution_param {
-                weight_filler { type: "xavier"}
- #               bias_filler { type:"constant"}
 		num_output: 256
 		kernel_size: 3
 		pad: 1
@@ -3969,8 +3786,6 @@ layer {
 	name: "res4b16_branch2c"
 	type: "Convolution"
 	convolution_param {
-                weight_filler { type: "xavier"}
- #               bias_filler { type:"constant"}
 		num_output: 1024
 		kernel_size: 1
 		pad: 0
@@ -4020,8 +3835,6 @@ layer {
 	name: "res4b17_branch2a"
 	type: "Convolution"
 	convolution_param {
-                weight_filler { type: "xavier"}
- #               bias_filler { type:"constant"}
 		num_output: 256
 		kernel_size: 1
 		pad: 0
@@ -4063,8 +3876,6 @@ layer {
 	name: "res4b17_branch2b"
 	type: "Convolution"
 	convolution_param {
-                weight_filler { type: "xavier"}
- #               bias_filler { type:"constant"}
 		num_output: 256
 		kernel_size: 3
 		pad: 1
@@ -4106,8 +3917,6 @@ layer {
 	name: "res4b17_branch2c"
 	type: "Convolution"
 	convolution_param {
-                weight_filler { type: "xavier"}
- #               bias_filler { type:"constant"}
 		num_output: 1024
 		kernel_size: 1
 		pad: 0
@@ -4157,8 +3966,6 @@ layer {
 	name: "res4b18_branch2a"
 	type: "Convolution"
 	convolution_param {
-                weight_filler { type: "xavier"}
- #               bias_filler { type:"constant"}
 		num_output: 256
 		kernel_size: 1
 		pad: 0
@@ -4200,8 +4007,6 @@ layer {
 	name: "res4b18_branch2b"
 	type: "Convolution"
 	convolution_param {
-                weight_filler { type: "xavier"}
- #               bias_filler { type:"constant"}
 		num_output: 256
 		kernel_size: 3
 		pad: 1
@@ -4243,8 +4048,6 @@ layer {
 	name: "res4b18_branch2c"
 	type: "Convolution"
 	convolution_param {
-                weight_filler { type: "xavier"}
- #               bias_filler { type:"constant"}
 		num_output: 1024
 		kernel_size: 1
 		pad: 0
@@ -4294,8 +4097,6 @@ layer {
 	name: "res4b19_branch2a"
 	type: "Convolution"
 	convolution_param {
-                weight_filler { type: "xavier"}
- #               bias_filler { type:"constant"}
 		num_output: 256
 		kernel_size: 1
 		pad: 0
@@ -4337,8 +4138,6 @@ layer {
 	name: "res4b19_branch2b"
 	type: "Convolution"
 	convolution_param {
-                weight_filler { type: "xavier"}
- #               bias_filler { type:"constant"}
 		num_output: 256
 		kernel_size: 3
 		pad: 1
@@ -4380,8 +4179,6 @@ layer {
 	name: "res4b19_branch2c"
 	type: "Convolution"
 	convolution_param {
-                weight_filler { type: "xavier"}
- #               bias_filler { type:"constant"}
 		num_output: 1024
 		kernel_size: 1
 		pad: 0
@@ -4431,8 +4228,6 @@ layer {
 	name: "res4b20_branch2a"
 	type: "Convolution"
 	convolution_param {
-                weight_filler { type: "xavier"}
- #               bias_filler { type:"constant"}
 		num_output: 256
 		kernel_size: 1
 		pad: 0
@@ -4474,8 +4269,6 @@ layer {
 	name: "res4b20_branch2b"
 	type: "Convolution"
 	convolution_param {
-                weight_filler { type: "xavier"}
- #               bias_filler { type:"constant"}
 		num_output: 256
 		kernel_size: 3
 		pad: 1
@@ -4517,8 +4310,6 @@ layer {
 	name: "res4b20_branch2c"
 	type: "Convolution"
 	convolution_param {
-                weight_filler { type: "xavier"}
- #               bias_filler { type:"constant"}
 		num_output: 1024
 		kernel_size: 1
 		pad: 0
@@ -4568,8 +4359,6 @@ layer {
 	name: "res4b21_branch2a"
 	type: "Convolution"
 	convolution_param {
-                weight_filler { type: "xavier"}
- #               bias_filler { type:"constant"}
 		num_output: 256
 		kernel_size: 1
 		pad: 0
@@ -4611,8 +4400,6 @@ layer {
 	name: "res4b21_branch2b"
 	type: "Convolution"
 	convolution_param {
-                weight_filler { type: "xavier"}
- #               bias_filler { type:"constant"}
 		num_output: 256
 		kernel_size: 3
 		pad: 1
@@ -4654,8 +4441,6 @@ layer {
 	name: "res4b21_branch2c"
 	type: "Convolution"
 	convolution_param {
-                weight_filler { type: "xavier"}
- #               bias_filler { type:"constant"}
 		num_output: 1024
 		kernel_size: 1
 		pad: 0
@@ -4705,8 +4490,6 @@ layer {
 	name: "res4b22_branch2a"
 	type: "Convolution"
 	convolution_param {
-                weight_filler { type: "xavier"}
- #               bias_filler { type:"constant"}
 		num_output: 256
 		kernel_size: 1
 		pad: 0
@@ -4748,8 +4531,6 @@ layer {
 	name: "res4b22_branch2b"
 	type: "Convolution"
 	convolution_param {
-                weight_filler { type: "xavier"}
- #               bias_filler { type:"constant"}
 		num_output: 256
 		kernel_size: 3
 		pad: 1
@@ -4791,8 +4572,6 @@ layer {
 	name: "res4b22_branch2c"
 	type: "Convolution"
 	convolution_param {
-                weight_filler { type: "xavier"}
- #               bias_filler { type:"constant"}
 		num_output: 1024
 		kernel_size: 1
 		pad: 0
@@ -4842,8 +4621,6 @@ layer {
 	name: "res4b23_branch2a"
 	type: "Convolution"
 	convolution_param {
-                weight_filler { type: "xavier"}
- #               bias_filler { type:"constant"}
 		num_output: 256
 		kernel_size: 1
 		pad: 0
@@ -4885,8 +4662,6 @@ layer {
 	name: "res4b23_branch2b"
 	type: "Convolution"
 	convolution_param {
-                weight_filler { type: "xavier"}
- #               bias_filler { type:"constant"}
 		num_output: 256
 		kernel_size: 3
 		pad: 1
@@ -4928,8 +4703,6 @@ layer {
 	name: "res4b23_branch2c"
 	type: "Convolution"
 	convolution_param {
-                weight_filler { type: "xavier"}
- #               bias_filler { type:"constant"}
 		num_output: 1024
 		kernel_size: 1
 		pad: 0
@@ -4979,8 +4752,6 @@ layer {
 	name: "res4b24_branch2a"
 	type: "Convolution"
 	convolution_param {
-                weight_filler { type: "xavier"}
- #               bias_filler { type:"constant"}
 		num_output: 256
 		kernel_size: 1
 		pad: 0
@@ -5022,8 +4793,6 @@ layer {
 	name: "res4b24_branch2b"
 	type: "Convolution"
 	convolution_param {
-                weight_filler { type: "xavier"}
- #               bias_filler { type:"constant"}
 		num_output: 256
 		kernel_size: 3
 		pad: 1
@@ -5065,8 +4834,6 @@ layer {
 	name: "res4b24_branch2c"
 	type: "Convolution"
 	convolution_param {
-                weight_filler { type: "xavier"}
- #               bias_filler { type:"constant"}
 		num_output: 1024
 		kernel_size: 1
 		pad: 0
@@ -5116,8 +4883,6 @@ layer {
 	name: "res4b25_branch2a"
 	type: "Convolution"
 	convolution_param {
-                weight_filler { type: "xavier"}
- #               bias_filler { type:"constant"}
 		num_output: 256
 		kernel_size: 1
 		pad: 0
@@ -5159,8 +4924,6 @@ layer {
 	name: "res4b25_branch2b"
 	type: "Convolution"
 	convolution_param {
-                weight_filler { type: "xavier"}
- #               bias_filler { type:"constant"}
 		num_output: 256
 		kernel_size: 3
 		pad: 1
@@ -5202,8 +4965,6 @@ layer {
 	name: "res4b25_branch2c"
 	type: "Convolution"
 	convolution_param {
-                weight_filler { type: "xavier"}
- #               bias_filler { type:"constant"}
 		num_output: 1024
 		kernel_size: 1
 		pad: 0
@@ -5253,8 +5014,6 @@ layer {
 	name: "res4b26_branch2a"
 	type: "Convolution"
 	convolution_param {
-                weight_filler { type: "xavier"}
- #               bias_filler { type:"constant"}
 		num_output: 256
 		kernel_size: 1
 		pad: 0
@@ -5296,8 +5055,6 @@ layer {
 	name: "res4b26_branch2b"
 	type: "Convolution"
 	convolution_param {
-                weight_filler { type: "xavier"}
- #               bias_filler { type:"constant"}
 		num_output: 256
 		kernel_size: 3
 		pad: 1
@@ -5339,8 +5096,6 @@ layer {
 	name: "res4b26_branch2c"
 	type: "Convolution"
 	convolution_param {
-                weight_filler { type: "xavier"}
- #               bias_filler { type:"constant"}
 		num_output: 1024
 		kernel_size: 1
 		pad: 0
@@ -5390,8 +5145,6 @@ layer {
 	name: "res4b27_branch2a"
 	type: "Convolution"
 	convolution_param {
-                weight_filler { type: "xavier"}
- #               bias_filler { type:"constant"}
 		num_output: 256
 		kernel_size: 1
 		pad: 0
@@ -5433,8 +5186,6 @@ layer {
 	name: "res4b27_branch2b"
 	type: "Convolution"
 	convolution_param {
-                weight_filler { type: "xavier"}
- #               bias_filler { type:"constant"}
 		num_output: 256
 		kernel_size: 3
 		pad: 1
@@ -5476,8 +5227,6 @@ layer {
 	name: "res4b27_branch2c"
 	type: "Convolution"
 	convolution_param {
-                weight_filler { type: "xavier"}
- #               bias_filler { type:"constant"}
 		num_output: 1024
 		kernel_size: 1
 		pad: 0
@@ -5527,8 +5276,6 @@ layer {
 	name: "res4b28_branch2a"
 	type: "Convolution"
 	convolution_param {
-                weight_filler { type: "xavier"}
- #               bias_filler { type:"constant"}
 		num_output: 256
 		kernel_size: 1
 		pad: 0
@@ -5570,8 +5317,6 @@ layer {
 	name: "res4b28_branch2b"
 	type: "Convolution"
 	convolution_param {
-                weight_filler { type: "xavier"}
- #               bias_filler { type:"constant"}
 		num_output: 256
 		kernel_size: 3
 		pad: 1
@@ -5613,8 +5358,6 @@ layer {
 	name: "res4b28_branch2c"
 	type: "Convolution"
 	convolution_param {
-                weight_filler { type: "xavier"}
- #               bias_filler { type:"constant"}
 		num_output: 1024
 		kernel_size: 1
 		pad: 0
@@ -5664,8 +5407,6 @@ layer {
 	name: "res4b29_branch2a"
 	type: "Convolution"
 	convolution_param {
-                weight_filler { type: "xavier"}
- #               bias_filler { type:"constant"}
 		num_output: 256
 		kernel_size: 1
 		pad: 0
@@ -5707,8 +5448,6 @@ layer {
 	name: "res4b29_branch2b"
 	type: "Convolution"
 	convolution_param {
-                weight_filler { type: "xavier"}
- #               bias_filler { type:"constant"}
 		num_output: 256
 		kernel_size: 3
 		pad: 1
@@ -5750,8 +5489,6 @@ layer {
 	name: "res4b29_branch2c"
 	type: "Convolution"
 	convolution_param {
-                weight_filler { type: "xavier"}
- #               bias_filler { type:"constant"}
 		num_output: 1024
 		kernel_size: 1
 		pad: 0
@@ -5801,8 +5538,6 @@ layer {
 	name: "res4b30_branch2a"
 	type: "Convolution"
 	convolution_param {
-                weight_filler { type: "xavier"}
- #               bias_filler { type:"constant"}
 		num_output: 256
 		kernel_size: 1
 		pad: 0
@@ -5844,8 +5579,6 @@ layer {
 	name: "res4b30_branch2b"
 	type: "Convolution"
 	convolution_param {
-                weight_filler { type: "xavier"}
- #               bias_filler { type:"constant"}
 		num_output: 256
 		kernel_size: 3
 		pad: 1
@@ -5887,8 +5620,6 @@ layer {
 	name: "res4b30_branch2c"
 	type: "Convolution"
 	convolution_param {
-                weight_filler { type: "xavier"}
- #               bias_filler { type:"constant"}
 		num_output: 1024
 		kernel_size: 1
 		pad: 0
@@ -5938,8 +5669,6 @@ layer {
 	name: "res4b31_branch2a"
 	type: "Convolution"
 	convolution_param {
-                weight_filler { type: "xavier"}
- #               bias_filler { type:"constant"}
 		num_output: 256
 		kernel_size: 1
 		pad: 0
@@ -5981,8 +5710,6 @@ layer {
 	name: "res4b31_branch2b"
 	type: "Convolution"
 	convolution_param {
-                weight_filler { type: "xavier"}
- #               bias_filler { type:"constant"}
 		num_output: 256
 		kernel_size: 3
 		pad: 1
@@ -6024,8 +5751,6 @@ layer {
 	name: "res4b31_branch2c"
 	type: "Convolution"
 	convolution_param {
-                weight_filler { type: "xavier"}
- #               bias_filler { type:"constant"}
 		num_output: 1024
 		kernel_size: 1
 		pad: 0
@@ -6075,8 +5800,6 @@ layer {
 	name: "res4b32_branch2a"
 	type: "Convolution"
 	convolution_param {
-                weight_filler { type: "xavier"}
- #               bias_filler { type:"constant"}
 		num_output: 256
 		kernel_size: 1
 		pad: 0
@@ -6118,8 +5841,6 @@ layer {
 	name: "res4b32_branch2b"
 	type: "Convolution"
 	convolution_param {
-                weight_filler { type: "xavier"}
- #               bias_filler { type:"constant"}
 		num_output: 256
 		kernel_size: 3
 		pad: 1
@@ -6161,8 +5882,6 @@ layer {
 	name: "res4b32_branch2c"
 	type: "Convolution"
 	convolution_param {
-                weight_filler { type: "xavier"}
- #               bias_filler { type:"constant"}
 		num_output: 1024
 		kernel_size: 1
 		pad: 0
@@ -6212,8 +5931,6 @@ layer {
 	name: "res4b33_branch2a"
 	type: "Convolution"
 	convolution_param {
-                weight_filler { type: "xavier"}
- #               bias_filler { type:"constant"}
 		num_output: 256
 		kernel_size: 1
 		pad: 0
@@ -6255,8 +5972,6 @@ layer {
 	name: "res4b33_branch2b"
 	type: "Convolution"
 	convolution_param {
-                weight_filler { type: "xavier"}
- #               bias_filler { type:"constant"}
 		num_output: 256
 		kernel_size: 3
 		pad: 1
@@ -6298,8 +6013,6 @@ layer {
 	name: "res4b33_branch2c"
 	type: "Convolution"
 	convolution_param {
-                weight_filler { type: "xavier"}
- #               bias_filler { type:"constant"}
 		num_output: 1024
 		kernel_size: 1
 		pad: 0
@@ -6349,8 +6062,6 @@ layer {
 	name: "res4b34_branch2a"
 	type: "Convolution"
 	convolution_param {
-                weight_filler { type: "xavier"}
- #               bias_filler { type:"constant"}
 		num_output: 256
 		kernel_size: 1
 		pad: 0
@@ -6392,8 +6103,6 @@ layer {
 	name: "res4b34_branch2b"
 	type: "Convolution"
 	convolution_param {
-                weight_filler { type: "xavier"}
- #               bias_filler { type:"constant"}
 		num_output: 256
 		kernel_size: 3
 		pad: 1
@@ -6435,8 +6144,6 @@ layer {
 	name: "res4b34_branch2c"
 	type: "Convolution"
 	convolution_param {
-                weight_filler { type: "xavier"}
- #               bias_filler { type:"constant"}
 		num_output: 1024
 		kernel_size: 1
 		pad: 0
@@ -6486,8 +6193,6 @@ layer {
 	name: "res4b35_branch2a"
 	type: "Convolution"
 	convolution_param {
-                weight_filler { type: "xavier"}
- #               bias_filler { type:"constant"}
 		num_output: 256
 		kernel_size: 1
 		pad: 0
@@ -6529,8 +6234,6 @@ layer {
 	name: "res4b35_branch2b"
 	type: "Convolution"
 	convolution_param {
-                weight_filler { type: "xavier"}
- #               bias_filler { type:"constant"}
 		num_output: 256
 		kernel_size: 3
 		pad: 1
@@ -6572,8 +6275,6 @@ layer {
 	name: "res4b35_branch2c"
 	type: "Convolution"
 	convolution_param {
-                weight_filler { type: "xavier"}
- #               bias_filler { type:"constant"}
 		num_output: 1024
 		kernel_size: 1
 		pad: 0
@@ -6623,8 +6324,6 @@ layer {
 	name: "res5a_branch1"
 	type: "Convolution"
 	convolution_param {
-                weight_filler { type: "xavier"}
- #               bias_filler { type:"constant"}
 		num_output: 2048
 		kernel_size: 1
 		pad: 0
@@ -6659,8 +6358,6 @@ layer {
 	name: "res5a_branch2a"
 	type: "Convolution"
 	convolution_param {
-                weight_filler { type: "xavier"}
- #               bias_filler { type:"constant"}
 		num_output: 512
 		kernel_size: 1
 		pad: 0
@@ -6702,8 +6399,6 @@ layer {
 	name: "res5a_branch2b"
 	type: "Convolution"
 	convolution_param {
-                weight_filler { type: "xavier"}
- #               bias_filler { type:"constant"}
 		num_output: 512
 		kernel_size: 3
 		pad: 1
@@ -6745,8 +6440,6 @@ layer {
 	name: "res5a_branch2c"
 	type: "Convolution"
 	convolution_param {
-                weight_filler { type: "xavier"}
- #               bias_filler { type:"constant"}
 		num_output: 2048
 		kernel_size: 1
 		pad: 0
@@ -6796,8 +6489,6 @@ layer {
 	name: "res5b_branch2a"
 	type: "Convolution"
 	convolution_param {
-                weight_filler { type: "xavier"}
- #               bias_filler { type:"constant"}
 		num_output: 512
 		kernel_size: 1
 		pad: 0
@@ -6839,8 +6530,6 @@ layer {
 	name: "res5b_branch2b"
 	type: "Convolution"
 	convolution_param {
-                weight_filler { type: "xavier"}
- #               bias_filler { type:"constant"}
 		num_output: 512
 		kernel_size: 3
 		pad: 1
@@ -6882,8 +6571,6 @@ layer {
 	name: "res5b_branch2c"
 	type: "Convolution"
 	convolution_param {
-                weight_filler { type: "xavier"}
- #               bias_filler { type:"constant"}
 		num_output: 2048
 		kernel_size: 1
 		pad: 0
@@ -6933,8 +6620,6 @@ layer {
 	name: "res5c_branch2a"
 	type: "Convolution"
 	convolution_param {
-                weight_filler { type: "xavier"}
- #               bias_filler { type:"constant"}
 		num_output: 512
 		kernel_size: 1
 		pad: 0
@@ -6976,8 +6661,6 @@ layer {
 	name: "res5c_branch2b"
 	type: "Convolution"
 	convolution_param {
-                weight_filler { type: "xavier"}
- #               bias_filler { type:"constant"}
 		num_output: 512
 		kernel_size: 3
 		pad: 1
@@ -7019,8 +6702,6 @@ layer {
 	name: "res5c_branch2c"
 	type: "Convolution"
 	convolution_param {
-                weight_filler { type: "xavier"}
- #               bias_filler { type:"constant"}
 		num_output: 2048
 		kernel_size: 1
 		pad: 0
@@ -7078,27 +6759,18 @@ layer {
 
 layer {
 	bottom: "pool5"
-	top: "myfc21"
-	name: "myfc21"
+	top: "fc1000"
+	name: "fc1000"
 	type: "InnerProduct"
 	inner_product_param {
-		num_output: 21
+		num_output: 1000
 	}
 }
 
 layer {
-  name: "score"
-  bottom: "myfc21"
-  top: "score"
-  type: "Sigmoid"
+	bottom: "fc1000"
+	top: "prob"
+	name: "prob"
+	type: "Softmax"
 }
-
-#layer {
-#	bottom: "myfc21"
-#	bottom: "labels"
-#	top: "score"
-#	name: "score"
-#	type: "SigmoidCrossEntropyLoss"
-#}
-
 

@@ -1122,12 +1122,6 @@ def img_dir_to_html(img_dir,filter='.jpg',htmlname=None):
         f.write('</HTML>\n')
         f.close()
 
-'''
-<HTML><HEAD><TITLE>classifier, fingerprint results</TITLE>
-<br>
-<a href="classifier_results/600x400_output_010516.html">fcnn 600x400 results 010516 </a>
- accuracy = 0.842419 loss=0.58 tpi:0.38593655467
-'''
 
 
 host = socket.gethostname()
@@ -1172,7 +1166,3 @@ if __name__ == "__main__":
 
  #   kill_the_missing(sourcedir, targetdir)
     resize_keep_aspect(infile, output_file=None, output_size = (300,200),use_visual_output=True)
-
-
-
-

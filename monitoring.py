@@ -3,9 +3,10 @@ import smtplib
 from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
 import requests
+import time
 from bson import json_util
 from rq import Queue
-from .constants import redis_conn
+from .constants import redis_conn, db
 
 
 failed = Queue('failed', connection=redis_conn)
@@ -17,7 +18,7 @@ YONTI = 'yontilevin@gmail.com'
 SENDER = 'Notifier@trendiguru.com'
 all = 'members@trendiguru.com'
 API_URL = 'http://api.trendi.guru/images'
-MINUTE_IMAGE_URL = 'https://upload.wikimedia.org/wikipedia/commons/d/d5/Mona_Lisa_(copy,_Hermitage).jpg'
+MINUTE_IMAGE_URL = 'https://upload.wikimedia.org/wikipedia/commons/thumb/c/ca/James_Corden_at_2015_PaleyFest.jpg/800px-James_Corden_at_2015_PaleyFest.jpg'
 
 
 def email(stats, title, recipients):
@@ -56,14 +57,18 @@ def email(stats, title, recipients):
 def dummy_image():
     data = {"pageUrl": "dummy", "imageList": [MINUTE_IMAGE_URL]}
     requests.post(API_URL, data=json_util.dumps(data))
+    while not db.images.find_one({'image_urls': MINUTE_IMAGE_URL}):
+        time.sleep(1)
+    db.images.delete_one({'image_urls': MINUTE_IMAGE_URL})
 
 
 def log_failed():
-    while failed.count():
+    while failed.count:
         job = failed.dequeue()
+        print "failed at {0} ".format(str(job.created_at))
         print "job origin: {0}".format(job.to_dict()['origin'])
         print "execution info: {0}".format(job.to_dict()['exc_info'])
-
+        print '\n'
 
 if __name__ == "__main__":
     dummy_image()
