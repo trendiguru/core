@@ -24,9 +24,12 @@ from trendi import constants
 
 #best as of 260716, see http://extremeli.trendi.guru/demo/results/ for updates
 print('starting multilabel.py')
-solverproto = '/home/jeremy/caffenets/multilabel/deep-residual-networks/prototxt/ResNet-101-test.prototxt'
-deployproto = '/home/jeremy/caffenets/multilabel/deep-residual-networks/prototxt/ResNet-101-deploy.prototxt'
-caffemodel = '/home/jeremy/caffenets/production/multilabel_resnet101_sgd_iter_120000.caffemodel'
+protopath = os.path.join(os.path.dirname(os.path.abspath( __file__ )), 'classifier_stuff/caffe_nns/protos')
+modelpath = '/home/jeremy/caffenets/production'
+solverproto = os.path.join(protopath,'multilabel/resnet/ResNet-101-test.prototxt'
+deployproto = os.path.join(protopath,'ResNet-101-deploy.prototxt'
+caffemodel = os.path.join(modelpath,'multilabel_resnet101_sgd_iter_120000.caffemodel'
+print('solver proto {} deployproto {} caffemodel {}'.format(solverproto,deployproto,caffemodel))
 print('set_mode_gpu()')
 caffe.set_mode_gpu()
 print('device 1')
