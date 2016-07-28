@@ -14,6 +14,8 @@ import cv2
 import urllib
 import skimage
 import yonatan_classifier
+import argparse
+
 
 
 MODLE_FILE = "/home/yonatan/trendi/yonatan/Alexnet_deploy.prototxt"
@@ -53,23 +55,27 @@ def url_to_image(url):
     return new_image
 
 #def theDetector(image):
-def theDetector(url_or_np_array):
+def theDetector(argv):
+
+    parser = argparse.ArgumentParser()
+
+    args = parser.parse_args()
 
     first_start = time.time()
 
     print "Starting the genderism!"
     # check if i get a url (= string) or np.ndarray
-    #if isinstance(url_or_np_array, basestring):
-    #    full_image = url_to_image(url_or_np_array)
-    #elif type(url_or_np_array) == np.ndarray:
-    #    full_image = url_or_np_array
-    if os.path.isdir(url_or_np_array):
-        print("Loading folder: %s" % url_or_np_array)
+    #if isinstance(argv, basestring):
+    #    full_image = url_to_image(argv)
+    #elif type(argv) == np.ndarray:
+    #    full_image = argv
+    if os.path.isdir(args.input_file):
+        print("Loading folder: %s" % args.input_file)
         full_image = [caffe.io.load_image(im_f)
-                  for im_f in glob.glob(url_or_np_array + '/*.jpg')]
+                  for im_f in glob.glob(args.input_file + '/*.jpg')]
     else:
         print("Loading file")
-        full_image = caffe.io.load_image(url_or_np_array)
+        full_image = caffe.io.load_image(args.input_file)
 
     #checks if the face coordinates are inside the image
     #height, width, channels = full_image.shape
@@ -101,3 +107,5 @@ def theDetector(url_or_np_array):
             print predictions[i][0]
             print 'Female'
 
+if __name__ == '__main__':
+    theDetector(sys.argv)
