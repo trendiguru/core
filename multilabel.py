@@ -1,9 +1,8 @@
 __author__ = 'jeremy'
 
 import cv2
-print('d0')
 import caffe
-print('d1')
+import os
 import logging
 logging.basicConfig(level=logging.DEBUG)
 
