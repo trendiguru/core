@@ -36,6 +36,7 @@ class PaperResource:
             if get_multilabel_results:
                 output = multilabel.get_multilabel_output(img)
                 ret['multilabel_output'] = output
+                print('multilabel output:'+str(output))
             if category_index:
                 ret["mask"] = neurodoll_single_category.get_category_graylevel(img, category_index) 
             else:
