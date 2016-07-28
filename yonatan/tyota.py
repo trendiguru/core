@@ -53,7 +53,7 @@ def url_to_image(url):
     return new_image
 
 #def theDetector(image):
-def theDetector(url_or_np_array, face_coordinates):
+def theDetector(url_or_np_array):
 
     print "Starting the genderism!"
     # check if i get a url (= string) or np.ndarray
