@@ -1122,12 +1122,6 @@ def img_dir_to_html(img_dir,filter='.jpg',htmlname=None):
         f.write('</HTML>\n')
         f.close()
 
-'''
-<HTML><HEAD><TITLE>classifier, fingerprint results</TITLE>
-<br>
-<a href="classifier_results/600x400_output_010516.html">fcnn 600x400 results 010516 </a>
- accuracy = 0.842419 loss=0.58 tpi:0.38593655467
-'''
 
 
 host = socket.gethostname()
@@ -1184,7 +1178,7 @@ import cv2
 from scipy.ndimage.interpolation import map_coordinates
 from scipy.ndimage.filters import gaussian_filter
 import matplotlib.pyplot as plt
-In [2]:
+
 # Function to distort image
 def elastic_transform(image, alpha, sigma, alpha_affine, random_state=None):
     """Elastic deformation of images as described in [Simard2003]_ (with modifications).
@@ -1277,5 +1271,6 @@ cv2.GaussianBlur(image, ksize=(blur_size, blur_size), sigmaX=sigma)
 instead of ndimage.gaussian_filter(image, sigma)
 
 and cv2.remap(image, dx, dy, interpolation=cv2.INTER_LINEAR) instead of ndimage.map_coordinates(image, (dx, dy), order=1)
-'''
 
+    resize_keep_aspect(infile, output_file=None, output_size = (300,200),use_visual_output=True)
+'''

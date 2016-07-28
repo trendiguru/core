@@ -50,6 +50,27 @@ def GET_ByGenreId( genreId, page=1,limit=1, img_size=500, instock = False):
         return False, []
 
 
+def catch_img(imgs, col_name):
+    col= db[col_name]
+    image = None
+    img_url = None
+    for i in range(len(imgs)):
+        img = imgs[i]['itemImgUrl']
+        split1 = re.split(r'\?|&', img)
+        if 'ver=1' not in split1:
+            continue
+        img_url = 'http:' + img
+        url_exists = col.find_one({'images.XLarge': img_url})
+        if url_exists:
+            print ('url already exists')
+            image = None
+            break
+        image = get_cv2_img_array(img_url)
+        if image is not None:
+            break
+    return image, img_url
+
+
 def process_items(item_list, gender,category):
     col_name = 'recruit_'+gender
     collection = db[col_name]
@@ -59,15 +80,20 @@ def process_items(item_list, gender,category):
         exists = collection.find_one({'id': itemId})
         if exists:
             exists_id = exists['_id']
-            clickUrl = exists['clickUrl']
-            if tracking_id not in clickUrl:
-                clickUrl += tracking_id
-                collection.update_one({'_id':exists_id}, {'$set':{'clickUrl':clickUrl}})
-            dl_version = exists['download_data']['dl_version']
-            if dl_version != today_date:
-                collection.update_one({'_id': exists_id}, {'$set': {'download_data.dl_version': today_date}})
-            print ('item already exists')
-            continue
+            img_url = exists['images']['XLarge']
+            image = get_cv2_img_array(img_url)
+            if image is None:
+                collection.delete_one({'_id':exists_id})
+            else:
+                clickUrl = exists['clickUrl']
+                if tracking_id not in clickUrl:
+                    clickUrl += tracking_id
+                    collection.update_one({'_id':exists_id}, {'$set':{'clickUrl':clickUrl}})
+                dl_version = exists['download_data']['dl_version']
+                if dl_version != today_date:
+                    collection.update_one({'_id': exists_id}, {'$set': {'download_data.dl_version': today_date}})
+                print ('item already exists')
+                continue
 
         else:
             archive = db[col_name+'_archive']
@@ -86,22 +112,8 @@ def process_items(item_list, gender,category):
                  'currency': 'Yen'}
 
         status = {"instock": True, "days_out": 0}
-        image = None
         imgs = item['itemImgInfoList']
-        for i in range(len(imgs)):
-            img = imgs[i]['itemImgUrl']
-            split1 = re.split(r'\?|&', img)
-            if 'ver=1' not in split1:
-                continue
-            img_url = 'http:' + img
-            url_exists = collection.find_one({'images.XLarge': img_url})
-            if url_exists:
-                print ('url already exists')
-                image = None
-                break
-            image = get_cv2_img_array(img_url)
-            if image is not None:
-                break
+        image, img_url = catch_img(imgs, col_name)
 
         if image is None:
             print ('bad img url')

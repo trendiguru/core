@@ -2,7 +2,8 @@
 import annoy
 from ..constants import db
 from time import time
-
+import db_utils
+import os
 
 def plantAnnoyForest(col_name, category, num_of_trees, hold=True,distance_function='angular'):
     """"
@@ -90,12 +91,48 @@ def lumberjack(col_name,category,fingerprint, distance_function='angular', num_o
     """
     use annoy to quickly chop down the database and return only the top 1000 trees
     """
+    log_name = '/home/developer/yonti/annoy.log'
     print('searching for top 1000 items in %s' %(col_name))
     s = time()
     forest = annoy.AnnoyIndex(696, distance_function)
     name = '/home/developer/annoyJungle/' + col_name + "/" + category + '_forest.ann'
+    t1= time()
     forest.load(name)
+    t2 = time()
     result = forest.get_nns_by_vector(fingerprint,num_of_results)
     f = time()
-    print("got it in %s secs!"%(str(f-s)))
+    total_duration = str(f-s)
+    load_duration = str(t2-t1)
+    search_duration = str(f-t2)
+    forest.unload()
+    del forest
+    print("got it in %s secs!"% total_duration)
+    msg = 'collection: %s, category: %s, duration: %s (load : %s, search: %s)' \
+          % (col_name, category, total_duration, load_duration, search_duration)
+    db_utils.log2file(mode='a', log_filename=log_name, message=msg, print_flag=True)
     return result
+
+
+def load_all_forests():
+    base = '/home/developer/annpyJungle'
+    tmp = os.listdir(base)
+    fs = []
+    for dir_name in tmp:
+        path = base + '/' + dir_name
+        files = os.listdir(path)
+        for f in files:
+            if f[-4:] == '.ann':
+                t = path + '/' + f
+                key = dir_name+'.'+f
+                fs.append((key,t))
+
+    forests = {}
+    for f in fs:
+        k = f[0]
+        forest_handle = annoy.AnnoyIndex(696, 'angular')
+        forest_handle.load(f[1])
+        forests[k] = forest_handle
+
+    return forests
+
+

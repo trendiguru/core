@@ -63,7 +63,7 @@ def handle_post(image_url, page_url, products_collection, method):
     if image_url[:4] == "data":
         return False
 
-    if db.iip.find_one({'image_url': image_url}) or db.irrelevant_images.find_one({'image_urls': image_url}):
+    if db.iip.find_one({'image_urls': image_url}) or db.irrelevant_images.find_one({'image_urls': image_url}):
         return False
 
     # IF IMAGE IS IN DB.IMAGES:
@@ -199,6 +199,7 @@ def get_collection_from_ip_and_pid(ip, pid='default'):
         else:
             return default_map['default']
 
+
 # ---------------------------------------- PROCESS-FUNCTIONS ---------------------------------------------
 
 def add_results_from_collection(image_obj, collection):
@@ -234,7 +235,7 @@ def check_if_relevant(image_url, page_url, products_collection, method):
     image_obj = {'people': [{'person_id': str(bson.ObjectId()), 'face': face.tolist(),
                              'gender': genderize(image, face.tolist())['gender']} for face in relevance.faces],
                  'image_url': image_url, 'page_url': page_url}
-    db.iip.insert_one({'image_url': image_url, 'insert_time': datetime.datetime.utcnow()})
+    db.iip.insert_one({'image_urls': image_url, 'insert_time': datetime.datetime.utcnow()})
     db.genderator.insert_one(image_obj)
     start_pipeline.enqueue_call(func="", args=(page_url, image_url, products_collection, method),
                                 ttl=2000, result_ttl=2000, timeout=2000)

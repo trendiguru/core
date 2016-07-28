@@ -49,7 +49,6 @@ def url_to_image(url):
     return new_image
 
 
-
 def get_multilabel_output(url_or_np_array,required_image_size=(224,224)):
     if isinstance(url_or_np_array, basestring):
         image = url_to_image(url_or_np_array)
