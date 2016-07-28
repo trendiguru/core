@@ -344,6 +344,8 @@ class JrMultilabel(caffe.Layer):
         self.augment_crop_size = params.get('augment_crop_size',(227,227)) #
         self.augment_show_visual_output = params.get('augment_show_visual_output',False)
         self.augment_distribution = params.get('augment_distribution','uniform')
+        self.n_labels = params.get('n_labels',21)
+
 
         print('imfile {} mean {} imagesdir {} randinit {} randpick {} '.format(self.images_and_labels_file, self.mean,self.images_dir,self.random_init, self.random_pick))
         print('see {} newsize {} batchsize {} augment {} augmaxangle {} '.format(self.seed,self.new_size,self.batch_size,self.augment_images,self.augment_max_angle))
@@ -404,6 +406,7 @@ class JrMultilabel(caffe.Layer):
                 if img_arr is not None:
                     vals = line.split()[1:]
                     label_vec = [int(i) for i in vals]
+                    self.n_labels = len(vals)
                     label_vec = np.array(label_vec)
                     self.n_labels = len(label_vec)
                     if self.n_labels == 1:
@@ -424,10 +427,11 @@ class JrMultilabel(caffe.Layer):
                             print('something wrong w. image of size {} and label of size {}'.format(in_.shape,label_vec.shape))
                 else:
                     print('got bad image:'+self.imagefiles[ind])
-        else:
+        else:  #
             for line in self.images_and_labels_list:
                 imgfilename = line.split()[0]
                 vals = line.split()[1:]
+                self.n_labels = len(vals)
                 label_vec = [int(i) for i in vals]
                 label_vec = np.array(label_vec)
                 self.n_labels = len(label_vec)
@@ -457,7 +461,6 @@ class JrMultilabel(caffe.Layer):
 #            top[0].reshape(self.batch_size, 3, self.augment_crop_size[0], self.augment_crop_size[1])
 
         top[1].reshape(self.batch_size, self.n_labels)
-        print('label length:'+str(self.n_labels))
 
     def reshape(self, bottom, top):
         pass
