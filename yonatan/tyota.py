@@ -55,11 +55,7 @@ def url_to_image(url):
     return new_image
 
 #def theDetector(image):
-def theDetector(argv):
-
-    parser = argparse.ArgumentParser()
-
-    args = parser.parse_args()
+def theDetector(path):
 
     first_start = time.time()
 
@@ -69,13 +65,13 @@ def theDetector(argv):
     #    full_image = url_to_image(argv)
     #elif type(argv) == np.ndarray:
     #    full_image = argv
-    if os.path.isdir(args.input_file):
-        print("Loading folder: %s" % args.input_file)
+    if os.path.isdir(path):
+        print("Loading folder: %s" % path)
         full_image = [caffe.io.load_image(im_f)
-                  for im_f in glob.glob(args.input_file + '/*.jpg')]
+                  for im_f in glob.glob(path + '/*.jpg')]
     else:
         print("Loading file")
-        full_image = caffe.io.load_image(args.input_file)
+        full_image = caffe.io.load_image(path)
 
     #checks if the face coordinates are inside the image
     #height, width, channels = full_image.shape
@@ -108,4 +104,6 @@ def theDetector(argv):
             print 'Female'
 
 if __name__ == '__main__':
-    theDetector(sys.argv)
+    parser = argparse.ArgumentParser()
+    args = parser.parse_args()
+    theDetector(args.path)
