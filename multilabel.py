@@ -28,7 +28,7 @@ modelpath = '/home/jeremy/caffenets/production'
 solverproto = os.path.join(modelpath,'ResNet-101-test.prototxt')
 deployproto = os.path.join(modelpath,'ResNet-101-deploy.prototxt')
 caffemodel = os.path.join(modelpath,'multilabel_resnet101_sgd_iter_120000.caffemodel')
-with open('/home/jeremy/core/log.txt','a') as logfile:
+with open('/home/jeremy/core/log.txt','a+') as logfile:
     logfile.write(solverproto+' '+deployproto+' '+caffemodel+'\n')
 print('solver proto {} deployproto {} caffemodel {}'.format(solverproto,deployproto,caffemodel))
 print('set_mode_gpu()')
