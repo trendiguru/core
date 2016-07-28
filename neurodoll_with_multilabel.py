@@ -21,29 +21,7 @@ from trendi import pipeline
 from trendi.paperdoll import neurodoll_falcon_client as nfc
 
 
-#LOAD NEURODOLL
-'''
-MODEL_FILE = "/home/jeremy/voc8_15_pixlevel_deploy.prototxt"
-SINGLE_CLASS_LAYER_DEPLOY = "/home/jeremy/voc8_15_pixlevel_deploy_with_sigmoid.prototxt"
-PRETRAINED = "/home/jeremy/voc8_15_pixlevel_iter120000.caffemodel"
-caffe.set_mode_gpu()
-caffe.set_device(1)
-print('loading caffemodel for neurodoll (single class layers)')
-neurodoll_per_class_net = caffe.Net(SINGLE_CLASS_LAYER_DEPLOY,PRETRAINED, caffe.TEST)
-neurodoll_required_image_size = (256, 256)
-image_mean = np.array([107.0,117.0,123.0])
-input_scale = None
-channel_swap = [2, 1, 0]
-raw_scale = 255.0
 
-###########LOAD MULTILABELLER
-caffemodel =  '/home/jeremy/caffenets/multilabel/vgg_ilsvrc_16_multilabel_2/snapshot/train_iter_340000.caffemodel'
-deployproto = '/home/jeremy/caffenets/multilabel/vgg_ilsvrc_16_multilabel_2/deploy.prototxt'
-caffe.set_mode_gpu()
-caffe.set_device(0)
-multilabel_net = caffe.Net(deployproto,caffemodel, caffe.TEST)
-multilabel_required_image_size = (227,227)
-'''
 
 def url_to_image(url):
     # download the image, convert it to a NumPy array, and then read
@@ -174,3 +152,27 @@ if __name__ == "__main__":
     url = 'http://pinmakeuptips.com/wp-content/uploads/2015/02/1.4.jpg'
 #    get_nd_and_multilabel_output_using_nfc(url_or_np_array)
     combine_neurodoll_and_multilabel(url)
+
+    #LOAD NEURODOLL
+'''
+MODEL_FILE = "/home/jeremy/voc8_15_pixlevel_deploy.prototxt"
+SINGLE_CLASS_LAYER_DEPLOY = "/home/jeremy/voc8_15_pixlevel_deploy_with_sigmoid.prototxt"
+PRETRAINED = "/home/jeremy/voc8_15_pixlevel_iter120000.caffemodel"
+caffe.set_mode_gpu()
+caffe.set_device(1)
+print('loading caffemodel for neurodoll (single class layers)')
+neurodoll_per_class_net = caffe.Net(SINGLE_CLASS_LAYER_DEPLOY,PRETRAINED, caffe.TEST)
+neurodoll_required_image_size = (256, 256)
+image_mean = np.array([107.0,117.0,123.0])
+input_scale = None
+channel_swap = [2, 1, 0]
+raw_scale = 255.0
+
+###########LOAD MULTILABELLER
+caffemodel =  '/home/jeremy/caffenets/multilabel/vgg_ilsvrc_16_multilabel_2/snapshot/train_iter_340000.caffemodel'
+deployproto = '/home/jeremy/caffenets/multilabel/vgg_ilsvrc_16_multilabel_2/deploy.prototxt'
+caffe.set_mode_gpu()
+caffe.set_device(0)
+multilabel_net = caffe.Net(deployproto,caffemodel, caffe.TEST)
+multilabel_required_image_size = (227,227)
+'''
