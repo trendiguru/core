@@ -55,6 +55,8 @@ def url_to_image(url):
 #def theDetector(image):
 def theDetector(url_or_np_array):
 
+    first_start = time.time()
+
     print "Starting the genderism!"
     # check if i get a url (= string) or np.ndarray
     #if isinstance(url_or_np_array, basestring):
