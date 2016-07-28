@@ -104,6 +104,6 @@ def theDetector(path):
             print 'Female'
 
 if __name__ == '__main__':
-    parser = argparse.ArgumentParser()
-    args = parser.parse_args()
-    theDetector(args.path)
+    # parser = argparse.ArgumentParser()
+    # args = parser.parse_args()
+    theDetector(sys.argv[1])
