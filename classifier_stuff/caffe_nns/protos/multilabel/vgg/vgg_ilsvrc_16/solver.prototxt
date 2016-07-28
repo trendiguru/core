@@ -6,7 +6,7 @@ test_iter: 500
 test_interval: 500000 
 display: 20
 average_loss: 20
-lr_policy: "step"
+lr_policy: "fixed"
 gamma: 0.001
 stepsize: 1000
 # lr for unnormalized softmax
@@ -34,3 +34,6 @@ type: "AdaGrad"
 #momentum: 0.9
 
 solver_mode: GPU
+
+
+#
