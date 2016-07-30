@@ -690,7 +690,7 @@ if __name__ =="__main__":
     parser.add_argument('--testproto',  help='test prototxt')
     parser.add_argument('--caffemodel', help='caffmodel')
     parser.add_argument('--gpu', help='gpu #',default=0)
-    parser.add_argument('--output_layer_name', help='output layer name',default='label')
+    parser.add_argument('--output_layer_name', help='output layer name',default='prob')
     parser.add_argument('--n_tests', help='number of examples to test',default=100)
 
     caffemodel = '/home/jeremy/caffenets/production/multilabel_resnet50_sgd_iter_120000.caffemodel'

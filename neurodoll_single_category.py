@@ -184,9 +184,14 @@ def get_final_activation(url_or_np_array,category_index,required_image_size=(256
     return out.astype(np.uint8)
 
 
-MODEL_FILE = "/home/jeremy/voc8_15_pixlevel_deploy.prototxt"
-SINGLE_CLASS_LAYER_DEPLOY = "/home/jeremy/voc8_15_pixlevel_deploy_with_sigmoid.prototxt"
-PRETRAINED = "/home/jeremy/voc8_15_pixlevel_iter120000.caffemodel"
+print('starting multilabel.py')
+protopath = os.path.join(os.path.dirname(os.path.abspath( __file__ )), 'classifier_stuff/caffe_nns/protos')
+modelpath = '/home/jeremy/caffenets/production'
+
+
+MODEL_FILE = os.path.join(modelpath,'voc8_15_pixlevel_deploy.prototxt')
+SINGLE_CLASS_LAYER_DEPLOY = os.path.join(modelpath,"voc8_15_pixlevel_deploy_with_sigmoid.prototxt")
+PRETRAINED = os.path.join(modelpath,"voc8_15_pixlevel_iter120000.caffemodel")
 caffe.set_mode_gpu()
 caffe.set_device(0)
 net = caffe.Net(SINGLE_CLASS_LAYER_DEPLOY,PRETRAINED, caffe.TEST)

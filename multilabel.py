@@ -2,6 +2,7 @@ __author__ = 'jeremy'
 
 import cv2
 import caffe
+import os
 import logging
 logging.basicConfig(level=logging.DEBUG)
 
@@ -13,13 +14,30 @@ from trendi import constants
 
 ###########LOAD MULTILABELLER
 #these are on braini2
-caffemodel = '/home/jeremy/caffenets/production/multilabel_resnet50_sgd_iter_110000.caffemodel'
-deployproto = '/home/jeremy/core/classifier_stuff/caffe_nns/protos/multilabel/resnet/ResNet-50-deploy.prototxt'
+#caffemodel = '/home/jeremy/caffenets/production/multilabel_resnet50_sgd_iter_110000.caffemodel'
+#deployproto = '/home/jeremy/core/classifier_stuff/caffe_nns/protos/multilabel/resnet/ResNet-50-deploy.prototxt'
+#caffemodel = '/home/jeremy/caffenets/production/multilabel_resnet50_sgd_iter_120000.caffemodel'
+#solverproto = '/home/jeremy/caffenets/production/ResNet-50-test.prototxt'
+#    caffemodel =  '/home/jeremy/caffenets/multilabel/vgg_ilsvrc_16_multilabel_2/snapshot/train_iter_340000.caffemodel'
+#    deployproto = '/home/jeremy/caffenets/multilabel/vgg_ilsvrc_16_multilabel_2/deploy.prototxt'
+
+#best as of 260716, see http://extremeli.trendi.guru/demo/results/ for updates
+print('starting multilabel.py')
+protopath = os.path.join(os.path.dirname(os.path.abspath( __file__ )), 'classifier_stuff/caffe_nns/protos')
+modelpath = '/home/jeremy/caffenets/production'
+solverproto = os.path.join(modelpath,'ResNet-101-test.prototxt')
+deployproto = os.path.join(modelpath,'ResNet-101-deploy.prototxt')
+caffemodel = os.path.join(modelpath,'multilabel_resnet101_sgd_iter_120000.caffemodel')
+with open('/home/jeremy/core/log.txt','a+') as logfile:
+    logfile.write(solverproto+' '+deployproto+' '+caffemodel+'\n')
+print('solver proto {} deployproto {} caffemodel {}'.format(solverproto,deployproto,caffemodel))
+print('set_mode_gpu()')
 caffe.set_mode_gpu()
+print('device 1')
 caffe.set_device(1)
 multilabel_net = caffe.Net(deployproto,caffemodel, caffe.TEST)
 multilabel_required_image_size = (224,224)
-
+#
 
 def url_to_image(url):
     # download the image, convert it to a NumPy array, and then read
@@ -33,7 +51,6 @@ def url_to_image(url):
     new_image = cv2.imdecode(image, cv2.IMREAD_COLOR)
     # return the image
     return new_image
-
 
 
 def get_multilabel_output(url_or_np_array,required_image_size=(224,224)):

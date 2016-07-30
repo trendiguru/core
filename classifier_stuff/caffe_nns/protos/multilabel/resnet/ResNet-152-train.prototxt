@@ -7081,13 +7081,22 @@ layer {
 	type: "InnerProduct"
 	inner_product_param {
 		num_output: 21
+                weight_filler {
+                type: "xavier"
+                   }
+                bias_filler {
+                type: "constant"
+                  }
 	}
-	 param {
-		  lr_mult: 10
-		  decay_mult: 10
-		}
+         param {
+                  lr_mult: 100
+                  decay_mult: 100
+                }
+         param {
+                    lr_mult: 200
+                   decay_mult: 0
+                }
 }
-
 #layer {
 #	bottom: "myfc21"
 #	top: "prob"

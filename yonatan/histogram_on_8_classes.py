@@ -21,7 +21,7 @@ array_failure_with_plus_minus_category = np.array([])
 array_success_without = np.array([])
 array_failure_without = np.array([])
 
-text_file = open("db_dress_sleeve_test.txt", "r")
+text_file = open("db_dress_sleeve_train.txt", "r")
 
 counter = 0
 
