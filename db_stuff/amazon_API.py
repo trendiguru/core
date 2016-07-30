@@ -562,8 +562,11 @@ def download_all(collection_name, gender='Female', del_collection=False, del_cac
         tmp1 = tmp2 = leg
         tmp1['categories'] = 'tights'
         tmp2['categories'] = 'stockings'
-        collection.insert_one(tmp1)
-        collection.insert_one(tmp2)
+        try:
+            collection.insert_one(tmp1)
+            collection.insert_one(tmp2)
+        except :
+            print ('bad insert')
 
     collection_cache.delete_many({})
     message = '%s is Done!' % collection_name
