@@ -7089,8 +7089,8 @@ layer {
                   }
 	}
          param {
-                  lr_mult: 100
-                  decay_mult: 100
+                  lr_mult: 10
+                  decay_mult: 10
                 }
          param {
                     lr_mult: 200
