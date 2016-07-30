@@ -551,7 +551,7 @@ def download_all(collection_name, gender='Female', del_collection=False, del_cac
         iteration += 1
 
     log2file(mode='a', log_filename=status_log, message='DOWNLOAD FINISHED', print_flag=True)
-    clear_duplicates(collection_name)  # add status bar
+    # clear_duplicates(collection_name)  # add status bar
     print_error('CLEAR DUPLICATES FINISHED')
     theArchiveDoorman(collection_name, instock_limit=7, archive_limit=14)
 
@@ -562,7 +562,7 @@ def download_all(collection_name, gender='Female', del_collection=False, del_cac
         tmp1=tmp2 = leg
         tmp1['categories'] = 'tights'
         tmp2['categories'] = 'stockings'
-        collection.insert_many(tmp1, tmp2)
+        collection.insert_many([tmp1, tmp2])
 
     collection_cache.delete_many({})
     message = '%s is Done!' % collection_name
