@@ -559,10 +559,11 @@ def download_all(collection_name, gender='Female', del_collection=False, del_cac
     leggings = collection.find({'categories':'leggings'})
     for leg in leggings:
         leg.pop('_id', None)
-        tmp1=tmp2 = leg
+        tmp1 = tmp2 = leg
         tmp1['categories'] = 'tights'
         tmp2['categories'] = 'stockings'
-        collection.insert_many([tmp1, tmp2])
+        collection.insert_one(tmp1)
+        collection.insert_one(tmp2)
 
     collection_cache.delete_many({})
     message = '%s is Done!' % collection_name
