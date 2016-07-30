@@ -57,7 +57,7 @@ from amazon_signature import get_amazon_signed_url
 from time import strftime, gmtime, sleep, time
 from requests import get
 import xmltodict
-from db_utils import log2file, print_error, theArchiveDoorman
+from db_utils import log2file, print_error, theArchiveDoorman, progress_bar
 from ..Yonti.pymongo_utils import delete_or_and_index
 from ..constants import db, redis_conn
 from rq import Queue
@@ -87,6 +87,8 @@ last_time = time()
 FashionGender = 'FashionWomen'
 error_flag = False
 last_price = 3000.00
+last_pct =0
+
 
 def proper_wait(print_flag=False):
     global last_time
@@ -408,10 +410,15 @@ def delete_if_not_same_id(collection_name, item_id, matches):
 
 
 def clear_duplicates(name):
+    global last_pct
     collection = db[name]
     before = collection.count()
     all_items = collection.find()
-    for item in all_items:
+    block_size = before/100
+    for i, item in enumerate(all_items):
+        m, r = divmod(i, block_size)
+        if r == 0:
+            last_pct = progress_bar(block_size, before, m, last_pct)
         item_id = item['_id']
         keys = item.keys()
         if 'asin' not in keys:
@@ -544,7 +551,7 @@ def download_all(collection_name, gender='Female', del_collection=False, del_cac
         iteration += 1
 
     log2file(mode='a', log_filename=status_log, message='DOWNLOAD FINISHED', print_flag=True)
-    clear_duplicates(collection_name)
+    clear_duplicates(collection_name)  # add status bar
     print_error('CLEAR DUPLICATES FINISHED')
     theArchiveDoorman(collection_name, instock_limit=7, archive_limit=14)
 
