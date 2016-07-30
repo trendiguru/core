@@ -76,6 +76,7 @@ class Classifier(caffe.Net):
         print("resize Done in %.2f s." % (time.time() - start_resize))
 
         if oversample:
+            print self.crop_dims
             # Generate center, corner, and mirrored crops.
             input_ = caffe.io.oversample(input_, self.crop_dims)
         else:

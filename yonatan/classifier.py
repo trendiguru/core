@@ -77,7 +77,6 @@ class Classifier(caffe.Net):
         start_resize = time.time()
 
         for ix, in_ in enumerate(inputs):
-            print ix
             input_[ix] = caffe.io.resize_image(in_, self.image_dims)
 
         print("resize Done in %.2f s." % (time.time() - start_resize))
