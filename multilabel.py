@@ -1,9 +1,8 @@
 __author__ = 'jeremy'
 
 import cv2
-print('d0')
 import caffe
-print('d1')
+import os
 import logging
 logging.basicConfig(level=logging.DEBUG)
 
@@ -26,10 +25,10 @@ from trendi import constants
 print('starting multilabel.py')
 protopath = os.path.join(os.path.dirname(os.path.abspath( __file__ )), 'classifier_stuff/caffe_nns/protos')
 modelpath = '/home/jeremy/caffenets/production'
-solverproto = os.path.join(protopath,'multilabel/resnet/ResNet-101-test.prototxt'
-deployproto = os.path.join(protopath,'ResNet-101-deploy.prototxt'
-caffemodel = os.path.join(modelpath,'multilabel_resnet101_sgd_iter_120000.caffemodel'
-with open('/home/jeremy/core/log.txt','a') as logfile:
+solverproto = os.path.join(modelpath,'ResNet-101-test.prototxt')
+deployproto = os.path.join(modelpath,'ResNet-101-deploy.prototxt')
+caffemodel = os.path.join(modelpath,'multilabel_resnet101_sgd_iter_120000.caffemodel')
+with open('/home/jeremy/core/log.txt','a+') as logfile:
     logfile.write(solverproto+' '+deployproto+' '+caffemodel+'\n')
 print('solver proto {} deployproto {} caffemodel {}'.format(solverproto,deployproto,caffemodel))
 print('set_mode_gpu()')
