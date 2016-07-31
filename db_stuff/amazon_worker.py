@@ -9,7 +9,7 @@ from db_utils import print_error, get_hash
 from .amazon_constants import plus_sizes
 today_date = str(datetime.date(datetime.now()))
 
-q = Queue('fingerprinter3db', connection=redis_conn)
+q = Queue('fingerprinter4db', connection=redis_conn)
 
 
 def swap_amazon_to_ppd(cat, sub_cat):
