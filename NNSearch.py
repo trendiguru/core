@@ -109,6 +109,7 @@ def annoy_search(collection, category, fingerprint):
             annoy_job.cancel()
             annoy_job = q.enqueue(fanni.lumberjack, args=(collection, category, fingerprint))
             tries+=1
+            t1= time()
         sleep(0.1)
     if annoy_job.is_failed or tries > 9:
         return []
