@@ -101,15 +101,15 @@ def distance_Bhattacharyya(fp1, fp2, weights, hist_length):
 def annoy_search(collection, category, fingerprint):
     t1 = time()
     annoy_job = q.enqueue(fanni.lumberjack, args=(collection, category, fingerprint))
-    tries =0
-    while not annoy_job.is_finished and not annoy_job.is_failed and tries < 10:
-        t2= time()
+    tries = 0
+    while not annoy_job.is_finished and not annoy_job.is_failed and tries < 5:
+        t2 = time()
         duration = t2-t1
-        if duration > 1:
+        if duration > 1.5:
             annoy_job.cancel()
             annoy_job = q.enqueue(fanni.lumberjack, args=(collection, category, fingerprint))
             tries+=1
-            t1= time()
+            t1 = time()
         sleep(0.1)
     if annoy_job.is_failed or tries > 9:
         return []
