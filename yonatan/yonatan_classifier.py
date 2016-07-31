@@ -45,7 +45,7 @@ class Classifier(caffe.Net):
             image_dims = self.crop_dims
         self.image_dims = image_dims
 
-    def predict(self, inputs, oversample=True):
+    def predict(self, inputs, oversample=False):
         """
         Predict classification probabilities of inputs.
 

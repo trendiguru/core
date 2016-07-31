@@ -92,7 +92,6 @@ for line in text_file:
     except requests.exceptions.ConnectionError:
         continue
 
-    print response
     full_image = cv2.imdecode(np.asarray(bytearray(response.content)), 1)
 
     if full_image is None:
