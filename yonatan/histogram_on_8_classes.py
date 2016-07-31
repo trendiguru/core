@@ -14,6 +14,7 @@ from PIL import Image
 from . import gender_detector
 import random
 import matplotlib.pyplot as plt
+import yonatan_classifier
 
 
 array_success_with_plus_minus_category = np.array([])
@@ -21,7 +22,7 @@ array_failure_with_plus_minus_category = np.array([])
 array_success_without = np.array([])
 array_failure_without = np.array([])
 
-text_file = open("db_dress_sleeve_train.txt", "r")
+text_file = open("db_dress_sleeve_test.txt", "r")
 
 counter = 0
 
@@ -37,7 +38,8 @@ raw_scale = 255.0
 ext = 'jpg'
 
 # Make classifier.
-classifier = caffe.Classifier(MODLE_FILE, PRETRAINED,
+#classifier = caffe.Classifier(MODLE_FILE, PRETRAINED,
+classifier = yonatan_classifier.Classifier(MODLE_FILE, PRETRAINED,
                               image_dims=image_dims, mean=mean,
                               input_scale=input_scale, raw_scale=raw_scale,
                               channel_swap=channel_swap)

@@ -45,7 +45,7 @@ class Classifier(caffe.Net):
             image_dims = self.crop_dims
         self.image_dims = image_dims
 
-    def predict(self, inputs, oversample=False):
+    def predict(self, inputs, oversample=True):
         """
         Predict classification probabilities of inputs.
 
@@ -68,12 +68,12 @@ class Classifier(caffe.Net):
                            inputs[0].shape[2]),
                           dtype=np.float32)
 
-        start_resize = time.time()
+        #start_resize = time.time()
 
         for ix, in_ in enumerate(inputs):
             input_[ix] = caffe.io.resize_image(in_, self.image_dims)
 
-        print("resize Done in %.2f s." % (time.time() - start_resize))
+        #print("resize Done in %.2f s." % (time.time() - start_resize))
 
         if oversample:
             #print self.crop_dims
