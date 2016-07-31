@@ -232,10 +232,16 @@ paperdoll_relevant_categories = ['top', 'pants', 'shorts', 'jeans', 'jacket', 'b
 ultimate_21_to_paperdoll = [None,None,None,5,16,9,None,None,None,None,3,13,1,None,2,None,7,20,17,14,8]
 
 
-
+#used for pixel level output of neurodoll as of 260716
 ultimate_21 = ['bgnd','bag','belt','blazer','coat','dress','eyewear','face','hair','hat',
                'jeans','leggings','pants','shoe','shorts','skin','skirt','stockings','suit','sweater',
                'top']
+
+#used for pixel level output of neurodoll as of 260716
+ultimate_21_dict = {'bag': 1, 'belt': 2, 'bgnd': 0, 'blazer': 3, 'coat': 4, 'dress': 5, 'eyewear': 6, 'face': 7, 'hair': 8, 'hat': 9,
+    'jeans': 10, 'legging': 11, 'pants': 12, 'shoe': 13, 'shorts': 14, 'skin': 15,  'skirt': 16, 'stocking': 17, 'suit': 18, 'sweater': 19, 'top': 20}
+
+web_tool_categories_v1_to_ultimate_21 = [1, 2, 3, 19, 4, 5, 6, 13, 9, 4, 10, 12, 14, 16, 17, 18,19, 20, None, None, None]
 
 
 tamara_berg_improved_categories = ['background','belt','dress','eyewear','footwear','hat','legging','outerwear','pants','skirts',
@@ -245,6 +251,8 @@ tamara_berg_improved_categories = ['background','belt','dress','eyewear','footwe
 tamara_berg_categories = ['bag', 'belt', 'dress', 'eyewear', 'footwear', 'hat', 'legging', 'outerwear', 'pants','skirts',
                           'top', 'skin', 'background']   # orig t.b. cats don't have skin or bg
 
+#these are in use for multilabeller output as of 260716 - will prob change to v2 in near future so i can use
+#results of filipino categorization efforts
 web_tool_categories = ['bag', 'belt', 'blazer','cardigan','coat','dress', 'eyewear', 'footwear', 'hat','jacket',
                        'jeans','pants','shorts', 'skirt','stocking','suit','sweater','top','scarf','womens_swimwear_bikini',
                        'womens_swimwear_nonbikini']
@@ -271,10 +279,6 @@ paperdoll_categories = {"whole_body": ['bodysuit', 'dress', 'jumper', 'suit', 'r
                         "lower_cover": ['shorts', 'skirt', 'jeans', 'pants'],
                         "lower_under": ['stockings', 'tights', 'leggings']}
 
-
-
-ultimate_21_dict = {'bag': 1, 'belt': 2, 'bgnd': 0, 'blazer': 3, 'coat': 4, 'dress': 5, 'eyewear': 6, 'face': 7, 'hair': 8, 'hat': 9,
-    'jeans': 10, 'legging': 11, 'pants': 12, 'shoe': 13, 'shorts': 14, 'skin': 15,  'skirt': 16, 'stocking': 17, 'suit': 18, 'sweater': 19, 'top': 20}
 
 
 nn_categories = {"whole_body": ['dress', 'suit'],

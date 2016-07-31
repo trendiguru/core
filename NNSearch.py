@@ -97,6 +97,26 @@ def distance_Bhattacharyya(fp1, fp2, weights, hist_length):
 #     nearest_n = [result[0] for result in nearest_n]
 #     return nearest_n
 
+
+def annoy_search(collection, category, fingerprint):
+    t1 = time()
+    annoy_job = q.enqueue(fanni.lumberjack, args=(collection, category, fingerprint))
+    tries =0
+    while not annoy_job.is_finished and not annoy_job.is_failed and tries < 10:
+        t2= time()
+        duration = t2-t1
+        if duration > 1:
+            annoy_job.cancel()
+            annoy_job = q.enqueue(fanni.lumberjack, args=(collection, category, fingerprint))
+            tries+=1
+            t1= time()
+        sleep(0.1)
+    if annoy_job.is_failed or tries > 9:
+        return []
+    else:
+        return annoy_job.result
+
+
 def find_n_nearest_neighbors(target_dict, collection, category, number_of_matches, fp_weights,
                                  hist_length, fp_key, distance_function=None):
 
@@ -106,12 +126,9 @@ def find_n_nearest_neighbors(target_dict, collection, category, number_of_matche
     entries = db[collection].find({'categories':category},
                                   {"id": 1, "fingerprint": 1, "images.XLarge": 1, "clickUrl": 1})
     if entries.count() > 2000:
-        annoy_job = q.enqueue(fanni.lumberjack, args=(collection,category, fingerprint))
-        while not annoy_job.is_finished and not annoy_job.is_failed:
-            sleep(0.1)
-        if annoy_job.is_failed:
+        top1000 = annoy_search(collection, category, fingerprint)
+        if not len(top1000):
             return []
-        top1000 = annoy_job.result
         entries = db[collection].find({"AnnoyIndex": {"$in": top1000}, 'categories': category},
                                       {"id": 1, "fingerprint": 1, "images.XLarge": 1, "clickUrl": 1})
 

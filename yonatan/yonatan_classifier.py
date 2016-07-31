@@ -7,6 +7,7 @@ import numpy as np
 
 import caffe
 
+import time
 
 class Classifier(caffe.Net):
     """
@@ -66,10 +67,16 @@ class Classifier(caffe.Net):
                            self.image_dims[1],
                            inputs[0].shape[2]),
                           dtype=np.float32)
+
+        start_resize = time.time()
+
         for ix, in_ in enumerate(inputs):
             input_[ix] = caffe.io.resize_image(in_, self.image_dims)
 
+        print("resize Done in %.2f s." % (time.time() - start_resize))
+
         if oversample:
+            print self.crop_dims
             # Generate center, corner, and mirrored crops.
             input_ = caffe.io.oversample(input_, self.crop_dims)
         else:

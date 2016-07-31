@@ -4,8 +4,31 @@ from ..constants import db, redis_conn
 from datetime import datetime
 from ..Yonti import pymongo_utils
 from rq import Queue
+import sys
 q = Queue('refresh', connection=redis_conn)
 today_date = str(datetime.date(datetime.now()))
+last_percent_reported = None
+count = 1
+
+
+def progress_bar(blocksize, total, last_cnt = None, last_pct=None):
+    global last_percent_reported, count
+    last_count = last_cnt or count
+    percent = int(last_count*blocksize *100/ total)
+
+    last_percent = last_pct or last_percent_reported
+    if last_percent != percent:
+        if percent % 5 == 0:
+            sys.stdout.write('%s%%' % percent)
+            sys.stdout.flush()
+        else:
+            sys.stdout.write('.')
+            sys.stdout.flush()
+
+        last_percent_reported = percent
+        count += 1
+
+    return percent
 
 
 def print_error(title, message=''):
@@ -65,8 +88,19 @@ def theArchiveDoorman(col_name, instock_limit=2, archive_limit=7):
     pymongo_utils.delete_or_and_index(collection_name=archive_name, index_list=['id'])
     collection_archive = db[archive_name]
     archivers = collection_archive.find()
+    notUpdated = collection.find({"download_data.dl_version": {"$ne": today_date}})
+    outStockers = collection.find({'status.instock': False})
+    archivers_count = archivers.count()
+    notUpdated_count = notUpdated.count()
+    outStockers_count = outStockers.count()
+    total = archivers_count + notUpdated_count + outStockers_count
+    block_size = total/200
+
     y_new, m_new, d_new = map(int, today_date.split("-"))
-    for item in archivers:
+    a = n = 0
+    for a, item in enumerate(archivers):
+        if a % block_size == 0:
+            progress_bar(block_size, total)
         y_old, m_old, d_old = map(int, item["download_data"]["dl_version"].split("-"))
         days_out = 365 * (y_new - y_old) + 30 * (m_new - m_old) + (d_new - d_old)
         if days_out < archive_limit:
@@ -75,8 +109,10 @@ def theArchiveDoorman(col_name, instock_limit=2, archive_limit=7):
             collection_archive.delete_one({'id': item['id']})
 
     # add to the archive items which were not downloaded in the last 2 days
-    notUpdated = collection.find({"download_data.dl_version": {"$ne": today_date}})
-    for item in notUpdated:
+    progress = a
+    for n, item in enumerate(notUpdated):
+        if (n+progress) % block_size == 0:
+            progress_bar(block_size, total)
         y_old, m_old, d_old = map(int, item["download_data"]["dl_version"].split("-"))
         days_out = 365 * (y_new - y_old) + 30 * (m_new - m_old) + (d_new - d_old)
         if days_out > instock_limit:
@@ -89,10 +125,11 @@ def theArchiveDoorman(col_name, instock_limit=2, archive_limit=7):
                 item['status']['instock'] = False
                 item['status']['days_out'] = days_out
                 collection_archive.insert_one(item)
-
+    progress = n + a
     # move to the archive all the items which were downloaded today but are out of stock
-    outStockers = collection.find({'status.instock': False})
-    for item in outStockers:
+    for o, item in enumerate(outStockers):
+        if (o + progress) % block_size == 0:
+            progress_bar(block_size, total)
         collection.delete_one({'id': item['id']})
         existing = collection_archive.find_one({"id": item["id"]})
         if existing:
