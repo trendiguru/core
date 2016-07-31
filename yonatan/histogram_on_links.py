@@ -12,6 +12,8 @@ from trendi import background_removal, Utils, constants
 import cv2
 import urllib
 import skimage
+import requests
+import yonatan_classifier
 
 
 MODLE_FILE = "/home/yonatan/trendi/yonatan/Alexnet_deploy.prototxt"
@@ -24,7 +26,7 @@ channel_swap = [2, 1, 0]
 raw_scale = 255.0
 
 # Make classifier.
-classifier = caffe.Classifier(MODLE_FILE, PRETRAINED,
+classifier = yonatan_classifier.Classifier(MODLE_FILE, PRETRAINED,
                               image_dims=image_dims, mean=mean,
                               input_scale=input_scale, raw_scale=raw_scale,
                               channel_swap=channel_swap)
@@ -79,7 +81,10 @@ for line in text_file:
         print 'empty string!'
         continue
 
-    full_image = url_to_image(words[0])
+    #full_image = url_to_image(words[0])
+
+    response = requests.get(words[0])  # download
+    full_image = cv2.imdecode(np.asarray(bytearray(response.content)), 1)
 
     if full_image is None:
         continue
@@ -142,14 +147,21 @@ for line in text_file:
 
     print counter
 
-print guessed_f_instead_m
-print guessed_m_instead_f
+#print guessed_f_instead_m
+#print guessed_m_instead_f
 
+success = len(array_success)
+failure = len(array_failure)
+
+if success == 0 or failure == 0:
+    print "wrong!"
+else:
+    print 'accuracy percent: {0}'.format(float(success) / (success + failure))
 
 
 histogram=plt.figure(1)
 
-bins = np.linspace(-1000, 1000, 50)
+#bins = np.linspace(-1000, 1000, 50)
 
 plt.hist(array_success, alpha=0.5, label='array_success')
 plt.legend()
