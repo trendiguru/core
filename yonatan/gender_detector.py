@@ -7,6 +7,7 @@ import sys
 import argparse
 import glob
 import time
+import yonatan_classifier
 
 
 #def main(input_image):
@@ -25,8 +26,8 @@ def genderator(image):
     ext = 'jpg'
 
     # Make classifier.
-    classifier = caffe.Classifier(MODLE_FILE, PRETRAINED,
-            image_dims=image_dims, mean=mean,
+    classifier = yonatan_classifier.Classifier(MODLE_FILE, PRETRAINED,
+                                               image_dims=image_dims, mean=mean,
             input_scale=input_scale, raw_scale=raw_scale,
             channel_swap=channel_swap)
 
