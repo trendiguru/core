@@ -18,11 +18,11 @@ redis_conn = Redis(host=os.getenv("REDIS_HOST", "redis1-redis-1-vm"), port=int(o
 
 manual_gender_domains = ['fashionseoul.com', 'haaretz.co.il']
 which_products_collection = {'default':
-                                 {'default': 'ShopStyle', 'US': 'ebay', 'KR': 'GangnamStyle'},
+                                 {'default': 'amazon_US', 'US': 'amazon_US', 'KR': 'GangnamStyle'},
                              'fashionseoul.com':
                                  {'KR': 'GangnamStyle'}}
 products_per_ip_pid = {'default':
-                                 {'default': 'ShopStyle', 'US': 'ebay', 'KR': 'GangnamStyle'},
+                                 {'default': 'amazon_US', 'US': 'amazon_US', 'KR': 'GangnamStyle'},
                        'fashionseoul':
                                  {'KR': 'GangnamStyle'},
                        '5767jA8THOn2J0DD':
@@ -34,13 +34,13 @@ products_per_ip_pid = {'default':
                        'xuSiNIs695acaHPE':
                                  {'default': 'amaze'},
                        "Rob's Shelter":
-                                 {'default': 'ShopStyle'},
+                                 {'default': 'amazon_US'},
                        "robsdemartino@yahoo.it":
-                                 {'default': 'ShopStyle'}
-                       # "mz1_ND":
-                       #           {'default': 'amazon_US', 'US': 'amazon_US'}
+                                 {'default': 'amazon_US'},
+                       "mz1_ND":
+                                 {'default': 'amazon_US', 'US': 'amazon_US'}
                        }
-products_per_site = {'default': 'ShopStyle', 'fashionseoul.com': 'GangnamStyle', 'fazz.co': 'ShopStyle',
+products_per_site = {'default': 'amazon_US', 'fashionseoul.com': 'GangnamStyle', 'fazz.co': 'amazon_US',
                      'plus-model-mag.com': 'Fat_Beauty', 'recruit-lifestyle.co.jp': 'recruit'}
 products_per_pid = {}
 products_per_country = {'default': 'ebay', 'ebay': ['US'], 'GangnhamStyle': ['KR']}
