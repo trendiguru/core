@@ -84,6 +84,7 @@ for line in text_file:
     #full_image = url_to_image(words[0])
 
     response = requests.get(words[0])  # download
+    print response
     full_image = cv2.imdecode(np.asarray(bytearray(response.content)), 1)
 
     if full_image is None:
