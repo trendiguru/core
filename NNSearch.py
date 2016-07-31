@@ -109,11 +109,12 @@ def annoy_search(collection, category, fingerprint):
             annoy_job.cancel()
             annoy_job = q.enqueue(fanni.lumberjack, args=(collection, category, fingerprint))
             tries+=1
+            t1= time()
         sleep(0.1)
     if annoy_job.is_failed or tries > 9:
         return []
     else:
-        return annoy_job.results
+        return annoy_job.result
 
 
 def find_n_nearest_neighbors(target_dict, collection, category, number_of_matches, fp_weights,
