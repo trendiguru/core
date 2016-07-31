@@ -84,9 +84,12 @@ for line in text_file:
 
     #full_image = url_to_image(words[0])
 
-    response = requests.get(words[0])  # download
-    if response.status_code != 200:
-        counter_bad_links += 1
+    try:
+        response = requests.get(words[0])  # download
+        if response.status_code != 200:
+            counter_bad_links += 1
+            continue
+    except requests.exceptions.ConnectionError:
         continue
 
     print response
