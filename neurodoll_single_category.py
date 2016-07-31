@@ -188,13 +188,15 @@ print('starting multilabel.py')
 protopath = os.path.join(os.path.dirname(os.path.abspath( __file__ )), 'classifier_stuff/caffe_nns/protos')
 modelpath = '/home/jeremy/caffenets/production'
 
-
+print('loading caffemodel for neurodoll (single class layers)')
 MODEL_FILE = os.path.join(modelpath,'voc8_15_pixlevel_deploy.prototxt')
 SINGLE_CLASS_LAYER_DEPLOY = os.path.join(modelpath,"voc8_15_pixlevel_deploy_with_sigmoid.prototxt")
 PRETRAINED = os.path.join(modelpath,"voc8_15_pixlevel_iter120000.caffemodel")
+
 caffe.set_mode_gpu()
 caffe.set_device(0)
 net = caffe.Net(SINGLE_CLASS_LAYER_DEPLOY,PRETRAINED, caffe.TEST)
+print('finished loading caffemodel for neurodoll (single class layers)')
 
 required_image_size = (256, 256)
 image_mean = np.array([107.0,117.0,123.0])
@@ -202,7 +204,6 @@ input_scale = None
 channel_swap = [2, 1, 0]
 raw_scale = 255.0
 
-print('loading caffemodel for neurodoll (single class layers)')
 
 
 # Make classifier.

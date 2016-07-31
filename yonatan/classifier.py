@@ -91,7 +91,12 @@ class Classifier(caffe.Net):
                 -self.crop_dims / 2.0,
                 self.crop_dims / 2.0
             ])
+            print "first crop: " + crop
+
             crop = crop.astype(int)
+
+            print "crop after astype(int): " + crop
+
             input_ = input_[:, crop[0]:crop[2], crop[1]:crop[3], :]
 
         # Classify
