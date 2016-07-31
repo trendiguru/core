@@ -17,7 +17,7 @@ from ..fingerprint_core import generate_mask_and_insert
 from . import dl_excel
 
 
-q = Queue('fingerprint_new', connection=constants.redis_conn)
+q = Queue('fingerprinter4db', connection=constants.redis_conn)
 forest = Queue('annoy_forest', connection=constants.redis_conn)
 
 BASE_URL = "http://api.shopstyle.com/api/v2/"
