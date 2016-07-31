@@ -77,7 +77,10 @@ class Classifier(caffe.Net):
 
         if oversample:
             print self.crop_dims
-            print input_
+            im_shape = np.array(input_[0].shape)
+            crop_dims = np.array(self.crop_dims)
+            print im_shape
+            print crop_dims
             # Generate center, corner, and mirrored crops.
             input_ = caffe.io.oversample(input_, self.crop_dims)
         else:
