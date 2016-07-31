@@ -75,9 +75,8 @@ counter_bad_links = 0
 
 for line in text_file:
     counter += 1
-    file_as_array_by_lines = line
     # split line to link and label
-    words = file_as_array_by_lines.split()
+    words = line.split()
 
     if words == []:
         print 'empty string!'
