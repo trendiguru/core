@@ -34,7 +34,7 @@
 #59 11 * * * echo "ebay dl started at 12:00 am" >> /home/developer/yonti/download.log 2>&1
 #0 12 * * * python -m trendi.db_stuff.ebay_API > /home/developer/yonti/EBAY.log 2>&1
 59 11 * * * echo "recruit dl started at 12:00 am" >> /home/developer/yonti/download.log 2>&1
-0 12 * * * python -m trendi.db_stuff.recruit_API > /home/developer/yonti/recruit.log 2>&1
+35 12 * * * python -m trendi.db_stuff.recruit_API > /home/developer/yonti/recruit.log 2>&1
 
 
 

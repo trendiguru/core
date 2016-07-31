@@ -11,7 +11,7 @@ import hashlib
 from ..fingerprint_core import generate_mask_and_insert
 import re
 recruit_q = Queue('recruit_worker', connection=redis_conn)
-fp_q = Queue('fingerprint_new', connection=redis_conn)
+fp_q = Queue('fingerprinter4db', connection=redis_conn)
 tracking_id = '?vos=fcppmpcncapcone01'
 today_date = str(datetime.date(datetime.now()))
 

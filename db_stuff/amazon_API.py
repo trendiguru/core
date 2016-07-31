@@ -1,58 +1,5 @@
-'''
-useful request parameters:
-1. Availability = available
-2. Brand
-3. BrowseNode - > category id
-4. ItemPage
-5. Keywords
-6. MaximumPrice - 32.42 -> 3242
-7. MinimumPrice - same
-8. SearchIndex  = localrefernce name
-
-
-parameters = {
-    'AWSAccessKeyId': 'AKIAIQJZVKJKJUUC4ETA',
-    'AssociateTag': 'fazz0b-20',
-    'Availability': 'Available',
-    'Brand': 'Lacoste',
-    'Keywords': 'shirts',
-    'Operation': 'ItemSearch',
-    'SearchIndex': 'FashionWomen',
-    'Service': 'AWSECommerceService',
-    'Timestamp': time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()),
-    'ResponseGroup': 'ItemAttributes,Offers,Images,Reviews'}
-
-
-AWSAccessKeyId = AKIAIQJZVKJKJUUC4ETA
-AWSAccessKeyPwd = r82svvj4F8h6haYZd3jU+3HkChrW3j8RGcW7WXRK
-
-IMPORTANT!!!
-ItemPage can only get numbers from 1 to 10
-but each page return 10 results at max
-for example, under women's shirts there are 100,000 pages for 1 million items
-therefore, we need to divide the requests in a way that less then 100 results will return per search
-
-hierarchy:
-7141123011 -> Clothing, Shoes & Jewelry
-    7141124011 -> Departments
-        7147440011-> Women
-            1040660     -> Clothing
-                1045024     -> dresses
-                    2346727011 -> Casual
-                2368343011  -> Tops & Tees
-            679337011   -> Shoes
-
-
-clickUrl -> Item.DetailPageURL
-
-1. query in itemsearch
-2. find unique parentASIN
-3. use these ParentASIN to do ItemLookup
-'''
 import argparse
-
 import sys
-
 from amazon_signature import get_amazon_signed_url
 from time import strftime, gmtime, sleep, time
 from requests import get
@@ -63,7 +10,8 @@ from ..constants import db, redis_conn
 from rq import Queue
 from datetime import datetime
 from amazon_worker import insert_items
-from .fanni import plantForests4AllCategories
+from .fanni import plantAnnoyForest, reindex_forest
+from .shopstyle_constants import shopstyle_paperdoll_female,shopstyle_paperdoll_male
 from .amazon_constants import blacklist, log_name, colors, status_log
 from .dl_excel import mongo2xl
 
@@ -338,6 +286,7 @@ def build_category_tree(root='7141124011', tab=0, parents=[], delete_collection=
     parameters['ResponseGroup'] = 'BrowseNodeInfo'
     parameters['BrowseNodeId'] = root
     req = get_amazon_signed_url(parameters, 'GET', False)
+    proper_wait()
     res = get(req)
 
     if res.status_code != 200 :
@@ -381,7 +330,6 @@ def build_category_tree(root='7141124011', tab=0, parents=[], delete_collection=
         p.append(name)
 
     for child in children:
-        sleep(1.01)
         if 'BrowseNodeId' not in child.keys():
             continue
         child_id = child['BrowseNodeId']
@@ -413,7 +361,7 @@ def clear_duplicates(name):
     global last_pct
     collection = db[name]
     before = collection.count()
-    all_items = collection.find()
+    all_items = collection.find({}, {'id': 1, 'parent_asin': 1, 'img_hash': 1, 'images.XLarge': 1})
     block_size = before/100
     for i, item in enumerate(all_items):
         m, r = divmod(i, block_size)
@@ -421,13 +369,13 @@ def clear_duplicates(name):
             last_pct = progress_bar(block_size, before, m, last_pct)
         item_id = item['_id']
         keys = item.keys()
-        if 'asin' not in keys:
+        if 'id' not in keys:
             collection.delete_one({'_id':item_id})
             continue
-        asin= item['asin']
-        asin_exists = collection.find({'asin':asin})
-        if asin_exists.count()>1:
-            delete_if_not_same_id(name, item_id, asin_exists)
+        idx= item['id']
+        id_exists = collection.find({'id': idx},{''})
+        if id_exists.count()>1:
+            delete_if_not_same_id(name, item_id, id_exists)
 
         parent = item['parent_asin']
         parent_exists = collection.find({'parent_asin': parent})
@@ -458,7 +406,7 @@ def clear_duplicates(name):
         if img_url_exists.count() > 1:
             delete_if_not_same_id(name, item_id, img_url_exists)
 
-    print_error('clear duplicates', 'count before : %d\ncount after : %d' % (before, collection.count()))
+    print_error('CLEAR DUPLICATES', 'count before : %d\ncount after : %d' % (before, collection.count()))
 
 
 def download_all(collection_name, gender='Female', del_collection=False, del_cache=False,
@@ -551,9 +499,9 @@ def download_all(collection_name, gender='Female', del_collection=False, del_cac
         iteration += 1
 
     log2file(mode='a', log_filename=status_log, message='DOWNLOAD FINISHED', print_flag=True)
-    # clear_duplicates(collection_name)  # add status bar
-    print_error('CLEAR DUPLICATES FINISHED')
+    clear_duplicates(collection_name)  # add status bar
     theArchiveDoorman(collection_name, instock_limit=7, archive_limit=14)
+    print_error('ARCHIVE DOORMAN FINISHED')
 
     # here i duplicate legging to tights/stockings cause we need this category but we dont have items in it
     leggings = collection.find({'categories':'leggings'})
@@ -606,10 +554,13 @@ if __name__ == "__main__":
     gender_upper = col_gender.upper()
     if gender_upper in ['FEMALE', 'WOMEN', 'WOMAN']:
         col_gender = 'Female'
+        categories = list(set(shopstyle_paperdoll_female.values()))
+
     elif gender_upper in ['MALE', 'MEN', 'MAN']:
         global FashionGender
         FashionGender = 'FashionMen'
         col_gender = 'Male'
+        categories = list(set(shopstyle_paperdoll_male.values()))
     else:
         print("bad input - gender should be only Female or Male ")
         sys.exit(1)
@@ -657,11 +608,15 @@ if __name__ == "__main__":
 
     # after download finished its time to build a new annoy forest
     db.download_status.update_one({"date": today_date}, {"$set": {status_full_path: "Finishing"}})
-    forest_job = forest.enqueue(plantForests4AllCategories, col_name=col_name, timeout=3600)
-    while not forest_job.is_finished and not forest_job.is_failed:
-        sleep(300)
-    if forest_job.is_failed:
-        print ('annoy plant forest failed')
+
+    for cat in categories:
+        forest_job = forest.enqueue(plantAnnoyForest, args=(col_name, cat, 250), timeout=1800)
+        while not forest_job.is_finished and not forest_job.is_failed:
+            sleep(60)
+        if forest_job.is_failed:
+            print ('annoy for %s failed' % cat)
+
+    reindex_forest(col_name)
 
     # to add download summery
     end = time()
@@ -677,3 +632,56 @@ if __name__ == "__main__":
     new_items = collection.find({'download_data.first_dl': today_date}).count()
     db.download_status.update_one({"date": today_date}, {"$set": {status_full_path: "Done",
                                                                   notes_full_path: new_items}})
+
+
+'''
+useful request parameters:
+1. Availability = available
+2. Brand
+3. BrowseNode - > category id
+4. ItemPage
+5. Keywords
+6. MaximumPrice - 32.42 -> 3242
+7. MinimumPrice - same
+8. SearchIndex  = localrefernce name
+
+
+parameters = {
+    'AWSAccessKeyId': 'AKIAIQJZVKJKJUUC4ETA',
+    'AssociateTag': 'fazz0b-20',
+    'Availability': 'Available',
+    'Brand': 'Lacoste',
+    'Keywords': 'shirts',
+    'Operation': 'ItemSearch',
+    'SearchIndex': 'FashionWomen',
+    'Service': 'AWSECommerceService',
+    'Timestamp': time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()),
+    'ResponseGroup': 'ItemAttributes,Offers,Images,Reviews'}
+
+
+AWSAccessKeyId = AKIAIQJZVKJKJUUC4ETA
+AWSAccessKeyPwd = r82svvj4F8h6haYZd3jU+3HkChrW3j8RGcW7WXRK
+
+IMPORTANT!!!
+ItemPage can only get numbers from 1 to 10
+but each page return 10 results at max
+for example, under women's shirts there are 100,000 pages for 1 million items
+therefore, we need to divide the requests in a way that less then 100 results will return per search
+
+hierarchy:
+7141123011 -> Clothing, Shoes & Jewelry
+    7141124011 -> Departments
+        7147440011-> Women
+            1040660     -> Clothing
+                1045024     -> dresses
+                    2346727011 -> Casual
+                2368343011  -> Tops & Tees
+            679337011   -> Shoes
+
+
+clickUrl -> Item.DetailPageURL
+
+1. query in itemsearch
+2. find unique parentASIN
+3. use these ParentASIN to do ItemLookup
+'''
