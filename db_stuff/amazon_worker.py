@@ -178,7 +178,7 @@ def insert_items(collection_name, item_list, items_in_page, print_flag, family_t
                 continue
 
             asin = item['ASIN']
-            asin_exists = collection.find_one({'asin': asin})
+            asin_exists = collection.find_one({'id': asin})
             if asin_exists:
                 if print_flag:
                     print_error('item exists already!')
@@ -277,7 +277,7 @@ def insert_items(collection_name, item_list, items_in_page, print_flag, family_t
             if len(category) == 0:
                 category = 'unKnown'
 
-            new_item = {'asin': asin,
+            new_item = {'id': asin,
                         'parent_asin': parent_asin,
                         'clickUrl': click_url,
                         'images': {'XLarge': image_url},
