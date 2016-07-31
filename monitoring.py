@@ -70,7 +70,7 @@ def dummy_image():
     sim_result = image_obj['people'][0]['items'][0]['similar_results'][res_coll][0]
     prod_coll = res_coll + '_' + image_obj['people'][0]['gender']
     real_result = db[prod_coll].find_one({'id': sim_result['id']})
-    uri = 'http://links.trendi.guru/tr/web/' + prod_coll + '/' + str(real_result['_id']) + '?ver=0.1&userId=1520444741.1451463705&winWidth=0&winHeight=0&rv=791214116&event=Result%20Clicked&overlay=roundDress&refererDomain=fashionseoul.com&PID=fashionseoul&publisherDomain=fashionseoul.com'
+    uri = 'http://links.trendi.guru/tr/test/' + prod_coll + '/' + str(real_result['_id']) + '?ver=0.1&userId=1520444741.1451463705&winWidth=0&winHeight=0&rv=791214116&event=Result%20Clicked&overlay=roundDress&refererDomain=fashionseoul.com&PID=fashionseoul&publisherDomain=fashionseoul.com'
     requests.get(uri)
     db.images.delete_one({'image_urls': MINUTE_IMAGE_URL})
 
