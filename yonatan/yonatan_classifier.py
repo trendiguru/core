@@ -45,7 +45,7 @@ class Classifier(caffe.Net):
             image_dims = self.crop_dims
         self.image_dims = image_dims
 
-    def predict(self, inputs, oversample=False):
+    def predict(self, inputs, oversample=True):
         """
         Predict classification probabilities of inputs.
 
@@ -76,13 +76,13 @@ class Classifier(caffe.Net):
         print("resize Done in %.2f s." % (time.time() - start_resize))
 
         if oversample:
-            print self.crop_dims
-            im_shape = np.array(input_[0].shape)
-            crop_dims = np.array(self.crop_dims)
-            print im_shape
-            print crop_dims
-            print len(input_)
-            print im_shape[-1]
+            #print self.crop_dims
+            #im_shape = np.array(input_[0].shape)
+            #crop_dims = np.array(self.crop_dims)
+            #print im_shape
+            #print crop_dims
+            #print len(input_)
+            #print im_shape[-1]
             # Generate center, corner, and mirrored crops.
             input_ = caffe.io.oversample(input_, self.crop_dims)
         else:

@@ -49,4 +49,4 @@ plt.hist(array_boys_failure, alpha=0.5, label='array_boys_failure')
 plt.hist(array_girls_failure, alpha=0.5, label='array_girls_failure')
 plt.legend()
 
-histogram.savefig('test_image.png')
+histogram.savefig('test_image_for_faces.png')
