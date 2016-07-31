@@ -74,17 +74,22 @@ for i in range(1, dresses.count()):
         print "bad picture"
         continue
 
-    # Classify.
-    start = time.time()
-    predictions = classifier.predict(face_for_caffe)
-    print("Done in %.2f s." % (time.time() - start))
+    if db.yonatan_dresses_test.find({"_id": dresses[i]["_id"]}, {'dress_sleeve_length': {'$exists': False}}):
 
-    #max_result = max(predictions[0])
+        # Classify.
+        start = time.time()
+        predictions = classifier.predict(face_for_caffe)
+        print("Done in %.2f s." % (time.time() - start))
 
-    max_result_index = np.argmax(predictions[0])
+        #max_result = max(predictions[0])
 
-    predict_label = int(max_result_index)
+        max_result_index = np.argmax(predictions[0])
 
+        predict_label = int(max_result_index)
+
+        db.yonatan_dresses_test.update({"_id": dresses[i]["_id"]}, {"$set": {"dress_sleeve_length": predict_label}})
+
+        print i
     '''
     if predict_label == 0:
         type = 'strapless'
@@ -105,13 +110,11 @@ for i in range(1, dresses.count()):
     '''
 
     #print predictions[0][predict_label]
-    if db.yonatan_dresses_test.find({"_id": dresses[i]["_id"]}, {'dress_sleeve_length': {'$exists': False}}):
-        db.yonatan_dresses_test.update({"_id": dresses[i]["_id"]}, {"$set": {"dress_sleeve_length": predict_label}})
 
     #and for delete a field from doc:
     #db.yonatan_dresses_test.update({"_id": a[0]["_id"]}, {"$unset": {"dress_sleeve_length": 100}})
 
-    print i
+
 
 
 
