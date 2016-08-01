@@ -130,7 +130,7 @@ mean_vector = mean_vector / counter
 
 for i in range(1, counter):
     variance_vector += variance_vector + np.square(predictions[0] - mean_vector)
-variance_vector = variance_vector / float(counter)
+#variance_vector = variance_vector / float(counter)
 
 success_with = len(array_success_with_plus_minus_category)
 failure_with = len(array_failure_with_plus_minus_category)
