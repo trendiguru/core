@@ -60,7 +60,8 @@ counter_90_percent = 0
 
 failure_above_98_percent = 0
 
-
+mean_vector = 0
+variance_vector = 0
 
 
 #failure_current_result = 0
@@ -86,6 +87,8 @@ for line in text_file:
     start = time.time()
     predictions = classifier.predict(inputs)
     print("Done in %.2f s." % (time.time() - start))
+
+    mean_vector += predictions[0]
 
     strapless_predict = predictions[0][0]
     spaghetti_straps_predict = predictions[0][1]
