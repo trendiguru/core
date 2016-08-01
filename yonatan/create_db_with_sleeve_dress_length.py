@@ -50,7 +50,7 @@ print "Starting the genderism!"
 for doc in dresses:
     # if i > num_of_each_category:
     #   break
-    if 'dress_sleeve_length' in doc:
+    if 'dress_sleeve_length' not in doc:
 
         counter += 1
 
