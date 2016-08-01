@@ -42,39 +42,42 @@ def cv2_image_to_caffe(image):
 dresses = db.yonatan_dresses_test.find()
 
 delete = 0
+counter = 0
+
+print "Starting the genderism!"
 
 # text_file = open("all_dresses_" + key + "_list.txt", "w")
-for i in range(1, dresses.count()):
+for doc in dresses:
     # if i > num_of_each_category:
     #   break
+    if 'dress_sleeve_length' in doc:
 
-    url_or_np_array = dresses[i]['images']['XLarge']
+        counter += 1
 
-    print "Starting the genderism!"
-    # check if i get a url (= string) or np.ndarray
-    if isinstance(url_or_np_array, basestring):
-        #full_image = url_to_image(url_or_np_array)
-        response = requests.get(url_or_np_array)  # download
-        full_image = cv2.imdecode(np.asarray(bytearray(response.content)), 1)
-    elif type(url_or_np_array) == np.ndarray:
-        full_image = url_or_np_array
-    else:
-        print "bad picture"
-        continue
+        url_or_np_array = doc['images']['XLarge']
 
-    #checks if the face coordinates are inside the image
-    if full_image is None:
-        print "not a good image"
-        continue
+        # check if i get a url (= string) or np.ndarray
+        if isinstance(url_or_np_array, basestring):
+            #full_image = url_to_image(url_or_np_array)
+            response = requests.get(url_or_np_array)  # download
+            full_image = cv2.imdecode(np.asarray(bytearray(response.content)), 1)
+        elif type(url_or_np_array) == np.ndarray:
+            full_image = url_or_np_array
+        else:
+            print "bad picture"
+            continue
 
-    face_for_caffe = [cv2_image_to_caffe(full_image)]
-    #face_for_caffe = [caffe.io.load_image(face_image)]
+        #checks if the face coordinates are inside the image
+        if full_image is None:
+            print "not a good image"
+            continue
 
-    if face_for_caffe is None:
-        print "bad picture"
-        continue
+        face_for_caffe = [cv2_image_to_caffe(full_image)]
+        #face_for_caffe = [caffe.io.load_image(face_image)]
 
-    if db.yonatan_dresses_test.find({"_id": dresses[i]["_id"]}, {'dress_sleeve_length': {'$exists': False}}):
+        if face_for_caffe is None:
+            print "bad picture"
+            continue
 
         # Classify.
         start = time.time()
@@ -87,32 +90,33 @@ for i in range(1, dresses.count()):
 
         predict_label = int(max_result_index)
 
-        db.yonatan_dresses_test.update({"_id": dresses[i]["_id"]}, {"$set": {"dress_sleeve_length": predict_label}})
+        dresses.update_one({"_id": doc["_id"]}, {"$set": {"dress_sleeve_length": predict_label}})
 
-        print i
-    '''
-    if predict_label == 0:
-        type = 'strapless'
-    elif predict_label == 1:
-        type =  'spaghetti_straps'
-    elif predict_label == 2:
-        type =  'regular_straps'
-    elif predict_label == 3:
-        type = 'sleeveless'
-    elif predict_label == 4:
-        type = 'cap_sleeve'
-    elif predict_label == 5:
-        type = 'short_sleeve'
-    elif predict_label == 6:
-        type = 'midi_sleeve'
-    elif predict_label == 7:
-        type = 'long_sleeve'
-    '''
+        print counter
 
-    #print predictions[0][predict_label]
+        '''
+        if predict_label == 0:
+            type = 'strapless'
+        elif predict_label == 1:
+            type =  'spaghetti_straps'
+        elif predict_label == 2:
+            type =  'regular_straps'
+        elif predict_label == 3:
+            type = 'sleeveless'
+        elif predict_label == 4:
+            type = 'cap_sleeve'
+        elif predict_label == 5:
+            type = 'short_sleeve'
+        elif predict_label == 6:
+            type = 'midi_sleeve'
+        elif predict_label == 7:
+            type = 'long_sleeve'
+        '''
 
-    #and for delete a field from doc:
-    #db.yonatan_dresses_test.update({"_id": a[0]["_id"]}, {"$unset": {"dress_sleeve_length": 100}})
+        #print predictions[0][predict_label]
+
+        #and for delete a field from doc:
+        #db.yonatan_dresses_test.update({"_id": a[0]["_id"]}, {"$unset": {"dress_sleeve_length": 100}})
 
 
 
