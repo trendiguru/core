@@ -492,7 +492,7 @@ def download_all(collection_name, gender='Female', del_collection=False, del_cac
     leafs_cursor = db.amazon_category_tree.find({'Children.count': 0, 'Parents': parent_gender})
     leafs = [x for x in leafs_cursor]  # change the cursor into a list
     iteration = 0
-    status_title = '$s download started on %s' % (col_name, today_date)
+    status_title = '%s download started on %s' % (col_name, today_date)
     log2file(mode='a', log_filename=status_log, message=status_title, print_flag=True)
 
     while len(leafs):
