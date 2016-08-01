@@ -214,16 +214,16 @@ def generate_image_onthefly(img_filename_or_nparray, gaussian_or_uniform_distrib
 
     start_time = time.time()
     if isinstance(img_filename_or_nparray,basestring):
-        logging.DEBUG('db A')
+        logging.debug('db A')
         img_arr = cv2.imread(img_filename_or_nparray)
-        logging.DEBUG('db B')
+        logging.debug('db B')
     else:
         img_arr = img_filename_or_nparray
     if img_arr is None:
         logging.warning('didnt get input image '+str(img_filename_or_nparray))
         return
 
-    logging.DEBUG('db 1')
+    logging.debug('db 1')
     width=img_arr.shape[1]
 
     angle = 0
@@ -237,7 +237,7 @@ def generate_image_onthefly(img_filename_or_nparray, gaussian_or_uniform_distrib
     x_room = 0
     y_room = 0
 
-    logging.DEBUG('db 2')
+    logging.debug('db 2')
     if crop_size:
         x_room = width - crop_size[1]
         y_room = height - crop_size[0]
