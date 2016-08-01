@@ -90,7 +90,7 @@ for doc in dresses:
 
         predict_label = int(max_result_index)
 
-        dresses.update({"_id": doc["_id"]}, {"$set": {"dress_sleeve_length": predict_label}})
+        db.yonatan_dresses_test.update_one({"_id": doc["_id"]}, {"$set": {"dress_sleeve_length": predict_label}})
 
         print counter
 
