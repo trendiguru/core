@@ -51,6 +51,7 @@ blacklist = ['Jewelry', 'Watches', 'Handbags', 'Accessories', 'Lingerie, Sleep &
              'Shoe, Jewelry & Watch Accessories', 'Traditional & Cultural Wear', 'Active Underwear', 'Active Socks',
              'Active Supporters', 'Active Base Layers', 'Sports Bras', 'Athletic Socks', 'Athletic Supporters']
 
+log_dir = '/home/developer/yonti/'
 log_name = '/home/developer/yonti/amazon_download_stats.log'
 status_log = '/home/developer/yonti/amazon_status.log'
 colors = ['red', 'blue', 'green', 'black', 'white', 'yellow', 'pink', 'purple', 'magenta', 'cyan', 'grey', 'violet',
@@ -82,3 +83,5 @@ amazon_categories = ['belt',
                      'swimsuit',
                      'unknown',
                      'stockings']
+
+amazon_categories_for_direct_dl = ['tights', 'stockings']

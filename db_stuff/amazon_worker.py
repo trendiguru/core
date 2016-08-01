@@ -5,7 +5,7 @@ from datetime import datetime
 from ..fingerprint_core import generate_mask_and_insert
 from time import sleep
 import re
-from db_utils import print_error, get_hash
+from db_utils import print_error, get_hash, get_phash
 from .amazon_constants import plus_sizes
 today_date = str(datetime.date(datetime.now()))
 
@@ -261,10 +261,15 @@ def insert_items(collection_name, item_list, items_in_page, print_flag, family_t
                 continue
 
             img_hash = get_hash(image)
-
             hash_exists = collection.find_one({'img_hash': img_hash})
             if hash_exists:
                 print ('hash already exists')
+                continue
+
+            p_hash = get_phash(image)
+            p_hash_exists = collection.find_one({'p_hash': p_hash})
+            if p_hash_exists:
+                print ('p_hash already exists')
                 continue
 
             short_d = attributes['Title']
@@ -295,6 +300,7 @@ def insert_items(collection_name, item_list, items_in_page, print_flag, family_t
                         'fingerprint': None,
                         'gender': gender,
                         'img_hash': img_hash,
+                        'p_hash': p_hash,
                         'download_data': {'dl_version': today_date,
                                           'first_dl': today_date,
                                           'fp_version': fingerprint_version},
