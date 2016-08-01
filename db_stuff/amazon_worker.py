@@ -265,11 +265,11 @@ def insert_items(collection_name, item_list, items_in_page, print_flag, family_t
                 print ('hash already exists')
                 continue
 
-            p_hash = get_p_hash(pil_image)
-            p_hash_exists = collection.find_one({'p_hash': p_hash})
-            if p_hash_exists:
-                print ('p_hash already exists')
-                continue
+            # p_hash = get_p_hash(pil_image)
+            # p_hash_exists = collection.find_one({'p_hash': p_hash})
+            # if p_hash_exists:
+            #     print ('p_hash already exists')
+            #     continue
 
             short_d = attributes['Title']
             if 'Feature' in attr_keys:
