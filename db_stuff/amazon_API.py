@@ -401,10 +401,11 @@ def download_by_category(collection_name, gender, plus_size_flag):
 
     if gender is 'Female':
         node_id = '1040660'
+        leaf_prefix = 'Departments->Women->Clothing->'
     else:
         node_id = '1040658'
+        leaf_prefix = 'Departments->Men->Clothing->'
 
-    leaf_prefix = 'Departments->Men->Clothing->'
     not_finished = amazon_categories_for_direct_dl # change the cursor into a list
     iteration = 0
     not_finished_len = len(not_finished)
