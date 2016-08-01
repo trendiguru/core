@@ -39,60 +39,58 @@ def cv2_image_to_caffe(image):
     return skimage.img_as_float(cv2.cvtColor(image, cv2.COLOR_BGR2RGB)).astype(np.float32)
 
 
-dresses = db.yonatan_dresses_test.find({'dress_sleeve_length': {'$exists': 0}})
+dresses = list(db.yonatan_dresses_test.find({'dress_sleeve_length': {'$exists': 0}}, {'_id':1, 'images.XLarge':1}))
 
 delete = 0
 counter = 0
 
-print "Starting the genderism!"
+print "Starting the genderism! total docs: {0}".format(dresses.count())
 
 # text_file = open("all_dresses_" + key + "_list.txt", "w")
 for doc in dresses:
     # if i > num_of_each_category:
     #   break
-    if 'dress_sleeve_length' not in doc:
+    counter += 1
 
-        counter += 1
+    url_or_np_array = doc['images']['XLarge']
 
-        url_or_np_array = doc['images']['XLarge']
+    # check if i get a url (= string) or np.ndarray
+    if isinstance(url_or_np_array, basestring):
+        #full_image = url_to_image(url_or_np_array)
+        response = requests.get(url_or_np_array)  # download
+        full_image = cv2.imdecode(np.asarray(bytearray(response.content)), 1)
+    elif type(url_or_np_array) == np.ndarray:
+        full_image = url_or_np_array
+    else:
+        print "bad picture"
+        continue
 
-        # check if i get a url (= string) or np.ndarray
-        if isinstance(url_or_np_array, basestring):
-            #full_image = url_to_image(url_or_np_array)
-            response = requests.get(url_or_np_array)  # download
-            full_image = cv2.imdecode(np.asarray(bytearray(response.content)), 1)
-        elif type(url_or_np_array) == np.ndarray:
-            full_image = url_or_np_array
-        else:
-            print "bad picture"
-            continue
+    #checks if the face coordinates are inside the image
+    if full_image is None:
+        print "not a good image"
+        continue
 
-        #checks if the face coordinates are inside the image
-        if full_image is None:
-            print "not a good image"
-            continue
+    face_for_caffe = [cv2_image_to_caffe(full_image)]
+    #face_for_caffe = [caffe.io.load_image(face_image)]
 
-        face_for_caffe = [cv2_image_to_caffe(full_image)]
-        #face_for_caffe = [caffe.io.load_image(face_image)]
+    if face_for_caffe is None:
+        print "bad picture"
+        continue
 
-        if face_for_caffe is None:
-            print "bad picture"
-            continue
+    # Classify.
+    start = time.time()
+    predictions = classifier.predict(face_for_caffe)
+    print("Done in %.2f s." % (time.time() - start))
 
-        # Classify.
-        start = time.time()
-        predictions = classifier.predict(face_for_caffe)
-        print("Done in %.2f s." % (time.time() - start))
+    #max_result = max(predictions[0])
 
-        #max_result = max(predictions[0])
+    max_result_index = np.argmax(predictions[0])
 
-        max_result_index = np.argmax(predictions[0])
+    predict_label = int(max_result_index)
 
-        predict_label = int(max_result_index)
+    db.yonatan_dresses_test.update_one({"_id": doc["_id"]}, {"$set": {"dress_sleeve_length": predict_label}})
 
-        db.yonatan_dresses_test.update_one({"_id": doc["_id"]}, {"$set": {"dress_sleeve_length": predict_label}})
-
-        print counter
+    print counter
 
         '''
         if predict_label == 0:
