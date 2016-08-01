@@ -84,6 +84,9 @@ for line in text_file:
     predictions = classifier.predict(inputs)
     print("Done in %.2f s." % (time.time() - start))
 
+    print "results vector: {0}".format(predictions[0])
+    print "result vector type: {0}".format(type(predictions[0]))
+
     strapless_predict = predictions[0][0]
     spaghetti_straps_predict = predictions[0][1]
     straps_predict = predictions[0][2]
