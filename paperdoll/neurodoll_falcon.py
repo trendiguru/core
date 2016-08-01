@@ -7,7 +7,6 @@ from .. import neurodoll, neurodoll_single_category
 from .. import constants
 
 from jaweson import json, msgpack
-ipyton
 
 class PaperResource:
     def on_get(self, req, resp):
