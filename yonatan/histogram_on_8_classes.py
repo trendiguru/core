@@ -22,7 +22,7 @@ array_failure_with_plus_minus_category = np.array([])
 array_success_without = np.array([])
 array_failure_without = np.array([])
 
-#all_predictions = np.zeros(8)
+all_predictions = np.zeros(8)
 
 text_file = open("db_dress_sleeve_test.txt", "r")
 
@@ -129,7 +129,10 @@ for line in text_file:
     #print predictions
 
     all_predictions = np.vstack((all_predictions, predictions[0]))
+    all_predictions = all_predictions[1:]
     print all_predictions
+
+
 
 mean_vector = mean_vector / counter
 
