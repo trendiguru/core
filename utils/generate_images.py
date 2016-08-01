@@ -236,6 +236,7 @@ def generate_image_onthefly(img_filename_or_nparray, gaussian_or_uniform_distrib
     crop_dy = 0
     x_room = 0
     y_room = 0
+    height,width = img_arr.shape[0:2]
 
     logging.debug('db 2')
     if crop_size:
