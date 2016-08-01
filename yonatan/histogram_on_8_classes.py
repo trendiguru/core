@@ -136,6 +136,7 @@ mean_vector = mean_vector / counter
 
 for i in range(1, counter):
     print all_predictions[i]
+    print "\n"
     variance_vector += variance_vector + np.square(all_predictions[i] - mean_vector)
 variance_vector = variance_vector / counter
 
