@@ -5,6 +5,14 @@ from datetime import datetime
 from ..Yonti import pymongo_utils
 from rq import Queue
 import sys
+from PIL import Image
+import io
+from urllib2 import urlopen
+import numpy as np
+from imagehash import ImageHash
+from scipy import fftpack
+
+
 q = Queue('refresh', connection=redis_conn)
 today_date = str(datetime.date(datetime.now()))
 last_percent_reported = None
@@ -19,10 +27,10 @@ def progress_bar(blocksize, total, last_cnt = None, last_pct=None):
     last_percent = last_pct or last_percent_reported
     if last_percent != percent:
         if percent % 5 == 0:
-            sys.stdout.write('%s%%' % percent)
+            sys.stdout.write(' %s%% ' % percent)
             sys.stdout.flush()
         else:
-            sys.stdout.write('.')
+            sys.stdout.write('#')
             sys.stdout.flush()
 
         last_percent_reported = percent
@@ -69,6 +77,28 @@ def log2file(mode, log_filename, message='', print_flag=True):
             print_error(message)
     else:
         return logger, handler
+
+
+def get_image_from_url(url):
+    try:
+        res = urlopen(url)
+        img_as_bytes = io.BytesIO(res.read())
+        pil_img = Image.open(img_as_bytes)
+        np_img = np.asarray(pil_img, type=np.float32)
+        return np_img
+    except:
+        return None, None
+
+
+def get_p_hash(image, hash_size=8):
+    image = np.resize(image,(hash_size,hash_size))
+    pixels = image.reshape((hash_size, hash_size))
+    dct = fftpack.dct(fftpack.dct(pixels, axis=0), axis=1)
+    dctlowfreq = dct[:hash_size, :hash_size]
+    med = np.median(dctlowfreq)
+    diff = dctlowfreq > med
+    return diff
+
 
 
 def get_hash(image):

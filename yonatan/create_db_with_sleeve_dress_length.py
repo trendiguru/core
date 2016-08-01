@@ -39,18 +39,21 @@ def cv2_image_to_caffe(image):
     return skimage.img_as_float(cv2.cvtColor(image, cv2.COLOR_BGR2RGB)).astype(np.float32)
 
 
-dresses = db.yonatan_dresses_test.find()
+dresses = list(db.yonatan_dresses_test.find({'dress_sleeve_length': {'$exists': 0}}, {'_id':1, 'images.XLarge':1}))
 
 delete = 0
+counter = 0
+
+print "Starting the genderism!"
 
 # text_file = open("all_dresses_" + key + "_list.txt", "w")
-for i in range(1, dresses.count()):
+for doc in dresses:
     # if i > num_of_each_category:
     #   break
+    counter += 1
 
-    url_or_np_array = dresses[i]['images']['XLarge']
+    url_or_np_array = doc['images']['XLarge']
 
-    print "Starting the genderism!"
     # check if i get a url (= string) or np.ndarray
     if isinstance(url_or_np_array, basestring):
         #full_image = url_to_image(url_or_np_array)
@@ -74,22 +77,21 @@ for i in range(1, dresses.count()):
         print "bad picture"
         continue
 
-    if db.yonatan_dresses_test.find({"_id": dresses[i]["_id"]}, {'dress_sleeve_length': {'$exists': False}}):
+    # Classify.
+    start = time.time()
+    predictions = classifier.predict(face_for_caffe)
+    print("Done in %.2f s." % (time.time() - start))
 
-        # Classify.
-        start = time.time()
-        predictions = classifier.predict(face_for_caffe)
-        print("Done in %.2f s." % (time.time() - start))
+    #max_result = max(predictions[0])
 
-        #max_result = max(predictions[0])
+    max_result_index = np.argmax(predictions[0])
 
-        max_result_index = np.argmax(predictions[0])
+    predict_label = int(max_result_index)
 
-        predict_label = int(max_result_index)
+    db.yonatan_dresses_test.update_one({"_id": doc["_id"]}, {"$set": {"dress_sleeve_length": predict_label}})
 
-        db.yonatan_dresses_test.update({"_id": dresses[i]["_id"]}, {"$set": {"dress_sleeve_length": predict_label}})
+    print counter
 
-        print i
     '''
     if predict_label == 0:
         type = 'strapless'
@@ -109,10 +111,10 @@ for i in range(1, dresses.count()):
         type = 'long_sleeve'
     '''
 
-    #print predictions[0][predict_label]
+        #print predictions[0][predict_label]
 
-    #and for delete a field from doc:
-    #db.yonatan_dresses_test.update({"_id": a[0]["_id"]}, {"$unset": {"dress_sleeve_length": 100}})
+        #and for delete a field from doc:
+        #db.yonatan_dresses_test.update({"_id": a[0]["_id"]}, {"$unset": {"dress_sleeve_length": 100}})
 
 
 

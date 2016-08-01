@@ -10,6 +10,7 @@ from keras.models import Model, Sequential
 from keras.layers import Dense, Dropout, Input, Activation, Flatten
 from keras.layers.convolutional import Convolution2D, MaxPooling2D
 from keras.optimizers import SGD, Adagrad, Adadelta, RMSprop, Adam
+from keras.layers.normalization import BatchNormalization
 import time
 
 
@@ -86,11 +87,14 @@ def net(input_shape):
     # # fc = Dropout(0.25)(fc)
     fc = Dense(5, activation='softmax')(fc)
     model = Model(input=input_img, output=fc)
+    optimizer_method = 'adam'
+    model.compile(loss='categorical_crossentropy', optimizer=optimizer_method, metrics=['accuracy'])
+    model.load_weights(os.path.join(os.path.dirname(os.path.abspath(__file__)), 'collar_model_weights.hdf5'))
 
     return model
 
 
-def collar_classifier_neural_net(collar_images):
+def collar_classifier_neural_net(model, collar_images):
 
     if len(collar_images) == 0:
         print 'no face, so no collar detected.'
@@ -99,38 +103,6 @@ def collar_classifier_neural_net(collar_images):
 
     collar_images = np.array(collar_images, dtype='float32') / 255
     collar_images = np.transpose(collar_images, (0, 3, 1, 2))
-    input_shape = collar_images[0].shape
-    input_img = Input(input_shape)
-    # convolutional layers: (N_kernels, h_kernel, W_kernel)
-    conv = BatchNormalization()(input_img)
-    conv = Convolution2D(8, 5, 5, activation='relu', border_mode='same')(conv)
-    conv = MaxPooling2D((2, 2), strides=(2, 2))(conv)
-    # conv = Dropout(0.25)(conv)
-    conv = Convolution2D(16, 3, 3, activation='relu', border_mode='same')(conv)
-    conv = MaxPooling2D((2, 2), strides=(2, 2))(conv)
-    conv = Dropout(0.1)(conv)
-    conv = Convolution2D(32, 3, 3, activation='relu', border_mode='same')(conv)
-    conv = MaxPooling2D((2, 2), strides=(2, 2))(conv)
-    conv = Dropout(0.15)(conv)
-    conv = Convolution2D(32, 3, 3, activation='relu', border_mode='same')(conv)
-    conv = MaxPooling2D((2, 2), strides=(2, 2))(conv)
-    conv = Dropout(0.2)(conv)
-    conv = Convolution2D(32, 3, 3, activation='relu', border_mode='valid')(conv)
-    # conv = MaxPooling2D((2, 2), strides=(2, 2))(conv)
-    conv = Dropout(0.25)(conv)
-    fc = Flatten()(conv)
-
-    # fully connected layers: (N_newrons)
-    # fc = Dense(16, activation='relu')(fc)
-    # # fc = Dropout(0.25)(fc)
-    fc = Dense(5, activation='softmax')(fc)
-    model = Model(input=input_img, output=fc)
-
-    optimizer_method = 'adam'
-    model.compile(loss='categorical_crossentropy', optimizer=optimizer_method, metrics=['accuracy'])
-    model.load_weights(os.path.join(os.path.dirname(os.path.abspath( __file__ )), 'collar_model_weights.hdf5'))
-    '''
-    '''
     proba = model.predict_proba(collar_images, batch_size=size_batch)
     # classes = model.predict_classes(collar_images, batch_size=32)
 
@@ -150,9 +122,9 @@ def collar_classifier_neural_net(collar_images):
     return result
 
 
-def collar_classifier(image, face_box):
+def collar_classifier(model, image, face_box):
     collar_images = collar_images_maker_for_testing(image, face_box)
-    return collar_classifier_neural_net(collar_images)
+    return collar_classifier_neural_net(model, collar_images)
 
 
 def collar_distance(collar1_vec, collar2_vec, weights_vec):
