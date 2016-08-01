@@ -124,7 +124,11 @@ for line in text_file:
         print max_result
 
     print counter
-    print predictions
+    #print predictions
+    print array_success_with_plus_minus_category
+
+
+    #all_predictions[counter-1] = predictions[0]
 
 mean_vector = mean_vector / counter
 
