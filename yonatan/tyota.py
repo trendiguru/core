@@ -57,6 +57,9 @@ def url_to_image(url):
 #def theDetector(image):
 def theDetector(path):
 
+    print path
+    print type(path)
+
     first_start = time.time()
 
     print "Starting the genderism!"

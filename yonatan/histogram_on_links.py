@@ -12,6 +12,8 @@ from trendi import background_removal, Utils, constants
 import cv2
 import urllib
 import skimage
+import requests
+import yonatan_classifier
 
 
 MODLE_FILE = "/home/yonatan/trendi/yonatan/Alexnet_deploy.prototxt"
@@ -24,7 +26,7 @@ channel_swap = [2, 1, 0]
 raw_scale = 255.0
 
 # Make classifier.
-classifier = caffe.Classifier(MODLE_FILE, PRETRAINED,
+classifier = yonatan_classifier.Classifier(MODLE_FILE, PRETRAINED,
                               image_dims=image_dims, mean=mean,
                               input_scale=input_scale, raw_scale=raw_scale,
                               channel_swap=channel_swap)
@@ -69,17 +71,28 @@ failure_counter = 0
 guessed_f_instead_m = 0
 guessed_m_instead_f = 0
 
+counter_bad_links = 0
+
 for line in text_file:
     counter += 1
-    file_as_array_by_lines = line
     # split line to link and label
-    words = file_as_array_by_lines.split()
+    words = line.split()
 
     if words == []:
         print 'empty string!'
         continue
 
-    full_image = url_to_image(words[0])
+    #full_image = url_to_image(words[0])
+
+    try:
+        response = requests.get(words[0])  # download
+        if response.status_code != 200:
+            counter_bad_links += 1
+            continue
+    except requests.exceptions.ConnectionError:
+        continue
+
+    full_image = cv2.imdecode(np.asarray(bytearray(response.content)), 1)
 
     if full_image is None:
         continue
@@ -142,14 +155,22 @@ for line in text_file:
 
     print counter
 
-print guessed_f_instead_m
-print guessed_m_instead_f
+#print guessed_f_instead_m
+#print guessed_m_instead_f
 
+success = len(array_success)
+failure = len(array_failure)
 
+if success == 0 or failure == 0:
+    print "wrong!"
+else:
+    print 'accuracy percent: {0}'.format(float(success) / (success + failure))
+    print 'counter_bad_links: {0}'.format(counter_bad_links)
+    print 'counter_bad_links percent: {0}'.format(float(counter_bad_links) / counter)
 
 histogram=plt.figure(1)
 
-bins = np.linspace(-1000, 1000, 50)
+#bins = np.linspace(-1000, 1000, 50)
 
 plt.hist(array_success, alpha=0.5, label='array_success')
 plt.legend()
@@ -157,4 +178,4 @@ plt.legend()
 plt.hist(array_failure, alpha=0.5, label='array_failure')
 plt.legend()
 
-histogram.savefig('live_test_links_bgr.png')
+histogram.savefig('live_test_links_31_7_2016.png')

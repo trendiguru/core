@@ -14,7 +14,121 @@ from PIL import Image
 from . import gender_detector
 import random
 import matplotlib.pyplot as plt
-import yonatan_classifier
+
+
+MODLE_FILE = "/home/yonatan/trendi/yonatan/Alexnet_deploy.prototxt"
+PRETRAINED = "/home/yonatan/alexnet_imdb_first_try/caffe_alexnet_train_faces_iter_10000.caffemodel"
+caffe.set_mode_gpu()
+image_dims = [115, 115]
+mean, input_scale = np.array([120, 120, 120]), None
+channel_swap = [2, 1, 0]
+raw_scale = 255.0
+
+# Make classifier.
+classifier = caffe.Classifier(MODLE_FILE, PRETRAINED,
+                              image_dims=image_dims, mean=mean,
+                              input_scale=input_scale, raw_scale=raw_scale,
+                              channel_swap=channel_swap)
+
+counter = 0
+
+array_boys_success = np.array([])
+array_girls_success = np.array([])
+array_boys_failure = np.array([])
+array_girls_failure = np.array([])
+
+text_file = "live_data_set_links.txt"
+
+for line in text_file:
+    counter += 1
+
+    # split line to full path and label
+    path = line.split()
+
+    if path == []:
+        continue
+
+    # Load numpy array (.npy), directory glob (*.jpg), or image file.
+    input_file = os.path.expanduser(path[0])
+    inputs = [caffe.io.load_image(input_file)]
+    #inputs = [Utils.get_cv2_img_array(input_file)]
+
+    print("Classifying %d inputs." % len(inputs))
+
+    # Classify.
+    start = time.time()
+    predictions = gender_detector.genderator(inputs, path[2])
+    print("Done in %.2f s." % (time.time() - start))
+
+    strapless_predict = predictions[0][0]
+    spaghetti_straps_predict = predictions[0][1]
+    straps_predict = predictions[0][2]
+    sleeveless_predict = predictions[0][3]
+    cap_sleeve_predict = predictions[0][4]
+    short_sleeve_predict = predictions[0][5]
+    midi_sleeve_predict = predictions[0][6]
+    long_sleeve_predict = predictions[0][7]
+
+    max_result = max(predictions[0])
+
+    max_result_index = np.argmax(predictions[0])
+
+    true_label = int(path[1])
+    predict_label = int(max_result_index)
+
+
+
+
+
+
+
+for root, dirs, files in os.walk(path):
+    for file in files:
+        #if file.startswith("face-"):
+            predictions = gender_detector.genderator(root + "/" + file)
+            if predictions[0][0] > predictions[0][1]:
+                array_boys_failure = np.append(array_boys_failure, predictions[0][0])
+                array_girls_failure = np.append(array_girls_failure, predictions[0][1])
+            else:
+                array_boys_success=np.append(array_boys_success, predictions[0][0])
+                array_girls_success=np.append(array_girls_success, predictions[0][1])
+            female_count += 1
+print ("female_count: %d" % (female_count))
+
+histogram=plt.figure(1)
+
+#bins = np.linspace(-1000, 1000, 50)
+
+plt.hist(array_boys_success, alpha=0.5, label='array_boys_success')
+plt.hist(array_girls_success, alpha=0.5, label='array_girls_success')
+plt.legend()
+
+plt.hist(array_boys_failure, alpha=0.5, label='array_boys_failure')
+plt.hist(array_girls_failure, alpha=0.5, label='array_girls_failure')
+plt.legend()
+
+histogram.savefig('test_image_for_faces.png')
+
+
+
+
+
+#!/usr/bin/env python
+
+import caffe
+import numpy as np
+from .. import background_removal, Utils, constants
+import cv2
+import os
+import sys
+import argparse
+import glob
+import time
+import skimage
+from PIL import Image
+from . import gender_detector
+import random
+import matplotlib.pyplot as plt
 
 
 array_success_with_plus_minus_category = np.array([])
@@ -22,7 +136,7 @@ array_failure_with_plus_minus_category = np.array([])
 array_success_without = np.array([])
 array_failure_without = np.array([])
 
-text_file = open("db_dress_sleeve_test.txt", "r")
+text_file = open("db_dress_sleeve_train.txt", "r")
 
 counter = 0
 
@@ -38,8 +152,7 @@ raw_scale = 255.0
 ext = 'jpg'
 
 # Make classifier.
-#classifier = caffe.Classifier(MODLE_FILE, PRETRAINED,
-classifier = yonatan_classifier.Classifier(MODLE_FILE, PRETRAINED,
+classifier = caffe.Classifier(MODLE_FILE, PRETRAINED,
                               image_dims=image_dims, mean=mean,
                               input_scale=input_scale, raw_scale=raw_scale,
                               channel_swap=channel_swap)
