@@ -21,8 +21,7 @@ YONTI = 'yontilevin@gmail.com'
 SENDER = 'Notifier@trendiguru.com'
 all = 'members@trendiguru.com'
 API_URL = 'http://api.trendi.guru/images'
-# MINUTE_IMAGE_URL = 'https://upload.wikimedia.org/wikipedia/commons/thumb/c/ca/James_Corden_at_2015_PaleyFest.jpg/800px-James_Corden_at_2015_PaleyFest.jpg'
-MINUTE_IMAGE_URL = 'http://www.fashionseoul.com/wp-content/uploads/2015/11/20151125_SNSD_YURI_1.jpg'
+MINUTE_IMAGE_URL = 'https://upload.wikimedia.org/wikipedia/commons/thumb/c/ca/James_Corden_at_2015_PaleyFest.jpg/800px-James_Corden_at_2015_PaleyFest.jpg'
 
 fluent.sender.setup('google-fluentd', host='localhost', port=24224)
 
@@ -69,8 +68,9 @@ def dummy_image():
         image_obj = db.images.find_one({'image_urls': MINUTE_IMAGE_URL})
     res_coll = image_obj['people'][0]['items'][0]['similar_results'].keys()[0]
     sim_result = image_obj['people'][0]['items'][0]['similar_results'][res_coll][0]
-    real_result = db[res_coll].find_one({'id': sim_result['id']})
-    uri = 'http://links.trendi.guru/tr/web/' + res_coll + '_' + image_obj['people'][0]['gender'] + '/' + str(real_result['_id']) + '?ver=0.1&userId=1520444741.1451463705&winWidth=0&winHeight=0&rv=791214116&event=Result%20Clicked&overlay=roundDress&refererDomain=fashionseoul.com&PID=fashionseoul&publisherDomain=fashionseoul.com'
+    prod_coll = res_coll + '_' + image_obj['people'][0]['gender']
+    real_result = db[prod_coll].find_one({'id': sim_result['id']})
+    uri = 'http://links.trendi.guru/tr/test/' + prod_coll + '/' + str(real_result['_id']) + '?ver=0.1&userId=1520444741.1451463705&winWidth=0&winHeight=0&rv=791214116&event=Result%20Clicked&overlay=roundDress&refererDomain=fashionseoul.com&PID=fashionseoul&publisherDomain=fashionseoul.com'
     requests.get(uri)
     db.images.delete_one({'image_urls': MINUTE_IMAGE_URL})
 

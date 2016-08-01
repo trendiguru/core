@@ -14,11 +14,11 @@ solver_mode : GPU
 
 type: "SGD"
 #type: "AdaDelta"
-base_lr: .001
+base_lr: .0005
 lr_policy: "step"
 #lr_policy: "fixed"
 gamma: 0.1
-stepsize: 100000
+stepsize: 10000
 max_iter: 3000000
 #momentum: 0.9
 

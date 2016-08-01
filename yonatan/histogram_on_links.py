@@ -71,11 +71,12 @@ failure_counter = 0
 guessed_f_instead_m = 0
 guessed_m_instead_f = 0
 
+counter_bad_links = 0
+
 for line in text_file:
     counter += 1
-    file_as_array_by_lines = line
     # split line to link and label
-    words = file_as_array_by_lines.split()
+    words = line.split()
 
     if words == []:
         print 'empty string!'
@@ -83,7 +84,14 @@ for line in text_file:
 
     #full_image = url_to_image(words[0])
 
-    response = requests.get(words[0])  # download
+    try:
+        response = requests.get(words[0])  # download
+        if response.status_code != 200:
+            counter_bad_links += 1
+            continue
+    except requests.exceptions.ConnectionError:
+        continue
+
     full_image = cv2.imdecode(np.asarray(bytearray(response.content)), 1)
 
     if full_image is None:
@@ -157,7 +165,8 @@ if success == 0 or failure == 0:
     print "wrong!"
 else:
     print 'accuracy percent: {0}'.format(float(success) / (success + failure))
-
+    print 'counter_bad_links: {0}'.format(counter_bad_links)
+    print 'counter_bad_links percent: {0}'.format(float(counter_bad_links) / counter)
 
 histogram=plt.figure(1)
 
