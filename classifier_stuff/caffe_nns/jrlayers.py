@@ -529,7 +529,7 @@ class JrMultilabel(caffe.Layer):
                 self.next_idx()   #bad file, goto next
                 idx = self.idx
                 continue
-            print('calling generate_images')
+            print('calling generate_images with file '+filename)
             in_ = generate_images.generate_image_onthefly(filename, gaussian_or_uniform_distributions=self.augment_distribution,
                max_angle = self.augment_max_angle,
                max_offset_x = self.augment_max_offset_x,max_offset_y = self.augment_max_offset_y,
