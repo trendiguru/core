@@ -4,6 +4,8 @@ from ..constants import db, redis_conn
 from datetime import datetime
 from ..Yonti import pymongo_utils
 from rq import Queue
+from scipy import fftpack
+import itertools
 import sys
 q = Queue('refresh', connection=redis_conn)
 today_date = str(datetime.date(datetime.now()))
@@ -19,10 +21,10 @@ def progress_bar(blocksize, total, last_cnt = None, last_pct=None):
     last_percent = last_pct or last_percent_reported
     if last_percent != percent:
         if percent % 5 == 0:
-            sys.stdout.write('%s%%' % percent)
+            sys.stdout.write(' %s%% ' % percent)
             sys.stdout.flush()
         else:
-            sys.stdout.write('.')
+            sys.stdout.write('#')
             sys.stdout.flush()
 
         last_percent_reported = percent
@@ -69,6 +71,18 @@ def log2file(mode, log_filename, message='', print_flag=True):
             print_error(message)
     else:
         return logger, handler
+
+
+def get_phash(image):
+    pixel_depth = 255.0
+    image_data = (image.astype(float) - pixel_depth / 2) / pixel_depth
+    dct = fftpack.dct(fftpack.dct(image_data.T, norm='ortho').T, norm='ortho')
+    small_dct = dct[0:16, 0:16].tolist()
+    pixels = list(itertools.chain.from_iterable(itertools.chain.from_iterable(small_dct)))
+    avg = (sum(pixels) - pixels[0]) / (len(pixels) - 1)
+    bits = "".join(map(lambda pixel: '1' if pixel > avg else '0', pixels))  # '00010100...'
+    hexadecimal = int(bits, 2).__format__('016x').upper()
+    return hexadecimal
 
 
 def get_hash(image):
