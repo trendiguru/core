@@ -39,7 +39,7 @@ def cv2_image_to_caffe(image):
     return skimage.img_as_float(cv2.cvtColor(image, cv2.COLOR_BGR2RGB)).astype(np.float32)
 
 
-dresses = db.yonatan_dresses_test.find()
+dresses = db.yonatan_dresses_test.find({'dress_sleeve_length': {'$exists': 0}})
 
 delete = 0
 counter = 0
