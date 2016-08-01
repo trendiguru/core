@@ -350,7 +350,7 @@ def clear_duplicates(collection_name):
     global last_pct
     collection = db[collection_name]
     bef = collection.count()
-    all_items = collection.find({}, {'id': 1, 'parent_asin': 1, 'img_hash': 1, 'images.XLarge': 1})
+    all_items = collection.find({}, {'id': 1, 'parent_asin': 1, 'img_hash': 1, 'images.XLarge': 1, 'sizes':1, 'color':1})
     block_size = bef/100
     for i, item in enumerate(all_items):
         m, r = divmod(i, block_size)
@@ -358,7 +358,7 @@ def clear_duplicates(collection_name):
             last_pct = progress_bar(block_size, before, m, last_pct)
         item_id = item['_id']
         keys = item.keys()
-        if any(x for x in ['id', 'parent_asin', 'img_hash', 'images'] if x not in keys):
+        if any(x for x in ['id', 'parent_asin', 'img_hash', 'images', 'sizes', 'color'] if x not in keys):
             collection.delete_one({'_id':item_id})
             continue
         idx = item['id']
