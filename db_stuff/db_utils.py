@@ -21,10 +21,10 @@ def progress_bar(blocksize, total, last_cnt = None, last_pct=None):
     last_percent = last_pct or last_percent_reported
     if last_percent != percent:
         if percent % 5 == 0:
-            sys.stdout.write('%s%%' % percent)
+            sys.stdout.write(' %s%% ' % percent)
             sys.stdout.flush()
         else:
-            sys.stdout.write('.')
+            sys.stdout.write('#')
             sys.stdout.flush()
 
         last_percent_reported = percent
@@ -71,6 +71,7 @@ def log2file(mode, log_filename, message='', print_flag=True):
             print_error(message)
     else:
         return logger, handler
+
 
 def get_phash(image):
     pixel_depth = 255.0
