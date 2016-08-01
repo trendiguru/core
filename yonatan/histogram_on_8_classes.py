@@ -22,6 +22,8 @@ array_failure_with_plus_minus_category = np.array([])
 array_success_without = np.array([])
 array_failure_without = np.array([])
 
+all_predictions = np.array([])
+
 text_file = open("db_dress_sleeve_test.txt", "r")
 
 MODLE_FILE = "/home/yonatan/trendi/yonatan/resnet_50_dress_sleeve/ResNet-50-deploy.prototxt"
@@ -125,10 +127,9 @@ for line in text_file:
 
     print counter
     #print predictions
-    print array_success_with_plus_minus_category
 
-
-    #all_predictions[counter-1] = predictions[0]
+    all_predictions = np.append(all_predictions, predictions[0])
+    print all_predictions
 
 mean_vector = mean_vector / counter
 
