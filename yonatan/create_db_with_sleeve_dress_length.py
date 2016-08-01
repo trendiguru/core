@@ -44,7 +44,7 @@ dresses = list(db.yonatan_dresses_test.find({'dress_sleeve_length': {'$exists': 
 delete = 0
 counter = 0
 
-print "Starting the genderism! total docs: {0}".format(dresses.count())
+print "Starting the genderism!"
 
 # text_file = open("all_dresses_" + key + "_list.txt", "w")
 for doc in dresses:
