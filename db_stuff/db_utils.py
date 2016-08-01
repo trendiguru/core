@@ -9,7 +9,6 @@ from PIL import Image
 import io
 from urllib2 import urlopen
 import numpy as np
-from imagehash import ImageHash
 from scipy import fftpack
 
 
@@ -79,26 +78,29 @@ def log2file(mode, log_filename, message='', print_flag=True):
         return logger, handler
 
 
-def get_image_from_url(url):
-    try:
-        res = urlopen(url)
-        img_as_bytes = io.BytesIO(res.read())
-        pil_img = Image.open(img_as_bytes)
-        np_img = np.asarray(pil_img, type=np.float32)
-        return np_img
-    except:
-        return None, None
+def binary_array_to_hex(arr):
+    h = 0
+    s = []
+    for i, v in enumerate(arr.flatten()):
+        if v:
+            h += 2**(i % 8)
+        if (i % 8) == 7:
+            s.append(hex(h)[2:].rjust(2, '0'))
+            h = 0
+    return "".join(s)
 
 
 def get_p_hash(image, hash_size=8):
-    image = np.resize(image,(hash_size,hash_size))
-    pixels = image.reshape((hash_size, hash_size))
+    image = Image.fromarray(image)
+    image = image.convert("L").resize((hash_size, hash_size), Image.ANTIALIAS)
+    pixels = np.array(image.getdata(), dtype=np.float).reshape((hash_size, hash_size))
     dct = fftpack.dct(fftpack.dct(pixels, axis=0), axis=1)
     dctlowfreq = dct[:hash_size, :hash_size]
     med = np.median(dctlowfreq)
     diff = dctlowfreq > med
-    return diff
-
+    flat= diff.flatten()
+    hexa = binary_array_to_hex(flat)
+    return hexa
 
 
 def get_hash(image):
