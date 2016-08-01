@@ -21,9 +21,8 @@ import re
 import string
 import sys
 import hashlib
-# import urllib
 logging.basicConfig(level=logging.WARNING)
-
+USER_AGENT = 'Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/51.0.2704.103 Safari/537.36'
 db = constants.db
 
 
@@ -104,7 +103,8 @@ def get_cv2_img_array(url_or_path_to_image_file_or_cv2_image_array, convert_url_
                 img_url = url_or_path_to_image_file_or_cv2_image_array
                 try:
                     # print("trying remotely (url) ")
-                    response = requests.get(img_url)  # download
+                    headers = {'User-Agent': USER_AGENT}
+                    response = requests.get(img_url, headers=headers)  # download
                     img_array = imdecode(np.asarray(bytearray(response.content)), 1)
                 except ConnectionError:
                     logging.warning("connection error - check url or connection")

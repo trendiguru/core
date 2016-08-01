@@ -60,6 +60,9 @@ counter_90_percent = 0
 
 failure_above_98_percent = 0
 
+
+
+
 #failure_current_result = 0
 #success_current_result = 0
 
