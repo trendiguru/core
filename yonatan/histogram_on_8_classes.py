@@ -129,15 +129,13 @@ for line in text_file:
     #print predictions
 
     all_predictions = np.vstack((all_predictions, predictions[0]))
-    all_predictions = all_predictions[1:]
-    print all_predictions
 
-
+all_predictions = all_predictions[1:]
 
 mean_vector = mean_vector / counter
 
 for i in range(1, counter):
-    variance_vector += variance_vector + np.square(predictions[0] - mean_vector)
+    variance_vector += variance_vector + np.square(all_predictions[i] - mean_vector)
 #variance_vector = variance_vector / float(counter)
 
 success_with = len(array_success_with_plus_minus_category)
