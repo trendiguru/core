@@ -1,11 +1,10 @@
 from ..constants import db, redis_conn, fingerprint_version
-from ..Utils import get_cv2_img_array
 from rq import Queue
 from datetime import datetime
 from ..fingerprint_core import generate_mask_and_insert
 from time import sleep
 import re
-from db_utils import print_error, get_hash, get_phash
+from db_utils import print_error, get_hash, get_p_hash, get_image_from_url
 from .amazon_constants import plus_sizes
 today_date = str(datetime.date(datetime.now()))
 
@@ -254,7 +253,7 @@ def insert_items(collection_name, item_list, items_in_page, print_flag, family_t
                 print ('img url already exists')
                 continue
 
-            image = get_cv2_img_array(image_url)
+            image, pil_image = get_image_from_url(image_url)
             if image is None:
                 if print_flag:
                     print_error('bad img url')
@@ -266,7 +265,7 @@ def insert_items(collection_name, item_list, items_in_page, print_flag, family_t
                 print ('hash already exists')
                 continue
 
-            p_hash = get_phash(image)
+            p_hash = get_p_hash(pil_image)
             p_hash_exists = collection.find_one({'p_hash': p_hash})
             if p_hash_exists:
                 print ('p_hash already exists')

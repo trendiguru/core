@@ -4,9 +4,14 @@ from ..constants import db, redis_conn
 from datetime import datetime
 from ..Yonti import pymongo_utils
 from rq import Queue
-from scipy import fftpack
-import itertools
 import sys
+from PIL import Image
+import io
+from urllib2 import urlopen
+import numpy as np
+from imagehash import phash
+
+
 q = Queue('refresh', connection=redis_conn)
 today_date = str(datetime.date(datetime.now()))
 last_percent_reported = None
@@ -73,16 +78,20 @@ def log2file(mode, log_filename, message='', print_flag=True):
         return logger, handler
 
 
-def get_phash(image):
-    pixel_depth = 255.0
-    image_data = (image - pixel_depth / 2) / pixel_depth
-    dct = fftpack.dct(fftpack.dct(image_data.T, norm='ortho').T, norm='ortho')
-    small_dct = dct[0:32, 0:32].tolist()
-    pixels = list(itertools.chain.from_iterable(itertools.chain.from_iterable(small_dct)))
-    avg = (sum(pixels) - pixels[0]) / (len(pixels) - 1)
-    bits = "".join(map(lambda pixel: '1' if pixel > avg else '0', pixels))  # '00010100...'
-    hexadecimal = int(bits, 2).__format__('016x').upper()
-    return hexadecimal
+def get_image_from_url(url):
+    try:
+        res = urlopen(url)
+        img_as_bytes = io.BytesIO(res.read())
+        pil_img = Image.open(img_as_bytes)
+        np_img = np.asarray(pil_img, type=np.float32)
+        return np_img
+    except:
+        return None, None
+
+
+def get_p_hash(pil_image):
+    ph = phash(pil_image)
+    return ph
 
 
 def get_hash(image):
