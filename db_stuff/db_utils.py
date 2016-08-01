@@ -9,7 +9,8 @@ from PIL import Image
 import io
 from urllib2 import urlopen
 import numpy as np
-from imagehash import phash
+from imagehash import ImageHash
+from scipy import fftpack
 
 
 q = Queue('refresh', connection=redis_conn)
@@ -89,9 +90,15 @@ def get_image_from_url(url):
         return None, None
 
 
-def get_p_hash(pil_image):
-    ph = phash(pil_image)
-    return ph
+def get_p_hash(image, hash_size=8):
+    image = np.resize(image,(hash_size,hash_size))
+    pixels = image.reshape((hash_size, hash_size))
+    dct = fftpack.dct(fftpack.dct(pixels, axis=0), axis=1)
+    dctlowfreq = dct[:hash_size, :hash_size]
+    med = np.median(dctlowfreq)
+    diff = dctlowfreq > med
+    return ImageHash(diff)
+
 
 
 def get_hash(image):
