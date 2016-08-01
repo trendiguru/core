@@ -97,7 +97,7 @@ def get_p_hash(image, hash_size=8):
     dctlowfreq = dct[:hash_size, :hash_size]
     med = np.median(dctlowfreq)
     diff = dctlowfreq > med
-    return ImageHash(diff)
+    return diff
 
 
 
