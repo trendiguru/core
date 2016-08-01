@@ -401,10 +401,11 @@ def download_by_category(collection_name, gender, plus_size_flag):
 
     if gender is 'Female':
         node_id = '1040660'
+        leaf_prefix = 'Departments->Women->Clothing->'
     else:
         node_id = '1040658'
+        leaf_prefix = 'Departments->Men->Clothing->'
 
-    leaf_prefix = 'Departments->Men->Clothing->'
     not_finished = amazon_categories_for_direct_dl # change the cursor into a list
     iteration = 0
     not_finished_len = len(not_finished)
@@ -492,7 +493,7 @@ def download_all(collection_name, gender='Female', del_collection=False, del_cac
     leafs_cursor = db.amazon_category_tree.find({'Children.count': 0, 'Parents': parent_gender})
     leafs = [x for x in leafs_cursor]  # change the cursor into a list
     iteration = 0
-    status_title = '$s download started on %s' % (col_name, today_date)
+    status_title = '%s download started on %s' % (col_name, today_date)
     log2file(mode='a', log_filename=status_log, message=status_title, print_flag=True)
 
     while len(leafs):
