@@ -24,8 +24,6 @@ array_failure_without = np.array([])
 
 text_file = open("db_dress_sleeve_test.txt", "r")
 
-counter = 0
-
 MODLE_FILE = "/home/yonatan/trendi/yonatan/resnet_50_dress_sleeve/ResNet-50-deploy.prototxt"
 PRETRAINED = "/home/yonatan/resnet50_caffemodels/caffe_resnet50_snapshot_50_sgd_iter_10000.caffemodel"
 caffe.set_mode_gpu()
@@ -43,6 +41,8 @@ classifier = yonatan_classifier.Classifier(MODLE_FILE, PRETRAINED,
                               image_dims=image_dims, mean=mean,
                               input_scale=input_scale, raw_scale=raw_scale,
                               channel_swap=channel_swap)
+
+counter = 0
 
 success_counter = 0
 failure_counter = 0
@@ -126,6 +126,11 @@ for line in text_file:
     print counter
     print predictions
 
+mean_vector = mean_vector / counter
+
+for i in range(1, counter):
+    variance_vector += variance_vector + np.square(predictions[0] - mean_vector)
+variance_vector = variance_vector / counter
 
 success_with = len(array_success_with_plus_minus_category)
 failure_with = len(array_failure_with_plus_minus_category)
@@ -138,6 +143,9 @@ if success_with == 0 or failure_with == 0:
 else:
     print 'accuracy percent with +-category: {0}'.format(float(success_with) / (success_with + failure_with))
     print 'accuracy percent without: {0}'.format(float(success_without) / (success_without + failure_without))
+
+print "mean vector: {0}".format(mean_vector)
+print "variance vector: {0}".format(variance_vector)
 
 histogram = plt.figure(1)
 
