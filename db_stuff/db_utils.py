@@ -75,7 +75,7 @@ def log2file(mode, log_filename, message='', print_flag=True):
 
 def get_phash(image):
     pixel_depth = 255.0
-    image_data = (image.astype(float) - pixel_depth / 2) / pixel_depth
+    image_data = (image - pixel_depth / 2) / pixel_depth
     dct = fftpack.dct(fftpack.dct(image_data.T, norm='ortho').T, norm='ortho')
     small_dct = dct[0:16, 0:16].tolist()
     pixels = list(itertools.chain.from_iterable(itertools.chain.from_iterable(small_dct)))
