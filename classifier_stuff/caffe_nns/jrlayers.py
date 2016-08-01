@@ -529,7 +529,7 @@ class JrMultilabel(caffe.Layer):
                 self.next_idx()   #bad file, goto next
                 idx = self.idx
                 continue
-
+            print('calling generate_images')
             in_ = generate_images.generate_image_onthefly(filename, gaussian_or_uniform_distributions=self.augment_distribution,
                max_angle = self.augment_max_angle,
                max_offset_x = self.augment_max_offset_x,max_offset_y = self.augment_max_offset_y,
@@ -540,6 +540,7 @@ class JrMultilabel(caffe.Layer):
                do_mirror_ud=self.augment_do_mirror_ud,
                crop_size=self.augment_crop_size,
                show_visual_output=self.augment_show_visual_output)
+            print('returned from generate_images')
 
             #im = Image.open(filename)
             #if im is None:
