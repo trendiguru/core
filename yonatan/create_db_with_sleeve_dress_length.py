@@ -92,24 +92,24 @@ for doc in dresses:
 
     print counter
 
-        '''
-        if predict_label == 0:
-            type = 'strapless'
-        elif predict_label == 1:
-            type =  'spaghetti_straps'
-        elif predict_label == 2:
-            type =  'regular_straps'
-        elif predict_label == 3:
-            type = 'sleeveless'
-        elif predict_label == 4:
-            type = 'cap_sleeve'
-        elif predict_label == 5:
-            type = 'short_sleeve'
-        elif predict_label == 6:
-            type = 'midi_sleeve'
-        elif predict_label == 7:
-            type = 'long_sleeve'
-        '''
+    '''
+    if predict_label == 0:
+        type = 'strapless'
+    elif predict_label == 1:
+        type =  'spaghetti_straps'
+    elif predict_label == 2:
+        type =  'regular_straps'
+    elif predict_label == 3:
+        type = 'sleeveless'
+    elif predict_label == 4:
+        type = 'cap_sleeve'
+    elif predict_label == 5:
+        type = 'short_sleeve'
+    elif predict_label == 6:
+        type = 'midi_sleeve'
+    elif predict_label == 7:
+        type = 'long_sleeve'
+    '''
 
         #print predictions[0][predict_label]
 
