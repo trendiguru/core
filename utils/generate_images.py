@@ -210,7 +210,7 @@ def generate_image_onthefly(img_filename_or_nparray, gaussian_or_uniform_distrib
     :param show_visual_output:
     :param suffix:
     :return:
-    '''
+    ''' #
 
     start_time = time.time()
     if isinstance(img_filename_or_nparray,basestring):
