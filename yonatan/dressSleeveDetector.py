@@ -14,6 +14,7 @@ import cv2
 import urllib
 import skimage
 import requests
+import yonatan_classifier
 
 
 MODLE_FILE = "/home/yonatan/trendi/yonatan/resnet_50_dress_sleeve/ResNet-50-deploy.prototxt"
@@ -25,7 +26,7 @@ channel_swap = [2, 1, 0]
 raw_scale = 255.0
 
 # Make classifier.
-classifier = caffe.Classifier(MODLE_FILE, PRETRAINED,
+classifier = yonatan_classifier.Classifier(MODLE_FILE, PRETRAINED,
                               image_dims=image_dims, mean=mean,
                               input_scale=input_scale, raw_scale=raw_scale,
                               channel_swap=channel_swap)
