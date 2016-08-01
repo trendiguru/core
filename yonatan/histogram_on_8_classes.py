@@ -128,7 +128,7 @@ for line in text_file:
     print counter
     #print predictions
 
-    all_predictions = np.append(all_predictions, [predictions[0]])
+    all_predictions[counter-1] = np.append(all_predictions, predictions[0])
     print all_predictions
 
 mean_vector = mean_vector / counter
