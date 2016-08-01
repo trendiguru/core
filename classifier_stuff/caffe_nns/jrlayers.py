@@ -465,7 +465,7 @@ class JrMultilabel(caffe.Layer):
 
     def reshape(self, bottom, top):
         pass
-#        print('reshaping')
+        print('start reshape')
 #        logging.debug('self.idx is :'+str(self.idx)+' type:'+str(type(self.idx)))
         if self.batch_size == 1:
             imgfilename, self.data, self.label = self.load_image_and_label()
@@ -497,10 +497,12 @@ class JrMultilabel(caffe.Layer):
 
     def forward(self, bottom, top):
         # assign output
+        print('forward start')
         top[0].data[...] = self.data
         top[1].data[...] = self.label
         # pick next input
         self.next_idx()
+        print('forward end')
 
     def backward(self, top, propagate_down, bottom):
         pass
@@ -513,6 +515,7 @@ class JrMultilabel(caffe.Layer):
         - subtract mean
         - transpose to channel x height x width order
         """
+        print('load_image_and_label start')
         if idx is None:
             idx = self.idx
         while(1):
@@ -566,6 +569,7 @@ class JrMultilabel(caffe.Layer):
         in_ -= self.mean
         in_ = in_.transpose((2,0,1))  #Row Column Channel -> Channel Row Column
 #	print('uniques of img:'+str(np.unique(in_))+' shape:'+str(in_.shape))
+        print('load_image_and_label end')
         return filename, in_, label_vec
 
 
