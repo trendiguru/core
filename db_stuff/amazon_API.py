@@ -373,12 +373,12 @@ def clear_duplicates(name):
             collection.delete_one({'_id':item_id})
             continue
         idx= item['id']
-        id_exists = collection.find({'id': idx},{''})
+        id_exists = collection.find({'id': idx}, {'id':1})
         if id_exists.count()>1:
             delete_if_not_same_id(name, item_id, id_exists)
 
         parent = item['parent_asin']
-        parent_exists = collection.find({'parent_asin': parent})
+        parent_exists = collection.find({'parent_asin': parent}, {'id':1, 'sizes':1, 'color':1})
         if parent_exists.count() > 1:
             id_to_del = []
             current_sizes = item['sizes']
@@ -397,12 +397,12 @@ def clear_duplicates(name):
                 collection.delete_many({'_id': {'$in': id_to_del}})
 
         img_hash = item['img_hash']
-        hash_exists = collection.find({'img_hash': img_hash})
+        hash_exists = collection.find({'img_hash': img_hash}, {'id':1})
         if hash_exists.count() > 1:
             delete_if_not_same_id(name, item_id, hash_exists)
 
         img_url = item['images']['XLarge']
-        img_url_exists = collection.find({'images.XLarge': img_url})
+        img_url_exists = collection.find({'images.XLarge': img_url}, {'id':1})
         if img_url_exists.count() > 1:
             delete_if_not_same_id(name, item_id, img_url_exists)
 
