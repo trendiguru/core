@@ -22,7 +22,7 @@ array_failure_with_plus_minus_category = np.array([])
 array_success_without = np.array([])
 array_failure_without = np.array([])
 
-all_predictions = np.array([])
+all_predictions = np.zeros(8)
 
 text_file = open("db_dress_sleeve_test.txt", "r")
 
@@ -128,16 +128,17 @@ for line in text_file:
     print counter
     #print predictions
 
-    #all_predictions = np.extend(all_predictions, predictions[0])
-    all_predictions.extend(all_predictions, predictions[0])
+    all_predictions = np.vstack((all_predictions, predictions[0]))
 
-    print all_predictions
+all_predictions = all_predictions[1:]
 
 mean_vector = mean_vector / counter
 
 for i in range(1, counter):
-    variance_vector += variance_vector + np.square(predictions[0] - mean_vector)
-#variance_vector = variance_vector / float(counter)
+    variance_vector += np.square(all_predictions[i] - mean_vector)
+    print variance_vector
+    print '\n'
+variance_vector = variance_vector / counter
 
 success_with = len(array_success_with_plus_minus_category)
 failure_with = len(array_failure_with_plus_minus_category)
