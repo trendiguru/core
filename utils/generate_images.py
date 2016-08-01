@@ -214,7 +214,7 @@ def generate_image_onthefly(img_filename_or_nparray, gaussian_or_uniform_distrib
 
     start_time = time.time()
     if isinstance(img_filename_or_nparray,basestring):
-        logging.debug('db A')
+        logging.debug('db A filename:'+img_filename_or_nparray)
         img_arr = cv2.imread(img_filename_or_nparray)
         logging.debug('db B')
     else:
