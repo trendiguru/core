@@ -3,7 +3,7 @@ __author__ = 'liorsabag'
 # labels for multilabel image-level categorization are in constants.web_tool_categories (also 21 labels)
 import falcon
 from .. import neurodoll, neurodoll_single_category
-#from .. import multilabel
+from .. import multilabel
 from .. import constants
 
 from jaweson import json, msgpack
@@ -34,8 +34,8 @@ class PaperResource:
 
             if get_multilabel_results:
                 output = multilabel.get_multilabel_output(img)
-                output='NOT CURRENTLY SUPPORTED'
- #               ret['multilabel_output'] = output
+ #               output='NOT CURRENTLY SUPPORTED'
+                ret['multilabel_output'] = output
                 print('multilabel output:'+str(output))
             if category_index:
                 ret["mask"] = neurodoll_single_category.get_category_graylevel(img, category_index) 
