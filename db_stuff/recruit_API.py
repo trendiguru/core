@@ -1,6 +1,3 @@
-"""
-playground for testing the recruit API
-"""
 from .recruit_constants import api_stock, recruitID2generalCategory
 from ..constants import db, redis_conn
 from rq import Queue
@@ -97,10 +94,11 @@ use printCategories to scan the api and print all categories under ladies' and m
 
 def download_recruit(delete=False):
     s = time()
-
+    before_count = 0
     for gender in ['Male', 'Female']:
         col_name = 'recruit_'+gender
         collection = db[col_name]
+        before_count += collection.count()
         if delete:
             collection.delete_many({})
         indexes = collection.index_information().keys()
@@ -124,8 +122,13 @@ def download_recruit(delete=False):
     print ('download time : %d' % duration )
 
     deleteDuplicates()
+    after_count = 0
+    new_count = 0
     for gender in ['Male', 'Female']:
         col_name = 'recruit_' + gender
+        collection = db[col_name]
+        after_count += collection.count()
+        new_count += collection.find({'download_data.first_dl': today_date}).count()
         status_full_path = 'collections.' + col_name + '.status'
         db.download_status.update_one({"date": today_date}, {"$set": {status_full_path: "Finishing"}})
         theArchiveDoorman(col_name)
@@ -135,9 +138,11 @@ def download_recruit(delete=False):
         if forest_job.is_failed:
             print ('annoy plant forest failed')
 
-    dl_info = {"date": today_date,
+    dl_info = {"start_date": today_date,
                "dl_duration": duration,
-               "store_info": []}
+               "items_before": before_count,
+               "items_after": after_count,
+               "items_new": new_count}
 
     mongo2xl('recruit_me', dl_info)
 
