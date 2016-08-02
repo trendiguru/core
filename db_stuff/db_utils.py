@@ -4,9 +4,14 @@ from ..constants import db, redis_conn
 from datetime import datetime
 from ..Yonti import pymongo_utils
 from rq import Queue
-from scipy import fftpack
-import itertools
 import sys
+from PIL import Image
+import io
+from urllib2 import urlopen
+import numpy as np
+from scipy import fftpack
+
+
 q = Queue('refresh', connection=redis_conn)
 today_date = str(datetime.date(datetime.now()))
 last_percent_reported = None
@@ -73,16 +78,29 @@ def log2file(mode, log_filename, message='', print_flag=True):
         return logger, handler
 
 
-def get_phash(image):
-    pixel_depth = 255.0
-    image_data = (image.astype(float) - pixel_depth / 2) / pixel_depth
-    dct = fftpack.dct(fftpack.dct(image_data.T, norm='ortho').T, norm='ortho')
-    small_dct = dct[0:16, 0:16].tolist()
-    pixels = list(itertools.chain.from_iterable(itertools.chain.from_iterable(small_dct)))
-    avg = (sum(pixels) - pixels[0]) / (len(pixels) - 1)
-    bits = "".join(map(lambda pixel: '1' if pixel > avg else '0', pixels))  # '00010100...'
-    hexadecimal = int(bits, 2).__format__('016x').upper()
-    return hexadecimal
+def binary_array_to_hex(arr):
+    h = 0
+    s = []
+    for i, v in enumerate(arr.flatten()):
+        if v:
+            h += 2**(i % 8)
+        if (i % 8) == 7:
+            s.append(hex(h)[2:].rjust(2, '0'))
+            h = 0
+    return "".join(s)
+
+
+def get_p_hash(image, hash_size=8, img_size=8):
+    image = Image.fromarray(image)
+    image = image.convert("L").resize((img_size, img_size), Image.ANTIALIAS)
+    pixels = np.array(image.getdata(), dtype=np.float).reshape((img_size, img_size))
+    dct = fftpack.dct(fftpack.dct(pixels, axis=0), axis=1)
+    dctlowfreq = dct[:hash_size, :hash_size]
+    med = np.median(dctlowfreq)
+    diff = dctlowfreq > med
+    flat= diff.flatten()
+    hexa = binary_array_to_hex(flat)
+    return hexa
 
 
 def get_hash(image):
