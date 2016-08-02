@@ -13,9 +13,9 @@ def randomword(length):
    return ''.join(random.choice(string.lowercase) for i in range(length))
 
 rand_eng_name = randomword(4)
-print "{0}: Starting MATLAB engine {0}".format(print datetime.datetime.now(), rand_eng_name)
+print "{0}: Starting MATLAB engine {1}".format(datetime.datetime.now(), rand_eng_name)
 eng = matlab.engine.start_matlab('-nodesktop -nojvm')
-print "{0}: Started MATLAB engine {0}".format(print datetime.datetime.now(), rand_eng_name)
+print "{0}: Started MATLAB engine {1}".format(datetime.datetime.now(), rand_eng_name)
 
 class PaperResource:
     def on_get(self, req, resp):
