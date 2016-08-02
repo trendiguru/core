@@ -90,10 +90,10 @@ def binary_array_to_hex(arr):
     return "".join(s)
 
 
-def get_p_hash(image, hash_size=8):
+def get_p_hash(image, hash_size=8, img_size=8):
     image = Image.fromarray(image)
-    image = image.convert("L").resize((hash_size, hash_size), Image.ANTIALIAS)
-    pixels = np.array(image.getdata(), dtype=np.float).reshape((hash_size, hash_size))
+    image = image.convert("L").resize((img_size, img_size), Image.ANTIALIAS)
+    pixels = np.array(image.getdata(), dtype=np.float).reshape((img_size, img_size))
     dct = fftpack.dct(fftpack.dct(pixels, axis=0), axis=1)
     dctlowfreq = dct[:hash_size, :hash_size]
     med = np.median(dctlowfreq)
