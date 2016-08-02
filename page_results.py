@@ -71,16 +71,15 @@ def handle_post(image_url, page_url, products_collection, method):
     if image_obj:
         # IF IMAGE HAS RESULTS FROM THIS COLLECTION:
         if has_results_from_collection(image_obj, products_collection):
-            # todo - if has_nd_results: run through paperdoll and replace document
-            methods = [person['segmentation_method'] for person in image_obj['people']]
-            if 'nd' in methods:
-                image_obj = {'people': [{'person_id': person['_id'], 'face': person['face'],
-                             'gender': person['gender']} for person in image_obj['people']],
-                             'image_url': image_url, 'page_url': page_url}
-                db.genderator.insert_one(image_obj)
-                db.iip.insert_one({'image_urls': image_url, 'insert_time': datetime.datetime.utcnow()})
-                start_pipeline.enqueue_call(func="", args=(page_url, image_url, products_collection, 'pd'),
-                                            ttl=2000, result_ttl=2000, timeout=2000)
+            # methods = [person['segmentation_method'] for person in image_obj['people']]
+            # if 'nd' in methods:
+            #     image_obj = {'people': [{'person_id': person['_id'], 'face': person['face'],
+            #                  'gender': person['gender']} for person in image_obj['people']],
+            #                  'image_url': image_url, 'page_url': page_url}
+            #     db.genderator.insert_one(image_obj)
+            #     db.iip.insert_one({'image_urls': image_url, 'insert_time': datetime.datetime.utcnow()})
+            #     start_pipeline.enqueue_call(func="", args=(page_url, image_url, products_collection, 'pd'),
+            #                                 ttl=2000, result_ttl=2000, timeout=2000)
             return True
         else:
             # ADD RESULTS FROM THIS PRODUCTS-COLLECTION
