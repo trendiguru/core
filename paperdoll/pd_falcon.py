@@ -6,7 +6,8 @@ import matlab
 from jaweson import json, msgpack
 from . import pd
 
-eng = matlab.engine.start_matlab('nodesktop')
+eng = matlab.engine.start_matlab('-nodesktop -nojvm')
+print "Starting MATLAB engine {0}".format(eng)
 
 class PaperResource:
     def on_get(self, req, resp):
