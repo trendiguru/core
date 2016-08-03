@@ -189,12 +189,20 @@ def combine_neurodoll_and_multilabel(url_or_np_array,multilabel_threshold=0.7):
 
 if __name__ == "__main__":
     outmat = np.zeros([256*4,256*21],dtype=np.uint8)
-    url = 'http://diamondfilms.com.au/wp-content/uploads/2014/08/Fashion-Photography-Sydney-1.jpg'
     url = 'http://pinmakeuptips.com/wp-content/uploads/2015/02/1.4.jpg'
+    urls = [url,
+            'http://diamondfilms.com.au/wp-content/uploads/2014/08/Fashion-Photography-Sydney-1.jpg',
+            'http://pinmakeuptips.com/wp-content/uploads/2016/02/main-1.jpg',
+            'http://pinmakeuptips.com/wp-content/uploads/2016/02/1.-Strategic-Skin-Showing.jpg',
+            'http://pinmakeuptips.com/wp-content/uploads/2016/02/3.jpg',
+            'http://pinmakeuptips.com/wp-content/uploads/2016/02/4.jpg',
+            'http://pinmakeuptips.com/wp-content/uploads/2016/03/Adding-Color-to-Your-Face.jpg']
+
 #    get_nd_and_multilabel_output_using_nfc(url_or_np_array)
-    out = get_multilabel_output(url)
-    print('ml output:'+str(out))
-    out = combine_neurodoll_and_multilabel(url)
+#    out = get_multilabel_output(url)
+#    print('ml output:'+str(out))
+    for url in urls:
+        out = combine_neurodoll_and_multilabel(url)
 
     #LOAD NEURODOLL
 ''' #
