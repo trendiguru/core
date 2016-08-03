@@ -177,7 +177,6 @@ array_long_sleeve = array_long_sleeve[1:]
 for comb in combinations([array_strapless, array_spaghetti_straps,array_regular_straps,
                           array_sleeveless, array_cap_sleeve, array_short_sleeve,
                           array_midi_sleeve, array_long_sleeve], 2):
-    print comb
     print np.min([np.linalg.norm(a-b) for a,b in product(*comb)])
 
 
