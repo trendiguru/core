@@ -21,8 +21,22 @@ from trendi import pipeline
 from trendi.paperdoll import neurodoll_falcon_client as nfc
 
 
-#
-
+#best as of 260716, see http://extremeli.trendi.guru/demo/results/ for updates
+print('starting nd w multilabel.py')
+protopath = os.path.join(os.path.dirname(os.path.abspath( __file__ )), 'classifier_stuff/caffe_nns/protos')
+modelpath = '/home/jeremy/caffenets/production'
+solverproto = os.path.join(modelpath,'ResNet-101-test.prototxt')
+deployproto = os.path.join(modelpath,'ResNet-101-deploy.prototxt')
+caffemodel = os.path.join(modelpath,'multilabel_resnet101_sgd_iter_120000.caffemodel')
+with open('/home/jeremy/core/log.txt','a+') as logfile:
+    logfile.write(solverproto+' '+deployproto+' '+caffemodel+'\n')
+print('solver proto {} deployproto {} caffemodel {}'.format(solverproto,deployproto,caffemodel))
+print('set_mode_gpu()')
+caffe.set_mode_gpu()
+print('device 0')
+caffe.set_device(0)
+multilabel_net = caffe.Net(deployproto,caffemodel, caffe.TEST)
+multilabel_required_image_size = (224,224)
 
 def url_to_image(url):
     # download the image, convert it to a NumPy array, and then read
@@ -39,7 +53,7 @@ def url_to_image(url):
 
 
 
-def get_multilabel_output(url_or_np_array,required_image_size=(227,227)):
+def get_multilabel_output(url_or_np_array,required_image_size=(224,224)):
     if isinstance(url_or_np_array, basestring):
         image = url_to_image(url_or_np_array)
     elif type(url_or_np_array) == np.ndarray:
@@ -68,13 +82,19 @@ def get_multilabel_output(url_or_np_array,required_image_size=(227,227)):
     # run net and take argmax for prediction
     multilabel_net.forward()
 #    out = net.blobs['score'].data[0].argmax(axis=0) #for a parse with per-pixel max
-    out = multilabel_net.blobs['score'].data[0] #for the nth class layer #siggy is after sigmoid
-    min = np.min(out)
-    max = np.max(out)
+    out = multilabel_net.blobs['prob'].data[0] #for the nth class layer #siggy is after sigmoid
     print('multilabel:  {}'.format(out))
     return out
 
 def grabcut_using_neurodoll_output(url_or_np_array,category_index):
+    '''
+    takes an image (or url) and category.
+    gets the neurodoll mask for that category.
+    find the median value of the neurodoll mask.
+    anything above becomes probable foreground (3) and anything less prob. background (2) (check this)
+    then does a grabcut with these regions of fg, bg
+    returned mask is 1 for fg and 0 for bg
+    '''
     if isinstance(url_or_np_array, basestring):
         image = url_to_image(url_or_np_array)
     elif type(url_or_np_array) == np.ndarray:
@@ -82,14 +102,16 @@ def grabcut_using_neurodoll_output(url_or_np_array,category_index):
     print('grabcut working on image of shape:'+str(image.shape))
 
         #def neurodoll(image, category_idx):
-    dic = nfc.pd(image, category_index)
+    dic = nfc.pd(image, category_index=category_index)
     if not dic['success']:
+        logging.debug('nfc pd not a success')
         return False, []
     neuro_mask = dic['mask']
 
     nm_size = neuro_mask.shape[0:2]
     image_size = image.shape[0:2]
     if image_size != nm_size:
+#        logging.debug('size mismatch')
         image = cv2.resize(image,(nm_size[1],nm_size[0]))
     # rect = (0, 0, image.shape[1] - 1, image.shape[0] - 1)
     bgdmodel = np.zeros((1, 65), np.float64)
@@ -107,7 +129,7 @@ def grabcut_using_neurodoll_output(url_or_np_array,category_index):
     except:
         print('grabcut exception')
         return False, []
-    mask2 = np.where((mask == 1) + (mask == 3), 255, 0).astype(np.uint8)
+    mask2 = np.where((mask == 1) + (mask == 3), 1, 0).astype(np.uint8)
     return mask2
 
 def get_multilabel_output_using_nfc(url_or_np_array):
@@ -121,24 +143,41 @@ def get_multilabel_output_using_nfc(url_or_np_array):
     return multilabel_output
 
 def combine_neurodoll_and_multilabel(url_or_np_array,multilabel_threshold=0.7):
-#    multilabel = get_multilabel_output(url_or_np_array)
-    multilabel = get_multilabel_output_using_nfc(url_or_np_array)
+    multilabel = get_multilabel_output(url_or_np_array)
+#    multilabel = get_multilabel_output_using_nfc(url_or_np_array)
     #take only labels above a threshold on the multilabel result
     #possible other way to do this: multiply the neurodoll mask by the multilabel result and threshold that product
     thresholded_multilabel = [ml>multilabel_threshold for ml in multilabel]
 #    print('orig label:'+str(multilabel))
-    print('thrs label:'+str(thresholded_multilabel))
+    print('thresholded label:'+str(thresholded_multilabel))
+
+# hack to combine pants and jeans for better recall
+#    pantsindex = constants.web_tool_categories.index('pants')
+#    jeansindex = constants.web_tool_categories.index('jeans')
+#   if i == pantsindex or i == jeansindex:
+    first_time_thru = True  #hack to dtermine image size coming back from neurodoll
+    final_mask = np.zeros([224,224])
     for i in range(len(thresholded_multilabel)):
         if thresholded_multilabel[i]:
             neurodoll_index = constants.web_tool_categories_v1_to_ultimate_21[i]
             print('index {} webtoollabel {} newindex {} neurodoll_label {} was above threshold {}'.format(
                 i,constants.web_tool_categories[i],neurodoll_index,constants.ultimate_21[neurodoll_index], multilabel_threshold))
             item_mask = grabcut_using_neurodoll_output(url_or_np_array,neurodoll_index)
-            gc_mask = grabcut_using_neurodoll_output(url_or_np_array,category_index)
+            item_mask = np.multiply(item_mask,neurodoll_index)
+            if first_time_thru:
+                final_mask = np.zeros_like(item_mask)
+                first_time_thru = False
+            unique_to_new_mask = np.logical_and(item_mask != 0,final_mask == 0)   #dealing with same pixel claimed by two masks. if two masks include same pixel take first, don't add the pixel vals together
+            unique_to_new_mask = np.multiply(unique_to_new_mask,neurodoll_index)
+            final_mask = final_mask + unique_to_new_mask
+#            cv2.imshow('mask '+str(i),item_mask)
+#            cv2.waitKey(0)
+    timestamp = int(time.time())
+    name = '/home/jeremy/'+str(timestamp)+'.png'
+    cv2.imwrite(name,final_mask)
+    nice_output = imutils.show_mask_with_labels(name,constants.ultimate_21,save_images=True)
 
-            cv2.imshow('mask '+str(i),item_mask)
-            cv2.imshow('gc_mask '+str(i),gc_mask)
-            cv2.waitKey(0)
+    return final_mask
 
 # Make classifier.
 #classifier = caffe.Classifier(MODEL_FILE, PRETRAINED,
@@ -150,10 +189,20 @@ def combine_neurodoll_and_multilabel(url_or_np_array,multilabel_threshold=0.7):
 
 if __name__ == "__main__":
     outmat = np.zeros([256*4,256*21],dtype=np.uint8)
-    url = 'http://diamondfilms.com.au/wp-content/uploads/2014/08/Fashion-Photography-Sydney-1.jpg'
     url = 'http://pinmakeuptips.com/wp-content/uploads/2015/02/1.4.jpg'
+    urls = [url,
+            'http://diamondfilms.com.au/wp-content/uploads/2014/08/Fashion-Photography-Sydney-1.jpg',
+            'http://pinmakeuptips.com/wp-content/uploads/2016/02/main-1.jpg',
+            'http://pinmakeuptips.com/wp-content/uploads/2016/02/1.-Strategic-Skin-Showing.jpg',
+            'http://pinmakeuptips.com/wp-content/uploads/2016/02/3.jpg',
+            'http://pinmakeuptips.com/wp-content/uploads/2016/02/4.jpg',
+            'http://pinmakeuptips.com/wp-content/uploads/2016/03/Adding-Color-to-Your-Face.jpg']
+
 #    get_nd_and_multilabel_output_using_nfc(url_or_np_array)
-    combine_neurodoll_and_multilabel(url)
+#    out = get_multilabel_output(url)
+#    print('ml output:'+str(out))
+    for url in urls:
+        out = combine_neurodoll_and_multilabel(url)
 
     #LOAD NEURODOLL
 ''' #

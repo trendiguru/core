@@ -256,6 +256,10 @@ def do_seg_tests(net, iter, save_format, dataset, layer='score', gt='label'):
 
 
 #    imutils.show_mask_with_labels('concout.bmp',constants.fashionista_categories_augmented)
+def inspect_net(prototxt,caffemodel):
+    net = caffe.Net(prototxt,caffemodel, caffe.TEST)
+    for key,value in net.blobs.iteritems():
+        print(key,value)
 
 
 if __name__ == "__main__":

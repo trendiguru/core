@@ -66,7 +66,7 @@ class ShopStyleDownloader():
 
     def db_download(self):
         start_time = time.time()
-
+        bef = self.collection.count()
         self.cache.create_index("filter_params")
         self.cache.create_index("dl_version")
         root_category, ancestors = self.build_category_tree()
@@ -82,9 +82,11 @@ class ShopStyleDownloader():
         del_items = self.collection.delete_many({'fingerprint': {"$exists": False}})
         self.theArchiveDoorman()
 
-        dl_info = {"date": self.current_dl_date,
-           "dl_duration": total_time,
-           "store_info": []}
+        dl_info = {"start_date": self.current_dl_date,
+                   "dl_duration": total_time,
+                   "items_before": bef,
+                   "items_after": self.collection.count(),
+                   "items_new": self.collection.find({'download_data.first_dl':self.current_dl_date}).count()}
 
         self.cache.delete_many({})
         dl_excel.mongo2xl(self.collection_name, dl_info)

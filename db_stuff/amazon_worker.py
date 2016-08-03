@@ -14,6 +14,10 @@ q = Queue('fingerprinter4db', connection=redis_conn)
 def swap_amazon_to_ppd(cat, sub_cat):
     if cat == 'Dresses':
         return 'dress', sub_cat
+    if cat == 'tights':
+        return 'tights', None
+    if cat == 'Dresses':
+        return 'stockings', None
     elif cat == 'Tops & Tees':
         if sub_cat == 'Blouses & Button-Down Shirts':
             return 'blouse'
@@ -34,7 +38,7 @@ def swap_amazon_to_ppd(cat, sub_cat):
     elif cat == 'Sweaters':
         if sub_cat == 'Cardigans':
             return 'cardigan'
-        elif sub_cat== 'Pullovers':
+        elif sub_cat == 'Pullovers':
             return 'sweatshirt'
         elif sub_cat == 'Shrugs':
             return 'sweater'
@@ -61,13 +65,13 @@ def swap_amazon_to_ppd(cat, sub_cat):
             return 'jacket'
         elif sub_cat == 'Active Top & Bottom Sets':
             return ''
-        elif sub_cat =='Active Shirts & Tees':
+        elif sub_cat == 'Active Shirts & Tees':
             return 'shirt'
         elif sub_cat == 'Active Pants':
             return 'pants'
         elif sub_cat == 'Active Leggings':
             return 'leggings'
-        elif sub_cat== 'Active Shorts':
+        elif sub_cat == 'Active Shorts':
             return 'shorts'
         elif sub_cat == 'Active Skirts' or sub_cat == 'Active Skorts':
             return 'skirt'
@@ -81,7 +85,7 @@ def swap_amazon_to_ppd(cat, sub_cat):
     elif cat == 'Jumpsuits, Rompers & Overalls':
         return 'roampers'
     elif cat == 'Coats, Jackets & Vests':
-        if sub_cat  in ['Down & Parkas', 'Wool & Pea Coats', 'Fur & Faux Fur'] :
+        if sub_cat in ['Down & Parkas', 'Wool & Pea Coats', 'Fur & Faux Fur']:
             return 'coat'
         elif sub_cat in ['Denim Jackets', 'Quilted Lightweight Jackets', 'Casual Jackets', 'Leather & Faux Leather']:
             return 'jacket'
@@ -108,11 +112,11 @@ def swap_amazon_to_ppd(cat, sub_cat):
         else:
             return 'top'
     elif cat == 'Jackets & Coats':
-        if sub_cat in [ 'Down & Down Alternative', 'Outerwear', 'Trench & Rain', 'Wool & Blends']:
+        if sub_cat in ['Down & Down Alternative', 'Outerwear', 'Trench & Rain', 'Wool & Blends']:
             return 'coat'
         elif sub_cat in ['Fleece', 'Leather & Faux Leather', 'Lightweight Jackets']:
             return 'jacket'
-        elif sub_cat ==  'Vests':
+        elif sub_cat == 'Vests':
             return 'vest'
         else:
             return ''
@@ -124,7 +128,7 @@ def swap_amazon_to_ppd(cat, sub_cat):
         elif sub_cat == 'Sport Coats & Blazers':
             return 'blazer'
         elif sub_cat == 'Vests':
-             return 'vest'
+            return 'vest'
         else:
             return ''
     else:
@@ -135,15 +139,15 @@ def find_paperdoll_cat(family):
     leafs = re.split(r'->', family)
     category = leafs[3]
     sub_category = None
-    sub1=sub2=None
+    sub1 = None
     if len(leafs) > 4:
         sub1 = leafs[4]
-        sub_category = '%s.%s' %(category, sub1)
+        sub_category = '%s.%s' % (category, sub1)
     if len(leafs) > 5:
         sub2 = leafs[5]
         sub_category = '%s.%s' % (sub_category, sub2)
 
-    category = swap_amazon_to_ppd (category, sub1)
+    category = swap_amazon_to_ppd(category, sub1)
     return category, sub_category
 
 
@@ -162,7 +166,7 @@ def verify_plus_size(size_list):
 def insert_items(collection_name, item_list, items_in_page, print_flag, family_tree, plus_size_flag=False):
     collection = db[collection_name]
 
-    col_name_parts= re.split(r'_', collection_name)
+    col_name_parts = re.split(r'_', collection_name)
     gender = col_name_parts[-1]
     new_items_count = 0
     for x, item in enumerate(item_list):
@@ -265,11 +269,11 @@ def insert_items(collection_name, item_list, items_in_page, print_flag, family_t
                 print ('hash already exists')
                 continue
 
-            p_hash = get_p_hash(pil_image)
-            p_hash_exists = collection.find_one({'p_hash': p_hash})
-            if p_hash_exists:
-                print ('p_hash already exists')
-                continue
+            # p_hash = get_p_hash(pil_image)
+            # p_hash_exists = collection.find_one({'p_hash': p_hash})
+            # if p_hash_exists:
+            #     print ('p_hash already exists')
+            #     continue
 
             short_d = attributes['Title']
             if 'Feature' in attr_keys:
@@ -299,7 +303,7 @@ def insert_items(collection_name, item_list, items_in_page, print_flag, family_t
                         'fingerprint': None,
                         'gender': gender,
                         'img_hash': img_hash,
-                        'p_hash': p_hash,
+                        # 'p_hash': p_hash,
                         'download_data': {'dl_version': today_date,
                                           'first_dl': today_date,
                                           'fp_version': fingerprint_version},
