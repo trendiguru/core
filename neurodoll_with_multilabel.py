@@ -89,7 +89,7 @@ def get_multilabel_output(url_or_np_array,required_image_size=(224,224)):
     print('multilabel:  {}'.format(out))
     return out
 
-def grabcut_using_neurodoll_output(url_or_np_array,category_index):
+def grabcut_using_neurodoll_output(url_or_np_array,category_index,median_factor=1.0):
     '''
     takes an image (or url) and category.
     gets the neurodoll mask for that category.
@@ -122,7 +122,7 @@ def grabcut_using_neurodoll_output(url_or_np_array,category_index):
 
     mask = np.zeros(image.shape[:2], np.uint8)
     #TODO - maybe find something better than median as the threshold
-    med = np.median(neuro_mask)
+    med = np.median(neuro_mask)*median_factor
     mask[neuro_mask > med] = 3
     mask[neuro_mask < med] = 2
     try:
@@ -145,7 +145,7 @@ def get_multilabel_output_using_nfc(url_or_np_array):
     print('multilabel output:'+str(multilabel_output))
     return multilabel_output
 
-def combine_neurodoll_and_multilabel(url_or_np_array,multilabel_threshold=0.7):
+def combine_neurodoll_and_multilabel(url_or_np_array,multilabel_threshold=0.7,median_factor=1.0):
     multilabel = get_multilabel_output(url_or_np_array)
 #    multilabel = get_multilabel_output_using_nfc(url_or_np_array)
     #take only labels above a threshold on the multilabel result
@@ -164,12 +164,13 @@ def combine_neurodoll_and_multilabel(url_or_np_array,multilabel_threshold=0.7):
 #   if i == pantsindex or i == jeansindex:
     first_time_thru = True  #hack to dtermine image size coming back from neurodoll
     final_mask = np.zeros([224,224])
+
     for i in range(len(thresholded_multilabel)):
         if thresholded_multilabel[i]:
             neurodoll_index = constants.web_tool_categories_v1_to_ultimate_21[i]
             print('index {} webtoollabel {} newindex {} neurodoll_label {} was above threshold {}'.format(
                 i,constants.web_tool_categories[i],neurodoll_index,constants.ultimate_21[neurodoll_index], multilabel_threshold))
-            item_mask = grabcut_using_neurodoll_output(url_or_np_array,neurodoll_index)
+            item_mask = grabcut_using_neurodoll_output(url_or_np_array,neurodoll_index,median_factor=median_factor)
             item_mask = np.multiply(item_mask,neurodoll_index)
             if first_time_thru:
                 final_mask = np.zeros_like(item_mask)
@@ -182,7 +183,7 @@ def combine_neurodoll_and_multilabel(url_or_np_array,multilabel_threshold=0.7):
     timestamp = int(10*time.time())
     orig_filename = '/home/jeremy/'+url_or_np_array.split('/')[-1]
     name = '/home/jeremy/'+str(timestamp)+'.png'
-    name = orig_filename+'_output.png'
+    name = orig_filename+str(median_factor)+'_output.png'
     cv2.imwrite(name,final_mask)
     orig_filename = '/home/jeremy/'+url_or_np_array.split('/')[-1]
     print('orig filename:'+str(orig_filename))
@@ -208,13 +209,21 @@ if __name__ == "__main__":
             'http://pinmakeuptips.com/wp-content/uploads/2016/02/1.-Strategic-Skin-Showing.jpg',
             'http://pinmakeuptips.com/wp-content/uploads/2016/02/3.jpg',
             'http://pinmakeuptips.com/wp-content/uploads/2016/02/4.jpg',
-            'http://pinmakeuptips.com/wp-content/uploads/2016/03/Adding-Color-to-Your-Face.jpg']
+            'http://pinmakeuptips.com/wp-content/uploads/2016/03/Adding-Color-to-Your-Face.jpg',
+            'http://images5.fanpop.com/image/photos/26400000/Cool-fashion-pics-fashion-pics-26422922-493-700.jpg',
+            'http://allforfashiondesign.com/wp-content/uploads/2013/05/style-39.jpg',
+            'http://s6.favim.com/orig/65/cool-fashion-girl-hair-Favim.com-569888.jpg',
+            'http://s4.favim.com/orig/49/cool-fashion-girl-glasses-jeans-Favim.com-440515.jpg',
+            'http://s5.favim.com/orig/54/america-blue-cool-fashion-Favim.com-525532.jpg',
+            'http://favim.com/orig/201108/25/cool-fashion-girl-happiness-high-Favim.com-130013.jpg'
+    ]
 
 #    get_nd_and_multilabel_output_using_nfc(url_or_np_array)
 #    out = get_multilabel_output(url)
 #    print('ml output:'+str(out))
-    for url in urls:
-        out = combine_neurodoll_and_multilabel(url)
+    for median_factor in [0.4,0.6,0.8,1.0]
+        for url in urls:
+            out = combine_neurodoll_and_multilabel(url,median_factor=median_factor)
 
     #LOAD NEURODOLL
 ''' #
