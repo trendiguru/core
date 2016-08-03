@@ -906,10 +906,12 @@ def show_mask_with_labels(mask_filename,labels,original_image=None,cut_the_crap=
             height, width = orig_arr.shape[:2]
             maxheight=600
             minheight=300
-            if height>maxheight:  # or height < minheight:
-                logging.debug('got a big one (hxw {}x{}) resizing'.format(height,width))
-                newheight=(height>maxheight)*maxheight   #+(height<minheight)*minheight
-
+            desired_height=500
+     #       if height>maxheight:  # or height < minheight:
+            if (1):  # or height < minheight:
+                logging.debug('(hxw {}x{}) resizing'.format(height,width))
+#                newheight=(height>maxheight)*maxheight   #+(height<minheight)*minheight
+                newheight=desired_height
                 factor = float(newheight)/height
                 orig_arr = cv2.resize(orig_arr,(int(round(width*factor)),int(round(height*factor))))
 #                print('factor {} newsize {}'.format(factor,orig_arr.shape) )
