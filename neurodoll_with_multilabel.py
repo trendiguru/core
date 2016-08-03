@@ -168,7 +168,7 @@ def combine_neurodoll_and_multilabel(url_or_np_array,multilabel_threshold=0.7):
                 final_mask = np.zeros_like(item_mask)
                 first_time_thru = False
             unique_to_new_mask = np.logical_and(item_mask != 0,final_mask == 0)   #dealing with same pixel claimed by two masks. if two masks include same pixel take first, don't add the pixel vals together
-            unique_to_new_mask = np.times(unique_to_new_mask,neurodoll_index)
+            unique_to_new_mask = np.multiply(unique_to_new_mask,neurodoll_index)
             final_mask = final_mask + unique_to_new_mask
 #            cv2.imshow('mask '+str(i),item_mask)
 #            cv2.waitKey(0)
