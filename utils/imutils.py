@@ -865,7 +865,7 @@ def show_mask_with_labels(mask_filename,labels,original_image=None,cut_the_crap=
     print('len labels:'+str(len(labels)))
     for unique in uniques:
         if unique > len(labels):
-            logging.warning('pixel value out of label range')
+            logging.warning('pixel value '+str(unique)+' out of label range (1)')
             continue
         colorbar[i*bar_height:i*bar_height+bar_height,:] = unique
 
@@ -887,7 +887,7 @@ def show_mask_with_labels(mask_filename,labels,original_image=None,cut_the_crap=
     totpixels = h*w
     for unique in uniques:
         if unique >= len(labels):
-            logging.warning('pixel value out of label range')
+            logging.warning('pixel value '+str(unique)+' out of label range (2)')
             continue
         pixelcount = len(img_arr[img_arr==unique])
         print('unique:'+str(unique)+':'+labels[unique]+' pixcount:'+str(pixelcount)+' fraction'+str(float(pixelcount)/totpixels))
