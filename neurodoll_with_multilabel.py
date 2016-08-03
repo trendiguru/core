@@ -186,7 +186,8 @@ def combine_neurodoll_and_multilabel(url_or_np_array,multilabel_threshold=0.7,me
     timestamp = int(10*time.time())
     orig_filename = '/home/jeremy/'+url_or_np_array.split('/')[-1]
     name = '/home/jeremy/'+str(timestamp)+'.png'
-    name = orig_filename[:-4]+str(median_factor)+'_output.png'
+    name = orig_filename[:-4]+'_mf'+str(median_factor)+'_output.png'
+    print('name:'+name)
     cv2.imwrite(name,final_mask)
     orig_filename = '/home/jeremy/'+url_or_np_array.split('/')[-1]
     print('orig filename:'+str(orig_filename))
