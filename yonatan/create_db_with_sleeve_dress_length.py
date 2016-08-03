@@ -41,7 +41,9 @@ def cv2_image_to_caffe(image):
     return skimage.img_as_float(cv2.cvtColor(image, cv2.COLOR_BGR2RGB)).astype(np.float32)
 
 
-dresses = list(db.fanni.find({'dress_sleeve_length': {'$exists': 0}}, {'_id':1, 'images.XLarge':1}))
+#dresses = list(db.fanni.find({'dress_sleeve_length': {'$exists': 0}}, {'_id':1, 'images.XLarge':1}))
+dresses = list(db.fanni.find({'dress_sleeve_length': {'$exists': 0}}, {'_id':1, 'img_url':1}))
+
 
 delete = 0
 counter = 0
@@ -54,7 +56,8 @@ for doc in dresses:
     #   break
     counter += 1
 
-    url_or_np_array = doc['images']['XLarge']
+    #url_or_np_array = doc['images']['XLarge']
+    url_or_np_array = doc['img_url']
 
     # check if i get a url (= string) or np.ndarray
     if isinstance(url_or_np_array, basestring):
