@@ -63,9 +63,12 @@ def dummy_image():
     data = {"pageUrl": "dummy", "imageList": [MINUTE_IMAGE_URL]}
     requests.post(API_URL, data=json_util.dumps(data))
     image_obj = db.images.find_one({'image_urls': MINUTE_IMAGE_URL})
+    start = time.time()
     while not image_obj:
         time.sleep(1)
         image_obj = db.images.find_one({'image_urls': MINUTE_IMAGE_URL})
+        if time.time() - start > 60:
+            raise RuntimeError("Can't find image in DB after 1 minute!")
     res_coll = image_obj['people'][0]['items'][0]['similar_results'].keys()[0]
     sim_result = image_obj['people'][0]['items'][0]['similar_results'][res_coll][0]
     prod_coll = res_coll + '_' + image_obj['people'][0]['gender']

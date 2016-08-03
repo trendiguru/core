@@ -94,5 +94,7 @@ if __name__ == "__main__":
 
     output = get_multilabel_output(url)
     print('output:'+str(output))
+#    cv2.imshow('output',output)
+#    cv2.waitKey(0)
     for i in range(len(output)):
         print('label:' + constants.web_tool_categories[i]+' value:'+str(output[i]))

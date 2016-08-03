@@ -3,7 +3,7 @@ __author__ = 'liorsabag'
 # labels for multilabel image-level categorization are in constants.web_tool_categories (also 21 labels)
 import falcon
 from .. import neurodoll, neurodoll_single_category
-from .. import multilabel
+from .. import neurodoll_with_multilabel
 from .. import constants
 
 from jaweson import json, msgpack
@@ -26,6 +26,9 @@ class PaperResource:
         print('get multi:'+str(get_multilabel_results))
         get_multilabel_results = get_multilabel_results == "true" or get_multilabel_results == "True" or get_multilabel_results == True
 
+        get_combined_results = req.get_param('getCombinedResults')
+        print('get combined:'+str(get_combined_results))
+        get_multilabel_results = get_combined_results == "true" or get_combined_results == "True" or get_combined_results == True
 
         ret = {"success": False}
         try:
@@ -33,10 +36,16 @@ class PaperResource:
             img = data.get("image")
 
             if get_multilabel_results:
-                output = multilabel.get_multilabel_output(img)
+                multilabel_output = neurodoll_with_multilabel.get_multilabel_output(img)
  #               output='NOT CURRENTLY SUPPORTED'
-                ret['multilabel_output'] = output
-                print('multilabel output:'+str(output))
+                ret['multilabel_output'] = multilabel_output
+                print('multilabel output:'+str(multilabel_output))
+
+            if get_combined_results:
+                combined_output = neurodoll_with_multilabel.combine_neurodoll_and_multilabel(img)
+ #               output='NOT CURRENTLY SUPPORTED'
+                ret['combined_output'] = combined_output
+
             if category_index:
                 ret["mask"] = neurodoll_single_category.get_category_graylevel(img, category_index) 
             else:
