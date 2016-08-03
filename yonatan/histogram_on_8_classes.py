@@ -31,12 +31,6 @@ array_short_sleeve = np.zeros(8)
 array_midi_sleeve = np.zeros(8)
 array_long_sleeve = np.zeros(8)
 
-dress_sleeve_dict = OrderedDict([('strapless', 0), ('spaghetti_straps', 1),
-                                 ('regular_straps', 2), ('sleeveless', 3),
-                                 ('cap_sleeve', 4), ('short_sleeve', 5),
-                                 ('midi_sleeve', 6), ('long_sleeve', 7)])
-
-
 all_predictions = np.zeros(8)
 
 text_file = open("db_dress_sleeve_test.txt", "r")
