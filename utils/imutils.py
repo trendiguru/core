@@ -935,7 +935,10 @@ def show_mask_with_labels(mask_filename,labels,original_image=None,cut_the_crap=
             combined = np.zeros([dest_h,dest_w+orig_w+colorbar_w,3],dtype=np.uint8)
             combined[:,0:colorbar_w]=dest_colorbar
             combined[:,colorbar_w:colorbar_w+dest_w]=dest
+
             combined[:,colorbar_w+dest_w:]=orig_arr
+ #ValueError: could not broadcast input array from shape (572,940,3) into shape (256,940,3)
+
             combined_h,combined_w = combined.shape[0:2]
             print('comb w {} h {} shape {}'.format(combined_w,combined_h,combined.shape))
             if combined_h<minheight:
