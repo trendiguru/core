@@ -58,6 +58,9 @@ def get_multilabel_output(url_or_np_array,required_image_size=(224,224)):
         image = url_to_image(url_or_np_array)
     elif type(url_or_np_array) == np.ndarray:
         image = url_or_np_array
+    if image is None:
+        logging.debug('got None image')
+        return
     print('multilabel working on image of shape:'+str(image.shape))
 # load image, switch to BGR, subtract mean, and make dims C x H x W for Caffe
 #    im = Image.open(imagename)
