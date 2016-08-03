@@ -159,7 +159,7 @@ def combine_neurodoll_and_multilabel(url_or_np_array,multilabel_threshold=0.7,me
 
     if   np.equal(thresholded_multilabel,0).all():  #all labels 0 - nothing found
         logging.debug('no items found')
-        return
+        return #
 
 # hack to combine pants and jeans for better recall
 #    pantsindex = constants.web_tool_categories.index('pants')
