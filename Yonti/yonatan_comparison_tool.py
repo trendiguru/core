@@ -93,4 +93,4 @@ if __name__ == "__main__":
     if rule not in ['eq', 'range']:
         print ('bad rule! use only eq or range')
         sys.exit(1)
-    renew_top_results()
+    renew_top_results(db_name, field, rule)
