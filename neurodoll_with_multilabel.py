@@ -60,7 +60,7 @@ def get_multilabel_output(url_or_np_array,required_image_size=(224,224)):
         image = url_or_np_array
     if image is None:
         logging.debug('got None image')
-        return
+        return None
     print('multilabel working on image of shape:'+str(image.shape))
 # load image, switch to BGR, subtract mean, and make dims C x H x W for Caffe
 #    im = Image.open(imagename)
@@ -150,6 +150,9 @@ def combine_neurodoll_and_multilabel(url_or_np_array,multilabel_threshold=0.7,me
 #    multilabel = get_multilabel_output_using_nfc(url_or_np_array)
     #take only labels above a threshold on the multilabel result
     #possible other way to do this: multiply the neurodoll mask by the multilabel result and threshold that product
+    if multilabel is None:
+        logging.debug('None result from multilabel')
+        return None
     thresholded_multilabel = [ml>multilabel_threshold for ml in multilabel]
 #    print('orig label:'+str(multilabel))
     print('thresholded label:'+str(thresholded_multilabel))
@@ -183,7 +186,7 @@ def combine_neurodoll_and_multilabel(url_or_np_array,multilabel_threshold=0.7,me
     timestamp = int(10*time.time())
     orig_filename = '/home/jeremy/'+url_or_np_array.split('/')[-1]
     name = '/home/jeremy/'+str(timestamp)+'.png'
-    name = orig_filename+str(median_factor)+'_output.png'
+    name = orig_filename[:-4]+str(median_factor)+'_output.png'
     cv2.imwrite(name,final_mask)
     orig_filename = '/home/jeremy/'+url_or_np_array.split('/')[-1]
     print('orig filename:'+str(orig_filename))
