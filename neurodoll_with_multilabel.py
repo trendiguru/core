@@ -131,7 +131,7 @@ def grabcut_using_neurodoll_output(url_or_np_array,category_index,median_factor=
         cv2.grabCut(image, mask, None, bgdmodel, fgdmodel, itr, cv2.GC_INIT_WITH_MASK)
     except:
         print('grabcut exception')
-        return False
+        return None
     mask2 = np.where((mask == 1) + (mask == 3), 1, 0).astype(np.uint8)
     return mask2
 
@@ -174,7 +174,7 @@ def combine_neurodoll_and_multilabel(url_or_np_array,multilabel_threshold=0.7,me
             print('index {} webtoollabel {} newindex {} neurodoll_label {} was above threshold {}'.format(
                 i,constants.web_tool_categories[i],neurodoll_index,constants.ultimate_21[neurodoll_index], multilabel_threshold))
             item_mask = grabcut_using_neurodoll_output(url_or_np_array,neurodoll_index,median_factor=median_factor)
-            if not item_mask:
+            if  item_mask is None:
                 continue
             item_mask = np.multiply(item_mask,neurodoll_index)
             if first_time_thru:
