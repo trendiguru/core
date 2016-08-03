@@ -172,10 +172,12 @@ def combine_neurodoll_and_multilabel(url_or_np_array,multilabel_threshold=0.7):
             final_mask = final_mask + unique_to_new_mask
 #            cv2.imshow('mask '+str(i),item_mask)
 #            cv2.waitKey(0)
-    timestamp = int(time.time())
+    timestamp = int(10*time.time())
     name = '/home/jeremy/'+str(timestamp)+'.png'
     cv2.imwrite(name,final_mask)
-    nice_output = imutils.show_mask_with_labels(name,constants.ultimate_21,save_images=True)
+    orig_filename = '/home/jeremy/'+url_or_np_array.split('/')[-1]
+    print('orig filename:'str(orig_filename))
+    nice_output = imutils.show_mask_with_labels(name,constants.ultimate_21,save_images=True,orig_filename=orig_filename)
 
     return final_mask
 
