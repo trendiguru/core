@@ -14,6 +14,7 @@ import cv2
 import urllib
 import skimage
 import requests
+import pymongo
 
 
 MODLE_FILE = "/home/yonatan/trendi/yonatan/resnet_50_dress_sleeve/ResNet-50-deploy.prototxt"
@@ -30,7 +31,8 @@ classifier = caffe.Classifier(MODLE_FILE, PRETRAINED,
                               input_scale=input_scale, raw_scale=raw_scale,
                               channel_swap=channel_swap)
 
-db = constants.db
+#db = constants.db
+db = pymongo.MongoClient().mydb
 
 print "Done initializing!"
 
