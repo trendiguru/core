@@ -154,6 +154,10 @@ def combine_neurodoll_and_multilabel(url_or_np_array,multilabel_threshold=0.7):
 #    print('orig label:'+str(multilabel))
     print('thresholded label:'+str(thresholded_multilabel))
 
+    if   np.equal(thresholded_multilabel,0).all():  #all labels 0 - nothing found
+        logging.debug('no items found')
+        return
+
 # hack to combine pants and jeans for better recall
 #    pantsindex = constants.web_tool_categories.index('pants')
 #    jeansindex = constants.web_tool_categories.index('jeans')
@@ -176,7 +180,9 @@ def combine_neurodoll_and_multilabel(url_or_np_array,multilabel_threshold=0.7):
 #            cv2.imshow('mask '+str(i),item_mask)
 #            cv2.waitKey(0)
     timestamp = int(10*time.time())
+    orig_filename = '/home/jeremy/'+url_or_np_array.split('/')[-1]
     name = '/home/jeremy/'+str(timestamp)+'.png'
+    name = orig_filename+'_output.png'
     cv2.imwrite(name,final_mask)
     orig_filename = '/home/jeremy/'+url_or_np_array.split('/')[-1]
     print('orig filename:'+str(orig_filename))
