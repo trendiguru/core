@@ -58,6 +58,9 @@ def get_multilabel_output(url_or_np_array,required_image_size=(224,224)):
         image = url_to_image(url_or_np_array)
     elif type(url_or_np_array) == np.ndarray:
         image = url_or_np_array
+    if image is None:
+        logging.debug('got None image')
+        return
     print('multilabel working on image of shape:'+str(image.shape))
 # load image, switch to BGR, subtract mean, and make dims C x H x W for Caffe
 #    im = Image.open(imagename)
@@ -151,6 +154,10 @@ def combine_neurodoll_and_multilabel(url_or_np_array,multilabel_threshold=0.7):
 #    print('orig label:'+str(multilabel))
     print('thresholded label:'+str(thresholded_multilabel))
 
+    if   np.equal(thresholded_multilabel,0).all():  #all labels 0 - nothing found
+        logging.debug('no items found')
+        return
+
 # hack to combine pants and jeans for better recall
 #    pantsindex = constants.web_tool_categories.index('pants')
 #    jeansindex = constants.web_tool_categories.index('jeans')
@@ -172,10 +179,15 @@ def combine_neurodoll_and_multilabel(url_or_np_array,multilabel_threshold=0.7):
             final_mask = final_mask + unique_to_new_mask
 #            cv2.imshow('mask '+str(i),item_mask)
 #            cv2.waitKey(0)
-    timestamp = int(time.time())
+    timestamp = int(10*time.time())
+    orig_filename = '/home/jeremy/'+url_or_np_array.split('/')[-1]
     name = '/home/jeremy/'+str(timestamp)+'.png'
+    name = orig_filename+'_output.png'
     cv2.imwrite(name,final_mask)
-    nice_output = imutils.show_mask_with_labels(name,constants.ultimate_21,save_images=True)
+    orig_filename = '/home/jeremy/'+url_or_np_array.split('/')[-1]
+    print('orig filename:'+str(orig_filename))
+    nice_output = imutils.show_mask_with_labels(name,constants.ultimate_21,save_images=True,original_image=orig_filename)
+#    nice_output = imutils.show_mask_with_labels(name,constants.ultimate_21,save_images=True)
 
     return final_mask
 

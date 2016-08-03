@@ -893,7 +893,7 @@ def show_mask_with_labels(mask_filename,labels,original_image=None,cut_the_crap=
         print('unique:'+str(unique)+':'+labels[unique]+' pixcount:'+str(pixelcount)+' fraction'+str(float(pixelcount)/totpixels))
         frac_string='{:.4f}'.format(float(pixelcount)/totpixels)
         cv2.putText(dest_colorbar,labels[unique]+' '+str(frac_string),(5,int(i*bar_height+float(bar_height)/2+5)),cv2.FONT_HERSHEY_PLAIN,1,[0,10,50],thickness=1)
-        i=i+1
+        i=i+1 #
 
     #dest_colorbar = cv2.applyColorMap(scaled_colorbar, colormap)
     combined = np.zeros([h,w+w_colorbar,3],dtype=np.uint8)
@@ -907,7 +907,7 @@ def show_mask_with_labels(mask_filename,labels,original_image=None,cut_the_crap=
             maxheight=600
             minheight=300
             if height>maxheight:  # or height < minheight:
-                print('got a big one (hxw {}x{}) resizing'.format(height,width))
+                logging.debug('got a big one (hxw {}x{}) resizing'.format(height,width))
                 newheight=(height>maxheight)*maxheight   #+(height<minheight)*minheight
 
                 factor = float(newheight)/height
@@ -926,16 +926,19 @@ def show_mask_with_labels(mask_filename,labels,original_image=None,cut_the_crap=
 
         #    cv2.imshow('original',orig_arr)
             colorbar_h,colorbar_w = dest_colorbar.shape[0:2]
-            print('dest colorbar w {} h {} shape {}'.format(colorbar_w,colorbar_h,dest_colorbar.shape))
+            logging.debug('dest colorbar w {} h {} shape {}'.format(colorbar_w,colorbar_h,dest_colorbar.shape))
             dest_h,dest_w = dest.shape[0:2]
-            print('dest w {} h {} shape {}'.format(dest_w,dest_h,dest.shape))
+            logging.debug('dest w {} h {} shape {}'.format(dest_w,dest_h,dest.shape))
             orig_h,orig_w = orig_arr.shape[0:2]
-            print('orig w {} h {} shape {}'.format(orig_w,orig_h,orig_arr.shape))
+            logging.debug('orig w {} h {} shape {}'.format(orig_w,orig_h,orig_arr.shape))
 #            print('colobar size {} masksize {} imsize {}'.format(dest_colorbar.shape,dest.shape,orig_arr.shape))
             combined = np.zeros([dest_h,dest_w+orig_w+colorbar_w,3],dtype=np.uint8)
+            logging.debug('combined shape:'+str(combined.shape))
             combined[:,0:colorbar_w]=dest_colorbar
             combined[:,colorbar_w:colorbar_w+dest_w]=dest
             combined[:,colorbar_w+dest_w:]=orig_arr
+ #ValueError: could not broadcast input array from shape (572,940,3) into shape (256,940,3)
+
             combined_h,combined_w = combined.shape[0:2]
             print('comb w {} h {} shape {}'.format(combined_w,combined_h,combined.shape))
             if combined_h<minheight:
