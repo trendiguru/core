@@ -14,10 +14,11 @@ import cv2
 import urllib
 import skimage
 import requests
+import pymongo
 
 
 MODLE_FILE = "/home/yonatan/trendi/yonatan/resnet_50_dress_sleeve/ResNet-50-deploy.prototxt"
-PRETRAINED = "/home/yonatan/resnet50_caffemodels/caffe_resnet50_snapshot_50_sgd_iter_5000.caffemodel"
+PRETRAINED = "/home/yonatan/resnet50_caffemodels/caffe_resnet50_snapshot_50_sgd_iter_10000.caffemodel"
 caffe.set_mode_gpu()
 image_dims = [224, 224]
 mean, input_scale = np.array([120, 120, 120]), None
@@ -30,7 +31,8 @@ classifier = caffe.Classifier(MODLE_FILE, PRETRAINED,
                               input_scale=input_scale, raw_scale=raw_scale,
                               channel_swap=channel_swap)
 
-db = constants.db
+#db = constants.db
+db = pymongo.MongoClient().mydb
 
 print "Done initializing!"
 
@@ -39,7 +41,9 @@ def cv2_image_to_caffe(image):
     return skimage.img_as_float(cv2.cvtColor(image, cv2.COLOR_BGR2RGB)).astype(np.float32)
 
 
-dresses = list(db.yonatan_dresses_test.find({'dress_sleeve_length': {'$exists': 0}}, {'_id':1, 'images.XLarge':1}))
+#dresses = list(db.fanni.find({'dress_sleeve_length': {'$exists': 0}}, {'_id':1, 'images.XLarge':1}))
+dresses = list(db.fanni.find({'dress_sleeve_length': {'$exists': 0}}, {'_id':1, 'img_url':1}))
+
 
 delete = 0
 counter = 0
@@ -52,7 +56,8 @@ for doc in dresses:
     #   break
     counter += 1
 
-    url_or_np_array = doc['images']['XLarge']
+    #url_or_np_array = doc['images']['XLarge']
+    url_or_np_array = doc['img_url']
 
     # check if i get a url (= string) or np.ndarray
     if isinstance(url_or_np_array, basestring):
@@ -88,7 +93,7 @@ for doc in dresses:
 
     predict_label = int(max_result_index)
 
-    db.yonatan_dresses_test.update_one({"_id": doc["_id"]}, {"$set": {"dress_sleeve_length": predict_label}})
+    db.fanni.update_one({"_id": doc["_id"]}, {"$set": {"dress_sleeve_length": predict_label}})
 
     print counter
 
@@ -111,18 +116,9 @@ for doc in dresses:
         type = 'long_sleeve'
     '''
 
-        #print predictions[0][predict_label]
-
-        #and for delete a field from doc:
-        #db.yonatan_dresses_test.update({"_id": a[0]["_id"]}, {"$unset": {"dress_sleeve_length": 100}})
 
 
-
-
-
-
-
-# how to delete the field "dress_sleeve_length" from all docs that have it:
+## how to delete the field "dress_sleeve_length" from all docs that have it: ##
 #    if db.yonatan_dresses_test.find({"_id": dresses[i]["_id"]}, {'dress_sleeve_length': {'$exists': True}}):
 #        db.yonatan_dresses_test.update({"_id": dresses[i]["_id"]}, {"$unset": {"dress_sleeve_length": ""}})
 #        delete += 1
