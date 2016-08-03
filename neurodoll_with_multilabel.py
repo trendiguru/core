@@ -129,7 +129,7 @@ def grabcut_using_neurodoll_output(url_or_np_array,category_index):
     except:
         print('grabcut exception')
         return False, []
-    mask2 = np.where((mask == 1) + (mask == 3), 255, 0).astype(np.uint8)
+    mask2 = np.where((mask == 1) + (mask == 3), 1, 0).astype(np.uint8)
     return mask2
 
 def get_multilabel_output_using_nfc(url_or_np_array):
@@ -171,7 +171,10 @@ def combine_neurodoll_and_multilabel(url_or_np_array,multilabel_threshold=0.7):
 #            cv2.imshow('mask '+str(i),item_mask)
 #            cv2.waitKey(0)
     timestamp = int(time.time())
-    cv2.imwrite('/home/jeremy/'+str(timestamp)+'.png',final_mask)
+    name = '/home/jeremy/'+str(timestamp)+'.png'
+    cv2.imwrite(name,final_mask)
+    nice_output = imutils.show_mask_with_labels(name,constants.ultimate_21,save_images=True)
+
     return final_mask
 
 # Make classifier.
