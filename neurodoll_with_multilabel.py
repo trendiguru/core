@@ -164,7 +164,7 @@ def combine_neurodoll_and_multilabel(url_or_np_array,multilabel_threshold=0.7,me
 # hack to combine pants and jeans for better recall
 #    pantsindex = constants.web_tool_categories.index('pants')
 #    jeansindex = constants.web_tool_categories.index('jeans')
-#   if i == pantsindex or i == jeansindex:
+#   if i == pantsindex or i == jeansindex: #
     first_time_thru = True  #hack to dtermine image size coming back from neurodoll
     final_mask = np.zeros([224,224])
 
