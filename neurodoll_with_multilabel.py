@@ -225,7 +225,7 @@ if __name__ == "__main__":
 #    get_nd_and_multilabel_output_using_nfc(url_or_np_array)
 #    out = get_multilabel_output(url)
 #    print('ml output:'+str(out))
-    for median_factor in [0.4,0.6,0.8,1.0]:
+    for median_factor in [1.1,1.2,1.4,1.6,2.0]:
         for url in urls:
             out = combine_neurodoll_and_multilabel(url,median_factor=median_factor)
 
