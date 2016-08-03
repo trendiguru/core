@@ -156,6 +156,7 @@ def combine_neurodoll_and_multilabel(url_or_np_array,multilabel_threshold=0.7):
 #    jeansindex = constants.web_tool_categories.index('jeans')
 #   if i == pantsindex or i == jeansindex:
     first_time_thru = True  #hack to dtermine image size coming back from neurodoll
+    final_mask = np.zeros([224,224])
     for i in range(len(thresholded_multilabel)):
         if thresholded_multilabel[i]:
             neurodoll_index = constants.web_tool_categories_v1_to_ultimate_21[i]
@@ -165,6 +166,7 @@ def combine_neurodoll_and_multilabel(url_or_np_array,multilabel_threshold=0.7):
             item_mask = np.multiply(item_mask,neurodoll_index)
             if first_time_thru:
                 final_mask = np.zeros_like(item_mask)
+                first_time_thru = False
             final_mask = final_mask + item_mask
 #            cv2.imshow('mask '+str(i),item_mask)
 #            cv2.waitKey(0)
