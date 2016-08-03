@@ -53,7 +53,7 @@ def url_to_image(url):
 
 
 
-def get_multilabel_output(url_or_np_array,required_image_size=(227,227)):
+def get_multilabel_output(url_or_np_array,required_image_size=(224,224)):
     if isinstance(url_or_np_array, basestring):
         image = url_to_image(url_or_np_array)
     elif type(url_or_np_array) == np.ndarray:
@@ -185,7 +185,9 @@ if __name__ == "__main__":
     url = 'http://diamondfilms.com.au/wp-content/uploads/2014/08/Fashion-Photography-Sydney-1.jpg'
     url = 'http://pinmakeuptips.com/wp-content/uploads/2015/02/1.4.jpg'
 #    get_nd_and_multilabel_output_using_nfc(url_or_np_array)
-    combine_neurodoll_and_multilabel(url)
+    out = get_multilabel_output(url)
+    print('ml output:'+str(out))
+    out = combine_neurodoll_and_multilabel(url)
 
     #LOAD NEURODOLL
 ''' #
