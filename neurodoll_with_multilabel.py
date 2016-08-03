@@ -143,7 +143,7 @@ def get_multilabel_output_using_nfc(url_or_np_array):
         return
     multilabel_output = multilabel_dict['multilabel_output']
     print('multilabel output:'+str(multilabel_output))
-    return multilabel_output
+    return multilabel_output #
 
 def combine_neurodoll_and_multilabel(url_or_np_array,multilabel_threshold=0.7,median_factor=1.0):
     multilabel = get_multilabel_output(url_or_np_array)
