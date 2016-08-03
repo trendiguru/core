@@ -2,6 +2,9 @@ from ..constants import db, fingerprint_weights, histograms_length
 from ..NNSearch import distance_Bhattacharyya
 import argparse
 import sys
+import pymongo
+
+db = pymongo.MongoClient().mydb
 
 collection = db.fanni
 
