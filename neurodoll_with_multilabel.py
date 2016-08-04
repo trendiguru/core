@@ -247,7 +247,7 @@ if __name__ == "__main__":
         nd_out = get_neurodoll_output(url)
         orig_filename = '/home/jeremy/'+url.split('/')[-1]
         name = orig_filename[:-4]+'_nd_output.png'
-        cv2.imwrite(name,final_mask)
+        cv2.imwrite(name,nd_out)
 
     #get output of combine_nd_and_ml
     for median_factor in [1.1,1.2,1.4,1.6,2.0]:
