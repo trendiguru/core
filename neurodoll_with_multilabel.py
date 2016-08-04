@@ -60,7 +60,7 @@ def get_multilabel_output(url_or_np_array,required_image_size=(224,224)):
         image = url_or_np_array
     if image is None:
         logging.debug('got None image')
-        return
+        return None
     print('multilabel working on image of shape:'+str(image.shape))
 # load image, switch to BGR, subtract mean, and make dims C x H x W for Caffe
 #    im = Image.open(imagename)
@@ -89,7 +89,19 @@ def get_multilabel_output(url_or_np_array,required_image_size=(224,224)):
     print('multilabel:  {}'.format(out))
     return out
 
-def grabcut_using_neurodoll_output(url_or_np_array,category_index):
+def get_neurodoll_output(url_or_np_array):
+    if isinstance(url_or_np_array, basestring):
+        image = url_to_image(url_or_np_array)
+    elif type(url_or_np_array) == np.ndarray:
+        image = url_or_np_array
+    dic = nfc.pd(image)
+    if not dic['success']:
+        logging.debug('nfc pd not a success')
+        return False
+    neuro_mask = dic['mask']
+    return neuro_mask
+
+def grabcut_using_neurodoll_output(url_or_np_array,category_index,median_factor=1.6):
     '''
     takes an image (or url) and category.
     gets the neurodoll mask for that category.
@@ -102,6 +114,9 @@ def grabcut_using_neurodoll_output(url_or_np_array,category_index):
         image = url_to_image(url_or_np_array)
     elif type(url_or_np_array) == np.ndarray:
         image = url_or_np_array
+    if image is None:
+        logging.debug('got None in grabcut_using_neurodoll_output')
+        return
     print('grabcut working on image of shape:'+str(image.shape))
 
         #def neurodoll(image, category_idx):
@@ -122,7 +137,7 @@ def grabcut_using_neurodoll_output(url_or_np_array,category_index):
 
     mask = np.zeros(image.shape[:2], np.uint8)
     #TODO - maybe find something better than median as the threshold
-    med = np.median(neuro_mask)
+    med = np.median(neuro_mask)*median_factor
     mask[neuro_mask > med] = 3
     mask[neuro_mask < med] = 2
     try:
@@ -131,7 +146,7 @@ def grabcut_using_neurodoll_output(url_or_np_array,category_index):
         cv2.grabCut(image, mask, None, bgdmodel, fgdmodel, itr, cv2.GC_INIT_WITH_MASK)
     except:
         print('grabcut exception')
-        return False, []
+        return None
     mask2 = np.where((mask == 1) + (mask == 3), 1, 0).astype(np.uint8)
     return mask2
 
@@ -143,33 +158,42 @@ def get_multilabel_output_using_nfc(url_or_np_array):
         return
     multilabel_output = multilabel_dict['multilabel_output']
     print('multilabel output:'+str(multilabel_output))
-    return multilabel_output
+    return multilabel_output #
 
-def combine_neurodoll_and_multilabel(url_or_np_array,multilabel_threshold=0.7):
+def combine_neurodoll_and_multilabel(url_or_np_array,multilabel_threshold=0.7,median_factor=1.6):
+    '''
+    try product of multilabel and nd output and taking argmax
+    '''
     multilabel = get_multilabel_output(url_or_np_array)
 #    multilabel = get_multilabel_output_using_nfc(url_or_np_array)
     #take only labels above a threshold on the multilabel result
     #possible other way to do this: multiply the neurodoll mask by the multilabel result and threshold that product
+    if multilabel is None:
+        logging.debug('None result from multilabel')
+        return None
     thresholded_multilabel = [ml>multilabel_threshold for ml in multilabel]
 #    print('orig label:'+str(multilabel))
     print('thresholded label:'+str(thresholded_multilabel))
 
     if   np.equal(thresholded_multilabel,0).all():  #all labels 0 - nothing found
         logging.debug('no items found')
-        return
+        return #
 
 # hack to combine pants and jeans for better recall
 #    pantsindex = constants.web_tool_categories.index('pants')
 #    jeansindex = constants.web_tool_categories.index('jeans')
-#   if i == pantsindex or i == jeansindex:
+#   if i == pantsindex or i == jeansindex: #
     first_time_thru = True  #hack to dtermine image size coming back from neurodoll
     final_mask = np.zeros([224,224])
+
     for i in range(len(thresholded_multilabel)):
         if thresholded_multilabel[i]:
             neurodoll_index = constants.web_tool_categories_v1_to_ultimate_21[i]
             print('index {} webtoollabel {} newindex {} neurodoll_label {} was above threshold {}'.format(
                 i,constants.web_tool_categories[i],neurodoll_index,constants.ultimate_21[neurodoll_index], multilabel_threshold))
-            item_mask = grabcut_using_neurodoll_output(url_or_np_array,neurodoll_index)
+            item_mask = grabcut_using_neurodoll_output(url_or_np_array,neurodoll_index,median_factor=median_factor)
+            if  item_mask is None:
+                continue
             item_mask = np.multiply(item_mask,neurodoll_index)
             if first_time_thru:
                 final_mask = np.zeros_like(item_mask)
@@ -182,7 +206,8 @@ def combine_neurodoll_and_multilabel(url_or_np_array,multilabel_threshold=0.7):
     timestamp = int(10*time.time())
     orig_filename = '/home/jeremy/'+url_or_np_array.split('/')[-1]
     name = '/home/jeremy/'+str(timestamp)+'.png'
-    name = orig_filename+'_output.png'
+    name = orig_filename[:-4]+'_mf'+str(median_factor)+'_output.png'
+    print('name:'+name)
     cv2.imwrite(name,final_mask)
     orig_filename = '/home/jeremy/'+url_or_np_array.split('/')[-1]
     print('orig filename:'+str(orig_filename))
@@ -208,13 +233,30 @@ if __name__ == "__main__":
             'http://pinmakeuptips.com/wp-content/uploads/2016/02/1.-Strategic-Skin-Showing.jpg',
             'http://pinmakeuptips.com/wp-content/uploads/2016/02/3.jpg',
             'http://pinmakeuptips.com/wp-content/uploads/2016/02/4.jpg',
-            'http://pinmakeuptips.com/wp-content/uploads/2016/03/Adding-Color-to-Your-Face.jpg']
+            'http://pinmakeuptips.com/wp-content/uploads/2016/03/Adding-Color-to-Your-Face.jpg',
+            'http://images5.fanpop.com/image/photos/26400000/Cool-fashion-pics-fashion-pics-26422922-493-700.jpg',
+            'http://allforfashiondesign.com/wp-content/uploads/2013/05/style-39.jpg',
+            'http://s6.favim.com/orig/65/cool-fashion-girl-hair-Favim.com-569888.jpg',
+            'http://s4.favim.com/orig/49/cool-fashion-girl-glasses-jeans-Favim.com-440515.jpg',
+            'http://s5.favim.com/orig/54/america-blue-cool-fashion-Favim.com-525532.jpg',
+            'http://favim.com/orig/201108/25/cool-fashion-girl-happiness-high-Favim.com-130013.jpg'
+    ]
 
 #    get_nd_and_multilabel_output_using_nfc(url_or_np_array)
 #    out = get_multilabel_output(url)
 #    print('ml output:'+str(out))
+    #get neurdoll output alone
     for url in urls:
-        out = combine_neurodoll_and_multilabel(url)
+        nd_out = get_neurodoll_output(url)
+        orig_filename = '/home/jeremy/'+url.split('/')[-1]
+        name = orig_filename[:-4]+'_nd_output.png'
+        cv2.imwrite(name,nd_out)
+        nice_output = imutils.show_mask_with_labels(name,constants.ultimate_21,save_images=True,original_image=orig_filename)
+
+    #get output of combine_nd_and_ml
+    for median_factor in [1.1,1.2,1.4,1.6,2.0]:
+        for url in urls:
+            out = combine_neurodoll_and_multilabel(url,median_factor=median_factor)
 
     #LOAD NEURODOLL
 ''' #
