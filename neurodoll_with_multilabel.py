@@ -89,7 +89,19 @@ def get_multilabel_output(url_or_np_array,required_image_size=(224,224)):
     print('multilabel:  {}'.format(out))
     return out
 
-def grabcut_using_neurodoll_output(url_or_np_array,category_index,median_factor=1.0):
+def get_neurodoll_output(url_or_np_array):
+    if isinstance(url_or_np_array, basestring):
+        image = url_to_image(url_or_np_array)
+    elif type(url_or_np_array) == np.ndarray:
+        image = url_or_np_array
+    dic = nfc.pd(image)
+    if not dic['success']:
+        logging.debug('nfc pd not a success')
+        return False
+    neuro_mask = dic['mask']
+    return neuro_mask
+
+def grabcut_using_neurodoll_output(url_or_np_array,category_index,median_factor=1.6):
     '''
     takes an image (or url) and category.
     gets the neurodoll mask for that category.
@@ -145,7 +157,10 @@ def get_multilabel_output_using_nfc(url_or_np_array):
     print('multilabel output:'+str(multilabel_output))
     return multilabel_output #
 
-def combine_neurodoll_and_multilabel(url_or_np_array,multilabel_threshold=0.7,median_factor=1.0):
+def combine_neurodoll_and_multilabel(url_or_np_array,multilabel_threshold=0.7,median_factor=1.6):
+    '''
+    try product of multilabel and nd output and taking argmax
+    '''
     multilabel = get_multilabel_output(url_or_np_array)
 #    multilabel = get_multilabel_output_using_nfc(url_or_np_array)
     #take only labels above a threshold on the multilabel result
@@ -227,6 +242,14 @@ if __name__ == "__main__":
 #    get_nd_and_multilabel_output_using_nfc(url_or_np_array)
 #    out = get_multilabel_output(url)
 #    print('ml output:'+str(out))
+    #get neurdoll output alone
+    for url in urls:
+        nd_out = get_neurodoll_output(url)
+        orig_filename = '/home/jeremy/'+url.split('/')[-1]
+        name = orig_filename[:-4]+'_nd_output.png'
+        cv2.imwrite(name,final_mask)
+
+    #get output of combine_nd_and_ml
     for median_factor in [1.1,1.2,1.4,1.6,2.0]:
         for url in urls:
             out = combine_neurodoll_and_multilabel(url,median_factor=median_factor)
