@@ -114,6 +114,9 @@ def grabcut_using_neurodoll_output(url_or_np_array,category_index,median_factor=
         image = url_to_image(url_or_np_array)
     elif type(url_or_np_array) == np.ndarray:
         image = url_or_np_array
+    if image is None:
+        logging.debug('got None in grabcut_using_neurodoll_output')
+        return
     print('grabcut working on image of shape:'+str(image.shape))
 
         #def neurodoll(image, category_idx):
