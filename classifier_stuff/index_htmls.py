@@ -23,11 +23,11 @@ def make_index(dir):
     print(htmlfiles)
 
 def generate_index_html(dir, filter=''):
-    files = [os.path.join(dir,f) for f in os.listdir(dir) if filter in f]
+#    files = [os.path.join(dir,f) for f in os.listdir(dir) if filter in f]
+# dont include dir - make files relative so html can be portable
+    files = [f for f in os.listdir(dir) if filter in f]
     files.sort()
     write_index_html_with_images(dir,files)
-
-
 
 def write_index_html(dir, files):
     f = open('index.html', 'w')

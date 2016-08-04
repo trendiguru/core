@@ -251,6 +251,7 @@ if __name__ == "__main__":
         orig_filename = '/home/jeremy/'+url.split('/')[-1]
         name = orig_filename[:-4]+'_nd_output.png'
         cv2.imwrite(name,nd_out)
+        nice_output = imutils.show_mask_with_labels(name,constants.ultimate_21,save_images=True,original_image=orig_filename)
 
     #get output of combine_nd_and_ml
     for median_factor in [1.1,1.2,1.4,1.6,2.0]:
