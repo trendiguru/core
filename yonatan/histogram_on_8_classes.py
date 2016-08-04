@@ -129,21 +129,21 @@ for line in text_file:
         print max_result
 
     if true_label == 0:
-        array_strapless = np.vstack((array_strapless, all_predictions[i]))
+        array_strapless = np.vstack((array_strapless, predictions[0]))
     elif true_label == 1:
-        array_spaghetti_straps = np.vstack((array_spaghetti_straps, all_predictions[i]))
+        array_spaghetti_straps = np.vstack((array_spaghetti_straps, predictions[0]))
     elif true_label == 2:
-        array_regular_straps = np.vstack((array_regular_straps, all_predictions[i]))
+        array_regular_straps = np.vstack((array_regular_straps, predictions[0]))
     elif true_label == 3:
-        array_sleeveless = np.vstack((array_sleeveless, all_predictions[i]))
+        array_sleeveless = np.vstack((array_sleeveless, predictions[0]))
     elif true_label == 4:
-        array_cap_sleeve = np.vstack((array_cap_sleeve, all_predictions[i]))
+        array_cap_sleeve = np.vstack((array_cap_sleeve, predictions[0]))
     elif true_label == 5:
-        array_short_sleeve = np.vstack((array_short_sleeve, all_predictions[i]))
+        array_short_sleeve = np.vstack((array_short_sleeve, predictions[0]))
     elif true_label == 6:
-        array_midi_sleeve = np.vstack((array_midi_sleeve, all_predictions[i]))
+        array_midi_sleeve = np.vstack((array_midi_sleeve, predictions[0]))
     elif true_label == 7:
-        array_long_sleeve = np.vstack((array_long_sleeve, all_predictions[i]))
+        array_long_sleeve = np.vstack((array_long_sleeve, predictions[0]))
 
     print counter
     #print predictions
