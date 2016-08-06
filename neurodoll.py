@@ -54,8 +54,9 @@ def infer_one(url_or_np_array,required_image_size=None,threshold = 0.01):
         logging.debug('got none image in neurodoll.infer_one()')
         return None
     if len(in_.shape) != 3:
-        print('got 1-chan image, turning into 3 channel')
+        print('got  image with shape '+str(in_.shape)+' , turning into 3 channel')
         in_ = np.array([copy.deepcopy(in_),copy.deepcopy(in_),copy.deepcopy(in_)])
+        print('now image has shape '+str(in_.shape))
     elif in_.shape[2] != 3:
         print('got n-chan image, skipping - shape:'+str(in_.shape))
         return
