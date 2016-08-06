@@ -129,11 +129,27 @@ print('loading caffemodel for neurodoll')
 
 if __name__ == "__main__":
 
-    url = 'http://diamondfilms.com.au/wp-content/uploads/2014/08/Fashion-Photography-Sydney-1.jpg'
-    result = infer_one(url,required_image_size=None,threshold=0)
-    cv2.imwrite('output.png',result)
-    labels=constants.ultimate_21
-    imutils.show_mask_with_labels('output.png',labels,visual_output=True)
+    url = 'http://pinmakeuptips.com/wp-content/uploads/2015/02/1.4.jpg'
+    urls = [url,
+            'http://diamondfilms.com.au/wp-content/uploads/2014/08/Fashion-Photography-Sydney-1.jpg',
+            'http://pinmakeuptips.com/wp-content/uploads/2016/02/main-1.jpg',
+            'http://pinmakeuptips.com/wp-content/uploads/2016/02/1.-Strategic-Skin-Showing.jpg',
+            'http://pinmakeuptips.com/wp-content/uploads/2016/02/3.jpg',
+            'http://pinmakeuptips.com/wp-content/uploads/2016/02/4.jpg',
+            'http://pinmakeuptips.com/wp-content/uploads/2016/03/Adding-Color-to-Your-Face.jpg',
+            'http://images5.fanpop.com/image/photos/26400000/Cool-fashion-pics-fashion-pics-26422922-493-700.jpg',
+            'http://allforfashiondesign.com/wp-content/uploads/2013/05/style-39.jpg',
+            'http://s6.favim.com/orig/65/cool-fashion-girl-hair-Favim.com-569888.jpg',
+            'http://s4.favim.com/orig/49/cool-fashion-girl-glasses-jeans-Favim.com-440515.jpg',
+            'http://s5.favim.com/orig/54/america-blue-cool-fashion-Favim.com-525532.jpg',
+            'http://favim.com/orig/201108/25/cool-fashion-girl-happiness-high-Favim.com-130013.jpg'
+    ]
+
+    for url in urls:
+        result = infer_one(url,required_image_size=None,threshold=0)
+        cv2.imwrite('output.png',result)
+        labels=constants.ultimate_21
+        imutils.show_mask_with_labels('output.png',labels,visual_output=True)
 
 #    after_nn_result = pipeline.after_nn_conclusions(result,constants.ultimate_21_dict)
 #    cv2.imwrite('output_afternn.png',after_nn_result)
