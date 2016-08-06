@@ -101,7 +101,7 @@ def textfile_for_pixlevel(imagesdir,labelsdir=None,imagefilter='.jpg',labelsuffi
         for f in imagefiles:
             labelfile = f[:-4]+labelsuffix
             labelfile = os.path.join(labelsdir,labelfile)
-            if not os.exists(labelfile):
+            if not os.path.exists(labelfile):
                 logging.debug('could not find labelfile {} corresponding to imagefile {}'.format(labelfile,f))
                 continue
             imagefile = os.path.join(imagesdir,f)
