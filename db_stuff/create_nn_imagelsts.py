@@ -42,7 +42,7 @@ def write_cats_from_db_to_textfile(image_dir='/home/jeremy/image_dbs/tamara_berg
             line = str(full_path) +' '+ ' '.join(str(int(n)) for n in hotlist)
             fp.write(line+'\n')
 
-def inspect_textfile(filename = 'tb_cats_from_webtool.txt'):
+def inspect_multilabel_textfile(filename = 'tb_cats_from_webtool.txt'):
     with open(filename,'r') as fp:
         for line in fp:
             print line
@@ -58,12 +58,23 @@ def inspect_textfile(filename = 'tb_cats_from_webtool.txt'):
             img_arr = cv2.imread(path)
             imutils.resize_to_max_sidelength(img_arr, max_sidelength=250,use_visual_output=True)
 
+def inspect_pixlevel_textfile(filename = 'images_and_labelsfile.txt'):
+    with open(filename,'r') as fp:
+        for line in fp:
+            print line
+            path1 = line.split()[0]
+            img_arr = cv2.imread(path1)
+            cv2.imshow('image',img_arr)
+
+            path2 = line.split()[1]
+            imutils.show_mask_with_labels(path2,labels=constants.ultimate_21,visual_output=True)
 
 def split_to_trainfile_and_testfile(filename='tb_cats_from_webtool.txt', fraction=0.05):
     with open(filename,'r') as fp:
         lines = fp.readlines()
         for line in lines:
-            print line
+    #        print line
+            pass
         print lines[0]
         random.shuffle(lines)
         print lines[0]
@@ -87,15 +98,24 @@ def textfile_for_pixlevel(imagesdir,labelsdir=None,imagefilter='.jpg',labelsuffi
         outfilename = os.path.join(imagesdir,'images_and_labelsfile.txt')
     imagefiles = [f for f in os.listdir(dir) if imagefilter in f]
     with open(outfilename,'w'):
-    for f in imagefiles:
-        labelfile = f[:-4]+labelsuffix
-        labelfile = os.path.join(labelsdir,labelfile)
-        if not os.exists(labelfile):
-            logging.debug('could not find labelfile {} corresponding to imagefile {}'.format(labelfile,f))
+        for f in imagefiles:
+            labelfile = f[:-4]+labelsuffix
+            labelfile = os.path.join(labelsdir,labelfile)
+            if not os.exists(labelfile):
+                logging.debug('could not find labelfile {} corresponding to imagefile {}'.format(labelfile,f))
+                continue
+            imagefile = os.path.join(imagesdir,f)
+            line = imagefile +' '+ labelfile
+            fp.write(line+'\n')
 
-    os.path.join(dir,f)
+
 
 if __name__ == "__main__": #
-    write_cats_from_db_to_textfile()
-    split_to_trainfile_and_testfile()
-    inspect_textfile()
+#    write_cats_from_db_to_textfile()
+#    split_to_trainfile_and_testfile()
+#    inspect_textfile()
+
+    dir = '/home/jeremy/image_dbs/colorful_fashion_parsing_data/images/'
+    textfile_for_pixlevel(dir+'train_u21_256x256',labelsdir=dir+'labels_256x256',outfilename=dir+'images_and_labelsfile.txt')
+    split_to_trainfile_and_testfile(dir+'images_and_labelsfile.txt')
+    inspect_pixlevel_textfile(dir+'images_and_labelsfile_train.txt')
