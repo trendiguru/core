@@ -117,7 +117,7 @@ if __name__ == "__main__": #
 #    split_to_trainfile_and_testfile()
 #    inspect_textfile()
 
-    dir = '/home/jeremy/image_dbs/colorful_fashion_parsing_data/images/'
-    textfile_for_pixlevel(imagesdir=dir+'train_u21_256x256',labelsdir=dir+'labels_256x256',outfilename=dir+'images_and_labelsfile.txt')
+    dir = '/home/jeremy/image_dbs/colorful_fashion_parsing_data/'
+    textfile_for_pixlevel(imagesdir=dir+'images/train_u21_256x256',labelsdir=dir+'labels_256x256',outfilename=dir+'images_and_labelsfile.txt')
     split_to_trainfile_and_testfile(dir+'images_and_labelsfile.txt')
     inspect_pixlevel_textfile(dir+'images_and_labelsfile_train.txt')
