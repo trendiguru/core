@@ -3,11 +3,19 @@ import numpy as np
 import os
 import cv2
 import random
+import logging
+logging.basicConfig(level=logging.DEBUG)
 
 from trendi import constants
 from trendi.utils import imutils
 
 def write_cats_from_db_to_textfile(image_dir='/home/jeremy/image_dbs/tamara_berg/images',catsfile = 'tb_cats_from_webtool.txt'):
+    '''
+    for tamara berg cats
+    :param image_dir:
+    :param catsfile:
+    :return:
+    '''
     db = constants.db
     cursor = db.training_images.find({'already_done':True})
     n_done = cursor.count()
@@ -72,7 +80,20 @@ def split_to_trainfile_and_testfile(filename='tb_cats_from_webtool.txt', fractio
             trfp.writelines(test_lines)
 
 
+def textfile_for_pixlevel(imagesdir,labelsdir=None,imagefilter='.jpg',labelsuffix='.png', outfilename = None):
+    if labelsdir == None:
+        labelsdir = imagesdir
+    if outfilename == None:
+        outfilename = os.path.join(imagesdir,'images_and_labelsfile.txt')
+    imagefiles = [f for f in os.listdir(dir) if imagefilter in f]
+    with open(outfilename,'w'):
+    for f in imagefiles:
+        labelfile = f[:-4]+labelsuffix
+        labelfile = os.path.join(labelsdir,labelfile)
+        if not os.exists(labelfile):
+            logging.debug('could not find labelfile {} corresponding to imagefile {}'.format(labelfile,f))
 
+    os.path.join(dir,f)
 
 if __name__ == "__main__": #
     write_cats_from_db_to_textfile()
