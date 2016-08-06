@@ -98,7 +98,7 @@ def textfile_for_pixlevel(imagesdir,labelsdir=None,imagefilter='.jpg',labelsuffi
         outfilename = os.path.join(imagesdir,'images_and_labelsfile.txt')
     imagefiles = [f for f in os.listdir(imagesdir) if imagefilter in f]
     print(str(len(imagefiles))+' imagefiles found in '+imagesdir)
-    with open(outfilename,'w'):
+    with open(outfilename,'w') as fp:
         for f in imagefiles:
             labelfile = f[:-4]+labelsuffix
             labelfile = os.path.join(labelsdir,labelfile)
