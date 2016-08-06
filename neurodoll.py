@@ -57,10 +57,10 @@ def infer_one(url_or_np_array,required_image_size=None,threshold = 0.01):
         if len(in_.shape) != 2:
             print('got something weird with shape '+str(in_.shape)+' , giving up')
             return None
-    else:
-        print('got  image with shape '+str(in_.shape)+' , turning into 3 channel')
-        in_ = np.array([copy.deepcopy(in_),copy.deepcopy(in_),copy.deepcopy(in_)])
-        print('now image has shape '+str(in_.shape))
+        else:
+            print('got  image with shape '+str(in_.shape)+' , turning into 3 channel')
+            in_ = np.array([copy.deepcopy(in_),copy.deepcopy(in_),copy.deepcopy(in_)])
+            print('now image has shape '+str(in_.shape))
     elif in_.shape[2] != 3:
         print('got n-chan image, skipping - shape:'+str(in_.shape))
         return None
