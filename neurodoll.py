@@ -147,9 +147,11 @@ if __name__ == "__main__":
 
     for url in urls:
         result = infer_one(url,required_image_size=None,threshold=0)
-        cv2.imwrite('output.png',result)
+        timestamp = int(10*time.time())
+        name = str(timestamp)+'.png'
+        cv2.imwrite(name,result)
         labels=constants.ultimate_21
-        imutils.show_mask_with_labels('output.png',labels,visual_output=True)
+        imutils.show_mask_with_labels(name,labels,visual_output=False,save_images=True)
 
 #    after_nn_result = pipeline.after_nn_conclusions(result,constants.ultimate_21_dict)
 #    cv2.imwrite('output_afternn.png',after_nn_result)
