@@ -54,12 +54,16 @@ def infer_one(url_or_np_array,required_image_size=None,threshold = 0.01):
         logging.debug('got none image in neurodoll.infer_one()')
         return None
     if len(in_.shape) != 3:
+        if len(in_.shape) != 2:
+        print('got something weird with shape '+str(in_.shape)+' , giving up')
+        return None
+    else:
         print('got  image with shape '+str(in_.shape)+' , turning into 3 channel')
         in_ = np.array([copy.deepcopy(in_),copy.deepcopy(in_),copy.deepcopy(in_)])
         print('now image has shape '+str(in_.shape))
     elif in_.shape[2] != 3:
         print('got n-chan image, skipping - shape:'+str(in_.shape))
-        return
+        return None
 #    in_ = in_[:,:,::-1]  for doing RGB -> BGR
 #    cv2.imwrite('test1234.jpg',in_) #verify that images are coming in as rgb
     in_ -= np.array((104,116,122.0))
