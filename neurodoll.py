@@ -50,6 +50,9 @@ def infer_one(url_or_np_array,required_image_size=None,threshold = 0.01):
     if required_image_size:
         image = imutils.resize_keep_aspect(image,output_size=required_image_size,output_file=None)
     in_ = np.array(image, dtype=np.float32)   #.astype(float)
+    if in_ is None:
+        logging.debug('got none image in neurodoll.infer_one()')
+        return None
     if len(in_.shape) != 3:
         print('got 1-chan image, turning into 3 channel')
         in_ = np.array([copy.deepcopy(in_),copy.deepcopy(in_),copy.deepcopy(in_)])
