@@ -51,15 +51,14 @@ def infer_one(url_or_np_array,required_image_size=None,threshold = 0.01):
     in_ = np.array(image, dtype=np.float32)   #.astype(float)
     if len(in_.shape) != 3:
         print('got 1-chan image, turning into 3 channel')
-        #DEBUG THIS , ORDER MAY BE WRONG
         in_ = np.array([in_,in_,in_])
     elif in_.shape[2] != 3:
         print('got n-chan image, skipping - shape:'+str(in_.shape))
         return
 #    in_ = in_[:,:,::-1]  for doing RGB -> BGR
-#    cv2.imshow('test',in_)
+    cv2.imwrite('test1234.jpg',in_) #verify that images are coming in as rgb
     in_ -= np.array((104,116,122.0))
-    in_ = in_.transpose((2,0,1))
+    in_ = in_.transpose((2,0,1))   #wxhxc -> cxwxh
     # shape for input (data blob is N x C x H x W), set data
     net.blobs['data'].reshape(1, *in_.shape)
     net.blobs['data'].data[...] = in_
