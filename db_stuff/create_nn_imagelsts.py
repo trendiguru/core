@@ -96,8 +96,8 @@ def textfile_for_pixlevel(imagesdir,labelsdir=None,imagefilter='.jpg',labelsuffi
         labelsdir = imagesdir
     if outfilename == None:
         outfilename = os.path.join(imagesdir,'images_and_labelsfile.txt')
-    imagefiles = [f for f in os.listdir(dir) if imagefilter in f]
-    print(str(len(imagefiles))+' imagefiles found in '+dir)
+    imagefiles = [f for f in os.listdir(imagesdir) if imagefilter in f]
+    print(str(len(imagefiles))+' imagefiles found in '+imagesdir)
     with open(outfilename,'w'):
         for f in imagefiles:
             labelfile = f[:-4]+labelsuffix
@@ -118,6 +118,6 @@ if __name__ == "__main__": #
 #    inspect_textfile()
 
     dir = '/home/jeremy/image_dbs/colorful_fashion_parsing_data/images/'
-    textfile_for_pixlevel(dir+'train_u21_256x256',labelsdir=dir+'labels_256x256',outfilename=dir+'images_and_labelsfile.txt')
+    textfile_for_pixlevel(imagesdir=dir+'train_u21_256x256',labelsdir=dir+'labels_256x256',outfilename=dir+'images_and_labelsfile.txt')
     split_to_trainfile_and_testfile(dir+'images_and_labelsfile.txt')
     inspect_pixlevel_textfile(dir+'images_and_labelsfile_train.txt')
