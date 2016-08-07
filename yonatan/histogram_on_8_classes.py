@@ -15,12 +15,21 @@ from . import gender_detector
 import random
 import matplotlib.pyplot as plt
 import yonatan_classifier
-
+from itertools import combinations, product
 
 array_success_with_plus_minus_category = np.array([])
 array_failure_with_plus_minus_category = np.array([])
 array_success_without = np.array([])
 array_failure_without = np.array([])
+
+array_strapless = np.zeros(8)
+array_spaghetti_straps = np.zeros(8)
+array_regular_straps = np.zeros(8)
+array_sleeveless = np.zeros(8)
+array_cap_sleeve = np.zeros(8)
+array_short_sleeve = np.zeros(8)
+array_midi_sleeve = np.zeros(8)
+array_long_sleeve = np.zeros(8)
 
 all_predictions = np.zeros(8)
 
@@ -48,19 +57,13 @@ counter = 0
 
 success_counter = 0
 failure_counter = 0
-guessed_mini_instead_midi = 0
-guessed_maxi_instead_midi = 0
-guessed_midi_instead_mini = 0
-guessed_maxi_instead_mini = 0
-guessed_midi_instead_maxi = 0
-guessed_mini_instead_maxi = 0
 
-counter_99_percent = 0
-counter_97_percent = 0
-counter_95_percent = 0
-counter_90_percent = 0
+#counter_99_percent = 0
+#counter_97_percent = 0
+#counter_95_percent = 0
+#counter_90_percent = 0
 
-failure_above_98_percent = 0
+#failure_above_98_percent = 0
 
 mean_vector = 0
 variance_vector = 0
@@ -125,20 +128,81 @@ for line in text_file:
         array_failure_without = np.append(array_failure_without, max_result)
         print max_result
 
+    if true_label == 0:
+        array_strapless = np.vstack((array_strapless, predictions[0]))
+    elif true_label == 1:
+        array_spaghetti_straps = np.vstack((array_spaghetti_straps, predictions[0]))
+    elif true_label == 2:
+        array_regular_straps = np.vstack((array_regular_straps, predictions[0]))
+    elif true_label == 3:
+        array_sleeveless = np.vstack((array_sleeveless, predictions[0]))
+    elif true_label == 4:
+        array_cap_sleeve = np.vstack((array_cap_sleeve, predictions[0]))
+    elif true_label == 5:
+        array_short_sleeve = np.vstack((array_short_sleeve, predictions[0]))
+    elif true_label == 6:
+        array_midi_sleeve = np.vstack((array_midi_sleeve, predictions[0]))
+    elif true_label == 7:
+        array_long_sleeve = np.vstack((array_long_sleeve, predictions[0]))
+
     print counter
     #print predictions
 
     all_predictions = np.vstack((all_predictions, predictions[0]))
 
+# pop the first vector - which is [0 0 0 0 0 0 0 0 0]
 all_predictions = all_predictions[1:]
 
 mean_vector = mean_vector / counter
 
 for i in range(1, counter):
+
+    max_result_index = np.argmax(all_predictions[i])
+
+    # if max_result_index == 0:
+    #     array_strapless = np.vstack((array_strapless, all_predictions[i]))
+    # elif max_result_index == 1:
+    #     array_spaghetti_straps = np.vstack((array_spaghetti_straps, all_predictions[i]))
+    # elif max_result_index == 2:
+    #     array_regular_straps = np.vstack((array_regular_straps, all_predictions[i]))
+    # elif max_result_index == 3:
+    #     array_sleeveless = np.vstack((array_sleeveless, all_predictions[i]))
+    # elif max_result_index == 4:
+    #     array_cap_sleeve = np.vstack((array_cap_sleeve, all_predictions[i]))
+    # elif max_result_index == 5:
+    #     array_short_sleeve = np.vstack((array_short_sleeve, all_predictions[i]))
+    # elif max_result_index == 6:
+    #     array_midi_sleeve = np.vstack((array_midi_sleeve, all_predictions[i]))
+    # elif max_result_index == 7:
+    #     array_long_sleeve = np.vstack((array_long_sleeve, all_predictions[i]))
+
     variance_vector += np.square(all_predictions[i] - mean_vector)
-    print variance_vector
-    print '\n'
+    #print variance_vector
+    #print '\n'
+
 variance_vector = variance_vector / counter
+
+array_strapless = array_strapless[1:]
+array_spaghetti_straps = array_spaghetti_straps[1:]
+array_regular_straps = array_regular_straps[1:]
+array_sleeveless = array_sleeveless[1:]
+array_cap_sleeve = array_cap_sleeve[1:]
+array_short_sleeve = array_short_sleeve[1:]
+array_midi_sleeve = array_midi_sleeve[1:]
+array_long_sleeve = array_long_sleeve[1:]
+
+
+# the order of the coralations being printed is:
+# 0 and 1, 0 and 2, ...
+# 1 and 2, 1 and 3, ...
+# 2 and 3, 2 and 4, ...
+# ...
+for comb in combinations([array_strapless, array_spaghetti_straps,array_regular_straps,
+                          array_sleeveless, array_cap_sleeve, array_short_sleeve,
+                          array_midi_sleeve, array_long_sleeve], 2):
+    print np.min([np.linalg.norm(a-b) for a,b in product(*comb)])
+
+
 
 success_with = len(array_success_with_plus_minus_category)
 failure_with = len(array_failure_with_plus_minus_category)
