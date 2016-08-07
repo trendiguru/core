@@ -6,7 +6,7 @@ function [mask,label_names,pose] = pd(image_array)
     %profile on
     tic
     %disp('debug0')
-    load ./data/paperdoll_pipeline.mat config;
+    load /home/pd_user/paperdoll/data/paperdoll_pipeline.mat config;
     disp('debug1')
     addpath(genpath('.'))
     disp('debug2')
