@@ -34,37 +34,40 @@ class Images(object):
     def on_post(self, req, resp):
         start = time.time()
         ret = {"success": False}
+        method = req.get_param("method") or 'nd'
+        pid = req.get_param("pid") or 'default'
+        products = page_results.get_collection_from_ip_and_pid(req.env['REMOTE_ADDR'], pid)
+        data = json_util.loads(req.stream.read())
+        page_url = data.get("pageUrl")
+        images = data.get("imageList")
         try:
-            data = json_util.loads(req.stream.read())
-            page_url = data.get("pageUrl")
-            images = data.get("imageList")
-            print "POST: after data gets: {0}".format(time.time()-start)
             if type(images) is list and page_url is not None:
-                # db CHECK PARALLEL WITH gevent
-                exists = {url: Greenlet.spawn(fast_results.check_if_exists, url) for url in images}
-                gevent.joinall(exists.values())
-                relevancy_dict = {}
-                images_to_rel_check = []
-                print "POST: after db_checks: {0}".format(time.time()-start)
+                if method == 'pd':
+                    relevancy_dict = {url: page_results.handle_post(url, page_url, products, method) for url in images}
+                    ret["success"] = True
+                    ret["relevancy_dict"] = relevancy_dict
+                else:
+                    # db CHECK PARALLEL WITH gevent
+                    exists = {url: Greenlet.spawn(fast_results.check_if_exists, url) for url in images}
+                    gevent.joinall(exists.values())
+                    relevancy_dict = {}
+                    images_to_rel_check = []
 
-                # DIVIDE RESULTS TO "HAS AN ANSWER" AND "WE DON'T KNOW THIS IMAGE"
-                for url, green in exists.iteritems():
-                    if green.value is not None:
-                        relevancy_dict[url] = green.value
-                    else:
-                        images_to_rel_check.append(url)
-                print "POST: after deviation: {0}".format(time.time()-start)
-                print "POST: rel_dict: {0}\n images to check: {1}".format(relevancy_dict, images_to_rel_check)
+                    # DIVIDE RESULTS TO "HAS AN ANSWER" AND "WE DON'T KNOW THIS IMAGE"
+                    for url, green in exists.iteritems():
+                        if green.value is not None:
+                            relevancy_dict[url] = green.value
+                        else:
+                            images_to_rel_check.append(url)
 
-                # RELEVANCY CHECK LIOR'S POOLING
-                # check_relevancy_partial = partial(fast_results.check_if_relevant_and_enqueue, page_url=page_url, start_time=start)
-                inputs = [(image_url, page_url, start) for image_url in images_to_rel_check]
-                outs = simple_pool.map(fast_results.check_if_relevant_and_enqueue, inputs)
-                relevancy_dict.update({images_to_rel_check[i]: outs[i] for i in xrange(len(images_to_rel_check))})
-                print "POST: after dictionary update: {0}".format(time.time()-start)
+                    # RELEVANCY CHECK LIOR'S POOLING
+                    inputs = [(image_url, page_url, start) for image_url in images_to_rel_check]
+                    outs = simple_pool.map(fast_results.check_if_relevant_and_enqueue, inputs)
+                    relevancy_dict.update({images_to_rel_check[i]: outs[i] for i in xrange(len(images_to_rel_check))})
 
-                ret["success"] = True
-                ret["relevancy_dict"] = relevancy_dict
+                    ret["success"] = True
+                    ret["relevancy_dict"] = relevancy_dict
+
             else:
                 ret["success"] = False
                 ret["error"] = "Missing image list and/or page url"
@@ -77,16 +80,14 @@ class Images(object):
         resp.status = falcon.HTTP_200
         print "ON_POST took {0} seconds".format(time.time()-start)
 
-    def on_get(self, req, resp):
+    def on_get(self, req, resp, **kwargs):
         ret = {}
         image_url = req.get_param("imageUrl")
+        pid = req.get_param("pid") or 'default'
         if not image_url:
-          raise falcon.HTTPMissingParam('imageUrl')
+            raise falcon.HTTPMissingParam('imageUrl')
 
-        if 'fashionseoul' in image_url:
-            products = "GangnamStyle"
-        else:
-            products = "ShopStyle"
+        products = page_results.get_collection_from_ip_and_pid(req.env['REMOTE_ADDR'], pid)
         
         start = time.time()
         ret = page_results.get_data_for_specific_image(image_url=image_url, products_collection=products)
