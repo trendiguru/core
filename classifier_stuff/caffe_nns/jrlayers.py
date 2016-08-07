@@ -45,8 +45,10 @@ class JrLayer(caffe.Layer):
             python_param {
             module: "jrlayers"
             layer: "JrLayer"
-            param_str: "{\'images_dir\': \'/home/jeremy/image_dbs/colorful_fashion_parsing_data/images/train_u21_256x256\', \'labels_dir\':\'/home/jeremy/image_dbs/colorful_fashion_parsing_data/labels_256x256/\', \'mean\': (104.00699, 116.66877, 122.67892)}"
+            param_str: "{\'images_and_labels_file\': \'train_u21_256x256.txt\', \'mean\': (104.00699, 116.66877, 122.67892)}"
             }
+#            param_str: "{\'images_dir\': \'/home/jeremy/image_dbs/colorful_fashion_parsing_data/images/train_u21_256x256\', \'labels_dir\':\'/home/jeremy/image_dbs/colorful_fashion_parsing_data/labels_256x256/\', \'mean\': (104.00699, 116.66877, 122.67892)}"
+#            }
         params = dict(sbdd_dir="/path/to/SBDD/dataset",
             mean=(104.00698793, 116.66876762, 122.67891434),
             split="valid")
@@ -220,26 +222,11 @@ class JrLayer(caffe.Layer):
 #	print('uniques of img:'+str(np.unique(in_))+' shape:'+str(in_.shape))
         return in_
 
-
-    def load_label(self, idx):
-        """
-        Load label image as 1 x height x width integer array of label indices.
-        The leading singleton dimension is required by the loss.
-        """
-        import scipy.io
-        mat = scipy.io.loadmat('{}/cls/{}.mat'.format(self.sbdd_dir, idx))
-        label = mat['GTcls'][0]['Segmentation'][0].astype(np.uint8)
-        label = label[np.newaxis, ...]
-        return label
-
-
     def load_label_image(self, idx):
         """
         Load label image as 1 x height x width integer array of label indices.
         The leading singleton dimension is required by the loss.
         """
-#        import scipy.io
-#        mat = scipy.io.loadmat('{}/cls/{}.mat'.format(self.sbdd_dir, idx))
         full_filename = self.determine_label_filename(idx)
         im = Image.open(full_filename)
         if im is None:
