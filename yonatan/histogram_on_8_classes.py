@@ -170,14 +170,14 @@ array_short_sleeve = array_short_sleeve[1:]
 array_midi_sleeve = array_midi_sleeve[1:]
 array_long_sleeve = array_long_sleeve[1:]
 
-np.savez(array_strapless, array_strapless)
-np.save(array_spaghetti_straps, array_spaghetti_straps)
-np.save(array_regular_straps, array_regular_straps)
-np.save(array_sleeveless, array_sleeveless)
-np.save(array_cap_sleeve, array_cap_sleeve)
-np.save(array_short_sleeve, array_short_sleeve)
-np.save(array_midi_sleeve, array_midi_sleeve)
-np.save(array_long_sleeve, array_long_sleeve)
+np.save('array_strapless.npy', array_strapless)
+np.save('array_spaghetti_straps.npy', array_spaghetti_straps)
+np.save('array_regular_straps.npy', array_regular_straps)
+np.save('array_sleeveless.npy', array_sleeveless)
+np.save('array_cap_sleeve.npy', array_cap_sleeve)
+np.save('array_short_sleeve.npy', array_short_sleeve)
+np.save('array_midi_sleeve.npy', array_midi_sleeve)
+np.save('array_long_sleeve.npy', array_long_sleeve)
 
 
 # the order of the coralations being printed is:
