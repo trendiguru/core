@@ -239,8 +239,8 @@ print "mean array_strapless: {0}\nmean array_spaghetti: {1}\n" \
       "mean array_regular: {2}\nmean array_sleeveless: {3}\n" \
       "mean array_cap_sleeve: {4}\nmean array_short_sleeve: {5}\n" \
       "mean array_midi_sleeve: {6}\nmean array_long_sleeve: {7}\n".format(
-    mean(array_strapless), mean(array_spaghetti_straps), mean(array_regular_straps), mean(array_sleeveless),
-    mean(array_cap_sleeve), mean(array_short_sleeve), mean(array_midi_sleeve), mean(array_long_sleeve))
+      np.mean(array_strapless, 0), np.mean(array_spaghetti_straps, 0), np.mean(array_regular_straps, 0), np.mean(array_sleeveless, 0),
+      np.mean(array_cap_sleeve, 0), np.mean(array_short_sleeve, 0), np.mean(array_midi_sleeve, 0), np.mean(array_long_sleeve, 0))
 
 print "variance vector: {0}".format(variance_vector)
 
