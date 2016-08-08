@@ -162,11 +162,11 @@ class JrLayer(caffe.Layer):
         print('reshaping')
         # load image + label image pair
 #	logging.debug('self.idx is :'+str(self.idx)+' type:'+str(type(self.idx)))
-        self.data,self.label = self.load_image_and_label(self.idx)
+        self.data,self.label = self.load_image_and_mask(self.idx)
 #	if self.load_labels_from_mat:
 #            self.label = self.load_label(self.indices[self.idx])#
 #	else:
-        self.label = self.load_label_image(self.idx)
+#        self.label = self.load_label_image(self.idx)
         # reshape tops to fit (leading 1 is for batch dimension)
         top[0].reshape(1, *self.data.shape)
         top[1].reshape(1, *self.label.shape)
@@ -271,7 +271,7 @@ class JrLayer(caffe.Layer):
 
         return label
 
-    def load_image_and_mask(self,idx):
+    def load_image_and_mask(self):
         """
         Load input image and preprocess for Caffe:
         - cast to float
@@ -280,56 +280,48 @@ class JrLayer(caffe.Layer):
         - transpose to channel x height x width order
         """
         while(1):
-            filename = self.imagefiles[idx]
-            print('the imagefile:'+filename+' index:'+str(idx))
-            label_filename=self.labelfiles[idx]
+            filename = self.imagefiles[self.idx]
+            label_filename=self.labelfiles[self.idx]
+            print('imagefile:'+filename+' labelfile:'+label_filename+' index:'+str(self.idx))
             if not(os.path.isfile(label_filename) and os.path.isfile(filename)):
-                print('ONE OF THESE IS NOT A FILE:'+str(label_filename)+','+str(filename))
+                print('ONE OF THESE IS NOT ACCESSIBLE:'+str(label_filename)+','+str(filename))
                 self.next_idx()
             else:
                 break
         im = Image.open(filename)
         if self.new_size:
             im = im.resize(self.new_size,Image.ANTIALIAS)
-
         in_ = np.array(im, dtype=np.float32)
         if in_ is None:
             logging.warning('could not get image '+full_filename)
             return None
-#        print(full_filename+ ' has dims '+str(in_.shape))
-        in_ = in_[:,:,::-1]
-#        in_ -= self.mean
-        in_ = in_.transpose((2,0,1))
-#	print('uniques of img:'+str(np.unique(in_))+' shape:'+str(in_.shape))
-
-
-
         """
         Load label image as 1 x height x width integer array of label indices.
         The leading singleton dimension is required by the loss.
         """
-        full_filename = self.determine_label_filename(idx)
-        im = Image.open(full_filename)
+        im = Image.open(label_filename)
         if im is None:
-            print(' COULD NOT LOAD FILE '+full_filename)
-            logging.warning('couldnt load file '+full_filename)
-        if self.new_size:
-            im = im.resize(self.new_size,Image.ANTIALIAS)
+            print(' COULD NOT LOAD FILE '+label_filename)
+            logging.warning('couldnt load file '+label_filename)
+#        if self.new_size:
+#            im = im.resize(self.new_size,Image.ANTIALIAS)
+        label_in_ = np.array(im, dtype=np.uint8)
 
-        in_ = np.array(im, dtype=np.uint8)
-
-        if len(in_.shape) == 3:
-#            logging.warning('got 3 layer img as mask, taking first layer')
-            in_ = in_[:,:,0]
     #        in_ = in_ - 1
- #       print('uniques of label:'+str(np.unique(in_))+' shape:'+str(in_.shape))
- #       print(full_filename+' has dims '+str(in_.shape))
-        label = copy.copy(in_[np.newaxis, ...])
+        print('uniques of label:'+str(np.unique(in_))+' shape:'+str(label_in_.shape))
 #        print('after extradim shape:'+str(label.shape))
 
-    out1,out2 = generate_image_onthefly(in1, mask_filename_or_nparray=in2)
+        out1,out2 = augment_images.generate_image_onthefly(in_, mask_filename_or_nparray=label_in_)
 
-        return label
+        out1 = out1[:,:,::-1]   #RGB -> BGR
+        out1 = out1.transpose((2,0,1))  #wxhxc -> cxwxh
+        out1 -= self.mean
+        if len(out2.shape) == 3:
+#            logging.warning('got 3 layer img as mask, taking first layer')
+            out2 = out2[:,:,0]
+        out2 = copy.copy(out2[np.newaxis, ...])
+
+        return out1,out2
 
 
 
