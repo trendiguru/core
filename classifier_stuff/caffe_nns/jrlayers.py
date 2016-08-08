@@ -77,7 +77,7 @@ class JrPixlevel(caffe.Layer):
             self.new_size = self.augment_crop_size
 # end vestigial code
 
-        print('batchsize {} type {}'.format(self.batch_size,type(self.batch_size))
+        print('batchsize {} type {}'.format(self.batch_size,type(self.batch_size)))
         print('imfile {} mean {} imagesdir {} randinit {} randpick {} '.format(self.images_and_labels_file, self.mean,self.images_dir,self.random_init, self.random_pick))
         print('see {} newsize {} batchsize {} augment {} augmaxangle {} '.format(self.seed,self.new_size,self.batch_size,self.augment_images,self.augment_max_angle))
         print('augmaxdx {} augmaxdy {} augmaxscale {} augmaxnoise {} augmaxblur {} '.format(self.augment_max_offset_x,self.augment_max_offset_y,self.augment_max_scale,self.augment_max_noise_level,self.augment_max_blur))
