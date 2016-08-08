@@ -170,14 +170,24 @@ array_short_sleeve = array_short_sleeve[1:]
 array_midi_sleeve = array_midi_sleeve[1:]
 array_long_sleeve = array_long_sleeve[1:]
 
-np.save(array_strapless, array_strapless)
-np.save(array_spaghetti_straps, array_spaghetti_straps)
-np.save(array_regular_straps, array_regular_straps)
-np.save(array_sleeveless, array_sleeveless)
-np.save(array_cap_sleeve, array_cap_sleeve)
-np.save(array_short_sleeve, array_short_sleeve)
-np.save(array_midi_sleeve, array_midi_sleeve)
-np.save(array_long_sleeve, array_long_sleeve)
+np.save('array_strapless.npy', array_strapless)
+np.save('array_spaghetti_straps.npy', array_spaghetti_straps)
+np.save('array_regular_straps.npy', array_regular_straps)
+np.save('array_sleeveless.npy', array_sleeveless)
+np.save('array_cap_sleeve.npy', array_cap_sleeve)
+np.save('array_short_sleeve.npy', array_short_sleeve)
+np.save('array_midi_sleeve.npy', array_midi_sleeve)
+np.save('array_long_sleeve.npy', array_long_sleeve)
+
+# to load the saved arrays: #
+# np.load('array_strapless.npy')
+# np.load('array_spaghetti_straps.npy')
+# np.load('array_regular_straps.npy')
+# np.load('array_sleeveless.npy')
+# np.load('array_cap_sleeve.npy')
+# np.load('array_short_sleeve.npy')
+# np.load('array_midi_sleeve.npy')
+# np.load('array_long_sleeve.npy')
 
 
 # the order of the coralations being printed is:
@@ -185,7 +195,7 @@ np.save(array_long_sleeve, array_long_sleeve)
 # 1 and 2, 1 and 3, ...
 # 2 and 3, 2 and 4, ...
 # ...
-print "\ncorrelation between:\n 0 and 1, 0 and 2, ...\n1 and 2, 1 and 3, ...\n2 and 3, 2 and 4, ...\n"
+print "\ncorrelation between:\n0 and 1, 0 and 2, ...\n1 and 2, 1 and 3, ...\n2 and 3, 2 and 4, ...\n"
 for comb in combinations([array_strapless, array_spaghetti_straps,array_regular_straps,
                           array_sleeveless, array_cap_sleeve, array_short_sleeve,
                           array_midi_sleeve, array_long_sleeve], 2):
