@@ -197,11 +197,11 @@ array_long_sleeve = array_long_sleeve[1:]
 # 1 and 2, 1 and 3, ...
 # 2 and 3, 2 and 4, ...
 # ...
+print "\ncorrelation between:\n 0 and 1, 0 and 2, ...\n1 and 2, 1 and 3, ...\n2 and 3, 2 and 4, ...\n"
 for comb in combinations([array_strapless, array_spaghetti_straps,array_regular_straps,
                           array_sleeveless, array_cap_sleeve, array_short_sleeve,
                           array_midi_sleeve, array_long_sleeve], 2):
     print np.min([np.linalg.norm(a-b) for a,b in product(*comb)])
-
 
 
 success_with = len(array_success_with_plus_minus_category)
@@ -213,11 +213,26 @@ failure_without = len(array_failure_without)
 if success_with == 0 or failure_with == 0:
     print "wrong!"
 else:
-    print 'accuracy percent with +-category: {0}'.format(float(success_with) / (success_with + failure_with))
-    print 'accuracy percent without: {0}'.format(float(success_without) / (success_without + failure_without))
+    print '\naccuracy percent with +-category: {0}'.format(float(success_with) / (success_with + failure_with))
+    print 'accuracy percent without: {0}\n'.format(float(success_without) / (success_without + failure_without))
 
-print "mean vector: {0}".format(mean_vector)
-print "variance vector: {0}".format(variance_vector)
+#print "mean vector: {0}".format(mean_vector)
+
+print "mean array_strapless: {0}\nmean array_spaghetti: {1}\n" \
+      "mean array_regular: {2}\nmean array_sleeveless: {3}\n" \
+      "mean array_cap_sleeve: {4}\nmean array_short_sleeve: {5}\n" \
+      "mean array_midi_sleeve: {6}\nmean array_long_sleeve: {7}\n".format(
+      np.mean(array_strapless, 0), np.mean(array_spaghetti_straps, 0), np.mean(array_regular_straps, 0), np.mean(array_sleeveless, 0),
+      np.mean(array_cap_sleeve, 0), np.mean(array_short_sleeve, 0), np.mean(array_midi_sleeve, 0), np.mean(array_long_sleeve, 0))
+
+print "variance array_strapless: {0}\nvariance array_spaghetti: {1}\n" \
+      "variance array_regular: {2}\nvariance array_sleeveless: {3}\n" \
+      "variance array_cap_sleeve: {4}\nvariance array_short_sleeve: {5}\n" \
+      "variance array_midi_sleeve: {6}\nvariance array_long_sleeve: {7}\n".format(
+      np.var(array_strapless, 0), np.var(array_spaghetti_straps, 0), np.var(array_regular_straps, 0), np.var(array_sleeveless, 0),
+      np.var(array_cap_sleeve, 0), np.var(array_short_sleeve, 0), np.var(array_midi_sleeve, 0), np.var(array_long_sleeve, 0))
+
+#print "variance vector: {0}".format(variance_vector)
 
 histogram = plt.figure(1)
 
