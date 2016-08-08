@@ -203,7 +203,6 @@ for comb in combinations([array_strapless, array_spaghetti_straps,array_regular_
     print np.min([np.linalg.norm(a-b) for a,b in product(*comb)])
 
 
-
 success_with = len(array_success_with_plus_minus_category)
 failure_with = len(array_failure_with_plus_minus_category)
 
@@ -216,25 +215,8 @@ else:
     print 'accuracy percent with +-category: {0}'.format(float(success_with) / (success_with + failure_with))
     print 'accuracy percent without: {0}'.format(float(success_without) / (success_without + failure_without))
 
-mean_array_strapless = sum(array_strapless) / len(array_strapless)
-mean_array_spaghetti_straps = sum(array_spaghetti_straps) / len(array_spaghetti_straps)
-mean_array_regular_straps = sum(array_regular_straps) / len(array_regular_straps)
-mean_array_sleeveless = sum(array_sleeveless) / len(array_sleeveless)
-mean_array_cap_sleeve = sum(array_cap_sleeve) / len(array_cap_sleeve)
-mean_array_short_sleeve = sum(array_short_sleeve) / len(array_short_sleeve)
-mean_array_midi_sleeve = sum(array_midi_sleeve) / len(array_midi_sleeve)
-mean_array_long_sleeve = sum(array_long_sleeve) / len(array_long_sleeve)
+#print "mean vector: {0}".format(mean_vector)
 
-
-
-
-print "mean vector: {0}".format(mean_vector)
-print "mean array_strapless: {0}\nmean array_spaghetti: {1}\n" \
-      "mean array_regular: {2}\nmean array_sleeveless: {3}\n" \
-      "mean array_cap_sleeve: {4}\nmean array_short_sleeve: {5}\n" \
-      "mean array_midi_sleeve: {6}\nmean array_long_sleeve: {7}\n".format(
-      mean_array_strapless, mean_array_spaghetti_straps, mean_array_regular_straps, mean_array_sleeveless,
-      mean_array_cap_sleeve, mean_array_short_sleeve, mean_array_midi_sleeve, mean_array_long_sleeve)
 print "mean array_strapless: {0}\nmean array_spaghetti: {1}\n" \
       "mean array_regular: {2}\nmean array_sleeveless: {3}\n" \
       "mean array_cap_sleeve: {4}\nmean array_short_sleeve: {5}\n" \
@@ -242,7 +224,14 @@ print "mean array_strapless: {0}\nmean array_spaghetti: {1}\n" \
       np.mean(array_strapless, 0), np.mean(array_spaghetti_straps, 0), np.mean(array_regular_straps, 0), np.mean(array_sleeveless, 0),
       np.mean(array_cap_sleeve, 0), np.mean(array_short_sleeve, 0), np.mean(array_midi_sleeve, 0), np.mean(array_long_sleeve, 0))
 
-print "variance vector: {0}".format(variance_vector)
+print "variance array_strapless: {0}\nvariance array_spaghetti: {1}\n" \
+      "variance array_regular: {2}\nvariance array_sleeveless: {3}\n" \
+      "variance array_cap_sleeve: {4}\nvariance array_short_sleeve: {5}\n" \
+      "variance array_midi_sleeve: {6}\nvariance array_long_sleeve: {7}\n".format(
+      np.var(array_strapless, 0), np.var(array_spaghetti_straps, 0), np.var(array_regular_straps, 0), np.var(array_sleeveless, 0),
+      np.var(array_cap_sleeve, 0), np.var(array_short_sleeve, 0), np.var(array_midi_sleeve, 0), np.var(array_long_sleeve, 0))
+
+#print "variance vector: {0}".format(variance_vector)
 
 histogram = plt.figure(1)
 
