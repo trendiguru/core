@@ -13,8 +13,9 @@ def randomword(length):
 
 rand_eng_name = randomword(4)
 print "{0}: Starting MATLAB engine {1}".format(datetime.datetime.now(), rand_eng_name)
-eng = matlab.engine.start_matlab('-nodesktop -nojvm')
+eng = new_pd.init_pd_eng()
 print "{0}: Started MATLAB engine {1}".format(datetime.datetime.now(), rand_eng_name)
+
 
 class PaperResource:
     def on_get(self, req, resp):
@@ -34,7 +35,7 @@ class PaperResource:
             img = data.get("image")
 
             # mask_np, label_dict, pose_np, filename
-            ret["mask"], ret["label_dict"], ret["pose"], ret["filename"] = pd.get_parse_mask_parallel(eng, img)
+            ret["mask"], ret["label_dict"], ret["pose"], ret["filename"] = new_pd.parse(img, _eng=eng)
             if ret["mask"] is not None:
                 ret["success"] = True
             else:
