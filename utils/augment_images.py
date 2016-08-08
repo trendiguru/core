@@ -187,10 +187,10 @@ def multichannel_to_mask(multichannel_arr):
         nth_chan = multichannel_arr[:,:,chan]
         pixel_count = np.count_nonzero(nth_chan)
         cumulative = cumulative + pixel_count
-        print('multichannel to mask {} pixcount {}'.format(chan,pixel_count))
+#        print('multichannel to mask {} pixcount {}'.format(chan,pixel_count))
         output_arr[nth_chan != 0] = chan
         pixel_count = np.count_nonzero(output_arr)
-        print('cumulative pixcount {}'.format(cumulative))
+#        print('cumulative pixcount {}'.format(cumulative))
     return output_arr
 
 def mask_to_multichannel(mask_arr,n_channels):
@@ -211,10 +211,10 @@ def mask_to_multichannel(mask_arr,n_channels):
         channel = np.zeros([h,w])
         channel[mask_arr == i] = 1
         pixel_count = np.count_nonzero(channel)
-        print('mask to multichannel {} pixcount {}'.format(i,pixel_count))
+#        print('mask to multichannel {} pixcount {}'.format(i,pixel_count))
         output_arr[:,:,i] = channel
         pixel_count = np.count_nonzero(output_arr)
-        print('cumulative pixcount {}'.format(pixel_count))
+#        print('cumulative pixcount {}'.format(pixel_count))
     return output_arr
 
 def generate_image_onthefly(img_filename_or_nparray, gaussian_or_uniform_distributions='uniform',
@@ -530,33 +530,49 @@ if __name__=="__main__":
     image_dir = '/home/jeremy/image_dbs/colorful_fashion_parsing_data/images/train_200x150'
     label_dir = '/home/jeremy/image_dbs/colorful_fashion_parsing_data/labels_200x150'
 
-    in1 = np.zeros([500,500,3])
-    in2 = np.zeros_like(in1,dtype=np.uint8)
-    for i in range(1,21):
-        color = (np.random.randint(256),np.random.randint(256),np.random.randint(256))
-        position = (50+np.random.randint(400),50+np.random.randint(400))
-        radius = np.random.randint(200)
-        cv2.circle(in1,position,radius,color=color,thickness=10)
-        cv2.circle(in2,position,radius,(i,i,i),thickness=10)
-        pt1 = (50+np.random.randint(400),50+np.random.randint(400))
-        pt2 = (pt1[0]+np.random.randint(100),pt1[1]+np.random.randint(100))
-        cv2.rectangle(in1,pt1,pt2,color,thickness=10)
-        cv2.rectangle(in2,pt1,pt2,color=(i,i,i),thickness=10)
-    cv2.imwrite('in1.jpg',in1)
-    cv2.imwrite('in2.png',in2)
-    imutils.show_mask_with_labels('in2.png',labels=constants.ultimate_21,visual_output=True,original_image='in1.jpg')
-    cv2.destroyAllWindows()
+    if(1):
+        dir = '/home/jeremy/Dropbox/tg/pixlabels/test_256x256_novariations'
+        images = [f for f in os.listdir(dir)]
+        label = f[:-4]+'.png'
+        for image in images:
+            labelfile = os.path.join('/home/jeremy/Dropbox/tg/pixlabels/labels_256x256_novariations',label)
+            imfile = os.path.join(dir,image)
+            if os.path.isfile(imfile) and os.path.isfile(labelfile):
+                in1 = cv2.imread(imfile)
+                in2 = cv2.imread(labelfile)
+                out1,out2 = generate_image_onthefly(in1, mask_filename_or_nparray=in2)
+                cv2.imwrite('out1.jpg',out1)
+                cv2.imwrite('out2.png',out2)
+                imutils.show_mask_with_labels('out2.png',labels=constants.ultimate_21,original_image='out1.jpg',visual_output=True)
 
-    while(1):
-#        in2 = cv2.imread('/home/jeremy/Pictures/Berlin_Naturkundemuseum_Dino_Schaedel_posterized.png')
-        out1,out2 = generate_image_onthefly(in1, mask_filename_or_nparray=in2)
-        cv2.imwrite('out1.jpg',out1)
-        cv2.imwrite('out2.png',out2)
-        imutils.show_mask_with_labels('out2.png',labels=constants.ultimate_21,original_image='out1.jpg',visual_output=True)
-        print('orig uniques {} nonzero {} mask uniques {} nonzero {} '.format(np.unique(out1),np.count_nonzero(out1),np.unique(out2),np.count_nonzero(out2)))
-        print('')
-        print('')
+    if(0):
+        in1 = np.zeros([500,500,3])
+        in2 = np.zeros_like(in1,dtype=np.uint8)
+        for i in range(1,21):
+            color = (np.random.randint(256),np.random.randint(256),np.random.randint(256))
+            position = (50+np.random.randint(400),50+np.random.randint(400))
+            radius = np.random.randint(200)
+            cv2.circle(in1,position,radius,color=color,thickness=10)
+            cv2.circle(in2,position,radius,(i,i,i),thickness=10)
+            pt1 = (50+np.random.randint(400),50+np.random.randint(400))
+            pt2 = (pt1[0]+np.random.randint(100),pt1[1]+np.random.randint(100))
+            cv2.rectangle(in1,pt1,pt2,color,thickness=10)
+            cv2.rectangle(in2,pt1,pt2,color=(i,i,i),thickness=10)
+        cv2.imwrite('in1.jpg',in1)
+        cv2.imwrite('in2.png',in2)
+        imutils.show_mask_with_labels('in2.png',labels=constants.ultimate_21,visual_output=True,original_image='in1.jpg')
         cv2.destroyAllWindows()
+
+        while(1):
+    #        in2 = cv2.imread('/home/jeremy/Pictures/Berlin_Naturkundemuseum_Dino_Schaedel_posterized.png')
+            out1,out2 = generate_image_onthefly(in1, mask_filename_or_nparray=in2)
+            cv2.imwrite('out1.jpg',out1)
+            cv2.imwrite('out2.png',out2)
+            imutils.show_mask_with_labels('out2.png',labels=constants.ultimate_21,original_image='out1.jpg',visual_output=True)
+            print('orig uniques {} nonzero {} mask uniques {} nonzero {} '.format(np.unique(out1),np.count_nonzero(out1),np.unique(out2),np.count_nonzero(out2)))
+            print('')
+            print('')
+            cv2.destroyAllWindows()
 
     while(1):
         generate_image_onthefly(img_filename, gaussian_or_uniform_distributions='uniform',
