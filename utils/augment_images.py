@@ -251,9 +251,9 @@ def generate_image_onthefly(img_filename_or_nparray, gaussian_or_uniform_distrib
 
     start_time = time.time()
     if isinstance(img_filename_or_nparray,basestring):
-        logging.debug('db A filename:'+img_filename_or_nparray)
+ #       logging.debug('db A filename:'+img_filename_or_nparray)
         img_arr = cv2.imread(img_filename_or_nparray)
-        logging.debug('db B')
+  #      logging.debug('db B')
     else:
         img_arr = img_filename_or_nparray
     if img_arr is None:
@@ -263,12 +263,12 @@ def generate_image_onthefly(img_filename_or_nparray, gaussian_or_uniform_distrib
     mask_arr = None
     if mask_filename_or_nparray is not None:
         if isinstance(mask_filename_or_nparray,basestring):
-            logging.debug('db A1 filename:'+mask_filename_or_nparray)
+#            logging.debug('db A1 filename:'+mask_filename_or_nparray)
             mask_arr = cv2.imread(mask_filename_or_nparray)
         else:
             mask_arr = mask_filename_or_nparray
         if mask_arr is None:
-            logging.warning('didnt get mask image '+str(mask_filename_or_nparray))
+ #           logging.warning('didnt get mask image '+str(mask_filename_or_nparray))
             return
 #convert mask img to binary multichannel image
         mask_arr = mask_to_multichannel(mask_arr,n_mask_channels)
@@ -276,7 +276,7 @@ def generate_image_onthefly(img_filename_or_nparray, gaussian_or_uniform_distrib
 
 
 
-    logging.debug('db 1')
+#    logging.debug('db 1')
     width=img_arr.shape[1]
 
     angle = 0
@@ -291,7 +291,7 @@ def generate_image_onthefly(img_filename_or_nparray, gaussian_or_uniform_distrib
     y_room = 0
     height,width = img_arr.shape[0:2]
 
-    logging.debug('db 2')
+#    logging.debug('db 2')
     if crop_size:
         x_room = width - crop_size[1]
         y_room = height - crop_size[0]
