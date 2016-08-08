@@ -1,7 +1,8 @@
 function [mask,label_names,pose] = init_pd(root)
     tic
 
-    load strcat(root, "/data/paperdoll_pipeline.mat") config;
+    paperdoll_pipeline_path = strcat(root, '/data/paperdoll_pipeline.mat')
+    load(paperdoll_pipeline_path, 'config');
     addpath(genpath(root))
     
     config{1}.scale = 200;

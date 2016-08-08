@@ -7,7 +7,7 @@ function [mask,label_names,pose] = pd(image_filename)
     tic
     
     try
-        input_image = imread(image_filename);
+        image_array = imread(image_filename);
     catch     %i think there may be cases where the ml read starts before the python write finishes
         disp('debug3.5 (try catch')
     end
