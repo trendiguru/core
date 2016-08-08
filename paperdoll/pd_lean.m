@@ -1,8 +1,9 @@
 function [mask,label_names,pose] = pd(image_filename)
-
-    mask = [] ;
-    label_names = [] ;
-    pose = [] ;
+    global pd_config
+    mask = []; 
+    label_names = []; 
+    pose = [];
+    % config = evalin('base', 'config');
 
     tic
     
@@ -13,8 +14,7 @@ function [mask,label_names,pose] = pd(image_filename)
     end
 
     input_sample = struct('image', image_array);
-
-    result = feature_calculator.apply(config, input_sample)
+    result = feature_calculator.apply(pd_config, input_sample);
 
     if ~ isfield(result, 'final_labeling')
         % paperdoll failed to return result
