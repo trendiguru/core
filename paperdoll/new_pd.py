@@ -74,7 +74,7 @@ def image_big_enough(img_array):
     if img_array is None:
         logging.debug("input image is empty")
         return False
-    width, height = img_array.shape[0:1]
+    width, height = img_array.shape[0:2]
     if width < constants.minimum_im_width or height < constants.minimum_im_height:
         logging.debug('image dimensions too small')
         return False
