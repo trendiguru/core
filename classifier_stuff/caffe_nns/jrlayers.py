@@ -162,14 +162,24 @@ class JrPixlevel(caffe.Layer):
 
     def reshape(self, bottom, top):
         print('reshaping')
-        # load image + label image pair
-#	logging.debug('self.idx is :'+str(self.idx)+' type:'+str(type(self.idx)))
-        self.data,self.label = self.load_image_and_mask()
-#	if self.load_labels_from_mat:
-#            self.label = self.load_label(self.indices[self.idx])#
-#	else:
-#        self.label = self.load_label_image(self.idx)
         # reshape tops to fit (leading 1 is for batch dimension)
+
+#        self.data,self.label = self.load_image_and_mask()
+        if self.batch_size == 1:
+            self.data, self.label = self.load_image_and_mask()
+        else:
+            all_data = np.zeros((self.batch_size,3,self.new_size[0],self.new_size[1]))
+            all_labels = np.zeros((self.batch_size,1, self.new_size[0],self.new_size[1]) )
+            for i in range(self.batch_size):
+                data, label = self.load_image_and_mask()
+                all_data[i,...]=data
+                all_labels[i,...]=label
+                self.next_idx()
+            self.data = all_data
+            self.label = all_labels
+
+
+
         top[0].reshape(1, *self.data.shape)
         top[1].reshape(1, *self.label.shape)
 
