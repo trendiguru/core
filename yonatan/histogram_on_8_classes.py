@@ -156,29 +156,8 @@ all_predictions = all_predictions[1:]
 mean_vector = mean_vector / counter
 
 for i in range(1, counter):
-
     max_result_index = np.argmax(all_predictions[i])
-
-    # if max_result_index == 0:
-    #     array_strapless = np.vstack((array_strapless, all_predictions[i]))
-    # elif max_result_index == 1:
-    #     array_spaghetti_straps = np.vstack((array_spaghetti_straps, all_predictions[i]))
-    # elif max_result_index == 2:
-    #     array_regular_straps = np.vstack((array_regular_straps, all_predictions[i]))
-    # elif max_result_index == 3:
-    #     array_sleeveless = np.vstack((array_sleeveless, all_predictions[i]))
-    # elif max_result_index == 4:
-    #     array_cap_sleeve = np.vstack((array_cap_sleeve, all_predictions[i]))
-    # elif max_result_index == 5:
-    #     array_short_sleeve = np.vstack((array_short_sleeve, all_predictions[i]))
-    # elif max_result_index == 6:
-    #     array_midi_sleeve = np.vstack((array_midi_sleeve, all_predictions[i]))
-    # elif max_result_index == 7:
-    #     array_long_sleeve = np.vstack((array_long_sleeve, all_predictions[i]))
-
     variance_vector += np.square(all_predictions[i] - mean_vector)
-    #print variance_vector
-    #print '\n'
 
 variance_vector = variance_vector / counter
 
@@ -190,6 +169,15 @@ array_cap_sleeve = array_cap_sleeve[1:]
 array_short_sleeve = array_short_sleeve[1:]
 array_midi_sleeve = array_midi_sleeve[1:]
 array_long_sleeve = array_long_sleeve[1:]
+
+np.save(array_strapless, array_strapless)
+np.save(array_spaghetti_straps, array_spaghetti_straps)
+np.save(array_regular_straps, array_regular_straps)
+np.save(array_sleeveless, array_sleeveless)
+np.save(array_cap_sleeve, array_cap_sleeve)
+np.save(array_short_sleeve, array_short_sleeve)
+np.save(array_midi_sleeve, array_midi_sleeve)
+np.save(array_long_sleeve, array_long_sleeve)
 
 
 # the order of the coralations being printed is:
