@@ -200,6 +200,7 @@ array_long_sleeve = array_long_sleeve[1:]
 for comb in combinations([array_strapless, array_spaghetti_straps,array_regular_straps,
                           array_sleeveless, array_cap_sleeve, array_short_sleeve,
                           array_midi_sleeve, array_long_sleeve], 2):
+    print "correlation between {0}".format(comb)
     print np.min([np.linalg.norm(a-b) for a,b in product(*comb)])
 
 
@@ -212,8 +213,8 @@ failure_without = len(array_failure_without)
 if success_with == 0 or failure_with == 0:
     print "wrong!"
 else:
-    print 'accuracy percent with +-category: {0}'.format(float(success_with) / (success_with + failure_with))
-    print 'accuracy percent without: {0}'.format(float(success_without) / (success_without + failure_without))
+    print '\naccuracy percent with +-category: {0}'.format(float(success_with) / (success_with + failure_with))
+    print 'accuracy percent without: {0}\n'.format(float(success_without) / (success_without + failure_without))
 
 #print "mean vector: {0}".format(mean_vector)
 
