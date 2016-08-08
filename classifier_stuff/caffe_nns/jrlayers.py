@@ -184,6 +184,9 @@ class JrPixlevel(caffe.Layer):
                 self.next_idx()
             self.data = all_data
             self.label = all_labels
+            #no extra dimension needed
+            top[0].reshape(*self.data.shape)
+            top[1].reshape(*self.label.shape)
             logging.debug('batchsize {} datasize {} labelsize {} top[0] {} top[1] {}'.format(self.batch_size,self.data.shape,self.label.shape,top[0].shape,top[1].shape))
 
 
