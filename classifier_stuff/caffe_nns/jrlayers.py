@@ -173,7 +173,7 @@ class JrPixlevel(caffe.Layer):
         #add extra batch dimension
             top[0].reshape(1, *self.data.shape)
             top[1].reshape(1, *self.label.shape)
-            logging.debug('batchsize 1 datasize {} labelsize {}'.format(self.data.shape,self.label.shape))
+            logging.debug('batchsize 1 datasize {} labelsize {} top[0] {} top[1] {}'.format(self.data.shape,self.label.shape,top[0].shape,top[1].shape))
         else:
             all_data = np.zeros((self.batch_size,3,self.augment_crop_size[0],self.augment_crop_size[1]))
             all_labels = np.zeros((self.batch_size,1, self.augment_crop_size[0],self.augment_crop_size[1]) )
@@ -184,7 +184,10 @@ class JrPixlevel(caffe.Layer):
                 self.next_idx()
             self.data = all_data
             self.label = all_labels
-            logging.debug('batchsize {} datasize {} labelsize {}'.format(self.batch_size,self.data.shape,self.label.shape))
+            #no extra dimension needed
+            top[0].reshape(*self.data.shape)
+            top[1].reshape(*self.label.shape)
+            logging.debug('batchsize {} datasize {} labelsize {} top[0] {} top[1] {}'.format(self.batch_size,self.data.shape,self.label.shape,top[0].shape,top[1].shape))
 
 
 
@@ -300,7 +303,7 @@ class JrPixlevel(caffe.Layer):
         while(1):
             filename = self.imagefiles[self.idx]
             label_filename=self.labelfiles[self.idx]
-            print('imagefile:'+filename+' labelfile:'+label_filename+' index:'+str(self.idx))
+            print('imagefile:'+filename+'\nlabelfile:'+label_filename+' index:'+str(self.idx))
             if not(os.path.isfile(label_filename) and os.path.isfile(filename)):
                 print('ONE OF THESE IS NOT ACCESSIBLE:'+str(label_filename)+','+str(filename))
                 self.next_idx()
