@@ -3,6 +3,7 @@ function [mask,label_names,pose] = pd(image_filename)
     mask = [] ;
     label_names = [] ;
     pose = [] ;
+    config = evalin('base', 'config');
 
     tic
     
