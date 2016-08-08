@@ -4,6 +4,8 @@ import numpy as np
 import os
 import logging
 import time
+from trendi.utils import imutils
+from trendi import constants
 
 logging.basicConfig(level=logging.DEBUG)
 
@@ -166,19 +168,54 @@ def generate_images(img_filename, max_angle = 5,n_angles=10,
                                 print('name:'+str(full_name))
                                 cv2.imwrite(full_name, xformed_img_arr)
                                 if show_visual_output:
-
-                                  #  img_copy = xformed_img_arr.copy()
-                                    #cv2.rectangle(img, pt1, pt2, color[, thickness[, lineType[, shift]]]) -> None
-#                                    cv2.rectangle(img_copy,pt1,pt2)
-
-                          #          cv2.line(img_copy,pt1,pt2)
-                            #        cv2.line(img_copy,pt2,pt3)
-                              #      cv2.line(img_copy,pt3,pt4)
-                                #    cv2.line(img_copy,pt4,pt1)
-                                  #  k = cv2.waitKey(0)
                                     cv2.imshow('xformed',xformed_img_arr)
                                     k = cv2.waitKey(0)
-                          #  raw_input('enter to cont')
+
+def multichannel_to_mask(multichannel_arr):
+    '''
+    from n-channel binary image (one chan for every category) make mask_array (single chan with integers indicating categories), make
+    :param multichannel_arr:
+    :return:
+    '''
+    if len(multichannel_arr.shape) != 3:
+        logging.debug('got 1-chan image in multichannel_to_mask')
+        return multichannel_arr
+    h,w,c = multichannel_arr.shape
+    output_arr = np.zeros([h,w])
+    cumulative = 0
+    for chan in range(c):
+        nth_chan = multichannel_arr[:,:,chan]
+        pixel_count = np.count_nonzero(nth_chan)
+        cumulative = cumulative + pixel_count
+#        print('multichannel to mask {} pixcount {}'.format(chan,pixel_count))
+        output_arr[nth_chan != 0] = chan
+        pixel_count = np.count_nonzero(output_arr)
+#        print('cumulative pixcount {}'.format(cumulative))
+    return output_arr
+
+def mask_to_multichannel(mask_arr,n_channels):
+    '''
+    from mask_array (single chan with integers indicating categories), make n-channel binary image (one chan for every category)
+    :param mask_arr:
+    :param n_channels:
+    :return:
+    '''
+    if len(mask_arr) != 2:
+        logging.debug('got multichannel image in mask_to_multichannel, converting to single chan')
+#        assert(mask_arr[:,:,0] == mask_arr[:,:,1])   #include these if paranoid
+#        assert(mask_arr[:,:,0] == mask_arr[:,:,2])
+        mask_arr = mask_arr[:,:,0]  #take 0th channel
+    h,w = mask_arr.shape[0:2]
+    output_arr = np.zeros([h,w,n_channels])
+    for i in np.unique(mask_arr):
+        channel = np.zeros([h,w])
+        channel[mask_arr == i] = 1
+        pixel_count = np.count_nonzero(channel)
+#        print('mask to multichannel {} pixcount {}'.format(i,pixel_count))
+        output_arr[:,:,i] = channel
+        pixel_count = np.count_nonzero(output_arr)
+#        print('cumulative pixcount {}'.format(pixel_count))
+    return output_arr
 
 def generate_image_onthefly(img_filename_or_nparray, gaussian_or_uniform_distributions='uniform',
                    max_angle = 5,
@@ -188,7 +225,7 @@ def generate_image_onthefly(img_filename_or_nparray, gaussian_or_uniform_distrib
                    max_blur=0,
                    do_mirror_lr=True,do_mirror_ud=False,
                    crop_size=(224,224),
-                    show_visual_output=False):
+                    show_visual_output=False,mask_filename_or_nparray=None,n_mask_channels=21):
     '''
     generates a bunch of variations of image by rotating, translating, noising etc
     total # images generated is n_angles*n_offsets_x*n_offsets_y*n_noises*n_scales*etc, these are done in nested loops
@@ -222,6 +259,22 @@ def generate_image_onthefly(img_filename_or_nparray, gaussian_or_uniform_distrib
     if img_arr is None:
         logging.warning('didnt get input image '+str(img_filename_or_nparray))
         return
+
+    mask_arr = None
+    if mask_filename_or_nparray is not None:
+        if isinstance(mask_filename_or_nparray,basestring):
+            logging.debug('db A1 filename:'+mask_filename_or_nparray)
+            mask_arr = cv2.imread(mask_filename_or_nparray)
+        else:
+            mask_arr = mask_filename_or_nparray
+        if mask_arr is None:
+            logging.warning('didnt get mask image '+str(mask_filename_or_nparray))
+            return
+#convert mask img to binary multichannel image
+        mask_arr = mask_to_multichannel(mask_arr,n_mask_channels)
+        logging.debug('mask shape:'+str(mask_arr.shape))
+
+
 
     logging.debug('db 1')
     width=img_arr.shape[1]
@@ -294,19 +347,46 @@ def generate_image_onthefly(img_filename_or_nparray, gaussian_or_uniform_distrib
     else:
         depth = 1
     center = (width/2,height/2)
+
+    flip_lr = 0
+    flip_ud = 0
     if do_mirror_lr:
-        if np.random.randint(2):
-            img_arr = cv2.flip(img_arr,1)
+        flip_lr = np.random.randint(2)
     if do_mirror_ud:
-        if np.random.randint(2):
-            img_arr = cv2.flip(img_arr,0)
+        flip_ud = np.random.randint(2)
+
+    img_arr = do_xform(img_arr,width,height,crop_dx,crop_dy,crop_size,depth,flip_lr,flip_ud,blur,noise_level,center,angle,scale,offset_x,offset_y)
+#    if show_visual_output:
+#        logging.debug('img_arr shape:'+str(img_arr.shape))
+#        cv2.imshow('xformed',img_arr)
+#        k = cv2.waitKey(0)
+    if mask_arr is not None:  #do xform to mask
+        mask_arr =do_xform(mask_arr,width,height,crop_dx,crop_dy,crop_size,depth,flip_lr,flip_ud,blur,noise_level,center,angle,scale,offset_x,offset_y)
+        mask_arr = multichannel_to_mask(mask_arr)
+        return img_arr,mask_arr
+    #cleanup image - not required since we broke img into channels
+   #     for u in np.unique(output_img):
+    #        if not u in input_file_or_np_arr:
+#   #             print('found new val in target:'+str(u))
+     #           output_img[output_img==u] = 0
+############
+    return img_arr
+
+
+def do_xform(img_array,width,height,crop_dx,crop_dy,crop_size,depth,flip_lr,flip_ud,blur,noise_level,center,angle,scale,offset_x,offset_y):
+    #todo this can all be cleaned up by putting more of the generate_image_on_thefly code here
+    if flip_lr:
+        img_array = cv2.flip(img_array,1)
+    if flip_ud:
+        img_array = cv2.flip(img_array,0)
 
 # Python: cv2.transform(src, m[, dst]) -> dst
 #http://docs.opencv.org/2.4/modules/core/doc/operations_on_arrays.html#void%20transform%28InputArray%20src,%20OutputArray%20dst,%20InputArray%20m%29
     if blur:  #untested
-        img_arr = cv2.blur(img_arr,(int(blur),int(blur)))   #fails if blur is nonint or 0
+        img_array = cv2.blur(img_array,(int(blur),int(blur)))   #fails if blur is nonint or 0
+
     if noise_level:  #untested
-        noised = add_noise(img_arr,noise_type,noise_level)
+        img_array = add_noise(img_array,noise_type,noise_level)
 
   #  print('center {0} angle {1} scale {2} h {3} w {4} dx {5} dy {6} noise {7} blur {8}'.format(center,angle, scale,height,width,offset_x,offset_y,noise_level,blur))
     M = cv2.getRotationMatrix2D(center, angle,scale)
@@ -314,9 +394,7 @@ def generate_image_onthefly(img_filename_or_nparray, gaussian_or_uniform_distrib
     M[1,2]=M[1,2]+offset_y
  #   print('M='+str(M))
 #                                xformed_img_arr  = cv2.warpAffine(noised,  M, (width,height),dst=dest,borderMode=cv2.BORDER_TRANSPARENT)
-    img_arr  = cv2.warpAffine(img_arr,  M, (width,height),borderMode=cv2.BORDER_REPLICATE)
-
-
+    img_array  = cv2.warpAffine(img_array,  M, (width,height),borderMode=cv2.BORDER_REPLICATE)
     if crop_dx or crop_dy:
         left = int(round(max(0,round(float(width-crop_size[1])/2) - crop_dx)))
         right = int(round(left + crop_size[1]))
@@ -324,21 +402,13 @@ def generate_image_onthefly(img_filename_or_nparray, gaussian_or_uniform_distrib
         bottom = int(round(top + crop_size[0]))
 #        print('left {} right {} top {} bottom {} crop_dx {} crop_dy {} csize {} xroom {} yroom {}'.format(left,right,top,bottom,crop_dx,crop_dy,crop_size,x_room,y_room))
         if depth!=1:
-            img_arr = img_arr[top:bottom,left:right,:]
+            img_array = img_array[top:bottom,left:right,:]
             #print img_arr.shape
         else:
-            img_arr = img_arr[top:bottom,left:right]
-
-    if show_visual_output:
-        cv2.imshow('xformed',img_arr)
-        k = cv2.waitKey(0)
-
-#    cv2.imwrite('out'+str(round(time.time()))+'.jpg',img_arr)
- #   print('time taken for image manips:'+str(time.time()-start_time))
-
-    return img_arr
-
+            img_array = img_array[top:bottom,left:right]
+    return img_array
 #  raw_input('enter to cont')
+
 
 
 def generate_images_for_directory(fulldir,**args):
@@ -459,6 +529,52 @@ if __name__=="__main__":
     img_filename = '../images/female1_256x256.jpg'
     image_dir = '/home/jeremy/image_dbs/colorful_fashion_parsing_data/images/train_200x150'
     label_dir = '/home/jeremy/image_dbs/colorful_fashion_parsing_data/labels_200x150'
+
+    if(1):
+        dir = '/home/jeremy/Dropbox/tg/pixlabels/test_256x256_novariations'
+        images = [f for f in os.listdir(dir)]
+        for image in images:
+            label = image[:-4]+'.png'
+            print('image {} label {}'.format(image,label))
+            labelfile = os.path.join('/home/jeremy/Dropbox/tg/pixlabels/labels_256x256_novariations',label)
+            imfile = os.path.join(dir,image)
+            if os.path.isfile(imfile) and os.path.isfile(labelfile):
+                in1 = cv2.imread(imfile)
+                in2 = cv2.imread(labelfile)
+                for i in range(10):
+                    out1,out2 = generate_image_onthefly(in1, mask_filename_or_nparray=in2)
+                    cv2.imwrite('out1.jpg',out1)
+                    cv2.imwrite('out2.png',out2)
+                    imutils.show_mask_with_labels('out2.png',labels=constants.ultimate_21,original_image='out1.jpg',visual_output=True)
+
+    if(0):
+        in1 = np.zeros([500,500,3])
+        in2 = np.zeros_like(in1,dtype=np.uint8)
+        for i in range(1,21):
+            color = (np.random.randint(256),np.random.randint(256),np.random.randint(256))
+            position = (50+np.random.randint(400),50+np.random.randint(400))
+            radius = np.random.randint(200)
+            cv2.circle(in1,position,radius,color=color,thickness=10)
+            cv2.circle(in2,position,radius,(i,i,i),thickness=10)
+            pt1 = (50+np.random.randint(400),50+np.random.randint(400))
+            pt2 = (pt1[0]+np.random.randint(100),pt1[1]+np.random.randint(100))
+            cv2.rectangle(in1,pt1,pt2,color,thickness=10)
+            cv2.rectangle(in2,pt1,pt2,color=(i,i,i),thickness=10)
+        cv2.imwrite('in1.jpg',in1)
+        cv2.imwrite('in2.png',in2)
+        imutils.show_mask_with_labels('in2.png',labels=constants.ultimate_21,visual_output=True,original_image='in1.jpg')
+        cv2.destroyAllWindows()
+
+        while(1):
+    #        in2 = cv2.imread('/home/jeremy/Pictures/Berlin_Naturkundemuseum_Dino_Schaedel_posterized.png')
+            out1,out2 = generate_image_onthefly(in1, mask_filename_or_nparray=in2)
+            cv2.imwrite('out1.jpg',out1)
+            cv2.imwrite('out2.png',out2)
+            imutils.show_mask_with_labels('out2.png',labels=constants.ultimate_21,original_image='out1.jpg',visual_output=True)
+            print('orig uniques {} nonzero {} mask uniques {} nonzero {} '.format(np.unique(out1),np.count_nonzero(out1),np.unique(out2),np.count_nonzero(out2)))
+            print('')
+            print('')
+            cv2.destroyAllWindows()
 
     while(1):
         generate_image_onthefly(img_filename, gaussian_or_uniform_distributions='uniform',
