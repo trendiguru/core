@@ -170,6 +170,9 @@ class JrPixlevel(caffe.Layer):
 #        self.data,self.label = self.load_image_and_mask()
         if self.batch_size == 1:
             self.data, self.label = self.load_image_and_mask()
+        #add extra batch dimension
+            top[0].reshape(1, *self.data.shape)
+            top[1].reshape(1, *self.label.shape)
             logging.debug('batchsize 1 datasize {} labelsize {}'.format(self.data.shape,self.label.shape))
         else:
             all_data = np.zeros((self.batch_size,3,self.augment_crop_size[0],self.augment_crop_size[1]))
@@ -185,8 +188,6 @@ class JrPixlevel(caffe.Layer):
 
 
 
-        top[0].reshape(1, *self.data.shape)
-        top[1].reshape(1, *self.label.shape)
 
     def next_idx(self):
         if self.random_pick:
