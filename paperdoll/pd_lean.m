@@ -14,7 +14,6 @@ function [mask,label_names,pose] = pd(image_filename)
     end
 
     input_sample = struct('image', image_array);
-
     result = feature_calculator.apply(pd_config, input_sample)
 
     if ~ isfield(result, 'final_labeling')
