@@ -45,7 +45,6 @@ class JrPixlevel(caffe.Layer):
         # config
         params = eval(self.param_str)
         self.images_and_labels_file = params['images_and_labels_file']
-        self.new_size = params.get('new_size',None)
         self.mean = np.array(params['mean'])
         self.random_init = params.get('random_initialization', True) #start from random point in image list
         self.random_pick = params.get('random_pick', True) #pick random image from list every time
@@ -60,12 +59,13 @@ class JrPixlevel(caffe.Layer):
         self.augment_max_blur = params.get('augment_max_blur',0)
         self.augment_do_mirror_lr = params.get('augment_do_mirror_lr',True)
         self.augment_do_mirror_ud = params.get('augment_do_mirror_ud',False)
-        self.augment_crop_size = params.get('augment_crop_size',(227,227)) #
+        self.augment_crop_size = params.get('augment_crop_size',(224,224)) #
         self.augment_show_visual_output = params.get('augment_show_visual_output',False)
         self.augment_distribution = params.get('augment_distribution','uniform')
         self.n_labels = params.get('n_labels',21)
 
 # begin vestigial code
+        self.new_size = params.get('new_size',None)
         self.images_dir = params.get('images_dir',None)
         self.labels_dir = params.get('labels_dir',self.images_dir)
         self.imagesfile = params.get('imagesfile',None)
@@ -73,7 +73,10 @@ class JrPixlevel(caffe.Layer):
         #if there is no labelsfile specified then rename imagefiles to make labelfile names
         self.labelfile_suffix = params.get('labelfile_suffix','.png')
         self.imagefile_suffix = params.get('labelfile_suffix','.jpg')
+        if self.new_size == None:
+            self.new_size = self.augment_crop_size
 # end vestigial code
+
 
         print('imfile {} mean {} imagesdir {} randinit {} randpick {} '.format(self.images_and_labels_file, self.mean,self.images_dir,self.random_init, self.random_pick))
         print('see {} newsize {} batchsize {} augment {} augmaxangle {} '.format(self.seed,self.new_size,self.batch_size,self.augment_images,self.augment_max_angle))
@@ -168,8 +171,8 @@ class JrPixlevel(caffe.Layer):
         if self.batch_size == 1:
             self.data, self.label = self.load_image_and_mask()
         else:
-            all_data = np.zeros((self.batch_size,3,self.new_size[0],self.new_size[1]))
-            all_labels = np.zeros((self.batch_size,1, self.new_size[0],self.new_size[1]) )
+            all_data = np.zeros((self.batch_size,3,self.augment_crop_size[0],self.augment_crop_size[1]))
+            all_labels = np.zeros((self.batch_size,1, self.augment_crop_size[0],self.augment_crop_size[1]) )
             for i in range(self.batch_size):
                 data, label = self.load_image_and_mask()
                 all_data[i,...]=data
