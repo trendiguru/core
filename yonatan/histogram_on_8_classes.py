@@ -200,7 +200,7 @@ array_long_sleeve = array_long_sleeve[1:]
 for comb in combinations([array_strapless, array_spaghetti_straps,array_regular_straps,
                           array_sleeveless, array_cap_sleeve, array_short_sleeve,
                           array_midi_sleeve, array_long_sleeve], 2):
-    print "correlation between {0}".format(comb)
+    print "correlation between:\n 0 and 1, 0 and 2, ...\n1 and 2, 1 and 3, ...\n2 and 3, 2 and 4, ...\n"
     print np.min([np.linalg.norm(a-b) for a,b in product(*comb)])
 
 
