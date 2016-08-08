@@ -170,7 +170,7 @@ array_short_sleeve = array_short_sleeve[1:]
 array_midi_sleeve = array_midi_sleeve[1:]
 array_long_sleeve = array_long_sleeve[1:]
 
-np.save(array_strapless, array_strapless)
+np.savez(array_strapless, array_strapless)
 np.save(array_spaghetti_straps, array_spaghetti_straps)
 np.save(array_regular_straps, array_regular_straps)
 np.save(array_sleeveless, array_sleeveless)
