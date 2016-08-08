@@ -179,6 +179,16 @@ np.save('array_short_sleeve.npy', array_short_sleeve)
 np.save('array_midi_sleeve.npy', array_midi_sleeve)
 np.save('array_long_sleeve.npy', array_long_sleeve)
 
+# to load the saved arrays: #
+# np.load('array_strapless.npy')
+# np.load('array_spaghetti_straps.npy')
+# np.load('array_regular_straps.npy')
+# np.load('array_sleeveless.npy')
+# np.load('array_cap_sleeve.npy')
+# np.load('array_short_sleeve.npy')
+# np.load('array_midi_sleeve.npy')
+# np.load('array_long_sleeve.npy')
+
 
 # the order of the coralations being printed is:
 # 0 and 1, 0 and 2, ...
