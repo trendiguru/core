@@ -1,6 +1,6 @@
 import copy
 import os
-import logging as caffe
+import caffe
 import logging
 import sys
 
@@ -12,7 +12,7 @@ import random
 
 from trendi.utils import augment_images
 
-class JrLayer(caffe.Layer):
+class JrPixlevel(caffe.Layer):
     """
     loads images and masks for use with pixel level segmentation nets
     does augmentation on the fly
@@ -66,7 +66,7 @@ class JrLayer(caffe.Layer):
         self.n_labels = params.get('n_labels',21)
 
 # begin vestigial code
-        self.images_dir = params.get['images_dir',None]
+        self.images_dir = params.get('images_dir',None)
         self.labels_dir = params.get('labels_dir',self.images_dir)
         self.imagesfile = params.get('imagesfile',None)
         self.labelsfile = params.get('labelsfile',None)
@@ -81,8 +81,8 @@ class JrLayer(caffe.Layer):
         print('augmirrorlr {} augmirrorud {} augcrop {} augvis {}'.format(self.augment_do_mirror_lr,self.augment_do_mirror_ud,self.augment_crop_size,self.augment_show_visual_output))
 
 
-        print('PRINTlabeldir {} imagedir {} labelfile {} imagefile {}'.format(self.labels_dir,self.images_dir,self.labelsfile,self.imagesfile))
-        logging.debug('LOGGINGlabeldir {} imagedir {} labelfile {} imagefile {}'.format(self.labels_dir,self.images_dir,self.labelsfile,self.imagesfile))
+#        print('PRINTlabeldir {} imagedir {} labelfile {} imagefile {}'.format(self.labels_dir,self.images_dir,self.labelsfile,self.imagesfile))
+        logging.debug('imgs_and_labelsfile {} labelfile {} imagefile {} labeldir {} imagedir {} '.format(self.images_and_labels_file,self.labelsfile,self.imagesfile,self.labels_dir,self.images_dir))
         # two tops: data and label
         if len(top) != 2:
             raise Exception("Need to define two tops: data and label.")
@@ -92,7 +92,19 @@ class JrLayer(caffe.Layer):
 
         # load indices for images and labels
         #if file not found and its not a path then tack on the training dir as a default locaiton for the trainingimages file
-        if self.imagesfile is not None:
+        if self.images_and_labels_file is not None:
+            if os.path.isfile(self.images_and_labels_file):
+                print('opening images_and_labelsfile '+str(self.images_and_labels_file))
+                lines = open(self.images_and_labels_file, 'r').read().splitlines()
+                self.imagefiles = [s.split()[0] for s in lines]
+                self.labelfiles = [s.split()[1] for s in lines]
+                self.n_files = len(self.imagefiles)
+            else:
+                logging.debug('could not open '+self.images_and_labels_file)
+                return
+
+#######begin vestigial code
+        elif self.imagesfile is not None:
             if not os.path.isfile(self.imagesfile) and not '/' in self.imagesfile:
                 self.imagesfile = os.path.join(self.images_dir,self.imagesfile)
             if not os.path.isfile(self.imagesfile):
@@ -100,29 +112,19 @@ class JrLayer(caffe.Layer):
             self.imagefiles = open(self.imagesfile, 'r').read().splitlines()
             self.n_files = len(self.imagefiles)
     #        self.indices = open(split_f, 'r').read().splitlines()
-        else:
-            self.imagefiles = [f for f in os.listdir(self.images_dir) if self.imagefile_suffix in f]
+#        else:
+#            self.imagefiles = [f for f in os.listdir(self.images_dir) if self.imagefile_suffix in f]
 
-        if self.labelsfile is not None:  #if labels flie is none then get labels from images
+        elif self.labelsfile is not None:  #if labels flie is none then get labels from images
             if not os.path.isfile(self.labelsfile) and not '/' in self.labelsfile:
                 self.labelsfile = os.path.join(self.labels_dir,self.labelsfile)
             if not os.path.isfile(self.labelsfile):
                 print('COULD NOT OPEN labelS FILE '+str(self.labelsfile))
                 self.labelfiles = open(self.labelsfile, 'r').read().splitlines()
-        else:
-            self.labelfiles = [f for f in os.listdir(self.labels_dir) if self.labelfile_suffix in f]
-            self.n_files = len(self.imagefiles)
-
-        if self.images_and_labels_file is not None:
-            if os.path.isfile(self.images_and_labels_file):
-                print('opening images_and_labelsfile '+str(self.images_and_labels_file))
-                lines = open(self.labelsfile, 'r').read().splitlines()
-                self.imagefiles = [s.split()[0] for s in lines]
-                self.labelfiles = [s.split()[1] for s in lines]
-                self.n_files = len(self.imagefiles)
-            else:
-                logging.debug('could not open '+self.images_and_labels_file)
-                return
+#        else:
+#            self.labelfiles = [f for f in os.listdir(self.labels_dir) if self.labelfile_suffix in f]
+#            self.n_files = len(self.imagefiles)
+###########end vestigial code
 
         print('found {} imagefiles and {} labelfiles'.format(len(self.imagefiles),len(self.labelfiles)))
 
@@ -162,7 +164,7 @@ class JrLayer(caffe.Layer):
         print('reshaping')
         # load image + label image pair
 #	logging.debug('self.idx is :'+str(self.idx)+' type:'+str(type(self.idx)))
-        self.data,self.label = self.load_image_and_mask(self.idx)
+        self.data,self.label = self.load_image_and_mask()
 #	if self.load_labels_from_mat:
 #            self.label = self.load_label(self.indices[self.idx])#
 #	else:
@@ -293,7 +295,7 @@ class JrLayer(caffe.Layer):
             im = im.resize(self.new_size,Image.ANTIALIAS)
         in_ = np.array(im, dtype=np.float32)
         if in_ is None:
-            logging.warning('could not get image '+full_filename)
+            logging.warning('could not get image '+filename)
             return None
         """
         Load label image as 1 x height x width integer array of label indices.
@@ -308,16 +310,16 @@ class JrLayer(caffe.Layer):
         label_in_ = np.array(im, dtype=np.uint8)
 
     #        in_ = in_ - 1
-        print('uniques of label:'+str(np.unique(in_))+' shape:'+str(label_in_.shape))
+        print('uniques of label:'+str(np.unique(label_in_))+' shape:'+str(label_in_.shape))
 #        print('after extradim shape:'+str(label.shape))
 
         out1,out2 = augment_images.generate_image_onthefly(in_, mask_filename_or_nparray=label_in_)
 
         out1 = out1[:,:,::-1]   #RGB -> BGR
+        out1 -= self.mean  #assumes means are BGR order, not RGB
         out1 = out1.transpose((2,0,1))  #wxhxc -> cxwxh
-        out1 -= self.mean
         if len(out2.shape) == 3:
-#            logging.warning('got 3 layer img as mask, taking first layer')
+            logging.warning('got 3 layer img as mask from augment, taking first layer')
             out2 = out2[:,:,0]
         out2 = copy.copy(out2[np.newaxis, ...])
 

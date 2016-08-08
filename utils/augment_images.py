@@ -533,17 +533,19 @@ if __name__=="__main__":
     if(1):
         dir = '/home/jeremy/Dropbox/tg/pixlabels/test_256x256_novariations'
         images = [f for f in os.listdir(dir)]
-        label = f[:-4]+'.png'
         for image in images:
+            label = image[:-4]+'.png'
+            print('image {} label {}'.format(image,label))
             labelfile = os.path.join('/home/jeremy/Dropbox/tg/pixlabels/labels_256x256_novariations',label)
             imfile = os.path.join(dir,image)
             if os.path.isfile(imfile) and os.path.isfile(labelfile):
                 in1 = cv2.imread(imfile)
                 in2 = cv2.imread(labelfile)
-                out1,out2 = generate_image_onthefly(in1, mask_filename_or_nparray=in2)
-                cv2.imwrite('out1.jpg',out1)
-                cv2.imwrite('out2.png',out2)
-                imutils.show_mask_with_labels('out2.png',labels=constants.ultimate_21,original_image='out1.jpg',visual_output=True)
+                for i in range(10):
+                    out1,out2 = generate_image_onthefly(in1, mask_filename_or_nparray=in2)
+                    cv2.imwrite('out1.jpg',out1)
+                    cv2.imwrite('out2.png',out2)
+                    imutils.show_mask_with_labels('out2.png',labels=constants.ultimate_21,original_image='out1.jpg',visual_output=True)
 
     if(0):
         in1 = np.zeros([500,500,3])
