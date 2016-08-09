@@ -91,7 +91,7 @@ def make_itemsearch_request(pagenum, node_id, min_price, max_price, price_flag=T
         parameters['MinimumPrice'] = format_price(min_price)
         parameters['MaximumPrice'] = format_price(max_price)
     if plus_size_flag:
-        parameters['Keywords'] = 'plus-size'
+        parameters['Keywords'] = 'plus'
     color_flag = False
     if len(color):
         color_flag = True
@@ -131,7 +131,7 @@ def make_itemsearch_request(pagenum, node_id, min_price, max_price, price_flag=T
         if 'TotalResults' in res_dict.keys():
             results_count = int(res_dict['TotalResults'])
         else:
-            err_msg = 'no TotalResualts'
+            err_msg = 'no TotalResults'
             raise ValueError(err_msg)
 
         if results_count == 0:
@@ -232,7 +232,7 @@ def filter_by_color(collection_name, node_id, price, family_tree, plus_size_flag
     return
 
 
-def get_results(node_id, collection_name='moshe',  price_flag=True, max_price=3000.0, min_price=0.0,
+def get_results(node_id, collection_name='moshe',  price_flag=True, max_price=3000.0, min_price=5.0,
                 results_count_only=False, family_tree='moshe', plus_size_flag=False, category=None):
 
     current_last_price = last_price-0.01
@@ -383,7 +383,7 @@ def clear_duplicates(collection_name):
     for i, item in enumerate(all_items):
         m, r = divmod(i, block_size)
         if r == 0:
-            last_pct = progress_bar(block_size, before, m, last_pct)
+            last_pct = progress_bar(block_size, bef, m, last_pct)
         item_id = item['_id']
         keys = item.keys()
         if any(x for x in ['id', 'parent_asin', 'img_hash', 'images', 'sizes', 'color'] if x not in keys):  # , 'p_hash'
@@ -421,7 +421,7 @@ def clear_duplicates(collection_name):
         img_url = item['images']['XLarge']
         collection.delete_many({'images.XLarge': img_url, '_id': {'$ne': item_id}})
     print('')
-    print_error('CLEAR DUPLICATES', 'count before : %d\ncount after : %d' % (before, collection.count()))
+    print_error('CLEAR DUPLICATES', 'count before : %d\ncount after : %d' % (bef, collection.count()))
 
 
 def download_all(collection_name, gender='Female', del_collection=False, del_cache=False,
