@@ -344,7 +344,7 @@ def unet(db,mean_value=[112.0,112.0,112.0]):
     n.conv6_2,n.relu6_2 = conv_relu(n.conv6_1,n_output=4096,kernel_size=7,pad=3)
         #instead of n.fc7 = L.InnerProduct(n.fc6,param=[dict(lr_mult=lr_mult1),dict(lr_mult=lr_mult2)],weight_filler=dict(type='xavier'),num_output=4096)
     n.drop6_2 = L.Dropout(n.fc7, dropout_param=dict(dropout_ratio=0.5),in_place=True)
-    n.conv6_3,n.relu6_3 = conv_relu(n.pool5,n_output=512,kernel_size=7,pad=3)
+    n.conv6_3,n.relu6_3 = conv_relu(n.conv6_2,n_output=512,kernel_size=7,pad=3)
 
     n.deconv1 = L.Deconvolution(n.conv6_3,param=[dict(lr_mult=lr_mult1,decay_mult=decay_mult1),dict(lr_mult=lr_mult2,decay_mult=decay_mult2)],
                             num_output=512,pad = 0,kernel_size=2,stride = 2,
