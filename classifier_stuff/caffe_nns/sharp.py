@@ -148,8 +148,26 @@ def fc_relu(bottom, nout):
     fc = L.InnerProduct(bottom, num_output=nout)
     return fc, L.ReLU(fc, in_place=True)
 
-def sharpnet():
-    pass
+def vgg16(db,mean_value=(112,112,112)):
+    '''
+    see https://gist.github.com/ksimonyan/211839e770f7b538e2d8#file-vgg_ilsvrc_16_layers_deploy-prototxt
+    :param db:
+    :param mean_value:
+    :return:
+    '''
+    #pad to keep image size if S=1 : p=(F-1)/2    , (W-F+2P)/S + 1  neurons in a layer   w:inputsize, F:kernelsize, P: padding, S:stride
+    lr_mult1 = 1
+    lr_mult2 = 2
+    decay_mult1 =1
+    decay_mult2 =0
+    batch_size = 1
+    n=caffe.NetSpec()
+
+    n.data,n.label=L.Data(batch_size=batch_size,backend=P.Data.LMDB,source=db,transform_param=dict(scale=1./255,mean_value=mean_value,mirror=True),ntop=2)
+
+    n.conv1_1,n.relu1_1 = conv_relu(n.data,n_output=64,kernel_size=3,pad=1)
+
+    return n.to_proto()
 
 def display_conv_layer(blob):
     print('blob:'+str(blob))
@@ -354,7 +372,7 @@ def inspect_net(caffemodel):
     net_param = caffe_pb2.NetParameter()
     net_str = open(caffemodel, 'r').read()
     net_param.ParseFromString(net_str)
-    for l in net.param.layer:
+    for l in net_param.layer:
         print net_param.layer[l].name  # first layer
 
 
@@ -362,4 +380,7 @@ def inspect_net(caffemodel):
 if __name__ == "__main__":
 #    run_net(googLeNet_2_inceptions,nn_dir,db_name+'_train',db_name+'_test',batch_size = batch_size,n_classes=11,meanB=B,meanR=R,meanG=G,n_filters=50,n_ip1=1000)
 #    run_net(alexnet_linearized,nn_dir,db_name+'.train',db_name+'.test',batch_size = batch_size,n_classes=n_classes,meanB=B,meanR=R,meanG=G,n_filters=50,n_ip1=1000)
-    sharpnet()
+
+    proto = vgg16('thedb')
+    with open('train_experiment.prototxt','w') as f:
+        f.write(str(proto))
