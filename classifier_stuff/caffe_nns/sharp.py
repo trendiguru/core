@@ -267,7 +267,7 @@ def sharpmask(db,mean_value=[112.0,112.0,112.0]):
 
     n.deconv1 = L.Deconvolution(n.bottom,
                             param=[dict(lr_mult=lr_mult1,decay_mult=decay_mult1),dict(lr_mult=lr_mult2,decay_mult=decay_mult2)],
-                            num_output=64,
+#                            num_output=64,
                             pad = 3,
                             kernel_size=7,
                             stride = 2,
