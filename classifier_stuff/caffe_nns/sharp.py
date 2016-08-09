@@ -384,3 +384,6 @@ if __name__ == "__main__":
     proto = vgg16('thedb')
     with open('train_experiment.prototxt','w') as f:
         f.write(str(proto))
+        f.close()
+    print('proto:')
+    print(str(proto))
