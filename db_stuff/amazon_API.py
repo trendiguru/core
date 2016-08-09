@@ -77,7 +77,7 @@ def format_price(price_float, period=False):
 
 
 def make_itemsearch_request(pagenum, node_id, min_price, max_price, price_flag=True, print_flag=False, color='',
-                            plus_size_flag=False, family_tree='sequoia', category=None):
+                            plus_size_flag=False, family_tree='sequoia', category=''):
     global error_flag, last_price
 
     parameters = base_parameters.copy()
