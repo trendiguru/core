@@ -6,8 +6,6 @@ from ..Yonti import pymongo_utils
 from rq import Queue
 import sys
 from PIL import Image
-import io
-from urllib2 import urlopen
 import numpy as np
 from scipy import fftpack
 
