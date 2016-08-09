@@ -88,12 +88,12 @@ class ShopStyleDownloader():
                    "items_after": self.collection.count(),
                    "items_new": self.collection.find({'download_data.first_dl':self.current_dl_date}).count()}
 
-        self.cache.delete_many({})
         dl_excel.mongo2xl(self.collection_name, dl_info)
         print self.collection_name + " DOWNLOAD DONE!!!!!\n"
         new_items = self.collection.find({'download_data.first_dl': self.current_dl_date}).count()
         self.status.update_one({"date": self.current_dl_date}, {"$set": {self.status_full_path: "Done",
                                                                          self.notes_full_path: new_items}})
+        self.cache.delete_many({})
 
     def theArchiveDoorman(self):
         # clean the archive from items older than a week

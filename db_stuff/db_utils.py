@@ -6,8 +6,6 @@ from ..Yonti import pymongo_utils
 from rq import Queue
 import sys
 from PIL import Image
-import io
-from urllib2 import urlopen
 import numpy as np
 from scipy import fftpack
 
@@ -169,6 +167,7 @@ def theArchiveDoorman(col_name, instock_limit=2, archive_limit=7):
         collection_archive.insert_one(item)
 
     collection_archive.reindex()
+    print('')
 
 
 def refresh_worker(doc, name):

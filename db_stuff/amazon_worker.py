@@ -4,7 +4,8 @@ from datetime import datetime
 from ..fingerprint_core import generate_mask_and_insert
 from time import sleep
 import re
-from db_utils import print_error, get_hash, get_p_hash, get_image_from_url
+from ..Utils import get_cv2_img_array
+from db_utils import print_error, get_hash, get_p_hash
 from .amazon_constants import plus_sizes
 today_date = str(datetime.date(datetime.now()))
 
@@ -257,7 +258,7 @@ def insert_items(collection_name, item_list, items_in_page, print_flag, family_t
                 print ('img url already exists')
                 continue
 
-            image, pil_image = get_image_from_url(image_url)
+            image = get_cv2_img_array(image_url)
             if image is None:
                 if print_flag:
                     print_error('bad img url')

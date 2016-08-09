@@ -10,31 +10,20 @@ from PIL import Image
 import cv2
 import random
 
-from trendi.utils import generate_images
+from trendi.utils import augment_images
 
-class JrLayer(caffe.Layer):
+class JrPixlevel(caffe.Layer):
     """
-    Load (input image, label image) pairs from the SBDD extended labeling
-    of PASCAL VOC for semantic segmentation
-    one-at-a-time while reshaping the net to preserve dimensions.
-
-    Use this to feed data to a fully convolutional network.
+    loads images and masks for use with pixel level segmentation nets
+    does augmentation on the fly
     """
 
     def setup(self, bottom, top):
         """
         Setup data layer according to parameters:
-
-        - sbdd_dir: path to SBDD `dataset` dir
-        - split: train / seg11valid
         - mean: tuple of mean values to subtract
         - randomize: load in random order (default: True)
         - seed: seed for randomization (default: None / current time)
-
-        for SBDD semantic segmentation.
-
-        N.B.segv11alid is the set of segval11 that does not intersect with SBDD.
-        Find it here: https://gist.github.com/shelhamer/edb330760338892d511e.
 
         example
         layer {
@@ -55,22 +44,48 @@ class JrLayer(caffe.Layer):
         """
         # config
         params = eval(self.param_str)
-        self.images_dir = params['images_dir']
-        self.labels_dir = params.get('labels_dir',self.images_dir)
+        self.images_and_labels_file = params['images_and_labels_file']
         self.mean = np.array(params['mean'])
         self.random_init = params.get('random_initialization', True) #start from random point in image list
         self.random_pick = params.get('random_pick', True) #pick random image from list every time
         self.seed = params.get('seed', 1337)
-#        self.imagesfile = params.get('imagesfile',os.path.join(self.images_dir,self.split+'images.txt'))
+        self.batch_size = params.get('batch_size',1)  #######Not implemented, batchsize = 1
+        self.augment_images = params.get('augment',False)
+        self.augment_max_angle = params.get('augment_max_angle',5)
+        self.augment_max_offset_x = params.get('augment_max_offset_x',10)
+        self.augment_max_offset_y = params.get('augment_max_offset_y',10)
+        self.augment_max_scale = params.get('augment_max_scale',1.2)
+        self.augment_max_noise_level = params.get('augment_max_noise_level',0)
+        self.augment_max_blur = params.get('augment_max_blur',0)
+        self.augment_do_mirror_lr = params.get('augment_do_mirror_lr',True)
+        self.augment_do_mirror_ud = params.get('augment_do_mirror_ud',False)
+        self.augment_crop_size = params.get('augment_crop_size',(224,224)) #
+        self.augment_show_visual_output = params.get('augment_show_visual_output',False)
+        self.augment_distribution = params.get('augment_distribution','uniform')
+        self.n_labels = params.get('n_labels',21)
+
+# begin vestigial code
+        self.new_size = params.get('new_size',None)
+        self.images_dir = params.get('images_dir',None)
+        self.labels_dir = params.get('labels_dir',self.images_dir)
         self.imagesfile = params.get('imagesfile',None)
         self.labelsfile = params.get('labelsfile',None)
         #if there is no labelsfile specified then rename imagefiles to make labelfile names
         self.labelfile_suffix = params.get('labelfile_suffix','.png')
         self.imagefile_suffix = params.get('labelfile_suffix','.jpg')
-        self.new_size = params.get('new_size',None)
+        if self.new_size == None:
+            self.new_size = self.augment_crop_size
+# end vestigial code
 
-        print('PRINTlabeldir {} imagedir {} labelfile {} imagefile {}'.format(self.labels_dir,self.images_dir,self.labelsfile,self.imagesfile))
-        logging.debug('LOGGINGlabeldir {} imagedir {} labelfile {} imagefile {}'.format(self.labels_dir,self.images_dir,self.labelsfile,self.imagesfile))
+        print('batchsize {} type {}'.format(self.batch_size,type(self.batch_size)))
+        print('imfile {} mean {} imagesdir {} randinit {} randpick {} '.format(self.images_and_labels_file, self.mean,self.images_dir,self.random_init, self.random_pick))
+        print('see {} newsize {} batchsize {} augment {} augmaxangle {} '.format(self.seed,self.new_size,self.batch_size,self.augment_images,self.augment_max_angle))
+        print('augmaxdx {} augmaxdy {} augmaxscale {} augmaxnoise {} augmaxblur {} '.format(self.augment_max_offset_x,self.augment_max_offset_y,self.augment_max_scale,self.augment_max_noise_level,self.augment_max_blur))
+        print('augmirrorlr {} augmirrorud {} augcrop {} augvis {}'.format(self.augment_do_mirror_lr,self.augment_do_mirror_ud,self.augment_crop_size,self.augment_show_visual_output))
+
+
+#        print('PRINTlabeldir {} imagedir {} labelfile {} imagefile {}'.format(self.labels_dir,self.images_dir,self.labelsfile,self.imagesfile))
+        logging.debug('imgs_and_labelsfile {} labelfile {} imagefile {} labeldir {} imagedir {} '.format(self.images_and_labels_file,self.labelsfile,self.imagesfile,self.labels_dir,self.images_dir))
         # two tops: data and label
         if len(top) != 2:
             raise Exception("Need to define two tops: data and label.")
@@ -80,7 +95,19 @@ class JrLayer(caffe.Layer):
 
         # load indices for images and labels
         #if file not found and its not a path then tack on the training dir as a default locaiton for the trainingimages file
-        if self.imagesfile is not None:
+        if self.images_and_labels_file is not None:
+            if os.path.isfile(self.images_and_labels_file):
+                print('opening images_and_labelsfile '+str(self.images_and_labels_file))
+                lines = open(self.images_and_labels_file, 'r').read().splitlines()
+                self.imagefiles = [s.split()[0] for s in lines]
+                self.labelfiles = [s.split()[1] for s in lines]
+                self.n_files = len(self.imagefiles)
+            else:
+                logging.debug('could not open '+self.images_and_labels_file)
+                return
+
+#######begin vestigial code
+        elif self.imagesfile is not None:
             if not os.path.isfile(self.imagesfile) and not '/' in self.imagesfile:
                 self.imagesfile = os.path.join(self.images_dir,self.imagesfile)
             if not os.path.isfile(self.imagesfile):
@@ -88,27 +115,27 @@ class JrLayer(caffe.Layer):
             self.imagefiles = open(self.imagesfile, 'r').read().splitlines()
             self.n_files = len(self.imagefiles)
     #        self.indices = open(split_f, 'r').read().splitlines()
-        else:
-            self.imagefiles = [f for f in os.listdir(self.images_dir) if self.imagefile_suffix in f]
+#        else:
+#            self.imagefiles = [f for f in os.listdir(self.images_dir) if self.imagefile_suffix in f]
 
-        if self.labelsfile is not None:  #if labels flie is none then get labels from images
+        elif self.labelsfile is not None:  #if labels flie is none then get labels from images
             if not os.path.isfile(self.labelsfile) and not '/' in self.labelsfile:
                 self.labelsfile = os.path.join(self.labels_dir,self.labelsfile)
             if not os.path.isfile(self.labelsfile):
                 print('COULD NOT OPEN labelS FILE '+str(self.labelsfile))
                 self.labelfiles = open(self.labelsfile, 'r').read().splitlines()
-        else:
-            self.labelfiles = [f for f in os.listdir(self.labels_dir) if self.labelfile_suffix in f]
-            self.n_files = len(self.imagefiles)
-        print(str(self.n_files)+' label files in label dir '+str(self.labels_dir))
+#        else:
+#            self.labelfiles = [f for f in os.listdir(self.labels_dir) if self.labelfile_suffix in f]
+#            self.n_files = len(self.imagefiles)
+###########end vestigial code
+
+        print('found {} imagefiles and {} labelfiles'.format(len(self.imagefiles),len(self.labelfiles)))
 
         self.idx = 0
         # randomization: seed and pick
         if self.random_init:
             random.seed(self.seed)
             self.idx = random.randint(0, len(self.imagefiles)-1)
-        if self.random_pick:
-            random.shuffle(self.imagefiles)
         logging.debug('initial self.idx is :'+str(self.idx)+' type:'+str(type(self.idx)))
 
         ##check that all images are openable and have labels
@@ -138,16 +165,32 @@ class JrLayer(caffe.Layer):
 
     def reshape(self, bottom, top):
         print('reshaping')
-        # load image + label image pair
-#	logging.debug('self.idx is :'+str(self.idx)+' type:'+str(type(self.idx)))
-        self.data = self.load_image(self.idx)
-#	if self.load_labels_from_mat:
-#            self.label = self.load_label(self.indices[self.idx])#
-#	else:
-        self.label = self.load_label_image(self.idx)
         # reshape tops to fit (leading 1 is for batch dimension)
-        top[0].reshape(1, *self.data.shape)
-        top[1].reshape(1, *self.label.shape)
+
+#        self.data,self.label = self.load_image_and_mask()
+        if self.batch_size == 1:
+            self.data, self.label = self.load_image_and_mask()
+        #add extra batch dimension
+            top[0].reshape(1, *self.data.shape)
+            top[1].reshape(1, *self.label.shape)
+            logging.debug('batchsize 1 datasize {} labelsize {} '.format(self.data.shape,self.label.shape))
+        else:
+            all_data = np.zeros((self.batch_size,3,self.augment_crop_size[0],self.augment_crop_size[1]))
+            all_labels = np.zeros((self.batch_size,1, self.augment_crop_size[0],self.augment_crop_size[1]) )
+            for i in range(self.batch_size):
+                data, label = self.load_image_and_mask()
+                all_data[i,...]=data
+                all_labels[i,...]=label
+                self.next_idx()
+            self.data = all_data
+            self.label = all_labels
+            #no extra dimension needed
+            top[0].reshape(*self.data.shape)
+            top[1].reshape(*self.label.shape)
+            logging.debug('batchsize {} datasize {} labelsize {}'.format(self.batch_size,self.data.shape,self.label.shape))
+
+
+
 
     def next_idx(self):
         if self.random_pick:
@@ -188,6 +231,7 @@ class JrLayer(caffe.Layer):
 
         full_filename=os.path.join(self.labels_dir,filename)
         return full_filename
+
 
     def load_image(self,idx):
         """
@@ -248,6 +292,57 @@ class JrLayer(caffe.Layer):
 
         return label
 
+    def load_image_and_mask(self):
+        """
+        Load input image and preprocess for Caffe:
+        - cast to float
+        - switch channels RGB -> BGR
+        - subtract mean
+        - transpose to channel x height x width order
+        """
+        while(1):
+            filename = self.imagefiles[self.idx]
+            label_filename=self.labelfiles[self.idx]
+            print('imagefile:'+filename+'\nlabelfile:'+label_filename+' index:'+str(self.idx))
+            if not(os.path.isfile(label_filename) and os.path.isfile(filename)):
+                print('ONE OF THESE IS NOT ACCESSIBLE:'+str(label_filename)+','+str(filename))
+                self.next_idx()
+            else:
+                break
+        im = Image.open(filename)
+        if self.new_size:
+            im = im.resize(self.new_size,Image.ANTIALIAS)
+        in_ = np.array(im, dtype=np.float32)
+        if in_ is None:
+            logging.warning('could not get image '+filename)
+            return None
+        """
+        Load label image as 1 x height x width integer array of label indices.
+        The leading singleton dimension is required by the loss.
+        """
+        im = Image.open(label_filename)
+        if im is None:
+            print(' COULD NOT LOAD FILE '+label_filename)
+            logging.warning('couldnt load file '+label_filename)
+#        if self.new_size:
+#            im = im.resize(self.new_size,Image.ANTIALIAS)
+        label_in_ = np.array(im, dtype=np.uint8)
+
+    #        in_ = in_ - 1
+        print('uniques of label:'+str(np.unique(label_in_))+' shape:'+str(label_in_.shape))
+#        print('after extradim shape:'+str(label.shape))
+
+        out1,out2 = augment_images.generate_image_onthefly(in_, mask_filename_or_nparray=label_in_)
+
+        out1 = out1[:,:,::-1]   #RGB -> BGR
+        out1 -= self.mean  #assumes means are BGR order, not RGB
+        out1 = out1.transpose((2,0,1))  #wxhxc -> cxwxh
+        if len(out2.shape) == 3:
+            logging.warning('got 3 layer img as mask from augment, taking first layer')
+            out2 = out2[:,:,0]
+        out2 = copy.copy(out2[np.newaxis, ...])
+
+        return out1,out2
 
 
 
@@ -516,8 +611,10 @@ class JrMultilabel(caffe.Layer):
                 self.next_idx()   #bad file, goto next
                 idx = self.idx
                 continue
-            print('calling generate_images with file '+filename)
-            in_ = generate_images.generate_image_onthefly(filename, gaussian_or_uniform_distributions=self.augment_distribution,
+            print('calling augment_images with file '+filename)
+
+
+            in_ = augment_images.generate_image_onthefly(filename, gaussian_or_uniform_distributions=self.augment_distribution,
                max_angle = self.augment_max_angle,
                max_offset_x = self.augment_max_offset_x,max_offset_y = self.augment_max_offset_y,
                max_scale=self.augment_max_scale,
@@ -527,7 +624,7 @@ class JrMultilabel(caffe.Layer):
                do_mirror_ud=self.augment_do_mirror_ud,
                crop_size=self.augment_crop_size,
                show_visual_output=self.augment_show_visual_output)
-            print('returned from generate_images')
+            print('returned from augment_images')
 
             #im = Image.open(filename)
             #if im is None:
