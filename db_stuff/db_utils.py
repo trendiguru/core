@@ -167,6 +167,7 @@ def theArchiveDoorman(col_name, instock_limit=2, archive_limit=7):
         collection_archive.insert_one(item)
 
     collection_archive.reindex()
+    print('')
 
 
 def refresh_worker(doc, name):

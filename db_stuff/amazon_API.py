@@ -420,7 +420,7 @@ def clear_duplicates(collection_name):
 
         img_url = item['images']['XLarge']
         collection.delete_many({'images.XLarge': img_url, '_id': {'$ne': item_id}})
-
+    print('')
     print_error('CLEAR DUPLICATES', 'count before : %d\ncount after : %d' % (before, collection.count()))
 
 
@@ -497,8 +497,8 @@ def download_all(collection_name, gender='Female', del_collection=False, del_cac
                 if error_flag:
                     error_flag = False
                     raise ValueError('probably bad request - will be sent for fresh try')
-                finished_msg = 'node id: %s -> name: %s download done -> %d new_items downloaded' \
-                               % (node_id, name, new_items_approx)
+                finished_msg = '%d/%d) node id: %s -> name: %s download done -> %d new_items downloaded' \
+                               % (x, total_leafs, node_id, name, new_items_approx)
                 log2file(mode='a', log_filename=status_log, message=finished_msg, print_flag=True)
                 collection_cache.update_one({'node_id': node_id, 'name': name},
                                             {'$set': {'item_count': after_count,
@@ -617,15 +617,17 @@ if __name__ == "__main__":
 
     # start the downloading process
     status_full_path = 'collections.' + col_name + '.status'
+    notes_full_path = 'collections.' + col_name + '.notes'
     db.download_status.update_one({"date": today_date}, {"$set": {status_full_path: "Working"}})
     download_all(collection_name=col_name, gender=col_gender, del_collection=delete_all,
                  del_cache=delete_cache, cat_tree=build_tree, plus_size_flag=plus_size)
 
     # after download finished its time to build a new annoy forest
+    db.download_status.update_one({"date": today_date}, {"$set": {status_full_path: 'ANNOY'}})
     categories_num = len(categories)
     for c, cat in enumerate(categories):
-        msg = "building annoy forest -> %d/%d ready!" % (c, categories_num)
-        db.download_status.update_one({"date": today_date}, {"$set": {status_full_path: msg}})
+        msg = "%d/%d ready!" % (c, categories_num)
+        db.download_status.update_one({"date": today_date}, {"$set": {notes_full_path: msg}})
         forest_job = forest.enqueue(plantAnnoyForest, args=(col_name, cat, 250), timeout=1800)
         while not forest_job.is_finished and not forest_job.is_failed:
             sleep(60)
