@@ -140,7 +140,7 @@ def mongo2xl(collection_name, dl_info):
     elif filename == 'recruit':
         from .recruit_constants import recruit2category_idx
         categories_female=categories_male = list(set(recruit2category_idx.keys()))
-    elif filename == 'amazon':
+    elif filename == 'amazon' or filename == 'amaze':
         from .amazon_constants import amazon_categories
         categories_female = categories_male = amazon_categories
     else:
@@ -160,7 +160,7 @@ def mongo2xl(collection_name, dl_info):
         print("working on " + tmp)
         collection = db[tmp]
         archive = db[tmp+"_archive"]
-        if gender is 'Female':
+        if col_gender is 'Female':
             categories = categories_female
             current_worksheet = workbook.add_worksheet('Female')
         else:
