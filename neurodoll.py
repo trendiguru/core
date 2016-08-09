@@ -5,6 +5,7 @@ from PIL import Image
 import cv2
 import caffe
 import logging
+import copy
 logging.basicConfig(level=logging.DEBUG)
 
 import numpy as np
@@ -49,17 +50,25 @@ def infer_one(url_or_np_array,required_image_size=None,threshold = 0.01):
     if required_image_size:
         image = imutils.resize_keep_aspect(image,output_size=required_image_size,output_file=None)
     in_ = np.array(image, dtype=np.float32)   #.astype(float)
+    if in_ is None:
+        logging.debug('got none image in neurodoll.infer_one()')
+        return None
     if len(in_.shape) != 3:
-        print('got 1-chan image, turning into 3 channel')
-        #DEBUG THIS , ORDER MAY BE WRONG
-        in_ = np.array([in_,in_,in_])
+        if len(in_.shape) != 2:
+            print('got something weird with shape '+str(in_.shape)+' , giving up')
+            return None
+        else:
+            print('got  image with shape '+str(in_.shape)+' , turning into 3 channel')
+            in_ = np.array([copy.deepcopy(in_),copy.deepcopy(in_),copy.deepcopy(in_)])
+            print('now image has shape '+str(in_.shape))
     elif in_.shape[2] != 3:
         print('got n-chan image, skipping - shape:'+str(in_.shape))
-        return
+        return None
 #    in_ = in_[:,:,::-1]  for doing RGB -> BGR
-#    cv2.imshow('test',in_)
-    in_ -= np.array((104,116,122.0))
-    in_ = in_.transpose((2,0,1))
+    cv2.imwrite('test1234.jpg',in_) #verify that images are coming in as rgb
+
+#    in_ -= np.array((104,116,122.0))  #was not used in training!!
+    in_ = in_.transpose((2,0,1))   #wxhxc -> cxwxh
     # shape for input (data blob is N x C x H x W), set data
     net.blobs['data'].reshape(1, *in_.shape)
     net.blobs['data'].data[...] = in_
@@ -130,11 +139,29 @@ print('loading caffemodel for neurodoll')
 
 if __name__ == "__main__":
 
-    url = 'http://diamondfilms.com.au/wp-content/uploads/2014/08/Fashion-Photography-Sydney-1.jpg'
-    result = infer_one(url,required_image_size=None,threshold=0)
-    cv2.imwrite('output.png',result)
-    labels=constants.ultimate_21
-    imutils.show_mask_with_labels('output.png',labels,visual_output=True)
+    url = 'http://pinmakeuptips.com/wp-content/uploads/2015/02/1.4.jpg'
+    urls = [url,
+            'http://diamondfilms.com.au/wp-content/uploads/2014/08/Fashion-Photography-Sydney-1.jpg',
+            'http://pinmakeuptips.com/wp-content/uploads/2016/02/main-1.jpg',
+            'http://pinmakeuptips.com/wp-content/uploads/2016/02/1.-Strategic-Skin-Showing.jpg',
+            'http://pinmakeuptips.com/wp-content/uploads/2016/02/3.jpg',
+            'http://pinmakeuptips.com/wp-content/uploads/2016/02/4.jpg',
+            'http://pinmakeuptips.com/wp-content/uploads/2016/03/Adding-Color-to-Your-Face.jpg',
+            'http://images5.fanpop.com/image/photos/26400000/Cool-fashion-pics-fashion-pics-26422922-493-700.jpg',
+            'http://allforfashiondesign.com/wp-content/uploads/2013/05/style-39.jpg',
+            'http://s6.favim.com/orig/65/cool-fashion-girl-hair-Favim.com-569888.jpg',
+            'http://s4.favim.com/orig/49/cool-fashion-girl-glasses-jeans-Favim.com-440515.jpg',
+            'http://s5.favim.com/orig/54/america-blue-cool-fashion-Favim.com-525532.jpg',
+            'http://favim.com/orig/201108/25/cool-fashion-girl-happiness-high-Favim.com-130013.jpg'
+    ]
+
+    for url in urls:
+        result = infer_one(url,required_image_size=None,threshold=0)
+        timestamp = int(10*time.time())
+        name = str(timestamp)+'.png'
+        cv2.imwrite(name,result)
+        labels=constants.ultimate_21
+        imutils.show_mask_with_labels(name,labels,visual_output=False,save_images=True)
 
 #    after_nn_result = pipeline.after_nn_conclusions(result,constants.ultimate_21_dict)
 #    cv2.imwrite('output_afternn.png',after_nn_result)

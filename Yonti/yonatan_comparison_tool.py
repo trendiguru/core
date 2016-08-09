@@ -1,9 +1,16 @@
-from ..constants import db, fingerprint_weights, histograms_length
+from ..constants import db, fingerprint_weights, histograms_length, redis_conn
 from ..NNSearch import distance_Bhattacharyya
 import argparse
 import sys
+import pymongo
+from rq import Queue
+
+db = pymongo.MongoClient().mydb
 
 collection = db.fanni
+
+fp_q = Queue('fp_q', connection=redis_conn)
+sp_q = Queue('sp_q', connection=redis_conn)
 
 
 def find_n_nearest_neighbors_copy(fingerprint, database, category, number_of_matches, new_field=None, query_rule='eq', val=1,
