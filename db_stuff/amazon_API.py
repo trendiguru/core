@@ -548,7 +548,6 @@ def get_user_input():
 
 
 if __name__ == "__main__":
-    global log_name
     start = time()
     # get user input
     user_input = get_user_input()
@@ -566,7 +565,6 @@ if __name__ == "__main__":
         categories = list(set(shopstyle_paperdoll_female.values()))
 
     elif gender_upper in ['MALE', 'MEN', 'MAN']:
-        global FashionGender
         FashionGender = 'FashionMen'
         col_gender = 'Male'
         categories = list(set(shopstyle_paperdoll_male.values()))
