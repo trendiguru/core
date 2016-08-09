@@ -30,6 +30,10 @@ def verify_tights(title):
         return 'pants'
     elif any(x in title_upper for x in ['SKIRT', 'SKIRTS', 'SKORT', 'SKORTS', 'MINI']):
         return 'skirt'
+    elif any(x in title_upper for x in ['COAT', 'FUX', 'COATS', 'OUTWEAR']):
+        return 'coat'
+    elif any(x in title_upper for x in ['JACKET', 'JACKETS']):
+        return 'jacket'
     else:
         return 'tights'
 

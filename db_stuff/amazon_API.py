@@ -486,9 +486,13 @@ def download_all(collection_name, gender='Female', del_collection=False, del_cac
             leaf_name = '->'.join(leaf['Parents']) + '->' + name
 
             try:
-                category_name = None
-                if name == 'stockings' or name == 'tights':
-                    category_name = name
+                if name == 'stockings':
+                    category_name = 'Stockings'
+                elif name == 'tights':
+                    category_name = 'Tights'
+                else:
+                    category_name = None
+
                 before_count = collection.count()
                 get_results(node_id, collection_name, max_price=last_price, results_count_only=False,
                             family_tree=leaf_name, plus_size_flag=plus_size_flag, category=category_name)
