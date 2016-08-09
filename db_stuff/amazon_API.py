@@ -345,8 +345,8 @@ def build_category_tree(parents, root='7141124011', tab=0, delete_collection=Tru
         p.append(name)
 
     if node_id == '1040660' or node_id == '1040658':
-        leaf_tights = leaf
-        leaf_stockings = leaf
+        leaf_tights = leaf.copy()
+        leaf_stockings = leaf.copy()
         leaf_tights['Name'] = 'tights'
         leaf_stockings['Name'] = 'stockings'
         leaf_tights['Children']['count'] = 0
@@ -356,8 +356,6 @@ def build_category_tree(parents, root='7141124011', tab=0, delete_collection=Tru
         db.amazon_category_tree.delete_many({'BrowseNodeId': node_id, 'Name': {'$in': ['tights', 'stockings']}})
         db.amazon_category_tree.insert_one(leaf_tights)
         print('tights inserted')
-        print(leaf_tights)
-        print(leaf_stockings)
         db.amazon_category_tree.insert_one(leaf_stockings)
         print('stockings inserted')
 
