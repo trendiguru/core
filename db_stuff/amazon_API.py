@@ -569,7 +569,7 @@ def update_plus_size_collection(gender):
         if its_plus_size:
             amaze.insert_one(item)
 
-    thearchivedoorman(amaze_name)
+    thearchivedoorman(amaze_name, instock_limit=14, archive_limit=21)
     print_error('ARCHIVE DOORMAN FINISHED')
     for category in categories:
         forest_amaze = forest.enqueue(plantAnnoyForest, args=(amaze_name, category, 250), timeout=1800)
