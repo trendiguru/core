@@ -180,18 +180,6 @@ def find_paperdoll_cat(family, title):
     return category, sub_category
 
 
-def verify_plus_size(size_list):
-    splited_list = []
-    for size in size_list:
-        size_upper = size.upper()
-        split = re.split(r'\(|\)| |-|,', size_upper)
-        for s in split:
-            splited_list.append(s)
-    if 'SMALL' in splited_list:
-        return False
-    return any(size for size in splited_list if size in plus_sizes)
-
-
 def insert_items(collection_name, item_list, items_in_page, print_flag, family_tree, plus_size_flag=False):
     collection = db[collection_name]
 
@@ -249,12 +237,12 @@ def insert_items(collection_name, item_list, items_in_page, print_flag, family_t
 
             color = attributes['Color']
             sizes = [clothing_size]
-            if plus_size_flag:
-                plus_size = verify_plus_size(sizes)
-                if not plus_size:
-                    if print_flag:
-                        print_error('Not a Plus Size', attr_keys)
-                    continue
+            # if plus_size_flag:
+            #     plus_size = verify_plus_size(sizes)
+            #     if not plus_size:
+            #         if print_flag:
+            #             print_error('Not a Plus Size', attr_keys)
+            #         continue
 
             parent_asin_exists = collection.find_one({'parent_asin': parent_asin, 'features.color': color})
             if parent_asin_exists:
