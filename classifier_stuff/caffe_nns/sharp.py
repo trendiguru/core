@@ -148,7 +148,7 @@ def fc_relu(bottom, nout):
     fc = L.InnerProduct(bottom, num_output=nout)
     return fc, L.ReLU(fc, in_place=True)
 
-def vgg16(db,mean_value=(112,112,112)):
+def vgg16(db,mean_value=[112.0,112.0,112.0]):
     '''
     see https://gist.github.com/ksimonyan/211839e770f7b538e2d8#file-vgg_ilsvrc_16_layers_deploy-prototxt
     :param db:
@@ -366,7 +366,6 @@ def run_net(net_builder,nn_dir,train_db,test_db,batch_size = 64,n_classes=11,mea
         f.write(str(test_acc))
 #        f.write(str(train_net))
         f.close()
-
 
 def inspect_net(caffemodel):
     net_param = caffe_pb2.NetParameter()
