@@ -16,10 +16,10 @@ last_percent_reported = None
 count = 1
 
 
-def progress_bar(blocksize, total, last_cnt = None, last_pct=None):
+def progress_bar(blocksize, total, last_cnt=None, last_pct=None):
     global last_percent_reported, count
     last_count = last_cnt or count
-    percent = int(last_count*blocksize *100/ total)
+    percent = int(last_count*blocksize * (100 / total))
 
     last_percent = last_pct or last_percent_reported
     if last_percent != percent:
@@ -96,7 +96,7 @@ def get_p_hash(image, hash_size=8, img_size=8):
     dctlowfreq = dct[:hash_size, :hash_size]
     med = np.median(dctlowfreq)
     diff = dctlowfreq > med
-    flat= diff.flatten()
+    flat = diff.flatten()
     hexa = binary_array_to_hex(flat)
     return hexa
 
@@ -108,7 +108,7 @@ def get_hash(image):
     return url_hash
 
 
-def theArchiveDoorman(col_name, instock_limit=2, archive_limit=7):
+def thearchivedoorman(col_name, instock_limit=2, archive_limit=7):
     """
     clean the archive from items older than a week
     send items to archive
@@ -118,12 +118,12 @@ def theArchiveDoorman(col_name, instock_limit=2, archive_limit=7):
     pymongo_utils.delete_or_and_index(collection_name=archive_name, index_list=['id'])
     collection_archive = db[archive_name]
     archivers = collection_archive.find()
-    notUpdated = collection.find({"download_data.dl_version": {"$ne": today_date}})
-    outStockers = collection.find({'status.instock': False})
+    not_updated = collection.find({"download_data.dl_version": {"$ne": today_date}})
+    out_stockers = collection.find({'status.instock': False})
     archivers_count = archivers.count()
-    notUpdated_count = notUpdated.count()
-    outStockers_count = outStockers.count()
-    total = archivers_count + notUpdated_count + outStockers_count
+    not_updated_count = not_updated.count()
+    out_stockers_count = out_stockers.count()
+    total = archivers_count + not_updated_count + out_stockers_count
     block_size = total/200
 
     y_new, m_new, d_new = map(int, today_date.split("-"))
@@ -140,7 +140,7 @@ def theArchiveDoorman(col_name, instock_limit=2, archive_limit=7):
 
     # add to the archive items which were not downloaded in the last 2 days
     progress = a
-    for n, item in enumerate(notUpdated):
+    for n, item in enumerate(not_updated):
         if (n+progress) % block_size == 0:
             progress_bar(block_size, total)
         y_old, m_old, d_old = map(int, item["download_data"]["dl_version"].split("-"))
@@ -157,7 +157,7 @@ def theArchiveDoorman(col_name, instock_limit=2, archive_limit=7):
                 collection_archive.insert_one(item)
     progress = n + a
     # move to the archive all the items which were downloaded today but are out of stock
-    for o, item in enumerate(outStockers):
+    for o, item in enumerate(out_stockers):
         if (o + progress) % block_size == 0:
             progress_bar(block_size, total)
         collection.delete_one({'id': item['id']})
@@ -181,8 +181,8 @@ def refresh_worker(doc, name):
             if name in similar_res:
                 fp = item['fp']
                 category = item['category']
-                _, new_similar_results = find_similar_mongo.find_top_n_results(fingerprint=fp, collection=col_name, category_id=category,
-                                                            number_of_results=100)
+                _, new_similar_results = find_similar_mongo.find_top_n_results(fingerprint=fp, collection=col_name,
+                                                                               category_id=category, number_of_results=100)
                 similar_res[name] = new_similar_results
     collection.replace_one({'_id': doc['_id']}, doc)
 
@@ -243,7 +243,7 @@ categories_keywords = ['BELT', 'BELTS', 'BIKINI', 'BIKINIS', 'BLAZER', 'BLAZERS'
                        'JKT', 'SKORT', 'SKIRTINI', 'SWIMWEAR', 'PEACOAT', 'MONIKINI', 'TANKINI', 'RASHGUARD',
                        'MINISKIRT', 'CAMI', 'POPOVER', 'CAMISOLE', 'CARDI']
 
-categories_swap = { 'BELT': 'belt', 'BELTS': 'belt',
+categories_swap =  {'BELT': 'belt', 'BELTS': 'belt',
                     'BIKINIS': 'bikini', 'BIKINI': 'bikini',
                     'BLAZERS': 'blazer', 'BLAZER': 'blazer',
                     'BLOUSES': 'blouse', 'BLOUSE': 'blouse', 'TUNICS': 'blouse', 'TUNIC': 'blouse',
@@ -295,3 +295,4 @@ categories_swap = { 'BELT': 'belt', 'BELTS': 'belt',
                     'VESTS': 'vest', 'VEST': 'vest',
                     'TIE': 'tie',
                     'DUNGAREE': 'overall', 'OVERALL': 'overall', 'OVERALLS': 'overall'}
+
