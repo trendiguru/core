@@ -85,7 +85,7 @@ def make_itemsearch_request(pagenum, node_id, min_price, max_price, price_flag=T
     parameters['SearchIndex'] = FashionGender
     parameters['BrowseNode'] = node_id
     if not price_flag:
-        parameters['ResponseGroup'] = 'SearchBins, OfferSummary'
+        parameters['ResponseGroup'] = 'SearchBins'
     else:
         parameters['ItemPage'] = str(pagenum)
         parameters['MinimumPrice'] = format_price(min_price)
@@ -100,7 +100,7 @@ def make_itemsearch_request(pagenum, node_id, min_price, max_price, price_flag=T
         else:
             parameters['Keywords'] = color
 
-    if not category:
+    if category is not None:
         if plus_size_flag or color_flag:
             parameters['Keywords'] += ',%s' % category
         else:
