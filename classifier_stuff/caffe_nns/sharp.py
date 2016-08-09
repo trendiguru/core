@@ -109,6 +109,17 @@ def examples(lmdb, batch_size):  #test_iter * batch_size <= n_samples!!!
         weight_filler=dict(type='gaussian', std=0.1, sparse=sparse),
         bias_filler=dict(type='constant', value=0))
 
+    # NOT TESTED.  padding is removed from the output rather than added to the input, and stride results in upsampling rather than downsampling
+    # http://caffe.berkeleyvision.org/doxygen/classcaffe_1_1DeconvolutionLayer.html
+    n.deconv = L.Deconvolution(n.bottom,
+                            param=[dict(lr_mult=lr_mult1,decay_mult=decay_mult1),dict(lr_mult=lr_mult2,decay_mult=decay_mult2)],
+                            num_output=64,
+                            pad = 3,
+                            kernel_size=7,
+                            stride = 2,
+                            weight_filler=dict(type='xavier'),
+                            bias_filler=dict(type='constant',value=0.2))
+
     n.pool1 = L.Pooling(n.conv1, kernel_size=2, stride=2, pool=P.Pooling.MAX)
 
     n.ip1 = L.InnerProduct(n.pool2,num_output=500,weight_filler=dict(type='xavier'))
@@ -166,6 +177,194 @@ def vgg16(db,mean_value=[112.0,112.0,112.0]):
     n.data,n.label=L.Data(batch_size=batch_size,backend=P.Data.LMDB,source=db,transform_param=dict(scale=1./255,mean_value=mean_value,mirror=True),ntop=2)
 
     n.conv1_1,n.relu1_1 = conv_relu(n.data,n_output=64,kernel_size=3,pad=1)
+    n.conv1_2,n.relu1_2 = conv_relu(n.conv1_1,n_output=64,kernel_size=3,pad=1)
+    n.pool1 = L.Pooling(n.conv1_2, kernel_size=2, stride=2, pool=P.Pooling.MAX)
+
+    n.conv2_1,n.relu2_1 = conv_relu(n.pool1,n_output=128,kernel_size=3,pad=1)
+    n.conv2_2,n.relu2_2 = conv_relu(n.conv2_1,n_output=128,kernel_size=3,pad=1)
+    n.pool2 = L.Pooling(n.conv2_2, kernel_size=2, stride=2, pool=P.Pooling.MAX)
+
+    n.conv3_1,n.relu3_1 = conv_relu(n.pool2,n_output=256,kernel_size=3,pad=1)
+    n.conv3_2,n.relu3_2 = conv_relu(n.conv3_1,n_output=256,kernel_size=3,pad=1)
+    n.conv3_3,n.relu3_3 = conv_relu(n.conv3_2,n_output=256,kernel_size=3,pad=1)
+    n.pool3 = L.Pooling(n.conv3_3, kernel_size=2, stride=2, pool=P.Pooling.MAX)
+
+    n.conv4_1,n.relu4_1 = conv_relu(n.pool3,n_output=512,kernel_size=3,pad=1)
+    n.conv4_2,n.relu4_2 = conv_relu(n.conv4_1,n_output=512,kernel_size=3,pad=1)
+    n.conv4_3,n.relu4_3 = conv_relu(n.conv4_2,n_output=512,kernel_size=3,pad=1)
+    n.pool4 = L.Pooling(n.conv4_3, kernel_size=2, stride=2, pool=P.Pooling.MAX)
+
+    n.conv5_1,n.relu5_1 = conv_relu(n.pool4,n_output=512,kernel_size=3,pad=1)
+    n.conv5_2,n.relu5_2 = conv_relu(n.conv5_1,n_output=512,kernel_size=3,pad=1)
+    n.conv5_3,n.relu5_3 = conv_relu(n.conv5_2,n_output=512,kernel_size=3,pad=1)
+    n.pool5 = L.Pooling(n.conv5_3, kernel_size=2, stride=2, pool=P.Pooling.MAX)
+
+    n.fc6 = L.InnerProduct(n.pool5,param=[dict(lr_mult=lr_mult1),dict(lr_mult=lr_mult2)],weight_filler=dict(type='xavier'),num_output=4096)
+    n.relu6 = L.ReLU(n.fc6, in_place=True)
+    n.drop6 = L.Dropout(n.fc6, dropout_param=dict(dropout_ratio=0.5),in_place=True)
+
+    n.fc7 = L.InnerProduct(n.fc6,param=[dict(lr_mult=lr_mult1),dict(lr_mult=lr_mult2)],weight_filler=dict(type='xavier'),num_output=4096)
+    n.relu7 = L.ReLU(n.fc7, in_place=True)
+    n.drop7 = L.Dropout(n.fc7, dropout_param=dict(dropout_ratio=0.5),in_place=True)
+
+    n.fc8 = L.InnerProduct(n.fc7,param=[dict(lr_mult=lr_mult1),dict(lr_mult=lr_mult2)],weight_filler=dict(type='xavier'),num_output=1000)
+    return n.to_proto()
+
+def sharpmask(db,mean_value=[112.0,112.0,112.0]):
+    '''
+    see https://gist.github.com/ksimonyan/211839e770f7b538e2d8#file-vgg_ilsvrc_16_layers_deploy-prototxt
+    :param db:
+    :param mean_value:
+    :return:
+    '''
+    #pad to keep image size if S=1 : p=(F-1)/2    , (W-F+2P)/S + 1  neurons in a layer   w:inputsize, F:kernelsize, P: padding, S:stride
+    lr_mult1 = 1
+    lr_mult2 = 2
+    decay_mult1 =1
+    decay_mult2 =0
+    batch_size = 1
+    n=caffe.NetSpec()
+    #assuming input of size 224x224, ...
+    n.data,n.label=L.Data(batch_size=batch_size,backend=P.Data.LMDB,source=db,transform_param=dict(scale=1./255,mean_value=mean_value,mirror=True),ntop=2)
+
+    n.conv1_1,n.relu1_1 = conv_relu(n.data,n_output=64,kernel_size=3,pad=1)
+    n.conv1_2,n.relu1_2 = conv_relu(n.conv1_1,n_output=64,kernel_size=3,pad=1)
+    n.pool1 = L.Pooling(n.conv1_2, kernel_size=2, stride=2, pool=P.Pooling.MAX)
+
+    #the following will be 112x112
+    n.conv2_1,n.relu2_1 = conv_relu(n.pool1,n_output=128,kernel_size=3,pad=1)
+    n.conv2_2,n.relu2_2 = conv_relu(n.conv2_1,n_output=128,kernel_size=3,pad=1)
+    n.pool2 = L.Pooling(n.conv2_2, kernel_size=2, stride=2, pool=P.Pooling.MAX)
+
+    #the following will be 56x56
+    n.conv3_1,n.relu3_1 = conv_relu(n.pool2,n_output=256,kernel_size=3,pad=1)
+    n.conv3_2,n.relu3_2 = conv_relu(n.conv3_1,n_output=256,kernel_size=3,pad=1)
+    n.conv3_3,n.relu3_3 = conv_relu(n.conv3_2,n_output=256,kernel_size=3,pad=1)
+    n.pool3 = L.Pooling(n.conv3_3, kernel_size=2, stride=2, pool=P.Pooling.MAX)
+
+    #the following will be 28x28
+    n.conv4_1,n.relu4_1 = conv_relu(n.pool3,n_output=512,kernel_size=3,pad=1)
+    n.conv4_2,n.relu4_2 = conv_relu(n.conv4_1,n_output=512,kernel_size=3,pad=1)
+    n.conv4_3,n.relu4_3 = conv_relu(n.conv4_2,n_output=512,kernel_size=3,pad=1)
+    n.pool4 = L.Pooling(n.conv4_3, kernel_size=2, stride=2, pool=P.Pooling.MAX)
+
+    #the following will be 14x14
+    n.conv5_1,n.relu5_1 = conv_relu(n.pool4,n_output=512,kernel_size=3,pad=1)
+    n.conv5_2,n.relu5_2 = conv_relu(n.conv5_1,n_output=512,kernel_size=3,pad=1)
+    n.conv5_3,n.relu5_3 = conv_relu(n.conv5_2,n_output=512,kernel_size=3,pad=1)
+    n.pool5 = L.Pooling(n.conv5_3, kernel_size=2, stride=2, pool=P.Pooling.MAX)
+
+    #the following will be 7x7
+    n.conv6_1,n.relu6_1 = conv_relu(n.pool5,n_output=4096,kernel_size=7,pad=3)
+       #instead of L.InnerProduct(n.pool5,param=[dict(lr_mult=lr_mult1),dict(lr_mult=lr_mult2)],weight_filler=dict(type='xavier'),num_output=4096)
+    n.drop6 = L.Dropout(n.conv6_1, dropout_param=dict(dropout_ratio=0.5),in_place=True)
+
+    n.conv6_2,n.relu6_2 = conv_relu(n.conv6_1,n_output=4096,kernel_size=7,pad=3)
+        #instead of n.fc7 = L.InnerProduct(n.fc6,param=[dict(lr_mult=lr_mult1),dict(lr_mult=lr_mult2)],weight_filler=dict(type='xavier'),num_output=4096)
+    n.drop7 = L.Dropout(n.fc7, dropout_param=dict(dropout_ratio=0.5),in_place=True)
+
+    n.conv6_1,n.relu6_1 = conv_relu(n.pool5,n_output=4096,kernel_size=7,pad=3)
+
+    n.deconv1 = L.Deconvolution(n.bottom,
+                            param=[dict(lr_mult=lr_mult1,decay_mult=decay_mult1),dict(lr_mult=lr_mult2,decay_mult=decay_mult2)],
+                            num_output=64,
+                            pad = 3,
+                            kernel_size=7,
+                            stride = 2,
+                            weight_filler=dict(type='xavier'),
+                            bias_filler=dict(type='constant',value=0.2))
+
+    return n.to_proto()
+
+def unet(db,mean_value=[112.0,112.0,112.0]):
+    '''
+    see https://gist.github.com/ksimonyan/211839e770f7b538e2d8#file-vgg_ilsvrc_16_layers_deploy-prototxt
+    :param db:
+    :param mean_value:
+    :return:
+    '''
+    #pad to keep image size if S=1 : p=(F-1)/2    , (W-F+2P)/S + 1  neurons in a layer   w:inputsize, F:kernelsize, P: padding, S:stride
+    lr_mult1 = 1
+    lr_mult2 = 2
+    decay_mult1 =1
+    decay_mult2 =0
+    batch_size = 1
+    n=caffe.NetSpec()
+    #assuming input of size 224x224, ...
+#    n.data,n.label=L.Data(batch_size=batch_size,backend=P.Data.LMDB,source=db,transform_param=dict(scale=1./255,mean_value=mean_value,mirror=True),ntop=2)
+    n.data,n.label=L.Data(type='Python',python_param=dict(module='jrlayers',layer='JrPixlevel'),ntop=2)
+
+'''layer {
+  name: "data"
+  type: "Python"
+  top: "data"
+  top: "label"
+  python_param {
+    module: "jrlayers"
+    layer: "JrPixlevel"
+    param_str: "{\'images_and_labels_file\': \'/home/jeremy/image_dbs/colorful_fashion_parsing_data/images_and_labelsfile_train.txt\', \'mean\': (104.0, 116.7, 122.7),\'augment\':True,\'augment_crop_size\':(224,224), \'batch_size\':9 }"
+#    param_str: "{\'images_dir\': \'/home/jeremy/image_dbs/colorful_fashion_parsing_data/images/train_u21_256x256\', \'labels_dir\':\'/home/jeremy/image_dbs/colorful_fashion_parsing_data/labels_256x256/\', \'mean\': (104.00699, 116.66877, 122.67892)}"
+#    param_str: "{\'sbdd_dir\': \'../../data/sbdd/dataset\', \'seed\': 1337, \'split\': \'train\', \'mean\': (104.00699, 116.66877, 122.67892)}"
+  }
+}
+'''
+    n.conv1_1,n.relu1_1 = conv_relu(n.data,n_output=64,kernel_size=3,pad=1)
+    n.conv1_2,n.relu1_2 = conv_relu(n.conv1_1,n_output=64,kernel_size=3,pad=1)
+    n.pool1 = L.Pooling(n.conv1_2, kernel_size=2, stride=2, pool=P.Pooling.MAX)
+
+    #the following will be 112x112
+    n.conv2_1,n.relu2_1 = conv_relu(n.pool1,n_output=128,kernel_size=3,pad=1)
+    n.conv2_2,n.relu2_2 = conv_relu(n.conv2_1,n_output=128,kernel_size=3,pad=1)
+    n.pool2 = L.Pooling(n.conv2_2, kernel_size=2, stride=2, pool=P.Pooling.MAX)
+
+    #the following will be 56x56
+    n.conv3_1,n.relu3_1 = conv_relu(n.pool2,n_output=256,kernel_size=3,pad=1)
+    n.conv3_2,n.relu3_2 = conv_relu(n.conv3_1,n_output=256,kernel_size=3,pad=1)
+    n.conv3_3,n.relu3_3 = conv_relu(n.conv3_2,n_output=256,kernel_size=3,pad=1)
+    n.pool3 = L.Pooling(n.conv3_3, kernel_size=2, stride=2, pool=P.Pooling.MAX)
+
+    #the following will be 28x28
+    n.conv4_1,n.relu4_1 = conv_relu(n.pool3,n_output=512,kernel_size=3,pad=1)
+    n.conv4_2,n.relu4_2 = conv_relu(n.conv4_1,n_output=512,kernel_size=3,pad=1)
+    n.conv4_3,n.relu4_3 = conv_relu(n.conv4_2,n_output=512,kernel_size=3,pad=1)
+    n.pool4 = L.Pooling(n.conv4_3, kernel_size=2, stride=2, pool=P.Pooling.MAX)
+
+    #the following will be 14x14
+    n.conv5_1,n.relu5_1 = conv_relu(n.pool4,n_output=512,kernel_size=3,pad=1)
+    n.conv5_2,n.relu5_2 = conv_relu(n.conv5_1,n_output=512,kernel_size=3,pad=1)
+    n.conv5_3,n.relu5_3 = conv_relu(n.conv5_2,n_output=512,kernel_size=3,pad=1)
+    n.pool5 = L.Pooling(n.conv5_3, kernel_size=2, stride=2, pool=P.Pooling.MAX)
+
+    #the following will be 7x7
+    n.conv6_1,n.relu6_1 = conv_relu(n.pool5,n_output=4096,kernel_size=7,pad=3)
+       #instead of L.InnerProduct(n.pool5,param=[dict(lr_mult=lr_mult1),dict(lr_mult=lr_mult2)],weight_filler=dict(type='xavier'),num_output=4096)
+    n.drop6_1 = L.Dropout(n.conv6_1, dropout_param=dict(dropout_ratio=0.5),in_place=True)
+    n.conv6_2,n.relu6_2 = conv_relu(n.conv6_1,n_output=4096,kernel_size=7,pad=3)
+        #instead of n.fc7 = L.InnerProduct(n.fc6,param=[dict(lr_mult=lr_mult1),dict(lr_mult=lr_mult2)],weight_filler=dict(type='xavier'),num_output=4096)
+    n.drop6_2 = L.Dropout(n.fc7, dropout_param=dict(dropout_ratio=0.5),in_place=True)
+    n.conv6_3,n.relu6_3 = conv_relu(n.pool5,n_output=512,kernel_size=7,pad=3)
+
+    n.deconv1 = L.Deconvolution(n.conv6_3,param=[dict(lr_mult=lr_mult1,decay_mult=decay_mult1),dict(lr_mult=lr_mult2,decay_mult=decay_mult2)],
+                            num_output=512,pad = 0,kernel_size=2,stride = 2,
+                            weight_filler=dict(type='xavier'),bias_filler=dict(type='constant',value=0.2))
+
+    n.deconv2 = L.Deconvolution(n.deconv1,param=[dict(lr_mult=lr_mult1,decay_mult=decay_mult1),dict(lr_mult=lr_mult2,decay_mult=decay_mult2)],
+                            num_output=512,pad = 0,kernel_size=2,stride = 2,
+                            weight_filler=dict(type='xavier'),bias_filler=dict(type='constant',value=0.2))
+
+    n.deconv3 = L.Deconvolution(n.deconv2,param=[dict(lr_mult=lr_mult1,decay_mult=decay_mult1),dict(lr_mult=lr_mult2,decay_mult=decay_mult2)],
+                            num_output=512,pad = 0,kernel_size=2,stride = 2,
+                            weight_filler=dict(type='xavier'),bias_filler=dict(type='constant',value=0.2))
+
+    n.deconv4 = L.Deconvolution(n.deconv3,param=[dict(lr_mult=lr_mult1,decay_mult=decay_mult1),dict(lr_mult=lr_mult2,decay_mult=decay_mult2)],
+                            num_output=512,pad = 0,kernel_size=2,stride = 2,
+                            weight_filler=dict(type='xavier'),bias_filler=dict(type='constant',value=0.2))
+
+    n.deconv5 = L.Deconvolution(n.deconv4,param=[dict(lr_mult=lr_mult1,decay_mult=decay_mult1),dict(lr_mult=lr_mult2,decay_mult=decay_mult2)],
+                            num_output=512,pad = 0,kernel_size=2,stride = 2,
+                            weight_filler=dict(type='xavier'),bias_filler=dict(type='constant',value=0.2))
+
+    n.loss = L.SoftmaxWithLoss(n.deconv5, n.label)
 
     return n.to_proto()
 
@@ -381,6 +580,7 @@ if __name__ == "__main__":
 #    run_net(alexnet_linearized,nn_dir,db_name+'.train',db_name+'.test',batch_size = batch_size,n_classes=n_classes,meanB=B,meanR=R,meanG=G,n_filters=50,n_ip1=1000)
 
     proto = vgg16('thedb')
+    proto = unet('thedb')
     with open('train_experiment.prototxt','w') as f:
         f.write(str(proto))
         f.close()
