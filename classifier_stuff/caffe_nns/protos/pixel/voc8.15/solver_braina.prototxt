@@ -12,7 +12,7 @@ stepsize: 10000
 # lr for unnormalized softmax
 #lr_policy: "fixed"
 
-base_lr: 1e-3
+base_lr: 1e-2
 #base_lr: 5e-6
 # high momentum
 momentum: 0.95
