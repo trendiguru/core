@@ -27,43 +27,44 @@ from .. import constants
 import pymongo
 import argparse
 import sys
-from datetime import datetime,timedelta
+from datetime import datetime, timedelta
 now = datetime.now()
 now_date = datetime.date(now)
 current_date = str(now_date)
 last2weeks = str(now_date-timedelta(days=15))
 db = constants.db
-dl_status= db.download_status
+dl_status = db.download_status
 
 
-def createItem(force=False):
-    existing = dl_status.find_one({"date":current_date})
+def create_item(force=False):
+    existing = dl_status.find_one({"date": current_date})
     if existing:
         if force:
-            dl_status.delete_one({'_id':existing['_id']})
+            dl_status.delete_one({'_id': existing['_id']})
         else:
             print("item already exists")
             return
 
     item = {"date": current_date,
-            "collections":{
-            "ebay_Female_US": {"status":"Starting on 15:00", "notes":"","EFT":"midnight"},
-            "ebay_Male_US": {"status":"Starting on 15:00", "notes":"","EFT":"midnight"},
-            "recruit_Female": {"status": "Starting on 20:00", "notes": "", "EFT": "midnight"},
-            "recruit_Male": {"status": "Starting on 20:00", "notes": "", "EFT": "midnight"},
-            "ShopStyle_Female": {"status":"Starting on 03:05", "notes":"","EFT":"7:00 AM"},
-            "ShopStyle_Male": {"status":"Starting on 09:00", "notes":"","EFT":"9:00 AM"},
-            "GangnamStyle_Female": {"status":"Starting on 06:00", "notes":"","EFT":"10:00 AM"},
-            "GangnamStyle_Male": {"status":"Starting on 12:00", "notes":"","EFT":"12:00 AM"},
-            "amazon_US_Female": {"status": "Starting on 12:00", "notes": "", "EFT": "12:00 AM"},
-            "amazon_US_Male": {"status": "Starting on 12:00", "notes": "", "EFT": "12:00 AM"}}}
+            "collections": {
+                "ebay_Female_US": {"status": "Starting on 15:00", "notes": "", "EFT": "midnight"},
+                "ebay_Male_US": {"status": "Starting on 15:00", "notes": "", "EFT": "midnight"},
+                "recruit_Female": {"status": "Starting on 20:00", "notes": "", "EFT": "midnight"},
+                "recruit_Male": {"status": "Starting on 20:00", "notes": "", "EFT": "midnight"},
+                "ShopStyle_Female": {"status": "Starting on 03:05", "notes": "", "EFT": "7:00 AM"},
+                "ShopStyle_Male": {"status": "Starting on 09:00", "notes": "", "EFT": "9:00 AM"},
+                "GangnamStyle_Female": {"status": "Starting on 06:00", "notes": "", "EFT": "10:00 AM"},
+                "GangnamStyle_Male": {"status": "Starting on 12:00", "notes": "", "EFT": "12:00 AM"},
+                "amazon_US_Female": {"status": "Starting on 12:00", "notes": "", "EFT": "12:00 AM"},
+                "amazon_US_Male": {"status": "Starting on 12:00", "notes": "", "EFT": "12:00 AM"}}}
 
     dl_status.insert_one(item)
     print("new item inserted")
     return
 
-def flatenDict(info):
-    infoList = []
+
+def flaten_dict(info):
+    infolist = []
     keys = info["collections"].keys()
     keys.sort()
     for key in keys:
@@ -83,7 +84,7 @@ def flatenDict(info):
         except:
             eft = "TBD"
         item = [key, status, notes, eft]
-        infoList.append(item)
+        infolist.append(item)
 
     # for collection in ["ebay_","ShopStyle_","GangnamStyle_","recruit_"]:
     #     for gender in ["Male","Female","Unisex"]:#,"Tees"]:
@@ -92,19 +93,19 @@ def flatenDict(info):
     #         key = collection + gender
     #         print (key)
     #
-    return infoList
+    return infolist
 
 
-def addCollection2Collection_list(col_name, starting_time='12:34', ampm='am'):
+def add_collection_to_collection_list(col_name, starting_time='12:34', ampm='am'):
     item = db.download_status.find_one({'date': current_date})
     collection_list = item['collections']
     if col_name in collection_list.keys():
         print ' already in keys'
         return
-    starting_time_str = 'Starting on %s %s' %(starting_time,ampm)
-    new_collection = {col_name:{'notes':'', 'status':starting_time_str }}
+    starting_time_str = 'Starting on %s %s' %(starting_time, ampm)
+    new_collection = {col_name: {'notes': '', 'status': starting_time_str}}
     collection_list.append(new_collection)
-    db.download_status.update_one({'_id':item['_id']},{'$set':{'collections':collection_list}})
+    db.download_status.update_one({'_id': item['_id']}, {'$set': {'collections': collection_list}})
     print 'Done!'
 
 
@@ -113,25 +114,25 @@ def checkStatus():
     workbook = xlsxwriter.Workbook(path2file)
     bold = workbook.add_format({'bold': True})
 
-    lasts_days_info = dl_status.find({'date':{'$gte':last2weeks}}).sort('date',pymongo.DESCENDING)
+    lasts_days_info = dl_status.find({'date': {'$gte': last2weeks}}).sort('date', pymongo.DESCENDING)
     todays = workbook.add_worksheet('today')
     for daily_info in lasts_days_info:
         dl_date = daily_info['date']
-        if  dl_date == current_date:
+        if dl_date == current_date:
             current_worksheet = todays
             current_worksheet.write(11, 1, 'last check', bold)
             hour = str(now.hour)
             minute = now.minute
-            if minute<10:
+            if minute < 10:
                 minute = "0"+str(minute)
             else:
-                minute=str(minute)
-            current_worksheet.write(17, 2, " %s:%s" %(hour,minute), bold)
+                minute = str(minute)
+            current_worksheet.write(17, 2, " %s:%s" % (hour, minute), bold)
         else:
-            current_worksheet= workbook.add_worksheet(dl_date)
+            current_worksheet = workbook.add_worksheet(dl_date)
         current_worksheet.write(0, 1, 'date', bold)
         current_worksheet.write(0, 2, dl_date, bold)
-        dict2list = flatenDict(daily_info)
+        dict2list = flaten_dict(daily_info)
         keys = daily_info["collections"].keys()
         count = len(keys)
         current_worksheet.set_column('B:E', 30)
@@ -145,7 +146,6 @@ def checkStatus():
                                      'banded_columns': True,
                                      'banded_rows': True})
 
-
     workbook.close()
 
     print ('uploading to drive...')
@@ -158,18 +158,18 @@ def checkStatus():
         print ('error while uploading!')
 
 
-def getUserInput():
+def get_user_input():
     parser = argparse.ArgumentParser(description='"@@@ Downloads Status @@@')
-    parser.add_argument('-m', '--mode',default="check", dest= "mode",
+    parser.add_argument('-m', '--mode', default="check", dest="mode",
                         help='choose (regular) check or create (new item - delete items older than one month)')
     args = parser.parse_args()
     return args
 
 if __name__ == "__main__":
-    user_input = getUserInput()
+    user_input = get_user_input()
     mode = user_input.mode
     if mode == 'create':
-        createItem()
+        create_item()
     else:
         checkStatus()
         print ("Status Checker Finished!!!")

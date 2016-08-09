@@ -45,7 +45,7 @@ def swap_amazon_to_ppd(cat, sub_cat, title):
         return 'dress'
     if cat == 'tights':
         return verify_tights(title)
-    if cat == 'Dresses':
+    if cat == 'stockings':
         return 'stockings'
     elif cat == 'Tops & Tees':
         if sub_cat == 'Blouses & Button-Down Shirts':
@@ -180,18 +180,6 @@ def find_paperdoll_cat(family, title):
     return category, sub_category
 
 
-def verify_plus_size(size_list):
-    splited_list = []
-    for size in size_list:
-        size_upper = size.upper()
-        split = re.split(r'\(|\)| |-|,', size_upper)
-        for s in split:
-            splited_list.append(s)
-    if 'SMALL' in splited_list:
-        return False
-    return any(size for size in splited_list if size in plus_sizes)
-
-
 def insert_items(collection_name, item_list, items_in_page, print_flag, family_tree, plus_size_flag=False):
     collection = db[collection_name]
 
@@ -249,12 +237,12 @@ def insert_items(collection_name, item_list, items_in_page, print_flag, family_t
 
             color = attributes['Color']
             sizes = [clothing_size]
-            if plus_size_flag:
-                plus_size = verify_plus_size(sizes)
-                if not plus_size:
-                    if print_flag:
-                        print_error('Not a Plus Size', attr_keys)
-                    continue
+            # if plus_size_flag:
+            #     plus_size = verify_plus_size(sizes)
+            #     if not plus_size:
+            #         if print_flag:
+            #             print_error('Not a Plus Size', attr_keys)
+            #         continue
 
             parent_asin_exists = collection.find_one({'parent_asin': parent_asin, 'features.color': color})
             if parent_asin_exists:
@@ -298,11 +286,11 @@ def insert_items(collection_name, item_list, items_in_page, print_flag, family_t
                 print ('hash already exists')
                 continue
 
-            # p_hash = get_p_hash(pil_image)
-            # p_hash_exists = collection.find_one({'p_hash': p_hash})
-            # if p_hash_exists:
-            #     print ('p_hash already exists')
-            #     continue
+            p_hash = get_p_hash(image)
+            p_hash_exists = collection.find_one({'p_hash': p_hash})
+            if p_hash_exists:
+                print ('p_hash already exists')
+                continue
 
             short_d = attributes['Title']
             if 'Feature' in attr_keys:
@@ -332,7 +320,7 @@ def insert_items(collection_name, item_list, items_in_page, print_flag, family_t
                         'fingerprint': None,
                         'gender': gender,
                         'img_hash': img_hash,
-                        # 'p_hash': p_hash,
+                        'p_hash': p_hash,
                         'download_data': {'dl_version': today_date,
                                           'first_dl': today_date,
                                           'fp_version': fingerprint_version},

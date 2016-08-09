@@ -88,7 +88,7 @@ def binary_array_to_hex(arr):
     return "".join(s)
 
 
-def get_p_hash(image, hash_size=8, img_size=8):
+def get_p_hash(image, hash_size=16, img_size=16):
     image = Image.fromarray(image)
     image = image.convert("L").resize((img_size, img_size), Image.ANTIALIAS)
     pixels = np.array(image.getdata(), dtype=np.float).reshape((img_size, img_size))

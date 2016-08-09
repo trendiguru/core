@@ -12,9 +12,9 @@ from datetime import datetime
 from amazon_worker import insert_items
 from .fanni import plantAnnoyForest, reindex_forest
 from .shopstyle_constants import shopstyle_paperdoll_female, shopstyle_paperdoll_male
-from .amazon_constants import blacklist, colors, status_log, log_dir
+from .amazon_constants import blacklist, colors, status_log, log_dir, plus_sizes
 from .dl_excel import mongo2xl
-
+import re
 
 forest = Queue('annoy_forest', connection=redis_conn)
 today_date = str(datetime.date(datetime.now()))
@@ -533,6 +533,63 @@ def download_all(collection_name, gender='Female', del_collection=False, del_cac
     log2file(mode='a', log_filename=log_name, message=message, print_flag=True)
 
 
+def verify_plus_size(size_list):
+    splited_list = []
+    for size in size_list:
+        size_upper = size.upper()
+        split = re.split(r'\(|\)| |-|,', size_upper)
+        for s in split:
+            splited_list.append(s)
+    if 'SMALL' in splited_list:
+        return False
+    return any(size for size in splited_list if size in plus_sizes)
+
+
+def update_plus_size_collection(gender):
+    amaze_start = time()
+    amaze_name = 'amaze_%s' % gender
+    amaze = db[amaze_name]
+    amaze_info = {"start_date": today_date,
+                  'dl_duration': 0,
+                  'items_before': amaze.count()}
+    amazon_name = 'amazon_US_%s' % gender
+    amazon = db[amazon_name].find()
+
+    for item in amazon:
+        idx = item['id']
+        # check if already exists in plus collection
+        exists = amaze.find({'id': idx}).count()
+        if exists:
+            continue
+        sizes = item['sizes']
+        if type(sizes) != list:
+            sizes = [sizes]
+
+        its_plus_size = verify_plus_size(sizes)
+        if its_plus_size:
+            amaze.insert_one(item)
+
+    thearchivedoorman(amaze_name, instock_limit=14, archive_limit=21)
+    print_error('ARCHIVE DOORMAN FINISHED')
+    for category in categories:
+        forest_amaze = forest.enqueue(plantAnnoyForest, args=(amaze_name, category, 250), timeout=1800)
+        while not forest_amaze.is_finished and not forest_amaze.is_failed:
+            sleep(60)
+        if forest_amaze.is_failed:
+            print ('annoy for %s failed' % category)
+        else:
+            print ('annoy for %s done' % category)
+    reindex_forest(amaze_name)
+    refresh_similar_results('amaze')
+
+    amaze_end = time()
+    amaze_info['dl_duration'] = amaze_end - amaze_start
+    amaze_info['items_after'] = db[col_name].count()
+    new_amaze_items = amaze.find({'download_data.first_dl': today_date}).count()
+    amaze_info['items_new'] = new_amaze_items
+    mongo2xl(amaze_name, dl_info)
+
+
 def get_user_input():
     parser = argparse.ArgumentParser(description='"@@@ Amazon Download @@@')
     parser.add_argument('-c', '--code', default="US", dest="country_code",
@@ -660,6 +717,9 @@ if __name__ == "__main__":
     col_upper = col_name.upper()
     print_error('%s DOWNLOAD FINISHED' % col_upper)
 
+    update_plus_size_collection(col_gender)
+    plus = col_upper + ' PLUS SIZE'
+    print_error('%s FINISHED' % plus)
 
 '''
 useful request parameters:
