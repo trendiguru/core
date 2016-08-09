@@ -16,7 +16,7 @@ def verify_tights(title):
     title_upper = title.upper()
     if any(x in title_upper for x in ['STOCKING', 'STOCKINGS']):
         return 'stockings'
-    elif any(x in title_upper for x in ['DRESS', 'DRESSES', 'MAXI']):
+    elif any(x in title_upper for x in ['DRESS', 'DRESSES', 'MAXI', 'GOWN']):
         return 'dress'
     elif any(x in title_upper for x in ['TOP', 'TOPS']):
         return 'top'
@@ -30,12 +30,14 @@ def verify_tights(title):
         return 'pants'
     elif any(x in title_upper for x in ['SKIRT', 'SKIRTS', 'SKORT', 'SKORTS', 'MINI']):
         return 'skirt'
-    elif any(x in title_upper for x in ['COAT', 'FUX', 'COATS', 'OUTWEAR']):
+    elif any(x in title_upper for x in ['COAT', 'FAUX', 'COATS', 'OUTWEAR']):
         return 'coat'
     elif any(x in title_upper for x in ['JACKET', 'JACKETS']):
         return 'jacket'
-    else:
+    elif 'TIGHTS' in title_upper:
         return 'tights'
+    else:
+        return ''
 
 
 def swap_amazon_to_ppd(cat, sub_cat, title):
