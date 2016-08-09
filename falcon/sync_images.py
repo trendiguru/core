@@ -80,7 +80,7 @@ class Images(object):
         resp.status = falcon.HTTP_200
         print "ON_POST took {0} seconds".format(time.time()-start)
 
-    def on_get(self, req, resp, **kwargs):
+    def on_get(self, req, resp):
         ret = {}
         image_url = req.get_param("imageUrl")
         pid = req.get_param("pid") or 'default'
