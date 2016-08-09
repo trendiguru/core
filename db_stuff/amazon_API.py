@@ -643,7 +643,7 @@ if __name__ == "__main__":
     new_items = col.find({'download_data.first_dl': today_date}).count()
     dl_info['items_new'] = new_items
 
-    mongo2xl('amazon_US', dl_info)
+    mongo2xl(col_name, dl_info)
 
     notes_full_path = 'collections.' + col_name + '.notes'
     db.download_status.update_one({"date": today_date}, {"$set": {status_full_path: "Done",
