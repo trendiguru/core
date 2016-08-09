@@ -59,10 +59,10 @@ def parse(img_url_or_cv2_array, _eng=None, filename=None):
     filename = filename or rand_string()
     img_ok = image_big_enough(img)
     if img_ok and cv2.imwrite(filename + '.jpg', img):
-        mask, label_dict, pose = raw_parse(filename + '.jpg', _eng=_eng)
+        mask, label_names, pose = raw_parse(filename + '.jpg', _eng=_eng)
         mask_np = np.array(mask, dtype=np.uint8)
         pose_np = np.array(pose, dtype=np.uint8)
-
+        label_dict = dict(zip(label_names, range(0, len(label_names))))
         return mask_np, label_dict, pose_np, filename
     else:
         if img_ok:

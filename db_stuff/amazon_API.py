@@ -91,7 +91,7 @@ def make_itemsearch_request(pagenum, node_id, min_price, max_price, price_flag=T
         parameters['MinimumPrice'] = format_price(min_price)
         parameters['MaximumPrice'] = format_price(max_price)
     if plus_size_flag:
-        parameters['Keywords'] = 'plus-size'
+        parameters['Keywords'] = 'plus'
     color_flag = False
     if len(color):
         color_flag = True
@@ -100,7 +100,7 @@ def make_itemsearch_request(pagenum, node_id, min_price, max_price, price_flag=T
         else:
             parameters['Keywords'] = color
 
-    if not category:
+    if category is not None:
         if plus_size_flag or color_flag:
             parameters['Keywords'] += ',%s' % category
         else:
@@ -131,7 +131,7 @@ def make_itemsearch_request(pagenum, node_id, min_price, max_price, price_flag=T
         if 'TotalResults' in res_dict.keys():
             results_count = int(res_dict['TotalResults'])
         else:
-            err_msg = 'no TotalResualts'
+            err_msg = 'no TotalResults'
             raise ValueError(err_msg)
 
         if results_count == 0:
@@ -232,7 +232,7 @@ def filter_by_color(collection_name, node_id, price, family_tree, plus_size_flag
     return
 
 
-def get_results(node_id, collection_name='moshe',  price_flag=True, max_price=3000.0, min_price=0.0,
+def get_results(node_id, collection_name='moshe',  price_flag=True, max_price=3000.0, min_price=5.0,
                 results_count_only=False, family_tree='moshe', plus_size_flag=False, category=None):
 
     current_last_price = last_price-0.01
@@ -345,8 +345,8 @@ def build_category_tree(parents, root='7141124011', tab=0, delete_collection=Tru
         p.append(name)
 
     if node_id == '1040660' or node_id == '1040658':
-        leaf_tights = leaf
-        leaf_stockings = leaf
+        leaf_tights = leaf.copy()
+        leaf_stockings = leaf.copy()
         leaf_tights['Name'] = 'tights'
         leaf_stockings['Name'] = 'stockings'
         leaf_tights['Children']['count'] = 0
@@ -355,7 +355,9 @@ def build_category_tree(parents, root='7141124011', tab=0, delete_collection=Tru
         leaf_stockings['Parents'] = p
         db.amazon_category_tree.delete_many({'BrowseNodeId': node_id, 'Name': {'$in': ['tights', 'stockings']}})
         db.amazon_category_tree.insert_one(leaf_tights)
+        print('tights inserted')
         db.amazon_category_tree.insert_one(leaf_stockings)
+        print('stockings inserted')
 
     for child in children:
         if 'BrowseNodeId' not in child.keys():
@@ -383,7 +385,7 @@ def clear_duplicates(collection_name):
     for i, item in enumerate(all_items):
         m, r = divmod(i, block_size)
         if r == 0:
-            last_pct = progress_bar(block_size, before, m, last_pct)
+            last_pct = progress_bar(block_size, bef, m, last_pct)
         item_id = item['_id']
         keys = item.keys()
         if any(x for x in ['id', 'parent_asin', 'img_hash', 'images', 'sizes', 'color'] if x not in keys):  # , 'p_hash'
@@ -421,7 +423,7 @@ def clear_duplicates(collection_name):
         img_url = item['images']['XLarge']
         collection.delete_many({'images.XLarge': img_url, '_id': {'$ne': item_id}})
     print('')
-    print_error('CLEAR DUPLICATES', 'count before : %d\ncount after : %d' % (before, collection.count()))
+    print_error('CLEAR DUPLICATES', 'count before : %d\ncount after : %d' % (bef, collection.count()))
 
 
 def download_all(collection_name, gender='Female', del_collection=False, del_cache=False,
