@@ -158,7 +158,7 @@ def swap_amazon_to_ppd(cat, sub_cat, title):
         return ''
 
 
-def find_paperdoll_cat(family):
+def find_paperdoll_cat(family, title):
     leafs = re.split(r'->', family)
     category = leafs[3]
     sub_category = None
@@ -170,7 +170,7 @@ def find_paperdoll_cat(family):
         sub2 = leafs[5]
         sub_category = '%s.%s' % (sub_category, sub2)
 
-    category = swap_amazon_to_ppd(category, sub1)
+    category = swap_amazon_to_ppd(category, sub1, title)
     return category, sub_category
 
 
