@@ -15,6 +15,7 @@ from . import shopstyle_constants
 from .shopstyle2generic import convert2generic
 from ..fingerprint_core import generate_mask_and_insert
 from . import dl_excel
+from .db_utils import refresh_similar_results
 
 
 q = Queue('fingerprinter4db', connection=constants.redis_conn)
@@ -450,6 +451,7 @@ class UrlParams(collections.MutableMapping):
     def encoded(self):
         return self.__class__.encode_params(self)
 
+
 def getUserInput():
     parser = argparse.ArgumentParser(description='"@@@ Shopstyle Download @@@')
     parser.add_argument('-n', '--name',default="ShopStyle", dest= "name",
@@ -461,11 +463,11 @@ def getUserInput():
 
 if __name__ == "__main__":
     user_input = getUserInput()
-    col = user_input.name
+    col_name = user_input.name
     gender = user_input.gender
 
-    if gender in ['Female','Male'] and col in ["ShopStyle","GangnamStyle"]:
-        col = col + "_" +gender
+    if gender in ['Female','Male'] and col_name in ["ShopStyle","GangnamStyle"]:
+        col = col_name + "_" +gender
     else:
         print("bad input - gender should be only Female or Male (case sensitive)")
         sys.exit(1)
@@ -479,4 +481,5 @@ if __name__ == "__main__":
     if forest_job.is_failed:
         print ('annoy plant forest failed')
 
+    refresh_similar_results(col_name)
     print (col + "Update Finished!!!")

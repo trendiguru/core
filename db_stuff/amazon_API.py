@@ -4,7 +4,7 @@ from amazon_signature import get_amazon_signed_url
 from time import strftime, gmtime, sleep, time
 from requests import get
 import xmltodict
-from db_utils import log2file, print_error, theArchiveDoorman, progress_bar
+from db_utils import log2file, print_error, theArchiveDoorman, progress_bar, refresh_similar_results
 from ..Yonti.pymongo_utils import delete_or_and_index
 from ..constants import db, redis_conn
 from rq import Queue
@@ -183,7 +183,7 @@ def process_results(collection_name, pagenum, node_id, min_price, max_price, fam
 
 
 def iterate_over_pagenums(total_pages, results_count, collection_name, node_id, min_price, max_price, family_tree,
-                          res_dict, plus_size_flag , color='', category=None):
+                          res_dict, plus_size_flag, color='', category=None):
     if total_pages == 1:
         num_of_items_in_page = results_count
     else:
@@ -219,7 +219,7 @@ def filter_by_color(collection_name, node_id, price, family_tree, plus_size_flag
                                                           plus_size_flag=plus_size_flag, family_tree=family_tree,
                                                           category=category)
         if results_count < 1:
-            no_results_seq+=1
+            no_results_seq += 1
             continue
 
         total_pages = int(res_dict['TotalPages'])
@@ -346,18 +346,16 @@ def build_category_tree(parents, root='7141124011', tab=0, delete_collection=Tru
 
     if node_id == '1040660' or node_id == '1040658':
         leaf_tights = leaf.copy()
-        leaf_stockings = leaf.copy()
         leaf_tights['Name'] = 'tights'
-        leaf_stockings['Name'] = 'stockings'
         leaf_tights['Children']['count'] = 0
-        leaf_stockings['Children']['count'] = 0
         leaf_tights['Parents'] = p
-        leaf_stockings['Parents'] = p
         db.amazon_category_tree.delete_many({'BrowseNodeId': node_id, 'Name': {'$in': ['tights', 'stockings']}})
         db.amazon_category_tree.insert_one(leaf_tights)
-        print('tights inserted')
+        print('\t\ttights inserted')
+        leaf_stockings = leaf_tights.copy()
+        leaf_stockings['Name'] = 'stockings'
         db.amazon_category_tree.insert_one(leaf_stockings)
-        print('stockings inserted')
+        print('\t\tstockings inserted')
 
     for child in children:
         if 'BrowseNodeId' not in child.keys():
@@ -584,10 +582,12 @@ if __name__ == "__main__":
     if plus_size:
         col_name = 'amaze_%s' % col_gender
         title = "@@@ Amaze-Magazine Download @@@"
+        refresh_name = 'amaze'
 
     else:
         col_name = 'amazon_%s_%s' % (cc_upper, col_gender)
         title = "@@@ Amazon Download @@@"
+        refresh_name = 'amazon_%s' % cc_upper
 
     log_name = log_name + col_name + '.log'
     title2 = "you choose to update the %s collection" % col_name
@@ -637,6 +637,8 @@ if __name__ == "__main__":
             print ('annoy for %s failed' % cat)
     reindex_forest(col_name)
 
+    refresh_similar_results(refresh_name)
+
     # to add download summery
     end = time()
     duration = end - start
@@ -650,6 +652,7 @@ if __name__ == "__main__":
     notes_full_path = 'collections.' + col_name + '.notes'
     db.download_status.update_one({"date": today_date}, {"$set": {status_full_path: "Done",
                                                                   notes_full_path: new_items}})
+
     col_upper = col_name.upper()
     print_error('%s DOWNLOAD FINISHED' % col_upper)
 
