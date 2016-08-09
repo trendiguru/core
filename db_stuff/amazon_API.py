@@ -346,7 +346,9 @@ def build_category_tree(parents, root='7141124011', tab=0, delete_collection=Tru
 
     if node_id == '1040660' or node_id == '1040658':
         leaf_tights = leaf
+        leaf_tights.pop('_id')
         leaf_stockings = leaf
+        leaf_stockings.pop('_id')
         leaf_tights['Name'] = 'tights'
         leaf_stockings['Name'] = 'stockings'
         leaf_tights['Children']['count'] = 0
