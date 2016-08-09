@@ -45,7 +45,7 @@ def swap_amazon_to_ppd(cat, sub_cat, title):
         return 'dress'
     if cat == 'tights':
         return verify_tights(title)
-    if cat == 'Dresses':
+    if cat == 'stockings':
         return 'stockings'
     elif cat == 'Tops & Tees':
         if sub_cat == 'Blouses & Button-Down Shirts':
