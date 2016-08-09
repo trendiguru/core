@@ -356,6 +356,8 @@ def build_category_tree(parents, root='7141124011', tab=0, delete_collection=Tru
         db.amazon_category_tree.delete_many({'BrowseNodeId': node_id, 'Name': {'$in': ['tights', 'stockings']}})
         db.amazon_category_tree.insert_one(leaf_tights)
         print('tights inserted')
+        print(leaf_tights)
+        print(leaf_stockings)
         db.amazon_category_tree.insert_one(leaf_stockings)
         print('stockings inserted')
 
