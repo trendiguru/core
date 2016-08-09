@@ -1,5 +1,3 @@
-__author__ = 'shelhammer'
-
 from __future__ import division
 import caffe
 import numpy as np
@@ -7,6 +5,9 @@ import os
 import sys
 from datetime import datetime
 from PIL import Image
+
+__author__ = 'shelhammer'
+
 
 def fast_hist(a, b, n):
     k = (a >= 0) & (a < n)

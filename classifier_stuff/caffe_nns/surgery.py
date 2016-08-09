@@ -1,8 +1,7 @@
-__author__ = 'shelhammer'
-
 from __future__ import division
 import caffe
 import numpy as np
+__author__ = 'shelhammer'
 
 def transplant(new_net, net, suffix=''):
     for p in net.params:
