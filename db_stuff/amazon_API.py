@@ -77,7 +77,7 @@ def format_price(price_float, period=False):
 
 
 def make_itemsearch_request(pagenum, node_id, min_price, max_price, price_flag=True, print_flag=False, color='',
-                            plus_size_flag=False, family_tree='sequoia', category=''):
+                            plus_size_flag=False, family_tree='sequoia', category=None):
     global error_flag, last_price
 
     parameters = base_parameters.copy()
@@ -100,7 +100,7 @@ def make_itemsearch_request(pagenum, node_id, min_price, max_price, price_flag=T
         else:
             parameters['Keywords'] = color
 
-    if len(category):
+    if not category:
         if plus_size_flag or color_flag:
             parameters['Keywords'] += ',%s' % category
         else:
