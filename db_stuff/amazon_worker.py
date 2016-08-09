@@ -12,13 +12,35 @@ today_date = str(datetime.date(datetime.now()))
 q = Queue('fingerprinter4db', connection=redis_conn)
 
 
-def swap_amazon_to_ppd(cat, sub_cat):
+def verify_tights(title):
+    title_upper = title.upper()
+    if any(x in title_upper for x in ['STOCKING', 'STOCKINGS']):
+        return 'stockings'
+    elif any(x in title_upper for x in ['DRESS', 'DRESSES', 'MAXI']):
+        return 'dress'
+    elif any(x in title_upper for x in ['TOP', 'TOPS']):
+        return 'top'
+    elif any(x in title_upper for x in ['SHIRT', 'SHIRTS']):
+        return 'shirt'
+    elif 'JEANS' in title_upper:
+        return 'jeans'
+    elif any(x in title_upper for x in ['TEES', 'TEE', 'T-SHIRT', 'T-SHIRTS']):
+        return 't-shirt'
+    elif any(x in title_upper for x in ['PANTS', 'PANT']):
+        return 'pants'
+    elif any(x in title_upper for x in ['SKIRT', 'SKIRTS', 'SKORT', 'SKORTS', 'MINI']):
+        return 'skirt'
+    else:
+        return 'tights'
+
+
+def swap_amazon_to_ppd(cat, sub_cat, title):
     if cat == 'Dresses':
-        return 'dress', sub_cat
+        return 'dress'
     if cat == 'tights':
-        return 'tights', None
+        return verify_tights(title)
     if cat == 'Dresses':
-        return 'stockings', None
+        return 'stockings'
     elif cat == 'Tops & Tees':
         if sub_cat == 'Blouses & Button-Down Shirts':
             return 'blouse'
@@ -282,7 +304,7 @@ def insert_items(collection_name, item_list, items_in_page, print_flag, family_t
             else:
                 long_d = ''
 
-            category, sub_category = find_paperdoll_cat(family_tree)
+            category, sub_category = find_paperdoll_cat(family_tree, short_d)
             if len(category) == 0:
                 category = 'unKnown'
 

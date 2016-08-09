@@ -6,7 +6,7 @@ from .recruit_worker import genreDownloader, GET_ByGenreId, deleteDuplicates
 from datetime import datetime
 from .dl_excel import mongo2xl
 from .fanni import plantForests4AllCategories
-from db_utils import log2file, theArchiveDoorman, refresh_similar_results
+from db_utils import log2file, thearchivedoorman, refresh_similar_results
 today_date = str(datetime.date(datetime.now()))
 
 q = Queue('recruit_worker', connection=redis_conn)
@@ -131,7 +131,7 @@ def download_recruit(delete=False):
         new_count += collection.find({'download_data.first_dl': today_date}).count()
         status_full_path = 'collections.' + col_name + '.status'
         db.download_status.update_one({"date": today_date}, {"$set": {status_full_path: "Finishing"}})
-        theArchiveDoorman(col_name)
+        thearchivedoorman(col_name)
         forest_job = forest.enqueue(plantForests4AllCategories, col_name=col_name, timeout=3600)
         while not forest_job.is_finished and not forest_job.is_failed:
             sleep(300)
