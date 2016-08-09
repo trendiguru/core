@@ -26,7 +26,8 @@ layer {
   }
   convolution_param {
     num_output: 64
-    pad: 100  #wtf is going with this...
+#    pad: 1  #why 100?  bottom[0]->shape(i) - crop_offset >= bottom[1]->shape(i) (57 vs. 224) the crop for dimension 2 is out-of-bounds with size 224 and offset 31
+    pad: 100
     kernel_size: 3
     stride: 1
   }
