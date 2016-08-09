@@ -16,7 +16,7 @@ def verify_tights(title):
     title_upper = title.upper()
     if any(x in title_upper for x in ['STOCKING', 'STOCKINGS']):
         return 'stockings'
-    elif any(x in title_upper for x in ['DRESS', 'DRESSES', 'MAXI']):
+    elif any(x in title_upper for x in ['DRESS', 'DRESSES', 'MAXI', 'GOWN']):
         return 'dress'
     elif any(x in title_upper for x in ['TOP', 'TOPS']):
         return 'top'
@@ -30,8 +30,14 @@ def verify_tights(title):
         return 'pants'
     elif any(x in title_upper for x in ['SKIRT', 'SKIRTS', 'SKORT', 'SKORTS', 'MINI']):
         return 'skirt'
-    else:
+    elif any(x in title_upper for x in ['COAT', 'FAUX', 'COATS', 'OUTWEAR']):
+        return 'coat'
+    elif any(x in title_upper for x in ['JACKET', 'JACKETS']):
+        return 'jacket'
+    elif 'TIGHTS' in title_upper:
         return 'tights'
+    else:
+        return ''
 
 
 def swap_amazon_to_ppd(cat, sub_cat, title):
@@ -158,7 +164,7 @@ def swap_amazon_to_ppd(cat, sub_cat, title):
         return ''
 
 
-def find_paperdoll_cat(family):
+def find_paperdoll_cat(family, title):
     leafs = re.split(r'->', family)
     category = leafs[3]
     sub_category = None
@@ -170,7 +176,7 @@ def find_paperdoll_cat(family):
         sub2 = leafs[5]
         sub_category = '%s.%s' % (sub_category, sub2)
 
-    category = swap_amazon_to_ppd(category, sub1)
+    category = swap_amazon_to_ppd(category, sub1, title)
     return category, sub_category
 
 
