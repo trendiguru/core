@@ -26,7 +26,8 @@ layer {
   }
   convolution_param {
     num_output: 64
-    pad: 100
+    pad: 1
+#    pad: 100
     kernel_size: 3
     stride: 1
   }
