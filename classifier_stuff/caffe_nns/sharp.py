@@ -636,11 +636,15 @@ def replace_pythonlayer(proto):
     in_data = False
     lines = proto.split('\n')
     outstring = ''
+    new_layer_flag = False
     for i in range(len(lines)):
 #        print('in  line:'+ line+str(in_deconv))
         if 'layer {' in line or 'layer{' in line:
             start_layer = i
             in_data = False
+            new_layer_flag = True
+        else:
+            new_layer_flag = False
         if 'type' in line:
             if 'Data' in line:
                 in_data = True
@@ -653,7 +657,11 @@ def replace_pythonlayer(proto):
         if not in_data:
             outstring = outstring+line+'\n'
         else:
-    return outstring
+            pass
+        if new_layer_flag:
+            print('layer buf:')
+            print layer_buf
+#    return outstring
 
 #    param_str: "{\'images_and_labels_file\': \'/home/jeremy/image_dbs/colorful_fashion_parsing_data/images_and_labelsfile_train.txt\', \'mean\': (104.0, 116.7, 122.7),\'augment\':True,\'augment_crop_size\':(224,224), \'batch_size\':9 }"
 
@@ -672,7 +680,7 @@ if __name__ == "__main__":
     proto = vgg16('thedb')
     proto = unet('thedb')
     proto = correct_deconv(str(proto))
-    replace_pythonlayer()
+    replace_pythonlayer(proto)
 
 
     with open('train_experiment.prototxt','w') as f:
