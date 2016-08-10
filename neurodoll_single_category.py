@@ -191,7 +191,8 @@ modelpath = '/home/jeremy/caffenets/production'
 print('loading caffemodel for neurodoll (single class layers)')
 MODEL_FILE = os.path.join(modelpath,'voc8_15_pixlevel_deploy.prototxt')
 SINGLE_CLASS_LAYER_DEPLOY = os.path.join(modelpath,"voc8_15_pixlevel_deploy_with_sigmoid.prototxt")
-PRETRAINED = os.path.join(modelpath,"voc8_15_pixlevel_iter120000.caffemodel")
+#PRETRAINED = os.path.join(modelpath,'voc8_15_pixlevel_iter120000.caffemodel')
+PRETRAINED = os.path.join(modelpath,'voc8_15_0816_iter10000_pixlevel_deploy.caffemodel')
 
 caffe.set_mode_gpu()
 caffe.set_device(0)

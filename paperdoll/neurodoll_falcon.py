@@ -28,7 +28,7 @@ class PaperResource:
 
         get_combined_results = req.get_param('getCombinedResults')
         print('get combined:'+str(get_combined_results))
-        get_multilabel_results = get_combined_results == "true" or get_combined_results == "True" or get_combined_results == True
+        get_combined_results = get_combined_results == "true" or get_combined_results == "True" or get_combined_results == True
 
         ret = {"success": False}
         try:
