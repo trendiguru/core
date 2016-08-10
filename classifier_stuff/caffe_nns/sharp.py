@@ -630,17 +630,7 @@ def correct_deconv(proto):
     return outstring
 
 def replace_pythonlayer():
-    layer = 'layer {
-    name: \"data\"
-    type: \"Python\"
-    top: \"data\"
-    top: \"label\"
-    python_param {
-    module: \"jrlayers\"
-    layer: \"JrPixlevel\"
-    param_str: \"{\"images_and_labels_file\": \"/home/jeremy/image_dbs/colorful_fashion_parsing_data/images_and_labelsfile_train.txt\", \"mean\": (104.0, 116.7, 122.7),\"augment\":True,\"augment_crop_size\":(224,224), \"batch_size\":9 }\"
-    }
-  }'
+    layer = 'layer {\n    name: \"data\"\n    type: \"Python\"\n    top: \"data\"\n    top: \"label\"\n    python_param {\n    module: \"jrlayers\"\n    layer: \"JrPixlevel\"\n    param_str: \"{\"images_and_labels_file\": \"/home/jeremy/image_dbs/colorful_fashion_parsing_data/images_and_labelsfile_train.txt\", \"mean\": (104.0, 116.7, 122.7),\"augment\":True,\"augment_crop_size\":(224,224), \"batch_size\":9 }\"\n    }\n  }'
     print layer
 
 '''
