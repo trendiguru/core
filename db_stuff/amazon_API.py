@@ -571,7 +571,13 @@ def update_plus_size_collection(gender):
 
     thearchivedoorman(amaze_name, instock_limit=14, archive_limit=21)
     print_error('ARCHIVE DOORMAN FINISHED')
-    for category in categories:
+
+    if gender == 'Female':
+        cats = list(set(shopstyle_paperdoll_female.values()))
+    else:
+        cats = list(set(shopstyle_paperdoll_male.values()))
+
+    for category in cats:
         forest_amaze = forest.enqueue(plantAnnoyForest, args=(amaze_name, category, 250), timeout=1800)
         while not forest_amaze.is_finished and not forest_amaze.is_failed:
             sleep(60)
