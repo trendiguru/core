@@ -620,13 +620,51 @@ def correct_deconv(proto):
                 in_deconv = True
             else:
                 in_deconv = False
-        if in_deconv and 'type' in line:
+        if '}' in line:
+            in_deconv = False
+        if in_deconv and 'type:' in line and 'Convolution' in line:
             line = 'type:\"Deconvolution\"'
 #        print('out line:'+ line)
         outlines.append(line)
         outstring = outstring+line+'\n'
     return outstring
 
+def replace_pythonlayer(proto):
+    layer = 'layer {\n    name: \"data\"\n    type: \"Python\"\n    top: \"data\"\n    top: \"label\"\n    python_param {\n    module: \"jrlayers\"\n    layer: \"JrPixlevel\"\n    param_str: \"{\\\"images_and_labels_file\\\": \\\"/home/jeremy/image_dbs/colorful_fashion_parsing_data/images_and_labelsfile_train.txt\\\", \\\"mean\\\": (104.0, 116.7, 122.7),\\\"augment\\\":True,\\\"augment_crop_size\\\":(224,224), \\\"batch_size\\\":9 }\"\n    }\n  }'
+    print layer
+    outlines = []
+    in_data = False
+    lines = proto.split('\n')
+    outstring = ''
+    for i in range(len(lines)):
+#        print('in  line:'+ line+str(in_deconv))
+        if 'layer {' in line or 'layer{' in line:
+            start_layer = i
+            in_data = False
+        if 'type' in line:
+            if 'Data' in line:
+                in_data = True
+            else:
+                in_data = False
+        if in_data and 'type:' in line and 'Convolution' in line:
+            line = 'type:\"Deconvolution\"'
+#        print('out line:'+ line)
+        layer_buf = layer_buf + line
+        if not in_data:
+            outstring = outstring+line+'\n'
+        else:
+    return outstring
+
+#    param_str: "{\'images_and_labels_file\': \'/home/jeremy/image_dbs/colorful_fashion_parsing_data/images_and_labelsfile_train.txt\', \'mean\': (104.0, 116.7, 122.7),\'augment\':True,\'augment_crop_size\':(224,224), \'batch_size\':9 }"
+
+'''
+  convolution_param {
+    num_output: 21
+    bias_term: false
+    kernel_size: 16
+    stride: 8
+  }
+'''
 if __name__ == "__main__":
 #    run_net(googLeNet_2_inceptions,nn_dir,db_name+'_train',db_name+'_test',batch_size = batch_size,n_classes=11,meanB=B,meanR=R,meanG=G,n_filters=50,n_ip1=1000)
 #    run_net(alexnet_linearized,nn_dir,db_name+'.train',db_name+'.test',batch_size = batch_size,n_classes=n_classes,meanB=B,meanR=R,meanG=G,n_filters=50,n_ip1=1000)
@@ -634,6 +672,9 @@ if __name__ == "__main__":
     proto = vgg16('thedb')
     proto = unet('thedb')
     proto = correct_deconv(str(proto))
+    replace_pythonlayer()
+
+
     with open('train_experiment.prototxt','w') as f:
         f.write(str(proto))
         f.close()
