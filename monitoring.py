@@ -61,6 +61,7 @@ def email(stats, title, recipients):
 
 def dummy_image():
     data = {"pageUrl": "dummy", "imageList": [MINUTE_IMAGE_URL]}
+    db.iip.delete_one({'image_urls': MINUTE_IMAGE_URL})
     requests.post(API_URL, data=json_util.dumps(data))
     image_obj = db.images.find_one({'image_urls': MINUTE_IMAGE_URL})
     start = time.time()
