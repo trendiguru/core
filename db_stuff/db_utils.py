@@ -276,7 +276,7 @@ def p_hash_many(col_name, redo_all=False):
                 sleep(60)
             break
 
-        except ValueError:
+        except:
             pass
 
     print_error('clear duplicates')
