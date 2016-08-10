@@ -7,7 +7,7 @@ from trendi import Utils
 
 def make_index(dir):
     '''
-    makes index.html based on  files in directory
+    makes index.html linking all html files in directory
     '''
     print('dir:' + str(dir))
     files = Utils.files_in_directory(dir)
@@ -30,6 +30,8 @@ def generate_index_html(dir, filter=''):
     write_index_html_with_images(dir,files)
 
 def write_index_html(dir, files):
+    '''makes a page with links to all files in dir
+    '''
     f = open('index.html', 'w')
     # write html file
     f.write('<HTML><HEAD><TITLE>classifier, fingerprint results</TITLE>\n')
