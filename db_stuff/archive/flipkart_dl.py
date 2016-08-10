@@ -1,20 +1,20 @@
 __author__ = 'yonatan'
 
-import csv
-import time
-import re
-import datetime
-import zipfile
 import StringIO
-import sys
+import csv
+import datetime
+import re
+import time
+import zipfile
 
 import requests
-
 from rq import Queue
-from . import dl_excel
-from ..constants import db, redis_conn
-from ..fingerprint_core import generate_mask_and_insert
-from .flipkart_constants import flipkart_relevant_categories, flipkart_paperdoll_women
+
+from core.db_stuff.archive.flipkart_constants import flipkart_relevant_categories, flipkart_paperdoll_women
+from core.db_stuff import dl_excel
+from core.constants import db, redis_conn
+from core.fingerprint_core import generate_mask_and_insert
+
 q = Queue('fingerprint_new', connection=redis_conn)
 
 today_date = str(datetime.datetime.date(datetime.datetime.now()))

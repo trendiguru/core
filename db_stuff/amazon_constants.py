@@ -1,5 +1,5 @@
 
-plus_sizes = ['XL', '1X', '2X', '3X', '4X', 'X', 'XX', 'XXX', 'XXXX', 'XXXXX', 'LARGE', 'PLUS']
+plus_sizes = ['XL', '1X', '2X', '3X', '4X', 'XX', 'XXX', 'XXXX', 'XXXXX', 'LARGE', 'PLUS']
 
 
 amazon_categories = {'Dresses': {'childs': ['Cocktail', 'Casual', 'Wedding Party', 'Prom & Homecoming', 'Club']},

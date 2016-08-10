@@ -590,10 +590,10 @@ def update_plus_size_collection(gender):
 
     amaze_end = time()
     amaze_info['dl_duration'] = amaze_end - amaze_start
-    amaze_info['items_after'] = db[col_name].count()
+    amaze_info['items_after'] = amaze.count()
     new_amaze_items = amaze.find({'download_data.first_dl': today_date}).count()
     amaze_info['items_new'] = new_amaze_items
-    mongo2xl(amaze_name, dl_info)
+    mongo2xl(amaze_name, amaze_info)
 
 
 def get_user_input():
