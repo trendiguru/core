@@ -69,14 +69,14 @@ for i in 1 2 3 4 5;
 done
 
 #send any .jpg  updated in last 100 minutes
-newfiles="$(find /tmp caffe* -mmin -100)"
+newfiles="$(find /tmp caffe* -mmin -100|grep jpg)"
 echo $newfiles
 for f in $newfiles;
    do echo $f;
    counter=$((counter+1))
    newname="$counter.jpg"
    echo $newname
-   scp $f root@104.155.22.95:/var/www/results/progress_plots/;
+   scp $f root@104.155.22.95:/var/www/results/progress_plots/$newname;
 #   rsync jpg root@37.58.64.220:/var/www/results/progress_plots;
 done
 
@@ -91,7 +91,9 @@ for i in 1;
    $com;
 done
 
-counter=$((counter+1))
+echo $counter
+let "counter=counter+1"
+ecoh $counter
 newname="$counter.jpg"
 echo $newname
-scp  /home/jeremy/caffenets/pixlevel/voc-fcn8s/voc8.15/net_output.txt.jpg root@104.155.22.95:/var/www/results/progress_plots/;
+scp  /home/jeremy/caffenets/pixlevel/voc-fcn8s/voc8.15/net_output.txt.jpg root@104.155.22.95:/var/www/results/progress_plots/newname;
