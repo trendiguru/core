@@ -363,7 +363,9 @@ def unet(db,mean_value=[112.0,112.0,112.0]):
     n.conv6_3,n.relu6_3 = conv_relu(n.conv6_2,n_output=512,kernel_size=7,pad=3)
 
     n.deconv1 = L.Deconvolution(n.conv6_3,param=[dict(lr_mult=lr_mult1,decay_mult=decay_mult1),dict(lr_mult=lr_mult2,decay_mult=decay_mult2)],
-                convolution_param=[dict(num_output=512,bias_term=False,kernel_size=2,stride=2)])
+                num_output=21)
+#    n.deconv1 = L.Deconvolution(n.conv6_3,param=[dict(lr_mult=lr_mult1,decay_mult=decay_mult1),dict(lr_mult=lr_mult2,decay_mult=decay_mult2)],
+#                convolution_param=[dict(num_output=512,bias_term=False,kernel_size=2,stride=2)])
     return n.to_proto()
 
 
