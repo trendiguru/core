@@ -92,7 +92,7 @@ done
 
 echo $counter
 let "counter=counter+1"
-ecoh $counter
+echo $counter
 newname="$counter.jpg"
 echo $newname
-scp  /home/jeremy/caffenets/pixlevel/voc-fcn8s/voc8.15/net_output.txt.jpg root@104.155.22.95:/var/www/results/progress_plots/newname;
+scp  /home/jeremy/caffenets/pixlevel/voc-fcn8s/voc8.15/net_output.txt.jpg root@104.155.22.95:/var/www/results/progress_plots/$newname;
