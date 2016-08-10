@@ -620,12 +620,29 @@ def correct_deconv(proto):
                 in_deconv = True
             else:
                 in_deconv = False
+        if '}' in line:
+            in_deconv = False
         if in_deconv and 'type:' in line and 'Convolution' in line:
             line = 'type:\"Deconvolution\"'
         print('out line:'+ line)
         outlines.append(line)
         outstring = outstring+line+'\n'
     return outstring
+
+def replace_pythonlayer():
+    layer = 'layer {
+    name: \"data\"
+    type: \"Python\"
+    top: \"data\"
+    top: \"label\"
+    python_param {
+    module: \"jrlayers\"
+    layer: \"JrPixlevel\"
+    param_str: \"{\"images_and_labels_file\": \"/home/jeremy/image_dbs/colorful_fashion_parsing_data/images_and_labelsfile_train.txt\", \"mean\": (104.0, 116.7, 122.7),\"augment\":True,\"augment_crop_size\":(224,224), \"batch_size\":9 }\"
+    }
+  }'
+    print layer
+
 '''
   convolution_param {
     num_output: 21
@@ -641,6 +658,9 @@ if __name__ == "__main__":
     proto = vgg16('thedb')
     proto = unet('thedb')
     proto = correct_deconv(str(proto))
+    replace_pythonlayer()
+
+
     with open('train_experiment.prototxt','w') as f:
         f.write(str(proto))
         f.close()
