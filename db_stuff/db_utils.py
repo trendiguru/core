@@ -271,11 +271,13 @@ def p_hash_many(col_name, redo_all=False):
                 phash_q.enqueue(phash_worker, args=(col_name, url, idx), timeout=1800)
                 while phash_q.count > 50000:
                     sleep(300)
+
+            while phash_q.count > 0:
+                sleep(60)
+            break
+
         except ValueError:
             pass
-
-    while phash_q.count > 0:
-        sleep(60)
 
     print_error('clear duplicates')
     all_updated = collection.find({}, {'p_hash': 1})
