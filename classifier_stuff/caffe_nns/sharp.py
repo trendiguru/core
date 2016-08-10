@@ -635,5 +635,3 @@ if __name__ == "__main__":
     with open('train_experiment.prototxt','w') as f:
         f.write(str(proto))
         f.close()
-    print('proto:')
-    print(str(proto))
