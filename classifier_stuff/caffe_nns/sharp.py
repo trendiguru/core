@@ -614,19 +614,26 @@ def correct_deconv(proto):
     lines = proto.split('\n')
     outstring = ''
     for line in lines:
-#        print('in  line:'+ line+str(in_deconv))
+        print('in  line:'+ line+str(in_deconv))
         if 'name' in line:
             if 'deconv' in line:
                 in_deconv = True
             else:
                 in_deconv = False
-        if in_deconv and 'type' in line:
+        if in_deconv and 'type:' in line and 'Convolution' in line:
             line = 'type:\"Deconvolution\"'
-#        print('out line:'+ line)
+        print('out line:'+ line)
         outlines.append(line)
         outstring = outstring+line+'\n'
     return outstring
-
+'''
+  convolution_param {
+    num_output: 21
+    bias_term: false
+    kernel_size: 16
+    stride: 8
+  }
+'''
 if __name__ == "__main__":
 #    run_net(googLeNet_2_inceptions,nn_dir,db_name+'_train',db_name+'_test',batch_size = batch_size,n_classes=11,meanB=B,meanR=R,meanG=G,n_filters=50,n_ip1=1000)
 #    run_net(alexnet_linearized,nn_dir,db_name+'.train',db_name+'.test',batch_size = batch_size,n_classes=n_classes,meanB=B,meanR=R,meanG=G,n_filters=50,n_ip1=1000)
