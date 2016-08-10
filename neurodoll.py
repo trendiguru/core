@@ -67,7 +67,7 @@ def infer_one(url_or_np_array,required_image_size=None,threshold = 0.01):
 #    in_ = in_[:,:,::-1]  for doing RGB -> BGR
     cv2.imwrite('test1234.jpg',in_) #verify that images are coming in as rgb
 
-#    in_ -= np.array((104,116,122.0))  #was not used in training!!
+    in_ -= np.array((104,116,122.0))  #was not used in training!!
     in_ = in_.transpose((2,0,1))   #wxhxc -> cxwxh
     # shape for input (data blob is N x C x H x W), set data
     net.blobs['data'].reshape(1, *in_.shape)
