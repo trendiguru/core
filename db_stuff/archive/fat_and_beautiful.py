@@ -1,4 +1,5 @@
 """
+download plus size from shopstyle
 126. plus-sizes
 127. plus-size-jeans
 128. plus-size-dresses
@@ -35,12 +36,12 @@ import sys
 import argparse
 import requests
 from rq import Queue
-from fanni import plantForests4AllCategories
-from ..constants import db, fingerprint_version as fp_version, redis_conn
-from . import shopstyle_constants
-from .shopstyle2generic import convert2generic
-from ..fingerprint_core import generate_mask_and_insert
-from . import dl_excel
+from core.db_stuff.fanni import plantForests4AllCategories
+from core.constants import db, fingerprint_version as fp_version, redis_conn
+from core.db_stuff import shopstyle_constants
+from core.db_stuff.shopstyle2generic import convert2generic
+from core.fingerprint_core import generate_mask_and_insert
+from core.db_stuff import dl_excel
 
 
 q = Queue('fingerprint_new', connection=redis_conn)
