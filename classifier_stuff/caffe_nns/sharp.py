@@ -642,7 +642,7 @@ def replace_pythonlayer(proto):
         line = lines[i]
 #        print('in  line:'+ line+str(in_deconv))
         if 'layer {' in line or 'layer{' in line:
-            start_layer = i
+            start_layer = i #
             in_data = False
             new_layer_flag = True
         else:
