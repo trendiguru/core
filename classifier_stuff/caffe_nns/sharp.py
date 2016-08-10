@@ -610,8 +610,9 @@ def inspect_net(caffemodel):
 def correct_deconv(proto):
     outlines = []
     in_deconv = False
-    for line in proto:
-        print('line:'+ line)
+    lines = proto.split('\n')
+    for line in lines:
+        print('in line:'+ line)
         if 'name' in line:
             if 'deconv' in line:
                 in_deconv = True
@@ -619,6 +620,7 @@ def correct_deconv(proto):
                 in_deconv = False
         if in_deconv and 'type' in line:
             line = 'type:\"Deconvolution\"'
+        print('out line:'+ line)
         outlines.append(line)
 
 if __name__ == "__main__":
