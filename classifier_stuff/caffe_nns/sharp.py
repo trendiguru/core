@@ -623,14 +623,14 @@ def correct_deconv(proto):
         if '}' in line:
             in_deconv = False
         if in_deconv and 'type:' in line and 'Convolution' in line:
-            line = 'type:\"Deconvolution\"'
+            line = '  type:\"Deconvolution\"'
 #        print('out line:'+ line)
         outlines.append(line)
         outstring = outstring+line+'\n'
     return outstring
 
 def replace_pythonlayer(proto):
-    pythonlayer = 'layer {\n    name: \"data\"\n    type: \"Python\"\n    top: \"data\"\n    top: \"label\"\n    python_param {\n    module: \"jrlayers\"\n    layer: \"JrPixlevel\"\n    param_str: \"{\\\"images_and_labels_file\\\": \\\"/home/jeremy/image_dbs/colorful_fashion_parsing_data/images_and_labelsfile_train.txt\\\", \\\"mean\\\": (104.0, 116.7, 122.7),\\\"augment\\\":True,\\\"augment_crop_size\\\":(224,224), \\\"batch_size\\\":9 }\"\n    }\n  }'
+    pythonlayer = 'layer {\n    name: \"data\"\n    type: \"Python\"\n    top: \"data\"\n    top: \"label\"\n    python_param {\n    module: \"jrlayers\"\n    layer: \"JrPixlevel\"\n    param_str: \"{\\\"images_and_labels_file\\\": \\\"/home/jeremy/image_dbs/colorful_fashion_parsing_data/images_and_labelsfile_train.txt\\\", \\\"mean\\\": (104.0, 116.7, 122.7),\\\"augment\\\":True,\\\"augment_crop_size\\\":(224,224), \\\"batch_size\\\":9 }\"\n    }\n  }\n'
 #    print pythonlayer
     in_data = False
     lines = proto.split('\n')
