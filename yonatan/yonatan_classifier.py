@@ -92,7 +92,7 @@ class Classifier(caffe.Net):
                 -self.crop_dims / 2.0,
                 self.crop_dims / 2.0
             ])
-            input_ = input_[:, crop[0]:crop[2], crop[1]:crop[3], :]
+            #input_ = input_[:, crop[0]:crop[2], crop[1]:crop[3], :]
 
         # Classify
         caffe_in = np.zeros(np.array(input_.shape)[[0, 3, 1, 2]],
