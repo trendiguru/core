@@ -263,6 +263,8 @@ def p_hash_many(col_name, redo_all=False):
         url = item['images']['XLarge']
         idx = item['_id']
         phash_q.enqueue(phash_worker, args=(col_name, url, idx), timeout=1800)
+        while phash_q.count > 50000:
+            sleep(300)
 
     while phash_q.count > 0:
         sleep(60)
