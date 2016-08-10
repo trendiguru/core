@@ -82,7 +82,6 @@ def infer_one(url_or_np_array,required_image_size=(256,256),threshold = 0.01):
     uniques = np.unique(out)
     image_size = out.shape[0]*out.shape[1]
     if required_image_size:
-        orig_h,orig_w = image.shape[0:2]
         out = cv2.resize(out,(orig_w,orig_h))
     for unique in uniques:
         pixelcount = len(out[out==unique])
