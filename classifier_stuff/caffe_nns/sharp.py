@@ -637,6 +637,7 @@ def replace_pythonlayer(proto):
     lines = proto.split('\n')
     outstring = ''
     new_layer_flag = False
+    layer_buf = ''
     for i in range(len(lines)):
         line = lines[i]
 #        print('in  line:'+ line+str(in_deconv))
@@ -662,6 +663,7 @@ def replace_pythonlayer(proto):
         if new_layer_flag:
             print('layer buf:')
             print layer_buf
+            layer_bug = ''
 #    return outstring
 
 #    param_str: "{\'images_and_labels_file\': \'/home/jeremy/image_dbs/colorful_fashion_parsing_data/images_and_labelsfile_train.txt\', \'mean\': (104.0, 116.7, 122.7),\'augment\':True,\'augment_crop_size\':(224,224), \'batch_size\':9 }"
