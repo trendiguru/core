@@ -65,7 +65,6 @@ for i in 1 2 3 4 5;
 #   echo "cpm"
    echo $com;
    $com;
-   counter=counter+1;
 done
 
 #send any .jpg  updated in last 100 minutes
@@ -73,7 +72,7 @@ newfiles="$(find /tmp caffe* -mmin -100|grep jpg)"
 echo $newfiles
 for f in $newfiles;
    do echo $f;
-   counter=$((counter+1))
+   let "counter=counter+1"
    newname="$counter.jpg"
    echo $newname
    scp $f root@104.155.22.95:/var/www/results/progress_plots/$newname;
