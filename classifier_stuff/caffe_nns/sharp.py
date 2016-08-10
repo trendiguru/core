@@ -611,6 +611,7 @@ def correct_deconv(proto):
     outlines = []
     in_deconv = False
     for line in proto:
+        print('line:'+ line)
         if 'name' in line:
             if 'deconv' in line:
                 in_deconv = True
