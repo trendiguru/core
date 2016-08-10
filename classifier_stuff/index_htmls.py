@@ -38,6 +38,8 @@ def write_index_html(dir, files):
     f.close
 
 def generate_filtered_index_html(dir, filter=''):
+        '''makes a page with image links to all files in dir with filter in the filename
+    '''
 #    files = [os.path.join(dir,f) for f in os.listdir(dir) if filter in f]
 # dont include dir - make files relative so html can be portable
     files = [f for f in os.listdir(dir) if filter in f]
