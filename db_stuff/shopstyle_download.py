@@ -15,7 +15,8 @@ from . import shopstyle_constants
 from .shopstyle2generic import convert2generic
 from ..fingerprint_core import generate_mask_and_insert
 from . import dl_excel
-from .db_utils import refresh_similar_results
+from .db_utils import refresh_similar_results, get_p_hash
+from ..Utils import get_cv2_img_array
 
 
 q = Queue('fingerprinter4db', connection=constants.redis_conn)
@@ -34,14 +35,14 @@ fp_version = constants.fingerprint_version
 
 
 def zip_through_all_categories():
-    c= constants.db.categories.find()
+    c = constants.db.categories.find()
     for i, cat in enumerate(c):
         print ('%d. %s' % (i, cat['name']))
         if not divmod(i, 50)[1]:
             raw_input('continue')
 
 
-class ShopStyleDownloader():
+class ShopStyleDownloader:
     def __init__(self,collection,gender):
         # connect to db
         dl_cache =  collection +'_cache'
@@ -80,7 +81,7 @@ class ShopStyleDownloader():
         end_time= time.time()
         total_time = (end_time - start_time)/3600
         self.status.update_one({"date": self.current_dl_date}, {"$set": {self.status_full_path: "Finishing Up"}})
-        del_items = self.collection.delete_many({'fingerprint': {"$exists": False}})
+        self.collection.delete_many({'fingerprint': {"$exists": False}})
         self.theArchiveDoorman()
 
         dl_info = {"start_date": self.current_dl_date,
@@ -284,13 +285,24 @@ class ShopStyleDownloader():
         :param prod: dictionary of shopstyle product
         :return: Nothing, void function
         """
-        while q.count>250000:
+        while q.count > 5000:
             print ("Q full - stolling")
             time.sleep(600)
 
-        q.enqueue(generate_mask_and_insert, doc=prod, image_url=prod["images"]["XLarge"],
-                  fp_date=self.current_dl_date, coll=self.collection_name)
-        # print "inserting,",
+        url = prod["images"]["XLarge"]
+        image = get_cv2_img_array(url)
+        if image is None:
+            return
+
+        p_hash = get_p_hash(image)
+        p_hash_exists = self.collection.find_one({'p_hash': p_hash})
+        if p_hash_exists:
+            print ('p_hash already exists')
+            return
+
+        prod['p_hash'] = p_hash
+        q.enqueue(generate_mask_and_insert, args=(prod, url, self.current_dl_date, self.collection_name, image, False),
+                  timeout=1800)
 
     def db_update(self, prod):
         # print "";print "Updating product {0}. ".format(prod["id"]),
@@ -452,7 +464,7 @@ class UrlParams(collections.MutableMapping):
         return self.__class__.encode_params(self)
 
 
-def getUserInput():
+def get_user_input():
     parser = argparse.ArgumentParser(description='"@@@ Shopstyle Download @@@')
     parser.add_argument('-n', '--name',default="ShopStyle", dest= "name",
                         help='collection name - currently only ShopStyle or GangnamStyle')
@@ -462,18 +474,18 @@ def getUserInput():
     return args
 
 if __name__ == "__main__":
-    user_input = getUserInput()
+    user_input = get_user_input()
     col_name = user_input.name
     gender = user_input.gender
 
-    if gender in ['Female','Male'] and col_name in ["ShopStyle","GangnamStyle"]:
-        col = col_name + "_" +gender
+    if gender in ['Female', 'Male'] and col_name in ["ShopStyle", "GangnamStyle"]:
+        col = col_name + "_" + gender
     else:
         print("bad input - gender should be only Female or Male (case sensitive)")
         sys.exit(1)
 
     print ("@@@ Shopstyle Download @@@\n you choose to update the " + col + " collection")
-    update_db = ShopStyleDownloader(col,gender)
+    update_db = ShopStyleDownloader(col, gender)
     update_db.db_download()
     forest_job = forest.enqueue(plantForests4AllCategories, col_name=col, timeout=3600)
     while not forest_job.is_finished and not forest_job.is_failed:
