@@ -47,8 +47,9 @@ def infer_one(url_or_np_array,required_image_size=(256,256),threshold = 0.01):
 #    im = im.resize(required_imagesize,Image.ANTIALIAS)
 
 #    in_ = in_.astype(float)
-    if required_image_size:
-        orig_h,orig_w = image.shape[0:2]
+    if required_image_size is not None:
+        original_h,original_w = image.shape[0:2]
+        logging.debug('resizing nd input to '+str(required_image_size))
         image = imutils.resize_keep_aspect(image,output_size=required_image_size,output_file=None)
     in_ = np.array(image, dtype=np.float32)   #.astype(float)
     if in_ is None:
@@ -81,8 +82,9 @@ def infer_one(url_or_np_array,required_image_size=(256,256),threshold = 0.01):
 #TODO - make the threshold per item ,e.g. small shoes are ok and should be left in
     uniques = np.unique(out)
     image_size = out.shape[0]*out.shape[1]
-    if required_image_size:
-        out = cv2.resize(out,(orig_w,orig_h))
+    if required_image_size is not None:
+        out = cv2.resize(out,(original_w,original_h))
+        logging.debug('resizing nd input to '+str(original_h)+'x'+str(original_w))
     for unique in uniques:
         pixelcount = len(out[out==unique])
         if float(pixelcount)/image_size < threshold:
