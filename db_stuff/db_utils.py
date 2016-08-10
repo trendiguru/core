@@ -248,7 +248,7 @@ def phash_worker(col_name, url, idx):
 def p_hash_many(col_name, redo_all=False):
     collection = db[col_name]
     col_indexes = get_indexes_names(collection)
-    if 'p_hash_1' not in col_indexes:
+    if 'p_hash' not in col_indexes:
         collection.create_index('p_hash', background=True)
 
     if redo_all:
