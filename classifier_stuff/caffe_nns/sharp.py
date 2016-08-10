@@ -626,7 +626,7 @@ if __name__ == "__main__":
 
     proto = vgg16('thedb')
     proto = unet('thedb')
-    proto = correct_deconv(proto)
+    proto = correct_deconv(str(proto))
     with open('train_experiment.prototxt','w') as f:
         f.write(str(proto))
         f.close()
