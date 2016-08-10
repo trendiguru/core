@@ -630,14 +630,17 @@ def correct_deconv(proto):
     return outstring
 
 def replace_pythonlayer(proto):
-    layer = 'layer {\n    name: \"data\"\n    type: \"Python\"\n    top: \"data\"\n    top: \"label\"\n    python_param {\n    module: \"jrlayers\"\n    layer: \"JrPixlevel\"\n    param_str: \"{\\\"images_and_labels_file\\\": \\\"/home/jeremy/image_dbs/colorful_fashion_parsing_data/images_and_labelsfile_train.txt\\\", \\\"mean\\\": (104.0, 116.7, 122.7),\\\"augment\\\":True,\\\"augment_crop_size\\\":(224,224), \\\"batch_size\\\":9 }\"\n    }\n  }'
-#    print layer
-    outlines = []
+    pythonlayer = 'layer {\n  name: \"data\"\n  type: \"Python\"\n   top: \"data\"\n   top: \"label\"\n  python_param {\n'
+    pythonlayer = pythonlayer + '    module: \"jrlayers\"\n    layer: \"JrPixlevel\"\n'
+    pythonlayer = pythonlayer + 'layer {\n    name: \"data\"\n    type: \"Python\"\n    top: \"data\"\n    top: \"label\"\n    python_param {\n    module: \"jrlayers\"\n    layer: \"JrPixlevel\"\n    param_str: \"{\\\"images_and_labels_file\\\": \\\"/home/jeremy/image_dbs/colorful_fashion_parsing_data/images_and_labelsfile_train.txt\\\", \\\"mean\\\": (104.0, 116.7, 122.7),\\\"augment\\\":True,\\\"augment_crop_size\\\":(224,224), \\\"batch_size\\\":9 }\"\n    }\n  }'
+    pythonlayer = pythonlayer + '   }\n'
+    pythonlayer = pythonlayer + '}\n'
+    print pythonlayer
     in_data = False
     lines = proto.split('\n')
     outstring = ''
     new_layer_flag = False
-    layer_buf = 'layer {'
+    layer_buf = 'layer {\n'
     for i in range(len(lines)):
         line = lines[i]
 #        print('in  line:'+ line+str(in_deconv))
@@ -650,20 +653,15 @@ def replace_pythonlayer(proto):
             layer_buf = layer_buf + line + '\n'
         if 'type' in line:
             if 'Data' in line:
+                print('swapping in pythonlayer for datalayer')
+                layer_buf = pythonlayer
                 in_data = True
             else:
                 in_data = False
-        if in_data and 'type:' in line and 'Convolution' in line:
-            line = 'type:\"Deconvolution\"'
-            print('changing line:'+ line)
-        if not in_data:
-            outstring = outstring+line+'\n'
-        else:
-            pass
         if new_layer_flag:
             print('layer buf:')
             print layer_buf
-            layer_buf = 'layer {'
+            layer_buf = 'layer {\n'
 #    return outstring
 
 #    param_str: "{\'images_and_labels_file\': \'/home/jeremy/image_dbs/colorful_fashion_parsing_data/images_and_labelsfile_train.txt\', \'mean\': (104.0, 116.7, 122.7),\'augment\':True,\'augment_crop_size\':(224,224), \'batch_size\':9 }"
