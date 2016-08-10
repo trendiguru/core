@@ -65,17 +65,34 @@ for i in 1 2 3 4 5;
 #   echo "cpm"
    echo $com;
    $com;
-   counter=counter+1;
 done
 
 #send any .jpg  updated in last 100 minutes
-newfiles="$(find /tmp caffe* -mmin -100)"
+newfiles="$(find /tmp caffe* -mmin -100|grep jpg)"
 echo $newfiles
 for f in $newfiles;
    do echo $f;
-   counter=$((counter+1))
+   let "counter=counter+1"
    newname="$counter.jpg"
    echo $newname
-   scp $f root@104.155.22.95:/var/www/results/progress_plots/;
+   scp $f root@104.155.22.95:/var/www/results/progress_plots/$newname;
 #   rsync jpg root@37.58.64.220:/var/www/results/progress_plots;
 done
+
+
+logfile[1]="net_output.txt"
+#logfile5="$(ls -tr /home/jeremy/caffenets/multilabel/deep-residual-networks/prototxt/$snapshot_dir5/*caffemodel |tail -1)"
+for i in 1;
+   do echo ${logfile[$i]};
+   logf=${logfile[i]}
+   com = "python /home/jeremy/core/classifier_stuff/caffe_nns/progress_plot.py " $logf " --type 1"
+   echo $com;
+   $com;
+done
+
+echo $counter
+let "counter=counter+1"
+echo $counter
+newname="$counter.jpg"
+echo $newname
+scp  /home/jeremy/caffenets/pixlevel/voc-fcn8s/voc8.15/net_output.txt.jpg root@104.155.22.95:/var/www/results/progress_plots/$newname;

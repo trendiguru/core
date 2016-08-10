@@ -1,5 +1,5 @@
-train_net: "train.prototxt"
-test_net: "val.prototxt"
+train_net: "train_braina.prototxt"
+test_net: "val_braina.prototxt"
 test_iter: 500
 # make test net, but don't invoke it from the solver itself
 test_interval: 50000 
@@ -12,7 +12,7 @@ stepsize: 10000
 # lr for unnormalized softmax
 #lr_policy: "fixed"
 
-base_lr: 1e-3
+base_lr: 2e-3
 #base_lr: 5e-6
 # high momentum
 momentum: 0.95

@@ -20,12 +20,12 @@ def sort_by_ascii_value(left, right):
         elif lefty > righty:
             return 1
         else:
-            return sort_by_ascii_value(left[1:],right[1:])
+            return sort_by_ascii_value(left[1:], right[1:])
 
 
 def encode_me(string_2_encode):
     for pair in [(r'/', '%2F'), (r'\+', '%2B'), (r'=', '%3D'), (r'\:', '%3A'), (r',', '%2C'), (r' ', '%20')]:
-        split_slash = re.split(pair[0],string_2_encode)
+        split_slash = re.split(pair[0], string_2_encode)
         string_2_encode = split_slash[0]
         for i in range(1, len(split_slash)):
             string_2_encode += pair[1]+split_slash[i]
@@ -41,11 +41,11 @@ def create_signature(parameters, aws_secret_access_key, get_or_post):
     """
     keys = parameters.keys()
     keys.sort(sort_by_ascii_value)
-    message = get_or_post +'\n'+'webservices.amazon.com'+'\n'+'/onca/xml'+'\n'
-    params=''
+    message = get_or_post + '\n' + 'webservices.amazon.com' + '\n' + '/onca/xml' + '\n'
+    params = ''
     for key in keys:
         value = parameters[key]
-        if key in ['Timestamp','ResponseGroup','Keywords','Title']:
+        if key in ['Timestamp', 'ResponseGroup', 'Keywords', 'Title']:
             value = encode_me(value)
         params += "%s=%s" % (key, value)+'&'
     message += params[:-1]  # to remove unwanted & sign in the end of the string
@@ -90,7 +90,7 @@ def get_amazon_signed_url(parameters, get_or_post='GET', print_flag=True):
     return amazon_signed_url
 
 
-def test_run(operation='ItemSearch', searchindex= 'FashionWomen', itempage='1', true4onlynode=True,
+def test_run(operation='ItemSearch', searchindex='FashionWomen', itempage='1', true4onlynode=True,
              node_id='2346727011', min_max=True, keywords=False):
 
     base_params = {
@@ -112,11 +112,11 @@ def test_run(operation='ItemSearch', searchindex= 'FashionWomen', itempage='1', 
         parameters['ResponseGroup'] = 'BrowseNodeInfo'
 
     if min_max:
-        parameters['MaximumPrice']= raw_input( 'enter max price($10.00 -> 1000)')
-        parameters['MinimumPrice']= raw_input( 'enter min price($10.00 -> 1000)')
+        parameters['MaximumPrice'] = raw_input('enter max price($10.00 -> 1000)')
+        parameters['MinimumPrice'] = raw_input('enter min price($10.00 -> 1000)')
 
     if keywords:
-        parameters['Keywords']=raw_input( 'enter keywords to filter by -> ')
+        parameters['Keywords'] = raw_input('enter keywords to filter by -> ')
 
     get_amazon_signed_url(parameters, 'GET')
 

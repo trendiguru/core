@@ -4,7 +4,7 @@ from amazon_signature import get_amazon_signed_url
 from time import strftime, gmtime, sleep, time
 from requests import get
 import xmltodict
-from db_utils import log2file, print_error, theArchiveDoorman, progress_bar
+from db_utils import log2file, print_error, thearchivedoorman, progress_bar, refresh_similar_results
 from ..Yonti.pymongo_utils import delete_or_and_index
 from ..constants import db, redis_conn
 from rq import Queue
@@ -12,9 +12,9 @@ from datetime import datetime
 from amazon_worker import insert_items
 from .fanni import plantAnnoyForest, reindex_forest
 from .shopstyle_constants import shopstyle_paperdoll_female, shopstyle_paperdoll_male
-from .amazon_constants import blacklist, colors, status_log, log_dir
+from .amazon_constants import blacklist, colors, status_log, log_dir, plus_sizes
 from .dl_excel import mongo2xl
-
+import re
 
 forest = Queue('annoy_forest', connection=redis_conn)
 today_date = str(datetime.date(datetime.now()))
@@ -100,7 +100,7 @@ def make_itemsearch_request(pagenum, node_id, min_price, max_price, price_flag=T
         else:
             parameters['Keywords'] = color
 
-    if not category:
+    if category is not None:
         if plus_size_flag or color_flag:
             parameters['Keywords'] += ',%s' % category
         else:
@@ -183,7 +183,7 @@ def process_results(collection_name, pagenum, node_id, min_price, max_price, fam
 
 
 def iterate_over_pagenums(total_pages, results_count, collection_name, node_id, min_price, max_price, family_tree,
-                          res_dict, plus_size_flag , color='', category=None):
+                          res_dict, plus_size_flag, color='', category=None):
     if total_pages == 1:
         num_of_items_in_page = results_count
     else:
@@ -219,7 +219,7 @@ def filter_by_color(collection_name, node_id, price, family_tree, plus_size_flag
                                                           plus_size_flag=plus_size_flag, family_tree=family_tree,
                                                           category=category)
         if results_count < 1:
-            no_results_seq+=1
+            no_results_seq += 1
             continue
 
         total_pages = int(res_dict['TotalPages'])
@@ -345,17 +345,17 @@ def build_category_tree(parents, root='7141124011', tab=0, delete_collection=Tru
         p.append(name)
 
     if node_id == '1040660' or node_id == '1040658':
-        leaf_tights = leaf
-        leaf_stockings = leaf
+        leaf_tights = leaf.copy()
         leaf_tights['Name'] = 'tights'
-        leaf_stockings['Name'] = 'stockings'
         leaf_tights['Children']['count'] = 0
-        leaf_stockings['Children']['count'] = 0
         leaf_tights['Parents'] = p
-        leaf_stockings['Parents'] = p
         db.amazon_category_tree.delete_many({'BrowseNodeId': node_id, 'Name': {'$in': ['tights', 'stockings']}})
         db.amazon_category_tree.insert_one(leaf_tights)
+        print('\t\ttights inserted')
+        leaf_stockings = leaf_tights.copy()
+        leaf_stockings['Name'] = 'stockings'
         db.amazon_category_tree.insert_one(leaf_stockings)
+        print('\t\tstockings inserted')
 
     for child in children:
         if 'BrowseNodeId' not in child.keys():
@@ -486,9 +486,13 @@ def download_all(collection_name, gender='Female', del_collection=False, del_cac
             leaf_name = '->'.join(leaf['Parents']) + '->' + name
 
             try:
-                category_name = None
-                if name == 'stockings' or name == 'tights':
-                    category_name = name
+                if name == 'stockings':
+                    category_name = 'Stockings'
+                elif name == 'tights':
+                    category_name = 'Tights'
+                else:
+                    category_name = None
+
                 before_count = collection.count()
                 get_results(node_id, collection_name, max_price=last_price, results_count_only=False,
                             family_tree=leaf_name, plus_size_flag=plus_size_flag, category=category_name)
@@ -521,12 +525,75 @@ def download_all(collection_name, gender='Female', del_collection=False, del_cac
 
     log2file(mode='a', log_filename=status_log, message='DOWNLOAD FINISHED', print_flag=True)
     clear_duplicates(collection_name)  # add status bar
-    theArchiveDoorman(collection_name, instock_limit=7, archive_limit=14)
+    thearchivedoorman(collection_name, instock_limit=7, archive_limit=14)
     print_error('ARCHIVE DOORMAN FINISHED')
 
     collection_cache.delete_many({})
     message = '%s is Done!' % collection_name
     log2file(mode='a', log_filename=log_name, message=message, print_flag=True)
+
+
+def verify_plus_size(size_list):
+    splited_list = []
+    for size in size_list:
+        size_upper = size.upper()
+        split = re.split(r'\(|\)| |-|,', size_upper)
+        for s in split:
+            splited_list.append(s)
+    if 'SMALL' in splited_list:
+        return False
+    return any(size for size in splited_list if size in plus_sizes)
+
+
+def update_plus_size_collection(gender):
+    amaze_start = time()
+    amaze_name = 'amaze_%s' % gender
+    amaze = db[amaze_name]
+    amaze_info = {"start_date": today_date,
+                  'dl_duration': 0,
+                  'items_before': amaze.count()}
+    amazon_name = 'amazon_US_%s' % gender
+    amazon = db[amazon_name].find()
+
+    for item in amazon:
+        idx = item['id']
+        # check if already exists in plus collection
+        exists = amaze.find({'id': idx}).count()
+        if exists:
+            continue
+        sizes = item['sizes']
+        if type(sizes) != list:
+            sizes = [sizes]
+
+        its_plus_size = verify_plus_size(sizes)
+        if its_plus_size:
+            amaze.insert_one(item)
+
+    thearchivedoorman(amaze_name, instock_limit=14, archive_limit=21)
+    print_error('ARCHIVE DOORMAN FINISHED')
+
+    if gender == 'Female':
+        cats = list(set(shopstyle_paperdoll_female.values()))
+    else:
+        cats = list(set(shopstyle_paperdoll_male.values()))
+
+    for category in cats:
+        forest_amaze = forest.enqueue(plantAnnoyForest, args=(amaze_name, category, 250), timeout=1800)
+        while not forest_amaze.is_finished and not forest_amaze.is_failed:
+            sleep(60)
+        if forest_amaze.is_failed:
+            print ('annoy for %s failed' % category)
+        else:
+            print ('annoy for %s done' % category)
+    reindex_forest(amaze_name)
+    refresh_similar_results('amaze')
+
+    amaze_end = time()
+    amaze_info['dl_duration'] = amaze_end - amaze_start
+    amaze_info['items_after'] = amaze.count()
+    new_amaze_items = amaze.find({'download_data.first_dl': today_date}).count()
+    amaze_info['items_new'] = new_amaze_items
+    mongo2xl(amaze_name, amaze_info)
 
 
 def get_user_input():
@@ -582,10 +649,12 @@ if __name__ == "__main__":
     if plus_size:
         col_name = 'amaze_%s' % col_gender
         title = "@@@ Amaze-Magazine Download @@@"
+        refresh_name = 'amaze'
 
     else:
         col_name = 'amazon_%s_%s' % (cc_upper, col_gender)
         title = "@@@ Amazon Download @@@"
+        refresh_name = 'amazon_%s' % cc_upper
 
     log_name = log_name + col_name + '.log'
     title2 = "you choose to update the %s collection" % col_name
@@ -635,6 +704,8 @@ if __name__ == "__main__":
             print ('annoy for %s failed' % cat)
     reindex_forest(col_name)
 
+    refresh_similar_results(refresh_name)
+
     # to add download summery
     end = time()
     duration = end - start
@@ -648,9 +719,13 @@ if __name__ == "__main__":
     notes_full_path = 'collections.' + col_name + '.notes'
     db.download_status.update_one({"date": today_date}, {"$set": {status_full_path: "Done",
                                                                   notes_full_path: new_items}})
+
     col_upper = col_name.upper()
     print_error('%s DOWNLOAD FINISHED' % col_upper)
 
+    update_plus_size_collection(col_gender)
+    plus = col_upper + ' PLUS SIZE'
+    print_error('%s FINISHED' % plus)
 
 '''
 useful request parameters:

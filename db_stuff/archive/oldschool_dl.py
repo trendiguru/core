@@ -6,19 +6,18 @@ import json
 import urllib
 import datetime
 import sys
-import argparse
+
 import requests
 from rq import Queue
-from fanni import plantForests4AllCategories
-from .. import constants
-from . import shopstyle_constants
-from .shopstyle2generic import convert2generic
-from ..fingerprint_core import generate_mask_and_insert
-from . import dl_excel
 
+from core import constants
+from core.db_stuff.shopstyle_constants import shopstyle_relevant_items_Female
+from core.db_stuff.shopstyle2generic import convert2generic
+from core.fingerprint_core import generate_mask_and_insert
+from core.db_stuff import dl_excel
 
-q = Queue('fingerprinter4db', connection=constants.redis_conn)
-forest = Queue('annoy_forest', connection=constants.redis_conn)
+q = Queue('fingerprint_new', connection=constants.redis_conn)
+relevant = shopstyle_relevant_items_Female
 
 BASE_URL = "http://api.shopstyle.com/api/v2/"
 BASE_URL_PRODUCTS = BASE_URL + "products/"
@@ -32,131 +31,108 @@ MAX_SET_SIZE = MAX_OFFSET + MAX_RESULTS_PER_PAGE
 fp_version = constants.fingerprint_version
 
 
-def zip_through_all_categories():
-    c= constants.db.categories.find()
-    for i, cat in enumerate(c):
-        print ('%d. %s' % (i, cat['name']))
-        if not divmod(i, 50)[1]:
-            raw_input('continue')
-
-
 class ShopStyleDownloader():
-    def __init__(self,collection,gender):
+    def __init__(self):
         # connect to db
-        dl_cache =  collection +'_cache'
         self.db = constants.db
-        self.collection_name = collection
-        self.collection = self.db[collection]
-        self.collection_archive = self.db[collection+'_archive']
-        self.cache = self.db[dl_cache]
-        self.cache_counter = 0
-        self.categories = self.db.categories
         self.current_dl_date = str(datetime.datetime.date(datetime.datetime.now()))
         self.last_request_time = time.time()
-        if gender == 'Female':
-            self.gender = 'Female'
-            self.relevant = shopstyle_constants.shopstyle_relevant_items_Female
-        else:
-            self.gender = 'Male'
-            self.relevant = shopstyle_constants.shopstyle_relevant_items_Male
-        self.status = self.db.download_status
-        self.status_full_path = "collections." + self.collection_name + ".status"
-        self.notes_full_path = "collections." + self.collection_name + ".notes"
-        self.status.update_one({"date":self.current_dl_date},{"$set":{self.status_full_path: "Working"}})
 
-    def db_download(self):
+    def db_download(self, collection):
+        # if self.db.download_data.find({"criteria": collection}).count() > 0:
+        #     self.db.download_data.delete_one({"criteria": collection})
+        # self.db.download_data.insert_one({"criteria": collection,
+        #                                   "current_dl": self.current_dl_date,
+        #                                   "start_time": datetime.datetime.now(),
+        #                                   "items_downloaded": 0,
+        #                                   "new_items": 0,
+        #                                   "errors": 0,
+        #                                   "end_time": "still in process",
+        #                                   "total_dl_time(min)": "still in process",
+        #                                   "last_request": time.time(),
+        #                                   "total_items": 0,
+        #                                   "instock": 0,
+        #                                   "out": 0})
         start_time = time.time()
-        bef = self.collection.count()
-        self.cache.create_index("filter_params")
-        self.cache.create_index("dl_version")
-        root_category, ancestors = self.build_category_tree()
+        self.db.dl_cache.delete_many({})
+        self.db.dl_cache.create_index("filter_params")
+        root_category, ancestors = self.build_category_tree(collection)
 
         cats_to_dl = [anc["id"] for anc in ancestors]
         for cat in cats_to_dl:
-            self.download_category(cat)
+            self.download_category(cat, collection)
 
-        self.wait_for()
+        self.wait_for(collection)
         end_time= time.time()
+        # self.db.download_data.update_one({"criteria": collection},
+        #                                           {'$set': {"end_time": datetime.datetime.now()}})
+        # tmp = self.db.download_data.find({"criteria": collection})[0]
+        # total_time = abs(tmp["end_time"] - tmp["start_time"]).total_seconds()
         total_time = (end_time - start_time)/3600
-        self.status.update_one({"date": self.current_dl_date}, {"$set": {self.status_full_path: "Finishing Up"}})
-        del_items = self.collection.delete_many({'fingerprint': {"$exists": False}})
-        self.theArchiveDoorman()
-
-        dl_info = {"start_date": self.current_dl_date,
-                   "dl_duration": total_time,
-                   "items_before": bef,
-                   "items_after": self.collection.count(),
-                   "items_new": self.collection.find({'download_data.first_dl':self.current_dl_date}).count()}
-
-        dl_excel.mongo2xl(self.collection_name, dl_info)
-        print self.collection_name + " DOWNLOAD DONE!!!!!\n"
-        new_items = self.collection.find({'download_data.first_dl': self.current_dl_date}).count()
-        self.status.update_one({"date": self.current_dl_date}, {"$set": {self.status_full_path: "Done",
-                                                                         self.notes_full_path: new_items}})
-        self.cache.delete_many({})
-
-    def theArchiveDoorman(self):
-        # clean the archive from items older than a week
-        archivers = self.collection_archive.find()
+        del_items = self.db[collection].delete_many({'fingerprint': {"$exists": False}})
+        # print str(del_items.deleted_count) + ' items without fingerprint were deleted!\n'
+        # total_items = self.db[collection].count()
+        old = self.db[collection].find({"download_data.dl_version": {"$ne": self.current_dl_date}})
         y_new, m_new, d_new = map(int, self.current_dl_date.split("-"))
-        for item in archivers:
+        for item in old:
             y_old, m_old, d_old = map(int, item["download_data"]["dl_version"].split("-"))
-            days_out = 365 * (y_new - y_old) + 30 * (m_new - m_old) + (d_new - d_old)
-            if days_out < 7:
-                self.collection_archive.update_one({'id': item['id']}, {"$set": {"status.days_out": days_out}})
-            else:
-                self.collection_archive.delete_one({'id': item['id']})
+            days_out = 365*(y_new-y_old)+30*(m_new-m_old)+(d_new-d_old)
+            self.db[collection].update_one({'id': item['id']}, {"$set": {"status.days_out": days_out,
+                                                                         "status.instock": False}})
+        #
+        # instock = self.db[collection].find({"status.instock": True}).count()
+        # out = self.db[collection].find({"status.instock": False}).count()
+        # self.db.download_data.update_one({"criteria": collection},
+        #                                           {'$set': {"total_dl_time(min)": str(total_time / 60)[:5],
+        #                                                     "end_time": datetime.datetime.now(),
+        #                                                     "total_items": str(total_items),
+        #                                                     "instock": str(instock),
+        #                                                     "out": str(out)}})
+        dl_info = {"date": self.current_dl_date,
+           "dl_duration": total_time,
+           "store_info": []}
 
-        # add to the archive items which were not downloaded today but were instock yesterday
-        notUpdated = self.collection.find({"download_data.dl_version": {"$ne": self.current_dl_date}})
-        for item in notUpdated:
-            self.collection.delete_one({'id': item['id']})
-            existing = self.collection_archive.find_one({"id": item["id"]})
-            if existing:
-                continue
-            y_old, m_old, d_old = map(int, item["download_data"]["dl_version"].split("-"))
-            days_out = 365 * (y_new - y_old) + 30 * (m_new - m_old) + (d_new - d_old)
-            if days_out < 7:
-                item['status']['instock'] = False
-                item['status']['days_out'] = days_out
-                self.collection_archive.insert_one(item)
+        dl_excel.mongo2xl('shopstyle', dl_info)
+        print collection + " DOWNLOAD DONE!!!!!\n"
 
 
-        # move to the archive all the items which were downloaded today but are out of stock
-        outStockers = self.collection.find({'status.instock': False})
-        for item in outStockers:
-            self.collection.delete_one({'id':item['id']})
-            existing = self.collection_archive.find_one({"id": item["id"]})
-            if existing:
-                continue
-            self.collection_archive.insert_one(item)
-
-        self.collection_archive.reindex()
-
-    def wait_for(self):
+    def wait_for(self, collection):
+        # print "Waiting for 45 min before first check"
+        # total_items_before = self.db[collection].count()
+        # time.sleep(2700)
+        # total_items_after = self.db[collection].count()
         check = 0
+        # checking if there is still change in the total items count
+        # while total_items_before != total_items_after:
         while q.count>1:
             if check > 36:
                 break
+            # print "\ncheck number " + str(check)
+            # print "\nfp workers didn't finish yet\nWaiting 5 min before checking again\n"
             check += 1
             time.sleep(300)
+            # total_items_before = total_items_after
+            # total_items_after = self.db[collection].count()
 
-    def build_category_tree(self):
+    def build_category_tree(self, collection):
         parameters = {"pid": PID, "filters": "Category"}
+        if collection == "products_jp" or collection == "new_products_jp":
+            parameters["site"] = "www.shopstyle.co.jp"
 
         # download all categories
         category_list_response = requests.get(BASE_URL + "categories", params=parameters)
         category_list_response_json = category_list_response.json()
         root_category = category_list_response_json["metadata"]["root"]["id"]
         category_list = category_list_response_json["categories"]
-        self.categories.remove({})
-        self.categories.insert(category_list)
+        self.db.categories.remove({})
+        self.db.categories.insert(category_list)
         # find all the children
-        for cat in self.categories.find():
-            self.categories.update_one({"id": cat["parentId"]}, {"$addToSet": {"childrenIds": cat["id"]}})
+
+        for cat in self.db.categories.find():
+            self.db.categories.update_one({"id": cat["parentId"]}, {"$addToSet": {"childrenIds": cat["id"]}})
         # get list of all categories under root - "ancestors"
         ancestors = []
-        for c in self.categories.find({"parentId": root_category}):
+        for c in self.db.categories.find({"parentId": root_category}):
             ancestors.append(c)
         # let's get some numbers in there - get a histogram for each ancestor
         for anc in ancestors:
@@ -165,33 +141,32 @@ class ShopStyleDownloader():
             hist = response.json()["categoryHistogram"]
             # save count for each category
             for cat in hist:
-                self.categories.update_one({"id": cat["id"]}, {"$set": {"count": cat["count"]}})
+                self.db.categories.update_one({"id": cat["id"]}, {"$set": {"count": cat["count"]}})
         return root_category, ancestors
 
-    def download_category(self, category_id):
-        if category_id not in self.relevant:
+    def download_category(self, category_id, collection):
+        if category_id not in relevant:
             return
-        parameters = {"pid": PID}
-        if self.collection_name in ["GangnamStyle_Female","GangnamStyle_Male"]:
-            parameters["shipping"]= "KR" # , "filters": "Category"}
-
-        category = self.categories.find_one({"id": category_id})
+        parameters = {"pid": PID}  # , "filters": "Category"}
+        if collection == "products_jp" or collection == "new_products_jp":
+            parameters["site"] = "www.shopstyle.co.jp"
+        category = self.db.categories.find_one({"id": category_id})
         parameters["cat"] = category["id"]
         if "count" in category and category["count"] <= MAX_SET_SIZE:
             print("Attempting to download: {0} products".format(category["count"]))
             #print("Category: " + category_id)
-            self.download_products(parameters)
+            self.download_products(parameters, coll=collection)
         elif "childrenIds" in category.keys():
             #print("Splitting {0} products".format(category["count"]))
             print("Category: " + category_id)
             for child_id in category["childrenIds"]:
-                self.download_category(child_id)
+                self.download_category(child_id, collection)
         else:
             initial_filter_params = UrlParams(params_dict=parameters)
-            self.divide_and_conquer(initial_filter_params, 0)
+            self.divide_and_conquer(initial_filter_params, 0, collection)
 
 
-    def divide_and_conquer(self, filter_params, filter_index):
+    def divide_and_conquer(self, filter_params, filter_index, coll="products"):
         """Keep branching until we find disjoint subsets which have less then MAX_SET_SIZE items"""
         if filter_index >= len(FILTERS):
             # TODO: determine appropriate behavior in this case
@@ -228,13 +203,14 @@ class ShopStyleDownloader():
                 if subset["count"] < MAX_SET_SIZE:
                     # print("Attempting to download: %i products" % subset["count"])
                     # print("Params: " + str(subset_filter_params.items()))
-                    self.download_products(subset_filter_params)
+                    # pdb.set_trace()
+                    self.download_products(subset_filter_params, coll=coll)
                 else:
                     # print "Splitting: {0} products".format(subset["count"])
                     # print "Params: {0}".format(subset_filter_params.encoded())
                     self.divide_and_conquer(subset_filter_params, filter_index + 1)
 
-    def download_products(self, filter_params, total=MAX_SET_SIZE):
+    def download_products(self, filter_params, total=MAX_SET_SIZE, coll="products"):
         """
         Download with paging...
         :param filter_params:
@@ -246,9 +222,8 @@ class ShopStyleDownloader():
         dl_query = {"dl_version": self.current_dl_date,
                     "filter_params": filter_params.encoded()}
 
-        if self.cache.find_one(dl_query):
-            self.cache_counter +=1
-            print "%s ) We've done this batch already, let's not repeat work" %str(self.cache_counter)
+        if self.db.dl_cache.find_one(dl_query):
+            print "We've done this batch already, let's not repeat work"
             return
 
         if "filters" in filter_params:
@@ -263,13 +238,13 @@ class ShopStyleDownloader():
                 total = product_results["metadata"]["total"]
                 products = product_results["products"]
                 for prod in products:
-                    self.db_update(prod)
+                    self.db_update(prod, coll)
                 filter_params["offset"] += MAX_RESULTS_PER_PAGE
 
         # Write down that we did this
-        self.cache.insert(dl_query)
+        self.db.dl_cache.insert(dl_query)
 
-        # print "Batch Done. Total Product count: {0}".format(self.collection.count())
+        # print "Batch Done. Total Product count: {0}".format(self.db[coll].count())
 
     def delayed_requests_get(self, url, params):
         sleep_time = max(0, 0.1 - (time.time() - self.last_request_time))
@@ -277,7 +252,7 @@ class ShopStyleDownloader():
         self.last_request_time = time.time()
         return requests.get(url, params=params)
 
-    def insert_and_fingerprint(self, prod):
+    def insert_and_fingerprint(self, prod, collection):
         """
         this func. inserts a new product to our DB and runs TG fingerprint on it
         :param prod: dictionary of shopstyle product
@@ -288,39 +263,39 @@ class ShopStyleDownloader():
             time.sleep(600)
 
         q.enqueue(generate_mask_and_insert, doc=prod, image_url=prod["images"]["XLarge"],
-                  fp_date=self.current_dl_date, coll=self.collection_name)
+                  fp_date=self.current_dl_date, coll=collection)
         # print "inserting,",
 
-    def db_update(self, prod):
-        # print "";print "Updating product {0}. ".format(prod["id"]),
+    def db_update(self, prod, collection):
+        # print ""
+        # print "Updating product {0}. ".format(prod["id"]),
 
         # requests package can't handle https - temp fix
         prod["image"] = json.loads(json.dumps(prod["image"]).replace("https://", "http://"))
+        # self.db.download_data.update_one({"criteria": collection},
+        #                                           {'$inc': {"items_downloaded": 1}})
         prod["download_data"] = {"dl_version": self.current_dl_date}
 
         # case 1: new product - try to update, if does not exists, insert a new product and add our fields
-        prod_in_coll = self.collection.find_one({"id": prod["id"]})
+        prod_in_coll = self.db[collection].find_one({"id": prod["id"]})
 
         if prod_in_coll is None:
             # print "Product not in db." + collection
             # case 1.1: try finding this product in the products
-            if self.collection_name in ['GangnamStyle_Female','GangnamStyle_Male'] :
-                if self.gender =='Female':
-                    prod_in_prod = self.db.ShopStyle_Female.find_one({"id": prod["id"]})
-                else:
-                    prod_in_prod = self.db.ShopStyle_Male.find_one({"id": prod["id"]})
-
+            if collection != "products":
+                prod_in_prod = self.db.products.find_one({"id": prod["id"]})
                 if prod_in_prod is not None:
                     # print "but new product is already in db.products"
                     prod["download_data"] = prod_in_prod["download_data"]
-                    prod = convert2generic(prod, self.gender)
+                    prod = convert2generic(prod)
                     prod["fingerprint"] = prod_in_prod["fingerprint"]
                     prod["download_data"]["dl_version"] = self.current_dl_date
-                    self.collection.insert_one(prod)
+                    self.db[collection].insert_one(prod)
                     return
-
-            prod = convert2generic(prod, self.gender)
-            self.insert_and_fingerprint(prod)
+            # self.db.download_data.update_one({"criteria": collection},
+            #                                           {'$inc': {"new_items": 1}})
+            prod = convert2generic(prod)
+            self.insert_and_fingerprint(prod, collection)
 
         else:
             # case 2: the product was found in our db, and maybe should be modified
@@ -329,23 +304,23 @@ class ShopStyleDownloader():
             status_new = prod["inStock"]
             status_old = prod_in_coll["status"]["instock"]
             if status_new is False and status_old is False:
-                self.collection.update_one({'id': prod["id"]},
+                self.db[collection].update_one({'id': prod["id"]},
                                                {'$inc': {'status.days_out': 1}})
                 prod["status"]["days_out"] = prod_in_coll["status"]["days"] + 1
             elif status_new is True and status_old is False:
-                self.collection.update_one({'id': prod["id"]},
+                self.db[collection].update_one({'id': prod["id"]},
                                                {'$set': {'status.days_out': 0,
                                                          'status.instock': True}})
             else:
                 pass
 
             if prod_in_coll["download_data"]["fp_version"] == fp_version:
-                self.collection.update_one({'id': prod["id"]},
+                self.db[collection].update_one({'id': prod["id"]},
                                                {'$set': {'download_data.dl_version': self.current_dl_date}})
             else:
-                self.collection.delete_one({'id': prod['id']})
-                prod = convert2generic(prod, self.gender)
-                self.insert_and_fingerprint(prod)
+                self.db[collection].delete_one({'id': prod['id']})
+                prod = convert2generic(prod)
+                self.insert_and_fingerprint(prod, collection)
 
 
 class UrlParams(collections.MutableMapping):
@@ -450,33 +425,13 @@ class UrlParams(collections.MutableMapping):
     def encoded(self):
         return self.__class__.encode_params(self)
 
-def getUserInput():
-    parser = argparse.ArgumentParser(description='"@@@ Shopstyle Download @@@')
-    parser.add_argument('-n', '--name',default="ShopStyle", dest= "name",
-                        help='collection name - currently only ShopStyle or GangnamStyle')
-    parser.add_argument('-g', '--gender', dest= "gender",
-                        help='specify which gender to download. (Female or Male - case sensitive)', required=True)
-    args = parser.parse_args()
-    return args
 
 if __name__ == "__main__":
-    user_input = getUserInput()
-    col = user_input.name
-    gender = user_input.gender
-
-    if gender in ['Female','Male'] and col in ["ShopStyle","GangnamStyle"]:
-        col = col + "_" +gender
-    else:
-        print("bad input - gender should be only Female or Male (case sensitive)")
-        sys.exit(1)
-
+    col = "products"
+    if len(sys.argv) == 2:
+        col = col + "_" + sys.argv[1]
     print ("@@@ Shopstyle Download @@@\n you choose to update the " + col + " collection")
-    update_db = ShopStyleDownloader(col,gender)
-    update_db.db_download()
-    forest_job = forest.enqueue(plantForests4AllCategories, col_name=col, timeout=3600)
-    while not forest_job.is_finished and not forest_job.is_failed:
-        time.sleep(300)
-    if forest_job.is_failed:
-        print ('annoy plant forest failed')
+    update_db = ShopStyleDownloader()
+    update_db.db_download(col)
 
     print (col + "Update Finished!!!")
