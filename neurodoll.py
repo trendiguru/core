@@ -157,7 +157,7 @@ if __name__ == "__main__":
     ]
 
     for url in urls:
-        result = infer_one(url,required_image_size=None,threshold=0)
+        result = infer_one(url,required_image_size=(256,256),threshold=0)
         timestamp = int(10*time.time())
         name = str(timestamp)+'.png'
         cv2.imwrite(name,result)
