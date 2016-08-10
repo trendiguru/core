@@ -681,7 +681,7 @@ if __name__ == "__main__":
     proto = vgg16('thedb')
     proto = unet('thedb')
     proto = correct_deconv(str(proto))
-    replace_pythonlayer(proto)
+    proto = replace_pythonlayer(proto)
 
 
     with open('train_experiment.prototxt','w') as f:
