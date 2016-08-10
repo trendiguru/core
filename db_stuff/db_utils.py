@@ -256,15 +256,18 @@ def p_hash_many(col_name, redo_all=False):
     else:
         all_items = collection.find({'p_hash': {'$exists': 0}}, {'images.XLarge': 1})
 
-    all_count= all_items.count()
+    all_count = all_items.count()
     for x, item in enumerate(all_items):
         if x % 100 == 0:
             print ('%d/%d' % (x, all_count))
-        url = item['images']['XLarge']
-        idx = item['_id']
-        phash_q.enqueue(phash_worker, args=(col_name, url, idx), timeout=1800)
-        while phash_q.count > 50000:
-            sleep(300)
+        try:
+            url = item['images']['XLarge']
+            idx = item['_id']
+            phash_q.enqueue(phash_worker, args=(col_name, url, idx), timeout=1800)
+            while phash_q.count > 50000:
+                sleep(300)
+        except ValueError:
+            pass
 
     while phash_q.count > 0:
         sleep(60)
