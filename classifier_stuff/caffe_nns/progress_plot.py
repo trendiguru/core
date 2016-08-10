@@ -308,6 +308,9 @@ def fit_log(x, k,a, b, x0):
     return k*np.log(np.multiply(a,x-x0)) + b
 
 def parse_solveoutput(f):
+  '''
+  todo: add net name and params to title
+  '''
   print('parsing solve.py (jrinference) output')
   times = []
   training_iterations = []
