@@ -8,9 +8,13 @@ import sys
 from PIL import Image
 import numpy as np
 from scipy import fftpack
+from ..Utils import get_cv2_img_array
+from time import sleep
 
 
-q = Queue('refresh', connection=redis_conn)
+refresh_q = Queue('refresh', connection=redis_conn)
+phash_q = Queue('phash', connection=redis_conn)
+
 today_date = str(datetime.date(datetime.now()))
 last_percent_reported = None
 count = 1
@@ -193,14 +197,91 @@ def refresh_similar_results(name):
     relevant_imgs = collection.find({query: {'$exists': 1}})
     total = relevant_imgs.count()
     for current, img in enumerate(relevant_imgs):
-        q.enqueue(refresh_worker, doc=img, name=name, timeout=1800)
+        refresh_q.enqueue(refresh_worker, doc=img, name=name, timeout=1800)
         print ('%d/%d sent' % (current, total))
 
-    while q.count > 0:
-        msg = '%.2f done' % (1-q.count/float(total))
+    while refresh_q.count > 0:
+        msg = '%.2f done' % (1 - refresh_q.count / float(total))
         print (msg)
 
     print ('REFRESH DONE!')
+
+
+def get_indexes_names(coll):
+    idx_info = coll.index_information()
+    keys = idx_info.keys()
+    keys.remove('_id_')
+    # removes the '_1' from the key names
+    keys = [k[:-2] for k in keys]
+    print (keys)
+    return keys
+
+
+def reindex(collection_name):
+    collection = db[collection_name]
+    oldindexes = get_indexes_names(collection)
+    # remove indexes
+    collection.drop_indexes()
+    # build new indexes
+    for index in oldindexes:
+        print (index)
+        collection.create_index(index, background=True)
+    print('Index done!')
+
+
+def phash_worker(col_name, url, idx):
+    collection = db[col_name]
+    image = get_cv2_img_array(url)
+    if image is None:
+        collection.delete_one({'_id': idx})
+        return
+    p_hash = get_p_hash(image)
+    p_hash_exists = collection.find_one({'p_hash': p_hash})
+    if p_hash_exists:
+        print('p_hash exists')
+        return
+    collection.update_one({'_id': idx}, {'$set': {'p_hash': p_hash}})
+    print ('p_hash added')
+    return
+
+
+def p_hash_many(col_name, redo_all=False):
+    collection = db[col_name]
+    col_indexes = get_indexes_names(collection)
+    if 'p_hash_1' not in col_indexes:
+        collection.create_index('p_hash', background=True)
+
+    if redo_all:
+        all_items = collection.find({}, {'images.XLarge': 1})
+    else:
+        all_items = collection.find({'p_hash': {'$exists': 0}}, {'images.XLarge': 1})
+
+    all_count= all_items.count()
+    for x, item in enumerate(all_items):
+        if x % 100 == 0:
+            print ('%d/%d' % (x, all_count))
+        url = item['images']['XLarge']
+        idx = item['_id']
+        phash_q.enqueue(phash_worker, args=(col_name, url, idx), timeout=1800)
+
+    while phash_q.count > 0:
+        sleep(60)
+
+    print_error('clear duplicates')
+    all_updated = collection.find({}, {'p_hash': 1})
+    all_count = all_updated.count()
+    for x, item in enumerate(all_updated):
+        if x % 100 == 0:
+            print ('%d/%d' % (x, all_count))
+        p_hash = item['p_hash']
+        idx = item['_id']
+        p_hash_exists = collection.find_one({'p_hash': p_hash, '_id': {'$ne': idx}})
+        if p_hash_exists:
+            print('p_hash exists')
+            collection.delete_many({'p_hash': p_hash, '_id': {'$ne': idx}})
+            continue
+    msg = '%s p_hash done!' % col_name
+    print_error(msg)
 
 
 categories_badwords = ['SLEEPWEAR', 'SHAPEWEAR', 'SLIPS', 'BEDDING', 'LINGERIE', 'CAMISOLES', 'JEWELRY', 'SPORTS',

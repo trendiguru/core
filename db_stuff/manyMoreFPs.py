@@ -19,24 +19,24 @@ def fps(w):
     print("many more fps")
     for i in range(int(w)):
         sleep(1)
-        a = subprocess.Popen(["sudo rqworker -u redis://redis1-redis-1-vm:6379 fingerprint_new"],shell=True)
+        a = subprocess.Popen(["sudo rqworker -u redis://redis1-redis-1-vm:6379 fingerprint_new"], shell=True)
         print colored("fp_new #%s is opened" % (str(i)), 'green')
 
     while True:
         sleep(1000)
 
 
-def getUserInput():
+def get_user_input():
     parser = argparse.ArgumentParser(description='give me some more fingerprinters!')
     parser.add_argument("-n", dest="workers", default="25", help="enter the number of workers to run simultaneously")
-    parser.add_argument("-f", dest="function", default = "screen", help="which function 2 run")
+    parser.add_argument("-f", dest="function", default="screen", help="which function 2 run")
 
     args = parser.parse_args()
     return args
 
 
 if __name__ == "__main__":
-    user_input = getUserInput()
+    user_input = get_user_input()
     if user_input.function == "screen":
         screen(user_input.workers)
     elif user_input.function == "fps":

@@ -1,18 +1,21 @@
-from time import sleep,time
-from StringIO import StringIO
+import csv
+import datetime
 import gc
 import gzip
-from . import ebay_dl_utils
-from . import ebay_constants
-import re
-import csv
 import hashlib
-from .. import constants, Utils
-from ..fingerprint_core import generate_mask_and_insert
-from rq import Queue
-import datetime
+import re
 import sys
+from StringIO import StringIO
+from time import sleep,time
+
 import psutil
+from rq import Queue
+
+from core import constants, Utils
+from core.db_stuff import ebay_constants
+from core.db_stuff.archive import ebay_dl_utils
+from core.fingerprint_core import generate_mask_and_insert
+
 maxInt = sys.maxsize
 decrement = True
 while decrement:
