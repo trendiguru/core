@@ -289,6 +289,23 @@ def sharpmask(db,mean_value=[112.0,112.0,112.0]):
 #    param_str: "{\'sbdd_dir\': \'../../data/sbdd/dataset\', \'seed\': 1337, \'split\': \'train\', \'mean\': (104.00699, 116.66877, 122.67892)}"
   }
 }
+
+layer {
+  name: "upscore8"
+  type: "Deconvolution"
+  bottom: "fuse_pool3"
+  top: "upscore8"
+  param {
+    lr_mult: 1
+  }
+  convolution_param {
+    num_output: 21
+    bias_term: false
+    kernel_size: 16
+    stride: 8
+  }
+}
+
 '''
 
 def unet(db,mean_value=[112.0,112.0,112.0]):
@@ -345,11 +362,23 @@ def unet(db,mean_value=[112.0,112.0,112.0]):
     n.drop6_2 = L.Dropout(n.conv6_2, dropout_param=dict(dropout_ratio=0.5),in_place=True)
     n.conv6_3,n.relu6_3 = conv_relu(n.conv6_2,n_output=512,kernel_size=7,pad=3)
 
-    n.deconv1 = L.Deconvolution(n.conv6_3,param=[dict(lr_mult=lr_mult1,decay_mult=decay_mult1),dict(lr_mult=lr_mult2,decay_mult=decay_mult2)])
+    n.deconv1 = L.Deconvolution(n.conv6_3,param=[dict(lr_mult=lr_mult1,decay_mult=decay_mult1),dict(lr_mult=lr_mult2,decay_mult=decay_mult2)],
+                convolution_param=[dict(num_output=512,bias_term=false,kernel_size=2,stride=2)])
     return n.to_proto()
 
 
-'''    n.deconv2 = L.Deconvolution(n.deconv1,param=[dict(lr_mult=lr_mult1,decay_mult=decay_mult1),dict(lr_mult=lr_mult2,decay_mult=decay_mult2)],
+
+'''
+
+  convolution_param {
+    num_output: 21
+    bias_term: false
+    kernel_size: 16
+    stride: 8
+  }
+
+
+    n.deconv2 = L.Deconvolution(n.deconv1,param=[dict(lr_mult=lr_mult1,decay_mult=decay_mult1),dict(lr_mult=lr_mult2,decay_mult=decay_mult2)],
                             num_output=512,pad = 0,kernel_size=2,stride = 2,
                             weight_filler=dict(type='xavier'),bias_filler=dict(type='constant',value=0.2))
 
