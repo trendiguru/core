@@ -607,7 +607,18 @@ def inspect_net(caffemodel):
     for l in net_param.layer:
         print net_param.layer[l].name  # first layer
 
-
+def correct_deconv(proto):
+    outlines = []
+    in_deconv = False
+    for line in proto:
+        if 'name' in line:
+            if 'deconv' in line:
+                in_deconv = True
+            else:
+                in_deconv = False
+        if in_deconv and 'type' in line:
+            line = 'type:\"Deconvolution\"'
+        outlines.append(line)
 
 if __name__ == "__main__":
 #    run_net(googLeNet_2_inceptions,nn_dir,db_name+'_train',db_name+'_test',batch_size = batch_size,n_classes=11,meanB=B,meanR=R,meanG=G,n_filters=50,n_ip1=1000)
@@ -615,6 +626,7 @@ if __name__ == "__main__":
 
     proto = vgg16('thedb')
     proto = unet('thedb')
+    proto = correct_deconv(proto)
     with open('train_experiment.prototxt','w') as f:
         f.write(str(proto))
         f.close()
