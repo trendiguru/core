@@ -454,7 +454,7 @@ if __name__ == "__main__":
   args = parser.parse_args()
   print('args:'+str(args))
   f = open(args.output_file, 'r')
-  if args.type == '0':
+  if args.type == '0' or args.type=='log':
     parse_logfile(f,args.logy)
-  elif args.type =='1':
+  elif args.type =='1' or args.type=='txt':
     parse_solveoutput(f)
