@@ -79,3 +79,19 @@ for f in $newfiles;
    scp $f root@104.155.22.95:/var/www/results/progress_plots/;
 #   rsync jpg root@37.58.64.220:/var/www/results/progress_plots;
 done
+
+
+logfile[1]="net_output.txt"
+#logfile5="$(ls -tr /home/jeremy/caffenets/multilabel/deep-residual-networks/prototxt/$snapshot_dir5/*caffemodel |tail -1)"
+for i in 1;
+   do echo ${logfile[$i]};
+   logf=${logfile[i]}
+   com = "python /home/jeremy/core/classifier_stuff/caffe_nns/progress_plot.py " $logf " --type 1"
+   echo $com;
+   $com;
+done
+
+counter=$((counter+1))
+newname="$counter.jpg"
+echo $newname
+scp  /home/jeremy/caffenets/pixlevel/voc-fcn8s/voc8.15/net_output.txt.jpg root@104.155.22.95:/var/www/results/progress_plots/;
