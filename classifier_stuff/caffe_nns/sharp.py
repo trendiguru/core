@@ -612,6 +612,7 @@ def correct_deconv(proto):
     outlines = []
     in_deconv = False
     lines = proto.split('\n')
+    outstring = ''
     for line in lines:
 #        print('in  line:'+ line+str(in_deconv))
         if 'name' in line:
@@ -623,7 +624,8 @@ def correct_deconv(proto):
             line = 'type:\"Deconvolution\"'
 #        print('out line:'+ line)
         outlines.append(line)
-    return outlines
+        outstring = outstring+line
+    return outstring
 
 if __name__ == "__main__":
 #    run_net(googLeNet_2_inceptions,nn_dir,db_name+'_train',db_name+'_test',batch_size = batch_size,n_classes=11,meanB=B,meanR=R,meanG=G,n_filters=50,n_ip1=1000)
