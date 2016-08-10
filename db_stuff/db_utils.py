@@ -199,10 +199,13 @@ def refresh_similar_results(name):
     for current, img in enumerate(relevant_imgs):
         refresh_q.enqueue(refresh_worker, doc=img, name=name, timeout=1800)
         print ('%d/%d sent' % (current, total))
-
+    progress=0
     while refresh_q.count > 0:
-        msg = '%.2f done' % (1 - refresh_q.count / float(total))
-        print (msg)
+        progress_new = (1 - refresh_q.count / float(total))*100
+        if progress != progress_new:
+            msg = '%.2f%% done' % progress_new
+            progress = progress_new
+            print (msg)
 
     print ('REFRESH DONE!')
 
