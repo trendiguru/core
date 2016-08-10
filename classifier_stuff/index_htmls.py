@@ -22,12 +22,6 @@ def make_index(dir):
     print('htmlfiles:')
     print(htmlfiles)
 
-def generate_index_html(dir, filter=''):
-#    files = [os.path.join(dir,f) for f in os.listdir(dir) if filter in f]
-# dont include dir - make files relative so html can be portable
-    files = [f for f in os.listdir(dir) if filter in f]
-    files.sort()
-    write_index_html_with_images(dir,files)
 
 def write_index_html(dir, files):
     '''makes a page with links to all files in dir
@@ -43,7 +37,16 @@ def write_index_html(dir, files):
     f.write('</html>\n')
     f.close
 
+def generate_filtered_index_html(dir, filter=''):
+#    files = [os.path.join(dir,f) for f in os.listdir(dir) if filter in f]
+# dont include dir - make files relative so html can be portable
+    files = [f for f in os.listdir(dir) if filter in f]
+    files.sort()
+    write_index_html_with_images(dir,files)
+
 def write_index_html_with_images(dir, files):
+    '''makes a page with image links to all files in dir
+    '''
     f = open('index.html', 'w')
     # write html file
     f.write('<HTML><HEAD><TITLE>classifier, fingerprint results</TITLE>\n')
