@@ -362,10 +362,28 @@ def unet(db,mean_value=[112.0,112.0,112.0]):
     n.drop6_2 = L.Dropout(n.conv6_2, dropout_param=dict(dropout_ratio=0.5),in_place=True)
     n.conv6_3,n.relu6_3 = conv_relu(n.conv6_2,n_output=512,kernel_size=7,pad=3)
 
-#deconv doesnt work from python , so these need to be changed by hand
+#deconv doesnt work from python , so these need to be changed by hand #
     n.deconv1 = L.Convolution(n.conv6_3,param=[dict(lr_mult=lr_mult1,decay_mult=decay_mult1),dict(lr_mult=lr_mult2,decay_mult=decay_mult2)],
                     num_output=512,pad = 0,kernel_size=2,stride = 2,
                     weight_filler=dict(type='xavier'),bias_filler=dict(type='constant',value=0.2))
+
+    n.deconv2 = L.Convolution(n.deconv1,param=[dict(lr_mult=lr_mult1,decay_mult=decay_mult1),dict(lr_mult=lr_mult2,decay_mult=decay_mult2)],
+                            num_output=512,pad = 0,kernel_size=2,stride = 2,
+                            weight_filler=dict(type='xavier'),bias_filler=dict(type='constant',value=0.2))
+
+    n.deconv3 = L.Convolution(n.deconv2,param=[dict(lr_mult=lr_mult1,decay_mult=decay_mult1),dict(lr_mult=lr_mult2,decay_mult=decay_mult2)],
+                            num_output=512,pad = 0,kernel_size=2,stride = 2,
+                            weight_filler=dict(type='xavier'),bias_filler=dict(type='constant',value=0.2))
+
+    n.deconv4 = L.Convolution(n.deconv3,param=[dict(lr_mult=lr_mult1,decay_mult=decay_mult1),dict(lr_mult=lr_mult2,decay_mult=decay_mult2)],
+                            num_output=512,pad = 0,kernel_size=2,stride = 2,
+                            weight_filler=dict(type='xavier'),bias_filler=dict(type='constant',value=0.2))
+
+    n.deconv5 = L.Convolution(n.deconv4,param=[dict(lr_mult=lr_mult1,decay_mult=decay_mult1),dict(lr_mult=lr_mult2,decay_mult=decay_mult2)],
+                            num_output=512,pad = 0,kernel_size=2,stride = 2,
+                            weight_filler=dict(type='xavier'),bias_filler=dict(type='constant',value=0.2))
+
+    n.loss = L.SoftmaxWithLoss(n.deconv5, n.label)
 
 #    n.deconv1 = L.Deconvolution(n.conv6_3,param=[dict(lr_mult=lr_mult1,decay_mult=decay_mult1),dict(lr_mult=lr_mult2,decay_mult=decay_mult2)],
 #                convolution_param=[dict(num_output=512,bias_term=False,kernel_size=2,stride=2)])
@@ -383,23 +401,6 @@ def unet(db,mean_value=[112.0,112.0,112.0]):
   }
 
 
-    n.deconv2 = L.Deconvolution(n.deconv1,param=[dict(lr_mult=lr_mult1,decay_mult=decay_mult1),dict(lr_mult=lr_mult2,decay_mult=decay_mult2)],
-                            num_output=512,pad = 0,kernel_size=2,stride = 2,
-                            weight_filler=dict(type='xavier'),bias_filler=dict(type='constant',value=0.2))
-
-    n.deconv3 = L.Deconvolution(n.deconv2,param=[dict(lr_mult=lr_mult1,decay_mult=decay_mult1),dict(lr_mult=lr_mult2,decay_mult=decay_mult2)],
-                            num_output=512,pad = 0,kernel_size=2,stride = 2,
-                            weight_filler=dict(type='xavier'),bias_filler=dict(type='constant',value=0.2))
-
-    n.deconv4 = L.Deconvolution(n.deconv3,param=[dict(lr_mult=lr_mult1,decay_mult=decay_mult1),dict(lr_mult=lr_mult2,decay_mult=decay_mult2)],
-                            num_output=512,pad = 0,kernel_size=2,stride = 2,
-                            weight_filler=dict(type='xavier'),bias_filler=dict(type='constant',value=0.2))
-
-    n.deconv5 = L.Deconvolution(n.deconv4,param=[dict(lr_mult=lr_mult1,decay_mult=decay_mult1),dict(lr_mult=lr_mult2,decay_mult=decay_mult2)],
-                            num_output=512,pad = 0,kernel_size=2,stride = 2,
-                            weight_filler=dict(type='xavier'),bias_filler=dict(type='constant',value=0.2))
-
-    n.loss = L.SoftmaxWithLoss(n.deconv5, n.label)
 '''
 
 def display_conv_layer(blob):
@@ -611,8 +612,9 @@ def correct_deconv(proto):
     outlines = []
     in_deconv = False
     lines = proto.split('\n')
+    outstring = ''
     for line in lines:
-        print('in line:'+ line)
+#        print('in  line:'+ line+str(in_deconv))
         if 'name' in line:
             if 'deconv' in line:
                 in_deconv = True
@@ -620,8 +622,10 @@ def correct_deconv(proto):
                 in_deconv = False
         if in_deconv and 'type' in line:
             line = 'type:\"Deconvolution\"'
-        print('out line:'+ line)
+#        print('out line:'+ line)
         outlines.append(line)
+        outstring = outstring+line+'\n'
+    return outstring
 
 if __name__ == "__main__":
 #    run_net(googLeNet_2_inceptions,nn_dir,db_name+'_train',db_name+'_test',batch_size = batch_size,n_classes=11,meanB=B,meanR=R,meanG=G,n_filters=50,n_ip1=1000)
@@ -633,5 +637,3 @@ if __name__ == "__main__":
     with open('train_experiment.prototxt','w') as f:
         f.write(str(proto))
         f.close()
-    print('proto:')
-    print(str(proto))
