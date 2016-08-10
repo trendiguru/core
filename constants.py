@@ -16,6 +16,9 @@ redis_conn = Redis(host=os.getenv("REDIS_HOST", "redis1-redis-1-vm"), port=int(o
 # export MONGO_PORT=27017
 # export MONGO_HOST=localhost
 
+features_per_category = {'dress': ['sleeve_length'], 'top': ['sleeve_length'], 'shirt': ['sleeve_length'],
+                         'blouse': ['sleeve_length'], 't-shirt': ['sleeve_length']}
+
 manual_gender_domains = ['fashionseoul.com', 'haaretz.co.il']
 which_products_collection = {'default':
                                  {'default': 'amazon_US', 'US': 'amazon_US', 'KR': 'GangnamStyle'},
