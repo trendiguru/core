@@ -624,7 +624,7 @@ def correct_deconv(proto):
             line = 'type:\"Deconvolution\"'
 #        print('out line:'+ line)
         outlines.append(line)
-        outstring = outstring+line
+        outstring = outstring+line+'\n'
     return outstring
 
 if __name__ == "__main__":
