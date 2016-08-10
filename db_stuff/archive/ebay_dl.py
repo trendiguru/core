@@ -8,18 +8,19 @@ description: this program downloads all relevant items from ebay through ftp
     - TODO: nlp on description
             run on non english ebay databases
 """
-from ..db_stuff import ebay_dl_utils
-from StringIO import StringIO
 import datetime
 import re
-import sys
-from .. import constants, Utils
-from . import ebay_constants
-from . import dl_excel
-from .ebay_dl_worker import ebay_downloader
-from rq import Queue
+from StringIO import StringIO
 from time import sleep,time
-from fanni import plantForests4AllCategories
+
+from rq import Queue
+
+from core import constants
+from core.db_stuff import dl_excel
+from core.db_stuff import ebay_constants
+from core.db_stuff.archive import ebay_dl_utils
+from core.db_stuff.fanni import plantForests4AllCategories
+from .ebay_dl_worker import ebay_downloader
 
 q = Queue('ebay_worker', connection=constants.redis_conn)
 forest = Queue('annoy_forest', connection=constants.redis_conn)

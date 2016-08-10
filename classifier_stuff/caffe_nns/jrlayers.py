@@ -173,7 +173,7 @@ class JrPixlevel(caffe.Layer):
         #add extra batch dimension
             top[0].reshape(1, *self.data.shape)
             top[1].reshape(1, *self.label.shape)
-            logging.debug('batchsize 1 datasize {} labelsize {} top[0] {} top[1] {}'.format(self.data.shape,self.label.shape,top[0].shape,top[1].shape))
+            logging.debug('batchsize 1 datasize {} labelsize {} '.format(self.data.shape,self.label.shape))
         else:
             all_data = np.zeros((self.batch_size,3,self.augment_crop_size[0],self.augment_crop_size[1]))
             all_labels = np.zeros((self.batch_size,1, self.augment_crop_size[0],self.augment_crop_size[1]) )
@@ -187,7 +187,7 @@ class JrPixlevel(caffe.Layer):
             #no extra dimension needed
             top[0].reshape(*self.data.shape)
             top[1].reshape(*self.label.shape)
-            logging.debug('batchsize {} datasize {} labelsize {} top[0] {} top[1] {}'.format(self.batch_size,self.data.shape,self.label.shape,top[0].shape,top[1].shape))
+            logging.debug('batchsize {} datasize {} labelsize {}'.format(self.batch_size,self.data.shape,self.label.shape))
 
 
 

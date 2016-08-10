@@ -10,11 +10,11 @@ import sys
 import requests
 from rq import Queue
 
-from .. import constants
-from .shopstyle_constants import shopstyle_relevant_items_Female
-from .shopstyle2generic import convert2generic
-from ..fingerprint_core import generate_mask_and_insert
-from . import dl_excel
+from core import constants
+from core.db_stuff.shopstyle_constants import shopstyle_relevant_items_Female
+from core.db_stuff.shopstyle2generic import convert2generic
+from core.fingerprint_core import generate_mask_and_insert
+from core.db_stuff import dl_excel
 
 q = Queue('fingerprint_new', connection=constants.redis_conn)
 relevant = shopstyle_relevant_items_Female

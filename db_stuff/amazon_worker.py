@@ -4,20 +4,49 @@ from datetime import datetime
 from ..fingerprint_core import generate_mask_and_insert
 from time import sleep
 import re
-from db_utils import print_error, get_hash, get_p_hash, get_image_from_url
+from ..Utils import get_cv2_img_array
+from db_utils import print_error, get_hash, get_p_hash
 from .amazon_constants import plus_sizes
 today_date = str(datetime.date(datetime.now()))
 
 q = Queue('fingerprinter4db', connection=redis_conn)
 
 
-def swap_amazon_to_ppd(cat, sub_cat):
+def verify_tights(title):
+    title_upper = title.upper()
+    if any(x in title_upper for x in ['STOCKING', 'STOCKINGS']):
+        return 'stockings'
+    elif any(x in title_upper for x in ['DRESS', 'DRESSES', 'MAXI', 'GOWN']):
+        return 'dress'
+    elif any(x in title_upper for x in ['TOP', 'TOPS']):
+        return 'top'
+    elif any(x in title_upper for x in ['SHIRT', 'SHIRTS']):
+        return 'shirt'
+    elif 'JEANS' in title_upper:
+        return 'jeans'
+    elif any(x in title_upper for x in ['TEES', 'TEE', 'T-SHIRT', 'T-SHIRTS']):
+        return 't-shirt'
+    elif any(x in title_upper for x in ['PANTS', 'PANT']):
+        return 'pants'
+    elif any(x in title_upper for x in ['SKIRT', 'SKIRTS', 'SKORT', 'SKORTS', 'MINI']):
+        return 'skirt'
+    elif any(x in title_upper for x in ['COAT', 'FAUX', 'COATS', 'OUTWEAR']):
+        return 'coat'
+    elif any(x in title_upper for x in ['JACKET', 'JACKETS']):
+        return 'jacket'
+    elif 'TIGHTS' in title_upper:
+        return 'tights'
+    else:
+        return ''
+
+
+def swap_amazon_to_ppd(cat, sub_cat, title):
     if cat == 'Dresses':
-        return 'dress', sub_cat
+        return 'dress'
     if cat == 'tights':
-        return 'tights', None
-    if cat == 'Dresses':
-        return 'stockings', None
+        return verify_tights(title)
+    if cat == 'stockings':
+        return 'stockings'
     elif cat == 'Tops & Tees':
         if sub_cat == 'Blouses & Button-Down Shirts':
             return 'blouse'
@@ -135,7 +164,7 @@ def swap_amazon_to_ppd(cat, sub_cat):
         return ''
 
 
-def find_paperdoll_cat(family):
+def find_paperdoll_cat(family, title):
     leafs = re.split(r'->', family)
     category = leafs[3]
     sub_category = None
@@ -147,20 +176,8 @@ def find_paperdoll_cat(family):
         sub2 = leafs[5]
         sub_category = '%s.%s' % (sub_category, sub2)
 
-    category = swap_amazon_to_ppd(category, sub1)
+    category = swap_amazon_to_ppd(category, sub1, title)
     return category, sub_category
-
-
-def verify_plus_size(size_list):
-    splited_list = []
-    for size in size_list:
-        size_upper = size.upper()
-        split = re.split(r'\(|\)| |-|,', size_upper)
-        for s in split:
-            splited_list.append(s)
-    if 'SMALL' in splited_list:
-        return False
-    return any(size for size in splited_list if size in plus_sizes)
 
 
 def insert_items(collection_name, item_list, items_in_page, print_flag, family_tree, plus_size_flag=False):
@@ -220,12 +237,12 @@ def insert_items(collection_name, item_list, items_in_page, print_flag, family_t
 
             color = attributes['Color']
             sizes = [clothing_size]
-            if plus_size_flag:
-                plus_size = verify_plus_size(sizes)
-                if not plus_size:
-                    if print_flag:
-                        print_error('Not a Plus Size', attr_keys)
-                    continue
+            # if plus_size_flag:
+            #     plus_size = verify_plus_size(sizes)
+            #     if not plus_size:
+            #         if print_flag:
+            #             print_error('Not a Plus Size', attr_keys)
+            #         continue
 
             parent_asin_exists = collection.find_one({'parent_asin': parent_asin, 'features.color': color})
             if parent_asin_exists:
@@ -257,7 +274,7 @@ def insert_items(collection_name, item_list, items_in_page, print_flag, family_t
                 print ('img url already exists')
                 continue
 
-            image, pil_image = get_image_from_url(image_url)
+            image = get_cv2_img_array(image_url)
             if image is None:
                 if print_flag:
                     print_error('bad img url')
@@ -269,11 +286,11 @@ def insert_items(collection_name, item_list, items_in_page, print_flag, family_t
                 print ('hash already exists')
                 continue
 
-            # p_hash = get_p_hash(pil_image)
-            # p_hash_exists = collection.find_one({'p_hash': p_hash})
-            # if p_hash_exists:
-            #     print ('p_hash already exists')
-            #     continue
+            p_hash = get_p_hash(image)
+            p_hash_exists = collection.find_one({'p_hash': p_hash})
+            if p_hash_exists:
+                print ('p_hash already exists')
+                continue
 
             short_d = attributes['Title']
             if 'Feature' in attr_keys:
@@ -281,7 +298,7 @@ def insert_items(collection_name, item_list, items_in_page, print_flag, family_t
             else:
                 long_d = ''
 
-            category, sub_category = find_paperdoll_cat(family_tree)
+            category, sub_category = find_paperdoll_cat(family_tree, short_d)
             if len(category) == 0:
                 category = 'unKnown'
 
@@ -303,7 +320,7 @@ def insert_items(collection_name, item_list, items_in_page, print_flag, family_t
                         'fingerprint': None,
                         'gender': gender,
                         'img_hash': img_hash,
-                        # 'p_hash': p_hash,
+                        'p_hash': p_hash,
                         'download_data': {'dl_version': today_date,
                                           'first_dl': today_date,
                                           'fp_version': fingerprint_version},

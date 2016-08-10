@@ -8,7 +8,7 @@ import argparse
 db = constants.db
 
 
-def fillTable(worksheet,main_categories,collection, archive, bold ,today):
+def fill_table(worksheet, main_categories, collection, archive, bold, today):
     worksheet.write(0, 1, 'instock count', bold)
     worksheet.write(0, 2, collection.count(), bold)
     worksheet.write(0, 4, 'archive count', bold)
@@ -18,16 +18,16 @@ def fillTable(worksheet,main_categories,collection, archive, bold ,today):
         print(cat)
         instock = collection.find({'categories': {'$eq': cat}}).count()
         new_items = collection.find({'$and': [{'categories': {'$eq': cat}},
-                                              {'download_data.first_dl': {'$eq':today}}]}).count()
+                                              {'download_data.first_dl': {'$eq': today}}]}).count()
         archived = archive.find({'categories': {'$eq': cat}}).count()
         total = instock + archived
         categories.append([cat, instock, new_items, archived, total])
-    categories_length =len(categories)+3
-    worksheet.set_column('B:F',15)
+    categories_length = len(categories)+3
+    worksheet.set_column('B:F', 15)
 
     options = {'data' : categories,
                'total_row': True,
-               'columns': [{'header': 'Categories','total_string': 'Total'},
+               'columns': [{'header': 'Categories', 'total_string': 'Total'},
                            {'header': 'instock'},
                            {'header': 'new instock items'},
                            {'header': 'archived'},
@@ -65,12 +65,14 @@ def mongo2xl(collection_name, dl_info):
     worksheet_main.write(3, 1, "instock items")
     worksheet_main.write(4, 1, "archived items")
 
-    worksheet_main.write(6, 1, "items before")
-    worksheet_main.write(6, 2, dl_info['items_before'])
-    worksheet_main.write(7, 1, "items after")
-    worksheet_main.write(7, 2, dl_info['items_after'])
-    worksheet_main.write(8, 1, "items downloaded today")
-    worksheet_main.write(8, 2, dl_info['items_new'])
+    worksheet_main.write(6, 1, "collection")
+    worksheet_main.write(6, 2, collection_name)
+    worksheet_main.write(7, 1, "items before")
+    worksheet_main.write(7, 2, dl_info['items_before'])
+    worksheet_main.write(8, 1, "items after")
+    worksheet_main.write(8, 2, dl_info['items_after'])
+    worksheet_main.write(9, 1, "items downloaded today")
+    worksheet_main.write(9, 2, dl_info['items_new'])
 
     instock_items = 0
     archived_items = 0
@@ -84,7 +86,7 @@ def mongo2xl(collection_name, dl_info):
         #     collection = db['ebay_'+gender]
         #     archive = db['ebay_'+gender+'_archive']
         #     current_worksheet = workbook.add_worksheet(gender)
-        #     fillTable(current_worksheet, categories, collection, archive, bold, today)
+        #     fill_table(current_worksheet, categories, collection, archive, bold, today)
         #     instock_items += collection.count()
         #     archived_items += archive.count()
         #
@@ -139,10 +141,10 @@ def mongo2xl(collection_name, dl_info):
     # else:
     elif filename == 'recruit':
         from .recruit_constants import recruit2category_idx
-        categories_female=categories_male = list(set(recruit2category_idx.keys()))
-    elif filename == 'amazon':
-        from .amazon_constants import amazon_categories
-        categories_female = categories_male = amazon_categories
+        categories_female = categories_male = list(set(recruit2category_idx.keys()))
+    elif filename == 'amazon' or filename == 'amaze':
+        from .amazon_constants import amazon_categories_list
+        categories_female = categories_male = amazon_categories_list
     else:
         from .shopstyle_constants import shopstyle_paperdoll_female, shopstyle_paperdoll_male
         categories_female = list(set(shopstyle_paperdoll_female.values()))
@@ -152,7 +154,7 @@ def mongo2xl(collection_name, dl_info):
     categories_male.sort()
 
     for col_gender in ['Female', 'Male']:
-        tmp = filename +"_" + col_gender
+        tmp = filename + "_" + col_gender
         if filename == 'ebay':
             tmp += '_US'
         if filename == 'amazon':
@@ -160,14 +162,14 @@ def mongo2xl(collection_name, dl_info):
         print("working on " + tmp)
         collection = db[tmp]
         archive = db[tmp+"_archive"]
-        if gender is 'Female':
+        if col_gender is 'Female':
             categories = categories_female
             current_worksheet = workbook.add_worksheet('Female')
         else:
             categories = categories_male
             current_worksheet = workbook.add_worksheet('Male')
 
-        fillTable(current_worksheet, categories, collection, archive, bold, today)
+        fill_table(current_worksheet, categories, collection, archive, bold, today)
         instock_items += collection.count()
         archived_items += archive.count()
 
@@ -191,7 +193,7 @@ def get_user_input():
     parser = argparse.ArgumentParser(description='"@@@ create excel and upload to drive @@@')
     parser.add_argument('-n', '--name', default="ShopStyle", dest="name",
                         help='collection name - currently only ShopStyle, GangnamStyle, amaze or amazon')
-    parser.add_argument('-g', '--gender', dest= "gender",
+    parser.add_argument('-g', '--gender', dest="gender",
                         help='specify which gender to download. (Female or Male - case sensitive)', required=True)
     args = parser.parse_args()
     return args
@@ -214,14 +216,13 @@ if __name__ == "__main__":
         print("bad input - gender should be only Female or Male (case sensitive)")
         sys.exit(1)
 
-    dl_info = {"start_date": current_dl_date,
-               "dl_duration": 0,
-               "items_before": 0,
-               "items_after": 0,
-               "items_new": 0}
+    info = {"start_date": current_dl_date,
+            "dl_duration": 0,
+            "items_before": 0,
+            "items_after": 0,
+            "items_new": 0}
 
-    mongo2xl(col, dl_info)
+    mongo2xl(col, info)
 
     print (col + "Update Finished!!!")
     sys.exit(0)
-

@@ -6,22 +6,24 @@ from ..Yonti import pymongo_utils
 from rq import Queue
 import sys
 from PIL import Image
-import io
-from urllib2 import urlopen
 import numpy as np
 from scipy import fftpack
+from ..Utils import get_cv2_img_array
+from time import sleep
 
 
-q = Queue('refresh', connection=redis_conn)
+refresh_q = Queue('refresh', connection=redis_conn)
+phash_q = Queue('phash', connection=redis_conn)
+
 today_date = str(datetime.date(datetime.now()))
 last_percent_reported = None
 count = 1
 
 
-def progress_bar(blocksize, total, last_cnt = None, last_pct=None):
+def progress_bar(blocksize, total, last_cnt=None, last_pct=None):
     global last_percent_reported, count
     last_count = last_cnt or count
-    percent = int(last_count*blocksize *100/ total)
+    percent = int(last_count*blocksize * (100 / total))
 
     last_percent = last_pct or last_percent_reported
     if last_percent != percent:
@@ -90,7 +92,7 @@ def binary_array_to_hex(arr):
     return "".join(s)
 
 
-def get_p_hash(image, hash_size=8, img_size=8):
+def get_p_hash(image, hash_size=16, img_size=16):
     image = Image.fromarray(image)
     image = image.convert("L").resize((img_size, img_size), Image.ANTIALIAS)
     pixels = np.array(image.getdata(), dtype=np.float).reshape((img_size, img_size))
@@ -98,7 +100,7 @@ def get_p_hash(image, hash_size=8, img_size=8):
     dctlowfreq = dct[:hash_size, :hash_size]
     med = np.median(dctlowfreq)
     diff = dctlowfreq > med
-    flat= diff.flatten()
+    flat = diff.flatten()
     hexa = binary_array_to_hex(flat)
     return hexa
 
@@ -110,7 +112,7 @@ def get_hash(image):
     return url_hash
 
 
-def theArchiveDoorman(col_name, instock_limit=2, archive_limit=7):
+def thearchivedoorman(col_name, instock_limit=2, archive_limit=7):
     """
     clean the archive from items older than a week
     send items to archive
@@ -120,12 +122,12 @@ def theArchiveDoorman(col_name, instock_limit=2, archive_limit=7):
     pymongo_utils.delete_or_and_index(collection_name=archive_name, index_list=['id'])
     collection_archive = db[archive_name]
     archivers = collection_archive.find()
-    notUpdated = collection.find({"download_data.dl_version": {"$ne": today_date}})
-    outStockers = collection.find({'status.instock': False})
+    not_updated = collection.find({"download_data.dl_version": {"$ne": today_date}})
+    out_stockers = collection.find({'status.instock': False})
     archivers_count = archivers.count()
-    notUpdated_count = notUpdated.count()
-    outStockers_count = outStockers.count()
-    total = archivers_count + notUpdated_count + outStockers_count
+    not_updated_count = not_updated.count()
+    out_stockers_count = out_stockers.count()
+    total = archivers_count + not_updated_count + out_stockers_count
     block_size = total/200
 
     y_new, m_new, d_new = map(int, today_date.split("-"))
@@ -142,7 +144,7 @@ def theArchiveDoorman(col_name, instock_limit=2, archive_limit=7):
 
     # add to the archive items which were not downloaded in the last 2 days
     progress = a
-    for n, item in enumerate(notUpdated):
+    for n, item in enumerate(not_updated):
         if (n+progress) % block_size == 0:
             progress_bar(block_size, total)
         y_old, m_old, d_old = map(int, item["download_data"]["dl_version"].split("-"))
@@ -159,7 +161,7 @@ def theArchiveDoorman(col_name, instock_limit=2, archive_limit=7):
                 collection_archive.insert_one(item)
     progress = n + a
     # move to the archive all the items which were downloaded today but are out of stock
-    for o, item in enumerate(outStockers):
+    for o, item in enumerate(out_stockers):
         if (o + progress) % block_size == 0:
             progress_bar(block_size, total)
         collection.delete_one({'id': item['id']})
@@ -169,6 +171,7 @@ def theArchiveDoorman(col_name, instock_limit=2, archive_limit=7):
         collection_archive.insert_one(item)
 
     collection_archive.reindex()
+    print('')
 
 
 def refresh_worker(doc, name):
@@ -182,8 +185,8 @@ def refresh_worker(doc, name):
             if name in similar_res:
                 fp = item['fp']
                 category = item['category']
-                _, new_similar_results = find_similar_mongo.find_top_n_results(fingerprint=fp, collection=col_name, category_id=category,
-                                                            number_of_results=100)
+                _, new_similar_results = find_similar_mongo.find_top_n_results(fingerprint=fp, collection=col_name,
+                                                                               category_id=category, number_of_results=100)
                 similar_res[name] = new_similar_results
     collection.replace_one({'_id': doc['_id']}, doc)
 
@@ -194,14 +197,101 @@ def refresh_similar_results(name):
     relevant_imgs = collection.find({query: {'$exists': 1}})
     total = relevant_imgs.count()
     for current, img in enumerate(relevant_imgs):
-        q.enqueue(refresh_worker, doc=img, name=name, timeout=1800)
+        refresh_q.enqueue(refresh_worker, doc=img, name=name, timeout=1800)
         print ('%d/%d sent' % (current, total))
 
-    while q.count > 0:
-        msg = '%.2f done' % (1-q.count/float(total))
+    while refresh_q.count > 0:
+        msg = '%.2f done' % (1 - refresh_q.count / float(total))
         print (msg)
 
     print ('REFRESH DONE!')
+
+
+def get_indexes_names(coll):
+    idx_info = coll.index_information()
+    keys = idx_info.keys()
+    keys.remove('_id_')
+    # removes the '_1' from the key names
+    keys = [k[:-2] for k in keys]
+    print (keys)
+    return keys
+
+
+def reindex(collection_name):
+    collection = db[collection_name]
+    oldindexes = get_indexes_names(collection)
+    # remove indexes
+    collection.drop_indexes()
+    # build new indexes
+    for index in oldindexes:
+        print (index)
+        collection.create_index(index, background=True)
+    print('Index done!')
+
+
+def phash_worker(col_name, url, idx):
+    collection = db[col_name]
+    image = get_cv2_img_array(url)
+    if image is None:
+        collection.delete_one({'_id': idx})
+        return
+    p_hash = get_p_hash(image)
+    p_hash_exists = collection.find_one({'p_hash': p_hash})
+    if p_hash_exists:
+        print('p_hash exists')
+        return
+    collection.update_one({'_id': idx}, {'$set': {'p_hash': p_hash}})
+    print ('p_hash added')
+    return
+
+
+def p_hash_many(col_name, redo_all=False):
+    collection = db[col_name]
+    col_indexes = get_indexes_names(collection)
+    if 'p_hash' not in col_indexes:
+        collection.create_index('p_hash', background=True)
+
+    x = 0
+    all_count = 1
+    while x < all_count:
+        try:
+            if redo_all:
+                redo_all = False
+                all_items = collection.find({}, {'images.XLarge': 1})
+            else:
+                all_items = collection.find({'p_hash': {'$exists': 0}}, {'images.XLarge': 1})
+            x = 0
+            all_count = all_items.count()
+            for x, item in enumerate(all_items):
+                if x % 100 == 0:
+                    print ('%d/%d' % (x, all_count))
+
+                url = item['images']['XLarge']
+                idx = item['_id']
+                phash_q.enqueue(phash_worker, args=(col_name, url, idx), timeout=1800)
+                while phash_q.count > 50000:
+                    sleep(300)
+        except ValueError:
+            pass
+
+    while phash_q.count > 0:
+        sleep(60)
+
+    print_error('clear duplicates')
+    all_updated = collection.find({}, {'p_hash': 1})
+    all_count = all_updated.count()
+    for x, item in enumerate(all_updated):
+        if x % 100 == 0:
+            print ('%d/%d' % (x, all_count))
+        p_hash = item['p_hash']
+        idx = item['_id']
+        p_hash_exists = collection.find_one({'p_hash': p_hash, '_id': {'$ne': idx}})
+        if p_hash_exists:
+            print('p_hash exists')
+            collection.delete_many({'p_hash': p_hash, '_id': {'$ne': idx}})
+            continue
+    msg = '%s p_hash done!' % col_name
+    print_error(msg)
 
 
 categories_badwords = ['SLEEPWEAR', 'SHAPEWEAR', 'SLIPS', 'BEDDING', 'LINGERIE', 'CAMISOLES', 'JEWELRY', 'SPORTS',
@@ -244,7 +334,7 @@ categories_keywords = ['BELT', 'BELTS', 'BIKINI', 'BIKINIS', 'BLAZER', 'BLAZERS'
                        'JKT', 'SKORT', 'SKIRTINI', 'SWIMWEAR', 'PEACOAT', 'MONIKINI', 'TANKINI', 'RASHGUARD',
                        'MINISKIRT', 'CAMI', 'POPOVER', 'CAMISOLE', 'CARDI']
 
-categories_swap = { 'BELT': 'belt', 'BELTS': 'belt',
+categories_swap =  {'BELT': 'belt', 'BELTS': 'belt',
                     'BIKINIS': 'bikini', 'BIKINI': 'bikini',
                     'BLAZERS': 'blazer', 'BLAZER': 'blazer',
                     'BLOUSES': 'blouse', 'BLOUSE': 'blouse', 'TUNICS': 'blouse', 'TUNIC': 'blouse',
@@ -296,3 +386,4 @@ categories_swap = { 'BELT': 'belt', 'BELTS': 'belt',
                     'VESTS': 'vest', 'VEST': 'vest',
                     'TIE': 'tie',
                     'DUNGAREE': 'overall', 'OVERALL': 'overall', 'OVERALLS': 'overall'}
+

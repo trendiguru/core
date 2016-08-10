@@ -1,5 +1,5 @@
 
-plus_sizes = ['XL', '1X', '2X', '3X', '4X', 'X', 'XX', 'XXX', 'XXXX', 'XXXXX', 'LARGE', 'PLUS']
+plus_sizes = ['XL', '1X', '2X', '3X', '4X', 'XX', 'XXX', 'XXXX', 'XXXXX', 'LARGE', 'PLUS']
 
 
 amazon_categories = {'Dresses': {'childs': ['Cocktail', 'Casual', 'Wedding Party', 'Prom & Homecoming', 'Club']},
@@ -57,31 +57,31 @@ status_log = '/home/developer/yonti/amazon_status.log'
 colors = ['red', 'blue', 'green', 'black', 'white', 'yellow', 'pink', 'purple', 'magenta', 'cyan', 'grey', 'violet',
           'gold', 'silver', 'khaki', 'turquoise', 'brown']
 
-amazon_categories = ['belt',
-                     'bikini',
-                     'blazer',
-                     'blouse',
-                     'cardigan',
-                     'coat',
-                     'dress',
-                     'jacket',
-                     'jeans',
-                     'leggings',
-                     'pants',
-                     'roampers',
-                     'shirt',
-                     'shorts',
-                     'skirt',
-                     'suit',
-                     'sweater',
-                     'sweatshirt',
-                     't-shirt',
-                     'tanktop',
-                     'tights',
-                     'top',
-                     'vest',
-                     'swimsuit',
-                     'unknown',
-                     'stockings']
+amazon_categories_list = ['belt',
+                          'bikini',
+                          'blazer',
+                          'blouse',
+                          'cardigan',
+                          'coat',
+                          'dress',
+                          'jacket',
+                          'jeans',
+                          'leggings',
+                          'pants',
+                          'roampers',
+                          'shirt',
+                          'shorts',
+                          'skirt',
+                          'suit',
+                          'sweater',
+                          'sweatshirt',
+                          't-shirt',
+                          'tanktop',
+                          'tights',
+                          'top',
+                          'vest',
+                          'swimsuit',
+                          'unknown',
+                          'stockings']
 
 amazon_categories_for_direct_dl = ['tights', 'stockings']

@@ -11,7 +11,8 @@
 # 5. ebay at 12:00 am
 # *** every 15 minutes the status check will run
 # example: open 6 rqworkers - 1-6 7 * * * sudo rqworker -u redis://redis1-redis-1-vm:6379 fingerprint_new &
-# standard output ans error will be logged temporarily in /home/developer/yonti/current_job.log
+# standard output and error will be logged temporarily in /home/developer/yonti/current_job.log
+
 # download log will be saved to /home/developer/download.log
 1 0 * * * date >> /home/developer/yonti/download.log 2>&1
 1 0 * * * python -m trendi.db_stuff.dl_status -m create >> /home/developer/yonti/download.log 2>&1

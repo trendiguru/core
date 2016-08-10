@@ -272,7 +272,7 @@ def generate_image_onthefly(img_filename_or_nparray, gaussian_or_uniform_distrib
             return
 #convert mask img to binary multichannel image
         mask_arr = mask_to_multichannel(mask_arr,n_mask_channels)
-        logging.debug('mask shape:'+str(mask_arr.shape))
+#        logging.debug('mask shape:'+str(mask_arr.shape))
 
 
 

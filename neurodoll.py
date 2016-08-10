@@ -35,7 +35,7 @@ def url_to_image(url):
 
 
 
-def infer_one(url_or_np_array,required_image_size=None,threshold = 0.01):
+def infer_one(url_or_np_array,required_image_size=(256,256),threshold = 0.01):
     start_time = time.time()
     if isinstance(url_or_np_array, basestring):
         print('infer_one working on url:'+url_or_np_array)
@@ -65,9 +65,9 @@ def infer_one(url_or_np_array,required_image_size=None,threshold = 0.01):
         print('got n-chan image, skipping - shape:'+str(in_.shape))
         return None
 #    in_ = in_[:,:,::-1]  for doing RGB -> BGR
-    cv2.imwrite('test1234.jpg',in_) #verify that images are coming in as rgb
+#    cv2.imwrite('test1234.jpg',in_) #verify that images are coming in as rgb
 
-#    in_ -= np.array((104,116,122.0))  #was not used in training!!
+    in_ -= np.array([104,116,122.0])  #was not used in training!!
     in_ = in_.transpose((2,0,1))   #wxhxc -> cxwxh
     # shape for input (data blob is N x C x H x W), set data
     net.blobs['data'].reshape(1, *in_.shape)
@@ -112,8 +112,9 @@ protopath = os.path.join(os.path.dirname(os.path.abspath( __file__ )), 'classifi
 modelpath = '/home/jeremy/caffenets/production'
 
 MODEL_FILE = os.path.join(modelpath,'voc8_15_pixlevel_deploy.prototxt')
-SINGLE_CLASS_LAYER_DEPLOY = os.path.join(modelpath,'voc8_15_pixlevel_deploy_with_sigmoid.prototxt')
-PRETRAINED = os.path.join(modelpath,'voc8_15_pixlevel_iter120000.caffemodel')
+#PRETRAINED = os.path.join(modelpath,'voc8_15_pixlevel_iter120000.caffemodel')
+PRETRAINED = os.path.join(modelpath,'voc8_15_0816_iter10000_pixlevel_deploy.caffemodel')
+
 
 caffe.set_mode_gpu()
 caffe.set_device(0)
@@ -156,12 +157,14 @@ if __name__ == "__main__":
     ]
 
     for url in urls:
-        result = infer_one(url,required_image_size=None,threshold=0)
+        result = infer_one(url,required_image_size=(256,256),threshold=0)
         timestamp = int(10*time.time())
         name = str(timestamp)+'.png'
         cv2.imwrite(name,result)
         labels=constants.ultimate_21
-        imutils.show_mask_with_labels(name,labels,visual_output=False,save_images=True)
+        orig_img = url_to_image(url)
+        cv2.imwrite('orig.jpg',orig_img)
+        imutils.show_mask_with_labels(name,labels,visual_output=False,save_images=True,original_image='orig.jpg')
 
 #    after_nn_result = pipeline.after_nn_conclusions(result,constants.ultimate_21_dict)
 #    cv2.imwrite('output_afternn.png',after_nn_result)

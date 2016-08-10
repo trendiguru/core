@@ -15,6 +15,7 @@ from . import shopstyle_constants
 from .shopstyle2generic import convert2generic
 from ..fingerprint_core import generate_mask_and_insert
 from . import dl_excel
+from .db_utils import refresh_similar_results
 
 
 q = Queue('fingerprinter4db', connection=constants.redis_conn)
@@ -88,12 +89,12 @@ class ShopStyleDownloader():
                    "items_after": self.collection.count(),
                    "items_new": self.collection.find({'download_data.first_dl':self.current_dl_date}).count()}
 
-        self.cache.delete_many({})
         dl_excel.mongo2xl(self.collection_name, dl_info)
         print self.collection_name + " DOWNLOAD DONE!!!!!\n"
         new_items = self.collection.find({'download_data.first_dl': self.current_dl_date}).count()
         self.status.update_one({"date": self.current_dl_date}, {"$set": {self.status_full_path: "Done",
                                                                          self.notes_full_path: new_items}})
+        self.cache.delete_many({})
 
     def theArchiveDoorman(self):
         # clean the archive from items older than a week
@@ -450,6 +451,7 @@ class UrlParams(collections.MutableMapping):
     def encoded(self):
         return self.__class__.encode_params(self)
 
+
 def getUserInput():
     parser = argparse.ArgumentParser(description='"@@@ Shopstyle Download @@@')
     parser.add_argument('-n', '--name',default="ShopStyle", dest= "name",
@@ -461,11 +463,11 @@ def getUserInput():
 
 if __name__ == "__main__":
     user_input = getUserInput()
-    col = user_input.name
+    col_name = user_input.name
     gender = user_input.gender
 
-    if gender in ['Female','Male'] and col in ["ShopStyle","GangnamStyle"]:
-        col = col + "_" +gender
+    if gender in ['Female','Male'] and col_name in ["ShopStyle","GangnamStyle"]:
+        col = col_name + "_" +gender
     else:
         print("bad input - gender should be only Female or Male (case sensitive)")
         sys.exit(1)
@@ -479,4 +481,5 @@ if __name__ == "__main__":
     if forest_job.is_failed:
         print ('annoy plant forest failed')
 
+    refresh_similar_results(col_name)
     print (col + "Update Finished!!!")
