@@ -80,6 +80,7 @@ def infer_one(url_or_np_array,required_image_size=(256,256),threshold = 0.01):
     # run net and take argmax for prediction
     net.forward()
     out = net.blobs['score'].data[0].argmax(axis=0)
+    out = np.array(out,dtype=np.uint8)
     if out is None:
         logging.debug('out image is None')
 
