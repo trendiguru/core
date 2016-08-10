@@ -14,7 +14,10 @@ import cv2
 import urllib
 import skimage
 import requests
+import dlib
 
+
+detector = dlib.get_frontal_face_detector()
 
 MODLE_FILE = "/home/yonatan/trendi/yonatan/Alexnet_deploy.prototxt"
 PRETRAINED = "/home/yonatan/alexnet_imdb_first_try/caffe_alexnet_train_faces_iter_10000.caffemodel"
@@ -34,6 +37,15 @@ print "Done initializing!"
 
 def cv2_image_to_caffe(image):
     return skimage.img_as_float(cv2.cvtColor(image, cv2.COLOR_BGR2RGB)).astype(np.float32)
+
+
+def find_face_dlib(image, max_num_of_faces=10):
+    faces = detector(image, 1)
+    faces = [[rect.left(), rect.top(), rect.width(), rect.height()] for rect in list(faces)]
+    if not len(faces):
+        return {'are_faces': False, 'faces': []}
+    #final_faces = choose_faces(image, faces, max_num_of_faces)
+    return {'are_faces': len(faces) > 0, 'faces': faces}
 
 
 def theDetector(url_or_np_array):
