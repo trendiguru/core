@@ -162,7 +162,9 @@ if __name__ == "__main__":
         name = str(timestamp)+'.png'
         cv2.imwrite(name,result)
         labels=constants.ultimate_21
-        imutils.show_mask_with_labels(name,labels,visual_output=False,save_images=True)
+        orig_img = url_to_image(url)
+        cv2.imwrite('orig.jpg',orig_img)
+        imutils.show_mask_with_labels(name,labels,visual_output=False,save_images=True,original_image='orig.jpg')
 
 #    after_nn_result = pipeline.after_nn_conclusions(result,constants.ultimate_21_dict)
 #    cv2.imwrite('output_afternn.png',after_nn_result)
