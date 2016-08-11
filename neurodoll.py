@@ -95,7 +95,7 @@ def infer_one(url_or_np_array,required_image_size=(256,256),threshold = 0.01):
     for unique in uniques:
         pixelcount = len(out[out==unique])
         ratio = float(pixelcount)/image_size
-        logging.debug('ratio {} threshold {} ratio<thresh {}'.format(ratio,threshold,ratio<threshold))
+        logging.debug('i {} pixels {} tot {} ratio {} threshold {} ratio<thresh {}'.format(unique,pixelcount,image_size,ratio,threshold,ratio<threshold))
         if ratio < threshold:
             logging.debug('kicking out index '+str(unique)+' with ratio '+str(ratio))
             out[out==unique] = 0  #set label with small number of pixels to 0 (background)
