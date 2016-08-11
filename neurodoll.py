@@ -47,6 +47,9 @@ def infer_one(url_or_np_array,required_image_size=(256,256),threshold = 0.01):
 #    im = im.resize(required_imagesize,Image.ANTIALIAS)
 
 #    in_ = in_.astype(float)
+    if image is None:
+        logging.debug('got None for image')
+        return
     if required_image_size is not None:
         original_h,original_w = image.shape[0:2]
         logging.debug('resizing nd input to '+str(required_image_size)+' from '+str(original_h)+'x'+str(original_w))
