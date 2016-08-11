@@ -439,9 +439,9 @@ def parse_solveoutput(f):
 #  plt.title(net_name)
   dt=datetime.datetime.today()
   plt.title(dt.isoformat())
-  plt.suptitle(args.output_file)
+  plt.suptitle(f)
   plt.draw()
-  savename = args.output_file+'.jpg'
+  savename = f+'.jpg'
   plt.savefig(savename)
   plt.show()
 
