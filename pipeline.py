@@ -125,7 +125,9 @@ def after_nn_conclusions(mask, labels, face=None):
         print "W2P: checking {0}".format(category)
         for key, item in constants.nn_categories.iteritems():
             if category in item:
-                mask_sizes[key].append({num: cv2.countNonZero(item_mask)})
+                amount_of_category_pixels = cv2.countNonZero(item_mask)
+                if float(amount_of_category_pixels)/mask.size > 0.01:
+                    mask_sizes[key].append({num: amount_of_category_pixels})
     # 1
     whole_sum = np.sum([item.values()[0] for item in mask_sizes['whole_body']])
     partly_sum = np.sum([item.values()[0] for item in mask_sizes['upper_under']]) +\
