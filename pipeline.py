@@ -48,7 +48,9 @@ def after_pd_conclusions(mask, labels, face=None):
         print "W2P: checking {0}".format(category)
         for key, item in constants.paperdoll_categories.iteritems():
             if category in item:
-                mask_sizes[key].append({num: cv2.countNonZero(item_mask)})
+                num_of_pixs = cv2.countNonZero(item_mask)
+                if num_of_pixs/float(mask.size) > 0.01:
+                    mask_sizes[key].append({num: num_of_pixs})
     # 1
     whole_sum = np.sum([item.values()[0] for item in mask_sizes['whole_body']])
     partly_sum = np.sum([item.values()[0] for item in mask_sizes['upper_under']]) +\
@@ -125,7 +127,9 @@ def after_nn_conclusions(mask, labels, face=None):
         print "W2P: checking {0}".format(category)
         for key, item in constants.nn_categories.iteritems():
             if category in item:
-                mask_sizes[key].append({num: cv2.countNonZero(item_mask)})
+                num_of_pixs = cv2.countNonZero(item_mask)
+                if num_of_pixs/float(mask.size) > 0.01:
+                    mask_sizes[key].append({num: num_of_pixs})
     # 1
     whole_sum = np.sum([item.values()[0] for item in mask_sizes['whole_body']])
     partly_sum = np.sum([item.values()[0] for item in mask_sizes['upper_under']]) +\
