@@ -40,6 +40,8 @@ def find_face(raw_image):
     #image = url_to_image(url)
     #image = url_to_image(raw_image)
     response = requests.get(raw_image)  # download
+    if not response:
+        return 'Fail'
     image = cv2.imdecode(np.asarray(bytearray(response.content)), 1)
     if image == 'Fail':
         return 'Fail'
