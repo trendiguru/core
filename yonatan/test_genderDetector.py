@@ -15,6 +15,7 @@ import urllib
 import skimage
 import requests
 import dlib
+from ..utils import imutils
 
 
 detector = dlib.get_frontal_face_detector()
@@ -41,6 +42,7 @@ def cv2_image_to_caffe(image):
 
 def find_face_dlib(image, max_num_of_faces=10):
     faces = detector(image, 1)
+    print faces
     faces = [[rect.left(), rect.top(), rect.width(), rect.height()] for rect in list(faces)]
     if not len(faces):
         return {'are_faces': False, 'faces': []}
@@ -66,7 +68,9 @@ def theDetector(url_or_np_array):
         print "not a good image"
         return None
 
-    faces = background_removal.find_face_dlib(full_image)
+    resized_image = imutils.resize_keep_aspect(full_image, output_size=(124, 124))
+
+    faces = background_removal.find_face_dlib(resized_image)
     print faces
 
     # height, width, channels = full_image.shape
@@ -75,8 +79,8 @@ def theDetector(url_or_np_array):
     #
     # if x > width or x + w > width or y > height or y + h > height:
     #     return None
-
-    face_image = full_image[y: y + h, x: x + w]
+    #
+    #face_image = full_image[y: y + h, x: x + w]
 
     face_for_caffe = [cv2_image_to_caffe(face_image)]
     #face_for_caffe = [caffe.io.load_image(face_image)]
