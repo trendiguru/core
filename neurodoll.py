@@ -94,14 +94,19 @@ def infer_one(url_or_np_array,required_image_size=(256,256),threshold = 0.01):
 #        out = out[:,:,0]
     for unique in uniques:
         pixelcount = len(out[out==unique])
-        if float(pixelcount)/image_size < threshold:
+        ratio = float(pixelcount)/image_size
+        logging.debug('i {} pixels {} tot {} ratio {} threshold {} ratio<thresh {}'.format(unique,pixelcount,image_size,ratio,threshold,ratio<threshold))
+        if ratio < threshold:
+            logging.debug('kicking out index '+str(unique)+' with ratio '+str(ratio))
             out[out==unique] = 0  #set label with small number of pixels to 0 (background)
+            ratio = float(pixelcount)/image_size
+            logging.debug('new ratio '+str(ratio))
 
 
    # cv2.countNonZero(item_mask)
 
 
-    result = Image.fromarray(out.astype(np.uint8))
+#    result = Image.fromarray(out.astype(np.uint8))
 #        outname = im.strip('.png')[0]+'out.bmp'
 #    outname = os.path.basename(imagename)
 #    outname = outname.split('.jpg')[0]+'.bmp'
@@ -113,7 +118,8 @@ def infer_one(url_or_np_array,required_image_size=(256,256),threshold = 0.01):
     print('infer_one elapsed time:'+str(elapsed_time))
  #   cv2.imshow('out',out.astype(np.uint8))
  #   cv2.waitKey(0)
-    return out.astype(np.uint8)
+    return out
+#    return out.astype(np.uint8)
 
 
 #MODEL_FILE = "/home/jeremy/voc8_15_pixlevel_deploy.prototxt"
@@ -169,7 +175,7 @@ if __name__ == "__main__":
     ]
 
     for url in urls:
-        result = infer_one(url,required_image_size=(256,256),threshold=0)
+        result = infer_one(url,required_image_size=(256,256),threshold=0.01)
         timestamp = int(10*time.time())
         name = str(timestamp)+'.png'
         cv2.imwrite(name,result)
