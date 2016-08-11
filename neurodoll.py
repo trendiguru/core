@@ -86,12 +86,12 @@ def infer_one(url_or_np_array,required_image_size=(256,256),threshold = 0.01):
 
 #TODO - make the threshold per item ,e.g. small shoes are ok and should be left in
     uniques = np.unique(out)
-    image_size = out.shape[0]*out.shape[1]
     if required_image_size is not None:
         logging.debug('resizing nd input to '+str(original_h)+'x'+str(original_w))
     #    out = [out,out,out]
         out = cv2.resize(out,(original_w,original_h))
 #        out = out[:,:,0]
+    image_size = out.shape[0]*out.shape[1]
     for unique in uniques:
         pixelcount = len(out[out==unique])
         ratio = float(pixelcount)/image_size
