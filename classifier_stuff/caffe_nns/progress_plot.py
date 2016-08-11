@@ -400,8 +400,6 @@ def parse_solveoutput(f):
 
  # print times
  # print elapsed_days
-
-  f.close()
 #  plt.plot(training_iterations, training_loss, '-', linewidth=2)
 #  plt.plot(test_iterations, test_accuracy, '-', linewidth=2)
 #  plt.show()
@@ -441,9 +439,9 @@ def parse_solveoutput(f):
 #  plt.title(net_name)
   dt=datetime.datetime.today()
   plt.title(dt.isoformat())
-  plt.suptitle(args.output_file)
+  plt.suptitle(f)
   plt.draw()
-  savename = args.output_file+'.jpg'
+  savename = f+'.jpg'
   plt.savefig(savename)
   plt.show()
 
