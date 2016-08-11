@@ -80,28 +80,35 @@ def infer_one(url_or_np_array,required_image_size=(256,256),threshold = 0.01):
     # run net and take argmax for prediction
     net.forward()
     out = net.blobs['score'].data[0].argmax(axis=0)
-    out = np.array(out,dtype=np.uint8)
+    out = np.array(out,dtype=np.uint16)
     if out is None:
         logging.debug('out image is None')
 
 #TODO - make the threshold per item ,e.g. small shoes are ok and should be left in
-    uniques = np.unique(out)
-    image_size = out.shape[0]*out.shape[1]
     if required_image_size is not None:
         logging.debug('resizing nd input to '+str(original_h)+'x'+str(original_w))
     #    out = [out,out,out]
         out = cv2.resize(out,(original_w,original_h))
 #        out = out[:,:,0]
+    image_size = out.shape[0]*out.shape[1]
+    uniques = np.unique(out)
+
     for unique in uniques:
         pixelcount = len(out[out==unique])
-        if float(pixelcount)/image_size < threshold:
+        ratio = float(pixelcount)/image_size
+#        logging.debug('i {} pixels {} tot {} ratio {} threshold {} ratio<thresh {}'.format(unique,pixelcount,image_size,ratio,threshold,ratio<threshold))
+        if ratio < threshold:
+#            logging.debug('kicking out index '+str(unique)+' with ratio '+str(ratio))
             out[out==unique] = 0  #set label with small number of pixels to 0 (background)
+            pixelcount = len(out[out==unique])
+            ratio = float(pixelcount)/image_size
+#            logging.debug('new ratio '+str(ratio))
 
 
    # cv2.countNonZero(item_mask)
 
 
-    result = Image.fromarray(out.astype(np.uint8))
+#    result = Image.fromarray(out.astype(np.uint8))
 #        outname = im.strip('.png')[0]+'out.bmp'
 #    outname = os.path.basename(imagename)
 #    outname = outname.split('.jpg')[0]+'.bmp'
@@ -113,7 +120,11 @@ def infer_one(url_or_np_array,required_image_size=(256,256),threshold = 0.01):
     print('infer_one elapsed time:'+str(elapsed_time))
  #   cv2.imshow('out',out.astype(np.uint8))
  #   cv2.waitKey(0)
-    return out.astype(np.uint8)
+#    return out.astype(np.uint8)
+    out = np.array(out,dtype=np.uint8)
+    uniques = np.unique(out)
+    logging.debug('final uniques:'+str(uniques))
+    return out
 
 
 #MODEL_FILE = "/home/jeremy/voc8_15_pixlevel_deploy.prototxt"
@@ -169,7 +180,7 @@ if __name__ == "__main__":
     ]
 
     for url in urls:
-        result = infer_one(url,required_image_size=(256,256),threshold=0)
+        result = infer_one(url,required_image_size=(256,256),threshold=0.01)
         timestamp = int(10*time.time())
         name = str(timestamp)+'.png'
         cv2.imwrite(name,result)

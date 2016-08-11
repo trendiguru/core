@@ -15,6 +15,7 @@ import time
 import skimage
 import urllib
 from PIL import Image
+import requests
 
 
 def cv2_image_to_caffe(image):
@@ -37,7 +38,11 @@ def url_to_image(url):
 
 def find_face(raw_image):
     #image = url_to_image(url)
-    image = url_to_image(raw_image)
+    #image = url_to_image(raw_image)
+    response = requests.get(raw_image)  # download
+    if not response:
+        return 'Fail'
+    image = cv2.imdecode(np.asarray(bytearray(response.content)), 1)
     if image == 'Fail':
         return 'Fail'
 
@@ -80,8 +85,8 @@ def find_face(raw_image):
     return face_image
 
 
-width = 115
-height = 115
+width = 224
+height = 224
 
 
 sets = {'train', 'cv', 'test'}
@@ -116,9 +121,9 @@ for set in sets:
 
         image_file_name = 'resized_face-' + str(counter) + '.jpg'
 
-        cv2.imwrite(os.path.join('/home/yonatan/55k_' + set + '_set', image_file_name), resized_image)
+        cv2.imwrite(os.path.join('/home/yonatan/55k_' + set + '_set_224', image_file_name), resized_image)
 
-        text_file.write('/home/yonatan/55k_' + set + '_set/' + image_file_name + ' ' + words[1] + '\n')
+        text_file.write('/home/yonatan/55k_' + set + '_set_224/' + image_file_name + ' ' + words[1] + '\n')
 
         print counter
 

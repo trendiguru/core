@@ -85,6 +85,7 @@ logfile[1]="net_output.txt"
 for i in 1;
    do echo ${logfile[$i]};
    logf=${logfile[i]}
+   cd /home/jeremy/caffenets/pixlevel/voc-fcn8s/voc8.15/
    com = "python /home/jeremy/core/classifier_stuff/caffe_nns/progress_plot.py " $logf " --type 1"
    echo $com;
    $com;

@@ -626,7 +626,7 @@ def correct_deconv(proto):
             line = '  type:\"Deconvolution\"'
 #        print('out line:'+ line)
         outlines.append(line)
-        outstring = outstring+line+'\n'
+        outstring = outstring+line+'\n\n'
     return outstring
 
 def replace_pythonlayer(proto):
