@@ -10,7 +10,8 @@ from . import whitelist
 db = constants.db
 TTL = constants.general_ttl
 q1 = constants.q1
-
+nn_categories = [item for sector in constants.nn_categories.values() for item in sector]
+pd_categories = [item for sector in constants.paperdoll_categories.values() for item in sector]
 push_connection(constants.redis_conn)
 
 # -----------------------------------------------CO-FUNCTIONS-----------------------------------------------------------
@@ -45,11 +46,10 @@ def after_pd_conclusions(mask, labels, face=None):
     for num in np.unique(mask):
         item_mask = 255 * np.array(mask == num, dtype=np.uint8)
         category = list(labels.keys())[list(labels.values()).index(num)]
-        print "W2P: checking {0}".format(category)
+        print "checking {0}".format(category)
         for key, item in constants.paperdoll_categories.iteritems():
             if category in item:
-                if float(cv2.countNonZero(item_mask))/mask.size > 0.01:
-                    mask_sizes[key].append({num: cv2.countNonZero(item_mask)})
+                mask_sizes[key].append({num: cv2.countNonZero(item_mask)})
     # 1
     whole_sum = np.sum([item.values()[0] for item in mask_sizes['whole_body']])
     partly_sum = np.sum([item.values()[0] for item in mask_sizes['upper_under']]) +\
@@ -124,11 +124,11 @@ def after_nn_conclusions(mask, labels, face=None):
         item_mask = 255 * np.array(mask == num, dtype=np.uint8)
         category = list(labels.keys())[list(labels.values()).index(num)]
         print "W2P: checking {0}".format(category)
-        for key, item in constants.nn_categories.iteritems():
-            if category in item:
-                if float(cv2.countNonZero(item_mask))/mask.size > 0.01:
-                    mask_sizes[key].append({num: cv2.countNonZero(item_mask)})
-        print mask_sizes
+        if category in nn_categories:
+            amount_of_category_pixels = cv2.countNonZero(item_mask)
+            if float(amount_of_category_pixels)/mask.size > 0.01:
+                sector = [key for key, value in constants.nn_categories.iteritems() if category in value][0]
+                mask_sizes[sector].append({num: amount_of_category_pixels})
     # 1
     whole_sum = np.sum([item.values()[0] for item in mask_sizes['whole_body']])
     partly_sum = np.sum([item.values()[0] for item in mask_sizes['upper_under']]) +\
