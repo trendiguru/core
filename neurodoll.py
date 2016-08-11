@@ -138,8 +138,8 @@ protopath = os.path.join(os.path.dirname(os.path.abspath( __file__ )), 'classifi
 modelpath = '/home/jeremy/caffenets/production'
 
 MODEL_FILE = os.path.join(modelpath,'voc8_15_pixlevel_deploy.prototxt')
-PRETRAINED = os.path.join(modelpath,'voc8_15_pixlevel_iter120000.caffemodel')
-#PRETRAINED = os.path.join(modelpath,'voc8_15_0816_iter10000_pixlevel_deploy.caffemodel')
+#PRETRAINED = os.path.join(modelpath,'voc8_15_pixlevel_iter120000.caffemodel')
+PRETRAINED = os.path.join(modelpath,'voc8_15_0816_iter10000_pixlevel_deploy.caffemodel')
 
 
 caffe.set_mode_gpu()
