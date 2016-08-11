@@ -41,6 +41,7 @@ def cv2_image_to_caffe(image):
 
 def find_face_dlib(image, max_num_of_faces=10):
     faces = detector(image, 1)
+    print faces
     faces = [[rect.left(), rect.top(), rect.width(), rect.height()] for rect in list(faces)]
     if not len(faces):
         return {'are_faces': False, 'faces': []}
@@ -75,8 +76,8 @@ def theDetector(url_or_np_array):
     #
     # if x > width or x + w > width or y > height or y + h > height:
     #     return None
-
-    face_image = full_image[y: y + h, x: x + w]
+    #
+    #face_image = full_image[y: y + h, x: x + w]
 
     face_for_caffe = [cv2_image_to_caffe(face_image)]
     #face_for_caffe = [caffe.io.load_image(face_image)]
