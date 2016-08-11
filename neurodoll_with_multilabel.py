@@ -21,13 +21,15 @@ from trendi import pipeline
 from trendi.paperdoll import neurodoll_falcon_client as nfc
 
 
-#best as of 260716, see http://extremeli.trendi.guru/demo/results/ for updates
+#best multilabel as of 260716, see http://extremeli.trendi.guru/demo/results/ for updates
 print('starting nd w multilabel.py')
 protopath = os.path.join(os.path.dirname(os.path.abspath( __file__ )), 'classifier_stuff/caffe_nns/protos')
 modelpath = '/home/jeremy/caffenets/production'
 solverproto = os.path.join(modelpath,'ResNet-101-test.prototxt')
 deployproto = os.path.join(modelpath,'ResNet-101-deploy.prototxt')
-caffemodel = os.path.join(modelpath,'multilabel_resnet101_sgd_iter_120000.caffemodel')
+#caffemodel = os.path.join(modelpath,'multilabel_resnet101_sgd_iter_120000.caffemodel')
+caffemodel = os.path.join(modelpath,'multilabel_resnet101_sgd_iter_200000.caffemodel')  #10Aug2016
+
 with open('/home/jeremy/core/log.txt','a+') as logfile:
     logfile.write(solverproto+' '+deployproto+' '+caffemodel+'\n')
 print('solver proto {} deployproto {} caffemodel {}'.format(solverproto,deployproto,caffemodel))
