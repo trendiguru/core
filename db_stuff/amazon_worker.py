@@ -40,6 +40,14 @@ def verify_tights(title):
         return ''
 
 
+def verify_jacket(title):
+    title_upper = title.upper()
+    if any(x in title_upper for x in ['JACKET', 'JACKETS']):
+        return 'jacket'
+    else:
+        return ''
+
+
 def swap_amazon_to_ppd(cat, sub_cat, title):
     if cat == 'Dresses':
         return 'dress'
@@ -91,7 +99,7 @@ def swap_amazon_to_ppd(cat, sub_cat, title):
         if sub_cat == 'Active Hoodies' or sub_cat == 'Active Sweatshirts':
             return 'sweatshirt'
         elif 'Track & Active Jackets':
-            return 'jacket'
+            return verify_jacket(title)
         elif sub_cat == 'Active Top & Bottom Sets':
             return ''
         elif sub_cat == 'Active Shirts & Tees':
