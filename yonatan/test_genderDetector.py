@@ -68,7 +68,7 @@ def theDetector(url_or_np_array):
         print "not a good image"
         return None
 
-    resized_image = imutils.resize_keep_aspect(full_image, output_size=(224, 224))
+    resized_image = imutils.resize_keep_aspect(full_image, output_size=(124, 124))
 
     faces = background_removal.find_face_dlib(resized_image)
     print faces
