@@ -283,7 +283,7 @@ def p_hash_many(col_name, redo_all=False):
             print (e.message)
             while phash_q.count > 0:
                 sleep(60)
-            break
+
 
     print_error('clear duplicates')
     all_updated = collection.find({}, {'p_hash': 1})
