@@ -10,6 +10,7 @@ from ..Utils import get_cv2_img_array
 import hashlib
 from ..fingerprint_core import generate_mask_and_insert
 import re
+from .db_utils import get_p_hash
 recruit_q = Queue('recruit_worker', connection=redis_conn)
 fp_q = Queue('fingerprinter4db', connection=redis_conn)
 tracking_id = '?vos=fcppmpcncapcone01'
@@ -126,6 +127,12 @@ def process_items(item_list, gender,category):
             print ('hash already exists')
             continue
 
+        p_hash = get_p_hash(image)
+        p_hash_exists = collection.find_one({'p_hash': p_hash})
+        if p_hash_exists:
+            print ('p_hash already exists')
+            continue
+
         if 'itemDescriptionText' in item.keys():
             description = item['itemDescriptionText']
         else:
@@ -147,9 +154,10 @@ def process_items(item_list, gender,category):
                    "gender": gender,
                    "shippingInfo": [],
                    "raw_info": item,
-                   "img_hash": img_hash}
+                   "img_hash": img_hash,
+                   "p_hash": p_hash}
 
-        while fp_q.count>5000:
+        while fp_q.count > 5000:
             sleep(30)
 
         fp_q.enqueue(generate_mask_and_insert, doc=generic, image_url=img_url,
