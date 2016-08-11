@@ -400,8 +400,6 @@ def parse_solveoutput(f):
 
  # print times
  # print elapsed_days
-
-  f.close()
 #  plt.plot(training_iterations, training_loss, '-', linewidth=2)
 #  plt.plot(test_iterations, test_accuracy, '-', linewidth=2)
 #  plt.show()
