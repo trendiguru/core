@@ -102,7 +102,7 @@ def get_p_hash(image, hash_size=16, img_size=16):
     diff = dctlowfreq > med
     flat = diff.flatten()
     hexa = binary_array_to_hex(flat)
-    return hexa,flat
+    return hexa
 
 
 def get_hash(image):
