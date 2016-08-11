@@ -15,6 +15,7 @@ import urllib
 import skimage
 import requests
 import dlib
+from ..utils import imutils
 
 
 detector = dlib.get_frontal_face_detector()
@@ -67,7 +68,9 @@ def theDetector(url_or_np_array):
         print "not a good image"
         return None
 
-    faces = background_removal.find_face_dlib(full_image)
+    resized_image = imutils.resize_keep_aspect(full_image, output_size=(224, 224))
+
+    faces = background_removal.find_face_dlib(resized_image)
     print faces
 
     # height, width, channels = full_image.shape
