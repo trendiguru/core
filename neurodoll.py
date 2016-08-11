@@ -80,7 +80,7 @@ def infer_one(url_or_np_array,required_image_size=(256,256),threshold = 0.01):
     # run net and take argmax for prediction
     net.forward()
     out = net.blobs['score'].data[0].argmax(axis=0)
-    out = np.array(out,dtype=np.uint8)
+    out = np.array(out,dtype=np.uint16)
     if out is None:
         logging.debug('out image is None')
 
@@ -118,8 +118,9 @@ def infer_one(url_or_np_array,required_image_size=(256,256),threshold = 0.01):
     print('infer_one elapsed time:'+str(elapsed_time))
  #   cv2.imshow('out',out.astype(np.uint8))
  #   cv2.waitKey(0)
-    return out
 #    return out.astype(np.uint8)
+    out = np.array(out,dtype=np.uint8)
+    return out
 
 
 #MODEL_FILE = "/home/jeremy/voc8_15_pixlevel_deploy.prototxt"
