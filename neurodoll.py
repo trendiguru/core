@@ -47,6 +47,9 @@ def infer_one(url_or_np_array,required_image_size=(256,256),threshold = 0.01):
 #    im = im.resize(required_imagesize,Image.ANTIALIAS)
 
 #    in_ = in_.astype(float)
+    if image is None:
+        logging.debug('got None for image')
+        return
     if required_image_size is not None:
         original_h,original_w = image.shape[0:2]
         logging.debug('resizing nd input to '+str(required_image_size)+' from '+str(original_h)+'x'+str(original_w))
@@ -85,23 +88,24 @@ def infer_one(url_or_np_array,required_image_size=(256,256),threshold = 0.01):
         logging.debug('out image is None')
 
 #TODO - make the threshold per item ,e.g. small shoes are ok and should be left in
-    uniques = np.unique(out)
     if required_image_size is not None:
         logging.debug('resizing nd input to '+str(original_h)+'x'+str(original_w))
     #    out = [out,out,out]
         out = cv2.resize(out,(original_w,original_h))
 #        out = out[:,:,0]
     image_size = out.shape[0]*out.shape[1]
+    uniques = np.unique(out)
+
     for unique in uniques:
         pixelcount = len(out[out==unique])
         ratio = float(pixelcount)/image_size
-        logging.debug('i {} pixels {} tot {} ratio {} threshold {} ratio<thresh {}'.format(unique,pixelcount,image_size,ratio,threshold,ratio<threshold))
+#        logging.debug('i {} pixels {} tot {} ratio {} threshold {} ratio<thresh {}'.format(unique,pixelcount,image_size,ratio,threshold,ratio<threshold))
         if ratio < threshold:
-            logging.debug('kicking out index '+str(unique)+' with ratio '+str(ratio))
+#            logging.debug('kicking out index '+str(unique)+' with ratio '+str(ratio))
             out[out==unique] = 0  #set label with small number of pixels to 0 (background)
             pixelcount = len(out[out==unique])
             ratio = float(pixelcount)/image_size
-            logging.debug('new ratio '+str(ratio))
+#            logging.debug('new ratio '+str(ratio))
 
 
    # cv2.countNonZero(item_mask)
@@ -121,6 +125,8 @@ def infer_one(url_or_np_array,required_image_size=(256,256),threshold = 0.01):
  #   cv2.waitKey(0)
 #    return out.astype(np.uint8)
     out = np.array(out,dtype=np.uint8)
+    uniques = np.unique(out)
+    logging.debug('final uniques:'+str(uniques))
     return out
 
 
