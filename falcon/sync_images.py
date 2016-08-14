@@ -48,7 +48,7 @@ class Images(object):
                     ret["relevancy_dict"] = relevancy_dict
                 else:
                     # db CHECK PARALLEL WITH gevent
-                    exists = {url: Greenlet.spawn(fast_results.check_if_exists, url) for url in images}
+                    exists = {url: Greenlet.spawn(fast_results.check_if_exists, url, products) for url in images}
                     gevent.joinall(exists.values())
                     relevancy_dict = {}
                     images_to_rel_check = []
@@ -61,6 +61,7 @@ class Images(object):
                             images_to_rel_check.append(url)
 
                     # RELEVANCY CHECK LIOR'S POOLING
+                    # TODO - add products collection to inputs
                     inputs = [(image_url, page_url, start) for image_url in images_to_rel_check]
                     outs = simple_pool.map(fast_results.check_if_relevant_and_enqueue, inputs)
                     relevancy_dict.update({images_to_rel_check[i]: outs[i] for i in xrange(len(images_to_rel_check))})
