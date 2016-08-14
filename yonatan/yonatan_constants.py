@@ -20,7 +20,12 @@ import pymongo
 import argparse
 import shutil
 
-db = constants.db
+
+# if i run this function on braini2:
+# db = constants.db
+
+# if i run this function on brainik80a:
+db = pymongo.MongoClient().mydb
 
 
 dress_sleeve_dict = {
