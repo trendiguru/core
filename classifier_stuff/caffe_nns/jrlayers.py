@@ -408,7 +408,6 @@ class JrMultilabel(caffe.Layer):
 
         self.images_and_labels_file = params['images_and_labels_file']
         self.mean = np.array(params['mean'])
-        self.images_dir = params.get('images_dir',None)
         self.random_init = params.get('random_initialization', True) #start from random point in image list
         self.random_pick = params.get('random_pick', True) #pick random image from list every time
         self.seed = params.get('seed', 1337)
@@ -428,6 +427,8 @@ class JrMultilabel(caffe.Layer):
         self.augment_distribution = params.get('augment_distribution','uniform')
         self.n_labels = params.get('n_labels',21)
 
+        #on the way out
+        self.images_dir = params.get('images_dir',None)
 
         print('imfile {} mean {} imagesdir {} randinit {} randpick {} '.format(self.images_and_labels_file, self.mean,self.images_dir,self.random_init, self.random_pick))
         print('see {} newsize {} batchsize {} augment {} augmaxangle {} '.format(self.seed,self.new_size,self.batch_size,self.augment_images,self.augment_max_angle))
@@ -455,6 +456,7 @@ class JrMultilabel(caffe.Layer):
                 return
             self.images_and_labels_list = open(self.images_and_labels_file, 'r').read().splitlines()
             self.n_files = len(self.images_and_labels_list)
+            logging.debug('images and labels file: {} n: {}'.format(self.images_and_labels_file,self.n_files))
     #        self.indices = open(split_f, 'r').read().splitlines()
         else:
             print('option not supported')
