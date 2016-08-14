@@ -121,9 +121,9 @@ for set in sets:
 
         image_file_name = 'resized_face-' + str(counter) + '.jpg'
 
-        cv2.imwrite(os.path.join('/home/yonatan/55k_' + set + '_set_224', image_file_name), resized_image)
+        cv2.imwrite(os.path.join('/home/yonatan/55k_faces_' + set + '_set_224', image_file_name), resized_image)
 
-        text_file.write('/home/yonatan/55k_' + set + '_set_224/' + image_file_name + ' ' + words[1] + '\n')
+        text_file.write('/home/yonatan/55k_faces_' + set + '_set_224/' + image_file_name + ' ' + words[1] + '\n')
 
         print counter
 
