@@ -625,16 +625,18 @@ class JrMultilabel(caffe.Layer):
                 return None
 #############end added code to avoid cv2.imread############
 
-            out_ = augment_images.generate_image_onthefly(in_, gaussian_or_uniform_distributions=self.augment_distribution,
-               max_angle = self.augment_max_angle,
-               max_offset_x = self.augment_max_offset_x,max_offset_y = self.augment_max_offset_y,
-               max_scale=self.augment_max_scale,
-               max_noise_level=self.augment_max_noise_level,noise_type='gauss',
-               max_blur=self.augment_max_blur,
-               do_mirror_lr=self.augment_do_mirror_lr,
-               do_mirror_ud=self.augment_do_mirror_ud,
-               crop_size=self.augment_crop_size,
-               show_visual_output=self.augment_show_visual_output)
+#            out_ = augment_images.generate_image_onthefly(in_, gaussian_or_uniform_distributions=self.augment_distribution,
+#               max_angle = self.augment_max_angle,
+#               max_offset_x = self.augment_max_offset_x,max_offset_y = self.augment_max_offset_y,
+#               max_scale=self.augment_max_scale,
+#             max_noise_level=self.augment_max_noise_level,noise_type='gauss',
+#               max_blur=self.augment_max_blur,
+#              do_mirror_lr=self.augment_do_mirror_lr,
+ #              do_mirror_ud=self.augment_do_mirror_ud,
+ #              crop_size=self.augment_crop_size,
+ #              show_visual_output=self.augment_show_visual_output)
+            out_ = augment_images.generate_image_onthefly(in_)
+
             print('returned from augment_images')
 
             #im = Image.open(filename)
