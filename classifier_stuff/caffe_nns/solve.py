@@ -42,11 +42,11 @@ val = range(0,1500)
 #jrinfer.seg_tests(solver, False, val, layer='score')
 progress_plot.parse_solveoutput('net_output.txt')
 cmd = 'scp  net_output.txt.jpg root@104.155.22.95:/var/www/results/progress_plots/brainik_pixlevel.jpg';
-subprocess.call(cmd)
+subprocess.call(cmd,shell=True)
 
 for _ in range(1000):
     solver.step(5000)
 #    score.seg_tests(solver, False, val, layer='score')
     jrinfer.seg_tests(solver, False, val, layer='score')
     progress_plot.parse_solveoutput('net_output.txt')
-    subprocess.call(cmd)
+    subprocess.call(cmd,shell=True)
