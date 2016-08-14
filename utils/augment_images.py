@@ -383,6 +383,7 @@ def do_xform(img_array,width,height,crop_dx,crop_dy,crop_size,depth,flip_lr,flip
     if flip_lr:
         logging.debug('db D1')
         img_array = cv2.flip(img_array,1)
+        logging.debug('db D2')
 
     if flip_ud:
         img_array = cv2.flip(img_array,0)
