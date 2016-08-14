@@ -395,9 +395,11 @@ def do_xform(img_array,width,height,crop_dx,crop_dy,crop_size,depth,flip_lr,flip
 
     if noise_level:  #untested
         img_array = add_noise(img_array,noise_type,noise_level)
+    logging.debug('db F')
 
   #  print('center {0} angle {1} scale {2} h {3} w {4} dx {5} dy {6} noise {7} blur {8}'.format(center,angle, scale,height,width,offset_x,offset_y,noise_level,blur))
     M = cv2.getRotationMatrix2D(center, angle,scale)
+    logging.debug('db G')
     M[0,2]=M[0,2]+offset_x
     M[1,2]=M[1,2]+offset_y
  #   print('M='+str(M))
