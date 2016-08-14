@@ -48,6 +48,16 @@ def verify_jacket(title):
         return ''
 
 
+def verify_blazer(title):
+    title_upper = title.upper()
+    if any(x in title_upper for x in ['BLAZER', 'BLAZERS']):
+        return 'blazer'
+    elif 'PANTS' in title_upper:
+        return 'pants'
+    else:
+        return 'suit'
+
+
 def swap_amazon_to_ppd(cat, sub_cat, title):
     if cat == 'Dresses':
         return 'dress'
@@ -131,8 +141,10 @@ def swap_amazon_to_ppd(cat, sub_cat, title):
         else:
             return ''
     elif cat == 'Suiting & Blazers':
-        if sub_cat == 'Blazers' or sub_cat == 'Separates':
+        if sub_cat == 'Blazers':
             return 'blazer'
+        elif sub_cat == 'Separates':
+            return verify_blazer(title)
         else:
             return 'suit'
     elif cat == 'Shirts':
@@ -160,8 +172,10 @@ def swap_amazon_to_ppd(cat, sub_cat, title):
     elif cat == 'Swim':
         return 'swimsuit'
     elif cat == 'Suits & Sport Coats':
-        if sub_cat in ['Suits', 'Suit Separates', 'Tuxedos']:
+        if sub_cat in ['Suits', 'Tuxedos']:
             return 'suit'
+        elif sub_cat == 'Suit Separates':
+            return verify_blazer(title)
         elif sub_cat == 'Sport Coats & Blazers':
             return 'blazer'
         elif sub_cat == 'Vests':

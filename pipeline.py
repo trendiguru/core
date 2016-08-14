@@ -10,7 +10,8 @@ from . import whitelist
 db = constants.db
 TTL = constants.general_ttl
 q1 = constants.q1
-
+nn_categories = [item for sector in constants.nn_categories.values() for item in sector]
+pd_categories = [item for sector in constants.paperdoll_categories.values() for item in sector]
 push_connection(constants.redis_conn)
 
 # -----------------------------------------------CO-FUNCTIONS-----------------------------------------------------------
@@ -45,11 +46,10 @@ def after_pd_conclusions(mask, labels, face=None):
     for num in np.unique(mask):
         item_mask = 255 * np.array(mask == num, dtype=np.uint8)
         category = list(labels.keys())[list(labels.values()).index(num)]
-        print "W2P: checking {0}".format(category)
+        print "checking {0}".format(category)
         for key, item in constants.paperdoll_categories.iteritems():
             if category in item:
-                if float(cv2.countNonZero(item_mask))/mask.size > 0.01:
-                    mask_sizes[key].append({num: cv2.countNonZero(item_mask)})
+                mask_sizes[key].append({num: cv2.countNonZero(item_mask)})
     # 1
     whole_sum = np.sum([item.values()[0] for item in mask_sizes['whole_body']])
     partly_sum = np.sum([item.values()[0] for item in mask_sizes['upper_under']]) +\
@@ -118,25 +118,25 @@ def after_nn_conclusions(mask, labels, face=None):
     else:
         # BETTER TO SEND A FACE
         y_split = np.round(0.4 * mask.shape[0])
-    final_mask = mask[:, :]
+    final_mask = np.zeros(mask.shape, dtype=np.uint8)
     mask_sizes = {"upper_cover": [], "upper_under": [], "lower_cover": [], "lower_under": [], "whole_body": []}
     for num in np.unique(mask):
         item_mask = 255 * np.array(mask == num, dtype=np.uint8)
         category = list(labels.keys())[list(labels.values()).index(num)]
         print "W2P: checking {0}".format(category)
-        for key, item in constants.nn_categories.iteritems():
-            if category in item:
-                if float(cv2.countNonZero(item_mask))/mask.size > 0.01:
-                    mask_sizes[key].append({num: cv2.countNonZero(item_mask)})
+        if category in nn_categories:
+            amount_of_category_pixels = cv2.countNonZero(item_mask)
+            sector = [key for key, value in constants.nn_categories.iteritems() if category in value][0]
+            mask_sizes[sector].append({num: amount_of_category_pixels})
     # 1
     whole_sum = np.sum([item.values()[0] for item in mask_sizes['whole_body']])
     partly_sum = np.sum([item.values()[0] for item in mask_sizes['upper_under']]) +\
                  np.sum([item.values()[0] for item in mask_sizes['lower_cover']])
     if whole_sum > partly_sum:
-        max_amount = np.max([item.values()[0] for item in mask_sizes['whole_body']])
-        max_item_num = [item.keys()[0] for item in mask_sizes['whole_body'] if item.values()[0] == max_amount][0]
-        max_item_cat = list(labels.keys())[list(labels.values()).index(max_item_num)]
-        print "W2P: That's a {0}".format(max_item_cat)
+        max_amount_whole = np.max([item.values()[0] for item in mask_sizes['whole_body']])
+        max_item_num_whole = [item.keys()[0] for item in mask_sizes['whole_body'] if item.values()[0] == max_amount_whole][0]
+        max_item_cat_whole = list(labels.keys())[list(labels.values()).index(max_item_num_whole)]
+        print "W2P: That's a {0}".format(max_item_cat_whole)
         for num in np.unique(mask):
             cat = list(labels.keys())[list(labels.values()).index(num)]
             # 1.1, 1.2
@@ -144,7 +144,15 @@ def after_nn_conclusions(mask, labels, face=None):
                cat in constants.nn_categories["lower_under"] or \
                cat in constants.nn_categories["upper_under"] or \
                cat in constants.nn_categories["whole_body"]:
-                final_mask = np.where(mask == num, max_item_num, final_mask)
+                final_mask = np.where(mask == num, max_item_num_whole, final_mask)
+            elif cat in constants.nn_categories["upper_cover"]:
+                max_amount_cover = np.max([item.values()[0] for item in mask_sizes['upper_cover']])
+                max_item_num_cover = [item.keys()[0] for item in mask_sizes['upper_cover'] if item.values()[0] == max_amount_cover][0]
+                item_mask = 255 * np.array(mask == num, dtype=np.uint8)
+                if float(cv2.countNonZero(item_mask))/mask.size > 0.01:
+                    final_mask = np.where(mask == num, max_item_num_cover, final_mask)
+                else:
+                    final_mask = np.where(mask == num, max_item_num_whole, final_mask)
         return final_mask
     # 2, 2.1
     sections = {"upper_cover": 0, "upper_under": 0, "lower_cover": 0, "lower_under": 0}
