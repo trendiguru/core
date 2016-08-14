@@ -20,8 +20,9 @@ from scipy.optimize import curve_fit
 #TODO - run this automatically every eg 6hrs on any net showing up in /tmp/caffe* in the last  6 hrs
 #then throw the jpgs onto a results website
 
-def parse_logfile(f,logy):
+def parse_logfile(output_filename,logy):
   print('parsing logfile')
+  f = open(output_filename, 'r')
   training_iterations = []
   training_accuracy = []
   training_loss = []
@@ -307,11 +308,13 @@ def fit_exp(x, k,a, b, x0):
 def fit_log(x, k,a, b, x0):
     return k*np.log(np.multiply(a,x-x0)) + b
 
-def parse_solveoutput(f):
+def parse_solveoutput(output_filename):
   '''
   todo: add net name and params to title
   '''
   print('parsing solve.py (jrinference) output')
+  f = open(output_filename, 'r')
+
   times = []
   training_iterations = []
   overall_accuracy = []
@@ -441,7 +444,7 @@ def parse_solveoutput(f):
   plt.title(dt.isoformat())
   plt.suptitle(f)
   plt.draw()
-  savename = f+'.jpg'
+  savename = output_filename+'.jpg'
   plt.savefig(savename)
   plt.show()
 
@@ -454,8 +457,7 @@ if __name__ == "__main__":
   parser.add_argument('--logy', help='log of logloss',default=None)
   args = parser.parse_args()
   print('args:'+str(args))
-  f = open(args.output_file, 'r')
   if args.type == '0' or args.type=='log':
-    parse_logfile(f,args.logy)
+    parse_logfile(args.output_file,args.logy)
   elif args.type =='1' or args.type=='txt':
-    parse_solveoutput(f)
+    parse_solveoutput(args.output_file)

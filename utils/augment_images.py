@@ -248,7 +248,8 @@ def generate_image_onthefly(img_filename_or_nparray, gaussian_or_uniform_distrib
     :param suffix:
     :return:
     ''' #
-
+    logging.debug('db A')
+    logging.debug('cv2file:'+str(cv2.__file__))
     start_time = time.time()
     if isinstance(img_filename_or_nparray,basestring):
  #       logging.debug('db A filename:'+img_filename_or_nparray)
@@ -260,6 +261,7 @@ def generate_image_onthefly(img_filename_or_nparray, gaussian_or_uniform_distrib
         logging.warning('didnt get input image '+str(img_filename_or_nparray))
         return
 
+    logging.debug('db B')
     mask_arr = None
     if mask_filename_or_nparray is not None:
         if isinstance(mask_filename_or_nparray,basestring):
@@ -275,6 +277,7 @@ def generate_image_onthefly(img_filename_or_nparray, gaussian_or_uniform_distrib
 #        logging.debug('mask shape:'+str(mask_arr.shape))
 
 
+    logging.debug('db C')
 
 #    logging.debug('db 1')
     width=img_arr.shape[1]
@@ -347,6 +350,7 @@ def generate_image_onthefly(img_filename_or_nparray, gaussian_or_uniform_distrib
     else:
         depth = 1
     center = (width/2,height/2)
+    logging.debug('db C')
 
     flip_lr = 0
     flip_ud = 0
@@ -375,10 +379,15 @@ def generate_image_onthefly(img_filename_or_nparray, gaussian_or_uniform_distrib
 
 def do_xform(img_array,width,height,crop_dx,crop_dy,crop_size,depth,flip_lr,flip_ud,blur,noise_level,center,angle,scale,offset_x,offset_y):
     #todo this can all be cleaned up by putting more of the generate_image_on_thefly code here
+    logging.debug('db D')
     if flip_lr:
+        logging.debug('db D1')
         img_array = cv2.flip(img_array,1)
+        logging.debug('db D2')
+
     if flip_ud:
         img_array = cv2.flip(img_array,0)
+    logging.debug('db E')
 
 # Python: cv2.transform(src, m[, dst]) -> dst
 #http://docs.opencv.org/2.4/modules/core/doc/operations_on_arrays.html#void%20transform%28InputArray%20src,%20OutputArray%20dst,%20InputArray%20m%29
@@ -387,9 +396,11 @@ def do_xform(img_array,width,height,crop_dx,crop_dy,crop_size,depth,flip_lr,flip
 
     if noise_level:  #untested
         img_array = add_noise(img_array,noise_type,noise_level)
+    logging.debug('db F')
 
   #  print('center {0} angle {1} scale {2} h {3} w {4} dx {5} dy {6} noise {7} blur {8}'.format(center,angle, scale,height,width,offset_x,offset_y,noise_level,blur))
     M = cv2.getRotationMatrix2D(center, angle,scale)
+    logging.debug('db G')
     M[0,2]=M[0,2]+offset_x
     M[1,2]=M[1,2]+offset_y
  #   print('M='+str(M))
