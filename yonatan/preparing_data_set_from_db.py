@@ -50,7 +50,11 @@ def preparing_data_from_db(argv):
              "\ndress_sleeve\ndress_length\nmen_shirt_sleeve\npants_length\nwomen_shirt_sleeve"
     )
 
-    db = constants.db
+    # if i run this function on braini2:
+    # db = constants.db
+
+    # if i run this function on brainik80a:
+    db = pymongo.MongoClient().mydb
 
     args = parser.parse_args()
 
