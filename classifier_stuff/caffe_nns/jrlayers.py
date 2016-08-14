@@ -444,7 +444,7 @@ class JrMultilabel(caffe.Layer):
         # data layers have no bottoms
         if len(bottom) != 0:
             raise Exception("Do not define a bottom.")
-
+#
         # load indices for images and labels
         #if file not found and its not a path then tack on the training dir as a default locaiton for the trainingimages file
         if self.images_and_labels_file is not None:
