@@ -3,7 +3,7 @@ import numpy as np
 import caffe
 import cv2
 import skimage
-
+import sys
 from ..yonatan import yonatan_classifier
 
 MODLE_FILE = "/home/yonatan/trendi/yonatan/resnet_50_dress_sleeve/ResNet-50-deploy.prototxt"
