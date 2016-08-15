@@ -52,7 +52,7 @@ def verify_blazer(title):
     title_upper = title.upper()
     if any(x in title_upper for x in ['BLAZER', 'BLAZERS']):
         return 'blazer'
-    elif any(x in title_upper for x in ['PANTS', 'PANT', 'TROUSERS', 'CULOTTES']):
+    elif any(x in title_upper for x in ['PANTS', 'PANT', 'TROUSERS', 'TROUSER','CULOTTE','CULOTTES']):
         return 'pants'
     else:
         return 'suit'
