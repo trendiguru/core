@@ -3,7 +3,6 @@ import numpy as np
 import caffe
 import cv2
 import skimage
-import sys
 from ..yonatan import yonatan_classifier
 
 MODLE_FILE = "/home/yonatan/trendi/yonatan/resnet_50_dress_sleeve/ResNet-50-deploy.prototxt"
@@ -21,10 +20,6 @@ classifier = yonatan_classifier.Classifier(MODLE_FILE, PRETRAINED, image_dims=im
 print "Done initializing!"
 
 
-def cv2_image_to_caffe(image):
-    return skimage.img_as_float(cv2.cvtColor(image, cv2.COLOR_BGR2RGB)).astype(np.float32)
-
-
 def distance(v1, v2):
     if len(v1) != 8 or len(v2) != 8:
         return None
@@ -35,7 +30,7 @@ def execute(image):
 
     print "Sleeve classification started!"
 
-    image_for_caffe = [cv2_image_to_caffe(image)]
+    image_for_caffe = [skimage.img_as_float(cv2.cvtColor(image, cv2.COLOR_BGR2RGB)).astype(np.float32)]
 
     if image_for_caffe is None:
         return None
