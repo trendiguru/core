@@ -27,9 +27,11 @@ def verify_by_title(title):
         return 'top'
     elif any(x in title_upper for x in ['SHIRT', 'SHIRTS']):
         return 'shirt'
+    elif 'SHORTS' in title_upper:
+        return 'shorts'
     elif 'JEANS' in title_upper:
         return 'jeans'
-    elif any(x in title_upper for x in ['TEES', 'TEE', 'T-SHIRT', 'T-SHIRTS']):
+    elif any(x in title_upper for x in [' TEES ', ' TEE ', 'T-SHIRT', 'T-SHIRTS']):
         return 't-shirt'
     elif any(x in title_upper for x in ['SKIRT', 'SKIRTS', 'SKORT', 'SKORTS', 'MINI']):
         return 'skirt'
