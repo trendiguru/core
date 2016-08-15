@@ -322,7 +322,7 @@ def unet(db,mean_value=[112.0,112.0,112.0]):
     decay_mult2 =0
     batch_size = 1
     n=caffe.NetSpec()
-    #assuming input of size 224x224, ...
+    #assuming input of size 224x224, these are 224x244 (/1)
     n.data,n.label=L.Data(batch_size=batch_size,backend=P.Data.LMDB,source=db,transform_param=dict(scale=1./255,mean_value=mean_value,mirror=True),ntop=2)
 #    n.data,n.label=L.Data(type='Python',python_param=dict(module='jrlayers',layer='JrPixlevel'),ntop=2)
 
@@ -330,60 +330,80 @@ def unet(db,mean_value=[112.0,112.0,112.0]):
     n.conv1_2,n.relu1_2 = conv_relu(n.conv1_1,n_output=64,kernel_size=3,pad=1)
     n.pool1 = L.Pooling(n.conv1_2, kernel_size=2, stride=2, pool=P.Pooling.MAX)
 
-    #the following will be 112x112
+    #the following will be 112x112 (/2)
     n.conv2_1,n.relu2_1 = conv_relu(n.pool1,n_output=128,kernel_size=3,pad=1)
     n.conv2_2,n.relu2_2 = conv_relu(n.conv2_1,n_output=128,kernel_size=3,pad=1)
     n.pool2 = L.Pooling(n.conv2_2, kernel_size=2, stride=2, pool=P.Pooling.MAX)
 
-    #the following will be 56x56
+    #the following will be 56x56 (original /4)
     n.conv3_1,n.relu3_1 = conv_relu(n.pool2,n_output=256,kernel_size=3,pad=1)
     n.conv3_2,n.relu3_2 = conv_relu(n.conv3_1,n_output=256,kernel_size=3,pad=1)
     n.conv3_3,n.relu3_3 = conv_relu(n.conv3_2,n_output=256,kernel_size=3,pad=1)
     n.pool3 = L.Pooling(n.conv3_3, kernel_size=2, stride=2, pool=P.Pooling.MAX)
 
-    #the following will be 28x28
+    #the following will be 28x28 (original /8)
     n.conv4_1,n.relu4_1 = conv_relu(n.pool3,n_output=512,kernel_size=3,pad=1)
     n.conv4_2,n.relu4_2 = conv_relu(n.conv4_1,n_output=512,kernel_size=3,pad=1)
     n.conv4_3,n.relu4_3 = conv_relu(n.conv4_2,n_output=512,kernel_size=3,pad=1)
     n.pool4 = L.Pooling(n.conv4_3, kernel_size=2, stride=2, pool=P.Pooling.MAX)
 
-    #the following will be 14x14
+    #the following will be 14x14 (original /16)
     n.conv5_1,n.relu5_1 = conv_relu(n.pool4,n_output=512,kernel_size=3,pad=1)
     n.conv5_2,n.relu5_2 = conv_relu(n.conv5_1,n_output=512,kernel_size=3,pad=1)
     n.conv5_3,n.relu5_3 = conv_relu(n.conv5_2,n_output=512,kernel_size=3,pad=1)
     n.pool5 = L.Pooling(n.conv5_3, kernel_size=2, stride=2, pool=P.Pooling.MAX)
 
-    #the following will be 7x7
-    n.conv6_1,n.relu6_1 = conv_relu(n.pool5,n_output=4096,kernel_size=7,pad=3)
+    #the following will be 7x7 (original /32)
+    n.conv6_1,n.relu6_1 = conv_relu(n.pool5,n_output=512,kernel_size=7,pad=3)
        #instead of L.InnerProduct(n.pool5,param=[dict(lr_mult=lr_mult1),dict(lr_mult=lr_mult2)],weight_filler=dict(type='xavier'),num_output=4096)
     n.drop6_1 = L.Dropout(n.conv6_1, dropout_param=dict(dropout_ratio=0.5),in_place=True)
-    n.conv6_2,n.relu6_2 = conv_relu(n.conv6_1,n_output=4096,kernel_size=7,pad=3)
+    n.conv6_2,n.relu6_2 = conv_relu(n.conv6_1,n_output=1024,kernel_size=7,pad=3)
         #instead of n.fc7 = L.InnerProduct(n.fc6,param=[dict(lr_mult=lr_mult1),dict(lr_mult=lr_mult2)],weight_filler=dict(type='xavier'),num_output=4096)
     n.drop6_2 = L.Dropout(n.conv6_2, dropout_param=dict(dropout_ratio=0.5),in_place=True)
-    n.conv6_3,n.relu6_3 = conv_relu(n.conv6_2,n_output=512,kernel_size=7,pad=3)
+    n.conv6_3,n.relu6_3 = conv_relu(n.conv6_2,n_output=1024,kernel_size=7,pad=3)
 
+#the following will be 14x14  (original /16)
 #deconv doesnt work from python , so these need to be changed by hand #
-    n.deconv1 = L.Convolution(n.conv6_3,param=[dict(lr_mult=lr_mult1,decay_mult=decay_mult1),dict(lr_mult=lr_mult2,decay_mult=decay_mult2)],
+    n.deconv7 = L.Convolution(n.conv6_3,param=[dict(lr_mult=lr_mult1,decay_mult=decay_mult1),dict(lr_mult=lr_mult2,decay_mult=decay_mult2)],
+                    num_output=1024,pad = 0,kernel_size=2,stride = 2,
+                    weight_filler=dict(type='xavier'),bias_filler=dict(type='constant',value=0.2))
+    n.conv7_1,n.relu7_1 = conv_relu(n.deconv7,n_output=512,kernel_size=2,pad=1)  #watch out for padsize here, make sure outsize is 14x14
+    n.cat7 = L.Concat(bottom=[n.conv5_3, n.conv7_1])
+    n.conv7_2,n.relu7_2 = conv_relu(n.cat7,n_output=1024,kernel_size=3,pad=1)
+    n.conv7_3,n.relu7_3 = conv_relu(n.conv7_2,n_output=1024,kernel_size=3,pad=1)
+
+    #the following will be 28x28  (original /8)
+    n.deconv8 = L.Convolution(n.conv7_3,param=[dict(lr_mult=lr_mult1,decay_mult=decay_mult1),dict(lr_mult=lr_mult2,decay_mult=decay_mult2)],
+                    num_output=1024,pad = 0,kernel_size=2,stride = 2,
+                    weight_filler=dict(type='xavier'),bias_filler=dict(type='constant',value=0.2))
+    n.conv8_1,n.relu8_1 = conv_relu(n.deconv8,n_output=512,kernel_size=2,pad=1)
+    n.cat8 = L.Concat(bottom=[n.conv4_3, n.conv8_1])
+    n.conv8_2,n.relu8_2 = conv_relu(n.cat8,n_output=512,kernel_size=3,pad=1)  #this is halving N_filters
+    n.conv8_3,n.relu8_3 = conv_relu(n.conv8_2,n_output=512,kernel_size=3,pad=1)
+
+
+    #the following will be 56x56  (original /4)
+    n.deconv9 = L.Convolution(n.conv8_3,param=[dict(lr_mult=lr_mult1,decay_mult=decay_mult1),dict(lr_mult=lr_mult2,decay_mult=decay_mult2)],
                     num_output=512,pad = 0,kernel_size=2,stride = 2,
                     weight_filler=dict(type='xavier'),bias_filler=dict(type='constant',value=0.2))
+    n.conv9_1,n.relu9_1 = conv_relu(n.deconv8,n_output=256,kernel_size=2,pad=1)
+    n.cat9 = L.Concat(bottom=[n.conv3_3, n.conv8_1])
+    n.conv9_2,n.relu9_2 = conv_relu(n.cat9,n_output=256,kernel_size=3,pad=1)  #this is halving N_filters
+    n.conv9_3,n.relu9_3 = conv_relu(n.conv9_2,n_output=256,kernel_size=3,pad=1)
 
-    n.deconv2 = L.Convolution(n.deconv1,param=[dict(lr_mult=lr_mult1,decay_mult=decay_mult1),dict(lr_mult=lr_mult2,decay_mult=decay_mult2)],
+
+    #the following will be 112x112  (original /2)
+    n.deconv3 = L.Convolution(n.conv9_3,param=[dict(lr_mult=lr_mult1,decay_mult=decay_mult1),dict(lr_mult=lr_mult2,decay_mult=decay_mult2)],
                             num_output=512,pad = 0,kernel_size=2,stride = 2,
                             weight_filler=dict(type='xavier'),bias_filler=dict(type='constant',value=0.2))
 
-    n.deconv3 = L.Convolution(n.deconv2,param=[dict(lr_mult=lr_mult1,decay_mult=decay_mult1),dict(lr_mult=lr_mult2,decay_mult=decay_mult2)],
-                            num_output=512,pad = 0,kernel_size=2,stride = 2,
-                            weight_filler=dict(type='xavier'),bias_filler=dict(type='constant',value=0.2))
-
+    #the following will be 224x224  (original /1)
     n.deconv4 = L.Convolution(n.deconv3,param=[dict(lr_mult=lr_mult1,decay_mult=decay_mult1),dict(lr_mult=lr_mult2,decay_mult=decay_mult2)],
                             num_output=512,pad = 0,kernel_size=2,stride = 2,
                             weight_filler=dict(type='xavier'),bias_filler=dict(type='constant',value=0.2))
 
-    n.deconv5 = L.Convolution(n.deconv4,param=[dict(lr_mult=lr_mult1,decay_mult=decay_mult1),dict(lr_mult=lr_mult2,decay_mult=decay_mult2)],
-                            num_output=512,pad = 0,kernel_size=2,stride = 2,
-                            weight_filler=dict(type='xavier'),bias_filler=dict(type='constant',value=0.2))
 
-    n.loss = L.SoftmaxWithLoss(n.deconv5, n.label)
+    n.loss = L.SoftmaxWithLoss(n.deconv4, n.label)
 
 #    n.deconv1 = L.Deconvolution(n.conv6_3,param=[dict(lr_mult=lr_mult1,decay_mult=decay_mult1),dict(lr_mult=lr_mult2,decay_mult=decay_mult2)],
 #                convolution_param=[dict(num_output=512,bias_term=False,kernel_size=2,stride=2)])
