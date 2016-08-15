@@ -13,8 +13,10 @@ q = Queue('fingerprinter4db', connection=redis_conn)
 pants = ['PANTS', 'PANT', 'TROUSERS', 'TROUSER', 'CULOTTE', 'CULOTTES', 'CHINO', 'CHINOS', 'CAPRI', 'CAPRIS', 'SLACKS']
 
 
-def verify_tights(title):
+def verify_by_title(title):
     title_upper = title.upper()
+    if any(x in title_upper for x in ['BLAZER', 'BLAZERS']):
+        return 'blazer'
     if any(x in title_upper for x in ['STOCKING', 'STOCKINGS']):
         return 'stockings'
     elif any(x in title_upper for x in ['DRESS', 'DRESSES', 'MAXI', 'GOWN']):
@@ -41,29 +43,11 @@ def verify_tights(title):
         return ''
 
 
-def verify_jacket(title):
-    title_upper = title.upper()
-    if any(x in title_upper for x in ['JACKET', 'JACKETS']):
-        return 'jacket'
-    else:
-        return ''
-
-
-def verify_blazer(title):
-    title_upper = title.upper()
-    if any(x in title_upper for x in ['BLAZER', 'BLAZERS']):
-        return 'blazer'
-    elif any(x in title_upper for x in pants):
-        return 'pants'
-    else:
-        return 'suit'
-
-
 def swap_amazon_to_ppd(cat, sub_cat, title):
     if cat == 'Dresses':
         return 'dress'
     if cat == 'tights':
-        return verify_tights(title)
+        return verify_by_title(title)
     if cat == 'stockings':
         return 'stockings'
     elif cat == 'Tops & Tees':
@@ -110,7 +94,7 @@ def swap_amazon_to_ppd(cat, sub_cat, title):
         if sub_cat == 'Active Hoodies' or sub_cat == 'Active Sweatshirts':
             return 'sweatshirt'
         elif 'Track & Active Jackets':
-            return verify_jacket(title)
+            return verify_by_title(title)
         elif sub_cat == 'Active Top & Bottom Sets':
             return ''
         elif sub_cat == 'Active Shirts & Tees':
@@ -145,7 +129,7 @@ def swap_amazon_to_ppd(cat, sub_cat, title):
         if sub_cat == 'Blazers':
             return 'blazer'
         elif sub_cat == 'Separates':
-            return verify_blazer(title)
+            return verify_by_title(title)
         else:
             return 'suit'
     elif cat == 'Shirts':
