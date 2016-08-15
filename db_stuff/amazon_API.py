@@ -345,17 +345,14 @@ def build_category_tree(parents, root='7141124011', tab=0, delete_collection=Tru
         p.append(name)
 
     if node_id == '1040660' or node_id == '1040658':
-        leaf_tights = leaf.copy()
-        leaf_tights['Name'] = 'tights'
-        leaf_tights['Children']['count'] = 0
-        leaf_tights['Parents'] = p
         db.amazon_category_tree.delete_many({'BrowseNodeId': node_id, 'Name': {'$in': ['tights', 'stockings']}})
-        db.amazon_category_tree.insert_one(leaf_tights)
-        print('\t\ttights inserted')
-        leaf_stockings = leaf_tights.copy()
-        leaf_stockings['Name'] = 'stockings'
-        db.amazon_category_tree.insert_one(leaf_stockings)
-        print('\t\tstockings inserted')
+        for cat_name in [ 'tights', 'stockings']:
+            leaf_tmp = leaf.copy()
+            leaf_tmp['Name'] = cat_name
+            leaf_tmp['Children']['count'] = 0
+            leaf_tmp['Parents'] = p
+            db.amazon_category_tree.insert_one(leaf_tmp)
+            print('\t\t%s inserted' % cat_name)
 
     for child in children:
         if 'BrowseNodeId' not in child.keys():
