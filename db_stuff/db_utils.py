@@ -92,17 +92,17 @@ def binary_array_to_hex(arr):
     return "".join(s)
 
 
-def get_p_hash(image, hash_size=16, img_size=16):
+def get_p_hash(image, hash_size=16, img_w=16, img_h=16):
     image = Image.fromarray(image)
-    image = image.convert("L").resize((img_size, img_size), Image.ANTIALIAS)
-    pixels = np.array(image.getdata(), dtype=np.float).reshape((img_size, img_size))
+    image = image.convert("L").resize((img_h, img_w), Image.ANTIALIAS)
+    pixels = np.array(image.getdata(), dtype=np.float).reshape((img_h, img_w))
     dct = fftpack.dct(fftpack.dct(pixels, axis=0), axis=1)
     dctlowfreq = dct[:hash_size, :hash_size]
     med = np.median(dctlowfreq)
     diff = dctlowfreq > med
     flat = diff.flatten()
     hexa = binary_array_to_hex(flat)
-    return hexa
+    return hexa, flat
 
 
 def get_hash(image):
