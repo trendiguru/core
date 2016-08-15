@@ -10,7 +10,8 @@ from .amazon_constants import plus_sizes
 today_date = str(datetime.date(datetime.now()))
 
 q = Queue('fingerprinter4db', connection=redis_conn)
-pants = ['PANTS', 'PANT', 'TROUSERS', 'TROUSER', 'CULOTTE', 'CULOTTES', 'CHINO', 'CHINOS', 'CAPRI', 'CAPRIS', 'SLACKS']
+pants = ['PANTS', 'PANT', 'TROUSERS', 'TROUSER', 'CULOTTE', 'CULOTTES', 'CHINO', 'CHINOS', 'CAPRI', 'CAPRIS', 'SLACKS',
+         'PONTE']
 
 
 def verify_by_title(title):
@@ -27,6 +28,10 @@ def verify_by_title(title):
         return 'top'
     elif any(x in title_upper for x in ['SHIRT', 'SHIRTS']):
         return 'shirt'
+    elif any(x in title_upper for x in ['SWEATSHIRT', 'SWEATSHIRTS']):
+        return 'sweatshirt'
+    elif any(x in title_upper for x in ['SWEATER', 'SWEATERS']):
+        return 'sweater'
     elif 'SHORTS' in title_upper:
         return 'shorts'
     elif 'JEANS' in title_upper:
