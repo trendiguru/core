@@ -7,17 +7,19 @@ from rq import Queue
 
 redis_conn = Redis(host=os.getenv("REDIS_HOST", "redis1-redis-1-vm"), port=int(os.getenv("REDIS_PORT", "6379")))
 
-# getting redis /mongo going: do the tunnels
-# ssh -f -N -L 6379:redis1-redis-1-vm:6379 root@extremeli.trendi.guru
-# ssh -f -N -L 27017:mongodb1-instance-1:27017 root@extremeli.trendi.guru
-# and export the environment variables (better yet put the export in .bashrc)
-# export REDIS_HOST=localhost
-# export REDIS_PORT=6379
-# export MONGO_PORT=27017
-# export MONGO_HOST=localhost
+features_per_category = {'dress': ['color', 'sleeve_length'],
+                         'top': ['color', 'sleeve_length'],
+                         'shirt': ['color', 'sleeve_length'],
+                         'blouse': ['color', 'sleeve_length'],
+                         't-shirt': ['color', 'sleeve_length'],
+                         'other': ['color']}
 
-features_per_category = {'dress': ['sleeve_length'], 'top': ['sleeve_length'], 'shirt': ['sleeve_length'],
-                         'blouse': ['sleeve_length'], 't-shirt': ['sleeve_length']}
+weights_per_category = {'dress': {'color': 0.8, 'sleeve_length': 0.2},
+                        'top': {'color': 0.8, 'sleeve_length': 0.2},
+                        'shirt': {'color': 0.8, 'sleeve_length': 0.2},
+                        'blouse': {'color': 0.8, 'sleeve_length': 0.2},
+                        't-shirt': {'color': 0.8, 'sleeve_length': 0.2},
+                        'other': {'color': 1}}
 
 manual_gender_domains = ['fashionseoul.com', 'haaretz.co.il']
 which_products_collection = {'default':
@@ -54,7 +56,7 @@ fingerprint_length = 696
 fingerprint_version = 792015  # DayMonthYear
 extras_length = 6
 histograms_length = [180, 255, 255]
-fingerprint_weights = [0.05, 0.5, 0.225, 0.225]
+color_fingerprint_weights = [0.05, 0.5, 0.225, 0.225]
 K = 0.5                     # for euclidean distance
 min_bb_to_image_area_ratio = 0.95  # if bb takes more than this fraction of image area then use  cv2.GC_INIT_WITH_RECT instead of init with mask
 
