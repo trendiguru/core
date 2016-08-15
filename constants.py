@@ -7,15 +7,6 @@ from rq import Queue
 
 redis_conn = Redis(host=os.getenv("REDIS_HOST", "redis1-redis-1-vm"), port=int(os.getenv("REDIS_PORT", "6379")))
 
-# getting redis /mongo going: do the tunnels
-# ssh -f -N -L 6379:redis1-redis-1-vm:6379 root@extremeli.trendi.guru
-# ssh -f -N -L 27017:mongodb1-instance-1:27017 root@extremeli.trendi.guru
-# and export the environment variables (better yet put the export in .bashrc)
-# export REDIS_HOST=localhost
-# export REDIS_PORT=6379
-# export MONGO_PORT=27017
-# export MONGO_HOST=localhost
-
 features_per_category = {'dress': ['color', 'sleeve_length'],
                          'top': ['color', 'sleeve_length'],
                          'shirt': ['color', 'sleeve_length'],
