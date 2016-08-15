@@ -19,6 +19,8 @@ def verify_by_title(title):
         return 'blazer'
     if any(x in title_upper for x in ['STOCKING', 'STOCKINGS']):
         return 'stockings'
+    elif any(x in title_upper for x in pants):
+        return 'pants'
     elif any(x in title_upper for x in ['DRESS', 'DRESSES', 'MAXI', 'GOWN']):
         return 'dress'
     elif any(x in title_upper for x in ['TOP', 'TOPS']):
@@ -29,8 +31,6 @@ def verify_by_title(title):
         return 'jeans'
     elif any(x in title_upper for x in ['TEES', 'TEE', 'T-SHIRT', 'T-SHIRTS']):
         return 't-shirt'
-    elif any(x in title_upper for x in pants):
-        return 'pants'
     elif any(x in title_upper for x in ['SKIRT', 'SKIRTS', 'SKORT', 'SKORTS', 'MINI']):
         return 'skirt'
     elif any(x in title_upper for x in ['COAT', 'FAUX', 'COATS', 'OUTWEAR']):
@@ -160,7 +160,7 @@ def swap_amazon_to_ppd(cat, sub_cat, title):
         if sub_cat in ['Suits', 'Tuxedos']:
             return 'suit'
         elif sub_cat == 'Suit Separates':
-            return verify_blazer(title)
+            return verify_by_title(title)
         elif sub_cat == 'Sport Coats & Blazers':
             return 'blazer'
         elif sub_cat == 'Vests':
