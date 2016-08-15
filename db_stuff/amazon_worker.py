@@ -24,8 +24,6 @@ def verify_by_title(title):
         return 'pants'
     elif any(x in title_upper for x in ['DRESS', 'DRESSES', 'MAXI', 'GOWN']):
         return 'dress'
-    elif any(x in title_upper for x in ['TOP', 'TOPS']):
-        return 'top'
     elif any(x in title_upper for x in ['SHIRT', 'SHIRTS']):
         return 'shirt'
     elif any(x in title_upper for x in ['SWEATSHIRT', 'SWEATSHIRTS']):
@@ -36,14 +34,16 @@ def verify_by_title(title):
         return 'shorts'
     elif 'JEANS' in title_upper:
         return 'jeans'
-    elif any(x in title_upper for x in [' TEES ', ' TEE ', 'T-SHIRT', 'T-SHIRTS']):
+    elif any(x in title_upper for x in ['T-SHIRT', 'T-SHIRTS']):
         return 't-shirt'
     elif any(x in title_upper for x in ['SKIRT', 'SKIRTS', 'SKORT', 'SKORTS', 'MINI']):
         return 'skirt'
-    elif any(x in title_upper for x in ['COAT', 'FAUX', 'COATS', 'OUTWEAR']):
+    elif any(x in title_upper for x in ['COAT', 'FAUX', 'COATS', 'OUTWEAR', 'PARKA', 'PARKAS']):
         return 'coat'
     elif any(x in title_upper for x in ['JACKET', 'JACKETS']):
         return 'jacket'
+    elif any(x in title_upper for x in ['TOP', 'TOPS']):
+        return 'top'
     elif 'TIGHTS' in title_upper:
         return 'tights'
     else:
