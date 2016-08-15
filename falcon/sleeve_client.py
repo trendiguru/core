@@ -1,7 +1,7 @@
 from jaweson import msgpack
 import requests
 
-CLASSIFIER_ADDRESS = "http://37.58.101.173:8080/sleeve"
+CLASSIFIER_ADDRESS = "http://37.58.101.173:8081/sleeve"
 
 
 def get_sleeve(image_or_url):
