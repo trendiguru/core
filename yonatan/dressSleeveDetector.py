@@ -33,35 +33,23 @@ classifier = yonatan_classifier.Classifier(MODLE_FILE, PRETRAINED,
 
 print "Done initializing!"
 
+
 def cv2_image_to_caffe(image):
     return skimage.img_as_float(cv2.cvtColor(image, cv2.COLOR_BGR2RGB)).astype(np.float32)
 
 
-def url_to_image(url):
-    # download the image, convert it to a NumPy array, and then read
-    # it into OpenCV format
-
-    if url.count('jpg') > 1:
+def distance(v1, v2):
+    if len(v1) != 8 or len(v2) != 8:
+        print "length of v1 or v2 is not 8!"
         return None
-
-    resp = urllib.urlopen(url)
-    image = np.asarray(bytearray(resp.read()), dtype="uint8")
-    if image.size == 0:
-        return None
-
-    new_image = cv2.imdecode(image, cv2.IMREAD_COLOR)
-
-    # return the image
-    return new_image
+    return np.linalg.norm(v1 - v2)
 
 
-#def theDetector(image):
 def theDetector(url_or_np_array):
 
     print "Starting the genderism!"
     # check if i get a url (= string) or np.ndarray
     if isinstance(url_or_np_array, basestring):
-        #full_image = url_to_image(url_or_np_array)
         response = requests.get(url_or_np_array)  # download
         full_image = cv2.imdecode(np.asarray(bytearray(response.content)), 1)
     elif type(url_or_np_array) == np.ndarray:
@@ -69,29 +57,18 @@ def theDetector(url_or_np_array):
     else:
         return None
 
-    #checks if the face coordinates are inside the image
     if full_image is None:
         print "not a good image"
         return None
 
-    #height, width, channels = full_image.shape
+    image_for_caffe = [cv2_image_to_caffe(full_image)]
 
-    #x, y, w, h = face_coordinates
-
-    #if x > width or x + w > width or y > height or y + h > height:
-    #    return None
-
-    #face_image = full_image[y: y + h, x: x + w]
-
-    face_for_caffe = [cv2_image_to_caffe(full_image)]
-    #face_for_caffe = [caffe.io.load_image(face_image)]
-
-    if face_for_caffe is None:
+    if image_for_caffe is None:
         return None
 
     # Classify.
     start = time.time()
-    predictions = classifier.predict(face_for_caffe)
+    predictions = classifier.predict(image_for_caffe)
     print("Done in %.2f s." % (time.time() - start))
 
     #max_result = max(predictions[0])
@@ -117,5 +94,5 @@ def theDetector(url_or_np_array):
     elif predict_label == 7:
         return 'long_sleeve'
 
-    print predictions[0][predict_label]
+    #print predictions[0][predict_label]
 
