@@ -11,6 +11,9 @@ import hashlib
 from ..fingerprint_core import generate_mask_and_insert
 import re
 from .db_utils import get_p_hash
+from signal import signal, SIGPIPE, SIG_DFL
+
+signal(SIGPIPE, SIG_DFL)
 recruit_q = Queue('recruit_worker', connection=redis_conn)
 fp_q = Queue('fingerprinter4db', connection=redis_conn)
 tracking_id = '?vos=fcppmpcncapcone01'
