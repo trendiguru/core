@@ -98,7 +98,7 @@ def get_p_hash(image, hash_size=16, img_w=16, img_h=16):
     pixels = np.array(image.getdata(), dtype=np.float).reshape((img_h, img_w))
     dct = fftpack.dct(fftpack.dct(pixels, axis=0), axis=1)
     dctlowfreq = dct[:hash_size, :hash_size]
-    med = np.median(dctlowfreq)
+    med = np.average(dctlowfreq)
     diff = dctlowfreq > med
     flat = diff.flatten()
     hexa = binary_array_to_hex(flat)
