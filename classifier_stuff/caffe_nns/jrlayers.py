@@ -615,17 +615,28 @@ class JrMultilabel(caffe.Layer):
                 continue
             print('calling augment_images with file '+filename)
 
+#############start added code to avoid cv2.imread############
+            im = Image.open(filename)
+            if self.new_size:
+                im = im.resize(self.new_size,Image.ANTIALIAS)
+            in_ = np.array(im, dtype=np.float32)
+            if in_ is None:
+                logging.warning('could not get image '+filename)
+                return None
+#############end added code to avoid cv2.imread############
 
-            in_ = augment_images.generate_image_onthefly(filename, gaussian_or_uniform_distributions=self.augment_distribution,
-               max_angle = self.augment_max_angle,
-               max_offset_x = self.augment_max_offset_x,max_offset_y = self.augment_max_offset_y,
-               max_scale=self.augment_max_scale,
-               max_noise_level=self.augment_max_noise_level,noise_type='gauss',
-               max_blur=self.augment_max_blur,
-               do_mirror_lr=self.augment_do_mirror_lr,
-               do_mirror_ud=self.augment_do_mirror_ud,
-               crop_size=self.augment_crop_size,
-               show_visual_output=self.augment_show_visual_output)
+#            out_ = augment_images.generate_image_onthefly(in_, gaussian_or_uniform_distributions=self.augment_distribution,
+#               max_angle = self.augment_max_angle,
+#               max_offset_x = self.augment_max_offset_x,max_offset_y = self.augment_max_offset_y,
+#               max_scale=self.augment_max_scale,
+#             max_noise_level=self.augment_max_noise_level,noise_type='gauss',
+#               max_blur=self.augment_max_blur,
+#              do_mirror_lr=self.augment_do_mirror_lr,
+ #              do_mirror_ud=self.augment_do_mirror_ud,
+ #              crop_size=self.augment_crop_size,
+ #              show_visual_output=self.augment_show_visual_output)
+            out_,unused = augment_images.generate_image_onthefly(in_,in_)
+
             print('returned from augment_images')
 
             #im = Image.open(filename)
@@ -636,28 +647,28 @@ class JrMultilabel(caffe.Layer):
             #    continue
             #if self.new_size:
             #    im = im.resize(self.new_size,Image.ANTIALIAS)
-            if in_ is None:
+            if out_ is None:
                 logging.warning('could not get image '+filename)
                 self.next_idx()
                 idx = self.idx
                 continue
-            in_ = np.array(in_, dtype=np.float32)
-            if len(in_.shape) != 3 or in_.shape[0] != self.new_size[0] or in_.shape[1] != self.new_size[1] or in_.shape[2]!=3:
-                print('got bad img of size '+str(in_.shape) + '= when expected shape is 3x'+str(self.new_size))
+            out_ = np.array(out_, dtype=np.float32)
+            if len(out_.shape) != 3 or out_.shape[0] != self.new_size[0] or out_.shape[1] != self.new_size[1] or out_.shape[2]!=3:
+                print('got bad img of size '+str(out_.shape) + '= when expected shape is 3x'+str(self.new_size))
                 self.next_idx()  #goto next
                 idx = self.idx
                 continue
             break #got good img, get out of while
 
 
-        print(str(filename) + ' has dims '+str(in_.shape)+' label:'+str(label_vec)+' idex'+str(idx))
+        print(str(filename) + ' has dims '+str(out_.shape)+' label:'+str(label_vec)+' idex'+str(idx))
 
 #        in_ = in_[:,:,::-1]  #RGB->BGR - since we're using cv2 no need
-        in_ -= self.mean
-        in_ = in_.transpose((2,0,1))  #Row Column Channel -> Channel Row Column
+        out_ -= self.mean
+        out_ = out_.transpose((2,0,1))  #Row Column Channel -> Channel Row Column
 #	print('uniques of img:'+str(np.unique(in_))+' shape:'+str(in_.shape))
         print('load_image_and_label end')
-        return filename, in_, label_vec
+        return filename, out_, label_vec
 
 
 
