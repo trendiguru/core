@@ -38,6 +38,13 @@ def cv2_image_to_caffe(image):
     return skimage.img_as_float(cv2.cvtColor(image, cv2.COLOR_BGR2RGB)).astype(np.float32)
 
 
+def distance(v1, v2):
+    if len(v1) != 8 or len(v2) != 8:
+        print "length of v1 or v2 is not 8!"
+        return None
+    return np.linalg.norm(v1 - v2)
+
+
 def theDetector(url_or_np_array):
 
     print "Starting the genderism!"
@@ -64,37 +71,28 @@ def theDetector(url_or_np_array):
     predictions = classifier.predict(image_for_caffe)
     print("Done in %.2f s." % (time.time() - start))
 
-    return predictions[0]
+    #max_result = max(predictions[0])
 
+    max_result_index = np.argmax(predictions[0])
 
-def distance(v1, v2):
-    if len(v1) != 8 or len(v2) != 8:
-        print "length of v1 or v2 is not 8!"
-        return None
-    return np.linalg.norm(v1 - v2)
-    #
-    # #max_result = max(predictions[0])
-    #
-    # max_result_index = np.argmax(predictions[0])
-    #
-    # predict_label = int(max_result_index)
-    #
-    # if predict_label == 0:
-    #     return 'strapless'
-    # elif predict_label == 1:
-    #     return 'spaghetti_straps'
-    # elif predict_label == 2:
-    #     return 'regular_straps'
-    # elif predict_label == 3:
-    #     return 'sleeveless'
-    # elif predict_label == 4:
-    #     return 'cap_sleeve'
-    # elif predict_label == 5:
-    #     return 'short_sleeve'
-    # elif predict_label == 6:
-    #     return 'midi_sleeve'
-    # elif predict_label == 7:
-    #     return 'long_sleeve'
-    #
-    # #print predictions[0][predict_label]
+    predict_label = int(max_result_index)
+
+    if predict_label == 0:
+        return 'strapless'
+    elif predict_label == 1:
+        return 'spaghetti_straps'
+    elif predict_label == 2:
+        return 'regular_straps'
+    elif predict_label == 3:
+        return 'sleeveless'
+    elif predict_label == 4:
+        return 'cap_sleeve'
+    elif predict_label == 5:
+        return 'short_sleeve'
+    elif predict_label == 6:
+        return 'midi_sleeve'
+    elif predict_label == 7:
+        return 'long_sleeve'
+
+    #print predictions[0][predict_label]
 
