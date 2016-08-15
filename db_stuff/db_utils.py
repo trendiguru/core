@@ -105,6 +105,18 @@ def get_p_hash(image, hash_size=16, img_size=16):
     return hexa
 
 
+def get_p_hash_testing(image, hash_size=16, img_size=(16,16)):
+    image = Image.fromarray(image)
+    image = image.convert("L").resize((img_size), Image.ANTIALIAS)
+    pixels = np.array(image.getdata(), dtype=np.float).reshape(img_size)
+    dct = fftpack.dct(fftpack.dct(pixels, axis=0), axis=1)
+    dctlowfreq = dct[:hash_size, :hash_size]
+    med = np.median(dctlowfreq)
+    diff = dctlowfreq > med
+    flat = diff.flatten()
+    hexa = binary_array_to_hex(flat)
+    return hexa, int(hexa,16)
+
 def get_hash(image):
     m = hashlib.md5()
     m.update(image)
