@@ -30,7 +30,7 @@ def distance(v1, v2):
 def execute(image_or_url):
 
     print "Sleeve classification started!"
-
+    print "image_or_url is {0}".format(image_or_url)
     if isinstance(image_or_url, str):
         image = Utils.get_cv2_img_array(image_or_url)
         if image is None:
