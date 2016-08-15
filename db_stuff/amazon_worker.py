@@ -42,10 +42,10 @@ def verify_by_title(title):
         return 'coat'
     elif any(x in title_upper for x in ['JACKET', 'JACKETS']):
         return 'jacket'
-    elif any(x in title_upper for x in ['TOP', 'TOPS']):
-        return 'top'
     elif 'TIGHTS' in title_upper:
         return 'tights'
+    elif any(x in title_upper for x in ['TOP', 'TOPS']):
+        return 'top'
     else:
         return ''
 
