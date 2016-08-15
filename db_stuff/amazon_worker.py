@@ -26,7 +26,7 @@ def verify_tights(title):
         return 'jeans'
     elif any(x in title_upper for x in ['TEES', 'TEE', 'T-SHIRT', 'T-SHIRTS']):
         return 't-shirt'
-    elif any(x in title_upper for x in ['PANTS', 'PANT']):
+    elif any(x in title_upper for x in ['PANTS', 'PANT', 'TROUSERS', 'CULOTTES']):
         return 'pants'
     elif any(x in title_upper for x in ['SKIRT', 'SKIRTS', 'SKORT', 'SKORTS', 'MINI']):
         return 'skirt'
@@ -52,7 +52,7 @@ def verify_blazer(title):
     title_upper = title.upper()
     if any(x in title_upper for x in ['BLAZER', 'BLAZERS']):
         return 'blazer'
-    elif 'PANTS' in title_upper:
+    elif any(x in title_upper for x in ['PANTS', 'PANT', 'TROUSERS', 'CULOTTES']):
         return 'pants'
     else:
         return 'suit'
