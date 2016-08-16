@@ -368,17 +368,18 @@ def unet(db,mean_value=[112.0,112.0,112.0],n_cats=21):
                     num_output=1024,pad = 0,kernel_size=2,stride = 2,
                     weight_filler=dict(type='xavier'),bias_filler=dict(type='constant',value=0.2))
 
-    n.conv7_1,n.relu7_1 = conv_relu(n.deconv7,n_output=512,kernel_size=2,pad=1)  #watch out for padsize here, make sure outsize is 14x14
+    n.conv7_1,n.relu7_1 = conv_relu(n.deconv7,n_output=512,kernel_size=2,pad=0)  #watch out for padsize here, make sure outsize is 14x14 #ug, pad1->size15, pad0->size13...
+    n.conv7_1,n.relu7_1 = conv_relu(n.deconv7,n_output=512,kernel_size=3,pad=1)  #watch out for padsize here, make sure outsize is 14x14 #indeed
     bottom=[n.conv5_3, n.conv7_1]
     n.cat7 = L.Concat(*bottom) #param=dict(concat_dim=1))
     n.conv7_2,n.relu7_2 = conv_relu(n.cat7,n_output=1024,kernel_size=3,pad=1)
     n.conv7_3,n.relu7_3 = conv_relu(n.conv7_2,n_output=1024,kernel_size=3,pad=1)
 
     #the following will be 28x28  (original /8)
-    n.deconv8 = L.Convolution(n.conv7_3,param=[dict(lr_mult=lr_mult1,decay_mult=decay_mult1),dict(lr_mult=lr_mult2,decay_mult=decay_mult2)],
+    n.deconv8 = L.Convolution(n.conv7_3,param=[dict(lr_mult=lr_mult1,decay_mult=decay_mult1),dict(lr_mult=lr_mult2,decay_mult=decay_mult2)],#
                     num_output=1024,pad = 0,kernel_size=2,stride = 2,
                     weight_filler=dict(type='xavier'),bias_filler=dict(type='constant',value=0.2))
-    n.conv8_1,n.relu8_1 = conv_relu(n.deconv8,n_output=512,kernel_size=2,pad=1)
+    n.conv8_1,n.relu8_1 = conv_relu(n.deconv8,n_output=512,kernel_size=3,pad=1)
     bottom=[n.conv4_3, n.conv8_1]
     n.cat8 = L.Concat(*bottom)
     n.conv8_2,n.relu8_2 = conv_relu(n.cat8,n_output=512,kernel_size=3,pad=1)  #this is halving N_filters
@@ -388,7 +389,7 @@ def unet(db,mean_value=[112.0,112.0,112.0],n_cats=21):
     n.deconv9 = L.Convolution(n.conv8_3,param=[dict(lr_mult=lr_mult1,decay_mult=decay_mult1),dict(lr_mult=lr_mult2,decay_mult=decay_mult2)],
                     num_output=512,pad = 0,kernel_size=2,stride = 2,
                     weight_filler=dict(type='xavier'),bias_filler=dict(type='constant',value=0.2))
-    n.conv9_1,n.relu9_1 = conv_relu(n.deconv9,n_output=256,kernel_size=2,pad=1)
+    n.conv9_1,n.relu9_1 = conv_relu(n.deconv9,n_output=256,kernel_size=3,pad=1)
     bottom=[n.conv3_3, n.conv9_1]
     n.cat9 = L.Concat(*bottom)
     n.conv9_2,n.relu9_2 = conv_relu(n.cat9,n_output=256,kernel_size=3,pad=1)  #this is halving N_filters
@@ -398,7 +399,7 @@ def unet(db,mean_value=[112.0,112.0,112.0],n_cats=21):
     n.deconv10 = L.Convolution(n.conv9_3,param=[dict(lr_mult=lr_mult1,decay_mult=decay_mult1),dict(lr_mult=lr_mult2,decay_mult=decay_mult2)],
                     num_output=256,pad = 0,kernel_size=2,stride = 2,
                     weight_filler=dict(type='xavier'),bias_filler=dict(type='constant',value=0.2))
-    n.conv10_1,n.relu10_1 = conv_relu(n.deconv10,n_output=128,kernel_size=2,pad=1)
+    n.conv10_1,n.relu10_1 = conv_relu(n.deconv10,n_output=128,kernel_size=3,pad=1)
     bottom=[n.conv2_2, n.conv10_1]
     n.cat10 = L.Concat(*bottom)
     n.conv10_2,n.relu10_2 = conv_relu(n.cat10,n_output=128,kernel_size=3,pad=1)  #this is halving N_filters
@@ -408,7 +409,7 @@ def unet(db,mean_value=[112.0,112.0,112.0],n_cats=21):
     n.deconv11 = L.Convolution(n.conv10_3,param=[dict(lr_mult=lr_mult1,decay_mult=decay_mult1),dict(lr_mult=lr_mult2,decay_mult=decay_mult2)],
                     num_output=128,pad = 0,kernel_size=2,stride = 2,
                     weight_filler=dict(type='xavier'),bias_filler=dict(type='constant',value=0.2))
-    n.conv11_1,n.relu11_1 = conv_relu(n.deconv11,n_output=64,kernel_size=2,pad=1)
+    n.conv11_1,n.relu11_1 = conv_relu(n.deconv11,n_output=64,kernel_size=3,pad=1)
     bottom=[n.conv1_2, n.conv11_1]
     n.cat11 = L.Concat(*bottom)
     n.conv11_2,n.relu11_2 = conv_relu(n.cat11,n_output=64,kernel_size=3,pad=1)  #this is halving N_filters
@@ -718,6 +719,9 @@ def replace_pythonlayer(proto):
             layer_buf = 'layer {\n'
         if new_layer_flag and first_layer:
             first_layer = False
+    #dont forget the final layer
+    outstring = outstring + layer_buf
+
     return outstring
 
 #    param_str: "{\'images_and_labels_file\': \'/home/jeremy/image_dbs/colorful_fashion_parsing_data/images_and_labelsfile_train.txt\', \'mean\': (104.0, 116.7, 122.7),\'augment\':True,\'augment_crop_size\':(224,224), \'batch_size\':9 }"
@@ -749,7 +753,7 @@ if __name__ == "__main__":
 
     caffe.set_device(2)
     caffe.set_mode_gpu()
-    solver = caffe.SGDSolver('solver_experiment.prototxt')
+#    solver = caffe.SGDSolver('solver_experiment.prototxt')
 #    weights = 'snapshot/train_0816__iter_25000.caffemodel'  #in brainia container jr2
 #    solver.net.copy_from(weights)
 
@@ -763,5 +767,5 @@ if __name__ == "__main__":
 #    val = range(0,1500)
     #jrinfer.seg_tests(solver, False, val, layer='score')
 
-    for _ in range(1000):
-        solver.step(1)
+#    for _ in range(1000):
+#        solver.step(1)
