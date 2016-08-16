@@ -4,7 +4,7 @@ import caffe
 import cv2
 import skimage
 from ..yonatan import yonatan_classifier
-
+from .. import Utils
 MODLE_FILE = "/home/yonatan/trendi/yonatan/resnet_50_dress_sleeve/ResNet-50-deploy.prototxt"
 PRETRAINED = "/home/yonatan/resnet50_caffemodels/caffe_resnet50_snapshot_50_sgd_iter_10000.caffemodel"
 caffe.set_mode_gpu()
@@ -26,9 +26,15 @@ def distance(v1, v2):
     return np.linalg.norm(v1 - v2)
 
 
-def execute(image):
+def execute(image_or_url):
 
     print "Sleeve classification started!"
+    if isinstance(image_or_url, basestring):
+        image = Utils.get_cv2_img_array(image_or_url)
+    elif type(image_or_url) == np.ndarray:
+        image = image_or_url
+    else:
+        return None
 
     image_for_caffe = [skimage.img_as_float(cv2.cvtColor(image, cv2.COLOR_BGR2RGB)).astype(np.float32)]
 

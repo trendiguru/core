@@ -367,8 +367,10 @@ def unet(db,mean_value=[112.0,112.0,112.0]):
     n.deconv7 = L.Convolution(n.conv6_3,param=[dict(lr_mult=lr_mult1,decay_mult=decay_mult1),dict(lr_mult=lr_mult2,decay_mult=decay_mult2)],
                     num_output=1024,pad = 0,kernel_size=2,stride = 2,
                     weight_filler=dict(type='xavier'),bias_filler=dict(type='constant',value=0.2))
+
     n.conv7_1,n.relu7_1 = conv_relu(n.deconv7,n_output=512,kernel_size=2,pad=1)  #watch out for padsize here, make sure outsize is 14x14
-    n.cat7 = L.Concat(bottom=[n.conv5_3, n.conv7_1])
+    bottom=[n.conv5_3, n.conv7_1]
+    n.cat7 = L.Concat(*bottom,in_place=True) #param=dict(concat_dim=1))
     n.conv7_2,n.relu7_2 = conv_relu(n.cat7,n_output=1024,kernel_size=3,pad=1)
     n.conv7_3,n.relu7_3 = conv_relu(n.conv7_2,n_output=1024,kernel_size=3,pad=1)
 
@@ -377,9 +379,26 @@ def unet(db,mean_value=[112.0,112.0,112.0]):
                     num_output=1024,pad = 0,kernel_size=2,stride = 2,
                     weight_filler=dict(type='xavier'),bias_filler=dict(type='constant',value=0.2))
     n.conv8_1,n.relu8_1 = conv_relu(n.deconv8,n_output=512,kernel_size=2,pad=1)
-    n.cat8 = L.Concat(bottom=[n.conv4_3, n.conv8_1])
+    bottom=[n.conv4_3, n.conv8_1]
+    n.cat8 = L.Concat(*bottom)
     n.conv8_2,n.relu8_2 = conv_relu(n.cat8,n_output=512,kernel_size=3,pad=1)  #this is halving N_filters
     n.conv8_3,n.relu8_3 = conv_relu(n.conv8_2,n_output=512,kernel_size=3,pad=1)
+
+
+
+    n.loss = L.SoftmaxWithLoss(n.conv7_3, n.label)
+#    n.loss = L.SoftmaxWithLoss(n.deconv4, n.label)
+
+#    n.deconv1 = L.Deconvolution(n.conv6_3,param=[dict(lr_mult=lr_mult1,decay_mult=decay_mult1),dict(lr_mult=lr_mult2,decay_mult=decay_mult2)],
+#                convolution_param=[dict(num_output=512,bias_term=False,kernel_size=2,stride=2)])
+    return n.to_proto()
+
+
+
+''' #
+
+
+
 
 
     #the following will be 56x56  (original /4)
@@ -403,15 +422,8 @@ def unet(db,mean_value=[112.0,112.0,112.0]):
                             weight_filler=dict(type='xavier'),bias_filler=dict(type='constant',value=0.2))
 
 
-    n.loss = L.SoftmaxWithLoss(n.deconv4, n.label)
-
-#    n.deconv1 = L.Deconvolution(n.conv6_3,param=[dict(lr_mult=lr_mult1,decay_mult=decay_mult1),dict(lr_mult=lr_mult2,decay_mult=decay_mult2)],
-#                convolution_param=[dict(num_output=512,bias_term=False,kernel_size=2,stride=2)])
-    return n.to_proto()
 
 
-
-''' #
 
   convolution_param {
     num_output: 21
@@ -700,7 +712,7 @@ if __name__ == "__main__":
 #    run_net(googLeNet_2_inceptions,nn_dir,db_name+'_train',db_name+'_test',batch_size = batch_size,n_classes=11,meanB=B,meanR=R,meanG=G,n_filters=50,n_ip1=1000)
 #    run_net(alexnet_linearized,nn_dir,db_name+'.train',db_name+'.test',batch_size = batch_size,n_classes=n_classes,meanB=B,meanR=R,meanG=G,n_filters=50,n_ip1=1000)
 
-    proto = vgg16('thedb')
+#    proto = vgg16('thedb')
     proto = unet('thedb')
     proto = correct_deconv(str(proto))
     proto = replace_pythonlayer(proto)
@@ -709,3 +721,25 @@ if __name__ == "__main__":
     with open('train_experiment.prototxt','w') as f:
         f.write(str(proto))
         f.close()
+    with open('val_experiment.prototxt','w') as f:
+        f.write(str(proto))
+        f.close()
+
+    caffe.set_device(2)
+    caffe.set_mode_gpu()
+    solver = caffe.SGDSolver('solver.prototxt.bak')
+#    weights = 'snapshot/train_0816__iter_25000.caffemodel'  #in brainia container jr2
+#    solver.net.copy_from(weights)
+
+    # surgeries
+#    interp_layers = [k for k in solver.net.params.keys() if 'up' in k]
+#    all_layers = [k for k in solver.net.params.keys()]
+#    surgery.interp(solver.net, interp_layers)
+
+    # scoring
+    #val = np.loadtxt('../data/segvalid11.txt', dtype=str)
+#    val = range(0,1500)
+    #jrinfer.seg_tests(solver, False, val, layer='score')
+
+    for _ in range(1000):
+        solver.step(1)
