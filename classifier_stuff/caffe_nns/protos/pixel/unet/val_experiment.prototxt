@@ -794,16 +794,13 @@ layer {
     pad: 1
     kernel_size: 3
     stride: 1
-    bias_term: false
     weight_filler {
-      type: "constant"
-      value: 0.25
-#      type: "xavier"
+      type: "xavier"
     }
-#    bias_filler {
-#      type: "constant"
-#      value: 0.2
-#    }
+    bias_filler {
+      type: "constant"
+      value: 0.2
+    }
   }
 }
 layer {
