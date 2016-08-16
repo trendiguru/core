@@ -4,8 +4,7 @@ import caffe
 import cv2
 import skimage
 from ..yonatan import yonatan_classifier
-import requests
-
+from .. import Utils
 MODLE_FILE = "/home/yonatan/trendi/yonatan/resnet_50_dress_sleeve/ResNet-50-deploy.prototxt"
 PRETRAINED = "/home/yonatan/resnet50_caffemodels/caffe_resnet50_snapshot_50_sgd_iter_10000.caffemodel"
 caffe.set_mode_gpu()
@@ -31,8 +30,7 @@ def execute(image_or_url):
 
     print "Sleeve classification started!"
     if isinstance(image_or_url, basestring):
-        response = requests.get(image_or_url)  # download
-        image = cv2.imdecode(np.asarray(bytearray(response.content)), 1)
+        image = Utils.cv2_get_img_array(image_or_url)
     elif type(image_or_url) == np.ndarray:
         image = image_or_url
     else:
