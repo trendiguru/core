@@ -679,7 +679,7 @@ def correct_deconv(proto):
             in_deconv = False
         if in_deconv and 'type:' in line and 'Convolution' in line:
             line = '  type:\"Deconvolution\"'
-#        print('out line:'+ line)
+        print('out line:'+ line)
         outlines.append(line)
         outstring = outstring+line+'\n'
     return outstring
