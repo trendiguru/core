@@ -409,7 +409,7 @@ def unet(db,mean_value=[112.0,112.0,112.0],n_cats=21):
     n.deconv11 = L.Convolution(n.conv10_3,param=[dict(lr_mult=lr_mult1,decay_mult=decay_mult1),dict(lr_mult=lr_mult2,decay_mult=decay_mult2)],
                     num_output=128,pad = 0,kernel_size=2,stride = 2,
                     weight_filler=dict(type='xavier'),bias_filler=dict(type='constant',value=0.2))
-    n.conv11_1,n.relu11_1 = conv_relu(n.deconv11,n_output=64,kernel_size=2,pad=1)
+    n.conv11_1,n.relu11_1 = conv_relu(n.deconv11,n_output=64,kernel_size=3,pad=1)
     bottom=[n.conv1_2, n.conv11_1]
     n.cat11 = L.Concat(*bottom)
     n.conv11_2,n.relu11_2 = conv_relu(n.cat11,n_output=64,kernel_size=3,pad=1)  #this is halving N_filters
