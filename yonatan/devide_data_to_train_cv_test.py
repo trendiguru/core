@@ -24,10 +24,10 @@ def divide_data(argv):
     )
 
     # if i run this function on braini2:
-    # db = constants.db
+    db = constants.db
 
     # if i run this function on brainik80a:
-    db = pymongo.MongoClient().mydb
+    # db = pymongo.MongoClient().mydb
 
     args = parser.parse_args()
 
