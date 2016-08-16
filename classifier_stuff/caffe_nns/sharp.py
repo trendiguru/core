@@ -370,7 +370,7 @@ def unet(db,mean_value=[112.0,112.0,112.0],n_cats=21):
 
     n.conv7_1,n.relu7_1 = conv_relu(n.deconv7,n_output=512,kernel_size=2,pad=1)  #watch out for padsize here, make sure outsize is 14x14
     bottom=[n.conv5_3, n.conv7_1]
-    n.cat7 = L.Concat(*bottom,in_place=True) #param=dict(concat_dim=1))
+    n.cat7 = L.Concat(bottom=*bottom,in_place=True) #param=dict(concat_dim=1))
     n.conv7_2,n.relu7_2 = conv_relu(n.cat7,n_output=1024,kernel_size=3,pad=1)
     n.conv7_3,n.relu7_3 = conv_relu(n.conv7_2,n_output=1024,kernel_size=3,pad=1)
 
