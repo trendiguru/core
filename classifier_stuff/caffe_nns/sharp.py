@@ -700,7 +700,7 @@ if __name__ == "__main__":
 #    run_net(googLeNet_2_inceptions,nn_dir,db_name+'_train',db_name+'_test',batch_size = batch_size,n_classes=11,meanB=B,meanR=R,meanG=G,n_filters=50,n_ip1=1000)
 #    run_net(alexnet_linearized,nn_dir,db_name+'.train',db_name+'.test',batch_size = batch_size,n_classes=n_classes,meanB=B,meanR=R,meanG=G,n_filters=50,n_ip1=1000)
 
-    proto = vgg16('thedb')
+#    proto = vgg16('thedb')
     proto = unet('thedb')
     proto = correct_deconv(str(proto))
     proto = replace_pythonlayer(proto)
@@ -709,3 +709,25 @@ if __name__ == "__main__":
     with open('train_experiment.prototxt','w') as f:
         f.write(str(proto))
         f.close()
+    with open('val_experiment.prototxt','w') as f:
+        f.write(str(proto))
+        f.close()
+
+    caffe.set_device(2)
+    caffe.set_mode_gpu()
+    solver = caffe.SGDSolver('solver.prototxt')
+#    weights = 'snapshot/train_0816__iter_25000.caffemodel'  #in brainia container jr2
+#    solver.net.copy_from(weights)
+
+    # surgeries
+#    interp_layers = [k for k in solver.net.params.keys() if 'up' in k]
+#    all_layers = [k for k in solver.net.params.keys()]
+#    surgery.interp(solver.net, interp_layers)
+
+    # scoring
+    #val = np.loadtxt('../data/segvalid11.txt', dtype=str)
+#    val = range(0,1500)
+    #jrinfer.seg_tests(solver, False, val, layer='score')
+
+    for _ in range(1000):
+        solver.step(1)
