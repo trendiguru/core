@@ -9,7 +9,7 @@ weight_decay: 0.0005
 # no gradient accumulation
 iter_size: 20
 snapshot: 5000
-snapshot_prefix: "/home/yonatan/resnet50_caffemodels/caffe_resnet50_snapshot_dress_length_9070_images"
+snapshot_prefix: "/home/yonatan/resnet50_caffemodels/caffe_resnet50_snapshot_dress_length_10k_images"
 test_initialization: true
 solver_mode : GPU
 
