@@ -10,6 +10,7 @@ import matplotlib.pyplot as plt
 import yonatan_constants
 import argparse
 import shutil
+import pymongo
 
 
 def divide_data(argv):
@@ -22,7 +23,11 @@ def divide_data(argv):
              "\ndress_sleeve\ndress_length\nmen_shirt_sleeve\npants_length\nwomen_shirt_sleeve"
     )
 
+    # if i run this function on braini2:
     db = constants.db
+
+    # if i run this function on brainik80a:
+    # db = pymongo.MongoClient().mydb
 
     args = parser.parse_args()
 
