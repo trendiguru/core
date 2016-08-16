@@ -30,7 +30,7 @@ def execute(image_or_url):
 
     print "Sleeve classification started!"
     if isinstance(image_or_url, basestring):
-        image = Utils.cv2_get_img_array(image_or_url)
+        image = Utils.get_cv2_img_array(image_or_url)
     elif type(image_or_url) == np.ndarray:
         image = image_or_url
     else:
