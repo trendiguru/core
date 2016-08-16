@@ -767,5 +767,5 @@ if __name__ == "__main__":
 #    val = range(0,1500)
     #jrinfer.seg_tests(solver, False, val, layer='score')
 
-    for _ in range(1000):
-        solver.step(1)
+#    for _ in range(1000):
+#        solver.step(1)
