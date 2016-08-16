@@ -795,7 +795,6 @@ layer {
     kernel_size: 3
     stride: 1
     weight_filler {
-      type: "constant"
       type: "xavier"
     }
     bias_filler {
