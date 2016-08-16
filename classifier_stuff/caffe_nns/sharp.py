@@ -679,7 +679,7 @@ def correct_deconv(proto):
             in_deconv = False
         if in_deconv and 'type:' in line and 'Convolution' in line:
             line = '  type:\"Deconvolution\"'
-        print('out line:'+ line)
+#        print('out line:'+ line)
         outlines.append(line)
         outstring = outstring+line+'\n'
     return outstring
@@ -719,6 +719,9 @@ def replace_pythonlayer(proto):
             layer_buf = 'layer {\n'
         if new_layer_flag and first_layer:
             first_layer = False
+    #dont forget the final layer
+    outstring = outstring + layer_buf
+
     return outstring
 
 #    param_str: "{\'images_and_labels_file\': \'/home/jeremy/image_dbs/colorful_fashion_parsing_data/images_and_labelsfile_train.txt\', \'mean\': (104.0, 116.7, 122.7),\'augment\':True,\'augment_crop_size\':(224,224), \'batch_size\':9 }"
