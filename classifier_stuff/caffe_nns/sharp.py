@@ -416,8 +416,8 @@ def unet(db,mean_value=[112.0,112.0,112.0],n_cats=21):
 
     n.conv_final,n.relu_final = conv_relu(n.conv11_3,n_output=n_cats,kernel_size=3,pad=1)
 
-    n.loss = L.SoftmaxWithLoss(n.conv_final, n.label,normalize=True)
-#    n.loss = L.SoftmaxWithLoss(n.deconv4, n.label)
+#    n.loss = L.SoftmaxWithLoss(n.conv_final, n.label,normalize=True)
+    n.loss = L.SoftmaxWithLoss(n.deconv4, n.label)
 
 #    n.deconv1 = L.Deconvolution(n.conv6_3,param=[dict(lr_mult=lr_mult1,decay_mult=decay_mult1),dict(lr_mult=lr_mult2,decay_mult=decay_mult2)],
 #                convolution_param=[dict(num_output=512,bias_term=False,kernel_size=2,stride=2)])
