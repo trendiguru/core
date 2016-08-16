@@ -721,7 +721,7 @@ if __name__ == "__main__":
 
     caffe.set_device(2)
     caffe.set_mode_gpu()
-    solver = caffe.SGDSolver('solver.prototxt')
+    solver = caffe.SGDSolver('solver.prototxt.bak')
 #    weights = 'snapshot/train_0816__iter_25000.caffemodel'  #in brainia container jr2
 #    solver.net.copy_from(weights)
 
