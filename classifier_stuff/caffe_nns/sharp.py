@@ -368,15 +368,15 @@ def unet(db,mean_value=[112.0,112.0,112.0]):
                     num_output=1024,pad = 0,kernel_size=2,stride = 2,
                     weight_filler=dict(type='xavier'),bias_filler=dict(type='constant',value=0.2))
 
-    n.deconv8 = L.Deconvolution(n.deconv7,kernel_size=2)#,num_output=1024)#,kernel_size=2) #,stride = 2)
-#                    weight_filler=dict(type='xavier'),bias_filler=dict(type='constant',value=0.2))
-
     n.conv7_1,n.relu7_1 = conv_relu(n.deconv7,n_output=512,kernel_size=2,pad=1)  #watch out for padsize here, make sure outsize is 14x14
-
     bottom=[n.conv5_3, n.conv7_1]
     n.cat7 = L.Concat(*bottom,in_place=True) #param=dict(concat_dim=1))
+    n.conv7_2,n.relu7_2 = conv_relu(n.cat7,n_output=1024,kernel_size=3,pad=1)
+    n.conv7_3,n.relu7_3 = conv_relu(n.conv7_2,n_output=1024,kernel_size=3,pad=1)
 
-    n.loss = L.SoftmaxWithLoss(n.cat7, n.label)
+
+
+    n.loss = L.SoftmaxWithLoss(n.conv7_3, n.label)
 #    n.loss = L.SoftmaxWithLoss(n.deconv4, n.label)
 
 #    n.deconv1 = L.Deconvolution(n.conv6_3,param=[dict(lr_mult=lr_mult1,decay_mult=decay_mult1),dict(lr_mult=lr_mult2,decay_mult=decay_mult2)],
@@ -388,8 +388,6 @@ def unet(db,mean_value=[112.0,112.0,112.0]):
 ''' #
 
 
-    n.conv7_2,n.relu7_2 = conv_relu(n.cat7,n_output=1024,kernel_size=3,pad=1)
-    n.conv7_3,n.relu7_3 = conv_relu(n.conv7_2,n_output=1024,kernel_size=3,pad=1)
 
     #the following will be 28x28  (original /8)
     n.deconv8 = L.Convolution(n.conv7_3,param=[dict(lr_mult=lr_mult1,decay_mult=decay_mult1),dict(lr_mult=lr_mult2,decay_mult=decay_mult2)],
