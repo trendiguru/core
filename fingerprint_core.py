@@ -127,7 +127,7 @@ def generate_mask_and_insert(doc, image_url=None, fp_date=None, coll="products",
     fingerprint = fp(small_image, mask=small_mask)
 
     fp_as_list = fingerprint.tolist()
-    doc["fingerprint"] = fp_as_list
+    doc["fingerprint"]["color"] = fp_as_list
     doc["download_data"]["first_dl"] = fp_date
     doc["download_data"]["dl_version"] = fp_date
     doc["download_data"]["fp_version"] = constants.fingerprint_version
