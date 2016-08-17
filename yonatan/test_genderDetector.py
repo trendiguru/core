@@ -76,18 +76,16 @@ def theDetector(url_or_np_array):
         print "didn't find any faces"
         return None
 
-    print faces["faces"][0]
-
     # height, width, channels = full_image.shape
     #
-    # x, y, w, h = face_coordinates
+    x, y, w, h = faces["faces"][0]
     #
     # if x > width or x + w > width or y > height or y + h > height:
     #     return None
     #
-    #face_image = full_image[y: y + h, x: x + w]
+    face_image = full_image[y: y + h, x: x + w]
 
-    face_image = full_image(faces["faces"][0])
+    #face_image = full_image(faces["faces"][0])
 
     resized_face_image = imutils.resize_keep_aspect(face_image, output_size=(224, 224))
 
