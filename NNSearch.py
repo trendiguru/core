@@ -74,7 +74,7 @@ def distance(category, main_fp, candidate_fp):
             dist_func = sleeve_length.distance
         else:
             return None
-        # TODO - numpy function:
+
         d += weights[feature]*dist_func(main_fp[feature], candidate_fp[feature])
     return d
 
