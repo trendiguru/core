@@ -67,6 +67,9 @@ def distance(category, main_fp, candidate_fp):
     if not main_fp.keys() == candidate_fp.keys():
         return None
     d = 0
+    weight_keys = constants.weights_per_category.keys()
+    if category not in weight_keys:
+        category = 'other'
     weights = constants.weights_per_category[category]
     for feature in main_fp.keys():
         if feature == 'color':
