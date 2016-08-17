@@ -23,6 +23,8 @@ print "Done initializing!"
 def distance(v1, v2):
     if len(v1) != 8 or len(v2) != 8:
         return None
+    v1 = np.array(v1) if isinstance(v1, list) else v1
+    v2 = np.array(v2) if isinstance(v2, list) else v2
     return np.linalg.norm(v1 - v2)
 
 
