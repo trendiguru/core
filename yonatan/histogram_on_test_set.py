@@ -14,13 +14,14 @@ from PIL import Image
 from . import gender_detector
 import random
 import matplotlib.pyplot as plt
+import yonatan_classifier
 
 
 #path = '/home/yonatan/55k_test_set'
 array_success = np.array([])
 array_failure = np.array([])
 
-text_file = open("1500_dresses_test_list.txt", "r")
+text_file = open("55k_face_test_list.txt", "r")
 
 counter = 0
 
@@ -36,7 +37,7 @@ raw_scale = 255.0
 ext = 'jpg'
 
 # Make classifier.
-classifier = caffe.Classifier(MODLE_FILE, PRETRAINED,
+classifier = yonatan_classifier.Classifier(MODLE_FILE, PRETRAINED,
                               image_dims=image_dims, mean=mean,
                               input_scale=input_scale, raw_scale=raw_scale,
                               channel_swap=channel_swap)
@@ -84,8 +85,16 @@ for line in text_file:
 
     print counter
 
-print guessed_f_instead_m
-print guessed_m_instead_f
+print "guessed_f_instead_m: {}".format(guessed_f_instead_m)
+print "guessed_m_instead_f: {}".format(guessed_m_instead_f)
+
+success = len(array_success)
+failure = len(array_failure)
+
+if success == 0 or failure == 0:
+    print "wrong!"
+else:
+    print '\naccuracy percent: {0}'.format(float(success) / (success + failure))
 
 
 
