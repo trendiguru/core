@@ -306,7 +306,8 @@ def fit_exp(x, k,a, b, x0):
     return k*np.exp(np.multiply(a,x-x0)) + b
 
 def fit_log(x, k,a, b, x0):
-    return k*np.log(np.multiply(a,x-x0)) + b
+    eps = 1e-10
+    return k*np.log(np.multiply(a,x-x0)+eps) + b
 
 def parse_solveoutput(output_filename):
   '''
