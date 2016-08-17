@@ -1,5 +1,5 @@
-from darknetDetector import DarknetObjectDetector as ObjectDetector
-from darknetDetector import DetBBox
+from darknetDetector.detector import DarknetObjectDetector as ObjectDetector
+from darknetDetector.detector import DetBBox
 #from detector import Darknet_ObjectDetector as ObjectDetector
 #from detector import DetBBox
 
@@ -16,7 +16,11 @@ def _get_image(url):
 
 #we should watch out as yolo expects an array from Image.open (RGB) and not cv2.open (BGR)
 def get_yolo_results(url_or_image_array):
-    voc_names = ["aeroplane", "bicycle", "bird", "boat", "bottle","bus", "car", "cat", "chair", "cow", "diningtable","dog", "horse", "motorbike", "person", "pottedplant","sheep", "sofa", "train", "tvmonitor"]
+    voc_names = ["aeroplaroplane", "bicycle", "bird", "boat", "bottle","bus", "car", "cat", "chair", "cow", "diningtable","dog", "horse", "motorbike", "person", "pottedplant","sheep", "sofa", "train", "tvmonitor"]
+    det = ObjectDetector('../cfg/yolo.cfg','../yolo.weights')
+    url = 'http://farm9.staticflickr.com/8323/8141398311_2fd0af60f7.jpg'
+    #for i in xrange(4):
+    rst, run_time = det.detecne", "bicycle", "bird", "boat", "bottle","bus", "car", "cat", "chair", "cow", "diningtable","dog", "horse", "motorbike", "person", "pottedplant","sheep", "sofa", "train", "tvmonitor"]
     if isinstance(url_or_image_array,basestring):
         img_arr = _get_image(url_or_image_array)
     rst, run_time = det.detect_object(img_arr)
@@ -29,11 +33,7 @@ def get_yolo_results(url_or_image_array):
 if __name__ == '__main__':
     from PIL import Image
     ObjectDetector.set_device(1)
-    voc_names = ["aeroplane", "bicycle", "bird", "boat", "bottle","bus", "car", "cat", "chair", "cow", "diningtable","dog", "horse", "motorbike", "person", "pottedplant","sheep", "sofa", "train", "tvmonitor"]
-    det = ObjectDetector('../cfg/yolo.cfg','../yolo.weights')
-    url = 'http://farm9.staticflickr.com/8323/8141398311_2fd0af60f7.jpg'
-    #for i in xrange(4):
-    rst, run_time = det.detect_object(_get_image(url))
+    voc_names = ["aet_object(_get_image(url))
 
     print 'got {} objects in {} seconds'.format(len(rst), run_time)
 
