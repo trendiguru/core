@@ -30,10 +30,20 @@ class PaperResource:
         print('get combined:'+str(get_combined_results))
         get_combined_results = get_combined_results == "true" or get_combined_results == "True" or get_combined_results == True
 
+        get_yolo_results = req.get_param('getYolo')
+        print('get yolo:'+str(get_yolo_results))
+        get_yolo_results = get_yolo_results == "true" or get_yolo_results == "True" or get_yolo_results == True
+
+
         ret = {"success": False}
         try:
             data = msgpack.loads(req.stream.read())
             img = data.get("image")
+
+            if get_yolo_results:
+                yolo_output = yolo_shirt_detector.get_shirt_output(img)
+                ret['yolo_output'] = yolo_output
+                print('yolo output:'+str(yolo_output))
 
             if get_multilabel_results:
                 multilabel_output = neurodoll_with_multilabel.get_multilabel_output(img)
