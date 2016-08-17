@@ -117,6 +117,7 @@ def get_p_hash_testing(image, hash_size=16, img_size=(16,16)):
     hexa = binary_array_to_hex(flat)
     return hexa, int(hexa,16)
 
+
 def get_hash(image):
     m = hashlib.md5()
     m.update(image)
