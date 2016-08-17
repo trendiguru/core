@@ -20,8 +20,8 @@ from ..utils import imutils
 
 detector = dlib.get_frontal_face_detector()
 
-MODLE_FILE = "/home/yonatan/trendi/yonatan/Alexnet_deploy.prototxt"
-PRETRAINED = "/home/yonatan/alexnet_imdb_first_try/caffe_alexnet_train_faces_iter_10000.caffemodel"
+MODLE_FILE = "/home/yonatan/trendi/yonatan/resnet_50_gender_by_face/ResNet-50-deploy.prototxt"
+PRETRAINED = "/home/yonatan/resnet50_caffemodels/caffe_resnet50_snapshot_sgd_genfder_by_face_iter_10000.caffemodel"
 caffe.set_mode_gpu()
 image_dims = [115, 115]
 mean, input_scale = np.array([120, 120, 120]), None
@@ -93,7 +93,7 @@ def theDetector(url_or_np_array):
     predictions = classifier.predict(face_for_caffe)
     print("Done in %.2f s." % (time.time() - start))
 
-    if predictions[0][1] > 0.7:
+    if predictions[0][1] > predictions[0][0]:
         print predictions[0][1]
         return 'Male'
     else:
