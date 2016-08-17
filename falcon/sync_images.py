@@ -43,7 +43,7 @@ class Images(object):
         try:
             if type(images) is list and page_url is not None:
                 if method == 'pd':
-                    relevancy_dict = {url: page_results.handle_post(url, page_url, products, method) for url in images}
+                    relevancy_dict = {url: page_results.handle_post(url, page_url, products, 'pd') for url in images}
                     ret["success"] = True
                     ret["relevancy_dict"] = relevancy_dict
                 else:
