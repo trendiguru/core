@@ -48,7 +48,9 @@ def create_txt_files(argv):
     else:
         print "wrong input!"
         print "the argument should be one of those:\n{0}\n{1}\n{2}\n{3}\n{4}".format('dress_sleeve',
-                                                                                     'dress_length', 'men_shirt_sleeve',                                                                           'pants_length',
+                                                                                     'dress_length',
+                                                                                     'men_shirt_sleeve',
+                                                                                     'pants_length',
                                                                                      'women_shirt_sleeve')
         return
 
