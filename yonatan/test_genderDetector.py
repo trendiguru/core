@@ -87,7 +87,9 @@ def theDetector(url_or_np_array):
     #
     #face_image = full_image[y: y + h, x: x + w]
 
-    resized_face_image = imutils.resize_keep_aspect(faces["faces"][0], output_size=(224, 224))
+    face_image = full_image(faces["faces"][0])
+
+    resized_face_image = imutils.resize_keep_aspect(face_image, output_size=(224, 224))
 
     face_for_caffe = [cv2_image_to_caffe(resized_face_image)]
     #face_for_caffe = [caffe.io.load_image(face_image)]
