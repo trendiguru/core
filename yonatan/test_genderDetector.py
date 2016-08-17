@@ -71,8 +71,8 @@ def theDetector(url_or_np_array):
     #resized_image = imutils.resize_keep_aspect(full_image, output_size=(124, 124))
 
     faces = background_removal.find_face_dlib(full_image)
-    print faces
 
+    print faces
     print faces["faces"]
     print faces["faces"][0]
 
