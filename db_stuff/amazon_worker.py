@@ -6,7 +6,6 @@ from time import sleep
 import re
 from ..Utils import get_cv2_img_array
 from db_utils import print_error, get_hash, get_p_hash
-from .amazon_constants import plus_sizes
 today_date = str(datetime.date(datetime.now()))
 
 q = Queue('fingerprinter4db', connection=redis_conn)
@@ -194,7 +193,7 @@ def find_paperdoll_cat(family, title):
     return category, sub_category
 
 
-def insert_items(collection_name, item_list, items_in_page, print_flag, family_tree, plus_size_flag=False):
+def insert_items(collection_name, item_list, items_in_page, print_flag, family_tree):
     collection = db[collection_name]
 
     col_name_parts = re.split(r'_', collection_name)
@@ -216,6 +215,9 @@ def insert_items(collection_name, item_list, items_in_page, print_flag, family_t
             if asin_exists:
                 if print_flag:
                     print_error('item exists already!')
+                dl_version = asin_exists['download_data']['dl_version']
+                if dl_version != today_date:
+                    collection.update_one({'id': asin}, {'$set': {'download_data.dl_version': today_date}})
                 continue
 
             if 'ParentASIN' not in item_keys:
@@ -244,32 +246,28 @@ def insert_items(collection_name, item_list, items_in_page, print_flag, family_t
             else:
                 brand = 'unknown'
 
-            # if 'ProductTypeName' in attr_keys:
-            #     tmp_category = attributes['ProductTypeName']
-            # else:
-            #     tmp_category = '2BDtermind'
-
             color = attributes['Color']
             sizes = [clothing_size]
-            # if plus_size_flag:
-            #     plus_size = verify_plus_size(sizes)
-            #     if not plus_size:
-            #         if print_flag:
-            #             print_error('Not a Plus Size', attr_keys)
-            #         continue
 
             parent_asin_exists = collection.find_one({'parent_asin': parent_asin, 'features.color': color})
             if parent_asin_exists:
                 sizes = parent_asin_exists['features']['sizes']
+                if dl_version != today_date:
+                    collection.update_one({'id': asin}, {'download_data.dl_version': today_date})
                 if clothing_size not in sizes:
                     sizes.append(clothing_size)
-                    collection.update_one({'_id': parent_asin_exists['_id']}, {'$set': {'features.sizes': sizes}})
+                    collection.update_one({'_id': parent_asin_exists['_id']}, {'$set': {'features.sizes': sizes,
+                                                                                        'download_data.dl_version':
+                                                                                            today_date}})
                     if print_flag:
                         print_error('added another size to existing item')
                 else:
                     if print_flag:
                         print_error('parent_asin + color + size already exists ----- %s->%s' %
                                     (color, clothing_size))
+                    dl_version = asin_exists['download_data']['dl_version']
+                    if dl_version != today_date:
+                        collection.update_one({'id': asin}, {'$set': {'download_data.dl_version': today_date}})
                 continue
 
             if 'LargeImage' in item_keys:
