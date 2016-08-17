@@ -75,7 +75,6 @@ def distance(category, main_fp, candidate_fp):
         else:
             return None
         # TODO - numpy function:
-        d += np.dot()
         d += weights[feature]*dist_func(main_fp[feature], candidate_fp[feature])
     return d
 
