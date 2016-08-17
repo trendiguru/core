@@ -73,7 +73,7 @@ def find_top_n_results(image=None, mask=None, number_of_results=10, category_id=
       is correct by entering the correct fp_len
     if a distance_function other than Bhattacharyya is used then call the function with that distance function's name
     '''
-    fp_weights = constants.fingerprint_weights
+    fp_weights = constants.color_fingerprint_weights
     # weights = fp_weights[category] if category in fp_weights else fp_weights['other']
     print "number of results to search: {0}".format(number_of_results)
     print "category: {0}".format(category_id)
