@@ -154,7 +154,7 @@ def make_itemsearch_request(pagenum, node_id, min_price, max_price, price_flag=T
 
 
 def process_results(collection_name, pagenum, node_id, min_price, max_price, family_tree, res_dict=None,
-                    items_in_page=10, print_flag=False, color='', plus_size_flag=False, category=None):
+                    items_in_page=10, print_flag=False, color='', category=None):
     if pagenum is not 1:
         res_dict, new_item_count = make_itemsearch_request(pagenum, node_id, min_price, max_price,
                                                            print_flag=print_flag, color=color,
@@ -177,14 +177,13 @@ def process_results(collection_name, pagenum, node_id, min_price, max_price, fam
 
 
 def iterate_over_pagenums(total_pages, results_count, collection_name, node_id, min_price, max_price, family_tree,
-                          res_dict, plus_size_flag, color='', category=None):
+                          res_dict, color='', category=None):
     if total_pages == 1:
         num_of_items_in_page = results_count
     else:
         num_of_items_in_page = 10
         process_results(collection_name, 1, node_id, min_price, max_price, family_tree=family_tree,res_dict=res_dict,
-                        items_in_page=num_of_items_in_page, color=color, plus_size_flag=plus_size_flag,
-                        category=category)
+                        items_in_page=num_of_items_in_page, color=color, category=category)
 
     for pagenum in range(2, total_pages + 1):
         if pagenum == total_pages:
@@ -192,8 +191,7 @@ def iterate_over_pagenums(total_pages, results_count, collection_name, node_id, 
             if num_of_items_in_page < 2:
                 break
         ret = process_results(collection_name, pagenum, node_id, min_price, max_price, family_tree=family_tree,
-                              items_in_page=num_of_items_in_page, color=color, plus_size_flag=plus_size_flag,
-                              category=category)
+                              items_in_page=num_of_items_in_page, color=color, category=category)
         if ret < 0:
             return
 
@@ -204,7 +202,7 @@ def iterate_over_pagenums(total_pages, results_count, collection_name, node_id, 
     log2file(mode='a', log_filename=log_name, message=summary)
 
 
-def filter_by_color(collection_name, node_id, price, family_tree, plus_size_flag=False, category=None):
+def filter_by_color(collection_name, node_id, price, family_tree, category=None):
     no_results_seq = 0
     for color in colors:
         if no_results_seq > 5:
@@ -221,7 +219,7 @@ def filter_by_color(collection_name, node_id, price, family_tree, plus_size_flag
             no_results_seq += 1
             continue
         iterate_over_pagenums(total_pages, results_count, collection_name, node_id, price, price, family_tree,
-                              res_dict, plus_size_flag, color, category=category)
+                              res_dict, color, category=category)
         no_results_seq = 0
     return
 
@@ -416,7 +414,7 @@ def clear_duplicates(collection_name):
 
 
 def download_all(collection_name, gender='Female', del_collection=False, del_cache=False,
-                 cat_tree=False, plus_size_flag=False):
+                 cat_tree=False):
     global error_flag, last_price
     collection = db[collection_name]
     cache_name = collection_name+'_cache'
@@ -599,8 +597,6 @@ def get_user_input():
                         help='delete all cache and start a fresh download')
     parser.add_argument('-t', '--tree', dest="tree", default=False, action='store_true',
                         help='build category tree from scratch')
-    parser.add_argument('-p', '--plus', dest="plus_size", default=False, action='store_true',
-                        help='download plus size for amaze-magazine')
     args = parser.parse_args()
     return args
 
@@ -611,7 +607,6 @@ if __name__ == "__main__":
     user_input = get_user_input()
     c_c = user_input.country_code
     col_gender = user_input.gender
-    plus_size = user_input.plus_size
     delete_all = user_input.delete_all
     delete_cache = user_input.delete_cache
     build_tree = user_input.tree
@@ -637,15 +632,9 @@ if __name__ == "__main__":
         sys.exit(1)
 
     # build collection name and start logging
-    if plus_size:
-        col_name = 'amaze_%s' % col_gender
-        title = "@@@ Amaze-Magazine Download @@@"
-        refresh_name = 'amaze'
-
-    else:
-        col_name = 'amazon_%s_%s' % (cc_upper, col_gender)
-        title = "@@@ Amazon Download @@@"
-        refresh_name = 'amazon_%s' % cc_upper
+    col_name = 'amazon_%s_%s' % (cc_upper, col_gender)
+    title = "@@@ Amazon Download @@@"
+    refresh_name = 'amazon_%s' % cc_upper
 
     log_name = log_name + col_name + '.log'
     title2 = "you choose to update the %s collection" % col_name
@@ -680,7 +669,7 @@ if __name__ == "__main__":
     notes_full_path = 'collections.' + col_name + '.notes'
     db.download_status.update_one({"date": today_date}, {"$set": {status_full_path: "Working"}})
     download_all(collection_name=col_name, gender=col_gender, del_collection=delete_all,
-                 del_cache=delete_cache, cat_tree=build_tree, plus_size_flag=plus_size)
+                 del_cache=delete_cache, cat_tree=build_tree)
 
     # after download finished its time to build a new annoy forest
     db.download_status.update_one({"date": today_date}, {"$set": {status_full_path: 'ANNOY'}})
