@@ -492,6 +492,6 @@ if __name__ == "__main__":
         time.sleep(300)
     if forest_job.is_failed:
         print ('annoy plant forest failed')
-
-    refresh_similar_results(col_name)
+    if gender == 'Male':
+        refresh_similar_results(col_name)
     print (col + "Update Finished!!!")
