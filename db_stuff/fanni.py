@@ -13,7 +13,7 @@ def plantAnnoyForest(col_name, category, num_of_trees, hold=True,distance_functi
 
     items = db[col_name].find({'categories':category})
     for x, item in enumerate(items):
-        v = item['fingerprint']
+        v = item['fingerprint']['color']
         forest.add_item(x, v)
         """
         annoy index the items in the order the are inserted to the tree
