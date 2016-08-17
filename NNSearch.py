@@ -71,7 +71,8 @@ def distance(category, main_fp, candidate_fp):
         if feature == 'color':
             dist_func = color.distance
         elif feature == 'sleeve_length':
-            dist_func = sleeve_length.distance
+            pass
+            # dist_func = sleeve_length.distance
         else:
             return None
 
