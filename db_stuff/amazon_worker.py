@@ -31,8 +31,6 @@ def verify_by_title(title):
         return 'sweater'
     elif 'SHORTS' in title_upper:
         return 'shorts'
-    elif 'JEANS' in title_upper:
-        return 'jeans'
     elif any(x in title_upper for x in ['T-SHIRT', 'T-SHIRTS']):
         return 't-shirt'
     elif any(x in title_upper for x in ['SKIRT', 'SKIRTS', 'SKORT', 'SKORTS', 'MINI']):
@@ -45,6 +43,8 @@ def verify_by_title(title):
         return 'tights'
     elif any(x in title_upper for x in ['TOP', 'TOPS']):
         return 'top'
+    elif 'JEANS' in title_upper:
+        return 'jeans'
     else:
         return ''
 
@@ -329,7 +329,7 @@ def insert_items(collection_name, item_list, items_in_page, print_flag, family_t
                         'raw_info': attributes,
                         'tree': family_tree,
                         'status': {'instock': True, 'days_out': 0},
-                        'fingerprint': None,
+                        'fingerprint': {'color':[]},
                         'gender': gender,
                         'img_hash': img_hash,
                         'p_hash': p_hash,

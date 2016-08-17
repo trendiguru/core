@@ -1,8 +1,5 @@
 __author__ = 'yonti'
-'''
-all the old fingerprint testing functions were moved
-to old_fingerprint_stuff
-'''
+
 import logging
 import hashlib
 import cv2
@@ -11,13 +8,13 @@ from .paperdoll import neurodoll_falcon_client as nfc
 import background_removal
 import Utils
 import constants
+from features import color
+from falcon import sleeve_client
 from db_stuff.recruit_constants import recruit2category_idx
 fingerprint_length = constants.fingerprint_length
 histograms_length = constants.histograms_length
 db = constants.db
 
-
-# collection = constants.update_collection_name
 
 def neurodoll(image, category_idx):
     dic = nfc.pd(image, category_idx)
@@ -41,13 +38,28 @@ def neurodoll(image, category_idx):
     return True, mask2
 
 
+def dict_fp(image, mask, category):
+    fp_features = constants.features_per_category(category)
+    # TODO - we should parallelize this once we have more then 1 feature
+    fingerprint = {feature: get_feature_fp(image, mask, feature) for feature in fp_features}
+    return fingerprint
+
+
+def get_feature_fp(image, mask, feature):
+    if feature == 'color':
+        return color.execute(image, histograms_length, fingerprint_length, mask)
+    elif feature == 'sleeve_length':
+        return sleeve_client.get_sleeve(image)['data']
+    else:
+        return []
+
+
 def fp(img, bins=histograms_length, fp_length=fingerprint_length, mask=None):
     if mask is None or cv2.countNonZero(mask) == 0:
         mask = np.ones((img.shape[0], img.shape[1]), dtype=np.uint8)
     if mask.shape[0] != img.shape[0] or mask.shape[1] != img.shape[1]:
         print "mask shape: " + str(mask.shape)
         print "image shape: " + str(img.shape)
-        print str(mask.shape[0] / float(mask.shape[1])) + ',' + str(img.shape[0] / float(img.shape[1]))
         raise ValueError('trouble with mask size, resetting to image size')
     n_pixels = cv2.countNonZero(mask)
     hsv = cv2.cvtColor(img, cv2.COLOR_BGR2HSV)
@@ -127,7 +139,7 @@ def generate_mask_and_insert(doc, image_url=None, fp_date=None, coll="products",
     fingerprint = fp(small_image, mask=small_mask)
 
     fp_as_list = fingerprint.tolist()
-    doc["fingerprint"] = fp_as_list
+    doc["fingerprint"]["color"] = fp_as_list
     doc["download_data"]["first_dl"] = fp_date
     doc["download_data"]["dl_version"] = fp_date
     doc["download_data"]["fp_version"] = constants.fingerprint_version

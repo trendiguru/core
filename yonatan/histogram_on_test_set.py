@@ -14,20 +14,21 @@ from PIL import Image
 from . import gender_detector
 import random
 import matplotlib.pyplot as plt
+import yonatan_classifier
 
 
 #path = '/home/yonatan/55k_test_set'
 array_success = np.array([])
 array_failure = np.array([])
 
-text_file = open("1500_dresses_test_list.txt", "r")
+text_file = open("55k_face_test_list.txt", "r")
 
 counter = 0
 
-MODLE_FILE = "/home/yonatan/trendi/yonatan/Alexnet_deploy_for_dresses.prototxt"
-PRETRAINED = "/home/yonatan/caffe_alexnet_train_on_9000_dresses_iter_10000.caffemodel"
+MODLE_FILE = "/home/yonatan/trendi/yonatan/resnet_50_gender_by_face/ResNet-50-deploy.prototxt"
+PRETRAINED = "/home/yonatan/resnet50_caffemodels/caffe_resnet50_snapshot_sgd_genfder_by_face_iter_10000.caffemodel"
 caffe.set_mode_gpu()
-image_dims = [200, 100]
+image_dims = [224, 224]
 mean, input_scale = np.array([120, 120, 120]), None
 #mean, input_scale = None, None
 #channel_swap = None
@@ -84,19 +85,27 @@ for line in text_file:
 
     print counter
 
-print guessed_f_instead_m
-print guessed_m_instead_f
+print "guessed_f_instead_m: {}".format(guessed_f_instead_m)
+print "guessed_m_instead_f: {}".format(guessed_m_instead_f)
+
+success = len(array_success)
+failure = len(array_failure)
+
+if success == 0 or failure == 0:
+    print "wrong!"
+else:
+    print '\naccuracy percent: {0}'.format(float(success) / (success + failure))
 
 
 
 histogram=plt.figure(1)
 
-bins = np.linspace(-1000, 1000, 50)
+#bins = np.linspace(-1000, 1000, 50)
 
-plt.hist(array_success, alpha=0.5, label='array_success')
+plt.hist(array_success, bins=100, range=(0.9, 1), color='green', label='array_success')
 plt.legend()
 
-plt.hist(array_failure, alpha=0.5, label='array_failure')
+plt.hist(array_failure, bins=100, range=(0.9, 1), color='red', label='array_failure')
 plt.legend()
 
-histogram.savefig('9000_train_dresses_histogram.png')
+histogram.savefig('new_genderator_histogram.png')
