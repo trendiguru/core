@@ -7,7 +7,7 @@ from db_stuff import fanni
 import constants
 from rq import Queue
 from time import sleep, time
-from features import color, sleeve_length
+from features import color  # , sleeve_length
 q = Queue('annoy', connection=constants.redis_conn)
 db = constants.db
 K = constants.K  # .5 is the same as Euclidean
