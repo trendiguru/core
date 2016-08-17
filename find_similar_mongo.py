@@ -16,7 +16,7 @@ from . import kassper
 fingerprint_length = constants.fingerprint_length
 histograms_length = constants.histograms_length
 # fp_weights = constants.weights_per_category
-FP_KEY = "fingerprint"
+FP_KEY = "color"
 db = constants.db
 
 
@@ -73,7 +73,7 @@ def find_top_n_results(image=None, mask=None, number_of_results=10, category_id=
       is correct by entering the correct fp_len
     if a distance_function other than Bhattacharyya is used then call the function with that distance function's name
     '''
-    fp_weights = constants.color_fingerprint_weights
+    # fp_weights = constants.color_fingerprint_weights
     # weights = fp_weights[category] if category in fp_weights else fp_weights['other']
     print "number of results to search: {0}".format(number_of_results)
     print "category: {0}".format(category_id)
@@ -86,7 +86,7 @@ def find_top_n_results(image=None, mask=None, number_of_results=10, category_id=
     print "calling find_n_nearest.."
     # TODO - distance_function - to dictionary with the keys of the features
     closest_matches = NNSearch.find_n_nearest_neighbors(fingerprint, collection, category_id, number_of_results,
-                                                        fp_weights, bins, fp_category)
+                                                        fp_category)
 
     print "done with find_n_nearest.. num of closest_matches: {0}".format(len(closest_matches))
     # get only the object itself, not the distance

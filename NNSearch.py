@@ -91,7 +91,7 @@ def annoy_search(collection, category, color_fingerprint, num_of_results=1000):
         return annoy_job.result
 
 
-def find_n_nearest_neighbors(fp, collection, category, number_of_matches, fp_key, annoy_top=1000, fp_category=None):
+def find_n_nearest_neighbors(fp, collection, category, number_of_matches, fp_key='color', annoy_top=1000):
 
     # distance_function = distance_function or distance_Bhattacharyya
     # list of tuples with (entry,distance). Initialize with first n distance values
@@ -108,7 +108,7 @@ def find_n_nearest_neighbors(fp, collection, category, number_of_matches, fp_key
     farthest_nearest = 1
     nearest_n = []
     for i, entry in enumerate(entries):
-        ent = entry[fp_key]
+        ent = entry['fingerprint'][fp_key]
         if i < number_of_matches:
             # d = distance_function(ent, fingerprint, fp_weights, hist_length)
             d = distance(category, fp, ent)
