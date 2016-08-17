@@ -9,7 +9,7 @@ from PIL import ImageFilter
 from StringIO import StringIO #
 
 ObjectDetector.set_device(1)
-det = ObjectDetector('../cfg/yolo.cfg','../yolo.weights')
+det = ObjectDetector('/home/jeremy/pydark/darknet/cfg/yolo.cfg','/home/jeremy/pydark/darknet/yolo.weights')
 
 def _get_image(url):
     return Image.open(StringIO(requests.get(url).content))
@@ -39,17 +39,6 @@ if __name__ == '__main__':
 
     for bbox in rst:
         print '{} {} {} {} {} {}'.format(voc_names[bbox.cls], bbox.top, bbox.left, bbox.bottom, bbox.right, bbox.confidence)
-
-
-
-
-
-
-
-
-
-
-
 
 
 #import cv2
