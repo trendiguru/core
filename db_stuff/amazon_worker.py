@@ -329,7 +329,7 @@ def insert_items(collection_name, item_list, items_in_page, print_flag, family_t
                         'raw_info': attributes,
                         'tree': family_tree,
                         'status': {'instock': True, 'days_out': 0},
-                        'fingerprint': None,
+                        'fingerprint': {'color':[]},
                         'gender': gender,
                         'img_hash': img_hash,
                         'p_hash': p_hash,
