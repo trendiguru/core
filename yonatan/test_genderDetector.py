@@ -72,8 +72,10 @@ def theDetector(url_or_np_array):
 
     faces = background_removal.find_face_dlib(full_image)
 
-    print faces
-    print faces["faces"]
+    if not faces["are_faces"]:
+        print "didn't find any faces"
+        return None
+
     print faces["faces"][0]
 
     # height, width, channels = full_image.shape
@@ -85,22 +87,22 @@ def theDetector(url_or_np_array):
     #
     #face_image = full_image[y: y + h, x: x + w]
 
-    #face_image = re
+    resized_face_image = imutils.resize_keep_aspect(faces["faces"][0], output_size=(224, 224))
 
-    # face_for_caffe = [cv2_image_to_caffe(face_image)]
-    # #face_for_caffe = [caffe.io.load_image(face_image)]
-    #
-    # if face_for_caffe is None:
-    #     return None
-    #
-    # # Classify.
-    # start = time.time()
-    # predictions = classifier.predict(face_for_caffe)
-    # print("Done in %.2f s." % (time.time() - start))
-    #
-    # if predictions[0][1] > predictions[0][0]:
-    #     print predictions[0][1]
-    #     return 'Male'
-    # else:
-    #     print predictions[0][0]
-    #     return 'Female'
+    face_for_caffe = [cv2_image_to_caffe(resized_face_image)]
+    #face_for_caffe = [caffe.io.load_image(face_image)]
+
+    if face_for_caffe is None:
+        return None
+
+    # Classify.
+    start = time.time()
+    predictions = classifier.predict(face_for_caffe)
+    print("Done in %.2f s." % (time.time() - start))
+
+    if predictions[0][1] > predictions[0][0]:
+        print predictions[0][1]
+        return 'Male'
+    else:
+        print predictions[0][0]
+        return 'Female'
