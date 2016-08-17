@@ -1,5 +1,5 @@
-from detector.libpydarknet import DarknetObjectDetector as ObjectDetector
-from detector.libpydarknet import DetBBox
+from darknetDetector import DarknetObjectDetector as ObjectDetector
+from darknetDetector import DetBBox
 #from detector import Darknet_ObjectDetector as ObjectDetector
 #from detector import DetBBox
 
