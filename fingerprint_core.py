@@ -8,7 +8,8 @@ from .paperdoll import neurodoll_falcon_client as nfc
 import background_removal
 import Utils
 import constants
-from features import color, sleeve_length
+from features import color
+from falcon import sleeve_client
 from db_stuff.recruit_constants import recruit2category_idx
 fingerprint_length = constants.fingerprint_length
 histograms_length = constants.histograms_length
@@ -48,10 +49,9 @@ def get_feature_fp(image, mask, feature):
     if feature == 'color':
         return color.execute(image, histograms_length, fingerprint_length, mask)
     elif feature == 'sleeve_length':
-        return sleeve_length.execute(image)
+        return sleeve_client.get_sleeve(image)['data']
     else:
         return []
-
 
 
 def fp(img, bins=histograms_length, fp_length=fingerprint_length, mask=None):
