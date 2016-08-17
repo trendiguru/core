@@ -91,7 +91,7 @@ def annoy_search(collection, category, color_fingerprint, num_of_results=1000):
         return annoy_job.result
 
 
-def find_n_nearest_neighbors(fp, collection, category, number_of_matches, fp_key, annoy_top=1000):
+def find_n_nearest_neighbors(fp, collection, category, number_of_matches, fp_key, annoy_top=1000, fp_category=None):
 
     # distance_function = distance_function or distance_Bhattacharyya
     # list of tuples with (entry,distance). Initialize with first n distance values
