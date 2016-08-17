@@ -1,5 +1,5 @@
-from detector import Darknet_ObjectDetector as ObjectDetector
-from detector import DetBBox
+from detector.libpydarknet import Darknet_ObjectDetector as ObjectDetector
+from detector.lilbpydarknet import DetBBox
 
 import requests
 from PIL import Image
