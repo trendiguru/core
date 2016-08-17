@@ -285,7 +285,7 @@ def parse_logfile(output_filename,logy):
 #          ax1.text(middlex, middley+1, 'b='+str(b), fontsize=15)
     except:
       print('trouble fitting')
-    if(1):
+    if(0):  #do fit
         params = curve_fit(fit_log,training_iterations,training_loss)
         print('log params:'+str(params))
         k,a,b,x0 = params[0]
@@ -307,6 +307,7 @@ def fit_exp(x, k,a, b, x0):
 
 def fit_log(x, k,a, b, x0):
     eps = 1e-10
+    #if (np.multiply(a,x-x0)+eps)
     return k*np.log(np.multiply(a,x-x0)+eps) + b
 
 def parse_solveoutput(output_filename):
