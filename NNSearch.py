@@ -74,7 +74,7 @@ def distance(category, main_fp, candidate_fp):
             dist_func = sleeve_length.distance
         else:
             return None
-        # TODO - numpy function:
+
         d += weights[feature]*dist_func(main_fp[feature], candidate_fp[feature])
     return d
 
@@ -90,8 +90,7 @@ def annoy_search(collection, category, color_fingerprint, num_of_results=1000):
         return annoy_job.result
 
 
-def find_n_nearest_neighbors(fp, collection, category, number_of_matches, fp_weights,
-                             hist_length, fp_key, distance_function=None, annoy_top=1000):
+def find_n_nearest_neighbors(fp, collection, category, number_of_matches, fp_key, annoy_top=1000):
 
     # distance_function = distance_function or distance_Bhattacharyya
     # list of tuples with (entry,distance). Initialize with first n distance values
