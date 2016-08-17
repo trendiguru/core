@@ -6,12 +6,12 @@ import subprocess
 import cv2
 import numpy as np
 
-from trendi import NNSearch
-from trendi import Utils
-from trendi import background_removal
-from trendi import constants
-from trendi import fingerprint_core as fp
-from trendi import kassper
+from . import NNSearch
+from . import Utils
+from . import background_removal
+from . import constants
+from . import fingerprint_core as fp
+from . import kassper
 
 fingerprint_length = constants.fingerprint_length
 histograms_length = constants.histograms_length
@@ -111,7 +111,7 @@ def find_top_n_results(image=None, mask=None, number_of_results=10, category_id=
       is correct by entering the correct fp_len
     if a distance_function other than Bhattacharyya is used then call the function with that distance function's name
     '''
-    fp_weights = constants.fingerprint_weights
+    fp_weights = constants.color_fingerprint_weights
     print "number of results to search: {0}".format(number_of_results)
     print "category: {0}".format(category_id)
     # subcategory_id_list = get_all_subcategories(db.categories, category_id)
