@@ -35,7 +35,8 @@ def testfun():
     from PIL import Image
     ObjectDetector.set_device(1)
     voc_names = ["aeroplane", "bicycle", "bird", "boat", "bottle","bus", "car", "cat", "chair", "cow", "diningtable","dog", "horse", "motorbike", "person", "pottedplant","sheep", "sofa", "train", "tvmonitor"]
-    det = ObjectDetector('../cfg/yolo.cfg','../yolo.weights')
+    #det = ObjectDetector('../cfg/yolo.cfg','../yolo.weights')
+    det = ObjectDetector('/home/jeremy/pydark/darknet/cfg/yolo.cfg','/home/jeremy/pydark/darknet/yolo.weights')
     url = 'http://farm9.staticflickr.com/8323/8141398311_2fd0af60f7.jpg'
     #for i in xrange(4):
     rst, run_time = det.detect_object(_get_image(url))
