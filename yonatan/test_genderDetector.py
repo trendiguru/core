@@ -73,8 +73,9 @@ def theDetector(url_or_np_array):
     faces = background_removal.find_face_dlib(full_image)
     print faces
 
-    print faces.faces[0]
-    print faces.faces[0][1]
+    print faces["faces"]
+    print faces["faces"][0]
+    print faces["faces"][0][1]
 
     # height, width, channels = full_image.shape
     #
