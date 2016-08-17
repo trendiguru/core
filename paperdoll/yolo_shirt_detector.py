@@ -21,13 +21,29 @@ def get_yolo_results(url_or_image_array):
     voc_names = ["aeroplane", "bicycle", "bird", "boat", "bottle","bus", "car", "cat", "chair", "cow", "diningtable","dog", "horse", "motorbike", "person", "pottedplant","sheep", "sofa", "train", "tvmonitor"]
     if isinstance(url_or_image_array,basestring):
         img_arr = _get_image(url_or_image_array)
-        rst, run_time = det.detect_object(_get_image(url_or_image_array))
+        rst, run_time = det.detect_object(det,_get_image(url_or_image_array))
     else:
         rst, run_time = det.detect_object(img_arr)
     print 'got {} objects in {} seconds'.format(len(rst), run_time)
     for bbox in rst:
         print '{} {} {} {} {} {}'.format(voc_names[bbox.cls], bbox.top, bbox.left, bbox.bottom, bbox.right, bbox.confidence)
     return rst
+
+#straight from pydarknet __init__.py
+
+def testfun():
+    from PIL import Image
+    ObjectDetector.set_device(1)
+    voc_names = ["aeroplane", "bicycle", "bird", "boat", "bottle","bus", "car", "cat", "chair", "cow", "diningtable","dog", "horse", "motorbike", "person", "pottedplant","sheep", "sofa", "train", "tvmonitor"]
+    det = ObjectDetector('../cfg/yolo.cfg','../yolo.weights')
+    url = 'http://farm9.staticflickr.com/8323/8141398311_2fd0af60f7.jpg'
+    #for i in xrange(4):
+    rst, run_time = det.detect_object(_get_image(url))
+
+    print 'got {} objects in {} seconds'.format(len(rst), run_time)
+
+    for bbox in rst:
+        print '{} {} {} {} {} {}'.format(voc_names[bbox.cls], bbox.top, bbox.left, bbox.bottom, bbox.right, bbox.confidence)
 
 
 if __name__ == '__main__':
@@ -45,6 +61,10 @@ if __name__ == '__main__':
         print '{} {} {} {} {} {}'.format(voc_names[bbox.cls], bbox.top, bbox.left, bbox.bottom, bbox.right, bbox.confidence)
 
 
+
+
+
+#lame way using subprocess
 #import cv2
 #import subprocess
 
