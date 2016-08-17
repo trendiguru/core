@@ -522,7 +522,7 @@ def download_all(collection_name, gender='Female', del_collection=False, del_cac
 
     log2file(mode='a', log_filename=status_log, message='DOWNLOAD FINISHED', print_flag=True)
     clear_duplicates(collection_name)  # add status bar
-    thearchivedoorman(collection_name, instock_limit=30, archive_limit=50)
+    thearchivedoorman(collection_name, instock_limit=10, archive_limit=30)
     print_error('ARCHIVE DOORMAN FINISHED')
 
     collection_cache.delete_many({})
