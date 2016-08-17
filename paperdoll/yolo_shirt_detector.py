@@ -1,5 +1,7 @@
-from darknetDetector.detector import DarknetObjectDetector as ObjectDetector
-from darknetDetector.detector import DetBBox
+from trendi.paperdoll.pyDarknet.detector import DarknetObjectDetector as ObjectDetector
+from trendi.paperdoll.pyDarknet.detector import DetBBox
+#from darknetDetector.detector import DarknetObjectDetector as ObjectDetector
+#from darknetDetector.detector import DetBBox
 #from detector import Darknet_ObjectDetector as ObjectDetector
 #from detector import DetBBox
 
