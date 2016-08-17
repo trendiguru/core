@@ -153,7 +153,7 @@ def process_items(item_list, gender,category):
                    "download_data": {'dl_version': today_date,
                                      'first_dl': today_date,
                                      'fp_version': fingerprint_version},
-                   "fingerprint": None,
+                   "fingerprint":  {'color':[]},
                    "gender": gender,
                    "shippingInfo": [],
                    "raw_info": item,
