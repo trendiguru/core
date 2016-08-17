@@ -430,13 +430,13 @@ class JrMultilabel(caffe.Layer):
         #on the way out
         self.images_dir = params.get('images_dir',None)
 
-        print('imfile {} mean {} imagesdir {} randinit {} randpick {} '.format(self.images_and_labels_file, self.mean,self.images_dir,self.random_init, self.random_pick))
-        print('see {} newsize {} batchsize {} augment {} augmaxangle {} '.format(self.seed,self.new_size,self.batch_size,self.augment_images,self.augment_max_angle))
-        print('augmaxdx {} augmaxdy {} augmaxscale {} augmaxnoise {} augmaxblur {} '.format(self.augment_max_offset_x,self.augment_max_offset_y,self.augment_max_scale,self.augment_max_noise_level,self.augment_max_blur))
-        print('augmirrorlr {} augmirrorud {} augcrop {} augvis {}'.format(self.augment_do_mirror_lr,self.augment_do_mirror_ud,self.augment_crop_size,self.augment_show_visual_output))
+        # print('imfile {} mean {} imagesdir {} randinit {} randpick {} '.format(self.images_and_labels_file, self.mean,self.images_dir,self.random_init, self.random_pick))
+        # print('see {} newsize {} batchsize {} augment {} augmaxangle {} '.format(self.seed,self.new_size,self.batch_size,self.augment_images,self.augment_max_angle))
+        # print('augmaxdx {} augmaxdy {} augmaxscale {} augmaxnoise {} augmaxblur {} '.format(self.augment_max_offset_x,self.augment_max_offset_y,self.augment_max_scale,self.augment_max_noise_level,self.augment_max_blur))
+        # print('augmirrorlr {} augmirrorud {} augcrop {} augvis {}'.format(self.augment_do_mirror_lr,self.augment_do_mirror_ud,self.augment_crop_size,self.augment_show_visual_output))
 
         self.idx = 0
-        print('images+labelsfile {} mean {}'.format(self.images_and_labels_file,self.mean))
+        # print('images+labelsfile {} mean {}'.format(self.images_and_labels_file,self.mean))
         # two tops: data and label
         if len(top) != 2:
             print('len of top is '+str(len(top)))
@@ -527,7 +527,7 @@ class JrMultilabel(caffe.Layer):
         self.imagefiles = good_img_files
         self.label_vecs = good_label_vecs
         assert(len(self.imagefiles) == len(self.label_vecs))
-        print('{} images and {} labels'.format(len(self.imagefiles),len(self.label_vecs)))
+        #print('{} images and {} labels'.format(len(self.imagefiles),len(self.label_vecs)))
         self.n_files = len(self.imagefiles)
         print(str(self.n_files)+' good files in image dir '+str(self.images_dir))
         logging.debug('self.idx is :'+str(self.idx)+' type:'+str(type(self.idx)))
@@ -566,8 +566,8 @@ class JrMultilabel(caffe.Layer):
         ## reshape tops to fit (leading 1 is for batch dimension)
  #       top[0].reshape(1, *self.data.shape)
  #       top[1].reshape(1, *self.label.shape)
-        print('top 0 shape {} top 1 shape {}'.format(top[0].shape,top[1].shape))
-        print('data shape {} label shape {}'.format(self.data.shape,self.label.shape))
+ #        print('top 0 shape {} top 1 shape {}'.format(top[0].shape,top[1].shape))
+ #        print('data shape {} label shape {}'.format(self.data.shape,self.label.shape))
 ##       the above just shows objects , top[0].shape is an object apparently
 
     def next_idx(self):
@@ -662,13 +662,13 @@ class JrMultilabel(caffe.Layer):
             break #got good img, get out of while
 
 
-        print(str(filename) + ' has dims '+str(out_.shape)+' label:'+str(label_vec)+' idex'+str(idx))
+        #print(str(filename) + ' has dims '+str(out_.shape)+' label:'+str(label_vec)+' idex'+str(idx))
 
 #        in_ = in_[:,:,::-1]  #RGB->BGR - since we're using cv2 no need
         out_ -= self.mean
         out_ = out_.transpose((2,0,1))  #Row Column Channel -> Channel Row Column
 #	print('uniques of img:'+str(np.unique(in_))+' shape:'+str(in_.shape))
-        print('load_image_and_label end')
+        #print('load_image_and_label end')
         return filename, out_, label_vec
 
 

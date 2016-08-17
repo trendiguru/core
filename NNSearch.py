@@ -7,7 +7,8 @@ from db_stuff import fanni
 import constants
 from rq import Queue
 from time import sleep, time
-from features import color  # , sleeve_length
+from features import color
+from falcon import sleeve_client
 q = Queue('annoy', connection=constants.redis_conn)
 db = constants.db
 K = constants.K  # .5 is the same as Euclidean
@@ -69,14 +70,13 @@ def distance(category, main_fp, candidate_fp):
     weights = constants.weights_per_category[category]
     for feature in main_fp.keys():
         if feature == 'color':
-            dist_func = color.distance
+            dist = color.distance(main_fp[feature], candidate_fp[feature])
         elif feature == 'sleeve_length':
-            pass
-            # dist_func = sleeve_length.distance
+            dist = sleeve_client.sleeve_distance(main_fp[feature], candidate_fp[feature])['data']
         else:
             return None
 
-        d += weights[feature]*dist_func(main_fp[feature], candidate_fp[feature])
+        d += weights[feature]*dist
     return d
 
 
