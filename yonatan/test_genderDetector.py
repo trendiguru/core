@@ -20,8 +20,8 @@ from ..utils import imutils
 
 detector = dlib.get_frontal_face_detector()
 
-MODLE_FILE = "/home/yonatan/trendi/yonatan/Alexnet_deploy.prototxt"
-PRETRAINED = "/home/yonatan/alexnet_imdb_first_try/caffe_alexnet_train_faces_iter_10000.caffemodel"
+MODLE_FILE = "/home/yonatan/trendi/yonatan/resnet_50_gender_by_face/ResNet-50-deploy.prototxt"
+PRETRAINED = "/home/yonatan/resnet50_caffemodels/caffe_resnet50_snapshot_sgd_genfder_by_face_iter_10000.caffemodel"
 caffe.set_mode_gpu()
 image_dims = [115, 115]
 mean, input_scale = np.array([120, 120, 120]), None
@@ -68,10 +68,15 @@ def theDetector(url_or_np_array):
         print "not a good image"
         return None
 
-    resized_image = imutils.resize_keep_aspect(full_image, output_size=(124, 124))
+    #resized_image = imutils.resize_keep_aspect(full_image, output_size=(124, 124))
 
-    faces = background_removal.find_face_dlib(resized_image)
-    print faces
+    faces = background_removal.find_face_dlib(full_image)
+
+    if not faces["are_faces"]:
+        print "didn't find any faces"
+        return None
+
+    print faces["faces"][0]
 
     # height, width, channels = full_image.shape
     #
@@ -82,7 +87,9 @@ def theDetector(url_or_np_array):
     #
     #face_image = full_image[y: y + h, x: x + w]
 
-    face_for_caffe = [cv2_image_to_caffe(face_image)]
+    resized_face_image = imutils.resize_keep_aspect(faces["faces"][0], output_size=(224, 224))
+
+    face_for_caffe = [cv2_image_to_caffe(resized_face_image)]
     #face_for_caffe = [caffe.io.load_image(face_image)]
 
     if face_for_caffe is None:
@@ -93,7 +100,7 @@ def theDetector(url_or_np_array):
     predictions = classifier.predict(face_for_caffe)
     print("Done in %.2f s." % (time.time() - start))
 
-    if predictions[0][1] > 0.7:
+    if predictions[0][1] > predictions[0][0]:
         print predictions[0][1]
         return 'Male'
     else:
