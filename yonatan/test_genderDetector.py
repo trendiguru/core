@@ -16,6 +16,7 @@ import skimage
 import requests
 import dlib
 from ..utils import imutils
+import yonatan_classifier
 
 
 detector = dlib.get_frontal_face_detector()
@@ -29,7 +30,7 @@ channel_swap = [2, 1, 0]
 raw_scale = 255.0
 
 # Make classifier.
-classifier = caffe.Classifier(MODLE_FILE, PRETRAINED,
+classifier = yonatan_classifier.Classifier(MODLE_FILE, PRETRAINED,
                               image_dims=image_dims, mean=mean,
                               input_scale=input_scale, raw_scale=raw_scale,
                               channel_swap=channel_swap)
@@ -84,8 +85,6 @@ def theDetector(url_or_np_array):
     #     return None
     #
     face_image = full_image[y: y + h, x: x + w]
-
-    #face_image = full_image(faces["faces"][0])
 
     resized_face_image = imutils.resize_keep_aspect(face_image, output_size=(224, 224))
 
