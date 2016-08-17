@@ -9,7 +9,7 @@ weights = 'ResNet-50-model.caffemodel'  #in brainia container jr2
 caffe.set_device(int(sys.argv[1]))
 caffe.set_mode_gpu()
 
-solver = caffe.SGDSolver('/home/yonatan/trendi/yonatan/resnet_50_gender_by_face/solver50_sgd.prototxt')
+solver = caffe.SGDSolver('/home/yonatan/trendi/yonatan/resnet_50_dress_length/solver50_sgd.prototxt')
 
 # for finetune
 solver.net.copy_from(weights)

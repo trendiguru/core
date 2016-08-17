@@ -2,7 +2,7 @@
 import logging
 import cv2
 import numpy as np
-import constants
+from .. import constants
 
 fingerprint_length = constants.fingerprint_length
 histograms_length = constants.histograms_length
