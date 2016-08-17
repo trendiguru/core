@@ -5,7 +5,7 @@ import falcon
 from .. import neurodoll, neurodoll_single_category
 from .. import neurodoll_with_multilabel
 from .. import constants
-from . import yolo_shirt_detector
+#from . import yolo_shirt_detector
 
 from jaweson import json, msgpack
 
