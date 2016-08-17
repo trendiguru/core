@@ -4,7 +4,7 @@ from detector import DetBBox
 import requests
 from PIL import Image
 from PIL import ImageFilter
-from StringIO import StringIO
+from StringIO import StringIO #
 
 ObjectDetector.set_device(1)
 det = ObjectDetector('../cfg/yolo.cfg','../yolo.weights')
