@@ -70,13 +70,13 @@ def distance(category, main_fp, candidate_fp):
     weights = constants.weights_per_category[category]
     for feature in main_fp.keys():
         if feature == 'color':
-            dist_func = color.distance
+            dist = color.distance(main_fp[feature], candidate_fp[feature])
         elif feature == 'sleeve_length':
-            dist_func = sleeve_client.sleeve_distance
+            dist = sleeve_client.sleeve_distance(main_fp[feature], candidate_fp[feature])['data']
         else:
             return None
 
-        d += weights[feature]*dist_func(main_fp[feature], candidate_fp[feature])
+        d += weights[feature]*dist
     return d
 
 
