@@ -79,14 +79,13 @@ def find_top_n_results(image=None, mask=None, number_of_results=10, category_id=
     print "category: {0}".format(category_id)
 
     if not fingerprint:
-        fingerprint = fp.fp(image, bins, fp_len, mask)
+        fingerprint = {'color': fp.fp(image, bins, fp_len, mask)}
         # dict_fp = fp.fp(image, mask, category_id)
     # fp_weights = constants.weights_per_category[category] if category in
     # target_dict = {"clothingClass": category_id, "fingerprint": fingerprint}
     print "calling find_n_nearest.."
     # TODO - distance_function - to dictionary with the keys of the features
-    closest_matches = NNSearch.find_n_nearest_neighbors(fingerprint, collection, category_id, number_of_results,
-                                                        fp_category)
+    closest_matches = NNSearch.find_n_nearest_neighbors(fingerprint, collection, category_id, number_of_results)
 
     print "done with find_n_nearest.. num of closest_matches: {0}".format(len(closest_matches))
     # get only the object itself, not the distance

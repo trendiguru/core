@@ -67,6 +67,9 @@ def distance(category, main_fp, candidate_fp):
     if not main_fp.keys() == candidate_fp.keys():
         return None
     d = 0
+    weight_keys = constants.weights_per_category.keys()
+    if category not in weight_keys:
+        category = 'other'
     weights = constants.weights_per_category[category]
     for feature in main_fp.keys():
         if feature == 'color':
@@ -91,7 +94,7 @@ def annoy_search(collection, category, color_fingerprint, num_of_results=1000):
         return annoy_job.result
 
 
-def find_n_nearest_neighbors(fp, collection, category, number_of_matches, fp_key='color', annoy_top=1000):
+def find_n_nearest_neighbors(fp, collection, category, number_of_matches, annoy_top=1000):
 
     # distance_function = distance_function or distance_Bhattacharyya
     # list of tuples with (entry,distance). Initialize with first n distance values
@@ -108,7 +111,7 @@ def find_n_nearest_neighbors(fp, collection, category, number_of_matches, fp_key
     farthest_nearest = 1
     nearest_n = []
     for i, entry in enumerate(entries):
-        ent = entry['fingerprint'][fp_key]
+        ent = entry['fingerprint']
         if i < number_of_matches:
             # d = distance_function(ent, fingerprint, fp_weights, hist_length)
             d = distance(category, fp, ent)

@@ -23,7 +23,7 @@ detector = dlib.get_frontal_face_detector()
 MODLE_FILE = "/home/yonatan/trendi/yonatan/resnet_50_gender_by_face/ResNet-50-deploy.prototxt"
 PRETRAINED = "/home/yonatan/resnet50_caffemodels/caffe_resnet50_snapshot_sgd_genfder_by_face_iter_10000.caffemodel"
 caffe.set_mode_gpu()
-image_dims = [115, 115]
+image_dims = [224, 224]
 mean, input_scale = np.array([120, 120, 120]), None
 channel_swap = [2, 1, 0]
 raw_scale = 255.0
@@ -76,18 +76,16 @@ def theDetector(url_or_np_array):
         print "didn't find any faces"
         return None
 
-    print faces["faces"][0]
+    height, width, channels = full_image.shape
 
-    # height, width, channels = full_image.shape
-    #
-    # x, y, w, h = face_coordinates
-    #
-    # if x > width or x + w > width or y > height or y + h > height:
-    #     return None
-    #
-    #face_image = full_image[y: y + h, x: x + w]
+    x, y, w, h = faces["faces"][0]
 
-    resized_face_image = imutils.resize_keep_aspect(faces["faces"][0], output_size=(224, 224))
+    if x > width or x + w > width or y > height or y + h > height:
+        return None
+
+    face_image = full_image[y: y + h, x: x + w]
+
+    resized_face_image = imutils.resize_keep_aspect(face_image, output_size=(224, 224))
 
     face_for_caffe = [cv2_image_to_caffe(resized_face_image)]
     #face_for_caffe = [caffe.io.load_image(face_image)]
