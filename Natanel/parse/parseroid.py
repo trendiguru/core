@@ -84,7 +84,8 @@ def TG23_parser():
     '''
 
     output_shape = (128, 128)
-    model_description = 'parsing_model_weights_128'
+#    model_description = 'parsing_model_weights_128'  changed by jr
+    model_description = 'parsing_model_weights'
     fully_connected_layer_size = 2 ** 12
     max_shape_images = (3,) + output_shape
     max_shape_masks = (23,) + output_shape
