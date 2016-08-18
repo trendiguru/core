@@ -1083,7 +1083,7 @@ def add_sleeve_length_to_relevant_items_in_images():
     sent = 0
     deleted = 0
     for doc in db.images.find():
-        if 'sleeve_length' in set([item['fp'].keys() for person in doc for item in person]):
+        if 'sleeve_length' in set([item['fp'].keys() for person in doc['people'] for item in person['items']]):
             continue
         image = Utils.get_cv2_img_array(doc['image_urls'][0])
         if image is None:
