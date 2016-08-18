@@ -1108,7 +1108,7 @@ def parallel_sleeve_and_replace(image_obj_id, image):
                     if item['category'] in rel_cats:
                         sleeve_vector = sleeve_client.get_sleeve(image)['data']
                         print("sleeve result: {0}".format(sleeve_vector))
-                        item['fp']['sleeve_length'] = sleeve_vector
+                        item['fp']['sleeve_length'] = list(sleeve_vector)
         rep_res = db.images.replace_one({'_id': image_obj['_id']}, image_obj).modified_count
         print("{0} documents modified..".format(rep_res))
         return
