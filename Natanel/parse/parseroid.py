@@ -1,3 +1,5 @@
+#looks like a deploy script
+
 import cv2
 import numpy as np
 from PIL import Image, ImageEnhance
@@ -19,7 +21,6 @@ from keras.preprocessing.image import ImageDataGenerator
 from keras.layers.normalization import BatchNormalization
 from keras.regularizers import l1l2, activity_l1l2
 import time
-
 
 def resize_images(images_list, output_shape=(128, 128)):
     '''
@@ -296,8 +297,12 @@ def display_mask(mask):
 # cv2.imshow('p', np.hstack([im, BGRmask, net_mask]))
 # cv2.waitKey(0)
 
+url = 'http://img.shein.com/images/goods_img_bak/shein.com/201606/1465883283337297145_thumbnail_405x552.jpg'
+response = requests.get(url)  # download
+im = cv2.imdecode(np.asarray(bytearray(response.content)), 1)
 
-im = cv2.imread('/home/nate/Desktop/8c30a2582a64434c87fe0c504e2c1640.jpg')
+#im = cv2.imread('/home/nate/Desktop/8c30a2582a64434c87fe0c504e2c1640.jpg')
+
 results, singelton = run_test(im)
 net_mask = display_mask(singelton)
 print im.shape, net_mask.shape
