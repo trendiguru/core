@@ -1106,7 +1106,7 @@ def parallel_sleeve_and_replace(image_obj_id, image):
                     image = background_removal.person_isolation(image, person['face'])
                 for item in person['items']:
                     if item['category'] in rel_cats:
-                        sleeve_vector = sleeve_client.get_sleeve(image)['data']
+                        sleeve_vector = [num.item() for num in sleeve_client.get_sleeve(image)['data']]
                         print("sleeve result: {0}".format(sleeve_vector))
                         item['fp']['sleeve_length'] = list(sleeve_vector)
         rep_res = db.images.replace_one({'_id': image_obj['_id']}, image_obj).modified_count
