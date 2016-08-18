@@ -6,7 +6,7 @@ layer {
     python_param {
     module: "jrlayers"
     layer: "JrPixlevel"
-    param_str: "{\"images_and_labels_file\": \"/home/jeremy/image_dbs/kaggle_ultrasound/images_and_labelsfile_test.txt\", \"mean\": (104.0, 116.7, 122.7),\"augment\":True,\"augment_crop_size\":(224,224), \"batch_size\":1 }"
+    param_str: "{\"kaggle\":True, \"images_and_labels_file\": \"/home/jeremy/image_dbs/kaggle_ultrasound/images_and_labelsfile_test.txt\", \"mean\": (104.0, 116.7, 122.7),\"augment\":True,\"augment_crop_size\":(224,224), \"batch_size\":1 }"
     }
   }
 layer {
