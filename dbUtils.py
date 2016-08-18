@@ -27,7 +27,7 @@ min_images_per_doc = constants.min_images_per_doc
 max_image_val = constants.max_image_val
 
 hash_q = rq.Queue("hash_q")
-results_q = rq.Queue("update_results")
+add_feature = rq.Queue("add_feature")
 
 def lookfor_next_bounded_in_db(current_item=0, current_image=0, only_get_boxed_images=True):
     """
@@ -1078,22 +1078,34 @@ def update_similar_results():
 
 
 def add_sleeve_length_to_relevant_items_in_images():
-    rel_cats = set([cat for cat in constants.features_per_category.keys() if 'sleeve_length' in constants.features_per_category[cat]])
-    for doc in db.images.find():
+
+    def parallel_sleeve_and_replace(image_obj, image):
         try:
-            image = Utils.get_cv2_img_array(doc['image_urls'][0])
-            if image is None:
-                db.images.delete_one({'_id': doc['_id']})
-                continue
-            for person in doc['people']:
+            for person in image_obj['people']:
                 person_cats = set([item['category'] for item in person['items']])
                 if len(rel_cats.intersection(person_cats)):
-                    if len(doc['people']) > 1:
+                    if len(image_obj['people']) > 1:
                         image = background_removal.person_isolation(image, person['face'])
                     for item in person['items']:
                         if item['category'] in rel_cats:
                             item['fp']['sleeve_length'] = sleeve_client.get_sleeve(image)['data']
-            db.images.replace_one({'_id': doc['_id']}, doc)
+            db.images.replace_one({'_id': doc['_id']}, image_obj)
+            return True
         except Exception as e:
             print(e)
+
+    rel_cats = set([cat for cat in constants.features_per_category.keys() if 'sleeve_length' in constants.features_per_category[cat]])
+    print("Starting, total {0} images".format(db.images.count()))
+    sent = 0
+    deleted = 0
+    for doc in db.images.find():
+        image = Utils.get_cv2_img_array(doc['image_urls'][0])
+        if image is None:
+            db.images.delete_one({'_id': doc['_id']})
+            deleted += 1
+            print("{0} images deleted..".format(deleted))
+        add_feature.enqueue(parallel_sleeve_and_replace, args=(doc, image), timeout=2000)
+    sent += 1
+
+
 
