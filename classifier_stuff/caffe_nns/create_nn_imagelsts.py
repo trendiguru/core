@@ -110,12 +110,15 @@ def textfile_for_pixlevel(imagesdir,labelsdir=None,imagefilter='.jpg',labelsuffi
             print('writing: '+line)
             fp.write(line+'\n')
 
-def textfile_for_pixlevel_kaggle(imagesdir,labelsdir=None,imagefilter='.tif',labelfilter='mask', outfilename = None):
+def textfile_for_pixlevel_kaggle(imagesdir,labelsdir=None,imagefilter='.tif',labelsuffix='_mask.tif', outfilename = None):
     if labelsdir == None:
         labelsdir = imagesdir
+        imagefiles = [f for f in os.listdir(imagesdir) if imagefilter in f and not labelsuffix in f]
+    else:
+        imagefiles = [f for f in os.listdir(imagesdir) if imagefilter in f]
+
     if outfilename == None:
         outfilename = os.path.join(imagesdir,'images_and_labelsfile.txt')
-    imagefiles = [f for f in os.listdir(imagesdir) if imagefilter in f and not labelfilter in f]
     print(str(len(imagefiles))+' imagefiles found in '+imagesdir)
     with open(outfilename,'w') as fp:
         for f in imagefiles:
