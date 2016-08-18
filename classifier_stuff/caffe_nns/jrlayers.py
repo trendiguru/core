@@ -329,6 +329,7 @@ class JrPixlevel(caffe.Layer):
 #            im = im.resize(self.new_size,Image.ANTIALIAS)
         label_in_ = np.array(im, dtype=np.uint8)
         if self.kaggle is not False:
+            print('kagle image, moving 255 -> 1')
             label_in_[label_in_==255] = 1
 #        in_ = in_ - 1
         print('uniques of label:'+str(np.unique(label_in_))+' shape:'+str(label_in_.shape))
