@@ -1088,14 +1088,16 @@ def add_sleeve_length_to_relevant_items_in_images():
             db.images.delete_one({'_id': doc['_id']})
             deleted += 1
             print("{0} images deleted..".format(deleted))
-        add_feature.enqueue(parallel_sleeve_and_replace, args=(doc, image), timeout=2000)
+        add_feature.enqueue(parallel_sleeve_and_replace, args=(doc['_id'], image), timeout=2000)
     sent += 1
 
 
-def parallel_sleeve_and_replace(image_obj, image):
+def parallel_sleeve_and_replace(image_obj_id, image):
     rel_cats = set([cat for cat in constants.features_per_category.keys() if 'sleeve_length' in constants.features_per_category[cat]])
     try:
+        image_obj = db.images.find_one({'_id': image_obj_id})
         print("inside parallel replace")
+        logging.warning('inside parallel replace')
         for person in image_obj['people']:
             person_cats = set([item['category'] for item in person['items']])
             if len(rel_cats.intersection(person_cats)):
@@ -1106,7 +1108,7 @@ def parallel_sleeve_and_replace(image_obj, image):
                     if item['category'] in rel_cats:
                         sleeve_vector = sleeve_client.get_sleeve(image)['data']
                         print("sleeve result: {0}".format(sleeve_vector))
-                        item['fp']['sleeve_length'] = sleeve_vector
+                        item['fp']['sleeve_length'] = list(sleeve_vector)
         rep_res = db.images.replace_one({'_id': image_obj['_id']}, image_obj).modified_count
         print("{0} documents modified..".format(rep_res))
         return
