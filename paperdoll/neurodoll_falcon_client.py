@@ -13,6 +13,8 @@ def pd(image_array_or_url, category_index=None,get_multilabel_results=None,get_c
         params['getMultilabelResults'] = get_multilabel_results
     if get_combined_results:
         params['getCombinedResults'] = get_combined_results
+    if get_yolo:
+        params['getYolo'] = get_yolo
     if params == {}:
         params = None #not sure if this is necesary but the original line (below) made it happen
         #params = params={"categoryIndex": category_index} if category_index else None
