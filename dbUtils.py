@@ -1080,16 +1080,20 @@ def update_similar_results():
 def add_sleeve_length_to_relevant_items_in_images():
     rel_cats = set([cat for cat in constants.features_per_category.keys() if 'sleeve_length' in constants.features_per_category[cat]])
     for doc in db.images.find():
-        image = Utils.get_cv2_img_array(doc['image_urls'][0])
-        if image is None:
-            db.images.delete_one({'_id': doc['_id']})
-            continue
-        for person in doc['people']:
-            person_cats = set([item['category'] for item in person['items']])
-            if len(rel_cats.intersection(person_cats)):
-                if len(doc['people']) > 1:
-                    image = background_removal.person_isolation(image, person['face'])
-                for item in person['items']:
-                    if item['category'] in rel_cats:
-                        item['fp']['sleeve_length'] = sleeve_client.get_sleeve(image)['data']
-        db.images.replace_one({'_id': doc['_id']}, doc)
+        try:
+            image = Utils.get_cv2_img_array(doc['image_urls'][0])
+            if image is None:
+                db.images.delete_one({'_id': doc['_id']})
+                continue
+            for person in doc['people']:
+                person_cats = set([item['category'] for item in person['items']])
+                if len(rel_cats.intersection(person_cats)):
+                    if len(doc['people']) > 1:
+                        image = background_removal.person_isolation(image, person['face'])
+                    for item in person['items']:
+                        if item['category'] in rel_cats:
+                            item['fp']['sleeve_length'] = sleeve_client.get_sleeve(image)['data']
+            db.images.replace_one({'_id': doc['_id']}, doc)
+        except Exception as e:
+            print(e)
+
