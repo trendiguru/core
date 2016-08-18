@@ -85,7 +85,7 @@ def TG23_parser():
 
     output_shape = (128, 128)
 #    model_description = 'parsing_model_weights_128'  changed by jr
-    model_description = 'parsing_model_weights'
+    model_description = '/root/core/Natanel/parse/parsing_model_weights'
     fully_connected_layer_size = 2 ** 12
     max_shape_images = (3,) + output_shape
     max_shape_masks = (23,) + output_shape
@@ -150,12 +150,14 @@ def TG23_parser():
     model.summary()
 
     optimizer_method = 'adam'  # SGD(lr=1e-1, decay=1e-6, momentum=0.9, nesterov=True)#Adagrad()#Adadelta()#RMSprop()#Adam()#Adadelta()#
+    print('compiling model ')
     model.compile(loss='categorical_crossentropy', optimizer=optimizer_method, metrics=['accuracy'])
     if os.path.isfile(model_description + '.hdf5'):
         print 'loading weights file: ' + os.path.join(model_description + '.hdf5')
         model.load_weights(model_description + '.hdf5')
         return model  # model is a neural net object
     else:
+        print('looking for '+os.path.join(model_description + '.hdf5'))
         print 'no model weights file (*.hdf5) was found... model was not built.'
 
 
