@@ -1095,7 +1095,10 @@ def add_sleeve_length_to_relevant_items_in_collection(col_name):
             if category not in rel_cats:
                 print ('item not relevant for sleevedoll')
                 continue
-            doc_features = doc['fingerprint'].keys()
+            fp = doc['fingerprint']
+            if type(fp) != dict:
+                fp = {'color':fp}
+            doc_features = fp.keys()
             if 'sleeve_length' in doc_features:
                 continue
             img_url = doc['images']['XLarge']
