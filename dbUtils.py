@@ -17,10 +17,10 @@ import tldextract
 # ours
 import constants
 import page_results
-from trendi.find_similar_mongo import get_all_subcategories, find_top_n_results
+from .find_similar_mongo import get_all_subcategories, find_top_n_results
 from . import background_removal
-from trendi import Utils
-from trendi.constants import db, redis_conn
+from . import Utils
+from .constants import db, redis_conn
 from falcon import sleeve_client
 rq.push_connection(redis_conn)
 min_images_per_doc = constants.min_images_per_doc
