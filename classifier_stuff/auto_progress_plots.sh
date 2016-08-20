@@ -24,63 +24,66 @@ echo $jpgfiles
 for jpg in $jpgfiles;
    do echo $jpg;
    counter=$((counter+1))
-   newname="$counter.jpg"
+   newname="$host$counter.jpg"
    echo $newname
    scp $jpg root@104.155.22.95:/var/www/results/progress_plots/$newname;
 #   rsync jpg root@37.58.64.220:/var/www/results/progress_plots;
 done
 
 #do multilabel accuracy/precision/recall tests
-snapshot_root="/home/jeremy/caffenets/multilabel/deep-residual-networks/prototxt/"
-snapshot_dir[1]="snapshot_50_B"
-snapshot_dir[2]="snapshot_50_sgd"
-snapshot_dir[3]="snapshot101"
-snapshot_dir[4]="snapshot101_sgd"
-snapshot_dir[5]="snapshot_152"
-protos[1]="ResNet-50-test.prototxt"
-protos[2]="ResNet-50-test.prototxt"
-protos[3]="ResNet-101-test.prototxt"
-protos[4]="ResNet-101-test.prototxt"
-protos[5]="ResNet-152-test.prototxt"
+###these plots are coming from python runs of net training so just move the plots there - namely solve.py
 
 
-logfile[1]="$(ls -tr ${snapshot_dir[1]}/*caffemodel |tail -1)"
-logfile[2]="$(ls -tr ${snapshot_dir[2]}/*caffemodel |tail -1)"
-logfile[3]="$(ls -tr ${snapshot_dir[3]}/*caffemodel |tail -1)"
-logfile[4]="$(ls -tr ${snapshot_dir[4]}/*caffemodel |tail -1)"
-logfile[5]="$(ls -tr ${snapshot_dir[5]}/*caffemodel |tail -1)"
+#snapshot_root="/home/jeremy/caffenets/multilabel/deep-residual-networks/prototxt/"
+#snapshot_dir[1]="snapshot_50_B"
+#snapshot_dir[2]="snapshot_50_sgd"
+#snapshot_dir[3]="snapshot101"
+#snapshot_dir[4]="snapshot101_sgd"
+#snapshot_dir[5]="snapshot_152"
+#protos[1]="ResNet-50-test.prototxt"
+#protos[2]="ResNet-50-test.prototxt"
+#protos[3]="ResNet-101-test.prototxt"
+#protos[4]="ResNet-101-test.prototxt"
+#protos[5]="ResNet-152-test.prototxt"
 
-#logfile5="$(ls -tr /home/jeremy/caffenets/multilabel/deep-residual-networks/prototxt/$snapshot_dir5/*caffemodel |tail -1)"
-echo ${logfile[1]}
 
-echo $logfile
-counter=0
-for i in 1 2 3 4 5;
+#logfile[1]="$(ls -tr ${snapshot_dir[1]}/*caffemodel |tail -1)"
+#logfile[2]="$(ls -tr ${snapshot_dir[2]}/*caffemodel |tail -1)"
+#logfile[3]="$(ls -tr ${snapshot_dir[3]}/*caffemodel |tail -1)"
+#logfile[4]="$(ls -tr ${snapshot_dir[4]}/*caffemodel |tail -1)"
+#ogfile[5]="$(ls -tr ${snapshot_dir[5]}/*caffemodel |tail -1)"#
 
-   do echo ${logfile[$i]};
-   caffemod=${logfile[i]}
-   proto=${protos[i]};
-#   echo "proto"
-#   echo $proto;
-   com="python /home/jeremy/core/classifier_stuff/caffe_nns/multilabel_accuracy.py --caffemodel "$caffemod ;
-   com=$com" --testproto ";
-   com=$com$proto;
-#   echo "cpm"
-   echo $com;
-   $com;
-done
+##logfile5="$(ls -tr /home/jeremy/caffenets/multilabel/deep-residual-networks/prototxt/$snapshot_dir5/*caffemodel |tail -1)"
+#echo ${logfile[1]}
 
-#send any .jpg  updated in last 100 minutes
-newfiles="$(find /tmp caffe* -mmin -100|grep jpg)"
-echo $newfiles
-for f in $newfiles;
-   do echo $f;
-   let "counter=counter+1"
-   newname="$counter.jpg"
-   echo $newname
-   scp $f root@104.155.22.95:/var/www/results/progress_plots/$newname;
-#   rsync jpg root@37.58.64.220:/var/www/results/progress_plots;
-done
+#echo $logfile
+#counter=0
+#for i in 1 2 3 4 5;
+
+#   do echo ${logfile[$i]};
+#   caffemod=${logfile[i]}
+#   proto=${protos[i]};
+##   echo "proto"
+##   echo $proto;
+#   com="python /home/jeremy/core/classifier_stuff/caffe_nns/multilabel_accuracy.py --caffemodel "$caffemod ;
+#   com=$com" --testproto ";
+#   com=$com$proto;
+##   echo "cpm"
+#   echo $com;
+#   $com;
+#done
+
+##send any .jpg  updated in last 100 minutes
+#newfiles="$(find /tmp caffe* -mmin -100|grep jpg)"
+#echo $newfiles
+#for f in $newfiles;
+#   do echo $f;
+#   let "counter=counter+1"
+#   newname="$counter.jpg"
+#   echo $newname
+#   scp $f root@104.155.22.95:/var/www/results/progress_plots/$newname;
+##   rsync jpg root@37.58.64.220:/var/www/results/progress_plots;
+#done
 
 
 logfile[1]="net_output.txt"
