@@ -47,7 +47,7 @@ def parse_logfile(output_filename,logy):
   decay_mult = ''
   net_name = ''
 
-  past_beginning = False
+  past_beginning = False #
 
   for line in f:
 #    print('checking line:'+line)
