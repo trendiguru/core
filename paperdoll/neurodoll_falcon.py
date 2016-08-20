@@ -5,7 +5,7 @@ import falcon
 from .. import neurodoll, neurodoll_single_category
 from .. import neurodoll_with_multilabel
 from .. import constants
-#from . import yolo_shirt_detector
+from .darknet.pyDarknet import mydet
 
 from jaweson import json, msgpack
 
@@ -42,7 +42,7 @@ class PaperResource:
             img = data.get("image")
 
             if get_yolo_results:
-                yolo_output = yolo_shirt_detector.get_yolo_results(img)
+                yolo_output = mydet.get_yolo_results(img)
                 ret['yolo_output'] = yolo_output
                 print('yolo output:'+str(yolo_output))
 

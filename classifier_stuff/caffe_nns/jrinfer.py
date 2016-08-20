@@ -284,7 +284,7 @@ if __name__ == "__main__":
 
     parser = argparse.ArgumentParser(description='get Caffe output')
     parser.add_argument('--caffemodel', help='caffemodel', default=caffemodel)
-    parser.add_argument('--prototxt', help='prototxt',default=prototxt)
+    parser.add_argument('--prototxt', help='prototxt',default='solver.prototxt')
     parser.add_argument('--image', dest = 'image_file', help='image file',default=None)
     parser.add_argument('--dir', dest = 'image_directory', help='image directory',default=None)
     parser.add_argument('--outdir', dest = 'out_directory', help='result directory',default='.')
@@ -292,7 +292,7 @@ if __name__ == "__main__":
     parser.add_argument('--Ngpu', help='gpu #',default='0')
     parser.add_argument('--caffe_variant', help='caffe variant',default=None)
     parser.add_argument('--dims', help='dims for net',default=None)
-
+    parser.add_argument('--iou',help='do iou test on pixel level net',default=False)
     args = parser.parse_args()
     print('args:'+str(args))
 
@@ -309,12 +309,28 @@ if __name__ == "__main__":
     else:
         caffe.set_mode_cpu()
 
-    if args.image_file:
-        infer_one(args.image_file,args.prototxt,args.caffemodel,out_dir=args.out_directory)
-    elif args.image_directory:
-        images = [os.path.join(args.image_directory,f) for f in os.listdir(args.image_directory) if '.jpg' in f ]
-        print('nimages:'+str(len(images)) + ' in directory '+args.image_directory)
-        infer_many(images,args.prototxt,args.caffemodel,out_dir=args.out_directory)
-
+    if args.iou == 'True':
+        print('using net defined by {} and {} '.format(args.prototxt,args.caffemodel))
+        solver = caffe.SGDSolver(args.prototxt)
+        solver.net.copy_from(caffemodel)
+        if args.image_file:
+            val = range(0,1)
+            seg_tests(solver, False, val, layer='score')
+        elif args.image_directory:
+            images = [os.path.join(args.image_directory,f) for f in os.listdir(args.image_directory) if '.jpg' in f ]
+            print('nimages:'+str(len(images)) + ' in directory '+args.image_directory)
+            val = range(0,len(images))
+            #this just runs the train net i think, doesnt test new images
+            seg_tests(solver, False, val, layer='score')
+        else:
+            print('gave neither image nor directory as input to iou test')
+    #do image level tests
     else:
-        print('gave neither image nor directory as input')
+        if args.image_file:
+            infer_one(args.image_file,args.prototxt,args.caffemodel,out_dir=args.out_directory)
+        elif args.image_directory:
+            images = [os.path.join(args.image_directory,f) for f in os.listdir(args.image_directory) if '.jpg' in f ]
+            print('nimages:'+str(len(images)) + ' in directory '+args.image_directory)
+            infer_many(images,args.prototxt,args.caffemodel,out_dir=args.out_directory)
+        else:
+            print('gave neither image nor directory as input')
