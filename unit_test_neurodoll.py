@@ -34,8 +34,7 @@ class OutcomesTest(unittest.TestCase):
         return dict
 
     def test_multilabel_output(self):
-        self.url='https://s-media-cache-ak0.pinimg.com/236x/df/a3/0a/dfa30af65a46ad8267d148dcefd813d1.jpg'
-        multilabel_dict = nfc.pd(url, get_multilabel_results=True)
+        multilabel_dict = nfc.pd(self.url, get_multilabel_results=True)
         assert(multilabel_dict['success'] is not None)
         print('dict from falcon dict:'+str(multilabel_dict))
         if not multilabel_dict['success']:
