@@ -1134,10 +1134,11 @@ def parallel_sleeve_and_replace(image_obj_id, col_name, img_url):
             print("{0} documents modified..".format(rep_res))
             return
         else:
+            logging.warning('working on item from %s' %col_name)
             sleeve_vector = [num.item() for num in sleeve_client.get_sleeve(image)['data']]
             print("sleeve result: {0}".format(sleeve_vector))
             image_obj['fingerprint']['sleeve_length'] = list(sleeve_vector)
-            rep_res = db.images.replace_one({'_id': image_obj['_id']}, image_obj).modified_count
+            rep_res = collection.replace_one({'_id': image_obj['_id']}, image_obj).modified_count
             print("{0} documents modified..".format(rep_res))
             return
     except Exception as e:
