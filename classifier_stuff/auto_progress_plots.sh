@@ -7,15 +7,18 @@
 #meaning every 10 minutes, for every hr/day/etc run this script
 
 #produce the plots from any logfile updated in last 100 minutes
-counter = 0
+counter=0
+#find caffe logfiles from last 100 minutes
 logfiles="$(find /tmp caffe* -mmin -100|grep -v jpg|grep -v caffe.INFO|grep caffe.)"
+log_command="/usr/lib/python2.7/dist-packages/trendi/classifier_stuff/caffe_nns/progress_plot.py"
 echo $logfiles
 for log in $logfiles;
    do echo $log;
-   python /home/jeremy/core/classifier_stuff/caffe_nns/progress_plot.py --log True $log;
+   python $log_command --log True $log;
 done
 
 #send any .jpg  updated in last 100 minutes
+host=$(hostname)
 jpgfiles="$(find /tmp caffe* -mmin -100|grep jpg)"
 echo $jpgfiles
 for jpg in $jpgfiles;

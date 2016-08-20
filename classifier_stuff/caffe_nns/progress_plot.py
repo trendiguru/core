@@ -45,6 +45,7 @@ def parse_logfile(output_filename,logy):
   stepsize = ''
   lr_mult = ''
   decay_mult = ''
+  net_name = ''
 
   past_beginning = False
 
