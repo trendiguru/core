@@ -26,9 +26,9 @@ class OutcomesTest(unittest.TestCase):
 
     def test_nd_categorical_output(self):
         category_index = 0
-        dic = nfc.pd(self.url, category_index=category_index)
+        dict = nfc.pd(self.url, category_index=category_index)
         assert(dict['success'] is not None)
-        if not dic['success']:
+        if not dict['success']:
             logging.debug('nfc pd not a success')
             return False, []
         return dict
