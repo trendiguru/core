@@ -289,7 +289,6 @@ if __name__ == "__main__":
     parser.add_argument('--dir', dest = 'image_directory', help='image directory',default=None)
     parser.add_argument('--outdir', dest = 'out_directory', help='result directory',default='.')
     parser.add_argument('--gpu', help='use gpu',default='True')
-    parser.add_argument('--Ngpu', help='gpu #',default='0')
     parser.add_argument('--caffe_variant', help='caffe variant',default=None)
     parser.add_argument('--dims', help='dims for net',default=None)
     parser.add_argument('--iou',help='do iou test on pixel level net',default=False)
@@ -300,10 +299,10 @@ if __name__ == "__main__":
     if args.caffe_variant:
         infer_one_deconvnet(args.image_file,args.prototxt,args.caffemodel,out_dir=args.out_directory)
 
-    if args.gpu == 'True' :
+    if args.gpu  :
         caffe.set_mode_gpu();
         if args.Ngpu :
-            caffe.set_device(int(args.Ngpu));
+            caffe.set_device(int(args.gpu));
     else:
         caffe.set_mode_cpu()
 
