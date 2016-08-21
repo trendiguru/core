@@ -77,6 +77,8 @@ def theDetector(url_or_np_array):
         print "didn't find any faces"
         return None
 
+    print faces["faces"][0] # just checking if the face that found seems in the right place
+
     height, width, channels = full_image.shape
 
     x, y, w, h = faces["faces"][0]
