@@ -4,18 +4,30 @@ import os
 
 from trendi import Utils
 
+def make_indices_recursively(dir):
+    #do current direcotry
+    make_index(dir)
+    #do subdirectories
+    dirs = [d for d in os.listdir(dir) if os.path.isdir(d)]
+    print('dirs:'+str(dirs))
+    for d in dirs:
+        print('makind index.html for '+str(d))
+        make_index(d)
 
 def make_index(dir):
     '''
     makes index.html linking all html files in directory
     '''
     print('dir:' + str(dir))
-    files = Utils.files_in_directory(dir)
+#    files = Utils.files_in_directory(dir)
+    files = os.listdir(dir)
     print('files:')
     print(files)
     htmlfiles = []
     for file in files:
         if file.endswith('html'):
+            htmlfiles.append(file)
+        if os.path.isdir(file):
             htmlfiles.append(file)
     htmlfiles.sort(key=lambda x: os.path.getmtime(x))
     write_index_html(dir, htmlfiles)

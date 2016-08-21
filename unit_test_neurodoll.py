@@ -45,6 +45,14 @@ class OutcomesTest(unittest.TestCase):
         assert(multilabel_output is not None)
         return multilabel_dict #
 
+    def test_combined_output(self):
+        output_dict = nfc.pd(self.url,get_combined_results=True)
+        assert(output_dict['success'] is not None)
+        print('dict from falcon:'+str(output_dict))
+        if not output_dict['success']:
+            print('did not get nfc pd result succesfully')
+            return
+        return output_dict #
 
 if __name__ == '__main__':
     unittest.main()
