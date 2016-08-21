@@ -33,8 +33,7 @@ def make_index(dir):
 #            htmlfiles.append(file)
     htmlfiles.sort(key=lambda x: os.path.getmtime(x))
     write_index_html(dir, htmlfiles)
-    print('files IN DIR:' +str(dirls -ltr
-                               ))
+    print('files IN DIR:' +str(dir))
     print(htmlfiles)
 
 
