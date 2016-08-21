@@ -6,6 +6,7 @@ from trendi import Utils
 
 def make_indices_onedeep(dir):
     #do current direcotry
+
     print('indexing directory '+str(dir))
     make_index(dir)
     #do subdirectories
@@ -21,14 +22,15 @@ def make_index(dir):
     '''
     print('now making index for dir:' + str(dir))
 #    files = Utils.files_in_directory(dir)
-    files = [os.path.join(dir,f) for f in os.listdir(dir) if os.path.isfile(f) ]
+    files = [f for f in os.listdir(dir) if os.path.isfile(f) ]
     files.sort()
     print('files:')
     print(files)
-    dirs = [os.path.join(dir,f) for f in os.listdir(dir) if os.path.isdir(f) ]
+    dirs = [f for f in os.listdir(dir) if os.path.isdir(f) ]
     dirs.sort()
     htmlfiles = []
     for file in files:
+#        actual_path =
         htmlfiles.append(file)
 #        if file.endswith('html'):
 #            htmlfiles.append(file)
