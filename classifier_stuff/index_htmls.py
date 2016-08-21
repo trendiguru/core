@@ -119,21 +119,23 @@ def generate_html_allresults(orig,gt,nnbefore,nnafter,pdbefore,pdafter):
 if __name__ == "__main__":
     print('start')
 #    make_index('classifier_results')
+    make_indices_recursively('/var/www/results')
 
-    origdir = '/home/jeremy/image_dbs/colorful_fashion_parsing_data/images/test/'
-    gt = '/home/jeremy/image_dbs/colorful_fashion_parsing_data/output/groundtruth'
-    nnb4 = '/home/jeremy/image_dbs/colorful_fashion_parsing_data/output/150x100_nn2_output_010516'
-    nnafter = '/home/jeremy/image_dbs/colorful_fashion_parsing_data/output/150x100_nn2_output_010516_afterconclusions'
-    pdb4 = '/home/jeremy/image_dbs/colorful_fashion_parsing_data/output/pd'
-    pdafter = '/home/jeremy/image_dbs/colorful_fashion_parsing_data/output/pd'
-    generate_html_allresults(origdir,gt,nnb4,nnafter,pdb4,pdafter)
+    if(0):
+        origdir = '/home/jeremy/image_dbs/colorful_fashion_parsing_data/images/test/'
+        gt = '/home/jeremy/image_dbs/colorful_fashion_parsing_data/output/groundtruth'
+        nnb4 = '/home/jeremy/image_dbs/colorful_fashion_parsing_data/output/150x100_nn2_output_010516'
+        nnafter = '/home/jeremy/image_dbs/colorful_fashion_parsing_data/output/150x100_nn2_output_010516_afterconclusions'
+        pdb4 = '/home/jeremy/image_dbs/colorful_fashion_parsing_data/output/pd'
+        pdafter = '/home/jeremy/image_dbs/colorful_fashion_parsing_data/output/pd'
+        generate_html_allresults(origdir,gt,nnb4,nnafter,pdb4,pdafter)
 
 
-    origdir = '/home/jeremy/image_dbs/colorful_fashion_parsing_data/images/test/'
-    gt = '/home/jeremy/image_dbs/colorful_fashion_parsing_data/output/groundtruth'
-    nnb4 = '/home/jeremy/image_dbs/colorful_fashion_parsing_data/output/600x400_nn1_output_010516'
-    nnafter = '/home/jeremy/image_dbs/colorful_fashion_parsing_data/output/600x400_nn1_output_010516_afterconclusions'
-    pdb4 = '/home/jeremy/image_dbs/colorful_fashion_parsing_data/output/pd'
-    pdafter = '/home/jeremy/image_dbs/colorful_fashion_parsing_data/output/pd'
-    generate_html_allresults(origdir,gt,nnb4,nnafter,pdb4,pdafter)
+        origdir = '/home/jeremy/image_dbs/colorful_fashion_parsing_data/images/test/'
+        gt = '/home/jeremy/image_dbs/colorful_fashion_parsing_data/output/groundtruth'
+        nnb4 = '/home/jeremy/image_dbs/colorful_fashion_parsing_data/output/600x400_nn1_output_010516'
+        nnafter = '/home/jeremy/image_dbs/colorful_fashion_parsing_data/output/600x400_nn1_output_010516_afterconclusions'
+        pdb4 = '/home/jeremy/image_dbs/colorful_fashion_parsing_data/output/pd'
+        pdafter = '/home/jeremy/image_dbs/colorful_fashion_parsing_data/output/pd'
+        generate_html_allresults(origdir,gt,nnb4,nnafter,pdb4,pdafter)
 
