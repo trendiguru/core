@@ -96,8 +96,12 @@ def theDetector(url_or_np_array):
     # face_image[:, :, 2] = face_image[:, :, 2] / 255.0
 
     #cv2.imwrite('color_img.jpg', face_image)
-    cv2.imshow("image", face_image)
-    cv2.waitKey()
+
+    # cv2.imshow("full_image", full_image)
+    # cv2.waitKey()
+    #
+    # cv2.imshow("face_image", face_image)
+    # cv2.waitKey()
 
 
     resized_face_image = imutils.resize_keep_aspect(face_image, output_size=(224, 224))
