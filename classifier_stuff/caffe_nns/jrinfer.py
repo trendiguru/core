@@ -282,6 +282,8 @@ if __name__ == "__main__":
     caffemodel = '/home/jeremy/caffenets/pixlevel/voc-fcn8s/voc8.15/snapshot/train_iter_120000.caffemodel'
     prototxt = '/home/jeremy/caffenets/pixlevel/voc-fcn8s/voc8.15/deploy.prototxt'
 
+    caffemodel = ''
+
     parser = argparse.ArgumentParser(description='get Caffe output')
     parser.add_argument('--caffemodel', help='caffemodel', default=caffemodel)
     parser.add_argument('--prototxt', help='prototxt',default='solver.prototxt')
@@ -305,7 +307,7 @@ if __name__ == "__main__":
     else:
         caffe.set_mode_cpu()
 
-    if args.iou == 'True':
+    if args.iou == 'True' or args.iou == 'true' or args.iou =='1':
         print('using net defined by {} and {} '.format(args.prototxt,args.caffemodel))
         solver = caffe.SGDSolver(args.prototxt)
         solver.net.copy_from(caffemodel)
