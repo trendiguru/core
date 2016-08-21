@@ -9,7 +9,7 @@
 #produce the plots from any logfile updated in last 100 minutes
 counter=0
 #find caffe logfiles from last 100 minutes
-logfiles="$(find /tmp caffe* -mmin -100|grep -v jpg|grep -v caffe.INFO|grep caffe.)"
+logfiles="$(find /tmp caffe* -mmin -100|grep -v jpg|grep -v caffe.INFO|grep caffe.|grep -v FATAL |grep -v WARNING)"
 log_command="/usr/lib/python2.7/dist-packages/trendi/classifier_stuff/caffe_nns/progress_plot.py"
 echo $logfiles
 for log in $logfiles;
