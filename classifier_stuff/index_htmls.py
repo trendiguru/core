@@ -36,9 +36,9 @@ def make_index(dir):
 #            htmlfiles.append(file)
 #        if os.path.isdir(file):
 #            htmlfiles.append(file)
+    htmlfiles.sort(key=lambda x: os.path.getmtime(x))
     for d in dirs:
         htmlfiles.append(d)
-#    htmlfiles.sort(key=lambda x: os.path.getmtime(x))
     print('files+dirs in:'+str(dir))
     print(htmlfiles)
     write_index_html_with_images(dir, htmlfiles)

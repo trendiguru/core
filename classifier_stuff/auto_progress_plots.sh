@@ -9,7 +9,7 @@
 #produce the plots from any logfile updated in last 100 minutes
 counter=0
 #find caffe logfiles from last 100 minutes
-logfiles="$(find /tmp caffe* -mmin -100|grep -v jpg|grep -v caffe.INFO|grep caffe.)"
+logfiles="$(find /tmp caffe* -mmin -100|grep -v jpg|grep -v caffe.INFO|grep caffe.|grep -v FATAL |grep -v WARNING|grep -v ERROR)"
 log_command="/usr/lib/python2.7/dist-packages/trendi/classifier_stuff/caffe_nns/progress_plot.py"
 echo $logfiles
 for log in $logfiles;
@@ -24,7 +24,7 @@ echo $jpgfiles
 for jpg in $jpgfiles;
    do echo $jpg;
    counter=$((counter+1))
-   newname="$host$counter.jpg"
+   newname="$host-$counter.jpg"
    echo $newname
    scp $jpg root@104.155.22.95:/var/www/results/progress_plots/$newname;
 #   rsync jpg root@37.58.64.220:/var/www/results/progress_plots;
