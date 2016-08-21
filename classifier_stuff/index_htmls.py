@@ -41,7 +41,7 @@ def make_index(dir):
 #    htmlfiles.sort(key=lambda x: os.path.getmtime(x))
     print('files+dirs in:'+str(dir))
     print(htmlfiles)
-    write_index_html(dir, htmlfiles)
+    write_index_html_with_images(dir, htmlfiles)
     print('wrote index.html for files in dir:' +str(dir))
     print(htmlfiles)
 
@@ -81,7 +81,10 @@ def write_index_html_with_images(dir, files):
     for file in files:
         f.write('<br>\n')
        # f.write('<a href=\"' + str(file) + '\">' + str(file) + ' <\\a>\n')
-        f.write('<a href=\"'+str(file)+'\">'+str(file)+'<img src = \"'+file+'\" style=\"width:300px\"></a>')
+        if '.jpg' in file:
+            f.write('<a href=\"'+str(file)+'\">'+str(file)+'<img src = \"'+file+'\" style=\"width:300px\"></a>')
+        else:
+            f.write('<a href=\"' + str(file) + '\">' + str(file) + ' </a>\n')
 
     f.write('</html>\n')
     f.close
