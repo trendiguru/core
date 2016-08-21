@@ -82,10 +82,10 @@ def write_index_html_with_images(dir, files):
         f.write('<br>\n')
        # f.write('<a href=\"' + str(file) + '\">' + str(file) + ' <\\a>\n')
         if '.jpg' in file:
-            print('jpg line...')
+            print('jpg line for '+file)
             f.write('<a href=\"'+str(file)+'\">'+str(file)+'<img src = \"'+file+'\" style=\"width:300px\"></a>')
         else:
-            print('nonjpg line...')
+            print('nonjpg line for '+file)
             f.write('<a href=\"' + str(file) + '\">' + str(file) + ' </a>\n')
 
     f.write('</html>\n')
