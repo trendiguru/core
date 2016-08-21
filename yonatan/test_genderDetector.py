@@ -88,6 +88,9 @@ def theDetector(url_or_np_array):
 
     face_image = full_image[y: y + h, x: x + w]
 
+
+    print face_image
+
     face_image[:, :, 0] = face_image[:, :, 0] / 255.0
     face_image[:, :, 1] = face_image[:, :, 1] / 255.0
     face_image[:, :, 2] = face_image[:, :, 2] / 255.0
