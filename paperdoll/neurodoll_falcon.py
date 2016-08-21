@@ -5,7 +5,7 @@ import falcon
 from .. import neurodoll, neurodoll_single_category
 from .. import neurodoll_with_multilabel
 from .. import constants
-from .darknet.pyDarknet import mydet
+#from .darknet.pyDarknet import mydet
 
 from jaweson import json, msgpack
 
@@ -31,9 +31,9 @@ class PaperResource:
         print('get combined:'+str(get_combined_results))
         get_combined_results = get_combined_results == "true" or get_combined_results == "True" or get_combined_results == True
 
-        get_yolo_results = req.get_param('getYolo')
-        print('get yolo:'+str(get_yolo_results))
-        get_yolo_results = get_yolo_results == "true" or get_yolo_results == "True" or get_yolo_results == True
+#        get_yolo_results = req.get_param('getYolo')
+#        print('get yolo:'+str(get_yolo_results))
+#        get_yolo_results = get_yolo_results == "true" or get_yolo_results == "True" or get_yolo_results == True
 
 
         ret = {"success": False}
@@ -41,32 +41,43 @@ class PaperResource:
             data = msgpack.loads(req.stream.read())
             img = data.get("image")
 
-            if get_yolo_results:
-                yolo_output = mydet.get_yolo_results(img)
-                ret['yolo_output'] = yolo_output
-                print('yolo output:'+str(yolo_output))
+#            if get_yolo_results:
+#                yolo_output = mydet.get_yolo_results(img)
+#                ret['yolo_output'] = yolo_output
+#                print('yolo output:'+str(yolo_output))
 
+        #multilabel alone
             if get_multilabel_results:
                 multilabel_output = neurodoll_with_multilabel.get_multilabel_output(img)
  #               output='NOT CURRENTLY SUPPORTED'
                 ret['multilabel_output'] = multilabel_output
                 print('multilabel output:'+str(multilabel_output))
+                if multilabel_output is not None:
+                    ret["success"] = True
 
+        #combined multilabel and nd
             if get_combined_results:
                 combined_output = neurodoll_with_multilabel.combine_neurodoll_and_multilabel(img)
  #               output='NOT CURRENTLY SUPPORTED'
                 ret['combined_output'] = combined_output
+                if combined_output is not None:
+                    ret["success"] = True
 
-            if category_index:
-                ret["mask"] = neurodoll_single_category.get_category_graylevel(img, category_index) 
-            else:
-                ret["mask"] = neurodoll.infer_one(img)
-            
+        # yonti style - single category mask
             ret["label_dict"] = constants.ultimate_21_dict
-            if ret["mask"] is not None:
-                ret["success"] = True
-            else:
-                ret["error"] = "No mask from ND"
+            if category_index:
+                ret["mask"] = neurodoll_single_category.get_category_graylevel(img, category_index)
+                if ret["mask"] is not None:
+                    ret["success"] = True
+
+        # regular neurodoll call
+            if not get_multilabel_results and not get_combined_results and not category_index:
+                ret["mask"] = neurodoll.infer_one(img)
+                if ret["mask"] is not None:
+                    ret["success"] = True
+                else:
+                    ret["error"] = "No mask from ND"
+
 
         except Exception as e:
             ret["error"] = str(e)
