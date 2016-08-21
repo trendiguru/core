@@ -22,11 +22,11 @@ def make_index(dir):
     '''
     print('make_index now making index for dir:' + str(dir))
 #    files = Utils.files_in_directory(dir)
-    files = [f for f in os.listdir(dir) if os.path.isfile(f) ]
+    files = [f for f in os.listdir(dir) if os.path.isfile(os.path.join(dir,f) ]
     files.sort()
     print('files in:'+str(dir))
     print(files)
-    dirs = [f for f in os.listdir(dir) if os.path.isdir(f) ]
+    dirs = [f for f in os.listdir(dir) if os.path.isdir(os.path.join(dir,f) ]
     dirs.sort()
     htmlfiles = []
     for file in files:
