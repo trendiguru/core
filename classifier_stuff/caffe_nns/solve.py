@@ -40,13 +40,20 @@ surgery.interp(solver.net, interp_layers)
 val = range(0,1500)
 
 #jrinfer.seg_tests(solver, False, val, layer='score')
-progress_plot.parse_solveoutput('net_output.txt')
-cmd = 'scp  net_output.txt.jpg root@104.155.22.95:/var/www/results/progress_plots/brainik_pixlevel.jpg';
+hostname = socket.gethostname()
+outfilename = hostname+'netoutput.txt'
+jpgname = outfilename+'.jpg'
+cmd = 'scp '+jpgname+' root@104.155.22.95:/var/www/results/progress_plots/';
+
+jrinfer.seg_tests(solver, False, val, layer='score')
+progress_plot.parse_solveoutput(outfilename)
 subprocess.call(cmd,shell=True)
+
 
 for _ in range(1000):
     solver.step(5000)
 #    score.seg_tests(solver, False, val, layer='score')
     jrinfer.seg_tests(solver, False, val, layer='score')
-    progress_plot.parse_solveoutput('net_output.txt')
+    progress_plot.parse_solveoutput(outfilename)
+    print('jpgfile:'+str(jpgname))
     subprocess.call(cmd,shell=True)
