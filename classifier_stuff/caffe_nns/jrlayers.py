@@ -50,6 +50,7 @@ class JrPixlevel(caffe.Layer):
         self.random_pick = params.get('random_pick', True) #pick random image from list every time
         self.seed = params.get('seed', 1337)
         self.batch_size = params.get('batch_size',1)  #######Not implemented, batchsize = 1
+        self.kaggle = params.get('kaggle',False)  #######Not implemented, batchsize = 1
         self.augment_images = params.get('augment',False)
         self.augment_max_angle = params.get('augment_max_angle',5)
         self.augment_max_offset_x = params.get('augment_max_offset_x',10)
@@ -103,7 +104,7 @@ class JrPixlevel(caffe.Layer):
                 self.labelfiles = [s.split()[1] for s in lines]
                 self.n_files = len(self.imagefiles)
             else:
-                logging.debug('could not open '+self.images_and_labels_file)
+                logging.debug('COULD NOT OPEN  '+self.images_and_labels_file)
                 return
 
 #######begin vestigial code
@@ -327,8 +328,10 @@ class JrPixlevel(caffe.Layer):
 #        if self.new_size:
 #            im = im.resize(self.new_size,Image.ANTIALIAS)
         label_in_ = np.array(im, dtype=np.uint8)
-
-    #        in_ = in_ - 1
+        if self.kaggle is not False:
+            print('kagle image, moving 255 -> 1')
+            label_in_[label_in_==255] = 1
+#        in_ = in_ - 1
         print('uniques of label:'+str(np.unique(label_in_))+' shape:'+str(label_in_.shape))
 #        print('after extradim shape:'+str(label.shape))
 

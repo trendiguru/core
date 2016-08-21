@@ -257,11 +257,9 @@ def sharpmask(db,mean_value=[112.0,112.0,112.0]):
     #the following will be 7x7
     n.conv6_1,n.relu6_1 = conv_relu(n.pool5,n_output=4096,kernel_size=7,pad=3)
        #instead of L.InnerProduct(n.pool5,param=[dict(lr_mult=lr_mult1),dict(lr_mult=lr_mult2)],weight_filler=dict(type='xavier'),num_output=4096)
-    n.drop6 = L.Dropout(n.conv6_1, dropout_param=dict(dropout_ratio=0.5),in_place=True)
-
+    n.drop6_1 = L.Dropout(n.conv6_1, dropout_param=dict(dropout_ratio=0.5),in_place=True)
     n.conv6_2,n.relu6_2 = conv_relu(n.conv6_1,n_output=4096,kernel_size=7,pad=3)
-        #instead of n.fc7 = L.InnerProduct(n.fc6,param=[dict(lr_mult=lr_mult1),dict(lr_mult=lr_mult2)],weight_filler=dict(type='xavier'),num_output=4096)
-    n.drop7 = L.Dropout(n.fc7, dropout_param=dict(dropout_ratio=0.5),in_place=True)
+    n.drop6_2 = L.Dropout(n.fc7, dropout_param=dict(dropout_ratio=0.5),in_place=True)
 
     n.conv6_1,n.relu6_1 = conv_relu(n.pool5,n_output=4096,kernel_size=7,pad=3)
 
@@ -743,17 +741,16 @@ if __name__ == "__main__":
     proto = correct_deconv(str(proto))
     proto = replace_pythonlayer(proto)
 
-
-    with open('train_experiment.prototxt','w') as f:
+    with open('train.prototxt','w') as f:
         f.write(str(proto))
         f.close()
-    with open('val_experiment.prototxt','w') as f:
+    with open('val.prototxt','w') as f:
         f.write(str(proto))
         f.close()
 
     caffe.set_device(2)
     caffe.set_mode_gpu()
-#    solver = caffe.SGDSolver('solver_experiment.prototxt')
+#    solver = caffe.SGDSolver('solver.prototxt')
 #    weights = 'snapshot/train_0816__iter_25000.caffemodel'  #in brainia container jr2
 #    solver.net.copy_from(weights)
 
@@ -761,7 +758,6 @@ if __name__ == "__main__":
 #    interp_layers = [k for k in solver.net.params.keys() if 'up' in k]
 #    all_layers = [k for k in solver.net.params.keys()]
 #    surgery.interp(solver.net, interp_layers)
-
     # scoring
     #val = np.loadtxt('../data/segvalid11.txt', dtype=str)
 #    val = range(0,1500)

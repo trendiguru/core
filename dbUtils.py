@@ -17,17 +17,17 @@ import tldextract
 # ours
 import constants
 import page_results
-from trendi.find_similar_mongo import get_all_subcategories, find_top_n_results
+from .find_similar_mongo import get_all_subcategories, find_top_n_results
 from . import background_removal
-from trendi import Utils
-from trendi.constants import db, redis_conn
+from . import Utils
+from .constants import db, redis_conn
 from falcon import sleeve_client
 rq.push_connection(redis_conn)
 min_images_per_doc = constants.min_images_per_doc
 max_image_val = constants.max_image_val
 
 hash_q = rq.Queue("hash_q")
-results_q = rq.Queue("update_results")
+add_feature = rq.Queue("add_feature")
 
 def lookfor_next_bounded_in_db(current_item=0, current_image=0, only_get_boxed_images=True):
     """
@@ -1077,19 +1077,73 @@ def update_similar_results():
     print("Done!!")
 
 
-def add_sleeve_length_to_relevant_items_in_images():
+def add_sleeve_length_to_relevant_items_in_collection(col_name):
     rel_cats = set([cat for cat in constants.features_per_category.keys() if 'sleeve_length' in constants.features_per_category[cat]])
-    for doc in db.images.find():
-        image = Utils.get_cv2_img_array(doc['image_urls'][0])
+    collection = db[col_name]
+    print("Starting, total {0} items".format(collection.count()))
+    sent = 0
+    for doc in collection.find():
+        if col_name == 'images':
+            doc_features = [item['fp'].keys() for person in doc['people'] for item in person['items']]
+            flattened = [item for sublist in doc_features for item in sublist]
+            if 'sleeve_length' in set(flattened):
+                continue
+            img_url = doc['image_urls'][0]
+
+        else:
+            category = doc['categories']
+            if category not in rel_cats:
+                print ('item not relevant for sleevedoll')
+                continue
+            fp = doc['fingerprint']
+            if type(fp) != dict:
+                fp = {'color':fp}
+            doc_features = fp.keys()
+            if 'sleeve_length' in doc_features:
+                continue
+            img_url = doc['images']['XLarge']
+
+        item_id = doc['_id']
+        add_feature.enqueue(parallel_sleeve_and_replace, args=(item_id, col_name, img_url), timeout=2000)
+        sent += 1
+        print('Sent {0} docs by now..'.format(sent))
+
+
+def parallel_sleeve_and_replace(image_obj_id, col_name, img_url):
+    rel_cats = set([cat for cat in constants.features_per_category.keys() if 'sleeve_length' in constants.features_per_category[cat]])
+    collection = db[col_name]
+    try:
+        image = Utils.get_cv2_img_array(img_url)
         if image is None:
-            db.images.delete_one({'_id': doc['_id']})
-            continue
-        for person in doc['people']:
-            person_cats = set([item['category'] for item in person['items']])
-            if len(rel_cats.intersection(person_cats)):
-                if len(doc['people']) > 1:
-                    image = background_removal.person_isolation(image, person['face'])
-                for item in person['items']:
-                    if item['category'] in rel_cats:
-                        item['fp']['sleeve_length'] = sleeve_client.get_sleeve(image)['data']
-        db.images.replace_one({'_id': doc['_id']}, doc)
+            collection.delete_one({'_id': image_obj_id})
+            print("images deleted")
+            return
+        image_obj = collection.find_one({'_id': image_obj_id})
+        if col_name == 'images':
+            print("inside parallel replace")
+            logging.warning('inside parallel replace')
+            for person in image_obj['people']:
+                person_cats = set([item['category'] for item in person['items']])
+                if len(rel_cats.intersection(person_cats)):
+                    print("there are matching categories")
+                    if len(image_obj['people']) > 1:
+                        image = background_removal.person_isolation(image, person['face'])
+                    for item in person['items']:
+                        if item['category'] in rel_cats:
+                            sleeve_vector = [num.item() for num in sleeve_client.get_sleeve(image)['data']]
+                            print("sleeve result: {0}".format(sleeve_vector))
+                            item['fp']['sleeve_length'] = list(sleeve_vector)
+            rep_res = db.images.replace_one({'_id': image_obj['_id']}, image_obj).modified_count
+            print("{0} documents modified..".format(rep_res))
+            return
+        else:
+            logging.warning('working on item from %s' %col_name)
+            sleeve_vector = [num.item() for num in sleeve_client.get_sleeve(image)['data']]
+            print("sleeve result: {0}".format(sleeve_vector))
+            image_obj['fingerprint']['sleeve_length'] = list(sleeve_vector)
+            rep_res = collection.replace_one({'_id': image_obj['_id']}, image_obj).modified_count
+            print("{0} documents modified..".format(rep_res))
+            return
+    except Exception as e:
+        print(e)
+

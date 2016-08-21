@@ -301,6 +301,7 @@ class ShopStyleDownloader:
             return
 
         prod['p_hash'] = p_hash
+        prod['fingerprint'] = {'color': []}
         q.enqueue(generate_mask_and_insert, args=(prod, url, self.current_dl_date, self.collection_name, image, False),
                   timeout=1800)
 
