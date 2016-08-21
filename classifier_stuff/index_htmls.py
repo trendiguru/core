@@ -13,18 +13,18 @@ def make_indices_onedeep(dir):
     dirs = [os.path.join(dir,d) for d in os.listdir(dir) if os.path.isdir(d)]
     print('dirs:'+str(dirs))
     for d in dirs:
-        print('makind index.html for '+str(d))
+        print('onedeep now making index.html for '+str(d))
         make_index(d)
 
 def make_index(dir):
     '''
     makes index.html linking all html files in directory
     '''
-    print('now making index for dir:' + str(dir))
+    print('make_index now making index for dir:' + str(dir))
 #    files = Utils.files_in_directory(dir)
     files = [f for f in os.listdir(dir) if os.path.isfile(f) ]
     files.sort()
-    print('files:')
+    print('files in:'+str(dir))
     print(files)
     dirs = [f for f in os.listdir(dir) if os.path.isdir(f) ]
     dirs.sort()
@@ -39,6 +39,8 @@ def make_index(dir):
     for d in dirs:
         htmlfiles.append(d)
 #    htmlfiles.sort(key=lambda x: os.path.getmtime(x))
+    print('files+dirs in:'+str(dir))
+    print(htmlfiles)
     write_index_html(dir, htmlfiles)
     print('wrote index.html for files in dir:' +str(dir))
     print(htmlfiles)
