@@ -24,7 +24,7 @@ echo $jpgfiles
 for jpg in $jpgfiles;
    do echo $jpg;
    counter=$((counter+1))
-   newname="$host$counter.jpg"
+   newname="$host_$counter.jpg"
    echo $newname
    scp $jpg root@104.155.22.95:/var/www/results/progress_plots/$newname;
 #   rsync jpg root@37.58.64.220:/var/www/results/progress_plots;
