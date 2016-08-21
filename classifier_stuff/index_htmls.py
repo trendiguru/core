@@ -24,8 +24,8 @@ def make_index(dir):
 #    files = Utils.files_in_directory(dir)
     files = [f for f in os.listdir(dir) if os.path.isfile(os.path.join(dir,f)) ]
     files.sort()
-    print('files in:'+str(dir))
-    print(files)
+#    print('files in:'+str(dir))
+#    print(files)
     dirs = [f for f in os.listdir(dir) if os.path.isdir(os.path.join(dir,f)) ]
     dirs.sort()
     htmlfiles = []
@@ -43,7 +43,7 @@ def make_index(dir):
     print(htmlfiles)
     write_index_html_with_images(dir, htmlfiles)
     print('wrote index.html for files in dir:' +str(dir))
-    print(htmlfiles)
+ #   print(htmlfiles)
 
 
 def write_index_html(dir, files):
@@ -82,8 +82,10 @@ def write_index_html_with_images(dir, files):
         f.write('<br>\n')
        # f.write('<a href=\"' + str(file) + '\">' + str(file) + ' <\\a>\n')
         if '.jpg' in file:
+            print('jpg line...')
             f.write('<a href=\"'+str(file)+'\">'+str(file)+'<img src = \"'+file+'\" style=\"width:300px\"></a>')
         else:
+            print('nonjpg line...')
             f.write('<a href=\"' + str(file) + '\">' + str(file) + ' </a>\n')
 
     f.write('</html>\n')
