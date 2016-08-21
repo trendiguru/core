@@ -23,6 +23,7 @@ detector = dlib.get_frontal_face_detector()
 MODLE_FILE = "/home/yonatan/trendi/yonatan/resnet_50_gender_by_face/ResNet-50-deploy.prototxt"
 PRETRAINED = "/home/yonatan/resnet50_caffemodels/caffe_resnet50_snapshot_sgd_genfder_by_face_iter_10000.caffemodel"
 caffe.set_mode_gpu()
+caffe.set_device(1) # choose GPU
 image_dims = [224, 224]
 mean, input_scale = np.array([120, 120, 120]), None
 channel_swap = [2, 1, 0]
@@ -76,6 +77,8 @@ def theDetector(url_or_np_array):
         print "didn't find any faces"
         return None
 
+    print faces["faces"][0] # just checking if the face that found seems in the right place
+
     height, width, channels = full_image.shape
 
     x, y, w, h = faces["faces"][0]
@@ -84,6 +87,18 @@ def theDetector(url_or_np_array):
         return None
 
     face_image = full_image[y: y + h, x: x + w]
+
+
+    print face_image
+
+    # face_image[:, :, 0] = face_image[:, :, 0] / 255.0
+    # face_image[:, :, 1] = face_image[:, :, 1] / 255.0
+    # face_image[:, :, 2] = face_image[:, :, 2] / 255.0
+
+    #cv2.imwrite('color_img.jpg', face_image)
+    cv2.imshow("image", face_image)
+    cv2.waitKey()
+
 
     resized_face_image = imutils.resize_keep_aspect(face_image, output_size=(224, 224))
 
