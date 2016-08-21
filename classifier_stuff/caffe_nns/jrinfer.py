@@ -302,10 +302,8 @@ if __name__ == "__main__":
 
     if args.gpu == 'True' :
         caffe.set_mode_gpu();
-        if args.Ngpu == '0':
-            caffe.set_device(0);
-        if args.Ngpu == '1':
-            caffe.set_device(1);
+        if args.Ngpu :
+            caffe.set_device(int(args.Ngpu));
     else:
         caffe.set_mode_cpu()
 
@@ -313,17 +311,17 @@ if __name__ == "__main__":
         print('using net defined by {} and {} '.format(args.prototxt,args.caffemodel))
         solver = caffe.SGDSolver(args.prototxt)
         solver.net.copy_from(caffemodel)
-        if args.image_file:
-            val = range(0,1)
-            seg_tests(solver, False, val, layer='score')
-        elif args.image_directory:
-            images = [os.path.join(args.image_directory,f) for f in os.listdir(args.image_directory) if '.jpg' in f ]
-            print('nimages:'+str(len(images)) + ' in directory '+args.image_directory)
-            val = range(0,len(images))
+#        if args.image_file:
+#            val = range(0,1)
+#            seg_tests(solver, False, val, layer='score')
+#        elif args.image_directory:
+#            images = [os.path.join(args.image_directory,f) for f in os.listdir(args.image_directory) if '.jpg' in f ]
+#            print('nimages:'+str(len(images)) + ' in directory '+args.image_directory)
+        val = range(0,200)
             #this just runs the train net i think, doesnt test new images
-            seg_tests(solver, False, val, layer='score')
-        else:
-            print('gave neither image nor directory as input to iou test')
+        seg_tests(solver, False, val, layer='score')
+#        else:
+#            print('gave neither image nor directory as input to iou test')
     #do image level tests
     else:
         if args.image_file:
