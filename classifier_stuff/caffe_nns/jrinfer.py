@@ -309,7 +309,7 @@ if __name__ == "__main__":
     if args.iou == 'True' or args.iou == 'true' or args.iou =='1':
         print('using net defined by {} and {} '.format(args.prototxt,args.model))
         solver = caffe.SGDSolver(args.prototxt)
-        solver.net.copy_from(caffemodel)
+        solver.net.copy_from(args.model)
 #        if args.image_file:
 #            val = range(0,1)
 #            seg_tests(solver, False, val, layer='score')
