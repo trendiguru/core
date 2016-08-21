@@ -39,7 +39,9 @@ def neurodoll(image, category_idx):
 
 
 def dict_fp(image, mask, category):
-    fp_features = constants.features_per_category(category)
+    fp_features = constants.features_per_category[category]\
+                  if category in constants.features_per_category \
+                  else constants.features_per_category['other']
     # TODO - we should parallelize this once we have more then 1 feature
     fingerprint = {feature: get_feature_fp(image, mask, feature) for feature in fp_features}
     return fingerprint
