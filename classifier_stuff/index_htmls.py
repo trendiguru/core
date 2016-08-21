@@ -33,20 +33,22 @@ def make_index(dir):
 #            htmlfiles.append(file)
     htmlfiles.sort(key=lambda x: os.path.getmtime(x))
     write_index_html(dir, htmlfiles)
-    print('files IN DIR:' +str(dir))
+    print('wrote index.html for files in dir:' +str(dir))
     print(htmlfiles)
 
 
 def write_index_html(dir, files):
     '''makes a page with links to all files in dir
     '''
-    f = open('index.html', 'w')
+    indexname = os.path.join(dir,'index.html')
+    print('writing to '+str(indexname))
+    f = open(indexname, 'w')
     # write html file
-    f.write('<HTML><HEAD><TITLE>classifier, fingerprint results</TITLE>\n')
+    f.write('<HTML><HEAD><TITLE>Results</TITLE>\n')
     # <a href="http://www.w3schools.com">Visit W3Schools</a>
     for file in files:
         f.write('<br>\n')
-        f.write('<a href=\"' + str(file) + '\">' + str(file) + ' <\\a>\n')
+        f.write('<a href=\"' + str(file) + '\">' + str(file) + ' </a>\n')
 
     f.write('</html>\n')
     f.close
