@@ -282,10 +282,9 @@ if __name__ == "__main__":
     caffemodel = '/home/jeremy/caffenets/pixlevel/voc-fcn8s/voc8.15/snapshot/train_iter_120000.caffemodel'
     prototxt = '/home/jeremy/caffenets/pixlevel/voc-fcn8s/voc8.15/deploy.prototxt'
 
-    caffemodel = ''
 
     parser = argparse.ArgumentParser(description='get Caffe output')
-    parser.add_argument('--caffemodel', help='caffemodel', default=caffemodel)
+    parser.add_argument('--model', help='caffemodel', default=caffemodel)
     parser.add_argument('--prototxt', help='prototxt',default='solver.prototxt')
     parser.add_argument('--image', dest = 'image_file', help='image file',default=None)
     parser.add_argument('--dir', dest = 'image_directory', help='image directory',default=None)
@@ -296,7 +295,7 @@ if __name__ == "__main__":
     parser.add_argument('--iou',help='do iou test on pixel level net',default=False)
     args = parser.parse_args()
     print('args:'+str(args))
-
+    print('caffemodel:'+str(args.caffemodel))
 #    label_dir = '/root/imgdbs/image_dbs/colorful_fashion_parsing_data/labels/'
     if args.caffe_variant:
         infer_one_deconvnet(args.image_file,args.prototxt,args.caffemodel,out_dir=args.out_directory)
