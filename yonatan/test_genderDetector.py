@@ -88,6 +88,10 @@ def theDetector(url_or_np_array):
 
     face_image = full_image[y: y + h, x: x + w]
 
+    face_image[:, :, 0] = face_image[:, :, 0] / 255.0
+    face_image[:, :, 1] = face_image[:, :, 1] / 255.0
+    face_image[:, :, 2] = face_image[:, :, 2] / 255.0
+
     #cv2.imwrite('color_img.jpg', face_image)
     cv2.imshow("image", face_image)
     cv2.waitKey()
