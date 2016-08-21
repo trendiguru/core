@@ -62,19 +62,12 @@ def write_index_html(dir, files):
     f.write('</html>\n')
     f.close
 
-def generate_filtered_index_html(dir, filter=''):
-    '''makes a page with image links to all files in dir with filter in the filename
-    '''
-#    files = [os.path.join(dir,f) for f in os.listdir(dir) if filter in f]
-# dont include dir - make files relative so html can be portable
-    files = [f for f in os.listdir(dir) if filter in f]
-    files.sort()
-    write_index_html_with_images(dir,files)
-
 def write_index_html_with_images(dir, files):
     '''makes a page with image links to all files in dir
     '''
-    f = open('index.html', 'w')
+    indexname = os.path.join(dir,'index.html')
+    print('writing to '+str(indexname))
+    f = open(indexname, 'w')
     # write html file
     f.write('<HTML><HEAD><TITLE>classifier, fingerprint results</TITLE>\n')
     # <a href="http://www.w3schools.com">Visit W3Schools</a>
@@ -90,6 +83,16 @@ def write_index_html_with_images(dir, files):
 
     f.write('</html>\n')
     f.close
+
+def generate_filtered_index_html(dir, filter=''):
+    '''makes a page with image links to all files in dir with filter in the filename
+    '''
+#    files = [os.path.join(dir,f) for f in os.listdir(dir) if filter in f]
+# dont include dir - make files relative so html can be portable
+    files = [f for f in os.listdir(dir) if filter in f]
+    files.sort()
+    write_index_html_with_images(dir,files)
+
 
 def generate_html_allresults(orig,gt,nnbefore,nnafter,pdbefore,pdafter):
     f = open('index.html', 'w')
