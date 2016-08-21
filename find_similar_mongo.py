@@ -58,7 +58,7 @@ def find_top_n_results(image, mask, number_of_results, category_id, collection, 
     print "category: {0}".format(category_id)
 
     if not fingerprint:
-        fingerprint = fp.fp(image, mask, category_id)
+        fingerprint = fp.dict_fp(image, mask, category_id)
 
     print "calling find_n_nearest.."
     closest_matches = NNSearch.find_n_nearest_neighbors(fingerprint, collection, category_id, number_of_results)
