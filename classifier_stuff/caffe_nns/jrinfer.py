@@ -301,8 +301,7 @@ if __name__ == "__main__":
 
     if args.gpu  :
         caffe.set_mode_gpu();
-        if args.Ngpu :
-            caffe.set_device(int(args.gpu));
+        caffe.set_device(int(args.gpu))
     else:
         caffe.set_mode_cpu()
 
