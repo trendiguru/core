@@ -20,16 +20,6 @@ FP_KEY = "color"
 db = constants.db
 
 
-def get_classifiers():
-    default_classifiers = ["/home/www-data/web2py/applications/fingerPrint/modules/shirtClassifier.xml",
-                           "/home/www-data/web2py/applications/fingerPrint/modules/pantsClassifier.xml",
-                           "/home/www-data/web2py/applications/fingerPrint/modules/dressClassifier.xml"]
-    classifiers_dict = {'shirt': '/home/www-data/web2py/applications/fingerPrint/modules/shirtClassifier.xml',
-                        'pants': '/home/www-data/web2py/applications/fingerPrint/modules/pantsClassifier.xml',
-                        'dress': '/home/www-data/web2py/applications/fingerPrint/modules/dressClassifier.xml'}
-    return default_classifiers, classifiers_dict
-
-
 def get_all_subcategories(category_collection, category_id):
     subcategories = []
 
@@ -62,35 +52,18 @@ def mask2svg(mask, filename, save_in_folder):
     return filename + '.svg'
 
 
-def find_top_n_results(image=None, mask=None, number_of_results=10, category_id=None, collection="products",
-                       fp_category=FP_KEY, fp_len=fingerprint_length, bins=histograms_length,
-                       fingerprint=None):
-    '''
-    for comparing 2 fp call the function twice, both times with collection_name ='fp_testing' :
-      - for the control group leave fp_category as is
-      - fot the test group call the function with fp_category="new_fp"
-    if the new fingerprint has a new length then make sure that the color_fp length
-      is correct by entering the correct fp_len
-    if a distance_function other than Bhattacharyya is used then call the function with that distance function's name
-    '''
-    # fp_weights = constants.color_fingerprint_weights
-    # weights = fp_weights[category] if category in fp_weights else fp_weights['other']
+def find_top_n_results(image, mask, number_of_results, category_id, collection, fingerprint=None):
+
     print "number of results to search: {0}".format(number_of_results)
     print "category: {0}".format(category_id)
 
     if not fingerprint:
-        fingerprint = {'color': fp.fp(image, bins, fp_len, mask)}
-        # dict_fp = fp.fp(image, mask, category_id)
-    # fp_weights = constants.weights_per_category[category] if category in
-    # target_dict = {"clothingClass": category_id, "fingerprint": fingerprint}
-    print "calling find_n_nearest.."
-    # TODO - distance_function - to dictionary with the keys of the features
-    closest_matches = NNSearch.find_n_nearest_neighbors(fingerprint, collection, category_id, number_of_results)
+        fingerprint = fp.fp(image, mask, category_id)
 
+    print "calling find_n_nearest.."
+    closest_matches = NNSearch.find_n_nearest_neighbors(fingerprint, collection, category_id, number_of_results)
     print "done with find_n_nearest.. num of closest_matches: {0}".format(len(closest_matches))
-    # get only the object itself, not the distance
-    # if not isinstance(fingerprint, list):
-    #     fingerprint = fingerprint.tolist()
+
     return fingerprint, closest_matches
 
 
