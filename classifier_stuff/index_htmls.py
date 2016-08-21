@@ -22,8 +22,11 @@ def make_index(dir):
     print('now making index for dir:' + str(dir))
 #    files = Utils.files_in_directory(dir)
     files = [os.path.join(dir,f) for f in os.listdir(dir) if os.path.isfile(f) ]
+    files.sort()
     print('files:')
     print(files)
+    dirs = [os.path.join(dir,f) for f in os.listdir(dir) if os.path.isdir(f) ]
+    dirs.sort()
     htmlfiles = []
     for file in files:
         htmlfiles.append(file)
@@ -31,7 +34,9 @@ def make_index(dir):
 #            htmlfiles.append(file)
 #        if os.path.isdir(file):
 #            htmlfiles.append(file)
-    htmlfiles.sort(key=lambda x: os.path.getmtime(x))
+    for d in dirs:
+        htmlfiles.append(d)
+#    htmlfiles.sort(key=lambda x: os.path.getmtime(x))
     write_index_html(dir, htmlfiles)
     print('wrote index.html for files in dir:' +str(dir))
     print(htmlfiles)
