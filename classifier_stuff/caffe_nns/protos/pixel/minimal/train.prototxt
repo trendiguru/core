@@ -465,7 +465,7 @@ layer {
 layer {
   name: "loss"
   type: "SoftmaxWithLoss"
-  bottom: "conv_final"
+  bottom: "pixlevel_output"
   bottom: "label"
   top: "loss"
 }
