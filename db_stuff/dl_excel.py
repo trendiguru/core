@@ -11,7 +11,7 @@ db = constants.db
 def category_tree_status(worksheet, merge_format, bold):
     worksheet.write(0, 1, 'last update', bold)
 
-    worksheet.merge_range('C2:C5', datetime.ctime(datetime.now()), merge_format )
+    worksheet.merge_range('C1:F1', datetime.ctime(datetime.now()), merge_format )
 
     leafs = db.amazon_category_tree.find({'Children.count': 0})
     categories = []
