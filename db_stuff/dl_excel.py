@@ -22,8 +22,6 @@ def category_tree_status(worksheet, merge_format, bold):
         children = ''
         for child in leaf['Children']['names']:
             children += child[1] + ', '
-        if type(children)==list:
-            print children
         expected = leaf['TotalResultsExpected']
         downloaed = leaf['TotalDownloaded']
         last_price = leaf['LastPrice']
@@ -31,7 +29,7 @@ def category_tree_status(worksheet, merge_format, bold):
         categories.append([name, node_id, parents, children, expected, downloaed, last_price, status])
     categories_length = leafs.count()+3
     worksheet.set_column('B:I', 15)
-
+    print(categories)
     options = {'data': categories,
                'total_row': True,
                'columns': [{'header': 'Leaf', 'total_string': 'Total'},
