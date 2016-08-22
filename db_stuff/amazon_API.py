@@ -186,7 +186,7 @@ def iterate_over_pagenums(total_pages, results_count, col_name, node_id, min_pri
         num_of_items_in_page = 10
     process_results(col_name, 1, node_id, min_price, max_price, family_tree=family_tree, res_dict=res_dict,
                     items_in_page=num_of_items_in_page, color=color, category=category)
-
+    print('xxxxxxxxxxxxx')
     for pagenum in range(2, total_pages + 1):
         if pagenum == total_pages:
             num_of_items_in_page = results_count - 10 * (pagenum - 1)
@@ -269,6 +269,7 @@ def get_results(node_id, col_name='moshe', price_flag=True, max_price=3000.0, mi
             get_results(node_id, col_name, min_price=min_price, max_price=mid_price_rounded - 0.01,
                         family_tree=family_tree, category=category)
             return 0
+    print('0000000000000000xxxxxxxxxxxxx')
 
     iterate_over_pagenums(total_pages, results_count, col_name, node_id, min_price, max_price, family_tree,
                           res_dict, category=category)
