@@ -1,5 +1,13 @@
 __author__ = 'jeremy'
 
+#REQUIREMENTS FOR THIS TO RUN
+#These files have to exist
+#modelpath = '/home/jeremy/caffenets/production/ResNet-101-test.prototxt'
+#solverproto = '/home/jeremy/caffenets/production/ResNet-101-test.prototxt')
+#deployproto = '/home/jeremy/caffenets/production/ResNet-101-deploy.prototxt')
+#caffemodel = '/home/jeremy/caffenets/production/multilabel_resnet101_sgd_iter_200000.caffemodel')  #10Aug2016
+
+
 #!/usr/bin/env python
 
 from PIL import Image
