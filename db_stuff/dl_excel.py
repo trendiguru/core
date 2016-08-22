@@ -42,6 +42,7 @@ def category_tree_status(worksheet, merge_format, bold):
                            {'header': 'last price'},
                            {'header': 'status'}]}
 
+    print(categories_length)
     worksheet.add_table('B2:F'+str(categories_length), options)
     # for x in ['F', 'G']:
     #     worksheet.write_formula(x+str(categories_length), '=SUM('+x+'3:'+x+str(categories_length-1)+')')
