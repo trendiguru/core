@@ -142,6 +142,28 @@ def examples(lmdb, batch_size):  #test_iter * batch_size <= n_samples!!!
     n.loss = L.EuclideanLoss(n.output_layer,n.label)
     return n.to_proto()
 
+'''
+layer {
+	bottom: "res5c_branch2b"
+	top: "res5c_branch2b"
+	name: "bn5c_branch2b"
+	type: "BatchNorm"
+	batch_norm_param {
+		use_global_stats: true
+	}
+}
+
+layer {
+	bottom: "res5c_branch2b"
+	top: "res5c_branch2b"
+	name: "scale5c_branch2b"
+	type: "Scale"
+	scale_param {
+		bias_term: true
+	}
+}
+'''
+
 def conv_relu(bottom,lr_mult1 = 1,lr_mult2 = 2,decay_mult1=1,decay_mult2 =0,n_output=64,pad=3,kernel_size=3,stride=1,weight_filler='xavier',bias_filler='constant',bias_const_val=0.2):
     conv = L.Convolution(bottom,
                         param=[dict(lr_mult=lr_mult1,decay_mult=decay_mult1),dict(lr_mult=lr_mult2,decay_mult=decay_mult2)],
@@ -158,6 +180,19 @@ def conv_relu(bottom,lr_mult1 = 1,lr_mult2 = 2,decay_mult1=1,decay_mult2 =0,n_ou
 def fc_relu(bottom, nout):
     fc = L.InnerProduct(bottom, num_output=nout)
     return fc, L.ReLU(fc, in_place=True)
+
+def batchnorm(bottom):
+    batch_norm = L.BatchNorm(bottom, in_place=True, param=[dict(lr_mult=0, decay_mult=0), dict(lr_mult=0, decay_mult=0), dict(lr_mult=0, decay_mult=0)])
+    scale = L.Scale(batch_norm, bias_term=True, in_place=True)
+    return batch_norm, scale
+
+def conv_factory_relu(bottom, ks, nout, stride=1, pad=0):
+    conv = L.Convolution(bottom, kernel_size=ks, stride=stride,
+                                num_output=nout, pad=pad, bias_term=False, weight_filler=dict(type='msra'))
+    batch_norm = L.BatchNorm(conv, in_place=True, param=[dict(lr_mult=0, decay_mult=0), dict(lr_mult=0, decay_mult=0), dict(lr_mult=0, decay_mult=0)])
+    scale = L.Scale(batch_norm, bias_term=True, in_place=True)
+    relu = L.ReLU(scale, in_place=True)
+    return relu
 
 def vgg16(db,mean_value=[112.0,112.0,112.0]):
     '''

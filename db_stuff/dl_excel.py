@@ -2,10 +2,46 @@ import xlsxwriter
 import re
 from ..Yonti import drive
 from .. import constants
-
+from datetime import datetime
 import argparse
 
 db = constants.db
+
+
+def category_tree_status(worksheet, merge_format, bold):
+    worksheet.write(0, 1, 'last update', bold)
+
+    worksheet.merge_range('C1:E1', datetime.ctime(datetime.now()), merge_format)
+
+    leafs = db.amazon_category_tree.find({'Children.count': 0})
+    categories = []
+    for leaf in leafs:
+        name = leaf['Name']
+        node_id = leaf['BrowseNodeId']
+        parents = ''
+        for par in leaf['Parents']:
+            parents += par + ', '
+        expected = leaf['TotalResultsExpected']
+        downloaed = leaf['TotalDownloaded']
+        last_price = leaf['LastPrice']
+        status = leaf['Status']
+        categories.append([name, node_id, status, last_price, parents, expected, downloaed])
+    categories_length = leafs.count()+3
+    worksheet.set_column('B:H', 20)
+    worksheet.set_column('F:F', 50)
+    options = {'data': categories,
+               'total_row': True,
+               'columns': [{'header': 'Leaf', 'total_string': 'Total'},
+                           {'header': 'node id'},
+                           {'header': 'status'},
+                           {'header': 'last price'},
+                           {'header': 'parents'},
+                           {'header': 'expected'},
+                           {'header': 'downloaded'}]}
+
+    worksheet.add_table('B2:H'+str(categories_length), options)
+    for x in ['G', 'H']:
+        worksheet.write_formula(x+str(categories_length), '=SUM('+x+'3:'+x+str(categories_length-1)+')')
 
 
 def fill_table(worksheet, main_categories, collection, archive, bold, today):
@@ -175,6 +211,10 @@ def mongo2xl(collection_name, dl_info):
 
     worksheet_main.write(3, 2, instock_items)
     worksheet_main.write(4, 2, archived_items)
+    if filename == 'amazon':
+        merge_format = workbook.add_format({'align': 'center'})
+        current_worksheet = workbook.add_worksheet('categories_tree')
+        category_tree_status(current_worksheet, merge_format, bold)
     workbook.close()
 
     print ('uploading to drive...')
