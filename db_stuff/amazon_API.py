@@ -160,14 +160,7 @@ def process_results(col_name, pagenum, node_id, min_price, max_price, family_tre
                                                            print_flag=print_flag, color=color,
                                                            family_tree=family_tree,
                                                            category=category)
-        if new_item_count == -1:
-            print ('try again')
-            sleep(0.5)
-            res_dict, new_item_count = make_itemsearch_request(pagenum, node_id, min_price, max_price,
-                                                               print_flag=print_flag, color=color,
-                                                               family_tree=family_tree,
-                                                               category=category)
-        if new_item_count < 2:
+        if new_item_count < 1:
             return -1
 
     item_list = res_dict['Item']
@@ -185,6 +178,7 @@ def iterate_over_pagenums(total_pages, results_count, col_name, node_id, min_pri
         num_of_items_in_page = 10
     process_results(col_name, 1, node_id, min_price, max_price, family_tree=family_tree, res_dict=res_dict,
                     items_in_page=num_of_items_in_page, color=color, category=category)
+    last_price = min_price
     for pagenum in range(2, total_pages + 1):
         if pagenum == total_pages:
             num_of_items_in_page = results_count - 10 * (pagenum - 1)
@@ -200,7 +194,6 @@ def iterate_over_pagenums(total_pages, results_count, col_name, node_id, min_pri
     if len(color):
         summary += '(color -> %s)' % color
     log2file(mode='a', log_filename=log_name, message=summary)
-    last_price = min_price
 
 
 def filter_by_color(col_name, node_id, price, family_tree, category=None):
