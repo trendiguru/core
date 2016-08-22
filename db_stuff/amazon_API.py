@@ -80,7 +80,7 @@ def format_price(price_float, period=False):
 
 def make_itemsearch_request(pagenum, node_id, min_price, max_price, price_flag=True, print_flag=False, color='',
                             family_tree='sequoia', category=None):
-    global error_flag, last_price
+    global error_flag
 
     parameters = base_parameters.copy()
     parameters['Timestamp'] = strftime("%Y-%m-%dT%H:%M:%SZ", gmtime())
@@ -106,8 +106,6 @@ def make_itemsearch_request(pagenum, node_id, min_price, max_price, price_flag=T
     req = get_amazon_signed_url(parameters, 'GET', False)
     proper_wait()
     res = get(req)
-    # last_time = time()
-    last_price = min_price
     try:
         if res.status_code != 200:
             err_msg = 'not 200!'
@@ -180,6 +178,7 @@ def process_results(col_name, pagenum, node_id, min_price, max_price, family_tre
 
 def iterate_over_pagenums(total_pages, results_count, col_name, node_id, min_price, max_price, family_tree,
                           res_dict, color='', category=None):
+    global last_price
     if total_pages == 1:
         num_of_items_in_page = results_count
     else:
@@ -201,7 +200,7 @@ def iterate_over_pagenums(total_pages, results_count, col_name, node_id, min_pri
     if len(color):
         summary += '(color -> %s)' % color
     log2file(mode='a', log_filename=log_name, message=summary)
-
+    last_price = min_price
 
 def filter_by_color(col_name, node_id, price, family_tree, category=None):
     no_results_seq = 0
@@ -554,6 +553,7 @@ def download_all(col_name, gender='Female'):
             node_id = leaf['BrowseNodeId']
             leaf_id = leaf['_id']
             last_price_downloaded = leaf['LastPrice']
+            last_price = last_price_downloaded
             status = leaf['Status']
             items_downloaded = leaf['TotalDownloaded']
             if status != 'done':
