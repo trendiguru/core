@@ -316,7 +316,7 @@ def build_category_tree(parents, root='7141124011', tab=0, delete_collection=Tru
                          'names': []},
             'TotalResultsExpected': result_count,
             'TotalDownloaded': 0,
-            'LastPrice': last_price,
+            'LastPrice': 3000.00,
             'Status': 'waiting'}
 
     tab_space = '\t' * tab
