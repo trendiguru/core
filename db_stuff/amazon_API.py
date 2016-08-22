@@ -184,8 +184,8 @@ def iterate_over_pagenums(total_pages, results_count, col_name, node_id, min_pri
         num_of_items_in_page = results_count
     else:
         num_of_items_in_page = 10
-        process_results(col_name, 1, node_id, min_price, max_price, family_tree=family_tree, res_dict=res_dict,
-                        items_in_page=num_of_items_in_page, color=color, category=category)
+    process_results(col_name, 1, node_id, min_price, max_price, family_tree=family_tree, res_dict=res_dict,
+                    items_in_page=num_of_items_in_page, color=color, category=category)
 
     for pagenum in range(2, total_pages + 1):
         if pagenum == total_pages:
