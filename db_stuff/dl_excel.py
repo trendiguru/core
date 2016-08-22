@@ -214,7 +214,7 @@ def mongo2xl(collection_name, dl_info):
     if filename == 'amazon':
         merge_format = workbook.add_format({'align': 'center'})
         current_worksheet = workbook.add_worksheet('categories_tree')
-        fill_table(current_worksheet, merge_format, bold)
+        category_tree_status(current_worksheet, merge_format, bold)
     workbook.close()
 
     print ('uploading to drive...')
