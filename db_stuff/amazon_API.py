@@ -567,6 +567,7 @@ def download_all(col_name, gender='Female'):
 
             leaf_name = '->'.join(leaf['Parents']) + '->' + name
 
+            before_count = collection.count()
             try:
                 if name == 'stockings':
                     category_name = 'Stockings'
@@ -575,12 +576,8 @@ def download_all(col_name, gender='Female'):
                 else:
                     category_name = None
 
-                before_count = collection.count()
                 get_results(leaf_id, node_id, col_name, max_price=last_price_downloaded, results_count_only=False,
                             family_tree=leaf_name, category=category_name)
-                after_count = collection.count()
-                items_downloaded += after_count - before_count
-                db.amazon_category_tree.update_one({'_id': leaf_id}, {'$set': {'TotalDownloaded': items_downloaded}})
 
                 if error_flag:
                     error_flag = False
@@ -596,6 +593,10 @@ def download_all(col_name, gender='Female'):
                 log2file(mode='a', log_filename=log_name, message=error_msg1, print_flag=True)
                 error_msg2 = e.message
                 log2file(mode='a', log_filename=log_name, message=error_msg2, print_flag=True)
+
+            after_count = collection.count()
+            items_downloaded += after_count - before_count
+            db.amazon_category_tree.update_one({'_id': leaf_id}, {'$set': {'TotalDownloaded': items_downloaded}})
 
         leafs_cursor = db.amazon_category_tree.find({'Children.count': 0,
                                                      'Parents': parent_gender,

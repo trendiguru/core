@@ -13,7 +13,7 @@ def category_tree_status(worksheet, merge_format, bold):
 
     worksheet.merge_range('C2:C5', datetime.ctime(datetime.now()), merge_format )
 
-    leafs = db.amazon_category_tree.find()
+    leafs = db.amazon_category_tree.find({'Children.count': 0})
     categories = []
     for leaf in leafs:
         name = leaf['Name']
@@ -21,30 +21,26 @@ def category_tree_status(worksheet, merge_format, bold):
         parents = ''
         for par in leaf['Parents']:
             parents += par + ', '
-        children = ''
-        for child in leaf['Children']['names']:
-            children += child[1] + ', '
         expected = leaf['TotalResultsExpected']
         downloaed = leaf['TotalDownloaded']
         last_price = leaf['LastPrice']
         status = leaf['Status']
-        categories.append([name, node_id, parents, children, expected, downloaed, last_price, status])
+        categories.append([name, node_id, status, last_price, parents, expected, downloaed])
     categories_length = leafs.count()+3
-    worksheet.set_column('B:I', 15)
-    worksheet.set_column('D:E', 50)
+    worksheet.set_column('B:H', 20)
+    worksheet.set_column('F:F', 50)
     options = {'data': categories,
                'total_row': True,
                'columns': [{'header': 'Leaf', 'total_string': 'Total'},
                            {'header': 'node id'},
-                           {'header': 'parents'},
-                           {'header': 'children'},
-                           {'header': 'expected'},
-                           {'header': 'downloaded'},
+                           {'header': 'status'},
                            {'header': 'last price'},
-                           {'header': 'status'}]}
+                           {'header': 'parents'},
+                           {'header': 'expected'},
+                           {'header': 'downloaded'}]}
 
     worksheet.add_table('B2:I'+str(categories_length), options)
-    for x in ['F', 'G']:
+    for x in ['G', 'H']:
         worksheet.write_formula(x+str(categories_length), '=SUM('+x+'3:'+x+str(categories_length-1)+')')
 
 
