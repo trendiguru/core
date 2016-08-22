@@ -73,7 +73,7 @@ def inspect_multilabel_db():
                 totlist[cat] = 1
         print('totlist:'+str(totlist))
         cat_totals = [totlist[cat] for cat in totlist]
-        print('cat totals:'+str(cat_totals)
+        print('cat totals:'+str(cat_totals))
         consistent = cat_totals and all(cat_totals[0] == elem for elem in cat_totals)
         print('consistent:'+str(consistent))
 
