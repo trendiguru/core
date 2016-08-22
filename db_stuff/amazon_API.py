@@ -45,8 +45,8 @@ def proper_wait(print_flag=False):
     global last_time
     current_time = time()
     time_diff = current_time - last_time
-    if time_diff < 1.01:
-        sleep(1.01 - time_diff)
+    if time_diff < 1.001:
+        sleep(1.001 - time_diff)
         current_time = time()
     if print_flag:
         print ('time diff: %f' % (current_time - last_time))
@@ -225,13 +225,13 @@ def filter_by_color(col_name, node_id, price, family_tree, category=None):
     return
 
 
-def get_results(node_id, col_name='moshe', price_flag=True, max_price=3000.0, min_price=5.0,
+def get_results(leaf_id, col_name='moshe', price_flag=True, max_price=3000.0, min_price=5.0,
                 results_count_only=False, family_tree='moshe', category=None):
 
     current_last_price = last_price-0.01
     if max_price < current_last_price:
         max_price = current_last_price
-    res_dict, results_count = make_itemsearch_request(1, node_id, min_price, max_price, price_flag=price_flag,
+    res_dict, results_count = make_itemsearch_request(1, leaf_id, min_price, max_price, price_flag=price_flag,
                                                       family_tree=family_tree,
                                                       category=category)
     if results_count_only:
@@ -240,9 +240,7 @@ def get_results(node_id, col_name='moshe', price_flag=True, max_price=3000.0, mi
     if results_count < 2:
         return 0
 
-    cache_name = col_name + '_cache'
-    collection_cache = db[cache_name]
-    collection_cache.update_one({'node_id': node_id}, {'$set': {'last_max': max_price}})
+    db.amazon_category_tree.update_one({'node_id': leaf_id}, {'$set': {'LastPrice': max_price}})
 
     total_pages = int(res_dict['TotalPages'])
     color_flag = False
@@ -254,32 +252,32 @@ def get_results(node_id, col_name='moshe', price_flag=True, max_price=3000.0, mi
                 color_flag = True  # later we will farther divide by color if it worth it(>150)
             total_pages = 10
         elif diff <= 0.02:
-            get_results(node_id, col_name, min_price=max_price, max_price=max_price, family_tree=family_tree,
+            get_results(leaf_id, col_name, min_price=max_price, max_price=max_price, family_tree=family_tree,
                         category=category)
             new_min_price = max_price - 0.01
-            get_results(node_id, col_name, min_price=new_min_price, max_price=new_min_price,
+            get_results(leaf_id, col_name, min_price=new_min_price, max_price=new_min_price,
                         family_tree=family_tree, category=category)
             return 0
         else:
             mid_price = (max_price+min_price)/2.0
             mid_price_rounded = truncate_float_to_2_decimal_places(mid_price)
-            get_results(node_id, col_name, min_price=mid_price_rounded, max_price=max_price,
+            get_results(leaf_id, col_name, min_price=mid_price_rounded, max_price=max_price,
                         family_tree=family_tree, category=category)
-            get_results(node_id, col_name, min_price=min_price, max_price=mid_price_rounded - 0.01,
+            get_results(leaf_id, col_name, min_price=min_price, max_price=mid_price_rounded - 0.01,
                         family_tree=family_tree, category=category)
             return 0
 
-    iterate_over_pagenums(total_pages, results_count, col_name, node_id, min_price, max_price, family_tree,
+    iterate_over_pagenums(total_pages, results_count, col_name, leaf_id, min_price, max_price, family_tree,
                           res_dict, category=category)
 
     if color_flag:
         max_rounded = format_price(max_price, True)
         min_rounded = format_price(min_price, True)
         if max_rounded[-2:] != '01':
-            filter_by_color(col_name, node_id, max_price, family_tree=family_tree,
+            filter_by_color(col_name, leaf_id, max_price, family_tree=family_tree,
                             category=category)
         if max_rounded != min_rounded:
-            filter_by_color(col_name, node_id, min_price, family_tree=family_tree,
+            filter_by_color(col_name, leaf_id, min_price, family_tree=family_tree,
                             category=category)
     return 0
 
@@ -586,7 +584,7 @@ def download_all(col_name, gender='Female'):
                     category_name = None
 
                 before_count = collection.count()
-                get_results(node_id, col_name, max_price=last_price_downloaded, results_count_only=False,
+                get_results(leaf_id, col_name, max_price=last_price_downloaded, results_count_only=False,
                             family_tree=leaf_name, category=category_name)
                 after_count = collection.count()
                 items_downloaded += after_count - before_count
