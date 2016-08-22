@@ -145,7 +145,7 @@ def make_itemsearch_request(pagenum, node_id, min_price, max_price, price_flag=T
             print_error(e.message)
         if color_flag:
             summary += '(color -> %s)' % color
-        log2file(mode='a', log_filename=log_dir_name, message=summary)
+        log2file(mode='a', log_filename=log_name, message=summary)
         if e.message == 'no TotalResualts':
             results_count = -1
         return [], results_count
