@@ -20,6 +20,7 @@ def category_tree_status(worksheet, merge_format, bold):
         node_id = leaf['BrowseNodeId']
         parents = leaf['Parents']
         children = ''
+        print(leaf['Children']['names'])
         for child in leaf['Children']['names']:
             children += child + ', '
         expected = leaf['TotalResultsExpected']
