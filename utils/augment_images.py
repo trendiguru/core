@@ -249,7 +249,7 @@ def generate_image_onthefly(img_filename_or_nparray, gaussian_or_uniform_distrib
     :return:
     ''' #
    # logging.debug('db A')
-    logging.debug('cv2file:'+str(cv2.__file__))
+   # logging.debug('cv2file:'+str(cv2.__file__))
     start_time = time.time()
     if isinstance(img_filename_or_nparray,basestring):
  #       logging.debug('db A filename:'+img_filename_or_nparray)
