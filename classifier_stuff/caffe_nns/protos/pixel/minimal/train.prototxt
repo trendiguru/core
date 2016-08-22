@@ -315,7 +315,7 @@ layer {
 layer {
   name: "conv_out1"
   type: "Convolution"
-  bottom: "fc3"
+  bottom: "reshape"
   top: "conv_out1"
   param {
     lr_mult: 1
