@@ -22,6 +22,7 @@ def category_tree_status(worksheet, merge_format, bold):
         children = ''
         for child in leaf['Children']['names']:
             children += child[1] + ', '
+        print children
         expected = leaf['TotalResultsExpected']
         downloaed = leaf['TotalDownloaded']
         last_price = leaf['LastPrice']
