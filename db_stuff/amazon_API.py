@@ -187,8 +187,6 @@ def iterate_over_pagenums(total_pages, results_count, col_name, node_id, min_pri
     process_results(col_name, 1, node_id, min_price, max_price, family_tree=family_tree, res_dict=res_dict,
                     items_in_page=num_of_items_in_page, color=color, category=category)
     for pagenum in range(2, total_pages + 1):
-        print('111111xxxxxxxxxxxxx')
-
         if pagenum == total_pages:
             num_of_items_in_page = results_count - 10 * (pagenum - 1)
             if num_of_items_in_page < 2:
@@ -197,13 +195,12 @@ def iterate_over_pagenums(total_pages, results_count, col_name, node_id, min_pri
                               items_in_page=num_of_items_in_page, color=color, category=category)
         if ret < 0:
             return
-    print('xxxxxxxxxxxxx')
 
     summary = 'Name: %s, PriceRange: %.2f -> %.2f , ResultCount: %d ' \
               % (family_tree, min_price, max_price, results_count)
     if len(color):
         summary += '(color -> %s)' % color
-    log2file(mode='a', log_filename=log_dir_name, message=summary)
+    log2file(mode='a', log_filename=log_name, message=summary)
 
 
 def filter_by_color(col_name, node_id, price, family_tree, category=None):
