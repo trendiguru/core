@@ -42,6 +42,41 @@ def write_cats_from_db_to_textfile(image_dir='/home/jeremy/image_dbs/tamara_berg
             line = str(full_path) +' '+ ' '.join(str(int(n)) for n in hotlist)
             fp.write(line+'\n')
 
+def inspect_multilabel_db():
+    '''
+    read multilabel db, tally up total tags
+    check images that have been gone over by 2 or more ppl
+    do something about disagreements
+    '''
+    db = constants.db
+    cursor = db.training_images.find()
+    n_total = cursor.count()
+    print(str(n_total)+' docs total')
+    for document in cursor:
+#    for i in range(n_total):
+#        document = cursor.next()
+        print(document)
+        items_list = document['items']
+        totlist = {}
+        for item in items_list:
+            cat = item['category']
+            print('cat:'+str(cat))
+            if cat in constants.web_tool_categories_v2 :
+                print('cat in webtool cats vs')
+            elif cat in constants.tamara_berg_to_web_tool_dict:
+                print('cat in tamara_ber_to_webtool_dict')
+            else:
+                print('unrecognized cat')
+            if cat in totlist:
+                totlist[cat] += 1
+            else:
+                totlist[cat] = 1
+        print('totlist:'+str(totlist))
+        cat_totals = [totlist[cat] for cat in totlist]
+        print('cat totals:'+str(cat_totals)
+        consistent = cat_totals and all(cat_totals[0] == elem for elem in cat_totals)
+        print('consistent:'+str(consistent))
+
 def inspect_multilabel_textfile(filename = 'tb_cats_from_webtool.txt'):
     with open(filename,'r') as fp:
         for line in fp:
